@@ -5,8 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>co</groupId>
-        <artifactId>octopus</artifactId>
+        <groupId>com.hartwig</groupId>
+        <artifactId>pipeline2</artifactId>
         <version>local-SNAPSHOT</version>
     </parent>
     <artifactId>alignment</artifactId>
@@ -15,12 +15,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.mongodb</groupId>
-            <artifactId>mongodb-driver</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.mongojack</groupId>
-            <artifactId>mongojack</artifactId>
+            <groupId>org.broadinstitute</groupId>
+            <artifactId>gatk</artifactId>
         </dependency>
     </dependencies>
 </project>
