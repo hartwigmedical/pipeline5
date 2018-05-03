@@ -22,7 +22,7 @@
     </properties>
 
     <modules>
-        <module>alignment</module>
+        <module>gatk4</module>
     </modules>
 
     <dependencyManagement>

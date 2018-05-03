@@ -9,7 +9,7 @@
         <artifactId>pipeline2</artifactId>
         <version>local-SNAPSHOT</version>
     </parent>
-    <artifactId>alignment</artifactId>
+    <artifactId>gatk4</artifactId>
     <version>local-SNAPSHOT</version>
     <packaging>jar</packaging>
 
