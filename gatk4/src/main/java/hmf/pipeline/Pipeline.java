@@ -18,7 +18,6 @@ import picard.sam.FastqToSam;
 
 class Pipeline {
 
-    private static final String SAMPLE_NAME = "test";
     private static final String UNMAPPED_BAM = format("%s/target/01_unmapped.bam", workingDirectory());
     private static final String QUERYNAME_SORTED_BAM = format("%s/target/02_queryname_sorted.bam", workingDirectory());
 
@@ -39,8 +38,8 @@ class Pipeline {
 
     private static void convertFastQToUnmappedBAM(final Configuration configuration) {
         PicardExecutor.of(new FastqToSam(),
-                new String[] { readFileArgumentOf(1, configuration), readFileArgumentOf(2, configuration), "SM=" + SAMPLE_NAME,
-                        "O=" + UNMAPPED_BAM }).execute();
+                new String[] { readFileArgumentOf(1, configuration), readFileArgumentOf(2, configuration),
+                        "SM=" + configuration.getSampleName(), "O=" + UNMAPPED_BAM }).execute();
     }
 
     private static String readFileArgumentOf(int sampleIndex, Configuration configuration) {
