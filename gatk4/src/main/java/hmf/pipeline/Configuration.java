@@ -1,9 +1,9 @@
-package hmf.bwa;
+package hmf.pipeline;
 
 import org.immutables.value.Value;
 
 @Value.Immutable
-public interface Configuration {
+interface Configuration {
 
     String getSamplePath();
 

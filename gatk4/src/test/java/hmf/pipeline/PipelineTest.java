@@ -10,8 +10,6 @@ import org.apache.spark.api.java.JavaSparkContext;
 import org.broadinstitute.hellbender.utils.read.GATKRead;
 import org.junit.Test;
 
-import hmf.bwa.Configuration;
-
 public class PipelineTest {
 
     @Test
