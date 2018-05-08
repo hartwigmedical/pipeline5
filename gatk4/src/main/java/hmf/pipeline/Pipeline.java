@@ -4,8 +4,7 @@ import static java.lang.String.format;
 
 import static htsjdk.samtools.SAMFileHeader.SortOrder.queryname;
 
-import java.util.List;
-
+import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.broadinstitute.hellbender.engine.spark.datasources.ReadsSparkSource;
 import org.broadinstitute.hellbender.tools.spark.bwa.BwaSparkEngine;
@@ -18,7 +17,6 @@ import picard.sam.FastqToSam;
 class Pipeline {
 
     private static final String UNMAPPED_BAM = format("%s/target/01_unmapped.bam", workingDirectory());
-    private static final String QUERYNAME_SORTED_BAM = format("%s/target/02_queryname_sorted.bam", workingDirectory());
 
     private final Configuration configuration;
     private final ReadsSparkSource readsSource;
@@ -30,9 +28,9 @@ class Pipeline {
         this.bwaEngine = bwaSparkEngine(sparkContext, configuration);
     }
 
-    List<GATKRead> execute() {
+    JavaRDD<GATKRead> execute() {
         convertFastQToUnmappedBAM(configuration);
-        return bwaEngine.align(readsSource.getParallelReads(QUERYNAME_SORTED_BAM, configuration.getReferenceFile()), true).collect();
+        return bwaEngine.align(readsSource.getParallelReads(UNMAPPED_BAM, configuration.getReferenceFile()), true);
     }
 
     private static void convertFastQToUnmappedBAM(final Configuration configuration) {
