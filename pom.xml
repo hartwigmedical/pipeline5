@@ -42,6 +42,12 @@
                 <groupId>org.broadinstitute</groupId>
                 <artifactId>gatk</artifactId>
                 <version>${gatk.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.testng</groupId>
+                        <artifactId>testng</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.spark</groupId>
