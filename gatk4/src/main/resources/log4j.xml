@@ -13,6 +13,9 @@
     <logger name="hmf">
         <level value="INFO"/>
     </logger>
+    <logger name="org.apache.hadoop.util.NativeCodeLoader">
+        <level value="OFF"/>
+    </logger>
 
     <root>
         <level value="WARN" />

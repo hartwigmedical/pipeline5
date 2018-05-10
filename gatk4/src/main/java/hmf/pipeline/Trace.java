@@ -14,12 +14,13 @@ class Trace {
         this.messagePrefix = messagePrefix;
     }
 
-    public static Trace of(Class clazz, String message) {
+    static Trace of(Class clazz, String message) {
         return new Trace(LoggerFactory.getLogger(clazz), message);
     }
 
-    void start() {
+    Trace start() {
         logger.info(TEMPLATE, messagePrefix, "Started");
+        return this;
     }
 
     void finish() {
