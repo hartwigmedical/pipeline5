@@ -5,8 +5,10 @@ import static java.lang.String.format;
 import static hmf.testsupport.BamAssertions.assertThatOutput;
 
 import org.apache.spark.api.java.JavaSparkContext;
+import org.junit.Ignore;
 import org.junit.Test;
 
+@Ignore
 public class PipelineTest {
 
     private static final String SAMPLE_NAME = "CPCT12345678R_HJJLGCCXX_S1_L001";

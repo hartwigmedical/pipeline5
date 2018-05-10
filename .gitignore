@@ -21,3 +21,6 @@ buildNumber.properties
 
 # User-specific stuff
 .idea/**/*
+
+# Ignore any results from local runs
+results/**
