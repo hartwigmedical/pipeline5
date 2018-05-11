@@ -5,11 +5,11 @@ import org.immutables.value.Value;
 @Value.Immutable
 interface Configuration {
 
-    String getSampleDirectory();
+    String sampleDirectory();
 
-    String getSampleName();
+    String sampleName();
 
-    String getReferencePath();
+    String referencePath();
 
     static ImmutableConfiguration.Builder builder() {
         return ImmutableConfiguration.builder();

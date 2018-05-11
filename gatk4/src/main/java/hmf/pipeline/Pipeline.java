@@ -40,7 +40,7 @@ class Pipeline {
 
     void execute() throws IOException {
         createResultsOutputDirectory();
-        String unmappedBamFileName = UNMAPPED.path(configuration.getSampleName());
+        String unmappedBamFileName = UNMAPPED.path(configuration.sampleName());
         convertFastQToUnmappedBAM(configuration, unmappedBamFileName);
         runBwa(unmappedBamFileName, bwaSparkEngine(sparkContext, configuration, readsSource, unmappedBamFileName));
     }
@@ -53,14 +53,13 @@ class Pipeline {
     private void runBwa(final String unmappedBamFileName, final BwaSparkEngine bwaEngine) throws IOException {
         Trace trace = Trace.of(Pipeline.class, "Execution of BwaSpark tool").start();
         JavaRDD<GATKRead> alignedReads =
-                bwaEngine.align(readsSource.getParallelReads(unmappedBamFileName, configuration.getReferencePath()), true);
+                bwaEngine.align(readsSource.getParallelReads(unmappedBamFileName, configuration.referencePath()), true);
         writeBwaOutput(bwaEngine, alignedReads);
         trace.finish();
     }
 
     private void writeBwaOutput(final BwaSparkEngine bwaEngine, final JavaRDD<GATKRead> alignedReads) throws IOException {
-        ReadsSparkSink.writeReads(sparkContext,
-                ALIGNED.path(configuration.getSampleName()),
+        ReadsSparkSink.writeReads(sparkContext, ALIGNED.path(configuration.sampleName()),
                 null,
                 alignedReads,
                 bwaEngine.getHeader(),
@@ -70,22 +69,19 @@ class Pipeline {
     private static void convertFastQToUnmappedBAM(final Configuration configuration, final String unmappedBamFileName) throws IOException {
         PicardExecutor.of(new FastqToSam(),
                 new String[] { readFileArgumentOf(1, configuration), readFileArgumentOf(2, configuration),
-                        "SM=" + configuration.getSampleName(), "O=" + unmappedBamFileName }).execute();
+                        "SM=" + configuration.sampleName(), "O=" + unmappedBamFileName }).execute();
     }
 
     private static String readFileArgumentOf(int sampleIndex, Configuration configuration) {
-        return format("F%s=%s/%s_R%s.fastq.gz",
-                sampleIndex,
-                configuration.getSampleDirectory(),
-                configuration.getSampleName(),
+        return format("F%s=%s/%s_R%s.fastq.gz", sampleIndex, configuration.sampleDirectory(), configuration.sampleName(),
                 sampleIndex);
     }
 
     private static BwaSparkEngine bwaSparkEngine(final JavaSparkContext sparkContext, final Configuration configuration,
             final ReadsSparkSource readsSource, final String unmappedBamFileName) throws IOException {
-        SAMFileHeader header = readsSource.getHeader(unmappedBamFileName, configuration.getReferencePath());
-        SAMSequenceDictionary dictionary = dictionary(configuration.getReferencePath(), header);
-        return new BwaSparkEngine(sparkContext, configuration.getReferencePath(), null, header, dictionary);
+        SAMFileHeader header = readsSource.getHeader(unmappedBamFileName, configuration.referencePath());
+        SAMSequenceDictionary dictionary = dictionary(configuration.referencePath(), header);
+        return new BwaSparkEngine(sparkContext, configuration.referencePath(), null, header, dictionary);
     }
 
     private static SAMSequenceDictionary dictionary(final String referenceFile, final SAMFileHeader readsHeader) throws IOException {
