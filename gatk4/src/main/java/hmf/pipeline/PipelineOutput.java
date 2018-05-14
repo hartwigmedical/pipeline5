@@ -5,7 +5,8 @@ import static java.lang.String.format;
 public enum PipelineOutput {
 
     UNMAPPED("bam"),
-    ALIGNED("bam");
+    ALIGNED("bam"),
+    SORTED("bam");
 
     private final String extension;
     private static final String RESULTS_DIRECTORY = format("%s/results/", workingDirectory());

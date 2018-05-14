@@ -3,6 +3,7 @@ package hmf.pipeline;
 import static java.lang.String.format;
 
 import static hmf.pipeline.PipelineOutput.ALIGNED;
+import static hmf.pipeline.PipelineOutput.SORTED;
 import static hmf.pipeline.PipelineOutput.UNMAPPED;
 
 import java.io.File;
@@ -24,6 +25,7 @@ import org.broadinstitute.hellbender.utils.read.ReadsWriteFormat;
 import htsjdk.samtools.SAMFileHeader;
 import htsjdk.samtools.SAMSequenceDictionary;
 import picard.sam.FastqToSam;
+import picard.sam.SortSam;
 
 class Pipeline {
 
@@ -43,6 +45,13 @@ class Pipeline {
         String unmappedBamFileName = UNMAPPED.path(configuration.sampleName());
         convertFastQToUnmappedBAM(configuration, unmappedBamFileName);
         runBwa(unmappedBamFileName, bwaSparkEngine(sparkContext, configuration, readsSource, unmappedBamFileName));
+        sortBamByCoordinate(configuration);
+    }
+
+    private static void sortBamByCoordinate(final Configuration configuration) {
+        PicardExecutor.of(new SortSam(),
+                new String[] { format("I=%s", ALIGNED.path(configuration.sampleName())),
+                        format("O=%s", SORTED.path(configuration.sampleName())), "SORT_ORDER=coordinate" }).execute();
     }
 
     private static void createResultsOutputDirectory() throws IOException {
@@ -73,8 +82,7 @@ class Pipeline {
     }
 
     private static String readFileArgumentOf(int sampleIndex, Configuration configuration) {
-        return format("F%s=%s/%s_R%s.fastq.gz", sampleIndex, configuration.sampleDirectory(), configuration.sampleName(),
-                sampleIndex);
+        return format("F%s=%s/%s_R%s.fastq", sampleIndex, configuration.sampleDirectory(), configuration.sampleName(), sampleIndex);
     }
 
     private static BwaSparkEngine bwaSparkEngine(final JavaSparkContext sparkContext, final Configuration configuration,
