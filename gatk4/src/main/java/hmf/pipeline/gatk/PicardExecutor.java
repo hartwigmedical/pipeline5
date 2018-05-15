@@ -1,5 +1,6 @@
-package hmf.pipeline;
+package hmf.pipeline.gatk;
 
+import hmf.pipeline.Trace;
 import picard.cmdline.CommandLineProgram;
 
 class PicardExecutor {
@@ -14,7 +15,7 @@ class PicardExecutor {
         this.trace = Trace.of(PicardExecutor.class, String.format("Execution of picard tool %s", program.getClass().getSimpleName()));
     }
 
-    static PicardExecutor of(final CommandLineProgram program, final String[] args) {
+    public static PicardExecutor of(final CommandLineProgram program, final String[] args) {
         return new PicardExecutor(program, args);
     }
 

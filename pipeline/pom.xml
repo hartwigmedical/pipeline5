@@ -9,18 +9,14 @@
         <artifactId>pipeline2</artifactId>
         <version>local-SNAPSHOT</version>
     </parent>
-    <artifactId>gatk4</artifactId>
+    <artifactId>pipeline</artifactId>
     <version>local-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
-            <groupId>com.hartwig</groupId>
-            <artifactId>pipeline</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.broadinstitute</groupId>
-            <artifactId>gatk</artifactId>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
         </dependency>
     </dependencies>
 </project>

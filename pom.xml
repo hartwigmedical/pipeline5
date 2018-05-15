@@ -19,14 +19,27 @@
         <slf4j-api.version>1.7.25</slf4j-api.version>
         <gatk.version>4.0.4.0</gatk.version>
         <spark.version>2.3.0</spark.version>
+        <commons-io.version>2.5</commons-io.version>
     </properties>
 
     <modules>
         <module>gatk4</module>
+        <module>pipeline</module>
+        <module>system</module>
     </modules>
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>com.hartwig</groupId>
+                <artifactId>pipeline</artifactId>
+                <version>local-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hartwig</groupId>
+                <artifactId>gatk4</artifactId>
+                <version>local-SNAPSHOT</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.immutables</groupId>
@@ -53,6 +66,11 @@
                 <groupId>org.apache.spark</groupId>
                 <artifactId>spark-core_2.11</artifactId>
                 <version>${spark.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${commons-io.version}</version>
             </dependency>
 
             <dependency>

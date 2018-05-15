@@ -3,7 +3,7 @@ package hmf.pipeline;
 import org.immutables.value.Value;
 
 @Value.Immutable
-interface Configuration {
+public interface Configuration {
 
     String sampleDirectory();
 

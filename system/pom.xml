@@ -9,7 +9,7 @@
         <artifactId>pipeline2</artifactId>
         <version>local-SNAPSHOT</version>
     </parent>
-    <artifactId>gatk4</artifactId>
+    <artifactId>system</artifactId>
     <version>local-SNAPSHOT</version>
     <packaging>jar</packaging>
 
@@ -19,8 +19,8 @@
             <artifactId>pipeline</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.broadinstitute</groupId>
-            <artifactId>gatk</artifactId>
+            <groupId>com.hartwig</groupId>
+            <artifactId>gatk4</artifactId>
         </dependency>
     </dependencies>
 </project>

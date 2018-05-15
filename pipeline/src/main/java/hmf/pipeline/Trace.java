@@ -3,7 +3,7 @@ package hmf.pipeline;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class Trace {
+public class Trace {
 
     private final Logger logger;
     private final String messagePrefix;
@@ -14,16 +14,16 @@ class Trace {
         this.messagePrefix = messagePrefix;
     }
 
-    static Trace of(Class clazz, String message) {
+    public static Trace of(Class clazz, String message) {
         return new Trace(LoggerFactory.getLogger(clazz), message);
     }
 
-    Trace start() {
+    public Trace start() {
         logger.info(TEMPLATE, messagePrefix, "Started");
         return this;
     }
 
-    void finish() {
+    public void finish() {
         logger.info(TEMPLATE, messagePrefix, "Completed");
     }
 }

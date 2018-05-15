@@ -6,7 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
 
-public class FilesystemOutputTest {
+public class PipelineOutputTest {
 
     @Test
     public void pathComposedOfWorkingDirectorySampleNameAndType() {
