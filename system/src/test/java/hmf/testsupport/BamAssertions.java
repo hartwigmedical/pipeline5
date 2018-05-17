@@ -18,6 +18,7 @@ import org.apache.commons.io.FileUtils;
 
 import hmf.pipeline.PipelineOutput;
 import htsjdk.samtools.SAMRecord;
+import htsjdk.samtools.SamInputResource;
 import htsjdk.samtools.SamReader;
 import htsjdk.samtools.SamReaderFactory;
 
@@ -43,10 +44,9 @@ public class BamAssertions {
                 fail(format("No expected file found for sample [%s] and output [%s]. Check that the sample name is correct and there is a "
                         + "file in /src/test/resources/expected to verify against", sampleName, fileType));
             }
-            File tmpSamFile = createTempFile(expected);
 
             SamReaderFactory samReaderFactory = SamReaderFactory.make();
-            SamReader samReaderExpected = samReaderFactory.open(tmpSamFile);
+            SamReader samReaderExpected = samReaderFactory.open(SamInputResource.of(expected));
             SamReader samReaderResults = samReaderFactory.open(new File(fileType.path(sampleName)));
 
             Map<Key, SAMRecord> recordMapExpected = mapOf(samReaderExpected);
@@ -65,13 +65,6 @@ public class BamAssertions {
                         fileType,
                         samRecordExpected.getReadName()).isTrue();
             }
-        }
-
-        private static File createTempFile(final InputStream expected) throws IOException {
-            File tmpSamFile = File.createTempFile("expected", "sam");
-            tmpSamFile.deleteOnExit();
-            FileUtils.copyInputStreamToFile(expected, tmpSamFile);
-            return tmpSamFile;
         }
 
         private static Map<Key, SAMRecord> mapOf(final SamReader samReaderExpected) {
