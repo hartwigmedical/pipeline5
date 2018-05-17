@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.hartwig</groupId>
+        <artifactId>pipeline2</artifactId>
+        <version>local-SNAPSHOT</version>
+    </parent>
+    <artifactId>adam</artifactId>
+    <version>local-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.hartwig</groupId>
+            <artifactId>pipeline</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.bdgenomics.adam</groupId>
+            <artifactId>adam-apis-spark2_2.11</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.bdgenomics.adam</groupId>
+            <artifactId>adam-core-spark2_2.11</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-core_2.11</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.parquet</groupId>
+            <artifactId>parquet-hadoop</artifactId>
+        </dependency>
+    </dependencies>
+</project>

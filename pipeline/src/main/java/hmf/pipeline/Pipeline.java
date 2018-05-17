@@ -20,9 +20,16 @@ public class Pipeline {
 
     public void execute() throws IOException {
         createResultsOutputDirectory();
-        stages.get(PipelineOutput.UNMAPPED).execute();
-        stages.get(PipelineOutput.ALIGNED).execute();
-        stages.get(PipelineOutput.SORTED).execute();
+        executeStage(PipelineOutput.UNMAPPED);
+        executeStage(PipelineOutput.ALIGNED);
+        executeStage(PipelineOutput.SORTED);
+    }
+
+    private void executeStage(final PipelineOutput pipelineOutput) throws IOException {
+        Stage stage = stages.get(pipelineOutput);
+        if (stage != null) {
+            stage.execute();
+        }
     }
 
     private static void createResultsOutputDirectory() throws IOException {

@@ -10,9 +10,12 @@ import static org.assertj.core.api.Assertions.fail;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
 
@@ -22,6 +25,8 @@ import htsjdk.samtools.SamReader;
 import htsjdk.samtools.SamReaderFactory;
 
 public class BamAssertions {
+
+    private static final double READ_MISSING_TOLERANCE = 0.01;
 
     public static SampleFileAssertion assertThatOutput(String sampleName, PipelineOutput fileType) {
         return new SampleFileAssertion(sampleName, fileType);
@@ -51,20 +56,45 @@ public class BamAssertions {
 
             Map<Key, SAMRecord> recordMapExpected = mapOf(samReaderExpected);
             Map<Key, SAMRecord> recordMapResults = mapOf(samReaderResults);
+
+            checkRecordCounts(recordMapExpected, recordMapResults);
+
+            List<Key> missingReadsInResults = compareRecordByRecord(recordMapExpected, recordMapResults);
+
+            checkMissingReadsAgainstTolerance(recordMapExpected, missingReadsInResults);
+        }
+
+        private void checkRecordCounts(final Map<Key, SAMRecord> recordMapExpected, final Map<Key, SAMRecord> recordMapResults) {
             assertThat(recordMapExpected.size()).as(
                     "Expected and result BAM files have different numbers of alignments. " + "Expected had [%s] and result had [%s]",
                     recordMapExpected.size(),
                     recordMapResults.size()).isEqualTo(recordMapResults.size());
+        }
 
+        private void checkMissingReadsAgainstTolerance(final Map<Key, SAMRecord> recordMapExpected, final List<Key> missingReadsInResults) {
+            if (((double) missingReadsInResults.size() / (double) recordMapExpected.size()) > READ_MISSING_TOLERANCE) {
+                String thresholdAsPercentage = Double.toString(READ_MISSING_TOLERANCE * 100);
+                String missingReadsAsString = missingReadsInResults.stream().map(Key::toString).collect(Collectors.joining(", "));
+                fail("Missing more than %s%% of reads in the result BAM. Reads missing [%s]", thresholdAsPercentage, missingReadsAsString);
+            }
+        }
+
+        private List<Key> compareRecordByRecord(final Map<Key, SAMRecord> recordMapExpected, final Map<Key, SAMRecord> recordMapResults) {
+            List<Key> missingReadsInResults = new ArrayList<>();
             for (Key key : recordMapExpected.keySet()) {
                 SAMRecord samRecordExpected = recordMapExpected.get(key);
                 SAMRecord samRecordResult = recordMapResults.get(key);
-                assertThat(recordEqualsWithoutTags(samRecordExpected, samRecordResult)).as(
-                        "BAM files where not equal for sample %s and output %s " + "for read %s",
-                        sampleName,
-                        fileType,
-                        samRecordExpected.getReadName()).isTrue();
+                if (samRecordResult == null) {
+                    missingReadsInResults.add(key);
+                } else {
+                    assertThat(recordEqualsWithoutTags(samRecordExpected, samRecordResult)).as(
+                            "BAM files where not equal for sample %s and output %s " + "for read %s",
+                            sampleName,
+                            fileType,
+                            samRecordExpected.getReadName()).isTrue();
+                }
             }
+            return missingReadsInResults;
         }
 
         private static File createTempFile(final InputStream expected) throws IOException {
@@ -158,6 +188,11 @@ public class BamAssertions {
                 int result = readName != null ? readName.hashCode() : 0;
                 result = 31 * result + flags;
                 return result;
+            }
+
+            @Override
+            public String toString() {
+                return "Key{" + "readName='" + readName + '\'' + ", flags=" + flags + '}';
             }
         }
     }
