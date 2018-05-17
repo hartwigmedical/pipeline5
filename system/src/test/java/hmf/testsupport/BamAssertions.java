@@ -116,7 +116,7 @@ public class BamAssertions {
         }
 
         private static <T> boolean safeEquals(final T attribute1, final T attribute2) {
-            return attribute1 != null ? !attribute1.equals(attribute2) : attribute2 == null;
+            return attribute1 != null ? !attribute1.equals(attribute2) : attribute2 != null;
         }
 
         private static class Key {
