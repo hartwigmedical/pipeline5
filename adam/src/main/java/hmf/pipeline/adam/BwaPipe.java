@@ -54,7 +54,8 @@ class BwaPipe implements Stage<Lane> {
                 new FragmentsToAlignmentRecordsConverter());
         SequenceDictionary sequenceDictionary = adamContext.loadSequenceDictionary(reference.path() + ".dict");
         aligned.replaceRecordGroups(recordDictionary(recordGroup(lane.sample().name())))
-                .replaceSequences(sequenceDictionary).save(SaveArgs.defaultSave(lane, output()), false);
+                .replaceSequences(sequenceDictionary)
+                .save(Persistence.defaultSave(lane, output()), false);
     }
 
     private RecordGroupDictionary recordDictionary(final RecordGroup recordGroup) {

@@ -19,17 +19,16 @@ public interface RawSequencingOutput {
     FlowCell sampled();
 
     static RawSequencingOutput from(Configuration configuration) {
+        Sample sample = Sample.of(configuration.sampleDirectory(), configuration.sampleName());
         ImmutableRawSequencingOutput.Builder builder = ImmutableRawSequencingOutput.builder();
         Collection<Lane> laneFiles = FileUtils.listFiles(new File(configuration.sampleDirectory()),
                 filter(configuration.sampleName(), configuration.useInterleaved()),
                 null)
                 .stream()
                 .map(File::getName)
-                .map(RawSequencingOutput::indexFromFileName)
-                .map(Integer::parseInt)
-                .map(index -> Lane.of(Sample.of(configuration.sampleDirectory(), configuration.sampleName()), index))
+                .map(RawSequencingOutput::indexFromFileName).map(Integer::parseInt).map(index -> Lane.of(sample, index))
                 .collect(Collectors.toList());
-        FlowCell real = FlowCell.builder().addAllLanes(laneFiles).build();
+        FlowCell real = FlowCell.builder().sample(sample).addAllLanes(laneFiles).build();
         return builder.sampled(real).build();
     }
 

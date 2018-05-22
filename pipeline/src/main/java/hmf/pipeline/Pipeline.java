@@ -10,21 +10,27 @@ import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 
+import hmf.sample.FlowCell;
 import hmf.sample.Lane;
 import hmf.sample.RawSequencingOutput;
 
 public class Pipeline {
 
     private final Map<PipelineOutput, Stage<Lane>> stages;
+    private final Stage<FlowCell> merge;
     private static final String RESULTS_DIRECTORY = System.getProperty("user.dir") + "/results";
 
-    private Pipeline(final Map<PipelineOutput, Stage<Lane>> stages) {
+    private Pipeline(final Map<PipelineOutput, Stage<Lane>> stages, final Stage<FlowCell> merge) {
         this.stages = stages;
+        this.merge = merge;
     }
 
     public void execute(RawSequencingOutput sequencing) throws IOException {
         createResultsOutputDirectory();
         forEachLaneIn(sequencing.sampled().lanes());
+        if (merge != null) {
+            merge.execute(sequencing.sampled());
+        }
     }
 
     private void forEachLaneIn(final List<Lane> lanes) throws IOException {
@@ -53,14 +59,20 @@ public class Pipeline {
 
     public static class Builder {
         private final Map<PipelineOutput, Stage<Lane>> stages = new HashMap<>();
+        private Stage<FlowCell> merge;
 
         public Builder addLaneStage(Stage<Lane> stage) {
             stages.put(stage.output(), stage);
             return this;
         }
 
+        public Builder setMergeStage(Stage<FlowCell> merge) {
+            this.merge = merge;
+            return this;
+        }
+
         public Pipeline build() {
-            return new Pipeline(stages);
+            return new Pipeline(stages, merge);
         }
     }
 }

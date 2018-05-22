@@ -24,7 +24,7 @@ class CoordinateSortADAM implements Stage<Lane> {
 
     @Override
     public void execute(Lane lane) throws IOException {
-        ADAMSaveAnyArgs args = SaveArgs.defaultSave(lane, output());
+        ADAMSaveAnyArgs args = Persistence.defaultSave(lane, output());
         javaADAMContext.loadAlignments(PipelineOutput.ALIGNED.path(lane)).save(args, true);
     }
 }

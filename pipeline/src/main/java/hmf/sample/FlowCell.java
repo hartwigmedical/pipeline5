@@ -9,6 +9,8 @@ public interface FlowCell {
 
     List<Lane> lanes();
 
+    Sample sample();
+
     static ImmutableFlowCell.Builder builder() {
         return ImmutableFlowCell.builder();
     }
