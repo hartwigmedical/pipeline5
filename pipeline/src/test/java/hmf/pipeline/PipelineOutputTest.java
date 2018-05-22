@@ -14,7 +14,7 @@ public class PipelineOutputTest {
     @Test
     public void pathComposedOfWorkingDirectorySampleNameAndType() {
         PipelineOutput victim = PipelineOutput.UNMAPPED;
-        assertThat(victim.path(Lane.of(Sample.of("", "TEST_SAMPLE"), 1))).isEqualTo(format("%s/results/TEST_SAMPLE_unmapped.bam",
+        assertThat(victim.path(Lane.of(Sample.of("", "TEST_SAMPLE"), 1))).isEqualTo(format("%s/results/TEST_SAMPLE_L001_unmapped.bam",
                 System.getProperty("user.dir")));
     }
 }

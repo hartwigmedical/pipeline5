@@ -15,15 +15,16 @@ public class RawSequencingOutputTest {
 
     @Test
     public void createOutputFromTwoPairedReadFiles() {
-        assertThat(RawSequencingOutput.from(CONFIGURATION).sampled().lanes()).hasSize(1)
-                .first()
-                .isEqualTo(Lane.of(Sample.of(CONFIGURATION.sampleDirectory(), CONFIGURATION.sampleName()), 1));
+        assertThat(RawSequencingOutput.from(CONFIGURATION).sampled().lanes()).hasSize(2)
+                .containsOnly(Lane.of(Sample.of(CONFIGURATION.sampleDirectory(), CONFIGURATION.sampleName()), 1),
+                        Lane.of(Sample.of(CONFIGURATION.sampleDirectory(), CONFIGURATION.sampleName()), 2));
     }
 
     @Test
     public void createOutputFromInterleavedPairedReadFiles() {
-        assertThat(RawSequencingOutput.from(copyOf(CONFIGURATION).withUseInterleaved(true)).sampled().lanes()).hasSize(1)
-                .first()
-                .isEqualTo(Lane.of(Sample.of(CONFIGURATION.sampleDirectory(), CONFIGURATION.sampleName()), 1));
+        assertThat(RawSequencingOutput.from(copyOf(CONFIGURATION).withUseInterleaved(true))
+                .sampled()
+                .lanes()).containsOnly(Lane.of(Sample.of(CONFIGURATION.sampleDirectory(), CONFIGURATION.sampleName()), 1),
+                Lane.of(Sample.of(CONFIGURATION.sampleDirectory(), CONFIGURATION.sampleName()), 2));
     }
 }
