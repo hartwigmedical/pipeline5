@@ -11,6 +11,11 @@ public interface Configuration {
 
     String referencePath();
 
+    @Value.Default
+    default boolean useInterleaved() {
+        return false;
+    }
+
     static ImmutableConfiguration.Builder builder() {
         return ImmutableConfiguration.builder();
     }

@@ -17,9 +17,8 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.apache.commons.io.FileUtils;
-
 import hmf.pipeline.PipelineOutput;
+import hmf.sample.Lane;
 import htsjdk.samtools.SAMRecord;
 import htsjdk.samtools.SamInputResource;
 import htsjdk.samtools.SamReader;
@@ -29,30 +28,30 @@ public class BamAssertions {
 
     private static final double READ_MISSING_TOLERANCE = 0.01;
 
-    public static SampleFileAssertion assertThatOutput(String sampleName, PipelineOutput fileType) {
-        return new SampleFileAssertion(sampleName, fileType);
+    public static SampleFileAssertion assertThatOutput(Lane lane, PipelineOutput fileType) {
+        return new SampleFileAssertion(lane, fileType);
     }
 
     public static class SampleFileAssertion {
-        private final String sampleName;
+        private final Lane lane;
         private final PipelineOutput fileType;
 
-        SampleFileAssertion(final String sampleName, final PipelineOutput fileType) {
-            this.sampleName = sampleName;
+        SampleFileAssertion(final Lane lane, final PipelineOutput fileType) {
+            this.lane = lane;
             this.fileType = fileType;
         }
 
         public void isEqualToExpected() throws IOException {
 
-            InputStream expected = BamAssertions.class.getResourceAsStream(format("/expected/%s", fileType.file(sampleName)));
+            InputStream expected = BamAssertions.class.getResourceAsStream(format("/expected/%s", fileType.file(lane)));
             if (expected == null) {
                 fail(format("No expected file found for sample [%s] and output [%s]. Check that the sample name is correct and there is a "
-                        + "file in /src/test/resources/expected to verify against", sampleName, fileType));
+                        + "file in /src/test/resources/expected to verify against", lane, fileType));
             }
 
             SamReaderFactory samReaderFactory = SamReaderFactory.make();
             SamReader samReaderExpected = samReaderFactory.open(SamInputResource.of(expected));
-            SamReader samReaderResults = samReaderFactory.open(new File(fileType.path(sampleName)));
+            SamReader samReaderResults = samReaderFactory.open(new File(fileType.path(lane)));
 
             Map<Key, SAMRecord> recordMapExpected = mapOf(samReaderExpected);
             Map<Key, SAMRecord> recordMapResults = mapOf(samReaderResults);
@@ -88,8 +87,7 @@ public class BamAssertions {
                     missingReadsInResults.add(key);
                 } else {
                     assertThat(recordEqualsWithoutTags(samRecordExpected, samRecordResult)).as(
-                            "BAM files where not equal for sample %s and output %s " + "for read %s",
-                            sampleName,
+                            "BAM files where not equal for sample %s and output %s " + "for read %s", lane.sample().name(),
                             fileType,
                             samRecordExpected.getReadName()).isTrue();
                 }

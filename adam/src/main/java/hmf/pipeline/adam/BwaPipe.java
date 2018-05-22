@@ -18,19 +18,20 @@ import org.bdgenomics.adam.rdd.fragment.InterleavedFASTQInFormatter;
 import org.bdgenomics.adam.rdd.read.AlignmentRecordRDD;
 import org.bdgenomics.adam.rdd.read.AnySAMOutFormatter;
 
-import hmf.pipeline.Configuration;
 import hmf.pipeline.PipelineOutput;
 import hmf.pipeline.Stage;
+import hmf.sample.Lane;
+import hmf.sample.Reference;
 import scala.Option;
 
-class BwaPipe implements Stage {
+class BwaPipe implements Stage<Lane> {
 
     private final ADAMContext adamContext;
-    private final Configuration configuration;
+    private final Reference reference;
 
-    BwaPipe(final Configuration configuration, final ADAMContext adamContext) {
+    BwaPipe(final Reference reference, final ADAMContext adamContext) {
         this.adamContext = adamContext;
-        this.configuration = configuration;
+        this.reference = reference;
     }
 
     @Override
@@ -39,21 +40,21 @@ class BwaPipe implements Stage {
     }
 
     @Override
-    public void execute() throws IOException {
-        FragmentRDD fragmentRDD = adamContext.loadInterleavedFastqAsFragments(format("%s/%s_interleaved.fastq",
-                configuration.sampleDirectory(),
-                configuration.sampleName()));
-        AlignmentRecordRDD aligned = fragmentRDD.pipe(BwaCommand.tokens(configuration),
+    public void execute(Lane lane) throws IOException {
+        FragmentRDD fragmentRDD = adamContext.loadInterleavedFastqAsFragments(format("%s/%s_L00%s_interleaved.fastq",
+                lane.sample().directory(),
+                lane.sample().name(),
+                lane.index()));
+        AlignmentRecordRDD aligned = fragmentRDD.pipe(BwaCommand.tokens(reference, lane.sample()),
                 Collections.emptyList(),
                 Collections.emptyMap(),
                 0,
                 InterleavedFASTQInFormatter.class,
                 new AnySAMOutFormatter(),
                 new FragmentsToAlignmentRecordsConverter());
-        SequenceDictionary sequenceDictionary = adamContext.loadSequenceDictionary(configuration.referencePath() + ".dict");
-        aligned.replaceRecordGroups(recordDictionary(recordGroup(configuration.sampleName())))
-                .replaceSequences(sequenceDictionary)
-                .save(SaveArgs.defaultSave(configuration, output()), false);
+        SequenceDictionary sequenceDictionary = adamContext.loadSequenceDictionary(reference.path() + ".dict");
+        aligned.replaceRecordGroups(recordDictionary(recordGroup(lane.sample().name())))
+                .replaceSequences(sequenceDictionary).save(SaveArgs.defaultSave(lane, output()), false);
     }
 
     private RecordGroupDictionary recordDictionary(final RecordGroup recordGroup) {

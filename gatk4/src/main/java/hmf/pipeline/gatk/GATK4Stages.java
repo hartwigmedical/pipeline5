@@ -2,20 +2,21 @@ package hmf.pipeline.gatk;
 
 import org.apache.spark.api.java.JavaSparkContext;
 
-import hmf.pipeline.Configuration;
 import hmf.pipeline.Stage;
+import hmf.sample.Lane;
+import hmf.sample.Reference;
 
 class GATK4Stages {
 
-    static Stage ubamFromFastQ(Configuration configuration) {
-        return new UBAMFromFastQ(configuration);
+    static Stage<Lane> ubamFromFastQ() {
+        return new UBAMFromFastQ();
     }
 
-    static Stage coordinateSortSAM(Configuration configuration) {
-        return new CoordinateSortSAM(configuration);
+    static Stage<Lane> coordinateSortSAM() {
+        return new CoordinateSortSAM();
     }
 
-    static Stage bwaSpark(Configuration configuration, JavaSparkContext context) {
-        return new BwaSpark(configuration, context);
+    static Stage<Lane> bwaSpark(Reference reference, JavaSparkContext context) {
+        return new BwaSpark(reference, context);
     }
 }

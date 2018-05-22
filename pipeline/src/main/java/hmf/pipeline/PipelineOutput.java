@@ -2,6 +2,8 @@ package hmf.pipeline;
 
 import static java.lang.String.format;
 
+import hmf.sample.Lane;
+
 public enum PipelineOutput {
 
     UNMAPPED("bam"),
@@ -15,12 +17,12 @@ public enum PipelineOutput {
         this.extension = extension;
     }
 
-    public String path(String sampleName) {
-        return format("%s%s", RESULTS_DIRECTORY, file(sampleName));
+    public String path(Lane lane) {
+        return format("%s%s", RESULTS_DIRECTORY, file(lane));
     }
 
-    public String file(String sampleName) {
-        return format("%s_%s.%s", sampleName, toString().toLowerCase(), extension);
+    public String file(Lane lane) {
+        return format("%s_L00%s_%s.%s", lane.sample().name(), lane.index(), toString().toLowerCase(), extension);
     }
 
     private static String workingDirectory() {

@@ -2,8 +2,8 @@ package hmf.pipeline;
 
 import java.io.IOException;
 
-public interface Stage {
+public interface Stage<T> {
     PipelineOutput output();
 
-    void execute() throws IOException;
+    void execute(T input) throws IOException;
 }

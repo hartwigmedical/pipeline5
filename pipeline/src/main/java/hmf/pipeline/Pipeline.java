@@ -5,30 +5,40 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 
+import hmf.sample.Lane;
+import hmf.sample.RawSequencingOutput;
+
 public class Pipeline {
 
-    private final Map<PipelineOutput, Stage> stages;
+    private final Map<PipelineOutput, Stage<Lane>> stages;
     private static final String RESULTS_DIRECTORY = System.getProperty("user.dir") + "/results";
 
-    private Pipeline(final Map<PipelineOutput, Stage> stages) {
+    private Pipeline(final Map<PipelineOutput, Stage<Lane>> stages) {
         this.stages = stages;
     }
 
-    public void execute() throws IOException {
+    public void execute(RawSequencingOutput sequencing) throws IOException {
         createResultsOutputDirectory();
-        executeStage(PipelineOutput.UNMAPPED);
-        executeStage(PipelineOutput.ALIGNED);
-        executeStage(PipelineOutput.SORTED);
+        forEachLaneIn(sequencing.sampled().lanes());
     }
 
-    private void executeStage(final PipelineOutput pipelineOutput) throws IOException {
-        Stage stage = stages.get(pipelineOutput);
+    private void forEachLaneIn(final List<Lane> lanes) throws IOException {
+        for (Lane lane : lanes) {
+            executeForEachLane(lane, PipelineOutput.UNMAPPED);
+            executeForEachLane(lane, PipelineOutput.ALIGNED);
+            executeForEachLane(lane, PipelineOutput.SORTED);
+        }
+    }
+
+    private void executeForEachLane(final Lane lane, final PipelineOutput pipelineOutput) throws IOException {
+        Stage<Lane> stage = stages.get(pipelineOutput);
         if (stage != null) {
-            stage.execute();
+            stage.execute(lane);
         }
     }
 
@@ -42,9 +52,9 @@ public class Pipeline {
     }
 
     public static class Builder {
-        private final Map<PipelineOutput, Stage> stages = new HashMap<>();
+        private final Map<PipelineOutput, Stage<Lane>> stages = new HashMap<>();
 
-        public Builder addStage(Stage stage) {
+        public Builder addLaneStage(Stage<Lane> stage) {
             stages.put(stage.output(), stage);
             return this;
         }

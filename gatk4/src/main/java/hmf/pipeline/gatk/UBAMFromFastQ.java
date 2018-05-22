@@ -2,18 +2,12 @@ package hmf.pipeline.gatk;
 
 import static java.lang.String.format;
 
-import hmf.pipeline.Configuration;
+import hmf.pipeline.LaneStage;
 import hmf.pipeline.PipelineOutput;
-import hmf.pipeline.Stage;
+import hmf.sample.Lane;
 import picard.sam.FastqToSam;
 
-public class UBAMFromFastQ implements Stage {
-
-    private final Configuration configuration;
-
-    UBAMFromFastQ(final Configuration configuration) {
-        this.configuration = configuration;
-    }
+public class UBAMFromFastQ implements LaneStage {
 
     @Override
     public PipelineOutput output() {
@@ -21,13 +15,13 @@ public class UBAMFromFastQ implements Stage {
     }
 
     @Override
-    public void execute() {
+    public void execute(Lane lane) {
         PicardExecutor.of(new FastqToSam(),
-                new String[] { readFileArgumentOf(1, configuration), readFileArgumentOf(2, configuration),
-                        "SM=" + configuration.sampleName(), "O=" + PipelineOutput.UNMAPPED.path(configuration.sampleName()) }).execute();
+                new String[] { readFileArgumentOf(1, lane), readFileArgumentOf(2, lane), "SM=" + lane.sample().name(),
+                        "O=" + PipelineOutput.UNMAPPED.path(lane) }).execute();
     }
 
-    private static String readFileArgumentOf(int sampleIndex, Configuration configuration) {
-        return format("F%s=%s/%s_R%s.fastq", sampleIndex, configuration.sampleDirectory(), configuration.sampleName(), sampleIndex);
+    private static String readFileArgumentOf(int sampleIndex, Lane lane) {
+        return format("F%s=%s/%s_L00%s_R%s.fastq", sampleIndex, lane.sample().directory(), lane.sample().name(), lane.index(), sampleIndex);
     }
 }

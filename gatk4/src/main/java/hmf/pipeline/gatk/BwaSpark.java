@@ -14,23 +14,24 @@ import org.broadinstitute.hellbender.tools.spark.bwa.BwaSparkEngine;
 import org.broadinstitute.hellbender.utils.read.GATKRead;
 import org.broadinstitute.hellbender.utils.read.ReadsWriteFormat;
 
-import hmf.pipeline.Configuration;
 import hmf.pipeline.PipelineOutput;
 import hmf.pipeline.Stage;
 import hmf.pipeline.Trace;
+import hmf.sample.Lane;
+import hmf.sample.Reference;
 import htsjdk.samtools.SAMFileHeader;
 import htsjdk.samtools.SAMSequenceDictionary;
 
-public class BwaSpark implements Stage {
+public class BwaSpark implements Stage<Lane> {
 
     private final ReadsSparkSource readsSparkSource;
     private final JavaSparkContext context;
-    private final Configuration configuration;
+    private final Reference reference;
 
-    BwaSpark(final Configuration configuration, final JavaSparkContext context) {
+    BwaSpark(final Reference reference, final JavaSparkContext context) {
         this.readsSparkSource = new ReadsSparkSource(context);
-        this.configuration = configuration;
         this.context = context;
+        this.reference = reference;
     }
 
     @Override
@@ -39,25 +40,23 @@ public class BwaSpark implements Stage {
     }
 
     @Override
-    public void execute() throws IOException {
-        String unmappedBamFileName = PipelineOutput.UNMAPPED.path(configuration.sampleName());
-        runBwa(unmappedBamFileName, bwaSparkEngine(context, configuration, readsSparkSource, unmappedBamFileName));
+    public void execute(Lane lane) throws IOException {
+        String unmappedBamFileName = PipelineOutput.UNMAPPED.path(lane);
+        runBwa(unmappedBamFileName, lane, bwaSparkEngine(context, reference, readsSparkSource, unmappedBamFileName));
     }
 
-    private void runBwa(final String unmappedBamFileName, final BwaSparkEngine bwaEngine) throws IOException {
+    private void runBwa(final String unmappedBamFileName, final Lane lane, final BwaSparkEngine bwaEngine) throws IOException {
         Trace trace = Trace.of(BwaSpark.class, "Execution of BwaSpark tool").start();
-        writeBwaOutput(context,
-                configuration,
-                bwaEngine,
-                bwaEngine.align(readsSparkSource.getParallelReads(unmappedBamFileName, configuration.referencePath()), true));
+        writeBwaOutput(context, lane,
+                bwaEngine, bwaEngine.align(readsSparkSource.getParallelReads(unmappedBamFileName, reference.path()), true));
         trace.finish();
     }
 
-    private static BwaSparkEngine bwaSparkEngine(final JavaSparkContext sparkContext, final Configuration configuration,
+    private static BwaSparkEngine bwaSparkEngine(final JavaSparkContext sparkContext, final Reference reference,
             final ReadsSparkSource readsSource, final String unmappedBamFileName) throws IOException {
-        SAMFileHeader header = readsSource.getHeader(unmappedBamFileName, configuration.referencePath());
-        SAMSequenceDictionary dictionary = dictionary(configuration.referencePath(), header);
-        return new BwaSparkEngine(sparkContext, configuration.referencePath(), null, header, dictionary);
+        SAMFileHeader header = readsSource.getHeader(unmappedBamFileName, reference.path());
+        SAMSequenceDictionary dictionary = dictionary(reference.path(), header);
+        return new BwaSparkEngine(sparkContext, reference.path(), null, header, dictionary);
     }
 
     private static SAMSequenceDictionary dictionary(final String referenceFile, final SAMFileHeader readsHeader) throws IOException {
@@ -65,10 +64,9 @@ public class BwaSpark implements Stage {
                 readsHeader.getSequenceDictionary());
     }
 
-    private static void writeBwaOutput(final JavaSparkContext context, final Configuration configuration, final BwaSparkEngine bwaEngine,
+    private static void writeBwaOutput(final JavaSparkContext context, final Lane lane, final BwaSparkEngine bwaEngine,
             final JavaRDD<GATKRead> alignedReads) throws IOException {
-        ReadsSparkSink.writeReads(context,
-                ALIGNED.path(configuration.sampleName()),
+        ReadsSparkSink.writeReads(context, ALIGNED.path(lane),
                 null,
                 alignedReads,
                 bwaEngine.getHeader(),

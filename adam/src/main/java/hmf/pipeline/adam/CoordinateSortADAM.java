@@ -5,18 +5,16 @@ import java.io.IOException;
 import org.bdgenomics.adam.api.java.JavaADAMContext;
 import org.bdgenomics.adam.rdd.ADAMSaveAnyArgs;
 
-import hmf.pipeline.Configuration;
 import hmf.pipeline.PipelineOutput;
 import hmf.pipeline.Stage;
+import hmf.sample.Lane;
 
-class CoordinateSortADAM implements Stage {
+class CoordinateSortADAM implements Stage<Lane> {
 
     private final JavaADAMContext javaADAMContext;
-    private final Configuration configuration;
 
-    CoordinateSortADAM(final Configuration configuration, final JavaADAMContext javaADAMContext) {
+    CoordinateSortADAM(final JavaADAMContext javaADAMContext) {
         this.javaADAMContext = javaADAMContext;
-        this.configuration = configuration;
     }
 
     @Override
@@ -25,8 +23,8 @@ class CoordinateSortADAM implements Stage {
     }
 
     @Override
-    public void execute() throws IOException {
-        ADAMSaveAnyArgs args = SaveArgs.defaultSave(configuration, output());
-        javaADAMContext.loadAlignments(PipelineOutput.ALIGNED.path(configuration.sampleName())).save(args, true);
+    public void execute(Lane lane) throws IOException {
+        ADAMSaveAnyArgs args = SaveArgs.defaultSave(lane, output());
+        javaADAMContext.loadAlignments(PipelineOutput.ALIGNED.path(lane)).save(args, true);
     }
 }

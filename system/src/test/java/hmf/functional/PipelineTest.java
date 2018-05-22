@@ -1,6 +1,9 @@
 package hmf.functional;
 
 import static hmf.testsupport.BamAssertions.assertThatOutput;
+import static hmf.testsupport.TestSamples.CONFIGURATION;
+import static hmf.testsupport.TestSamples.LANE_1;
+import static hmf.testsupport.TestSamples.LANE_2;
 
 import java.io.IOException;
 
@@ -9,20 +12,15 @@ import org.bdgenomics.adam.rdd.ADAMContext;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import hmf.pipeline.Configuration;
 import hmf.pipeline.Pipeline;
 import hmf.pipeline.PipelineOutput;
 import hmf.pipeline.adam.ADAMPipelines;
 import hmf.pipeline.gatk.GATK4Pipelines;
+import hmf.sample.RawSequencingOutput;
+import hmf.sample.Reference;
 
 public class PipelineTest {
 
-    private static final String SAMPLE_NAME = "CPCT12345678R_HJJLGCCXX_S1_L001_chr22";
-    private static final Configuration CONFIGURATION = Configuration.builder()
-            .sampleDirectory(System.getProperty("user.dir") + "/src/test/resources/samples")
-            .sampleName(SAMPLE_NAME)
-            .referencePath(System.getProperty("user.dir") + "/src/test/resources/reference/Homo_sapiens.GRCh37.GATK.illumina.chr22.fa")
-            .build();
     private static JavaSparkContext context;
 
     @BeforeClass
@@ -32,16 +30,17 @@ public class PipelineTest {
 
     @Test
     public void gatkBwaProducesEquivalentBAMToCurrentPipeline() throws Exception {
-        producesEquivalentBAMToCurrentPipeline(GATK4Pipelines.sortedAligned(CONFIGURATION, context));
+        producesEquivalentBAMToCurrentPipeline(GATK4Pipelines.sortedAligned(Reference.from(CONFIGURATION), context));
     }
 
     @Test
     public void adamBwaProducesEquivalentBAMToCurrentPipeline() throws Exception {
-        producesEquivalentBAMToCurrentPipeline(ADAMPipelines.sortedAligned(CONFIGURATION, new ADAMContext(context.sc())));
+        producesEquivalentBAMToCurrentPipeline(ADAMPipelines.sortedAligned(Reference.from(CONFIGURATION), new ADAMContext(context.sc())));
     }
 
     private void producesEquivalentBAMToCurrentPipeline(final Pipeline victim) throws IOException {
-        victim.execute();
-        assertThatOutput(SAMPLE_NAME, PipelineOutput.SORTED).isEqualToExpected();
+        victim.execute(RawSequencingOutput.from(CONFIGURATION));
+        assertThatOutput(LANE_1, PipelineOutput.SORTED).isEqualToExpected();
+        assertThatOutput(LANE_2, PipelineOutput.SORTED).isEqualToExpected();
     }
 }

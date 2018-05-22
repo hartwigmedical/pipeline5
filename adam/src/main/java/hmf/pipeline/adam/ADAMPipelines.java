@@ -3,15 +3,15 @@ package hmf.pipeline.adam;
 import org.bdgenomics.adam.api.java.JavaADAMContext;
 import org.bdgenomics.adam.rdd.ADAMContext;
 
-import hmf.pipeline.Configuration;
 import hmf.pipeline.Pipeline;
+import hmf.sample.Reference;
 
 public class ADAMPipelines {
 
-    public static Pipeline sortedAligned(Configuration configuration, ADAMContext adamContext) {
+    public static Pipeline sortedAligned(Reference reference, ADAMContext adamContext) {
         return Pipeline.builder()
-                .addStage(ADAMStages.bwaPipe(configuration, adamContext))
-                .addStage(ADAMStages.coordinateSort(configuration, new JavaADAMContext(adamContext)))
+                .addLaneStage(ADAMStages.bwaPipe(reference, adamContext))
+                .addLaneStage(ADAMStages.coordinateSort(new JavaADAMContext(adamContext)))
                 .build();
     }
 }
