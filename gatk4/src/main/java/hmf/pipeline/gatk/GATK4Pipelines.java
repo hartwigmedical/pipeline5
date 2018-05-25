@@ -12,7 +12,7 @@ public class GATK4Pipelines {
     }
 
     public static Pipeline sortedAlignedDupsMarked(Reference reference, JavaSparkContext context) {
-        return sortedAlignedBuilder(reference, context).setMergeStage(GATK4Stages.markDuplicates(context)).build();
+        return sortedAlignedBuilder(reference, context).setMergeStage(GATK4Stages.markDuplicates()).build();
     }
 
     private static Pipeline.Builder sortedAlignedBuilder(final Reference reference, final JavaSparkContext context) {

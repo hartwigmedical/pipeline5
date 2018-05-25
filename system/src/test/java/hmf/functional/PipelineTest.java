@@ -1,9 +1,11 @@
 package hmf.functional;
 
-import static hmf.testsupport.BamAssertions.assertThatOutput;
-import static hmf.testsupport.TestSamples.CONFIGURATION;
-import static hmf.testsupport.TestSamples.LANE_1;
-import static hmf.testsupport.TestSamples.LANE_2;
+import static hmf.testsupport.Assertions.assertThatOutput;
+import static hmf.testsupport.TestSamples.CANCER_PANEL;
+import static hmf.testsupport.TestSamples.CANCER_PANEL_LANE_1;
+import static hmf.testsupport.TestSamples.CANCER_PANEL_LANE_2;
+import static hmf.testsupport.TestSamples.HUNDREDK_READS_HISEQ;
+import static hmf.testsupport.TestSamples.HUNDREDK_READS_HISEQ_FLOW_CELL;
 
 import java.io.IOException;
 
@@ -14,6 +16,7 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import hmf.pipeline.Configuration;
 import hmf.pipeline.Pipeline;
 import hmf.pipeline.PipelineOutput;
 import hmf.pipeline.adam.ADAMPipelines;
@@ -35,23 +38,27 @@ public class PipelineTest {
 
     @Test
     public void gatkBwaProducesEquivalentBAMToCurrentPipeline() throws Exception {
-        producesEquivalentBAMToCurrentPipeline(GATK4Pipelines.sortedAligned(Reference.from(CONFIGURATION), context));
+        producesEquivalentAlignedBAMToCurrentPipeline(GATK4Pipelines.sortedAligned(Reference.from(CANCER_PANEL), context), CANCER_PANEL);
     }
 
     @Test
     public void adamBwaProducesEquivalentBAMToCurrentPipeline() throws Exception {
-        producesEquivalentBAMToCurrentPipeline(ADAMPipelines.sortedAligned(Reference.from(CONFIGURATION), new ADAMContext(context.sc())));
+        producesEquivalentAlignedBAMToCurrentPipeline(ADAMPipelines.sortedAligned(Reference.from(CANCER_PANEL),
+                new ADAMContext(context.sc())), CANCER_PANEL);
     }
 
     @Ignore
     @Test
     public void gatkMergeMarkDupsProducesSingleBAMWithDupsMarked() throws Exception {
-        producesEquivalentBAMToCurrentPipeline(GATK4Pipelines.sortedAlignedDupsMarked(Reference.from(CONFIGURATION), context));
+        GATK4Pipelines.sortedAlignedDupsMarked(Reference.from(HUNDREDK_READS_HISEQ), context)
+                .execute(RawSequencingOutput.from(HUNDREDK_READS_HISEQ));
+        assertThatOutput(HUNDREDK_READS_HISEQ_FLOW_CELL).isEqualToExpected();
     }
 
-    private void producesEquivalentBAMToCurrentPipeline(final Pipeline victim) throws IOException {
-        victim.execute(RawSequencingOutput.from(CONFIGURATION));
-        assertThatOutput(LANE_1, PipelineOutput.SORTED).isEqualToExpected();
-        assertThatOutput(LANE_2, PipelineOutput.SORTED).isEqualToExpected();
+    private void producesEquivalentAlignedBAMToCurrentPipeline(final Pipeline victim, final Configuration configuration)
+            throws IOException {
+        victim.execute(RawSequencingOutput.from(configuration));
+        assertThatOutput(CANCER_PANEL_LANE_1, PipelineOutput.SORTED).isEqualToExpected();
+        assertThatOutput(CANCER_PANEL_LANE_2, PipelineOutput.SORTED).isEqualToExpected();
     }
 }

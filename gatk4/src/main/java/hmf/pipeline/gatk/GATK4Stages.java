@@ -21,7 +21,7 @@ class GATK4Stages {
         return new BwaSpark(reference, context);
     }
 
-    static Stage<FlowCell> markDuplicates(JavaSparkContext javaSparkContext) {
-        return new MergeAndMarkDuplicates(javaSparkContext);
+    static Stage<FlowCell> markDuplicates() {
+        return new MergeAndMarkDuplicates();
     }
 }

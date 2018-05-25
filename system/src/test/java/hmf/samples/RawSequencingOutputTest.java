@@ -3,7 +3,7 @@ package hmf.samples;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import static hmf.pipeline.ImmutableConfiguration.copyOf;
-import static hmf.testsupport.TestSamples.CONFIGURATION;
+import static hmf.testsupport.TestSamples.CANCER_PANEL;
 
 import org.junit.Test;
 
@@ -15,16 +15,16 @@ public class RawSequencingOutputTest {
 
     @Test
     public void createOutputFromTwoPairedReadFiles() {
-        assertThat(RawSequencingOutput.from(CONFIGURATION).sampled().lanes()).hasSize(2)
-                .containsOnly(Lane.of(Sample.of(CONFIGURATION.sampleDirectory(), CONFIGURATION.sampleName()), 1),
-                        Lane.of(Sample.of(CONFIGURATION.sampleDirectory(), CONFIGURATION.sampleName()), 2));
+        assertThat(RawSequencingOutput.from(CANCER_PANEL).sampled().lanes()).hasSize(2)
+                .containsOnly(Lane.of(Sample.of(CANCER_PANEL.sampleDirectory(), CANCER_PANEL.sampleName()), 1),
+                        Lane.of(Sample.of(CANCER_PANEL.sampleDirectory(), CANCER_PANEL.sampleName()), 2));
     }
 
     @Test
     public void createOutputFromInterleavedPairedReadFiles() {
-        assertThat(RawSequencingOutput.from(copyOf(CONFIGURATION).withUseInterleaved(true))
+        assertThat(RawSequencingOutput.from(copyOf(CANCER_PANEL).withUseInterleaved(true))
                 .sampled()
-                .lanes()).containsOnly(Lane.of(Sample.of(CONFIGURATION.sampleDirectory(), CONFIGURATION.sampleName()), 1),
-                Lane.of(Sample.of(CONFIGURATION.sampleDirectory(), CONFIGURATION.sampleName()), 2));
+                .lanes()).containsOnly(Lane.of(Sample.of(CANCER_PANEL.sampleDirectory(), CANCER_PANEL.sampleName()), 1),
+                Lane.of(Sample.of(CANCER_PANEL.sampleDirectory(), CANCER_PANEL.sampleName()), 2));
     }
 }
