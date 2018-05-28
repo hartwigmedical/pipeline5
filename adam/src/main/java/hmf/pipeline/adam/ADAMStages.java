@@ -4,6 +4,7 @@ import org.bdgenomics.adam.api.java.JavaADAMContext;
 import org.bdgenomics.adam.rdd.ADAMContext;
 
 import hmf.pipeline.Stage;
+import hmf.sample.FlowCell;
 import hmf.sample.Lane;
 import hmf.sample.Reference;
 
@@ -15,5 +16,9 @@ class ADAMStages {
 
     static Stage<Lane> coordinateSort(JavaADAMContext javaADAMContext) {
         return new CoordinateSortADAM(javaADAMContext);
+    }
+
+    static Stage<FlowCell> mergeAndMarkDuplicates(JavaADAMContext javaADAMContext) {
+        return new MergeAndMarkDuplicates(javaADAMContext);
     }
 }

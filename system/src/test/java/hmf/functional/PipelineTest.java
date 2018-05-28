@@ -3,7 +3,6 @@ package hmf.functional;
 import static hmf.testsupport.Assertions.assertThatOutput;
 import static hmf.testsupport.TestSamples.CANCER_PANEL;
 import static hmf.testsupport.TestSamples.CANCER_PANEL_LANE_1;
-import static hmf.testsupport.TestSamples.CANCER_PANEL_LANE_2;
 import static hmf.testsupport.TestSamples.HUNDREDK_READS_HISEQ;
 import static hmf.testsupport.TestSamples.HUNDREDK_READS_HISEQ_FLOW_CELL;
 
@@ -47,10 +46,17 @@ public class PipelineTest {
                 new ADAMContext(context.sc())), CANCER_PANEL);
     }
 
-    @Ignore
     @Test
     public void gatkMergeMarkDupsProducesSingleBAMWithDupsMarked() throws Exception {
         GATK4Pipelines.sortedAlignedDupsMarked(Reference.from(HUNDREDK_READS_HISEQ), context)
+                .execute(RawSequencingOutput.from(HUNDREDK_READS_HISEQ));
+        assertThatOutput(HUNDREDK_READS_HISEQ_FLOW_CELL).isEqualToExpected();
+    }
+
+    @Ignore
+    @Test
+    public void adamMergeMarkDupsProducesSingleBAMWithDupsMarked() throws Exception {
+        ADAMPipelines.sortedAlignedDupsMarked(Reference.from(HUNDREDK_READS_HISEQ), new ADAMContext(context.sc()))
                 .execute(RawSequencingOutput.from(HUNDREDK_READS_HISEQ));
         assertThatOutput(HUNDREDK_READS_HISEQ_FLOW_CELL).isEqualToExpected();
     }
@@ -59,6 +65,5 @@ public class PipelineTest {
             throws IOException {
         victim.execute(RawSequencingOutput.from(configuration));
         assertThatOutput(CANCER_PANEL_LANE_1, PipelineOutput.SORTED).isEqualToExpected();
-        assertThatOutput(CANCER_PANEL_LANE_2, PipelineOutput.SORTED).isEqualToExpected();
     }
 }

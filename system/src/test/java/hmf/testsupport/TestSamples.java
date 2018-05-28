@@ -11,7 +11,6 @@ public class TestSamples {
     private static final String CANCER_PANEL_SAMPLE_NAME = "CPCT12345678R_HJJLGCCXX_S1_chr22";
     private static final Sample CANCER_PANEL_SAMPLE = Sample.of(SAMPLE_DIR, CANCER_PANEL_SAMPLE_NAME);
     public static final Lane CANCER_PANEL_LANE_1 = Lane.of(CANCER_PANEL_SAMPLE, 1);
-    public static final Lane CANCER_PANEL_LANE_2 = Lane.of(CANCER_PANEL_SAMPLE, 2);
     private static final ImmutableConfiguration.Builder DEFAULT_CONFIG_BUILDER = Configuration.builder()
             .sampleDirectory(System.getProperty("user.dir") + SAMPLE_DIR)
             .referencePath(System.getProperty("user.dir") + "/src/test/resources/reference/Homo_sapiens.GRCh37.GATK.illumina.chr22.fa");

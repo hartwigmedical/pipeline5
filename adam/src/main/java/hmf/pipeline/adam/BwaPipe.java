@@ -68,9 +68,7 @@ class BwaPipe implements Stage<Lane> {
                 Option.empty(),
                 Option.empty(),
                 Option.empty(),
-                Option.empty(),
-                Option.empty(),
-                Option.empty(),
+                Option.empty(), Option.empty(), Option.apply(sample),
                 Option.empty(),
                 Option.empty(),
                 Option.empty());

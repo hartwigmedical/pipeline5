@@ -19,16 +19,16 @@ class DedupedFileAssertion extends BAMFileAssertion {
 
     @Override
     void assertFile(final SamReader expected, final SamReader results) {
-        Set<SAMRecord> duplicatesExpected = findDuplicates(expected);
-        Set<SAMRecord> duplicatesResults = findDuplicates(results);
+        Set<String> duplicatesExpected = findDuplicates(expected);
+        Set<String> duplicatesResults = findDuplicates(results);
         assertThat(duplicatesResults).isEqualTo(duplicatesExpected);
     }
 
-    private Set<SAMRecord> findDuplicates(final SamReader samReaderResults) {
-        Set<SAMRecord> duplicates = new HashSet<>();
+    private Set<String> findDuplicates(final SamReader samReaderResults) {
+        Set<String> duplicates = new HashSet<>();
         for (SAMRecord record : samReaderResults) {
             if (SAMFlag.getFlags(record.getFlags()).contains(SAMFlag.DUPLICATE_READ)) {
-                duplicates.add(record);
+                duplicates.add(record.getReadName());
             }
         }
         return duplicates;
