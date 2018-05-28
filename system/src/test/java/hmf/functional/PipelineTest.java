@@ -16,9 +16,9 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import hmf.io.PipelineOutput;
 import hmf.pipeline.Configuration;
 import hmf.pipeline.Pipeline;
-import hmf.pipeline.PipelineOutput;
 import hmf.pipeline.adam.ADAMPipelines;
 import hmf.pipeline.gatk.GATK4Pipelines;
 import hmf.sample.RawSequencingOutput;

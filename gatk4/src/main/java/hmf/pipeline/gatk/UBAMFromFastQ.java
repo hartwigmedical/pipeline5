@@ -2,8 +2,9 @@ package hmf.pipeline.gatk;
 
 import static java.lang.String.format;
 
+import hmf.io.OutputFile;
+import hmf.io.PipelineOutput;
 import hmf.pipeline.LaneStage;
-import hmf.pipeline.PipelineOutput;
 import hmf.sample.Lane;
 import picard.sam.FastqToSam;
 
@@ -18,7 +19,7 @@ public class UBAMFromFastQ implements LaneStage {
     public void execute(Lane lane) {
         PicardExecutor.of(new FastqToSam(),
                 new String[] { readFileArgumentOf(1, lane), readFileArgumentOf(2, lane), "SM=" + lane.sample().name(),
-                        "O=" + PipelineOutput.UNMAPPED.path(lane) }).execute();
+                        "O=" + OutputFile.of(PipelineOutput.UNMAPPED, lane).path() }).execute();
     }
 
     private static String readFileArgumentOf(int sampleIndex, Lane lane) {

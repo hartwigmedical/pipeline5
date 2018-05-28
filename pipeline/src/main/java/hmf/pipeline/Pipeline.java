@@ -10,6 +10,7 @@ import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 
+import hmf.io.PipelineOutput;
 import hmf.sample.FlowCell;
 import hmf.sample.Lane;
 import hmf.sample.RawSequencingOutput;

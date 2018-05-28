@@ -1,6 +1,6 @@
 package hmf.pipeline.gatk;
 
-import static hmf.pipeline.PipelineOutput.ALIGNED;
+import static hmf.io.PipelineOutput.ALIGNED;
 
 import java.io.IOException;
 
@@ -14,7 +14,8 @@ import org.broadinstitute.hellbender.tools.spark.bwa.BwaSparkEngine;
 import org.broadinstitute.hellbender.utils.read.GATKRead;
 import org.broadinstitute.hellbender.utils.read.ReadsWriteFormat;
 
-import hmf.pipeline.PipelineOutput;
+import hmf.io.OutputFile;
+import hmf.io.PipelineOutput;
 import hmf.pipeline.Stage;
 import hmf.pipeline.Trace;
 import hmf.sample.Lane;
@@ -41,14 +42,16 @@ public class BwaSpark implements Stage<Lane> {
 
     @Override
     public void execute(Lane lane) throws IOException {
-        String unmappedBamFileName = PipelineOutput.UNMAPPED.path(lane);
+        String unmappedBamFileName = OutputFile.of(PipelineOutput.UNMAPPED, lane).path();
         runBwa(unmappedBamFileName, lane, bwaSparkEngine(context, reference, readsSparkSource, unmappedBamFileName));
     }
 
     private void runBwa(final String unmappedBamFileName, final Lane lane, final BwaSparkEngine bwaEngine) throws IOException {
         Trace trace = Trace.of(BwaSpark.class, "Execution of BwaSpark tool").start();
-        writeBwaOutput(context, lane,
-                bwaEngine, bwaEngine.align(readsSparkSource.getParallelReads(unmappedBamFileName, reference.path()), true));
+        writeBwaOutput(context,
+                lane,
+                bwaEngine,
+                bwaEngine.align(readsSparkSource.getParallelReads(unmappedBamFileName, reference.path()), true));
         trace.finish();
     }
 
@@ -66,7 +69,7 @@ public class BwaSpark implements Stage<Lane> {
 
     private static void writeBwaOutput(final JavaSparkContext context, final Lane lane, final BwaSparkEngine bwaEngine,
             final JavaRDD<GATKRead> alignedReads) throws IOException {
-        ReadsSparkSink.writeReads(context, ALIGNED.path(lane),
+        ReadsSparkSink.writeReads(context, OutputFile.of(ALIGNED, lane).path(),
                 null,
                 alignedReads,
                 bwaEngine.getHeader(),

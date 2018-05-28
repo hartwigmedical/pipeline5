@@ -1,4 +1,4 @@
-package hmf.pipeline;
+package hmf.io;
 
 import static java.lang.String.format;
 
@@ -10,21 +10,21 @@ import hmf.sample.FlowCell;
 import hmf.sample.Lane;
 import hmf.sample.Sample;
 
-public class PipelineOutputTest {
+public class OutputFileTest {
 
     private static final Sample SAMPLE = Sample.of("", "TEST_SAMPLE");
 
     @Test
     public void pathFollowsConventionForLane() {
-        PipelineOutput victim = PipelineOutput.UNMAPPED;
-        assertThat(victim.path(Lane.of(SAMPLE, 1))).isEqualTo(format("%s/results/TEST_SAMPLE_L001_unmapped.bam",
+        assertThat(OutputFile.of(PipelineOutput.UNMAPPED, Lane.of(SAMPLE, 1)).path()).isEqualTo(format(
+                "%s/results/TEST_SAMPLE_L001_unmapped.bam",
                 System.getProperty("user.dir")));
     }
 
     @Test
     public void pathFollowsConventionForFlowCell() {
-        PipelineOutput victim = PipelineOutput.UNMAPPED;
-        assertThat(victim.path(FlowCell.builder().sample(SAMPLE).build())).isEqualTo(format("%s/results/TEST_SAMPLE_unmapped.bam",
+        assertThat(OutputFile.of(PipelineOutput.UNMAPPED, FlowCell.builder().sample(SAMPLE).build()).path()).isEqualTo(format(
+                "%s/results/TEST_SAMPLE_unmapped.bam",
                 System.getProperty("user.dir")));
     }
 }

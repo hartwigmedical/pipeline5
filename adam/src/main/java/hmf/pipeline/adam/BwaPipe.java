@@ -18,7 +18,7 @@ import org.bdgenomics.adam.rdd.fragment.InterleavedFASTQInFormatter;
 import org.bdgenomics.adam.rdd.read.AlignmentRecordRDD;
 import org.bdgenomics.adam.rdd.read.AnySAMOutFormatter;
 
-import hmf.pipeline.PipelineOutput;
+import hmf.io.PipelineOutput;
 import hmf.pipeline.Stage;
 import hmf.sample.Lane;
 import hmf.sample.Reference;

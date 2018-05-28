@@ -1,15 +1,11 @@
 package hmf.testsupport;
 
-import static java.lang.String.format;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.StreamSupport.stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -17,37 +13,22 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import hmf.pipeline.PipelineOutput;
+import hmf.io.PipelineOutput;
 import hmf.sample.Lane;
 import htsjdk.samtools.SAMRecord;
-import htsjdk.samtools.SamInputResource;
 import htsjdk.samtools.SamReader;
-import htsjdk.samtools.SamReaderFactory;
 
-public class AlignmentFileAssertion {
+class AlignmentFileAssertion extends BAMFileAssertion {
     private static final double READ_MISSING_TOLERANCE = 0.01;
-    private final Lane lane;
-    private final PipelineOutput fileType;
 
     AlignmentFileAssertion(final Lane lane, final PipelineOutput fileType) {
-        this.lane = lane;
-        this.fileType = fileType;
+        super(fileType, lane);
     }
 
-    public void isEqualToExpected() throws IOException {
-
-        InputStream expected = Assertions.class.getResourceAsStream(format("/expected/%s", fileType.file(lane)));
-        if (expected == null) {
-            fail(format("No expected file found for sample [%s] and output [%s]. Check that the sample name is correct and there is a "
-                    + "file in /src/test/resources/expected to verify against", lane.sample().name(), fileType));
-        }
-
-        SamReaderFactory samReaderFactory = SamReaderFactory.make();
-        SamReader samReaderExpected = samReaderFactory.open(SamInputResource.of(expected));
-        SamReader samReaderResults = samReaderFactory.open(new File(fileType.path(lane)));
-
-        Map<Key, SAMRecord> recordMapExpected = mapOf(samReaderExpected);
-        Map<Key, SAMRecord> recordMapResults = mapOf(samReaderResults);
+    @Override
+    void assertFile(final SamReader expected, final SamReader results) {
+        Map<Key, SAMRecord> recordMapExpected = mapOf(expected);
+        Map<Key, SAMRecord> recordMapResults = mapOf(results);
 
         checkRecordCounts(recordMapExpected, recordMapResults);
 
@@ -81,8 +62,8 @@ public class AlignmentFileAssertion {
             } else {
                 assertThat(recordEqualsWithoutTags(samRecordExpected, samRecordResult)).as(
                         "BAM files where not equal for sample %s and output %s " + "for read %s",
-                        lane.sample().name(),
-                        fileType,
+                        getSample(),
+                        getPipelineOutput(),
                         samRecordExpected.getReadName()).isTrue();
             }
         }
