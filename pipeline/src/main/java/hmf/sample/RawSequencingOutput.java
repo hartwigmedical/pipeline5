@@ -25,7 +25,7 @@ public interface RawSequencingOutput {
                 filter(configuration.sampleName(), configuration.useInterleaved()),
                 null)
                 .stream()
-                .map(File::getName)
+                .map(File::getName).sorted()
                 .map(RawSequencingOutput::indexFromFileName).map(Integer::parseInt).map(index -> Lane.of(sample, index))
                 .collect(Collectors.toList());
         FlowCell real = FlowCell.builder().sample(sample).addAllLanes(laneFiles).build();
