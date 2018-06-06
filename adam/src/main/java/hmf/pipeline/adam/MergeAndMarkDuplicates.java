@@ -18,11 +18,11 @@ public class MergeAndMarkDuplicates implements Stage<FlowCell> {
 
     @Override
     public PipelineOutput output() {
-        return PipelineOutput.DEDUPED;
+        return PipelineOutput.DUPLICATE_MARKED;
     }
 
     @Override
-    public void execute(final FlowCell input) throws IOException {
+    public void execute(final FlowCell input) {
         javaADAMContext.loadAlignments("/Users/pwolfe/Code/pipeline2/system/results/TESTX_H7YRLADXX_S1_L00*_aligned.bam")
                 .markDuplicates()
                 .save(Persistence.defaultSave(input, output()), true);

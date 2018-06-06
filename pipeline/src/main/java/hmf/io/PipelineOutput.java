@@ -5,7 +5,7 @@ public enum PipelineOutput {
     UNMAPPED("bam"),
     ALIGNED("bam"),
     SORTED("bam"),
-    DEDUPED("bam");
+    DUPLICATE_MARKED("bam");
 
     private final String extension;
 

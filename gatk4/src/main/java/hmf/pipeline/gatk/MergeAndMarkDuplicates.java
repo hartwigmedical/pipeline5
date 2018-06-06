@@ -14,11 +14,11 @@ class MergeAndMarkDuplicates implements Stage<FlowCell> {
 
     @Override
     public PipelineOutput output() {
-        return PipelineOutput.DEDUPED;
+        return PipelineOutput.DUPLICATE_MARKED;
     }
 
     @Override
-    public void execute(FlowCell flowCell) throws IOException {
+    public void execute(FlowCell flowCell) {
         List<String> inputArgs = flowCell.lanes()
                 .stream()
                 .map(lane -> String.format("I=%s", OutputFile.of(PipelineOutput.SORTED, lane).path()))

@@ -11,10 +11,10 @@ import htsjdk.samtools.SAMFlag;
 import htsjdk.samtools.SAMRecord;
 import htsjdk.samtools.SamReader;
 
-class DedupedFileAssertion extends BAMFileAssertion {
+class DuplicateMarkedFileAssertion extends BAMFileAssertion {
 
-    DedupedFileAssertion(final FlowCell cell) {
-        super(PipelineOutput.DEDUPED, cell);
+    DuplicateMarkedFileAssertion(final FlowCell cell) {
+        super(PipelineOutput.DUPLICATE_MARKED, cell);
     }
 
     @Override

@@ -11,6 +11,6 @@ public class Assertions {
     }
 
     public static BAMFileAssertion assertThatOutput(FlowCell cell) {
-        return new DedupedFileAssertion(cell);
+        return new DuplicateMarkedFileAssertion(cell);
     }
 }
