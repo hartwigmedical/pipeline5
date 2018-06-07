@@ -4,48 +4,25 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 
-import hmf.io.PipelineOutput;
 import hmf.sample.FlowCell;
-import hmf.sample.Lane;
 import hmf.sample.RawSequencingOutput;
 
 public class Pipeline {
 
-    private final Map<PipelineOutput, Stage<Lane>> stages;
-    private final Stage<FlowCell> merge;
+    private final Stage<FlowCell> preProcessor;
     private static final String RESULTS_DIRECTORY = System.getProperty("user.dir") + "/results";
 
-    private Pipeline(final Map<PipelineOutput, Stage<Lane>> stages, final Stage<FlowCell> merge) {
-        this.stages = stages;
-        this.merge = merge;
+    private Pipeline(final Stage<FlowCell> preProcessor) {
+        this.preProcessor = preProcessor;
     }
 
     public void execute(RawSequencingOutput sequencing) throws IOException {
         createResultsOutputDirectory();
-        forEachLaneIn(sequencing.sampled().lanes());
-        if (merge != null) {
-            merge.execute(sequencing.sampled());
-        }
-    }
-
-    private void forEachLaneIn(final List<Lane> lanes) throws IOException {
-        for (Lane lane : lanes) {
-            executeForEachLane(lane, PipelineOutput.UNMAPPED);
-            executeForEachLane(lane, PipelineOutput.ALIGNED);
-            executeForEachLane(lane, PipelineOutput.SORTED);
-        }
-    }
-
-    private void executeForEachLane(final Lane lane, final PipelineOutput pipelineOutput) throws IOException {
-        Stage<Lane> stage = stages.get(pipelineOutput);
-        if (stage != null) {
-            stage.execute(lane);
+        if (preProcessor != null) {
+            preProcessor.execute(sequencing.sampled());
         }
     }
 
@@ -59,21 +36,15 @@ public class Pipeline {
     }
 
     public static class Builder {
-        private final Map<PipelineOutput, Stage<Lane>> stages = new HashMap<>();
-        private Stage<FlowCell> merge;
+        private Stage<FlowCell> preProcessor;
 
-        public Builder addLaneStage(Stage<Lane> stage) {
-            stages.put(stage.output(), stage);
-            return this;
-        }
-
-        public Builder setMergeStage(Stage<FlowCell> merge) {
-            this.merge = merge;
+        public Builder preProcessor(Stage<FlowCell> merge) {
+            this.preProcessor = merge;
             return this;
         }
 
         public Pipeline build() {
-            return new Pipeline(stages, merge);
+            return new Pipeline(preProcessor);
         }
     }
 }

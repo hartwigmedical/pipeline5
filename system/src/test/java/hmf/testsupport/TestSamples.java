@@ -13,7 +13,10 @@ public class TestSamples {
     public static final Lane CANCER_PANEL_LANE_1 = Lane.of(CANCER_PANEL_SAMPLE, 1);
     private static final ImmutableConfiguration.Builder DEFAULT_CONFIG_BUILDER = Configuration.builder()
             .sampleDirectory(System.getProperty("user.dir") + SAMPLE_DIR)
-            .referencePath(System.getProperty("user.dir") + "/src/test/resources/reference/Homo_sapiens.GRCh37.GATK.illumina.chr22.fa");
+            .referencePath(System.getProperty("user.dir") + "/src/test/resources/reference/Homo_sapiens.GRCh37.GATK.illumina.chr22.fa")
+            .addKnownIndelPaths(System.getProperty("user.dir") + "/src/test/resources/known_indels/1000G_phase1.indels.b37.vcf")
+            .addKnownIndelPaths(
+                    System.getProperty("user.dir") + "/src/test/resources/known_indels/Mills_and_1000G_gold_standard.indels.b37.vcf");
     public static final Configuration CANCER_PANEL = DEFAULT_CONFIG_BUILDER.sampleName(CANCER_PANEL_SAMPLE_NAME).build();
 
     private static final String HUNDREDK_READS_HISEQ_SAMPLE_NAME = "TESTX_H7YRLADXX_S1";
