@@ -14,15 +14,15 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import hmf.io.PipelineOutput;
-import hmf.sample.Lane;
+import hmf.sample.FlowCell;
 import htsjdk.samtools.SAMRecord;
 import htsjdk.samtools.SamReader;
 
 class AlignmentFileAssertion extends BAMFileAssertion {
     private static final double READ_MISSING_TOLERANCE = 0.01;
 
-    AlignmentFileAssertion(final Lane lane, final PipelineOutput fileType) {
-        super(fileType, lane);
+    AlignmentFileAssertion(final FlowCell cell, final PipelineOutput fileType) {
+        super(fileType, cell);
     }
 
     @Override
@@ -71,7 +71,7 @@ class AlignmentFileAssertion extends BAMFileAssertion {
     }
 
     private static Map<Key, SAMRecord> mapOf(final SamReader samReaderExpected) {
-        return stream(samReaderExpected.spliterator(), false).collect(toMap(Key::of, Function.identity()));
+        return stream(samReaderExpected.spliterator(), false).collect(toMap(Key::of, Function.identity(), (key1, key2) -> key1));
     }
 
     private static boolean recordEqualsWithoutTags(final SAMRecord record1, final SAMRecord record2) {

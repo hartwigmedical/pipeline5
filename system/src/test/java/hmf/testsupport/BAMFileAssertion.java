@@ -5,7 +5,6 @@ import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.fail;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 
 import hmf.io.OutputFile;
@@ -16,7 +15,7 @@ import htsjdk.samtools.SamInputResource;
 import htsjdk.samtools.SamReader;
 import htsjdk.samtools.SamReaderFactory;
 
-public abstract class BAMFileAssertion {
+abstract class BAMFileAssertion {
 
     private final PipelineOutput pipelineOutput;
     private final HasSample sample;
@@ -26,7 +25,7 @@ public abstract class BAMFileAssertion {
         this.sample = sample;
     }
 
-    public void isEqualToExpected() throws IOException {
+    void isEqualToExpected() {
         InputStream expected = Assertions.class.getResourceAsStream(format("/expected/%s", OutputFile.of(pipelineOutput, sample).file()));
         if (expected == null) {
             fail(format("No expected file found for sample [%s] and output [%s]. Check that the sample name is correct and there is a "

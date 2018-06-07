@@ -30,14 +30,15 @@ public class PipelineTest {
     @Ignore("ADAM Preprocessor fails currently on this sample (finds far less duplicates than expected). More investigation necessary")
     @Test
     public void adamPreprocessingMatchesCurrentPipelineOuput() throws Exception {
-        ADAMPipelines.preProcessing(Reference.from(HUNDREDK_READS_HISEQ), new ADAMContext(context.sc())).execute(RawSequencingOutput.from(HUNDREDK_READS_HISEQ));
-        assertThatOutput(HUNDREDK_READS_HISEQ_FLOW_CELL).isEqualToExpected();
+        ADAMPipelines.preProcessing(Reference.from(HUNDREDK_READS_HISEQ), new ADAMContext(context.sc()))
+                .execute(RawSequencingOutput.from(HUNDREDK_READS_HISEQ));
+        assertThatOutput(HUNDREDK_READS_HISEQ_FLOW_CELL).aligned().duplicatesMarked().isEqualToExpected();
     }
 
     @Ignore("GATK preprocessor fails currently on this sample (duplicate key exception). More investigation necessary")
     @Test
     public void gatkPreprocessingMatchesCurrentPipelineOuput() throws Exception {
         GATK4Pipelines.preProcessing(Reference.from(HUNDREDK_READS_HISEQ), context).execute(RawSequencingOutput.from(HUNDREDK_READS_HISEQ));
-        assertThatOutput(HUNDREDK_READS_HISEQ_FLOW_CELL).isEqualToExpected();
+        assertThatOutput(HUNDREDK_READS_HISEQ_FLOW_CELL).aligned().duplicatesMarked().isEqualToExpected();
     }
 }
