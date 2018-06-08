@@ -1,4 +1,4 @@
-package hmf.sample;
+package hmf.patient;
 
 import org.immutables.value.Value;
 

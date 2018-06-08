@@ -1,10 +1,10 @@
 package hmf.testsupport;
 
-import hmf.sample.FlowCell;
+import hmf.patient.Sample;
 
 public class Assertions {
 
-    public static AssertionChain assertThatOutput(FlowCell cell) {
+    public static AssertionChain assertThatOutput(Sample cell) {
         return new AssertionChain(cell);
     }
 }

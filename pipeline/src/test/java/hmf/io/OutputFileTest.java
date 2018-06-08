@@ -6,24 +6,24 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
 
-import hmf.sample.FlowCell;
-import hmf.sample.Lane;
-import hmf.sample.Sample;
+import hmf.patient.Lane;
+import hmf.patient.Sample;
 
 public class OutputFileTest {
 
-    private static final Sample SAMPLE = Sample.of("", "TEST_SAMPLE");
+    private static final String SAMPLE_NAME = "TEST_SAMPLE";
 
     @Test
     public void pathFollowsConventionForLane() {
-        assertThat(OutputFile.of(PipelineOutput.UNMAPPED, Lane.of(SAMPLE, 1)).path()).isEqualTo(format(
+        assertThat(OutputFile.of(PipelineOutput.UNMAPPED, Lane.of("", SAMPLE_NAME, 1)).path()).isEqualTo(format(
                 "%s/results/TEST_SAMPLE_L001_unmapped.bam",
                 System.getProperty("user.dir")));
     }
 
     @Test
     public void pathFollowsConventionForFlowCell() {
-        assertThat(OutputFile.of(PipelineOutput.UNMAPPED, FlowCell.builder().sample(SAMPLE).build()).path()).isEqualTo(format(
+        assertThat(OutputFile.of(PipelineOutput.UNMAPPED, Sample.builder("", SAMPLE_NAME).name(SAMPLE_NAME).build()).path()).isEqualTo(
+                format(
                 "%s/results/TEST_SAMPLE_unmapped.bam",
                 System.getProperty("user.dir")));
     }

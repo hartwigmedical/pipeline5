@@ -2,8 +2,8 @@ package hmf.pipeline.adam;
 
 import org.bdgenomics.adam.rdd.ADAMContext;
 
+import hmf.patient.Reference;
 import hmf.pipeline.Pipeline;
-import hmf.sample.Reference;
 
 public class ADAMPipelines {
 

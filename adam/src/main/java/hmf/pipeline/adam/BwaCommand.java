@@ -5,8 +5,8 @@ import static java.lang.String.format;
 import java.util.ArrayList;
 import java.util.List;
 
-import hmf.sample.Reference;
-import hmf.sample.Sample;
+import hmf.patient.Reference;
+import hmf.patient.Sample;
 
 class BwaCommand {
 

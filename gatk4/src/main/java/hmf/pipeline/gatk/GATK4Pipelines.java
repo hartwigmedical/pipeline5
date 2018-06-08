@@ -2,8 +2,8 @@ package hmf.pipeline.gatk;
 
 import org.apache.spark.api.java.JavaSparkContext;
 
+import hmf.patient.Reference;
 import hmf.pipeline.Pipeline;
-import hmf.sample.Reference;
 
 public class GATK4Pipelines {
 

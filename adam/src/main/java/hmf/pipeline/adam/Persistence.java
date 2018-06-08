@@ -5,11 +5,11 @@ import org.bdgenomics.adam.rdd.JavaSaveArgs;
 
 import hmf.io.OutputFile;
 import hmf.io.PipelineOutput;
-import hmf.sample.HasSample;
+import hmf.patient.FileSystemEntity;
 
 class Persistence {
 
-    static JavaSaveArgs defaultSave(HasSample hasSample, PipelineOutput output) {
+    static JavaSaveArgs defaultSave(FileSystemEntity hasSample, PipelineOutput output) {
         return new JavaSaveArgs(OutputFile.of(output, hasSample).path(), 64, 64, CompressionCodecName.UNCOMPRESSED, false, true, false);
     }
 }

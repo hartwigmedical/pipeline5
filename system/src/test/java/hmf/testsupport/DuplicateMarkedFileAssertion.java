@@ -6,14 +6,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import hmf.io.PipelineOutput;
-import hmf.sample.FlowCell;
+import hmf.patient.Sample;
 import htsjdk.samtools.SAMFlag;
 import htsjdk.samtools.SAMRecord;
 import htsjdk.samtools.SamReader;
 
-class DuplicateMarkedFileAssertion extends BAMFileAssertion {
+class DuplicateMarkedFileAssertion extends BAMFileAssertion<Sample> {
 
-    DuplicateMarkedFileAssertion(final FlowCell cell) {
+    DuplicateMarkedFileAssertion(final Sample cell) {
         super(PipelineOutput.DUPLICATE_MARKED, cell);
     }
 

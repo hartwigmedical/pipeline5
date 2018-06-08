@@ -20,13 +20,13 @@ import org.bdgenomics.adam.rdd.read.AlignmentRecordRDD;
 import org.bdgenomics.adam.rdd.read.AnySAMOutFormatter;
 
 import hmf.io.PipelineOutput;
+import hmf.patient.Lane;
+import hmf.patient.Reference;
+import hmf.patient.Sample;
 import hmf.pipeline.Stage;
-import hmf.sample.FlowCell;
-import hmf.sample.Lane;
-import hmf.sample.Reference;
 import scala.Option;
 
-class ADAMPreProcessor implements Stage<FlowCell> {
+class ADAMPreProcessor implements Stage<Sample> {
 
     private final ADAMContext adamContext;
     private final Reference reference;
@@ -42,28 +42,27 @@ class ADAMPreProcessor implements Stage<FlowCell> {
     }
 
     @Override
-    public void execute(FlowCell flowCell) throws IOException {
+    public void execute(Sample sample) throws IOException {
         SequenceDictionary sequenceDictionary = adamContext.loadSequenceDictionary(reference.path() + ".dict");
         List<AlignmentRecordRDD> laneRdds =
-                flowCell.lanes().stream().map(lane -> adamBwa(sequenceDictionary, lane)).collect(Collectors.toList());
+                sample.lanes().stream().map(lane -> adamBwa(sequenceDictionary, sample, lane)).collect(Collectors.toList());
         if (!laneRdds.isEmpty()) {
             laneRdds.get(0).<AlignmentRecordRDD>union(asScalaBufferConverter(laneRdds.subList(1,
-                    laneRdds.size())).asScala()).markDuplicates().save(Persistence.defaultSave(flowCell, output()), true);
+                    laneRdds.size())).asScala()).markDuplicates().save(Persistence.defaultSave(sample, output()), true);
         }
     }
 
-    private AlignmentRecordRDD adamBwa(final SequenceDictionary sequenceDictionary, final Lane lane) {
+    private AlignmentRecordRDD adamBwa(final SequenceDictionary sequenceDictionary, final Sample sample, final Lane lane) {
         return adamContext.loadInterleavedFastqAsFragments(format("%s/%s_L00%s_interleaved.fastq",
-                lane.sample().directory(),
-                lane.sample().name(), lane.index()))
-                .pipe(BwaCommand.tokens(reference, lane.sample()),
+                lane.directory(),
+                sample.name(),
+                lane.index())).pipe(BwaCommand.tokens(reference, sample),
                         Collections.emptyList(),
                         Collections.emptyMap(),
                         0,
                         InterleavedFASTQInFormatter.class,
                         new AnySAMOutFormatter(),
-                        new FragmentsToAlignmentRecordsConverter())
-                .replaceRecordGroups(recordDictionary(recordGroup(lane.sample().name())))
+                        new FragmentsToAlignmentRecordsConverter()).replaceRecordGroups(recordDictionary(recordGroup(sample.name())))
                 .replaceSequences(sequenceDictionary);
     }
 
@@ -75,8 +74,7 @@ class ADAMPreProcessor implements Stage<FlowCell> {
         return new RecordGroup(sample,
                 sample,
                 Option.empty(),
-                Option.empty(),
-                Option.empty(), Option.empty(), Option.empty(), Option.apply(sample),
+                Option.empty(), Option.empty(), Option.empty(), Option.empty(), Option.apply(sample),
                 Option.empty(),
                 Option.empty(),
                 Option.empty());

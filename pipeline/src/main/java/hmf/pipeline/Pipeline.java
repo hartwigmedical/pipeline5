@@ -7,22 +7,22 @@ import java.nio.file.Paths;
 
 import org.apache.commons.io.FileUtils;
 
-import hmf.sample.FlowCell;
-import hmf.sample.RawSequencingOutput;
+import hmf.patient.RawSequencingOutput;
+import hmf.patient.Sample;
 
 public class Pipeline {
 
-    private final Stage<FlowCell> preProcessor;
+    private final Stage<Sample> preProcessor;
     private static final String RESULTS_DIRECTORY = System.getProperty("user.dir") + "/results";
 
-    private Pipeline(final Stage<FlowCell> preProcessor) {
+    private Pipeline(final Stage<Sample> preProcessor) {
         this.preProcessor = preProcessor;
     }
 
     public void execute(RawSequencingOutput sequencing) throws IOException {
         createResultsOutputDirectory();
         if (preProcessor != null) {
-            preProcessor.execute(sequencing.sampled());
+            preProcessor.execute(sequencing.patient().real());
         }
     }
 
@@ -36,9 +36,9 @@ public class Pipeline {
     }
 
     public static class Builder {
-        private Stage<FlowCell> preProcessor;
+        private Stage<Sample> preProcessor;
 
-        public Builder preProcessor(Stage<FlowCell> merge) {
+        public Builder preProcessor(Stage<Sample> merge) {
             this.preProcessor = merge;
             return this;
         }

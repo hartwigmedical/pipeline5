@@ -2,12 +2,13 @@ package hmf.io;
 
 import static java.lang.String.format;
 
-import hmf.sample.FlowCell;
-import hmf.sample.HasSample;
-import hmf.sample.HasSampleVisitor;
-import hmf.sample.Lane;
+import hmf.patient.FileSystemEntity;
+import hmf.patient.FileSystemVisitor;
+import hmf.patient.Lane;
+import hmf.patient.Patient;
+import hmf.patient.Sample;
 
-public class OutputFile implements HasSampleVisitor {
+public class OutputFile implements FileSystemVisitor {
 
     private static final String RESULTS_DIRECTORY = format("%s/results/", workingDirectory());
     private final PipelineOutput output;
@@ -19,9 +20,14 @@ public class OutputFile implements HasSampleVisitor {
     }
 
     @Override
-    public void visit(final FlowCell cell) {
-        path = path(cell);
-        file = file(cell);
+    public void visit(final Patient patient) {
+        deny("Take it easy, the patient file entity structure is not yet implemented.");
+    }
+
+    @Override
+    public void visit(final Sample sample) {
+        path = path(sample);
+        file = file(sample);
     }
 
     @Override
@@ -38,7 +44,7 @@ public class OutputFile implements HasSampleVisitor {
         return file;
     }
 
-    public static OutputFile of(PipelineOutput output, HasSample hasSample) {
+    public static OutputFile of(PipelineOutput output, FileSystemEntity hasSample) {
         OutputFile outputFile = new OutputFile(output);
         hasSample.accept(outputFile);
         return outputFile;
@@ -48,16 +54,16 @@ public class OutputFile implements HasSampleVisitor {
         return format("%s%s", RESULTS_DIRECTORY, file(lane));
     }
 
-    private String path(FlowCell flowCell) {
-        return format("%s%s", RESULTS_DIRECTORY, file(flowCell));
+    private String path(Sample sample) {
+        return format("%s%s", RESULTS_DIRECTORY, file(sample));
     }
 
-    private String file(FlowCell flowCell) {
-        return format("%s_%s.%s", flowCell.sample().name(), output.toString().toLowerCase(), output.getExtension());
+    private String file(Sample sample) {
+        return format("%s_%s.%s", sample.name(), output.toString().toLowerCase(), output.getExtension());
     }
 
     private String file(Lane lane) {
-        return format("%s_L00%s_%s.%s", lane.sample().name(), lane.index(), output.toString().toLowerCase(), output.getExtension());
+        return format("%s_L00%s_%s.%s", lane.name(), lane.index(), output.toString().toLowerCase(), output.getExtension());
     }
 
     private static String workingDirectory() {

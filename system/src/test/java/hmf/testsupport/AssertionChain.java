@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import hmf.io.PipelineOutput;
-import hmf.sample.FlowCell;
+import hmf.patient.Sample;
 
 public class AssertionChain {
-    private final FlowCell flowCell;
+    private final Sample flowCell;
     private final List<BAMFileAssertion> assertions = new ArrayList<>();
 
-    AssertionChain(final FlowCell flowCell) {
+    AssertionChain(final Sample flowCell) {
         this.flowCell = flowCell;
     }
 

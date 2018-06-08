@@ -1,4 +1,4 @@
-package hmf.sample;
+package hmf.patient;
 
 import java.io.File;
 import java.util.Collection;
@@ -16,20 +16,26 @@ public interface RawSequencingOutput {
     String FIRST_IN_PAIR = "_R1";
     String LANE_PREFIX = "L0";
 
-    FlowCell sampled();
+    Patient patient();
 
     static RawSequencingOutput from(Configuration configuration) {
-        Sample sample = Sample.of(configuration.sampleDirectory(), configuration.sampleName());
         ImmutableRawSequencingOutput.Builder builder = ImmutableRawSequencingOutput.builder();
-        Collection<Lane> laneFiles = FileUtils.listFiles(new File(configuration.sampleDirectory()),
-                filter(configuration.sampleName(), configuration.useInterleaved()),
+        Collection<Lane> laneFiles = FileUtils.listFiles(new File(configuration.patientDirectory()),
+                filter(configuration.patientName(), configuration.useInterleaved()),
                 null)
                 .stream()
-                .map(File::getName).sorted()
-                .map(RawSequencingOutput::indexFromFileName).map(Integer::parseInt).map(index -> Lane.of(sample, index))
+                .map(File::getName)
+                .sorted()
+                .map(RawSequencingOutput::indexFromFileName)
+                .map(Integer::parseInt)
+                .map(index -> Lane.of(configuration.patientDirectory(), configuration.patientName(), index))
                 .collect(Collectors.toList());
-        FlowCell real = FlowCell.builder().sample(sample).addAllLanes(laneFiles).build();
-        return builder.sampled(real).build();
+        Sample real = Sample.builder(configuration.patientDirectory(), configuration.patientName())
+                .name(configuration.patientName())
+                .addAllLanes(laneFiles)
+                .build();
+        Patient patient = Patient.of(configuration.patientDirectory(), configuration.patientName(), real, real);
+        return builder.patient(patient).build();
     }
 
     static String indexFromFileName(final String name) {

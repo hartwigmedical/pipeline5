@@ -7,9 +7,9 @@ import org.immutables.value.Value;
 @Value.Immutable
 public interface Configuration {
 
-    String sampleDirectory();
+    String patientDirectory();
 
-    String sampleName();
+    String patientName();
 
     String referencePath();
 

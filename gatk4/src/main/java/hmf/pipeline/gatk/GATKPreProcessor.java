@@ -22,15 +22,15 @@ import org.broadinstitute.hellbender.utils.read.markduplicates.OpticalDuplicateF
 
 import hmf.io.OutputFile;
 import hmf.io.PipelineOutput;
+import hmf.patient.Lane;
+import hmf.patient.Reference;
+import hmf.patient.Sample;
 import hmf.pipeline.Stage;
-import hmf.sample.FlowCell;
-import hmf.sample.Lane;
-import hmf.sample.Reference;
 import htsjdk.samtools.SAMFileHeader;
 import htsjdk.samtools.SAMSequenceDictionary;
 import picard.sam.FastqToSam;
 
-public class GATKPreProcessor implements Stage<FlowCell> {
+public class GATKPreProcessor implements Stage<Sample> {
 
     private final ReadsSparkSource readsSparkSource;
     private final JavaSparkContext context;
@@ -48,24 +48,23 @@ public class GATKPreProcessor implements Stage<FlowCell> {
     }
 
     @Override
-    public void execute(FlowCell flowCell) throws IOException {
-        if (!flowCell.lanes().isEmpty()) {
-            flowCell.lanes().forEach(createUBAMFromFastQ());
+    public void execute(Sample sample) throws IOException {
+        if (!sample.lanes().isEmpty()) {
+            sample.lanes().forEach(createUBAMFromFastQ(sample.directory(), sample));
 
-            JavaRDD<GATKRead> mergedReads = merged(flowCell.lanes().stream().map(lane -> {
-                String unmappedBamFileName = OutputFile.of(PipelineOutput.UNMAPPED, lane).path();
+            JavaRDD<GATKRead> mergedReads = merged(sample.lanes().stream().map(lane -> {
+                String unmappedBamFileName = OutputFile.of(PipelineOutput.UNMAPPED, sample).path();
                 return runBwa(unmappedBamFileName, bwaSparkEngine(context, reference, readsSparkSource, unmappedBamFileName));
             }).collect(Collectors.toList()));
 
-            SAMFileHeader firstHeader =
-                    readsSparkSource.getHeader(OutputFile.of(PipelineOutput.UNMAPPED, flowCell.lanes().get(0)).path(), reference.path());
+            SAMFileHeader firstHeader = readsSparkSource.getHeader(OutputFile.of(PipelineOutput.UNMAPPED, sample).path(), reference.path());
             JavaRDD<GATKRead> alignedDuplicatesMarked = MarkDuplicatesSpark.mark(mergedReads,
                     firstHeader,
                     MarkDuplicatesScoringStrategy.SUM_OF_BASE_QUALITIES,
                     new OpticalDuplicateFinder(),
                     1,
                     false);
-            writeOutput(context, flowCell, firstHeader, alignedDuplicatesMarked);
+            writeOutput(context, sample, firstHeader, alignedDuplicatesMarked);
         }
     }
 
@@ -77,14 +76,14 @@ public class GATKPreProcessor implements Stage<FlowCell> {
         return mergedReads;
     }
 
-    private static Consumer<Lane> createUBAMFromFastQ() {
+    private static Consumer<Lane> createUBAMFromFastQ(String directory, Sample sample) {
         return lane -> PicardExecutor.of(new FastqToSam(),
-                new String[] { readFileArgumentOf(1, lane), readFileArgumentOf(2, lane), "SM=" + lane.sample().name(),
-                        "O=" + OutputFile.of(PipelineOutput.UNMAPPED, lane).path() }).execute();
+                new String[] { readFileArgumentOf(1, directory, sample, lane), readFileArgumentOf(2, directory, sample, lane),
+                        "SM=" + sample.name(), "O=" + OutputFile.of(PipelineOutput.UNMAPPED, sample).path() }).execute();
     }
 
-    private static String readFileArgumentOf(int sampleIndex, Lane lane) {
-        return format("F%s=%s/%s_L00%s_R%s.fastq", sampleIndex, lane.sample().directory(), lane.sample().name(), lane.index(), sampleIndex);
+    private static String readFileArgumentOf(int sampleIndex, String directory, Sample sample, Lane lane) {
+        return format("F%s=%s/%s_L00%s_R%s.fastq", sampleIndex, directory, sample.name(), lane.index(), sampleIndex);
     }
 
     private JavaRDD<GATKRead> runBwa(final String unmappedBamFileName, final BwaSparkEngine bwaEngine) {
@@ -103,7 +102,7 @@ public class GATKPreProcessor implements Stage<FlowCell> {
                 readsHeader.getSequenceDictionary());
     }
 
-    private void writeOutput(final JavaSparkContext context, final FlowCell flowCell, SAMFileHeader header,
+    private void writeOutput(final JavaSparkContext context, final Sample flowCell, SAMFileHeader header,
             final JavaRDD<GATKRead> alignedReads) throws IOException {
         ReadsSparkSink.writeReads(context, OutputFile.of(output(), flowCell).path(), null, alignedReads, header, ReadsWriteFormat.SINGLE);
     }

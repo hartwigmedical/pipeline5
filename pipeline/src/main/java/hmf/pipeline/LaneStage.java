@@ -1,6 +1,6 @@
 package hmf.pipeline;
 
-import hmf.sample.Lane;
+import hmf.patient.Lane;
 
 public interface LaneStage extends Stage<Lane> {
 }
