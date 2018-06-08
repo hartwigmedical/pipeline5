@@ -18,6 +18,7 @@ public class TestPatients {
     public static final Sample HUNDREDK_READS_HISEQ_REAL_SAMPLE = Sample.builder(PATIENT_DIR, HUNDREDK_READS_HISEQ_PATIENT_NAME)
             .addLanes(HUNDREDK_READS_HISEQ_LANE_1, HUNDREDK_READS_HISEQ_LANE_2)
             .build();
-    public static final Configuration HUNDREDK_READS_HISEQ = DEFAULT_CONFIG_BUILDER.patientName(HUNDREDK_READS_HISEQ_PATIENT_NAME).build();
+    public static final Configuration HUNDREDK_READS_HISEQ =
+            DEFAULT_CONFIG_BUILDER.patientName(HUNDREDK_READS_HISEQ_PATIENT_NAME).sparkMaster("local[1]").build();
 
 }
