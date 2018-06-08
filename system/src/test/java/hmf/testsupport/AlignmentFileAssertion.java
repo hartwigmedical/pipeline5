@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import hmf.io.PipelineOutput;
+import hmf.io.OutputType;
 import hmf.patient.Sample;
 import htsjdk.samtools.SAMRecord;
 import htsjdk.samtools.SamReader;
@@ -21,7 +21,7 @@ import htsjdk.samtools.SamReader;
 class AlignmentFileAssertion extends BAMFileAssertion<Sample> {
     private static final double READ_MISSING_TOLERANCE = 0.01;
 
-    AlignmentFileAssertion(final Sample cell, final PipelineOutput fileType) {
+    AlignmentFileAssertion(final Sample cell, final OutputType fileType) {
         super(fileType, cell);
     }
 
@@ -61,8 +61,7 @@ class AlignmentFileAssertion extends BAMFileAssertion<Sample> {
                 missingReadsInResults.add(key);
             } else {
                 assertThat(recordEqualsWithoutTags(samRecordExpected, samRecordResult)).as(
-                        "BAM files where not equal for sample %s and output %s " + "for read %s", getName(),
-                        getPipelineOutput(),
+                        "BAM files where not equal for sample %s and output %s " + "for read %s", getName(), getOutputType(),
                         samRecordExpected.getReadName()).isTrue();
             }
         }

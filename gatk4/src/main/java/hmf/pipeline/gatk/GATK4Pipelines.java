@@ -7,7 +7,9 @@ import hmf.pipeline.Pipeline;
 
 public class GATK4Pipelines {
 
-    public static Pipeline preProcessing(final Reference reference, final JavaSparkContext context) {
-        return Pipeline.builder().preProcessor(new GATKPreProcessor(reference, context)).build();
+    public static Pipeline<ReadsAndHeader> preProcessing(final Reference reference, final JavaSparkContext context) {
+        return Pipeline.<ReadsAndHeader>builder().preProcessor(new GATKPreProcessor(reference, context))
+                .perSampleStore(new GATKSampleStore(context))
+                .build();
     }
 }

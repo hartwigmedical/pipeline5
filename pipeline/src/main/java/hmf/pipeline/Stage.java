@@ -2,10 +2,10 @@ package hmf.pipeline;
 
 import java.io.IOException;
 
-import hmf.io.PipelineOutput;
+import hmf.io.Output;
+import hmf.patient.FileSystemEntity;
 
-public interface Stage<T> {
-    PipelineOutput output();
+public interface Stage<T extends FileSystemEntity, P> {
 
-    void execute(T input) throws IOException;
+    Output<T, P> execute(T input) throws IOException;
 }

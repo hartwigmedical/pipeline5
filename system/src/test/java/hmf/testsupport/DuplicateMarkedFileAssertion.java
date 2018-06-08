@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.ArrayList;
 import java.util.List;
 
-import hmf.io.PipelineOutput;
+import hmf.io.OutputType;
 import hmf.patient.Sample;
 import htsjdk.samtools.SAMFlag;
 import htsjdk.samtools.SAMRecord;
@@ -14,7 +14,7 @@ import htsjdk.samtools.SamReader;
 class DuplicateMarkedFileAssertion extends BAMFileAssertion<Sample> {
 
     DuplicateMarkedFileAssertion(final Sample cell) {
-        super(PipelineOutput.DUPLICATE_MARKED, cell);
+        super(OutputType.DUPLICATE_MARKED, cell);
     }
 
     @Override

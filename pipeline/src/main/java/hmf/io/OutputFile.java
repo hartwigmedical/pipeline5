@@ -11,11 +11,11 @@ import hmf.patient.Sample;
 public class OutputFile implements FileSystemVisitor {
 
     private static final String RESULTS_DIRECTORY = format("%s/results/", workingDirectory());
-    private final PipelineOutput output;
+    private final OutputType output;
     private String path;
     private String file;
 
-    private OutputFile(final PipelineOutput output) {
+    private OutputFile(final OutputType output) {
         this.output = output;
     }
 
@@ -44,7 +44,7 @@ public class OutputFile implements FileSystemVisitor {
         return file;
     }
 
-    public static OutputFile of(PipelineOutput output, FileSystemEntity hasSample) {
+    public static OutputFile of(OutputType output, FileSystemEntity hasSample) {
         OutputFile outputFile = new OutputFile(output);
         hasSample.accept(outputFile);
         return outputFile;

@@ -3,7 +3,7 @@ package hmf.testsupport;
 import java.util.ArrayList;
 import java.util.List;
 
-import hmf.io.PipelineOutput;
+import hmf.io.OutputType;
 import hmf.patient.Sample;
 
 public class AssertionChain {
@@ -15,7 +15,7 @@ public class AssertionChain {
     }
 
     public AssertionChain aligned() {
-        assertions.add(new AlignmentFileAssertion(flowCell, PipelineOutput.DUPLICATE_MARKED));
+        assertions.add(new AlignmentFileAssertion(flowCell, OutputType.DUPLICATE_MARKED));
         return this;
     }
 

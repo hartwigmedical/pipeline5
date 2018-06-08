@@ -7,22 +7,25 @@ import java.nio.file.Paths;
 
 import org.apache.commons.io.FileUtils;
 
+import hmf.io.OutputStore;
 import hmf.patient.RawSequencingOutput;
 import hmf.patient.Sample;
 
-public class Pipeline {
+public class Pipeline<P> {
 
-    private final Stage<Sample> preProcessor;
+    private final Stage<Sample, P> preProcessor;
+    private final OutputStore<Sample, P> perSampleStore;
     private static final String RESULTS_DIRECTORY = System.getProperty("user.dir") + "/results";
 
-    private Pipeline(final Stage<Sample> preProcessor) {
+    private Pipeline(final Stage<Sample, P> preProcessor, final OutputStore<Sample, P> perSampleStore) {
         this.preProcessor = preProcessor;
+        this.perSampleStore = perSampleStore;
     }
 
     public void execute(RawSequencingOutput sequencing) throws IOException {
         createResultsOutputDirectory();
         if (preProcessor != null) {
-            preProcessor.execute(sequencing.patient().real());
+            perSampleStore.store(preProcessor.execute(sequencing.patient().real()));
         }
     }
 
@@ -31,20 +34,26 @@ public class Pipeline {
         Files.createDirectory(Paths.get(RESULTS_DIRECTORY));
     }
 
-    public static Pipeline.Builder builder() {
-        return new Builder();
+    public static <P> Pipeline.Builder<P> builder() {
+        return new Builder<>();
     }
 
-    public static class Builder {
-        private Stage<Sample> preProcessor;
+    public static class Builder<P> {
+        private Stage<Sample, P> preProcessor;
+        private OutputStore<Sample, P> perSampleStore;
 
-        public Builder preProcessor(Stage<Sample> merge) {
+        public Builder<P> preProcessor(Stage<Sample, P> merge) {
             this.preProcessor = merge;
             return this;
         }
 
-        public Pipeline build() {
-            return new Pipeline(preProcessor);
+        public Builder<P> perSampleStore(OutputStore<Sample, P> perSampleStore) {
+            this.perSampleStore = perSampleStore;
+            return this;
+        }
+
+        public Pipeline<P> build() {
+            return new Pipeline<>(preProcessor, perSampleStore);
         }
     }
 }

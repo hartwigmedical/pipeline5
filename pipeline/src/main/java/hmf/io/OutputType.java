@@ -1,6 +1,6 @@
 package hmf.io;
 
-public enum PipelineOutput {
+public enum OutputType {
 
     UNMAPPED("bam"),
     ALIGNED("bam"),
@@ -9,7 +9,7 @@ public enum PipelineOutput {
 
     private final String extension;
 
-    PipelineOutput(final String extension) {
+    OutputType(final String extension) {
         this.extension = extension;
     }
 
