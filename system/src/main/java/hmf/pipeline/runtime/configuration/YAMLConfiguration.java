@@ -11,14 +11,17 @@ import hmf.pipeline.Configuration;
 
 public class YAMLConfiguration {
 
+    private static final String PATIENT_PROPERTY = "patient";
+    private static final String SPARK_PROPERTY = "spark";
+
     public static Configuration from(String workingDirectory) throws IOException {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         Map yamlMap = mapper.readValue(new File(workingDirectory + File.separator + "conf" + File.separator + "pipeline.yaml"), Map.class);
         return Configuration.builder()
-                .patientName(extractSubProperty("patient", "name", yamlMap))
-                .patientDirectory(extractSubProperty("patient", "directory", yamlMap))
-                .referencePath(extractSubProperty("patient", "referencePath", yamlMap))
-                .sparkMaster(extractSubProperty("spark", "master", yamlMap))
+                .patientName(extractSubProperty(PATIENT_PROPERTY, "name", yamlMap))
+                .patientDirectory(extractSubProperty(PATIENT_PROPERTY, "directory", yamlMap))
+                .referencePath(extractSubProperty(PATIENT_PROPERTY, "referencePath", yamlMap))
+                .sparkMaster(extractSubProperty(SPARK_PROPERTY, "master", yamlMap))
                 .build();
     }
 
