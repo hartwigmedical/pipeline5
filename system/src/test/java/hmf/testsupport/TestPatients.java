@@ -6,7 +6,7 @@ import hmf.pipeline.Configuration;
 import hmf.pipeline.ImmutableConfiguration;
 
 public class TestPatients {
-    private static final String PATIENT_DIR = "/src/test/resources/samples";
+    private static final String PATIENT_DIR = "/src/test/resources/patients";
 
     private static final ImmutableConfiguration.Builder DEFAULT_CONFIG_BUILDER = Configuration.builder()
             .patientDirectory(System.getProperty("user.dir") + PATIENT_DIR)
