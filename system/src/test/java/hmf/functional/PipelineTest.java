@@ -12,7 +12,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import hmf.patient.RawSequencingOutput;
-import hmf.patient.Reference;
 import hmf.pipeline.adam.ADAMPipelines;
 import hmf.pipeline.gatk.GATK4Pipelines;
 
@@ -30,7 +29,7 @@ public class PipelineTest {
     @Ignore("ADAM Preprocessor fails currently on this sample (finds far less duplicates than expected). More investigation necessary")
     @Test
     public void adamPreprocessingMatchesCurrentPipelineOuput() throws Exception {
-        ADAMPipelines.preProcessing(Reference.from(HUNDREDK_READS_HISEQ), new ADAMContext(context.sc()))
+        ADAMPipelines.preProcessing(HUNDREDK_READS_HISEQ, new ADAMContext(context.sc()))
                 .execute(RawSequencingOutput.from(HUNDREDK_READS_HISEQ));
         assertThatOutput(HUNDREDK_READS_HISEQ_REAL_SAMPLE).aligned().duplicatesMarked().isEqualToExpected();
     }
@@ -38,7 +37,7 @@ public class PipelineTest {
     @Ignore("GATK preprocessor fails currently on this sample (duplicate key exception). More investigation necessary")
     @Test
     public void gatkPreprocessingMatchesCurrentPipelineOuput() throws Exception {
-        GATK4Pipelines.preProcessing(Reference.from(HUNDREDK_READS_HISEQ), context).execute(RawSequencingOutput.from(HUNDREDK_READS_HISEQ));
+        GATK4Pipelines.preProcessing(HUNDREDK_READS_HISEQ, context).execute(RawSequencingOutput.from(HUNDREDK_READS_HISEQ));
         assertThatOutput(HUNDREDK_READS_HISEQ_REAL_SAMPLE).aligned().duplicatesMarked().isEqualToExpected();
     }
 }

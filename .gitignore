@@ -24,3 +24,7 @@ buildNumber.properties
 
 # Ignore any results from local runs
 */results/**
+
+# Running pipeline locally
+conf/
+results/

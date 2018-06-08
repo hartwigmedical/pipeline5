@@ -23,6 +23,7 @@
         <adam.version>0.24.0</adam.version>
         <cannoli.version>0.1.0</cannoli.version>
         <parquet-hadoop.version>1.8.2</parquet-hadoop.version>
+        <jackson.version>2.9.5</jackson.version>
     </properties>
 
     <modules>
@@ -95,6 +96,16 @@
                 <groupId>org.apache.parquet</groupId>
                 <artifactId>parquet-hadoop</artifactId>
                 <version>${parquet-hadoop.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.dataformat</groupId>
+                <artifactId>jackson-dataformat-yaml</artifactId>
+                <version>${jackson.version}</version>
             </dependency>
 
             <dependency>
