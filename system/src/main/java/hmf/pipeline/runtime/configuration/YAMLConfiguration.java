@@ -17,7 +17,7 @@ public class YAMLConfiguration {
     public static Configuration from(String workingDirectory) throws IOException {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         Map yamlMap = mapper.readValue(new File(workingDirectory + File.separator + "conf" + File.separator + "pipeline.yaml"), Map.class);
-        return Configuration.builder()
+        return Configuration.builder().flavour(Configuration.Flavour.valueOf(extractSubProperty("pipeline", "flavour", yamlMap)))
                 .patientName(extractSubProperty(PATIENT_PROPERTY, "name", yamlMap))
                 .patientDirectory(extractSubProperty(PATIENT_PROPERTY, "directory", yamlMap))
                 .referencePath(extractSubProperty(PATIENT_PROPERTY, "referencePath", yamlMap))

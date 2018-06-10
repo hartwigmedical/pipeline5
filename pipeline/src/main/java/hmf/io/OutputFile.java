@@ -10,7 +10,7 @@ import hmf.patient.Sample;
 
 public class OutputFile implements FileSystemVisitor {
 
-    private static final String RESULTS_DIRECTORY = format("%s/results/", workingDirectory());
+    private static final String RESULTS_DIRECTORY = format("%sresults/", workingDirectory());
     private final OutputType output;
     private String path;
     private String file;

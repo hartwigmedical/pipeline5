@@ -5,6 +5,16 @@ import org.immutables.value.Value;
 @Value.Immutable
 public interface Configuration {
 
+    enum Flavour {
+        GATK4,
+        ADAM
+    }
+
+    @Value.Default
+    default Flavour flavour() {
+        return Flavour.ADAM;
+    }
+
     String sparkMaster();
 
     String patientDirectory();
