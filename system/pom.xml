@@ -102,7 +102,7 @@
                             </execution>
                         </executions>
                         <configuration>
-                            <repository>hartwigmedicalfoundation/pipeline</repository>
+                            <repository>hartwigmedicalfoundation/pipeline2</repository>
                             <tag>${project.version}</tag>
                             <buildArgs>
                                 <JAR_FILE>${project.build.finalName}.jar</JAR_FILE>
