@@ -4,6 +4,16 @@ language: java
 services:
   - docker
 
+env:
+  - DOCKER_USERNAME=hartwigmedicalfoundation
+  - DOCKER_PASSWORD=hmf123
+  - PIPELINE2_VERSION=0.0.$TRAVIS_BUILD_NUMBER
+
 before_install:
   - sudo apt-get -qq update
   - sudo apt-get install -y bwa
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  - mvn versions:set -DnewVersion=$PIPELINE2_VERSION
+
+after_install:
+  - docker push hartwigmedicalfoundation/pipeline2:$PIPELINE2_VERSION
