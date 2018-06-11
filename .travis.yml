@@ -13,5 +13,5 @@ before_install:
   - echo "hmf123" | docker login -u "hartwigmedicalfoundation" --password-stdin
   - mvn versions:set -DnewVersion=$PIPELINE2_VERSION
 
-after_install:
+after_success:
   - docker push hartwigmedicalfoundation/pipeline2:$PIPELINE2_VERSION
