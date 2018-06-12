@@ -20,8 +20,7 @@ public interface RawSequencingOutput {
 
     static RawSequencingOutput from(Configuration configuration) {
         ImmutableRawSequencingOutput.Builder builder = ImmutableRawSequencingOutput.builder();
-        Collection<Lane> laneFiles = FileUtils.listFiles(new File(configuration.patientDirectory()),
-                filter(configuration.patientName(), configuration.useInterleaved()),
+        Collection<Lane> laneFiles = FileUtils.listFiles(new File(configuration.patientDirectory()), filter(configuration.patientName()),
                 null)
                 .stream()
                 .map(File::getName)
@@ -42,13 +41,11 @@ public interface RawSequencingOutput {
         return name.substring(name.indexOf(LANE_PREFIX) + 1, name.indexOf(LANE_PREFIX) + 4);
     }
 
-    static IOFileFilter filter(final String sampleName, final boolean useInterleaved) {
+    static IOFileFilter filter(final String sampleName) {
         return new IOFileFilter() {
             @Override
             public boolean accept(final File file) {
-                return file.getName().contains(sampleName) && (useInterleaved
-                        ? file.getName().contains("interleaved")
-                        : file.getName().contains(FIRST_IN_PAIR));
+                return file.getName().contains(sampleName) && (file.getName().contains(FIRST_IN_PAIR));
             }
 
             @Override
