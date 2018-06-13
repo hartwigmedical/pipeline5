@@ -21,9 +21,9 @@ public class Pipeline<P> {
     }
 
     public void execute(RawSequencingOutput sequencing) throws IOException {
-        LOGGER.info("Preprocessing started for real sample");
-        perSampleStore.store(preProcessor.execute(sequencing.patient().real()));
-        LOGGER.info("Preprocessing complete for real sample");
+        LOGGER.info("Preprocessing started for normal sample");
+        perSampleStore.store(preProcessor.execute(sequencing.patient().normal()));
+        LOGGER.info("Preprocessing complete for normal sample");
     }
 
     public static <P> Pipeline.Builder<P> builder() {

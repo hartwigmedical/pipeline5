@@ -14,14 +14,21 @@ public interface Lane extends FileSystemEntity, Named {
     String name();
 
     @Value.Parameter
-    int index();
+    String readsFile();
+
+    @Value.Parameter
+    String matesFile();
 
     @Override
     default void accept(FileSystemVisitor visitor) {
         visitor.visit(this);
     }
 
-    static Lane of(String directory, String name, int index) {
-        return ImmutableLane.of(directory, name, index);
+    static Lane of(String directory, String name, String readsFile, String matesFile) {
+        return ImmutableLane.of(directory, name, readsFile, matesFile);
+    }
+
+    static ImmutableLane.Builder builder() {
+        return ImmutableLane.builder();
     }
 }

@@ -2,6 +2,8 @@ package hmf.io;
 
 import static java.lang.String.format;
 
+import java.io.File;
+
 import hmf.patient.FileSystemEntity;
 import hmf.patient.FileSystemVisitor;
 import hmf.patient.Lane;
@@ -63,11 +65,11 @@ public class OutputFile implements FileSystemVisitor {
     }
 
     private String file(Lane lane) {
-        return format("%s_L00%s_%s.%s", lane.name(), lane.index(), output.toString().toLowerCase(), output.getExtension());
+        return format("%s_%s.%s", lane.name(), output.toString().toLowerCase(), output.getExtension());
     }
 
     private static String workingDirectory() {
-        return System.getProperty("user.dir");
+        String directory = System.getProperty("user.dir");
+        return directory.isEmpty() ? "" : directory + File.separator;
     }
-
 }

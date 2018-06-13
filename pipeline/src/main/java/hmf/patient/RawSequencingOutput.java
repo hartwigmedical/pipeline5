@@ -1,11 +1,15 @@
 package hmf.patient;
 
-import java.io.File;
-import java.util.Collection;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.IOFileFilter;
 import org.immutables.value.Value;
 
 import hmf.pipeline.Configuration;
@@ -13,45 +17,63 @@ import hmf.pipeline.Configuration;
 @Value.Immutable
 public interface RawSequencingOutput {
 
-    String FIRST_IN_PAIR = "_R1";
-    String LANE_PREFIX = "L0";
+    enum TypePostfix {
+        NORMAL("R"),
+        TUMOUR("T");
+        private final String postfix;
+
+        TypePostfix(final String postfix) {
+            this.postfix = postfix;
+        }
+
+        public String getPostfix() {
+            return postfix;
+        }
+    }
 
     Patient patient();
 
-    static RawSequencingOutput from(Configuration configuration) {
+    static RawSequencingOutput from(Configuration configuration) throws IOException {
         ImmutableRawSequencingOutput.Builder builder = ImmutableRawSequencingOutput.builder();
-        Collection<Lane> laneFiles = FileUtils.listFiles(new File(configuration.patientDirectory()), filter(configuration.patientName()),
-                null)
-                .stream()
-                .map(File::getName)
-                .sorted()
-                .map(RawSequencingOutput::indexFromFileName)
-                .map(Integer::parseInt)
-                .map(index -> Lane.of(configuration.patientDirectory(), configuration.patientName(), index))
-                .collect(Collectors.toList());
-        Sample real = Sample.builder(configuration.patientDirectory(), configuration.patientName())
-                .name(configuration.patientName())
-                .addAllLanes(laneFiles)
+        Optional<Path> maybeNormalDirectory = findDirectoryByConvention(configuration, TypePostfix.NORMAL);
+        Optional<Path> maybeTumourDirectory = findDirectoryByConvention(configuration, TypePostfix.TUMOUR);
+
+        if (maybeNormalDirectory.isPresent() && maybeTumourDirectory.isPresent()) {
+            Path normalDirectory = maybeNormalDirectory.get();
+            Path tumourDirectory = maybeTumourDirectory.get();
+            Sample normal = createPairedEndSample(normalDirectory, configuration.patientName(), TypePostfix.NORMAL);
+            Sample tumour = createPairedEndSample(tumourDirectory, configuration.patientName(), TypePostfix.TUMOUR);
+            Patient patient = Patient.of(configuration.patientDirectory(), configuration.patientName(), normal, tumour);
+            return builder.patient(patient).build();
+        }
+        throw new IllegalArgumentException(String.format(
+                "Patient directory [%s/%s] does not conform to convention. Pipeline2 only supports two subdirectories: "
+                        + "one containing the normal sample as postfixed with R; another containing tumour sample postfixed with T",
+                configuration.patientDirectory(),
+                configuration.patientName()));
+    }
+
+    static Optional<Path> findDirectoryByConvention(final Configuration configuration, final TypePostfix typePostfix) throws IOException {
+        return StreamSupport.stream(Files.newDirectoryStream(Paths.get(configuration.patientDirectory()),
+                configuration.patientName() + typePostfix.getPostfix()).spliterator(), false).findFirst();
+    }
+
+    static Sample createPairedEndSample(final Path sampleDirectory, final String sampleName, TypePostfix postfix) throws IOException {
+        Map<String, ImmutableLane.Builder> builders = new HashMap<>();
+        String sampleNameWithPostfix = sampleName + postfix.getPostfix();
+        for (Path path : Files.newDirectoryStream(sampleDirectory, sampleNameWithPostfix + "_*_S?_L*_R?_*.fastq*")) {
+            String[] tokens = path.toFile().getName().split("_");
+            String laneName = tokens[3];
+            ImmutableLane.Builder builder = builders.computeIfAbsent(laneName,
+                    s -> Lane.builder().directory(sampleDirectory.toString()).name(sampleNameWithPostfix + "_" + s));
+            if (tokens[4].equals("R1")) {
+                builder.readsFile(path.toString());
+            } else if (tokens[4].equals("R2")) {
+                builder.matesFile(path.toString());
+            }
+        }
+        return Sample.builder(sampleDirectory.toString(), sampleNameWithPostfix)
+                .addAllLanes(builders.values().stream().map(ImmutableLane.Builder::build).collect(Collectors.toList()))
                 .build();
-        Patient patient = Patient.of(configuration.patientDirectory(), configuration.patientName(), real, real);
-        return builder.patient(patient).build();
-    }
-
-    static String indexFromFileName(final String name) {
-        return name.substring(name.indexOf(LANE_PREFIX) + 1, name.indexOf(LANE_PREFIX) + 4);
-    }
-
-    static IOFileFilter filter(final String sampleName) {
-        return new IOFileFilter() {
-            @Override
-            public boolean accept(final File file) {
-                return file.getName().contains(sampleName) && (file.getName().contains(FIRST_IN_PAIR));
-            }
-
-            @Override
-            public boolean accept(final File file, final String s) {
-                return accept(file);
-            }
-        };
     }
 }

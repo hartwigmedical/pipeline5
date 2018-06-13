@@ -5,6 +5,6 @@ spark:
   master: local[2]
 
 patient:
-  name: TESTX_H7YRLADXX_S1
+  name: TESTX
   directory: /patients
   referencePath: /reference/Homo_sapiens.GRCh37.GATK.illumina.chr22.fa

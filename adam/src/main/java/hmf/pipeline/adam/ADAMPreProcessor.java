@@ -1,6 +1,5 @@
 package hmf.pipeline.adam;
 
-import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 
 import static scala.collection.JavaConverters.asScalaBufferConverter;
@@ -54,14 +53,14 @@ class ADAMPreProcessor implements Stage<Sample, AlignmentRecordRDD> {
     }
 
     private AlignmentRecordRDD adamBwa(final SequenceDictionary sequenceDictionary, final Sample sample, final Lane lane) {
-        return adamContext.loadPairedFastq(format("%s/%s_L00%s_R1.fastq", lane.directory(), sample.name(), lane.index()),
-                format("%s/%s_L00%s_R2.fastq", lane.directory(), sample.name(), lane.index()),
-                Option.empty(),
-                ValidationStringency.DEFAULT_STRINGENCY)
+        return adamContext.loadPairedFastq(lane.readsFile(), lane.matesFile(), Option.empty(), ValidationStringency.DEFAULT_STRINGENCY)
                 .pipe(BwaCommand.tokens(reference, sample),
                         Collections.emptyList(),
                         Collections.emptyMap(),
-                        0, FASTQInFormatter.class, new AnySAMOutFormatter(), new AlignmentRecordsToAlignmentRecordsConverter())
+                        0,
+                        FASTQInFormatter.class,
+                        new AnySAMOutFormatter(),
+                        new AlignmentRecordsToAlignmentRecordsConverter())
                 .replaceRecordGroups(recordDictionary(recordGroup(sample.name())))
                 .replaceSequences(sequenceDictionary);
     }
@@ -72,7 +71,13 @@ class ADAMPreProcessor implements Stage<Sample, AlignmentRecordRDD> {
 
     private RecordGroup recordGroup(final String sample) {
         return new RecordGroup(sample,
-                sample, Option.empty(), Option.empty(), Option.empty(), Option.empty(), Option.empty(), Option.apply(sample),
+                sample,
+                Option.empty(),
+                Option.empty(),
+                Option.empty(),
+                Option.empty(),
+                Option.empty(),
+                Option.apply(sample),
                 Option.empty(),
                 Option.empty(),
                 Option.empty());
