@@ -12,7 +12,7 @@ import hmf.patient.Sample;
 
 public class OutputFile implements FileSystemVisitor {
 
-    private static final String RESULTS_DIRECTORY = format("%sresults/", workingDirectory());
+    public static final String RESULTS_DIRECTORY = format("%sresults/", workingDirectory());
     private final OutputType output;
     private String path;
     private String file;
@@ -46,9 +46,9 @@ public class OutputFile implements FileSystemVisitor {
         return file;
     }
 
-    public static OutputFile of(OutputType output, FileSystemEntity hasSample) {
+    public static OutputFile of(OutputType output, FileSystemEntity fileSystemEntity) {
         OutputFile outputFile = new OutputFile(output);
-        hasSample.accept(outputFile);
+        fileSystemEntity.accept(outputFile);
         return outputFile;
     }
 
@@ -70,6 +70,6 @@ public class OutputFile implements FileSystemVisitor {
 
     private static String workingDirectory() {
         String directory = System.getProperty("user.dir");
-        return directory.isEmpty() ? "" : directory + File.separator;
+        return directory.equals(File.separator) ? directory : directory + File.separator;
     }
 }

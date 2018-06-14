@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import hmf.io.OutputFile;
 import hmf.io.OutputStore;
 import hmf.patient.RawSequencingOutput;
 import hmf.patient.Sample;
@@ -22,8 +23,18 @@ public class Pipeline<P> {
 
     public void execute(RawSequencingOutput sequencing) throws IOException {
         LOGGER.info("Preprocessing started for normal sample");
+        LOGGER.info("Storing results in {}", OutputFile.RESULTS_DIRECTORY);
+        long startTime = startTimer();
         perSampleStore.store(preProcessor.execute(sequencing.patient().normal()));
-        LOGGER.info("Preprocessing complete for normal sample");
+        LOGGER.info("Preprocessing complete for normal sample, Took {} ms", (endTimer() - startTime));
+    }
+
+    private static long endTimer() {
+        return System.currentTimeMillis();
+    }
+
+    private static long startTimer() {
+        return System.currentTimeMillis();
     }
 
     public static <P> Pipeline.Builder<P> builder() {
