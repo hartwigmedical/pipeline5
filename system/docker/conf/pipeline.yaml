@@ -7,4 +7,4 @@ spark:
 patient:
   name: CPCT12345678
   directory: /patients
-  referencePath: /reference/Homo_sapiens.GRCh37.GATK.illumina.chr22.fa
+  referencePath: /reference/Homo_sapiens.GRCh37.GATK.illumina.fa
