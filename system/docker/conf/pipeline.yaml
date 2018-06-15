@@ -1,0 +1,10 @@
+pipeline:
+  flavour: ADAM
+
+spark:
+  master: local[2]
+
+patient:
+  name: CPCT12345678
+  directory: /patients
+  referencePath: /reference/Homo_sapiens.GRCh37.GATK.illumina.chr22.fa
