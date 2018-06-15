@@ -27,7 +27,7 @@ mvn clean install -DskipDocker
 Pipeline2 expects a yaml file *conf/pipeline.yaml* relative to the processes working directory. See *system/docker/conf/pipeline.yaml* for
 an example of this file. Within the yaml file you can configure the following:
 
-| Requirement             | Criteria
+| Parameter               | Description
 | ----------------------- | ---------------------------------------------
 | pipeline
 | flavour                 | Which test pipeline to use ADAM or GATK
