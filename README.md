@@ -29,11 +29,11 @@ for an example of this file. Within the yaml file you can configure the followin
 
 | Parameter               | Description
 | ----------------------- | ---------------------------------------------
-| <td colspan=2>**pipeline**
+| **pipeline**            | Parameters which impact the running of the pipeline
 | flavour                 | Which test pipeline to use ADAM or GATK
-| <td colspan=3>**spark**
+| **spark**               | Parameters specific to Apache Spark
 | master                  | The spark master user (ie local[#cpus], yarn, spark url, etc)
-| <td colspan=3>**patient**
+| **patient**             | Parameters to configure the patient and reference data
 | name                    | Name of the patient with no sample type postfix
 | directory               | Directory of patient FASTQ files.
 | referencePath           | Full path to reference genome FASTA file
