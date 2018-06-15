@@ -39,18 +39,32 @@ public interface RawSequencingOutput {
         Optional<Path> maybeTumourDirectory = findDirectoryByConvention(configuration, TypePostfix.TUMOUR);
 
         if (maybeNormalDirectory.isPresent() && maybeTumourDirectory.isPresent()) {
-            Path normalDirectory = maybeNormalDirectory.get();
-            Path tumourDirectory = maybeTumourDirectory.get();
-            Sample normal = createPairedEndSample(normalDirectory, configuration.patientName(), TypePostfix.NORMAL);
-            Sample tumour = createPairedEndSample(tumourDirectory, configuration.patientName(), TypePostfix.TUMOUR);
-            Patient patient = Patient.of(configuration.patientDirectory(), configuration.patientName(), normal, tumour);
-            return builder.patient(patient).build();
+            return subdirectoriesForNormalAndTumour(configuration, builder, maybeNormalDirectory.get(), maybeTumourDirectory.get());
+        } else {
+            return normalAndTumourInSameDirectory(configuration, builder);
         }
-        throw new IllegalArgumentException(String.format(
-                "Patient directory [%s/%s] does not conform to convention. Pipeline2 only supports two subdirectories: "
-                        + "one containing the normal sample as postfixed with R; another containing tumour sample postfixed with T",
-                configuration.patientDirectory(),
-                configuration.patientName()));
+    }
+
+    static RawSequencingOutput normalAndTumourInSameDirectory(final Configuration configuration,
+            final ImmutableRawSequencingOutput.Builder builder) throws IOException {
+        return patientOf(configuration,
+                builder,
+                createPairedEndSample(Paths.get(configuration.patientDirectory()), configuration.patientName(), TypePostfix.NORMAL),
+                createPairedEndSample(Paths.get(configuration.patientDirectory()), configuration.patientName(), TypePostfix.TUMOUR));
+    }
+
+    static RawSequencingOutput subdirectoriesForNormalAndTumour(final Configuration configuration,
+            final ImmutableRawSequencingOutput.Builder builder, final Path normalDirectory, final Path tumourDirectory) throws IOException {
+        return patientOf(configuration,
+                builder,
+                createPairedEndSample(normalDirectory, configuration.patientName(), TypePostfix.NORMAL),
+                createPairedEndSample(tumourDirectory, configuration.patientName(), TypePostfix.TUMOUR));
+    }
+
+    static RawSequencingOutput patientOf(final Configuration configuration, final ImmutableRawSequencingOutput.Builder builder,
+            final Sample normal, final Sample tumour) throws IOException {
+        Patient patient = Patient.of(configuration.patientDirectory(), configuration.patientName(), normal, tumour);
+        return builder.patient(patient).build();
     }
 
     static Optional<Path> findDirectoryByConvention(final Configuration configuration, final TypePostfix typePostfix) throws IOException {
