@@ -1,18 +1,15 @@
 #!/usr/bin/env bash
 
-if [[ $EUID -ne 0 ]]; then
-   echo "To run the pipeline2 docker container you must be root. Try [sudo run_pipeline2_docker.sh]"
-   exit 1
-fi
-
 WORKING_DIRECTORY=`pwd`
+PATIENT_DIR="/data/repos/testdata/cancerPanel/"
+REFERENCE_DIR="/data/refgenomes/Homo_sapiens.GRCh37.GATK.illumina/"
 
 print_usage(){
-    echo "Usage: run_pipeline_docker -p patientdir -r referencedir -v version [-c confdir]"
-    echo "  -p patientdir       Directory containing patient data for docker to mount"
-    echo "  -r referencedir     Directory containing reference genome data for docker to mount"
-    echo "  -v version          Version of Pipeline2 docker container"
-    echo "  -c confdir          Optional directory containing confiruration (pipeline.yaml). If not specified default in Docker image is used"
+    echo "Usage: run_pipeline_docker -v version [-p patientdir] [-r referencedir] [-c confdir]"
+    echo "  -v version          Version of Pipeline2 docker container (Mandatory)"
+    echo "  -p patientdir       Directory containing patient data for docker to mount (Optional default = ${PATIENT_DIR})"
+    echo "  -r referencedir     Directory containing reference genome data for docker to mount (Optional default = ${REFERENCE_DIR})"
+    echo "  -c confdir          Directory containing confiruration (pipeline.yaml) (Optional default = pipeline.yaml of docker image)"
     exit 1
 }
 
@@ -39,4 +36,7 @@ then
     volumes="-v ${CONF_DIR}:/conf/ ${volumes}"
 fi
 
-docker run $volumes hartwigmedicalfoundation/pipeline2:${VERSION}
+if [[ $EUID -ne 0 ]]; then
+   echo "Docker must be run as root. Please enter password for sudo..."
+fi
+sudo docker run $volumes hartwigmedicalfoundation/pipeline2:${VERSION}

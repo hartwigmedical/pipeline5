@@ -1,61 +1,63 @@
 # HMF Pipeline2
-Phase 1 of the pipeline redesign will involve evaluating different technological approaches using a minimum viable product (MVP). This document outlines the MVP and criteria we’ll use to evaluate the merits of a particular approach.
+Pipeline2 is a new data pipeline build to perform secondary and tertiary analysis on patient DNA samples. Pipeline2 is currently in an
+MVP phase to evaluate the GATK4 and ADAM frameworks. Two pipelines are implemented that take multiple lanes of paired-end FASTQ files as
+input and return an aligned, sorted and duplicate marked BAM.
 
-This MVP is focussed on the functional aspects of the project by creating a working prototype that produces useful output. That said, a criteria for success is portability, so the solution needs to be executable modern compute infrastructures. Evaluation of different IaaS options is not in scope of this initial MVP, but will follow soon after.
+## Building and Testing Pipeline2
 
-## Functional Scope
-Functionally the MVP will perform a subset of the pipeline focussed on producing an analyzable BAM file:
-* Read a set of 8 input FASTQ file pairs.
-* For each paired input map with BWA to single output BAM file.
-* For each mapped input sort by chromosome and position producing an output BAM file.
-* Combine 8 BAM files and mark duplicates producing a merged BAM file.
-* Perform local re-alignment of reads around indels, producing a realigned BAM file.
+The only pre-requisite for running the build is having bwa installed locally (for the ADAM functional tests). For Mac users bwa can be
+installed easily via homebrew, and there are also packages for most linux distributions. All else fails you can build from source
+http://bio-bwa.sourceforge.net/
 
-The BAM file produced by the process can then already be tested against the remaining analysis pipeline steps.
+Pipeline2 is built with maven. To run all tests and also build the Docker image run the following:
 
-## Technologies Under Evaluation
-The following technologies will be evaluated for use in the MVP. This document does not prescribe the exact combination and number of MVP iterations, but gives some rationale as to why the particular tool is chosen for evaluation.
+```
+mvn clean install
+```
+Building the Docker image is quite time consuming and probably not necessary for most testing (see next section). To disable the building
+of the Docker image run the following.
+```
+mvn clean install -DskipDocker
+```
 
-### Apache Spark (https://spark.apache.org/)
-Spark will be evaluated as the underlying distributed computing engine. Spark has become the defacto technology for parallel processing of big datasets by providing a rich functional DSL and a fast, reliable runtime. It is easy to run locally and to automate testing. It is currently the most active Apache project, which bodes well for continued innovation and support.
+## Running Pipeline2 locally
 
-Spark can be run in-memory or in a cluster. Clusters can be run on Hadoop, Mesos, Kubernetes or Spark’s own standalone cluster. Spark is interoperable with just about every storage technology we might want to use. This gives us a lot of flexibility for the next steps.
+### Configuration
 
-Both GATK4 and ADAM run on top of Spark. Spark can also pipe native processes outside its JVM which could be used to run the pipeline in a similar fashion to the current implementation. This should let us combine GATK, ADAM, out-of-process and our own tools within the same Spark pipeline.
-
-### GATK4 (https://software.broadinstitute.org/gatk/)
-GATK4 is the latest genome toolkit version now running with Spark as its execution engine. We currently use GATK3 for base recalibration, indel realignment, and germline calling/filtering. GATK3 is no longer actively developed so this is a good opportunity to evaluate the new version for our pipeline. GATK4 should also be faster and more reliable. GATK is widely adopted and well maintained by the Broad Institute.
-
-The GATK platform provides its own complete pipeline framework and cloud runtime. It is not likely that we’ll use the entire framework, but tools and parts of the architecture as libraries.
-
-### ADAM (https://github.com/bigdatagenomics/adam)
-ADAM is another genomics toolkit which also uses Spark as its underlying engine. While the GATK is maintained singularly by the Broad Institute, ADAM is more of a consolidation of projects to achieve a more holistic goal. An interesting differentiator between GATK is that ADAM can store its data in a combination of Avro and Parquet. Parquet provides a columnar storage format with good compression. Avro is a serialization mechanism which is self-describing, easing interoperability and data evolution. By using these standards over proprietary formats, ADAM allows for easier integration with the full suite of Spark and big data processing tools.
-
-Should be noted that ADAM is still in a 0.x version and less widely used than GATK.
-
-### Docker (https://www.docker.com/)
-Docker is a containerization platform we will evaluate to deploy the released software. By creating containers we can encapsulate the entire runtime into an immutable binary, reducing variance in deployment and local execution. Docker integrates with a wide array of cloud computing platforms.
-
-The simplest alternative to Docker is a jar or tar or multiple jars with a single entry point. Docker will only be evaluated if we deem it necessary based on the prior choices, as it does add an extra layer of complexity.
-
-## Evaluation Criteria
-The MVP will be evaluated on the following:
+Pipeline2 expects a yaml file *conf/pipeline.yaml* relative to the processes working directory. See *system/docker/conf/pipeline.yaml* for
+an example of this file. Within the yaml file you can configure the following:
 
 | Requirement             | Criteria
 | ----------------------- | ---------------------------------------------
-| Functional Completeness | Pipeline2 BAM output compared with Pipeline1
-| Performance Improvement | Pipeline2 benchmarked against Pipeline1
-| Testability             | Pipeline2 can be tested end to end during build process.
-| Deployability           | Pipeline2 can be installed/upgraded in a single step.
-| Scalability             | Pipeline2 can be scaled horizontally across samples
-| Portability             | Pipeline2 can be run on leading IaaS providers (in particular AWS EMR and Google Dataproc)
+| pipeline
+| flavour                 | Which test pipeline to use ADAM or GATK
+| spark
+| master                  | The spark master user (ie local[#cpus], yarn, spark url, etc)
+| patient
+| name                    | Name of the patient with no sample type postfix
+| directory               | Directory of patient FASTQ files.
+| referencePath           | Full path to reference genome FASTA file
 
-At this point monetary cost is not yet evaluated, that will also come in the next phase when we looks into the IaaS side of things.
+The simplest way to run the pipeline locally is to simply run PipelineRuntime main class from IntelliJ. The working directory will be the
+root of the project so just add your /conf directory there as well.
 
-## Methodology
+## Running Pipeline2 with Docker
 
-The MVP codebase can be found in a new public HMF repository here: https://github.com/hartwigmedical/pipeline2. It is a Java codebase using HMF coding standards and build tooling.
+### Locally
+You can also run locally as a Docker container. First build the project without the *-DskipDocker* flag to build the image. It will be
+tagged as *local-SNAPSHOT*. You can then run the container using the run script in the root of the project.  For example:
 
-The first step will be to create a small framework to execute a Spark pipeline with pluggable stages. We’ll take a test driven approach to measure correctness and performance of the pipeline permutations.
+```
+run_pipeline2_docker.sh -v local-SNAPSHOT -p /your/patient/dir -r /your/reference/file -c /your/config/dir
+```
 
-For more details of the progress and evolution of the project please keep an eye on the repository and reach out with questions or suggestions whenever they come up. I’ll be monitoring #ext-hartwig-pipeline on Slack for this purpose. My hope is to spend one month on this evaluation process, but consider that a rough estimate at this point.
+### On Crunch
+Once you've committed and pushed Travis will build a versioned docker image and push it to dockerhub. These versioned images can be pulled
+and run on any server with docker running. The run_pipeline2_docker script is distributed with the scripts repository and on the path of
+all crunch servers, so you can run Pipeline2 the same as you run locally. To just use defaults (cancerPanel sample) you only have to run
+the following:
+
+```
+run_pipeline2_docker.sh -v 0.0.{travis-build-number}
+```
+
