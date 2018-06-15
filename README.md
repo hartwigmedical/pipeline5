@@ -24,8 +24,8 @@ mvn clean install -DskipDocker
 
 ### Configuration
 
-Pipeline2 expects a yaml file *conf/pipeline.yaml* relative to the processes working directory. See *system/docker/conf/pipeline.yaml* for
-an example of this file. Within the yaml file you can configure the following:
+Pipeline2 expects a yaml file **conf/pipeline.yaml** relative to the processes working directory. See **system/docker/conf/pipeline.yaml**
+for an example of this file. Within the yaml file you can configure the following:
 
 | Parameter               | Description
 | ----------------------- | ---------------------------------------------
@@ -44,8 +44,8 @@ root of the project so just add your /conf directory there as well.
 ## Running Pipeline2 with Docker
 
 ### Locally
-You can also run locally as a Docker container. First build the project without the *-DskipDocker* flag to build the image. It will be
-tagged as *local-SNAPSHOT*. You can then run the container using the run script in the root of the project.  For example:
+You can also run locally as a Docker container. First build the project without the **-DskipDocker** flag to build the image. It will be
+tagged as **local-SNAPSHOT**. You can then run the container using the run script in the root of the project.  For example:
 
 ```
 run_pipeline2_docker.sh -v local-SNAPSHOT -p /your/patient/dir -r /your/reference/file -c /your/config/dir
