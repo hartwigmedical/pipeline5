@@ -20,6 +20,8 @@ class BwaCommand {
         cmd.add("-c");
         cmd.add("100");
         cmd.add("-M");
+        cmd.add("-t");
+        cmd.add("12");
         cmd.add(reference.path());
         cmd.add(lane.readsFile());
         cmd.add("-");
