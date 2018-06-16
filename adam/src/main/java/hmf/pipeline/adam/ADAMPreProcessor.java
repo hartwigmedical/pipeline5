@@ -53,8 +53,8 @@ class ADAMPreProcessor implements Stage<Sample, AlignmentRecordRDD> {
     }
 
     private AlignmentRecordRDD adamBwa(final SequenceDictionary sequenceDictionary, final Sample sample, final Lane lane) {
-        return adamContext.loadPairedFastq(lane.readsFile(), lane.matesFile(), Option.empty(), ValidationStringency.LENIENT)
-                .pipe(BwaCommand.tokens(reference, sample),
+        return adamContext.loadFastq(lane.matesFile(), Option.empty(), Option.empty(), ValidationStringency.LENIENT)
+                .pipe(BwaCommand.tokens(reference, sample, lane),
                         Collections.emptyList(),
                         Collections.emptyMap(),
                         0,

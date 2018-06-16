@@ -30,7 +30,7 @@ public class PipelineTest {
     public void adamPreprocessingMatchesCurrentPipelineOuput() throws Exception {
         ADAMPipelines.preProcessing(HUNDREDK_READS_HISEQ, new ADAMContext(context.sc()))
                 .execute(RawSequencingOutput.from(HUNDREDK_READS_HISEQ));
-        //  assertThatOutput(HUNDREDK_READS_HISEQ_REAL_SAMPLE).aligned().duplicatesMarked().isEqualToExpected();
+        // assertThatOutput(HUNDREDK_READS_HISEQ_REAL_SAMPLE).aligned().duplicatesMarked().isEqualToExpected();
     }
 
     @Ignore("GATK preprocessor fails currently on this sample (duplicate key exception). More investigation necessary")
