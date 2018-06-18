@@ -1,5 +1,7 @@
 package hmf.pipeline;
 
+import java.util.Map;
+
 import org.immutables.value.Value;
 
 @Value.Immutable
@@ -22,6 +24,8 @@ public interface Configuration {
     String patientName();
 
     String referencePath();
+
+    Map<String, String> sparkProperties();
 
     static ImmutableConfiguration.Builder builder() {
         return ImmutableConfiguration.builder();

@@ -3,6 +3,7 @@ pipeline:
 
 spark:
   master: local[2]
+  spark.property: value
 
 patient:
   name: TESTX

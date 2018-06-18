@@ -16,6 +16,7 @@ public class YAMLConfigurationTest {
         assertThat(configuration.patientDirectory()).isEqualTo("/patients");
         assertThat(configuration.referencePath()).isEqualTo("/reference/Homo_sapiens.GRCh37.GATK.illumina.chr22.fa");
         assertThat(configuration.sparkMaster()).isEqualTo("local[2]");
+        assertThat(configuration.sparkProperties().get("spark.property")).isEqualTo("value");
         assertThat(configuration.flavour()).isEqualTo(Configuration.Flavour.ADAM);
     }
 }

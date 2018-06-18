@@ -11,7 +11,7 @@
     </appender>
     <appender name="file" class="org.apache.log4j.RollingFileAppender">
         <param name="append" value="false"/>
-        <param name="maxFileSize" value="10KB"/>
+        <param name="maxFileSize" value="10MB"/>
         <param name="maxBackupIndex" value="5"/>
         <!-- For Tomcat -->
         <param name="file" value="${user.dir}/logs/pipeline2.log"/>
