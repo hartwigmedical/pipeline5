@@ -62,7 +62,7 @@
                             <archive>
                                 <manifest>
                                     <addClasspath>true</addClasspath>
-                                    <mainClass>hmf.pipeline.runtime.PipelineRuntime</mainClass>
+                                    <mainClass>com.hartwig.pipeline.runtime.PipelineRuntime</mainClass>
                                     <classpathPrefix>lib/</classpathPrefix>
                                 </manifest>
                             </archive>

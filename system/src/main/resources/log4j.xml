@@ -21,7 +21,7 @@
         </layout>
     </appender>
 
-    <logger name="hmf">
+    <logger name="com.hartwig">
         <level value="INFO"/>
     </logger>
     <logger name="org.apache.hadoop.util.NativeCodeLoader">
@@ -29,7 +29,7 @@
     </logger>
 
     <root>
-        <level value="INFO"/>
+        <level value="WARN"/>
         <appender-ref ref="console" />
         <appender-ref ref="file"/>
     </root>
