@@ -40,8 +40,8 @@ public class RawSequencingOutputTest {
     public void createOutputFromNormalAndTumourDirectory() throws Exception {
         RawSequencingOutput victim = RawSequencingOutput.from(CANCER_PANEL);
         assertThat(victim.patient().directory()).isEqualTo(CANCER_PANEL.patientDirectory());
-        assertThat(victim.patient().normal().directory()).isEqualTo(CANCER_PANEL_NORMAL_DIRECTORY);
-        assertThat(victim.patient().normal().lanes()).hasSize(1).containsOnly(EXPECTED_NORMAL_LANE);
+        assertThat(victim.patient().reference().directory()).isEqualTo(CANCER_PANEL_NORMAL_DIRECTORY);
+        assertThat(victim.patient().reference().lanes()).hasSize(1).containsOnly(EXPECTED_NORMAL_LANE);
         assertThat(victim.patient().tumour().directory()).isEqualTo(CANCER_PANEL_TUMOUR_DIRECTORY);
         assertThat(victim.patient().tumour().lanes()).hasSize(1).containsOnly(EXPECTED_TUMOUR_LANE);
     }
@@ -50,8 +50,8 @@ public class RawSequencingOutputTest {
     public void createOutputFromNormalAndTumourInSameDirectory() throws Exception {
         RawSequencingOutput victim = RawSequencingOutput.from(CANCER_PANEL_SINGLE_DIRECTORY);
         assertThat(victim.patient().directory()).isEqualTo(CANCER_PANEL_SINGLE_DIRECTORY.patientDirectory());
-        assertThat(victim.patient().normal().directory()).isEqualTo(CANCER_PANEL_SINGLE_DIRECTORY.patientDirectory());
-        assertThat(victim.patient().normal().lanes()).hasSize(1);
+        assertThat(victim.patient().reference().directory()).isEqualTo(CANCER_PANEL_SINGLE_DIRECTORY.patientDirectory());
+        assertThat(victim.patient().reference().lanes()).hasSize(1);
         assertThat(victim.patient().tumour().directory()).isEqualTo(CANCER_PANEL_SINGLE_DIRECTORY.patientDirectory());
         assertThat(victim.patient().tumour().lanes()).hasSize(1);
     }

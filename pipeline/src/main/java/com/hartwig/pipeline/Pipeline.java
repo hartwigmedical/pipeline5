@@ -22,11 +22,11 @@ public class Pipeline<P> {
     }
 
     public void execute(RawSequencingOutput sequencing) throws IOException {
-        LOGGER.info("Preprocessing started for normal sample");
+        LOGGER.info("Preprocessing started for reference sample");
         LOGGER.info("Storing results in {}", OutputFile.RESULTS_DIRECTORY);
         long startTime = startTimer();
-        perSampleStore.store(preProcessor.execute(sequencing.patient().normal()));
-        LOGGER.info("Preprocessing complete for normal sample, Took {} ms", (endTimer() - startTime));
+        perSampleStore.store(preProcessor.execute(sequencing.patient().reference()));
+        LOGGER.info("Preprocessing complete for reference sample, Took {} ms", (endTimer() - startTime));
     }
 
     private static long endTimer() {

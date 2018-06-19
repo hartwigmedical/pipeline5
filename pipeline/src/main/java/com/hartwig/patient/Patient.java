@@ -14,7 +14,7 @@ public interface Patient extends FileSystemEntity, Named {
     String name();
 
     @Value.Parameter
-    Sample normal();
+    Sample reference();
 
     @Value.Parameter
     Sample tumour();
@@ -24,7 +24,7 @@ public interface Patient extends FileSystemEntity, Named {
         visitor.visit(this);
     }
 
-    static Patient of(String directory, String name, Sample normal, Sample tumour) {
-        return ImmutablePatient.of(directory, name, normal, tumour);
+    static Patient of(String directory, String name, Sample reference, Sample tumour) {
+        return ImmutablePatient.of(directory, name, reference, tumour);
     }
 }

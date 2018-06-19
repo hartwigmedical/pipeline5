@@ -35,17 +35,17 @@ public interface RawSequencingOutput {
 
     static RawSequencingOutput from(Configuration configuration) throws IOException {
         ImmutableRawSequencingOutput.Builder builder = ImmutableRawSequencingOutput.builder();
-        Optional<Path> maybeNormalDirectory = findDirectoryByConvention(configuration, TypePostfix.NORMAL);
+        Optional<Path> maybeReferenceDirectory = findDirectoryByConvention(configuration, TypePostfix.NORMAL);
         Optional<Path> maybeTumourDirectory = findDirectoryByConvention(configuration, TypePostfix.TUMOUR);
 
-        if (maybeNormalDirectory.isPresent() && maybeTumourDirectory.isPresent()) {
-            return subdirectoriesForNormalAndTumour(configuration, builder, maybeNormalDirectory.get(), maybeTumourDirectory.get());
+        if (maybeReferenceDirectory.isPresent() && maybeTumourDirectory.isPresent()) {
+            return subdirectoriesForReferenceAndTumour(configuration, builder, maybeReferenceDirectory.get(), maybeTumourDirectory.get());
         } else {
-            return normalAndTumourInSameDirectory(configuration, builder);
+            return referenceAndTumourInSameDirectory(configuration, builder);
         }
     }
 
-    static RawSequencingOutput normalAndTumourInSameDirectory(final Configuration configuration,
+    static RawSequencingOutput referenceAndTumourInSameDirectory(final Configuration configuration,
             final ImmutableRawSequencingOutput.Builder builder) throws IOException {
         return patientOf(configuration,
                 builder,
@@ -53,17 +53,17 @@ public interface RawSequencingOutput {
                 createPairedEndSample(Paths.get(configuration.patientDirectory()), configuration.patientName(), TypePostfix.TUMOUR));
     }
 
-    static RawSequencingOutput subdirectoriesForNormalAndTumour(final Configuration configuration,
-            final ImmutableRawSequencingOutput.Builder builder, final Path normalDirectory, final Path tumourDirectory) throws IOException {
+    static RawSequencingOutput subdirectoriesForReferenceAndTumour(final Configuration configuration,
+            final ImmutableRawSequencingOutput.Builder builder, final Path referenceDirectory, final Path tumourDirectory)
+            throws IOException {
         return patientOf(configuration,
-                builder,
-                createPairedEndSample(normalDirectory, configuration.patientName(), TypePostfix.NORMAL),
+                builder, createPairedEndSample(referenceDirectory, configuration.patientName(), TypePostfix.NORMAL),
                 createPairedEndSample(tumourDirectory, configuration.patientName(), TypePostfix.TUMOUR));
     }
 
     static RawSequencingOutput patientOf(final Configuration configuration, final ImmutableRawSequencingOutput.Builder builder,
-            final Sample normal, final Sample tumour) throws IOException {
-        Patient patient = Patient.of(configuration.patientDirectory(), configuration.patientName(), normal, tumour);
+            final Sample reference, final Sample tumour) throws IOException {
+        Patient patient = Patient.of(configuration.patientDirectory(), configuration.patientName(), reference, tumour);
         return builder.patient(patient).build();
     }
 
