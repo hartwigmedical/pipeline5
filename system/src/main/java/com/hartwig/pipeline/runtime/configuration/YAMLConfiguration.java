@@ -22,7 +22,7 @@ public class YAMLConfiguration {
         return Configuration.builder().flavour(Configuration.Flavour.valueOf(extractSubProperty("pipeline", "flavour", yamlMap)))
                 .patientName(extractSubProperty(PATIENT_PROPERTY, "name", yamlMap))
                 .patientDirectory(extractSubProperty(PATIENT_PROPERTY, "directory", yamlMap))
-                .referencePath(extractSubProperty(PATIENT_PROPERTY, "referencePath", yamlMap))
+                .referenceGenomePath(extractSubProperty(PATIENT_PROPERTY, "referenceGenomePath", yamlMap))
                 .sparkMaster(extractSubProperty(SPARK_PROPERTY, "master", yamlMap)).putAllSparkProperties(sparkProperties)
                 .build();
     }

@@ -33,10 +33,10 @@ for an example of this file. Within the yaml file you can configure the followin
 | flavour                 | Which test pipeline to use ADAM or GATK
 | **spark**               | Parameters specific to Apache Spark
 | master                  | The spark master user (ie local[#cpus], yarn, spark url, etc)
-| **patient**             | Parameters to configure the patient and reference data
+| **patient**             | Parameters to configure the patient and referenceGenome data
 | name                    | Name of the patient with no sample type postfix
 | directory               | Directory of patient FASTQ files.
-| referencePath           | Full path to reference genome FASTA file
+| referenceGenomePath     | Full path to reference genome FASTA file
 
 The simplest way to run the pipeline locally is to simply run PipelineRuntime main class from IntelliJ. The working directory will be the
 root of the project so just add your /conf directory there as well.
@@ -50,7 +50,7 @@ must use the **-l** flag to switch to local mode as Docker for Mac does not supp
 spark diagnostic GUI). For example:
 
 ```
-run_pipeline2_docker.sh -v local-SNAPSHOT -p /your/patient/dir -r /your/reference/file -c /your/config/dir -l
+run_pipeline2_docker.sh -v local-SNAPSHOT -p /your/patient/dir -r /your/referenceGenome/file -c /your/config/dir -l
 ```
 
 ### On Crunch

@@ -8,8 +8,10 @@ import com.hartwig.pipeline.ImmutableConfiguration;
 public class TestPatients {
     public static final String PATIENT_DIR = "/src/test/resources/patients";
 
-    public static final ImmutableConfiguration.Builder DEFAULT_CONFIG_BUILDER = Configuration.builder().sparkMaster("local[1]")
-            .referencePath(System.getProperty("user.dir") + "/src/test/resources/reference/Homo_sapiens.GRCh37.GATK.illumina.chr22.fa");
+    public static final ImmutableConfiguration.Builder DEFAULT_CONFIG_BUILDER = Configuration.builder()
+            .sparkMaster("local[1]")
+            .referenceGenomePath(
+                    System.getProperty("user.dir") + "/src/test/resources/reference_genome/Homo_sapiens.GRCh37.GATK.illumina.chr22.fa");
 
     public static final String HUNDREDK_READS_HISEQ_PATIENT_NAME = "TESTX";
     private static final Lane HUNDREDK_READS_HISEQ_LANE_1 =

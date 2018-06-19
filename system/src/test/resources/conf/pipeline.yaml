@@ -8,4 +8,4 @@ spark:
 patient:
   name: TESTX
   directory: /patients
-  referencePath: /reference/Homo_sapiens.GRCh37.GATK.illumina.chr22.fa
+  referenceGenomePath: /reference_genome/Homo_sapiens.GRCh37.GATK.illumina.chr22.fa

@@ -23,7 +23,7 @@ public interface Configuration {
 
     String patientName();
 
-    String referencePath();
+    String referenceGenomePath();
 
     Map<String, String> sparkProperties();
 

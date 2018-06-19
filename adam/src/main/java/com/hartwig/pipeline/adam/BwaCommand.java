@@ -6,12 +6,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.hartwig.patient.Lane;
-import com.hartwig.patient.Reference;
+import com.hartwig.patient.ReferenceGenome;
 import com.hartwig.patient.Sample;
 
 class BwaCommand {
 
-    static List<String> tokens(Reference reference, Sample sample, Lane lane) {
+    static List<String> tokens(ReferenceGenome referenceGenome, Sample sample, Lane lane) {
         List<String> cmd = new ArrayList<>();
         cmd.add("bwa");
         cmd.add("mem");
@@ -22,7 +22,7 @@ class BwaCommand {
         cmd.add("-M");
         cmd.add("-t");
         cmd.add("12");
-        cmd.add(reference.path());
+        cmd.add(referenceGenome.path());
         cmd.add(lane.readsFile());
         cmd.add("-");
         return cmd;

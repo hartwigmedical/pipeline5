@@ -13,7 +13,7 @@ import com.hartwig.exception.Exceptions;
 import com.hartwig.io.Output;
 import com.hartwig.io.OutputType;
 import com.hartwig.patient.Lane;
-import com.hartwig.patient.Reference;
+import com.hartwig.patient.ReferenceGenome;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.Stage;
 
@@ -32,16 +32,16 @@ import scala.Option;
 class ADAMPreProcessor implements Stage<Sample, AlignmentRecordRDD> {
 
     private final ADAMContext adamContext;
-    private final Reference reference;
+    private final ReferenceGenome referenceGenome;
 
-    ADAMPreProcessor(final Reference reference, final ADAMContext adamContext) {
+    ADAMPreProcessor(final ReferenceGenome referenceGenome, final ADAMContext adamContext) {
         this.adamContext = adamContext;
-        this.reference = reference;
+        this.referenceGenome = referenceGenome;
     }
 
     @Override
     public Output<Sample, AlignmentRecordRDD> execute(Sample sample) throws IOException {
-        SequenceDictionary sequenceDictionary = adamContext.loadSequenceDictionary(reference.path() + ".dict");
+        SequenceDictionary sequenceDictionary = adamContext.loadSequenceDictionary(referenceGenome.path() + ".dict");
         List<AlignmentRecordRDD> laneRdds =
                 sample.lanes().stream().map(lane -> adamBwa(sequenceDictionary, sample, lane)).collect(Collectors.toList());
         if (!laneRdds.isEmpty()) {
@@ -55,7 +55,7 @@ class ADAMPreProcessor implements Stage<Sample, AlignmentRecordRDD> {
 
     private AlignmentRecordRDD adamBwa(final SequenceDictionary sequenceDictionary, final Sample sample, final Lane lane) {
         return adamContext.loadFastq(lane.matesFile(), Option.empty(), Option.empty(), ValidationStringency.LENIENT)
-                .pipe(BwaCommand.tokens(reference, sample, lane),
+                .pipe(BwaCommand.tokens(referenceGenome, sample, lane),
                         Collections.emptyList(),
                         Collections.emptyMap(),
                         0,

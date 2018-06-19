@@ -12,7 +12,7 @@ import com.hartwig.io.Output;
 import com.hartwig.io.OutputFile;
 import com.hartwig.io.OutputType;
 import com.hartwig.patient.Lane;
-import com.hartwig.patient.Reference;
+import com.hartwig.patient.ReferenceGenome;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.Stage;
 
@@ -35,12 +35,12 @@ public class GATK4PreProcessor implements Stage<Sample, ReadsAndHeader> {
 
     private final ReadsSparkSource readsSparkSource;
     private final JavaSparkContext context;
-    private final Reference reference;
+    private final ReferenceGenome referenceGenome;
 
-    GATK4PreProcessor(final Reference reference, final JavaSparkContext context) {
+    GATK4PreProcessor(final ReferenceGenome referenceGenome, final JavaSparkContext context) {
         this.readsSparkSource = new ReadsSparkSource(context);
         this.context = context;
-        this.reference = reference;
+        this.referenceGenome = referenceGenome;
     }
 
     @Override
@@ -50,10 +50,11 @@ public class GATK4PreProcessor implements Stage<Sample, ReadsAndHeader> {
 
             JavaRDD<GATKRead> mergedReads = merged(sample.lanes().stream().map(lane -> {
                 String unmappedBamFileName = OutputFile.of(OutputType.UNMAPPED, sample).path();
-                return runBwa(unmappedBamFileName, bwaSparkEngine(context, reference, readsSparkSource, unmappedBamFileName));
+                return runBwa(unmappedBamFileName, bwaSparkEngine(context, referenceGenome, readsSparkSource, unmappedBamFileName));
             }).collect(Collectors.toList()));
 
-            SAMFileHeader firstHeader = readsSparkSource.getHeader(OutputFile.of(OutputType.UNMAPPED, sample).path(), reference.path());
+            SAMFileHeader firstHeader =
+                    readsSparkSource.getHeader(OutputFile.of(OutputType.UNMAPPED, sample).path(), referenceGenome.path());
             JavaRDD<GATKRead> alignedDuplicatesMarked = MarkDuplicatesSpark.mark(mergedReads,
                     firstHeader,
                     MarkDuplicatesScoringStrategy.SUM_OF_BASE_QUALITIES,
@@ -84,14 +85,14 @@ public class GATK4PreProcessor implements Stage<Sample, ReadsAndHeader> {
     }
 
     private JavaRDD<GATKRead> runBwa(final String unmappedBamFileName, final BwaSparkEngine bwaEngine) {
-        return bwaEngine.align(readsSparkSource.getParallelReads(unmappedBamFileName, reference.path()), true);
+        return bwaEngine.align(readsSparkSource.getParallelReads(unmappedBamFileName, referenceGenome.path()), true);
     }
 
-    private static BwaSparkEngine bwaSparkEngine(final JavaSparkContext sparkContext, final Reference reference,
+    private static BwaSparkEngine bwaSparkEngine(final JavaSparkContext sparkContext, final ReferenceGenome referenceGenome,
             final ReadsSparkSource readsSource, final String unmappedBamFileName) {
-        SAMFileHeader header = readsSource.getHeader(unmappedBamFileName, reference.path());
-        SAMSequenceDictionary dictionary = dictionary(reference.path(), header);
-        return new BwaSparkEngine(sparkContext, reference.path(), null, header, dictionary);
+        SAMFileHeader header = readsSource.getHeader(unmappedBamFileName, referenceGenome.path());
+        SAMSequenceDictionary dictionary = dictionary(referenceGenome.path(), header);
+        return new BwaSparkEngine(sparkContext, referenceGenome.path(), null, header, dictionary);
     }
 
     private static SAMSequenceDictionary dictionary(final String referenceFile, final SAMFileHeader readsHeader) {
