@@ -44,6 +44,11 @@ public class GATK4PreProcessor implements Stage<Sample, ReadsAndHeader> {
     }
 
     @Override
+    public OutputType outputType() {
+        return OutputType.DUPLICATE_MARKED;
+    }
+
+    @Override
     public Output<Sample, ReadsAndHeader> execute(Sample sample) throws IOException {
         if (!sample.lanes().isEmpty()) {
             sample.lanes().forEach(createUBAMFromFastQ(sample));
@@ -61,7 +66,7 @@ public class GATK4PreProcessor implements Stage<Sample, ReadsAndHeader> {
                     new OpticalDuplicateFinder(),
                     1,
                     false);
-            return Output.of(OutputType.DUPLICATE_MARKED, sample, ReadsAndHeader.of(alignedDuplicatesMarked, firstHeader));
+            return Output.of(outputType(), sample, ReadsAndHeader.of(alignedDuplicatesMarked, firstHeader));
         }
         throw Exceptions.noLanesInSample();
     }

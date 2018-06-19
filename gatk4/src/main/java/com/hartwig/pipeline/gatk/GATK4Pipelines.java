@@ -9,7 +9,7 @@ import org.apache.spark.api.java.JavaSparkContext;
 public class GATK4Pipelines {
 
     public static Pipeline<ReadsAndHeader> preProcessing(final Configuration configuration, final JavaSparkContext context) {
-        return Pipeline.<ReadsAndHeader>builder().preProcessor(new GATK4PreProcessor(ReferenceGenome.from(configuration), context))
+        return Pipeline.<ReadsAndHeader>builder().addPreProcessingStage(new GATK4PreProcessor(ReferenceGenome.from(configuration), context))
                 .perSampleStore(new GATKSampleStore(context))
                 .build();
     }

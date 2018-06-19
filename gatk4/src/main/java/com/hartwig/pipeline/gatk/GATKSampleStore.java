@@ -1,10 +1,12 @@
 package com.hartwig.pipeline.gatk;
 
+import java.io.File;
 import java.io.IOException;
 
 import com.hartwig.io.Output;
 import com.hartwig.io.OutputFile;
 import com.hartwig.io.OutputStore;
+import com.hartwig.io.OutputType;
 import com.hartwig.patient.Sample;
 
 import org.apache.spark.api.java.JavaSparkContext;
@@ -31,5 +33,10 @@ class GATKSampleStore implements OutputStore<Sample, ReadsAndHeader> {
         } catch (IOException e) {
             throw new RuntimeException("Unable to write GATK reads to filesystem", e);
         }
+    }
+
+    @Override
+    public boolean exists(final Sample entity, final OutputType type) {
+        return new File(OutputFile.of(type, entity).path()).exists();
     }
 }

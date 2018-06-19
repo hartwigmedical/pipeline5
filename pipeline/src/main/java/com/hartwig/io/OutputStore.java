@@ -5,4 +5,6 @@ import com.hartwig.patient.FileSystemEntity;
 public interface OutputStore<E extends FileSystemEntity, P> {
 
     void store(Output<E, P> output);
+
+    boolean exists(E entity, OutputType type);
 }

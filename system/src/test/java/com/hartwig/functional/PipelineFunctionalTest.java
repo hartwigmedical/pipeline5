@@ -15,7 +15,7 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
-public class PipelineTest {
+public class PipelineFunctionalTest {
 
     private static JavaSparkContext context;
 

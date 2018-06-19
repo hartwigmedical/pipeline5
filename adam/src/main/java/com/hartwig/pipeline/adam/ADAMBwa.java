@@ -29,14 +29,19 @@ import org.bdgenomics.adam.rdd.read.FASTQInFormatter;
 import htsjdk.samtools.ValidationStringency;
 import scala.Option;
 
-class ADAMPreProcessor implements Stage<Sample, AlignmentRecordRDD> {
+class ADAMBwa implements Stage<Sample, AlignmentRecordRDD> {
 
     private final ADAMContext adamContext;
     private final ReferenceGenome referenceGenome;
 
-    ADAMPreProcessor(final ReferenceGenome referenceGenome, final ADAMContext adamContext) {
+    ADAMBwa(final ReferenceGenome referenceGenome, final ADAMContext adamContext) {
         this.adamContext = adamContext;
         this.referenceGenome = referenceGenome;
+    }
+
+    @Override
+    public OutputType outputType() {
+        return OutputType.ALIGNED;
     }
 
     @Override
@@ -45,7 +50,7 @@ class ADAMPreProcessor implements Stage<Sample, AlignmentRecordRDD> {
         List<AlignmentRecordRDD> laneRdds =
                 sample.lanes().stream().map(lane -> adamBwa(sequenceDictionary, sample, lane)).collect(Collectors.toList());
         if (!laneRdds.isEmpty()) {
-            return Output.of(OutputType.DUPLICATE_MARKED,
+            return Output.of(outputType(),
                     sample,
                     laneRdds.get(0).<AlignmentRecordRDD>union(asScalaBufferConverter(laneRdds.subList(1, laneRdds.size())).asScala()));
         }
