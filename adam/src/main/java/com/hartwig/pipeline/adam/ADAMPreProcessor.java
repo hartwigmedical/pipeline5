@@ -47,8 +47,7 @@ class ADAMPreProcessor implements Stage<Sample, AlignmentRecordRDD> {
         if (!laneRdds.isEmpty()) {
             return Output.of(OutputType.DUPLICATE_MARKED,
                     sample,
-                    laneRdds.get(0).<AlignmentRecordRDD>union(asScalaBufferConverter(laneRdds.subList(1,
-                            laneRdds.size())).asScala()).markDuplicates());
+                    laneRdds.get(0).<AlignmentRecordRDD>union(asScalaBufferConverter(laneRdds.subList(1, laneRdds.size())).asScala()));
         }
         throw Exceptions.noLanesInSample();
     }
