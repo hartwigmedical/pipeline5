@@ -5,6 +5,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.hartwig.io.InputOutput;
 import com.hartwig.io.OutputStore;
 import com.hartwig.io.OutputType;
 import com.hartwig.patient.Patient;
@@ -34,6 +35,6 @@ public class PipelineTest {
         when(duplicatesMarkedExists.exists(referenceSample, OutputType.DUPLICATE_MARKED)).thenReturn(true);
         Pipeline.builder().addPreProcessingStage(shouldNotBeCalled).perSampleStore(duplicatesMarkedExists).build().execute(output);
 
-        verify(shouldNotBeCalled, never()).execute(referenceSample);
+        verify(shouldNotBeCalled, never()).execute(InputOutput.seed(referenceSample));
     }
 }

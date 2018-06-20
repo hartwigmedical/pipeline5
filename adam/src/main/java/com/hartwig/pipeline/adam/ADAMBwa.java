@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.hartwig.exception.Exceptions;
-import com.hartwig.io.Output;
+import com.hartwig.io.InputOutput;
 import com.hartwig.io.OutputType;
 import com.hartwig.patient.Lane;
 import com.hartwig.patient.ReferenceGenome;
@@ -45,12 +45,13 @@ class ADAMBwa implements Stage<Sample, AlignmentRecordRDD> {
     }
 
     @Override
-    public Output<Sample, AlignmentRecordRDD> execute(Sample sample) throws IOException {
+    public InputOutput<Sample, AlignmentRecordRDD> execute(InputOutput<Sample, AlignmentRecordRDD> input) throws IOException {
         SequenceDictionary sequenceDictionary = adamContext.loadSequenceDictionary(referenceGenome.path() + ".dict");
+        Sample sample = input.entity();
         List<AlignmentRecordRDD> laneRdds =
                 sample.lanes().stream().map(lane -> adamBwa(sequenceDictionary, sample, lane)).collect(Collectors.toList());
         if (!laneRdds.isEmpty()) {
-            return Output.of(outputType(),
+            return InputOutput.of(outputType(),
                     sample,
                     laneRdds.get(0).<AlignmentRecordRDD>union(asScalaBufferConverter(laneRdds.subList(1, laneRdds.size())).asScala()));
         }

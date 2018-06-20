@@ -31,6 +31,7 @@ for an example of this file. Within the yaml file you can configure the followin
 | ----------------------- | ---------------------------------------------
 | **pipeline**            | Parameters which impact the running of the pipeline
 | flavour                 | Which test pipeline to use ADAM or GATK
+| persistIntermediateResults                 | (Optional) If true pipeline will store all stages output. If false will only store at hardcoded milestones (ie mark duplicates)
 | **spark**               | Parameters specific to Apache Spark
 | master                  | The spark master user (ie local[#cpus], yarn, spark url, etc)
 | **patient**             | Parameters to configure the patient and referenceGenome data

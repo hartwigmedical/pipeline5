@@ -3,7 +3,7 @@ package com.hartwig.pipeline.gatk;
 import java.io.File;
 import java.io.IOException;
 
-import com.hartwig.io.Output;
+import com.hartwig.io.InputOutput;
 import com.hartwig.io.OutputFile;
 import com.hartwig.io.OutputStore;
 import com.hartwig.io.OutputType;
@@ -22,13 +22,10 @@ class GATKSampleStore implements OutputStore<Sample, ReadsAndHeader> {
     }
 
     @Override
-    public void store(final Output<Sample, ReadsAndHeader> output) {
+    public void store(final InputOutput<Sample, ReadsAndHeader> inputOutput) {
         try {
-            ReadsSparkSink.writeReads(javaSparkContext,
-                    OutputFile.of(output.type(), output.entity()).path(),
-                    null,
-                    output.payload().reads(),
-                    output.payload().header(),
+            ReadsSparkSink.writeReads(javaSparkContext, OutputFile.of(inputOutput.type(), inputOutput.entity()).path(),
+                    null, inputOutput.payload().reads(), inputOutput.payload().header(),
                     ReadsWriteFormat.SINGLE);
         } catch (IOException e) {
             throw new RuntimeException("Unable to write GATK reads to filesystem", e);

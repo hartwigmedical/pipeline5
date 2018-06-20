@@ -1,5 +1,6 @@
 pipeline:
   flavour: ADAM
+  persistIntermediateResults: "true"
 
 spark:
   master: local[2]

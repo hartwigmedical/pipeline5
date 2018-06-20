@@ -2,7 +2,7 @@ package com.hartwig.pipeline.adam;
 
 import java.io.File;
 
-import com.hartwig.io.Output;
+import com.hartwig.io.InputOutput;
 import com.hartwig.io.OutputFile;
 import com.hartwig.io.OutputStore;
 import com.hartwig.io.OutputType;
@@ -13,8 +13,8 @@ import org.bdgenomics.adam.rdd.read.AlignmentRecordRDD;
 public class ADAMSampleStore implements OutputStore<Sample, AlignmentRecordRDD> {
 
     @Override
-    public void store(final Output<Sample, AlignmentRecordRDD> output) {
-        output.payload().save(Persistence.defaultSave(output.entity(), output.type()), true);
+    public void store(final InputOutput<Sample, AlignmentRecordRDD> inputOutput) {
+        inputOutput.payload().save(Persistence.defaultSave(inputOutput.entity(), inputOutput.type()), true);
     }
 
     @Override

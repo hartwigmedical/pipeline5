@@ -8,7 +8,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import com.hartwig.exception.Exceptions;
-import com.hartwig.io.Output;
+import com.hartwig.io.InputOutput;
 import com.hartwig.io.OutputFile;
 import com.hartwig.io.OutputType;
 import com.hartwig.patient.Lane;
@@ -49,7 +49,8 @@ public class GATK4PreProcessor implements Stage<Sample, ReadsAndHeader> {
     }
 
     @Override
-    public Output<Sample, ReadsAndHeader> execute(Sample sample) throws IOException {
+    public InputOutput<Sample, ReadsAndHeader> execute(InputOutput<Sample, ReadsAndHeader> input) throws IOException {
+        Sample sample = input.entity();
         if (!sample.lanes().isEmpty()) {
             sample.lanes().forEach(createUBAMFromFastQ(sample));
 
@@ -66,7 +67,7 @@ public class GATK4PreProcessor implements Stage<Sample, ReadsAndHeader> {
                     new OpticalDuplicateFinder(),
                     1,
                     false);
-            return Output.of(outputType(), sample, ReadsAndHeader.of(alignedDuplicatesMarked, firstHeader));
+            return InputOutput.of(outputType(), sample, ReadsAndHeader.of(alignedDuplicatesMarked, firstHeader));
         }
         throw Exceptions.noLanesInSample();
     }
