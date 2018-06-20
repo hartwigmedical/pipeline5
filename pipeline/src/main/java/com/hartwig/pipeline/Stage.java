@@ -10,5 +10,5 @@ public interface Stage<T extends FileSystemEntity, P> {
 
     OutputType outputType();
 
-    InputOutput<T, P> execute(InputOutput<T, P> inputFromPreviousStage) throws IOException;
+    InputOutput<T, P> execute(InputOutput<T, P> input) throws IOException;
 }
