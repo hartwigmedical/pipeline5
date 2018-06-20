@@ -8,6 +8,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import com.hartwig.exception.Exceptions;
+import com.hartwig.io.DataSource;
 import com.hartwig.io.InputOutput;
 import com.hartwig.io.OutputFile;
 import com.hartwig.io.OutputType;
@@ -46,6 +47,13 @@ public class GATK4PreProcessor implements Stage<Sample, ReadsAndHeader> {
     @Override
     public OutputType outputType() {
         return OutputType.DUPLICATE_MARKED;
+    }
+
+    @Override
+    public DataSource<Sample, ReadsAndHeader> datasource() {
+        return entity -> {
+            throw Exceptions.firstStageInPipelineDatasourceNotAvailable(GATK4PreProcessor.class);
+        };
     }
 
     @Override

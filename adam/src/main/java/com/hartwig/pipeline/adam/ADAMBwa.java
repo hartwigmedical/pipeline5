@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.hartwig.exception.Exceptions;
+import com.hartwig.io.DataSource;
 import com.hartwig.io.InputOutput;
 import com.hartwig.io.OutputType;
 import com.hartwig.patient.Lane;
@@ -37,6 +38,13 @@ class ADAMBwa implements Stage<Sample, AlignmentRecordRDD> {
     ADAMBwa(final ReferenceGenome referenceGenome, final ADAMContext adamContext) {
         this.adamContext = adamContext;
         this.referenceGenome = referenceGenome;
+    }
+
+    @Override
+    public DataSource<Sample, AlignmentRecordRDD> datasource() {
+        return entity -> {
+            throw Exceptions.firstStageInPipelineDatasourceNotAvailable(ADAMBwa.class);
+        };
     }
 
     @Override

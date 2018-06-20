@@ -32,8 +32,10 @@ public class Pipeline<P> {
         LOGGER.info("Storing results in {}", OutputFile.RESULTS_DIRECTORY);
         long startTime = startTimer();
         InputOutput<Sample, P> inputOutput = null;
+        boolean skippedLast = false;
         for (Stage<Sample, P> preProcessor : preProcessors) {
             if (!perSampleStore.exists(sequencing.patient().reference(), preProcessor.outputType())) {
+                inputOutput = retrieveFromPersistenceIfLastSkipped(sequencing, inputOutput, skippedLast, preProcessor);
                 inputOutput = preProcessor.execute(inputOutput == null ? InputOutput.seed(sequencing.patient().reference()) : inputOutput);
                 if (persistIntermediateResults) {
                     perSampleStore.store(inputOutput);
@@ -42,12 +44,21 @@ public class Pipeline<P> {
                 LOGGER.info("Skipping [{}] stage as the output already exists in [{}]",
                         preProcessor.outputType(),
                         OutputFile.RESULTS_DIRECTORY);
+                skippedLast = true;
             }
         }
         if (!persistIntermediateResults) {
             perSampleStore.store(inputOutput);
         }
         LOGGER.info("Preprocessing complete for reference sample, Took {} ms", (endTimer() - startTime));
+    }
+
+    private InputOutput<Sample, P> retrieveFromPersistenceIfLastSkipped(final RawSequencingOutput sequencing,
+            InputOutput<Sample, P> inputOutput, final boolean skippedLast, final Stage<Sample, P> preProcessor) {
+        if (skippedLast) {
+            inputOutput = preProcessor.datasource().extract(sequencing.patient().reference());
+        }
+        return inputOutput;
     }
 
     private static long endTimer() {
