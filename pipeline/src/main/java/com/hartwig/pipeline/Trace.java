@@ -19,8 +19,9 @@ public class Trace {
         return new Trace(LoggerFactory.getLogger(clazz), messagePrefix);
     }
 
-    public void start() {
+    public Trace start() {
         logger.info(TEMPLATE, messagePrefix, "Started");
+        return this;
     }
 
     public void finish() {

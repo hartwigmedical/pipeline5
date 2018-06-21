@@ -1,5 +1,7 @@
 package com.hartwig.pipeline;
 
+import static java.lang.String.format;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,9 +38,11 @@ public class Pipeline<P> {
         for (Stage<Sample, P> preProcessor : preProcessors) {
             if (!perSampleStore.exists(sequencing.patient().reference(), preProcessor.outputType())) {
                 inputOutput = retrieveFromPersistenceIfLastSkipped(sequencing, inputOutput, skippedLast, preProcessor);
+                Trace trace = Trace.of(Pipeline.class, format("Executing [%s] stage", preProcessor.getClass().getSimpleName())).start();
                 inputOutput = preProcessor.execute(inputOutput == null ? InputOutput.seed(sequencing.patient().reference()) : inputOutput);
                 if (persistIntermediateResults) {
                     perSampleStore.store(inputOutput);
+                    trace.finish();
                 }
             } else {
                 LOGGER.info("Skipping [{}] stage as the output already exists in [{}]",
@@ -88,8 +92,9 @@ public class Pipeline<P> {
             return this;
         }
 
-        public void persistIntermediateResults(final boolean persistIntermediateResults) {
+        public Builder<P> persistIntermediateResults(final boolean persistIntermediateResults) {
             this.persistIntermediateResults = persistIntermediateResults;
+            return this;
         }
 
         public Pipeline<P> build() {

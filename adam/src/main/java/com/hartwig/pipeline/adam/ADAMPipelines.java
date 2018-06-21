@@ -14,6 +14,7 @@ public class ADAMPipelines {
         return Pipeline.<AlignmentRecordRDD>builder().addPreProcessingStage(new ADAMBwa(ReferenceGenome.from(configuration), adamContext))
                 .addPreProcessingStage(new ADAMMarkDuplicates(new JavaADAMContext(adamContext)))
                 .perSampleStore(new ADAMSampleStore())
+                .persistIntermediateResults(configuration.persistIntermediateResults())
                 .build();
     }
 }
