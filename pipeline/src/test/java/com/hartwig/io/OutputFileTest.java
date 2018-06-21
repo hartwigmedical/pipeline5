@@ -4,8 +4,8 @@ import static java.lang.String.format;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.hartwig.patient.Lane;
 import com.hartwig.patient.Sample;
+import com.hartwig.testsupport.Lanes;
 
 import org.junit.Test;
 
@@ -15,7 +15,7 @@ public class OutputFileTest {
 
     @Test
     public void pathFollowsConventionForLane() {
-        assertThat(OutputFile.of(OutputType.UNMAPPED, Lane.of("", SAMPLE_NAME + "_L001", "", "")).path()).isEqualTo(format(
+        assertThat(OutputFile.of(OutputType.UNMAPPED, Lanes.emptyBuilder().name(SAMPLE_NAME + "_L001").build()).path()).isEqualTo(format(
                 "%s/results/TEST_SAMPLE_L001_unmapped.bam",
                 System.getProperty("user.dir")));
     }

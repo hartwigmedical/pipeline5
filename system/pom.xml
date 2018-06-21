@@ -43,6 +43,12 @@
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-yaml</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.hartwig</groupId>
+            <artifactId>pipeline</artifactId>
+            <type>test-jar</type>
+        </dependency>
     </dependencies>
 
     <profiles>

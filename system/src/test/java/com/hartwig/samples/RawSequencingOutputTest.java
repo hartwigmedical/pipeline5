@@ -1,7 +1,7 @@
 package com.hartwig.samples;
 
-import static com.hartwig.testsupport.TestPatients.DEFAULT_CONFIG_BUILDER;
-import static com.hartwig.testsupport.TestPatients.PATIENT_DIR;
+import static com.hartwig.testsupport.TestConfigurations.DEFAULT_CONFIG_BUILDER;
+import static com.hartwig.testsupport.TestConfigurations.PATIENT_DIR;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -22,19 +22,29 @@ public class RawSequencingOutputTest {
                     .patientName("CPCT12345678")
                     .build();
     private static final String CANCER_PANEL_NORMAL_DIRECTORY = CANCER_PANEL.patientDirectory() + "/CPCT12345678R";
-    private static final Lane EXPECTED_NORMAL_LANE = Lane.of(CANCER_PANEL_NORMAL_DIRECTORY,
-            "CPCT12345678R_L001",
-            System.getProperty("user.dir") + "/src/test/resources/patients/cancerPanel/CPCT12345678R/"
-                    + "CPCT12345678R_HJJLGCCXX_S1_L001_R1_001.fastq.gz",
-            System.getProperty("user.dir") + "/src/test/resources/patients/cancerPanel/CPCT12345678R/"
-                    + "CPCT12345678R_HJJLGCCXX_S1_L001_R2_001.fastq.gz");
+    private static final Lane EXPECTED_NORMAL_LANE = Lane.builder()
+            .directory(CANCER_PANEL_NORMAL_DIRECTORY)
+            .name("CPCT12345678R_L001")
+            .readsPath(System.getProperty("user.dir") + "/src/test/resources/patients/cancerPanel/CPCT12345678R/"
+                    + "CPCT12345678R_HJJLGCCXX_S1_L001_R1_001.fastq.gz")
+            .matesPath(System.getProperty("user.dir") + "/src/test/resources/patients/cancerPanel/CPCT12345678R/"
+                    + "CPCT12345678R_HJJLGCCXX_S1_L001_R2_001.fastq.gz")
+            .flowCellId("HJJLGCCXX")
+            .suffix("001")
+            .index("S1")
+            .build();
     private static final String CANCER_PANEL_TUMOUR_DIRECTORY = CANCER_PANEL.patientDirectory() + "/CPCT12345678T";
-    private static final Lane EXPECTED_TUMOUR_LANE = Lane.of(CANCER_PANEL_TUMOUR_DIRECTORY,
-            "CPCT12345678T_L001",
-            System.getProperty("user.dir") + "/src/test/resources/patients/cancerPanel/CPCT12345678T/"
-                    + "CPCT12345678T_HJJLGCCXX_S1_L001_R1_001.fastq.gz",
-            System.getProperty("user.dir") + "/src/test/resources/patients/cancerPanel/CPCT12345678T/"
-                    + "CPCT12345678T_HJJLGCCXX_S1_L001_R2_001.fastq.gz");
+    private static final Lane EXPECTED_TUMOUR_LANE = Lane.builder()
+            .directory(CANCER_PANEL_TUMOUR_DIRECTORY)
+            .name("CPCT12345678T_L001")
+            .readsPath(System.getProperty("user.dir") + "/src/test/resources/patients/cancerPanel/CPCT12345678T/"
+                    + "CPCT12345678T_HJJLGCCXX_S1_L001_R1_001.fastq.gz")
+            .matesPath(System.getProperty("user.dir") + "/src/test/resources/patients/cancerPanel/CPCT12345678T/"
+                    + "CPCT12345678T_HJJLGCCXX_S1_L001_R2_001.fastq.gz")
+            .flowCellId("HJJLGCCXX")
+            .suffix("001")
+            .index("S1")
+            .build();
 
     @Test
     public void createOutputFromNormalAndTumourDirectory() throws Exception {

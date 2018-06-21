@@ -111,6 +111,14 @@
             </dependency>
 
             <dependency>
+                <groupId>com.hartwig</groupId>
+                <artifactId>pipeline</artifactId>
+                <version>local-SNAPSHOT</version>
+                <type>test-jar</type>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>${junit.version}</version>

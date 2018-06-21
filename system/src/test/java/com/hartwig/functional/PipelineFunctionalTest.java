@@ -1,13 +1,14 @@
 package com.hartwig.functional;
 
 import static com.hartwig.testsupport.Assertions.assertThatOutput;
-import static com.hartwig.testsupport.TestPatients.HUNDREDK_READS_HISEQ;
-import static com.hartwig.testsupport.TestPatients.HUNDREDK_READS_HISEQ_REAL_SAMPLE;
+import static com.hartwig.testsupport.TestConfigurations.HUNDREDK_READS_HISEQ;
+import static com.hartwig.testsupport.TestConfigurations.HUNDREDK_READS_HISEQ_PATIENT_NAME;
 
 import java.io.File;
 
 import com.hartwig.io.OutputFile;
 import com.hartwig.patient.RawSequencingOutput;
+import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.adam.ADAMPipelines;
 import com.hartwig.pipeline.gatk.GATK4Pipelines;
 
@@ -42,7 +43,9 @@ public class PipelineFunctionalTest {
     @Test
     public void gatkPreprocessingMatchesCurrentPipelineOuput() throws Exception {
         GATK4Pipelines.preProcessing(HUNDREDK_READS_HISEQ, context).execute(RawSequencingOutput.from(HUNDREDK_READS_HISEQ));
-        assertThatOutput(HUNDREDK_READS_HISEQ_REAL_SAMPLE).aligned().duplicatesMarked().isEqualToExpected();
+        assertThatOutput(Sample.builder(HUNDREDK_READS_HISEQ.patientDirectory(), HUNDREDK_READS_HISEQ_PATIENT_NAME).build()).aligned()
+                .duplicatesMarked()
+                .isEqualToExpected();
     }
 
     @AfterClass

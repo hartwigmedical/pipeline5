@@ -90,7 +90,7 @@ public class GATK4PreProcessor implements Stage<Sample, ReadsAndHeader> {
 
     private static Consumer<Lane> createUBAMFromFastQ(Sample sample) {
         return lane -> PicardExecutor.of(new FastqToSam(),
-                new String[] { readFileArgumentOf(1, lane.readsFile()), readFileArgumentOf(2, lane.matesFile()), "SM=" + sample.name(),
+                new String[] { readFileArgumentOf(1, lane.readsPath()), readFileArgumentOf(2, lane.matesPath()), "SM=" + sample.name(),
                         "O=" + OutputFile.of(OutputType.UNMAPPED, sample).path() }).execute();
     }
 

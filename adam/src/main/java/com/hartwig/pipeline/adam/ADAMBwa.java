@@ -67,15 +67,14 @@ class ADAMBwa implements Stage<Sample, AlignmentRecordRDD> {
     }
 
     private AlignmentRecordRDD adamBwa(final SequenceDictionary sequenceDictionary, final Sample sample, final Lane lane) {
-        return adamContext.loadFastq(lane.matesFile(), Option.empty(), Option.empty(), ValidationStringency.LENIENT)
+        return adamContext.loadFastq(lane.matesPath(), Option.empty(), Option.empty(), ValidationStringency.LENIENT)
                 .pipe(BwaCommand.tokens(referenceGenome, sample, lane),
                         Collections.emptyList(),
                         Collections.emptyMap(),
                         0,
                         FASTQInFormatter.class,
                         new AnySAMOutFormatter(),
-                        new AlignmentRecordsToAlignmentRecordsConverter())
-                .replaceRecordGroups(recordDictionary(recordGroup(sample.name())))
+                        new AlignmentRecordsToAlignmentRecordsConverter()).replaceRecordGroups(recordDictionary(recordGroup(sample, lane)))
                 .replaceSequences(sequenceDictionary);
     }
 
@@ -83,15 +82,13 @@ class ADAMBwa implements Stage<Sample, AlignmentRecordRDD> {
         return new RecordGroupDictionary(asScalaBufferConverter(singletonList(recordGroup)).asScala());
     }
 
-    private RecordGroup recordGroup(final String sample) {
-        return new RecordGroup(sample,
-                sample,
+    private RecordGroup recordGroup(final Sample sample, final Lane lane) {
+        return new RecordGroup(sample.name(), lane.recordGroupId(),
                 Option.empty(),
                 Option.empty(),
                 Option.empty(),
                 Option.empty(),
-                Option.empty(),
-                Option.apply(sample),
+                Option.empty(), Option.apply(sample.name()),
                 Option.empty(),
                 Option.empty(),
                 Option.empty());

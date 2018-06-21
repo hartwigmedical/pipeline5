@@ -16,14 +16,18 @@ class BwaCommand {
         cmd.add("bwa");
         cmd.add("mem");
         cmd.add("-R");
-        cmd.add(format("@RG\\tID:%s\\tLB:%s\\tPL:ILLUMINA\\tPU:0\\tSM:%s", sample.name(), sample.name(), sample.name()));
+        cmd.add(format("@RG\\tID:%s\\tLB:%s\\tPL:ILLUMINA\\tPU:%s\\tSM:%s",
+                lane.recordGroupId(),
+                sample.name(),
+                lane.flowCellId(),
+                sample.name()));
         cmd.add("-c");
         cmd.add("100");
         cmd.add("-M");
         cmd.add("-t");
         cmd.add("12");
         cmd.add(referenceGenome.path());
-        cmd.add(lane.readsFile());
+        cmd.add(lane.readsPath());
         cmd.add("-");
         return cmd;
     }
