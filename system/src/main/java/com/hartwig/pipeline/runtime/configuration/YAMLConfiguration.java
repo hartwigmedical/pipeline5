@@ -19,11 +19,7 @@ public class YAMLConfiguration {
         ImmutableConfiguration.Builder configurationBuilder = Configuration.builder();
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         Map yamlMap = mapper.readValue(new File(workingDirectory + File.separator + "conf" + File.separator + "pipeline.yaml"), Map.class);
-
         Map<String, String> sparkProperties = extractSubMap(SPARK_PROPERTY, yamlMap);
-
-        persistIntermediateResultsIfPresent(configurationBuilder, yamlMap);
-
         return configurationBuilder.flavour(Configuration.Flavour.valueOf(extractSubProperty(PIPELINE_PROPERTY, "flavour", yamlMap)))
                 .patientName(extractSubProperty(PATIENT_PROPERTY, "name", yamlMap))
                 .patientDirectory(extractSubProperty(PATIENT_PROPERTY, "directory", yamlMap))
@@ -31,13 +27,6 @@ public class YAMLConfiguration {
                 .sparkMaster(extractSubProperty(SPARK_PROPERTY, "master", yamlMap))
                 .putAllSparkProperties(sparkProperties)
                 .build();
-    }
-
-    private static void persistIntermediateResultsIfPresent(final ImmutableConfiguration.Builder configurationBuilder, final Map yamlMap) {
-        String intermediateResults = extractSubProperty(PIPELINE_PROPERTY, "persistIntermediateResults", yamlMap);
-        if (intermediateResults != null) {
-            configurationBuilder.persistIntermediateResults(Boolean.valueOf(intermediateResults));
-        }
     }
 
     private static String extractSubProperty(final String property, final String subProperty, final Map configurationMap) {

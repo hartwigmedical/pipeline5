@@ -27,11 +27,6 @@ public interface Configuration {
 
     Map<String, String> sparkProperties();
 
-    @Value.Default
-    default boolean persistIntermediateResults() {
-        return false;
-    }
-
     static ImmutableConfiguration.Builder builder() {
         return ImmutableConfiguration.builder();
     }

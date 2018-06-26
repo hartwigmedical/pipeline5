@@ -28,7 +28,8 @@ class DuplicateMarkedFileAssertion extends BAMFileAssertion<Sample> {
     private List<String> findDuplicates(final SamReader samReaderResults) {
         List<String> duplicates = new ArrayList<>();
         for (SAMRecord record : samReaderResults) {
-            if (SAMFlag.getFlags(record.getFlags()).contains(SAMFlag.DUPLICATE_READ)) {
+            if (SAMFlag.getFlags(record.getFlags()).contains(SAMFlag.DUPLICATE_READ) && !SAMFlag.getFlags(record.getFlags())
+                    .contains(SAMFlag.MATE_UNMAPPED)) {
                 duplicates.add(record.getReadName());
             }
         }

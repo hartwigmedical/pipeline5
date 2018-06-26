@@ -18,6 +18,5 @@ public class YAMLConfigurationTest {
         assertThat(configuration.sparkMaster()).isEqualTo("local[2]");
         assertThat(configuration.sparkProperties().get("spark.property")).isEqualTo("value");
         assertThat(configuration.flavour()).isEqualTo(Configuration.Flavour.ADAM);
-        assertThat(configuration.persistIntermediateResults()).isEqualTo(true);
     }
 }

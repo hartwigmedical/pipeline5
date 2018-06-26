@@ -23,7 +23,6 @@ class BwaCommand {
                 sample.name()));
         cmd.add("-c");
         cmd.add("100");
-        cmd.add("-M");
         cmd.add("-t");
         cmd.add("12");
         cmd.add(referenceGenome.path());

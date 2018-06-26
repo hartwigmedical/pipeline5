@@ -42,9 +42,7 @@ class ADAMBwa implements Stage<Sample, AlignmentRecordRDD> {
 
     @Override
     public DataSource<Sample, AlignmentRecordRDD> datasource() {
-        return entity -> {
-            throw Exceptions.firstStageInPipelineDatasourceNotAvailable(ADAMBwa.class);
-        };
+        return entity -> null;
     }
 
     @Override

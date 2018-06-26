@@ -20,6 +20,6 @@ public class BwaCommandTest {
                 .stream()
                 .collect(Collectors.joining(" "));
         assertThat(victim).isEqualTo("bwa mem -R @RG\\tID:SAMPLE_FLOWCELL_S1_L001_001\\tLB:SAMPLE\\tPL:ILLUMINA\\tPU:FLOWCELL\\tSM:SAMPLE "
-                + "-c 100 -M -t 12 reference.fa reads1.fastq -");
+                + "-c 100 -t 12 reference.fa reads1.fastq -");
     }
 }
