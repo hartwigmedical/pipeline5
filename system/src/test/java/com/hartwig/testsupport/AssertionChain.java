@@ -7,20 +7,20 @@ import com.hartwig.io.OutputType;
 import com.hartwig.patient.Sample;
 
 public class AssertionChain {
-    private final Sample flowCell;
+    private final Sample sample;
     private final List<BAMFileAssertion> assertions = new ArrayList<>();
 
-    AssertionChain(final Sample flowCell) {
-        this.flowCell = flowCell;
+    AssertionChain(final Sample sample) {
+        this.sample = sample;
     }
 
     public AssertionChain aligned() {
-        assertions.add(new AlignmentFileAssertion(flowCell, OutputType.DUPLICATE_MARKED));
+        assertions.add(new AlignmentFileAssertion(sample, OutputType.DUPLICATE_MARKED));
         return this;
     }
 
     public AssertionChain duplicatesMarked() {
-        assertions.add(new DuplicateMarkedFileAssertion(flowCell));
+        assertions.add(new DuplicateMarkedFileAssertion(sample));
         return this;
     }
 

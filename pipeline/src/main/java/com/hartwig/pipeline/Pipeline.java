@@ -80,7 +80,7 @@ public class Pipeline<P> {
     public static class Builder<P> {
         private List<Stage<Sample, P>> preProcessors = new ArrayList<>();
         private OutputStore<Sample, P> perSampleStore;
-        private boolean persistIntermediateResults = true;
+        private boolean persistIntermediateResults = false;
 
         public Builder<P> addPreProcessingStage(Stage<Sample, P> preProcessor) {
             this.preProcessors.add(preProcessor);

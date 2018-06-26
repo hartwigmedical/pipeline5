@@ -4,23 +4,20 @@ import static java.util.stream.Collectors.toMap;
 import static java.util.stream.StreamSupport.stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import com.hartwig.io.OutputType;
 import com.hartwig.patient.Sample;
 
+import htsjdk.samtools.SAMFlag;
 import htsjdk.samtools.SAMRecord;
 import htsjdk.samtools.SamReader;
 
 class AlignmentFileAssertion extends BAMFileAssertion<Sample> {
-    private static final double READ_MISSING_TOLERANCE = 0.01;
 
     AlignmentFileAssertion(final Sample cell, final OutputType fileType) {
         super(fileType, cell);
@@ -32,10 +29,7 @@ class AlignmentFileAssertion extends BAMFileAssertion<Sample> {
         Map<Key, SAMRecord> recordMapResults = mapOf(results);
 
         checkRecordCounts(recordMapExpected, recordMapResults);
-
-        List<Key> missingReadsInResults = compareRecordByRecord(recordMapExpected, recordMapResults);
-
-        checkMissingReadsAgainstTolerance(recordMapExpected, missingReadsInResults);
+        compareRecordByRecord(recordMapExpected, recordMapResults);
     }
 
     private void checkRecordCounts(final Map<Key, SAMRecord> recordMapExpected, final Map<Key, SAMRecord> recordMapResults) {
@@ -45,76 +39,82 @@ class AlignmentFileAssertion extends BAMFileAssertion<Sample> {
                 recordMapResults.size()).isEqualTo(recordMapResults.size());
     }
 
-    private void checkMissingReadsAgainstTolerance(final Map<Key, SAMRecord> recordMapExpected, final List<Key> missingReadsInResults) {
-        if (((double) missingReadsInResults.size() / (double) recordMapExpected.size()) > READ_MISSING_TOLERANCE) {
-            String thresholdAsPercentage = Double.toString(READ_MISSING_TOLERANCE * 100);
-            String missingReadsAsString = missingReadsInResults.stream().map(Key::toString).collect(Collectors.joining(", "));
-            fail("Missing more than %s%% of reads in the result BAM. Reads missing [%s]", thresholdAsPercentage, missingReadsAsString);
-        }
-    }
-
-    private List<Key> compareRecordByRecord(final Map<Key, SAMRecord> recordMapExpected, final Map<Key, SAMRecord> recordMapResults) {
-        List<Key> missingReadsInResults = new ArrayList<>();
+    private void compareRecordByRecord(final Map<Key, SAMRecord> recordMapExpected, final Map<Key, SAMRecord> recordMapResults) {
+        Map<String, Integer> differenceMap = new HashMap<>();
         for (Key key : recordMapExpected.keySet()) {
             SAMRecord samRecordExpected = recordMapExpected.get(key);
             SAMRecord samRecordResult = recordMapResults.get(key);
-            if (samRecordResult == null) {
-                missingReadsInResults.add(key);
-            } else {
-                assertThat(recordEqualsWithoutTags(samRecordExpected, samRecordResult)).as(
-                        "BAM files where not equal for sample %s and output %s " + "for read %s", getName(), getOutputType(),
-                        samRecordExpected.getReadName()).isTrue();
+            if (samRecordResult != null) {
+                if (!bothReadsUnmappedOrDuplicate(samRecordExpected, samRecordResult)) {
+                    String result = recordEqualsWithoutTags(samRecordExpected, samRecordResult);
+                    if (!result.isEmpty()) {
+                        differenceMap.putIfAbsent(result, 0);
+                        differenceMap.computeIfPresent(result, (s, integer) -> integer + 1);
+                    }
+                }
             }
         }
-        return missingReadsInResults;
+        assertThat(differenceMap.size()).as("BAM files where not equal for sample %s and output %s. Difference count by type: %s",
+                getName(),
+                getOutputType(),
+                differenceMap).isZero();
+    }
+
+    private boolean bothReadsUnmappedOrDuplicate(final SAMRecord samRecordExpected, final SAMRecord samRecordResult) {
+        return isUnmappedOrDuplicate(samRecordExpected) && isUnmappedOrDuplicate(samRecordResult);
+    }
+
+    private boolean isUnmappedOrDuplicate(final SAMRecord record) {
+        return hasFlag(record, SAMFlag.READ_UNMAPPED) || hasFlag(record, SAMFlag.MATE_UNMAPPED) || hasFlag(record, SAMFlag.DUPLICATE_READ);
+    }
+
+    private boolean hasFlag(final SAMRecord record, final SAMFlag readUnmapped) {
+        return SAMFlag.getFlags(record.getFlags()).contains(readUnmapped);
     }
 
     private static Map<Key, SAMRecord> mapOf(final SamReader samReaderExpected) {
         return stream(samReaderExpected.spliterator(), false).collect(toMap(Key::of, Function.identity(), (key1, key2) -> key1));
     }
 
-    private static boolean recordEqualsWithoutTags(final SAMRecord record1, final SAMRecord record2) {
+    private static String recordEqualsWithoutTags(final SAMRecord record1, final SAMRecord record2) {
         if (record1.getAlignmentStart() != record2.getAlignmentStart()) {
-            return false;
+            return "Alignment start";
         }
         if (record1.getFlags() != record2.getFlags()) {
-            return false;
+            return "Flags";
         }
         if (record1.getInferredInsertSize() != record2.getInferredInsertSize()) {
-            return false;
-        }
-        if (record1.getMappingQuality() != record2.getMappingQuality()) {
-            return false;
+            return "Inferred Size";
         }
         if (record1.getMateAlignmentStart() != record2.getMateAlignmentStart()) {
-            return false;
+            return "Mate Alignment Start";
         }
         if (safeEquals(record1.getMateReferenceIndex(), record2.getMateReferenceIndex())) {
-            return false;
+            return "Mate Reference Index";
         }
         if (safeEquals(record1.getReferenceIndex(), record2.getReferenceIndex())) {
-            return false;
+            return "Reference Index";
         }
         if (safeEquals(record1.getReadName(), record2.getReadName())) {
-            return false;
+            return "Read Name";
         }
         if (!Arrays.equals(record1.getBaseQualities(), record2.getBaseQualities())) {
-            return false;
+            return "Base Qualities";
         }
         if (safeEquals(record1.getCigar(), record2.getCigar())) {
-            return false;
+            return "CIGAR";
         }
         if (safeEquals(record1.getMateReferenceName(), record2.getMateReferenceName())) {
-            return false;
+            return "Mate Reference Name";
         }
         if (!Arrays.equals(record1.getReadBases(), record2.getReadBases())) {
-            return false;
+            return "Read Bases";
         }
         //noinspection RedundantIfStatement
         if (safeEquals(record1.getReferenceName(), record2.getReferenceName())) {
-            return false;
+            return "Reference Name";
         }
-        return true;
+        return "";
     }
 
     private static <T> boolean safeEquals(final T attribute1, final T attribute2) {
