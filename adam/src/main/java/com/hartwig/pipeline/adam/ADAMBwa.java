@@ -73,8 +73,8 @@ class ADAMBwa implements Stage<Sample, AlignmentRecordRDD> {
                         Collections.emptyMap(),
                         0,
                         FASTQInFormatter.class,
-                        new AnySAMOutFormatter(),
-                        new AlignmentRecordsToAlignmentRecordsConverter()).replaceRecordGroups(recordDictionary(recordGroup(sample, lane)))
+                        new AnySAMOutFormatter(), new AlignmentRecordsToAlignmentRecordsConverter())
+                .replaceRecordGroups(recordDictionary(recordGroup(sample, lane)))
                 .replaceSequences(sequenceDictionary);
     }
 
@@ -87,10 +87,7 @@ class ADAMBwa implements Stage<Sample, AlignmentRecordRDD> {
                 Option.empty(),
                 Option.empty(),
                 Option.empty(),
-                Option.empty(),
-                Option.empty(), Option.apply(sample.name()),
-                Option.empty(),
-                Option.empty(),
-                Option.empty());
+                Option.empty(), Option.empty(), Option.apply(sample.name()),
+                Option.empty(), Option.apply("ILLUMINA"), Option.apply(lane.flowCellId()));
     }
 }
