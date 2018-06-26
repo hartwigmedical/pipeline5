@@ -1,7 +1,7 @@
 FROM openjdk:8-jre
 
 RUN apt-get update
-RUN apt-get install -y bwa=0.7.5a
+RUN apt-get install -y bwa
 
 ENTRYPOINT ["./pipeline.sh"]
 

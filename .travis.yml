@@ -9,7 +9,7 @@ env:
 
 before_install:
   - sudo apt-get -qq update
-  - sudo apt-get install -y bwa=0.7.5a
+  - sudo apt-get install -y bwa
   - echo "hmf123" | docker login -u "hartwigmedicalfoundation" --password-stdin
   - mvn versions:set -DnewVersion=$PIPELINE2_VERSION
 
