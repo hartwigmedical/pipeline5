@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import com.hartwig.io.DataSource;
 import com.hartwig.io.InputOutput;
-import com.hartwig.io.OutputFile;
 import com.hartwig.io.OutputType;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.Stage;
@@ -22,9 +21,7 @@ class ADAMMarkDuplicates implements Stage<Sample, AlignmentRecordRDD> {
 
     @Override
     public DataSource<Sample, AlignmentRecordRDD> datasource() {
-        return entity -> InputOutput.of(OutputType.ALIGNED,
-                entity,
-                javaADAMContext.loadAlignments(OutputFile.of(OutputType.ALIGNED, entity).path()));
+        return new AlignmentRDDSource(OutputType.ALIGNED, javaADAMContext);
     }
 
     @Override
