@@ -1,6 +1,6 @@
 package com.hartwig.pipeline.runtime;
 
-import com.hartwig.patient.RawSequencingOutput;
+import com.hartwig.patient.PatientReader;
 import com.hartwig.pipeline.Configuration;
 import com.hartwig.pipeline.Pipeline;
 import com.hartwig.pipeline.adam.ADAMPipelines;
@@ -34,7 +34,7 @@ public class PipelineRuntime {
     private void gatk4() throws java.io.IOException {
         LOGGER.info("Starting GATK4 pipeline for patient [{}]", configuration.patientName());
         Pipeline<ReadsAndHeader> gatk4Pipeline = GATK4Pipelines.preProcessing(configuration, SparkContexts.create("GATK4", configuration));
-        gatk4Pipeline.execute(RawSequencingOutput.from(configuration));
+        gatk4Pipeline.execute(PatientReader.from(configuration));
         LOGGER.info("Completed GATK4 pipeline for patient [{}]", configuration.patientName());
     }
 
@@ -42,7 +42,7 @@ public class PipelineRuntime {
         LOGGER.info("Starting ADAM pipeline for patient [{}]", configuration.patientName());
         ADAMContext adamContext = new ADAMContext(SparkContexts.create("ADAM", configuration).sc());
         Pipeline<AlignmentRecordRDD> adamPipeline = ADAMPipelines.preProcessing(configuration, adamContext);
-        adamPipeline.execute(RawSequencingOutput.from(configuration));
+        adamPipeline.execute(PatientReader.from(configuration));
         LOGGER.info("Completed ADAM pipeline for patient [{}]", configuration.patientName());
     }
 

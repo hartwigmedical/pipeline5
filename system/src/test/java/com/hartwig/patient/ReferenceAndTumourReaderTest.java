@@ -1,24 +1,18 @@
-package com.hartwig.samples;
+package com.hartwig.patient;
 
 import static com.hartwig.testsupport.TestConfigurations.DEFAULT_CONFIG_BUILDER;
 import static com.hartwig.testsupport.TestConfigurations.PATIENT_DIR;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.hartwig.patient.Lane;
-import com.hartwig.patient.RawSequencingOutput;
 import com.hartwig.pipeline.Configuration;
 
 import org.junit.Test;
 
-public class RawSequencingOutputTest {
+public class ReferenceAndTumourReaderTest {
 
     private static final Configuration CANCER_PANEL =
             DEFAULT_CONFIG_BUILDER.patientDirectory(System.getProperty("user.dir") + PATIENT_DIR + "/cancerPanel")
-                    .patientName("CPCT12345678")
-                    .build();
-    private static final Configuration CANCER_PANEL_SINGLE_DIRECTORY =
-            DEFAULT_CONFIG_BUILDER.patientDirectory(System.getProperty("user.dir") + PATIENT_DIR + "/cancerPanelSingleDirectory")
                     .patientName("CPCT12345678")
                     .build();
     private static final String CANCER_PANEL_NORMAL_DIRECTORY = CANCER_PANEL.patientDirectory() + "/CPCT12345678R";
@@ -48,21 +42,12 @@ public class RawSequencingOutputTest {
 
     @Test
     public void createOutputFromNormalAndTumourDirectory() throws Exception {
-        RawSequencingOutput victim = RawSequencingOutput.from(CANCER_PANEL);
-        assertThat(victim.patient().directory()).isEqualTo(CANCER_PANEL.patientDirectory());
-        assertThat(victim.patient().reference().directory()).isEqualTo(CANCER_PANEL_NORMAL_DIRECTORY);
-        assertThat(victim.patient().reference().lanes()).hasSize(1).containsOnly(EXPECTED_NORMAL_LANE);
-        assertThat(victim.patient().tumour().directory()).isEqualTo(CANCER_PANEL_TUMOUR_DIRECTORY);
-        assertThat(victim.patient().tumour().lanes()).hasSize(1).containsOnly(EXPECTED_TUMOUR_LANE);
-    }
-
-    @Test
-    public void createOutputFromNormalAndTumourInSameDirectory() throws Exception {
-        RawSequencingOutput victim = RawSequencingOutput.from(CANCER_PANEL_SINGLE_DIRECTORY);
-        assertThat(victim.patient().directory()).isEqualTo(CANCER_PANEL_SINGLE_DIRECTORY.patientDirectory());
-        assertThat(victim.patient().reference().directory()).isEqualTo(CANCER_PANEL_SINGLE_DIRECTORY.patientDirectory());
-        assertThat(victim.patient().reference().lanes()).hasSize(1);
-        assertThat(victim.patient().tumour().directory()).isEqualTo(CANCER_PANEL_SINGLE_DIRECTORY.patientDirectory());
-        assertThat(victim.patient().tumour().lanes()).hasSize(1);
+        ReferenceAndTumourReader victim = new ReferenceAndTumourReader();
+        Patient patient = victim.read(CANCER_PANEL);
+        assertThat(patient.directory()).isEqualTo(CANCER_PANEL.patientDirectory());
+        assertThat(patient.reference().directory()).isEqualTo(CANCER_PANEL_NORMAL_DIRECTORY);
+        assertThat(patient.reference().lanes()).hasSize(1).containsOnly(EXPECTED_NORMAL_LANE);
+        assertThat(patient.tumour().directory()).isEqualTo(CANCER_PANEL_TUMOUR_DIRECTORY);
+        assertThat(patient.tumour().lanes()).hasSize(1).containsOnly(EXPECTED_TUMOUR_LANE);
     }
 }

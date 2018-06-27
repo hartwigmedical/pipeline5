@@ -9,7 +9,7 @@ import java.util.List;
 import com.hartwig.io.InputOutput;
 import com.hartwig.io.OutputFile;
 import com.hartwig.io.OutputStore;
-import com.hartwig.patient.RawSequencingOutput;
+import com.hartwig.patient.Patient;
 import com.hartwig.patient.Sample;
 
 import org.slf4j.Logger;
@@ -26,16 +26,16 @@ public class Pipeline<P> {
         this.perSampleStore = perSampleStore;
     }
 
-    public void execute(RawSequencingOutput sequencing) throws IOException {
+    public void execute(Patient patient) throws IOException {
         LOGGER.info("Preprocessing started for reference sample");
         LOGGER.info("Storing results in {}", OutputFile.RESULTS_DIRECTORY);
         long startTime = startTimer();
         InputOutput<Sample, P> inputOutput;
         for (Stage<Sample, P> preProcessor : preProcessors) {
-            if (!perSampleStore.exists(sequencing.patient().reference(), preProcessor.outputType())) {
-                inputOutput = retrieveFromPersistenceIfLastSkipped(sequencing, preProcessor);
+            if (!perSampleStore.exists(patient.reference(), preProcessor.outputType())) {
+                inputOutput = retrieveFromPersistenceIfLastSkipped(patient.reference(), preProcessor);
                 Trace trace = Trace.of(Pipeline.class, format("Executing [%s] stage", preProcessor.getClass().getSimpleName())).start();
-                inputOutput = preProcessor.execute(inputOutput == null ? InputOutput.seed(sequencing.patient().reference()) : inputOutput);
+                inputOutput = preProcessor.execute(inputOutput == null ? InputOutput.seed(patient.reference()) : inputOutput);
                 perSampleStore.store(inputOutput);
                 trace.finish();
             } else {
@@ -47,9 +47,8 @@ public class Pipeline<P> {
         LOGGER.info("Preprocessing complete for reference sample, Took {} ms", (endTimer() - startTime));
     }
 
-    private InputOutput<Sample, P> retrieveFromPersistenceIfLastSkipped(final RawSequencingOutput sequencing,
-            final Stage<Sample, P> preProcessor) {
-        return preProcessor.datasource().extract(sequencing.patient().reference());
+    private InputOutput<Sample, P> retrieveFromPersistenceIfLastSkipped(final Sample reference, final Stage<Sample, P> preProcessor) {
+        return preProcessor.datasource().extract(reference);
     }
 
     private static long endTimer() {
