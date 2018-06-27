@@ -4,6 +4,10 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <properties>
+        <bwa.version>0.7.5a</bwa.version>
+    </properties>
+
     <parent>
         <groupId>com.hartwig</groupId>
         <artifactId>pipeline2</artifactId>
@@ -112,6 +116,7 @@
                             <tag>${project.version}</tag>
                             <buildArgs>
                                 <JAR_FILE>${project.build.finalName}.jar</JAR_FILE>
+                                <BWA_VERSION>${bwa.version}</BWA_VERSION>
                             </buildArgs>
                         </configuration>
                     </plugin>
