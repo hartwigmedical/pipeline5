@@ -37,7 +37,7 @@ public interface PatientReader {
                 patientDirectory.listFiles(pathname -> pathname.isDirectory() && (pathname.getName().endsWith(TypeSuffix.TUMOUR.getSuffix())
                         || (pathname.getName().endsWith(TypeSuffix.REFERENCE.getSuffix()))));
         if (subdirectories == null) {
-            throw illegalArgument(format("Patient directory [%s] is not a directory. Check your pipeline2.yaml",
+            throw illegalArgument(format("Patient directory [%s] is not a directory. Check your pipeline.yaml",
                     configuration.patient().directory()));
         }
         if (subdirectories.length == 2) {
@@ -46,13 +46,13 @@ public interface PatientReader {
         } else if (subdirectories.length == 0) {
             File[] allFiles = patientDirectory.listFiles(File::isFile);
             if (allFiles != null && allFiles.length == 0) {
-                throw illegalArgument(format("Patient directory [%s] is empty. Check your pipeline2.yaml",
+                throw illegalArgument(format("Patient directory [%s] is empty. Check your pipeline.yaml",
                         configuration.patient().directory()));
             }
             LOGGER.info("Running in single sample patient reader mode");
             return new SingleSampleReader().read(configuration);
         }
-        throw illegalArgument(format("Unable to determine patient reader mode for directory [%s]. Check your pipeline2.yaml, "
+        throw illegalArgument(format("Unable to determine patient reader mode for directory [%s]. Check your pipeline.yaml, "
                 + "Expectation is one directory suffixed with R and another with T", configuration.patient().directory()));
 
     }
