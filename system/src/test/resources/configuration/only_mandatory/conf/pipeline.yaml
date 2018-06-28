@@ -1,0 +1,10 @@
+pipeline:
+  flavour: ADAM
+
+spark:
+  master: local[2]
+
+patient:
+  name: TESTX
+  directory: /patients
+  referenceGenomePath: /reference_genome/Homo_sapiens.GRCh37.GATK.illumina.chr22.fa
