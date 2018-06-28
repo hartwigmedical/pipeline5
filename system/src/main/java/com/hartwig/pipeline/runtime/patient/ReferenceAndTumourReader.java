@@ -1,6 +1,6 @@
-package com.hartwig.patient;
+package com.hartwig.pipeline.runtime.patient;
 
-import static com.hartwig.patient.Samples.createPairedEndSample;
+import static com.hartwig.pipeline.runtime.patient.Samples.createPairedEndSample;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -9,7 +9,9 @@ import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.stream.StreamSupport;
 
-import com.hartwig.pipeline.Configuration;
+import com.hartwig.patient.Patient;
+import com.hartwig.patient.Sample;
+import com.hartwig.pipeline.runtime.configuration.Configuration;
 
 public class ReferenceAndTumourReader implements PatientReader {
 
@@ -26,17 +28,17 @@ public class ReferenceAndTumourReader implements PatientReader {
     private static Patient subdirectoriesForReferenceAndTumour(final Configuration configuration, final Path referenceDirectory,
             final Path tumourDirectory) throws IOException {
         return patientOf(configuration,
-                createPairedEndSample(referenceDirectory, configuration.patientName(), TypeSuffix.REFERENCE.getSuffix()),
-                createPairedEndSample(tumourDirectory, configuration.patientName(), TypeSuffix.TUMOUR.getSuffix()));
+                createPairedEndSample(referenceDirectory, configuration.patient().name(), TypeSuffix.REFERENCE.getSuffix()),
+                createPairedEndSample(tumourDirectory, configuration.patient().name(), TypeSuffix.TUMOUR.getSuffix()));
     }
 
     private static Patient patientOf(final Configuration configuration, final Sample reference, final Sample tumour) throws IOException {
-        return Patient.of(configuration.patientDirectory(), configuration.patientName(), reference, tumour);
+        return Patient.of(configuration.patient().directory(), configuration.patient().name(), reference, tumour);
     }
 
     private static Optional<Path> findDirectoryByConvention(final Configuration configuration, final TypeSuffix typeSuffix)
             throws IOException {
-        return StreamSupport.stream(Files.newDirectoryStream(Paths.get(configuration.patientDirectory()),
-                configuration.patientName() + typeSuffix.getSuffix()).spliterator(), false).findFirst();
+        return StreamSupport.stream(Files.newDirectoryStream(Paths.get(configuration.patient().directory()),
+                configuration.patient().name() + typeSuffix.getSuffix()).spliterator(), false).findFirst();
     }
 }

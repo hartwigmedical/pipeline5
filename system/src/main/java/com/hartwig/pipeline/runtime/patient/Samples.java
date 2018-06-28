@@ -1,4 +1,4 @@
-package com.hartwig.patient;
+package com.hartwig.pipeline.runtime.patient;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -6,6 +6,10 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import com.hartwig.patient.ImmutableLane;
+import com.hartwig.patient.Lane;
+import com.hartwig.patient.Sample;
 
 class Samples {
 
