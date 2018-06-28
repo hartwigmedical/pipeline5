@@ -34,10 +34,12 @@ class ADAMBwa implements Stage<Sample, AlignmentRecordRDD> {
 
     private final ADAMContext adamContext;
     private final ReferenceGenome referenceGenome;
+    private final int bwaThreads;
 
-    ADAMBwa(final ReferenceGenome referenceGenome, final ADAMContext adamContext) {
+    ADAMBwa(final ReferenceGenome referenceGenome, final ADAMContext adamContext, int bwaThreads) {
         this.adamContext = adamContext;
         this.referenceGenome = referenceGenome;
+        this.bwaThreads = bwaThreads;
     }
 
     @Override
@@ -66,12 +68,11 @@ class ADAMBwa implements Stage<Sample, AlignmentRecordRDD> {
 
     private AlignmentRecordRDD adamBwa(final SequenceDictionary sequenceDictionary, final Sample sample, final Lane lane) {
         return adamContext.loadFastq(lane.matesPath(), Option.empty(), Option.empty(), ValidationStringency.LENIENT)
-                .pipe(BwaCommand.tokens(referenceGenome, sample, lane),
+                .pipe(BwaCommand.tokens(referenceGenome, sample, lane, bwaThreads),
                         Collections.emptyList(),
                         Collections.emptyMap(),
                         0,
-                        FASTQInFormatter.class,
-                        new AnySAMOutFormatter(), new AlignmentRecordsToAlignmentRecordsConverter())
+                        FASTQInFormatter.class, new AnySAMOutFormatter(), new AlignmentRecordsToAlignmentRecordsConverter())
                 .replaceRecordGroups(recordDictionary(recordGroup(sample, lane)))
                 .replaceSequences(sequenceDictionary);
     }
@@ -81,11 +82,16 @@ class ADAMBwa implements Stage<Sample, AlignmentRecordRDD> {
     }
 
     private RecordGroup recordGroup(final Sample sample, final Lane lane) {
-        return new RecordGroup(sample.name(), lane.recordGroupId(),
+        return new RecordGroup(sample.name(),
+                lane.recordGroupId(),
                 Option.empty(),
                 Option.empty(),
                 Option.empty(),
-                Option.empty(), Option.empty(), Option.apply(sample.name()),
-                Option.empty(), Option.apply("ILLUMINA"), Option.apply(lane.flowCellId()));
+                Option.empty(),
+                Option.empty(),
+                Option.apply(sample.name()),
+                Option.empty(),
+                Option.apply("ILLUMINA"),
+                Option.apply(lane.flowCellId()));
     }
 }

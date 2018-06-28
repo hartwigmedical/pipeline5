@@ -11,7 +11,7 @@ import com.hartwig.patient.Sample;
 
 class BwaCommand {
 
-    static List<String> tokens(ReferenceGenome referenceGenome, Sample sample, Lane lane) {
+    static List<String> tokens(ReferenceGenome referenceGenome, Sample sample, Lane lane, int bwaThreads) {
         List<String> cmd = new ArrayList<>();
         cmd.add("bwa");
         cmd.add("mem");
@@ -24,7 +24,7 @@ class BwaCommand {
         cmd.add("-c");
         cmd.add("100");
         cmd.add("-t");
-        cmd.add("12");
+        cmd.add(String.valueOf(bwaThreads));
         cmd.add(referenceGenome.path());
         cmd.add(lane.readsPath());
         cmd.add("-");

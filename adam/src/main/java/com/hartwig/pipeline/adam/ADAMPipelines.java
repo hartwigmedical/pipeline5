@@ -9,9 +9,10 @@ import org.bdgenomics.adam.rdd.read.AlignmentRecordRDD;
 
 public class ADAMPipelines {
 
-    public static Pipeline<AlignmentRecordRDD> preProcessing(String referenceGenomePath, ADAMContext adamContext) {
+    public static Pipeline<AlignmentRecordRDD> preProcessing(String referenceGenomePath, ADAMContext adamContext, int bwaThreads) {
         return Pipeline.<AlignmentRecordRDD>builder().addPreProcessingStage(new ADAMBwa(ReferenceGenome.from(referenceGenomePath),
-                adamContext))
+                adamContext,
+                bwaThreads))
                 .addPreProcessingStage(new ADAMMarkDuplicates(new JavaADAMContext(adamContext)))
                 .perSampleStore(new ADAMSampleStore())
                 .build();

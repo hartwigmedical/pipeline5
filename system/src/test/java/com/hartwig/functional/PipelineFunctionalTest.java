@@ -36,7 +36,7 @@ public class PipelineFunctionalTest {
 
     @Test
     public void adamPreprocessingMatchesCurrentPipelineOuput() throws Exception {
-        ADAMPipelines.preProcessing(HUNDREDK_READS_HISEQ.patient().referenceGenomePath(), new ADAMContext(context.sc()))
+        ADAMPipelines.preProcessing(HUNDREDK_READS_HISEQ.patient().referenceGenomePath(), new ADAMContext(context.sc()), 1)
                 .execute(PatientReader.from(HUNDREDK_READS_HISEQ));
         assertThatOutput(SAMPLE).aligned().duplicatesMarked().isEqualToExpected();
     }

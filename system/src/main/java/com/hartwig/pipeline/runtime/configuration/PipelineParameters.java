@@ -9,4 +9,9 @@ import org.immutables.value.Value;
 public interface PipelineParameters {
 
     Configuration.Flavour flavour();
+
+    @Value.Default
+    default BwaParameters bwa() {
+        return ImmutableBwaParameters.builder().threads(12).build();
+    }
 }

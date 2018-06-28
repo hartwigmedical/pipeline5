@@ -42,7 +42,9 @@ public class PipelineRuntime {
     private void adam() throws java.io.IOException {
         LOGGER.info("Starting ADAM pipeline for patient [{}]", configuration.patient().name());
         ADAMContext adamContext = new ADAMContext(SparkContexts.create("ADAM", configuration).sc());
-        Pipeline<AlignmentRecordRDD> adamPipeline = ADAMPipelines.preProcessing(configuration.patient().referenceGenomePath(), adamContext);
+        Pipeline<AlignmentRecordRDD> adamPipeline = ADAMPipelines.preProcessing(configuration.patient().referenceGenomePath(),
+                adamContext,
+                configuration.pipeline().bwa().threads());
         adamPipeline.execute(PatientReader.from(configuration));
         LOGGER.info("Completed ADAM pipeline for patient [{}]", configuration.patient().name());
     }
