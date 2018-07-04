@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.runtime.configuration;
 
+import java.util.List;
+
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import org.immutables.value.Value;
@@ -13,4 +15,6 @@ public interface PatientParameters {
     String name();
 
     String referenceGenomePath();
+
+    List<String> knownIndelPaths();
 }

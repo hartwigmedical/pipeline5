@@ -12,7 +12,8 @@ public class TestConfigurations {
     public static final String HUNDREDK_READS_HISEQ_PATIENT_NAME = "TESTX";
     public static final ImmutablePatientParameters.Builder DEFAULT_PATIENT_BUILDER = ImmutablePatientParameters.builder()
             .referenceGenomePath(
-                    System.getProperty("user.dir") + "/src/test/resources/reference_genome/Homo_sapiens.GRCh37.GATK.illumina.chr22.fa");
+                    System.getProperty("user.dir") + "/src/test/resources/reference_genome/Homo_sapiens.GRCh37.GATK.illumina.chr22.fa")
+            .addKnownIndelPaths(System.getProperty("user.dir") + "/src/test/resources/known_indels/1000G_phase1.indels.b37.vcf");
 
     public static final ImmutableConfiguration.Builder DEFAULT_CONFIG_BUILDER = ImmutableConfiguration.builder()
             .spark(ImmutableMap.of("master", "local[1]"))

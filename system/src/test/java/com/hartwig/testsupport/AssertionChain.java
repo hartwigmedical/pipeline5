@@ -8,24 +8,26 @@ import com.hartwig.patient.Sample;
 
 public class AssertionChain {
     private final Sample sample;
+    private final OutputType finalFileType;
     private final List<BAMFileAssertion> assertions = new ArrayList<>();
 
-    AssertionChain(final Sample sample) {
+    AssertionChain(final Sample sample, final OutputType finalFileType) {
         this.sample = sample;
+        this.finalFileType = finalFileType;
     }
 
     public AssertionChain sorted() {
-        assertions.add(new CoordinateSortedBAMFileAssertion(sample, OutputType.DUPLICATE_MARKED));
+        assertions.add(new CoordinateSortedBAMFileAssertion(sample, finalFileType));
         return this;
     }
 
     public AssertionChain aligned() {
-        assertions.add(new AlignmentFileAssertion(sample, OutputType.DUPLICATE_MARKED));
+        assertions.add(new AlignmentFileAssertion(sample, finalFileType));
         return this;
     }
 
     public AssertionChain duplicatesMarked() {
-        assertions.add(new DuplicateMarkedFileAssertion(sample));
+        assertions.add(new DuplicateMarkedFileAssertion(sample, finalFileType));
         return this;
     }
 

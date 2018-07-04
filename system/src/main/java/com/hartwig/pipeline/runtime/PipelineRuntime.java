@@ -43,6 +43,7 @@ public class PipelineRuntime {
         LOGGER.info("Starting ADAM pipeline for patient [{}]", configuration.patient().name());
         ADAMContext adamContext = new ADAMContext(SparkContexts.create("ADAM", configuration).sc());
         Pipeline<AlignmentRecordRDD> adamPipeline = ADAMPipelines.preProcessing(configuration.patient().referenceGenomePath(),
+                configuration.patient().knownIndelPaths(),
                 adamContext,
                 configuration.pipeline().bwa().threads());
         adamPipeline.execute(PatientReader.from(configuration));

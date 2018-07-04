@@ -4,7 +4,7 @@ public enum OutputType {
 
     UNMAPPED("bam"),
     ALIGNED("bam"),
-    REALIGNED("bam"),
+    INDEL_REALIGNED("bam"),
     DUPLICATE_MARKED("bam");
 
     private final String extension;

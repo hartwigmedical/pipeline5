@@ -14,8 +14,8 @@ import htsjdk.samtools.SamReader;
 
 class DuplicateMarkedFileAssertion extends BAMFileAssertion<Sample> {
 
-    DuplicateMarkedFileAssertion(final Sample cell) {
-        super(OutputType.DUPLICATE_MARKED, cell);
+    DuplicateMarkedFileAssertion(final Sample cell, final OutputType outputType) {
+        super(outputType, cell);
     }
 
     @Override

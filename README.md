@@ -31,16 +31,18 @@ for an example of this file. Within the yaml file you can configure the followin
 | ----------------------- | ---------------------------------------------
 | **pipeline**            | Parameters which impact the running of the pipeline
 | flavour                 | Which test pipeline to use ADAM or GATK
-| persistIntermediateResults                 | (Optional) If true pipeline will store all stages output. If false will only store at hardcoded milestones (ie mark duplicates)
 | **spark**               | Parameters specific to Apache Spark
 | master                  | The spark master user (ie local[#cpus], yarn, spark url, etc)
 | **patient**             | Parameters to configure the patient and referenceGenome data
 | name                    | Name of the patient with no sample type postfix
 | directory               | Directory of patient FASTQ files.
 | referenceGenomePath     | Full path to reference genome FASTA file
+| knownIndelPaths         | A YAML list of paths to known indel vcf files. If not present or empty, indel realignment is not run
 
 The simplest way to run the pipeline locally is to simply run PipelineRuntime main class from IntelliJ. The working directory will be the
 root of the project so just add your /conf directory there as well.
+
+See /system/src/test/resources/configuration/all_parameters/conf/pipeline.yaml for an example with all parameters defined.
 
 ## Running Pipeline2 with Docker
 
