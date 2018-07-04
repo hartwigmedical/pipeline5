@@ -14,7 +14,9 @@ public class ADAMSampleStore implements OutputStore<Sample, AlignmentRecordRDD> 
 
     @Override
     public void store(final InputOutput<Sample, AlignmentRecordRDD> inputOutput) {
-        inputOutput.payload().save(Persistence.defaultSave(inputOutput.entity(), inputOutput.type()), true);
+        inputOutput.payload()
+                .sortReadsByReferencePositionAndIndex()
+                .save(Persistence.defaultSave(inputOutput.entity(), inputOutput.type()), true);
     }
 
     @Override
