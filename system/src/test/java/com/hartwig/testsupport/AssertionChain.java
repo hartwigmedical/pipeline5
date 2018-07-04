@@ -14,6 +14,11 @@ public class AssertionChain {
         this.sample = sample;
     }
 
+    public AssertionChain sorted() {
+        assertions.add(new CoordinateSortedBAMFileAssertion(sample, OutputType.DUPLICATE_MARKED));
+        return this;
+    }
+
     public AssertionChain aligned() {
         assertions.add(new AlignmentFileAssertion(sample, OutputType.DUPLICATE_MARKED));
         return this;
