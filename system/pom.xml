@@ -10,7 +10,7 @@
 
     <parent>
         <groupId>com.hartwig</groupId>
-        <artifactId>pipeline2</artifactId>
+        <artifactId>pipeline5</artifactId>
         <version>local-SNAPSHOT</version>
     </parent>
     <artifactId>system</artifactId>
@@ -112,7 +112,7 @@
                             </execution>
                         </executions>
                         <configuration>
-                            <repository>hartwigmedicalfoundation/pipeline2</repository>
+                            <repository>hartwigmedicalfoundation/pipeline5</repository>
                             <tag>${project.version}</tag>
                             <buildArgs>
                                 <JAR_FILE>${project.build.finalName}.jar</JAR_FILE>

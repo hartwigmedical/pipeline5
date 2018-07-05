@@ -6,7 +6,7 @@
 
     <parent>
         <groupId>com.hartwig</groupId>
-        <artifactId>pipeline2</artifactId>
+        <artifactId>pipeline5</artifactId>
         <version>local-SNAPSHOT</version>
     </parent>
     <artifactId>gatk4</artifactId>

@@ -20,6 +20,6 @@ ENTRYPOINT ["./pipeline.sh"]
 
 ADD bin/pipeline.sh pipeline.sh
 ADD docker/conf/pipeline.yaml /conf/pipeline.yaml
-ADD target/lib /usr/share/pipeline2/lib
+ADD target/lib /usr/share/pipeline5/lib
 ARG JAR_FILE
-ADD target/${JAR_FILE} /usr/share/pipeline2/system.jar
+ADD target/${JAR_FILE} /usr/share/pipeline5/system.jar

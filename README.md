@@ -1,15 +1,15 @@
-# HMF Pipeline2
-Pipeline2 is a new data pipeline build to perform secondary and tertiary analysis on patient DNA samples. Pipeline2 is currently in an
+# HMF Pipeline version 5
+Pipeline 5 is a new data pipeline build to perform secondary and tertiary analysis on patient DNA samples. Pipeline 5 is currently in an
 MVP phase to evaluate the GATK4 and ADAM frameworks. Two pipelines are implemented that take multiple lanes of paired-end FASTQ files as
 input and return an aligned, sorted and duplicate marked BAM.
 
-## Building and Testing Pipeline2
+## Building and Testing Pipeline 5
 
 The only pre-requisite for running the build is having bwa installed locally (for the ADAM functional tests). For Mac users bwa can be
 installed easily via homebrew, and there are also packages for most linux distributions. All else fails you can build from source
 http://bio-bwa.sourceforge.net/
 
-Pipeline2 is built with maven. To run all tests and also build the Docker image run the following:
+Pipeline 5 is built with maven. To run all tests and also build the Docker image run the following:
 
 ```
 mvn clean install
@@ -20,11 +20,11 @@ of the Docker image run the following.
 mvn clean install -DskipDocker
 ```
 
-## Running Pipeline2 locally
+## Running Pipeline 5 locally
 
 ### Configuration
 
-Pipeline2 expects a yaml file **conf/pipeline.yaml** relative to the processes working directory. See **system/docker/conf/pipeline.yaml**
+Pipeline 5 expects a yaml file **conf/pipeline.yaml** relative to the processes working directory. See **system/docker/conf/pipeline.yaml**
 for an example of this file. Within the yaml file you can configure the following:
 
 | Parameter               | Description
@@ -44,7 +44,7 @@ root of the project so just add your /conf directory there as well.
 
 See /system/src/test/resources/configuration/all_parameters/conf/pipeline.yaml for an example with all parameters defined.
 
-## Running Pipeline2 with Docker
+## Running Pipeline 5 with Docker
 
 ### Locally
 You can also run locally as a Docker container. First build the project without the **-DskipDocker** flag to build the image. It will be
@@ -53,16 +53,16 @@ must use the **-l** flag to switch to local mode as Docker for Mac does not supp
 spark diagnostic GUI). For example:
 
 ```
-run_pipeline2_docker.sh -v local-SNAPSHOT -p /your/patient/dir -r /your/referenceGenome/file -c /your/config/dir -l
+run_pipeline5_docker.sh -v local-SNAPSHOT -p /your/patient/dir -r /your/referenceGenome/file -c /your/config/dir -l
 ```
 
 ### On Crunch
 Once you've committed and pushed Travis will build a versioned docker image and push it to dockerhub. These versioned images can be pulled
-and run on any server with docker running. The run_pipeline2_docker script is distributed with the scripts repository and on the path of
-all crunch servers, so you can run Pipeline2 the same as you run locally. To just use defaults (cancerPanel sample) you only have to run
+and run on any server with docker running. The run_pipeline5_docker script is distributed with the scripts repository and on the path of
+all crunch servers, so you can run Pipeline 5 the same as you run locally. To just use defaults (cancerPanel sample) you only have to run
 the following:
 
 ```
-run_pipeline2_docker.sh -v 0.0.{travis-build-number}
+run_pipelinev5_docker.sh -v 0.0.{travis-build-number}
 ```
 
