@@ -11,11 +11,11 @@ import com.hartwig.pipeline.Stage;
 import org.bdgenomics.adam.api.java.JavaADAMContext;
 import org.bdgenomics.adam.rdd.read.AlignmentRecordRDD;
 
-class ADAMMarkDuplicates implements Stage<Sample, AlignmentRecordRDD> {
+class ADAMMarkDuplicatesAndSort implements Stage<Sample, AlignmentRecordRDD> {
 
     private final JavaADAMContext javaADAMContext;
 
-    ADAMMarkDuplicates(final JavaADAMContext javaADAMContext) {
+    ADAMMarkDuplicatesAndSort(final JavaADAMContext javaADAMContext) {
         this.javaADAMContext = javaADAMContext;
     }
 
@@ -26,7 +26,7 @@ class ADAMMarkDuplicates implements Stage<Sample, AlignmentRecordRDD> {
 
     @Override
     public InputOutput<Sample, AlignmentRecordRDD> execute(InputOutput<Sample, AlignmentRecordRDD> input) throws IOException {
-        return InputOutput.of(outputType(), input.entity(), input.payload().markDuplicates());
+        return InputOutput.of(outputType(), input.entity(), input.payload().markDuplicates().sortReadsByReferencePositionAndIndex());
     }
 
     @Override

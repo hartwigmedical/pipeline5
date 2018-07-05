@@ -74,9 +74,7 @@ class ADAMBwa implements Stage<Sample, AlignmentRecordRDD> {
                         Collections.emptyMap(),
                         0,
                         FASTQInFormatter.class, new AnySAMOutFormatter(), new AlignmentRecordsToAlignmentRecordsConverter())
-                .replaceRecordGroups(recordDictionary(recordGroup(sample, lane)))
-                .replaceSequences(sequenceDictionary)
-                .cache();
+                .replaceRecordGroups(recordDictionary(recordGroup(sample, lane))).replaceSequences(sequenceDictionary);
     }
 
     private RecordGroupDictionary recordDictionary(final RecordGroup recordGroup) {
