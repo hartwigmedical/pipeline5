@@ -32,7 +32,7 @@ import htsjdk.samtools.SAMFileHeader;
 import htsjdk.samtools.SAMSequenceDictionary;
 import picard.sam.FastqToSam;
 
-public class GATK4PreProcessor implements Stage<Sample, ReadsAndHeader> {
+public class GATK4PreProcessor implements Stage<Sample, ReadsAndHeader, ReadsAndHeader> {
 
     private final ReadsSparkSource readsSparkSource;
     private final JavaSparkContext context;

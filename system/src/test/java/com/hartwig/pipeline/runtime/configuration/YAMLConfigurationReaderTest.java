@@ -17,6 +17,7 @@ public class YAMLConfigurationReaderTest {
         assertThat(configuration.pipeline().bwa().threads()).isEqualTo(5);
         assertThat(configuration.patient().knownIndelPaths()).containsExactly("/data/dbs/GATK_bundle_v2.8/1000G_phase1.indels.b37.vcf",
                 "/data/dbs/GATK_bundle_v2.8/Mills_and_1000G_gold_standard.indels.b37.vcf");
+        assertThat(configuration.pipeline().callGermline()).isTrue();
     }
 
     @Test
@@ -25,6 +26,7 @@ public class YAMLConfigurationReaderTest {
         assertThat(configuration.spark().isEmpty());
         assertThat(configuration.pipeline().bwa().threads()).isEqualTo(12);
         assertThat(configuration.patient().knownIndelPaths()).isEmpty();
+        assertThat(configuration.pipeline().callGermline()).isFalse();
     }
 
     private static Configuration checkMandatory(final String confDirectory) throws IOException {

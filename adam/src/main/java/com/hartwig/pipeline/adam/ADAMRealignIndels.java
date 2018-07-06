@@ -17,7 +17,7 @@ import org.bdgenomics.adam.rdd.read.AlignmentRecordRDD;
 import org.bdgenomics.adam.rdd.variant.VariantRDD;
 import org.bdgenomics.formats.avro.Variant;
 
-public class ADAMRealignIndels implements Stage<Sample, AlignmentRecordRDD> {
+public class ADAMRealignIndels implements Stage<Sample, AlignmentRecordRDD, AlignmentRecordRDD> {
 
     private final KnownIndels knownIndels;
     private final JavaADAMContext javaADAMContext;

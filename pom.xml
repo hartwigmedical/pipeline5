@@ -18,7 +18,7 @@
         <assertj-core.version>3.8.0</assertj-core.version>
         <slf4j-api.version>1.7.25</slf4j-api.version>
         <gatk.version>4.0.4.0</gatk.version>
-        <spark.version>2.3.0</spark.version>
+        <spark.version>2.2.0</spark.version>
         <commons-io.version>2.5</commons-io.version>
         <adam.version>0.24.0</adam.version>
         <cannoli.version>0.1.0</cannoli.version>
@@ -26,6 +26,7 @@
         <jackson.version>2.9.5</jackson.version>
         <dockerfile-maven-plugin.version>1.3.6</dockerfile-maven-plugin.version>
         <dockerfile.googleContainerRegistryEnabled>false</dockerfile.googleContainerRegistryEnabled>
+        <avocado.version>0.1.0</avocado.version>
     </properties>
 
     <modules>
@@ -83,6 +84,11 @@
                 <groupId>org.bdgenomics.adam</groupId>
                 <artifactId>adam-apis-spark2_2.11</artifactId>
                 <version>${adam.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bdgenomics.avocado</groupId>
+                <artifactId>avocado-core_2.11</artifactId>
+                <version>${avocado.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-io</groupId>

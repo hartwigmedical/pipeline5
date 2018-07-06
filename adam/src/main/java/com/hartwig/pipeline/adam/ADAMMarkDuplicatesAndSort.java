@@ -12,7 +12,7 @@ import org.apache.spark.storage.StorageLevel;
 import org.bdgenomics.adam.api.java.JavaADAMContext;
 import org.bdgenomics.adam.rdd.read.AlignmentRecordRDD;
 
-class ADAMMarkDuplicatesAndSort implements Stage<Sample, AlignmentRecordRDD> {
+class ADAMMarkDuplicatesAndSort implements Stage<Sample, AlignmentRecordRDD, AlignmentRecordRDD> {
 
     private final JavaADAMContext javaADAMContext;
 
@@ -27,8 +27,12 @@ class ADAMMarkDuplicatesAndSort implements Stage<Sample, AlignmentRecordRDD> {
 
     @Override
     public InputOutput<Sample, AlignmentRecordRDD> execute(InputOutput<Sample, AlignmentRecordRDD> input) throws IOException {
-        AlignmentRecordRDD persistedRDD = (AlignmentRecordRDD) input.payload().markDuplicates().persist(StorageLevel.DISK_ONLY());
-        return InputOutput.of(outputType(), input.entity(), persistedRDD.sortReadsByReferencePositionAndIndex());
+        return InputOutput.of(outputType(),
+                input.entity(),
+                ((AlignmentRecordRDD) input.payload()
+                        .markDuplicates()
+                        .sortReadsByReferencePositionAndIndex()
+                        .persist(StorageLevel.DISK_ONLY())));
     }
 
     @Override

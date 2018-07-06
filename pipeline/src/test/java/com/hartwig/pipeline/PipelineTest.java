@@ -19,7 +19,7 @@ import org.junit.Test;
 public class PipelineTest {
 
     private static final String NO_DIRECTORY = "";
-    private Stage<Sample, Object> shouldNotBeCalled;
+    private Stage<Sample, Object, Object> shouldNotBeCalled;
     private OutputStore<Sample, Object> duplicatesMarkedExists;
     private DataSource<Sample, Object> returnsObjectFromFileSystem;
     private InputOutput<Sample, Object> priorInput;
@@ -44,7 +44,7 @@ public class PipelineTest {
 
     @Test
     public void stagesSkippedWhenOutputAlreadyExists() throws Exception {
-        Pipeline.builder().addPreProcessingStage(shouldNotBeCalled).perSampleStore(duplicatesMarkedExists).build().execute(patient);
+        Pipeline.builder().addPreProcessingStage(shouldNotBeCalled).bamStore(duplicatesMarkedExists).build().execute(patient);
         verify(shouldNotBeCalled, never()).execute(priorInput);
     }
 
@@ -52,12 +52,10 @@ public class PipelineTest {
     @Test
     public void priorOutputRetrievedFromFileSystemWhenStageSkipped() throws Exception {
 
-        Stage<Sample, Object> shouldBeCalled = mock(Stage.class);
+        Stage<Sample, Object, Object> shouldBeCalled = mock(Stage.class);
         when(shouldBeCalled.datasource()).thenReturn(returnsObjectFromFileSystem);
         Pipeline.builder()
-                .addPreProcessingStage(shouldNotBeCalled)
-                .addPreProcessingStage(shouldBeCalled)
-                .perSampleStore(duplicatesMarkedExists)
+                .addPreProcessingStage(shouldNotBeCalled).addPreProcessingStage(shouldBeCalled).bamStore(duplicatesMarkedExists)
                 .build().execute(patient);
 
         verify(shouldBeCalled, times(1)).execute(priorInput);

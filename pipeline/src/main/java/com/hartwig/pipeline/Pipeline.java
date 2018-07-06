@@ -15,40 +15,48 @@ import com.hartwig.patient.Sample;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Pipeline<P> {
+public class Pipeline<BAM, VCF> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Pipeline.class);
-    private final List<Stage<Sample, P>> preProcessors;
-    private final OutputStore<Sample, P> perSampleStore;
+    private final List<Stage<Sample, BAM, BAM>> preProcessors;
+    private final Stage<Sample, BAM, VCF> germlineCalling;
+    private final OutputStore<Sample, BAM> bamStore;
+    private final OutputStore<Sample, VCF> vcfStore;
 
-    private Pipeline(final List<Stage<Sample, P>> preProcessors, final OutputStore<Sample, P> perSampleStore) {
+    private Pipeline(final List<Stage<Sample, BAM, BAM>> preProcessors, final Stage<Sample, BAM, VCF> germlineCalling,
+            final OutputStore<Sample, BAM> bamStore, final OutputStore<Sample, VCF> vcfStore) {
         this.preProcessors = preProcessors;
-        this.perSampleStore = perSampleStore;
+        this.germlineCalling = germlineCalling;
+        this.bamStore = bamStore;
+        this.vcfStore = vcfStore;
     }
 
     public void execute(Patient patient) throws IOException {
         LOGGER.info("Preprocessing started for reference sample");
         LOGGER.info("Storing results in {}", OutputFile.RESULTS_DIRECTORY);
         long startTime = startTimer();
-        InputOutput<Sample, P> inputOutput;
-        for (Stage<Sample, P> preProcessor : preProcessors) {
-            if (!perSampleStore.exists(patient.reference(), preProcessor.outputType())) {
-                inputOutput = retrieveFromPersistenceIfLastSkipped(patient.reference(), preProcessor);
-                Trace trace = Trace.of(Pipeline.class, format("Executing [%s] stage", preProcessor.getClass().getSimpleName())).start();
-                inputOutput = preProcessor.execute(inputOutput == null ? InputOutput.seed(patient.reference()) : inputOutput);
-                perSampleStore.store(inputOutput);
-                trace.finish();
+        for (Stage<Sample, BAM, BAM> preProcessor : preProcessors) {
+            if (!bamStore.exists(patient.reference(), preProcessor.outputType())) {
+                runStage(patient.reference(), preProcessor, bamStore);
             } else {
                 LOGGER.info("Skipping [{}] stage as the output already exists in [{}]",
                         preProcessor.outputType(),
                         OutputFile.RESULTS_DIRECTORY);
             }
         }
+        if (germlineCalling != null) {
+            LOGGER.info("Experimental germline calling is enabled");
+            runStage(patient.reference(), germlineCalling, vcfStore);
+        }
         LOGGER.info("Preprocessing complete for reference sample, Took {} ms", (endTimer() - startTime));
     }
 
-    private InputOutput<Sample, P> retrieveFromPersistenceIfLastSkipped(final Sample reference, final Stage<Sample, P> preProcessor) {
-        return preProcessor.datasource().extract(reference);
+    private <I, O> void runStage(final Sample sample, final Stage<Sample, I, O> stage, final OutputStore<Sample, O> store)
+            throws IOException {
+        InputOutput<Sample, I> input = stage.datasource().extract(sample);
+        Trace trace = Trace.of(Pipeline.class, format("Executing [%s] stage", stage.getClass().getSimpleName())).start();
+        store.store(stage.execute(input == null ? InputOutput.seed(sample) : input));
+        trace.finish();
     }
 
     private static long endTimer() {
@@ -59,26 +67,38 @@ public class Pipeline<P> {
         return System.currentTimeMillis();
     }
 
-    public static <P> Pipeline.Builder<P> builder() {
+    public static <BAM, VCF> Pipeline.Builder<BAM, VCF> builder() {
         return new Builder<>();
     }
 
-    public static class Builder<P> {
-        private List<Stage<Sample, P>> preProcessors = new ArrayList<>();
-        private OutputStore<Sample, P> perSampleStore;
+    public static class Builder<BAM, VCF> {
+        private final List<Stage<Sample, BAM, BAM>> preProcessors = new ArrayList<>();
+        private Stage<Sample, BAM, VCF> germlineCalling;
+        private OutputStore<Sample, BAM> bamStore;
+        private OutputStore<Sample, VCF> vcfStore;
 
-        public Builder<P> addPreProcessingStage(Stage<Sample, P> preProcessor) {
+        public Builder<BAM, VCF> addPreProcessingStage(Stage<Sample, BAM, BAM> preProcessor) {
             this.preProcessors.add(preProcessor);
             return this;
         }
 
-        public Builder<P> perSampleStore(OutputStore<Sample, P> perSampleStore) {
-            this.perSampleStore = perSampleStore;
+        public Builder<BAM, VCF> germlineCalling(final Stage<Sample, BAM, VCF> germlineCalling) {
+            this.germlineCalling = germlineCalling;
             return this;
         }
 
-        public Pipeline<P> build() {
-            return new Pipeline<>(preProcessors, perSampleStore);
+        public Builder<BAM, VCF> bamStore(OutputStore<Sample, BAM> bamStore) {
+            this.bamStore = bamStore;
+            return this;
+        }
+
+        public Builder<BAM, VCF> vcfStore(OutputStore<Sample, VCF> vcfStore) {
+            this.vcfStore = vcfStore;
+            return this;
+        }
+
+        public Pipeline<BAM, VCF> build() {
+            return new Pipeline<>(preProcessors, germlineCalling, bamStore, vcfStore);
         }
     }
 }

@@ -11,6 +11,7 @@ import com.hartwig.pipeline.runtime.spark.SparkContexts;
 
 import org.bdgenomics.adam.rdd.ADAMContext;
 import org.bdgenomics.adam.rdd.read.AlignmentRecordRDD;
+import org.bdgenomics.adam.rdd.variant.VariantContextRDD;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +34,7 @@ public class PipelineRuntime {
 
     private void gatk4() throws java.io.IOException {
         LOGGER.info("Starting GATK4 pipeline for patient [{}]", configuration.patient().name());
-        Pipeline<ReadsAndHeader> gatk4Pipeline =
+        Pipeline<ReadsAndHeader, ReadsAndHeader> gatk4Pipeline =
                 GATK4Pipelines.preProcessing(configuration.patient().referenceGenomePath(), SparkContexts.create("GATK4", configuration));
         gatk4Pipeline.execute(PatientReader.from(configuration));
         LOGGER.info("Completed GATK4 pipeline for patient [{}]", configuration.patient().name());
@@ -42,10 +43,12 @@ public class PipelineRuntime {
     private void adam() throws java.io.IOException {
         LOGGER.info("Starting ADAM pipeline for patient [{}]", configuration.patient().name());
         ADAMContext adamContext = new ADAMContext(SparkContexts.create("ADAM", configuration).sc());
-        Pipeline<AlignmentRecordRDD> adamPipeline = ADAMPipelines.preProcessing(configuration.patient().referenceGenomePath(),
-                configuration.patient().knownIndelPaths(),
-                adamContext,
-                configuration.pipeline().bwa().threads());
+        Pipeline<AlignmentRecordRDD, VariantContextRDD> adamPipeline =
+                ADAMPipelines.preProcessing(configuration.patient().referenceGenomePath(),
+                        configuration.patient().knownIndelPaths(),
+                        adamContext,
+                        configuration.pipeline().bwa().threads(),
+                        configuration.pipeline().callGermline());
         adamPipeline.execute(PatientReader.from(configuration));
         LOGGER.info("Completed ADAM pipeline for patient [{}]", configuration.patient().name());
     }

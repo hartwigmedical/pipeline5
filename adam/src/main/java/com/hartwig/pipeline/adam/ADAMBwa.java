@@ -30,7 +30,7 @@ import org.bdgenomics.adam.rdd.read.FASTQInFormatter;
 import htsjdk.samtools.ValidationStringency;
 import scala.Option;
 
-class ADAMBwa implements Stage<Sample, AlignmentRecordRDD> {
+class ADAMBwa implements Stage<Sample, AlignmentRecordRDD, AlignmentRecordRDD> {
 
     private final ADAMContext adamContext;
     private final ReferenceGenome referenceGenome;

@@ -11,6 +11,11 @@ public interface PipelineParameters {
     Configuration.Flavour flavour();
 
     @Value.Default
+    default boolean callGermline() {
+        return false;
+    }
+
+    @Value.Default
     default BwaParameters bwa() {
         return ImmutableBwaParameters.builder().threads(12).build();
     }

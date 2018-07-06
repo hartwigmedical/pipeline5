@@ -7,11 +7,11 @@ import com.hartwig.io.InputOutput;
 import com.hartwig.io.OutputType;
 import com.hartwig.patient.FileSystemEntity;
 
-public interface Stage<E extends FileSystemEntity, P> {
+public interface Stage<E extends FileSystemEntity, I, O> {
 
-    DataSource<E, P> datasource();
+    DataSource<E, I> datasource();
 
     OutputType outputType();
 
-    InputOutput<E, P> execute(InputOutput<E, P> input) throws IOException;
+    InputOutput<E, O> execute(InputOutput<E, I> input) throws IOException;
 }
