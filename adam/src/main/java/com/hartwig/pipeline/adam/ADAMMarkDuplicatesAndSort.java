@@ -27,7 +27,7 @@ class ADAMMarkDuplicatesAndSort implements Stage<Sample, AlignmentRecordRDD> {
 
     @Override
     public InputOutput<Sample, AlignmentRecordRDD> execute(InputOutput<Sample, AlignmentRecordRDD> input) throws IOException {
-        AlignmentRecordRDD persistedRDD = (AlignmentRecordRDD) input.payload().markDuplicates().persist(StorageLevel.MEMORY_AND_DISK_SER());
+        AlignmentRecordRDD persistedRDD = (AlignmentRecordRDD) input.payload().markDuplicates().persist(StorageLevel.DISK_ONLY());
         return InputOutput.of(outputType(), input.entity(), persistedRDD.sortReadsByReferencePositionAndIndex());
     }
 
