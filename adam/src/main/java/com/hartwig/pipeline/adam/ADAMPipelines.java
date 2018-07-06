@@ -16,12 +16,13 @@ public class ADAMPipelines {
     public static Pipeline<AlignmentRecordRDD, VariantContextRDD> preProcessing(String referenceGenomePath, List<String> knownIndelPaths,
             ADAMContext adamContext, int bwaThreads, boolean callGermline) {
         JavaADAMContext javaADAMContext = new JavaADAMContext(adamContext);
+        ReferenceGenome referenceGenome = ReferenceGenome.of(referenceGenomePath);
         Pipeline.Builder<AlignmentRecordRDD, VariantContextRDD> builder =
-                Pipeline.<AlignmentRecordRDD, VariantContextRDD>builder().addPreProcessingStage(new ADAMBwa(ReferenceGenome.from(
-                        referenceGenomePath), adamContext, bwaThreads))
-                        .addPreProcessingStage(new ADAMMarkDuplicatesAndSort(javaADAMContext));
+                Pipeline.<AlignmentRecordRDD, VariantContextRDD>builder().addPreProcessingStage(new ADAMBwa(referenceGenome,
+                        adamContext,
+                        bwaThreads)).addPreProcessingStage(new ADAMMarkDuplicatesAndSort(javaADAMContext));
         if (!knownIndelPaths.isEmpty()) {
-            builder.addPreProcessingStage(new ADAMRealignIndels(KnownIndels.of(knownIndelPaths), javaADAMContext));
+            builder.addPreProcessingStage(new ADAMRealignIndels(KnownIndels.of(knownIndelPaths), referenceGenome, javaADAMContext));
         }
         if (callGermline) {
             builder.germlineCalling(new ADAMGermlineCalling(javaADAMContext)).vcfStore(new ADAMVCFStore());

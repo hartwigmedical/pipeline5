@@ -8,7 +8,7 @@ public interface ReferenceGenome {
     @Value.Parameter
     String path();
 
-    static ReferenceGenome from(String path) {
+    static ReferenceGenome of(String path) {
         return ImmutableReferenceGenome.of(path);
     }
 }

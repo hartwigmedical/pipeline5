@@ -7,6 +7,7 @@ import com.hartwig.io.DataSource;
 import com.hartwig.io.InputOutput;
 import com.hartwig.io.OutputType;
 import com.hartwig.patient.KnownIndels;
+import com.hartwig.patient.ReferenceGenome;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.Stage;
 
@@ -15,15 +16,20 @@ import org.bdgenomics.adam.algorithms.consensus.ConsensusGeneratorFromKnowns;
 import org.bdgenomics.adam.api.java.JavaADAMContext;
 import org.bdgenomics.adam.rdd.read.AlignmentRecordRDD;
 import org.bdgenomics.adam.rdd.variant.VariantRDD;
+import org.bdgenomics.adam.util.ReferenceFile;
 import org.bdgenomics.formats.avro.Variant;
+
+import scala.Option;
 
 public class ADAMRealignIndels implements Stage<Sample, AlignmentRecordRDD, AlignmentRecordRDD> {
 
     private final KnownIndels knownIndels;
+    private final ReferenceGenome referenceGenome;
     private final JavaADAMContext javaADAMContext;
 
-    ADAMRealignIndels(final KnownIndels knownIndels, final JavaADAMContext javaADAMContext) {
+    ADAMRealignIndels(final KnownIndels knownIndels, final ReferenceGenome referenceGenome, final JavaADAMContext javaADAMContext) {
         this.knownIndels = knownIndels;
+        this.referenceGenome = referenceGenome;
         this.javaADAMContext = javaADAMContext;
     }
 
@@ -39,15 +45,23 @@ public class ADAMRealignIndels implements Stage<Sample, AlignmentRecordRDD, Alig
 
     @Override
     public InputOutput<Sample, AlignmentRecordRDD> execute(final InputOutput<Sample, AlignmentRecordRDD> input) throws IOException {
-
         RDD<Variant> allKnownVariants = knownIndels.paths()
                 .stream()
                 .map(javaADAMContext::loadVariants)
                 .map(VariantRDD::rdd)
                 .collect(Collector.of(() -> javaADAMContext.getSparkContext().<Variant>emptyRDD().rdd(), RDD::union, RDD::union));
-
+        ReferenceFile fasta = javaADAMContext.loadReferenceFile(referenceGenome.path());
         return InputOutput.of(OutputType.INDEL_REALIGNED,
                 input.entity(),
-                input.payload().realignIndels(new ConsensusGeneratorFromKnowns(allKnownVariants, 0), true, 500, 30, 5.0, 3000));
+                input.payload()
+                        .realignIndels(new ConsensusGeneratorFromKnowns(allKnownVariants, 0),
+                                true,
+                                500,
+                                30,
+                                5.0,
+                                3000,
+                                20000,
+                                Option.apply(fasta),
+                                false));
     }
 }
