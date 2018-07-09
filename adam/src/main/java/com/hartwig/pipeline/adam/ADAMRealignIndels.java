@@ -12,6 +12,7 @@ import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.Stage;
 
 import org.apache.spark.rdd.RDD;
+import org.apache.spark.storage.StorageLevel;
 import org.bdgenomics.adam.algorithms.consensus.ConsensusGeneratorFromKnowns;
 import org.bdgenomics.adam.api.java.JavaADAMContext;
 import org.bdgenomics.adam.rdd.read.AlignmentRecordRDD;
@@ -51,17 +52,18 @@ public class ADAMRealignIndels implements Stage<Sample, AlignmentRecordRDD, Alig
                 .map(VariantRDD::rdd)
                 .collect(Collector.of(() -> javaADAMContext.getSparkContext().<Variant>emptyRDD().rdd(), RDD::union, RDD::union));
         ReferenceFile fasta = javaADAMContext.loadReferenceFile(referenceGenome.path());
-        return InputOutput.of(OutputType.INDEL_REALIGNED,
-                input.entity(),
-                input.payload()
-                        .realignIndels(new ConsensusGeneratorFromKnowns(allKnownVariants, 0),
-                                true,
-                                500,
-                                30,
-                                5.0,
-                                3000,
-                                20000,
-                                Option.apply(fasta),
-                                false));
+        @SuppressWarnings("RedundantCast")
+        AlignmentRecordRDD persistedRDD = (AlignmentRecordRDD) input.payload()
+                .realignIndels(new ConsensusGeneratorFromKnowns(allKnownVariants, 0),
+                        true,
+                        500,
+                        30,
+                        5.0,
+                        3000,
+                        20000,
+                        Option.apply(fasta),
+                        false)
+                .persist(StorageLevel.DISK_ONLY());
+        return InputOutput.of(OutputType.INDEL_REALIGNED, input.entity(), persistedRDD.sortReadsByReferencePositionAndIndex());
     }
 }
