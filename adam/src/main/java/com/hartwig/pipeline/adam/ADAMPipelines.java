@@ -24,6 +24,7 @@ public class ADAMPipelines {
         if (!knownIndelPaths.isEmpty()) {
             builder.addPreProcessingStage(new ADAMRealignIndels(KnownIndels.of(knownIndelPaths), referenceGenome, javaADAMContext));
         }
+        builder.addPreProcessingStage(new ADAMAddMDTags(javaADAMContext, referenceGenome));
         if (callGermline) {
             builder.germlineCalling(new ADAMGermlineCalling(javaADAMContext)).vcfStore(new ADAMVCFStore());
         }

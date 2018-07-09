@@ -28,7 +28,7 @@ public class ADAMGermlineCalling implements Stage<Sample, AlignmentRecordRDD, Va
 
     @Override
     public DataSource<Sample, AlignmentRecordRDD> datasource() {
-        return new AlignmentRDDSource(OutputType.INDEL_REALIGNED, javaADAMContext);
+        return new AlignmentRDDSource(OutputType.MD_TAGGED, javaADAMContext);
     }
 
     @Override
