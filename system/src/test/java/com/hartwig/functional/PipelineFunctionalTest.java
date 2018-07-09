@@ -12,9 +12,9 @@ import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.adam.ADAMPipelines;
 import com.hartwig.pipeline.gatk.GATK4Pipelines;
 import com.hartwig.pipeline.runtime.patient.PatientReader;
+import com.hartwig.pipeline.runtime.spark.SparkContexts;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.bdgenomics.adam.rdd.ADAMContext;
 import org.junit.BeforeClass;
@@ -30,15 +30,16 @@ public class PipelineFunctionalTest {
     @BeforeClass
     public static void beforeClass() throws Exception {
         FileUtils.deleteDirectory(new File(OutputFile.RESULTS_DIRECTORY));
-        SparkConf conf = new SparkConf().set("spark.serializer", "org.apache.spark.serializer.KryoSerializer").setMaster("local[2]")
-                .setAppName("test");
-        context = new JavaSparkContext(conf);
+        context = SparkContexts.create("test", HUNDREDK_READS_HISEQ);
     }
 
     @Test
     public void adamPreprocessingMatchesCurrentPipelineOuput() throws Exception {
         ADAMPipelines.preProcessing(HUNDREDK_READS_HISEQ.patient().referenceGenomePath(),
-                HUNDREDK_READS_HISEQ.patient().knownIndelPaths(), new ADAMContext(context.sc()), 1, false)
+                HUNDREDK_READS_HISEQ.patient().knownIndelPaths(),
+                new ADAMContext(context.sc()),
+                1,
+                true)
                 .execute(PatientReader.from(HUNDREDK_READS_HISEQ));
         assertThatOutput(SAMPLE, OutputType.DUPLICATE_MARKED).sorted().aligned().duplicatesMarked().isEqualToExpected();
     }

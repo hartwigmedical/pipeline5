@@ -8,7 +8,6 @@ import com.hartwig.io.OutputType;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.Stage;
 
-import org.apache.spark.storage.StorageLevel;
 import org.bdgenomics.adam.api.java.JavaADAMContext;
 import org.bdgenomics.adam.rdd.read.AlignmentRecordRDD;
 
@@ -28,11 +27,7 @@ class ADAMMarkDuplicatesAndSort implements Stage<Sample, AlignmentRecordRDD, Ali
     @Override
     public InputOutput<Sample, AlignmentRecordRDD> execute(InputOutput<Sample, AlignmentRecordRDD> input) throws IOException {
         return InputOutput.of(outputType(),
-                input.entity(),
-                ((AlignmentRecordRDD) input.payload()
-                        .markDuplicates()
-                        .sortReadsByReferencePositionAndIndex()
-                        .persist(StorageLevel.DISK_ONLY())));
+                input.entity(), RDDs.persist(input.payload().markDuplicates().sortReadsByReferencePositionAndIndex()));
     }
 
     @Override

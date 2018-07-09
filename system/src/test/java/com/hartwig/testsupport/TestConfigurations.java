@@ -16,7 +16,7 @@ public class TestConfigurations {
             .addKnownIndelPaths(System.getProperty("user.dir") + "/src/test/resources/known_indels/1000G_phase1.indels.b37.vcf.gz");
 
     public static final ImmutableConfiguration.Builder DEFAULT_CONFIG_BUILDER = ImmutableConfiguration.builder()
-            .spark(ImmutableMap.of("master", "local[1]"))
+            .spark(ImmutableMap.of("master", "local[2]"))
             .pipeline(ImmutablePipelineParameters.builder().flavour(Configuration.Flavour.ADAM).build());
 
     public static final Configuration HUNDREDK_READS_HISEQ = DEFAULT_CONFIG_BUILDER.patient(DEFAULT_PATIENT_BUILDER.directory(

@@ -67,14 +67,14 @@ class ADAMBwa implements Stage<Sample, AlignmentRecordRDD, AlignmentRecordRDD> {
     }
 
     private AlignmentRecordRDD adamBwa(final SequenceDictionary sequenceDictionary, final Sample sample, final Lane lane) {
-        //noinspection RedundantCast
-        return (AlignmentRecordRDD) adamContext.loadFastq(lane.matesPath(), Option.empty(), Option.empty(), ValidationStringency.LENIENT)
+        return RDDs.alignmentRecordRDD(adamContext.loadFastq(lane.matesPath(), Option.empty(), Option.empty(), ValidationStringency.LENIENT)
                 .pipe(BwaCommand.tokens(referenceGenome, sample, lane, bwaThreads),
                         Collections.emptyList(),
                         Collections.emptyMap(),
                         0,
                         FASTQInFormatter.class, new AnySAMOutFormatter(), new AlignmentRecordsToAlignmentRecordsConverter())
-                .replaceRecordGroups(recordDictionary(recordGroup(sample, lane))).replaceSequences(sequenceDictionary);
+                .replaceRecordGroups(recordDictionary(recordGroup(sample, lane)))
+                .replaceSequences(sequenceDictionary));
     }
 
     private RecordGroupDictionary recordDictionary(final RecordGroup recordGroup) {
