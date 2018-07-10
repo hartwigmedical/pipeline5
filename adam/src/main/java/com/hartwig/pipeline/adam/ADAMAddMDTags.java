@@ -1,9 +1,7 @@
 package com.hartwig.pipeline.adam;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 import com.hartwig.io.DataSource;
 import com.hartwig.io.InputOutput;
@@ -40,16 +38,9 @@ class ADAMAddMDTags implements Stage<Sample, AlignmentRecordRDD, AlignmentRecord
 
     @Override
     public InputOutput<Sample, AlignmentRecordRDD> execute(final InputOutput<Sample, AlignmentRecordRDD> input) throws IOException {
-        List<String> cmd = new ArrayList<>();
-        cmd.add("samtools");
-        cmd.add("calmd");
-        cmd.add("-b");
-        cmd.add("-");
-        cmd.add(referenceGenome.path());
         return InputOutput.of(outputType(),
                 input.entity(),
-                RDDs.alignmentRecordRDD(input.payload()
-                        .pipe(cmd,
+                RDDs.alignmentRecordRDD(input.payload().pipe(SamToolsCallMDCommand.tokens(referenceGenome),
                                 Collections.emptyList(),
                                 Collections.emptyMap(),
                                 0,
