@@ -6,9 +6,17 @@ import org.bdgenomics.adam.rdd.read.AlignmentRecordRDD;
 
 class RDDs {
 
-    static AlignmentRecordRDD persist(AlignmentRecordRDD unpersisted) {
+    static AlignmentRecordRDD persistDisk(AlignmentRecordRDD unpersisted) {
+        return persistTo(unpersisted, StorageLevel.DISK_ONLY());
+    }
+
+    static AlignmentRecordRDD persistMemoryAndDisk(AlignmentRecordRDD unpersisted) {
+        return persistTo(unpersisted, StorageLevel.MEMORY_AND_DISK());
+    }
+
+    private static AlignmentRecordRDD persistTo(final AlignmentRecordRDD unpersisted, final StorageLevel storageLevel) {
         //noinspection RedundantCast
-        return (AlignmentRecordRDD) unpersisted.persist(StorageLevel.DISK_ONLY());
+        return (AlignmentRecordRDD) unpersisted.persist(storageLevel);
     }
 
     static AlignmentRecordRDD alignmentRecordRDD(GenomicDataset genomicDataset) {

@@ -40,10 +40,10 @@ public class ADAMGermlineCalling implements Stage<Sample, AlignmentRecordRDD, Va
     public InputOutput<Sample, VariantContextRDD> execute(final InputOutput<Sample, AlignmentRecordRDD> input) throws IOException {
         return InputOutput.of(outputType(),
                 input.entity(),
-                BiallelicGenotyper.discoverAndCall(RDDs.persist(PrefilterReads.apply(RDDs.persist(input.payload()), defaults())),
+                BiallelicGenotyper.discoverAndCall(RDDs.persistMemoryAndDisk(PrefilterReads.apply(RDDs.persistDisk(input.payload()),
+                        defaults())),
                         CopyNumberMap.empty(2),
-                        false,
-                        Option.empty(), Option.apply(15),
+                        false, Option.empty(), Option.apply(15),
                         Option.empty(),
                         Option.empty(),
                         Option.empty(),
