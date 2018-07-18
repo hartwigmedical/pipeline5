@@ -36,8 +36,12 @@ for an example of this file. Within the yaml file you can configure the followin
 | **patient**             | Parameters to configure the patient and referenceGenome data
 | name                    | Name of the patient with no sample type postfix
 | directory               | Directory of patient FASTQ files.
-| referenceGenomePath     | Full path to reference genome FASTA file
-| knownIndelPaths         | A YAML list of paths to known indel vcf files. If not present or empty, indel realignment is not run
+| **referenceGenome**
+| directory               | Directory containing reference genome FASTA file
+| file                    | Name of reference genome FASTA file
+| **knownIndel**
+| directory               | Directory containing known indel vcf files
+| files                   | A YAML list of known indel vcf files.
 
 The simplest way to run the pipeline locally is to simply run PipelineRuntime main class from IntelliJ. The working directory will be the
 root of the project so just add your /conf directory there as well.

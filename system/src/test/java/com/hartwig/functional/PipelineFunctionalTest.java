@@ -35,8 +35,7 @@ public class PipelineFunctionalTest {
 
     @Test
     public void adamPreprocessingMatchesCurrentPipelineOuput() throws Exception {
-        ADAMPipelines.preProcessing(HUNDREDK_READS_HISEQ.patient().referenceGenomePath(),
-                HUNDREDK_READS_HISEQ.patient().knownIndelPaths(),
+        ADAMPipelines.preProcessing(HUNDREDK_READS_HISEQ.referenceGenome().path(), HUNDREDK_READS_HISEQ.knownIndel().paths(),
                 new ADAMContext(context.sc()), 1, true)
                 .execute(PatientReader.from(HUNDREDK_READS_HISEQ));
         assertThatOutput(SAMPLE, OutputType.DUPLICATE_MARKED).sorted().aligned().duplicatesMarked().isEqualToExpected();
@@ -45,7 +44,7 @@ public class PipelineFunctionalTest {
     @Ignore("GATK preprocessor fails currently on this sample (duplicate key exception). More investigation necessary")
     @Test
     public void gatkPreprocessingMatchesCurrentPipelineOuput() throws Exception {
-        GATK4Pipelines.preProcessing(HUNDREDK_READS_HISEQ.patient().referenceGenomePath(), context)
+        GATK4Pipelines.preProcessing(HUNDREDK_READS_HISEQ.referenceGenome().path(), context)
                 .execute(PatientReader.from(HUNDREDK_READS_HISEQ));
         assertThatOutput(SAMPLE, OutputType.DUPLICATE_MARKED).aligned().duplicatesMarked().isEqualToExpected();
     }

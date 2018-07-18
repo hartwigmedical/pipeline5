@@ -35,7 +35,7 @@ public class PipelineRuntime {
     private void gatk4() throws java.io.IOException {
         LOGGER.info("Starting GATK4 pipeline for patient [{}]", configuration.patient().name());
         Pipeline<ReadsAndHeader, ReadsAndHeader> gatk4Pipeline =
-                GATK4Pipelines.preProcessing(configuration.patient().referenceGenomePath(), SparkContexts.create("GATK4", configuration));
+                GATK4Pipelines.preProcessing(configuration.referenceGenome().path(), SparkContexts.create("GATK4", configuration));
         gatk4Pipeline.execute(PatientReader.from(configuration));
         LOGGER.info("Completed GATK4 pipeline for patient [{}]", configuration.patient().name());
     }
@@ -44,8 +44,7 @@ public class PipelineRuntime {
         LOGGER.info("Starting ADAM pipeline for patient [{}]", configuration.patient().name());
         ADAMContext adamContext = new ADAMContext(SparkContexts.create("ADAM", configuration).sc());
         Pipeline<AlignmentRecordRDD, VariantContextRDD> adamPipeline =
-                ADAMPipelines.preProcessing(configuration.patient().referenceGenomePath(),
-                        configuration.patient().knownIndelPaths(),
+                ADAMPipelines.preProcessing(configuration.referenceGenome().path(), configuration.knownIndel().paths(),
                         adamContext,
                         configuration.pipeline().bwa().threads(),
                         configuration.pipeline().callGermline());

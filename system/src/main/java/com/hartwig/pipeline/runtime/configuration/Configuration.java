@@ -19,5 +19,9 @@ public interface Configuration {
 
     PatientParameters patient();
 
+    ReferenceGenomeParameters referenceGenome();
+
+    KnownIndelParameters knownIndel();
+
     Map<String, String> spark();
 }
