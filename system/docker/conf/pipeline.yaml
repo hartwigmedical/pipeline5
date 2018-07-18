@@ -6,5 +6,4 @@ spark:
 
 patient:
   name: CPCT12345678
-  directory: /patients
-  referenceGenomePath: /reference_genome/Homo_sapiens.GRCh37.GATK.illumina.fasta
+  referenceGenomeFile: Homo_sapiens.GRCh37.GATK.illumina.fasta
