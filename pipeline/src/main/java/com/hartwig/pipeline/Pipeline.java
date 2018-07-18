@@ -3,7 +3,6 @@ package com.hartwig.pipeline;
 import static java.lang.String.format;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import com.hartwig.io.InputOutput;
@@ -12,41 +11,46 @@ import com.hartwig.io.OutputStore;
 import com.hartwig.patient.Patient;
 import com.hartwig.patient.Sample;
 
+import org.immutables.value.Value;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Pipeline<BAM, VCF> {
-
+@Value.Immutable
+@Value.Style(passAnnotations = { Nullable.class, NotNull.class })
+public abstract class Pipeline<IN, OUT> {
     private static final Logger LOGGER = LoggerFactory.getLogger(Pipeline.class);
-    private final List<Stage<Sample, BAM, BAM>> preProcessors;
-    private final Stage<Sample, BAM, VCF> germlineCalling;
-    private final OutputStore<Sample, BAM> bamStore;
-    private final OutputStore<Sample, VCF> vcfStore;
 
-    private Pipeline(final List<Stage<Sample, BAM, BAM>> preProcessors, final Stage<Sample, BAM, VCF> germlineCalling,
-            final OutputStore<Sample, BAM> bamStore, final OutputStore<Sample, VCF> vcfStore) {
-        this.preProcessors = preProcessors;
-        this.germlineCalling = germlineCalling;
-        this.bamStore = bamStore;
-        this.vcfStore = vcfStore;
-    }
+    @NotNull
+    protected abstract List<Stage<Sample, IN, IN>> preProcessors();
+
+    @NotNull
+    protected abstract OutputStore<Sample, IN> bamStore();
+
+    @Nullable
+    protected abstract Stage<Sample, IN, OUT> germlineCalling();
+
+    @Nullable
+    protected abstract OutputStore<Sample, OUT> vcfStore();
 
     public void execute(Patient patient) throws IOException {
         LOGGER.info("Preprocessing started for reference sample");
         LOGGER.info("Storing results in {}", OutputFile.RESULTS_DIRECTORY);
         long startTime = startTimer();
-        for (Stage<Sample, BAM, BAM> preProcessor : preProcessors) {
-            if (!bamStore.exists(patient.reference(), preProcessor.outputType())) {
-                runStage(patient.reference(), preProcessor, bamStore);
+        for (Stage<Sample, IN, IN> preProcessor : preProcessors()) {
+            if (!bamStore().exists(patient.reference(), preProcessor.outputType())) {
+                runStage(patient.reference(), preProcessor, bamStore());
             } else {
                 LOGGER.info("Skipping [{}] stage as the output already exists in [{}]",
                         preProcessor.outputType(),
                         OutputFile.RESULTS_DIRECTORY);
             }
         }
-        if (germlineCalling != null) {
+
+        if (germlineCalling() != null) {
             LOGGER.info("Experimental germline calling is enabled");
-            runStage(patient.reference(), germlineCalling, vcfStore);
+            runStage(patient.reference(), germlineCalling(), vcfStore());
         }
         LOGGER.info("Preprocessing complete for reference sample, Took {} ms", (endTimer() - startTime));
     }
@@ -65,40 +69,5 @@ public class Pipeline<BAM, VCF> {
 
     private static long startTimer() {
         return System.currentTimeMillis();
-    }
-
-    public static <BAM, VCF> Pipeline.Builder<BAM, VCF> builder() {
-        return new Builder<>();
-    }
-
-    public static class Builder<BAM, VCF> {
-        private final List<Stage<Sample, BAM, BAM>> preProcessors = new ArrayList<>();
-        private Stage<Sample, BAM, VCF> germlineCalling;
-        private OutputStore<Sample, BAM> bamStore;
-        private OutputStore<Sample, VCF> vcfStore;
-
-        public Builder<BAM, VCF> addPreProcessingStage(Stage<Sample, BAM, BAM> preProcessor) {
-            this.preProcessors.add(preProcessor);
-            return this;
-        }
-
-        public Builder<BAM, VCF> germlineCalling(final Stage<Sample, BAM, VCF> germlineCalling) {
-            this.germlineCalling = germlineCalling;
-            return this;
-        }
-
-        public Builder<BAM, VCF> bamStore(OutputStore<Sample, BAM> bamStore) {
-            this.bamStore = bamStore;
-            return this;
-        }
-
-        public Builder<BAM, VCF> vcfStore(OutputStore<Sample, VCF> vcfStore) {
-            this.vcfStore = vcfStore;
-            return this;
-        }
-
-        public Pipeline<BAM, VCF> build() {
-            return new Pipeline<>(preProcessors, germlineCalling, bamStore, vcfStore);
-        }
     }
 }

@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.hartwig.patient.KnownIndels;
 import com.hartwig.patient.ReferenceGenome;
+import com.hartwig.pipeline.ImmutablePipeline;
 import com.hartwig.pipeline.Pipeline;
 
 import org.bdgenomics.adam.api.java.JavaADAMContext;
@@ -13,16 +14,15 @@ import org.bdgenomics.adam.rdd.variant.VariantContextRDD;
 
 public class ADAMPipelines {
 
-    public static Pipeline<AlignmentRecordRDD, VariantContextRDD> preProcessing(String referenceGenomePath, List<String> knownIndelPaths,
-            ADAMContext adamContext, int bwaThreads, boolean callGermline) {
+    public static Pipeline<AlignmentRecordRDD, VariantContextRDD> preProcessing(final String referenceGenomePath,
+            final List<String> knownIndelPaths, final ADAMContext adamContext, final int bwaThreads, final boolean callGermline) {
         JavaADAMContext javaADAMContext = new JavaADAMContext(adamContext);
         ReferenceGenome referenceGenome = ReferenceGenome.of(referenceGenomePath);
-        Pipeline.Builder<AlignmentRecordRDD, VariantContextRDD> builder =
-                Pipeline.<AlignmentRecordRDD, VariantContextRDD>builder().addPreProcessingStage(new ADAMBwa(referenceGenome,
-                        adamContext,
-                        bwaThreads)).addPreProcessingStage(new ADAMMarkDuplicatesAndSort(javaADAMContext));
-        builder.addPreProcessingStage(new ADAMRealignIndels(KnownIndels.of(knownIndelPaths), referenceGenome, javaADAMContext))
-                .addPreProcessingStage(new ADAMAddMDTags(javaADAMContext, referenceGenome));
+        ImmutablePipeline.Builder<AlignmentRecordRDD, VariantContextRDD> builder = ImmutablePipeline.builder();
+        builder.addPreProcessors(new ADAMBwa(referenceGenome, adamContext, bwaThreads))
+                .addPreProcessors(new ADAMMarkDuplicatesAndSort(javaADAMContext))
+                .addPreProcessors(new ADAMRealignIndels(KnownIndels.of(knownIndelPaths), referenceGenome, javaADAMContext))
+                .addPreProcessors(new ADAMAddMDTags(javaADAMContext, referenceGenome));
         if (callGermline) {
             builder.germlineCalling(new ADAMGermlineCalling(javaADAMContext)).vcfStore(new ADAMVCFStore());
         }

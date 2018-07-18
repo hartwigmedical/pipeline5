@@ -44,7 +44,7 @@ public class PipelineTest {
 
     @Test
     public void stagesSkippedWhenOutputAlreadyExists() throws Exception {
-        Pipeline.builder().addPreProcessingStage(shouldNotBeCalled).bamStore(duplicatesMarkedExists).build().execute(patient);
+        ImmutablePipeline.builder().addPreProcessors(shouldNotBeCalled).bamStore(duplicatesMarkedExists).build().execute(patient);
         verify(shouldNotBeCalled, never()).execute(priorInput);
     }
 
@@ -54,9 +54,12 @@ public class PipelineTest {
 
         Stage<Sample, Object, Object> shouldBeCalled = mock(Stage.class);
         when(shouldBeCalled.datasource()).thenReturn(returnsObjectFromFileSystem);
-        Pipeline.builder()
-                .addPreProcessingStage(shouldNotBeCalled).addPreProcessingStage(shouldBeCalled).bamStore(duplicatesMarkedExists)
-                .build().execute(patient);
+        ImmutablePipeline.builder()
+                .addPreProcessors(shouldNotBeCalled)
+                .addPreProcessors(shouldBeCalled)
+                .bamStore(duplicatesMarkedExists)
+                .build()
+                .execute(patient);
 
         verify(shouldBeCalled, times(1)).execute(priorInput);
     }

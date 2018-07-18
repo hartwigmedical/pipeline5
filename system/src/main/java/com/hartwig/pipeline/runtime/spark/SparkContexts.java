@@ -1,7 +1,5 @@
 package com.hartwig.pipeline.runtime.spark;
 
-import java.util.Map;
-
 import com.hartwig.pipeline.runtime.configuration.Configuration;
 
 import org.apache.spark.SparkConf;
@@ -17,9 +15,7 @@ public class SparkContexts {
                 .set("spark.driver.maxResultSize", "0")
                 .setMaster(configuration.spark().get("master"))
                 .setAppName(appName);
-        for (Map.Entry<String, String> sparkProperty : configuration.spark().entrySet()) {
-            conf.set(sparkProperty.getKey(), sparkProperty.getValue());
-        }
+        configuration.spark().forEach(conf::set);
         return new JavaSparkContext(conf);
     }
 }

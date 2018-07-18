@@ -24,6 +24,7 @@
         <cannoli.version>0.1.0</cannoli.version>
         <parquet-hadoop.version>1.8.2</parquet-hadoop.version>
         <jackson.version>2.9.5</jackson.version>
+        <intellij.annotations.version>12.0</intellij.annotations.version>
         <dockerfile-maven-plugin.version>1.3.6</dockerfile-maven-plugin.version>
         <dockerfile.googleContainerRegistryEnabled>false</dockerfile.googleContainerRegistryEnabled>
         <avocado.version>0.1.1-SNAPSHOT</avocado.version>
@@ -114,6 +115,11 @@
                 <groupId>com.fasterxml.jackson.dataformat</groupId>
                 <artifactId>jackson-dataformat-yaml</artifactId>
                 <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.intellij</groupId>
+                <artifactId>annotations</artifactId>
+                <version>${intellij.annotations.version}</version>
             </dependency>
 
             <dependency>
