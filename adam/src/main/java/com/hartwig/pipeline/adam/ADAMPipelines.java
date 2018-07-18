@@ -21,10 +21,8 @@ public class ADAMPipelines {
                 Pipeline.<AlignmentRecordRDD, VariantContextRDD>builder().addPreProcessingStage(new ADAMBwa(referenceGenome,
                         adamContext,
                         bwaThreads)).addPreProcessingStage(new ADAMMarkDuplicatesAndSort(javaADAMContext));
-        if (!knownIndelPaths.isEmpty()) {
-            builder.addPreProcessingStage(new ADAMRealignIndels(KnownIndels.of(knownIndelPaths), referenceGenome, javaADAMContext));
-        }
-        builder.addPreProcessingStage(new ADAMAddMDTags(javaADAMContext, referenceGenome));
+        builder.addPreProcessingStage(new ADAMRealignIndels(KnownIndels.of(knownIndelPaths), referenceGenome, javaADAMContext))
+                .addPreProcessingStage(new ADAMAddMDTags(javaADAMContext, referenceGenome));
         if (callGermline) {
             builder.germlineCalling(new ADAMGermlineCalling(javaADAMContext)).vcfStore(new ADAMVCFStore());
         }

@@ -25,7 +25,6 @@ public class YAMLConfigurationReaderTest {
         Configuration configuration = checkMandatory("/src/test/resources/configuration/only_mandatory");
         assertThat(configuration.spark().isEmpty());
         assertThat(configuration.pipeline().bwa().threads()).isEqualTo(12);
-        assertThat(configuration.patient().knownIndelPaths()).isEmpty();
         assertThat(configuration.pipeline().callGermline()).isFalse();
     }
 

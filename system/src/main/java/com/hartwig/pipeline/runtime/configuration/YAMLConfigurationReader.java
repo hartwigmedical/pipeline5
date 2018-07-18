@@ -12,6 +12,7 @@ public class YAMLConfigurationReader {
     public static Configuration from(String workingDirectory) throws IOException {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
         return mapper.readValue(new File(workingDirectory + File.separator + "conf" + File.separator + "pipeline.yaml"),
                 Configuration.class);
     }
