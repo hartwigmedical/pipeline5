@@ -9,16 +9,14 @@ import com.hartwig.pipeline.Pipeline;
 
 import org.bdgenomics.adam.api.java.JavaADAMContext;
 import org.bdgenomics.adam.rdd.ADAMContext;
-import org.bdgenomics.adam.rdd.read.AlignmentRecordRDD;
-import org.bdgenomics.adam.rdd.variant.VariantContextRDD;
 
 public class ADAMPipelines {
 
-    public static Pipeline<AlignmentRecordRDD, VariantContextRDD> preProcessing(final String referenceGenomePath,
+    public static Pipeline bamCreation(final String referenceGenomePath,
             final List<String> knownIndelPaths, final ADAMContext adamContext, final int bwaThreads, final boolean callGermline) {
         JavaADAMContext javaADAMContext = new JavaADAMContext(adamContext);
         ReferenceGenome referenceGenome = ReferenceGenome.of(referenceGenomePath);
-        ImmutablePipeline.Builder<AlignmentRecordRDD, VariantContextRDD> builder = ImmutablePipeline.builder();
+        ImmutablePipeline.Builder builder = ImmutablePipeline.builder();
         builder.addPreProcessors(new ADAMBwa(referenceGenome, adamContext, bwaThreads))
                 .addPreProcessors(new ADAMMarkDuplicatesAndSort(javaADAMContext))
                 .addPreProcessors(new ADAMRealignIndels(KnownIndels.of(knownIndelPaths), referenceGenome, javaADAMContext))

@@ -13,16 +13,17 @@ import com.hartwig.io.OutputType;
 import com.hartwig.patient.Patient;
 import com.hartwig.patient.Sample;
 
+import org.bdgenomics.adam.rdd.read.AlignmentRecordRDD;
 import org.junit.Before;
 import org.junit.Test;
 
 public class PipelineTest {
 
     private static final String NO_DIRECTORY = "";
-    private Stage<Sample, Object, Object> shouldNotBeCalled;
-    private OutputStore<Sample, Object> duplicatesMarkedExists;
-    private DataSource<Sample, Object> returnsObjectFromFileSystem;
-    private InputOutput<Sample, Object> priorInput;
+    private Stage<AlignmentRecordRDD, AlignmentRecordRDD> shouldNotBeCalled;
+    private OutputStore<AlignmentRecordRDD> duplicatesMarkedExists;
+    private DataSource<AlignmentRecordRDD> returnsObjectFromFileSystem;
+    private InputOutput<AlignmentRecordRDD> priorInput;
     private Patient patient;
 
     @SuppressWarnings("unchecked")
@@ -34,7 +35,7 @@ public class PipelineTest {
         duplicatesMarkedExists = mock(OutputStore.class);
         returnsObjectFromFileSystem = mock(DataSource.class);
 
-        priorInput = InputOutput.of(OutputType.ALIGNED, referenceSample, new Object());
+        priorInput = InputOutput.of(OutputType.ALIGNED, referenceSample, mock(AlignmentRecordRDD.class));
 
         when(returnsObjectFromFileSystem.extract(referenceSample)).thenReturn(priorInput);
         when(shouldNotBeCalled.outputType()).thenReturn(OutputType.DUPLICATE_MARKED);
@@ -52,7 +53,7 @@ public class PipelineTest {
     @Test
     public void priorOutputRetrievedFromFileSystemWhenStageSkipped() throws Exception {
 
-        Stage<Sample, Object, Object> shouldBeCalled = mock(Stage.class);
+        Stage<AlignmentRecordRDD, AlignmentRecordRDD> shouldBeCalled = mock(Stage.class);
         when(shouldBeCalled.datasource()).thenReturn(returnsObjectFromFileSystem);
         ImmutablePipeline.builder()
                 .addPreProcessors(shouldNotBeCalled)

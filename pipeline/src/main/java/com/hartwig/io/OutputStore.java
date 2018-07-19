@@ -2,13 +2,13 @@ package com.hartwig.io;
 
 import java.io.File;
 
-import com.hartwig.patient.FileSystemEntity;
+import com.hartwig.patient.Sample;
 
-public interface OutputStore<E extends FileSystemEntity, P> {
+public interface OutputStore<P> {
 
-    void store(InputOutput<E, P> inputOutput);
+    void store(InputOutput<P> inputOutput);
 
-    default boolean exists(final E entity, final OutputType type) {
-        return new File(OutputFile.of(type, entity).path()).exists();
+    default boolean exists(final Sample sample, final OutputType type) {
+        return new File(OutputFile.of(type, sample).path()).exists();
     }
 }

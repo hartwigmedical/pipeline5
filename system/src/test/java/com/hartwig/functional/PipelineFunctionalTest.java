@@ -10,7 +10,6 @@ import com.hartwig.io.OutputFile;
 import com.hartwig.io.OutputType;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.adam.ADAMPipelines;
-import com.hartwig.pipeline.gatk.GATK4Pipelines;
 import com.hartwig.pipeline.runtime.patient.PatientReader;
 import com.hartwig.pipeline.runtime.spark.SparkContexts;
 
@@ -18,7 +17,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.bdgenomics.adam.rdd.ADAMContext;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class PipelineFunctionalTest {
@@ -35,17 +33,9 @@ public class PipelineFunctionalTest {
 
     @Test
     public void adamPreprocessingMatchesCurrentPipelineOuput() throws Exception {
-        ADAMPipelines.preProcessing(HUNDREDK_READS_HISEQ.referenceGenome().path(), HUNDREDK_READS_HISEQ.knownIndel().paths(),
+        ADAMPipelines.bamCreation(HUNDREDK_READS_HISEQ.referenceGenome().path(), HUNDREDK_READS_HISEQ.knownIndel().paths(),
                 new ADAMContext(context.sc()), 1, true)
                 .execute(PatientReader.from(HUNDREDK_READS_HISEQ));
         assertThatOutput(SAMPLE, OutputType.DUPLICATE_MARKED).sorted().aligned().duplicatesMarked().isEqualToExpected();
-    }
-
-    @Ignore("GATK preprocessor fails currently on this sample (duplicate key exception). More investigation necessary")
-    @Test
-    public void gatkPreprocessingMatchesCurrentPipelineOuput() throws Exception {
-        GATK4Pipelines.preProcessing(HUNDREDK_READS_HISEQ.referenceGenome().path(), context)
-                .execute(PatientReader.from(HUNDREDK_READS_HISEQ));
-        assertThatOutput(SAMPLE, OutputType.DUPLICATE_MARKED).aligned().duplicatesMarked().isEqualToExpected();
     }
 }

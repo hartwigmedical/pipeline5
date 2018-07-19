@@ -9,18 +9,18 @@ import com.hartwig.patient.Sample;
 import org.bdgenomics.adam.api.java.JavaADAMContext;
 import org.bdgenomics.adam.rdd.read.AlignmentRecordRDD;
 
-public class AlignmentRDDSource implements DataSource<Sample, AlignmentRecordRDD> {
+public class AlignmentRDDSource implements DataSource<AlignmentRecordRDD> {
 
     private final OutputType outputType;
     private final JavaADAMContext javaADAMContext;
 
-    public AlignmentRDDSource(final OutputType outputType, final JavaADAMContext javaADAMContext) {
+    AlignmentRDDSource(final OutputType outputType, final JavaADAMContext javaADAMContext) {
         this.outputType = outputType;
         this.javaADAMContext = javaADAMContext;
     }
 
     @Override
-    public InputOutput<Sample, AlignmentRecordRDD> extract(final Sample entity) {
-        return InputOutput.of(outputType, entity, javaADAMContext.loadAlignments(OutputFile.of(outputType, entity).path()));
+    public InputOutput<AlignmentRecordRDD> extract(final Sample sample) {
+        return InputOutput.of(outputType, sample, javaADAMContext.loadAlignments(OutputFile.of(outputType, sample).path()));
     }
 }

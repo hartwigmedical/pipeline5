@@ -10,11 +10,6 @@ import org.immutables.value.Value;
 @Value.Immutable
 public interface Configuration {
 
-    enum Flavour {
-        GATK,
-        ADAM
-    }
-
     PipelineParameters pipeline();
 
     PatientParameters patient();

@@ -8,8 +8,6 @@ import org.immutables.value.Value;
 @Value.Immutable
 public interface PipelineParameters {
 
-    Configuration.Flavour flavour();
-
     @Value.Default
     default boolean callGermline() {
         return false;

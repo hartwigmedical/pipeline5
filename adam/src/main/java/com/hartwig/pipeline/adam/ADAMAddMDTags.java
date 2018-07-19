@@ -7,7 +7,6 @@ import com.hartwig.io.DataSource;
 import com.hartwig.io.InputOutput;
 import com.hartwig.io.OutputType;
 import com.hartwig.patient.ReferenceGenome;
-import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.Stage;
 
 import org.bdgenomics.adam.api.java.AlignmentRecordsToAlignmentRecordsConverter;
@@ -16,7 +15,7 @@ import org.bdgenomics.adam.rdd.read.AlignmentRecordRDD;
 import org.bdgenomics.adam.rdd.read.AnySAMOutFormatter;
 import org.bdgenomics.adam.rdd.read.BAMInFormatter;
 
-class ADAMAddMDTags implements Stage<Sample, AlignmentRecordRDD, AlignmentRecordRDD> {
+class ADAMAddMDTags implements Stage<AlignmentRecordRDD, AlignmentRecordRDD> {
 
     private final JavaADAMContext javaADAMContext;
     private final ReferenceGenome referenceGenome;
@@ -27,7 +26,7 @@ class ADAMAddMDTags implements Stage<Sample, AlignmentRecordRDD, AlignmentRecord
     }
 
     @Override
-    public DataSource<Sample, AlignmentRecordRDD> datasource() {
+    public DataSource<AlignmentRecordRDD> datasource() {
         return new AlignmentRDDSource(OutputType.INDEL_REALIGNED, javaADAMContext);
     }
 
@@ -37,9 +36,8 @@ class ADAMAddMDTags implements Stage<Sample, AlignmentRecordRDD, AlignmentRecord
     }
 
     @Override
-    public InputOutput<Sample, AlignmentRecordRDD> execute(final InputOutput<Sample, AlignmentRecordRDD> input) throws IOException {
-        return InputOutput.of(outputType(),
-                input.entity(),
+    public InputOutput<AlignmentRecordRDD> execute(final InputOutput<AlignmentRecordRDD> input) throws IOException {
+        return InputOutput.of(outputType(), input.sample(),
                 RDDs.alignmentRecordRDD(input.payload().pipe(SamToolsCallMDCommand.tokens(referenceGenome),
                                 Collections.emptyList(),
                                 Collections.emptyMap(),

@@ -30,7 +30,7 @@ import org.bdgenomics.adam.rdd.read.FASTQInFormatter;
 import htsjdk.samtools.ValidationStringency;
 import scala.Option;
 
-class ADAMBwa implements Stage<Sample, AlignmentRecordRDD, AlignmentRecordRDD> {
+class ADAMBwa implements Stage<AlignmentRecordRDD, AlignmentRecordRDD> {
 
     private final ADAMContext adamContext;
     private final ReferenceGenome referenceGenome;
@@ -43,7 +43,7 @@ class ADAMBwa implements Stage<Sample, AlignmentRecordRDD, AlignmentRecordRDD> {
     }
 
     @Override
-    public DataSource<Sample, AlignmentRecordRDD> datasource() {
+    public DataSource<AlignmentRecordRDD> datasource() {
         return entity -> null;
     }
 
@@ -53,9 +53,9 @@ class ADAMBwa implements Stage<Sample, AlignmentRecordRDD, AlignmentRecordRDD> {
     }
 
     @Override
-    public InputOutput<Sample, AlignmentRecordRDD> execute(InputOutput<Sample, AlignmentRecordRDD> input) throws IOException {
+    public InputOutput<AlignmentRecordRDD> execute(InputOutput<AlignmentRecordRDD> input) throws IOException {
         SequenceDictionary sequenceDictionary = adamContext.loadSequenceDictionary(referenceGenome.path() + ".dict");
-        Sample sample = input.entity();
+        Sample sample = input.sample();
         List<AlignmentRecordRDD> laneRdds =
                 sample.lanes().stream().map(lane -> adamBwa(sequenceDictionary, sample, lane)).collect(Collectors.toList());
         if (!laneRdds.isEmpty()) {

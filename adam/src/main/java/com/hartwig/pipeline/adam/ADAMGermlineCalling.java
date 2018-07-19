@@ -5,7 +5,6 @@ import java.io.IOException;
 import com.hartwig.io.DataSource;
 import com.hartwig.io.InputOutput;
 import com.hartwig.io.OutputType;
-import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.Stage;
 
 import org.bdgenomics.adam.api.java.JavaADAMContext;
@@ -18,7 +17,7 @@ import org.bdgenomics.avocado.util.PrefilterReadsArgs;
 
 import scala.Option;
 
-public class ADAMGermlineCalling implements Stage<Sample, AlignmentRecordRDD, VariantContextRDD> {
+public class ADAMGermlineCalling implements Stage<AlignmentRecordRDD, VariantContextRDD> {
 
     private final JavaADAMContext javaADAMContext;
 
@@ -27,7 +26,7 @@ public class ADAMGermlineCalling implements Stage<Sample, AlignmentRecordRDD, Va
     }
 
     @Override
-    public DataSource<Sample, AlignmentRecordRDD> datasource() {
+    public DataSource<AlignmentRecordRDD> datasource() {
         return new AlignmentRDDSource(OutputType.MD_TAGGED, javaADAMContext);
     }
 
@@ -37,9 +36,8 @@ public class ADAMGermlineCalling implements Stage<Sample, AlignmentRecordRDD, Va
     }
 
     @Override
-    public InputOutput<Sample, VariantContextRDD> execute(final InputOutput<Sample, AlignmentRecordRDD> input) throws IOException {
-        return InputOutput.of(outputType(),
-                input.entity(),
+    public InputOutput<VariantContextRDD> execute(final InputOutput<AlignmentRecordRDD> input) throws IOException {
+        return InputOutput.of(outputType(), input.sample(),
                 BiallelicGenotyper.discoverAndCall(RDDs.persistMemoryAndDisk(PrefilterReads.apply(RDDs.persistDisk(input.payload()),
                         defaults())),
                         CopyNumberMap.empty(2),

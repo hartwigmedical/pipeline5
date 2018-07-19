@@ -23,7 +23,7 @@ public class OutputFile implements FileSystemVisitor {
 
     @Override
     public void visit(final Patient patient) {
-        deny("Take it easy, the patient file entity structure is not yet implemented.");
+        deny("Take it easy, the patient file sample structure is not yet implemented.");
     }
 
     @Override

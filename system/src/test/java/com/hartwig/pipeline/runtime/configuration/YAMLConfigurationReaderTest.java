@@ -39,7 +39,6 @@ public class YAMLConfigurationReaderTest {
         assertThat(configuration.patient().directory()).isEqualTo("/patients");
         assertThat(configuration.referenceGenome().path()).isEqualTo("/reference_genome/Homo_sapiens.GRCh37.GATK.illumina.chr22.fa");
         assertThat(configuration.spark().get("master")).isEqualTo("local[2]");
-        assertThat(configuration.pipeline().flavour()).isEqualTo(Configuration.Flavour.ADAM);
         assertThat(configuration.knownIndel().paths()).containsExactly("/known_indels/1000G_phase1.indels.b37.vcf",
                 "/known_indels/Mills_and_1000G_gold_standard.indels.b37.vcf");
         return configuration;

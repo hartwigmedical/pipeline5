@@ -15,12 +15,26 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.bdgenomics.adam</groupId>
+            <artifactId>adam-core-spark2_2.11</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-core_2.11</artifactId>
+        </dependency>
+        <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
         </dependency>
         <dependency>
             <groupId>com.intellij</groupId>
             <artifactId>annotations</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-sql_2.11</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

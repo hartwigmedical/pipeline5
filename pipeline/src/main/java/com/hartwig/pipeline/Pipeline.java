@@ -11,6 +11,8 @@ import com.hartwig.io.OutputStore;
 import com.hartwig.patient.Patient;
 import com.hartwig.patient.Sample;
 
+import org.bdgenomics.adam.rdd.read.AlignmentRecordRDD;
+import org.bdgenomics.adam.rdd.variant.VariantContextRDD;
 import org.immutables.value.Value;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -19,26 +21,26 @@ import org.slf4j.LoggerFactory;
 
 @Value.Immutable
 @Value.Style(passAnnotations = { Nullable.class, NotNull.class })
-public abstract class Pipeline<IN, OUT> {
+public abstract class Pipeline {
     private static final Logger LOGGER = LoggerFactory.getLogger(Pipeline.class);
 
     @NotNull
-    protected abstract List<Stage<Sample, IN, IN>> preProcessors();
+    protected abstract List<Stage<AlignmentRecordRDD, AlignmentRecordRDD>> preProcessors();
 
     @NotNull
-    protected abstract OutputStore<Sample, IN> bamStore();
+    protected abstract OutputStore<AlignmentRecordRDD> bamStore();
 
     @Nullable
-    protected abstract Stage<Sample, IN, OUT> germlineCalling();
+    protected abstract Stage<AlignmentRecordRDD, VariantContextRDD> germlineCalling();
 
     @Nullable
-    protected abstract OutputStore<Sample, OUT> vcfStore();
+    protected abstract OutputStore<VariantContextRDD> vcfStore();
 
     public void execute(Patient patient) throws IOException {
         LOGGER.info("Preprocessing started for reference sample");
         LOGGER.info("Storing results in {}", OutputFile.RESULTS_DIRECTORY);
         long startTime = startTimer();
-        for (Stage<Sample, IN, IN> preProcessor : preProcessors()) {
+        for (Stage<AlignmentRecordRDD, AlignmentRecordRDD> preProcessor : preProcessors()) {
             if (!bamStore().exists(patient.reference(), preProcessor.outputType())) {
                 runStage(patient.reference(), preProcessor, bamStore());
             } else {
@@ -55,9 +57,9 @@ public abstract class Pipeline<IN, OUT> {
         LOGGER.info("Preprocessing complete for reference sample, Took {} ms", (endTimer() - startTime));
     }
 
-    private <I, O> void runStage(final Sample sample, final Stage<Sample, I, O> stage, final OutputStore<Sample, O> store)
+    private <I, O> void runStage(final Sample sample, final Stage<I, O> stage, final OutputStore<O> store)
             throws IOException {
-        InputOutput<Sample, I> input = stage.datasource().extract(sample);
+        InputOutput<I> input = stage.datasource().extract(sample);
         Trace trace = Trace.of(Pipeline.class, format("Executing [%s] stage", stage.getClass().getSimpleName())).start();
         store.store(stage.execute(input == null ? InputOutput.seed(sample) : input));
         trace.finish();

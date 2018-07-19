@@ -1,7 +1,7 @@
 package com.hartwig.io;
 
-import com.hartwig.patient.FileSystemEntity;
+import com.hartwig.patient.Sample;
 
-public interface DataSource<E extends FileSystemEntity, P> {
-    InputOutput<E, P> extract(E entity);
+public interface DataSource<P> {
+    InputOutput<P> extract(Sample sample);
 }
