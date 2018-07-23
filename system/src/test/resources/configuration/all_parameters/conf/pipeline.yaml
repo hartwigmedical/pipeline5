@@ -1,6 +1,5 @@
 pipeline:
   flavour: ADAM
-  callGermline: true
   bwa:
     threads: 5
 

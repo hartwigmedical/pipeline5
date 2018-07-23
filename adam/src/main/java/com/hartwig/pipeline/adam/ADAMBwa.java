@@ -16,7 +16,7 @@ import com.hartwig.io.OutputType;
 import com.hartwig.patient.Lane;
 import com.hartwig.patient.ReferenceGenome;
 import com.hartwig.patient.Sample;
-import com.hartwig.pipeline.Stage;
+import com.hartwig.pipeline.AlignmentStage;
 
 import org.bdgenomics.adam.api.java.AlignmentRecordsToAlignmentRecordsConverter;
 import org.bdgenomics.adam.models.RecordGroup;
@@ -30,7 +30,7 @@ import org.bdgenomics.adam.rdd.read.FASTQInFormatter;
 import htsjdk.samtools.ValidationStringency;
 import scala.Option;
 
-class ADAMBwa implements Stage<AlignmentRecordRDD, AlignmentRecordRDD> {
+class ADAMBwa implements AlignmentStage {
 
     private final ADAMContext adamContext;
     private final ReferenceGenome referenceGenome;
@@ -61,7 +61,8 @@ class ADAMBwa implements Stage<AlignmentRecordRDD, AlignmentRecordRDD> {
         if (!laneRdds.isEmpty()) {
             return InputOutput.of(outputType(),
                     sample,
-                    laneRdds.get(0).<AlignmentRecordRDD>union(asScalaBufferConverter(laneRdds.subList(1, laneRdds.size())).asScala()));
+                    RDDs.persistDisk(laneRdds.get(0).<AlignmentRecordRDD>union(asScalaBufferConverter(laneRdds.subList(1,
+                            laneRdds.size())).asScala())));
         }
         throw Exceptions.noLanesInSample();
     }
@@ -71,8 +72,7 @@ class ADAMBwa implements Stage<AlignmentRecordRDD, AlignmentRecordRDD> {
                 .pipe(BwaCommand.tokens(referenceGenome, sample, lane, bwaThreads),
                         Collections.emptyList(),
                         Collections.emptyMap(),
-                        0,
-                        FASTQInFormatter.class, new AnySAMOutFormatter(), new AlignmentRecordsToAlignmentRecordsConverter())
+                        0, FASTQInFormatter.class, new AnySAMOutFormatter(), new AlignmentRecordsToAlignmentRecordsConverter())
                 .replaceRecordGroups(recordDictionary(recordGroup(sample, lane)))
                 .replaceSequences(sequenceDictionary));
     }

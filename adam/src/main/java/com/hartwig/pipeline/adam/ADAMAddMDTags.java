@@ -37,13 +37,14 @@ class ADAMAddMDTags implements Stage<AlignmentRecordRDD, AlignmentRecordRDD> {
 
     @Override
     public InputOutput<AlignmentRecordRDD> execute(final InputOutput<AlignmentRecordRDD> input) throws IOException {
-        return InputOutput.of(outputType(), input.sample(),
-                RDDs.alignmentRecordRDD(input.payload().pipe(SamToolsCallMDCommand.tokens(referenceGenome),
-                                Collections.emptyList(),
-                                Collections.emptyMap(),
-                                0,
-                                BAMInFormatter.class,
-                                new AnySAMOutFormatter(),
-                                new AlignmentRecordsToAlignmentRecordsConverter())));
+        AlignmentRecordRDD pipe = input.payload()
+                .pipe(SamToolsCallMDCommand.tokens(referenceGenome),
+                        Collections.emptyList(),
+                        Collections.emptyMap(),
+                        0,
+                        BAMInFormatter.class,
+                        new AnySAMOutFormatter(),
+                        new AlignmentRecordsToAlignmentRecordsConverter());
+        return InputOutput.of(outputType(), input.sample(), RDDs.alignmentRecordRDD(pipe));
     }
 }

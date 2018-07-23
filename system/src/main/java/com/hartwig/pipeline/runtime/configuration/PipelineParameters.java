@@ -9,11 +9,6 @@ import org.immutables.value.Value;
 public interface PipelineParameters {
 
     @Value.Default
-    default boolean callGermline() {
-        return false;
-    }
-
-    @Value.Default
     default BwaParameters bwa() {
         return ImmutableBwaParameters.builder().threads(12).build();
     }

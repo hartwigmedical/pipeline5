@@ -16,7 +16,6 @@ public class YAMLConfigurationReaderTest {
         Configuration configuration = checkMandatory("all_parameters");
         assertThat(configuration.spark().get("spark.property")).isEqualTo("value");
         assertThat(configuration.pipeline().bwa().threads()).isEqualTo(5);
-        assertThat(configuration.pipeline().callGermline()).isTrue();
     }
 
     @Test
@@ -24,7 +23,6 @@ public class YAMLConfigurationReaderTest {
         Configuration configuration = checkMandatory("only_mandatory");
         assertThat(configuration.spark().isEmpty());
         assertThat(configuration.pipeline().bwa().threads()).isEqualTo(12);
-        assertThat(configuration.pipeline().callGermline()).isFalse();
     }
 
     @Test(expected = JsonMappingException.class)

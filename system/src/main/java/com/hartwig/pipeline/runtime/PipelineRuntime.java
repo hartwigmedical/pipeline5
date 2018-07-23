@@ -1,6 +1,6 @@
 package com.hartwig.pipeline.runtime;
 
-import com.hartwig.pipeline.Pipeline;
+import com.hartwig.pipeline.BamCreationPipeline;
 import com.hartwig.pipeline.adam.ADAMPipelines;
 import com.hartwig.pipeline.runtime.configuration.Configuration;
 import com.hartwig.pipeline.runtime.configuration.YAMLConfigurationReader;
@@ -23,11 +23,9 @@ public class PipelineRuntime {
     private void start() throws Exception {
         LOGGER.info("Starting ADAM pipeline for patient [{}]", configuration.patient().name());
         ADAMContext adamContext = new ADAMContext(SparkContexts.create("ADAM", configuration).sc());
-        Pipeline adamPipeline = ADAMPipelines.bamCreation(configuration.referenceGenome().path(),
+        BamCreationPipeline adamPipeline = ADAMPipelines.bamCreation(configuration.referenceGenome().path(),
                 configuration.knownIndel().paths(),
-                adamContext,
-                configuration.pipeline().bwa().threads(),
-                configuration.pipeline().callGermline());
+                adamContext, configuration.pipeline().bwa().threads());
         adamPipeline.execute(PatientReader.from(configuration));
         LOGGER.info("Completed ADAM pipeline for patient [{}]", configuration.patient().name());
     }

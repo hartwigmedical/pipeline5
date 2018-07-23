@@ -26,5 +26,4 @@ buildNumber.properties
 */results/**
 
 # Running pipeline locally
-conf/
 results/

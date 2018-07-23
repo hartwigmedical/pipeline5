@@ -4,26 +4,24 @@ import java.util.List;
 
 import com.hartwig.patient.KnownIndels;
 import com.hartwig.patient.ReferenceGenome;
-import com.hartwig.pipeline.ImmutablePipeline;
-import com.hartwig.pipeline.Pipeline;
+import com.hartwig.pipeline.BamCreationPipeline;
 
 import org.bdgenomics.adam.api.java.JavaADAMContext;
 import org.bdgenomics.adam.rdd.ADAMContext;
 
 public class ADAMPipelines {
 
-    public static Pipeline bamCreation(final String referenceGenomePath,
-            final List<String> knownIndelPaths, final ADAMContext adamContext, final int bwaThreads, final boolean callGermline) {
+    public static BamCreationPipeline bamCreation(final String referenceGenomePath, final List<String> knownIndelPaths,
+            final ADAMContext adamContext, final int bwaThreads) {
         JavaADAMContext javaADAMContext = new JavaADAMContext(adamContext);
         ReferenceGenome referenceGenome = ReferenceGenome.of(referenceGenomePath);
-        ImmutablePipeline.Builder builder = ImmutablePipeline.builder();
-        builder.addPreProcessors(new ADAMBwa(referenceGenome, adamContext, bwaThreads))
-                .addPreProcessors(new ADAMMarkDuplicatesAndSort(javaADAMContext))
-                .addPreProcessors(new ADAMRealignIndels(KnownIndels.of(knownIndelPaths), referenceGenome, javaADAMContext))
-                .addPreProcessors(new ADAMAddMDTags(javaADAMContext, referenceGenome));
-        if (callGermline) {
-            builder.germlineCalling(new ADAMGermlineCalling(javaADAMContext)).vcfStore(new ADAMVCFStore());
-        }
-        return builder.bamStore(new ADAMBAMStore()).build();
+        return BamCreationPipeline.builder()
+                .qcFactory(ADAMReadCountCheck::from)
+                .alignment(new ADAMBwa(referenceGenome, adamContext, bwaThreads))
+                .addBamEnrichment(new ADAMMarkDuplicatesAndSort(javaADAMContext))
+                .addBamEnrichment(new ADAMRealignIndels(KnownIndels.of(knownIndelPaths), referenceGenome, javaADAMContext))
+                .addBamEnrichment(new ADAMAddMDTags(javaADAMContext, referenceGenome))
+                .bamStore(new ADAMBAMStore())
+                .build();
     }
 }

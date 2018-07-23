@@ -11,7 +11,7 @@ import com.hartwig.io.OutputType;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.adam.ADAMPipelines;
 import com.hartwig.pipeline.runtime.patient.PatientReader;
-import com.hartwig.pipeline.runtime.spark.SparkContexts;
+import com.hartwig.testsupport.SparkContextSingleton;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -28,13 +28,14 @@ public class PipelineFunctionalTest {
     @BeforeClass
     public static void beforeClass() throws Exception {
         FileUtils.deleteDirectory(new File(OutputFile.RESULTS_DIRECTORY));
-        context = SparkContexts.create("test", HUNDREDK_READS_HISEQ);
+        context = SparkContextSingleton.instance();
     }
 
     @Test
-    public void adamPreprocessingMatchesCurrentPipelineOuput() throws Exception {
+    public void adamBamCreationMatchesCurrentPipelineOuput() throws Exception {
         ADAMPipelines.bamCreation(HUNDREDK_READS_HISEQ.referenceGenome().path(), HUNDREDK_READS_HISEQ.knownIndel().paths(),
-                new ADAMContext(context.sc()), 1, true)
+                new ADAMContext(context.sc()),
+                1)
                 .execute(PatientReader.from(HUNDREDK_READS_HISEQ));
         assertThatOutput(SAMPLE, OutputType.DUPLICATE_MARKED).sorted().aligned().duplicatesMarked().isEqualToExpected();
     }
