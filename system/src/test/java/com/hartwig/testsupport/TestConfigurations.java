@@ -15,7 +15,7 @@ public class TestConfigurations {
 
     public static final String HUNDREDK_READS_HISEQ_PATIENT_NAME = "TESTX";
 
-    private static final ReferenceGenomeParameters REFERENCE_GENOME_PARAMETERS = ImmutableReferenceGenomeParameters.builder()
+    public static final ReferenceGenomeParameters REFERENCE_GENOME_PARAMETERS = ImmutableReferenceGenomeParameters.builder()
             .directory(System.getProperty("user.dir") + "/src/test/resources/reference_genome/")
             .file("Homo_sapiens.GRCh37.GATK.illumina.chr22.fa")
             .build();

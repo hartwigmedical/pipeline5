@@ -15,6 +15,7 @@ import com.hartwig.patient.Sample;
 
 import org.bdgenomics.adam.rdd.read.AlignmentRecordRDD;
 import org.jetbrains.annotations.NotNull;
+import org.junit.Before;
 import org.junit.Test;
 
 public class BamCreationPipelineTest {
@@ -27,11 +28,17 @@ public class BamCreationPipelineTest {
     private static final InputOutput<AlignmentRecordRDD> ENRICHED =
             InputOutput.of(OutputType.DUPLICATE_MARKED, SAMPLE, mock(AlignmentRecordRDD.class));
 
+    @Before
+    public void setUp() throws Exception {
+        lastStored = null;
+    }
+
     @Test
     public void alignsAndStoresBAM() throws Exception {
         BamCreationPipeline.builder()
                 .alignment(alignmentStage())
-                .bamStore(bamStore(false))
+                .alignmentDatasource(sample -> ALIGNED_BAM)
+                .bamStore(bamStore(false, false))
                 .qcFactory(qcFactory(true))
                 .build()
                 .execute(PATIENT);
@@ -42,8 +49,9 @@ public class BamCreationPipelineTest {
     public void enrichesAlignedBAM() throws Exception {
         BamCreationPipeline.builder()
                 .alignment(alignmentStage())
+                .alignmentDatasource(sample -> ALIGNED_BAM)
                 .addBamEnrichment(enrichmentStage(ENRICHED))
-                .bamStore(bamStore(false))
+                .bamStore(bamStore(false, false))
                 .qcFactory(qcFactory(true))
                 .build()
                 .execute(PATIENT);
@@ -51,11 +59,24 @@ public class BamCreationPipelineTest {
     }
 
     @Test
-    public void skipsStagesWhenOutputAlreadyExists() throws Exception {
+    public void skipsAlignmentWhenOutputAlreadyExists() throws Exception {
+        BamCreationPipeline.builder()
+                .alignment(alignmentStage())
+                .alignmentDatasource(sample -> ALIGNED_BAM)
+                .bamStore(bamStore(false, true))
+                .qcFactory(qcFactory(true))
+                .build()
+                .execute(PATIENT);
+        assertThat(lastStored).isNull();
+    }
+
+    @Test
+    public void skipsEnrichmentWhenOutputAlreadyExists() throws Exception {
         BamCreationPipeline.builder()
                 .alignment(alignmentStage())
                 .addBamEnrichment(enrichmentStage(ENRICHED))
-                .bamStore(bamStore(true))
+                .alignmentDatasource(sample -> ALIGNED_BAM)
+                .bamStore(bamStore(true, false))
                 .qcFactory(qcFactory(true))
                 .build()
                 .execute(PATIENT);
@@ -67,14 +88,15 @@ public class BamCreationPipelineTest {
         BamCreationPipeline.builder()
                 .alignment(alignmentStage())
                 .addBamEnrichment(enrichmentStage(ENRICHED))
-                .bamStore(bamStore(false))
+                .alignmentDatasource(sample -> ALIGNED_BAM)
+                .bamStore(bamStore(false, false))
                 .qcFactory(qcFactory(false))
                 .build()
                 .execute(PATIENT);
     }
 
     @NotNull
-    private OutputStore<AlignmentRecordRDD> bamStore(final boolean exists) {
+    private OutputStore<AlignmentRecordRDD> bamStore(final boolean enrichedExists, final boolean alignedExists) {
         return new OutputStore<AlignmentRecordRDD>() {
             @Override
             public void store(final InputOutput<AlignmentRecordRDD> inputOutput) {
@@ -83,7 +105,17 @@ public class BamCreationPipelineTest {
 
             @Override
             public boolean exists(final Sample sample, final OutputType type) {
-                return exists;
+                if (alignedExists) {
+                    if (type == OutputType.ALIGNED) {
+                        return true;
+                    }
+                }
+                if (enrichedExists) {
+                    if (type != OutputType.ALIGNED) {
+                        return true;
+                    }
+                }
+                return false;
             }
         };
     }
@@ -110,7 +142,22 @@ public class BamCreationPipelineTest {
 
     @NotNull
     private QualityControlFactory qcFactory(final boolean passesQC) {
-        return input -> toQC -> passesQC ? QCResult.ok() : QCResult.failure("failed");
+        return new QualityControlFactory() {
+            @Override
+            public QualityControl<AlignmentRecordRDD> readCount(final AlignmentRecordRDD initial) {
+                return toQC -> passFail();
+            }
+
+            @NotNull
+            private QCResult passFail() {
+                return passesQC ? QCResult.ok() : QCResult.failure("failed");
+            }
+
+            @Override
+            public QualityControl<AlignmentRecordRDD> referenceBAMQC() {
+                return toQC -> passFail();
+            }
+        };
     }
 
     @NotNull

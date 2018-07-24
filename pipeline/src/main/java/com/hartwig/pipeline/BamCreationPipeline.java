@@ -5,9 +5,11 @@ import static java.lang.String.format;
 import java.io.IOException;
 import java.util.List;
 
+import com.hartwig.io.DataSource;
 import com.hartwig.io.InputOutput;
 import com.hartwig.io.OutputFile;
 import com.hartwig.io.OutputStore;
+import com.hartwig.io.OutputType;
 import com.hartwig.patient.Patient;
 import com.hartwig.patient.Sample;
 
@@ -30,18 +32,34 @@ public abstract class BamCreationPipeline {
     }
 
     private void createBAM(final Sample sample) throws IOException {
-        InputOutput<AlignmentRecordRDD> aligned = runStage(sample, alignment(), bamStore(), InputOutput.seed(sample));
+
+        InputOutput<AlignmentRecordRDD> aligned;
+        if (!bamStore().exists(sample, OutputType.ALIGNED)) {
+            aligned = runStage(sample, alignment(), bamStore(), InputOutput.seed(sample));
+        } else {
+            skipping(alignment());
+            aligned = alignmentDatasource().extract(sample);
+        }
+
         QualityControl<AlignmentRecordRDD> readCount = qcFactory().readCount(aligned.payload());
 
+        InputOutput<AlignmentRecordRDD> output = null;
         for (Stage<AlignmentRecordRDD, AlignmentRecordRDD> bamEnricher : bamEnrichment()) {
             if (!bamStore().exists(sample, bamEnricher.outputType())) {
                 InputOutput<AlignmentRecordRDD> input = bamEnricher.datasource().extract(sample);
                 qc(readCount, input);
-                runStage(sample, bamEnricher, bamStore(), input);
+                output = runStage(sample, bamEnricher, bamStore(), input);
             } else {
-                LOGGER.info("Skipping [{}] stage as the output already exists in [{}]", bamEnricher.outputType(), OutputFile.RESULTS_DIRECTORY);
+                skipping(bamEnricher);
             }
         }
+        if (output != null) {
+            qc(qcFactory().referenceBAMQC(), output);
+        }
+    }
+
+    private void skipping(final Stage<AlignmentRecordRDD, AlignmentRecordRDD> bamEnricher) {
+        LOGGER.info("Skipping [{}] stage as the output already exists in [{}]", bamEnricher.outputType(), OutputFile.RESULTS_DIRECTORY);
     }
 
     private void qc(final QualityControl<AlignmentRecordRDD> qcCheck, final InputOutput<AlignmentRecordRDD> toQC) throws IOException {
@@ -67,6 +85,8 @@ public abstract class BamCreationPipeline {
     private static long endTimer() {
         return System.currentTimeMillis();
     }
+
+    protected abstract DataSource<AlignmentRecordRDD> alignmentDatasource();
 
     protected abstract AlignmentStage alignment();
 
