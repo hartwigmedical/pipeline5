@@ -5,7 +5,6 @@ import com.hartwig.pipeline.QCResult;
 import com.hartwig.pipeline.QualityControl;
 
 import org.bdgenomics.adam.rdd.read.AlignmentRecordRDD;
-import org.bdgenomics.formats.avro.AlignmentRecord;
 
 public class ADAMReadCountCheck implements QualityControl<AlignmentRecordRDD> {
 
@@ -33,6 +32,6 @@ public class ADAMReadCountCheck implements QualityControl<AlignmentRecordRDD> {
     }
 
     private static long countReads(final AlignmentRecordRDD initialAlignments) {
-        return initialAlignments.rdd().toJavaRDD().filter(AlignmentRecord::getReadMapped).count();
+        return initialAlignments.rdd().toJavaRDD().count();
     }
 }

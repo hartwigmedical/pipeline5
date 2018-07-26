@@ -50,14 +50,18 @@ public class ADAMRealignIndels implements Stage<AlignmentRecordRDD, AlignmentRec
                 .map(VariantRDD::rdd)
                 .collect(Collector.of(() -> javaADAMContext.getSparkContext().<Variant>emptyRDD().rdd(), RDD::union, RDD::union));
         ReferenceFile fasta = javaADAMContext.loadReferenceFile(referenceGenome.path());
-        return InputOutput.of(OutputType.INDEL_REALIGNED, input.sample(), RDDs.persistDisk(input.payload()
-                .realignIndels(new ConsensusGeneratorFromKnowns(allKnownVariants, 0),
-                        true,
-                        500,
-                        30,
-                        5.0,
-                        3000,
-                        20000,
-                        Option.apply(fasta), false)).sortReadsByReferencePositionAndIndex());
+        UnmappedReads unmapped = UnmappedReads.from(input.payload());
+        return InputOutput.of(OutputType.INDEL_REALIGNED,
+                input.sample(),
+                RDDs.persistDisk(unmapped.toAlignment(input.payload()
+                        .realignIndels(new ConsensusGeneratorFromKnowns(allKnownVariants, 0),
+                                true,
+                                500,
+                                30,
+                                5.0,
+                                3000,
+                                20000,
+                                Option.apply(fasta),
+                                false))).sortReadsByReferencePositionAndIndex());
     }
 }

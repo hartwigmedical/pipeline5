@@ -17,7 +17,7 @@ public class ADAMReadCountCheckTest {
 
     @Test
     public void countMatchesRetrunsOk() {
-        QCResult qcResult = readCountIs(15318);
+        QCResult qcResult = readCountIs(100603);
         assertThat(qcResult.isOk()).as(qcResult.message()).isTrue();
     }
 

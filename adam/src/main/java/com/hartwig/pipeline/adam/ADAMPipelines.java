@@ -24,7 +24,6 @@ public class ADAMPipelines {
                 .alignmentDatasource(new AlignmentRDDSource(OutputType.ALIGNED, javaADAMContext))
                 .addBamEnrichment(new ADAMMarkDuplicatesAndSort(javaADAMContext))
                 .addBamEnrichment(new ADAMRealignIndels(KnownIndels.of(knownIndelPaths), referenceGenome, javaADAMContext))
-                .addBamEnrichment(new ADAMAddMDTags(javaADAMContext, referenceGenome))
                 .bamStore(new ADAMBAMStore())
                 .build();
     }
