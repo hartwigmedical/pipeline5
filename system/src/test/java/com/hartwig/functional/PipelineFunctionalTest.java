@@ -36,8 +36,7 @@ public class PipelineFunctionalTest {
     public void adamBamCreationMatchesCurrentPipelineOuput() throws Exception {
         ADAMPipelines.bamCreation(HUNDREDK_READS_HISEQ.referenceGenome().path(), HUNDREDK_READS_HISEQ.knownIndel().paths(),
                 new ADAMContext(context.sc()),
-                1,
-                CoverageThreshold.of(1, 1)).execute(PatientReader.from(HUNDREDK_READS_HISEQ));
+                1, CoverageThreshold.of(1, 1e-12)).execute(PatientReader.from(HUNDREDK_READS_HISEQ));
         assertThatOutput(SAMPLE, OutputType.DUPLICATE_MARKED).sorted().aligned().duplicatesMarked().isEqualToExpected();
     }
 }

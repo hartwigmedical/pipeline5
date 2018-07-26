@@ -35,14 +35,14 @@ public class ADAMFinalBAMQCTest {
 
     @Test
     public void checkFailsOnThresholdMissed() {
-        QualityControl<AlignmentRecordRDD> victim = qc(CoverageThreshold.of(10, 18));
+        QualityControl<AlignmentRecordRDD> victim = qc(CoverageThreshold.of(5, 0.012));
         QCResult test = victim.check(InputOutput.of(OutputType.MD_TAGGED, Sample.builder("", "test").build(), CANCER_PANEL_RDD));
-        assertThat(test.isOk()).isFalse();
+        assertThat(test.isOk()).as(test.message()).isFalse();
     }
 
     @Test
     public void checkPassesOnThresholdMet() {
-        QualityControl<AlignmentRecordRDD> victim = qc(CoverageThreshold.of(10, 16));
+        QualityControl<AlignmentRecordRDD> victim = qc(CoverageThreshold.of(5, 0.0108));
         QCResult test = victim.check(InputOutput.of(OutputType.MD_TAGGED, Sample.builder("", "test").build(), CANCER_PANEL_RDD));
         assertThat(test.isOk()).isTrue();
     }
