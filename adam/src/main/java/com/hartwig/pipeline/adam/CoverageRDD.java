@@ -18,7 +18,6 @@ class CoverageRDD {
     static JavaRDD<Coverage> toCoverage(AlignmentRecordRDD alignmentRecordRDD) {
         return alignmentRecordRDD.rdd()
                 .toJavaRDD()
-                .filter(AlignmentRecord::getReadMapped)
                 .flatMap(window -> LongStream.range(window.getStart(), window.getEnd() - 1)
                         .boxed()
                         .filter(baseQualityAtLeastTen(window))
