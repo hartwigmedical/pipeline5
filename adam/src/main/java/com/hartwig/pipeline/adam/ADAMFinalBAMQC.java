@@ -112,8 +112,7 @@ public class ADAMFinalBAMQC implements QualityControl<AlignmentRecordRDD>, Seria
                 .rdd()
                 .toJavaRDD()
                 .filter(read -> !read.getDuplicateRead())
-                .filter(AlignmentRecord::getReadMapped)
-                .filter(read -> read.getMapq() > 20)
+                .filter(AlignmentRecord::getReadMapped).filter(read -> read.getMapq() >= 20)
                 .filter(AlignmentRecord::getPrimaryAlignment);
         AlignmentRecordRDD alignmentRecordRDD = toQC.payload();
         return alignmentRecordRDD.replaceRdd(filtered.rdd(), alignmentRecordRDD.optPartitionMap());

@@ -37,7 +37,7 @@ class CoverageRDD {
     private static Predicate<Long> baseQualityAtLeastTen(final AlignmentRecord window) {
         return index -> {
             int qualityIndex = indexMinusOffset(window, index);
-            return qualityIndex < window.getQual().length() && SAMUtils.fastqToPhred(window.getQual().charAt(qualityIndex)) > 10;
+            return qualityIndex < window.getQual().length() && SAMUtils.fastqToPhred(window.getQual().charAt(qualityIndex)) >= 10;
         };
     }
 
