@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 
 import com.hartwig.io.DataSource;
 import com.hartwig.io.InputOutput;
@@ -83,8 +84,8 @@ public class BamCreationPipelineTest {
         assertThat(lastStored).isEqualTo(ALIGNED_BAM);
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void illegalStateExceptionWhenQCFails() throws Exception {
+    @Test(expected = ExecutionException.class)
+    public void executionExceptionWhenQCFails() throws Exception {
         BamCreationPipeline.builder()
                 .alignment(alignmentStage())
                 .addBamEnrichment(enrichmentStage(ENRICHED))

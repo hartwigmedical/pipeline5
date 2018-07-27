@@ -4,6 +4,9 @@ import static java.lang.String.format;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import com.hartwig.io.DataSource;
 import com.hartwig.io.InputOutput;
@@ -23,43 +26,55 @@ public abstract class BamCreationPipeline {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BamCreationPipeline.class);
 
-    public void execute(Patient patient) throws IOException {
+    public void execute(Patient patient) throws Exception {
         LOGGER.info("Storing results in {}", OutputFile.RESULTS_DIRECTORY);
-        LOGGER.info("Preprocessing started for reference sample");
-        long startTime = startTimer();
-        createBAM(patient.reference());
-        LOGGER.info("Preprocessing complete for reference sample, Took {} ms", (endTimer() - startTime));
+        ExecutorService executorService = executorService();
+        Future<?> awaitReference = executorService.submit(() -> createBAM(patient.reference()));
+        if (patient.maybeTumour().isPresent()) {
+            Future<?> awaitTumour = executorService.submit(() -> createBAM(patient.tumour()));
+            awaitTumour.get();
+        }
+        awaitReference.get();
     }
 
-    private void createBAM(final Sample sample) throws IOException {
-
-        InputOutput<AlignmentRecordRDD> aligned;
-        if (!bamStore().exists(sample, OutputType.ALIGNED)) {
-            aligned = runStage(sample, alignment(), bamStore(), InputOutput.seed(sample));
-        } else {
-            skipping(alignment());
-            aligned = alignmentDatasource().extract(sample);
-        }
-
-        QualityControl<AlignmentRecordRDD> readCount = qcFactory().readCount(aligned.payload());
-
-        InputOutput<AlignmentRecordRDD> output = null;
-        for (Stage<AlignmentRecordRDD, AlignmentRecordRDD> bamEnricher : bamEnrichment()) {
-            if (!bamStore().exists(sample, bamEnricher.outputType())) {
-                InputOutput<AlignmentRecordRDD> input = bamEnricher.datasource().extract(sample);
-                qc(readCount, input);
-                output = runStage(sample, bamEnricher, bamStore(), input);
+    private void createBAM(final Sample sample) {
+        LOGGER.info("Preprocessing started for {} sample", sample.name());
+        try {
+            long startTime = startTimer();
+            InputOutput<AlignmentRecordRDD> aligned;
+            if (!bamStore().exists(sample, OutputType.ALIGNED)) {
+                aligned = runStage(sample, alignment(), bamStore(), InputOutput.seed(sample));
             } else {
-                skipping(bamEnricher);
+                skipping(alignment(), sample);
+                aligned = alignmentDatasource().extract(sample);
             }
-        }
-        if (output != null) {
-            qc(qcFactory().referenceBAMQC(), output);
+
+            QualityControl<AlignmentRecordRDD> readCount = qcFactory().readCount(aligned.payload());
+
+            InputOutput<AlignmentRecordRDD> output = null;
+            for (Stage<AlignmentRecordRDD, AlignmentRecordRDD> bamEnricher : bamEnrichment()) {
+                if (!bamStore().exists(sample, bamEnricher.outputType())) {
+                    InputOutput<AlignmentRecordRDD> input = bamEnricher.datasource().extract(sample);
+                    qc(readCount, input);
+                    output = runStage(sample, bamEnricher, bamStore(), input);
+                } else {
+                    skipping(bamEnricher, sample);
+                }
+            }
+            if (output != null) {
+                qc(qcFactory().referenceBAMQC(), output);
+            }
+            LOGGER.info("Preprocessing complete for {} sample, Took {} ms", sample.name(), (endTimer() - startTime));
+        } catch (IOException e) {
+            LOGGER.error(format("Unable to create BAM for %s. Check exception for details", sample.name()), e);
         }
     }
 
-    private void skipping(final Stage<AlignmentRecordRDD, AlignmentRecordRDD> bamEnricher) {
-        LOGGER.info("Skipping [{}] stage as the output already exists in [{}]", bamEnricher.outputType(), OutputFile.RESULTS_DIRECTORY);
+    private void skipping(final Stage<AlignmentRecordRDD, AlignmentRecordRDD> bamEnricher, final Sample sample) {
+        LOGGER.info("Skipping [{}] stage for [{}] as the output already exists in [{}]",
+                bamEnricher.outputType(),
+                sample.name(),
+                OutputFile.RESULTS_DIRECTORY);
     }
 
     private void qc(final QualityControl<AlignmentRecordRDD> qcCheck, final InputOutput<AlignmentRecordRDD> toQC) throws IOException {
@@ -71,7 +86,8 @@ public abstract class BamCreationPipeline {
 
     private InputOutput<AlignmentRecordRDD> runStage(final Sample sample, final Stage<AlignmentRecordRDD, AlignmentRecordRDD> stage,
             final OutputStore<AlignmentRecordRDD> store, final InputOutput<AlignmentRecordRDD> input) throws IOException {
-        Trace trace = Trace.of(BamCreationPipeline.class, format("Executing [%s] stage", stage.outputType())).start();
+        Trace trace =
+                Trace.of(BamCreationPipeline.class, format("Executing [%s] stage for [%s]", stage.outputType(), sample.name())).start();
         InputOutput<AlignmentRecordRDD> output = stage.execute(input == null ? InputOutput.seed(sample) : input);
         store.store(output);
         trace.finish();
@@ -95,6 +111,10 @@ public abstract class BamCreationPipeline {
     protected abstract List<Stage<AlignmentRecordRDD, AlignmentRecordRDD>> bamEnrichment();
 
     protected abstract OutputStore<AlignmentRecordRDD> bamStore();
+
+    private ExecutorService executorService() {
+        return Executors.newFixedThreadPool(2);
+    }
 
     public static ImmutableBamCreationPipeline.Builder builder() {
         return ImmutableBamCreationPipeline.builder();

@@ -22,8 +22,10 @@ import org.junit.Test;
 
 public class PipelineFunctionalTest {
 
-    private static final Sample SAMPLE =
+    private static final Sample REFERENCE_SAMPLE =
             Sample.builder(HUNDREDK_READS_HISEQ.patient().directory(), HUNDREDK_READS_HISEQ_PATIENT_NAME + "R").build();
+    private static final Sample TUMOUR_SAMPLE =
+            Sample.builder(HUNDREDK_READS_HISEQ.patient().directory(), HUNDREDK_READS_HISEQ_PATIENT_NAME + "T").build();
     private static JavaSparkContext context;
 
     @BeforeClass
@@ -37,6 +39,7 @@ public class PipelineFunctionalTest {
         ADAMPipelines.bamCreation(HUNDREDK_READS_HISEQ.referenceGenome().path(), HUNDREDK_READS_HISEQ.knownIndel().paths(),
                 new ADAMContext(context.sc()),
                 1, CoverageThreshold.of(1, 1e-12)).execute(PatientReader.from(HUNDREDK_READS_HISEQ));
-        assertThatOutput(SAMPLE, OutputType.DUPLICATE_MARKED).sorted().aligned().duplicatesMarked().isEqualToExpected();
+        assertThatOutput(REFERENCE_SAMPLE, OutputType.DUPLICATE_MARKED).sorted().aligned().duplicatesMarked().isEqualToExpected();
+        assertThatOutput(TUMOUR_SAMPLE, OutputType.DUPLICATE_MARKED).sorted().aligned().duplicatesMarked().isEqualToExpected();
     }
 }
