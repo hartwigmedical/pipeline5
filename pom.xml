@@ -18,7 +18,7 @@
         <assertj-core.version>3.8.0</assertj-core.version>
         <slf4j-api.version>1.7.25</slf4j-api.version>
         <gatk.version>4.0.4.0</gatk.version>
-        <spark.version>2.2.0</spark.version>
+        <spark.version>2.3.0</spark.version>
         <commons-io.version>2.5</commons-io.version>
         <adam.version>0.24.0</adam.version>
         <cannoli.version>0.1.0</cannoli.version>
