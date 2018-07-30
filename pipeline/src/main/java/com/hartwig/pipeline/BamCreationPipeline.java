@@ -41,20 +41,19 @@ public abstract class BamCreationPipeline {
         LOGGER.info("Preprocessing started for {} sample", sample.name());
         try {
             long startTime = startTimer();
-            InputOutput<AlignmentRecordRDD> aligned;
             if (!bamStore().exists(sample, OutputType.ALIGNED)) {
-                aligned = runStage(sample, alignment(), bamStore(), InputOutput.seed(sample));
+                runStage(sample, alignment(), bamStore(), InputOutput.seed(sample));
             } else {
                 skipping(alignment(), sample);
-                aligned = alignmentDatasource().extract(sample);
             }
-
+            InputOutput<AlignmentRecordRDD> aligned = alignmentDatasource().extract(sample);
             QualityControl<AlignmentRecordRDD> readCount = qcFactory().readCount(aligned.payload());
-
             InputOutput<AlignmentRecordRDD> output = null;
+            int stage = 0;
             for (Stage<AlignmentRecordRDD, AlignmentRecordRDD> bamEnricher : bamEnrichment()) {
                 if (!bamStore().exists(sample, bamEnricher.outputType())) {
-                    InputOutput<AlignmentRecordRDD> input = bamEnricher.datasource().extract(sample);
+                    InputOutput<AlignmentRecordRDD> input = alignedWhenFirstStageOrStageDatasource(sample, aligned, stage, bamEnricher);
+                    stage++;
                     qc(readCount, input);
                     output = runStage(sample, bamEnricher, bamStore(), input);
                 } else {
@@ -68,6 +67,18 @@ public abstract class BamCreationPipeline {
         } catch (IOException e) {
             LOGGER.error(format("Unable to create BAM for %s. Check exception for details", sample.name()), e);
         }
+    }
+
+    private InputOutput<AlignmentRecordRDD> alignedWhenFirstStageOrStageDatasource(final Sample sample,
+            final InputOutput<AlignmentRecordRDD> aligned, final int stage,
+            final Stage<AlignmentRecordRDD, AlignmentRecordRDD> bamEnricher) {
+        InputOutput<AlignmentRecordRDD> input;
+        if (stage == 0) {
+            input = aligned;
+        } else {
+            input = bamEnricher.datasource().extract(sample);
+        }
+        return input;
     }
 
     private void skipping(final Stage<AlignmentRecordRDD, AlignmentRecordRDD> bamEnricher, final Sample sample) {

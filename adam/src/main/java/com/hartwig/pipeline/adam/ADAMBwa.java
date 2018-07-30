@@ -61,8 +61,7 @@ class ADAMBwa implements AlignmentStage {
         if (!laneRdds.isEmpty()) {
             return InputOutput.of(outputType(),
                     sample,
-                    RDDs.persistDisk(laneRdds.get(0).<AlignmentRecordRDD>union(asScalaBufferConverter(laneRdds.subList(1,
-                            laneRdds.size())).asScala())));
+                    laneRdds.get(0).<AlignmentRecordRDD>union(asScalaBufferConverter(laneRdds.subList(1, laneRdds.size())).asScala()));
         }
         throw Exceptions.noLanesInSample();
     }
@@ -72,7 +71,10 @@ class ADAMBwa implements AlignmentStage {
                 .pipe(BwaCommand.tokens(referenceGenome, sample, lane, bwaThreads),
                         Collections.emptyList(),
                         Collections.emptyMap(),
-                        0, FASTQInFormatter.class, new AnySAMOutFormatter(), new AlignmentRecordsToAlignmentRecordsConverter())
+                        0,
+                        FASTQInFormatter.class,
+                        new AnySAMOutFormatter(),
+                        new AlignmentRecordsToAlignmentRecordsConverter())
                 .replaceRecordGroups(recordDictionary(recordGroup(sample, lane)))
                 .replaceSequences(sequenceDictionary));
     }
