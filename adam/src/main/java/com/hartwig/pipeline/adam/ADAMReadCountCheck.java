@@ -5,9 +5,12 @@ import com.hartwig.pipeline.QCResult;
 import com.hartwig.pipeline.QualityControl;
 
 import org.bdgenomics.adam.rdd.read.AlignmentRecordRDD;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ADAMReadCountCheck implements QualityControl<AlignmentRecordRDD> {
 
+    private final Logger LOGGER = LoggerFactory.getLogger(ADAMReadCountCheck.class);
     private final long previousReadCount;
 
     ADAMReadCountCheck(final long previousReadCount) {
@@ -16,8 +19,9 @@ public class ADAMReadCountCheck implements QualityControl<AlignmentRecordRDD> {
 
     @Override
     public QCResult check(final InputOutput<AlignmentRecordRDD> toQC) {
+        LOGGER.info("Starting read count check for sample [{}] input to stage [{}]", toQC.sample(), toQC.type());
         long readCount = countReads(toQC.payload());
-        return readCount == previousReadCount
+        QCResult result = readCount == previousReadCount
                 ? QCResult.ok()
                 : QCResult.failure(String.format("Read count check failed. Aligned BAM count of [%s] is different "
                                 + "than current [%s] for output [%s] for sample [%s]",
@@ -25,6 +29,11 @@ public class ADAMReadCountCheck implements QualityControl<AlignmentRecordRDD> {
                         readCount,
                         toQC.type(),
                         toQC.sample().name()));
+        LOGGER.info("Completed read count check for sample [{}] input to stage [{}]. Count was [{}]",
+                toQC.sample(),
+                toQC.type(),
+                readCount);
+        return result;
     }
 
     static QualityControl<AlignmentRecordRDD> from(AlignmentRecordRDD initialAlignments) {
