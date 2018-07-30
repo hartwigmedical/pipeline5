@@ -28,7 +28,7 @@ public class TestConfigurations {
     public static final ImmutablePatientParameters.Builder DEFAULT_PATIENT_BUILDER = ImmutablePatientParameters.builder();
 
     public static final ImmutableConfiguration.Builder DEFAULT_CONFIG_BUILDER = ImmutableConfiguration.builder()
-            .spark(ImmutableMap.of("master", "local[1]"))
+            .spark(ImmutableMap.of("master", "local[2]"))
             .pipeline(ImmutablePipelineParameters.builder().build())
             .referenceGenome(REFERENCE_GENOME_PARAMETERS)
             .knownIndel(KNOWN_INDEL_PARAMETERS);
