@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.function.Function;
 
 import com.hartwig.io.DataSource;
 import com.hartwig.io.InputOutput;
@@ -29,15 +30,15 @@ public abstract class BamCreationPipeline {
     public void execute(Patient patient) throws Exception {
         LOGGER.info("Storing results in {}", OutputFile.RESULTS_DIRECTORY);
         ExecutorService executorService = executorService();
-        Future<?> awaitReference = executorService.submit(() -> createBAM(patient.reference()));
+        Future<?> awaitReference = executorService.submit(() -> createBAM(patient.reference(), referenceFinalQC()));
         if (patient.maybeTumour().isPresent()) {
-            Future<?> awaitTumour = executorService.submit(() -> createBAM(patient.tumour()));
+            Future<?> awaitTumour = executorService.submit(() -> createBAM(patient.tumour(), tumourFinalQC()));
             awaitTumour.get();
         }
         awaitReference.get();
     }
 
-    private void createBAM(final Sample sample) {
+    private void createBAM(final Sample sample, final QualityControl<AlignmentRecordRDD> finalQC) {
         LOGGER.info("Preprocessing started for {} sample", sample.name());
         try {
             long startTime = startTimer();
@@ -47,7 +48,7 @@ public abstract class BamCreationPipeline {
                 skipping(alignment(), sample);
             }
             InputOutput<AlignmentRecordRDD> aligned = alignmentDatasource().extract(sample);
-            QualityControl<AlignmentRecordRDD> readCount = qcFactory().readCount(aligned.payload());
+            QualityControl<AlignmentRecordRDD> readCount = readCountQCFactory().apply(aligned.payload());
             InputOutput<AlignmentRecordRDD> output = null;
             int stage = 0;
             for (Stage<AlignmentRecordRDD, AlignmentRecordRDD> bamEnricher : bamEnrichment()) {
@@ -61,7 +62,7 @@ public abstract class BamCreationPipeline {
                 }
             }
             if (output != null) {
-                qc(qcFactory().referenceBAMQC(), output);
+                qc(finalQC, output);
             }
             LOGGER.info("Preprocessing complete for {} sample, Took {} ms", sample.name(), (endTimer() - startTime));
         } catch (IOException e) {
@@ -117,11 +118,15 @@ public abstract class BamCreationPipeline {
 
     protected abstract AlignmentStage alignment();
 
-    protected abstract QualityControlFactory qcFactory();
-
     protected abstract List<Stage<AlignmentRecordRDD, AlignmentRecordRDD>> bamEnrichment();
 
     protected abstract OutputStore<AlignmentRecordRDD> bamStore();
+
+    protected abstract Function<AlignmentRecordRDD, QualityControl<AlignmentRecordRDD>> readCountQCFactory();
+
+    protected abstract QualityControl<AlignmentRecordRDD> referenceFinalQC();
+
+    protected abstract QualityControl<AlignmentRecordRDD> tumourFinalQC();
 
     private ExecutorService executorService() {
         return Executors.newFixedThreadPool(2);

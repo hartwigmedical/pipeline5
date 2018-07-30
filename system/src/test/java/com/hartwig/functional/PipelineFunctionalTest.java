@@ -10,7 +10,6 @@ import com.hartwig.io.OutputFile;
 import com.hartwig.io.OutputType;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.adam.ADAMPipelines;
-import com.hartwig.pipeline.adam.CoverageThreshold;
 import com.hartwig.pipeline.runtime.patient.PatientReader;
 import com.hartwig.testsupport.SparkContextSingleton;
 
@@ -37,8 +36,7 @@ public class PipelineFunctionalTest {
     @Test
     public void adamBamCreationMatchesCurrentPipelineOuput() throws Exception {
         ADAMPipelines.bamCreation(HUNDREDK_READS_HISEQ.referenceGenome().path(), HUNDREDK_READS_HISEQ.knownIndel().paths(),
-                new ADAMContext(context.sc()),
-                1, CoverageThreshold.of(1, 1e-12)).execute(PatientReader.from(HUNDREDK_READS_HISEQ));
+                new ADAMContext(context.sc()), 1, false).execute(PatientReader.from(HUNDREDK_READS_HISEQ));
         assertThatOutput(REFERENCE_SAMPLE, OutputType.DUPLICATE_MARKED).sorted().aligned().duplicatesMarked().isEqualToExpected();
         assertThatOutput(TUMOUR_SAMPLE, OutputType.DUPLICATE_MARKED).sorted().aligned().duplicatesMarked().isEqualToExpected();
     }

@@ -24,8 +24,7 @@ public class PipelineRuntime {
         LOGGER.info("Starting ADAM pipeline for patient [{}]", configuration.patient().name());
         ADAMContext adamContext = new ADAMContext(SparkContexts.create("ADAM", configuration).sc());
         BamCreationPipeline adamPipeline = ADAMPipelines.bamCreation(configuration.referenceGenome().path(),
-                configuration.knownIndel().paths(),
-                adamContext, configuration.pipeline().bwa().threads());
+                configuration.knownIndel().paths(), adamContext, configuration.pipeline().bwa().threads(), true);
         adamPipeline.execute(PatientReader.from(configuration));
         LOGGER.info("Completed ADAM pipeline for patient [{}]", configuration.patient().name());
     }

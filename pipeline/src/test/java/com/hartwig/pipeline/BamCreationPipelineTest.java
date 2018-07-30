@@ -24,7 +24,7 @@ public class BamCreationPipelineTest {
     private static final ImmutableSample SAMPLE = Sample.builder("", "TEST").build();
     private static final InputOutput<AlignmentRecordRDD> ALIGNED_BAM =
             InputOutput.of(OutputType.ALIGNED, SAMPLE, mock(AlignmentRecordRDD.class));
-    private static final Patient PATIENT = Patient.of("", "TEST", SAMPLE);
+    private static final Patient PATIENT = Patient.of("", "TEST", SAMPLE, SAMPLE);
     private InputOutput<AlignmentRecordRDD> lastStored;
     private static final InputOutput<AlignmentRecordRDD> ENRICHED =
             InputOutput.of(OutputType.DUPLICATE_MARKED, SAMPLE, mock(AlignmentRecordRDD.class));
@@ -36,62 +36,59 @@ public class BamCreationPipelineTest {
 
     @Test
     public void alignsAndStoresBAM() throws Exception {
-        BamCreationPipeline.builder()
+        builder().bamStore(bamStore(false, false)).build().execute(PATIENT);
+        assertThat(lastStored).isEqualTo(ALIGNED_BAM);
+    }
+
+    private ImmutableBamCreationPipeline.Builder builder() {
+        return BamCreationPipeline.builder()
                 .alignment(alignmentStage())
                 .alignmentDatasource(sample -> ALIGNED_BAM)
-                .bamStore(bamStore(false, false))
-                .qcFactory(qcFactory(true))
-                .build()
-                .execute(PATIENT);
-        assertThat(lastStored).isEqualTo(ALIGNED_BAM);
+                .readCountQCFactory(aligned -> reads -> QCResult.ok())
+                .referenceFinalQC(reads -> QCResult.ok())
+                .tumourFinalQC(reads -> QCResult.ok());
     }
 
     @Test
     public void enrichesAlignedBAM() throws Exception {
-        BamCreationPipeline.builder()
-                .alignment(alignmentStage())
-                .alignmentDatasource(sample -> ALIGNED_BAM)
-                .addBamEnrichment(enrichmentStage(ENRICHED))
-                .bamStore(bamStore(false, false))
-                .qcFactory(qcFactory(true))
-                .build()
-                .execute(PATIENT);
+        builder().addBamEnrichment(enrichmentStage(ENRICHED)).bamStore(bamStore(false, false)).build().execute(PATIENT);
         assertThat(lastStored).isEqualTo(ENRICHED);
     }
 
     @Test
     public void skipsAlignmentWhenOutputAlreadyExists() throws Exception {
-        BamCreationPipeline.builder()
-                .alignment(alignmentStage())
-                .alignmentDatasource(sample -> ALIGNED_BAM)
-                .bamStore(bamStore(false, true))
-                .qcFactory(qcFactory(true))
-                .build()
-                .execute(PATIENT);
+        builder().bamStore(bamStore(false, true)).build().execute(PATIENT);
         assertThat(lastStored).isNull();
     }
 
     @Test
     public void skipsEnrichmentWhenOutputAlreadyExists() throws Exception {
-        BamCreationPipeline.builder()
-                .alignment(alignmentStage())
-                .addBamEnrichment(enrichmentStage(ENRICHED))
-                .alignmentDatasource(sample -> ALIGNED_BAM)
-                .bamStore(bamStore(true, false))
-                .qcFactory(qcFactory(true))
-                .build()
-                .execute(PATIENT);
+        builder().addBamEnrichment(enrichmentStage(ENRICHED)).bamStore(bamStore(true, false)).build().execute(PATIENT);
         assertThat(lastStored).isEqualTo(ALIGNED_BAM);
     }
 
     @Test(expected = ExecutionException.class)
-    public void executionExceptionWhenQCFails() throws Exception {
-        BamCreationPipeline.builder()
-                .alignment(alignmentStage())
+    public void executionExceptionWhenReadCountQCFails() throws Exception {
+        builder().bamStore(bamStore(false, false))
+                .addBamEnrichment(enrichmentStage(ENRICHED)).readCountQCFactory(aligned -> reads -> QCResult.failure("test"))
+                .build()
+                .execute(PATIENT);
+    }
+
+    @Test(expected = ExecutionException.class)
+    public void executionExceptionWhenReferenceFinalQCFails() throws Exception {
+        builder().bamStore(bamStore(false, false))
                 .addBamEnrichment(enrichmentStage(ENRICHED))
-                .alignmentDatasource(sample -> ALIGNED_BAM)
-                .bamStore(bamStore(false, false))
-                .qcFactory(qcFactory(false))
+                .referenceFinalQC(reads -> QCResult.failure("test"))
+                .build()
+                .execute(PATIENT);
+    }
+
+    @Test(expected = ExecutionException.class)
+    public void executionExceptionWhenTumourFinalQCFails() throws Exception {
+        builder().bamStore(bamStore(false, false))
+                .addBamEnrichment(enrichmentStage(ENRICHED))
+                .tumourFinalQC(reads -> QCResult.failure("test"))
                 .build()
                 .execute(PATIENT);
     }
@@ -137,26 +134,6 @@ public class BamCreationPipelineTest {
             @Override
             public InputOutput<AlignmentRecordRDD> execute(final InputOutput<AlignmentRecordRDD> input) throws IOException {
                 return enriched;
-            }
-        };
-    }
-
-    @NotNull
-    private QualityControlFactory qcFactory(final boolean passesQC) {
-        return new QualityControlFactory() {
-            @Override
-            public QualityControl<AlignmentRecordRDD> readCount(final AlignmentRecordRDD initial) {
-                return toQC -> passFail();
-            }
-
-            @NotNull
-            private QCResult passFail() {
-                return passesQC ? QCResult.ok() : QCResult.failure("failed");
-            }
-
-            @Override
-            public QualityControl<AlignmentRecordRDD> referenceBAMQC() {
-                return toQC -> passFail();
             }
         };
     }
