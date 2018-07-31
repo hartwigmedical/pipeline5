@@ -5,7 +5,6 @@ import static java.lang.String.format;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.function.Function;
 
@@ -128,9 +127,7 @@ public abstract class BamCreationPipeline {
 
     protected abstract QualityControl<AlignmentRecordRDD> tumourFinalQC();
 
-    private ExecutorService executorService() {
-        return Executors.newFixedThreadPool(2);
-    }
+    protected abstract ExecutorService executorService();
 
     public static ImmutableBamCreationPipeline.Builder builder() {
         return ImmutableBamCreationPipeline.builder();

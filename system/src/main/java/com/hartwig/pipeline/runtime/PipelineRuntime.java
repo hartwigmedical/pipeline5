@@ -7,6 +7,7 @@ import com.hartwig.pipeline.runtime.configuration.YAMLConfigurationReader;
 import com.hartwig.pipeline.runtime.patient.PatientReader;
 import com.hartwig.pipeline.runtime.spark.SparkContexts;
 
+import org.apache.spark.SparkContext;
 import org.bdgenomics.adam.rdd.ADAMContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,11 +23,17 @@ public class PipelineRuntime {
 
     private void start() throws Exception {
         LOGGER.info("Starting ADAM pipeline for patient [{}]", configuration.patient().name());
-        ADAMContext adamContext = new ADAMContext(SparkContexts.create("ADAM", configuration).sc());
+        SparkContext sparkContext = SparkContexts.create("ADAM", configuration).sc();
+        ADAMContext adamContext = new ADAMContext(sparkContext);
         BamCreationPipeline adamPipeline = ADAMPipelines.bamCreation(configuration.referenceGenome().path(),
-                configuration.knownIndel().paths(), adamContext, configuration.pipeline().bwa().threads(), true);
+                configuration.knownIndel().paths(),
+                adamContext,
+                configuration.pipeline().bwa().threads(),
+                true,
+                true);
         adamPipeline.execute(PatientReader.from(configuration));
         LOGGER.info("Completed ADAM pipeline for patient [{}]", configuration.patient().name());
+        sparkContext.stop();
     }
 
     public static void main(String[] args) {

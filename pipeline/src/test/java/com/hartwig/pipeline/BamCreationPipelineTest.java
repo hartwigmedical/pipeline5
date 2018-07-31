@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
+import com.google.common.util.concurrent.MoreExecutors;
 import com.hartwig.io.DataSource;
 import com.hartwig.io.InputOutput;
 import com.hartwig.io.OutputStore;
@@ -41,7 +42,7 @@ public class BamCreationPipelineTest {
     }
 
     private ImmutableBamCreationPipeline.Builder builder() {
-        return BamCreationPipeline.builder()
+        return BamCreationPipeline.builder().executorService(MoreExecutors.sameThreadExecutor())
                 .alignment(alignmentStage())
                 .alignmentDatasource(sample -> ALIGNED_BAM)
                 .readCountQCFactory(aligned -> reads -> QCResult.ok())

@@ -1,7 +1,9 @@
 package com.hartwig.pipeline.adam;
 
 import java.util.List;
+import java.util.concurrent.Executors;
 
+import com.google.common.util.concurrent.MoreExecutors;
 import com.hartwig.io.OutputType;
 import com.hartwig.patient.KnownIndels;
 import com.hartwig.patient.ReferenceGenome;
@@ -17,7 +19,7 @@ import org.jetbrains.annotations.NotNull;
 public class ADAMPipelines {
 
     public static BamCreationPipeline bamCreation(final String referenceGenomePath, final List<String> knownIndelPaths,
-            final ADAMContext adamContext, final int bwaThreads, final boolean doQC) {
+            final ADAMContext adamContext, final int bwaThreads, final boolean doQC, final boolean parallel) {
         JavaADAMContext javaADAMContext = new JavaADAMContext(adamContext);
         ReferenceGenome referenceGenome = ReferenceGenome.of(referenceGenomePath);
         return BamCreationPipeline.builder()
@@ -31,6 +33,7 @@ public class ADAMPipelines {
                 .addBamEnrichment(new ADAMMarkDuplicatesAndSort(javaADAMContext))
                 .addBamEnrichment(new ADAMRealignIndels(KnownIndels.of(knownIndelPaths), referenceGenome, javaADAMContext))
                 .bamStore(new ADAMBAMStore())
+                .executorService(parallel ? Executors.newFixedThreadPool(2) : MoreExecutors.sameThreadExecutor())
                 .build();
     }
 

@@ -6,6 +6,7 @@
 
     <properties>
         <bwa.version>0.7.5a</bwa.version>
+        <spark.distribution>spark-2.3.0-bin-hadoop2.7</spark.distribution>
     </properties>
 
     <parent>
@@ -100,26 +101,67 @@
                         </executions>
                     </plugin>
                     <plugin>
-                        <groupId>com.spotify</groupId>
-                        <artifactId>dockerfile-maven-plugin</artifactId>
-                        <version>${dockerfile-maven-plugin.version}</version>
+                        <groupId>io.fabric8</groupId>
+                        <artifactId>docker-maven-plugin</artifactId>
+                        <extensions>true</extensions>
+                        <version>0.26.1</version>
+                        <configuration>
+                            <images>
+                                <image>
+                                    <build>
+                                        <tags>
+                                            <tag>${project.version}</tag>
+                                        </tags>
+                                        <dockerFileDir>${project.basedir}</dockerFileDir>
+                                        <args>
+                                            <JAR_FILE>${project.build.finalName}.jar</JAR_FILE>
+                                            <BWA_VERSION>${bwa.version}</BWA_VERSION>
+                                        </args>
+                                    </build>
+                                </image>
+                            </images>
+                        </configuration>
                         <executions>
                             <execution>
-                                <id>default</id>
+                                <id>standalone</id>
+                                <phase>package</phase>
                                 <goals>
                                     <goal>build</goal>
                                     <goal>push</goal>
                                 </goals>
+                                <configuration>
+                                    <images>
+                                        <image>
+                                            <name>hartwigmedicalfoundation/pipeline5</name>
+                                            <build>
+                                                <dockerFile>Dockerfile_standalone</dockerFile>
+                                            </build>
+                                        </image>
+                                    </images>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>spark-kubernetes</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>build</goal>
+                                    <goal>push</goal>
+                                </goals>
+                                <configuration>
+                                    <images>
+                                        <image>
+                                            <name>hartwigmedicalfoundation/pipeline5-spark-kubernetes</name>
+                                            <build>
+                                                <dockerFile>Dockerfile_spark-kubernetes</dockerFile>
+                                                <args>
+                                                    <SPARK_DISTRIBUTION>${spark.distribution}</SPARK_DISTRIBUTION>
+                                                </args>
+                                            </build>
+                                        </image>
+                                    </images>
+                                </configuration>
                             </execution>
                         </executions>
-                        <configuration>
-                            <repository>hartwigmedicalfoundation/pipeline5</repository>
-                            <tag>${project.version}</tag>
-                            <buildArgs>
-                                <JAR_FILE>${project.build.finalName}.jar</JAR_FILE>
-                                <BWA_VERSION>${bwa.version}</BWA_VERSION>
-                            </buildArgs>
-                        </configuration>
                     </plugin>
                 </plugins>
             </build>

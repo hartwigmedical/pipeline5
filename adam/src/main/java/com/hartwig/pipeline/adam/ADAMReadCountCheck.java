@@ -19,7 +19,7 @@ public class ADAMReadCountCheck implements QualityControl<AlignmentRecordRDD> {
 
     @Override
     public QCResult check(final InputOutput<AlignmentRecordRDD> toQC) {
-        LOGGER.info("Starting read count check for sample [{}] input to stage [{}]", toQC.sample(), toQC.type());
+        LOGGER.info("Starting read count check for sample [{}] input to stage [{}]", toQC.sample().name(), toQC.type());
         long readCount = countReads(toQC.payload());
         QCResult result = readCount == previousReadCount
                 ? QCResult.ok()
@@ -29,8 +29,7 @@ public class ADAMReadCountCheck implements QualityControl<AlignmentRecordRDD> {
                         readCount,
                         toQC.type(),
                         toQC.sample().name()));
-        LOGGER.info("Completed read count check for sample [{}] input to stage [{}]. Count was [{}]",
-                toQC.sample(),
+        LOGGER.info("Completed read count check for sample [{}] input to stage [{}]. Count was [{}]", toQC.sample().name(),
                 toQC.type(),
                 readCount);
         return result;
