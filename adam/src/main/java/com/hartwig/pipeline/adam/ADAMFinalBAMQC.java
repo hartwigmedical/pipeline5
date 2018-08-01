@@ -123,6 +123,6 @@ public class ADAMFinalBAMQC implements QualityControl<AlignmentRecordRDD>, Seria
     }
 
     private static double percentage(final double totalReads, final double readsExceedingCoverage) {
-        return (readsExceedingCoverage / totalReads) * 100;
+        return totalReads != 0 ? (readsExceedingCoverage / totalReads) * 100 : 0;
     }
 }

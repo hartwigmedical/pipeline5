@@ -1,5 +1,8 @@
 package com.hartwig.pipeline.adam;
 
+import static htsjdk.samtools.SAMRecord.getReadPositionAtReferencePosition;
+import static htsjdk.samtools.SAMUtils.fastqToPhred;
+
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
@@ -8,20 +11,18 @@ import java.util.stream.StreamSupport;
 import org.apache.spark.api.java.JavaRDD;
 import org.bdgenomics.adam.models.Coverage;
 import org.bdgenomics.adam.rdd.read.AlignmentRecordRDD;
-import org.bdgenomics.formats.avro.AlignmentRecord;
 import org.jetbrains.annotations.NotNull;
+import org.seqdoop.hadoop_bam.SAMRecordWritable;
 
-import htsjdk.samtools.SAMUtils;
+import htsjdk.samtools.SAMRecord;
 
 class CoverageRDD {
 
     static JavaRDD<Coverage> toCoverage(AlignmentRecordRDD alignmentRecordRDD) {
-        return alignmentRecordRDD.rdd()
-                .toJavaRDD()
+        return alignmentRecordRDD.convertToSam(false)._1.toJavaRDD().map(SAMRecordWritable::get)
                 .flatMap(window -> LongStream.range(window.getStart(), window.getEnd() - 1)
                         .boxed()
-                        .filter(baseQualityAtLeastTen(window))
-                        .map(index -> new Coverage(window.getContigName(), index, index + 1, 1.0))
+                        .filter(baseQualityAtLeastTen(window)).map(index -> new Coverage(window.getContig(), index, index + 1, 1.0))
                         .collect(Collectors.toList())
                         .iterator())
                 .keyBy(coverage -> new Position(coverage.contigName(), coverage.start(), coverage.end()))
@@ -33,15 +34,11 @@ class CoverageRDD {
     }
 
     @NotNull
-    private static Predicate<Long> baseQualityAtLeastTen(final AlignmentRecord window) {
+    private static Predicate<Long> baseQualityAtLeastTen(final SAMRecord record) {
         return index -> {
-            int qualityIndex = indexMinusOffset(window, index);
-            return qualityIndex < window.getQual().length() && SAMUtils.fastqToPhred(window.getQual().charAt(qualityIndex)) >= 10;
+            int readPosition = getReadPositionAtReferencePosition(record, index.intValue(), false);
+            return readPosition != 0 && fastqToPhred(record.getBaseQualityString().charAt(readPosition)) >= 10;
         };
-    }
-
-    private static int indexMinusOffset(final AlignmentRecord window, final Long index) {
-        return index.intValue() - window.getStart().intValue();
     }
 
     private static class Position {
