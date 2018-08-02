@@ -38,10 +38,5 @@
             <groupId>org.apache.parquet</groupId>
             <artifactId>parquet-hadoop</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.github.broadinstitute</groupId>
-            <artifactId>picard</artifactId>
-            <version>2.18.11</version>
-        </dependency>
     </dependencies>
 </project>
