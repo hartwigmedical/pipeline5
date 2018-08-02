@@ -60,12 +60,13 @@ public class ADAMFinalBAMQC implements QualityControl<AlignmentRecordRDD>, Seria
                 .mapToPair(fragment -> Tuple2.apply(fragment.getContigName(), calledBases(fragment.getSequence()).length()))
                 .collectAsMap();
 
-        AlignmentRecordRDD filterReads = filterReads(toQC);
-        RDD<SAMRecordWritable> samRecordRDD = filterReads.convertToSam(false)._1;
-
         for (CoverageThreshold threshold : thresholds) {
+
             Map<String, CoverageMetrics> metricsPerContig = new HashMap<>();
             for (String contigName : calledBasesPerContig.keySet()) {
+
+                AlignmentRecordRDD filterReads = filterReads(toQC, contigName);
+                RDD<SAMRecordWritable> samRecordRDD = filterReads.convertToSam(false)._1;
                 long countExceedingThreshold = CoverageRDD.toCoverage(contigName, samRecordRDD)
                         .mapToDouble(Coverage::count)
                         .filter(count -> count > threshold.coverage())
@@ -106,10 +107,10 @@ public class ADAMFinalBAMQC implements QualityControl<AlignmentRecordRDD>, Seria
     }
 
     @NotNull
-    private static AlignmentRecordRDD filterReads(final InputOutput<AlignmentRecordRDD> toQC) {
+    private static AlignmentRecordRDD filterReads(final InputOutput<AlignmentRecordRDD> toQC, final String contigName) {
         JavaRDD<AlignmentRecord> filtered = toQC.payload()
                 .rdd()
-                .toJavaRDD()
+                .toJavaRDD().filter(read -> read.getContigName().equals(contigName))
                 .filter(read -> !read.getDuplicateRead())
                 .filter(AlignmentRecord::getReadMapped)
                 .filter(read -> read.getMapq() >= 20)
