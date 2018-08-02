@@ -8,13 +8,16 @@ import org.apache.spark.api.java.JavaSparkContext;
 public class SparkContexts {
 
     public static JavaSparkContext create(String appName, Configuration configuration) {
+        String master = configuration.spark().get("master");
         SparkConf conf = new SparkConf().set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
                 .set("spark.ui.showConsoleProgress", "false")
                 .set("spark.kryoserializer.buffer.max", "1024m")
                 .set("spark.ui.showConsoleProgress", "false")
                 .set("spark.driver.maxResultSize", "0")
-                .setMaster(configuration.spark().get("master"))
                 .setAppName(appName);
+        if (master != null) {
+            conf.setMaster(master);
+        }
         configuration.spark().forEach(conf::set);
         return new JavaSparkContext(conf);
     }
