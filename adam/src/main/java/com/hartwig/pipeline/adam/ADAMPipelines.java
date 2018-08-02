@@ -30,6 +30,7 @@ public class ADAMPipelines {
                         ADAMFinalBAMQC.of(javaADAMContext, referenceGenome, CoverageThreshold.of(30, 80), CoverageThreshold.of(60, 65))))
                 .alignment(new ADAMBwa(referenceGenome, adamContext, bwaThreads))
                 .alignmentDatasource(new AlignmentRDDSource(OutputType.ALIGNED, javaADAMContext))
+                .finalDatasource(new AlignmentRDDSource(OutputType.INDEL_REALIGNED, javaADAMContext))
                 .addBamEnrichment(new ADAMMarkDuplicatesAndSort(javaADAMContext))
                 .addBamEnrichment(new ADAMRealignIndels(KnownIndels.of(knownIndelPaths), referenceGenome, javaADAMContext))
                 .bamStore(new ADAMBAMStore())

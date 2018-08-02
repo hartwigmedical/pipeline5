@@ -43,8 +43,7 @@ public class BamCreationPipelineTest {
 
     private ImmutableBamCreationPipeline.Builder builder() {
         return BamCreationPipeline.builder().executorService(MoreExecutors.sameThreadExecutor())
-                .alignment(alignmentStage())
-                .alignmentDatasource(sample -> ALIGNED_BAM)
+                .alignment(alignmentStage()).alignmentDatasource(sample -> ALIGNED_BAM).finalDatasource(sample -> ALIGNED_BAM)
                 .readCountQCFactory(aligned -> reads -> QCResult.ok())
                 .referenceFinalQC(reads -> QCResult.ok())
                 .tumourFinalQC(reads -> QCResult.ok());

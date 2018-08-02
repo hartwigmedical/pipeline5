@@ -62,6 +62,9 @@ public abstract class BamCreationPipeline {
             }
             if (output != null) {
                 qc(finalQC, output);
+            } else {
+                LOGGER.info("No stages to run as all output existed. Running final QC on persisted BAM");
+                qc(finalQC, finalDatasource().extract(sample));
             }
             LOGGER.info("Preprocessing complete for {} sample, Took {} ms", sample.name(), (endTimer() - startTime));
         } catch (IOException e) {
@@ -114,6 +117,8 @@ public abstract class BamCreationPipeline {
     }
 
     protected abstract DataSource<AlignmentRecordRDD> alignmentDatasource();
+
+    protected abstract DataSource<AlignmentRecordRDD> finalDatasource();
 
     protected abstract AlignmentStage alignment();
 

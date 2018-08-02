@@ -14,9 +14,20 @@ import com.hartwig.testsupport.TestRDDs;
 import org.bdgenomics.adam.rdd.read.AlignmentRecordRDD;
 import org.junit.Test;
 
+import picard.analysis.CollectWgsMetrics;
+
 public class ADAMFinalBAMQCTest {
 
     private static final AlignmentRecordRDD CANCER_PANEL_RDD = TestRDDs.alignmentRecordRDD("qc/CPCT12345678R_duplicate_marked.bam");
+
+    @Test
+    public void experiment() {
+        CollectWgsMetrics metrics = new CollectWgsMetrics();
+        metrics.instanceMain(new String[] {
+                "INPUT=/Users/pwolfe/Code/pipeline2/system/src/test/resources/qc/CPCT12345678R_duplicate_marked.bam", "OUTPUT=test.txt",
+                "REFERENCE_SEQUENCE=/Users/pwolfe/Code/pipeline2/system/src/test/resources/reference_genome/Homo_sapiens.GRCh37.GATK.illumina.chr22.fa" });
+
+    }
 
     @Test
     public void checkFailsOnEmptyInput() {

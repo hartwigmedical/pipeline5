@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 
 public class ADAMReadCountCheck implements QualityControl<AlignmentRecordRDD> {
 
-    private final Logger LOGGER = LoggerFactory.getLogger(ADAMReadCountCheck.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(ADAMReadCountCheck.class);
     private final long previousReadCount;
 
     ADAMReadCountCheck(final long previousReadCount) {
@@ -40,6 +40,9 @@ public class ADAMReadCountCheck implements QualityControl<AlignmentRecordRDD> {
     }
 
     private static long countReads(final AlignmentRecordRDD initialAlignments) {
-        return initialAlignments.rdd().toJavaRDD().count();
+        LOGGER.info("Starting initialization of read count from BWA output.");
+        long count = initialAlignments.rdd().toJavaRDD().count();
+        LOGGER.info("Completed initialization of read count from BWA output.");
+        return count;
     }
 }
