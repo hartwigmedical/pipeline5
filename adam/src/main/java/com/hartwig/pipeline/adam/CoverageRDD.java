@@ -18,17 +18,15 @@ import htsjdk.samtools.SAMRecord;
 
 class CoverageRDD {
 
-    static JavaRDD<Coverage> toCoverage(String sequenceName, final RDD<SAMRecordWritable> samRecordRDD) {
+    static JavaRDD<Coverage> toCoverage(String contig, final RDD<SAMRecordWritable> samRecordRDD) {
         return samRecordRDD.toJavaRDD()
-                .map(SAMRecordWritable::get)
-                .filter(record -> record.getReferenceName().equals(sequenceName))
+                .map(SAMRecordWritable::get).filter(record -> record.getReferenceName().equals(contig))
                 .flatMap(window -> LongStream.range(window.getStart(), window.getEnd() - 1)
                         .boxed().filter(baseQualityAtLeastTen(window))
                         .collect(Collectors.toList())
                         .iterator())
                 .keyBy(index -> index)
-                .groupByKey()
-                .map(tuple -> new Coverage(sequenceName,
+                .groupByKey().map(tuple -> new Coverage(contig,
                         tuple._1,
                         tuple._1 + 1,
                         StreamSupport.stream(tuple._2.spliterator(), false).count()));
