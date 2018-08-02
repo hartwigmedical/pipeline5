@@ -109,8 +109,7 @@ public class ADAMFinalBAMQC implements QualityControl<AlignmentRecordRDD>, Seria
     @NotNull
     private static AlignmentRecordRDD filterReads(final InputOutput<AlignmentRecordRDD> toQC, final String contigName) {
         JavaRDD<AlignmentRecord> filtered = toQC.payload()
-                .rdd()
-                .toJavaRDD().filter(read -> read.getContigName().equals(contigName))
+                .rdd().toJavaRDD().filter(read -> read.getContigName() != null && read.getContigName().equals(contigName))
                 .filter(read -> !read.getDuplicateRead())
                 .filter(AlignmentRecord::getReadMapped)
                 .filter(read -> read.getMapq() >= 20)
