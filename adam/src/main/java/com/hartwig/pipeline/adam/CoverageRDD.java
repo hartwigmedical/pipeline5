@@ -19,9 +19,7 @@ import scala.Tuple2;
 class CoverageRDD {
 
     static JavaRDD<Coverage> toCoverage(final String contig, final RDD<SAMRecordWritable> samRecordRDD) {
-        return samRecordRDD.toJavaRDD()
-                .map(SAMRecordWritable::get).flatMapToPair(CoverageRDD::basesWithinRead)
-                .distinct()
+        return samRecordRDD.toJavaRDD().map(SAMRecordWritable::get).flatMapToPair(CoverageRDD::basesWithinRead).reduceByKey((v1, v2) -> v1)
                 .values()
                 .mapToPair(index -> Tuple2.apply(index, 1))
                 .reduceByKey((v1, v2) -> v1 + v2)
@@ -29,11 +27,11 @@ class CoverageRDD {
     }
 
     @NotNull
-    private static Iterator<Tuple2<String, Integer>> basesWithinRead(final SAMRecord record) {
-        List<Tuple2<String, Integer>> basesAndReadNames = new ArrayList<>();
+    private static Iterator<Tuple2<Tuple2<Integer, Integer>, Integer>> basesWithinRead(final SAMRecord record) {
+        List<Tuple2<Tuple2<Integer, Integer>, Integer>> basesAndReadNames = new ArrayList<>();
         for (int index = record.getStart(); index < record.getEnd(); index++) {
             if (baseQualityAtLeastTen(record, index)) {
-                basesAndReadNames.add(Tuple2.apply(record.getReadName(), index));
+                basesAndReadNames.add(Tuple2.apply(Tuple2.apply(record.getReadName().hashCode(), index), index));
             }
         }
         return basesAndReadNames.iterator();
