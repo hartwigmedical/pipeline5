@@ -3,9 +3,9 @@ package com.hartwig.pipeline.adam;
 import static htsjdk.samtools.SAMRecord.getReadPositionAtReferencePosition;
 import static htsjdk.samtools.SAMUtils.fastqToPhred;
 
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.LongStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.rdd.RDD;
@@ -20,13 +20,7 @@ class CoverageRDD {
 
     static JavaRDD<Coverage> toCoverage(final String contig, final RDD<SAMRecordWritable> samRecordRDD) {
         return samRecordRDD.toJavaRDD()
-                .map(SAMRecordWritable::get)
-                .flatMapToPair(record -> LongStream.range(record.getStart(), record.getEnd() - 1)
-                        .boxed()
-                        .filter(baseQualityAtLeastTen(record))
-                        .map(index -> Tuple2.apply(record.getReadName(), index))
-                        .collect(Collectors.toList())
-                        .iterator())
+                .map(SAMRecordWritable::get).flatMapToPair(CoverageRDD::basesWithinRead)
                 .distinct()
                 .values()
                 .mapToPair(index -> Tuple2.apply(index, 1))
@@ -35,10 +29,18 @@ class CoverageRDD {
     }
 
     @NotNull
-    private static Predicate<Long> baseQualityAtLeastTen(final SAMRecord record) {
-        return index -> {
-            int readPosition = getReadPositionAtReferencePosition(record, index.intValue(), false);
-            return readPosition != 0 && fastqToPhred(record.getBaseQualityString().charAt(readPosition)) >= 10;
-        };
+    private static Iterator<Tuple2<String, Integer>> basesWithinRead(final SAMRecord record) {
+        List<Tuple2<String, Integer>> basesAndReadNames = new ArrayList<>();
+        for (int index = record.getStart(); index < record.getEnd(); index++) {
+            if (baseQualityAtLeastTen(record, index)) {
+                basesAndReadNames.add(Tuple2.apply(record.getReadName(), index));
+            }
+        }
+        return basesAndReadNames.iterator();
+    }
+
+    private static boolean baseQualityAtLeastTen(final SAMRecord record, final int index) {
+        int readPosition = getReadPositionAtReferencePosition(record, index, false);
+        return readPosition != 0 && fastqToPhred(record.getBaseQualityString().charAt(readPosition)) >= 10;
     }
 }
