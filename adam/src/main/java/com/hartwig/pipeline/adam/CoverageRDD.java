@@ -21,9 +21,14 @@ class CoverageRDD {
     static JavaRDD<Coverage> toCoverage(final String contig, final RDD<SAMRecordWritable> samRecordRDD) {
         return samRecordRDD.toJavaRDD()
                 .map(SAMRecordWritable::get)
-                .flatMap(window -> LongStream.range(window.getStart(), window.getEnd() - 1).boxed().filter(baseQualityAtLeastTen(window))
+                .flatMapToPair(record -> LongStream.range(record.getStart(), record.getEnd() - 1)
+                        .boxed()
+                        .filter(baseQualityAtLeastTen(record))
+                        .map(index -> Tuple2.apply(record.getReadName(), index))
                         .collect(Collectors.toList())
                         .iterator())
+                .distinct()
+                .values()
                 .mapToPair(index -> Tuple2.apply(index, 1))
                 .reduceByKey((v1, v2) -> v1 + v2)
                 .map(tuple -> new Coverage(contig, tuple._1, tuple._1 + 1, tuple._2));
