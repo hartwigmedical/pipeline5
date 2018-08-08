@@ -23,16 +23,6 @@ public class PatientReaderTest {
         readerWithDirectory("/not/a/directory");
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void emptyDirectoryThrowsIllegalArgument() throws Exception {
-        readerWithDirectory(System.getProperty("user.dir") + PATIENT_DIR + "/empty");
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void incorrectlyNamedSubdirectoriesThrowsIllegalArgument() throws Exception {
-        readerWithDirectory(System.getProperty("user.dir") + PATIENT_DIR + "/incorrectlyNamed");
-    }
-
     @Test
     public void onlyFilesReturnsSingleSampleMode() throws Exception {
         Patient victim = readerWithDirectory(System.getProperty("user.dir") + PATIENT_DIR + "/singleSample");
