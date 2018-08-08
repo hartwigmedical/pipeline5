@@ -41,5 +41,4 @@ public class PatientReaderTest {
         Configuration configuration = DEFAULT_CONFIG_BUILDER.patient(DEFAULT_PATIENT_BUILDER.directory(directory).build()).build();
         return PatientReader.fromHDFS(Hadoop.fileSystem(configuration), configuration);
     }
-
 }
