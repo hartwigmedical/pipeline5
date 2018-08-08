@@ -26,11 +26,6 @@ public interface Lane extends FileSystemEntity, Named {
         return String.format("%s_%s_%s_%s_%s", split[0], flowCellId(), index(), split[1], suffix());
     }
 
-    @Override
-    default void accept(FileSystemVisitor visitor) {
-        visitor.visit(this);
-    }
-
     static ImmutableLane.Builder builder() {
         return ImmutableLane.builder();
     }

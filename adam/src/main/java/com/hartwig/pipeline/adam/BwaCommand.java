@@ -15,6 +15,7 @@ class BwaCommand {
         List<String> cmd = new ArrayList<>();
         cmd.add("bwa");
         cmd.add("mem");
+        cmd.add("-p");
         cmd.add("-R");
         cmd.add(format("@RG\\tID:%s\\tLB:%s\\tPL:ILLUMINA\\tPU:%s\\tSM:%s",
                 lane.recordGroupId(),
@@ -26,7 +27,6 @@ class BwaCommand {
         cmd.add("-t");
         cmd.add(String.valueOf(bwaThreads));
         cmd.add(referenceGenome.path());
-        cmd.add(lane.readsPath());
         cmd.add("-");
         return cmd;
     }

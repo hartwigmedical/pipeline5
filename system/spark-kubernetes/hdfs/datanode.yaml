@@ -1,0 +1,37 @@
+# A headless service to create DNS records.
+apiVersion: v1
+kind: Service
+metadata:
+  name: hdfs-datanode
+  labels:
+    app: hdfs-datanode
+spec:
+  ports:
+  - port: 50010
+    name: fs
+  clusterIP: None
+  selector:
+    app: hdfs-datanode
+---
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: hdfs-datanode
+spec:
+  serviceName: "hdfs-datanode"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: hdfs-datanode
+    spec:
+      containers:
+        - name: datanode
+          image: uhopper/hadoop-datanode:2.7.2
+          env:
+            - name: CORE_CONF_fs_defaultFS
+              value: hdfs://hdfs-namenode-0.hdfs-namenode.default.svc.cluster.local:8020
+          ports:
+          - containerPort: 50010
+            name: fs
+      restartPolicy: Always

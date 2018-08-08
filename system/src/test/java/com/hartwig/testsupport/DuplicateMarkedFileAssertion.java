@@ -12,10 +12,10 @@ import htsjdk.samtools.SAMFlag;
 import htsjdk.samtools.SAMRecord;
 import htsjdk.samtools.SamReader;
 
-class DuplicateMarkedFileAssertion extends BAMFileAssertion<Sample> {
+class DuplicateMarkedFileAssertion extends BAMFileAssertion {
 
-    DuplicateMarkedFileAssertion(final Sample cell, final OutputType outputType) {
-        super(outputType, cell);
+    DuplicateMarkedFileAssertion(final String workingDirectory, final OutputType outputType, final Sample sample) {
+        super(workingDirectory, outputType, sample);
     }
 
     @Override

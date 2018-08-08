@@ -10,7 +10,6 @@ import java.util.function.Function;
 
 import com.hartwig.io.DataSource;
 import com.hartwig.io.InputOutput;
-import com.hartwig.io.OutputFile;
 import com.hartwig.io.OutputStore;
 import com.hartwig.io.OutputType;
 import com.hartwig.patient.Patient;
@@ -27,7 +26,6 @@ public abstract class BamCreationPipeline {
     private static final Logger LOGGER = LoggerFactory.getLogger(BamCreationPipeline.class);
 
     public void execute(Patient patient) throws Exception {
-        LOGGER.info("Storing results in {}", OutputFile.RESULTS_DIRECTORY);
         ExecutorService executorService = executorService();
         Future<?> awaitReference = executorService.submit(() -> createBAM(patient.reference(), referenceFinalQC()));
         if (patient.maybeTumour().isPresent()) {
@@ -86,9 +84,7 @@ public abstract class BamCreationPipeline {
 
     private void skipping(final Stage<AlignmentRecordRDD, AlignmentRecordRDD> bamEnricher, final Sample sample) {
         LOGGER.info("Skipping [{}] stage for [{}] as the output already exists in [{}]",
-                bamEnricher.outputType(),
-                sample.name(),
-                OutputFile.RESULTS_DIRECTORY);
+                bamEnricher.outputType(), sample.name());
     }
 
     private void qc(final QualityControl<AlignmentRecordRDD> qcCheck, final InputOutput<AlignmentRecordRDD> toQC) throws IOException {

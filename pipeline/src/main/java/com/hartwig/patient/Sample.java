@@ -9,11 +9,6 @@ public interface Sample extends FileSystemEntity, Named {
 
     List<Lane> lanes();
 
-    @Override
-    default void accept(FileSystemVisitor visitor) {
-        visitor.visit(this);
-    }
-
     static ImmutableSample.Builder builder(final String directory, final String name) {
         return ImmutableSample.builder().directory(directory).name(name);
     }

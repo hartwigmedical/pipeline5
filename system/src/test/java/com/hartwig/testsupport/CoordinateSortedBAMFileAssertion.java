@@ -9,10 +9,10 @@ import htsjdk.samtools.SAMFlag;
 import htsjdk.samtools.SAMRecord;
 import htsjdk.samtools.SamReader;
 
-class CoordinateSortedBAMFileAssertion extends BAMFileAssertion<Sample> {
+class CoordinateSortedBAMFileAssertion extends BAMFileAssertion {
 
-    CoordinateSortedBAMFileAssertion(final Sample sample, final OutputType outputType) {
-        super(outputType, sample);
+    CoordinateSortedBAMFileAssertion(final String workingDirectory, final OutputType outputType, final Sample sample) {
+        super(workingDirectory, outputType, sample);
     }
 
     @Override

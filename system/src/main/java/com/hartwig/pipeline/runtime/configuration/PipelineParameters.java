@@ -9,6 +9,16 @@ import org.immutables.value.Value;
 public interface PipelineParameters {
 
     @Value.Default
+    default String resultsDirectory() {
+        return "/results/";
+    }
+
+    @Value.Default
+    default String hdfs() {
+        return "file:///";
+    }
+
+    @Value.Default
     default BwaParameters bwa() {
         return ImmutableBwaParameters.builder().threads(12).build();
     }

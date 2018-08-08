@@ -29,11 +29,6 @@ public interface Patient extends FileSystemEntity, Named {
                 this)));
     }
 
-    @Override
-    default void accept(FileSystemVisitor visitor) {
-        visitor.visit(this);
-    }
-
     static Patient of(String directory, String name, Sample reference, Sample tumour) {
         return ImmutablePatient.of(directory, name, reference, Optional.of(tumour));
     }
