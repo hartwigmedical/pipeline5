@@ -4,15 +4,18 @@ import static java.lang.String.format;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
 import com.hartwig.io.InputOutput;
 import com.hartwig.patient.ReferenceGenome;
 import com.hartwig.pipeline.QCResult;
 import com.hartwig.pipeline.QualityControl;
 
+import org.apache.spark.api.java.JavaDoubleRDD;
+import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.rdd.RDD;
@@ -25,6 +28,7 @@ import org.seqdoop.hadoop_bam.SAMRecordWritable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import htsjdk.samtools.SAMRecord;
 import scala.Tuple2;
 
 @SuppressWarnings({ "FieldCanBeLocal", "unused" })
@@ -59,23 +63,29 @@ public class ADAMFinalBAMQC implements QualityControl<AlignmentRecordRDD>, Seria
                 .toJavaRDD()
                 .mapToPair(fragment -> Tuple2.apply(fragment.getContigName(), calledBases(fragment.getSequence()).length()))
                 .collectAsMap();
+        AlignmentRecordRDD filterReads = filterReads(toQC);
+        RDD<SAMRecordWritable> samRecordRDD = filterReads.convertToSam(false)._1;
+        JavaPairRDD<Tuple2<String, String>, Iterable<SAMRecord>> primaryReadsByReadName = samRecordRDD.toJavaRDD()
+                .map(SAMRecordWritable::get)
+                .mapToPair(record -> Tuple2.apply(Tuple2.apply(record.getContig(), record.getReadName()), record))
+                .groupByKey();
+
+        Multimap<CoverageThreshold, CoverageMetrics> metricsPerContig = ArrayListMultimap.create();
+        for (String contigName : calledBasesPerContig.keySet()) {
+            JavaDoubleRDD coverage =
+                    CoverageRDD.toCoverage(contigName, primaryReadsByReadName.filter(tuple -> contigName.equals(tuple._1._1)))
+                            .mapToDouble(Coverage::count)
+                            .cache();
+            for (CoverageThreshold threshold : thresholds) {
+                long countExceedingThreshold = coverage.filter(count -> count > threshold.coverage()).count();
+                metricsPerContig.put(threshold, CoverageMetrics.of(contigName, countExceedingThreshold, calledBasesPerContig.get(contigName)));
+            }
+        }
 
         for (CoverageThreshold threshold : thresholds) {
-            Map<String, CoverageMetrics> metricsPerContig = new HashMap<>();
-            for (String contigName : calledBasesPerContig.keySet()) {
-                AlignmentRecordRDD filterReads = filterReads(toQC, contigName);
-                RDD<SAMRecordWritable> samRecordRDD = filterReads.convertToSam(false)._1;
-                long countExceedingThreshold = CoverageRDD.toCoverage(contigName, samRecordRDD)
-                        .mapToDouble(Coverage::count)
-                        .filter(count -> count > threshold.coverage())
-                        .count();
-                metricsPerContig.put(contigName,
-                        CoverageMetrics.of(contigName, countExceedingThreshold, calledBasesPerContig.get(contigName)));
-            }
-
             long totalExceeding = 0;
             long total = 0;
-            for (CoverageMetrics metric : metricsPerContig.values()) {
+            for (CoverageMetrics metric : metricsPerContig.get(threshold)) {
                 totalExceeding += metric.exceeding();
                 total += metric.total();
             }
@@ -88,8 +98,7 @@ public class ADAMFinalBAMQC implements QualityControl<AlignmentRecordRDD>, Seria
                     threshold.coverage(),
                     percentage));
             if (percentage < threshold.minimumPercentage()) {
-                return QCResult.failure(format(
-                        "Final QC failed on sample [%s] as [%dx] " + "coverage was below the minimum percentage of [%f%%]",
+                return QCResult.failure(format("Final QC failed on sample [%s] as [%dx] " + "coverage was below the minimum percentage of [%f%%]",
                         toQC.sample().name(),
                         threshold.coverage(),
                         threshold.minimumPercentage()));
@@ -105,11 +114,10 @@ public class ADAMFinalBAMQC implements QualityControl<AlignmentRecordRDD>, Seria
     }
 
     @NotNull
-    private static AlignmentRecordRDD filterReads(final InputOutput<AlignmentRecordRDD> toQC, final String contigName) {
+    private static AlignmentRecordRDD filterReads(final InputOutput<AlignmentRecordRDD> toQC) {
         JavaRDD<AlignmentRecord> filtered = toQC.payload()
                 .rdd()
                 .toJavaRDD()
-                .filter(read -> read.getContigName() != null && read.getContigName().equals(contigName))
                 .filter(AlignmentRecord::getReadMapped)
                 .filter(read -> !read.getDuplicateRead())
                 .filter(read -> read.getMapq() >= 20)
