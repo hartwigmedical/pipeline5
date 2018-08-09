@@ -23,7 +23,7 @@ public interface PatientReader {
 
     enum TypeSuffix {
         REFERENCE("R"),
-        TUMOUR("T");
+        TUMOR("T");
         private final String suffix;
 
         TypeSuffix(final String postfix) {
@@ -39,17 +39,17 @@ public interface PatientReader {
 
     static Patient fromHDFS(FileSystem fileSystem, Configuration configuration) throws IOException {
         Path patientDirectory = new Path(configuration.patient().directory());
-        List<FileStatus> referenceAndTumourPaths = Lists.newArrayList(fileSystem.listStatus(patientDirectory,
-                path -> path.getName().endsWith(TypeSuffix.TUMOUR.getSuffix()) || (path.getName()
+        List<FileStatus> referenceAndTumorPaths = Lists.newArrayList(fileSystem.listStatus(patientDirectory,
+                path -> path.getName().endsWith(TypeSuffix.TUMOR.getSuffix()) || (path.getName()
                         .endsWith(TypeSuffix.REFERENCE.getSuffix()))))
                 .stream()
                 .filter(FileStatus::isDirectory)
                 .collect(Collectors.toList());
 
-        if (referenceAndTumourPaths.size() == 2) {
-            LOGGER.info("Running in reference and tumour sample patient reader mode");
-            return new ReferenceAndTumourReader(fileSystem).read(configuration);
-        } else if (referenceAndTumourPaths.isEmpty()) {
+        if (referenceAndTumorPaths.size() == 2) {
+            LOGGER.info("Running in reference and tumor sample patient reader mode");
+            return new ReferenceAndTumorReader(fileSystem).read(configuration);
+        } else if (referenceAndTumorPaths.isEmpty()) {
             List<FileStatus> subfiles = Stream.of(fileSystem.listStatus(new Path(configuration.patient().directory())))
                     .filter(FileStatus::isFile)
                     .collect(Collectors.toList());

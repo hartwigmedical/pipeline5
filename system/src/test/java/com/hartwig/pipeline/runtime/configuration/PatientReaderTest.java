@@ -27,14 +27,14 @@ public class PatientReaderTest {
     public void onlyFilesReturnsSingleSampleMode() throws Exception {
         Patient victim = readerWithDirectory(System.getProperty("user.dir") + PATIENT_DIR + "/singleSample");
         assertThat(victim.reference()).isNotNull();
-        assertThat(victim.maybeTumour()).isEmpty();
+        assertThat(victim.maybeTumor()).isEmpty();
     }
 
     @Test
-    public void twoCorrectlyNamedSampleDirectoriesReturnReferenceTumourMode() throws Exception {
+    public void twoCorrectlyNamedSampleDirectoriesReturnReferenceTumorMode() throws Exception {
         Patient victim = PatientReader.fromHDFS(Hadoop.fileSystem(HUNDREDK_READS_HISEQ), HUNDREDK_READS_HISEQ);
         assertThat(victim.reference()).isNotNull();
-        assertThat(victim.tumour()).isNotNull();
+        assertThat(victim.tumor()).isNotNull();
     }
 
     private static Patient readerWithDirectory(final String directory) throws IOException {

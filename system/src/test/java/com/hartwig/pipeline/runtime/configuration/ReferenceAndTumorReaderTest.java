@@ -8,12 +8,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.hartwig.patient.Lane;
 import com.hartwig.patient.Patient;
-import com.hartwig.pipeline.runtime.patient.ReferenceAndTumourReader;
+import com.hartwig.pipeline.runtime.patient.ReferenceAndTumorReader;
 
 import org.apache.hadoop.fs.FileSystem;
 import org.junit.Test;
 
-public class ReferenceAndTumourReaderTest {
+public class ReferenceAndTumorReaderTest {
 
     private static final Configuration CANCER_PANEL =
             DEFAULT_CONFIG_BUILDER.patient(DEFAULT_PATIENT_BUILDER.directory(System.getProperty("user.dir") + PATIENT_DIR + "/cancerPanel")
@@ -45,13 +45,13 @@ public class ReferenceAndTumourReaderTest {
             .build();
 
     @Test
-    public void createOutputFromNormalAndTumourDirectory() throws Exception {
-        ReferenceAndTumourReader victim = new ReferenceAndTumourReader(FileSystem.get(new org.apache.hadoop.conf.Configuration()));
+    public void createOutputFromNormalAndTumorDirectory() throws Exception {
+        ReferenceAndTumorReader victim = new ReferenceAndTumorReader(FileSystem.get(new org.apache.hadoop.conf.Configuration()));
         Patient patient = victim.read(CANCER_PANEL);
         assertThat(patient.directory()).isEqualTo(CANCER_PANEL.patient().directory());
         assertThat(patient.reference().directory()).isEqualTo(CANCER_PANEL_NORMAL_DIRECTORY);
         assertThat(patient.reference().lanes()).hasSize(1).containsOnly(EXPECTED_NORMAL_LANE);
-        assertThat(patient.tumour().directory()).isEqualTo(CANCER_PANEL_TUMOUR_DIRECTORY);
-        assertThat(patient.tumour().lanes()).hasSize(1).containsOnly(EXPECTED_TUMOUR_LANE);
+        assertThat(patient.tumor().directory()).isEqualTo(CANCER_PANEL_TUMOUR_DIRECTORY);
+        assertThat(patient.tumor().lanes()).hasSize(1).containsOnly(EXPECTED_TUMOUR_LANE);
     }
 }

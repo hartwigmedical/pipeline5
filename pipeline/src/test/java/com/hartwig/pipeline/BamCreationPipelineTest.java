@@ -45,8 +45,7 @@ public class BamCreationPipelineTest {
         return BamCreationPipeline.builder().executorService(MoreExecutors.sameThreadExecutor())
                 .alignment(alignmentStage()).alignmentDatasource(sample -> ALIGNED_BAM).finalDatasource(sample -> ALIGNED_BAM)
                 .readCountQCFactory(aligned -> reads -> QCResult.ok())
-                .referenceFinalQC(reads -> QCResult.ok())
-                .tumourFinalQC(reads -> QCResult.ok());
+                .referenceFinalQC(reads -> QCResult.ok()).tumorFinalQC(reads -> QCResult.ok());
     }
 
     @Test
@@ -85,10 +84,9 @@ public class BamCreationPipelineTest {
     }
 
     @Test(expected = ExecutionException.class)
-    public void executionExceptionWhenTumourFinalQCFails() throws Exception {
+    public void executionExceptionWhenTumorFinalQCFails() throws Exception {
         builder().bamStore(bamStore(false, false))
-                .addBamEnrichment(enrichmentStage(ENRICHED))
-                .tumourFinalQC(reads -> QCResult.failure("test"))
+                .addBamEnrichment(enrichmentStage(ENRICHED)).tumorFinalQC(reads -> QCResult.failure("test"))
                 .build()
                 .execute(PATIENT);
     }

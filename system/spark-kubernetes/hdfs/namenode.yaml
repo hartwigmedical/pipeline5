@@ -35,3 +35,12 @@ spec:
           ports:
           - containerPort: 8020
             name: fs
+          volumeMounts:
+          - mountPath: /patients
+            name: patient-data
+      volumes:
+      - name: patient-data
+        hostPath:
+          path: /Users/pwolfe/Code/pipeline2/system/src/test/resources/patients/cancerPanel
+          type: Directory
+      restartPolicy: Always

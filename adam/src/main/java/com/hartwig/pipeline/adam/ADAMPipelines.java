@@ -30,7 +30,7 @@ public class ADAMPipelines {
                 .readCountQCFactory(ADAMReadCountCheck::from)
                 .referenceFinalQC(ifEnabled(doQC,
                         ADAMFinalBAMQC.of(javaADAMContext, referenceGenome, CoverageThreshold.of(10, 90), CoverageThreshold.of(20, 70))))
-                .tumourFinalQC(ifEnabled(doQC,
+                .tumorFinalQC(ifEnabled(doQC,
                         ADAMFinalBAMQC.of(javaADAMContext, referenceGenome, CoverageThreshold.of(30, 80), CoverageThreshold.of(60, 65))))
                 .alignment(new ADAMBwa(referenceGenome, adamContext, bwaThreads))
                 .alignmentDatasource(new HDFSAlignmentRDDSource(OutputType.ALIGNED, javaADAMContext, dataLocation))

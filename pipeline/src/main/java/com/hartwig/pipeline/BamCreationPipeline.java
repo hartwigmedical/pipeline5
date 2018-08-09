@@ -28,9 +28,9 @@ public abstract class BamCreationPipeline {
     public void execute(Patient patient) throws Exception {
         ExecutorService executorService = executorService();
         Future<?> awaitReference = executorService.submit(() -> createBAM(patient.reference(), referenceFinalQC()));
-        if (patient.maybeTumour().isPresent()) {
-            Future<?> awaitTumour = executorService.submit(() -> createBAM(patient.tumour(), tumourFinalQC()));
-            awaitTumour.get();
+        if (patient.maybeTumor().isPresent()) {
+            Future<?> awaitTumor = executorService.submit(() -> createBAM(patient.tumor(), tumorFinalQC()));
+            awaitTumor.get();
         }
         awaitReference.get();
     }
@@ -126,7 +126,7 @@ public abstract class BamCreationPipeline {
 
     protected abstract QualityControl<AlignmentRecordRDD> referenceFinalQC();
 
-    protected abstract QualityControl<AlignmentRecordRDD> tumourFinalQC();
+    protected abstract QualityControl<AlignmentRecordRDD> tumorFinalQC();
 
     protected abstract ExecutorService executorService();
 

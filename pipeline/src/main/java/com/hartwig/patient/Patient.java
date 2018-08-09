@@ -21,16 +21,16 @@ public interface Patient extends FileSystemEntity, Named {
     Sample reference();
 
     @Value.Parameter
-    Optional<Sample> maybeTumour();
+    Optional<Sample> maybeTumor();
 
-    default Sample tumour() {
-        return maybeTumour().orElseThrow(() -> new IllegalStateException(format(
-                "Patient [%s] has no tumour sample. Check the patient data provided",
+    default Sample tumor() {
+        return maybeTumor().orElseThrow(() -> new IllegalStateException(format(
+                "Patient [%s] has no tumor sample. Check the patient data provided",
                 this)));
     }
 
-    static Patient of(String directory, String name, Sample reference, Sample tumour) {
-        return ImmutablePatient.of(directory, name, reference, Optional.of(tumour));
+    static Patient of(String directory, String name, Sample reference, Sample tumor) {
+        return ImmutablePatient.of(directory, name, reference, Optional.of(tumor));
     }
 
     static Patient of(String directory, String name, Sample reference) {

@@ -15,39 +15,37 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.GlobFilter;
 import org.apache.hadoop.fs.Path;
 
-public class ReferenceAndTumourReader implements PatientReader {
+public class ReferenceAndTumorReader implements PatientReader {
 
     private final FileSystem fileSystem;
 
-    public ReferenceAndTumourReader(final FileSystem fileSystem) {
+    public ReferenceAndTumorReader(final FileSystem fileSystem) {
         this.fileSystem = fileSystem;
     }
 
     @Override
     public Patient read(final Configuration configuration) throws IOException {
         Optional<FileStatus> maybeReferenceDirectory = findDirectoryByConvention(configuration, TypeSuffix.REFERENCE);
-        Optional<FileStatus> maybeTumourDirectory = findDirectoryByConvention(configuration, TypeSuffix.TUMOUR);
-        if (maybeReferenceDirectory.isPresent() && maybeTumourDirectory.isPresent()) {
-            return subdirectoriesForReferenceAndTumour(configuration, maybeReferenceDirectory.get(), maybeTumourDirectory.get());
+        Optional<FileStatus> maybeTumorDirectory = findDirectoryByConvention(configuration, TypeSuffix.TUMOR);
+        if (maybeReferenceDirectory.isPresent() && maybeTumorDirectory.isPresent()) {
+            return subdirectoriesForReferenceAndTumor(configuration, maybeReferenceDirectory.get(), maybeTumorDirectory.get());
         }
         throw new IllegalArgumentException("Directory structure not as expected. This should be caught in PatientReader");
     }
 
-    private Patient subdirectoriesForReferenceAndTumour(final Configuration configuration, final FileStatus referenceDirectory,
-            final FileStatus tumourDirectory) throws IOException {
+    private Patient subdirectoriesForReferenceAndTumor(final Configuration configuration, final FileStatus referenceDirectory,
+            final FileStatus tumorDirectory) throws IOException {
         return patientOf(configuration,
                 createPairedEndSample(fileSystem,
                         referenceDirectory.getPath(),
                         configuration.patient().name(),
                         TypeSuffix.REFERENCE.getSuffix()),
-                createPairedEndSample(fileSystem,
-                        tumourDirectory.getPath(),
-                        configuration.patient().name(),
-                        TypeSuffix.TUMOUR.getSuffix()));
+                createPairedEndSample(fileSystem, tumorDirectory.getPath(),
+                        configuration.patient().name(), TypeSuffix.TUMOR.getSuffix()));
     }
 
-    private static Patient patientOf(final Configuration configuration, final Sample reference, final Sample tumour) throws IOException {
-        return Patient.of(configuration.patient().directory(), configuration.patient().name(), reference, tumour);
+    private static Patient patientOf(final Configuration configuration, final Sample reference, final Sample tumor) throws IOException {
+        return Patient.of(configuration.patient().directory(), configuration.patient().name(), reference, tumor);
     }
 
     private Optional<FileStatus> findDirectoryByConvention(final Configuration configuration, final TypeSuffix typeSuffix)
