@@ -13,5 +13,8 @@ public interface PatientParameters {
         return "/patients";
     }
 
-    String name();
+    @Value.Default
+    default String name() {
+        return "";
+    }
 }

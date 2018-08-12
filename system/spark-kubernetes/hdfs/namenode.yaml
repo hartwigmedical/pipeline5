@@ -37,10 +37,16 @@ spec:
             name: fs
           volumeMounts:
           - mountPath: /patients
-            name: patient-data
-      volumes:
-      - name: patient-data
-        hostPath:
-          path: /Users/pwolfe/Code/pipeline2/system/src/test/resources/patients/cancerPanel
-          type: Directory
+            name: patients-dir
+      initContainers:
+          - name: download-patient-data
+            image: hartwigmedicalfoundation/hdfs-init:0.2
+            command:
+              - "/download-patient-data.sh"
+            volumeMounts:
+              - mountPath: /patients
+                name: patients-dir
       restartPolicy: Always
+      volumes:
+      - name: patients-dir
+        emptyDir: {}

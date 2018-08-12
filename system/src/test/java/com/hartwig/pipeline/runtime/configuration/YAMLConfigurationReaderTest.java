@@ -17,6 +17,7 @@ public class YAMLConfigurationReaderTest {
         assertThat(configuration.spark().get("spark.property")).isEqualTo("value");
         assertThat(configuration.pipeline().bwa().threads()).isEqualTo(5);
         assertThat(configuration.pipeline().hdfs()).isEqualTo("hdfs://localhost:8020");
+        assertThat(configuration.patient().name()).isEqualTo(TestConfigurations.HUNDREDK_READS_HISEQ_PATIENT_NAME);
     }
 
     @Test
@@ -25,6 +26,7 @@ public class YAMLConfigurationReaderTest {
         assertThat(configuration.spark().isEmpty());
         assertThat(configuration.pipeline().bwa().threads()).isEqualTo(12);
         assertThat(configuration.pipeline().hdfs()).isEqualTo("file:///");
+        assertThat(configuration.patient().name()).isEmpty();
     }
 
     @Test(expected = JsonMappingException.class)
@@ -35,7 +37,6 @@ public class YAMLConfigurationReaderTest {
     private static Configuration checkMandatory(final String confDirectory) throws IOException {
         Configuration configuration =
                 YAMLConfigurationReader.from(System.getProperty("user.dir") + "/src/test/resources/configuration/" + confDirectory);
-        assertThat(configuration.patient().name()).isEqualTo(TestConfigurations.HUNDREDK_READS_HISEQ_PATIENT_NAME);
         assertThat(configuration.patient().directory()).isEqualTo("/patients");
         assertThat(configuration.referenceGenome().path()).isEqualTo("/reference_genome/Homo_sapiens.GRCh37.GATK.illumina.chr22.fa");
         assertThat(configuration.spark().get("master")).isEqualTo("local[2]");

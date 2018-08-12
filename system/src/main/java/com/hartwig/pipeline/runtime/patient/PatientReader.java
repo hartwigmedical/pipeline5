@@ -39,6 +39,17 @@ public interface PatientReader {
 
     static Patient fromHDFS(FileSystem fileSystem, Configuration configuration) throws IOException {
         Path patientDirectory = new Path(configuration.patient().directory());
+
+        if (configuration.patient().name().isEmpty()) {
+            LOGGER.info("No patient name given in yaml file, assuming only one patient present in patient directory");
+            FileStatus[] subdirectories = fileSystem.listStatus(patientDirectory);
+            if (subdirectories.length != 1 || !subdirectories[0].isDirectory()) {
+                throw new IllegalStateException("If no patient name is given, there can only be a single sub-directory in the patient "
+                        + "directory. This subdirectory should be the patient name.");
+            }
+            patientDirectory = patientDirectory.suffix(subdirectories[0].toString());
+        }
+
         List<FileStatus> referenceAndTumorPaths = Lists.newArrayList(fileSystem.listStatus(patientDirectory,
                 path -> path.getName().endsWith(TypeSuffix.TUMOR.getSuffix()) || (path.getName()
                         .endsWith(TypeSuffix.REFERENCE.getSuffix()))))

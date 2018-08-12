@@ -12,7 +12,10 @@ public interface Configuration {
 
     PipelineParameters pipeline();
 
-    PatientParameters patient();
+    @Value.Default
+    default PatientParameters patient() {
+        return ImmutablePatientParameters.builder().build();
+    }
 
     ReferenceGenomeParameters referenceGenome();
 

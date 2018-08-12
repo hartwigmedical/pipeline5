@@ -78,7 +78,8 @@ public class ADAMFinalBAMQC implements QualityControl<AlignmentRecordRDD>, Seria
                             .cache();
             for (CoverageThreshold threshold : thresholds) {
                 long countExceedingThreshold = coverage.filter(count -> count > threshold.coverage()).count();
-                metricsPerContig.put(threshold, CoverageMetrics.of(contigName, countExceedingThreshold, calledBasesPerContig.get(contigName)));
+                metricsPerContig.put(threshold,
+                        CoverageMetrics.of(contigName, countExceedingThreshold, calledBasesPerContig.get(contigName)));
             }
         }
 
@@ -98,7 +99,8 @@ public class ADAMFinalBAMQC implements QualityControl<AlignmentRecordRDD>, Seria
                     threshold.coverage(),
                     percentage));
             if (percentage < threshold.minimumPercentage()) {
-                return QCResult.failure(format("Final QC failed on sample [%s] as [%dx] " + "coverage was below the minimum percentage of [%f%%]",
+                return QCResult.failure(format(
+                        "Final QC failed on sample [%s] as [%dx] " + "coverage was below the minimum percentage of [%f%%]",
                         toQC.sample().name(),
                         threshold.coverage(),
                         threshold.minimumPercentage()));

@@ -27,5 +27,7 @@ spark-2.3.0-bin-hadoop2.7/bin/spark-submit \
     --name pipeline5 \
     --class com.hartwig.pipeline.runtime.PipelineRuntime \
     --conf spark.executor.instances=1 \
+    --conf spark.executor.memory=10G \
+    --conf spark.kubernetes.authenticate.driver.serviceAccountName=spark \
     --conf spark.kubernetes.container.image=hartwigmedicalfoundation/pipeline5-spark-kubernetes:${VERSION} \
     local:///usr/share/pipeline5/system.jar
