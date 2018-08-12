@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-FROM hartwigmedicalfoundation/base-static-data:GRCh37_GATK_bundle_28
+FROM openjdk:8-alpine
 
 ARG BASE_DIRECTORY=spark-kubernetes
 ARG SPARK_DISTRIBUTION
