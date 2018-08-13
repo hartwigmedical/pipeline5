@@ -1,5 +1,3 @@
-#!/usr/bin/env bash
-
 #!/bin/sh
 
 PATIENT=CPCT12345678

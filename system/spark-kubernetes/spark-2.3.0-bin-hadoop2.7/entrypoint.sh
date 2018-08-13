@@ -19,6 +19,9 @@
 # echo commands to the terminal output
 set -ex
 
+# init the static data required for BWA and indel realignment
+. download-static-data.sh
+
 # Check whether there is a passwd entry for the container UID
 myuid=$(id -u)
 mygid=$(id -g)
