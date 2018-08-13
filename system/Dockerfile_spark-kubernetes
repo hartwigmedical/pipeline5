@@ -76,6 +76,7 @@ ADD ${SPARK_PATH}/bin /opt/spark/bin
 ADD ${SPARK_PATH}/sbin /opt/spark/sbin
 ADD ${SPARK_PATH}/conf /opt/spark/conf
 ADD ${SPARK_PATH}/entrypoint.sh /opt/
+ADD ${SPARK_PATH}/download-static-data.sh /opt/
 ADD ${SPARK_PATH}/data /opt/spark/data
 ADD ${BASE_DIRECTORY}/conf/pipeline.yaml /opt/spark/work-dir/conf/pipeline.yaml
 ADD target/lib /opt/spark/jars
