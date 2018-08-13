@@ -27,3 +27,6 @@ buildNumber.properties
 
 # Running pipeline locally
 results/
+
+# Don't upload service account keys
+gcloud-read-credentials.json
