@@ -40,7 +40,7 @@ spec:
               name: patients-dir
       initContainers:
         - name: download-patient-data
-          image: hartwigmedicalfoundation/hdfs-init:1.1
+          image: hartwigmedicalfoundation/hdfs-init:1.0
           command:
             - "/opt/download-patient-data.sh"
           args:
