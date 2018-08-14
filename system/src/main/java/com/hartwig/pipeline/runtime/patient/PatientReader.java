@@ -35,22 +35,23 @@ public interface PatientReader {
         }
     }
 
-    Patient read(Configuration configuration) throws IOException;
+    Patient read(final Path patientPath) throws IOException;
 
     static Patient fromHDFS(FileSystem fileSystem, Configuration configuration) throws IOException {
-        Path patientDirectory = new Path(configuration.patient().directory());
-
-        if (configuration.patient().name().isEmpty()) {
+        Path patientRootDirectory = new Path(configuration.patient().directory());
+        String patientName = configuration.patient().name();
+        if (patientName.isEmpty()) {
             LOGGER.info("No patient name given in yaml file, assuming only one patient present in patient directory");
-            FileStatus[] subdirectories = fileSystem.listStatus(patientDirectory);
+            FileStatus[] subdirectories = fileSystem.listStatus(patientRootDirectory);
             if (subdirectories.length != 1 || !subdirectories[0].isDirectory()) {
                 throw new IllegalStateException("If no patient name is given, there can only be a single sub-directory in the patient "
                         + "directory. This subdirectory should be the patient name.");
             }
-            patientDirectory = patientDirectory.suffix(subdirectories[0].toString());
+            patientName = subdirectories[0].getPath().getName();
         }
+        Path resolvedPatientPath = patientRootDirectory.suffix("/" + patientName);
 
-        List<FileStatus> referenceAndTumorPaths = Lists.newArrayList(fileSystem.listStatus(patientDirectory,
+        List<FileStatus> referenceAndTumorPaths = Lists.newArrayList(fileSystem.listStatus(resolvedPatientPath,
                 path -> path.getName().endsWith(TypeSuffix.TUMOR.getSuffix()) || (path.getName()
                         .endsWith(TypeSuffix.REFERENCE.getSuffix()))))
                 .stream()
@@ -59,20 +60,19 @@ public interface PatientReader {
 
         if (referenceAndTumorPaths.size() == 2) {
             LOGGER.info("Running in reference and tumor sample patient reader mode");
-            return new ReferenceAndTumorReader(fileSystem).read(configuration);
+            return new ReferenceAndTumorReader(fileSystem).read(resolvedPatientPath);
         } else if (referenceAndTumorPaths.isEmpty()) {
-            List<FileStatus> subfiles = Stream.of(fileSystem.listStatus(new Path(configuration.patient().directory())))
+            List<FileStatus> subfiles = Stream.of(fileSystem.listStatus(resolvedPatientPath))
                     .filter(FileStatus::isFile)
                     .collect(Collectors.toList());
             if (subfiles.isEmpty()) {
-                throw illegalArgument(format("Patient directory [%s] is empty. Check your pipeline.yaml",
-                        configuration.patient().directory()));
+                throw illegalArgument(format("Patient path [%s] is empty. Check your pipeline.yaml", resolvedPatientPath));
             }
             LOGGER.info("Running in single sample patient reader mode");
-            return new SingleSampleReader(fileSystem).read(configuration);
+            return new SingleSampleReader(fileSystem).read(resolvedPatientPath);
         }
         throw illegalArgument(format("Unable to determine patient reader mode for directory [%s]. Check your pipeline.yaml, "
-                + "Expectation is one directory suffixed with R and another with T", configuration.patient().directory()));
+                + "Expectation is one directory suffixed with R and another with T", resolvedPatientPath));
 
     }
 

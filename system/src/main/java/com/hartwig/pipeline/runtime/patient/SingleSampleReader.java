@@ -6,7 +6,6 @@ import java.io.IOException;
 
 import com.hartwig.patient.Patient;
 import com.hartwig.patient.Sample;
-import com.hartwig.pipeline.runtime.configuration.Configuration;
 
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -20,12 +19,11 @@ public class SingleSampleReader implements PatientReader {
     }
 
     @Override
-    public Patient read(final Configuration configuration) throws IOException {
-        return patientOf(configuration,
-                createPairedEndSample(fileSystem, new Path(configuration.patient().directory()), configuration.patient().name(), ""));
+    public Patient read(final Path patientPath) throws IOException {
+        return patientOf(patientPath, createPairedEndSample(fileSystem, patientPath, patientPath.getName(), ""));
     }
 
-    private static Patient patientOf(final Configuration configuration, final Sample single) throws IOException {
-        return Patient.of(configuration.patient().directory(), configuration.patient().name(), single);
+    private static Patient patientOf(final Path patientPath, final Sample single) throws IOException {
+        return Patient.of(patientPath.toString(), patientPath.getName(), single);
     }
 }

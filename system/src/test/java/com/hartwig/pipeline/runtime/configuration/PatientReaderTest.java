@@ -18,7 +18,7 @@ import org.junit.Test;
 
 public class PatientReaderTest {
 
-    private static final String SINGLE_SAMPLE_DIR = System.getProperty("user.dir") + PATIENT_DIR + "/singleSample";
+    private static final String SINGLE_SAMPLE_DIR = patientDirectory("/singleSample");
 
     @Test(expected = FileNotFoundException.class)
     public void nonExistentDirectoryThrowsIllegalArgument() throws Exception {
@@ -42,18 +42,24 @@ public class PatientReaderTest {
     @Test(expected = IllegalStateException.class)
     public void onlyOneSubdirectoryPresentInPatientDirectoryIfNoNameSpecified() throws Exception {
         Configuration configurationNoPatientName =
-                DEFAULT_CONFIG_BUILDER.patient(DEFAULT_PATIENT_BUILDER.directory(SINGLE_SAMPLE_DIR).name("").build()).build();
+                DEFAULT_CONFIG_BUILDER.patient(DEFAULT_PATIENT_BUILDER.directory(patientDirectory("/tooManyPatients")).name("").build())
+                        .build();
         readerWithConfiguration(configurationNoPatientName);
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void patientNameTakenFromSubdirectoryIfNoNameSpecified() throws Exception {
         Configuration configurationNoPatientName =
-                DEFAULT_CONFIG_BUILDER.patient(DEFAULT_PATIENT_BUILDER.directory(SINGLE_SAMPLE_DIR).name("").build()).build();
+                DEFAULT_CONFIG_BUILDER.patient(DEFAULT_PATIENT_BUILDER.directory(patientDirectory("/noPatientName")).name("").build())
+                        .build();
         Patient victim = readerWithConfiguration(configurationNoPatientName);
         assertThat(victim.name()).isEqualTo("CPCT12345678");
         assertThat(victim.reference()).isNotNull();
         assertThat(victim.tumor()).isNotNull();
+    }
+
+    private static String patientDirectory(final String name) {
+        return System.getProperty("user.dir") + PATIENT_DIR + name;
     }
 
     private static Patient readerWithDirectory(final String directory) throws IOException {
