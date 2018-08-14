@@ -42,7 +42,7 @@ spec:
           - name: download-patient-data
             image: hartwigmedicalfoundation/hdfs-init:0.4
             command:
-              - "/download-patient-data.sh"
+              - "/opt/download-patient-data.sh"
             volumeMounts:
               - mountPath: /patients
                 name: patients-dir

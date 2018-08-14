@@ -1,4 +1,4 @@
 FROM google/cloud-sdk:alpine
 
-ADD scripts/download-patient-data.sh /
-RUN chmod +x /download-patient-data.sh
+ADD bin/download-patient-data.sh /opt/
+RUN chmod +x /opt/download-patient-data.sh
