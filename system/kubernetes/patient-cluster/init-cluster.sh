@@ -45,7 +45,7 @@ kubectl create serviceaccount spark
 # add cluster edit role to spark service account
 kubectl create clusterrolebinding spark-role --clusterrole=edit --serviceaccount=default:spark --namespace=default
 
-./k8-submit.sh -c
+../k8-submit.sh -c
 
 
 
