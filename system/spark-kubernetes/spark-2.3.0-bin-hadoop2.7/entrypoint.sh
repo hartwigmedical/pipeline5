@@ -19,8 +19,14 @@
 # echo commands to the terminal output
 set -ex
 
-# init the static data required for BWA and indel realignment
-. download-static-data.sh
+# Get reference data from gcloud
+gcloud auth activate-service-account --key-file /root/servicekey/key.json
+gcloud config set project hmf-pipeline-development
+
+mkdir /reference_genome
+gsutil rsync gs://reference-genome/ /reference_genome/
+mkdir /known_indels
+gsutil rsync gs://known-indels/ /known_indels/
 
 # Check whether there is a passwd entry for the container UID
 myuid=$(id -u)

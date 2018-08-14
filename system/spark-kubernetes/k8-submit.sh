@@ -25,6 +25,8 @@ spark-2.3.0-bin-hadoop2.7/bin/spark-submit \
     --master k8s://https://${CLUSTER} \
     --deploy-mode cluster \
     --name pipeline5 \
+    --conf spark.kubernetes.driver.secrets.reader-key=/root/servicekey/ \
+    --conf spark.kubernetes.executor.secrets.reader-key=/root/servicekey/ \
     --class com.hartwig.pipeline.runtime.PipelineRuntime \
     --conf spark.executor.instances=1 \
     --conf spark.executor.memory=10G \

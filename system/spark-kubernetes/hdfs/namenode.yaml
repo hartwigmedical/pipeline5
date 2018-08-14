@@ -40,13 +40,19 @@ spec:
             name: patients-dir
       initContainers:
           - name: download-patient-data
-            image: hartwigmedicalfoundation/hdfs-init:0.2
+            image: hartwigmedicalfoundation/hdfs-init:0.4
             command:
               - "/download-patient-data.sh"
             volumeMounts:
               - mountPath: /patients
                 name: patients-dir
+              - mountPath: /root/servicekey/
+                name: reader-key
+                readOnly: true
       restartPolicy: Always
       volumes:
       - name: patients-dir
         emptyDir: {}
+      - name: reader-key
+        secret:
+            secretName: reader-key

@@ -2,7 +2,7 @@
 
 PATIENT=CPCT12345678
 
-gcloud auth activate-service-account --key-file gcloud-read-credentials.json
+gcloud auth activate-service-account --key-file /root/servicekey/key.json
 gcloud config set project hmf-pipeline-development
 
 mkdir /patients
