@@ -17,6 +17,7 @@ public class YAMLConfigurationReaderTest {
         assertThat(configuration.spark().get("spark.property")).isEqualTo("value");
         assertThat(configuration.pipeline().bwa().threads()).isEqualTo(5);
         assertThat(configuration.pipeline().hdfs()).isEqualTo("hdfs://localhost:8020");
+        assertThat(configuration.pipeline().saveResultsAsSingleFile()).isFalse();
         assertThat(configuration.patient().name()).isEqualTo(TestConfigurations.HUNDREDK_READS_HISEQ_PATIENT_NAME);
     }
 
@@ -26,6 +27,7 @@ public class YAMLConfigurationReaderTest {
         assertThat(configuration.spark().isEmpty());
         assertThat(configuration.pipeline().bwa().threads()).isEqualTo(12);
         assertThat(configuration.pipeline().hdfs()).isEqualTo("file:///");
+        assertThat(configuration.pipeline().saveResultsAsSingleFile()).isTrue();
         assertThat(configuration.patient().name()).isEmpty();
     }
 

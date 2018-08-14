@@ -1,6 +1,3 @@
-pipeline:
-  flavour: ADAM
-
 spark:
   master: local[2]
 

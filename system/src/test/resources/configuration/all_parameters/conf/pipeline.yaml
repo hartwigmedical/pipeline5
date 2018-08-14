@@ -1,5 +1,6 @@
 pipeline:
   hdfs: "hdfs://localhost:8020"
+  saveResultsAsSingleFile: false
   bwa:
     threads: 5
 

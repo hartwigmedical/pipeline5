@@ -19,6 +19,11 @@ public interface PipelineParameters {
     }
 
     @Value.Default
+    default boolean saveResultsAsSingleFile() {
+        return true;
+    }
+
+    @Value.Default
     default BwaParameters bwa() {
         return ImmutableBwaParameters.builder().threads(12).build();
     }
