@@ -1,9 +1,6 @@
 pipeline:
   hdfs: "hdfs://hdfs-namenode:8020"
 
-patient:
-  name: CPCT12345678
-
 referenceGenome:
   file: Homo_sapiens.GRCh37.GATK.illumina.fasta
 
