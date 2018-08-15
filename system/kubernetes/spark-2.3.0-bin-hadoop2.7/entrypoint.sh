@@ -24,9 +24,9 @@ gcloud auth activate-service-account --key-file /root/servicekey/key.json
 gcloud config set project hmf-pipeline-development
 
 mkdir /reference_genome
-gsutil rsync -m -o gs://reference-genome/ /reference_genome/
+gsutil -m rsync gs://reference-genome/ /reference_genome/
 mkdir /known_indels
-gsutil rsync -m -o gs://known-indels/ /known_indels/
+gsutil -m rsync gs://known-indels/ /known_indels/
 
 # Check whether there is a passwd entry for the container UID
 myuid=$(id -u)
