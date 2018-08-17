@@ -34,8 +34,7 @@ public class PipelineRuntime {
                 configuration.referenceGenome().path(),
                 configuration.knownIndel().paths(),
                 configuration.pipeline().bwa().threads(),
-                true,
-                false, false);
+                true, true, false);
         adamPipeline.execute(PatientReader.fromHDFS(fileSystem, configuration));
         LOGGER.info("Completed ADAM pipeline for patient [{}]", configuration.patient().name());
         sparkContext.stop();
