@@ -24,7 +24,6 @@ public class PipelineRuntime {
     }
 
     private void start() throws Exception {
-        LOGGER.info("Starting ADAM pipeline for patient [{}]", configuration.patient().name());
         SparkContext sparkContext = SparkContexts.create("ADAM", configuration).sc();
         FileSystem fileSystem = Hadoop.fileSystem(configuration);
         ADAMContext adamContext = new ADAMContext(sparkContext);
@@ -35,8 +34,10 @@ public class PipelineRuntime {
                 configuration.knownIndel().paths(),
                 configuration.pipeline().bwa().threads(), false, true, false);
         adamPipeline.execute(PatientReader.fromHDFS(fileSystem, configuration));
-        LOGGER.info("Completed ADAM pipeline for patient [{}]", configuration.patient().name());
+        LOGGER.info("Pipeline complete, stopping spark context");
         sparkContext.stop();
+        LOGGER.info("Spark context stopped");
+        System.exit(0);
     }
 
     public static void main(String[] args) {
