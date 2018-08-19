@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.runtime;
 
+import java.io.IOException;
+
 import com.hartwig.pipeline.BamCreationPipeline;
 import com.hartwig.pipeline.adam.ADAMPipelines;
 import com.hartwig.pipeline.runtime.configuration.Configuration;
@@ -23,29 +25,39 @@ public class PipelineRuntime {
         this.configuration = configuration;
     }
 
-    private void start() throws Exception {
+    private void start() {
         SparkContext sparkContext = SparkContexts.create("ADAM", configuration).sc();
-        FileSystem fileSystem = Hadoop.fileSystem(configuration);
-        ADAMContext adamContext = new ADAMContext(sparkContext);
-        BamCreationPipeline adamPipeline = ADAMPipelines.bamCreation(adamContext,
-                fileSystem,
-                configuration.pipeline().resultsDirectory(),
-                configuration.referenceGenome().path(),
-                configuration.knownIndel().paths(),
-                configuration.pipeline().bwa().threads(), false, true, false);
-        adamPipeline.execute(PatientReader.fromHDFS(fileSystem, configuration));
-        LOGGER.info("Pipeline complete, stopping spark context");
-        sparkContext.stop();
-        LOGGER.info("Spark context stopped");
+        ;
+        try {
+            FileSystem fileSystem = Hadoop.fileSystem(configuration);
+            ADAMContext adamContext = new ADAMContext(sparkContext);
+            BamCreationPipeline adamPipeline = ADAMPipelines.bamCreation(adamContext,
+                    fileSystem,
+                    configuration.pipeline().resultsDirectory(),
+                    configuration.referenceGenome().path(),
+                    configuration.knownIndel().paths(),
+                    configuration.pipeline().bwa().threads(),
+                    false,
+                    true,
+                    false);
+            adamPipeline.execute(PatientReader.fromHDFS(fileSystem, configuration));
+        } catch (Exception e) {
+            LOGGER.error("Fatal error while running ADAM pipeline. See stack trace for more details", e);
+        } finally {
+            LOGGER.info("Pipeline complete, stopping spark context");
+            sparkContext.stop();
+            LOGGER.info("Spark context stopped");
+        }
         System.exit(0);
     }
 
     public static void main(String[] args) {
+        Configuration configuration = null;
         try {
-            Configuration configuration = YAMLConfigurationReader.from(System.getProperty("user.dir"));
-            new PipelineRuntime(configuration).start();
-        } catch (Exception e) {
-            LOGGER.error("Fatal error while running ADAM pipeline. See stack trace for more details", e);
+            configuration = YAMLConfigurationReader.from(System.getProperty("user.dir"));
+        } catch (IOException e) {
+            LOGGER.error("Unable to read configuration. Check configuration in /conf/pipeline.yaml", e);
         }
+        new PipelineRuntime(configuration).start();
     }
 }
