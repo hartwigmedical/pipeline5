@@ -13,18 +13,19 @@ spec:
   selector:
     app: hdfs-datanode
 ---
-apiVersion: apps/v1beta1
-kind: StatefulSet
+apiVersion: extensions/v1beta1
+kind: DaemonSet
 metadata:
   name: hdfs-datanode
 spec:
-  serviceName: "hdfs-datanode"
-  replicas: 1
   template:
     metadata:
       labels:
         app: hdfs-datanode
     spec:
+      hostNetwork: true
+      hostPID: true
+      dnsPolicy: ClusterFirstWithHostNet
       containers:
         - name: datanode
           image: uhopper/hadoop-datanode:2.7.2

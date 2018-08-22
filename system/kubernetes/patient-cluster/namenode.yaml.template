@@ -50,7 +50,7 @@ spec:
           command:
             - "/opt/download-patient-data.sh"
           args:
-            - "GIAB12878R"
+            - "PATIENT"
           volumeMounts:
             - mountPath: /patients
               name: patients-dir
