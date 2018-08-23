@@ -13,6 +13,7 @@ import java.io.IOException;
 import com.hartwig.patient.Patient;
 import com.hartwig.pipeline.runtime.hadoop.Hadoop;
 import com.hartwig.pipeline.runtime.patient.PatientReader;
+import com.hartwig.testsupport.Resources;
 
 import org.junit.Test;
 
@@ -59,7 +60,7 @@ public class PatientReaderTest {
     }
 
     private static String patientDirectory(final String name) {
-        return System.getProperty("user.dir") + PATIENT_DIR + name;
+        return Resources.testResource(PATIENT_DIR + name);
     }
 
     private static Patient readerWithDirectory(final String directory) throws IOException {

@@ -1,5 +1,6 @@
 package com.hartwig.pipeline.runtime.configuration;
 
+import static com.hartwig.testsupport.Resources.testResource;
 import static com.hartwig.testsupport.TestConfigurations.DEFAULT_CONFIG_BUILDER;
 import static com.hartwig.testsupport.TestConfigurations.DEFAULT_PATIENT_BUILDER;
 import static com.hartwig.testsupport.TestConfigurations.PATIENT_DIR;
@@ -18,7 +19,7 @@ import org.junit.Test;
 public class ReferenceAndTumorReaderTest {
 
     private static final Configuration CANCER_PANEL =
-            DEFAULT_CONFIG_BUILDER.patient(DEFAULT_PATIENT_BUILDER.directory(System.getProperty("user.dir") + PATIENT_DIR + "/cancerPanel")
+            DEFAULT_CONFIG_BUILDER.patient(DEFAULT_PATIENT_BUILDER.directory(testResource(PATIENT_DIR + "/cancerPanel"))
                     .name("CPCT12345678")
                     .build()).build();
     private static final String CANCER_PANEL_REFERENCE_DIRECTORY = "file:" + CANCER_PANEL.patient().directory() + "/CPCT12345678R";
@@ -27,7 +28,7 @@ public class ReferenceAndTumorReaderTest {
             .readsPath("file:" + System.getProperty("user.dir") + "/src/test/resources/patients/cancerPanel/CPCT12345678R/"
                     + "CPCT12345678R_HJJLGCCXX_S1_L001_R1_001.fastq.gz")
             .matesPath("file:" + System.getProperty("user.dir") + "/src/test/resources/patients/cancerPanel/CPCT12345678R/"
-                    + "CPCT12345678R_HJJLGCCXX_S1_L001_R2_001.fastq.gz")
+                    + "L1_R2.fastq.gz")
             .flowCellId("HJJLGCCXX")
             .suffix("001")
             .index("S1")

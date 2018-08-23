@@ -22,7 +22,8 @@ public class HDFSBamStoreTest {
 
     @Test
     public void savesBamAndChecksIfItExists() throws Exception {
-        FileSystem fileSystem = Hadoop.fileSystem(TestConfigurations.HUNDREDK_READS_HISEQ);
+        FileSystem fileSystem =
+                Hadoop.fileSystem((com.hartwig.pipeline.runtime.configuration.Configuration) TestConfigurations.HUNDREDK_READS_HISEQ);
         DataLocation dataLocation = new DataLocation(fileSystem, System.getProperty("user.dir") + "/results/");
         OutputStore<AlignmentRecordRDD> victim = new HDFSBamStore(dataLocation, fileSystem, true);
         victim.store(InputOutput.of(OutputType.ALIGNED, SAMPLE, TestRDDs.alignmentRecordRDD("qc/CPCT12345678R_duplicate_marked.bam")));
