@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.google.common.collect.Lists;
 import com.hartwig.patient.ImmutableLane;
 import com.hartwig.patient.ImmutablePatient;
 import com.hartwig.patient.ImmutableSample;
@@ -20,6 +21,7 @@ import org.slf4j.LoggerFactory;
 public class GunZip {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GunZip.class);
+    private static final String GZ_EXTENSION = ".gz";
     private final FileSystem fileSystem;
     private final JavaSparkContext sparkContext;
 
@@ -30,29 +32,39 @@ public class GunZip {
 
     public Sample run(Sample sample) {
         ImmutableSample.Builder builder = ImmutableSample.builder().from(sample);
+
+        sample.lanes()
+                .parallelStream()
+                .flatMap(lane -> Lists.newArrayList(lane.readsPath(), lane.matesPath()).parallelStream())
+                .filter(GunZip::isGZ)
+                .forEach(this::unzip);
+
         List<Lane> unzippedLanes = sample.lanes().parallelStream().map(lane -> {
-            try {
-                ImmutableLane.Builder laneBuilder = Lane.builder().from(lane);
-                laneBuilder.readsPath(unzip(lane.readsPath()));
-                laneBuilder.matesPath(unzip(lane.matesPath()));
-                return laneBuilder.build();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            ImmutableLane.Builder laneBuilder = Lane.builder().from(lane);
+            laneBuilder.readsPath(truncateGZExtension(lane.readsPath()));
+            laneBuilder.matesPath(truncateGZExtension(lane.matesPath()));
+            return laneBuilder.build();
         }).collect(Collectors.toList());
         return builder.lanes(unzippedLanes).build();
     }
 
-    private String unzip(final String path) throws IOException {
-        if (path.endsWith(".gz")) {
-            LOGGER.info("Patient has a zipped input file [{}]. Unzipping now...", path);
-            String unzippedPath = path.substring(0, path.length() - 3);
+    private String truncateGZExtension(final String path) {
+        return path.replaceAll(GZ_EXTENSION, "");
+    }
+
+    private static boolean isGZ(final String path) {
+        return path.endsWith(GZ_EXTENSION);
+    }
+
+    private void unzip(final String path) {
+        try {
+            String unzippedPath = truncateGZExtension(path);
             sparkContext.textFile(path).saveAsTextFile(unzippedPath);
             fileSystem.delete(new Path(path), true);
             LOGGER.info("Unzipping [{}] complete. Deleting zipped file from HDFS", path);
-            return unzippedPath;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        return path;
     }
 
     public static Patient execute(FileSystem fileSystem, JavaSparkContext sparkContext, Patient patient) {
