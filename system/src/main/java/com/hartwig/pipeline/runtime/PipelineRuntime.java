@@ -40,9 +40,8 @@ public class PipelineRuntime {
                     configuration.pipeline().resultsDirectory(),
                     configuration.referenceGenome().path(),
                     configuration.knownIndel().paths(),
-                    configuration.pipeline().bwa().threads(),
+                    configuration.pipeline().bwa().threads(), false,
                     false,
-                    true,
                     false);
             Patient patient = PatientReader.fromHDFS(fileSystem, configuration);
             adamPipeline.execute(GunZip.execute(fileSystem, javaSparkContext, patient));
