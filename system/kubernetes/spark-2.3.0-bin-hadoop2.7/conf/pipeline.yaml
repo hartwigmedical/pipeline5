@@ -1,6 +1,8 @@
 pipeline:
   hdfs: "hdfs://hdfs-namenode:8020"
   saveResultsAsSingleFile: false
+  bwa:
+    threads: 1
 
 referenceGenome:
   file: Homo_sapiens.GRCh37.GATK.illumina.fasta
