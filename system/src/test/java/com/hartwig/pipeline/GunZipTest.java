@@ -9,9 +9,9 @@ import com.google.common.collect.Lists;
 import com.hartwig.patient.ImmutableSample;
 import com.hartwig.patient.Lane;
 import com.hartwig.patient.Sample;
-import com.hartwig.pipeline.runtime.hadoop.Hadoop;
+import com.hartwig.support.hadoop.Hadoop;
+import com.hartwig.support.test.Resources;
 import com.hartwig.testsupport.Lanes;
-import com.hartwig.testsupport.Resources;
 import com.hartwig.testsupport.SparkContextSingleton;
 
 import org.apache.hadoop.fs.FileSystem;

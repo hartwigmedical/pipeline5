@@ -9,7 +9,7 @@ create_gcloud_cluster_name(){
 create_cluster_and_connect(){
     local cluster_name=$1
     local zone=$2
-    gcloud container --project "hmf-pipeline-development" clusters create ${cluster_name} --zone $zone --username "admin" --cluster-version "1.9.7-gke.5" --machine-type "n1-standard-32" --image-type "COS" --disk-type "pd-standard" --disk-size "300" --scopes "https://www.googleapis.com/auth/compute","https://www.googleapis.com/auth/devstorage.read_only","https://www.googleapis.com/auth/logging.write","https://www.googleapis.com/auth/monitoring","https://www.googleapis.com/auth/servicecontrol","https://www.googleapis.com/auth/service.management.readonly","https://www.googleapis.com/auth/trace.append" --num-nodes "5" --enable-cloud-logging --enable-cloud-monitoring --network "default" --subnetwork "default" --addons HorizontalPodAutoscaling,HttpLoadBalancing,KubernetesDashboard --no-enable-autoupgrade --enable-autorepair
+    gcloud container --project "hmf-pipeline-development" clusters create ${cluster_name} --zone $zone --username "admin" --cluster-version "1.9.7-gke.5" --machine-type "n1-standard-64" --image-type "COS" --disk-type "pd-standard" --disk-size "500" --scopes "https://www.googleapis.com/auth/compute","https://www.googleapis.com/auth/devstorage.read_only","https://www.googleapis.com/auth/logging.write","https://www.googleapis.com/auth/monitoring","https://www.googleapis.com/auth/servicecontrol","https://www.googleapis.com/auth/service.management.readonly","https://www.googleapis.com/auth/trace.append" --num-nodes "1" --enable-cloud-logging --enable-cloud-monitoring --network "default" --subnetwork "default" --addons HorizontalPodAutoscaling,HttpLoadBalancing,KubernetesDashboard --no-enable-autoupgrade --enable-autorepair
     gcloud container clusters get-credentials ${cluster_name} --zone $zone --project hmf-pipeline-development
 }
 
@@ -37,7 +37,6 @@ create_hdfs_and_populate_with_patient(){
     kubectl create -f datanode.yaml
     wait_for_pod "hdfs-datanode"
     echo "Uploading patient data into HDFS...."
-    kubectl exec hdfs-namenode-0 -- gunzip /patients/*
     kubectl exec hdfs-namenode-0 -- hadoop fs -mkdir /patients
     kubectl exec hdfs-namenode-0 -- hadoop fs -put /patients/${patient} /patients/
     echo "Upload complete."
@@ -88,9 +87,7 @@ extract_results_and_put_in_gs(){
     kubectl exec hdfs-namenode-0 -- gsutil -m cp -r ${patient}R.bam gs://results-pipeline5/$patient/${patient}R.bam
     kubectl exec hdfs-namenode-0 -- gsutil -m cp -r ${patient}T.bam gs://results-pipeline5/$patient/${patient}T.bam
     kubectl exec hdfs-namenode-0 -- gsutil -m cp -r ${patient}.bam gs://results-pipeline5/$patient/${patient}.bam
-    gsutil -m cp gs://results-pipeline5/$patient/${patient}R.bam ./
-    gsutil -m cp gs://results-pipeline5/$patient/${patient}T.bam ./
-    gsutil -m cp gs://results-pipeline5/$patient/${patient}.bam ./
+    gsutil -m cp -r gs://results-pipeline5/$patient/*.bam /results/
 }
 
 
@@ -131,7 +128,7 @@ then
     print_usage
 fi
 
-# gsutil -m rsync -d -r $PATIENT gs://patients-pipeline5/$PATIENT
+gsutil -m rsync -d -r $PATIENT gs://patients-pipeline5/$PATIENT
 CLUSTER_NAME=$(create_gcloud_cluster_name $PATIENT)
 create_cluster_and_connect $CLUSTER_NAME $ZONE
 KEY_ID=$(create_keys_and_secrets)
@@ -139,10 +136,9 @@ create_hdfs_and_populate_with_patient $PATIENT
 create_spark_service_account
 . k8-submit.sh -v $VERSION
 extract_results_and_put_in_gs $PATIENT
-gsutil -m cp gs://results-pipeline5/$PATIENT* ./
 
 if [ -z $DEV_MODE ]
 then
    tidy_up $PATIENT $KEY_ID $CLUSTER_NAME $ZONE
 fi
-
+exit 0

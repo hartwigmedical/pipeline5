@@ -9,7 +9,7 @@
         <artifactId>pipeline5</artifactId>
         <version>local-SNAPSHOT</version>
     </parent>
-    <artifactId>patient-cluster</artifactId>
+    <artifactId>patient-io</artifactId>
     <version>local-SNAPSHOT</version>
     <packaging>jar</packaging>
 
@@ -20,24 +20,18 @@
         </dependency>
         <dependency>
             <groupId>com.hartwig</groupId>
-            <artifactId>patient-io</artifactId>
+            <artifactId>support</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.google.cloud</groupId>
-            <artifactId>google-cloud-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.google.cloud</groupId>
-            <artifactId>google-cloud-storage</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.kubernetes</groupId>
-            <artifactId>client-java</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-cli</groupId>
-            <artifactId>commons-cli</artifactId>
+            <groupId>com.hartwig</groupId>
+            <artifactId>support</artifactId>
+            <type>test-jar</type>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>

@@ -40,11 +40,12 @@ echo "Connecting to cluster at [${CLUSTER_URL}]"
     --conf spark.kubernetes.driver.secrets.reader-key=/root/servicekey/ \
     --conf spark.kubernetes.executor.secrets.reader-key=/root/servicekey/ \
     --class com.hartwig.pipeline.runtime.PipelineRuntime \
-    --conf spark.driver.memory=8G \
-    --conf spark.executor.instances=4 \
-    --conf spark.executor.cores=12 \
-    --conf spark.executor.memory=100G \
-    --conf spark.locality.wait="30s" \
+    --conf spark.driver.memory=16G \
+    --conf spark.executor.instances=1 \
+    --conf spark.executor.cores=50 \
+    --conf spark.executor.memory=120G \
+    --conf spark.executor.memoryOverhead=72G \
+    --conf spark.memory.storageFraction=0 \
     --conf spark.kubernetes.authenticate.driver.serviceAccountName=spark \
     --conf spark.kubernetes.container.image=hartwigmedicalfoundation/pipeline5-spark-kubernetes:${VERSION} \
     local:///usr/share/pipeline5/system.jar

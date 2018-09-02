@@ -27,6 +27,10 @@
             <groupId>com.hartwig</groupId>
             <artifactId>adam</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.hartwig</groupId>
+            <artifactId>patient-io</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.bdgenomics.adam</groupId>
@@ -52,6 +56,11 @@
         <dependency>
             <groupId>com.hartwig</groupId>
             <artifactId>pipeline</artifactId>
+            <type>test-jar</type>
+        </dependency>
+        <dependency>
+            <groupId>com.hartwig</groupId>
+            <artifactId>support</artifactId>
             <type>test-jar</type>
         </dependency>
     </dependencies>

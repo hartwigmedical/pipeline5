@@ -1,6 +1,6 @@
 package com.hartwig.testsupport;
 
-import static com.hartwig.testsupport.Resources.testResource;
+import static com.hartwig.support.test.Resources.testResource;
 
 import com.google.common.collect.ImmutableMap;
 import com.hartwig.pipeline.runtime.configuration.Configuration;
@@ -13,7 +13,7 @@ import com.hartwig.pipeline.runtime.configuration.KnownIndelParameters;
 import com.hartwig.pipeline.runtime.configuration.ReferenceGenomeParameters;
 
 public class TestConfigurations {
-    public static final String PATIENT_DIR = "patients";
+    private static final String PATIENT_DIR = "patients";
 
     public static final String HUNDREDK_READS_HISEQ_PATIENT_NAME = "TESTX";
 
@@ -27,9 +27,9 @@ public class TestConfigurations {
             .addFiles("1000G_phase1.indels.b37.vcf.gz")
             .build();
 
-    public static final ImmutablePatientParameters.Builder DEFAULT_PATIENT_BUILDER = ImmutablePatientParameters.builder();
+    private static final ImmutablePatientParameters.Builder DEFAULT_PATIENT_BUILDER = ImmutablePatientParameters.builder();
 
-    public static final ImmutableConfiguration.Builder DEFAULT_CONFIG_BUILDER = ImmutableConfiguration.builder()
+    private static final ImmutableConfiguration.Builder DEFAULT_CONFIG_BUILDER = ImmutableConfiguration.builder()
             .spark(ImmutableMap.of("master", "local[2]")).pipeline(ImmutablePipelineParameters.builder().hdfs("file:///").build())
             .referenceGenome(REFERENCE_GENOME_PARAMETERS)
             .knownIndel(KNOWN_INDEL_PARAMETERS);

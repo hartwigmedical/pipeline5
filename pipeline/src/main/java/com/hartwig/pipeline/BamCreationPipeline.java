@@ -83,7 +83,7 @@ public abstract class BamCreationPipeline {
     }
 
     private void skipping(final Stage<AlignmentRecordRDD, AlignmentRecordRDD> bamEnricher, final Sample sample) {
-        LOGGER.info("Skipping [{}] stage for [{}] as the output already exists in [{}]",
+        LOGGER.info("Skipping [{}] stage for [{}] as the output already exists.",
                 bamEnricher.outputType(), sample.name());
     }
 
