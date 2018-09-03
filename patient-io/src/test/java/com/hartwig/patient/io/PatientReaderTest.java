@@ -19,8 +19,8 @@ public class PatientReaderTest {
     private static final String SINGLE_SAMPLE = Resources.testResource(PATIENTS + "singleSample");
     private static final String REFERENCE_AND_TUMOUR = Resources.testResource(PATIENTS + "referenceAndTumor");
     private static final String INFER_PATIENT_ID_AMBIGUOUS_DIRECTORIES =
-            Resources.testResource(PATIENTS + "inferPatientID/ambiguousDirectories");
-    private static final String INFER_PATIENT_ID_PATIENT = Resources.testResource(PATIENTS + "inferPatientId/patient");
+            Resources.testResource(PATIENTS + "inferPatient/ambiguousDirectories");
+    private static final String INFER_PATIENT_ID_PATIENT = Resources.testResource(PATIENTS + "inferPatient/patient");
 
     @Test(expected = FileNotFoundException.class)
     public void nonExistentDirectoryThrowsIllegalArgument() throws Exception {
