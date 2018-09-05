@@ -32,6 +32,7 @@
         <kubernetes.version>2.0.0</kubernetes.version>
         <commons-cli.version>1.4</commons-cli.version>
         <hadoop.version>2.6.5</hadoop.version>
+        <google-dataproc-api.version>v1-rev102-1.25.0</google-dataproc-api.version>
     </properties>
 
     <modules>
@@ -161,6 +162,11 @@
                 <groupId>io.kubernetes</groupId>
                 <artifactId>client-java</artifactId>
                 <version>${kubernetes.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.apis</groupId>
+                <artifactId>google-api-services-dataproc</artifactId>
+                <version>${google-dataproc-api.version}</version>
             </dependency>
 
 
