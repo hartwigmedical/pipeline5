@@ -10,6 +10,8 @@ import com.google.cloud.storage.BucketInfo;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
 import com.hartwig.pipeline.cluster.GoogleDataprocCluster;
+import com.hartwig.pipeline.spark.GoogleStorageJarUpload;
+import com.hartwig.pipeline.spark.Version;
 import com.hartwig.pipeline.upload.LocalToGoogleStorage;
 
 import org.apache.commons.cli.DefaultParser;
@@ -24,7 +26,7 @@ import org.junit.Test;
 public class BootstrapTest {
 
     private static final String PATIENT = "CPCT12345678";
-    private static final String BUCKET = "pipeline5-test-patients";
+    private static final String BUCKET = "pipeline5-patients";
     private static final String PROJECT_ID = "hmf-pipeline-development";
     private static final String REGION = "europe-west4";
     private Storage storage;
@@ -38,6 +40,8 @@ public class BootstrapTest {
         storage = StorageOptions.newBuilder().setCredentials(credentials).setProjectId(PROJECT_ID).build().getService();
         victim = new Bootstrap(patient -> new LocalToGoogleStorage(storage, BUCKET, patient),
                 patient -> new GoogleDataprocCluster(PROJECT_ID, REGION, patient, credentials),
+                new GoogleStorageJarUpload(storage, "europe-west4", "/Users/pwolfe/Code/pipeline2/system/target/"),
+                Version.of("local-SNAPSHOT"),
                 new DefaultParser(),
                 FileSystem.getLocal(new Configuration()));
         if (storage.get(BUCKET) == null) {
@@ -48,12 +52,6 @@ public class BootstrapTest {
     @After
     public void tearDown() throws Exception {
 
-    }
-
-    @Test
-    public void noBucketCreatedWhenSkipCommandLineEnabled() {
-        victim.run(new String[] { arg(BootstrapOptions.SKIP_UPLOAD_FLAG), arg(BootstrapOptions.PATIENT_FLAG) });
-        assertThat(storage.get(BUCKET).list().iterateAll()).isEmpty();
     }
 
     @Test

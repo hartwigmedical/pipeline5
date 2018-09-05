@@ -10,9 +10,12 @@ import com.hartwig.patient.Lane;
 import com.hartwig.patient.Patient;
 
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class LocalToGoogleStorage implements Upload {
+public class LocalToGoogleStorage implements PatientUpload {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(PatientUpload.class);
     private final Storage storage;
     private final String bucket;
     private final Patient patient;
@@ -25,6 +28,7 @@ public class LocalToGoogleStorage implements Upload {
 
     @Override
     public void run() throws IOException {
+        LOGGER.info("Uploading patient [{}] into Google Storage", patient.name());
         Bucket bucket = storage.get(this.bucket);
         for (Lane lane : patient.reference().lanes()) {
             File reads = file(lane.readsPath());
@@ -32,6 +36,7 @@ public class LocalToGoogleStorage implements Upload {
             bucket.create(cloudFile(patient, reads), new FileInputStream(reads));
             bucket.create(cloudFile(patient, mates), new FileInputStream(mates));
         }
+        LOGGER.info("Upload complete");
     }
 
     @NotNull
