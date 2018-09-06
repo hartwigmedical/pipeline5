@@ -28,4 +28,8 @@ public interface KnownIndelParameters {
     default void validate() {
         Preconditions.checkState(!files().isEmpty(), "Pipeline.yaml must contain at least one known indel vcf");
     }
+
+    static ImmutableKnownIndelParameters.Builder builder() {
+        return ImmutableKnownIndelParameters.builder();
+    }
 }

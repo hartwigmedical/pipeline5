@@ -19,8 +19,7 @@ public class GoogleDataprocClusterTest {
         final GoogleCredentials credential =
                 GoogleCredentials.fromStream(new FileInputStream(System.getProperty("user.dir") + "/bootstrap-key.json"))
                         .createScoped(DataprocScopes.all());
-        PatientCluster victim = new GoogleDataprocCluster("hmf-pipeline-development",
-                "europe-west4",
+        PatientCluster victim = new GoogleDataprocCluster("hmf-pipeline-development", "europe-west4", "patients",
                 Patient.of("", "GIAB12878", Sample.builder("", "").build()),
                 credential);
         victim.start();

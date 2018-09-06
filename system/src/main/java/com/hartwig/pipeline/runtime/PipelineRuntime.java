@@ -24,11 +24,11 @@ public class PipelineRuntime {
     private static final Logger LOGGER = LoggerFactory.getLogger(PipelineRuntime.class);
     private final Configuration configuration;
 
-    private PipelineRuntime(final Configuration configuration) {
+    PipelineRuntime(final Configuration configuration) {
         this.configuration = configuration;
     }
 
-    private void start() {
+    void start() {
         JavaSparkContext javaSparkContext = SparkContexts.create("ADAM", configuration);
         SparkContext sparkContext = javaSparkContext.sc();
         try {
@@ -38,28 +38,30 @@ public class PipelineRuntime {
                     fileSystem,
                     configuration.pipeline().resultsDirectory(),
                     configuration.referenceGenome().path(),
-                    configuration.knownIndel().paths(), configuration.pipeline().bwa().threads(), false,
+                    configuration.knownIndel().paths(),
+                    configuration.pipeline().bwa().threads(),
+                    false,
                     false,
                     false);
             Patient patient = PatientReader.fromHDFS(fileSystem, configuration.patient().directory(), configuration.patient().name());
             adamPipeline.execute(GunZip.execute(fileSystem, javaSparkContext, patient));
         } catch (Exception e) {
             LOGGER.error("Fatal error while running ADAM pipeline. See stack trace for more details", e);
+            throw new RuntimeException(e);
         } finally {
             LOGGER.info("Pipeline complete, stopping spark context");
             sparkContext.stop();
             LOGGER.info("Spark context stopped");
         }
-        System.exit(0);
     }
 
     public static void main(String[] args) {
-        Configuration configuration = null;
+        Configuration configuration;
         try {
             configuration = YAMLConfigurationReader.from(System.getProperty("user.dir"));
+            new PipelineRuntime(configuration).start();
         } catch (IOException e) {
             LOGGER.error("Unable to read configuration. Check configuration in /conf/pipeline.yaml", e);
         }
-        new PipelineRuntime(configuration).start();
     }
 }

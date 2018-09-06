@@ -26,7 +26,7 @@ import org.junit.Test;
 public class BootstrapTest {
 
     private static final String PATIENT = "CPCT12345678";
-    private static final String BUCKET = "pipeline5-patients";
+    private static final String BUCKET = "pipeline5-runtime";
     private static final String PROJECT_ID = "hmf-pipeline-development";
     private static final String REGION = "europe-west4";
     private Storage storage;
@@ -39,8 +39,8 @@ public class BootstrapTest {
                         .createScoped(DataprocScopes.all());
         storage = StorageOptions.newBuilder().setCredentials(credentials).setProjectId(PROJECT_ID).build().getService();
         victim = new Bootstrap(patient -> new LocalToGoogleStorage(storage, BUCKET, patient),
-                patient -> new GoogleDataprocCluster(PROJECT_ID, REGION, patient, credentials),
-                new GoogleStorageJarUpload(storage, "europe-west4", "/Users/pwolfe/Code/pipeline2/system/target/"),
+                patient -> new GoogleDataprocCluster(PROJECT_ID, REGION, BUCKET, patient, credentials),
+                new GoogleStorageJarUpload(storage, "europe-west4", "/Users/pwolfe/Code/pipeline2/system/target/", true),
                 Version.of("local-SNAPSHOT"),
                 new DefaultParser(),
                 FileSystem.getLocal(new Configuration()));

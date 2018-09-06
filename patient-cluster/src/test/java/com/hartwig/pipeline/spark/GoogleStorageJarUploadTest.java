@@ -25,7 +25,7 @@ public class GoogleStorageJarUploadTest {
                 GoogleCredentials.fromStream(new FileInputStream(System.getProperty("user.dir") + "/bootstrap-key.json"))
                         .createScoped(DataprocScopes.all());
         storage = StorageOptions.newBuilder().setCredentials(credentials).setProjectId("hmf-pipeline-development").build().getService();
-        victim = new GoogleStorageJarUpload(storage, "europe-west4", "/Users/pwolfe/Code/pipeline2/system/target/");
+        victim = new GoogleStorageJarUpload(storage, "europe-west4", "/Users/pwolfe/Code/pipeline2/system/target/", false);
     }
 
     @Test

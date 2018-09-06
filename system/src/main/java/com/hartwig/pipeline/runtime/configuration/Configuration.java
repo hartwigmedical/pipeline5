@@ -22,4 +22,8 @@ public interface Configuration {
     KnownIndelParameters knownIndel();
 
     Map<String, String> spark();
+
+    static ImmutableConfiguration.Builder builder() {
+        return ImmutableConfiguration.builder();
+    }
 }

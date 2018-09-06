@@ -20,4 +20,8 @@ public interface ReferenceGenomeParameters {
     default String path() {
         return directory() + File.separator + file();
     }
+
+    static ImmutableReferenceGenomeParameters.Builder builder() {
+        return ImmutableReferenceGenomeParameters.builder();
+    }
 }

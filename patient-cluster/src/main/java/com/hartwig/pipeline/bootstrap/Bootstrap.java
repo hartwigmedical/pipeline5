@@ -29,8 +29,7 @@ class Bootstrap {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Bootstrap.class);
     private static final String COMMAND_NAME = "bootstrap-cluster";
-    private static final String MAIN_CLASS = "com.hartwig.pipeline.runtime.PipelineRuntime";
-    private static final String JAR_LOCATION = "gs://pipeline5-jar/system-local-SNAPSHOT.jar";
+    private static final String MAIN_CLASS = "com.hartwig.pipeline.runtime.GoogleCloudPipelineRuntime";
     private final Function<Patient, PatientUpload> uploadProvider;
     private final Function<Patient, PatientCluster> clusterProvider;
     private final JarUpload jarUpload;
@@ -61,7 +60,7 @@ class Bootstrap {
             PatientCluster cluster = clusterProvider.apply(patient);
             cluster.start();
             cluster.submit(SparkJobDefinition.of(MAIN_CLASS, location.uri()));
-            cluster.stop();
+            //   cluster.stop();
 
         } catch (ParseException e) {
             new HelpFormatter().printHelp(COMMAND_NAME, options());

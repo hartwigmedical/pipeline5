@@ -9,4 +9,8 @@ import org.immutables.value.Value;
 public interface BwaParameters {
 
     int threads();
+
+    static ImmutableBwaParameters.Builder builder() {
+        return ImmutableBwaParameters.builder();
+    }
 }

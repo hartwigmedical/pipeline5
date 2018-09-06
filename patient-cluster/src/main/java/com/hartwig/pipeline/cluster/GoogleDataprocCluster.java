@@ -36,14 +36,17 @@ public class GoogleDataprocCluster implements PatientCluster {
     private final String project;
     private final String region;
     private final String clusterName;
+    private final String bucket;
     private Dataproc dataproc;
     private final GoogleCredentials credential;
 
-    public GoogleDataprocCluster(final String project, final String region, final Patient patient, final GoogleCredentials credential) {
+    public GoogleDataprocCluster(final String project, final String region, final String bucket, final Patient patient,
+            final GoogleCredentials credential) {
         this.project = project;
         this.region = region;
         this.clusterName = "patient-" + patient.name().toLowerCase() + "-1";
         this.credential = credential;
+        this.bucket = bucket;
     }
 
     @Override
@@ -55,7 +58,7 @@ public class GoogleDataprocCluster implements PatientCluster {
         Cluster existing = findExistingCluster();
         if (existing == null) {
             Operation createCluster =
-                    clusters.create(project, region, cluster(clusterConfig(masterConfig(), workerConfig()), clusterName)).execute();
+                    clusters.create(project, region, cluster(clusterConfig(masterConfig(), workerConfig(), bucket), clusterName)).execute();
             LOGGER.info("Starting Google Dataproc cluster with name [{}]. This may take a minute or two...", clusterName);
             waitForOperationComplete(createCluster);
             LOGGER.info("Cluster started.");
@@ -146,8 +149,9 @@ public class GoogleDataprocCluster implements PatientCluster {
         return new InstanceGroupConfig().setMachineTypeUri("n1-standard-4");
     }
 
-    private ClusterConfig clusterConfig(final InstanceGroupConfig masterConfig, final InstanceGroupConfig workerConfig) {
-        return new ClusterConfig().setMasterConfig(masterConfig).setWorkerConfig(workerConfig);
+    private ClusterConfig clusterConfig(final InstanceGroupConfig masterConfig, final InstanceGroupConfig workerConfig,
+            final String bucket) {
+        return new ClusterConfig().setMasterConfig(masterConfig).setWorkerConfig(workerConfig).setConfigBucket(bucket);
     }
 
     private InstanceGroupConfig workerConfig() {

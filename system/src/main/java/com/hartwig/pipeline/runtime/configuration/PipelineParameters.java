@@ -27,4 +27,8 @@ public interface PipelineParameters {
     default BwaParameters bwa() {
         return ImmutableBwaParameters.builder().threads(12).build();
     }
+
+    static ImmutablePipelineParameters.Builder builder() {
+        return ImmutablePipelineParameters.builder();
+    }
 }
