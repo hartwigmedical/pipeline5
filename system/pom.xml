@@ -45,6 +45,10 @@
             <artifactId>spark-sql_2.11</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.google.cloud</groupId>
+            <artifactId>google-cloud-nio</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
         </dependency>
@@ -97,6 +101,27 @@
                                     <resource>reference.conf</resource>
                                 </transformer>
                             </transformers>
+                            <relocations>
+                                <relocation>
+                                    <pattern>com</pattern>
+                                    <shadedPattern>com.google.cloud.hadoop.repackaged.gcs.com</shadedPattern>
+                                    <includes>
+                                        <include>com.fasterxml.**</include>
+                                        <include>com.google.api.**</include>
+                                        <include>com.google.cloud.hadoop.gcsio.**</include>
+                                        <include>com.google.cloud.hadoop.util.**</include>
+                                        <include>com.google.common.**</include>
+                                    </includes>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org</pattern>
+                                    <shadedPattern>com.google.cloud.hadoop.repackaged.gcs.org</shadedPattern>
+                                    <includes>
+                                        <include>org.apache.commons.codec.**</include>
+                                        <include>org.apache.http.**</include>
+                                    </includes>
+                                </relocation>
+                            </relocations>
                         </configuration>
                     </execution>
                 </executions>

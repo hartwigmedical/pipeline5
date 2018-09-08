@@ -67,6 +67,7 @@ public abstract class BamCreationPipeline {
             LOGGER.info("Preprocessing complete for {} sample, Took {} ms", sample.name(), (endTimer() - startTime));
         } catch (IOException e) {
             LOGGER.error(format("Unable to create BAM for %s. Check exception for details", sample.name()), e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -83,8 +84,7 @@ public abstract class BamCreationPipeline {
     }
 
     private void skipping(final Stage<AlignmentRecordRDD, AlignmentRecordRDD> bamEnricher, final Sample sample) {
-        LOGGER.info("Skipping [{}] stage for [{}] as the output already exists.",
-                bamEnricher.outputType(), sample.name());
+        LOGGER.info("Skipping [{}] stage for [{}] as the output already exists.", bamEnricher.outputType(), sample.name());
     }
 
     private void qc(final QualityControl<AlignmentRecordRDD> qcCheck, final InputOutput<AlignmentRecordRDD> toQC) throws IOException {

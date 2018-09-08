@@ -1,26 +1,25 @@
 package com.hartwig.pipeline.bootstrap;
 
-import static com.hartwig.pipeline.bootstrap.BootstrapOptions.PATIENT_DIRECTORY_FLAG;
-import static com.hartwig.pipeline.bootstrap.BootstrapOptions.PATIENT_FLAG;
-import static com.hartwig.pipeline.bootstrap.BootstrapOptions.SKIP_UPLOAD_FLAG;
-import static com.hartwig.pipeline.bootstrap.BootstrapOptions.options;
-
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.function.Function;
+import java.util.function.Supplier;
 
+import com.google.api.services.dataproc.DataprocScopes;
+import com.google.auth.oauth2.GoogleCredentials;
+import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.StorageOptions;
 import com.hartwig.patient.Patient;
 import com.hartwig.patient.io.PatientReader;
+import com.hartwig.pipeline.cluster.GoogleDataprocCluster;
+import com.hartwig.pipeline.cluster.GoogleStorageJarUpload;
+import com.hartwig.pipeline.cluster.JarLocation;
+import com.hartwig.pipeline.cluster.JarUpload;
 import com.hartwig.pipeline.cluster.PatientCluster;
 import com.hartwig.pipeline.cluster.SparkJobDefinition;
-import com.hartwig.pipeline.spark.JarLocation;
-import com.hartwig.pipeline.spark.JarUpload;
-import com.hartwig.pipeline.spark.Version;
+import com.hartwig.pipeline.upload.LocalToGoogleStorage;
 import com.hartwig.pipeline.upload.PatientUpload;
+import com.hartwig.support.hadoop.Hadoop;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.ParseException;
 import org.apache.hadoop.fs.FileSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,45 +27,58 @@ import org.slf4j.LoggerFactory;
 class Bootstrap {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Bootstrap.class);
-    private static final String COMMAND_NAME = "bootstrap-cluster";
     private static final String MAIN_CLASS = "com.hartwig.pipeline.runtime.GoogleCloudPipelineRuntime";
-    private final Function<Patient, PatientUpload> uploadProvider;
-    private final Function<Patient, PatientCluster> clusterProvider;
+    private final Supplier<PatientUpload> uploadProvider;
+    private final Supplier<PatientCluster> clusterProvider;
     private final JarUpload jarUpload;
-    private final Version version;
-    private final CommandLineParser parser;
     private final FileSystem fileSystem;
 
-    Bootstrap(final Function<Patient, PatientUpload> uploadProvider, final Function<Patient, PatientCluster> clusterProvider,
-            final JarUpload jarUpload, final Version version, final CommandLineParser parser, final FileSystem fileSystem) {
+    Bootstrap(final Supplier<PatientUpload> uploadProvider, final Supplier<PatientCluster> clusterProvider, final JarUpload jarUpload,
+            final FileSystem fileSystem) {
         this.uploadProvider = uploadProvider;
         this.clusterProvider = clusterProvider;
         this.jarUpload = jarUpload;
-        this.version = version;
-        this.parser = parser;
         this.fileSystem = fileSystem;
     }
 
-    void run(String[] args) {
+    void run(Arguments arguments) {
         try {
-            CommandLine command = parser.parse(options(), args);
-            String patientId = command.getOptionValue(PATIENT_FLAG);
-            String patientDirectory = command.getOptionValue(PATIENT_DIRECTORY_FLAG, System.getProperty("user.dir"));
+            String patientId = arguments.patientId();
+            String patientDirectory = arguments.patientDirectory();
             Patient patient = PatientReader.fromHDFS(fileSystem, patientDirectory, patientId);
-            if (!command.hasOption(SKIP_UPLOAD_FLAG)) {
-                uploadProvider.apply(patient).run();
+            PatientUpload upload = uploadProvider.get();
+            if (!arguments.skipPatientUpload()) {
+                upload.run(patient, arguments);
             }
-            JarLocation location = jarUpload.run(version);
-            PatientCluster cluster = clusterProvider.apply(patient);
-            cluster.start();
-            cluster.submit(SparkJobDefinition.of(MAIN_CLASS, location.uri()));
-            //   cluster.stop();
+            JarLocation location = jarUpload.run(arguments);
+            PatientCluster cluster = clusterProvider.get();
+            cluster.start(patient, arguments);
+            cluster.submit(SparkJobDefinition.of(MAIN_CLASS, location.uri()), arguments);
+            if (!arguments.skipPatientUpload()) {
+                upload.cleanup(patient, arguments);
+            }
+            cluster.stop(arguments);
 
-        } catch (ParseException e) {
-            new HelpFormatter().printHelp(COMMAND_NAME, options());
         } catch (IOException e) {
             LOGGER.error("Could not read patient data from filesystem. "
                     + "Check the path exists and is of the format /PATIENT_ID/PATIENT_ID{R|T}", e);
         }
+    }
+
+    public static void main(String[] args) {
+        BootstrapOptions.from(args).ifPresent(arguments -> {
+            try {
+                final GoogleCredentials credentials =
+                        GoogleCredentials.fromStream(new FileInputStream(arguments.privateKeyPath())).createScoped(DataprocScopes.all());
+                Storage storage =
+                        StorageOptions.newBuilder().setCredentials(credentials).setProjectId(arguments.project()).build().getService();
+                new Bootstrap(() -> new LocalToGoogleStorage(storage),
+                        () -> new GoogleDataprocCluster(credentials),
+                        new GoogleStorageJarUpload(storage),
+                        Hadoop.localFilesystem()).run(arguments);
+            } catch (IOException e) {
+                LOGGER.error("Unable to run bootstrap. Credential file was missing or not readable.", e);
+            }
+        });
     }
 }

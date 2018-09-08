@@ -18,6 +18,7 @@ import com.hartwig.patient.ReferenceGenome;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.AlignmentStage;
 
+import org.apache.hadoop.fs.FileSystem;
 import org.bdgenomics.adam.api.java.FragmentsToAlignmentRecordsConverter;
 import org.bdgenomics.adam.models.RecordGroup;
 import org.bdgenomics.adam.models.RecordGroupDictionary;
@@ -34,11 +35,13 @@ class ADAMBwa implements AlignmentStage {
 
     private final ADAMContext adamContext;
     private final ReferenceGenome referenceGenome;
+    private final FileSystem fileSystem;
     private final int bwaThreads;
 
-    ADAMBwa(final ReferenceGenome referenceGenome, final ADAMContext adamContext, int bwaThreads) {
+    ADAMBwa(final ReferenceGenome referenceGenome, final ADAMContext adamContext, final FileSystem fileSystem, int bwaThreads) {
         this.adamContext = adamContext;
         this.referenceGenome = referenceGenome;
+        this.fileSystem = fileSystem;
         this.bwaThreads = bwaThreads;
     }
 
@@ -69,10 +72,9 @@ class ADAMBwa implements AlignmentStage {
     private AlignmentRecordRDD adamBwa(final SequenceDictionary sequenceDictionary, final Sample sample, final Lane lane) {
         return RDDs.alignmentRecordRDD(adamContext.loadPairedFastq(lane.readsPath(),
                 lane.matesPath(),
-                Option.empty(),
+                Option.empty(), Option.empty(),
                 ValidationStringency.LENIENT).toFragments()
-                .pipe(BwaCommand.tokens(referenceGenome, sample, lane, bwaThreads),
-                        Collections.emptyList(),
+                .pipe(BwaCommand.tokens(referenceGenome, sample, lane, bwaThreads), IndexFiles.resolve(fileSystem, referenceGenome),
                         Collections.emptyMap(),
                         0, InterleavedFASTQInFormatter.class,
                         new AnySAMOutFormatter(), new FragmentsToAlignmentRecordsConverter())

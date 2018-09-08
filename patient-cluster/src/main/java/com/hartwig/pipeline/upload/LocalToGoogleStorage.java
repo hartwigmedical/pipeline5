@@ -6,12 +6,15 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.function.Function;
 
+import com.google.api.gax.paging.Page;
+import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.patient.Lane;
 import com.hartwig.patient.Patient;
 import com.hartwig.patient.Sample;
 import com.hartwig.patient.io.PatientReader;
+import com.hartwig.pipeline.bootstrap.Arguments;
 
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -21,19 +24,15 @@ public class LocalToGoogleStorage implements PatientUpload {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LocalToGoogleStorage.class);
     private final Storage storage;
-    private final String bucket;
-    private final Patient patient;
 
-    public LocalToGoogleStorage(final Storage storage, final String bucket, final Patient patient) {
+    public LocalToGoogleStorage(final Storage storage) {
         this.storage = storage;
-        this.bucket = bucket;
-        this.patient = patient;
     }
 
     @Override
-    public void run() throws IOException {
+    public void run(Patient patient, Arguments arguments) throws IOException {
         LOGGER.info("Uploading patient [{}] into Google Storage", patient.name());
-        Bucket bucket = storage.get(this.bucket);
+        Bucket bucket = storage.get(arguments.runtimeBucket());
         if (patient.maybeTumor().isPresent()) {
             uploadSample(bucket, patient.reference(), file -> sampleFile(patient, file, PatientReader.TypeSuffix.REFERENCE));
             uploadSample(bucket, patient.tumor(), file -> sampleFile(patient, file, PatientReader.TypeSuffix.TUMOR));
@@ -41,6 +40,16 @@ public class LocalToGoogleStorage implements PatientUpload {
             uploadSample(bucket, patient.reference(), file -> singleSampleFile(patient, file));
         }
         LOGGER.info("Upload complete");
+    }
+
+    @Override
+    public void cleanup(Patient patient, Arguments arguments) throws IOException {
+        Page<Blob> blobs = storage.get(arguments.runtimeBucket()).list();
+        for (Blob blob : blobs.iterateAll()) {
+            if (blob.getName().startsWith("patients/" + patient.name()) || blob.getName().startsWith("results/" + patient.name())) {
+                blob.delete();
+            }
+        }
     }
 
     private void uploadSample(final Bucket bucket, final Sample reference, Function<File, String> blobCreator)

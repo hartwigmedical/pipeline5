@@ -1,17 +1,9 @@
 package com.hartwig.pipeline.spark;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.io.FileInputStream;
-
-import com.google.api.services.dataproc.DataprocScopes;
-import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Storage;
-import com.google.cloud.storage.StorageOptions;
+import com.hartwig.pipeline.cluster.JarUpload;
 
-import org.junit.Before;
 import org.junit.Ignore;
-import org.junit.Test;
 
 @Ignore
 public class GoogleStorageJarUploadTest {
@@ -19,7 +11,7 @@ public class GoogleStorageJarUploadTest {
     private Storage storage;
     private JarUpload victim;
 
-    @Before
+   /* @Before
     public void setUp() throws Exception {
         final GoogleCredentials credentials =
                 GoogleCredentials.fromStream(new FileInputStream(System.getProperty("user.dir") + "/bootstrap-key.json"))
@@ -44,5 +36,5 @@ public class GoogleStorageJarUploadTest {
     public void doesNothingWhenJarVersionAlreadyExists() throws Exception {
         JarLocation location = victim.run(Version.of("local-SNAPSHOT"));
         assertThat(storage.get(GoogleStorageJarUpload.JAR_BUCKET).get(location.uri())).isNotNull();
-    }
+    }*/
 }

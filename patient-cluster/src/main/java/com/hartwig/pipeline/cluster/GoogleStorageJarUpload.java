@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.spark;
+package com.hartwig.pipeline.cluster;
 
 import static java.lang.String.format;
 
@@ -10,6 +10,7 @@ import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.BucketInfo;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageClass;
+import com.hartwig.pipeline.bootstrap.Arguments;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,31 +18,28 @@ import org.slf4j.LoggerFactory;
 public class GoogleStorageJarUpload implements JarUpload {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GoogleStorageJarUpload.class);
-    static final String JAR_BUCKET = "jars-pipeline5";
+    public static final String JAR_BUCKET = "jars-pipeline5";
     private final Storage storage;
-    private final String region;
-    private final String libDirectory;
-    private final boolean force;
 
-    public GoogleStorageJarUpload(final Storage storage, final String region, final String libDirectory, final boolean force) {
+    public GoogleStorageJarUpload(final Storage storage) {
         this.storage = storage;
-        this.region = region;
-        this.libDirectory = libDirectory;
-        this.force = force;
     }
 
     @Override
-    public JarLocation run(final Version version) throws IOException {
+    public JarLocation run(Arguments arguments) throws IOException {
         Bucket bucket = storage.get(JAR_BUCKET);
         if (bucket == null) {
             LOGGER.info("JAR bucket [{}] was not present in Google Storage. Creating it.", JAR_BUCKET);
-            bucket = storage.create(BucketInfo.newBuilder(JAR_BUCKET).setStorageClass(StorageClass.REGIONAL).setLocation(region).build());
+            bucket = storage.create(BucketInfo.newBuilder(JAR_BUCKET)
+                    .setStorageClass(StorageClass.REGIONAL)
+                    .setLocation(arguments.region())
+                    .build());
         }
-        String jarName = format("system-%s.jar", version.name());
-        String jarPath = libDirectory + jarName;
+        String jarName = format("system-%s.jar", arguments.version());
+        String jarPath = arguments.jarLibDirectory() + jarName;
         String blobLocation = format("gs://%s/%s", JAR_BUCKET, jarName);
         Blob jarBlob = bucket.get(jarName);
-        if (jarBlob == null || force) {
+        if (jarBlob == null || arguments.forceJarUpload()) {
             LOGGER.info("Uploading jar [{}] into [{}]", jarPath, blobLocation);
             bucket.create(jarName, new FileInputStream(jarPath));
             LOGGER.info("Upload complete");

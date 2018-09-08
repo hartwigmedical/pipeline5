@@ -26,7 +26,7 @@ class BwaCommand {
         cmd.add("100");
         cmd.add("-t");
         cmd.add(String.valueOf(bwaThreads));
-        cmd.add(referenceGenome.path());
+        cmd.add("$0");
         cmd.add("-");
         return cmd;
     }

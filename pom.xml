@@ -33,6 +33,7 @@
         <commons-cli.version>1.4</commons-cli.version>
         <hadoop.version>2.6.5</hadoop.version>
         <google-dataproc-api.version>v1-rev102-1.25.0</google-dataproc-api.version>
+        <google-cloud-nio.version>0.61.0-alpha</google-cloud-nio.version>
     </properties>
 
     <modules>
@@ -157,6 +158,11 @@
                 <groupId>com.google.cloud</groupId>
                 <artifactId>google-cloud-storage</artifactId>
                 <version>${google-cloud.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.cloud</groupId>
+                <artifactId>google-cloud-nio</artifactId>
+                <version>${google-cloud-nio.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.kubernetes</groupId>

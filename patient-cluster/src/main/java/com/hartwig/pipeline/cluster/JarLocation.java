@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.spark;
+package com.hartwig.pipeline.cluster;
 
 import org.immutables.value.Value;
 
