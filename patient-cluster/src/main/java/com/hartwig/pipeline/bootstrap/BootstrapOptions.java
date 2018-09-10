@@ -24,9 +24,11 @@ class BootstrapOptions {
     private static final String DEFAULT_REGION = "europe-west4";
     private static final String DEFAULT_BUCKET = "pipeline5-runtime";
     private static final String DEFAULT_PROJECT = "hmf-pipeline-development";
-    private static final String DEFAULT_VERSION = "local-SNAPSHOT";
-    private static final String DEFAULT_PATIENT_DIRECTORY = System.getProperty("user.dir");
+    private static final String DEFAULT_VERSION = "";
+    private static final String DEFAULT_PATIENT_DIRECTORY = "/patients/";
     private static final String PRIVATE_KEY_FLAG = "k";
+    private static final String DEFAULT_JAR_LIB = "/usr/share/pipeline5/";
+    private static final String DEFAULT_PRIVATE_KEY_PATH = "/secrets/bootstrap-key.json";
 
     private static Options options() {
         return new Options().addOption(privateKeyFlag())
@@ -42,13 +44,14 @@ class BootstrapOptions {
     }
 
     private static Option privateKeyFlag() {
-        return optionWithArg(PRIVATE_KEY_FLAG,
+        return optionWithArgAndDefault(PRIVATE_KEY_FLAG,
                 "private_key_path",
-                "Fully qualified path to the private key for the service account used" + "for all Google Cloud operations");
+                "Fully qualified path to the private key for the service account used" + "for all Google Cloud operations",
+                DEFAULT_PRIVATE_KEY_PATH);
     }
 
     private static Option region() {
-        return optionWithArgAndDefault(REGION_FLAG, DEFAULT_REGION, "region", "The region in which to create the cluster.");
+        return optionWithArgAndDefault(REGION_FLAG, "region", "The region in which to create the cluster.", DEFAULT_REGION);
     }
 
     private static Option project() {
@@ -63,7 +66,10 @@ class BootstrapOptions {
     }
 
     private static Option jarLibDirectory() {
-        return optionWithArg(JAR_LIB_FLAG, "jar_lib_directory", "Directory containing the system-{VERSION}.jar.");
+        return optionWithArgAndDefault(JAR_LIB_FLAG,
+                "jar_lib_directory",
+                "Directory containing the system-{VERSION}.jar.",
+                DEFAULT_JAR_LIB);
     }
 
     private static Option version() {
@@ -72,7 +78,7 @@ class BootstrapOptions {
 
     @NotNull
     private static Option patientId() {
-        return optionWithArg(PATIENT_FLAG, "patient", "ID of the patient to process.");
+        return optionWithArgAndDefault(PATIENT_FLAG, "patient", "ID of the patient to process.", "");
     }
 
     @NotNull
@@ -88,11 +94,11 @@ class BootstrapOptions {
             DefaultParser defaultParser = new DefaultParser();
             CommandLine commandLine = defaultParser.parse(options(), args);
             return Optional.of(Arguments.builder()
-                    .privateKeyPath(commandLine.getOptionValue(PRIVATE_KEY_FLAG))
+                    .privateKeyPath(commandLine.getOptionValue(PRIVATE_KEY_FLAG, DEFAULT_PRIVATE_KEY_PATH))
                     .version(commandLine.getOptionValue(VERSION_FLAG, DEFAULT_VERSION))
                     .patientDirectory(commandLine.getOptionValue(PATIENT_DIRECTORY_FLAG, DEFAULT_PATIENT_DIRECTORY))
-                    .patientId(commandLine.getOptionValue(PATIENT_FLAG))
-                    .jarLibDirectory(commandLine.getOptionValue(JAR_LIB_FLAG))
+                    .patientId(commandLine.getOptionValue(PATIENT_FLAG, ""))
+                    .jarLibDirectory(commandLine.getOptionValue(JAR_LIB_FLAG, DEFAULT_JAR_LIB))
                     .runtimeBucket(commandLine.getOptionValue(BUCKET_FLAG, DEFAULT_BUCKET))
                     .forceJarUpload(commandLine.hasOption(FORCE_JAR_UPLOAD_FLAG))
                     .skipPatientUpload(commandLine.hasOption(SKIP_UPLOAD_FLAG))
@@ -116,7 +122,7 @@ class BootstrapOptions {
     @NotNull
     private static Option optionWithArgAndDefault(final String option, final String name, final String description,
             final String defaultValue) {
-        return optionWithArg(option, name, description + " Default is " + defaultValue, false);
+        return optionWithArg(option, name, description + " Default is " + (defaultValue.isEmpty() ? "empty" : defaultValue), false);
     }
 
     @NotNull

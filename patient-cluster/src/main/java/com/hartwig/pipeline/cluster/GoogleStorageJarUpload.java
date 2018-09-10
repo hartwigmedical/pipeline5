@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 public class GoogleStorageJarUpload implements JarUpload {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GoogleStorageJarUpload.class);
-    public static final String JAR_BUCKET = "jars-pipeline5";
+    private static final String JAR_BUCKET = "jars-pipeline5";
     private final Storage storage;
 
     public GoogleStorageJarUpload(final Storage storage) {
@@ -35,7 +35,7 @@ public class GoogleStorageJarUpload implements JarUpload {
                     .setLocation(arguments.region())
                     .build());
         }
-        String jarName = format("system-%s.jar", arguments.version());
+        String jarName = format("system%s.jar", version(arguments));
         String jarPath = arguments.jarLibDirectory() + jarName;
         String blobLocation = format("gs://%s/%s", JAR_BUCKET, jarName);
         Blob jarBlob = bucket.get(jarName);
@@ -45,5 +45,9 @@ public class GoogleStorageJarUpload implements JarUpload {
             LOGGER.info("Upload complete");
         }
         return JarLocation.of(blobLocation);
+    }
+
+    private static String version(final Arguments arguments) {
+        return !arguments.version().isEmpty() ? "-" + arguments.version() : arguments.version();
     }
 }

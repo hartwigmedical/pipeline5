@@ -206,30 +206,6 @@
                                     <images>
                                         <image>
                                             <name>hartwigmedicalfoundation/pipeline5</name>
-                                            <build>
-                                                <dockerFile>Dockerfile_standalone</dockerFile>
-                                            </build>
-                                        </image>
-                                    </images>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>spark-kubernetes</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>build</goal>
-                                    <goal>push</goal>
-                                </goals>
-                                <configuration>
-                                    <images>
-                                        <image>
-                                            <name>hartwigmedicalfoundation/pipeline5-spark-kubernetes</name>
-                                            <build>
-                                                <dockerFile>Dockerfile_spark-kubernetes</dockerFile>
-                                                <args>
-                                                    <SPARK_DISTRIBUTION>${spark.distribution}</SPARK_DISTRIBUTION>
-                                                </args>
-                                            </build>
                                         </image>
                                     </images>
                                 </configuration>

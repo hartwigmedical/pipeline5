@@ -67,6 +67,11 @@
                 <artifactId>patient-io</artifactId>
                 <version>local-SNAPSHOT</version>
             </dependency>
+            <dependency>
+                <groupId>com.hartwig</groupId>
+                <artifactId>system</artifactId>
+                <version>local-SNAPSHOT</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.immutables</groupId>
