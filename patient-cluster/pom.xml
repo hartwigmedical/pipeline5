@@ -27,6 +27,12 @@
             <artifactId>system</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.hartwig</groupId>
+            <artifactId>support</artifactId>
+            <scope>test</scope>
+            <type>test-jar</type>
+        </dependency>
 
         <dependency>
             <groupId>com.google.cloud</groupId>

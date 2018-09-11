@@ -31,6 +31,8 @@ public interface Arguments {
 
     String privateKeyPath();
 
+    String sbpApiUrl();
+
     static ImmutableArguments.Builder builder() {
         return ImmutableArguments.builder();
     }
