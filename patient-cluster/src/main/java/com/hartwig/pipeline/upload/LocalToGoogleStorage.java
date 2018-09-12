@@ -10,7 +10,6 @@ import com.google.api.gax.paging.Page;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
-import com.hartwig.patient.Lane;
 import com.hartwig.patient.Patient;
 import com.hartwig.patient.Sample;
 import com.hartwig.patient.io.PatientReader;
@@ -54,12 +53,16 @@ public class LocalToGoogleStorage implements PatientUpload {
 
     private void uploadSample(final Bucket bucket, final Sample reference, Function<File, String> blobCreator)
             throws FileNotFoundException {
-        for (Lane lane : reference.lanes()) {
-            File reads = file(lane.readsPath());
-            File mates = file(lane.matesPath());
-            bucket.create(blobCreator.apply(reads), new FileInputStream(reads));
-            bucket.create(blobCreator.apply(mates), new FileInputStream(mates));
-        }
+        reference.lanes().parallelStream().forEach(lane -> {
+            try {
+                File reads = file(lane.readsPath());
+                File mates = file(lane.matesPath());
+                bucket.create(blobCreator.apply(reads), new FileInputStream(reads));
+                bucket.create(blobCreator.apply(mates), new FileInputStream(mates));
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     @NotNull
