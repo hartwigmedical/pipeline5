@@ -1,26 +1,33 @@
 package com.hartwig.pipeline.bootstrap;
 
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import com.google.api.services.dataproc.DataprocScopes;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
-import com.hartwig.patient.Patient;
+import com.hartwig.patient.Sample;
 import com.hartwig.patient.io.PatientReader;
 import com.hartwig.pipeline.cluster.GoogleDataprocCluster;
 import com.hartwig.pipeline.cluster.GoogleStorageJarUpload;
 import com.hartwig.pipeline.cluster.JarLocation;
 import com.hartwig.pipeline.cluster.JarUpload;
-import com.hartwig.pipeline.cluster.PatientCluster;
+import com.hartwig.pipeline.cluster.SampleCluster;
 import com.hartwig.pipeline.cluster.SparkJobDefinition;
-import com.hartwig.pipeline.upload.LocalToGoogleStorage;
-import com.hartwig.pipeline.upload.PatientUpload;
+import com.hartwig.pipeline.upload.SBPRestApi;
+import com.hartwig.pipeline.upload.SBPS3StreamSupplier;
+import com.hartwig.pipeline.upload.SBPSampleReader;
+import com.hartwig.pipeline.upload.SampleUpload;
+import com.hartwig.pipeline.upload.StreamToGoogleStorage;
 import com.hartwig.support.hadoop.Hadoop;
 
-import org.apache.hadoop.fs.FileSystem;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,34 +35,32 @@ class Bootstrap {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Bootstrap.class);
     private static final String MAIN_CLASS = "com.hartwig.pipeline.runtime.GoogleCloudPipelineRuntime";
-    private final Supplier<PatientUpload> uploadProvider;
-    private final Supplier<PatientCluster> clusterProvider;
+    private final SampleSource sampleSource;
+    private final Supplier<SampleUpload> uploadProvider;
+    private final Supplier<SampleCluster> clusterProvider;
     private final JarUpload jarUpload;
-    private final FileSystem fileSystem;
 
-    Bootstrap(final Supplier<PatientUpload> uploadProvider, final Supplier<PatientCluster> clusterProvider, final JarUpload jarUpload,
-            final FileSystem fileSystem) {
+    private Bootstrap(final SampleSource sampleSource, final Supplier<SampleUpload> uploadProvider,
+            final Supplier<SampleCluster> clusterProvider, final JarUpload jarUpload) {
+        this.sampleSource = sampleSource;
         this.uploadProvider = uploadProvider;
         this.clusterProvider = clusterProvider;
         this.jarUpload = jarUpload;
-        this.fileSystem = fileSystem;
     }
 
-    void run(Arguments arguments) {
+    private void run(Arguments arguments) {
         try {
-            String patientId = arguments.patientId();
-            String patientDirectory = arguments.patientDirectory();
-            Patient patient = PatientReader.fromHDFS(fileSystem, patientDirectory, patientId);
-            PatientUpload upload = uploadProvider.get();
+            Sample sample = sampleSource.sample(arguments);
+            SampleUpload upload = uploadProvider.get();
             if (!arguments.skipPatientUpload()) {
-                upload.run(patient, arguments);
+                upload.run(sample, arguments);
             }
             JarLocation location = jarUpload.run(arguments);
-            PatientCluster cluster = clusterProvider.get();
-            cluster.start(patient, arguments);
+            SampleCluster cluster = clusterProvider.get();
+            cluster.start(sample, arguments);
             cluster.submit(SparkJobDefinition.of(MAIN_CLASS, location.uri()), arguments);
             if (!arguments.skipPatientUpload()) {
-                upload.cleanup(patient, arguments);
+                upload.cleanup(sample, arguments);
             }
             cluster.stop(arguments);
 
@@ -68,17 +73,45 @@ class Bootstrap {
     public static void main(String[] args) {
         BootstrapOptions.from(args).ifPresent(arguments -> {
             try {
-                final GoogleCredentials credentials =
-                        GoogleCredentials.fromStream(new FileInputStream(arguments.privateKeyPath())).createScoped(DataprocScopes.all());
-                Storage storage =
-                        StorageOptions.newBuilder().setCredentials(credentials).setProjectId(arguments.project()).build().getService();
-                new Bootstrap(() -> new LocalToGoogleStorage(storage),
+                final GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream(arguments.privateKeyPath())).createScoped(DataprocScopes.all());
+                Storage storage = StorageOptions.newBuilder().setCredentials(credentials).setProjectId(arguments.project()).build().getService();
+
+                SampleUpload sampleUpload = arguments.sbpApiSampleId().<SampleUpload>map(sampleId -> new StreamToGoogleStorage(storage,
+                        SBPS3StreamSupplier.newInstance())).orElse(new StreamToGoogleStorage(storage, fileInputStream()));
+
+                SampleSource sampleSource =
+                        arguments.sbpApiSampleId().<SampleSource>map(sampleId -> a -> new SBPSampleReader(SBPRestApi.newInstance(a)).read(
+                                sampleId)).orElse(fromLocalFilesystem());
+
+                new Bootstrap(sampleSource,
+                        () -> sampleUpload,
                         () -> new GoogleDataprocCluster(credentials),
-                        new GoogleStorageJarUpload(storage),
-                        Hadoop.localFilesystem()).run(arguments);
+                        new GoogleStorageJarUpload(storage)).run(arguments);
             } catch (IOException e) {
                 LOGGER.error("Unable to run bootstrap. Credential file was missing or not readable.", e);
             }
         });
+    }
+
+    @NotNull
+    private static SampleSource fromLocalFilesystem() {
+        return a -> {
+            try {
+                return PatientReader.fromHDFS(Hadoop.localFilesystem(), a.patientDirectory(), a.patientId()).reference();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        };
+    }
+
+    @NotNull
+    private static Function<File, InputStream> fileInputStream() {
+        return file -> {
+            try {
+                return new FileInputStream(file);
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        };
     }
 }

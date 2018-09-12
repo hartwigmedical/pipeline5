@@ -2,12 +2,12 @@ package com.hartwig.pipeline.cluster;
 
 import java.io.IOException;
 
-import com.hartwig.patient.Patient;
+import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.bootstrap.Arguments;
 
-public interface PatientCluster {
+public interface SampleCluster {
 
-    void start(Patient patient, Arguments arguments) throws IOException;
+    void start(Sample sample, Arguments arguments) throws IOException;
 
     void submit(SparkJobDefinition jobDefinition, Arguments arguments) throws IOException;
 

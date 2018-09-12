@@ -11,4 +11,6 @@ public interface FastQMetadata {
     String name_r1();
 
     String name_r2();
+
+    boolean qc_pass();
 }

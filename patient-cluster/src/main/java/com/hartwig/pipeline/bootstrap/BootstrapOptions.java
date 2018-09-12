@@ -29,6 +29,9 @@ class BootstrapOptions {
     private static final String PRIVATE_KEY_FLAG = "k";
     private static final String DEFAULT_JAR_LIB = "/usr/share/pipeline5/";
     private static final String DEFAULT_PRIVATE_KEY_PATH = "/secrets/bootstrap-key.json";
+    private static final String SBP_SAMPLE_ID_FLAG = "sbp_sample_id";
+    private static final String SBP_API_URL_FLAG = "sbp_api_url";
+    private static final String DEFAULT_SBP_API_URL = "https://hmfapi:5002";
 
     private static Options options() {
         return new Options().addOption(privateKeyFlag())
@@ -39,8 +42,15 @@ class BootstrapOptions {
                 .addOption(bucket())
                 .addOption(SKIP_UPLOAD_FLAG, false, "Skip uploading of patient data into cloud storeage")
                 .addOption(FORCE_JAR_UPLOAD_FLAG, false, "Force upload of JAR even if the version already exists in cloud storage")
-                .addOption(project())
-                .addOption(region());
+                .addOption(project()).addOption(region()).addOption(sbpSampleId()).addOption(sbpApiUrl());
+    }
+
+    private static Option sbpApiUrl() {
+        return optionWithArgAndDefault(SBP_API_URL_FLAG, "sbp_api_url", "URL of the SBP API endpoint", DEFAULT_SBP_API_URL);
+    }
+
+    private static Option sbpSampleId() {
+        return optionWithArg(SBP_SAMPLE_ID_FLAG, SBP_SAMPLE_ID_FLAG, "SBP API internal numeric sample id", false);
     }
 
     private static Option privateKeyFlag() {
@@ -104,12 +114,26 @@ class BootstrapOptions {
                     .skipPatientUpload(commandLine.hasOption(SKIP_UPLOAD_FLAG))
                     .project(commandLine.getOptionValue(PROJECT_FLAG, DEFAULT_PROJECT))
                     .region(handleDashesInRegion(commandLine))
+                    .sbpApiUrl(commandLine.getOptionValue(SBP_API_URL_FLAG, DEFAULT_SBP_API_URL))
+                    .sbpApiSampleId(sbpApiSampleId(commandLine))
                     .build());
         } catch (ParseException e) {
             HelpFormatter formatter = new HelpFormatter();
             formatter.printHelp("boostrap", options());
             return Optional.empty();
         }
+    }
+
+    private static Optional<Integer> sbpApiSampleId(final CommandLine commandLine) {
+        if (commandLine.hasOption(SBP_API_URL_FLAG)) {
+            try {
+                return Optional.of(Integer.parseInt(commandLine.getOptionValue(SBP_SAMPLE_ID_FLAG)));
+            } catch (NumberFormatException e) {
+                throw new RuntimeException("SBP API parameter was not a valid ID. This parameter takes the integer IDs which SBP uses in "
+                        + "its internal database", e);
+            }
+        }
+        return Optional.empty();
     }
 
     private static String handleDashesInRegion(final CommandLine commandLine) {

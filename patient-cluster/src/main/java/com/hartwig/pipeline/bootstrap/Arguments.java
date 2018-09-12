@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.bootstrap;
 
+import java.util.Optional;
+
 import org.immutables.value.Value;
 
 @Value.Immutable
@@ -32,6 +34,8 @@ public interface Arguments {
     String privateKeyPath();
 
     String sbpApiUrl();
+
+    Optional<Integer> sbpApiSampleId();
 
     static ImmutableArguments.Builder builder() {
         return ImmutableArguments.builder();

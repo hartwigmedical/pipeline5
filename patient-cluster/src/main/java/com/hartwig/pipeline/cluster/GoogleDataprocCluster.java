@@ -21,17 +21,17 @@ import com.google.api.services.dataproc.model.SparkJob;
 import com.google.api.services.dataproc.model.SubmitJobRequest;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
-import com.hartwig.patient.Patient;
+import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.bootstrap.Arguments;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class GoogleDataprocCluster implements PatientCluster {
+public class GoogleDataprocCluster implements SampleCluster {
 
     private static final String MACHINE_TYPE_URI = "n1-standard-32";
     private static final int NUM_WORKERS = 4;
-    private static final String APPLICATION_NAME = "patient-dataproc-cluster";
+    private static final String APPLICATION_NAME = "sample-dataproc-cluster";
     private final Logger LOGGER = LoggerFactory.getLogger(GoogleDataprocCluster.class);
     private String clusterName;
     private Dataproc dataproc;
@@ -42,8 +42,8 @@ public class GoogleDataprocCluster implements PatientCluster {
     }
 
     @Override
-    public void start(Patient patient, Arguments arguments) throws IOException {
-        this.clusterName = "patient-" + patient.name().toLowerCase() + "-1";
+    public void start(Sample sample, Arguments arguments) throws IOException {
+        this.clusterName = "sample-" + sample.name().toLowerCase() + "-1";
         dataproc = new Dataproc.Builder(new NetHttpTransport(),
                 JacksonFactory.getDefaultInstance(),
                 new HttpCredentialsAdapter(credential)).setApplicationName(APPLICATION_NAME).build();

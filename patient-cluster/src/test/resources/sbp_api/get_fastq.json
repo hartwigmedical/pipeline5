@@ -1,11 +1,11 @@
 [
   {
-    "qc_pass": false,
+    "qc_pass": true,
     "q30": 55.9669,
     "sample_id": 64,
     "id": 91,
-    "name_r1": "CPCT02330029R_HJKLMALXX_S6_L001_R1_001.fastq.gz",
-    "name_r2": "CPCT02330029R_HJKLMALXX_S6_L001_R2_001.fastq.gz",
+    "name_r1": "CPCT02330029T_HJKLMALXX_S6_L001_R1_001.fastq.gz",
+    "name_r2": "CPCT02330029T_HJKLMALXX_S6_L001_R2_001.fastq.gz",
     "lane_id": 58,
     "bucket": null,
     "yld": 59702984,
@@ -15,12 +15,12 @@
     "size_r1": null
   },
   {
-    "qc_pass": false,
+    "qc_pass": true,
     "q30": 56.4214,
     "sample_id": 64,
     "id": 94,
-    "name_r1": "CPCT02330029R_HJKLMALXX_S6_L002_R1_001.fastq.gz",
-    "name_r2": "CPCT02330029R_HJKLMALXX_S6_L002_R2_001.fastq.gz",
+    "name_r1": "CPCT02330029T_HJKLMALXX_S6_L002_R1_001.fastq.gz",
+    "name_r2": "CPCT02330029T_HJKLMALXX_S6_L002_R2_001.fastq.gz",
     "lane_id": 61,
     "bucket": null,
     "yld": 60673310,

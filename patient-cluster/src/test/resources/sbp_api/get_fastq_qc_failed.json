@@ -1,6 +1,6 @@
 [
   {
-    "qc_pass": false,
+    "qc_pass": true,
     "q30": 55.9669,
     "sample_id": 64,
     "id": 91,
