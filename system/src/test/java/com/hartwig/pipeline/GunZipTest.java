@@ -19,8 +19,10 @@ import org.apache.hadoop.fs.Path;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
+@Ignore
 public class GunZipTest {
 
     private static final JavaSparkContext SPARK_CONTEXT = SparkContextSingleton.instance();
