@@ -1,10 +1,10 @@
 package com.hartwig.pipeline;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.google.common.collect.Lists;
 import com.hartwig.patient.ImmutableLane;
 import com.hartwig.patient.ImmutablePatient;
 import com.hartwig.patient.ImmutableSample;
@@ -34,8 +34,7 @@ public class GunZip {
         ImmutableSample.Builder builder = ImmutableSample.builder().from(sample);
 
         sample.lanes()
-                .parallelStream()
-                .flatMap(lane -> Lists.newArrayList(lane.readsPath(), lane.matesPath()).parallelStream())
+                .parallelStream().flatMap(lane -> newArrayList(lane.readsPath(), lane.matesPath()).parallelStream())
                 .filter(GunZip::isGZ)
                 .forEach(this::unzip);
 
@@ -46,6 +45,10 @@ public class GunZip {
             return laneBuilder.build();
         }).collect(Collectors.toList());
         return builder.lanes(unzippedLanes).build();
+    }
+
+    private List<String> newArrayList(final String... strings) {
+        return Arrays.asList(strings);
     }
 
     private String truncateGZExtension(final String path) {

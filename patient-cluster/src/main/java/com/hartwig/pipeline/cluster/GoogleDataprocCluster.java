@@ -52,7 +52,8 @@ public class GoogleDataprocCluster implements SampleCluster {
         if (existing == null) {
             Operation createCluster = clusters.create(arguments.project(),
                     arguments.region(),
-                    cluster(clusterConfig(masterConfig(), workerConfig(), arguments.runtimeBucket()), clusterName)).execute();
+                    cluster(clusterConfig(masterConfig(), primaryWorkerConfig(), secondaryWorkerConfig(), arguments.runtimeBucket()),
+                            clusterName)).execute();
             LOGGER.info("Starting Google Dataproc cluster with name [{}]. This may take a minute or two...", clusterName);
             waitForOperationComplete(createCluster);
             LOGGER.info("Cluster started.");
@@ -65,8 +66,7 @@ public class GoogleDataprocCluster implements SampleCluster {
     public void submit(SparkJobDefinition jobDefinition, Arguments arguments) throws IOException {
         LOGGER.info("Submitting spark job to cluster [{}]", clusterName);
         Job job = dataproc.projects()
-                .regions()
-                .jobs().submit(arguments.project(), arguments.region(),
+                .regions().jobs().submit(arguments.project(), arguments.region(),
                         new SubmitJobRequest().setJob(new Job().setPlacement(new JobPlacement().setClusterName(clusterName))
                                 .setSparkJob(new SparkJob().setProperties(SparkProperties.asMap()).setMainClass(jobDefinition.mainClass())
                                         .setJarFileUris(Collections.singletonList(jobDefinition.jarLocation())))))
@@ -147,17 +147,22 @@ public class GoogleDataprocCluster implements SampleCluster {
         return new InstanceGroupConfig().setMachineTypeUri(MACHINE_TYPE_URI);
     }
 
-    private ClusterConfig clusterConfig(final InstanceGroupConfig masterConfig, final InstanceGroupConfig workerConfig,
-            final String bucket) {
+    private ClusterConfig clusterConfig(final InstanceGroupConfig masterConfig, final InstanceGroupConfig primaryWorkerConfig,
+            final InstanceGroupConfig secondaryWorkerConfig, final String bucket) {
         return new ClusterConfig().setMasterConfig(masterConfig)
-                .setWorkerConfig(workerConfig)
+                .setWorkerConfig(primaryWorkerConfig)
+                .setSecondaryWorkerConfig(secondaryWorkerConfig)
                 .setConfigBucket(bucket)
                 .setInitializationActions(Collections.singletonList(new NodeInitializationAction().setExecutableFile(
                         "gs://pipeline5-runtime/cluster-init/install-bwa.sh")));
     }
 
-    private InstanceGroupConfig workerConfig() {
-        return new InstanceGroupConfig().setMachineTypeUri(MACHINE_TYPE_URI).setNumInstances(NUM_WORKERS);
+    private InstanceGroupConfig primaryWorkerConfig() {
+        return new InstanceGroupConfig().setMachineTypeUri(MACHINE_TYPE_URI).setNumInstances(2);
+    }
+
+    private InstanceGroupConfig secondaryWorkerConfig() {
+        return new InstanceGroupConfig().setMachineTypeUri(MACHINE_TYPE_URI).setNumInstances(NUM_WORKERS - 2).setIsPreemptible(true);
     }
 
     private com.google.api.services.dataproc.model.Cluster cluster(final ClusterConfig clusterConfig, final String clusterName) {

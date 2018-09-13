@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.google.common.base.Preconditions;
 
 import org.immutables.value.Value;
 
@@ -26,7 +25,9 @@ public interface KnownIndelParameters {
 
     @Value.Check
     default void validate() {
-        Preconditions.checkState(!files().isEmpty(), "Pipeline.yaml must contain at least one known indel vcf");
+        if (files().isEmpty()) {
+            throw new IllegalStateException("Pipeline.yaml must contain at least one known indel vcf");
+        }
     }
 
     static ImmutableKnownIndelParameters.Builder builder() {

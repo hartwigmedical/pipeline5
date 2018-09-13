@@ -18,8 +18,10 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.bdgenomics.adam.rdd.ADAMContext;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
+@Ignore
 public class PipelineFunctionalTest {
 
     private static final Sample REFERENCE_SAMPLE =
@@ -44,12 +46,8 @@ public class PipelineFunctionalTest {
                 RESULT_DIR,
                 HUNDREDK_READS_HISEQ.referenceGenome().path(),
                 HUNDREDK_READS_HISEQ.knownIndel().paths(),
-                1, false, false, true)
-                .execute(PatientReader.fromHDFS(fileSystem, HUNDREDK_READS_HISEQ.patient().directory(), HUNDREDK_READS_HISEQ_PATIENT_NAME));
-        assertThatOutput(RESULT_DIR, OutputType.DUPLICATE_MARKED, REFERENCE_SAMPLE).sorted()
-                .aligned()
-                .duplicatesMarked()
-                .isEqualToExpected();
+                1, false, false, true).execute(PatientReader.fromHDFS(fileSystem, HUNDREDK_READS_HISEQ.patient().directory(), HUNDREDK_READS_HISEQ_PATIENT_NAME));
+        assertThatOutput(RESULT_DIR, OutputType.DUPLICATE_MARKED, REFERENCE_SAMPLE).sorted().aligned().duplicatesMarked().isEqualToExpected();
         assertThatOutput(RESULT_DIR, OutputType.DUPLICATE_MARKED, TUMOUR_SAMPLE).sorted().aligned().duplicatesMarked().isEqualToExpected();
     }
 }
