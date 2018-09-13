@@ -17,4 +17,8 @@ public interface PatientParameters {
     default String name() {
         return "";
     }
+
+    static ImmutablePatientParameters.Builder builder() {
+        return ImmutablePatientParameters.builder();
+    }
 }

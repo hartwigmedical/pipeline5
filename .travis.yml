@@ -5,7 +5,7 @@ services:
   - docker
 
 env:
-  - PIPELINE5_VERSION=5.0.$TRAVIS_BUILD_NUMBER
+  - PIPELINE5_VERSION=5.1.$TRAVIS_BUILD_NUMBER
 
 before_install:
   - sudo apt-get -qq update

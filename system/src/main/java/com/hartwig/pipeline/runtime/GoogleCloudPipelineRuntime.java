@@ -3,6 +3,7 @@ package com.hartwig.pipeline.runtime;
 import com.hartwig.pipeline.runtime.configuration.BwaParameters;
 import com.hartwig.pipeline.runtime.configuration.Configuration;
 import com.hartwig.pipeline.runtime.configuration.KnownIndelParameters;
+import com.hartwig.pipeline.runtime.configuration.PatientParameters;
 import com.hartwig.pipeline.runtime.configuration.PipelineParameters;
 import com.hartwig.pipeline.runtime.configuration.ReferenceGenomeParameters;
 
@@ -14,7 +15,7 @@ public class GoogleCloudPipelineRuntime {
                 .referenceGenome(ReferenceGenomeParameters.builder().file("Homo_sapiens.GRCh37.GATK.illumina.fasta").build())
                 .knownIndel(KnownIndelParameters.builder()
                         .addFiles("1000G_phase1.indels.b37.vcf.gz", "Mills_and_1000G_gold_standard.indels.b37.vcf.gz")
-                        .build())
+                        .build()).patient(PatientParameters.builder().directory("/samples").name("").build())
                 .build();
         new PipelineRuntime(configuration).start();
     }

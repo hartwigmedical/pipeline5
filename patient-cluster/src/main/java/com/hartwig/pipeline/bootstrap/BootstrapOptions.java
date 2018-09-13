@@ -125,7 +125,7 @@ class BootstrapOptions {
     }
 
     private static Optional<Integer> sbpApiSampleId(final CommandLine commandLine) {
-        if (commandLine.hasOption(SBP_API_URL_FLAG)) {
+        if (commandLine.hasOption(SBP_SAMPLE_ID_FLAG)) {
             try {
                 return Optional.of(Integer.parseInt(commandLine.getOptionValue(SBP_SAMPLE_ID_FLAG)));
             } catch (NumberFormatException e) {
