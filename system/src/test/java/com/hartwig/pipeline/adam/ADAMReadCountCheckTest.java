@@ -11,8 +11,10 @@ import com.hartwig.pipeline.QCResult;
 import com.hartwig.pipeline.QualityControl;
 
 import org.bdgenomics.adam.rdd.read.AlignmentRecordRDD;
+import org.junit.Ignore;
 import org.junit.Test;
 
+@Ignore
 public class ADAMReadCountCheckTest {
 
     @Test
