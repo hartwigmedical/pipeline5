@@ -7,10 +7,8 @@ import java.io.IOException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.hartwig.testsupport.TestConfigurations;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
-@Ignore
 public class YAMLConfigurationReaderTest {
 
     @Test

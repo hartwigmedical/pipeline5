@@ -10,6 +10,7 @@ import org.immutables.value.Value;
 
 @JsonDeserialize(as = ImmutableKnownIndelParameters.class)
 @Value.Immutable
+@ParameterStyle
 public interface KnownIndelParameters {
 
     @Value.Default

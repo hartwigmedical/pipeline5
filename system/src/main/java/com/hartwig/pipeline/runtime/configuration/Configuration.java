@@ -8,6 +8,7 @@ import org.immutables.value.Value;
 
 @JsonDeserialize(as = ImmutableConfiguration.class)
 @Value.Immutable
+@ParameterStyle
 public interface Configuration {
 
     PipelineParameters pipeline();

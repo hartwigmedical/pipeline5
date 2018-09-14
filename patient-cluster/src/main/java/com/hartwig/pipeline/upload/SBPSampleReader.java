@@ -14,9 +14,12 @@ import com.hartwig.patient.Lane;
 import com.hartwig.patient.Sample;
 
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SBPSampleReader {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(SBPSampleReader.class);
     private final SBPRestApi sbpRestApi;
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
@@ -33,7 +36,9 @@ public class SBPSampleReader {
         try {
             List<FastQMetadata> fastqJson = parseJson(rawFastQJson);
             String sampleName = extractSampleName(sampleId, fastqJson);
-            return sample(sampleName, fastqJson);
+            Sample sample = sample(sampleName, fastqJson);
+            LOGGER.info("Found sample [{}] in SBP", sample);
+            return sample;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

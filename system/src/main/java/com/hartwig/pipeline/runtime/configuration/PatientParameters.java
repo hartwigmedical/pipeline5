@@ -6,6 +6,7 @@ import org.immutables.value.Value;
 
 @JsonDeserialize(as = ImmutablePatientParameters.class)
 @Value.Immutable
+@ParameterStyle
 public interface PatientParameters {
 
     @Value.Default

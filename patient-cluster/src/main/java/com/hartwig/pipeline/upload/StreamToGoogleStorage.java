@@ -31,7 +31,7 @@ public class StreamToGoogleStorage implements SampleUpload {
 
     @Override
     public void run(Sample sample, Arguments arguments) throws IOException {
-        LOGGER.info("Uploading sample [{}] into Google Storage", sample.name());
+        LOGGER.info("Uploading sample [{}] into [{}]", sample.name(), "gs://" + arguments.runtimeBucket() + "/" + SAMPLE_DIRECTORY);
         Bucket bucket = storage.get(arguments.runtimeBucket());
         uploadSample(bucket, sample, file -> singleSampleFile(sample, file));
         LOGGER.info("Upload complete");

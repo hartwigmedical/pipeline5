@@ -6,6 +6,7 @@ import org.immutables.value.Value;
 
 @JsonDeserialize(as = ImmutableBwaParameters.class)
 @Value.Immutable
+@ParameterStyle
 public interface BwaParameters {
 
     int threads();

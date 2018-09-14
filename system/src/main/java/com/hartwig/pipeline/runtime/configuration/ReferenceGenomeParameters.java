@@ -8,6 +8,7 @@ import org.immutables.value.Value;
 
 @JsonDeserialize(as = ImmutableReferenceGenomeParameters.class)
 @Value.Immutable
+@ParameterStyle
 public interface ReferenceGenomeParameters {
 
     @Value.Default

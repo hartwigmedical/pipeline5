@@ -13,10 +13,8 @@ import com.hartwig.testsupport.TestRDDs;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.bdgenomics.adam.rdd.read.AlignmentRecordRDD;
-import org.junit.Ignore;
 import org.junit.Test;
 
-@Ignore
 public class HDFSBamStoreTest {
 
     private static final Sample SAMPLE = Sample.builder("", "test").build();

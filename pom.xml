@@ -19,7 +19,7 @@
         <slf4j-api.version>1.7.25</slf4j-api.version>
         <gatk.version>4.0.4.0</gatk.version>
         <spark.version>2.3.0</spark.version>
-        <commons-io.version>2.5</commons-io.version>
+        <commons-io.version>2.4</commons-io.version>
         <adam.version>0.25.0-SNAPSHOT</adam.version>
         <cannoli.version>0.1.0</cannoli.version>
         <parquet-hadoop.version>1.8.2</parquet-hadoop.version>
@@ -31,9 +31,10 @@
         <google-cloud.version>1.40.0</google-cloud.version>
         <kubernetes.version>2.0.0</kubernetes.version>
         <commons-cli.version>1.4</commons-cli.version>
-        <hadoop.version>3.1.1</hadoop.version>
+        <hadoop.version>2.7.7</hadoop.version>
         <google-dataproc-api.version>v1-rev102-1.25.0</google-dataproc-api.version>
         <google-cloud-nio.version>0.61.0-alpha</google-cloud-nio.version>
+        <avro.version>1.8.1</avro.version>
     </properties>
 
     <modules>
@@ -73,6 +74,11 @@
                 <version>local-SNAPSHOT</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>20.0</version>
+            </dependency>
             <dependency>
                 <groupId>org.immutables</groupId>
                 <artifactId>value</artifactId>
@@ -116,6 +122,11 @@
                 <version>${avocado.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.apache.avro</groupId>
+                <artifactId>avro</artifactId>
+                <version>${avro.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
                 <version>${commons-io.version}</version>
@@ -139,17 +150,22 @@
                 <groupId>org.apache.hadoop</groupId>
                 <artifactId>hadoop-common</artifactId>
                 <version>${hadoop.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>com.google.guava</groupId>
-                        <artifactId>guava</artifactId>
-                    </exclusion>
-                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.hadoop</groupId>
+                <artifactId>hadoop-mapreduce-client-core</artifactId>
+                <version>${hadoop.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.parquet</groupId>
                 <artifactId>parquet-hadoop</artifactId>
                 <version>${parquet-hadoop.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.hadoop</groupId>
+                        <artifactId>hadoop-common</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>

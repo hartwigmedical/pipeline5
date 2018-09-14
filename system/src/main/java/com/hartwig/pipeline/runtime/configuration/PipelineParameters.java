@@ -6,6 +6,7 @@ import org.immutables.value.Value;
 
 @JsonDeserialize(as = ImmutablePipelineParameters.class)
 @Value.Immutable
+@ParameterStyle
 public interface PipelineParameters {
 
     @Value.Default
