@@ -2,9 +2,9 @@ package com.hartwig.pipeline.adam;
 
 import java.io.IOException;
 
-import com.hartwig.io.DataLocation;
 import com.hartwig.io.DataSource;
 import com.hartwig.io.InputOutput;
+import com.hartwig.io.IntermediateDataLocation;
 import com.hartwig.io.OutputType;
 import com.hartwig.pipeline.Stage;
 
@@ -14,9 +14,9 @@ import org.bdgenomics.adam.rdd.read.AlignmentRecordRDD;
 class ADAMMarkDuplicatesAndSort implements Stage<AlignmentRecordRDD, AlignmentRecordRDD> {
 
     private final JavaADAMContext javaADAMContext;
-    private final DataLocation dataLocation;
+    private final IntermediateDataLocation dataLocation;
 
-    ADAMMarkDuplicatesAndSort(final JavaADAMContext javaADAMContext, final DataLocation dataLocation) {
+    ADAMMarkDuplicatesAndSort(final JavaADAMContext javaADAMContext, final IntermediateDataLocation dataLocation) {
         this.javaADAMContext = javaADAMContext;
         this.dataLocation = dataLocation;
     }

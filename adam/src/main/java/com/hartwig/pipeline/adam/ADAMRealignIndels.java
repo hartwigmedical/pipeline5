@@ -3,9 +3,9 @@ package com.hartwig.pipeline.adam;
 import java.io.IOException;
 import java.util.stream.Collector;
 
-import com.hartwig.io.DataLocation;
 import com.hartwig.io.DataSource;
 import com.hartwig.io.InputOutput;
+import com.hartwig.io.IntermediateDataLocation;
 import com.hartwig.io.OutputType;
 import com.hartwig.patient.KnownIndels;
 import com.hartwig.patient.ReferenceGenome;
@@ -26,10 +26,10 @@ public class ADAMRealignIndels implements Stage<AlignmentRecordRDD, AlignmentRec
     private final KnownIndels knownIndels;
     private final ReferenceGenome referenceGenome;
     private final JavaADAMContext javaADAMContext;
-    private final DataLocation dataLocation;
+    private final IntermediateDataLocation dataLocation;
 
     ADAMRealignIndels(final KnownIndels knownIndels, final ReferenceGenome referenceGenome, final JavaADAMContext javaADAMContext,
-            final DataLocation dataLocation) {
+            final IntermediateDataLocation dataLocation) {
         this.knownIndels = knownIndels;
         this.referenceGenome = referenceGenome;
         this.javaADAMContext = javaADAMContext;

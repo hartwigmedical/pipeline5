@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-import com.hartwig.io.OutputType;
 import com.hartwig.patient.Sample;
 
 import org.slf4j.Logger;
@@ -24,8 +23,8 @@ class AlignmentFileAssertion extends BAMFileAssertion {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AlignmentFileAssertion.class);
 
-    AlignmentFileAssertion(final String resultDirectory, final OutputType outputType, final Sample sample) {
-        super(resultDirectory, outputType, sample);
+    AlignmentFileAssertion(final String resultDirectory, final Sample sample) {
+        super(resultDirectory, sample);
     }
 
     @Override
@@ -60,9 +59,8 @@ class AlignmentFileAssertion extends BAMFileAssertion {
             }
         }
         if (!differenceMap.isEmpty()) {
-            LOGGER.warn("BAM files were the same size but not exactly equal for sample {} and output {}. Difference count by type: {}",
+            LOGGER.warn("BAM files were the same size but not exactly equal for sample {}. Difference count by type: {}",
                     getName(),
-                    getOutputType(),
                     differenceMap);
         }
     }

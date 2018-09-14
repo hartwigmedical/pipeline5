@@ -49,7 +49,7 @@ public class StreamToGoogleStorage implements SampleUpload {
 
     private void uploadSample(final Bucket bucket, final Sample reference, Function<File, String> blobCreator)
             throws FileNotFoundException {
-        reference.lanes().parallelStream().forEach(lane -> {
+        reference.lanes().forEach(lane -> {
             File reads = file(lane.readsPath());
             File mates = file(lane.matesPath());
             bucket.create(blobCreator.apply(reads), dataStreamSupplier.apply(reads));

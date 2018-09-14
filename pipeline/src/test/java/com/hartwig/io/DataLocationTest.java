@@ -19,7 +19,7 @@ public class DataLocationTest {
     public void pathFollowsConventionForSample() throws Exception {
         FileSystem fileSystem = mock(FileSystem.class);
         when(fileSystem.getUri()).thenReturn(new URI("file:/"));
-        DataLocation victim = new DataLocation(fileSystem, "/results/");
+        IntermediateDataLocation victim = new IntermediateDataLocation(fileSystem, "/results/");
         assertThat(victim.uri(OutputType.UNMAPPED, Sample.builder("", SAMPLE_NAME).name(SAMPLE_NAME).build())).isEqualTo(
                 "file://results/TEST_SAMPLE_unmapped.bam");
     }

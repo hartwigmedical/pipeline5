@@ -28,7 +28,7 @@ public class ADAMReadCountCheckTest {
     }
 
     private static QCResult readCountIs(final int previousReadCount) {
-        AlignmentRecordRDD first = alignmentRecordRDD("expected/TESTXR_duplicate_marked.bam");
+        AlignmentRecordRDD first = alignmentRecordRDD("expected/TESTXR.bam");
         QualityControl<AlignmentRecordRDD> victim = new ADAMReadCountCheck(previousReadCount);
         return victim.check(InputOutput.of(OutputType.DUPLICATE_MARKED, Sample.builder("", "test").build(), first));
     }

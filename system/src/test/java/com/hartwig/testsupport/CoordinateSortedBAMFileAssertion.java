@@ -2,7 +2,6 @@ package com.hartwig.testsupport;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.hartwig.io.OutputType;
 import com.hartwig.patient.Sample;
 
 import htsjdk.samtools.SAMFlag;
@@ -11,8 +10,8 @@ import htsjdk.samtools.SamReader;
 
 class CoordinateSortedBAMFileAssertion extends BAMFileAssertion {
 
-    CoordinateSortedBAMFileAssertion(final String workingDirectory, final OutputType outputType, final Sample sample) {
-        super(workingDirectory, outputType, sample);
+    CoordinateSortedBAMFileAssertion(final String workingDirectory, final Sample sample) {
+        super(workingDirectory, sample);
     }
 
     @Override

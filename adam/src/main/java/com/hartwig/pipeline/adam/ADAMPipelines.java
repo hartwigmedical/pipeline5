@@ -6,6 +6,8 @@ import java.util.stream.Collectors;
 
 import com.google.common.util.concurrent.MoreExecutors;
 import com.hartwig.io.DataLocation;
+import com.hartwig.io.FinalDataLocation;
+import com.hartwig.io.IntermediateDataLocation;
 import com.hartwig.io.OutputType;
 import com.hartwig.patient.KnownIndels;
 import com.hartwig.patient.ReferenceGenome;
@@ -26,7 +28,8 @@ public class ADAMPipelines {
             final boolean parallel, final boolean saveAsFile) {
         JavaADAMContext javaADAMContext = new JavaADAMContext(adamContext);
         ReferenceGenome referenceGenome = ReferenceGenome.of(fileSystem.getUri() + referenceGenomePath);
-        DataLocation dataLocation = new DataLocation(fileSystem, workingDirectory);
+        IntermediateDataLocation intermediateDataLocation = new IntermediateDataLocation(fileSystem, workingDirectory);
+        DataLocation finalDataLocation = new FinalDataLocation(fileSystem, workingDirectory);
         KnownIndels knownIndels =
                 KnownIndels.of(knownIndelPaths.stream().map(path -> fileSystem.getUri() + path).collect(Collectors.toList()));
         return BamCreationPipeline.builder()
@@ -36,11 +39,12 @@ public class ADAMPipelines {
                 .tumorFinalQC(ifEnabled(doQC,
                         ADAMFinalBAMQC.of(javaADAMContext, referenceGenome, CoverageThreshold.of(30, 80), CoverageThreshold.of(60, 65))))
                 .alignment(new ADAMBwa(referenceGenome, adamContext, fileSystem, bwaThreads))
-                .alignmentDatasource(new HDFSAlignmentRDDSource(OutputType.ALIGNED, javaADAMContext, dataLocation))
-                .finalDatasource(new HDFSAlignmentRDDSource(OutputType.INDEL_REALIGNED, javaADAMContext, dataLocation))
-                .addBamEnrichment(new ADAMMarkDuplicatesAndSort(javaADAMContext, dataLocation))
-                .addBamEnrichment(new ADAMRealignIndels(knownIndels, referenceGenome, javaADAMContext, dataLocation))
-                .bamStore(new HDFSBamStore(dataLocation, fileSystem, saveAsFile))
+                .alignmentDatasource(new HDFSAlignmentRDDSource(OutputType.ALIGNED, javaADAMContext, intermediateDataLocation))
+                .finalDatasource(new HDFSAlignmentRDDSource(OutputType.INDEL_REALIGNED, javaADAMContext, intermediateDataLocation))
+                .finalBamStore(new HDFSBamStore(finalDataLocation, fileSystem, true))
+                .addBamEnrichment(new ADAMMarkDuplicatesAndSort(javaADAMContext, intermediateDataLocation))
+                .addBamEnrichment(new ADAMRealignIndels(knownIndels, referenceGenome, javaADAMContext, intermediateDataLocation))
+                .bamStore(new HDFSBamStore(intermediateDataLocation, fileSystem, saveAsFile))
                 .executorService(parallel ? Executors.newFixedThreadPool(2) : MoreExecutors.sameThreadExecutor())
                 .build();
     }

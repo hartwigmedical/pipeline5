@@ -1,11 +1,7 @@
 package com.hartwig.pipeline.bootstrap;
 
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 import com.google.api.services.dataproc.DataprocScopes;
@@ -20,6 +16,7 @@ import com.hartwig.pipeline.cluster.JarLocation;
 import com.hartwig.pipeline.cluster.JarUpload;
 import com.hartwig.pipeline.cluster.SampleCluster;
 import com.hartwig.pipeline.cluster.SparkJobDefinition;
+import com.hartwig.pipeline.upload.FileStreamSupplier;
 import com.hartwig.pipeline.upload.SBPRestApi;
 import com.hartwig.pipeline.upload.SBPS3StreamSupplier;
 import com.hartwig.pipeline.upload.SBPSampleReader;
@@ -73,11 +70,13 @@ class Bootstrap {
     public static void main(String[] args) {
         BootstrapOptions.from(args).ifPresent(arguments -> {
             try {
-                final GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream(arguments.privateKeyPath())).createScoped(DataprocScopes.all());
-                Storage storage = StorageOptions.newBuilder().setCredentials(credentials).setProjectId(arguments.project()).build().getService();
+                final GoogleCredentials credentials =
+                        GoogleCredentials.fromStream(new FileInputStream(arguments.privateKeyPath())).createScoped(DataprocScopes.all());
+                Storage storage =
+                        StorageOptions.newBuilder().setCredentials(credentials).setProjectId(arguments.project()).build().getService();
 
                 SampleUpload sampleUpload = arguments.sbpApiSampleId().<SampleUpload>map(sampleId -> new StreamToGoogleStorage(storage,
-                        SBPS3StreamSupplier.newInstance())).orElse(new StreamToGoogleStorage(storage, fileInputStream()));
+                        SBPS3StreamSupplier.newInstance())).orElse(new StreamToGoogleStorage(storage, FileStreamSupplier.newInstance()));
 
                 SampleSource sampleSource =
                         arguments.sbpApiSampleId().<SampleSource>map(sampleId -> a -> new SBPSampleReader(SBPRestApi.newInstance(a)).read(
@@ -99,17 +98,6 @@ class Bootstrap {
             try {
                 return PatientReader.fromHDFS(Hadoop.localFilesystem(), a.patientDirectory(), a.patientId()).reference();
             } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        };
-    }
-
-    @NotNull
-    private static Function<File, InputStream> fileInputStream() {
-        return file -> {
-            try {
-                return new FileInputStream(file);
-            } catch (FileNotFoundException e) {
                 throw new RuntimeException(e);
             }
         };

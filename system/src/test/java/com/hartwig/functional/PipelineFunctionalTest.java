@@ -6,7 +6,6 @@ import static com.hartwig.testsupport.TestConfigurations.HUNDREDK_READS_HISEQ_PA
 
 import java.io.File;
 
-import com.hartwig.io.OutputType;
 import com.hartwig.patient.Sample;
 import com.hartwig.patient.io.PatientReader;
 import com.hartwig.pipeline.adam.ADAMPipelines;
@@ -42,10 +41,9 @@ public class PipelineFunctionalTest {
         ADAMPipelines.bamCreation(new ADAMContext(context.sc()),
                 fileSystem,
                 RESULT_DIR,
-                HUNDREDK_READS_HISEQ.referenceGenome().path(),
-                HUNDREDK_READS_HISEQ.knownIndel().paths(),
-                1, false, false, true).execute(PatientReader.fromHDFS(fileSystem, HUNDREDK_READS_HISEQ.patient().directory(), HUNDREDK_READS_HISEQ_PATIENT_NAME));
-        assertThatOutput(RESULT_DIR, OutputType.DUPLICATE_MARKED, REFERENCE_SAMPLE).sorted().aligned().duplicatesMarked().isEqualToExpected();
-        assertThatOutput(RESULT_DIR, OutputType.DUPLICATE_MARKED, TUMOUR_SAMPLE).sorted().aligned().duplicatesMarked().isEqualToExpected();
+                HUNDREDK_READS_HISEQ.referenceGenome().path(), HUNDREDK_READS_HISEQ.knownIndel().paths(), 1, false, false, true)
+                .execute(PatientReader.fromHDFS(fileSystem, HUNDREDK_READS_HISEQ.patient().directory(), HUNDREDK_READS_HISEQ_PATIENT_NAME));
+        assertThatOutput(RESULT_DIR, REFERENCE_SAMPLE).sorted().aligned().duplicatesMarked().isEqualToExpected();
+        assertThatOutput(RESULT_DIR, TUMOUR_SAMPLE).sorted().aligned().duplicatesMarked().isEqualToExpected();
     }
 }

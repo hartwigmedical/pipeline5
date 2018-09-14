@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.hartwig.io.OutputType;
 import com.hartwig.patient.Sample;
 
 import htsjdk.samtools.SAMFlag;
@@ -14,8 +13,8 @@ import htsjdk.samtools.SamReader;
 
 class DuplicateMarkedFileAssertion extends BAMFileAssertion {
 
-    DuplicateMarkedFileAssertion(final String workingDirectory, final OutputType outputType, final Sample sample) {
-        super(workingDirectory, outputType, sample);
+    DuplicateMarkedFileAssertion(final String workingDirectory, final Sample sample) {
+        super(workingDirectory, sample);
     }
 
     @Override

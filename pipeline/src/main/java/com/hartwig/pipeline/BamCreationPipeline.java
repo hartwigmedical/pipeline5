@@ -60,6 +60,7 @@ public abstract class BamCreationPipeline {
             }
             if (output != null) {
                 qc(finalQC, output);
+                finalBamStore().store(output);
             } else {
                 LOGGER.info("No stages to run as all output existed. Running final QC on persisted BAM");
                 qc(finalQC, finalDatasource().extract(sample));
@@ -121,6 +122,8 @@ public abstract class BamCreationPipeline {
     protected abstract List<Stage<AlignmentRecordRDD, AlignmentRecordRDD>> bamEnrichment();
 
     protected abstract OutputStore<AlignmentRecordRDD> bamStore();
+
+    protected abstract OutputStore<AlignmentRecordRDD> finalBamStore();
 
     protected abstract Function<AlignmentRecordRDD, QualityControl<AlignmentRecordRDD>> readCountQCFactory();
 
