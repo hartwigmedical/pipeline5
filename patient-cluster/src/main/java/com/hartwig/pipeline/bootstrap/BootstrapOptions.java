@@ -18,6 +18,7 @@ class BootstrapOptions {
     private static final String JAR_LIB_FLAG = "l";
     private static final String BUCKET_FLAG = "b";
     private static final String FORCE_JAR_UPLOAD_FLAG = "force_jar_upload";
+    private static final String NO_CLUSTER_DELETE_FLAG = "no_cluster_delete";
     private static final String PROJECT_FLAG = "project";
     private static final String REGION_FLAG = "region";
     private static final String SKIP_UPLOAD_FLAG = "skip_upload";
@@ -42,7 +43,10 @@ class BootstrapOptions {
                 .addOption(bucket())
                 .addOption(SKIP_UPLOAD_FLAG, false, "Skip uploading of patient data into cloud storeage")
                 .addOption(FORCE_JAR_UPLOAD_FLAG, false, "Force upload of JAR even if the version already exists in cloud storage")
-                .addOption(project()).addOption(region()).addOption(sbpSampleId()).addOption(sbpApiUrl());
+                .addOption(project())
+                .addOption(region())
+                .addOption(sbpSampleId())
+                .addOption(sbpApiUrl());
     }
 
     private static Option sbpApiUrl() {
@@ -110,12 +114,13 @@ class BootstrapOptions {
                     .patientId(commandLine.getOptionValue(PATIENT_FLAG, ""))
                     .jarLibDirectory(commandLine.getOptionValue(JAR_LIB_FLAG, DEFAULT_JAR_LIB))
                     .runtimeBucket(commandLine.getOptionValue(BUCKET_FLAG, DEFAULT_BUCKET))
-                    .forceJarUpload(commandLine.hasOption(FORCE_JAR_UPLOAD_FLAG))
-                    .skipPatientUpload(commandLine.hasOption(SKIP_UPLOAD_FLAG))
                     .project(commandLine.getOptionValue(PROJECT_FLAG, DEFAULT_PROJECT))
                     .region(handleDashesInRegion(commandLine))
                     .sbpApiUrl(commandLine.getOptionValue(SBP_API_URL_FLAG, DEFAULT_SBP_API_URL))
                     .sbpApiSampleId(sbpApiSampleId(commandLine))
+                    .forceJarUpload(commandLine.hasOption(FORCE_JAR_UPLOAD_FLAG))
+                    .skipPatientUpload(commandLine.hasOption(SKIP_UPLOAD_FLAG))
+                    .noClusterDelete(commandLine.hasOption(NO_CLUSTER_DELETE_FLAG))
                     .build());
         } catch (ParseException e) {
             HelpFormatter formatter = new HelpFormatter();

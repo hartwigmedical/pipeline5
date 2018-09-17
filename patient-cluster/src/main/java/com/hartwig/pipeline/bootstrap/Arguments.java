@@ -17,6 +17,11 @@ public interface Arguments {
         return false;
     }
 
+    @Value.Default
+    default boolean noClusterDelete() {
+        return false;
+    }
+
     String runtimeBucket();
 
     String project();

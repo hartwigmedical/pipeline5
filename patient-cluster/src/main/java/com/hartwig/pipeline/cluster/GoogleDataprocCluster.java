@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 public class GoogleDataprocCluster implements SampleCluster {
 
     private static final String MACHINE_TYPE_URI = "n1-standard-32";
-    private static final int NUM_WORKERS = 4;
+    private static final int NUM_WORKERS = 6;
     private static final String APPLICATION_NAME = "sample-dataproc-cluster";
     private final Logger LOGGER = LoggerFactory.getLogger(GoogleDataprocCluster.class);
     private String clusterName;

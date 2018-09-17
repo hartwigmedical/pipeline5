@@ -59,7 +59,9 @@ class Bootstrap {
             if (!arguments.skipPatientUpload()) {
                 upload.cleanup(sample, arguments);
             }
-            cluster.stop(arguments);
+            if (!arguments.noClusterDelete()) {
+                cluster.stop(arguments);
+            }
 
         } catch (IOException e) {
             LOGGER.error("Could not read patient data from filesystem. "
