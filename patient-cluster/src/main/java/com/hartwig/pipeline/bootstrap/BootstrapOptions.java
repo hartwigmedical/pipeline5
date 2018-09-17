@@ -35,7 +35,7 @@ class BootstrapOptions {
     private static final String DEFAULT_PRIVATE_KEY_PATH = "/secrets/bootstrap-key.json";
     private static final String SBP_SAMPLE_ID_FLAG = "sbp_sample_id";
     private static final String SBP_API_URL_FLAG = "sbp_api_url";
-    private static final String DEFAULT_SBP_API_URL = "https://hmfapi:5002";
+    private static final String DEFAULT_SBP_API_URL = "https://hmfapi";
 
     private static Options options() {
         return new Options().addOption(privateKeyFlag())
