@@ -3,6 +3,8 @@ package com.hartwig.pipeline.bootstrap;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.google.api.services.dataproc.DataprocScopes;
 import com.google.auth.oauth2.GoogleCredentials;
@@ -70,6 +72,7 @@ class Bootstrap {
     }
 
     public static void main(String[] args) {
+        LOGGER.info("Raw arguments [{}]", Stream.of(args).collect(Collectors.joining(", ")));
         BootstrapOptions.from(args).ifPresent(arguments -> {
             try {
                 final GoogleCredentials credentials =

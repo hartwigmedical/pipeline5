@@ -9,9 +9,12 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class BootstrapOptions {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(BootstrapOptions.class);
     private static final String PATIENT_FLAG = "p";
     private static final String PATIENT_DIRECTORY_FLAG = "d";
     private static final String VERSION_FLAG = "v";
@@ -123,8 +126,9 @@ class BootstrapOptions {
                     .noClusterDelete(commandLine.hasOption(NO_CLUSTER_DELETE_FLAG))
                     .build());
         } catch (ParseException e) {
+            LOGGER.error("Could not parse command line args", e);
             HelpFormatter formatter = new HelpFormatter();
-            formatter.printHelp("boostrap", options());
+            formatter.printHelp("bootstrap", options());
             return Optional.empty();
         }
     }
