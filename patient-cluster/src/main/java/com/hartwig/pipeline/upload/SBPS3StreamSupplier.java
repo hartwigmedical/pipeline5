@@ -19,7 +19,7 @@ public class SBPS3StreamSupplier implements Function<File, InputStream> {
     @Override
     public InputStream apply(final File file) {
         String bucket = file.getParent().replaceAll("/", "");
-        return s3client.getObject(bucket, file.getPath()).getObjectContent();
+        return s3client.getObject(bucket, file.getName()).getObjectContent();
     }
 
     public static Function<File, InputStream> newInstance(String endpointUrl) {
