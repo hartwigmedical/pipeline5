@@ -63,15 +63,25 @@ public class SBPSampleReader {
 
     @NotNull
     private static ImmutableLane lane(final FastQMetadata fastQMetadata) {
+        if (fastQMetadata.bucket() == null || fastQMetadata.bucket().isEmpty()) {
+            throw new IllegalStateException(String.format(
+                    "Bucket for fastq [%s] was null or empty. Has this sample id been cleaned up in S3?",
+                    fastQMetadata));
+        }
         return Lane.builder()
                 .name("")
-                .readsPath(fastQMetadata.name_r1())
-                .matesPath(fastQMetadata.name_r2())
+                .readsPath(s3Path(fastQMetadata, fastQMetadata.name_r1()))
+                .matesPath(s3Path(fastQMetadata, fastQMetadata.name_r2()))
                 .directory("")
                 .suffix("")
                 .flowCellId("")
                 .index("0")
                 .build();
+    }
+
+    @NotNull
+    private static String s3Path(final FastQMetadata fastQMetadata, final String file) {
+        return fastQMetadata.bucket() + "/" + file;
     }
 
     private List<FastQMetadata> parseJson(final String json) throws IOException {

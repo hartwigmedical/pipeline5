@@ -10,7 +10,6 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 
 public class SBPS3StreamSupplier implements Function<File, InputStream> {
 
-    private static final String BUCKET = "hmf-fastq-storage";
     private final AmazonS3 s3client;
 
     private SBPS3StreamSupplier(final AmazonS3 s3client) {
@@ -19,7 +18,8 @@ public class SBPS3StreamSupplier implements Function<File, InputStream> {
 
     @Override
     public InputStream apply(final File file) {
-        return s3client.getObject(BUCKET, file.getPath()).getObjectContent();
+        String bucket = file.getParent().replaceAll("/", "");
+        return s3client.getObject(bucket, file.getPath()).getObjectContent();
     }
 
     public static Function<File, InputStream> newInstance(String endpointUrl) {
