@@ -46,6 +46,7 @@ class BootstrapOptions {
                 .addOption(bucket())
                 .addOption(SKIP_UPLOAD_FLAG, false, "Skip uploading of patient data into cloud storeage")
                 .addOption(FORCE_JAR_UPLOAD_FLAG, false, "Force upload of JAR even if the version already exists in cloud storage")
+                .addOption(NO_CLUSTER_DELETE_FLAG, false, "Don't delete the cluster after job is complete")
                 .addOption(project())
                 .addOption(region())
                 .addOption(sbpSampleId())
