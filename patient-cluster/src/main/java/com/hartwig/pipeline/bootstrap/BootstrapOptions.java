@@ -35,7 +35,9 @@ class BootstrapOptions {
     private static final String DEFAULT_PRIVATE_KEY_PATH = "/secrets/bootstrap-key.json";
     private static final String SBP_SAMPLE_ID_FLAG = "sbp_sample_id";
     private static final String SBP_API_URL_FLAG = "sbp_api_url";
+    private static final String SBP_S3_URL_FLAG = "sbp_s3_url";
     private static final String DEFAULT_SBP_API_URL = "https://hmfapi";
+    private static final String DEFAULT_SBP_S3_URL = "https://s3.object02.schubergphilis.com";
 
     private static Options options() {
         return new Options().addOption(privateKeyFlag())
@@ -49,12 +51,15 @@ class BootstrapOptions {
                 .addOption(NO_CLUSTER_DELETE_FLAG, false, "Don't delete the cluster after job is complete")
                 .addOption(project())
                 .addOption(region())
-                .addOption(sbpSampleId())
-                .addOption(sbpApiUrl());
+                .addOption(sbpSampleId()).addOption(sbpApiUrl()).addOption(sbpS3Url());
     }
 
     private static Option sbpApiUrl() {
         return optionWithArgAndDefault(SBP_API_URL_FLAG, "sbp_api_url", "URL of the SBP API endpoint", DEFAULT_SBP_API_URL);
+    }
+
+    private static Option sbpS3Url() {
+        return optionWithArgAndDefault(SBP_S3_URL_FLAG, "sbp_s3_url", "URL of the SBP S3 endpoint", DEFAULT_SBP_API_URL);
     }
 
     private static Option sbpSampleId() {
@@ -121,7 +126,7 @@ class BootstrapOptions {
                     .project(commandLine.getOptionValue(PROJECT_FLAG, DEFAULT_PROJECT))
                     .region(handleDashesInRegion(commandLine))
                     .sbpApiUrl(commandLine.getOptionValue(SBP_API_URL_FLAG, DEFAULT_SBP_API_URL))
-                    .sbpApiSampleId(sbpApiSampleId(commandLine))
+                    .sbpApiSampleId(sbpApiSampleId(commandLine)).sblS3Url(commandLine.getOptionValue(SBP_S3_URL_FLAG, DEFAULT_SBP_S3_URL))
                     .forceJarUpload(commandLine.hasOption(FORCE_JAR_UPLOAD_FLAG))
                     .skipPatientUpload(commandLine.hasOption(SKIP_UPLOAD_FLAG))
                     .noClusterDelete(commandLine.hasOption(NO_CLUSTER_DELETE_FLAG))

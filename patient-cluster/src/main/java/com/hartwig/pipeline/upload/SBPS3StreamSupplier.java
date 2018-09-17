@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.function.Function;
 
+import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 
@@ -21,8 +22,11 @@ public class SBPS3StreamSupplier implements Function<File, InputStream> {
         return s3client.getObject(BUCKET, file.getPath()).getObjectContent();
     }
 
-    public static Function<File, InputStream> newInstance() {
-        AmazonS3 s3Client = AmazonS3ClientBuilder.defaultClient();
+    public static Function<File, InputStream> newInstance(String endpointUrl) {
+        AmazonS3ClientBuilder clientBuilder = AmazonS3ClientBuilder.standard();
+        AmazonS3 s3Client =
+                clientBuilder.withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endpointUrl, clientBuilder.getRegion()))
+                        .build();
         return new SBPS3StreamSupplier(s3Client);
     }
 }

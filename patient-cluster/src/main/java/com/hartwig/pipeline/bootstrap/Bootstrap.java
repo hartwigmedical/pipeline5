@@ -81,7 +81,8 @@ class Bootstrap {
                         StorageOptions.newBuilder().setCredentials(credentials).setProjectId(arguments.project()).build().getService();
 
                 SampleUpload sampleUpload = arguments.sbpApiSampleId().<SampleUpload>map(sampleId -> new StreamToGoogleStorage(storage,
-                        SBPS3StreamSupplier.newInstance())).orElse(new StreamToGoogleStorage(storage, FileStreamSupplier.newInstance()));
+                        SBPS3StreamSupplier.newInstance(arguments.sblS3Url()))).orElse(new StreamToGoogleStorage(storage,
+                        FileStreamSupplier.newInstance()));
 
                 SampleSource sampleSource =
                         arguments.sbpApiSampleId().<SampleSource>map(sampleId -> a -> new SBPSampleReader(SBPRestApi.newInstance(a)).read(

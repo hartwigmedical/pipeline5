@@ -14,7 +14,7 @@ public class SBPS3StreamSupplierTest {
 
     @Test
     public void displayFileContents() throws Exception {
-        InputStream stream = SBPS3StreamSupplier.newInstance().apply(new File("CPCT12345678R_HJJLGCCXX_S1_L001_R1_001.fastq.gz"));
+        InputStream stream = SBPS3StreamSupplier.newInstance("test").apply(new File("CPCT12345678R_HJJLGCCXX_S1_L001_R1_001.fastq.gz"));
     }
 
     private static void displayTextInputStream(InputStream input) throws IOException {

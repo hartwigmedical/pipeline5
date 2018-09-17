@@ -40,6 +40,8 @@ public interface Arguments {
 
     String sbpApiUrl();
 
+    String sblS3Url();
+
     Optional<Integer> sbpApiSampleId();
 
     static ImmutableArguments.Builder builder() {
