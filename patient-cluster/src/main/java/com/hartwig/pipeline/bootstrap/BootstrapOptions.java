@@ -36,7 +36,7 @@ class BootstrapOptions {
     private static final String SBP_SAMPLE_ID_FLAG = "sbp_sample_id";
     private static final String SBP_API_URL_FLAG = "sbp_api_url";
     private static final String SBP_S3_URL_FLAG = "sbp_s3_url";
-    private static final String DEFAULT_SBP_API_URL = "https://hmfapi";
+    private static final String DEFAULT_SBP_API_URL = "http://hmfapi";
     private static final String DEFAULT_SBP_S3_URL = "https://s3.object02.schubergphilis.com";
 
     private static Options options() {
