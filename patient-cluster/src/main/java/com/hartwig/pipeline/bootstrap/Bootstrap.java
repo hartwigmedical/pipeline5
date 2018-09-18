@@ -34,13 +34,20 @@ class Bootstrap {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Bootstrap.class);
     private static final String MAIN_CLASS = "com.hartwig.pipeline.runtime.GoogleCloudPipelineRuntime";
+    private final Storage storage;
+    private final StaticData referenceGenomeData;
+    private final StaticData knownIndelData;
     private final SampleSource sampleSource;
     private final Supplier<SampleUpload> uploadProvider;
     private final Supplier<SampleCluster> clusterProvider;
     private final JarUpload jarUpload;
 
-    private Bootstrap(final SampleSource sampleSource, final Supplier<SampleUpload> uploadProvider,
-            final Supplier<SampleCluster> clusterProvider, final JarUpload jarUpload) {
+    private Bootstrap(final Storage storage, final StaticData referenceGenomeData, final StaticData knownIndelData,
+            final SampleSource sampleSource, final Supplier<SampleUpload> uploadProvider, final Supplier<SampleCluster> clusterProvider,
+            final JarUpload jarUpload) {
+        this.storage = storage;
+        this.referenceGenomeData = referenceGenomeData;
+        this.knownIndelData = knownIndelData;
         this.sampleSource = sampleSource;
         this.uploadProvider = uploadProvider;
         this.clusterProvider = clusterProvider;
@@ -50,19 +57,18 @@ class Bootstrap {
     private void run(Arguments arguments) {
         try {
             Sample sample = sampleSource.sample(arguments);
+            RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, sample, arguments);
+            referenceGenomeData.copyInto(runtimeBucket);
+            knownIndelData.copyInto(runtimeBucket);
             SampleUpload upload = uploadProvider.get();
-            if (!arguments.skipPatientUpload()) {
-                upload.run(sample, arguments);
-            }
-            JarLocation location = jarUpload.run(arguments);
+            upload.run(sample, runtimeBucket);
+            JarLocation location = jarUpload.run(runtimeBucket, arguments);
             SampleCluster cluster = clusterProvider.get();
-            cluster.start(sample, arguments);
+            cluster.start(sample, runtimeBucket, arguments);
             cluster.submit(SparkJobDefinition.of(MAIN_CLASS, location.uri()), arguments);
-            if (!arguments.skipPatientUpload()) {
-                upload.cleanup(sample, arguments);
-            }
-            if (!arguments.noClusterDelete()) {
+            if (!arguments.noCleanup()) {
                 cluster.stop(arguments);
+                runtimeBucket.bucket().delete();
             }
 
         } catch (IOException e) {
@@ -80,18 +86,16 @@ class Bootstrap {
                 Storage storage =
                         StorageOptions.newBuilder().setCredentials(credentials).setProjectId(arguments.project()).build().getService();
 
-                SampleUpload sampleUpload = arguments.sbpApiSampleId().<SampleUpload>map(sampleId -> new StreamToGoogleStorage(storage,
-                        SBPS3StreamSupplier.newInstance(arguments.sblS3Url()))).orElse(new StreamToGoogleStorage(storage,
-                        FileStreamSupplier.newInstance()));
+                SampleUpload sampleUpload =
+                        arguments.sbpApiSampleId().<SampleUpload>map(sampleId -> new StreamToGoogleStorage(SBPS3StreamSupplier.newInstance(
+                                arguments.sblS3Url()))).orElse(new StreamToGoogleStorage(FileStreamSupplier.newInstance()));
 
                 SampleSource sampleSource =
                         arguments.sbpApiSampleId().<SampleSource>map(sampleId -> a -> new SBPSampleReader(SBPRestApi.newInstance(a)).read(
                                 sampleId)).orElse(fromLocalFilesystem());
 
-                new Bootstrap(sampleSource,
-                        () -> sampleUpload,
-                        () -> new GoogleDataprocCluster(credentials),
-                        new GoogleStorageJarUpload(storage)).run(arguments);
+                new Bootstrap(storage, new StaticData(storage, "reference_genome"), new StaticData(storage, "known_indels"), sampleSource,
+                        () -> sampleUpload, () -> new GoogleDataprocCluster(credentials), new GoogleStorageJarUpload()).run(arguments);
             } catch (IOException e) {
                 LOGGER.error("Unable to run bootstrap. Credential file was missing or not readable.", e);
             }

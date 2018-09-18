@@ -61,7 +61,6 @@ public interface PatientReader {
             return new ReferenceAndTumorReader(fileSystem).read(resolvedPatientPath);
         } else if (referenceAndTumorPaths.isEmpty()) {
             List<FileStatus> subfiles = Stream.of(fileSystem.listStatus(resolvedPatientPath))
-                    .filter(FileStatus::isFile)
                     .collect(Collectors.toList());
             if (subfiles.isEmpty()) {
                 throw illegalArgument(format("Patient path [%s] is empty. Check your pipeline.yaml", resolvedPatientPath));

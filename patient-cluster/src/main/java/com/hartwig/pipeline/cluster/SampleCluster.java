@@ -4,10 +4,11 @@ import java.io.IOException;
 
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.bootstrap.Arguments;
+import com.hartwig.pipeline.bootstrap.RuntimeBucket;
 
 public interface SampleCluster {
 
-    void start(Sample sample, Arguments arguments) throws IOException;
+    void start(Sample sample, RuntimeBucket runtimeBucket, Arguments arguments) throws IOException;
 
     void submit(SparkJobDefinition jobDefinition, Arguments arguments) throws IOException;
 

@@ -8,21 +8,14 @@ import org.immutables.value.Value;
 public interface Arguments {
 
     @Value.Default
-    default boolean skipPatientUpload() {
-        return false;
-    }
-
-    @Value.Default
     default boolean forceJarUpload() {
         return false;
     }
 
     @Value.Default
-    default boolean noClusterDelete() {
+    default boolean noCleanup() {
         return false;
     }
-
-    String runtimeBucket();
 
     String project();
 

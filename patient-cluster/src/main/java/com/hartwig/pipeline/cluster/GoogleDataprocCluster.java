@@ -23,6 +23,7 @@ import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.bootstrap.Arguments;
+import com.hartwig.pipeline.bootstrap.RuntimeBucket;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +43,7 @@ public class GoogleDataprocCluster implements SampleCluster {
     }
 
     @Override
-    public void start(Sample sample, Arguments arguments) throws IOException {
+    public void start(Sample sample, RuntimeBucket runtimeBucket, Arguments arguments) throws IOException {
         this.clusterName = "sample-" + sample.name().toLowerCase() + "-1";
         dataproc = new Dataproc.Builder(new NetHttpTransport(),
                 JacksonFactory.getDefaultInstance(),
@@ -52,7 +53,7 @@ public class GoogleDataprocCluster implements SampleCluster {
         if (existing == null) {
             Operation createCluster = clusters.create(arguments.project(),
                     arguments.region(),
-                    cluster(clusterConfig(masterConfig(), primaryWorkerConfig(), secondaryWorkerConfig(), arguments.runtimeBucket()),
+                    cluster(clusterConfig(masterConfig(), primaryWorkerConfig(), secondaryWorkerConfig(), runtimeBucket.bucket().getName()),
                             clusterName)).execute();
             LOGGER.info("Starting Google Dataproc cluster with name [{}]. This may take a minute or two...", clusterName);
             waitForOperationComplete(createCluster);
@@ -65,8 +66,7 @@ public class GoogleDataprocCluster implements SampleCluster {
     @Override
     public void submit(SparkJobDefinition jobDefinition, Arguments arguments) throws IOException {
         LOGGER.info("Submitting spark job to cluster [{}]", clusterName);
-        Job job = dataproc.projects()
-                .regions().jobs().submit(arguments.project(), arguments.region(),
+        Job job = dataproc.projects().regions().jobs().submit(arguments.project(), arguments.region(),
                         new SubmitJobRequest().setJob(new Job().setPlacement(new JobPlacement().setClusterName(clusterName))
                                 .setSparkJob(new SparkJob().setProperties(SparkProperties.asMap()).setMainClass(jobDefinition.mainClass())
                                         .setJarFileUris(Collections.singletonList(jobDefinition.jarLocation())))))

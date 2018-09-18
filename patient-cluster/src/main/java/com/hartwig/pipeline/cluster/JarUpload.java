@@ -3,8 +3,9 @@ package com.hartwig.pipeline.cluster;
 import java.io.IOException;
 
 import com.hartwig.pipeline.bootstrap.Arguments;
+import com.hartwig.pipeline.bootstrap.RuntimeBucket;
 
 public interface JarUpload {
 
-    JarLocation run(Arguments arguments) throws IOException;
+    JarLocation run(RuntimeBucket runtimeBucket, Arguments arguments) throws IOException;
 }

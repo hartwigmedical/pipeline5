@@ -14,10 +14,6 @@
         <level value="INFO"/>
     </logger>
 
-    <logger name="com.amazonaws">
-        <level value="DEBUG"/>
-    </logger>
-
     <root>
         <level value="WARN"/>
         <appender-ref ref="console"/>
