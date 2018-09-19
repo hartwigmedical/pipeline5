@@ -44,7 +44,7 @@ public class GoogleDataprocCluster implements SampleCluster {
 
     @Override
     public void start(Sample sample, RuntimeBucket runtimeBucket, Arguments arguments) throws IOException {
-        this.clusterName = "sample-" + sample.name().toLowerCase() + "-1";
+        this.clusterName = runtimeBucket.getName();
         dataproc = new Dataproc.Builder(new NetHttpTransport(),
                 JacksonFactory.getDefaultInstance(),
                 new HttpCredentialsAdapter(credential)).setApplicationName(APPLICATION_NAME).build();

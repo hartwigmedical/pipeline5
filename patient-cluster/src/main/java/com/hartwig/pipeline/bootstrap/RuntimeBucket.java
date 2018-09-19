@@ -1,5 +1,6 @@
 package com.hartwig.pipeline.bootstrap;
 
+import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.BucketInfo;
 import com.google.cloud.storage.Storage;
@@ -34,5 +35,17 @@ public class RuntimeBucket {
                     .build());
         }
         return new RuntimeBucket(bucket);
+    }
+
+    void cleanup() {
+        for (Blob blob : bucket.list().iterateAll()) {
+            blob.delete();
+        }
+        bucket.delete();
+        LOGGER.info("Cleaned up all data in runtime bucket [{}]", bucket.getName());
+    }
+
+    public String getName() {
+        return bucket.getName();
     }
 }

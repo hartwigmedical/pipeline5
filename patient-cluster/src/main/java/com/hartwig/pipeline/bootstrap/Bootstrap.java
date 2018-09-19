@@ -68,7 +68,7 @@ class Bootstrap {
             cluster.submit(SparkJobDefinition.of(MAIN_CLASS, location.uri()), arguments);
             if (!arguments.noCleanup()) {
                 cluster.stop(arguments);
-                runtimeBucket.bucket().delete();
+                runtimeBucket.cleanup();
             }
 
         } catch (IOException e) {
