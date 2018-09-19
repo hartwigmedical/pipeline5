@@ -37,6 +37,16 @@ public interface Arguments {
 
     Optional<Integer> sbpApiSampleId();
 
+    Optional<String> runId();
+
+    static Arguments defaults() {
+        return BootstrapOptions.from(new String[] {}).orElseThrow(IllegalStateException::new);
+    }
+
+    static ImmutableArguments.Builder defaultsBuilder() {
+        return ImmutableArguments.builder().from(BootstrapOptions.from(new String[] {}).orElseThrow(IllegalStateException::new));
+    }
+
     static ImmutableArguments.Builder builder() {
         return ImmutableArguments.builder();
     }

@@ -38,6 +38,7 @@ class BootstrapOptions {
     private static final String SBP_S3_URL_FLAG = "sbp_s3_url";
     private static final String DEFAULT_SBP_API_URL = "http://hmfapi";
     private static final String DEFAULT_SBP_S3_URL = "https://s3.object02.schubergphilis.com";
+    private static final String RUN_ID_FLAG = "run_id";
 
     private static Options options() {
         return new Options().addOption(privateKeyFlag())
@@ -50,8 +51,11 @@ class BootstrapOptions {
                 .addOption(FORCE_JAR_UPLOAD_FLAG, false, "Force upload of JAR even if the version already exists in cloud storage")
                 .addOption(NO_CLEANUP_FLAG, false, "Don't delete the cluster or runtime bucket after job is complete")
                 .addOption(project())
-                .addOption(region())
-                .addOption(sbpSampleId()).addOption(sbpApiUrl()).addOption(sbpS3Url());
+                .addOption(region()).addOption(sbpSampleId()).addOption(sbpApiUrl()).addOption(sbpS3Url()).addOption(runId());
+    }
+
+    private static Option runId() {
+        return optionWithArg(RUN_ID_FLAG, RUN_ID_FLAG, "Override the generated run id used for runtime bucket and cluster naming", false);
     }
 
     private static Option sbpApiUrl() {
@@ -125,9 +129,11 @@ class BootstrapOptions {
                     .project(commandLine.getOptionValue(PROJECT_FLAG, DEFAULT_PROJECT))
                     .region(handleDashesInRegion(commandLine))
                     .sbpApiUrl(commandLine.getOptionValue(SBP_API_URL_FLAG, DEFAULT_SBP_API_URL))
-                    .sbpApiSampleId(sbpApiSampleId(commandLine)).sblS3Url(commandLine.getOptionValue(SBP_S3_URL_FLAG, DEFAULT_SBP_S3_URL))
+                    .sbpApiSampleId(sbpApiSampleId(commandLine))
+                    .sblS3Url(commandLine.getOptionValue(SBP_S3_URL_FLAG, DEFAULT_SBP_S3_URL))
                     .forceJarUpload(commandLine.hasOption(FORCE_JAR_UPLOAD_FLAG))
                     .noCleanup(commandLine.hasOption(NO_CLEANUP_FLAG))
+                    .runId(runId(commandLine))
                     .build());
         } catch (ParseException e) {
             LOGGER.error("Could not parse command line args", e);
@@ -135,6 +141,13 @@ class BootstrapOptions {
             formatter.printHelp("bootstrap", options());
             return Optional.empty();
         }
+    }
+
+    private static Optional<String> runId(final CommandLine commandLine) {
+        if (commandLine.hasOption(RUN_ID_FLAG)) {
+            return Optional.of(commandLine.getOptionValue(RUN_ID_FLAG));
+        }
+        return Optional.empty();
     }
 
     private static Optional<Integer> sbpApiSampleId(final CommandLine commandLine) {
@@ -160,11 +173,6 @@ class BootstrapOptions {
     private static Option optionWithArgAndDefault(final String option, final String name, final String description,
             final String defaultValue) {
         return optionWithArg(option, name, description + " Default is " + (defaultValue.isEmpty() ? "empty" : defaultValue), false);
-    }
-
-    @NotNull
-    private static Option optionWithArg(final String option, final String name, final String description) {
-        return optionWithArg(option, name, description, true);
     }
 
     @NotNull
