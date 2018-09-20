@@ -11,9 +11,12 @@ import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.bootstrap.RuntimeBucket;
 
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SBPS3BamSink implements BamSink {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(SBPS3BamSink.class);
     private static final String ROOT_BUCKET = "hmf-bam-storage";
     private final AmazonS3 s3Client;
     private final SBPRestApi sbpRestApi;
@@ -45,6 +48,7 @@ public class SBPS3BamSink implements BamSink {
                         .filesize(existing.getContentLength())
                         .hash(hash)
                         .build());
+        LOGGER.info("Downloaded BAM file to [s3://{}/{}]", directory, bamFile);
     }
 
     @NotNull

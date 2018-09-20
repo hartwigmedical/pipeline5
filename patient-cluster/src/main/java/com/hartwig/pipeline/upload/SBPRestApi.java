@@ -6,13 +6,18 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hartwig.pipeline.bootstrap.Arguments;
 
+import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.client.HttpUrlConnectorProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SBPRestApi {
 
+    private final static ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private final static Logger LOGGER = LoggerFactory.getLogger(SBPRestApi.class);
     private final WebTarget target;
 
@@ -32,17 +37,26 @@ public class SBPRestApi {
     }
 
     void patchBam(int sampleId, BamMetadata metadata) {
-        Response invoke = target.path("hmf")
-                .path("v1")
-                .path("samples")
-                .path(String.valueOf(sampleId))
-                .request()
-                .build("PATCH", Entity.entity(metadata, MediaType.APPLICATION_JSON_TYPE))
-                .invoke();
-        LOGGER.info("Patched sample [{}] with [{}] and received response [{}]", sampleId, metadata, invoke.getStatus());
+        try {
+            String json = OBJECT_MAPPER.writeValueAsString(metadata);
+            LOGGER.info("Patching sample [{}] with [{}]", sampleId, json);
+            Response response = target.path("hmf")
+                    .path("v1")
+                    .path("samples")
+                    .path(String.valueOf(sampleId))
+                    .request()
+                    .build("PATCH", Entity.entity(json, MediaType.APPLICATION_JSON_TYPE))
+                    .invoke();
+            LOGGER.info("Patching complete with response [{}]", response.getStatus());
+
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static SBPRestApi newInstance(Arguments arguments) {
-        return new SBPRestApi(ClientBuilder.newClient().target(arguments.sbpApiUrl()));
+        ClientConfig config = new ClientConfig();
+        config.property(HttpUrlConnectorProvider.SET_METHOD_WORKAROUND, true);
+        return new SBPRestApi(ClientBuilder.newBuilder().withConfig(config).build().target(arguments.sbpApiUrl()));
     }
 }

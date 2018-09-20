@@ -35,6 +35,8 @@
         <google-dataproc-api.version>v1-rev102-1.25.0</google-dataproc-api.version>
         <google-cloud-nio.version>0.61.0-alpha</google-cloud-nio.version>
         <avro.version>1.8.1</avro.version>
+        <jersey.version>2.25</jersey.version>
+        <javax.ws.rs-api.version>2.1</javax.ws.rs-api.version>
     </properties>
 
     <modules>
@@ -125,6 +127,16 @@
                 <groupId>org.apache.avro</groupId>
                 <artifactId>avro</artifactId>
                 <version>${avro.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jersey.core</groupId>
+                <artifactId>jersey-client</artifactId>
+                <version>${jersey.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.ws.rs</groupId>
+                <artifactId>javax.ws.rs-api</artifactId>
+                <version>${javax.ws.rs-api.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-io</groupId>
