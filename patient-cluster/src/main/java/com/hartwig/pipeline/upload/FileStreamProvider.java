@@ -6,7 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.function.Function;
 
-public class FileStreamSupplier implements Function<File, InputStream> {
+public class FileStreamProvider implements Function<File, InputStream> {
     @Override
     public InputStream apply(final File file) {
         try {
@@ -17,6 +17,6 @@ public class FileStreamSupplier implements Function<File, InputStream> {
     }
 
     public static Function<File, InputStream> newInstance() {
-        return new FileStreamSupplier();
+        return new FileStreamProvider();
     }
 }

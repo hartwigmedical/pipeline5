@@ -1,11 +1,12 @@
 package com.hartwig.pipeline.bootstrap;
 
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.amazonaws.services.s3.AmazonS3;
 import com.google.api.services.dataproc.DataprocScopes;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Storage;
@@ -18,14 +19,18 @@ import com.hartwig.pipeline.cluster.JarLocation;
 import com.hartwig.pipeline.cluster.JarUpload;
 import com.hartwig.pipeline.cluster.SampleCluster;
 import com.hartwig.pipeline.cluster.SparkJobDefinition;
-import com.hartwig.pipeline.upload.FileStreamSupplier;
+import com.hartwig.pipeline.upload.FileStreamProvider;
+import com.hartwig.pipeline.upload.GoogleStorageToStream;
 import com.hartwig.pipeline.upload.SBPRestApi;
-import com.hartwig.pipeline.upload.SBPS3StreamSupplier;
+import com.hartwig.pipeline.upload.SBPS3BamSink;
+import com.hartwig.pipeline.upload.SBPS3InputStreamProvider;
 import com.hartwig.pipeline.upload.SBPSampleReader;
+import com.hartwig.pipeline.upload.SampleDownload;
 import com.hartwig.pipeline.upload.SampleUpload;
 import com.hartwig.pipeline.upload.StreamToGoogleStorage;
 import com.hartwig.support.hadoop.Hadoop;
 
+import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,19 +43,21 @@ class Bootstrap {
     private final StaticData referenceGenomeData;
     private final StaticData knownIndelData;
     private final SampleSource sampleSource;
-    private final Supplier<SampleUpload> uploadProvider;
-    private final Supplier<SampleCluster> clusterProvider;
+    private final SampleDownload sampleDownload;
+    private final SampleUpload sampleUpload;
+    private final SampleCluster cluster;
     private final JarUpload jarUpload;
 
     private Bootstrap(final Storage storage, final StaticData referenceGenomeData, final StaticData knownIndelData,
-            final SampleSource sampleSource, final Supplier<SampleUpload> uploadProvider, final Supplier<SampleCluster> clusterProvider,
-            final JarUpload jarUpload) {
+            final SampleSource sampleSource, final SampleDownload sampleDownload, final SampleUpload sampleUpload,
+            final SampleCluster cluster, final JarUpload jarUpload) {
         this.storage = storage;
         this.referenceGenomeData = referenceGenomeData;
         this.knownIndelData = knownIndelData;
         this.sampleSource = sampleSource;
-        this.uploadProvider = uploadProvider;
-        this.clusterProvider = clusterProvider;
+        this.sampleDownload = sampleDownload;
+        this.sampleUpload = sampleUpload;
+        this.cluster = cluster;
         this.jarUpload = jarUpload;
     }
 
@@ -60,12 +67,11 @@ class Bootstrap {
             RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, sample, arguments);
             referenceGenomeData.copyInto(runtimeBucket);
             knownIndelData.copyInto(runtimeBucket);
-            SampleUpload upload = uploadProvider.get();
-            upload.run(sample, runtimeBucket);
+            sampleUpload.run(sample, runtimeBucket);
             JarLocation location = jarUpload.run(runtimeBucket, arguments);
-            SampleCluster cluster = clusterProvider.get();
             cluster.start(sample, runtimeBucket, arguments);
             cluster.submit(SparkJobDefinition.of(MAIN_CLASS, location.uri()), arguments);
+            sampleDownload.run(sample, runtimeBucket);
             if (!arguments.noCleanup()) {
                 cluster.stop(arguments);
                 runtimeBucket.cleanup();
@@ -86,16 +92,38 @@ class Bootstrap {
                 Storage storage =
                         StorageOptions.newBuilder().setCredentials(credentials).setProjectId(arguments.project()).build().getService();
 
-                SampleUpload sampleUpload =
-                        arguments.sbpApiSampleId().<SampleUpload>map(sampleId -> new StreamToGoogleStorage(SBPS3StreamSupplier.newInstance(
-                                arguments.sblS3Url()))).orElse(new StreamToGoogleStorage(FileStreamSupplier.newInstance()));
+                if (arguments.sbpApiSampleId().isPresent()) {
+                    int sbpSampleId = arguments.sbpApiSampleId().get();
+                    SBPRestApi sbpRestApi = SBPRestApi.newInstance(arguments);
+                    AmazonS3 s3 = S3.newClient(arguments.sblS3Url());
+                    new Bootstrap(storage,
+                            new StaticData(storage, "reference_genome"),
+                            new StaticData(storage, "known_indels"),
+                            a -> new SBPSampleReader(sbpRestApi).read(sbpSampleId),
+                            new GoogleStorageToStream(SBPS3BamSink.newInstance(s3, sbpRestApi, sbpSampleId)),
+                            new StreamToGoogleStorage(SBPS3InputStreamProvider.newInstance(s3)),
+                            new GoogleDataprocCluster(credentials),
+                            new GoogleStorageJarUpload()).run(arguments);
+                } else {
+                    new Bootstrap(storage,
+                            new StaticData(storage, "reference_genome"),
+                            new StaticData(storage, "known_indels"),
+                            fromLocalFilesystem(),
+                            new GoogleStorageToStream((sample, bucket, stream) -> {
+                                String fileName = sample.name() + ".bam";
+                                try (FileOutputStream bamFileOut = new FileOutputStream(fileName)) {
+                                    IOUtils.copy(stream, bamFileOut);
+                                    bamFileOut.close();
+                                } catch (IOException e) {
+                                    throw new RuntimeException(e);
+                                }
+                                LOGGER.info("Completed download to file [{}]", fileName);
+                            }),
+                            new StreamToGoogleStorage(FileStreamProvider.newInstance()),
+                            new GoogleDataprocCluster(credentials),
+                            new GoogleStorageJarUpload()).run(arguments);
+                }
 
-                SampleSource sampleSource =
-                        arguments.sbpApiSampleId().<SampleSource>map(sampleId -> a -> new SBPSampleReader(SBPRestApi.newInstance(a)).read(
-                                sampleId)).orElse(fromLocalFilesystem());
-
-                new Bootstrap(storage, new StaticData(storage, "reference_genome"), new StaticData(storage, "known_indels"), sampleSource,
-                        () -> sampleUpload, () -> new GoogleDataprocCluster(credentials), new GoogleStorageJarUpload()).run(arguments);
             } catch (IOException e) {
                 LOGGER.error("Unable to run bootstrap. Credential file was missing or not readable.", e);
             }

@@ -1,7 +1,9 @@
 package com.hartwig.pipeline.upload;
 
 import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import com.hartwig.pipeline.bootstrap.Arguments;
@@ -25,7 +27,19 @@ public class SBPRestApi {
             return response.readEntity(String.class);
         }
         throw new RuntimeException(String.format("Received an error status of [%s] from SBP Api at [%s]",
-                response.getStatus(), target.getUri()));
+                response.getStatus(),
+                target.getUri()));
+    }
+
+    void patchBam(int sampleId, BamMetadata metadata) {
+        Response invoke = target.path("hmf")
+                .path("v1")
+                .path("samples")
+                .path(String.valueOf(sampleId))
+                .request()
+                .build("PATCH", Entity.entity(metadata, MediaType.APPLICATION_JSON_TYPE))
+                .invoke();
+        LOGGER.info("Patched sample [{}] with [{}] and received response [{}]", sampleId, metadata, invoke.getStatus());
     }
 
     public static SBPRestApi newInstance(Arguments arguments) {

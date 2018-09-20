@@ -4,6 +4,7 @@ import static java.lang.String.format;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -35,8 +36,9 @@ public class SBPSampleReader {
         String rawFastQJson = sbpRestApi.getFastQ(sampleId);
         try {
             List<FastQMetadata> fastqJson = parseJson(rawFastQJson);
-            String sampleName = extractSampleName(sampleId, fastqJson);
-            Sample sample = sample(sampleName, fastqJson);
+            String sampleName = extract(sampleId, fastqJson, name());
+            String barcode = extract(sampleId, fastqJson, barcode());
+            Sample sample = sample(sampleName, barcode, fastqJson);
             LOGGER.info("Found sample [{}] in SBP", sample);
             return sample;
         } catch (IOException e) {
@@ -44,11 +46,18 @@ public class SBPSampleReader {
         }
     }
 
+    private Function<String, String> barcode() {
+        return fileName -> fileName.split("_")[1];
+    }
+
     @NotNull
-    private String extractSampleName(final int sampleId, final List<FastQMetadata> fastqJson) {
-        return fastqJson.stream()
-                .map(FastQMetadata::name_r1)
-                .map(fileName -> fileName.substring(0, fileName.indexOf("_")))
+    public Function<String, String> name() {
+        return fileName -> fileName.substring(0, fileName.indexOf("_"));
+    }
+
+    @NotNull
+    private String extract(final int sampleId, final List<FastQMetadata> fastqJson, final Function<String, String> stringFunction) {
+        return fastqJson.stream().map(FastQMetadata::name_r1).map(stringFunction)
                 .distinct()
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException(format("No FASTQ available in SBP object store for sample [%s]",
@@ -56,14 +65,15 @@ public class SBPSampleReader {
     }
 
     @NotNull
-    private Sample sample(final String sampleName, final List<FastQMetadata> fastqJson) {
+    private Sample sample(final String sampleName, final String barcode, final List<FastQMetadata> fastqJson) {
         List<Lane> lanes = fastqJson.stream().filter(FastQMetadata::qc_pass).map(SBPSampleReader::lane).collect(Collectors.toList());
-        return Sample.builder("", sampleName).addAllLanes(lanes).build();
+        return Sample.builder("", sampleName, barcode).addAllLanes(lanes).build();
     }
 
     @NotNull
     private static ImmutableLane lane(final FastQMetadata fastQMetadata) {
-        if (fastQMetadata.bucket() == null || fastQMetadata.bucket().isEmpty()) {
+        String bucket = fastQMetadata.bucket();
+        if (bucket == null || bucket.isEmpty()) {
             throw new IllegalStateException(String.format(
                     "Bucket for fastq [%s] was null or empty. Has this sample id been cleaned up in S3?",
                     fastQMetadata));
