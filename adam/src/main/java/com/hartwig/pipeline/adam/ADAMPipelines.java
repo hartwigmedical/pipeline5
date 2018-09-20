@@ -12,6 +12,7 @@ import com.hartwig.io.OutputType;
 import com.hartwig.patient.KnownIndels;
 import com.hartwig.patient.ReferenceGenome;
 import com.hartwig.pipeline.BamCreationPipeline;
+import com.hartwig.pipeline.IndexBam;
 import com.hartwig.pipeline.QCResult;
 import com.hartwig.pipeline.QualityControl;
 
@@ -45,7 +46,8 @@ public class ADAMPipelines {
                 .addBamEnrichment(new ADAMMarkDuplicatesAndSort(javaADAMContext, intermediateDataLocation))
                 .addBamEnrichment(new ADAMRealignIndels(knownIndels, referenceGenome, javaADAMContext, intermediateDataLocation))
                 .bamStore(new HDFSBamStore(intermediateDataLocation, fileSystem, saveAsFile))
-                .executorService(parallel ? Executors.newFixedThreadPool(2) : MoreExecutors.sameThreadExecutor())
+                .executorService(parallel ? Executors.newFixedThreadPool(2) : MoreExecutors.newDirectExecutorService())
+                .indexBam(new IndexBam(fileSystem, workingDirectory))
                 .build();
     }
 

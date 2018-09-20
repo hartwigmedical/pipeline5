@@ -35,7 +35,7 @@ public class HDFSBamStore implements OutputStore<AlignmentRecordRDD> {
                 false,
                 saveAsFile,
                 false);
-        inputOutput.payload().save(saveArgs, false);
+        inputOutput.payload().save(saveArgs, true);
     }
 
     @Override

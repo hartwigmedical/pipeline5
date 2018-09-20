@@ -65,6 +65,7 @@ public abstract class BamCreationPipeline {
                 LOGGER.info("No stages to run as all output existed. Running final QC on persisted BAM");
                 qc(finalQC, finalDatasource().extract(sample));
             }
+            indexBam().execute(sample);
             LOGGER.info("Preprocessing complete for {} sample, Took {} ms", sample.name(), (endTimer() - startTime));
         } catch (IOException e) {
             LOGGER.error(format("Unable to create BAM for %s. Check exception for details", sample.name()), e);
@@ -130,6 +131,8 @@ public abstract class BamCreationPipeline {
     protected abstract QualityControl<AlignmentRecordRDD> referenceFinalQC();
 
     protected abstract QualityControl<AlignmentRecordRDD> tumorFinalQC();
+
+    protected abstract IndexBam indexBam();
 
     protected abstract ExecutorService executorService();
 

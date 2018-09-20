@@ -1,5 +1,7 @@
 package com.hartwig.testsupport;
 
+import com.hartwig.support.test.Resources;
+
 import org.apache.spark.rdd.RDD;
 import org.bdgenomics.adam.api.java.JavaADAMContext;
 import org.bdgenomics.adam.rdd.ADAMContext;
@@ -13,7 +15,7 @@ import scala.Option;
 public class TestRDDs {
 
     public static AlignmentRecordRDD alignmentRecordRDD(final String bamFile) {
-        return javaAdam().loadAlignments(System.getProperty("user.dir") + "/src/test/resources/" + bamFile);
+        return javaAdam().loadAlignments(Resources.testResource(bamFile));
     }
 
     @NotNull
