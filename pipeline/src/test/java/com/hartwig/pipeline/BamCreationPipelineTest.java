@@ -46,7 +46,7 @@ public class BamCreationPipelineTest {
                 .executorService(MoreExecutors.newDirectExecutorService())
                 .alignment(alignmentStage()).alignmentDatasource(sample -> ALIGNED_BAM).finalDatasource(sample -> ALIGNED_BAM)
                 .readCountQCFactory(aligned -> reads -> QCResult.ok())
-                .finalBamStore(bamStore(false, false))
+                .finalBamStore(bamStore(false, false)).indexBam(mock(IndexBam.class))
                 .referenceFinalQC(reads -> QCResult.ok()).tumorFinalQC(reads -> QCResult.ok());
     }
 
