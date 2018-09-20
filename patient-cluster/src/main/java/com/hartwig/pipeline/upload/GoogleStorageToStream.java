@@ -4,7 +4,6 @@ import static java.lang.String.format;
 
 import java.nio.channels.Channels;
 
-import com.google.cloud.ReadChannel;
 import com.google.cloud.storage.Blob;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.bootstrap.RuntimeBucket;
@@ -25,14 +24,15 @@ public class GoogleStorageToStream implements SampleDownload {
     public void run(final Sample sample, final RuntimeBucket runtimeBucket) {
         String bamFileName = format("%s.bam", sample.name());
         String bamSource = format("results/%s", bamFileName);
+        String baiSource = format("%s.%s", bamSource, "bai");
         Blob resultBam = runtimeBucket.bucket().get(bamSource);
+        Blob resultBai = runtimeBucket.bucket().get(baiSource);
         LOGGER.info("Downloading BAM from [{}]", bamSource);
         if (resultBam == null) {
             throw new IllegalStateException(String.format("No result BAM was found for sample [%s] in [gs://%s/results]",
                     sample.name(),
                     runtimeBucket.getName()));
         }
-        ReadChannel reader = resultBam.reader();
-        bamSink.save(sample, runtimeBucket, Channels.newInputStream(reader));
+        bamSink.save(sample, Channels.newInputStream(resultBam.reader()), Channels.newInputStream(resultBai.reader()));
     }
 }

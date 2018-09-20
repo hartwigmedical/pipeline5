@@ -8,7 +8,6 @@ import java.security.NoSuchAlgorithmException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.hartwig.patient.Sample;
-import com.hartwig.pipeline.bootstrap.RuntimeBucket;
 
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -33,11 +32,13 @@ public class SBPS3BamSink implements BamSink {
     }
 
     @Override
-    public void save(final Sample sample, RuntimeBucket runtimeBucket, final InputStream bamStream) {
+    public void save(final Sample sample, final InputStream bam, final InputStream bai) {
         String directory = ROOT_BUCKET + "/" + sample.barcode();
         String bamFile = sample.name() + ".bam";
-        DigestInputStream md5InputStream = md5Stream(bamStream);
+        String baiFile = bamFile + ".bai";
+        DigestInputStream md5InputStream = md5Stream(bam);
         s3Client.putObject(directory, bamFile, md5InputStream, new ObjectMetadata());
+        s3Client.putObject(directory, baiFile, bai, new ObjectMetadata());
         String hash = new String(md5InputStream.getMessageDigest().digest());
         ObjectMetadata existing = s3Client.getObject(directory, bamFile).getObjectMetadata();
         sbpRestApi.patchBam(sbpSampleId,

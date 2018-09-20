@@ -29,13 +29,19 @@ public class GoogleStorageToStreamTest {
     private SampleDownload victim;
     private RuntimeBucket runtimeBucket;
     private Bucket bucket;
-    private ByteArrayOutputStream outputStream;
-    private InputStream resultStream;
+    private ByteArrayOutputStream bamOutputStream;
+    private ByteArrayOutputStream baiOutputStream;
+    private InputStream resultBamStream;
+    private InputStream resultBaiStream;
 
     @Before
     public void setUp() throws Exception {
-        outputStream = new ByteArrayOutputStream();
-        victim = new GoogleStorageToStream((sample, bucket, stream) -> resultStream = stream);
+        bamOutputStream = new ByteArrayOutputStream();
+        baiOutputStream = new ByteArrayOutputStream();
+        victim = new GoogleStorageToStream((sample, bamStream, baiStream) -> {
+            resultBamStream = bamStream;
+            resultBaiStream = baiStream;
+        });
         runtimeBucket = mock(RuntimeBucket.class);
         bucket = mock(Bucket.class);
         when(runtimeBucket.bucket()).thenReturn(bucket);
@@ -50,12 +56,18 @@ public class GoogleStorageToStreamTest {
     @Test
     public void downloadsResultingBamToSuppliedStream() throws Exception {
         Blob bam = mock(Blob.class);
-        ReadChannel readChannel = new TestChannel();
+        Blob bai = mock(Blob.class);
+        ReadChannel bamChannel = new TestChannel();
+        ReadChannel baiChannel = new TestChannel();
         when(bucket.get(eq("results/test.bam"))).thenReturn(bam);
-        when(bam.reader()).thenReturn(readChannel);
+        when(bucket.get(eq("results/test.bam.bai"))).thenReturn(bai);
+        when(bam.reader()).thenReturn(bamChannel);
+        when(bai.reader()).thenReturn(baiChannel);
         victim.run(SAMPLE, runtimeBucket);
-        IOUtils.copy(resultStream, outputStream);
-        assertThat(outputStream.toByteArray()).isEqualTo(BYTES);
+        IOUtils.copy(resultBamStream, bamOutputStream);
+        IOUtils.copy(resultBaiStream, baiOutputStream);
+        assertThat(bamOutputStream.toByteArray()).isEqualTo(BYTES);
+        assertThat(baiOutputStream.toByteArray()).isEqualTo(BYTES);
     }
 
     static class TestChannel implements ReadChannel {

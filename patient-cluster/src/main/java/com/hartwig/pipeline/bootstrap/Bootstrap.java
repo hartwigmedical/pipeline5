@@ -1,7 +1,6 @@
 package com.hartwig.pipeline.bootstrap;
 
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -19,6 +18,7 @@ import com.hartwig.pipeline.cluster.JarLocation;
 import com.hartwig.pipeline.cluster.JarUpload;
 import com.hartwig.pipeline.cluster.SampleCluster;
 import com.hartwig.pipeline.cluster.SparkJobDefinition;
+import com.hartwig.pipeline.upload.FileSink;
 import com.hartwig.pipeline.upload.FileStreamProvider;
 import com.hartwig.pipeline.upload.GoogleStorageToStream;
 import com.hartwig.pipeline.upload.SBPRestApi;
@@ -30,7 +30,6 @@ import com.hartwig.pipeline.upload.SampleUpload;
 import com.hartwig.pipeline.upload.StreamToGoogleStorage;
 import com.hartwig.support.hadoop.Hadoop;
 
-import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,13 +72,20 @@ class Bootstrap {
             cluster.submit(SparkJobDefinition.of(MAIN_CLASS, location.uri()), arguments);
             sampleDownload.run(sample, runtimeBucket);
             if (!arguments.noCleanup()) {
-                cluster.stop(arguments);
                 runtimeBucket.cleanup();
             }
-
-        } catch (IOException e) {
-            LOGGER.error("Could not read patient data from filesystem. "
-                    + "Check the path exists and is of the format /PATIENT_ID/PATIENT_ID{R|T}", e);
+        } catch (Exception e) {
+            LOGGER.error(
+                    "An unexpected error occurred during bootstrap. See exception for more details. Cluster will still be stopped if running",
+                    e);
+        } finally {
+            try {
+                if (!arguments.noCleanup()) {
+                    cluster.stop(arguments);
+                }
+            } catch (IOException e) {
+                LOGGER.error("Unable to stop cluster! Check console and stop it by hand if still running", e);
+            }
         }
     }
 
@@ -108,17 +114,7 @@ class Bootstrap {
                     new Bootstrap(storage,
                             new StaticData(storage, "reference_genome"),
                             new StaticData(storage, "known_indels"),
-                            fromLocalFilesystem(),
-                            new GoogleStorageToStream((sample, bucket, stream) -> {
-                                String fileName = sample.name() + ".bam";
-                                try (FileOutputStream bamFileOut = new FileOutputStream(fileName)) {
-                                    IOUtils.copy(stream, bamFileOut);
-                                    bamFileOut.close();
-                                } catch (IOException e) {
-                                    throw new RuntimeException(e);
-                                }
-                                LOGGER.info("Completed download to file [{}]", fileName);
-                            }),
+                            fromLocalFilesystem(), new GoogleStorageToStream(FileSink.newInstance()),
                             new StreamToGoogleStorage(FileStreamProvider.newInstance()),
                             new GoogleDataprocCluster(credentials),
                             new GoogleStorageJarUpload()).run(arguments);
