@@ -17,10 +17,12 @@ import com.google.api.services.dataproc.model.JobPlacement;
 import com.google.api.services.dataproc.model.JobStatus;
 import com.google.api.services.dataproc.model.NodeInitializationAction;
 import com.google.api.services.dataproc.model.Operation;
+import com.google.api.services.dataproc.model.SoftwareConfig;
 import com.google.api.services.dataproc.model.SparkJob;
 import com.google.api.services.dataproc.model.SubmitJobRequest;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.common.collect.ImmutableMap;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.bootstrap.Arguments;
 import com.hartwig.pipeline.bootstrap.RuntimeBucket;
@@ -153,6 +155,10 @@ public class GoogleDataprocCluster implements SampleCluster {
                 .setWorkerConfig(primaryWorkerConfig)
                 .setSecondaryWorkerConfig(secondaryWorkerConfig)
                 .setConfigBucket(bucket)
+                .setSoftwareConfig(new SoftwareConfig().setProperties(ImmutableMap.of("yarn:yarn.scheduler.minimum-allocation-vcores",
+                        "30",
+                        "capacity-scheduler:yarn.scheduler.capacity.resource-calculator",
+                        "org.apache.hadoop.yarn.util.resource.DominantResourceCalculator")))
                 .setInitializationActions(Collections.singletonList(new NodeInitializationAction().setExecutableFile(
                         "gs://pipeline5-runtime/cluster-init/install-bwa.sh")));
     }
