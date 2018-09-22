@@ -11,6 +11,7 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.dataproc.Dataproc;
 import com.google.api.services.dataproc.model.Cluster;
 import com.google.api.services.dataproc.model.ClusterConfig;
+import com.google.api.services.dataproc.model.DiskConfig;
 import com.google.api.services.dataproc.model.InstanceGroupConfig;
 import com.google.api.services.dataproc.model.Job;
 import com.google.api.services.dataproc.model.JobPlacement;
@@ -164,11 +165,16 @@ public class GoogleDataprocCluster implements SampleCluster {
     }
 
     private InstanceGroupConfig primaryWorkerConfig() {
-        return new InstanceGroupConfig().setMachineTypeUri(MACHINE_TYPE_URI).setNumInstances(2);
+        return new InstanceGroupConfig().setMachineTypeUri(MACHINE_TYPE_URI)
+                .setNumInstances(2)
+                .setDiskConfig(new DiskConfig().setBootDiskSizeGb(1000));
     }
 
     private InstanceGroupConfig secondaryWorkerConfig() {
-        return new InstanceGroupConfig().setMachineTypeUri(MACHINE_TYPE_URI).setNumInstances(NUM_WORKERS - 2).setIsPreemptible(true);
+        return new InstanceGroupConfig().setMachineTypeUri(MACHINE_TYPE_URI)
+                .setNumInstances(NUM_WORKERS - 2)
+                .setIsPreemptible(true)
+                .setDiskConfig(new DiskConfig().setBootDiskSizeGb(1000));
     }
 
     private com.google.api.services.dataproc.model.Cluster cluster(final ClusterConfig clusterConfig, final String clusterName) {
