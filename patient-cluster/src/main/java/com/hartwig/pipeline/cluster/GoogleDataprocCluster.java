@@ -156,8 +156,7 @@ public class GoogleDataprocCluster implements SampleCluster {
                 .setWorkerConfig(primaryWorkerConfig)
                 .setSecondaryWorkerConfig(secondaryWorkerConfig)
                 .setConfigBucket(bucket)
-                .setSoftwareConfig(new SoftwareConfig().setProperties(ImmutableMap.of("yarn:yarn.scheduler.minimum-allocation-vcores",
-                        "30",
+                .setSoftwareConfig(new SoftwareConfig().setProperties(ImmutableMap.of("yarn:yarn.scheduler.minimum-allocation-vcores", "16",
                         "capacity-scheduler:yarn.scheduler.capacity.resource-calculator",
                         "org.apache.hadoop.yarn.util.resource.DominantResourceCalculator")))
                 .setInitializationActions(Collections.singletonList(new NodeInitializationAction().setExecutableFile(
