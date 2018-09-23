@@ -1,6 +1,7 @@
 FROM openjdk:8-jre
 
 ADD bin/bootstrap.sh bootstrap.sh
+ADD src/main/resources/node-init.sh node-init.sh
 ADD target/lib /usr/share/pipeline5/lib
 ARG SYSTEM_JAR_FILE
 ARG JAR_FILE

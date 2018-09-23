@@ -39,6 +39,8 @@ class BootstrapOptions {
     private static final String DEFAULT_SBP_API_URL = "http://hmfapi";
     private static final String DEFAULT_SBP_S3_URL = "https://s3.object02.schubergphilis.com";
     private static final String RUN_ID_FLAG = "run_id";
+    private static final String NODE_INIT_FLAG = "node_init_script";
+    private static final String DEFAULT_NODE_INIT = "node-init.sh";
 
     private static Options options() {
         return new Options().addOption(privateKeyFlag())
@@ -51,7 +53,19 @@ class BootstrapOptions {
                 .addOption(FORCE_JAR_UPLOAD_FLAG, false, "Force upload of JAR even if the version already exists in cloud storage")
                 .addOption(NO_CLEANUP_FLAG, false, "Don't delete the cluster or runtime bucket after job is complete")
                 .addOption(project())
-                .addOption(region()).addOption(sbpSampleId()).addOption(sbpApiUrl()).addOption(sbpS3Url()).addOption(runId());
+                .addOption(region())
+                .addOption(sbpSampleId())
+                .addOption(sbpApiUrl())
+                .addOption(sbpS3Url())
+                .addOption(runId())
+                .addOption(nodeInitScript());
+    }
+
+    private static Option nodeInitScript() {
+        return optionWithArgAndDefault(NODE_INIT_FLAG,
+                NODE_INIT_FLAG,
+                "Script to run on initialization of each cluster node. The default script installs BWA",
+                DEFAULT_NODE_INIT);
     }
 
     private static Option runId() {
@@ -133,7 +147,7 @@ class BootstrapOptions {
                     .sblS3Url(commandLine.getOptionValue(SBP_S3_URL_FLAG, DEFAULT_SBP_S3_URL))
                     .forceJarUpload(commandLine.hasOption(FORCE_JAR_UPLOAD_FLAG))
                     .noCleanup(commandLine.hasOption(NO_CLEANUP_FLAG))
-                    .runId(runId(commandLine))
+                    .runId(runId(commandLine)).nodeInitializationScript(commandLine.getOptionValue(NODE_INIT_FLAG, DEFAULT_NODE_INIT))
                     .build());
         } catch (ParseException e) {
             LOGGER.error("Could not parse command line args", e);

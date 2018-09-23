@@ -35,6 +35,8 @@ public interface Arguments {
 
     String sblS3Url();
 
+    String nodeInitializationScript();
+
     Optional<Integer> sbpApiSampleId();
 
     Optional<String> runId();

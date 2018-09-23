@@ -26,6 +26,7 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.common.collect.ImmutableMap;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.bootstrap.Arguments;
+import com.hartwig.pipeline.bootstrap.NodeInitialization;
 import com.hartwig.pipeline.bootstrap.RuntimeBucket;
 
 import org.slf4j.Logger;
@@ -40,9 +41,11 @@ public class GoogleDataprocCluster implements SampleCluster {
     private String clusterName;
     private Dataproc dataproc;
     private final GoogleCredentials credential;
+    private final NodeInitialization nodeInitialization;
 
-    public GoogleDataprocCluster(final GoogleCredentials credential) {
+    public GoogleDataprocCluster(final GoogleCredentials credential, final NodeInitialization nodeInitialization) {
         this.credential = credential;
+        this.nodeInitialization = nodeInitialization;
     }
 
     @Override
@@ -56,8 +59,11 @@ public class GoogleDataprocCluster implements SampleCluster {
         if (existing == null) {
             Operation createCluster = clusters.create(arguments.project(),
                     arguments.region(),
-                    cluster(clusterConfig(masterConfig(), primaryWorkerConfig(), secondaryWorkerConfig(), runtimeBucket.bucket().getName()),
-                            clusterName)).execute();
+                    cluster(clusterConfig(masterConfig(),
+                            primaryWorkerConfig(),
+                            secondaryWorkerConfig(),
+                            runtimeBucket.bucket().getName(),
+                            nodeInitialization.run(runtimeBucket)), clusterName)).execute();
             LOGGER.info("Starting Google Dataproc cluster with name [{}]. This may take a minute or two...", clusterName);
             waitForOperationComplete(createCluster);
             LOGGER.info("Cluster started.");
@@ -151,7 +157,7 @@ public class GoogleDataprocCluster implements SampleCluster {
     }
 
     private ClusterConfig clusterConfig(final InstanceGroupConfig masterConfig, final InstanceGroupConfig primaryWorkerConfig,
-            final InstanceGroupConfig secondaryWorkerConfig, final String bucket) {
+            final InstanceGroupConfig secondaryWorkerConfig, final String bucket, final String nodeExecutableLocation) {
         return new ClusterConfig().setMasterConfig(masterConfig)
                 .setWorkerConfig(primaryWorkerConfig)
                 .setSecondaryWorkerConfig(secondaryWorkerConfig)
@@ -161,11 +167,8 @@ public class GoogleDataprocCluster implements SampleCluster {
                         "16")
                         .put("capacity-scheduler:yarn.scheduler.capacity.resource-calculator",
                                 "org.apache.hadoop.yarn.util.resource.DominantResourceCalculator")
-                        .put("spark:spark.executor.extraJavaOptions", "-XX:hashCode=0")
-                        .put("spark:spark.driver.extraJavaOptions", "–XX:hashCode=0")
                         .build()))
-                .setInitializationActions(Collections.singletonList(new NodeInitializationAction().setExecutableFile(
-                        "gs://pipeline5-runtime/cluster-init/install-bwa.sh")));
+                .setInitializationActions(Collections.singletonList(new NodeInitializationAction().setExecutableFile(nodeExecutableLocation)));
     }
 
     private InstanceGroupConfig primaryWorkerConfig() {

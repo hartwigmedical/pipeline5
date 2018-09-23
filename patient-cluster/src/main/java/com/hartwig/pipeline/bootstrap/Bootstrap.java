@@ -98,6 +98,8 @@ class Bootstrap {
                 Storage storage =
                         StorageOptions.newBuilder().setCredentials(credentials).setProjectId(arguments.project()).build().getService();
 
+                NodeInitialization nodeInitialization = new NodeInitialization(arguments.nodeInitializationScript());
+
                 if (arguments.sbpApiSampleId().isPresent()) {
                     int sbpSampleId = arguments.sbpApiSampleId().get();
                     SBPRestApi sbpRestApi = SBPRestApi.newInstance(arguments);
@@ -108,7 +110,7 @@ class Bootstrap {
                             a -> new SBPSampleReader(sbpRestApi).read(sbpSampleId),
                             new GoogleStorageToStream(SBPS3BamSink.newInstance(s3, sbpRestApi, sbpSampleId)),
                             new StreamToGoogleStorage(SBPS3InputStreamProvider.newInstance(s3)),
-                            new GoogleDataprocCluster(credentials),
+                            new GoogleDataprocCluster(credentials, nodeInitialization),
                             new GoogleStorageJarUpload()).run(arguments);
                 } else {
                     new Bootstrap(storage,
@@ -116,7 +118,7 @@ class Bootstrap {
                             new StaticData(storage, "known_indels"),
                             fromLocalFilesystem(), new GoogleStorageToStream(FileSink.newInstance()),
                             new StreamToGoogleStorage(FileStreamProvider.newInstance()),
-                            new GoogleDataprocCluster(credentials),
+                            new GoogleDataprocCluster(credentials, nodeInitialization),
                             new GoogleStorageJarUpload()).run(arguments);
                 }
 
