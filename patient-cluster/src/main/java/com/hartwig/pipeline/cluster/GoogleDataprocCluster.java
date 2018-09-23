@@ -156,9 +156,14 @@ public class GoogleDataprocCluster implements SampleCluster {
                 .setWorkerConfig(primaryWorkerConfig)
                 .setSecondaryWorkerConfig(secondaryWorkerConfig)
                 .setConfigBucket(bucket)
-                .setSoftwareConfig(new SoftwareConfig().setProperties(ImmutableMap.of("yarn:yarn.scheduler.minimum-allocation-vcores", "16",
-                        "capacity-scheduler:yarn.scheduler.capacity.resource-calculator",
-                        "org.apache.hadoop.yarn.util.resource.DominantResourceCalculator")))
+                .setSoftwareConfig(new SoftwareConfig().setProperties(ImmutableMap.<String, String>builder().put(
+                        "yarn:yarn.scheduler.minimum-allocation-vcores",
+                        "16")
+                        .put("capacity-scheduler:yarn.scheduler.capacity.resource-calculator",
+                                "org.apache.hadoop.yarn.util.resource.DominantResourceCalculator")
+                        .put("spark:spark.executor.extraJavaOptions", "-XX:hashCode=0")
+                        .put("spark:spark.driver.extraJavaOptions", "–XX:hashCode=0")
+                        .build()))
                 .setInitializationActions(Collections.singletonList(new NodeInitializationAction().setExecutableFile(
                         "gs://pipeline5-runtime/cluster-init/install-bwa.sh")));
     }
