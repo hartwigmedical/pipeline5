@@ -16,6 +16,7 @@ import com.hartwig.pipeline.cluster.GoogleDataprocCluster;
 import com.hartwig.pipeline.cluster.GoogleStorageJarUpload;
 import com.hartwig.pipeline.cluster.JarLocation;
 import com.hartwig.pipeline.cluster.JarUpload;
+import com.hartwig.pipeline.cluster.PerformanceProfile;
 import com.hartwig.pipeline.cluster.SampleCluster;
 import com.hartwig.pipeline.cluster.SparkJobDefinition;
 import com.hartwig.pipeline.upload.FileSink;
@@ -110,15 +111,16 @@ class Bootstrap {
                             a -> new SBPSampleReader(sbpRestApi).read(sbpSampleId),
                             new GoogleStorageToStream(SBPS3BamSink.newInstance(s3, sbpRestApi, sbpSampleId)),
                             new StreamToGoogleStorage(SBPS3InputStreamProvider.newInstance(s3)),
-                            new GoogleDataprocCluster(credentials, nodeInitialization),
+                            new GoogleDataprocCluster(credentials, nodeInitialization, PerformanceProfile.defaultProfile()),
                             new GoogleStorageJarUpload()).run(arguments);
                 } else {
                     new Bootstrap(storage,
                             new StaticData(storage, "reference_genome"),
                             new StaticData(storage, "known_indels"),
-                            fromLocalFilesystem(), new GoogleStorageToStream(FileSink.newInstance()),
+                            fromLocalFilesystem(),
+                            new GoogleStorageToStream(FileSink.newInstance()),
                             new StreamToGoogleStorage(FileStreamProvider.newInstance()),
-                            new GoogleDataprocCluster(credentials, nodeInitialization),
+                            new GoogleDataprocCluster(credentials, nodeInitialization, PerformanceProfile.defaultProfile()),
                             new GoogleStorageJarUpload()).run(arguments);
                 }
 

@@ -11,19 +11,14 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.dataproc.Dataproc;
 import com.google.api.services.dataproc.model.Cluster;
 import com.google.api.services.dataproc.model.ClusterConfig;
-import com.google.api.services.dataproc.model.DiskConfig;
-import com.google.api.services.dataproc.model.InstanceGroupConfig;
 import com.google.api.services.dataproc.model.Job;
 import com.google.api.services.dataproc.model.JobPlacement;
 import com.google.api.services.dataproc.model.JobStatus;
-import com.google.api.services.dataproc.model.NodeInitializationAction;
 import com.google.api.services.dataproc.model.Operation;
-import com.google.api.services.dataproc.model.SoftwareConfig;
 import com.google.api.services.dataproc.model.SparkJob;
 import com.google.api.services.dataproc.model.SubmitJobRequest;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
-import com.google.common.collect.ImmutableMap;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.bootstrap.Arguments;
 import com.hartwig.pipeline.bootstrap.NodeInitialization;
@@ -34,18 +29,19 @@ import org.slf4j.LoggerFactory;
 
 public class GoogleDataprocCluster implements SampleCluster {
 
-    private static final String MACHINE_TYPE_URI = "n1-standard-32";
-    private static final int NUM_WORKERS = 7;
     private static final String APPLICATION_NAME = "sample-dataproc-cluster";
     private final Logger LOGGER = LoggerFactory.getLogger(GoogleDataprocCluster.class);
     private String clusterName;
     private Dataproc dataproc;
     private final GoogleCredentials credential;
     private final NodeInitialization nodeInitialization;
+    private final PerformanceProfile profile;
 
-    public GoogleDataprocCluster(final GoogleCredentials credential, final NodeInitialization nodeInitialization) {
+    public GoogleDataprocCluster(final GoogleCredentials credential, final NodeInitialization nodeInitialization,
+            final PerformanceProfile profile) {
         this.credential = credential;
         this.nodeInitialization = nodeInitialization;
+        this.profile = profile;
     }
 
     @Override
@@ -57,13 +53,9 @@ public class GoogleDataprocCluster implements SampleCluster {
         Dataproc.Projects.Regions.Clusters clusters = dataproc.projects().regions().clusters();
         Cluster existing = findExistingCluster(arguments);
         if (existing == null) {
-            Operation createCluster = clusters.create(arguments.project(),
-                    arguments.region(),
-                    cluster(clusterConfig(masterConfig(),
-                            primaryWorkerConfig(),
-                            secondaryWorkerConfig(),
-                            runtimeBucket.bucket().getName(),
-                            nodeInitialization.run(runtimeBucket)), clusterName)).execute();
+            ClusterConfig clusterConfig = GoogleClusterConfig.from(runtimeBucket, nodeInitialization, profile).config();
+            Operation createCluster =
+                    clusters.create(arguments.project(), arguments.region(), cluster(clusterConfig, clusterName)).execute();
             LOGGER.info("Starting Google Dataproc cluster with name [{}]. This may take a minute or two...", clusterName);
             waitForOperationComplete(createCluster);
             LOGGER.info("Cluster started.");
@@ -77,7 +69,8 @@ public class GoogleDataprocCluster implements SampleCluster {
         LOGGER.info("Submitting spark job to cluster [{}]", clusterName);
         Job job = dataproc.projects().regions().jobs().submit(arguments.project(), arguments.region(),
                         new SubmitJobRequest().setJob(new Job().setPlacement(new JobPlacement().setClusterName(clusterName))
-                                .setSparkJob(new SparkJob().setProperties(SparkProperties.asMap()).setMainClass(jobDefinition.mainClass())
+                                .setSparkJob(new SparkJob().setProperties(SparkProperties.asMap(profile))
+                                        .setMainClass(jobDefinition.mainClass())
                                         .setJarFileUris(Collections.singletonList(jobDefinition.jarLocation())))))
                 .execute();
         Job completed = waitForComplete(job,
@@ -105,7 +98,6 @@ public class GoogleDataprocCluster implements SampleCluster {
         LOGGER.info("Deleting cluster [{}]. This may take a minute or two...", clusterName);
         waitForOperationComplete(deleteCluster);
         LOGGER.info("Cluster deleted");
-
     }
 
     private static String jobStatus(final Job job) {
@@ -150,38 +142,6 @@ public class GoogleDataprocCluster implements SampleCluster {
         } catch (InterruptedException e) {
             Thread.interrupted();
         }
-    }
-
-    private InstanceGroupConfig masterConfig() {
-        return new InstanceGroupConfig().setMachineTypeUri(MACHINE_TYPE_URI);
-    }
-
-    private ClusterConfig clusterConfig(final InstanceGroupConfig masterConfig, final InstanceGroupConfig primaryWorkerConfig,
-            final InstanceGroupConfig secondaryWorkerConfig, final String bucket, final String nodeExecutableLocation) {
-        return new ClusterConfig().setMasterConfig(masterConfig)
-                .setWorkerConfig(primaryWorkerConfig)
-                .setSecondaryWorkerConfig(secondaryWorkerConfig)
-                .setConfigBucket(bucket)
-                .setSoftwareConfig(new SoftwareConfig().setProperties(ImmutableMap.<String, String>builder().put(
-                        "yarn:yarn.scheduler.minimum-allocation-vcores",
-                        "16")
-                        .put("capacity-scheduler:yarn.scheduler.capacity.resource-calculator",
-                                "org.apache.hadoop.yarn.util.resource.DominantResourceCalculator")
-                        .build()))
-                .setInitializationActions(Collections.singletonList(new NodeInitializationAction().setExecutableFile(nodeExecutableLocation)));
-    }
-
-    private InstanceGroupConfig primaryWorkerConfig() {
-        return new InstanceGroupConfig().setMachineTypeUri(MACHINE_TYPE_URI)
-                .setNumInstances(2)
-                .setDiskConfig(new DiskConfig().setBootDiskSizeGb(1000));
-    }
-
-    private InstanceGroupConfig secondaryWorkerConfig() {
-        return new InstanceGroupConfig().setMachineTypeUri(MACHINE_TYPE_URI)
-                .setNumInstances(NUM_WORKERS - 2)
-                .setIsPreemptible(true)
-                .setDiskConfig(new DiskConfig().setBootDiskSizeGb(1000));
     }
 
     private com.google.api.services.dataproc.model.Cluster cluster(final ClusterConfig clusterConfig, final String clusterName) {
