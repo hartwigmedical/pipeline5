@@ -1,5 +1,6 @@
 package com.hartwig.pipeline.upload;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,12 +29,16 @@ public class FileSink implements BamSink {
     }
 
     private void saveFile(final Sample sample, final InputStream bam, final String extension) {
-        String fileName = sample.name() + extension;
-        try (FileOutputStream fileOutputStream = new FileOutputStream(fileName)) {
-            IOUtils.copy(bam, fileOutputStream);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        boolean mkdirs = new File(System.getProperty("user.dir") + "/results").mkdirs();
+        if (mkdirs) {
+            String fileName = sample.name() + extension;
+            try (FileOutputStream fileOutputStream = new FileOutputStream(fileName)) {
+                IOUtils.copy(bam, fileOutputStream);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            LOGGER.info("Completed download to file [{}]", fileName);
         }
-        LOGGER.info("Completed download to file [{}]", fileName);
+        LOGGER.warn("Could not create results directory");
     }
 }

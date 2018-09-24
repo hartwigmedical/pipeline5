@@ -19,6 +19,7 @@ import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.AlignmentStage;
 
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.spark.storage.StorageLevel;
 import org.bdgenomics.adam.api.java.FragmentsToAlignmentRecordsConverter;
 import org.bdgenomics.adam.models.RecordGroup;
 import org.bdgenomics.adam.models.RecordGroupDictionary;
@@ -71,8 +72,7 @@ class ADAMBwa implements AlignmentStage {
 
     private AlignmentRecordRDD adamBwa(final SequenceDictionary sequenceDictionary, final Sample sample, final Lane lane) {
         return RDDs.alignmentRecordRDD(adamContext.loadPairedFastq(lane.readsPath(),
-                lane.matesPath(),
-                Option.empty(), Option.empty(),
+                lane.matesPath(), Option.empty(), Option.apply(StorageLevel.MEMORY_AND_DISK_SER()),
                 ValidationStringency.LENIENT).toFragments()
                 .pipe(BwaCommand.tokens(referenceGenome, sample, lane, bwaThreads), IndexFiles.resolve(fileSystem, referenceGenome),
                         Collections.emptyMap(),
