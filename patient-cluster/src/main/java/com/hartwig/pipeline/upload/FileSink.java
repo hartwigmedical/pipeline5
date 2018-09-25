@@ -29,16 +29,21 @@ public class FileSink implements BamSink {
     }
 
     private void saveFile(final Sample sample, final InputStream bam, final String extension) {
-        boolean mkdirs = new File(System.getProperty("user.dir") + "/results").mkdirs();
-        if (mkdirs) {
-            String fileName = sample.name() + extension;
+        File results = new File(System.getProperty("user.dir") + "/results");
+        boolean dirExists = results.exists();
+        if (!dirExists) {
+            dirExists = results.mkdirs();
+        }
+        if (dirExists) {
+            String fileName = results.getPath() + "/" + sample.name() + extension;
             try (FileOutputStream fileOutputStream = new FileOutputStream(fileName)) {
                 IOUtils.copy(bam, fileOutputStream);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
             LOGGER.info("Completed download to file [{}]", fileName);
+        } else {
+            LOGGER.warn("Could not create results dir [{}]. No files were downloaded", results.getPath());
         }
-        LOGGER.warn("Could not create results directory");
     }
 }
