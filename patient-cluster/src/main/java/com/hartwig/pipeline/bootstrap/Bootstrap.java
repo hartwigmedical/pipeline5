@@ -104,22 +104,20 @@ class Bootstrap {
                 PerformanceProfile performanceProfile =
                         arguments.performanceProfilePath().map(PerformanceProfile::from).orElse(PerformanceProfile.defaultProfile());
 
+                StaticData referenceGenomeData = new StaticData(storage, "reference_genome", new ReferenceGenomeAlias());
+                StaticData knownIndelsData = new StaticData(storage, "known_indels");
                 if (arguments.sbpApiSampleId().isPresent()) {
                     int sbpSampleId = arguments.sbpApiSampleId().get();
                     SBPRestApi sbpRestApi = SBPRestApi.newInstance(arguments);
                     AmazonS3 s3 = S3.newClient(arguments.sblS3Url());
-                    new Bootstrap(storage,
-                            new StaticData(storage, "reference_genome"),
-                            new StaticData(storage, "known_indels"),
+                    new Bootstrap(storage, referenceGenomeData, knownIndelsData,
                             a -> new SBPSampleReader(sbpRestApi).read(sbpSampleId),
                             new GoogleStorageToStream(SBPS3BamSink.newInstance(s3, sbpRestApi, sbpSampleId)),
                             new StreamToGoogleStorage(SBPS3InputStreamProvider.newInstance(s3)),
                             new GoogleDataprocCluster(credentials, nodeInitialization, performanceProfile),
                             new GoogleStorageJarUpload()).run(arguments);
                 } else {
-                    new Bootstrap(storage,
-                            new StaticData(storage, "reference_genome"),
-                            new StaticData(storage, "known_indels"),
+                    new Bootstrap(storage, referenceGenomeData, knownIndelsData,
                             fromLocalFilesystem(),
                             new GoogleStorageToStream(FileSink.newInstance()),
                             new StreamToGoogleStorage(FileStreamProvider.newInstance()),

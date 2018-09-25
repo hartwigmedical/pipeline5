@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.bootstrap;
 
+import java.util.function.Function;
+
 import com.google.api.gax.paging.Page;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobId;
@@ -15,10 +17,16 @@ class StaticData {
 
     private final Storage storage;
     private final String sourceBucket;
+    private final Function<String, String> alias;
 
-    StaticData(final Storage storage, final String sourceBucket) {
+    StaticData(final Storage storage, final String sourceBucket, final Function<String, String> alias) {
         this.storage = storage;
         this.sourceBucket = sourceBucket;
+        this.alias = alias;
+    }
+
+    StaticData(final Storage storage, final String sourceBucket) {
+        this(storage, sourceBucket, Function.identity());
     }
 
     void copyInto(RuntimeBucket runtimeBucket) {
@@ -27,7 +35,7 @@ class StaticData {
             Page<Blob> blobs = staticDataBucket.list();
             for (Blob source : blobs.iterateAll()) {
                 String sourcePath = sourceBucket + "/" + source.getName();
-                BlobId target = BlobId.of(runtimeBucket.bucket().getName(), sourcePath);
+                BlobId target = BlobId.of(runtimeBucket.bucket().getName(), sourceBucket + "/" + alias.apply(source.getName()));
                 LOGGER.info("Copying static data from [{}] into [{}]", sourcePath, target);
                 storage.copy(Storage.CopyRequest.of(sourceBucket, source.getName(), target));
             }
