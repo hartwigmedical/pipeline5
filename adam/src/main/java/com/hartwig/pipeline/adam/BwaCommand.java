@@ -9,6 +9,8 @@ import com.hartwig.patient.Lane;
 import com.hartwig.patient.ReferenceGenome;
 import com.hartwig.patient.Sample;
 
+import org.apache.hadoop.fs.Path;
+
 class BwaCommand {
 
     static List<String> tokens(ReferenceGenome referenceGenome, Sample sample, Lane lane, int bwaThreads) {
@@ -26,7 +28,7 @@ class BwaCommand {
         cmd.add("100");
         cmd.add("-t");
         cmd.add(String.valueOf(bwaThreads));
-        cmd.add("$0");
+        cmd.add(new Path(referenceGenome.path()).getName());
         cmd.add("-");
         return cmd;
     }

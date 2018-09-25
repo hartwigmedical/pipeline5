@@ -5,6 +5,7 @@ import static java.util.Collections.singletonList;
 import static scala.collection.JavaConverters.asScalaBufferConverter;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -81,7 +82,7 @@ class ADAMBwa implements AlignmentStage {
                 ValidationStringency.LENIENT).toFragments();
         initializeBwaSharedMemoryPerExecutor(fragmentRDD);
         return RDDs.alignmentRecordRDD(((FragmentRDD) fragmentRDD).pipe(BwaCommand.tokens(referenceGenome, sample, lane, bwaThreads),
-                IndexFiles.resolve(fileSystem, referenceGenome),
+                new ArrayList<>(),
                 Collections.emptyMap(),
                 0,
                 InterleavedFASTQInFormatter.class,
@@ -96,9 +97,7 @@ class ADAMBwa implements AlignmentStage {
             adamContext.sc().addFile(file);
         }
         final String path = referenceGenome.path();
-        fragmentRDD.jrdd().foreach(fragment -> {
-            InitializeBwaSharedMemory.run(SparkFiles.get(new Path(path).getName()));
-        });
+        fragmentRDD.jrdd().foreach(fragment -> InitializeBwaSharedMemory.run(SparkFiles.get(new Path(path).getName())));
     }
 
     private RecordGroupDictionary recordDictionary(final RecordGroup recordGroup) {
