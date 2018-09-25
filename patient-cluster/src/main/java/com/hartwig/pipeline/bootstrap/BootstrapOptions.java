@@ -41,6 +41,7 @@ class BootstrapOptions {
     private static final String RUN_ID_FLAG = "run_id";
     private static final String NODE_INIT_FLAG = "node_init_script";
     private static final String DEFAULT_NODE_INIT = "node-init.sh";
+    private static final String PERFORMANCE_PROFILE_FLAG = "performance_profile";
 
     private static Options options() {
         return new Options().addOption(privateKeyFlag())
@@ -57,8 +58,11 @@ class BootstrapOptions {
                 .addOption(sbpSampleId())
                 .addOption(sbpApiUrl())
                 .addOption(sbpS3Url())
-                .addOption(runId())
-                .addOption(nodeInitScript());
+                .addOption(runId()).addOption(nodeInitScript()).addOption(performanceProfile());
+    }
+
+    private static Option performanceProfile() {
+        return optionWithArg(PERFORMANCE_PROFILE_FLAG, PERFORMANCE_PROFILE_FLAG, "A path to a YAML file performance profile.", false);
     }
 
     private static Option nodeInitScript() {
@@ -147,7 +151,9 @@ class BootstrapOptions {
                     .sblS3Url(commandLine.getOptionValue(SBP_S3_URL_FLAG, DEFAULT_SBP_S3_URL))
                     .forceJarUpload(commandLine.hasOption(FORCE_JAR_UPLOAD_FLAG))
                     .noCleanup(commandLine.hasOption(NO_CLEANUP_FLAG))
-                    .runId(runId(commandLine)).nodeInitializationScript(commandLine.getOptionValue(NODE_INIT_FLAG, DEFAULT_NODE_INIT))
+                    .runId(runId(commandLine))
+                    .nodeInitializationScript(commandLine.getOptionValue(NODE_INIT_FLAG, DEFAULT_NODE_INIT))
+                    .performanceProfilePath(performanceProfilePath(commandLine))
                     .build());
         } catch (ParseException e) {
             LOGGER.error("Could not parse command line args", e);
@@ -155,6 +161,12 @@ class BootstrapOptions {
             formatter.printHelp("bootstrap", options());
             return Optional.empty();
         }
+    }
+
+    private static Optional<String> performanceProfilePath(final CommandLine commandLine) {
+        return commandLine.hasOption(PERFORMANCE_PROFILE_FLAG)
+                ? Optional.of(commandLine.getOptionValue(PERFORMANCE_PROFILE_FLAG))
+                : Optional.empty();
     }
 
     private static Optional<String> runId(final CommandLine commandLine) {

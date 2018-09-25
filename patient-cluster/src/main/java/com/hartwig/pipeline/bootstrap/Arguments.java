@@ -41,6 +41,8 @@ public interface Arguments {
 
     Optional<String> runId();
 
+    Optional<String> performanceProfilePath();
+
     static Arguments defaults() {
         return BootstrapOptions.from(new String[] {}).orElseThrow(IllegalStateException::new);
     }

@@ -1,8 +1,17 @@
 package com.hartwig.pipeline.cluster;
 
+import java.io.File;
+import java.io.IOException;
+
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+
 import org.immutables.value.Value;
 
 @Value.Immutable
+@JsonDeserialize(as = ImmutablePerformanceProfile.class)
 public interface PerformanceProfile {
 
     @Value.Default
@@ -36,5 +45,16 @@ public interface PerformanceProfile {
 
     static PerformanceProfile defaultProfile() {
         return builder().build();
+    }
+
+    static PerformanceProfile from(String path) {
+        try {
+            ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+            return mapper.readValue(new File(path), PerformanceProfile.class);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
