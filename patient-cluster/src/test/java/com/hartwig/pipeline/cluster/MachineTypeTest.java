@@ -37,8 +37,8 @@ public class MachineTypeTest {
     }
 
     private void checkMachineTypeFor(final int cpuPerNode, final MachineType.Google machine) {
-        PerformanceProfile testProfile = PerformanceProfile.builder().cpuPerNode(cpuPerNode).build();
-        MachineType victim = MachineType.from(testProfile);
+        PerformanceProfile testProfile = PerformanceProfile.builder().cpuPerWorker(cpuPerNode).build();
+        MachineType victim = MachineType.workerFrom(testProfile);
         assertThat(victim.uri()).isEqualTo(machine.uri());
     }
 }

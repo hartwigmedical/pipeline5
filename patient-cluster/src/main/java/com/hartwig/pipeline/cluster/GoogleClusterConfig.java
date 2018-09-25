@@ -29,10 +29,11 @@ class GoogleClusterConfig {
     static GoogleClusterConfig from(RuntimeBucket runtimeBucket, NodeInitialization nodeInitialization, PerformanceProfile profile)
             throws FileNotFoundException {
         DiskConfig diskConfig = diskConfig(profile);
-        MachineType machineType = MachineType.from(profile);
-        ClusterConfig config = clusterConfig(masterConfig(machineType),
-                primaryWorkerConfig(diskConfig, machineType),
-                secondaryWorkerConfig(profile, diskConfig, machineType),
+        MachineType masterMachine = MachineType.masterFrom(profile);
+        MachineType workerMachine = MachineType.workerFrom(profile);
+        ClusterConfig config = clusterConfig(masterConfig(masterMachine),
+                primaryWorkerConfig(diskConfig, workerMachine),
+                secondaryWorkerConfig(profile, diskConfig, workerMachine),
                 runtimeBucket.getName(),
                 nodeInitialization.run(runtimeBucket),
                 profile);
@@ -51,8 +52,7 @@ class GoogleClusterConfig {
                 .setSecondaryWorkerConfig(secondaryWorkerConfig)
                 .setConfigBucket(bucket)
                 .setSoftwareConfig(new SoftwareConfig().setProperties(ImmutableMap.<String, String>builder().put(
-                        "yarn:yarn.scheduler.minimum-allocation-vcores",
-                        String.valueOf(profile.cpuPerNode()))
+                        "yarn:yarn.scheduler.minimum-allocation-vcores", String.valueOf(profile.cpuPerWorker()))
                         .put("capacity-scheduler:yarn.scheduler.capacity.resource-calculator",
                                 "org.apache.hadoop.yarn.util.resource.DominantResourceCalculator")
                         .build()))

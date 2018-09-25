@@ -33,9 +33,10 @@ public class GoogleClusterConfigTest {
 
     @Test
     public void allNodesUseResolvedMachineType() throws Exception {
-        GoogleClusterConfig victim =
-                GoogleClusterConfig.from(runtimeBucket, nodeInitialization, PerformanceProfile.builder().cpuPerNode(25).build());
-        assertThat(victim.config().getMasterConfig().getMachineTypeUri()).isEqualTo(MachineType.Google.STANDARD_32.uri());
+        GoogleClusterConfig victim = GoogleClusterConfig.from(runtimeBucket,
+                nodeInitialization,
+                PerformanceProfile.builder().cpuPerWorker(25).cpuMaster(8).build());
+        assertThat(victim.config().getMasterConfig().getMachineTypeUri()).isEqualTo(MachineType.Google.STANDARD_16.uri());
         assertThat(victim.config().getWorkerConfig().getMachineTypeUri()).isEqualTo(MachineType.Google.STANDARD_32.uri());
         assertThat(victim.config().getSecondaryWorkerConfig().getMachineTypeUri()).isEqualTo(MachineType.Google.STANDARD_32.uri());
     }
@@ -53,7 +54,7 @@ public class GoogleClusterConfigTest {
     public void yarnVcoreMinimumSetToProfileCpusPerNode() throws Exception {
         int cores = 25;
         GoogleClusterConfig victim =
-                GoogleClusterConfig.from(runtimeBucket, nodeInitialization, PerformanceProfile.builder().cpuPerNode(cores).build());
+                GoogleClusterConfig.from(runtimeBucket, nodeInitialization, PerformanceProfile.builder().cpuPerWorker(cores).build());
         assertThat(victim.config().getSoftwareConfig().getProperties().get("yarn:yarn.scheduler.minimum-allocation-vcores")).isEqualTo(
                 String.valueOf(cores));
     }

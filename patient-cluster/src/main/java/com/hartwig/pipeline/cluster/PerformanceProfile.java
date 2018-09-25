@@ -20,7 +20,12 @@ public interface PerformanceProfile {
     }
 
     @Value.Default
-    default int cpuPerNode() {
+    default int cpuMaster() {
+        return 8;
+    }
+
+    @Value.Default
+    default int cpuPerWorker() {
         return 16;
     }
 
