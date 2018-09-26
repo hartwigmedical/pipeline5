@@ -2,6 +2,7 @@ package com.hartwig.pipeline.upload;
 
 import static java.lang.String.format;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.function.Function;
 
@@ -74,6 +75,7 @@ public class GSUtilSampleUpload implements SampleUpload {
 
     @NotNull
     private static String singleSampleFile(final Sample sample, final String file) {
-        return format(SAMPLE_DIRECTORY + "%s%s", sample.name(), file);
+        String filename = new File(file).getName();
+        return format(SAMPLE_DIRECTORY + "%s%s", sample.name(), filename);
     }
 }
