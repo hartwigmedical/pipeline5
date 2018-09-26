@@ -26,17 +26,17 @@ public interface PerformanceProfile {
 
     @Value.Default
     default int cpuPerWorker() {
-        return 16;
+        return 30;
     }
 
     @Value.Default
     default int heapPerNodeGB() {
-        return 48;
+        return 96;
     }
 
     @Value.Default
     default int offHeapPerNodeGB() {
-        return 48;
+        return 1;
     }
 
     @Value.Default
