@@ -76,6 +76,6 @@ public class GSUtilSampleUpload implements SampleUpload {
     @NotNull
     private static String singleSampleFile(final Sample sample, final String file) {
         String filename = new File(file).getName();
-        return format(SAMPLE_DIRECTORY + "%s%s", sample.name(), filename);
+        return format(SAMPLE_DIRECTORY + "%s/%s", sample.name(), filename);
     }
 }
