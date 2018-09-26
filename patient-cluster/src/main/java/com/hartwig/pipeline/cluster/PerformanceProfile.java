@@ -31,7 +31,7 @@ public interface PerformanceProfile {
 
     @Value.Default
     default int heapPerNodeGB() {
-        return 96;
+        return 90;
     }
 
     @Value.Default
