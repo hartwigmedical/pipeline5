@@ -37,6 +37,8 @@ public interface Arguments {
 
     String nodeInitializationScript();
 
+    String cloudSdkPath();
+
     Optional<Integer> sbpApiSampleId();
 
     Optional<String> runId();

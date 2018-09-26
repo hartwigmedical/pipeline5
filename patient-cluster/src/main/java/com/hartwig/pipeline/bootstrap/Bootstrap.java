@@ -20,15 +20,16 @@ import com.hartwig.pipeline.cluster.PerformanceProfile;
 import com.hartwig.pipeline.cluster.SampleCluster;
 import com.hartwig.pipeline.cluster.SparkJobDefinition;
 import com.hartwig.pipeline.upload.FileSink;
-import com.hartwig.pipeline.upload.FileStreamProvider;
+import com.hartwig.pipeline.upload.GSUtil;
+import com.hartwig.pipeline.upload.GSUtilSampleUpload;
 import com.hartwig.pipeline.upload.GoogleStorageToStream;
+import com.hartwig.pipeline.upload.LocalFileLocation;
 import com.hartwig.pipeline.upload.SBPRestApi;
 import com.hartwig.pipeline.upload.SBPS3BamSink;
-import com.hartwig.pipeline.upload.SBPS3InputStreamProvider;
+import com.hartwig.pipeline.upload.SBPS3FileLocation;
 import com.hartwig.pipeline.upload.SBPSampleReader;
 import com.hartwig.pipeline.upload.SampleDownload;
 import com.hartwig.pipeline.upload.SampleUpload;
-import com.hartwig.pipeline.upload.StreamToGoogleStorage;
 import com.hartwig.support.hadoop.Hadoop;
 
 import org.jetbrains.annotations.NotNull;
@@ -96,6 +97,7 @@ class Bootstrap {
             try {
                 final GoogleCredentials credentials =
                         GoogleCredentials.fromStream(new FileInputStream(arguments.privateKeyPath())).createScoped(DataprocScopes.all());
+                GSUtil.auth(arguments.cloudSdkPath(), arguments.privateKeyPath());
                 Storage storage =
                         StorageOptions.newBuilder().setCredentials(credentials).setProjectId(arguments.project()).build().getService();
 
@@ -110,23 +112,27 @@ class Bootstrap {
                     int sbpSampleId = arguments.sbpApiSampleId().get();
                     SBPRestApi sbpRestApi = SBPRestApi.newInstance(arguments);
                     AmazonS3 s3 = S3.newClient(arguments.sblS3Url());
-                    new Bootstrap(storage, referenceGenomeData, knownIndelsData,
+                    new Bootstrap(storage,
+                            referenceGenomeData,
+                            knownIndelsData,
                             a -> new SBPSampleReader(sbpRestApi).read(sbpSampleId),
                             new GoogleStorageToStream(SBPS3BamSink.newInstance(s3, sbpRestApi, sbpSampleId)),
-                            new StreamToGoogleStorage(SBPS3InputStreamProvider.newInstance(s3)),
+                            new GSUtilSampleUpload(arguments.cloudSdkPath(), new SBPS3FileLocation()),
                             new GoogleDataprocCluster(credentials, nodeInitialization, performanceProfile),
                             new GoogleStorageJarUpload()).run(arguments);
                 } else {
-                    new Bootstrap(storage, referenceGenomeData, knownIndelsData,
+                    new Bootstrap(storage,
+                            referenceGenomeData,
+                            knownIndelsData,
                             fromLocalFilesystem(),
                             new GoogleStorageToStream(FileSink.newInstance()),
-                            new StreamToGoogleStorage(FileStreamProvider.newInstance()),
+                            new GSUtilSampleUpload(arguments.cloudSdkPath(), new LocalFileLocation()),
                             new GoogleDataprocCluster(credentials, nodeInitialization, performanceProfile),
                             new GoogleStorageJarUpload()).run(arguments);
                 }
 
-            } catch (IOException e) {
-                LOGGER.error("Unable to run bootstrap. Credential file was missing or not readable.", e);
+            } catch (Exception e) {
+                LOGGER.error("An unexpected issue arose while running the bootstrap. See the attached exception for more details.", e);
             }
         });
     }

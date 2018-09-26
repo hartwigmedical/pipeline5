@@ -42,6 +42,8 @@ class BootstrapOptions {
     private static final String NODE_INIT_FLAG = "node_init_script";
     private static final String DEFAULT_NODE_INIT = "node-init.sh";
     private static final String PERFORMANCE_PROFILE_FLAG = "performance_profile";
+    private static final String CLOUD_SDK_PATH_FLAG = "cloud_sdk";
+    private static final String DEFAULT_CLOUD_SDK_PATH = "/google-cloud-sdk/bin/";
 
     private static Options options() {
         return new Options().addOption(privateKeyFlag())
@@ -58,7 +60,17 @@ class BootstrapOptions {
                 .addOption(sbpSampleId())
                 .addOption(sbpApiUrl())
                 .addOption(sbpS3Url())
-                .addOption(runId()).addOption(nodeInitScript()).addOption(performanceProfile());
+                .addOption(runId())
+                .addOption(nodeInitScript())
+                .addOption(performanceProfile())
+                .addOption(gsutilPath());
+    }
+
+    private static Option gsutilPath() {
+        return optionWithArgAndDefault(CLOUD_SDK_PATH_FLAG,
+                CLOUD_SDK_PATH_FLAG,
+                "Path to the google cloud sdk bin directory (with gsutil and gcloud)",
+                DEFAULT_CLOUD_SDK_PATH);
     }
 
     private static Option performanceProfile() {
@@ -154,6 +166,7 @@ class BootstrapOptions {
                     .runId(runId(commandLine))
                     .nodeInitializationScript(commandLine.getOptionValue(NODE_INIT_FLAG, DEFAULT_NODE_INIT))
                     .performanceProfilePath(performanceProfilePath(commandLine))
+                    .cloudSdkPath(commandLine.getOptionValue(CLOUD_SDK_PATH_FLAG, DEFAULT_CLOUD_SDK_PATH))
                     .build());
         } catch (ParseException e) {
             LOGGER.error("Could not parse command line args", e);
