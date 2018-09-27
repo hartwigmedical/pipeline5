@@ -23,6 +23,7 @@ import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.bootstrap.Arguments;
 import com.hartwig.pipeline.bootstrap.NodeInitialization;
 import com.hartwig.pipeline.bootstrap.RuntimeBucket;
+import com.hartwig.pipeline.performance.PerformanceProfile;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,17 +36,15 @@ public class GoogleDataprocCluster implements SampleCluster {
     private Dataproc dataproc;
     private final GoogleCredentials credential;
     private final NodeInitialization nodeInitialization;
-    private final PerformanceProfile profile;
 
-    public GoogleDataprocCluster(final GoogleCredentials credential, final NodeInitialization nodeInitialization,
-            final PerformanceProfile profile) {
+    public GoogleDataprocCluster(final GoogleCredentials credential, final NodeInitialization nodeInitialization) {
         this.credential = credential;
         this.nodeInitialization = nodeInitialization;
-        this.profile = profile;
     }
 
     @Override
-    public void start(Sample sample, RuntimeBucket runtimeBucket, Arguments arguments) throws IOException {
+    public void start(PerformanceProfile performanceProfile, Sample sample, RuntimeBucket runtimeBucket, Arguments arguments)
+            throws IOException {
         this.clusterName = runtimeBucket.getName();
         dataproc = new Dataproc.Builder(new NetHttpTransport(),
                 JacksonFactory.getDefaultInstance(),
@@ -53,7 +52,7 @@ public class GoogleDataprocCluster implements SampleCluster {
         Dataproc.Projects.Regions.Clusters clusters = dataproc.projects().regions().clusters();
         Cluster existing = findExistingCluster(arguments);
         if (existing == null) {
-            ClusterConfig clusterConfig = GoogleClusterConfig.from(runtimeBucket, nodeInitialization, profile).config();
+            ClusterConfig clusterConfig = GoogleClusterConfig.from(runtimeBucket, nodeInitialization, performanceProfile).config();
             Operation createCluster =
                     clusters.create(arguments.project(), arguments.region(), cluster(clusterConfig, clusterName)).execute();
             LOGGER.info("Starting Google Dataproc cluster with name [{}]. This may take a minute or two...", clusterName);
@@ -65,11 +64,11 @@ public class GoogleDataprocCluster implements SampleCluster {
     }
 
     @Override
-    public void submit(SparkJobDefinition jobDefinition, Arguments arguments) throws IOException {
+    public void submit(PerformanceProfile performanceProfile, SparkJobDefinition jobDefinition, Arguments arguments) throws IOException {
         LOGGER.info("Submitting spark job to cluster [{}]", clusterName);
         Job job = dataproc.projects().regions().jobs().submit(arguments.project(), arguments.region(),
                         new SubmitJobRequest().setJob(new Job().setPlacement(new JobPlacement().setClusterName(clusterName))
-                                .setSparkJob(new SparkJob().setProperties(SparkProperties.asMap(profile))
+                                .setSparkJob(new SparkJob().setProperties(SparkProperties.asMap(performanceProfile))
                                         .setMainClass(jobDefinition.mainClass())
                                         .setJarFileUris(Collections.singletonList(jobDefinition.jarLocation())))))
                 .execute();

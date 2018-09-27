@@ -11,6 +11,8 @@ import com.google.api.services.dataproc.model.SoftwareConfig;
 import com.google.common.collect.ImmutableMap;
 import com.hartwig.pipeline.bootstrap.NodeInitialization;
 import com.hartwig.pipeline.bootstrap.RuntimeBucket;
+import com.hartwig.pipeline.performance.MachineType;
+import com.hartwig.pipeline.performance.PerformanceProfile;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -28,12 +30,10 @@ class GoogleClusterConfig {
 
     static GoogleClusterConfig from(RuntimeBucket runtimeBucket, NodeInitialization nodeInitialization, PerformanceProfile profile)
             throws FileNotFoundException {
-        DiskConfig diskConfig = diskConfig(profile);
-        MachineType masterMachine = MachineType.masterFrom(profile);
-        MachineType workerMachine = MachineType.workerFrom(profile);
-        ClusterConfig config = clusterConfig(masterConfig(masterMachine),
-                primaryWorkerConfig(diskConfig, workerMachine),
-                secondaryWorkerConfig(profile, diskConfig, workerMachine),
+        DiskConfig diskConfig = diskConfig(profile.primaryWorkers());
+        ClusterConfig config = clusterConfig(masterConfig(profile.master()),
+                primaryWorkerConfig(diskConfig, profile.primaryWorkers(), profile.numPrimaryWorkers()),
+                secondaryWorkerConfig(profile, diskConfig, profile.preemtibleWorkers()),
                 runtimeBucket.getName(),
                 nodeInitialization.run(runtimeBucket),
                 profile);
@@ -52,27 +52,29 @@ class GoogleClusterConfig {
                 .setSecondaryWorkerConfig(secondaryWorkerConfig)
                 .setConfigBucket(bucket)
                 .setSoftwareConfig(new SoftwareConfig().setProperties(ImmutableMap.<String, String>builder().put(
-                        "yarn:yarn.scheduler.minimum-allocation-vcores", String.valueOf(profile.cpuPerWorker()))
-                        .put("yarn:yarn.nodemanager.vmem-check-enabled", "false").put("yarn:yarn.nodemanager.pmem-check-enabled", "false")
+                        "yarn:yarn.scheduler.minimum-allocation-vcores",
+                        String.valueOf(profile.primaryWorkers().cpus()))
+                        .put("yarn:yarn.nodemanager.vmem-check-enabled", "false")
+                        .put("yarn:yarn.nodemanager.pmem-check-enabled", "false")
                         .put("capacity-scheduler:yarn.scheduler.capacity.resource-calculator",
                                 "org.apache.hadoop.yarn.util.resource.DominantResourceCalculator")
                         .build()))
                 .setInitializationActions(Collections.singletonList(new NodeInitializationAction().setExecutableFile(nodeExecutableLocation)));
     }
 
-    private static InstanceGroupConfig primaryWorkerConfig(final DiskConfig diskConfig, final MachineType machineType) {
-        return new InstanceGroupConfig().setMachineTypeUri(machineType.uri()).setNumInstances(2).setDiskConfig(diskConfig);
+    private static InstanceGroupConfig primaryWorkerConfig(final DiskConfig diskConfig, final MachineType machineType,
+            final int numInstances) {
+        return new InstanceGroupConfig().setMachineTypeUri(machineType.uri()).setNumInstances(numInstances).setDiskConfig(diskConfig);
     }
 
     @NotNull
-    private static DiskConfig diskConfig(PerformanceProfile profile) {
-        return new DiskConfig().setBootDiskSizeGb(profile.diskSizeGB());
+    private static DiskConfig diskConfig(MachineType machineType) {
+        return new DiskConfig().setBootDiskSizeGb(machineType.diskGB());
     }
 
     private static InstanceGroupConfig secondaryWorkerConfig(final PerformanceProfile profile, final DiskConfig diskConfig,
             final MachineType machineType) {
-        return new InstanceGroupConfig().setMachineTypeUri(machineType.uri())
-                .setNumInstances(profile.workers() - 2)
+        return new InstanceGroupConfig().setMachineTypeUri(machineType.uri()).setNumInstances(profile.numPreemtibleWorkers())
                 .setIsPreemptible(true)
                 .setDiskConfig(diskConfig);
     }

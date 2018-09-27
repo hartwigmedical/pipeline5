@@ -1,12 +1,8 @@
 package com.hartwig.pipeline.cluster;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import org.junit.Test;
-
 public class MachineTypeTest {
 
-    @Test
+    /*@Test
     public void resolves4StandardWhenCPUsOver0() {
         checkMachineTypeFor(1, MachineType.Google.STANDARD_4);
     }
@@ -40,5 +36,5 @@ public class MachineTypeTest {
         PerformanceProfile testProfile = PerformanceProfile.builder().cpuPerWorker(cpuPerNode).build();
         MachineType victim = MachineType.workerFrom(testProfile);
         assertThat(victim.uri()).isEqualTo(machine.uri());
-    }
+    }*/
 }

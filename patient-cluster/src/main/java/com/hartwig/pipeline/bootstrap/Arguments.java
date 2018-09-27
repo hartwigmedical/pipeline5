@@ -39,11 +39,12 @@ public interface Arguments {
 
     String cloudSdkPath();
 
+    int cpuPerGBRatio();
+
     Optional<Integer> sbpApiSampleId();
 
     Optional<String> runId();
 
-    Optional<String> performanceProfilePath();
 
     static Arguments defaults() {
         return BootstrapOptions.from(new String[] {}).orElseThrow(IllegalStateException::new);

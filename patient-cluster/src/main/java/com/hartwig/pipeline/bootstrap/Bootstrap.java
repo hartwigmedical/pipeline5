@@ -16,9 +16,14 @@ import com.hartwig.pipeline.cluster.GoogleDataprocCluster;
 import com.hartwig.pipeline.cluster.GoogleStorageJarUpload;
 import com.hartwig.pipeline.cluster.JarLocation;
 import com.hartwig.pipeline.cluster.JarUpload;
-import com.hartwig.pipeline.cluster.PerformanceProfile;
 import com.hartwig.pipeline.cluster.SampleCluster;
 import com.hartwig.pipeline.cluster.SparkJobDefinition;
+import com.hartwig.pipeline.performance.ClusterOptimizer;
+import com.hartwig.pipeline.performance.Cost;
+import com.hartwig.pipeline.performance.CpuFastQSizeRatio;
+import com.hartwig.pipeline.performance.LocalFastqSize;
+import com.hartwig.pipeline.performance.PerformanceProfile;
+import com.hartwig.pipeline.performance.S3FastQSize;
 import com.hartwig.pipeline.upload.FileSink;
 import com.hartwig.pipeline.upload.GSUtil;
 import com.hartwig.pipeline.upload.GSUtilSampleUpload;
@@ -48,10 +53,11 @@ class Bootstrap {
     private final SampleUpload sampleUpload;
     private final SampleCluster cluster;
     private final JarUpload jarUpload;
+    private final ClusterOptimizer clusterOptimizer;
 
     private Bootstrap(final Storage storage, final StaticData referenceGenomeData, final StaticData knownIndelData,
             final SampleSource sampleSource, final SampleDownload sampleDownload, final SampleUpload sampleUpload,
-            final SampleCluster cluster, final JarUpload jarUpload) {
+            final SampleCluster cluster, final JarUpload jarUpload, final ClusterOptimizer clusterOptimizer) {
         this.storage = storage;
         this.referenceGenomeData = referenceGenomeData;
         this.knownIndelData = knownIndelData;
@@ -60,6 +66,7 @@ class Bootstrap {
         this.sampleUpload = sampleUpload;
         this.cluster = cluster;
         this.jarUpload = jarUpload;
+        this.clusterOptimizer = clusterOptimizer;
     }
 
     private void run(Arguments arguments) {
@@ -70,8 +77,13 @@ class Bootstrap {
             knownIndelData.copyInto(runtimeBucket);
             sampleUpload.run(sample, runtimeBucket);
             JarLocation location = jarUpload.run(runtimeBucket, arguments);
-            cluster.start(sample, runtimeBucket, arguments);
-            cluster.submit(SparkJobDefinition.of(MAIN_CLASS, location.uri()), arguments);
+            PerformanceProfile performanceProfile = clusterOptimizer.optimize(sample);
+
+            LOGGER.info("Calculated a cluster of the following size [{}]", performanceProfile);
+            LOGGER.info("Approximate cost of this run will be [${}] assuming a 4 hour runtime", new Cost().calculate(performanceProfile));
+
+            cluster.start(performanceProfile, sample, runtimeBucket, arguments);
+            cluster.submit(performanceProfile, SparkJobDefinition.of(MAIN_CLASS, location.uri()), arguments);
             sampleDownload.run(sample, runtimeBucket);
             if (!arguments.noCleanup()) {
                 runtimeBucket.cleanup();
@@ -103,11 +115,9 @@ class Bootstrap {
 
                 NodeInitialization nodeInitialization = new NodeInitialization(arguments.nodeInitializationScript());
 
-                PerformanceProfile performanceProfile =
-                        arguments.performanceProfilePath().map(PerformanceProfile::from).orElse(PerformanceProfile.defaultProfile());
-
                 StaticData referenceGenomeData = new StaticData(storage, "reference_genome", new ReferenceGenomeAlias());
                 StaticData knownIndelsData = new StaticData(storage, "known_indels");
+                CpuFastQSizeRatio ratio = CpuFastQSizeRatio.of(arguments.cpuPerGBRatio());
                 if (arguments.sbpApiSampleId().isPresent()) {
                     int sbpSampleId = arguments.sbpApiSampleId().get();
                     SBPRestApi sbpRestApi = SBPRestApi.newInstance(arguments);
@@ -118,8 +128,9 @@ class Bootstrap {
                             a -> new SBPSampleReader(sbpRestApi).read(sbpSampleId),
                             new GoogleStorageToStream(SBPS3BamSink.newInstance(s3, sbpRestApi, sbpSampleId)),
                             new GSUtilSampleUpload(arguments.cloudSdkPath(), new SBPS3FileLocation()),
-                            new GoogleDataprocCluster(credentials, nodeInitialization, performanceProfile),
-                            new GoogleStorageJarUpload()).run(arguments);
+                            new GoogleDataprocCluster(credentials, nodeInitialization),
+                            new GoogleStorageJarUpload(),
+                            new ClusterOptimizer(ratio, new S3FastQSize(s3))).run(arguments);
                 } else {
                     new Bootstrap(storage,
                             referenceGenomeData,
@@ -127,8 +138,9 @@ class Bootstrap {
                             fromLocalFilesystem(),
                             new GoogleStorageToStream(FileSink.newInstance()),
                             new GSUtilSampleUpload(arguments.cloudSdkPath(), new LocalFileLocation()),
-                            new GoogleDataprocCluster(credentials, nodeInitialization, performanceProfile),
-                            new GoogleStorageJarUpload()).run(arguments);
+                            new GoogleDataprocCluster(credentials, nodeInitialization),
+                            new GoogleStorageJarUpload(),
+                            new ClusterOptimizer(ratio, new LocalFastqSize())).run(arguments);
                 }
 
             } catch (Exception e) {
