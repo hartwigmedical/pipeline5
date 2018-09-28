@@ -51,6 +51,35 @@ public class ADAMPipelines {
                 .build();
     }
 
+    public static BamCreationPipeline bamCreationConsolidated(final ADAMContext adamContext, final FileSystem fileSystem,
+            final String workingDirectory, final String referenceGenomePath, final List<String> knownIndelPaths, final int bwaThreads,
+            final boolean doQC, final boolean parallel, final boolean saveAsFile) {
+        JavaADAMContext javaADAMContext = new JavaADAMContext(adamContext);
+        ReferenceGenome referenceGenome = ReferenceGenome.of(fileSystem.getUri() + referenceGenomePath);
+        IntermediateDataLocation intermediateDataLocation = new IntermediateDataLocation(fileSystem, workingDirectory);
+        DataLocation finalDataLocation = new FinalDataLocation(fileSystem, workingDirectory);
+        KnownIndels knownIndels =
+                KnownIndels.of(knownIndelPaths.stream().map(path -> fileSystem.getUri() + path).collect(Collectors.toList()));
+        return BamCreationPipeline.builder()
+                .readCountQCFactory(ADAMReadCountCheck::from)
+                .referenceFinalQC(ifEnabled(doQC,
+                        ADAMFinalBAMQC.of(javaADAMContext, referenceGenome, CoverageThreshold.of(10, 90), CoverageThreshold.of(20, 70))))
+                .tumorFinalQC(ifEnabled(doQC,
+                        ADAMFinalBAMQC.of(javaADAMContext, referenceGenome, CoverageThreshold.of(30, 80), CoverageThreshold.of(60, 65))))
+                .alignment(new ADAMBwa(referenceGenome, adamContext, fileSystem, bwaThreads))
+                .alignmentDatasource(new HDFSAlignmentRDDSource(OutputType.ALIGNED, javaADAMContext, intermediateDataLocation))
+                .finalDatasource(new HDFSAlignmentRDDSource(OutputType.INDEL_REALIGNED, javaADAMContext, intermediateDataLocation))
+                .finalBamStore(new HDFSBamStore(finalDataLocation, fileSystem, true))
+                .addBamEnrichment(new ADAMMarkDupsRealignIndelsAndSort(knownIndels,
+                        referenceGenome,
+                        javaADAMContext,
+                        intermediateDataLocation))
+                .bamStore(new HDFSBamStore(intermediateDataLocation, fileSystem, saveAsFile))
+                .executorService(parallel ? Executors.newFixedThreadPool(2) : MoreExecutors.newDirectExecutorService())
+                .indexBam(new IndexBam(fileSystem, workingDirectory))
+                .build();
+    }
+
     @NotNull
     private static QualityControl<AlignmentRecordRDD> ifEnabled(final boolean doQC, final ADAMFinalBAMQC finalBAMQC) {
         return doQC ? finalBAMQC : alignments -> QCResult.ok();
