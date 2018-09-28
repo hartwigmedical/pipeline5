@@ -48,18 +48,26 @@ public class GunZip {
     }
 
     private void unzipAllParallel(final Sample sample) {
-        ExecutorService executorService = Executors.newFixedThreadPool(sample.lanes().size() * 2);
-        List<Future<?>> futures = new ArrayList<>();
-        for (Lane lane : sample.lanes()) {
-            futures.add(executorService.submit(() -> unzip(lane.readsPath())));
-            futures.add(executorService.submit(() -> unzip(lane.matesPath())));
-        }
-        for (Future<?> future : futures) {
-            try {
-                future.get();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+        if (!sample.lanes().isEmpty()) {
+            ExecutorService executorService = Executors.newFixedThreadPool(sample.lanes().size() * 2);
+            List<Future<?>> futures = new ArrayList<>();
+            for (Lane lane : sample.lanes()) {
+                unzipIfGZ(executorService, futures, lane.readsPath());
+                unzipIfGZ(executorService, futures, lane.matesPath());
             }
+            for (Future<?> future : futures) {
+                try {
+                    future.get();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+    }
+
+    private void unzipIfGZ(final ExecutorService executorService, final List<Future<?>> futures, final String path) {
+        if (isGZ(path)) {
+            futures.add(executorService.submit(() -> unzip(path)));
         }
     }
 
@@ -72,16 +80,15 @@ public class GunZip {
     }
 
     private void unzip(final String path) {
-        if (isGZ(path)) {
-            try {
-                String unzippedPath = truncateGZExtension(path);
-                sparkContext.textFile(path).saveAsTextFile(unzippedPath);
-                fileSystem.delete(new Path(path), true);
-                LOGGER.info("Unzipping [{}] complete. Deleting zipped file from HDFS", path);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+        try {
+            String unzippedPath = truncateGZExtension(path);
+            sparkContext.textFile(path).saveAsTextFile(unzippedPath);
+            fileSystem.delete(new Path(path), true);
+            LOGGER.info("Unzipping [{}] complete. Deleting zipped file from HDFS", path);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
+
     }
 
     public static Patient execute(FileSystem fileSystem, JavaSparkContext sparkContext, Patient patient) {
