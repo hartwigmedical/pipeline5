@@ -1,10 +1,12 @@
 package com.hartwig.pipeline;
 
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import com.hartwig.patient.ImmutableLane;
 import com.hartwig.patient.ImmutablePatient;
@@ -34,9 +36,7 @@ public class GunZip {
     public Sample run(Sample sample) {
         ImmutableSample.Builder builder = ImmutableSample.builder().from(sample);
 
-        sample.lanes().stream().flatMap(lane -> Stream.of(lane.readsPath(), lane.matesPath())).parallel()
-                .filter(GunZip::isGZ)
-                .forEach(this::unzip);
+        unzipAllParallel(sample);
 
         List<Lane> unzippedLanes = sample.lanes().parallelStream().map(lane -> {
             ImmutableLane.Builder laneBuilder = Lane.builder().from(lane);
@@ -47,8 +47,20 @@ public class GunZip {
         return builder.lanes(unzippedLanes).build();
     }
 
-    private List<String> newArrayList(final String... strings) {
-        return Arrays.asList(strings);
+    private void unzipAllParallel(final Sample sample) {
+        ExecutorService executorService = Executors.newFixedThreadPool(sample.lanes().size() * 2);
+        List<Future<?>> futures = new ArrayList<>();
+        for (Lane lane : sample.lanes()) {
+            futures.add(executorService.submit(() -> unzip(lane.readsPath())));
+            futures.add(executorService.submit(() -> unzip(lane.matesPath())));
+        }
+        for (Future<?> future : futures) {
+            try {
+                future.get();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     private String truncateGZExtension(final String path) {
@@ -60,13 +72,15 @@ public class GunZip {
     }
 
     private void unzip(final String path) {
-        try {
-            String unzippedPath = truncateGZExtension(path);
-            sparkContext.textFile(path).saveAsTextFile(unzippedPath);
-            fileSystem.delete(new Path(path), true);
-            LOGGER.info("Unzipping [{}] complete. Deleting zipped file from HDFS", path);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        if (isGZ(path)) {
+            try {
+                String unzippedPath = truncateGZExtension(path);
+                sparkContext.textFile(path).saveAsTextFile(unzippedPath);
+                fileSystem.delete(new Path(path), true);
+                LOGGER.info("Unzipping [{}] complete. Deleting zipped file from HDFS", path);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
