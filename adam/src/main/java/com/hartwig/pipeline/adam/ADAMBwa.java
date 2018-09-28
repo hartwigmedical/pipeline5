@@ -5,7 +5,6 @@ import static java.util.Collections.singletonList;
 import static scala.collection.JavaConverters.asScalaBufferConverter;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,8 +19,6 @@ import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.AlignmentStage;
 
 import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-import org.apache.spark.SparkFiles;
 import org.bdgenomics.adam.api.java.FragmentsToAlignmentRecordsConverter;
 import org.bdgenomics.adam.models.RecordGroup;
 import org.bdgenomics.adam.models.RecordGroupDictionary;
@@ -77,9 +74,8 @@ class ADAMBwa implements AlignmentStage {
         FragmentRDD fragmentRDD = adamContext.loadPairedFastq(lane.readsPath(),
                 lane.matesPath(), Option.empty(), Option.empty(),
                 ValidationStringency.LENIENT).toFragments();
-        initializeBwaSharedMemoryPerExecutor(fragmentRDD);
-        return RDDs.alignmentRecordRDD(((FragmentRDD) fragmentRDD).pipe(BwaCommand.tokens(referenceGenome, sample, lane, bwaThreads),
-                new ArrayList<>(),
+        return RDDs.alignmentRecordRDD(((FragmentRDD) fragmentRDD).pipe(BwaCommand.tokens(sample, lane, bwaThreads),
+                IndexFiles.resolve(fileSystem, referenceGenome),
                 Collections.emptyMap(),
                 0,
                 InterleavedFASTQInFormatter.class,
@@ -87,14 +83,6 @@ class ADAMBwa implements AlignmentStage {
                 new FragmentsToAlignmentRecordsConverter())
                 .replaceRecordGroups(recordDictionary(recordGroup(sample, lane)))
                 .replaceSequences(sequenceDictionary));
-    }
-
-    private void initializeBwaSharedMemoryPerExecutor(final FragmentRDD fragmentRDD) {
-        for (String file : IndexFiles.resolve(fileSystem, referenceGenome)) {
-            adamContext.sc().addFile(file);
-        }
-        final String path = referenceGenome.path();
-        fragmentRDD.jrdd().foreach(fragment -> InitializeBwaSharedMemory.run(SparkFiles.get(new Path(path).getName())));
     }
 
     private RecordGroupDictionary recordDictionary(final RecordGroup recordGroup) {
