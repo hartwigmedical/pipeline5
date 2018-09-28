@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.hartwig.patient.ImmutableLane;
 import com.hartwig.patient.ImmutablePatient;
@@ -33,8 +34,7 @@ public class GunZip {
     public Sample run(Sample sample) {
         ImmutableSample.Builder builder = ImmutableSample.builder().from(sample);
 
-        sample.lanes()
-                .parallelStream().flatMap(lane -> newArrayList(lane.readsPath(), lane.matesPath()).parallelStream())
+        sample.lanes().stream().flatMap(lane -> Stream.of(lane.readsPath(), lane.matesPath())).parallel()
                 .filter(GunZip::isGZ)
                 .forEach(this::unzip);
 
