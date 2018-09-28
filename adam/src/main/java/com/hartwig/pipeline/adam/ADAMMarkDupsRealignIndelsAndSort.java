@@ -66,7 +66,6 @@ public class ADAMMarkDupsRealignIndelsAndSort implements Stage<AlignmentRecordRD
                                 5.0,
                                 3000,
                                 20000,
-                                Option.apply(fasta),
-                                false))));
+                                Option.apply(fasta), false)).sortReadsByReferencePositionAndIndex()));
     }
 }
