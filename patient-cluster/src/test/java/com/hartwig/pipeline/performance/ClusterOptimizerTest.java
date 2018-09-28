@@ -33,10 +33,10 @@ public class ClusterOptimizerTest {
     }
 
     @Test
-    public void providesEnoughCpusForRatio() {
+    public void providesEnoughCpusForRatioAndSplitsBetweenPrimaryAndPreemptibleWorkers() {
         PerformanceProfile profile = victim.optimize(SAMPLE_WITH_TWO_LANES);
-        assertThat(profile.numPrimaryWorkers()).isEqualTo(2);
-        assertThat(profile.numPreemtibleWorkers()).isEqualTo(4);
+        assertThat(profile.numPrimaryWorkers()).isEqualTo(3);
+        assertThat(profile.numPreemtibleWorkers()).isEqualTo(3);
     }
 
     @Test

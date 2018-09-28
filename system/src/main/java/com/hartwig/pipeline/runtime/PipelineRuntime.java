@@ -5,7 +5,6 @@ import java.io.IOException;
 import com.hartwig.patient.Patient;
 import com.hartwig.patient.io.PatientReader;
 import com.hartwig.pipeline.BamCreationPipeline;
-import com.hartwig.pipeline.GunZip;
 import com.hartwig.pipeline.adam.ADAMPipelines;
 import com.hartwig.pipeline.runtime.configuration.Configuration;
 import com.hartwig.pipeline.runtime.configuration.YAMLConfigurationReader;
@@ -44,7 +43,7 @@ public class PipelineRuntime {
                     false,
                     false);
             Patient patient = PatientReader.fromHDFS(fileSystem, configuration.patient().directory(), configuration.patient().name());
-            adamPipeline.execute(GunZip.execute(fileSystem, javaSparkContext, patient));
+            adamPipeline.execute(patient);
         } catch (Exception e) {
             LOGGER.error("Fatal error while running ADAM pipeline. See stack trace for more details", e);
             throw new RuntimeException(e);

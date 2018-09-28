@@ -7,7 +7,6 @@ import com.hartwig.patient.Sample;
 
 public class ClusterOptimizer {
 
-    private static final int FIXED_PRIMARY_WORKERS = 2;
     private final CpuFastQSizeRatio cpuToFastQSizeRatio;
     private final ToDoubleFunction<String> fileSizeCalculator;
 
@@ -33,12 +32,13 @@ public class ClusterOptimizer {
         double totalCpusRequired = totalFileSizeGB * cpuToFastQSizeRatio.cpusPerGB();
         MachineType defaultWorker = MachineType.defaultWorker();
         int numWorkers = new Double(totalCpusRequired / defaultWorker.cpus()).intValue();
+        int numPreemptible = numWorkers / 2;
         return PerformanceProfile.builder()
                 .master(MachineType.defaultMaster())
                 .primaryWorkers(defaultWorker)
                 .preemtibleWorkers(MachineType.defaultPreemtibleWorker())
-                .numPrimaryWorkers(FIXED_PRIMARY_WORKERS)
-                .numPreemtibleWorkers(numWorkers > 2 ? numWorkers - FIXED_PRIMARY_WORKERS : 0)
+                .numPrimaryWorkers(Math.max(2, numWorkers - numPreemptible))
+                .numPreemtibleWorkers(numPreemptible)
                 .build();
     }
 }

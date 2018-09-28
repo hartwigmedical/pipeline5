@@ -41,7 +41,6 @@ class BootstrapOptions {
     private static final String RUN_ID_FLAG = "run_id";
     private static final String NODE_INIT_FLAG = "node_init_script";
     private static final String DEFAULT_NODE_INIT = "node-init.sh";
-    private static final String PERFORMANCE_PROFILE_FLAG = "performance_profile";
     private static final String CLOUD_SDK_PATH_FLAG = "cloud_sdk";
     private static final String DEFAULT_CLOUD_SDK_PATH = "/google-cloud-sdk/bin/";
     private static final String CPU_PER_GB_FLAG = "cpu_per_gb";
@@ -178,12 +177,6 @@ class BootstrapOptions {
 
     private static int cpuPerGB(final CommandLine commandLine) {
         return Integer.parseInt(commandLine.getOptionValue(CPU_PER_GB_FLAG, DEFAULT_CPU_PER_GB));
-    }
-
-    private static Optional<String> performanceProfilePath(final CommandLine commandLine) {
-        return commandLine.hasOption(PERFORMANCE_PROFILE_FLAG)
-                ? Optional.of(commandLine.getOptionValue(PERFORMANCE_PROFILE_FLAG))
-                : Optional.empty();
     }
 
     private static Optional<String> runId(final CommandLine commandLine) {
