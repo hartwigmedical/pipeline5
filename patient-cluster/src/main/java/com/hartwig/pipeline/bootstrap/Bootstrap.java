@@ -134,7 +134,7 @@ class Bootstrap {
                             new GSUtilSampleUpload(arguments.cloudSdkPath(), new SBPS3FileSource()),
                             new GoogleDataprocCluster(credentials, nodeInitialization),
                             new GoogleStorageJarUpload(),
-                            new ClusterOptimizer(ratio, new S3FastQSize(s3))).run(arguments);
+                            new ClusterOptimizer(ratio, new S3FastQSize(s3), arguments.usePreemptibleVms())).run(arguments);
                 } else {
                     new Bootstrap(storage,
                             referenceGenomeData,
@@ -144,7 +144,7 @@ class Bootstrap {
                             new GSUtilSampleUpload(arguments.cloudSdkPath(), new LocalFileSource()),
                             new GoogleDataprocCluster(credentials, nodeInitialization),
                             new GoogleStorageJarUpload(),
-                            new ClusterOptimizer(ratio, new LocalFastqSize())).run(arguments);
+                            new ClusterOptimizer(ratio, new LocalFastqSize(), arguments.usePreemptibleVms())).run(arguments);
                 }
 
             } catch (Exception e) {

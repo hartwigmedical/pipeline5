@@ -18,7 +18,7 @@ public class ClusterOptimizerTest {
 
     @Before
     public void setUp() throws Exception {
-        victim = new ClusterOptimizer(CpuFastQSizeRatio.of(5), filename -> 10);
+        victim = new ClusterOptimizer(CpuFastQSizeRatio.of(5), filename -> 10, true);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -28,7 +28,7 @@ public class ClusterOptimizerTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void emptyFilesThrowsIllegalArgumentException() {
-        victim = new ClusterOptimizer(CpuFastQSizeRatio.of(5), filename -> 0d);
+        victim = new ClusterOptimizer(CpuFastQSizeRatio.of(5), filename -> 0d, true);
         victim.optimize(SAMPLE_WITH_TWO_LANES);
     }
 
@@ -48,9 +48,16 @@ public class ClusterOptimizerTest {
 
     @Test
     public void cpusFlooredForVerySmallFiles() {
-        victim = new ClusterOptimizer(CpuFastQSizeRatio.of(5), filename -> 0.001d);
+        victim = new ClusterOptimizer(CpuFastQSizeRatio.of(5), filename -> 0.001d, true);
         PerformanceProfile profile = victim.optimize(SAMPLE_WITH_TWO_LANES);
         assertThat(profile.numPrimaryWorkers()).isEqualTo(2);
         assertThat(profile.numPreemtibleWorkers()).isEqualTo(0);
+    }
+
+    public void usesOnlyPrimaryVmsWhenSpecified() {
+        victim = new ClusterOptimizer(CpuFastQSizeRatio.of(5), filename -> 10, false);
+        PerformanceProfile profile = victim.optimize(SAMPLE_WITH_TWO_LANES);
+        assertThat(profile.numPreemtibleWorkers()).isZero();
+        assertThat(profile.numPrimaryWorkers()).isEqualTo(6);
     }
 }

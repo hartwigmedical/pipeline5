@@ -9,10 +9,13 @@ public class ClusterOptimizer {
 
     private final CpuFastQSizeRatio cpuToFastQSizeRatio;
     private final ToDoubleFunction<String> fileSizeCalculator;
+    private final boolean usePreemtibleVms;
 
-    public ClusterOptimizer(final CpuFastQSizeRatio cpuToFastQSizeRatio, final ToDoubleFunction<String> fileSizeCalculator) {
+    public ClusterOptimizer(final CpuFastQSizeRatio cpuToFastQSizeRatio, final ToDoubleFunction<String> fileSizeCalculator,
+            final boolean usePreemtibleVms) {
         this.cpuToFastQSizeRatio = cpuToFastQSizeRatio;
         this.fileSizeCalculator = fileSizeCalculator;
+        this.usePreemtibleVms = usePreemtibleVms;
     }
 
     public PerformanceProfile optimize(Sample sample) {
@@ -32,7 +35,7 @@ public class ClusterOptimizer {
         double totalCpusRequired = totalFileSizeGB * cpuToFastQSizeRatio.cpusPerGB();
         MachineType defaultWorker = MachineType.defaultWorker();
         int numWorkers = new Double(totalCpusRequired / defaultWorker.cpus()).intValue();
-        int numPreemptible = numWorkers / 2;
+        int numPreemptible = usePreemtibleVms ? numWorkers / 2 : 0;
         return PerformanceProfile.builder()
                 .master(MachineType.defaultMaster())
                 .primaryWorkers(defaultWorker)

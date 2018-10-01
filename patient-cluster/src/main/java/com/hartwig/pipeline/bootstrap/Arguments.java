@@ -17,6 +17,11 @@ public interface Arguments {
         return false;
     }
 
+    @Value.Default
+    default boolean usePreemptibleVms() {
+        return false;
+    }
+
     String project();
 
     String version();
@@ -44,7 +49,6 @@ public interface Arguments {
     Optional<Integer> sbpApiSampleId();
 
     Optional<String> runId();
-
 
     static Arguments defaults() {
         return BootstrapOptions.from(new String[] {}).orElseThrow(IllegalStateException::new);
