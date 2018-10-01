@@ -24,14 +24,15 @@ import com.hartwig.pipeline.performance.CpuFastQSizeRatio;
 import com.hartwig.pipeline.performance.LocalFastqSize;
 import com.hartwig.pipeline.performance.PerformanceProfile;
 import com.hartwig.pipeline.performance.S3FastQSize;
-import com.hartwig.pipeline.upload.FileSink;
 import com.hartwig.pipeline.upload.GSUtil;
+import com.hartwig.pipeline.upload.GSUtilSampleDownload;
 import com.hartwig.pipeline.upload.GSUtilSampleUpload;
-import com.hartwig.pipeline.upload.GoogleStorageToStream;
-import com.hartwig.pipeline.upload.LocalFileLocation;
+import com.hartwig.pipeline.upload.LocalFileSource;
+import com.hartwig.pipeline.upload.LocalFileTarget;
 import com.hartwig.pipeline.upload.SBPRestApi;
-import com.hartwig.pipeline.upload.SBPS3BamSink;
-import com.hartwig.pipeline.upload.SBPS3FileLocation;
+import com.hartwig.pipeline.upload.SBPS3FileSource;
+import com.hartwig.pipeline.upload.SBPS3FileTarget;
+import com.hartwig.pipeline.upload.SBPSampleDownload;
 import com.hartwig.pipeline.upload.SBPSampleReader;
 import com.hartwig.pipeline.upload.SampleDownload;
 import com.hartwig.pipeline.upload.SampleUpload;
@@ -126,8 +127,11 @@ class Bootstrap {
                             referenceGenomeData,
                             knownIndelsData,
                             a -> new SBPSampleReader(sbpRestApi).read(sbpSampleId),
-                            new GoogleStorageToStream(SBPS3BamSink.newInstance(s3, sbpRestApi, sbpSampleId)),
-                            new GSUtilSampleUpload(arguments.cloudSdkPath(), new SBPS3FileLocation()),
+                            new SBPSampleDownload(s3,
+                                    sbpRestApi,
+                                    sbpSampleId,
+                                    new GSUtilSampleDownload(arguments.cloudSdkPath(), new SBPS3FileTarget())),
+                            new GSUtilSampleUpload(arguments.cloudSdkPath(), new SBPS3FileSource()),
                             new GoogleDataprocCluster(credentials, nodeInitialization),
                             new GoogleStorageJarUpload(),
                             new ClusterOptimizer(ratio, new S3FastQSize(s3))).run(arguments);
@@ -136,8 +140,8 @@ class Bootstrap {
                             referenceGenomeData,
                             knownIndelsData,
                             fromLocalFilesystem(),
-                            new GoogleStorageToStream(FileSink.newInstance()),
-                            new GSUtilSampleUpload(arguments.cloudSdkPath(), new LocalFileLocation()),
+                            new GSUtilSampleDownload(arguments.cloudSdkPath(), new LocalFileTarget()),
+                            new GSUtilSampleUpload(arguments.cloudSdkPath(), new LocalFileSource()),
                             new GoogleDataprocCluster(credentials, nodeInitialization),
                             new GoogleStorageJarUpload(),
                             new ClusterOptimizer(ratio, new LocalFastqSize())).run(arguments);

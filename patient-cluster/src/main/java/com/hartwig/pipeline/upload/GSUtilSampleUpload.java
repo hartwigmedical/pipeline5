@@ -60,17 +60,7 @@ public class GSUtilSampleUpload implements SampleUpload {
     }
 
     private void gsutilCP(Sample sample, RuntimeBucket bucket, String file) throws IOException, InterruptedException {
-        ProcessBuilder processBuilder = new ProcessBuilder(gsdkPath + "/gsutil",
-                "-m",
-                "cp",
-                file,
-                format("gs://%s/%s", bucket.getName(), singleSampleFile(sample, file)));
-        processBuilder.redirectError(ProcessBuilder.Redirect.INHERIT);
-        processBuilder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
-        int exitValue = processBuilder.start().waitFor();
-        if (exitValue != 0) {
-            throw new RuntimeException(format("gsutil exited with a non-zero error code [%s]", exitValue));
-        }
+        GSUtil.cp(gsdkPath, file, format("gs://%s/%s", bucket.getName(), singleSampleFile(sample, file)));
     }
 
     @NotNull
