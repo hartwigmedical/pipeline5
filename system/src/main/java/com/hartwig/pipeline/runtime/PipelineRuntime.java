@@ -7,6 +7,7 @@ import com.hartwig.patient.io.PatientReader;
 import com.hartwig.pipeline.BamCreationPipeline;
 import com.hartwig.pipeline.GunZip;
 import com.hartwig.pipeline.adam.ADAMPipelines;
+import com.hartwig.pipeline.metrics.Monitor;
 import com.hartwig.pipeline.runtime.configuration.Configuration;
 import com.hartwig.pipeline.runtime.configuration.YAMLConfigurationReader;
 import com.hartwig.pipeline.runtime.spark.SparkContexts;
@@ -23,9 +24,11 @@ public class PipelineRuntime {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PipelineRuntime.class);
     private final Configuration configuration;
+    private final Monitor monitor;
 
-    PipelineRuntime(final Configuration configuration) {
+    PipelineRuntime(final Configuration configuration, final Monitor monitor) {
         this.configuration = configuration;
+        this.monitor = monitor;
     }
 
     void start() {
@@ -35,7 +38,7 @@ public class PipelineRuntime {
             FileSystem fileSystem = Hadoop.fileSystem(configuration.pipeline().hdfs());
             ADAMContext adamContext = new ADAMContext(sparkContext);
             BamCreationPipeline adamPipeline = ADAMPipelines.bamCreationConsolidated(adamContext,
-                    fileSystem,
+                    fileSystem, monitor,
                     configuration.pipeline().resultsDirectory(),
                     configuration.referenceGenome().path(),
                     configuration.knownIndel().paths(),
@@ -53,13 +56,14 @@ public class PipelineRuntime {
             sparkContext.stop();
             LOGGER.info("Spark context stopped");
         }
+        System.exit(0);
     }
 
     public static void main(String[] args) {
         Configuration configuration;
         try {
             configuration = YAMLConfigurationReader.from(System.getProperty("user.dir"));
-            new PipelineRuntime(configuration).start();
+            new PipelineRuntime(configuration, Monitor.noop()).start();
         } catch (IOException e) {
             LOGGER.error("Unable to read configuration. Check configuration in /conf/pipeline.yaml", e);
         }
