@@ -14,6 +14,8 @@ import com.hartwig.io.OutputStore;
 import com.hartwig.io.OutputType;
 import com.hartwig.patient.Patient;
 import com.hartwig.patient.Sample;
+import com.hartwig.pipeline.metrics.Metric;
+import com.hartwig.pipeline.metrics.Monitor;
 
 import org.bdgenomics.adam.rdd.read.AlignmentRecordRDD;
 import org.immutables.value.Value;
@@ -66,9 +68,11 @@ public abstract class BamCreationPipeline {
                 qc(finalQC, finalDatasource().extract(sample));
             }
             indexBam().execute(sample);
-            LOGGER.info("Preprocessing complete for {} sample, Took {} ms", sample.name(), (endTimer() - startTime));
+            long timeSpent = endTimer() - startTime;
+            LOGGER.info("Preprocessing complete for {} sample, Took {} ms", sample.name(), timeSpent);
+            monitor().update(Metric.spentTime("BAM_CREATED", timeSpent));
         } catch (IOException e) {
-            LOGGER.error(format("Unable to create BAM for %s. Check exception for details", sample.name()), e);
+            LOGGER.error(format("Unable to stackdriver BAM for %s. Check exception for details", sample.name()), e);
             throw new RuntimeException(e);
         }
     }
@@ -103,6 +107,7 @@ public abstract class BamCreationPipeline {
         InputOutput<AlignmentRecordRDD> output = stage.execute(input == null ? InputOutput.seed(sample) : input);
         store.store(output);
         trace.finish();
+        monitor().update(Metric.spentTime(stage.outputType().name(), trace.getExecutionTime()));
         return output;
     }
 
@@ -135,6 +140,8 @@ public abstract class BamCreationPipeline {
     protected abstract IndexBam indexBam();
 
     protected abstract ExecutorService executorService();
+
+    protected abstract Monitor monitor();
 
     public static ImmutableBamCreationPipeline.Builder builder() {
         return ImmutableBamCreationPipeline.builder();

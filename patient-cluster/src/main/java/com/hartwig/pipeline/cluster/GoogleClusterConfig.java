@@ -2,9 +2,11 @@ package com.hartwig.pipeline.cluster;
 
 import java.io.FileNotFoundException;
 import java.util.Collections;
+import java.util.List;
 
 import com.google.api.services.dataproc.model.ClusterConfig;
 import com.google.api.services.dataproc.model.DiskConfig;
+import com.google.api.services.dataproc.model.GceClusterConfig;
 import com.google.api.services.dataproc.model.InstanceGroupConfig;
 import com.google.api.services.dataproc.model.NodeInitializationAction;
 import com.google.api.services.dataproc.model.SoftwareConfig;
@@ -28,16 +30,40 @@ class GoogleClusterConfig {
         return config;
     }
 
-    static GoogleClusterConfig from(RuntimeBucket runtimeBucket, NodeInitialization nodeInitialization, PerformanceProfile profile)
-            throws FileNotFoundException {
+    static GoogleClusterConfig from(final String project, RuntimeBucket runtimeBucket, NodeInitialization nodeInitialization,
+            PerformanceProfile profile) throws FileNotFoundException {
         DiskConfig diskConfig = diskConfig(profile.primaryWorkers());
         ClusterConfig config = clusterConfig(masterConfig(profile.master()),
                 primaryWorkerConfig(diskConfig, profile.primaryWorkers(), profile.numPrimaryWorkers()),
                 secondaryWorkerConfig(profile, diskConfig, profile.preemtibleWorkers()),
                 runtimeBucket.getName(),
-                nodeInitialization.run(runtimeBucket),
-                profile);
+                softwareConfig(profile),
+                initializationActions(runtimeBucket, nodeInitialization),
+                gceClusterConfig(project));
         return new GoogleClusterConfig(config);
+    }
+
+    @NotNull
+    private static GceClusterConfig gceClusterConfig(final String project) {
+        return new GceClusterConfig().setServiceAccount(String.format("dataproc-monitor@%s.iam.gserviceaccount.com", project))
+                .setServiceAccountScopes(Collections.singletonList("https://www.googleapis.com/auth/monitoring"));
+    }
+
+    @NotNull
+    private static SoftwareConfig softwareConfig(final PerformanceProfile profile) {
+        return new SoftwareConfig().setProperties(ImmutableMap.<String, String>builder().put("yarn:yarn.scheduler.minimum-allocation-vcores",
+                String.valueOf(profile.primaryWorkers().cpus()))
+                .put("yarn:yarn.nodemanager.vmem-check-enabled", "false")
+                .put("yarn:yarn.nodemanager.pmem-check-enabled", "false")
+                .put("capacity-scheduler:yarn.scheduler.capacity.resource-calculator",
+                        "org.apache.hadoop.yarn.util.resource.DominantResourceCalculator")
+                .build());
+    }
+
+    @NotNull
+    private static List<NodeInitializationAction> initializationActions(final RuntimeBucket runtimeBucket,
+            final NodeInitialization nodeInitialization) throws FileNotFoundException {
+        return Collections.singletonList(new NodeInitializationAction().setExecutableFile(nodeInitialization.run(runtimeBucket)));
     }
 
     private static InstanceGroupConfig masterConfig(final MachineType machineType) {
@@ -45,21 +71,15 @@ class GoogleClusterConfig {
     }
 
     private static ClusterConfig clusterConfig(final InstanceGroupConfig masterConfig, final InstanceGroupConfig primaryWorkerConfig,
-            final InstanceGroupConfig secondaryWorkerConfig, final String bucket, final String nodeExecutableLocation,
-            final PerformanceProfile profile) {
+            final InstanceGroupConfig secondaryWorkerConfig, final String bucket, final SoftwareConfig softwareConfig,
+            final List<NodeInitializationAction> initializationActions, final GceClusterConfig gceClusterConfig) {
         return new ClusterConfig().setMasterConfig(masterConfig)
                 .setWorkerConfig(primaryWorkerConfig)
                 .setSecondaryWorkerConfig(secondaryWorkerConfig)
                 .setConfigBucket(bucket)
-                .setSoftwareConfig(new SoftwareConfig().setProperties(ImmutableMap.<String, String>builder().put(
-                        "yarn:yarn.scheduler.minimum-allocation-vcores",
-                        String.valueOf(profile.primaryWorkers().cpus()))
-                        .put("yarn:yarn.nodemanager.vmem-check-enabled", "false")
-                        .put("yarn:yarn.nodemanager.pmem-check-enabled", "false")
-                        .put("capacity-scheduler:yarn.scheduler.capacity.resource-calculator",
-                                "org.apache.hadoop.yarn.util.resource.DominantResourceCalculator")
-                        .build()))
-                .setInitializationActions(Collections.singletonList(new NodeInitializationAction().setExecutableFile(nodeExecutableLocation)));
+                .setSoftwareConfig(softwareConfig)
+                .setInitializationActions(initializationActions)
+                .setGceClusterConfig(gceClusterConfig);
     }
 
     private static InstanceGroupConfig primaryWorkerConfig(final DiskConfig diskConfig, final MachineType machineType,

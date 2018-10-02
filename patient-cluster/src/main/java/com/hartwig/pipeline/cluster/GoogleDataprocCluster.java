@@ -1,6 +1,7 @@
 package com.hartwig.pipeline.cluster;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -52,7 +53,8 @@ public class GoogleDataprocCluster implements SampleCluster {
         Dataproc.Projects.Regions.Clusters clusters = dataproc.projects().regions().clusters();
         Cluster existing = findExistingCluster(arguments);
         if (existing == null) {
-            ClusterConfig clusterConfig = GoogleClusterConfig.from(runtimeBucket, nodeInitialization, performanceProfile).config();
+            ClusterConfig clusterConfig =
+                    GoogleClusterConfig.from(arguments.project(), runtimeBucket, nodeInitialization, performanceProfile).config();
             Operation createCluster =
                     clusters.create(arguments.project(), arguments.region(), cluster(clusterConfig, clusterName)).execute();
             LOGGER.info("Starting Google Dataproc cluster with name [{}]. This may take a minute or two...", clusterName);
@@ -70,6 +72,7 @@ public class GoogleDataprocCluster implements SampleCluster {
                         new SubmitJobRequest().setJob(new Job().setPlacement(new JobPlacement().setClusterName(clusterName))
                                 .setSparkJob(new SparkJob().setProperties(SparkProperties.asMap(performanceProfile))
                                         .setMainClass(jobDefinition.mainClass())
+                                        .setArgs(Arrays.asList(arguments.version(), clusterName, arguments.project()))
                                         .setJarFileUris(Collections.singletonList(jobDefinition.jarLocation())))))
                 .execute();
         Job completed = waitForComplete(job,

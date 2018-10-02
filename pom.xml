@@ -37,6 +37,7 @@
         <avro.version>1.8.1</avro.version>
         <jersey.version>2.25</jersey.version>
         <javax.ws.rs-api.version>2.1</javax.ws.rs-api.version>
+        <protobuf-java.version>3.6.1</protobuf-java.version>
     </properties>
 
     <modules>
@@ -46,6 +47,7 @@
         <module>support</module>
         <module>system</module>
         <module>patient-cluster</module>
+        <module>metrics</module>
     </modules>
 
     <dependencyManagement>
@@ -68,6 +70,11 @@
             <dependency>
                 <groupId>com.hartwig</groupId>
                 <artifactId>patient-io</artifactId>
+                <version>local-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hartwig</groupId>
+                <artifactId>metrics</artifactId>
                 <version>local-SNAPSHOT</version>
             </dependency>
             <dependency>
@@ -203,6 +210,16 @@
                 <groupId>com.google.cloud</groupId>
                 <artifactId>google-cloud-storage</artifactId>
                 <version>${google-cloud.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.cloud</groupId>
+                <artifactId>google-cloud-monitoring</artifactId>
+                <version>${google-cloud.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.protobuf</groupId>
+                <artifactId>protobuf-java</artifactId>
+                <version>${protobuf-java.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.cloud</groupId>

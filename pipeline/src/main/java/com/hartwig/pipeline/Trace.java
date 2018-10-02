@@ -9,6 +9,8 @@ public class Trace {
 
     private final Logger logger;
     private final String messagePrefix;
+    private long startTimeMillis;
+    private long executionTime;
 
     private Trace(final Logger logger, final String messagePrefix) {
         this.logger = logger;
@@ -21,10 +23,16 @@ public class Trace {
 
     public Trace start() {
         logger.info(TEMPLATE, messagePrefix, "Started");
+        startTimeMillis = System.currentTimeMillis();
         return this;
     }
 
-    public void finish() {
+    void finish() {
         logger.info(TEMPLATE, messagePrefix, "Completed");
+        executionTime = System.currentTimeMillis() - startTimeMillis;
+    }
+
+    long getExecutionTime() {
+        return executionTime;
     }
 }

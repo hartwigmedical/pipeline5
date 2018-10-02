@@ -43,7 +43,7 @@ public class FileSink implements BamSink {
             }
             LOGGER.info("Completed download to file [{}]", fileName);
         } else {
-            LOGGER.warn("Could not create results dir [{}]. No files were downloaded", results.getPath());
+            LOGGER.warn("Could not stackdriver results dir [{}]. No files were downloaded", results.getPath());
         }
     }
 }

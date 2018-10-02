@@ -16,20 +16,23 @@ import org.junit.Test;
 
 public class GoogleClusterConfigTest {
 
+    private static final String PROJECT = "project";
     private RuntimeBucket runtimeBucket;
     private NodeInitialization nodeInitialization;
+    private GoogleClusterConfig victim;
 
     @Before
     public void setUp() throws Exception {
         runtimeBucket = mock(RuntimeBucket.class);
         when(runtimeBucket.getName()).thenReturn("runtime-bucket");
         nodeInitialization = mock(NodeInitialization.class);
+        victim = GoogleClusterConfig.from(PROJECT, runtimeBucket, nodeInitialization, profileBuilder().build());
     }
 
     @Test
     public void oneMasterTwoPrimaryWorkersAndRemainingNodesSecondary() throws Exception {
         GoogleClusterConfig victim =
-                GoogleClusterConfig.from(runtimeBucket, nodeInitialization, profileBuilder().numPreemtibleWorkers(3).build());
+                GoogleClusterConfig.from(PROJECT, runtimeBucket, nodeInitialization, profileBuilder().numPreemtibleWorkers(3).build());
         assertThat(victim.config().getMasterConfig().getNumInstances()).isEqualTo(1);
         assertThat(victim.config().getWorkerConfig().getNumInstances()).isEqualTo(2);
         assertThat(victim.config().getSecondaryWorkerConfig().getNumInstances()).isEqualTo(3);
@@ -37,7 +40,6 @@ public class GoogleClusterConfigTest {
 
     @Test
     public void allNodesUseResolvedMachineType() throws Exception {
-        GoogleClusterConfig victim = GoogleClusterConfig.from(runtimeBucket, nodeInitialization, profileBuilder().build());
         assertThat(victim.config().getMasterConfig().getMachineTypeUri()).isEqualTo(MachineType.GOOGLE_STANDARD_16);
         assertThat(victim.config().getWorkerConfig().getMachineTypeUri()).isEqualTo(MachineType.GOOGLE_STANDARD_32);
         assertThat(victim.config().getSecondaryWorkerConfig().getMachineTypeUri()).isEqualTo(MachineType.GOOGLE_STANDARD_32);
@@ -45,16 +47,20 @@ public class GoogleClusterConfigTest {
 
     @Test
     public void workerDiskSizeSetToValueInProfile() throws Exception {
-        GoogleClusterConfig victim = GoogleClusterConfig.from(runtimeBucket, nodeInitialization, profileBuilder().build());
         assertThat(victim.config().getWorkerConfig().getDiskConfig().getBootDiskSizeGb()).isEqualTo(MachineType.DISK_GB);
         assertThat(victim.config().getSecondaryWorkerConfig().getDiskConfig().getBootDiskSizeGb()).isEqualTo(MachineType.DISK_GB);
     }
 
     @Test
     public void yarnVcoreMinimumSetToProfileCpusPerNode() throws Exception {
-        GoogleClusterConfig victim = GoogleClusterConfig.from(runtimeBucket, nodeInitialization, profileBuilder().build());
         assertThat(victim.config().getSoftwareConfig().getProperties().get("yarn:yarn.scheduler.minimum-allocation-vcores")).isEqualTo(
                 String.valueOf(MachineType.defaultWorker().cpus()));
+    }
+
+    @Test
+    public void serviceAccountSetupForStackDriverMonitoring() throws Exception {
+        assertThat(victim.config().getGceClusterConfig().getServiceAccount().equals("dataproc-monitor@project.iam.gserviceaccount.com"));
+        assertThat(victim.config().getGceClusterConfig().getServiceAccountScopes()).containsOnly("monitoring");
     }
 
     @NotNull

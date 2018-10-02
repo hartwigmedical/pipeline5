@@ -15,6 +15,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.hartwig</groupId>
+            <artifactId>metrics</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.bdgenomics.adam</groupId>
             <artifactId>adam-core-spark2_2.11</artifactId>
         </dependency>

@@ -15,6 +15,7 @@ import com.hartwig.pipeline.BamCreationPipeline;
 import com.hartwig.pipeline.IndexBam;
 import com.hartwig.pipeline.QCResult;
 import com.hartwig.pipeline.QualityControl;
+import com.hartwig.pipeline.metrics.Monitor;
 
 import org.apache.hadoop.fs.FileSystem;
 import org.bdgenomics.adam.api.java.JavaADAMContext;
@@ -52,7 +53,8 @@ public class ADAMPipelines {
     }
 
     public static BamCreationPipeline bamCreationConsolidated(final ADAMContext adamContext, final FileSystem fileSystem,
-            final String workingDirectory, final String referenceGenomePath, final List<String> knownIndelPaths, final int bwaThreads,
+            final Monitor monitor, final String workingDirectory, final String referenceGenomePath, final List<String> knownIndelPaths,
+            final int bwaThreads,
             final boolean doQC, final boolean parallel, final boolean saveAsFile) {
         JavaADAMContext javaADAMContext = new JavaADAMContext(adamContext);
         ReferenceGenome referenceGenome = ReferenceGenome.of(fileSystem.getUri() + referenceGenomePath);
@@ -77,6 +79,7 @@ public class ADAMPipelines {
                 .bamStore(new HDFSBamStore(intermediateDataLocation, fileSystem, saveAsFile))
                 .executorService(parallel ? Executors.newFixedThreadPool(2) : MoreExecutors.newDirectExecutorService())
                 .indexBam(new IndexBam(fileSystem, workingDirectory))
+                .monitor(monitor)
                 .build();
     }
 
