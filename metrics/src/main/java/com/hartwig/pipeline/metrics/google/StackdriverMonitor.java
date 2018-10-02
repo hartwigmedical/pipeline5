@@ -6,6 +6,7 @@ import com.google.api.MetricDescriptor;
 import com.google.api.MonitoredResource;
 import com.google.cloud.monitoring.v3.MetricServiceClient;
 import com.google.common.collect.ImmutableMap;
+import com.google.monitoring.v3.CreateMetricDescriptorRequest;
 import com.google.monitoring.v3.CreateTimeSeriesRequest;
 import com.google.monitoring.v3.Point;
 import com.google.monitoring.v3.ProjectName;
@@ -22,6 +23,7 @@ public class StackdriverMonitor implements Monitor {
     private static final MonitoredResource GLOBAL_MONITORED_RESOURCE = MonitoredResource.newBuilder().setType("global").build();
     static final String VERSION = "version";
     static final String ID = "id";
+    static final String CUSTOM_DOMAIN = "custom.googleapis.com";
     private final MetricServiceClient client;
     private final Run run;
     private final ProjectName projectName;
@@ -35,13 +37,15 @@ public class StackdriverMonitor implements Monitor {
     @Override
     public void update(final Metric metric) {
 
-        MetricDescriptor descriptor = client.createMetricDescriptor(projectName,
-                MetricDescriptor.newBuilder()
-                        .setDisplayName(metric.name())
-                        .setType(String.format("%s/%s", "custom.googleapis.com", metric.name()))
-                        .setMetricKind(MetricDescriptor.MetricKind.GAUGE)
-                        .setValueType(MetricDescriptor.ValueType.DOUBLE)
-                        .build());
+        MetricDescriptor descriptor = MetricDescriptor.newBuilder()
+                .setDisplayName(metric.name())
+                .setType(String.format("%s/%s", CUSTOM_DOMAIN, metric.name()))
+                .setMetricKind(MetricDescriptor.MetricKind.GAUGE)
+                .setValueType(MetricDescriptor.ValueType.DOUBLE)
+                .build();
+        CreateMetricDescriptorRequest metricDescriptorRequest =
+                CreateMetricDescriptorRequest.newBuilder().setMetricDescriptor(descriptor).setName(projectName.toString()).build();
+        client.createMetricDescriptor(metricDescriptorRequest);
 
         com.google.api.Metric googleMetric = com.google.api.Metric.newBuilder()
                 .setType(descriptor.getType())
