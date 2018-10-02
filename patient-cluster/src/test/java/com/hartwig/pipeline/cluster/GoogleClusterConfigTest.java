@@ -60,7 +60,8 @@ public class GoogleClusterConfigTest {
     @Test
     public void serviceAccountSetupForStackDriverMonitoring() throws Exception {
         assertThat(victim.config().getGceClusterConfig().getServiceAccount().equals("dataproc-monitor@project.iam.gserviceaccount.com"));
-        assertThat(victim.config().getGceClusterConfig().getServiceAccountScopes()).containsOnly("monitoring");
+        assertThat(victim.config().getGceClusterConfig().getServiceAccountScopes()).containsOnly(
+                "https://www.googleapis.com/auth/monitoring");
     }
 
     @NotNull
