@@ -53,9 +53,10 @@ public class SBPSampleDownload implements SampleDownload {
 
     private void grant(final String env, final Permission permission, final AccessControlList objectAcl) {
         String identifiers = System.getenv(env);
-        if (identifiers != null && !identifiers.isEmpty()) {
+        LOGGER.info("Value of environment variable [{}] was [{}]", env, identifiers);
+        if (identifiers != null && !identifiers.trim().isEmpty()) {
             for (String identifier : identifiers.split(",")) {
-                if (identifier != null && identifier.trim().isEmpty()) {
+                if (identifier != null && !identifier.trim().isEmpty()) {
                     LOGGER.info("S3 granting [{}] for [{}]", permission, identifier);
                     objectAcl.grantPermission(new CanonicalGrantee(identifier), permission);
                 }

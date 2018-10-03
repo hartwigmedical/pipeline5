@@ -2,6 +2,7 @@ package com.hartwig.pipeline.bootstrap;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -106,6 +107,7 @@ class Bootstrap {
 
     public static void main(String[] args) {
         LOGGER.info("Raw arguments [{}]", Stream.of(args).collect(Collectors.joining(", ")));
+        printEnvironment();
         BootstrapOptions.from(args).ifPresent(arguments -> {
             try {
                 final GoogleCredentials credentials =
@@ -151,6 +153,13 @@ class Bootstrap {
                 LOGGER.error("An unexpected issue arose while running the bootstrap. See the attached exception for more details.", e);
             }
         });
+    }
+
+    private static void printEnvironment() {
+        Map<String, String> getenv = System.getenv();
+        for (Map.Entry<String, String> stringStringEntry : getenv.entrySet()) {
+            LOGGER.info("Environment [{}] [{}]", stringStringEntry.getKey(), stringStringEntry.getValue());
+        }
     }
 
     @NotNull
