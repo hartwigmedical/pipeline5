@@ -47,17 +47,18 @@ public class SBPSampleDownload implements SampleDownload {
                         .bucket(SBPS3FileTarget.ROOT_BUCKET)
                         .directory(sample.barcode())
                         .filename(bamFile)
-                        .filesize(existing.getContentLength())
-                        .hash(existing.getContentMD5())
+                        .filesize(existing.getContentLength()).hash(existing.getETag())
                         .build());
     }
 
     private void grant(final String env, final Permission permission, final AccessControlList objectAcl) {
         String identifiers = System.getenv(env);
-        for (String identifier : identifiers.split(",")) {
-            if (identifier != null && identifier.trim().isEmpty()) {
-                LOGGER.info("S3 granting [{}] for [{}]", permission, identifier);
-                objectAcl.grantPermission(new CanonicalGrantee(identifier), permission);
+        if (identifiers != null && !identifiers.isEmpty()) {
+            for (String identifier : identifiers.split(",")) {
+                if (identifier != null && identifier.trim().isEmpty()) {
+                    LOGGER.info("S3 granting [{}] for [{}]", permission, identifier);
+                    objectAcl.grantPermission(new CanonicalGrantee(identifier), permission);
+                }
             }
         }
     }

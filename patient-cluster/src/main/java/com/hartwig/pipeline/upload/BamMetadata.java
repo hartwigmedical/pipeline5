@@ -18,6 +18,11 @@ public interface BamMetadata {
 
     String bucket();
 
+    @Value.Default
+    default String status() {
+        return "Done_PipelineV5";
+    }
+
     static ImmutableBamMetadata.Builder builder() {
         return ImmutableBamMetadata.builder();
     }
