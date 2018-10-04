@@ -37,7 +37,7 @@ public class SBPSampleDownload implements SampleDownload {
         S3Object s3Object = s3Client.getObject(directory, bamFile);
         AccessControlList objectAcl = s3Client.getObjectAcl(directory, bamFile);
         grant(READERS_ID_ENV, Permission.Read, objectAcl);
-        grant(READERS_ACP_ID_ENV, Permission.Read, objectAcl);
+        grant(READERS_ACP_ID_ENV, Permission.ReadAcp, objectAcl);
         s3Client.setObjectAcl(directory, bamFile, objectAcl);
 
         ObjectMetadata existing = s3Object.getObjectMetadata();
