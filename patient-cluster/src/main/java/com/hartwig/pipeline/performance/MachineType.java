@@ -42,4 +42,8 @@ public interface MachineType {
                 .costPerInstancePerHour(0.76)
                 .build();
     }
+
+    static ImmutableMachineType.Builder builder() {
+        return ImmutableMachineType.builder();
+    }
 }

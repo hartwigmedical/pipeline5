@@ -38,6 +38,7 @@
         <jersey.version>2.25</jersey.version>
         <javax.ws.rs-api.version>2.1</javax.ws.rs-api.version>
         <protobuf-java.version>3.6.1</protobuf-java.version>
+        <google-billing.version>v1-rev23-1.25.0</google-billing.version>
     </properties>
 
     <modules>
@@ -215,6 +216,11 @@
                 <groupId>com.google.cloud</groupId>
                 <artifactId>google-cloud-monitoring</artifactId>
                 <version>${google-cloud.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.apis</groupId>
+                <artifactId>google-api-services-cloudbilling</artifactId>
+                <version>${google-billing.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.protobuf</groupId>

@@ -8,9 +8,15 @@ import org.immutables.value.Value;
 @JsonDeserialize(as = ImmutablePerformanceProfile.class)
 public interface PerformanceProfile {
 
-    int numPrimaryWorkers();
+    @Value.Default
+    default int numPrimaryWorkers() {
+        return 2;
+    }
 
-    int numPreemtibleWorkers();
+    @Value.Default
+    default int numPreemtibleWorkers() {
+        return 0;
+    }
 
     @Value.Default
     default MachineType master() {

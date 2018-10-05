@@ -40,6 +40,10 @@
         </dependency>
         <dependency>
             <groupId>com.hartwig</groupId>
+            <artifactId>metrics</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.hartwig</groupId>
             <artifactId>system</artifactId>
             <scope>test</scope>
         </dependency>
@@ -49,7 +53,6 @@
             <scope>test</scope>
             <type>test-jar</type>
         </dependency>
-
         <dependency>
             <groupId>com.google.cloud</groupId>
             <artifactId>google-cloud-core</artifactId>
@@ -65,6 +68,10 @@
         <dependency>
             <groupId>com.google.apis</groupId>
             <artifactId>google-api-services-dataproc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.apis</groupId>
+            <artifactId>google-api-services-cloudbilling</artifactId>
         </dependency>
         <dependency>
             <groupId>com.amazonaws</groupId>

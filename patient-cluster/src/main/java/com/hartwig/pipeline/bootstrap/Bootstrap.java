@@ -2,7 +2,6 @@ package com.hartwig.pipeline.bootstrap;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -19,8 +18,12 @@ import com.hartwig.pipeline.cluster.JarLocation;
 import com.hartwig.pipeline.cluster.JarUpload;
 import com.hartwig.pipeline.cluster.SampleCluster;
 import com.hartwig.pipeline.cluster.SparkJobDefinition;
+import com.hartwig.pipeline.cost.CostCalculator;
+import com.hartwig.pipeline.cost.Costs;
+import com.hartwig.pipeline.metrics.Metric;
+import com.hartwig.pipeline.metrics.Monitor;
+import com.hartwig.pipeline.metrics.Run;
 import com.hartwig.pipeline.performance.ClusterOptimizer;
-import com.hartwig.pipeline.performance.Cost;
 import com.hartwig.pipeline.performance.CpuFastQSizeRatio;
 import com.hartwig.pipeline.performance.LocalFastqSize;
 import com.hartwig.pipeline.performance.PerformanceProfile;
@@ -56,10 +59,13 @@ class Bootstrap {
     private final SampleCluster cluster;
     private final JarUpload jarUpload;
     private final ClusterOptimizer clusterOptimizer;
+    private final CostCalculator costCalculator;
+    private final GoogleCredentials credentials;
 
     private Bootstrap(final Storage storage, final StaticData referenceGenomeData, final StaticData knownIndelData,
             final SampleSource sampleSource, final SampleDownload sampleDownload, final SampleUpload sampleUpload,
-            final SampleCluster cluster, final JarUpload jarUpload, final ClusterOptimizer clusterOptimizer) {
+            final SampleCluster cluster, final JarUpload jarUpload, final ClusterOptimizer clusterOptimizer,
+            final CostCalculator costCalculator, final GoogleCredentials credentials) {
         this.storage = storage;
         this.referenceGenomeData = referenceGenomeData;
         this.knownIndelData = knownIndelData;
@@ -69,12 +75,16 @@ class Bootstrap {
         this.cluster = cluster;
         this.jarUpload = jarUpload;
         this.clusterOptimizer = clusterOptimizer;
+        this.costCalculator = costCalculator;
+        this.credentials = credentials;
     }
 
     private void run(Arguments arguments) {
         try {
+            long startTime = System.currentTimeMillis();
             Sample sample = sampleSource.sample(arguments);
             RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, sample, arguments);
+            Monitor monitor = Monitor.stackdriver(Run.of(arguments.version(), runtimeBucket.getName()), arguments.project(), credentials);
             referenceGenomeData.copyInto(runtimeBucket);
             knownIndelData.copyInto(runtimeBucket);
             sampleUpload.run(sample, runtimeBucket);
@@ -82,7 +92,8 @@ class Bootstrap {
             PerformanceProfile performanceProfile = clusterOptimizer.optimize(sample);
 
             LOGGER.info("Calculated a cluster of the following size [{}]", performanceProfile);
-            LOGGER.info("Approximate cost of this run will be [${}] assuming a 4 hour runtime", new Cost().calculate(performanceProfile));
+            LOGGER.info("Approximate costCalculator of this run will be [${}] assuming a 4 hour runtime",
+                    costCalculator.calculate(performanceProfile, 4));
 
             cluster.start(performanceProfile, sample, runtimeBucket, arguments);
             cluster.submit(performanceProfile, SparkJobDefinition.of(MAIN_CLASS, location.uri()), arguments);
@@ -90,6 +101,9 @@ class Bootstrap {
             if (!arguments.noCleanup()) {
                 runtimeBucket.cleanup();
             }
+            long endTime = System.currentTimeMillis();
+            double runtimeHours = (endTime - startTime) / 1000.0 / 60.0 / 60.0;
+            monitor.update(Metric.of("COST", costCalculator.calculate(performanceProfile, runtimeHours)));
         } catch (Exception e) {
             LOGGER.error(
                     "An unexpected error occurred during bootstrap. See exception for more details. Cluster will still be stopped if running",
@@ -107,7 +121,6 @@ class Bootstrap {
 
     public static void main(String[] args) {
         LOGGER.info("Raw arguments [{}]", Stream.of(args).collect(Collectors.joining(", ")));
-        printEnvironment();
         BootstrapOptions.from(args).ifPresent(arguments -> {
             try {
                 final GoogleCredentials credentials =
@@ -121,6 +134,7 @@ class Bootstrap {
                 StaticData referenceGenomeData = new StaticData(storage, "reference_genome", new ReferenceGenomeAlias());
                 StaticData knownIndelsData = new StaticData(storage, "known_indels");
                 CpuFastQSizeRatio ratio = CpuFastQSizeRatio.of(arguments.cpuPerGBRatio());
+                CostCalculator costCalculator = new CostCalculator(credentials, arguments.region(), Costs.defaultCosts());
                 if (arguments.sbpApiSampleId().isPresent()) {
                     int sbpSampleId = arguments.sbpApiSampleId().get();
                     SBPRestApi sbpRestApi = SBPRestApi.newInstance(arguments);
@@ -136,7 +150,9 @@ class Bootstrap {
                             new GSUtilSampleUpload(arguments.cloudSdkPath(), new SBPS3FileSource()),
                             new GoogleDataprocCluster(credentials, nodeInitialization),
                             new GoogleStorageJarUpload(),
-                            new ClusterOptimizer(ratio, new S3FastQSize(s3), arguments.usePreemptibleVms())).run(arguments);
+                            new ClusterOptimizer(ratio, new S3FastQSize(s3), arguments.usePreemptibleVms()),
+                            costCalculator,
+                            credentials).run(arguments);
                 } else {
                     new Bootstrap(storage,
                             referenceGenomeData,
@@ -146,20 +162,15 @@ class Bootstrap {
                             new GSUtilSampleUpload(arguments.cloudSdkPath(), new LocalFileSource()),
                             new GoogleDataprocCluster(credentials, nodeInitialization),
                             new GoogleStorageJarUpload(),
-                            new ClusterOptimizer(ratio, new LocalFastqSize(), arguments.usePreemptibleVms())).run(arguments);
+                            new ClusterOptimizer(ratio, new LocalFastqSize(), arguments.usePreemptibleVms()),
+                            costCalculator,
+                            credentials).run(arguments);
                 }
 
             } catch (Exception e) {
                 LOGGER.error("An unexpected issue arose while running the bootstrap. See the attached exception for more details.", e);
             }
         });
-    }
-
-    private static void printEnvironment() {
-        Map<String, String> getenv = System.getenv();
-        for (Map.Entry<String, String> stringStringEntry : getenv.entrySet()) {
-            LOGGER.info("Environment [{}] [{}]", stringStringEntry.getKey(), stringStringEntry.getValue());
-        }
     }
 
     @NotNull
