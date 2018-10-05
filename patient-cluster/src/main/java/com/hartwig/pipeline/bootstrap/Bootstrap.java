@@ -20,7 +20,6 @@ import com.hartwig.pipeline.cluster.SampleCluster;
 import com.hartwig.pipeline.cluster.SparkJobDefinition;
 import com.hartwig.pipeline.cost.CostCalculator;
 import com.hartwig.pipeline.cost.Costs;
-import com.hartwig.pipeline.metrics.Metric;
 import com.hartwig.pipeline.metrics.Monitor;
 import com.hartwig.pipeline.metrics.Run;
 import com.hartwig.pipeline.performance.ClusterOptimizer;
@@ -102,8 +101,7 @@ class Bootstrap {
                 runtimeBucket.cleanup();
             }
             long endTime = System.currentTimeMillis();
-            double runtimeHours = (endTime - startTime) / 1000.0 / 60.0 / 60.0;
-            monitor.update(Metric.of("COST", costCalculator.calculate(performanceProfile, runtimeHours)));
+            Metrics.record(performanceProfile, endTime - startTime, monitor, costCalculator);
         } catch (Exception e) {
             LOGGER.error(
                     "An unexpected error occurred during bootstrap. See exception for more details. Cluster will still be stopped if running",

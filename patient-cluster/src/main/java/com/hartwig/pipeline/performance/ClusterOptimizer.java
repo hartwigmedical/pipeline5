@@ -41,7 +41,7 @@ public class ClusterOptimizer {
                 .primaryWorkers(defaultWorker)
                 .preemtibleWorkers(MachineType.defaultPreemtibleWorker())
                 .numPrimaryWorkers(Math.max(2, numWorkers - numPreemptible))
-                .numPreemtibleWorkers(numPreemptible)
+                .numPreemtibleWorkers(numPreemptible).fastQSizeGB(totalFileSizeGB)
                 .build();
     }
 }

@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.performance;
 
+import java.util.Optional;
+
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import org.immutables.value.Value;
@@ -32,6 +34,8 @@ public interface PerformanceProfile {
     default MachineType preemtibleWorkers() {
         return MachineType.defaultPreemtibleWorker();
     }
+
+    Optional<Double> fastQSizeGB();
 
     static ImmutablePerformanceProfile.Builder builder() {
         return ImmutablePerformanceProfile.builder();
