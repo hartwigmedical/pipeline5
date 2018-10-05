@@ -56,8 +56,7 @@ public class ADAMMarkDupsRealignIndelsAndSort implements Stage<AlignmentRecordRD
         ReferenceFile fasta = javaADAMContext.loadReferenceFile(referenceGenome.path());
         UnmappedReads unmapped = UnmappedReads.from(input.payload());
         return InputOutput.of(OutputType.INDEL_REALIGNED,
-                input.sample(),
-                RDDs.persistDisk(unmapped.toAlignment(input.payload()
+                input.sample(), unmapped.toAlignment(input.payload()
                         .markDuplicates()
                         .realignIndels(new ConsensusGeneratorFromKnowns(allKnownVariants, 0),
                                 false,
@@ -65,7 +64,6 @@ public class ADAMMarkDupsRealignIndelsAndSort implements Stage<AlignmentRecordRD
                                 30,
                                 5.0,
                                 3000,
-                                20000,
-                                Option.apply(fasta), false)).sortReadsByReferencePositionAndIndex()));
+                                20000, Option.apply(fasta), false).sortReadsByReferencePositionAndIndex()));
     }
 }

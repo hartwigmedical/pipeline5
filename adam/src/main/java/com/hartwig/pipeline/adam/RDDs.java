@@ -10,10 +10,6 @@ class RDDs {
         return persistTo(unpersisted, StorageLevel.DISK_ONLY());
     }
 
-    static AlignmentRecordRDD persistMemoryAndDisk(AlignmentRecordRDD unpersisted) {
-        return persistTo(unpersisted, StorageLevel.MEMORY_AND_DISK());
-    }
-
     private static AlignmentRecordRDD persistTo(final AlignmentRecordRDD unpersisted, final StorageLevel storageLevel) {
         //noinspection RedundantCast
         return (AlignmentRecordRDD) unpersisted.persist(storageLevel);
