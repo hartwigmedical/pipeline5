@@ -42,7 +42,7 @@ class BootstrapOptions {
     private static final String NODE_INIT_FLAG = "node_init_script";
     private static final String DEFAULT_NODE_INIT = "node-init.sh";
     private static final String CLOUD_SDK_PATH_FLAG = "cloud_sdk";
-    private static final String DEFAULT_CLOUD_SDK_PATH = "/google-cloud-sdk/bin/";
+    private static final String DEFAULT_CLOUD_SDK_PATH = "/usr/lib/google-cloud-sdk/bin";
     private static final String CPU_PER_GB_FLAG = "cpu_per_gb";
     private static final String DEFAULT_CPU_PER_GB = "4";
     private static final String USE_PREEMTIBLE_VMS_FLAG = "use_preemtible_vms";
