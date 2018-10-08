@@ -52,12 +52,6 @@ public class GoogleClusterConfigTest {
     }
 
     @Test
-    public void yarnVcoreMinimumSetToProfileCpusPerNode() throws Exception {
-        assertThat(victim.config().getSoftwareConfig().getProperties().get("yarn:yarn.scheduler.minimum-allocation-vcores")).isEqualTo(
-                String.valueOf(MachineType.defaultWorker().cpus()));
-    }
-
-    @Test
     public void serviceAccountSetupForStackDriverMonitoring() throws Exception {
         assertThat(victim.config().getGceClusterConfig().getServiceAccount().equals("dataproc-monitor@project.iam.gserviceaccount.com"));
         assertThat(victim.config().getGceClusterConfig().getServiceAccountScopes()).containsOnly(
