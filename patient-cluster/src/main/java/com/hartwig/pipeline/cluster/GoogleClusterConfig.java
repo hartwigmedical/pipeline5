@@ -35,7 +35,9 @@ class GoogleClusterConfig {
         DiskConfig diskConfig = diskConfig(profile.primaryWorkers());
         ClusterConfig config = clusterConfig(masterConfig(profile.master()),
                 primaryWorkerConfig(diskConfig, profile.primaryWorkers(), profile.numPrimaryWorkers()),
-                secondaryWorkerConfig(profile, diskConfig, profile.preemtibleWorkers()), runtimeBucket.getName(), softwareConfig(),
+                secondaryWorkerConfig(profile, diskConfig, profile.preemtibleWorkers()),
+                runtimeBucket.getName(),
+                softwareConfig(profile),
                 initializationActions(runtimeBucket, nodeInitialization),
                 gceClusterConfig(project));
         return new GoogleClusterConfig(config);
@@ -48,8 +50,9 @@ class GoogleClusterConfig {
     }
 
     @NotNull
-    private static SoftwareConfig softwareConfig() {
-        return new SoftwareConfig().setProperties(ImmutableMap.<String, String>builder()
+    private static SoftwareConfig softwareConfig(final PerformanceProfile profile) {
+        return new SoftwareConfig().setProperties(ImmutableMap.<String, String>builder().put("yarn:yarn.scheduler.minimum-allocation-vcores",
+                String.valueOf(profile.primaryWorkers().cpus()))
                 .put("yarn:yarn.nodemanager.vmem-check-enabled", "false")
                 .put("yarn:yarn.nodemanager.pmem-check-enabled", "false")
                 .put("capacity-scheduler:yarn.scheduler.capacity.resource-calculator",
