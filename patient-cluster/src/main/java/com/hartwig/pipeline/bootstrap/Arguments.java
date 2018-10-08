@@ -22,6 +22,11 @@ public interface Arguments {
         return false;
     }
 
+    @Value.Default
+    default boolean noDownload() {
+        return false;
+    }
+
     String project();
 
     String version();

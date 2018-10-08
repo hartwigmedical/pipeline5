@@ -46,6 +46,7 @@ class BootstrapOptions {
     private static final String CPU_PER_GB_FLAG = "cpu_per_gb";
     private static final String DEFAULT_CPU_PER_GB = "4";
     private static final String USE_PREEMTIBLE_VMS_FLAG = "use_preemtible_vms";
+    private static final String NO_DOWNLOAD_FLAG = "no_download";
 
     private static Options options() {
         return new Options().addOption(privateKeyFlag())
@@ -61,6 +62,9 @@ class BootstrapOptions {
                         false,
                         "Allocate half the cluster as preemtible VMs to save cost. "
                                 + "These VMs can be reclaimed at any time so can be unstable")
+                .addOption(NO_DOWNLOAD_FLAG,
+                        false,
+                        "Do not download the final BAM from Google Storage. Will also leave the runtime bucket in place")
                 .addOption(project())
                 .addOption(region())
                 .addOption(sbpSampleId())
@@ -174,6 +178,7 @@ class BootstrapOptions {
                     .cpuPerGBRatio(cpuPerGB(commandLine))
                     .cloudSdkPath(commandLine.getOptionValue(CLOUD_SDK_PATH_FLAG, DEFAULT_CLOUD_SDK_PATH))
                     .usePreemptibleVms(commandLine.hasOption(USE_PREEMTIBLE_VMS_FLAG))
+                    .noDownload(commandLine.hasOption(NO_DOWNLOAD_FLAG))
                     .build());
         } catch (ParseException e) {
             LOGGER.error("Could not parse command line args", e);

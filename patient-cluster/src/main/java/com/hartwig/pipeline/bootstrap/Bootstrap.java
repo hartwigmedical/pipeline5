@@ -96,8 +96,10 @@ class Bootstrap {
 
             cluster.start(performanceProfile, sample, runtimeBucket, arguments);
             cluster.submit(performanceProfile, SparkJobDefinition.of(MAIN_CLASS, location.uri()), arguments);
-            sampleDownload.run(sample, runtimeBucket);
-            if (!arguments.noCleanup()) {
+            if (!arguments.noDownload()) {
+                sampleDownload.run(sample, runtimeBucket);
+            }
+            if (!arguments.noCleanup() || !arguments.noDownload()) {
                 runtimeBucket.cleanup();
             }
             long endTime = System.currentTimeMillis();
