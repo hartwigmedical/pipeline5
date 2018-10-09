@@ -96,7 +96,7 @@ class Bootstrap {
             PerformanceProfile performanceProfile = clusterOptimizer.optimize(sample);
 
             LOGGER.info("Calculated a cluster of the following size [{}]", performanceProfile);
-            LOGGER.info("Approximate costCalculator of this run will be [${}] assuming a 4 hour runtime",
+            LOGGER.info("Approximate cost of this run will be [{}] assuming a 4 hour runtime",
                     NumberFormat.getCurrencyInstance().format(costCalculator.calculate(performanceProfile, 4)));
 
             cluster.start(performanceProfile, sample, runtimeBucket, arguments);

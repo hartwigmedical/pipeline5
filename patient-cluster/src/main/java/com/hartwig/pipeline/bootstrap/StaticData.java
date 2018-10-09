@@ -33,12 +33,12 @@ class StaticData {
         Bucket staticDataBucket = storage.get(sourceBucket);
         if (staticDataBucket != null) {
             Page<Blob> blobs = staticDataBucket.list();
+            LOGGER.info("Copying static data from [{}] into [{}]", sourceBucket, runtimeBucket.getName());
             for (Blob source : blobs.iterateAll()) {
-                String sourcePath = sourceBucket + "/" + source.getName();
                 BlobId target = BlobId.of(runtimeBucket.bucket().getName(), sourceBucket + "/" + alias.apply(source.getName()));
-                LOGGER.info("Copying static data from [{}] into [{}]", sourcePath, target);
                 storage.copy(Storage.CopyRequest.of(sourceBucket, source.getName(), target));
             }
+            LOGGER.info("Copying static data complete");
         } else {
             LOGGER.warn("No bucket found for static data [{}] check that it exists in storage", sourceBucket);
         }

@@ -35,6 +35,7 @@ public class RuntimeBucket {
                     .setStorageClass(StorageClass.REGIONAL)
                     .setLocation(arguments.region())
                     .build());
+            LOGGER.info("Creating runtime bucket complete");
         }
         return new RuntimeBucket(bucket);
     }
