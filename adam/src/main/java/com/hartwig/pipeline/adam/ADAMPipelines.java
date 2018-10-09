@@ -48,7 +48,8 @@ public class ADAMPipelines {
                 .addBamEnrichment(new ADAMRealignIndels(knownIndels, referenceGenome, javaADAMContext, intermediateDataLocation))
                 .bamStore(new HDFSBamStore(intermediateDataLocation, fileSystem, saveAsFile))
                 .executorService(parallel ? Executors.newFixedThreadPool(2) : MoreExecutors.newDirectExecutorService())
-                .indexBam(new IndexBam(fileSystem, workingDirectory))
+                .indexBam(new IndexBam(fileSystem, workingDirectory, Monitor.noop()))
+                .monitor(Monitor.noop())
                 .build();
     }
 
@@ -78,7 +79,7 @@ public class ADAMPipelines {
                         intermediateDataLocation))
                 .bamStore(new HDFSBamStore(intermediateDataLocation, fileSystem, saveAsFile))
                 .executorService(parallel ? Executors.newFixedThreadPool(2) : MoreExecutors.newDirectExecutorService())
-                .indexBam(new IndexBam(fileSystem, workingDirectory))
+                .indexBam(new IndexBam(fileSystem, workingDirectory, monitor))
                 .monitor(monitor)
                 .build();
     }
