@@ -131,7 +131,7 @@ public class GoogleDataprocCluster implements SampleCluster {
         boolean operationComplete = false;
         while (!operationComplete) {
             sleep();
-            LOGGER.info("Operation [{}] not complete, waiting...", description.apply(operation));
+            LOGGER.debug("Operation [{}] not complete, waiting...", description.apply(operation));
             operation = poll.poll();
             operationComplete = isDone.test(operation);
         }
