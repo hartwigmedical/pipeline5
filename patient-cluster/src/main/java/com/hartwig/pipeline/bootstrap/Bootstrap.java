@@ -96,8 +96,8 @@ class Bootstrap {
             PerformanceProfile performanceProfile = clusterOptimizer.optimize(sample);
 
             LOGGER.info("Calculated a cluster of the following size [{}]", performanceProfile);
-            LOGGER.info("Approximate cost of this run will be [{}] assuming a 4 hour runtime",
-                    NumberFormat.getCurrencyInstance().format(costCalculator.calculate(performanceProfile, 4)));
+            LOGGER.info("This cluster will cost approximately [{}] per hour",
+                    NumberFormat.getCurrencyInstance().format(costCalculator.calculate(performanceProfile, 1)));
 
             cluster.start(performanceProfile, sample, runtimeBucket, arguments);
             cluster.submit(performanceProfile, SparkJobDefinition.of(MAIN_CLASS, location.uri()), arguments);
