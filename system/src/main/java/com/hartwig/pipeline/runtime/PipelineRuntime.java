@@ -41,8 +41,7 @@ public class PipelineRuntime {
                     configuration.pipeline().resultsDirectory(),
                     configuration.referenceGenome().path(),
                     configuration.knownIndel().paths(),
-                    configuration.pipeline().bwa().threads(),
-                    false,
+                    configuration.pipeline().bwa().threads(), true,
                     false,
                     false);
             Patient patient = PatientReader.fromHDFS(fileSystem, configuration.patient().directory(), configuration.patient().name());
