@@ -39,7 +39,9 @@ public abstract class BamCreationPipeline {
 
     private void createBAM(final Sample sample, final QualityControl<AlignmentRecordRDD> finalQC) {
         LOGGER.info("Preprocessing started for {} sample", sample.name());
+        StatusReporter.Status status = StatusReporter.Status.SUCCESS;
         try {
+            QCResult qcResult;
             long startTime = startTimer();
             if (!bamStore().exists(sample, OutputType.ALIGNED)) {
                 runStage(sample, alignment(), bamStore(), InputOutput.seed(sample));
@@ -54,26 +56,41 @@ public abstract class BamCreationPipeline {
                 if (!bamStore().exists(sample, bamEnricher.outputType())) {
                     InputOutput<AlignmentRecordRDD> input = alignedWhenFirstStageOrStageDatasource(sample, aligned, stage, bamEnricher);
                     stage++;
-                    qc(readCount, input);
+                    qcResult = qc(readCount, input);
+                    if (!qcResult.isOk()) {
+                        status = StatusReporter.Status.FAILED_READ_COUNT;
+                        throw new IllegalStateException(String.format("QC failed on stage [%s] with message [%s] ",
+                                bamEnricher.outputType(),
+                                qcResult.message()));
+                    }
                     output = runStage(sample, bamEnricher, bamStore(), input);
                 } else {
                     skipping(bamEnricher, sample);
                 }
             }
             if (output != null) {
-                qc(finalQC, output);
+                qcResult = qc(finalQC, output);
                 finalBamStore().store(output);
             } else {
                 LOGGER.info("No stages to run as all output existed. Running final QC on persisted BAM");
-                qc(finalQC, finalDatasource().extract(sample));
+                qcResult = qc(finalQC, finalDatasource().extract(sample));
             }
             indexBam().execute(sample);
             long timeSpent = endTimer() - startTime;
             LOGGER.info("Preprocessing complete for {} sample, Took {} ms", sample.name(), timeSpent);
             monitor().update(Metric.spentTime("BAM_CREATED", timeSpent));
-        } catch (IOException e) {
-            LOGGER.error(format("Unable to stackdriver BAM for %s. Check exception for details", sample.name()), e);
+            if (!qcResult.isOk()) {
+                status = StatusReporter.Status.FAILED_FINAL_QC;
+            }
+
+        } catch (Exception e) {
+            LOGGER.error(format("Unable to create BAM for %s. Check exception for details", sample.name()), e);
+            if (status == StatusReporter.Status.SUCCESS) {
+                status = StatusReporter.Status.FAILED_ERROR;
+            }
             throw new RuntimeException(e);
+        } finally {
+            statusReporter().report(status);
         }
     }
 
@@ -93,11 +110,8 @@ public abstract class BamCreationPipeline {
         LOGGER.info("Skipping [{}] stage for [{}] as the output already exists.", bamEnricher.outputType(), sample.name());
     }
 
-    private void qc(final QualityControl<AlignmentRecordRDD> qcCheck, final InputOutput<AlignmentRecordRDD> toQC) throws IOException {
-        QCResult check = qcCheck.check(toQC);
-        if (!check.isOk()) {
-            throw new IllegalStateException(check.message());
-        }
+    private QCResult qc(final QualityControl<AlignmentRecordRDD> qcCheck, final InputOutput<AlignmentRecordRDD> toQC) throws IOException {
+        return qcCheck.check(toQC);
     }
 
     private InputOutput<AlignmentRecordRDD> runStage(final Sample sample, final Stage<AlignmentRecordRDD, AlignmentRecordRDD> stage,
@@ -142,6 +156,8 @@ public abstract class BamCreationPipeline {
     protected abstract ExecutorService executorService();
 
     protected abstract Monitor monitor();
+
+    protected abstract StatusReporter statusReporter();
 
     public static ImmutableBamCreationPipeline.Builder builder() {
         return ImmutableBamCreationPipeline.builder();

@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.cost;
 
+import java.text.NumberFormat;
+
 import com.hartwig.pipeline.performance.PerformanceProfile;
 
 import org.slf4j.Logger;
@@ -23,9 +25,7 @@ public class DataprocCost implements Cost {
         double totalCost = totalCpus * hours * costPerCpuPerHour;
         LOGGER.info("[{} Dataproc] CPUs for [{}] hours at a cost of [{}] per hour/per cpu for a total cost of [{}]",
                 totalCpus,
-                hours,
-                costPerCpuPerHour,
-                totalCost);
+                hours, NumberFormat.getCurrencyInstance().format(costPerCpuPerHour), NumberFormat.getCurrencyInstance().format(totalCost));
         return totalCost;
     }
 

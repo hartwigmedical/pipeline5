@@ -50,5 +50,11 @@
             <artifactId>support</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.hartwig</groupId>
+            <artifactId>support</artifactId>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>

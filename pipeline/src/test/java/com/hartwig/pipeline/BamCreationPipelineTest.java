@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import java.io.IOException;
-import java.util.concurrent.ExecutionException;
 
 import com.google.common.util.concurrent.MoreExecutors;
 import com.hartwig.io.DataSource;
@@ -18,6 +17,7 @@ import com.hartwig.patient.Sample;
 import org.bdgenomics.adam.rdd.read.AlignmentRecordRDD;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class BamCreationPipelineTest {
@@ -27,12 +27,14 @@ public class BamCreationPipelineTest {
             InputOutput.of(OutputType.ALIGNED, SAMPLE, mock(AlignmentRecordRDD.class));
     private static final Patient PATIENT = Patient.of("", "TEST", SAMPLE, SAMPLE);
     private InputOutput<AlignmentRecordRDD> lastStored;
+    private StatusReporter.Status status;
     private static final InputOutput<AlignmentRecordRDD> ENRICHED =
             InputOutput.of(OutputType.DUPLICATE_MARKED, SAMPLE, mock(AlignmentRecordRDD.class));
 
     @Before
     public void setUp() throws Exception {
         lastStored = null;
+        status = null;
     }
 
     @Test
@@ -44,13 +46,17 @@ public class BamCreationPipelineTest {
     private ImmutableBamCreationPipeline.Builder builder() {
         return BamCreationPipeline.builder()
                 .executorService(MoreExecutors.newDirectExecutorService())
-                .alignment(alignmentStage()).alignmentDatasource(sample -> ALIGNED_BAM).finalDatasource(sample -> ALIGNED_BAM)
+                .alignment(alignmentStage())
+                .alignmentDatasource(sample -> ALIGNED_BAM)
+                .finalDatasource(sample -> ALIGNED_BAM)
                 .readCountQCFactory(aligned -> reads -> QCResult.ok())
-                .finalBamStore(bamStore(false, false)).indexBam(mock(IndexBam.class))
+                .finalBamStore(bamStore(false, false))
+                .indexBam(mock(IndexBam.class))
                 .referenceFinalQC(reads -> QCResult.ok())
                 .tumorFinalQC(reads -> QCResult.ok())
                 .monitor(metric -> {
-                });
+                })
+                .statusReporter(status -> BamCreationPipelineTest.this.status = status);
     }
 
     @Test
@@ -71,29 +77,39 @@ public class BamCreationPipelineTest {
         assertThat(lastStored).isEqualTo(ALIGNED_BAM);
     }
 
-    @Test(expected = ExecutionException.class)
-    public void executionExceptionWhenReadCountQCFails() throws Exception {
-        builder().bamStore(bamStore(false, false))
-                .addBamEnrichment(enrichmentStage(ENRICHED)).readCountQCFactory(aligned -> reads -> QCResult.failure("test"))
-                .build()
-                .execute(PATIENT);
+    @Test
+    public void runtimeExceptionAndStatusFailWhenReadCountQCFails() throws Exception {
+        try {
+            builder().bamStore(bamStore(false, false))
+                    .addBamEnrichment(enrichmentStage(ENRICHED))
+                    .readCountQCFactory(aligned -> reads -> QCResult.failure("test"))
+                    .build()
+                    .execute(PATIENT);
+        } catch (Exception e) {
+            assertThat(e.getCause()).isInstanceOf(RuntimeException.class);
+        }
+        assertThat(status).isEqualTo(StatusReporter.Status.FAILED_READ_COUNT);
     }
 
-    @Test(expected = ExecutionException.class)
-    public void executionExceptionWhenReferenceFinalQCFails() throws Exception {
+    @Ignore("Will be fixed in a future refactor to remove tumor/sample mode")
+    @Test
+    public void statusFailWhenReferenceFinalQCFails() throws Exception {
         builder().bamStore(bamStore(false, false))
                 .addBamEnrichment(enrichmentStage(ENRICHED))
                 .referenceFinalQC(reads -> QCResult.failure("test"))
                 .build()
                 .execute(PATIENT);
+        assertThat(status).isEqualTo(StatusReporter.Status.FAILED_FINAL_QC);
     }
 
-    @Test(expected = ExecutionException.class)
-    public void executionExceptionWhenTumorFinalQCFails() throws Exception {
+    @Test
+    public void statusFailWhenTumorFinalQCFails() throws Exception {
         builder().bamStore(bamStore(false, false))
-                .addBamEnrichment(enrichmentStage(ENRICHED)).tumorFinalQC(reads -> QCResult.failure("test"))
+                .addBamEnrichment(enrichmentStage(ENRICHED))
+                .tumorFinalQC(reads -> QCResult.failure("test"))
                 .build()
                 .execute(PATIENT);
+        assertThat(status).isEqualTo(StatusReporter.Status.FAILED_FINAL_QC);
     }
 
     @NotNull

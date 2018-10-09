@@ -2,6 +2,7 @@ package com.hartwig.pipeline.bootstrap;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.text.NumberFormat;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -30,6 +31,7 @@ import com.hartwig.pipeline.performance.S3FastQSize;
 import com.hartwig.pipeline.upload.GSUtil;
 import com.hartwig.pipeline.upload.GSUtilSampleDownload;
 import com.hartwig.pipeline.upload.GSUtilSampleUpload;
+import com.hartwig.pipeline.upload.GoogleStorageStatusCheck;
 import com.hartwig.pipeline.upload.LocalFileSource;
 import com.hartwig.pipeline.upload.LocalFileTarget;
 import com.hartwig.pipeline.upload.SBPRestApi;
@@ -39,6 +41,7 @@ import com.hartwig.pipeline.upload.SBPSampleDownload;
 import com.hartwig.pipeline.upload.SBPSampleReader;
 import com.hartwig.pipeline.upload.SampleDownload;
 import com.hartwig.pipeline.upload.SampleUpload;
+import com.hartwig.pipeline.upload.StatusCheck;
 import com.hartwig.support.hadoop.Hadoop;
 
 import org.jetbrains.annotations.NotNull;
@@ -54,6 +57,7 @@ class Bootstrap {
     private final StaticData knownIndelData;
     private final SampleSource sampleSource;
     private final SampleDownload sampleDownload;
+    private final StatusCheck statusCheck;
     private final SampleUpload sampleUpload;
     private final SampleCluster cluster;
     private final JarUpload jarUpload;
@@ -62,14 +66,15 @@ class Bootstrap {
     private final GoogleCredentials credentials;
 
     private Bootstrap(final Storage storage, final StaticData referenceGenomeData, final StaticData knownIndelData,
-            final SampleSource sampleSource, final SampleDownload sampleDownload, final SampleUpload sampleUpload,
-            final SampleCluster cluster, final JarUpload jarUpload, final ClusterOptimizer clusterOptimizer,
-            final CostCalculator costCalculator, final GoogleCredentials credentials) {
+            final SampleSource sampleSource, final SampleDownload sampleDownload, final StatusCheck statusCheck,
+            final SampleUpload sampleUpload, final SampleCluster cluster, final JarUpload jarUpload,
+            final ClusterOptimizer clusterOptimizer, final CostCalculator costCalculator, final GoogleCredentials credentials) {
         this.storage = storage;
         this.referenceGenomeData = referenceGenomeData;
         this.knownIndelData = knownIndelData;
         this.sampleSource = sampleSource;
         this.sampleDownload = sampleDownload;
+        this.statusCheck = statusCheck;
         this.sampleUpload = sampleUpload;
         this.cluster = cluster;
         this.jarUpload = jarUpload;
@@ -92,12 +97,13 @@ class Bootstrap {
 
             LOGGER.info("Calculated a cluster of the following size [{}]", performanceProfile);
             LOGGER.info("Approximate costCalculator of this run will be [${}] assuming a 4 hour runtime",
-                    costCalculator.calculate(performanceProfile, 4));
+                    NumberFormat.getCurrencyInstance().format(costCalculator.calculate(performanceProfile, 4)));
 
             cluster.start(performanceProfile, sample, runtimeBucket, arguments);
             cluster.submit(performanceProfile, SparkJobDefinition.of(MAIN_CLASS, location.uri()), arguments);
+            StatusCheck.Status status = statusCheck.check(runtimeBucket);
             if (!arguments.noDownload()) {
-                sampleDownload.run(sample, runtimeBucket);
+                sampleDownload.run(sample, runtimeBucket, status);
             }
             if (!arguments.noCleanup() || !arguments.noDownload()) {
                 runtimeBucket.cleanup();
@@ -135,6 +141,7 @@ class Bootstrap {
                 StaticData knownIndelsData = new StaticData(storage, "known_indels");
                 CpuFastQSizeRatio ratio = CpuFastQSizeRatio.of(arguments.cpuPerGBRatio());
                 CostCalculator costCalculator = new CostCalculator(credentials, arguments.region(), Costs.defaultCosts());
+                StatusCheck statusCheck = new GoogleStorageStatusCheck();
                 if (arguments.sbpApiSampleId().isPresent()) {
                     int sbpSampleId = arguments.sbpApiSampleId().get();
                     SBPRestApi sbpRestApi = SBPRestApi.newInstance(arguments);
@@ -145,8 +152,7 @@ class Bootstrap {
                             a -> new SBPSampleReader(sbpRestApi).read(sbpSampleId),
                             new SBPSampleDownload(s3,
                                     sbpRestApi,
-                                    sbpSampleId,
-                                    new GSUtilSampleDownload(arguments.cloudSdkPath(), new SBPS3FileTarget())),
+                                    sbpSampleId, new GSUtilSampleDownload(arguments.cloudSdkPath(), new SBPS3FileTarget())), statusCheck,
                             new GSUtilSampleUpload(arguments.cloudSdkPath(), new SBPS3FileSource()),
                             new GoogleDataprocCluster(credentials, nodeInitialization),
                             new GoogleStorageJarUpload(),
@@ -157,8 +163,7 @@ class Bootstrap {
                     new Bootstrap(storage,
                             referenceGenomeData,
                             knownIndelsData,
-                            fromLocalFilesystem(),
-                            new GSUtilSampleDownload(arguments.cloudSdkPath(), new LocalFileTarget()),
+                            fromLocalFilesystem(), new GSUtilSampleDownload(arguments.cloudSdkPath(), new LocalFileTarget()), statusCheck,
                             new GSUtilSampleUpload(arguments.cloudSdkPath(), new LocalFileSource()),
                             new GoogleDataprocCluster(credentials, nodeInitialization),
                             new GoogleStorageJarUpload(),

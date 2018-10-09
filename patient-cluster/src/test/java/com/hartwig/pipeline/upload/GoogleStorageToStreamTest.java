@@ -50,7 +50,7 @@ public class GoogleStorageToStreamTest {
 
     @Test(expected = IllegalStateException.class)
     public void illegalStateExceptionWhenBucketNotFound() {
-        victim.run(SAMPLE, runtimeBucket);
+        victim.run(SAMPLE, runtimeBucket, StatusCheck.Status.SUCCESS);
     }
 
     @Test
@@ -63,7 +63,7 @@ public class GoogleStorageToStreamTest {
         when(bucket.get(eq("results/test.bam.bai"))).thenReturn(bai);
         when(bam.reader()).thenReturn(bamChannel);
         when(bai.reader()).thenReturn(baiChannel);
-        victim.run(SAMPLE, runtimeBucket);
+        victim.run(SAMPLE, runtimeBucket, StatusCheck.Status.SUCCESS);
         IOUtils.copy(resultBamStream, bamOutputStream);
         IOUtils.copy(resultBaiStream, baiOutputStream);
         assertThat(bamOutputStream.toByteArray()).isEqualTo(BYTES);

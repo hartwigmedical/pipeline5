@@ -16,12 +16,12 @@ public class GoogleStorageToStream implements SampleDownload {
     private final Logger LOGGER = LoggerFactory.getLogger(GoogleStorageToStream.class);
     private final BamSink bamSink;
 
-    public GoogleStorageToStream(final BamSink bamSink) {
+    GoogleStorageToStream(final BamSink bamSink) {
         this.bamSink = bamSink;
     }
 
     @Override
-    public void run(final Sample sample, final RuntimeBucket runtimeBucket) {
+    public void run(final Sample sample, final RuntimeBucket runtimeBucket, final StatusCheck.Status status) {
         String bamFileName = format("%s.bam", sample.name());
         String bamSource = format("results/%s", bamFileName);
         String baiSource = format("%s.%s", bamSource, "bai");

@@ -30,8 +30,8 @@ public class SBPSampleDownload implements SampleDownload {
     }
 
     @Override
-    public void run(final Sample sample, final RuntimeBucket runtimeBucket) {
-        decorated.run(sample, runtimeBucket);
+    public void run(final Sample sample, final RuntimeBucket runtimeBucket, final StatusCheck.Status status) {
+        decorated.run(sample, runtimeBucket, status);
         String directory = SBPS3FileTarget.ROOT_BUCKET + "/" + sample.barcode();
         String bamFile = sample.name() + ".bam";
         S3Object s3Object = s3Client.getObject(directory, bamFile);
@@ -47,7 +47,9 @@ public class SBPSampleDownload implements SampleDownload {
                         .bucket(SBPS3FileTarget.ROOT_BUCKET)
                         .directory(sample.barcode())
                         .filename(bamFile)
-                        .filesize(existing.getContentLength()).hash(existing.getETag())
+                        .filesize(existing.getContentLength())
+                        .hash(existing.getETag())
+                        .status(status == StatusCheck.Status.SUCCESS ? "Done_PipelineV5" : "Failed_PipelineV5")
                         .build());
     }
 

@@ -12,6 +12,7 @@ import com.hartwig.io.OutputType;
 import com.hartwig.patient.KnownIndels;
 import com.hartwig.patient.ReferenceGenome;
 import com.hartwig.pipeline.BamCreationPipeline;
+import com.hartwig.pipeline.HadoopStatusReporter;
 import com.hartwig.pipeline.IndexBam;
 import com.hartwig.pipeline.QCResult;
 import com.hartwig.pipeline.QualityControl;
@@ -50,6 +51,7 @@ public class ADAMPipelines {
                 .executorService(parallel ? Executors.newFixedThreadPool(2) : MoreExecutors.newDirectExecutorService())
                 .indexBam(new IndexBam(fileSystem, workingDirectory, Monitor.noop()))
                 .monitor(Monitor.noop())
+                .statusReporter(new HadoopStatusReporter(fileSystem, workingDirectory))
                 .build();
     }
 
@@ -80,6 +82,7 @@ public class ADAMPipelines {
                 .bamStore(new HDFSBamStore(intermediateDataLocation, fileSystem, saveAsFile))
                 .executorService(parallel ? Executors.newFixedThreadPool(2) : MoreExecutors.newDirectExecutorService())
                 .indexBam(new IndexBam(fileSystem, workingDirectory, monitor))
+                .statusReporter(new HadoopStatusReporter(fileSystem, workingDirectory))
                 .monitor(monitor)
                 .build();
     }
