@@ -105,7 +105,7 @@ class Bootstrap {
             if (!arguments.noDownload()) {
                 sampleDownload.run(sample, runtimeBucket, status);
             }
-            if (!arguments.noCleanup() || !arguments.noDownload()) {
+            if (!arguments.noCleanup() && !arguments.noDownload()) {
                 runtimeBucket.cleanup();
             }
             long endTime = System.currentTimeMillis();
