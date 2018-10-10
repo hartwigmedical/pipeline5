@@ -9,11 +9,10 @@ env:
 
 
 before_install:
-  - sudo apt-get -qq update
-  - sudo apt-get install -y bwa
-  - sudo apt-get install -y samtools
   - echo "$DOCKER_HUB_PASSWORD" | docker login -u "hartwigmedicalfoundation" --password-stdin
   - mvn versions:set -DnewVersion=$PIPELINE5_VERSION
+
+install: ./travis-init.sh
 
 after_success:
   - docker push hartwigmedicalfoundation/pipeline5:$PIPELINE5_VERSION
