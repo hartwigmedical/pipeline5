@@ -42,8 +42,7 @@
     </properties>
 
     <modules>
-        <module>adam</module>
-        <module>pipeline</module>
+        <module>bam</module>
         <module>patient-io</module>
         <module>support</module>
         <module>system</module>
@@ -55,12 +54,7 @@
         <dependencies>
             <dependency>
                 <groupId>com.hartwig</groupId>
-                <artifactId>pipeline</artifactId>
-                <version>local-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.hartwig</groupId>
-                <artifactId>adam</artifactId>
+                <artifactId>bam</artifactId>
                 <version>local-SNAPSHOT</version>
             </dependency>
             <dependency>

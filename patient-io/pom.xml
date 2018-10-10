@@ -16,11 +16,11 @@
     <dependencies>
         <dependency>
             <groupId>com.hartwig</groupId>
-            <artifactId>pipeline</artifactId>
+            <artifactId>support</artifactId>
         </dependency>
         <dependency>
             <groupId>com.hartwig</groupId>
-            <artifactId>support</artifactId>
+            <artifactId>bam</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>

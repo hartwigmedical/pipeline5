@@ -21,11 +21,7 @@
     <dependencies>
         <dependency>
             <groupId>com.hartwig</groupId>
-            <artifactId>pipeline</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.hartwig</groupId>
-            <artifactId>adam</artifactId>
+            <artifactId>bam</artifactId>
         </dependency>
         <dependency>
             <groupId>com.hartwig</groupId>

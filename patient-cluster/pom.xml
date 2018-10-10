@@ -32,10 +32,6 @@
         </dependency>
         <dependency>
             <groupId>com.hartwig</groupId>
-            <artifactId>pipeline</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.hartwig</groupId>
             <artifactId>patient-io</artifactId>
         </dependency>
         <dependency>
