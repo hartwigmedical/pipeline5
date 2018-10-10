@@ -5,4 +5,3 @@ git clone https://github.com/lh3/bwa.git
 cd bwa
 git checkout 0.7.17
 make
-export PATH=$PATH:$PWD

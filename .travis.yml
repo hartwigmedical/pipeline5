@@ -11,8 +11,10 @@ env:
 before_install:
   - echo "$DOCKER_HUB_PASSWORD" | docker login -u "hartwigmedicalfoundation" --password-stdin
   - mvn versions:set -DnewVersion=$PIPELINE5_VERSION
+  - ./travis-init.sh
+  - export PATH=$PATH:$PWD/bwa/
 
-install: ./travis-init.sh
+install:
 
 after_success:
   - docker push hartwigmedicalfoundation/pipeline5:$PIPELINE5_VERSION
