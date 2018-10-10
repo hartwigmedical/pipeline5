@@ -43,10 +43,10 @@
 
     <modules>
         <module>bam</module>
-        <module>patient-io</module>
+        <module>patients</module>
         <module>support</module>
         <module>system</module>
-        <module>patient-cluster</module>
+        <module>cluster</module>
         <module>metrics</module>
     </modules>
 
@@ -64,7 +64,7 @@
             </dependency>
             <dependency>
                 <groupId>com.hartwig</groupId>
-                <artifactId>patient-io</artifactId>
+                <artifactId>patients</artifactId>
                 <version>local-SNAPSHOT</version>
             </dependency>
             <dependency>
@@ -246,7 +246,7 @@
 
             <dependency>
                 <groupId>com.hartwig</groupId>
-                <artifactId>pipeline</artifactId>
+                <artifactId>bam</artifactId>
                 <version>local-SNAPSHOT</version>
                 <type>test-jar</type>
                 <scope>test</scope>

@@ -9,7 +9,7 @@
         <artifactId>pipeline5</artifactId>
         <version>local-SNAPSHOT</version>
     </parent>
-    <artifactId>patient-io</artifactId>
+    <artifactId>patients</artifactId>
     <version>local-SNAPSHOT</version>
     <packaging>jar</packaging>
 

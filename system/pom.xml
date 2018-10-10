@@ -25,7 +25,7 @@
         </dependency>
         <dependency>
             <groupId>com.hartwig</groupId>
-            <artifactId>patient-io</artifactId>
+            <artifactId>patients</artifactId>
         </dependency>
 
         <dependency>
@@ -75,7 +75,7 @@
 
         <dependency>
             <groupId>com.hartwig</groupId>
-            <artifactId>pipeline</artifactId>
+            <artifactId>bam</artifactId>
             <type>test-jar</type>
         </dependency>
         <dependency>

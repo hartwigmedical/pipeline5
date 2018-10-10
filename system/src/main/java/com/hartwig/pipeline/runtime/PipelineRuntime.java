@@ -3,7 +3,7 @@ package com.hartwig.pipeline.runtime;
 import java.io.IOException;
 
 import com.hartwig.patient.Patient;
-import com.hartwig.patient.io.PatientReader;
+import com.hartwig.patient.input.PatientReader;
 import com.hartwig.pipeline.BamCreationPipeline;
 import com.hartwig.pipeline.GunZip;
 import com.hartwig.pipeline.adam.ADAMPipelines;

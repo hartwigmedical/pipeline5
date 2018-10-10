@@ -7,7 +7,7 @@ import static com.hartwig.testsupport.TestConfigurations.HUNDREDK_READS_HISEQ_PA
 import java.io.File;
 
 import com.hartwig.patient.Sample;
-import com.hartwig.patient.io.PatientReader;
+import com.hartwig.patient.input.PatientReader;
 import com.hartwig.pipeline.adam.ADAMPipelines;
 import com.hartwig.pipeline.metrics.Monitor;
 import com.hartwig.support.hadoop.Hadoop;

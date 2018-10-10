@@ -12,7 +12,7 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
 import com.hartwig.patient.Sample;
-import com.hartwig.patient.io.PatientReader;
+import com.hartwig.patient.input.PatientReader;
 import com.hartwig.pipeline.cluster.GoogleDataprocCluster;
 import com.hartwig.pipeline.cluster.GoogleStorageJarUpload;
 import com.hartwig.pipeline.cluster.JarLocation;

@@ -1,6 +1,6 @@
-package com.hartwig.patient.io;
+package com.hartwig.patient.input;
 
-import static com.hartwig.patient.io.Samples.createPairedEndSample;
+import static com.hartwig.patient.input.Samples.createPairedEndSample;
 
 import java.io.IOException;
 import java.util.Optional;

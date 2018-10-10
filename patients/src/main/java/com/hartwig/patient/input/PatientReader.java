@@ -1,4 +1,4 @@
-package com.hartwig.patient.io;
+package com.hartwig.patient.input;
 
 import static java.lang.String.format;
 

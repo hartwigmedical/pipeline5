@@ -9,7 +9,7 @@
         <artifactId>pipeline5</artifactId>
         <version>local-SNAPSHOT</version>
     </parent>
-    <artifactId>patient-cluster</artifactId>
+    <artifactId>cluster</artifactId>
     <version>local-SNAPSHOT</version>
     <packaging>jar</packaging>
 
@@ -32,7 +32,7 @@
         </dependency>
         <dependency>
             <groupId>com.hartwig</groupId>
-            <artifactId>patient-io</artifactId>
+            <artifactId>patients</artifactId>
         </dependency>
         <dependency>
             <groupId>com.hartwig</groupId>
