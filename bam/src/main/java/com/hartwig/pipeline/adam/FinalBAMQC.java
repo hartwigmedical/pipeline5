@@ -32,23 +32,23 @@ import htsjdk.samtools.SAMRecord;
 import scala.Tuple2;
 
 @SuppressWarnings({ "FieldCanBeLocal", "unused" })
-public class ADAMFinalBAMQC implements QualityControl<AlignmentRecordRDD>, Serializable {
+public class FinalBAMQC implements QualityControl<AlignmentRecordRDD>, Serializable {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(ADAMFinalBAMQC.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(FinalBAMQC.class);
     private final Collection<CoverageThreshold> thresholds;
     private final JavaADAMContext adamContext;
     private final ReferenceGenome referenceGenome;
 
-    private ADAMFinalBAMQC(final Collection<CoverageThreshold> thresholds, final JavaADAMContext adamContext,
+    private FinalBAMQC(final Collection<CoverageThreshold> thresholds, final JavaADAMContext adamContext,
             final ReferenceGenome referenceGenome) {
         this.thresholds = thresholds;
         this.adamContext = adamContext;
         this.referenceGenome = referenceGenome;
     }
 
-    public static ADAMFinalBAMQC of(final JavaADAMContext adamContext, final ReferenceGenome referenceGenome,
+    public static FinalBAMQC of(final JavaADAMContext adamContext, final ReferenceGenome referenceGenome,
             final CoverageThreshold... thresholds) {
-        return new ADAMFinalBAMQC(Lists.newArrayList(thresholds), adamContext, referenceGenome);
+        return new FinalBAMQC(Lists.newArrayList(thresholds), adamContext, referenceGenome);
     }
 
     @Override

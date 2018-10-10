@@ -14,7 +14,7 @@ import com.hartwig.testsupport.TestRDDs;
 import org.bdgenomics.adam.rdd.read.AlignmentRecordRDD;
 import org.junit.Test;
 
-public class ADAMFinalBAMQCTest {
+public class FinalBAMQCTest {
 
     private static final AlignmentRecordRDD CANCER_PANEL_RDD = TestRDDs.alignmentRecordRDD("qc/CPCT12345678R_duplicate_marked.bam");
 
@@ -46,8 +46,8 @@ public class ADAMFinalBAMQCTest {
         assertThat(test.isOk()).isTrue();
     }
 
-    private ADAMFinalBAMQC qc(final CoverageThreshold... coverageThreshold) {
-        return ADAMFinalBAMQC.of(TestRDDs.javaAdam(),
+    private FinalBAMQC qc(final CoverageThreshold... coverageThreshold) {
+        return FinalBAMQC.of(TestRDDs.javaAdam(),
                 ReferenceGenome.of(TestConfigurations.REFERENCE_GENOME_PARAMETERS.path()),
                 coverageThreshold);
     }

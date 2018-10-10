@@ -8,12 +8,12 @@ import org.bdgenomics.adam.rdd.read.AlignmentRecordRDD;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ADAMReadCountCheck implements QualityControl<AlignmentRecordRDD> {
+public class ReadCountCheck implements QualityControl<AlignmentRecordRDD> {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(ADAMReadCountCheck.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(ReadCountCheck.class);
     private final long previousReadCount;
 
-    ADAMReadCountCheck(final long previousReadCount) {
+    ReadCountCheck(final long previousReadCount) {
         this.previousReadCount = previousReadCount;
     }
 
@@ -36,7 +36,7 @@ public class ADAMReadCountCheck implements QualityControl<AlignmentRecordRDD> {
     }
 
     static QualityControl<AlignmentRecordRDD> from(AlignmentRecordRDD initialAlignments) {
-        return new ADAMReadCountCheck(countReads(initialAlignments));
+        return new ReadCountCheck(countReads(initialAlignments));
     }
 
     private static long countReads(final AlignmentRecordRDD initialAlignments) {

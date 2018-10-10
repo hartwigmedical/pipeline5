@@ -8,7 +8,7 @@ import java.io.File;
 
 import com.hartwig.patient.Sample;
 import com.hartwig.patient.input.PatientReader;
-import com.hartwig.pipeline.adam.ADAMPipelines;
+import com.hartwig.pipeline.adam.Pipelines;
 import com.hartwig.pipeline.metrics.Monitor;
 import com.hartwig.support.hadoop.Hadoop;
 import com.hartwig.testsupport.SparkContextSingleton;
@@ -37,7 +37,7 @@ public class PipelineFunctionalTest {
     @Test
     public void adamBamCreationMatchesCurrentPipelineOuput() throws Exception {
         FileSystem fileSystem = Hadoop.localFilesystem();
-        ADAMPipelines.bamCreationConsolidated(new ADAMContext(context.sc()),
+        Pipelines.bamCreationConsolidated(new ADAMContext(context.sc()),
                 fileSystem,
                 Monitor.noop(),
                 RESULT_DIR,

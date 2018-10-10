@@ -13,7 +13,7 @@ import com.hartwig.pipeline.QualityControl;
 import org.bdgenomics.adam.rdd.read.AlignmentRecordRDD;
 import org.junit.Test;
 
-public class ADAMReadCountCheckTest {
+public class ReadCountCheckTest {
 
     @Test
     public void countMatchesRetrunsOk() {
@@ -29,7 +29,7 @@ public class ADAMReadCountCheckTest {
 
     private static QCResult readCountIs(final int previousReadCount) {
         AlignmentRecordRDD first = alignmentRecordRDD("expected/TESTXR.bam");
-        QualityControl<AlignmentRecordRDD> victim = new ADAMReadCountCheck(previousReadCount);
+        QualityControl<AlignmentRecordRDD> victim = new ReadCountCheck(previousReadCount);
         return victim.check(InputOutput.of(OutputType.DUPLICATE_MARKED, Sample.builder("", "test").build(), first));
     }
 }

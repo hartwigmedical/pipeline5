@@ -24,7 +24,7 @@ import org.bdgenomics.adam.rdd.ADAMContext;
 import org.bdgenomics.adam.rdd.read.AlignmentRecordRDD;
 import org.jetbrains.annotations.NotNull;
 
-public class ADAMPipelines {
+public class Pipelines {
 
     public static BamCreationPipeline bamCreationConsolidated(final ADAMContext adamContext, final FileSystem fileSystem,
             final Monitor monitor, final String workingDirectory, final String referenceGenomePath, final List<String> knownIndelPaths,
@@ -36,13 +36,13 @@ public class ADAMPipelines {
         KnownIndels knownIndels =
                 KnownIndels.of(knownIndelPaths.stream().map(path -> fileSystem.getUri() + path).collect(Collectors.toList()));
         return BamCreationPipeline.builder()
-                .readCountQCFactory(ADAMReadCountCheck::from)
+                .readCountQCFactory(ReadCountCheck::from)
                 .finalQC(ifEnabled(doQC,
-                        ADAMFinalBAMQC.of(javaADAMContext, referenceGenome, CoverageThreshold.of(10, 90), CoverageThreshold.of(20, 70))))
-                .alignment(new ADAMBwa(referenceGenome, adamContext, fileSystem, bwaThreads))
+                        FinalBAMQC.of(javaADAMContext, referenceGenome, CoverageThreshold.of(10, 90), CoverageThreshold.of(20, 70))))
+                .alignment(new Bwa(referenceGenome, adamContext, fileSystem, bwaThreads))
                 .finalDatasource(new HDFSAlignmentRDDSource(OutputType.INDEL_REALIGNED, javaADAMContext, intermediateDataLocation))
                 .finalBamStore(new HDFSBamStore(finalDataLocation, fileSystem, true))
-                .bamEnrichment(new ADAMMarkDupsRealignIndelsAndSort(knownIndels, referenceGenome, javaADAMContext))
+                .bamEnrichment(new MarkDupsRealignIndelsAndSort(knownIndels, referenceGenome, javaADAMContext))
                 .executorService(parallel ? Executors.newFixedThreadPool(2) : MoreExecutors.newDirectExecutorService())
                 .indexBam(new IndexBam(fileSystem, workingDirectory, monitor))
                 .statusReporter(new HadoopStatusReporter(fileSystem, workingDirectory))
@@ -51,7 +51,7 @@ public class ADAMPipelines {
     }
 
     @NotNull
-    private static QualityControl<AlignmentRecordRDD> ifEnabled(final boolean doQC, final ADAMFinalBAMQC finalBAMQC) {
+    private static QualityControl<AlignmentRecordRDD> ifEnabled(final boolean doQC, final FinalBAMQC finalBAMQC) {
         return doQC ? finalBAMQC : alignments -> QCResult.ok();
     }
 }

@@ -6,7 +6,7 @@ import com.hartwig.patient.Patient;
 import com.hartwig.patient.input.PatientReader;
 import com.hartwig.pipeline.BamCreationPipeline;
 import com.hartwig.pipeline.GunZip;
-import com.hartwig.pipeline.adam.ADAMPipelines;
+import com.hartwig.pipeline.adam.Pipelines;
 import com.hartwig.pipeline.metrics.Monitor;
 import com.hartwig.pipeline.runtime.configuration.Configuration;
 import com.hartwig.pipeline.runtime.configuration.YAMLConfigurationReader;
@@ -37,7 +37,7 @@ public class PipelineRuntime {
         try {
             FileSystem fileSystem = Hadoop.fileSystem(configuration.pipeline().hdfs());
             ADAMContext adamContext = new ADAMContext(sparkContext);
-            BamCreationPipeline adamPipeline = ADAMPipelines.bamCreationConsolidated(adamContext, fileSystem, monitor,
+            BamCreationPipeline adamPipeline = Pipelines.bamCreationConsolidated(adamContext, fileSystem, monitor,
                     configuration.pipeline().resultsDirectory(),
                     configuration.referenceGenome().path(),
                     configuration.knownIndel().paths(),

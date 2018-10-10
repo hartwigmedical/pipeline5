@@ -35,14 +35,14 @@ import org.bdgenomics.adam.rdd.read.AnySAMOutFormatter;
 import htsjdk.samtools.ValidationStringency;
 import scala.Option;
 
-class ADAMBwa implements AlignmentStage {
+class Bwa implements AlignmentStage {
 
     private final ADAMContext adamContext;
     private final ReferenceGenome referenceGenome;
     private final FileSystem fileSystem;
     private final int bwaThreads;
 
-    ADAMBwa(final ReferenceGenome referenceGenome, final ADAMContext adamContext, final FileSystem fileSystem, int bwaThreads) {
+    Bwa(final ReferenceGenome referenceGenome, final ADAMContext adamContext, final FileSystem fileSystem, int bwaThreads) {
         this.adamContext = adamContext;
         this.referenceGenome = referenceGenome;
         this.fileSystem = fileSystem;
