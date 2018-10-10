@@ -9,10 +9,8 @@ import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 import com.hartwig.patient.ImmutableLane;
-import com.hartwig.patient.ImmutablePatient;
 import com.hartwig.patient.ImmutableSample;
 import com.hartwig.patient.Lane;
-import com.hartwig.patient.Patient;
 import com.hartwig.patient.Sample;
 
 import org.apache.hadoop.fs.FileSystem;
@@ -91,13 +89,8 @@ public class GunZip {
 
     }
 
-    public static Patient execute(FileSystem fileSystem, JavaSparkContext sparkContext, Patient patient) {
+    public static Sample execute(FileSystem fileSystem, JavaSparkContext sparkContext, Sample sample) {
         GunZip gunZip = new GunZip(fileSystem, sparkContext);
-        ImmutablePatient.Builder unzippedBuilder = ImmutablePatient.builder().from(patient);
-        unzippedBuilder.reference(gunZip.run(patient.reference()));
-        if (patient.maybeTumor().isPresent()) {
-            unzippedBuilder.maybeTumor(gunZip.run(patient.tumor()));
-        }
-        return unzippedBuilder.build();
+        return gunZip.run(sample);
     }
 }

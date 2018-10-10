@@ -45,7 +45,7 @@ public class PipelineRuntime {
                     false,
                     false);
             Patient patient = PatientReader.fromHDFS(fileSystem, configuration.patient().directory(), configuration.patient().name());
-            adamPipeline.execute(GunZip.execute(fileSystem, javaSparkContext, patient));
+            adamPipeline.execute(GunZip.execute(fileSystem, javaSparkContext, patient.reference()));
         } catch (Exception e) {
             LOGGER.error("Fatal error while running ADAM pipeline. See stack trace for more details", e);
             throw new RuntimeException(e);

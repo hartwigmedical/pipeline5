@@ -9,6 +9,7 @@ import java.io.File;
 import com.hartwig.patient.Sample;
 import com.hartwig.patient.io.PatientReader;
 import com.hartwig.pipeline.adam.ADAMPipelines;
+import com.hartwig.pipeline.metrics.Monitor;
 import com.hartwig.support.hadoop.Hadoop;
 import com.hartwig.testsupport.SparkContextSingleton;
 
@@ -25,8 +26,6 @@ public class PipelineFunctionalTest {
 
     private static final Sample REFERENCE_SAMPLE =
             Sample.builder(HUNDREDK_READS_HISEQ.patient().directory(), HUNDREDK_READS_HISEQ_PATIENT_NAME + "R").build();
-    private static final Sample TUMOUR_SAMPLE =
-            Sample.builder(HUNDREDK_READS_HISEQ.patient().directory(), HUNDREDK_READS_HISEQ_PATIENT_NAME + "T").build();
     private static JavaSparkContext context;
 
     private static String RESULT_DIR = System.getProperty("user.dir") + "/results/";
@@ -40,11 +39,18 @@ public class PipelineFunctionalTest {
     @Test
     public void adamBamCreationMatchesCurrentPipelineOuput() throws Exception {
         FileSystem fileSystem = Hadoop.localFilesystem();
-        ADAMPipelines.bamCreation(new ADAMContext(context.sc()),
+        ADAMPipelines.bamCreationConsolidated(new ADAMContext(context.sc()),
                 fileSystem,
-                RESULT_DIR, HUNDREDK_READS_HISEQ.referenceGenome().path(), HUNDREDK_READS_HISEQ.knownIndel().paths(), 1, false, false, true)
-                .execute(PatientReader.fromHDFS(fileSystem, HUNDREDK_READS_HISEQ.patient().directory(), HUNDREDK_READS_HISEQ_PATIENT_NAME));
+                Monitor.noop(),
+                RESULT_DIR,
+                HUNDREDK_READS_HISEQ.referenceGenome().path(),
+                HUNDREDK_READS_HISEQ.knownIndel().paths(),
+                1,
+                false,
+                false,
+                true)
+                .execute(PatientReader.fromHDFS(fileSystem, HUNDREDK_READS_HISEQ.patient().directory(), HUNDREDK_READS_HISEQ_PATIENT_NAME)
+                        .reference());
         assertThatOutput(RESULT_DIR, REFERENCE_SAMPLE).sorted().aligned().duplicatesMarked().isEqualToExpected();
-        assertThatOutput(RESULT_DIR, TUMOUR_SAMPLE).sorted().aligned().duplicatesMarked().isEqualToExpected();
     }
 }

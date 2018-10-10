@@ -6,18 +6,15 @@ import static org.mockito.Mockito.mock;
 import java.io.IOException;
 
 import com.google.common.util.concurrent.MoreExecutors;
-import com.hartwig.io.DataSource;
 import com.hartwig.io.InputOutput;
 import com.hartwig.io.OutputStore;
 import com.hartwig.io.OutputType;
 import com.hartwig.patient.ImmutableSample;
-import com.hartwig.patient.Patient;
 import com.hartwig.patient.Sample;
+import com.hartwig.pipeline.metrics.Monitor;
 
 import org.bdgenomics.adam.rdd.read.AlignmentRecordRDD;
 import org.jetbrains.annotations.NotNull;
-import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class BamCreationPipelineTest {
@@ -25,95 +22,61 @@ public class BamCreationPipelineTest {
     private static final ImmutableSample SAMPLE = Sample.builder("", "TEST").build();
     private static final InputOutput<AlignmentRecordRDD> ALIGNED_BAM =
             InputOutput.of(OutputType.ALIGNED, SAMPLE, mock(AlignmentRecordRDD.class));
-    private static final Patient PATIENT = Patient.of("", "TEST", SAMPLE, SAMPLE);
+    private static final InputOutput<AlignmentRecordRDD> ENRICHED_BAM =
+            InputOutput.of(OutputType.INDEL_REALIGNED, SAMPLE, mock(AlignmentRecordRDD.class));
+    private static final InputOutput<AlignmentRecordRDD> FINAL_BAM =
+            InputOutput.of(OutputType.FINAL, SAMPLE, mock(AlignmentRecordRDD.class));
     private InputOutput<AlignmentRecordRDD> lastStored;
-    private StatusReporter.Status status;
-    private static final InputOutput<AlignmentRecordRDD> ENRICHED =
-            InputOutput.of(OutputType.DUPLICATE_MARKED, SAMPLE, mock(AlignmentRecordRDD.class));
-
-    @Before
-    public void setUp() throws Exception {
-        lastStored = null;
-        status = null;
-    }
+    private StatusReporter.Status lastStatus;
 
     @Test
-    public void alignsAndStoresBAM() throws Exception {
-        builder().bamStore(bamStore(false, false)).build().execute(PATIENT);
-        assertThat(lastStored).isEqualTo(ALIGNED_BAM);
-    }
-
-    private ImmutableBamCreationPipeline.Builder builder() {
-        return BamCreationPipeline.builder()
-                .executorService(MoreExecutors.newDirectExecutorService())
-                .alignment(alignmentStage())
-                .alignmentDatasource(sample -> ALIGNED_BAM)
-                .finalDatasource(sample -> ALIGNED_BAM)
-                .readCountQCFactory(aligned -> reads -> QCResult.ok())
-                .finalBamStore(bamStore(false, false))
-                .indexBam(mock(IndexBam.class))
-                .referenceFinalQC(reads -> QCResult.ok())
-                .tumorFinalQC(reads -> QCResult.ok())
-                .monitor(metric -> {
-                })
-                .statusReporter(status -> BamCreationPipelineTest.this.status = status);
-    }
-
-    @Test
-    public void enrichesAlignedBAM() throws Exception {
-        builder().addBamEnrichment(enrichmentStage(ENRICHED)).bamStore(bamStore(false, false)).build().execute(PATIENT);
-        assertThat(lastStored).isEqualTo(ENRICHED);
-    }
-
-    @Test
-    public void skipsAlignmentWhenOutputAlreadyExists() throws Exception {
-        builder().bamStore(bamStore(false, true)).build().execute(PATIENT);
+    public void onlyDoesQCWhenBAMExists() {
+        BamCreationPipeline victim = createPipeline(true, QCResult.ok(), QCResult.ok());
+        victim.execute(SAMPLE);
+        assertThat(lastStatus).isEqualTo(StatusReporter.Status.SUCCESS);
         assertThat(lastStored).isNull();
     }
 
     @Test
-    public void skipsEnrichmentWhenOutputAlreadyExists() throws Exception {
-        builder().addBamEnrichment(enrichmentStage(ENRICHED)).bamStore(bamStore(true, false)).build().execute(PATIENT);
-        assertThat(lastStored).isEqualTo(ALIGNED_BAM);
+    public void storesEnrichedBamWhenAllQCsPassAndNoErrors() {
+        BamCreationPipeline victim = createPipeline(false, QCResult.ok(), QCResult.ok());
+        victim.execute(SAMPLE);
+        assertThat(lastStatus).isEqualTo(StatusReporter.Status.SUCCESS);
+        assertThat(lastStored).isEqualTo(ENRICHED_BAM);
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void throwsExceptionOnReadCountQCFailure() {
+        BamCreationPipeline victim = createPipeline(false, QCResult.failure("read count"), QCResult.ok());
+        victim.execute(SAMPLE);
     }
 
     @Test
-    public void runtimeExceptionAndStatusFailWhenReadCountQCFails() throws Exception {
-        try {
-            builder().bamStore(bamStore(false, false))
-                    .addBamEnrichment(enrichmentStage(ENRICHED))
-                    .readCountQCFactory(aligned -> reads -> QCResult.failure("test"))
-                    .build()
-                    .execute(PATIENT);
-        } catch (Exception e) {
-            assertThat(e.getCause()).isInstanceOf(RuntimeException.class);
-        }
-        assertThat(status).isEqualTo(StatusReporter.Status.FAILED_READ_COUNT);
-    }
-
-    @Ignore("Will be fixed in a future refactor to remove tumor/sample mode")
-    @Test
-    public void statusFailWhenReferenceFinalQCFails() throws Exception {
-        builder().bamStore(bamStore(false, false))
-                .addBamEnrichment(enrichmentStage(ENRICHED))
-                .referenceFinalQC(reads -> QCResult.failure("test"))
-                .build()
-                .execute(PATIENT);
-        assertThat(status).isEqualTo(StatusReporter.Status.FAILED_FINAL_QC);
-    }
-
-    @Test
-    public void statusFailWhenTumorFinalQCFails() throws Exception {
-        builder().bamStore(bamStore(false, false))
-                .addBamEnrichment(enrichmentStage(ENRICHED))
-                .tumorFinalQC(reads -> QCResult.failure("test"))
-                .build()
-                .execute(PATIENT);
-        assertThat(status).isEqualTo(StatusReporter.Status.FAILED_FINAL_QC);
+    public void storesEnrichedBamWithFinalQCFailures() {
+        BamCreationPipeline victim = createPipeline(false, QCResult.ok(), QCResult.failure("final"));
+        victim.execute(SAMPLE);
+        assertThat(lastStatus).isEqualTo(StatusReporter.Status.FAILED_FINAL_QC);
+        assertThat(lastStored).isEqualTo(ENRICHED_BAM);
     }
 
     @NotNull
-    private OutputStore<AlignmentRecordRDD> bamStore(final boolean enrichedExists, final boolean alignedExists) {
+    private ImmutableBamCreationPipeline createPipeline(final boolean exists, QCResult readCountQC, QCResult finalQC) {
+        return BamCreationPipeline.builder()
+                .alignment(input -> ALIGNED_BAM)
+                .bamEnrichment(enrichment())
+                .executorService(MoreExecutors.newDirectExecutorService())
+                .finalBamStore(finalStore(exists))
+                .finalDatasource(sample -> FINAL_BAM)
+                .readCountQCFactory(alignmentRecordRDD -> toQC -> readCountQC)
+                .finalQC(toQC -> finalQC)
+                .statusReporter(status -> lastStatus = status)
+                .indexBam(mock(IndexBam.class))
+                .monitor(Monitor.noop())
+                .build();
+    }
+
+    @NotNull
+    private OutputStore<AlignmentRecordRDD> finalStore(final boolean exists) {
         return new OutputStore<AlignmentRecordRDD>() {
             @Override
             public void store(final InputOutput<AlignmentRecordRDD> inputOutput) {
@@ -122,43 +85,24 @@ public class BamCreationPipelineTest {
 
             @Override
             public boolean exists(final Sample sample, final OutputType type) {
-                if (alignedExists) {
-                    if (type == OutputType.ALIGNED) {
-                        return true;
-                    }
-                }
-                if (enrichedExists) {
-                    if (type != OutputType.ALIGNED) {
-                        return true;
-                    }
-                }
-                return false;
+                return exists;
             }
         };
     }
 
     @NotNull
-    private static Stage<AlignmentRecordRDD, AlignmentRecordRDD> enrichmentStage(final InputOutput<AlignmentRecordRDD> enriched) {
+    private Stage<AlignmentRecordRDD, AlignmentRecordRDD> enrichment() {
         return new Stage<AlignmentRecordRDD, AlignmentRecordRDD>() {
             @Override
-            public DataSource<AlignmentRecordRDD> datasource() {
-                return sample -> ALIGNED_BAM;
-            }
-
-            @Override
             public OutputType outputType() {
-                return OutputType.DUPLICATE_MARKED;
+                return OutputType.INDEL_REALIGNED;
             }
 
             @Override
             public InputOutput<AlignmentRecordRDD> execute(final InputOutput<AlignmentRecordRDD> input) throws IOException {
-                return enriched;
+                return ENRICHED_BAM;
             }
         };
     }
 
-    @NotNull
-    private static AlignmentStage alignmentStage() {
-        return input -> ALIGNED_BAM;
-    }
 }

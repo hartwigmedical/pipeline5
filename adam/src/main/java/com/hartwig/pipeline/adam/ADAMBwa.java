@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.hartwig.exception.Exceptions;
-import com.hartwig.io.DataSource;
 import com.hartwig.io.InputOutput;
 import com.hartwig.io.OutputType;
 import com.hartwig.patient.Lane;
@@ -48,11 +47,6 @@ class ADAMBwa implements AlignmentStage {
         this.referenceGenome = referenceGenome;
         this.fileSystem = fileSystem;
         this.bwaThreads = bwaThreads;
-    }
-
-    @Override
-    public DataSource<AlignmentRecordRDD> datasource() {
-        return entity -> null;
     }
 
     @Override

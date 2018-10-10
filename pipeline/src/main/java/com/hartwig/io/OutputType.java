@@ -7,7 +7,8 @@ public enum OutputType {
     INDEL_REALIGNED("bam"),
     DUPLICATE_MARKED("bam"),
     MD_TAGGED("bam"),
-    GERMLINE_VARIANTS("vcf");
+    GERMLINE_VARIANTS("vcf"),
+    FINAL("bam");
 
     private final String extension;
 

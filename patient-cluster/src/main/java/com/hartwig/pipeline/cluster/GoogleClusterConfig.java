@@ -51,12 +51,9 @@ class GoogleClusterConfig {
 
     @NotNull
     private static SoftwareConfig softwareConfig(final PerformanceProfile profile) {
-        return new SoftwareConfig().setProperties(ImmutableMap.<String, String>builder().put("yarn:yarn.scheduler.minimum-allocation-vcores",
-                String.valueOf((int) (profile.primaryWorkers().cpus() * 0.8)))
+        return new SoftwareConfig().setProperties(ImmutableMap.<String, String>builder()
                 .put("yarn:yarn.nodemanager.vmem-check-enabled", "false")
                 .put("yarn:yarn.nodemanager.pmem-check-enabled", "false")
-                .put("capacity-scheduler:yarn.scheduler.capacity.resource-calculator",
-                        "org.apache.hadoop.yarn.util.resource.DominantResourceCalculator")
                 .build());
     }
 
