@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 public abstract class BamCreationPipeline {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BamCreationPipeline.class);
+    static final String BAM_CREATED_METRIC = "BAM_CREATED";
 
     public void execute(final Sample sample) {
         LOGGER.info("Preprocessing started for {} sample", sample.name());
@@ -53,7 +54,7 @@ public abstract class BamCreationPipeline {
             }
             long timeSpent = endTimer() - startTime;
             LOGGER.info("Preprocessing complete for {} sample, Took {} ms", sample.name(), timeSpent);
-            monitor().update(Metric.spentTime("BAM_CREATED", timeSpent));
+            monitor().update(Metric.spentTime(BAM_CREATED_METRIC, timeSpent));
 
         } catch (Exception e) {
             LOGGER.error(format("Unable to create BAM for %s. Check exception for details", sample.name()), e);
