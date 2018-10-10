@@ -36,7 +36,7 @@ public abstract class BamCreationPipeline {
             } else {
                 InputOutput<AlignmentRecordRDD> aligned = runStage(sample, alignment(), InputOutput.seed(sample));
                 QualityControl<AlignmentRecordRDD> readCount = readCountQCFactory().apply(aligned.payload());
-                InputOutput<AlignmentRecordRDD> enriched = bamEnrichment().execute(aligned);
+                InputOutput<AlignmentRecordRDD> enriched = runStage(sample, bamEnrichment(), aligned);
                 qcResult = qc(readCount, enriched);
                 if (!qcResult.isOk()) {
                     status = StatusReporter.Status.FAILED_READ_COUNT;
