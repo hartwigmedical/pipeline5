@@ -17,7 +17,7 @@ public class ReadCountCheckTest {
 
     @Test
     public void countMatchesRetrunsOk() {
-        QCResult qcResult = readCountIs(100603);
+        QCResult qcResult = readCountIs(100574);
         assertThat(qcResult.isOk()).as(qcResult.message()).isTrue();
     }
 
