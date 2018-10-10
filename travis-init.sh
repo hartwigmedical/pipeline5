@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
-# Piggy-back on the dataproc node init to keep bwa in synch
-chmod 777 ./patient-cluster/src/main/resources/node-init.sh
-./patient-cluster/src/main/resources/node-init.sh
+apt-get update && apt-get install -y build-essential gcc-multilib apt-utils zlib1g-dev wget git
+git clone https://github.com/lh3/bwa.git
+cd bwa
+git checkout 0.7.17
+make
+cp bwa ../
+cp bwa ../system/
