@@ -8,7 +8,7 @@ public interface MachineType {
 
     String GOOGLE_STANDARD_16 = "n1-standard-16";
     String GOOGLE_STANDARD_32 = "n1-standard-32";
-    String GOOGLE_HIGHMEM_32 = "n1-standard-32";
+    String GOOGLE_HIGHMEM_32 = "n1-highmem-32";
     int DISK_GB = 1000;
 
     String uri();
