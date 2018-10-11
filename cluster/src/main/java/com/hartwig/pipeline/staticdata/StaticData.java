@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.bootstrap;
+package com.hartwig.pipeline.staticdata;
 
 import java.util.function.Function;
 
@@ -7,11 +7,12 @@ import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
+import com.hartwig.pipeline.io.RuntimeBucket;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class StaticData {
+public class StaticData {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StaticData.class);
 
@@ -19,17 +20,17 @@ class StaticData {
     private final String sourceBucket;
     private final Function<String, String> alias;
 
-    StaticData(final Storage storage, final String sourceBucket, final Function<String, String> alias) {
+    public StaticData(final Storage storage, final String sourceBucket, final Function<String, String> alias) {
         this.storage = storage;
         this.sourceBucket = sourceBucket;
         this.alias = alias;
     }
 
-    StaticData(final Storage storage, final String sourceBucket) {
+    public StaticData(final Storage storage, final String sourceBucket) {
         this(storage, sourceBucket, Function.identity());
     }
 
-    void copyInto(RuntimeBucket runtimeBucket) {
+    public void copyInto(RuntimeBucket runtimeBucket) {
         Bucket staticDataBucket = storage.get(sourceBucket);
         if (staticDataBucket != null) {
             Page<Blob> blobs = staticDataBucket.list();

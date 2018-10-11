@@ -4,8 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.hartwig.pipeline.bootstrap.NodeInitialization;
-import com.hartwig.pipeline.bootstrap.RuntimeBucket;
+import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.performance.ImmutablePerformanceProfile;
 import com.hartwig.pipeline.performance.MachineType;
 import com.hartwig.pipeline.performance.PerformanceProfile;

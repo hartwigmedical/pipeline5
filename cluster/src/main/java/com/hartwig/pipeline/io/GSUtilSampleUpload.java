@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.upload;
+package com.hartwig.pipeline.io;
 
 import static java.lang.String.format;
 
@@ -8,7 +8,6 @@ import java.util.function.Function;
 
 import com.google.cloud.storage.Blob;
 import com.hartwig.patient.Sample;
-import com.hartwig.pipeline.bootstrap.RuntimeBucket;
 
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;

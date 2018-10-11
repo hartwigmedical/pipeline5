@@ -11,8 +11,7 @@ import com.google.api.services.dataproc.model.InstanceGroupConfig;
 import com.google.api.services.dataproc.model.NodeInitializationAction;
 import com.google.api.services.dataproc.model.SoftwareConfig;
 import com.google.common.collect.ImmutableMap;
-import com.hartwig.pipeline.bootstrap.NodeInitialization;
-import com.hartwig.pipeline.bootstrap.RuntimeBucket;
+import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.performance.MachineType;
 import com.hartwig.pipeline.performance.PerformanceProfile;
 

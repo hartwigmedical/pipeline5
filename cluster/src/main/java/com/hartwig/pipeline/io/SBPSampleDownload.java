@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.upload;
+package com.hartwig.pipeline.io;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.AccessControlList;
@@ -7,7 +7,6 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.Permission;
 import com.amazonaws.services.s3.model.S3Object;
 import com.hartwig.patient.Sample;
-import com.hartwig.pipeline.bootstrap.RuntimeBucket;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

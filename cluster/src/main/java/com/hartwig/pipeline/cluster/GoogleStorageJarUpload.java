@@ -7,7 +7,7 @@ import java.io.IOException;
 
 import com.google.cloud.storage.Blob;
 import com.hartwig.pipeline.bootstrap.Arguments;
-import com.hartwig.pipeline.bootstrap.RuntimeBucket;
+import com.hartwig.pipeline.io.RuntimeBucket;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

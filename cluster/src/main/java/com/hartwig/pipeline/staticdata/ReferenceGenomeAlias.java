@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.bootstrap;
+package com.hartwig.pipeline.staticdata;
 
 import java.util.function.Function;
 

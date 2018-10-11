@@ -1,7 +1,6 @@
-package com.hartwig.pipeline.upload;
+package com.hartwig.pipeline.io;
 
 import com.hartwig.patient.Sample;
-import com.hartwig.pipeline.bootstrap.RuntimeBucket;
 
 public interface SampleDownload {
 

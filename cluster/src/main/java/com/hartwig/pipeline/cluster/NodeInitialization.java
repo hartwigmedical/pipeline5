@@ -1,8 +1,10 @@
-package com.hartwig.pipeline.bootstrap;
+package com.hartwig.pipeline.cluster;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+
+import com.hartwig.pipeline.io.RuntimeBucket;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +14,7 @@ public class NodeInitialization {
     private static final Logger LOGGER = LoggerFactory.getLogger(NodeInitialization.class);
     private final String initScriptPath;
 
-    NodeInitialization(final String initScriptPath) {
+    public NodeInitialization(final String initScriptPath) {
         this.initScriptPath = initScriptPath;
     }
 

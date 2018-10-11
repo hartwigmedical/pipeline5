@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.upload;
+package com.hartwig.pipeline.io;
 
 import java.util.function.Function;
 

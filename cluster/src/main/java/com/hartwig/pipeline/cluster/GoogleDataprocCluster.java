@@ -22,8 +22,7 @@ import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.bootstrap.Arguments;
-import com.hartwig.pipeline.bootstrap.NodeInitialization;
-import com.hartwig.pipeline.bootstrap.RuntimeBucket;
+import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.performance.PerformanceProfile;
 
 import org.slf4j.Logger;

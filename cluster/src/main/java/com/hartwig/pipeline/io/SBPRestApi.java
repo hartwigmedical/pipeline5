@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.upload;
+package com.hartwig.pipeline.io;
 
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;

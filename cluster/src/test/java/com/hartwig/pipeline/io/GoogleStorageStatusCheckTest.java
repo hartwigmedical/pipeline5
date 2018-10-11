@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.upload;
+package com.hartwig.pipeline.io;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -6,7 +6,6 @@ import static org.mockito.Mockito.when;
 
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
-import com.hartwig.pipeline.bootstrap.RuntimeBucket;
 
 import org.junit.Before;
 import org.junit.Test;

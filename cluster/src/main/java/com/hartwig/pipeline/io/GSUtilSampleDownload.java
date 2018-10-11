@@ -1,9 +1,8 @@
-package com.hartwig.pipeline.upload;
+package com.hartwig.pipeline.io;
 
 import java.util.function.Function;
 
 import com.hartwig.patient.Sample;
-import com.hartwig.pipeline.bootstrap.RuntimeBucket;
 
 import org.jetbrains.annotations.NotNull;
 

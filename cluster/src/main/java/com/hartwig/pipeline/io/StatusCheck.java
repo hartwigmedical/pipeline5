@@ -1,6 +1,4 @@
-package com.hartwig.pipeline.upload;
-
-import com.hartwig.pipeline.bootstrap.RuntimeBucket;
+package com.hartwig.pipeline.io;
 
 public interface StatusCheck {
 
