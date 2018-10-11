@@ -59,7 +59,7 @@ class Bwa implements AlignmentStage {
         SequenceDictionary sequenceDictionary = adamContext.loadSequenceDictionary(referenceGenome.path() + ".dict");
         Sample sample = input.sample();
         List<AlignmentRecordRDD> laneRdds =
-                sample.lanes().stream().map(lane -> adamBwa(sequenceDictionary, sample, lane)).collect(Collectors.toList());
+                sample.lanes().parallelStream().map(lane -> adamBwa(sequenceDictionary, sample, lane)).collect(Collectors.toList());
         if (!laneRdds.isEmpty()) {
             return InputOutput.of(outputType(),
                     sample,
