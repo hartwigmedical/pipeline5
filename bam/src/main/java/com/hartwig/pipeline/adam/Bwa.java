@@ -74,15 +74,17 @@ class Bwa implements AlignmentStage {
                 Option.empty(), Option.apply(StorageLevel.DISK_ONLY()),
                 ValidationStringency.LENIENT).toFragments();
         initializeBwaSharedMemoryPerExecutor(fragmentRDD);
-        return RDDs.alignmentRecordRDD(((FragmentRDD) fragmentRDD).pipe(BwaCommand.tokens(referenceGenome, sample, lane, bwaThreads),
+        return RDDs.persistDisk(RDDs.alignmentRecordRDD(((FragmentRDD) fragmentRDD).pipe(BwaCommand.tokens(referenceGenome,
+                sample,
+                lane,
+                bwaThreads),
                 new ArrayList<>(),
                 Collections.emptyMap(),
                 0,
                 InterleavedFASTQInFormatter.class,
                 new AnySAMOutFormatter(),
                 new FragmentsToAlignmentRecordsConverter())
-                .replaceRecordGroups(recordDictionary(recordGroup(sample, lane)))
-                .replaceSequences(sequenceDictionary));
+                .replaceRecordGroups(recordDictionary(recordGroup(sample, lane))).replaceSequences(sequenceDictionary)));
     }
 
     private void initializeBwaSharedMemoryPerExecutor(final FragmentRDD fragmentRDD) {
