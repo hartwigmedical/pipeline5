@@ -23,6 +23,6 @@ public class SparkPropertiesTest {
 
     @Test
     public void memoryAdjustedForMaxAllowableAndOverhead() {
-        assertThat(victim.get("spark.executor.memory")).isEqualTo("85G");
+        assertThat(victim.get("spark.executor.memory")).isEqualTo("148G");
     }
 }
