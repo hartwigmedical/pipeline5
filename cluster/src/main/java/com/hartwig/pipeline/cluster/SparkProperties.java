@@ -12,17 +12,20 @@ class SparkProperties {
     private static final int SAFETY_GIG = 1;
 
     static Map<String, String> asMap(PerformanceProfile performanceProfile) {
-        return ImmutableMap.<String, String>builder().put("spark.executor.memory", allowableExecutorMemory(performanceProfile) + "G")
+        return ImmutableMap.<String, String>builder().put("spark.executor.memory",
+                allowableExecutorMemory(performanceProfile.primaryWorkers().memoryGB()))
+                .put("spark.driver.memory", allowableExecutorMemory(performanceProfile.master().memoryGB()))
                 .put("spark.executor.cores", String.valueOf(performanceProfile.primaryWorkers().cpus()))
                 .put("spark.executor.extraJavaOptions", "-XX:hashCode=0")
                 .put("spark.driver.extraJavaOptions", "-XX:hashCode=0")
-                .put("spark.rdd.compress", "true").put("spark.memory.fraction", "0.1")
+                .put("spark.rdd.compress", "true")
+                .put("spark.memory.fraction", "0.1")
                 .build();
     }
 
-    private static int allowableExecutorMemory(final PerformanceProfile performanceProfile) {
-        double maxMemory = performanceProfile.primaryWorkers().memoryGB() * ALLOWABLE_RATIO;
+    private static String allowableExecutorMemory(final int machineMemoryGB) {
+        double maxMemory = machineMemoryGB * ALLOWABLE_RATIO;
         double maxMemoryMinusOverhead = maxMemory * OVERHEAD;
-        return (int) maxMemoryMinusOverhead - SAFETY_GIG;
+        return ((int) maxMemoryMinusOverhead - SAFETY_GIG) + "G";
     }
 }
