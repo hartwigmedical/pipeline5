@@ -32,8 +32,7 @@ public interface MachineType {
 
     static MachineType highMemoryWorker() {
         return ImmutableMachineType.builder()
-                .uri(GOOGLE_HIGHMEM_32)
-                .memoryGB(120)
+                .uri(GOOGLE_HIGHMEM_32).memoryGB(208)
                 .cpus(32)
                 .diskGB(DISK_GB)
                 .costPerInstancePerHour(1.52)
