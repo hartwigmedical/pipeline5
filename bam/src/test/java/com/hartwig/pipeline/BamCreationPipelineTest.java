@@ -20,6 +20,7 @@ import com.hartwig.pipeline.metrics.Monitor;
 import org.bdgenomics.adam.rdd.read.AlignmentRecordRDD;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -83,6 +84,7 @@ public class BamCreationPipelineTest {
         assertThat(metricsStored.get(2).name()).contains(BamCreationPipeline.BAM_CREATED_METRIC);
     }
 
+    @Ignore("Disabling index creation to reduce run cost")
     @Test
     public void bamIsIndexedAfterCreated() throws Exception {
         BamCreationPipeline victim = createPipeline(false, QCResult.ok(), QCResult.ok());
