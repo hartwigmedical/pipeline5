@@ -47,6 +47,8 @@ class BootstrapOptions {
     private static final String DEFAULT_CPU_PER_GB = "4";
     private static final String USE_PREEMTIBLE_VMS_FLAG = "use_preemtible_vms";
     private static final String NO_DOWNLOAD_FLAG = "no_download";
+    private static final String REFERENCE_GENOME_BUCKET_FLAG = "reference_genome";
+    private static final String DEFAULT_REFERENCE_GENOME_BUCKET = "reference_genome";
 
     private static Options options() {
         return new Options().addOption(privateKeyFlag())
@@ -73,7 +75,15 @@ class BootstrapOptions {
                 .addOption(runId())
                 .addOption(nodeInitScript())
                 .addOption(cpuPerGB())
-                .addOption(gsutilPath());
+                .addOption(gsutilPath())
+                .addOption(referenceGenomeBucket());
+    }
+
+    private static Option referenceGenomeBucket() {
+        return optionWithArgAndDefault(REFERENCE_GENOME_BUCKET_FLAG,
+                REFERENCE_GENOME_BUCKET_FLAG,
+                "Bucket from which to copy the reference " + "genome into the runtime bucket. Just a name, not a url (no gs://)",
+                DEFAULT_REFERENCE_GENOME_BUCKET);
     }
 
     private static Option cpuPerGB() {
@@ -179,6 +189,7 @@ class BootstrapOptions {
                     .cloudSdkPath(commandLine.getOptionValue(CLOUD_SDK_PATH_FLAG, DEFAULT_CLOUD_SDK_PATH))
                     .usePreemptibleVms(commandLine.hasOption(USE_PREEMTIBLE_VMS_FLAG))
                     .noDownload(commandLine.hasOption(NO_DOWNLOAD_FLAG))
+                    .referenceGenomeBucket(commandLine.getOptionValue(REFERENCE_GENOME_BUCKET_FLAG, DEFAULT_REFERENCE_GENOME_BUCKET))
                     .build());
         } catch (ParseException e) {
             LOGGER.error("Could not parse command line args", e);

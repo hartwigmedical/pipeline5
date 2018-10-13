@@ -23,7 +23,7 @@ public class DataprocCost implements Cost {
                 performanceProfile.master().cpus() + (performanceProfile.primaryWorkers().cpus() * performanceProfile.numPrimaryWorkers())
                         + (performanceProfile.preemtibleWorkers().cpus() * performanceProfile.numPreemtibleWorkers());
         double totalCost = totalCpus * hours * costPerCpuPerHour;
-        LOGGER.info("[{} Dataproc] CPUs for [{}] hours at a cost of [{}] per hour/per cpu for a total cost of [{}]",
+        LOGGER.debug("[{} Dataproc] CPUs for [{}] hours at a cost of [{}] per hour/per cpu for a total cost of [{}]",
                 totalCpus,
                 hours, NumberFormat.getCurrencyInstance().format(costPerCpuPerHour), NumberFormat.getCurrencyInstance().format(totalCost));
         return totalCost;

@@ -36,7 +36,7 @@ class GoogleClusterConfig {
                 primaryWorkerConfig(diskConfig, profile.primaryWorkers(), profile.numPrimaryWorkers()),
                 secondaryWorkerConfig(profile, diskConfig, profile.preemtibleWorkers()),
                 runtimeBucket.getName(),
-                softwareConfig(profile),
+                softwareConfig(),
                 initializationActions(runtimeBucket, nodeInitialization),
                 gceClusterConfig(project));
         return new GoogleClusterConfig(config);
@@ -49,8 +49,9 @@ class GoogleClusterConfig {
     }
 
     @NotNull
-    private static SoftwareConfig softwareConfig(final PerformanceProfile profile) {
-        return new SoftwareConfig().setProperties(ImmutableMap.<String, String>builder()
+    private static SoftwareConfig softwareConfig() {
+        return new SoftwareConfig().setProperties(ImmutableMap.<String, String>builder().put("dataproc:dataproc.logging.stackdriver.enable",
+                "false")
                 .put("yarn:yarn.nodemanager.vmem-check-enabled", "false")
                 .put("yarn:yarn.nodemanager.pmem-check-enabled", "false")
                 .build());

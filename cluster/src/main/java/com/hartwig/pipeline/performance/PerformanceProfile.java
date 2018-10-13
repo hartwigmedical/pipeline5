@@ -40,4 +40,8 @@ public interface PerformanceProfile {
     static ImmutablePerformanceProfile.Builder builder() {
         return ImmutablePerformanceProfile.builder();
     }
+
+    static PerformanceProfile mini() {
+        return PerformanceProfile.builder().build();
+    }
 }

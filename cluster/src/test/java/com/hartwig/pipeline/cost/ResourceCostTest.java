@@ -82,6 +82,6 @@ public class ResourceCostTest {
     }
 
     private ImmutableMachineType.Builder machineWith() {
-        return ImmutableMachineType.builder().costPerInstancePerHour(0).diskGB(0).cpus(0).memoryGB(0).uri("");
+        return ImmutableMachineType.builder().diskGB(0).cpus(0).memoryGB(0).uri("");
     }
 }

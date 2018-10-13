@@ -18,16 +18,18 @@ public class StaticData {
 
     private final Storage storage;
     private final String sourceBucket;
+    private final String targetBucket;
     private final Function<String, String> alias;
 
-    public StaticData(final Storage storage, final String sourceBucket, final Function<String, String> alias) {
+    public StaticData(final Storage storage, final String sourceBucket, final String targetBucket, final Function<String, String> alias) {
         this.storage = storage;
         this.sourceBucket = sourceBucket;
+        this.targetBucket = targetBucket;
         this.alias = alias;
     }
 
-    public StaticData(final Storage storage, final String sourceBucket) {
-        this(storage, sourceBucket, Function.identity());
+    public StaticData(final Storage storage, final String sourceBucket, final String targetBucket) {
+        this(storage, sourceBucket, targetBucket, Function.identity());
     }
 
     public void copyInto(RuntimeBucket runtimeBucket) {
@@ -36,7 +38,7 @@ public class StaticData {
             Page<Blob> blobs = staticDataBucket.list();
             LOGGER.info("Copying static data from [{}] into [{}]", sourceBucket, runtimeBucket.getName());
             for (Blob source : blobs.iterateAll()) {
-                BlobId target = BlobId.of(runtimeBucket.bucket().getName(), sourceBucket + "/" + alias.apply(source.getName()));
+                BlobId target = BlobId.of(runtimeBucket.bucket().getName(), targetBucket + "/" + alias.apply(source.getName()));
                 storage.copy(Storage.CopyRequest.of(sourceBucket, source.getName(), target));
             }
             LOGGER.info("Copying static data complete");

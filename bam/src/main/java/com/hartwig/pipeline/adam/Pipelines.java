@@ -35,8 +35,7 @@ public class Pipelines {
         DataLocation finalDataLocation = new FinalDataLocation(fileSystem, workingDirectory);
         KnownIndels knownIndels =
                 KnownIndels.of(knownIndelPaths.stream().map(path -> fileSystem.getUri() + path).collect(Collectors.toList()));
-        return BamCreationPipeline.builder()
-                .readCountQCFactory(alignmentRecordRDD -> ifEnabled(doQC, ReadCountCheck.from(alignmentRecordRDD)))
+        return BamCreationPipeline.builder().readCountQCFactory(ReadCountCheck::from)
                 .finalQC(ifEnabled(doQC,
                         FinalBAMQC.of(javaADAMContext, referenceGenome, CoverageThreshold.of(10, 90), CoverageThreshold.of(20, 70))))
                 .alignment(new Bwa(referenceGenome, adamContext, fileSystem, bwaThreads))

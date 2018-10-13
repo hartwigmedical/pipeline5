@@ -19,38 +19,29 @@ public interface MachineType {
 
     int diskGB();
 
-    double costPerInstancePerHour();
-
     static MachineType defaultWorker() {
         return highMemoryWorker();
     }
 
     @NotNull
     static MachineType standardWorker() {
-        return ImmutableMachineType.builder().uri(GOOGLE_STANDARD_32).memoryGB(120).cpus(32).diskGB(DISK_GB).costPerInstancePerHour(1.52).build();
+        return ImmutableMachineType.builder().uri(GOOGLE_STANDARD_32).memoryGB(120).cpus(32).diskGB(DISK_GB).build();
     }
 
     static MachineType highMemoryWorker() {
-        return ImmutableMachineType.builder()
-                .uri(GOOGLE_HIGHMEM_32).memoryGB(208)
-                .cpus(32)
-                .diskGB(DISK_GB)
-                .costPerInstancePerHour(1.52)
-                .build();
+        return ImmutableMachineType.builder().uri(GOOGLE_HIGHMEM_32).memoryGB(208).cpus(32).diskGB(DISK_GB).build();
+    }
+
+    static MachineType mini() {
+        return ImmutableMachineType.builder().uri("n1-standard-2").memoryGB(7).cpus(2).diskGB(DISK_GB).build();
     }
 
     static MachineType defaultPreemtibleWorker() {
-        return ImmutableMachineType.builder().from(defaultWorker()).costPerInstancePerHour(0.32).build();
+        return ImmutableMachineType.builder().from(defaultWorker()).build();
     }
 
     static MachineType defaultMaster() {
-        return ImmutableMachineType.builder()
-                .uri(GOOGLE_STANDARD_16)
-                .memoryGB(60)
-                .cpus(16)
-                .diskGB(1000)
-                .costPerInstancePerHour(0.76)
-                .build();
+        return ImmutableMachineType.builder().uri(GOOGLE_STANDARD_16).memoryGB(60).cpus(16).diskGB(1000).build();
     }
 
     static ImmutableMachineType.Builder builder() {

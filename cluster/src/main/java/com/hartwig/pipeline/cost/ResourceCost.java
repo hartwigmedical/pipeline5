@@ -43,7 +43,7 @@ class ResourceCost implements Cost {
         int totalUnits = resourceCountFunction.apply(performanceProfile) * numMachines;
         double rate = priceInDollars(sku);
         double resourceCost = hours * rate * totalUnits;
-        LOGGER.info("[{} {}] instances using a total of [{} {}] for [{}] hours at [{}] per hour/per {} for a total cost of [{}]",
+        LOGGER.debug("[{} {}] instances using a total of [{} {}] for [{}] hours at [{}] per hour/per {} for a total cost of [{}]",
                 numMachines,
                 resourceName,
                 totalUnits,

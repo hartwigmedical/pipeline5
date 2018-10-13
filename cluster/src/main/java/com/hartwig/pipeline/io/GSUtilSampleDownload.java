@@ -22,7 +22,6 @@ public class GSUtilSampleDownload implements SampleDownload {
             String bamPath = String.format("gs://%s/results/%s.bam", runtimeBucket.getName(), sample.name());
             String targetBam = targetResolver.apply(sample);
             GSUtil.cp(gsdkPath, bamPath, targetBam);
-            GSUtil.cp(gsdkPath, bai(bamPath), bai(targetBam));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

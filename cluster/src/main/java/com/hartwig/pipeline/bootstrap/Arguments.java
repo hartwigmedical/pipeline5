@@ -51,6 +51,8 @@ public interface Arguments {
 
     int cpuPerGBRatio();
 
+    String referenceGenomeBucket();
+
     Optional<Integer> sbpApiSampleId();
 
     Optional<String> runId();

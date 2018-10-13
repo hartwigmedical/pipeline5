@@ -143,8 +143,9 @@ class Bootstrap {
 
                 NodeInitialization nodeInitialization = new NodeInitialization(arguments.nodeInitializationScript());
 
-                StaticData referenceGenomeData = new StaticData(storage, "reference_genome", new ReferenceGenomeAlias());
-                StaticData knownIndelsData = new StaticData(storage, "known_indels");
+                StaticData referenceGenomeData =
+                        new StaticData(storage, arguments.referenceGenomeBucket(), "reference_genome", new ReferenceGenomeAlias());
+                StaticData knownIndelsData = new StaticData(storage, "known_indels", "known_indels");
                 CpuFastQSizeRatio ratio = CpuFastQSizeRatio.of(arguments.cpuPerGBRatio());
                 CostCalculator costCalculator = new CostCalculator(credentials, arguments.region(), Costs.defaultCosts());
                 StatusCheck statusCheck = new GoogleStorageStatusCheck();
@@ -157,8 +158,8 @@ class Bootstrap {
                             knownIndelsData,
                             a -> new SBPSampleReader(sbpRestApi).read(sbpSampleId),
                             new SBPSampleDownload(s3,
-                                    sbpRestApi,
-                                    sbpSampleId, new GSUtilSampleDownload(arguments.cloudSdkPath(), new SBPS3FileTarget())), statusCheck,
+                                    sbpRestApi, sbpSampleId, new GSUtilSampleDownload(arguments.cloudSdkPath(), new SBPS3FileTarget())),
+                            statusCheck,
                             new GSUtilSampleUpload(arguments.cloudSdkPath(), new SBPS3FileSource()),
                             new GoogleDataprocCluster(credentials, nodeInitialization),
                             new GoogleStorageJarUpload(),
@@ -169,7 +170,9 @@ class Bootstrap {
                     new Bootstrap(storage,
                             referenceGenomeData,
                             knownIndelsData,
-                            fromLocalFilesystem(), new GSUtilSampleDownload(arguments.cloudSdkPath(), new LocalFileTarget()), statusCheck,
+                            fromLocalFilesystem(),
+                            new GSUtilSampleDownload(arguments.cloudSdkPath(), new LocalFileTarget()),
+                            statusCheck,
                             new GSUtilSampleUpload(arguments.cloudSdkPath(), new LocalFileSource()),
                             new GoogleDataprocCluster(credentials, nodeInitialization),
                             new GoogleStorageJarUpload(),
