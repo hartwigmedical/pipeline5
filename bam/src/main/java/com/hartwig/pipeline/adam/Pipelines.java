@@ -28,7 +28,7 @@ public class Pipelines {
 
     public static BamCreationPipeline bamCreationConsolidated(final ADAMContext adamContext, final FileSystem fileSystem,
             final Monitor monitor, final String workingDirectory, final String referenceGenomePath, final List<String> knownIndelPaths,
-            final int bwaThreads, final boolean doQC, final boolean parallel, final boolean saveAsFile) {
+            final int bwaThreads, final boolean doQC, final boolean parallel) {
         JavaADAMContext javaADAMContext = new JavaADAMContext(adamContext);
         ReferenceGenome referenceGenome = ReferenceGenome.of(fileSystem.getUri() + referenceGenomePath);
         IntermediateDataLocation intermediateDataLocation = new IntermediateDataLocation(fileSystem, workingDirectory);
@@ -36,7 +36,7 @@ public class Pipelines {
         KnownIndels knownIndels =
                 KnownIndels.of(knownIndelPaths.stream().map(path -> fileSystem.getUri() + path).collect(Collectors.toList()));
         return BamCreationPipeline.builder()
-                .readCountQCFactory(ReadCountCheck::from)
+                .readCountQCFactory(alignmentRecordRDD -> ifEnabled(doQC, ReadCountCheck.from(alignmentRecordRDD)))
                 .finalQC(ifEnabled(doQC,
                         FinalBAMQC.of(javaADAMContext, referenceGenome, CoverageThreshold.of(10, 90), CoverageThreshold.of(20, 70))))
                 .alignment(new Bwa(referenceGenome, adamContext, fileSystem, bwaThreads))
@@ -51,7 +51,7 @@ public class Pipelines {
     }
 
     @NotNull
-    private static QualityControl<AlignmentRecordRDD> ifEnabled(final boolean doQC, final FinalBAMQC finalBAMQC) {
+    private static QualityControl<AlignmentRecordRDD> ifEnabled(final boolean doQC, final QualityControl<AlignmentRecordRDD> finalBAMQC) {
         return doQC ? finalBAMQC : alignments -> QCResult.ok();
     }
 }

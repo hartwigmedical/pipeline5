@@ -47,7 +47,6 @@ public abstract class BamCreationPipeline {
                 }
                 qcResult = qc(finalQC(), enriched);
                 finalBamStore().store(enriched);
-                indexBam().execute(sample);
             }
             if (!qcResult.isOk()) {
                 status = StatusReporter.Status.FAILED_FINAL_QC;

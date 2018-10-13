@@ -44,9 +44,7 @@ public class PipelineFunctionalTest {
                 HUNDREDK_READS_HISEQ.referenceGenome().path(),
                 HUNDREDK_READS_HISEQ.knownIndel().paths(),
                 1,
-                false,
-                false,
-                true)
+                false, false)
                 .execute(PatientReader.fromHDFS(fileSystem, HUNDREDK_READS_HISEQ.patient().directory(), HUNDREDK_READS_HISEQ_PATIENT_NAME)
                         .reference());
         assertThatOutput(RESULT_DIR, REFERENCE_SAMPLE).sorted().aligned().duplicatesMarked().isEqualToExpected();
