@@ -91,6 +91,7 @@ public class ADAMKryo implements KryoRegistrator {
             kryo.register(ArrayList.class);
             kryo.register(HashMap.class);
             kryo.register(Wrappers$.class);
+            kryo.register(scala.collection.immutable.TreeSet.class);
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
