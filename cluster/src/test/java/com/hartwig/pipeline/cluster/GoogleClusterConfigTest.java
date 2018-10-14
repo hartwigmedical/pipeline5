@@ -40,8 +40,8 @@ public class GoogleClusterConfigTest {
     @Test
     public void allNodesUseResolvedMachineType() throws Exception {
         assertThat(victim.config().getMasterConfig().getMachineTypeUri()).isEqualTo(MachineType.GOOGLE_STANDARD_16);
-        assertThat(victim.config().getWorkerConfig().getMachineTypeUri()).isEqualTo(MachineType.GOOGLE_STANDARD_32);
-        assertThat(victim.config().getSecondaryWorkerConfig().getMachineTypeUri()).isEqualTo(MachineType.GOOGLE_STANDARD_32);
+        assertThat(victim.config().getWorkerConfig().getMachineTypeUri()).isEqualTo(MachineType.GOOGLE_HIGHMEM_32);
+        assertThat(victim.config().getSecondaryWorkerConfig().getMachineTypeUri()).isEqualTo(MachineType.GOOGLE_HIGHMEM_32);
     }
 
     @Test
