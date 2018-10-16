@@ -42,11 +42,9 @@ public class PipelineFunctionalTest {
                 Monitor.noop(),
                 RESULT_DIR,
                 HUNDREDK_READS_HISEQ.referenceGenome().path(),
-                HUNDREDK_READS_HISEQ.knownIndel().paths(),
-                1,
-                false, false)
+                HUNDREDK_READS_HISEQ.knownIndel().paths(), 1, false, true)
                 .execute(PatientReader.fromHDFS(fileSystem, HUNDREDK_READS_HISEQ.patient().directory(), HUNDREDK_READS_HISEQ_PATIENT_NAME)
                         .reference());
-        assertThatOutput(RESULT_DIR, REFERENCE_SAMPLE).sorted().aligned().duplicatesMarked().isEqualToExpected();
+        assertThatOutput(RESULT_DIR, REFERENCE_SAMPLE).aligned().duplicatesMarked().isEqualToExpected();
     }
 }

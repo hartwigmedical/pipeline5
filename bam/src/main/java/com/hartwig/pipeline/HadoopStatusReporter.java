@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +23,7 @@ public class HadoopStatusReporter implements StatusReporter {
 
     public void report(final StatusReporter.Status status) {
         try {
+            deletePreviousStatus();
             try (OutputStream stream = outputStream(status)) {
                 stream.write(status.toString().getBytes());
             }
@@ -31,8 +33,18 @@ public class HadoopStatusReporter implements StatusReporter {
         }
     }
 
+    private void deletePreviousStatus() throws IOException {
+        fileSystem.delete(filePath(SUCCESS), false);
+        fileSystem.delete(filePath(FAILURE), false);
+    }
+
     private FSDataOutputStream outputStream(Status status) throws IOException {
         String fileName = status == Status.SUCCESS ? SUCCESS : FAILURE;
-        return fileSystem.create(new Path(fileSystem.getUri() + bamFolder + fileName));
+        return fileSystem.create(filePath(fileName));
+    }
+
+    @NotNull
+    private Path filePath(final String fileName) {
+        return new Path(fileSystem.getUri() + bamFolder + fileName);
     }
 }

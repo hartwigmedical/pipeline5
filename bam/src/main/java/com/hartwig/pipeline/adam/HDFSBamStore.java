@@ -35,6 +35,7 @@ public class HDFSBamStore implements OutputStore<AlignmentRecordRDD> {
                 false,
                 saveAsFile,
                 false);
+        saveArgs.deferMerging_$eq(!saveAsFile);
         inputOutput.payload().save(saveArgs, true);
     }
 

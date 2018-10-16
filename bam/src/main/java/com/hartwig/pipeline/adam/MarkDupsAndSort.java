@@ -17,9 +17,6 @@ public class MarkDupsAndSort implements Stage<AlignmentRecordRDD, AlignmentRecor
 
     @Override
     public InputOutput<AlignmentRecordRDD> execute(final InputOutput<AlignmentRecordRDD> input) throws IOException {
-        UnmappedReads unmapped = UnmappedReads.from(input.payload());
-        return InputOutput.of(OutputType.DUPLICATE_MARKED,
-                input.sample(),
-                unmapped.toAlignment(input.payload().markDuplicates().sortReadsByReferencePositionAndIndex()));
+        return InputOutput.of(OutputType.DUPLICATE_MARKED, input.sample(), input.payload().markDuplicates());
     }
 }

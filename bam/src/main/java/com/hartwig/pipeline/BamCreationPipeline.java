@@ -3,7 +3,6 @@ package com.hartwig.pipeline;
 import static java.lang.String.format;
 
 import java.io.IOException;
-import java.util.concurrent.ExecutorService;
 import java.util.function.Function;
 
 import com.hartwig.io.DataSource;
@@ -101,8 +100,6 @@ public abstract class BamCreationPipeline {
     protected abstract QualityControl<AlignmentRecordRDD> finalQC();
 
     protected abstract IndexBam indexBam();
-
-    protected abstract ExecutorService executorService();
 
     protected abstract Monitor monitor();
 

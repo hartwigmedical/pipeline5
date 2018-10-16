@@ -22,12 +22,14 @@ import com.hartwig.pipeline.cluster.SampleCluster;
 import com.hartwig.pipeline.cluster.SparkJobDefinition;
 import com.hartwig.pipeline.cost.CostCalculator;
 import com.hartwig.pipeline.cost.Costs;
+import com.hartwig.pipeline.io.BamComposer;
 import com.hartwig.pipeline.io.GSUtil;
 import com.hartwig.pipeline.io.GSUtilSampleDownload;
 import com.hartwig.pipeline.io.GSUtilSampleUpload;
 import com.hartwig.pipeline.io.GoogleStorageStatusCheck;
 import com.hartwig.pipeline.io.LocalFileSource;
 import com.hartwig.pipeline.io.LocalFileTarget;
+import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.io.S3;
 import com.hartwig.pipeline.io.SBPRestApi;
@@ -69,12 +71,14 @@ class Bootstrap {
     private final JarUpload jarUpload;
     private final ClusterOptimizer clusterOptimizer;
     private final CostCalculator costCalculator;
+    private final BamComposer composer;
     private final GoogleCredentials credentials;
 
     private Bootstrap(final Storage storage, final StaticData referenceGenomeData, final StaticData knownIndelData,
             final SampleSource sampleSource, final SampleDownload sampleDownload, final StatusCheck statusCheck,
             final SampleUpload sampleUpload, final SampleCluster cluster, final JarUpload jarUpload,
-            final ClusterOptimizer clusterOptimizer, final CostCalculator costCalculator, final GoogleCredentials credentials) {
+            final ClusterOptimizer clusterOptimizer, final CostCalculator costCalculator, final BamComposer composer,
+            final GoogleCredentials credentials) {
         this.storage = storage;
         this.referenceGenomeData = referenceGenomeData;
         this.knownIndelData = knownIndelData;
@@ -86,6 +90,7 @@ class Bootstrap {
         this.jarUpload = jarUpload;
         this.clusterOptimizer = clusterOptimizer;
         this.costCalculator = costCalculator;
+        this.composer = composer;
         this.credentials = credentials;
     }
 
@@ -108,6 +113,7 @@ class Bootstrap {
             cluster.start(performanceProfile, sample, runtimeBucket, arguments);
             cluster.submit(performanceProfile, SparkJobDefinition.of(MAIN_CLASS, location.uri()), arguments);
             StatusCheck.Status status = statusCheck.check(runtimeBucket);
+            composer.run(sample, runtimeBucket);
             if (!arguments.noDownload()) {
                 sampleDownload.run(sample, runtimeBucket, status);
             }
@@ -149,6 +155,7 @@ class Bootstrap {
                 CpuFastQSizeRatio ratio = CpuFastQSizeRatio.of(arguments.cpuPerGBRatio());
                 CostCalculator costCalculator = new CostCalculator(credentials, arguments.region(), Costs.defaultCosts());
                 StatusCheck statusCheck = new GoogleStorageStatusCheck();
+                BamComposer composer = new BamComposer(storage, ResultsDirectory.defaultDirectory(), 32);
                 if (arguments.sbpApiSampleId().isPresent()) {
                     int sbpSampleId = arguments.sbpApiSampleId().get();
                     SBPRestApi sbpRestApi = SBPRestApi.newInstance(arguments);
@@ -158,13 +165,14 @@ class Bootstrap {
                             knownIndelsData,
                             a -> new SBPSampleReader(sbpRestApi).read(sbpSampleId),
                             new SBPSampleDownload(s3,
-                                    sbpRestApi, sbpSampleId, new GSUtilSampleDownload(arguments.cloudSdkPath(), new SBPS3FileTarget())),
+                                    sbpRestApi,
+                                    sbpSampleId,
+                                    new GSUtilSampleDownload(arguments.cloudSdkPath(), new SBPS3FileTarget())),
                             statusCheck,
                             new GSUtilSampleUpload(arguments.cloudSdkPath(), new SBPS3FileSource()),
                             new GoogleDataprocCluster(credentials, nodeInitialization),
                             new GoogleStorageJarUpload(),
-                            new ClusterOptimizer(ratio, new S3FastQSize(s3), arguments.usePreemptibleVms()),
-                            costCalculator,
+                            new ClusterOptimizer(ratio, new S3FastQSize(s3), arguments.usePreemptibleVms()), costCalculator, composer,
                             credentials).run(arguments);
                 } else {
                     new Bootstrap(storage,
@@ -176,8 +184,7 @@ class Bootstrap {
                             new GSUtilSampleUpload(arguments.cloudSdkPath(), new LocalFileSource()),
                             new GoogleDataprocCluster(credentials, nodeInitialization),
                             new GoogleStorageJarUpload(),
-                            new ClusterOptimizer(ratio, new LocalFastqSize(), arguments.usePreemptibleVms()),
-                            costCalculator,
+                            new ClusterOptimizer(ratio, new LocalFastqSize(), arguments.usePreemptibleVms()), costCalculator, composer,
                             credentials).run(arguments);
                 }
 

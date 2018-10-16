@@ -16,8 +16,10 @@ import com.hartwig.support.test.Resources;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
+@Ignore
 public class IndexBamTest {
 
     private static final String SAMPLE_NAME = "CPCT12345678R";

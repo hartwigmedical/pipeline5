@@ -1,10 +1,8 @@
 package com.hartwig.pipeline.adam;
 
 import java.util.List;
-import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import com.google.common.util.concurrent.MoreExecutors;
 import com.hartwig.io.DataLocation;
 import com.hartwig.io.FinalDataLocation;
 import com.hartwig.io.IntermediateDataLocation;
@@ -28,21 +26,21 @@ public class Pipelines {
 
     public static BamCreationPipeline bamCreationConsolidated(final ADAMContext adamContext, final FileSystem fileSystem,
             final Monitor monitor, final String workingDirectory, final String referenceGenomePath, final List<String> knownIndelPaths,
-            final int bwaThreads, final boolean doQC, final boolean parallel) {
+            final int bwaThreads, final boolean doQC, final boolean saveAsFile) {
         JavaADAMContext javaADAMContext = new JavaADAMContext(adamContext);
         ReferenceGenome referenceGenome = ReferenceGenome.of(fileSystem.getUri() + referenceGenomePath);
         IntermediateDataLocation intermediateDataLocation = new IntermediateDataLocation(fileSystem, workingDirectory);
         DataLocation finalDataLocation = new FinalDataLocation(fileSystem, workingDirectory);
         KnownIndels knownIndels =
                 KnownIndels.of(knownIndelPaths.stream().map(path -> fileSystem.getUri() + path).collect(Collectors.toList()));
-        return BamCreationPipeline.builder().readCountQCFactory(ReadCountCheck::from)
+        return BamCreationPipeline.builder()
+                .readCountQCFactory(ReadCountCheck::from)
                 .finalQC(ifEnabled(doQC,
                         FinalBAMQC.of(javaADAMContext, referenceGenome, CoverageThreshold.of(10, 90), CoverageThreshold.of(20, 70))))
                 .alignment(new Bwa(referenceGenome, adamContext, fileSystem, bwaThreads))
                 .finalDatasource(new HDFSAlignmentRDDSource(OutputType.INDEL_REALIGNED, javaADAMContext, intermediateDataLocation))
-                .finalBamStore(new HDFSBamStore(finalDataLocation, fileSystem, true))
-                .bamEnrichment(new MarkDupsRealignIndelsAndSort(knownIndels, referenceGenome, javaADAMContext))
-                .executorService(parallel ? Executors.newFixedThreadPool(2) : MoreExecutors.newDirectExecutorService())
+                .finalBamStore(new HDFSBamStore(finalDataLocation, fileSystem, saveAsFile))
+                .bamEnrichment(new MarkDupsAndRealignIndels(knownIndels, referenceGenome, javaADAMContext))
                 .indexBam(new IndexBam(fileSystem, workingDirectory, monitor))
                 .statusReporter(new HadoopStatusReporter(fileSystem, workingDirectory))
                 .monitor(monitor)

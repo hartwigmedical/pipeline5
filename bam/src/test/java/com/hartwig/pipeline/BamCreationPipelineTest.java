@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.common.util.concurrent.MoreExecutors;
 import com.hartwig.io.InputOutput;
 import com.hartwig.io.OutputStore;
 import com.hartwig.io.OutputType;
@@ -99,7 +98,6 @@ public class BamCreationPipelineTest {
         return BamCreationPipeline.builder()
                 .alignment(input -> ALIGNED_BAM)
                 .bamEnrichment(enrichment())
-                .executorService(MoreExecutors.newDirectExecutorService())
                 .finalBamStore(finalStore(exists))
                 .finalDatasource(sample -> FINAL_BAM)
                 .readCountQCFactory(alignmentRecordRDD -> toQC -> readCountQC)

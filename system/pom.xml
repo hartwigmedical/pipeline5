@@ -216,8 +216,6 @@
                                 <id>standalone</id>
                                 <phase>package</phase>
                                 <goals>
-                                    <goal>build</goal>
-                                    <goal>push</goal>
                                 </goals>
                                 <configuration>
                                     <images>

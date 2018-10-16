@@ -19,13 +19,13 @@ import org.bdgenomics.formats.avro.Variant;
 
 import scala.Option;
 
-public class MarkDupsRealignIndelsAndSort implements Stage<AlignmentRecordRDD, AlignmentRecordRDD> {
+public class MarkDupsAndRealignIndels implements Stage<AlignmentRecordRDD, AlignmentRecordRDD> {
 
     private final KnownIndels knownIndels;
     private final ReferenceGenome referenceGenome;
     private final JavaADAMContext javaADAMContext;
 
-    MarkDupsRealignIndelsAndSort(final KnownIndels knownIndels, final ReferenceGenome referenceGenome,
+    MarkDupsAndRealignIndels(final KnownIndels knownIndels, final ReferenceGenome referenceGenome,
             final JavaADAMContext javaADAMContext) {
         this.knownIndels = knownIndels;
         this.referenceGenome = referenceGenome;
@@ -51,8 +51,6 @@ public class MarkDupsRealignIndelsAndSort implements Stage<AlignmentRecordRDD, A
                         .realignIndels(new ConsensusGeneratorFromKnowns(allKnownVariants, 0),
                                 false,
                                 500,
-                                30,
-                                5.0,
-                                3000, 20000, Option.apply(fasta), false).sortReadsByReferencePositionAndIndex()));
+                                30, 5.0, 3000, 20000, Option.apply(fasta), false)));
     }
 }
