@@ -43,7 +43,7 @@ public class BamCreationPipelineTest {
 
     @Test
     public void onlyDoesQCWhenBAMExists() {
-        BamCreationPipeline victim = createPipeline(true, QCResult.ok(), QCResult.ok());
+        BamCreationPipeline victim = createPipeline(true, QCResult.ok());
         victim.execute(SAMPLE);
         assertThat(lastStatus).isEqualTo(StatusReporter.Status.SUCCESS);
         assertThat(lastStored).isNull();
@@ -51,21 +51,15 @@ public class BamCreationPipelineTest {
 
     @Test
     public void storesEnrichedBamWhenAllQCsPassAndNoErrors() {
-        BamCreationPipeline victim = createPipeline(false, QCResult.ok(), QCResult.ok());
+        BamCreationPipeline victim = createPipeline(false, QCResult.ok());
         victim.execute(SAMPLE);
         assertThat(lastStatus).isEqualTo(StatusReporter.Status.SUCCESS);
         assertThat(lastStored).isEqualTo(ENRICHED_BAM);
     }
 
-    @Test(expected = RuntimeException.class)
-    public void throwsExceptionOnReadCountQCFailure() {
-        BamCreationPipeline victim = createPipeline(false, QCResult.failure("read count"), QCResult.ok());
-        victim.execute(SAMPLE);
-    }
-
     @Test
     public void storesEnrichedBamWithFinalQCFailures() {
-        BamCreationPipeline victim = createPipeline(false, QCResult.ok(), QCResult.failure("final"));
+        BamCreationPipeline victim = createPipeline(false, QCResult.failure("final"));
         victim.execute(SAMPLE);
         assertThat(lastStatus).isEqualTo(StatusReporter.Status.FAILED_FINAL_QC);
         assertThat(lastStored).isEqualTo(ENRICHED_BAM);
@@ -73,22 +67,20 @@ public class BamCreationPipelineTest {
 
     @Test
     public void metricsStoredForFinalTimeSpent() {
-        BamCreationPipeline victim = createPipeline(false, QCResult.ok(), QCResult.ok());
+        BamCreationPipeline victim = createPipeline(false, QCResult.ok());
         victim.execute(SAMPLE);
         assertThat(metricsStored).hasSize(1);
         assertThat(metricsStored.get(0).name()).contains(BamCreationPipeline.BAM_CREATED_METRIC);
     }
 
     @NotNull
-    private ImmutableBamCreationPipeline createPipeline(final boolean exists, QCResult readCountQC, QCResult finalQC) {
+    private ImmutableBamCreationPipeline createPipeline(final boolean exists, QCResult finalQC) {
         return BamCreationPipeline.builder()
                 .alignment(input -> ALIGNED_BAM)
                 .bamEnrichment(enrichment())
                 .finalBamStore(finalStore(exists))
                 .finalDatasource(sample -> FINAL_BAM)
-                .readCountQCFactory(alignmentRecordRDD -> toQC -> readCountQC)
-                .finalQC(toQC -> finalQC)
-                .statusReporter(status -> lastStatus = status).indexBam(indexer).monitor(monitor)
+                .finalQC(toQC -> finalQC).statusReporter(status -> lastStatus = status).indexBam(indexer).monitor(monitor)
                 .build();
     }
 

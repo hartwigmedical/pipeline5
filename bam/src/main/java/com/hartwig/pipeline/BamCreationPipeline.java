@@ -3,7 +3,6 @@ package com.hartwig.pipeline;
 import static java.lang.String.format;
 
 import java.io.IOException;
-import java.util.function.Function;
 
 import com.hartwig.io.DataSource;
 import com.hartwig.io.InputOutput;
@@ -29,22 +28,13 @@ public abstract class BamCreationPipeline {
         LOGGER.info("Preprocessing started for {} sample", sample.name());
         StatusReporter.Status status = StatusReporter.Status.SUCCESS;
         try {
-            QCResult qcResult;
             long startTime = startTimer();
+            QCResult qcResult = QCResult.ok();
             if (finalBamStore().exists(sample, OutputType.FINAL)) {
                 LOGGER.info("BAM for {} sample already exists. Only running QC", sample.name());
-                qcResult = qc(finalQC(), finalDatasource().extract(sample));
             } else {
                 InputOutput<AlignmentRecordRDD> aligned = alignment().execute(InputOutput.seed(sample));
-                QualityControl<AlignmentRecordRDD> readCount = readCountQCFactory().apply(aligned.payload());
                 InputOutput<AlignmentRecordRDD> enriched = bamEnrichment().execute(aligned);
-                qcResult = qc(readCount, enriched);
-                if (!qcResult.isOk()) {
-                    status = StatusReporter.Status.FAILED_READ_COUNT;
-                    throw new IllegalStateException(String.format("QC failed on stage [%s] with message [%s] ",
-                            bamEnrichment().outputType(),
-                            qcResult.message()));
-                }
                 qcResult = qc(finalQC(), enriched);
                 finalBamStore().store(enriched);
             }
@@ -85,8 +75,6 @@ public abstract class BamCreationPipeline {
     protected abstract Stage<AlignmentRecordRDD, AlignmentRecordRDD> bamEnrichment();
 
     protected abstract OutputStore<AlignmentRecordRDD> finalBamStore();
-
-    protected abstract Function<AlignmentRecordRDD, QualityControl<AlignmentRecordRDD>> readCountQCFactory();
 
     protected abstract QualityControl<AlignmentRecordRDD> finalQC();
 

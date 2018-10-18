@@ -34,7 +34,6 @@ public class Pipelines {
         KnownIndels knownIndels =
                 KnownIndels.of(knownIndelPaths.stream().map(path -> fileSystem.getUri() + path).collect(Collectors.toList()));
         return BamCreationPipeline.builder()
-                .readCountQCFactory(ReadCountCheck::from)
                 .finalQC(ifEnabled(doQC,
                         FinalBAMQC.of(javaADAMContext, referenceGenome, CoverageThreshold.of(10, 90), CoverageThreshold.of(20, 70))))
                 .alignment(new Bwa(referenceGenome, adamContext, fileSystem, bwaThreads))
