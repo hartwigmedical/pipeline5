@@ -9,7 +9,7 @@ public class ResultsDirectory {
         this.directory = directory;
     }
 
-    String path(String subPath) {
+    public String path(String subPath) {
         return directory + subPath;
     }
 

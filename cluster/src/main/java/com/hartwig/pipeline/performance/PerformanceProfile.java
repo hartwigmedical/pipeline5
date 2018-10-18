@@ -44,4 +44,8 @@ public interface PerformanceProfile {
     static PerformanceProfile mini() {
         return PerformanceProfile.builder().build();
     }
+
+    static PerformanceProfile beefyMaster() {
+        return PerformanceProfile.builder().numPreemtibleWorkers(0).numPrimaryWorkers(0).master(MachineType.defaultWorker()).build();
+    }
 }

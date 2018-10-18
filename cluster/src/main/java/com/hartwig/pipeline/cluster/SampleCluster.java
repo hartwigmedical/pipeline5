@@ -11,7 +11,7 @@ public interface SampleCluster {
 
     void start(PerformanceProfile performanceProfile, Sample sample, RuntimeBucket runtimeBucket, Arguments arguments) throws IOException;
 
-    void submit(PerformanceProfile performanceProfile, SparkJobDefinition jobDefinition, Arguments arguments) throws IOException;
+    void submit(SparkJobDefinition jobDefinition, Arguments arguments) throws IOException;
 
     void stop(Arguments arguments) throws IOException;
 }

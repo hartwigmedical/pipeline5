@@ -59,7 +59,6 @@ import org.slf4j.LoggerFactory;
 class Bootstrap {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Bootstrap.class);
-    private static final String MAIN_CLASS = "com.hartwig.pipeline.runtime.GoogleCloudPipelineRuntime";
     private final Storage storage;
     private final StaticData referenceGenomeData;
     private final StaticData knownIndelData;
@@ -67,7 +66,8 @@ class Bootstrap {
     private final SampleDownload sampleDownload;
     private final StatusCheck statusCheck;
     private final SampleUpload sampleUpload;
-    private final SampleCluster cluster;
+    private final SampleCluster singleNodeCluster;
+    private final SampleCluster parallelProcessingCluster;
     private final JarUpload jarUpload;
     private final ClusterOptimizer clusterOptimizer;
     private final CostCalculator costCalculator;
@@ -76,7 +76,7 @@ class Bootstrap {
 
     private Bootstrap(final Storage storage, final StaticData referenceGenomeData, final StaticData knownIndelData,
             final SampleSource sampleSource, final SampleDownload sampleDownload, final StatusCheck statusCheck,
-            final SampleUpload sampleUpload, final SampleCluster cluster, final JarUpload jarUpload,
+            final SampleUpload sampleUpload, final SampleCluster singleNodeCluster, final SampleCluster cluster, final JarUpload jarUpload,
             final ClusterOptimizer clusterOptimizer, final CostCalculator costCalculator, final BamComposer composer,
             final GoogleCredentials credentials) {
         this.storage = storage;
@@ -86,7 +86,8 @@ class Bootstrap {
         this.sampleDownload = sampleDownload;
         this.statusCheck = statusCheck;
         this.sampleUpload = sampleUpload;
-        this.cluster = cluster;
+        this.singleNodeCluster = singleNodeCluster;
+        this.parallelProcessingCluster = cluster;
         this.jarUpload = jarUpload;
         this.clusterOptimizer = clusterOptimizer;
         this.costCalculator = costCalculator;
@@ -105,15 +106,23 @@ class Bootstrap {
             sampleUpload.run(sample, runtimeBucket);
             JarLocation location = jarUpload.run(runtimeBucket, arguments);
             PerformanceProfile performanceProfile = clusterOptimizer.optimize(sample);
-
             LOGGER.info("Calculated a cluster of the following size [{}]", performanceProfile);
             LOGGER.info("This cluster will cost approximately [{}] per hour",
                     NumberFormat.getCurrencyInstance().format(costCalculator.calculate(performanceProfile, 1)));
-
-            cluster.start(performanceProfile, sample, runtimeBucket, arguments);
-            cluster.submit(performanceProfile, SparkJobDefinition.of(MAIN_CLASS, location.uri()), arguments);
+            parallelProcessingCluster.start(performanceProfile, sample, runtimeBucket, arguments);
+            parallelProcessingCluster.submit(SparkJobDefinition.bamCreation(location.uri(), arguments, runtimeBucket, performanceProfile),
+                    arguments);
             StatusCheck.Status status = statusCheck.check(runtimeBucket);
             composer.run(sample, runtimeBucket);
+            stopCluster(arguments, parallelProcessingCluster);
+            singleNodeCluster.start(PerformanceProfile.beefyMaster(), sample, runtimeBucket, arguments);
+            singleNodeCluster.submit(SparkJobDefinition.sortAndIndex(location.uri(),
+                    arguments,
+                    runtimeBucket,
+                    PerformanceProfile.beefyMaster(),
+                    sample,
+                    ResultsDirectory.defaultDirectory()), arguments);
+            stopCluster(arguments, singleNodeCluster);
             if (!arguments.noDownload()) {
                 sampleDownload.run(sample, runtimeBucket, status);
             }
@@ -127,13 +136,18 @@ class Bootstrap {
                     "An unexpected error occurred during bootstrap. See exception for more details. Cluster will still be stopped if running",
                     e);
         } finally {
-            try {
-                if (!arguments.noCleanup()) {
-                    cluster.stop(arguments);
-                }
-            } catch (IOException e) {
-                LOGGER.error("Unable to stop cluster! Check console and stop it by hand if still running", e);
+            stopCluster(arguments, singleNodeCluster);
+            stopCluster(arguments, parallelProcessingCluster);
+        }
+    }
+
+    private void stopCluster(final Arguments arguments, final SampleCluster cluster) {
+        try {
+            if (!arguments.noCleanup()) {
+                cluster.stop(arguments);
             }
+        } catch (IOException e) {
+            LOGGER.error("Unable to stop cluster! Check console and stop it by hand if still running", e);
         }
     }
 
@@ -156,6 +170,8 @@ class Bootstrap {
                 CostCalculator costCalculator = new CostCalculator(credentials, arguments.region(), Costs.defaultCosts());
                 StatusCheck statusCheck = new GoogleStorageStatusCheck();
                 BamComposer composer = new BamComposer(storage, ResultsDirectory.defaultDirectory(), 32);
+                GoogleDataprocCluster singleNode = new GoogleDataprocCluster(credentials, nodeInitialization, "singlenode");
+                GoogleDataprocCluster parallelProcessing = new GoogleDataprocCluster(credentials, nodeInitialization, "spark");
                 if (arguments.sbpApiSampleId().isPresent()) {
                     int sbpSampleId = arguments.sbpApiSampleId().get();
                     SBPRestApi sbpRestApi = SBPRestApi.newInstance(arguments);
@@ -170,9 +186,12 @@ class Bootstrap {
                                     new GSUtilSampleDownload(arguments.cloudSdkPath(), new SBPS3FileTarget())),
                             statusCheck,
                             new GSUtilSampleUpload(arguments.cloudSdkPath(), new SBPS3FileSource()),
-                            new GoogleDataprocCluster(credentials, nodeInitialization),
+                            singleNode,
+                            parallelProcessing,
                             new GoogleStorageJarUpload(),
-                            new ClusterOptimizer(ratio, new S3FastQSize(s3), arguments.usePreemptibleVms()), costCalculator, composer,
+                            new ClusterOptimizer(ratio, new S3FastQSize(s3), arguments.usePreemptibleVms()),
+                            costCalculator,
+                            composer,
                             credentials).run(arguments);
                 } else {
                     new Bootstrap(storage,
@@ -182,9 +201,12 @@ class Bootstrap {
                             new GSUtilSampleDownload(arguments.cloudSdkPath(), new LocalFileTarget()),
                             statusCheck,
                             new GSUtilSampleUpload(arguments.cloudSdkPath(), new LocalFileSource()),
-                            new GoogleDataprocCluster(credentials, nodeInitialization),
+                            singleNode,
+                            parallelProcessing,
                             new GoogleStorageJarUpload(),
-                            new ClusterOptimizer(ratio, new LocalFastqSize(), arguments.usePreemptibleVms()), costCalculator, composer,
+                            new ClusterOptimizer(ratio, new LocalFastqSize(), arguments.usePreemptibleVms()),
+                            costCalculator,
+                            composer,
                             credentials).run(arguments);
                 }
 

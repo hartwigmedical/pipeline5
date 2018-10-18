@@ -1,7 +1,6 @@
 package com.hartwig.pipeline.cluster;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -36,16 +35,19 @@ public class GoogleDataprocCluster implements SampleCluster {
     private Dataproc dataproc;
     private final GoogleCredentials credential;
     private final NodeInitialization nodeInitialization;
+    private String id;
+    private boolean isStarted = false;
 
-    public GoogleDataprocCluster(final GoogleCredentials credential, final NodeInitialization nodeInitialization) {
+    public GoogleDataprocCluster(final GoogleCredentials credential, final NodeInitialization nodeInitialization, final String id) {
         this.credential = credential;
         this.nodeInitialization = nodeInitialization;
+        this.id = id;
     }
 
     @Override
     public void start(PerformanceProfile performanceProfile, Sample sample, RuntimeBucket runtimeBucket, Arguments arguments)
             throws IOException {
-        this.clusterName = runtimeBucket.getName();
+        this.clusterName = runtimeBucket.getName() + "-" + id;
         dataproc = new Dataproc.Builder(new NetHttpTransport(),
                 JacksonFactory.getDefaultInstance(),
                 new HttpCredentialsAdapter(credential)).setApplicationName(APPLICATION_NAME).build();
@@ -62,16 +64,16 @@ public class GoogleDataprocCluster implements SampleCluster {
         } else {
             LOGGER.info("Cluster [{}] already exists, using this cluster to submit pipeline", clusterName);
         }
+        isStarted = true;
     }
 
     @Override
-    public void submit(PerformanceProfile performanceProfile, SparkJobDefinition jobDefinition, Arguments arguments) throws IOException {
-        LOGGER.info("Submitting spark job to cluster [{}]", clusterName);
+    public void submit(SparkJobDefinition jobDefinition, Arguments arguments) throws IOException {
+        LOGGER.info("Submitting spark job [{}] to cluster [{}]", jobDefinition.name(), clusterName);
         Job job = dataproc.projects().regions().jobs().submit(arguments.project(), arguments.region(),
                         new SubmitJobRequest().setJob(new Job().setPlacement(new JobPlacement().setClusterName(clusterName))
-                                .setSparkJob(new SparkJob().setProperties(SparkProperties.asMap(performanceProfile))
-                                        .setMainClass(jobDefinition.mainClass())
-                                        .setArgs(Arrays.asList(arguments.version(), clusterName, arguments.project()))
+                                .setSparkJob(new SparkJob().setProperties(jobDefinition.sparkProperties())
+                                        .setMainClass(jobDefinition.mainClass()).setArgs(jobDefinition.arguments())
                                         .setJarFileUris(Collections.singletonList(jobDefinition.jarLocation())))))
                 .execute();
         Job completed = waitForComplete(job,
@@ -90,15 +92,18 @@ public class GoogleDataprocCluster implements SampleCluster {
 
     @Override
     public void stop(Arguments arguments) throws IOException {
-        if (dataproc == null) {
-            throw new IllegalStateException(
-                    "No Dataproc instance available to stop running cluster. Did you forget to call start() before stop()?");
+        if (isStarted) {
+            if (dataproc == null) {
+                throw new IllegalStateException(
+                        "No Dataproc instance available to stop running cluster. Did you forget to call start() before stop()?");
+            }
+            Operation deleteCluster =
+                    dataproc.projects().regions().clusters().delete(arguments.project(), arguments.region(), clusterName).execute();
+            LOGGER.info("Deleting cluster [{}]. This may take a minute or two...", clusterName);
+            waitForOperationComplete(deleteCluster);
+            LOGGER.info("Cluster deleted");
+            isStarted = false;
         }
-        Operation deleteCluster =
-                dataproc.projects().regions().clusters().delete(arguments.project(), arguments.region(), clusterName).execute();
-        LOGGER.info("Deleting cluster [{}]. This may take a minute or two...", clusterName);
-        waitForOperationComplete(deleteCluster);
-        LOGGER.info("Cluster deleted");
     }
 
     private static String jobStatus(final Job job) {

@@ -9,4 +9,11 @@ install_bwa(){
     cp -p bwa /usr/local/bin
 }
 
+install_sambamba() {
+    wget https://github.com/biod/sambamba/releases/download/v0.6.8/sambamba-0.6.8-linux-static.gz
+    gunzip sambamba-0.6.8-linux-static.gz
+    chmod 777 sambamba-0.6.8-linux-static
+    mv sambamba-0.6.8-linux-static /usr/local/bin/sambamba
+}
 install_bwa
+install_sambamba

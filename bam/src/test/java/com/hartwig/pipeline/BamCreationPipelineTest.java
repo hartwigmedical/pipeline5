@@ -2,7 +2,6 @@ package com.hartwig.pipeline;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -13,15 +12,14 @@ import com.hartwig.io.OutputStore;
 import com.hartwig.io.OutputType;
 import com.hartwig.patient.ImmutableSample;
 import com.hartwig.patient.Sample;
+import com.hartwig.pipeline.after.BamIndexPipeline;
 import com.hartwig.pipeline.metrics.Metric;
 import com.hartwig.pipeline.metrics.Monitor;
 
 import org.bdgenomics.adam.rdd.read.AlignmentRecordRDD;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 
 public class BamCreationPipelineTest {
 
@@ -36,7 +34,7 @@ public class BamCreationPipelineTest {
     private StatusReporter.Status lastStatus;
     private List<Metric> metricsStored;
     private Monitor monitor = metric -> metricsStored.add(metric);
-    private IndexBam indexer = mock(IndexBam.class);
+    private BamIndexPipeline indexer = mock(BamIndexPipeline.class);
 
     @Before
     public void setUp() throws Exception {
@@ -74,23 +72,11 @@ public class BamCreationPipelineTest {
     }
 
     @Test
-    public void metricsStoredForBothStagesAndFinal() {
+    public void metricsStoredForFinalTimeSpent() {
         BamCreationPipeline victim = createPipeline(false, QCResult.ok(), QCResult.ok());
         victim.execute(SAMPLE);
-        assertThat(metricsStored).hasSize(3);
-        assertThat(metricsStored.get(0).name()).contains(OutputType.ALIGNED.toString());
-        assertThat(metricsStored.get(1).name()).contains(OutputType.INDEL_REALIGNED.toString());
-        assertThat(metricsStored.get(2).name()).contains(BamCreationPipeline.BAM_CREATED_METRIC);
-    }
-
-    @Ignore("Disabling index creation to reduce run cost")
-    @Test
-    public void bamIsIndexedAfterCreated() throws Exception {
-        BamCreationPipeline victim = createPipeline(false, QCResult.ok(), QCResult.ok());
-        victim.execute(SAMPLE);
-        ArgumentCaptor<Sample> indexerArg = ArgumentCaptor.forClass(Sample.class);
-        verify(indexer).execute(indexerArg.capture());
-        assertThat(indexerArg.getValue()).isEqualTo(SAMPLE);
+        assertThat(metricsStored).hasSize(1);
+        assertThat(metricsStored.get(0).name()).contains(BamCreationPipeline.BAM_CREATED_METRIC);
     }
 
     @NotNull

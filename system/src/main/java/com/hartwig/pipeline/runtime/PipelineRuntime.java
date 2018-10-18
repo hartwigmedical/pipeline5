@@ -40,7 +40,8 @@ public class PipelineRuntime {
             BamCreationPipeline adamPipeline = Pipelines.bamCreationConsolidated(adamContext, fileSystem, monitor,
                     configuration.pipeline().resultsDirectory(),
                     configuration.referenceGenome().path(), configuration.knownIndel().paths(), configuration.pipeline().bwa().threads(),
-                    false, true);
+                    false,
+                    false);
             Patient patient = PatientReader.fromHDFS(fileSystem, configuration.patient().directory(), configuration.patient().name());
             adamPipeline.execute(GunZip.execute(fileSystem, javaSparkContext, patient.reference()));
         } catch (Exception e) {

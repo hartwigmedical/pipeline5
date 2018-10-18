@@ -10,6 +10,7 @@ import com.hartwig.io.InputOutput;
 import com.hartwig.io.OutputStore;
 import com.hartwig.io.OutputType;
 import com.hartwig.patient.Sample;
+import com.hartwig.pipeline.after.BamIndexPipeline;
 import com.hartwig.pipeline.metrics.Metric;
 import com.hartwig.pipeline.metrics.Monitor;
 
@@ -34,9 +35,9 @@ public abstract class BamCreationPipeline {
                 LOGGER.info("BAM for {} sample already exists. Only running QC", sample.name());
                 qcResult = qc(finalQC(), finalDatasource().extract(sample));
             } else {
-                InputOutput<AlignmentRecordRDD> aligned = runStage(sample, alignment(), InputOutput.seed(sample));
+                InputOutput<AlignmentRecordRDD> aligned = alignment().execute(InputOutput.seed(sample));
                 QualityControl<AlignmentRecordRDD> readCount = readCountQCFactory().apply(aligned.payload());
-                InputOutput<AlignmentRecordRDD> enriched = runStage(sample, bamEnrichment(), aligned);
+                InputOutput<AlignmentRecordRDD> enriched = bamEnrichment().execute(aligned);
                 qcResult = qc(readCount, enriched);
                 if (!qcResult.isOk()) {
                     status = StatusReporter.Status.FAILED_READ_COUNT;
@@ -69,16 +70,6 @@ public abstract class BamCreationPipeline {
         return qcCheck.check(toQC);
     }
 
-    private InputOutput<AlignmentRecordRDD> runStage(final Sample sample, final Stage<AlignmentRecordRDD, AlignmentRecordRDD> stage,
-            final InputOutput<AlignmentRecordRDD> input) throws IOException {
-        Trace trace =
-                Trace.of(BamCreationPipeline.class, format("Executing [%s] stage for [%s]", stage.outputType(), sample.name())).start();
-        InputOutput<AlignmentRecordRDD> output = stage.execute(input == null ? InputOutput.seed(sample) : input);
-        trace.finish();
-        monitor().update(Metric.spentTime(stage.outputType().name(), trace.getExecutionTime()));
-        return output;
-    }
-
     private static long startTimer() {
         return System.currentTimeMillis();
     }
@@ -99,7 +90,7 @@ public abstract class BamCreationPipeline {
 
     protected abstract QualityControl<AlignmentRecordRDD> finalQC();
 
-    protected abstract IndexBam indexBam();
+    protected abstract BamIndexPipeline indexBam();
 
     protected abstract Monitor monitor();
 

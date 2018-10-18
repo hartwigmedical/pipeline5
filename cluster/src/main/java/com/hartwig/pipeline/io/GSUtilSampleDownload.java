@@ -19,9 +19,10 @@ public class GSUtilSampleDownload implements SampleDownload {
     @Override
     public void run(final Sample sample, final RuntimeBucket runtimeBucket, final StatusCheck.Status status) {
         try {
-            String bamPath = String.format("gs://%s/results/%s.bam", runtimeBucket.getName(), sample.name());
+            String bamPath = String.format("gs://%s/results/%s.sorted.bam", runtimeBucket.getName(), sample.name());
             String targetBam = targetResolver.apply(sample);
             GSUtil.cp(gsdkPath, bamPath, targetBam);
+            GSUtil.cp(gsdkPath, bai(bamPath), bai(targetBam));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

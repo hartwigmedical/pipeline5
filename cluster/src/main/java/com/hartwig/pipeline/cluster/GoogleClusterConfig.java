@@ -53,7 +53,7 @@ class GoogleClusterConfig {
         return new SoftwareConfig().setProperties(ImmutableMap.<String, String>builder().put("dataproc:dataproc.logging.stackdriver.enable",
                 "false")
                 .put("yarn:yarn.nodemanager.vmem-check-enabled", "false")
-                .put("yarn:yarn.nodemanager.pmem-check-enabled", "false")
+                .put("yarn:yarn.nodemanager.pmem-check-enabled", "false").put("dataproc:dataproc.allow.zero.workers", "true")
                 .build());
     }
 

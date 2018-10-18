@@ -18,12 +18,12 @@ public class HDFSBamStore implements OutputStore<AlignmentRecordRDD> {
 
     private final DataLocation dataLocation;
     private final FileSystem fileSystem;
-    private final boolean saveAsFile;
+    private final boolean mergeFinalFile;
 
     HDFSBamStore(final DataLocation dataLocation, final FileSystem fileSystem, final boolean saveAsFile) {
         this.dataLocation = dataLocation;
         this.fileSystem = fileSystem;
-        this.saveAsFile = saveAsFile;
+        this.mergeFinalFile = saveAsFile;
     }
 
     @Override
@@ -32,10 +32,9 @@ public class HDFSBamStore implements OutputStore<AlignmentRecordRDD> {
                 128 * 1024 * 1024,
                 1024 * 1024,
                 CompressionCodecName.GZIP,
-                false,
-                saveAsFile,
+                false, true,
                 false);
-        saveArgs.deferMerging_$eq(!saveAsFile);
+        saveArgs.deferMerging_$eq(!mergeFinalFile);
         inputOutput.payload().save(saveArgs, true);
     }
 

@@ -11,9 +11,9 @@ import com.hartwig.patient.KnownIndels;
 import com.hartwig.patient.ReferenceGenome;
 import com.hartwig.pipeline.BamCreationPipeline;
 import com.hartwig.pipeline.HadoopStatusReporter;
-import com.hartwig.pipeline.IndexBam;
 import com.hartwig.pipeline.QCResult;
 import com.hartwig.pipeline.QualityControl;
+import com.hartwig.pipeline.after.BamIndexPipeline;
 import com.hartwig.pipeline.metrics.Monitor;
 
 import org.apache.hadoop.fs.FileSystem;
@@ -26,7 +26,7 @@ public class Pipelines {
 
     public static BamCreationPipeline bamCreationConsolidated(final ADAMContext adamContext, final FileSystem fileSystem,
             final Monitor monitor, final String workingDirectory, final String referenceGenomePath, final List<String> knownIndelPaths,
-            final int bwaThreads, final boolean doQC, final boolean saveAsFile) {
+            final int bwaThreads, final boolean doQC, final boolean mergeFinalFile) {
         JavaADAMContext javaADAMContext = new JavaADAMContext(adamContext);
         ReferenceGenome referenceGenome = ReferenceGenome.of(fileSystem.getUri() + referenceGenomePath);
         IntermediateDataLocation intermediateDataLocation = new IntermediateDataLocation(fileSystem, workingDirectory);
@@ -39,9 +39,9 @@ public class Pipelines {
                         FinalBAMQC.of(javaADAMContext, referenceGenome, CoverageThreshold.of(10, 90), CoverageThreshold.of(20, 70))))
                 .alignment(new Bwa(referenceGenome, adamContext, fileSystem, bwaThreads))
                 .finalDatasource(new HDFSAlignmentRDDSource(OutputType.INDEL_REALIGNED, javaADAMContext, intermediateDataLocation))
-                .finalBamStore(new HDFSBamStore(finalDataLocation, fileSystem, saveAsFile))
+                .finalBamStore(new HDFSBamStore(finalDataLocation, fileSystem, mergeFinalFile))
                 .bamEnrichment(new MarkDupsAndRealignIndels(knownIndels, referenceGenome, javaADAMContext))
-                .indexBam(new IndexBam(fileSystem, workingDirectory, monitor))
+                .indexBam(BamIndexPipeline.fallback(fileSystem, workingDirectory, monitor))
                 .statusReporter(new HadoopStatusReporter(fileSystem, workingDirectory))
                 .monitor(monitor)
                 .build();
