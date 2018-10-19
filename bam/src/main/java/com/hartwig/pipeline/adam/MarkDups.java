@@ -8,7 +8,7 @@ import com.hartwig.pipeline.Stage;
 
 import org.bdgenomics.adam.rdd.read.AlignmentRecordRDD;
 
-public class MarkDupsAndSort implements Stage<AlignmentRecordRDD, AlignmentRecordRDD> {
+public class MarkDups implements Stage<AlignmentRecordRDD, AlignmentRecordRDD> {
 
     @Override
     public OutputType outputType() {
