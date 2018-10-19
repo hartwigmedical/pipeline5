@@ -27,6 +27,11 @@ public interface Arguments {
         return false;
     }
 
+    @Value.Default
+    default boolean verboseCloudSdk() {
+        return false;
+    }
+
     String project();
 
     String version();

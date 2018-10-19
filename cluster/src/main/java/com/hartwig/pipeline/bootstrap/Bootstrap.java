@@ -157,6 +157,7 @@ class Bootstrap {
             try {
                 final GoogleCredentials credentials =
                         GoogleCredentials.fromStream(new FileInputStream(arguments.privateKeyPath())).createScoped(DataprocScopes.all());
+                GSUtil.configure(arguments.verboseCloudSdk());
                 GSUtil.auth(arguments.cloudSdkPath(), arguments.privateKeyPath());
                 Storage storage =
                         StorageOptions.newBuilder().setCredentials(credentials).setProjectId(arguments.project()).build().getService();

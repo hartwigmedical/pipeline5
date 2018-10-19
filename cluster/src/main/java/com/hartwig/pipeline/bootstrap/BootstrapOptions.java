@@ -49,6 +49,7 @@ class BootstrapOptions {
     private static final String NO_DOWNLOAD_FLAG = "no_download";
     private static final String REFERENCE_GENOME_BUCKET_FLAG = "reference_genome";
     private static final String DEFAULT_REFERENCE_GENOME_BUCKET = "reference_genome";
+    private static final String VERBOSE_CLOUD_SDK_FLAG = "verbose_cloud_sdk";
 
     private static Options options() {
         return new Options().addOption(privateKeyFlag())
@@ -67,6 +68,7 @@ class BootstrapOptions {
                 .addOption(NO_DOWNLOAD_FLAG,
                         false,
                         "Do not download the final BAM from Google Storage. Will also leave the runtime bucket in place")
+                .addOption(VERBOSE_CLOUD_SDK_FLAG, false, "Have stdout and stderr from Google tools like gsutil strem to the console")
                 .addOption(project())
                 .addOption(region())
                 .addOption(sbpSampleId())
@@ -190,6 +192,7 @@ class BootstrapOptions {
                     .usePreemptibleVms(commandLine.hasOption(USE_PREEMTIBLE_VMS_FLAG))
                     .noDownload(commandLine.hasOption(NO_DOWNLOAD_FLAG))
                     .referenceGenomeBucket(commandLine.getOptionValue(REFERENCE_GENOME_BUCKET_FLAG, DEFAULT_REFERENCE_GENOME_BUCKET))
+                    .verboseCloudSdk(commandLine.hasOption(VERBOSE_CLOUD_SDK_FLAG))
                     .build());
         } catch (ParseException e) {
             LOGGER.error("Could not parse command line args", e);
