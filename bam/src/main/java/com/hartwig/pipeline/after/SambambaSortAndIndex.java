@@ -16,7 +16,7 @@ class SambambaSortAndIndex implements SortAndIndexer {
         ProcessBuilder processBuilder = new ProcessBuilder("sambamba",
                 "sort",
                 "-t",
-                String.valueOf(Runtime.getRuntime().availableProcessors()),
+                String.valueOf(Runtime.getRuntime().availableProcessors()), "-m", Runtime.getRuntime().totalMemory() + "GB",
                 "-o",
                 Bams.name(sample, workingDirectory, Bams.SORTED),
                 Bams.name(sample, workingDirectory, Bams.UNSORTED));
