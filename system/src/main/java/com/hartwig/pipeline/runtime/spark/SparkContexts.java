@@ -12,8 +12,7 @@ public class SparkContexts {
         String master = configuration.spark().get("master");
         SparkConf conf = new SparkConf().set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
                 .set("spark.ui.showConsoleProgress", "false")
-                .set("spark.kryoserializer.buffer.max", "2046m")
-                .set("spark.kryo.referenceTracking", "true")
+                .set("spark.kryoserializer.buffer.max", "2046m").set("spark.kryo.referenceTracking", "false")
                 .set("spark.kryo.registrator", ADAMKryo.class.getName())
                 .set("spark.kryo.registrationRequired", "true")
                 .set("spark.ui.showConsoleProgress", "false")
