@@ -46,6 +46,6 @@ public interface PerformanceProfile {
     }
 
     static PerformanceProfile beefyMaster() {
-        return PerformanceProfile.builder().numPreemtibleWorkers(0).numPrimaryWorkers(0).master(MachineType.defaultWorker()).build();
+        return PerformanceProfile.builder().numPreemtibleWorkers(0).numPrimaryWorkers(0).master(MachineType.beefy()).build();
     }
 }
