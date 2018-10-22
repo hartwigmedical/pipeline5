@@ -9,17 +9,23 @@ public class GoogleStorageStatusCheck implements StatusCheck {
 
     private final Logger LOGGER = LoggerFactory.getLogger(GoogleStorageStatusCheck.class);
 
-    private static final String SUCCESS_PATH = "results/_SUCCESS";
-    private static final String FAILURE_PATH = "results/_FAILURE";
+    private static final String SUCCESS_PATH = "_SUCCESS";
+    private static final String FAILURE_PATH = "_FAILURE";
+
+    private final ResultsDirectory resultsDirectory;
+
+    public GoogleStorageStatusCheck(final ResultsDirectory resultsDirectory) {
+        this.resultsDirectory = resultsDirectory;
+    }
 
     @Override
     public Status check(final RuntimeBucket bucket) {
-        Blob blob = bucket.bucket().get(FAILURE_PATH);
+        Blob blob = bucket.bucket().get(resultsDirectory.path(FAILURE_PATH));
         if (blob != null) {
             LOGGER.error("Pipeline run for [{}] was marked as failed with reason [{}]", bucket.getName(), new String(blob.getContent()));
             return Status.FAILED;
         }
-        blob = bucket.bucket().get(SUCCESS_PATH);
+        blob = bucket.bucket().get(resultsDirectory.path(SUCCESS_PATH));
         if (blob != null) {
             LOGGER.info("Pipeline run for [{}] was marked as successful", bucket.getName());
             return Status.SUCCESS;

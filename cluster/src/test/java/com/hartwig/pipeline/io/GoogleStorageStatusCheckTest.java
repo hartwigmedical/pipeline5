@@ -12,6 +12,7 @@ import org.junit.Test;
 
 public class GoogleStorageStatusCheckTest {
 
+    private static final ResultsDirectory RESULTS_DIRECTORY = ResultsDirectory.defaultDirectory();
     private RuntimeBucket runtime;
     private Bucket bucket;
     private Blob blob;
@@ -24,18 +25,18 @@ public class GoogleStorageStatusCheckTest {
         blob = mock(Blob.class);
         when(runtime.bucket()).thenReturn(bucket);
         when(blob.getContent()).thenReturn("reason".getBytes());
-        statusCheck = new GoogleStorageStatusCheck();
+        statusCheck = new GoogleStorageStatusCheck(RESULTS_DIRECTORY);
     }
 
     @Test
     public void findsSuccessStatusInRuntimeGoogleStorageBucket() {
-        when(bucket.get("results/_SUCCESS")).thenReturn(blob);
+        when(bucket.get(RESULTS_DIRECTORY.path("_SUCCESS"))).thenReturn(blob);
         assertThat(statusCheck.check(runtime)).isEqualTo(StatusCheck.Status.SUCCESS);
     }
 
     @Test
     public void findsFailureStatusInRuntimeGoogleStorageBucket() {
-        when(bucket.get("results/_FAILURE")).thenReturn(blob);
+        when(bucket.get(RESULTS_DIRECTORY.path("_FAILURE"))).thenReturn(blob);
         assertThat(statusCheck.check(runtime)).isEqualTo(StatusCheck.Status.FAILED);
     }
 

@@ -169,7 +169,7 @@ class Bootstrap {
                 StaticData knownIndelsData = new StaticData(storage, "known_indels", "known_indels");
                 CpuFastQSizeRatio ratio = CpuFastQSizeRatio.of(arguments.cpuPerGBRatio());
                 CostCalculator costCalculator = new CostCalculator(credentials, arguments.region(), Costs.defaultCosts());
-                StatusCheck statusCheck = new GoogleStorageStatusCheck();
+                StatusCheck statusCheck = new GoogleStorageStatusCheck(ResultsDirectory.defaultDirectory());
                 BamComposer composer = new BamComposer(storage, ResultsDirectory.defaultDirectory(), 32);
                 GoogleDataprocCluster singleNode = new GoogleDataprocCluster(credentials, nodeInitialization, "singlenode");
                 GoogleDataprocCluster parallelProcessing = new GoogleDataprocCluster(credentials, nodeInitialization, "spark");

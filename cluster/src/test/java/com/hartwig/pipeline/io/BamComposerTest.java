@@ -29,7 +29,7 @@ public class BamComposerTest {
 
     private static final String SAMPLE = "COLO829T";
     private static final String RUNTIME = "runtime";
-    private static final String HEADER = "results/COLO829T.bam_head";
+    private static final String HEADER = ResultsDirectory.defaultDirectory().path("COLO829T.bam_head");
     private Storage storage;
     private RuntimeBucket runtime;
     private Page<Blob> page;
@@ -56,7 +56,7 @@ public class BamComposerTest {
 
     @Test
     public void appendsAllTailPartsToHead() {
-        String head = "results/COLO829T.bam_head";
+        String head = ResultsDirectory.defaultDirectory().path("COLO829T.bam_head");
         String tailPart1 = part(0);
         String tailPart2 = part(1);
         List<Blob> blobs = Arrays.asList(blobOf(tailPart1), blobOf(tailPart2));
@@ -88,12 +88,14 @@ public class BamComposerTest {
         assertThat(requestArgumentCaptor.getAllValues().get(5).getSourceBlobs()).hasSize(1);
         assertThat(requestArgumentCaptor.getAllValues().get(6).getSourceBlobs()).hasSize(2);
         assertThat(requestArgumentCaptor.getAllValues().get(0).getSourceBlobs().get(0).getName()).isEqualTo(HEADER);
-        assertThat(requestArgumentCaptor.getAllValues().get(6).getTarget().getName()).isEqualTo("results/COLO829T.bam");
+        assertThat(requestArgumentCaptor.getAllValues().get(6).getTarget().getName()).isEqualTo(ResultsDirectory.defaultDirectory()
+                .path("COLO829T.bam"));
     }
 
     @NotNull
     private String part(int partNum) {
-        return String.format("results/COLO829T.bam_tail/part-r-%s.bam", new DecimalFormat("000").format(partNum));
+        return String.format(ResultsDirectory.defaultDirectory().path("COLO829T.bam_tail/part-r-%s.bam"),
+                new DecimalFormat("000").format(partNum));
     }
 
     private List<String> tenTailParts() {
