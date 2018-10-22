@@ -25,17 +25,21 @@ public class GunZip {
     private static final String GZ_EXTENSION = ".gz";
     private final FileSystem fileSystem;
     private final JavaSparkContext sparkContext;
+    private final boolean alreadyUnzipped;
 
-    GunZip(final FileSystem fileSystem, final JavaSparkContext sparkContext) {
+    GunZip(final FileSystem fileSystem, final JavaSparkContext sparkContext, final boolean alreadyUnzipped) {
         this.fileSystem = fileSystem;
         this.sparkContext = sparkContext;
+        this.alreadyUnzipped = alreadyUnzipped;
     }
 
-    public Sample run(Sample sample) {
+    public Sample run(Sample sample) throws IOException {
         ImmutableSample.Builder builder = ImmutableSample.builder().from(sample);
-
-        unzipAllParallel(sample);
-
+        if (!alreadyUnzipped) {
+            unzipAllParallel(sample);
+        } else {
+            onlyRenameFile(sample);
+        }
         List<Lane> unzippedLanes = sample.lanes().parallelStream().map(lane -> {
             ImmutableLane.Builder laneBuilder = Lane.builder().from(lane);
             laneBuilder.readsPath(truncateGZExtension(lane.readsPath()));
@@ -43,6 +47,13 @@ public class GunZip {
             return laneBuilder.build();
         }).collect(Collectors.toList());
         return builder.lanes(unzippedLanes).build();
+    }
+
+    private void onlyRenameFile(final Sample sample) throws IOException {
+        for (Lane lane : sample.lanes()) {
+            fileSystem.rename(new Path(lane.readsPath()), new Path(truncateGZExtension(lane.readsPath())));
+            fileSystem.rename(new Path(lane.matesPath()), new Path(truncateGZExtension(lane.matesPath())));
+        }
     }
 
     private void unzipAllParallel(final Sample sample) {
@@ -89,8 +100,9 @@ public class GunZip {
 
     }
 
-    public static Sample execute(FileSystem fileSystem, JavaSparkContext sparkContext, Sample sample) {
-        GunZip gunZip = new GunZip(fileSystem, sparkContext);
+    public static Sample execute(FileSystem fileSystem, JavaSparkContext sparkContext, Sample sample, boolean alreadyUnzipped)
+            throws IOException {
+        GunZip gunZip = new GunZip(fileSystem, sparkContext, alreadyUnzipped);
         return gunZip.run(sample);
     }
 }

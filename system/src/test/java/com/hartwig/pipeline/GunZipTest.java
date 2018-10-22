@@ -27,6 +27,7 @@ public class GunZipTest {
     private static final String NOT_ZIPPED_DIRECTORY = "gunzip/not_zipped/";
     private static final String ZIPPED_DIRECTORY = "gunzip/zipped/";
     private static final String TWO_LANE_DIRECTORY = "gunzip/two_lanes_zipped/";
+    private static final String NEEDS_RENAMING = "gunzip/needs_renaming/";
     private static final Lane NOT_ZIPPED_LANE = Lanes.emptyBuilder()
             .readsPath(Resources.targetResource(NOT_ZIPPED_DIRECTORY + "R1.fastq"))
             .matesPath(Resources.targetResource(NOT_ZIPPED_DIRECTORY + "R2.fastq"))
@@ -48,13 +49,21 @@ public class GunZipTest {
             .readsPath(Resources.targetResource(ZIPPED_DIRECTORY + "R1.fastq"))
             .matesPath(Resources.targetResource(ZIPPED_DIRECTORY + "R2.fastq"))
             .build();
+    private static final Lane RENAMED_LANE = Lanes.emptyBuilder()
+            .readsPath(Resources.targetResource(NEEDS_RENAMING + "R1.fastq"))
+            .matesPath(Resources.targetResource(NEEDS_RENAMING + "R2.fastq"))
+            .build();
+    private static final Lane NEEDS_RENAMING_LANE = Lanes.emptyBuilder()
+            .readsPath(Resources.targetResource(NEEDS_RENAMING + "R1.fastq.gz"))
+            .matesPath(Resources.targetResource(NEEDS_RENAMING + "R2.fastq.gz"))
+            .build();
     private GunZip victim;
     private FileSystem fileSystem;
 
     @Before
     public void setUp() throws Exception {
         fileSystem = Hadoop.localFilesystem();
-        victim = new GunZip(fileSystem, SPARK_CONTEXT);
+        victim = new GunZip(fileSystem, SPARK_CONTEXT, false);
     }
 
     @After
@@ -92,6 +101,16 @@ public class GunZipTest {
         Sample result = victim.run(notZipped);
         Lane onlyLane = result.lanes().get(0);
         checkFilesExist(onlyLane, UNZIPPED_LANE);
+    }
+
+    @Test
+    public void onlyRenamesWhenFileIsAlreadyUnzipped() throws Exception {
+        victim = new GunZip(fileSystem, SPARK_CONTEXT, true);
+        setupSample(NEEDS_RENAMING);
+        Sample notZipped = sampleBuilder().addLanes(NEEDS_RENAMING_LANE).build();
+        Sample result = victim.run(notZipped);
+        Lane onlyLane = result.lanes().get(0);
+        checkFilesExist(onlyLane, RENAMED_LANE);
     }
 
     @Test

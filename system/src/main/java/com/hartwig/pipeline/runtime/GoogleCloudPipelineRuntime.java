@@ -32,6 +32,6 @@ public class GoogleCloudPipelineRuntime {
             LOGGER.info("Starting pipeline with version [{}] run id [{}] for project [{}] on Google Dataproc", version, runId, project);
             monitor = Monitor.stackdriver(Run.of(version, runId), project);
         }
-        new PipelineRuntime(configuration, monitor).start();
+        new PipelineRuntime(configuration, monitor, true).start();
     }
 }

@@ -1,6 +1,10 @@
 package com.hartwig.pipeline.io;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.hartwig.pipeline.after.Processes;
 
@@ -18,8 +22,16 @@ public class GSUtil {
         Processes.run(processBuilder, VERBOSE);
     }
 
-    static void cp(String gsdkPath, String sourceUrl, String targetUrl) throws IOException, InterruptedException {
-        ProcessBuilder processBuilder = new ProcessBuilder(gsdkPath + "/gsutil", "-m", "cp", sourceUrl, targetUrl);
+    static void cp(String gsdkPath, String sourceUrl, String targetUrl, String... metadata) throws IOException, InterruptedException {
+        List<String> metadataOptions = Stream.of(metadata).flatMap(m -> Stream.of("-h", m)).collect(Collectors.toList());
+        List<String> command = new ArrayList<>();
+        command.add(gsdkPath + "/gsutil");
+        command.addAll(metadataOptions);
+        command.add("-m");
+        command.add("cp");
+        command.add(sourceUrl);
+        command.add(targetUrl);
+        ProcessBuilder processBuilder = new ProcessBuilder(command);
         Processes.run(processBuilder, VERBOSE);
     }
 }
