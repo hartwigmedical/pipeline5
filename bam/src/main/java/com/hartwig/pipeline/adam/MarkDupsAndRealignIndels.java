@@ -25,8 +25,7 @@ public class MarkDupsAndRealignIndels implements Stage<AlignmentRecordRDD, Align
     private final ReferenceGenome referenceGenome;
     private final JavaADAMContext javaADAMContext;
 
-    MarkDupsAndRealignIndels(final KnownIndels knownIndels, final ReferenceGenome referenceGenome,
-            final JavaADAMContext javaADAMContext) {
+    MarkDupsAndRealignIndels(final KnownIndels knownIndels, final ReferenceGenome referenceGenome, final JavaADAMContext javaADAMContext) {
         this.knownIndels = knownIndels;
         this.referenceGenome = referenceGenome;
         this.javaADAMContext = javaADAMContext;
@@ -46,11 +45,10 @@ public class MarkDupsAndRealignIndels implements Stage<AlignmentRecordRDD, Align
                 .collect(Collector.of(() -> javaADAMContext.getSparkContext().<Variant>emptyRDD().rdd(), RDD::union, RDD::union));
         ReferenceFile fasta = javaADAMContext.loadReferenceFile(referenceGenome.path());
         UnmappedReads unmapped = UnmappedReads.from(input.payload());
-        return InputOutput.of(OutputType.INDEL_REALIGNED, input.sample(), unmapped.toAlignment(input.payload()
+        return InputOutput.of(OutputType.INDEL_REALIGNED, input.sample(), unmapped.toAlignment(RDDs.persistDisk(input.payload()
                         .markDuplicates()
                         .realignIndels(new ConsensusGeneratorFromKnowns(allKnownVariants, 0),
                                 false,
-                                500,
-                                30, 5.0, 3000, 20000, Option.apply(fasta), false)));
+                                500, 30, 5.0, 3000, 20000, Option.apply(fasta), false)).sortReadsByReferencePositionAndIndex()));
     }
 }
