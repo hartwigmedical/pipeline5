@@ -40,7 +40,7 @@ public class BamComposer {
         recursivelyCompose(sample, runtimeBucket, partitioned);
         LOGGER.info("Compose complete");
         LOGGER.info("Deleting shards and temporary files");
-        deletePath(runtimeBucket, resultsDirectory.path(tailDirectory));
+        deletePath(runtimeBucket, resultsDirectory.path(String.format(tailDirectory, sample.name())));
         deletePath(runtimeBucket, headerBlob);
         deletePath(runtimeBucket, resultsDirectory.path("composed/"));
         LOGGER.info("Delete complete");
