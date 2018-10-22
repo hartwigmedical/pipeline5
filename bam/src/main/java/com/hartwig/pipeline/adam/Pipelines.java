@@ -31,8 +31,7 @@ public class Pipelines {
         ReferenceGenome referenceGenome = ReferenceGenome.of(fileSystem.getUri() + referenceGenomePath);
         IntermediateDataLocation intermediateDataLocation = new IntermediateDataLocation(fileSystem, workingDirectory);
         DataLocation finalDataLocation = new FinalDataLocation(fileSystem, workingDirectory);
-        KnownIndels knownIndels =
-                KnownIndels.of(knownIndelPaths.stream().map(path -> fileSystem.getUri() + path).collect(Collectors.toList()));
+        KnownIndels knownIndels = KnownIndels.of(knownIndelsFSPaths(fileSystem, knownIndelPaths));
         return BamCreationPipeline.builder()
                 .finalQC(ifEnabled(doQC,
                         FinalBAMQC.of(javaADAMContext, referenceGenome, CoverageThreshold.of(10, 90), CoverageThreshold.of(20, 70))))
@@ -44,6 +43,10 @@ public class Pipelines {
                 .statusReporter(new HadoopStatusReporter(fileSystem, workingDirectory))
                 .monitor(monitor)
                 .build();
+    }
+
+    private static List<String> knownIndelsFSPaths(final FileSystem fileSystem, final List<String> knownIndelPaths) {
+        return knownIndelPaths.stream().map(path -> fileSystem.getUri() + path).collect(Collectors.toList());
     }
 
     @NotNull
