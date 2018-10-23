@@ -1,20 +1,26 @@
-package com.hartwig.pipeline.bootstrap;
+package com.hartwig.pipeline.metrics;
 
 import com.hartwig.pipeline.cost.CostCalculator;
-import com.hartwig.pipeline.metrics.Metric;
-import com.hartwig.pipeline.metrics.Monitor;
 import com.hartwig.pipeline.performance.PerformanceProfile;
 
-class Metrics {
+public class Metrics {
 
     static final String BOOTSTRAP = "BOOTSTRAP";
     static final String COST = "COST";
     static final String COST_PER_GB = "COST_PER_GB";
     static final String FASTQ_SIZE_GB = "FASTQ_SIZE_GB";
 
-    static void record(PerformanceProfile profile, long runtimeMillis, Monitor monitor, CostCalculator costCalculator) {
+    private final Monitor monitor;
+    private final CostCalculator costCalculator;
+
+    public Metrics(final Monitor monitor, final CostCalculator costCalculator) {
+        this.monitor = monitor;
+        this.costCalculator = costCalculator;
+    }
+
+    void record(String prefix, PerformanceProfile profile, long runtimeMillis) {
         double runtimeHours = runtimeMillis / 1000.0 / 60.0 / 60.0;
-        monitor.update(Metric.spentTime(BOOTSTRAP, runtimeMillis));
+        monitor.update(Metric.spentTime(BOOTSTRAP + "_" + prefix, runtimeMillis));
         double cost = costCalculator.calculate(profile, runtimeHours);
         monitor.update(Metric.of(COST, cost));
         if (profile.fastQSizeGB().isPresent()) {

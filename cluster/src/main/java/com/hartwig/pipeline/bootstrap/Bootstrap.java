@@ -3,6 +3,7 @@ package com.hartwig.pipeline.bootstrap;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.text.NumberFormat;
+import java.time.Clock;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -41,8 +42,11 @@ import com.hartwig.pipeline.io.SampleDownload;
 import com.hartwig.pipeline.io.SampleSource;
 import com.hartwig.pipeline.io.SampleUpload;
 import com.hartwig.pipeline.io.StatusCheck;
+import com.hartwig.pipeline.metrics.Metrics;
+import com.hartwig.pipeline.metrics.MetricsTimeline;
 import com.hartwig.pipeline.metrics.Monitor;
 import com.hartwig.pipeline.metrics.Run;
+import com.hartwig.pipeline.metrics.Stage;
 import com.hartwig.pipeline.performance.ClusterOptimizer;
 import com.hartwig.pipeline.performance.CpuFastQSizeRatio;
 import com.hartwig.pipeline.performance.LocalFastqSize;
@@ -97,40 +101,46 @@ class Bootstrap {
 
     private void run(Arguments arguments) {
         try {
-            long startTime = System.currentTimeMillis();
             Sample sample = sampleSource.sample(arguments);
+            PerformanceProfile bamProfile = clusterOptimizer.optimize(sample);
             RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, sample, arguments);
             Monitor monitor = Monitor.stackdriver(Run.of(arguments.version(), runtimeBucket.getName()), arguments.project(), credentials);
+            MetricsTimeline metricsTimeline =
+                    new MetricsTimeline(Clock.systemDefaultZone(), new Metrics(monitor, costCalculator)).start(Stage.bam(bamProfile));
             referenceGenomeData.copyInto(runtimeBucket);
             knownIndelData.copyInto(runtimeBucket);
             sampleUpload.run(sample, runtimeBucket);
             JarLocation location = jarUpload.run(runtimeBucket, arguments);
-            PerformanceProfile performanceProfile = clusterOptimizer.optimize(sample);
-            LOGGER.info("Calculated a cluster of the following size [{}]", performanceProfile);
+
+            LOGGER.info("Calculated a cluster of the following size [{}]", bamProfile);
             LOGGER.info("This cluster will cost approximately [{}] per hour",
-                    NumberFormat.getCurrencyInstance().format(costCalculator.calculate(performanceProfile, 1)));
-            parallelProcessingCluster.start(performanceProfile, sample, runtimeBucket, arguments);
-            parallelProcessingCluster.submit(SparkJobDefinition.bamCreation(location.uri(), arguments, runtimeBucket, performanceProfile),
+                    NumberFormat.getCurrencyInstance().format(costCalculator.calculate(bamProfile, 1)));
+
+            parallelProcessingCluster.start(bamProfile, sample, runtimeBucket, arguments);
+            parallelProcessingCluster.submit(SparkJobDefinition.bamCreation(location.uri(), arguments, runtimeBucket, bamProfile),
                     arguments);
             StatusCheck.Status status = statusCheck.check(runtimeBucket);
             composer.run(sample, runtimeBucket);
+            metricsTimeline.stop(Stage.bam(bamProfile));
             stopCluster(arguments, parallelProcessingCluster);
-            singleNodeCluster.start(PerformanceProfile.beefyMaster(), sample, runtimeBucket, arguments);
+
+            PerformanceProfile beefyMaster = PerformanceProfile.beefyMaster();
+            metricsTimeline.start(Stage.sortIndex(beefyMaster));
+            singleNodeCluster.start(beefyMaster, sample, runtimeBucket, arguments);
             singleNodeCluster.submit(SparkJobDefinition.sortAndIndex(location.uri(),
                     arguments,
-                    runtimeBucket,
-                    PerformanceProfile.beefyMaster(),
+                    runtimeBucket, beefyMaster,
                     sample,
                     ResultsDirectory.defaultDirectory()), arguments);
+            metricsTimeline.stop(Stage.sortIndex(beefyMaster));
             stopCluster(arguments, singleNodeCluster);
+
             if (!arguments.noDownload()) {
                 sampleDownload.run(sample, runtimeBucket, status);
             }
             if (!arguments.noCleanup() && !arguments.noDownload()) {
                 runtimeBucket.cleanup();
             }
-            long endTime = System.currentTimeMillis();
-            Metrics.record(performanceProfile, endTime - startTime, monitor, costCalculator);
         } catch (Exception e) {
             LOGGER.error(
                     "An unexpected error occurred during bootstrap. See exception for more details. Cluster will still be stopped if running",

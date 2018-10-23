@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.bootstrap;
+package com.hartwig.pipeline.metrics;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
@@ -8,8 +8,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.hartwig.pipeline.cost.CostCalculator;
-import com.hartwig.pipeline.metrics.Metric;
-import com.hartwig.pipeline.metrics.Monitor;
 import com.hartwig.pipeline.performance.PerformanceProfile;
 
 import org.junit.Before;
@@ -20,6 +18,7 @@ public class MetricsTest {
 
     private static final double COST = 100.0;
     private static final int ONE_HOUR = 3600000;
+    private static final String METRIC_NAME = "metric";
     private ArgumentCaptor<Metric> metricArgumentCaptor;
 
     @Before
@@ -29,14 +28,15 @@ public class MetricsTest {
         final CostCalculator costCalculator = mock(CostCalculator.class);
         final PerformanceProfile profile = PerformanceProfile.builder().fastQSizeGB(10.0).build();
         when(costCalculator.calculate(eq(profile), eq(1.0))).thenReturn(COST);
-        Metrics.record(profile, ONE_HOUR, monitor, costCalculator);
+        Metrics victim = new Metrics(monitor, costCalculator);
+        victim.record(METRIC_NAME, profile, ONE_HOUR);
         verify(monitor, times(4)).update(metricArgumentCaptor.capture());
     }
 
     @Test
     public void recordsTotalRuntimeInMillis() {
         Metric runtime = metricArgumentCaptor.getAllValues().get(0);
-        assertThat(runtime.name()).isEqualTo(Metrics.BOOTSTRAP + "_SPENT_TIME");
+        assertThat(runtime.name()).isEqualTo(Metrics.BOOTSTRAP + "_" + METRIC_NAME + "_SPENT_TIME");
         assertThat(runtime.value()).isEqualTo(ONE_HOUR);
     }
 
