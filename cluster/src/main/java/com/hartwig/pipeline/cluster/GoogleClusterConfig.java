@@ -53,7 +53,8 @@ class GoogleClusterConfig {
         return new SoftwareConfig().setProperties(ImmutableMap.<String, String>builder().put("dataproc:dataproc.logging.stackdriver.enable",
                 "false")
                 .put("yarn:yarn.nodemanager.vmem-check-enabled", "false")
-                .put("yarn:yarn.nodemanager.pmem-check-enabled", "false").put("dataproc:dataproc.allow.zero.workers", "true")
+                .put("yarn:yarn.nodemanager.pmem-check-enabled", "false")
+                .put("dataproc:dataproc.allow.zero.workers", "true")
                 .build());
     }
 
@@ -64,7 +65,7 @@ class GoogleClusterConfig {
     }
 
     private static InstanceGroupConfig masterConfig(final MachineType machineType) {
-        return new InstanceGroupConfig().setMachineTypeUri(machineType.uri()).setNumInstances(1);
+        return new InstanceGroupConfig().setMachineTypeUri(machineType.uri()).setNumInstances(1).setDiskConfig(diskConfig(machineType));
     }
 
     private static ClusterConfig clusterConfig(final InstanceGroupConfig masterConfig, final InstanceGroupConfig primaryWorkerConfig,
