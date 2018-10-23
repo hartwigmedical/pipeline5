@@ -5,6 +5,8 @@ import static java.lang.String.format;
 import java.io.File;
 import java.io.IOException;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.google.cloud.storage.Blob;
 import com.hartwig.patient.Sample;
@@ -48,14 +50,18 @@ public class GSUtilSampleUpload implements SampleUpload {
     }
 
     private void uploadSample(final RuntimeBucket runtimeBucket, final Sample sample) {
-        sample.lanes().parallelStream().forEach(lane -> {
-            try {
-                gsutilCP(sample, runtimeBucket, sourceResolver.apply(lane.readsPath()));
-                gsutilCP(sample, runtimeBucket, sourceResolver.apply(lane.matesPath()));
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        });
+        sample.lanes()
+                .stream()
+                .flatMap(lane -> Stream.of(lane.readsPath(), lane.matesPath()))
+                .collect(Collectors.toList())
+                .parallelStream()
+                .forEach(path -> {
+                    try {
+                        gsutilCP(sample, runtimeBucket, sourceResolver.apply(path));
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                });
     }
 
     private void gsutilCP(Sample sample, RuntimeBucket bucket, String file) throws IOException, InterruptedException {
