@@ -65,11 +65,7 @@ public class GSUtilSampleUpload implements SampleUpload {
     }
 
     private void gsutilCP(Sample sample, RuntimeBucket bucket, String file) throws IOException, InterruptedException {
-        if (file.endsWith("gz")) {
-            GSUtil.cp(gsdkPath, file, format("gs://%s/%s", bucket.getName(), singleSampleFile(sample, file)), "Content-Encoding:gzip");
-        } else {
-            GSUtil.cp(gsdkPath, file, format("gs://%s/%s", bucket.getName(), singleSampleFile(sample, file)));
-        }
+        GSUtil.cp(gsdkPath, file, format("gs://%s/%s", bucket.getName(), singleSampleFile(sample, file)));
     }
 
     @NotNull
