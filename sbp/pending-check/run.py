@@ -35,7 +35,7 @@ def start_kubernetes_job(type, args):
                     containers=[
                         kubernetes.client.V1Container(
                             name='scheduler-' + type + '-' + args[0],
-                            image='registry.services.schubergphilis.com:5000/hmf/scheduler:' + revision,
+                            image='registry.saas.sbp.world/hmf/scheduler:' + revision,
                             command=[
                                 'python',
                                 '-u',
