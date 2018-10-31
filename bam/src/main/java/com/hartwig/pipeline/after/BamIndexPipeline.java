@@ -47,10 +47,11 @@ public class BamIndexPipeline {
         sortAndIndexer.execute(sample, localBamDirectory);
 
         String sortedBam = Bams.name(sample, localBamDirectory, Bams.SORTED);
+        String bai = Bams.bai(sample, localBamDirectory, Bams.SORTED);
         FileUtil.copy(new FileInputStream(sortedBam),
                 fileSystem.create(new Path(Bams.name(sample, sourceBamDirectory, Bams.SORTED))),
                 noop());
-        FileUtil.copy(new FileInputStream(sortedBam),
+        FileUtil.copy(new FileInputStream(bai),
                 fileSystem.create(new Path(Bams.name(sample, sourceBamDirectory, Bams.SORTED) + ".bai")),
                 noop());
 
