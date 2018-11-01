@@ -37,7 +37,7 @@ public class BamComposer {
                 .spliterator(), false).map(Blob::getName).collect(Collectors.toList());
         toCompose.add(0, headerBlob);
         List<List<String>> partitioned = Lists.partition(toCompose, maxComponentsPerCompose);
-        recursivelyCompose(sample, runtimeBucket, partitioned);
+        recursivelyCompose(sample, runtimeBucket, partitioned, 1);
         LOGGER.info("Compose complete");
         LOGGER.info("Deleting shards and temporary files");
         deletePath(runtimeBucket, resultsDirectory.path(String.format(tailDirectory, sample.name())));
@@ -50,29 +50,29 @@ public class BamComposer {
         storage.list(runtimeBucket.getName(), Storage.BlobListOption.prefix(directory)).iterateAll().forEach(blob -> blob.delete());
     }
 
-    private void recursivelyCompose(final Sample sample, final RuntimeBucket runtimeBucket, final List<List<String>> partitioned) {
+    private void recursivelyCompose(final Sample sample, final RuntimeBucket runtimeBucket, final List<List<String>> partitioned,
+            int pass) {
         List<String> composed = new ArrayList<>();
         int partitionIndex = 0;
         if (partitioned.size() > 1) {
             for (List<String> partition : partitioned) {
-                composed.add(composePartition(sample, runtimeBucket, partition, partitionIndex));
+                composed.add(composePartition(sample, runtimeBucket, partition, pass, partitionIndex));
                 partitionIndex++;
             }
-            recursivelyCompose(sample, runtimeBucket, Lists.partition(composed, maxComponentsPerCompose));
+            recursivelyCompose(sample, runtimeBucket, Lists.partition(composed, maxComponentsPerCompose), pass + 1);
         } else if (partitioned.size() == 1) {
-            storage.compose(Storage.ComposeRequest.of(runtimeBucket.getName(),
-                    partitioned.get(0),
-                    resultsDirectory.path(sample.name() + ".bam")));
+            List<String> sources = partitioned.get(0);
+            storage.compose(Storage.ComposeRequest.of(runtimeBucket.getName(), sources, resultsDirectory.path(sample.name() + ".bam")));
         } else {
             LOGGER.warn("Results directory had no BAM parts to compose. Continuing, but this may mean an error occurred in the pipeline"
                     + "previously");
         }
     }
 
-    private String composePartition(final Sample sample, final RuntimeBucket runtimeBucket, final List<String> toCompose,
+    private String composePartition(final Sample sample, final RuntimeBucket runtimeBucket, final List<String> toCompose, final int pass,
             final int partitionIndex) {
-        String composed =
-                resultsDirectory.path("composed/" + sample.name() + ".bam.part-" + new DecimalFormat("000000").format(partitionIndex));
+        String composed = resultsDirectory.path(
+                "composed/" + sample.name() + ".bam.part-" + new DecimalFormat("000000").format(partitionIndex) + "-" + pass);
         storage.compose(Storage.ComposeRequest.of(runtimeBucket.getName(), toCompose, composed));
         return composed;
     }
