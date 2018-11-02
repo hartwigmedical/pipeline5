@@ -13,7 +13,6 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
 import com.hartwig.patient.Sample;
-import com.hartwig.patient.input.PatientReader;
 import com.hartwig.pipeline.cluster.GoogleDataprocCluster;
 import com.hartwig.pipeline.cluster.GoogleStorageJarUpload;
 import com.hartwig.pipeline.cluster.JarLocation;
@@ -37,11 +36,14 @@ import com.hartwig.pipeline.io.SBPRestApi;
 import com.hartwig.pipeline.io.SBPS3FileSource;
 import com.hartwig.pipeline.io.SBPS3FileTarget;
 import com.hartwig.pipeline.io.SBPSampleDownload;
-import com.hartwig.pipeline.io.SBPSampleReader;
 import com.hartwig.pipeline.io.SampleDownload;
-import com.hartwig.pipeline.io.SampleSource;
 import com.hartwig.pipeline.io.SampleUpload;
 import com.hartwig.pipeline.io.StatusCheck;
+import com.hartwig.pipeline.io.sources.FileSystemSampleSource;
+import com.hartwig.pipeline.io.sources.GoogleStorageSampleSource;
+import com.hartwig.pipeline.io.sources.SBPS3SampleSource;
+import com.hartwig.pipeline.io.sources.SampleData;
+import com.hartwig.pipeline.io.sources.SampleSource;
 import com.hartwig.pipeline.metrics.Metrics;
 import com.hartwig.pipeline.metrics.MetricsTimeline;
 import com.hartwig.pipeline.metrics.Monitor;
@@ -49,14 +51,11 @@ import com.hartwig.pipeline.metrics.Run;
 import com.hartwig.pipeline.metrics.Stage;
 import com.hartwig.pipeline.performance.ClusterOptimizer;
 import com.hartwig.pipeline.performance.CpuFastQSizeRatio;
-import com.hartwig.pipeline.performance.LocalFastqSize;
 import com.hartwig.pipeline.performance.PerformanceProfile;
-import com.hartwig.pipeline.performance.S3FastQSize;
 import com.hartwig.pipeline.staticdata.ReferenceGenomeAlias;
 import com.hartwig.pipeline.staticdata.StaticData;
 import com.hartwig.support.hadoop.Hadoop;
 
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -101,15 +100,19 @@ class Bootstrap {
 
     private void run(Arguments arguments) {
         try {
-            Sample sample = sampleSource.sample(arguments);
-            PerformanceProfile bamProfile = clusterOptimizer.optimize(sample);
-            RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, sample, arguments);
+            RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, arguments.patientId(), arguments);
+            SampleData sampleData = sampleSource.sample(arguments, runtimeBucket);
+            Sample sample = sampleData.sample();
+            PerformanceProfile bamProfile = clusterOptimizer.optimize(sampleData);
+
             Monitor monitor = Monitor.stackdriver(Run.of(arguments.version(), runtimeBucket.getName()), arguments.project(), credentials);
             MetricsTimeline metricsTimeline =
                     new MetricsTimeline(Clock.systemDefaultZone(), new Metrics(monitor, costCalculator)).start(Stage.bam(bamProfile));
             referenceGenomeData.copyInto(runtimeBucket);
             knownIndelData.copyInto(runtimeBucket);
-            sampleUpload.run(sample, runtimeBucket);
+            if (!arguments.noUpload()) {
+                sampleUpload.run(sample, runtimeBucket);
+            }
             JarLocation location = jarUpload.run(runtimeBucket, arguments);
 
             LOGGER.info("Calculated a cluster of the following size [{}]", bamProfile);
@@ -127,9 +130,7 @@ class Bootstrap {
             PerformanceProfile beefyMaster = PerformanceProfile.beefyMaster();
             metricsTimeline.start(Stage.sortIndex(beefyMaster));
             singleNodeCluster.start(beefyMaster, sample, runtimeBucket, arguments);
-            singleNodeCluster.submit(SparkJobDefinition.sortAndIndex(location.uri(),
-                    arguments,
-                    runtimeBucket, beefyMaster,
+            singleNodeCluster.submit(SparkJobDefinition.sortAndIndex(location.uri(), arguments, runtimeBucket, beefyMaster,
                     sample,
                     ResultsDirectory.defaultDirectory()), arguments);
             metricsTimeline.stop(Stage.sortIndex(beefyMaster));
@@ -188,9 +189,7 @@ class Bootstrap {
                     SBPRestApi sbpRestApi = SBPRestApi.newInstance(arguments);
                     AmazonS3 s3 = S3.newClient(arguments.sblS3Url());
                     new Bootstrap(storage,
-                            referenceGenomeData,
-                            knownIndelsData,
-                            a -> new SBPSampleReader(sbpRestApi).read(sbpSampleId),
+                            referenceGenomeData, knownIndelsData, new SBPS3SampleSource(sbpRestApi, s3),
                             new SBPSampleDownload(s3,
                                     sbpRestApi,
                                     sbpSampleId,
@@ -198,9 +197,7 @@ class Bootstrap {
                             statusCheck,
                             new GSUtilSampleUpload(arguments.cloudSdkPath(), new SBPS3FileSource()),
                             singleNode,
-                            parallelProcessing,
-                            new GoogleStorageJarUpload(),
-                            new ClusterOptimizer(ratio, new S3FastQSize(s3), arguments.usePreemptibleVms()),
+                            parallelProcessing, new GoogleStorageJarUpload(), new ClusterOptimizer(ratio, arguments.usePreemptibleVms()),
                             costCalculator,
                             composer,
                             credentials).run(arguments);
@@ -208,14 +205,16 @@ class Bootstrap {
                     new Bootstrap(storage,
                             referenceGenomeData,
                             knownIndelsData,
-                            fromLocalFilesystem(),
+                            arguments.noUpload()
+                                    ? new GoogleStorageSampleSource()
+                                    : new FileSystemSampleSource(Hadoop.localFilesystem(), arguments.patientDirectory()),
                             new GSUtilSampleDownload(arguments.cloudSdkPath(), new LocalFileTarget()),
                             statusCheck,
                             new GSUtilSampleUpload(arguments.cloudSdkPath(), new LocalFileSource()),
                             singleNode,
                             parallelProcessing,
                             new GoogleStorageJarUpload(),
-                            new ClusterOptimizer(ratio, new LocalFastqSize(), arguments.usePreemptibleVms()),
+                            new ClusterOptimizer(ratio, arguments.usePreemptibleVms()),
                             costCalculator,
                             composer,
                             credentials).run(arguments);
@@ -227,14 +226,4 @@ class Bootstrap {
         });
     }
 
-    @NotNull
-    private static SampleSource fromLocalFilesystem() {
-        return a -> {
-            try {
-                return PatientReader.fromHDFS(Hadoop.localFilesystem(), a.patientDirectory(), a.patientId()).reference();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        };
-    }
 }

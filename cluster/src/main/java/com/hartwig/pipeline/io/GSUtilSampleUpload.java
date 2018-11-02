@@ -65,6 +65,7 @@ public class GSUtilSampleUpload implements SampleUpload {
     }
 
     private void gsutilCP(Sample sample, RuntimeBucket bucket, String file) throws IOException, InterruptedException {
+        LOGGER.info("Uploading fastq [{}] to Google Storage", file);
         GSUtil.cp(gsdkPath, file, format("gs://%s/%s", bucket.getName(), singleSampleFile(sample, file)));
     }
 

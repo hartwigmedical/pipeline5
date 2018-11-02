@@ -22,6 +22,7 @@ class BootstrapOptions {
     private static final String BUCKET_FLAG = "b";
     private static final String FORCE_JAR_UPLOAD_FLAG = "force_jar_upload";
     private static final String NO_CLEANUP_FLAG = "no_cleanup";
+    private static final String NO_UPLOAD_FLAG = "no_upload";
     private static final String PROJECT_FLAG = "project";
     private static final String REGION_FLAG = "region";
     private static final String SKIP_UPLOAD_FLAG = "skip_upload";
@@ -69,6 +70,10 @@ class BootstrapOptions {
                         false,
                         "Do not download the final BAM from Google Storage. Will also leave the runtime bucket in place")
                 .addOption(VERBOSE_CLOUD_SDK_FLAG, false, "Have stdout and stderr from Google tools like gsutil strem to the console")
+                .addOption(NO_UPLOAD_FLAG,
+                        false,
+                        "Don't upload the sample to storage. This should be used in combination with a run_id "
+                                + "which points at an existing bucket")
                 .addOption(project())
                 .addOption(region())
                 .addOption(sbpSampleId())
@@ -193,6 +198,7 @@ class BootstrapOptions {
                     .noDownload(commandLine.hasOption(NO_DOWNLOAD_FLAG))
                     .referenceGenomeBucket(commandLine.getOptionValue(REFERENCE_GENOME_BUCKET_FLAG, DEFAULT_REFERENCE_GENOME_BUCKET))
                     .verboseCloudSdk(commandLine.hasOption(VERBOSE_CLOUD_SDK_FLAG))
+                    .noUpload(commandLine.hasOption(NO_UPLOAD_FLAG))
                     .build());
         } catch (ParseException e) {
             LOGGER.error("Could not parse command line args", e);

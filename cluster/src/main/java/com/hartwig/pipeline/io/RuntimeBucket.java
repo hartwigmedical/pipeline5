@@ -7,7 +7,6 @@ import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.BucketInfo;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageClass;
-import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.bootstrap.Arguments;
 import com.hartwig.pipeline.bootstrap.Run;
 
@@ -28,8 +27,8 @@ public class RuntimeBucket {
         this.bucket = bucket;
     }
 
-    public static RuntimeBucket from(Storage storage, Sample sample, Arguments arguments) {
-        Run run = Run.from(sample, arguments, LocalDateTime.now());
+    public static RuntimeBucket from(Storage storage, String sampleName, Arguments arguments) {
+        Run run = Run.from(sampleName, arguments, LocalDateTime.now());
         Bucket bucket = storage.get(run.id());
         if (bucket == null) {
             LOGGER.info("Creating runtime bucket [{}] in Google Storage", run.id());

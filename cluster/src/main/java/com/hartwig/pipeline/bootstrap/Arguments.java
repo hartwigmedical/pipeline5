@@ -32,6 +32,11 @@ public interface Arguments {
         return false;
     }
 
+    @Value.Default
+    default boolean noUpload() {
+        return false;
+    }
+
     String project();
 
     String version();

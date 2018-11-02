@@ -4,14 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDateTime;
 
-import com.hartwig.patient.ImmutableSample;
-import com.hartwig.patient.Sample;
-
 import org.junit.Test;
 
 public class RunTest {
 
-    private static final ImmutableSample SAMPLE = Sample.builder("", "sample").build();
+    private static final String SAMPLE = "sample";
     private static final LocalDateTime NOW = LocalDateTime.of(2018, 9, 19, 15, 5, 0, 0);
 
     @Test
