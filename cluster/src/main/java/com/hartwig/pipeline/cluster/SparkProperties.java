@@ -12,10 +12,12 @@ class SparkProperties {
     private static final int SAFETY_GIG = 1;
 
     static Map<String, String> asMap(PerformanceProfile performanceProfile) {
-        return ImmutableMap.<String, String>builder().put("spark.executor.memory",
-                allowableExecutorMemory(performanceProfile.primaryWorkers().memoryGB()))
-                .put("spark.driver.memory", allowableExecutorMemory(performanceProfile.master().memoryGB()))
-                .put("spark.executor.cores", String.valueOf(performanceProfile.primaryWorkers().cpus()))
+        ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
+        if (performanceProfile.numPrimaryWorkers() > 0) {
+            builder.put("spark.executor.memory", allowableExecutorMemory(performanceProfile.primaryWorkers().memoryGB()))
+                    .put("spark.executor.cores", String.valueOf(performanceProfile.primaryWorkers().cpus()));
+        }
+        return builder.put("spark.driver.memory", allowableExecutorMemory(performanceProfile.master().memoryGB()))
                 .put("spark.executor.extraJavaOptions", "-XX:hashCode=0")
                 .put("spark.driver.extraJavaOptions", "-XX:hashCode=0")
                 .put("spark.rdd.compress", "true")

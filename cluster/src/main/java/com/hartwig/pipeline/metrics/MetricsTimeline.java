@@ -15,9 +15,8 @@ public class MetricsTimeline {
         this.metrics = metrics;
     }
 
-    public MetricsTimeline start(Stage stage) {
+    public void start(Stage stage) {
         started.put(stage, clock.millis());
-        return this;
     }
 
     public void stop(Stage stage) {
@@ -27,8 +26,9 @@ public class MetricsTimeline {
             long runtimeMillis = endTime - startTime;
             metrics.record(stage.name(), stage.performanceProfile(), runtimeMillis);
         } else {
-            throw new IllegalStateException(
-                    "[%s] was never started or already stopped. Check your code to ensure you've called start " + "before stop.");
+            throw new IllegalStateException(String.format(
+                    "[%s] was never started or already stopped. Check your code to ensure you've called start before stop.",
+                    stage));
         }
     }
 }

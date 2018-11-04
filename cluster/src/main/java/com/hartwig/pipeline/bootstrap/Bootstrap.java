@@ -106,14 +106,20 @@ class Bootstrap {
             PerformanceProfile bamProfile = clusterOptimizer.optimize(sampleData);
 
             Monitor monitor = Monitor.stackdriver(Run.of(arguments.version(), runtimeBucket.getName()), arguments.project(), credentials);
-            MetricsTimeline metricsTimeline =
-                    new MetricsTimeline(Clock.systemDefaultZone(), new Metrics(monitor, costCalculator)).start(Stage.bam(bamProfile));
+            MetricsTimeline metricsTimeline = new MetricsTimeline(Clock.systemDefaultZone(), new Metrics(monitor, costCalculator));
             referenceGenomeData.copyInto(runtimeBucket);
             knownIndelData.copyInto(runtimeBucket);
             if (!arguments.noUpload()) {
                 sampleUpload.run(sample, runtimeBucket);
             }
             JarLocation location = jarUpload.run(runtimeBucket, arguments);
+
+            PerformanceProfile singleNode = PerformanceProfile.singleNode();
+            metricsTimeline.start(Stage.gunzip(singleNode));
+            singleNodeCluster.start(singleNode, sample, runtimeBucket, arguments);
+            singleNodeCluster.submit(SparkJobDefinition.gunzip(location.uri(), singleNode), arguments);
+            singleNodeCluster.stop(arguments);
+            metricsTimeline.stop(Stage.gunzip(singleNode));
 
             LOGGER.info("Calculated a cluster of the following size [{}]", bamProfile);
             LOGGER.info("This cluster will cost approximately [{}] per hour",
@@ -122,18 +128,17 @@ class Bootstrap {
             parallelProcessingCluster.start(bamProfile, sample, runtimeBucket, arguments);
             parallelProcessingCluster.submit(SparkJobDefinition.bamCreation(location.uri(), arguments, runtimeBucket, bamProfile),
                     arguments);
+            stopCluster(arguments, parallelProcessingCluster);
+            metricsTimeline.stop(Stage.bam(bamProfile));
             StatusCheck.Status status = statusCheck.check(runtimeBucket);
             composer.run(sample, runtimeBucket);
-            metricsTimeline.stop(Stage.bam(bamProfile));
-            stopCluster(arguments, parallelProcessingCluster);
 
-            PerformanceProfile beefyMaster = PerformanceProfile.beefyMaster();
-            metricsTimeline.start(Stage.sortIndex(beefyMaster));
-            singleNodeCluster.start(beefyMaster, sample, runtimeBucket, arguments);
-            singleNodeCluster.submit(SparkJobDefinition.sortAndIndex(location.uri(), arguments, runtimeBucket, beefyMaster,
+            metricsTimeline.start(Stage.sortIndex(singleNode));
+            singleNodeCluster.start(singleNode, sample, runtimeBucket, arguments);
+            singleNodeCluster.submit(SparkJobDefinition.sortAndIndex(location.uri(), arguments, runtimeBucket, singleNode,
                     sample,
                     ResultsDirectory.defaultDirectory()), arguments);
-            metricsTimeline.stop(Stage.sortIndex(beefyMaster));
+            metricsTimeline.stop(Stage.sortIndex(singleNode));
             stopCluster(arguments, singleNodeCluster);
 
             if (!arguments.noDownload()) {
@@ -189,7 +194,9 @@ class Bootstrap {
                     SBPRestApi sbpRestApi = SBPRestApi.newInstance(arguments);
                     AmazonS3 s3 = S3.newClient(arguments.sblS3Url());
                     new Bootstrap(storage,
-                            referenceGenomeData, knownIndelsData, new SBPS3SampleSource(sbpRestApi, s3),
+                            referenceGenomeData,
+                            knownIndelsData,
+                            new SBPS3SampleSource(sbpRestApi, s3),
                             new SBPSampleDownload(s3,
                                     sbpRestApi,
                                     sbpSampleId,
@@ -197,7 +204,9 @@ class Bootstrap {
                             statusCheck,
                             new GSUtilSampleUpload(arguments.cloudSdkPath(), new SBPS3FileSource()),
                             singleNode,
-                            parallelProcessing, new GoogleStorageJarUpload(), new ClusterOptimizer(ratio, arguments.usePreemptibleVms()),
+                            parallelProcessing,
+                            new GoogleStorageJarUpload(),
+                            new ClusterOptimizer(ratio, arguments.usePreemptibleVms()),
                             costCalculator,
                             composer,
                             credentials).run(arguments);

@@ -1,9 +1,16 @@
 package com.hartwig.pipeline.metrics;
 
+import java.text.NumberFormat;
+
 import com.hartwig.pipeline.cost.CostCalculator;
 import com.hartwig.pipeline.performance.PerformanceProfile;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class Metrics {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(Metrics.class);
 
     static final String BOOTSTRAP = "BOOTSTRAP";
     static final String COST = "COST";
@@ -23,6 +30,10 @@ public class Metrics {
         monitor.update(Metric.spentTime(BOOTSTRAP + "_" + prefix, runtimeMillis));
         double cost = costCalculator.calculate(profile, runtimeHours);
         monitor.update(Metric.of(COST, cost));
+        LOGGER.info("Stage [{}] completed in [{}] hours for a total cost of [{}]",
+                prefix,
+                runtimeHours,
+                NumberFormat.getCurrencyInstance().format(cost));
         if (profile.fastQSizeGB().isPresent()) {
             monitor.update(Metric.of(FASTQ_SIZE_GB, profile.fastQSizeGB().get()));
             monitor.update(Metric.of(COST_PER_GB, cost / profile.fastQSizeGB().get()));

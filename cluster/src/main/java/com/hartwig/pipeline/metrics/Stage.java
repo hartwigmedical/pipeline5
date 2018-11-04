@@ -20,4 +20,8 @@ public interface Stage {
     static Stage sortIndex(PerformanceProfile profile) {
         return ImmutableStage.of("SORT_INDEX", profile);
     }
+
+    static Stage gunzip(PerformanceProfile profile) {
+        return ImmutableStage.of("GUNZIP", profile);
+    }
 }

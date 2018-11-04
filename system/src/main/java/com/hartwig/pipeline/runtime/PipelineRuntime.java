@@ -2,11 +2,8 @@ package com.hartwig.pipeline.runtime;
 
 import java.io.IOException;
 
-import com.hartwig.patient.Patient;
-import com.hartwig.patient.Sample;
 import com.hartwig.patient.input.PatientReader;
 import com.hartwig.pipeline.BamCreationPipeline;
-import com.hartwig.pipeline.GunZip;
 import com.hartwig.pipeline.adam.Pipelines;
 import com.hartwig.pipeline.metrics.Monitor;
 import com.hartwig.pipeline.runtime.configuration.Configuration;
@@ -26,12 +23,10 @@ public class PipelineRuntime {
     private static final Logger LOGGER = LoggerFactory.getLogger(PipelineRuntime.class);
     private final Configuration configuration;
     private final Monitor monitor;
-    private final boolean alreadyUnzipped;
 
-    PipelineRuntime(final Configuration configuration, final Monitor monitor, final boolean alreadyUnzipped) {
+    PipelineRuntime(final Configuration configuration, final Monitor monitor) {
         this.configuration = configuration;
         this.monitor = monitor;
-        this.alreadyUnzipped = alreadyUnzipped;
     }
 
     void start() {
@@ -49,9 +44,8 @@ public class PipelineRuntime {
                     configuration.pipeline().bwa().threads(),
                     false,
                     false);
-            Patient patient = PatientReader.fromHDFS(fileSystem, configuration.patient().directory(), configuration.patient().name());
-            Sample sample = GunZip.execute(fileSystem, javaSparkContext, patient.reference(), alreadyUnzipped);
-            adamPipeline.execute(sample);
+            adamPipeline.execute(PatientReader.fromHDFS(fileSystem, configuration.patient().directory(), configuration.patient().name())
+                    .reference());
         } catch (Exception e) {
             LOGGER.error("Fatal error while running ADAM pipeline. See stack trace for more details", e);
             throw new RuntimeException(e);
@@ -67,7 +61,7 @@ public class PipelineRuntime {
         Configuration configuration;
         try {
             configuration = YAMLConfigurationReader.from(System.getProperty("user.dir"));
-            new PipelineRuntime(configuration, Monitor.noop(), false).start();
+            new PipelineRuntime(configuration, Monitor.noop()).start();
         } catch (IOException e) {
             LOGGER.error("Unable to read configuration. Check configuration in /conf/pipeline.yaml", e);
         }
