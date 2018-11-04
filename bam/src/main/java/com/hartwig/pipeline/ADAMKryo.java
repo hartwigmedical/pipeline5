@@ -92,6 +92,9 @@ public class ADAMKryo implements KryoRegistrator {
             kryo.register(HashMap.class);
             kryo.register(Wrappers$.class);
             kryo.register(scala.collection.immutable.TreeSet.class);
+            kryo.register(Class.forName("scala.reflect.ManifestFactory$$anon$2", false, getClass().getClassLoader()));
+            kryo.register(Object.class);
+            kryo.register(Object[].class);
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
