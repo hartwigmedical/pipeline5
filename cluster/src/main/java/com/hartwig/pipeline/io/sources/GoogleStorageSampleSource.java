@@ -15,8 +15,8 @@ public class GoogleStorageSampleSource implements SampleSource {
     public SampleData sample(final Arguments arguments, final RuntimeBucket runtimeBucket) {
         Iterable<Blob> blobs = runtimeBucket.bucket().list(Storage.BlobListOption.prefix("samples/")).iterateAll();
         if (Iterables.isEmpty(blobs)) {
-            throw new IllegalArgumentException("No sample data found in bucket [%s] so there is no input to process. "
-                    + "You cannot use the no_upload flag if no sample has already been uploaded");
+            throw new IllegalArgumentException(String.format("No sample data found in bucket [%s] so there is no input to process. "
+                    + "You cannot use the no_upload flag if no sample has already been uploaded", runtimeBucket.getName()));
         }
         long factor = blobs.iterator().next().getName().endsWith("gz") ? 1 : 4;
         long fileSize = StreamSupport.stream(blobs.spliterator(), false).mapToLong(BlobInfo::getSize).sum() / factor;

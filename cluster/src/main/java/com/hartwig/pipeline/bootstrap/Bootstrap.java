@@ -125,6 +125,7 @@ class Bootstrap {
             LOGGER.info("This cluster will cost approximately [{}] per hour",
                     NumberFormat.getCurrencyInstance().format(costCalculator.calculate(bamProfile, 1)));
 
+            metricsTimeline.start(Stage.bam(bamProfile));
             parallelProcessingCluster.start(bamProfile, sample, runtimeBucket, arguments);
             parallelProcessingCluster.submit(SparkJobDefinition.bamCreation(location.uri(), arguments, runtimeBucket, bamProfile),
                     arguments);

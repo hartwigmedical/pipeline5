@@ -31,8 +31,7 @@ public class Metrics {
         double cost = costCalculator.calculate(profile, runtimeHours);
         monitor.update(Metric.of(COST, cost));
         LOGGER.info("Stage [{}] completed in [{}] hours for a total cost of [{}]",
-                prefix,
-                runtimeHours,
+                prefix, NumberFormat.getNumberInstance().format(runtimeHours),
                 NumberFormat.getCurrencyInstance().format(cost));
         if (profile.fastQSizeGB().isPresent()) {
             monitor.update(Metric.of(FASTQ_SIZE_GB, profile.fastQSizeGB().get()));
