@@ -2,7 +2,6 @@ package com.hartwig.pipeline.bootstrap;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.text.NumberFormat;
 import java.time.Clock;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -120,10 +119,6 @@ class Bootstrap {
             singleNodeCluster.submit(SparkJobDefinition.gunzip(location.uri(), singleNode), arguments);
             singleNodeCluster.stop(arguments);
             metricsTimeline.stop(Stage.gunzip(singleNode));
-
-            LOGGER.info("Calculated a cluster of the following size [{}]", bamProfile);
-            LOGGER.info("This cluster will cost approximately [{}] per hour",
-                    NumberFormat.getCurrencyInstance().format(costCalculator.calculate(bamProfile, 1)));
 
             metricsTimeline.start(Stage.bam(bamProfile));
             parallelProcessingCluster.start(bamProfile, sample, runtimeBucket, arguments);
