@@ -18,7 +18,6 @@ import com.google.api.gax.paging.Page;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
-import com.google.cloud.storage.StorageOptions;
 import com.hartwig.patient.Sample;
 
 import org.jetbrains.annotations.NotNull;
@@ -91,15 +90,6 @@ public class BamComposerTest {
         assertThat(requestArgumentCaptor.getAllValues().get(0).getSourceBlobs().get(0).getName()).isEqualTo(HEADER);
         assertThat(requestArgumentCaptor.getAllValues().get(6).getTarget().getName()).isEqualTo(ResultsDirectory.defaultDirectory()
                 .path("COLO829T.bam"));
-    }
-
-    @Test
-    public void compose() {
-        Storage service = StorageOptions.getDefaultInstance().getService();
-        Bucket bucket = service.get("run-colo829r-validation");
-        RuntimeBucket runtimeBucket = new RuntimeBucket(bucket);
-        BamComposer composer = new BamComposer(service, ResultsDirectory.defaultDirectory(), 32);
-        composer.run(Sample.builder("", "COLO829R").build(), runtimeBucket);
     }
 
     @NotNull
