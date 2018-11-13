@@ -71,8 +71,7 @@ class Bwa implements AlignmentStage {
     private AlignmentRecordRDD adamBwa(final SequenceDictionary sequenceDictionary, final Sample sample, final Lane lane) {
         FragmentRDD fragmentRDD = adamContext.loadPairedFastq(lane.readsPath(),
                 lane.matesPath(),
-                Option.empty(), Option.apply(StorageLevel.DISK_ONLY()),
-                ValidationStringency.LENIENT).toFragments();
+                Option.empty(), Option.apply(StorageLevel.DISK_ONLY()), ValidationStringency.STRICT).toFragments();
         initializeBwaSharedMemoryPerExecutor(fragmentRDD);
         return RDDs.persistDisk(RDDs.alignmentRecordRDD(((FragmentRDD) fragmentRDD).pipe(BwaCommand.tokens(referenceGenome,
                 sample,

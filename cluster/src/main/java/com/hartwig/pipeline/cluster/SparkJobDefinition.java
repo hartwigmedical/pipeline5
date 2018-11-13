@@ -58,4 +58,13 @@ public interface SparkJobDefinition {
                 .sparkProperties(SparkProperties.asMap(profile))
                 .build();
     }
+
+    static SparkJobDefinition tool(String jarLocation, PerformanceProfile profile, String mainClass) {
+        return ImmutableSparkJobDefinition.builder()
+                .name("Tool")
+                .mainClass(mainClass)
+                .jarLocation(jarLocation)
+                .sparkProperties(SparkProperties.asMap(profile))
+                .build();
+    }
 }

@@ -34,7 +34,7 @@
         <hadoop.version>2.7.7</hadoop.version>
         <google-dataproc-api.version>v1-rev102-1.25.0</google-dataproc-api.version>
         <google-cloud-nio.version>0.61.0-alpha</google-cloud-nio.version>
-        <avro.version>1.8.1</avro.version>
+        <avro.version>1.8.2</avro.version>
         <jersey.version>2.25</jersey.version>
         <javax.ws.rs-api.version>2.1</javax.ws.rs-api.version>
         <protobuf-java.version>3.6.1</protobuf-java.version>

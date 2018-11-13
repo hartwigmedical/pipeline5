@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.runtime.spark;
 
+import java.util.Map;
+
 import com.hartwig.pipeline.ADAMKryo;
 import com.hartwig.pipeline.runtime.configuration.Configuration;
 
@@ -9,10 +11,14 @@ import org.apache.spark.api.java.JavaSparkContext;
 public class SparkContexts {
 
     public static JavaSparkContext create(String appName, Configuration configuration) {
-        String master = configuration.spark().get("master");
+        return create(appName, configuration.spark().get("master"), configuration.spark());
+    }
+
+    public static JavaSparkContext create(String appName, String master, Map<String, String> sparkProperties) {
         SparkConf conf = new SparkConf().set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
                 .set("spark.ui.showConsoleProgress", "false")
-                .set("spark.kryoserializer.buffer.max", "2046m").set("spark.kryo.referenceTracking", "false")
+                .set("spark.kryoserializer.buffer.max", "2046m")
+                .set("spark.kryo.referenceTracking", "false")
                 .set("spark.kryo.registrator", ADAMKryo.class.getName())
                 .set("spark.kryo.registrationRequired", "true")
                 .set("spark.ui.showConsoleProgress", "false")
@@ -21,7 +27,7 @@ public class SparkContexts {
         if (master != null) {
             conf.setMaster(master);
         }
-        configuration.spark().forEach(conf::set);
+        sparkProperties.forEach(conf::set);
         return new JavaSparkContext(conf);
     }
 }

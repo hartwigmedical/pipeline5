@@ -23,7 +23,7 @@ public class RuntimeBucket {
 
     private final Bucket bucket;
 
-    private RuntimeBucket(final Bucket bucket) {
+    public RuntimeBucket(final Bucket bucket) {
         this.bucket = bucket;
     }
 

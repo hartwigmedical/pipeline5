@@ -26,6 +26,7 @@ import org.bdgenomics.adam.rdd.read.realignment.TargetSet;
 import org.bdgenomics.adam.rich.RichAlignmentRecord;
 import org.bdgenomics.adam.util.ReferenceContigMap;
 import org.bdgenomics.formats.avro.AlignmentRecord;
+import org.bdgenomics.formats.avro.Fragment;
 import org.bdgenomics.formats.avro.NucleotideContigFragment;
 import org.bdgenomics.formats.avro.Strand;
 
@@ -60,6 +61,8 @@ public class ADAMKryo implements KryoRegistrator {
             kryo.register(SequenceDictionary.class);
             kryo.register(SequenceRecord.class);
             kryo.register(SequenceRecord[].class);
+            kryo.register(Fragment.class);
+            kryo.register(Fragment[].class);
             kryo.register(Class.forName("scala.reflect.ClassTag$$anon$1", false, getClass().getClassLoader()));
             kryo.register(Class.class);
             kryo.register(FileCommitProtocol.TaskCommitMessage.class);
@@ -95,6 +98,8 @@ public class ADAMKryo implements KryoRegistrator {
             kryo.register(Class.forName("scala.reflect.ManifestFactory$$anon$2", false, getClass().getClassLoader()));
             kryo.register(Object.class);
             kryo.register(Object[].class);
+            kryo.register(Double.class);
+            kryo.register(Double[].class);
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
