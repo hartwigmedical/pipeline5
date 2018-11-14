@@ -29,9 +29,10 @@ public abstract class BamCreationPipeline {
         StatusReporter.Status status = StatusReporter.Status.SUCCESS;
         try {
             long startTime = startTimer();
-            QCResult qcResult = QCResult.ok();
+            QCResult qcResult;
             if (finalBamStore().exists(sample, OutputType.FINAL)) {
                 LOGGER.info("BAM for {} sample already exists. Only running QC", sample.name());
+                qcResult = qc(finalQC(), finalDatasource().extract(sample));
             } else {
                 InputOutput<AlignmentRecordRDD> aligned = alignment().execute(InputOutput.seed(sample));
                 InputOutput<AlignmentRecordRDD> enriched = bamEnrichment().execute(aligned);

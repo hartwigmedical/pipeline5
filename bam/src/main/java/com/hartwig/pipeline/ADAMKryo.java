@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.TreeSet;
 
 import com.esotericsoftware.kryo.Kryo;
+import com.hartwig.pipeline.adam.PositionRangeKey;
 
 import org.apache.spark.internal.io.FileCommitProtocol;
 import org.apache.spark.serializer.KryoRegistrator;
@@ -30,6 +31,9 @@ import org.bdgenomics.formats.avro.Fragment;
 import org.bdgenomics.formats.avro.NucleotideContigFragment;
 import org.bdgenomics.formats.avro.Strand;
 
+import htsjdk.samtools.Cigar;
+import htsjdk.samtools.CigarElement;
+import htsjdk.samtools.CigarOperator;
 import htsjdk.samtools.SAMBinaryTagAndValue;
 import htsjdk.samtools.SAMFileHeader;
 import htsjdk.samtools.SAMReadGroupRecord;
@@ -100,6 +104,10 @@ public class ADAMKryo implements KryoRegistrator {
             kryo.register(Object[].class);
             kryo.register(Double.class);
             kryo.register(Double[].class);
+            kryo.register(PositionRangeKey.class);
+            kryo.register(Cigar.class);
+            kryo.register(CigarElement.class);
+            kryo.register(CigarOperator.class);
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }

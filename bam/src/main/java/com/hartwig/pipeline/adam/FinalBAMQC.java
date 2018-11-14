@@ -2,33 +2,28 @@ package com.hartwig.pipeline.adam;
 
 import static java.lang.String.format;
 
+import static htsjdk.samtools.SAMUtils.fastqToPhred;
+
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.Map;
+import java.util.stream.IntStream;
 
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
 import com.hartwig.io.InputOutput;
 import com.hartwig.patient.ReferenceGenome;
 import com.hartwig.pipeline.QCResult;
 import com.hartwig.pipeline.QualityControl;
 
 import org.apache.spark.api.java.JavaDoubleRDD;
-import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
-import org.apache.spark.api.java.function.Function;
-import org.apache.spark.rdd.RDD;
 import org.bdgenomics.adam.api.java.JavaADAMContext;
-import org.bdgenomics.adam.models.Coverage;
 import org.bdgenomics.adam.rdd.read.AlignmentRecordRDD;
 import org.bdgenomics.formats.avro.AlignmentRecord;
+import org.bdgenomics.formats.avro.NucleotideContigFragment;
 import org.jetbrains.annotations.NotNull;
-import org.seqdoop.hadoop_bam.SAMRecordWritable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import htsjdk.samtools.SAMRecord;
 import scala.Tuple2;
 
 @SuppressWarnings({ "FieldCanBeLocal", "unused" })
@@ -57,45 +52,28 @@ public class FinalBAMQC implements QualityControl<AlignmentRecordRDD>, Serializa
             return QCResult.failure("Final QC failed as the BAM was empty");
         }
 
-        Map<String, Integer> calledBasesPerContig = adamContext.ac()
-                .loadFasta(referenceGenome.path(), Long.MAX_VALUE)
-                .rdd()
-                .toJavaRDD()
-                .mapToPair(fragment -> Tuple2.apply(fragment.getContigName(), calledBases(fragment.getSequence()).length()))
-                .collectAsMap();
-        AlignmentRecordRDD filterReads = filterReads(toQC);
-        RDD<SAMRecordWritable> samRecordRDD = filterReads.convertToSam(false)._1;
-        JavaPairRDD<Tuple2<String, String>, Iterable<SAMRecord>> primaryReadsByReadName = samRecordRDD.toJavaRDD()
-                .map(SAMRecordWritable::get)
-                .mapToPair(record -> Tuple2.apply(Tuple2.apply(record.getContig(), record.getReadName()), record))
-                .groupByKey();
+        JavaRDD<NucleotideContigFragment> referenceGenomeRDD =
+                adamContext.ac().loadFasta(referenceGenome.path(), Long.MAX_VALUE).rdd().toJavaRDD();
+        long totalCalledBases = referenceGenomeRDD.mapToDouble(fragment -> calledBases(fragment.getSequence()).length()).sum().longValue();
 
-        Multimap<CoverageThreshold, CoverageMetrics> metricsPerContig = ArrayListMultimap.create();
-        for (String contigName : calledBasesPerContig.keySet()) {
-            JavaDoubleRDD coverage =
-                    CoverageRDD.toCoverage(contigName, primaryReadsByReadName.filter(tuple -> contigName.equals(tuple._1._1)))
-                            .mapToDouble(Coverage::count)
-                            .cache();
-            for (CoverageThreshold threshold : thresholds) {
-                long countExceedingThreshold = coverage.filter(count -> count > threshold.coverage()).count();
-                metricsPerContig.put(threshold,
-                        CoverageMetrics.of(contigName, countExceedingThreshold, calledBasesPerContig.get(contigName)));
-            }
-        }
+        JavaDoubleRDD coverage = filterReads(toQC).rdd()
+                .toJavaRDD()
+                .flatMapToPair(record -> IntStream.range(record.getStart().intValue(), record.getEnd().intValue())
+                        .mapToObj(readPos -> Tuple2.apply(readPos, ReferencePositions.getReadPositionAtReferencePosition(record, readPos)))
+                        .filter(positionPair -> positionPair._2 != 0)
+                        .filter(positionPair -> fastqToPhred(record.getQual().charAt(positionPair._2)) >= 10)
+                        .map(positionPair -> Tuple2.apply(positionPair._1, 1))
+                        .iterator())
+                .reduceByKey((v1, v2) -> v1 + v2)
+                .mapToDouble(v -> v._2.doubleValue())
+                .cache();
 
         for (CoverageThreshold threshold : thresholds) {
-            long totalExceeding = 0;
-            long total = 0;
-            for (CoverageMetrics metric : metricsPerContig.get(threshold)) {
-                totalExceeding += metric.exceeding();
-                total += metric.total();
-            }
-            double percentage = percentage(total, totalExceeding);
+            long totalExceeding = coverage.filter(count -> count > threshold.coverage()).count();
+            double percentage = percentage(totalCalledBases, totalExceeding);
             LOGGER.info(format("BAM QC [%sx at %f%%]: Results [%s of %s at %dx coverage] or [%f%%]",
                     threshold.coverage(),
-                    threshold.minimumPercentage(),
-                    totalExceeding,
-                    total,
+                    threshold.minimumPercentage(), totalExceeding, totalCalledBases,
                     threshold.coverage(),
                     percentage));
             if (percentage < threshold.minimumPercentage()) {
@@ -108,11 +86,6 @@ public class FinalBAMQC implements QualityControl<AlignmentRecordRDD>, Serializa
         }
 
         return QCResult.ok();
-    }
-
-    @NotNull
-    private static Function<Tuple2<String, Tuple2<Long, Integer>>, CoverageMetrics> toCoverageMetrics() {
-        return tuple -> CoverageMetrics.of(tuple._1, tuple._2._1, tuple._2._2);
     }
 
     @NotNull

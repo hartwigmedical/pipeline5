@@ -5,7 +5,6 @@ import java.util.stream.Collectors;
 
 import com.hartwig.io.DataLocation;
 import com.hartwig.io.FinalDataLocation;
-import com.hartwig.io.IntermediateDataLocation;
 import com.hartwig.io.OutputType;
 import com.hartwig.patient.KnownIndels;
 import com.hartwig.patient.ReferenceGenome;
@@ -29,14 +28,13 @@ public class Pipelines {
             final int bwaThreads, final boolean doQC, final boolean mergeFinalFile) {
         JavaADAMContext javaADAMContext = new JavaADAMContext(adamContext);
         ReferenceGenome referenceGenome = ReferenceGenome.of(fileSystem.getUri() + referenceGenomePath);
-        IntermediateDataLocation intermediateDataLocation = new IntermediateDataLocation(fileSystem, workingDirectory);
         DataLocation finalDataLocation = new FinalDataLocation(fileSystem, workingDirectory);
         KnownIndels knownIndels = KnownIndels.of(knownIndelsFSPaths(fileSystem, knownIndelPaths));
         return BamCreationPipeline.builder()
                 .finalQC(ifEnabled(doQC,
                         FinalBAMQC.of(javaADAMContext, referenceGenome, CoverageThreshold.of(10, 90), CoverageThreshold.of(20, 70))))
                 .alignment(new Bwa(referenceGenome, adamContext, fileSystem, bwaThreads))
-                .finalDatasource(new HDFSAlignmentRDDSource(OutputType.INDEL_REALIGNED, javaADAMContext, intermediateDataLocation))
+                .finalDatasource(new HDFSAlignmentRDDSource(OutputType.INDEL_REALIGNED, javaADAMContext, finalDataLocation))
                 .finalBamStore(new HDFSBamStore(finalDataLocation, fileSystem, mergeFinalFile))
                 .bamEnrichment(new MarkDupsAndRealignIndels(knownIndels, referenceGenome, javaADAMContext))
                 .indexBam(BamIndexPipeline.fallback(fileSystem, workingDirectory, monitor))
