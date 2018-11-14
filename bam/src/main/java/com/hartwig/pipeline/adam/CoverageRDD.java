@@ -13,6 +13,7 @@ import org.bdgenomics.adam.models.Coverage;
 import org.jetbrains.annotations.NotNull;
 
 import htsjdk.samtools.SAMRecord;
+import scala.Option;
 import scala.Tuple2;
 
 class CoverageRDD {
@@ -21,8 +22,7 @@ class CoverageRDD {
             final JavaPairRDD<Tuple2<String, String>, Iterable<SAMRecord>> primaryReadsByReadName) {
         return primaryReadsByReadName.flatMap(toOverlappingPositionsWithMinimumBases())
                 .mapToPair(index -> Tuple2.apply(index, 1))
-                .reduceByKey((v1, v2) -> v1 + v2)
-                .map(tuple -> new Coverage(contig, tuple._1, tuple._1 + 1, tuple._2));
+                .reduceByKey((v1, v2) -> v1 + v2).map(tuple -> new Coverage(contig, tuple._1, tuple._1 + 1, tuple._2, Option.empty()));
     }
 
     @NotNull
