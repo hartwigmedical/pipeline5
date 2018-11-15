@@ -99,11 +99,11 @@ class Bootstrap {
 
     private void run(Arguments arguments) {
         try {
-            RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, arguments.patientId(), arguments);
-            SampleData sampleData = sampleSource.sample(arguments, runtimeBucket);
+            SampleData sampleData = sampleSource.sample(arguments);
             Sample sample = sampleData.sample();
             PerformanceProfile bamProfile = clusterOptimizer.optimize(sampleData);
 
+            RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, sampleData.sample().name(), arguments);
             Monitor monitor = Monitor.stackdriver(Run.of(arguments.version(), runtimeBucket.getName()), arguments.project(), credentials);
             MetricsTimeline metricsTimeline = new MetricsTimeline(Clock.systemDefaultZone(), new Metrics(monitor, costCalculator));
             referenceGenomeData.copyInto(runtimeBucket);
@@ -210,8 +210,7 @@ class Bootstrap {
                     new Bootstrap(storage,
                             referenceGenomeData,
                             knownIndelsData,
-                            arguments.noUpload()
-                                    ? new GoogleStorageSampleSource()
+                            arguments.noUpload() ? new GoogleStorageSampleSource(storage)
                                     : new FileSystemSampleSource(Hadoop.localFilesystem(), arguments.patientDirectory()),
                             new GSUtilSampleDownload(arguments.cloudSdkPath(), new LocalFileTarget()),
                             statusCheck,

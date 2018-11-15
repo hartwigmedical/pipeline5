@@ -1,7 +1,11 @@
 package com.hartwig.pipeline.io;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import com.google.cloud.storage.Bucket;
+import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.bootstrap.Arguments;
 import com.hartwig.pipeline.bootstrap.ImmutableArguments;
 import com.hartwig.pipeline.io.sources.GoogleStorageSampleSource;
@@ -11,35 +15,47 @@ import com.hartwig.pipeline.testsupport.MockRuntimeBucket;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 public class GoogleStorageSampleSourceTest {
 
     private static final String SAMPLE = "CPCT12345678";
     private static final ImmutableArguments ARGUMENTS = Arguments.defaultsBuilder().patientId(SAMPLE).build();
     private SampleSource victim;
+    private Storage storage;
 
     @Before
     public void setUp() throws Exception {
-        victim = new GoogleStorageSampleSource();
+        storage = mock(Storage.class);
+        victim = new GoogleStorageSampleSource(storage);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void patientIdArgumentMustBeSpecified() {
+        victim.sample(Arguments.defaults());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void throwsIllegalArgumentIfNoSamplesInBucket() {
-        victim.sample(ARGUMENTS, MockRuntimeBucket.of(SAMPLE).getRuntimeBucket());
+        Bucket bucket = MockRuntimeBucket.of(SAMPLE).getRuntimeBucket().bucket();
+        when(storage.get(Mockito.anyString())).thenReturn(bucket);
+        victim.sample(ARGUMENTS);
     }
 
     @Test
     public void calculatesSizeOfAllFilesInSampleBucket() {
-        SampleData sample =
-                victim.sample(ARGUMENTS, MockRuntimeBucket.of(SAMPLE).with("fastq1_r1.gz", 1).with("fastq2_r2.gz", 10).getRuntimeBucket());
+        Bucket bucket = MockRuntimeBucket.of(SAMPLE).with("fastq1_r1.gz", 1).with("fastq2_r2.gz", 10).getRuntimeBucket().bucket();
+        when(storage.get(Mockito.anyString())).thenReturn(bucket);
+        SampleData sample = victim.sample(ARGUMENTS);
         assertThat(sample.sample().name()).isEqualTo(SAMPLE);
         assertThat(sample.sizeInBytes()).isEqualTo(11);
     }
 
     @Test
     public void fileSizeScaledDownWhenNotGzipped() {
-        SampleData sample =
-                victim.sample(ARGUMENTS, MockRuntimeBucket.of(SAMPLE).with("fastq1_r1", 4).with("fastq2_r2", 40).getRuntimeBucket());
+        Bucket bucket = MockRuntimeBucket.of(SAMPLE).with("fastq1_r1", 4).with("fastq2_r2", 40).getRuntimeBucket().bucket();
+        when(storage.get(Mockito.anyString())).thenReturn(bucket);
+        SampleData sample = victim.sample(ARGUMENTS);
         assertThat(sample.sample().name()).isEqualTo(SAMPLE);
         assertThat(sample.sizeInBytes()).isEqualTo(11);
     }

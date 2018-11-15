@@ -7,7 +7,6 @@ import java.util.stream.Stream;
 import com.hartwig.patient.Sample;
 import com.hartwig.patient.input.PatientReader;
 import com.hartwig.pipeline.bootstrap.Arguments;
-import com.hartwig.pipeline.io.RuntimeBucket;
 
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
@@ -25,7 +24,7 @@ public class FileSystemSampleSource implements SampleSource {
     }
 
     @Override
-    public SampleData sample(final Arguments arguments, final RuntimeBucket runtimeBucket) {
+    public SampleData sample(final Arguments arguments) {
         try {
             Sample sample = PatientReader.fromHDFS(fileSystem, patientDirectory, arguments.patientId()).reference();
             long size = sample.lanes()

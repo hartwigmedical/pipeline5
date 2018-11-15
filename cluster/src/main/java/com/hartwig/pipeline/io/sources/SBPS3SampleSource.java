@@ -6,7 +6,6 @@ import java.util.stream.Stream;
 import com.amazonaws.services.s3.AmazonS3;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.bootstrap.Arguments;
-import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.io.SBPRestApi;
 import com.hartwig.pipeline.io.SBPSampleReader;
 
@@ -21,7 +20,7 @@ public class SBPS3SampleSource implements SampleSource {
     }
 
     @Override
-    public SampleData sample(final Arguments arguments, final RuntimeBucket runtimeBucket) {
+    public SampleData sample(final Arguments arguments) {
         SBPSampleReader sbpSampleReader = new SBPSampleReader(restApi);
         Sample sample = sbpSampleReader.read(arguments.sbpApiSampleId()
                 .orElseThrow(() -> new IllegalArgumentException("Arguments must "

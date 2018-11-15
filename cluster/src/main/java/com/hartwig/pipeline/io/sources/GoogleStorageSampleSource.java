@@ -11,8 +11,22 @@ import com.hartwig.pipeline.bootstrap.Arguments;
 import com.hartwig.pipeline.io.RuntimeBucket;
 
 public class GoogleStorageSampleSource implements SampleSource {
+
+    private final Storage storage;
+
+    public GoogleStorageSampleSource(final Storage storage) {
+        this.storage = storage;
+    }
+
     @Override
-    public SampleData sample(final Arguments arguments, final RuntimeBucket runtimeBucket) {
+    public SampleData sample(final Arguments arguments) {
+
+        if (arguments.patientId() == null || arguments.patientId().isEmpty()) {
+            throw new IllegalArgumentException("Unable to run in -no_upload mode without an explicit patient/sample name (use -p)");
+        }
+
+        RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, arguments.patientId(), arguments);
+
         Iterable<Blob> blobs = runtimeBucket.bucket().list(Storage.BlobListOption.prefix("samples/")).iterateAll();
         if (Iterables.isEmpty(blobs)) {
             throw new IllegalArgumentException(String.format("No sample data found in bucket [%s] so there is no input to process. "
