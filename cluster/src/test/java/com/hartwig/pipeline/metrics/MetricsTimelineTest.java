@@ -34,7 +34,7 @@ public class MetricsTimelineTest {
     public void recordsTimeSpentOnEachStage() {
         when(clock.millis()).thenReturn(1L);
         Stage bam = Stage.bam(PerformanceProfile.mini());
-        Stage sort = Stage.sortIndex(PerformanceProfile.mini());
+        Stage sort = Stage.sortAndIndex(PerformanceProfile.mini());
         victim.start(bam);
         when(clock.millis()).thenReturn(10L);
         victim.start(sort);

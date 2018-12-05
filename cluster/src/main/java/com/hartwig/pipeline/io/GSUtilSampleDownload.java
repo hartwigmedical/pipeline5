@@ -3,6 +3,7 @@ package com.hartwig.pipeline.io;
 import java.util.function.Function;
 
 import com.hartwig.patient.Sample;
+import com.hartwig.pipeline.bootstrap.JobResult;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -17,7 +18,7 @@ public class GSUtilSampleDownload implements SampleDownload {
     }
 
     @Override
-    public void run(final Sample sample, final RuntimeBucket runtimeBucket, final StatusCheck.Status status) {
+    public void run(final Sample sample, final RuntimeBucket runtimeBucket, final JobResult result) {
         try {
             String bamPath = String.format("gs://%s/results/%s.sorted.bam", runtimeBucket.getName(), sample.name());
             String targetBam = targetResolver.apply(sample);

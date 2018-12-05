@@ -17,7 +17,7 @@ public interface Stage {
         return ImmutableStage.of("BAM", profile);
     }
 
-    static Stage sortIndex(PerformanceProfile profile) {
+    static Stage sortAndIndex(PerformanceProfile profile) {
         return ImmutableStage.of("SORT_INDEX", profile);
     }
 

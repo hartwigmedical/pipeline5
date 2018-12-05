@@ -7,7 +7,7 @@ import com.hartwig.pipeline.bootstrap.Arguments;
 import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.performance.PerformanceProfile;
 
-public interface SampleCluster {
+public interface SparkCluster {
 
     void start(PerformanceProfile performanceProfile, Sample sample, RuntimeBucket runtimeBucket, Arguments arguments) throws IOException;
 

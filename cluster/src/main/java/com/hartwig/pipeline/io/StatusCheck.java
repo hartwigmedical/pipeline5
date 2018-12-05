@@ -9,4 +9,8 @@ public interface StatusCheck {
     }
 
     Status check(RuntimeBucket bucket);
+
+    static StatusCheck alwaysSuccess() {
+        return bucket -> Status.SUCCESS;
+    }
 }

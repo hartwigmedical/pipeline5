@@ -27,7 +27,7 @@ import com.hartwig.pipeline.performance.PerformanceProfile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class GoogleDataprocCluster implements SampleCluster {
+public class GoogleDataprocCluster implements SparkCluster {
 
     private static final String APPLICATION_NAME = "sample-dataproc-cluster";
     private final Logger LOGGER = LoggerFactory.getLogger(GoogleDataprocCluster.class);
@@ -88,6 +88,9 @@ public class GoogleDataprocCluster implements SampleCluster {
         LOGGER.info("Spark job is complete with status [{}] details [{}]",
                 completed.getStatus().getState(),
                 completed.getStatus().getDetails());
+        if (completed.getStatus().getState().equals("ERROR")) {
+            throw new RuntimeException("Spark job failed on Google Dataproc");
+        }
     }
 
     @Override

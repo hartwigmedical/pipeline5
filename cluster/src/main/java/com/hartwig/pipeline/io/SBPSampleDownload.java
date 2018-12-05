@@ -7,6 +7,7 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.Permission;
 import com.amazonaws.services.s3.model.S3Object;
 import com.hartwig.patient.Sample;
+import com.hartwig.pipeline.bootstrap.JobResult;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,8 +30,8 @@ public class SBPSampleDownload implements SampleDownload {
     }
 
     @Override
-    public void run(final Sample sample, final RuntimeBucket runtimeBucket, final StatusCheck.Status status) {
-        decorated.run(sample, runtimeBucket, status);
+    public void run(final Sample sample, final RuntimeBucket runtimeBucket, final JobResult result) {
+        decorated.run(sample, runtimeBucket, result);
         String directory = SBPS3FileTarget.ROOT_BUCKET + "/" + sample.barcode();
         String bamFile = sample.name() + ".bam";
         S3Object s3Object = s3Client.getObject(directory, bamFile);
@@ -47,8 +48,7 @@ public class SBPSampleDownload implements SampleDownload {
                         .directory(sample.barcode())
                         .filename(bamFile)
                         .filesize(existing.getContentLength())
-                        .hash(existing.getETag())
-                        .status(status == StatusCheck.Status.SUCCESS ? "Done_PipelineV5" : "Failed_PipelineV5")
+                        .hash(existing.getETag()).status(result == JobResult.SUCCESS ? "Done_PipelineV5" : "Failed_PipelineV5")
                         .build());
     }
 

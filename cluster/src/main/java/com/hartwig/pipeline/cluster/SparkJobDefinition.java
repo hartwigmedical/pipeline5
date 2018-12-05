@@ -28,42 +28,39 @@ public interface SparkJobDefinition {
 
     Map<String, String> sparkProperties();
 
-    static SparkJobDefinition bamCreation(String jarLocation, Arguments arguments, RuntimeBucket runtimeBucket,
+    static SparkJobDefinition bamCreation(JarLocation jarLocation, Arguments arguments, RuntimeBucket runtimeBucket,
             PerformanceProfile profile) {
         return ImmutableSparkJobDefinition.builder()
                 .name("BamCreation")
-                .mainClass(BAM_CREATION_MAIN)
-                .jarLocation(jarLocation)
+                .mainClass(BAM_CREATION_MAIN).jarLocation(jarLocation.uri())
                 .addArguments(arguments.version(), runtimeBucket.getName(), arguments.project())
                 .sparkProperties(SparkProperties.asMap(profile))
                 .build();
     }
 
-    static SparkJobDefinition sortAndIndex(String jarLocation, Arguments arguments, RuntimeBucket runtimeBucket, PerformanceProfile profile,
+    static SparkJobDefinition sortAndIndex(JarLocation jarLocation, Arguments arguments, RuntimeBucket runtimeBucket,
+            PerformanceProfile profile,
             Sample sample, ResultsDirectory resultsDirectory) {
         return ImmutableSparkJobDefinition.builder()
                 .name("SortAndIndex")
-                .mainClass(SORT_INDEX_MAIN)
-                .jarLocation(jarLocation)
+                .mainClass(SORT_INDEX_MAIN).jarLocation(jarLocation.uri())
                 .addArguments(arguments.version(), runtimeBucket.getName(), arguments.project(), sample.name(), resultsDirectory.path(""))
                 .sparkProperties(SparkProperties.asMap(profile))
                 .build();
     }
 
-    static SparkJobDefinition gunzip(String jarLocation, PerformanceProfile profile) {
+    static SparkJobDefinition gunzip(JarLocation jarLocation, PerformanceProfile profile) {
         return ImmutableSparkJobDefinition.builder()
                 .name("Gunzip")
-                .mainClass(GUNZIP_MAIN)
-                .jarLocation(jarLocation)
+                .mainClass(GUNZIP_MAIN).jarLocation(jarLocation.uri())
                 .sparkProperties(SparkProperties.asMap(profile))
                 .build();
     }
 
-    static SparkJobDefinition tool(String jarLocation, PerformanceProfile profile, String mainClass) {
+    static SparkJobDefinition tool(JarLocation jarLocation, PerformanceProfile profile, String mainClass) {
         return ImmutableSparkJobDefinition.builder()
                 .name("Tool")
-                .mainClass(mainClass)
-                .jarLocation(jarLocation)
+                .mainClass(mainClass).jarLocation(jarLocation.uri())
                 .sparkProperties(SparkProperties.asMap(profile))
                 .build();
     }
