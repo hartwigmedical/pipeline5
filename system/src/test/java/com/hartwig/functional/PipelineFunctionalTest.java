@@ -26,7 +26,7 @@ public class PipelineFunctionalTest {
             Sample.builder(HUNDREDK_READS_HISEQ.patient().directory(), HUNDREDK_READS_HISEQ_PATIENT_NAME + "R").build();
     private static JavaSparkContext context;
 
-    private static String RESULT_DIR = System.getProperty("user.dir") + "/results/";
+    private static final String RESULT_DIR = System.getProperty("user.dir") + "/results/";
 
     @BeforeClass
     public static void beforeClass() throws Exception {
@@ -35,7 +35,7 @@ public class PipelineFunctionalTest {
     }
 
     @Test
-    public void adamBamCreationMatchesCurrentPipelineOuput() throws Exception {
+    public void adamBamCreationMatchesCurrentPipelineOutput() throws Exception {
         FileSystem fileSystem = Hadoop.localFilesystem();
         Pipelines.bamCreationConsolidated(new ADAMContext(context.sc()),
                 fileSystem,
