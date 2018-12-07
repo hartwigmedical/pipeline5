@@ -57,7 +57,7 @@ public abstract class BamCreationPipeline {
         }
     }
 
-    private QCResult qc(final QualityControl<AlignmentRecordRDD> qcCheck, final InputOutput<AlignmentRecordRDD> toQC) throws IOException {
+    private QCResult qc(final QualityControl<AlignmentRecordRDD> qcCheck, final InputOutput<AlignmentRecordRDD> toQC) {
         return qcCheck.check(toQC);
     }
 

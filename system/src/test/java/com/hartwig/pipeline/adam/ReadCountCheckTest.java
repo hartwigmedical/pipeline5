@@ -16,8 +16,8 @@ import org.junit.Test;
 public class ReadCountCheckTest {
 
     @Test
-    public void countMatchesRetrunsOk() {
-        QCResult qcResult = readCountIs(100574);
+    public void countMatchesReturnsOk() {
+        QCResult qcResult = readCountIs(100573);
         assertThat(qcResult.isOk()).as(qcResult.message()).isTrue();
     }
 
