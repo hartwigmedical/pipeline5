@@ -26,6 +26,7 @@ class BwaCommand {
                 sample.name()));
         // KODU: Soft-clipping supplementary reads rather than hard-clipping will help GRIDSS downstream.
         cmd.add("-Y");
+        cmd.add("-c 100");
         cmd.add("-t");
         cmd.add(String.valueOf(bwaThreads));
         cmd.add(new Path(referenceGenome.path()).getName());
