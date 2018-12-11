@@ -1,6 +1,11 @@
 # HMF Pipeline version 5
 Pipeline 5 (Pv5) is a new data pipeline build to perform secondary and tertiary analysis on patient DNA samples. Pv5 is build on [ADAM](https://adam.readthedocs.io/en/latest/), which is in turn built on [Apache Spark](https://spark.apache.org/). In production Pv5 runs on [Google Cloud Dataproc](https://cloud.google.com/dataproc/), but can also be run as plain old Java or in a standalone docker container.
 
+1. [Building and Testing Pipeline 5](#building-and-testing-pipeline-5)
+2. [Pipeline Stages](#pipeline-stages)
+3. [Running Locally](#running-pv5-locally)
+4. [Running Pv5 on Google Dataproc](#running-pv5-on-google-dataproc)
+
 ## Building and Testing Pipeline 5
 
 The only pre-requisite for running the build is having bwa installed locally (for the ADAM functional tests). For Mac users bwa can be
