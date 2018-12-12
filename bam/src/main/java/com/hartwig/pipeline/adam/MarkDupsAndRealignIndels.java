@@ -1,6 +1,7 @@
 package com.hartwig.pipeline.adam;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.stream.Collector;
 
 import com.hartwig.io.InputOutput;
@@ -11,13 +12,17 @@ import com.hartwig.pipeline.Stage;
 
 import org.apache.spark.rdd.RDD;
 import org.bdgenomics.adam.algorithms.consensus.ConsensusGeneratorFromKnowns;
+import org.bdgenomics.adam.algorithms.consensus.ConsensusGeneratorFromReads;
+import org.bdgenomics.adam.algorithms.consensus.UnionConsensusGenerator;
 import org.bdgenomics.adam.api.java.JavaADAMContext;
 import org.bdgenomics.adam.rdd.read.AlignmentRecordRDD;
 import org.bdgenomics.adam.rdd.variant.VariantRDD;
 import org.bdgenomics.adam.util.ReferenceFile;
 import org.bdgenomics.formats.avro.Variant;
+import org.jetbrains.annotations.NotNull;
 
 import scala.Option;
+import scala.collection.JavaConversions;
 
 public class MarkDupsAndRealignIndels implements Stage<AlignmentRecordRDD, AlignmentRecordRDD> {
 
@@ -47,7 +52,20 @@ public class MarkDupsAndRealignIndels implements Stage<AlignmentRecordRDD, Align
         UnmappedReads unmapped = UnmappedReads.from(input.payload());
         return InputOutput.of(OutputType.INDEL_REALIGNED, input.sample(), unmapped.toAlignment(input.payload()
                         .markDuplicates()
-                        .realignIndels(new ConsensusGeneratorFromKnowns(allKnownVariants, 0),
-                                false, 500, 30, 5.0, 3000, 20000, Option.apply(fasta), false)));
+                .realignIndels(consensusFromKnownsAndReads(allKnownVariants),
+                        false,
+                        500,
+                        30,
+                        5.0,
+                        3000,
+                        20000,
+                        Option.apply(fasta),
+                        false)));
+    }
+
+    @NotNull
+    private UnionConsensusGenerator consensusFromKnownsAndReads(final RDD<Variant> allKnownVariants) {
+        return new UnionConsensusGenerator(JavaConversions.asScalaBuffer(Arrays.asList(new ConsensusGeneratorFromKnowns(allKnownVariants,
+                0), new ConsensusGeneratorFromReads())));
     }
 }
