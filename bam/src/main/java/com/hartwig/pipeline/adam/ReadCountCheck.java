@@ -4,11 +4,11 @@ import com.hartwig.io.InputOutput;
 import com.hartwig.pipeline.QCResult;
 import com.hartwig.pipeline.QualityControl;
 
-import org.bdgenomics.adam.rdd.read.AlignmentRecordRDD;
+import org.bdgenomics.adam.rdd.read.AlignmentRecordDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ReadCountCheck implements QualityControl<AlignmentRecordRDD> {
+public class ReadCountCheck implements QualityControl<AlignmentRecordDataset> {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(ReadCountCheck.class);
     private final long previousReadCount;
@@ -18,7 +18,7 @@ public class ReadCountCheck implements QualityControl<AlignmentRecordRDD> {
     }
 
     @Override
-    public QCResult check(final InputOutput<AlignmentRecordRDD> toQC) {
+    public QCResult check(final InputOutput<AlignmentRecordDataset> toQC) {
         LOGGER.info("Starting read count check for sample [{}] input to stage [{}]", toQC.sample().name(), toQC.type());
         long readCount = countReads(toQC.payload());
         QCResult result = readCount == previousReadCount
@@ -35,11 +35,11 @@ public class ReadCountCheck implements QualityControl<AlignmentRecordRDD> {
         return result;
     }
 
-    static QualityControl<AlignmentRecordRDD> from(AlignmentRecordRDD initialAlignments) {
+    static QualityControl<AlignmentRecordDataset> from(AlignmentRecordDataset initialAlignments) {
         return new ReadCountCheck(countReads(initialAlignments));
     }
 
-    private static long countReads(final AlignmentRecordRDD initialAlignments) {
+    private static long countReads(final AlignmentRecordDataset initialAlignments) {
         LOGGER.info("Starting initialization of read count from BWA output.");
         long count = initialAlignments.rdd().toJavaRDD().count();
         LOGGER.info("Completed initialization of read count from BWA output.");

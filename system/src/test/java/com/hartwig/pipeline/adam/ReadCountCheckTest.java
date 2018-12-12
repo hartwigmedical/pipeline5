@@ -1,6 +1,6 @@
 package com.hartwig.pipeline.adam;
 
-import static com.hartwig.testsupport.TestRDDs.alignmentRecordRDD;
+import static com.hartwig.testsupport.TestRDDs.AlignmentRecordDataset;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -10,7 +10,7 @@ import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.QCResult;
 import com.hartwig.pipeline.QualityControl;
 
-import org.bdgenomics.adam.rdd.read.AlignmentRecordRDD;
+import org.bdgenomics.adam.rdd.read.AlignmentRecordDataset;
 import org.junit.Test;
 
 public class ReadCountCheckTest {
@@ -28,8 +28,8 @@ public class ReadCountCheckTest {
     }
 
     private static QCResult readCountIs(final int previousReadCount) {
-        AlignmentRecordRDD first = alignmentRecordRDD("expected/TESTXR.bam");
-        QualityControl<AlignmentRecordRDD> victim = new ReadCountCheck(previousReadCount);
+        AlignmentRecordDataset first = AlignmentRecordDataset("expected/TESTXR.bam");
+        QualityControl<AlignmentRecordDataset> victim = new ReadCountCheck(previousReadCount);
         return victim.check(InputOutput.of(OutputType.DUPLICATE_MARKED, Sample.builder("", "test").build(), first));
     }
 }

@@ -27,7 +27,7 @@ public class YAMLConfigurationReaderTest {
         assertThat(configuration.spark().isEmpty());
         assertThat(configuration.pipeline().bwa().threads()).isEqualTo(12);
         assertThat(configuration.pipeline().hdfs()).isEqualTo("file:///");
-        assertThat(configuration.pipeline().saveResultsAsSingleFile()).isTrue();
+        assertThat(configuration.pipeline().saveResultsAsSingleFile()).isFalse();
         assertThat(configuration.patient().name()).isEmpty();
     }
 

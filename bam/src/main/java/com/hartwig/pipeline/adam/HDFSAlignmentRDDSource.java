@@ -7,9 +7,9 @@ import com.hartwig.io.OutputType;
 import com.hartwig.patient.Sample;
 
 import org.bdgenomics.adam.api.java.JavaADAMContext;
-import org.bdgenomics.adam.rdd.read.AlignmentRecordRDD;
+import org.bdgenomics.adam.rdd.read.AlignmentRecordDataset;
 
-public class HDFSAlignmentRDDSource implements DataSource<AlignmentRecordRDD> {
+public class HDFSAlignmentRDDSource implements DataSource<AlignmentRecordDataset> {
 
     private final OutputType outputType;
     private final JavaADAMContext javaADAMContext;
@@ -22,7 +22,7 @@ public class HDFSAlignmentRDDSource implements DataSource<AlignmentRecordRDD> {
     }
 
     @Override
-    public InputOutput<AlignmentRecordRDD> extract(final Sample sample) {
+    public InputOutput<AlignmentRecordDataset> extract(final Sample sample) {
         return InputOutput.of(outputType, sample, javaADAMContext.loadAlignments(dataLocation.uri(outputType, sample)));
     }
 }

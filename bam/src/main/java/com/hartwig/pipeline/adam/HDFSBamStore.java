@@ -12,9 +12,9 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.parquet.hadoop.metadata.CompressionCodecName;
 import org.bdgenomics.adam.rdd.JavaSaveArgs;
-import org.bdgenomics.adam.rdd.read.AlignmentRecordRDD;
+import org.bdgenomics.adam.rdd.read.AlignmentRecordDataset;
 
-public class HDFSBamStore implements OutputStore<AlignmentRecordRDD> {
+public class HDFSBamStore implements OutputStore<AlignmentRecordDataset> {
 
     private final DataLocation dataLocation;
     private final FileSystem fileSystem;
@@ -27,7 +27,7 @@ public class HDFSBamStore implements OutputStore<AlignmentRecordRDD> {
     }
 
     @Override
-    public void store(final InputOutput<AlignmentRecordRDD> inputOutput) {
+    public void store(final InputOutput<AlignmentRecordDataset> inputOutput) {
         JavaSaveArgs saveArgs = new JavaSaveArgs(dataLocation.uri(inputOutput.type(), inputOutput.sample()),
                 128 * 1024 * 1024,
                 1024 * 1024,
