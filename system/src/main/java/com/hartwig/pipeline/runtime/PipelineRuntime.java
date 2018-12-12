@@ -42,8 +42,7 @@ public class PipelineRuntime {
                     configuration.referenceGenome().path(),
                     configuration.knownIndel().paths(),
                     configuration.pipeline().bwa().threads(),
-                    false,
-                    false);
+                    false, configuration.pipeline().saveResultsAsSingleFile());
             adamPipeline.execute(PatientReader.fromHDFS(fileSystem, configuration.patient().directory(), configuration.patient().name())
                     .reference());
         } catch (Exception e) {

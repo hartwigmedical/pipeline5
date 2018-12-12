@@ -21,7 +21,7 @@ public interface PipelineParameters {
 
     @Value.Default
     default boolean saveResultsAsSingleFile() {
-        return true;
+        return false;
     }
 
     @Value.Default
