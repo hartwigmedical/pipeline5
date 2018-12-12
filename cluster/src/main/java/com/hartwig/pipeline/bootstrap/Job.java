@@ -67,7 +67,7 @@ class Job {
                 } else {
                     return JobResult.SUCCESS;
                 }
-            } catch (IOException e) {
+            } catch (Exception e) {
                 LOGGER.error(String.format("Unable to run job [%s]", jobDefinition), e);
                 retries++;
             }
