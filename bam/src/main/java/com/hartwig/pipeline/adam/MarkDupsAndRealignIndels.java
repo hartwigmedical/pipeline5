@@ -42,7 +42,7 @@ public class MarkDupsAndRealignIndels implements Stage<AlignmentRecordDataset, A
     }
 
     @Override
-    public InputOutput<AlignmentRecordDataset> execute(final InputOutput<AlignmentRecordDataset> input) throws IOException {
+    public InputOutput<AlignmentRecordDataset> execute(final InputOutput<AlignmentRecordDataset> input) {
         RDD<Variant> allKnownVariants = knownIndels.paths()
                 .stream()
                 .map(javaADAMContext::loadVariants).map(VariantDataset::rdd)
@@ -51,6 +51,7 @@ public class MarkDupsAndRealignIndels implements Stage<AlignmentRecordDataset, A
         UnmappedReads unmapped = UnmappedReads.from(input.payload());
         return InputOutput.of(OutputType.INDEL_REALIGNED, input.sample(), unmapped.toAlignment(input.payload()
                         .markDuplicates()
+                // TODO (PAWO): Lot of magical numbers here? Explain and/or define as variables?
                 .realignIndels(consensusFromKnownsAndReads(allKnownVariants),
                         false,
                         500,
@@ -63,7 +64,7 @@ public class MarkDupsAndRealignIndels implements Stage<AlignmentRecordDataset, A
     }
 
     @NotNull
-    private UnionConsensusGenerator consensusFromKnownsAndReads(final RDD<Variant> allKnownVariants) {
+    private static UnionConsensusGenerator consensusFromKnownsAndReads(final RDD<Variant> allKnownVariants) {
         return new UnionConsensusGenerator(JavaConversions.asScalaBuffer(Arrays.asList(new ConsensusGeneratorFromKnowns(allKnownVariants,
                 0), new ConsensusGeneratorFromReads())));
     }

@@ -6,14 +6,14 @@ import org.bdgenomics.formats.avro.AlignmentRecord;
 
 public class UnmappedReads {
 
-    private final JavaRDD<AlignmentRecord> theUnmapped;
+    private final JavaRDD<AlignmentRecord> unmapped;
 
-    private UnmappedReads(final JavaRDD<AlignmentRecord> theUnmapped) {
-        this.theUnmapped = theUnmapped;
+    private UnmappedReads(final JavaRDD<AlignmentRecord> unmapped) {
+        this.unmapped = unmapped;
     }
 
     AlignmentRecordDataset toAlignment(AlignmentRecordDataset original) {
-        return original.replaceRdd(original.rdd().union(theUnmapped.rdd()), original.optPartitionMap());
+        return original.replaceRdd(original.rdd().union(unmapped.rdd()), original.optPartitionMap());
     }
 
     public static UnmappedReads from(final AlignmentRecordDataset AlignmentRecordDataset) {

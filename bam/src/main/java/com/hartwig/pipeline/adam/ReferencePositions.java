@@ -30,7 +30,7 @@ class ReferencePositions {
                 }
             }
         }
-        // if we are here, the reference position was not overlapping the read at all
+        // (PAWO): if we are here, the reference position was not overlapping the read at all
         return 0;
     }
 

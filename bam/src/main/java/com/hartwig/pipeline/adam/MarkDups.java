@@ -16,7 +16,7 @@ public class MarkDups implements Stage<AlignmentRecordDataset, AlignmentRecordDa
     }
 
     @Override
-    public InputOutput<AlignmentRecordDataset> execute(final InputOutput<AlignmentRecordDataset> input) throws IOException {
+    public InputOutput<AlignmentRecordDataset> execute(final InputOutput<AlignmentRecordDataset> input) {
         return InputOutput.of(OutputType.DUPLICATE_MARKED, input.sample(), input.payload().markDuplicates());
     }
 }
