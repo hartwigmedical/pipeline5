@@ -17,6 +17,7 @@ class BwaCommand {
         List<String> cmd = new ArrayList<>();
         cmd.add("bwa");
         cmd.add("mem");
+        // TODO (PAWO): What does -p do exactly? According to help "smart pairing"?
         cmd.add("-p");
         cmd.add("-R");
         cmd.add(format("@RG\\tID:%s\\tLB:%s\\tPL:ILLUMINA\\tPU:%s\\tSM:%s",
@@ -26,7 +27,6 @@ class BwaCommand {
                 sample.name()));
         // KODU: Soft-clipping supplementary reads rather than hard-clipping will help GRIDSS downstream.
         cmd.add("-Y");
-//        cmd.add("-c 100");
         cmd.add("-t");
         cmd.add(String.valueOf(bwaThreads));
         cmd.add(new Path(referenceGenome.path()).getName());
