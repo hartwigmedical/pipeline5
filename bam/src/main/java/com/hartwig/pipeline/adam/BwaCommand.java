@@ -17,7 +17,8 @@ class BwaCommand {
         List<String> cmd = new ArrayList<>();
         cmd.add("bwa");
         cmd.add("mem");
-        // TODO (PAWO): What does -p do exactly? According to help "smart pairing"?
+        // PAWO: -p is used to enable processing a single stream of reads as paired. Smart pairing uses the read name to match up reads
+        // and mates as it aligns the FASTQ (older versions of bwa depended on the mate read immediately following the first in pair)
         cmd.add("-p");
         cmd.add("-R");
         cmd.add(format("@RG\\tID:%s\\tLB:%s\\tPL:ILLUMINA\\tPU:%s\\tSM:%s",
