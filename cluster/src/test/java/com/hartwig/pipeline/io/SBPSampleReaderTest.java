@@ -22,6 +22,7 @@ public class SBPSampleReaderTest {
     private static final String SAMPLE_NAME = "CPCT02330029T";
     private static final String SAMPLE_JSON = "sbp_api/get_fastq.json";
     private static final String SAMPLE_JSON_QC_FAILED = "sbp_api/get_fastq_qc_failed.json";
+    private static final String SAMPLE_JSON_SUBDIRECTORIES = "sbp_api/get_fastq_subdirectories.json";
     private SBPRestApi sbpRestApi;
     private SBPSampleReader victim;
 
@@ -58,6 +59,14 @@ public class SBPSampleReaderTest {
         Sample sample = victim.read(EXISTS);
         assertThat(sample.lanes()).hasSize(1);
         assertThat(sample.lanes().get(0).readsPath()).contains("L001");
+    }
+
+    @Test
+    public void handlesSubdirectories() throws Exception {
+        returnJson(SAMPLE_JSON_SUBDIRECTORIES);
+        Sample sample = victim.read(EXISTS);
+        assertThat(sample.lanes()).hasSize(2);
+        assertThat(sample.name()).isEqualTo("CPCT02330029T");
     }
 
     private void returnJson(final String sampleJsonLocation) throws IOException {

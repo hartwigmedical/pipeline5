@@ -57,11 +57,17 @@ public class SBPSampleReader {
 
     @NotNull
     private String extract(final int sampleId, final List<FastQMetadata> fastqJson, final Function<String, String> stringFunction) {
-        return fastqJson.stream().map(FastQMetadata::name_r1).map(stringFunction)
+        return fastqJson.stream().map(FastQMetadata::name_r1).map(SBPSampleReader::removePath).map(stringFunction)
                 .distinct()
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException(format("No FASTQ available in SBP object store for sample [%s]",
                         sampleId)));
+    }
+
+    @NotNull
+    private static String removePath(String name) {
+        String[] split = name.split("/");
+        return split[split.length - 1];
     }
 
     @NotNull

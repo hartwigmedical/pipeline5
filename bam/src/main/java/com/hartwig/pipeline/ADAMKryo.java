@@ -10,6 +10,7 @@ import com.hartwig.pipeline.adam.PositionRangeKey;
 
 import org.apache.spark.internal.io.FileCommitProtocol;
 import org.apache.spark.serializer.KryoRegistrator;
+import org.bdgenomics.adam.algorithms.consensus.Consensus;
 import org.bdgenomics.adam.converters.FastaConverter;
 import org.bdgenomics.adam.models.IndelTable;
 import org.bdgenomics.adam.models.RecordGroup;
@@ -29,6 +30,7 @@ import org.bdgenomics.adam.util.ReferenceContigMap;
 import org.bdgenomics.formats.avro.AlignmentRecord;
 import org.bdgenomics.formats.avro.Fragment;
 import org.bdgenomics.formats.avro.NucleotideContigFragment;
+import org.bdgenomics.formats.avro.ProcessingStep;
 import org.bdgenomics.formats.avro.Strand;
 
 import htsjdk.samtools.Cigar;
@@ -108,6 +110,9 @@ public class ADAMKryo implements KryoRegistrator {
             kryo.register(Cigar.class);
             kryo.register(CigarElement.class);
             kryo.register(CigarOperator.class);
+            kryo.register(Consensus.class);
+            kryo.register(Consensus[].class);
+            kryo.register(ProcessingStep.class);
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
