@@ -25,7 +25,7 @@ public class SBPRestApi {
         this.target = target;
     }
 
-    String getFastQ(int sampleId) {
+    public String getFastQ(int sampleId) {
         LOGGER.info("Connecting to SBP API at [{}] for sample id [{}]", target.getUri(), sampleId);
         Response response = target.path("hmf").path("v1").path("fastq").queryParam("sample_id", sampleId).request().buildGet().invoke();
         if (response.getStatus() == Response.Status.OK.getStatusCode()) {

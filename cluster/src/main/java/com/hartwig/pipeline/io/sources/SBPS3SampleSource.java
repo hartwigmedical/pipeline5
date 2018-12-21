@@ -1,27 +1,29 @@
 package com.hartwig.pipeline.io.sources;
 
-import java.io.File;
 import java.util.stream.Stream;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.bootstrap.Arguments;
-import com.hartwig.pipeline.io.SBPRestApi;
 import com.hartwig.pipeline.io.SBPSampleReader;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SBPS3SampleSource implements SampleSource {
 
-    private final SBPRestApi restApi;
-    private final AmazonS3 s3;
+    private final Logger LOGGER = LoggerFactory.getLogger(SampleSource.class);
 
-    public SBPS3SampleSource(final SBPRestApi restApi, final AmazonS3 s3) {
-        this.restApi = restApi;
+    private final AmazonS3 s3;
+    private final SBPSampleReader sbpSampleReader;
+
+    public SBPS3SampleSource(final AmazonS3 s3, final SBPSampleReader sbpSampleReader) {
         this.s3 = s3;
+        this.sbpSampleReader = sbpSampleReader;
     }
 
     @Override
     public SampleData sample(final Arguments arguments) {
-        SBPSampleReader sbpSampleReader = new SBPSampleReader(restApi);
         Sample sample = sbpSampleReader.read(arguments.sbpApiSampleId()
                 .orElseThrow(() -> new IllegalArgumentException("Arguments must "
                         + "contain an SBP id to use the SBP sample source. This looks like a programmatic mis-wiring somewhere")));
@@ -30,8 +32,10 @@ public class SBPS3SampleSource implements SampleSource {
     }
 
     private long size(String filename) {
-        File file = new File(filename);
-        String bucket = file.getParent().replaceAll("/", "");
-        return s3.getObject(bucket, file.getName()).getObjectMetadata().getContentLength();
+        String[] split = filename.split("/", 2);
+        String bucket = split[0];
+        String object = split[1];
+        LOGGER.info("Requesting content length from S3 for object [{}] in bucket [{}]", object, bucket);
+        return s3.getObject(bucket, object).getObjectMetadata().getContentLength();
     }
 }

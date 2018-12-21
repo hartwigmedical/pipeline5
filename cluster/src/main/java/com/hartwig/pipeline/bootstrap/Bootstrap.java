@@ -32,6 +32,7 @@ import com.hartwig.pipeline.io.SBPRestApi;
 import com.hartwig.pipeline.io.SBPS3FileSource;
 import com.hartwig.pipeline.io.SBPS3FileTarget;
 import com.hartwig.pipeline.io.SBPSampleDownload;
+import com.hartwig.pipeline.io.SBPSampleReader;
 import com.hartwig.pipeline.io.SampleDownload;
 import com.hartwig.pipeline.io.SampleUpload;
 import com.hartwig.pipeline.io.sources.FileSystemSampleSource;
@@ -176,8 +177,7 @@ class Bootstrap {
                     AmazonS3 s3 = S3.newClient(arguments.sblS3Url());
                     new Bootstrap(storage,
                             referenceGenomeData,
-                            knownIndelsData,
-                            new SBPS3SampleSource(sbpRestApi, s3),
+                            knownIndelsData, new SBPS3SampleSource(s3, new SBPSampleReader(sbpRestApi)),
                             new SBPSampleDownload(s3,
                                     sbpRestApi,
                                     sbpSampleId,
