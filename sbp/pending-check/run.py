@@ -4,8 +4,8 @@ import json
 import kubernetes
 import os
 import requests
-import sys
 import time
+import traceback
 
 from HmfApi import *
 
