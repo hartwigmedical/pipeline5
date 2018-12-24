@@ -45,7 +45,7 @@ public class SBPRestApi {
     }
 
     String getBarcode(int sampleId) {
-        Response response = target.path("hmf").path("v1").path("sample").path(String.valueOf(sampleId)).request().buildGet().invoke();
+        Response response = target.path("hmf").path("v1").path("samples").path(String.valueOf(sampleId)).request().buildGet().invoke();
         if (response.getStatus() == Response.Status.OK.getStatusCode()) {
             return response.readEntity(Map.class).get("barcode").toString();
         }
