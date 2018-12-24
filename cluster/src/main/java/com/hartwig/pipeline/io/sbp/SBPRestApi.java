@@ -45,20 +45,22 @@ public class SBPRestApi {
     }
 
     String getBarcode(int sampleId) {
-        Response response = target.path("hmf").path("v1").path("samples").path(String.valueOf(sampleId)).request().buildGet().invoke();
+        Response response = samplesApi().path(String.valueOf(sampleId)).request().buildGet().invoke();
         if (response.getStatus() == Response.Status.OK.getStatusCode()) {
             return response.readEntity(Map.class).get("barcode").toString();
         }
         throw error(response);
     }
 
+    private WebTarget samplesApi() {
+        return target.path("hmf").path("v1").path("samples");
+    }
+
     void patchBam(int sampleId, BamMetadata metadata) {
         try {
             String json = OBJECT_MAPPER.writeValueAsString(metadata);
             LOGGER.info("Patching sample [{}] with [{}]", sampleId, json);
-            Response response = target.path("hmf")
-                    .path("v1")
-                    .path("samples")
+            Response response = samplesApi()
                     .path(String.valueOf(sampleId))
                     .request()
                     .build("PATCH", Entity.entity(json, MediaType.APPLICATION_JSON_TYPE))

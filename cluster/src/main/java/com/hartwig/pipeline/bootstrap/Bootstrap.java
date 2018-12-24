@@ -20,20 +20,20 @@ import com.hartwig.pipeline.cluster.SparkCluster;
 import com.hartwig.pipeline.cost.CostCalculator;
 import com.hartwig.pipeline.cost.Costs;
 import com.hartwig.pipeline.io.BamComposer;
+import com.hartwig.pipeline.io.BamDownload;
 import com.hartwig.pipeline.io.GSUtil;
-import com.hartwig.pipeline.io.GSUtilSampleDownload;
+import com.hartwig.pipeline.io.GSUtilBamDownload;
 import com.hartwig.pipeline.io.GSUtilSampleUpload;
 import com.hartwig.pipeline.io.LocalFileSource;
 import com.hartwig.pipeline.io.LocalFileTarget;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.io.S3;
-import com.hartwig.pipeline.io.SampleDownload;
 import com.hartwig.pipeline.io.SampleUpload;
+import com.hartwig.pipeline.io.sbp.SBPBamDownload;
 import com.hartwig.pipeline.io.sbp.SBPRestApi;
+import com.hartwig.pipeline.io.sbp.SBPS3BamDownload;
 import com.hartwig.pipeline.io.sbp.SBPS3FileSource;
-import com.hartwig.pipeline.io.sbp.SBPS3FileTarget;
-import com.hartwig.pipeline.io.sbp.SBPSampleDownload;
 import com.hartwig.pipeline.io.sbp.SBPSampleReader;
 import com.hartwig.pipeline.io.sources.FileSystemSampleSource;
 import com.hartwig.pipeline.io.sources.GoogleStorageSampleSource;
@@ -59,7 +59,7 @@ class Bootstrap {
     private final StaticData referenceGenomeData;
     private final StaticData knownIndelData;
     private final SampleSource sampleSource;
-    private final SampleDownload sampleDownload;
+    private final BamDownload bamDownload;
     private final SampleUpload sampleUpload;
     private final SparkCluster singleNodeCluster;
     private final SparkCluster parallelProcessingCluster;
@@ -70,7 +70,7 @@ class Bootstrap {
     private final GoogleCredentials credentials;
 
     private Bootstrap(final Storage storage, final StaticData referenceGenomeData, final StaticData knownIndelData,
-            final SampleSource sampleSource, final SampleDownload sampleDownload, final SampleUpload sampleUpload,
+            final SampleSource sampleSource, final BamDownload bamDownload, final SampleUpload sampleUpload,
             final SparkCluster singleNodeCluster, final SparkCluster cluster, final JarUpload jarUpload,
             final ClusterOptimizer clusterOptimizer, final CostCalculator costCalculator, final BamComposer composer,
             final GoogleCredentials credentials) {
@@ -78,7 +78,7 @@ class Bootstrap {
         this.referenceGenomeData = referenceGenomeData;
         this.knownIndelData = knownIndelData;
         this.sampleSource = sampleSource;
-        this.sampleDownload = sampleDownload;
+        this.bamDownload = bamDownload;
         this.sampleUpload = sampleUpload;
         this.singleNodeCluster = singleNodeCluster;
         this.parallelProcessingCluster = cluster;
@@ -116,7 +116,7 @@ class Bootstrap {
                     runtimeBucket);
 
             if (!arguments.noDownload()) {
-                sampleDownload.run(sample, runtimeBucket, JobResult.SUCCESS);
+                bamDownload.run(sample, runtimeBucket, JobResult.SUCCESS);
             }
             if (!arguments.noCleanup() && !arguments.noDownload()) {
                 runtimeBucket.cleanup();
@@ -177,11 +177,11 @@ class Bootstrap {
                     int sbpSampleId = arguments.sbpApiSampleId().get();
                     SBPRestApi sbpRestApi = SBPRestApi.newInstance(arguments);
                     AmazonS3 s3 = S3.newClient(arguments.sblS3Url());
-                    new Bootstrap(storage, referenceGenomeData, knownIndelsData, new SBPS3SampleSource(s3, new SBPSampleReader(sbpRestApi)),
-                            new SBPSampleDownload(s3,
-                                    sbpRestApi,
-                                    sbpSampleId,
-                                    new GSUtilSampleDownload(arguments.cloudSdkPath(), new SBPS3FileTarget())),
+                    new Bootstrap(storage,
+                            referenceGenomeData,
+                            knownIndelsData,
+                            new SBPS3SampleSource(s3, new SBPSampleReader(sbpRestApi)),
+                            new SBPBamDownload(s3, sbpRestApi, sbpSampleId, new SBPS3BamDownload(s3, ResultsDirectory.defaultDirectory())),
                             new GSUtilSampleUpload(arguments.cloudSdkPath(), new SBPS3FileSource()),
                             singleNode,
                             parallelProcessing,
@@ -196,7 +196,7 @@ class Bootstrap {
                             knownIndelsData,
                             arguments.noUpload() ? new GoogleStorageSampleSource(storage)
                                     : new FileSystemSampleSource(Hadoop.localFilesystem(), arguments.patientDirectory()),
-                            new GSUtilSampleDownload(arguments.cloudSdkPath(), new LocalFileTarget()),
+                            new GSUtilBamDownload(arguments.cloudSdkPath(), new LocalFileTarget()),
                             new GSUtilSampleUpload(arguments.cloudSdkPath(), new LocalFileSource()),
                             singleNode,
                             parallelProcessing,

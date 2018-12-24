@@ -7,12 +7,12 @@ import com.hartwig.pipeline.bootstrap.JobResult;
 
 import org.jetbrains.annotations.NotNull;
 
-public class GSUtilSampleDownload implements SampleDownload {
+public class GSUtilBamDownload implements BamDownload {
 
     private final String gsdkPath;
     private final Function<Sample, String> targetResolver;
 
-    public GSUtilSampleDownload(final String gsdkPath, final Function<Sample, String> targetResolver) {
+    public GSUtilBamDownload(final String gsdkPath, final Function<Sample, String> targetResolver) {
         this.gsdkPath = gsdkPath;
         this.targetResolver = targetResolver;
     }

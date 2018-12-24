@@ -8,23 +8,23 @@ import com.amazonaws.services.s3.model.Permission;
 import com.amazonaws.services.s3.model.S3Object;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.bootstrap.JobResult;
+import com.hartwig.pipeline.io.BamDownload;
 import com.hartwig.pipeline.io.RuntimeBucket;
-import com.hartwig.pipeline.io.SampleDownload;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SBPSampleDownload implements SampleDownload {
+public class SBPBamDownload implements BamDownload {
 
     private static final String READERS_ID_ENV = "READER_ACL_IDS";
     private static final String READERS_ACP_ID_ENV = "READER_ACP_ACL_IDS";
-    private final Logger LOGGER = LoggerFactory.getLogger(SBPSampleDownload.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(SBPBamDownload.class);
     private final AmazonS3 s3Client;
     private final SBPRestApi sbpRestApi;
     private final int sbpSampleId;
-    private final SampleDownload decorated;
+    private final BamDownload decorated;
 
-    public SBPSampleDownload(final AmazonS3 s3Client, final SBPRestApi sbpRestApi, final int sbpSampleId, final SampleDownload decorated) {
+    public SBPBamDownload(final AmazonS3 s3Client, final SBPRestApi sbpRestApi, final int sbpSampleId, final BamDownload decorated) {
         this.s3Client = s3Client;
         this.sbpRestApi = sbpRestApi;
         this.sbpSampleId = sbpSampleId;
@@ -50,7 +50,8 @@ public class SBPSampleDownload implements SampleDownload {
                         .directory(sample.barcode())
                         .filename(bamFile)
                         .filesize(existing.getContentLength())
-                        .hash(existing.getETag()).status(result == JobResult.SUCCESS ? "Done_PipelineV5" : "Failed_PipelineV5")
+                        .hash(existing.getETag())
+                        .status(result == JobResult.SUCCESS ? "Done_PipelineV5" : "Failed_PipelineV5")
                         .build());
     }
 
