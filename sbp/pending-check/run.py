@@ -3,6 +3,7 @@
 import json
 import kubernetes
 import os
+import sys
 import requests
 import time
 import traceback
@@ -32,10 +33,10 @@ def start_kubernetes_job(args):
     with file('/var/run/secrets/kubernetes.io/serviceaccount/namespace') as f:
         namespace = f.read()
 
-    if namespace == 'production':
-      project = 'hmf-pipeline-prod'
-    else:
-      project = 'hmf-pipeline-development'
+    args = ['-sbp_sample_id', str(args['sbp_sample_id'])]
+
+    for arg in range(1, len(sys.argv)):
+        args.append(sys.argv[arg])
 
     spec = kubernetes.client.V1Job(
         metadata=kubernetes.client.V1ObjectMeta(
@@ -54,12 +55,7 @@ def start_kubernetes_job(args):
                             command=[
                                 '/bootstrap.sh'
                             ],
-                            args=[
-                                '-sbp_sample_id',
-                                str(args['sbp_sample_id']),
-                                '-project',
-                                str(project)
-                            ],
+                            args=args,
                             env=[
                                 kubernetes.client.V1EnvVar(
                                     name='BOTO_PATH',
