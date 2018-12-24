@@ -11,7 +11,7 @@ from HmfApi import *
 
 
 def phone_home(message):
-    log(message)
+    print message
 
     payload = {"text": '```' + message + '```'}
     requests.post(
@@ -49,7 +49,7 @@ def start_kubernetes_job(args):
                             ],
                             args=[
                                 '-sbp_sample_id',
-                                args['sbp_sample_id']
+                                str(args['sbp_sample_id'])
                             ],
                             env=[
                                 kubernetes.client.V1EnvVar(
