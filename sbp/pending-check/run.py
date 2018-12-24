@@ -33,10 +33,10 @@ def start_kubernetes_job(args):
     with file('/var/run/secrets/kubernetes.io/serviceaccount/namespace') as f:
         namespace = f.read()
 
-    args = ['-sbp_sample_id', str(args['sbp_sample_id'])]
+    job_args = ['-sbp_sample_id', str(args['sbp_sample_id'])]
 
-    for arg in range(1, len(sys.argv)):
-        args.append(sys.argv[arg])
+    for i in range(1, len(sys.argv)):
+        job_args.append(sys.argv[i])
 
     spec = kubernetes.client.V1Job(
         metadata=kubernetes.client.V1ObjectMeta(
@@ -55,7 +55,7 @@ def start_kubernetes_job(args):
                             command=[
                                 '/bootstrap.sh'
                             ],
-                            args=args,
+                            args=job_args,
                             env=[
                                 kubernetes.client.V1EnvVar(
                                     name='BOTO_PATH',
