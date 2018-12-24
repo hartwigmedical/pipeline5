@@ -51,6 +51,8 @@ class BootstrapOptions {
     private static final String REFERENCE_GENOME_BUCKET_FLAG = "reference_genome";
     private static final String DEFAULT_REFERENCE_GENOME_BUCKET = "reference_genome";
     private static final String VERBOSE_CLOUD_SDK_FLAG = "verbose_cloud_sdk";
+    private static final String KNOWN_INDELS_BUCKET_FLAG = "known_indels";
+    private static final String DEFAULT_KNOWN_INDELS_BUCKET = "known_indels";
 
     private static Options options() {
         return new Options().addOption(privateKeyFlag())
@@ -81,9 +83,14 @@ class BootstrapOptions {
                 .addOption(sbpS3Url())
                 .addOption(runId())
                 .addOption(nodeInitScript())
-                .addOption(cpuPerGB())
-                .addOption(gsutilPath())
-                .addOption(referenceGenomeBucket());
+                .addOption(cpuPerGB()).addOption(gsutilPath()).addOption(referenceGenomeBucket()).addOption(knownIndelsBucket());
+    }
+
+    private static Option knownIndelsBucket() {
+        return optionWithArgAndDefault(KNOWN_INDELS_BUCKET_FLAG,
+                KNOWN_INDELS_BUCKET_FLAG,
+                "Bucket from which to copy the known indel sites VCFs into the runtime bucket. Just a name, not a url (no gs://)",
+                DEFAULT_KNOWN_INDELS_BUCKET);
     }
 
     private static Option referenceGenomeBucket() {
@@ -197,6 +204,7 @@ class BootstrapOptions {
                     .usePreemptibleVms(commandLine.hasOption(USE_PREEMTIBLE_VMS_FLAG))
                     .noDownload(commandLine.hasOption(NO_DOWNLOAD_FLAG))
                     .referenceGenomeBucket(commandLine.getOptionValue(REFERENCE_GENOME_BUCKET_FLAG, DEFAULT_REFERENCE_GENOME_BUCKET))
+                    .knownIndelsBucket(commandLine.getOptionValue(KNOWN_INDELS_BUCKET_FLAG, DEFAULT_KNOWN_INDELS_BUCKET))
                     .verboseCloudSdk(commandLine.hasOption(VERBOSE_CLOUD_SDK_FLAG))
                     .noUpload(commandLine.hasOption(NO_UPLOAD_FLAG))
                     .build());

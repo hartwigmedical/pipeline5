@@ -110,8 +110,10 @@ class Bootstrap {
                     sample,
                     runtimeBucket);
             composer.run(sample, runtimeBucket);
-            runJob(Jobs.sortAndIndex(singleNodeCluster, costCalculator, monitor, jarLocation, runtimeBucket, arguments, sample), arguments,
-                    sample, runtimeBucket);
+            runJob(Jobs.sortAndIndex(singleNodeCluster, costCalculator, monitor, jarLocation, runtimeBucket, arguments, sample),
+                    arguments,
+                    sample,
+                    runtimeBucket);
 
             if (!arguments.noDownload()) {
                 sampleDownload.run(sample, runtimeBucket, JobResult.SUCCESS);
@@ -165,7 +167,7 @@ class Bootstrap {
 
                 StaticData referenceGenomeData =
                         new StaticData(storage, arguments.referenceGenomeBucket(), "reference_genome", new ReferenceGenomeAlias());
-                StaticData knownIndelsData = new StaticData(storage, "known_indels", "known_indels");
+                StaticData knownIndelsData = new StaticData(storage, arguments.knownIndelsBucket(), "known_indels");
                 CpuFastQSizeRatio ratio = CpuFastQSizeRatio.of(arguments.cpuPerGBRatio());
                 CostCalculator costCalculator = new CostCalculator(credentials, arguments.region(), Costs.defaultCosts());
                 BamComposer composer = new BamComposer(storage, ResultsDirectory.defaultDirectory(), 32);
@@ -175,9 +177,7 @@ class Bootstrap {
                     int sbpSampleId = arguments.sbpApiSampleId().get();
                     SBPRestApi sbpRestApi = SBPRestApi.newInstance(arguments);
                     AmazonS3 s3 = S3.newClient(arguments.sblS3Url());
-                    new Bootstrap(storage,
-                            referenceGenomeData,
-                            knownIndelsData, new SBPS3SampleSource(s3, new SBPSampleReader(sbpRestApi)),
+                    new Bootstrap(storage, referenceGenomeData, knownIndelsData, new SBPS3SampleSource(s3, new SBPSampleReader(sbpRestApi)),
                             new SBPSampleDownload(s3,
                                     sbpRestApi,
                                     sbpSampleId,
@@ -193,7 +193,8 @@ class Bootstrap {
                 } else {
                     new Bootstrap(storage,
                             referenceGenomeData,
-                            knownIndelsData, arguments.noUpload() ? new GoogleStorageSampleSource(storage)
+                            knownIndelsData,
+                            arguments.noUpload() ? new GoogleStorageSampleSource(storage)
                                     : new FileSystemSampleSource(Hadoop.localFilesystem(), arguments.patientDirectory()),
                             new GSUtilSampleDownload(arguments.cloudSdkPath(), new LocalFileTarget()),
                             new GSUtilSampleUpload(arguments.cloudSdkPath(), new LocalFileSource()),

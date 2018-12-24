@@ -63,6 +63,8 @@ public interface Arguments {
 
     String referenceGenomeBucket();
 
+    String knownIndelsBucket();
+
     Optional<Integer> sbpApiSampleId();
 
     Optional<String> runId();
