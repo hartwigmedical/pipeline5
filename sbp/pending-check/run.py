@@ -29,6 +29,13 @@ def start_kubernetes_job(args):
     kubernetes.config.load_incluster_config()
 
     timestamp = time.strftime('%Y%m%d%H%M%S')
+    with file('/var/run/secrets/kubernetes.io/serviceaccount/namespace') as f:
+        namespace = f.read()
+
+    if namespace == 'production':
+      project = 'hmf-pipeline-prod'
+    else:
+      project = 'hmf-pipeline-development'
 
     spec = kubernetes.client.V1Job(
         metadata=kubernetes.client.V1ObjectMeta(
@@ -49,7 +56,9 @@ def start_kubernetes_job(args):
                             ],
                             args=[
                                 '-sbp_sample_id',
-                                str(args['sbp_sample_id'])
+                                str(args['sbp_sample_id']),
+                                '-project',
+                                str(project)
                             ],
                             env=[
                                 kubernetes.client.V1EnvVar(
@@ -110,9 +119,6 @@ def start_kubernetes_job(args):
             )
         )
     )
-
-    with file('/var/run/secrets/kubernetes.io/serviceaccount/namespace') as f:
-        namespace = f.read()
 
     job = kubernetes. \
         client. \
