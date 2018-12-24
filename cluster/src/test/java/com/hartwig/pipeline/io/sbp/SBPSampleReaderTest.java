@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.io;
+package com.hartwig.pipeline.io.sbp;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -23,6 +23,7 @@ public class SBPSampleReaderTest {
     private static final String SAMPLE_JSON = "sbp_api/get_fastq.json";
     private static final String SAMPLE_JSON_QC_FAILED = "sbp_api/get_fastq_qc_failed.json";
     private static final String SAMPLE_JSON_SUBDIRECTORIES = "sbp_api/get_fastq_subdirectories.json";
+    private static final String BARCODE = "FR1234";
     private SBPRestApi sbpRestApi;
     private SBPSampleReader victim;
 
@@ -30,6 +31,7 @@ public class SBPSampleReaderTest {
     public void setUp() throws Exception {
         sbpRestApi = mock(SBPRestApi.class);
         victim = new SBPSampleReader(sbpRestApi);
+        when(sbpRestApi.getBarcode(EXISTS)).thenReturn(BARCODE);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -51,6 +53,13 @@ public class SBPSampleReaderTest {
         returnJson(SAMPLE_JSON);
         Sample sample = victim.read(EXISTS);
         assertThat(sample.name()).isEqualTo(SAMPLE_NAME);
+    }
+
+    @Test
+    public void getsBarcodeFromAPi() throws Exception {
+        returnJson(SAMPLE_JSON);
+        Sample sample = victim.read(EXISTS);
+        assertThat(sample.barcode()).isEqualTo(BARCODE);
     }
 
     @Test

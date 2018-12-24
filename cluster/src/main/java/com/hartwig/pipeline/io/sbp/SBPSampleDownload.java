@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.io;
+package com.hartwig.pipeline.io.sbp;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.AccessControlList;
@@ -8,6 +8,8 @@ import com.amazonaws.services.s3.model.Permission;
 import com.amazonaws.services.s3.model.S3Object;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.bootstrap.JobResult;
+import com.hartwig.pipeline.io.RuntimeBucket;
+import com.hartwig.pipeline.io.SampleDownload;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

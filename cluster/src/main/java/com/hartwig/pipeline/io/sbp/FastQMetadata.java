@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.io;
+package com.hartwig.pipeline.io.sbp;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 

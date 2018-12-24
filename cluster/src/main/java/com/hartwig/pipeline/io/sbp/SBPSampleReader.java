@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.io;
+package com.hartwig.pipeline.io.sbp;
 
 import static java.lang.String.format;
 
@@ -37,17 +37,13 @@ public class SBPSampleReader {
         try {
             List<FastQMetadata> fastqJson = parseJson(rawFastQJson);
             String sampleName = extract(sampleId, fastqJson, name());
-            String barcode = extract(sampleId, fastqJson, barcode());
+            String barcode = sbpRestApi.getBarcode(sampleId);
             Sample sample = sample(sampleName, barcode, fastqJson);
             LOGGER.info("Found sample [{}] in SBP", sample);
             return sample;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private Function<String, String> barcode() {
-        return fileName -> fileName.split("_")[1];
     }
 
     @NotNull
@@ -80,7 +76,7 @@ public class SBPSampleReader {
     private static ImmutableLane lane(final FastQMetadata fastQMetadata) {
         String bucket = fastQMetadata.bucket();
         if (bucket == null || bucket.isEmpty()) {
-            throw new IllegalStateException(String.format(
+            throw new IllegalStateException(format(
                     "Bucket for fastq [%s] was null or empty. Has this sample id been cleaned up in S3?",
                     fastQMetadata));
         }

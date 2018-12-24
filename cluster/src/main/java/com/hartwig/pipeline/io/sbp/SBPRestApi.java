@@ -1,4 +1,6 @@
-package com.hartwig.pipeline.io;
+package com.hartwig.pipeline.io.sbp;
+
+import java.util.Map;
 
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -12,6 +14,7 @@ import com.hartwig.pipeline.bootstrap.Arguments;
 
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.HttpUrlConnectorProvider;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,15 +28,28 @@ public class SBPRestApi {
         this.target = target;
     }
 
-    public String getFastQ(int sampleId) {
+    String getFastQ(int sampleId) {
         LOGGER.info("Connecting to SBP API at [{}] for sample id [{}]", target.getUri(), sampleId);
         Response response = target.path("hmf").path("v1").path("fastq").queryParam("sample_id", sampleId).request().buildGet().invoke();
         if (response.getStatus() == Response.Status.OK.getStatusCode()) {
             return response.readEntity(String.class);
         }
-        throw new RuntimeException(String.format("Received an error status of [%s] from SBP Api at [%s]",
+        throw error(response);
+    }
+
+    @NotNull
+    private RuntimeException error(final Response response) {
+        return new RuntimeException(String.format("Received an error status of [%s] from SBP Api at [%s]",
                 response.getStatus(),
                 target.getUri()));
+    }
+
+    String getBarcode(int sampleId) {
+        Response response = target.path("hmf").path("v1").path("sample").path(String.valueOf(sampleId)).request().buildGet().invoke();
+        if (response.getStatus() == Response.Status.OK.getStatusCode()) {
+            return response.readEntity(Map.class).get("barcode").toString();
+        }
+        throw error(response);
     }
 
     void patchBam(int sampleId, BamMetadata metadata) {
