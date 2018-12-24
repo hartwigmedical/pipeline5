@@ -9,6 +9,7 @@ import traceback
 
 from HmfApi import *
 
+
 def phone_home(message):
     log(message)
 
@@ -148,7 +149,7 @@ except BaseException, e:
     message += traceback.format_exc()
     message += "\nWill now sleep until human takes a look"
 
-    phone_int(message)
+    phone_home(message)
 
     while True:
         time.sleep(60)
