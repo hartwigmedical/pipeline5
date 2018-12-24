@@ -5,6 +5,7 @@ import kubernetes
 import os
 import requests
 import sys
+import time
 
 from HmfApi import *
 
@@ -26,9 +27,11 @@ def log(msg):
 def start_kubernetes_job(args):
     kubernetes.config.load_incluster_config()
 
+    timestamp = time.strftime('%Y%m%d%H%M%S')
+
     spec = kubernetes.client.V1Job(
         metadata=kubernetes.client.V1ObjectMeta(
-            name='pipelinev5-{0}'.format(args['sbp_sample_id'])
+            name='pipelinev5-{0}-{1}'.format(args['sbp_sample_id'], timestamp)
         ),
         spec=kubernetes.client.V1JobSpec(
             completions=1,
@@ -38,7 +41,7 @@ def start_kubernetes_job(args):
                     restart_policy='Never',
                     containers=[
                         kubernetes.client.V1Container(
-                            name='pipelinev5-{0}'.format(args['sbp_sample_id']),
+                            name='pipelinev5-{0}-{1}'.format(args['sbp_sample_id'], timestamp),
                             image='hartwigmedicalfoundation/bootstrap:{0}'.format(os.environ['PIPELINE_VERSION']),
                             command=[
                                 '/bootstrap.sh'

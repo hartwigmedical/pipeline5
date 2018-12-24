@@ -3,6 +3,7 @@ kind: CronJob
 metadata:
   name: pipelinev5-pending-check
 spec:
+  schedule: "*/5 * * * *"
   jobTemplate:
     spec:
       completions: 1
@@ -25,3 +26,4 @@ spec:
               value: "5.1.379"
           imagePullSecrets:
           - name: hmfp2-pull-account
+          restartPolicy: Never
