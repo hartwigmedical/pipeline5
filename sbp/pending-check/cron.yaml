@@ -3,8 +3,6 @@ kind: CronJob
 metadata:
   name: pipelinev5-pending-check
 spec:
-  schedule: "*/5 * * * *"
-  concurrencyPolicy: Replace
   jobTemplate:
     spec:
       completions: 1
@@ -13,14 +11,17 @@ spec:
         spec:
           containers:
           - name: pending-check
-            image: eu.gcr.io/hmf-pipeline-development/pipelinev5-pending-check:v0.0.1
-            command: ["python", "/usr/src/app/run.py", "164388"]
+            image: eu.gcr.io/hmf-pipeline-development/pipelinev5-pending-check:latest
+            command:
+            - python
+            - /usr/src/app/run.py
             env:
             - name: SLACK_HOOK
               valueFrom:
                 secretKeyRef:
-                  name: slackhook
                   key: hook_url
+                  name: slackhook
+            - name: PIPELINE_VERSION
+              value: "5.1.379"
           imagePullSecrets:
           - name: hmfp2-pull-account
-          restartPolicy: Never

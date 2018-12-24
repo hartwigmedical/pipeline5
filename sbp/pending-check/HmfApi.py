@@ -17,10 +17,6 @@ class HmfApi(object):
         if not hasattr(self, '_type'):
             self._type = None
 
-        if hasattr(self, '_localkeys'):
-            for k in self._localkeys:
-                setattr(self, k, None)
-
         if hasattr(self, '_keys'):
             for k in self._keys:
                 setattr(self, k, None)
@@ -36,45 +32,6 @@ class HmfApi(object):
                 data[key] = getattr(self, key)
 
         return json.dumps(data, sort_keys=True, indent=4)
-
-    def get(self, id):
-        url = self._url + self._version + self._type + '/' + str(id)
-
-        r = requests.get(url, headers=self._headers)
-
-        if r.status_code == 200:
-            response = r.json()
-
-            if len(response) > 0:
-                for key in self._keys + ['id']:
-                    if key in response:
-                        setattr(self, key, response[key])
-                return self
-
-        elif r.status_code == 404:
-            return False
-
-        raise ValueError("Invalid API response for " + url + " with status code " + str(r.status_code))
-
-    def get_one(self, selector):
-        url = self._url + self._version + self._type
-
-        r = requests.get(url, params=selector, headers=self._headers)
-
-        if r.status_code == 200:
-            response = r.json()
-
-            if len(response) == 1:
-                for key in self._keys + ['id']:
-                    if key in response[0]:
-                        setattr(self, key, response[0][key])
-                return self
-            return False
-
-        elif r.status_code == 404:
-            return False
-
-        raise ValueError("Invalid API response for " + url + " with status code " + str(r.status_code))
 
     def get_all(self, _class, selector):
         url = self._url + self._version + _class()._type
@@ -129,30 +86,8 @@ class HmfApi(object):
             raise ValueError("Invalid API response for " + url + " with status code " + str(post.status_code))
 
 
-class Flowcell(HmfApi):
-    def __init__(self):
-        self._type = 'flowcells'
-        self._keys = ['name', 'sequencer', 'index', 'flowcell_id', 'status', 'q30', 'yld', 'undet_rds', 'undet_rds_p', 'undet_rds_p_pass']
-        super(Flowcell, self).__init__()
-
-
-class Lane(HmfApi):
-    def __init__(self):
-        self._type = 'lanes'
-        self._keys = ['flowcell_id', 'name', 'q30', 'q30_pass', 'yld', 'yld_pass']
-        super(Lane, self).__init__()
-
-
 class Sample(HmfApi):
     def __init__(self):
         self._type      = 'samples'
         self._keys      = ['barcode', 'name', 'submission', 'type', 'status', 'q30', 'q30_req', 'yld', 'yld_req']
-        self._localkeys = ['possible_yld']
         super(Sample, self).__init__()
-
-
-class FastQ(HmfApi):
-    def __init__(self):
-        self._type = 'fastq'
-        self._keys = ['lane_id', 'sample_id', 'q30', 'yld', 'bucket', 'name_r1', 'name_r2', 'size_r1', 'size_r2', 'hash_r1', 'hash_r2', 'qc_pass']
-        super(FastQ, self).__init__()

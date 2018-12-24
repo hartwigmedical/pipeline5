@@ -8,23 +8,27 @@ import sys
 
 from HmfApi import *
 
-revision = str(sys.argv[1])
-
 def phone_home(message):
-    print message
-    slack_hook = os.environ['SLACK_HOOK']
-    payload = {"text": '```' + message + '```'}
-    r = requests.post(slack_hook, data=json.dumps(payload), headers={'Content-Type': 'application/json'})
+    log(message)
 
-def start_kubernetes_job(type, args):
+    payload = {"text": '```' + message + '```'}
+    requests.post(
+        os.environ['SLACK_HOOK'],
+        data=json.dumps(payload),
+        headers={'Content-Type': 'application/json'}
+    )
+
+
+def log(msg):
+    print (time.strftime('[%Y-%m-%d %H:%M:%S] ') + str(msg))
+
+
+def start_kubernetes_job(args):
     kubernetes.config.load_incluster_config()
 
     spec = kubernetes.client.V1Job(
         metadata=kubernetes.client.V1ObjectMeta(
-            name='scheduler-' + type + '-' + args[0],
-            labels={
-                'cleanup_job_name': 'scheduler-' + type
-            }
+            name='pipelinev5-{0}'.format(args['sbp_sample_id'])
         ),
         spec=kubernetes.client.V1JobSpec(
             completions=1,
@@ -34,14 +38,68 @@ def start_kubernetes_job(type, args):
                     restart_policy='Never',
                     containers=[
                         kubernetes.client.V1Container(
-                            name='scheduler-' + type + '-' + args[0],
-                            image='registry.saas.sbp.world/hmf/scheduler:' + revision,
+                            name='pipelinev5-{0}'.format(args['sbp_sample_id']),
+                            image='hartwigmedicalfoundation/bootstrap:{0}'.format(os.environ['PIPELINE_VERSION']),
                             command=[
-                                'python',
-                                '-u',
-                                '/usr/src/app/schedule.py',
-                                type,
-                            ] + args
+                                '/bootstrap.sh'
+                            ],
+                            args=[
+                                '-sbp_sample_id',
+                                args['sbp_sample_id']
+                            ],
+                            env=[
+                                kubernetes.client.V1EnvVar(
+                                    name='BOTO_PATH',
+                                    value='/mnt/boto-config/boto.cfg'
+                                ),
+                                kubernetes.client.V1EnvVar(
+                                    name='READER_ACL_IDS',
+                                    value='0403732075957f94c7baea5ad60b233f,f39de0aec3c8b5bb9d78a22ad88428ad'
+                                ),
+                                kubernetes.client.V1EnvVar(
+                                    name='READER_ACP_ACL_IDS',
+                                    value='0403732075957f94c7baea5ad60b233f'
+                                )
+                            ],
+                            volume_mounts=[
+                                kubernetes.client.V1VolumeMount(
+                                    name='hmf-upload-credentials',
+                                    mount_path='/root/.aws'
+                                ),
+                                kubernetes.client.V1VolumeMount(
+                                    name='gcp-pipeline5-scheduler',
+                                    mount_path='/secrets/'
+                                ),
+                                kubernetes.client.V1VolumeMount(
+                                    name='boto-config',
+                                    mount_path='/mnt/boto-config'
+                                )
+                            ],
+                            resources=kubernetes.client.V1ResourceRequirements(
+                                requests={
+                                    'memory': '2Gi'
+                                }
+                            )
+                        )
+                    ],
+                    volumes=[
+                        kubernetes.client.V1Volume(
+                            name='hmf-upload-credentials',
+                            secret=kubernetes.client.V1SecretVolumeSource(
+                                secret_name='hmf-upload-credentials'
+                            )
+                        ),
+                        kubernetes.client.V1Volume(
+                            name='gcp-pipeline5-scheduler',
+                            secret=kubernetes.client.V1SecretVolumeSource(
+                                secret_name='gcp-pipeline5-scheduler'
+                            )
+                        ),
+                        kubernetes.client.V1Volume(
+                            name='boto-config',
+                            config_map=kubernetes.client.V1ConfigMapVolumeSource(
+                                name='boto-config'
+                            )
                         )
                     ]
                 )
@@ -60,14 +118,34 @@ def start_kubernetes_job(type, args):
             spec
         )
 
-    print ('Started job ' + job.metadata.name)
+    log('Started job {0}'.format(job.metadata.name))
+    return job
 
-samples = HmfApi().get_all(Sample, {'status': 'Pending_PipelineV5'})
-if len(samples) > 0:
-    for sample in samples:
-        start_kubernetes_job('bootstrap', [str(sample.id)])
-        phone_home("Starting PipelineV5 for sample  " + str(sample.name))
-        sample.status = 'Started_PipelineV5'
-        sample.save()
-else:
-    print "No Pipeline v5 runs currently ready to go"
+
+def main():
+    samples = HmfApi().get_all(Sample, {'status': 'Pending_PipelineV5'})
+
+    if len(samples) > 0:
+        for sample in samples:
+            start_kubernetes_job({'sbp_sample_id': sample.id})
+
+            phone_home('Starting PipelineV5 for sample {0} barcode {1}'.format(sample.name, sample.barcode))
+
+            sample.status = 'Started_PipelineV5'
+            sample.save()
+    else:
+        log('No Pipeline v5 runs currently ready to go')
+
+
+try:
+    main()
+except BaseException, e:
+    message = "Exception in pipeline5 pending-check\n\n"
+    message += str(e) + "\n\n"
+    message += traceback.format_exc()
+    message += "\nWill now sleep until human takes a look"
+
+    phone_int(message)
+
+    while True:
+        time.sleep(60)
