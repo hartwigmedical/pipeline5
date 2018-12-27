@@ -11,6 +11,7 @@ import java.nio.file.Paths;
 import com.hartwig.patient.Sample;
 import com.hartwig.support.test.Resources;
 
+import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -20,10 +21,10 @@ public class SBPSampleReaderTest {
     private static final int EXISTS = 64;
 
     private static final String SAMPLE_NAME = "CPCT02330029T";
-    private static final String SAMPLE_JSON = "sbp_api/get_fastq.json";
-    private static final String SAMPLE_JSON_QC_FAILED = "sbp_api/get_fastq_qc_failed.json";
-    private static final String SAMPLE_JSON_SUBDIRECTORIES = "sbp_api/get_fastq_subdirectories.json";
-    private static final String BARCODE = "FR1234";
+    private static final String FASTQ_JSON = "sbp_api/get_fastq.json";
+    private static final String FASTQ_JSON_QC_FAILED = "sbp_api/get_fastq_qc_failed.json";
+    private static final String FASTQ_JSON_SUBDIRECTORIES = "sbp_api/get_fastq_subdirectories.json";
+    private static final String SAMPLE_JSON = "sbp_api/get_sample.json";
     private SBPRestApi sbpRestApi;
     private SBPSampleReader victim;
 
@@ -31,7 +32,7 @@ public class SBPSampleReaderTest {
     public void setUp() throws Exception {
         sbpRestApi = mock(SBPRestApi.class);
         victim = new SBPSampleReader(sbpRestApi);
-        when(sbpRestApi.getBarcode(EXISTS)).thenReturn(BARCODE);
+        when(sbpRestApi.getSample(EXISTS)).thenReturn(testJson(SAMPLE_JSON));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -42,7 +43,7 @@ public class SBPSampleReaderTest {
 
     @Test
     public void addsAllLanesToSample() throws Exception {
-        returnJson(SAMPLE_JSON);
+        returnJson(FASTQ_JSON);
         Sample sample = victim.read(EXISTS);
         assertThat(sample).isNotNull();
         assertThat(sample.lanes()).hasSize(2);
@@ -50,21 +51,21 @@ public class SBPSampleReaderTest {
 
     @Test
     public void parsesPatientNameFromReadsFile() throws Exception {
-        returnJson(SAMPLE_JSON);
+        returnJson(FASTQ_JSON);
         Sample sample = victim.read(EXISTS);
         assertThat(sample.name()).isEqualTo(SAMPLE_NAME);
     }
 
     @Test
     public void getsBarcodeFromAPi() throws Exception {
-        returnJson(SAMPLE_JSON);
+        returnJson(FASTQ_JSON);
         Sample sample = victim.read(EXISTS);
-        assertThat(sample.barcode()).isEqualTo(BARCODE);
+        assertThat(sample.barcode()).isEqualTo("FR13257296");
     }
 
     @Test
     public void filtersLanesWhichHaveNotPassedQC() throws Exception {
-        returnJson(SAMPLE_JSON_QC_FAILED);
+        returnJson(FASTQ_JSON_QC_FAILED);
         Sample sample = victim.read(EXISTS);
         assertThat(sample.lanes()).hasSize(1);
         assertThat(sample.lanes().get(0).readsPath()).contains("L001");
@@ -72,13 +73,18 @@ public class SBPSampleReaderTest {
 
     @Test
     public void handlesSubdirectories() throws Exception {
-        returnJson(SAMPLE_JSON_SUBDIRECTORIES);
+        returnJson(FASTQ_JSON_SUBDIRECTORIES);
         Sample sample = victim.read(EXISTS);
         assertThat(sample.lanes()).hasSize(2);
         assertThat(sample.name()).isEqualTo("CPCT02330029T");
     }
 
     private void returnJson(final String sampleJsonLocation) throws IOException {
-        when(sbpRestApi.getFastQ(EXISTS)).thenReturn(new String(Files.readAllBytes(Paths.get(Resources.testResource(sampleJsonLocation)))));
+        when(sbpRestApi.getFastQ(EXISTS)).thenReturn(testJson(sampleJsonLocation));
+    }
+
+    @NotNull
+    private String testJson(final String sampleJsonLocation) throws IOException {
+        return new String(Files.readAllBytes(Paths.get(Resources.testResource(sampleJsonLocation))));
     }
 }

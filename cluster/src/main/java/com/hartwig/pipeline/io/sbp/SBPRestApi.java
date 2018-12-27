@@ -44,7 +44,7 @@ public class SBPRestApi {
                 target.getUri()));
     }
 
-    String getBarcode(int sampleId) {
+    String getSample(int sampleId) {
         Response response = samplesApi().path(String.valueOf(sampleId)).request().buildGet().invoke();
         if (response.getStatus() == Response.Status.OK.getStatusCode()) {
             return response.readEntity(Map.class).get("barcode").toString();

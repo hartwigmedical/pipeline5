@@ -35,9 +35,9 @@ public class SBPSampleReader {
     public Sample read(final int sampleId) {
         String rawFastQJson = sbpRestApi.getFastQ(sampleId);
         try {
-            List<FastQMetadata> fastqJson = parseJson(rawFastQJson);
+            List<FastQMetadata> fastqJson = parseFastqJson(rawFastQJson);
             String sampleName = extract(sampleId, fastqJson, name());
-            String barcode = sbpRestApi.getBarcode(sampleId);
+            String barcode = parseSampleJson(sbpRestApi.getSample(sampleId)).barcode();
             Sample sample = sample(sampleName, barcode, fastqJson);
             LOGGER.info("Found sample [{}] in SBP", sample);
             return sample;
@@ -96,8 +96,12 @@ public class SBPSampleReader {
         return fastQMetadata.bucket() + "/" + file;
     }
 
-    private List<FastQMetadata> parseJson(final String json) throws IOException {
+    private List<FastQMetadata> parseFastqJson(final String json) throws IOException {
         return OBJECT_MAPPER.readValue(json, new TypeReference<List<FastQMetadata>>() {
         });
+    }
+
+    private SampleMetadata parseSampleJson(final String json) throws IOException {
+        return OBJECT_MAPPER.readValue(json, SampleMetadata.class);
     }
 }
