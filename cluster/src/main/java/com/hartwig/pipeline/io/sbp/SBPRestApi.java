@@ -1,7 +1,5 @@
 package com.hartwig.pipeline.io.sbp;
 
-import java.util.Map;
-
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
@@ -47,7 +45,7 @@ public class SBPRestApi {
     String getSample(int sampleId) {
         Response response = samplesApi().path(String.valueOf(sampleId)).request().buildGet().invoke();
         if (response.getStatus() == Response.Status.OK.getStatusCode()) {
-            return response.readEntity(Map.class).get("barcode").toString();
+            return response.readEntity(String.class);
         }
         throw error(response);
     }
