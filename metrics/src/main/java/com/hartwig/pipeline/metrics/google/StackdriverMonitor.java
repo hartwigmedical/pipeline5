@@ -40,7 +40,6 @@ public class StackdriverMonitor implements Monitor {
 
     @Override
     public void update(final Metric metric) {
-
         try {
             MetricDescriptor descriptor = MetricDescriptor.newBuilder()
                     .setDisplayName(metric.name())

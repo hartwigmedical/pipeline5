@@ -89,7 +89,7 @@ class Bootstrap {
         this.credentials = credentials;
     }
 
-    private void run(Arguments arguments) {
+    private void run(Arguments arguments) throws Exception {
         try {
             SampleData sampleData = sampleSource.sample(arguments);
             Sample sample = sampleData.sample();
@@ -121,10 +121,6 @@ class Bootstrap {
             if (!arguments.noCleanup() && !arguments.noDownload()) {
                 runtimeBucket.cleanup();
             }
-        } catch (Exception e) {
-            LOGGER.error(
-                    "An unexpected error occurred during bootstrap. See exception for more details. Cluster will still be stopped if running",
-                    e);
         } finally {
             stopCluster(arguments, singleNodeCluster);
             stopCluster(arguments, parallelProcessingCluster);
@@ -193,8 +189,7 @@ class Bootstrap {
                 } else {
                     new Bootstrap(storage,
                             referenceGenomeData,
-                            knownIndelsData,
-                            arguments.noUpload() ? new GoogleStorageSampleSource(storage)
+                            knownIndelsData, arguments.noUpload() ? new GoogleStorageSampleSource(storage)
                                     : new FileSystemSampleSource(Hadoop.localFilesystem(), arguments.patientDirectory()),
                             new GSUtilBamDownload(arguments.cloudSdkPath(), new LocalFileTarget()),
                             new GSUtilSampleUpload(arguments.cloudSdkPath(), new LocalFileSource()),
@@ -209,6 +204,7 @@ class Bootstrap {
 
             } catch (Exception e) {
                 LOGGER.error("An unexpected issue arose while running the bootstrap. See the attached exception for more details.", e);
+                System.exit(1);
             }
         });
     }
