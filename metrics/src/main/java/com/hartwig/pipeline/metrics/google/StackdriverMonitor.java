@@ -69,7 +69,9 @@ public class StackdriverMonitor implements Monitor {
                     CreateTimeSeriesRequest.newBuilder().setName(projectName.toString()).addTimeSeries(singlePointTimeSeries).build();
             client.createTimeSeries(request);
         } catch (Exception e) {
-            LOGGER.error("Could not post metrics to StackDriver. See following exception for more detail", e);
+            LOGGER.warn("Could not post metrics to StackDriver. The pipeline will continue to run, but metrics for this run (COST, "
+                            + "TIMING, etc) will likely be lost. Suppressing stack trace for brevity, but the exception message was [{}]",
+                    e.getMessage());
         }
     }
 }
