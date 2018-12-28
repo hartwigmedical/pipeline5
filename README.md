@@ -100,7 +100,13 @@ Static data is copied into the bucket at startup from some well known buckets av
 | `gs://reference_genome` | The GRCh37 reference genome FASTA and supporting files |
 | `gs://known_indels` | Known indel site VCF files |
 
+### Accounts and Permissions
+Any GCP project which runs Pv5 requires the following accounts be setup (with these exact names).
 
+| Account | Description | Roles |
+| ------- | ----------- | ----- |
+| bootstrap | A service account used by the bootstrap process to upload data, manage clusters, submit spark jobs. | Dataproc Editor, Service Account User, Monitoring Admin, Storage Admin, Storage Object Admin |
+| dataproc-monitor | A service account used within the running Spark jobs to log metrics to StackDriver | Dataproc Worker, Monitoring Admin |
 
 ### Clusters
 Two clusters are created in a pipeline run, a single node cluster and one based on the input size. The single node cluster is used for long running stages with limited parallizability. For instance, we only need 16 cores to gunzip 16 files, so no use using a 1000 core Spark cluster. The gunzip and sorting jobs are sent to the cheaper single node cluster, and the BAM creation is handled by the big guy.
