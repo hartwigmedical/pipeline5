@@ -1,33 +1,85 @@
 package com.hartwig.pipeline.io.sbp;
 
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.google.cloud.storage.Storage;
-import com.google.cloud.storage.StorageOptions;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.transfer.TransferManager;
+import com.amazonaws.services.s3.transfer.Upload;
 import com.hartwig.patient.Sample;
-import com.hartwig.pipeline.bootstrap.Arguments;
 import com.hartwig.pipeline.bootstrap.JobResult;
 import com.hartwig.pipeline.io.ResultsDirectory;
-import com.hartwig.pipeline.io.RuntimeBucket;
+import com.hartwig.pipeline.testsupport.MockRuntimeBucket;
 
-import org.junit.Ignore;
+import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
-@Ignore
 public class SBPS3BamDownloadTest {
 
+    private static final int BAM_SIZE = 100;
+    private static final int BAI_SIZE = 10;
+
     @Test
-    public void streamFromGoogleToS3() {
-        AmazonS3 s3 = AmazonS3ClientBuilder.standard().build();
+    public void setsContentSizeOnBamForTransfer() {
+        ArgumentCaptor<PutObjectRequest> request = setupTransfer();
+        PutObjectRequest firstRequest = request.getAllValues().get(0);
+        assertThat(firstRequest.getMetadata().getContentLength()).isEqualTo(BAM_SIZE);
+    }
 
-        SBPS3BamDownload victim = new SBPS3BamDownload(s3, ResultsDirectory.defaultDirectory());
+    @Test
+    public void setsBucketNameOnBamForTransfer() {
+        ArgumentCaptor<PutObjectRequest> request = setupTransfer();
+        PutObjectRequest firstRequest = request.getAllValues().get(0);
+        assertThat(firstRequest.getBucketName()).isEqualTo("hmf-bam-storage");
+    }
 
-        Storage storage = StorageOptions.getDefaultInstance().getService();
+    @Test
+    public void setsBucketKeyOnBamForTransfer() {
+        ArgumentCaptor<PutObjectRequest> request = setupTransfer();
+        PutObjectRequest firstRequest = request.getAllValues().get(0);
+        assertThat(firstRequest.getKey()).isEqualTo("FR1234/test.bam");
+    }
 
-        RuntimeBucket bucket = RuntimeBucket.from(storage, "COLO829R", Arguments.defaultsBuilder().runId("20181222085059259").build());
-        Sample sample = Sample.builder("", "COLO829R").barcode("FR1234").build();
+    @Test
+    public void setsReadLimitToMaxInt() {
+        ArgumentCaptor<PutObjectRequest> request = setupTransfer();
+        PutObjectRequest firstRequest = request.getAllValues().get(0);
+        assertThat(firstRequest.getRequestClientOptions().getReadLimit()).isEqualTo(Integer.MAX_VALUE);
+    }
 
-        victim.run(sample, bucket, JobResult.SUCCESS);
+    @Test
+    public void setsContentSizeOnBaiForTransfer() {
+        ArgumentCaptor<PutObjectRequest> request = setupTransfer();
+        PutObjectRequest secondRequest = request.getAllValues().get(1);
+        assertThat(secondRequest.getMetadata().getContentLength()).isEqualTo(BAI_SIZE);
+    }
 
+    @Test
+    public void setsBucketNameOnBaiForTransfer() {
+        ArgumentCaptor<PutObjectRequest> request = setupTransfer();
+        PutObjectRequest secondRequest = request.getAllValues().get(1);
+        assertThat(secondRequest.getBucketName()).isEqualTo("hmf-bam-storage");
+    }
+
+    @Test
+    public void setsBucketKeyOnBaiForTransfer() {
+        ArgumentCaptor<PutObjectRequest> request = setupTransfer();
+        PutObjectRequest secondRequest = request.getAllValues().get(1);
+        assertThat(secondRequest.getKey()).isEqualTo("FR1234/test.bam.bai");
+    }
+
+    @NotNull
+    private static ArgumentCaptor<PutObjectRequest> setupTransfer() {
+        TransferManager transferManager = mock(TransferManager.class);
+        ArgumentCaptor<PutObjectRequest> request = ArgumentCaptor.forClass(PutObjectRequest.class);
+        Upload upload = mock(Upload.class);
+        when(transferManager.upload(request.capture())).thenReturn(upload);
+        SBPS3BamDownload victim = new SBPS3BamDownload(transferManager, ResultsDirectory.defaultDirectory());
+        MockRuntimeBucket mockRuntimeBucket =
+                MockRuntimeBucket.of("test").with("results/test.sorted.bam", BAM_SIZE).with("results/test.sorted.bam.bai", BAI_SIZE);
+        victim.run(Sample.builder("", "test", "FR1234").build(), mockRuntimeBucket.getRuntimeBucket(), JobResult.SUCCESS);
+        return request;
     }
 }

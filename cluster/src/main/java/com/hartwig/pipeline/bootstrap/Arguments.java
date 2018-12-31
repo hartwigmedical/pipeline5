@@ -65,6 +65,8 @@ public interface Arguments {
 
     String knownIndelsBucket();
 
+    int s3UploadThreads();
+
     Optional<Integer> sbpApiSampleId();
 
     Optional<String> runId();

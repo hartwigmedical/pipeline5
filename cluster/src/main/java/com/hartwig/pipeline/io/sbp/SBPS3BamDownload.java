@@ -1,6 +1,7 @@
 package com.hartwig.pipeline.io.sbp;
 
 import java.nio.channels.Channels;
+import java.util.concurrent.Executors;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
@@ -23,18 +24,24 @@ public class SBPS3BamDownload implements BamDownload {
 
     private final Logger LOGGER = LoggerFactory.getLogger(SBPS3BamDownload.class);
 
-    private final AmazonS3 s3;
+    private final TransferManager transferManager;
     private final ResultsDirectory resultsDirectory;
 
-    public SBPS3BamDownload(final AmazonS3 s3, final ResultsDirectory resultsDirectory) {
-        this.s3 = s3;
+    SBPS3BamDownload(final TransferManager transferManager, final ResultsDirectory resultsDirectory) {
+        this.transferManager = transferManager;
         this.resultsDirectory = resultsDirectory;
+    }
+
+    public static SBPS3BamDownload from(final AmazonS3 s3, final ResultsDirectory resultsDirectory, final int numThreads) {
+        TransferManager transferManager = TransferManagerBuilder.standard()
+                .withS3Client(s3)
+                .withExecutorFactory(() -> Executors.newFixedThreadPool(numThreads))
+                .build();
+        return new SBPS3BamDownload(transferManager, resultsDirectory);
     }
 
     @Override
     public void run(final Sample sample, final RuntimeBucket runtimeBucket, final JobResult result) {
-
-        TransferManager transferManager = TransferManagerBuilder.standard().withS3Client(s3).build();
         String[] path = SBPS3FileTarget.from(sample).replace("s3://", "").split("/", 2);
         String bucket = path[0];
         String bamKey = path[1];

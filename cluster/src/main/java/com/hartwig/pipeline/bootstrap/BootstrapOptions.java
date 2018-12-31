@@ -53,6 +53,8 @@ class BootstrapOptions {
     private static final String VERBOSE_CLOUD_SDK_FLAG = "verbose_cloud_sdk";
     private static final String KNOWN_INDELS_BUCKET_FLAG = "known_indels";
     private static final String DEFAULT_KNOWN_INDELS_BUCKET = "known_indels";
+    private static final String S3_UPLOAD_THREADS = "s3_upload_threads";
+    private static final String DEFAULT_S3_UPLOAD_THREADS = "10";
 
     private static Options options() {
         return new Options().addOption(privateKeyFlag())
@@ -83,7 +85,18 @@ class BootstrapOptions {
                 .addOption(sbpS3Url())
                 .addOption(runId())
                 .addOption(nodeInitScript())
-                .addOption(cpuPerGB()).addOption(gsutilPath()).addOption(referenceGenomeBucket()).addOption(knownIndelsBucket());
+                .addOption(cpuPerGB())
+                .addOption(gsutilPath())
+                .addOption(referenceGenomeBucket())
+                .addOption(knownIndelsBucket())
+                .addOption(s3UploadThreads());
+    }
+
+    private static Option s3UploadThreads() {
+        return optionWithArgAndDefault(S3_UPLOAD_THREADS,
+                S3_UPLOAD_THREADS,
+                "Number of threads to use in parallelizing uploading of large files (multipart) to S3",
+                DEFAULT_S3_UPLOAD_THREADS);
     }
 
     private static Option knownIndelsBucket() {
@@ -207,6 +220,7 @@ class BootstrapOptions {
                     .knownIndelsBucket(commandLine.getOptionValue(KNOWN_INDELS_BUCKET_FLAG, DEFAULT_KNOWN_INDELS_BUCKET))
                     .verboseCloudSdk(commandLine.hasOption(VERBOSE_CLOUD_SDK_FLAG))
                     .noUpload(commandLine.hasOption(NO_UPLOAD_FLAG))
+                    .s3UploadThreads(s3UploadThreads(commandLine))
                     .build());
         } catch (ParseException e) {
             LOGGER.error("Could not parse command line args", e);
@@ -214,6 +228,10 @@ class BootstrapOptions {
             formatter.printHelp("bootstrap", options());
             return Optional.empty();
         }
+    }
+
+    private static int s3UploadThreads(final CommandLine commandLine) {
+        return Integer.parseInt(commandLine.getOptionValue(S3_UPLOAD_THREADS, DEFAULT_S3_UPLOAD_THREADS));
     }
 
     private static int cpuPerGB(final CommandLine commandLine) {

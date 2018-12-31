@@ -200,6 +200,10 @@ usage: bootstrap
  -run_id <run_id>                       Override the generated run id used
                                         for runtime bucket and cluster
                                         naming
+ -s3_upload_threads <s3_upload_threads> Number of threads to use in
+                                        parallelizing uploading of large
+                                        files (multipart) to S3 Default
+                                        is 10
  -sbp_api_url <sbp_api_url>             URL of the SBP API endpoint
                                         Default is http://hmfapi
  -sbp_s3_url <sbp_s3_url>               URL of the SBP S3 endpoint Default

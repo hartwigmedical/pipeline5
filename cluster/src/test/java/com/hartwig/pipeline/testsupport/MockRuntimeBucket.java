@@ -4,10 +4,12 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.google.api.gax.paging.Page;
+import com.google.cloud.ReadChannel;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.hartwig.pipeline.io.RuntimeBucket;
@@ -34,10 +36,18 @@ public class MockRuntimeBucket {
     }
 
     public MockRuntimeBucket with(String blob, long size) {
-        Blob mockBlob = mock(Blob.class);
-        when(mockBlob.getName()).thenReturn(blob);
-        when(mockBlob.getSize()).thenReturn(size);
-        blobs.add(mockBlob);
+        try {
+            Blob mockBlob = mock(Blob.class);
+            ReadChannel mockReadChannel = mock(ReadChannel.class);
+            when(mockReadChannel.read(any())).thenReturn(-1);
+            when(mockBlob.getName()).thenReturn(blob);
+            when(mockBlob.getSize()).thenReturn(size);
+            when(mockBlob.reader()).thenReturn(mockReadChannel);
+            blobs.add(mockBlob);
+            when(googleBucket.get(blob)).thenReturn(mockBlob);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         return this;
     }
 

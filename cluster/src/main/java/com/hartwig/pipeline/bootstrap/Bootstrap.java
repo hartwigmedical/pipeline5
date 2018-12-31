@@ -177,7 +177,10 @@ class Bootstrap {
                             referenceGenomeData,
                             knownIndelsData,
                             new SBPS3SampleSource(s3, new SBPSampleReader(sbpRestApi)),
-                            new SBPBamDownload(s3, sbpRestApi, sbpSampleId, new SBPS3BamDownload(s3, ResultsDirectory.defaultDirectory())),
+                            new SBPBamDownload(s3,
+                                    sbpRestApi,
+                                    sbpSampleId,
+                                    SBPS3BamDownload.from(s3, ResultsDirectory.defaultDirectory(), arguments.s3UploadThreads())),
                             new GSUtilSampleUpload(arguments.cloudSdkPath(), new SBPS3FileSource()),
                             singleNode,
                             parallelProcessing,
@@ -189,7 +192,8 @@ class Bootstrap {
                 } else {
                     new Bootstrap(storage,
                             referenceGenomeData,
-                            knownIndelsData, arguments.noUpload() ? new GoogleStorageSampleSource(storage)
+                            knownIndelsData,
+                            arguments.noUpload() ? new GoogleStorageSampleSource(storage)
                                     : new FileSystemSampleSource(Hadoop.localFilesystem(), arguments.patientDirectory()),
                             new GSUtilBamDownload(arguments.cloudSdkPath(), new LocalFileTarget()),
                             new GSUtilSampleUpload(arguments.cloudSdkPath(), new LocalFileSource()),
