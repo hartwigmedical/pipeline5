@@ -22,12 +22,15 @@ public class GSUtil {
         Processes.run(processBuilder, VERBOSE);
     }
 
-    public static void cp(String gsdkPath, String sourceUrl, String targetUrl, String... metadata)
+    static void cp(String gsdkPath, String sourceUrl, String targetUrl, String... metadata)
             throws IOException, InterruptedException {
         List<String> metadataOptions = Stream.of(metadata).flatMap(m -> Stream.of("-h", m)).collect(Collectors.toList());
         List<String> command = new ArrayList<>();
         command.add(gsdkPath + "/gsutil");
         command.addAll(metadataOptions);
+        if (VERBOSE) {
+            command.add("-D");
+        }
         command.add("-m");
         command.add("cp");
         command.add(sourceUrl);
