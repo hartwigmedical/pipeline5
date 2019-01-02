@@ -49,6 +49,7 @@ public class SBPS3BamDownload implements BamDownload {
 
         transfer(runtimeBucket, transferManager, BamNames.sorted(sample), bucket, bamKey);
         transfer(runtimeBucket, transferManager, BamNames.bai(sample), bucket, baiKey);
+        transferManager.shutdownNow(false);
     }
 
     private void transfer(final RuntimeBucket runtimeBucket, final TransferManager transferManager, final String blobName,

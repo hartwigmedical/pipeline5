@@ -124,6 +124,7 @@ class Bootstrap {
         } finally {
             stopCluster(arguments, singleNodeCluster);
             stopCluster(arguments, parallelProcessingCluster);
+            LOGGER.info("Bootstrap completeled successfully");
         }
     }
 
@@ -189,11 +190,11 @@ class Bootstrap {
                             costCalculator,
                             composer,
                             credentials).run(arguments);
+                    s3.shutdown();
                 } else {
                     new Bootstrap(storage,
                             referenceGenomeData,
-                            knownIndelsData,
-                            arguments.noUpload() ? new GoogleStorageSampleSource(storage)
+                            knownIndelsData, arguments.noUpload() ? new GoogleStorageSampleSource(storage)
                                     : new FileSystemSampleSource(Hadoop.localFilesystem(), arguments.patientDirectory()),
                             new GSUtilBamDownload(arguments.cloudSdkPath(), new LocalFileTarget()),
                             new GSUtilSampleUpload(arguments.cloudSdkPath(), new LocalFileSource()),
@@ -210,6 +211,7 @@ class Bootstrap {
                 LOGGER.error("An unexpected issue arose while running the bootstrap. See the attached exception for more details.", e);
                 System.exit(1);
             }
+            System.exit(0);
         });
     }
 
