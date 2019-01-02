@@ -90,12 +90,13 @@ class Bootstrap {
     }
 
     private void run(Arguments arguments) throws Exception {
-        try {
-            SampleData sampleData = sampleSource.sample(arguments);
-            Sample sample = sampleData.sample();
-            PerformanceProfile bamProfile = clusterOptimizer.optimize(sampleData);
+        SampleData sampleData = sampleSource.sample(arguments);
+        Sample sample = sampleData.sample();
+        PerformanceProfile bamProfile = clusterOptimizer.optimize(sampleData);
 
-            RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, sampleData.sample().name(), arguments);
+        RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, sampleData.sample().name(), arguments);
+        registerShutdownHook(arguments, runtimeBucket);
+        try {
             Monitor monitor = Monitor.stackdriver(Run.of(arguments.version(), runtimeBucket.getName()), arguments.project(), credentials);
             referenceGenomeData.copyInto(runtimeBucket);
             knownIndelData.copyInto(runtimeBucket);
@@ -118,13 +119,27 @@ class Bootstrap {
             if (!arguments.noDownload()) {
                 bamDownload.run(sample, runtimeBucket, JobResult.SUCCESS);
             }
-            if (!arguments.noCleanup() && !arguments.noDownload()) {
-                runtimeBucket.cleanup();
-            }
         } finally {
-            stopCluster(arguments, singleNodeCluster);
-            stopCluster(arguments, parallelProcessingCluster);
-            LOGGER.info("Bootstrap completeled successfully");
+            cleanupAll(arguments, runtimeBucket);
+            LOGGER.info("Bootstrap completed successfully");
+        }
+    }
+
+    private void registerShutdownHook(final Arguments arguments, final RuntimeBucket runtimeBucket) {
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            LOGGER.info("Received shutdown signal, shutting down any running clusters and deleting runtime bucket if not done already");
+            cleanupAll(arguments, runtimeBucket);
+        }));
+    }
+
+    private void cleanupAll(final Arguments arguments, final RuntimeBucket runtimeBucket) {
+        if (!arguments.noCleanup() && !arguments.noDownload()) {
+            runtimeBucket.cleanup();
+        }
+        stopCluster(arguments, singleNodeCluster);
+        stopCluster(arguments, parallelProcessingCluster);
+        if (!arguments.noCleanup() && !arguments.noDownload()) {
+            runtimeBucket.cleanup();
         }
     }
 
@@ -193,8 +208,7 @@ class Bootstrap {
                     s3.shutdown();
                 } else {
                     new Bootstrap(storage,
-                            referenceGenomeData,
-                            knownIndelsData, arguments.noUpload() ? new GoogleStorageSampleSource(storage)
+                            referenceGenomeData, knownIndelsData, arguments.noUpload() ? new GoogleStorageSampleSource(storage)
                                     : new FileSystemSampleSource(Hadoop.localFilesystem(), arguments.patientDirectory()),
                             new GSUtilBamDownload(arguments.cloudSdkPath(), new LocalFileTarget()),
                             new GSUtilSampleUpload(arguments.cloudSdkPath(), new LocalFileSource()),
