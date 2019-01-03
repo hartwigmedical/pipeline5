@@ -39,6 +39,7 @@
         <javax.ws.rs-api.version>2.1</javax.ws.rs-api.version>
         <protobuf-java.version>3.6.1</protobuf-java.version>
         <google-billing.version>v1-rev23-1.25.0</google-billing.version>
+        <slf4j-log4j12.version>1.7.25</slf4j-log4j12.version>
     </properties>
 
     <modules>
@@ -47,6 +48,7 @@
         <module>support</module>
         <module>system</module>
         <module>cluster</module>
+        <module>janitor</module>
         <module>metrics</module>
     </modules>
 
@@ -278,6 +280,12 @@
                 <scope>test</scope>
             </dependency>
 
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-log4j12</artifactId>
+                <version>${slf4j-log4j12.version}</version>
+                <scope>runtime</scope>
+            </dependency>
 
         </dependencies>
     </dependencyManagement>
