@@ -199,9 +199,7 @@ class Bootstrap {
                                     SBPS3BamDownload.from(s3, ResultsDirectory.defaultDirectory(), arguments.s3UploadThreads())),
                             new GSUtilSampleUpload(arguments.cloudSdkPath(), new SBPS3FileSource()),
                             singleNode,
-                            parallelProcessing,
-                            new GoogleStorageJarUpload(),
-                            new ClusterOptimizer(ratio, arguments.usePreemptibleVms()),
+                            parallelProcessing, new GoogleStorageJarUpload(), new ClusterOptimizer(ratio, arguments.noPreemptibleVms()),
                             costCalculator,
                             composer,
                             credentials).run(arguments);
@@ -213,9 +211,7 @@ class Bootstrap {
                             new GSUtilBamDownload(arguments.cloudSdkPath(), new LocalFileTarget()),
                             new GSUtilSampleUpload(arguments.cloudSdkPath(), new LocalFileSource()),
                             singleNode,
-                            parallelProcessing,
-                            new GoogleStorageJarUpload(),
-                            new ClusterOptimizer(ratio, arguments.usePreemptibleVms()),
+                            parallelProcessing, new GoogleStorageJarUpload(), new ClusterOptimizer(ratio, arguments.noPreemptibleVms()),
                             costCalculator,
                             composer,
                             credentials).run(arguments);

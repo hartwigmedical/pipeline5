@@ -6,11 +6,11 @@ import com.hartwig.pipeline.io.sources.SampleData;
 public class ClusterOptimizer {
 
     private final CpuFastQSizeRatio cpuToFastQSizeRatio;
-    private final boolean usePreemtibleVms;
+    private final boolean noPreemtibleVms;
 
     public ClusterOptimizer(final CpuFastQSizeRatio cpuToFastQSizeRatio, final boolean usePreemtibleVms) {
         this.cpuToFastQSizeRatio = cpuToFastQSizeRatio;
-        this.usePreemtibleVms = usePreemtibleVms;
+        this.noPreemtibleVms = usePreemtibleVms;
     }
 
     public PerformanceProfile optimize(SampleData sampleData) {
@@ -23,7 +23,7 @@ public class ClusterOptimizer {
         double totalCpusRequired = totalFileSizeGB * cpuToFastQSizeRatio.cpusPerGB();
         MachineType defaultWorker = MachineType.defaultWorker();
         int numWorkers = new Double(totalCpusRequired / defaultWorker.cpus()).intValue();
-        int numPreemptible = usePreemtibleVms ? numWorkers / 2 : 0;
+        int numPreemptible = noPreemtibleVms ? 0 : numWorkers / 2;
         return PerformanceProfile.builder()
                 .master(MachineType.defaultMaster())
                 .primaryWorkers(defaultWorker)

@@ -33,7 +33,7 @@ def start_kubernetes_job(args):
     with file('/var/run/secrets/kubernetes.io/serviceaccount/namespace') as f:
         namespace = f.read()
 
-    job_args = ['-sbp_sample_id', str(args['sbp_sample_id']), '-verbose_cloud_sdk', '-use_preemtible_vms']
+    job_args = ['-sbp_sample_id', str(args['sbp_sample_id'])]
 
     for i in range(1, len(sys.argv)):
         job_args.append(sys.argv[i])

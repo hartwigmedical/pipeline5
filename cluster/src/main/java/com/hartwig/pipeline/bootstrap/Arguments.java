@@ -18,7 +18,7 @@ public interface Arguments {
     }
 
     @Value.Default
-    default boolean usePreemptibleVms() {
+    default boolean noPreemptibleVms() {
         return false;
     }
 
