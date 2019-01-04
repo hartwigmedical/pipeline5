@@ -138,9 +138,6 @@ class Bootstrap {
         }
         stopCluster(arguments, singleNodeCluster);
         stopCluster(arguments, parallelProcessingCluster);
-        if (!arguments.noCleanup() && !arguments.noDownload()) {
-            runtimeBucket.cleanup();
-        }
     }
 
     private void runJob(final Job job, final Arguments arguments, final Sample sample, final RuntimeBucket runtimeBucket) {
@@ -156,9 +153,7 @@ class Bootstrap {
 
     private void stopCluster(final Arguments arguments, final SparkCluster cluster) {
         try {
-            if (!arguments.noCleanup()) {
-                cluster.stop(arguments);
-            }
+            cluster.stop(arguments);
         } catch (IOException e) {
             LOGGER.error("Unable to stop cluster! Check console and stop it by hand if still running", e);
         }
@@ -199,19 +194,25 @@ class Bootstrap {
                                     SBPS3BamDownload.from(s3, ResultsDirectory.defaultDirectory(), arguments.s3UploadThreads())),
                             new GSUtilSampleUpload(arguments.cloudSdkPath(), new SBPS3FileSource()),
                             singleNode,
-                            parallelProcessing, new GoogleStorageJarUpload(), new ClusterOptimizer(ratio, arguments.noPreemptibleVms()),
+                            parallelProcessing,
+                            new GoogleStorageJarUpload(),
+                            new ClusterOptimizer(ratio, arguments.noPreemptibleVms()),
                             costCalculator,
                             composer,
                             credentials).run(arguments);
                     s3.shutdown();
                 } else {
                     new Bootstrap(storage,
-                            referenceGenomeData, knownIndelsData, arguments.noUpload() ? new GoogleStorageSampleSource(storage)
+                            referenceGenomeData,
+                            knownIndelsData,
+                            arguments.noUpload() ? new GoogleStorageSampleSource(storage)
                                     : new FileSystemSampleSource(Hadoop.localFilesystem(), arguments.patientDirectory()),
                             new GSUtilBamDownload(arguments.cloudSdkPath(), new LocalFileTarget()),
                             new GSUtilSampleUpload(arguments.cloudSdkPath(), new LocalFileSource()),
                             singleNode,
-                            parallelProcessing, new GoogleStorageJarUpload(), new ClusterOptimizer(ratio, arguments.noPreemptibleVms()),
+                            parallelProcessing,
+                            new GoogleStorageJarUpload(),
+                            new ClusterOptimizer(ratio, arguments.noPreemptibleVms()),
                             costCalculator,
                             composer,
                             credentials).run(arguments);

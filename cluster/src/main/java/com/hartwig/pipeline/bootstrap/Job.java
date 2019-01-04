@@ -77,8 +77,6 @@ class Job {
     }
 
     private void stopCluster(final Arguments arguments, final SparkCluster cluster) throws IOException {
-        if (!arguments.noCleanup()) {
-            cluster.stop(arguments);
-        }
+        cluster.stop(arguments);
     }
 }

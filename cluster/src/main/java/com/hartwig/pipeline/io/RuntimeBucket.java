@@ -42,11 +42,13 @@ public class RuntimeBucket {
     }
 
     public void cleanup() {
-        for (Blob blob : bucket.list().iterateAll()) {
-            blob.delete();
+        if (bucket.exists()) {
+            for (Blob blob : bucket.list().iterateAll()) {
+                blob.delete();
+            }
+            bucket.delete();
+            LOGGER.info("Cleaned up all data in runtime bucket [{}]", bucket.getName());
         }
-        bucket.delete();
-        LOGGER.info("Cleaned up all data in runtime bucket [{}]", bucket.getName());
     }
 
     public String getName() {
