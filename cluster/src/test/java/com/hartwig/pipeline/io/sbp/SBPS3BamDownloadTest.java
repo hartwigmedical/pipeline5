@@ -1,9 +1,12 @@
 package com.hartwig.pipeline.io.sbp;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.amazonaws.AmazonClientException;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.transfer.TransferManager;
 import com.amazonaws.services.s3.transfer.Upload;
@@ -70,13 +73,25 @@ public class SBPS3BamDownloadTest {
         assertThat(secondRequest.getKey()).isEqualTo("FR1234/test.bam.bai");
     }
 
+    @Test
+    public void retriesWholeTransferOnExceptions() throws Exception {
+        TransferManager transferManager = mock(TransferManager.class);
+        Upload upload = mock(Upload.class);
+        when(transferManager.upload(any())).thenReturn(upload);
+        doThrow(new AmazonClientException("test")).doNothing().when(upload).waitForCompletion();
+        SBPS3BamDownload victim = new SBPS3BamDownload(transferManager, ResultsDirectory.defaultDirectory(), 2, 1);
+        MockRuntimeBucket mockRuntimeBucket =
+                MockRuntimeBucket.of("test").with("results/test.sorted.bam", BAM_SIZE).with("results/test.sorted.bam.bai", BAI_SIZE);
+        victim.run(Sample.builder("", "test", "FR1234").build(), mockRuntimeBucket.getRuntimeBucket(), JobResult.SUCCESS);
+    }
+
     @NotNull
     private static ArgumentCaptor<PutObjectRequest> setupTransfer() {
         TransferManager transferManager = mock(TransferManager.class);
         ArgumentCaptor<PutObjectRequest> request = ArgumentCaptor.forClass(PutObjectRequest.class);
         Upload upload = mock(Upload.class);
         when(transferManager.upload(request.capture())).thenReturn(upload);
-        SBPS3BamDownload victim = new SBPS3BamDownload(transferManager, ResultsDirectory.defaultDirectory());
+        SBPS3BamDownload victim = new SBPS3BamDownload(transferManager, ResultsDirectory.defaultDirectory(), 1, 0);
         MockRuntimeBucket mockRuntimeBucket =
                 MockRuntimeBucket.of("test").with("results/test.sorted.bam", BAM_SIZE).with("results/test.sorted.bam.bai", BAI_SIZE);
         victim.run(Sample.builder("", "test", "FR1234").build(), mockRuntimeBucket.getRuntimeBucket(), JobResult.SUCCESS);

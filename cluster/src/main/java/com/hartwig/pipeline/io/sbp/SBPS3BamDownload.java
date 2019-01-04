@@ -22,34 +22,67 @@ import org.slf4j.LoggerFactory;
 
 public class SBPS3BamDownload implements BamDownload {
 
+    private static final long ONE_HUNDRED_MB = 100 * 1024 * 1024L;
     private final Logger LOGGER = LoggerFactory.getLogger(SBPS3BamDownload.class);
 
     private final TransferManager transferManager;
     private final ResultsDirectory resultsDirectory;
+    private final int maxAttempts;
+    private final int retryDelay;
 
-    SBPS3BamDownload(final TransferManager transferManager, final ResultsDirectory resultsDirectory) {
+    SBPS3BamDownload(final TransferManager transferManager, final ResultsDirectory resultsDirectory, final int maxAttempts,
+            final int retryDelay) {
         this.transferManager = transferManager;
         this.resultsDirectory = resultsDirectory;
+        this.maxAttempts = maxAttempts;
+        this.retryDelay = retryDelay;
     }
 
     public static SBPS3BamDownload from(final AmazonS3 s3, final ResultsDirectory resultsDirectory, final int numThreads) {
         TransferManager transferManager = TransferManagerBuilder.standard()
                 .withS3Client(s3)
                 .withExecutorFactory(() -> Executors.newFixedThreadPool(numThreads))
+                .withMultipartUploadThreshold(ONE_HUNDRED_MB)
+                .withMinimumUploadPartSize(ONE_HUNDRED_MB)
                 .build();
-        return new SBPS3BamDownload(transferManager, resultsDirectory);
+        return new SBPS3BamDownload(transferManager, resultsDirectory, 2, 600);
     }
 
     @Override
     public void run(final Sample sample, final RuntimeBucket runtimeBucket, final JobResult result) {
-        String[] path = SBPS3FileTarget.from(sample).replace("s3://", "").split("/", 2);
-        String bucket = path[0];
-        String bamKey = path[1];
-        String baiKey = path[1] + ".bai";
-
-        transfer(runtimeBucket, transferManager, BamNames.sorted(sample), bucket, bamKey);
-        transfer(runtimeBucket, transferManager, BamNames.bai(sample), bucket, baiKey);
+        int attempts = 0;
+        while (attempts <= maxAttempts) {
+            try {
+                attempts++;
+                String[] path = SBPS3FileTarget.from(sample).replace("s3://", "").split("/", 2);
+                String bucket = path[0];
+                String bamKey = path[1];
+                String baiKey = path[1] + ".bai";
+                transfer(runtimeBucket, transferManager, BamNames.sorted(sample), bucket, bamKey);
+                transfer(runtimeBucket, transferManager, BamNames.bai(sample), bucket, baiKey);
+            } catch (Exception e) {
+                if (attempts <= maxAttempts) {
+                    LOGGER.warn(String.format(
+                            "Transfer failed on the following exception. This was attempt [%s] of [%s]. Retrying in [%s seconds]",
+                            attempts,
+                            maxAttempts,
+                            retryDelay), e);
+                    delay();
+                } else {
+                    LOGGER.error("Max attempts reached. Failing hard");
+                    throw new RuntimeException(e);
+                }
+            }
+        }
         transferManager.shutdownNow(false);
+    }
+
+    private void delay() {
+        try {
+            Thread.sleep(1000 * retryDelay);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     private void transfer(final RuntimeBucket runtimeBucket, final TransferManager transferManager, final String blobName,

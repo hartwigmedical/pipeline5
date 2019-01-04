@@ -54,7 +54,7 @@ class BootstrapOptions {
     private static final String KNOWN_INDELS_BUCKET_FLAG = "known_indels";
     private static final String DEFAULT_KNOWN_INDELS_BUCKET = "known_indels";
     private static final String S3_UPLOAD_THREADS = "s3_upload_threads";
-    private static final String DEFAULT_S3_UPLOAD_THREADS = "10";
+    private static final String DEFAULT_S3_UPLOAD_THREADS = "20";
 
     private static Options options() {
         return new Options().addOption(privateKeyFlag())
