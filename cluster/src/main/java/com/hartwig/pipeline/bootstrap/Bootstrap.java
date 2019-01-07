@@ -30,10 +30,10 @@ import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.io.S3;
 import com.hartwig.pipeline.io.SampleUpload;
-import com.hartwig.pipeline.io.sbp.SBPBamDownload;
 import com.hartwig.pipeline.io.sbp.SBPRestApi;
 import com.hartwig.pipeline.io.sbp.SBPS3BamDownload;
 import com.hartwig.pipeline.io.sbp.SBPS3FileSource;
+import com.hartwig.pipeline.io.sbp.SBPSampleMetadataPatch;
 import com.hartwig.pipeline.io.sbp.SBPSampleReader;
 import com.hartwig.pipeline.io.sources.FileSystemSampleSource;
 import com.hartwig.pipeline.io.sources.GoogleStorageSampleSource;
@@ -177,7 +177,8 @@ class Bootstrap {
                 StaticData knownIndelsData = new StaticData(storage, arguments.knownIndelsBucket(), "known_indels");
                 CpuFastQSizeRatio ratio = CpuFastQSizeRatio.of(arguments.cpuPerGBRatio());
                 CostCalculator costCalculator = new CostCalculator(credentials, arguments.region(), Costs.defaultCosts());
-                BamComposer composer = new BamComposer(storage, ResultsDirectory.defaultDirectory(), 32);
+                ResultsDirectory resultsDirectory = ResultsDirectory.defaultDirectory();
+                BamComposer composer = new BamComposer(storage, resultsDirectory, 32);
                 GoogleDataprocCluster singleNode = new GoogleDataprocCluster(credentials, nodeInitialization, "singlenode");
                 GoogleDataprocCluster parallelProcessing = new GoogleDataprocCluster(credentials, nodeInitialization, "spark");
                 if (arguments.sbpApiSampleId().isPresent()) {
@@ -187,11 +188,11 @@ class Bootstrap {
                     new Bootstrap(storage,
                             referenceGenomeData,
                             knownIndelsData,
-                            new SBPS3SampleSource(s3, new SBPSampleReader(sbpRestApi)),
-                            new SBPBamDownload(s3,
+                            new SBPS3SampleSource(s3, new SBPSampleReader(sbpRestApi)), new SBPSampleMetadataPatch(s3,
                                     sbpRestApi,
                                     sbpSampleId,
-                                    SBPS3BamDownload.from(s3, ResultsDirectory.defaultDirectory(), arguments.s3UploadThreads())),
+                            SBPS3BamDownload.from(s3, resultsDirectory, arguments.s3UploadThreads()),
+                            resultsDirectory),
                             new GSUtilSampleUpload(arguments.cloudSdkPath(), new SBPS3FileSource()),
                             singleNode,
                             parallelProcessing,
@@ -204,8 +205,7 @@ class Bootstrap {
                 } else {
                     new Bootstrap(storage,
                             referenceGenomeData,
-                            knownIndelsData,
-                            arguments.noUpload() ? new GoogleStorageSampleSource(storage)
+                            knownIndelsData, arguments.noUpload() ? new GoogleStorageSampleSource(storage)
                                     : new FileSystemSampleSource(Hadoop.localFilesystem(), arguments.patientDirectory()),
                             new GSUtilBamDownload(arguments.cloudSdkPath(), new LocalFileTarget()),
                             new GSUtilSampleUpload(arguments.cloudSdkPath(), new LocalFileSource()),

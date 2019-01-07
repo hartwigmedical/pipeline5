@@ -6,33 +6,40 @@ import com.amazonaws.services.s3.model.CanonicalGrantee;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.Permission;
 import com.amazonaws.services.s3.model.S3Object;
+import com.google.cloud.storage.Blob;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.bootstrap.JobResult;
 import com.hartwig.pipeline.io.BamDownload;
+import com.hartwig.pipeline.io.BamNames;
+import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SBPBamDownload implements BamDownload {
+public class SBPSampleMetadataPatch implements BamDownload {
 
     private static final String READERS_ID_ENV = "READER_ACL_IDS";
     private static final String READERS_ACP_ID_ENV = "READER_ACP_ACL_IDS";
-    private final Logger LOGGER = LoggerFactory.getLogger(SBPBamDownload.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(SBPSampleMetadataPatch.class);
     private final AmazonS3 s3Client;
     private final SBPRestApi sbpRestApi;
     private final int sbpSampleId;
     private final BamDownload decorated;
+    private final ResultsDirectory resultsDirectory;
 
-    public SBPBamDownload(final AmazonS3 s3Client, final SBPRestApi sbpRestApi, final int sbpSampleId, final BamDownload decorated) {
+    public SBPSampleMetadataPatch(final AmazonS3 s3Client, final SBPRestApi sbpRestApi, final int sbpSampleId, final BamDownload decorated,
+            final ResultsDirectory resultsDirectory) {
         this.s3Client = s3Client;
         this.sbpRestApi = sbpRestApi;
         this.sbpSampleId = sbpSampleId;
         this.decorated = decorated;
+        this.resultsDirectory = resultsDirectory;
     }
 
     @Override
     public void run(final Sample sample, final RuntimeBucket runtimeBucket, final JobResult result) {
+        Blob bamBlob = runtimeBucket.bucket().get(resultsDirectory.path(BamNames.sorted(sample)));
         decorated.run(sample, runtimeBucket, result);
         String directory = SBPS3FileTarget.ROOT_BUCKET + "/" + sample.barcode();
         String bamFile = sample.name() + ".bam";
@@ -49,8 +56,7 @@ public class SBPBamDownload implements BamDownload {
                         .bucket(SBPS3FileTarget.ROOT_BUCKET)
                         .directory(sample.barcode())
                         .filename(bamFile)
-                        .filesize(existing.getContentLength())
-                        .hash(existing.getETag())
+                        .filesize(existing.getContentLength()).hash(bamBlob.getEtag())
                         .status(result == JobResult.SUCCESS ? "Done_PipelineV5" : "Failed_PipelineV5")
                         .build());
     }
