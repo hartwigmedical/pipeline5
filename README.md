@@ -91,7 +91,7 @@ The `cluster` module contains all the integration with Google Cloud Dataproc. Th
 ### Runtime Bucket
 The runtime bucket is created at startup as a sandbox for all inputs (FASTQ, ref genome, jar) and outputs (BAMs) for the pipeline run. All Google Dataproc temporary files and logs are also written to the runtime bucket.
 
-Each runtime bucket gets a name based on the following convention `gs://run-SAMPLE_ID-TIMESTAMP`. The suffix after `run-` can be overriden by passing bootstrap the `run_id` flag. This can be useful to re-run against the same input without waiting for the upload.
+Each runtime bucket gets a name based on the following convention `gs://run-SAMPLE_ID`. A suffix after `run-` can be added by passing bootstrap the `run_id` flag. This can be useful to annotate experiments or generate a unique id.
 
 Static data is copied into the bucket at startup from some well known buckets available in the project:
 
