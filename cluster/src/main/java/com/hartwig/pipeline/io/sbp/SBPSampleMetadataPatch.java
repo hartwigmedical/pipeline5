@@ -55,8 +55,7 @@ public class SBPSampleMetadataPatch implements BamDownload {
                 BamMetadata.builder()
                         .bucket(SBPS3FileTarget.ROOT_BUCKET)
                         .directory(sample.barcode())
-                        .filename(bamFile)
-                        .filesize(existing.getContentLength()).hash(bamBlob.getEtag())
+                        .filename(bamFile).filesize(existing.getContentLength()).hash(bamBlob.getMd5())
                         .status(result == JobResult.SUCCESS ? "Done_PipelineV5" : "Failed_PipelineV5")
                         .build());
     }
