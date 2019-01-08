@@ -8,7 +8,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.google.cloud.storage.Blob;
 import com.hartwig.patient.Sample;
 
 import org.jetbrains.annotations.NotNull;
@@ -31,22 +30,8 @@ public class GSUtilSampleUpload implements SampleUpload {
     @Override
     public void run(Sample sample, RuntimeBucket runtimeBucket) throws IOException {
         LOGGER.info("Uploading sample [{}] into [{}]", sample.name(), runtimeBucket.bucket().getName());
-        if (sampleDirectoryNotExists(runtimeBucket)) {
-            uploadSample(runtimeBucket, sample);
-        } else {
-            LOGGER.info("Sample [{}] was already present in [{}]. Skipping upload.", sample.name(), runtimeBucket.bucket().getName());
-        }
+        uploadSample(runtimeBucket, sample);
         LOGGER.info("Upload complete");
-    }
-
-    private boolean sampleDirectoryNotExists(final RuntimeBucket runtimeBucket) {
-        boolean samplesNotExists = true;
-        for (Blob blob : runtimeBucket.bucket().list().iterateAll()) {
-            if (blob.getName().contains(SAMPLE_DIRECTORY)) {
-                samplesNotExists = false;
-            }
-        }
-        return samplesNotExists;
     }
 
     private void uploadSample(final RuntimeBucket runtimeBucket, final Sample sample) {
@@ -65,8 +50,13 @@ public class GSUtilSampleUpload implements SampleUpload {
     }
 
     private void gsutilCP(Sample sample, RuntimeBucket bucket, String file) throws IOException, InterruptedException {
-        LOGGER.info("Uploading fastq [{}] to Google Storage", file);
-        GSUtil.cp(gsdkPath, file, format("gs://%s/%s", bucket.getName(), singleSampleFile(sample, file)));
+        String target = singleSampleFile(sample, file);
+        if (bucket.bucket().get(target) != null) {
+            LOGGER.info("Fastq [{}] already existed in Google Storage. Skipping upload", target);
+        } else {
+            LOGGER.info("Uploading fastq [{}] to Google Storage", file);
+            GSUtil.cp(gsdkPath, file, format("gs://%s/%s", bucket.getName(), target));
+        }
     }
 
     @NotNull
