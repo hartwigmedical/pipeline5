@@ -160,12 +160,18 @@ public class GoogleDataprocCluster implements SparkCluster {
         try {
             Job job = dataproc.projects().regions().jobs().get(arguments.project(), arguments.region(), jobId).execute();
             if (job != null) {
-                if (job.getStatus().getState().equals("RUNNING")) {
-                    LOGGER.info("Job [{}] already existed and is running. Re-attaching boostrap to running job.", jobId);
-                    return Optional.of(job);
-                } else {
-                    LOGGER.info("Job [{}] already existed and but is [{}]. Deleting and re-submitting", jobId, job.getStatus().getState());
-                    dataproc.projects().regions().jobs().delete(arguments.project(), arguments.region(), jobId).execute();
+                switch (job.getStatus().getState()) {
+                    case "RUNNING":
+                        LOGGER.info("Job [{}] already existed and is running. Re-attaching boostrap to running job.", jobId);
+                        return Optional.of(job);
+                    case "DONE":
+                        LOGGER.info("Job [{}] already existed and completed successfully. Skipping job", jobId);
+                        return Optional.of(job);
+                    default:
+                        LOGGER.info("Job [{}] already existed and but is [{}]. Deleting and re-submitting",
+                                jobId,
+                                job.getStatus().getState());
+                        dataproc.projects().regions().jobs().delete(arguments.project(), arguments.region(), jobId).execute();
                 }
             }
             return Optional.empty();

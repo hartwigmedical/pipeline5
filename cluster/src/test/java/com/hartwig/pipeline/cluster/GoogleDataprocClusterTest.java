@@ -39,6 +39,7 @@ public class GoogleDataprocClusterTest {
     private Dataproc.Projects.Regions.Jobs jobs;
     private GoogleDataprocCluster victim;
     private Dataproc.Projects.Regions.Clusters.Get getClusterRequest;
+    private Dataproc.Projects.Regions.Jobs.Get getJobsRequest;
 
     @Before
     public void setUp() throws Exception {
@@ -49,6 +50,7 @@ public class GoogleDataprocClusterTest {
         jobs = mock(Dataproc.Projects.Regions.Jobs.class);
 
         getClusterRequest = mock(Dataproc.Projects.Regions.Clusters.Get.class);
+        getJobsRequest = mock(Dataproc.Projects.Regions.Jobs.Get.class);
 
         when(dataproc.projects()).thenReturn(projects);
         when(projects.regions()).thenReturn(regions);
@@ -56,6 +58,8 @@ public class GoogleDataprocClusterTest {
         when(regions.jobs()).thenReturn(jobs);
 
         NodeInitialization nodeInitialization = mock(NodeInitialization.class);
+        when(clusters.get(PROJECT, REGION, CLUSTER_NAME)).thenReturn(getClusterRequest);
+        when(jobs.get(PROJECT, REGION, JOB_ID)).thenReturn(getJobsRequest);
         victim = new GoogleDataprocCluster(dataproc, nodeInitialization, "cluster");
     }
 
@@ -68,9 +72,6 @@ public class GoogleDataprocClusterTest {
 
     @Test
     public void startsClusterAndWaitsForRunning() throws Exception {
-        final Dataproc.Projects.Regions.Clusters.Get getClusterRequest = mock(Dataproc.Projects.Regions.Clusters.Get.class);
-        String clusterName = "sample-cluster";
-        when(clusters.get(PROJECT, REGION, clusterName)).thenReturn(getClusterRequest);
         Operation operation = mock(Operation.class);
         when(operation.getDone()).thenReturn(true);
         when(operation.getMetadata()).thenReturn(ImmutableMap.of("description", "none"));
@@ -88,8 +89,6 @@ public class GoogleDataprocClusterTest {
     @Test
     public void doesNotSubmitJobIfExistsAndRunningButDoesWaitForCompletion() throws Exception {
         startClusterWithExisting();
-        Dataproc.Projects.Regions.Jobs.Get getJobsRequest = mock(Dataproc.Projects.Regions.Jobs.Get.class);
-        when(jobs.get(PROJECT, REGION, JOB_ID)).thenReturn(getJobsRequest);
         JobStatus status = mock(JobStatus.class);
         when(status.getState()).thenReturn("RUNNING").thenReturn("RUNNING").thenReturn("DONE");
         when(getJobsRequest.execute()).thenReturn(new Job().setReference(new JobReference().setJobId(JOB_ID)).setStatus(status));
@@ -98,10 +97,8 @@ public class GoogleDataprocClusterTest {
     }
 
     @Test
-    public void resubmitsJobIfExistsButNotRunning() throws Exception {
+    public void resubmitsJobIfExistsButNotRunningOrDone() throws Exception {
         startClusterWithExisting();
-        Dataproc.Projects.Regions.Jobs.Get getJobsRequest = mock(Dataproc.Projects.Regions.Jobs.Get.class);
-        when(jobs.get(PROJECT, REGION, JOB_ID)).thenReturn(getJobsRequest);
         JobStatus status = mock(JobStatus.class);
         when(status.getState()).thenReturn("CANCELLED");
         when(getJobsRequest.execute()).thenReturn(new Job().setReference(new JobReference().setJobId(JOB_ID)).setStatus(status));
@@ -115,6 +112,16 @@ public class GoogleDataprocClusterTest {
     }
 
     @Test
+    public void skipsJobWhenJobExistsAndMarkedDone() throws Exception {
+        startClusterWithExisting();
+        JobStatus status = mock(JobStatus.class);
+        when(status.getState()).thenReturn("DONE");
+        when(getJobsRequest.execute()).thenReturn(new Job().setReference(new JobReference().setJobId(JOB_ID)).setStatus(status));
+        victim.submit(SparkJobDefinition.gunzip(JarLocation.of("jar"), PerformanceProfile.mini()), ARGUMENTS);
+        verify(jobs, never()).submit(any(), any(), any());
+    }
+
+    @Test
     public void doesNotSubmitJobIfClusterNotStarted() throws Exception {
         victim.submit(SparkJobDefinition.gunzip(JarLocation.of("jar"), PerformanceProfile.mini()), ARGUMENTS);
         verify(jobs, never()).submit(any(), any(), any());
@@ -123,9 +130,6 @@ public class GoogleDataprocClusterTest {
     @Test
     public void submitsJobAndWaitsForCompletion() throws Exception {
         startClusterWithExisting();
-        Dataproc.Projects.Regions.Jobs.Get getJobsRequest = mock(Dataproc.Projects.Regions.Jobs.Get.class);
-        when(jobs.get(PROJECT, REGION, JOB_ID)).thenReturn(getJobsRequest);
-
         Dataproc.Projects.Regions.Jobs.Submit submit = mock(Dataproc.Projects.Regions.Jobs.Submit.class);
         ArgumentCaptor<SubmitJobRequest> submitRequestCaptor = ArgumentCaptor.forClass(SubmitJobRequest.class);
         when(jobs.submit(eq(PROJECT), eq(REGION), submitRequestCaptor.capture())).thenReturn(submit);
