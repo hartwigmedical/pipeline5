@@ -111,6 +111,11 @@ Any GCP project which runs Pv5 requires the following accounts be setup (with th
 ### Clusters
 Two clusters are created in a pipeline run, a single node cluster and one based on the input size. The single node cluster is used for long running stages with limited parallizability. For instance, we only need 16 cores to gunzip 16 files, so no use using a 1000 core Spark cluster. The gunzip and sorting jobs are sent to the cheaper single node cluster, and the BAM creation is handled by the big guy.
 
+### Restart Behaviour
+In production we run the bootstrap process in a Kubernetes cluster. Occasionally nodes get restarted and containers killed. To this end the default restart behaviour is to resume best it can from where it left off. This is accomplished using the run-id to check for running clusters and jobs before submitting. Any running cluster
+of the same name as the desired cluster will be re-used. If the job is also still running in the cluster, bootstrap will reattach and wait for that job to complete and resume from there. If the job has already run and completed successfully, execution will be skipped. If the job has been cancelled or failed, it will be deleted and
+resubmitted.
+
 ### Monitoring and Metrics
 To troubleshoot issues or determine the progress of a run, there are several relevant log files and metrics you can use.
 
