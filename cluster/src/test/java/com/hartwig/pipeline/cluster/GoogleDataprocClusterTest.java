@@ -140,6 +140,16 @@ public class GoogleDataprocClusterTest {
         assertThat(value.getJob().getReference().getJobId()).isEqualTo(JOB_ID);
     }
 
+    @Test
+    public void remoteClusterDeletedWhenStopped() throws Exception {
+        startClusterWithExisting();
+        Dataproc.Projects.Regions.Clusters.Delete delete = mock(Dataproc.Projects.Regions.Clusters.Delete.class);
+        when(delete.execute()).thenReturn(new Operation().setDone(true));
+        when(clusters.delete(PROJECT, REGION, CLUSTER_NAME)).thenReturn(delete);
+        victim.stop(ARGUMENTS);
+        verify(clusters, times(1)).delete(PROJECT, REGION, CLUSTER_NAME);
+    }
+
     private void startClusterWithExisting() throws IOException {
         when(clusters.get(PROJECT, REGION, CLUSTER_NAME)).thenReturn(getClusterRequest);
         when(getClusterRequest.execute()).thenReturn(new Cluster().setClusterName(CLUSTER_NAME));

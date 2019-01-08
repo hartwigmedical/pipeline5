@@ -121,10 +121,6 @@ public class GoogleDataprocCluster implements SparkCluster {
     @Override
     public void stop(Arguments arguments) throws IOException {
         if (isStarted) {
-            if (dataproc == null) {
-                throw new IllegalStateException(
-                        "No Dataproc instance available to stop running cluster. Did you forget to call start() before stop()?");
-            }
             Operation deleteCluster =
                     dataproc.projects().regions().clusters().delete(arguments.project(), arguments.region(), clusterName).execute();
             LOGGER.info("Deleting cluster [{}]. This may take a minute or two...", clusterName);
