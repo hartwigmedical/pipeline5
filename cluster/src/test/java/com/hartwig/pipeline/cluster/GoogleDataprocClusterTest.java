@@ -106,6 +106,7 @@ public class GoogleDataprocClusterTest {
         ArgumentCaptor<SubmitJobRequest> submitRequestCaptor = ArgumentCaptor.forClass(SubmitJobRequest.class);
         when(jobs.submit(eq(PROJECT), eq(REGION), submitRequestCaptor.capture())).thenReturn(submit);
         when(submit.execute()).thenReturn(new Job().setStatus(new JobStatus().setState("DONE")));
+        when(jobs.delete(PROJECT, REGION, JOB_ID)).thenReturn(mock(Dataproc.Projects.Regions.Jobs.Delete.class));
         victim.submit(SparkJobDefinition.gunzip(JarLocation.of("jar"), PerformanceProfile.mini()), ARGUMENTS);
         SubmitJobRequest value = submitRequestCaptor.getValue();
         assertThat(value.getJob().getReference().getJobId()).isEqualTo(JOB_ID);
