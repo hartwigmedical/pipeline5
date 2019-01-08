@@ -19,7 +19,7 @@ import com.hartwig.pipeline.performance.PerformanceProfile;
 public class RunTool {
 
     private void execute() throws Exception {
-        SparkCluster cluster = new GoogleDataprocCluster(GoogleCredentials.getApplicationDefault(),
+        SparkCluster cluster = GoogleDataprocCluster.from(GoogleCredentials.getApplicationDefault(),
                 new NodeInitialization("/Users/pwolfe/Code/pipeline2/cluster/src/main/resources/node-init.sh"),
                 "test");
         Storage storage = StorageOptions.getDefaultInstance().getService();

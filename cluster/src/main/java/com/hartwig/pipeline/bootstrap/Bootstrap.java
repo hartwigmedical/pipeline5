@@ -95,7 +95,6 @@ class Bootstrap {
         PerformanceProfile bamProfile = clusterOptimizer.optimize(sampleData);
 
         RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, sampleData.sample().name(), arguments);
-        registerShutdownHook(arguments, runtimeBucket);
         try {
             Monitor monitor = Monitor.stackdriver(Run.of(arguments.version(), runtimeBucket.getName()), arguments.project(), credentials);
             referenceGenomeData.copyInto(runtimeBucket);
@@ -121,15 +120,7 @@ class Bootstrap {
             }
         } finally {
             cleanupAll(arguments, runtimeBucket);
-            LOGGER.info("Bootstrap completed successfully");
         }
-    }
-
-    private void registerShutdownHook(final Arguments arguments, final RuntimeBucket runtimeBucket) {
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            LOGGER.info("Received shutdown signal, shutting down any running clusters and deleting runtime bucket if not done already");
-            cleanupAll(arguments, runtimeBucket);
-        }));
     }
 
     private void cleanupAll(final Arguments arguments, final RuntimeBucket runtimeBucket) {
@@ -179,16 +170,15 @@ class Bootstrap {
                 CostCalculator costCalculator = new CostCalculator(credentials, arguments.region(), Costs.defaultCosts());
                 ResultsDirectory resultsDirectory = ResultsDirectory.defaultDirectory();
                 BamComposer composer = new BamComposer(storage, resultsDirectory, 32);
-                GoogleDataprocCluster singleNode = new GoogleDataprocCluster(credentials, nodeInitialization, "singlenode");
-                GoogleDataprocCluster parallelProcessing = new GoogleDataprocCluster(credentials, nodeInitialization, "spark");
+                GoogleDataprocCluster singleNode = GoogleDataprocCluster.from(credentials, nodeInitialization, "singlenode");
+                GoogleDataprocCluster parallelProcessing = GoogleDataprocCluster.from(credentials, nodeInitialization, "spark");
                 if (arguments.sbpApiSampleId().isPresent()) {
                     int sbpSampleId = arguments.sbpApiSampleId().get();
                     SBPRestApi sbpRestApi = SBPRestApi.newInstance(arguments);
                     AmazonS3 s3 = S3.newClient(arguments.sblS3Url());
                     new Bootstrap(storage,
                             referenceGenomeData,
-                            knownIndelsData,
-                            new SBPS3SampleSource(s3, new SBPSampleReader(sbpRestApi)), new SBPSampleMetadataPatch(s3,
+                            knownIndelsData, new SBPS3SampleSource(s3, new SBPSampleReader(sbpRestApi)), new SBPSampleMetadataPatch(s3,
                                     sbpRestApi,
                                     sbpSampleId,
                             SBPS3BamDownload.from(s3, resultsDirectory, arguments.s3UploadThreads()),
@@ -204,8 +194,7 @@ class Bootstrap {
                     s3.shutdown();
                 } else {
                     new Bootstrap(storage,
-                            referenceGenomeData,
-                            knownIndelsData, arguments.noUpload() ? new GoogleStorageSampleSource(storage)
+                            referenceGenomeData, knownIndelsData, arguments.noUpload() ? new GoogleStorageSampleSource(storage)
                                     : new FileSystemSampleSource(Hadoop.localFilesystem(), arguments.patientDirectory()),
                             new GSUtilBamDownload(arguments.cloudSdkPath(), new LocalFileTarget()),
                             new GSUtilSampleUpload(arguments.cloudSdkPath(), new LocalFileSource()),
@@ -222,6 +211,7 @@ class Bootstrap {
                 LOGGER.error("An unexpected issue arose while running the bootstrap. See the attached exception for more details.", e);
                 System.exit(1);
             }
+            LOGGER.info("Bootstrap completed successfully");
             System.exit(0);
         });
     }

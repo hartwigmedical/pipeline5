@@ -2,6 +2,7 @@ package com.hartwig.pipeline.cluster;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -13,6 +14,7 @@ import com.google.api.services.dataproc.model.Cluster;
 import com.google.api.services.dataproc.model.ClusterConfig;
 import com.google.api.services.dataproc.model.Job;
 import com.google.api.services.dataproc.model.JobPlacement;
+import com.google.api.services.dataproc.model.JobReference;
 import com.google.api.services.dataproc.model.JobStatus;
 import com.google.api.services.dataproc.model.Operation;
 import com.google.api.services.dataproc.model.SparkJob;
@@ -32,25 +34,28 @@ public class GoogleDataprocCluster implements SparkCluster {
     private static final String APPLICATION_NAME = "sample-dataproc-cluster";
     private final Logger LOGGER = LoggerFactory.getLogger(GoogleDataprocCluster.class);
     private String clusterName;
-    private Dataproc dataproc;
-    private final GoogleCredentials credential;
+    private final Dataproc dataproc;
     private final NodeInitialization nodeInitialization;
-    private String id;
+    private final String id;
     private boolean isStarted = false;
 
-    public GoogleDataprocCluster(final GoogleCredentials credential, final NodeInitialization nodeInitialization, final String id) {
-        this.credential = credential;
+    public GoogleDataprocCluster(final Dataproc dataproc, final NodeInitialization nodeInitialization, final String id) {
+        this.dataproc = dataproc;
         this.nodeInitialization = nodeInitialization;
         this.id = id;
+    }
+
+    public static GoogleDataprocCluster from(final GoogleCredentials credential, final NodeInitialization nodeInitialization,
+            final String id) {
+        return new GoogleDataprocCluster(new Dataproc.Builder(new NetHttpTransport(),
+                JacksonFactory.getDefaultInstance(),
+                new HttpCredentialsAdapter(credential)).setApplicationName(APPLICATION_NAME).build(), nodeInitialization, id);
     }
 
     @Override
     public void start(PerformanceProfile performanceProfile, Sample sample, RuntimeBucket runtimeBucket, Arguments arguments)
             throws IOException {
         this.clusterName = runtimeBucket.getName() + "-" + id;
-        dataproc = new Dataproc.Builder(new NetHttpTransport(),
-                JacksonFactory.getDefaultInstance(),
-                new HttpCredentialsAdapter(credential)).setApplicationName(APPLICATION_NAME).build();
         Dataproc.Projects.Regions.Clusters clusters = dataproc.projects().regions().clusters();
         Cluster existing = findExistingCluster(arguments);
         if (existing == null) {
@@ -69,27 +74,47 @@ public class GoogleDataprocCluster implements SparkCluster {
 
     @Override
     public void submit(SparkJobDefinition jobDefinition, Arguments arguments) throws IOException {
-        LOGGER.info("Submitting spark job [{}] to cluster [{}]", jobDefinition.name(), clusterName);
-        Job job = dataproc.projects().regions().jobs().submit(arguments.project(), arguments.region(),
-                        new SubmitJobRequest().setJob(new Job().setPlacement(new JobPlacement().setClusterName(clusterName))
-                                .setSparkJob(new SparkJob().setProperties(jobDefinition.sparkProperties())
-                                        .setMainClass(jobDefinition.mainClass()).setArgs(jobDefinition.arguments())
-                                        .setJarFileUris(Collections.singletonList(jobDefinition.jarLocation())))))
-                .execute();
-        Job completed = waitForComplete(job,
-                j -> j.getStatus() != null && (j.getStatus().getState().equals("ERROR") || j.getStatus().getState().equals("DONE")
-                        || j.getStatus().getState().equals("CANCELLED")),
-                () -> dataproc.projects()
-                        .regions()
-                        .jobs()
-                        .get(arguments.project(), arguments.region(), job.getReference().getJobId())
-                        .execute(),
-                GoogleDataprocCluster::jobStatus);
-        LOGGER.info("Spark job is complete with status [{}] details [{}]",
-                completed.getStatus().getState(),
-                completed.getStatus().getDetails());
-        if (completed.getStatus().getState().equals("ERROR")) {
-            throw new RuntimeException("Spark job failed on Google Dataproc");
+        if (isStarted) {
+            LOGGER.info("Submitting spark job [{}] to cluster [{}]", jobDefinition.name(), clusterName);
+            String naturalJobId = clusterName + "-" + jobDefinition.name().toLowerCase();
+            final Job job = findExistingJob(arguments, naturalJobId).orElseGet(() -> submittedJob(jobDefinition, arguments, naturalJobId));
+
+            Job completed = waitForComplete(job,
+                    j -> j.getStatus() != null && (j.getStatus().getState().equals("ERROR") || j.getStatus().getState().equals("DONE")
+                            || j.getStatus().getState().equals("CANCELLED")),
+                    () -> dataproc.projects()
+                            .regions()
+                            .jobs()
+                            .get(arguments.project(), arguments.region(), job.getReference().getJobId())
+                            .execute(),
+                    GoogleDataprocCluster::jobStatus);
+            LOGGER.info("Spark job is complete with status [{}] details [{}]",
+                    completed.getStatus().getState(),
+                    completed.getStatus().getDetails());
+            if (completed.getStatus().getState().equals("ERROR")) {
+                throw new RuntimeException("Spark job failed on Google Dataproc");
+            }
+        } else {
+            LOGGER.info("This cluster has not been started and cannot accept jobs. ");
+        }
+    }
+
+    private Job submittedJob(final SparkJobDefinition jobDefinition, final Arguments arguments, final String naturalJobId) {
+        try {
+            return dataproc.projects()
+                    .regions()
+                    .jobs()
+                    .submit(arguments.project(),
+                            arguments.region(),
+                            new SubmitJobRequest().setJob(new Job().setPlacement(new JobPlacement().setClusterName(clusterName))
+                                    .setReference(new JobReference().setJobId(naturalJobId))
+                                    .setSparkJob(new SparkJob().setProperties(jobDefinition.sparkProperties())
+                                            .setMainClass(jobDefinition.mainClass())
+                                            .setArgs(jobDefinition.arguments())
+                                            .setJarFileUris(Collections.singletonList(jobDefinition.jarLocation())))))
+                    .execute();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -107,6 +132,10 @@ public class GoogleDataprocCluster implements SparkCluster {
             LOGGER.info("Cluster deleted");
             isStarted = false;
         }
+    }
+
+    boolean isStarted() {
+        return isStarted;
     }
 
     private static String jobStatus(final Job job) {
@@ -127,6 +156,24 @@ public class GoogleDataprocCluster implements SparkCluster {
         }
     }
 
+    private Optional<Job> findExistingJob(Arguments arguments, String jobId) throws IOException {
+        try {
+            Job job = dataproc.projects().regions().jobs().get(arguments.project(), arguments.region(), jobId).execute();
+            if (job != null) {
+                if (job.getStatus().getState().equals("RUNNING")) {
+                    LOGGER.info("Job [{}] already existed and is running. Re-attaching boostrap to running job.", jobId);
+                    return Optional.of(job);
+                } else {
+                    LOGGER.info("Job [{}] already existed and but is [{}]. Deleting and re-submitting", jobId, job.getStatus().getState());
+                    dataproc.projects().regions().jobs().delete(arguments.project(), arguments.region(), jobId).execute();
+                }
+            }
+            return Optional.empty();
+        } catch (GoogleJsonResponseException e) {
+            return Optional.empty();
+        }
+    }
+
     private void waitForOperationComplete(Operation operation) throws IOException {
         waitForComplete(operation,
                 op1 -> op1.getDone() != null && op1.getDone(),
@@ -135,7 +182,7 @@ public class GoogleDataprocCluster implements SparkCluster {
     }
 
     private <T> T waitForComplete(T operation, Predicate<T> isDone, Poll<T> poll, Function<T, String> description) throws IOException {
-        boolean operationComplete = false;
+        boolean operationComplete = isDone.test(operation);
         while (!operationComplete) {
             sleep();
             LOGGER.debug("Operation [{}] not complete, waiting...", description.apply(operation));
