@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import com.google.api.gax.paging.Page;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Storage;
 import com.google.common.collect.Lists;
@@ -31,19 +32,23 @@ public class BamComposer {
         LOGGER.info("Composing sharded BAM into a single downloadable BAM file on GS.");
         String headerBlob = resultsDirectory.path(sample.name() + ".bam_head");
         String tailDirectory = "%s.bam_tail";
-        List<String> toCompose = StreamSupport.stream(storage.list(runtimeBucket.getName(),
-                Storage.BlobListOption.prefix(resultsDirectory.path(String.format(tailDirectory + "/part-r-", sample.name()))))
-                .iterateAll()
-                .spliterator(), false).map(Blob::getName).collect(Collectors.toList());
-        toCompose.add(0, headerBlob);
-        List<List<String>> partitioned = Lists.partition(toCompose, maxComponentsPerCompose);
-        recursivelyCompose(sample, runtimeBucket, partitioned, 1);
-        LOGGER.info("Compose complete");
-        LOGGER.info("Deleting shards and temporary files");
-        deletePath(runtimeBucket, resultsDirectory.path(String.format(tailDirectory, sample.name())));
-        deletePath(runtimeBucket, headerBlob);
-        deletePath(runtimeBucket, resultsDirectory.path("composed/"));
-        LOGGER.info("Delete complete");
+        Page<Blob> blobs = storage.list(runtimeBucket.getName(),
+                Storage.BlobListOption.prefix(resultsDirectory.path(String.format(tailDirectory + "/part-r-", sample.name()))));
+        List<String> toCompose =
+                StreamSupport.stream(blobs.iterateAll().spliterator(), false).map(Blob::getName).collect(Collectors.toList());
+        if (!toCompose.isEmpty()) {
+            toCompose.add(0, headerBlob);
+            List<List<String>> partitioned = Lists.partition(toCompose, maxComponentsPerCompose);
+            recursivelyCompose(sample, runtimeBucket, partitioned, 1);
+            LOGGER.info("Compose complete");
+            LOGGER.info("Deleting shards and temporary files");
+            deletePath(runtimeBucket, resultsDirectory.path(String.format(tailDirectory, sample.name())));
+            deletePath(runtimeBucket, headerBlob);
+            deletePath(runtimeBucket, resultsDirectory.path("composed/"));
+            LOGGER.info("Delete complete");
+        } else {
+            LOGGER.info("No BAM parts were found to compose. Skipping this step.");
+        }
     }
 
     private void deletePath(final RuntimeBucket runtimeBucket, final String directory) {
