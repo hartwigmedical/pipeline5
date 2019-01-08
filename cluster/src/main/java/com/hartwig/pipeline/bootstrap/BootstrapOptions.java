@@ -55,6 +55,8 @@ class BootstrapOptions {
     private static final String DEFAULT_KNOWN_INDELS_BUCKET = "known_indels";
     private static final String S3_UPLOAD_THREADS = "s3_upload_threads";
     private static final String DEFAULT_S3_UPLOAD_THREADS = "20";
+    private static final String CLOUD_SDK_TIMEOUT_FLAG = "cloud_sdk_timeout";
+    private static final String DEFAULT_CLOUD_SDK_TIMEOUT = "4";
 
     private static Options options() {
         return new Options().addOption(privateKeyFlag())
@@ -88,8 +90,14 @@ class BootstrapOptions {
                 .addOption(cpuPerGB())
                 .addOption(gsutilPath())
                 .addOption(referenceGenomeBucket())
-                .addOption(knownIndelsBucket())
-                .addOption(s3UploadThreads());
+                .addOption(knownIndelsBucket()).addOption(s3UploadThreads()).addOption(cloudSdkTimeoutHours());
+    }
+
+    private static Option cloudSdkTimeoutHours() {
+        return optionWithArgAndDefault(CLOUD_SDK_TIMEOUT_FLAG,
+                CLOUD_SDK_TIMEOUT_FLAG,
+                "Timeout cloud sdk operations (ie cp) at this value (in hours)",
+                DEFAULT_CLOUD_SDK_TIMEOUT);
     }
 
     private static Option s3UploadThreads() {
@@ -220,7 +228,7 @@ class BootstrapOptions {
                     .knownIndelsBucket(commandLine.getOptionValue(KNOWN_INDELS_BUCKET_FLAG, DEFAULT_KNOWN_INDELS_BUCKET))
                     .verboseCloudSdk(commandLine.hasOption(VERBOSE_CLOUD_SDK_FLAG))
                     .noUpload(commandLine.hasOption(NO_UPLOAD_FLAG))
-                    .s3UploadThreads(s3UploadThreads(commandLine))
+                    .s3UploadThreads(s3UploadThreads(commandLine)).cloudSdkTimeoutHours(cloudSdkTimeoutHours(commandLine))
                     .build());
         } catch (ParseException e) {
             LOGGER.error("Could not parse command line args", e);
@@ -228,6 +236,10 @@ class BootstrapOptions {
             formatter.printHelp("bootstrap", options());
             return Optional.empty();
         }
+    }
+
+    private static int cloudSdkTimeoutHours(final CommandLine commandLine) {
+        return Integer.parseInt(commandLine.getOptionValue(CLOUD_SDK_TIMEOUT_FLAG, DEFAULT_CLOUD_SDK_TIMEOUT));
     }
 
     private static int s3UploadThreads(final CommandLine commandLine) {

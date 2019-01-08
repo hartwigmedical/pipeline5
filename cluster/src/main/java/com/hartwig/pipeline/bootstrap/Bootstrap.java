@@ -156,7 +156,7 @@ class Bootstrap {
             try {
                 final GoogleCredentials credentials =
                         GoogleCredentials.fromStream(new FileInputStream(arguments.privateKeyPath())).createScoped(DataprocScopes.all());
-                GSUtil.configure(arguments.verboseCloudSdk());
+                GSUtil.configure(arguments.verboseCloudSdk(), arguments.cloudSdkTimeoutHours());
                 GSUtil.auth(arguments.cloudSdkPath(), arguments.privateKeyPath());
                 Storage storage =
                         StorageOptions.newBuilder().setCredentials(credentials).setProjectId(arguments.project()).build().getService();
@@ -178,11 +178,13 @@ class Bootstrap {
                     AmazonS3 s3 = S3.newClient(arguments.sblS3Url());
                     new Bootstrap(storage,
                             referenceGenomeData,
-                            knownIndelsData, new SBPS3SampleSource(s3, new SBPSampleReader(sbpRestApi)), new SBPSampleMetadataPatch(s3,
+                            knownIndelsData,
+                            new SBPS3SampleSource(s3, new SBPSampleReader(sbpRestApi)),
+                            new SBPSampleMetadataPatch(s3,
                                     sbpRestApi,
                                     sbpSampleId,
-                            SBPS3BamDownload.from(s3, resultsDirectory, arguments.s3UploadThreads()),
-                            resultsDirectory),
+                                    SBPS3BamDownload.from(s3, resultsDirectory, arguments.s3UploadThreads()),
+                                    resultsDirectory),
                             new GSUtilSampleUpload(arguments.cloudSdkPath(), new SBPS3FileSource()),
                             singleNode,
                             parallelProcessing,
@@ -194,7 +196,9 @@ class Bootstrap {
                     s3.shutdown();
                 } else {
                     new Bootstrap(storage,
-                            referenceGenomeData, knownIndelsData, arguments.noUpload() ? new GoogleStorageSampleSource(storage)
+                            referenceGenomeData,
+                            knownIndelsData,
+                            arguments.noUpload() ? new GoogleStorageSampleSource(storage)
                                     : new FileSystemSampleSource(Hadoop.localFilesystem(), arguments.patientDirectory()),
                             new GSUtilBamDownload(arguments.cloudSdkPath(), new LocalFileTarget()),
                             new GSUtilSampleUpload(arguments.cloudSdkPath(), new LocalFileSource()),

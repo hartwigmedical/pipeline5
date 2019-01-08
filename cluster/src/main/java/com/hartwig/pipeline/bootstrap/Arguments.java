@@ -67,6 +67,8 @@ public interface Arguments {
 
     int s3UploadThreads();
 
+    int cloudSdkTimeoutHours();
+
     Optional<Integer> sbpApiSampleId();
 
     Optional<String> runId();
