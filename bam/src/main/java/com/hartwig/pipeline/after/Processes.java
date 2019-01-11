@@ -21,7 +21,7 @@ public class Processes {
             builder = builder.redirectError(ProcessBuilder.Redirect.INHERIT).redirectOutput(ProcessBuilder.Redirect.INHERIT);
         }
         Process process = builder.start();
-        if (!process.waitFor(timeout, TimeUnit.SECONDS)) {
+        if (!process.waitFor(timeout, timeoutUnit)) {
             throw new RuntimeException(String.format("Timeout. [%s] took more than [%s %s] to execute",
                     toString(builder),
                     timeout,
