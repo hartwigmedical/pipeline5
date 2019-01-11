@@ -44,8 +44,10 @@ class GoogleClusterConfig {
 
     @NotNull
     private static GceClusterConfig gceClusterConfig(final String project) {
-        return new GceClusterConfig().setServiceAccount(String.format("dataproc-monitor@%s.iam.gserviceaccount.com", project))
-                .setServiceAccountScopes(Collections.singletonList("https://www.googleapis.com/auth/monitoring"));
+        // TODO: make this a configuration option.
+        /*return new GceClusterConfig().setServiceAccount(String.format("dataproc-monitor@%s.iam.gserviceaccount.com", project))
+                .setServiceAccountScopes(Collections.singletonList("https://www.googleapis.com/auth/monitoring"));*/
+        return new GceClusterConfig();
     }
 
     @NotNull

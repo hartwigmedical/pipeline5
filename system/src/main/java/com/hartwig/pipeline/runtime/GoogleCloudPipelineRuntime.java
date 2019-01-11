@@ -1,7 +1,6 @@
 package com.hartwig.pipeline.runtime;
 
 import com.hartwig.pipeline.metrics.Monitor;
-import com.hartwig.pipeline.metrics.Run;
 import com.hartwig.pipeline.runtime.configuration.BwaParameters;
 import com.hartwig.pipeline.runtime.configuration.Configuration;
 import com.hartwig.pipeline.runtime.configuration.KnownIndelParameters;
@@ -31,7 +30,7 @@ public class GoogleCloudPipelineRuntime {
             String runId = args[1];
             String project = args[2];
             LOGGER.info("Starting pipeline with version [{}] run id [{}] for project [{}] on Google Dataproc", version, runId, project);
-            monitor = Monitor.stackdriver(Run.of(version, runId), project);
+            monitor = Monitor.noop();
         }
         new PipelineRuntime(configuration, monitor).start();
     }
