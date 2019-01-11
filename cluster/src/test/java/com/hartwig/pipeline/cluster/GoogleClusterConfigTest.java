@@ -11,6 +11,7 @@ import com.hartwig.pipeline.performance.PerformanceProfile;
 
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class GoogleClusterConfigTest {
@@ -50,6 +51,7 @@ public class GoogleClusterConfigTest {
         assertThat(victim.config().getSecondaryWorkerConfig().getDiskConfig().getBootDiskSizeGb()).isEqualTo(MachineType.DISK_GB);
     }
 
+    @Ignore
     @Test
     public void serviceAccountSetupForStackDriverMonitoring() throws Exception {
         assertThat(victim.config().getGceClusterConfig().getServiceAccount().equals("dataproc-monitor@project.iam.gserviceaccount.com"));
