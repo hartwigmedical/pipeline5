@@ -89,5 +89,5 @@ class HmfApi(object):
 class Sample(HmfApi):
     def __init__(self):
         self._type      = 'samples'
-        self._keys      = ['barcode', 'name', 'submission', 'type', 'status', 'q30', 'q30_req', 'yld', 'yld_req']
+        self._keys      = ['barcode', 'name', 'submission', 'type', 'status', 'q30', 'q30_req', 'yld', 'yld_req', 'version']
         super(Sample, self).__init__()

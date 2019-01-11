@@ -135,9 +135,10 @@ def main():
         for sample in samples:
             start_kubernetes_job({'sbp_sample_id': sample.id})
 
-            phone_home('Starting PipelineV5 for sample {0} barcode {1}'.format(sample.name, sample.barcode))
+            phone_home('Starting Pipeline {0} for sample {1} barcode {2}'.format(os.environ['PIPELINE_VERSION'], sample.name, sample.barcode))
 
             sample.status = 'Started_PipelineV5'
+            sample.version = str(os.environ['PIPELINE_VERSION'])
             sample.save()
     else:
         log('No Pipeline v5 runs currently ready to go')
