@@ -7,7 +7,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class JanitorTest {
@@ -19,12 +18,11 @@ public class JanitorTest {
         victim = new Janitor(Executors.newSingleThreadScheduledExecutor());
     }
 
-    @Ignore
     @Test
     public void runsPeriodically() throws Exception {
         CountDownLatch latch = new CountDownLatch(1);
         victim.register(arguments -> latch.countDown());
         victim.start(Arguments.defaults());
-        assertThat(latch.await(10, TimeUnit.MILLISECONDS)).isTrue();
+        assertThat(latch.await(100, TimeUnit.MILLISECONDS)).isTrue();
     }
 }
