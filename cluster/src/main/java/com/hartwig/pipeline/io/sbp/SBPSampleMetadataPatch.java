@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.io.sbp;
 
+import java.util.Base64;
+
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.AccessControlList;
 import com.amazonaws.services.s3.model.CanonicalGrantee;
@@ -55,7 +57,9 @@ public class SBPSampleMetadataPatch implements BamDownload {
                 BamMetadata.builder()
                         .bucket(SBPS3FileTarget.ROOT_BUCKET)
                         .directory(sample.barcode())
-                        .filename(bamFile).filesize(existing.getContentLength()).hash(bamBlob.getMd5())
+                        .filename(bamFile)
+                        .filesize(existing.getContentLength())
+                        .hash(new String(Base64.getDecoder().decode(bamBlob.getMd5())))
                         .status(result == JobResult.SUCCESS ? "Done_PipelineV5" : "Failed_PipelineV5")
                         .build());
     }
