@@ -43,7 +43,7 @@ At the time of writing we've been unable to get ADAM's native sorting to perform
 
 ## Running Pv5 locally
 
-During development or testing it can be useful to run the pipeline in Intellij to debug or get quick feedback on changes. At the time of writing the entire pipeline cannot be run in one command locallty, but the individual stages can. Most of the time the BAM creation stage will be run on its own, so this guide focussing on that.
+During development or testing it can be useful to run the pipeline in Intellij to debug or get quick feedback on changes. At the time of writing the entire pipeline cannot be run in one command localy, but the individual stages can. Most of the time the BAM creation stage will be run on its own, so this guide focussing on that.
 
 ### Configuration
 
