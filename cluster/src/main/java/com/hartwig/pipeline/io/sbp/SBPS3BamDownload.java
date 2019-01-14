@@ -50,16 +50,17 @@ public class SBPS3BamDownload implements BamDownload {
 
     @Override
     public void run(final Sample sample, final RuntimeBucket runtimeBucket, final JobResult result) {
-        int attempts = 0;
-        while (attempts <= maxAttempts) {
+        int attempts = 1;
+        boolean success = false;
+        while (attempts <= maxAttempts || !success) {
             try {
-                attempts++;
                 String[] path = SBPS3FileTarget.from(sample).replace("s3://", "").split("/", 2);
                 String bucket = path[0];
                 String bamKey = path[1];
                 String baiKey = path[1] + ".bai";
                 transfer(runtimeBucket, transferManager, BamNames.sorted(sample), bucket, bamKey);
                 transfer(runtimeBucket, transferManager, BamNames.bai(sample), bucket, baiKey);
+                success = true;
             } catch (Exception e) {
                 if (attempts <= maxAttempts) {
                     LOGGER.warn(String.format(
@@ -72,6 +73,8 @@ public class SBPS3BamDownload implements BamDownload {
                     LOGGER.error("Max attempts reached. Failing hard");
                     throw new RuntimeException(e);
                 }
+            } finally {
+                attempts++;
             }
         }
         transferManager.shutdownNow(false);

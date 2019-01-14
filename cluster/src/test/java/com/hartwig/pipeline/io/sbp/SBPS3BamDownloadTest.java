@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.amazonaws.AmazonClientException;
@@ -79,7 +81,7 @@ public class SBPS3BamDownloadTest {
         Upload upload = mock(Upload.class);
         when(transferManager.upload(any())).thenReturn(upload);
         doThrow(new AmazonClientException("test")).doNothing().when(upload).waitForCompletion();
-        SBPS3BamDownload victim = new SBPS3BamDownload(transferManager, ResultsDirectory.defaultDirectory(), 2, 1);
+        SBPS3BamDownload victim = new SBPS3BamDownload(transferManager, ResultsDirectory.defaultDirectory(), 3, 1);
         MockRuntimeBucket mockRuntimeBucket =
                 MockRuntimeBucket.of("test").with("results/test.sorted.bam", BAM_SIZE).with("results/test.sorted.bam.bai", BAI_SIZE);
         victim.run(Sample.builder("", "test", "FR1234").build(), mockRuntimeBucket.getRuntimeBucket(), JobResult.SUCCESS);
@@ -95,6 +97,7 @@ public class SBPS3BamDownloadTest {
         MockRuntimeBucket mockRuntimeBucket =
                 MockRuntimeBucket.of("test").with("results/test.sorted.bam", BAM_SIZE).with("results/test.sorted.bam.bai", BAI_SIZE);
         victim.run(Sample.builder("", "test", "FR1234").build(), mockRuntimeBucket.getRuntimeBucket(), JobResult.SUCCESS);
+        verify(transferManager, times(2)).upload(any());
         return request;
     }
 }
