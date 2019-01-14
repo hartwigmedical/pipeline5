@@ -17,7 +17,7 @@ import com.hartwig.pipeline.QualityControl;
 import org.apache.spark.api.java.JavaDoubleRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.bdgenomics.adam.api.java.JavaADAMContext;
-import org.bdgenomics.adam.rdd.read.AlignmentRecordDataset;
+import org.bdgenomics.adam.rdd.read.AlignmentRecordRDD;
 import org.bdgenomics.formats.avro.AlignmentRecord;
 import org.bdgenomics.formats.avro.NucleotideContigFragment;
 import org.jetbrains.annotations.NotNull;
@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 import scala.Tuple2;
 
 @SuppressWarnings({ "FieldCanBeLocal", "unused" })
-public class FinalBAMQC implements QualityControl<AlignmentRecordDataset>, Serializable {
+public class FinalBAMQC implements QualityControl<AlignmentRecordRDD>, Serializable {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(FinalBAMQC.class);
     private final Collection<CoverageThreshold> thresholds;
@@ -47,7 +47,7 @@ public class FinalBAMQC implements QualityControl<AlignmentRecordDataset>, Seria
     }
 
     @Override
-    public QCResult check(final InputOutput<AlignmentRecordDataset> toQC) {
+    public QCResult check(final InputOutput<AlignmentRecordRDD> toQC) {
         if (toQC.payload().rdd().isEmpty()) {
             return QCResult.failure("Final QC failed as the BAM was empty");
         }
@@ -89,7 +89,7 @@ public class FinalBAMQC implements QualityControl<AlignmentRecordDataset>, Seria
     }
 
     @NotNull
-    private static AlignmentRecordDataset filterReads(final InputOutput<AlignmentRecordDataset> toQC) {
+    private static AlignmentRecordRDD filterReads(final InputOutput<AlignmentRecordRDD> toQC) {
         JavaRDD<AlignmentRecord> filtered = toQC.payload()
                 .rdd()
                 .toJavaRDD()
@@ -98,8 +98,8 @@ public class FinalBAMQC implements QualityControl<AlignmentRecordDataset>, Seria
                 .filter(read -> read.getMapq() >= 20)
                 .filter(AlignmentRecord::getPrimaryAlignment)
                 .filter(AlignmentRecord::getReadPaired);
-        AlignmentRecordDataset AlignmentRecordDataset = toQC.payload();
-        return AlignmentRecordDataset.replaceRdd(filtered.rdd(), AlignmentRecordDataset.optPartitionMap());
+        AlignmentRecordRDD AlignmentRecordRDD = toQC.payload();
+        return AlignmentRecordRDD.replaceRdd(filtered.rdd(), AlignmentRecordRDD.optPartitionMap());
     }
 
     private static String calledBases(final String baseString) {

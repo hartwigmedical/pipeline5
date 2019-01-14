@@ -16,7 +16,7 @@ import com.hartwig.pipeline.after.BamIndexPipeline;
 import com.hartwig.pipeline.metrics.Metric;
 import com.hartwig.pipeline.metrics.Monitor;
 
-import org.bdgenomics.adam.rdd.read.AlignmentRecordDataset;
+import org.bdgenomics.adam.rdd.read.AlignmentRecordRDD;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,13 +24,13 @@ import org.junit.Test;
 public class BamCreationPipelineTest {
 
     private static final ImmutableSample SAMPLE = Sample.builder("", "TEST").build();
-    private static final InputOutput<AlignmentRecordDataset> ALIGNED_BAM =
-            InputOutput.of(OutputType.ALIGNED, SAMPLE, mock(AlignmentRecordDataset.class));
-    private static final InputOutput<AlignmentRecordDataset> ENRICHED_BAM =
-            InputOutput.of(OutputType.INDEL_REALIGNED, SAMPLE, mock(AlignmentRecordDataset.class));
-    private static final InputOutput<AlignmentRecordDataset> FINAL_BAM =
-            InputOutput.of(OutputType.FINAL, SAMPLE, mock(AlignmentRecordDataset.class));
-    private InputOutput<AlignmentRecordDataset> lastStored;
+    private static final InputOutput<AlignmentRecordRDD> ALIGNED_BAM =
+            InputOutput.of(OutputType.ALIGNED, SAMPLE, mock(AlignmentRecordRDD.class));
+    private static final InputOutput<AlignmentRecordRDD> ENRICHED_BAM =
+            InputOutput.of(OutputType.INDEL_REALIGNED, SAMPLE, mock(AlignmentRecordRDD.class));
+    private static final InputOutput<AlignmentRecordRDD> FINAL_BAM =
+            InputOutput.of(OutputType.FINAL, SAMPLE, mock(AlignmentRecordRDD.class));
+    private InputOutput<AlignmentRecordRDD> lastStored;
     private StatusReporter.Status lastStatus;
     private List<Metric> metricsStored;
     private Monitor monitor = metric -> metricsStored.add(metric);
@@ -85,10 +85,10 @@ public class BamCreationPipelineTest {
     }
 
     @NotNull
-    private OutputStore<AlignmentRecordDataset> finalStore(final boolean exists) {
-        return new OutputStore<AlignmentRecordDataset>() {
+    private OutputStore<AlignmentRecordRDD> finalStore(final boolean exists) {
+        return new OutputStore<AlignmentRecordRDD>() {
             @Override
-            public void store(final InputOutput<AlignmentRecordDataset> inputOutput) {
+            public void store(final InputOutput<AlignmentRecordRDD> inputOutput) {
                 lastStored = inputOutput;
             }
 
@@ -96,19 +96,24 @@ public class BamCreationPipelineTest {
             public boolean exists(final Sample sample, final OutputType type) {
                 return exists;
             }
+
+            @Override
+            public void clear() {
+                // do nothin
+            }
         };
     }
 
     @NotNull
-    private Stage<AlignmentRecordDataset, AlignmentRecordDataset> enrichment() {
-        return new Stage<AlignmentRecordDataset, AlignmentRecordDataset>() {
+    private Stage<AlignmentRecordRDD, AlignmentRecordRDD> enrichment() {
+        return new Stage<AlignmentRecordRDD, AlignmentRecordRDD>() {
             @Override
             public OutputType outputType() {
                 return OutputType.INDEL_REALIGNED;
             }
 
             @Override
-            public InputOutput<AlignmentRecordDataset> execute(final InputOutput<AlignmentRecordDataset> input) throws IOException {
+            public InputOutput<AlignmentRecordRDD> execute(final InputOutput<AlignmentRecordRDD> input) throws IOException {
                 return ENRICHED_BAM;
             }
         };

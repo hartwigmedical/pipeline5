@@ -2,20 +2,20 @@ package com.hartwig.pipeline.adam;
 
 import org.apache.spark.storage.StorageLevel;
 import org.bdgenomics.adam.rdd.GenomicDataset;
-import org.bdgenomics.adam.rdd.read.AlignmentRecordDataset;
+import org.bdgenomics.adam.rdd.read.AlignmentRecordRDD;
 
 class RDDs {
 
-    static AlignmentRecordDataset persistDisk(AlignmentRecordDataset unpersisted) {
+    static AlignmentRecordRDD persistDisk(AlignmentRecordRDD unpersisted) {
         return persistTo(unpersisted, StorageLevel.DISK_ONLY());
     }
 
-    private static AlignmentRecordDataset persistTo(final AlignmentRecordDataset unpersisted, final StorageLevel storageLevel) {
+    private static AlignmentRecordRDD persistTo(final AlignmentRecordRDD unpersisted, final StorageLevel storageLevel) {
         //noinspection RedundantCast
-        return (AlignmentRecordDataset) unpersisted.persist(storageLevel);
+        return (AlignmentRecordRDD) unpersisted.persist(storageLevel);
     }
 
-    static AlignmentRecordDataset AlignmentRecordDataset(GenomicDataset genomicDataset) {
-        return (AlignmentRecordDataset) genomicDataset;
+    static AlignmentRecordRDD AlignmentRecordRDD(GenomicDataset genomicDataset) {
+        return (AlignmentRecordRDD) genomicDataset;
     }
 }

@@ -118,15 +118,15 @@ class Bootstrap {
             if (!arguments.noDownload()) {
                 bamDownload.run(sample, runtimeBucket, JobResult.SUCCESS);
             }
+            if (!arguments.noCleanup() && !arguments.noDownload()) {
+                runtimeBucket.cleanup();
+            }
         } finally {
             cleanupAll(arguments, runtimeBucket);
         }
     }
 
     private void cleanupAll(final Arguments arguments, final RuntimeBucket runtimeBucket) {
-        if (!arguments.noCleanup() && !arguments.noDownload()) {
-            runtimeBucket.cleanup();
-        }
         stopCluster(arguments, singleNodeCluster);
         stopCluster(arguments, parallelProcessingCluster);
     }

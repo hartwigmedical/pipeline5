@@ -27,4 +27,9 @@ public class IntermediateDataLocation implements DataLocation {
     public static String file(OutputType output, Sample sample) {
         return format("%s_%s.%s", sample.name(), output.toString().toLowerCase(), output.getExtension());
     }
+
+    @Override
+    public String rootUri() {
+        return String.format("%s%s", fileSystem.getUri(), workingDirectory);
+    }
 }

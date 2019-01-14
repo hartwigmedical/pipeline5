@@ -1,6 +1,5 @@
 package com.hartwig.pipeline.adam;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.stream.Collector;
 
@@ -15,8 +14,8 @@ import org.bdgenomics.adam.algorithms.consensus.ConsensusGeneratorFromKnowns;
 import org.bdgenomics.adam.algorithms.consensus.ConsensusGeneratorFromReads;
 import org.bdgenomics.adam.algorithms.consensus.UnionConsensusGenerator;
 import org.bdgenomics.adam.api.java.JavaADAMContext;
-import org.bdgenomics.adam.rdd.read.AlignmentRecordDataset;
-import org.bdgenomics.adam.rdd.variant.VariantDataset;
+import org.bdgenomics.adam.rdd.read.AlignmentRecordRDD;
+import org.bdgenomics.adam.rdd.variant.VariantRDD;
 import org.bdgenomics.adam.util.ReferenceFile;
 import org.bdgenomics.formats.avro.Variant;
 import org.jetbrains.annotations.NotNull;
@@ -24,7 +23,7 @@ import org.jetbrains.annotations.NotNull;
 import scala.Option;
 import scala.collection.JavaConversions;
 
-public class MarkDupsAndRealignIndels implements Stage<AlignmentRecordDataset, AlignmentRecordDataset> {
+public class MarkDupsAndRealignIndels implements Stage<AlignmentRecordRDD, AlignmentRecordRDD> {
 
     private final KnownIndels knownIndels;
     private final ReferenceGenome referenceGenome;
@@ -42,10 +41,8 @@ public class MarkDupsAndRealignIndels implements Stage<AlignmentRecordDataset, A
     }
 
     @Override
-    public InputOutput<AlignmentRecordDataset> execute(final InputOutput<AlignmentRecordDataset> input) {
-        RDD<Variant> allKnownVariants = knownIndels.paths()
-                .stream()
-                .map(javaADAMContext::loadVariants).map(VariantDataset::rdd)
+    public InputOutput<AlignmentRecordRDD> execute(final InputOutput<AlignmentRecordRDD> input) {
+        RDD<Variant> allKnownVariants = knownIndels.paths().stream().map(javaADAMContext::loadVariants).map(VariantRDD::rdd)
                 .collect(Collector.of(() -> javaADAMContext.getSparkContext().<Variant>emptyRDD().rdd(), RDD::union, RDD::union));
         ReferenceFile fasta = javaADAMContext.loadReferenceFile(referenceGenome.path());
         UnmappedReads unmapped = UnmappedReads.from(input.payload());
@@ -57,10 +54,7 @@ public class MarkDupsAndRealignIndels implements Stage<AlignmentRecordDataset, A
                         500,
                         30,
                         5.0,
-                        3000,
-                        20000,
-                        false,
-                        Option.apply(fasta))));
+                        3000, 20000, Option.apply(fasta), false)));
     }
 
     @NotNull

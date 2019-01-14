@@ -7,4 +7,6 @@ public interface OutputStore<P> {
     void store(InputOutput<P> inputOutput);
 
     boolean exists(final Sample sample, final OutputType type);
+
+    void clear();
 }

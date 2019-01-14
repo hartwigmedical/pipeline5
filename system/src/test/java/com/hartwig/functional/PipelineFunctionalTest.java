@@ -4,8 +4,6 @@ import static com.hartwig.testsupport.Assertions.assertThatOutput;
 import static com.hartwig.testsupport.TestConfigurations.HUNDREDK_READS_HISEQ;
 import static com.hartwig.testsupport.TestConfigurations.HUNDREDK_READS_HISEQ_PATIENT_NAME;
 
-import java.io.File;
-
 import com.hartwig.patient.Sample;
 import com.hartwig.patient.input.PatientReader;
 import com.hartwig.pipeline.adam.Pipelines;
@@ -13,7 +11,6 @@ import com.hartwig.pipeline.metrics.Monitor;
 import com.hartwig.support.hadoop.Hadoop;
 import com.hartwig.testsupport.SparkContextSingleton;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.bdgenomics.adam.rdd.ADAMContext;
@@ -30,7 +27,6 @@ public class PipelineFunctionalTest {
 
     @BeforeClass
     public static void beforeClass() throws Exception {
-        FileUtils.deleteDirectory(new File(RESULT_DIR));
         context = SparkContextSingleton.instance();
     }
 
@@ -40,9 +36,7 @@ public class PipelineFunctionalTest {
         Pipelines.bamCreationConsolidated(new ADAMContext(context.sc()),
                 fileSystem,
                 Monitor.noop(),
-                RESULT_DIR,
-                HUNDREDK_READS_HISEQ.referenceGenome().path(),
-                HUNDREDK_READS_HISEQ.knownIndel().paths(), 1, false, true)
+                RESULT_DIR, HUNDREDK_READS_HISEQ.referenceGenome().path(), HUNDREDK_READS_HISEQ.knownIndel().paths(), 1, false, true)
                 .execute(PatientReader.fromHDFS(fileSystem, HUNDREDK_READS_HISEQ.patient().directory(), HUNDREDK_READS_HISEQ_PATIENT_NAME)
                         .reference());
         assertThatOutput(RESULT_DIR, REFERENCE_SAMPLE).aligned().duplicatesMarked().isEqualToExpected();

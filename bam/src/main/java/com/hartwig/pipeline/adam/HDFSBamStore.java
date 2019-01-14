@@ -12,9 +12,9 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.parquet.hadoop.metadata.CompressionCodecName;
 import org.bdgenomics.adam.rdd.JavaSaveArgs;
-import org.bdgenomics.adam.rdd.read.AlignmentRecordDataset;
+import org.bdgenomics.adam.rdd.read.AlignmentRecordRDD;
 
-public class HDFSBamStore implements OutputStore<AlignmentRecordDataset> {
+public class HDFSBamStore implements OutputStore<AlignmentRecordRDD> {
 
     private final DataLocation dataLocation;
     private final FileSystem fileSystem;
@@ -27,12 +27,10 @@ public class HDFSBamStore implements OutputStore<AlignmentRecordDataset> {
     }
 
     @Override
-    public void store(final InputOutput<AlignmentRecordDataset> inputOutput) {
+    public void store(final InputOutput<AlignmentRecordRDD> inputOutput) {
         JavaSaveArgs saveArgs = new JavaSaveArgs(dataLocation.uri(inputOutput.type(), inputOutput.sample()),
                 128 * 1024 * 1024,
-                1024 * 1024,
-                CompressionCodecName.GZIP,
-                false, true,
+                1024 * 1024, CompressionCodecName.GZIP, false, true,
                 false);
         saveArgs.deferMerging_$eq(!mergeFinalFile);
         inputOutput.payload().save(saveArgs, true);
@@ -42,6 +40,15 @@ public class HDFSBamStore implements OutputStore<AlignmentRecordDataset> {
     public boolean exists(final Sample sample, final OutputType type) {
         try {
             return fileSystem.exists(new Path(dataLocation.uri(type, sample)));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void clear() {
+        try {
+            fileSystem.delete(new Path(dataLocation.rootUri()), true);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

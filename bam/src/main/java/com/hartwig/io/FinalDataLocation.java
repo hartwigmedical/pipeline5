@@ -18,4 +18,9 @@ public class FinalDataLocation implements DataLocation {
     public String uri(final OutputType output, final Sample sample) {
         return String.format("%s%s/%s.bam", fileSystem.getUri(), workingDirectory, sample.name());
     }
+
+    @Override
+    public String rootUri() {
+        return String.format("%s%s", fileSystem.getUri(), workingDirectory);
+    }
 }
