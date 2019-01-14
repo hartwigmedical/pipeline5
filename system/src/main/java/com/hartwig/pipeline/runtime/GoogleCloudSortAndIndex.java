@@ -5,7 +5,6 @@ import java.io.IOException;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.after.BamIndexPipeline;
 import com.hartwig.pipeline.metrics.Monitor;
-import com.hartwig.pipeline.metrics.Run;
 import com.hartwig.support.hadoop.Hadoop;
 
 import org.apache.hadoop.fs.FileSystem;
@@ -44,10 +43,7 @@ public class GoogleCloudSortAndIndex {
             String gsBucket = args[4];
             LOGGER.info("Starting sort and index with version [{}] run id [{}] for project [{}] for sample [{}] in bucket "
                     + "[{}] on Google Dataproc", version, runId, project, sampleName, gsBucket);
-            new GoogleCloudSortAndIndex(gsBucket,
-                    sampleName,
-                    Hadoop.fileSystem("gs:///"),
-                    Monitor.stackdriver(Run.of(runId, version), project)).execute();
+            new GoogleCloudSortAndIndex(gsBucket, sampleName, Hadoop.fileSystem("gs:///"), Monitor.noop()).execute();
         } catch (IOException e) {
             LOGGER.error("Unable to run Google post-processor. Problems creating the hadoop filesystem, this class can only be run in "
                     + "a Google Dataproc cluster", e);

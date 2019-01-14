@@ -16,6 +16,7 @@ import com.hartwig.pipeline.io.BamNames;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
 
+import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,8 +44,8 @@ public class SBPSampleMetadataPatch implements BamDownload {
     public void run(final Sample sample, final RuntimeBucket runtimeBucket, final JobResult result) {
         Blob bamBlob = runtimeBucket.bucket().get(resultsDirectory.path(BamNames.sorted(sample)));
         decorated.run(sample, runtimeBucket, result);
-        String directory = SBPS3FileTarget.ROOT_BUCKET + "/" + sample.barcode();
-        String bamFile = sample.name() + ".bam";
+        String directory = SBPS3FileTarget.ROOT_BUCKET;
+        String bamFile = sample.barcode() + "/" + sample.name() + ".bam";
         S3Object s3Object = s3Client.getObject(directory, bamFile);
         AccessControlList objectAcl = s3Client.getObjectAcl(directory, bamFile);
         grant(READERS_ID_ENV, Permission.Read, objectAcl);
@@ -58,8 +59,7 @@ public class SBPSampleMetadataPatch implements BamDownload {
                         .bucket(SBPS3FileTarget.ROOT_BUCKET)
                         .directory(sample.barcode())
                         .filename(bamFile)
-                        .filesize(existing.getContentLength())
-                        .hash(new String(Base64.getDecoder().decode(bamBlob.getMd5())))
+                        .filesize(existing.getContentLength()).hash(new String(Hex.encodeHex(Base64.getDecoder().decode(bamBlob.getMd5()))))
                         .status(result == JobResult.SUCCESS ? "Done_PipelineV5" : "Failed_PipelineV5")
                         .build());
     }

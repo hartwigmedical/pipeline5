@@ -51,9 +51,7 @@ public class JobTest {
                 JOB_DEFINITION,
                 Stage.gunzip(PERFORMANCE_PROFILE),
                 costCalculator,
-                monitor,
-                statusCheck,
-                1);
+                monitor, statusCheck);
         runtimeBucket = MockRuntimeBucket.of("test_bucket").getRuntimeBucket();
     }
 
@@ -61,12 +59,6 @@ public class JobTest {
     public void reportsJobResultFailedOnException() throws Exception {
         doThrow(new IOException()).when(sparkCluster).stop(any());
         assertThat(victim.execute(TEST_SAMPLE, runtimeBucket, ARGUMENTS)).isEqualTo(JobResult.FAILED);
-    }
-
-    @Test
-    public void retriesJobWhenStatusFailsOnce() {
-        when(statusCheck.check(runtimeBucket)).thenReturn(StatusCheck.Status.FAILED).thenReturn(StatusCheck.Status.SUCCESS);
-        assertThat(victim.execute(TEST_SAMPLE, runtimeBucket, Arguments.defaults())).isEqualTo(JobResult.SUCCESS);
     }
 
     @Test

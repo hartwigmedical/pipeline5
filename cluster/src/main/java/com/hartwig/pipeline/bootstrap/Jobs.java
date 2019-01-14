@@ -21,9 +21,7 @@ class Jobs {
                 SparkJobDefinition.gunzip(location, PerformanceProfile.singleNode()),
                 Stage.gunzip(PerformanceProfile.mini()),
                 costCalculator,
-                monitor,
-                StatusCheck.alwaysSuccess(),
-                1);
+                monitor, StatusCheck.alwaysSuccess());
     }
 
     static Job bam(final SparkCluster cluster, final CostCalculator costCalculator, final Monitor monitor, final JarLocation location,
@@ -33,9 +31,7 @@ class Jobs {
                 SparkJobDefinition.bamCreation(location, arguments, runtimeBucket, profile),
                 Stage.bam(profile),
                 costCalculator,
-                monitor,
-                new GoogleStorageStatusCheck(ResultsDirectory.defaultDirectory()),
-                1);
+                monitor, new GoogleStorageStatusCheck(ResultsDirectory.defaultDirectory()));
     }
 
     static Job sortAndIndex(final SparkCluster cluster, final CostCalculator costCalculator, final Monitor monitor,
@@ -50,8 +46,6 @@ class Jobs {
                         ResultsDirectory.defaultDirectory()),
                 Stage.sortAndIndex(PerformanceProfile.singleNode()),
                 costCalculator,
-                monitor,
-                StatusCheck.alwaysSuccess(),
-                1);
+                monitor, StatusCheck.alwaysSuccess());
     }
 }

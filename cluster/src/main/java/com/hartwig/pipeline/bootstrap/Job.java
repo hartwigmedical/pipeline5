@@ -29,11 +29,9 @@ class Job {
     private final CostCalculator costCalculator;
     private final Monitor monitor;
     private final StatusCheck statusCheck;
-    private final int maxRetries;
 
     Job(final PerformanceProfile performanceProfile, final SparkCluster targetCluster, final SparkJobDefinition jobDefinition,
-            final Stage stage, final CostCalculator costCalculator, final Monitor monitor, final StatusCheck statusCheck,
-            final int maxRetries) {
+            final Stage stage, final CostCalculator costCalculator, final Monitor monitor, final StatusCheck statusCheck) {
         this.performanceProfile = performanceProfile;
         this.targetCluster = targetCluster;
         this.jobDefinition = jobDefinition;
@@ -41,7 +39,6 @@ class Job {
         this.costCalculator = costCalculator;
         this.monitor = monitor;
         this.statusCheck = statusCheck;
-        this.maxRetries = maxRetries;
     }
 
     String getName() {
@@ -49,31 +46,23 @@ class Job {
     }
 
     JobResult execute(Sample sample, RuntimeBucket runtimeBucket, Arguments arguments) {
-        int retries = 0;
-        while (retries <= maxRetries) {
-            try {
-                if (retries > 0) {
-                    LOGGER.info("Retrying job [{}] this is attempt [{}] of [{}]", jobDefinition, retries, maxRetries);
-                }
-                MetricsTimeline metricsTimeline = new MetricsTimeline(Clock.systemDefaultZone(), new Metrics(monitor, costCalculator));
-                metricsTimeline.start(stage);
-                targetCluster.start(performanceProfile, sample, runtimeBucket, arguments);
-                targetCluster.submit(jobDefinition, arguments);
-                stopCluster(arguments, targetCluster);
-                metricsTimeline.stop(stage);
-                StatusCheck.Status status = statusCheck.check(runtimeBucket);
-                if (status == StatusCheck.Status.FAILED) {
-                    retries++;
-                } else {
-                    return JobResult.SUCCESS;
-                }
-            } catch (Exception e) {
-                LOGGER.error(String.format("Unable to run job [%s]", jobDefinition), e);
-                retries++;
+        try {
+            MetricsTimeline metricsTimeline = new MetricsTimeline(Clock.systemDefaultZone(), new Metrics(monitor, costCalculator));
+            metricsTimeline.start(stage);
+            targetCluster.start(performanceProfile, sample, runtimeBucket, arguments);
+            targetCluster.submit(jobDefinition, arguments);
+            stopCluster(arguments, targetCluster);
+            metricsTimeline.stop(stage);
+            StatusCheck.Status status = statusCheck.check(runtimeBucket);
+            if (status == StatusCheck.Status.FAILED) {
+                return JobResult.FAILED;
+            } else {
+                return JobResult.SUCCESS;
             }
+        } catch (Exception e) {
+            LOGGER.error(String.format("Unable to run job [%s]", jobDefinition), e);
+            return JobResult.FAILED;
         }
-        LOGGER.error("Max retries exceeded, marking the job as failed");
-        return JobResult.FAILED;
     }
 
     private void stopCluster(final Arguments arguments, final SparkCluster cluster) throws IOException {

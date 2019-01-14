@@ -52,7 +52,7 @@ public class SBPS3BamDownload implements BamDownload {
     public void run(final Sample sample, final RuntimeBucket runtimeBucket, final JobResult result) {
         int attempts = 1;
         boolean success = false;
-        while (attempts <= maxAttempts || !success) {
+        while (attempts <= maxAttempts && !success) {
             try {
                 String[] path = SBPS3FileTarget.from(sample).replace("s3://", "").split("/", 2);
                 String bucket = path[0];
