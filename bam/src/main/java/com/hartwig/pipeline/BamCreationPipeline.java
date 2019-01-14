@@ -11,7 +11,7 @@ import com.hartwig.pipeline.after.BamIndexPipeline;
 import com.hartwig.pipeline.metrics.Metric;
 import com.hartwig.pipeline.metrics.Monitor;
 
-import org.bdgenomics.adam.rdd.read.AlignmentRecordRDD;
+import org.bdgenomics.adam.rdd.read.AlignmentRecordDataset;
 import org.immutables.value.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,8 +34,8 @@ public abstract class BamCreationPipeline {
                 LOGGER.info("BAM for {} sample already exists. Only running QC", sample.name());
                 qcResult = qc(finalQC(), finalDatasource().extract(sample));
             } else {
-                InputOutput<AlignmentRecordRDD> aligned = alignment().execute(InputOutput.seed(sample));
-                InputOutput<AlignmentRecordRDD> enriched = bamEnrichment().execute(aligned);
+                InputOutput<AlignmentRecordDataset> aligned = alignment().execute(InputOutput.seed(sample));
+                InputOutput<AlignmentRecordDataset> enriched = bamEnrichment().execute(aligned);
                 qcResult = qc(finalQC(), enriched);
                 finalBamStore().store(enriched);
             }
@@ -57,7 +57,7 @@ public abstract class BamCreationPipeline {
         }
     }
 
-    private QCResult qc(final QualityControl<AlignmentRecordRDD> qcCheck, final InputOutput<AlignmentRecordRDD> toQC) {
+    private QCResult qc(final QualityControl<AlignmentRecordDataset> qcCheck, final InputOutput<AlignmentRecordDataset> toQC) {
         return qcCheck.check(toQC);
     }
 
@@ -69,15 +69,15 @@ public abstract class BamCreationPipeline {
         return System.currentTimeMillis();
     }
 
-    protected abstract DataSource<AlignmentRecordRDD> finalDatasource();
+    protected abstract DataSource<AlignmentRecordDataset> finalDatasource();
 
     protected abstract AlignmentStage alignment();
 
-    protected abstract Stage<AlignmentRecordRDD, AlignmentRecordRDD> bamEnrichment();
+    protected abstract Stage<AlignmentRecordDataset, AlignmentRecordDataset> bamEnrichment();
 
-    protected abstract OutputStore<AlignmentRecordRDD> finalBamStore();
+    protected abstract OutputStore<AlignmentRecordDataset> finalBamStore();
 
-    protected abstract QualityControl<AlignmentRecordRDD> finalQC();
+    protected abstract QualityControl<AlignmentRecordDataset> finalQC();
 
     protected abstract BamIndexPipeline indexBam();
 

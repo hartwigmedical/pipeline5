@@ -5,8 +5,8 @@ import com.hartwig.support.test.Resources;
 import org.apache.spark.rdd.RDD;
 import org.bdgenomics.adam.api.java.JavaADAMContext;
 import org.bdgenomics.adam.rdd.ADAMContext;
-import org.bdgenomics.adam.rdd.read.AlignmentRecordRDD;
-import org.bdgenomics.adam.rdd.read.RDDBoundAlignmentRecordRDD;
+import org.bdgenomics.adam.rdd.read.AlignmentRecordDataset;
+import org.bdgenomics.adam.rdd.read.RDDBoundAlignmentRecordDataset;
 import org.bdgenomics.formats.avro.AlignmentRecord;
 import org.jetbrains.annotations.NotNull;
 
@@ -14,7 +14,7 @@ import scala.Option;
 
 public class TestRDDs {
 
-    public static AlignmentRecordRDD AlignmentRecordRDD(final String bamFile) {
+    public static AlignmentRecordDataset AlignmentRecordDataset(final String bamFile) {
         return javaAdam().loadAlignments(Resources.testResource(bamFile));
     }
 
@@ -23,8 +23,8 @@ public class TestRDDs {
         return new JavaADAMContext(new ADAMContext(SparkContextSingleton.instance().sc()));
     }
 
-    public static AlignmentRecordRDD emptyAlignnmentRecordRDD() {
+    public static AlignmentRecordDataset emptyAlignnmentRecordRDD() {
         RDD<AlignmentRecord> rdd = SparkContextSingleton.instance().<AlignmentRecord>emptyRDD().rdd();
-        return new RDDBoundAlignmentRecordRDD(rdd, null, null, null, Option.empty());
+        return new RDDBoundAlignmentRecordDataset(rdd, null, null, null, Option.empty());
     }
 }

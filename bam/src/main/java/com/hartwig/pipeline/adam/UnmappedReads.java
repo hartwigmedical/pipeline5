@@ -1,7 +1,7 @@
 package com.hartwig.pipeline.adam;
 
 import org.apache.spark.api.java.JavaRDD;
-import org.bdgenomics.adam.rdd.read.AlignmentRecordRDD;
+import org.bdgenomics.adam.rdd.read.AlignmentRecordDataset;
 import org.bdgenomics.formats.avro.AlignmentRecord;
 
 public class UnmappedReads {
@@ -12,11 +12,11 @@ public class UnmappedReads {
         this.unmapped = unmapped;
     }
 
-    AlignmentRecordRDD toAlignment(AlignmentRecordRDD original) {
+    AlignmentRecordDataset toAlignment(AlignmentRecordDataset original) {
         return original.replaceRdd(original.rdd().union(unmapped.rdd()), original.optPartitionMap());
     }
 
-    public static UnmappedReads from(final AlignmentRecordRDD AlignmentRecordRDD) {
-        return new UnmappedReads(AlignmentRecordRDD.rdd().toJavaRDD().filter(read -> !read.getReadMapped()));
+    public static UnmappedReads from(final AlignmentRecordDataset AlignmentRecordDataset) {
+        return new UnmappedReads(AlignmentRecordDataset.rdd().toJavaRDD().filter(read -> !read.getReadMapped()));
     }
 }

@@ -11,37 +11,37 @@ import com.hartwig.pipeline.QualityControl;
 import com.hartwig.testsupport.TestConfigurations;
 import com.hartwig.testsupport.TestRDDs;
 
-import org.bdgenomics.adam.rdd.read.AlignmentRecordRDD;
+import org.bdgenomics.adam.rdd.read.AlignmentRecordDataset;
 import org.junit.Test;
 
 public class FinalBAMQCTest {
 
-    private static final AlignmentRecordRDD CANCER_PANEL_RDD = TestRDDs.AlignmentRecordRDD("qc/CPCT12345678R_duplicate_marked.bam");
+    private static final AlignmentRecordDataset CANCER_PANEL_RDD = TestRDDs.AlignmentRecordDataset("qc/CPCT12345678R_duplicate_marked.bam");
 
     @Test
     public void checkFailsOnEmptyInput() {
-        QualityControl<AlignmentRecordRDD> victim = qc(CoverageThreshold.of(1, 1));
+        QualityControl<AlignmentRecordDataset> victim = qc(CoverageThreshold.of(1, 1));
         QCResult test = victim.check(InputOutput.of(OutputType.MD_TAGGED, Sample.builder("", "test").build(), TestRDDs.emptyAlignnmentRecordRDD()));
         assertThat(test.isOk()).isFalse();
     }
 
     @Test
     public void checkPassesOnNoThresholds() {
-        QualityControl<AlignmentRecordRDD> victim = qc();
+        QualityControl<AlignmentRecordDataset> victim = qc();
         QCResult test = victim.check(InputOutput.of(OutputType.MD_TAGGED, Sample.builder("", "test").build(), CANCER_PANEL_RDD));
         assertThat(test.isOk()).isTrue();
     }
 
     @Test
     public void checkFailsOnThresholdMissed() {
-        QualityControl<AlignmentRecordRDD> victim = qc(CoverageThreshold.of(5, 0.012));
+        QualityControl<AlignmentRecordDataset> victim = qc(CoverageThreshold.of(5, 0.012));
         QCResult test = victim.check(InputOutput.of(OutputType.MD_TAGGED, Sample.builder("", "test").build(), CANCER_PANEL_RDD));
         assertThat(test.isOk()).as(test.message()).isFalse();
     }
 
     @Test
     public void checkPassesOnThresholdMet() {
-        QualityControl<AlignmentRecordRDD> victim = qc(CoverageThreshold.of(5, 0.0108));
+        QualityControl<AlignmentRecordDataset> victim = qc(CoverageThreshold.of(5, 0.0108));
         QCResult test = victim.check(InputOutput.of(OutputType.MD_TAGGED, Sample.builder("", "test").build(), CANCER_PANEL_RDD));
         assertThat(test.isOk()).isTrue();
     }

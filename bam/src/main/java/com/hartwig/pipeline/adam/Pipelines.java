@@ -18,7 +18,7 @@ import com.hartwig.pipeline.metrics.Monitor;
 import org.apache.hadoop.fs.FileSystem;
 import org.bdgenomics.adam.api.java.JavaADAMContext;
 import org.bdgenomics.adam.rdd.ADAMContext;
-import org.bdgenomics.adam.rdd.read.AlignmentRecordRDD;
+import org.bdgenomics.adam.rdd.read.AlignmentRecordDataset;
 import org.jetbrains.annotations.NotNull;
 
 public class Pipelines {
@@ -47,7 +47,8 @@ public class Pipelines {
     }
 
     @NotNull
-    private static QualityControl<AlignmentRecordRDD> ifEnabled(final boolean doQC, final QualityControl<AlignmentRecordRDD> finalBAMQC) {
+    private static QualityControl<AlignmentRecordDataset> ifEnabled(final boolean doQC,
+            final QualityControl<AlignmentRecordDataset> finalBAMQC) {
         return doQC ? finalBAMQC : alignments -> QCResult.ok();
     }
 }

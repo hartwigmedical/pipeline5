@@ -4,9 +4,9 @@ import com.hartwig.io.InputOutput;
 import com.hartwig.io.OutputType;
 import com.hartwig.pipeline.Stage;
 
-import org.bdgenomics.adam.rdd.read.AlignmentRecordRDD;
+import org.bdgenomics.adam.rdd.read.AlignmentRecordDataset;
 
-public class MarkDups implements Stage<AlignmentRecordRDD, AlignmentRecordRDD> {
+public class MarkDups implements Stage<AlignmentRecordDataset, AlignmentRecordDataset> {
 
     @Override
     public OutputType outputType() {
@@ -14,7 +14,7 @@ public class MarkDups implements Stage<AlignmentRecordRDD, AlignmentRecordRDD> {
     }
 
     @Override
-    public InputOutput<AlignmentRecordRDD> execute(final InputOutput<AlignmentRecordRDD> input) {
+    public InputOutput<AlignmentRecordDataset> execute(final InputOutput<AlignmentRecordDataset> input) {
         return InputOutput.of(OutputType.DUPLICATE_MARKED, input.sample(), input.payload().markDuplicates());
     }
 }

@@ -17,7 +17,7 @@ import com.hartwig.pipeline.QualityControl;
 import org.apache.spark.api.java.JavaDoubleRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.bdgenomics.adam.api.java.JavaADAMContext;
-import org.bdgenomics.adam.rdd.read.AlignmentRecordRDD;
+import org.bdgenomics.adam.rdd.read.AlignmentRecordDataset;
 import org.bdgenomics.formats.avro.AlignmentRecord;
 import org.bdgenomics.formats.avro.NucleotideContigFragment;
 import org.jetbrains.annotations.NotNull;
@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 import scala.Tuple2;
 
 @SuppressWarnings({ "FieldCanBeLocal", "unused" })
-public class FinalBAMQC implements QualityControl<AlignmentRecordRDD>, Serializable {
+public class FinalBAMQC implements QualityControl<AlignmentRecordDataset>, Serializable {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(FinalBAMQC.class);
     private final Collection<CoverageThreshold> thresholds;
@@ -47,7 +47,7 @@ public class FinalBAMQC implements QualityControl<AlignmentRecordRDD>, Serializa
     }
 
     @Override
-    public QCResult check(final InputOutput<AlignmentRecordRDD> toQC) {
+    public QCResult check(final InputOutput<AlignmentRecordDataset> toQC) {
         if (toQC.payload().rdd().isEmpty()) {
             return QCResult.failure("Final QC failed as the BAM was empty");
         }
@@ -61,7 +61,7 @@ public class FinalBAMQC implements QualityControl<AlignmentRecordRDD>, Serializa
                 .flatMapToPair(record -> IntStream.range(record.getStart().intValue(), record.getEnd().intValue())
                         .mapToObj(readPos -> Tuple2.apply(readPos, ReferencePositions.getReadPositionAtReferencePosition(record, readPos)))
                         .filter(positionPair -> positionPair._2 != 0)
-                        .filter(positionPair -> fastqToPhred(record.getQual().charAt(positionPair._2)) >= 10)
+                        .filter(positionPair -> fastqToPhred(record.getQuality().charAt(positionPair._2)) >= 10)
                         .map(positionPair -> Tuple2.apply(positionPair._1, 1))
                         .iterator())
                 .reduceByKey((v1, v2) -> v1 + v2)
@@ -89,17 +89,16 @@ public class FinalBAMQC implements QualityControl<AlignmentRecordRDD>, Serializa
     }
 
     @NotNull
-    private static AlignmentRecordRDD filterReads(final InputOutput<AlignmentRecordRDD> toQC) {
+    private static AlignmentRecordDataset filterReads(final InputOutput<AlignmentRecordDataset> toQC) {
         JavaRDD<AlignmentRecord> filtered = toQC.payload()
                 .rdd()
                 .toJavaRDD()
                 .filter(AlignmentRecord::getReadMapped)
-                .filter(read -> !read.getDuplicateRead())
-                .filter(read -> read.getMapq() >= 20)
+                .filter(read -> !read.getDuplicateRead()).filter(read -> read.getMappingQuality() >= 20)
                 .filter(AlignmentRecord::getPrimaryAlignment)
                 .filter(AlignmentRecord::getReadPaired);
-        AlignmentRecordRDD AlignmentRecordRDD = toQC.payload();
-        return AlignmentRecordRDD.replaceRdd(filtered.rdd(), AlignmentRecordRDD.optPartitionMap());
+        AlignmentRecordDataset AlignmentRecordDataset = toQC.payload();
+        return AlignmentRecordDataset.replaceRdd(filtered.rdd(), AlignmentRecordDataset.optPartitionMap());
     }
 
     private static String calledBases(final String baseString) {

@@ -23,13 +23,13 @@ import org.apache.hadoop.fs.Path;
 import org.apache.spark.SparkFiles;
 import org.apache.spark.storage.StorageLevel;
 import org.bdgenomics.adam.api.java.FragmentsToAlignmentRecordsConverter;
-import org.bdgenomics.adam.models.RecordGroup;
-import org.bdgenomics.adam.models.RecordGroupDictionary;
+import org.bdgenomics.adam.models.ReadGroup;
+import org.bdgenomics.adam.models.ReadGroupDictionary;
 import org.bdgenomics.adam.models.SequenceDictionary;
 import org.bdgenomics.adam.rdd.ADAMContext;
-import org.bdgenomics.adam.rdd.fragment.FragmentRDD;
+import org.bdgenomics.adam.rdd.fragment.FragmentDataset;
 import org.bdgenomics.adam.rdd.fragment.InterleavedFASTQInFormatter;
-import org.bdgenomics.adam.rdd.read.AlignmentRecordRDD;
+import org.bdgenomics.adam.rdd.read.AlignmentRecordDataset;
 import org.bdgenomics.adam.rdd.read.AnySAMOutFormatter;
 
 import htsjdk.samtools.ValidationStringency;
@@ -55,25 +55,25 @@ class Bwa implements AlignmentStage {
     }
 
     @Override
-    public InputOutput<AlignmentRecordRDD> execute(InputOutput<AlignmentRecordRDD> input) throws IOException {
+    public InputOutput<AlignmentRecordDataset> execute(InputOutput<AlignmentRecordDataset> input) throws IOException {
         SequenceDictionary sequenceDictionary = adamContext.loadSequenceDictionary(referenceGenome.path() + ".dict");
         Sample sample = input.sample();
-        List<AlignmentRecordRDD> laneRdds =
+        List<AlignmentRecordDataset> laneRdds =
                 sample.lanes().parallelStream().map(lane -> adamBwa(sequenceDictionary, sample, lane)).collect(Collectors.toList());
         if (!laneRdds.isEmpty()) {
             return InputOutput.of(outputType(),
                     sample,
-                    laneRdds.get(0).<AlignmentRecordRDD>union(asScalaBufferConverter(laneRdds.subList(1, laneRdds.size())).asScala()));
+                    laneRdds.get(0).<AlignmentRecordDataset>union(asScalaBufferConverter(laneRdds.subList(1, laneRdds.size())).asScala()));
         }
         throw Exceptions.noLanesInSample();
     }
 
-    private AlignmentRecordRDD adamBwa(final SequenceDictionary sequenceDictionary, final Sample sample, final Lane lane) {
-        FragmentRDD FragmentRDD = adamContext.loadPairedFastq(lane.readsPath(),
+    private AlignmentRecordDataset adamBwa(final SequenceDictionary sequenceDictionary, final Sample sample, final Lane lane) {
+        FragmentDataset FragmentDataset = adamContext.loadPairedFastq(lane.readsPath(),
                 lane.matesPath(),
                 Option.empty(), Option.apply(StorageLevel.DISK_ONLY()), ValidationStringency.STRICT).toFragments();
-        initializeBwaSharedMemoryPerExecutor(FragmentRDD);
-        return RDDs.persistDisk(RDDs.AlignmentRecordRDD(((FragmentRDD) FragmentRDD).pipe(BwaCommand.tokens(referenceGenome,
+        initializeBwaSharedMemoryPerExecutor(FragmentDataset);
+        return RDDs.persistDisk(RDDs.AlignmentRecordDataset(((FragmentDataset) FragmentDataset).pipe(BwaCommand.tokens(referenceGenome,
                 sample,
                 lane,
                 bwaThreads),
@@ -83,23 +83,24 @@ class Bwa implements AlignmentStage {
                 InterleavedFASTQInFormatter.class,
                 new AnySAMOutFormatter(),
                 new FragmentsToAlignmentRecordsConverter())
-                .replaceRecordGroups(recordDictionary(recordGroup(sample, lane))).replaceSequences(sequenceDictionary)));
+                .replaceReadGroups(recordDictionary(recordGroup(sample, lane)))
+                .replaceSequences(sequenceDictionary)));
     }
 
-    private void initializeBwaSharedMemoryPerExecutor(final FragmentRDD FragmentRDD) {
+    private void initializeBwaSharedMemoryPerExecutor(final FragmentDataset FragmentDataset) {
         for (String file : IndexFiles.resolve(fileSystem, referenceGenome)) {
             adamContext.sc().addFile(file);
         }
         final String path = referenceGenome.path();
-        FragmentRDD.jrdd().foreach(fragment -> InitializeBwaSharedMemory.run(SparkFiles.get(new Path(path).getName())));
+        FragmentDataset.jrdd().foreach(fragment -> InitializeBwaSharedMemory.run(SparkFiles.get(new Path(path).getName())));
     }
 
-    private RecordGroupDictionary recordDictionary(final RecordGroup recordGroup) {
-        return new RecordGroupDictionary(asScalaBufferConverter(singletonList(recordGroup)).asScala());
+    private ReadGroupDictionary recordDictionary(final ReadGroup recordGroup) {
+        return new ReadGroupDictionary(asScalaBufferConverter(singletonList(recordGroup)).asScala());
     }
 
-    private RecordGroup recordGroup(final Sample sample, final Lane lane) {
-        return new RecordGroup(sample.name(),
+    private ReadGroup recordGroup(final Sample sample, final Lane lane) {
+        return new ReadGroup(sample.name(),
                 lane.recordGroupId(),
                 Option.empty(),
                 Option.empty(),
