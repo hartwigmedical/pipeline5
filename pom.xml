@@ -120,6 +120,12 @@
                 <groupId>org.bdgenomics.avocado</groupId>
                 <artifactId>avocado-core_2.11</artifactId>
                 <version>${avocado.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.google.guava</groupId>
+                        <artifactId>guava</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.avro</groupId>
