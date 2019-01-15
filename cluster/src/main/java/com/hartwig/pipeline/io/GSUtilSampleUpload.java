@@ -51,7 +51,7 @@ public class GSUtilSampleUpload implements SampleUpload {
 
     private void gsutilCP(Sample sample, RuntimeBucket bucket, String file) throws IOException, InterruptedException {
         String target = singleSampleFile(sample, file);
-        if (bucket.bucket().get(target) != null) {
+        if (bucket.bucket().get(target) != null || bucket.bucket().get(target.replaceAll(".gz", "")) != null) {
             LOGGER.info("Fastq [{}] already existed in Google Storage. Skipping upload", target);
         } else {
             LOGGER.info("Uploading fastq [{}] to Google Storage", file);
