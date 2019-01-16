@@ -21,7 +21,7 @@ class Samples {
         Map<String, ImmutableLane.Builder> builders = new HashMap<>();
         String sampleNameWithPostfix = sampleName + postfix;
         for (FileStatus fileStatus : fileSystem.listStatus(sampleDirectory,
-                new GlobFilter(sampleNameWithPostfix + "_*_S?_L*_R?_*.fastq*"))) {
+                new GlobFilter(sampleNameWithPostfix + "_*_S*_L*_R?_*.fastq*"))) {
             String fileName = fileStatus.getPath().getName();
             String[] tokens = fileName.split("_");
             String laneName = tokens[3];

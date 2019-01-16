@@ -31,6 +31,7 @@ public class PatientReaderTest {
     public void onlyFilesReturnsSingleSampleMode() throws Exception {
         Patient victim = reader(SINGLE_SAMPLE, PATIENT);
         assertThat(victim.reference()).isNotNull();
+        assertThat(victim.reference().lanes()).hasSize(1);
         assertThat(victim.maybeTumor()).isEmpty();
     }
 
