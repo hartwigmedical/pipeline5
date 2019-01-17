@@ -21,18 +21,15 @@ public class CloudSampleUploadTest {
 
     private static final String SAMPLE_NAME = "TEST123";
     private static final String SAMPLE_PATH = "samples/" + SAMPLE_NAME + "/";
-    private static final Lane LANE_1 = Lane.builder()
-            .readsPath("/fastq-dir/reads1.fastq.gz")
-            .matesPath("/fastq-dir/mates1.fastq.gz")
+    private static final String FASTQ_DIR = "/fastq-dir/";
+    private static final Lane LANE_1 = Lane.builder().readsPath(FASTQ_DIR + "reads1.fastq.gz").matesPath(FASTQ_DIR + "mates1.fastq.gz")
             .directory("")
             .index("")
             .suffix("")
             .name("")
             .flowCellId("")
             .build();
-    private static final Lane LANE_2 = Lane.builder()
-            .readsPath("/fastq-dir/reads2.fastq.gz")
-            .matesPath("/fastq-dir/mates2.fastq.gz")
+    private static final Lane LANE_2 = Lane.builder().readsPath(FASTQ_DIR + "reads2.fastq.gz").matesPath(FASTQ_DIR + "mates2.fastq.gz")
             .directory("")
             .index("")
             .suffix("")
@@ -55,15 +52,16 @@ public class CloudSampleUploadTest {
 
     @Test
     public void doesNotCopyWhenFileInStorage() throws Exception {
-        mockRuntimeBucket.with(SAMPLE_PATH + LANE_1.readsPath(), 1).with(SAMPLE_PATH + LANE_1.matesPath(), 1);
+        mockRuntimeBucket.with(SAMPLE_PATH + LANE_1.readsPath().replace(FASTQ_DIR, ""), 1)
+                .with(SAMPLE_PATH + LANE_1.matesPath().replace(FASTQ_DIR, ""), 1);
         victim.run(SAMPLE_ONE_LANE, mockRuntimeBucket.getRuntimeBucket());
         verify(cloudCopy, never()).copy(any(), any(), any());
     }
 
     @Test
     public void doesNotCopyWhenGunzippedInStorage() throws Exception {
-        mockRuntimeBucket.with("samples/" + SAMPLE_NAME + "/" + LANE_1.readsPath().replace(".gz", ""), 1)
-                .with("samples/" + SAMPLE_NAME + "/" + LANE_1.matesPath().replace(".gz", ""), 1);
+        mockRuntimeBucket.with("samples/" + SAMPLE_NAME + "/" + LANE_1.readsPath().replace(FASTQ_DIR, "").replace(".gz", ""), 1)
+                .with("samples/" + SAMPLE_NAME + "/" + LANE_1.matesPath().replace(FASTQ_DIR, "").replace(".gz", ""), 1);
         victim.run(SAMPLE_ONE_LANE, mockRuntimeBucket.getRuntimeBucket());
         verify(cloudCopy, never()).copy(any(), any(), any());
     }
@@ -74,10 +72,10 @@ public class CloudSampleUploadTest {
         ArgumentCaptor<String> target = ArgumentCaptor.forClass(String.class);
         victim.run(SAMPLE_ONE_LANE, mockRuntimeBucket.getRuntimeBucket());
         verify(cloudCopy, times(2)).copy(any(), source.capture(), target.capture());
-        assertThat(source.getAllValues().get(0)).isEqualTo(LANE_1.readsPath());
-        assertThat(target.getAllValues().get(0)).isEqualTo(TARGET_PATH + LANE_1.readsPath());
-        assertThat(source.getAllValues().get(1)).isEqualTo(LANE_1.matesPath());
-        assertThat(target.getAllValues().get(1)).isEqualTo(TARGET_PATH + LANE_1.matesPath());
+        assertThat(source.getAllValues()).contains(LANE_1.readsPath());
+        assertThat(target.getAllValues()).contains(TARGET_PATH + LANE_1.readsPath().replace(FASTQ_DIR, ""));
+        assertThat(source.getAllValues()).contains(LANE_1.matesPath());
+        assertThat(target.getAllValues()).contains(TARGET_PATH + LANE_1.matesPath().replace(FASTQ_DIR, ""));
     }
 
     @Test
