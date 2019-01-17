@@ -3,7 +3,6 @@ package com.hartwig.pipeline.io;
 import static java.lang.String.format;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -14,21 +13,21 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class GSUtilSampleUpload implements SampleUpload {
+public class CloudSampleUpload implements SampleUpload {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SampleUpload.class);
     private static final String SAMPLE_DIRECTORY = "samples/";
 
-    private final String gsdkPath;
     private final Function<String, String> sourceResolver;
+    private final CloudCopy cloudCopy;
 
-    public GSUtilSampleUpload(final String gsutilPath, final Function<String, String> sourceResolver) {
-        this.gsdkPath = gsutilPath;
+    public CloudSampleUpload(final Function<String, String> sourceResolver, final CloudCopy cloudCopy) {
         this.sourceResolver = sourceResolver;
+        this.cloudCopy = cloudCopy;
     }
 
     @Override
-    public void run(Sample sample, RuntimeBucket runtimeBucket) throws IOException {
+    public void run(Sample sample, RuntimeBucket runtimeBucket) {
         LOGGER.info("Uploading sample [{}] into [{}]", sample.name(), runtimeBucket.bucket().getName());
         uploadSample(runtimeBucket, sample);
         LOGGER.info("Upload complete");
@@ -49,14 +48,20 @@ public class GSUtilSampleUpload implements SampleUpload {
                 });
     }
 
-    private void gsutilCP(Sample sample, RuntimeBucket bucket, String file) throws IOException, InterruptedException {
+    private void gsutilCP(Sample sample, RuntimeBucket bucket, String file) {
         String target = singleSampleFile(sample, file);
         if (bucket.bucket().get(target) != null || bucket.bucket().get(target.replaceAll(".gz", "")) != null) {
             LOGGER.info("Fastq [{}] already existed in Google Storage. Skipping upload", target);
         } else {
             LOGGER.info("Uploading fastq [{}] to Google Storage", file);
-            GSUtil.cp(gsdkPath, file, format("gs://%s/%s", bucket.getName(), target));
+            cloudCopy.copy(copyId(file), file, format("gs://%s/%s", bucket.getName(), target));
         }
+    }
+
+    @NotNull
+    private String copyId(String file) {
+        String[] splitPath = file.split(File.separator);
+        return "gsutil-copy-" + splitPath[splitPath.length - 1];
     }
 
     @NotNull

@@ -21,9 +21,10 @@ import com.hartwig.pipeline.cost.CostCalculator;
 import com.hartwig.pipeline.cost.Costs;
 import com.hartwig.pipeline.io.BamComposer;
 import com.hartwig.pipeline.io.BamDownload;
+import com.hartwig.pipeline.io.CloudSampleUpload;
 import com.hartwig.pipeline.io.GSUtil;
 import com.hartwig.pipeline.io.GSUtilBamDownload;
-import com.hartwig.pipeline.io.GSUtilSampleUpload;
+import com.hartwig.pipeline.io.GSUtilCloudCopy;
 import com.hartwig.pipeline.io.LocalFileSource;
 import com.hartwig.pipeline.io.LocalFileTarget;
 import com.hartwig.pipeline.io.ResultsDirectory;
@@ -185,7 +186,7 @@ class Bootstrap {
                                     sbpSampleId,
                                     SBPS3BamDownload.from(s3, resultsDirectory, arguments.s3UploadThreads()),
                                     resultsDirectory),
-                            new GSUtilSampleUpload(arguments.cloudSdkPath(), new SBPS3FileSource()),
+                            new CloudSampleUpload(new SBPS3FileSource(), new GSUtilCloudCopy(arguments.cloudSdkPath())),
                             singleNode,
                             parallelProcessing,
                             new GoogleStorageJarUpload(),
@@ -201,7 +202,7 @@ class Bootstrap {
                             arguments.noUpload() ? new GoogleStorageSampleSource(storage)
                                     : new FileSystemSampleSource(Hadoop.localFilesystem(), arguments.patientDirectory()),
                             new GSUtilBamDownload(arguments.cloudSdkPath(), new LocalFileTarget()),
-                            new GSUtilSampleUpload(arguments.cloudSdkPath(), new LocalFileSource()),
+                            new CloudSampleUpload(new LocalFileSource(), new GSUtilCloudCopy(arguments.cloudSdkPath())),
                             singleNode,
                             parallelProcessing,
                             new GoogleStorageJarUpload(),
