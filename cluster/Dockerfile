@@ -1,6 +1,10 @@
 FROM google/cloud-sdk:slim
 
+RUN apt-get update
 RUN apt-get --yes install openjdk-8-jre
+RUN curl https://downloads.rclone.org/rclone-current-linux-amd64.deb  --output rclone-current-linux-amd64.deb
+RUN dpkg -i rclone-current-linux-amd64.deb
+
 
 ADD bin/bootstrap.sh bootstrap.sh
 ADD src/main/resources/node-init.sh node-init.sh

@@ -7,14 +7,14 @@ import com.hartwig.pipeline.bootstrap.JobResult;
 
 import org.jetbrains.annotations.NotNull;
 
-public class GSUtilBamDownload implements BamDownload {
+public class CloudBamDownload implements BamDownload {
 
-    private final String gsdkPath;
     private final Function<Sample, String> targetResolver;
+    private final CloudCopy cloudCopy;
 
-    public GSUtilBamDownload(final String gsdkPath, final Function<Sample, String> targetResolver) {
-        this.gsdkPath = gsdkPath;
+    public CloudBamDownload(final Function<Sample, String> targetResolver, final CloudCopy cloudCopy) {
         this.targetResolver = targetResolver;
+        this.cloudCopy = cloudCopy;
     }
 
     @Override
@@ -22,8 +22,8 @@ public class GSUtilBamDownload implements BamDownload {
         try {
             String bamPath = String.format("gs://%s/results/%s.sorted.bam", runtimeBucket.getName(), sample.name());
             String targetBam = targetResolver.apply(sample);
-            GSUtil.cp(gsdkPath, bamPath, targetBam);
-            GSUtil.cp(gsdkPath, bai(bamPath), bai(targetBam));
+            cloudCopy.copy(bamPath, targetBam);
+            cloudCopy.copy(bai(bamPath), bai(targetBam));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

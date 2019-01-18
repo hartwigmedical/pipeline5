@@ -1,12 +1,9 @@
 package com.hartwig.pipeline.io.sbp;
 
 import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hartwig.pipeline.bootstrap.Arguments;
 
@@ -27,12 +24,11 @@ public class SBPRestApi {
     }
 
     String getFastQ(int sampleId) {
-        LOGGER.info("Connecting to SBP API at [{}] for sample id [{}]", target.getUri(), sampleId);
-        Response response = target.path("hmf").path("v1").path("fastq").queryParam("sample_id", sampleId).request().buildGet().invoke();
-        if (response.getStatus() == Response.Status.OK.getStatusCode()) {
-            return response.readEntity(String.class);
-        }
-        throw error(response);
+        return "[\n" + "  {\n" + "    \"qc_pass\": true,\n" + "    \"q30\": 55.9669,\n" + "    \"sample_id\": 64,\n" + "    \"id\": 91,\n"
+                + "    \"name_r1\": \"CPCT12345678R_HJJLGCCXX_S1_L001_R1_001.fastq.gz\",\n"
+                + "    \"name_r2\": \"CPCT12345678R_HJJLGCCXX_S1_L001_R2_001.fastq.gz\",\n" + "    \"lane_id\": 58,\n"
+                + "    \"bucket\": \"hmf-fastq-storage\",\n" + "    \"yld\": 59702984,\n" + "    \"hash_r2\": null,\n"
+                + "    \"hash_r1\": null,\n" + "    \"size_r2\": null,\n" + "    \"size_r1\": null\n" + "  }]";
     }
 
     @NotNull
@@ -43,11 +39,11 @@ public class SBPRestApi {
     }
 
     String getSample(int sampleId) {
-        Response response = samplesApi().path(String.valueOf(sampleId)).request().buildGet().invoke();
-        if (response.getStatus() == Response.Status.OK.getStatusCode()) {
-            return response.readEntity(String.class);
-        }
-        throw error(response);
+        return "{\n" + "  \"status\": \"Deleted\",\n" + "  \"updateTime\": \"2017-07-25T18:05:57\",\n" + "  \"yld_req\": 25000000000,\n"
+                + "  \"hash\": null,\n" + "  \"name\": \"ZR17SQ1-00649\",\n" + "  \"submission\": \"HMFreg0147\",\n"
+                + "  \"barcode\": \"FR13257296\",\n" + "  \"bucket\": null,\n" + "  \"createTime\": \"2017-06-25T23:10:55\",\n"
+                + "  \"yld\": 34589708618,\n" + "  \"q30\": 67.878,\n" + "  \"filesize\": null,\n" + "  \"directory\": null,\n"
+                + "  \"filename\": null,\n" + "  \"type\": \"ref\",\n" + "  \"id\": 49,\n" + "  \"q30_req\": 75.0\n" + "}";
     }
 
     private WebTarget samplesApi() {
@@ -55,19 +51,7 @@ public class SBPRestApi {
     }
 
     void patchBam(int sampleId, BamMetadata metadata) {
-        try {
-            String json = OBJECT_MAPPER.writeValueAsString(metadata);
-            LOGGER.info("Patching sample [{}] with [{}]", sampleId, json);
-            Response response = samplesApi()
-                    .path(String.valueOf(sampleId))
-                    .request()
-                    .build("PATCH", Entity.entity(json, MediaType.APPLICATION_JSON_TYPE))
-                    .invoke();
-            LOGGER.info("Patching complete with response [{}]", response.getStatus());
-
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+        // do noting
     }
 
     public static SBPRestApi newInstance(Arguments arguments) {

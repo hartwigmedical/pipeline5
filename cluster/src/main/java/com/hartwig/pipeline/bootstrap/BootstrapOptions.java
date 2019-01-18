@@ -57,6 +57,13 @@ class BootstrapOptions {
     private static final String DEFAULT_S3_UPLOAD_THREADS = "20";
     private static final String CLOUD_SDK_TIMEOUT_FLAG = "cloud_sdk_timeout";
     private static final String DEFAULT_CLOUD_SDK_TIMEOUT = "4";
+    private static final String USE_RCLONE_FLAG = "use_rclone";
+    private static final String RCLONE_PATH_FLAG = "rclone_path";
+    private static final String RCLONE_GCP_REMOTE_FLAG = "rclone_gcp_remote";
+    private static final String RCLONE_S3_REMOTE_FLAG = "rclone_s3_remote";
+    private static final String DEFAULT_RCLONE_PATH = "/usr/bin";
+    private static final String DEFAULT_RCLONE_GCP_REMOTE = "gs";
+    private static final String DEFAULT_RCLONE_S3_REMOTE = "s3";
 
     private static Options options() {
         return new Options().addOption(privateKeyFlag())
@@ -80,6 +87,10 @@ class BootstrapOptions {
                         false,
                         "Don't upload the sample to storage. This should be used in combination with a run_id "
                                 + "which points at an existing bucket")
+                .addOption(USE_RCLONE_FLAG,
+                        false,
+                        "Use rclone for uploads and downloads. RClone should be faster than transferring to S3 "
+                                + "with Java, and more stable than gsutil for large multipart uploads")
                 .addOption(project())
                 .addOption(region())
                 .addOption(sbpSampleId())
@@ -90,7 +101,30 @@ class BootstrapOptions {
                 .addOption(cpuPerGB())
                 .addOption(gsutilPath())
                 .addOption(referenceGenomeBucket())
-                .addOption(knownIndelsBucket()).addOption(s3UploadThreads()).addOption(cloudSdkTimeoutHours());
+                .addOption(knownIndelsBucket())
+                .addOption(s3UploadThreads())
+                .addOption(cloudSdkTimeoutHours())
+                .addOption(rclonePath())
+                .addOption(rcloneGcpRemote())
+                .addOption(rcloneS3Remote());
+    }
+
+    private static Option rclonePath() {
+        return optionWithArgAndDefault(RCLONE_PATH_FLAG, RCLONE_PATH_FLAG, "Path to rclone binary directory", DEFAULT_RCLONE_PATH);
+    }
+
+    private static Option rcloneGcpRemote() {
+        return optionWithArgAndDefault(RCLONE_GCP_REMOTE_FLAG,
+                RCLONE_GCP_REMOTE_FLAG,
+                "RClone remote to use for Google Storage (upload fastqs and download bams)",
+                DEFAULT_RCLONE_GCP_REMOTE);
+    }
+
+    private static Option rcloneS3Remote() {
+        return optionWithArgAndDefault(RCLONE_S3_REMOTE_FLAG,
+                RCLONE_S3_REMOTE_FLAG,
+                "RClone remote to use for AWS " + "(download fastqs and upload bams)",
+                DEFAULT_RCLONE_S3_REMOTE);
     }
 
     private static Option cloudSdkTimeoutHours() {
@@ -228,7 +262,12 @@ class BootstrapOptions {
                     .knownIndelsBucket(commandLine.getOptionValue(KNOWN_INDELS_BUCKET_FLAG, DEFAULT_KNOWN_INDELS_BUCKET))
                     .verboseCloudSdk(commandLine.hasOption(VERBOSE_CLOUD_SDK_FLAG))
                     .noUpload(commandLine.hasOption(NO_UPLOAD_FLAG))
-                    .s3UploadThreads(s3UploadThreads(commandLine)).cloudSdkTimeoutHours(cloudSdkTimeoutHours(commandLine))
+                    .s3UploadThreads(s3UploadThreads(commandLine))
+                    .cloudSdkTimeoutHours(cloudSdkTimeoutHours(commandLine))
+                    .useRclone(commandLine.hasOption(USE_RCLONE_FLAG))
+                    .rclonePath(commandLine.getOptionValue(RCLONE_PATH_FLAG, DEFAULT_RCLONE_PATH))
+                    .rcloneGcpRemote(commandLine.getOptionValue(RCLONE_GCP_REMOTE_FLAG, DEFAULT_RCLONE_GCP_REMOTE))
+                    .rcloneS3Remote(commandLine.getOptionValue(RCLONE_S3_REMOTE_FLAG, DEFAULT_RCLONE_S3_REMOTE))
                     .build());
         } catch (ParseException e) {
             LOGGER.error("Could not parse command line args", e);

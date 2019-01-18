@@ -37,6 +37,11 @@ public interface Arguments {
         return false;
     }
 
+    @Value.Default
+    default boolean useRclone() {
+        return false;
+    }
+
     String project();
 
     String version();
@@ -68,6 +73,12 @@ public interface Arguments {
     int s3UploadThreads();
 
     int cloudSdkTimeoutHours();
+
+    String rclonePath();
+
+    String rcloneGcpRemote();
+
+    String rcloneS3Remote();
 
     Optional<Integer> sbpApiSampleId();
 

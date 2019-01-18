@@ -55,7 +55,7 @@ public class CloudSampleUploadTest {
         mockRuntimeBucket.with(SAMPLE_PATH + LANE_1.readsPath().replace(FASTQ_DIR, ""), 1)
                 .with(SAMPLE_PATH + LANE_1.matesPath().replace(FASTQ_DIR, ""), 1);
         victim.run(SAMPLE_ONE_LANE, mockRuntimeBucket.getRuntimeBucket());
-        verify(cloudCopy, never()).copy(any(), any(), any());
+        verify(cloudCopy, never()).copy(any(), any());
     }
 
     @Test
@@ -63,7 +63,7 @@ public class CloudSampleUploadTest {
         mockRuntimeBucket.with("samples/" + SAMPLE_NAME + "/" + LANE_1.readsPath().replace(FASTQ_DIR, "").replace(".gz", ""), 1)
                 .with("samples/" + SAMPLE_NAME + "/" + LANE_1.matesPath().replace(FASTQ_DIR, "").replace(".gz", ""), 1);
         victim.run(SAMPLE_ONE_LANE, mockRuntimeBucket.getRuntimeBucket());
-        verify(cloudCopy, never()).copy(any(), any(), any());
+        verify(cloudCopy, never()).copy(any(), any());
     }
 
     @Test
@@ -71,21 +71,10 @@ public class CloudSampleUploadTest {
         ArgumentCaptor<String> source = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> target = ArgumentCaptor.forClass(String.class);
         victim.run(SAMPLE_ONE_LANE, mockRuntimeBucket.getRuntimeBucket());
-        verify(cloudCopy, times(2)).copy(any(), source.capture(), target.capture());
+        verify(cloudCopy, times(2)).copy(source.capture(), target.capture());
         assertThat(source.getAllValues()).contains(LANE_1.readsPath());
         assertThat(target.getAllValues()).contains(TARGET_PATH + LANE_1.readsPath().replace(FASTQ_DIR, ""));
         assertThat(source.getAllValues()).contains(LANE_1.matesPath());
         assertThat(target.getAllValues()).contains(TARGET_PATH + LANE_1.matesPath().replace(FASTQ_DIR, ""));
-    }
-
-    @Test
-    public void assignsIdToEachCopyOperationToSeparateCacheDirectories() throws Exception {
-        ArgumentCaptor<String> copyId = ArgumentCaptor.forClass(String.class);
-        victim.run(SAMPLE_TWO_LANES, mockRuntimeBucket.getRuntimeBucket());
-        verify(cloudCopy, times(4)).copy(copyId.capture(), any(), any());
-        assertThat(copyId.getAllValues()).contains("gsutil-copy-reads1.fastq.gz",
-                "gsutil-copy-mates1.fastq.gz",
-                "gsutil-copy-reads1.fastq.gz",
-                "gsutil-copy-mates2.fastq.gz");
     }
 }

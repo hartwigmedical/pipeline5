@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import com.hartwig.pipeline.after.Processes;
 
@@ -25,22 +23,11 @@ public class GSUtil {
         Processes.run(processBuilder, VERBOSE);
     }
 
-    static void cp(String gsdkPath, String sourceUrl, String targetUrl, String... metadata) throws IOException, InterruptedException {
-        cp(gsdkPath, sourceUrl, targetUrl, "", metadata);
-    }
-
-    static void cp(String gsdkPath, String sourceUrl, String targetUrl, String cacheDir, String... metadata)
-            throws IOException, InterruptedException {
-        List<String> metadataOptions = Stream.of(metadata).flatMap(m -> Stream.of("-h", m)).collect(Collectors.toList());
+    static void cp(String gsdkPath, String sourceUrl, String targetUrl) throws IOException, InterruptedException {
         List<String> command = new ArrayList<>();
         command.add(gsdkPath + "/gsutil");
-        command.addAll(metadataOptions);
         if (VERBOSE) {
             command.add("-D");
-        }
-        if (!cacheDir.isEmpty()) {
-            command.add("-o");
-            command.add("GSUtil:state_dir=" + cacheDir);
         }
         command.add("-m");
         command.add("cp");

@@ -11,10 +11,9 @@ public class GSUtilCloudCopy implements CloudCopy {
     }
 
     @Override
-    public void copy(final String copyId, final String from, final String to, final String... metadata) {
+    public void copy(final String from, final String to) {
         try {
-            String cacheDir = System.getProperty("user.dir") + "/" + copyId;
-            GSUtil.cp(gsdkPath, from, to, cacheDir, metadata);
+            GSUtil.cp(gsdkPath, from, to);
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }

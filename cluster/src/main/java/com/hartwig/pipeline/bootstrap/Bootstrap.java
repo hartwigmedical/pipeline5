@@ -21,12 +21,14 @@ import com.hartwig.pipeline.cost.CostCalculator;
 import com.hartwig.pipeline.cost.Costs;
 import com.hartwig.pipeline.io.BamComposer;
 import com.hartwig.pipeline.io.BamDownload;
+import com.hartwig.pipeline.io.CloudBamDownload;
+import com.hartwig.pipeline.io.CloudCopy;
 import com.hartwig.pipeline.io.CloudSampleUpload;
 import com.hartwig.pipeline.io.GSUtil;
-import com.hartwig.pipeline.io.GSUtilBamDownload;
 import com.hartwig.pipeline.io.GSUtilCloudCopy;
 import com.hartwig.pipeline.io.LocalFileSource;
 import com.hartwig.pipeline.io.LocalFileTarget;
+import com.hartwig.pipeline.io.RCloneCloudCopy;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.io.S3;
@@ -34,6 +36,7 @@ import com.hartwig.pipeline.io.SampleUpload;
 import com.hartwig.pipeline.io.sbp.SBPRestApi;
 import com.hartwig.pipeline.io.sbp.SBPS3BamDownload;
 import com.hartwig.pipeline.io.sbp.SBPS3FileSource;
+import com.hartwig.pipeline.io.sbp.SBPS3FileTarget;
 import com.hartwig.pipeline.io.sbp.SBPSampleMetadataPatch;
 import com.hartwig.pipeline.io.sbp.SBPSampleReader;
 import com.hartwig.pipeline.io.sources.FileSystemSampleSource;
@@ -173,6 +176,10 @@ class Bootstrap {
                 BamComposer composer = new BamComposer(storage, resultsDirectory, 32);
                 GoogleDataprocCluster singleNode = GoogleDataprocCluster.from(credentials, nodeInitialization, "singlenode");
                 GoogleDataprocCluster parallelProcessing = GoogleDataprocCluster.from(credentials, nodeInitialization, "spark");
+                CloudCopy cloudCopy = arguments.useRclone() ? new RCloneCloudCopy(arguments.rclonePath(),
+                        arguments.rcloneGcpRemote(),
+                        arguments.rcloneS3Remote(),
+                        new ProcessBuilder()) : new GSUtilCloudCopy(arguments.cloudSdkPath());
                 if (arguments.sbpApiSampleId().isPresent()) {
                     int sbpSampleId = arguments.sbpApiSampleId().get();
                     SBPRestApi sbpRestApi = SBPRestApi.newInstance(arguments);
@@ -184,9 +191,10 @@ class Bootstrap {
                             new SBPSampleMetadataPatch(s3,
                                     sbpRestApi,
                                     sbpSampleId,
-                                    SBPS3BamDownload.from(s3, resultsDirectory, arguments.s3UploadThreads()),
-                                    resultsDirectory),
-                            new CloudSampleUpload(new SBPS3FileSource(), new GSUtilCloudCopy(arguments.cloudSdkPath())),
+                                    arguments.useRclone()
+                                            ? new CloudBamDownload(SBPS3FileTarget::from, cloudCopy)
+                                            : SBPS3BamDownload.from(s3, resultsDirectory, arguments.s3UploadThreads()),
+                                    resultsDirectory), new CloudSampleUpload(new SBPS3FileSource(), cloudCopy),
                             singleNode,
                             parallelProcessing,
                             new GoogleStorageJarUpload(),
@@ -201,8 +209,8 @@ class Bootstrap {
                             knownIndelsData,
                             arguments.noUpload() ? new GoogleStorageSampleSource(storage)
                                     : new FileSystemSampleSource(Hadoop.localFilesystem(), arguments.patientDirectory()),
-                            new GSUtilBamDownload(arguments.cloudSdkPath(), new LocalFileTarget()),
-                            new CloudSampleUpload(new LocalFileSource(), new GSUtilCloudCopy(arguments.cloudSdkPath())),
+                            new CloudBamDownload(new LocalFileTarget(), cloudCopy),
+                            new CloudSampleUpload(new LocalFileSource(), cloudCopy),
                             singleNode,
                             parallelProcessing,
                             new GoogleStorageJarUpload(),
