@@ -45,7 +45,7 @@ def start_kubernetes_job(args):
         spec=kubernetes.client.V1JobSpec(
             completions=1,
             parallelism=1,
-            backoff_limit=1,
+            backoff_limit=3,
             template=kubernetes.client.V1PodTemplateSpec(
                 spec=kubernetes.client.V1PodSpec(
                     restart_policy='Never',
@@ -58,10 +58,6 @@ def start_kubernetes_job(args):
                             ],
                             args=job_args,
                             env=[
-                                kubernetes.client.V1EnvVar(
-                                    name='BOTO_PATH',
-                                    value='/mnt/boto-config/boto.cfg'
-                                ),
                                 kubernetes.client.V1EnvVar(
                                     name='READER_ACL_IDS',
                                     value='0403732075957f94c7baea5ad60b233f,f39de0aec3c8b5bb9d78a22ad88428ad'
@@ -81,8 +77,8 @@ def start_kubernetes_job(args):
                                     mount_path='/secrets/'
                                 ),
                                 kubernetes.client.V1VolumeMount(
-                                    name='boto-config',
-                                    mount_path='/mnt/boto-config'
+                                    name='rclone-config',
+                                    mount_path='/root/.config/rclone'
                                 )
                             ],
                             resources=kubernetes.client.V1ResourceRequirements(
@@ -106,9 +102,9 @@ def start_kubernetes_job(args):
                             )
                         ),
                         kubernetes.client.V1Volume(
-                            name='boto-config',
-                            config_map=kubernetes.client.V1ConfigMapVolumeSource(
-                                name='boto-config'
+                            name='rclone-config',
+                            secret=kubernetes.client.V1SecretVolumeSource(
+                                secret_name='rclone-config'
                             )
                         )
                     ]
