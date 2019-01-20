@@ -44,13 +44,13 @@ public class SBPSampleMetadataPatch implements BamDownload {
     public void run(final Sample sample, final RuntimeBucket runtimeBucket, final JobResult result) {
         Blob bamBlob = runtimeBucket.bucket().get(resultsDirectory.path(BamNames.sorted(sample)));
         decorated.run(sample, runtimeBucket, result);
-        String directory = SBPS3FileTarget.ROOT_BUCKET;
-        String bamFile = sample.barcode() + "/" + sample.name() + ".bam";
-        S3Object s3Object = s3Client.getObject(directory, bamFile);
-        AccessControlList objectAcl = s3Client.getObjectAcl(directory, bamFile);
+        String bamFile = sample.name() + ".bam";
+        String key = sample.barcode() + "/" + bamFile;
+        S3Object s3Object = s3Client.getObject(SBPS3FileTarget.ROOT_BUCKET, key);
+        AccessControlList objectAcl = s3Client.getObjectAcl(SBPS3FileTarget.ROOT_BUCKET, key);
         grant(READERS_ID_ENV, Permission.Read, objectAcl);
         grant(READERS_ACP_ID_ENV, Permission.ReadAcp, objectAcl);
-        s3Client.setObjectAcl(directory, bamFile, objectAcl);
+        s3Client.setObjectAcl(SBPS3FileTarget.ROOT_BUCKET, key, objectAcl);
 
         ObjectMetadata existing = s3Object.getObjectMetadata();
 
@@ -59,7 +59,8 @@ public class SBPSampleMetadataPatch implements BamDownload {
                         .bucket(SBPS3FileTarget.ROOT_BUCKET)
                         .directory(sample.barcode())
                         .filename(bamFile)
-                        .filesize(existing.getContentLength()).hash(new String(Hex.encodeHex(Base64.getDecoder().decode(bamBlob.getMd5()))))
+                        .filesize(existing.getContentLength())
+                        .hash(new String(Hex.encodeHex(Base64.getDecoder().decode(bamBlob.getMd5()))))
                         .status(result == JobResult.SUCCESS ? "Done_PipelineV5" : "Failed_PipelineV5")
                         .build());
     }

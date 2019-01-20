@@ -30,7 +30,7 @@ public class RCloneCloudCopy implements CloudCopy {
     @Override
     public void copy(final String from, final String to) {
         try {
-            List<String> command = ImmutableList.of(rClonePath + RCLONE, "copyto", replaceRemotes(from), replaceRemotes(to));
+            List<String> command = ImmutableList.of(rClonePath + RCLONE, "copyto", replaceRemotes(from), replaceRemotes(to), "-vv");
             processBuilder.command(command);
             LOGGER.info("Running rclone command [{}]", command.stream().collect(joining(" ")));
             Processes.run(processBuilder, true);
