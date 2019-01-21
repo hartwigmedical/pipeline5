@@ -38,7 +38,7 @@ public class RCloneCloudCopyTest {
         when(process.exitValue()).thenReturn(0);
         //noinspection unchecked
         commandCaptor = ArgumentCaptor.forClass(List.class);
-        victim = new RCloneCloudCopy(PATH_TO_RCLONE, GCP_REMOTE, AWS_REMOTE, processBuilder);
+        victim = new RCloneCloudCopy(PATH_TO_RCLONE, GCP_REMOTE, AWS_REMOTE, () -> processBuilder);
     }
 
     @Test
