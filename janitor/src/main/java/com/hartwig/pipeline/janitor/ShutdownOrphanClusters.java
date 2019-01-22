@@ -44,26 +44,29 @@ public class ShutdownOrphanClusters implements CleanupTask {
                     .stream()
                     .filter(ResourceState::running)
                     .collect(groupingBy(job -> job.getPlacement().getClusterName()));
-            runningClusters = clusters.stream()
-                    .filter(ResourceState::running)
-                    .collect(toMap(cluster -> cluster, cluster -> jobs.getOrDefault(cluster.getClusterName(), Collections.emptyList())));
+            if (clusters != null) {
+                runningClusters = clusters.stream()
+                        .filter(ResourceState::running)
+                        .collect(toMap(cluster -> cluster,
+                                cluster -> jobs.getOrDefault(cluster.getClusterName(), Collections.emptyList())));
 
-            for (Map.Entry<Cluster, List<Job>> entry : runningClusters.entrySet()) {
-                if (entry.getValue().isEmpty()) {
-                    LOGGER.info("Cluster [{}] is running but has no running Spark jobs. Deleting this cluster.",
-                            entry.getKey().getClusterName());
-                    waitForOperationComplete(dataproc.projects()
-                            .regions()
-                            .clusters()
-                            .delete(arguments.project(), arguments.region(), entry.getKey().getClusterName())
-                            .execute());
+                for (Map.Entry<Cluster, List<Job>> entry : runningClusters.entrySet()) {
+                    if (entry.getValue().isEmpty()) {
+                        LOGGER.info("Cluster [{}] is running but has no running Spark jobs. Deleting this cluster.",
+                                entry.getKey().getClusterName());
+                        waitForOperationComplete(dataproc.projects()
+                                .regions()
+                                .clusters()
+                                .delete(arguments.project(), arguments.region(), entry.getKey().getClusterName())
+                                .execute());
 
-                    LOGGER.info("Cluster [{}] has been deleted", entry.getKey().getClusterName());
+                        LOGGER.info("Cluster [{}] has been deleted", entry.getKey().getClusterName());
+                    }
                 }
             }
 
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            LOGGER.error("Unable to sweep running clusters for orphans.", e);
         }
     }
 

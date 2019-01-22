@@ -1,7 +1,9 @@
 package com.hartwig.pipeline.janitor;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -65,10 +67,18 @@ public class ShutdownOrphanClustersTest {
         victim = new ShutdownOrphanClusters(dataproc);
     }
 
-    @Test(expected = RuntimeException.class)
-    public void wrapsAndRethrowsIOExceptionAsRuntimeException() throws Exception {
+    @Test
+    public void catchesAndLogsIOExceptionAndDoesNothing() throws Exception {
         when(clusters.list(PROJECT, REGION)).thenThrow(new IOException());
         victim.execute(ARGUMENTS);
+        verify(clusters, never()).delete(any(), any(), any());
+    }
+
+    @Test
+    public void doesNothingWhenClusterListIsNull() throws Exception {
+        when(clusters.list(PROJECT, REGION)).thenReturn(null);
+        victim.execute(ARGUMENTS);
+        verify(clusters, never()).delete(any(), any(), any());
     }
 
     @Test
