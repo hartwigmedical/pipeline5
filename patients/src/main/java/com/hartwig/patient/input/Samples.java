@@ -25,11 +25,11 @@ class Samples {
             String fileName = fileStatus.getPath().getName();
             String[] tokens = fileName.split("_");
             String laneName = tokens[3];
-            ImmutableLane.Builder builder = builders.computeIfAbsent(laneName,
+            String flowCellId = tokens[1];
+            ImmutableLane.Builder builder = builders.computeIfAbsent(laneName + flowCellId,
                     s -> Lane.builder()
                             .directory(sampleDirectory.toString())
-                            .name(sampleNameWithPostfix + "_" + s)
-                            .flowCellId(tokens[1])
+                            .name(sampleNameWithPostfix + "_" + s).flowCellId(flowCellId)
                             .index(tokens[2])
                             .suffix(tokens[5].substring(0, tokens[5].indexOf('.'))));
             if (tokens[4].equals("R1")) {
@@ -37,7 +37,7 @@ class Samples {
             } else if (tokens[4].equals("R2")) {
                 builder.matesPath(fileStatus.getPath().toString());
             }
-            builder.flowCellId(tokens[1]);
+            builder.flowCellId(flowCellId);
         }
         return Sample.builder(sampleDirectory.toString(), sampleNameWithPostfix)
                 .addAllLanes(builders.values().stream().map(ImmutableLane.Builder::build).collect(Collectors.toList()))

@@ -21,6 +21,7 @@ public class PatientReaderTest {
     private static final String INFER_PATIENT_ID_AMBIGUOUS_DIRECTORIES =
             Resources.testResource(PATIENTS + "inferPatient/ambiguousDirectories");
     private static final String INFER_PATIENT_ID_PATIENT = Resources.testResource(PATIENTS + "inferPatient/patient");
+    private static final String MULTIPLE_FLOWCELLS = Resources.testResource("patients/multipleFlowcells");
 
     @Test(expected = FileNotFoundException.class)
     public void nonExistentDirectoryThrowsIllegalArgument() throws Exception {
@@ -52,6 +53,12 @@ public class PatientReaderTest {
         Patient victim = reader(INFER_PATIENT_ID_PATIENT, "");
         assertThat(victim.name()).isEqualTo("CPCT12345678");
         assertThat(victim.reference()).isNotNull();
+    }
+
+    @Test
+    public void multipleFlowcellsWithSameLaneIndex() throws Exception {
+        Patient victim = reader(MULTIPLE_FLOWCELLS, PATIENT);
+        assertThat(victim.reference().lanes()).hasSize(2);
     }
 
     private static Patient reader(final String directory, final String patient) throws IOException {
