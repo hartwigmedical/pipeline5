@@ -39,7 +39,7 @@ public class GoogleDataprocCluster implements SparkCluster {
     private final String id;
     private boolean isStarted = false;
 
-    public GoogleDataprocCluster(final Dataproc dataproc, final NodeInitialization nodeInitialization, final String id) {
+    GoogleDataprocCluster(final Dataproc dataproc, final NodeInitialization nodeInitialization, final String id) {
         this.dataproc = dataproc;
         this.nodeInitialization = nodeInitialization;
         this.id = id;
@@ -202,8 +202,8 @@ public class GoogleDataprocCluster implements SparkCluster {
         }
     }
 
-    private com.google.api.services.dataproc.model.Cluster cluster(final ClusterConfig clusterConfig, final String clusterName) {
-        return new com.google.api.services.dataproc.model.Cluster().setClusterName(clusterName).setConfig(clusterConfig);
+    private Cluster cluster(final ClusterConfig clusterConfig, final String clusterName) {
+        return new Cluster().setClusterName(clusterName).setConfig(clusterConfig);
     }
 
     private interface Poll<T> {
