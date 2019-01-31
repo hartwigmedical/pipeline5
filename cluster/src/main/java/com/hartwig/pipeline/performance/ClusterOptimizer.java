@@ -5,6 +5,8 @@ import com.hartwig.pipeline.io.sources.SampleData;
 
 public class ClusterOptimizer {
 
+    private static final long BYTES_PER_GB = 1024 ^ 3;
+
     private final CpuFastQSizeRatio cpuToFastQSizeRatio;
     private final boolean noPreemtibleVms;
 
@@ -19,7 +21,7 @@ public class ClusterOptimizer {
             throw new IllegalArgumentException(String.format("Sample [%s] lanes had no data. Cannot calculate data size or cpu requirements",
                     sample.name()));
         }
-        long totalFileSizeGB = (long) (sampleData.sizeInBytes() / 1e9);
+        long totalFileSizeGB = sampleData.sizeInBytes() / BYTES_PER_GB;
         double totalCpusRequired = totalFileSizeGB * cpuToFastQSizeRatio.cpusPerGB();
         MachineType defaultWorker = MachineType.defaultWorker();
         int numWorkers = new Double(totalCpusRequired / defaultWorker.cpus()).intValue();

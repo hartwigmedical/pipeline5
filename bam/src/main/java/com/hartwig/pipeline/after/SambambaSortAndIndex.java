@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 class SambambaSortAndIndex implements SortAndIndexer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SambambaSortAndIndex.class);
+    private static final long BYTES_PER_GB = 1024 ^ 3;
 
     @Override
     public void execute(final Sample sample, final String workingDirectory) throws IOException, InterruptedException {
@@ -18,7 +19,7 @@ class SambambaSortAndIndex implements SortAndIndexer {
                 "-t",
                 String.valueOf(Runtime.getRuntime().availableProcessors()),
                 "-m",
-                (int) (Runtime.getRuntime().maxMemory() / 1e9) + "GB",
+                (int) (Runtime.getRuntime().maxMemory() / BYTES_PER_GB) + "GB",
                 "--tmpdir",
                 workingDirectory,
                 "-o",
