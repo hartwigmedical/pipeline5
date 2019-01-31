@@ -13,7 +13,7 @@ import org.junit.Test;
 public class ClusterOptimizerTest {
 
     private static final Sample SAMPLE_WITH_TWO_LANES = Sample.builder("test", "test").addLanes(mock(Lane.class), mock(Lane.class)).build();
-    private static final long BYTES_PER_GB = 1024 ^ 3;
+    private static final long BYTES_PER_GB = (long) Math.pow(1024, 3);
     private static final long FORTY_GIGS = 40 * BYTES_PER_GB;
     private ClusterOptimizer victim;
 
