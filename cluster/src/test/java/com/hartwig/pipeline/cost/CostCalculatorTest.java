@@ -75,8 +75,7 @@ public class CostCalculatorTest {
     }
 
     @NotNull
-    private Cost costOf(final double cost) {
+    private static Cost costOf(final double cost) {
         return (performanceProfile, hours) -> cost;
     }
-
 }
