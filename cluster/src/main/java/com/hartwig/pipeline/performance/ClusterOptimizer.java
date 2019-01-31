@@ -5,7 +5,7 @@ import com.hartwig.pipeline.io.sources.SampleData;
 
 public class ClusterOptimizer {
 
-    private static final long BYTES_PER_GB = 1024 ^ 3;
+    private static final long BYTES_PER_GB = (long) Math.pow(1024, 3);
 
     private final CpuFastQSizeRatio cpuToFastQSizeRatio;
     private final boolean noPreemtibleVms;

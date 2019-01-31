@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 class SambambaSortAndIndex implements SortAndIndexer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SambambaSortAndIndex.class);
-    private static final long BYTES_PER_GB = 1024 ^ 3;
+    private static final long BYTES_PER_GB = (long) Math.pow(1024, 3);
 
     @Override
     public void execute(final Sample sample, final String workingDirectory) throws IOException, InterruptedException {

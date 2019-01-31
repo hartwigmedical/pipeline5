@@ -37,7 +37,6 @@ public class CloudSampleUploadTest {
             .flowCellId("")
             .build();
     private static final Sample SAMPLE_ONE_LANE = Sample.builder("", SAMPLE_NAME).addLanes(LANE_1).build();
-    private static final Sample SAMPLE_TWO_LANES = Sample.builder("", SAMPLE_NAME).addLanes(LANE_1, LANE_2).build();
     private static final String TARGET_PATH = "gs://run/samples/TEST123/";
     private CloudCopy cloudCopy;
     private CloudSampleUpload victim;
@@ -60,8 +59,8 @@ public class CloudSampleUploadTest {
 
     @Test
     public void doesNotCopyWhenGunzippedInStorage() throws Exception {
-        mockRuntimeBucket.with("samples/" + SAMPLE_NAME + "/" + LANE_1.readsPath().replace(FASTQ_DIR, "").replace(".gz", ""), 1)
-                .with("samples/" + SAMPLE_NAME + "/" + LANE_1.matesPath().replace(FASTQ_DIR, "").replace(".gz", ""), 1);
+        mockRuntimeBucket.with("samples/" + SAMPLE_NAME + "/" + LANE_1.readsPath().replace(FASTQ_DIR, "").replace(".gz", "") + "/", 1)
+                .with("samples/" + SAMPLE_NAME + "/" + LANE_1.matesPath().replace(FASTQ_DIR, "").replace(".gz", "") + "/", 1);
         victim.run(SAMPLE_ONE_LANE, mockRuntimeBucket.getRuntimeBucket());
         verify(cloudCopy, never()).copy(any(), any());
     }
