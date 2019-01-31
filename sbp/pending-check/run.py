@@ -127,8 +127,11 @@ def start_kubernetes_job(args):
 
 def main():
     samples = HmfApi().get_all(Sample, {'status': 'Pending_PipelineV5'})
+    max_starts = int(os.getenv('MAX_STARTS', '4'))
 
     if len(samples) > 0:
+        log('Scheduling {0} out of {1} samples'.format(max_starts,len(samples)))
+        del(samples[max_starts:])
         for sample in samples:
             start_kubernetes_job({'sbp_sample_id': sample.id})
 
