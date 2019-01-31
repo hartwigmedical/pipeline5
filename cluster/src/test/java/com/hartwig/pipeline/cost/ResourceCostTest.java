@@ -70,18 +70,18 @@ public class ResourceCostTest {
     }
 
     @NotNull
-    private ImmutablePerformanceProfile.Builder profileWith() {
+    private static ImmutablePerformanceProfile.Builder profileWith() {
         return PerformanceProfile.builder().numPrimaryWorkers(1).numPreemtibleWorkers(1);
     }
 
     @NotNull
-    private Sku skuWithSingleTierRate(final double rateInDollars) {
-        int rateInNanoCents = (int) (rateInDollars * 1e9);
+    private static Sku skuWithSingleTierRate(final double rateInDollars) {
+        int rateInNanoDollars = (int) (rateInDollars * 1e9);
         return new Sku().setPricingInfo(Collections.singletonList(new PricingInfo().setPricingExpression(new PricingExpression().setTieredRates(
-                Collections.singletonList(new TierRate().setUnitPrice(new Money().setNanos(rateInNanoCents)))))));
+                Collections.singletonList(new TierRate().setUnitPrice(new Money().setNanos(rateInNanoDollars)))))));
     }
 
-    private ImmutableMachineType.Builder machineWith() {
+    private static ImmutableMachineType.Builder machineWith() {
         return ImmutableMachineType.builder().diskGB(0).cpus(0).memoryGB(0).uri("");
     }
 }
