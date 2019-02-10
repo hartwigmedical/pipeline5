@@ -56,6 +56,12 @@ public class PatientReaderTest {
     }
 
     @Test
+    public void recordGroupCorrectlyConstructedFromFileName() throws Exception {
+        Patient victim = reader(SINGLE_SAMPLE, PATIENT);
+        assertThat(victim.reference().lanes().get(0).recordGroupId()).isEqualTo("CPCT12345678_HJJLGCCXX_S17_L001_001");
+    }
+
+    @Test
     public void multipleFlowcellsWithSameLaneIndex() throws Exception {
         Patient victim = reader(MULTIPLE_FLOWCELLS, PATIENT);
         assertThat(victim.reference().lanes()).hasSize(2);

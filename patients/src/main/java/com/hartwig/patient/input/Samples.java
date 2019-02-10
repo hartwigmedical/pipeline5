@@ -28,8 +28,7 @@ class Samples {
             String flowCellId = tokens[1];
             ImmutableLane.Builder builder = builders.computeIfAbsent(laneName + flowCellId,
                     s -> Lane.builder()
-                            .directory(sampleDirectory.toString())
-                            .name(sampleNameWithPostfix + "_" + s).flowCellId(flowCellId)
+                            .directory(sampleDirectory.toString()).name(sampleNameWithPostfix + "_" + laneName).flowCellId(flowCellId)
                             .index(tokens[2])
                             .suffix(tokens[5].substring(0, tokens[5].indexOf('.'))));
             if (tokens[4].equals("R1")) {
