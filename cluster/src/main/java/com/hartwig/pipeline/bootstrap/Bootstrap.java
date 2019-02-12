@@ -177,8 +177,8 @@ class Bootstrap {
                 GoogleDataprocCluster singleNode = GoogleDataprocCluster.from(credentials, nodeInitialization, "singlenode");
                 GoogleDataprocCluster parallelProcessing = GoogleDataprocCluster.from(credentials, nodeInitialization, "spark");
                 CloudCopy cloudCopy = arguments.useRclone() ? new RCloneCloudCopy(arguments.rclonePath(),
-                        arguments.rcloneGcpRemote(),
-                        arguments.rcloneS3Remote(), ProcessBuilder::new) : new GSUtilCloudCopy(arguments.cloudSdkPath());
+                        arguments.rcloneGcpRemote(), arguments.rcloneS3Remote(), ProcessBuilder::new)
+                        : new GSUtilCloudCopy(arguments.cloudSdkPath());
                 if (arguments.sbpApiSampleId().isPresent()) {
                     int sbpSampleId = arguments.sbpApiSampleId().get();
                     SBPRestApi sbpRestApi = SBPRestApi.newInstance(arguments);
@@ -192,7 +192,9 @@ class Bootstrap {
                                     sbpSampleId,
                                     arguments.useRclone()
                                             ? new CloudBamDownload(SBPS3FileTarget::from, cloudCopy)
-                                            : SBPS3BamDownload.from(s3, resultsDirectory, arguments.s3UploadThreads()), resultsDirectory),
+                                            : SBPS3BamDownload.from(s3, resultsDirectory, arguments.s3UploadThreads()),
+                                    resultsDirectory,
+                                    System::getenv),
                             new CloudSampleUpload(new SBPS3FileSource(), cloudCopy),
                             singleNode,
                             parallelProcessing,
@@ -204,8 +206,7 @@ class Bootstrap {
                     s3.shutdown();
                 } else {
                     new Bootstrap(storage,
-                            referenceGenomeData,
-                            knownIndelsData, arguments.noUpload() ? new GoogleStorageSampleSource(storage)
+                            referenceGenomeData, knownIndelsData, arguments.noUpload() ? new GoogleStorageSampleSource(storage)
                                     : new FileSystemSampleSource(Hadoop.localFilesystem(), arguments.patientDirectory()),
                             new CloudBamDownload(new LocalFileTarget(), cloudCopy),
                             new CloudSampleUpload(new LocalFileSource(), cloudCopy),

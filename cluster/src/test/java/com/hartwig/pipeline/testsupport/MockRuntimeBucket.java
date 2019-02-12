@@ -36,6 +36,10 @@ public class MockRuntimeBucket {
     }
 
     public MockRuntimeBucket with(String blob, long size) {
+        return with(blob, size, "");
+    }
+
+    public MockRuntimeBucket with(String blob, long size, String md5) {
         try {
             Blob mockBlob = mock(Blob.class);
             ReadChannel mockReadChannel = mock(ReadChannel.class);
@@ -43,6 +47,7 @@ public class MockRuntimeBucket {
             when(mockBlob.getName()).thenReturn(blob);
             when(mockBlob.getSize()).thenReturn(size);
             when(mockBlob.reader()).thenReturn(mockReadChannel);
+            when(mockBlob.getMd5()).thenReturn(md5);
             blobs.add(mockBlob);
             when(googleBucket.get(blob)).thenReturn(mockBlob);
         } catch (IOException e) {
