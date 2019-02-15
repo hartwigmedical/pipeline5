@@ -48,15 +48,15 @@ public class GoogleStorageSampleSourceTest {
         when(storage.get(Mockito.anyString())).thenReturn(bucket);
         SampleData sample = victim.sample(ARGUMENTS);
         assertThat(sample.sample().name()).isEqualTo(SAMPLE);
-        assertThat(sample.sizeInBytes()).isEqualTo(11);
+        assertThat(sample.sizeInBytesGZipped()).isEqualTo(11);
     }
 
     @Test
     public void fileSizeScaledDownWhenNotGzipped() {
-        Bucket bucket = MockRuntimeBucket.of(SAMPLE).with("fastq1_r1", 4).with("fastq2_r2", 40).getRuntimeBucket().bucket();
+        Bucket bucket = MockRuntimeBucket.of(SAMPLE).with("fastq1_r1", 4).with("fastq2_r2.gz", 40).getRuntimeBucket().bucket();
         when(storage.get(Mockito.anyString())).thenReturn(bucket);
         SampleData sample = victim.sample(ARGUMENTS);
         assertThat(sample.sample().name()).isEqualTo(SAMPLE);
-        assertThat(sample.sizeInBytes()).isEqualTo(11);
+        assertThat(sample.sizeInBytesGZipped()).isEqualTo(41);
     }
 }

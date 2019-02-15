@@ -12,6 +12,8 @@ import com.hartwig.pipeline.io.RuntimeBucket;
 
 public class GoogleStorageSampleSource implements SampleSource {
 
+    private static final String GZ_EXTENSION = "gz";
+    private static final int ESTIMATED_COMPRESSION = 4;
     private final Storage storage;
 
     public GoogleStorageSampleSource(final Storage storage) {
@@ -32,8 +34,23 @@ public class GoogleStorageSampleSource implements SampleSource {
             throw new IllegalArgumentException(String.format("No sample data found in bucket [%s] so there is no input to process. "
                     + "You cannot use the no_upload flag if no sample has already been uploaded", runtimeBucket.getName()));
         }
-        long factor = blobs.iterator().next().getName().endsWith("gz") ? 1 : 4;
-        long fileSize = StreamSupport.stream(blobs.spliterator(), false).mapToLong(BlobInfo::getSize).sum() / factor;
-        return SampleData.of(Sample.builder("", arguments.patientId()).build(), fileSize);
+        long zippedFileSizeInBytes = StreamSupport.stream(blobs.spliterator(), false)
+                .filter(GoogleStorageSampleSource::isGZipped)
+                .mapToLong(BlobInfo::getSize)
+                .sum();
+        long unzippedFileSizeInBytes = StreamSupport.stream(blobs.spliterator(), false)
+                .filter(GoogleStorageSampleSource::isNotZipped)
+                .mapToLong(BlobInfo::getSize)
+                .map(size -> size / ESTIMATED_COMPRESSION)
+                .sum();
+        return SampleData.of(Sample.builder("", arguments.patientId()).build(), zippedFileSizeInBytes + unzippedFileSizeInBytes);
+    }
+
+    private static boolean isGZipped(Blob blob) {
+        return blob.getName().endsWith(GZ_EXTENSION);
+    }
+
+    private static boolean isNotZipped(Blob blob) {
+        return !isGZipped(blob);
     }
 }

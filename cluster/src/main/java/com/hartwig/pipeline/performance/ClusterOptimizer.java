@@ -17,11 +17,11 @@ public class ClusterOptimizer {
 
     public PerformanceProfile optimize(SampleData sampleData) {
         Sample sample = sampleData.sample();
-        if (sampleData.sizeInBytes() <= 0) {
+        if (sampleData.sizeInBytesGZipped() <= 0) {
             throw new IllegalArgumentException(String.format("Sample [%s] lanes had no data. Cannot calculate data size or cpu requirements",
                     sample.name()));
         }
-        long totalFileSizeGB = sampleData.sizeInBytes() / BYTES_PER_GB;
+        long totalFileSizeGB = sampleData.sizeInBytesGZipped() / BYTES_PER_GB;
         double totalCpusRequired = totalFileSizeGB * cpuToFastQSizeRatio.cpusPerGB();
         MachineType defaultWorker = MachineType.defaultWorker();
         int numWorkers = new Double(totalCpusRequired / defaultWorker.cpus()).intValue();

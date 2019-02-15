@@ -11,7 +11,7 @@ public interface SampleData {
     Sample sample();
 
     @Value.Parameter
-    long sizeInBytes();
+    long sizeInBytesGZipped();
 
     static SampleData of(Sample sample, long size) {
         return ImmutableSampleData.of(sample, size);
