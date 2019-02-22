@@ -20,7 +20,7 @@
         <gatk.version>4.0.4.0</gatk.version>
         <spark.version>2.3.0</spark.version>
         <commons-io.version>2.4</commons-io.version>
-        <adam.version>0.26.0-SNAPSHOT</adam.version>
+        <adam.version>0.26.0</adam.version>
         <cannoli.version>0.1.0</cannoli.version>
         <parquet-hadoop.version>1.8.2</parquet-hadoop.version>
         <jackson.version>2.9.5</jackson.version>
