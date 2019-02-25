@@ -35,7 +35,7 @@ public class PipelineRuntime {
         try {
             FileSystem fileSystem = Hadoop.fileSystem(configuration.pipeline().hdfs());
             ADAMContext adamContext = new ADAMContext(sparkContext);
-            BamCreationPipeline adamPipeline = Pipelines.bamCreationConsolidated(adamContext,
+            BamCreationPipeline adamPipeline = Pipelines.bamCreation(adamContext,
                     fileSystem,
                     monitor,
                     configuration.pipeline().resultsDirectory(),

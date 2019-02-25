@@ -12,7 +12,6 @@ import com.hartwig.pipeline.BamCreationPipeline;
 import com.hartwig.pipeline.HadoopStatusReporter;
 import com.hartwig.pipeline.QCResult;
 import com.hartwig.pipeline.QualityControl;
-import com.hartwig.pipeline.after.BamIndexPipeline;
 import com.hartwig.pipeline.metrics.Monitor;
 
 import org.apache.hadoop.fs.FileSystem;
@@ -23,7 +22,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class Pipelines {
 
-    public static BamCreationPipeline bamCreationConsolidated(final ADAMContext adamContext, final FileSystem fileSystem,
+    public static BamCreationPipeline bamCreation(final ADAMContext adamContext, final FileSystem fileSystem,
             final Monitor monitor, final String workingDirectory, final String referenceGenomePath, final List<String> knownIndelPaths,
             final int bwaThreads, final boolean doQC, final boolean mergeFinalFile) {
         JavaADAMContext javaADAMContext = new JavaADAMContext(adamContext);
@@ -36,7 +35,6 @@ public class Pipelines {
                 .alignment(new Bwa(referenceGenome, adamContext, fileSystem, bwaThreads))
                 .finalDatasource(new HDFSAlignmentRDDSource(OutputType.INDEL_REALIGNED, javaADAMContext, finalDataLocation))
                 .finalBamStore(new HDFSBamStore(finalDataLocation, fileSystem, mergeFinalFile)).bamEnrichment(new MarkDups())
-                .indexBam(BamIndexPipeline.fallback(fileSystem, workingDirectory, monitor))
                 .statusReporter(new HadoopStatusReporter(fileSystem, workingDirectory))
                 .monitor(monitor)
                 .build();

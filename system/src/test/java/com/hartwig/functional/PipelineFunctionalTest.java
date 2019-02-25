@@ -33,7 +33,7 @@ public class PipelineFunctionalTest {
     @Test
     public void adamBamCreationMatchesCurrentPipelineOutput() throws Exception {
         FileSystem fileSystem = Hadoop.localFilesystem();
-        Pipelines.bamCreationConsolidated(new ADAMContext(context.sc()),
+        Pipelines.bamCreation(new ADAMContext(context.sc()),
                 fileSystem,
                 Monitor.noop(),
                 RESULT_DIR, HUNDREDK_READS_HISEQ.referenceGenome().path(), HUNDREDK_READS_HISEQ.knownIndel().paths(), 1, false, true)

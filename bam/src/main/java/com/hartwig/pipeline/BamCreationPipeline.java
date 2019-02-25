@@ -7,7 +7,6 @@ import com.hartwig.io.InputOutput;
 import com.hartwig.io.OutputStore;
 import com.hartwig.io.OutputType;
 import com.hartwig.patient.Sample;
-import com.hartwig.pipeline.after.BamIndexPipeline;
 import com.hartwig.pipeline.metrics.Metric;
 import com.hartwig.pipeline.metrics.Monitor;
 
@@ -78,8 +77,6 @@ public abstract class BamCreationPipeline {
     protected abstract OutputStore<AlignmentRecordDataset> finalBamStore();
 
     protected abstract QualityControl<AlignmentRecordDataset> finalQC();
-
-    protected abstract BamIndexPipeline indexBam();
 
     protected abstract Monitor monitor();
 
