@@ -11,13 +11,13 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 
-import com.google.api.services.dataproc.Dataproc;
-import com.google.api.services.dataproc.model.Cluster;
-import com.google.api.services.dataproc.model.Job;
-import com.google.api.services.dataproc.model.JobReference;
-import com.google.api.services.dataproc.model.JobStatus;
-import com.google.api.services.dataproc.model.Operation;
-import com.google.api.services.dataproc.model.SubmitJobRequest;
+import com.google.api.services.dataproc.v1beta2.Dataproc;
+import com.google.api.services.dataproc.v1beta2.model.Cluster;
+import com.google.api.services.dataproc.v1beta2.model.Job;
+import com.google.api.services.dataproc.v1beta2.model.JobReference;
+import com.google.api.services.dataproc.v1beta2.model.JobStatus;
+import com.google.api.services.dataproc.v1beta2.model.Operation;
+import com.google.api.services.dataproc.v1beta2.model.SubmitJobRequest;
 import com.google.common.collect.ImmutableMap;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.bootstrap.Arguments;

@@ -64,6 +64,8 @@ class BootstrapOptions {
     private static final String DEFAULT_RCLONE_PATH = "/usr/bin";
     private static final String DEFAULT_RCLONE_GCP_REMOTE = "gs";
     private static final String DEFAULT_RCLONE_S3_REMOTE = "s3";
+    private static final String CLUSTER_IDLE_TTL_FLAG = "cluster_idle_ttl";
+    private static final String DEFAULT_CLUSTER_IDLE_TTL = "600s";
 
     private static Options options() {
         return new Options().addOption(privateKeyFlag())
@@ -104,9 +106,15 @@ class BootstrapOptions {
                 .addOption(knownIndelsBucket())
                 .addOption(s3UploadThreads())
                 .addOption(cloudSdkTimeoutHours())
-                .addOption(rclonePath())
-                .addOption(rcloneGcpRemote())
-                .addOption(rcloneS3Remote());
+                .addOption(rclonePath()).addOption(rcloneGcpRemote()).addOption(rcloneS3Remote()).addOption(clusterIdleTtl());
+    }
+
+    private static Option clusterIdleTtl() {
+        return optionWithArgAndDefault(CLUSTER_IDLE_TTL_FLAG,
+                CLUSTER_IDLE_TTL_FLAG,
+                "Time limit for which a cluster can remain idle before Dataproc will delete it in seconds. 600s is the lowest value which "
+                        + "Google will accept for this parameter",
+                DEFAULT_CLUSTER_IDLE_TTL);
     }
 
     private static Option rclonePath() {
@@ -268,6 +276,7 @@ class BootstrapOptions {
                     .rclonePath(commandLine.getOptionValue(RCLONE_PATH_FLAG, DEFAULT_RCLONE_PATH))
                     .rcloneGcpRemote(commandLine.getOptionValue(RCLONE_GCP_REMOTE_FLAG, DEFAULT_RCLONE_GCP_REMOTE))
                     .rcloneS3Remote(commandLine.getOptionValue(RCLONE_S3_REMOTE_FLAG, DEFAULT_RCLONE_S3_REMOTE))
+                    .clusterIdleTtl(commandLine.getOptionValue(CLUSTER_IDLE_TTL_FLAG, DEFAULT_CLUSTER_IDLE_TTL))
                     .build());
         } catch (ParseException e) {
             LOGGER.error("Could not parse command line args", e);

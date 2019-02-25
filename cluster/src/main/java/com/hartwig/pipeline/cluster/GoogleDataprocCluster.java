@@ -9,16 +9,16 @@ import java.util.function.Predicate;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.services.dataproc.Dataproc;
-import com.google.api.services.dataproc.model.Cluster;
-import com.google.api.services.dataproc.model.ClusterConfig;
-import com.google.api.services.dataproc.model.Job;
-import com.google.api.services.dataproc.model.JobPlacement;
-import com.google.api.services.dataproc.model.JobReference;
-import com.google.api.services.dataproc.model.JobStatus;
-import com.google.api.services.dataproc.model.Operation;
-import com.google.api.services.dataproc.model.SparkJob;
-import com.google.api.services.dataproc.model.SubmitJobRequest;
+import com.google.api.services.dataproc.v1beta2.Dataproc;
+import com.google.api.services.dataproc.v1beta2.model.Cluster;
+import com.google.api.services.dataproc.v1beta2.model.ClusterConfig;
+import com.google.api.services.dataproc.v1beta2.model.Job;
+import com.google.api.services.dataproc.v1beta2.model.JobPlacement;
+import com.google.api.services.dataproc.v1beta2.model.JobReference;
+import com.google.api.services.dataproc.v1beta2.model.JobStatus;
+import com.google.api.services.dataproc.v1beta2.model.Operation;
+import com.google.api.services.dataproc.v1beta2.model.SparkJob;
+import com.google.api.services.dataproc.v1beta2.model.SubmitJobRequest;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.hartwig.patient.Sample;
@@ -60,7 +60,7 @@ public class GoogleDataprocCluster implements SparkCluster {
         Cluster existing = findExistingCluster(arguments);
         if (existing == null) {
             ClusterConfig clusterConfig =
-                    GoogleClusterConfig.from(arguments.project(), runtimeBucket, nodeInitialization, performanceProfile).config();
+                    GoogleClusterConfig.from(runtimeBucket, nodeInitialization, performanceProfile, arguments).config();
             Operation createCluster =
                     clusters.create(arguments.project(), arguments.region(), cluster(clusterConfig, clusterName)).execute();
             LOGGER.info("Starting Google Dataproc cluster with name [{}]. This may take a minute or two...", clusterName);

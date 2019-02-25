@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.amazonaws.services.s3.AmazonS3;
-import com.google.api.services.dataproc.DataprocScopes;
+import com.google.api.services.dataproc.v1beta2.DataprocScopes;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
@@ -177,8 +177,9 @@ class Bootstrap {
                 GoogleDataprocCluster singleNode = GoogleDataprocCluster.from(credentials, nodeInitialization, "singlenode");
                 GoogleDataprocCluster parallelProcessing = GoogleDataprocCluster.from(credentials, nodeInitialization, "spark");
                 CloudCopy cloudCopy = arguments.useRclone() ? new RCloneCloudCopy(arguments.rclonePath(),
-                        arguments.rcloneGcpRemote(), arguments.rcloneS3Remote(), ProcessBuilder::new)
-                        : new GSUtilCloudCopy(arguments.cloudSdkPath());
+                        arguments.rcloneGcpRemote(),
+                        arguments.rcloneS3Remote(),
+                        ProcessBuilder::new) : new GSUtilCloudCopy(arguments.cloudSdkPath());
                 if (arguments.sbpApiSampleId().isPresent()) {
                     int sbpSampleId = arguments.sbpApiSampleId().get();
                     SBPRestApi sbpRestApi = SBPRestApi.newInstance(arguments);
@@ -206,7 +207,9 @@ class Bootstrap {
                     s3.shutdown();
                 } else {
                     new Bootstrap(storage,
-                            referenceGenomeData, knownIndelsData, arguments.noUpload() ? new GoogleStorageSampleSource(storage)
+                            referenceGenomeData,
+                            knownIndelsData,
+                            arguments.noUpload() ? new GoogleStorageSampleSource(storage)
                                     : new FileSystemSampleSource(Hadoop.localFilesystem(), arguments.patientDirectory()),
                             new CloudBamDownload(new LocalFileTarget(), cloudCopy),
                             new CloudSampleUpload(new LocalFileSource(), cloudCopy),

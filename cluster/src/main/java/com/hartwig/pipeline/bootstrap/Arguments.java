@@ -80,6 +80,8 @@ public interface Arguments {
 
     String rcloneS3Remote();
 
+    String clusterIdleTtl();
+
     Optional<Integer> sbpApiSampleId();
 
     Optional<String> runId();

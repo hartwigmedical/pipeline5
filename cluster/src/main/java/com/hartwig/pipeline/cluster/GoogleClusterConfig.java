@@ -4,13 +4,15 @@ import java.io.FileNotFoundException;
 import java.util.Collections;
 import java.util.List;
 
-import com.google.api.services.dataproc.model.ClusterConfig;
-import com.google.api.services.dataproc.model.DiskConfig;
-import com.google.api.services.dataproc.model.GceClusterConfig;
-import com.google.api.services.dataproc.model.InstanceGroupConfig;
-import com.google.api.services.dataproc.model.NodeInitializationAction;
-import com.google.api.services.dataproc.model.SoftwareConfig;
+import com.google.api.services.dataproc.v1beta2.model.ClusterConfig;
+import com.google.api.services.dataproc.v1beta2.model.DiskConfig;
+import com.google.api.services.dataproc.v1beta2.model.GceClusterConfig;
+import com.google.api.services.dataproc.v1beta2.model.InstanceGroupConfig;
+import com.google.api.services.dataproc.v1beta2.model.LifecycleConfig;
+import com.google.api.services.dataproc.v1beta2.model.NodeInitializationAction;
+import com.google.api.services.dataproc.v1beta2.model.SoftwareConfig;
 import com.google.common.collect.ImmutableMap;
+import com.hartwig.pipeline.bootstrap.Arguments;
 import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.performance.MachineType;
 import com.hartwig.pipeline.performance.PerformanceProfile;
@@ -29,8 +31,8 @@ class GoogleClusterConfig {
         return config;
     }
 
-    static GoogleClusterConfig from(final String project, RuntimeBucket runtimeBucket, NodeInitialization nodeInitialization,
-            PerformanceProfile profile) throws FileNotFoundException {
+    static GoogleClusterConfig from(RuntimeBucket runtimeBucket, NodeInitialization nodeInitialization, PerformanceProfile profile,
+            Arguments arguments) throws FileNotFoundException {
         DiskConfig diskConfig = diskConfig(profile.primaryWorkers());
         ClusterConfig config = clusterConfig(masterConfig(profile.master()),
                 primaryWorkerConfig(diskConfig, profile.primaryWorkers(), profile.numPrimaryWorkers()),
@@ -38,19 +40,19 @@ class GoogleClusterConfig {
                 runtimeBucket.getName(),
                 softwareConfig(),
                 initializationActions(runtimeBucket, nodeInitialization),
-                gceClusterConfig(project));
+                gceClusterConfig(),
+                lifecycleConfig(arguments.clusterIdleTtl()));
         return new GoogleClusterConfig(config);
     }
 
-    @NotNull
-    private static GceClusterConfig gceClusterConfig(final String project) {
-        // TODO: make this a configuration option.
-        /*return new GceClusterConfig().setServiceAccount(String.format("dataproc-monitor@%s.iam.gserviceaccount.com", project))
-                .setServiceAccountScopes(Collections.singletonList("https://www.googleapis.com/auth/monitoring"));*/
+    private static GceClusterConfig gceClusterConfig() {
         return new GceClusterConfig();
     }
 
-    @NotNull
+    private static LifecycleConfig lifecycleConfig(String idleTtl) {
+        return new LifecycleConfig().setIdleDeleteTtl(idleTtl);
+    }
+
     private static SoftwareConfig softwareConfig() {
         return new SoftwareConfig().setProperties(ImmutableMap.<String, String>builder().put("dataproc:dataproc.logging.stackdriver.enable",
                 "false")
@@ -72,14 +74,16 @@ class GoogleClusterConfig {
 
     private static ClusterConfig clusterConfig(final InstanceGroupConfig masterConfig, final InstanceGroupConfig primaryWorkerConfig,
             final InstanceGroupConfig secondaryWorkerConfig, final String bucket, final SoftwareConfig softwareConfig,
-            final List<NodeInitializationAction> initializationActions, final GceClusterConfig gceClusterConfig) {
+            final List<NodeInitializationAction> initializationActions, final GceClusterConfig gceClusterConfig,
+            final LifecycleConfig lifecycleConfig) {
         return new ClusterConfig().setMasterConfig(masterConfig)
                 .setWorkerConfig(primaryWorkerConfig)
                 .setSecondaryWorkerConfig(secondaryWorkerConfig)
                 .setConfigBucket(bucket)
                 .setSoftwareConfig(softwareConfig)
                 .setInitializationActions(initializationActions)
-                .setGceClusterConfig(gceClusterConfig);
+                .setGceClusterConfig(gceClusterConfig)
+                .setLifecycleConfig(lifecycleConfig);
     }
 
     private static InstanceGroupConfig primaryWorkerConfig(final DiskConfig diskConfig, final MachineType machineType,
