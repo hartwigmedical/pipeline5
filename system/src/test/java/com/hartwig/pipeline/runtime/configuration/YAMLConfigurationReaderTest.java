@@ -43,6 +43,7 @@ public class YAMLConfigurationReaderTest {
         assertThat(configuration.spark().get("master")).isEqualTo("local[2]");
         assertThat(configuration.knownIndel().paths()).containsExactly("/known_indels/1000G_phase1.indels.b37.vcf",
                 "/known_indels/Mills_and_1000G_gold_standard.indels.b37.vcf");
+        assertThat(configuration.knownSnp().paths()).containsExactly("/known_snps/dbsnp_137.b37.vcf.gz");
         return configuration;
     }
 }

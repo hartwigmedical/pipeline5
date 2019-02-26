@@ -33,12 +33,18 @@ public class PipelineFunctionalTest {
     @Test
     public void adamBamCreationMatchesCurrentPipelineOutput() throws Exception {
         FileSystem fileSystem = Hadoop.localFilesystem();
-        Pipelines.bamCreation(new ADAMContext(context.sc()),
+        Pipelines.bamCreationConsolidated(new ADAMContext(context.sc()),
                 fileSystem,
                 Monitor.noop(),
-                RESULT_DIR, HUNDREDK_READS_HISEQ.referenceGenome().path(), HUNDREDK_READS_HISEQ.knownIndel().paths(), 1, false, true)
+                RESULT_DIR,
+                HUNDREDK_READS_HISEQ.referenceGenome().path(),
+                HUNDREDK_READS_HISEQ.knownIndel().paths(),
+                HUNDREDK_READS_HISEQ.knownSnp().paths(),
+                1,
+                false,
+                true)
                 .execute(PatientReader.fromHDFS(fileSystem, HUNDREDK_READS_HISEQ.patient().directory(), HUNDREDK_READS_HISEQ_PATIENT_NAME)
                         .reference());
-        assertThatOutput(RESULT_DIR, REFERENCE_SAMPLE).aligned().duplicatesMarked().isEqualToExpected();
+        assertThatOutput(RESULT_DIR, REFERENCE_SAMPLE).aligned().duplicatesMarked().recalibrated().isEqualToExpected();
     }
 }

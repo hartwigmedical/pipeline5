@@ -16,24 +16,17 @@ public interface InputOutput<P> {
     Sample sample();
 
     @Value.Parameter
-    Optional<OutputType> maybeType();
-
-    @Value.Parameter
     Optional<P> maybePayload();
-
-    default OutputType type() {
-        return maybeType().orElseThrow(() -> new IllegalStateException(String.format(MISSING_OPTIONAL, "output type")));
-    }
 
     default P payload() {
         return maybePayload().orElseThrow(() -> new IllegalStateException(String.format(MISSING_OPTIONAL, "payload")));
     }
 
     static <E extends FileSystemEntity, P> InputOutput<P> seed(Sample sample) {
-        return ImmutableInputOutput.of(sample, Optional.empty(), Optional.empty());
+        return ImmutableInputOutput.of(sample, Optional.empty());
     }
 
-    static <E extends FileSystemEntity, P> InputOutput<P> of(OutputType type, Sample sample, P payload) {
-        return ImmutableInputOutput.of(sample, Optional.of(type), Optional.of(payload));
+    static <E extends FileSystemEntity, P> InputOutput<P> of(Sample sample, P payload) {
+        return ImmutableInputOutput.of(sample, Optional.of(payload));
     }
 }

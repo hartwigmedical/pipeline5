@@ -2,10 +2,12 @@ package com.hartwig.pipeline;
 
 import static java.lang.String.format;
 
+import java.io.IOException;
+import java.util.List;
+
 import com.hartwig.io.DataSource;
 import com.hartwig.io.InputOutput;
 import com.hartwig.io.OutputStore;
-import com.hartwig.io.OutputType;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.metrics.Metric;
 import com.hartwig.pipeline.metrics.Monitor;
@@ -29,12 +31,12 @@ public abstract class BamCreationPipeline {
         try {
             long startTime = startTimer();
             QCResult qcResult;
-            if (finalBamStore().exists(sample, OutputType.FINAL)) {
+            if (finalBamStore().exists(sample)) {
                 LOGGER.info("BAM for {} sample already exists. Only running QC", sample.name());
                 qcResult = qc(finalQC(), finalDatasource().extract(sample));
             } else {
                 InputOutput<AlignmentRecordDataset> aligned = alignment().execute(InputOutput.seed(sample));
-                InputOutput<AlignmentRecordDataset> enriched = bamEnrichment().execute(aligned);
+                InputOutput<AlignmentRecordDataset> enriched = enrich(aligned, bamEnrichment());
                 qcResult = qc(finalQC(), enriched);
                 finalBamStore().store(enriched);
             }
@@ -56,6 +58,15 @@ public abstract class BamCreationPipeline {
         }
     }
 
+    private static InputOutput<AlignmentRecordDataset> enrich(final InputOutput<AlignmentRecordDataset> aligned,
+            final List<Stage<AlignmentRecordDataset, AlignmentRecordDataset>> enrichments) throws IOException {
+        InputOutput<AlignmentRecordDataset> output = aligned;
+        for (Stage<AlignmentRecordDataset, AlignmentRecordDataset> enrichment : enrichments) {
+            output = enrichment.execute(output);
+        }
+        return output;
+    }
+
     private QCResult qc(final QualityControl<AlignmentRecordDataset> qcCheck, final InputOutput<AlignmentRecordDataset> toQC) {
         return qcCheck.check(toQC);
     }
@@ -72,7 +83,7 @@ public abstract class BamCreationPipeline {
 
     protected abstract AlignmentStage alignment();
 
-    protected abstract Stage<AlignmentRecordDataset, AlignmentRecordDataset> bamEnrichment();
+    protected abstract List<Stage<AlignmentRecordDataset, AlignmentRecordDataset>> bamEnrichment();
 
     protected abstract OutputStore<AlignmentRecordDataset> finalBamStore();
 

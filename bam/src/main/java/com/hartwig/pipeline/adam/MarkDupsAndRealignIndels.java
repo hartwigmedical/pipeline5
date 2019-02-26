@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.stream.Collector;
 
 import com.hartwig.io.InputOutput;
-import com.hartwig.io.OutputType;
 import com.hartwig.patient.KnownIndels;
 import com.hartwig.patient.ReferenceGenome;
 import com.hartwig.pipeline.Stage;
@@ -36,23 +35,16 @@ public class MarkDupsAndRealignIndels implements Stage<AlignmentRecordDataset, A
     }
 
     @Override
-    public OutputType outputType() {
-        return OutputType.INDEL_REALIGNED;
-    }
-
-    @Override
     public InputOutput<AlignmentRecordDataset> execute(final InputOutput<AlignmentRecordDataset> input) {
         RDD<Variant> allKnownVariants = knownIndels.paths().stream().map(javaADAMContext::loadVariants).map(VariantDataset::rdd)
                 .collect(Collector.of(() -> javaADAMContext.getSparkContext().<Variant>emptyRDD().rdd(), RDD::union, RDD::union));
         ReferenceFile fasta = javaADAMContext.loadReferenceFile(referenceGenome.path());
         UnmappedReads unmapped = UnmappedReads.from(input.payload());
-        return InputOutput.of(OutputType.INDEL_REALIGNED, input.sample(), unmapped.toAlignment(input.payload().markDuplicates()
-                // TODO (PAWO): Lot of magical numbers here? Explain and/or define as variables?
+        return InputOutput.of(input.sample(), unmapped.toAlignment(input.payload().markDuplicates()
+                // pawo: set realignment parameters to ADAM defaults (see scala) which also map to GATK defaults
                 .realignIndels(consensusFromKnownsAndReads(allKnownVariants),
                         false,
-                        500,
-                        30,
-                        5.0, 3000, 20000, false, Option.apply(fasta))));
+                        500, 30, 5.0, 3000, 20000, false, Option.apply(fasta))));
     }
 
     @NotNull

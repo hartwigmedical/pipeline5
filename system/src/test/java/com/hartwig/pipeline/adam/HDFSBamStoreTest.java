@@ -2,10 +2,9 @@ package com.hartwig.pipeline.adam;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.hartwig.io.FinalDataLocation;
 import com.hartwig.io.InputOutput;
-import com.hartwig.io.IntermediateDataLocation;
 import com.hartwig.io.OutputStore;
-import com.hartwig.io.OutputType;
 import com.hartwig.patient.Sample;
 import com.hartwig.support.hadoop.Hadoop;
 import com.hartwig.testsupport.TestRDDs;
@@ -22,10 +21,10 @@ public class HDFSBamStoreTest {
     @Test
     public void savesBamAndChecksIfItExists() throws Exception {
         FileSystem fileSystem = Hadoop.localFilesystem();
-        IntermediateDataLocation dataLocation = new IntermediateDataLocation(fileSystem, System.getProperty("user.dir") + "/results/");
+        FinalDataLocation dataLocation = new FinalDataLocation(fileSystem, System.getProperty("user.dir") + "/results/");
         OutputStore<AlignmentRecordDataset> victim = new HDFSBamStore(dataLocation, fileSystem, true);
-        victim.store(InputOutput.of(OutputType.ALIGNED, SAMPLE, TestRDDs.AlignmentRecordDataset("qc/CPCT12345678R_duplicate_marked.bam")));
-        assertThat(victim.exists(SAMPLE, OutputType.ALIGNED)).isTrue();
-        fileSystem.delete(new Path(dataLocation.uri(OutputType.ALIGNED, SAMPLE)), true);
+        victim.store(InputOutput.of(SAMPLE, TestRDDs.alignmentRecordDataset("qc/CPCT12345678R.bam")));
+        assertThat(victim.exists(SAMPLE)).isTrue();
+        fileSystem.delete(new Path(dataLocation.uri(SAMPLE)), true);
     }
 }

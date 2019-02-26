@@ -4,7 +4,7 @@ import com.hartwig.patient.Sample;
 
 public interface DataLocation {
 
-    String uri(OutputType output, Sample sample);
+    String uri(Sample sample);
 
     String rootUri();
 }

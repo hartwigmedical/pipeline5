@@ -32,8 +32,9 @@ public class RunTool {
         ImmutablePerformanceProfile performanceProfile =
                 PerformanceProfile.builder().numPreemtibleWorkers(6).numPrimaryWorkers(3).master(MachineType.highMemoryWorker()).build();
         cluster.start(performanceProfile, Sample.builder("", "tool").build(), bucket, arguments);
-        cluster.submit(SparkJobDefinition.tool(jarLocation, performanceProfile, "com.hartwig.pipeline.runtime.tools.FastQReadCount"),
-                arguments);
+        cluster.submit(SparkJobDefinition.tool(jarLocation,
+                performanceProfile,
+                "com.hartwig.pipeline.runtime.tools.CompareBaseQualityRecalibration"), arguments);
         cluster.stop(arguments);
     }
 

@@ -14,7 +14,7 @@ import scala.Option;
 
 public class TestRDDs {
 
-    public static AlignmentRecordDataset AlignmentRecordDataset(final String bamFile) {
+    public static AlignmentRecordDataset alignmentRecordDataset(final String bamFile) {
         return javaAdam().loadAlignments(Resources.testResource(bamFile));
     }
 

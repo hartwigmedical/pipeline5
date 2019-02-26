@@ -3,13 +3,11 @@ package com.hartwig.pipeline;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.hartwig.io.InputOutput;
 import com.hartwig.io.OutputStore;
-import com.hartwig.io.OutputType;
 import com.hartwig.patient.ImmutableSample;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.metrics.Metric;
@@ -23,12 +21,9 @@ import org.junit.Test;
 public class BamCreationPipelineTest {
 
     private static final ImmutableSample SAMPLE = Sample.builder("", "TEST").build();
-    private static final InputOutput<AlignmentRecordDataset> ALIGNED_BAM =
-            InputOutput.of(OutputType.ALIGNED, SAMPLE, mock(AlignmentRecordDataset.class));
-    private static final InputOutput<AlignmentRecordDataset> ENRICHED_BAM =
-            InputOutput.of(OutputType.INDEL_REALIGNED, SAMPLE, mock(AlignmentRecordDataset.class));
-    private static final InputOutput<AlignmentRecordDataset> FINAL_BAM =
-            InputOutput.of(OutputType.FINAL, SAMPLE, mock(AlignmentRecordDataset.class));
+    private static final InputOutput<AlignmentRecordDataset> ALIGNED_BAM = InputOutput.of(SAMPLE, mock(AlignmentRecordDataset.class));
+    private static final InputOutput<AlignmentRecordDataset> ENRICHED_BAM = InputOutput.of(SAMPLE, mock(AlignmentRecordDataset.class));
+    private static final InputOutput<AlignmentRecordDataset> FINAL_BAM = InputOutput.of(SAMPLE, mock(AlignmentRecordDataset.class));
     private InputOutput<AlignmentRecordDataset> lastStored;
     private StatusReporter.Status lastStatus;
     private List<Metric> metricsStored;
@@ -73,9 +68,7 @@ public class BamCreationPipelineTest {
 
     @NotNull
     private ImmutableBamCreationPipeline createPipeline(final boolean exists, QCResult finalQC) {
-        return BamCreationPipeline.builder()
-                .alignment(input -> ALIGNED_BAM)
-                .bamEnrichment(enrichment())
+        return BamCreationPipeline.builder().alignment(input -> ALIGNED_BAM).addBamEnrichment(enrichment())
                 .finalBamStore(finalStore(exists))
                 .finalDatasource(sample -> FINAL_BAM)
                 .finalQC(toQC -> finalQC)
@@ -93,7 +86,7 @@ public class BamCreationPipelineTest {
             }
 
             @Override
-            public boolean exists(final Sample sample, final OutputType type) {
+            public boolean exists(final Sample sample) {
                 return exists;
             }
 
@@ -106,17 +99,7 @@ public class BamCreationPipelineTest {
 
     @NotNull
     private Stage<AlignmentRecordDataset, AlignmentRecordDataset> enrichment() {
-        return new Stage<AlignmentRecordDataset, AlignmentRecordDataset>() {
-            @Override
-            public OutputType outputType() {
-                return OutputType.INDEL_REALIGNED;
-            }
-
-            @Override
-            public InputOutput<AlignmentRecordDataset> execute(final InputOutput<AlignmentRecordDataset> input) throws IOException {
-                return ENRICHED_BAM;
-            }
-        };
+        return input -> ENRICHED_BAM;
     }
 
 }

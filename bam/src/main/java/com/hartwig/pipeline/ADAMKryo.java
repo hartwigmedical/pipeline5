@@ -20,6 +20,7 @@ import org.bdgenomics.adam.models.ReferenceRegion;
 import org.bdgenomics.adam.models.SAMFileHeaderWritable;
 import org.bdgenomics.adam.models.SequenceDictionary;
 import org.bdgenomics.adam.models.SequenceRecord;
+import org.bdgenomics.adam.models.SnpTable;
 import org.bdgenomics.adam.rdd.read.ReferencePositionPair;
 import org.bdgenomics.adam.rdd.read.SingleReadBucket;
 import org.bdgenomics.adam.rdd.read.realignment.IndelRealignmentTarget;
@@ -113,6 +114,9 @@ public class ADAMKryo implements KryoRegistrator {
             kryo.register(Consensus.class);
             kryo.register(Consensus[].class);
             kryo.register(ProcessingStep.class);
+            kryo.register(SnpTable.class);
+            kryo.register(Class.forName("scala.collection.immutable.MapLike$$anon$2", false, getClass().getClassLoader()));
+            kryo.register(Class.forName("org.bdgenomics.adam.models.SnpTable$$anonfun$1", false, getClass().getClassLoader()));
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }

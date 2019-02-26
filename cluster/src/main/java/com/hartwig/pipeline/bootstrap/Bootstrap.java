@@ -62,6 +62,7 @@ class Bootstrap {
     private final Storage storage;
     private final StaticData referenceGenomeData;
     private final StaticData knownIndelData;
+    private final StaticData knownSnpData;
     private final SampleSource sampleSource;
     private final BamDownload bamDownload;
     private final SampleUpload sampleUpload;
@@ -74,13 +75,14 @@ class Bootstrap {
     private final GoogleCredentials credentials;
 
     private Bootstrap(final Storage storage, final StaticData referenceGenomeData, final StaticData knownIndelData,
-            final SampleSource sampleSource, final BamDownload bamDownload, final SampleUpload sampleUpload,
+            final StaticData knownSnpData, final SampleSource sampleSource, final BamDownload bamDownload, final SampleUpload sampleUpload,
             final SparkCluster singleNodeCluster, final SparkCluster cluster, final JarUpload jarUpload,
             final ClusterOptimizer clusterOptimizer, final CostCalculator costCalculator, final BamComposer composer,
             final GoogleCredentials credentials) {
         this.storage = storage;
         this.referenceGenomeData = referenceGenomeData;
         this.knownIndelData = knownIndelData;
+        this.knownSnpData = knownSnpData;
         this.sampleSource = sampleSource;
         this.bamDownload = bamDownload;
         this.sampleUpload = sampleUpload;
@@ -103,6 +105,7 @@ class Bootstrap {
             Monitor monitor = Monitor.stackdriver(Run.of(arguments.version(), runtimeBucket.getName()), arguments.project(), credentials);
             referenceGenomeData.copyInto(runtimeBucket);
             knownIndelData.copyInto(runtimeBucket);
+            knownSnpData.copyInto(runtimeBucket);
             if (!arguments.noUpload()) {
                 sampleUpload.run(sample, runtimeBucket);
             }
@@ -170,6 +173,7 @@ class Bootstrap {
                 StaticData referenceGenomeData =
                         new StaticData(storage, arguments.referenceGenomeBucket(), "reference_genome", new ReferenceGenomeAlias());
                 StaticData knownIndelsData = new StaticData(storage, arguments.knownIndelsBucket(), "known_indels");
+                StaticData knownSnpData = new StaticData(storage, "known_snps", "known_snps");
                 CpuFastQSizeRatio ratio = CpuFastQSizeRatio.of(arguments.cpuPerGBRatio());
                 CostCalculator costCalculator = new CostCalculator(credentials, arguments.region(), Costs.defaultCosts());
                 ResultsDirectory resultsDirectory = ResultsDirectory.defaultDirectory();
@@ -185,8 +189,7 @@ class Bootstrap {
                     SBPRestApi sbpRestApi = SBPRestApi.newInstance(arguments);
                     AmazonS3 s3 = S3.newClient(arguments.sblS3Url());
                     new Bootstrap(storage,
-                            referenceGenomeData,
-                            knownIndelsData,
+                            referenceGenomeData, knownIndelsData, knownSnpData,
                             new SBPS3SampleSource(s3, new SBPSampleReader(sbpRestApi)),
                             new SBPSampleMetadataPatch(s3,
                                     sbpRestApi,
@@ -209,6 +212,7 @@ class Bootstrap {
                     new Bootstrap(storage,
                             referenceGenomeData,
                             knownIndelsData,
+                            knownSnpData,
                             arguments.noUpload() ? new GoogleStorageSampleSource(storage)
                                     : new FileSystemSampleSource(Hadoop.localFilesystem(), arguments.patientDirectory()),
                             new CloudBamDownload(new LocalFileTarget(), cloudCopy),

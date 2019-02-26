@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 
 import com.hartwig.exception.Exceptions;
 import com.hartwig.io.InputOutput;
-import com.hartwig.io.OutputType;
 import com.hartwig.patient.Lane;
 import com.hartwig.patient.ReferenceGenome;
 import com.hartwig.patient.Sample;
@@ -50,19 +49,13 @@ class Bwa implements AlignmentStage {
     }
 
     @Override
-    public OutputType outputType() {
-        return OutputType.ALIGNED;
-    }
-
-    @Override
     public InputOutput<AlignmentRecordDataset> execute(InputOutput<AlignmentRecordDataset> input) throws IOException {
         SequenceDictionary sequenceDictionary = adamContext.loadSequenceDictionary(referenceGenome.path() + ".dict");
         Sample sample = input.sample();
         List<AlignmentRecordDataset> laneRdds =
                 sample.lanes().parallelStream().map(lane -> adamBwa(sequenceDictionary, sample, lane)).collect(Collectors.toList());
         if (!laneRdds.isEmpty()) {
-            return InputOutput.of(outputType(),
-                    sample,
+            return InputOutput.of(sample,
                     laneRdds.get(0).<AlignmentRecordDataset>union(asScalaBufferConverter(laneRdds.subList(1, laneRdds.size())).asScala()));
         }
         throw Exceptions.noLanesInSample();
@@ -71,7 +64,9 @@ class Bwa implements AlignmentStage {
     private AlignmentRecordDataset adamBwa(final SequenceDictionary sequenceDictionary, final Sample sample, final Lane lane) {
         FragmentDataset FragmentDataset = adamContext.loadPairedFastq(lane.readsPath(),
                 lane.matesPath(),
-                Option.empty(), Option.apply(StorageLevel.DISK_ONLY()), ValidationStringency.STRICT).toFragments();
+                Option.empty(),
+                Option.apply(StorageLevel.DISK_ONLY()),
+                ValidationStringency.STRICT).toFragments();
         initializeBwaSharedMemoryPerExecutor(FragmentDataset);
         return RDDs.persistDisk(RDDs.AlignmentRecordDataset(((FragmentDataset) FragmentDataset).pipe(BwaCommand.tokens(referenceGenome,
                 sample,

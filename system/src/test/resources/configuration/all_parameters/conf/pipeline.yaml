@@ -22,3 +22,8 @@ knownIndel:
     - 1000G_phase1.indels.b37.vcf
     - Mills_and_1000G_gold_standard.indels.b37.vcf
 
+knownSnp:
+  directory: /known_snps
+  files:
+    - dbsnp_137.b37.vcf.gz
+

@@ -35,14 +35,16 @@ public class PipelineRuntime {
         try {
             FileSystem fileSystem = Hadoop.fileSystem(configuration.pipeline().hdfs());
             ADAMContext adamContext = new ADAMContext(sparkContext);
-            BamCreationPipeline adamPipeline = Pipelines.bamCreation(adamContext,
+            BamCreationPipeline adamPipeline = Pipelines.bamCreationConsolidated(adamContext,
                     fileSystem,
                     monitor,
                     configuration.pipeline().resultsDirectory(),
                     configuration.referenceGenome().path(),
                     configuration.knownIndel().paths(),
+                    configuration.knownSnp().paths(),
                     configuration.pipeline().bwa().threads(),
-                    false, configuration.pipeline().saveResultsAsSingleFile());
+                    false,
+                    configuration.pipeline().saveResultsAsSingleFile());
             adamPipeline.execute(PatientReader.fromHDFS(fileSystem, configuration.patient().directory(), configuration.patient().name())
                     .reference());
         } catch (Exception e) {

@@ -5,7 +5,6 @@ import java.io.IOException;
 import com.hartwig.io.DataLocation;
 import com.hartwig.io.InputOutput;
 import com.hartwig.io.OutputStore;
-import com.hartwig.io.OutputType;
 import com.hartwig.patient.Sample;
 
 import org.apache.hadoop.fs.FileSystem;
@@ -28,18 +27,21 @@ public class HDFSBamStore implements OutputStore<AlignmentRecordDataset> {
 
     @Override
     public void store(final InputOutput<AlignmentRecordDataset> inputOutput) {
-        JavaSaveArgs saveArgs = new JavaSaveArgs(dataLocation.uri(inputOutput.type(), inputOutput.sample()),
+        JavaSaveArgs saveArgs = new JavaSaveArgs(dataLocation.uri(inputOutput.sample()),
                 128 * 1024 * 1024,
-                1024 * 1024, CompressionCodecName.GZIP, false, true,
+                1024 * 1024,
+                CompressionCodecName.GZIP,
+                false,
+                true,
                 false);
         saveArgs.deferMerging_$eq(!mergeFinalFile);
         inputOutput.payload().save(saveArgs, true);
     }
 
     @Override
-    public boolean exists(final Sample sample, final OutputType type) {
+    public boolean exists(final Sample sample) {
         try {
-            return fileSystem.exists(new Path(dataLocation.uri(type, sample)));
+            return fileSystem.exists(new Path(dataLocation.uri(sample)));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
