@@ -12,7 +12,6 @@ import com.hartwig.io.OutputStore;
 import com.hartwig.io.OutputType;
 import com.hartwig.patient.ImmutableSample;
 import com.hartwig.patient.Sample;
-import com.hartwig.pipeline.after.BamIndexPipeline;
 import com.hartwig.pipeline.metrics.Metric;
 import com.hartwig.pipeline.metrics.Monitor;
 
@@ -34,7 +33,6 @@ public class BamCreationPipelineTest {
     private StatusReporter.Status lastStatus;
     private List<Metric> metricsStored;
     private Monitor monitor = metric -> metricsStored.add(metric);
-    private BamIndexPipeline indexer = mock(BamIndexPipeline.class);
 
     @Before
     public void setUp() throws Exception {
@@ -80,7 +78,9 @@ public class BamCreationPipelineTest {
                 .bamEnrichment(enrichment())
                 .finalBamStore(finalStore(exists))
                 .finalDatasource(sample -> FINAL_BAM)
-                .finalQC(toQC -> finalQC).statusReporter(status -> lastStatus = status).indexBam(indexer).monitor(monitor)
+                .finalQC(toQC -> finalQC)
+                .statusReporter(status -> lastStatus = status)
+                .monitor(monitor)
                 .build();
     }
 
