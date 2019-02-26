@@ -10,6 +10,8 @@
     <packaging>pom</packaging>
 
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
         <junit.version>4.12</junit.version>
         <immutables.version>2.5.5</immutables.version>
         <maven.compiler.source>1.8</maven.compiler.source>
