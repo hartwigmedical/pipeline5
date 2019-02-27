@@ -28,9 +28,9 @@ public class CloudBamDownloadTest {
     private MockRuntimeBucket runtimeBucket;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         cloudCopy = mock(CloudCopy.class);
-        victim = new CloudBamDownload(SBPS3FileTarget::from, cloudCopy);
+        victim = new CloudBamDownload(SBPS3FileTarget::from, ResultsDirectory.defaultDirectory(), cloudCopy);
         runtimeBucket = MockRuntimeBucket.of("run");
     }
 

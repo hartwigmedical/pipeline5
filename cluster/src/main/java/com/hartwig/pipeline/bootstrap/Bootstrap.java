@@ -195,7 +195,7 @@ class Bootstrap {
                                     sbpRestApi,
                                     sbpSampleId,
                                     arguments.useRclone()
-                                            ? new CloudBamDownload(SBPS3FileTarget::from, cloudCopy)
+                                            ? new CloudBamDownload(SBPS3FileTarget::from, resultsDirectory, cloudCopy)
                                             : SBPS3BamDownload.from(s3, resultsDirectory, arguments.s3UploadThreads()),
                                     resultsDirectory,
                                     System::getenv),
@@ -215,7 +215,7 @@ class Bootstrap {
                             knownSnpData,
                             arguments.noUpload() ? new GoogleStorageSampleSource(storage)
                                     : new FileSystemSampleSource(Hadoop.localFilesystem(), arguments.patientDirectory()),
-                            new CloudBamDownload(new LocalFileTarget(), cloudCopy),
+                            new CloudBamDownload(new LocalFileTarget(), resultsDirectory, cloudCopy),
                             new CloudSampleUpload(new LocalFileSource(), cloudCopy),
                             singleNode,
                             parallelProcessing,

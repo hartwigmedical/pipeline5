@@ -22,7 +22,6 @@ public class GoogleStorageSampleSource implements SampleSource {
 
     @Override
     public SampleData sample(final Arguments arguments) {
-
         if (arguments.patientId() == null || arguments.patientId().isEmpty()) {
             throw new IllegalArgumentException("Unable to run in -no_upload mode without an explicit patient/sample name (use -p)");
         }
