@@ -18,13 +18,15 @@ public class PicardWGSMetrics {
 //                "-m",
 //                (int) (Runtime.getRuntime().maxMemory() / BYTES_PER_GB) + "GB",
         String bamSortedName = Bams.name(sample, workingDirectory, Bams.SORTED);
-        ProcessBuilder processBuilder = new ProcessBuilder("picard",
+        ProcessBuilder processBuilder = new ProcessBuilder("java -jar picard.jar",
                 "CollectWgsMetrics",
-                "TMP_DIR=" + workingDirectory,
-                "R=xxx", // Ref genome FASTA here.
-                "INPUT=" + bamSortedName,
-                "OUTPUT=" + bamSortedName + ".wgsmetrics",
-                "MINIMUM_MAPPING_QUALITY=20 MINIMUM_BASE_QUALITY=10 COVERAGE_CAP=250");
+                "-TMP_DIR " + workingDirectory,
+                "-R xxx", // Ref genome FASTA here.
+                "-INPUT " + bamSortedName,
+                "-OUTPUT " + bamSortedName + ".wgsmetrics",
+                "-MINIMUM_MAPPING_QUALITY 20",
+                "-MINIMUM_BASE_QUALITY 10",
+                "-COVERAGE_CAP 250");
 
         LOGGER.info("Running CollectWgsMetrics using picard tools [{}]", Processes.toString(processBuilder));
         Processes.run(processBuilder);
