@@ -15,8 +15,10 @@ import com.hartwig.support.test.Resources;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
+@Ignore("Work In Progress")
 public class BamMetricsPipelineTest {
 
     private static final String SAMPLE_NAME = "CPCT12345678R";
@@ -50,7 +52,6 @@ public class BamMetricsPipelineTest {
     private void moveTestFilesToTarget(final Path resultDir) throws IOException {
         Files.createDirectory(resultDir);
         Files.createDirectory(Paths.get(resultDir.toString(), SOURCE_DIR));
-        Files.copy(Paths.get(Resources.testResource(SOURCE_DIR + SAMPLE_NAME + ".sorted.bam")),
-                Paths.get(resultDir.toString(), SOURCE_DIR, SAMPLE_NAME + ".sorted.bam"));
+        Files.copy(Paths.get(Resources.testResource(SOURCE_DIR + SAMPLE_NAME + ".sorted.bam")), Paths.get(resultDir.toString(), SOURCE_DIR, SAMPLE_NAME + ".sorted.bam"));
     }
 }
