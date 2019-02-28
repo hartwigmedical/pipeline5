@@ -122,6 +122,13 @@ class Bootstrap {
                     sample,
                     runtimeBucket);
 
+            // TODO: Enable once this works properly.
+/*            runJob(Jobs.bamMetrics(singleNodeCluster, costCalculator, monitor, jarLocation, runtimeBucket, arguments, sample),
+                    arguments,
+                    sample,
+                    runtimeBucket);
+                    */
+
             if (!arguments.noDownload()) {
                 bamDownload.run(sample, runtimeBucket, JobResult.SUCCESS);
             }

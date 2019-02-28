@@ -21,6 +21,10 @@ public interface Stage {
         return ImmutableStage.of("SORT_INDEX", profile);
     }
 
+    static Stage bamMetrics(PerformanceProfile profile) {
+        return ImmutableStage.of("BAM_METRICS", profile);
+    }
+
     static Stage gunzip(PerformanceProfile profile) {
         return ImmutableStage.of("GUNZIP", profile);
     }
