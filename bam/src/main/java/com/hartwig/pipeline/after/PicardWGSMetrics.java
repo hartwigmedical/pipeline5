@@ -10,21 +10,22 @@ import org.slf4j.LoggerFactory;
 public class PicardWGSMetrics {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PicardWGSMetrics.class);
-    private static final long BYTES_PER_GB = (long) Math.pow(1024, 3);
 
     public void execute(final Sample sample, final String workingDirectory) throws IOException, InterruptedException {
-        /*my $command = $picard." CollectWgsMetrics TMP_DIR=".$tmp_dir." R=".$genome." INPUT=".$bam." OUTPUT=".$output." MINIMUM_MAPPING_QUALITY="   .$min_map_qual." MINIMUM_BASE_QUALITY=".$min_base_qual." COVERAGE_CAP=".$coverage_cap;*/
+        // No parameters available to configure threads and memory?
+//        "-t",
+//                String.valueOf(Runtime.getRuntime().availableProcessors()),
+//                "-m",
+//                (int) (Runtime.getRuntime().maxMemory() / BYTES_PER_GB) + "GB",
+        String bamSortedName = Bams.name(sample, workingDirectory, Bams.SORTED);
         ProcessBuilder processBuilder = new ProcessBuilder("picard",
                 "CollectWgsMetrics",
-                "-t",
-                String.valueOf(Runtime.getRuntime().availableProcessors()),
-                "-m",
-                (int) (Runtime.getRuntime().maxMemory() / BYTES_PER_GB) + "GB",
-                "TMP_DIR=",
-                workingDirectory,
-                "-o",
-                Bams.name(sample, workingDirectory, Bams.SORTED),
-                Bams.name(sample, workingDirectory, Bams.UNSORTED));
+                "TMP_DIR=" + workingDirectory,
+                "R=xxx", // Ref genome FASTA here.
+                "INPUT=" + bamSortedName,
+                "OUTPUT=" + bamSortedName + ".wgsmetrics",
+                "MINIMUM_MAPPING_QUALITY=20 MINIMUM_BASE_QUALITY=10 COVERAGE_CAP=250");
+
         LOGGER.info("Running CollectWgsMetrics using picard tools [{}]", Processes.toString(processBuilder));
         Processes.run(processBuilder);
         LOGGER.info("CollectWgsMetrics complete");
