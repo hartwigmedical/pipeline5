@@ -4,13 +4,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-import com.hartwig.patient.ReferenceGenome;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.metrics.Metric;
 import com.hartwig.pipeline.metrics.Monitor;
 
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.LocatedFileStatus;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.RemoteIterator;
 import org.apache.ivy.util.CopyProgressEvent;
 import org.apache.ivy.util.CopyProgressListener;
 import org.apache.ivy.util.FileUtil;
@@ -22,23 +23,23 @@ public class BamMetricsPipeline {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BamIndexPipeline.class);
     private final FileSystem fileSystem;
-    private final String bamDirectory;
-    private final ReferenceGenome referenceGenome;
+    private final String sourceBamDirectory;
+    private final String sourceRefGenomeDirectory;
     private final Monitor monitor;
     private final PicardWGSMetrics picardWGSMetrics;
 
-    private BamMetricsPipeline(final FileSystem fileSystem, final String bamDirectory, final ReferenceGenome referenceGenome,
+    private BamMetricsPipeline(final FileSystem fileSystem, final String sourceBamDirectory, final String sourceRefGenomeDirectory,
             final Monitor monitor, final PicardWGSMetrics picardWGSMetrics) {
         this.fileSystem = fileSystem;
-        this.bamDirectory = bamDirectory;
-        this.referenceGenome = referenceGenome;
+        this.sourceBamDirectory = sourceBamDirectory;
+        this.sourceRefGenomeDirectory = sourceRefGenomeDirectory;
         this.monitor = monitor;
         this.picardWGSMetrics = picardWGSMetrics;
     }
 
     public void execute(Sample sample) throws IOException, InterruptedException {
         long startTime = System.currentTimeMillis();
-        String bamFileLocation = Bams.name(sample, bamDirectory, Bams.SORTED);
+        String bamFileLocation = Bams.name(sample, sourceBamDirectory, Bams.SORTED);
 
         String workingDir = System.getProperty("user.dir");
         String localBamFile = workingDir + sample.name() + ".bam";
@@ -47,20 +48,35 @@ public class BamMetricsPipeline {
         FileUtil.copy(fileSystem.open(new Path(bamFileLocation)), new File(localBamFile), noop());
         LOGGER.info("Copy complete");
 
-        // TODO Get all of the ref genome files onto VM file system
-        String outputFile = picardWGSMetrics.execute(sample, workingDir, localBamFile, referenceGenome.path());
+        String localRefGenomeDirectory = workingDir + "refGenome";
+        RemoteIterator<LocatedFileStatus> fileIterator = fileSystem.listFiles(new Path(sourceRefGenomeDirectory), false);
+        String refGenomeFastaPath = null;
+        while (fileIterator.hasNext()) {
+            LocatedFileStatus file = fileIterator.next();
+            String localFilePath = localRefGenomeDirectory + "/" + file.getPath().getName();
+
+            LOGGER.info("Copying ref genome file [{}]", localFilePath);
+            FileUtil.copy(fileSystem.open(file.getPath()), new File(localFilePath), noop());
+
+            if (localFilePath.endsWith(".fasta")) {
+                refGenomeFastaPath = localFilePath;
+            }
+        }
+
+        assert refGenomeFastaPath != null;
+        String outputFile = picardWGSMetrics.execute(sample, workingDir, localBamFile, refGenomeFastaPath);
 
         FileUtil.copy(new FileInputStream(outputFile),
-                fileSystem.create(new Path(Bams.name(sample, bamDirectory, Bams.SORTED) + ".wgsmetrics")),
+                fileSystem.create(new Path(Bams.name(sample, sourceBamDirectory, Bams.SORTED) + ".wgsmetrics")),
                 noop());
 
         long endTime = System.currentTimeMillis();
         monitor.update(Metric.spentTime("BAM_METRICS", endTime - startTime));
     }
 
-    public static BamMetricsPipeline create(final FileSystem fileSystem, final String bamDirectory, final ReferenceGenome referenceGenome,
+    public static BamMetricsPipeline create(final FileSystem fileSystem, final String bamDirectory, final String sourceRefGenomeDirectory,
             final Monitor monitor) {
-        return new BamMetricsPipeline(fileSystem, bamDirectory, referenceGenome, monitor, new PicardWGSMetrics());
+        return new BamMetricsPipeline(fileSystem, bamDirectory, sourceRefGenomeDirectory, monitor, new PicardWGSMetrics());
     }
 
     @NotNull
