@@ -2,6 +2,7 @@ package com.hartwig.pipeline.runtime;
 
 import java.io.IOException;
 
+import com.hartwig.patient.ReferenceGenome;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.after.BamMetricsPipeline;
 import com.hartwig.pipeline.metrics.Monitor;
@@ -18,10 +19,10 @@ public class GoogleCloudBamMetrics {
     private final String sampleName;
     private final BamMetricsPipeline bamMetricsPipeline;
 
-    private GoogleCloudBamMetrics(final String bamDirectory, final String sampleName, final FileSystem fileSystem,
-            final Monitor monitor) {
+    private GoogleCloudBamMetrics(final String sampleName, final FileSystem fileSystem, final String bamDirectory,
+            final ReferenceGenome referenceGenome, final Monitor monitor) {
         this.sampleName = sampleName;
-        bamMetricsPipeline = BamMetricsPipeline.fallback(fileSystem, bamDirectory, monitor);
+        bamMetricsPipeline = BamMetricsPipeline.create(fileSystem, bamDirectory, referenceGenome, monitor);
     }
 
     private void execute() {
@@ -43,7 +44,8 @@ public class GoogleCloudBamMetrics {
             String gsBucket = args[4];
             LOGGER.info("Starting bam metrics with version [{}] run id [{}] for project [{}] for sample [{}] in bucket "
                     + "[{}] on Google Dataproc", version, runId, project, sampleName, gsBucket);
-            new GoogleCloudBamMetrics(gsBucket, sampleName, Hadoop.fileSystem("gs:///"), Monitor.noop()).execute();
+            ReferenceGenome referenceGenome = ReferenceGenome.of("");
+            new GoogleCloudBamMetrics(sampleName, Hadoop.fileSystem("gs:///"), gsBucket, referenceGenome, Monitor.noop()).execute();
         } catch (IOException e) {
             LOGGER.error("Unable to run Google post-processor. Problems creating the hadoop filesystem, this class can only be run in "
                     + "a Google Dataproc cluster", e);

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
+import com.hartwig.patient.ReferenceGenome;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.metrics.Metric;
 import com.hartwig.pipeline.metrics.Monitor;
@@ -21,46 +22,44 @@ public class BamMetricsPipeline {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BamIndexPipeline.class);
     private final FileSystem fileSystem;
-    private final String sourceBamDirectory;
-    private final String localBamDirectory;
+    private final String bamDirectory;
+    private final ReferenceGenome referenceGenome;
     private final Monitor monitor;
     private final PicardWGSMetrics picardWGSMetrics;
 
-    private BamMetricsPipeline(final FileSystem fileSystem, final String sourceBamDirectory, final String localBamDirectory,
+    private BamMetricsPipeline(final FileSystem fileSystem, final String bamDirectory, final ReferenceGenome referenceGenome,
             final Monitor monitor, final PicardWGSMetrics picardWGSMetrics) {
         this.fileSystem = fileSystem;
-        this.sourceBamDirectory = sourceBamDirectory;
-        this.localBamDirectory = localBamDirectory;
+        this.bamDirectory = bamDirectory;
+        this.referenceGenome = referenceGenome;
         this.monitor = monitor;
         this.picardWGSMetrics = picardWGSMetrics;
     }
 
     public void execute(Sample sample) throws IOException, InterruptedException {
         long startTime = System.currentTimeMillis();
-        String bamFileLocation = String.format("/%s/%s.bam", sourceBamDirectory, sample.name()).substring(1);
-        String unsortedBam = Bams.name(sample, localBamDirectory, "unsorted");
+        String bamFileLocation = Bams.name(sample, bamDirectory, Bams.SORTED);
 
-        LOGGER.info("Copying BAM file to [{}]", unsortedBam);
-        FileUtil.copy(fileSystem.open(new Path(bamFileLocation)), new File(unsortedBam), noop());
+        String workingDir = System.getProperty("user.dir");
+        String localBamFile = workingDir + sample.name() + ".bam";
+
+        LOGGER.info("Copying BAM file to [{}]", localBamFile);
+        FileUtil.copy(fileSystem.open(new Path(bamFileLocation)), new File(localBamFile), noop());
         LOGGER.info("Copy complete");
 
-        picardWGSMetrics.execute(sample, localBamDirectory);
+        String outputFile = picardWGSMetrics.execute(sample, workingDir, localBamFile, referenceGenome);
 
-        String sortedBam = Bams.name(sample, localBamDirectory, Bams.SORTED);
-        String bai = Bams.bai(sample, localBamDirectory, Bams.SORTED);
-        FileUtil.copy(new FileInputStream(sortedBam),
-                fileSystem.create(new Path(Bams.name(sample, sourceBamDirectory, Bams.SORTED))),
-                noop());
-        FileUtil.copy(new FileInputStream(bai),
-                fileSystem.create(new Path(Bams.name(sample, sourceBamDirectory, Bams.SORTED) + ".bai")),
+        FileUtil.copy(new FileInputStream(outputFile),
+                fileSystem.create(new Path(Bams.name(sample, bamDirectory, Bams.SORTED) + ".wgsmetrics")),
                 noop());
 
         long endTime = System.currentTimeMillis();
-        monitor.update(Metric.spentTime("SORT_AND_INDEX", endTime - startTime));
+        monitor.update(Metric.spentTime("BAM_METRICS", endTime - startTime));
     }
 
-    public static BamMetricsPipeline fallback(final FileSystem fileSystem, final String sourceFolder, final Monitor monitor) {
-        return new BamMetricsPipeline(fileSystem, sourceFolder, System.getProperty("user.dir"), monitor, new PicardWGSMetrics());
+    public static BamMetricsPipeline create(final FileSystem fileSystem, final String bamDirectory, final ReferenceGenome referenceGenome,
+            final Monitor monitor) {
+        return new BamMetricsPipeline(fileSystem, bamDirectory, referenceGenome, monitor, new PicardWGSMetrics());
     }
 
     @NotNull
