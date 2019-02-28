@@ -47,7 +47,8 @@ public class BamMetricsPipeline {
         FileUtil.copy(fileSystem.open(new Path(bamFileLocation)), new File(localBamFile), noop());
         LOGGER.info("Copy complete");
 
-        String outputFile = picardWGSMetrics.execute(sample, workingDir, localBamFile, referenceGenome);
+        // TODO Get all of the ref genome files onto VM file system
+        String outputFile = picardWGSMetrics.execute(sample, workingDir, localBamFile, referenceGenome.path());
 
         FileUtil.copy(new FileInputStream(outputFile),
                 fileSystem.create(new Path(Bams.name(sample, bamDirectory, Bams.SORTED) + ".wgsmetrics")),

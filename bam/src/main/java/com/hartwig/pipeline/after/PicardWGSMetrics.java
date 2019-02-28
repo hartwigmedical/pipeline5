@@ -2,7 +2,6 @@ package com.hartwig.pipeline.after;
 
 import java.io.IOException;
 
-import com.hartwig.patient.ReferenceGenome;
 import com.hartwig.patient.Sample;
 
 import org.slf4j.Logger;
@@ -12,7 +11,7 @@ public class PicardWGSMetrics {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PicardWGSMetrics.class);
 
-    public String execute(final Sample sample, final String workingDirectory, final String bamPath, final ReferenceGenome referenceGenome)
+    public String execute(final Sample sample, final String workingDirectory, final String bamPath, final String referenceGenomeFastaPath)
             throws IOException, InterruptedException {
         // No parameters available to configure threads and memory?
         //        "-t",
@@ -22,13 +21,20 @@ public class PicardWGSMetrics {
         String outputFile = workingDirectory + "/" + sample.name() + ".wgsmetrics";
         ProcessBuilder processBuilder = new ProcessBuilder("java -jar picard.jar",
                 "CollectWgsMetrics",
-                "-TMP_DIR " + workingDirectory,
-                "-R " + referenceGenome.path(),
-                "-INPUT " + bamPath,
-                "-OUTPUT " + outputFile,
-                "-MINIMUM_MAPPING_QUALITY 20",
-                "-MINIMUM_BASE_QUALITY 10",
-                "-COVERAGE_CAP 250");
+                "-TMP_DIR",
+                workingDirectory,
+                "-R",
+                referenceGenomeFastaPath,
+                "-INPUT",
+                bamPath,
+                "-OUTPUT",
+                outputFile,
+                "-MINIMUM_MAPPING_QUALITY",
+                "20",
+                "-MINIMUM_BASE_QUALITY",
+                "10",
+                "-COVERAGE_CAP",
+                "250");
 
         LOGGER.info("Running CollectWgsMetrics using picard tools [{}]", Processes.toString(processBuilder));
         Processes.run(processBuilder);
