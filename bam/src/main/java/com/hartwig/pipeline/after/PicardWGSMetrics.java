@@ -19,22 +19,16 @@ public class PicardWGSMetrics {
         //                "-m",
         //                (int) (Runtime.getRuntime().maxMemory() / BYTES_PER_GB) + "GB",
         String outputFile = workingDirectory + "/" + sample.name() + ".wgsmetrics";
-        ProcessBuilder processBuilder = new ProcessBuilder("picard ",
+        ProcessBuilder processBuilder = new ProcessBuilder("java",
+                "-jar",
+                "/Users/korneelduyvesteyn/hmf/repos/picard/build/libs/picard.jar",
                 "CollectWgsMetrics",
-                "-TMP_DIR",
-                workingDirectory,
-                "-R",
-                referenceGenomeFastaPath,
-                "-INPUT",
-                bamPath,
-                "-OUTPUT",
-                outputFile,
-                "-MINIMUM_MAPPING_QUALITY",
-                "20",
-                "-MINIMUM_BASE_QUALITY",
-                "10",
-                "-COVERAGE_CAP",
-                "250");
+                "REFERENCE_SEQUENCE=" + referenceGenomeFastaPath,
+                "INPUT=" + bamPath,
+                "OUTPUT=" + outputFile,
+                "MINIMUM_MAPPING_QUALITY=20",
+                "MINIMUM_BASE_QUALITY=10",
+                "COVERAGE_CAP=250");
 
         LOGGER.info("Running CollectWgsMetrics using picard tools [{}]", Processes.toString(processBuilder));
         Processes.run(processBuilder);
