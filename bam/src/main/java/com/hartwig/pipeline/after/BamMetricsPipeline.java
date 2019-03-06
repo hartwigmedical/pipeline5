@@ -25,14 +25,16 @@ public class BamMetricsPipeline {
     private final FileSystem fileSystem;
     private final String sourceBamDirectory;
     private final String sourceRefGenomeDirectory;
+    private final String localWorkingDirectory;
     private final Monitor monitor;
     private final PicardWGSMetrics picardWGSMetrics;
 
     private BamMetricsPipeline(final FileSystem fileSystem, final String sourceBamDirectory, final String sourceRefGenomeDirectory,
-            final Monitor monitor, final PicardWGSMetrics picardWGSMetrics) {
+            final String localWorkingDirectory, final Monitor monitor, final PicardWGSMetrics picardWGSMetrics) {
         this.fileSystem = fileSystem;
         this.sourceBamDirectory = sourceBamDirectory;
         this.sourceRefGenomeDirectory = sourceRefGenomeDirectory;
+        this.localWorkingDirectory = localWorkingDirectory;
         this.monitor = monitor;
         this.picardWGSMetrics = picardWGSMetrics;
     }
@@ -41,14 +43,13 @@ public class BamMetricsPipeline {
         long startTime = System.currentTimeMillis();
         String bamFileLocation = Bams.name(sample, sourceBamDirectory, Bams.SORTED);
 
-        String workingDir = System.getProperty("user.dir");
-        String localBamFile = workingDir + sample.name() + ".bam";
+        String localBamFile = localWorkingDirectory + File.separator + sample.name() + ".bam";
 
         LOGGER.info("Copying BAM file to [{}]", localBamFile);
         FileUtil.copy(fileSystem.open(new Path(bamFileLocation)), new File(localBamFile), noop());
         LOGGER.info("Copy complete");
 
-        String localRefGenomeDirectory = workingDir + "refGenome";
+        String localRefGenomeDirectory = localWorkingDirectory + File.separator + "refGenome";
         RemoteIterator<LocatedFileStatus> fileIterator = fileSystem.listFiles(new Path(sourceRefGenomeDirectory), false);
         String refGenomeFastaPath = null;
         while (fileIterator.hasNext()) {
@@ -58,13 +59,13 @@ public class BamMetricsPipeline {
             LOGGER.info("Copying ref genome file [{}]", localFilePath);
             FileUtil.copy(fileSystem.open(file.getPath()), new File(localFilePath), noop());
 
-            if (localFilePath.endsWith(".fasta")) {
+            if (localFilePath.endsWith(".fasta") || localFilePath.endsWith(".fa")) {
                 refGenomeFastaPath = localFilePath;
             }
         }
 
         assert refGenomeFastaPath != null;
-        String outputFile = picardWGSMetrics.execute(sample, workingDir, localBamFile, refGenomeFastaPath);
+        String outputFile = picardWGSMetrics.execute(sample, localWorkingDirectory, localBamFile, refGenomeFastaPath);
 
         FileUtil.copy(new FileInputStream(outputFile),
                 fileSystem.create(new Path(Bams.name(sample, sourceBamDirectory, Bams.SORTED) + ".wgsmetrics")),
@@ -75,8 +76,13 @@ public class BamMetricsPipeline {
     }
 
     public static BamMetricsPipeline create(final FileSystem fileSystem, final String bamDirectory, final String sourceRefGenomeDirectory,
-            final Monitor monitor) {
-        return new BamMetricsPipeline(fileSystem, bamDirectory, sourceRefGenomeDirectory, monitor, new PicardWGSMetrics());
+            final String localWorkingDirectory, final Monitor monitor) {
+        return new BamMetricsPipeline(fileSystem,
+                bamDirectory,
+                sourceRefGenomeDirectory,
+                localWorkingDirectory,
+                monitor,
+                new PicardWGSMetrics());
     }
 
     @NotNull

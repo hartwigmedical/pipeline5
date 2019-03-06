@@ -19,7 +19,7 @@ public class PicardWGSMetrics {
         //                "-m",
         //                (int) (Runtime.getRuntime().maxMemory() / BYTES_PER_GB) + "GB",
         String outputFile = workingDirectory + "/" + sample.name() + ".wgsmetrics";
-        ProcessBuilder processBuilder = new ProcessBuilder("java -jar picard.jar",
+        ProcessBuilder processBuilder = new ProcessBuilder("picard ",
                 "CollectWgsMetrics",
                 "-TMP_DIR",
                 workingDirectory,
