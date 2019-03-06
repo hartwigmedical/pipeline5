@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.metrics.Metric;
 import com.hartwig.pipeline.metrics.Monitor;
@@ -73,20 +74,28 @@ public class BamMetricsPipeline {
                 fileSystem.create(new Path(sourceBamFile + ".wgsmetrics")),
                 noop());
 
+// TODO: Sort out clean up of working directory without affecting test
 //        FileUtil.forceDelete(new File(localWgsMetricsFile));
 
         long endTime = System.currentTimeMillis();
         monitor.update(Metric.spentTime("BAM_METRICS", endTime - startTime));
     }
 
-    public static BamMetricsPipeline create(final FileSystem fileSystem, final String bamDirectory, final String sourceRefGenomeDirectory,
-            final String localWorkingDirectory, final Monitor monitor) {
+    @VisibleForTesting
+    static BamMetricsPipeline create(final FileSystem fileSystem, final String bamDirectory, final String refGenomeDirectory,
+            final String localWorkingDirectory, final String picardLibDirectory, final Monitor monitor) {
         return new BamMetricsPipeline(fileSystem,
                 bamDirectory,
-                sourceRefGenomeDirectory,
+                refGenomeDirectory,
                 localWorkingDirectory,
                 monitor,
-                new PicardWGSMetrics());
+                new PicardWGSMetrics(picardLibDirectory));
+    }
+
+    public static BamMetricsPipeline create(final FileSystem fileSystem, final String bamDirectory, final String refGenomeDirectory,
+            final String picardLibDirectory, final Monitor monitor) {
+        // For production usage, the local working directory is transient so doesn't matter.
+        return create(fileSystem, bamDirectory, refGenomeDirectory, System.getProperty("user.dir"), picardLibDirectory, monitor);
     }
 
     @NotNull

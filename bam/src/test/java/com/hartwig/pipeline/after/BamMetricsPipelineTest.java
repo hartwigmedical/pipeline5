@@ -10,13 +10,13 @@ import com.hartwig.support.hadoop.Hadoop;
 import com.hartwig.support.test.Resources;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
-@Ignore("Work in progress")
 public class BamMetricsPipelineTest {
 
     private static final String SAMPLE_NAME = "CPCT12345678R";
+
+    private static final String PICARD_LIB_DIR =  Resources.testResource("picardlib");
     private static final String LOCAL_WORKING_DIR =  Resources.targetResource("metrics_output");
     private static final String OUTPUT_FILE = LOCAL_WORKING_DIR + File.separator + "CPCT12345678R.local.wgsmetrics";
 
@@ -28,6 +28,7 @@ public class BamMetricsPipelineTest {
                 Resources.testResource("metrics"),
                 Resources.testResource("reference_genome"),
                 LOCAL_WORKING_DIR,
+                PICARD_LIB_DIR,
                 metric -> metricTimeSpent = metric);
         victim.execute(Sample.builder("", SAMPLE_NAME).build());
     }
