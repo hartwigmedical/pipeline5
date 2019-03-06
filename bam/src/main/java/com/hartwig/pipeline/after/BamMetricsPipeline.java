@@ -44,7 +44,7 @@ public class BamMetricsPipeline {
         long startTime = System.currentTimeMillis();
 
         String sourceBamFile = Bams.name(sample, sourceBamDirectory, Bams.SORTED);
-        String localBamFile = localWorkingDirectory + File.separator + sample.name() + ".bam";
+        String localBamFile = localWorkingDirectory + File.separator + sample.name() + ".local.bam";
 
         LOGGER.info("Copying BAM file to [{}]", localBamFile);
         FileUtil.copy(fileSystem.open(new Path(sourceBamFile)), new File(localBamFile), noop());
@@ -71,11 +71,10 @@ public class BamMetricsPipeline {
         picardWGSMetrics.execute(localWorkingDirectory, localBamFile, localRefGenomeFile, localWgsMetricsFile);
 
         FileUtil.copy(new FileInputStream(localWgsMetricsFile),
-                fileSystem.create(new Path(sourceBamFile + ".wgsmetrics")),
+                fileSystem.create(new Path(sourceBamDirectory + File.separator + sample.name() + ".wgsmetrics")),
                 noop());
 
-// TODO: Sort out clean up of working directory without affecting test
-//        FileUtil.forceDelete(new File(localWgsMetricsFile));
+        FileUtil.forceDelete(new File(localWgsMetricsFile));
 
         long endTime = System.currentTimeMillis();
         monitor.update(Metric.spentTime("BAM_METRICS", endTime - startTime));
