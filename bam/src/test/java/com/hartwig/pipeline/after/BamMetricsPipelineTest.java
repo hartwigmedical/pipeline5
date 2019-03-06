@@ -18,7 +18,7 @@ public class BamMetricsPipelineTest {
 
     private static final String SAMPLE_NAME = "CPCT12345678R";
     private static final String LOCAL_WORKING_DIR =  Resources.targetResource("metrics_output");
-    private static final String OUTPUT_FILE = LOCAL_WORKING_DIR + File.separator + "CPCT1234567R.wgsmetrics";
+    private static final String OUTPUT_FILE = LOCAL_WORKING_DIR + File.separator + "CPCT12345678R.local.wgsmetrics";
 
     private Metric metricTimeSpent;
 
@@ -34,7 +34,7 @@ public class BamMetricsPipelineTest {
 
     @Test
     public void metricsFileIsCreated() {
-        assertThat(new File(Resources.targetResource(OUTPUT_FILE))).exists();
+        assertThat(new File(OUTPUT_FILE)).exists();
     }
 
     @Test
@@ -42,11 +42,4 @@ public class BamMetricsPipelineTest {
         assertThat(metricTimeSpent).isNotNull();
         assertThat(metricTimeSpent.value()).isPositive();
     }
-
-//    private void moveTestFilesToTarget(final Path resultDir) throws IOException {
-//        Files.createDirectory(resultDir);
-//        Files.createDirectory(Paths.get(resultDir.toString(), SOURCE_DIR));
-//        Files.copy(Paths.get(Resources.testResource(SOURCE_DIR + SAMPLE_NAME + ".sorted.bam")),
-//                Paths.get(resultDir.toString(), SOURCE_DIR, SAMPLE_NAME + ".sorted.bam"));
-//    }
 }

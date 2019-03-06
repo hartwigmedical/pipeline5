@@ -41,35 +41,39 @@ public class BamMetricsPipeline {
 
     public void execute(Sample sample) throws IOException, InterruptedException {
         long startTime = System.currentTimeMillis();
-        String bamFileLocation = Bams.name(sample, sourceBamDirectory, Bams.SORTED);
 
+        String sourceBamFile = Bams.name(sample, sourceBamDirectory, Bams.SORTED);
         String localBamFile = localWorkingDirectory + File.separator + sample.name() + ".bam";
 
         LOGGER.info("Copying BAM file to [{}]", localBamFile);
-        FileUtil.copy(fileSystem.open(new Path(bamFileLocation)), new File(localBamFile), noop());
+        FileUtil.copy(fileSystem.open(new Path(sourceBamFile)), new File(localBamFile), noop());
         LOGGER.info("Copy complete");
 
         String localRefGenomeDirectory = localWorkingDirectory + File.separator + "refGenome";
         RemoteIterator<LocatedFileStatus> fileIterator = fileSystem.listFiles(new Path(sourceRefGenomeDirectory), false);
-        String refGenomeFastaPath = null;
+        String localRefGenomeFile = null;
         while (fileIterator.hasNext()) {
             LocatedFileStatus file = fileIterator.next();
-            String localFilePath = localRefGenomeDirectory + "/" + file.getPath().getName();
+            String localFilePath = localRefGenomeDirectory + File.separator + file.getPath().getName();
 
             LOGGER.info("Copying ref genome file [{}]", localFilePath);
             FileUtil.copy(fileSystem.open(file.getPath()), new File(localFilePath), noop());
 
             if (localFilePath.endsWith(".fasta") || localFilePath.endsWith(".fa")) {
-                refGenomeFastaPath = localFilePath;
+                localRefGenomeFile = localFilePath;
             }
         }
 
-        assert refGenomeFastaPath != null;
-        String outputFile = picardWGSMetrics.execute(sample, localWorkingDirectory, localBamFile, refGenomeFastaPath);
+        assert localRefGenomeFile != null;
 
-        FileUtil.copy(new FileInputStream(outputFile),
-                fileSystem.create(new Path(Bams.name(sample, sourceBamDirectory, Bams.SORTED) + ".wgsmetrics")),
+        String localWgsMetricsFile = localWorkingDirectory + File.separator + sample.name() + ".local.wgsmetrics";
+        picardWGSMetrics.execute(localWorkingDirectory, localBamFile, localRefGenomeFile, localWgsMetricsFile);
+
+        FileUtil.copy(new FileInputStream(localWgsMetricsFile),
+                fileSystem.create(new Path(sourceBamFile + ".wgsmetrics")),
                 noop());
+
+//        FileUtil.forceDelete(new File(localWgsMetricsFile));
 
         long endTime = System.currentTimeMillis();
         monitor.update(Metric.spentTime("BAM_METRICS", endTime - startTime));
