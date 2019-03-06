@@ -17,7 +17,7 @@ import org.junit.Test;
 public class BamMetricsPipelineTest {
 
     private static final String SAMPLE_NAME = "CPCT12345678R";
-    private static final String LOCAL_WORKING_DIR =  Resources.testResource("metrics_output");
+    private static final String LOCAL_WORKING_DIR =  Resources.targetResource("metrics_output");
     private static final String OUTPUT_FILE = LOCAL_WORKING_DIR + File.separator + "CPCT1234567R";
 
     private Metric metricTimeSpent;
