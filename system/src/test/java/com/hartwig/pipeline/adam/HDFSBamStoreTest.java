@@ -25,6 +25,6 @@ public class HDFSBamStoreTest {
         OutputStore<AlignmentRecordDataset> victim = new HDFSBamStore(dataLocation, fileSystem, true);
         victim.store(InputOutput.of(SAMPLE, TestRDDs.alignmentRecordDataset("qc/CPCT12345678R.bam")));
         assertThat(victim.exists(SAMPLE)).isTrue();
-        fileSystem.delete(new Path(dataLocation.uri(SAMPLE)), true);
+        fileSystem.delete(new Path(dataLocation.uri(SAMPLE, "")), true);
     }
 }

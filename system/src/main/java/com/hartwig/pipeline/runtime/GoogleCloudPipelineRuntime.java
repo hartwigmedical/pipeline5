@@ -22,7 +22,7 @@ public class GoogleCloudPipelineRuntime {
                 .referenceGenome(ReferenceGenomeParameters.builder().file("reference.fasta").build())
                 .knownIndel(KnownIndelParameters.builder()
                         .addFiles("1000G_phase1.indels.b37.vcf.gz", "Mills_and_1000G_gold_standard.indels.b37.vcf.gz").build())
-                .knownSnp(KnownSnpParameters.builder().addFiles("dbsnp_137.b37.vcf.gz").build())
+                .knownSnp(KnownSnpParameters.builder().addFiles("dbsnp_137.b37.vcf").build())
                 .patient(PatientParameters.builder().directory("/samples").name("").build())
                 .build();
         Monitor monitor = Monitor.noop();

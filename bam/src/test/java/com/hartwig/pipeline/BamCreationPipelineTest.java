@@ -24,7 +24,10 @@ public class BamCreationPipelineTest {
     private static final InputOutput<AlignmentRecordDataset> ALIGNED_BAM = InputOutput.of(SAMPLE, mock(AlignmentRecordDataset.class));
     private static final InputOutput<AlignmentRecordDataset> ENRICHED_BAM = InputOutput.of(SAMPLE, mock(AlignmentRecordDataset.class));
     private static final InputOutput<AlignmentRecordDataset> FINAL_BAM = InputOutput.of(SAMPLE, mock(AlignmentRecordDataset.class));
+    private static final InputOutput<AlignmentRecordDataset> RECALIBRATED_BAM = InputOutput.of(SAMPLE, mock(AlignmentRecordDataset.class));
     private InputOutput<AlignmentRecordDataset> lastStored;
+    private InputOutput<AlignmentRecordDataset> lastStoredWithSuffix;
+    private String lastSuffix;
     private StatusReporter.Status lastStatus;
     private List<Metric> metricsStored;
     private Monitor monitor = metric -> metricsStored.add(metric);
@@ -59,6 +62,14 @@ public class BamCreationPipelineTest {
     }
 
     @Test
+    public void storedRecalibratedBamSeparately() {
+        BamCreationPipeline victim = createPipeline(false, QCResult.ok());
+        victim.execute(SAMPLE);
+        assertThat(lastStoredWithSuffix).isEqualTo(RECALIBRATED_BAM);
+        assertThat(lastSuffix).isEqualTo("recalibrated");
+    }
+
+    @Test
     public void metricsStoredForFinalTimeSpent() {
         BamCreationPipeline victim = createPipeline(false, QCResult.ok());
         victim.execute(SAMPLE);
@@ -68,7 +79,7 @@ public class BamCreationPipelineTest {
 
     @NotNull
     private ImmutableBamCreationPipeline createPipeline(final boolean exists, QCResult finalQC) {
-        return BamCreationPipeline.builder().alignment(input -> ALIGNED_BAM).addBamEnrichment(enrichment())
+        return BamCreationPipeline.builder().alignment(input -> ALIGNED_BAM).markDuplicates(markDups()).recalibration(bqsr())
                 .finalBamStore(finalStore(exists))
                 .finalDatasource(sample -> FINAL_BAM)
                 .finalQC(toQC -> finalQC)
@@ -86,6 +97,12 @@ public class BamCreationPipelineTest {
             }
 
             @Override
+            public void store(final InputOutput<AlignmentRecordDataset> inputOutput, final String suffix) {
+                lastStoredWithSuffix = inputOutput;
+                lastSuffix = suffix;
+            }
+
+            @Override
             public boolean exists(final Sample sample) {
                 return exists;
             }
@@ -98,8 +115,13 @@ public class BamCreationPipelineTest {
     }
 
     @NotNull
-    private Stage<AlignmentRecordDataset, AlignmentRecordDataset> enrichment() {
+    private Stage<AlignmentRecordDataset, AlignmentRecordDataset> markDups() {
         return input -> ENRICHED_BAM;
+    }
+
+    @NotNull
+    private Stage<AlignmentRecordDataset, AlignmentRecordDataset> bqsr() {
+        return input -> RECALIBRATED_BAM;
     }
 
 }

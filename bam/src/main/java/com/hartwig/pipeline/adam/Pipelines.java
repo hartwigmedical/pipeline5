@@ -36,8 +36,8 @@ public class Pipelines {
                 .alignment(new Bwa(referenceGenome, adamContext, fileSystem, bwaThreads))
                 .finalDatasource(new HDFSAlignmentRDDSource(javaADAMContext, finalDataLocation))
                 .finalBamStore(new HDFSBamStore(finalDataLocation, fileSystem, mergeFinalFile))
-                .addBamEnrichment(new MarkDups())
-                .addBamEnrichment(new BaseQualityScoreRecalibration(knownSnps, knownIndels, javaADAMContext))
+                .markDuplicates(new MarkDups())
+                .recalibration(new BaseQualityScoreRecalibration(knownSnps, knownIndels, javaADAMContext))
                 .statusReporter(new HadoopStatusReporter(fileSystem, workingDirectory))
                 .monitor(monitor)
                 .build();

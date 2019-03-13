@@ -46,7 +46,7 @@ public interface MachineType {
     }
 
     static MachineType defaultMaster() {
-        return ImmutableMachineType.builder().uri(GOOGLE_STANDARD_16).memoryGB(60).cpus(16).diskGB(1000).build();
+        return ImmutableMachineType.builder().uri(GOOGLE_STANDARD_16).memoryGB(60).cpus(16).diskGB(2000).build();
     }
 
     static ImmutableMachineType.Builder builder() {

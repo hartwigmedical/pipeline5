@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -93,6 +94,28 @@ public class BamComposerTest {
         assertThat(requestArgumentCaptor.getAllValues().get(6).getTarget().getName()).isEqualTo(ResultsDirectory.defaultDirectory()
                 .path("COLO829T.bam"));
     }
+
+    @Test
+    public void optionallyIncludedSuffixInBamName() {
+        victim = new BamComposer(storage, ResultsDirectory.defaultDirectory(), 3, "suffix");
+        String head = ResultsDirectory.defaultDirectory().path("COLO829T.suffix.bam_head");
+        String tailPart1 = part(0);
+        List<Blob> blobs = Collections.singletonList(blobOf(tailPart1));
+        when(page.iterateAll()).thenReturn(blobs);
+
+        ArgumentCaptor<Storage.ComposeRequest> requestArgumentCaptor = ArgumentCaptor.forClass(Storage.ComposeRequest.class);
+        ArgumentCaptor<Storage.BlobListOption> capturedOption = ArgumentCaptor.forClass(Storage.BlobListOption.class);
+
+        victim.run(Sample.builder("", SAMPLE).build(), runtime);
+
+        verify(storage, times(1)).compose(requestArgumentCaptor.capture());
+        verify(storage, times(4)).list(eq(RUNTIME), capturedOption.capture());
+        assertThat(capturedOption.getAllValues()
+                .get(0)).isEqualTo(Storage.BlobListOption.prefix("results/COLO829T.suffix.bam_tail/part-r-"));
+        assertThat(requestArgumentCaptor.getValue().getSourceBlobs().get(0).getName()).isEqualTo(head);
+        assertThat(requestArgumentCaptor.getValue().getTarget().getName()).isEqualTo("results/COLO829T.suffix.bam");
+    }
+
 
     @NotNull
     private String part(int partNum) {

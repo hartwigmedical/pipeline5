@@ -1,8 +1,8 @@
 package com.hartwig.pipeline.adam;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.stream.Collector;
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.hartwig.io.InputOutput;
@@ -10,20 +10,18 @@ import com.hartwig.patient.KnownIndels;
 import com.hartwig.patient.KnownSnps;
 import com.hartwig.pipeline.Stage;
 
-import org.apache.spark.rdd.RDD;
+import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.storage.StorageLevel;
 import org.bdgenomics.adam.api.java.JavaADAMContext;
 import org.bdgenomics.adam.rdd.read.AlignmentRecordDataset;
 import org.bdgenomics.adam.rdd.variant.VariantDataset;
-import org.bdgenomics.formats.avro.Variant;
+import org.bdgenomics.formats.avro.AlignmentRecord;
 
-import htsjdk.variant.vcf.VCFHeaderLine;
 import scala.collection.JavaConversions;
-import scala.collection.mutable.Buffer;
 
 public class BaseQualityScoreRecalibration implements Stage<AlignmentRecordDataset, AlignmentRecordDataset> {
 
-    private static final int ADAM_DEFAULT_MIN_QUALITY = 5;
+    private static final int GATK_DEFAULT_MIN_QUALITY = 6;
     private final KnownSnps knownSnps;
     private final KnownIndels knownIndels;
     private final JavaADAMContext javaADAMContext;
@@ -37,19 +35,22 @@ public class BaseQualityScoreRecalibration implements Stage<AlignmentRecordDatas
     @Override
     public InputOutput<AlignmentRecordDataset> execute(final InputOutput<AlignmentRecordDataset> input) throws IOException {
 
-        RDD<Variant> allIndelsAndSnps = Stream.concat(knownIndels.paths().stream(), knownSnps.paths().stream())
+        JavaRDD<AlignmentRecord> rdd = input.payload().rdd().toJavaRDD();
+        System.err.println("Count of reads starting with clipping! " + rdd.count());
+
+        if (knownIndels.paths().isEmpty() && knownSnps.paths().isEmpty()) {
+            throw new IllegalArgumentException("Cannot run base quality recalibration with no known snps or indels. "
+                    + "Check your configuration to ensure at least one of these VCFs is passed to the pipeline.");
+        }
+
+        List<VariantDataset> allIndelsAndSnps = Stream.concat(knownIndels.paths().stream(), knownSnps.paths().stream())
                 .map(javaADAMContext::loadVariants)
-                .map(VariantDataset::rdd)
-                .collect(Collector.of(() -> javaADAMContext.getSparkContext().<Variant>emptyRDD().rdd(), RDD::union, RDD::union));
+                .collect(Collectors.toList());
+
+        VariantDataset knownVariantDataset =
+                allIndelsAndSnps.get(0).union(JavaConversions.asScalaBuffer(allIndelsAndSnps.subList(1, allIndelsAndSnps.size())));
 
         return InputOutput.of(input.sample(),
-                input.payload()
-                        .recalibrateBaseQualities(VariantDataset.apply(allIndelsAndSnps, input.payload().sequences(), emptySeq()),
-                                ADAM_DEFAULT_MIN_QUALITY,
-                                StorageLevel.MEMORY_ONLY()));
-    }
-
-    private static Buffer<VCFHeaderLine> emptySeq() {
-        return JavaConversions.asScalaBuffer(Collections.emptyList());
+                input.payload().recalibrateBaseQualities(knownVariantDataset, GATK_DEFAULT_MIN_QUALITY, StorageLevel.MEMORY_ONLY()));
     }
 }

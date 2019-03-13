@@ -8,6 +8,7 @@ import java.util.TreeSet;
 import com.esotericsoftware.kryo.Kryo;
 import com.hartwig.pipeline.adam.PositionRangeKey;
 
+import org.apache.avro.generic.GenericData;
 import org.apache.spark.internal.io.FileCommitProtocol;
 import org.apache.spark.serializer.KryoRegistrator;
 import org.bdgenomics.adam.algorithms.consensus.Consensus;
@@ -33,6 +34,8 @@ import org.bdgenomics.formats.avro.Fragment;
 import org.bdgenomics.formats.avro.NucleotideContigFragment;
 import org.bdgenomics.formats.avro.ProcessingStep;
 import org.bdgenomics.formats.avro.Strand;
+import org.bdgenomics.formats.avro.Variant;
+import org.bdgenomics.formats.avro.VariantAnnotation;
 
 import htsjdk.samtools.Cigar;
 import htsjdk.samtools.CigarElement;
@@ -117,6 +120,10 @@ public class ADAMKryo implements KryoRegistrator {
             kryo.register(SnpTable.class);
             kryo.register(Class.forName("scala.collection.immutable.MapLike$$anon$2", false, getClass().getClassLoader()));
             kryo.register(Class.forName("org.bdgenomics.adam.models.SnpTable$$anonfun$1", false, getClass().getClassLoader()));
+            kryo.register(Variant.class);
+            kryo.register(VariantAnnotation.class);
+            kryo.register(GenericData.Array.class);
+            kryo.register(Class.forName("com.google.common.collect.SingletonImmutableList.class", false, getClass().getClassLoader()));
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }

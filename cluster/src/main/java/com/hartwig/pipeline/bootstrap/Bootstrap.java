@@ -71,14 +71,15 @@ class Bootstrap {
     private final JarUpload jarUpload;
     private final ClusterOptimizer clusterOptimizer;
     private final CostCalculator costCalculator;
-    private final BamComposer composer;
+    private final BamComposer mainBamComposer;
+    private final BamComposer recalibratedBamComposer;
     private final GoogleCredentials credentials;
 
     private Bootstrap(final Storage storage, final StaticData referenceGenomeData, final StaticData knownIndelData,
             final StaticData knownSnpData, final SampleSource sampleSource, final BamDownload bamDownload, final SampleUpload sampleUpload,
             final SparkCluster singleNodeCluster, final SparkCluster cluster, final JarUpload jarUpload,
             final ClusterOptimizer clusterOptimizer, final CostCalculator costCalculator, final BamComposer composer,
-            final GoogleCredentials credentials) {
+            final BamComposer recalibratedBamComposer, final GoogleCredentials credentials) {
         this.storage = storage;
         this.referenceGenomeData = referenceGenomeData;
         this.knownIndelData = knownIndelData;
@@ -91,7 +92,8 @@ class Bootstrap {
         this.jarUpload = jarUpload;
         this.clusterOptimizer = clusterOptimizer;
         this.costCalculator = costCalculator;
-        this.composer = composer;
+        this.mainBamComposer = composer;
+        this.recalibratedBamComposer = recalibratedBamComposer;
         this.credentials = credentials;
     }
 
@@ -116,7 +118,8 @@ class Bootstrap {
                     arguments,
                     sample,
                     runtimeBucket);
-            composer.run(sample, runtimeBucket);
+            mainBamComposer.run(sample, runtimeBucket);
+            recalibratedBamComposer.run(sample, runtimeBucket);
             runJob(Jobs.sortAndIndex(singleNodeCluster, costCalculator, monitor, jarLocation, runtimeBucket, arguments, sample),
                     arguments,
                     sample,
@@ -184,7 +187,8 @@ class Bootstrap {
                 CpuFastQSizeRatio ratio = CpuFastQSizeRatio.of(arguments.cpuPerGBRatio());
                 CostCalculator costCalculator = new CostCalculator(credentials, arguments.region(), Costs.defaultCosts());
                 ResultsDirectory resultsDirectory = ResultsDirectory.defaultDirectory();
-                BamComposer composer = new BamComposer(storage, resultsDirectory, 32);
+                BamComposer mainBamComposer = new BamComposer(storage, resultsDirectory, 32);
+                BamComposer recalibratedBamComposer = new BamComposer(storage, resultsDirectory, 32, "recalibrated");
                 GoogleDataprocCluster singleNode = GoogleDataprocCluster.from(credentials, nodeInitialization, "singlenode");
                 GoogleDataprocCluster parallelProcessing = GoogleDataprocCluster.from(credentials, nodeInitialization, "spark");
                 CloudCopy cloudCopy = arguments.useRclone() ? new RCloneCloudCopy(arguments.rclonePath(),
@@ -212,7 +216,8 @@ class Bootstrap {
                             new GoogleStorageJarUpload(),
                             new ClusterOptimizer(ratio, arguments.noPreemptibleVms()),
                             costCalculator,
-                            composer,
+                            mainBamComposer,
+                            recalibratedBamComposer,
                             credentials).run(arguments);
                     s3.shutdown();
                 } else {
@@ -229,7 +234,8 @@ class Bootstrap {
                             new GoogleStorageJarUpload(),
                             new ClusterOptimizer(ratio, arguments.noPreemptibleVms()),
                             costCalculator,
-                            composer,
+                            mainBamComposer,
+                            recalibratedBamComposer,
                             credentials).run(arguments);
                 }
 

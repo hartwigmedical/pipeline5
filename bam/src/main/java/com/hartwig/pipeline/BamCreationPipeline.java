@@ -2,9 +2,6 @@ package com.hartwig.pipeline;
 
 import static java.lang.String.format;
 
-import java.io.IOException;
-import java.util.List;
-
 import com.hartwig.io.DataSource;
 import com.hartwig.io.InputOutput;
 import com.hartwig.io.OutputStore;
@@ -22,6 +19,7 @@ public abstract class BamCreationPipeline {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BamCreationPipeline.class);
     static final String BAM_CREATED_METRIC = "BAM_CREATED";
+    private static final String RECALIBRATED_SUFFIX = "recalibrated";
 
     public void execute(final Sample sample) {
         LOGGER.info("Clearing result directory before starting");
@@ -36,9 +34,14 @@ public abstract class BamCreationPipeline {
                 qcResult = qc(finalQC(), finalDatasource().extract(sample));
             } else {
                 InputOutput<AlignmentRecordDataset> aligned = alignment().execute(InputOutput.seed(sample));
-                InputOutput<AlignmentRecordDataset> enriched = enrich(aligned, bamEnrichment());
+                InputOutput<AlignmentRecordDataset> enriched = markDuplicates().execute(aligned);
+                InputOutput<AlignmentRecordDataset> recalibrated = recalibration().execute(enriched);
                 qcResult = qc(finalQC(), enriched);
+                LOGGER.info("Storing enriched BAM");
                 finalBamStore().store(enriched);
+                LOGGER.info("Enriched BAM stored. Storing recalibrated BAM");
+                finalBamStore().store(recalibrated, RECALIBRATED_SUFFIX);
+                LOGGER.info("Recalibrated BAM stored");
             }
             if (!qcResult.isOk()) {
                 status = StatusReporter.Status.FAILED_FINAL_QC;
@@ -58,15 +61,6 @@ public abstract class BamCreationPipeline {
         }
     }
 
-    private static InputOutput<AlignmentRecordDataset> enrich(final InputOutput<AlignmentRecordDataset> aligned,
-            final List<Stage<AlignmentRecordDataset, AlignmentRecordDataset>> enrichments) throws IOException {
-        InputOutput<AlignmentRecordDataset> output = aligned;
-        for (Stage<AlignmentRecordDataset, AlignmentRecordDataset> enrichment : enrichments) {
-            output = enrichment.execute(output);
-        }
-        return output;
-    }
-
     private QCResult qc(final QualityControl<AlignmentRecordDataset> qcCheck, final InputOutput<AlignmentRecordDataset> toQC) {
         return qcCheck.check(toQC);
     }
@@ -83,7 +77,9 @@ public abstract class BamCreationPipeline {
 
     protected abstract AlignmentStage alignment();
 
-    protected abstract List<Stage<AlignmentRecordDataset, AlignmentRecordDataset>> bamEnrichment();
+    protected abstract Stage<AlignmentRecordDataset, AlignmentRecordDataset> markDuplicates();
+
+    protected abstract Stage<AlignmentRecordDataset, AlignmentRecordDataset> recalibration();
 
     protected abstract OutputStore<AlignmentRecordDataset> finalBamStore();
 

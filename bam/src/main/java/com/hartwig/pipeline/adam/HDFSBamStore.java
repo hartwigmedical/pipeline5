@@ -12,8 +12,12 @@ import org.apache.hadoop.fs.Path;
 import org.apache.parquet.hadoop.metadata.CompressionCodecName;
 import org.bdgenomics.adam.rdd.JavaSaveArgs;
 import org.bdgenomics.adam.rdd.read.AlignmentRecordDataset;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class HDFSBamStore implements OutputStore<AlignmentRecordDataset> {
+
+    private final static Logger LOGGER = LoggerFactory.getLogger(OutputStore.class);
 
     private final DataLocation dataLocation;
     private final FileSystem fileSystem;
@@ -27,7 +31,14 @@ public class HDFSBamStore implements OutputStore<AlignmentRecordDataset> {
 
     @Override
     public void store(final InputOutput<AlignmentRecordDataset> inputOutput) {
-        JavaSaveArgs saveArgs = new JavaSaveArgs(dataLocation.uri(inputOutput.sample()),
+        store(inputOutput, "");
+    }
+
+    @Override
+    public void store(final InputOutput<AlignmentRecordDataset> inputOutput, String suffix) {
+        String storageUri = dataLocation.uri(inputOutput.sample(), suffix);
+        LOGGER.info("persisting to... {}", storageUri);
+        JavaSaveArgs saveArgs = new JavaSaveArgs(storageUri,
                 128 * 1024 * 1024,
                 1024 * 1024,
                 CompressionCodecName.GZIP,
@@ -41,7 +52,7 @@ public class HDFSBamStore implements OutputStore<AlignmentRecordDataset> {
     @Override
     public boolean exists(final Sample sample) {
         try {
-            return fileSystem.exists(new Path(dataLocation.uri(sample)));
+            return fileSystem.exists(new Path(dataLocation.uri(sample, "")));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -20,14 +20,14 @@ public class TestConfigurations {
     public static final String HUNDREDK_READS_HISEQ_PATIENT_NAME = "TESTX";
 
     public static final ReferenceGenomeParameters REFERENCE_GENOME_PARAMETERS =
-            ImmutableReferenceGenomeParameters.builder().directory(testResource("reference_genome/")).file("reference.fa").build();
+            ImmutableReferenceGenomeParameters.builder().directory(testResource("reference_genome/")).file("reference.fasta").build();
 
     private static final KnownIndelParameters KNOWN_INDEL_PARAMETERS = ImmutableKnownIndelParameters.builder()
             .directory(testResource("known_indels/"))
             .addFiles("1000G_phase1.indels.b37.vcf.gz")
             .build();
     private static final KnownSnpParameters KNOWN_SNP_PARAMETERS =
-            ImmutableKnownSnpParameters.builder().directory(testResource("known_snps/")).addFiles("dbsnp_137.b37.vcf.gz").build();
+            ImmutableKnownSnpParameters.builder().directory(testResource("known_snps/")).addFiles("dbsnp_137.b37.onevariant.vcf").build();
 
     private static final ImmutablePatientParameters.Builder DEFAULT_PATIENT_BUILDER = ImmutablePatientParameters.builder();
 

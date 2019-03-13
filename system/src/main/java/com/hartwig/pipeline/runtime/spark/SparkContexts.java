@@ -6,6 +6,7 @@ import com.hartwig.pipeline.runtime.configuration.Configuration;
 
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaSparkContext;
+import org.bdgenomics.adam.serialization.ADAMKryoRegistrator;
 
 public class SparkContexts {
 
@@ -18,8 +19,8 @@ public class SparkContexts {
                 .set("spark.ui.showConsoleProgress", "false")
                 .set("spark.kryoserializer.buffer.max", "2046m")
                 .set("spark.kryo.referenceTracking", "false")
-                //  .set("spark.kryo.registrator", ADAMKryo.class.getName())
-                //   .set("spark.kryo.registrationRequired", "true")
+                .set("spark.kryo.registrator", ADAMKryoRegistrator.class.getName())
+                .set("spark.kryo.registrationRequired", "true")
                 .set("spark.ui.showConsoleProgress", "false")
                 .set("spark.driver.maxResultSize", "0")
                 .setAppName(appName);

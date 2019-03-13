@@ -20,6 +20,6 @@ public class HDFSAlignmentRDDSource implements DataSource<AlignmentRecordDataset
 
     @Override
     public InputOutput<AlignmentRecordDataset> extract(final Sample sample) {
-        return InputOutput.of(sample, javaADAMContext.loadAlignments(dataLocation.uri(sample)));
+        return InputOutput.of(sample, javaADAMContext.loadAlignments(dataLocation.uri(sample, "")));
     }
 }

@@ -6,6 +6,8 @@ public interface OutputStore<P> {
 
     void store(InputOutput<P> inputOutput);
 
+    void store(InputOutput<P> inputOutput, String suffix);
+
     boolean exists(final Sample sample);
 
     void clear();

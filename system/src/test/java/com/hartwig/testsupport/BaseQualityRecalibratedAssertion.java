@@ -11,20 +11,16 @@ import java.util.function.Function;
 
 import com.hartwig.patient.Sample;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import htsjdk.samtools.SAMFlag;
 import htsjdk.samtools.SAMRecord;
 import htsjdk.samtools.SamReader;
 
 class BaseQualityRecalibratedAssertion extends BAMFileAssertion {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BaseQualityRecalibratedAssertion.class);
     private static final double LIMIT = 0.5;
 
     BaseQualityRecalibratedAssertion(final String workingDirectory, final Sample sample) {
-        super(workingDirectory, sample);
+        super(workingDirectory, "recalibrated", sample);
     }
 
     @Override
@@ -43,7 +39,7 @@ class BaseQualityRecalibratedAssertion extends BAMFileAssertion {
                         averageDifference,
                         LIMIT).isLessThan(LIMIT);
             } else {
-                fail("Read [{}] was not recalibrated by pipeline 5", readName);
+                fail(String.format("Read [%s] was not recalibrated by pipeline 5", readName.readName));
             }
         }
     }

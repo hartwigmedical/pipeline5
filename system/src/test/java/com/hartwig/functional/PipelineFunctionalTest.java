@@ -4,6 +4,8 @@ import static com.hartwig.testsupport.Assertions.assertThatOutput;
 import static com.hartwig.testsupport.TestConfigurations.HUNDREDK_READS_HISEQ;
 import static com.hartwig.testsupport.TestConfigurations.HUNDREDK_READS_HISEQ_PATIENT_NAME;
 
+import java.util.Collections;
+
 import com.hartwig.patient.Sample;
 import com.hartwig.patient.input.PatientReader;
 import com.hartwig.pipeline.adam.Pipelines;
@@ -36,9 +38,7 @@ public class PipelineFunctionalTest {
         Pipelines.bamCreationConsolidated(new ADAMContext(context.sc()),
                 fileSystem,
                 Monitor.noop(),
-                RESULT_DIR,
-                HUNDREDK_READS_HISEQ.referenceGenome().path(),
-                HUNDREDK_READS_HISEQ.knownIndel().paths(),
+                RESULT_DIR, HUNDREDK_READS_HISEQ.referenceGenome().path(), Collections.emptyList(),
                 HUNDREDK_READS_HISEQ.knownSnp().paths(),
                 1,
                 false,

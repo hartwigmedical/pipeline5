@@ -9,14 +9,18 @@ public class FinalDataLocation implements DataLocation {
     private final FileSystem fileSystem;
     private final String workingDirectory;
 
-    public FinalDataLocation(final FileSystem fileSystem, final String workingDirectory) {
+    public FinalDataLocation(FileSystem fileSystem, String workingDirectory) {
         this.fileSystem = fileSystem;
         this.workingDirectory = workingDirectory;
     }
 
     @Override
-    public String uri(final Sample sample) {
-        return String.format("%s%s/%s.bam", fileSystem.getUri(), workingDirectory, sample.name());
+    public String uri(Sample sample, String suffix) {
+        return String.format("%s%s/%s%s.bam",
+                fileSystem.getUri(),
+                workingDirectory,
+                sample.name(),
+                suffix.trim().isEmpty() ? "" : "." + suffix);
     }
 
     @Override

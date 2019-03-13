@@ -14,7 +14,7 @@ import org.junit.Test;
 public class IndexFilesTest {
 
     private static final String REFERENCE_GENOME_DIR = Resources.testResource("reference_genome");
-    private static final String REFERENCE_GENOME_PATH = REFERENCE_GENOME_DIR + "/reference.fa";
+    private static final String REFERENCE_GENOME_PATH = REFERENCE_GENOME_DIR + "/reference.fasta";
 
     @Test
     public void findsAllExtensionsInDirectoryOfFasta() throws Exception {
