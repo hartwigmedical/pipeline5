@@ -38,9 +38,9 @@ public abstract class BamCreationPipeline {
                 InputOutput<AlignmentRecordDataset> indelsRealigned = indelRealignment().execute(duplicatesMarked);
                 InputOutput<AlignmentRecordDataset> recalibrated = recalibration().execute(indelsRealigned);
                 qcResult = qc(finalQC(), duplicatesMarked);
-                LOGGER.info("Storing enriched BAM");
-                finalBamStore().store(duplicatesMarked);
-                LOGGER.info("Enriched BAM stored. Storing recalibrated BAM");
+                LOGGER.info("Storing BAM with duplicates marked and indels realigned");
+                finalBamStore().store(indelsRealigned);
+                LOGGER.info("Done. Now storing recalibrated BAM");
                 finalBamStore().store(recalibrated, RECALIBRATED_SUFFIX);
                 LOGGER.info("Recalibrated BAM stored");
             }
