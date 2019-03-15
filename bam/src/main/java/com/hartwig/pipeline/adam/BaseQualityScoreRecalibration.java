@@ -10,12 +10,10 @@ import com.hartwig.patient.KnownIndels;
 import com.hartwig.patient.KnownSnps;
 import com.hartwig.pipeline.Stage;
 
-import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.storage.StorageLevel;
 import org.bdgenomics.adam.api.java.JavaADAMContext;
 import org.bdgenomics.adam.rdd.read.AlignmentRecordDataset;
 import org.bdgenomics.adam.rdd.variant.VariantDataset;
-import org.bdgenomics.formats.avro.AlignmentRecord;
 
 import scala.collection.JavaConversions;
 
@@ -34,9 +32,6 @@ public class BaseQualityScoreRecalibration implements Stage<AlignmentRecordDatas
 
     @Override
     public InputOutput<AlignmentRecordDataset> execute(final InputOutput<AlignmentRecordDataset> input) throws IOException {
-
-        JavaRDD<AlignmentRecord> rdd = input.payload().rdd().toJavaRDD();
-        System.err.println("Count of reads starting with clipping! " + rdd.count());
 
         if (knownIndels.paths().isEmpty() && knownSnps.paths().isEmpty()) {
             throw new IllegalArgumentException("Cannot run base quality recalibration with no known snps or indels. "

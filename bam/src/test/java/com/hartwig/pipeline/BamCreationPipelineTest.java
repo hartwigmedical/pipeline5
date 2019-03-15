@@ -79,7 +79,11 @@ public class BamCreationPipelineTest {
 
     @NotNull
     private ImmutableBamCreationPipeline createPipeline(final boolean exists, QCResult finalQC) {
-        return BamCreationPipeline.builder().alignment(input -> ALIGNED_BAM).markDuplicates(markDups()).recalibration(bqsr())
+        return BamCreationPipeline.builder()
+                .alignment(input -> ALIGNED_BAM)
+                .markDuplicates(markDups())
+                .recalibration(bqsr())
+                .indelRealignment(indelRealignment())
                 .finalBamStore(finalStore(exists))
                 .finalDatasource(sample -> FINAL_BAM)
                 .finalQC(toQC -> finalQC)
@@ -124,4 +128,7 @@ public class BamCreationPipelineTest {
         return input -> RECALIBRATED_BAM;
     }
 
+    private Stage<AlignmentRecordDataset, AlignmentRecordDataset> indelRealignment() {
+        return input -> input;
+    }
 }

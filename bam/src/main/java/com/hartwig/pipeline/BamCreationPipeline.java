@@ -34,11 +34,12 @@ public abstract class BamCreationPipeline {
                 qcResult = qc(finalQC(), finalDatasource().extract(sample));
             } else {
                 InputOutput<AlignmentRecordDataset> aligned = alignment().execute(InputOutput.seed(sample));
-                InputOutput<AlignmentRecordDataset> enriched = markDuplicates().execute(aligned);
-                InputOutput<AlignmentRecordDataset> recalibrated = recalibration().execute(enriched);
-                qcResult = qc(finalQC(), enriched);
+                InputOutput<AlignmentRecordDataset> duplicatesMarked = markDuplicates().execute(aligned);
+                InputOutput<AlignmentRecordDataset> indelsRealigned = indelRealignment().execute(duplicatesMarked);
+                InputOutput<AlignmentRecordDataset> recalibrated = recalibration().execute(indelsRealigned);
+                qcResult = qc(finalQC(), duplicatesMarked);
                 LOGGER.info("Storing enriched BAM");
-                finalBamStore().store(enriched);
+                finalBamStore().store(duplicatesMarked);
                 LOGGER.info("Enriched BAM stored. Storing recalibrated BAM");
                 finalBamStore().store(recalibrated, RECALIBRATED_SUFFIX);
                 LOGGER.info("Recalibrated BAM stored");
@@ -78,6 +79,8 @@ public abstract class BamCreationPipeline {
     protected abstract AlignmentStage alignment();
 
     protected abstract Stage<AlignmentRecordDataset, AlignmentRecordDataset> markDuplicates();
+
+    protected abstract Stage<AlignmentRecordDataset, AlignmentRecordDataset> indelRealignment();
 
     protected abstract Stage<AlignmentRecordDataset, AlignmentRecordDataset> recalibration();
 

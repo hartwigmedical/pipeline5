@@ -22,13 +22,18 @@ import org.jetbrains.annotations.NotNull;
 import scala.Option;
 import scala.collection.JavaConversions;
 
-public class MarkDupsAndRealignIndels implements Stage<AlignmentRecordDataset, AlignmentRecordDataset> {
+public class IndelRealignment implements Stage<AlignmentRecordDataset, AlignmentRecordDataset> {
 
+    private static final int GATK_DEFAULT_MAX_INDEL_SIZE = 500;
+    private static final int GATK_DEFAULT_MAX_CONSENSUS_NUMBER = 30;
+    private static final double GATK_DEFAULT_LOD_THRESHOLD = 5.0;
+    private static final int GATK_DEFAULT_MAX_TARGET_SIZE = 3000;
+    private static final int GATK_DEFAULT_MAX_READS_PER_TARGET = 20000;
     private final KnownIndels knownIndels;
     private final ReferenceGenome referenceGenome;
     private final JavaADAMContext javaADAMContext;
 
-    MarkDupsAndRealignIndels(final KnownIndels knownIndels, final ReferenceGenome referenceGenome, final JavaADAMContext javaADAMContext) {
+    IndelRealignment(final KnownIndels knownIndels, final ReferenceGenome referenceGenome, final JavaADAMContext javaADAMContext) {
         this.knownIndels = knownIndels;
         this.referenceGenome = referenceGenome;
         this.javaADAMContext = javaADAMContext;
@@ -36,15 +41,24 @@ public class MarkDupsAndRealignIndels implements Stage<AlignmentRecordDataset, A
 
     @Override
     public InputOutput<AlignmentRecordDataset> execute(final InputOutput<AlignmentRecordDataset> input) {
-        RDD<Variant> allKnownVariants = knownIndels.paths().stream().map(javaADAMContext::loadVariants).map(VariantDataset::rdd)
+        RDD<Variant> allKnownVariants = knownIndels.paths()
+                .stream()
+                .map(javaADAMContext::loadVariants)
+                .map(VariantDataset::rdd)
                 .collect(Collector.of(() -> javaADAMContext.getSparkContext().<Variant>emptyRDD().rdd(), RDD::union, RDD::union));
         ReferenceFile fasta = javaADAMContext.loadReferenceFile(referenceGenome.path());
         UnmappedReads unmapped = UnmappedReads.from(input.payload());
-        return InputOutput.of(input.sample(), unmapped.toAlignment(input.payload().markDuplicates()
-                // pawo: set realignment parameters to ADAM defaults (see scala) which also map to GATK defaults
-                .realignIndels(consensusFromKnownsAndReads(allKnownVariants),
-                        false,
-                        500, 30, 5.0, 3000, 20000, false, Option.apply(fasta))));
+        return InputOutput.of(input.sample(),
+                unmapped.toAlignment(input.payload()
+                        .realignIndels(consensusFromKnownsAndReads(allKnownVariants),
+                                false,
+                                GATK_DEFAULT_MAX_INDEL_SIZE,
+                                GATK_DEFAULT_MAX_CONSENSUS_NUMBER,
+                                GATK_DEFAULT_LOD_THRESHOLD,
+                                GATK_DEFAULT_MAX_TARGET_SIZE,
+                                GATK_DEFAULT_MAX_READS_PER_TARGET,
+                                false,
+                                Option.apply(fasta))));
     }
 
     @NotNull

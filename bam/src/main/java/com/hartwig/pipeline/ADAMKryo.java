@@ -22,12 +22,16 @@ import org.bdgenomics.adam.models.SAMFileHeaderWritable;
 import org.bdgenomics.adam.models.SequenceDictionary;
 import org.bdgenomics.adam.models.SequenceRecord;
 import org.bdgenomics.adam.models.SnpTable;
+import org.bdgenomics.adam.models.SnpTableSerializer;
 import org.bdgenomics.adam.rdd.read.ReferencePositionPair;
 import org.bdgenomics.adam.rdd.read.SingleReadBucket;
 import org.bdgenomics.adam.rdd.read.realignment.IndelRealignmentTarget;
 import org.bdgenomics.adam.rdd.read.realignment.TargetOrdering$;
 import org.bdgenomics.adam.rdd.read.realignment.TargetSet;
+import org.bdgenomics.adam.rdd.read.recalibration.CovariateKey;
+import org.bdgenomics.adam.rdd.read.recalibration.Observation;
 import org.bdgenomics.adam.rich.RichAlignmentRecord;
+import org.bdgenomics.adam.serialization.AvroSerializer;
 import org.bdgenomics.adam.util.ReferenceContigMap;
 import org.bdgenomics.formats.avro.AlignmentRecord;
 import org.bdgenomics.formats.avro.Fragment;
@@ -117,13 +121,16 @@ public class ADAMKryo implements KryoRegistrator {
             kryo.register(Consensus.class);
             kryo.register(Consensus[].class);
             kryo.register(ProcessingStep.class);
-            kryo.register(SnpTable.class);
+
+            kryo.register(SnpTable.class, new SnpTableSerializer());
+            kryo.register(CovariateKey.class);
+            kryo.register(Observation.class);
             kryo.register(Class.forName("scala.collection.immutable.MapLike$$anon$2", false, getClass().getClassLoader()));
             kryo.register(Class.forName("org.bdgenomics.adam.models.SnpTable$$anonfun$1", false, getClass().getClassLoader()));
-            kryo.register(Variant.class);
+            kryo.register(Variant.class, new AvroSerializer<Variant>(scala.reflect.ClassTag$.MODULE$.apply(Variant.class)));
             kryo.register(VariantAnnotation.class);
             kryo.register(GenericData.Array.class);
-            kryo.register(Class.forName("com.google.common.collect.SingletonImmutableList.class", false, getClass().getClassLoader()));
+            kryo.register(Class.forName("com.google.common.collect.SingletonImmutableList", false, getClass().getClassLoader()));
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
