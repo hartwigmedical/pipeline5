@@ -36,11 +36,12 @@ public abstract class BamCreationPipeline {
                 InputOutput<AlignmentRecordDataset> aligned = alignment().execute(InputOutput.seed(sample));
                 InputOutput<AlignmentRecordDataset> duplicatesMarked = markDuplicates().execute(aligned);
                 InputOutput<AlignmentRecordDataset> indelsRealigned = indelRealignment().execute(duplicatesMarked);
-                InputOutput<AlignmentRecordDataset> recalibrated = recalibration().execute(indelsRealigned);
                 qcResult = qc(finalQC(), duplicatesMarked);
                 LOGGER.info("Storing BAM with duplicates marked and indels realigned");
+                indelsRealigned.payload().cache();
                 finalBamStore().store(indelsRealigned);
-                LOGGER.info("Done. Now storing recalibrated BAM");
+                LOGGER.info("Recalibrating and storing recalibrated BAM");
+                InputOutput<AlignmentRecordDataset> recalibrated = recalibration().execute(indelsRealigned);
                 finalBamStore().store(recalibrated, RECALIBRATED_SUFFIX);
                 LOGGER.info("Recalibrated BAM stored");
             }

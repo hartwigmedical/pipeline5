@@ -131,6 +131,7 @@ public class ADAMKryo implements KryoRegistrator {
             kryo.register(VariantAnnotation.class);
             kryo.register(GenericData.Array.class);
             kryo.register(Class.forName("com.google.common.collect.SingletonImmutableList", false, getClass().getClassLoader()));
+            kryo.register(Class.forName("scala.collection.mutable.WrappedArray$ofRef", false, getClass().getClassLoader()));
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }

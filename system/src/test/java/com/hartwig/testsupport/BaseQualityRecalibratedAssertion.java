@@ -27,10 +27,15 @@ class BaseQualityRecalibratedAssertion extends BAMFileAssertion {
     void assertFile(final SamReader expected, final SamReader results) {
         Map<RecordMapKey, SAMRecord> expectedByReadName = mapOf(expected);
         Map<RecordMapKey, SAMRecord> resultsByReadName = mapOf(results);
-        for (RecordMapKey readName : resultsByReadName.keySet()) {
-            SAMRecord resultRecord = resultsByReadName.get(readName);
+        for (RecordMapKey readKey : resultsByReadName.keySet()) {
+            SAMRecord resultRecord = resultsByReadName.get(readKey);
             if (resultRecord.getOriginalBaseQualities() != null) {
-                SAMRecord expectedRecord = expectedByReadName.get(readName);
+                SAMRecord expectedRecord = expectedByReadName.get(readKey);
+                if (expectedRecord == null) {
+                    fail(String.format("Read [%s] was present in the recalibrated BAM but not found in expected BAM. "
+                            + "This may mean you need to update the expected BAM to reflect other algorithmic changes in the pipeline, "
+                            + "for instance mapping quality increased somehow.", readKey.readName));
+                }
                 double averageQualityExpected = averageBaseQuality(expectedRecord);
                 double averageQualityResult = averageBaseQuality(resultRecord);
                 double averageDifference = Math.abs(averageQualityExpected - averageQualityResult) / averageQualityExpected;
@@ -39,7 +44,7 @@ class BaseQualityRecalibratedAssertion extends BAMFileAssertion {
                         averageDifference,
                         LIMIT).isLessThan(LIMIT);
             } else {
-                fail(String.format("Read [%s] was not recalibrated by pipeline 5", readName.readName));
+                fail(String.format("Read [%s] was not recalibrated by pipeline 5", readKey.readName));
             }
         }
     }
