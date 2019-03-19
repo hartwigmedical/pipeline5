@@ -20,7 +20,6 @@ public class SparkContexts {
                 .set("spark.kryoserializer.buffer.max", "2046m")
                 .set("spark.kryo.referenceTracking", "false").set("spark.kryo.registrator", ADAMKryo.class.getName())
                 .set("spark.kryo.registrationRequired", "true")
-                .set("spark.ui.showConsoleProgress", "false")
                 .set("spark.driver.maxResultSize", "0")
                 .setAppName(appName);
         if (master != null) {
