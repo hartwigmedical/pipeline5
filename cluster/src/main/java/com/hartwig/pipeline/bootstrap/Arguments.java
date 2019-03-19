@@ -56,6 +56,8 @@ public interface Arguments {
 
     String privateKeyPath();
 
+    String serviceAccountEmail();
+
     String sbpApiUrl();
 
     String sblS3Url();

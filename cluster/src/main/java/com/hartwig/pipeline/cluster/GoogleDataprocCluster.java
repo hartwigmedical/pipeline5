@@ -67,7 +67,7 @@ public class GoogleDataprocCluster implements SparkCluster {
             waitForOperationComplete(createCluster);
             LOGGER.info("Cluster started.");
         } else {
-            LOGGER.info("Cluster [{}] already exists, using this cluster to submit pipeline", clusterName);
+            LOGGER.info("Cluster [{}] already exists, using this cluster to run pipeline", clusterName);
         }
         isStarted = true;
     }

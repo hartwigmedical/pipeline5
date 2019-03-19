@@ -12,6 +12,8 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static java.lang.String.format;
+
 class BootstrapOptions {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BootstrapOptions.class);
@@ -66,6 +68,7 @@ class BootstrapOptions {
     private static final String DEFAULT_RCLONE_S3_REMOTE = "s3";
     private static final String CLUSTER_IDLE_TTL_FLAG = "cluster_idle_ttl";
     private static final String DEFAULT_CLUSTER_IDLE_TTL = "600s";
+    private static final String SERVICE_ACCOUNT_EMAIL_FLAG = "s";
 
     private static Options options() {
         return new Options().addOption(privateKeyFlag())
@@ -74,7 +77,7 @@ class BootstrapOptions {
                 .addOption(patientDirectory())
                 .addOption(jarLibDirectory())
                 .addOption(bucket())
-                .addOption(SKIP_UPLOAD_FLAG, false, "Skip uploading of patient data into cloud storeage")
+                .addOption(SKIP_UPLOAD_FLAG, false, "Skip uploading of patient data into cloud storage")
                 .addOption(FORCE_JAR_UPLOAD_FLAG, false, "Force upload of JAR even if the version already exists in cloud storage")
                 .addOption(NO_CLEANUP_FLAG, false, "Don't delete the cluster or runtime bucket after job is complete")
                 .addOption(NO_PREEMTIBLE_VMS_FLAG,
@@ -106,7 +109,11 @@ class BootstrapOptions {
                 .addOption(knownIndelsBucket())
                 .addOption(s3UploadThreads())
                 .addOption(cloudSdkTimeoutHours())
-                .addOption(rclonePath()).addOption(rcloneGcpRemote()).addOption(rcloneS3Remote()).addOption(clusterIdleTtl());
+                .addOption(rclonePath())
+                .addOption(rcloneGcpRemote())
+                .addOption(rcloneS3Remote())
+                .addOption(clusterIdleTtl())
+                .addOption(serviceAccountEmail());
     }
 
     private static Option clusterIdleTtl() {
@@ -204,6 +211,13 @@ class BootstrapOptions {
                 DEFAULT_PRIVATE_KEY_PATH);
     }
 
+    private static Option serviceAccountEmail() {
+        return optionWithArgAndDefault(SERVICE_ACCOUNT_EMAIL_FLAG,
+                "service_account_email",
+                "Service account associated with the private key",
+                format("bootstrap@[configured project name, see -%s].iam.gserviceaccount.com", PROJECT_FLAG));
+    }
+
     private static Option region() {
         return optionWithArgAndDefault(REGION_FLAG, "region", "The region in which to create the cluster.", DEFAULT_REGION);
     }
@@ -247,13 +261,14 @@ class BootstrapOptions {
         try {
             DefaultParser defaultParser = new DefaultParser();
             CommandLine commandLine = defaultParser.parse(options(), args);
+            String project = commandLine.getOptionValue(PROJECT_FLAG, DEFAULT_PROJECT);
             return Optional.of(Arguments.builder()
                     .privateKeyPath(commandLine.getOptionValue(PRIVATE_KEY_FLAG, DEFAULT_PRIVATE_KEY_PATH))
                     .version(commandLine.getOptionValue(VERSION_FLAG, DEFAULT_VERSION))
                     .patientDirectory(commandLine.getOptionValue(PATIENT_DIRECTORY_FLAG, DEFAULT_PATIENT_DIRECTORY))
                     .patientId(commandLine.getOptionValue(PATIENT_FLAG, ""))
                     .jarLibDirectory(commandLine.getOptionValue(JAR_LIB_FLAG, DEFAULT_JAR_LIB))
-                    .project(commandLine.getOptionValue(PROJECT_FLAG, DEFAULT_PROJECT))
+                    .project(project)
                     .region(handleDashesInRegion(commandLine))
                     .sbpApiUrl(commandLine.getOptionValue(SBP_API_URL_FLAG, DEFAULT_SBP_API_URL))
                     .sbpApiSampleId(sbpApiSampleId(commandLine))
@@ -277,6 +292,8 @@ class BootstrapOptions {
                     .rcloneGcpRemote(commandLine.getOptionValue(RCLONE_GCP_REMOTE_FLAG, DEFAULT_RCLONE_GCP_REMOTE))
                     .rcloneS3Remote(commandLine.getOptionValue(RCLONE_S3_REMOTE_FLAG, DEFAULT_RCLONE_S3_REMOTE))
                     .clusterIdleTtl(commandLine.getOptionValue(CLUSTER_IDLE_TTL_FLAG, DEFAULT_CLUSTER_IDLE_TTL))
+                    .serviceAccountEmail(commandLine.getOptionValue(SERVICE_ACCOUNT_EMAIL_FLAG,
+                            format("bootstrap@%s.iam.gserviceaccount.com", project)))
                     .build());
         } catch (ParseException e) {
             LOGGER.error("Could not parse command line args", e);

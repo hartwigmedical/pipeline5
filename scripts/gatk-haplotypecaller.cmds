@@ -1,0 +1,6 @@
+echo 'deb http://packages.cloud.google.com/apt gcsfuse-stretch main' | sudo tee /etc/apt/sources.list.d/gcsfuse.list
+curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+sudo apt-get update
+sudo apt-get -y install openjdk-8-jdk
+sudo apt-get -y install gcsfuse
+
