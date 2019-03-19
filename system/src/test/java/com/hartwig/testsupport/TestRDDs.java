@@ -2,6 +2,7 @@ package com.hartwig.testsupport;
 
 import com.hartwig.support.test.Resources;
 
+import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.rdd.RDD;
 import org.bdgenomics.adam.api.java.JavaADAMContext;
 import org.bdgenomics.adam.rdd.ADAMContext;
@@ -14,17 +15,17 @@ import scala.Option;
 
 public class TestRDDs {
 
-    public static AlignmentRecordDataset alignmentRecordDataset(final String bamFile) {
-        return javaAdam().loadAlignments(Resources.testResource(bamFile));
+    public static AlignmentRecordDataset alignmentRecordDataset(String bamFile, JavaSparkContext sparkContext) {
+        return javaAdam(sparkContext).loadAlignments(Resources.testResource(bamFile));
     }
 
     @NotNull
-    public static JavaADAMContext javaAdam() {
-        return new JavaADAMContext(new ADAMContext(SparkContextSingleton.instance().sc()));
+    public static JavaADAMContext javaAdam(JavaSparkContext sparkContext) {
+        return new JavaADAMContext(new ADAMContext(sparkContext.sc()));
     }
 
-    public static AlignmentRecordDataset emptyAlignnmentRecordRDD() {
-        RDD<AlignmentRecord> rdd = SparkContextSingleton.instance().<AlignmentRecord>emptyRDD().rdd();
+    public static AlignmentRecordDataset emptyAlignnmentRecordRDD(JavaSparkContext sparkContext) {
+        RDD<AlignmentRecord> rdd = sparkContext.<AlignmentRecord>emptyRDD().rdd();
         return new RDDBoundAlignmentRecordDataset(rdd, null, null, null, Option.empty());
     }
 }

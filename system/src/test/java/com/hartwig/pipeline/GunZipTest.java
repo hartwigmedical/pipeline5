@@ -9,21 +9,23 @@ import com.google.common.collect.Lists;
 import com.hartwig.patient.ImmutableSample;
 import com.hartwig.patient.Lane;
 import com.hartwig.patient.Sample;
+import com.hartwig.pipeline.runtime.spark.SparkContexts;
 import com.hartwig.support.hadoop.Hadoop;
 import com.hartwig.support.test.Resources;
 import com.hartwig.testsupport.Lanes;
-import com.hartwig.testsupport.SparkContextSingleton;
+import com.hartwig.testsupport.TestConfigurations;
 
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 
 public class GunZipTest {
 
-    private static final JavaSparkContext SPARK_CONTEXT = SparkContextSingleton.instance();
+    private static final JavaSparkContext SPARK_CONTEXT = SparkContexts.create("gunzip-test", TestConfigurations.HUNDREDK_READS_HISEQ);
     private static final String NOT_ZIPPED_DIRECTORY = "gunzip/not_zipped/";
     private static final String ZIPPED_DIRECTORY = "gunzip/zipped/";
     private static final String TWO_LANE_DIRECTORY = "gunzip/two_lanes_zipped/";
@@ -69,6 +71,11 @@ public class GunZipTest {
     @After
     public void tearDown() throws Exception {
         deleteIfExists(Resources.targetResource("gunzip"));
+    }
+
+    @AfterClass
+    public static void tearDownClass() {
+        SPARK_CONTEXT.stop();
     }
 
     private void deleteIfExists(final String filePathName) throws IOException {

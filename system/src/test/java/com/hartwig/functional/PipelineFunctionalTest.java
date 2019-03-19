@@ -10,12 +10,13 @@ import com.hartwig.patient.Sample;
 import com.hartwig.patient.input.PatientReader;
 import com.hartwig.pipeline.adam.Pipelines;
 import com.hartwig.pipeline.metrics.Monitor;
+import com.hartwig.pipeline.runtime.spark.SparkContexts;
 import com.hartwig.support.hadoop.Hadoop;
-import com.hartwig.testsupport.SparkContextSingleton;
 
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.bdgenomics.adam.rdd.ADAMContext;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -29,7 +30,12 @@ public class PipelineFunctionalTest {
 
     @BeforeClass
     public static void beforeClass() throws Exception {
-        context = SparkContextSingleton.instance();
+        context = SparkContexts.create("function-test", HUNDREDK_READS_HISEQ);
+    }
+
+    @AfterClass
+    public static void afterClass() {
+        context.stop();
     }
 
     @Test
