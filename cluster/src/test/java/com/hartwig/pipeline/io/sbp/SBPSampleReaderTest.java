@@ -68,7 +68,7 @@ public class SBPSampleReaderTest {
         returnJson(FASTQ_JSON_QC_FAILED);
         Sample sample = victim.read(EXISTS);
         assertThat(sample.lanes()).hasSize(1);
-        assertThat(sample.lanes().get(0).readsPath()).contains("L001");
+        assertThat(sample.lanes().get(0).firstOfPairPath()).contains("L001");
     }
 
     @Test

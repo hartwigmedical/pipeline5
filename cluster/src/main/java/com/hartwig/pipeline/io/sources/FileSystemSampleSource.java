@@ -28,8 +28,7 @@ public class FileSystemSampleSource implements SampleSource {
         try {
             Sample sample = PatientReader.fromHDFS(fileSystem, patientDirectory, arguments.patientId()).reference();
             long size = sample.lanes()
-                    .stream()
-                    .flatMap(lane -> Stream.of(lane.readsPath(), lane.matesPath()))
+                    .stream().flatMap(lane -> Stream.of(lane.firstOfPairPath(), lane.secondOfPairPath()))
                     .map(toFileStatus())
                     .mapToLong(FileStatus::getLen)
                     .sum();

@@ -27,7 +27,11 @@ public class SBPS3SampleSource implements SampleSource {
         Sample sample = sbpSampleReader.read(arguments.sbpApiSampleId()
                 .orElseThrow(() -> new IllegalArgumentException("Arguments must "
                         + "contain an SBP id to use the SBP sample source. This looks like a programmatic mis-wiring somewhere")));
-        long size = sample.lanes().stream().flatMap(lane -> Stream.of(lane.readsPath(), lane.matesPath())).mapToLong(this::size).sum();
+        long size = sample.lanes()
+                .stream()
+                .flatMap(lane -> Stream.of(lane.firstOfPairPath(), lane.secondOfPairPath()))
+                .mapToLong(this::size)
+                .sum();
         return SampleData.of(sample, size);
     }
 

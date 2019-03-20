@@ -32,9 +32,9 @@ class Samples {
                             .index(tokens[2])
                             .suffix(tokens[5].substring(0, tokens[5].indexOf('.'))));
             if (tokens[4].equals("R1")) {
-                builder.readsPath(fileStatus.getPath().toString());
+                builder.firstOfPairPath(fileStatus.getPath().toString());
             } else if (tokens[4].equals("R2")) {
-                builder.matesPath(fileStatus.getPath().toString());
+                builder.secondOfPairPath(fileStatus.getPath().toString());
             }
             builder.flowCellId(flowCellId);
         }

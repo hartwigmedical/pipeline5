@@ -31,33 +31,33 @@ public class GunZipTest {
     private static final String TWO_LANE_DIRECTORY = "gunzip/two_lanes_zipped/";
     private static final String NEEDS_RENAMING = "gunzip/needs_renaming/";
     private static final Lane NOT_ZIPPED_LANE = Lanes.emptyBuilder()
-            .readsPath(Resources.targetResource(NOT_ZIPPED_DIRECTORY + "R1.fastq"))
-            .matesPath(Resources.targetResource(NOT_ZIPPED_DIRECTORY + "R2.fastq"))
+            .firstOfPairPath(Resources.targetResource(NOT_ZIPPED_DIRECTORY + "R1.fastq"))
+            .secondOfPairPath(Resources.targetResource(NOT_ZIPPED_DIRECTORY + "R2.fastq"))
             .build();
 
     private static final Lane ZIPPED_LANE = Lanes.emptyBuilder()
-            .readsPath(Resources.targetResource(ZIPPED_DIRECTORY + "R1.fastq.gz"))
-            .matesPath(Resources.targetResource(ZIPPED_DIRECTORY + "R2.fastq.gz"))
+            .firstOfPairPath(Resources.targetResource(ZIPPED_DIRECTORY + "R1.fastq.gz"))
+            .secondOfPairPath(Resources.targetResource(ZIPPED_DIRECTORY + "R2.fastq.gz"))
             .build();
     private static final List<Lane> ZIPPER_TWO_LANES = Lists.newArrayList(Lanes.emptyBuilder()
-                    .readsPath(Resources.targetResource(TWO_LANE_DIRECTORY + "L1_R1.fastq.gz"))
-                    .matesPath(Resources.targetResource(TWO_LANE_DIRECTORY + "L1_R2.fastq.gz"))
+                    .firstOfPairPath(Resources.targetResource(TWO_LANE_DIRECTORY + "L1_R1.fastq.gz"))
+                    .secondOfPairPath(Resources.targetResource(TWO_LANE_DIRECTORY + "L1_R2.fastq.gz"))
                     .build(),
             Lanes.emptyBuilder()
-                    .readsPath(Resources.targetResource(TWO_LANE_DIRECTORY + "L2_R1.fastq.gz"))
-                    .matesPath(Resources.targetResource(TWO_LANE_DIRECTORY + "L2_R2.fastq.gz"))
+                    .firstOfPairPath(Resources.targetResource(TWO_LANE_DIRECTORY + "L2_R1.fastq.gz"))
+                    .secondOfPairPath(Resources.targetResource(TWO_LANE_DIRECTORY + "L2_R2.fastq.gz"))
                     .build());
     private static final Lane UNZIPPED_LANE = Lanes.emptyBuilder()
-            .readsPath(Resources.targetResource(ZIPPED_DIRECTORY + "R1.fastq"))
-            .matesPath(Resources.targetResource(ZIPPED_DIRECTORY + "R2.fastq"))
+            .firstOfPairPath(Resources.targetResource(ZIPPED_DIRECTORY + "R1.fastq"))
+            .secondOfPairPath(Resources.targetResource(ZIPPED_DIRECTORY + "R2.fastq"))
             .build();
     private static final Lane RENAMED_LANE = Lanes.emptyBuilder()
-            .readsPath(Resources.targetResource(NEEDS_RENAMING + "R1.fastq"))
-            .matesPath(Resources.targetResource(NEEDS_RENAMING + "R2.fastq"))
+            .firstOfPairPath(Resources.targetResource(NEEDS_RENAMING + "R1.fastq"))
+            .secondOfPairPath(Resources.targetResource(NEEDS_RENAMING + "R2.fastq"))
             .build();
     private static final Lane NEEDS_RENAMING_LANE = Lanes.emptyBuilder()
-            .readsPath(Resources.targetResource(NEEDS_RENAMING + "R1.fastq.gz"))
-            .matesPath(Resources.targetResource(NEEDS_RENAMING + "R2.fastq.gz"))
+            .firstOfPairPath(Resources.targetResource(NEEDS_RENAMING + "R1.fastq.gz"))
+            .secondOfPairPath(Resources.targetResource(NEEDS_RENAMING + "R2.fastq.gz"))
             .build();
     private GunZip victim;
     private FileSystem fileSystem;
@@ -124,8 +124,8 @@ public class GunZipTest {
     public void zippedFilesAreDeletedAfterUnzipping() throws Exception {
         setupSample(ZIPPED_DIRECTORY);
         victim.run(sampleBuilder().addLanes(ZIPPED_LANE).build());
-        assertThat(fileSystem.exists(new Path(ZIPPED_LANE.matesPath()))).isFalse();
-        assertThat(fileSystem.exists(new Path(ZIPPED_LANE.readsPath()))).isFalse();
+        assertThat(fileSystem.exists(new Path(ZIPPED_LANE.secondOfPairPath()))).isFalse();
+        assertThat(fileSystem.exists(new Path(ZIPPED_LANE.firstOfPairPath()))).isFalse();
     }
 
     @Test
@@ -141,8 +141,8 @@ public class GunZipTest {
 
     private void checkFilesExist(final Lane onlyLane, final Lane notZippedLane) throws IOException {
         assertThat(onlyLane).isEqualTo(notZippedLane);
-        assertThat(fileSystem.exists(new Path(onlyLane.readsPath()))).isTrue();
-        assertThat(fileSystem.exists(new Path(onlyLane.matesPath()))).isTrue();
+        assertThat(fileSystem.exists(new Path(onlyLane.firstOfPairPath()))).isTrue();
+        assertThat(fileSystem.exists(new Path(onlyLane.secondOfPairPath()))).isTrue();
     }
 
     private static ImmutableSample.Builder sampleBuilder() {

@@ -42,8 +42,8 @@ public class GunZip {
         }
         List<Lane> unzippedLanes = sample.lanes().parallelStream().map(lane -> {
             ImmutableLane.Builder laneBuilder = Lane.builder().from(lane);
-            laneBuilder.readsPath(truncateGZExtension(lane.readsPath()));
-            laneBuilder.matesPath(truncateGZExtension(lane.matesPath()));
+            laneBuilder.firstOfPairPath(truncateGZExtension(lane.firstOfPairPath()));
+            laneBuilder.secondOfPairPath(truncateGZExtension(lane.secondOfPairPath()));
             return laneBuilder.build();
         }).collect(Collectors.toList());
         return builder.lanes(unzippedLanes).build();
@@ -51,8 +51,8 @@ public class GunZip {
 
     private void onlyRenameFile(final Sample sample) throws IOException {
         for (Lane lane : sample.lanes()) {
-            fileSystem.rename(new Path(lane.readsPath()), new Path(truncateGZExtension(lane.readsPath())));
-            fileSystem.rename(new Path(lane.matesPath()), new Path(truncateGZExtension(lane.matesPath())));
+            fileSystem.rename(new Path(lane.firstOfPairPath()), new Path(truncateGZExtension(lane.firstOfPairPath())));
+            fileSystem.rename(new Path(lane.secondOfPairPath()), new Path(truncateGZExtension(lane.secondOfPairPath())));
         }
     }
 
@@ -61,8 +61,8 @@ public class GunZip {
             ExecutorService executorService = Executors.newFixedThreadPool(sample.lanes().size() * 2);
             List<Future<?>> futures = new ArrayList<>();
             for (Lane lane : sample.lanes()) {
-                unzipIfGZ(executorService, futures, lane.readsPath());
-                unzipIfGZ(executorService, futures, lane.matesPath());
+                unzipIfGZ(executorService, futures, lane.firstOfPairPath());
+                unzipIfGZ(executorService, futures, lane.secondOfPairPath());
             }
             for (Future<?> future : futures) {
                 try {

@@ -62,8 +62,7 @@ class Bwa implements AlignmentStage {
     }
 
     private AlignmentRecordDataset adamBwa(final SequenceDictionary sequenceDictionary, final Sample sample, final Lane lane) {
-        FragmentDataset FragmentDataset = adamContext.loadPairedFastq(lane.readsPath(),
-                lane.matesPath(),
+        FragmentDataset FragmentDataset = adamContext.loadPairedFastq(lane.firstOfPairPath(), lane.secondOfPairPath(),
                 Option.empty(),
                 Option.apply(StorageLevel.DISK_ONLY()),
                 ValidationStringency.STRICT).toFragments();

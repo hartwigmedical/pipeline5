@@ -36,7 +36,9 @@ public class CloudSampleUpload implements SampleUpload {
     private void uploadSample(final RuntimeBucket runtimeBucket, final Sample sample) {
         sample.lanes()
                 .stream()
-                .flatMap(lane -> Stream.of(lane.readsPath(), lane.matesPath())).collect(Collectors.toList()).parallelStream()
+                .flatMap(lane -> Stream.of(lane.firstOfPairPath(), lane.secondOfPairPath()))
+                .collect(Collectors.toList())
+                .parallelStream()
                 .forEach(path -> {
                     try {
                         gsutilCP(sample, runtimeBucket, sourceResolver.apply(path));

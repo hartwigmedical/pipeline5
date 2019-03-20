@@ -51,16 +51,16 @@ public class CloudSampleUploadTest {
 
     @Test
     public void doesNotCopyWhenFileInStorage() throws Exception {
-        mockRuntimeBucket.with(SAMPLE_PATH + LANE_1.readsPath().replace(FASTQ_DIR, ""), 1)
-                .with(SAMPLE_PATH + LANE_1.matesPath().replace(FASTQ_DIR, ""), 1);
+        mockRuntimeBucket.with(SAMPLE_PATH + LANE_1.firstOfPairPath().replace(FASTQ_DIR, ""), 1)
+                .with(SAMPLE_PATH + LANE_1.secondOfPairPath().replace(FASTQ_DIR, ""), 1);
         victim.run(SAMPLE_ONE_LANE, mockRuntimeBucket.getRuntimeBucket());
         verify(cloudCopy, never()).copy(any(), any());
     }
 
     @Test
     public void doesNotCopyWhenGunzippedInStorage() throws Exception {
-        mockRuntimeBucket.with("samples/" + SAMPLE_NAME + "/" + LANE_1.readsPath().replace(FASTQ_DIR, "").replace(".gz", "") + "/", 1)
-                .with("samples/" + SAMPLE_NAME + "/" + LANE_1.matesPath().replace(FASTQ_DIR, "").replace(".gz", "") + "/", 1);
+        mockRuntimeBucket.with("samples/" + SAMPLE_NAME + "/" + LANE_1.firstOfPairPath().replace(FASTQ_DIR, "").replace(".gz", "") + "/", 1)
+                .with("samples/" + SAMPLE_NAME + "/" + LANE_1.secondOfPairPath().replace(FASTQ_DIR, "").replace(".gz", "") + "/", 1);
         victim.run(SAMPLE_ONE_LANE, mockRuntimeBucket.getRuntimeBucket());
         verify(cloudCopy, never()).copy(any(), any());
     }
@@ -71,9 +71,9 @@ public class CloudSampleUploadTest {
         ArgumentCaptor<String> target = ArgumentCaptor.forClass(String.class);
         victim.run(SAMPLE_ONE_LANE, mockRuntimeBucket.getRuntimeBucket());
         verify(cloudCopy, times(2)).copy(source.capture(), target.capture());
-        assertThat(source.getAllValues()).contains(LANE_1.readsPath());
-        assertThat(target.getAllValues()).contains(TARGET_PATH + LANE_1.readsPath().replace(FASTQ_DIR, ""));
-        assertThat(source.getAllValues()).contains(LANE_1.matesPath());
-        assertThat(target.getAllValues()).contains(TARGET_PATH + LANE_1.matesPath().replace(FASTQ_DIR, ""));
+        assertThat(source.getAllValues()).contains(LANE_1.firstOfPairPath());
+        assertThat(target.getAllValues()).contains(TARGET_PATH + LANE_1.firstOfPairPath().replace(FASTQ_DIR, ""));
+        assertThat(source.getAllValues()).contains(LANE_1.secondOfPairPath());
+        assertThat(target.getAllValues()).contains(TARGET_PATH + LANE_1.secondOfPairPath().replace(FASTQ_DIR, ""));
     }
 }

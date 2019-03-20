@@ -16,7 +16,13 @@ public class BwaCommandTest {
     public void commandMatchesOldPipelineArguments() {
         String victim = BwaCommand.tokens(ImmutableReferenceGenome.of("reference.fa"),
                 Sample.builder("", "SAMPLE").build(),
-                Lanes.emptyBuilder().readsPath("reads1.fastq").name("SAMPLE_L001").index("S1").suffix("001").flowCellId("FLOWCELL").build(),
+                Lanes.emptyBuilder()
+                        .firstOfPairPath("reads1.fastq")
+                        .name("SAMPLE_L001")
+                        .index("S1")
+                        .suffix("001")
+                        .flowCellId("FLOWCELL")
+                        .build(),
                 12).stream().collect(Collectors.joining(" "));
         assertThat(victim).isEqualTo(
                 "bwa mem -p -R @RG\\tID:SAMPLE_FLOWCELL_S1_L001_001\\tLB:SAMPLE\\tPL:ILLUMINA\\tPU:FLOWCELL\\tSM:SAMPLE -Y -t 12 reference.fa -");
