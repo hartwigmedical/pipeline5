@@ -82,8 +82,8 @@ public class SBPSampleReader {
         }
         return Lane.builder()
                 .name("")
-                .readsPath(s3Path(fastQMetadata, fastQMetadata.name_r1()))
-                .matesPath(s3Path(fastQMetadata, fastQMetadata.name_r2()))
+                .firstOfPairPath(s3Path(fastQMetadata, fastQMetadata.name_r1()))
+                .secondOfPairPath(s3Path(fastQMetadata, fastQMetadata.name_r2()))
                 .directory("")
                 .suffix("")
                 .flowCellId("")
