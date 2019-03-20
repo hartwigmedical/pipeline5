@@ -19,7 +19,6 @@ import org.apache.spark.api.java.JavaSparkContext;
 import org.bdgenomics.adam.rdd.ADAMContext;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +45,6 @@ public class PipelineFunctionalTest {
     }
 
     @Test
-    @Ignore
     public void adamBamCreationMatchesCurrentPipelineOutput() throws Exception {
         FileSystem fileSystem = Hadoop.localFilesystem();
         Pipelines.bamCreationConsolidated(new ADAMContext(SPARK_CONTEXT.sc()),

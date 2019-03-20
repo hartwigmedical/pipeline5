@@ -25,7 +25,6 @@ public class IndexFilesTest {
                 listStatusOutput(REFERENCE_GENOME_PATH + ".bwt"),
                 listStatusOutput(REFERENCE_GENOME_PATH + ".dict"),
                 listStatusOutput(REFERENCE_GENOME_PATH + ".fai"),
-                listStatusOutput(REFERENCE_GENOME_PATH + ".img"),
                 listStatusOutput(REFERENCE_GENOME_PATH + ".pac"),
                 listStatusOutput(REFERENCE_GENOME_PATH + ".sa"));
     }
