@@ -74,9 +74,9 @@ class BootstrapOptions {
                 .addOption(patientDirectory())
                 .addOption(jarLibDirectory())
                 .addOption(bucket())
-                .addOption(SKIP_UPLOAD_FLAG, false, "Skip uploading of patient data into cloud storeage")
+                .addOption(SKIP_UPLOAD_FLAG, false, "Skip uploading of patient data into cloud storage")
                 .addOption(FORCE_JAR_UPLOAD_FLAG, false, "Force upload of JAR even if the version already exists in cloud storage")
-                .addOption(NO_CLEANUP_FLAG, false, "Don't delete the cluster or runtime bucket after job is complete")
+                .addOption(NO_CLEANUP_FLAG, false, "Don't delete the runtime bucket after job is complete")
                 .addOption(NO_PREEMTIBLE_VMS_FLAG,
                         false,
                         "Do not allocate half the cluster as preemtible VMs to save cost. "
