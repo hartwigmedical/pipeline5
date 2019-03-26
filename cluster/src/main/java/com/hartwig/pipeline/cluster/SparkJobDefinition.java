@@ -17,7 +17,7 @@ public interface SparkJobDefinition {
     String GUNZIP_MAIN = "com.hartwig.pipeline.runtime.GoogleCloudGunzip";
     String BAM_CREATION_MAIN = "com.hartwig.pipeline.runtime.GoogleCloudPipelineRuntime";
     String SORT_INDEX_MAIN = "com.hartwig.pipeline.runtime.GoogleCloudSortAndIndex";
-    String METRICS_MAIN = "com.hartwig.pipeline.runtime.GoogleCloudBamMetrics";
+    String BAM_METRICS_MAIN = "com.hartwig.pipeline.runtime.GoogleCloudBamMetrics";
 
     String name();
 
@@ -52,12 +52,12 @@ public interface SparkJobDefinition {
     }
 
     static SparkJobDefinition bamMetrics(JarLocation jarLocation, Arguments arguments, RuntimeBucket runtimeBucket,
-            PerformanceProfile profile, Sample sample, ResultsDirectory resultsDirectory) {
+            PerformanceProfile profile, Sample sample) {
         return ImmutableSparkJobDefinition.builder()
                 .name("BamMetrics")
-                .mainClass(METRICS_MAIN)
+                .mainClass(BAM_METRICS_MAIN)
                 .jarLocation(jarLocation.uri())
-                .addArguments(arguments.version(), runtimeBucket.getName(), arguments.project(), sample.name(), resultsDirectory.path(""))
+                .addArguments(arguments.version(), runtimeBucket.getName(), sample.name())
                 .sparkProperties(SparkProperties.asMap(profile))
                 .build();
     }

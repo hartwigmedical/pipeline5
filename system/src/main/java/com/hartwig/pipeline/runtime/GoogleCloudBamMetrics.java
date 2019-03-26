@@ -36,8 +36,14 @@ public class GoogleCloudBamMetrics {
 
     public static void main(String[] args) {
         try {
-            String gsBucket = args[0];
-            String sampleName = args[1];
+            String version = args[0];
+            String gsBucket = args[1];
+            String sampleName = args[2];
+
+            LOGGER.info("Starting bam metrics with version [{}] for sample [{}] in bucket " + "[{}] on Google Dataproc",
+                    version,
+                    sampleName,
+                    gsBucket);
 
             new GoogleCloudBamMetrics(sampleName,
                     Hadoop.fileSystem("gs:///"),
