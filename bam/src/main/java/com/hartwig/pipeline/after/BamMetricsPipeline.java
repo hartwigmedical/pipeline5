@@ -82,19 +82,14 @@ public class BamMetricsPipeline {
 
     @VisibleForTesting
     static BamMetricsPipeline create(final FileSystem fileSystem, final String bamDirectory, final String refGenomeDirectory,
-            final String localWorkingDirectory, final String picardLibDirectory, final Monitor monitor) {
-        return new BamMetricsPipeline(fileSystem,
-                bamDirectory,
-                refGenomeDirectory,
-                localWorkingDirectory,
-                monitor,
-                new PicardWGSMetrics(picardLibDirectory));
+            final String localWorkingDirectory, final Monitor monitor) {
+        return new BamMetricsPipeline(fileSystem, bamDirectory, refGenomeDirectory, localWorkingDirectory, monitor, new PicardWGSMetrics());
     }
 
     public static BamMetricsPipeline create(final FileSystem fileSystem, final String bamDirectory, final String refGenomeDirectory,
-            final String picardLibDirectory, final Monitor monitor) {
+            final Monitor monitor) {
         // For production usage, the local working directory is transient so doesn't matter.
-        return create(fileSystem, bamDirectory, refGenomeDirectory, System.getProperty("user.dir"), picardLibDirectory, monitor);
+        return create(fileSystem, bamDirectory, refGenomeDirectory, System.getProperty("user.dir"), monitor);
     }
 
     @NotNull

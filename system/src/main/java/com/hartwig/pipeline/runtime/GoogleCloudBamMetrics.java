@@ -20,10 +20,8 @@ public class GoogleCloudBamMetrics {
 
     private GoogleCloudBamMetrics(final String sampleName, final FileSystem fileSystem, final String bamDirectory,
             final String refGenomeDirectory, final Monitor monitor) {
-        // TODO
-        String picardLibDirectory = "";
         this.sampleName = sampleName;
-        this.bamMetricsPipeline = BamMetricsPipeline.create(fileSystem, bamDirectory, refGenomeDirectory, picardLibDirectory, monitor);
+        this.bamMetricsPipeline = BamMetricsPipeline.create(fileSystem, bamDirectory, refGenomeDirectory, monitor);
     }
 
     private void execute() {

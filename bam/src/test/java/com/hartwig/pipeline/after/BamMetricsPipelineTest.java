@@ -20,7 +20,6 @@ public class BamMetricsPipelineTest {
 
     private static final String SAMPLE_NAME = "CPCT12345678R";
 
-    private static final String PICARD_LIB_DIR = Resources.testResource("picardlib");
     private static final String LOCAL_WORKING_DIR = Resources.targetResource("metrics_output");
     private static final String OUTPUT_FILE = LOCAL_WORKING_DIR + File.separator + "CPCT12345678R.wgsmetrics";
 
@@ -32,7 +31,6 @@ public class BamMetricsPipelineTest {
                 LOCAL_WORKING_DIR,
                 Resources.testResource("reference_genome"),
                 LOCAL_WORKING_DIR,
-                PICARD_LIB_DIR,
                 metric -> metricTimeSpent = metric);
         FileUtils.deleteDirectory(new File(LOCAL_WORKING_DIR));
         moveTestBamToLocalWorkingDir(LOCAL_WORKING_DIR);

@@ -10,10 +10,9 @@ class PicardWGSMetrics {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PicardWGSMetrics.class);
 
-    private final String picardLibDirectory;
+    private static final String PICARD_LIB = PicardWGSMetrics.class.getResource("/picardlib//picard.jar").getPath();
 
-    PicardWGSMetrics(final String picardLibDirectory) {
-        this.picardLibDirectory = picardLibDirectory;
+    PicardWGSMetrics() {
     }
 
     public void execute(final String tmpDirectory, final String sampleBamPath, final String referenceGenomeFile,
@@ -25,7 +24,7 @@ class PicardWGSMetrics {
         //                (int) (Runtime.getRuntime().maxMemory() / BYTES_PER_GB) + "GB",
         ProcessBuilder processBuilder = new ProcessBuilder("java",
                 "-jar",
-                picardLibDirectory + File.separator + "picard.jar",
+                PICARD_LIB,
                 "CollectWgsMetrics",
                 "TMP_DIR=" + tmpDirectory,
                 "REFERENCE_SEQUENCE=" + referenceGenomeFile,
