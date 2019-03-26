@@ -2,6 +2,7 @@ package com.hartwig.pipeline.cluster;
 
 import static java.lang.String.format;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
@@ -20,7 +21,7 @@ public class GoogleStorageJarUpload implements JarUpload {
     @Override
     public JarLocation run(RuntimeBucket runtimeBucket, Arguments arguments) throws IOException {
         String jarName = format("system%s.jar", version(arguments));
-        String jarPath = arguments.jarLibDirectory() + jarName;
+        String jarPath = arguments.jarLibDirectory() + File.separator + jarName;
         String blobLocation = format("%s/%s", JAR_BUCKET, jarName);
         Blob jarBlob = runtimeBucket.bucket().get(blobLocation);
         String blobUri = String.format("gs://%s/%s", runtimeBucket.bucket().getName(), blobLocation);
@@ -33,6 +34,6 @@ public class GoogleStorageJarUpload implements JarUpload {
     }
 
     private static String version(final Arguments arguments) {
-        return !arguments.version().isEmpty() ? "-" + arguments.version() : arguments.version();
+        return !arguments.version().isEmpty() ? "-" + arguments.version() : "";
     }
 }
