@@ -47,11 +47,7 @@ public class GoogleCloudBamMetrics {
                     sampleName,
                     gsBucket);
 
-            new GoogleCloudBamMetrics(sampleName,
-                    Hadoop.fileSystem("gs:///"),
-                    gsBucket + "/results",
-                    gsBucket + "/reference_genome",
-                    Monitor.noop()).execute();
+            new GoogleCloudBamMetrics(sampleName, Hadoop.fileSystem("gs:///"), "results", "reference_genome", Monitor.noop()).execute();
         } catch (IOException e) {
             LOGGER.error("Unable to run Google post-processor. Problems creating the hadoop filesystem, this class can only be run in "
                     + "a Google Dataproc cluster", e);

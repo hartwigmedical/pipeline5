@@ -47,9 +47,9 @@ public class BamMetricsPipeline {
         String sourceBamFile = Bams.name(sample, sourceBamDirectory, Bams.SORTED);
         String localBamFile = localWorkingDirectory + File.separator + sample.name() + ".local.bam";
 
-        LOGGER.info("Copying BAM file to [{}]", localBamFile);
+        LOGGER.info("Copying BAM file from [{}] to [{}]", sourceBamFile, localBamFile);
         FileUtil.copy(fileSystem.open(new Path(sourceBamFile)), new File(localBamFile), noop());
-        LOGGER.info("Copy complete");
+        LOGGER.info("BAM copy complete");
 
         String localRefGenomeDirectory = localWorkingDirectory + File.separator + "refGenome";
         RemoteIterator<LocatedFileStatus> fileIterator = fileSystem.listFiles(new Path(sourceRefGenomeDirectory), false);
@@ -58,22 +58,24 @@ public class BamMetricsPipeline {
             LocatedFileStatus file = fileIterator.next();
             String localFilePath = localRefGenomeDirectory + File.separator + file.getPath().getName();
 
-            LOGGER.info("Copying ref genome file [{}]", localFilePath);
+            LOGGER.info("Copying ref genome file from [{}] to [{}]", file.getPath(), localFilePath);
             FileUtil.copy(fileSystem.open(file.getPath()), new File(localFilePath), noop());
 
             if (localFilePath.endsWith(".fasta") || localFilePath.endsWith(".fa")) {
+                LOGGER.info("Picked {} as the reference genome file", localFilePath);
                 localRefGenomeFile = localFilePath;
             }
         }
+        LOGGER.info("Ref genome copy complete");
 
         assert localRefGenomeFile != null;
 
         String localWgsMetricsFile = localWorkingDirectory + File.separator + sample.name() + ".local.wgsmetrics";
         picardWGSMetrics.execute(localWorkingDirectory, localBamFile, localRefGenomeFile, localWgsMetricsFile);
 
-        FileUtil.copy(new FileInputStream(localWgsMetricsFile),
-                fileSystem.create(new Path(sourceBamDirectory + File.separator + sample.name() + ".wgsmetrics")),
-                noop());
+        String targetWgsMetricsFile = sourceBamDirectory + File.separator + sample.name() + ".wgsmetrics";
+        LOGGER.info("Uploading WGSMetrics file from [{}] to [{}]", localWgsMetricsFile, targetWgsMetricsFile);
+        FileUtil.copy(new FileInputStream(localWgsMetricsFile), fileSystem.create(new Path(targetWgsMetricsFile)), noop());
 
         FileUtil.forceDelete(new File(localWgsMetricsFile));
 
@@ -84,6 +86,15 @@ public class BamMetricsPipeline {
     @VisibleForTesting
     static BamMetricsPipeline create(final String picardJarPath, final FileSystem fileSystem, final String bamDirectory,
             final String refGenomeDirectory, final String localWorkingDirectory, final Monitor monitor) {
+        LOGGER.info(
+                "Creating BamMetricsPipeline with picardJarPath={}, fileSystem={}, bamDirectory={}, refGenomeDirectory={}, localWorkingDirectory={}, monitor={}",
+                picardJarPath,
+                fileSystem,
+                bamDirectory,
+                refGenomeDirectory,
+                localWorkingDirectory,
+                monitor);
+
         return new BamMetricsPipeline(fileSystem,
                 bamDirectory,
                 refGenomeDirectory,
@@ -92,8 +103,8 @@ public class BamMetricsPipeline {
                 new PicardWGSMetrics(picardJarPath));
     }
 
-    public static BamMetricsPipeline create(final String picardJarPath, final FileSystem fileSystem, final String bamDirectory, final String refGenomeDirectory,
-            final Monitor monitor) {
+    public static BamMetricsPipeline create(final String picardJarPath, final FileSystem fileSystem, final String bamDirectory,
+            final String refGenomeDirectory, final Monitor monitor) {
         // For production usage, the local working directory is transient so doesn't matter.
         return create(picardJarPath, fileSystem, bamDirectory, refGenomeDirectory, System.getProperty("user.dir"), monitor);
     }
