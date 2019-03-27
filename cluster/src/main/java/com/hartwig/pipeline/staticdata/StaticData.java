@@ -36,7 +36,7 @@ public class StaticData {
         Bucket staticDataBucket = storage.get(sourceBucket);
         if (staticDataBucket != null) {
             Page<Blob> blobs = staticDataBucket.list();
-            LOGGER.info("Copying static data from [{}] into [{}]", sourceBucket, runtimeBucket.getName());
+            LOGGER.info("Copying static data from [{}] into [{}]", sourceBucket, runtimeBucket.name());
             for (Blob source : blobs.iterateAll()) {
                 BlobId target = BlobId.of(runtimeBucket.bucket().getName(), targetBucket + "/" + alias.apply(source.getName()));
                 storage.copy(Storage.CopyRequest.of(sourceBucket, source.getName(), target));

@@ -35,7 +35,7 @@ public interface SparkJobDefinition {
                 .name("BamCreation")
                 .mainClass(BAM_CREATION_MAIN)
                 .jarLocation(jarLocation.uri())
-                .addArguments(arguments.version(), runtimeBucket.getName(), arguments.project())
+                .addArguments(arguments.version(), runtimeBucket.name(), arguments.project())
                 .sparkProperties(SparkProperties.asMap(profile))
                 .build();
     }
@@ -46,7 +46,7 @@ public interface SparkJobDefinition {
                 .name("SortAndIndex")
                 .mainClass(SORT_INDEX_MAIN)
                 .jarLocation(jarLocation.uri())
-                .addArguments(arguments.version(), runtimeBucket.getName(), arguments.project(), sample.name(), resultsDirectory.path(""))
+                .addArguments(arguments.version(), runtimeBucket.name(), arguments.project(), sample.name(), resultsDirectory.path(""))
                 .sparkProperties(SparkProperties.asMap(profile))
                 .build();
     }
@@ -57,7 +57,7 @@ public interface SparkJobDefinition {
                 .name("BamMetrics")
                 .mainClass(BAM_METRICS_MAIN)
                 .jarLocation(jarLocation.uri())
-                .addArguments(arguments.version(), runtimeBucket.getName(), sample.name())
+                .addArguments(arguments.version(), runtimeBucket.name(), sample.name())
                 .sparkProperties(SparkProperties.asMap(profile))
                 .build();
     }

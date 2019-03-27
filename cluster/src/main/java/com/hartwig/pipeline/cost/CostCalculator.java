@@ -14,6 +14,7 @@ import com.google.api.services.cloudbilling.model.ListSkusResponse;
 import com.google.api.services.cloudbilling.model.Sku;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.common.collect.Lists;
 import com.hartwig.pipeline.performance.PerformanceProfile;
 
 import org.slf4j.Logger;
@@ -55,10 +56,10 @@ public class CostCalculator {
     }
 
     private Map<String, Sku> getSkus(final String service) throws IOException {
-        List<Sku> skus = new ArrayList<>();
         Cloudbilling.Services.Skus.List list = cloudbilling.services().skus().list(service);
         ListSkusResponse response = list.execute();
-        skus.addAll(response.getSkus());
+        List<Sku> skus = Lists.newArrayList(response.getSkus());
+
         while (response.getNextPageToken() != null && !response.getNextPageToken().trim().isEmpty()) {
             list.setPageToken(response.getNextPageToken());
             response = list.execute();

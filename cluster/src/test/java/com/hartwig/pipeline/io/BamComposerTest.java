@@ -32,16 +32,17 @@ public class BamComposerTest {
     private static final String SAMPLE = "COLO829T";
     private static final String RUNTIME = "runtime";
     private static final String HEADER = ResultsDirectory.defaultDirectory().path("COLO829T.bam_head");
+
     private Storage storage;
     private RuntimeBucket runtime;
     private Page<Blob> page;
     private BamComposer victim;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         storage = mock(Storage.class);
         runtime = mock(RuntimeBucket.class);
-        when(runtime.getName()).thenReturn(RUNTIME);
+        when(runtime.name()).thenReturn(RUNTIME);
         final Bucket bucket = mock(Bucket.class);
         when(runtime.bucket()).thenReturn(bucket);
         //noinspection unchecked

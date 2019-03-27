@@ -15,15 +15,7 @@ public class RuntimeBucket {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RuntimeBucket.class);
 
-    public Bucket bucket() {
-        return bucket;
-    }
-
     private final Bucket bucket;
-
-    public RuntimeBucket(final Bucket bucket) {
-        this.bucket = bucket;
-    }
 
     public static RuntimeBucket from(Storage storage, String sampleName, Arguments arguments) {
         Run run = Run.from(sampleName, arguments);
@@ -39,6 +31,18 @@ public class RuntimeBucket {
         return new RuntimeBucket(bucket);
     }
 
+    private RuntimeBucket(final Bucket bucket) {
+        this.bucket = bucket;
+    }
+
+    public Bucket bucket() {
+        return bucket;
+    }
+
+    public String name() {
+        return bucket.getName();
+    }
+
     public void cleanup() {
         if (bucket.exists()) {
             for (Blob blob : bucket.list().iterateAll()) {
@@ -47,9 +51,5 @@ public class RuntimeBucket {
             bucket.delete();
             LOGGER.info("Cleaned up all data in runtime bucket [{}]", bucket.getName());
         }
-    }
-
-    public String getName() {
-        return bucket.getName();
     }
 }

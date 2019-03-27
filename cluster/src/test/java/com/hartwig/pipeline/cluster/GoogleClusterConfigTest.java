@@ -18,6 +18,7 @@ public class GoogleClusterConfigTest {
 
     private static final String CLUSTER_IDLE_TTL = "10s";
     private static final Arguments ARGUMENTS = Arguments.defaultsBuilder().clusterIdleTtl(CLUSTER_IDLE_TTL).build();
+
     private RuntimeBucket runtimeBucket;
     private NodeInitialization nodeInitialization;
     private GoogleClusterConfig victim;
@@ -25,7 +26,7 @@ public class GoogleClusterConfigTest {
     @Before
     public void setUp() throws Exception {
         runtimeBucket = mock(RuntimeBucket.class);
-        when(runtimeBucket.getName()).thenReturn("runtime-bucket");
+        when(runtimeBucket.name()).thenReturn("runtime-bucket");
         nodeInitialization = mock(NodeInitialization.class);
         victim = GoogleClusterConfig.from(runtimeBucket, nodeInitialization, profileBuilder().build(), ARGUMENTS);
     }
@@ -40,25 +41,25 @@ public class GoogleClusterConfigTest {
     }
 
     @Test
-    public void allNodesUseResolvedMachineType() throws Exception {
+    public void allNodesUseResolvedMachineType() {
         assertThat(victim.config().getMasterConfig().getMachineTypeUri()).isEqualTo(MachineType.GOOGLE_STANDARD_16);
         assertThat(victim.config().getWorkerConfig().getMachineTypeUri()).isEqualTo(MachineType.GOOGLE_HIGHMEM_32);
         assertThat(victim.config().getSecondaryWorkerConfig().getMachineTypeUri()).isEqualTo(MachineType.GOOGLE_HIGHMEM_32);
     }
 
     @Test
-    public void workerDiskSizeSetToValueInProfile() throws Exception {
+    public void workerDiskSizeSetToValueInProfile() {
         assertThat(victim.config().getWorkerConfig().getDiskConfig().getBootDiskSizeGb()).isEqualTo(MachineType.DISK_GB);
         assertThat(victim.config().getSecondaryWorkerConfig().getDiskConfig().getBootDiskSizeGb()).isEqualTo(MachineType.DISK_GB);
     }
 
     @Test
-    public void idleTtlSetOnLifecycleConfig() throws Exception {
+    public void idleTtlSetOnLifecycleConfig()  {
         assertThat(victim.config().getLifecycleConfig().getIdleDeleteTtl()).isEqualTo(CLUSTER_IDLE_TTL);
     }
 
     @NotNull
-    private ImmutablePerformanceProfile.Builder profileBuilder() {
+    private static ImmutablePerformanceProfile.Builder profileBuilder() {
         return PerformanceProfile.builder().numPreemtibleWorkers(5).numPrimaryWorkers(2);
     }
 }

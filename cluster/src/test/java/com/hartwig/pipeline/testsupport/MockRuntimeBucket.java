@@ -23,7 +23,7 @@ public class MockRuntimeBucket {
     private MockRuntimeBucket(String name) {
         runtimeBucket = mock(RuntimeBucket.class);
         googleBucket = mock(Bucket.class);
-        when(runtimeBucket.getName()).thenReturn(name);
+        when(runtimeBucket.name()).thenReturn(name);
         when(runtimeBucket.bucket()).thenReturn(googleBucket);
         Page page = mock(Page.class);
         //noinspection unchecked

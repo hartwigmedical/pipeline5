@@ -54,7 +54,7 @@ public class CloudSampleUpload implements SampleUpload {
             LOGGER.info("Fastq [{}] already existed in Google Storage. Skipping upload", target);
         } else {
             LOGGER.info("Uploading fastq [{}] to Google Storage", file);
-            cloudCopy.copy(file, format("gs://%s/%s", bucket.getName(), target));
+            cloudCopy.copy(file, format("gs://%s/%s", bucket.name(), target));
         }
     }
 

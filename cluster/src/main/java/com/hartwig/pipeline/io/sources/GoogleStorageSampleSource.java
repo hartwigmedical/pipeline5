@@ -31,7 +31,7 @@ public class GoogleStorageSampleSource implements SampleSource {
         Iterable<Blob> blobs = runtimeBucket.bucket().list(Storage.BlobListOption.prefix("samples/")).iterateAll();
         if (Iterables.isEmpty(blobs)) {
             throw new IllegalArgumentException(String.format("No sample data found in bucket [%s] so there is no input to process. "
-                    + "You cannot use the no_upload flag if no sample has already been uploaded", runtimeBucket.getName()));
+                    + "You cannot use the no_upload flag if no sample has already been uploaded", runtimeBucket.name()));
         }
         long zippedFileSizeInBytes = StreamSupport.stream(blobs.spliterator(), false)
                 .filter(GoogleStorageSampleSource::isGZipped)

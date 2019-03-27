@@ -22,15 +22,15 @@ public class GoogleStorageStatusCheck implements StatusCheck {
     public Status check(final RuntimeBucket bucket) {
         Blob blob = bucket.bucket().get(resultsDirectory.path(FAILURE_PATH));
         if (blob != null) {
-            LOGGER.error("Pipeline run for [{}] was marked as failed with reason [{}]", bucket.getName(), new String(blob.getContent()));
+            LOGGER.error("Pipeline run for [{}] was marked as failed with reason [{}]", bucket.name(), new String(blob.getContent()));
             return Status.FAILED;
         }
         blob = bucket.bucket().get(resultsDirectory.path(SUCCESS_PATH));
         if (blob != null) {
-            LOGGER.info("Pipeline run for [{}] was marked as successful", bucket.getName());
+            LOGGER.info("Pipeline run for [{}] was marked as successful", bucket.name());
             return Status.SUCCESS;
         }
-        LOGGER.warn("Pipeline run for [{}] had no status. Check job logs for more information", bucket.getName());
+        LOGGER.warn("Pipeline run for [{}] had no status. Check job logs for more information", bucket.name());
         return Status.UNKNOWN;
     }
 }

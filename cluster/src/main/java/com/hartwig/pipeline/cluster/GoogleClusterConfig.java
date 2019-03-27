@@ -37,7 +37,7 @@ class GoogleClusterConfig {
         ClusterConfig config = clusterConfig(masterConfig(profile.master()),
                 primaryWorkerConfig(diskConfig, profile.primaryWorkers(), profile.numPrimaryWorkers()),
                 secondaryWorkerConfig(profile, diskConfig, profile.preemtibleWorkers()),
-                runtimeBucket.getName(),
+                runtimeBucket.name(),
                 softwareConfig(),
                 initializationActions(runtimeBucket, nodeInitialization),
                 gceClusterConfig(),

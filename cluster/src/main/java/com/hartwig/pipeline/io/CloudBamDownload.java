@@ -27,7 +27,7 @@ public class CloudBamDownload implements BamDownload {
     @Override
     public void run(final Sample sample, final RuntimeBucket runtimeBucket, final JobResult result) {
         try {
-            String bamPath = String.format("gs://%s/%s%s.sorted.bam", runtimeBucket.getName(), resultsDirectory.path(""), sample.name());
+            String bamPath = String.format("gs://%s/%s%s.sorted.bam", runtimeBucket.name(), resultsDirectory.path(""), sample.name());
             String targetBam = targetResolver.apply(sample);
             cloudCopy.copy(bamPath, targetBam);
             cloudCopy.copy(bai(bamPath), bai(targetBam));

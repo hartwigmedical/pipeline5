@@ -56,7 +56,7 @@ public class GoogleDataprocCluster implements SparkCluster {
     @Override
     public void start(PerformanceProfile performanceProfile, Sample sample, RuntimeBucket runtimeBucket, Arguments arguments)
             throws IOException {
-        this.clusterName = runtimeBucket.getName() + "-" + id;
+        this.clusterName = runtimeBucket.name() + "-" + id;
         Dataproc.Projects.Regions.Clusters clusters = dataproc.projects().regions().clusters();
         Cluster existing = findExistingCluster(arguments);
         if (existing == null) {

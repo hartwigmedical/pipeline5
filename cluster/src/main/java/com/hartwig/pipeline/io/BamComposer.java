@@ -38,7 +38,7 @@ public class BamComposer {
         LOGGER.info("Composing sharded BAM into a single downloadable BAM file on GS.");
         String headerBlob = resultsDirectory.path(sample.name() + optionalSuffix() + ".bam_head");
         String tailDirectory = "%s%s.bam_tail";
-        Page<Blob> blobs = storage.list(runtimeBucket.getName(),
+        Page<Blob> blobs = storage.list(runtimeBucket.name(),
                 Storage.BlobListOption.prefix(resultsDirectory.path(String.format(tailDirectory + "/part-r-",
                         sample.name(),
                         optionalSuffix()))));
@@ -64,7 +64,7 @@ public class BamComposer {
     }
 
     private void deletePath(final RuntimeBucket runtimeBucket, final String directory) {
-        storage.list(runtimeBucket.getName(), Storage.BlobListOption.prefix(directory)).iterateAll().forEach(blob -> blob.delete());
+        storage.list(runtimeBucket.name(), Storage.BlobListOption.prefix(directory)).iterateAll().forEach(blob -> blob.delete());
     }
 
     private void recursivelyCompose(final Sample sample, final RuntimeBucket runtimeBucket, final List<List<String>> partitioned,
@@ -79,7 +79,7 @@ public class BamComposer {
             recursivelyCompose(sample, runtimeBucket, Lists.partition(composed, maxComponentsPerCompose), pass + 1);
         } else if (partitioned.size() == 1) {
             List<String> sources = partitioned.get(0);
-            storage.compose(Storage.ComposeRequest.of(runtimeBucket.getName(),
+            storage.compose(Storage.ComposeRequest.of(runtimeBucket.name(),
                     sources,
                     resultsDirectory.path(sample.name() + optionalSuffix() + ".bam")));
         } else {
@@ -92,7 +92,7 @@ public class BamComposer {
             final int partitionIndex) {
         String composed = resultsDirectory.path(
                 "composed/" + sample.name() + ".bam.part-" + new DecimalFormat("000000").format(partitionIndex) + "-" + pass);
-        storage.compose(Storage.ComposeRequest.of(runtimeBucket.getName(), toCompose, composed));
+        storage.compose(Storage.ComposeRequest.of(runtimeBucket.name(), toCompose, composed));
         return composed;
     }
 }
