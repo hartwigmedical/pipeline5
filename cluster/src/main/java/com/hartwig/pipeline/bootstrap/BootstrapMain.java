@@ -1,7 +1,6 @@
 package com.hartwig.pipeline.bootstrap;
 
-import java.util.Optional;
-
+import org.apache.commons.cli.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,9 +9,9 @@ public class BootstrapMain {
     private final static Logger LOGGER = LoggerFactory.getLogger(BootstrapMain.class);
 
     public static void main(String[] args) {
-        Optional<Arguments> optArguments = BootstrapOptions.from(args);
-        if (optArguments.isPresent()) {
-            Arguments arguments = optArguments.get();
+
+        try {
+            Arguments arguments = BootstrapOptions.from(args);
             LOGGER.info("Arguments [{}]", arguments);
             try {
                 BootstrapProvider.from(arguments).get().run();
@@ -21,6 +20,8 @@ public class BootstrapMain {
                 System.exit(1);
             }
             LOGGER.info("Bootstrap completed successfully");
+        } catch (ParseException e) {
+            LOGGER.info("Exiting due to incorrect arguments");
         }
     }
 }

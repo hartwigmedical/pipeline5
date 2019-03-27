@@ -12,7 +12,6 @@ import com.google.api.services.dataproc.v1beta2.model.LifecycleConfig;
 import com.google.api.services.dataproc.v1beta2.model.NodeInitializationAction;
 import com.google.api.services.dataproc.v1beta2.model.SoftwareConfig;
 import com.google.common.collect.ImmutableMap;
-import com.hartwig.pipeline.bootstrap.Arguments;
 import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.performance.MachineType;
 import com.hartwig.pipeline.performance.PerformanceProfile;
@@ -21,6 +20,7 @@ import org.jetbrains.annotations.NotNull;
 
 class GoogleClusterConfig {
 
+    private static final String IDLE_TTL = "600s";
     private final ClusterConfig config;
 
     private GoogleClusterConfig(final ClusterConfig config) {
@@ -31,17 +31,15 @@ class GoogleClusterConfig {
         return config;
     }
 
-    static GoogleClusterConfig from(RuntimeBucket runtimeBucket, NodeInitialization nodeInitialization, PerformanceProfile profile,
-            Arguments arguments) throws FileNotFoundException {
+    static GoogleClusterConfig from(RuntimeBucket runtimeBucket, NodeInitialization nodeInitialization, PerformanceProfile profile)
+            throws FileNotFoundException {
         DiskConfig diskConfig = diskConfig(profile.primaryWorkers());
         ClusterConfig config = clusterConfig(masterConfig(profile.master()),
                 primaryWorkerConfig(diskConfig, profile.primaryWorkers(), profile.numPrimaryWorkers()),
                 secondaryWorkerConfig(profile, diskConfig, profile.preemtibleWorkers()),
                 runtimeBucket.name(),
                 softwareConfig(),
-                initializationActions(runtimeBucket, nodeInitialization),
-                gceClusterConfig(),
-                lifecycleConfig(arguments.clusterIdleTtl()));
+                initializationActions(runtimeBucket, nodeInitialization), gceClusterConfig(), lifecycleConfig(IDLE_TTL));
         return new GoogleClusterConfig(config);
     }
 

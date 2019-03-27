@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.hartwig.pipeline.bootstrap.Arguments;
 import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.performance.ImmutablePerformanceProfile;
 import com.hartwig.pipeline.performance.MachineType;
@@ -16,8 +15,6 @@ import org.junit.Test;
 
 public class GoogleClusterConfigTest {
 
-    private static final String CLUSTER_IDLE_TTL = "10s";
-    private static final Arguments ARGUMENTS = Arguments.defaultsBuilder().clusterIdleTtl(CLUSTER_IDLE_TTL).build();
 
     private RuntimeBucket runtimeBucket;
     private NodeInitialization nodeInitialization;
@@ -28,13 +25,13 @@ public class GoogleClusterConfigTest {
         runtimeBucket = mock(RuntimeBucket.class);
         when(runtimeBucket.name()).thenReturn("runtime-bucket");
         nodeInitialization = mock(NodeInitialization.class);
-        victim = GoogleClusterConfig.from(runtimeBucket, nodeInitialization, profileBuilder().build(), ARGUMENTS);
+        victim = GoogleClusterConfig.from(runtimeBucket, nodeInitialization, profileBuilder().build());
     }
 
     @Test
     public void oneMasterTwoPrimaryWorkersAndRemainingNodesSecondary() throws Exception {
         GoogleClusterConfig victim =
-                GoogleClusterConfig.from(runtimeBucket, nodeInitialization, profileBuilder().numPreemtibleWorkers(3).build(), ARGUMENTS);
+                GoogleClusterConfig.from(runtimeBucket, nodeInitialization, profileBuilder().numPreemtibleWorkers(3).build());
         assertThat(victim.config().getMasterConfig().getNumInstances()).isEqualTo(1);
         assertThat(victim.config().getWorkerConfig().getNumInstances()).isEqualTo(2);
         assertThat(victim.config().getSecondaryWorkerConfig().getNumInstances()).isEqualTo(3);
@@ -55,7 +52,7 @@ public class GoogleClusterConfigTest {
 
     @Test
     public void idleTtlSetOnLifecycleConfig()  {
-        assertThat(victim.config().getLifecycleConfig().getIdleDeleteTtl()).isEqualTo(CLUSTER_IDLE_TTL);
+        assertThat(victim.config().getLifecycleConfig().getIdleDeleteTtl()).isEqualTo("600s");
     }
 
     @NotNull

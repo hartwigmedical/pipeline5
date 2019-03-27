@@ -60,8 +60,7 @@ public class GoogleDataprocCluster implements SparkCluster {
         Dataproc.Projects.Regions.Clusters clusters = dataproc.projects().regions().clusters();
         Cluster existing = findExistingCluster(arguments);
         if (existing == null) {
-            ClusterConfig clusterConfig =
-                    GoogleClusterConfig.from(runtimeBucket, nodeInitialization, performanceProfile, arguments).config();
+            ClusterConfig clusterConfig = GoogleClusterConfig.from(runtimeBucket, nodeInitialization, performanceProfile).config();
             Operation createCluster =
                     clusters.create(arguments.project(), arguments.region(), cluster(clusterConfig, clusterName)).execute();
             LOGGER.info("Starting Google Dataproc cluster with name [{}]. This may take a minute or two...", clusterName);

@@ -30,7 +30,7 @@ public class JobTest {
 
     private static final ImmutableSample TEST_SAMPLE = Sample.builder("", "test_sample").build();
     private static final PerformanceProfile PERFORMANCE_PROFILE = PerformanceProfile.singleNode();
-    private static final Arguments ARGUMENTS = Arguments.defaults();
+    private static final Arguments ARGUMENTS = Arguments.testDefaults();
     private static final JarLocation JAR_LOCATION = JarLocation.of("/path/to/jar");
     private static final SparkJobDefinition JOB_DEFINITION = SparkJobDefinition.gunzip(JAR_LOCATION, PERFORMANCE_PROFILE);
     private SparkCluster sparkCluster;
@@ -69,7 +69,7 @@ public class JobTest {
 
     @Test
     public void clusterStartedJobSubmittedClusterStopped() throws IOException {
-        assertThat(victim.execute(TEST_SAMPLE, runtimeBucket, Arguments.defaults())).isEqualTo(JobResult.SUCCESS);
+        assertThat(victim.execute(TEST_SAMPLE, runtimeBucket, Arguments.testDefaults())).isEqualTo(JobResult.SUCCESS);
         verify(sparkCluster).start(PERFORMANCE_PROFILE, TEST_SAMPLE, runtimeBucket, ARGUMENTS);
         verify(sparkCluster).submit(JOB_DEFINITION, ARGUMENTS);
         verify(sparkCluster).stop(ARGUMENTS);
@@ -77,7 +77,7 @@ public class JobTest {
 
     @Test
     public void metricsSentToMonitorOnJobCompletion() {
-        victim.execute(TEST_SAMPLE, runtimeBucket, Arguments.defaults());
+        victim.execute(TEST_SAMPLE, runtimeBucket, Arguments.testDefaults());
         verify(monitor, times(2)).update(any());
     }
 }

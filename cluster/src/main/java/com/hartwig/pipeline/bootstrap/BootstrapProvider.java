@@ -37,6 +37,7 @@ import com.hartwig.support.hadoop.Hadoop;
 
 abstract class BootstrapProvider {
 
+    private static final int PERFECT_RATIO = 4;
     private final CredentialProvider credentialProvider;
     private final Arguments arguments;
 
@@ -57,7 +58,7 @@ abstract class BootstrapProvider {
         GoogleCredentials credentials = credentialProvider.get();
         Storage storage = createStorage(arguments, credentials);
         NodeInitialization nodeInitialization = new NodeInitialization(arguments.nodeInitializationScript());
-        CpuFastQSizeRatio ratio = CpuFastQSizeRatio.of(arguments.cpuPerGBRatio());
+        CpuFastQSizeRatio ratio = CpuFastQSizeRatio.of(PERFECT_RATIO);
         CostCalculator costCalculator = new CostCalculator(credentials, arguments.region(), Costs.defaultCosts());
         ResultsDirectory resultsDirectory = ResultsDirectory.defaultDirectory();
         BamComposer defaultComposer = new BamComposer(storage, resultsDirectory, 32);
@@ -100,7 +101,7 @@ abstract class BootstrapProvider {
                 BamComposer recalibratedComposer, ResultsDirectory resultsDirectory) throws Exception {
             SampleSource sampleSource = getArguments().noUpload()
                     ? new GoogleStorageSampleSource(storage)
-                    : new FileSystemSampleSource(Hadoop.localFilesystem(), getArguments().patientDirectory());
+                    : new FileSystemSampleSource(Hadoop.localFilesystem(), getArguments().sampleDirectory());
             GSUtilCloudCopy gsUtilCloudCopy = new GSUtilCloudCopy(getArguments().cloudSdkPath());
             BamDownload bamDownload = new CloudBamDownload(new LocalFileTarget(), ResultsDirectory.defaultDirectory(), gsUtilCloudCopy);
             SampleUpload sampleUpload = new CloudSampleUpload(new LocalFileSource(), gsUtilCloudCopy);
@@ -137,16 +138,14 @@ abstract class BootstrapProvider {
                 CostCalculator costCalculator, GoogleDataprocCluster singleNode, GoogleDataprocCluster spark, BamComposer defaultComposer,
                 BamComposer recalibratedComposer, ResultsDirectory resultsDirectory) throws Exception {
             SBPRestApi sbpRestApi = SBPRestApi.newInstance(getArguments());
-            AmazonS3 s3 = S3.newClient(getArguments().sblS3Url());
+            AmazonS3 s3 = S3.newClient(getArguments().sbpS3Url());
             SampleSource sampleSource = new SBPS3SampleSource(s3, new SBPSampleReader(sbpRestApi));
             CloudCopy cloudCopy = new RCloneCloudCopy(getArguments().rclonePath(),
                     getArguments().rcloneGcpRemote(),
                     getArguments().rcloneS3Remote(),
                     ProcessBuilder::new);
             BamDownload bamDownload = new SBPSampleMetadataPatch(s3,
-                    sbpRestApi,
-                    sbpSampleId,
-                    SBPS3BamDownload.from(s3, resultsDirectory, getArguments().s3UploadThreads()),
+                    sbpRestApi, sbpSampleId, SBPS3BamDownload.from(s3, resultsDirectory),
                     resultsDirectory,
                     System::getenv);
             SampleUpload sampleUpload = new CloudSampleUpload(new SBPS3FileSource(), cloudCopy);

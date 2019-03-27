@@ -39,7 +39,7 @@ public class SBPS3SampleSourceTest {
                 .build());
         when(s3.getObject(bucketCaptor.capture(), objectCaptor.capture())).thenReturn(new S3Object());
 
-        victim.sample(Arguments.defaultsBuilder().sbpApiSampleId(1).build());
+        victim.sample(Arguments.testDefaultsBuilder().sbpApiSampleId(1).build());
 
         assertThat(bucketCaptor.getAllValues().get(0)).isEqualTo("obj02_input");
         assertThat(objectCaptor.getAllValues().get(0)).isEqualTo("HMF_COLO829/COLO829R/COLO829R_AHCT3FCCXY_S2_L001_R1_001.fastq.gz");

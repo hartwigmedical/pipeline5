@@ -1,7 +1,6 @@
 package com.hartwig.pipeline.io.sbp;
 
 import java.nio.channels.Channels;
-import java.util.concurrent.Executors;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
@@ -38,10 +37,9 @@ public class SBPS3BamDownload implements BamDownload {
         this.retryDelay = retryDelay;
     }
 
-    public static SBPS3BamDownload from(final AmazonS3 s3, final ResultsDirectory resultsDirectory, final int numThreads) {
+    public static SBPS3BamDownload from(final AmazonS3 s3, final ResultsDirectory resultsDirectory) {
         TransferManager transferManager = TransferManagerBuilder.standard()
                 .withS3Client(s3)
-                .withExecutorFactory(() -> Executors.newFixedThreadPool(numThreads))
                 .withMultipartUploadThreshold(ONE_HUNDRED_MB)
                 .withMinimumUploadPartSize(ONE_HUNDRED_MB)
                 .build();

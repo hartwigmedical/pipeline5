@@ -30,3 +30,4 @@ results/
 
 # Don't upload service account keys
 gcloud-read-credentials.json
+bootstrap-key.json

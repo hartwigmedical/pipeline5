@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.io;
 
+import java.time.LocalDateTime;
+
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.BucketInfo;
@@ -18,7 +20,7 @@ public class RuntimeBucket {
     private final Bucket bucket;
 
     public static RuntimeBucket from(Storage storage, String sampleName, Arguments arguments) {
-        Run run = Run.from(sampleName, arguments);
+        Run run = Run.from(sampleName, arguments, LocalDateTime.now());
         Bucket bucket = storage.get(run.id());
         if (bucket == null) {
             LOGGER.info("Creating runtime bucket [{}] in Google Storage", run.id());

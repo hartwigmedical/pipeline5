@@ -20,7 +20,7 @@ import org.mockito.Mockito;
 public class GoogleStorageSampleSourceTest {
 
     private static final String SAMPLE = "CPCT12345678";
-    private static final ImmutableArguments ARGUMENTS = Arguments.defaultsBuilder().patientId(SAMPLE).build();
+    private static final ImmutableArguments ARGUMENTS = Arguments.testDefaultsBuilder().sampleId(SAMPLE).build();
     private SampleSource victim;
     private Storage storage;
 
@@ -32,7 +32,7 @@ public class GoogleStorageSampleSourceTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void patientIdArgumentMustBeSpecified() {
-        victim.sample(Arguments.defaults());
+        victim.sample(Arguments.testDefaults());
     }
 
     @Test(expected = IllegalArgumentException.class)

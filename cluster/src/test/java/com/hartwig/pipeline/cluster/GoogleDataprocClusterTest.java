@@ -32,7 +32,7 @@ public class GoogleDataprocClusterTest {
 
     private static final String REGION = "region";
     private static final String PROJECT = "project";
-    private static final Arguments ARGUMENTS = Arguments.defaultsBuilder().project(PROJECT).region(REGION).build();
+    private static final Arguments ARGUMENTS = Arguments.testDefaultsBuilder().project(PROJECT).region(REGION).build();
     private static final String CLUSTER_NAME = "sample-cluster";
     private static final String JOB_ID = "sample-cluster-gunzip";
     private Dataproc.Projects.Regions.Clusters clusters;

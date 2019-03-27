@@ -38,25 +38,25 @@ public class RuntimeBucketTest {
 
     @Test
     public void createsBucketIdFromSampleName() {
-        RuntimeBucket.from(storage, SAMPLE_NAME, Arguments.defaults());
+        RuntimeBucket.from(storage, SAMPLE_NAME, Arguments.testDefaultsBuilder().profile(Arguments.DefaultsProfile.PRODUCTION).build());
         assertThat(blobInfo.getValue().getName()).isEqualTo("run-test");
     }
 
     @Test
     public void setsRegionToArguments() {
-        RuntimeBucket.from(storage, SAMPLE_NAME, Arguments.defaultsBuilder().region(REGION).build());
+        RuntimeBucket.from(storage, SAMPLE_NAME, Arguments.testDefaultsBuilder().region(REGION).build());
         assertThat(blobInfo.getValue().getLocation()).isEqualTo(REGION);
     }
 
     @Test
     public void usesRegionalStorageClass() {
-        RuntimeBucket.from(storage, SAMPLE_NAME, Arguments.defaults());
+        RuntimeBucket.from(storage, SAMPLE_NAME, Arguments.testDefaults());
         assertThat(blobInfo.getValue().getStorageClass()).isEqualTo(StorageClass.REGIONAL);
     }
 
     @Test
     public void cleanupDeletesAllObjectsBeforeDeletingBucket() {
-        RuntimeBucket victim = RuntimeBucket.from(storage, SAMPLE_NAME, Arguments.defaults());
+        RuntimeBucket victim = RuntimeBucket.from(storage, SAMPLE_NAME, Arguments.testDefaults());
         @SuppressWarnings("unchecked")
         Page<Blob> page = mock(Page.class);
         Blob singleObject = mock(Blob.class);

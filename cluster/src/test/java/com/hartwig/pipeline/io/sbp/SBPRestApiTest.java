@@ -20,8 +20,8 @@ public class SBPRestApiTest {
                         .region("region")
                         .privateKeyPath("path")
                         .sbpApiUrl("https://api.hartwigmedicalfoundation.nl")
-                        .jarLibDirectory("/Users/pwolfe/Code/pipeline2/system/target/")
-                        .patientDirectory(System.getProperty("user.dir") + "/src/test/resources/patients/cancerPanel")
+                        .jarDirectory("/Users/pwolfe/Code/pipeline2/system/target/")
+                        .sampleDirectory(System.getProperty("user.dir") + "/src/test/resources/patients/cancerPanel")
                         .build());*/
     }
 }

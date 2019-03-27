@@ -22,11 +22,11 @@ public class GoogleStorageSampleSource implements SampleSource {
 
     @Override
     public SampleData sample(final Arguments arguments) {
-        if (arguments.patientId() == null || arguments.patientId().isEmpty()) {
-            throw new IllegalArgumentException("Unable to run in -no_upload mode without an explicit patient/sample name (use -p)");
+        if (arguments.sampleId() == null || arguments.sampleId().isEmpty()) {
+            throw new IllegalArgumentException("Unable to run in -no_upload mode without an explicit patient/sample name (use -sample_id)");
         }
 
-        RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, arguments.patientId(), arguments);
+        RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, arguments.sampleId(), arguments);
 
         Iterable<Blob> blobs = runtimeBucket.bucket().list(Storage.BlobListOption.prefix("samples/")).iterateAll();
         if (Iterables.isEmpty(blobs)) {
@@ -42,7 +42,7 @@ public class GoogleStorageSampleSource implements SampleSource {
                 .mapToLong(BlobInfo::getSize)
                 .map(size -> size / ESTIMATED_COMPRESSION)
                 .sum();
-        return SampleData.of(Sample.builder("", arguments.patientId()).build(), zippedFileSizeInBytes + unzippedFileSizeInBytes);
+        return SampleData.of(Sample.builder("", arguments.sampleId()).build(), zippedFileSizeInBytes + unzippedFileSizeInBytes);
     }
 
     private static boolean isGZipped(Blob blob) {

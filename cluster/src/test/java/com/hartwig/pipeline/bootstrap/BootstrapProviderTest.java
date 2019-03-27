@@ -11,7 +11,7 @@ import org.junit.Test;
 
 public class BootstrapProviderTest {
 
-    private static final Arguments LOCAL_ARGUMENTS = Arguments.defaults();
+    private static final Arguments LOCAL_ARGUMENTS = Arguments.testDefaults();
     private CredentialProvider credentialProvider;
 
     @Before
@@ -29,7 +29,7 @@ public class BootstrapProviderTest {
 
     @Test
     public void wiresUpBootstrapWithSbpDependencies() throws Exception {
-        BootstrapProvider victim = BootstrapProvider.from(Arguments.defaultsBuilder().sbpApiSampleId(1).build(), credentialProvider);
+        BootstrapProvider victim = BootstrapProvider.from(Arguments.testDefaultsBuilder().sbpApiSampleId(1).build(), credentialProvider);
         assertThat(victim.get()).isNotNull();
         assertThat(victim).isInstanceOf(BootstrapProvider.SBPBootstrapProvider.class);
     }

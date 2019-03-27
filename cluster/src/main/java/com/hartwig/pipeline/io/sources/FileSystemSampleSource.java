@@ -26,7 +26,7 @@ public class FileSystemSampleSource implements SampleSource {
     @Override
     public SampleData sample(final Arguments arguments) {
         try {
-            Sample sample = PatientReader.fromHDFS(fileSystem, patientDirectory, arguments.patientId()).reference();
+            Sample sample = PatientReader.fromHDFS(fileSystem, patientDirectory, arguments.sampleId()).reference();
             long size = sample.lanes()
                     .stream().flatMap(lane -> Stream.of(lane.firstOfPairPath(), lane.secondOfPairPath()))
                     .map(toFileStatus())
