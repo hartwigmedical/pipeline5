@@ -32,7 +32,8 @@ import org.slf4j.LoggerFactory;
 public class GoogleDataprocCluster implements SparkCluster {
 
     private static final String APPLICATION_NAME = "sample-dataproc-cluster";
-    private final Logger LOGGER = LoggerFactory.getLogger(GoogleDataprocCluster.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GoogleDataprocCluster.class);
+
     private String clusterName;
     private final Dataproc dataproc;
     private final NodeInitialization nodeInitialization;
