@@ -12,14 +12,6 @@ public interface Monitor {
 
     void update(Metric metric);
 
-    static Monitor stackdriver(Run run, String project) {
-        try {
-            return new StackdriverMonitor(MetricServiceClient.create(), run, project);
-        } catch (IOException e) {
-            throw new RuntimeException("Could not connect to Google StackDriver logging", e);
-        }
-    }
-
     static Monitor stackdriver(Run run, String project, GoogleCredentials credentials) {
         try {
             return new StackdriverMonitor(MetricServiceClient.create(MetricServiceSettings.newBuilder()
