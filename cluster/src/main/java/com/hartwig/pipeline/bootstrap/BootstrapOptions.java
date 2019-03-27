@@ -66,6 +66,7 @@ class BootstrapOptions {
     private static final String DEFAULT_RCLONE_S3_REMOTE = "s3";
     private static final String CLUSTER_IDLE_TTL_FLAG = "cluster_idle_ttl";
     private static final String DEFAULT_CLUSTER_IDLE_TTL = "600s";
+    private static final String RUN_METRICS_FLAG = "run_bam_metrics";
 
     private static Options options() {
         return new Options().addOption(privateKeyFlag())
@@ -106,7 +107,13 @@ class BootstrapOptions {
                 .addOption(knownIndelsBucket())
                 .addOption(s3UploadThreads())
                 .addOption(cloudSdkTimeoutHours())
-                .addOption(rclonePath()).addOption(rcloneGcpRemote()).addOption(rcloneS3Remote()).addOption(clusterIdleTtl());
+                .addOption(rclonePath())
+                .addOption(rcloneGcpRemote())
+                .addOption(rcloneS3Remote())
+                .addOption(clusterIdleTtl())
+                .addOption(RUN_METRICS_FLAG,
+                        false,
+                        "Run the BAM metrics job");
     }
 
     private static Option clusterIdleTtl() {
@@ -277,6 +284,7 @@ class BootstrapOptions {
                     .rcloneGcpRemote(commandLine.getOptionValue(RCLONE_GCP_REMOTE_FLAG, DEFAULT_RCLONE_GCP_REMOTE))
                     .rcloneS3Remote(commandLine.getOptionValue(RCLONE_S3_REMOTE_FLAG, DEFAULT_RCLONE_S3_REMOTE))
                     .clusterIdleTtl(commandLine.getOptionValue(CLUSTER_IDLE_TTL_FLAG, DEFAULT_CLUSTER_IDLE_TTL))
+                    .runBamMetrics(commandLine.hasOption(RUN_METRICS_FLAG))
                     .build());
         } catch (ParseException e) {
             LOGGER.error("Could not parse command line args", e);

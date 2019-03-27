@@ -38,6 +38,9 @@ public interface Arguments {
     }
 
     @Value.Default
+    default boolean runBamMetrics() { return false; }
+
+    @Value.Default
     default boolean useRclone() {
         return false;
     }

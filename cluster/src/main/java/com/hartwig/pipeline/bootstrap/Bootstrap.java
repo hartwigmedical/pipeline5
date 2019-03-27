@@ -1,7 +1,9 @@
 package com.hartwig.pipeline.bootstrap;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -59,6 +61,7 @@ import org.slf4j.LoggerFactory;
 class Bootstrap {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Bootstrap.class);
+
     private final Storage storage;
     private final StaticData referenceGenomeData;
     private final StaticData knownIndelData;
@@ -104,7 +107,7 @@ class Bootstrap {
 
         RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, sampleData.sample().name(), arguments);
         try {
-            Monitor monitor = Monitor.stackdriver(Run.of(arguments.version(), runtimeBucket.getName()), arguments.project(), credentials);
+            Monitor monitor = Monitor.stackdriver(Run.of(arguments.version(), runtimeBucket.name()), arguments.project(), credentials);
             referenceGenomeData.copyInto(runtimeBucket);
             knownIndelData.copyInto(runtimeBucket);
             knownSnpData.copyInto(runtimeBucket);
@@ -125,12 +128,14 @@ class Bootstrap {
                     sample,
                     runtimeBucket);
 
-            // TODO: Enable once this works properly.
-/*            runJob(Jobs.bamMetrics(singleNodeCluster, costCalculator, monitor, jarLocation, runtimeBucket, arguments, sample),
-                    arguments,
-                    sample,
-                    runtimeBucket);
-                    */
+            if (arguments.runBamMetrics()) {
+                runJob(Jobs.bamMetrics(singleNodeCluster, costCalculator, monitor, jarLocation, runtimeBucket, arguments, sample),
+                        arguments,
+                        sample,
+                        runtimeBucket);
+            } else {
+                LOGGER.info("Skipping BAM metrics job!");
+            }
 
             if (!arguments.noDownload()) {
                 bamDownload.run(sample, runtimeBucket, JobResult.SUCCESS);
@@ -139,11 +144,11 @@ class Bootstrap {
                 runtimeBucket.cleanup();
             }
         } finally {
-            cleanupAll(arguments, runtimeBucket);
+            cleanupAll(arguments);
         }
     }
 
-    private void cleanupAll(final Arguments arguments, final RuntimeBucket runtimeBucket) {
+    private void cleanupAll(final Arguments arguments) {
         stopCluster(arguments, singleNodeCluster);
         stopCluster(arguments, parallelProcessingCluster);
     }
@@ -167,85 +172,98 @@ class Bootstrap {
         }
     }
 
+    private static void createAndRunBootstrap(Arguments arguments) throws Exception {
+        GoogleCredentials credentials =
+                GoogleCredentials.fromStream(new FileInputStream(arguments.privateKeyPath())).createScoped(DataprocScopes.all());
+        GSUtil.configure(arguments.verboseCloudSdk(), arguments.cloudSdkTimeoutHours());
+        GSUtil.auth(arguments.cloudSdkPath(), arguments.privateKeyPath());
+        Storage storage = StorageOptions.newBuilder().setCredentials(credentials).setProjectId(arguments.project()).build().getService();
+
+        NodeInitialization nodeInitialization = new NodeInitialization(arguments.nodeInitializationScript());
+
+        StaticData referenceGenomeData =
+                new StaticData(storage, arguments.referenceGenomeBucket(), "reference_genome", new ReferenceGenomeAlias());
+        StaticData knownIndelsData = new StaticData(storage, arguments.knownIndelsBucket(), "known_indels");
+        StaticData knownSnpData = new StaticData(storage, "known_snps", "known_snps");
+        CpuFastQSizeRatio ratio = CpuFastQSizeRatio.of(arguments.cpuPerGBRatio());
+        CostCalculator costCalculator = new CostCalculator(credentials, arguments.region(), Costs.defaultCosts());
+        ResultsDirectory resultsDirectory = ResultsDirectory.defaultDirectory();
+        BamComposer mainBamComposer = new BamComposer(storage, resultsDirectory, 32);
+        BamComposer recalibratedBamComposer = new BamComposer(storage, resultsDirectory, 32, "recalibrated");
+        GoogleDataprocCluster singleNode = GoogleDataprocCluster.from(credentials, nodeInitialization, "singlenode");
+        GoogleDataprocCluster parallelProcessing = GoogleDataprocCluster.from(credentials, nodeInitialization, "spark");
+        CloudCopy cloudCopy = arguments.useRclone() ? new RCloneCloudCopy(arguments.rclonePath(),
+                arguments.rcloneGcpRemote(),
+                arguments.rcloneS3Remote(),
+                ProcessBuilder::new) : new GSUtilCloudCopy(arguments.cloudSdkPath());
+
+        final SampleSource sampleSource;
+        final BamDownload bamDownload;
+        final SampleUpload sampleUpload;
+        final AmazonS3 s3;
+
+        if (arguments.sbpApiSampleId().isPresent()) {
+            int sbpSampleId = arguments.sbpApiSampleId().get();
+            SBPRestApi sbpRestApi = SBPRestApi.newInstance(arguments);
+            s3 = S3.newClient(arguments.sblS3Url());
+
+            sampleSource = new SBPS3SampleSource(s3, new SBPSampleReader(sbpRestApi));
+            bamDownload = new SBPSampleMetadataPatch(s3,
+                    sbpRestApi,
+                    sbpSampleId,
+                    arguments.useRclone()
+                            ? new CloudBamDownload(SBPS3FileTarget::from, resultsDirectory, cloudCopy)
+                            : SBPS3BamDownload.from(s3, resultsDirectory, arguments.s3UploadThreads()),
+                    resultsDirectory,
+                    System::getenv);
+            sampleUpload = new CloudSampleUpload(new SBPS3FileSource(), cloudCopy);
+        } else {
+            // If we don't interact with SBP for data, we assume we interact with local instead.
+            s3 = null;
+            sampleSource = arguments.noUpload()
+                    ? new GoogleStorageSampleSource(storage)
+                    : new FileSystemSampleSource(Hadoop.localFilesystem(), arguments.patientDirectory());
+            bamDownload = new CloudBamDownload(new LocalFileTarget(), resultsDirectory, cloudCopy);
+            sampleUpload = new CloudSampleUpload(new LocalFileSource(), cloudCopy);
+        }
+
+        new Bootstrap(storage,
+                referenceGenomeData,
+                knownIndelsData,
+                knownSnpData,
+                sampleSource,
+                bamDownload,
+                sampleUpload,
+                singleNode,
+                parallelProcessing,
+                new GoogleStorageJarUpload(),
+                new ClusterOptimizer(ratio, arguments.noPreemptibleVms()),
+                costCalculator,
+                mainBamComposer,
+                recalibratedBamComposer,
+                credentials).run(arguments);
+
+        if (s3 != null) {
+            s3.shutdown();
+        }
+    }
+
     public static void main(String[] args) {
         LOGGER.info("Raw arguments [{}]", Stream.of(args).collect(Collectors.joining(", ")));
-        BootstrapOptions.from(args).ifPresent(arguments -> {
+
+        Optional<Arguments> optArguments = BootstrapOptions.from(args);
+        if (optArguments.isPresent()) {
+            Arguments arguments = optArguments.get();
+            LOGGER.info("Arguments used for bootstrap & run: " + arguments);
+
             try {
-                final GoogleCredentials credentials =
-                        GoogleCredentials.fromStream(new FileInputStream(arguments.privateKeyPath())).createScoped(DataprocScopes.all());
-                GSUtil.configure(arguments.verboseCloudSdk(), arguments.cloudSdkTimeoutHours());
-                GSUtil.auth(arguments.cloudSdkPath(), arguments.privateKeyPath());
-                Storage storage =
-                        StorageOptions.newBuilder().setCredentials(credentials).setProjectId(arguments.project()).build().getService();
-
-                NodeInitialization nodeInitialization = new NodeInitialization(arguments.nodeInitializationScript());
-
-                StaticData referenceGenomeData =
-                        new StaticData(storage, arguments.referenceGenomeBucket(), "reference_genome", new ReferenceGenomeAlias());
-                StaticData knownIndelsData = new StaticData(storage, arguments.knownIndelsBucket(), "known_indels");
-                StaticData knownSnpData = new StaticData(storage, "known_snps", "known_snps");
-                CpuFastQSizeRatio ratio = CpuFastQSizeRatio.of(arguments.cpuPerGBRatio());
-                CostCalculator costCalculator = new CostCalculator(credentials, arguments.region(), Costs.defaultCosts());
-                ResultsDirectory resultsDirectory = ResultsDirectory.defaultDirectory();
-                BamComposer mainBamComposer = new BamComposer(storage, resultsDirectory, 32);
-                BamComposer recalibratedBamComposer = new BamComposer(storage, resultsDirectory, 32, "recalibrated");
-                GoogleDataprocCluster singleNode = GoogleDataprocCluster.from(credentials, nodeInitialization, "singlenode");
-                GoogleDataprocCluster parallelProcessing = GoogleDataprocCluster.from(credentials, nodeInitialization, "spark");
-                CloudCopy cloudCopy = arguments.useRclone() ? new RCloneCloudCopy(arguments.rclonePath(),
-                        arguments.rcloneGcpRemote(),
-                        arguments.rcloneS3Remote(),
-                        ProcessBuilder::new) : new GSUtilCloudCopy(arguments.cloudSdkPath());
-                if (arguments.sbpApiSampleId().isPresent()) {
-                    int sbpSampleId = arguments.sbpApiSampleId().get();
-                    SBPRestApi sbpRestApi = SBPRestApi.newInstance(arguments);
-                    AmazonS3 s3 = S3.newClient(arguments.sblS3Url());
-                    new Bootstrap(storage,
-                            referenceGenomeData, knownIndelsData, knownSnpData,
-                            new SBPS3SampleSource(s3, new SBPSampleReader(sbpRestApi)),
-                            new SBPSampleMetadataPatch(s3,
-                                    sbpRestApi,
-                                    sbpSampleId,
-                                    arguments.useRclone()
-                                            ? new CloudBamDownload(SBPS3FileTarget::from, resultsDirectory, cloudCopy)
-                                            : SBPS3BamDownload.from(s3, resultsDirectory, arguments.s3UploadThreads()),
-                                    resultsDirectory,
-                                    System::getenv),
-                            new CloudSampleUpload(new SBPS3FileSource(), cloudCopy),
-                            singleNode,
-                            parallelProcessing,
-                            new GoogleStorageJarUpload(),
-                            new ClusterOptimizer(ratio, arguments.noPreemptibleVms()),
-                            costCalculator,
-                            mainBamComposer,
-                            recalibratedBamComposer,
-                            credentials).run(arguments);
-                    s3.shutdown();
-                } else {
-                    new Bootstrap(storage,
-                            referenceGenomeData,
-                            knownIndelsData,
-                            knownSnpData,
-                            arguments.noUpload() ? new GoogleStorageSampleSource(storage)
-                                    : new FileSystemSampleSource(Hadoop.localFilesystem(), arguments.patientDirectory()),
-                            new CloudBamDownload(new LocalFileTarget(), resultsDirectory, cloudCopy),
-                            new CloudSampleUpload(new LocalFileSource(), cloudCopy),
-                            singleNode,
-                            parallelProcessing,
-                            new GoogleStorageJarUpload(),
-                            new ClusterOptimizer(ratio, arguments.noPreemptibleVms()),
-                            costCalculator,
-                            mainBamComposer,
-                            recalibratedBamComposer,
-                            credentials).run(arguments);
-                }
-
+                createAndRunBootstrap(arguments);
             } catch (Exception e) {
                 LOGGER.error("An unexpected issue arose while running the bootstrap. See the attached exception for more details.", e);
                 System.exit(1);
             }
-            LOGGER.info("Bootstrap completed successfully");
-            System.exit(0);
-        });
-    }
 
+            LOGGER.info("Bootstrap completed successfully");
+        }
+    }
 }
