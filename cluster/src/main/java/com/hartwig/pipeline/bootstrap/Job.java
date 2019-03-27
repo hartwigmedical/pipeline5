@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 
 class Job {
 
-    private final Logger LOGGER = LoggerFactory.getLogger(Job.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Job.class);
 
     private final PerformanceProfile performanceProfile;
     private final SparkCluster targetCluster;
