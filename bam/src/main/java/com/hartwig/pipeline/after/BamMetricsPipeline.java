@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 
 public class BamMetricsPipeline {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BamIndexPipeline.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BamMetricsPipeline.class);
 
     private final FileSystem fileSystem;
     private final String sourceBamDirectory;
