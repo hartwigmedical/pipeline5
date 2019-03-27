@@ -30,3 +30,4 @@ install_sambamba() {
 setup_environment
 install_bwa
 install_sambamba
+install_picard

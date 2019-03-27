@@ -14,6 +14,8 @@ import org.slf4j.LoggerFactory;
 public class GoogleCloudBamMetrics {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GoogleCloudBamMetrics.class);
+    // In google environment we expect the below jar to be present. See also node_init.sh
+    private static final String PICARD_JAR_PATH = "/usr/local/bin/picard.jar";
 
     private final String sampleName;
     private final BamMetricsPipeline bamMetricsPipeline;
@@ -21,7 +23,7 @@ public class GoogleCloudBamMetrics {
     private GoogleCloudBamMetrics(final String sampleName, final FileSystem fileSystem, final String bamDirectory,
             final String refGenomeDirectory, final Monitor monitor) {
         this.sampleName = sampleName;
-        this.bamMetricsPipeline = BamMetricsPipeline.create(fileSystem, bamDirectory, refGenomeDirectory, monitor);
+        this.bamMetricsPipeline = BamMetricsPipeline.create(PICARD_JAR_PATH, fileSystem, bamDirectory, refGenomeDirectory, monitor);
     }
 
     private void execute() {

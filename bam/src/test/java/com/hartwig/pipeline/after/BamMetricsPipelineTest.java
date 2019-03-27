@@ -20,6 +20,7 @@ public class BamMetricsPipelineTest {
 
     private static final String SAMPLE_NAME = "CPCT12345678R";
 
+    private static final String PICARD_JAR_PATH = Resources.testResource("picard/picard.jar");
     private static final String LOCAL_WORKING_DIR = Resources.targetResource("metrics_output");
     private static final String OUTPUT_FILE = LOCAL_WORKING_DIR + File.separator + "CPCT12345678R.wgsmetrics";
 
@@ -27,7 +28,8 @@ public class BamMetricsPipelineTest {
 
     @Before
     public void setUp() throws IOException, InterruptedException {
-        final BamMetricsPipeline victim = BamMetricsPipeline.create(Hadoop.localFilesystem(),
+        final BamMetricsPipeline victim = BamMetricsPipeline.create(PICARD_JAR_PATH,
+                Hadoop.localFilesystem(),
                 LOCAL_WORKING_DIR,
                 Resources.testResource("reference_genome"),
                 LOCAL_WORKING_DIR,

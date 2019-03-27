@@ -1,6 +1,5 @@
 package com.hartwig.pipeline.after;
 
-import java.io.File;
 import java.io.IOException;
 
 import org.slf4j.Logger;
@@ -10,10 +9,12 @@ class PicardWGSMetrics {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PicardWGSMetrics.class);
 
-    private static final String PICARD_LIB = PicardWGSMetrics.class.getResource("/picardlib//picard.jar").getPath();
+    private final String picardJarPath;
 
-    PicardWGSMetrics() {
+    PicardWGSMetrics(final String picardJarPath) {
+        this.picardJarPath = picardJarPath;
     }
+
 
     public void execute(final String tmpDirectory, final String sampleBamPath, final String referenceGenomeFile,
             final String outputWgsMetricsFile) throws IOException, InterruptedException {
@@ -24,7 +25,7 @@ class PicardWGSMetrics {
         //                (int) (Runtime.getRuntime().maxMemory() / BYTES_PER_GB) + "GB",
         ProcessBuilder processBuilder = new ProcessBuilder("java",
                 "-jar",
-                PICARD_LIB,
+                picardJarPath,
                 "CollectWgsMetrics",
                 "TMP_DIR=" + tmpDirectory,
                 "REFERENCE_SEQUENCE=" + referenceGenomeFile,
