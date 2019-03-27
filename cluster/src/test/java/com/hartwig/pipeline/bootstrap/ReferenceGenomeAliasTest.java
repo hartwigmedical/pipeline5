@@ -2,7 +2,7 @@ package com.hartwig.pipeline.bootstrap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.hartwig.pipeline.staticdata.ReferenceGenomeAlias;
+import com.hartwig.pipeline.resource.ReferenceGenomeAlias;
 
 import org.junit.Before;
 import org.junit.Test;

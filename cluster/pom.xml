@@ -94,7 +94,7 @@
                                 <manifest>
                                     <useUniqueVersions>false</useUniqueVersions>
                                     <addClasspath>true</addClasspath>
-                                    <mainClass>com.hartwig.pipeline.bootstrap.Bootstrap</mainClass>
+                                    <mainClass>com.hartwig.pipeline.bootstrap.BootstrapMain</mainClass>
                                     <classpathPrefix>lib/</classpathPrefix>
                                 </manifest>
                             </archive>

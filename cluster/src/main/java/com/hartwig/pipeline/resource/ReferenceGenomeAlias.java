@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.staticdata;
+package com.hartwig.pipeline.resource;
 
 import java.util.function.Function;
 

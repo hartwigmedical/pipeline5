@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.staticdata;
+package com.hartwig.pipeline.resource;
 
 import java.util.function.Function;
 
@@ -12,23 +12,23 @@ import com.hartwig.pipeline.io.RuntimeBucket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class StaticData {
+public class Resource {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(StaticData.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Resource.class);
 
     private final Storage storage;
     private final String sourceBucket;
     private final String targetBucket;
     private final Function<String, String> alias;
 
-    public StaticData(final Storage storage, final String sourceBucket, final String targetBucket, final Function<String, String> alias) {
+    Resource(final Storage storage, final String sourceBucket, final String targetBucket, final Function<String, String> alias) {
         this.storage = storage;
         this.sourceBucket = sourceBucket;
         this.targetBucket = targetBucket;
         this.alias = alias;
     }
 
-    public StaticData(final Storage storage, final String sourceBucket, final String targetBucket) {
+    Resource(final Storage storage, final String sourceBucket, final String targetBucket) {
         this(storage, sourceBucket, targetBucket, Function.identity());
     }
 

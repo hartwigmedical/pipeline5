@@ -212,11 +212,11 @@ class BootstrapOptions {
     }
 
     private static Option region() {
-        return optionWithArgAndDefault(REGION_FLAG, "region", "The region in which to create the cluster.", DEFAULT_REGION);
+        return optionWithArgAndDefault(REGION_FLAG, "region", "The region in which to get the cluster.", DEFAULT_REGION);
     }
 
     private static Option project() {
-        return optionWithArgAndDefault(PROJECT_FLAG, "project", "The Google project for which to create the cluster.", DEFAULT_PROJECT);
+        return optionWithArgAndDefault(PROJECT_FLAG, "project", "The Google project for which to get the cluster.", DEFAULT_PROJECT);
     }
 
     private static Option bucket() {
@@ -279,7 +279,6 @@ class BootstrapOptions {
                     .noUpload(commandLine.hasOption(NO_UPLOAD_FLAG))
                     .s3UploadThreads(s3UploadThreads(commandLine))
                     .cloudSdkTimeoutHours(cloudSdkTimeoutHours(commandLine))
-                    .useRclone(commandLine.hasOption(USE_RCLONE_FLAG))
                     .rclonePath(commandLine.getOptionValue(RCLONE_PATH_FLAG, DEFAULT_RCLONE_PATH))
                     .rcloneGcpRemote(commandLine.getOptionValue(RCLONE_GCP_REMOTE_FLAG, DEFAULT_RCLONE_GCP_REMOTE))
                     .rcloneS3Remote(commandLine.getOptionValue(RCLONE_S3_REMOTE_FLAG, DEFAULT_RCLONE_S3_REMOTE))
