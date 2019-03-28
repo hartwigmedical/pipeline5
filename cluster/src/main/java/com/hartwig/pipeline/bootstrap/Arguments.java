@@ -145,12 +145,12 @@ public interface Arguments {
     String DEFAULT_PRODUCTION_REGION = "europe-west4";
     String DEFAULT_PRODUCTION_PROJECT = "hmf-pipeline-production";
     String DEFAULT_PRODUCTION_VERSION = "";
-    String DEFAULT_PRODUCTION_SAMPLE_DIRECTORY = "/samples/";
+    String DEFAULT_PRODUCTION_SAMPLE_DIRECTORY = "/samples";
     String DEFAULT_PRODUCTION_NODE_INIT = "node-init.sh";
     String DEFAULT_PRODUCTION_SBP_API_URL = "http://hmfapi";
     String DEFAULT_PRODUCTION_SBP_S3_URL = "https://s3.object02.schubergphilis.com";
     String DEFAULT_PRODUCTION_REFERENCE_GENOME_BUCKET = "reference_genome";
-    String DEFAULT_PRODUCTION_JAR_LIB = "/usr/share/pipeline5/";
+    String DEFAULT_PRODUCTION_JAR_LIB = "/usr/share/pipeline5";
     String DEFAULT_PRODUCTION__KEY_PATH = "/secrets/bootstrap-key.json";
     String DEFAULT_PRODUCTION_KNOWN_INDELS_BUCKET = "known_indels";
     String DEFAULT_PRODUCTION_CLOUD_SDK_PATH = "/usr/lib/google-cloud-sdk/bin";
@@ -159,11 +159,11 @@ public interface Arguments {
     String DEFAULT_DEVELOPMENT_REGION = "europe-west4";
     String DEFAULT_DEVELOPMENT_PROJECT = "hmf-pipeline-development";
     String DEFAULT_DEVELOPMENT_VERSION = "local-SNAPSHOT";
-    String DEFAULT_DEVELOPMENT_SAMPLE_DIRECTORY = workingDir() + "/samples/";
+    String DEFAULT_DEVELOPMENT_SAMPLE_DIRECTORY = workingDir() + "/samples";
     String DEFAULT_DEVELOPMENT_NODE_INIT = workingDir() + "/cluster/src/main/resources/node-init.sh";
     String DEFAULT_DEVELOPMENT_REFERENCE_GENOME_BUCKET = "reference_genome";
-    String DEFAULT_DEVELOPMENT_JAR_LIB = workingDir() + "/system/target/";
+    String DEFAULT_DEVELOPMENT_JAR_LIB = workingDir() + "/system/target";
     String DEFAULT_DEVELOPMENT_KEY_PATH = workingDir() + "/bootstrap-key.json";
     String DEFAULT_DEVELOPMENT_KNOWN_INDELS_BUCKET = "known_indels";
-    String DEFAULT_DEVELOPMENT_CLOUD_SDK_PATH = System.getProperty("user.home") + "/gcloud/google-cloud-sdk/bin/";
+    String DEFAULT_DEVELOPMENT_CLOUD_SDK_PATH = System.getProperty("user.home") + "/gcloud/google-cloud-sdk/bin";
 }

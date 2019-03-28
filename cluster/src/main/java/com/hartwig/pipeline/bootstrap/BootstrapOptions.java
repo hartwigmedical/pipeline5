@@ -157,7 +157,7 @@ class BootstrapOptions {
 
     @NotNull
     private static Option sampleId() {
-        return optionWithArg(SAMPLE_ID_FLAG, "Full path to the fastq files to process");
+        return optionWithArg(SAMPLE_ID_FLAG, "Full path to the fastq files to process", true);
     }
 
     @NotNull
@@ -224,15 +224,19 @@ class BootstrapOptions {
         return Optional.empty();
     }
 
-    private static String handleDashesInRegion(CommandLine commandLine, String defaultRegion) {
+    private static String handleDashesInRegion(final CommandLine commandLine, final String defaultRegion) {
         if (commandLine.hasOption(REGION_FLAG)) {
             return commandLine.getOptionValue(REGION_FLAG);
         }
         return defaultRegion;
     }
 
-    @NotNull
-    private static Option optionWithArg(String option, String description) {
-        return Option.builder(option).hasArg().argName(option).desc(description).build();
+    private static Option optionWithArg(final String option, final String description) {
+        return optionWithArg(option, description, false);
+    }
+
+    private static Option optionWithArg(final String option, final String description, final boolean required) {
+        Option.Builder builder = Option.builder(option).hasArg().argName(option).desc(description);
+        return required ? builder.required().build() : builder.build();
     }
 }
