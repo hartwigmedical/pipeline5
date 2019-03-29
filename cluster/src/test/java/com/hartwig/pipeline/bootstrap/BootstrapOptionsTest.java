@@ -3,6 +3,7 @@ package com.hartwig.pipeline.bootstrap;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.apache.commons.cli.MissingOptionException;
+import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.UnrecognizedOptionException;
 import org.junit.Test;
 
@@ -45,8 +46,25 @@ public class BootstrapOptionsTest {
     }
 
     @Test
-    public void defaultFlagsCanBeOveridden() throws Exception {
-        Arguments result = BootstrapOptions.from(new String[] { "-profile", "development", "-sample_id", "test", "-no_upload" });
+    public void booleanFlagDefaultsRespected() throws Exception {
+        Arguments result = BootstrapOptions.from(new String[] { "-profile", "development", "-sample_id", "test" });
+        assertThat(result.noCleanup()).isTrue();
+    }
+
+    @Test
+    public void defaultFlagsCanBeOveriddenTrue() throws Exception {
+        Arguments result = BootstrapOptions.from(new String[] { "-profile", "development", "-sample_id", "test", "-no_upload", "true" });
         assertThat(result.noUpload()).isTrue();
+    }
+
+    @Test
+    public void defaultFlagsCanBeOveriddenFalse() throws Exception {
+        Arguments result = BootstrapOptions.from(new String[] { "-profile", "development", "-sample_id", "test", "-no_cleanup", "false" });
+        assertThat(result.noCleanup()).isFalse();
+    }
+
+    @Test(expected = ParseException.class)
+    public void nonBooleanValuesForFlagsHandled() throws Exception {
+        BootstrapOptions.from(new String[] { "-profile", "development", "-sample_id", "test", "-no_cleanup", "notboolean" });
     }
 }

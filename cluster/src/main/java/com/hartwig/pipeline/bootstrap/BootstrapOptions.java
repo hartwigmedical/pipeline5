@@ -52,21 +52,20 @@ class BootstrapOptions {
                 .addOption(sampleDirectory())
                 .addOption(sampleId())
                 .addOption(jarLibDirectory())
-                .addOption(SKIP_UPLOAD_FLAG, false, "Skip uploading of patient data into cloud storage")
-                .addOption(FORCE_JAR_UPLOAD_FLAG, false, "Force upload of JAR even if the version already exists in cloud storage")
-                .addOption(NO_CLEANUP_FLAG, false, "Don't delete the runtime bucket after job is complete")
-                .addOption(NO_PREEMTIBLE_VMS_FLAG,
-                        false,
+                .addOption(optionWithBooleanArg(SKIP_UPLOAD_FLAG, "Skip uploading of patient data into cloud storage"))
+                .addOption(optionWithBooleanArg(FORCE_JAR_UPLOAD_FLAG,
+                        "Force upload of JAR even if the version already exists in cloud storage"))
+                .addOption(optionWithBooleanArg(NO_CLEANUP_FLAG, "Don't delete the runtime bucket after job is complete"))
+                .addOption(optionWithBooleanArg(NO_PREEMTIBLE_VMS_FLAG,
                         "Do not allocate half the cluster as preemtible VMs to save cost. "
-                                + "These VMs can be reclaimed at any time so using this option will make things more stable")
-                .addOption(NO_DOWNLOAD_FLAG,
-                        false,
-                        "Do not download the final BAM from Google Storage. Will also leave the runtime bucket in place")
-                .addOption(VERBOSE_CLOUD_SDK_FLAG, false, "Have stdout and stderr from Google tools like gsutil strem to the console")
-                .addOption(NO_UPLOAD_FLAG,
-                        false,
-                        "Don't upload the sample to storage. This should be used in combination with a run_id "
-                                + "which points at an existing bucket")
+                                + "These VMs can be reclaimed at any time so using this option will make things more stable"))
+                .addOption(optionWithBooleanArg(NO_DOWNLOAD_FLAG,
+                        "Do not download the final BAM from Google Storage. Will also leave the runtime bucket in place"))
+                .addOption(optionWithBooleanArg(VERBOSE_CLOUD_SDK_FLAG,
+                        "Have stdout and stderr from Google tools like gsutil strem to the console"))
+                .addOption(optionWithBooleanArg(NO_UPLOAD_FLAG,
+                        "Don't upload the sample to storage. "
+                                + "This should be used in combination with a run_id which points at an existing bucket"))
                 .addOption(project())
                 .addOption(region())
                 .addOption(sbpSampleId())
@@ -181,20 +180,20 @@ class BootstrapOptions {
                     .sbpApiUrl(commandLine.getOptionValue(SBP_API_URL_FLAG, defaults.sbpApiUrl()))
                     .sbpApiSampleId(sbpApiSampleId(commandLine))
                     .sbpS3Url(commandLine.getOptionValue(SBP_S3_URL_FLAG, defaults.sbpS3Url()))
-                    .forceJarUpload(commandLine.hasOption(FORCE_JAR_UPLOAD_FLAG))
-                    .noCleanup(commandLine.hasOption(NO_CLEANUP_FLAG))
+                    .forceJarUpload(booleanOptionWithDefault(commandLine, FORCE_JAR_UPLOAD_FLAG, defaults.forceJarUpload()))
+                    .noCleanup(booleanOptionWithDefault(commandLine, NO_CLEANUP_FLAG, defaults.noCleanup()))
                     .runId(runId(commandLine))
                     .nodeInitializationScript(commandLine.getOptionValue(NODE_INIT_FLAG, defaults.nodeInitializationScript()))
                     .cloudSdkPath(commandLine.getOptionValue(CLOUD_SDK_PATH_FLAG, defaults.cloudSdkPath()))
-                    .noPreemptibleVms(commandLine.hasOption(NO_PREEMTIBLE_VMS_FLAG))
-                    .noDownload(commandLine.hasOption(NO_DOWNLOAD_FLAG))
+                    .noPreemptibleVms(booleanOptionWithDefault(commandLine, NO_PREEMTIBLE_VMS_FLAG, defaults.noPreemptibleVms()))
+                    .noDownload(booleanOptionWithDefault(commandLine, NO_DOWNLOAD_FLAG, defaults.noDownload()))
                     .referenceGenomeBucket(commandLine.getOptionValue(REFERENCE_GENOME_BUCKET_FLAG, defaults.referenceGenomeBucket()))
                     .knownIndelsBucket(commandLine.getOptionValue(KNOWN_INDELS_BUCKET_FLAG, defaults.knownIndelsBucket()))
-                    .noUpload(commandLine.hasOption(NO_UPLOAD_FLAG))
+                    .noUpload(booleanOptionWithDefault(commandLine, NO_UPLOAD_FLAG, defaults.noUpload()))
                     .rclonePath(commandLine.getOptionValue(RCLONE_PATH_FLAG, defaults.rclonePath()))
                     .rcloneGcpRemote(commandLine.getOptionValue(RCLONE_GCP_REMOTE_FLAG, defaults.rcloneGcpRemote()))
                     .rcloneS3Remote(commandLine.getOptionValue(RCLONE_S3_REMOTE_FLAG, defaults.rcloneS3Remote()))
-                    .runBamMetrics(commandLine.hasOption(RUN_METRICS_FLAG))
+                    .runBamMetrics(booleanOptionWithDefault(commandLine, RUN_METRICS_FLAG, defaults.runBamMetrics()))
                     .profile(defaults.profile())
                     .build();
         } catch (ParseException e) {
@@ -203,6 +202,15 @@ class BootstrapOptions {
             formatter.printHelp("bootstrap", options());
             throw e;
         }
+    }
+
+    private static boolean booleanOptionWithDefault(final CommandLine commandLine, final String flag, final boolean defaultValue)
+            throws ParseException {
+        String value = commandLine.getOptionValue(flag, Boolean.toString(defaultValue));
+        if (!value.equals("true") && !value.equals("false")) {
+            throw new ParseException(flag + " is a flag and only accepts true|false");
+        }
+        return Boolean.valueOf(value);
     }
 
     private static Optional<String> runId(CommandLine commandLine) {
@@ -238,5 +246,9 @@ class BootstrapOptions {
     private static Option optionWithArg(final String option, final String description, final boolean required) {
         Option.Builder builder = Option.builder(option).hasArg().argName(option).desc(description);
         return required ? builder.required().build() : builder.build();
+    }
+
+    private static Option optionWithBooleanArg(final String option, final String description) {
+        return Option.builder(option).hasArg().argName("true|false").desc(description).build();
     }
 }
