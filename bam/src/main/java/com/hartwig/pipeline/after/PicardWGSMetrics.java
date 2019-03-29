@@ -21,7 +21,6 @@ class PicardWGSMetrics {
             final String outputWgsMetricsFile) throws IOException, InterruptedException {
         ProcessBuilder processBuilder = new ProcessBuilder("java",
                 "-Xmx" + (int) (Runtime.getRuntime().maxMemory() / BYTES_PER_GB) + "G",
-                "-XX:ParallelGCThreads=" + Math.max(1, Runtime.getRuntime().availableProcessors()),
                 "-jar",
                 picardJarPath,
                 "CollectWgsMetrics",
