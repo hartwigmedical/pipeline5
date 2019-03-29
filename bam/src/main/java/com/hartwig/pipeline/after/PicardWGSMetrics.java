@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 class PicardWGSMetrics {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PicardWGSMetrics.class);
+    private static final long BYTES_PER_GB = (long) Math.pow(1024, 3);
 
     private final String picardJarPath;
 
@@ -18,12 +19,9 @@ class PicardWGSMetrics {
 
     public void execute(final String tmpDirectory, final String sampleBamPath, final String referenceGenomeFile,
             final String outputWgsMetricsFile) throws IOException, InterruptedException {
-        // No parameters available to configure threads and memory?
-        //        "-t",
-        //                String.valueOf(Runtime.getRuntime().availableProcessors()),
-        //                "-m",
-        //                (int) (Runtime.getRuntime().maxMemory() / BYTES_PER_GB) + "GB",
         ProcessBuilder processBuilder = new ProcessBuilder("java",
+                "-Xmx" + (int) (Runtime.getRuntime().maxMemory() / BYTES_PER_GB) + "G",
+                "-XX:ParallelGCThreads=" + Math.max(1, Runtime.getRuntime().availableProcessors()),
                 "-jar",
                 picardJarPath,
                 "CollectWgsMetrics",
