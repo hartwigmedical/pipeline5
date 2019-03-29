@@ -66,7 +66,7 @@ abstract class BootstrapProvider {
         GoogleDataprocCluster singleNode = GoogleDataprocCluster.from(credentials, nodeInitialization, "singlenode");
         GoogleDataprocCluster spark = GoogleDataprocCluster.from(credentials, nodeInitialization, "spark");
         Resources resources = Resources.from(storage, arguments);
-        ClusterOptimizer optimizer = new ClusterOptimizer(ratio, !arguments.noPreemptibleVms());
+        ClusterOptimizer optimizer = new ClusterOptimizer(ratio, arguments.usePreemptibleVms());
 
         return wireUp(credentials,
                 storage,
@@ -99,9 +99,9 @@ abstract class BootstrapProvider {
         Bootstrap wireUp(GoogleCredentials credentials, Storage storage, Resources resources, ClusterOptimizer optimizer,
                 CostCalculator costCalculator, GoogleDataprocCluster singleNode, GoogleDataprocCluster spark, BamComposer defaultComposer,
                 BamComposer recalibratedComposer, ResultsDirectory resultsDirectory) throws Exception {
-            SampleSource sampleSource = getArguments().noUpload()
-                    ? new GoogleStorageSampleSource(storage)
-                    : new FileSystemSampleSource(Hadoop.localFilesystem(), getArguments().sampleDirectory());
+            SampleSource sampleSource = getArguments().upload()
+                    ? new FileSystemSampleSource(Hadoop.localFilesystem(), getArguments().sampleDirectory())
+                    : new GoogleStorageSampleSource(storage);
             GSUtilCloudCopy gsUtilCloudCopy = new GSUtilCloudCopy(getArguments().cloudSdkPath());
             BamDownload bamDownload = new CloudBamDownload(new LocalFileTarget(), ResultsDirectory.defaultDirectory(), gsUtilCloudCopy);
             SampleUpload sampleUpload = new CloudSampleUpload(new LocalFileSource(), gsUtilCloudCopy);
@@ -144,8 +144,7 @@ abstract class BootstrapProvider {
                     getArguments().rcloneGcpRemote(),
                     getArguments().rcloneS3Remote(),
                     ProcessBuilder::new);
-            BamDownload bamDownload = new SBPSampleMetadataPatch(s3,
-                    sbpRestApi, sbpSampleId, SBPS3BamDownload.from(s3, resultsDirectory),
+            BamDownload bamDownload = new SBPSampleMetadataPatch(s3, sbpRestApi, sbpSampleId, SBPS3BamDownload.from(s3, resultsDirectory),
                     resultsDirectory,
                     System::getenv);
             SampleUpload sampleUpload = new CloudSampleUpload(new SBPS3FileSource(), cloudCopy);

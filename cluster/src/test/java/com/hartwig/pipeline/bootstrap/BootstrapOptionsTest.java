@@ -48,23 +48,23 @@ public class BootstrapOptionsTest {
     @Test
     public void booleanFlagDefaultsRespected() throws Exception {
         Arguments result = BootstrapOptions.from(new String[] { "-profile", "development", "-sample_id", "test" });
-        assertThat(result.noCleanup()).isTrue();
+        assertThat(result.cleanup()).isFalse();
     }
 
     @Test
     public void defaultFlagsCanBeOveriddenTrue() throws Exception {
-        Arguments result = BootstrapOptions.from(new String[] { "-profile", "development", "-sample_id", "test", "-no_upload", "true" });
-        assertThat(result.noUpload()).isTrue();
+        Arguments result = BootstrapOptions.from(new String[] { "-profile", "development", "-sample_id", "test", "-upload", "true" });
+        assertThat(result.upload()).isTrue();
     }
 
     @Test
     public void defaultFlagsCanBeOveriddenFalse() throws Exception {
-        Arguments result = BootstrapOptions.from(new String[] { "-profile", "development", "-sample_id", "test", "-no_cleanup", "false" });
-        assertThat(result.noCleanup()).isFalse();
+        Arguments result = BootstrapOptions.from(new String[] { "-profile", "development", "-sample_id", "test", "-cleanup", "false" });
+        assertThat(result.cleanup()).isFalse();
     }
 
     @Test(expected = ParseException.class)
     public void nonBooleanValuesForFlagsHandled() throws Exception {
-        BootstrapOptions.from(new String[] { "-profile", "development", "-sample_id", "test", "-no_cleanup", "notboolean" });
+        BootstrapOptions.from(new String[] { "-profile", "development", "-sample_id", "test", "-cleanup", "notboolean" });
     }
 }

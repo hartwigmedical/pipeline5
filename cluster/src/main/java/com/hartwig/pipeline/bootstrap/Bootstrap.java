@@ -79,7 +79,7 @@ class Bootstrap {
             referenceGenomeData.copyInto(runtimeBucket);
             knownIndelData.copyInto(runtimeBucket);
             knownSnpData.copyInto(runtimeBucket);
-            if (!arguments.noUpload()) {
+            if (arguments.upload()) {
                 sampleUpload.run(sample, runtimeBucket);
             }
             JarLocation jarLocation = jarUpload.run(runtimeBucket, arguments);
@@ -105,10 +105,10 @@ class Bootstrap {
                 LOGGER.info("Skipping BAM metrics job!");
             }
 
-            if (!arguments.noDownload()) {
+            if (arguments.download()) {
                 bamDownload.run(sample, runtimeBucket, JobResult.SUCCESS);
             }
-            if (!arguments.noCleanup() && !arguments.noDownload()) {
+            if (arguments.cleanup() || arguments.download()) {
                 runtimeBucket.cleanup();
             }
         } finally {

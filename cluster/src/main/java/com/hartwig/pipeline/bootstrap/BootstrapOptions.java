@@ -19,8 +19,8 @@ class BootstrapOptions {
     private static final String VERSION_FLAG = "version";
     private static final String JAR_DIRECTORY_FLAG = "jar";
     private static final String FORCE_JAR_UPLOAD_FLAG = "force_jar_upload";
-    private static final String NO_CLEANUP_FLAG = "no_cleanup";
-    private static final String NO_UPLOAD_FLAG = "no_upload";
+    private static final String CLEANUP_FLAG = "cleanup";
+    private static final String UPLOAD_FLAG = "upload";
     private static final String PROJECT_FLAG = "project";
     private static final String REGION_FLAG = "region";
     private static final String SKIP_UPLOAD_FLAG = "skip_upload";
@@ -31,8 +31,8 @@ class BootstrapOptions {
     private static final String RUN_ID_FLAG = "run_id";
     private static final String NODE_INIT_FLAG = "node_init_script";
     private static final String CLOUD_SDK_PATH_FLAG = "cloud_sdk";
-    private static final String NO_PREEMTIBLE_VMS_FLAG = "no_preemtible_vms";
-    private static final String NO_DOWNLOAD_FLAG = "no_download";
+    private static final String USE_PREEMTIBLE_VMS_FLAG = "preemtible_vms";
+    private static final String DOWNLOAD_FLAG = "download";
     private static final String REFERENCE_GENOME_BUCKET_FLAG = "reference_genome";
     private static final String VERBOSE_CLOUD_SDK_FLAG = "verbose_cloud_sdk";
     private static final String KNOWN_INDELS_BUCKET_FLAG = "known_indels";
@@ -55,15 +55,15 @@ class BootstrapOptions {
                 .addOption(optionWithBooleanArg(SKIP_UPLOAD_FLAG, "Skip uploading of patient data into cloud storage"))
                 .addOption(optionWithBooleanArg(FORCE_JAR_UPLOAD_FLAG,
                         "Force upload of JAR even if the version already exists in cloud storage"))
-                .addOption(optionWithBooleanArg(NO_CLEANUP_FLAG, "Don't delete the runtime bucket after job is complete"))
-                .addOption(optionWithBooleanArg(NO_PREEMTIBLE_VMS_FLAG,
+                .addOption(optionWithBooleanArg(CLEANUP_FLAG, "Don't delete the runtime bucket after job is complete"))
+                .addOption(optionWithBooleanArg(USE_PREEMTIBLE_VMS_FLAG,
                         "Do not allocate half the cluster as preemtible VMs to save cost. "
                                 + "These VMs can be reclaimed at any time so using this option will make things more stable"))
-                .addOption(optionWithBooleanArg(NO_DOWNLOAD_FLAG,
+                .addOption(optionWithBooleanArg(DOWNLOAD_FLAG,
                         "Do not download the final BAM from Google Storage. Will also leave the runtime bucket in place"))
                 .addOption(optionWithBooleanArg(VERBOSE_CLOUD_SDK_FLAG,
                         "Have stdout and stderr from Google tools like gsutil strem to the console"))
-                .addOption(optionWithBooleanArg(NO_UPLOAD_FLAG,
+                .addOption(optionWithBooleanArg(UPLOAD_FLAG,
                         "Don't upload the sample to storage. "
                                 + "This should be used in combination with a run_id which points at an existing bucket"))
                 .addOption(project())
@@ -181,15 +181,15 @@ class BootstrapOptions {
                     .sbpApiSampleId(sbpApiSampleId(commandLine))
                     .sbpS3Url(commandLine.getOptionValue(SBP_S3_URL_FLAG, defaults.sbpS3Url()))
                     .forceJarUpload(booleanOptionWithDefault(commandLine, FORCE_JAR_UPLOAD_FLAG, defaults.forceJarUpload()))
-                    .noCleanup(booleanOptionWithDefault(commandLine, NO_CLEANUP_FLAG, defaults.noCleanup()))
+                    .cleanup(booleanOptionWithDefault(commandLine, CLEANUP_FLAG, defaults.cleanup()))
                     .runId(runId(commandLine))
                     .nodeInitializationScript(commandLine.getOptionValue(NODE_INIT_FLAG, defaults.nodeInitializationScript()))
                     .cloudSdkPath(commandLine.getOptionValue(CLOUD_SDK_PATH_FLAG, defaults.cloudSdkPath()))
-                    .noPreemptibleVms(booleanOptionWithDefault(commandLine, NO_PREEMTIBLE_VMS_FLAG, defaults.noPreemptibleVms()))
-                    .noDownload(booleanOptionWithDefault(commandLine, NO_DOWNLOAD_FLAG, defaults.noDownload()))
+                    .usePreemptibleVms(booleanOptionWithDefault(commandLine, USE_PREEMTIBLE_VMS_FLAG, defaults.usePreemptibleVms()))
+                    .download(booleanOptionWithDefault(commandLine, DOWNLOAD_FLAG, defaults.download()))
                     .referenceGenomeBucket(commandLine.getOptionValue(REFERENCE_GENOME_BUCKET_FLAG, defaults.referenceGenomeBucket()))
                     .knownIndelsBucket(commandLine.getOptionValue(KNOWN_INDELS_BUCKET_FLAG, defaults.knownIndelsBucket()))
-                    .noUpload(booleanOptionWithDefault(commandLine, NO_UPLOAD_FLAG, defaults.noUpload()))
+                    .upload(booleanOptionWithDefault(commandLine, UPLOAD_FLAG, defaults.upload()))
                     .rclonePath(commandLine.getOptionValue(RCLONE_PATH_FLAG, defaults.rclonePath()))
                     .rcloneGcpRemote(commandLine.getOptionValue(RCLONE_GCP_REMOTE_FLAG, defaults.rcloneGcpRemote()))
                     .rcloneS3Remote(commandLine.getOptionValue(RCLONE_S3_REMOTE_FLAG, defaults.rcloneS3Remote()))

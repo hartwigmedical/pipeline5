@@ -16,13 +16,13 @@ public interface Arguments {
 
     boolean forceJarUpload();
 
-    boolean noCleanup();
+    boolean cleanup();
 
-    boolean noPreemptibleVms();
+    boolean usePreemptibleVms();
 
-    boolean noDownload();
+    boolean download();
 
-    boolean noUpload();
+    boolean upload();
 
     boolean runBamMetrics();
 
@@ -100,11 +100,7 @@ public interface Arguments {
                     .jarDirectory(DEFAULT_PRODUCTION_JAR_LIB)
                     .privateKeyPath(DEFAULT_PRODUCTION__KEY_PATH)
                     .cloudSdkPath(DEFAULT_PRODUCTION_CLOUD_SDK_PATH)
-                    .forceJarUpload(false)
-                    .noCleanup(false)
-                    .noPreemptibleVms(false)
-                    .noDownload(false)
-                    .noUpload(false)
+                    .forceJarUpload(false).cleanup(true).usePreemptibleVms(true).download(true).upload(true)
                     .runBamMetrics(false)
                     .sampleId(EMPTY);
         } else {
@@ -120,11 +116,7 @@ public interface Arguments {
                     .jarDirectory(DEFAULT_DEVELOPMENT_JAR_LIB)
                     .privateKeyPath(DEFAULT_DEVELOPMENT_KEY_PATH)
                     .cloudSdkPath(DEFAULT_DEVELOPMENT_CLOUD_SDK_PATH)
-                    .forceJarUpload(true)
-                    .noCleanup(true)
-                    .noPreemptibleVms(false)
-                    .noDownload(true)
-                    .noUpload(false)
+                    .forceJarUpload(true).cleanup(false).usePreemptibleVms(true).download(false).upload(true)
                     .runBamMetrics(false)
                     .rclonePath(NOT_APPLICABLE)
                     .rcloneS3Remote(NOT_APPLICABLE)
