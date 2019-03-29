@@ -108,7 +108,7 @@ class Bootstrap {
             if (arguments.download()) {
                 bamDownload.run(sample, runtimeBucket, JobResult.SUCCESS);
             }
-            if (arguments.cleanup() || arguments.download()) {
+            if (arguments.cleanup()) {
                 runtimeBucket.cleanup();
             }
         } finally {
