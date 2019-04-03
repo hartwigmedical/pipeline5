@@ -79,10 +79,12 @@ public class GoogleDataprocClusterTest {
         assertThat(value.getJob().getReference().getJobId()).isEqualTo(JOB_ID);
     }
 
-    @Ignore
     @Test
     public void onNewJobCompletionDeletesCluster() throws Exception {
         setupJobSubmitMocks();
+        JobStatus status = mock(JobStatus.class);
+        when(status.getState()).thenReturn("RUNNING").thenReturn("RUNNING").thenReturn("DONE");
+        when(getJobsRequest.execute()).thenReturn(new Job().setReference(new JobReference().setJobId(JOB_ID)).setStatus(status));
         victim.submit(runtimeBucket, JOB_DEFINITION);
         verify(clusters, times(1)).delete(PROJECT, REGION, CLUSTER_NAME);
     }
