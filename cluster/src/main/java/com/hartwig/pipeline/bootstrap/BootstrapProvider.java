@@ -4,12 +4,11 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
-import com.hartwig.pipeline.cluster.GoogleDataprocCluster;
+import com.hartwig.pipeline.cluster.GoogleDataproc;
 import com.hartwig.pipeline.cluster.GoogleStorageJarUpload;
 import com.hartwig.pipeline.cluster.NodeInitialization;
 import com.hartwig.pipeline.cost.CostCalculator;
 import com.hartwig.pipeline.cost.Costs;
-import com.hartwig.pipeline.io.BamComposer;
 import com.hartwig.pipeline.io.BamDownload;
 import com.hartwig.pipeline.io.CloudBamDownload;
 import com.hartwig.pipeline.io.CloudCopy;
@@ -51,8 +50,7 @@ abstract class BootstrapProvider {
     }
 
     abstract Bootstrap wireUp(GoogleCredentials credentials, Storage storage, Resources resources, ClusterOptimizer optimizer,
-            CostCalculator costCalculator, GoogleDataprocCluster singleNode, GoogleDataprocCluster spark, BamComposer defaultComposer,
-            BamComposer recalibratedComposer, ResultsDirectory resultsDirectory) throws Exception;
+            CostCalculator costCalculator, GoogleDataproc dataproc, ResultsDirectory resultsDirectory) throws Exception;
 
     Bootstrap get() throws Exception {
         GoogleCredentials credentials = credentialProvider.get();
@@ -61,23 +59,11 @@ abstract class BootstrapProvider {
         CpuFastQSizeRatio ratio = CpuFastQSizeRatio.of(PERFECT_RATIO);
         CostCalculator costCalculator = new CostCalculator(credentials, arguments.region(), Costs.defaultCosts());
         ResultsDirectory resultsDirectory = ResultsDirectory.defaultDirectory();
-        BamComposer defaultComposer = new BamComposer(storage, resultsDirectory, 32);
-        BamComposer recalibratedComposer = new BamComposer(storage, resultsDirectory, 32, "recalibrated");
-        GoogleDataprocCluster singleNode = GoogleDataprocCluster.from(credentials, nodeInitialization, "singlenode");
-        GoogleDataprocCluster spark = GoogleDataprocCluster.from(credentials, nodeInitialization, "spark");
-        Resources resources = Resources.from(storage, arguments);
         ClusterOptimizer optimizer = new ClusterOptimizer(ratio, arguments.usePreemptibleVms());
+        GoogleDataproc dataproc = GoogleDataproc.from(credentials, nodeInitialization, arguments);
+        Resources resources = Resources.from(storage, arguments);
 
-        return wireUp(credentials,
-                storage,
-                resources,
-                optimizer,
-                costCalculator,
-                singleNode,
-                spark,
-                defaultComposer,
-                recalibratedComposer,
-                ResultsDirectory.defaultDirectory());
+        return wireUp(credentials, storage, resources, optimizer, costCalculator, dataproc, ResultsDirectory.defaultDirectory());
     }
 
     static BootstrapProvider from(Arguments arguments) throws Exception {
@@ -97,8 +83,7 @@ abstract class BootstrapProvider {
 
         @Override
         Bootstrap wireUp(GoogleCredentials credentials, Storage storage, Resources resources, ClusterOptimizer optimizer,
-                CostCalculator costCalculator, GoogleDataprocCluster singleNode, GoogleDataprocCluster spark, BamComposer defaultComposer,
-                BamComposer recalibratedComposer, ResultsDirectory resultsDirectory) throws Exception {
+                CostCalculator costCalculator, GoogleDataproc spark, ResultsDirectory resultsDirectory) throws Exception {
             SampleSource sampleSource = getArguments().upload()
                     ? new FileSystemSampleSource(Hadoop.localFilesystem(), getArguments().sampleDirectory())
                     : new GoogleStorageSampleSource(storage);
@@ -113,14 +98,12 @@ abstract class BootstrapProvider {
                     sampleSource,
                     bamDownload,
                     sampleUpload,
-                    singleNode,
                     spark,
                     new GoogleStorageJarUpload(),
                     optimizer,
                     costCalculator,
-                    defaultComposer,
-                    recalibratedComposer,
-                    credentials);
+                    credentials,
+                    resultsDirectory);
         }
     }
 
@@ -135,8 +118,7 @@ abstract class BootstrapProvider {
 
         @Override
         Bootstrap wireUp(GoogleCredentials credentials, Storage storage, Resources resources, ClusterOptimizer optimizer,
-                CostCalculator costCalculator, GoogleDataprocCluster singleNode, GoogleDataprocCluster spark, BamComposer defaultComposer,
-                BamComposer recalibratedComposer, ResultsDirectory resultsDirectory) throws Exception {
+                CostCalculator costCalculator, GoogleDataproc dataproc, ResultsDirectory resultsDirectory) throws Exception {
             SBPRestApi sbpRestApi = SBPRestApi.newInstance(getArguments());
             AmazonS3 s3 = S3.newClient(getArguments().sbpS3Url());
             SampleSource sampleSource = new SBPS3SampleSource(s3, new SBPSampleReader(sbpRestApi));
@@ -144,7 +126,10 @@ abstract class BootstrapProvider {
                     getArguments().rcloneGcpRemote(),
                     getArguments().rcloneS3Remote(),
                     ProcessBuilder::new);
-            BamDownload bamDownload = new SBPSampleMetadataPatch(s3, sbpRestApi, sbpSampleId, SBPS3BamDownload.from(s3, resultsDirectory),
+            BamDownload bamDownload = new SBPSampleMetadataPatch(s3,
+                    sbpRestApi,
+                    sbpSampleId,
+                    SBPS3BamDownload.from(s3, resultsDirectory),
                     resultsDirectory,
                     System::getenv);
             SampleUpload sampleUpload = new CloudSampleUpload(new SBPS3FileSource(), cloudCopy);
@@ -156,14 +141,12 @@ abstract class BootstrapProvider {
                     sampleSource,
                     bamDownload,
                     sampleUpload,
-                    singleNode,
-                    spark,
+                    dataproc,
                     new GoogleStorageJarUpload(),
                     optimizer,
                     costCalculator,
-                    defaultComposer,
-                    recalibratedComposer,
-                    credentials);
+                    credentials,
+                    resultsDirectory);
         }
     }
 

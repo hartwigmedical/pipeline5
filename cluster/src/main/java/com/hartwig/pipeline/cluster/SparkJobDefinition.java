@@ -27,6 +27,8 @@ public interface SparkJobDefinition {
 
     List<String> arguments();
 
+    PerformanceProfile performanceProfile();
+
     Map<String, String> sparkProperties();
 
     static SparkJobDefinition bamCreation(JarLocation jarLocation, Arguments arguments, RuntimeBucket runtimeBucket,
@@ -37,17 +39,20 @@ public interface SparkJobDefinition {
                 .jarLocation(jarLocation.uri())
                 .addArguments(arguments.version(), runtimeBucket.name(), arguments.project())
                 .sparkProperties(SparkProperties.asMap(profile))
+                .performanceProfile(profile)
                 .build();
     }
 
-    static SparkJobDefinition sortAndIndex(JarLocation jarLocation, Arguments arguments, RuntimeBucket runtimeBucket,
-            PerformanceProfile profile, Sample sample, ResultsDirectory resultsDirectory) {
+    static SparkJobDefinition sortAndIndex(JarLocation jarLocation, Arguments arguments, RuntimeBucket runtimeBucket, Sample sample,
+            ResultsDirectory resultsDirectory) {
+        PerformanceProfile performanceProfile = PerformanceProfile.mini();
         return ImmutableSparkJobDefinition.builder()
                 .name("SortAndIndex")
                 .mainClass(SORT_INDEX_MAIN)
                 .jarLocation(jarLocation.uri())
                 .addArguments(arguments.version(), runtimeBucket.name(), arguments.project(), sample.name(), resultsDirectory.path(""))
-                .sparkProperties(SparkProperties.asMap(profile))
+                .sparkProperties(SparkProperties.asMap(performanceProfile))
+                .performanceProfile(performanceProfile)
                 .build();
     }
 
@@ -59,24 +64,29 @@ public interface SparkJobDefinition {
                 .jarLocation(jarLocation.uri())
                 .addArguments(arguments.version(), runtimeBucket.name(), sample.name())
                 .sparkProperties(SparkProperties.asMap(profile))
+                .performanceProfile(profile)
                 .build();
     }
 
-    static SparkJobDefinition gunzip(JarLocation jarLocation, PerformanceProfile profile) {
+    static SparkJobDefinition gunzip(JarLocation jarLocation) {
+        PerformanceProfile performanceProfile = PerformanceProfile.mini();
         return ImmutableSparkJobDefinition.builder()
                 .name("Gunzip")
                 .mainClass(GUNZIP_MAIN)
                 .jarLocation(jarLocation.uri())
-                .sparkProperties(SparkProperties.asMap(profile))
+                .sparkProperties(SparkProperties.asMap(performanceProfile))
+                .performanceProfile(performanceProfile)
                 .build();
     }
 
-    static SparkJobDefinition tool(JarLocation jarLocation, PerformanceProfile profile, String mainClass) {
+    static SparkJobDefinition tool(JarLocation jarLocation, String mainClass) {
+        PerformanceProfile performanceProfile = PerformanceProfile.mini();
         return ImmutableSparkJobDefinition.builder()
                 .name("Tool")
                 .mainClass(mainClass)
                 .jarLocation(jarLocation.uri())
-                .sparkProperties(SparkProperties.asMap(profile))
+                .sparkProperties(SparkProperties.asMap(performanceProfile))
+                .performanceProfile(performanceProfile)
                 .build();
     }
 }

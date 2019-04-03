@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import java.time.Clock;
 
+import com.hartwig.pipeline.cluster.SparkJobDefinition;
 import com.hartwig.pipeline.performance.PerformanceProfile;
 
 import org.junit.Before;
@@ -27,14 +28,18 @@ public class MetricsTimelineTest {
 
     @Test(expected = IllegalStateException.class)
     public void callingStopBeforeStartThrowsIllegalState() {
-        victim.stop(Stage.bam(PerformanceProfile.mini()));
+        victim.stop(mock(SparkJobDefinition.class));
     }
 
     @Test
     public void recordsTimeSpentOnEachStage() {
         when(clock.millis()).thenReturn(1L);
-        Stage bam = Stage.bam(PerformanceProfile.mini());
-        Stage sort = Stage.sortAndIndex(PerformanceProfile.mini());
+        SparkJobDefinition bam = mock(SparkJobDefinition.class);
+        when(bam.name()).thenReturn("BAM");
+        when(bam.performanceProfile()).thenReturn(PerformanceProfile.mini());
+        SparkJobDefinition sort = mock(SparkJobDefinition.class);
+        when(sort.name()).thenReturn("SORT_INDEX");
+        when(sort.performanceProfile()).thenReturn(PerformanceProfile.mini());
         victim.start(bam);
         when(clock.millis()).thenReturn(10L);
         victim.start(sort);

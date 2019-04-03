@@ -19,7 +19,7 @@ public abstract class BamCreationPipeline {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BamCreationPipeline.class);
     static final String BAM_CREATED_METRIC = "BAM_CREATED";
-    private static final String RECALIBRATED_SUFFIX = "recalibrated";
+    public static final String RECALIBRATED_SUFFIX = "recalibrated";
 
     public void execute(final Sample sample) {
         LOGGER.info("Clearing result directory before starting");
