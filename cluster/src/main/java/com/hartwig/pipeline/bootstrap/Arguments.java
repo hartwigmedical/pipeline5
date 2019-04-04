@@ -42,6 +42,8 @@ public interface Arguments {
 
     String privateKeyPath();
 
+    String serviceAccountEmail();
+
     String sbpApiUrl();
 
     String sbpS3Url();
@@ -98,7 +100,8 @@ public interface Arguments {
                     .referenceGenomeBucket(DEFAULT_PRODUCTION_REFERENCE_GENOME_BUCKET)
                     .knownIndelsBucket(DEFAULT_PRODUCTION_KNOWN_INDELS_BUCKET)
                     .jarDirectory(DEFAULT_PRODUCTION_JAR_LIB)
-                    .privateKeyPath(DEFAULT_PRODUCTION__KEY_PATH)
+                    .privateKeyPath(DEFAULT_PRODUCTION_KEY_PATH)
+                    .serviceAccountEmail(DEFAULT_PRODUCTION_SERVICE_ACCOUNT_EMAIL)
                     .cloudSdkPath(DEFAULT_PRODUCTION_CLOUD_SDK_PATH)
                     .forceJarUpload(false).cleanup(true).usePreemptibleVms(true).download(true).upload(true)
                     .runBamMetrics(false)
@@ -116,6 +119,7 @@ public interface Arguments {
                     .jarDirectory(DEFAULT_DEVELOPMENT_JAR_LIB)
                     .privateKeyPath(DEFAULT_DEVELOPMENT_KEY_PATH)
                     .cloudSdkPath(DEFAULT_DEVELOPMENT_CLOUD_SDK_PATH)
+                    .serviceAccountEmail(DEFAULT_DEVELOPMENT_SERVICE_ACCOUNT_EMAIL)
                     .forceJarUpload(true).cleanup(false).usePreemptibleVms(true).download(false).upload(true)
                     .runBamMetrics(false)
                     .rclonePath(NOT_APPLICABLE)
@@ -143,9 +147,11 @@ public interface Arguments {
     String DEFAULT_PRODUCTION_SBP_S3_URL = "https://s3.object02.schubergphilis.com";
     String DEFAULT_PRODUCTION_REFERENCE_GENOME_BUCKET = "reference_genome";
     String DEFAULT_PRODUCTION_JAR_LIB = "/usr/share/pipeline5";
-    String DEFAULT_PRODUCTION__KEY_PATH = "/secrets/bootstrap-key.json";
+    String DEFAULT_PRODUCTION_KEY_PATH = "/secrets/bootstrap-key.json";
     String DEFAULT_PRODUCTION_KNOWN_INDELS_BUCKET = "known_indels";
     String DEFAULT_PRODUCTION_CLOUD_SDK_PATH = "/usr/lib/google-cloud-sdk/bin";
+    String DEFAULT_PRODUCTION_SERVICE_ACCOUNT_EMAIL = String.format("bootstrap@%s.iam.gserviceaccount.com",
+            DEFAULT_PRODUCTION_PROJECT);
 
     String NOT_APPLICABLE = "N/A";
     String DEFAULT_DEVELOPMENT_REGION = "europe-west4";
@@ -158,4 +164,6 @@ public interface Arguments {
     String DEFAULT_DEVELOPMENT_KEY_PATH = workingDir() + "/bootstrap-key.json";
     String DEFAULT_DEVELOPMENT_KNOWN_INDELS_BUCKET = "known_indels";
     String DEFAULT_DEVELOPMENT_CLOUD_SDK_PATH = System.getProperty("user.home") + "/gcloud/google-cloud-sdk/bin";
+    String DEFAULT_DEVELOPMENT_SERVICE_ACCOUNT_EMAIL = String.format("bootstrap@%s.iam.gserviceaccount.com",
+            DEFAULT_DEVELOPMENT_PROJECT);
 }

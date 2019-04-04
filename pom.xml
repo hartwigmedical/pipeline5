@@ -42,10 +42,15 @@
         <protobuf-java.version>3.6.1</protobuf-java.version>
         <google-billing.version>v1-rev23-1.25.0</google-billing.version>
         <slf4j-log4j12.version>1.7.25</slf4j-log4j12.version>
+        <google-compute-api.version>v1-rev209-1.25.0</google-compute-api.version>
+        <google-oauth-client.version>1.28.0</google-oauth-client.version>
+        <google-oauth-client-java6.version>1.28.0</google-oauth-client-java6.version>
+        <google-oauth-client-jetty.version>1.28.0</google-oauth-client-jetty.version>
     </properties>
 
     <modules>
         <module>bam</module>
+        <module>gatk</module>
         <module>patients</module>
         <module>support</module>
         <module>system</module>
@@ -58,6 +63,11 @@
             <dependency>
                 <groupId>com.hartwig</groupId>
                 <artifactId>bam</artifactId>
+                <version>local-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hartwig</groupId>
+                <artifactId>gatk</artifactId>
                 <version>local-SNAPSHOT</version>
             </dependency>
             <dependency>
@@ -288,6 +298,26 @@
                 <scope>runtime</scope>
             </dependency>
 
+            <dependency>
+                <groupId>com.google.apis</groupId>
+                <artifactId>google-api-services-compute</artifactId>
+                <version>${google-compute-api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.oauth-client</groupId>
+                <artifactId>google-oauth-client</artifactId>
+                <version>${google-oauth-client.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.oauth-client</groupId>
+                <artifactId>google-oauth-client-java6</artifactId>
+                <version>${google-oauth-client-java6.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.oauth-client</groupId>
+                <artifactId>google-oauth-client-jetty</artifactId>
+                <version>${google-oauth-client-jetty.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

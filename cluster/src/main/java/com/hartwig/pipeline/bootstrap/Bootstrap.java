@@ -9,11 +9,7 @@ import com.hartwig.pipeline.cluster.JarUpload;
 import com.hartwig.pipeline.cluster.SparkExecutor;
 import com.hartwig.pipeline.cluster.SparkJobDefinition;
 import com.hartwig.pipeline.cost.CostCalculator;
-import com.hartwig.pipeline.io.BamComposer;
-import com.hartwig.pipeline.io.BamDownload;
-import com.hartwig.pipeline.io.ResultsDirectory;
-import com.hartwig.pipeline.io.RuntimeBucket;
-import com.hartwig.pipeline.io.SampleUpload;
+import com.hartwig.pipeline.io.*;
 import com.hartwig.pipeline.io.sources.SampleData;
 import com.hartwig.pipeline.io.sources.SampleSource;
 import com.hartwig.pipeline.metrics.Monitor;
@@ -21,7 +17,6 @@ import com.hartwig.pipeline.metrics.Run;
 import com.hartwig.pipeline.performance.ClusterOptimizer;
 import com.hartwig.pipeline.performance.PerformanceProfile;
 import com.hartwig.pipeline.resource.Resource;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +33,7 @@ class Bootstrap {
     private final BamDownload bamDownload;
     private final SampleUpload sampleUpload;
     private final SparkExecutor dataproc;
+    //private final GoogleVirtualMachine virtualMachine;
     private final JarUpload jarUpload;
     private final ClusterOptimizer clusterOptimizer;
     private final CostCalculator costCalculator;
@@ -45,9 +41,9 @@ class Bootstrap {
     private final ResultsDirectory resultsDirectory;
 
     Bootstrap(final Arguments arguments, final Storage storage, final Resource referenceGenomeData, final Resource knownIndelData,
-            final Resource knownSnpData, final SampleSource sampleSource, final BamDownload bamDownload, final SampleUpload sampleUpload,
-            final SparkExecutor dataproc, final JarUpload jarUpload, final ClusterOptimizer clusterOptimizer,
-            final CostCalculator costCalculator, final GoogleCredentials credentials, final ResultsDirectory resultsDirectory) {
+              final Resource knownSnpData, final SampleSource sampleSource, final BamDownload bamDownload, final SampleUpload sampleUpload,
+              final SparkExecutor dataproc, final JarUpload jarUpload, final ClusterOptimizer clusterOptimizer,
+              final CostCalculator costCalculator, final GoogleCredentials credentials, final ResultsDirectory resultsDirectory) {
         this.arguments = arguments;
         this.storage = storage;
         this.referenceGenomeData = referenceGenomeData;
@@ -57,6 +53,7 @@ class Bootstrap {
         this.bamDownload = bamDownload;
         this.sampleUpload = sampleUpload;
         this.dataproc = dataproc;
+        //this.virtualMachine = virtualMachine;
         this.jarUpload = jarUpload;
         this.clusterOptimizer = clusterOptimizer;
         this.costCalculator = costCalculator;
@@ -106,6 +103,7 @@ class Bootstrap {
 
         if (arguments.download()) {
             bamDownload.run(sample, runtimeBucket, JobResult.SUCCESS);
+            //                virtualMachine.run();
         }
         if (arguments.cleanup()) {
             runtimeBucket.cleanup();

@@ -12,6 +12,8 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static java.lang.String.format;
+
 class BootstrapOptions {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BootstrapOptions.class);
@@ -44,6 +46,7 @@ class BootstrapOptions {
     private static final String SAMPLE_ID_FLAG = "sample_id";
 
     private static final String DEFAULT_PROFILE = "production";
+    private static final String SERVICE_ACCOUNT_EMAIL_FLAG = "s";
 
     private static Options options() {
         return new Options().addOption(profileFlag())
@@ -79,7 +82,8 @@ class BootstrapOptions {
                 .addOption(rclonePath())
                 .addOption(rcloneGcpRemote())
                 .addOption(rcloneS3Remote())
-                .addOption(RUN_METRICS_FLAG, false, "Run the BAM metrics job");
+                .addOption(RUN_METRICS_FLAG, false, "Run the BAM metrics job")
+                .addOption(serviceAccountEmail());
     }
 
     private static Option profileFlag() {
@@ -138,6 +142,11 @@ class BootstrapOptions {
                 "Fully qualified path to the private key for the service account used for all Google Cloud operations");
     }
 
+    private static Option serviceAccountEmail() {
+        return optionWithArg(SERVICE_ACCOUNT_EMAIL_FLAG,
+                "Service account associated with the private key");
+    }
+
     private static Option region() {
         return optionWithArg(REGION_FLAG, "The region in which to get the cluster.");
     }
@@ -194,6 +203,7 @@ class BootstrapOptions {
                     .rcloneGcpRemote(commandLine.getOptionValue(RCLONE_GCP_REMOTE_FLAG, defaults.rcloneGcpRemote()))
                     .rcloneS3Remote(commandLine.getOptionValue(RCLONE_S3_REMOTE_FLAG, defaults.rcloneS3Remote()))
                     .runBamMetrics(booleanOptionWithDefault(commandLine, RUN_METRICS_FLAG, defaults.runBamMetrics()))
+                    .serviceAccountEmail(commandLine.getOptionValue(SERVICE_ACCOUNT_EMAIL_FLAG, defaults.serviceAccountEmail()))
                     .profile(defaults.profile())
                     .build();
         } catch (ParseException e) {
