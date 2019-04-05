@@ -14,7 +14,7 @@ import com.google.api.services.compute.model.ServiceAccount;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.*;
-import com.hartwig.pipeline.bootstrap.Arguments;
+import com.hartwig.pipeline.Arguments;
 import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

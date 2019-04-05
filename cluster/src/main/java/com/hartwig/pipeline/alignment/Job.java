@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.bootstrap;
+package com.hartwig.pipeline.alignment;
 
 import java.time.Clock;
 

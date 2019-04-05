@@ -11,7 +11,7 @@ import com.amazonaws.services.s3.model.Permission;
 import com.amazonaws.services.s3.model.S3Object;
 import com.hartwig.patient.ImmutableSample;
 import com.hartwig.patient.Sample;
-import com.hartwig.pipeline.bootstrap.JobResult;
+import com.hartwig.pipeline.alignment.JobResult;
 import com.hartwig.pipeline.io.BamNames;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.testsupport.MockRuntimeBucket;

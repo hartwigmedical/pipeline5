@@ -1,6 +1,6 @@
 package com.hartwig.pipeline.io.sources;
 
-import com.hartwig.pipeline.bootstrap.Arguments;
+import com.hartwig.pipeline.Arguments;
 
 public interface SampleSource {
 

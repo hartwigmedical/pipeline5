@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.bootstrap;
+package com.hartwig.pipeline.alignment;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

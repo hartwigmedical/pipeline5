@@ -6,8 +6,8 @@ import static org.mockito.Mockito.when;
 
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
-import com.hartwig.pipeline.bootstrap.Arguments;
-import com.hartwig.pipeline.bootstrap.ImmutableArguments;
+import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.ImmutableArguments;
 import com.hartwig.pipeline.io.sources.GoogleStorageSampleSource;
 import com.hartwig.pipeline.io.sources.SampleData;
 import com.hartwig.pipeline.io.sources.SampleSource;

@@ -1,8 +1,10 @@
-package com.hartwig.pipeline.bootstrap;
+package com.hartwig.pipeline.alignment;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDateTime;
+
+import com.hartwig.pipeline.Arguments;
 
 import org.junit.Test;
 

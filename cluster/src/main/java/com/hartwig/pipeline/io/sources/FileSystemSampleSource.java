@@ -6,7 +6,7 @@ import java.util.stream.Stream;
 
 import com.hartwig.patient.Sample;
 import com.hartwig.patient.input.PatientReader;
-import com.hartwig.pipeline.bootstrap.Arguments;
+import com.hartwig.pipeline.Arguments;
 
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;

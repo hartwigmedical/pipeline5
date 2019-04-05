@@ -3,7 +3,7 @@ package com.hartwig.pipeline.io;
 import java.util.function.Function;
 
 import com.hartwig.patient.Sample;
-import com.hartwig.pipeline.bootstrap.JobResult;
+import com.hartwig.pipeline.alignment.JobResult;
 
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;

@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.bootstrap;
+package com.hartwig.pipeline.alignment;
 
 import com.hartwig.pipeline.cluster.SparkExecutor;
 import com.hartwig.pipeline.cost.CostCalculator;
@@ -6,7 +6,6 @@ import com.hartwig.pipeline.io.GoogleStorageStatusCheck;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.StatusCheck;
 import com.hartwig.pipeline.metrics.Monitor;
-import com.hartwig.pipeline.performance.PerformanceProfile;
 
 class Jobs {
 

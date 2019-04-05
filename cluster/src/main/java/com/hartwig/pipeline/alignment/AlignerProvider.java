@@ -1,9 +1,10 @@
-package com.hartwig.pipeline.bootstrap;
+package com.hartwig.pipeline.alignment;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
+import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.cluster.GoogleDataproc;
 import com.hartwig.pipeline.cluster.GoogleStorageJarUpload;
 import com.hartwig.pipeline.cluster.NodeInitialization;
@@ -34,13 +35,13 @@ import com.hartwig.pipeline.performance.CpuFastQSizeRatio;
 import com.hartwig.pipeline.resource.Resources;
 import com.hartwig.support.hadoop.Hadoop;
 
-abstract class BootstrapProvider {
+public abstract class AlignerProvider {
 
     private static final int PERFECT_RATIO = 4;
     private final CredentialProvider credentialProvider;
     private final Arguments arguments;
 
-    BootstrapProvider(final CredentialProvider credentials, final Arguments arguments) {
+    AlignerProvider(final CredentialProvider credentials, final Arguments arguments) {
         this.credentialProvider = credentials;
         this.arguments = arguments;
     }
@@ -49,16 +50,15 @@ abstract class BootstrapProvider {
         return arguments;
     }
 
-    abstract Bootstrap wireUp(GoogleCredentials credentials, Storage storage, Resources resources, ClusterOptimizer optimizer,
+    abstract Aligner wireUp(GoogleCredentials credentials, Storage storage, Resources resources, ClusterOptimizer optimizer,
             CostCalculator costCalculator, GoogleDataproc dataproc, ResultsDirectory resultsDirectory) throws Exception;
 
-    Bootstrap get() throws Exception {
+    public Aligner get() throws Exception {
         GoogleCredentials credentials = credentialProvider.get();
         Storage storage = createStorage(arguments, credentials);
         NodeInitialization nodeInitialization = new NodeInitialization(arguments.nodeInitializationScript());
         CpuFastQSizeRatio ratio = CpuFastQSizeRatio.of(PERFECT_RATIO);
         CostCalculator costCalculator = new CostCalculator(credentials, arguments.region(), Costs.defaultCosts());
-        ResultsDirectory resultsDirectory = ResultsDirectory.defaultDirectory();
         ClusterOptimizer optimizer = new ClusterOptimizer(ratio, arguments.usePreemptibleVms());
         GoogleDataproc dataproc = GoogleDataproc.from(credentials, nodeInitialization, arguments);
         Resources resources = Resources.from(storage, arguments);
@@ -66,23 +66,23 @@ abstract class BootstrapProvider {
         return wireUp(credentials, storage, resources, optimizer, costCalculator, dataproc, ResultsDirectory.defaultDirectory());
     }
 
-    static BootstrapProvider from(Arguments arguments) throws Exception {
+    public static AlignerProvider from(Arguments arguments) throws Exception {
         return from(arguments, new CredentialProvider(arguments));
     }
 
-    static BootstrapProvider from(Arguments arguments, CredentialProvider credentialProvider) throws Exception {
-        return arguments.sbpApiSampleId().<BootstrapProvider>map(id -> new SBPBootstrapProvider(credentialProvider, arguments, id)).orElse(
+    static AlignerProvider from(Arguments arguments, CredentialProvider credentialProvider) throws Exception {
+        return arguments.sbpApiSampleId().<AlignerProvider>map(id -> new SBPBootstrapProvider(credentialProvider, arguments, id)).orElse(
                 new LocalBootstrapProvider(credentialProvider, arguments));
     }
 
-    static class LocalBootstrapProvider extends BootstrapProvider {
+    static class LocalBootstrapProvider extends AlignerProvider {
 
         private LocalBootstrapProvider(final CredentialProvider credentials, final Arguments arguments) {
             super(credentials, arguments);
         }
 
         @Override
-        Bootstrap wireUp(GoogleCredentials credentials, Storage storage, Resources resources, ClusterOptimizer optimizer,
+        Aligner wireUp(GoogleCredentials credentials, Storage storage, Resources resources, ClusterOptimizer optimizer,
                 CostCalculator costCalculator, GoogleDataproc spark, ResultsDirectory resultsDirectory) throws Exception {
             SampleSource sampleSource = getArguments().upload()
                     ? new FileSystemSampleSource(Hadoop.localFilesystem(), getArguments().sampleDirectory())
@@ -90,7 +90,7 @@ abstract class BootstrapProvider {
             GSUtilCloudCopy gsUtilCloudCopy = new GSUtilCloudCopy(getArguments().cloudSdkPath());
             BamDownload bamDownload = new CloudBamDownload(new LocalFileTarget(), ResultsDirectory.defaultDirectory(), gsUtilCloudCopy);
             SampleUpload sampleUpload = new CloudSampleUpload(new LocalFileSource(), gsUtilCloudCopy);
-            return new Bootstrap(getArguments(),
+            return new Aligner(getArguments(),
                     storage,
                     resources.referenceGenome(),
                     resources.knownIndels(),
@@ -107,7 +107,7 @@ abstract class BootstrapProvider {
         }
     }
 
-    static class SBPBootstrapProvider extends BootstrapProvider {
+    static class SBPBootstrapProvider extends AlignerProvider {
 
         private final int sbpSampleId;
 
@@ -117,7 +117,7 @@ abstract class BootstrapProvider {
         }
 
         @Override
-        Bootstrap wireUp(GoogleCredentials credentials, Storage storage, Resources resources, ClusterOptimizer optimizer,
+        Aligner wireUp(GoogleCredentials credentials, Storage storage, Resources resources, ClusterOptimizer optimizer,
                 CostCalculator costCalculator, GoogleDataproc dataproc, ResultsDirectory resultsDirectory) throws Exception {
             SBPRestApi sbpRestApi = SBPRestApi.newInstance(getArguments());
             AmazonS3 s3 = S3.newClient(getArguments().sbpS3Url());
@@ -133,7 +133,7 @@ abstract class BootstrapProvider {
                     resultsDirectory,
                     System::getenv);
             SampleUpload sampleUpload = new CloudSampleUpload(new SBPS3FileSource(), cloudCopy);
-            return new Bootstrap(getArguments(),
+            return new Aligner(getArguments(),
                     storage,
                     resources.referenceGenome(),
                     resources.knownIndels(),

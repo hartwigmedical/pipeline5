@@ -1,7 +1,7 @@
 package com.hartwig.pipeline.resource;
 
 import com.google.cloud.storage.Storage;
-import com.hartwig.pipeline.bootstrap.Arguments;
+import com.hartwig.pipeline.Arguments;
 
 import org.immutables.value.Value;
 

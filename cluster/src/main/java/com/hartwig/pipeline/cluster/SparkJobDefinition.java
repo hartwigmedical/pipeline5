@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.hartwig.patient.Sample;
-import com.hartwig.pipeline.bootstrap.Arguments;
+import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.performance.PerformanceProfile;

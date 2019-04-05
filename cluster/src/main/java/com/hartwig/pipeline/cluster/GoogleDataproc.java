@@ -21,8 +21,8 @@ import com.google.api.services.dataproc.v1beta2.model.SparkJob;
 import com.google.api.services.dataproc.v1beta2.model.SubmitJobRequest;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
-import com.hartwig.pipeline.bootstrap.Arguments;
-import com.hartwig.pipeline.bootstrap.JobResult;
+import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.alignment.JobResult;
 import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.performance.PerformanceProfile;
 

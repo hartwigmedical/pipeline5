@@ -16,12 +16,11 @@ import com.google.api.services.dataproc.v1beta2.model.JobStatus;
 import com.google.api.services.dataproc.v1beta2.model.Operation;
 import com.google.api.services.dataproc.v1beta2.model.SubmitJobRequest;
 import com.google.common.collect.ImmutableMap;
-import com.hartwig.pipeline.bootstrap.Arguments;
+import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.testsupport.MockRuntimeBucket;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 

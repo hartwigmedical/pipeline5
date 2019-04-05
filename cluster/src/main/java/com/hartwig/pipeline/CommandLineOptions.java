@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.bootstrap;
+package com.hartwig.pipeline;
 
 import java.util.Optional;
 
@@ -14,9 +14,9 @@ import org.slf4j.LoggerFactory;
 
 import static java.lang.String.format;
 
-class BootstrapOptions {
+class CommandLineOptions {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BootstrapOptions.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CommandLineOptions.class);
     private static final String SAMPLE_DIRECTORY_FLAG = "sample_directory";
     private static final String VERSION_FLAG = "version";
     private static final String JAR_DIRECTORY_FLAG = "jar";

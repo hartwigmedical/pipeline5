@@ -1,8 +1,9 @@
-package com.hartwig.pipeline.bootstrap;
+package com.hartwig.pipeline.alignment;
 
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Storage;
 import com.hartwig.patient.Sample;
+import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.BamCreationPipeline;
 import com.hartwig.pipeline.cluster.JarLocation;
 import com.hartwig.pipeline.cluster.JarUpload;
@@ -20,9 +21,9 @@ import com.hartwig.pipeline.resource.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class Bootstrap {
+public class Aligner {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Bootstrap.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Aligner.class);
 
     private final Arguments arguments;
     private final Storage storage;
@@ -40,7 +41,7 @@ class Bootstrap {
     private final GoogleCredentials credentials;
     private final ResultsDirectory resultsDirectory;
 
-    Bootstrap(final Arguments arguments, final Storage storage, final Resource referenceGenomeData, final Resource knownIndelData,
+    Aligner(final Arguments arguments, final Storage storage, final Resource referenceGenomeData, final Resource knownIndelData,
               final Resource knownSnpData, final SampleSource sampleSource, final BamDownload bamDownload, final SampleUpload sampleUpload,
               final SparkExecutor dataproc, final JarUpload jarUpload, final ClusterOptimizer clusterOptimizer,
               final CostCalculator costCalculator, final GoogleCredentials credentials, final ResultsDirectory resultsDirectory) {
@@ -61,7 +62,7 @@ class Bootstrap {
         this.credentials = credentials;
     }
 
-    void run() throws Exception {
+    public AlignmentOutput run() throws Exception {
         SampleData sampleData = sampleSource.sample(arguments);
         Sample sample = sampleData.sample();
 
@@ -108,7 +109,7 @@ class Bootstrap {
         if (arguments.cleanup()) {
             runtimeBucket.cleanup();
         }
-
+        return AlignmentOutput.of();
     }
 
     private void compose(final Sample sample, final RuntimeBucket runtimeBucket) {

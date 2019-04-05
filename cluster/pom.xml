@@ -101,7 +101,7 @@
                 <manifest>
                     <useUniqueVersions>false</useUniqueVersions>
                     <addClasspath>true</addClasspath>
-                    <mainClass>com.hartwig.pipeline.bootstrap.Bootstrap</mainClass>
+                    <mainClass>com.hartwig.pipeline.alignment.Aligner</mainClass>
                     <classpathPrefix>lib/</classpathPrefix>
                 </manifest>
             </archive>
@@ -128,7 +128,7 @@
                                 <manifest>
                                     <useUniqueVersions>false</useUniqueVersions>
                                     <addClasspath>true</addClasspath>
-                                    <mainClass>com.hartwig.pipeline.bootstrap.BootstrapMain</mainClass>
+                                    <mainClass>com.hartwig.pipeline.alignment.BootstrapMain</mainClass>
                                     <classpathPrefix>lib/</classpathPrefix>
                                 </manifest>
                             </archive>

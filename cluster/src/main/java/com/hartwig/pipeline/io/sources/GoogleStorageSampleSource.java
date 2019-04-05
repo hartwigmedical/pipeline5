@@ -7,7 +7,7 @@ import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
 import com.google.common.collect.Iterables;
 import com.hartwig.patient.Sample;
-import com.hartwig.pipeline.bootstrap.Arguments;
+import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.io.RuntimeBucket;
 
 public class GoogleStorageSampleSource implements SampleSource {

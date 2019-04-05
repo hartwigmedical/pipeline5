@@ -1,7 +1,7 @@
 package com.hartwig.pipeline.io;
 
 import com.hartwig.patient.Sample;
-import com.hartwig.pipeline.bootstrap.JobResult;
+import com.hartwig.pipeline.alignment.JobResult;
 
 public interface BamDownload {
 

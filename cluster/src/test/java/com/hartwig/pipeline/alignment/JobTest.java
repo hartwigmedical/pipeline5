@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.bootstrap;
+package com.hartwig.pipeline.alignment;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -12,6 +12,7 @@ import java.io.IOException;
 
 import com.hartwig.patient.ImmutableSample;
 import com.hartwig.patient.Sample;
+import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.cluster.JarLocation;
 import com.hartwig.pipeline.cluster.SparkExecutor;
 import com.hartwig.pipeline.cluster.SparkJobDefinition;
