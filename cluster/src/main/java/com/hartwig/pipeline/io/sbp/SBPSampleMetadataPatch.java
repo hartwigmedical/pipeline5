@@ -12,7 +12,7 @@ import com.google.cloud.storage.Blob;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.alignment.JobResult;
 import com.hartwig.pipeline.io.BamDownload;
-import com.hartwig.pipeline.io.BamNames;
+import com.hartwig.pipeline.alignment.AlignmentOutputPaths;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
 
@@ -44,7 +44,7 @@ public class SBPSampleMetadataPatch implements BamDownload {
 
     @Override
     public void run(final Sample sample, final RuntimeBucket runtimeBucket, final JobResult result) {
-        Blob bamBlob = runtimeBucket.bucket().get(resultsDirectory.path(BamNames.sorted(sample)));
+        Blob bamBlob = runtimeBucket.bucket().get(resultsDirectory.path(AlignmentOutputPaths.sorted(sample)));
         decorated.run(sample, runtimeBucket, result);
         String bamFile = sample.name() + ".bam";
         String baiFile = bamFile + ".bai";

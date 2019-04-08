@@ -12,7 +12,7 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.hartwig.patient.ImmutableSample;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.alignment.JobResult;
-import com.hartwig.pipeline.io.BamNames;
+import com.hartwig.pipeline.alignment.AlignmentOutputPaths;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.testsupport.MockRuntimeBucket;
 
@@ -57,7 +57,7 @@ public class SBPSampleMetadataPatchTest {
         when(s3.getObjectAcl(SBPS3FileTarget.ROOT_BUCKET, BAM_KEY)).thenReturn(bamAcl);
         AccessControlList baiAcl = new AccessControlList();
         when(s3.getObjectAcl(SBPS3FileTarget.ROOT_BUCKET, BAI_KEY)).thenReturn(baiAcl);
-        MockRuntimeBucket runtimeBucket = MockRuntimeBucket.of("test").with(resultsDirectory.path(BamNames.sorted(SAMPLE)), 1, "md5");
+        MockRuntimeBucket runtimeBucket = MockRuntimeBucket.of("test").with(resultsDirectory.path(AlignmentOutputPaths.sorted(SAMPLE)), 1, "md5");
         victim.run(SAMPLE, runtimeBucket.getRuntimeBucket(), JobResult.SUCCESS);
         checkAcl(bamAcl);
         checkAcl(baiAcl);

@@ -10,7 +10,6 @@ public class StructuralCallerProvider {
     }
 
     public StructuralCaller get() {
-        //TODO: make a structural caller
-        return null;
+        return new StructuralCaller();
     }
 }

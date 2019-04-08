@@ -12,7 +12,7 @@ import com.google.cloud.storage.Blob;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.alignment.JobResult;
 import com.hartwig.pipeline.io.BamDownload;
-import com.hartwig.pipeline.io.BamNames;
+import com.hartwig.pipeline.alignment.AlignmentOutputPaths;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
 
@@ -56,8 +56,8 @@ public class SBPS3BamDownload implements BamDownload {
                 String bucket = path[0];
                 String bamKey = path[1];
                 String baiKey = path[1] + ".bai";
-                transfer(runtimeBucket, transferManager, BamNames.sorted(sample), bucket, bamKey);
-                transfer(runtimeBucket, transferManager, BamNames.bai(sample), bucket, baiKey);
+                transfer(runtimeBucket, transferManager, AlignmentOutputPaths.sorted(sample), bucket, bamKey);
+                transfer(runtimeBucket, transferManager, AlignmentOutputPaths.bai(sample), bucket, baiKey);
                 success = true;
             } catch (Exception e) {
                 if (attempts <= maxAttempts) {

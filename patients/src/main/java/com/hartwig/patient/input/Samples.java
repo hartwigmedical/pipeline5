@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.hartwig.patient.ImmutableLane;
+import com.hartwig.patient.ImmutableSample;
 import com.hartwig.patient.Lane;
 import com.hartwig.patient.Sample;
 
@@ -13,8 +14,9 @@ import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.GlobFilter;
 import org.apache.hadoop.fs.Path;
+import org.jetbrains.annotations.NotNull;
 
-class Samples {
+public class Samples {
 
     static Sample createPairedEndSample(final FileSystem fileSystem, final Path sampleDirectory, final String sampleName,
             final String postfix) throws IOException {
@@ -28,7 +30,9 @@ class Samples {
             String flowCellId = tokens[1];
             ImmutableLane.Builder builder = builders.computeIfAbsent(laneName + flowCellId,
                     s -> Lane.builder()
-                            .directory(sampleDirectory.toString()).name(sampleNameWithPostfix + "_" + laneName).flowCellId(flowCellId)
+                            .directory(sampleDirectory.toString())
+                            .name(sampleNameWithPostfix + "_" + laneName)
+                            .flowCellId(flowCellId)
                             .index(tokens[2])
                             .suffix(tokens[5].substring(0, tokens[5].indexOf('.'))));
             if (tokens[4].equals("R1")) {
@@ -40,6 +44,20 @@ class Samples {
         }
         return Sample.builder(sampleDirectory.toString(), sampleNameWithPostfix)
                 .addAllLanes(builders.values().stream().map(ImmutableLane.Builder::build).collect(Collectors.toList()))
+                .type(sampleName.toLowerCase().endsWith("r") ? Sample.Type.REFERENCE : Sample.Type.TUMOR)
                 .build();
+    }
+
+    public static Sample complement(Sample sample) {
+        if (sample.type().equals(Sample.Type.REFERENCE)) {
+            return replaceSuffix(sample, "T").type(Sample.Type.TUMOR).build();
+        } else {
+            return replaceSuffix(sample, "R").type(Sample.Type.REFERENCE).build();
+        }
+    }
+
+    @NotNull
+    private static ImmutableSample.Builder replaceSuffix(final Sample sample, final String newSuffix) {
+        return Sample.builder(sample.directory(), sample.name().substring(0, sample.name().length() - 1).concat(newSuffix));
     }
 }

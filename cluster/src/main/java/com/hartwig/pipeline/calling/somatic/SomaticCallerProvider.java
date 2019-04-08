@@ -11,6 +11,6 @@ public class SomaticCallerProvider {
 
     public SomaticCaller get() {
         //TODO: make a somatic caller
-        return null;
+        return new SomaticCaller();
     }
 }

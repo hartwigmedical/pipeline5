@@ -1,6 +1,7 @@
 package com.hartwig.pipeline.cluster.vm;
 
 import org.apache.commons.lang.Validate;
+import org.immutables.value.Value;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -13,14 +13,8 @@ public interface Run {
     @Value.Parameter
     String id();
 
-    static Run from(String sampleName, Arguments arguments, LocalDateTime now) {
-        String id;
-        if (arguments.profile().equals(Arguments.DefaultsProfile.DEVELOPMENT)) {
-            String suffix = arguments.runId().orElse(now.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")));
-            id = String.format("%s-%s", sampleName.toLowerCase(), suffix);
-        } else {
-            id = sampleName.toLowerCase();
-        }
-        return ImmutableRun.of(String.format("run-%s", id));
+    static Run from(String sampleName, Arguments arguments) {
+        return ImmutableRun.of(String.format("run-%s",
+                arguments.runId().map(id -> String.format("%s-%s", sampleName.toLowerCase(), id)).orElse(sampleName.toLowerCase())));
     }
 }

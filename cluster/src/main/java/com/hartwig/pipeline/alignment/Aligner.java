@@ -18,6 +18,7 @@ import com.hartwig.pipeline.metrics.Run;
 import com.hartwig.pipeline.performance.ClusterOptimizer;
 import com.hartwig.pipeline.performance.PerformanceProfile;
 import com.hartwig.pipeline.resource.Resource;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,11 +41,13 @@ public class Aligner {
     private final CostCalculator costCalculator;
     private final GoogleCredentials credentials;
     private final ResultsDirectory resultsDirectory;
+    private final AlignmentOutputStorage alignmentOutputStorage;
 
     Aligner(final Arguments arguments, final Storage storage, final Resource referenceGenomeData, final Resource knownIndelData,
-              final Resource knownSnpData, final SampleSource sampleSource, final BamDownload bamDownload, final SampleUpload sampleUpload,
-              final SparkExecutor dataproc, final JarUpload jarUpload, final ClusterOptimizer clusterOptimizer,
-              final CostCalculator costCalculator, final GoogleCredentials credentials, final ResultsDirectory resultsDirectory) {
+            final Resource knownSnpData, final SampleSource sampleSource, final BamDownload bamDownload, final SampleUpload sampleUpload,
+            final SparkExecutor dataproc, final JarUpload jarUpload, final ClusterOptimizer clusterOptimizer,
+            final CostCalculator costCalculator, final GoogleCredentials credentials, final ResultsDirectory resultsDirectory,
+            final AlignmentOutputStorage alignmentOutputStorage) {
         this.arguments = arguments;
         this.storage = storage;
         this.referenceGenomeData = referenceGenomeData;
@@ -60,6 +63,7 @@ public class Aligner {
         this.costCalculator = costCalculator;
         this.resultsDirectory = resultsDirectory;
         this.credentials = credentials;
+        this.alignmentOutputStorage = alignmentOutputStorage;
     }
 
     public AlignmentOutput run() throws Exception {
@@ -76,9 +80,7 @@ public class Aligner {
         }
         JarLocation jarLocation = jarUpload.run(runtimeBucket, arguments);
 
-        runJob(Jobs.noStatusCheck(dataproc, costCalculator, monitor),
-                SparkJobDefinition.gunzip(jarLocation),
-                runtimeBucket);
+        runJob(Jobs.noStatusCheck(dataproc, costCalculator, monitor), SparkJobDefinition.gunzip(jarLocation), runtimeBucket);
         runJob(Jobs.statusCheckGoogleStorage(dataproc, costCalculator, monitor),
                 SparkJobDefinition.bamCreation(jarLocation, arguments, runtimeBucket, clusterOptimizer.optimize(sampleData)),
                 runtimeBucket);
@@ -87,11 +89,7 @@ public class Aligner {
         compose(sample, runtimeBucket, BamCreationPipeline.RECALIBRATED_SUFFIX);
 
         runJob(Jobs.noStatusCheck(dataproc, costCalculator, monitor),
-                SparkJobDefinition.sortAndIndex(jarLocation,
-                        arguments,
-                        runtimeBucket,
-                        sample,
-                        resultsDirectory),
+                SparkJobDefinition.sortAndIndex(jarLocation, arguments, runtimeBucket, sample, resultsDirectory),
                 runtimeBucket);
 
         if (arguments.runBamMetrics()) {
@@ -104,12 +102,11 @@ public class Aligner {
 
         if (arguments.download()) {
             bamDownload.run(sample, runtimeBucket, JobResult.SUCCESS);
-            //                virtualMachine.run();
         }
         if (arguments.cleanup()) {
             runtimeBucket.cleanup();
         }
-        return AlignmentOutput.of();
+        return alignmentOutputStorage.get(sample).orElseThrow(() -> new RuntimeException("No results found in Google Storage for sample"));
     }
 
     private void compose(final Sample sample, final RuntimeBucket runtimeBucket) {

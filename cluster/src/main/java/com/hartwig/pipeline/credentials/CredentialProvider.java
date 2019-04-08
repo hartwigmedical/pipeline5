@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.alignment;
+package com.hartwig.pipeline.credentials;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -12,7 +12,7 @@ public class CredentialProvider {
 
     private final Arguments arguments;
 
-    CredentialProvider(final Arguments arguments) {
+    private CredentialProvider(final Arguments arguments) {
         this.arguments = arguments;
     }
 
@@ -22,5 +22,9 @@ public class CredentialProvider {
         GSUtil.configure(false, 4);
         GSUtil.auth(arguments.cloudSdkPath(), arguments.privateKeyPath());
         return credentials;
+    }
+
+    public static CredentialProvider from(final Arguments arguments) {
+        return new CredentialProvider(arguments);
     }
 }
