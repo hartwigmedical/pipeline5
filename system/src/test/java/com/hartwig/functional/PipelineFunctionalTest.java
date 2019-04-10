@@ -10,7 +10,6 @@ import com.hartwig.patient.Sample;
 import com.hartwig.patient.input.PatientReader;
 import com.hartwig.pipeline.adam.Pipelines;
 import com.hartwig.pipeline.after.Processes;
-import com.hartwig.pipeline.metrics.Monitor;
 import com.hartwig.pipeline.runtime.spark.SparkContexts;
 import com.hartwig.support.hadoop.Hadoop;
 
@@ -48,15 +47,11 @@ public class PipelineFunctionalTest {
     public void adamBamCreationMatchesCurrentPipelineOutput() throws Exception {
         FileSystem fileSystem = Hadoop.localFilesystem();
         Pipelines.bamCreationConsolidated(new ADAMContext(SPARK_CONTEXT.sc()),
-                fileSystem,
-                Monitor.noop(),
-                RESULT_DIR,
+                fileSystem, RESULT_DIR,
                 HUNDREDK_READS_HISEQ.referenceGenome().path(),
                 Collections.emptyList(),
                 HUNDREDK_READS_HISEQ.knownSnp().paths(),
-                1,
-                false,
-                true)
+                1, true)
                 .execute(PatientReader.fromHDFS(fileSystem, HUNDREDK_READS_HISEQ.patient().directory(), HUNDREDK_READS_HISEQ_PATIENT_NAME)
                         .reference());
         assertThatOutput(RESULT_DIR, REFERENCE_SAMPLE).aligned().duplicatesMarked().recalibrated().isEqualToExpected();

@@ -6,6 +6,9 @@ import java.util.LinkedHashMap;
 import java.util.TreeSet;
 
 import com.esotericsoftware.kryo.Kryo;
+import com.hartwig.pipeline.adam.ImmutableMultiplePrimaryAlignments;
+import com.hartwig.pipeline.adam.MultiplePrimaryAlignments;
+import com.hartwig.pipeline.adam.MultiplePrimaryAlignmentsQC;
 import com.hartwig.pipeline.adam.PositionRangeKey;
 
 import org.apache.avro.generic.GenericData;
@@ -132,6 +135,11 @@ public class ADAMKryo implements KryoRegistrator {
             kryo.register(GenericData.Array.class);
             kryo.register(Class.forName("com.google.common.collect.SingletonImmutableList", false, getClass().getClassLoader()));
             kryo.register(Class.forName("scala.collection.mutable.WrappedArray$ofRef", false, getClass().getClassLoader()));
+
+            kryo.register(MultiplePrimaryAlignmentsQC.class);
+            kryo.register(MultiplePrimaryAlignments.class);
+            kryo.register(MultiplePrimaryAlignments.ReadOrdinal.class);
+            kryo.register(ImmutableMultiplePrimaryAlignments.class);
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }

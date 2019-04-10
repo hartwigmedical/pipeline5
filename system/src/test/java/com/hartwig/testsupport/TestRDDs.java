@@ -1,5 +1,7 @@
 package com.hartwig.testsupport;
 
+import java.util.Arrays;
+
 import com.hartwig.support.test.Resources;
 
 import org.apache.spark.api.java.JavaSparkContext;
@@ -17,6 +19,10 @@ public class TestRDDs {
 
     public static AlignmentRecordDataset alignmentRecordDataset(String bamFile, JavaSparkContext sparkContext) {
         return javaAdam(sparkContext).loadAlignments(Resources.testResource(bamFile));
+    }
+
+    public static AlignmentRecordDataset alignmentRecordDataset(JavaSparkContext sparkContext, AlignmentRecord... records) {
+        return new RDDBoundAlignmentRecordDataset(sparkContext.parallelize(Arrays.asList(records)).rdd(), null, null, null, Option.empty());
     }
 
     @NotNull
