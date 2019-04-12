@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import static java.lang.String.format;
 
-class CommandLineOptions {
+public class CommandLineOptions {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CommandLineOptions.class);
     private static final String SAMPLE_DIRECTORY_FLAG = "sample_directory";
@@ -44,9 +44,9 @@ class CommandLineOptions {
     private static final String RUN_METRICS_FLAG = "run_bam_metrics";
     private static final String PROFILE_FLAG = "profile";
     private static final String SAMPLE_ID_FLAG = "sample_id";
+    private static final String SERVICE_ACCOUNT_EMAIL_FLAG = "service_account_email";
 
     private static final String DEFAULT_PROFILE = "production";
-    private static final String SERVICE_ACCOUNT_EMAIL_FLAG = "s";
 
     private static Options options() {
         return new Options().addOption(profileFlag())
@@ -173,7 +173,7 @@ class CommandLineOptions {
         return optionWithArg(SAMPLE_DIRECTORY_FLAG, "Root directory of the patient data");
     }
 
-    static Arguments from(String[] args) throws ParseException {
+    public static Arguments from(String[] args) throws ParseException {
         try {
             DefaultParser defaultParser = new DefaultParser();
             CommandLine commandLine = defaultParser.parse(options(), args);

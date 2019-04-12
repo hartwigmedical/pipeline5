@@ -65,7 +65,7 @@ public class PatientReportPipeline {
                 GoogleCredentials credentials = CredentialProvider.from(arguments).get();
                 Storage storage = StorageProvider.from(arguments, credentials).get();
                 new PatientReportPipeline(AlignerProvider.from(credentials, storage, arguments).get(),
-                        GermlineCallerProvider.from(arguments).get(),
+                        GermlineCallerProvider.from(credentials, storage, arguments).get(),
                         SomaticCallerProvider.from(arguments).get(),
                         StructuralCallerProvider.from(arguments).get(),
                         new AlignmentOutputStorage(storage, arguments, ResultsDirectory.defaultDirectory())).run();

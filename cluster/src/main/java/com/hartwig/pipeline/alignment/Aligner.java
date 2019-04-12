@@ -35,7 +35,6 @@ public class Aligner {
     private final BamDownload bamDownload;
     private final SampleUpload sampleUpload;
     private final SparkExecutor dataproc;
-    //private final GoogleVirtualMachine virtualMachine;
     private final JarUpload jarUpload;
     private final ClusterOptimizer clusterOptimizer;
     private final CostCalculator costCalculator;
@@ -57,7 +56,6 @@ public class Aligner {
         this.bamDownload = bamDownload;
         this.sampleUpload = sampleUpload;
         this.dataproc = dataproc;
-        //this.virtualMachine = virtualMachine;
         this.jarUpload = jarUpload;
         this.clusterOptimizer = clusterOptimizer;
         this.costCalculator = costCalculator;

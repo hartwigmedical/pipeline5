@@ -1,7 +1,6 @@
 package com.hartwig.pipeline.cluster.vm;
 
 import org.apache.commons.lang.Validate;
-import org.immutables.value.Value;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,5 +57,12 @@ public class BashStartupScript {
         Validate.notEmpty(logFile.trim(), "Log file must be non-empty");
         this.logFile = Optional.of(logFile);
         return this;
+    }
+
+    /**
+     * @return The final filename component of the file that will be written to indicate the job is complete
+     */
+    public String completionFlag() {
+        return "JOB_COMPLETE";
     }
 }

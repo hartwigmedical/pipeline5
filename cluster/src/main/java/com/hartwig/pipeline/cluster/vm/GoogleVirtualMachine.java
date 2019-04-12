@@ -9,28 +9,24 @@ import com.google.api.gax.paging.Page;
 import com.google.api.services.compute.Compute;
 import com.google.api.services.compute.ComputeRequest;
 import com.google.api.services.compute.ComputeScopes;
-import com.google.api.services.compute.model.*;
 import com.google.api.services.compute.model.ServiceAccount;
+import com.google.api.services.compute.model.*;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.*;
 import com.hartwig.pipeline.Arguments;
-import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.util.Calendar;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 
 public class GoogleVirtualMachine {
-    private static final String COMPLETED_FLAG_FILE = "JOB_COMPLETE";
     private final static String APPLICATION_NAME = "vm-hosted-workload";
     private static final String ZONE_NAME = "europe-west4-a";
 
@@ -39,16 +35,17 @@ public class GoogleVirtualMachine {
     private final String vmName;
     private final String imageFamily;
     private final String machineType;
-    private final Optional<String> startupCommand;
+    private final String startupCommand;
     private final String outputBucket;
+    private String completionFlagFile;
 
     private final GoogleCredentials credentials;
     private final String projectName;
     private final Arguments arguments;
 
     private GoogleVirtualMachine(final String vmName, final String imageFamily, final String machineType,
-                                 final Optional<String> startupCommand, final String outputBucket,
-                                 final Arguments arguments) {
+                                 final String startupCommand, final String outputBucket,
+                                 final Arguments arguments, final String completionFlagFile) {
         this.vmName = vmName;
         this.imageFamily = imageFamily;
         this.machineType = machineType;
@@ -56,6 +53,7 @@ public class GoogleVirtualMachine {
         this.arguments = arguments;
         this.projectName = arguments.project();
         this.outputBucket = outputBucket;
+        this.completionFlagFile = completionFlagFile;
 
         try {
             this.credentials = GoogleCredentials.fromStream(
@@ -66,48 +64,16 @@ public class GoogleVirtualMachine {
         }
     }
 
-    public static GoogleVirtualMachine germline(Arguments arguments) throws VmInitialisationException {
-        Validate.notNull(arguments, "Arguments must not be null");
-        String workingDir = "/tmp/hartwig";
-
-        String bam = "CPCT12345678R.sorted.bam";
-        String reference = "Homo_sapiens.GRCh37.GATK.illumina.fasta";
-        String jar = "wrappers-local-SNAPSHOT.jar";
-
-        String timestamp = getTimestamp();
-        String outputDir = format("%s/%s", workingDir, timestamp);
-        String outputBucket = format("gatk-germline-output-%s", timestamp);
-
-        GoogleStorage inBucket = new GoogleStorage("gatk-germline-bucket");
-        GoogleStorage outBucket = new GoogleStorage(outputBucket);
-
-        BashStartupScript startupScript = BashStartupScript.bashBuilder()
-                .outputToDir(outputDir)
-                .logToFile(format("%s/run.log", outputDir))
-                .addLine("echo Starting up at $(date)")
-                .addLine(inBucket.copyToLocal(jar, format("%s/%s", workingDir, jar)))
-                .addLine(inBucket.copyToLocal("CPCT12345678R.sorted.bam", workingDir))
-                .addLine(inBucket.copyToLocal("CPCT12345678R.sorted.bam.bai", workingDir))
-                .addLine(new GoogleStorage(arguments.referenceGenomeBucket()).copyToLocal("*", workingDir));
-
-        GatkHaplotypeCaller wrapper = new GatkHaplotypeCaller(format("%s/%s", workingDir, jar),
-                format("%s/%s", workingDir, bam),
-                format("%s/%s", workingDir, reference), format("%s/output.vcf", outputDir));
-
-        startupScript.addLine(wrapper.buildCommand())
-                .addLine("echo Processing finished at $(date)")
-                .addLine(outBucket.copyFromLocal(format("%s/*", outputDir), ""))
-                .addLine(format("date > %s/%s", outputDir, COMPLETED_FLAG_FILE))
-                .addLine(outBucket.copyFromLocal(format("%s/*", outputDir), ""));
-
+    public static GoogleVirtualMachine germline(Arguments arguments, BashStartupScript startupScript, String outputBucket) {
         return new GoogleVirtualMachine("germline", "diskimager-gatk-haplotypecaller",
-                "n1-standard-1", Optional.of(startupScript.asUnixString()), outputBucket, arguments);
+                "n1-standard-1", startupScript.asUnixString(), outputBucket, arguments, startupScript.completionFlag());
     }
 
     public void run() throws VmInitialisationException, VmExecutionException {
         LOGGER.info("Initialising [{}]", this);
         try {
             // Create output bucket up-front as it is used in completion detection
+            // This code assumes that the bucket will not yet exist and does nothing to handle the case where it does
             BucketInfo info = BucketInfo.newBuilder(outputBucket).setLocation(arguments.region()).build();
             getStorage().create(info);
 
@@ -172,14 +138,12 @@ public class GoogleVirtualMachine {
     }
 
     private void addStartupCommand(Instance instance) {
-        if (startupCommand.isPresent()) {
-            Metadata startupMetadata = new Metadata();
-            Metadata.Items items = new Metadata.Items();
-            items.setKey("startup-script");
-            items.setValue(startupCommand.get());
-            startupMetadata.setItems(asList(items));
-            instance.setMetadata(startupMetadata);
-        }
+        Metadata startupMetadata = new Metadata();
+        Metadata.Items items = new Metadata.Items();
+        items.setKey("startup-script");
+        items.setValue(startupCommand);
+        startupMetadata.setItems(asList(items));
+        instance.setMetadata(startupMetadata);
     }
 
     private Image resolveLatestImage(Compute compute, String sourceImageFamily) throws IOException {
@@ -202,11 +166,11 @@ public class GoogleVirtualMachine {
     /**
      * Google's API will throw if another VM with the same name exists in the project/zone which seems
      * a pragmatic approach for us to use too.
-     *
+     * <p>
      * This method depends upon all the disks attached to the instance having been initialised with their
      * <code>autoDelete</code> property set to <code>true</code>, as the disks attached by this class will
      * have been.
-     *
+     * <p>
      * Note also that the VM will start as soon as it is inserted.
      */
     private void deleteOldInstancesAndStart(Compute compute, Instance instance) throws Exception {
@@ -237,7 +201,13 @@ public class GoogleVirtualMachine {
                 Thread.interrupted();
             }
         }
-        LOGGER.info("{} confirmed {}", logId, fetchJobStatus(compute, syncOp.getName()));
+
+        Operation execute = compute.zoneOperations().get(projectName, ZONE_NAME, syncOp.getName()).execute();
+        if (execute.getError() == null) {
+           LOGGER.info("{} confirmed {}", logId, fetchJobStatus(compute, syncOp.getName()));
+        } else {
+            throw new RuntimeException(format("Job [%s] did not succeed: %s", syncOp.getName(), execute.toPrettyString()));
+        }
     }
 
     private String fetchJobStatus(Compute compute, String jobName) throws IOException {
@@ -251,10 +221,10 @@ public class GoogleVirtualMachine {
         while (!complete) {
             Page<Blob> objects = bucket.list();
             for (Blob blob : objects.iterateAll()) {
-                if (COMPLETED_FLAG_FILE.equals(blob.getName())) {
+                if (completionFlagFile.equals(blob.getName())) {
                     complete = true;
                 } else {
-                    LOGGER.debug("Flag file {} not found in bucket {}; job must not be done", COMPLETED_FLAG_FILE, outputBucket);
+                    LOGGER.debug("Flag file {} not found in bucket {}; job must not be done", completionFlagFile, outputBucket);
                 }
             }
             try {
@@ -266,7 +236,7 @@ public class GoogleVirtualMachine {
     }
 
     private Storage getStorage() {
-         return StorageOptions.newBuilder().setCredentials(credentials).setProjectId(arguments.project()).build().getService();
+        return StorageOptions.newBuilder().setCredentials(credentials).setProjectId(arguments.project()).build().getService();
     }
 
     private void stop() throws VmExecutionException {
@@ -279,15 +249,6 @@ public class GoogleVirtualMachine {
             LOGGER.error(message, e);
             throw new VmExecutionException(message, e);
         }
-    }
-
-    private static String getTimestamp() {
-        Calendar now = Calendar.getInstance();
-        return format("%d%02d%02d_%02d%02d", now.get(Calendar.YEAR),
-                now.get(Calendar.MONTH),
-                now.get(Calendar.DAY_OF_MONTH),
-                now.get(Calendar.HOUR_OF_DAY),
-                now.get(Calendar.MINUTE));
     }
 
     @Override

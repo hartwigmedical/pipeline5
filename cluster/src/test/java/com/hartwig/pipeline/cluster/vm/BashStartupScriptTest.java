@@ -104,6 +104,11 @@ public class BashStartupScriptTest {
         }
     }
 
+    @Test
+    public void shouldReturnCompletionFlagFilename() {
+        assertThat(scriptBuilder.completionFlag()).isEqualTo("JOB_COMPLETE");
+    }
+
     private String bash() {
         return "#!/bin/bash -ex";
     }

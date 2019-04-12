@@ -11,7 +11,7 @@ public interface GoogleStorageLocation {
     @Value.Parameter
     String path();
 
-    static GoogleStorageLocation of(String bucket, String vcfLocation) {
-        return ImmutableGoogleStorageLocation.of(bucket, vcfLocation);
+    static GoogleStorageLocation of(String bucket, String path) {
+        return ImmutableGoogleStorageLocation.of(bucket, path);
     }
 }
