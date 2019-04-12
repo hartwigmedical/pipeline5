@@ -6,8 +6,6 @@ import com.hartwig.io.DataSource;
 import com.hartwig.io.InputOutput;
 import com.hartwig.io.OutputStore;
 import com.hartwig.patient.Sample;
-import com.hartwig.pipeline.metrics.Metric;
-import com.hartwig.pipeline.metrics.Monitor;
 
 import org.bdgenomics.adam.rdd.read.AlignmentRecordDataset;
 import org.immutables.value.Value;
@@ -18,40 +16,29 @@ import org.slf4j.LoggerFactory;
 public abstract class BamCreationPipeline {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BamCreationPipeline.class);
-    static final String BAM_CREATED_METRIC = "BAM_CREATED";
     public static final String RECALIBRATED_SUFFIX = "recalibrated";
 
     public void execute(final Sample sample) {
         LOGGER.info("Clearing result directory before starting");
         finalBamStore().clear();
-        LOGGER.info("Preprocessing started for {} sample", sample.name());
+        LOGGER.info("ADAM BAM creation started for sample [{}]", sample.name());
         StatusReporter.Status status = StatusReporter.Status.SUCCESS;
         try {
-            long startTime = startTimer();
-            QCResult qcResult;
-            if (finalBamStore().exists(sample)) {
-                LOGGER.info("BAM for {} sample already exists. Only running QC", sample.name());
-                qcResult = qc(finalQC(), finalDatasource().extract(sample));
-            } else {
-                InputOutput<AlignmentRecordDataset> aligned = alignment().execute(InputOutput.seed(sample));
-                InputOutput<AlignmentRecordDataset> duplicatesMarked = markDuplicates().execute(aligned);
-                InputOutput<AlignmentRecordDataset> indelsRealigned = indelRealignment().execute(duplicatesMarked);
-                qcResult = qc(finalQC(), duplicatesMarked);
-                LOGGER.info("Storing BAM with duplicates marked and indels realigned");
-                indelsRealigned.payload().cache();
-                finalBamStore().store(indelsRealigned);
-                LOGGER.info("Recalibrating and storing recalibrated BAM");
-                InputOutput<AlignmentRecordDataset> recalibrated = recalibration().execute(indelsRealigned);
-                finalBamStore().store(recalibrated, RECALIBRATED_SUFFIX);
-                LOGGER.info("Recalibrated BAM stored");
+            InputOutput<AlignmentRecordDataset> aligned = executeAndCache(InputOutput.seed(sample), alignment());
+            QCResult qcResult = qc(finalQC(), aligned, "alignment (bwa mem)");
+            if (qcResult.isOk()) {
+                InputOutput<AlignmentRecordDataset> duplicatesMarked = executeAndCache(aligned, markDuplicates());
+                InputOutput<AlignmentRecordDataset> recalibrated = executeAndCache(duplicatesMarked, recalibration());
+                qcResult = qc(finalQC(), recalibrated, "recalibration");
+                if (qcResult.isOk()) {
+                    finalBamStore().store(duplicatesMarked);
+                    finalBamStore().store(recalibrated, RECALIBRATED_SUFFIX);
+                }
             }
             if (!qcResult.isOk()) {
                 status = StatusReporter.Status.FAILED_FINAL_QC;
             }
-            long timeSpent = endTimer() - startTime;
-            LOGGER.info("Preprocessing complete for {} sample, Took {} ms", sample.name(), timeSpent);
-            monitor().update(Metric.spentTime(BAM_CREATED_METRIC, timeSpent));
-
+            LOGGER.info("ADAM BAM creation completed for sample [{}]", sample.name());
         } catch (Exception e) {
             LOGGER.error(format("Unable to create BAM for %s. Check exception for details", sample.name()), e);
             if (status == StatusReporter.Status.SUCCESS) {
@@ -63,16 +50,20 @@ public abstract class BamCreationPipeline {
         }
     }
 
-    private QCResult qc(final QualityControl<AlignmentRecordDataset> qcCheck, final InputOutput<AlignmentRecordDataset> toQC) {
-        return qcCheck.check(toQC);
+    private InputOutput<AlignmentRecordDataset> executeAndCache(final InputOutput<AlignmentRecordDataset> input,
+            final Stage<AlignmentRecordDataset, AlignmentRecordDataset> stage) throws java.io.IOException {
+        InputOutput<AlignmentRecordDataset> result = stage.execute(input);
+        result.payload().cache();
+        return result;
     }
 
-    private static long startTimer() {
-        return System.currentTimeMillis();
-    }
-
-    private static long endTimer() {
-        return System.currentTimeMillis();
+    private QCResult qc(final QualityControl<AlignmentRecordDataset> qcCheck, final InputOutput<AlignmentRecordDataset> toQC,
+            final String stageName) {
+        QCResult qcResult = qcCheck.check(toQC);
+        if (!qcResult.isOk()) {
+            LOGGER.error("QC failed for [{}] stage with reason [{}]", stageName, qcResult.message());
+        }
+        return qcResult;
     }
 
     protected abstract DataSource<AlignmentRecordDataset> finalDatasource();
@@ -81,15 +72,11 @@ public abstract class BamCreationPipeline {
 
     protected abstract Stage<AlignmentRecordDataset, AlignmentRecordDataset> markDuplicates();
 
-    protected abstract Stage<AlignmentRecordDataset, AlignmentRecordDataset> indelRealignment();
-
     protected abstract Stage<AlignmentRecordDataset, AlignmentRecordDataset> recalibration();
 
     protected abstract OutputStore<AlignmentRecordDataset> finalBamStore();
 
     protected abstract QualityControl<AlignmentRecordDataset> finalQC();
-
-    protected abstract Monitor monitor();
 
     protected abstract StatusReporter statusReporter();
 

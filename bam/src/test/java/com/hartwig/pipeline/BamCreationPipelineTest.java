@@ -3,19 +3,13 @@ package com.hartwig.pipeline;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.hartwig.io.InputOutput;
 import com.hartwig.io.OutputStore;
 import com.hartwig.patient.ImmutableSample;
 import com.hartwig.patient.Sample;
-import com.hartwig.pipeline.metrics.Metric;
-import com.hartwig.pipeline.metrics.Monitor;
 
 import org.bdgenomics.adam.rdd.read.AlignmentRecordDataset;
 import org.jetbrains.annotations.NotNull;
-import org.junit.Before;
 import org.junit.Test;
 
 public class BamCreationPipelineTest {
@@ -29,71 +23,45 @@ public class BamCreationPipelineTest {
     private InputOutput<AlignmentRecordDataset> lastStoredWithSuffix;
     private String lastSuffix;
     private StatusReporter.Status lastStatus;
-    private List<Metric> metricsStored;
-    private Monitor monitor = metric -> metricsStored.add(metric);
-
-    @Before
-    public void setUp() throws Exception {
-        metricsStored = new ArrayList<>();
-    }
-
-    @Test
-    public void onlyDoesQCWhenBAMExists() {
-        BamCreationPipeline victim = createPipeline(true, QCResult.ok());
-        victim.execute(SAMPLE);
-        assertThat(lastStatus).isEqualTo(StatusReporter.Status.SUCCESS);
-        assertThat(lastStored).isNull();
-    }
 
     @Test
     public void storesEnrichedBamWhenAllQCsPassAndNoErrors() {
-        BamCreationPipeline victim = createPipeline(false, QCResult.ok());
+        BamCreationPipeline victim = createPipeline(QCResult.ok());
         victim.execute(SAMPLE);
         assertThat(lastStatus).isEqualTo(StatusReporter.Status.SUCCESS);
         assertThat(lastStored).isEqualTo(ENRICHED_BAM);
     }
 
     @Test
-    public void storesEnrichedBamWithFinalQCFailures() {
-        BamCreationPipeline victim = createPipeline(false, QCResult.failure("final"));
+    public void storesFinalQCFailures() {
+        BamCreationPipeline victim = createPipeline(QCResult.failure("final"));
         victim.execute(SAMPLE);
         assertThat(lastStatus).isEqualTo(StatusReporter.Status.FAILED_FINAL_QC);
-        assertThat(lastStored).isEqualTo(ENRICHED_BAM);
     }
 
     @Test
     public void storedRecalibratedBamSeparately() {
-        BamCreationPipeline victim = createPipeline(false, QCResult.ok());
+        BamCreationPipeline victim = createPipeline(QCResult.ok());
         victim.execute(SAMPLE);
         assertThat(lastStoredWithSuffix).isEqualTo(RECALIBRATED_BAM);
         assertThat(lastSuffix).isEqualTo("recalibrated");
     }
 
-    @Test
-    public void metricsStoredForFinalTimeSpent() {
-        BamCreationPipeline victim = createPipeline(false, QCResult.ok());
-        victim.execute(SAMPLE);
-        assertThat(metricsStored).hasSize(1);
-        assertThat(metricsStored.get(0).name()).contains(BamCreationPipeline.BAM_CREATED_METRIC);
-    }
-
     @NotNull
-    private ImmutableBamCreationPipeline createPipeline(final boolean exists, QCResult finalQC) {
+    private ImmutableBamCreationPipeline createPipeline(QCResult finalQC) {
         return BamCreationPipeline.builder()
                 .alignment(input -> ALIGNED_BAM)
                 .markDuplicates(markDups())
                 .recalibration(bqsr())
-                .indelRealignment(indelRealignment())
-                .finalBamStore(finalStore(exists))
+                .finalBamStore(finalStore())
                 .finalDatasource(sample -> FINAL_BAM)
                 .finalQC(toQC -> finalQC)
                 .statusReporter(status -> lastStatus = status)
-                .monitor(monitor)
-                .build();
+                 .build();
     }
 
     @NotNull
-    private OutputStore<AlignmentRecordDataset> finalStore(final boolean exists) {
+    private OutputStore<AlignmentRecordDataset> finalStore() {
         return new OutputStore<AlignmentRecordDataset>() {
             @Override
             public void store(final InputOutput<AlignmentRecordDataset> inputOutput) {
@@ -108,7 +76,7 @@ public class BamCreationPipelineTest {
 
             @Override
             public boolean exists(final Sample sample) {
-                return exists;
+                return false;
             }
 
             @Override
@@ -126,9 +94,5 @@ public class BamCreationPipelineTest {
     @NotNull
     private Stage<AlignmentRecordDataset, AlignmentRecordDataset> bqsr() {
         return input -> RECALIBRATED_BAM;
-    }
-
-    private Stage<AlignmentRecordDataset, AlignmentRecordDataset> indelRealignment() {
-        return input -> input;
     }
 }
