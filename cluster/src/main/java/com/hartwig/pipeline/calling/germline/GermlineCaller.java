@@ -37,9 +37,7 @@ public class GermlineCaller {
         GoogleStorage inBucket = new GoogleStorage(alignmentOutput.finalBamLocation().bucket());
         String jar = "wrappers-local-SNAPSHOT.jar";
 
-        BashStartupScript startupScript = BashStartupScript.bashBuilder()
-                .outputToDir(outputDir)
-                .logToFile(format("%s/run.log", outputDir))
+        BashStartupScript startupScript = BashStartupScript.of(outputDir, format("%s/run.log", outputDir))
                 .addLine("echo Starting up at $(date)")
                 .addLine(inBucket.copyToLocal(jar, format("%s/%s", workingDir, jar)))
                 .addLine(inBucket.copyToLocal(alignmentOutput.finalBamLocation().path(), workingDir))
