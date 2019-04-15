@@ -1,12 +1,10 @@
 package com.hartwig.pipeline.execution.vm;
 
-import org.apache.commons.lang.Validate;
+import static java.lang.String.format;
+import static java.util.stream.Collectors.joining;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static java.lang.String.format;
-import static java.util.stream.Collectors.joining;
 
 public class BashStartupScript {
     private final List<String> commands;
@@ -26,17 +24,21 @@ public class BashStartupScript {
     /**
      * @return the generated script as a single <code>String</code> with UNIx newlines separating input lines
      */
-    String asUnixString() {
+    public String asUnixString() {
         String loggingSuffix = format(" >>%s 2>&1", logFile);
         return "#!/bin/bash -ex\n\n" + format("mkdir -p %s\n", outputDirectory) + commands.stream()
                 .collect(joining(format("%s\n", loggingSuffix))) + (commands.isEmpty() ? "" : loggingSuffix);
     }
 
     public BashStartupScript addLine(String lineOne) {
-        Validate.notNull(lineOne, "Cannot add a null line");
         commands.add(lineOne);
         return this;
     }
+
+    public BashStartupScript addCommand(BashCommand command){
+        return addLine(command.asBash());
+    }
+
     /**
      * @return The final filename component of the file that will be written to indicate the job is complete
      */

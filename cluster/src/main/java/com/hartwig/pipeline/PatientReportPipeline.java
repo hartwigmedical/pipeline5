@@ -53,7 +53,7 @@ public class PatientReportPipeline {
     public void run() throws Exception {
         AlignmentOutput alignmentOutput = aligner.run();
 
-        germlineCaller.run(alignmentOutput);
+        // germlineCaller.run(alignmentOutput);
 
         Optional<AlignmentPair> maybeAlignmentPair =
                 alignmentOutputStorage.get(mate(alignmentOutput.sample())).map(complement -> AlignmentPair.of(alignmentOutput, complement));

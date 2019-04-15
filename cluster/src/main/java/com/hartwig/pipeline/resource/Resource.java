@@ -46,4 +46,8 @@ public class Resource {
             LOGGER.warn("No bucket found for static data [{}] check that it exists in storage", sourceBucket);
         }
     }
+
+    public String getTargetBucket() {
+        return targetBucket;
+    }
 }
