@@ -19,7 +19,6 @@
         <mockito.version>2.11.0</mockito.version>
         <assertj-core.version>3.8.0</assertj-core.version>
         <slf4j-api.version>1.7.25</slf4j-api.version>
-        <gatk.version>4.0.4.0</gatk.version>
         <spark.version>2.3.0</spark.version>
         <commons-io.version>2.4</commons-io.version>
         <adam.version>0.26.0</adam.version>
@@ -50,7 +49,6 @@
 
     <modules>
         <module>bam</module>
-        <module>gatk</module>
         <module>patients</module>
         <module>support</module>
         <module>system</module>
@@ -63,11 +61,6 @@
             <dependency>
                 <groupId>com.hartwig</groupId>
                 <artifactId>bam</artifactId>
-                <version>local-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.hartwig</groupId>
-                <artifactId>gatk</artifactId>
                 <version>local-SNAPSHOT</version>
             </dependency>
             <dependency>

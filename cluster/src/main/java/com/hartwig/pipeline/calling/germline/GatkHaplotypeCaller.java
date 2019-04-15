@@ -13,9 +13,11 @@ class GatkHaplotypeCaller {
         this.outputVcf = outputVcf;
     }
 
-    String buildCommand() {
-        String className = "org.broadinstitute.hellbender.Main HaplotypeCaller";
-        return String.format("java -cp %s %s --input %s --output %s --reference %s",
-                jar, className, inputBam, outputVcf, referenceFasta);
+    public String buildCommand() {
+        return "java -jar " + jar + " --analysis_type HaplotypeCaller --input_file " + inputBam
+                + " -o " + outputVcf +" --reference_sequence "+ referenceFasta
+                + " -nct $(grep -c '^processor' /proc/cpuinfo) -variant_index_type LINEAR"
+                + " -variant_index_parameter 128000 -stand_call_conf 15.0 -ERC GVCF"
+                + " -GQB 5 -GQB 10 -GQB 15 -GQB 20 -GQB 30 -GQB 40 -GQB 50 -GQB 60 --sample_ploidy 2";
     }
 }
