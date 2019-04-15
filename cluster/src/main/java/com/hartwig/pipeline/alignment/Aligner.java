@@ -5,10 +5,11 @@ import com.google.cloud.storage.Storage;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.BamCreationPipeline;
-import com.hartwig.pipeline.cluster.JarLocation;
-import com.hartwig.pipeline.cluster.JarUpload;
-import com.hartwig.pipeline.cluster.SparkExecutor;
-import com.hartwig.pipeline.cluster.SparkJobDefinition;
+import com.hartwig.pipeline.execution.JobStatus;
+import com.hartwig.pipeline.execution.dataproc.JarLocation;
+import com.hartwig.pipeline.execution.dataproc.JarUpload;
+import com.hartwig.pipeline.execution.dataproc.SparkExecutor;
+import com.hartwig.pipeline.execution.dataproc.SparkJobDefinition;
 import com.hartwig.pipeline.cost.CostCalculator;
 import com.hartwig.pipeline.io.*;
 import com.hartwig.pipeline.io.sources.SampleData;
@@ -99,7 +100,7 @@ public class Aligner {
         }
 
         if (arguments.download()) {
-            bamDownload.run(sample, runtimeBucket, JobResult.SUCCESS);
+            bamDownload.run(sample, runtimeBucket, JobStatus.SUCCESS);
         }
         if (arguments.cleanup()) {
             runtimeBucket.cleanup();
@@ -116,8 +117,8 @@ public class Aligner {
     }
 
     private void runJob(SparkExecutor executor, SparkJobDefinition jobDefinition, RuntimeBucket runtimeBucket) {
-        JobResult result = executor.submit(runtimeBucket, jobDefinition);
-        if (result.equals(JobResult.FAILED)) {
+        JobStatus result = executor.submit(runtimeBucket, jobDefinition);
+        if (result.equals(JobStatus.FAILED)) {
             throw new RuntimeException(String.format(
                     "Job [%s] reported status failed. Check prior error messages or job logs on Google dataproc",
                     jobDefinition.name()));

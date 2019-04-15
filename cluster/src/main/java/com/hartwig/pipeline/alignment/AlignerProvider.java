@@ -4,9 +4,9 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.cluster.GoogleDataproc;
-import com.hartwig.pipeline.cluster.GoogleStorageJarUpload;
-import com.hartwig.pipeline.cluster.NodeInitialization;
+import com.hartwig.pipeline.execution.dataproc.GoogleDataproc;
+import com.hartwig.pipeline.execution.dataproc.GoogleStorageJarUpload;
+import com.hartwig.pipeline.execution.dataproc.NodeInitialization;
 import com.hartwig.pipeline.cost.CostCalculator;
 import com.hartwig.pipeline.cost.Costs;
 import com.hartwig.pipeline.io.BamDownload;
@@ -32,7 +32,6 @@ import com.hartwig.pipeline.io.sources.SampleSource;
 import com.hartwig.pipeline.performance.ClusterOptimizer;
 import com.hartwig.pipeline.performance.CpuFastQSizeRatio;
 import com.hartwig.pipeline.resource.Resources;
-import com.hartwig.pipeline.storage.StorageProvider;
 import com.hartwig.support.hadoop.Hadoop;
 
 public abstract class AlignerProvider {

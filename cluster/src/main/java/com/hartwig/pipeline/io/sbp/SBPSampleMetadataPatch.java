@@ -10,7 +10,7 @@ import com.amazonaws.services.s3.model.Permission;
 import com.amazonaws.services.s3.model.S3Object;
 import com.google.cloud.storage.Blob;
 import com.hartwig.patient.Sample;
-import com.hartwig.pipeline.alignment.JobResult;
+import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.io.BamDownload;
 import com.hartwig.pipeline.alignment.AlignmentOutputPaths;
 import com.hartwig.pipeline.io.ResultsDirectory;
@@ -43,7 +43,7 @@ public class SBPSampleMetadataPatch implements BamDownload {
     }
 
     @Override
-    public void run(final Sample sample, final RuntimeBucket runtimeBucket, final JobResult result) {
+    public void run(final Sample sample, final RuntimeBucket runtimeBucket, final JobStatus result) {
         Blob bamBlob = runtimeBucket.bucket().get(resultsDirectory.path(AlignmentOutputPaths.sorted(sample)));
         decorated.run(sample, runtimeBucket, result);
         String bamFile = sample.name() + ".bam";
@@ -58,7 +58,7 @@ public class SBPSampleMetadataPatch implements BamDownload {
                         .filename(bamFile)
                         .filesize(existing.getContentLength())
                         .hash(new String(Hex.encodeHex(Base64.getDecoder().decode(bamBlob.getMd5()))))
-                        .status(result == JobResult.SUCCESS ? "Done_PipelineV5" : "Failed_PipelineV5")
+                        .status(result == JobStatus.SUCCESS ? "Done_PipelineV5" : "Failed_PipelineV5")
                         .build());
     }
 

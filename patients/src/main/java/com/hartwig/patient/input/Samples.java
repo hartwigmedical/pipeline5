@@ -16,7 +16,7 @@ import org.apache.hadoop.fs.GlobFilter;
 import org.apache.hadoop.fs.Path;
 import org.jetbrains.annotations.NotNull;
 
-public class Samples {
+class Samples {
 
     static Sample createPairedEndSample(final FileSystem fileSystem, final Path sampleDirectory, final String sampleName,
             final String postfix) throws IOException {
@@ -46,18 +46,5 @@ public class Samples {
                 .addAllLanes(builders.values().stream().map(ImmutableLane.Builder::build).collect(Collectors.toList()))
                 .type(sampleName.toLowerCase().endsWith("r") ? Sample.Type.REFERENCE : Sample.Type.TUMOR)
                 .build();
-    }
-
-    public static Sample complement(Sample sample) {
-        if (sample.type().equals(Sample.Type.REFERENCE)) {
-            return replaceSuffix(sample, "T").type(Sample.Type.TUMOR).build();
-        } else {
-            return replaceSuffix(sample, "R").type(Sample.Type.REFERENCE).build();
-        }
-    }
-
-    @NotNull
-    private static ImmutableSample.Builder replaceSuffix(final Sample sample, final String newSuffix) {
-        return Sample.builder(sample.directory(), sample.name().substring(0, sample.name().length() - 1).concat(newSuffix));
     }
 }

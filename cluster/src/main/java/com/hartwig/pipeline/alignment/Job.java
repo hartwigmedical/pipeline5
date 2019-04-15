@@ -2,8 +2,9 @@ package com.hartwig.pipeline.alignment;
 
 import java.time.Clock;
 
-import com.hartwig.pipeline.cluster.SparkExecutor;
-import com.hartwig.pipeline.cluster.SparkJobDefinition;
+import com.hartwig.pipeline.execution.JobStatus;
+import com.hartwig.pipeline.execution.dataproc.SparkExecutor;
+import com.hartwig.pipeline.execution.dataproc.SparkJobDefinition;
 import com.hartwig.pipeline.cost.CostCalculator;
 import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.io.StatusCheck;
@@ -30,7 +31,7 @@ class Job implements SparkExecutor {
         this.statusCheck = statusCheck;
     }
 
-    public JobResult submit(final RuntimeBucket runtimeBucket, final SparkJobDefinition sparkJobDefinition) {
+    public JobStatus submit(final RuntimeBucket runtimeBucket, final SparkJobDefinition sparkJobDefinition) {
         try {
             MetricsTimeline metricsTimeline = new MetricsTimeline(Clock.systemDefaultZone(), new Metrics(monitor, costCalculator));
             metricsTimeline.start(sparkJobDefinition);
@@ -38,13 +39,13 @@ class Job implements SparkExecutor {
             metricsTimeline.stop(sparkJobDefinition);
             StatusCheck.Status status = statusCheck.check(runtimeBucket);
             if (status == StatusCheck.Status.FAILED) {
-                return JobResult.FAILED;
+                return JobStatus.FAILED;
             } else {
-                return JobResult.SUCCESS;
+                return JobStatus.SUCCESS;
             }
         } catch (Exception e) {
             LOGGER.error(String.format("Unable to run job [%s]", sparkJobDefinition), e);
-            return JobResult.FAILED;
+            return JobStatus.FAILED;
         }
     }
 }

@@ -1,13 +1,13 @@
 package com.hartwig.pipeline.calling.germline;
 
+import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
-import com.hartwig.pipeline.cluster.vm.BashStartupScript;
-import com.hartwig.pipeline.cluster.vm.GatkHaplotypeCaller;
-import com.hartwig.pipeline.cluster.vm.GoogleStorage;
-import com.hartwig.pipeline.cluster.vm.GoogleVirtualMachine;
 
 import java.util.Calendar;
+
+import com.hartwig.pipeline.execution.vm.*;
+import com.hartwig.pipeline.io.RuntimeBucket;
 
 import static java.lang.String.format;
 
@@ -15,11 +15,15 @@ public class GermlineCaller {
     private static final String OUTPUT_FILENAME = "germline_output.gvcf";
 
     private final Arguments arguments;
-    private String referenceGenomeBucket;
+    private final String referenceGenomeBucket;
+    private final ComputeEngine executor;
+    private final Storage storage;
 
-    GermlineCaller(final Arguments arguments) {
+    GermlineCaller(final Arguments arguments, final ComputeEngine executor, final Storage storage) {
         this.referenceGenomeBucket = arguments.referenceGenomeBucket();
         this.arguments = arguments;
+        this.executor = executor;
+        this.storage = storage;
     }
 
     public GermlineCallerOutput run(AlignmentOutput alignmentOutput) {
@@ -44,7 +48,8 @@ public class GermlineCaller {
 
         GatkHaplotypeCaller wrapper = new GatkHaplotypeCaller(format("%s/%s", workingDir, jar),
                 format("%s/%s", workingDir, "bam"),
-                format("%s/%s", workingDir, reference), format("%s/%s", outputDir, OUTPUT_FILENAME));
+                format("%s/%s", workingDir, reference),
+                format("%s/%s", outputDir, OUTPUT_FILENAME));
 
         GoogleStorage outputBucket = new GoogleStorage(outputBucketName);
         startupScript.addLine(wrapper.buildCommand())
@@ -53,15 +58,17 @@ public class GermlineCaller {
                 .addLine(format("date > %s/%s", outputDir, startupScript.completionFlag()))
                 .addLine(outputBucket.copyFromLocal(format("%s/%s", outputDir, startupScript.completionFlag()), ""));
 
-        GoogleVirtualMachine.germline(arguments, startupScript, outputBucketName).run();
+        RuntimeBucket bucket = RuntimeBucket.from(storage, arguments.sampleId(), arguments);
+        executor.submit(bucket, VirtualMachineJobDefinition.germlineCalling(startupScript));
 
         return GermlineCallerOutput.of(outputBucketName, OUTPUT_FILENAME);
     }
 
     private static String getTimestamp() {
         Calendar now = Calendar.getInstance();
-        return format("%d%02d%02d_%02d%02d", now.get(Calendar.YEAR),
-                now.get(Calendar.MONTH ) + 1,
+        return format("%d%02d%02d_%02d%02d",
+                now.get(Calendar.YEAR),
+                now.get(Calendar.MONTH) + 1,
                 now.get(Calendar.DAY_OF_MONTH),
                 now.get(Calendar.HOUR_OF_DAY),
                 now.get(Calendar.MINUTE));

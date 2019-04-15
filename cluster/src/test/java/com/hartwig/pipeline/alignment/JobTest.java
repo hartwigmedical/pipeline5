@@ -13,9 +13,10 @@ import java.io.IOException;
 import com.hartwig.patient.ImmutableSample;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.cluster.JarLocation;
-import com.hartwig.pipeline.cluster.SparkExecutor;
-import com.hartwig.pipeline.cluster.SparkJobDefinition;
+import com.hartwig.pipeline.execution.JobStatus;
+import com.hartwig.pipeline.execution.dataproc.JarLocation;
+import com.hartwig.pipeline.execution.dataproc.SparkExecutor;
+import com.hartwig.pipeline.execution.dataproc.SparkJobDefinition;
 import com.hartwig.pipeline.cost.CostCalculator;
 import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.io.StatusCheck;
@@ -52,19 +53,19 @@ public class JobTest {
     @Test
     public void reportsJobResultFailedOnException() throws Exception {
         when(sparkExecutor.submit(runtimeBucket, JOB_DEFINITION)).thenThrow(new RuntimeException());
-        assertThat(victim.submit(runtimeBucket, JOB_DEFINITION)).isEqualTo(JobResult.FAILED);
+        assertThat(victim.submit(runtimeBucket, JOB_DEFINITION)).isEqualTo(JobStatus.FAILED);
     }
 
     @Test
     public void reportsJobResultFailedWhenStatusCheckFails() {
         when(statusCheck.check(runtimeBucket)).thenReturn(StatusCheck.Status.FAILED);
-        assertThat(victim.submit(runtimeBucket, JOB_DEFINITION)).isEqualTo(JobResult.FAILED);
+        assertThat(victim.submit(runtimeBucket, JOB_DEFINITION)).isEqualTo(JobStatus.FAILED);
     }
 
     @Test
     public void reportsSuccessWhenDecoratedExecutorSuccessful() throws IOException {
-        when(sparkExecutor.submit(runtimeBucket, JOB_DEFINITION)).thenReturn(JobResult.SUCCESS);
-        assertThat(victim.submit(runtimeBucket, JOB_DEFINITION)).isEqualTo(JobResult.SUCCESS);
+        when(sparkExecutor.submit(runtimeBucket, JOB_DEFINITION)).thenReturn(JobStatus.SUCCESS);
+        assertThat(victim.submit(runtimeBucket, JOB_DEFINITION)).isEqualTo(JobStatus.SUCCESS);
     }
 
     @Test

@@ -4,7 +4,7 @@ import java.time.Clock;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.hartwig.pipeline.cluster.SparkJobDefinition;
+import com.hartwig.pipeline.execution.dataproc.SparkJobDefinition;
 
 public class MetricsTimeline {
 

@@ -4,7 +4,8 @@ import java.util.Optional;
 
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Storage;
-import com.hartwig.patient.input.Samples;
+import com.hartwig.patient.ImmutableSample;
+import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.alignment.AlignerProvider;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
@@ -24,6 +25,7 @@ import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.storage.StorageProvider;
 
 import org.apache.commons.cli.ParseException;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +52,7 @@ public class PatientReportPipeline {
         AlignmentOutput alignmentOutput = aligner.run();
         GermlineCallerOutput germlineCallerOutput = germlineCaller.run(alignmentOutput);
 
-        Optional<AlignmentPair> maybeAlignmentPair = alignmentOutputStorage.get(Samples.complement(alignmentOutput.sample()))
+        Optional<AlignmentPair> maybeAlignmentPair = alignmentOutputStorage.get(mate(alignmentOutput.sample()))
                 .map(complement -> AlignmentPair.of(alignmentOutput, complement));
 
         Optional<SomaticCallerOutput> maybeSomaticCallerOutput = maybeAlignmentPair.map(somaticCaller::run);
@@ -66,7 +68,7 @@ public class PatientReportPipeline {
                 Storage storage = StorageProvider.from(arguments, credentials).get();
                 new PatientReportPipeline(AlignerProvider.from(credentials, storage, arguments).get(),
                         GermlineCallerProvider.from(credentials, storage, arguments).get(),
-                        SomaticCallerProvider.from(arguments).get(),
+                        SomaticCallerProvider.from(arguments, credentials, storage).get(),
                         StructuralCallerProvider.from(arguments).get(),
                         new AlignmentOutputStorage(storage, arguments, ResultsDirectory.defaultDirectory())).run();
             } catch (Exception e) {
@@ -77,5 +79,18 @@ public class PatientReportPipeline {
         } catch (ParseException e) {
             LOGGER.info("Exiting due to incorrect arguments");
         }
+    }
+
+    private static Sample mate(Sample sample) {
+        if (sample.type().equals(Sample.Type.REFERENCE)) {
+            return replaceSuffix(sample, "T").type(Sample.Type.TUMOR).build();
+        } else {
+            return replaceSuffix(sample, "R").type(Sample.Type.REFERENCE).build();
+        }
+    }
+
+    @NotNull
+    private static ImmutableSample.Builder replaceSuffix(final Sample sample, final String newSuffix) {
+        return Sample.builder(sample.directory(), sample.name().substring(0, sample.name().length() - 1).concat(newSuffix));
     }
 }

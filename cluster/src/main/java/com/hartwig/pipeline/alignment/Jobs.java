@@ -1,6 +1,6 @@
 package com.hartwig.pipeline.alignment;
 
-import com.hartwig.pipeline.cluster.SparkExecutor;
+import com.hartwig.pipeline.execution.dataproc.SparkExecutor;
 import com.hartwig.pipeline.cost.CostCalculator;
 import com.hartwig.pipeline.io.GoogleStorageStatusCheck;
 import com.hartwig.pipeline.io.ResultsDirectory;

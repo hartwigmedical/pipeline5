@@ -3,7 +3,7 @@ package com.hartwig.pipeline.io;
 import java.util.function.Function;
 
 import com.hartwig.patient.Sample;
-import com.hartwig.pipeline.alignment.JobResult;
+import com.hartwig.pipeline.execution.JobStatus;
 
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -25,7 +25,7 @@ public class CloudBamDownload implements BamDownload {
     }
 
     @Override
-    public void run(final Sample sample, final RuntimeBucket runtimeBucket, final JobResult result) {
+    public void run(final Sample sample, final RuntimeBucket runtimeBucket, final JobStatus result) {
         try {
             String bamPath = String.format("gs://%s/%s%s.sorted.bam", runtimeBucket.name(), resultsDirectory.path(""), sample.name());
             String targetBam = targetResolver.apply(sample);

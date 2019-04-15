@@ -11,7 +11,7 @@ import java.io.IOException;
 
 import com.hartwig.patient.ImmutableSample;
 import com.hartwig.patient.Sample;
-import com.hartwig.pipeline.alignment.JobResult;
+import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.io.sbp.SBPS3FileTarget;
 import com.hartwig.pipeline.testsupport.MockRuntimeBucket;
 
@@ -37,14 +37,14 @@ public class CloudBamDownloadTest {
     @Test(expected = RuntimeException.class)
     public void rethrowsExceptionsAsRuntime() {
         doThrow(new IOException()).when(cloudCopy).copy(anyString(), anyString());
-        victim.run(SAMPLE, runtimeBucket.getRuntimeBucket(), JobResult.SUCCESS);
+        victim.run(SAMPLE, runtimeBucket.getRuntimeBucket(), JobStatus.SUCCESS);
     }
 
     @Test
     public void copiesBamAndBaiToTargetLocation() {
         ArgumentCaptor<String> sourceCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> targetCaptor = ArgumentCaptor.forClass(String.class);
-        victim.run(SAMPLE, runtimeBucket.getRuntimeBucket(), JobResult.SUCCESS);
+        victim.run(SAMPLE, runtimeBucket.getRuntimeBucket(), JobStatus.SUCCESS);
         verify(cloudCopy, times(2)).copy(sourceCaptor.capture(), targetCaptor.capture());
         assertThat(sourceCaptor.getAllValues().get(0)).isEqualTo("gs://run/results/TEST123.sorted.bam");
         assertThat(sourceCaptor.getAllValues().get(1)).isEqualTo("gs://run/results/TEST123.sorted.bam.bai");

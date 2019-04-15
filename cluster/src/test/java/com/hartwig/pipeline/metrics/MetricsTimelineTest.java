@@ -7,7 +7,7 @@ import static org.mockito.Mockito.when;
 
 import java.time.Clock;
 
-import com.hartwig.pipeline.cluster.SparkJobDefinition;
+import com.hartwig.pipeline.execution.dataproc.SparkJobDefinition;
 import com.hartwig.pipeline.performance.PerformanceProfile;
 
 import org.junit.Before;
