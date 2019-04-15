@@ -10,9 +10,9 @@ import com.google.api.services.cloudbilling.model.PricingInfo;
 import com.google.api.services.cloudbilling.model.Sku;
 import com.google.api.services.cloudbilling.model.TierRate;
 import com.google.common.collect.ImmutableMap;
-import com.hartwig.pipeline.performance.ImmutableMachineType;
-import com.hartwig.pipeline.performance.ImmutablePerformanceProfile;
-import com.hartwig.pipeline.performance.PerformanceProfile;
+import com.hartwig.pipeline.execution.ImmutableMachineType;
+import com.hartwig.pipeline.execution.dataproc.DataprocPerformanceProfile;
+import com.hartwig.pipeline.execution.dataproc.ImmutableDataprocPerformanceProfile;
 
 import org.assertj.core.data.Offset;
 import org.jetbrains.annotations.NotNull;
@@ -70,8 +70,8 @@ public class ResourceCostTest {
     }
 
     @NotNull
-    private static ImmutablePerformanceProfile.Builder profileWith() {
-        return PerformanceProfile.builder().numPrimaryWorkers(1).numPreemtibleWorkers(1);
+    private static ImmutableDataprocPerformanceProfile.Builder profileWith() {
+        return DataprocPerformanceProfile.builder().numPrimaryWorkers(1).numPreemtibleWorkers(1);
     }
 
     @NotNull

@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 import com.google.api.services.cloudbilling.model.Sku;
-import com.hartwig.pipeline.performance.PerformanceProfile;
+import com.hartwig.pipeline.execution.dataproc.DataprocPerformanceProfile;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,13 +24,13 @@ class ResourceCost implements Cost {
     private static final String PREEMTIBLE_WORKER = "Preemtible";
     private final Logger LOGGER = LoggerFactory.getLogger(ResourceCost.class);
     private final Sku sku;
-    private final Function<PerformanceProfile, Integer> resourceCountFunction;
-    private final Function<PerformanceProfile, Integer> numMachineFunction;
+    private final Function<DataprocPerformanceProfile, Integer> resourceCountFunction;
+    private final Function<DataprocPerformanceProfile, Integer> numMachineFunction;
     private final String resourceGroup;
     private final String resourceName;
 
-    private ResourceCost(final Sku sku, final Function<PerformanceProfile, Integer> resourceCountFunction,
-            final Function<PerformanceProfile, Integer> numMachineFunction, final String resourceGroup, final String resourceName) {
+    private ResourceCost(final Sku sku, final Function<DataprocPerformanceProfile, Integer> resourceCountFunction,
+            final Function<DataprocPerformanceProfile, Integer> numMachineFunction, final String resourceGroup, final String resourceName) {
         this.sku = sku;
         this.resourceCountFunction = resourceCountFunction;
         this.numMachineFunction = numMachineFunction;
@@ -38,7 +38,7 @@ class ResourceCost implements Cost {
         this.resourceName = resourceName;
     }
 
-    public double calculate(PerformanceProfile performanceProfile, double hours) {
+    public double calculate(DataprocPerformanceProfile performanceProfile, double hours) {
         int numMachines = numMachineFunction.apply(performanceProfile);
         int totalUnits = resourceCountFunction.apply(performanceProfile) * numMachines;
         double rate = priceInDollars(sku);
@@ -78,7 +78,7 @@ class ResourceCost implements Cost {
     static ResourceCost primaryCpu(Map<String, Sku> skus) {
         return new ResourceCost(skus.get(CPU_CORE_SKU),
                 performanceProfile -> performanceProfile.primaryWorkers().cpus(),
-                PerformanceProfile::numPrimaryWorkers,
+                DataprocPerformanceProfile::numPrimaryWorkers,
                 CPU,
                 PRIMARY_WORKER);
     }
@@ -86,7 +86,7 @@ class ResourceCost implements Cost {
     static ResourceCost primaryMemory(Map<String, Sku> skus) {
         return new ResourceCost(skus.get(RAM_GB_SKU),
                 performanceProfile -> performanceProfile.primaryWorkers().memoryGB(),
-                PerformanceProfile::numPrimaryWorkers,
+                DataprocPerformanceProfile::numPrimaryWorkers,
                 MEMORY_GB,
                 PRIMARY_WORKER);
     }
@@ -94,7 +94,7 @@ class ResourceCost implements Cost {
     static ResourceCost preemptibleCpu(Map<String, Sku> skus) {
         return new ResourceCost(skus.get(CPU_CORE_PREEMPTIBLE_SKU),
                 performanceProfile -> performanceProfile.preemtibleWorkers().cpus(),
-                PerformanceProfile::numPreemtibleWorkers,
+                DataprocPerformanceProfile::numPreemtibleWorkers,
                 CPU,
                 PREEMTIBLE_WORKER);
     }
@@ -102,7 +102,7 @@ class ResourceCost implements Cost {
     static ResourceCost preemtibleMemory(Map<String, Sku> skus) {
         return new ResourceCost(skus.get(RAM_GB_PREEMPTIBLE_SKU),
                 performanceProfile -> performanceProfile.preemtibleWorkers().memoryGB(),
-                PerformanceProfile::numPreemtibleWorkers,
+                DataprocPerformanceProfile::numPreemtibleWorkers,
                 MEMORY_GB,
                 PREEMTIBLE_WORKER);
     }

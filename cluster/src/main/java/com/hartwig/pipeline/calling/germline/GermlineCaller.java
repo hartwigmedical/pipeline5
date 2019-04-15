@@ -34,7 +34,7 @@ public class GermlineCaller {
         String outputDir = format("%s/%s", workingDir, timestamp);
         String outputBucketName = format("gatk-germline-output-%s", timestamp);
 
-        GoogleStorage inBucket = new GoogleStorage(alignmentOutput.finalBamLocation().bucket());
+        GoogleStorageInputOutput inBucket = new GoogleStorageInputOutput(alignmentOutput.finalBamLocation().bucket());
         String jar = "wrappers-local-SNAPSHOT.jar";
 
         BashStartupScript startupScript = BashStartupScript.of(outputDir, format("%s/run.log", outputDir))
@@ -42,14 +42,14 @@ public class GermlineCaller {
                 .addLine(inBucket.copyToLocal(jar, format("%s/%s", workingDir, jar)))
                 .addLine(inBucket.copyToLocal(alignmentOutput.finalBamLocation().path(), workingDir))
                 .addLine(inBucket.copyToLocal(format("%s.bai", alignmentOutput.finalBamLocation().path()), workingDir))
-                .addLine(new GoogleStorage(referenceGenomeBucket).copyToLocal("*", workingDir));
+                .addLine(new GoogleStorageInputOutput(referenceGenomeBucket).copyToLocal("*", workingDir));
 
         GatkHaplotypeCaller wrapper = new GatkHaplotypeCaller(format("%s/%s", workingDir, jar),
                 format("%s/%s", workingDir, "bam"),
                 format("%s/%s", workingDir, reference),
                 format("%s/%s", outputDir, OUTPUT_FILENAME));
 
-        GoogleStorage outputBucket = new GoogleStorage(outputBucketName);
+        GoogleStorageInputOutput outputBucket = new GoogleStorageInputOutput(outputBucketName);
         startupScript.addLine(wrapper.buildCommand())
                 .addLine("echo Processing finished at $(date)")
                 .addLine(outputBucket.copyFromLocal(format("%s/*", outputDir), ""))

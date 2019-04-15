@@ -5,11 +5,13 @@ import org.immutables.value.Value;
 @Value.Immutable
 public interface AlignmentPair {
 
+    @Value.Parameter
     AlignmentOutput reference();
 
+    @Value.Parameter
     AlignmentOutput tumor();
 
-    static AlignmentPair of(AlignmentOutput alignmentOutput, AlignmentOutput complement) {
-        return null;
+    static AlignmentPair of(AlignmentOutput reference, AlignmentOutput tumor) {
+        return ImmutableAlignmentPair.of(reference, tumor);
     }
 }

@@ -5,6 +5,7 @@ import com.google.cloud.storage.Storage;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.BamCreationPipeline;
+import com.hartwig.pipeline.execution.dataproc.DataprocPerformanceProfile;
 import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.execution.dataproc.JarLocation;
 import com.hartwig.pipeline.execution.dataproc.JarUpload;
@@ -16,8 +17,7 @@ import com.hartwig.pipeline.io.sources.SampleData;
 import com.hartwig.pipeline.io.sources.SampleSource;
 import com.hartwig.pipeline.metrics.Monitor;
 import com.hartwig.pipeline.metrics.Run;
-import com.hartwig.pipeline.performance.ClusterOptimizer;
-import com.hartwig.pipeline.performance.PerformanceProfile;
+import com.hartwig.pipeline.execution.dataproc.ClusterOptimizer;
 import com.hartwig.pipeline.resource.Resource;
 
 import org.slf4j.Logger;
@@ -93,7 +93,7 @@ public class Aligner {
 
         if (arguments.runBamMetrics()) {
             runJob(Jobs.noStatusCheck(dataproc, costCalculator, monitor),
-                    SparkJobDefinition.bamMetrics(jarLocation, arguments, runtimeBucket, PerformanceProfile.singleNode(), sample),
+                    SparkJobDefinition.bamMetrics(jarLocation, arguments, runtimeBucket, DataprocPerformanceProfile.singleNode(), sample),
                     runtimeBucket);
         } else {
             LOGGER.info("Skipping BAM metrics job!");

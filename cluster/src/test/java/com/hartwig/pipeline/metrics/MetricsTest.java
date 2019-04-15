@@ -8,7 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.hartwig.pipeline.cost.CostCalculator;
-import com.hartwig.pipeline.performance.PerformanceProfile;
+import com.hartwig.pipeline.execution.dataproc.DataprocPerformanceProfile;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -26,7 +26,7 @@ public class MetricsTest {
         metricArgumentCaptor = ArgumentCaptor.forClass(Metric.class);
         final Monitor monitor = mock(Monitor.class);
         final CostCalculator costCalculator = mock(CostCalculator.class);
-        final PerformanceProfile profile = PerformanceProfile.builder().fastQSizeGB(10.0).build();
+        final DataprocPerformanceProfile profile = DataprocPerformanceProfile.builder().fastQSizeGB(10.0).build();
         when(costCalculator.calculate(eq(profile), eq(1.0))).thenReturn(COST);
         Metrics victim = new Metrics(monitor, costCalculator);
         victim.record(METRIC_NAME, profile, ONE_HOUR);

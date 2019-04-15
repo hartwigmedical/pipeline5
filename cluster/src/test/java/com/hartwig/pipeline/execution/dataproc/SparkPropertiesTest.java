@@ -4,17 +4,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Map;
 
-import com.hartwig.pipeline.execution.dataproc.SparkProperties;
-import com.hartwig.pipeline.performance.ImmutablePerformanceProfile;
-import com.hartwig.pipeline.performance.PerformanceProfile;
-
 import org.junit.Before;
 import org.junit.Test;
 
 public class SparkPropertiesTest {
 
-    private static final ImmutablePerformanceProfile PERFORMANCE_PROFILE =
-            PerformanceProfile.builder().numPreemtibleWorkers(1).numPrimaryWorkers(1).build();
+    private static final DataprocPerformanceProfile PERFORMANCE_PROFILE =
+            DataprocPerformanceProfile.builder().numPreemtibleWorkers(1).numPrimaryWorkers(1).build();
     private Map<String, String> victim;
 
     @Before

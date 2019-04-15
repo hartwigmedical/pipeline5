@@ -24,8 +24,6 @@ public class SomaticCallerProvider {
     public SomaticCaller get() {
         return new SomaticCaller(arguments,
                 new ComputeEngine(arguments, credentials, storage),
-                storage,
-                credentials,
-                arguments.referenceGenomeBucket());
+                storage, arguments.referenceGenomeBucket());
     }
 }

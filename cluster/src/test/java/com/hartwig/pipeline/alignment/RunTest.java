@@ -2,26 +2,33 @@ package com.hartwig.pipeline.alignment;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.time.LocalDateTime;
-
 import com.hartwig.pipeline.Arguments;
 
 import org.junit.Test;
 
 public class RunTest {
 
-    private static final String SAMPLE = "sample";
+    private static final String REFERENCE_SAMPLE = "reference";
+    private static final String TUMOR_SAMPLE = "tumor";
 
     @Test
-    public void idConsistsOfSampleNameWhenArgumentEmpty() {
-        Run victim = Run.from(SAMPLE, Arguments.testDefaultsBuilder().profile(Arguments.DefaultsProfile.PRODUCTION).build());
-        assertThat(victim.id()).isEqualTo("run-sample");
+    public void idConsistsOfSampleNameWhenArgumentEmptySingleSample() {
+        Run victim = Run.from(REFERENCE_SAMPLE, Arguments.testDefaultsBuilder().profile(Arguments.DefaultsProfile.PRODUCTION).build());
+        assertThat(victim.id()).isEqualTo("run-reference");
     }
 
     @Test
-    public void idCanBeOveriddenFromArguments() {
-        Run victim = Run.from(SAMPLE,
+    public void idCanBeOveriddenFromArgumentsSingleSample() {
+        Run victim = Run.from(REFERENCE_SAMPLE,
                 Arguments.testDefaultsBuilder().profile(Arguments.DefaultsProfile.DEVELOPMENT).runId("override").build());
-        assertThat(victim.id()).isEqualTo("run-sample-override");
+        assertThat(victim.id()).isEqualTo("run-reference-override");
+    }
+
+    @Test
+    public void idConsistsOfBothSamplesInPair() {
+        Run victim = Run.from(REFERENCE_SAMPLE,
+                TUMOR_SAMPLE,
+                Arguments.testDefaultsBuilder().profile(Arguments.DefaultsProfile.PRODUCTION).build());
+        assertThat(victim.id()).isEqualTo("run-reference-tumor");
     }
 }

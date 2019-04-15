@@ -2,7 +2,7 @@ package com.hartwig.pipeline.cost;
 
 import java.text.NumberFormat;
 
-import com.hartwig.pipeline.performance.PerformanceProfile;
+import com.hartwig.pipeline.execution.dataproc.DataprocPerformanceProfile;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +18,7 @@ public class DataprocCost implements Cost {
     }
 
     @Override
-    public double calculate(final PerformanceProfile performanceProfile, final double hours) {
+    public double calculate(final DataprocPerformanceProfile performanceProfile, final double hours) {
         int totalCpus =
                 performanceProfile.master().cpus() + (performanceProfile.primaryWorkers().cpus() * performanceProfile.numPrimaryWorkers())
                         + (performanceProfile.preemtibleWorkers().cpus() * performanceProfile.numPreemtibleWorkers());

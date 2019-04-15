@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import com.google.api.services.cloudbilling.Cloudbilling;
 import com.google.api.services.cloudbilling.model.ListSkusResponse;
 import com.google.api.services.cloudbilling.model.Sku;
-import com.hartwig.pipeline.performance.PerformanceProfile;
+import com.hartwig.pipeline.execution.dataproc.DataprocPerformanceProfile;
 
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
@@ -41,7 +41,7 @@ public class CostCalculatorTest {
     public void returnsZeroIfComputeServiceNotFoundInGoogle() throws Exception {
         when(list.execute()).thenReturn(new ListSkusResponse().setSkus(new ArrayList<>()));
         CostCalculator victim = new CostCalculator(cloudbilling, REGION, skuMap -> singletonList(costOf(10.0)));
-        double result = victim.calculate(PerformanceProfile.builder().build(), 1);
+        double result = victim.calculate(DataprocPerformanceProfile.builder().build(), 1);
         assertThat(result).isZero();
     }
 
@@ -50,7 +50,7 @@ public class CostCalculatorTest {
         when(list.execute()).thenReturn(new ListSkusResponse().setSkus(singletonList(new Sku().setName("sku")
                 .setServiceRegions(singletonList(REGION)))));
         CostCalculator victim = new CostCalculator(cloudbilling, REGION, skuMap -> asList(costOf(10.0), costOf(5.0)));
-        double result = victim.calculate(PerformanceProfile.builder().build(), 1);
+        double result = victim.calculate(DataprocPerformanceProfile.builder().build(), 1);
         assertThat(result).isEqualTo(15.0);
     }
 
@@ -59,7 +59,7 @@ public class CostCalculatorTest {
         when(list.execute()).thenReturn(new ListSkusResponse().setSkus(singletonList(new Sku().setName("sku")
                 .setServiceRegions(singletonList("US")))));
         CostCalculator victim = new CostCalculator(cloudbilling, REGION, skuMap -> asList(costOf(10.0), costOf(5.0)));
-        double result = victim.calculate(PerformanceProfile.builder().build(), 1);
+        double result = victim.calculate(DataprocPerformanceProfile.builder().build(), 1);
         assertThat(result).isZero();
     }
 
@@ -70,7 +70,7 @@ public class CostCalculatorTest {
                         .setSkus(singletonList(new Sku().setSkuId("sku1").setServiceRegions(singletonList(REGION)))),
                 new ListSkusResponse().setSkus(singletonList(new Sku().setSkuId("sku2").setServiceRegions(singletonList(REGION)))));
         CostCalculator victim = new CostCalculator(cloudbilling, REGION, skuMap -> singletonList(costOf(10.0)));
-        victim.calculate(PerformanceProfile.builder().build(), 1);
+        victim.calculate(DataprocPerformanceProfile.builder().build(), 1);
         verify(list, times(2)).execute();
     }
 

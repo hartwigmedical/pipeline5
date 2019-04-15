@@ -13,8 +13,7 @@ import com.google.api.services.dataproc.v1beta2.model.NodeInitializationAction;
 import com.google.api.services.dataproc.v1beta2.model.SoftwareConfig;
 import com.google.common.collect.ImmutableMap;
 import com.hartwig.pipeline.io.RuntimeBucket;
-import com.hartwig.pipeline.performance.MachineType;
-import com.hartwig.pipeline.performance.PerformanceProfile;
+import com.hartwig.pipeline.execution.MachineType;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -31,7 +30,7 @@ class GoogleClusterConfig {
         return config;
     }
 
-    static GoogleClusterConfig from(RuntimeBucket runtimeBucket, NodeInitialization nodeInitialization, PerformanceProfile profile)
+    static GoogleClusterConfig from(RuntimeBucket runtimeBucket, NodeInitialization nodeInitialization, DataprocPerformanceProfile profile)
             throws FileNotFoundException {
         DiskConfig diskConfig = diskConfig(profile.primaryWorkers());
         ClusterConfig config = clusterConfig(masterConfig(profile.master()),
@@ -94,7 +93,7 @@ class GoogleClusterConfig {
         return new DiskConfig().setBootDiskSizeGb(machineType.diskGB());
     }
 
-    private static InstanceGroupConfig secondaryWorkerConfig(final PerformanceProfile profile, final DiskConfig diskConfig,
+    private static InstanceGroupConfig secondaryWorkerConfig(final DataprocPerformanceProfile profile, final DiskConfig diskConfig,
             final MachineType machineType) {
         return new InstanceGroupConfig().setMachineTypeUri(machineType.uri()).setNumInstances(profile.numPreemtibleWorkers())
                 .setIsPreemptible(true)

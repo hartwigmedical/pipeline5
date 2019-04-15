@@ -1,6 +1,7 @@
-package com.hartwig.pipeline.performance;
+package com.hartwig.pipeline.execution.dataproc;
 
 import com.hartwig.patient.Sample;
+import com.hartwig.pipeline.execution.MachineType;
 import com.hartwig.pipeline.io.sources.SampleData;
 
 public class ClusterOptimizer {
@@ -15,7 +16,7 @@ public class ClusterOptimizer {
         this.noPreemtibleVms = usePreemtibleVms;
     }
 
-    public PerformanceProfile optimize(SampleData sampleData) {
+    public DataprocPerformanceProfile optimize(SampleData sampleData) {
         Sample sample = sampleData.sample();
         if (sampleData.sizeInBytesGZipped() <= 0) {
             throw new IllegalArgumentException(String.format("Sample [%s] lanes had no data. Cannot calculate data size or cpu requirements",
@@ -26,7 +27,7 @@ public class ClusterOptimizer {
         MachineType defaultWorker = MachineType.defaultWorker();
         int numWorkers = new Double(totalCpusRequired / defaultWorker.cpus()).intValue();
         int numPreemptible = noPreemtibleVms ? 0 : numWorkers / 2;
-        return PerformanceProfile.builder()
+        return DataprocPerformanceProfile.builder()
                 .master(MachineType.defaultMaster())
                 .primaryWorkers(defaultWorker)
                 .preemtibleWorkers(MachineType.defaultPreemtibleWorker())

@@ -1,7 +1,5 @@
 package com.hartwig.pipeline.io;
 
-import java.time.LocalDateTime;
-
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.BucketInfo;
@@ -10,6 +8,7 @@ import com.google.cloud.storage.StorageClass;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.Run;
 
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +19,15 @@ public class RuntimeBucket {
     private final Bucket bucket;
 
     public static RuntimeBucket from(Storage storage, String sampleName, Arguments arguments) {
-        Run run = Run.from(sampleName, arguments);
+        return createBucketIfExists(storage, arguments, Run.from(sampleName, arguments));
+    }
+
+    public static RuntimeBucket from(Storage storage, String referenceSampleName, String tumorSampleName, Arguments arguments) {
+        return createBucketIfExists(storage, arguments, Run.from(referenceSampleName, tumorSampleName, arguments));
+    }
+
+    @NotNull
+    private static RuntimeBucket createBucketIfExists(final Storage storage, final Arguments arguments, final Run run) {
         Bucket bucket = storage.get(run.id());
         if (bucket == null) {
             LOGGER.info("Creating runtime bucket [{}] in Google Storage", run.id());

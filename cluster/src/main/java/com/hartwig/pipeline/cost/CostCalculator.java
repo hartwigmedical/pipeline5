@@ -1,7 +1,6 @@
 package com.hartwig.pipeline.cost;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -15,7 +14,7 @@ import com.google.api.services.cloudbilling.model.Sku;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.common.collect.Lists;
-import com.hartwig.pipeline.performance.PerformanceProfile;
+import com.hartwig.pipeline.execution.dataproc.DataprocPerformanceProfile;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +40,7 @@ public class CostCalculator {
         this.costs = costs;
     }
 
-    public double calculate(PerformanceProfile profile, double hours) {
+    public double calculate(DataprocPerformanceProfile profile, double hours) {
         try {
             Map<String, Sku> skus = getSkus(COMPUTE_SERVICE);
             if (skus.isEmpty()) {

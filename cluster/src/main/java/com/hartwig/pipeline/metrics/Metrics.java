@@ -3,7 +3,7 @@ package com.hartwig.pipeline.metrics;
 import java.text.NumberFormat;
 
 import com.hartwig.pipeline.cost.CostCalculator;
-import com.hartwig.pipeline.performance.PerformanceProfile;
+import com.hartwig.pipeline.execution.dataproc.DataprocPerformanceProfile;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +25,7 @@ public class Metrics {
         this.costCalculator = costCalculator;
     }
 
-    void record(String prefix, PerformanceProfile profile, long runtimeMillis) {
+    void record(String prefix, DataprocPerformanceProfile profile, long runtimeMillis) {
         double runtimeHours = runtimeMillis / 1000.0 / 60.0 / 60.0;
         monitor.update(Metric.spentTime(BOOTSTRAP + "_" + prefix, runtimeMillis));
         double cost = costCalculator.calculate(profile, runtimeHours);

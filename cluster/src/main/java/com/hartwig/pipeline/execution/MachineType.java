@@ -1,7 +1,6 @@
-package com.hartwig.pipeline.performance;
+package com.hartwig.pipeline.execution;
 
 import org.immutables.value.Value;
-import org.jetbrains.annotations.NotNull;
 
 @Value.Immutable
 public interface MachineType {
@@ -24,13 +23,12 @@ public interface MachineType {
         return ImmutableMachineType.builder().uri(GOOGLE_STANDARD_64).memoryGB(240).cpus(64).diskGB(DISK_GB).build();
     }
 
-    static MachineType defaultWorker() {
-        return highMemoryWorker();
+    static MachineType defaultVm() {
+        return ImmutableMachineType.builder().uri(GOOGLE_STANDARD_32).memoryGB(120).cpus(32).diskGB(DISK_GB).build();
     }
 
-    @NotNull
-    static MachineType standardWorker() {
-        return ImmutableMachineType.builder().uri(GOOGLE_STANDARD_32).memoryGB(120).cpus(32).diskGB(DISK_GB).build();
+    static MachineType defaultWorker() {
+        return highMemoryWorker();
     }
 
     static MachineType highMemoryWorker() {

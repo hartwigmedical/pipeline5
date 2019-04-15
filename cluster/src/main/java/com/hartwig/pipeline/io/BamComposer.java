@@ -30,7 +30,7 @@ public class BamComposer {
         this.optionalSuffix = optionalSuffix;
     }
 
-    public BamComposer(Storage storage, ResultsDirectory resultsDirectory, int maxComponentsPerCompose) {
+    BamComposer(Storage storage, ResultsDirectory resultsDirectory, int maxComponentsPerCompose) {
         this(storage, resultsDirectory, maxComponentsPerCompose, "");
     }
 

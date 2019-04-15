@@ -23,7 +23,6 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.io.RuntimeBucket;
-import com.hartwig.pipeline.performance.PerformanceProfile;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,7 +85,7 @@ public class GoogleDataproc implements SparkExecutor {
         return job.getStatus().getState().equals("DONE");
     }
 
-    private void start(final PerformanceProfile performanceProfile, final RuntimeBucket runtimeBucket, final Arguments arguments,
+    private void start(final DataprocPerformanceProfile performanceProfile, final RuntimeBucket runtimeBucket, final Arguments arguments,
             final String clusterName) throws IOException {
         Dataproc.Projects.Regions.Clusters clusters = dataproc.projects().regions().clusters();
         Cluster existing = findExistingCluster(arguments, clusterName);

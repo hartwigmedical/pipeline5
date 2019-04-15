@@ -8,19 +8,16 @@ import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.execution.JobDefinition;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
-import com.hartwig.pipeline.performance.PerformanceProfile;
 
 import org.immutables.value.Value;
 
 @Value.Immutable
-public interface SparkJobDefinition extends JobDefinition{
+public interface SparkJobDefinition extends JobDefinition<DataprocPerformanceProfile>{
 
     String GUNZIP_MAIN = "com.hartwig.pipeline.runtime.GoogleCloudGunzip";
     String BAM_CREATION_MAIN = "com.hartwig.pipeline.runtime.GoogleCloudPipelineRuntime";
     String SORT_INDEX_MAIN = "com.hartwig.pipeline.runtime.GoogleCloudSortAndIndex";
     String BAM_METRICS_MAIN = "com.hartwig.pipeline.runtime.GoogleCloudBamMetrics";
-
-    String name();
 
     String mainClass();
 
@@ -28,12 +25,10 @@ public interface SparkJobDefinition extends JobDefinition{
 
     List<String> arguments();
 
-    PerformanceProfile performanceProfile();
-
     Map<String, String> sparkProperties();
 
     static SparkJobDefinition bamCreation(JarLocation jarLocation, Arguments arguments, RuntimeBucket runtimeBucket,
-            PerformanceProfile profile) {
+            DataprocPerformanceProfile profile) {
         return ImmutableSparkJobDefinition.builder()
                 .name("BamCreation")
                 .mainClass(BAM_CREATION_MAIN)
@@ -46,7 +41,7 @@ public interface SparkJobDefinition extends JobDefinition{
 
     static SparkJobDefinition sortAndIndex(JarLocation jarLocation, Arguments arguments, RuntimeBucket runtimeBucket, Sample sample,
             ResultsDirectory resultsDirectory) {
-        PerformanceProfile performanceProfile = PerformanceProfile.mini();
+        DataprocPerformanceProfile performanceProfile = DataprocPerformanceProfile.mini();
         return ImmutableSparkJobDefinition.builder()
                 .name("SortAndIndex")
                 .mainClass(SORT_INDEX_MAIN)
@@ -58,7 +53,7 @@ public interface SparkJobDefinition extends JobDefinition{
     }
 
     static SparkJobDefinition bamMetrics(JarLocation jarLocation, Arguments arguments, RuntimeBucket runtimeBucket,
-            PerformanceProfile profile, Sample sample) {
+            DataprocPerformanceProfile profile, Sample sample) {
         return ImmutableSparkJobDefinition.builder()
                 .name("BamMetrics")
                 .mainClass(BAM_METRICS_MAIN)
@@ -70,7 +65,7 @@ public interface SparkJobDefinition extends JobDefinition{
     }
 
     static SparkJobDefinition gunzip(JarLocation jarLocation) {
-        PerformanceProfile performanceProfile = PerformanceProfile.mini();
+        DataprocPerformanceProfile performanceProfile = DataprocPerformanceProfile.mini();
         return ImmutableSparkJobDefinition.builder()
                 .name("Gunzip")
                 .mainClass(GUNZIP_MAIN)
@@ -81,7 +76,7 @@ public interface SparkJobDefinition extends JobDefinition{
     }
 
     static SparkJobDefinition tool(JarLocation jarLocation, String mainClass) {
-        PerformanceProfile performanceProfile = PerformanceProfile.mini();
+        DataprocPerformanceProfile performanceProfile = DataprocPerformanceProfile.mini();
         return ImmutableSparkJobDefinition.builder()
                 .name("Tool")
                 .mainClass(mainClass)

@@ -21,7 +21,7 @@ import com.hartwig.pipeline.cost.CostCalculator;
 import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.io.StatusCheck;
 import com.hartwig.pipeline.metrics.Monitor;
-import com.hartwig.pipeline.performance.PerformanceProfile;
+import com.hartwig.pipeline.execution.dataproc.DataprocPerformanceProfile;
 import com.hartwig.pipeline.testsupport.MockRuntimeBucket;
 
 import org.junit.Before;
@@ -30,7 +30,7 @@ import org.junit.Test;
 public class JobTest {
 
     private static final ImmutableSample TEST_SAMPLE = Sample.builder("", "test_sample").build();
-    private static final PerformanceProfile PERFORMANCE_PROFILE = PerformanceProfile.singleNode();
+    private static final DataprocPerformanceProfile PERFORMANCE_PROFILE = DataprocPerformanceProfile.singleNode();
     private static final Arguments ARGUMENTS = Arguments.testDefaults();
     private static final JarLocation JAR_LOCATION = JarLocation.of("/path/to/jar");
     private static final SparkJobDefinition JOB_DEFINITION = SparkJobDefinition.gunzip(JAR_LOCATION);

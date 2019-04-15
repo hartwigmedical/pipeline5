@@ -4,12 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.hartwig.pipeline.execution.dataproc.GoogleClusterConfig;
-import com.hartwig.pipeline.execution.dataproc.NodeInitialization;
+import com.hartwig.pipeline.execution.MachineType;
 import com.hartwig.pipeline.io.RuntimeBucket;
-import com.hartwig.pipeline.performance.ImmutablePerformanceProfile;
-import com.hartwig.pipeline.performance.MachineType;
-import com.hartwig.pipeline.performance.PerformanceProfile;
 
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
@@ -58,7 +54,7 @@ public class GoogleClusterConfigTest {
     }
 
     @NotNull
-    private static ImmutablePerformanceProfile.Builder profileBuilder() {
-        return PerformanceProfile.builder().numPreemtibleWorkers(5).numPrimaryWorkers(2);
+    private static ImmutableDataprocPerformanceProfile.Builder profileBuilder() {
+        return DataprocPerformanceProfile.builder().numPreemtibleWorkers(5).numPrimaryWorkers(2);
     }
 }

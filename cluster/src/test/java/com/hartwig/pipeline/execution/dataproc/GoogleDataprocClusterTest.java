@@ -17,10 +17,6 @@ import com.google.api.services.dataproc.v1beta2.model.Operation;
 import com.google.api.services.dataproc.v1beta2.model.SubmitJobRequest;
 import com.google.common.collect.ImmutableMap;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.execution.dataproc.GoogleDataproc;
-import com.hartwig.pipeline.execution.dataproc.JarLocation;
-import com.hartwig.pipeline.execution.dataproc.NodeInitialization;
-import com.hartwig.pipeline.execution.dataproc.SparkJobDefinition;
 import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.testsupport.MockRuntimeBucket;
 

@@ -29,8 +29,8 @@ import com.hartwig.pipeline.io.sources.FileSystemSampleSource;
 import com.hartwig.pipeline.io.sources.GoogleStorageSampleSource;
 import com.hartwig.pipeline.io.sources.SBPS3SampleSource;
 import com.hartwig.pipeline.io.sources.SampleSource;
-import com.hartwig.pipeline.performance.ClusterOptimizer;
-import com.hartwig.pipeline.performance.CpuFastQSizeRatio;
+import com.hartwig.pipeline.execution.dataproc.ClusterOptimizer;
+import com.hartwig.pipeline.execution.dataproc.CpuFastQSizeRatio;
 import com.hartwig.pipeline.resource.Resources;
 import com.hartwig.support.hadoop.Hadoop;
 

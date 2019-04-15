@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.performance;
+package com.hartwig.pipeline.execution.dataproc;
 
 import org.immutables.value.Value;
 

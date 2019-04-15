@@ -3,7 +3,6 @@ package com.hartwig.pipeline.execution.dataproc;
 import java.util.Map;
 
 import com.google.common.collect.ImmutableMap;
-import com.hartwig.pipeline.performance.PerformanceProfile;
 
 class SparkProperties {
 
@@ -11,7 +10,7 @@ class SparkProperties {
     private static final double ALLOWABLE_RATIO = 0.8;
     private static final int SAFETY_GIG = 1;
 
-    static Map<String, String> asMap(PerformanceProfile performanceProfile) {
+    static Map<String, String> asMap(DataprocPerformanceProfile performanceProfile) {
         ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
         if (performanceProfile.numPrimaryWorkers() > 0) {
             builder.put("spark.executor.memory", allowableExecutorMemory(performanceProfile.primaryWorkers().memoryGB()))

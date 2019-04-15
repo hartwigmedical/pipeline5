@@ -5,6 +5,10 @@ import static org.mockito.Mockito.mock;
 
 import com.hartwig.patient.Lane;
 import com.hartwig.patient.Sample;
+import com.hartwig.pipeline.execution.MachineType;
+import com.hartwig.pipeline.execution.dataproc.DataprocPerformanceProfile;
+import com.hartwig.pipeline.execution.dataproc.ClusterOptimizer;
+import com.hartwig.pipeline.execution.dataproc.CpuFastQSizeRatio;
 import com.hartwig.pipeline.io.sources.SampleData;
 
 import org.junit.Before;
@@ -30,14 +34,14 @@ public class ClusterOptimizerTest {
 
     @Test
     public void providesEnoughCpusForRatioAndSplitsBetweenPrimaryAndPreemptibleWorkers() {
-        PerformanceProfile profile = victim.optimize(sampleData(SAMPLE_WITH_TWO_LANES, FORTY_GIGS));
+        DataprocPerformanceProfile profile = victim.optimize(sampleData(SAMPLE_WITH_TWO_LANES, FORTY_GIGS));
         assertThat(profile.numPrimaryWorkers()).isEqualTo(3);
         assertThat(profile.numPreemtibleWorkers()).isEqualTo(3);
     }
 
     @Test
     public void usesDefaultWorkerAndMasterTypes() {
-        PerformanceProfile profile = victim.optimize(sampleData(SAMPLE_WITH_TWO_LANES, FORTY_GIGS));
+        DataprocPerformanceProfile profile = victim.optimize(sampleData(SAMPLE_WITH_TWO_LANES, FORTY_GIGS));
         assertThat(profile.primaryWorkers()).isEqualTo(MachineType.defaultWorker());
         assertThat(profile.master()).isEqualTo(MachineType.defaultMaster());
     }
@@ -45,7 +49,7 @@ public class ClusterOptimizerTest {
     @Test
     public void cpusFlooredForVerySmallFiles() {
         victim = new ClusterOptimizer(CpuFastQSizeRatio.of(5), false);
-        PerformanceProfile profile = victim.optimize(sampleData(SAMPLE_WITH_TWO_LANES, 1));
+        DataprocPerformanceProfile profile = victim.optimize(sampleData(SAMPLE_WITH_TWO_LANES, 1));
         assertThat(profile.numPrimaryWorkers()).isEqualTo(2);
         assertThat(profile.numPreemtibleWorkers()).isEqualTo(0);
     }
@@ -53,7 +57,7 @@ public class ClusterOptimizerTest {
     @Test
     public void usesOnlyPrimaryVmsWhenSpecified() {
         victim = new ClusterOptimizer(CpuFastQSizeRatio.of(5), true);
-        PerformanceProfile profile = victim.optimize(sampleData(SAMPLE_WITH_TWO_LANES, FORTY_GIGS));
+        DataprocPerformanceProfile profile = victim.optimize(sampleData(SAMPLE_WITH_TWO_LANES, FORTY_GIGS));
         assertThat(profile.numPreemtibleWorkers()).isZero();
         assertThat(profile.numPrimaryWorkers()).isEqualTo(6);
     }

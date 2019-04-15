@@ -7,8 +7,8 @@ import static org.mockito.Mockito.when;
 
 import java.time.Clock;
 
+import com.hartwig.pipeline.execution.dataproc.DataprocPerformanceProfile;
 import com.hartwig.pipeline.execution.dataproc.SparkJobDefinition;
-import com.hartwig.pipeline.performance.PerformanceProfile;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -36,18 +36,18 @@ public class MetricsTimelineTest {
         when(clock.millis()).thenReturn(1L);
         SparkJobDefinition bam = mock(SparkJobDefinition.class);
         when(bam.name()).thenReturn("BAM");
-        when(bam.performanceProfile()).thenReturn(PerformanceProfile.mini());
+        when(bam.performanceProfile()).thenReturn(DataprocPerformanceProfile.mini());
         SparkJobDefinition sort = mock(SparkJobDefinition.class);
         when(sort.name()).thenReturn("SORT_INDEX");
-        when(sort.performanceProfile()).thenReturn(PerformanceProfile.mini());
+        when(sort.performanceProfile()).thenReturn(DataprocPerformanceProfile.mini());
         victim.start(bam);
         when(clock.millis()).thenReturn(10L);
         victim.start(sort);
         when(clock.millis()).thenReturn(101L);
         victim.stop(bam);
         when(clock.millis()).thenReturn(200L);
-        verify(metrics).record(eq("BAM"), eq(PerformanceProfile.mini()), eq(100L));
+        verify(metrics).record(eq("BAM"), eq(DataprocPerformanceProfile.mini()), eq(100L));
         victim.stop(sort);
-        verify(metrics).record(eq("SORT_INDEX"), eq(PerformanceProfile.mini()), eq(190L));
+        verify(metrics).record(eq("SORT_INDEX"), eq(DataprocPerformanceProfile.mini()), eq(190L));
     }
 }

@@ -55,20 +55,16 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
 
     @Override
     public JobStatus submit(final RuntimeBucket bucket, final VirtualMachineJobDefinition jobDefinition) {
-
         try {
-            // Create output bucket up-front as it is used in completion detection
-            // This code assumes that the bucket will not yet exist and does nothing to handle the case where it does
-
             Compute compute = initCompute();
 
             Instance instance = new Instance();
-            String vmName = bucket.name()+"-germline";
+            String vmName = bucket.name() + "-" + jobDefinition.name();
             LOGGER.info("Initialising [{}]", vmName);
             instance.setName(vmName);
             instance.setZone(ZONE_NAME);
             String project = arguments.project();
-            instance.setMachineType(machineType(ZONE_NAME, jobDefinition.performanceProfile().primaryWorkers().uri(), project));
+            instance.setMachineType(machineType(ZONE_NAME, jobDefinition.performanceProfile().virtualMachineType().uri(), project));
 
             addServiceAccount(instance);
             attachDisk(compute, instance, jobDefinition.imageFamily(), project, vmName);
@@ -220,7 +216,7 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
         }
     }
 
-    private void stop(String projectName, String vmName)  {
+    private void stop(String projectName, String vmName) {
         LOGGER.info("Stopping [{}]", this);
         try {
             executeSynchronously(initCompute().instances().stop(projectName, ZONE_NAME, vmName), projectName);

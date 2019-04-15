@@ -1,8 +1,8 @@
 package com.hartwig.pipeline.execution;
 
-import com.hartwig.pipeline.performance.PerformanceProfile;
+public interface JobDefinition<T extends PerformanceProfile> {
 
-public interface JobDefinition {
+    String name();
 
-    PerformanceProfile performanceProfile();
+    T performanceProfile();
 }
