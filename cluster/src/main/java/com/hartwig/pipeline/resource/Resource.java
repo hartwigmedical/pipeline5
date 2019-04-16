@@ -32,19 +32,24 @@ public class Resource {
         this(storage, sourceBucket, targetBucket, Function.identity());
     }
 
-    public void copyInto(RuntimeBucket runtimeBucket) {
+    public ResourceLocation copyInto(RuntimeBucket runtimeBucket) {
+        ImmutableResourceLocation.Builder locationBuilder = ResourceLocation.builder();
+        locationBuilder.bucket(targetBucket);
         Bucket staticDataBucket = storage.get(sourceBucket);
         if (staticDataBucket != null) {
             Page<Blob> blobs = staticDataBucket.list();
             LOGGER.info("Copying static data from [{}] into [{}]", sourceBucket, runtimeBucket.name());
             for (Blob source : blobs.iterateAll()) {
-                BlobId target = BlobId.of(runtimeBucket.bucket().getName(), targetBucket + "/" + alias.apply(source.getName()));
+                String aliased = alias.apply(source.getName());
+                BlobId target = BlobId.of(runtimeBucket.bucket().getName(), targetBucket + "/" + aliased);
                 storage.copy(Storage.CopyRequest.of(sourceBucket, source.getName(), target));
+                locationBuilder.addFiles(target.getName());
             }
             LOGGER.info("Copying static data complete");
         } else {
             LOGGER.warn("No bucket found for static data [{}] check that it exists in storage", sourceBucket);
         }
+        return locationBuilder.build();
     }
 
     public String getTargetBucket() {

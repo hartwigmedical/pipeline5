@@ -21,9 +21,12 @@ public class AlignmentOutputStorageTest {
 
     private static final String BUCKET_NAME = "run-sample";
     private static final String SORTED_PATH = "results/sample.sorted.bam";
+    private static final String SORTED_BAI_PATH = "results/sample.sorted.bam.bai";
     private static final String RECALIBRATED_PATH = "results/sample.recalibrated.bam";
-    private static final AlignmentOutput EXPECTED_OUTPUT =
-            AlignmentOutput.of(of(BUCKET_NAME, SORTED_PATH), of(BUCKET_NAME, RECALIBRATED_PATH), TestSamples.simpleReferenceSample());
+    private static final AlignmentOutput EXPECTED_OUTPUT = AlignmentOutput.of(of(BUCKET_NAME, SORTED_PATH),
+            of(BUCKET_NAME, SORTED_BAI_PATH),
+            of(BUCKET_NAME, RECALIBRATED_PATH),
+            TestSamples.simpleReferenceSample());
     private Storage storage;
     private AlignmentOutputStorage victim;
     private Bucket outputBucket;
@@ -47,6 +50,7 @@ public class AlignmentOutputStorageTest {
     @Test
     public void returnsDatalocationsForExistingSample() {
         mockBlob(SORTED_PATH);
+        mockBlob(SORTED_BAI_PATH);
         mockBlob(RECALIBRATED_PATH);
         assertThat(victim.get(TestSamples.simpleReferenceSample())).hasValue(EXPECTED_OUTPUT);
     }

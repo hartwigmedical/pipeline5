@@ -67,7 +67,12 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
             instance.setMachineType(machineType(ZONE_NAME, jobDefinition.performanceProfile().virtualMachineType().uri(), project));
 
             addServiceAccount(instance);
-            attachDisk(compute, instance, jobDefinition.imageFamily(), project, vmName);
+            attachDisk(compute,
+                    instance,
+                    jobDefinition.imageFamily(),
+                    project,
+                    vmName,
+                    jobDefinition.performanceProfile().virtualMachineType().diskGB());
             addStartupCommand(instance, jobDefinition.startupCommand());
             addNetworkInterface(instance, project);
 
@@ -99,12 +104,14 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
         instance.setNetworkInterfaces(singletonList(iface));
     }
 
-    private void attachDisk(Compute compute, Instance instance, String imageFamily, String projectName, String vmName) throws IOException {
+    private void attachDisk(Compute compute, Instance instance, String imageFamily, String projectName, String vmName, long diskSizeGB)
+            throws IOException {
         Image sourceImage = resolveLatestImage(compute, imageFamily, projectName);
         AttachedDisk disk = new AttachedDisk();
         disk.setBoot(true);
         disk.setAutoDelete(true);
         AttachedDiskInitializeParams params = new AttachedDiskInitializeParams();
+        params.setDiskSizeGb(diskSizeGB);
         params.setSourceImage(sourceImage.getSelfLink());
         disk.setInitializeParams(params);
         instance.setDisks(singletonList(disk));

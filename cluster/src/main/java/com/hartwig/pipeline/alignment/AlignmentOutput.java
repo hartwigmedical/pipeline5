@@ -14,12 +14,16 @@ public interface AlignmentOutput {
     GoogleStorageLocation finalBamLocation();
 
     @Value.Parameter
+    GoogleStorageLocation finalBaiLocation();
+
+    @Value.Parameter
     GoogleStorageLocation recalibratedBamLocation();
 
     @Value.Parameter
     Sample sample();
 
-    static AlignmentOutput of(GoogleStorageLocation finalBamLocation, GoogleStorageLocation recalibratedBamLocation, Sample sample) {
-        return ImmutableAlignmentOutput.of(finalBamLocation, recalibratedBamLocation, sample);
+    static AlignmentOutput of(GoogleStorageLocation finalBamLocation, GoogleStorageLocation finalBaiLocation,
+            GoogleStorageLocation recalibratedBamLocation, Sample sample) {
+        return ImmutableAlignmentOutput.of(finalBamLocation, finalBaiLocation, recalibratedBamLocation, sample);
     }
 }

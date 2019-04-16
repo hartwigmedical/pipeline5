@@ -32,6 +32,7 @@ public class AlignmentOutputStorage {
         Bucket bucket = storage.get(Run.from(sample.name(), arguments).id());
         if (bucket != null) {
             Blob bamBlob = bucket.get(resultsDirectory.path(AlignmentOutputPaths.sorted(sample)));
+            Blob baiBlob = bucket.get(resultsDirectory.path(AlignmentOutputPaths.bai(sample)));
             Blob recalibratedBamBlob = bucket.get(resultsDirectory.path(AlignmentOutputPaths.recalibrated(sample)));
             if (recalibratedBamBlob != null) {
 
@@ -40,7 +41,10 @@ public class AlignmentOutputStorage {
                             + "This output is corrupted and cannot be used for downstream processing", bucket));
                 }
 
-                return Optional.of(AlignmentOutput.of(location(bucket, bamBlob), location(bucket, recalibratedBamBlob), sample));
+                return Optional.of(AlignmentOutput.of(location(bucket, bamBlob),
+                        location(bucket, baiBlob),
+                        location(bucket, recalibratedBamBlob),
+                        sample));
             } else {
                 LOGGER.info("No recalibrated BAM found in bucket [{}]. Alignment stage is likely not yet complete.", bucket);
             }
