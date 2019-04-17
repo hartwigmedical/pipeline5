@@ -23,10 +23,11 @@ public class ResourceDownload implements BashCommand {
     }
 
     public List<String> getLocalPaths() {
-        return resource.files()
-                .stream()
-                .map(file -> file.split("/")[1])
-                .map(file -> RESOURCES_PATH + "/" + file)
-                .collect(Collectors.toList());
+        return resource.files().stream().map(this::fileName).map(file -> RESOURCES_PATH + "/" + file).collect(Collectors.toList());
+    }
+
+    private String fileName(final String path) {
+        String[] pathSplit = path.split("/");
+        return pathSplit[pathSplit.length - 1];
     }
 }
