@@ -13,6 +13,10 @@ public class ResultsDirectory {
         return directory + subPath;
     }
 
+    public String path() {
+        return directory;
+    }
+
     public static ResultsDirectory defaultDirectory() {
         return new ResultsDirectory(PATH);
     }

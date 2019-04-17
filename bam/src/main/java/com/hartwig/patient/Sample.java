@@ -7,8 +7,9 @@ import org.immutables.value.Value;
 @Value.Immutable
 public interface Sample extends FileSystemEntity, Named {
 
-    enum Type{
-        TUMOR, REFERENCE
+    enum Type {
+        TUMOR,
+        REFERENCE
     }
 
     Type type();
@@ -17,11 +18,19 @@ public interface Sample extends FileSystemEntity, Named {
 
     String barcode();
 
+    static ImmutableSample.Builder builder(final String name) {
+        return builder("", name);
+    }
+
     static ImmutableSample.Builder builder(final String directory, final String name) {
-        return ImmutableSample.builder().directory(directory).name(name).barcode("none").type(Type.REFERENCE);
+        return builder(directory, name, "none");
     }
 
     static ImmutableSample.Builder builder(final String directory, final String name, final String barcode) {
-        return ImmutableSample.builder().directory(directory).name(name).barcode(barcode).type(Type.REFERENCE);
+        return ImmutableSample.builder()
+                .directory(directory)
+                .name(name)
+                .barcode(barcode)
+                .type(name.toLowerCase().endsWith("t") ? Type.TUMOR : Type.REFERENCE);
     }
 }

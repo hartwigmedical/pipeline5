@@ -47,6 +47,10 @@ public class CommandLineOptions {
     private static final String SERVICE_ACCOUNT_EMAIL_FLAG = "service_account_email";
 
     private static final String DEFAULT_PROFILE = "production";
+    private static final String RUN_ALIGNER_FLAG = "run_aligner";
+    private static final String RUN_GERMLINE_CALLER_FLAG = "run_germline_caller";
+    private static final String RUN_SOMATIC_CALLER_FLAG = "run_somatic_caller";
+    private static final String RUN_STRUCTURAL_CALLER_FLAG = "run_structural_caller";
 
     private static Options options() {
         return new Options().addOption(profileFlag())
@@ -82,7 +86,11 @@ public class CommandLineOptions {
                 .addOption(rclonePath())
                 .addOption(rcloneGcpRemote())
                 .addOption(rcloneS3Remote())
-                .addOption(RUN_METRICS_FLAG, false, "Run the BAM metrics job")
+                .addOption(optionWithBooleanArg(RUN_METRICS_FLAG, "Run wgs metrics affter BAM creation"))
+                .addOption(optionWithBooleanArg(RUN_ALIGNER_FLAG, "Run the aligner on Google Dataproc"))
+                .addOption(optionWithBooleanArg(RUN_GERMLINE_CALLER_FLAG, "Run germline calling (gatk) on a VM"))
+                .addOption(optionWithBooleanArg(RUN_SOMATIC_CALLER_FLAG, "Run somatic calling (strelka) on a VM"))
+                .addOption(optionWithBooleanArg(RUN_STRUCTURAL_CALLER_FLAG, "Run structural calling (gridss) on a VM"))
                 .addOption(serviceAccountEmail());
     }
 
@@ -143,8 +151,7 @@ public class CommandLineOptions {
     }
 
     private static Option serviceAccountEmail() {
-        return optionWithArg(SERVICE_ACCOUNT_EMAIL_FLAG,
-                "Service account associated with the private key");
+        return optionWithArg(SERVICE_ACCOUNT_EMAIL_FLAG, "Service account associated with the private key");
     }
 
     private static Option region() {
@@ -203,6 +210,10 @@ public class CommandLineOptions {
                     .rcloneGcpRemote(commandLine.getOptionValue(RCLONE_GCP_REMOTE_FLAG, defaults.rcloneGcpRemote()))
                     .rcloneS3Remote(commandLine.getOptionValue(RCLONE_S3_REMOTE_FLAG, defaults.rcloneS3Remote()))
                     .runBamMetrics(booleanOptionWithDefault(commandLine, RUN_METRICS_FLAG, defaults.runBamMetrics()))
+                    .runAligner(booleanOptionWithDefault(commandLine, RUN_ALIGNER_FLAG, defaults.runAligner()))
+                    .runGermlineCaller(booleanOptionWithDefault(commandLine, RUN_GERMLINE_CALLER_FLAG, defaults.runGermlineCaller()))
+                    .runSomaticCaller(booleanOptionWithDefault(commandLine, RUN_SOMATIC_CALLER_FLAG, defaults.runSomaticCaller()))
+                    .runStructuralCaller(booleanOptionWithDefault(commandLine, RUN_STRUCTURAL_CALLER_FLAG, defaults.runStructuralCaller()))
                     .serviceAccountEmail(commandLine.getOptionValue(SERVICE_ACCOUNT_EMAIL_FLAG, defaults.serviceAccountEmail()))
                     .profile(defaults.profile())
                     .build();

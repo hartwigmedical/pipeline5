@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BashStartupScript {
+    public static final String JOB_COMPLETE = "JOB_COMPLETE";
     private final List<String> commands;
     private final String outputDirectory;
     private final String logFile;
@@ -24,7 +25,7 @@ public class BashStartupScript {
     /**
      * @return the generated script as a single <code>String</code> with UNIx newlines separating input lines
      */
-    public String asUnixString() {
+    String asUnixString() {
         String loggingSuffix = format(" >>%s 2>&1", logFile);
         return "#!/bin/bash -ex\n\n" + format("mkdir -p %s\n", outputDirectory) + commands.stream()
                 .collect(joining(format("%s\n", loggingSuffix))) + (commands.isEmpty() ? "" : loggingSuffix);
@@ -43,6 +44,6 @@ public class BashStartupScript {
      * @return The final filename component of the file that will be written to indicate the job is complete
      */
     public String completionFlag() {
-        return "JOB_COMPLETE";
+        return JOB_COMPLETE;
     }
 }

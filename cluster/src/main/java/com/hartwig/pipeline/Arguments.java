@@ -26,6 +26,14 @@ public interface Arguments {
 
     boolean runBamMetrics();
 
+    boolean runAligner();
+
+    boolean runGermlineCaller();
+
+    boolean runSomaticCaller();
+
+    boolean runStructuralCaller();
+
     DefaultsProfile profile();
 
     String project();
@@ -105,6 +113,10 @@ public interface Arguments {
                     .cloudSdkPath(DEFAULT_PRODUCTION_CLOUD_SDK_PATH)
                     .forceJarUpload(false).cleanup(true).usePreemptibleVms(true).download(true).upload(true)
                     .runBamMetrics(false)
+                    .runAligner(true)
+                    .runGermlineCaller(false)
+                    .runSomaticCaller(false)
+                    .runStructuralCaller(false)
                     .sampleId(EMPTY);
         } else {
             return ImmutableArguments.builder()
@@ -122,6 +134,10 @@ public interface Arguments {
                     .serviceAccountEmail(DEFAULT_DEVELOPMENT_SERVICE_ACCOUNT_EMAIL)
                     .forceJarUpload(true).cleanup(false).usePreemptibleVms(true).download(false).upload(true)
                     .runBamMetrics(false)
+                    .runAligner(true)
+                    .runGermlineCaller(true)
+                    .runSomaticCaller(true)
+                    .runStructuralCaller(false)
                     .rclonePath(NOT_APPLICABLE)
                     .rcloneS3Remote(NOT_APPLICABLE)
                     .rcloneGcpRemote(NOT_APPLICABLE)

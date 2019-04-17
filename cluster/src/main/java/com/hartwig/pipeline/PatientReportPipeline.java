@@ -1,9 +1,6 @@
 package com.hartwig.pipeline;
 
 import java.util.Optional;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Storage;
@@ -40,26 +37,40 @@ public class PatientReportPipeline {
     private final SomaticCaller somaticCaller;
     private final StructuralCaller structuralCaller;
     private final AlignmentOutputStorage alignmentOutputStorage;
+    private final Arguments arguments;
 
     private PatientReportPipeline(final Aligner aligner, final GermlineCaller germlineCaller, final SomaticCaller somaticCaller,
-            final StructuralCaller structuralCaller, final AlignmentOutputStorage alignmentOutputStorage) {
+            final StructuralCaller structuralCaller, final AlignmentOutputStorage alignmentOutputStorage, final Arguments arguments) {
         this.aligner = aligner;
         this.germlineCaller = germlineCaller;
         this.somaticCaller = somaticCaller;
         this.structuralCaller = structuralCaller;
         this.alignmentOutputStorage = alignmentOutputStorage;
+        this.arguments = arguments;
     }
 
     public void run() throws Exception {
-        AlignmentOutput alignmentOutput = aligner.run();
+        AlignmentOutput alignmentOutput = arguments.runAligner()
+                ? aligner.run()
+                : alignmentOutputStorage.get(Sample.builder(arguments.sampleId()).build())
+                        .orElseThrow(() -> new IllegalArgumentException("Unable to find output for sample [%s]. "
+                                + "Please run the aligner first by setting -run_aligner to true"));
 
-        // germlineCaller.run(alignmentOutput);
+        if (arguments.runGermlineCaller()) {
+            germlineCaller.run(alignmentOutput);
+        }
 
-        Optional<AlignmentPair> maybeAlignmentPair =
-                alignmentOutputStorage.get(mate(alignmentOutput.sample())).map(complement -> AlignmentPair.of(alignmentOutput, complement));
+        if (arguments.runStructuralCaller() || arguments.runSomaticCaller()) {
+            Optional<AlignmentPair> maybeAlignmentPair = alignmentOutputStorage.get(mate(alignmentOutput.sample()))
+                    .map(complement -> AlignmentPair.of(alignmentOutput, complement));
 
-        Optional<SomaticCallerOutput> maybeSomaticCallerOutput = maybeAlignmentPair.map(somaticCaller::run);
-        Optional<StructuralCallerOutput> maybeStructuralCallerOutput = maybeAlignmentPair.map(structuralCaller::run);
+            if (arguments.runSomaticCaller()) {
+                Optional<SomaticCallerOutput> maybeSomaticCallerOutput = maybeAlignmentPair.map(somaticCaller::run);
+            }
+            if (arguments.runStructuralCaller()) {
+                Optional<StructuralCallerOutput> maybeStructuralCallerOutput = maybeAlignmentPair.map(structuralCaller::run);
+            }
+        }
     }
 
     public static void main(String[] args) {
@@ -73,7 +84,8 @@ public class PatientReportPipeline {
                         GermlineCallerProvider.from(credentials, storage, arguments).get(),
                         SomaticCallerProvider.from(arguments, credentials, storage).get(),
                         StructuralCallerProvider.from(arguments).get(),
-                        new AlignmentOutputStorage(storage, arguments, ResultsDirectory.defaultDirectory())).run();
+                        new AlignmentOutputStorage(storage, arguments, ResultsDirectory.defaultDirectory()),
+                        arguments).run();
             } catch (Exception e) {
                 LOGGER.error("An unexpected issue arose while running the pipeline. See the attached exception for more details.", e);
                 System.exit(1);

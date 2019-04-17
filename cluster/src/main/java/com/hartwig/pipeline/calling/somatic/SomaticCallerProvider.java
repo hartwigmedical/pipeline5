@@ -4,6 +4,7 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
+import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.resource.Resources;
 
 public class SomaticCallerProvider {
@@ -25,6 +26,10 @@ public class SomaticCallerProvider {
     }
 
     public SomaticCaller get() {
-        return new SomaticCaller(arguments, new ComputeEngine(arguments, credentials, storage), storage, resources);
+        return new SomaticCaller(arguments,
+                new ComputeEngine(arguments, credentials, storage),
+                storage,
+                resources,
+                ResultsDirectory.defaultDirectory());
     }
 }

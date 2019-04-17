@@ -1,13 +1,19 @@
 package com.hartwig.pipeline.calling.somatic;
 
+import static com.hartwig.pipeline.execution.vm.OutputUpload.OUTPUT_DIRECTORY;
+
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.InputDownload;
+import com.hartwig.pipeline.execution.vm.JobComplete;
+import com.hartwig.pipeline.execution.vm.OutputUpload;
 import com.hartwig.pipeline.execution.vm.ResourceDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.pipeline.io.GoogleStorageLocation;
+import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.resource.Resource;
 import com.hartwig.pipeline.resource.ResourceLocation;
@@ -20,20 +26,23 @@ import org.slf4j.LoggerFactory;
 public class SomaticCaller {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SomaticCaller.class);
-    private static final String OUTPUT_DIRECTORY = "/data/output";
+    private static final String STRELKA_ANALYSIS_DIRECTORY = "/strelkaAnalysis";
 
     private final Arguments arguments;
     private final ComputeEngine computeEngine;
     private final Storage storage;
     private final Resource referenceGenome;
     private final Resource strelkaConfig;
+    private final ResultsDirectory resultsDirectory;
 
-    SomaticCaller(final Arguments arguments, final ComputeEngine computeEngine, final Storage storage, final Resources resources) {
+    SomaticCaller(final Arguments arguments, final ComputeEngine computeEngine, final Storage storage, final Resources resources,
+            final ResultsDirectory resultsDirectory) {
         this.arguments = arguments;
         this.computeEngine = computeEngine;
         this.storage = storage;
         this.referenceGenome = resources.referenceGenome();
         this.strelkaConfig = resources.strelkaConfig();
+        this.resultsDirectory = resultsDirectory;
     }
 
     public SomaticCallerOutput run(AlignmentPair pair) {
@@ -54,7 +63,7 @@ public class SomaticCaller {
         ResourceDownload configDownload = new ResourceDownload(strelkaConfigLocation, runtimeBucket);
         String strelkaConfigFile = localStrelkaConfigFile(strelkaConfigLocation, configDownload);
 
-        String strelkaAnalysisOutput = OUTPUT_DIRECTORY + "/strelkaAnalysis";
+        String strelkaAnalysisOutput = OUTPUT_DIRECTORY + STRELKA_ANALYSIS_DIRECTORY;
         BashStartupScript strelkaBash = BashStartupScript.of(OUTPUT_DIRECTORY, "/data/logs/strelka.log")
                 .addCommand(downloadReferenceBam)
                 .addCommand(downloadReferenceBai)
@@ -62,13 +71,26 @@ public class SomaticCaller {
                 .addCommand(downloadTumorBai)
                 .addCommand(referenceGenomeDownload)
                 .addCommand(configDownload)
-                .addCommand(new ConfigureStrelkaWorkflowCommand(downloadTumorBam.getLocalPath(),
-                        downloadReferenceBam.getLocalPath(),
+                .addCommand(new ConfigureStrelkaWorkflowCommand(downloadTumorBam.getLocalTargetPath(),
+                        downloadReferenceBam.getLocalTargetPath(),
                         strelkaConfigFile,
-                        referenceGenomeFile, strelkaAnalysisOutput))
-                .addCommand(new MakeStrelka(strelkaAnalysisOutput));
+                        referenceGenomeFile,
+                        strelkaAnalysisOutput))
+                .addCommand(new MakeStrelka(strelkaAnalysisOutput))
+                .addCommand(new JobComplete(BashStartupScript.JOB_COMPLETE))
+                .addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path())));
         computeEngine.submit(runtimeBucket, VirtualMachineJobDefinition.somaticCalling(strelkaBash));
-        return null;
+        return SomaticCallerOutput.builder()
+                .allSomaticIndelsVcf(vcfLocation(runtimeBucket, "all.somatic.indels.vcf"))
+                .allSomaticSnvsVcf(vcfLocation(runtimeBucket, "all.somatic.snvs.vcf"))
+                .passedSomaticIndelsVcf(vcfLocation(runtimeBucket, "passed.somatic.indels.vcf"))
+                .passedSomaticSnvsVcf(vcfLocation(runtimeBucket, "passed.somatic.snvs.vcf"))
+                .build();
+    }
+
+    @NotNull
+    private GoogleStorageLocation vcfLocation(final RuntimeBucket runtimeBucket, final String vcfName) {
+        return GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path(STRELKA_ANALYSIS_DIRECTORY + "/results/" + vcfName));
     }
 
     @NotNull

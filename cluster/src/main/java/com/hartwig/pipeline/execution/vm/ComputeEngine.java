@@ -209,7 +209,7 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
         while (!complete) {
             Page<Blob> objects = bucket.list();
             for (Blob blob : objects.iterateAll()) {
-                if (completionFlagFile.equals(blob.getName())) {
+                if (blob.getName().contains(completionFlagFile)) {
                     complete = true;
                 } else {
                     LOGGER.debug("Flag file {} not found in bucket {}; job must not be done", completionFlagFile, outputBucket);
