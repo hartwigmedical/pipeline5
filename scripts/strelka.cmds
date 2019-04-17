@@ -1,5 +1,5 @@
 sudo apt-get update
-sudo apt-get -y install perl-modules
+sudo apt-get -y install perl-modules make
 sudo mkdir -p /data/tools
 sudo mkdir -p /data/input
 sudo chmod 777 /data/input

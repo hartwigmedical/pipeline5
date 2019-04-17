@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 public class SomaticCaller {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SomaticCaller.class);
+    private static final String OUTPUT_DIRECTORY = "/data/output";
 
     private final Arguments arguments;
     private final ComputeEngine computeEngine;
@@ -53,17 +54,19 @@ public class SomaticCaller {
         ResourceDownload configDownload = new ResourceDownload(strelkaConfigLocation, runtimeBucket);
         String strelkaConfigFile = localStrelkaConfigFile(strelkaConfigLocation, configDownload);
 
-        BashStartupScript strelkaBash = BashStartupScript.of("/data/output", "/data/logs/strelka.log")
+        String strelkaAnalysisOutput = OUTPUT_DIRECTORY + "/strelkaAnalysis";
+        BashStartupScript strelkaBash = BashStartupScript.of(OUTPUT_DIRECTORY, "/data/logs/strelka.log")
                 .addCommand(downloadReferenceBam)
                 .addCommand(downloadReferenceBai)
                 .addCommand(downloadTumorBam)
                 .addCommand(downloadTumorBai)
                 .addCommand(referenceGenomeDownload)
                 .addCommand(configDownload)
-                .addCommand(new ConfigureStrelkaWorkflowCommand(downloadTumorBai.getLocalPath(),
+                .addCommand(new ConfigureStrelkaWorkflowCommand(downloadTumorBam.getLocalPath(),
                         downloadReferenceBam.getLocalPath(),
                         strelkaConfigFile,
-                        referenceGenomeFile));
+                        referenceGenomeFile, strelkaAnalysisOutput))
+                .addCommand(new MakeStrelka(strelkaAnalysisOutput));
         computeEngine.submit(runtimeBucket, VirtualMachineJobDefinition.somaticCalling(strelkaBash));
         return null;
     }
