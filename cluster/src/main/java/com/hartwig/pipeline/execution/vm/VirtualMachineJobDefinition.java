@@ -1,6 +1,5 @@
 package com.hartwig.pipeline.execution.vm;
 
-import com.hartwig.pipeline.execution.dataproc.DataprocPerformanceProfile;
 import com.hartwig.pipeline.execution.JobDefinition;
 
 import org.immutables.value.Value;
@@ -8,8 +7,7 @@ import org.immutables.value.Value;
 @Value.Immutable
 public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachinePerformanceProfile> {
 
-    String GATK_GERMLINE_IMAGE = "diskimager-gatk-haplotypecaller";
-    String STRELKA_IMAGE = "diskimager-strelka";
+    String STANDARD_IMAGE = "diskimager-standard";
 
     String imageFamily();
 
@@ -20,7 +18,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
     static VirtualMachineJobDefinition germlineCalling(BashStartupScript startupScript) {
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("germline")
-                .imageFamily(GATK_GERMLINE_IMAGE)
+                .imageFamily(STANDARD_IMAGE)
                 .startupCommand(startupScript.asUnixString())
                 .completionFlagFile(startupScript.completionFlag())
                 .performanceProfile(VirtualMachinePerformanceProfile.defaultVm())
@@ -30,7 +28,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
     static VirtualMachineJobDefinition somaticCalling(BashStartupScript startupScript) {
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("strelka")
-                .imageFamily(STRELKA_IMAGE)
+                .imageFamily(STANDARD_IMAGE)
                 .startupCommand(startupScript.asUnixString())
                 .completionFlagFile(startupScript.completionFlag())
                 .performanceProfile(VirtualMachinePerformanceProfile.defaultVm())

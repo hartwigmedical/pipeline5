@@ -64,7 +64,7 @@ public class SomaticCaller {
         String strelkaConfigFile = localStrelkaConfigFile(strelkaConfigLocation, configDownload);
 
         String strelkaAnalysisOutput = OUTPUT_DIRECTORY + STRELKA_ANALYSIS_DIRECTORY;
-        BashStartupScript strelkaBash = BashStartupScript.of(OUTPUT_DIRECTORY, "/data/logs/strelka.log")
+        BashStartupScript strelkaBash = BashStartupScript.of(OUTPUT_DIRECTORY, OUTPUT_DIRECTORY + "/strelka.log")
                 .addCommand(downloadReferenceBam)
                 .addCommand(downloadReferenceBai)
                 .addCommand(downloadTumorBam)

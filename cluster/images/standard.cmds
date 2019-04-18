@@ -1,0 +1,8 @@
+sudo apt-get update
+sudo apt-get -y install perl-modules make openjdk-8-jdk
+sudo mkdir -p /data/tools
+sudo mkdir -p /data/input
+sudo mkdir -p /data/output
+sudo mkdir -p /data/resources
+sudo gsutil -m cp -r gs://common-tools/* /data/tools/
+sudo tar xvf /data/tools/strelka/1.0.14/strelka.tar -C /data/tools/strelka/1.0.14/

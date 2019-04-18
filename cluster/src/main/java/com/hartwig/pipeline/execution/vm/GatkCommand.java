@@ -8,7 +8,7 @@ import com.google.common.collect.Lists;
 public class GatkCommand extends JavaCommand {
 
     public GatkCommand(final String maxHeapSize, final String analysisType, final String... arguments) {
-        super("/data/tools/GenomeAnalysisTK.jar", maxHeapSize, concat(Lists.newArrayList("-T", analysisType), arguments));
+        super("/data/tools/gatk/3.8.0/GenomeAnalysisTK.jar", maxHeapSize, concat(Lists.newArrayList("-T", analysisType), arguments));
     }
 
     private static List<String> concat(List<String> first, String... rest) {
