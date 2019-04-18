@@ -44,13 +44,10 @@ public class GermlineCaller {
                 .addLine(inBucket.copyToLocal(format("%s.bai", alignmentOutput.finalBamLocation().path()), workingDir))
                 .addLine(new GoogleStorageInputOutput(referenceGenomeBucket).copyToLocal("*", workingDir));
 
-        GatkHaplotypeCaller wrapper = new GatkHaplotypeCaller(format("%s/%s", workingDir, jar),
-                format("%s/%s", workingDir, "bam"),
-                format("%s/%s", workingDir, reference),
-                format("%s/%s", outputDir, OUTPUT_FILENAME));
-
         GoogleStorageInputOutput outputBucket = new GoogleStorageInputOutput(outputBucketName);
-        startupScript.addLine(wrapper.buildCommand())
+        startupScript.addCommand(new GatkHaplotypeCaller(format("%s/%s", workingDir, "bam"),
+                format("%s/%s", workingDir, reference),
+                format("%s/%s", outputDir, OUTPUT_FILENAME)))
                 .addLine("echo Processing finished at $(date)")
                 .addLine(outputBucket.copyFromLocal(format("%s/*", outputDir), ""))
                 .addLine(format("date > %s/%s", outputDir, startupScript.completionFlag()))

@@ -6,7 +6,7 @@ import com.hartwig.pipeline.io.GoogleStorageLocation;
 
 public class InputDownload implements BashCommand {
 
-    private static final String DATA_INPUT = "/data/inputs/";
+    private static final String DATA_INPUT = "/data/input/";
     private final GoogleStorageLocation sourceLocation;
     private final String localTargetPath;
 

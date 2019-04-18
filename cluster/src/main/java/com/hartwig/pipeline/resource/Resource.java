@@ -21,14 +21,14 @@ public class Resource {
     private final String targetBucket;
     private final Function<String, String> alias;
 
-    Resource(final Storage storage, final String sourceBucket, final String targetBucket, final Function<String, String> alias) {
+    public Resource(final Storage storage, final String sourceBucket, final String targetBucket, final Function<String, String> alias) {
         this.storage = storage;
         this.sourceBucket = sourceBucket;
         this.targetBucket = targetBucket;
         this.alias = alias;
     }
 
-    Resource(final Storage storage, final String sourceBucket, final String targetBucket) {
+    public Resource(final Storage storage, final String sourceBucket, final String targetBucket) {
         this(storage, sourceBucket, targetBucket, Function.identity());
     }
 
