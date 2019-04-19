@@ -31,8 +31,7 @@ public class BaseQualityScoreRecalibration implements Stage<AlignmentRecordDatas
     }
 
     @Override
-    public InputOutput<AlignmentRecordDataset> execute(final InputOutput<AlignmentRecordDataset> input) throws IOException {
-
+    public InputOutput<AlignmentRecordDataset> execute(final InputOutput<AlignmentRecordDataset> input) {
         if (knownIndels.paths().isEmpty() && knownSnps.paths().isEmpty()) {
             throw new IllegalArgumentException("Cannot run base quality recalibration with no known snps or indels. "
                     + "Check your configuration to ensure at least one of these VCFs is passed to the pipeline.");
@@ -42,6 +41,7 @@ public class BaseQualityScoreRecalibration implements Stage<AlignmentRecordDatas
                 .map(javaADAMContext::loadVariants)
                 .collect(Collectors.toList());
 
+        assert allIndelsAndSnps.size() == 2;
         VariantDataset knownVariantDataset =
                 allIndelsAndSnps.get(0).union(JavaConversions.asScalaBuffer(allIndelsAndSnps.subList(1, allIndelsAndSnps.size())));
 
