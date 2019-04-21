@@ -41,7 +41,6 @@ public class BaseQualityScoreRecalibration implements Stage<AlignmentRecordDatas
                 .map(javaADAMContext::loadVariants)
                 .collect(Collectors.toList());
 
-        assert allIndelsAndSnps.size() == 2;
         VariantDataset knownVariantDataset =
                 allIndelsAndSnps.get(0).union(JavaConversions.asScalaBuffer(allIndelsAndSnps.subList(1, allIndelsAndSnps.size())));
 
