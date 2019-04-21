@@ -14,7 +14,7 @@ public class ResourceDownloadTest {
 
     @Before
     public void setUp() throws Exception {
-        victim = new ResourceDownload(ResourceLocation.builder().bucket("bucket").addFiles("path/file1", "path/file2").build(),
+        victim = new ResourceDownload(ResourceLocation.builder().bucket("bucket").addFiles("path/file1.ext1", "path/file2.ext2").build(),
                 MockRuntimeBucket.of("runtime").getRuntimeBucket());
     }
 
@@ -25,6 +25,16 @@ public class ResourceDownloadTest {
 
     @Test
     public void keepsLocalFilePathsAsStateForReference() {
-        assertThat(victim.getLocalPaths()).containsExactly("/data/resources/file1", "/data/resources/file2");
+        assertThat(victim.getLocalPaths()).containsExactly("/data/resources/file1.ext1", "/data/resources/file2.ext2");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void findThrowsIlegalArgumentExceptionWhenExtensionNotInFiles(){
+        victim.find("ext3");
+    }
+
+    @Test
+    public void findsFirstFileWithExtensionMatch() {
+        assertThat(victim.find("ext2", "ext3")).isEqualTo("/data/resources/file2.ext2");
     }
 }

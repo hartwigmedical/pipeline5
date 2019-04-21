@@ -33,15 +33,17 @@ public class SomaticCaller {
     private final Storage storage;
     private final Resource referenceGenome;
     private final Resource strelkaConfig;
+    private final Resource mappability;
     private final ResultsDirectory resultsDirectory;
 
     SomaticCaller(final Arguments arguments, final ComputeEngine computeEngine, final Storage storage, final Resource referenceGenome,
-            final Resource strelkaConfig, final ResultsDirectory resultsDirectory) {
+            final Resource strelkaConfig, final Resource mappability, final ResultsDirectory resultsDirectory) {
         this.arguments = arguments;
         this.computeEngine = computeEngine;
         this.storage = storage;
         this.referenceGenome = referenceGenome;
         this.strelkaConfig = strelkaConfig;
+        this.mappability = mappability;
         this.resultsDirectory = resultsDirectory;
     }
 
@@ -49,8 +51,10 @@ public class SomaticCaller {
         LOGGER.info("Starting Somatic Calling");
         RuntimeBucket runtimeBucket =
                 RuntimeBucket.from(storage, pair.reference().sample().name(), pair.tumor().sample().name(), arguments);
+
         ResourceLocation referenceGenomeLocation = referenceGenome.copyInto(runtimeBucket);
         ResourceLocation strelkaConfigLocation = strelkaConfig.copyInto(runtimeBucket);
+        ResourceLocation mappabilityLocation = mappability.copyInto(runtimeBucket);
 
         InputDownload downloadReferenceBam = new InputDownload(pair.reference().finalBamLocation());
         InputDownload downloadReferenceBai = new InputDownload(pair.reference().finalBaiLocation());
@@ -58,12 +62,16 @@ public class SomaticCaller {
         InputDownload downloadTumorBai = new InputDownload(pair.tumor().finalBaiLocation());
 
         ResourceDownload referenceGenomeDownload = new ResourceDownload(referenceGenomeLocation, runtimeBucket);
-        String referenceGenomeFile = localReferenceGenomeFile(referenceGenomeLocation, referenceGenomeDownload);
+        String referenceGenomeFile = referenceGenomeDownload.find("fa", "fasta");
 
         ResourceDownload configDownload = new ResourceDownload(strelkaConfigLocation, runtimeBucket);
-        String strelkaConfigFile = localStrelkaConfigFile(strelkaConfigLocation, configDownload);
+        String strelkaConfigFile = configDownload.find("ini");
 
+        ResourceDownload mappabilityDownload = new ResourceDownload(mappabilityLocation, runtimeBucket);
+        String mappabilityBed = mappabilityDownload.find("bed.gz");
+        String mappabilityHdr = mappabilityDownload.find("hdr");
         String strelkaAnalysisOutput = OUTPUT_DIRECTORY + STRELKA_ANALYSIS_DIRECTORY;
+        String mappabilityAnnotatedVcf = "/data/output/mappability.annotated.vcf";
         BashStartupScript strelkaBash = BashStartupScript.of(OUTPUT_DIRECTORY, OUTPUT_DIRECTORY + "/strelka.log")
                 .addCommand(downloadReferenceBam)
                 .addCommand(downloadReferenceBai)
@@ -71,6 +79,7 @@ public class SomaticCaller {
                 .addCommand(downloadTumorBai)
                 .addCommand(referenceGenomeDownload)
                 .addCommand(configDownload)
+                .addCommand(mappabilityDownload)
                 .addCommand(new ConfigureStrelkaWorkflowCommand(downloadTumorBam.getLocalTargetPath(),
                         downloadReferenceBam.getLocalTargetPath(),
                         strelkaConfigFile,
@@ -81,8 +90,14 @@ public class SomaticCaller {
                         strelkaAnalysisOutput + "/results/passed.somatic.snvs.vcf",
                         strelkaAnalysisOutput + "/results/passed.somatic.snvs.vcf",
                         OUTPUT_DIRECTORY))
+                .addCommand(new AnnotateMappabilityCommand(mappabilityBed,
+                        mappabilityHdr,
+                        "/data/output/combined.vcf",
+                        mappabilityAnnotatedVcf))
+                .addCommand(new TabixCommand(mappabilityAnnotatedVcf))
                 .addCommand(new JobComplete(BashStartupScript.JOB_COMPLETE))
                 .addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path())));
+
         computeEngine.submit(runtimeBucket, VirtualMachineJobDefinition.somaticCalling(strelkaBash));
 
         return SomaticCallerOutput.builder()
@@ -96,25 +111,5 @@ public class SomaticCaller {
     @NotNull
     private GoogleStorageLocation vcfLocation(final RuntimeBucket runtimeBucket, final String vcfName) {
         return GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path(STRELKA_ANALYSIS_DIRECTORY + "/results/" + vcfName));
-    }
-
-    @NotNull
-    private String localStrelkaConfigFile(final ResourceLocation strelkaConfigLocation, final ResourceDownload strelkaConfigDownload) {
-        return strelkaConfigDownload.getLocalPaths()
-                .stream()
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException(String.format("No strelka configuration file was found in resource [%s]",
-                        strelkaConfigLocation)));
-    }
-
-    @NotNull
-    private String localReferenceGenomeFile(final ResourceLocation referenceGenomeLocation,
-            final ResourceDownload referenceGenomeDownload) {
-        return referenceGenomeDownload.getLocalPaths()
-                .stream()
-                .filter(file -> file.endsWith("fa") || file.endsWith("fasta"))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException(String.format("No reference genome fasta file was found in resource [%s]",
-                        referenceGenomeLocation)));
     }
 }

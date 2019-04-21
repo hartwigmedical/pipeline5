@@ -34,6 +34,7 @@ public class SomaticCallerProvider {
                         "reference_genome",
                         new ReferenceGenomeAlias().andThen(new GATKDictAlias())),
                 new Resource(storage, "strelka_config", "strelka_config"),
+                new Resource(storage, "hg19_mappability_tracks", "hg19_mappability_tracks"),
                 ResultsDirectory.defaultDirectory());
     }
 }
