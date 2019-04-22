@@ -52,23 +52,20 @@ public class SomaticCaller {
                 "reference_genome",
                 new ReferenceGenomeAlias().andThen(new GATKDictAlias())).copyInto(runtimeBucket), runtimeBucket);
         String referenceGenomeFile = referenceGenomeDownload.find("fa", "fasta");
-
-        String combinedVcfOutput = OUTPUT_DIRECTORY + "/combined.vcf";
-
         BashStartupScript strelkaBash = BashStartupScript.of(runtimeBucket.name());
 
         InputDownload tumorBam = new InputDownload(pair.tumor().finalBamLocation());
-        runStrelkaAndCombineVcfs(new InputDownload(pair.reference().finalBamLocation()),
+        String combinedVcf = runStrelkaAndCombineVcfs(new InputDownload(pair.reference().finalBamLocation()),
                 new InputDownload(pair.reference().finalBaiLocation()),
                 tumorBam,
                 new InputDownload(pair.tumor().finalBaiLocation()),
                 referenceGenomeDownload,
                 referenceGenomeFile,
                 new ResourceDownload(new Resource(storage, "strelka_config", "strelka_config").copyInto(runtimeBucket), runtimeBucket),
-                combinedVcfOutput,
                 strelkaBash);
-        String annotatedVcf = applyAnnotations(storage, runtimeBucket, combinedVcfOutput, strelkaBash);
-        String postProcessedVcf = strelkaPostProcess(pair, runtimeBucket, strelkaBash, tumorBam, annotatedVcf);
+        String annotatedVcf = applyAnnotations(storage, runtimeBucket, combinedVcf, strelkaBash);
+        String postProcessedVcf = strelkaPostProcess(storage, pair, runtimeBucket, strelkaBash, tumorBam, annotatedVcf);
+        String filteredVcf = filter(strelkaBash, postProcessedVcf);
 
         strelkaBash.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path())));
         computeEngine.submit(runtimeBucket, VirtualMachineJobDefinition.somaticCalling(strelkaBash));
@@ -76,8 +73,23 @@ public class SomaticCaller {
         return SomaticCallerOutput.builder().build();
     }
 
-    private String strelkaPostProcess(final AlignmentPair pair, final RuntimeBucket runtimeBucket, final BashStartupScript strelkaBash,
-            final InputDownload tumorBam, final String annotatedVcf) {
+    private static String filter(final BashStartupScript strelkaBash, final String postProcessedVcf) {
+        String germlinePonFilteredVcf = OUTPUT_DIRECTORY + "/germline.pon.filtered.vcf";
+        String somaticPonFilteredVcf = OUTPUT_DIRECTORY + "/somatic.pon.filtered.vcf";
+        strelkaBash.addCommand(new BcfToolsFilterCommand("'GERMLINE_PON_COUNT!= \".\" && MIN(GERMLINE_PON_COUNT) > 5'",
+                "GERMLINE_PON",
+                postProcessedVcf,
+                germlinePonFilteredVcf));
+        strelkaBash.addCommand(new BcfToolsFilterCommand("'SOMATIC_PON_COUNT!=\".\" && MIN(SOMATIC_PON_COUNT) > 3'",
+                "SOMATIC_PON",
+                germlinePonFilteredVcf,
+                somaticPonFilteredVcf));
+        strelkaBash.addCommand(new TabixCommand(somaticPonFilteredVcf));
+        return somaticPonFilteredVcf;
+    }
+
+    private static String strelkaPostProcess(final Storage storage, final AlignmentPair pair, final RuntimeBucket runtimeBucket,
+            final BashStartupScript strelkaBash, final InputDownload tumorBam, final String annotatedVcf) {
         ResourceDownload bedDownload = new ResourceDownload(new Resource(storage, "beds", "beds").copyInto(runtimeBucket), runtimeBucket);
         String postProcessedVcf = OUTPUT_DIRECTORY + "/strelka-post-processed.vcf";
         strelkaBash.addCommand(bedDownload)
@@ -89,10 +101,10 @@ public class SomaticCaller {
         return postProcessedVcf;
     }
 
-    private static void runStrelkaAndCombineVcfs(final InputDownload downloadReferenceBam, final InputDownload downloadReferenceBai,
+    private static String runStrelkaAndCombineVcfs(final InputDownload downloadReferenceBam, final InputDownload downloadReferenceBai,
             final InputDownload downloadTumorBam, final InputDownload downloadTumorBai, final ResourceDownload referenceGenomeDownload,
-            final String referenceGenomeFile, final ResourceDownload configDownload, final String combinedVcfOutput,
-            final BashStartupScript strelkaBash) {
+            final String referenceGenomeFile, final ResourceDownload configDownload, final BashStartupScript strelkaBash) {
+        String combinedVcf = OUTPUT_DIRECTORY + "/combined.vcf";
         String strelkaConfigFile = configDownload.find("ini");
         String strelkaAnalysisOutput = OUTPUT_DIRECTORY + STRELKA_ANALYSIS_DIRECTORY;
         strelkaBash.addCommand(downloadReferenceBam)
@@ -110,7 +122,8 @@ public class SomaticCaller {
                 .addCommand(new CombineVcfsCommand(referenceGenomeFile,
                         strelkaAnalysisOutput + "/results/passed.somatic.snvs.vcf",
                         strelkaAnalysisOutput + "/results/passed.somatic.snvs.vcf",
-                        combinedVcfOutput));
+                        combinedVcf));
+        return combinedVcf;
     }
 
     private static String applyAnnotations(final Storage storage, final RuntimeBucket runtimeBucket, final String combinedVcfOutput,
