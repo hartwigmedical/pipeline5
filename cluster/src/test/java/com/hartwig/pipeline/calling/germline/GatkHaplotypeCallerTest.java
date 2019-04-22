@@ -14,12 +14,12 @@ public class GatkHaplotypeCallerTest {
         String outputVcf = randStr();
 
         String expected = "java -Xmx20G -jar /data/tools/gatk/3.8.0/GenomeAnalysisTK.jar -T HaplotypeCaller --input_file " + inputBam
-                + " -o " + outputVcf + " --reference_sequence " + referenceFasta
+                + " -o " + outputVcf + " -D " + snpDb + " --reference_sequence " + referenceFasta
                 + " -nct $(grep -c '^processor' /proc/cpuinfo)"
                 + " -variant_index_type LINEAR -variant_index_parameter 128000 -stand_call_conf 15.0"
                 + " -ERC GVCF -GQB 5 -GQB 10 -GQB 15 -GQB 20 -GQB 30 -GQB 40 -GQB 50 -GQB 60 --sample_ploidy 2";
 
-        assertThat(new GatkHaplotypeCaller(inputBam, referenceFasta, outputVcf).asBash()).isEqualTo(expected);
+        assertThat(new GatkHaplotypeCaller(inputBam, referenceFasta, snpDb, outputVcf).asBash()).isEqualTo(expected);
     }
 
     private static String randStr() {

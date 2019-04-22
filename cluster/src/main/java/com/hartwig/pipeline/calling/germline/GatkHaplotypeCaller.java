@@ -4,13 +4,15 @@ import com.hartwig.pipeline.execution.vm.GatkCommand;
 
 class GatkHaplotypeCaller extends GatkCommand {
 
-    GatkHaplotypeCaller(String inputBam, String referenceFasta, String outputVcf) {
+    GatkHaplotypeCaller(String inputBam, String referenceFasta, String knownSnpsDb, String outputVcf) {
         super("20G",
                 "HaplotypeCaller",
                 "--input_file",
                 inputBam,
                 "-o",
                 outputVcf,
+                "-D",
+                knownSnpsDb,
                 "--reference_sequence",
                 referenceFasta,
                 "-nct",

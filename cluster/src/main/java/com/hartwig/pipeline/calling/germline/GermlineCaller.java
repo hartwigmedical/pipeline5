@@ -43,7 +43,8 @@ public class GermlineCaller {
                 .addCommand(new ResourceDownload(referenceGenome.copyInto(bucket), bucket))
                 .addCommand(new GatkHaplotypeCaller(format("%s/*.bam", VmDirectories.INPUT),
                         format("%s/*.fasta", VmDirectories.RESOURCES),
-                        format("%s/dbsnp_137.b37.vcf", VmDirectories.RESOURCES)))
+                        format("%s/dbsnp_137.b37.vcf", VmDirectories.RESOURCES),
+                        format("%s/%s", VmDirectories.OUTPUT, OUTPUT_FILENAME)))
                 .addLine("echo Processing finished at $(date)")
                 .addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), ResultsDirectory.defaultDirectory().path())));
 
