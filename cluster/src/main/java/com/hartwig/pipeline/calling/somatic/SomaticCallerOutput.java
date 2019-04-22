@@ -7,14 +7,6 @@ import org.immutables.value.Value;
 @Value.Immutable
 public interface SomaticCallerOutput {
 
-    GoogleStorageLocation allSomaticIndelsVcf();
-
-    GoogleStorageLocation allSomaticSnvsVcf();
-
-    GoogleStorageLocation passedSomaticIndelsVcf();
-
-    GoogleStorageLocation passedSomaticSnvsVcf();
-
     static ImmutableSomaticCallerOutput.Builder builder() {
         return ImmutableSomaticCallerOutput.builder();
     }
