@@ -1,32 +1,32 @@
 package com.hartwig.pipeline.execution.vm;
 
-import com.hartwig.pipeline.io.RuntimeBucket;
-import com.hartwig.pipeline.resource.ResourceLocation;
+import static java.util.stream.Stream.of;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static java.util.stream.Stream.of;
+import com.hartwig.pipeline.io.RuntimeBucket;
+import com.hartwig.pipeline.resource.ResourceLocation;
 
 public class ResourceDownload implements BashCommand {
 
     private static final String RESOURCES_PATH = "/data/resources";
-    private final ResourceLocation resource;
+    private final ResourceLocation resourceLocation;
     private final RuntimeBucket runtimeBucket;
 
     public ResourceDownload(final ResourceLocation resourceLocation, final RuntimeBucket runtimeBucket) {
-        this.resource = resourceLocation;
+        this.resourceLocation = resourceLocation;
         this.runtimeBucket = runtimeBucket;
     }
 
     @Override
     public String asBash() {
-        return String.format("gsutil -m cp gs://%s/%s/* %s", runtimeBucket.name(), resource.bucket(), RESOURCES_PATH);
+        return String.format("gsutil -m cp gs://%s/%s/* %s", runtimeBucket.name(), resourceLocation.bucket(), RESOURCES_PATH);
     }
 
     List<String> getLocalPaths() {
-        return resource.files().stream().map(this::fileName).map(file -> RESOURCES_PATH + "/" + file).collect(Collectors.toList());
+        return resourceLocation.files().stream().map(this::fileName).map(file -> RESOURCES_PATH + "/" + file).collect(Collectors.toList());
     }
 
     public String find(String... extensions) {

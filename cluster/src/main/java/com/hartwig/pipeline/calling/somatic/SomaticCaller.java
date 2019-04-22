@@ -1,19 +1,26 @@
 package com.hartwig.pipeline.calling.somatic;
 
+import static com.hartwig.pipeline.execution.vm.OutputUpload.OUTPUT_DIRECTORY;
+
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.AlignmentPair;
-import com.hartwig.pipeline.execution.vm.*;
+import com.hartwig.pipeline.execution.vm.BashStartupScript;
+import com.hartwig.pipeline.execution.vm.ComputeEngine;
+import com.hartwig.pipeline.execution.vm.InputDownload;
+import com.hartwig.pipeline.execution.vm.JobComplete;
+import com.hartwig.pipeline.execution.vm.OutputUpload;
+import com.hartwig.pipeline.execution.vm.ResourceDownload;
+import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.resource.Resource;
 import com.hartwig.pipeline.resource.ResourceLocation;
+
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static com.hartwig.pipeline.execution.vm.OutputUpload.OUTPUT_DIRECTORY;
 
 public class SomaticCaller {
 
@@ -45,6 +52,9 @@ public class SomaticCaller {
         RuntimeBucket runtimeBucket =
                 RuntimeBucket.from(storage, pair.reference().sample().name(), pair.tumor().sample().name(), arguments);
 
+        Resource pons = new Resource(storage, "pon-v2", "pon-v2");
+
+        ResourceLocation ponLocation = pons.copyInto(runtimeBucket);
         ResourceLocation referenceGenomeLocation = referenceGenome.copyInto(runtimeBucket);
         ResourceLocation strelkaConfigLocation = strelkaConfig.copyInto(runtimeBucket);
         ResourceLocation mappabilityLocation = mappability.copyInto(runtimeBucket);
@@ -63,9 +73,16 @@ public class SomaticCaller {
         ResourceDownload mappabilityDownload = new ResourceDownload(mappabilityLocation, runtimeBucket);
         String mappabilityBed = mappabilityDownload.find("bed.gz");
         String mappabilityHdr = mappabilityDownload.find("hdr");
+
+        ResourceDownload ponDownload = new ResourceDownload(ponLocation, runtimeBucket);
+        String germlinePon = ponDownload.find("GERMLINE_PON.vcf.gz");
+
         String strelkaAnalysisOutput = OUTPUT_DIRECTORY + STRELKA_ANALYSIS_DIRECTORY;
+        String combinedVcfOutput = OUTPUT_DIRECTORY + "/combined.vcf";
         String mappabilityAnnotatedVcf = "/data/output/mappability.annotated.vcf";
-        BashStartupScript strelkaBash = BashStartupScript.of(OUTPUT_DIRECTORY)
+        String germlinePonAnnotatedVcf = "/data/output/germline.pon.annotated.vcf";
+
+        BashStartupScript strelkaBash = BashStartupScript.of(OUTPUT_DIRECTORY, OUTPUT_DIRECTORY + "/strelka.log")
                 .addCommand(downloadReferenceBam)
                 .addCommand(downloadReferenceBai)
                 .addCommand(downloadTumorBam)
@@ -73,6 +90,7 @@ public class SomaticCaller {
                 .addCommand(referenceGenomeDownload)
                 .addCommand(configDownload)
                 .addCommand(mappabilityDownload)
+                .addCommand(ponDownload)
                 .addCommand(new ConfigureStrelkaWorkflowCommand(downloadTumorBam.getLocalTargetPath(),
                         downloadReferenceBam.getLocalTargetPath(),
                         strelkaConfigFile,
@@ -82,13 +100,12 @@ public class SomaticCaller {
                 .addCommand(new CombineVcfsCommand(referenceGenomeFile,
                         strelkaAnalysisOutput + "/results/passed.somatic.snvs.vcf",
                         strelkaAnalysisOutput + "/results/passed.somatic.snvs.vcf",
-                        OUTPUT_DIRECTORY))
-                .addCommand(new AnnotateMappabilityCommand(mappabilityBed,
-                        mappabilityHdr,
-                        "/data/output/combined.vcf",
-                        mappabilityAnnotatedVcf))
+                        combinedVcfOutput))
+                .addCommand(new AnnotateMappabilityCommand(mappabilityBed, mappabilityHdr, combinedVcfOutput, mappabilityAnnotatedVcf))
                 .addCommand(new TabixCommand(mappabilityAnnotatedVcf))
-                .addCommand(new JobComplete(BashStartupScript.COMPLETION_FLAG_FILENAME))
+                .addCommand(new AnnotateGermlinePonCommand(germlinePon, combinedVcfOutput, germlinePonAnnotatedVcf))
+                .addCommand(new TabixCommand(germlinePonAnnotatedVcf))
+                .addCommand(new JobComplete(BashStartupScript.JOB_COMPLETE))
                 .addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path())));
 
         computeEngine.submit(runtimeBucket, VirtualMachineJobDefinition.somaticCalling(strelkaBash));
