@@ -1,26 +1,19 @@
 package com.hartwig.pipeline.calling.somatic;
 
-import static com.hartwig.pipeline.execution.vm.OutputUpload.OUTPUT_DIRECTORY;
-
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.AlignmentPair;
-import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.ComputeEngine;
-import com.hartwig.pipeline.execution.vm.InputDownload;
-import com.hartwig.pipeline.execution.vm.JobComplete;
-import com.hartwig.pipeline.execution.vm.OutputUpload;
-import com.hartwig.pipeline.execution.vm.ResourceDownload;
-import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.pipeline.execution.vm.*;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.resource.Resource;
 import com.hartwig.pipeline.resource.ResourceLocation;
-
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static com.hartwig.pipeline.execution.vm.OutputUpload.OUTPUT_DIRECTORY;
 
 public class SomaticCaller {
 
@@ -72,7 +65,7 @@ public class SomaticCaller {
         String mappabilityHdr = mappabilityDownload.find("hdr");
         String strelkaAnalysisOutput = OUTPUT_DIRECTORY + STRELKA_ANALYSIS_DIRECTORY;
         String mappabilityAnnotatedVcf = "/data/output/mappability.annotated.vcf";
-        BashStartupScript strelkaBash = BashStartupScript.of(OUTPUT_DIRECTORY, OUTPUT_DIRECTORY + "/strelka.log")
+        BashStartupScript strelkaBash = BashStartupScript.of(OUTPUT_DIRECTORY)
                 .addCommand(downloadReferenceBam)
                 .addCommand(downloadReferenceBai)
                 .addCommand(downloadTumorBam)
@@ -95,7 +88,7 @@ public class SomaticCaller {
                         "/data/output/combined.vcf",
                         mappabilityAnnotatedVcf))
                 .addCommand(new TabixCommand(mappabilityAnnotatedVcf))
-                .addCommand(new JobComplete(BashStartupScript.JOB_COMPLETE))
+                .addCommand(new JobComplete(BashStartupScript.COMPLETION_FLAG_FILENAME))
                 .addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path())));
 
         computeEngine.submit(runtimeBucket, VirtualMachineJobDefinition.somaticCalling(strelkaBash));

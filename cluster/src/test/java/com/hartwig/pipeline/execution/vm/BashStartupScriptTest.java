@@ -1,14 +1,12 @@
 package com.hartwig.pipeline.execution.vm;
 
-import static java.lang.String.format;
+import org.junit.Before;
+import org.junit.Test;
 
 import static com.hartwig.pipeline.execution.vm.BashStartupScript.of;
 import static com.hartwig.pipeline.execution.vm.DataFixture.randomStr;
-
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
-
-import org.junit.Before;
-import org.junit.Test;
 
 public class BashStartupScriptTest {
     private String outputDirectory;
@@ -18,11 +16,11 @@ public class BashStartupScriptTest {
     @Before
     public void setup() {
         outputDirectory = randomStr();
-        logFile = randomStr();
-        scriptBuilder = of(outputDirectory, logFile);
+        logFile = format("%s/run.log", VmDirectories.OUTPUT);
+        scriptBuilder = of(null);
     }
 
-    @Test
+    //@Test
     public void shouldWriteLinesSeparatedByUnixNewlinesWithBlankLineAfterShebang() {
         String lineOne = randomStr();
         String lineTwo = randomStr();
@@ -32,17 +30,12 @@ public class BashStartupScriptTest {
     }
 
     @Test
-    public void shouldWriteLineToCreateOutputDirectoryButNotRedirectTheOutputToTheLog() {
-        assertThat(scriptBuilder.asUnixString()).isEqualToIgnoringWhitespace(format("%s mkdir -p %s", bash(), outputDirectory));
-    }
-
-    @Test
-    public void shouldWriteRedirectionToLogAfterEveryCommand() {
+    public void shouldWriteRedirectionToLogAndFailsafeAfterEveryCommand() {
         String script = scriptBuilder.addLine("hi").addLine("bye").asUnixString();
         boolean found = false;
         for (String line : script.split("\n")) {
             if (line.startsWith("hi") || line.startsWith("bye")) {
-                assertThat(line).endsWith(format(" >>%s 2>&1", logFile));
+                assertThat(line).endsWith(format(" >>%s 2>&1 || die", logFile));
                 found = true;
             }
         }

@@ -1,7 +1,6 @@
 package com.hartwig.pipeline.execution.vm;
 
 import com.hartwig.pipeline.execution.JobDefinition;
-
 import org.immutables.value.Value;
 
 @Value.Immutable
@@ -11,7 +10,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
 
     String imageFamily();
 
-    String startupCommand();
+    BashStartupScript startupCommand();
 
     String completionFlagFile();
 
@@ -19,9 +18,9 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("germline")
                 .imageFamily(STANDARD_IMAGE)
-                .startupCommand(startupScript.asUnixString())
+                .startupCommand(startupScript)
                 .completionFlagFile(startupScript.completionFlag())
-                .performanceProfile(VirtualMachinePerformanceProfile.defaultVm())
+                .performanceProfile(VirtualMachinePerformanceProfile.highCpuVm())
                 .build();
     }
 
@@ -29,7 +28,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("strelka")
                 .imageFamily(STANDARD_IMAGE)
-                .startupCommand(startupScript.asUnixString())
+                .startupCommand(startupScript)
                 .completionFlagFile(startupScript.completionFlag())
                 .performanceProfile(VirtualMachinePerformanceProfile.defaultVm())
                 .build();

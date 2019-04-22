@@ -1,18 +1,18 @@
 package com.hartwig.pipeline.testsupport;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.google.api.gax.paging.Page;
 import com.google.cloud.ReadChannel;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.hartwig.pipeline.io.RuntimeBucket;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class MockRuntimeBucket {
 
@@ -58,9 +58,5 @@ public class MockRuntimeBucket {
 
     public RuntimeBucket getRuntimeBucket() {
         return runtimeBucket;
-    }
-
-    public Bucket getGoogleBucket() {
-        return googleBucket;
     }
 }

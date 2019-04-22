@@ -10,6 +10,7 @@ public class GatkHaplotypeCallerTest {
     public void shouldGenerateCorrectCommandFromArguments() {
         String inputBam = randStr();
         String referenceFasta = randStr();
+        String snpDb = randStr();
         String outputVcf = randStr();
 
         String expected = "java -Xmx20G -jar /data/tools/gatk/3.8.0/GenomeAnalysisTK.jar -T HaplotypeCaller --input_file " + inputBam

@@ -1,12 +1,5 @@
 package com.hartwig.pipeline.execution.vm;
 
-import static java.lang.String.format;
-import static java.util.Collections.singletonList;
-
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.util.concurrent.TimeUnit;
-
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.HttpTransport;
@@ -15,15 +8,7 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.gax.paging.Page;
 import com.google.api.services.compute.Compute;
 import com.google.api.services.compute.ComputeRequest;
-import com.google.api.services.compute.model.AccessConfig;
-import com.google.api.services.compute.model.AttachedDisk;
-import com.google.api.services.compute.model.AttachedDiskInitializeParams;
-import com.google.api.services.compute.model.Image;
-import com.google.api.services.compute.model.Instance;
-import com.google.api.services.compute.model.Metadata;
-import com.google.api.services.compute.model.NetworkInterface;
-import com.google.api.services.compute.model.Operation;
-import com.google.api.services.compute.model.ServiceAccount;
+import com.google.api.services.compute.model.*;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Blob;
@@ -33,9 +18,15 @@ import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.execution.CloudExecutor;
 import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.io.RuntimeBucket;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.util.concurrent.TimeUnit;
+
+import static java.lang.String.format;
+import static java.util.Collections.singletonList;
 
 public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition> {
     private final static String APPLICATION_NAME = "vm-hosted-workload";
@@ -60,7 +51,7 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
 
             Instance instance = new Instance();
             String vmName = bucket.name() + "-" + jobDefinition.name();
-            LOGGER.info("Initialising [{}]", vmName);
+            LOGGER.info("Initialising [{}], output will go to bucket [{}]", vmName, bucket.name());
             instance.setName(vmName);
             instance.setZone(ZONE_NAME);
             String project = arguments.project();
@@ -73,12 +64,12 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
                     project,
                     vmName,
                     jobDefinition.performanceProfile().virtualMachineType().diskGB());
-            addStartupCommand(instance, jobDefinition.startupCommand());
+            addStartupCommand(instance, bucket, jobDefinition.startupCommand());
             addNetworkInterface(instance, project);
 
             deleteOldInstancesAndStart(compute, instance, project, vmName);
             LOGGER.info("Successfully initialised [{}]", this);
-            waitForCompletion(bucket.bucket().getName(), jobDefinition.completionFlagFile());
+            waitForCompletion(bucket.name(), jobDefinition.startupCommand().completionFlag());
             stop(project, vmName);
         } catch (Exception e) {
             String message = format("Failed to initialise [%s]", this);
@@ -125,12 +116,13 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
         instance.setServiceAccounts(singletonList(account));
     }
 
-    private void addStartupCommand(Instance instance, String startupCommand) {
+    private void addStartupCommand(Instance instance, RuntimeBucket runtimeBucket, BashStartupScript startupCommand) {
         Metadata startupMetadata = new Metadata();
         Metadata.Items items = new Metadata.Items();
         items.setKey("startup-script");
-        items.setValue(startupCommand);
+        items.setValue(startupCommand.asUnixString());
         startupMetadata.setItems(singletonList(items));
+        runtimeBucket.bucket().create("copy_of_startup_script_used_for_this_run.sh", startupCommand.asUnixString().getBytes());
         instance.setMetadata(startupMetadata);
     }
 
@@ -138,6 +130,7 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
         Compute.Images.GetFromFamily images = compute.images().getFromFamily(projectName, sourceImageFamily);
         Image image = images.execute();
         if (image != null) {
+            LOGGER.info("Resolved image [{} ({})] ", image.getName(), image.getSelfLink());
             return image;
         }
         throw new IllegalArgumentException(format("No image for family [%s]", sourceImageFamily));
@@ -202,9 +195,9 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
         return compute.zoneOperations().get(projectName, ZONE_NAME, jobName).execute().getStatus();
     }
 
-    private void waitForCompletion(String outputBucket, String completionFlagFile) {
+    private void waitForCompletion(String outputBucketName, String completionFlagFile) {
         LOGGER.info("Waiting for job completion");
-        Bucket bucket = storage.get(outputBucket);
+        Bucket bucket = storage.get(outputBucketName);
         boolean complete = false;
         while (!complete) {
             Page<Blob> objects = bucket.list();
@@ -212,7 +205,7 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
                 if (blob.getName().contains(completionFlagFile)) {
                     complete = true;
                 } else {
-                    LOGGER.debug("Flag file {} not found in bucket {}; job must not be done", completionFlagFile, outputBucket);
+                    LOGGER.debug("Flag file {} not found in bucket {}; job must not be done", completionFlagFile, outputBucketName);
                 }
             }
             try {

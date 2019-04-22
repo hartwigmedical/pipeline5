@@ -1,13 +1,13 @@
 package com.hartwig.pipeline.execution.vm;
 
-import static java.util.stream.Stream.of;
+import com.hartwig.pipeline.io.RuntimeBucket;
+import com.hartwig.pipeline.resource.ResourceLocation;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.hartwig.pipeline.io.RuntimeBucket;
-import com.hartwig.pipeline.resource.ResourceLocation;
+import static java.util.stream.Stream.of;
 
 public class ResourceDownload implements BashCommand {
 
@@ -15,8 +15,8 @@ public class ResourceDownload implements BashCommand {
     private final ResourceLocation resource;
     private final RuntimeBucket runtimeBucket;
 
-    public ResourceDownload(final ResourceLocation referenceGenomeResource, final RuntimeBucket runtimeBucket) {
-        this.resource = referenceGenomeResource;
+    public ResourceDownload(final ResourceLocation resourceLocation, final RuntimeBucket runtimeBucket) {
+        this.resource = resourceLocation;
         this.runtimeBucket = runtimeBucket;
     }
 

@@ -9,6 +9,7 @@ public interface MachineType {
     String GOOGLE_STANDARD_32 = "n1-standard-32";
     String GOOGLE_STANDARD_64 = "n1-standard-64";
     String GOOGLE_HIGHMEM_32 = "n1-highmem-32";
+    String GOOGLE_HIGHCPU_32 = "n1-highcpu-32";
     int DISK_GB = 1000;
 
     String uri();
@@ -37,6 +38,10 @@ public interface MachineType {
 
     static MachineType mini() {
         return ImmutableMachineType.builder().uri("n1-standard-2").memoryGB(7).cpus(2).diskGB(DISK_GB).build();
+    }
+
+    static MachineType highCpu() {
+        return ImmutableMachineType.builder().uri(GOOGLE_HIGHCPU_32).memoryGB(32).cpus(32).diskGB(DISK_GB).build();
     }
 
     static MachineType defaultPreemtibleWorker() {

@@ -1,8 +1,8 @@
 package com.hartwig.pipeline;
 
-import java.util.Optional;
-
 import org.immutables.value.Value;
+
+import java.util.Optional;
 
 @Value.Immutable
 public interface Arguments {
@@ -64,6 +64,8 @@ public interface Arguments {
 
     String knownIndelsBucket();
 
+    String knownSnpsBucket();
+
     String rclonePath();
 
     String rcloneGcpRemote();
@@ -107,6 +109,7 @@ public interface Arguments {
                     .sbpS3Url(DEFAULT_PRODUCTION_SBP_S3_URL)
                     .referenceGenomeBucket(DEFAULT_PRODUCTION_REFERENCE_GENOME_BUCKET)
                     .knownIndelsBucket(DEFAULT_PRODUCTION_KNOWN_INDELS_BUCKET)
+                    .knownSnpsBucket(DEFAULT_PRODUCTION_KNOWN_SNPS_BUCKET)
                     .jarDirectory(DEFAULT_PRODUCTION_JAR_LIB)
                     .privateKeyPath(DEFAULT_PRODUCTION_KEY_PATH)
                     .serviceAccountEmail(DEFAULT_PRODUCTION_SERVICE_ACCOUNT_EMAIL)
@@ -128,6 +131,7 @@ public interface Arguments {
                     .nodeInitializationScript(DEFAULT_DEVELOPMENT_NODE_INIT)
                     .referenceGenomeBucket(DEFAULT_DEVELOPMENT_REFERENCE_GENOME_BUCKET)
                     .knownIndelsBucket(DEFAULT_DEVELOPMENT_KNOWN_INDELS_BUCKET)
+                    .knownSnpsBucket(DEFAULT_DEVELOPMENT_KNOWN_SNPS_BUCKET)
                     .jarDirectory(DEFAULT_DEVELOPMENT_JAR_LIB)
                     .privateKeyPath(DEFAULT_DEVELOPMENT_KEY_PATH)
                     .cloudSdkPath(DEFAULT_DEVELOPMENT_CLOUD_SDK_PATH)
@@ -165,6 +169,7 @@ public interface Arguments {
     String DEFAULT_PRODUCTION_JAR_LIB = "/usr/share/pipeline5";
     String DEFAULT_PRODUCTION_KEY_PATH = "/secrets/bootstrap-key.json";
     String DEFAULT_PRODUCTION_KNOWN_INDELS_BUCKET = "known_indels";
+    String DEFAULT_PRODUCTION_KNOWN_SNPS_BUCKET = "known_snps";
     String DEFAULT_PRODUCTION_CLOUD_SDK_PATH = "/usr/lib/google-cloud-sdk/bin";
     String DEFAULT_PRODUCTION_SERVICE_ACCOUNT_EMAIL = String.format("bootstrap@%s.iam.gserviceaccount.com",
             DEFAULT_PRODUCTION_PROJECT);
@@ -179,6 +184,7 @@ public interface Arguments {
     String DEFAULT_DEVELOPMENT_JAR_LIB = workingDir() + "/system/target";
     String DEFAULT_DEVELOPMENT_KEY_PATH = workingDir() + "/bootstrap-key.json";
     String DEFAULT_DEVELOPMENT_KNOWN_INDELS_BUCKET = "known_indels";
+    String DEFAULT_DEVELOPMENT_KNOWN_SNPS_BUCKET = "known_snps";
     String DEFAULT_DEVELOPMENT_CLOUD_SDK_PATH = System.getProperty("user.home") + "/gcloud/google-cloud-sdk/bin";
     String DEFAULT_DEVELOPMENT_SERVICE_ACCOUNT_EMAIL = String.format("bootstrap@%s.iam.gserviceaccount.com",
             DEFAULT_DEVELOPMENT_PROJECT);

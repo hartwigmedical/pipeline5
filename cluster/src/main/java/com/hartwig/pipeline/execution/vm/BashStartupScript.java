@@ -1,34 +1,43 @@
 package com.hartwig.pipeline.execution.vm;
 
-import static java.lang.String.format;
-import static java.util.stream.Collectors.joining;
-
 import java.util.ArrayList;
 import java.util.List;
 
-public class BashStartupScript {
-    public static final String JOB_COMPLETE = "JOB_COMPLETE";
-    private final List<String> commands;
-    private final String outputDirectory;
-    private final String logFile;
+import static java.lang.String.format;
+import static java.util.stream.Collectors.joining;
 
-    private BashStartupScript(final String outputDirectory, final String logFile) {
-        this.outputDirectory = outputDirectory;
-        this.logFile = logFile;
+public class BashStartupScript {
+    public static final String COMPLETION_FLAG_FILENAME = "JOB_COMPLETE";
+    private static final String LOG_FILE = VmDirectories.OUTPUT + "/run.log";
+    private final List<String> commands;
+    private final String runtimeBucketName;
+
+    private BashStartupScript(final String runtimeBucketName) {
+        this.runtimeBucketName = runtimeBucketName;
         this.commands = new ArrayList<>();
     }
 
-    public static BashStartupScript of(final String outputDirectory, final String logFile) {
-        return new BashStartupScript(outputDirectory, logFile);
+    public static BashStartupScript of(final String runtimeBucketName) {
+        return new BashStartupScript(runtimeBucketName);
     }
 
     /**
-     * @return the generated script as a single <code>String</code> with UNIx newlines separating input lines
+     * @return the generated script as a single <code>String</code> with UNIX newlines separating input lines
      */
-    String asUnixString() {
-        String loggingSuffix = format(" >>%s 2>&1", logFile);
-        return "#!/bin/bash -ex\n\n" + format("mkdir -p %s\n", outputDirectory) + commands.stream()
-                .collect(joining(format("%s\n", loggingSuffix))) + (commands.isEmpty() ? "" : loggingSuffix);
+    public String asUnixString() {
+        String commandSuffix = format(" >>%s 2>&1 || die", LOG_FILE);
+        String preamble = format("JOB_COMPLETE_FLAG=\"/tmp/%s\"\n\n", COMPLETION_FLAG_FILENAME) +
+                "function die() {\n" +
+                "  exit_code=$?\n" +
+                "  echo \"Unknown failure: called command returned $exit_code\"\n" +
+                format("  gsutil -m cp %s gs://%s\n", LOG_FILE, runtimeBucketName) +
+                "  echo $exit_code > $JOB_COMPLETE_FLAG\n" +
+                format("  gsutil -m cp $JOB_COMPLETE_FLAG gs://%s\n", runtimeBucketName) +
+                "  exit 1\n" +
+                "}\n\n";
+        addCompletionCommands();
+        return "#!/bin/bash -x\n\n" + preamble + commands.stream()
+                .collect(joining(format("%s\n", commandSuffix))) + (commands.isEmpty() ? "" : commandSuffix);
     }
 
     public BashStartupScript addLine(String lineOne) {
@@ -40,10 +49,12 @@ public class BashStartupScript {
         return addLine(command.asBash());
     }
 
-    /**
-     * @return The final filename component of the file that will be written to indicate the job is complete
-     */
     public String completionFlag() {
-        return JOB_COMPLETE;
+        return COMPLETION_FLAG_FILENAME;
+    }
+
+    private void addCompletionCommands() {
+        commands.add(format("(echo 0 > $JOB_COMPLETE_FLAG && gsutil cp $JOB_COMPLETE_FLAG gs://%s)",
+                runtimeBucketName));
     }
 }

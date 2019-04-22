@@ -1,18 +1,11 @@
 package com.hartwig.pipeline;
 
-import java.util.Optional;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.*;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static java.lang.String.format;
+import java.util.Optional;
 
 public class CommandLineOptions {
 
@@ -38,6 +31,7 @@ public class CommandLineOptions {
     private static final String REFERENCE_GENOME_BUCKET_FLAG = "reference_genome";
     private static final String VERBOSE_CLOUD_SDK_FLAG = "verbose_cloud_sdk";
     private static final String KNOWN_INDELS_BUCKET_FLAG = "known_indels";
+    private static final String KNOWN_SNPS_BUCKET_FLAG = "known_snps";
     private static final String RCLONE_PATH_FLAG = "rclone_path";
     private static final String RCLONE_GCP_REMOTE_FLAG = "rclone_gcp_remote";
     private static final String RCLONE_S3_REMOTE_FLAG = "rclone_s3_remote";
@@ -205,6 +199,7 @@ public class CommandLineOptions {
                     .download(booleanOptionWithDefault(commandLine, DOWNLOAD_FLAG, defaults.download()))
                     .referenceGenomeBucket(commandLine.getOptionValue(REFERENCE_GENOME_BUCKET_FLAG, defaults.referenceGenomeBucket()))
                     .knownIndelsBucket(commandLine.getOptionValue(KNOWN_INDELS_BUCKET_FLAG, defaults.knownIndelsBucket()))
+                    .knownSnpsBucket(commandLine.getOptionValue(KNOWN_SNPS_BUCKET_FLAG, defaults.knownSnpsBucket()))
                     .upload(booleanOptionWithDefault(commandLine, UPLOAD_FLAG, defaults.upload()))
                     .rclonePath(commandLine.getOptionValue(RCLONE_PATH_FLAG, defaults.rclonePath()))
                     .rcloneGcpRemote(commandLine.getOptionValue(RCLONE_GCP_REMOTE_FLAG, defaults.rcloneGcpRemote()))
