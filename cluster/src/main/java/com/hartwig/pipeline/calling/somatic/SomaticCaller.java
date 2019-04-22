@@ -1,6 +1,6 @@
 package com.hartwig.pipeline.calling.somatic;
 
-import static com.google.common.collect.Lists.*;
+import static com.google.common.collect.Lists.newArrayList;
 import static com.hartwig.pipeline.execution.vm.OutputUpload.OUTPUT_DIRECTORY;
 
 import java.util.ArrayList;
@@ -22,11 +22,8 @@ import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.resource.GATKDictAlias;
 import com.hartwig.pipeline.resource.ReferenceGenomeAlias;
 import com.hartwig.pipeline.resource.Resource;
-import com.hartwig.pipeline.resource.ResourceLocation;
 
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SomaticCaller {
 
@@ -60,20 +57,36 @@ public class SomaticCaller {
 
         BashStartupScript strelkaBash = BashStartupScript.of(runtimeBucket.name());
 
+        InputDownload tumorBam = new InputDownload(pair.tumor().finalBamLocation());
         runStrelkaAndCombineVcfs(new InputDownload(pair.reference().finalBamLocation()),
                 new InputDownload(pair.reference().finalBaiLocation()),
-                new InputDownload(pair.tumor().finalBamLocation()),
+                tumorBam,
                 new InputDownload(pair.tumor().finalBaiLocation()),
                 referenceGenomeDownload,
                 referenceGenomeFile,
                 new ResourceDownload(new Resource(storage, "strelka_config", "strelka_config").copyInto(runtimeBucket), runtimeBucket),
                 combinedVcfOutput,
                 strelkaBash);
-        applyAnnotations(storage, runtimeBucket, combinedVcfOutput, strelkaBash);
+        String annotatedVcf = applyAnnotations(storage, runtimeBucket, combinedVcfOutput, strelkaBash);
+        String postProcessedVcf = strelkaPostProcess(pair, runtimeBucket, strelkaBash, tumorBam, annotatedVcf);
+
         strelkaBash.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path())));
         computeEngine.submit(runtimeBucket, VirtualMachineJobDefinition.somaticCalling(strelkaBash));
 
         return SomaticCallerOutput.builder().build();
+    }
+
+    private String strelkaPostProcess(final AlignmentPair pair, final RuntimeBucket runtimeBucket, final BashStartupScript strelkaBash,
+            final InputDownload tumorBam, final String annotatedVcf) {
+        ResourceDownload bedDownload = new ResourceDownload(new Resource(storage, "beds", "beds").copyInto(runtimeBucket), runtimeBucket);
+        String postProcessedVcf = OUTPUT_DIRECTORY + "/strelka-post-processed.vcf";
+        strelkaBash.addCommand(bedDownload)
+                .addCommand(new StrelkaPostProcessCommand(annotatedVcf,
+                        postProcessedVcf,
+                        bedDownload.find("bed"),
+                        pair.tumor().sample().name(),
+                        tumorBam.getLocalTargetPath()));
+        return postProcessedVcf;
     }
 
     private static void runStrelkaAndCombineVcfs(final InputDownload downloadReferenceBam, final InputDownload downloadReferenceBai,
@@ -100,7 +113,7 @@ public class SomaticCaller {
                         combinedVcfOutput));
     }
 
-    private static void applyAnnotations(final Storage storage, final RuntimeBucket runtimeBucket, final String combinedVcfOutput,
+    private static String applyAnnotations(final Storage storage, final RuntimeBucket runtimeBucket, final String combinedVcfOutput,
             final BashStartupScript strelkaBash) {
         String mappabilityAnnotatedVcf = OUTPUT_DIRECTORY + "/mappability.annotated.vcf.gz";
         final Resource annotationResource = new Resource(storage, "hg19_mappability_tracks", "hg19_mappability_tracks");
@@ -113,11 +126,9 @@ public class SomaticCaller {
         final ResourceDownload ponDownload =
                 new ResourceDownload(new Resource(storage, "pon-v2", "pon-v2").copyInto(runtimeBucket), runtimeBucket);
         annotate(SomaticCaller::germlinePonAnnotation, mappabilityAnnotatedVcf, germlinePonAnnotatedVcf, strelkaBash, ponDownload);
-        annotate(SomaticCaller::somaticPonAnnotation,
-                germlinePonAnnotatedVcf,
-                OUTPUT_DIRECTORY + "/somatic.pon.annotated.vcf.gz",
-                strelkaBash,
-                ponDownload);
+        String somaticAnnotatedVcf = OUTPUT_DIRECTORY + "/somatic.pon.annotated.vcf.gz";
+        annotate(SomaticCaller::somaticPonAnnotation, germlinePonAnnotatedVcf, somaticAnnotatedVcf, strelkaBash, ponDownload);
+        return somaticAnnotatedVcf;
     }
 
     @NotNull
