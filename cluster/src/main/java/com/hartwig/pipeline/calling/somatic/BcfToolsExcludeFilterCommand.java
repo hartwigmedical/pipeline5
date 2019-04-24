@@ -7,8 +7,8 @@ import com.google.common.collect.Lists;
 
 import org.jetbrains.annotations.NotNull;
 
-class BcfToolsFilterCommand extends BcfToolsCommand {
-    BcfToolsFilterCommand(final String filter, final String type, final String inputVcf, final String outputVcf) {
+class BcfToolsExcludeFilterCommand extends BcfToolsCommand {
+    BcfToolsExcludeFilterCommand(final String filter, final String type, final String inputVcf, final String outputVcf) {
         super(arguments(filter, type, inputVcf, outputVcf));
     }
 

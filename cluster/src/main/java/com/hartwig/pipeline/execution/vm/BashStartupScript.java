@@ -7,7 +7,7 @@ import static java.lang.String.format;
 import static java.util.stream.Collectors.joining;
 
 public class BashStartupScript {
-    public static final String COMPLETION_FLAG_FILENAME = "JOB_COMPLETE";
+    private static final String COMPLETION_FLAG_FILENAME = "JOB_COMPLETE";
     private static final String LOG_FILE = VmDirectories.OUTPUT + "/run.log";
     private final List<String> commands;
     private final String runtimeBucketName;
@@ -24,9 +24,10 @@ public class BashStartupScript {
     /**
      * @return the generated script as a single <code>String</code> with UNIX newlines separating input lines
      */
-    public String asUnixString() {
+    String asUnixString() {
         String commandSuffix = format(" >>%s 2>&1 || die", LOG_FILE);
         String preamble = format("JOB_COMPLETE_FLAG=\"/tmp/%s\"\n\n", COMPLETION_FLAG_FILENAME) +
+                "set -x\n" +
                 "function die() {\n" +
                 "  exit_code=$?\n" +
                 "  echo \"Unknown failure: called command returned $exit_code\"\n" +
@@ -49,7 +50,7 @@ public class BashStartupScript {
         return addLine(command.asBash());
     }
 
-    public String completionFlag() {
+    String completionFlag() {
         return COMPLETION_FLAG_FILENAME;
     }
 

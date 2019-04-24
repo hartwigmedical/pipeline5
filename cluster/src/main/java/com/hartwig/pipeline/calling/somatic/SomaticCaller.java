@@ -16,6 +16,7 @@ import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.OutputUpload;
 import com.hartwig.pipeline.execution.vm.ResourceDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
@@ -44,43 +45,86 @@ public class SomaticCaller {
     }
 
     public SomaticCallerOutput run(AlignmentPair pair) {
-        RuntimeBucket runtimeBucket =
-                RuntimeBucket.from(storage, pair.reference().sample().name(), pair.tumor().sample().name(), arguments);
+        String tumorName = pair.tumor().sample().name();
+        String referenceName = pair.reference().sample().name();
+        RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, referenceName, tumorName, arguments);
 
         ResourceDownload referenceGenomeDownload = new ResourceDownload(new Resource(storage,
                 arguments.referenceGenomeBucket(),
                 "reference_genome",
                 new ReferenceGenomeAlias().andThen(new GATKDictAlias())).copyInto(runtimeBucket), runtimeBucket);
-        String referenceGenomeFile = referenceGenomeDownload.find("fa", "fasta");
-        BashStartupScript strelkaBash = BashStartupScript.of(runtimeBucket.name());
+        String referenceGenomePath = referenceGenomeDownload.find("fa", "fasta");
+        BashStartupScript bash = BashStartupScript.of(runtimeBucket.name());
 
         InputDownload tumorBam = new InputDownload(pair.tumor().finalBamLocation());
-        String combinedVcf = runStrelkaAndCombineVcfs(new InputDownload(pair.reference().finalBamLocation()),
+        InputDownload referenceBam = new InputDownload(pair.reference().finalBamLocation());
+        String combinedVcf = runStrelkaAndCombineVcfs(referenceBam,
                 new InputDownload(pair.reference().finalBaiLocation()),
                 tumorBam,
                 new InputDownload(pair.tumor().finalBaiLocation()),
                 referenceGenomeDownload,
-                referenceGenomeFile,
+                referenceGenomePath,
                 new ResourceDownload(new Resource(storage, "strelka_config", "strelka_config").copyInto(runtimeBucket), runtimeBucket),
-                strelkaBash);
-        String annotatedVcf = applyAnnotations(storage, runtimeBucket, combinedVcf, strelkaBash);
-        String postProcessedVcf = strelkaPostProcess(storage, pair, runtimeBucket, strelkaBash, tumorBam, annotatedVcf);
-        String filteredVcf = filter(strelkaBash, postProcessedVcf);
+                bash);
+        String annotatedVcf = applyAnnotations(storage, runtimeBucket, combinedVcf, bash);
+        String postProcessedVcf = strelkaPostProcess(storage, pair, runtimeBucket, bash, tumorBam, annotatedVcf);
+        String filteredVcf = filter(bash, postProcessedVcf);
+        String sageVcf =
+                sage(storage, tumorName, referenceName, runtimeBucket, referenceGenomePath, bash, tumorBam, referenceBam, filteredVcf);
 
-        strelkaBash.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path())));
-        computeEngine.submit(runtimeBucket, VirtualMachineJobDefinition.somaticCalling(strelkaBash));
+        bash.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path())));
+        computeEngine.submit(runtimeBucket, VirtualMachineJobDefinition.somaticCalling(bash));
 
         return SomaticCallerOutput.builder().build();
     }
 
+    private static String sage(final Storage storage, final String tumorName, final String referenceName, final RuntimeBucket runtimeBucket,
+            final String referenceGenomePath, final BashStartupScript bash, final InputDownload tumorBam, final InputDownload referenceBam,
+            final String filteredVcf) {
+        ResourceDownload sageResourceDownload =
+                new ResourceDownload(new Resource(storage, "sage-pilot", "sage-pilot").copyInto(runtimeBucket), runtimeBucket);
+        String sageUnfilteredVcf = VmDirectories.OUTPUT + "/sage.hotspots.unfiltered.vcf.gz";
+        String sageFilteredVcf = OUTPUT_DIRECTORY + "/sage.hotspots.filtered.vcf.gz";
+        String sagePonVcf = OUTPUT_DIRECTORY + "/sage.hotspots.pon.vcf.gz";
+        String sagePonFilteredVcf = OUTPUT_DIRECTORY + "/sage.hotspots.pon.filtered.vcf.gz";
+        String sageOutputVcf = OUTPUT_DIRECTORY + "/sage.vcf.gz";
+        bash.addCommand(sageResourceDownload)
+                .addCommand(new SageApplicationCommand(tumorName,
+                        tumorBam.getLocalTargetPath(),
+                        referenceName,
+                        referenceBam.getLocalTargetPath(),
+                        sageResourceDownload.find("tsv"),
+                        sageResourceDownload.find("bed"),
+                        referenceGenomePath,
+                        sageUnfilteredVcf))
+                .addCommand(new TabixCommand(sageUnfilteredVcf))
+                .addCommand(new PipeCommands(new BcfToolsPipeableIncludeFilterCommand("'FILTER=\"PASS\"'", sageUnfilteredVcf),
+                        new BcfToolsPipeableAnnotationCommand("INFO/HOTSPOT"),
+                        new BcfToolsPipeableAnnotationCommand("FILTER/LOW_CONFIDENCE"),
+                        new BcfToolsPipeableAnnotationCommand("FILTER/GERMLINE_INDEL"),
+                        new BcfToolsPipeableViewCommand(tumorName, sageFilteredVcf)))
+                .addCommand(new TabixCommand(sageFilteredVcf))
+                .addCommand(new BcfToolsAnnotationCommand(newArrayList(sageResourceDownload.find("SAGE_PON.vcf.gz"),
+                        "-c",
+                        "SAGE_PON_COUNT"), sageFilteredVcf, sagePonVcf))
+                .addCommand(new TabixCommand(sagePonVcf))
+                .addCommand(new BcfToolsExcludeFilterCommand("'SAGE_PON_COUNT!=\".\" && MIN(SAGE_PON_COUNT) > 0'",
+                        "SAGE_PON",
+                        sagePonVcf,
+                        sagePonFilteredVcf))
+                .addCommand(new TabixCommand(sagePonFilteredVcf))
+                .addCommand(new SageAnnotationCommand(filteredVcf, sagePonFilteredVcf, sageResourceDownload.find("tsv"), sageOutputVcf));
+        return sageOutputVcf;
+    }
+
     private static String filter(final BashStartupScript strelkaBash, final String postProcessedVcf) {
-        String germlinePonFilteredVcf = OUTPUT_DIRECTORY + "/germline.pon.filtered.vcf";
-        String somaticPonFilteredVcf = OUTPUT_DIRECTORY + "/somatic.pon.filtered.vcf";
-        strelkaBash.addCommand(new BcfToolsFilterCommand("'GERMLINE_PON_COUNT!= \".\" && MIN(GERMLINE_PON_COUNT) > 5'",
+        String germlinePonFilteredVcf = OUTPUT_DIRECTORY + "/germline.pon.filtered.vcf.gz";
+        String somaticPonFilteredVcf = OUTPUT_DIRECTORY + "/somatic.pon.filtered.vcf.gz";
+        strelkaBash.addCommand(new BcfToolsExcludeFilterCommand("'GERMLINE_PON_COUNT!= \".\" && MIN(GERMLINE_PON_COUNT) > 5'",
                 "GERMLINE_PON",
                 postProcessedVcf,
                 germlinePonFilteredVcf));
-        strelkaBash.addCommand(new BcfToolsFilterCommand("'SOMATIC_PON_COUNT!=\".\" && MIN(SOMATIC_PON_COUNT) > 3'",
+        strelkaBash.addCommand(new BcfToolsExcludeFilterCommand("'SOMATIC_PON_COUNT!=\".\" && MIN(SOMATIC_PON_COUNT) > 3'",
                 "SOMATIC_PON",
                 germlinePonFilteredVcf,
                 somaticPonFilteredVcf));
@@ -91,7 +135,7 @@ public class SomaticCaller {
     private static String strelkaPostProcess(final Storage storage, final AlignmentPair pair, final RuntimeBucket runtimeBucket,
             final BashStartupScript strelkaBash, final InputDownload tumorBam, final String annotatedVcf) {
         ResourceDownload bedDownload = new ResourceDownload(new Resource(storage, "beds", "beds").copyInto(runtimeBucket), runtimeBucket);
-        String postProcessedVcf = OUTPUT_DIRECTORY + "/strelka-post-processed.vcf";
+        String postProcessedVcf = OUTPUT_DIRECTORY + "/strelka-post-processed.vcf.gz";
         strelkaBash.addCommand(bedDownload)
                 .addCommand(new StrelkaPostProcessCommand(annotatedVcf,
                         postProcessedVcf,

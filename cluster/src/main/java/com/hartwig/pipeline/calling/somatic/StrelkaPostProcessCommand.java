@@ -1,9 +1,9 @@
 package com.hartwig.pipeline.calling.somatic;
 
 import com.google.common.collect.Lists;
-import com.hartwig.pipeline.execution.vm.JavaCommand;
+import com.hartwig.pipeline.execution.vm.JavaJarCommand;
 
-class StrelkaPostProcessCommand extends JavaCommand {
+class StrelkaPostProcessCommand extends JavaJarCommand {
 
     StrelkaPostProcessCommand(final String inputVcf, final String outputVcf, final String highConfidenceBed, final String tumorSample,
             final String tumorBamPath) {
