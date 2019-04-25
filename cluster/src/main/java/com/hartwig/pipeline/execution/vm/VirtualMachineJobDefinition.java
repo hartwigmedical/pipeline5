@@ -19,7 +19,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .name("germline")
                 .imageFamily(STANDARD_IMAGE)
                 .startupCommand(startupScript)
-                .completionFlagFile(startupScript.completionFlag())
+                .completionFlagFile(startupScript.successFlag())
                 .performanceProfile(VirtualMachinePerformanceProfile.highCpuVm())
                 .build();
     }
@@ -29,7 +29,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .name("strelka")
                 .imageFamily(STANDARD_IMAGE)
                 .startupCommand(startupScript)
-                .completionFlagFile(startupScript.completionFlag())
+                .completionFlagFile(startupScript.successFlag())
                 .performanceProfile(VirtualMachinePerformanceProfile.defaultVm())
                 .build();
     }

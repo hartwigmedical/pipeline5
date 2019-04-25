@@ -28,8 +28,6 @@ public class GermlineCaller {
 
     public GermlineCallerOutput run(AlignmentOutput alignmentOutput) {
         RuntimeBucket bucket = RuntimeBucket.from(storage, alignmentOutput.sample().name(), arguments);
-        bucket.cleanup();
-        bucket = RuntimeBucket.from(storage, alignmentOutput.sample().name(), arguments);
 
         Resource referenceGenome = new Resource(storage, arguments.referenceGenomeBucket(), bucket.name(),
                 new ReferenceGenomeAlias().andThen(new GATKDictAlias()));

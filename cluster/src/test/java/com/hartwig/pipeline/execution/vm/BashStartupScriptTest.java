@@ -1,53 +1,44 @@
 package com.hartwig.pipeline.execution.vm;
 
+import com.hartwig.support.test.Resources;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 import static com.hartwig.pipeline.execution.vm.BashStartupScript.of;
-import static com.hartwig.pipeline.execution.vm.DataFixture.randomStr;
-import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class BashStartupScriptTest {
-    private String outputDirectory;
-    private String logFile;
     private BashStartupScript scriptBuilder;
+    private String bucketName;
 
     @Before
     public void setup() {
-        outputDirectory = randomStr();
-        logFile = format("%s/run.log", VmDirectories.OUTPUT);
-        scriptBuilder = of(null);
-    }
+        bucketName = "outputBucket";
+        scriptBuilder = of(bucketName);
 
-    //@Test
-    public void shouldWriteLinesSeparatedByUnixNewlinesWithBlankLineAfterShebang() {
-        String lineOne = randomStr();
-        String lineTwo = randomStr();
-
-        String output = scriptBuilder.addLine(lineOne).addLine(lineTwo).asUnixString();
-        assertThat(output).startsWith(format("%s\n\n", bash()));
     }
 
     @Test
-    public void shouldWriteRedirectionToLogAndFailsafeAfterEveryCommand() {
-        String script = scriptBuilder.addLine("hi").addLine("bye").asUnixString();
-        boolean found = false;
-        for (String line : script.split("\n")) {
-            if (line.startsWith("hi") || line.startsWith("bye")) {
-                assertThat(line).endsWith(format(" >>%s 2>&1 || die", logFile));
-                found = true;
-            }
-        }
-        assertThat(found).isTrue();
+    public void shouldReturnSuccessFlagFilename() {
+        assertThat(scriptBuilder.successFlag()).isEqualTo("JOB_SUCCESS");
     }
 
     @Test
-    public void shouldReturnCompletionFlagFilename() {
-        assertThat(scriptBuilder.completionFlag()).isEqualTo("JOB_COMPLETE");
+    public void shouldReturnFailureFlagFilename() {
+        assertThat(scriptBuilder.failureFlag()).isEqualTo("JOB_FAILURE");
     }
 
-    private String bash() {
-        return "#!/bin/bash -ex";
+    @Test
+    public void shouldWriteCompleteScript() throws IOException {
+        String expectedScript = Resources.testResource("script_generation/complete_script");
+        String simpleCommand = "uname -a";
+        String complexCommand = "not_really_so_complex";
+        scriptBuilder.addLine(simpleCommand);
+        scriptBuilder.addCommand(() -> complexCommand);
+        assertThat(scriptBuilder.asUnixString()).isEqualTo(new String(Files.readAllBytes(Paths.get(expectedScript))));
     }
 }

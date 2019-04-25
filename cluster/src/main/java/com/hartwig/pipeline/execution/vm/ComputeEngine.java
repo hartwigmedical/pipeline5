@@ -23,9 +23,12 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static java.lang.String.format;
+import static java.lang.String.join;
+import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 
 public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition> {
@@ -69,7 +72,8 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
 
             deleteOldInstancesAndStart(compute, instance, project, vmName);
             LOGGER.info("Successfully initialised [{}]", this);
-            waitForCompletion(bucket.name(), jobDefinition.startupCommand().completionFlag());
+            List<String> doneFlags = asList(jobDefinition.startupCommand().successFlag(), jobDefinition.startupCommand().failureFlag());
+            waitForCompletion(bucket.name(), doneFlags);
             stop(project, vmName);
         } catch (Exception e) {
             String message = format("Failed to initialise [%s]", this);
@@ -195,17 +199,18 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
         return compute.zoneOperations().get(projectName, ZONE_NAME, jobName).execute().getStatus();
     }
 
-    private void waitForCompletion(String outputBucketName, String completionFlagFile) {
+    private void waitForCompletion(String outputBucketName, List<String> completionFlagFiles) {
         LOGGER.info("Waiting for job completion");
         Bucket bucket = storage.get(outputBucketName);
         boolean complete = false;
         while (!complete) {
             Page<Blob> objects = bucket.list();
             for (Blob blob : objects.iterateAll()) {
-                if (blob.getName().contains(completionFlagFile)) {
+                if (completionFlagFiles.contains(blob.getName())) {
                     complete = true;
                 } else {
-                    LOGGER.debug("Flag file {} not found in bucket {}; job must not be done", completionFlagFile, outputBucketName);
+                    LOGGER.debug("None of [{}] found in bucket {}; job must not be done",
+                            join(",", completionFlagFiles), outputBucketName);
                 }
             }
             try {

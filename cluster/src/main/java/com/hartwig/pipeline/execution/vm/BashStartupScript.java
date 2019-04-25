@@ -7,7 +7,8 @@ import static java.lang.String.format;
 import static java.util.stream.Collectors.joining;
 
 public class BashStartupScript {
-    private static final String COMPLETION_FLAG_FILENAME = "JOB_COMPLETE";
+    private static final String JOB_SUCCEEDED_FLAG = "JOB_SUCCESS";
+    private static final String JOB_FAILED_FLAG = "JOB_FAILURE";
     private static final String LOG_FILE = VmDirectories.OUTPUT + "/run.log";
     private final List<String> commands;
     private final String runtimeBucketName;
@@ -26,18 +27,18 @@ public class BashStartupScript {
      */
     String asUnixString() {
         String commandSuffix = format(" >>%s 2>&1 || die", LOG_FILE);
-        String preamble = format("JOB_COMPLETE_FLAG=\"/tmp/%s\"\n\n", COMPLETION_FLAG_FILENAME) +
-                "set -x\n" +
+        String jobFailedFlag = "/tmp/" + JOB_FAILED_FLAG;
+        String preamble = "#!/bin/bash -x\n\n" +
                 "function die() {\n" +
                 "  exit_code=$?\n" +
                 "  echo \"Unknown failure: called command returned $exit_code\"\n" +
                 format("  gsutil -m cp %s gs://%s\n", LOG_FILE, runtimeBucketName) +
-                "  echo $exit_code > $JOB_COMPLETE_FLAG\n" +
-                format("  gsutil -m cp $JOB_COMPLETE_FLAG gs://%s\n", runtimeBucketName) +
-                "  exit 1\n" +
+                format("  echo $exit_code > %s\n", jobFailedFlag) +
+                format("  gsutil -m cp %s gs://%s\n", jobFailedFlag, runtimeBucketName) +
+                "  exit $exit_code\n" +
                 "}\n\n";
         addCompletionCommands();
-        return "#!/bin/bash -x\n\n" + preamble + commands.stream()
+        return preamble + commands.stream()
                 .collect(joining(format("%s\n", commandSuffix))) + (commands.isEmpty() ? "" : commandSuffix);
     }
 
@@ -50,12 +51,16 @@ public class BashStartupScript {
         return addLine(command.asBash());
     }
 
-    String completionFlag() {
-        return COMPLETION_FLAG_FILENAME;
+    private void addCompletionCommands() {
+        String successFlag = "/tmp/" + JOB_SUCCEEDED_FLAG;
+        commands.add(format("(echo 0 > %s && gsutil cp %s gs://%s)", successFlag, successFlag, runtimeBucketName));
     }
 
-    private void addCompletionCommands() {
-        commands.add(format("(echo 0 > $JOB_COMPLETE_FLAG && gsutil cp $JOB_COMPLETE_FLAG gs://%s)",
-                runtimeBucketName));
+    String successFlag() {
+        return JOB_SUCCEEDED_FLAG;
+    }
+
+    String failureFlag() {
+        return JOB_FAILED_FLAG;
     }
 }
