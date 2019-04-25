@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.function.Function;
 
 import com.google.cloud.storage.Storage;
+import com.google.common.collect.Lists;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
@@ -66,16 +67,60 @@ public class SomaticCaller {
                 referenceGenomePath,
                 new ResourceDownload(new Resource(storage, "strelka_config", "strelka_config").copyInto(runtimeBucket), runtimeBucket),
                 bash);
+
         String annotatedVcf = applyAnnotations(storage, runtimeBucket, combinedVcf, bash);
         String postProcessedVcf = strelkaPostProcess(storage, pair, runtimeBucket, bash, tumorBam, annotatedVcf);
         String filteredVcf = filter(bash, postProcessedVcf);
         String sageVcf =
                 sage(storage, tumorName, referenceName, runtimeBucket, referenceGenomePath, bash, tumorBam, referenceBam, filteredVcf);
+        String snpEffVcf = snpEff(storage, runtimeBucket, bash, sageVcf);
+        String dbsnpVcf = dbsnp(storage, runtimeBucket, bash, snpEffVcf);
+        String cosmicVcf = cosmic(storage, runtimeBucket, bash, dbsnpVcf);
 
         bash.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path())));
         computeEngine.submit(runtimeBucket, VirtualMachineJobDefinition.somaticCalling(bash));
 
-        return SomaticCallerOutput.builder().build();
+        return SomaticCallerOutput.builder()
+                .finalSomaticVcf(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path(cosmicVcf)))
+                .build();
+    }
+
+    private static String cosmic(final Storage storage, final RuntimeBucket runtimeBucket, final BashStartupScript bash,
+            final String dbsnpVcf) {
+        Resource cosmicResource = new Resource(storage, "cosmic_v85", "cosmic_v85");
+        ResourceDownload cosmicResourceDownload = new ResourceDownload(cosmicResource.copyInto(runtimeBucket), runtimeBucket);
+        String cosmicVcf = OUTPUT_DIRECTORY + "/cosmic.vcf.gz";
+        bash.addCommand(cosmicResourceDownload)
+                .addCommand(new BcfToolsAnnotationCommand(Lists.newArrayList(cosmicResourceDownload.find("vcf.gz"), "-c", "ID, INFO"),
+                        dbsnpVcf,
+                        cosmicVcf));
+        return cosmicVcf;
+    }
+
+    private static String dbsnp(final Storage storage, final RuntimeBucket runtimeBucket, final BashStartupScript bash,
+            final String snpEffVcf) {
+        Resource dbsnpResource = new Resource(storage, "known_snps", "known_snps");
+        ResourceDownload dbsnpResourceDownload = new ResourceDownload(dbsnpResource.copyInto(runtimeBucket), runtimeBucket);
+        String dbsnpAnnotatedVcf = OUTPUT_DIRECTORY + "/dbsnp.vcf.gz";
+        bash.addCommand(dbsnpResourceDownload)
+                .addCommand(new BcfToolsAnnotationCommand(Lists.newArrayList(dbsnpResourceDownload.find("vcf.gz"), "-c", "ID"),
+                        snpEffVcf,
+                        dbsnpAnnotatedVcf))
+                .addCommand(new TabixCommand(dbsnpAnnotatedVcf));
+        return dbsnpAnnotatedVcf;
+    }
+
+    private static String snpEff(final Storage storage, final RuntimeBucket runtimeBucket, final BashStartupScript bash,
+            final String sageVcf) {
+        Resource snpEffResource = new Resource(storage, "snpeff", "snpeff");
+        ResourceDownload snpEffResourceDownload = new ResourceDownload(snpEffResource.copyInto(runtimeBucket), runtimeBucket);
+        String snpEffVcf = OUTPUT_DIRECTORY + "/snpeff.annotated.vcf";
+        String snpEffZippedVcf = snpEffVcf + ".gz";
+        bash.addCommand(snpEffResourceDownload)
+                .addCommand(new SnpEffCommand(snpEffResourceDownload.find("config"), sageVcf, snpEffVcf))
+                .addCommand(new BgzipCommand(snpEffVcf))
+                .addCommand(new TabixCommand(snpEffZippedVcf));
+        return snpEffZippedVcf;
     }
 
     private static String sage(final Storage storage, final String tumorName, final String referenceName, final RuntimeBucket runtimeBucket,
