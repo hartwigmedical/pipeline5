@@ -74,7 +74,7 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
             LOGGER.info("Successfully initialised [{}]", this);
             List<String> doneFlags = asList(jobDefinition.startupCommand().successFlag(), jobDefinition.startupCommand().failureFlag());
             waitForCompletion(bucket.name(), doneFlags);
-            stop(project, vmName);
+           // stop(project, vmName);
         } catch (Exception e) {
             String message = format("Failed to initialise [%s]", this);
             LOGGER.error(message, e);
