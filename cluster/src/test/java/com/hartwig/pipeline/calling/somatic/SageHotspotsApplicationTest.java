@@ -19,7 +19,7 @@ public class SageHotspotsApplicationTest extends SubStageTest {
 
     @Override
     String expectedPath() {
-        return "/data/output/tumor.sage.hotspots.vcf";
+        return "/data/output/tumor.sage.hotspots.vcf.gz";
     }
 
     @Test

@@ -24,14 +24,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-public class GoogleDataprocClusterTest {
+public class GoogleDataprocTest {
 
     private static final String REGION = "region";
     private static final String PROJECT = "project";
     private static final Arguments ARGUMENTS = Arguments.testDefaultsBuilder().project(PROJECT).region(REGION).build();
-    private static final String JOB_ID = "sample-gunzip";
+    private static final String JOB_ID_AND_CLUSTER_NAME = "sample-gunzip";
     private static final SparkJobDefinition JOB_DEFINITION = SparkJobDefinition.gunzip(JarLocation.of("jar"));
-    private static final String CLUSTER_NAME = "sample";
     private Dataproc.Projects.Regions.Clusters clusters;
     private Dataproc.Projects.Regions.Jobs jobs;
     private GoogleDataproc victim;
@@ -56,8 +55,8 @@ public class GoogleDataprocClusterTest {
         when(regions.jobs()).thenReturn(jobs);
 
         NodeInitialization nodeInitialization = mock(NodeInitialization.class);
-        when(clusters.get(PROJECT, REGION, CLUSTER_NAME)).thenReturn(getClusterRequest);
-        when(jobs.get(PROJECT, REGION, JOB_ID)).thenReturn(getJobsRequest);
+        when(clusters.get(PROJECT, REGION, JOB_ID_AND_CLUSTER_NAME)).thenReturn(getClusterRequest);
+        when(jobs.get(PROJECT, REGION, JOB_ID_AND_CLUSTER_NAME)).thenReturn(getJobsRequest);
         runtimeBucket = MockRuntimeBucket.of("sample").getRuntimeBucket();
         victim = new GoogleDataproc(dataproc, nodeInitialization, ARGUMENTS);
     }
@@ -75,7 +74,7 @@ public class GoogleDataprocClusterTest {
         victim.submit(runtimeBucket, JOB_DEFINITION);
         verify(clusters, times(1)).create(any(), any(), any());
         SubmitJobRequest value = submitRequestCaptor.getValue();
-        assertThat(value.getJob().getReference().getJobId()).isEqualTo(JOB_ID);
+        assertThat(value.getJob().getReference().getJobId()).isEqualTo(JOB_ID_AND_CLUSTER_NAME);
     }
 
     @Test
@@ -83,9 +82,9 @@ public class GoogleDataprocClusterTest {
         setupJobSubmitMocks();
         JobStatus status = mock(JobStatus.class);
         when(status.getState()).thenReturn("RUNNING").thenReturn("RUNNING").thenReturn("DONE");
-        when(getJobsRequest.execute()).thenReturn(new Job().setReference(new JobReference().setJobId(JOB_ID)).setStatus(status));
+        when(getJobsRequest.execute()).thenReturn(new Job().setReference(new JobReference().setJobId(JOB_ID_AND_CLUSTER_NAME)).setStatus(status));
         victim.submit(runtimeBucket, JOB_DEFINITION);
-        verify(clusters, times(1)).delete(PROJECT, REGION, CLUSTER_NAME);
+        verify(clusters, times(1)).delete(PROJECT, REGION, JOB_ID_AND_CLUSTER_NAME);
     }
 
     @Test
@@ -93,7 +92,7 @@ public class GoogleDataprocClusterTest {
         setupJobSubmitMocks();
         JobStatus status = mock(JobStatus.class);
         when(status.getState()).thenReturn("RUNNING").thenReturn("RUNNING").thenReturn("DONE");
-        when(getJobsRequest.execute()).thenReturn(new Job().setReference(new JobReference().setJobId(JOB_ID)).setStatus(status));
+        when(getJobsRequest.execute()).thenReturn(new Job().setReference(new JobReference().setJobId(JOB_ID_AND_CLUSTER_NAME)).setStatus(status));
         victim.submit(runtimeBucket, JOB_DEFINITION);
         verify(jobs, never()).submit(any(), any(), any());
     }
@@ -103,11 +102,11 @@ public class GoogleDataprocClusterTest {
         setupJobSubmitMocks();
         JobStatus status = mock(JobStatus.class);
         when(status.getState()).thenReturn("CANCELLED");
-        when(getJobsRequest.execute()).thenReturn(new Job().setReference(new JobReference().setJobId(JOB_ID)).setStatus(status));
-        when(jobs.delete(PROJECT, REGION, JOB_ID)).thenReturn(mock(Dataproc.Projects.Regions.Jobs.Delete.class));
+        when(getJobsRequest.execute()).thenReturn(new Job().setReference(new JobReference().setJobId(JOB_ID_AND_CLUSTER_NAME)).setStatus(status));
+        when(jobs.delete(PROJECT, REGION, JOB_ID_AND_CLUSTER_NAME)).thenReturn(mock(Dataproc.Projects.Regions.Jobs.Delete.class));
         victim.submit(runtimeBucket, JOB_DEFINITION);
         SubmitJobRequest value = submitRequestCaptor.getValue();
-        assertThat(value.getJob().getReference().getJobId()).isEqualTo(JOB_ID);
+        assertThat(value.getJob().getReference().getJobId()).isEqualTo(JOB_ID_AND_CLUSTER_NAME);
     }
 
     private void setupJobSubmitMocks() throws java.io.IOException {
@@ -123,6 +122,6 @@ public class GoogleDataprocClusterTest {
         when(submit.execute()).thenReturn(new Job().setStatus(new JobStatus().setState("DONE")));
         Dataproc.Projects.Regions.Clusters.Delete delete = mock(Dataproc.Projects.Regions.Clusters.Delete.class);
         when(delete.execute()).thenReturn(new Operation().setDone(true));
-        when(clusters.delete(PROJECT, REGION, CLUSTER_NAME)).thenReturn(delete);
+        when(clusters.delete(PROJECT, REGION, JOB_ID_AND_CLUSTER_NAME)).thenReturn(delete);
     }
 }
