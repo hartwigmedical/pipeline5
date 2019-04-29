@@ -6,7 +6,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.io.RuntimeBucket;
+import com.hartwig.pipeline.resource.Resource;
 import com.hartwig.pipeline.resource.ResourceLocation;
 
 public class ResourceDownload implements BashCommand {
@@ -36,11 +38,19 @@ public class ResourceDownload implements BashCommand {
                 .orElseThrow(() -> new IllegalArgumentException(String.format(
                         "No file with extension(s) %s was found in resource location [%s]",
                         Arrays.toString(extensions),
-                        this)));
+                        resourceLocation)));
     }
 
     private String fileName(final String path) {
         String[] pathSplit = path.split("/");
         return pathSplit[pathSplit.length - 1];
+    }
+
+    public static ResourceDownload from(final Storage storage, final String resource, final RuntimeBucket runtimeBucket) {
+        return from(runtimeBucket, new Resource(storage, resource, resource));
+    }
+
+    public static ResourceDownload from(final RuntimeBucket runtimeBucket, final Resource resource) {
+        return new ResourceDownload(resource.copyInto(runtimeBucket), runtimeBucket);
     }
 }

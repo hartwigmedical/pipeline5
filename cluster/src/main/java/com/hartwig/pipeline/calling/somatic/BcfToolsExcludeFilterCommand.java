@@ -1,7 +1,6 @@
 package com.hartwig.pipeline.calling.somatic;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import com.google.common.collect.Lists;
 
@@ -10,6 +9,10 @@ import org.jetbrains.annotations.NotNull;
 class BcfToolsExcludeFilterCommand extends BcfToolsCommand {
     BcfToolsExcludeFilterCommand(final String filter, final String type, final String inputVcf, final String outputVcf) {
         super(arguments(filter, type, inputVcf, outputVcf));
+    }
+
+    BcfToolsExcludeFilterCommand(final String filter, final String type, final String outputVcf) {
+        super(arguments(filter, type, "", outputVcf));
     }
 
     @NotNull

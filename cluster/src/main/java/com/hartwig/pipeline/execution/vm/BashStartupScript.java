@@ -25,7 +25,7 @@ public class BashStartupScript {
     /**
      * @return the generated script as a single <code>String</code> with UNIX newlines separating input lines
      */
-    String asUnixString() {
+    public String asUnixString() {
         String commandSuffix = format(" >>%s 2>&1 || die", LOG_FILE);
         String jobFailedFlag = "/tmp/" + JOB_FAILED_FLAG;
         String preamble = "#!/bin/bash -x\n\n" +

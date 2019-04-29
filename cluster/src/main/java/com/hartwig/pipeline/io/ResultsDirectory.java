@@ -2,7 +2,7 @@ package com.hartwig.pipeline.io;
 
 public class ResultsDirectory {
 
-    private static final String PATH = "results/";
+    private static final String PATH = "results";
     private final String directory;
 
     private ResultsDirectory(final String directory) {
@@ -10,7 +10,7 @@ public class ResultsDirectory {
     }
 
     public String path(String subPath) {
-        return directory + subPath;
+        return directory + (subPath.startsWith("/") ? "" : "/") + subPath;
     }
 
     public String path() {
