@@ -27,12 +27,12 @@ public class SageHotspotsApplicationTest extends SubStageTest {
         assertThat(output.currentBash().asUnixString()).contains("java -Xmx8G -cp /data/tools/sage/1.1/sage.jar "
                 + "com.hartwig.hmftools.sage.SageHotspotApplication -tumor tumor -tumor_bam tumor.bam -reference reference -reference_bam "
                 + "reference.bam -known_hotspots known_hotspots.tsv -coding_regions coding_regions.bed -ref_genome reference_genome.fasta "
-                + "-out /data/output/tumor.sage.hotspots.vcf");
+                + "-out /data/output/tumor.sage.hotspots.vcf.gz");
     }
 
     @Test
     public void runsTabix() {
         assertThat(output.currentBash()
-                .asUnixString()).contains("/data/tools/tabix/0.2.6/tabix /data/output/tumor.sage.hotspots.vcf -p vcf");
+                .asUnixString()).contains("/data/tools/tabix/0.2.6/tabix /data/output/tumor.sage.hotspots.vcf.gz -p vcf");
     }
 }
