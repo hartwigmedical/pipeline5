@@ -31,9 +31,12 @@ public class AlignmentOutputStorage {
     public Optional<AlignmentOutput> get(final Sample sample) {
         Bucket bucket = storage.get(Run.from(sample.name(), arguments).id());
         if (bucket != null) {
-            Blob bamBlob = bucket.get(resultsDirectory.path(AlignmentOutputPaths.sorted(sample)));
-            Blob baiBlob = bucket.get(resultsDirectory.path(AlignmentOutputPaths.bai(sample)));
-            Blob recalibratedBamBlob = bucket.get(resultsDirectory.path(AlignmentOutputPaths.recalibrated(sample)));
+            String sorted = AlignmentOutputPaths.sorted(sample);
+            Blob bamBlob = bucket.get(resultsDirectory.path(sorted));
+            Blob baiBlob = bucket.get(resultsDirectory.path(AlignmentOutputPaths.bai(sorted)));
+            String recalibrated = AlignmentOutputPaths.recalibrated(sample);
+            Blob recalibratedBamBlob = bucket.get(resultsDirectory.path(recalibrated));
+            Blob recalibratedBaiBlob = bucket.get(resultsDirectory.path(AlignmentOutputPaths.bai(recalibrated)));
             if (recalibratedBamBlob != null) {
 
                 if (bamBlob == null) {
@@ -44,6 +47,7 @@ public class AlignmentOutputStorage {
                 return Optional.of(AlignmentOutput.of(location(bucket, bamBlob),
                         location(bucket, baiBlob),
                         location(bucket, recalibratedBamBlob),
+                        location(bucket, recalibratedBaiBlob),
                         sample));
             } else {
                 LOGGER.info("No recalibrated BAM found in bucket [{}]. Alignment stage is likely not yet complete.", bucket);

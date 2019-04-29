@@ -56,8 +56,9 @@ public class SBPS3BamDownload implements BamDownload {
                 String bucket = path[0];
                 String bamKey = path[1];
                 String baiKey = path[1] + ".bai";
-                transfer(runtimeBucket, transferManager, AlignmentOutputPaths.sorted(sample), bucket, bamKey);
-                transfer(runtimeBucket, transferManager, AlignmentOutputPaths.bai(sample), bucket, baiKey);
+                String sorted = AlignmentOutputPaths.sorted(sample);
+                transfer(runtimeBucket, transferManager, sorted, bucket, bamKey);
+                transfer(runtimeBucket, transferManager, AlignmentOutputPaths.bai(sorted), bucket, baiKey);
                 success = true;
             } catch (Exception e) {
                 if (attempts <= maxAttempts) {

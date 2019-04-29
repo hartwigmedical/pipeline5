@@ -26,6 +26,7 @@ public class AlignmentOutputStorageTest {
     private static final AlignmentOutput EXPECTED_OUTPUT = AlignmentOutput.of(of(BUCKET_NAME, SORTED_PATH),
             of(BUCKET_NAME, SORTED_BAI_PATH),
             of(BUCKET_NAME, RECALIBRATED_PATH),
+            of(BUCKET_NAME, AlignmentOutputPaths.bai(RECALIBRATED_PATH)),
             TestSamples.simpleReferenceSample());
     private Storage storage;
     private AlignmentOutputStorage victim;

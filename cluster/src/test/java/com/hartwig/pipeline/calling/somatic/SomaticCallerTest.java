@@ -66,10 +66,10 @@ public class SomaticCallerTest {
         victim.run(createInput());
         verify(computeEngine).submit(any(), jobDefinition.capture());
         assertThat(jobDefinition.getValue().startupCommand().asUnixString()).contains(
-                "gsutil -qm cp gs://run-tumor/tumor.bam /data/input/tumor.bam",
-                "gsutil -qm cp gs://run-reference/reference.bam /data/input/reference.bam",
-                "gsutil -qm cp gs://run-tumor/tumor.bam.bai /data/input/tumor.bam.bai",
-                "gsutil -qm cp gs://run-reference/reference.bam.bai /data/input/reference.bam.bai");
+                "gsutil -qm cp gs://run-tumor/tumor.bam /data/input/tumor.recalibrated.bam",
+                "gsutil -qm cp gs://run-reference/reference.bam /data/input/reference.recalibrated.bam",
+                "gsutil -qm cp gs://run-tumor/tumor.bam.bai /data/input/tumor.recalibrated.bam.bai",
+                "gsutil -qm cp gs://run-reference/reference.bam.bai /data/input/reference.recalibrated.bam.bai");
     }
 
     private void mockResource(final Storage storage, final String resourceName, final String... fileNames) {
@@ -97,6 +97,7 @@ public class SomaticCallerTest {
         return AlignmentOutput.of(gsLocation(bucket, sample + ".bam"),
                 gsLocation(bucket, sample + ".bam.bai"),
                 gsLocation(bucket, sample + ".recalibrated.bam"),
+                gsLocation(bucket, sample + ".recalibrated.bam.bai"),
                 Sample.builder("", sample).build());
     }
 

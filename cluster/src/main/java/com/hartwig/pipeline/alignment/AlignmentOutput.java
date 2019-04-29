@@ -1,7 +1,5 @@
 package com.hartwig.pipeline.alignment;
 
-import java.util.Optional;
-
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 
@@ -20,10 +18,13 @@ public interface AlignmentOutput {
     GoogleStorageLocation recalibratedBamLocation();
 
     @Value.Parameter
+    GoogleStorageLocation recalibratedBaiLocation();
+
+    @Value.Parameter
     Sample sample();
 
     static AlignmentOutput of(GoogleStorageLocation finalBamLocation, GoogleStorageLocation finalBaiLocation,
-            GoogleStorageLocation recalibratedBamLocation, Sample sample) {
-        return ImmutableAlignmentOutput.of(finalBamLocation, finalBaiLocation, recalibratedBamLocation, sample);
+            GoogleStorageLocation recalibratedBamLocation, GoogleStorageLocation recalibratedBaiLocation, Sample sample) {
+        return ImmutableAlignmentOutput.of(finalBamLocation, finalBaiLocation, recalibratedBamLocation, recalibratedBaiLocation, sample);
     }
 }

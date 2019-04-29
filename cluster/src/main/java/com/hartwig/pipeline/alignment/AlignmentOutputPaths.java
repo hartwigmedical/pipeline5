@@ -8,12 +8,12 @@ public class AlignmentOutputPaths {
         return String.format("%s.sorted.bam", sample.name());
     }
 
-    public static String bai(Sample sample) {
-        return sorted(sample) + ".bai";
+    public static String bai(String bam) {
+        return bam + ".bai";
     }
 
     static String recalibrated(final Sample sample) {
-        return String.format("%s.recalibrated.bam", sample.name());
+        return String.format("%s.recalibrated.sorted.bam", sample.name());
     }
 
     public static String metrics(final Sample sample) {

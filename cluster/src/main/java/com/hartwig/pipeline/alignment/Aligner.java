@@ -1,5 +1,10 @@
 package com.hartwig.pipeline.alignment;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Storage;
 import com.hartwig.patient.Sample;
@@ -87,9 +92,19 @@ public class Aligner {
         compose(sample, runtimeBucket);
         compose(sample, runtimeBucket, BamCreationPipeline.RECALIBRATED_SUFFIX);
 
-        runJob(Jobs.noStatusCheck(dataproc, costCalculator, monitor),
+        ExecutorService executorService = Executors.newFixedThreadPool(2);
+
+        Future<?> sortIndexBamFuture = executorService.submit(() -> runJob(Jobs.noStatusCheck(dataproc, costCalculator, monitor),
                 SparkJobDefinition.sortAndIndex(jarLocation, arguments, runtimeBucket, sample, resultsDirectory),
-                runtimeBucket);
+                runtimeBucket));
+
+        Future<?> sortIndexRecalibratedBamFuture =
+                executorService.submit(() -> runJob(Jobs.noStatusCheck(dataproc, costCalculator, monitor),
+                        SparkJobDefinition.sortAndIndexRecalibrated(jarLocation, arguments, runtimeBucket, sample, resultsDirectory),
+                        runtimeBucket));
+
+        sortIndexBamFuture.get();
+        sortIndexRecalibratedBamFuture.get();
 
         if (arguments.runBamMetrics()) {
             runJob(Jobs.noStatusCheck(dataproc, costCalculator, monitor),

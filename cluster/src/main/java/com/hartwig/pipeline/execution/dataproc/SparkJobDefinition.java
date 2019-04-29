@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.BamCreationPipeline;
 import com.hartwig.pipeline.execution.JobDefinition;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
@@ -12,7 +13,7 @@ import com.hartwig.pipeline.io.RuntimeBucket;
 import org.immutables.value.Value;
 
 @Value.Immutable
-public interface SparkJobDefinition extends JobDefinition<DataprocPerformanceProfile>{
+public interface SparkJobDefinition extends JobDefinition<DataprocPerformanceProfile> {
 
     String GUNZIP_MAIN = "com.hartwig.pipeline.runtime.GoogleCloudGunzip";
     String BAM_CREATION_MAIN = "com.hartwig.pipeline.runtime.GoogleCloudPipelineRuntime";
@@ -47,6 +48,23 @@ public interface SparkJobDefinition extends JobDefinition<DataprocPerformancePro
                 .mainClass(SORT_INDEX_MAIN)
                 .jarLocation(jarLocation.uri())
                 .addArguments(arguments.version(), runtimeBucket.name(), arguments.project(), sample.name(), resultsDirectory.path(""))
+                .sparkProperties(SparkProperties.asMap(performanceProfile))
+                .performanceProfile(performanceProfile)
+                .build();
+    }
+
+    static SparkJobDefinition sortAndIndexRecalibrated(JarLocation jarLocation, Arguments arguments, RuntimeBucket runtimeBucket,
+            Sample sample, ResultsDirectory resultsDirectory) {
+        DataprocPerformanceProfile performanceProfile = DataprocPerformanceProfile.mini();
+        return ImmutableSparkJobDefinition.builder()
+                .name("RecalibratedSortAndIndex")
+                .mainClass(SORT_INDEX_MAIN)
+                .jarLocation(jarLocation.uri())
+                .addArguments(arguments.version(),
+                        runtimeBucket.name(),
+                        arguments.project(),
+                        sample.name() + "." + BamCreationPipeline.RECALIBRATED_SUFFIX,
+                        resultsDirectory.path(""))
                 .sparkProperties(SparkProperties.asMap(performanceProfile))
                 .performanceProfile(performanceProfile)
                 .build();

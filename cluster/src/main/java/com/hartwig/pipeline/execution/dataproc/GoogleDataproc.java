@@ -24,6 +24,7 @@ import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.io.RuntimeBucket;
 
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,24 +53,25 @@ public class GoogleDataproc implements SparkExecutor {
     @Override
     public JobStatus submit(RuntimeBucket runtimeBucket, SparkJobDefinition jobDefinition) {
         try {
-            String clusterName = runtimeBucket.name();
-            String naturalJobId = clusterName + "-" + jobDefinition.name().toLowerCase();
-            final Job job = findExistingJob(arguments, naturalJobId).orElseGet(() -> submittedJob(jobDefinition,
+            String jobIdAndClusterName = jobIdAndClusterName(runtimeBucket, jobDefinition);
+            final Job job = findExistingJob(arguments, jobIdAndClusterName).orElseGet(() -> submittedJob(jobDefinition,
                     runtimeBucket,
-                    naturalJobId,
-                    clusterName));
+                    jobIdAndClusterName));
             if (!isDone(job)) {
                 Job completed = waitForComplete(job,
-                        j -> j.getStatus() != null && (j.getStatus().getState().equals("ERROR") || isDone(j)
-                                || j.getStatus().getState().equals("CANCELLED")),
+                        j -> j.getStatus() != null && (j.getStatus().getState().equals("ERROR") || isDone(j) || j.getStatus()
+                                .getState()
+                                .equals("CANCELLED")),
                         () -> dataproc.projects()
                                 .regions()
                                 .jobs()
                                 .get(arguments.project(), arguments.region(), job.getReference().getJobId())
                                 .execute(),
                         GoogleDataproc::jobStatus);
-                LOGGER.info("Spark job is complete with status [{}] details [{}]", completed.getStatus().getState(), completed.getStatus().getDetails());
-                stop(clusterName);
+                LOGGER.info("Spark job is complete with status [{}] details [{}]",
+                        completed.getStatus().getState(),
+                        completed.getStatus().getDetails());
+                stop(jobIdAndClusterName);
                 if (completed.getStatus().getState().equals("ERROR")) {
                     return JobStatus.FAILED;
                 }
@@ -79,6 +81,12 @@ public class GoogleDataproc implements SparkExecutor {
             LOGGER.error("Exception while interacting with Google Dataproc APIs", e);
             return JobStatus.FAILED;
         }
+    }
+
+    @NotNull
+    private String jobIdAndClusterName(final RuntimeBucket runtimeBucket, final SparkJobDefinition jobDefinition) {
+        String untrimmed = runtimeBucket.name() + "-" + jobDefinition.name().toLowerCase();
+        return untrimmed.substring(0, Math.min(untrimmed.length(), 50));
     }
 
     private boolean isDone(final Job job) {
@@ -101,17 +109,16 @@ public class GoogleDataproc implements SparkExecutor {
         }
     }
 
-    private Job submittedJob(final SparkJobDefinition jobDefinition, final RuntimeBucket runtimeBucket, final String naturalJobId,
-            final String clusterName) {
+    private Job submittedJob(final SparkJobDefinition jobDefinition, final RuntimeBucket runtimeBucket, final String naturalJobId) {
         try {
-            start(jobDefinition.performanceProfile(), runtimeBucket, arguments, clusterName);
-            LOGGER.info("Submitting spark job [{}] to cluster [{}]", jobDefinition.name(), clusterName);
+            start(jobDefinition.performanceProfile(), runtimeBucket, arguments, naturalJobId);
+            LOGGER.info("Submitting spark job [{}] to cluster [{}]", jobDefinition.name(), naturalJobId);
             return dataproc.projects()
                     .regions()
                     .jobs()
                     .submit(arguments.project(),
                             arguments.region(),
-                            new SubmitJobRequest().setJob(new Job().setPlacement(new JobPlacement().setClusterName(clusterName))
+                            new SubmitJobRequest().setJob(new Job().setPlacement(new JobPlacement().setClusterName(naturalJobId))
                                     .setReference(new JobReference().setJobId(naturalJobId))
                                     .setSparkJob(new SparkJob().setProperties(jobDefinition.sparkProperties())
                                             .setMainClass(jobDefinition.mainClass())
