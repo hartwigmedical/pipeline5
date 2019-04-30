@@ -1,4 +1,8 @@
 package com.hartwig.pipeline.calling.structural;
 
-public class StructuralCallerOutput {
+import com.hartwig.pipeline.execution.JobStatus;
+
+public interface StructuralCallerOutput {
+
+    JobStatus status();
 }

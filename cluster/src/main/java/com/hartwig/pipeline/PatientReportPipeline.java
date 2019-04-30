@@ -1,6 +1,12 @@
 package com.hartwig.pipeline;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Storage;
@@ -40,15 +46,18 @@ public class PatientReportPipeline {
     private final StructuralCaller structuralCaller;
     private final AlignmentOutputStorage alignmentOutputStorage;
     private final Arguments arguments;
+    private final ExecutorService executorService;
 
     private PatientReportPipeline(final Aligner aligner, final GermlineCaller germlineCaller, final SomaticCaller somaticCaller,
-            final StructuralCaller structuralCaller, final AlignmentOutputStorage alignmentOutputStorage, final Arguments arguments) {
+            final StructuralCaller structuralCaller, final AlignmentOutputStorage alignmentOutputStorage, final Arguments arguments,
+            final ExecutorService executorService) {
         this.aligner = aligner;
         this.germlineCaller = germlineCaller;
         this.somaticCaller = somaticCaller;
         this.structuralCaller = structuralCaller;
         this.alignmentOutputStorage = alignmentOutputStorage;
         this.arguments = arguments;
+        this.executorService = executorService;
     }
 
     public void run() throws Exception {
@@ -58,9 +67,12 @@ public class PatientReportPipeline {
                         .orElseThrow(() -> new IllegalArgumentException("Unable to find output for sample [%s]. "
                                 + "Please run the aligner first by setting -run_aligner to true"));
 
+        Optional<Future<GermlineCallerOutput>> maybeGermlineCallerFuture = Optional.empty();
+        Optional<Future<SomaticCallerOutput>> maybeSomaticCallerFuture = Optional.empty();
+        Optional<Future<StructuralCallerOutput>> maybeStructuralCallerFuture = Optional.empty();
+
         if (arguments.runGermlineCaller()) {
-            GermlineCallerOutput run = germlineCaller.run(alignmentOutput);
-            checkStatus("Germline Caller", run.status());
+            maybeGermlineCallerFuture = Optional.of(executorService.submit(() -> germlineCaller.run(alignmentOutput)));
         }
 
         if (arguments.runStructuralCaller() || arguments.runSomaticCaller()) {
@@ -68,18 +80,34 @@ public class PatientReportPipeline {
                     .map(complement -> AlignmentPair.of(alignmentOutput, complement));
 
             if (arguments.runSomaticCaller()) {
-                Optional<SomaticCallerOutput> maybeSomaticCallerOutput = maybeAlignmentPair.map(somaticCaller::run);
-                maybeSomaticCallerOutput.ifPresent(somaticCallerOutput -> checkStatus("Somatic Caller", somaticCallerOutput.status()));
+                maybeSomaticCallerFuture = maybeAlignmentPair.map(pair -> executorService.submit(() -> somaticCaller.run(pair)));
             }
             if (arguments.runStructuralCaller()) {
-                Optional<StructuralCallerOutput> maybeStructuralCallerOutput = maybeAlignmentPair.map(structuralCaller::run);
+                maybeStructuralCallerFuture = maybeAlignmentPair.map(pair -> executorService.submit(() -> structuralCaller.run(pair)));
             }
+        }
+
+        Optional<GermlineCallerOutput> germlineCallerOutput = maybeGermlineCallerFuture.map(PatientReportPipeline::futurePayload);
+        Optional<SomaticCallerOutput> somaticCallerOutput = maybeSomaticCallerFuture.map(PatientReportPipeline::futurePayload);
+        Optional<StructuralCallerOutput> structuralCallerOutput = maybeStructuralCallerFuture.map(PatientReportPipeline::futurePayload);
+
+        germlineCallerOutput.ifPresent(output -> checkStatus("Germline", output.status()));
+        somaticCallerOutput.ifPresent(output -> checkStatus("Somatic", output.status()));
+        structuralCallerOutput.ifPresent(output -> checkStatus("Structural", output.status()));
+
+    }
+
+    private static <T> T futurePayload(final Future<T> future) {
+        try {
+            return future.get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
         }
     }
 
     private void checkStatus(final String callerName, final JobStatus status) {
         if (status == JobStatus.FAILED) {
-            LOGGER.error("[{}] failed on the remote VM, no reason available here. Check the run.log in the output bucket", callerName);
+            LOGGER.error("[{}] caller failed on the remote VM, no reason available here. Check the run.log in the output bucket", callerName);
         }
     }
 
@@ -95,7 +123,8 @@ public class PatientReportPipeline {
                         SomaticCallerProvider.from(arguments, credentials, storage).get(),
                         StructuralCallerProvider.from(arguments).get(),
                         new AlignmentOutputStorage(storage, arguments, ResultsDirectory.defaultDirectory()),
-                        arguments).run();
+                        arguments,
+                        Executors.newFixedThreadPool(3)).run();
             } catch (Exception e) {
                 LOGGER.error("An unexpected issue arose while running the pipeline. See the attached exception for more details.", e);
                 System.exit(1);
