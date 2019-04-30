@@ -3,6 +3,7 @@ package com.hartwig.pipeline.calling.somatic;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.AlignmentPair;
+import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.InputDownload;
@@ -95,10 +96,12 @@ public class SomaticCaller {
                 .apply(SubStageInputOutput.of(tumorSampleName, OutputFile.empty(), bash));
 
         bash.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path())));
-        computeEngine.submit(runtimeBucket, VirtualMachineJobDefinition.somaticCalling(bash));
-        return SomaticCallerOutput.builder()
-                .finalSomaticVcf(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path(mergedOutput.outputFile().path())))
-                .build();
+        JobStatus status = computeEngine.submit(runtimeBucket, VirtualMachineJobDefinition.somaticCalling(bash));
+        ImmutableSomaticCallerOutput.Builder output = SomaticCallerOutput.builder().status(status);
+        if (status.equals(JobStatus.SUCCESS)) {
+            output.finalSomaticVcf(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path(mergedOutput.outputFile().path())));
+        }
+        return output.build();
     }
 
     @NotNull

@@ -21,7 +21,7 @@ public class GermlineCallerProvider {
         return new GermlineCallerProvider(arguments, credentials, storage);
     }
 
-    public GermlineCaller get() {
-        return new GermlineCaller(arguments, new ComputeEngine(arguments, credentials, storage), storage);
+    public GermlineCaller get() throws Exception {
+        return new GermlineCaller(arguments, ComputeEngine.from(arguments, credentials), storage);
     }
 }

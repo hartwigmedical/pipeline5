@@ -1,0 +1,88 @@
+package com.hartwig.pipeline.execution.vm;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import com.google.api.services.compute.Compute;
+import com.google.api.services.compute.model.Image;
+import com.google.api.services.compute.model.Instance;
+import com.google.api.services.compute.model.Operation;
+import com.google.auth.oauth2.GoogleCredentials;
+import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.execution.JobStatus;
+import com.hartwig.pipeline.testsupport.MockRuntimeBucket;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+
+public class ComputeEngineTest {
+
+    private static final Arguments ARGUMENTS = Arguments.testDefaults();
+    private ComputeEngine victim;
+    private MockRuntimeBucket runtimeBucket;
+    private Compute compute;
+    private ImmutableVirtualMachineJobDefinition jobDefinition;
+
+    @Before
+    public void setUp() throws Exception {
+        GoogleCredentials credentials = mock(GoogleCredentials.class);
+        Compute.Images images = mock(Compute.Images.class);
+        Compute.Images.GetFromFamily getFromFamily = mock(Compute.Images.GetFromFamily.class);
+        when(getFromFamily.execute()).thenReturn(new Image());
+        when(images.getFromFamily(ARGUMENTS.project(), VirtualMachineJobDefinition.STANDARD_IMAGE)).thenReturn(getFromFamily);
+
+        ArgumentCaptor<Instance> instanceArgumentCaptor = ArgumentCaptor.forClass(Instance.class);
+        Compute.Instances.Insert insert = mock(Compute.Instances.Insert.class);
+        Operation insertOperation = mock(Operation.class);
+        when(insertOperation.getName()).thenReturn("insert");
+        Compute.Instances instances = mock(Compute.Instances.class);
+        when(instances.insert(eq(ARGUMENTS.project()), eq(ComputeEngine.ZONE_NAME), instanceArgumentCaptor.capture())).thenReturn(insert);
+        when(insert.execute()).thenReturn(insertOperation);
+        Compute.Instances.Stop stop = mock(Compute.Instances.Stop.class);
+        Operation stopOperation = mock(Operation.class);
+        when(stopOperation.getName()).thenReturn("stop");
+        when(stopOperation.getStatus()).thenReturn("DONE");
+        when(stop.execute()).thenReturn(stopOperation);
+        when(instances.stop(ARGUMENTS.project(), ComputeEngine.ZONE_NAME, "test-test")).thenReturn(stop);
+
+        Compute.ZoneOperations zoneOperations = mock(Compute.ZoneOperations.class);
+        Compute.ZoneOperations.Get zoneOpGet = mock(Compute.ZoneOperations.Get.class);
+        Operation zoneOpGetOperation = mock(Operation.class);
+        when(zoneOpGetOperation.getStatus()).thenReturn("DONE");
+        when(zoneOpGet.execute()).thenReturn(zoneOpGetOperation);
+        when(zoneOperations.get(ARGUMENTS.project(), ComputeEngine.ZONE_NAME, "insert")).thenReturn(zoneOpGet);
+        when(zoneOperations.get(ARGUMENTS.project(), ComputeEngine.ZONE_NAME, "stop")).thenReturn(zoneOpGet);
+
+        compute = mock(Compute.class);
+        when(compute.images()).thenReturn(images);
+        when(compute.instances()).thenReturn(instances);
+        when(compute.zoneOperations()).thenReturn(zoneOperations);
+        victim = new ComputeEngine(ARGUMENTS, credentials, compute);
+        runtimeBucket = MockRuntimeBucket.test();
+        jobDefinition = VirtualMachineJobDefinition.builder()
+                .name("test")
+                .startupCommand(BashStartupScript.of(runtimeBucket.getRuntimeBucket().name()))
+                .build();
+    }
+
+    @Test
+    public void returnsStatusFailedOnUncaughtException() {
+        when(compute.instances()).thenThrow(new NullPointerException());
+        assertThat(victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition)).isEqualTo(JobStatus.FAILED);
+    }
+
+    @Test
+    public void createsVmWithRunScriptAndWaitsForCompletion() {
+        runtimeBucket = runtimeBucket.with(BashStartupScript.JOB_SUCCEEDED_FLAG, 1);
+        assertThat(victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition)).isEqualTo(JobStatus.SUCCESS);
+    }
+
+    @Test
+    public void returnsJobFailedWhenScriptFailsRemotely() {
+        runtimeBucket = runtimeBucket.with(BashStartupScript.JOB_FAILED_FLAG, 1);
+        assertThat(victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition)).isEqualTo(JobStatus.FAILED);
+    }
+}

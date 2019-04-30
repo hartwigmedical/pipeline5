@@ -3,6 +3,7 @@ package com.hartwig.pipeline.calling.germline;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
+import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.execution.vm.*;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
@@ -29,7 +30,9 @@ public class GermlineCaller {
     public GermlineCallerOutput run(AlignmentOutput alignmentOutput) {
         RuntimeBucket bucket = RuntimeBucket.from(storage, alignmentOutput.sample().name(), arguments);
 
-        Resource referenceGenome = new Resource(storage, arguments.referenceGenomeBucket(), bucket.name(),
+        Resource referenceGenome = new Resource(storage,
+                arguments.referenceGenomeBucket(),
+                bucket.name(),
                 new ReferenceGenomeAlias().andThen(new GATKDictAlias()));
         Resource knownSnps = new Resource(storage, arguments.knownSnpsBucket(), bucket.name());
 
@@ -46,7 +49,11 @@ public class GermlineCaller {
                 .addLine("echo Processing finished at $(date)")
                 .addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), ResultsDirectory.defaultDirectory().path())));
 
-        executor.submit(bucket, VirtualMachineJobDefinition.germlineCalling(startupScript));
-        return GermlineCallerOutput.of(bucket.name(), OUTPUT_FILENAME);
+        ImmutableGermlineCallerOutput.Builder outputBuilder = GermlineCallerOutput.builder();
+        JobStatus status = executor.submit(bucket, VirtualMachineJobDefinition.germlineCalling(startupScript));
+        if (status.equals(JobStatus.SUCCESS)) {
+            outputBuilder.germlineVcf(GoogleStorageLocation.of(bucket.name(), OUTPUT_FILENAME));
+        }
+        return outputBuilder.status(status).build();
     }
 }

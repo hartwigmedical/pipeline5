@@ -12,12 +12,12 @@ import com.google.api.services.compute.model.*;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Blob;
-import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.execution.CloudExecutor;
 import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.io.RuntimeBucket;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,27 +33,30 @@ import static java.util.Collections.singletonList;
 
 public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition> {
     private final static String APPLICATION_NAME = "vm-hosted-workload";
-    private static final String ZONE_NAME = "europe-west4-a";
+    static final String ZONE_NAME = "europe-west4-a";
 
     private final Logger LOGGER = LoggerFactory.getLogger(ComputeEngine.class);
 
     private final GoogleCredentials credentials;
     private final Arguments arguments;
-    private final Storage storage;
+    private final Compute compute;
 
-    public ComputeEngine(final Arguments arguments, final GoogleCredentials credentials, final Storage storage) {
+    ComputeEngine(final Arguments arguments, final GoogleCredentials credentials, final Compute compute) {
         this.arguments = arguments;
         this.credentials = credentials;
-        this.storage = storage;
+        this.compute = compute;
+    }
+
+    public static ComputeEngine from(final Arguments arguments, final GoogleCredentials credentials) throws Exception {
+        return new ComputeEngine(arguments, credentials, initCompute(credentials));
     }
 
     @Override
     public JobStatus submit(final RuntimeBucket bucket, final VirtualMachineJobDefinition jobDefinition) {
+        String vmName = bucket.name() + "-" + jobDefinition.name();
+        JobStatus status;
         try {
-            Compute compute = initCompute();
-
             Instance instance = new Instance();
-            String vmName = bucket.name() + "-" + jobDefinition.name();
             LOGGER.info("Initialising [{}], output will go to bucket [{}]", vmName, bucket.name());
             instance.setName(vmName);
             instance.setZone(ZONE_NAME);
@@ -72,18 +75,17 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
 
             deleteOldInstancesAndStart(compute, instance, project, vmName);
             LOGGER.info("Successfully initialised [{}]", this);
-            List<String> doneFlags = asList(jobDefinition.startupCommand().successFlag(), jobDefinition.startupCommand().failureFlag());
-            waitForCompletion(bucket.name(), doneFlags);
+            status = waitForCompletion(bucket, jobDefinition.startupCommand().successFlag(), jobDefinition.startupCommand().failureFlag());
             stop(project, vmName);
         } catch (Exception e) {
-            String message = format("Failed to initialise [%s]", this);
+            String message = format("An error occurred running job on compute engine [%s]", vmName);
             LOGGER.error(message, e);
             return JobStatus.FAILED;
         }
-        return JobStatus.SUCCESS;
+        return status;
     }
 
-    private Compute initCompute() throws Exception {
+    private static Compute initCompute(final GoogleCredentials credentials) throws Exception {
         HttpTransport http = GoogleNetHttpTransport.newTrustedTransport();
         JsonFactory json = JacksonFactory.getDefaultInstance();
         return new Compute.Builder(http, json, new HttpCredentialsAdapter(credentials)).setApplicationName(APPLICATION_NAME).build();
@@ -174,7 +176,6 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
     }
 
     private void executeSynchronously(ComputeRequest<Operation> request, String projectName) throws Exception {
-        Compute compute = initCompute();
         Operation syncOp = request.execute();
         String logId = format("Operation [%s:%s]", syncOp.getOperationType(), syncOp.getName());
         LOGGER.info("{} is executing synchronously", logId);
@@ -199,24 +200,21 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
         return compute.zoneOperations().get(projectName, ZONE_NAME, jobName).execute().getStatus();
     }
 
-    private void waitForCompletion(String outputBucketName, List<String> completionFlagFiles) {
+    private JobStatus waitForCompletion(RuntimeBucket runtimeBucket, String jobSuccessFlag, String jobFailureFlag) {
         LOGGER.info("Waiting for job completion");
-        Bucket bucket = storage.get(outputBucketName);
-        boolean complete = false;
-        while (!complete) {
-            Page<Blob> objects = bucket.list();
+        while (true) {
+            Page<Blob> objects = runtimeBucket.bucket().list();
             for (Blob blob : objects.iterateAll()) {
-                if (completionFlagFiles.contains(blob.getName())) {
-                    complete = true;
-                } else {
-                    LOGGER.debug("None of [{}] found in bucket {}; job must not be done",
-                            join(",", completionFlagFiles), outputBucketName);
+                if (jobSuccessFlag.equals(blob.getName())) {
+                    return JobStatus.SUCCESS;
+                } else if (jobFailureFlag.equals(blob.getName())) {
+                    return JobStatus.FAILED;
                 }
-            }
-            try {
-                Thread.sleep(TimeUnit.SECONDS.toMillis(5));
-            } catch (InterruptedException ie) {
-                Thread.interrupted();
+                try {
+                    Thread.sleep(TimeUnit.SECONDS.toMillis(5));
+                } catch (InterruptedException ie) {
+                    Thread.interrupted();
+                }
             }
         }
     }
@@ -224,7 +222,7 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
     private void stop(String projectName, String vmName) {
         LOGGER.info("Stopping [{}]", this);
         try {
-            executeSynchronously(initCompute().instances().stop(projectName, ZONE_NAME, vmName), projectName);
+            executeSynchronously(compute.instances().stop(projectName, ZONE_NAME, vmName), projectName);
             LOGGER.info("Stopped [{}]", this);
         } catch (Exception e) {
             String message = format("Failed to stop [%s]", this);

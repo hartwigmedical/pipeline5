@@ -35,6 +35,10 @@ public class MockRuntimeBucket {
         return new MockRuntimeBucket(name);
     }
 
+    public static MockRuntimeBucket test() {
+        return of("test");
+    }
+
     public MockRuntimeBucket with(String blob, long size) {
         return with(blob, size, "");
     }

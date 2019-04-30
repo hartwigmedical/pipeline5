@@ -12,6 +12,7 @@ import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.alignment.AlignmentOutputStorage;
 import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.calling.germline.GermlineCaller;
+import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
 import com.hartwig.pipeline.calling.germline.GermlineCallerProvider;
 import com.hartwig.pipeline.calling.somatic.SomaticCaller;
 import com.hartwig.pipeline.calling.somatic.SomaticCallerOutput;
@@ -20,6 +21,7 @@ import com.hartwig.pipeline.calling.structural.StructuralCaller;
 import com.hartwig.pipeline.calling.structural.StructuralCallerOutput;
 import com.hartwig.pipeline.calling.structural.StructuralCallerProvider;
 import com.hartwig.pipeline.credentials.CredentialProvider;
+import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.storage.StorageProvider;
 
@@ -57,7 +59,8 @@ public class PatientReportPipeline {
                                 + "Please run the aligner first by setting -run_aligner to true"));
 
         if (arguments.runGermlineCaller()) {
-            germlineCaller.run(alignmentOutput);
+            GermlineCallerOutput run = germlineCaller.run(alignmentOutput);
+            checkStatus("Germline Caller", run.status());
         }
 
         if (arguments.runStructuralCaller() || arguments.runSomaticCaller()) {
@@ -66,10 +69,17 @@ public class PatientReportPipeline {
 
             if (arguments.runSomaticCaller()) {
                 Optional<SomaticCallerOutput> maybeSomaticCallerOutput = maybeAlignmentPair.map(somaticCaller::run);
+                maybeSomaticCallerOutput.ifPresent(somaticCallerOutput -> checkStatus("Somatic Caller", somaticCallerOutput.status()));
             }
             if (arguments.runStructuralCaller()) {
                 Optional<StructuralCallerOutput> maybeStructuralCallerOutput = maybeAlignmentPair.map(structuralCaller::run);
             }
+        }
+    }
+
+    private void checkStatus(final String callerName, final JobStatus status) {
+        if (status == JobStatus.FAILED) {
+            LOGGER.error("[{}] failed on the remote VM, no reason available here. Check the run.log in the output bucket", callerName);
         }
     }
 

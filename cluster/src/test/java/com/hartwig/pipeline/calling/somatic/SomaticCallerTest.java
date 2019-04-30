@@ -2,6 +2,8 @@ package com.hartwig.pipeline.calling.somatic;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -17,6 +19,7 @@ import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.alignment.AlignmentPair;
+import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
@@ -55,7 +58,9 @@ public class SomaticCallerTest {
     @Test
     public void returnsFinalVcfGoogleStorageLocation() {
         AlignmentPair input = createInput();
+        when(computeEngine.submit(any(), any())).thenReturn(JobStatus.SUCCESS);
         assertThat(victim.run(input)).isEqualTo(SomaticCallerOutput.builder()
+                .status(JobStatus.SUCCESS)
                 .finalSomaticVcf(GoogleStorageLocation.of(RUNTIME_BUCKET, "results/data/output/tumor.cosmic.annotated.vcf.gz"))
                 .build());
     }
@@ -63,13 +68,19 @@ public class SomaticCallerTest {
     @Test
     public void downloadsRecalibratedBamsAndBais() {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinition = ArgumentCaptor.forClass(VirtualMachineJobDefinition.class);
+        when(computeEngine.submit(any(), jobDefinition.capture())).thenReturn(JobStatus.SUCCESS);
         victim.run(createInput());
-        verify(computeEngine).submit(any(), jobDefinition.capture());
         assertThat(jobDefinition.getValue().startupCommand().asUnixString()).contains(
                 "gsutil -qm cp gs://run-tumor/tumor.recalibrated.bam /data/input/tumor.recalibrated.bam",
                 "gsutil -qm cp gs://run-reference/reference.recalibrated.bam /data/input/reference.recalibrated.bam",
                 "gsutil -qm cp gs://run-tumor/tumor.recalibrated.bam.bai /data/input/tumor.recalibrated.bam.bai",
                 "gsutil -qm cp gs://run-reference/reference.recalibrated.bam.bai /data/input/reference.recalibrated.bam.bai");
+    }
+
+    @Test
+    public void returnsFailedStatusWhenJobFails() {
+        when(computeEngine.submit(any(), any())).thenReturn(JobStatus.FAILED);
+        assertThat(victim.run(createInput()).status()).isEqualTo(JobStatus.FAILED);
     }
 
     private void mockResource(final Storage storage, final String resourceName, final String... fileNames) {

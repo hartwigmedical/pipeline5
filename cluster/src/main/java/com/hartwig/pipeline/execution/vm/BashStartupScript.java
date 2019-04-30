@@ -7,8 +7,8 @@ import static java.lang.String.format;
 import static java.util.stream.Collectors.joining;
 
 public class BashStartupScript {
-    private static final String JOB_SUCCEEDED_FLAG = "JOB_SUCCESS";
-    private static final String JOB_FAILED_FLAG = "JOB_FAILURE";
+    static final String JOB_SUCCEEDED_FLAG = "JOB_SUCCESS";
+    static final String JOB_FAILED_FLAG = "JOB_FAILURE";
     private static final String LOG_FILE = VmDirectories.OUTPUT + "/run.log";
     private final List<String> commands;
     private final String runtimeBucketName;

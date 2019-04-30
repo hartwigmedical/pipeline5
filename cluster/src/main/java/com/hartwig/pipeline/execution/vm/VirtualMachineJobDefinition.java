@@ -1,6 +1,7 @@
 package com.hartwig.pipeline.execution.vm;
 
 import com.hartwig.pipeline.execution.JobDefinition;
+
 import org.immutables.value.Value;
 
 @Value.Immutable
@@ -8,18 +9,27 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
 
     String STANDARD_IMAGE = "diskimager-standard";
 
-    String imageFamily();
+    @Value.Default
+    default String imageFamily(){
+        return STANDARD_IMAGE;
+    }
 
     BashStartupScript startupCommand();
 
-    String completionFlagFile();
+    @Override
+    @Value.Default
+    default VirtualMachinePerformanceProfile performanceProfile(){
+        return VirtualMachinePerformanceProfile.defaultVm();
+    }
+
+    static ImmutableVirtualMachineJobDefinition.Builder builder() {
+        return ImmutableVirtualMachineJobDefinition.builder();
+    }
 
     static VirtualMachineJobDefinition germlineCalling(BashStartupScript startupScript) {
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("germline")
-                .imageFamily(STANDARD_IMAGE)
                 .startupCommand(startupScript)
-                .completionFlagFile(startupScript.successFlag())
                 .performanceProfile(VirtualMachinePerformanceProfile.highCpuVm())
                 .build();
     }
@@ -27,10 +37,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
     static VirtualMachineJobDefinition somaticCalling(BashStartupScript startupScript) {
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("strelka")
-                .imageFamily(STANDARD_IMAGE)
                 .startupCommand(startupScript)
-                .completionFlagFile(startupScript.successFlag())
-                .performanceProfile(VirtualMachinePerformanceProfile.defaultVm())
                 .build();
     }
 }
