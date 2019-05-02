@@ -12,23 +12,18 @@ import com.google.api.services.compute.model.*;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Blob;
-import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.execution.CloudExecutor;
 import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.io.RuntimeBucket;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static java.lang.String.format;
-import static java.lang.String.join;
-import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 
 public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition> {
@@ -56,6 +51,12 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
         String vmName = bucket.name() + "-" + jobDefinition.name();
         JobStatus status;
         try {
+            if (bucketContainsFile(bucket, jobDefinition.startupCommand().successFlag()) ||
+                bucketContainsFile(bucket, jobDefinition.startupCommand().failureFlag())) {
+                LOGGER.warn("Job appears to have run already; skipping");
+                return JobStatus.SKIPPED;
+            }
+
             Instance instance = new Instance();
             LOGGER.info("Initialising [{}], output will go to bucket [{}]", vmName, bucket.name());
             instance.setName(vmName);
@@ -75,7 +76,7 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
 
             deleteOldInstancesAndStart(compute, instance, project, vmName);
             LOGGER.info("Successfully initialised [{}]", this);
-            status = waitForCompletion(bucket, jobDefinition.startupCommand().successFlag(), jobDefinition.startupCommand().failureFlag());
+            status = waitForCompletion(bucket, jobDefinition);
             stop(project, vmName);
         } catch (Exception e) {
             String message = format("An error occurred running job on compute engine [%s]", vmName);
@@ -200,21 +201,28 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
         return compute.zoneOperations().get(projectName, ZONE_NAME, jobName).execute().getStatus();
     }
 
-    private JobStatus waitForCompletion(RuntimeBucket runtimeBucket, String jobSuccessFlag, String jobFailureFlag) {
+    private boolean bucketContainsFile(RuntimeBucket bucket, String filename) {
+        Page<Blob> objects = bucket.bucket().list();
+        for (Blob blob : objects.iterateAll()) {
+            if (blob.getName().equals(filename)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private JobStatus waitForCompletion(RuntimeBucket bucket, VirtualMachineJobDefinition jobDefinition) {
         LOGGER.info("Waiting for job completion");
         while (true) {
-            Page<Blob> objects = runtimeBucket.bucket().list();
-            for (Blob blob : objects.iterateAll()) {
-                if (jobSuccessFlag.equals(blob.getName())) {
-                    return JobStatus.SUCCESS;
-                } else if (jobFailureFlag.equals(blob.getName())) {
-                    return JobStatus.FAILED;
-                }
-                try {
-                    Thread.sleep(TimeUnit.SECONDS.toMillis(5));
-                } catch (InterruptedException ie) {
-                    Thread.interrupted();
-                }
+            if (bucketContainsFile(bucket, jobDefinition.startupCommand().successFlag())) {
+                return JobStatus.SUCCESS;
+            } else if (bucketContainsFile(bucket, jobDefinition.startupCommand().failureFlag())) {
+                return JobStatus.FAILED;
+            }
+            try {
+                Thread.sleep(TimeUnit.SECONDS.toMillis(5));
+            } catch (InterruptedException ie) {
+                Thread.interrupted();
             }
         }
     }

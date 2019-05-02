@@ -42,7 +42,7 @@ public class GermlineCaller {
                 .addCommand(new InputDownload(alignmentOutput.finalBaiLocation()))
                 .addCommand(new ResourceDownload(knownSnps.copyInto(bucket), bucket))
                 .addCommand(new ResourceDownload(referenceGenome.copyInto(bucket), bucket))
-                .addCommand(new GatkHaplotypeCaller(format("%s/*.bam", VmDirectories.INPUT),
+                .addCommand(new GatkHaplotypeCallerCommand(format("%s/*.bam", VmDirectories.INPUT),
                         format("%s/*.fasta", VmDirectories.RESOURCES),
                         format("%s/dbsnp_137.b37.vcf", VmDirectories.RESOURCES),
                         format("%s/%s", VmDirectories.OUTPUT, OUTPUT_FILENAME)))

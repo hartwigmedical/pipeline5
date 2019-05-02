@@ -1,32 +1,26 @@
 package com.hartwig.pipeline.alignment;
 
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Storage;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.BamCreationPipeline;
-import com.hartwig.pipeline.execution.dataproc.DataprocPerformanceProfile;
-import com.hartwig.pipeline.execution.JobStatus;
-import com.hartwig.pipeline.execution.dataproc.JarLocation;
-import com.hartwig.pipeline.execution.dataproc.JarUpload;
-import com.hartwig.pipeline.execution.dataproc.SparkExecutor;
-import com.hartwig.pipeline.execution.dataproc.SparkJobDefinition;
+import com.hartwig.pipeline.alignment.after.BamMetricsProvider;
 import com.hartwig.pipeline.cost.CostCalculator;
+import com.hartwig.pipeline.execution.JobStatus;
+import com.hartwig.pipeline.execution.dataproc.*;
 import com.hartwig.pipeline.io.*;
 import com.hartwig.pipeline.io.sources.SampleData;
 import com.hartwig.pipeline.io.sources.SampleSource;
 import com.hartwig.pipeline.metrics.Monitor;
 import com.hartwig.pipeline.metrics.Run;
-import com.hartwig.pipeline.execution.dataproc.ClusterOptimizer;
 import com.hartwig.pipeline.resource.Resource;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class Aligner {
 
@@ -106,10 +100,11 @@ public class Aligner {
         sortIndexBamFuture.get();
         sortIndexRecalibratedBamFuture.get();
 
+        AlignmentOutput alignmentOutput = alignmentOutputStorage.get(sample)
+                .orElseThrow(() -> new RuntimeException("No results found in Google Storage for sample"));
+
         if (arguments.runBamMetrics()) {
-            runJob(Jobs.noStatusCheck(dataproc, costCalculator, monitor),
-                    SparkJobDefinition.bamMetrics(jarLocation, arguments, runtimeBucket, DataprocPerformanceProfile.singleNode(), sample),
-                    runtimeBucket);
+            BamMetricsProvider.from(arguments, credentials, storage).get().run(alignmentOutput);
         } else {
             LOGGER.info("Skipping BAM metrics job!");
         }
@@ -120,7 +115,7 @@ public class Aligner {
         if (arguments.cleanup()) {
             runtimeBucket.cleanup();
         }
-        return alignmentOutputStorage.get(sample).orElseThrow(() -> new RuntimeException("No results found in Google Storage for sample"));
+        return alignmentOutput;
     }
 
     private void compose(final Sample sample, final RuntimeBucket runtimeBucket) {

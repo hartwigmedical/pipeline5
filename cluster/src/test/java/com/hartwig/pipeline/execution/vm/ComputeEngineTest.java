@@ -1,22 +1,28 @@
 package com.hartwig.pipeline.execution.vm;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
+import com.google.api.gax.paging.Page;
 import com.google.api.services.compute.Compute;
 import com.google.api.services.compute.model.Image;
 import com.google.api.services.compute.model.Instance;
 import com.google.api.services.compute.model.Operation;
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.cloud.ReadChannel;
+import com.google.cloud.storage.Blob;
+import com.google.cloud.storage.Bucket;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.testsupport.MockRuntimeBucket;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 
 public class ComputeEngineTest {
 
@@ -77,12 +83,76 @@ public class ComputeEngineTest {
     @Test
     public void createsVmWithRunScriptAndWaitsForCompletion() {
         runtimeBucket = runtimeBucket.with(BashStartupScript.JOB_SUCCEEDED_FLAG, 1);
+        Bucket underlyingBucket = runtimeBucket.getRuntimeBucket().bucket();
+
+        Page page = mock(Page.class);
+        //noinspection unchecked
+        when(page.iterateAll()).thenReturn(new ArrayList<>());
+
+        Page withFlag = mock(Page.class);
+        List<Blob> blobs = new ArrayList<>();
+        try {
+            Blob mockBlob = mock(Blob.class);
+            ReadChannel mockReadChannel = mock(ReadChannel.class);
+            when(mockReadChannel.read(any())).thenReturn(-1);
+            when(mockBlob.getName()).thenReturn(BashStartupScript.JOB_SUCCEEDED_FLAG);
+            when(mockBlob.getSize()).thenReturn(1L);
+            when(mockBlob.reader()).thenReturn(mockReadChannel);
+            when(mockBlob.getMd5()).thenReturn("");
+            blobs.add(mockBlob);
+            when(underlyingBucket.get(BashStartupScript.JOB_SUCCEEDED_FLAG)).thenReturn(mockBlob);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        when(withFlag.iterateAll()).thenReturn(blobs);
+        when(underlyingBucket.list(any())).thenReturn(page).thenReturn(page).thenReturn(withFlag);
         assertThat(victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition)).isEqualTo(JobStatus.SUCCESS);
     }
 
     @Test
     public void returnsJobFailedWhenScriptFailsRemotely() {
         runtimeBucket = runtimeBucket.with(BashStartupScript.JOB_FAILED_FLAG, 1);
+        Bucket underlyingBucket = runtimeBucket.getRuntimeBucket().bucket();
+
+        Page page = mock(Page.class);
+        //noinspection unchecked
+        when(page.iterateAll()).thenReturn(new ArrayList<>());
+
+        Page withFlag = mock(Page.class);
+        List<Blob> blobs = new ArrayList<>();
+        try {
+            Blob mockBlob = mock(Blob.class);
+            ReadChannel mockReadChannel = mock(ReadChannel.class);
+            when(mockReadChannel.read(any())).thenReturn(-1);
+            when(mockBlob.getName()).thenReturn(BashStartupScript.JOB_FAILED_FLAG);
+            when(mockBlob.getSize()).thenReturn(1L);
+            when(mockBlob.reader()).thenReturn(mockReadChannel);
+            when(mockBlob.getMd5()).thenReturn("");
+            blobs.add(mockBlob);
+            when(underlyingBucket.get(BashStartupScript.JOB_FAILED_FLAG)).thenReturn(mockBlob);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        when(withFlag.iterateAll()).thenReturn(blobs);
+        when(underlyingBucket.list(any())).thenReturn(page).thenReturn(page).thenReturn(withFlag);
         assertThat(victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition)).isEqualTo(JobStatus.FAILED);
+    }
+
+
+
+    @Test
+    public void shouldSkipJobWhenSuccessFlagFileAlreadyExists() {
+        runtimeBucket = runtimeBucket.with(BashStartupScript.JOB_SUCCEEDED_FLAG, 1);
+        assertThat(victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition)).isEqualTo(JobStatus.SKIPPED);
+        verifyNoMoreInteractions(compute);
+    }
+
+    @Test
+    public void shouldSkipJobWhenFailureFlagFileAlreadyExists() {
+        runtimeBucket = runtimeBucket.with(BashStartupScript.JOB_FAILED_FLAG, 1);
+        assertThat(victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition)).isEqualTo(JobStatus.SKIPPED);
+        verifyNoMoreInteractions(compute);
     }
 }

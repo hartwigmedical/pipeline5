@@ -1,7 +1,6 @@
 package com.hartwig.pipeline.execution.vm;
 
 import com.hartwig.pipeline.execution.JobDefinition;
-
 import org.immutables.value.Value;
 
 @Value.Immutable
@@ -38,6 +37,12 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("strelka")
                 .startupCommand(startupScript)
+                .build();
+    }
+
+    static VirtualMachineJobDefinition bamMetrics(BashStartupScript startupScript) {
+        return ImmutableVirtualMachineJobDefinition.builder()
+                .name("bam-metrics")
                 .build();
     }
 }

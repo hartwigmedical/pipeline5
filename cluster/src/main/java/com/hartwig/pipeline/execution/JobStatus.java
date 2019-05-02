@@ -4,6 +4,7 @@ public enum JobStatus {
 
     SUCCESS,
     FAILED,
+    SKIPPED,
     UNKNOWN
 
 }

@@ -1,16 +1,15 @@
 package com.hartwig.pipeline.execution.dataproc;
 
-import java.util.List;
-import java.util.Map;
-
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.BamCreationPipeline;
 import com.hartwig.pipeline.execution.JobDefinition;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
-
 import org.immutables.value.Value;
+
+import java.util.List;
+import java.util.Map;
 
 @Value.Immutable
 public interface SparkJobDefinition extends JobDefinition<DataprocPerformanceProfile> {
@@ -18,7 +17,6 @@ public interface SparkJobDefinition extends JobDefinition<DataprocPerformancePro
     String GUNZIP_MAIN = "com.hartwig.pipeline.runtime.GoogleCloudGunzip";
     String BAM_CREATION_MAIN = "com.hartwig.pipeline.runtime.GoogleCloudPipelineRuntime";
     String SORT_INDEX_MAIN = "com.hartwig.pipeline.runtime.GoogleCloudSortAndIndex";
-    String BAM_METRICS_MAIN = "com.hartwig.pipeline.runtime.GoogleCloudBamMetrics";
 
     String mainClass();
 
@@ -67,18 +65,6 @@ public interface SparkJobDefinition extends JobDefinition<DataprocPerformancePro
                         resultsDirectory.path(""))
                 .sparkProperties(SparkProperties.asMap(performanceProfile))
                 .performanceProfile(performanceProfile)
-                .build();
-    }
-
-    static SparkJobDefinition bamMetrics(JarLocation jarLocation, Arguments arguments, RuntimeBucket runtimeBucket,
-            DataprocPerformanceProfile profile, Sample sample) {
-        return ImmutableSparkJobDefinition.builder()
-                .name("BamMetrics")
-                .mainClass(BAM_METRICS_MAIN)
-                .jarLocation(jarLocation.uri())
-                .addArguments(arguments.version(), runtimeBucket.name(), sample.name())
-                .sparkProperties(SparkProperties.asMap(profile))
-                .performanceProfile(profile)
                 .build();
     }
 
