@@ -1,7 +1,5 @@
 package com.hartwig.pipeline.execution.vm;
 
-import com.hartwig.pipeline.calling.somatic.ImmutableOutputFile;
-
 import org.immutables.value.Value;
 
 @Value.Immutable
