@@ -29,7 +29,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("germline")
                 .startupCommand(startupScript)
-                .performanceProfile(VirtualMachinePerformanceProfile.highCpuVm())
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(16, 32))
                 .build();
     }
 
@@ -43,6 +43,8 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
     static VirtualMachineJobDefinition bamMetrics(BashStartupScript startupScript) {
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("bam-metrics")
+                .startupCommand(startupScript)
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(2, 32))
                 .build();
     }
 }

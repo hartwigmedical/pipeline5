@@ -62,7 +62,7 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
             instance.setName(vmName);
             instance.setZone(ZONE_NAME);
             String project = arguments.project();
-            instance.setMachineType(machineType(ZONE_NAME, jobDefinition.performanceProfile().virtualMachineType().uri(), project));
+            instance.setMachineType(machineType(ZONE_NAME, jobDefinition.performanceProfile().uri(), project));
 
             addServiceAccount(instance);
             attachDisk(compute,
@@ -70,7 +70,7 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
                     jobDefinition.imageFamily(),
                     project,
                     vmName,
-                    jobDefinition.performanceProfile().virtualMachineType().diskGB());
+                    jobDefinition.performanceProfile().diskGb());
             addStartupCommand(instance, bucket, jobDefinition.startupCommand());
             addNetworkInterface(instance, project);
 
