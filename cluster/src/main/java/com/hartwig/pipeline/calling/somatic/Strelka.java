@@ -3,6 +3,7 @@ package com.hartwig.pipeline.calling.somatic;
 import static com.hartwig.pipeline.execution.vm.OutputUpload.OUTPUT_DIRECTORY;
 
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
+import com.hartwig.pipeline.execution.vm.OutputFile;
 
 class Strelka extends SubStage {
 

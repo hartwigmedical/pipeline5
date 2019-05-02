@@ -3,6 +3,7 @@ package com.hartwig.pipeline.calling.somatic;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
+import com.hartwig.pipeline.execution.vm.OutputFile;
 
 import org.junit.Before;
 import org.junit.Test;

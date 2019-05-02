@@ -1,5 +1,9 @@
 sudo apt-get update
-sudo apt-get -y install perl-modules make openjdk-8-jdk
+sudo apt-get -y install dirmngr apt-transport-https ca-certificates software-properties-common gnupg2 perl-modules make openjdk-8-jdk libcurl4-gnutls-dev
+sudo apt-key adv --keyserver keys.gnupg.net --recv-key 'E19F5F87128899B192B1A2C2AD5F960A256A04AF'
+sudo add-apt-repository 'deb https://cloud.r-project.org/bin/linux/debian stretch-cran35/'
+sudo apt-get -y update
+sudo apt-get -y install r-base
 sudo mkdir -p /data/tools
 sudo mkdir -p /data/input
 sudo mkdir -p /data/output
@@ -9,3 +13,4 @@ sudo tar xvf /data/tools/strelka/1.0.14/strelka.tar -C /data/tools/strelka/1.0.1
 sudo tar xvf /data/tools/tabix/0.2.6/tabix.tar -C /data/tools/tabix/0.2.6/
 sudo chmod a+x /data/tools/bcftools/1.3.1/bcftools
 sudo chmod a+x /data/tools/snpEff/4.3s/snpEff.sh
+sudo Rscript /data/tools/R/installDependencies.R

@@ -40,6 +40,13 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .build();
     }
 
+    static VirtualMachineJobDefinition amber(BashStartupScript startupScript) {
+        return ImmutableVirtualMachineJobDefinition.builder()
+                .name("amber")
+                .startupCommand(startupScript)
+                .build();
+    }
+
     static VirtualMachineJobDefinition bamMetrics(BashStartupScript startupScript) {
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("bam-metrics")

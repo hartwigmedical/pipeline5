@@ -3,6 +3,7 @@ package com.hartwig.pipeline.calling.somatic;
 import java.util.function.Function;
 
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
+import com.hartwig.pipeline.execution.vm.OutputFile;
 
 public abstract class SubStage implements Function<SubStageInputOutput, SubStageInputOutput> {
 

@@ -3,6 +3,7 @@ package com.hartwig.pipeline.calling.somatic;
 import java.util.List;
 
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
+import com.hartwig.pipeline.execution.vm.OutputFile;
 
 class BcfToolsAnnotation extends SubStage {
 

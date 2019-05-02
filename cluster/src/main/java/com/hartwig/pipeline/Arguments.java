@@ -34,6 +34,8 @@ public interface Arguments {
 
     boolean runStructuralCaller();
 
+    boolean runTertiary();
+
     DefaultsProfile profile();
 
     String project();
@@ -120,6 +122,7 @@ public interface Arguments {
                     .runGermlineCaller(false)
                     .runSomaticCaller(false)
                     .runStructuralCaller(false)
+                    .runTertiary(false)
                     .sampleId(EMPTY);
         } else {
             return ImmutableArguments.builder()
@@ -141,6 +144,7 @@ public interface Arguments {
                     .runAligner(true)
                     .runGermlineCaller(true)
                     .runSomaticCaller(true)
+                    .runTertiary(true)
                     .runStructuralCaller(false)
                     .rclonePath(NOT_APPLICABLE)
                     .rcloneS3Remote(NOT_APPLICABLE)

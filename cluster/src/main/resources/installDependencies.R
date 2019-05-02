@@ -1,0 +1,6 @@
+install.packages("BiocManager")
+library(BiocManager)
+install("dplyr", update = T, ask = F)
+install("ggplot2", update = T, ask = F)
+install("VariantAnnotation", update = T, ask = F)
+install("copynumber", update = T, ask = F)

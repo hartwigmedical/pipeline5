@@ -24,6 +24,8 @@ import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
+import com.hartwig.pipeline.testsupport.MockResource;
+import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
@@ -42,22 +44,22 @@ public class SomaticCallerTest {
         Bucket bucket = mock(Bucket.class);
         when(bucket.getName()).thenReturn(RUNTIME_BUCKET);
         when(storage.get(RUNTIME_BUCKET)).thenReturn(bucket);
-        mockResource(storage, "reference_genome", "reference.fasta");
-        mockResource(storage, "sage-pilot", "hotspots.tsv", "coding_regions.bed", "SAGE_PON.vcf.gz");
-        mockResource(storage, "strelka_config", "strelka.ini");
-        mockResource(storage, "hg19_mappability_tracks", "mappability.bed.gz", "mappability.hdr");
-        mockResource(storage, "pon-v2", "GERMLINE_PON.vcf.gz", "SOMATIC_PON.vcf.gz");
-        mockResource(storage, "beds", "strelka-post-process.bed");
-        mockResource(storage, "snpeff", "snpeff.config");
-        mockResource(storage, "known_snps", "dbsnp.vcf.gz");
-        mockResource(storage, "cosmic_v85", "cosmic.vcf.gz");
+        MockResource.addToStorage(storage, "reference_genome", "reference.fasta");
+        MockResource.addToStorage(storage, "sage-pilot", "hotspots.tsv", "coding_regions.bed", "SAGE_PON.vcf.gz");
+        MockResource.addToStorage(storage, "strelka_config", "strelka.ini");
+        MockResource.addToStorage(storage, "hg19_mappability_tracks", "mappability.bed.gz", "mappability.hdr");
+        MockResource.addToStorage(storage, "pon-v2", "GERMLINE_PON.vcf.gz", "SOMATIC_PON.vcf.gz");
+        MockResource.addToStorage(storage, "beds", "strelka-post-process.bed");
+        MockResource.addToStorage(storage, "snpeff", "snpeff.config");
+        MockResource.addToStorage(storage, "known_snps", "dbsnp.vcf.gz");
+        MockResource.addToStorage(storage, "cosmic_v85", "cosmic.vcf.gz");
         computeEngine = mock(ComputeEngine.class);
         victim = new SomaticCaller(Arguments.testDefaults(), computeEngine, storage, ResultsDirectory.defaultDirectory());
     }
 
     @Test
     public void returnsFinalVcfGoogleStorageLocation() {
-        AlignmentPair input = createInput();
+        AlignmentPair input = TestInputs.defaultPair();
         when(computeEngine.submit(any(), any())).thenReturn(JobStatus.SUCCESS);
         assertThat(victim.run(input)).isEqualTo(SomaticCallerOutput.builder()
                 .status(JobStatus.SUCCESS)
@@ -69,7 +71,7 @@ public class SomaticCallerTest {
     public void downloadsRecalibratedBamsAndBais() {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinition = ArgumentCaptor.forClass(VirtualMachineJobDefinition.class);
         when(computeEngine.submit(any(), jobDefinition.capture())).thenReturn(JobStatus.SUCCESS);
-        victim.run(createInput());
+        victim.run(TestInputs.defaultPair());
         assertThat(jobDefinition.getValue().startupCommand().asUnixString()).contains(
                 "gsutil -qm cp gs://run-tumor/tumor.recalibrated.bam /data/input/tumor.recalibrated.bam",
                 "gsutil -qm cp gs://run-reference/reference.recalibrated.bam /data/input/reference.recalibrated.bam",
@@ -80,41 +82,6 @@ public class SomaticCallerTest {
     @Test
     public void returnsFailedStatusWhenJobFails() {
         when(computeEngine.submit(any(), any())).thenReturn(JobStatus.FAILED);
-        assertThat(victim.run(createInput()).status()).isEqualTo(JobStatus.FAILED);
+        assertThat(victim.run(TestInputs.defaultPair()).status()).isEqualTo(JobStatus.FAILED);
     }
-
-    private void mockResource(final Storage storage, final String resourceName, final String... fileNames) {
-        Bucket referenceGenomeBucket = mock(Bucket.class);
-        List<Blob> blobs = new ArrayList<>();
-        for (String fileName : fileNames) {
-            Blob blob = mock(Blob.class);
-            when(blob.getName()).thenReturn(fileName);
-            blobs.add(blob);
-        }
-        @SuppressWarnings("unchecked")
-        Page<Blob> page = mock(Page.class);
-        when(page.iterateAll()).thenReturn(blobs);
-        when(storage.get(resourceName)).thenReturn(referenceGenomeBucket);
-        when(referenceGenomeBucket.list()).thenReturn(page);
-    }
-
-    private AlignmentPair createInput() {
-        return AlignmentPair.of(alignerOutput("reference"), alignerOutput("tumor"));
-    }
-
-    @NotNull
-    private AlignmentOutput alignerOutput(final String sample) {
-        String bucket = "run-" + sample;
-        return AlignmentOutput.of(gsLocation(bucket, sample + ".bam"),
-                gsLocation(bucket, sample + ".bam.bai"),
-                gsLocation(bucket, sample + ".recalibrated.bam"),
-                gsLocation(bucket, sample + ".recalibrated.bam.bai"),
-                Sample.builder("", sample).build());
-    }
-
-    @NotNull
-    private GoogleStorageLocation gsLocation(final String bucket, final String path) {
-        return GoogleStorageLocation.of(bucket, path);
-    }
-
 }
