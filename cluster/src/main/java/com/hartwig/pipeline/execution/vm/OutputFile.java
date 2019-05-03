@@ -9,14 +9,18 @@ public interface OutputFile {
     String GZIPPED_VCF = VCF + ".gz";
 
     @Value.Parameter
-    String path();
+    String fileName();
+
+    default String path() {
+        return VmDirectories.OUTPUT + "/" + fileName();
+    }
 
     static OutputFile of(String sample, String step, String type) {
-        return ImmutableOutputFile.of(String.format("%s/%s.%s.%s", VmDirectories.OUTPUT, sample, step, type));
+        return ImmutableOutputFile.of(String.format("%s.%s.%s", sample, step, type));
     }
 
     static OutputFile of(String sample, String type) {
-        return ImmutableOutputFile.of(String.format("%s/%s.%s", VmDirectories.OUTPUT, sample, type));
+        return ImmutableOutputFile.of(String.format("%s.%s", sample, type));
     }
 
     static OutputFile empty() {

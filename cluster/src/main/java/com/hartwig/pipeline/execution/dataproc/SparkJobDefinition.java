@@ -4,8 +4,9 @@ import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.BamCreationPipeline;
 import com.hartwig.pipeline.execution.JobDefinition;
-import com.hartwig.pipeline.io.ResultsDirectory;
+import com.hartwig.pipeline.io.NamespacedResults;
 import com.hartwig.pipeline.io.RuntimeBucket;
+
 import org.immutables.value.Value;
 
 import java.util.List;
@@ -27,32 +28,32 @@ public interface SparkJobDefinition extends JobDefinition<DataprocPerformancePro
     Map<String, String> sparkProperties();
 
     static SparkJobDefinition bamCreation(JarLocation jarLocation, Arguments arguments, RuntimeBucket runtimeBucket,
-            DataprocPerformanceProfile profile) {
+            DataprocPerformanceProfile profile, NamespacedResults namespacedResults) {
         return ImmutableSparkJobDefinition.builder()
                 .name("BamCreation")
                 .mainClass(BAM_CREATION_MAIN)
                 .jarLocation(jarLocation.uri())
-                .addArguments(arguments.version(), runtimeBucket.name(), arguments.project())
+                .addArguments(arguments.version(), runtimeBucket.name(), arguments.project(), namespacedResults.path())
                 .sparkProperties(SparkProperties.asMap(profile))
                 .performanceProfile(profile)
                 .build();
     }
 
     static SparkJobDefinition sortAndIndex(JarLocation jarLocation, Arguments arguments, RuntimeBucket runtimeBucket, Sample sample,
-            ResultsDirectory resultsDirectory) {
+            NamespacedResults namespacedResults) {
         DataprocPerformanceProfile performanceProfile = DataprocPerformanceProfile.mini();
         return ImmutableSparkJobDefinition.builder()
                 .name("SortAndIndex")
                 .mainClass(SORT_INDEX_MAIN)
                 .jarLocation(jarLocation.uri())
-                .addArguments(arguments.version(), runtimeBucket.name(), arguments.project(), sample.name(), resultsDirectory.path(""))
+                .addArguments(arguments.version(), runtimeBucket.name(), arguments.project(), sample.name(), namespacedResults.path())
                 .sparkProperties(SparkProperties.asMap(performanceProfile))
                 .performanceProfile(performanceProfile)
                 .build();
     }
 
     static SparkJobDefinition sortAndIndexRecalibrated(JarLocation jarLocation, Arguments arguments, RuntimeBucket runtimeBucket,
-            Sample sample, ResultsDirectory resultsDirectory) {
+            Sample sample, NamespacedResults namespacedResults) {
         DataprocPerformanceProfile performanceProfile = DataprocPerformanceProfile.mini();
         return ImmutableSparkJobDefinition.builder()
                 .name("RecalibratedSortAndIndex")
@@ -62,7 +63,7 @@ public interface SparkJobDefinition extends JobDefinition<DataprocPerformancePro
                         runtimeBucket.name(),
                         arguments.project(),
                         sample.name() + "." + BamCreationPipeline.RECALIBRATED_SUFFIX,
-                        resultsDirectory.path(""))
+                        namespacedResults.path(""))
                 .sparkProperties(SparkProperties.asMap(performanceProfile))
                 .performanceProfile(performanceProfile)
                 .build();

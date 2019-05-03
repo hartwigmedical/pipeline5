@@ -11,9 +11,10 @@ import com.amazonaws.services.s3.model.Permission;
 import com.amazonaws.services.s3.model.S3Object;
 import com.hartwig.patient.ImmutableSample;
 import com.hartwig.patient.Sample;
+import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.alignment.AlignmentOutputPaths;
-import com.hartwig.pipeline.io.ResultsDirectory;
+import com.hartwig.pipeline.io.NamespacedResults;
 import com.hartwig.pipeline.testsupport.MockRuntimeBucket;
 
 import org.junit.Before;
@@ -32,7 +33,7 @@ public class SBPSampleMetadataPatchTest {
     private static final String READER_ACP = "reader_acp";
     private AmazonS3 s3;
     private SBPRestApi sbpRestApi;
-    private ResultsDirectory resultsDirectory;
+    private NamespacedResults namespacedResults;
     private SBPSampleMetadataPatch victim;
     private EnvironmentVariables environmentVariables;
 
@@ -41,10 +42,10 @@ public class SBPSampleMetadataPatchTest {
         s3 = mock(AmazonS3.class);
         when(s3.getObject(SBPS3FileTarget.ROOT_BUCKET, BAM_KEY)).thenReturn(new S3Object());
         sbpRestApi = mock(SBPRestApi.class);
-        resultsDirectory = ResultsDirectory.defaultDirectory();
+        namespacedResults = NamespacedResults.of(Aligner.RESULTS_NAMESPACE);
         environmentVariables = mock(EnvironmentVariables.class);
         victim = new SBPSampleMetadataPatch(s3, sbpRestApi, 1, (sample, runtimeBucket, result) -> {
-        }, resultsDirectory, environmentVariables);
+        }, namespacedResults, environmentVariables);
     }
 
     @Test
@@ -57,7 +58,7 @@ public class SBPSampleMetadataPatchTest {
         when(s3.getObjectAcl(SBPS3FileTarget.ROOT_BUCKET, BAM_KEY)).thenReturn(bamAcl);
         AccessControlList baiAcl = new AccessControlList();
         when(s3.getObjectAcl(SBPS3FileTarget.ROOT_BUCKET, BAI_KEY)).thenReturn(baiAcl);
-        MockRuntimeBucket runtimeBucket = MockRuntimeBucket.of("test").with(resultsDirectory.path(AlignmentOutputPaths.sorted(SAMPLE)), 1, "md5");
+        MockRuntimeBucket runtimeBucket = MockRuntimeBucket.of("test").with(namespacedResults.path(AlignmentOutputPaths.sorted(SAMPLE)), 1, "md5");
         victim.run(SAMPLE, runtimeBucket.getRuntimeBucket(), JobStatus.SUCCESS);
         checkAcl(bamAcl);
         checkAcl(baiAcl);

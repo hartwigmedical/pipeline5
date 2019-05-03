@@ -4,8 +4,7 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
-import com.hartwig.pipeline.io.ResultsDirectory;
-import com.hartwig.pipeline.tertiary.amber.Amber;
+import com.hartwig.pipeline.io.NamespacedResults;
 
 public class CobaltProvider {
 
@@ -24,6 +23,7 @@ public class CobaltProvider {
     }
 
     public Cobalt get() throws Exception {
-        return new Cobalt(arguments, ComputeEngine.from(arguments, credentials), storage, ResultsDirectory.defaultDirectory());
+        NamespacedResults namespacedResults = NamespacedResults.of(Cobalt.RESULTS_NAMESPACE);
+        return new Cobalt(arguments, ComputeEngine.from(arguments, credentials), storage, namespacedResults);
     }
 }

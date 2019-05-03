@@ -21,6 +21,7 @@ import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.patient.Sample;
+import com.hartwig.pipeline.alignment.Aligner;
 
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
@@ -31,7 +32,8 @@ public class BamComposerTest {
 
     private static final String SAMPLE = "COLO829T";
     private static final String RUNTIME = "runtime";
-    private static final String HEADER = ResultsDirectory.defaultDirectory().path("COLO829T.bam_head");
+    private static final NamespacedResults NAMESPACED_RESULTS = NamespacedResults.of(Aligner.RESULTS_NAMESPACE);
+    private static final String HEADER = NAMESPACED_RESULTS.path("COLO829T.bam_head");
 
     private Storage storage;
     private RuntimeBucket runtime;
@@ -48,7 +50,7 @@ public class BamComposerTest {
         //noinspection unchecked
         page = mock(Page.class);
         when(storage.list(eq(RUNTIME), any())).thenReturn(page);
-        victim = new BamComposer(storage, ResultsDirectory.defaultDirectory(), 3);
+        victim = new BamComposer(storage, NAMESPACED_RESULTS, 3);
     }
 
     @Test
@@ -60,7 +62,7 @@ public class BamComposerTest {
 
     @Test
     public void appendsAllTailPartsToHead() {
-        String head = ResultsDirectory.defaultDirectory().path("COLO829T.bam_head");
+        String head = NAMESPACED_RESULTS.path("COLO829T.bam_head");
         String tailPart1 = part(0);
         String tailPart2 = part(1);
         List<Blob> blobs = Arrays.asList(blobOf(tailPart1), blobOf(tailPart2));
@@ -92,14 +94,13 @@ public class BamComposerTest {
         assertThat(requestArgumentCaptor.getAllValues().get(5).getSourceBlobs()).hasSize(1);
         assertThat(requestArgumentCaptor.getAllValues().get(6).getSourceBlobs()).hasSize(2);
         assertThat(requestArgumentCaptor.getAllValues().get(0).getSourceBlobs().get(0).getName()).isEqualTo(HEADER);
-        assertThat(requestArgumentCaptor.getAllValues().get(6).getTarget().getName()).isEqualTo(ResultsDirectory.defaultDirectory()
-                .path("COLO829T.bam"));
+        assertThat(requestArgumentCaptor.getAllValues().get(6).getTarget().getName()).isEqualTo(NAMESPACED_RESULTS.path("COLO829T.bam"));
     }
 
     @Test
     public void optionallyIncludedSuffixInBamName() {
-        victim = new BamComposer(storage, ResultsDirectory.defaultDirectory(), 3, "suffix");
-        String head = ResultsDirectory.defaultDirectory().path("COLO829T.suffix.bam_head");
+        victim = new BamComposer(storage, NAMESPACED_RESULTS, 3, "suffix");
+        String head = NAMESPACED_RESULTS.path("COLO829T.suffix.bam_head");
         String tailPart1 = part(0);
         List<Blob> blobs = Collections.singletonList(blobOf(tailPart1));
         when(page.iterateAll()).thenReturn(blobs);
@@ -111,17 +112,15 @@ public class BamComposerTest {
 
         verify(storage, times(1)).compose(requestArgumentCaptor.capture());
         verify(storage, times(4)).list(eq(RUNTIME), capturedOption.capture());
-        assertThat(capturedOption.getAllValues()
-                .get(0)).isEqualTo(Storage.BlobListOption.prefix("results/COLO829T.suffix.bam_tail/part-r-"));
+        assertThat(capturedOption.getAllValues().get(0)).isEqualTo(Storage.BlobListOption.prefix(NAMESPACED_RESULTS.path(
+                "COLO829T.suffix.bam_tail/part-r-")));
         assertThat(requestArgumentCaptor.getValue().getSourceBlobs().get(0).getName()).isEqualTo(head);
-        assertThat(requestArgumentCaptor.getValue().getTarget().getName()).isEqualTo("results/COLO829T.suffix.bam");
+        assertThat(requestArgumentCaptor.getValue().getTarget().getName()).isEqualTo(NAMESPACED_RESULTS.path("COLO829T.suffix.bam"));
     }
-
 
     @NotNull
     private String part(int partNum) {
-        return String.format(ResultsDirectory.defaultDirectory().path("COLO829T.bam_tail/part-r-%s.bam"),
-                new DecimalFormat("000").format(partNum));
+        return String.format(NAMESPACED_RESULTS.path("COLO829T.bam_tail/part-r-%s.bam"), new DecimalFormat("000").format(partNum));
     }
 
     private List<String> tenTailParts() {

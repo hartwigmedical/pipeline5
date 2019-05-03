@@ -8,7 +8,7 @@ import com.google.cloud.storage.Storage;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
-import com.hartwig.pipeline.io.ResultsDirectory;
+import com.hartwig.pipeline.io.NamespacedResults;
 
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -20,23 +20,23 @@ public class AlignmentOutputStorage {
 
     private final Storage storage;
     private final Arguments arguments;
-    private final ResultsDirectory resultsDirectory;
+    private final NamespacedResults namespacedResults;
 
-    public AlignmentOutputStorage(final Storage storage, final Arguments arguments, final ResultsDirectory resultsDirectory) {
+    public AlignmentOutputStorage(final Storage storage, final Arguments arguments, final NamespacedResults namespacedResults) {
         this.storage = storage;
         this.arguments = arguments;
-        this.resultsDirectory = resultsDirectory;
+        this.namespacedResults = namespacedResults;
     }
 
     public Optional<AlignmentOutput> get(final Sample sample) {
         Bucket bucket = storage.get(Run.from(sample.name(), arguments).id());
         if (bucket != null) {
             String sorted = AlignmentOutputPaths.sorted(sample);
-            Blob bamBlob = bucket.get(resultsDirectory.path(sorted));
-            Blob baiBlob = bucket.get(resultsDirectory.path(AlignmentOutputPaths.bai(sorted)));
+            Blob bamBlob = bucket.get(namespacedResults.path(sorted));
+            Blob baiBlob = bucket.get(namespacedResults.path(AlignmentOutputPaths.bai(sorted)));
             String recalibrated = AlignmentOutputPaths.recalibrated(sample);
-            Blob recalibratedBamBlob = bucket.get(resultsDirectory.path(recalibrated));
-            Blob recalibratedBaiBlob = bucket.get(resultsDirectory.path(AlignmentOutputPaths.bai(recalibrated)));
+            Blob recalibratedBamBlob = bucket.get(namespacedResults.path(recalibrated));
+            Blob recalibratedBaiBlob = bucket.get(namespacedResults.path(AlignmentOutputPaths.bai(recalibrated)));
             if (recalibratedBamBlob != null) {
 
                 if (bamBlob == null) {

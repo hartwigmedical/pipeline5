@@ -6,13 +6,14 @@ import static org.mockito.Mockito.when;
 
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
+import com.hartwig.pipeline.alignment.Aligner;
 
 import org.junit.Before;
 import org.junit.Test;
 
 public class GoogleStorageStatusCheckTest {
 
-    private static final ResultsDirectory RESULTS_DIRECTORY = ResultsDirectory.defaultDirectory();
+    private static final NamespacedResults RESULTS_DIRECTORY = NamespacedResults.of(Aligner.RESULTS_NAMESPACE);
     private RuntimeBucket runtime;
     private Bucket bucket;
     private Blob blob;

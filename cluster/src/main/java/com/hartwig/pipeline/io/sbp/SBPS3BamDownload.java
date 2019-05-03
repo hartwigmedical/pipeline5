@@ -13,7 +13,7 @@ import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.io.BamDownload;
 import com.hartwig.pipeline.alignment.AlignmentOutputPaths;
-import com.hartwig.pipeline.io.ResultsDirectory;
+import com.hartwig.pipeline.io.NamespacedResults;
 import com.hartwig.pipeline.io.RuntimeBucket;
 
 import org.slf4j.Logger;
@@ -25,25 +25,25 @@ public class SBPS3BamDownload implements BamDownload {
     private final Logger LOGGER = LoggerFactory.getLogger(SBPS3BamDownload.class);
 
     private final TransferManager transferManager;
-    private final ResultsDirectory resultsDirectory;
+    private final NamespacedResults namespacedResults;
     private final int maxAttempts;
     private final int retryDelay;
 
-    SBPS3BamDownload(final TransferManager transferManager, final ResultsDirectory resultsDirectory, final int maxAttempts,
+    SBPS3BamDownload(final TransferManager transferManager, final NamespacedResults namespacedResults, final int maxAttempts,
             final int retryDelay) {
         this.transferManager = transferManager;
-        this.resultsDirectory = resultsDirectory;
+        this.namespacedResults = namespacedResults;
         this.maxAttempts = maxAttempts;
         this.retryDelay = retryDelay;
     }
 
-    public static SBPS3BamDownload from(final AmazonS3 s3, final ResultsDirectory resultsDirectory) {
+    public static SBPS3BamDownload from(final AmazonS3 s3, final NamespacedResults namespacedResults) {
         TransferManager transferManager = TransferManagerBuilder.standard()
                 .withS3Client(s3)
                 .withMultipartUploadThreshold(ONE_HUNDRED_MB)
                 .withMinimumUploadPartSize(ONE_HUNDRED_MB)
                 .build();
-        return new SBPS3BamDownload(transferManager, resultsDirectory, 2, 600);
+        return new SBPS3BamDownload(transferManager, namespacedResults, 2, 600);
     }
 
     @Override
@@ -89,7 +89,7 @@ public class SBPS3BamDownload implements BamDownload {
 
     private void transfer(final RuntimeBucket runtimeBucket, final TransferManager transferManager, final String blobName,
             final String s3Bucket, final String s3Key) {
-        Blob blob = runtimeBucket.bucket().get(resultsDirectory.path(blobName));
+        Blob blob = runtimeBucket.bucket().get(namespacedResults.path(blobName));
 
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentLength(blob.getSize());

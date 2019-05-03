@@ -1,6 +1,8 @@
 package com.hartwig.pipeline.execution.vm;
 
 import com.hartwig.pipeline.execution.JobDefinition;
+import com.hartwig.pipeline.io.NamespacedResults;
+
 import org.immutables.value.Value;
 
 @Value.Immutable
@@ -15,6 +17,8 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
 
     BashStartupScript startupCommand();
 
+    NamespacedResults namespacedResults();
+
     @Override
     @Value.Default
     default VirtualMachinePerformanceProfile performanceProfile(){
@@ -25,40 +29,45 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
         return ImmutableVirtualMachineJobDefinition.builder();
     }
 
-    static VirtualMachineJobDefinition germlineCalling(BashStartupScript startupScript) {
+    static VirtualMachineJobDefinition germlineCalling(BashStartupScript startupScript, NamespacedResults namespacedResults) {
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("germline")
                 .startupCommand(startupScript)
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(16, 32))
+                .namespacedResults(namespacedResults)
                 .build();
     }
 
-    static VirtualMachineJobDefinition somaticCalling(BashStartupScript startupScript) {
+    static VirtualMachineJobDefinition somaticCalling(BashStartupScript startupScript, NamespacedResults namespacedResults) {
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("strelka")
                 .startupCommand(startupScript)
+                .namespacedResults(namespacedResults)
                 .build();
     }
 
-    static VirtualMachineJobDefinition amber(BashStartupScript startupScript) {
+    static VirtualMachineJobDefinition amber(BashStartupScript startupScript, NamespacedResults namespacedResults) {
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("amber")
                 .startupCommand(startupScript)
+                .namespacedResults(namespacedResults)
                 .build();
     }
 
-    static VirtualMachineJobDefinition cobalt(BashStartupScript startupScript) {
+    static VirtualMachineJobDefinition cobalt(BashStartupScript startupScript, NamespacedResults namespacedResults) {
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("cobalt")
                 .startupCommand(startupScript)
+                .namespacedResults(namespacedResults)
                 .build();
     }
 
-    static VirtualMachineJobDefinition bamMetrics(BashStartupScript startupScript) {
+    static VirtualMachineJobDefinition bamMetrics(BashStartupScript startupScript, NamespacedResults namespacedResults) {
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("bam-metrics")
                 .startupCommand(startupScript)
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(2, 32))
+                .namespacedResults(namespacedResults)
                 .build();
     }
 }

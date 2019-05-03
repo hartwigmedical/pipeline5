@@ -14,20 +14,20 @@ public class CloudBamDownload implements BamDownload {
     private static final Logger LOGGER = LoggerFactory.getLogger(BamComposer.class);
 
     private final Function<Sample, String> targetResolver;
-    private final ResultsDirectory resultsDirectory;
+    private final NamespacedResults namespacedResults;
     private final CloudCopy cloudCopy;
 
-    public CloudBamDownload(final Function<Sample, String> targetResolver, final ResultsDirectory resultsDirectory,
+    public CloudBamDownload(final Function<Sample, String> targetResolver, final NamespacedResults namespacedResults,
             final CloudCopy cloudCopy) {
         this.targetResolver = targetResolver;
-        this.resultsDirectory = resultsDirectory;
+        this.namespacedResults = namespacedResults;
         this.cloudCopy = cloudCopy;
     }
 
     @Override
     public void run(final Sample sample, final RuntimeBucket runtimeBucket, final JobStatus result) {
         try {
-            String bamPath = String.format("gs://%s/%s%s.sorted.bam", runtimeBucket.name(), resultsDirectory.path(""), sample.name());
+            String bamPath = String.format("gs://%s/%s%s.sorted.bam", runtimeBucket.name(), namespacedResults.path(""), sample.name());
             String targetBam = targetResolver.apply(sample);
             cloudCopy.copy(bamPath, targetBam);
             cloudCopy.copy(bai(bamPath), bai(targetBam));

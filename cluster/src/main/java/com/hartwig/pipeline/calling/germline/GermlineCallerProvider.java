@@ -4,6 +4,7 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
+import com.hartwig.pipeline.io.NamespacedResults;
 
 public class GermlineCallerProvider {
 
@@ -22,6 +23,9 @@ public class GermlineCallerProvider {
     }
 
     public GermlineCaller get() throws Exception {
-        return new GermlineCaller(arguments, ComputeEngine.from(arguments, credentials), storage);
+        return new GermlineCaller(arguments,
+                ComputeEngine.from(arguments, credentials),
+                storage,
+                NamespacedResults.of(GermlineCaller.RESULTS_NAMESPACE));
     }
 }

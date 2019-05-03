@@ -12,21 +12,22 @@ import com.hartwig.pipeline.execution.vm.OutputUpload;
 import com.hartwig.pipeline.execution.vm.ResourceDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
-import com.hartwig.pipeline.io.ResultsDirectory;
+import com.hartwig.pipeline.io.NamespacedResults;
 import com.hartwig.pipeline.io.RuntimeBucket;
 
 public class Amber {
 
+    public static final String RESULTS_NAMESPACE = "amber";
     private final Arguments arguments;
     private final ComputeEngine computeEngine;
     private final Storage storage;
-    private final ResultsDirectory resultsDirectory;
+    private final NamespacedResults namespacedResults;
 
-    Amber(final Arguments arguments, final ComputeEngine computeEngine, final Storage storage, final ResultsDirectory resultsDirectory) {
+    Amber(final Arguments arguments, final ComputeEngine computeEngine, final Storage storage, final NamespacedResults namespacedResults) {
         this.arguments = arguments;
         this.computeEngine = computeEngine;
         this.storage = storage;
-        this.resultsDirectory = resultsDirectory;
+        this.namespacedResults = namespacedResults;
     }
 
     public AmberOutput run(AlignmentPair pair) {
@@ -45,15 +46,18 @@ public class Amber {
         InputDownload referenceBai = new InputDownload(pair.reference().finalBaiLocation());
         bash.addCommand(tumorBam).addCommand(referenceBam).addCommand(tumorBai).addCommand(referenceBai);
 
-        String amberBaf = OutputFile.of(tumorSampleName, "amber", "baf").path();
+        OutputFile amberBaf = OutputFile.of(tumorSampleName, "amber", "baf");
         bash.addCommand(new AmberApplicationCommand(referenceSampleName,
                 referenceBam.getLocalTargetPath(),
                 tumorSampleName,
                 tumorBam.getLocalTargetPath(),
                 referenceGenomeDownload.find("fasta", "fa"),
                 amberResourceDownload.find("bed")));
-        bash.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path())));
-        JobStatus status = computeEngine.submit(runtimeBucket, VirtualMachineJobDefinition.amber(bash));
-        return AmberOutput.builder().status(status).baf(GoogleStorageLocation.of(runtimeBucket.name(), amberBaf)).build();
+        bash.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), namespacedResults.path())));
+        JobStatus status = computeEngine.submit(runtimeBucket, VirtualMachineJobDefinition.amber(bash, namespacedResults));
+        return AmberOutput.builder()
+                .status(status)
+                .baf(GoogleStorageLocation.of(runtimeBucket.name(), namespacedResults.path(amberBaf.fileName())))
+                .build();
     }
 }

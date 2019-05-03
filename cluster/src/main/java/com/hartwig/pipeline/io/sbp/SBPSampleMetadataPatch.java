@@ -13,7 +13,7 @@ import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.io.BamDownload;
 import com.hartwig.pipeline.alignment.AlignmentOutputPaths;
-import com.hartwig.pipeline.io.ResultsDirectory;
+import com.hartwig.pipeline.io.NamespacedResults;
 import com.hartwig.pipeline.io.RuntimeBucket;
 
 import org.apache.commons.codec.binary.Hex;
@@ -29,22 +29,22 @@ public class SBPSampleMetadataPatch implements BamDownload {
     private final SBPRestApi sbpRestApi;
     private final int sbpSampleId;
     private final BamDownload decorated;
-    private final ResultsDirectory resultsDirectory;
+    private final NamespacedResults namespacedResults;
     private final EnvironmentVariables environmentVariables;
 
     public SBPSampleMetadataPatch(final AmazonS3 s3Client, final SBPRestApi sbpRestApi, final int sbpSampleId, final BamDownload decorated,
-            final ResultsDirectory resultsDirectory, final EnvironmentVariables environmentVariables) {
+            final NamespacedResults namespacedResults, final EnvironmentVariables environmentVariables) {
         this.s3Client = s3Client;
         this.sbpRestApi = sbpRestApi;
         this.sbpSampleId = sbpSampleId;
         this.decorated = decorated;
-        this.resultsDirectory = resultsDirectory;
+        this.namespacedResults = namespacedResults;
         this.environmentVariables = environmentVariables;
     }
 
     @Override
     public void run(final Sample sample, final RuntimeBucket runtimeBucket, final JobStatus result) {
-        Blob bamBlob = runtimeBucket.bucket().get(resultsDirectory.path(AlignmentOutputPaths.sorted(sample)));
+        Blob bamBlob = runtimeBucket.bucket().get(namespacedResults.path(AlignmentOutputPaths.sorted(sample)));
         decorated.run(sample, runtimeBucket, result);
         String bamFile = sample.name() + ".bam";
         String baiFile = bamFile + ".bai";

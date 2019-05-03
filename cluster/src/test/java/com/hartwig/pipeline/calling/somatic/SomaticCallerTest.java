@@ -2,32 +2,24 @@ package com.hartwig.pipeline.calling.somatic;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.google.api.gax.paging.Page;
-import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
-import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.alignment.AlignmentOutput;
+import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
-import com.hartwig.pipeline.io.ResultsDirectory;
+import com.hartwig.pipeline.io.NamespacedResults;
 import com.hartwig.pipeline.testsupport.MockResource;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
-import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -54,7 +46,7 @@ public class SomaticCallerTest {
         MockResource.addToStorage(storage, "known_snps", "dbsnp.vcf.gz");
         MockResource.addToStorage(storage, "cosmic_v85", "cosmic.vcf.gz");
         computeEngine = mock(ComputeEngine.class);
-        victim = new SomaticCaller(Arguments.testDefaults(), computeEngine, storage, ResultsDirectory.defaultDirectory());
+        victim = new SomaticCaller(Arguments.testDefaults(), computeEngine, storage, NamespacedResults.of(SomaticCaller.RESULTS_NAMESPACE));
     }
 
     @Test
@@ -63,7 +55,7 @@ public class SomaticCallerTest {
         when(computeEngine.submit(any(), any())).thenReturn(JobStatus.SUCCESS);
         assertThat(victim.run(input)).isEqualTo(SomaticCallerOutput.builder()
                 .status(JobStatus.SUCCESS)
-                .finalSomaticVcf(GoogleStorageLocation.of(RUNTIME_BUCKET, "results/data/output/tumor.cosmic.annotated.vcf.gz"))
+                .finalSomaticVcf(GoogleStorageLocation.of(RUNTIME_BUCKET, "results/somatic_caller/tumor.cosmic.annotated.vcf.gz"))
                 .build());
     }
 

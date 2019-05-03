@@ -4,7 +4,7 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
-import com.hartwig.pipeline.io.ResultsDirectory;
+import com.hartwig.pipeline.io.NamespacedResults;
 
 public class AmberProvider {
 
@@ -23,6 +23,7 @@ public class AmberProvider {
     }
 
     public Amber get() throws Exception {
-        return new Amber(arguments, ComputeEngine.from(arguments, credentials), storage, ResultsDirectory.defaultDirectory());
+        NamespacedResults namespacedResults = NamespacedResults.of(Amber.RESULTS_NAMESPACE);
+        return new Amber(arguments, ComputeEngine.from(arguments, credentials), storage, namespacedResults);
     }
 }

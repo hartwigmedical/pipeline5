@@ -12,7 +12,7 @@ import com.hartwig.pipeline.execution.vm.OutputUpload;
 import com.hartwig.pipeline.execution.vm.ResourceDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
-import com.hartwig.pipeline.io.ResultsDirectory;
+import com.hartwig.pipeline.io.NamespacedResults;
 import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.resource.GATKDictAlias;
 import com.hartwig.pipeline.resource.ReferenceGenomeAlias;
@@ -22,17 +22,18 @@ import org.jetbrains.annotations.NotNull;
 
 public class SomaticCaller {
 
+    public static final String RESULTS_NAMESPACE = "somatic_caller";
     private final Arguments arguments;
     private final ComputeEngine computeEngine;
     private final Storage storage;
-    private final ResultsDirectory resultsDirectory;
+    private final NamespacedResults namespacedResults;
 
     SomaticCaller(final Arguments arguments, final ComputeEngine computeEngine, final Storage storage,
-            final ResultsDirectory resultsDirectory) {
+            final NamespacedResults namespacedResults) {
         this.arguments = arguments;
         this.computeEngine = computeEngine;
         this.storage = storage;
-        this.resultsDirectory = resultsDirectory;
+        this.namespacedResults = namespacedResults;
     }
 
     public SomaticCallerOutput run(AlignmentPair pair) {
@@ -96,11 +97,12 @@ public class SomaticCaller {
                 .andThen(new CosmicAnnotation(cosmicResourceDownload.find("vcf.gz")))
                 .apply(SubStageInputOutput.of(tumorSampleName, OutputFile.empty(), bash));
 
-        bash.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path())));
-        JobStatus status = computeEngine.submit(runtimeBucket, VirtualMachineJobDefinition.somaticCalling(bash));
+        bash.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), namespacedResults.path())));
+        JobStatus status = computeEngine.submit(runtimeBucket, VirtualMachineJobDefinition.somaticCalling(bash, namespacedResults));
         ImmutableSomaticCallerOutput.Builder output = SomaticCallerOutput.builder().status(status);
         if (status.equals(JobStatus.SUCCESS)) {
-            output.finalSomaticVcf(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path(mergedOutput.outputFile().path())));
+            output.finalSomaticVcf(GoogleStorageLocation.of(runtimeBucket.name(),
+                    namespacedResults.path(mergedOutput.outputFile().fileName())));
         }
         return output.build();
     }

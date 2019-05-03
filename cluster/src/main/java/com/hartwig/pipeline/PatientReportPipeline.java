@@ -26,7 +26,7 @@ import com.hartwig.pipeline.calling.structural.StructuralCallerOutput;
 import com.hartwig.pipeline.calling.structural.StructuralCallerProvider;
 import com.hartwig.pipeline.credentials.CredentialProvider;
 import com.hartwig.pipeline.execution.JobStatus;
-import com.hartwig.pipeline.io.ResultsDirectory;
+import com.hartwig.pipeline.io.NamespacedResults;
 import com.hartwig.pipeline.storage.StorageProvider;
 import com.hartwig.pipeline.tertiary.amber.Amber;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
@@ -143,7 +143,7 @@ public class PatientReportPipeline {
                         StructuralCallerProvider.from(arguments).get(),
                         AmberProvider.from(arguments, credentials, storage).get(),
                         CobaltProvider.from(arguments, credentials, storage).get(),
-                        new AlignmentOutputStorage(storage, arguments, ResultsDirectory.defaultDirectory()),
+                        new AlignmentOutputStorage(storage, arguments, NamespacedResults.of(Aligner.RESULTS_NAMESPACE)),
                         arguments,
                         Executors.newFixedThreadPool(3)).run();
             } catch (Exception e) {

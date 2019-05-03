@@ -8,11 +8,12 @@ import static org.mockito.Mockito.when;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
-import com.hartwig.pipeline.io.ResultsDirectory;
+import com.hartwig.pipeline.io.NamespacedResults;
 import com.hartwig.pipeline.testsupport.MockResource;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
@@ -35,7 +36,7 @@ public class CobaltTest {
         when(bucket.getName()).thenReturn(RUNTIME_BUCKET);
         when(storage.get(RUNTIME_BUCKET)).thenReturn(bucket);
         MockResource.addToStorage(storage, "cobalt-gc", "gc.cnp");
-        victim = new Cobalt(ARGUMENTS, computeEngine, storage, ResultsDirectory.defaultDirectory());
+        victim = new Cobalt(ARGUMENTS, computeEngine, storage, NamespacedResults.of(Cobalt.RESULTS_NAMESPACE));
     }
 
     @Test
@@ -44,7 +45,7 @@ public class CobaltTest {
         CobaltOutput output = victim.run(TestInputs.defaultPair());
         assertThat(output).isEqualTo(CobaltOutput.builder()
                 .status(JobStatus.SUCCESS)
-                .cobaltFile(GoogleStorageLocation.of(RUNTIME_BUCKET, "/data/output/tumor.cobalt"))
+                .cobaltFile(GoogleStorageLocation.of(RUNTIME_BUCKET, "results/cobalt/tumor.cobalt"))
                 .build());
     }
 

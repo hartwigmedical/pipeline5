@@ -6,7 +6,7 @@ import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.execution.vm.*;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
-import com.hartwig.pipeline.io.ResultsDirectory;
+import com.hartwig.pipeline.io.NamespacedResults;
 import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.resource.GATKDictAlias;
 import com.hartwig.pipeline.resource.ReferenceGenomeAlias;
@@ -15,16 +15,22 @@ import com.hartwig.pipeline.resource.Resource;
 import static java.lang.String.format;
 
 public class GermlineCaller {
+
+    public static String RESULTS_NAMESPACE = "germline_caller";
+
     private static final String OUTPUT_FILENAME = "germline_output.gvcf";
 
     private final Arguments arguments;
     private final ComputeEngine executor;
     private final Storage storage;
+    private final NamespacedResults namespacedResults;
 
-    GermlineCaller(final Arguments arguments, final ComputeEngine executor, final Storage storage) {
+    GermlineCaller(final Arguments arguments, final ComputeEngine executor, final Storage storage,
+            final NamespacedResults namespacedResults) {
         this.arguments = arguments;
         this.executor = executor;
         this.storage = storage;
+        this.namespacedResults = namespacedResults;
     }
 
     public GermlineCallerOutput run(AlignmentOutput alignmentOutput) {
@@ -47,10 +53,10 @@ public class GermlineCaller {
                         format("%s/dbsnp_137.b37.vcf", VmDirectories.RESOURCES),
                         format("%s/%s", VmDirectories.OUTPUT, OUTPUT_FILENAME)))
                 .addLine("echo Processing finished at $(date)")
-                .addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), ResultsDirectory.defaultDirectory().path())));
+                .addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), namespacedResults.path())));
 
         ImmutableGermlineCallerOutput.Builder outputBuilder = GermlineCallerOutput.builder();
-        JobStatus status = executor.submit(bucket, VirtualMachineJobDefinition.germlineCalling(startupScript));
+        JobStatus status = executor.submit(bucket, VirtualMachineJobDefinition.germlineCalling(startupScript, namespacedResults));
         if (status.equals(JobStatus.SUCCESS)) {
             outputBuilder.germlineVcf(GoogleStorageLocation.of(bucket.name(), OUTPUT_FILENAME));
         }

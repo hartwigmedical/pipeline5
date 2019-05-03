@@ -11,7 +11,7 @@ import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.io.ResultsDirectory;
+import com.hartwig.pipeline.io.NamespacedResults;
 import com.hartwig.pipeline.testsupport.TestSamples;
 
 import org.junit.Before;
@@ -19,11 +19,12 @@ import org.junit.Test;
 
 public class AlignmentOutputStorageTest {
 
+    private static final NamespacedResults NAMESPACED_RESULTS = NamespacedResults.of(Aligner.RESULTS_NAMESPACE);
     private static final String BUCKET_NAME = "run-sample";
-    private static final String SORTED_PATH = "results/sample.sorted.bam";
-    private static final String SORTED_BAI_PATH = "results/sample.sorted.bam.bai";
-    private static final String RECALIBRATED_PATH = "results/sample.recalibrated.sorted.bam";
-    private static final String RECALIBRATED_BAI_PATH = "results/sample.recalibrated.sorted.bam.bai";
+    private static final String SORTED_PATH = NAMESPACED_RESULTS.path("sample.sorted.bam");
+    private static final String SORTED_BAI_PATH = NAMESPACED_RESULTS.path("sample.sorted.bam.bai");
+    private static final String RECALIBRATED_PATH = NAMESPACED_RESULTS.path("sample.recalibrated.sorted.bam");
+    private static final String RECALIBRATED_BAI_PATH = NAMESPACED_RESULTS.path("sample.recalibrated.sorted.bam.bai");
     private static final AlignmentOutput EXPECTED_OUTPUT = AlignmentOutput.of(of(BUCKET_NAME, SORTED_PATH),
             of(BUCKET_NAME, SORTED_BAI_PATH),
             of(BUCKET_NAME, RECALIBRATED_PATH),
@@ -36,7 +37,8 @@ public class AlignmentOutputStorageTest {
     @Before
     public void setUp() throws Exception {
         storage = mock(Storage.class);
-        victim = new AlignmentOutputStorage(storage, Arguments.testDefaults(), ResultsDirectory.defaultDirectory());
+        victim =
+                new AlignmentOutputStorage(storage, Arguments.testDefaults(), NAMESPACED_RESULTS);
         outputBucket = mock(Bucket.class);
         when(outputBucket.getName()).thenReturn(BUCKET_NAME);
         when(storage.get(BUCKET_NAME)).thenReturn(outputBucket);

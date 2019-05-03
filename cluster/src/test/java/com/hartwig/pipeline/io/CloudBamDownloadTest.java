@@ -11,6 +11,7 @@ import java.io.IOException;
 
 import com.hartwig.patient.ImmutableSample;
 import com.hartwig.patient.Sample;
+import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.io.sbp.SBPS3FileTarget;
 import com.hartwig.pipeline.testsupport.MockRuntimeBucket;
@@ -30,7 +31,7 @@ public class CloudBamDownloadTest {
     @Before
     public void setUp() {
         cloudCopy = mock(CloudCopy.class);
-        victim = new CloudBamDownload(SBPS3FileTarget::from, ResultsDirectory.defaultDirectory(), cloudCopy);
+        victim = new CloudBamDownload(SBPS3FileTarget::from, NamespacedResults.of(Aligner.RESULTS_NAMESPACE), cloudCopy);
         runtimeBucket = MockRuntimeBucket.of("run");
     }
 
@@ -46,8 +47,8 @@ public class CloudBamDownloadTest {
         ArgumentCaptor<String> targetCaptor = ArgumentCaptor.forClass(String.class);
         victim.run(SAMPLE, runtimeBucket.getRuntimeBucket(), JobStatus.SUCCESS);
         verify(cloudCopy, times(2)).copy(sourceCaptor.capture(), targetCaptor.capture());
-        assertThat(sourceCaptor.getAllValues().get(0)).isEqualTo("gs://run/results/TEST123.sorted.bam");
-        assertThat(sourceCaptor.getAllValues().get(1)).isEqualTo("gs://run/results/TEST123.sorted.bam.bai");
+        assertThat(sourceCaptor.getAllValues().get(0)).isEqualTo("gs://run/results/aligner/TEST123.sorted.bam");
+        assertThat(sourceCaptor.getAllValues().get(1)).isEqualTo("gs://run/results/aligner/TEST123.sorted.bam.bai");
         assertThat(targetCaptor.getAllValues().get(0)).isEqualTo("s3://hmf-bam-storage/FR123/TEST123.bam");
         assertThat(targetCaptor.getAllValues().get(1)).isEqualTo("s3://hmf-bam-storage/FR123/TEST123.bam.bai");
     }

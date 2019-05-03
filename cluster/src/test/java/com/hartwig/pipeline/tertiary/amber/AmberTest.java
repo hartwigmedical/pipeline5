@@ -8,13 +8,12 @@ import static org.mockito.Mockito.when;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
-import com.hartwig.pipeline.io.ResultsDirectory;
-import com.hartwig.pipeline.tertiary.amber.Amber;
-import com.hartwig.pipeline.tertiary.amber.AmberOutput;
+import com.hartwig.pipeline.io.NamespacedResults;
 import com.hartwig.pipeline.testsupport.MockResource;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
@@ -38,7 +37,7 @@ public class AmberTest {
         when(storage.get(RUNTIME_BUCKET)).thenReturn(bucket);
         MockResource.addToStorage(storage, "reference_genome", "reference.fasta");
         MockResource.addToStorage(storage, "amber-pon", "amber.bed");
-        victim = new Amber(ARGUMENTS, computeEngine, storage, ResultsDirectory.defaultDirectory());
+        victim = new Amber(ARGUMENTS, computeEngine, storage, NamespacedResults.of(Amber.RESULTS_NAMESPACE));
     }
 
     @Test
@@ -47,7 +46,7 @@ public class AmberTest {
         AmberOutput output = victim.run(TestInputs.defaultPair());
         assertThat(output).isEqualTo(AmberOutput.builder()
                 .status(JobStatus.SUCCESS)
-                .baf(GoogleStorageLocation.of(RUNTIME_BUCKET, "/data/output/tumor.amber.baf"))
+                .baf(GoogleStorageLocation.of(RUNTIME_BUCKET, "results/amber/tumor.amber.baf"))
                 .build());
     }
 

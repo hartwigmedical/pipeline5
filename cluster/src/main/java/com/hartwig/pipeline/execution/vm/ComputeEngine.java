@@ -15,7 +15,9 @@ import com.google.cloud.storage.Blob;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.execution.CloudExecutor;
 import com.hartwig.pipeline.execution.JobStatus;
+import com.hartwig.pipeline.io.NamespacedResults;
 import com.hartwig.pipeline.io.RuntimeBucket;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,18 +34,16 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
 
     private final Logger LOGGER = LoggerFactory.getLogger(ComputeEngine.class);
 
-    private final GoogleCredentials credentials;
     private final Arguments arguments;
     private final Compute compute;
 
-    ComputeEngine(final Arguments arguments, final GoogleCredentials credentials, final Compute compute) {
+    ComputeEngine(final Arguments arguments, final Compute compute) {
         this.arguments = arguments;
-        this.credentials = credentials;
         this.compute = compute;
     }
 
     public static ComputeEngine from(final Arguments arguments, final GoogleCredentials credentials) throws Exception {
-        return new ComputeEngine(arguments, credentials, initCompute(credentials));
+        return new ComputeEngine(arguments, initCompute(credentials));
     }
 
     @Override
@@ -51,8 +51,8 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
         String vmName = bucket.name() + "-" + jobDefinition.name();
         JobStatus status;
         try {
-            if (bucketContainsFile(bucket, jobDefinition.startupCommand().successFlag()) ||
-                bucketContainsFile(bucket, jobDefinition.startupCommand().failureFlag())) {
+            if (bucketContainsFile(bucket, jobDefinition.startupCommand().successFlag(), jobDefinition.namespacedResults())
+                    || bucketContainsFile(bucket, jobDefinition.startupCommand().failureFlag(), jobDefinition.namespacedResults())) {
                 LOGGER.warn("Job appears to have run already; skipping");
                 return JobStatus.SKIPPED;
             }
@@ -65,12 +65,7 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
             instance.setMachineType(machineType(ZONE_NAME, jobDefinition.performanceProfile().uri(), project));
 
             addServiceAccount(instance);
-            attachDisk(compute,
-                    instance,
-                    jobDefinition.imageFamily(),
-                    project,
-                    vmName,
-                    jobDefinition.performanceProfile().diskGb());
+            attachDisk(compute, instance, jobDefinition.imageFamily(), project, vmName, jobDefinition.performanceProfile().diskGb());
             addStartupCommand(instance, bucket, jobDefinition.startupCommand());
             addNetworkInterface(instance, project);
 
@@ -201,10 +196,10 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
         return compute.zoneOperations().get(projectName, ZONE_NAME, jobName).execute().getStatus();
     }
 
-    private boolean bucketContainsFile(RuntimeBucket bucket, String filename) {
+    private boolean bucketContainsFile(RuntimeBucket bucket, String filename, NamespacedResults namespacedResults) {
         Page<Blob> objects = bucket.bucket().list();
         for (Blob blob : objects.iterateAll()) {
-            if (blob.getName().equals(filename)) {
+            if (blob.getName().equals(namespacedResults.path(filename))) {
                 return true;
             }
         }
@@ -214,9 +209,9 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
     private JobStatus waitForCompletion(RuntimeBucket bucket, VirtualMachineJobDefinition jobDefinition) {
         LOGGER.info("Waiting for job completion");
         while (true) {
-            if (bucketContainsFile(bucket, jobDefinition.startupCommand().successFlag())) {
+            if (bucketContainsFile(bucket, jobDefinition.startupCommand().successFlag(), jobDefinition.namespacedResults())) {
                 return JobStatus.SUCCESS;
-            } else if (bucketContainsFile(bucket, jobDefinition.startupCommand().failureFlag())) {
+            } else if (bucketContainsFile(bucket, jobDefinition.startupCommand().failureFlag(), jobDefinition.namespacedResults())) {
                 return JobStatus.FAILED;
             }
             try {
