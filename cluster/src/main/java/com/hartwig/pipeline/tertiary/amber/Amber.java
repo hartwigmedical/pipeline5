@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.tertiary;
+package com.hartwig.pipeline.tertiary.amber;
 
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;

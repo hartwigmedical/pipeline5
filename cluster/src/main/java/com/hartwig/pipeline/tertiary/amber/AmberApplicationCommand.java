@@ -1,9 +1,8 @@
-package com.hartwig.pipeline.tertiary;
+package com.hartwig.pipeline.tertiary.amber;
 
-import com.hartwig.pipeline.execution.vm.JavaClassCommand;
-import com.hartwig.pipeline.execution.vm.VmDirectories;
+import com.hartwig.pipeline.tertiary.HmfToolCommand;
 
-class AmberApplicationCommand extends JavaClassCommand {
+class AmberApplicationCommand extends HmfToolCommand {
     AmberApplicationCommand(String referenceSampleName, String referenceBamPath, String tumorSampleName, String tumorBamPath,
             String referenceGenomePath, String bedPath) {
         super("amber",
@@ -11,18 +10,10 @@ class AmberApplicationCommand extends JavaClassCommand {
                 "amber.jar",
                 "com.hartwig.hmftools.amber.AmberApplication",
                 "32G",
-                "-reference",
                 referenceSampleName,
-                "-reference_bam",
                 referenceBamPath,
-                "-tumor",
                 tumorSampleName,
-                "-tumor_bam",
                 tumorBamPath,
-                "-output_dir",
-                VmDirectories.OUTPUT,
-                "-threads",
-                "16",
                 "-ref_genome",
                 referenceGenomePath,
                 "-bed",
