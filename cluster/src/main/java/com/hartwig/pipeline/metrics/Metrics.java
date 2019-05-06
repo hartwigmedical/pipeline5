@@ -30,7 +30,7 @@ public class Metrics {
         monitor.update(Metric.spentTime(BOOTSTRAP + "_" + prefix, runtimeMillis));
         double cost = costCalculator.calculate(profile, runtimeHours);
         monitor.update(Metric.of(COST, cost));
-        LOGGER.info("Stage [{}] completed in [{}] hours for a total cost of [{}]",
+        LOGGER.info("Stage [{}] completed in [{}] hours for a total cost defaultDirectory [{}]",
                 prefix, NumberFormat.getNumberInstance().format(runtimeHours),
                 NumberFormat.getCurrencyInstance().format(cost));
         if (profile.fastQSizeGB().isPresent()) {

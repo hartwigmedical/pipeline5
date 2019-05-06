@@ -85,7 +85,7 @@ public class GoogleDataproc implements SparkExecutor {
 
     @NotNull
     private String jobIdAndClusterName(final RuntimeBucket runtimeBucket, final SparkJobDefinition jobDefinition) {
-        String untrimmed = runtimeBucket.name() + "-" + jobDefinition.name().toLowerCase();
+        String untrimmed = runtimeBucket.runId() + "-" + jobDefinition.name().toLowerCase();
         return untrimmed.substring(0, Math.min(untrimmed.length(), 50));
     }
 

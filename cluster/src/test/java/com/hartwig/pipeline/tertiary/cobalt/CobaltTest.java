@@ -8,12 +8,11 @@ import static org.mockito.Mockito.when;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
-import com.hartwig.pipeline.io.NamespacedResults;
+import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.testsupport.MockResource;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
@@ -36,7 +35,7 @@ public class CobaltTest {
         when(bucket.getName()).thenReturn(RUNTIME_BUCKET);
         when(storage.get(RUNTIME_BUCKET)).thenReturn(bucket);
         MockResource.addToStorage(storage, "cobalt-gc", "gc.cnp");
-        victim = new Cobalt(ARGUMENTS, computeEngine, storage, NamespacedResults.of(Cobalt.RESULTS_NAMESPACE));
+        victim = new Cobalt(ARGUMENTS, computeEngine, storage, ResultsDirectory.defaultDirectory());
     }
 
     @Test
@@ -45,7 +44,7 @@ public class CobaltTest {
         CobaltOutput output = victim.run(TestInputs.defaultPair());
         assertThat(output).isEqualTo(CobaltOutput.builder()
                 .status(JobStatus.SUCCESS)
-                .cobaltFile(GoogleStorageLocation.of(RUNTIME_BUCKET, "results/cobalt/tumor.cobalt"))
+                .cobaltFile(GoogleStorageLocation.of(RUNTIME_BUCKET + "/cobalt", "results/tumor.cobalt"))
                 .build());
     }
 
@@ -70,10 +69,10 @@ public class CobaltTest {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
         victim.run(TestInputs.defaultPair());
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
-                "gsutil -qm cp gs://run-tumor/tumor.bam /data/input/tumor.bam",
-                "gsutil -qm cp gs://run-reference/reference.bam /data/input/reference.bam",
-                "gsutil -qm cp gs://run-tumor/tumor.bam.bai /data/input/tumor.bam.bai",
-                "gsutil -qm cp gs://run-reference/reference.bam.bai /data/input/reference.bam.bai");
+                "gsutil -qm cp gs://run-tumor/aligner/results/tumor.bam /data/input/tumor.bam",
+                "gsutil -qm cp gs://run-reference/aligner/results/reference.bam /data/input/reference.bam",
+                "gsutil -qm cp gs://run-tumor/aligner/results/tumor.bam.bai /data/input/tumor.bam.bai",
+                "gsutil -qm cp gs://run-reference/aligner/results/reference.bam.bai /data/input/reference.bam.bai");
     }
 
     @Test
@@ -81,7 +80,7 @@ public class CobaltTest {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
         victim.run(TestInputs.defaultPair());
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
-                "gsutil -qm cp -r /data/output/* gs://run-reference-tumor/results");
+                "gsutil -qm cp -r /data/output/* gs://run-reference-tumor/cobalt/results");
     }
 
     private ArgumentCaptor<VirtualMachineJobDefinition> captureAndReturnSuccess() {

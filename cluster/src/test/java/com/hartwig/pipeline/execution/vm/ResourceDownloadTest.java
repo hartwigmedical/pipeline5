@@ -14,8 +14,7 @@ public class ResourceDownloadTest {
 
     @Before
     public void setUp() throws Exception {
-        victim = new ResourceDownload(ResourceLocation.builder().bucket("bucket").addFiles("path/file1.ext1", "path/file2.ext2").build(),
-                MockRuntimeBucket.of("runtime").getRuntimeBucket());
+        victim = new ResourceDownload(ResourceLocation.builder().bucket("runtime/bucket").addFiles("path/file1.ext1", "path/file2.ext2").build());
     }
 
     @Test
@@ -29,7 +28,7 @@ public class ResourceDownloadTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void findThrowsIlegalArgumentExceptionWhenExtensionNotInFiles(){
+    public void findThrowsIlegalArgumentExceptionWhenExtensionNotInFiles() {
         victim.find("ext3");
     }
 

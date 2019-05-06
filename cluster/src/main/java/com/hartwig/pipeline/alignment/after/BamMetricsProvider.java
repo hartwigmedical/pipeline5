@@ -4,7 +4,7 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
-import com.hartwig.pipeline.io.NamespacedResults;
+import com.hartwig.pipeline.io.ResultsDirectory;
 
 public class BamMetricsProvider {
     private final Arguments arguments;
@@ -22,7 +22,7 @@ public class BamMetricsProvider {
     }
 
     public BamMetrics get() throws Exception {
-        NamespacedResults namespacedResults = NamespacedResults.of("bam_metrics");
-        return new BamMetrics(arguments, ComputeEngine.from(arguments, credentials), storage, namespacedResults);
+        ResultsDirectory resultsDirectory = ResultsDirectory.defaultDirectory();
+        return new BamMetrics(arguments, ComputeEngine.from(arguments, credentials), storage, resultsDirectory);
     }
 }

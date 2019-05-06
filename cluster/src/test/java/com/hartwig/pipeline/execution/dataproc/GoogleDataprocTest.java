@@ -30,7 +30,8 @@ public class GoogleDataprocTest {
     private static final String PROJECT = "project";
     private static final Arguments ARGUMENTS = Arguments.testDefaultsBuilder().project(PROJECT).region(REGION).build();
     private static final String JOB_ID_AND_CLUSTER_NAME = "sample-gunzip";
-    private static final SparkJobDefinition JOB_DEFINITION = SparkJobDefinition.gunzip(JarLocation.of("jar"));
+    private static final SparkJobDefinition JOB_DEFINITION =
+            SparkJobDefinition.gunzip(JarLocation.of("jar"), MockRuntimeBucket.test().getRuntimeBucket());
     private Dataproc.Projects.Regions.Clusters clusters;
     private Dataproc.Projects.Regions.Jobs jobs;
     private GoogleDataproc victim;
@@ -82,27 +83,30 @@ public class GoogleDataprocTest {
         setupJobSubmitMocks();
         JobStatus status = mock(JobStatus.class);
         when(status.getState()).thenReturn("RUNNING").thenReturn("RUNNING").thenReturn("DONE");
-        when(getJobsRequest.execute()).thenReturn(new Job().setReference(new JobReference().setJobId(JOB_ID_AND_CLUSTER_NAME)).setStatus(status));
+        when(getJobsRequest.execute()).thenReturn(new Job().setReference(new JobReference().setJobId(JOB_ID_AND_CLUSTER_NAME))
+                .setStatus(status));
         victim.submit(runtimeBucket, JOB_DEFINITION);
         verify(clusters, times(1)).delete(PROJECT, REGION, JOB_ID_AND_CLUSTER_NAME);
     }
 
     @Test
-    public void onExistingButIncompleteJobDoesNotResubmitButWaitsForCompletion() throws Exception{
+    public void onExistingButIncompleteJobDoesNotResubmitButWaitsForCompletion() throws Exception {
         setupJobSubmitMocks();
         JobStatus status = mock(JobStatus.class);
         when(status.getState()).thenReturn("RUNNING").thenReturn("RUNNING").thenReturn("DONE");
-        when(getJobsRequest.execute()).thenReturn(new Job().setReference(new JobReference().setJobId(JOB_ID_AND_CLUSTER_NAME)).setStatus(status));
+        when(getJobsRequest.execute()).thenReturn(new Job().setReference(new JobReference().setJobId(JOB_ID_AND_CLUSTER_NAME))
+                .setStatus(status));
         victim.submit(runtimeBucket, JOB_DEFINITION);
         verify(jobs, never()).submit(any(), any(), any());
     }
 
     @Test
-    public void onExistingButFailedJobsDeletesAndResubmits() throws Exception{
+    public void onExistingButFailedJobsDeletesAndResubmits() throws Exception {
         setupJobSubmitMocks();
         JobStatus status = mock(JobStatus.class);
         when(status.getState()).thenReturn("CANCELLED");
-        when(getJobsRequest.execute()).thenReturn(new Job().setReference(new JobReference().setJobId(JOB_ID_AND_CLUSTER_NAME)).setStatus(status));
+        when(getJobsRequest.execute()).thenReturn(new Job().setReference(new JobReference().setJobId(JOB_ID_AND_CLUSTER_NAME))
+                .setStatus(status));
         when(jobs.delete(PROJECT, REGION, JOB_ID_AND_CLUSTER_NAME)).thenReturn(mock(Dataproc.Projects.Regions.Jobs.Delete.class));
         victim.submit(runtimeBucket, JOB_DEFINITION);
         SubmitJobRequest value = submitRequestCaptor.getValue();

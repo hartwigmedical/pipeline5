@@ -14,20 +14,20 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@SuppressWarnings("unchecked")
 public class MockRuntimeBucket {
 
     private final RuntimeBucket runtimeBucket;
-    private final Bucket googleBucket;
     private final List<Blob> blobs = new ArrayList<>();
 
     private MockRuntimeBucket(String name) {
         runtimeBucket = mock(RuntimeBucket.class);
-        googleBucket = mock(Bucket.class);
         when(runtimeBucket.name()).thenReturn(name);
-        when(runtimeBucket.bucket()).thenReturn(googleBucket);
+        when(runtimeBucket.getNamespace()).thenReturn(name);
+        when(runtimeBucket.runId()).thenReturn(name);
         Page page = mock(Page.class);
-        //noinspection unchecked
-        when(googleBucket.list(any())).thenReturn(page);
+        when(runtimeBucket.list(any())).thenReturn(page);
+        when(runtimeBucket.list()).thenReturn(page);
         when(page.iterateAll()).thenReturn(blobs);
     }
 
@@ -53,7 +53,7 @@ public class MockRuntimeBucket {
             when(mockBlob.reader()).thenReturn(mockReadChannel);
             when(mockBlob.getMd5()).thenReturn(md5);
             blobs.add(mockBlob);
-            when(googleBucket.get(blob)).thenReturn(mockBlob);
+            when(runtimeBucket.get(blob)).thenReturn(mockBlob);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

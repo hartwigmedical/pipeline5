@@ -10,13 +10,12 @@ import static org.mockito.Mockito.when;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
-import com.hartwig.pipeline.io.NamespacedResults;
+import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.testsupport.MockResource;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
@@ -46,7 +45,7 @@ public class SomaticCallerTest {
         MockResource.addToStorage(storage, "known_snps", "dbsnp.vcf.gz");
         MockResource.addToStorage(storage, "cosmic_v85", "cosmic.vcf.gz");
         computeEngine = mock(ComputeEngine.class);
-        victim = new SomaticCaller(Arguments.testDefaults(), computeEngine, storage, NamespacedResults.of(SomaticCaller.RESULTS_NAMESPACE));
+        victim = new SomaticCaller(Arguments.testDefaults(), computeEngine, storage, ResultsDirectory.defaultDirectory());
     }
 
     @Test
@@ -55,7 +54,8 @@ public class SomaticCallerTest {
         when(computeEngine.submit(any(), any())).thenReturn(JobStatus.SUCCESS);
         assertThat(victim.run(input)).isEqualTo(SomaticCallerOutput.builder()
                 .status(JobStatus.SUCCESS)
-                .finalSomaticVcf(GoogleStorageLocation.of(RUNTIME_BUCKET, "results/somatic_caller/tumor.cosmic.annotated.vcf.gz"))
+                .finalSomaticVcf(GoogleStorageLocation.of(RUNTIME_BUCKET + "/" + SomaticCaller.NAMESPACE,
+                        "results/tumor.cosmic.annotated.vcf.gz"))
                 .build());
     }
 
@@ -65,10 +65,10 @@ public class SomaticCallerTest {
         when(computeEngine.submit(any(), jobDefinition.capture())).thenReturn(JobStatus.SUCCESS);
         victim.run(TestInputs.defaultPair());
         assertThat(jobDefinition.getValue().startupCommand().asUnixString()).contains(
-                "gsutil -qm cp gs://run-tumor/tumor.recalibrated.bam /data/input/tumor.recalibrated.bam",
-                "gsutil -qm cp gs://run-reference/reference.recalibrated.bam /data/input/reference.recalibrated.bam",
-                "gsutil -qm cp gs://run-tumor/tumor.recalibrated.bam.bai /data/input/tumor.recalibrated.bam.bai",
-                "gsutil -qm cp gs://run-reference/reference.recalibrated.bam.bai /data/input/reference.recalibrated.bam.bai");
+                "gsutil -qm cp gs://run-tumor/aligner/results/tumor.recalibrated.bam /data/input/tumor.recalibrated.bam",
+                "gsutil -qm cp gs://run-reference/aligner/results/reference.recalibrated.bam /data/input/reference.recalibrated.bam",
+                "gsutil -qm cp gs://run-tumor/aligner/results/tumor.recalibrated.bam.bai /data/input/tumor.recalibrated.bam.bai",
+                "gsutil -qm cp gs://run-reference/aligner/results/reference.recalibrated.bam.bai /data/input/reference.recalibrated.bam.bai");
     }
 
     @Test

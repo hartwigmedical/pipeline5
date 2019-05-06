@@ -23,11 +23,11 @@ public class GoogleStorageJarUpload implements JarUpload {
         String jarName = format("system%s.jar", version(arguments));
         String jarPath = arguments.jarDirectory() + File.separator + jarName;
         String blobLocation = format("%s/%s", JAR_BUCKET, jarName);
-        Blob jarBlob = runtimeBucket.bucket().get(blobLocation);
-        String blobUri = String.format("gs://%s/%s", runtimeBucket.bucket().getName(), blobLocation);
+        Blob jarBlob = runtimeBucket.get(blobLocation);
+        String blobUri = String.format("gs://%s/%s", runtimeBucket.name(), blobLocation);
         if (jarBlob == null || arguments.forceJarUpload()) {
             LOGGER.info("Uploading jar [{}] into [{}]", jarPath, blobUri);
-            runtimeBucket.bucket().create(blobLocation, new FileInputStream(jarPath));
+            runtimeBucket.create(blobLocation, new FileInputStream(jarPath));
             LOGGER.info("Upload complete");
         }
         return JarLocation.of(blobUri);

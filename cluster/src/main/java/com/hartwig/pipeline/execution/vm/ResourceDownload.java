@@ -15,16 +15,14 @@ public class ResourceDownload implements BashCommand {
 
     private static final String RESOURCES_PATH = "/data/resources";
     private final ResourceLocation resourceLocation;
-    private final RuntimeBucket runtimeBucket;
 
-    public ResourceDownload(final ResourceLocation resourceLocation, final RuntimeBucket runtimeBucket) {
+    public ResourceDownload(final ResourceLocation resourceLocation) {
         this.resourceLocation = resourceLocation;
-        this.runtimeBucket = runtimeBucket;
     }
 
     @Override
     public String asBash() {
-        return String.format("gsutil -m cp gs://%s/%s/* %s", runtimeBucket.name(), resourceLocation.bucket(), RESOURCES_PATH);
+        return String.format("gsutil -m cp gs://%s/* %s", resourceLocation.bucket(), RESOURCES_PATH);
     }
 
     List<String> getLocalPaths() {
@@ -51,6 +49,6 @@ public class ResourceDownload implements BashCommand {
     }
 
     public static ResourceDownload from(final RuntimeBucket runtimeBucket, final Resource resource) {
-        return new ResourceDownload(resource.copyInto(runtimeBucket), runtimeBucket);
+        return new ResourceDownload(resource.copyInto(runtimeBucket));
     }
 }

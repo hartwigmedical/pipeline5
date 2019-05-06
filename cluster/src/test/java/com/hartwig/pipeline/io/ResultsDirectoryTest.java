@@ -4,20 +4,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
 
-public class NamespacedResultsTest {
+public class ResultsDirectoryTest {
 
     @Test
     public void returnsOnlyNamespacedDirectory() {
-        assertThat(NamespacedResults.of("test").path()).isEqualTo("results/test");
+        assertThat(ResultsDirectory.defaultDirectory().path()).isEqualTo("results");
     }
 
     @Test
     public void includesDirectoryAndNamespaceInResult() {
-        assertThat(NamespacedResults.of("test").path("subpath")).isEqualTo("results/test/subpath");
+        assertThat(ResultsDirectory.defaultDirectory().path("subpath")).isEqualTo("results/subpath");
     }
 
     @Test
     public void avoidsDoubleSlashesWhenSubpathLeadsWithSlash() {
-        assertThat(NamespacedResults.of("test").path("/subpath")).isEqualTo("results/test/subpath");
+        assertThat(ResultsDirectory.defaultDirectory().path("/subpath")).isEqualTo("results/subpath");
     }
 }

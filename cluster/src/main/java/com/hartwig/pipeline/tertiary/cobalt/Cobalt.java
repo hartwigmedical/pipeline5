@@ -12,28 +12,28 @@ import com.hartwig.pipeline.execution.vm.OutputUpload;
 import com.hartwig.pipeline.execution.vm.ResourceDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
-import com.hartwig.pipeline.io.NamespacedResults;
+import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
 
 public class Cobalt {
 
-    public static final String RESULTS_NAMESPACE = "cobalt";
+    private static final String NAMESPACE = "cobalt";
     private final Arguments arguments;
     private final ComputeEngine computeEngine;
     private final Storage storage;
-    private final NamespacedResults namespacedResults;
+    private final ResultsDirectory resultsDirectory;
 
-    Cobalt(final Arguments arguments, final ComputeEngine computeEngine, final Storage storage, final NamespacedResults namespacedResults) {
+    Cobalt(final Arguments arguments, final ComputeEngine computeEngine, final Storage storage, final ResultsDirectory resultsDirectory) {
         this.arguments = arguments;
         this.computeEngine = computeEngine;
         this.storage = storage;
-        this.namespacedResults = namespacedResults;
+        this.resultsDirectory = resultsDirectory;
     }
 
     public CobaltOutput run(AlignmentPair pair) {
         String tumorSampleName = pair.tumor().sample().name();
         String referenceSampleName = pair.reference().sample().name();
-        RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, referenceSampleName, tumorSampleName, arguments);
+        RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, NAMESPACE, referenceSampleName, tumorSampleName, arguments);
         BashStartupScript bash = BashStartupScript.of(runtimeBucket.name());
 
         ResourceDownload cobaltResourceDownload = ResourceDownload.from(storage, "cobalt-gc", runtimeBucket);
@@ -51,11 +51,11 @@ public class Cobalt {
                 tumorSampleName,
                 tumorBam.getLocalTargetPath(),
                 cobaltResourceDownload.find("cnp")));
-        bash.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), namespacedResults.path())));
-        JobStatus status = computeEngine.submit(runtimeBucket, VirtualMachineJobDefinition.cobalt(bash, namespacedResults));
+        bash.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path())));
+        JobStatus status = computeEngine.submit(runtimeBucket, VirtualMachineJobDefinition.cobalt(bash, resultsDirectory));
         return CobaltOutput.builder()
                 .status(status)
-                .cobaltFile(GoogleStorageLocation.of(runtimeBucket.name(), namespacedResults.path(cobaltOutput.fileName())))
+                .cobaltFile(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path(cobaltOutput.fileName())))
                 .build();
     }
 }

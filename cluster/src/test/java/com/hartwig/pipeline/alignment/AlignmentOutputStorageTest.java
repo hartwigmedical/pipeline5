@@ -9,9 +9,8 @@ import static org.mockito.Mockito.when;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
-import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.io.NamespacedResults;
+import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.testsupport.TestSamples;
 
 import org.junit.Before;
@@ -19,36 +18,28 @@ import org.junit.Test;
 
 public class AlignmentOutputStorageTest {
 
-    private static final NamespacedResults NAMESPACED_RESULTS = NamespacedResults.of(Aligner.RESULTS_NAMESPACE);
+    private static final ResultsDirectory RESULTS_DIRECTORY = ResultsDirectory.defaultDirectory();
     private static final String BUCKET_NAME = "run-sample";
-    private static final String SORTED_PATH = NAMESPACED_RESULTS.path("sample.sorted.bam");
-    private static final String SORTED_BAI_PATH = NAMESPACED_RESULTS.path("sample.sorted.bam.bai");
-    private static final String RECALIBRATED_PATH = NAMESPACED_RESULTS.path("sample.recalibrated.sorted.bam");
-    private static final String RECALIBRATED_BAI_PATH = NAMESPACED_RESULTS.path("sample.recalibrated.sorted.bam.bai");
-    private static final AlignmentOutput EXPECTED_OUTPUT = AlignmentOutput.of(of(BUCKET_NAME, SORTED_PATH),
-            of(BUCKET_NAME, SORTED_BAI_PATH),
-            of(BUCKET_NAME, RECALIBRATED_PATH),
-            of(BUCKET_NAME, RECALIBRATED_BAI_PATH),
+    private static final String NAMESPACED_BUCKET_NAME = BUCKET_NAME + "/aligner";
+    private static final String SORTED_PATH = RESULTS_DIRECTORY.path("sample.sorted.bam");
+    private static final String SORTED_BAI_PATH = RESULTS_DIRECTORY.path("sample.sorted.bam.bai");
+    private static final String RECALIBRATED_PATH = RESULTS_DIRECTORY.path("sample.recalibrated.sorted.bam");
+    private static final String RECALIBRATED_BAI_PATH = RESULTS_DIRECTORY.path("sample.recalibrated.sorted.bam.bai");
+    private static final AlignmentOutput EXPECTED_OUTPUT = AlignmentOutput.of(of(NAMESPACED_BUCKET_NAME, SORTED_PATH),
+            of(NAMESPACED_BUCKET_NAME, SORTED_BAI_PATH),
+            of(NAMESPACED_BUCKET_NAME, RECALIBRATED_PATH),
+            of(NAMESPACED_BUCKET_NAME, RECALIBRATED_BAI_PATH),
             TestSamples.simpleReferenceSample());
-    private Storage storage;
     private AlignmentOutputStorage victim;
     private Bucket outputBucket;
 
     @Before
     public void setUp() throws Exception {
-        storage = mock(Storage.class);
-        victim =
-                new AlignmentOutputStorage(storage, Arguments.testDefaults(), NAMESPACED_RESULTS);
+        final Storage storage = mock(Storage.class);
+        victim = new AlignmentOutputStorage(storage, Arguments.testDefaults(), RESULTS_DIRECTORY);
         outputBucket = mock(Bucket.class);
         when(outputBucket.getName()).thenReturn(BUCKET_NAME);
         when(storage.get(BUCKET_NAME)).thenReturn(outputBucket);
-    }
-
-    @Test
-    public void returnsEmptyOptionalWhenNoOutputBucketFound() {
-        when(storage.get(BUCKET_NAME)).thenReturn(null);
-        Sample sample = TestSamples.simpleReferenceSample();
-        assertThat(victim.get(sample)).isEmpty();
     }
 
     @Test
@@ -74,12 +65,12 @@ public class AlignmentOutputStorageTest {
 
     private void mockBlob(final String blobPath) {
         Blob blob = blob(blobPath);
-        when(outputBucket.get(blobPath)).thenReturn(blob);
+        when(outputBucket.get(Aligner.NAMESPACE + "/" + blobPath)).thenReturn(blob);
     }
 
     private Blob blob(String name) {
         Blob blob = mock(Blob.class);
-        when(blob.getName()).thenReturn(name);
+        when(blob.getName()).thenReturn(Aligner.NAMESPACE + "/" + name);
         return blob;
     }
 }

@@ -13,7 +13,7 @@ import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.io.BamDownload;
 import com.hartwig.pipeline.alignment.AlignmentOutputPaths;
-import com.hartwig.pipeline.io.NamespacedResults;
+import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
 
 import org.slf4j.Logger;
@@ -25,25 +25,25 @@ public class SBPS3BamDownload implements BamDownload {
     private final Logger LOGGER = LoggerFactory.getLogger(SBPS3BamDownload.class);
 
     private final TransferManager transferManager;
-    private final NamespacedResults namespacedResults;
+    private final ResultsDirectory resultsDirectory;
     private final int maxAttempts;
     private final int retryDelay;
 
-    SBPS3BamDownload(final TransferManager transferManager, final NamespacedResults namespacedResults, final int maxAttempts,
+    SBPS3BamDownload(final TransferManager transferManager, final ResultsDirectory resultsDirectory, final int maxAttempts,
             final int retryDelay) {
         this.transferManager = transferManager;
-        this.namespacedResults = namespacedResults;
+        this.resultsDirectory = resultsDirectory;
         this.maxAttempts = maxAttempts;
         this.retryDelay = retryDelay;
     }
 
-    public static SBPS3BamDownload from(final AmazonS3 s3, final NamespacedResults namespacedResults) {
+    public static SBPS3BamDownload from(final AmazonS3 s3, final ResultsDirectory resultsDirectory) {
         TransferManager transferManager = TransferManagerBuilder.standard()
                 .withS3Client(s3)
                 .withMultipartUploadThreshold(ONE_HUNDRED_MB)
                 .withMinimumUploadPartSize(ONE_HUNDRED_MB)
                 .build();
-        return new SBPS3BamDownload(transferManager, namespacedResults, 2, 600);
+        return new SBPS3BamDownload(transferManager, resultsDirectory, 2, 600);
     }
 
     @Override
@@ -63,7 +63,7 @@ public class SBPS3BamDownload implements BamDownload {
             } catch (Exception e) {
                 if (attempts <= maxAttempts) {
                     LOGGER.warn(String.format(
-                            "Transfer failed on the following exception. This was attempt [%s] of [%s]. Retrying in [%s seconds]",
+                            "Transfer failed on the following exception. This was attempt [%s] defaultDirectory [%s]. Retrying in [%s seconds]",
                             attempts,
                             maxAttempts,
                             retryDelay), e);
@@ -89,7 +89,7 @@ public class SBPS3BamDownload implements BamDownload {
 
     private void transfer(final RuntimeBucket runtimeBucket, final TransferManager transferManager, final String blobName,
             final String s3Bucket, final String s3Key) {
-        Blob blob = runtimeBucket.bucket().get(namespacedResults.path(blobName));
+        Blob blob = runtimeBucket.get(resultsDirectory.path(blobName));
 
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentLength(blob.getSize());
@@ -97,7 +97,7 @@ public class SBPS3BamDownload implements BamDownload {
         request.getRequestClientOptions().setReadLimit(Integer.MAX_VALUE);
 
         LOGGER.info("Downloading from [gs://{}/{}] and uploading it to SBP S3 at [s3://{}/{}]",
-                runtimeBucket.bucket().getName(),
+                runtimeBucket.name(),
                 blob.getName(),
                 s3Bucket,
                 s3Key);

@@ -12,7 +12,7 @@ import com.hartwig.pipeline.execution.vm.OutputUpload;
 import com.hartwig.pipeline.execution.vm.ResourceDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
-import com.hartwig.pipeline.io.NamespacedResults;
+import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.resource.GATKDictAlias;
 import com.hartwig.pipeline.resource.ReferenceGenomeAlias;
@@ -22,25 +22,25 @@ import org.jetbrains.annotations.NotNull;
 
 public class SomaticCaller {
 
-    public static final String RESULTS_NAMESPACE = "somatic_caller";
+    static final String NAMESPACE = "somatic_caller";
     private final Arguments arguments;
     private final ComputeEngine computeEngine;
     private final Storage storage;
-    private final NamespacedResults namespacedResults;
+    private final ResultsDirectory resultsDirectory;
 
     SomaticCaller(final Arguments arguments, final ComputeEngine computeEngine, final Storage storage,
-            final NamespacedResults namespacedResults) {
+            final ResultsDirectory resultsDirectory) {
         this.arguments = arguments;
         this.computeEngine = computeEngine;
         this.storage = storage;
-        this.namespacedResults = namespacedResults;
+        this.resultsDirectory = resultsDirectory;
     }
 
     public SomaticCallerOutput run(AlignmentPair pair) {
 
         String tumorSampleName = pair.tumor().sample().name();
         String referenceSampleName = pair.reference().sample().name();
-        RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, referenceSampleName, tumorSampleName, arguments);
+        RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, NAMESPACE, referenceSampleName, tumorSampleName, arguments);
         BashStartupScript bash = BashStartupScript.of(runtimeBucket.name());
 
         ResourceDownload referenceGenomeDownload = ResourceDownload.from(runtimeBucket, referenceGenomeResource());
@@ -97,12 +97,12 @@ public class SomaticCaller {
                 .andThen(new CosmicAnnotation(cosmicResourceDownload.find("vcf.gz")))
                 .apply(SubStageInputOutput.of(tumorSampleName, OutputFile.empty(), bash));
 
-        bash.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), namespacedResults.path())));
-        JobStatus status = computeEngine.submit(runtimeBucket, VirtualMachineJobDefinition.somaticCalling(bash, namespacedResults));
+        bash.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path())));
+        JobStatus status = computeEngine.submit(runtimeBucket, VirtualMachineJobDefinition.somaticCalling(bash, resultsDirectory));
         ImmutableSomaticCallerOutput.Builder output = SomaticCallerOutput.builder().status(status);
         if (status.equals(JobStatus.SUCCESS)) {
             output.finalSomaticVcf(GoogleStorageLocation.of(runtimeBucket.name(),
-                    namespacedResults.path(mergedOutput.outputFile().fileName())));
+                    resultsDirectory.path(mergedOutput.outputFile().fileName())));
         }
         return output.build();
     }
@@ -111,7 +111,7 @@ public class SomaticCaller {
     private Resource referenceGenomeResource() {
         return new Resource(storage,
                 arguments.referenceGenomeBucket(),
-                "reference_genome",
+                arguments.referenceGenomeBucket(),
                 new ReferenceGenomeAlias().andThen(new GATKDictAlias()));
     }
 }

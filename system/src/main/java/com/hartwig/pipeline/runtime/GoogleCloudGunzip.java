@@ -47,12 +47,13 @@ public class GoogleCloudGunzip {
     }
 
     public static void main(String[] args) {
+        String namespace = args[0];
         Configuration configuration = Configuration.builder()
                 .pipeline(PipelineParameters.builder().hdfs("gs:///").build())
                 .referenceGenome(ReferenceGenomeParameters.builder().file("N/A").build())
                 .knownIndel(KnownIndelParameters.builder().addFiles("N/A").build())
                 .knownSnp(KnownSnpParameters.builder().addFiles("N/A").build())
-                .patient(PatientParameters.builder().directory("/samples").name("").build())
+                .patient(PatientParameters.builder().directory(namespace + "/samples").name("").build())
                 .build();
         new GoogleCloudGunzip(configuration).execute();
     }

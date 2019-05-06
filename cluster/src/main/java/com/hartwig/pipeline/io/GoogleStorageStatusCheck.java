@@ -12,20 +12,20 @@ public class GoogleStorageStatusCheck implements StatusCheck {
     private static final String SUCCESS_PATH = "/_SUCCESS";
     private static final String FAILURE_PATH = "/_FAILURE";
 
-    private final NamespacedResults namespacedResults;
+    private final ResultsDirectory resultsDirectory;
 
-    public GoogleStorageStatusCheck(final NamespacedResults namespacedResults) {
-        this.namespacedResults = namespacedResults;
+    public GoogleStorageStatusCheck(final ResultsDirectory resultsDirectory) {
+        this.resultsDirectory = resultsDirectory;
     }
 
     @Override
     public Status check(final RuntimeBucket bucket) {
-        Blob blob = bucket.bucket().get(namespacedResults.path(FAILURE_PATH));
+        Blob blob = bucket.get(resultsDirectory.path(FAILURE_PATH));
         if (blob != null) {
             LOGGER.error("Pipeline run for [{}] was marked as failed with reason [{}]", bucket.name(), new String(blob.getContent()));
             return Status.FAILED;
         }
-        blob = bucket.bucket().get(namespacedResults.path(SUCCESS_PATH));
+        blob = bucket.get(resultsDirectory.path(SUCCESS_PATH));
         if (blob != null) {
             LOGGER.info("Pipeline run for [{}] was marked as successful", bucket.name());
             return Status.SUCCESS;

@@ -5,14 +5,13 @@ import com.google.api.services.compute.Compute;
 import com.google.api.services.compute.model.Image;
 import com.google.api.services.compute.model.Instance;
 import com.google.api.services.compute.model.Operation;
-import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.ReadChannel;
 import com.google.cloud.storage.Blob;
-import com.google.cloud.storage.Bucket;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.execution.JobStatus;
-import com.hartwig.pipeline.io.NamespacedResults;
+import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.testsupport.MockRuntimeBucket;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -29,7 +28,8 @@ import static org.mockito.Mockito.*;
 public class ComputeEngineTest {
 
     private static final Arguments ARGUMENTS = Arguments.testDefaults();
-    private static final NamespacedResults NAMESPACED_RESULTS = NamespacedResults.of("test");
+    private static final ResultsDirectory RESULTS_DIRECTORY = ResultsDirectory.defaultDirectory();
+    private static final String NAMESPACE = "test/";
     private ComputeEngine victim;
     private MockRuntimeBucket runtimeBucket;
     private Compute compute;
@@ -72,7 +72,7 @@ public class ComputeEngineTest {
         runtimeBucket = MockRuntimeBucket.test();
         jobDefinition = VirtualMachineJobDefinition.builder()
                 .name("test")
-                .namespacedResults(NAMESPACED_RESULTS)
+                .namespacedResults(RESULTS_DIRECTORY)
                 .startupCommand(BashStartupScript.of(runtimeBucket.getRuntimeBucket().name()))
                 .build();
     }
@@ -86,7 +86,6 @@ public class ComputeEngineTest {
     @Test
     public void createsVmWithRunScriptAndWaitsForCompletion() {
         runtimeBucket = runtimeBucket.with(successBlob(), 1);
-        Bucket underlyingBucket = runtimeBucket.getRuntimeBucket().bucket();
 
         Page page = mock(Page.class);
         //noinspection unchecked
@@ -103,24 +102,19 @@ public class ComputeEngineTest {
             when(mockBlob.reader()).thenReturn(mockReadChannel);
             when(mockBlob.getMd5()).thenReturn("");
             blobs.add(mockBlob);
-            when(underlyingBucket.get(BashStartupScript.JOB_SUCCEEDED_FLAG)).thenReturn(mockBlob);
+            when(runtimeBucket.getRuntimeBucket().get(BashStartupScript.JOB_SUCCEEDED_FLAG)).thenReturn(mockBlob);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
         when(withFlag.iterateAll()).thenReturn(blobs);
-        when(underlyingBucket.list(any())).thenReturn(page).thenReturn(page).thenReturn(withFlag);
+        when(runtimeBucket.getRuntimeBucket().list()).thenReturn(page).thenReturn(page).thenReturn(withFlag);
         assertThat(victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition)).isEqualTo(JobStatus.SUCCESS);
-    }
-
-    private String successBlob() {
-        return NAMESPACED_RESULTS.path(BashStartupScript.JOB_SUCCEEDED_FLAG);
     }
 
     @Test
     public void returnsJobFailedWhenScriptFailsRemotely() {
         runtimeBucket = runtimeBucket.with(failureBlob(), 1);
-        Bucket underlyingBucket = runtimeBucket.getRuntimeBucket().bucket();
 
         Page page = mock(Page.class);
         //noinspection unchecked
@@ -137,17 +131,15 @@ public class ComputeEngineTest {
             when(mockBlob.reader()).thenReturn(mockReadChannel);
             when(mockBlob.getMd5()).thenReturn("");
             blobs.add(mockBlob);
-            when(underlyingBucket.get(BashStartupScript.JOB_FAILED_FLAG)).thenReturn(mockBlob);
+            when(runtimeBucket.getRuntimeBucket().get(BashStartupScript.JOB_FAILED_FLAG)).thenReturn(mockBlob);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
         when(withFlag.iterateAll()).thenReturn(blobs);
-        when(underlyingBucket.list(any())).thenReturn(page).thenReturn(page).thenReturn(withFlag);
+        when(runtimeBucket.getRuntimeBucket().list()).thenReturn(page).thenReturn(page).thenReturn(withFlag);
         assertThat(victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition)).isEqualTo(JobStatus.FAILED);
     }
-
-
 
     @Test
     public void shouldSkipJobWhenSuccessFlagFileAlreadyExists() {
@@ -163,7 +155,11 @@ public class ComputeEngineTest {
         verifyNoMoreInteractions(compute);
     }
 
+    private String successBlob() {
+        return NAMESPACE + BashStartupScript.JOB_SUCCEEDED_FLAG;
+    }
+
     private String failureBlob() {
-        return NAMESPACED_RESULTS.path(BashStartupScript.JOB_FAILED_FLAG);
+        return NAMESPACE + BashStartupScript.JOB_FAILED_FLAG;
     }
 }

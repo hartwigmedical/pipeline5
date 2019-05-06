@@ -6,6 +6,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.Collections;
 
 import com.google.api.gax.paging.Page;
@@ -16,15 +18,18 @@ import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageClass;
 import com.hartwig.pipeline.Arguments;
 
+import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 public class RuntimeBucketTest {
 
+    private static final String NAMESPACE = "test";
     private static final String REGION = "region";
     private static final String REFERENCE_NAME = "reference";
     private static final String TUMOR_NAME = "tumor";
+    private static final String NAMESPACED_BLOB = "test/path/to/blob";
     private Storage storage;
     private ArgumentCaptor<BucketInfo> blobInfo;
     private Bucket bucket;
@@ -39,13 +44,17 @@ public class RuntimeBucketTest {
 
     @Test
     public void createsBucketIdFromSampleName() {
-        RuntimeBucket.from(storage, REFERENCE_NAME, Arguments.testDefaultsBuilder().profile(Arguments.DefaultsProfile.PRODUCTION).build());
+        RuntimeBucket.from(storage,
+                NAMESPACE,
+                REFERENCE_NAME,
+                Arguments.testDefaultsBuilder().profile(Arguments.DefaultsProfile.PRODUCTION).build());
         assertThat(blobInfo.getValue().getName()).isEqualTo("run-reference");
     }
 
     @Test
     public void createsBucketIdFromTumorAndReferenceName() {
         RuntimeBucket.from(storage,
+                NAMESPACE,
                 REFERENCE_NAME,
                 TUMOR_NAME,
                 Arguments.testDefaultsBuilder().profile(Arguments.DefaultsProfile.PRODUCTION).build());
@@ -54,27 +63,67 @@ public class RuntimeBucketTest {
 
     @Test
     public void setsRegionToArguments() {
-        RuntimeBucket.from(storage, REFERENCE_NAME, Arguments.testDefaultsBuilder().region(REGION).build());
+        RuntimeBucket.from(storage, NAMESPACE, REFERENCE_NAME, Arguments.testDefaultsBuilder().region(REGION).build());
         assertThat(blobInfo.getValue().getLocation()).isEqualTo(REGION);
     }
 
     @Test
     public void usesRegionalStorageClass() {
-        RuntimeBucket.from(storage, REFERENCE_NAME, Arguments.testDefaults());
+        defaultBucket();
         assertThat(blobInfo.getValue().getStorageClass()).isEqualTo(StorageClass.REGIONAL);
     }
 
     @Test
-    public void cleanupDeletesAllObjectsBeforeDeletingBucket() {
-        RuntimeBucket victim = RuntimeBucket.from(storage, REFERENCE_NAME, Arguments.testDefaults());
-        @SuppressWarnings("unchecked")
-        Page<Blob> page = mock(Page.class);
-        Blob singleObject = mock(Blob.class);
-        when(page.iterateAll()).thenReturn(Collections.singletonList(singleObject));
-        when(bucket.exists()).thenReturn(true);
-        when(bucket.list()).thenReturn(page);
-        victim.cleanup();
-        verify(singleObject, times(1)).delete();
-        verify(bucket, times(1)).delete();
+    public void namespacesGetOperation() {
+        RuntimeBucket victim = defaultBucket();
+        ArgumentCaptor<String> blobNameCaptor = ArgumentCaptor.forClass(String.class);
+        victim.get("/path/to/blob");
+        verify(bucket).get(blobNameCaptor.capture());
+        assertThat(blobNameCaptor.getValue()).isEqualTo(NAMESPACED_BLOB);
+    }
+
+    @Test
+    public void namespacesCreateOperationBytes() {
+        RuntimeBucket victim = defaultBucket();
+        ArgumentCaptor<String> blobNameCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<byte[]> contentCaptor = ArgumentCaptor.forClass(byte[].class);
+        byte[] content = {};
+        victim.create("/path/to/blob", content);
+        verify(bucket).create(blobNameCaptor.capture(), contentCaptor.capture());
+        assertThat(blobNameCaptor.getValue()).isEqualTo(NAMESPACED_BLOB);
+    }
+
+    @Test
+    public void namespacesCreateOperationStream() {
+        RuntimeBucket victim = defaultBucket();
+        ArgumentCaptor<String> blobNameCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<InputStream> contentCaptor = ArgumentCaptor.forClass(InputStream.class);
+        InputStream content = new ByteArrayInputStream(new byte[] {});
+        victim.create("/path/to/blob", content);
+        verify(bucket).create(blobNameCaptor.capture(), contentCaptor.capture());
+        assertThat(blobNameCaptor.getValue()).isEqualTo(NAMESPACED_BLOB);
+    }
+
+    @Test
+    public void namespacesListOperationNoPrefix() {
+        RuntimeBucket victim = defaultBucket();
+        ArgumentCaptor<Storage.BlobListOption> listOptionCaptor = ArgumentCaptor.forClass(Storage.BlobListOption.class);
+        victim.list();
+        verify(bucket).list(listOptionCaptor.capture());
+        assertThat(listOptionCaptor.getValue()).isEqualTo(Storage.BlobListOption.prefix("test"));
+    }
+
+    @Test
+    public void namespacesListOperationPrefix() {
+        RuntimeBucket victim = defaultBucket();
+        ArgumentCaptor<Storage.BlobListOption> listOptionCaptor = ArgumentCaptor.forClass(Storage.BlobListOption.class);
+        victim.list("prefix");
+        verify(bucket).list(listOptionCaptor.capture());
+        assertThat(listOptionCaptor.getValue()).isEqualTo(Storage.BlobListOption.prefix("test/prefix"));
+    }
+
+    @NotNull
+    private RuntimeBucket defaultBucket() {
+        return RuntimeBucket.from(storage, NAMESPACE, REFERENCE_NAME, Arguments.testDefaults());
     }
 }

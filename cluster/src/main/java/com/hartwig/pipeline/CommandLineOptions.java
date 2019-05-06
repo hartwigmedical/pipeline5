@@ -54,9 +54,9 @@ public class CommandLineOptions {
                 .addOption(sampleDirectory())
                 .addOption(sampleId())
                 .addOption(jarLibDirectory())
-                .addOption(optionWithBooleanArg(SKIP_UPLOAD_FLAG, "Skip uploading of patient data into cloud storage"))
+                .addOption(optionWithBooleanArg(SKIP_UPLOAD_FLAG, "Skip uploading defaultDirectory patient data into cloud storage"))
                 .addOption(optionWithBooleanArg(FORCE_JAR_UPLOAD_FLAG,
-                        "Force upload of JAR even if the version already exists in cloud storage"))
+                        "Force upload defaultDirectory JAR even if the version already exists in cloud storage"))
                 .addOption(optionWithBooleanArg(CLEANUP_FLAG, "Don't delete the runtime bucket after job is complete"))
                 .addOption(optionWithBooleanArg(USE_PREEMTIBLE_VMS_FLAG,
                         "Do not allocate half the cluster as preemtible VMs to save cost. "
@@ -122,7 +122,7 @@ public class CommandLineOptions {
 
     private static Option nodeInitScript() {
         return optionWithArg(NODE_INIT_FLAG,
-                "Script to run on initialization of each cluster node. The default script installs BWA, sambamba and picard");
+                "Script to run on initialization defaultDirectory each cluster node. The default script installs BWA, sambamba and picard");
     }
 
     private static Option runId() {
@@ -130,11 +130,11 @@ public class CommandLineOptions {
     }
 
     private static Option sbpApiUrl() {
-        return optionWithArg(SBP_API_URL_FLAG, "URL of the SBP API endpoint");
+        return optionWithArg(SBP_API_URL_FLAG, "URL defaultDirectory the SBP API endpoint");
     }
 
     private static Option sbpS3Url() {
-        return optionWithArg(SBP_S3_URL_FLAG, "URL of the SBP S3 endpoint");
+        return optionWithArg(SBP_S3_URL_FLAG, "URL defaultDirectory the SBP S3 endpoint");
     }
 
     private static Option sbpSampleId() {
@@ -163,7 +163,7 @@ public class CommandLineOptions {
     }
 
     private static Option version() {
-        return optionWithArg(VERSION_FLAG, "Version of pipeline5 to run in spark.");
+        return optionWithArg(VERSION_FLAG, "Version defaultDirectory pipeline5 to run in spark.");
     }
 
     @NotNull
@@ -173,7 +173,7 @@ public class CommandLineOptions {
 
     @NotNull
     private static Option sampleDirectory() {
-        return optionWithArg(SAMPLE_DIRECTORY_FLAG, "Root directory of the patient data");
+        return optionWithArg(SAMPLE_DIRECTORY_FLAG, "Root directory defaultDirectory the patient data");
     }
 
     public static Arguments from(String[] args) throws ParseException {

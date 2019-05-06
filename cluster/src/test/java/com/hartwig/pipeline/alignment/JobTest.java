@@ -29,11 +29,9 @@ import org.junit.Test;
 
 public class JobTest {
 
-    private static final ImmutableSample TEST_SAMPLE = Sample.builder("", "test_sample").build();
-    private static final DataprocPerformanceProfile PERFORMANCE_PROFILE = DataprocPerformanceProfile.singleNode();
-    private static final Arguments ARGUMENTS = Arguments.testDefaults();
     private static final JarLocation JAR_LOCATION = JarLocation.of("/path/to/jar");
-    private static final SparkJobDefinition JOB_DEFINITION = SparkJobDefinition.gunzip(JAR_LOCATION);
+    private static final SparkJobDefinition JOB_DEFINITION =
+            SparkJobDefinition.gunzip(JAR_LOCATION, MockRuntimeBucket.test().getRuntimeBucket());
     private SparkExecutor sparkExecutor;
     private Monitor monitor;
     private StatusCheck statusCheck;

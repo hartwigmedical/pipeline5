@@ -21,25 +21,26 @@ public class GoogleCloudPipelineRuntime {
             String version = args[0];
             String runId = args[1];
             String project = args[2];
-            String resultsDirectory = args[3];
-            LOGGER.info("Starting pipeline with version [{}] run id [{}] for project [{}] in working directory [{}] on Google Dataproc",
+            String namespace = args[3];
+            LOGGER.info("Starting pipeline with version [{}] run id [{}] for project [{}] in namespace [{}] on Google Dataproc",
                     version,
                     runId,
                     project,
-                    resultsDirectory);
+                    namespace);
 
             Configuration configuration = Configuration.builder()
                     .pipeline(PipelineParameters.builder()
                             .hdfs("gs:///")
                             .bwa(BwaParameters.builder().threads(1).build())
-                            .resultsDirectory(resultsDirectory)
+                            .resultsDirectory(namespace + "/results")
                             .build())
-                    .referenceGenome(ReferenceGenomeParameters.builder().file("reference.fasta").build())
+                    .referenceGenome(ReferenceGenomeParameters.builder().file("reference.fasta").directory(namespace + "/reference_genome").build())
                     .knownIndel(KnownIndelParameters.builder()
+                            .directory(namespace + "/known_indels")
                             .addFiles("1000G_phase1.indels.b37.vcf.gz", "Mills_and_1000G_gold_standard.indels.b37.vcf.gz")
                             .build())
-                    .knownSnp(KnownSnpParameters.builder().addFiles("dbsnp_137.b37.vcf").build())
-                    .patient(PatientParameters.builder().directory("/samples").name("").build())
+                    .knownSnp(KnownSnpParameters.builder().directory(namespace + "/known_snps").addFiles("dbsnp_137.b37.vcf").build())
+                    .patient(PatientParameters.builder().directory(namespace + "/samples").name("").build())
                     .build();
 
             new PipelineRuntime(configuration, Monitor.noop()).start();

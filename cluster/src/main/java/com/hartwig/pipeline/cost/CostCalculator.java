@@ -44,7 +44,7 @@ public class CostCalculator {
         try {
             Map<String, Sku> skus = getSkus(COMPUTE_SERVICE);
             if (skus.isEmpty()) {
-                LOGGER.warn("No SKUs found for service [{}]. Could be the service name is incorrect of something has changed in the Google "
+                LOGGER.warn("No SKUs found for service [{}]. Could be the service name is incorrect defaultDirectory something has changed in the Google "
                         + "Billing Catalog API. Continuing with pipeline run but cost will not be recorded.", COMPUTE_SERVICE);
                 return 0;
             }

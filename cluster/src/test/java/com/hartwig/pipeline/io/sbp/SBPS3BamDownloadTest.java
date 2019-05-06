@@ -13,9 +13,8 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.transfer.TransferManager;
 import com.amazonaws.services.s3.transfer.Upload;
 import com.hartwig.patient.Sample;
-import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.execution.JobStatus;
-import com.hartwig.pipeline.io.NamespacedResults;
+import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.testsupport.MockRuntimeBucket;
 
 import org.jetbrains.annotations.NotNull;
@@ -26,7 +25,7 @@ public class SBPS3BamDownloadTest {
 
     private static final int BAM_SIZE = 100;
     private static final int BAI_SIZE = 10;
-    private static final NamespacedResults NAMESPACED_RESULTS = NamespacedResults.of(Aligner.RESULTS_NAMESPACE);
+    private static final ResultsDirectory NAMESPACED_RESULTS = ResultsDirectory.defaultDirectory();
 
     @Test
     public void setsContentSizeOnBamForTransfer() {
@@ -91,7 +90,7 @@ public class SBPS3BamDownloadTest {
 
     @NotNull
     public static SBPS3BamDownload victim(final TransferManager transferManager, final int retryDelay) {
-        return new SBPS3BamDownload(transferManager, NamespacedResults.of(Aligner.RESULTS_NAMESPACE), 3, retryDelay);
+        return new SBPS3BamDownload(transferManager, ResultsDirectory.defaultDirectory(), 3, retryDelay);
     }
 
     @NotNull

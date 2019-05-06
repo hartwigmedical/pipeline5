@@ -13,7 +13,7 @@ import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.io.BamDownload;
 import com.hartwig.pipeline.alignment.AlignmentOutputPaths;
-import com.hartwig.pipeline.io.NamespacedResults;
+import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
 
 import org.apache.commons.codec.binary.Hex;
@@ -29,22 +29,22 @@ public class SBPSampleMetadataPatch implements BamDownload {
     private final SBPRestApi sbpRestApi;
     private final int sbpSampleId;
     private final BamDownload decorated;
-    private final NamespacedResults namespacedResults;
+    private final ResultsDirectory resultsDirectory;
     private final EnvironmentVariables environmentVariables;
 
     public SBPSampleMetadataPatch(final AmazonS3 s3Client, final SBPRestApi sbpRestApi, final int sbpSampleId, final BamDownload decorated,
-            final NamespacedResults namespacedResults, final EnvironmentVariables environmentVariables) {
+            final ResultsDirectory resultsDirectory, final EnvironmentVariables environmentVariables) {
         this.s3Client = s3Client;
         this.sbpRestApi = sbpRestApi;
         this.sbpSampleId = sbpSampleId;
         this.decorated = decorated;
-        this.namespacedResults = namespacedResults;
+        this.resultsDirectory = resultsDirectory;
         this.environmentVariables = environmentVariables;
     }
 
     @Override
     public void run(final Sample sample, final RuntimeBucket runtimeBucket, final JobStatus result) {
-        Blob bamBlob = runtimeBucket.bucket().get(namespacedResults.path(AlignmentOutputPaths.sorted(sample)));
+        Blob bamBlob = runtimeBucket.get(resultsDirectory.path(AlignmentOutputPaths.sorted(sample)));
         decorated.run(sample, runtimeBucket, result);
         String bamFile = sample.name() + ".bam";
         String baiFile = bamFile + ".bai";
@@ -74,7 +74,7 @@ public class SBPSampleMetadataPatch implements BamDownload {
 
     private void grant(final String env, final Permission permission, final AccessControlList objectAcl) {
         String identifiers = environmentVariables.get(env);
-        LOGGER.info("Value of environment variable [{}] was [{}]", env, identifiers);
+        LOGGER.info("Value defaultDirectory environment variable [{}] was [{}]", env, identifiers);
         if (identifiers != null && !identifiers.trim().isEmpty()) {
             for (String identifier : identifiers.split(",")) {
                 if (identifier != null && !identifier.trim().isEmpty()) {

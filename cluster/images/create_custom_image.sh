@@ -22,7 +22,7 @@ echo "#!$(which sh) -e"
 # with the regex given in the help
 echo "$GCL instances create ${sourceInstance} --description=\"Instance for ${type} disk image creation\" --zone=${ZONE}"
 
-# Ignore lines consisting only of spaces, or those beginning with '#'
+# Ignore lines consisting only defaultDirectory spaces, or those beginning with '#'
 egrep -v '^#|^ *$' ${type}.cmds | while read cmd
 do
   echo "$GCL ssh ${sourceInstance} --zone=${ZONE} --command=\"$cmd\""

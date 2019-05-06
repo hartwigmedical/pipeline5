@@ -25,7 +25,7 @@ import java.util.concurrent.Future;
 
 public class Aligner {
 
-    public static String RESULTS_NAMESPACE = "aligner";
+    public final static String NAMESPACE = "aligner";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Aligner.class);
 
@@ -42,13 +42,13 @@ public class Aligner {
     private final ClusterOptimizer clusterOptimizer;
     private final CostCalculator costCalculator;
     private final GoogleCredentials credentials;
-    private final NamespacedResults namespacedResults;
+    private final ResultsDirectory resultsDirectory;
     private final AlignmentOutputStorage alignmentOutputStorage;
 
     Aligner(final Arguments arguments, final Storage storage, final Resource referenceGenomeData, final Resource knownIndelData,
             final Resource knownSnpData, final SampleSource sampleSource, final BamDownload bamDownload, final SampleUpload sampleUpload,
             final SparkExecutor dataproc, final JarUpload jarUpload, final ClusterOptimizer clusterOptimizer,
-            final CostCalculator costCalculator, final GoogleCredentials credentials, final NamespacedResults namespacedResults,
+            final CostCalculator costCalculator, final GoogleCredentials credentials, final ResultsDirectory resultsDirectory,
             final AlignmentOutputStorage alignmentOutputStorage) {
         this.arguments = arguments;
         this.storage = storage;
@@ -62,7 +62,7 @@ public class Aligner {
         this.jarUpload = jarUpload;
         this.clusterOptimizer = clusterOptimizer;
         this.costCalculator = costCalculator;
-        this.namespacedResults = namespacedResults;
+        this.resultsDirectory = resultsDirectory;
         this.credentials = credentials;
         this.alignmentOutputStorage = alignmentOutputStorage;
     }
@@ -71,7 +71,7 @@ public class Aligner {
         SampleData sampleData = sampleSource.sample(arguments);
         Sample sample = sampleData.sample();
 
-        RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, sampleData.sample().name(), arguments);
+        RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, NAMESPACE, sampleData.sample().name(), arguments);
         Monitor monitor = Monitor.stackdriver(Run.of(arguments.version(), runtimeBucket.name()), arguments.project(), credentials);
         referenceGenomeData.copyInto(runtimeBucket);
         knownIndelData.copyInto(runtimeBucket);
@@ -81,12 +81,13 @@ public class Aligner {
         }
         JarLocation jarLocation = jarUpload.run(runtimeBucket, arguments);
 
-        runJob(Jobs.noStatusCheck(dataproc, costCalculator, monitor), SparkJobDefinition.gunzip(jarLocation), runtimeBucket);
-        runJob(Jobs.statusCheckGoogleStorage(dataproc, costCalculator, monitor, namespacedResults),
+        runJob(Jobs.noStatusCheck(dataproc, costCalculator, monitor), SparkJobDefinition.gunzip(jarLocation, runtimeBucket), runtimeBucket);
+        runJob(Jobs.statusCheckGoogleStorage(dataproc, costCalculator, monitor, resultsDirectory),
                 SparkJobDefinition.bamCreation(jarLocation,
                         arguments,
                         runtimeBucket,
-                        clusterOptimizer.optimize(sampleData), namespacedResults),
+                        clusterOptimizer.optimize(sampleData),
+                        resultsDirectory),
                 runtimeBucket);
 
         compose(sample, runtimeBucket);
@@ -95,12 +96,12 @@ public class Aligner {
         ExecutorService executorService = Executors.newFixedThreadPool(2);
 
         Future<?> sortIndexBamFuture = executorService.submit(() -> runJob(Jobs.noStatusCheck(dataproc, costCalculator, monitor),
-                SparkJobDefinition.sortAndIndex(jarLocation, arguments, runtimeBucket, sample, namespacedResults),
+                SparkJobDefinition.sortAndIndex(jarLocation, arguments, runtimeBucket, sample, resultsDirectory),
                 runtimeBucket));
 
         Future<?> sortIndexRecalibratedBamFuture =
                 executorService.submit(() -> runJob(Jobs.noStatusCheck(dataproc, costCalculator, monitor),
-                        SparkJobDefinition.sortAndIndexRecalibrated(jarLocation, arguments, runtimeBucket, sample, namespacedResults),
+                        SparkJobDefinition.sortAndIndexRecalibrated(jarLocation, arguments, runtimeBucket, sample, resultsDirectory),
                         runtimeBucket));
 
         sortIndexBamFuture.get();
@@ -118,9 +119,6 @@ public class Aligner {
         if (arguments.download()) {
             bamDownload.run(sample, runtimeBucket, JobStatus.SUCCESS);
         }
-        if (arguments.cleanup()) {
-            runtimeBucket.cleanup();
-        }
         return alignmentOutput;
     }
 
@@ -129,7 +127,7 @@ public class Aligner {
     }
 
     private void compose(final Sample sample, final RuntimeBucket runtimeBucket, final String suffix) {
-        new BamComposer(storage, namespacedResults, 32, suffix).run(sample, runtimeBucket);
+        new BamComposer(storage, resultsDirectory, 32, suffix).run(sample, runtimeBucket);
     }
 
     private void runJob(SparkExecutor executor, SparkJobDefinition jobDefinition, RuntimeBucket runtimeBucket) {

@@ -4,7 +4,7 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
-import com.hartwig.pipeline.io.NamespacedResults;
+import com.hartwig.pipeline.io.ResultsDirectory;
 
 public class SomaticCallerProvider {
 
@@ -26,6 +26,6 @@ public class SomaticCallerProvider {
         return new SomaticCaller(arguments,
                 ComputeEngine.from(arguments, credentials),
                 storage,
-                NamespacedResults.of(SomaticCaller.RESULTS_NAMESPACE));
+                ResultsDirectory.defaultDirectory());
     }
 }

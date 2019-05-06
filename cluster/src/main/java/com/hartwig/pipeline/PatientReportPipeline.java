@@ -26,7 +26,7 @@ import com.hartwig.pipeline.calling.structural.StructuralCallerOutput;
 import com.hartwig.pipeline.calling.structural.StructuralCallerProvider;
 import com.hartwig.pipeline.credentials.CredentialProvider;
 import com.hartwig.pipeline.execution.JobStatus;
-import com.hartwig.pipeline.io.NamespacedResults;
+import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.storage.StorageProvider;
 import com.hartwig.pipeline.tertiary.amber.Amber;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
@@ -96,7 +96,7 @@ public class PatientReportPipeline {
                 maybeStructuralCallerFuture = maybeAlignmentPair.map(pair -> executorService.submit(() -> structuralCaller.run(pair)));
             }
             if (arguments.runTertiary()) {
-                //maybeAmberOutputFuture = maybeAlignmentPair.map(pair -> executorService.submit(() -> amber.run(pair)));
+                maybeAmberOutputFuture = maybeAlignmentPair.map(pair -> executorService.submit(() -> amber.run(pair)));
                 maybeCobaltOutputFuture = maybeAlignmentPair.map(pair -> executorService.submit(() -> cobalt.run(pair)));
             }
         }
@@ -143,9 +143,9 @@ public class PatientReportPipeline {
                         StructuralCallerProvider.from(arguments).get(),
                         AmberProvider.from(arguments, credentials, storage).get(),
                         CobaltProvider.from(arguments, credentials, storage).get(),
-                        new AlignmentOutputStorage(storage, arguments, NamespacedResults.of(Aligner.RESULTS_NAMESPACE)),
+                        new AlignmentOutputStorage(storage, arguments, ResultsDirectory.defaultDirectory()),
                         arguments,
-                        Executors.newFixedThreadPool(3)).run();
+                        Executors.newFixedThreadPool(4)).run();
             } catch (Exception e) {
                 LOGGER.error("An unexpected issue arose while running the pipeline. See the attached exception for more details.", e);
                 System.exit(1);

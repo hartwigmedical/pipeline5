@@ -23,7 +23,7 @@ public class NodeInitialization {
         File initScript = new File(initScriptPath);
         LOGGER.info("Uploading node initialization script from [{}] into [gs://{}/{}]", initScriptPath, bucket.name(), initDirectory);
         String blobPath = String.format("%s/%s", initDirectory, initScript.getName());
-        bucket.bucket().create(blobPath, new FileInputStream(initScript));
+        bucket.create(blobPath, new FileInputStream(initScript));
         return String.format("gs://%s/%s", bucket.name(), blobPath);
     }
 }

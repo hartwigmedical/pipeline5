@@ -15,7 +15,7 @@ import com.google.cloud.storage.Blob;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.execution.CloudExecutor;
 import com.hartwig.pipeline.execution.JobStatus;
-import com.hartwig.pipeline.io.NamespacedResults;
+import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
 
 import org.slf4j.Logger;
@@ -48,11 +48,11 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
 
     @Override
     public JobStatus submit(final RuntimeBucket bucket, final VirtualMachineJobDefinition jobDefinition) {
-        String vmName = bucket.name() + "-" + jobDefinition.name();
+        String vmName = bucket.runId() + "-" + jobDefinition.name();
         JobStatus status;
         try {
-            if (bucketContainsFile(bucket, jobDefinition.startupCommand().successFlag(), jobDefinition.namespacedResults())
-                    || bucketContainsFile(bucket, jobDefinition.startupCommand().failureFlag(), jobDefinition.namespacedResults())) {
+            if (bucketContainsFile(bucket, jobDefinition.startupCommand().successFlag())
+                    || bucketContainsFile(bucket, jobDefinition.startupCommand().failureFlag())) {
                 LOGGER.warn("Job appears to have run already; skipping");
                 return JobStatus.SKIPPED;
             }
@@ -70,7 +70,7 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
             addNetworkInterface(instance, project);
 
             deleteOldInstancesAndStart(compute, instance, project, vmName);
-            LOGGER.info("Successfully initialised [{}]", this);
+            LOGGER.info("Successfully initialised [{}]", vmName);
             status = waitForCompletion(bucket, jobDefinition);
             stop(project, vmName);
         } catch (Exception e) {
@@ -124,7 +124,7 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
         items.setKey("startup-script");
         items.setValue(startupCommand.asUnixString());
         startupMetadata.setItems(singletonList(items));
-        runtimeBucket.bucket().create("copy_of_startup_script_used_for_this_run.sh", startupCommand.asUnixString().getBytes());
+        runtimeBucket.create("copy_of_startup_script_used_for_this_run.sh", startupCommand.asUnixString().getBytes());
         instance.setMetadata(startupMetadata);
     }
 
@@ -196,10 +196,11 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
         return compute.zoneOperations().get(projectName, ZONE_NAME, jobName).execute().getStatus();
     }
 
-    private boolean bucketContainsFile(RuntimeBucket bucket, String filename, NamespacedResults namespacedResults) {
-        Page<Blob> objects = bucket.bucket().list();
+    private boolean bucketContainsFile(RuntimeBucket bucket, String filename) {
+        Page<Blob> objects = bucket.list();
         for (Blob blob : objects.iterateAll()) {
-            if (blob.getName().equals(namespacedResults.path(filename))) {
+            String name = blob.getName();
+            if (name.equals(bucket.getNamespace() + "/"+ filename)) {
                 return true;
             }
         }
@@ -209,9 +210,9 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
     private JobStatus waitForCompletion(RuntimeBucket bucket, VirtualMachineJobDefinition jobDefinition) {
         LOGGER.info("Waiting for job completion");
         while (true) {
-            if (bucketContainsFile(bucket, jobDefinition.startupCommand().successFlag(), jobDefinition.namespacedResults())) {
+            if (bucketContainsFile(bucket, jobDefinition.startupCommand().successFlag())) {
                 return JobStatus.SUCCESS;
-            } else if (bucketContainsFile(bucket, jobDefinition.startupCommand().failureFlag(), jobDefinition.namespacedResults())) {
+            } else if (bucketContainsFile(bucket, jobDefinition.startupCommand().failureFlag())) {
                 return JobStatus.FAILED;
             }
             try {
