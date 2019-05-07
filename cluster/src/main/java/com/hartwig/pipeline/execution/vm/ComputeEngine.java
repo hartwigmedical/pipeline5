@@ -51,7 +51,8 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
         String vmName = bucket.runId() + "-" + jobDefinition.name();
         JobStatus status;
         try {
-            if (bucketContainsFile(bucket, jobDefinition.startupCommand().successFlag())) {
+            if (bucketContainsFile(bucket, jobDefinition.startupCommand().successFlag())
+                    || bucketContainsFile(bucket, jobDefinition.startupCommand().failureFlag())) {
                 LOGGER.warn("Job appears to have run already; skipping");
                 return JobStatus.SKIPPED;
             }

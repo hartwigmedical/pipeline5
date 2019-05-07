@@ -1,8 +1,9 @@
-package com.hartwig.pipeline.alignment.after;
+package com.hartwig.pipeline.bammetrics;
 
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
+import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.execution.vm.*;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
@@ -12,7 +13,7 @@ import com.hartwig.pipeline.resource.ReferenceGenomeAlias;
 import com.hartwig.pipeline.resource.Resource;
 
 public class BamMetrics {
-    private static final String NAMESPACE = "bam_metrics";
+    static final String NAMESPACE = "bam_metrics";
     private final Arguments arguments;
     private final ComputeEngine executor;
     private final Storage storage;
@@ -34,15 +35,21 @@ public class BamMetrics {
         ResourceDownload genomeDownload = new ResourceDownload(referenceGenome.copyInto(bucket));
         InputDownload bam = new InputDownload(alignmentOutput.finalBamLocation());
 
+        String outputFile = BamMetricsOutput.outputFile(alignmentOutput.sample());
         BashStartupScript startup = BashStartupScript.of(bucket.name())
                 .addLine("echo Starting up at $(date)")
                 .addCommand(new InputDownload(alignmentOutput.finalBamLocation()))
                 .addCommand(genomeDownload)
-                .addCommand(new BamMetricsCommand(bam.getLocalTargetPath(), genomeDownload.find(".fasta"), alignmentOutput.sample()))
+                .addCommand(new BamMetricsCommand(bam.getLocalTargetPath(),
+                        genomeDownload.find(".fasta"),
+                        VmDirectories.OUTPUT + "/" + outputFile))
                 .addLine("echo Processing finished at $(date)")
                 .addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path())));
 
-        executor.submit(bucket, VirtualMachineJobDefinition.bamMetrics(startup, resultsDirectory));
-        return null;
+        JobStatus status = executor.submit(bucket, VirtualMachineJobDefinition.bamMetrics(startup, resultsDirectory));
+        return BamMetricsOutput.builder()
+                .status(status)
+                .metricsOutputFile(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(outputFile)))
+                .build();
     }
 }

@@ -74,6 +74,15 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("bam-metrics")
                 .startupCommand(startupScript)
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(8, 32))
+                .namespacedResults(resultsDirectory)
+                .build();
+    }
+
+    static VirtualMachineJobDefinition healthChecker(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
+        return ImmutableVirtualMachineJobDefinition.builder()
+                .name("health-checker")
+                .startupCommand(startupScript)
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(2, 32))
                 .namespacedResults(resultsDirectory)
                 .build();

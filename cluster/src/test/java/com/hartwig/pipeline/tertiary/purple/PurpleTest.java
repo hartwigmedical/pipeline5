@@ -40,10 +40,13 @@ public class PurpleTest {
     }
 
     @Test
-    public void returnsAmberBafFileGoogleStorageLocation() {
+    public void returnsPurpleOutputDirectory() {
         when(computeEngine.submit(any(), any())).thenReturn(JobStatus.SUCCESS);
         PurpleOutput output = runVictim();
-        assertThat(output).isEqualTo(PurpleOutput.builder().status(JobStatus.SUCCESS).build());
+        assertThat(output).isEqualTo(PurpleOutput.builder()
+                .status(JobStatus.SUCCESS)
+                .outputDirectory(GoogleStorageLocation.of(RUNTIME_BUCKET+ "/purple", "results", true))
+                .build());
     }
 
     @Test

@@ -15,6 +15,10 @@ import com.hartwig.pipeline.alignment.AlignerProvider;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.alignment.AlignmentOutputStorage;
 import com.hartwig.pipeline.alignment.AlignmentPair;
+import com.hartwig.pipeline.bammetrics.BamMetrics;
+import com.hartwig.pipeline.bammetrics.BamMetricsOutput;
+import com.hartwig.pipeline.bammetrics.BamMetricsOutputStorage;
+import com.hartwig.pipeline.bammetrics.BamMetricsProvider;
 import com.hartwig.pipeline.calling.germline.GermlineCaller;
 import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
 import com.hartwig.pipeline.calling.germline.GermlineCallerProvider;
@@ -26,6 +30,7 @@ import com.hartwig.pipeline.calling.structural.StructuralCallerOutput;
 import com.hartwig.pipeline.calling.structural.StructuralCallerProvider;
 import com.hartwig.pipeline.credentials.CredentialProvider;
 import com.hartwig.pipeline.execution.JobStatus;
+import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.storage.StorageProvider;
 import com.hartwig.pipeline.tertiary.amber.Amber;
@@ -34,6 +39,9 @@ import com.hartwig.pipeline.tertiary.amber.AmberProvider;
 import com.hartwig.pipeline.tertiary.cobalt.Cobalt;
 import com.hartwig.pipeline.tertiary.cobalt.CobaltOutput;
 import com.hartwig.pipeline.tertiary.cobalt.CobaltProvider;
+import com.hartwig.pipeline.tertiary.healthcheck.HealthCheckOutput;
+import com.hartwig.pipeline.tertiary.healthcheck.HealthChecker;
+import com.hartwig.pipeline.tertiary.healthcheck.HealthCheckerProvider;
 import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleProvider;
@@ -48,27 +56,34 @@ public class PatientReportPipeline {
     private static final Logger LOGGER = LoggerFactory.getLogger(PatientReportPipeline.class);
 
     private final Aligner aligner;
+    private final BamMetrics metrics;
     private final GermlineCaller germlineCaller;
     private final SomaticCaller somaticCaller;
     private final StructuralCaller structuralCaller;
     private final Amber amber;
     private final Cobalt cobalt;
     private final Purple purple;
+    private final HealthChecker healthChecker;
     private final AlignmentOutputStorage alignmentOutputStorage;
+    private final BamMetricsOutputStorage bamMetricsOutputStorage;
     private final Arguments arguments;
     private final ExecutorService executorService;
 
-    private PatientReportPipeline(final Aligner aligner, final GermlineCaller germlineCaller, final SomaticCaller somaticCaller,
-            final StructuralCaller structuralCaller, final Amber amber, final Cobalt cobalt, final Purple purple,
-            final AlignmentOutputStorage alignmentOutputStorage, final Arguments arguments, final ExecutorService executorService) {
+    private PatientReportPipeline(final Aligner aligner, final BamMetrics metrics, final GermlineCaller germlineCaller,
+            final SomaticCaller somaticCaller, final StructuralCaller structuralCaller, final Amber amber, final Cobalt cobalt,
+            final Purple purple, final HealthChecker healthChecker, final AlignmentOutputStorage alignmentOutputStorage,
+            final BamMetricsOutputStorage bamMetricsOutputStorage, final Arguments arguments, final ExecutorService executorService) {
         this.aligner = aligner;
+        this.metrics = metrics;
         this.germlineCaller = germlineCaller;
         this.somaticCaller = somaticCaller;
         this.structuralCaller = structuralCaller;
         this.amber = amber;
         this.cobalt = cobalt;
         this.purple = purple;
+        this.healthChecker = healthChecker;
         this.alignmentOutputStorage = alignmentOutputStorage;
+        this.bamMetricsOutputStorage = bamMetricsOutputStorage;
         this.arguments = arguments;
         this.executorService = executorService;
     }
@@ -80,11 +95,16 @@ public class PatientReportPipeline {
                         .orElseThrow(() -> new IllegalArgumentException("Unable to find output for sample [%s]. "
                                 + "Please run the aligner first by setting -run_aligner to true"));
 
+        Optional<Future<BamMetricsOutput>> maybeBamMetricsOutput = Optional.empty();
         Optional<Future<GermlineCallerOutput>> maybeGermlineCallerFuture = Optional.empty();
         Optional<Future<SomaticCallerOutput>> maybeSomaticCallerFuture = Optional.empty();
         Optional<Future<StructuralCallerOutput>> maybeStructuralCallerFuture = Optional.empty();
         Optional<Future<AmberOutput>> maybeAmberOutputFuture = Optional.empty();
         Optional<Future<CobaltOutput>> maybeCobaltOutputFuture = Optional.empty();
+
+        if (arguments.runBamMetrics()) {
+            maybeBamMetricsOutput = Optional.of(executorService.submit(() -> metrics.run(alignmentOutput)));
+        }
 
         if (arguments.runGermlineCaller()) {
             maybeGermlineCallerFuture = Optional.of(executorService.submit(() -> germlineCaller.run(alignmentOutput)));
@@ -105,19 +125,33 @@ public class PatientReportPipeline {
                 maybeCobaltOutputFuture = maybeAlignmentPair.map(pair -> executorService.submit(() -> cobalt.run(pair)));
             }
 
+            Optional<BamMetricsOutput> metricsOutput = maybeBamMetricsOutput.map(PatientReportPipeline::futurePayload);
             Optional<SomaticCallerOutput> somaticCallerOutput = maybeSomaticCallerFuture.map(PatientReportPipeline::futurePayload);
             Optional<StructuralCallerOutput> structuralCallerOutput = maybeStructuralCallerFuture.map(PatientReportPipeline::futurePayload);
             Optional<AmberOutput> amberOutput = maybeAmberOutputFuture.map(PatientReportPipeline::futurePayload);
             Optional<CobaltOutput> cobaltOutput = maybeCobaltOutputFuture.map(PatientReportPipeline::futurePayload);
 
             if (arguments.runTertiary() && somaticCallerOutput.isPresent() && structuralCallerOutput.isPresent() && amberOutput.isPresent()
-                    && cobaltOutput.isPresent()) {
+                    && cobaltOutput.isPresent() && metricsOutput.isPresent()) {
                 Optional<PurpleOutput> purpleOutput = maybeAlignmentPair.map(pair -> purple.run(pair,
                         somaticCallerOutput.get().finalSomaticVcf(),
                         structuralCallerOutput.get().structuralVcf(),
                         structuralCallerOutput.get().svRecoveryVcf(),
                         cobaltOutput.get().outputDirectory(),
                         amberOutput.get().outputDirectory()));
+
+                if (purpleOutput.isPresent()) {
+                    Optional<HealthCheckOutput> healthCheckerOutput = maybeAlignmentPair.map(pair -> {
+                        GoogleStorageLocation mateMetricsOutput =
+                                bamMetricsOutputStorage.get(mate(alignmentOutput.sample())).metricsOutputFile();
+                        return healthChecker.run(pair,
+                                metricsOutput.get().metricsOutputFile(),
+                                mateMetricsOutput,
+                                somaticCallerOutput.get().finalSomaticVcf(),
+                                purpleOutput.get().outputDirectory(),
+                                amberOutput.get().outputDirectory());
+                    });
+                }
             }
 
             somaticCallerOutput.ifPresent(output -> checkStatus("Somatic", output.status()));
@@ -155,13 +189,16 @@ public class PatientReportPipeline {
                 GoogleCredentials credentials = CredentialProvider.from(arguments).get();
                 Storage storage = StorageProvider.from(arguments, credentials).get();
                 new PatientReportPipeline(AlignerProvider.from(credentials, storage, arguments).get(),
+                        BamMetricsProvider.from(arguments, credentials, storage).get(),
                         GermlineCallerProvider.from(credentials, storage, arguments).get(),
                         SomaticCallerProvider.from(arguments, credentials, storage).get(),
                         StructuralCallerProvider.from(arguments).get(),
                         AmberProvider.from(arguments, credentials, storage).get(),
                         CobaltProvider.from(arguments, credentials, storage).get(),
                         PurpleProvider.from(arguments, credentials, storage).get(),
+                        HealthCheckerProvider.from(arguments, credentials, storage).get(),
                         new AlignmentOutputStorage(storage, arguments, ResultsDirectory.defaultDirectory()),
+                        new BamMetricsOutputStorage(storage, arguments, ResultsDirectory.defaultDirectory()),
                         arguments,
                         Executors.newFixedThreadPool(4)).run();
             } catch (Exception e) {

@@ -13,6 +13,8 @@ public interface PurpleOutput {
 
     JobStatus status();
 
+    GoogleStorageLocation outputDirectory();
+
     static ImmutablePurpleOutput.Builder builder() {
         return ImmutablePurpleOutput.builder();
     }

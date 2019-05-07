@@ -68,6 +68,9 @@ public class Purple {
                 VmDirectories.TOOLS + "/"));
         bash.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path())));
         JobStatus status = computeEngine.submit(runtimeBucket, VirtualMachineJobDefinition.purple(bash, resultsDirectory));
-        return PurpleOutput.builder().status(status).build();
+        return PurpleOutput.builder()
+                .status(status)
+                .outputDirectory(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path(), true))
+                .build();
     }
 }

@@ -1,6 +1,9 @@
 package com.hartwig.pipeline.alignment.after;
 
 import com.hartwig.patient.Sample;
+import com.hartwig.pipeline.bammetrics.BamMetricsCommand;
+import com.hartwig.pipeline.execution.vm.VmDirectories;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -31,7 +34,7 @@ public class BamMetricsCommandTest {
 
         when(sample.name()).thenReturn(sampleName);
 
-        actual = new BamMetricsCommand("input.bam", "reference.fasta", sample).asBash();
+        actual = new BamMetricsCommand("input.bam", "reference.fasta", format("%s/%s.wgsmetrics", VmDirectories.OUTPUT, sample.name())).asBash();
     }
 
     @Test

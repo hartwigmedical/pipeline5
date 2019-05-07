@@ -5,7 +5,6 @@ import com.google.cloud.storage.Storage;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.BamCreationPipeline;
-import com.hartwig.pipeline.alignment.after.BamMetricsProvider;
 import com.hartwig.pipeline.cost.CostCalculator;
 import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.execution.dataproc.*;
@@ -109,12 +108,6 @@ public class Aligner {
 
         AlignmentOutput alignmentOutput =
                 alignmentOutputStorage.get(sample).orElseThrow(() -> new RuntimeException("No results found in Google Storage for sample"));
-
-        if (arguments.runBamMetrics()) {
-            BamMetricsProvider.from(arguments, credentials, storage).get().run(alignmentOutput);
-        } else {
-            LOGGER.info("Skipping BAM metrics job!");
-        }
 
         if (arguments.download()) {
             bamDownload.run(sample, runtimeBucket, JobStatus.SUCCESS);

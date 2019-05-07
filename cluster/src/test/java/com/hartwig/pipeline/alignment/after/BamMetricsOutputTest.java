@@ -1,6 +1,9 @@
 package com.hartwig.pipeline.alignment.after;
 
+import com.hartwig.pipeline.bammetrics.BamMetricsOutput;
 import com.hartwig.pipeline.execution.JobStatus;
+import com.hartwig.pipeline.io.GoogleStorageLocation;
+
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -8,19 +11,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class BamMetricsOutputTest {
     @Test
     public void shouldReturnFailedStatusWhenJobFailed() {
-        BamMetricsOutput output = ImmutableBamMetricsOutput.builder().status(JobStatus.FAILED).build();
+        BamMetricsOutput output = BamMetricsOutput.builder()
+                .status(JobStatus.FAILED)
+                .metricsOutputFile(GoogleStorageLocation.of("bucket", "path/to/metrics.txt"))
+                .build();
         assertThat(output.status()).isEqualTo(JobStatus.FAILED);
     }
 
     @Test(expected = IllegalStateException.class)
     public void shouldThrowIfJobStatusNotProvided() {
-        ImmutableBamMetricsOutput.builder().build();
-    }
-
-    @Test
-    public void shouldReturnEmptyOptionalIfWgsMetricsNeverSet() {
-        BamMetricsOutput output = ImmutableBamMetricsOutput.builder().status(JobStatus.UNKNOWN).build();
-        assertThat(output.metrics()).isNotNull();
-        assertThat(output.metrics()).isEmpty();
+        //noinspection ResultOfMethodCallIgnored
+        BamMetricsOutput.builder().build();
     }
 }

@@ -45,7 +45,7 @@ public class AmberTest {
         AmberOutput output = victim.run(TestInputs.defaultPair());
         assertThat(output).isEqualTo(AmberOutput.builder()
                 .status(JobStatus.SUCCESS)
-                .outputDirectory(GoogleStorageLocation.of(RUNTIME_BUCKET + "/amber", "results/tumor.amber.baf"))
+                .outputDirectory(GoogleStorageLocation.of(RUNTIME_BUCKET + "/amber", "results", true))
                 .build());
     }
 
