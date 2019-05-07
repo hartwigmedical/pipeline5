@@ -12,7 +12,7 @@ public interface GermlineCallerOutput {
 
     JobStatus status();
 
-    Optional<GoogleStorageLocation> germlineVcf();
+    GoogleStorageLocation germlineVcf();
 
     static ImmutableGermlineCallerOutput.Builder builder() {
         return ImmutableGermlineCallerOutput.builder();

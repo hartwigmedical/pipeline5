@@ -16,11 +16,14 @@ public class InputDownload implements BashCommand {
 
     private String localPath(final GoogleStorageLocation sourceLocation) {
         String[] splitPath = sourceLocation.path().split("/");
-        return VmDirectories.INPUT + "/" + splitPath[splitPath.length - 1];
+        return VmDirectories.INPUT + (sourceLocation.isDirectory() ? "" : "/" + splitPath[splitPath.length - 1]);
     }
 
     @Override
     public String asBash() {
+        if (sourceLocation.isDirectory()) {
+            return format("gsutil -qm cp gs://%s/%s/* %s/", sourceLocation.bucket(), sourceLocation.path(), localTargetPath);
+        }
         return format("gsutil -qm cp gs://%s/%s %s", sourceLocation.bucket(), sourceLocation.path(), localTargetPath);
     }
 

@@ -13,8 +13,7 @@ public class InputDownloadTest {
 
     @Before
     public void setUp() throws Exception {
-        final GoogleStorageLocation googleStorageLocation = GoogleStorageLocation.of("test", "path/to/input.file");
-        victim = new InputDownload(googleStorageLocation);
+        victim = new InputDownload(GoogleStorageLocation.of("test", "path/to/input.file"));
     }
 
     @Test
@@ -25,6 +24,12 @@ public class InputDownloadTest {
     @Test
     public void createsLocalPathUsingSourceLocationAndConvention() {
         assertThat(victim.asBash()).isEqualTo("gsutil -qm cp gs://test/path/to/input.file /data/input/input.file");
+    }
+
+    @Test
+    public void supportsCopyingOfInputDirectories() {
+        victim = new InputDownload(GoogleStorageLocation.of("test", "path/to/input/dir", true));
+        assertThat(victim.asBash()).isEqualTo("gsutil -qm cp gs://test/path/to/input/dir/* /data/input/");
     }
 
 }

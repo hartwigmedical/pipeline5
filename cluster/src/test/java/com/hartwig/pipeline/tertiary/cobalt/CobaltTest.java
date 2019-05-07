@@ -44,7 +44,7 @@ public class CobaltTest {
         CobaltOutput output = victim.run(TestInputs.defaultPair());
         assertThat(output).isEqualTo(CobaltOutput.builder()
                 .status(JobStatus.SUCCESS)
-                .cobaltFile(GoogleStorageLocation.of(RUNTIME_BUCKET + "/cobalt", "results/tumor.cobalt"))
+                .outputDirectory(GoogleStorageLocation.of(RUNTIME_BUCKET + "/cobalt", "results/tumor.cobalt"))
                 .build());
     }
 

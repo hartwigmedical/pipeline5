@@ -46,7 +46,6 @@ public class Amber {
         InputDownload referenceBai = new InputDownload(pair.reference().finalBaiLocation());
         bash.addCommand(tumorBam).addCommand(referenceBam).addCommand(tumorBai).addCommand(referenceBai);
 
-        OutputFile amberBaf = OutputFile.of(tumorSampleName, "amber", "baf");
         bash.addCommand(new AmberApplicationCommand(referenceSampleName,
                 referenceBam.getLocalTargetPath(),
                 tumorSampleName,
@@ -57,7 +56,7 @@ public class Amber {
         JobStatus status = computeEngine.submit(runtimeBucket, VirtualMachineJobDefinition.amber(bash, resultsDirectory));
         return AmberOutput.builder()
                 .status(status)
-                .baf(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path(amberBaf.fileName())))
+                .outputDirectory(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path(), true))
                 .build();
     }
 }

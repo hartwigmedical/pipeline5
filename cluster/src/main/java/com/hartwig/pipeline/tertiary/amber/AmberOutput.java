@@ -1,7 +1,5 @@
 package com.hartwig.pipeline.tertiary.amber;
 
-import java.util.Optional;
-
 import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 
@@ -12,7 +10,7 @@ public interface AmberOutput {
 
     JobStatus status();
 
-    Optional<GoogleStorageLocation> baf();
+    GoogleStorageLocation outputDirectory();
 
     static ImmutableAmberOutput.Builder builder() {
         return ImmutableAmberOutput.builder();

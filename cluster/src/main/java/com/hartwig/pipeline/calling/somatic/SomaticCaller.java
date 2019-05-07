@@ -99,12 +99,12 @@ public class SomaticCaller {
 
         bash.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path())));
         JobStatus status = computeEngine.submit(runtimeBucket, VirtualMachineJobDefinition.somaticCalling(bash, resultsDirectory));
-        ImmutableSomaticCallerOutput.Builder output = SomaticCallerOutput.builder().status(status);
-        if (status.equals(JobStatus.SUCCESS)) {
-            output.finalSomaticVcf(GoogleStorageLocation.of(runtimeBucket.name(),
-                    resultsDirectory.path(mergedOutput.outputFile().fileName())));
-        }
-        return output.build();
+        return SomaticCallerOutput.builder()
+                .status(status)
+                .finalSomaticVcf(GoogleStorageLocation.of(runtimeBucket.name(),
+                        resultsDirectory.path(mergedOutput.outputFile().fileName())))
+                .build();
+
     }
 
     @NotNull

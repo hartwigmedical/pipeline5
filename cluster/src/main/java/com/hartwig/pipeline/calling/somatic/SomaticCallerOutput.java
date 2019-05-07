@@ -12,7 +12,7 @@ public interface SomaticCallerOutput {
 
     JobStatus status();
 
-    Optional<GoogleStorageLocation> finalSomaticVcf();
+    GoogleStorageLocation finalSomaticVcf();
 
     static ImmutableSomaticCallerOutput.Builder builder() {
         return ImmutableSomaticCallerOutput.builder();

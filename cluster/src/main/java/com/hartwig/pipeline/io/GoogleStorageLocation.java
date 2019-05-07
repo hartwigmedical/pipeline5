@@ -11,7 +11,17 @@ public interface GoogleStorageLocation {
     @Value.Parameter
     String path();
 
+    @Value.Parameter
+    @Value.Default
+    default boolean isDirectory() {
+        return false;
+    }
+
     static GoogleStorageLocation of(String bucket, String path) {
-        return ImmutableGoogleStorageLocation.of(bucket, path);
+        return of(bucket, path, false);
+    }
+
+    static GoogleStorageLocation of(String bucket, String path, boolean isDir) {
+        return ImmutableGoogleStorageLocation.of(bucket, path, isDir);
     }
 }

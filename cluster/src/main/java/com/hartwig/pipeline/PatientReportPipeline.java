@@ -34,6 +34,9 @@ import com.hartwig.pipeline.tertiary.amber.AmberProvider;
 import com.hartwig.pipeline.tertiary.cobalt.Cobalt;
 import com.hartwig.pipeline.tertiary.cobalt.CobaltOutput;
 import com.hartwig.pipeline.tertiary.cobalt.CobaltProvider;
+import com.hartwig.pipeline.tertiary.purple.Purple;
+import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
+import com.hartwig.pipeline.tertiary.purple.PurpleProvider;
 
 import org.apache.commons.cli.ParseException;
 import org.jetbrains.annotations.NotNull;
@@ -50,12 +53,13 @@ public class PatientReportPipeline {
     private final StructuralCaller structuralCaller;
     private final Amber amber;
     private final Cobalt cobalt;
+    private final Purple purple;
     private final AlignmentOutputStorage alignmentOutputStorage;
     private final Arguments arguments;
     private final ExecutorService executorService;
 
     private PatientReportPipeline(final Aligner aligner, final GermlineCaller germlineCaller, final SomaticCaller somaticCaller,
-            final StructuralCaller structuralCaller, final Amber amber, final Cobalt cobalt,
+            final StructuralCaller structuralCaller, final Amber amber, final Cobalt cobalt, final Purple purple,
             final AlignmentOutputStorage alignmentOutputStorage, final Arguments arguments, final ExecutorService executorService) {
         this.aligner = aligner;
         this.germlineCaller = germlineCaller;
@@ -63,6 +67,7 @@ public class PatientReportPipeline {
         this.structuralCaller = structuralCaller;
         this.amber = amber;
         this.cobalt = cobalt;
+        this.purple = purple;
         this.alignmentOutputStorage = alignmentOutputStorage;
         this.arguments = arguments;
         this.executorService = executorService;
@@ -99,20 +104,32 @@ public class PatientReportPipeline {
                 maybeAmberOutputFuture = maybeAlignmentPair.map(pair -> executorService.submit(() -> amber.run(pair)));
                 maybeCobaltOutputFuture = maybeAlignmentPair.map(pair -> executorService.submit(() -> cobalt.run(pair)));
             }
+
+            Optional<SomaticCallerOutput> somaticCallerOutput = maybeSomaticCallerFuture.map(PatientReportPipeline::futurePayload);
+            Optional<StructuralCallerOutput> structuralCallerOutput = maybeStructuralCallerFuture.map(PatientReportPipeline::futurePayload);
+            Optional<AmberOutput> amberOutput = maybeAmberOutputFuture.map(PatientReportPipeline::futurePayload);
+            Optional<CobaltOutput> cobaltOutput = maybeCobaltOutputFuture.map(PatientReportPipeline::futurePayload);
+
+            if (arguments.runTertiary() && somaticCallerOutput.isPresent() && structuralCallerOutput.isPresent() && amberOutput.isPresent()
+                    && cobaltOutput.isPresent()) {
+                Optional<PurpleOutput> purpleOutput = maybeAlignmentPair.map(pair -> purple.run(pair,
+                        somaticCallerOutput.get().finalSomaticVcf(),
+                        structuralCallerOutput.get().structuralVcf(),
+                        structuralCallerOutput.get().svRecoveryVcf(),
+                        cobaltOutput.get().outputDirectory(),
+                        amberOutput.get().outputDirectory()));
+            }
+
+            somaticCallerOutput.ifPresent(output -> checkStatus("Somatic", output.status()));
+            structuralCallerOutput.ifPresent(output -> checkStatus("Structural", output.status()));
+            amberOutput.ifPresent(output -> checkStatus("Amber", output.status()));
+            cobaltOutput.ifPresent(output -> checkStatus("Cobalt", output.status()));
         }
 
         Optional<GermlineCallerOutput> germlineCallerOutput = maybeGermlineCallerFuture.map(PatientReportPipeline::futurePayload);
-        Optional<SomaticCallerOutput> somaticCallerOutput = maybeSomaticCallerFuture.map(PatientReportPipeline::futurePayload);
-        Optional<StructuralCallerOutput> structuralCallerOutput = maybeStructuralCallerFuture.map(PatientReportPipeline::futurePayload);
-        Optional<AmberOutput> amberOutput = maybeAmberOutputFuture.map(PatientReportPipeline::futurePayload);
-        Optional<CobaltOutput> cobaltOutput = maybeCobaltOutputFuture.map(PatientReportPipeline::futurePayload);
-
         germlineCallerOutput.ifPresent(output -> checkStatus("Germline", output.status()));
-        somaticCallerOutput.ifPresent(output -> checkStatus("Somatic", output.status()));
-        structuralCallerOutput.ifPresent(output -> checkStatus("Structural", output.status()));
-        amberOutput.ifPresent(output -> checkStatus("Amber", output.status()));
-        cobaltOutput.ifPresent(output -> checkStatus("Cobalt", output.status()));
 
+        executorService.shutdown();
     }
 
     private static <T> T futurePayload(final Future<T> future) {
@@ -143,6 +160,7 @@ public class PatientReportPipeline {
                         StructuralCallerProvider.from(arguments).get(),
                         AmberProvider.from(arguments, credentials, storage).get(),
                         CobaltProvider.from(arguments, credentials, storage).get(),
+                        PurpleProvider.from(arguments, credentials, storage).get(),
                         new AlignmentOutputStorage(storage, arguments, ResultsDirectory.defaultDirectory()),
                         arguments,
                         Executors.newFixedThreadPool(4)).run();

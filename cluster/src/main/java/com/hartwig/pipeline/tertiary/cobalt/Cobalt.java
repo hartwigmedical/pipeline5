@@ -45,7 +45,6 @@ public class Cobalt {
         InputDownload referenceBai = new InputDownload(pair.reference().finalBaiLocation());
         bash.addCommand(tumorBam).addCommand(referenceBam).addCommand(tumorBai).addCommand(referenceBai);
 
-        OutputFile cobaltOutput = OutputFile.of(tumorSampleName, "cobalt");
         bash.addCommand(new CobaltApplicationCommand(referenceSampleName,
                 referenceBam.getLocalTargetPath(),
                 tumorSampleName,
@@ -55,7 +54,7 @@ public class Cobalt {
         JobStatus status = computeEngine.submit(runtimeBucket, VirtualMachineJobDefinition.cobalt(bash, resultsDirectory));
         return CobaltOutput.builder()
                 .status(status)
-                .cobaltFile(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path(cobaltOutput.fileName())))
+                .outputDirectory(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path(), true))
                 .build();
     }
 }

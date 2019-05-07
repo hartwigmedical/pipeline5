@@ -1,7 +1,5 @@
 package com.hartwig.pipeline.tertiary.cobalt;
 
-import java.util.Optional;
-
 import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 
@@ -12,7 +10,7 @@ public interface CobaltOutput {
 
     JobStatus status();
 
-    Optional<GoogleStorageLocation> cobaltFile();
+    GoogleStorageLocation outputDirectory();
 
     static ImmutableCobaltOutput.Builder builder() {
         return ImmutableCobaltOutput.builder();
