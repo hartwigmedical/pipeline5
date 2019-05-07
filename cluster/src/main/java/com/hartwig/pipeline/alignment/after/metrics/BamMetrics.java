@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.bammetrics;
+package com.hartwig.pipeline.alignment.after.metrics;
 
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
@@ -13,7 +13,6 @@ import com.hartwig.pipeline.resource.ReferenceGenomeAlias;
 import com.hartwig.pipeline.resource.Resource;
 
 public class BamMetrics {
-
     static final String NAMESPACE = "bam_metrics";
     private final Arguments arguments;
     private final ComputeEngine executor;

@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.bammetrics;
+package com.hartwig.pipeline.alignment.after.metrics;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -8,6 +8,7 @@ import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.alignment.after.metrics.BamMetricsOutputStorage;
 import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;

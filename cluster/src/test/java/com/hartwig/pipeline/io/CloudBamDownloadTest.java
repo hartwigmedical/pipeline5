@@ -1,23 +1,19 @@
 package com.hartwig.pipeline.io;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
-import java.io.IOException;
-
 import com.hartwig.patient.ImmutableSample;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.io.sbp.SBPS3FileTarget;
 import com.hartwig.pipeline.testsupport.MockRuntimeBucket;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+
+import java.io.IOException;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
 
 public class CloudBamDownloadTest {
 

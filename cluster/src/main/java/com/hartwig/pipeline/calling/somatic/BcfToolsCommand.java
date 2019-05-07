@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.calling.somatic;
 
+import com.hartwig.pipeline.calling.command.VersionedToolCommand;
+
 class BcfToolsCommand extends VersionedToolCommand {
 
     BcfToolsCommand(String... arguments) {

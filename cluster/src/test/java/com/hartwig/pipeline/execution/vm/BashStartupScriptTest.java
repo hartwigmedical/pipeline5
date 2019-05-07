@@ -19,7 +19,6 @@ public class BashStartupScriptTest {
     public void setup() {
         bucketName = "outputBucket";
         scriptBuilder = of(bucketName);
-
     }
 
     @Test

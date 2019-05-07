@@ -1,13 +1,9 @@
 package com.hartwig.pipeline.alignment;
 
-import static java.lang.String.*;
-
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-
 import com.hartwig.pipeline.Arguments;
-
 import org.immutables.value.Value;
+
+import static java.lang.String.format;
 
 @Value.Immutable
 public interface Run {

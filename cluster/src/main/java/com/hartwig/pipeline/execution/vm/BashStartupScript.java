@@ -28,7 +28,7 @@ public class BashStartupScript {
     public String asUnixString() {
         String commandSuffix = format(" >>%s 2>&1 || die", LOG_FILE);
         String jobFailedFlag = "/tmp/" + JOB_FAILED_FLAG;
-        String preamble = "#!/bin/bash -x\n\n" +
+        String preamble = "#!/bin/bash -x -o pipefail\n\n" +
                 "function die() {\n" +
                 "  exit_code=$?\n" +
                 "  echo \"Unknown failure: called command returned $exit_code\"\n" +
@@ -49,6 +49,13 @@ public class BashStartupScript {
 
     public BashStartupScript addCommand(BashCommand command){
         return addLine(command.asBash());
+    }
+
+    public BashStartupScript addCommands(List<BashCommand> commands) {
+        for (BashCommand command: commands) {
+            addCommand(command);
+        }
+        return this;
     }
 
     private void addCompletionCommands() {

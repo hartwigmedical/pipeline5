@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.bammetrics;
+package com.hartwig.pipeline.alignment.after.metrics;
 
 import com.google.cloud.storage.Storage;
 import com.hartwig.patient.Sample;

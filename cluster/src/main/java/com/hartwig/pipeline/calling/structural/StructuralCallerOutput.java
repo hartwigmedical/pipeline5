@@ -9,7 +9,7 @@ import com.hartwig.pipeline.io.GoogleStorageLocation;
 import org.immutables.value.Value;
 
 @Value.Immutable
-public interface StructuralCallerOutput extends StageOutput{
+public interface StructuralCallerOutput extends StageOutput {
 
     @Override
     default String name() {

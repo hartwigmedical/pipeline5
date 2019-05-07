@@ -1,32 +1,24 @@
 package com.hartwig.pipeline.execution.dataproc;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.function.Predicate;
-
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.dataproc.v1beta2.Dataproc;
-import com.google.api.services.dataproc.v1beta2.model.Cluster;
-import com.google.api.services.dataproc.v1beta2.model.ClusterConfig;
-import com.google.api.services.dataproc.v1beta2.model.Job;
-import com.google.api.services.dataproc.v1beta2.model.JobPlacement;
-import com.google.api.services.dataproc.v1beta2.model.JobReference;
-import com.google.api.services.dataproc.v1beta2.model.Operation;
-import com.google.api.services.dataproc.v1beta2.model.SparkJob;
-import com.google.api.services.dataproc.v1beta2.model.SubmitJobRequest;
+import com.google.api.services.dataproc.v1beta2.model.*;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.io.RuntimeBucket;
-
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.Collections;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 public class GoogleDataproc implements SparkExecutor {
 

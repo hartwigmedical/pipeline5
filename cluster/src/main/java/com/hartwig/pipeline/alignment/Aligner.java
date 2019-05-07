@@ -5,6 +5,7 @@ import com.google.cloud.storage.Storage;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.BamCreationPipeline;
+import com.hartwig.pipeline.alignment.after.metrics.BamMetricsProvider;
 import com.hartwig.pipeline.cost.CostCalculator;
 import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.execution.dataproc.*;

@@ -1,21 +1,17 @@
 package com.hartwig.pipeline.io;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
-import java.util.function.Function;
-
 import com.hartwig.patient.Lane;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.testsupport.MockRuntimeBucket;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+
+import java.util.function.Function;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 public class CloudSampleUploadTest {
 

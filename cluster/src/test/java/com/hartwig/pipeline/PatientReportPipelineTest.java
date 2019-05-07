@@ -1,39 +1,24 @@
 package com.hartwig.pipeline;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.util.Optional;
-import java.util.concurrent.Executors;
-
 import com.hartwig.patient.Sample;
-import com.hartwig.pipeline.alignment.Aligner;
-import com.hartwig.pipeline.alignment.AlignmentOutput;
-import com.hartwig.pipeline.alignment.AlignmentOutputStorage;
-import com.hartwig.pipeline.alignment.AlignmentPair;
-import com.hartwig.pipeline.alignment.ImmutableAlignmentOutput;
-import com.hartwig.pipeline.bammetrics.BamMetrics;
-import com.hartwig.pipeline.bammetrics.BamMetricsOutput;
-import com.hartwig.pipeline.bammetrics.BamMetricsOutputStorage;
-import com.hartwig.pipeline.bammetrics.ImmutableBamMetricsOutput;
+import com.hartwig.pipeline.alignment.*;
+import com.hartwig.pipeline.alignment.after.metrics.BamMetrics;
+import com.hartwig.pipeline.alignment.after.metrics.BamMetricsOutput;
+import com.hartwig.pipeline.alignment.after.metrics.BamMetricsOutputStorage;
+import com.hartwig.pipeline.alignment.after.metrics.ImmutableBamMetricsOutput;
 import com.hartwig.pipeline.calling.germline.GermlineCaller;
 import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
 import com.hartwig.pipeline.calling.germline.ImmutableGermlineCallerOutput;
 import com.hartwig.pipeline.calling.somatic.ImmutableSomaticCallerOutput;
 import com.hartwig.pipeline.calling.somatic.SomaticCaller;
 import com.hartwig.pipeline.calling.somatic.SomaticCallerOutput;
-import com.hartwig.pipeline.calling.structural.ImmutableStructuralCallerOutput;
 import com.hartwig.pipeline.calling.structural.StructuralCaller;
 import com.hartwig.pipeline.calling.structural.StructuralCallerOutput;
 import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.tertiary.amber.Amber;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
-import com.hartwig.pipeline.tertiary.amber.ImmutableAmberOutput;
 import com.hartwig.pipeline.tertiary.cobalt.Cobalt;
 import com.hartwig.pipeline.tertiary.cobalt.CobaltOutput;
-import com.hartwig.pipeline.tertiary.cobalt.ImmutableCobaltOutput;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthCheckOutput;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthChecker;
 import com.hartwig.pipeline.tertiary.healthcheck.ImmutableHealthCheckOutput;
@@ -41,9 +26,16 @@ import com.hartwig.pipeline.tertiary.purple.ImmutablePurpleOutput;
 import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.testsupport.TestSamples;
-
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.Optional;
+import java.util.concurrent.Executors;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class PatientReportPipelineTest {
 

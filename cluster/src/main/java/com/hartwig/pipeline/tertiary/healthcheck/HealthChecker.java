@@ -3,7 +3,7 @@ package com.hartwig.pipeline.tertiary.healthcheck;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.AlignmentPair;
-import com.hartwig.pipeline.bammetrics.BamMetricsOutput;
+import com.hartwig.pipeline.alignment.after.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.calling.somatic.SomaticCallerOutput;
 import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
@@ -35,7 +35,7 @@ public class HealthChecker {
     }
 
     public HealthCheckOutput run(AlignmentPair pair, BamMetricsOutput metricsOutput, BamMetricsOutput mateMetricsOutput,
-            SomaticCallerOutput somaticCallerOutput, PurpleOutput purpleOutput, AmberOutput amberOutput) {
+                                 SomaticCallerOutput somaticCallerOutput, PurpleOutput purpleOutput, AmberOutput amberOutput) {
 
         if (!arguments.runTertiary()) {
             return HealthCheckOutput.builder().status(JobStatus.SKIPPED).build();

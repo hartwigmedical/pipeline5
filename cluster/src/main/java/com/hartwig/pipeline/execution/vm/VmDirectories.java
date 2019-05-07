@@ -5,4 +5,8 @@ public interface VmDirectories {
     static final String OUTPUT = "/data/output";
     static final String RESOURCES = "/data/resources";
     static final String TOOLS = "/data/tools";
+
+    static String outputFile(String path) {
+        return String.format("%s/%s", OUTPUT, path);
+    }
 }

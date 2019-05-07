@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.bammetrics;
+package com.hartwig.pipeline.alignment.after.metrics;
 
 import com.hartwig.pipeline.execution.vm.JavaJarCommand;
 

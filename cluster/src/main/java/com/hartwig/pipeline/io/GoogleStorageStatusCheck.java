@@ -1,7 +1,6 @@
 package com.hartwig.pipeline.io;
 
 import com.google.cloud.storage.Blob;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

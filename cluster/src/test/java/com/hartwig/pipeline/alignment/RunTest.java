@@ -1,10 +1,9 @@
 package com.hartwig.pipeline.alignment;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.hartwig.pipeline.Arguments;
-
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class RunTest {
 

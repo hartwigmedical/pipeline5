@@ -1,19 +1,18 @@
 package com.hartwig.pipeline.alignment;
 
-import java.time.Clock;
-
+import com.hartwig.pipeline.cost.CostCalculator;
 import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.execution.dataproc.SparkExecutor;
 import com.hartwig.pipeline.execution.dataproc.SparkJobDefinition;
-import com.hartwig.pipeline.cost.CostCalculator;
 import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.io.StatusCheck;
 import com.hartwig.pipeline.metrics.Metrics;
 import com.hartwig.pipeline.metrics.MetricsTimeline;
 import com.hartwig.pipeline.metrics.Monitor;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.time.Clock;
 
 class Job implements SparkExecutor {
 

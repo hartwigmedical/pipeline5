@@ -1,7 +1,5 @@
 package com.hartwig.pipeline.io.sources;
 
-import java.util.stream.StreamSupport;
-
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
@@ -10,6 +8,8 @@ import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.io.RuntimeBucket;
+
+import java.util.stream.StreamSupport;
 
 public class GoogleStorageSampleSource implements SampleSource {
 

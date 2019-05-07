@@ -1,8 +1,8 @@
 package com.hartwig.pipeline.calling.somatic;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PonFilterTest extends SubStageTest {
 

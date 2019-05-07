@@ -1,7 +1,6 @@
-package com.hartwig.pipeline.alignment.after;
+package com.hartwig.pipeline.alignment.after.metrics;
 
 import com.hartwig.patient.Sample;
-import com.hartwig.pipeline.bammetrics.BamMetricsCommand;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 
 import org.junit.Before;

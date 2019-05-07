@@ -1,15 +1,26 @@
 package com.hartwig.pipeline.calling.structural;
 
+import com.google.auth.oauth2.GoogleCredentials;
+import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.calling.germline.GermlineCaller;
+import com.hartwig.pipeline.execution.vm.ComputeEngine;
 
 public class StructuralCallerProvider {
+    private final Arguments arguments;
+    private final GoogleCredentials credentials;
+    private final Storage storage;
 
-    public static StructuralCallerProvider from(Arguments arguments){
-        return new StructuralCallerProvider();
+    private StructuralCallerProvider(Arguments arguments, GoogleCredentials credentials, Storage storage) {
+        this.arguments = arguments;
+        this.credentials = credentials;
+        this.storage = storage;
     }
 
-    public StructuralCaller get() {
-        return new StructuralCaller();
+    public static StructuralCallerProvider from(final Arguments arguments, final GoogleCredentials credentials, final Storage storage){
+        return new StructuralCallerProvider(arguments, credentials, storage);
+    }
+
+    public StructuralCaller get() throws Exception {
+        return new StructuralCaller(arguments, ComputeEngine.from(arguments, credentials), storage, null);
     }
 }

@@ -1,24 +1,14 @@
 package com.hartwig.pipeline;
 
-import java.util.Optional;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Storage;
 import com.hartwig.patient.ImmutableSample;
 import com.hartwig.patient.Sample;
-import com.hartwig.pipeline.alignment.Aligner;
-import com.hartwig.pipeline.alignment.AlignerProvider;
-import com.hartwig.pipeline.alignment.AlignmentOutput;
-import com.hartwig.pipeline.alignment.AlignmentOutputStorage;
-import com.hartwig.pipeline.alignment.AlignmentPair;
-import com.hartwig.pipeline.bammetrics.BamMetrics;
-import com.hartwig.pipeline.bammetrics.BamMetricsOutput;
-import com.hartwig.pipeline.bammetrics.BamMetricsOutputStorage;
-import com.hartwig.pipeline.bammetrics.BamMetricsProvider;
+import com.hartwig.pipeline.alignment.*;
+import com.hartwig.pipeline.alignment.after.metrics.BamMetrics;
+import com.hartwig.pipeline.alignment.after.metrics.BamMetricsOutput;
+import com.hartwig.pipeline.alignment.after.metrics.BamMetricsOutputStorage;
+import com.hartwig.pipeline.alignment.after.metrics.BamMetricsProvider;
 import com.hartwig.pipeline.calling.germline.GermlineCaller;
 import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
 import com.hartwig.pipeline.calling.germline.GermlineCallerProvider;
@@ -29,8 +19,6 @@ import com.hartwig.pipeline.calling.structural.StructuralCaller;
 import com.hartwig.pipeline.calling.structural.StructuralCallerOutput;
 import com.hartwig.pipeline.calling.structural.StructuralCallerProvider;
 import com.hartwig.pipeline.credentials.CredentialProvider;
-import com.hartwig.pipeline.execution.JobStatus;
-import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.storage.StorageProvider;
 import com.hartwig.pipeline.tertiary.amber.Amber;
@@ -44,11 +32,16 @@ import com.hartwig.pipeline.tertiary.healthcheck.HealthCheckerProvider;
 import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleProvider;
-
 import org.apache.commons.cli.ParseException;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class PatientReportPipeline {
 
@@ -155,7 +148,7 @@ public class PatientReportPipeline {
                         BamMetricsProvider.from(arguments, credentials, storage).get(),
                         GermlineCallerProvider.from(credentials, storage, arguments).get(),
                         SomaticCallerProvider.from(arguments, credentials, storage).get(),
-                        StructuralCallerProvider.from(arguments).get(),
+                        StructuralCallerProvider.from(arguments, credentials, storage).get(),
                         AmberProvider.from(arguments, credentials, storage).get(),
                         CobaltProvider.from(arguments, credentials, storage).get(),
                         PurpleProvider.from(arguments, credentials, storage).get(),

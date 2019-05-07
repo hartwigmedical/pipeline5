@@ -1,5 +1,6 @@
 package com.hartwig.pipeline.calling.somatic;
 
+import com.hartwig.pipeline.calling.command.VersionedToolCommand;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 
 class SnpEffCommand extends VersionedToolCommand {

@@ -1,11 +1,5 @@
 package com.hartwig.pipeline.alignment;
 
-import static com.hartwig.pipeline.io.GoogleStorageLocation.of;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
@@ -14,9 +8,13 @@ import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.testsupport.TestSamples;
-
 import org.junit.Before;
 import org.junit.Test;
+
+import static com.hartwig.pipeline.io.GoogleStorageLocation.of;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class AlignmentOutputStorageTest {
 

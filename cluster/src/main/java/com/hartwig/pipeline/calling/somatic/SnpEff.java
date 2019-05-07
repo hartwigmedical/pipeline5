@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.calling.somatic;
 
+import com.hartwig.pipeline.calling.command.BgzipCommand;
+import com.hartwig.pipeline.calling.command.TabixCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.OutputFile;
 
