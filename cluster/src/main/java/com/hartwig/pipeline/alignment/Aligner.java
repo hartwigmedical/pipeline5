@@ -67,6 +67,13 @@ public class Aligner {
     }
 
     public AlignmentOutput run() throws Exception {
+
+        if (!arguments.runAligner()) {
+            return alignmentOutputStorage.get(Sample.builder(arguments.sampleId()).build())
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "Unable to find output for sample [%s]. " + "Please run the aligner first by setting -run_aligner to true"));
+        }
+
         SampleData sampleData = sampleSource.sample(arguments);
         Sample sample = sampleData.sample();
 

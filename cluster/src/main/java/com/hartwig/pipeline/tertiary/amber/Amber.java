@@ -3,7 +3,6 @@ package com.hartwig.pipeline.tertiary.amber;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.AlignmentPair;
-import com.hartwig.pipeline.execution.vm.OutputFile;
 import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
@@ -31,6 +30,11 @@ public class Amber {
     }
 
     public AmberOutput run(AlignmentPair pair) {
+
+        if (!arguments.runTertiary()){
+            return AmberOutput.builder().status(JobStatus.SKIPPED).build();
+        }
+
         String tumorSampleName = pair.tumor().sample().name();
         String referenceSampleName = pair.reference().sample().name();
         RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, NAMESPACE, referenceSampleName, tumorSampleName, arguments);
@@ -56,7 +60,7 @@ public class Amber {
         JobStatus status = computeEngine.submit(runtimeBucket, VirtualMachineJobDefinition.amber(bash, resultsDirectory));
         return AmberOutput.builder()
                 .status(status)
-                .outputDirectory(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path(), true))
+                .maybeOutputDirectory(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path(), true))
                 .build();
     }
 }

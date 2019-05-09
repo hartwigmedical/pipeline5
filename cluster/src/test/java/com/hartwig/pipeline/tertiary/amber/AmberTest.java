@@ -26,11 +26,12 @@ public class AmberTest {
     private ComputeEngine computeEngine;
     private static final Arguments ARGUMENTS = Arguments.testDefaults();
     private Amber victim;
+    private Storage storage;
 
     @Before
     public void setUp() throws Exception {
         computeEngine = mock(ComputeEngine.class);
-        final Storage storage = mock(Storage.class);
+        storage = mock(Storage.class);
         final Bucket bucket = mock(Bucket.class);
         when(bucket.getName()).thenReturn(RUNTIME_BUCKET);
         when(storage.get(RUNTIME_BUCKET)).thenReturn(bucket);
@@ -40,12 +41,22 @@ public class AmberTest {
     }
 
     @Test
+    public void returnsSkippedWhenTertiaryDisabledInArguments() {
+        victim = new Amber(Arguments.testDefaultsBuilder().runTertiary(false).build(),
+                computeEngine,
+                storage,
+                ResultsDirectory.defaultDirectory());
+        AmberOutput output = victim.run(TestInputs.defaultPair());
+        assertThat(output.status()).isEqualTo(JobStatus.SKIPPED);
+    }
+
+    @Test
     public void returnsAmberBafFileGoogleStorageLocation() {
         when(computeEngine.submit(any(), any())).thenReturn(JobStatus.SUCCESS);
         AmberOutput output = victim.run(TestInputs.defaultPair());
         assertThat(output).isEqualTo(AmberOutput.builder()
                 .status(JobStatus.SUCCESS)
-                .outputDirectory(GoogleStorageLocation.of(RUNTIME_BUCKET + "/amber", "results", true))
+                .maybeOutputDirectory(GoogleStorageLocation.of(RUNTIME_BUCKET + "/amber", "results", true))
                 .build());
     }
 

@@ -22,7 +22,7 @@ import com.hartwig.pipeline.tertiary.cobalt.CobaltOutput;
 
 public class Purple {
 
-    private static final String NAMESPACE = "purple";
+    static final String NAMESPACE = "purple";
     private final Arguments arguments;
     private final ComputeEngine computeEngine;
     private final Storage storage;
@@ -35,8 +35,13 @@ public class Purple {
         this.resultsDirectory = resultsDirectory;
     }
 
-    public PurpleOutput run(AlignmentPair pair, GoogleStorageLocation somaticVcf, GoogleStorageLocation structuralVcf,
-            GoogleStorageLocation svRecoveryVcf, GoogleStorageLocation cobaltOutput, GoogleStorageLocation amberOutput) {
+    public PurpleOutput run(AlignmentPair pair, SomaticCallerOutput somaticCallerOutput, StructuralCallerOutput structuralCallerOutput,
+            CobaltOutput cobaltOutput, AmberOutput amberOutput) {
+
+        if (!arguments.runTertiary()){
+            return PurpleOutput.builder().status(JobStatus.SKIPPED).build();
+        }
+
         String tumorSampleName = pair.tumor().sample().name();
         String referenceSampleName = pair.reference().sample().name();
         RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, NAMESPACE, referenceSampleName, tumorSampleName, arguments);
@@ -46,11 +51,11 @@ public class Purple {
         ResourceDownload referenceGenomeDownload = ResourceDownload.from(storage, "reference_genome", runtimeBucket);
         bash.addCommand(gcProfileDownload).addCommand(referenceGenomeDownload);
 
-        InputDownload somaticVcfDownload = new InputDownload(somaticVcf);
-        InputDownload structuralVcfDownload = new InputDownload(structuralVcf);
-        InputDownload svRecoveryVcfDownload = new InputDownload(svRecoveryVcf);
-        InputDownload amberOutputDownload = new InputDownload(amberOutput);
-        InputDownload cobaltOutputDownload = new InputDownload(cobaltOutput);
+        InputDownload somaticVcfDownload = new InputDownload(somaticCallerOutput.finalSomaticVcf());
+        InputDownload structuralVcfDownload = new InputDownload(structuralCallerOutput.structuralVcf());
+        InputDownload svRecoveryVcfDownload = new InputDownload(structuralCallerOutput.svRecoveryVcf());
+        InputDownload amberOutputDownload = new InputDownload(amberOutput.outputDirectory());
+        InputDownload cobaltOutputDownload = new InputDownload(cobaltOutput.outputDirectory());
         bash.addCommand(somaticVcfDownload)
                 .addCommand(structuralVcfDownload)
                 .addCommand(svRecoveryVcfDownload)
@@ -70,7 +75,7 @@ public class Purple {
         JobStatus status = computeEngine.submit(runtimeBucket, VirtualMachineJobDefinition.purple(bash, resultsDirectory));
         return PurpleOutput.builder()
                 .status(status)
-                .outputDirectory(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path(), true))
+                .maybeOutputDirectory(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path(), true))
                 .build();
     }
 }

@@ -10,6 +10,8 @@ import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.execution.JobStatus;
+import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.testsupport.TestSamples;
 
@@ -25,11 +27,14 @@ public class AlignmentOutputStorageTest {
     private static final String SORTED_BAI_PATH = RESULTS_DIRECTORY.path("sample.sorted.bam.bai");
     private static final String RECALIBRATED_PATH = RESULTS_DIRECTORY.path("sample.recalibrated.sorted.bam");
     private static final String RECALIBRATED_BAI_PATH = RESULTS_DIRECTORY.path("sample.recalibrated.sorted.bam.bai");
-    private static final AlignmentOutput EXPECTED_OUTPUT = AlignmentOutput.of(of(NAMESPACED_BUCKET_NAME, SORTED_PATH),
-            of(NAMESPACED_BUCKET_NAME, SORTED_BAI_PATH),
-            of(NAMESPACED_BUCKET_NAME, RECALIBRATED_PATH),
-            of(NAMESPACED_BUCKET_NAME, RECALIBRATED_BAI_PATH),
-            TestSamples.simpleReferenceSample());
+    private static final AlignmentOutput EXPECTED_OUTPUT = AlignmentOutput.builder()
+            .status(JobStatus.SUCCESS)
+            .maybeFinalBamLocation(GoogleStorageLocation.of(NAMESPACED_BUCKET_NAME, SORTED_PATH))
+            .maybeFinalBaiLocation(of(NAMESPACED_BUCKET_NAME, SORTED_BAI_PATH))
+            .maybeRecalibratedBamLocation(of(NAMESPACED_BUCKET_NAME, RECALIBRATED_PATH))
+            .maybeRecalibratedBaiLocation(of(NAMESPACED_BUCKET_NAME, RECALIBRATED_BAI_PATH))
+            .sample(TestSamples.simpleReferenceSample())
+            .build();
     private AlignmentOutputStorage victim;
     private Bucket outputBucket;
 

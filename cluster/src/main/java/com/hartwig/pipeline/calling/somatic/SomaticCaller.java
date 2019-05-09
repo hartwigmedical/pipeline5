@@ -38,6 +38,10 @@ public class SomaticCaller {
 
     public SomaticCallerOutput run(AlignmentPair pair) {
 
+        if (!arguments.runSomaticCaller()){
+            return SomaticCallerOutput.builder().status(JobStatus.SKIPPED).build();
+        }
+
         String tumorSampleName = pair.tumor().sample().name();
         String referenceSampleName = pair.reference().sample().name();
         RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, NAMESPACE, referenceSampleName, tumorSampleName, arguments);
@@ -101,7 +105,7 @@ public class SomaticCaller {
         JobStatus status = computeEngine.submit(runtimeBucket, VirtualMachineJobDefinition.somaticCalling(bash, resultsDirectory));
         return SomaticCallerOutput.builder()
                 .status(status)
-                .finalSomaticVcf(GoogleStorageLocation.of(runtimeBucket.name(),
+                .maybeFinalSomaticVcf(GoogleStorageLocation.of(runtimeBucket.name(),
                         resultsDirectory.path(mergedOutput.outputFile().fileName())))
                 .build();
 

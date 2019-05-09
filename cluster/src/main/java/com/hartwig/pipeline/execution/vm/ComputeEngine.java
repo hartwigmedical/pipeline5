@@ -224,10 +224,10 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
     }
 
     private void stop(String projectName, String vmName) {
-        LOGGER.info("Stopping [{}]", this);
+        LOGGER.info("Stopping [{}]", vmName);
         try {
             executeSynchronously(compute.instances().stop(projectName, ZONE_NAME, vmName), projectName);
-            LOGGER.info("Stopped [{}]", this);
+            LOGGER.info("Stopped [{}]", vmName);
         } catch (Exception e) {
             String message = format("Failed to stop [%s]", this);
             LOGGER.error(message, e);

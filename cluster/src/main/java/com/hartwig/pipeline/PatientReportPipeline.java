@@ -39,7 +39,6 @@ import com.hartwig.pipeline.tertiary.amber.AmberProvider;
 import com.hartwig.pipeline.tertiary.cobalt.Cobalt;
 import com.hartwig.pipeline.tertiary.cobalt.CobaltOutput;
 import com.hartwig.pipeline.tertiary.cobalt.CobaltProvider;
-import com.hartwig.pipeline.tertiary.healthcheck.HealthCheckOutput;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthChecker;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthCheckerProvider;
 import com.hartwig.pipeline.tertiary.purple.Purple;
@@ -66,13 +65,12 @@ public class PatientReportPipeline {
     private final HealthChecker healthChecker;
     private final AlignmentOutputStorage alignmentOutputStorage;
     private final BamMetricsOutputStorage bamMetricsOutputStorage;
-    private final Arguments arguments;
     private final ExecutorService executorService;
 
-    private PatientReportPipeline(final Aligner aligner, final BamMetrics metrics, final GermlineCaller germlineCaller,
+    PatientReportPipeline(final Aligner aligner, final BamMetrics metrics, final GermlineCaller germlineCaller,
             final SomaticCaller somaticCaller, final StructuralCaller structuralCaller, final Amber amber, final Cobalt cobalt,
             final Purple purple, final HealthChecker healthChecker, final AlignmentOutputStorage alignmentOutputStorage,
-            final BamMetricsOutputStorage bamMetricsOutputStorage, final Arguments arguments, final ExecutorService executorService) {
+            final BamMetricsOutputStorage bamMetricsOutputStorage, final ExecutorService executorService) {
         this.aligner = aligner;
         this.metrics = metrics;
         this.germlineCaller = germlineCaller;
@@ -84,86 +82,58 @@ public class PatientReportPipeline {
         this.healthChecker = healthChecker;
         this.alignmentOutputStorage = alignmentOutputStorage;
         this.bamMetricsOutputStorage = bamMetricsOutputStorage;
-        this.arguments = arguments;
         this.executorService = executorService;
     }
 
-    public void run() throws Exception {
-        AlignmentOutput alignmentOutput = arguments.runAligner()
-                ? aligner.run()
-                : alignmentOutputStorage.get(Sample.builder(arguments.sampleId()).build())
-                        .orElseThrow(() -> new IllegalArgumentException("Unable to find output for sample [%s]. "
-                                + "Please run the aligner first by setting -run_aligner to true"));
+    public PipelineState run() throws Exception {
+        PipelineState state = new PipelineState();
+        AlignmentOutput alignmentOutput = state.addStageOutput(aligner.run());
+        if (state.shouldProceed()) {
+            Future<BamMetricsOutput> bamMetricsFuture = executorService.submit(() -> metrics.run(alignmentOutput));
+            Future<GermlineCallerOutput> germlineCallerFuture = executorService.submit(() -> germlineCaller.run(alignmentOutput));
 
-        Optional<Future<BamMetricsOutput>> maybeBamMetricsOutput = Optional.empty();
-        Optional<Future<GermlineCallerOutput>> maybeGermlineCallerFuture = Optional.empty();
-        Optional<Future<SomaticCallerOutput>> maybeSomaticCallerFuture = Optional.empty();
-        Optional<Future<StructuralCallerOutput>> maybeStructuralCallerFuture = Optional.empty();
-        Optional<Future<AmberOutput>> maybeAmberOutputFuture = Optional.empty();
-        Optional<Future<CobaltOutput>> maybeCobaltOutputFuture = Optional.empty();
+            Optional<AlignmentOutput> maybeMate = alignmentOutputStorage.get(mate(alignmentOutput.sample()));
+            if (maybeMate.isPresent()) {
 
-        if (arguments.runBamMetrics()) {
-            maybeBamMetricsOutput = Optional.of(executorService.submit(() -> metrics.run(alignmentOutput)));
-        }
+                AlignmentPair pair = AlignmentPair.of(alignmentOutput, maybeMate.get());
 
-        if (arguments.runGermlineCaller()) {
-            maybeGermlineCallerFuture = Optional.of(executorService.submit(() -> germlineCaller.run(alignmentOutput)));
-        }
+                Future<SomaticCallerOutput> somaticCallerFuture = executorService.submit(() -> somaticCaller.run(pair));
+                Future<AmberOutput> amberOutputFuture = executorService.submit(() -> amber.run(pair));
+                Future<CobaltOutput> cobaltOutputFuture = executorService.submit(() -> cobalt.run(pair));
 
-        if (arguments.runStructuralCaller() || arguments.runSomaticCaller() || arguments.runTertiary()) {
-            Optional<AlignmentPair> maybeAlignmentPair = alignmentOutputStorage.get(mate(alignmentOutput.sample()))
-                    .map(complement -> AlignmentPair.of(alignmentOutput, complement));
+                BamMetricsOutput metricsOutput = state.addStageOutput(futurePayload(bamMetricsFuture));
+                if (state.shouldProceed()) {
+                    Future<StructuralCallerOutput> structuralCallerFuture =
+                            executorService.submit(() -> structuralCaller.run(pair, metricsOutput));
 
-            if (arguments.runSomaticCaller()) {
-                maybeSomaticCallerFuture = maybeAlignmentPair.map(pair -> executorService.submit(() -> somaticCaller.run(pair)));
-            }
-            if (arguments.runStructuralCaller()) {
-                maybeStructuralCallerFuture = maybeAlignmentPair.map(pair -> executorService.submit(() -> structuralCaller.run(pair)));
-            }
-            if (arguments.runTertiary()) {
-                maybeAmberOutputFuture = maybeAlignmentPair.map(pair -> executorService.submit(() -> amber.run(pair)));
-                maybeCobaltOutputFuture = maybeAlignmentPair.map(pair -> executorService.submit(() -> cobalt.run(pair)));
-            }
-
-            Optional<BamMetricsOutput> metricsOutput = maybeBamMetricsOutput.map(PatientReportPipeline::futurePayload);
-            Optional<SomaticCallerOutput> somaticCallerOutput = maybeSomaticCallerFuture.map(PatientReportPipeline::futurePayload);
-            Optional<StructuralCallerOutput> structuralCallerOutput = maybeStructuralCallerFuture.map(PatientReportPipeline::futurePayload);
-            Optional<AmberOutput> amberOutput = maybeAmberOutputFuture.map(PatientReportPipeline::futurePayload);
-            Optional<CobaltOutput> cobaltOutput = maybeCobaltOutputFuture.map(PatientReportPipeline::futurePayload);
-
-            if (arguments.runTertiary() && somaticCallerOutput.isPresent() && structuralCallerOutput.isPresent() && amberOutput.isPresent()
-                    && cobaltOutput.isPresent() && metricsOutput.isPresent()) {
-                Optional<PurpleOutput> purpleOutput = maybeAlignmentPair.map(pair -> purple.run(pair,
-                        somaticCallerOutput.get().finalSomaticVcf(),
-                        structuralCallerOutput.get().structuralVcf(),
-                        structuralCallerOutput.get().svRecoveryVcf(),
-                        cobaltOutput.get().outputDirectory(),
-                        amberOutput.get().outputDirectory()));
-
-                if (purpleOutput.isPresent()) {
-                    Optional<HealthCheckOutput> healthCheckerOutput = maybeAlignmentPair.map(pair -> {
-                        GoogleStorageLocation mateMetricsOutput =
-                                bamMetricsOutputStorage.get(mate(alignmentOutput.sample())).metricsOutputFile();
-                        return healthChecker.run(pair,
-                                metricsOutput.get().metricsOutputFile(),
-                                mateMetricsOutput,
-                                somaticCallerOutput.get().finalSomaticVcf(),
-                                purpleOutput.get().outputDirectory(),
-                                amberOutput.get().outputDirectory());
-                    });
+                    SomaticCallerOutput somaticCallerOutput = state.addStageOutput(futurePayload(somaticCallerFuture));
+                    StructuralCallerOutput structuralCallerOutput = state.addStageOutput(futurePayload(structuralCallerFuture));
+                    AmberOutput amberOutput = state.addStageOutput(futurePayload(amberOutputFuture));
+                    CobaltOutput cobaltOutput = state.addStageOutput(futurePayload(cobaltOutputFuture));
+                    if (state.shouldProceed()) {
+                        PurpleOutput purpleOutput = state.addStageOutput(purple.run(pair,
+                                somaticCallerOutput,
+                                structuralCallerOutput,
+                                cobaltOutput,
+                                amberOutput));
+                        if (state.shouldProceed()) {
+                            BamMetricsOutput mateMetricsOutput = bamMetricsOutputStorage.get(mate(alignmentOutput.sample()));
+                            state.addStageOutput(healthChecker.run(pair,
+                                    metricsOutput,
+                                    mateMetricsOutput,
+                                    somaticCallerOutput,
+                                    purpleOutput,
+                                    amberOutput));
+                        }
+                    }
                 }
+            } else {
+                state.addStageOutput(futurePayload(bamMetricsFuture));
             }
-
-            somaticCallerOutput.ifPresent(output -> checkStatus("Somatic", output.status()));
-            structuralCallerOutput.ifPresent(output -> checkStatus("Structural", output.status()));
-            amberOutput.ifPresent(output -> checkStatus("Amber", output.status()));
-            cobaltOutput.ifPresent(output -> checkStatus("Cobalt", output.status()));
+            state.addStageOutput(futurePayload(germlineCallerFuture));
         }
-
-        Optional<GermlineCallerOutput> germlineCallerOutput = maybeGermlineCallerFuture.map(PatientReportPipeline::futurePayload);
-        germlineCallerOutput.ifPresent(output -> checkStatus("Germline", output.status()));
-
         executorService.shutdown();
+        return state;
     }
 
     private static <T> T futurePayload(final Future<T> future) {
@@ -174,13 +144,6 @@ public class PatientReportPipeline {
         }
     }
 
-    private void checkStatus(final String callerName, final JobStatus status) {
-        if (status == JobStatus.FAILED) {
-            LOGGER.error("[{}] caller failed on the remote VM, no reason available here. Check the run.log in the output bucket",
-                    callerName);
-        }
-    }
-
     public static void main(String[] args) {
         try {
             Arguments arguments = CommandLineOptions.from(args);
@@ -188,7 +151,7 @@ public class PatientReportPipeline {
             try {
                 GoogleCredentials credentials = CredentialProvider.from(arguments).get();
                 Storage storage = StorageProvider.from(arguments, credentials).get();
-                new PatientReportPipeline(AlignerProvider.from(credentials, storage, arguments).get(),
+                PipelineState state = new PatientReportPipeline(AlignerProvider.from(credentials, storage, arguments).get(),
                         BamMetricsProvider.from(arguments, credentials, storage).get(),
                         GermlineCallerProvider.from(credentials, storage, arguments).get(),
                         SomaticCallerProvider.from(arguments, credentials, storage).get(),
@@ -199,13 +162,13 @@ public class PatientReportPipeline {
                         HealthCheckerProvider.from(arguments, credentials, storage).get(),
                         new AlignmentOutputStorage(storage, arguments, ResultsDirectory.defaultDirectory()),
                         new BamMetricsOutputStorage(storage, arguments, ResultsDirectory.defaultDirectory()),
-                        arguments,
-                        Executors.newFixedThreadPool(4)).run();
+                        Executors.newCachedThreadPool()).run();
+                LOGGER.info("Patient report pipeline is complete with status [{}]. Stages run were [{}]", state.status(), state);
             } catch (Exception e) {
                 LOGGER.error("An unexpected issue arose while running the pipeline. See the attached exception for more details.", e);
                 System.exit(1);
             }
-            LOGGER.info("Patient report pipeline completed successfully");
+            System.exit(0);
         } catch (ParseException e) {
             LOGGER.info("Exiting due to incorrect arguments");
         }

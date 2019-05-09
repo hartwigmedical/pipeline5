@@ -24,7 +24,7 @@ public class BamMetricsOutputStorage {
         RuntimeBucket metricsBucket = RuntimeBucket.from(storage, BamMetrics.NAMESPACE, sample.name(), arguments);
         return BamMetricsOutput.builder()
                 .status(JobStatus.SUCCESS)
-                .metricsOutputFile(GoogleStorageLocation.of(metricsBucket.name(),
+                .maybeMetricsOutputFile(GoogleStorageLocation.of(metricsBucket.name(),
                         resultsDirectory.path(BamMetricsOutput.outputFile(sample))))
                 .build();
     }

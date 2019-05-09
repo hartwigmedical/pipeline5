@@ -13,6 +13,8 @@ import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
+import com.hartwig.pipeline.tertiary.amber.Amber;
+import com.hartwig.pipeline.tertiary.amber.AmberOutput;
 import com.hartwig.pipeline.testsupport.MockResource;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
@@ -26,11 +28,12 @@ public class CobaltTest {
     private ComputeEngine computeEngine;
     private static final Arguments ARGUMENTS = Arguments.testDefaults();
     private Cobalt victim;
+    private Storage storage;
 
     @Before
     public void setUp() throws Exception {
         computeEngine = mock(ComputeEngine.class);
-        final Storage storage = mock(Storage.class);
+        storage = mock(Storage.class);
         final Bucket bucket = mock(Bucket.class);
         when(bucket.getName()).thenReturn(RUNTIME_BUCKET);
         when(storage.get(RUNTIME_BUCKET)).thenReturn(bucket);
@@ -39,12 +42,22 @@ public class CobaltTest {
     }
 
     @Test
+    public void returnsSkippedWhenTertiaryDisabledInArguments() {
+        victim = new Cobalt(Arguments.testDefaultsBuilder().runTertiary(false).build(),
+                computeEngine,
+                storage,
+                ResultsDirectory.defaultDirectory());
+        CobaltOutput output = victim.run(TestInputs.defaultPair());
+        assertThat(output.status()).isEqualTo(JobStatus.SKIPPED);
+    }
+
+    @Test
     public void returnsCobaltFileGoogleStorageLocation() {
         when(computeEngine.submit(any(), any())).thenReturn(JobStatus.SUCCESS);
         CobaltOutput output = victim.run(TestInputs.defaultPair());
         assertThat(output).isEqualTo(CobaltOutput.builder()
                 .status(JobStatus.SUCCESS)
-                .outputDirectory(GoogleStorageLocation.of(RUNTIME_BUCKET + "/cobalt", "results", true))
+                .maybeOutputDirectory(GoogleStorageLocation.of(RUNTIME_BUCKET + "/cobalt", "results", true))
                 .build());
     }
 

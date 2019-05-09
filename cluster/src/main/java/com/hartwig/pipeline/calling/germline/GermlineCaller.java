@@ -16,7 +16,7 @@ import static java.lang.String.format;
 
 public class GermlineCaller {
 
-    private static final String NAMESPACE = "germline_caller";
+    static final String NAMESPACE = "germline_caller";
 
     private static final String OUTPUT_FILENAME = "germline_output.gvcf";
 
@@ -34,11 +34,18 @@ public class GermlineCaller {
     }
 
     public GermlineCallerOutput run(AlignmentOutput alignmentOutput) {
+
+        if (!arguments.runGermlineCaller()){
+            return GermlineCallerOutput.builder().status(JobStatus.SKIPPED).build();
+        }
+
         RuntimeBucket bucket = RuntimeBucket.from(storage, NAMESPACE, alignmentOutput.sample().name(), arguments);
 
         Resource referenceGenome = new Resource(storage,
-                arguments.referenceGenomeBucket(), arguments.referenceGenomeBucket(), new ReferenceGenomeAlias().andThen(new GATKDictAlias()));
-        Resource knownSnps = new Resource(storage, arguments.knownSnpsBucket(),arguments.knownSnpsBucket());
+                arguments.referenceGenomeBucket(),
+                arguments.referenceGenomeBucket(),
+                new ReferenceGenomeAlias().andThen(new GATKDictAlias()));
+        Resource knownSnps = new Resource(storage, arguments.knownSnpsBucket(), arguments.knownSnpsBucket());
 
         BashStartupScript startupScript = BashStartupScript.of(bucket.name())
                 .addLine("echo Starting up at $(date)")
@@ -55,9 +62,6 @@ public class GermlineCaller {
 
         ImmutableGermlineCallerOutput.Builder outputBuilder = GermlineCallerOutput.builder();
         JobStatus status = executor.submit(bucket, VirtualMachineJobDefinition.germlineCalling(startupScript, resultsDirectory));
-        if (status.equals(JobStatus.SUCCESS)) {
-            outputBuilder.germlineVcf(GoogleStorageLocation.of(bucket.name(), OUTPUT_FILENAME));
-        }
         return outputBuilder.status(status).build();
     }
 }

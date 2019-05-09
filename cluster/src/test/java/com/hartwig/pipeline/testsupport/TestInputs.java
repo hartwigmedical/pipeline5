@@ -3,6 +3,7 @@ package com.hartwig.pipeline.testsupport;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.alignment.AlignmentPair;
+import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 
 import org.jetbrains.annotations.NotNull;
@@ -17,11 +18,14 @@ public class TestInputs {
 
     private static AlignmentOutput alignerOutput(final String sample) {
         String bucket = "run-" + sample + "/aligner";
-        return AlignmentOutput.of(gsLocation(bucket, RESULTS + sample + ".bam"),
-                gsLocation(bucket, RESULTS + sample + ".bam.bai"),
-                gsLocation(bucket, RESULTS + sample + ".recalibrated.bam"),
-                gsLocation(bucket, RESULTS + sample + ".recalibrated.bam.bai"),
-                Sample.builder("", sample).build());
+        return AlignmentOutput.builder()
+                .status(JobStatus.SUCCESS)
+                .maybeFinalBamLocation(gsLocation(bucket, RESULTS + sample + ".bam"))
+                .maybeFinalBaiLocation(gsLocation(bucket, RESULTS + sample + ".bam.bai"))
+                .maybeRecalibratedBamLocation(gsLocation(bucket, RESULTS + sample + ".recalibrated.bam"))
+                .maybeRecalibratedBaiLocation(gsLocation(bucket, RESULTS + sample + ".recalibrated.bam.bai"))
+                .sample(Sample.builder("", sample).build())
+                .build();
     }
 
     @NotNull

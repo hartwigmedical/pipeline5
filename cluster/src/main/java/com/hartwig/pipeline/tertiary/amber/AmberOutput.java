@@ -1,16 +1,26 @@
 package com.hartwig.pipeline.tertiary.amber;
 
+import java.util.Optional;
+
+import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 
 import org.immutables.value.Value;
 
 @Value.Immutable
-public interface AmberOutput {
+public interface AmberOutput extends StageOutput {
 
-    JobStatus status();
+    @Override
+    default String name() {
+        return Amber.NAMESPACE;
+    }
 
-    GoogleStorageLocation outputDirectory();
+    Optional<GoogleStorageLocation> maybeOutputDirectory();
+
+    default GoogleStorageLocation outputDirectory() {
+        return maybeOutputDirectory().orElseThrow(() -> new IllegalStateException("No output directory available"));
+    }
 
     static ImmutableAmberOutput.Builder builder() {
         return ImmutableAmberOutput.builder();

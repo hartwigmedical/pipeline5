@@ -7,7 +7,6 @@ import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.InputDownload;
-import com.hartwig.pipeline.execution.vm.OutputFile;
 import com.hartwig.pipeline.execution.vm.OutputUpload;
 import com.hartwig.pipeline.execution.vm.ResourceDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
@@ -17,7 +16,7 @@ import com.hartwig.pipeline.io.RuntimeBucket;
 
 public class Cobalt {
 
-    private static final String NAMESPACE = "cobalt";
+    static final String NAMESPACE = "cobalt";
     private final Arguments arguments;
     private final ComputeEngine computeEngine;
     private final Storage storage;
@@ -31,6 +30,11 @@ public class Cobalt {
     }
 
     public CobaltOutput run(AlignmentPair pair) {
+
+        if (!arguments.runTertiary()){
+            return CobaltOutput.builder().status(JobStatus.SKIPPED).build();
+        }
+
         String tumorSampleName = pair.tumor().sample().name();
         String referenceSampleName = pair.reference().sample().name();
         RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, NAMESPACE, referenceSampleName, tumorSampleName, arguments);
@@ -54,7 +58,7 @@ public class Cobalt {
         JobStatus status = computeEngine.submit(runtimeBucket, VirtualMachineJobDefinition.cobalt(bash, resultsDirectory));
         return CobaltOutput.builder()
                 .status(status)
-                .outputDirectory(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path(), true))
+                .maybeOutputDirectory(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path(), true))
                 .build();
     }
 }

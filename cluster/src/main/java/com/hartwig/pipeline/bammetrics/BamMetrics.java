@@ -13,6 +13,7 @@ import com.hartwig.pipeline.resource.ReferenceGenomeAlias;
 import com.hartwig.pipeline.resource.Resource;
 
 public class BamMetrics {
+
     static final String NAMESPACE = "bam_metrics";
     private final Arguments arguments;
     private final ComputeEngine executor;
@@ -27,6 +28,11 @@ public class BamMetrics {
     }
 
     public BamMetricsOutput run(AlignmentOutput alignmentOutput) {
+
+        if (!arguments.runBamMetrics()) {
+            return BamMetricsOutput.builder().status(JobStatus.SKIPPED).build();
+        }
+
         RuntimeBucket bucket = RuntimeBucket.from(storage, NAMESPACE, alignmentOutput.sample().name(), arguments);
         Resource referenceGenome = new Resource(storage,
                 arguments.referenceGenomeBucket(),
@@ -49,7 +55,7 @@ public class BamMetrics {
         JobStatus status = executor.submit(bucket, VirtualMachineJobDefinition.bamMetrics(startup, resultsDirectory));
         return BamMetricsOutput.builder()
                 .status(status)
-                .metricsOutputFile(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(outputFile)))
+                .maybeMetricsOutputFile(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(outputFile)))
                 .build();
     }
 }

@@ -8,11 +8,16 @@ import static org.mockito.Mockito.when;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.bammetrics.BamMetricsOutput;
+import com.hartwig.pipeline.calling.somatic.SomaticCallerOutput;
 import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
+import com.hartwig.pipeline.tertiary.amber.AmberOutput;
+import com.hartwig.pipeline.tertiary.purple.Purple;
+import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Before;
@@ -25,15 +30,26 @@ public class HealthCheckerTest {
     private ComputeEngine computeEngine;
     private static final Arguments ARGUMENTS = Arguments.testDefaults();
     private HealthChecker victim;
+    private Storage storage;
 
     @Before
     public void setUp() throws Exception {
         computeEngine = mock(ComputeEngine.class);
-        final Storage storage = mock(Storage.class);
+        storage = mock(Storage.class);
         final Bucket bucket = mock(Bucket.class);
         when(bucket.getName()).thenReturn(RUNTIME_BUCKET);
         when(storage.get(RUNTIME_BUCKET)).thenReturn(bucket);
         victim = new HealthChecker(ARGUMENTS, computeEngine, storage, ResultsDirectory.defaultDirectory());
+    }
+
+    @Test
+    public void returnsSkippedWhenTertiaryDisabledInArguments() {
+        victim = new HealthChecker(Arguments.testDefaultsBuilder().runTertiary(false).build(),
+                computeEngine,
+                storage,
+                ResultsDirectory.defaultDirectory());
+        HealthCheckOutput output = runVictim();
+        assertThat(output.status()).isEqualTo(JobStatus.SKIPPED);
     }
 
     @Test
@@ -42,7 +58,7 @@ public class HealthCheckerTest {
         HealthCheckOutput output = runVictim();
         assertThat(output).isEqualTo(HealthCheckOutput.builder()
                 .status(JobStatus.SUCCESS)
-                .outputFile(GoogleStorageLocation.of(RUNTIME_BUCKET + "/health_checker", "results/HealthCheck.out"))
+                .maybeOutputFile(GoogleStorageLocation.of(RUNTIME_BUCKET + "/health_checker", "results/HealthCheck.out"))
                 .build());
     }
 
@@ -97,10 +113,25 @@ public class HealthCheckerTest {
 
     private HealthCheckOutput runVictim() {
         return victim.run(TestInputs.defaultPair(),
-                GoogleStorageLocation.of("run-reference", "reference.wgsmetrics"),
-                GoogleStorageLocation.of("run-tumor", "tumor.wgsmetrics"),
-                GoogleStorageLocation.of(RUNTIME_BUCKET, "somatic.vcf"),
-                GoogleStorageLocation.of(RUNTIME_BUCKET, "purple", true),
-                GoogleStorageLocation.of(RUNTIME_BUCKET, "amber", true));
+                BamMetricsOutput.builder()
+                        .status(JobStatus.SUCCESS)
+                        .maybeMetricsOutputFile(GoogleStorageLocation.of("run-reference", "reference.wgsmetrics"))
+                        .build(),
+                BamMetricsOutput.builder()
+                        .status(JobStatus.SUCCESS)
+                        .maybeMetricsOutputFile(GoogleStorageLocation.of("run-tumor", "tumor.wgsmetrics"))
+                        .build(),
+                SomaticCallerOutput.builder()
+                        .status(JobStatus.SUCCESS)
+                        .maybeFinalSomaticVcf(GoogleStorageLocation.of(RUNTIME_BUCKET, "somatic.vcf"))
+                        .build(),
+                PurpleOutput.builder()
+                        .status(JobStatus.SUCCESS)
+                        .maybeOutputDirectory(GoogleStorageLocation.of(RUNTIME_BUCKET, "purple", true))
+                        .build(),
+                AmberOutput.builder()
+                        .status(JobStatus.SUCCESS)
+                        .maybeOutputDirectory(GoogleStorageLocation.of(RUNTIME_BUCKET, "amber", true))
+                        .build());
     }
 }

@@ -8,11 +8,16 @@ import static org.mockito.Mockito.when;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.calling.somatic.SomaticCallerOutput;
+import com.hartwig.pipeline.calling.structural.StructuralCallerOutput;
 import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
+import com.hartwig.pipeline.tertiary.amber.Amber;
+import com.hartwig.pipeline.tertiary.amber.AmberOutput;
+import com.hartwig.pipeline.tertiary.cobalt.CobaltOutput;
 import com.hartwig.pipeline.testsupport.MockResource;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
@@ -26,11 +31,12 @@ public class PurpleTest {
     private ComputeEngine computeEngine;
     private static final Arguments ARGUMENTS = Arguments.testDefaults();
     private Purple victim;
+    private Storage storage;
 
     @Before
     public void setUp() throws Exception {
         computeEngine = mock(ComputeEngine.class);
-        final Storage storage = mock(Storage.class);
+        storage = mock(Storage.class);
         final Bucket bucket = mock(Bucket.class);
         when(bucket.getName()).thenReturn(RUNTIME_BUCKET);
         when(storage.get(RUNTIME_BUCKET)).thenReturn(bucket);
@@ -40,12 +46,22 @@ public class PurpleTest {
     }
 
     @Test
+    public void returnsSkippedWhenTertiaryDisabledInArguments() {
+        victim = new Purple(Arguments.testDefaultsBuilder().runTertiary(false).build(),
+                computeEngine,
+                storage,
+                ResultsDirectory.defaultDirectory());
+        PurpleOutput output = runVictim();
+        assertThat(output.status()).isEqualTo(JobStatus.SKIPPED);
+    }
+
+    @Test
     public void returnsPurpleOutputDirectory() {
         when(computeEngine.submit(any(), any())).thenReturn(JobStatus.SUCCESS);
         PurpleOutput output = runVictim();
         assertThat(output).isEqualTo(PurpleOutput.builder()
                 .status(JobStatus.SUCCESS)
-                .outputDirectory(GoogleStorageLocation.of(RUNTIME_BUCKET+ "/purple", "results", true))
+                .maybeOutputDirectory(GoogleStorageLocation.of(RUNTIME_BUCKET + "/purple", "results", true))
                 .build());
     }
 
@@ -87,11 +103,23 @@ public class PurpleTest {
 
     private PurpleOutput runVictim() {
         return victim.run(TestInputs.defaultPair(),
-                GoogleStorageLocation.of(RUNTIME_BUCKET, "somatic.vcf"),
-                GoogleStorageLocation.of(RUNTIME_BUCKET, "structural.vcf"),
-                GoogleStorageLocation.of(RUNTIME_BUCKET, "sv_recovery.vcf"),
-                GoogleStorageLocation.of(RUNTIME_BUCKET, "cobalt", true),
-                GoogleStorageLocation.of(RUNTIME_BUCKET, "amber", true));
+                SomaticCallerOutput.builder()
+                        .status(JobStatus.SUCCESS)
+                        .maybeFinalSomaticVcf(GoogleStorageLocation.of(RUNTIME_BUCKET, "somatic.vcf"))
+                        .build(),
+                StructuralCallerOutput.builder()
+                        .status(JobStatus.SUCCESS)
+                        .maybeStructuralVcf(GoogleStorageLocation.of(RUNTIME_BUCKET, "structural.vcf"))
+                        .maybeSvRecoveryVcf(GoogleStorageLocation.of(RUNTIME_BUCKET, "sv_recovery.vcf"))
+                        .build(),
+                CobaltOutput.builder()
+                        .status(JobStatus.SUCCESS)
+                        .maybeOutputDirectory(GoogleStorageLocation.of(RUNTIME_BUCKET, "cobalt", true))
+                        .build(),
+                AmberOutput.builder()
+                        .status(JobStatus.SUCCESS)
+                        .maybeOutputDirectory(GoogleStorageLocation.of(RUNTIME_BUCKET, "amber", true))
+                        .build());
     }
 
     private ArgumentCaptor<VirtualMachineJobDefinition> captureAndReturnSuccess() {

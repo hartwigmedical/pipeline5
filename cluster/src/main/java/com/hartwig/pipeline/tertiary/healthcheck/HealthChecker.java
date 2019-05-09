@@ -3,6 +3,8 @@ package com.hartwig.pipeline.tertiary.healthcheck;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.AlignmentPair;
+import com.hartwig.pipeline.bammetrics.BamMetricsOutput;
+import com.hartwig.pipeline.calling.somatic.SomaticCallerOutput;
 import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
@@ -13,10 +15,12 @@ import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
+import com.hartwig.pipeline.tertiary.amber.AmberOutput;
+import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 
 public class HealthChecker {
 
-    private static final String NAMESPACE = "health_checker";
+    static final String NAMESPACE = "health_checker";
     private final Arguments arguments;
     private final ComputeEngine computeEngine;
     private final Storage storage;
@@ -30,18 +34,23 @@ public class HealthChecker {
         this.resultsDirectory = resultsDirectory;
     }
 
-    public HealthCheckOutput run(AlignmentPair pair, GoogleStorageLocation metricsOutput, GoogleStorageLocation mateMetricsOutput,
-            GoogleStorageLocation somaticVcf, GoogleStorageLocation purpleOutput, GoogleStorageLocation amberOutput) {
+    public HealthCheckOutput run(AlignmentPair pair, BamMetricsOutput metricsOutput, BamMetricsOutput mateMetricsOutput,
+            SomaticCallerOutput somaticCallerOutput, PurpleOutput purpleOutput, AmberOutput amberOutput) {
+
+        if (!arguments.runTertiary()) {
+            return HealthCheckOutput.builder().status(JobStatus.SKIPPED).build();
+        }
+
         RuntimeBucket runtimeBucket =
                 RuntimeBucket.from(storage, NAMESPACE, pair.reference().sample().name(), pair.tumor().sample().name(), arguments);
 
         BashStartupScript bash = BashStartupScript.of(runtimeBucket.name());
 
-        InputDownload metricsDownload = new InputDownload(metricsOutput);
-        InputDownload mateMetricsDownload = new InputDownload(mateMetricsOutput);
-        InputDownload somaticVcfDownload = new InputDownload(somaticVcf);
-        InputDownload purpleDownload = new InputDownload(purpleOutput);
-        InputDownload amberDownload = new InputDownload(amberOutput);
+        InputDownload metricsDownload = new InputDownload(metricsOutput.metricsOutputFile());
+        InputDownload mateMetricsDownload = new InputDownload(mateMetricsOutput.metricsOutputFile());
+        InputDownload somaticVcfDownload = new InputDownload(somaticCallerOutput.finalSomaticVcf());
+        InputDownload purpleDownload = new InputDownload(purpleOutput.outputDirectory());
+        InputDownload amberDownload = new InputDownload(amberOutput.outputDirectory());
 
         bash.addCommand(metricsDownload)
                 .addCommand(mateMetricsDownload)
@@ -54,7 +63,7 @@ public class HealthChecker {
         JobStatus status = computeEngine.submit(runtimeBucket, VirtualMachineJobDefinition.healthChecker(bash, resultsDirectory));
         return HealthCheckOutput.builder()
                 .status(status)
-                .outputFile((GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path("HealthCheck.out"))))
+                .maybeOutputFile((GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path("HealthCheck.out"))))
                 .build();
     }
 }

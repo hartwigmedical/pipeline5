@@ -7,6 +7,7 @@ import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
@@ -42,11 +43,14 @@ public class AlignmentOutputStorage {
                 throw new IllegalStateException(String.format("Recalibrated bam in bucket [%s] but the sorted bam was missing. "
                         + "This output is corrupted and cannot be used for downstream processing", bucket));
             }
-            return Optional.of(AlignmentOutput.of(location(bucket, bamBlob),
-                    location(bucket, baiBlob),
-                    location(bucket, recalibratedBamBlob),
-                    location(bucket, recalibratedBaiBlob),
-                    sample));
+            return Optional.of(AlignmentOutput.builder()
+                    .status(JobStatus.SUCCESS)
+                    .maybeFinalBamLocation(location(bucket, bamBlob))
+                    .maybeFinalBaiLocation(location(bucket, baiBlob))
+                    .maybeRecalibratedBamLocation(location(bucket, recalibratedBamBlob))
+                    .maybeRecalibratedBaiLocation(location(bucket, recalibratedBaiBlob))
+                    .sample(sample)
+                    .build());
         } else {
             LOGGER.info("No recalibrated BAM found in bucket [{}]. Alignment stage is likely not yet complete.", bucket);
         }

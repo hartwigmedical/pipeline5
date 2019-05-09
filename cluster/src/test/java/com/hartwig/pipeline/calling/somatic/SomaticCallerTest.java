@@ -28,10 +28,11 @@ public class SomaticCallerTest {
     private static final String RUNTIME_BUCKET = "run-reference-tumor";
     private ComputeEngine computeEngine;
     private SomaticCaller victim;
+    private Storage storage;
 
     @Before
     public void setUp() throws Exception {
-        Storage storage = mock(Storage.class);
+        storage = mock(Storage.class);
         Bucket bucket = mock(Bucket.class);
         when(bucket.getName()).thenReturn(RUNTIME_BUCKET);
         when(storage.get(RUNTIME_BUCKET)).thenReturn(bucket);
@@ -49,12 +50,20 @@ public class SomaticCallerTest {
     }
 
     @Test
+    public void returnsSkippedIfDisabledInArguments() {
+        assertThat(new SomaticCaller(Arguments.testDefaultsBuilder().runSomaticCaller(false).build(),
+                computeEngine,
+                storage,
+                ResultsDirectory.defaultDirectory()).run(TestInputs.defaultPair()).status()).isEqualTo(JobStatus.SKIPPED);
+    }
+
+    @Test
     public void returnsFinalVcfGoogleStorageLocation() {
         AlignmentPair input = TestInputs.defaultPair();
         when(computeEngine.submit(any(), any())).thenReturn(JobStatus.SUCCESS);
         assertThat(victim.run(input)).isEqualTo(SomaticCallerOutput.builder()
                 .status(JobStatus.SUCCESS)
-                .finalSomaticVcf(GoogleStorageLocation.of(RUNTIME_BUCKET + "/" + SomaticCaller.NAMESPACE,
+                .maybeFinalSomaticVcf(GoogleStorageLocation.of(RUNTIME_BUCKET + "/" + SomaticCaller.NAMESPACE,
                         "results/tumor.cosmic.annotated.vcf.gz"))
                 .build());
     }

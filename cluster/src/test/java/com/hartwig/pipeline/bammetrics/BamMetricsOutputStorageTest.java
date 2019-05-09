@@ -30,7 +30,7 @@ public class BamMetricsOutputStorageTest {
         BamMetricsOutputStorage victim = new BamMetricsOutputStorage(storage, Arguments.testDefaults(), RESULTS_DIRECTORY);
         assertThat(victim.get(sample)).isEqualTo(BamMetricsOutput.builder()
                 .status(JobStatus.SUCCESS)
-                .metricsOutputFile(GoogleStorageLocation.of(runtimeBucketName + "/" + BamMetrics.NAMESPACE,
+                .maybeMetricsOutputFile(GoogleStorageLocation.of(runtimeBucketName + "/" + BamMetrics.NAMESPACE,
                         RESULTS_DIRECTORY.path(sample.name() + ".wgsmetrics"))).build());
     }
 }
