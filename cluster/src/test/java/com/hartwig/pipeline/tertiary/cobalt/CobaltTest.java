@@ -13,6 +13,7 @@ import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
+import com.hartwig.pipeline.resource.ResourceNames;
 import com.hartwig.pipeline.tertiary.amber.Amber;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
 import com.hartwig.pipeline.testsupport.MockResource;
@@ -37,7 +38,7 @@ public class CobaltTest {
         final Bucket bucket = mock(Bucket.class);
         when(bucket.getName()).thenReturn(RUNTIME_BUCKET);
         when(storage.get(RUNTIME_BUCKET)).thenReturn(bucket);
-        MockResource.addToStorage(storage, "cobalt-gc", "gc.cnp");
+        MockResource.addToStorage(storage, ResourceNames.GC_PROFILE, "gc.cnp");
         victim = new Cobalt(ARGUMENTS, computeEngine, storage, ResultsDirectory.defaultDirectory());
     }
 

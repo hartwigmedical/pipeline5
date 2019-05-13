@@ -17,6 +17,7 @@ import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.resource.GATKDictAlias;
 import com.hartwig.pipeline.resource.ReferenceGenomeAlias;
 import com.hartwig.pipeline.resource.Resource;
+import com.hartwig.pipeline.resource.ResourceNames;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -38,7 +39,7 @@ public class SomaticCaller {
 
     public SomaticCallerOutput run(AlignmentPair pair) {
 
-        if (!arguments.runSomaticCaller()){
+        if (!arguments.runSomaticCaller()) {
             return SomaticCallerOutput.builder().status(JobStatus.SKIPPED).build();
         }
 
@@ -49,14 +50,20 @@ public class SomaticCaller {
 
         ResourceDownload referenceGenomeDownload = ResourceDownload.from(runtimeBucket, referenceGenomeResource());
         String referenceGenomePath = referenceGenomeDownload.find("fa", "fasta");
-        ResourceDownload strelkaConfigDownload = ResourceDownload.from(storage, "strelka_config", runtimeBucket);
-        ResourceDownload mappabilityResources = ResourceDownload.from(storage, "hg19_mappability_tracks", runtimeBucket);
-        ResourceDownload ponv2Resources = ResourceDownload.from(storage, "pon-v2", runtimeBucket);
-        ResourceDownload strelkaPostProcessBedResource = ResourceDownload.from(storage, "beds", runtimeBucket);
-        ResourceDownload sageResourceDownload = ResourceDownload.from(storage, "sage-pilot", runtimeBucket);
-        ResourceDownload snpEffResourceDownload = ResourceDownload.from(storage, "snpeff", runtimeBucket);
-        ResourceDownload knownSnpsResourceDownload = ResourceDownload.from(storage, "known_snps", runtimeBucket);
-        ResourceDownload cosmicResourceDownload = ResourceDownload.from(storage, "cosmic_v85", runtimeBucket);
+        ResourceDownload strelkaConfigDownload =
+                ResourceDownload.from(storage, arguments.resourceBucket(), ResourceNames.STRELKA_CONFIG, runtimeBucket);
+        ResourceDownload mappabilityResources =
+                ResourceDownload.from(storage, arguments.resourceBucket(), ResourceNames.MAPPABILITY, runtimeBucket);
+        ResourceDownload ponv2Resources = ResourceDownload.from(storage, arguments.resourceBucket(), ResourceNames.PON, runtimeBucket);
+        ResourceDownload strelkaPostProcessBedResource =
+                ResourceDownload.from(storage, arguments.resourceBucket(), ResourceNames.BEDS, runtimeBucket);
+        ResourceDownload sageResourceDownload =
+                ResourceDownload.from(storage, arguments.resourceBucket(), ResourceNames.SAGE, runtimeBucket);
+        ResourceDownload snpEffResourceDownload =
+                ResourceDownload.from(storage, arguments.resourceBucket(), ResourceNames.SNPEFF, runtimeBucket);
+        ResourceDownload knownSnpsResourceDownload =
+                ResourceDownload.from(storage, arguments.resourceBucket(), ResourceNames.KNOWN_SNPS, runtimeBucket);
+        ResourceDownload cosmicResourceDownload = ResourceDownload.from(storage,arguments.resourceBucket(), ResourceNames.COSMIC, runtimeBucket);
         bash.addCommand(referenceGenomeDownload)
                 .addCommand(strelkaConfigDownload)
                 .addCommand(mappabilityResources)
@@ -114,8 +121,7 @@ public class SomaticCaller {
     @NotNull
     private Resource referenceGenomeResource() {
         return new Resource(storage,
-                arguments.referenceGenomeBucket(),
-                arguments.referenceGenomeBucket(),
-                new ReferenceGenomeAlias().andThen(new GATKDictAlias()));
+                arguments.resourceBucket(),
+                ResourceNames.REFERENCE_GENOME, new ReferenceGenomeAlias().andThen(new GATKDictAlias()));
     }
 }

@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.alignment;
 
+import static com.hartwig.pipeline.resource.ResourceNames.*;
+
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Storage;
 import com.hartwig.patient.Sample;
@@ -13,6 +15,7 @@ import com.hartwig.pipeline.io.sources.SampleData;
 import com.hartwig.pipeline.io.sources.SampleSource;
 import com.hartwig.pipeline.metrics.Monitor;
 import com.hartwig.pipeline.metrics.Run;
+import com.hartwig.pipeline.resource.ReferenceGenomeAlias;
 import com.hartwig.pipeline.resource.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,9 +34,6 @@ public class Aligner {
 
     private final Arguments arguments;
     private final Storage storage;
-    private final Resource referenceGenomeData;
-    private final Resource knownIndelData;
-    private final Resource knownSnpData;
     private final SampleSource sampleSource;
     private final BamDownload bamDownload;
     private final SampleUpload sampleUpload;
@@ -45,16 +45,12 @@ public class Aligner {
     private final ResultsDirectory resultsDirectory;
     private final AlignmentOutputStorage alignmentOutputStorage;
 
-    Aligner(final Arguments arguments, final Storage storage, final Resource referenceGenomeData, final Resource knownIndelData,
-            final Resource knownSnpData, final SampleSource sampleSource, final BamDownload bamDownload, final SampleUpload sampleUpload,
-            final SparkExecutor dataproc, final JarUpload jarUpload, final ClusterOptimizer clusterOptimizer,
-            final CostCalculator costCalculator, final GoogleCredentials credentials, final ResultsDirectory resultsDirectory,
-            final AlignmentOutputStorage alignmentOutputStorage) {
+    Aligner(final Arguments arguments, final Storage storage, final SampleSource sampleSource, final BamDownload bamDownload,
+            final SampleUpload sampleUpload, final SparkExecutor dataproc, final JarUpload jarUpload,
+            final ClusterOptimizer clusterOptimizer, final CostCalculator costCalculator, final GoogleCredentials credentials,
+            final ResultsDirectory resultsDirectory, final AlignmentOutputStorage alignmentOutputStorage) {
         this.arguments = arguments;
         this.storage = storage;
-        this.referenceGenomeData = referenceGenomeData;
-        this.knownIndelData = knownIndelData;
-        this.knownSnpData = knownSnpData;
         this.sampleSource = sampleSource;
         this.bamDownload = bamDownload;
         this.sampleUpload = sampleUpload;
@@ -80,9 +76,10 @@ public class Aligner {
 
         RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, NAMESPACE, sampleData.sample().name(), arguments);
         Monitor monitor = Monitor.stackdriver(Run.of(arguments.version(), runtimeBucket.name()), arguments.project(), credentials);
-        referenceGenomeData.copyInto(runtimeBucket);
-        knownIndelData.copyInto(runtimeBucket);
-        knownSnpData.copyInto(runtimeBucket);
+        new Resource(storage, arguments.resourceBucket(), REFERENCE_GENOME, new ReferenceGenomeAlias()).copyInto(
+                runtimeBucket);
+        new Resource(storage, arguments.resourceBucket(), KNOWN_INDELS).copyInto(runtimeBucket);
+        new Resource(storage, arguments.resourceBucket(), KNOWN_SNPS).copyInto(runtimeBucket);
         if (arguments.upload()) {
             sampleUpload.run(sample, runtimeBucket);
         }

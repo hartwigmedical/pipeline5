@@ -11,6 +11,7 @@ import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.resource.GATKDictAlias;
 import com.hartwig.pipeline.resource.ReferenceGenomeAlias;
 import com.hartwig.pipeline.resource.Resource;
+import com.hartwig.pipeline.resource.ResourceNames;
 
 import static java.lang.String.format;
 
@@ -35,17 +36,17 @@ public class GermlineCaller {
 
     public GermlineCallerOutput run(AlignmentOutput alignmentOutput) {
 
-        if (!arguments.runGermlineCaller()){
+        if (!arguments.runGermlineCaller()) {
             return GermlineCallerOutput.builder().status(JobStatus.SKIPPED).build();
         }
 
         RuntimeBucket bucket = RuntimeBucket.from(storage, NAMESPACE, alignmentOutput.sample().name(), arguments);
 
         Resource referenceGenome = new Resource(storage,
-                arguments.referenceGenomeBucket(),
-                arguments.referenceGenomeBucket(),
+                arguments.resourceBucket(),
+                ResourceNames.REFERENCE_GENOME,
                 new ReferenceGenomeAlias().andThen(new GATKDictAlias()));
-        Resource knownSnps = new Resource(storage, arguments.knownSnpsBucket(), arguments.knownSnpsBucket());
+        Resource knownSnps = new Resource(storage, arguments.resourceBucket(), ResourceNames.KNOWN_SNPS);
 
         BashStartupScript startupScript = BashStartupScript.of(bucket.name())
                 .addLine("echo Starting up at $(date)")

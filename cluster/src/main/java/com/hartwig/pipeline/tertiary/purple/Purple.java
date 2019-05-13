@@ -17,6 +17,7 @@ import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
+import com.hartwig.pipeline.resource.ResourceNames;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
 import com.hartwig.pipeline.tertiary.cobalt.CobaltOutput;
 
@@ -38,7 +39,7 @@ public class Purple {
     public PurpleOutput run(AlignmentPair pair, SomaticCallerOutput somaticCallerOutput, StructuralCallerOutput structuralCallerOutput,
             CobaltOutput cobaltOutput, AmberOutput amberOutput) {
 
-        if (!arguments.runTertiary()){
+        if (!arguments.runTertiary()) {
             return PurpleOutput.builder().status(JobStatus.SKIPPED).build();
         }
 
@@ -47,8 +48,10 @@ public class Purple {
         RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, NAMESPACE, referenceSampleName, tumorSampleName, arguments);
         BashStartupScript bash = BashStartupScript.of(runtimeBucket.name());
 
-        ResourceDownload gcProfileDownload = ResourceDownload.from(storage, "cobalt-gc", runtimeBucket);
-        ResourceDownload referenceGenomeDownload = ResourceDownload.from(storage, "reference_genome", runtimeBucket);
+        ResourceDownload gcProfileDownload =
+                ResourceDownload.from(storage, arguments.resourceBucket(), ResourceNames.GC_PROFILE, runtimeBucket);
+        ResourceDownload referenceGenomeDownload =
+                ResourceDownload.from(storage, arguments.resourceBucket(), ResourceNames.REFERENCE_GENOME, runtimeBucket);
         bash.addCommand(gcProfileDownload).addCommand(referenceGenomeDownload);
 
         InputDownload somaticVcfDownload = new InputDownload(somaticCallerOutput.finalSomaticVcf());

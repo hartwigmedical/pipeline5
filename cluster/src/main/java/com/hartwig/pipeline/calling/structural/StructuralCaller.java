@@ -15,6 +15,7 @@ import com.hartwig.pipeline.execution.vm.ResourceDownload;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.resource.Resource;
+import com.hartwig.pipeline.resource.ResourceNames;
 
 public class StructuralCaller {
     private final Arguments arguments;
@@ -37,7 +38,7 @@ public class StructuralCaller {
         BashStartupScript bash = BashStartupScript.of(runtimeBucket.name());
 
         ResourceDownload referenceGenomeDownload = ResourceDownload.from(runtimeBucket,
-                new Resource(storage, arguments.referenceGenomeBucket(), runtimeBucket.name()));
+                new Resource(storage, ResourceNames.REFERENCE_GENOME, runtimeBucket.name()));
         String referenceGenomePath = referenceGenomeDownload.find("fa", "fasta");
 
         CommandFactory commandFactory = new CommandFactory();

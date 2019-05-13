@@ -11,6 +11,7 @@ import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.resource.GATKDictAlias;
 import com.hartwig.pipeline.resource.ReferenceGenomeAlias;
 import com.hartwig.pipeline.resource.Resource;
+import com.hartwig.pipeline.resource.ResourceNames;
 
 public class BamMetrics {
     static final String NAMESPACE = "bam_metrics";
@@ -33,9 +34,7 @@ public class BamMetrics {
         }
 
         RuntimeBucket bucket = RuntimeBucket.from(storage, NAMESPACE, alignmentOutput.sample().name(), arguments);
-        Resource referenceGenome = new Resource(storage,
-                arguments.referenceGenomeBucket(),
-                arguments.referenceGenomeBucket(),
+        Resource referenceGenome = new Resource(storage, arguments.resourceBucket(), ResourceNames.REFERENCE_GENOME,
                 new ReferenceGenomeAlias().andThen(new GATKDictAlias()));
         ResourceDownload genomeDownload = new ResourceDownload(referenceGenome.copyInto(bucket));
         InputDownload bam = new InputDownload(alignmentOutput.finalBamLocation());

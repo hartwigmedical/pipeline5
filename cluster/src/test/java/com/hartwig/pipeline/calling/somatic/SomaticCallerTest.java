@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.calling.somatic;
 
+import static com.hartwig.pipeline.resource.ResourceNames.*;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
@@ -16,6 +18,7 @@ import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
+import com.hartwig.pipeline.resource.ResourceNames;
 import com.hartwig.pipeline.testsupport.MockResource;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
@@ -36,15 +39,15 @@ public class SomaticCallerTest {
         Bucket bucket = mock(Bucket.class);
         when(bucket.getName()).thenReturn(RUNTIME_BUCKET);
         when(storage.get(RUNTIME_BUCKET)).thenReturn(bucket);
-        MockResource.addToStorage(storage, "reference_genome", "reference.fasta");
-        MockResource.addToStorage(storage, "sage-pilot", "hotspots.tsv", "coding_regions.bed", "SAGE_PON.vcf.gz");
-        MockResource.addToStorage(storage, "strelka_config", "strelka.ini");
-        MockResource.addToStorage(storage, "hg19_mappability_tracks", "mappability.bed.gz", "mappability.hdr");
-        MockResource.addToStorage(storage, "pon-v2", "GERMLINE_PON.vcf.gz", "SOMATIC_PON.vcf.gz");
-        MockResource.addToStorage(storage, "beds", "strelka-post-process.bed");
-        MockResource.addToStorage(storage, "snpeff", "snpeff.config");
-        MockResource.addToStorage(storage, "known_snps", "dbsnp.vcf.gz");
-        MockResource.addToStorage(storage, "cosmic_v85", "cosmic.vcf.gz");
+        MockResource.addToStorage(storage, REFERENCE_GENOME, "reference.fasta");
+        MockResource.addToStorage(storage, SAGE, "hotspots.tsv", "coding_regions.bed", "SAGE_PON.vcf.gz");
+        MockResource.addToStorage(storage, STRELKA_CONFIG, "strelka.ini");
+        MockResource.addToStorage(storage, MAPPABILITY, "mappability.bed.gz", "mappability.hdr");
+        MockResource.addToStorage(storage, PON, "GERMLINE_PON.vcf.gz", "SOMATIC_PON.vcf.gz");
+        MockResource.addToStorage(storage, BEDS, "strelka-post-process.bed");
+        MockResource.addToStorage(storage, SNPEFF, "snpeff.config");
+        MockResource.addToStorage(storage, KNOWN_SNPS, "dbsnp.vcf.gz");
+        MockResource.addToStorage(storage, COSMIC, "cosmic.vcf.gz");
         computeEngine = mock(ComputeEngine.class);
         victim = new SomaticCaller(Arguments.testDefaults(), computeEngine, storage, ResultsDirectory.defaultDirectory());
     }

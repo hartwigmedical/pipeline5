@@ -8,6 +8,7 @@ import java.util.Optional;
 public interface Arguments {
 
     String EMPTY = "";
+    String DEFAULT_COMMON_TOOLS = "common_tools";
 
     enum DefaultsProfile {
         PRODUCTION,
@@ -62,17 +63,15 @@ public interface Arguments {
 
     String cloudSdkPath();
 
-    String referenceGenomeBucket();
-
-    String knownIndelsBucket();
-
-    String knownSnpsBucket();
-
     String rclonePath();
 
     String rcloneGcpRemote();
 
     String rcloneS3Remote();
+
+    String resourceBucket();
+
+    String toolsBucket();
 
     Optional<Integer> sbpApiSampleId();
 
@@ -109,9 +108,6 @@ public interface Arguments {
                     .nodeInitializationScript(DEFAULT_PRODUCTION_NODE_INIT)
                     .sbpApiUrl(DEFAULT_PRODUCTION_SBP_API_URL)
                     .sbpS3Url(DEFAULT_PRODUCTION_SBP_S3_URL)
-                    .referenceGenomeBucket(DEFAULT_PRODUCTION_REFERENCE_GENOME_BUCKET)
-                    .knownIndelsBucket(DEFAULT_PRODUCTION_KNOWN_INDELS_BUCKET)
-                    .knownSnpsBucket(DEFAULT_PRODUCTION_KNOWN_SNPS_BUCKET)
                     .jarDirectory(DEFAULT_PRODUCTION_JAR_LIB)
                     .privateKeyPath(DEFAULT_PRODUCTION_KEY_PATH)
                     .serviceAccountEmail(DEFAULT_PRODUCTION_SERVICE_ACCOUNT_EMAIL)
@@ -123,7 +119,9 @@ public interface Arguments {
                     .runSomaticCaller(true)
                     .runStructuralCaller(true)
                     .runTertiary(true)
-                    .sampleId(EMPTY);
+                    .sampleId(EMPTY)
+                    .toolsBucket(DEFAULT_COMMON_TOOLS)
+                    .resourceBucket(DEFAULT_RESOURCE_BUCKET);
         } else {
             return ImmutableArguments.builder()
                     .profile(profile)
@@ -132,9 +130,6 @@ public interface Arguments {
                     .version(DEFAULT_DEVELOPMENT_VERSION)
                     .sampleDirectory(DEFAULT_DEVELOPMENT_SAMPLE_DIRECTORY)
                     .nodeInitializationScript(DEFAULT_DEVELOPMENT_NODE_INIT)
-                    .referenceGenomeBucket(DEFAULT_DEVELOPMENT_REFERENCE_GENOME_BUCKET)
-                    .knownIndelsBucket(DEFAULT_DEVELOPMENT_KNOWN_INDELS_BUCKET)
-                    .knownSnpsBucket(DEFAULT_DEVELOPMENT_KNOWN_SNPS_BUCKET)
                     .jarDirectory(DEFAULT_DEVELOPMENT_JAR_LIB)
                     .privateKeyPath(DEFAULT_DEVELOPMENT_KEY_PATH)
                     .cloudSdkPath(DEFAULT_DEVELOPMENT_CLOUD_SDK_PATH)
@@ -151,13 +146,17 @@ public interface Arguments {
                     .rcloneGcpRemote(NOT_APPLICABLE)
                     .sbpS3Url(NOT_APPLICABLE)
                     .sbpApiUrl(NOT_APPLICABLE)
-                    .sampleId(EMPTY);
+                    .sampleId(EMPTY)
+                    .toolsBucket(DEFAULT_COMMON_TOOLS)
+                    .resourceBucket(DEFAULT_RESOURCE_BUCKET);
         }
     }
 
     static String workingDir() {
         return System.getProperty("user.dir");
     }
+
+    String DEFAULT_RESOURCE_BUCKET = "common-resources";
 
     String DEFAULT_PRODUCTION_RCLONE_PATH = "/usr/bin";
     String DEFAULT_PRODUCTION_RCLONE_GCP_REMOTE = "gs";
@@ -169,11 +168,8 @@ public interface Arguments {
     String DEFAULT_PRODUCTION_NODE_INIT = "node-init.sh";
     String DEFAULT_PRODUCTION_SBP_API_URL = "http://hmfapi";
     String DEFAULT_PRODUCTION_SBP_S3_URL = "https://s3.object02.schubergphilis.com";
-    String DEFAULT_PRODUCTION_REFERENCE_GENOME_BUCKET = "reference_genome";
     String DEFAULT_PRODUCTION_JAR_LIB = "/usr/share/pipeline5";
     String DEFAULT_PRODUCTION_KEY_PATH = "/secrets/bootstrap-key.json";
-    String DEFAULT_PRODUCTION_KNOWN_INDELS_BUCKET = "known_indels";
-    String DEFAULT_PRODUCTION_KNOWN_SNPS_BUCKET = "known_snps";
     String DEFAULT_PRODUCTION_CLOUD_SDK_PATH = "/usr/lib/google-cloud-sdk/bin";
     String DEFAULT_PRODUCTION_SERVICE_ACCOUNT_EMAIL = String.format("bootstrap@%s.iam.gserviceaccount.com",
             DEFAULT_PRODUCTION_PROJECT);
@@ -184,11 +180,8 @@ public interface Arguments {
     String DEFAULT_DEVELOPMENT_VERSION = "local-SNAPSHOT";
     String DEFAULT_DEVELOPMENT_SAMPLE_DIRECTORY = workingDir() + "/samples";
     String DEFAULT_DEVELOPMENT_NODE_INIT = workingDir() + "/cluster/src/main/resources/node-init.sh";
-    String DEFAULT_DEVELOPMENT_REFERENCE_GENOME_BUCKET = "reference_genome";
     String DEFAULT_DEVELOPMENT_JAR_LIB = workingDir() + "/system/target";
     String DEFAULT_DEVELOPMENT_KEY_PATH = workingDir() + "/bootstrap-key.json";
-    String DEFAULT_DEVELOPMENT_KNOWN_INDELS_BUCKET = "known_indels";
-    String DEFAULT_DEVELOPMENT_KNOWN_SNPS_BUCKET = "known_snps";
     String DEFAULT_DEVELOPMENT_CLOUD_SDK_PATH = System.getProperty("user.home") + "/gcloud/google-cloud-sdk/bin";
     String DEFAULT_DEVELOPMENT_SERVICE_ACCOUNT_EMAIL = String.format("bootstrap@%s.iam.gserviceaccount.com",
             DEFAULT_DEVELOPMENT_PROJECT);

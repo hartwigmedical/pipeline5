@@ -13,6 +13,7 @@ import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
+import com.hartwig.pipeline.resource.ResourceNames;
 
 public class Amber {
 
@@ -31,7 +32,7 @@ public class Amber {
 
     public AmberOutput run(AlignmentPair pair) {
 
-        if (!arguments.runTertiary()){
+        if (!arguments.runTertiary()) {
             return AmberOutput.builder().status(JobStatus.SKIPPED).build();
         }
 
@@ -40,8 +41,10 @@ public class Amber {
         RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, NAMESPACE, referenceSampleName, tumorSampleName, arguments);
         BashStartupScript bash = BashStartupScript.of(runtimeBucket.name());
 
-        ResourceDownload referenceGenomeDownload = ResourceDownload.from(storage, "reference_genome", runtimeBucket);
-        ResourceDownload amberResourceDownload = ResourceDownload.from(storage, "amber-pon", runtimeBucket);
+        ResourceDownload referenceGenomeDownload =
+                ResourceDownload.from(storage, arguments.resourceBucket(), ResourceNames.REFERENCE_GENOME, runtimeBucket);
+        ResourceDownload amberResourceDownload =
+                ResourceDownload.from(storage, arguments.resourceBucket(), ResourceNames.AMBER_PON, runtimeBucket);
         bash.addCommand(referenceGenomeDownload).addCommand(amberResourceDownload);
 
         InputDownload tumorBam = new InputDownload(pair.tumor().finalBamLocation());

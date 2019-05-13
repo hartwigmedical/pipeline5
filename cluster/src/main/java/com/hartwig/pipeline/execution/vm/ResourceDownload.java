@@ -44,8 +44,8 @@ public class ResourceDownload implements BashCommand {
         return pathSplit[pathSplit.length - 1];
     }
 
-    public static ResourceDownload from(final Storage storage, final String resource, final RuntimeBucket runtimeBucket) {
-        return from(runtimeBucket, new Resource(storage, resource, resource));
+    public static ResourceDownload from(final Storage storage, final String resourceBucket, final String resource, final RuntimeBucket runtimeBucket) {
+        return from(runtimeBucket, new Resource(storage, resourceBucket, resource));
     }
 
     public static ResourceDownload from(final RuntimeBucket runtimeBucket, final Resource resource) {

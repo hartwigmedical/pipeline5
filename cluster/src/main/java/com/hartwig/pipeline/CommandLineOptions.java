@@ -28,10 +28,7 @@ public class CommandLineOptions {
     private static final String CLOUD_SDK_PATH_FLAG = "cloud_sdk";
     private static final String USE_PREEMTIBLE_VMS_FLAG = "preemtible_vms";
     private static final String DOWNLOAD_FLAG = "download";
-    private static final String REFERENCE_GENOME_BUCKET_FLAG = "reference_genome";
     private static final String VERBOSE_CLOUD_SDK_FLAG = "verbose_cloud_sdk";
-    private static final String KNOWN_INDELS_BUCKET_FLAG = "known_indels";
-    private static final String KNOWN_SNPS_BUCKET_FLAG = "known_snps";
     private static final String RCLONE_PATH_FLAG = "rclone_path";
     private static final String RCLONE_GCP_REMOTE_FLAG = "rclone_gcp_remote";
     private static final String RCLONE_S3_REMOTE_FLAG = "rclone_s3_remote";
@@ -46,6 +43,8 @@ public class CommandLineOptions {
     private static final String RUN_SOMATIC_CALLER_FLAG = "run_somatic_caller";
     private static final String RUN_STRUCTURAL_CALLER_FLAG = "run_structural_caller";
     private static final String RUN_TERTIARY_FLAG = "run_tertiary";
+    private static final String TOOLS_BUCKET_FLAG = "tools_bucket";
+    private static final String RESOURCE_BUCKET_FLAG = "resource_bucket";
 
     private static Options options() {
         return new Options().addOption(profileFlag())
@@ -76,8 +75,6 @@ public class CommandLineOptions {
                 .addOption(runId())
                 .addOption(nodeInitScript())
                 .addOption(gsutilPath())
-                .addOption(referenceGenomeBucket())
-                .addOption(knownIndelsBucket())
                 .addOption(rclonePath())
                 .addOption(rcloneGcpRemote())
                 .addOption(rcloneS3Remote())
@@ -87,7 +84,17 @@ public class CommandLineOptions {
                 .addOption(optionWithBooleanArg(RUN_SOMATIC_CALLER_FLAG, "Run somatic calling (strelka) on a VM"))
                 .addOption(optionWithBooleanArg(RUN_STRUCTURAL_CALLER_FLAG, "Run structural calling (gridss) on a VM"))
                 .addOption(optionWithBooleanArg(RUN_TERTIARY_FLAG, "Run tertiary analysis algorithms (amber, cobalt, purple)"))
-                .addOption(serviceAccountEmail());
+                .addOption(serviceAccountEmail())
+                .addOption(resourceBucket())
+                .addOption(toolsBucket());
+    }
+
+    private static Option toolsBucket() {
+        return optionWithArg(TOOLS_BUCKET_FLAG, "Bucket containing all common tools (gatk, picard, amber, cobalt, purple, etc");
+    }
+
+    private static Option resourceBucket() {
+        return optionWithArg(RESOURCE_BUCKET_FLAG, "Bucket containing all common resources (reference genome, known indels, pons, etc");
     }
 
     private static Option profileFlag() {
@@ -104,16 +111,6 @@ public class CommandLineOptions {
 
     private static Option rcloneS3Remote() {
         return optionWithArg(RCLONE_S3_REMOTE_FLAG, "RClone remote to use for AWS " + "(download fastqs and upload bams)");
-    }
-
-    private static Option knownIndelsBucket() {
-        return optionWithArg(KNOWN_INDELS_BUCKET_FLAG,
-                "Bucket from which to copy the known indel sites VCFs into the runtime bucket. Just a name, not a url (no gs://)");
-    }
-
-    private static Option referenceGenomeBucket() {
-        return optionWithArg(REFERENCE_GENOME_BUCKET_FLAG,
-                "Bucket from which to copy the reference " + "genome into the runtime bucket. Just a name, not a url (no gs://)");
     }
 
     private static Option gsutilPath() {
@@ -199,9 +196,6 @@ public class CommandLineOptions {
                     .cloudSdkPath(commandLine.getOptionValue(CLOUD_SDK_PATH_FLAG, defaults.cloudSdkPath()))
                     .usePreemptibleVms(booleanOptionWithDefault(commandLine, USE_PREEMTIBLE_VMS_FLAG, defaults.usePreemptibleVms()))
                     .download(booleanOptionWithDefault(commandLine, DOWNLOAD_FLAG, defaults.download()))
-                    .referenceGenomeBucket(commandLine.getOptionValue(REFERENCE_GENOME_BUCKET_FLAG, defaults.referenceGenomeBucket()))
-                    .knownIndelsBucket(commandLine.getOptionValue(KNOWN_INDELS_BUCKET_FLAG, defaults.knownIndelsBucket()))
-                    .knownSnpsBucket(commandLine.getOptionValue(KNOWN_SNPS_BUCKET_FLAG, defaults.knownSnpsBucket()))
                     .upload(booleanOptionWithDefault(commandLine, UPLOAD_FLAG, defaults.upload()))
                     .rclonePath(commandLine.getOptionValue(RCLONE_PATH_FLAG, defaults.rclonePath()))
                     .rcloneGcpRemote(commandLine.getOptionValue(RCLONE_GCP_REMOTE_FLAG, defaults.rcloneGcpRemote()))
@@ -213,6 +207,8 @@ public class CommandLineOptions {
                     .runStructuralCaller(booleanOptionWithDefault(commandLine, RUN_STRUCTURAL_CALLER_FLAG, defaults.runStructuralCaller()))
                     .runTertiary(booleanOptionWithDefault(commandLine, RUN_TERTIARY_FLAG, defaults.runTertiary()))
                     .serviceAccountEmail(commandLine.getOptionValue(SERVICE_ACCOUNT_EMAIL_FLAG, defaults.serviceAccountEmail()))
+                    .resourceBucket(commandLine.getOptionValue(RESOURCE_BUCKET_FLAG, defaults.resourceBucket()))
+                    .toolsBucket(commandLine.getOptionValue(TOOLS_BUCKET_FLAG, defaults.toolsBucket()))
                     .profile(defaults.profile())
                     .build();
         } catch (ParseException e) {

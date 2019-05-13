@@ -13,6 +13,7 @@ import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
+import com.hartwig.pipeline.resource.ResourceNames;
 import com.hartwig.pipeline.testsupport.MockResource;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
@@ -35,8 +36,8 @@ public class AmberTest {
         final Bucket bucket = mock(Bucket.class);
         when(bucket.getName()).thenReturn(RUNTIME_BUCKET);
         when(storage.get(RUNTIME_BUCKET)).thenReturn(bucket);
-        MockResource.addToStorage(storage, "reference_genome", "reference.fasta");
-        MockResource.addToStorage(storage, "amber-pon", "amber.bed");
+        MockResource.addToStorage(storage, ResourceNames.REFERENCE_GENOME, "reference.fasta");
+        MockResource.addToStorage(storage, ResourceNames.AMBER_PON, "amber.bed");
         victim = new Amber(ARGUMENTS, computeEngine, storage, ResultsDirectory.defaultDirectory());
     }
 

@@ -31,7 +31,6 @@ import com.hartwig.pipeline.io.sources.SBPS3SampleSource;
 import com.hartwig.pipeline.io.sources.SampleSource;
 import com.hartwig.pipeline.execution.dataproc.ClusterOptimizer;
 import com.hartwig.pipeline.execution.dataproc.CpuFastQSizeRatio;
-import com.hartwig.pipeline.resource.Resources;
 import com.hartwig.support.hadoop.Hadoop;
 
 public abstract class AlignerProvider {
@@ -52,8 +51,8 @@ public abstract class AlignerProvider {
     }
 
     abstract Aligner wireUp(GoogleCredentials credentials, Storage storage, AlignmentOutputStorage alignmentOutputStorage,
-            Resources resources, ClusterOptimizer optimizer, CostCalculator costCalculator, GoogleDataproc dataproc,
-            ResultsDirectory resultsDirectory) throws Exception;
+            ClusterOptimizer optimizer, CostCalculator costCalculator, GoogleDataproc dataproc, ResultsDirectory resultsDirectory)
+            throws Exception;
 
     public Aligner get() throws Exception {
         NodeInitialization nodeInitialization = new NodeInitialization(arguments.nodeInitializationScript());
@@ -61,10 +60,9 @@ public abstract class AlignerProvider {
         CostCalculator costCalculator = new CostCalculator(credentials, arguments.region(), Costs.defaultCosts());
         ClusterOptimizer optimizer = new ClusterOptimizer(ratio, arguments.usePreemptibleVms());
         GoogleDataproc dataproc = GoogleDataproc.from(credentials, nodeInitialization, arguments);
-        Resources resources = Resources.from(storage, arguments);
         ResultsDirectory resultsDirectory = ResultsDirectory.defaultDirectory();
         AlignmentOutputStorage alignmentOutputStorage = new AlignmentOutputStorage(storage, arguments, resultsDirectory);
-        return wireUp(credentials, storage, alignmentOutputStorage, resources, optimizer, costCalculator, dataproc, resultsDirectory);
+        return wireUp(credentials, storage, alignmentOutputStorage, optimizer, costCalculator, dataproc, resultsDirectory);
     }
 
     public static AlignerProvider from(GoogleCredentials credentials, Storage storage, Arguments arguments) throws Exception {
@@ -79,7 +77,7 @@ public abstract class AlignerProvider {
         }
 
         @Override
-        Aligner wireUp(GoogleCredentials credentials, Storage storage, AlignmentOutputStorage alignmentOutputStorage, Resources resources,
+        Aligner wireUp(GoogleCredentials credentials, Storage storage, AlignmentOutputStorage alignmentOutputStorage,
                 ClusterOptimizer optimizer, CostCalculator costCalculator, GoogleDataproc spark, ResultsDirectory resultsDirectory)
                 throws Exception {
             SampleSource sampleSource = getArguments().upload()
@@ -90,9 +88,6 @@ public abstract class AlignerProvider {
             SampleUpload sampleUpload = new CloudSampleUpload(new LocalFileSource(), gsUtilCloudCopy);
             return new Aligner(getArguments(),
                     storage,
-                    resources.referenceGenome(),
-                    resources.knownIndels(),
-                    resources.knownSnps(),
                     sampleSource,
                     bamDownload,
                     sampleUpload,
@@ -100,7 +95,8 @@ public abstract class AlignerProvider {
                     new GoogleStorageJarUpload(),
                     optimizer,
                     costCalculator,
-                    credentials, resultsDirectory,
+                    credentials,
+                    resultsDirectory,
                     alignmentOutputStorage);
         }
     }
@@ -116,7 +112,7 @@ public abstract class AlignerProvider {
         }
 
         @Override
-        Aligner wireUp(GoogleCredentials credentials, Storage storage, AlignmentOutputStorage alignmentOutputStorage, Resources resources,
+        Aligner wireUp(GoogleCredentials credentials, Storage storage, AlignmentOutputStorage alignmentOutputStorage,
                 ClusterOptimizer optimizer, CostCalculator costCalculator, GoogleDataproc dataproc, ResultsDirectory resultsDirectory)
                 throws Exception {
             SBPRestApi sbpRestApi = SBPRestApi.newInstance(getArguments());
@@ -129,22 +125,21 @@ public abstract class AlignerProvider {
             BamDownload bamDownload = new SBPSampleMetadataPatch(s3,
                     sbpRestApi,
                     sbpSampleId,
-                    SBPS3BamDownload.from(s3, resultsDirectory), resultsDirectory,
+                    SBPS3BamDownload.from(s3, resultsDirectory),
+                    resultsDirectory,
                     System::getenv);
             SampleUpload sampleUpload = new CloudSampleUpload(new SBPS3FileSource(), cloudCopy);
             return new Aligner(getArguments(),
                     storage,
-                    resources.referenceGenome(),
-                    resources.knownIndels(),
-                    resources.knownSnps(),
-                    sampleSource,
+                     sampleSource,
                     bamDownload,
                     sampleUpload,
                     dataproc,
                     new GoogleStorageJarUpload(),
                     optimizer,
                     costCalculator,
-                    credentials, resultsDirectory,
+                    credentials,
+                    resultsDirectory,
                     alignmentOutputStorage);
         }
     }

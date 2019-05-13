@@ -13,6 +13,7 @@ import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
+import com.hartwig.pipeline.resource.ResourceNames;
 
 public class Cobalt {
 
@@ -31,7 +32,7 @@ public class Cobalt {
 
     public CobaltOutput run(AlignmentPair pair) {
 
-        if (!arguments.runTertiary()){
+        if (!arguments.runTertiary()) {
             return CobaltOutput.builder().status(JobStatus.SKIPPED).build();
         }
 
@@ -40,7 +41,8 @@ public class Cobalt {
         RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, NAMESPACE, referenceSampleName, tumorSampleName, arguments);
         BashStartupScript bash = BashStartupScript.of(runtimeBucket.name());
 
-        ResourceDownload cobaltResourceDownload = ResourceDownload.from(storage, "cobalt-gc", runtimeBucket);
+        ResourceDownload cobaltResourceDownload =
+                ResourceDownload.from(storage, arguments.resourceBucket(), ResourceNames.GC_PROFILE, runtimeBucket);
         bash.addCommand(cobaltResourceDownload);
 
         InputDownload tumorBam = new InputDownload(pair.tumor().finalBamLocation());
