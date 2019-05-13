@@ -1,4 +1,4 @@
-#!/bin/bash -x -o pipefail
+#!/bin/bash -x
 
 function die() {
   exit_code=$?
