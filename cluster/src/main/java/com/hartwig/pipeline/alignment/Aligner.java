@@ -5,7 +5,6 @@ import com.google.cloud.storage.Storage;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.BamCreationPipeline;
-import com.hartwig.pipeline.alignment.after.metrics.BamMetricsProvider;
 import com.hartwig.pipeline.cost.CostCalculator;
 import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.execution.dataproc.*;
@@ -15,13 +14,14 @@ import com.hartwig.pipeline.io.sources.SampleSource;
 import com.hartwig.pipeline.metrics.Monitor;
 import com.hartwig.pipeline.metrics.Run;
 import com.hartwig.pipeline.resource.Resource;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+
+import static java.lang.String.format;
 
 public class Aligner {
 
@@ -72,7 +72,7 @@ public class Aligner {
         if (!arguments.runAligner()) {
             return alignmentOutputStorage.get(Sample.builder(arguments.sampleId()).build())
                     .orElseThrow(() -> new IllegalArgumentException(
-                            "Unable to find output for sample [%s]. " + "Please run the aligner first by setting -run_aligner to true"));
+                            format("Unable to find output for sample [%s]. Please run the aligner first by setting -run_aligner to true", arguments.sampleId())));
         }
 
         SampleData sampleData = sampleSource.sample(arguments);
@@ -134,7 +134,7 @@ public class Aligner {
     private void runJob(SparkExecutor executor, SparkJobDefinition jobDefinition, RuntimeBucket runtimeBucket) {
         JobStatus result = executor.submit(runtimeBucket, jobDefinition);
         if (result.equals(JobStatus.FAILED)) {
-            throw new RuntimeException(String.format(
+            throw new RuntimeException(format(
                     "Job [%s] reported status failed. Check prior error messages or job logs on Google dataproc",
                     jobDefinition.name()));
         } else {

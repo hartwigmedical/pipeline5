@@ -1,17 +1,15 @@
 package com.hartwig.pipeline.io;
 
-import java.io.InputStream;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import com.google.api.gax.paging.Page;
 import com.google.cloud.storage.*;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.Run;
-
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.InputStream;
+import java.util.List;
 
 public class RuntimeBucket {
 
@@ -97,5 +95,10 @@ public class RuntimeBucket {
 
     public String runId() {
         return run.id();
+    }
+
+    @Override
+    public String toString() {
+        return String.format("runtime bucket [%s]", name());
     }
 }
