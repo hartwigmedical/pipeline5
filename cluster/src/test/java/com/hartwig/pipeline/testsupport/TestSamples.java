@@ -13,7 +13,7 @@ public class TestSamples {
         return Sample.builder("directory", "sample");
     }
 
-    public static Sample simpleTumourSample() {
+    public static Sample simpleTumorSample() {
         return simpleSampleBuilder().type(Sample.Type.TUMOR).build();
     }
 }

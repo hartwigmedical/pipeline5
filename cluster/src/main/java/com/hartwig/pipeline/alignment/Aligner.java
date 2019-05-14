@@ -90,8 +90,7 @@ public class Aligner {
                 SparkJobDefinition.bamCreation(jarLocation,
                         arguments,
                         runtimeBucket,
-                        clusterOptimizer.optimize(sampleData),
-                        resultsDirectory),
+                        clusterOptimizer.optimize(sampleData)),
                 runtimeBucket);
 
         compose(sample, runtimeBucket);

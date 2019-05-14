@@ -29,7 +29,7 @@ public interface SparkJobDefinition extends JobDefinition<DataprocPerformancePro
     Map<String, String> sparkProperties();
 
     static SparkJobDefinition bamCreation(JarLocation jarLocation, Arguments arguments, RuntimeBucket runtimeBucket,
-            DataprocPerformanceProfile profile, ResultsDirectory resultsDirectory) {
+            DataprocPerformanceProfile profile) {
         return ImmutableSparkJobDefinition.builder()
                 .name("BamCreation")
                 .mainClass(BAM_CREATION_MAIN)
@@ -42,7 +42,7 @@ public interface SparkJobDefinition extends JobDefinition<DataprocPerformancePro
 
     static SparkJobDefinition sortAndIndex(JarLocation jarLocation, Arguments arguments, RuntimeBucket runtimeBucket, Sample sample,
             ResultsDirectory resultsDirectory) {
-        DataprocPerformanceProfile performanceProfile = DataprocPerformanceProfile.mini();
+        DataprocPerformanceProfile performanceProfile = DataprocPerformanceProfile.singleNode();
         return ImmutableSparkJobDefinition.builder()
                 .name("SortAndIndex")
                 .mainClass(SORT_INDEX_MAIN)
@@ -59,7 +59,7 @@ public interface SparkJobDefinition extends JobDefinition<DataprocPerformancePro
 
     static SparkJobDefinition sortAndIndexRecalibrated(JarLocation jarLocation, Arguments arguments, RuntimeBucket runtimeBucket,
             Sample sample, ResultsDirectory resultsDirectory) {
-        DataprocPerformanceProfile performanceProfile = DataprocPerformanceProfile.mini();
+        DataprocPerformanceProfile performanceProfile = DataprocPerformanceProfile.singleNode();
         return ImmutableSparkJobDefinition.builder()
                 .name("RecalibratedSortAndIndex")
                 .mainClass(SORT_INDEX_MAIN)
