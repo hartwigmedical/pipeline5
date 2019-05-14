@@ -13,10 +13,10 @@ public class TestInputs {
     private static final String RESULTS = "results/";
 
     public static AlignmentPair defaultPair() {
-        return AlignmentPair.of(alignerOutput("reference"), alignerOutput("tumor"));
+        return AlignmentPair.of(alignerOutput("reference", Sample.Type.REFERENCE), alignerOutput("tumor", Sample.Type.TUMOR));
     }
 
-    private static AlignmentOutput alignerOutput(final String sample) {
+    private static AlignmentOutput alignerOutput(final String sample, final Sample.Type type) {
         String bucket = "run-" + sample + "/aligner";
         return AlignmentOutput.builder()
                 .status(JobStatus.SUCCESS)
@@ -24,7 +24,7 @@ public class TestInputs {
                 .maybeFinalBaiLocation(gsLocation(bucket, RESULTS + sample + ".bam.bai"))
                 .maybeRecalibratedBamLocation(gsLocation(bucket, RESULTS + sample + ".recalibrated.bam"))
                 .maybeRecalibratedBaiLocation(gsLocation(bucket, RESULTS + sample + ".recalibrated.bam.bai"))
-                .sample(Sample.builder("", sample).build())
+                .sample(Sample.builder("", sample).type(type).build())
                 .build();
     }
 
