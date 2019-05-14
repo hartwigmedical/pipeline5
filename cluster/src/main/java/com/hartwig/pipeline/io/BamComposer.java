@@ -89,6 +89,6 @@ public class BamComposer {
         String composed = resultsDirectory.path(
                 "composed/" + sample.name() + ".bam.part-" + new DecimalFormat("000000").format(partitionIndex) + "-" + pass);
         runtimeBucket.compose(toCompose, composed);
-        return composed;
+        return runtimeBucket.getNamespace() + "/" + composed;
     }
 }
