@@ -14,6 +14,7 @@ import com.google.api.services.dataproc.v1beta2.model.SoftwareConfig;
 import com.google.common.collect.ImmutableMap;
 import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.execution.MachineType;
+import com.hartwig.pipeline.tools.Versions;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -30,7 +31,8 @@ class GoogleClusterConfig {
         return config;
     }
 
-    static GoogleClusterConfig from(RuntimeBucket runtimeBucket, NodeInitialization nodeInitialization, DataprocPerformanceProfile profile)
+    static GoogleClusterConfig from(RuntimeBucket runtimeBucket, NodeInitialization nodeInitialization, DataprocPerformanceProfile profile,
+            final String toolsBucket)
             throws FileNotFoundException {
         DiskConfig diskConfig = diskConfig(profile.primaryWorkers());
         ClusterConfig config = clusterConfig(masterConfig(profile.master()),
@@ -38,12 +40,19 @@ class GoogleClusterConfig {
                 secondaryWorkerConfig(profile, diskConfig, profile.preemtibleWorkers()),
                 runtimeBucket.runId(),
                 softwareConfig(),
-                initializationActions(runtimeBucket, nodeInitialization), gceClusterConfig(), lifecycleConfig(IDLE_TTL));
+                initializationActions(runtimeBucket, nodeInitialization),
+                gceClusterConfig(toolsBucket),
+                lifecycleConfig(IDLE_TTL));
         return new GoogleClusterConfig(config);
     }
 
-    private static GceClusterConfig gceClusterConfig() {
-        return new GceClusterConfig();
+    private static GceClusterConfig gceClusterConfig(final String toolsBucket) {
+        return new GceClusterConfig().setMetadata(ImmutableMap.of("bwa_version",
+                Versions.BWA,
+                "sambamba_version",
+                Versions.SAMBAMBA,
+                "common_tools_bucket",
+                toolsBucket));
     }
 
     private static LifecycleConfig lifecycleConfig(String idleTtl) {
@@ -95,7 +104,8 @@ class GoogleClusterConfig {
 
     private static InstanceGroupConfig secondaryWorkerConfig(final DataprocPerformanceProfile profile, final DiskConfig diskConfig,
             final MachineType machineType) {
-        return new InstanceGroupConfig().setMachineTypeUri(machineType.uri()).setNumInstances(profile.numPreemtibleWorkers())
+        return new InstanceGroupConfig().setMachineTypeUri(machineType.uri())
+                .setNumInstances(profile.numPreemtibleWorkers())
                 .setIsPreemptible(true)
                 .setDiskConfig(diskConfig);
     }

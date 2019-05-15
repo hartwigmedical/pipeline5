@@ -1,6 +1,7 @@
 package com.hartwig.pipeline.calling.somatic;
 
 import com.hartwig.pipeline.execution.vm.BashCommand;
+import com.hartwig.pipeline.tools.Versions;
 
 public class ConfigureStrelkaWorkflowCommand implements BashCommand {
 
@@ -21,8 +22,9 @@ public class ConfigureStrelkaWorkflowCommand implements BashCommand {
 
     @Override
     public String asBash() {
-        return String.format("/data/tools/strelka/1.0.14/bin/configureStrelkaWorkflow.pl --tumor %s "
-                        + "--normal %s --config %s --ref %s --output-dir %s",
+        return String.format(
+                "/data/tools/strelka/%s/bin/configureStrelkaWorkflow.pl --tumor %s " + "--normal %s --config %s --ref %s --output-dir %s",
+                Versions.STRELKA,
                 tumorPath,
                 referencePath,
                 configPath,

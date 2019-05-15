@@ -1,24 +1,20 @@
 #!/usr/bin/env bash
 
-setup_environment() {
-    apt-get update && apt-get install -y build-essential gcc-multilib apt-utils zlib1g-dev wget git
-}
+set -x
+
+common_tools_bucket=$(/usr/share/google/get_metadata_value attributes/common_tools_bucket)
+bwa_version=$(/usr/share/google/get_metadata_value attributes/bwa_version)
+sambamba_version=$(/usr/share/google/get_metadata_value attributes/sambamba_version)
 
 install_bwa() {
-    git clone https://github.com/lh3/bwa.git
-    cd bwa
-    git checkout 0.7.17
-    make
-    cp -p bwa /usr/local/bin
+    gsutil cp gs://$common_tools_bucket/bwa/$bwa_version/bwa /usr/local/bin/
+    chmod a+x /usr/local/bin/bwa
 }
 
 install_sambamba() {
-    wget https://github.com/biod/sambamba/releases/download/v0.6.8/sambamba-0.6.8-linux-static.gz
-    gunzip sambamba-0.6.8-linux-static.gz
-    chmod 777 sambamba-0.6.8-linux-static
-    mv sambamba-0.6.8-linux-static /usr/local/bin/sambamba
+   gsutil cp gs://$common_tools_bucket/sambamba/$sambamba_version/sambamba /usr/local/bin/
+   chmod a+x /usr/local/bin/sambamba
 }
 
-setup_environment
 install_bwa
 install_sambamba

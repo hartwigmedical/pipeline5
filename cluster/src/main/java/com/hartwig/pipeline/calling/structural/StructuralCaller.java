@@ -9,6 +9,7 @@ import com.hartwig.pipeline.calling.structural.gridss.stage.Annotation;
 import com.hartwig.pipeline.calling.structural.gridss.stage.Assemble;
 import com.hartwig.pipeline.calling.structural.gridss.stage.CommandFactory;
 import com.hartwig.pipeline.calling.structural.gridss.stage.Preprocess;
+import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.ResourceDownload;
@@ -32,6 +33,11 @@ public class StructuralCaller {
     }
 
     public StructuralCallerOutput run(AlignmentPair pair, BamMetricsOutput metricsOutput){
+
+        if (!arguments.runStructuralCaller()){
+            return StructuralCallerOutput.builder().status(JobStatus.SKIPPED).build();
+        }
+
         String tumorSampleName = pair.tumor().sample().name();
         String referenceSampleName = pair.reference().sample().name();
         RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, referenceSampleName, tumorSampleName, arguments);

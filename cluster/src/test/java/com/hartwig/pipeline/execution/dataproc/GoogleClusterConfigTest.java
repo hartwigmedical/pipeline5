@@ -23,13 +23,13 @@ public class GoogleClusterConfigTest {
         runtimeBucket = mock(RuntimeBucket.class);
         when(runtimeBucket.name()).thenReturn("runtime-bucket");
         nodeInitialization = mock(NodeInitialization.class);
-        victim = GoogleClusterConfig.from(runtimeBucket, nodeInitialization, profileBuilder().build());
+        victim = GoogleClusterConfig.from(runtimeBucket, nodeInitialization, profileBuilder().build(), "common-tools");
     }
 
     @Test
     public void oneMasterTwoPrimaryWorkersAndRemainingNodesSecondary() throws Exception {
         GoogleClusterConfig victim =
-                GoogleClusterConfig.from(runtimeBucket, nodeInitialization, profileBuilder().numPreemtibleWorkers(3).build());
+                GoogleClusterConfig.from(runtimeBucket, nodeInitialization, profileBuilder().numPreemtibleWorkers(3).build(), "common-tools");
         assertThat(victim.config().getMasterConfig().getNumInstances()).isEqualTo(1);
         assertThat(victim.config().getWorkerConfig().getNumInstances()).isEqualTo(2);
         assertThat(victim.config().getSecondaryWorkerConfig().getNumInstances()).isEqualTo(3);

@@ -8,7 +8,6 @@ import java.util.Optional;
 public interface Arguments {
 
     String EMPTY = "";
-    String DEFAULT_COMMON_TOOLS = "common_tools";
 
     enum DefaultsProfile {
         PRODUCTION,
@@ -157,6 +156,7 @@ public interface Arguments {
     }
 
     String DEFAULT_RESOURCE_BUCKET = "common-resources";
+    String DEFAULT_COMMON_TOOLS = "common-tools";
 
     String DEFAULT_PRODUCTION_RCLONE_PATH = "/usr/bin";
     String DEFAULT_PRODUCTION_RCLONE_GCP_REMOTE = "gs";

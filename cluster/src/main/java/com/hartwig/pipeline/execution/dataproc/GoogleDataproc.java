@@ -10,6 +10,7 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.io.RuntimeBucket;
+
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,7 +91,8 @@ public class GoogleDataproc implements SparkExecutor {
         Dataproc.Projects.Regions.Clusters clusters = dataproc.projects().regions().clusters();
         Cluster existing = findExistingCluster(arguments, clusterName);
         if (existing == null) {
-            ClusterConfig clusterConfig = GoogleClusterConfig.from(runtimeBucket, nodeInitialization, performanceProfile).config();
+            ClusterConfig clusterConfig =
+                    GoogleClusterConfig.from(runtimeBucket, nodeInitialization, performanceProfile, arguments.toolsBucket()).config();
             Operation createCluster =
                     clusters.create(arguments.project(), arguments.region(), cluster(clusterConfig, clusterName)).execute();
             LOGGER.info("Starting Google Dataproc cluster with name [{}]. This may take a minute or two...", clusterName);

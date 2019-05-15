@@ -19,5 +19,4 @@ before_install:
 install:
 
 after_success:
-  - mvn scm:tag
   - docker push hartwigmedicalfoundation/pipeline5:$PIPELINE5_VERSION

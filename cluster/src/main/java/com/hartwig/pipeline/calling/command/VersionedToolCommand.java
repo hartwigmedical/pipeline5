@@ -24,6 +24,11 @@ public class VersionedToolCommand implements BashCommand {
 
     @Override
     public String asBash() {
-        return String.format("%s/%s/%s/%s %s", VmDirectories.TOOLS, toolName, version, toolBinaryName, arguments.stream().collect(joining(" ")));
+        return String.format("%s/%s/%s/%s %s",
+                VmDirectories.TOOLS,
+                toolName,
+                version,
+                toolBinaryName,
+                arguments.stream().collect(joining(" ")));
     }
 }

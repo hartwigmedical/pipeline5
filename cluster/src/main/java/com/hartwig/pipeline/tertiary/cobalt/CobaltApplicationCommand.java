@@ -1,12 +1,13 @@
 package com.hartwig.pipeline.tertiary.cobalt;
 
 import com.hartwig.pipeline.tertiary.HmfToolCommand;
+import com.hartwig.pipeline.tools.Versions;
 
 class CobaltApplicationCommand extends HmfToolCommand {
     CobaltApplicationCommand(String referenceSampleName, String referenceBamPath, String tumorSampleName, String tumorBamPath,
             String gcProfileBed) {
         super("cobalt",
-                "1.6",
+                Versions.COBALT,
                 "cobalt.jar",
                 "com.hartwig.hmftools.cobalt.CountBamLinesApplication",
                 "8G",
