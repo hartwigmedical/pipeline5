@@ -33,19 +33,23 @@ public interface AlignmentOutput extends StageOutput {
     }
 
     default GoogleStorageLocation finalBaiLocation() {
-        return maybeFinalBaiLocation().orElseThrow(noBamAvailable());
+        return maybeFinalBaiLocation().orElseThrow(noBaiAvailable());
     }
 
     default GoogleStorageLocation recalibratedBamLocation() {
-        return maybeRecalibratedBaiLocation().orElseThrow(noBamAvailable());
+        return maybeRecalibratedBamLocation().orElseThrow(noBamAvailable());
     }
 
     default GoogleStorageLocation recalibratedBaiLocation() {
-        return maybeRecalibratedBamLocation().orElseThrow(noBamAvailable());
+        return maybeRecalibratedBaiLocation().orElseThrow(noBaiAvailable());
     }
 
     static Supplier<IllegalStateException> noBamAvailable() {
         return () -> new IllegalStateException("No BAM available");
+    }
+
+    static Supplier<IllegalStateException> noBaiAvailable() {
+        return () -> new IllegalStateException("No BAI available");
     }
 
     static ImmutableAlignmentOutput.Builder builder() {
