@@ -32,6 +32,8 @@ import com.hartwig.pipeline.tertiary.healthcheck.HealthCheckerProvider;
 import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleProvider;
+import com.hartwig.pipeline.tools.Versions;
+
 import org.apache.commons.cli.ParseException;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -79,6 +81,7 @@ public class PatientReportPipeline {
     }
 
     public PipelineState run() throws Exception {
+        Versions.printAll();
         PipelineState state = new PipelineState();
         AlignmentOutput alignmentOutput = state.addStageOutput(aligner.run());
         if (state.shouldProceed()) {

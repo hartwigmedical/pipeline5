@@ -1,5 +1,13 @@
 package com.hartwig.pipeline.tools;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.stream.Stream;
+
+import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public interface Versions {
 
     String BWA = "0.7.17";
@@ -15,4 +23,29 @@ public interface Versions {
     String COBALT = "1.6";
     String HEALTH_CHECKER = "2.4";
     String PURPLE = "2.25";
+
+    static void printAll() {
+        Logger logger = LoggerFactory.getLogger(Versions.class);
+        logger.info("Version of pipeline5 is [{}] ", pipelineVersion());
+        logger.info("Versions of tools used are [");
+        Stream.of(Versions.class.getDeclaredFields())
+                .filter(field -> Modifier.isStatic(field.getModifiers()))
+                .map(Versions::format)
+                .forEach(logger::info);
+        logger.info("]");
+    }
+
+    static String pipelineVersion() {
+        String version = Versions.class.getPackage().getImplementationVersion();
+        return version != null ? version : "local-SNAPSHOT";
+    }
+
+    @NotNull
+    static String format(final Field field) {
+        try {
+            return field.getName() + ": " + field.get(null);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
