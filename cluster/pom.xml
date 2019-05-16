@@ -103,9 +103,6 @@
                             <addClasspath>true</addClasspath>
                             <mainClass>com.hartwig.pipeline.PatientReportPipeline</mainClass>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <addDefaultImplementationEntries>
-                                true
-                            </addDefaultImplementationEntries>
                         </manifest>
                     </archive>
                 </configuration>
@@ -131,8 +128,11 @@
                                 <manifest>
                                     <useUniqueVersions>false</useUniqueVersions>
                                     <addClasspath>true</addClasspath>
-                                    <mainClass>com.hartwig.pipeline.alignment.BootstrapMain</mainClass>
+                                    <mainClass>com.hartwig.pipeline.PatientReportPipeline</mainClass>
                                     <classpathPrefix>lib/</classpathPrefix>
+                                    <addDefaultImplementationEntries>
+                                        true
+                                    </addDefaultImplementationEntries>
                                 </manifest>
                             </archive>
                         </configuration>
@@ -189,7 +189,7 @@
                                 <configuration>
                                     <images>
                                         <image>
-                                            <name>hartwigmedicalfoundation/bootstrap</name>
+                                            <name>hartwigmedicalfoundation/pipeline5</name>
                                         </image>
                                     </images>
                                 </configuration>

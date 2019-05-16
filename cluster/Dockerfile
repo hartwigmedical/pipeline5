@@ -6,7 +6,7 @@ RUN curl https://downloads.rclone.org/rclone-current-linux-amd64.deb  --output r
 RUN dpkg -i rclone-current-linux-amd64.deb
 
 
-ADD bin/bootstrap.sh bootstrap.sh
+ADD bin/pipeline5.sh pipeline5.sh
 ADD src/main/resources/node-init.sh node-init.sh
 ADD target/lib /usr/share/pipeline5/lib
 ARG SYSTEM_JAR_FILE
@@ -14,4 +14,4 @@ ARG JAR_FILE
 ADD target/lib/${SYSTEM_JAR_FILE} /usr/share/pipeline5/system.jar
 ADD target/${JAR_FILE} /usr/share/pipeline5/bootstrap.jar
 
-ENTRYPOINT ["./bootstrap.sh"]
+ENTRYPOINT ["./pipeline5.sh"]

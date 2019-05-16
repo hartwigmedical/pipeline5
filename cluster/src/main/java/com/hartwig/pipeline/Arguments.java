@@ -162,7 +162,7 @@ public interface Arguments {
     String DEFAULT_PRODUCTION_RCLONE_GCP_REMOTE = "gs";
     String DEFAULT_PRODUCTION_RCLONE_S3_REMOTE = "s3";
     String DEFAULT_PRODUCTION_REGION = "europe-west4";
-    String DEFAULT_PRODUCTION_PROJECT = "hmf-pipeline-production";
+    String DEFAULT_PRODUCTION_PROJECT = "hmf-pipeline-prod-e45b00f2";
     String DEFAULT_PRODUCTION_VERSION = "";
     String DEFAULT_PRODUCTION_SAMPLE_DIRECTORY = "/samples";
     String DEFAULT_PRODUCTION_NODE_INIT = "node-init.sh";
