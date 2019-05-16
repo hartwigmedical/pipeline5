@@ -51,26 +51,31 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
         String vmName = bucket.runId() + "-" + jobDefinition.name();
         JobStatus status;
         try {
-            if (bucketContainsFile(bucket, jobDefinition.startupCommand().successFlag())
-                    || bucketContainsFile(bucket, jobDefinition.startupCommand().failureFlag())) {
-                LOGGER.warn("Job appears to have run already; skipping");
+            if (bucketContainsFile(bucket, jobDefinition.startupCommand().successFlag()) || bucketContainsFile(bucket,
+                    jobDefinition.startupCommand().failureFlag())) {
+                LOGGER.info("Compute engine job [{}] already existed. Skipping job.", vmName);
                 return JobStatus.SKIPPED;
             }
 
             Instance instance = new Instance();
-            LOGGER.info("Initialising [{}], output will go to bucket [{}]", vmName, bucket.name());
             instance.setName(vmName);
             instance.setZone(ZONE_NAME);
             String project = arguments.project();
             instance.setMachineType(machineType(ZONE_NAME, jobDefinition.performanceProfile().uri(), project));
 
             addServiceAccount(instance);
-            attachDisk(compute, instance, jobDefinition.imageFamily(), project, vmName, jobDefinition.performanceProfile().diskGb());
+            Image image = attachDisk(compute,
+                    instance,
+                    jobDefinition.imageFamily(),
+                    project,
+                    vmName,
+                    jobDefinition.performanceProfile().diskGb());
+            LOGGER.info("Initialising [{}] using image [{}], output will go to bucket [{}]", vmName, image.getName(), bucket.name());
             addStartupCommand(instance, bucket, jobDefinition.startupCommand());
             addNetworkInterface(instance, project);
 
             deleteOldInstancesAndStart(compute, instance, project, vmName);
-            LOGGER.info("Successfully initialised [{}]", vmName);
+            LOGGER.debug("Successfully initialised [{}]", vmName);
             status = waitForCompletion(bucket, jobDefinition);
             stop(project, vmName);
         } catch (Exception e) {
@@ -97,7 +102,7 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
         instance.setNetworkInterfaces(singletonList(iface));
     }
 
-    private void attachDisk(Compute compute, Instance instance, String imageFamily, String projectName, String vmName, long diskSizeGB)
+    private Image attachDisk(Compute compute, Instance instance, String imageFamily, String projectName, String vmName, long diskSizeGB)
             throws IOException {
         Image sourceImage = resolveLatestImage(compute, imageFamily, projectName);
         AttachedDisk disk = new AttachedDisk();
@@ -109,6 +114,7 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
         disk.setInitializeParams(params);
         instance.setDisks(singletonList(disk));
         compute.instances().attachDisk(projectName, ZONE_NAME, vmName, disk);
+        return sourceImage;
     }
 
     private void addServiceAccount(Instance instance) {
@@ -132,7 +138,6 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
         Compute.Images.GetFromFamily images = compute.images().getFromFamily(projectName, sourceImageFamily);
         Image image = images.execute();
         if (image != null) {
-            LOGGER.info("Resolved image [{} ({})] ", image.getName(), image.getSelfLink());
             return image;
         }
         throw new IllegalArgumentException(format("No image for family [%s]", sourceImageFamily));
@@ -174,7 +179,7 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
     private void executeSynchronously(ComputeRequest<Operation> request, String projectName) throws Exception {
         Operation syncOp = request.execute();
         String logId = format("Operation [%s:%s]", syncOp.getOperationType(), syncOp.getName());
-        LOGGER.info("{} is executing synchronously", logId);
+        LOGGER.debug("{} is executing synchronously", logId);
         while ("RUNNING".equals(fetchJobStatus(compute, syncOp.getName(), projectName))) {
             LOGGER.debug("{} not done yet", logId);
             try {
@@ -186,7 +191,7 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
 
         Operation execute = compute.zoneOperations().get(projectName, ZONE_NAME, syncOp.getName()).execute();
         if (execute.getError() == null) {
-            LOGGER.info("{} confirmed {}", logId, fetchJobStatus(compute, syncOp.getName(), projectName));
+            LOGGER.debug("{} confirmed {}", logId, fetchJobStatus(compute, syncOp.getName(), projectName));
         } else {
             throw new RuntimeException(format("Job [%s] did not succeed: %s", syncOp.getName(), execute.toPrettyString()));
         }
@@ -200,7 +205,7 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
         Page<Blob> objects = bucket.list();
         for (Blob blob : objects.iterateAll()) {
             String name = blob.getName();
-            if (name.equals(bucket.getNamespace() + "/"+ filename)) {
+            if (name.equals(bucket.getNamespace() + "/" + filename)) {
                 return true;
             }
         }
@@ -208,7 +213,7 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
     }
 
     private JobStatus waitForCompletion(RuntimeBucket bucket, VirtualMachineJobDefinition jobDefinition) {
-        LOGGER.info("Waiting for job completion");
+        LOGGER.debug("Waiting for job completion");
         while (true) {
             if (bucketContainsFile(bucket, jobDefinition.startupCommand().successFlag())) {
                 return JobStatus.SUCCESS;

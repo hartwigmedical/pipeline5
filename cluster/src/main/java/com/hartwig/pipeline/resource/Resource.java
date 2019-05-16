@@ -38,7 +38,7 @@ public class Resource {
         if (staticDataBucket != null) {
             Page<Blob> blobs = staticDataBucket.list(Storage.BlobListOption.prefix(name));
             String fullyQualifiedSourceBucket = commonResourcesBucket + "/" + name;
-            LOGGER.info("Copying static data from [{}] into [{}]", fullyQualifiedSourceBucket, runtimeBucket.name());
+            LOGGER.debug("Copying static data from [{}] into [{}]", fullyQualifiedSourceBucket, runtimeBucket.name());
             for (Blob source : blobs.iterateAll()) {
                 String aliased = alias.apply(source.getName());
                 String[] targetPath = aliased.split("/");
@@ -46,7 +46,7 @@ public class Resource {
                 runtimeBucket.copyInto(commonResourcesBucket, source.getName(), targetBlob);
                 locationBuilder.addFiles(aliased);
             }
-            LOGGER.info("Copying static data complete");
+            LOGGER.debug("Copying static data complete");
         } else {
             LOGGER.warn("No bucket found for static data [{}] check that it exists in storage", name);
         }
