@@ -4,11 +4,11 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.execution.dataproc.ClusterOptimizer;
+import com.hartwig.pipeline.execution.dataproc.CpuFastQSizeRatio;
 import com.hartwig.pipeline.execution.dataproc.GoogleDataproc;
 import com.hartwig.pipeline.execution.dataproc.GoogleStorageJarUpload;
 import com.hartwig.pipeline.execution.dataproc.NodeInitialization;
-import com.hartwig.pipeline.cost.CostCalculator;
-import com.hartwig.pipeline.cost.Costs;
 import com.hartwig.pipeline.io.BamDownload;
 import com.hartwig.pipeline.io.CloudBamDownload;
 import com.hartwig.pipeline.io.CloudCopy;
@@ -29,8 +29,6 @@ import com.hartwig.pipeline.io.sources.FileSystemSampleSource;
 import com.hartwig.pipeline.io.sources.GoogleStorageSampleSource;
 import com.hartwig.pipeline.io.sources.SBPS3SampleSource;
 import com.hartwig.pipeline.io.sources.SampleSource;
-import com.hartwig.pipeline.execution.dataproc.ClusterOptimizer;
-import com.hartwig.pipeline.execution.dataproc.CpuFastQSizeRatio;
 import com.hartwig.support.hadoop.Hadoop;
 
 public abstract class AlignerProvider {
@@ -51,18 +49,17 @@ public abstract class AlignerProvider {
     }
 
     abstract Aligner wireUp(GoogleCredentials credentials, Storage storage, AlignmentOutputStorage alignmentOutputStorage,
-            ClusterOptimizer optimizer, CostCalculator costCalculator, GoogleDataproc dataproc, ResultsDirectory resultsDirectory)
+            ClusterOptimizer optimizer, GoogleDataproc dataproc, ResultsDirectory resultsDirectory)
             throws Exception;
 
     public Aligner get() throws Exception {
         NodeInitialization nodeInitialization = new NodeInitialization(arguments.nodeInitializationScript());
         CpuFastQSizeRatio ratio = CpuFastQSizeRatio.of(PERFECT_RATIO);
-        CostCalculator costCalculator = new CostCalculator(credentials, arguments.region(), Costs.defaultCosts());
         ClusterOptimizer optimizer = new ClusterOptimizer(ratio, arguments.usePreemptibleVms());
         GoogleDataproc dataproc = GoogleDataproc.from(credentials, nodeInitialization, arguments);
         ResultsDirectory resultsDirectory = ResultsDirectory.defaultDirectory();
         AlignmentOutputStorage alignmentOutputStorage = new AlignmentOutputStorage(storage, arguments, resultsDirectory);
-        return wireUp(credentials, storage, alignmentOutputStorage, optimizer, costCalculator, dataproc, resultsDirectory);
+        return wireUp(credentials, storage, alignmentOutputStorage, optimizer, dataproc, resultsDirectory);
     }
 
     public static AlignerProvider from(GoogleCredentials credentials, Storage storage, Arguments arguments) throws Exception {
@@ -78,7 +75,7 @@ public abstract class AlignerProvider {
 
         @Override
         Aligner wireUp(GoogleCredentials credentials, Storage storage, AlignmentOutputStorage alignmentOutputStorage,
-                ClusterOptimizer optimizer, CostCalculator costCalculator, GoogleDataproc spark, ResultsDirectory resultsDirectory)
+                ClusterOptimizer optimizer, GoogleDataproc spark, ResultsDirectory resultsDirectory)
                 throws Exception {
             SampleSource sampleSource = getArguments().upload()
                     ? new FileSystemSampleSource(Hadoop.localFilesystem(), getArguments().sampleDirectory())
@@ -94,7 +91,6 @@ public abstract class AlignerProvider {
                     spark,
                     new GoogleStorageJarUpload(),
                     optimizer,
-                    costCalculator,
                     credentials,
                     resultsDirectory,
                     alignmentOutputStorage);
@@ -113,7 +109,7 @@ public abstract class AlignerProvider {
 
         @Override
         Aligner wireUp(GoogleCredentials credentials, Storage storage, AlignmentOutputStorage alignmentOutputStorage,
-                ClusterOptimizer optimizer, CostCalculator costCalculator, GoogleDataproc dataproc, ResultsDirectory resultsDirectory)
+                ClusterOptimizer optimizer, GoogleDataproc dataproc, ResultsDirectory resultsDirectory)
                 throws Exception {
             SBPRestApi sbpRestApi = SBPRestApi.newInstance(getArguments());
             AmazonS3 s3 = S3.newClient(getArguments().sbpS3Url());
@@ -137,7 +133,6 @@ public abstract class AlignerProvider {
                     dataproc,
                     new GoogleStorageJarUpload(),
                     optimizer,
-                    costCalculator,
                     credentials,
                     resultsDirectory,
                     alignmentOutputStorage);

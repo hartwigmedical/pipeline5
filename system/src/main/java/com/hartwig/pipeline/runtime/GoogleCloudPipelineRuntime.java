@@ -1,6 +1,5 @@
 package com.hartwig.pipeline.runtime;
 
-import com.hartwig.pipeline.metrics.Monitor;
 import com.hartwig.pipeline.runtime.configuration.BwaParameters;
 import com.hartwig.pipeline.runtime.configuration.Configuration;
 import com.hartwig.pipeline.runtime.configuration.KnownIndelParameters;
@@ -43,7 +42,7 @@ public class GoogleCloudPipelineRuntime {
                     .patient(PatientParameters.builder().directory(namespace + "/samples").name("").build())
                     .build();
 
-            new PipelineRuntime(configuration, Monitor.noop()).start();
+            new PipelineRuntime(configuration).start();
         }
 
     }

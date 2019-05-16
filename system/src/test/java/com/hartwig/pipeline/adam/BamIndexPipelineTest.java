@@ -10,7 +10,6 @@ import java.nio.file.Paths;
 
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.after.BamIndexPipeline;
-import com.hartwig.pipeline.metrics.Metric;
 import com.hartwig.support.hadoop.Hadoop;
 import com.hartwig.support.test.Resources;
 
@@ -26,15 +25,13 @@ public class BamIndexPipelineTest {
     private static final String TEST_DIR = "index_test";
     private static final String SOURCE_DIR = "/source/";
     private static final String TARGET_DIR = "/target/";
-    private Metric baiTimeSpent;
 
     @Before
     public void setUp() throws Exception {
         final Path testDir = Paths.get(Resources.targetResource(TEST_DIR));
         final BamIndexPipeline victim = BamIndexPipeline.fallback(Hadoop.localFilesystem(),
                 testDir.toString() + SOURCE_DIR,
-                testDir.toString() + TARGET_DIR,
-                metric -> baiTimeSpent = metric);
+                testDir.toString() + TARGET_DIR);
         FileUtils.deleteDirectory(testDir.toFile());
         moveTestFilesToTarget(testDir);
         victim.execute(Sample.builder("", SAMPLE_NAME).build());
@@ -48,12 +45,6 @@ public class BamIndexPipelineTest {
     @Test
     public void bailFileCreatedFromBam() throws Exception {
         assertThat(new File(Resources.targetResource(TEST_DIR + SOURCE_DIR + SAMPLE_NAME + ".sorted.bam.bai"))).exists();
-    }
-
-    @Test
-    public void baiCreationTimeMetricCaptured() throws Exception {
-        assertThat(baiTimeSpent).isNotNull();
-        assertThat(baiTimeSpent.value()).isPositive();
     }
 
     private void moveTestFilesToTarget(final Path resultDir) throws IOException {

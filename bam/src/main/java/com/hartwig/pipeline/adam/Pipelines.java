@@ -10,15 +10,10 @@ import com.hartwig.patient.KnownSnps;
 import com.hartwig.patient.ReferenceGenome;
 import com.hartwig.pipeline.BamCreationPipeline;
 import com.hartwig.pipeline.HadoopStatusReporter;
-import com.hartwig.pipeline.QCResult;
-import com.hartwig.pipeline.QualityControl;
-import com.hartwig.pipeline.metrics.Monitor;
 
 import org.apache.hadoop.fs.FileSystem;
 import org.bdgenomics.adam.api.java.JavaADAMContext;
 import org.bdgenomics.adam.rdd.ADAMContext;
-import org.bdgenomics.adam.rdd.read.AlignmentRecordDataset;
-import org.jetbrains.annotations.NotNull;
 
 public class Pipelines {
 

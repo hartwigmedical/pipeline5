@@ -5,8 +5,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 import com.hartwig.patient.Sample;
-import com.hartwig.pipeline.metrics.Metric;
-import com.hartwig.pipeline.metrics.Monitor;
 
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -23,20 +21,17 @@ public class BamIndexPipeline {
     private final FileSystem fileSystem;
     private final String sourceBamDirectory;
     private final String localBamDirectory;
-    private final Monitor monitor;
     private final SortAndIndexer sortAndIndexer;
 
-    private BamIndexPipeline(final FileSystem fileSystem, final String bamFolder, final String localBamLocation, final Monitor monitor,
+    private BamIndexPipeline(final FileSystem fileSystem, final String bamFolder, final String localBamLocation,
             final SortAndIndexer sortAndIndexer) {
         this.fileSystem = fileSystem;
         this.sourceBamDirectory = bamFolder;
         this.localBamDirectory = localBamLocation;
-        this.monitor = monitor;
         this.sortAndIndexer = sortAndIndexer;
     }
 
     public void execute(Sample sample) throws IOException, InterruptedException {
-        long startTime = System.currentTimeMillis();
         String bamFileLocation = String.format("/%s/%s.bam", sourceBamDirectory, sample.name()).substring(1);
         String unsortedBam = Bams.name(sample, localBamDirectory, "unsorted");
 
@@ -54,18 +49,14 @@ public class BamIndexPipeline {
         FileUtil.copy(new FileInputStream(bai),
                 fileSystem.create(new Path(Bams.name(sample, sourceBamDirectory, Bams.SORTED) + ".bai")),
                 noop());
-
-        long endTime = System.currentTimeMillis();
-        monitor.update(Metric.spentTime("SORT_AND_INDEX", endTime - startTime));
     }
 
-    public static BamIndexPipeline fallback(final FileSystem fileSystem, final String sourceFolder, final Monitor monitor) {
-        return fallback(fileSystem, sourceFolder, System.getProperty("user.dir"), monitor);
+    public static BamIndexPipeline fallback(final FileSystem fileSystem, final String sourceFolder) {
+        return fallback(fileSystem, sourceFolder, System.getProperty("user.dir"));
     }
 
-    public static BamIndexPipeline fallback(final FileSystem fileSystem, final String sourceFolder, final String targetFolder,
-            final Monitor monitor) {
-        return new BamIndexPipeline(fileSystem, sourceFolder, targetFolder, monitor, (sample, sourceBam) -> {
+    public static BamIndexPipeline fallback(final FileSystem fileSystem, final String sourceFolder, final String targetFolder) {
+        return new BamIndexPipeline(fileSystem, sourceFolder, targetFolder, (sample, sourceBam) -> {
             try {
                 new SambambaSortAndIndex().execute(sample, sourceBam);
             } catch (Exception e) {

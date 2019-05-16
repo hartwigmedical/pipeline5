@@ -1,30 +1,38 @@
 package com.hartwig.pipeline.alignment;
 
-import static com.hartwig.pipeline.resource.ResourceNames.*;
+import static java.lang.String.format;
+
+import static com.hartwig.pipeline.resource.ResourceNames.KNOWN_INDELS;
+import static com.hartwig.pipeline.resource.ResourceNames.KNOWN_SNPS;
+import static com.hartwig.pipeline.resource.ResourceNames.REFERENCE_GENOME;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Storage;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.BamCreationPipeline;
-import com.hartwig.pipeline.cost.CostCalculator;
 import com.hartwig.pipeline.execution.JobStatus;
-import com.hartwig.pipeline.execution.dataproc.*;
-import com.hartwig.pipeline.io.*;
+import com.hartwig.pipeline.execution.dataproc.ClusterOptimizer;
+import com.hartwig.pipeline.execution.dataproc.JarLocation;
+import com.hartwig.pipeline.execution.dataproc.JarUpload;
+import com.hartwig.pipeline.execution.dataproc.SparkExecutor;
+import com.hartwig.pipeline.execution.dataproc.SparkJobDefinition;
+import com.hartwig.pipeline.io.BamComposer;
+import com.hartwig.pipeline.io.BamDownload;
+import com.hartwig.pipeline.io.ResultsDirectory;
+import com.hartwig.pipeline.io.RuntimeBucket;
+import com.hartwig.pipeline.io.SampleUpload;
 import com.hartwig.pipeline.io.sources.SampleData;
 import com.hartwig.pipeline.io.sources.SampleSource;
-import com.hartwig.pipeline.metrics.Monitor;
-import com.hartwig.pipeline.metrics.Run;
 import com.hartwig.pipeline.resource.ReferenceGenomeAlias;
 import com.hartwig.pipeline.resource.Resource;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
-import static java.lang.String.format;
 
 public class Aligner {
 
@@ -40,14 +48,13 @@ public class Aligner {
     private final SparkExecutor dataproc;
     private final JarUpload jarUpload;
     private final ClusterOptimizer clusterOptimizer;
-    private final CostCalculator costCalculator;
     private final GoogleCredentials credentials;
     private final ResultsDirectory resultsDirectory;
     private final AlignmentOutputStorage alignmentOutputStorage;
 
     Aligner(final Arguments arguments, final Storage storage, final SampleSource sampleSource, final BamDownload bamDownload,
             final SampleUpload sampleUpload, final SparkExecutor dataproc, final JarUpload jarUpload,
-            final ClusterOptimizer clusterOptimizer, final CostCalculator costCalculator, final GoogleCredentials credentials,
+            final ClusterOptimizer clusterOptimizer, final GoogleCredentials credentials,
             final ResultsDirectory resultsDirectory, final AlignmentOutputStorage alignmentOutputStorage) {
         this.arguments = arguments;
         this.storage = storage;
@@ -57,7 +64,6 @@ public class Aligner {
         this.dataproc = dataproc;
         this.jarUpload = jarUpload;
         this.clusterOptimizer = clusterOptimizer;
-        this.costCalculator = costCalculator;
         this.resultsDirectory = resultsDirectory;
         this.credentials = credentials;
         this.alignmentOutputStorage = alignmentOutputStorage;
@@ -75,7 +81,6 @@ public class Aligner {
         Sample sample = sampleData.sample();
 
         RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, NAMESPACE, sampleData.sample().name(), arguments);
-        Monitor monitor = Monitor.stackdriver(Run.of(arguments.version(), runtimeBucket.name()), arguments.project(), credentials);
         new Resource(storage, arguments.resourceBucket(), REFERENCE_GENOME, new ReferenceGenomeAlias()).copyInto(
                 runtimeBucket);
         new Resource(storage, arguments.resourceBucket(), KNOWN_INDELS).copyInto(runtimeBucket);
@@ -85,8 +90,8 @@ public class Aligner {
         }
         JarLocation jarLocation = jarUpload.run(runtimeBucket, arguments);
 
-        runJob(Jobs.noStatusCheck(dataproc, costCalculator, monitor), SparkJobDefinition.gunzip(jarLocation, runtimeBucket), runtimeBucket);
-        runJob(Jobs.statusCheckGoogleStorage(dataproc, costCalculator, monitor, resultsDirectory),
+        runJob(Jobs.noStatusCheck(dataproc), SparkJobDefinition.gunzip(jarLocation, runtimeBucket), runtimeBucket);
+        runJob(Jobs.statusCheckGoogleStorage(dataproc, resultsDirectory),
                 SparkJobDefinition.bamCreation(jarLocation,
                         arguments,
                         runtimeBucket,
@@ -98,12 +103,12 @@ public class Aligner {
 
         ExecutorService executorService = Executors.newFixedThreadPool(2);
 
-        Future<?> sortIndexBamFuture = executorService.submit(() -> runJob(Jobs.noStatusCheck(dataproc, costCalculator, monitor),
+        Future<?> sortIndexBamFuture = executorService.submit(() -> runJob(Jobs.noStatusCheck(dataproc),
                 SparkJobDefinition.sortAndIndex(jarLocation, arguments, runtimeBucket, sample, resultsDirectory),
                 runtimeBucket));
 
         Future<?> sortIndexRecalibratedBamFuture =
-                executorService.submit(() -> runJob(Jobs.noStatusCheck(dataproc, costCalculator, monitor),
+                executorService.submit(() -> runJob(Jobs.noStatusCheck(dataproc),
                         SparkJobDefinition.sortAndIndexRecalibrated(jarLocation, arguments, runtimeBucket, sample, resultsDirectory),
                         runtimeBucket));
 
