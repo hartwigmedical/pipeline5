@@ -4,6 +4,7 @@ import com.google.api.gax.paging.Page;
 import com.google.cloud.storage.*;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.Run;
+
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +31,7 @@ public class RuntimeBucket {
     }
 
     @NotNull
-    private static RuntimeBucket createBucketIfNeeded(final Storage storage, final String namespace, final Arguments arguments,
+    private synchronized static RuntimeBucket createBucketIfNeeded(final Storage storage, final String namespace, final Arguments arguments,
             final Run run) {
         Bucket bucket = storage.get(run.id());
         if (bucket == null) {
