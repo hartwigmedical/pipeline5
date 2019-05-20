@@ -35,7 +35,7 @@ class Strelka extends SubStage {
                 .addCommand(new MakeStrelka(strelkaAnalysisOutput, STRELKA_THREADS))
                 .addCommand(new CombineVcfsCommand(referenceGenomePath,
                         strelkaAnalysisOutput + "/results/passed.somatic.snvs.vcf",
-                        strelkaAnalysisOutput + "/results/passed.somatic.snvs.vcf",
+                        strelkaAnalysisOutput + "/results/passed.somatic.indels.vcf",
                         output.path()));
     }
 }

@@ -35,6 +35,6 @@ public class StrelkaTest extends SubStageTest{
         assertThat(output.currentBash().asUnixString()).contains("java -Xmx20G -jar /data/tools/gatk/3.8.0/GenomeAnalysisTK.jar "
                 + "-T CombineVariants -R reference_genome.fasta --genotypemergeoption unsorted -V:snvs "
                 + "/data/output/strelkaAnalysis/results/passed.somatic.snvs.vcf -V:indels "
-                + "/data/output/strelkaAnalysis/results/passed.somatic.snvs.vcf -o /data/output/tumor.strelka.vcf");
+                + "/data/output/strelkaAnalysis/results/passed.somatic.indels.vcf -o /data/output/tumor.strelka.vcf");
     }
 }
