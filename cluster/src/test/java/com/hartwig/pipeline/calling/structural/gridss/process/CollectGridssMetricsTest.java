@@ -1,17 +1,17 @@
 package com.hartwig.pipeline.calling.structural.gridss.process;
 
-import com.hartwig.pipeline.calling.structural.gridss.TestConstants;
+import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
 import org.junit.Before;
 import org.junit.Test;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CollectGridssMetricsTest {
+public class CollectGridssMetricsTest implements CommonEntities  {
     private CollectGridssMetrics command;
     private String inputFile;
     private static final String CLASSNAME = "gridss.analysis.CollectGridssMetrics";
-    private static final String METRICS_OUT = format("%s/collect_gridss.metrics", TestConstants.OUT_DIR);
+    private static final String METRICS_OUT = format("%s/collect_gridss.metrics", OUT_DIR);
 
     @Before
     public void setup() {

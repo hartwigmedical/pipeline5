@@ -15,9 +15,7 @@ import com.google.cloud.storage.Blob;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.execution.CloudExecutor;
 import com.hartwig.pipeline.execution.JobStatus;
-import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +51,7 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
         try {
             if (bucketContainsFile(bucket, jobDefinition.startupCommand().successFlag()) || bucketContainsFile(bucket,
                     jobDefinition.startupCommand().failureFlag())) {
-                LOGGER.info("Compute engine job [{}] already existed. Skipping job.", vmName);
+                LOGGER.info("Compute engine job [{}] already exists. Skipping job.", vmName);
                 return JobStatus.SKIPPED;
             }
 

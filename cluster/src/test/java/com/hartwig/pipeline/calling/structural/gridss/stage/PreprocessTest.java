@@ -1,5 +1,6 @@
 package com.hartwig.pipeline.calling.structural.gridss.stage;
 
+import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
 import com.hartwig.pipeline.calling.structural.gridss.process.CollectGridssMetricsAndExtractSvReads;
 import com.hartwig.pipeline.calling.structural.gridss.process.ComputeSamTags;
 import com.hartwig.pipeline.calling.structural.gridss.process.SoftClipsToSplitReads;
@@ -11,13 +12,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-public class PreprocessTest {
-    private String inputBam;
-    private String referenceGenome;
+public class PreprocessTest implements CommonEntities {
     private String collectorBam;
     private String computeSamTagsBam;
-    private String clippedBam;
     private String collectorMetrics;
+    private String insertSizeMetrics;
 
     private ComputeSamTags computeSamTags;
     private SoftClipsToSplitReads.ForPreprocess clips;
@@ -27,54 +26,49 @@ public class PreprocessTest {
 
     @Before
     public void setup() {
-        inputBam = "/some-path/some-file.bam";
-        referenceGenome = "/path/to/ref_genome";
-
-        collectorBam = inputBam + ".collected";
+        insertSizeMetrics = "/some-other-path/insert.metrics";
+        collectorBam = REFERENCE_BAM + ".collected";
         collectorMetrics = "sv_metrics";
-
         computeSamTagsBam = collectorBam + ".computed";
-        clippedBam = computeSamTagsBam + ".clipped";
 
         factory = mock(CommandFactory.class);
 
         collector = mock(CollectGridssMetricsAndExtractSvReads.class);
-        when(factory.buildCollectGridssMetricsAndExtractSvReads(any())).thenReturn(collector);
+        when(factory.buildCollectGridssMetricsAndExtractSvReads(any(), any(), any())).thenReturn(collector);
         when(collector.resultantMetrics()).thenReturn(collectorMetrics);
         when(collector.resultantBam()).thenReturn(collectorBam);
         when(collector.asBash()).thenReturn("collector bash");
 
         computeSamTags = mock(ComputeSamTags.class);
-        when(factory.buildComputeSamTags(any(), any())).thenReturn(computeSamTags);
+        when(factory.buildComputeSamTags(any(), any(), any())).thenReturn(computeSamTags);
         when(computeSamTags.resultantBam()).thenReturn(computeSamTagsBam);
         when(computeSamTags.asBash()).thenReturn("compute sam tags bash");
 
         clips = mock(SoftClipsToSplitReads.ForPreprocess.class);
-        when(factory.buildSoftClipsToSplitReadsForPreProcess(any(), eq(referenceGenome))).thenReturn(clips);
-        when(clips.resultantBam()).thenReturn(clippedBam);
+        when(factory.buildSoftClipsToSplitReadsForPreProcess(any(), any(), any())).thenReturn(clips);
         when(clips.asBash()).thenReturn("soft clips to split reads bash");
 
-        result = new Preprocess(factory).initialise(inputBam, referenceGenome, "");
+        result = new Preprocess(factory).initialise(REFERENCE_BAM, REFERENCE_SAMPLE, REFERENCE_GENOME, insertSizeMetrics, OUTPUT_BAM);
     }
 
     @Test
     public void shouldRequestCollectionCommandFromFactoryPassingInputBam() {
-        verify(factory).buildCollectGridssMetricsAndExtractSvReads(inputBam);
+        verify(factory).buildCollectGridssMetricsAndExtractSvReads(REFERENCE_BAM, insertSizeMetrics, REFERENCE_SAMPLE);
     }
 
     @Test
     public void shouldRequestComputeSamTagsFromFactoryPassingOutputFromPreviousCommandAndRefGenome() {
-        verify(factory).buildComputeSamTags(collectorBam, referenceGenome);
+        verify(factory).buildComputeSamTags(collectorBam, REFERENCE_GENOME, REFERENCE_SAMPLE);
     }
 
     @Test
     public void shouldRequestSoftClipsToSplitReadsFromFactoryPassingBamFromPreviousCommand() {
-        verify(factory).buildSoftClipsToSplitReadsForPreProcess(computeSamTagsBam, referenceGenome);
+        verify(factory).buildSoftClipsToSplitReadsForPreProcess(computeSamTagsBam, OUTPUT_BAM, REFERENCE_GENOME);
     }
 
     @Test
     public void shouldSetBamInResult() {
-        assertThat(result.svBam()).isEqualTo(clippedBam);
+        assertThat(result.svBam()).isEqualTo(OUTPUT_BAM);
     }
 
     @Test

@@ -4,6 +4,7 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
+import com.hartwig.pipeline.io.ResultsDirectory;
 
 public class StructuralCallerProvider {
     private final Arguments arguments;
@@ -21,6 +22,7 @@ public class StructuralCallerProvider {
     }
 
     public StructuralCaller get() throws Exception {
-        return new StructuralCaller(arguments, ComputeEngine.from(arguments, credentials), storage, null);
+        return new StructuralCaller(arguments, ComputeEngine.from(arguments, credentials), storage,
+                ResultsDirectory.defaultDirectory());
     }
 }

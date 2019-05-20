@@ -33,7 +33,6 @@ import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleProvider;
 import com.hartwig.pipeline.tools.Versions;
-
 import org.apache.commons.cli.ParseException;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -99,8 +98,9 @@ public class PatientReportPipeline {
 
                 BamMetricsOutput metricsOutput = state.addStageOutput(futurePayload(bamMetricsFuture));
                 if (state.shouldProceed()) {
+                    BamMetricsOutput mateMetricsOutput = bamMetricsOutputStorage.get(mate(alignmentOutput.sample()));
                     Future<StructuralCallerOutput> structuralCallerFuture =
-                            executorService.submit(() -> structuralCaller.run(pair, metricsOutput));
+                            executorService.submit(() -> structuralCaller.run(pair, metricsOutput, mateMetricsOutput));
 
                     SomaticCallerOutput somaticCallerOutput = state.addStageOutput(futurePayload(somaticCallerFuture));
                     StructuralCallerOutput structuralCallerOutput = state.addStageOutput(futurePayload(structuralCallerFuture));
@@ -113,7 +113,6 @@ public class PatientReportPipeline {
                                 cobaltOutput,
                                 amberOutput));
                         if (state.shouldProceed()) {
-                            BamMetricsOutput mateMetricsOutput = bamMetricsOutputStorage.get(mate(alignmentOutput.sample()));
                             state.addStageOutput(healthChecker.run(pair,
                                     metricsOutput,
                                     mateMetricsOutput,

@@ -4,10 +4,7 @@ import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import org.assertj.core.api.AbstractAssert;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
@@ -23,6 +20,11 @@ public class GridssCommonArgumentsAssert extends AbstractAssert<GridssCommonArgu
             this.parent = parent;
             args = new ArrayList<>();
         }
+
+        public GridssArgumentsListBuilder and(Map.Entry<String, String> pair) {
+            return and(pair.getKey(), pair.getValue());
+        }
+
         public GridssArgumentsListBuilder and(String key, String value) {
             add(key, value);
             return this;
@@ -75,6 +77,10 @@ public class GridssCommonArgumentsAssert extends AbstractAssert<GridssCommonArgu
         }
 
         return this;
+    }
+
+    public GridssArgumentsListBuilder hasGridssArguments(Map.Entry<String, String> pair) {
+        return hasGridssArguments(pair.getKey(), pair.getValue());
     }
 
     public GridssArgumentsListBuilder hasGridssArguments(String key, String value) {

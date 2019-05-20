@@ -2,7 +2,6 @@ package com.hartwig.pipeline.execution.vm;
 
 import com.hartwig.pipeline.execution.JobDefinition;
 import com.hartwig.pipeline.io.ResultsDirectory;
-
 import org.immutables.value.Value;
 
 @Value.Immutable
@@ -41,6 +40,14 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
     static VirtualMachineJobDefinition somaticCalling(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("strelka")
+                .startupCommand(startupScript)
+                .namespacedResults(resultsDirectory)
+                .build();
+    }
+
+    static VirtualMachineJobDefinition structuralCalling(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
+        return ImmutableVirtualMachineJobDefinition.builder()
+                .name("gridss")
                 .startupCommand(startupScript)
                 .namespacedResults(resultsDirectory)
                 .build();

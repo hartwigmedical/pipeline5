@@ -1,41 +1,44 @@
 package com.hartwig.pipeline.calling.structural.gridss.process;
 
-import com.hartwig.pipeline.calling.structural.gridss.TestConstants;
+import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
 import org.junit.Before;
 import org.junit.Test;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CollectGridssMetricsAndExtractSvReadsTest {
-    private static final String CLASSNAME = "gridss.CollectGridssMetricsAndExtractSVReads";
-    private static final String METRICS_OUT = format("%s/gridss_sv.metrics", TestConstants.OUT_DIR);
-    private static final String BAM_OUT = format("%s/gridss_sv.bam", TestConstants.OUT_DIR);
-
+public class CollectGridssMetricsAndExtractSvReadsTest implements CommonEntities {
+    private String className;
+    private String metricsOut;
     private String inputFile;
     private String insertSizeMetrics;
     private CollectGridssMetricsAndExtractSvReads command;
 
     @Before
     public void setup() {
+        className = "gridss.CollectGridssMetricsAndExtractSVReads";
         inputFile = "inputFile";
         insertSizeMetrics = "insertSizeMetrics";
 
-        command = new CollectGridssMetricsAndExtractSvReads(inputFile, insertSizeMetrics);
+        metricsOut = format("%s/%s.gridss.working.sv_metrics", OUT_DIR, REFERENCE_SAMPLE);
+
+
+        command = new CollectGridssMetricsAndExtractSvReads(inputFile, insertSizeMetrics, REFERENCE_SAMPLE);
     }
 
     @Test
     public void shouldCreateCommandLineStartingWithJavaCommandAndJvmArgumentsAndClassname() {
-        GridssCommonArgumentsAssert.assertThat(command).hasJvmArgsAndClassName(CLASSNAME, "4G");
+        GridssCommonArgumentsAssert.assertThat(command).hasJvmArgsAndClassName(className, "4G");
     }
 
     @Test
     public void shouldEndCommandLineWithGridssOptions() {
+        String expectedOutput = format("%s/gridss.tmp.querysorted.%s.sv.bam", OUT_DIR, REFERENCE_SAMPLE);
         GridssCommonArgumentsAssert.assertThat(command)
-                .hasGridssArguments("tmp_dir", "/tmp")
+                .hasGridssArguments(ARGS_TMP_DIR)
                 .and("assume_sorted", "true")
-                .and("i", inputFile)
-                .and("o", TestConstants.OUT_DIR)
+                .and(ARG_KEY_INPUT_SHORT, inputFile)
+                .and(ARG_KEY_OUTPUT_SHORT, format("%s/%s.gridss.working", OUT_DIR, REFERENCE_SAMPLE))
                 .and("threshold_coverage", "50000")
                 .and("file_extension", "null")
                 .and("gridss_program", "null")
@@ -47,19 +50,21 @@ public class CollectGridssMetricsAndExtractSvReadsTest {
                 .and("program", "null")
                 .and("program", "CollectInsertSizeMetrics")
                 .and("sv_output", "/dev/stdout")
-                .and("compression_level", "0")
-                .and("metrics_output", METRICS_OUT)
+                .and(ARGS_NO_COMPRESSION)
+                .and("metrics_output", metricsOut)
                 .and("insert_size_metrics", insertSizeMetrics)
                 .and("unmapped_reads", "false")
                 .and("min_clip_length", "5")
-                .and("include_duplicates", format("true | samtools sort -O bam -T /tmp/samtools.sort.tmp -n -l 0 -@ 2 -o %s", BAM_OUT))
+                .and("include_duplicates",
+                        format("true | %s sort -O bam -T /tmp/samtools.sort.tmp -n -l 0 -@ 2 -o %s",
+                                PATH_TO_SAMTOOLS, expectedOutput))
                 .andNoMore()
-                .andGridssArgumentsAfterClassnameAreCorrect(CLASSNAME);
+                .andGridssArgumentsAfterClassnameAreCorrect(className);
     }
 
     @Test
     public void shouldReturnMetrics() {
         assertThat(command.resultantMetrics()).isNotNull();
-        assertThat(command.resultantMetrics()).isEqualTo(METRICS_OUT);
+        assertThat(command.resultantMetrics()).isEqualTo(metricsOut);
     }
 }

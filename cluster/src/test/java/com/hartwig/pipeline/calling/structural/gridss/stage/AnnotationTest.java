@@ -2,7 +2,7 @@ package com.hartwig.pipeline.calling.structural.gridss.stage;
 
 import com.hartwig.pipeline.calling.command.BgzipCommand;
 import com.hartwig.pipeline.calling.command.TabixCommand;
-import com.hartwig.pipeline.calling.structural.gridss.TestConstants;
+import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
 import com.hartwig.pipeline.calling.structural.gridss.process.AnnotateUntemplatedSequence;
 import com.hartwig.pipeline.calling.structural.gridss.process.AnnotateVariants;
 import org.junit.Before;
@@ -13,7 +13,7 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-public class AnnotationTest {
+public class AnnotationTest implements CommonEntities {
     private String sampleBam;
     private String tumorBam;
     private String rawVcf;
@@ -26,12 +26,14 @@ public class AnnotationTest {
     private BgzipCommand bgzip;
     private TabixCommand tabix;
     private Annotation.AnnotationResult result;
+    private String assemblyBam;
 
     @Before
     public void setup() {
         sampleBam = "sample.bam";
         tumorBam = "tumor.bam";
         rawVcf = "raw.vcf";
+        assemblyBam = "assembly.bam";
 
         annotatedVcf = "annotated.vcf";
         annotatedUntemplatedVcf = "annotated_untemplated.vcf";
@@ -40,7 +42,7 @@ public class AnnotationTest {
 
         annotateVariants = mock(AnnotateVariants.class);
         when(annotateVariants.resultantVcf()).thenReturn(annotatedVcf);
-        when(factory.buildAnnotateVariants(any(), any(), any())).thenReturn(annotateVariants);
+        when(factory.buildAnnotateVariants(any(), any(), any(), any(), any())).thenReturn(annotateVariants);
 
         annotateUntemplated = mock(AnnotateUntemplatedSequence.class);
         when(annotateUntemplated.resultantVcf()).thenReturn(annotatedUntemplatedVcf);
@@ -52,17 +54,17 @@ public class AnnotationTest {
         tabix = mock(TabixCommand.class);
         when(factory.buildTabixCommand(any())).thenReturn(tabix);
 
-        result = new Annotation(factory).initialise(sampleBam, tumorBam, rawVcf, TestConstants.REF_GENOME);
+        result = new Annotation(factory).initialise(sampleBam, tumorBam, assemblyBam, rawVcf, REFERENCE_GENOME);
     }
 
     @Test
     public void shouldRequestBuildOfAnnotateVariantsPassingReferenceBamAndTumorBamAndRawVcf() {
-        verify(factory).buildAnnotateVariants(sampleBam, tumorBam, rawVcf);
+        verify(factory).buildAnnotateVariants(sampleBam, tumorBam, assemblyBam, rawVcf, REFERENCE_GENOME);
     }
 
     @Test
     public void shouldRequestBuildOfAnnotateUntemplatedSequenceUsingResultOfPreviousCommand() {
-        verify(factory).buildAnnotateUntemplatedSequence(annotatedVcf, TestConstants.REF_GENOME);
+        verify(factory).buildAnnotateUntemplatedSequence(annotatedVcf, REFERENCE_GENOME);
     }
 
     @Test

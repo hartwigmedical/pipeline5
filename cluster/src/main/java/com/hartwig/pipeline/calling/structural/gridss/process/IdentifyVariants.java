@@ -10,14 +10,12 @@ public class IdentifyVariants implements BashCommand {
     private final String tumorBam;
     private final String assemblyBam;
     private final String referenceGenome;
-    private final String blacklist;
 
-    public IdentifyVariants(String sampleBam, String tumorBam, String assemblyBam, String referenceGenome, String blacklist) {
+    public IdentifyVariants(String sampleBam, String tumorBam, String assemblyBam, String referenceGenome) {
         this.sampleBam = sampleBam;
         this.tumorBam = tumorBam;
         this.assemblyBam = assemblyBam;
         this.referenceGenome = referenceGenome;
-        this.blacklist = blacklist;
     }
 
     @Override
@@ -32,7 +30,7 @@ public class IdentifyVariants implements BashCommand {
                 .add("output_vcf", resultantVcf())
                 .add("assembly", assemblyBam)
                 .add("worker_threads", "16")
-                .add("blacklist", blacklist)
+                .addBlacklist()
                 .add("configuration_file", GridssCommon.configFile())
                 .asBash()
         ).asBash();

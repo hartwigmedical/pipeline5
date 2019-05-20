@@ -9,10 +9,12 @@ public class CollectGridssMetricsAndExtractSvReads implements BashCommand {
 
     private final String inputBam;
     private String insertSizeMetrics;
+    private String sampleName;
 
-    public CollectGridssMetricsAndExtractSvReads(final String inputFile, String insertSizeMetrics) {
+    public CollectGridssMetricsAndExtractSvReads(final String inputFile, String insertSizeMetrics, String sampleName) {
         this.inputBam = inputFile;
         this.insertSizeMetrics = insertSizeMetrics;
+        this.sampleName = sampleName;
     }
 
     @Override
@@ -21,19 +23,23 @@ public class CollectGridssMetricsAndExtractSvReads implements BashCommand {
     }
 
     public String resultantBam() {
-        return VmDirectories.outputFile("gridss_sv.bam");
+        return VmDirectories.outputFile(format("gridss.tmp.querysorted.%s.sv.bam", sampleName));
     }
 
     public String resultantMetrics() {
-        return VmDirectories.outputFile("gridss_sv.metrics");
+        return format("%s.sv_metrics", outputDirectory());
+    }
+
+    private String outputDirectory() {
+        return VmDirectories.outputFile(format("%s.gridss.working", sampleName));
     }
 
     private String gridssArgs() {
         return new GridssArguments()
-                .add("tmp_dir", "/tmp")
+                .add("tmp_dir", GridssCommon.tmpDir())
                 .add("assume_sorted", "true")
                 .add("i", inputBam)
-                .add("o", VmDirectories.OUTPUT)
+                .add("o", outputDirectory())
                 .add("threshold_coverage", "50000")
                 .add("file_extension", "null")
                 .add("gridss_program", "null")
@@ -50,7 +56,8 @@ public class CollectGridssMetricsAndExtractSvReads implements BashCommand {
                 .add("insert_size_metrics", insertSizeMetrics)
                 .add("unmapped_reads", "false")
                 .add("min_clip_length", "5")
-                .add("include_duplicates", format("true | samtools sort -O bam -T /tmp/samtools.sort.tmp -n -l 0 -@ 2 -o %s", resultantBam()))
+                .add("include_duplicates", format("true | %s sort -O bam -T /tmp/samtools.sort.tmp -n -l 0 -@ 2 -o %s",
+                        GridssCommon.pathToSamtools(), resultantBam()))
         .asBash();
     }
 }

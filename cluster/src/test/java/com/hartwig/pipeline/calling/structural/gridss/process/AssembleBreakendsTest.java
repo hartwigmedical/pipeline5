@@ -1,26 +1,16 @@
 package com.hartwig.pipeline.calling.structural.gridss.process;
 
-import com.hartwig.pipeline.calling.structural.gridss.TestConstants;
+import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
 import org.junit.Before;
 import org.junit.Test;
 
-import static java.lang.String.format;
-
-public class AssembleBreakendsTest {
+public class AssembleBreakendsTest implements CommonEntities {
     private static final String CLASSNAME = "gridss.AssembleBreakends";
-
     private AssembleBreakends command;
-    private String sampleBam;
-    private String tumorBam;
-    private String blacklist;
 
     @Before
     public void setup() {
-        sampleBam = "/patient123_r";
-        tumorBam = "/patient123_t";
-        blacklist = format("%s/gridss.blacklist", TestConstants.RESOURCE_DIR);
-
-        command = new AssembleBreakends(sampleBam, tumorBam, TestConstants.REF_GENOME, blacklist);
+        command = new AssembleBreakends(REFERENCE_BAM, TUMOR_BAM, REFERENCE_GENOME);
     }
 
     @Test
@@ -30,15 +20,15 @@ public class AssembleBreakendsTest {
 
     @Test
     public void shouldCompleteCommandLineWithGridssArguments() {
-        GridssCommonArgumentsAssert.assertThat(command).hasGridssArguments("tmp_dir", "/tmp")
-                .and("working_dir", TestConstants.OUT_DIR)
-                .and("reference_sequence", TestConstants.REF_GENOME)
-                .and("input", sampleBam)
-                .and("input", tumorBam)
-                .and("output", command.resultantBam())
-                .and("worker_threads", "2")
-                .and("blacklist", blacklist)
-                .and("configuration_file", command.resultantConfig())
+        GridssCommonArgumentsAssert.assertThat(command).hasGridssArguments(ARGS_TMP_DIR)
+                .and(ARG_KEY_WORKING_DIR, OUT_DIR)
+                .and(ARGS_REFERENCE_SEQUENCE)
+                .and(ARG_KEY_INPUT, REFERENCE_BAM)
+                .and(ARG_KEY_INPUT, TUMOR_BAM)
+                .and(ARG_KEY_OUTPUT, command.assemblyBam())
+                .and(ARG_KEY_WORKER_THREADS, "2")
+                .and(ARGS_BLACKLIST)
+                .and(ARGS_GRIDSS_CONFIG)
                 .andNoMore()
                 .andGridssArgumentsAfterClassnameAreCorrect(CLASSNAME);
     }

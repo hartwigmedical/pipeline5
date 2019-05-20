@@ -1,22 +1,23 @@
 package com.hartwig.pipeline.calling.structural.gridss.stage;
 
+import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
 import com.hartwig.pipeline.calling.structural.gridss.process.AssembleBreakends;
 import com.hartwig.pipeline.calling.structural.gridss.process.CollectGridssMetrics;
 import com.hartwig.pipeline.calling.structural.gridss.process.SoftClipsToSplitReads;
+import com.hartwig.pipeline.execution.vm.BashCommand;
 import org.junit.Before;
 import org.junit.Test;
 
-import static java.util.Arrays.asList;
+import java.io.File;
+import java.util.List;
+
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-public class AssembleTest {
-    private String sampleBam;
-    private String tumorBam;
-    private String referenceGenome;
-    private String blacklist;
-
-    private String assembledBam = "assembled.bam";
+public class AssembleTest implements CommonEntities {
+    private String assembledBam;
+    private String fullOutputPath;
 
     private CommandFactory factory;
     private AssembleBreakends assembleBreakends;
@@ -26,16 +27,12 @@ public class AssembleTest {
 
     @Before
     public void setup() {
-        sampleBam = "sample.bam";
-        tumorBam = "tumor.bam";
-        referenceGenome = "reference_genome";
-        blacklist = "blacklist";
-
+        assembledBam = "assembled.bam";
         factory = mock(CommandFactory.class);
 
         assembleBreakends = mock(AssembleBreakends.class);
-        when(factory.buildAssembleBreakends(any(), any(), any(), any())).thenReturn(assembleBreakends);
-        when(assembleBreakends.resultantBam()).thenReturn(assembledBam);
+        when(factory.buildAssembleBreakends(any(), any(), any())).thenReturn(assembleBreakends);
+        when(assembleBreakends.assemblyBam()).thenReturn(assembledBam);
         when(assembleBreakends.asBash()).thenReturn("assemble breakends bash");
 
         collectMetrics = mock(CollectGridssMetrics.class);
@@ -44,16 +41,16 @@ public class AssembleTest {
         when(collectMetrics.metrics()).thenReturn("collect_metrics.metrics");
 
         clips = mock(SoftClipsToSplitReads.ForAssemble.class);
-        when(factory.buildSoftClipsToSplitReadsForAssemble(any(), any())).thenReturn(clips);
+        when(factory.buildSoftClipsToSplitReadsForAssemble(any(), any(), any())).thenReturn(clips);
         when(clips.asBash()).thenReturn("soft clips to split reads bash");
-        when(clips.resultantBam()).thenReturn(assembledBam + ".structural");
 
-        result = new Assemble(factory).initialise(sampleBam, tumorBam, referenceGenome, blacklist);
+        fullOutputPath = format("%s/%s.gridss.working/%s.sv.bam", OUT_DIR, assembledBam, assembledBam);
+        result = new Assemble(factory).initialise(REFERENCE_BAM, TUMOR_BAM, REFERENCE_GENOME);
     }
 
     @Test
     public void shouldRequestAssembleBreakendsCommandFromFactoryPassingInputBamsAndReferenceGenome() {
-        verify(factory).buildAssembleBreakends(sampleBam, tumorBam, referenceGenome, blacklist);
+        verify(factory).buildAssembleBreakends(REFERENCE_BAM, TUMOR_BAM, REFERENCE_GENOME);
     }
 
     @Test
@@ -62,13 +59,8 @@ public class AssembleTest {
     }
 
     @Test
-    public void shouldRequestSoftClipsToSplitReadsPassingAssembledBamAndReferenceGenome() {
-        verify(factory).buildSoftClipsToSplitReadsForAssemble(assembledBam, referenceGenome);
-    }
-
-    @Test
-    public void shouldSetStructuralBamToResultOfSoftClipsToSplitReads() {
-        assertThat(result.svBam()).isEqualTo(clips.resultantBam());
+    public void shouldRequestSoftClipsToSplitReadsPassingAssembledBamAndReferenceGenomeAndAssemblyInProperPath() {
+        verify(factory).buildSoftClipsToSplitReadsForAssemble(assembledBam, REFERENCE_GENOME, fullOutputPath);
     }
 
     @Test
@@ -79,7 +71,10 @@ public class AssembleTest {
     @Test
     public void shouldReturnBashCommandsInOrder() {
         assertThat(result).isNotNull();
-        assertThat(result.commands()).isEqualTo(asList(assembleBreakends, collectMetrics, clips));
+        List<BashCommand> allCommands = result.commands();
+        assertThat(allCommands.get(0).asBash()).isEqualTo(format("mkdir -p %s", new File(fullOutputPath).getParent()));
+        assertThat(allCommands.get(1)).isEqualTo(assembleBreakends);
+        assertThat(allCommands.get(2)).isEqualTo(collectMetrics);
+        assertThat(allCommands.get(3)).isEqualTo(clips);
     }
-
 }

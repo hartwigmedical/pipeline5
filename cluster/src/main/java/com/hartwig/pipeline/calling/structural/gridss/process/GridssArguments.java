@@ -22,4 +22,19 @@ public class GridssArguments implements BashCommand {
     public String asBash() {
         return arguments.stream().map(BashCommand::asBash).collect(Collectors.joining(" "));
     }
+
+    public GridssArguments addTempDir() {
+        add("tmp_dir", "/tmp");
+        return this;
+    }
+
+    public GridssArguments addBlacklist() {
+        add("blacklist", GridssCommon.blacklist());
+        return this;
+    }
+
+    public GridssArguments addConfigFile() {
+        add("configuration_file", GridssCommon.configFile());
+        return this;
+    }
 }

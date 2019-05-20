@@ -1,23 +1,21 @@
 package com.hartwig.pipeline.calling.structural.gridss.process;
 
-import com.hartwig.pipeline.calling.structural.gridss.TestConstants;
-import com.hartwig.pipeline.execution.vm.VmDirectories;
+import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
 import org.junit.Before;
 import org.junit.Test;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ComputeSamTagsTest {
+public class ComputeSamTagsTest implements CommonEntities {
     private ComputeSamTags command;
     private final String CLASSNAME = "gridss.ComputeSamTags";
-    private final String OUTFILE = format("%s/compute_sam_tags.bam", VmDirectories.OUTPUT);
-    private String inputBam;
+    private String expectedOutputFile;
 
     @Before
     public void setup() {
-        inputBam = "/input.bam";
-        command = new ComputeSamTags(inputBam, TestConstants.REF_GENOME);
+        command = new ComputeSamTags(REFERENCE_BAM, REFERENCE_GENOME, REFERENCE_SAMPLE);
+        expectedOutputFile = format("%s/gridss.tmp.withtags.%s.sv.bam", OUT_DIR, REFERENCE_SAMPLE);
     }
 
     @Test
@@ -28,12 +26,12 @@ public class ComputeSamTagsTest {
     @Test
     public void shouldCompleteCommandLineWithGridssArguments() {
         GridssCommonArgumentsAssert.assertThat(command)
-                .hasGridssArguments("tmp_dir", "/tmp")
-                .and("working_dir", TestConstants.OUT_DIR)
-                .and("reference_sequence", TestConstants.REF_GENOME)
-                .and("compression_level", "0")
-                .and("i", inputBam)
-                .and("o", "/dev/stdout")
+                .hasGridssArguments(ARGS_TMP_DIR)
+                .and("working_dir", OUT_DIR)
+                .and(ARGS_REFERENCE_SEQUENCE)
+                .and(ARGS_NO_COMPRESSION)
+                .and(ARG_KEY_INPUT_SHORT, REFERENCE_BAM)
+                .and(ARGS_OUTPUT_TO_STDOUT)
                 .and("recalculate_sa_supplementary", "true")
                 .and("soften_hard_clips", "true")
                 .and("fix_mate_information", "true")
@@ -45,7 +43,7 @@ public class ComputeSamTagsTest {
                 .and("tags", "Q2")
                 .and("tags", "MC")
                 .and("tags", "MQ")
-                .and("assume_sorted", format("true | samtools sort -O bam -T /tmp/samtools.sort.tmp -@ 2 -o %s", OUTFILE))
+                .and("assume_sorted", format("true | %s sort -O bam -T /tmp/samtools.sort.tmp -@ 2 -o %s", PATH_TO_SAMTOOLS, expectedOutputFile))
                 .andNoMore()
                 .andGridssArgumentsAfterClassnameAreCorrect(CLASSNAME);
     }
@@ -53,6 +51,6 @@ public class ComputeSamTagsTest {
     @Test
     public void shouldReturnResultantBam() {
         assertThat(command.resultantBam()).isNotNull();
-        assertThat(command.resultantBam()).isEqualTo(OUTFILE);
+        assertThat(command.resultantBam()).isEqualTo(expectedOutputFile);
     }
 }

@@ -9,12 +9,12 @@ public class CommandFactory {
         return new AnnotateUntemplatedSequence(annotatedVcf, referenceGenome);
     }
 
-    public AnnotateVariants buildAnnotateVariants(String sampleBam, String tumorBam, String rawVcf) {
-        return new AnnotateVariants();
+    public AnnotateVariants buildAnnotateVariants(String sampleBam, String tumorBam, String assemblyBam, String rawVcf, String referenceGenome) {
+        return new AnnotateVariants(sampleBam, tumorBam, assemblyBam, rawVcf, referenceGenome);
     }
 
-    public AssembleBreakends buildAssembleBreakends(String sampleBam, String tumorBam, String referenceGenome, String blacklist) {
-        return new AssembleBreakends(sampleBam, tumorBam, referenceGenome, blacklist);
+    public AssembleBreakends buildAssembleBreakends(String sampleBam, String tumorBam, String referenceGenome) {
+        return new AssembleBreakends(sampleBam, tumorBam, referenceGenome);
     }
 
     public BgzipCommand buildBgzipCommand(String annotatedVcf) {
@@ -25,24 +25,24 @@ public class CommandFactory {
         return new CollectGridssMetrics(assembledBam);
     }
 
-    public CollectGridssMetricsAndExtractSvReads buildCollectGridssMetricsAndExtractSvReads(String inputBam) {
-        return new CollectGridssMetricsAndExtractSvReads(inputBam, "");
+    public CollectGridssMetricsAndExtractSvReads buildCollectGridssMetricsAndExtractSvReads(String inputBam, String insertSizeMetrics, String sampleName) {
+        return new CollectGridssMetricsAndExtractSvReads(inputBam, insertSizeMetrics, sampleName);
     }
 
-    public ComputeSamTags buildComputeSamTags(String inProgressBam, String referenceGenome) {
-        return new ComputeSamTags(inProgressBam, referenceGenome);
+    public ComputeSamTags buildComputeSamTags(String inProgressBam, String referenceGenome, String sampleName) {
+        return new ComputeSamTags(inProgressBam, referenceGenome, sampleName);
     }
 
     public IdentifyVariants buildIdentifyVariants(String sampleBam, String tumorBam, String assemblyBam, String referenceGenome, String blacklist) {
-        return new IdentifyVariants(sampleBam, tumorBam, assemblyBam, referenceGenome, blacklist);
+        return new IdentifyVariants(sampleBam, tumorBam, assemblyBam, referenceGenome);
     }
 
-    public SoftClipsToSplitReads.ForAssemble buildSoftClipsToSplitReadsForAssemble(String intermediateBamPath, String referenceGenome) {
-        return new SoftClipsToSplitReads.ForAssemble(intermediateBamPath, referenceGenome);
+    public SoftClipsToSplitReads.ForAssemble buildSoftClipsToSplitReadsForAssemble(String intermediateBamPath, String referenceGenome, String outputBam) {
+        return new SoftClipsToSplitReads.ForAssemble(intermediateBamPath, referenceGenome, outputBam);
     }
 
-    public SoftClipsToSplitReads.ForPreprocess buildSoftClipsToSplitReadsForPreProcess(String intermediateBamPath, String referenceGenome) {
-        return new SoftClipsToSplitReads.ForPreprocess(intermediateBamPath, referenceGenome);
+    public SoftClipsToSplitReads.ForPreprocess buildSoftClipsToSplitReadsForPreProcess(String intermediateBamPath, String referenceGenome, String outputBam) {
+        return new SoftClipsToSplitReads.ForPreprocess(intermediateBamPath, referenceGenome, outputBam);
     }
 
     public TabixCommand buildTabixCommand(String inputVcf) {

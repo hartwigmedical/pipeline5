@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static java.lang.String.format;
 import static java.util.Arrays.asList;
 
 public class GridssCommon {
@@ -34,16 +35,23 @@ public class GridssCommon {
                 gridsArguments);
     }
 
-    // TODO
     static String pathToBwa() {
-        return String.format("%s/bwa/0.7.17/bwa", VmDirectories.TOOLS);
+        return format("%s/bwa/0.7.17/bwa", VmDirectories.TOOLS);
+    }
+    static String pathToSamtools() {
+        return format("%s/samtools/1.2/samtools", VmDirectories.TOOLS);
+
     }
 
-    static JavaClassCommand gridssCommand(String className, String memory, List<String> additionalJvmArguments, List<String> gridssArguments) {
-        return gridssCommand(className, memory, additionalJvmArguments, gridssArguments.toArray(new String[] {}));
+    public static String configFile() {
+        return format("%s/gridss.properties", VmDirectories.RESOURCES);
     }
 
-    static String configFile() {
-        return VmDirectories.outputFile("gridss.properties");
+    public static String blacklist() {
+        return format("%s/ENCFF001TDO.bed", VmDirectories.RESOURCES);
+    }
+
+    public static String tmpDir() {
+        return "/tmp";
     }
 }
