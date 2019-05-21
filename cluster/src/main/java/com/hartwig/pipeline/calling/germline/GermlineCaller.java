@@ -5,6 +5,7 @@ import static java.lang.String.format;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
+import com.hartwig.pipeline.calling.germline.command.GatkHaplotypeCallerCommand;
 import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;

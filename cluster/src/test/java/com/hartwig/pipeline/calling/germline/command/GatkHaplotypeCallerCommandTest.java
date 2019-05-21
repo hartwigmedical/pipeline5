@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.calling.germline;
+package com.hartwig.pipeline.calling.germline.command;
 
 import org.junit.Test;
 
