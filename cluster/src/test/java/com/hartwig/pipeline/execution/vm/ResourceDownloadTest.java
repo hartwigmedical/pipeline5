@@ -3,7 +3,6 @@ package com.hartwig.pipeline.execution.vm;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.hartwig.pipeline.resource.ResourceLocation;
-import com.hartwig.pipeline.testsupport.MockRuntimeBucket;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -19,7 +18,7 @@ public class ResourceDownloadTest {
 
     @Test
     public void createsBashToDownloadAllResourceFilesWithGsUtil() {
-        assertThat(victim.asBash()).isEqualTo("gsutil -m cp gs://runtime/bucket/* /data/resources");
+        assertThat(victim.asBash()).isEqualTo("gsutil -qm cp gs://runtime/bucket/* /data/resources");
     }
 
     @Test

@@ -1,10 +1,20 @@
 package com.hartwig.pipeline;
 
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Storage;
 import com.hartwig.patient.ImmutableSample;
 import com.hartwig.patient.Sample;
-import com.hartwig.pipeline.alignment.*;
+import com.hartwig.pipeline.alignment.Aligner;
+import com.hartwig.pipeline.alignment.AlignerProvider;
+import com.hartwig.pipeline.alignment.AlignmentOutput;
+import com.hartwig.pipeline.alignment.AlignmentOutputStorage;
+import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.alignment.after.metrics.BamMetrics;
 import com.hartwig.pipeline.alignment.after.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.alignment.after.metrics.BamMetricsOutputStorage;
@@ -20,6 +30,10 @@ import com.hartwig.pipeline.calling.structural.StructuralCallerOutput;
 import com.hartwig.pipeline.calling.structural.StructuralCallerProvider;
 import com.hartwig.pipeline.credentials.CredentialProvider;
 import com.hartwig.pipeline.io.ResultsDirectory;
+import com.hartwig.pipeline.metadata.PatientMetadataApi;
+import com.hartwig.pipeline.metadata.PatientMetadataApiProvider;
+import com.hartwig.pipeline.report.PatientReport;
+import com.hartwig.pipeline.report.PatientReportProvider;
 import com.hartwig.pipeline.storage.StorageProvider;
 import com.hartwig.pipeline.tertiary.amber.Amber;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
@@ -33,21 +47,17 @@ import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleProvider;
 import com.hartwig.pipeline.tools.Versions;
+
 import org.apache.commons.cli.ParseException;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Optional;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
 public class PatientReportPipeline {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PatientReportPipeline.class);
 
+    private final PatientMetadataApi patientMetadataApi;
     private final Aligner aligner;
     private final BamMetrics metrics;
     private final GermlineCaller germlineCaller;
@@ -59,12 +69,15 @@ public class PatientReportPipeline {
     private final HealthChecker healthChecker;
     private final AlignmentOutputStorage alignmentOutputStorage;
     private final BamMetricsOutputStorage bamMetricsOutputStorage;
+    private final PatientReport report;
     private final ExecutorService executorService;
 
-    PatientReportPipeline(final Aligner aligner, final BamMetrics metrics, final GermlineCaller germlineCaller,
-            final SomaticCaller somaticCaller, final StructuralCaller structuralCaller, final Amber amber, final Cobalt cobalt,
-            final Purple purple, final HealthChecker healthChecker, final AlignmentOutputStorage alignmentOutputStorage,
-            final BamMetricsOutputStorage bamMetricsOutputStorage, final ExecutorService executorService) {
+    PatientReportPipeline(final PatientMetadataApi patientMetadataApi, final Aligner aligner, final BamMetrics metrics,
+            final GermlineCaller germlineCaller, final SomaticCaller somaticCaller, final StructuralCaller structuralCaller,
+            final Amber amber, final Cobalt cobalt, final Purple purple, final HealthChecker healthChecker,
+            final AlignmentOutputStorage alignmentOutputStorage, final BamMetricsOutputStorage bamMetricsOutputStorage,
+            final PatientReport report, final ExecutorService executorService) {
+        this.patientMetadataApi = patientMetadataApi;
         this.aligner = aligner;
         this.metrics = metrics;
         this.germlineCaller = germlineCaller;
@@ -76,13 +89,14 @@ public class PatientReportPipeline {
         this.healthChecker = healthChecker;
         this.alignmentOutputStorage = alignmentOutputStorage;
         this.bamMetricsOutputStorage = bamMetricsOutputStorage;
+        this.report = report;
         this.executorService = executorService;
     }
 
     public PipelineState run() throws Exception {
         Versions.printAll();
         PipelineState state = new PipelineState();
-        AlignmentOutput alignmentOutput = state.addStageOutput(aligner.run());
+        AlignmentOutput alignmentOutput = report.add(state.add(aligner.run()));
         if (state.shouldProceed()) {
             Future<BamMetricsOutput> bamMetricsFuture = executorService.submit(() -> metrics.run(alignmentOutput));
             Future<GermlineCallerOutput> germlineCallerFuture = executorService.submit(() -> germlineCaller.run(alignmentOutput));
@@ -96,38 +110,40 @@ public class PatientReportPipeline {
                 Future<AmberOutput> amberOutputFuture = executorService.submit(() -> amber.run(pair));
                 Future<CobaltOutput> cobaltOutputFuture = executorService.submit(() -> cobalt.run(pair));
 
-                BamMetricsOutput metricsOutput = state.addStageOutput(futurePayload(bamMetricsFuture));
+                BamMetricsOutput metricsOutput = report.add(state.add(futurePayload(bamMetricsFuture)));
+
                 if (state.shouldProceed()) {
                     BamMetricsOutput mateMetricsOutput = bamMetricsOutputStorage.get(mate(alignmentOutput.sample()));
                     Future<StructuralCallerOutput> structuralCallerFuture =
                             executorService.submit(() -> structuralCaller.run(pair, metricsOutput, mateMetricsOutput));
 
-                    SomaticCallerOutput somaticCallerOutput = state.addStageOutput(futurePayload(somaticCallerFuture));
-                    StructuralCallerOutput structuralCallerOutput = state.addStageOutput(futurePayload(structuralCallerFuture));
-                    AmberOutput amberOutput = state.addStageOutput(futurePayload(amberOutputFuture));
-                    CobaltOutput cobaltOutput = state.addStageOutput(futurePayload(cobaltOutputFuture));
+                    SomaticCallerOutput somaticCallerOutput = report.add(state.add(futurePayload(somaticCallerFuture)));
+                    StructuralCallerOutput structuralCallerOutput = report.add(state.add(futurePayload(structuralCallerFuture)));
+                    AmberOutput amberOutput = report.add(state.add(futurePayload(amberOutputFuture)));
+                    CobaltOutput cobaltOutput = report.add(state.add(futurePayload(cobaltOutputFuture)));
+
                     if (state.shouldProceed()) {
-                        PurpleOutput purpleOutput = state.addStageOutput(purple.run(pair,
+                        PurpleOutput purpleOutput = report.add(state.add(purple.run(pair,
                                 somaticCallerOutput,
                                 structuralCallerOutput,
                                 cobaltOutput,
-                                amberOutput));
+                                amberOutput)));
                         if (state.shouldProceed()) {
-                            state.addStageOutput(healthChecker.run(pair,
+                            report.add(state.add(healthChecker.run(pair,
                                     metricsOutput,
                                     mateMetricsOutput,
                                     somaticCallerOutput,
                                     purpleOutput,
-                                    amberOutput));
+                                    amberOutput)));
                         }
                     }
                 }
             } else {
-                state.addStageOutput(futurePayload(bamMetricsFuture));
+                report.add(state.add(futurePayload(bamMetricsFuture)));
             }
-            state.addStageOutput(futurePayload(germlineCallerFuture));
+            report.add(state.add(futurePayload(germlineCallerFuture)));
         }
-        executorService.shutdown();
+        report.compose(patientMetadataApi.getMetadata().setName());
         return state;
     }
 
@@ -146,7 +162,8 @@ public class PatientReportPipeline {
             try {
                 GoogleCredentials credentials = CredentialProvider.from(arguments).get();
                 Storage storage = StorageProvider.from(arguments, credentials).get();
-                PipelineState state = new PatientReportPipeline(AlignerProvider.from(credentials, storage, arguments).get(),
+                PipelineState state = new PatientReportPipeline(PatientMetadataApiProvider.from(arguments).get(),
+                        AlignerProvider.from(credentials, storage, arguments).get(),
                         BamMetricsProvider.from(arguments, credentials, storage).get(),
                         GermlineCallerProvider.from(credentials, storage, arguments).get(),
                         SomaticCallerProvider.from(arguments, credentials, storage).get(),
@@ -157,6 +174,7 @@ public class PatientReportPipeline {
                         HealthCheckerProvider.from(arguments, credentials, storage).get(),
                         new AlignmentOutputStorage(storage, arguments, ResultsDirectory.defaultDirectory()),
                         new BamMetricsOutputStorage(storage, arguments, ResultsDirectory.defaultDirectory()),
+                        PatientReportProvider.from(storage, arguments).get(),
                         Executors.newCachedThreadPool()).run();
                 LOGGER.info("Patient report pipeline is complete with status [{}]. Stages run were [{}]", state.status(), state);
             } catch (Exception e) {

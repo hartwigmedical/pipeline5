@@ -39,7 +39,7 @@ public class SBPS3SampleSource implements SampleSource {
         String[] split = filename.split("/", 2);
         String bucket = split[0];
         String object = split[1];
-        LOGGER.info("Requesting content length from S3 for object [{}] in bucket [{}]", object, bucket);
+        LOGGER.info("Requesting content length of S3 for object [{}] in bucket [{}]", object, bucket);
         return s3.getObject(bucket, object).getObjectMetadata().getContentLength();
     }
 }

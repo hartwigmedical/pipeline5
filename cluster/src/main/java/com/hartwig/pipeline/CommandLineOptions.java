@@ -1,11 +1,16 @@
 package com.hartwig.pipeline;
 
-import org.apache.commons.cli.*;
+import java.util.Optional;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Optional;
 
 public class CommandLineOptions {
 
@@ -45,6 +50,7 @@ public class CommandLineOptions {
     private static final String RUN_TERTIARY_FLAG = "run_tertiary";
     private static final String TOOLS_BUCKET_FLAG = "tools_bucket";
     private static final String RESOURCE_BUCKET_FLAG = "resource_bucket";
+    private static final String PATIENT_REPORT_BUCKET_FLAG = "patient_report_bucket";
 
     private static Options options() {
         return new Options().addOption(profileFlag())
@@ -61,9 +67,9 @@ public class CommandLineOptions {
                         "Do not allocate half the cluster as preemtible VMs to save cost. "
                                 + "These VMs can be reclaimed at any time so using this option will make things more stable"))
                 .addOption(optionWithBooleanArg(DOWNLOAD_FLAG,
-                        "Do not download the final BAM from Google Storage. Will also leave the runtime bucket in place"))
+                        "Do not download the final BAM of Google Storage. Will also leave the runtime bucket in place"))
                 .addOption(optionWithBooleanArg(VERBOSE_CLOUD_SDK_FLAG,
-                        "Have stdout and stderr from Google tools like gsutil strem to the console"))
+                        "Have stdout and stderr of Google tools like gsutil strem to the console"))
                 .addOption(optionWithBooleanArg(UPLOAD_FLAG,
                         "Don't upload the sample to storage. "
                                 + "This should be used in combination with a run_id which points at an existing bucket"))
@@ -86,7 +92,12 @@ public class CommandLineOptions {
                 .addOption(optionWithBooleanArg(RUN_TERTIARY_FLAG, "Run tertiary analysis algorithms (amber, cobalt, purple)"))
                 .addOption(serviceAccountEmail())
                 .addOption(resourceBucket())
-                .addOption(toolsBucket());
+                .addOption(toolsBucket())
+                .addOption(patientReportBucket());
+    }
+
+    private static Option patientReportBucket() {
+        return optionWithArg(TOOLS_BUCKET_FLAG, "Bucket in which to persist the final patient report and accompanying data.");
     }
 
     private static Option toolsBucket() {
@@ -209,6 +220,7 @@ public class CommandLineOptions {
                     .serviceAccountEmail(commandLine.getOptionValue(SERVICE_ACCOUNT_EMAIL_FLAG, defaults.serviceAccountEmail()))
                     .resourceBucket(commandLine.getOptionValue(RESOURCE_BUCKET_FLAG, defaults.resourceBucket()))
                     .toolsBucket(commandLine.getOptionValue(TOOLS_BUCKET_FLAG, defaults.toolsBucket()))
+                    .patientReportBucket(commandLine.getOptionValue(PATIENT_REPORT_BUCKET_FLAG, defaults.patientReportBucket()))
                     .profile(defaults.profile())
                     .build();
         } catch (ParseException e) {

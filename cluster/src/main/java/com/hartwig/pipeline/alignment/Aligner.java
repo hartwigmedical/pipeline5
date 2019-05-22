@@ -54,8 +54,8 @@ public class Aligner {
 
     Aligner(final Arguments arguments, final Storage storage, final SampleSource sampleSource, final BamDownload bamDownload,
             final SampleUpload sampleUpload, final SparkExecutor dataproc, final JarUpload jarUpload,
-            final ClusterOptimizer clusterOptimizer, final GoogleCredentials credentials,
-            final ResultsDirectory resultsDirectory, final AlignmentOutputStorage alignmentOutputStorage) {
+            final ClusterOptimizer clusterOptimizer, final GoogleCredentials credentials, final ResultsDirectory resultsDirectory,
+            final AlignmentOutputStorage alignmentOutputStorage) {
         this.arguments = arguments;
         this.storage = storage;
         this.sampleSource = sampleSource;
@@ -73,16 +73,16 @@ public class Aligner {
 
         if (!arguments.runAligner()) {
             return alignmentOutputStorage.get(Sample.builder(arguments.sampleId()).build())
-                    .orElseThrow(() -> new IllegalArgumentException(
-                            format("Unable to find output for sample [%s]. Please run the aligner first by setting -run_aligner to true", arguments.sampleId())));
+                    .orElseThrow(() -> new IllegalArgumentException(format(
+                            "Unable to find output for sample [%s]. Please run the aligner first by setting -run_aligner to true",
+                            arguments.sampleId())));
         }
 
         SampleData sampleData = sampleSource.sample(arguments);
         Sample sample = sampleData.sample();
 
         RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, NAMESPACE, sampleData.sample().name(), arguments);
-        new Resource(storage, arguments.resourceBucket(), REFERENCE_GENOME, new ReferenceGenomeAlias()).copyInto(
-                runtimeBucket);
+        new Resource(storage, arguments.resourceBucket(), REFERENCE_GENOME, new ReferenceGenomeAlias()).copyInto(runtimeBucket);
         new Resource(storage, arguments.resourceBucket(), KNOWN_INDELS).copyInto(runtimeBucket);
         new Resource(storage, arguments.resourceBucket(), KNOWN_SNPS).copyInto(runtimeBucket);
         if (arguments.upload()) {
@@ -92,10 +92,7 @@ public class Aligner {
 
         runJob(Jobs.noStatusCheck(dataproc), SparkJobDefinition.gunzip(jarLocation, runtimeBucket), runtimeBucket);
         runJob(Jobs.statusCheckGoogleStorage(dataproc, resultsDirectory),
-                SparkJobDefinition.bamCreation(jarLocation,
-                        arguments,
-                        runtimeBucket,
-                        clusterOptimizer.optimize(sampleData)),
+                SparkJobDefinition.bamCreation(jarLocation, arguments, runtimeBucket, clusterOptimizer.optimize(sampleData)),
                 runtimeBucket);
 
         compose(sample, runtimeBucket);
@@ -107,10 +104,9 @@ public class Aligner {
                 SparkJobDefinition.sortAndIndex(jarLocation, arguments, runtimeBucket, sample, resultsDirectory),
                 runtimeBucket));
 
-        Future<?> sortIndexRecalibratedBamFuture =
-                executorService.submit(() -> runJob(Jobs.noStatusCheck(dataproc),
-                        SparkJobDefinition.sortAndIndexRecalibrated(jarLocation, arguments, runtimeBucket, sample, resultsDirectory),
-                        runtimeBucket));
+        Future<?> sortIndexRecalibratedBamFuture = executorService.submit(() -> runJob(Jobs.noStatusCheck(dataproc),
+                SparkJobDefinition.sortAndIndexRecalibrated(jarLocation, arguments, runtimeBucket, sample, resultsDirectory),
+                runtimeBucket));
 
         sortIndexBamFuture.get();
         sortIndexRecalibratedBamFuture.get();
@@ -121,7 +117,10 @@ public class Aligner {
         if (arguments.download()) {
             bamDownload.run(sample, runtimeBucket, JobStatus.SUCCESS);
         }
-        return alignmentOutput;
+        return AlignmentOutput.builder()
+                .from(alignmentOutput)
+                .addReportComponents(new DataprocLogComponent(sample, runtimeBucket))
+                .build();
     }
 
     private void compose(final Sample sample, final RuntimeBucket runtimeBucket) {
@@ -135,8 +134,7 @@ public class Aligner {
     private void runJob(SparkExecutor executor, SparkJobDefinition jobDefinition, RuntimeBucket runtimeBucket) {
         JobStatus result = executor.submit(runtimeBucket, jobDefinition);
         if (result.equals(JobStatus.FAILED)) {
-            throw new RuntimeException(format(
-                    "Job [%s] reported status failed. Check prior error messages or job logs on Google dataproc",
+            throw new RuntimeException(format("Job [%s] reported status failed. Check prior error messages or job logs on Google dataproc",
                     jobDefinition.name()));
         } else {
             LOGGER.info("Job [{}] completed successfully", jobDefinition.name());

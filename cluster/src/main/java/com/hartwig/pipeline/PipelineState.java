@@ -14,7 +14,7 @@ class PipelineState {
     private static final Logger LOGGER = LoggerFactory.getLogger(PipelineState.class);
     private final List<StageOutput> stageOutputs = Lists.newArrayList();
 
-    <T extends StageOutput> T addStageOutput(final T stageOutput) {
+    <T extends StageOutput> T add(final T stageOutput) {
         stageOutputs.add(stageOutput);
         return stageOutput;
     }

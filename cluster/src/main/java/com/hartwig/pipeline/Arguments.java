@@ -1,8 +1,8 @@
 package com.hartwig.pipeline;
 
-import org.immutables.value.Value;
-
 import java.util.Optional;
+
+import org.immutables.value.Value;
 
 @Value.Immutable
 public interface Arguments {
@@ -72,6 +72,8 @@ public interface Arguments {
 
     String toolsBucket();
 
+    String patientReportBucket();
+
     Optional<Integer> sbpApiSampleId();
 
     Optional<String> runId();
@@ -111,7 +113,11 @@ public interface Arguments {
                     .privateKeyPath(DEFAULT_PRODUCTION_KEY_PATH)
                     .serviceAccountEmail(DEFAULT_PRODUCTION_SERVICE_ACCOUNT_EMAIL)
                     .cloudSdkPath(DEFAULT_PRODUCTION_CLOUD_SDK_PATH)
-                    .forceJarUpload(false).cleanup(true).usePreemptibleVms(true).download(true).upload(true)
+                    .forceJarUpload(false)
+                    .cleanup(true)
+                    .usePreemptibleVms(true)
+                    .download(true)
+                    .upload(true)
                     .runBamMetrics(true)
                     .runAligner(true)
                     .runGermlineCaller(true)
@@ -119,8 +125,9 @@ public interface Arguments {
                     .runStructuralCaller(true)
                     .runTertiary(true)
                     .sampleId(EMPTY)
-                    .toolsBucket(DEFAULT_COMMON_TOOLS)
-                    .resourceBucket(DEFAULT_RESOURCE_BUCKET);
+                    .toolsBucket(DEFAULT_COMMON_TOOLS_BUCKET)
+                    .resourceBucket(DEFAULT_RESOURCE_BUCKET)
+                    .patientReportBucket(DEFAULT_PATIENT_REPORT_BUCKET);
         } else {
             return ImmutableArguments.builder()
                     .profile(profile)
@@ -133,7 +140,11 @@ public interface Arguments {
                     .privateKeyPath(DEFAULT_DEVELOPMENT_KEY_PATH)
                     .cloudSdkPath(DEFAULT_DEVELOPMENT_CLOUD_SDK_PATH)
                     .serviceAccountEmail(DEFAULT_DEVELOPMENT_SERVICE_ACCOUNT_EMAIL)
-                    .forceJarUpload(true).cleanup(false).usePreemptibleVms(true).download(false).upload(true)
+                    .forceJarUpload(true)
+                    .cleanup(false)
+                    .usePreemptibleVms(true)
+                    .download(false)
+                    .upload(true)
                     .runBamMetrics(true)
                     .runAligner(true)
                     .runGermlineCaller(true)
@@ -146,8 +157,9 @@ public interface Arguments {
                     .sbpS3Url(NOT_APPLICABLE)
                     .sbpApiUrl(NOT_APPLICABLE)
                     .sampleId(EMPTY)
-                    .toolsBucket(DEFAULT_COMMON_TOOLS)
-                    .resourceBucket(DEFAULT_RESOURCE_BUCKET);
+                    .toolsBucket(DEFAULT_COMMON_TOOLS_BUCKET)
+                    .resourceBucket(DEFAULT_RESOURCE_BUCKET)
+                    .patientReportBucket(DEFAULT_PATIENT_REPORT_BUCKET);
         }
     }
 
@@ -156,7 +168,8 @@ public interface Arguments {
     }
 
     String DEFAULT_RESOURCE_BUCKET = "common-resources";
-    String DEFAULT_COMMON_TOOLS = "common-tools";
+    String DEFAULT_COMMON_TOOLS_BUCKET = "common-tools";
+    String DEFAULT_PATIENT_REPORT_BUCKET = "p5-patient-reports";
 
     String DEFAULT_PRODUCTION_RCLONE_PATH = "/usr/bin";
     String DEFAULT_PRODUCTION_RCLONE_GCP_REMOTE = "gs";
@@ -171,8 +184,7 @@ public interface Arguments {
     String DEFAULT_PRODUCTION_JAR_LIB = "/usr/share/pipeline5";
     String DEFAULT_PRODUCTION_KEY_PATH = "/secrets/bootstrap-key.json";
     String DEFAULT_PRODUCTION_CLOUD_SDK_PATH = "/usr/lib/google-cloud-sdk/bin";
-    String DEFAULT_PRODUCTION_SERVICE_ACCOUNT_EMAIL = String.format("bootstrap@%s.iam.gserviceaccount.com",
-            DEFAULT_PRODUCTION_PROJECT);
+    String DEFAULT_PRODUCTION_SERVICE_ACCOUNT_EMAIL = String.format("bootstrap@%s.iam.gserviceaccount.com", DEFAULT_PRODUCTION_PROJECT);
 
     String NOT_APPLICABLE = "N/A";
     String DEFAULT_DEVELOPMENT_REGION = "europe-west4";
@@ -183,6 +195,5 @@ public interface Arguments {
     String DEFAULT_DEVELOPMENT_JAR_LIB = workingDir() + "/system/target";
     String DEFAULT_DEVELOPMENT_KEY_PATH = workingDir() + "/bootstrap-key.json";
     String DEFAULT_DEVELOPMENT_CLOUD_SDK_PATH = System.getProperty("user.home") + "/gcloud/google-cloud-sdk/bin";
-    String DEFAULT_DEVELOPMENT_SERVICE_ACCOUNT_EMAIL = String.format("bootstrap@%s.iam.gserviceaccount.com",
-            DEFAULT_DEVELOPMENT_PROJECT);
+    String DEFAULT_DEVELOPMENT_SERVICE_ACCOUNT_EMAIL = String.format("bootstrap@%s.iam.gserviceaccount.com", DEFAULT_DEVELOPMENT_PROJECT);
 }

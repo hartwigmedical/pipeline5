@@ -1,23 +1,30 @@
 package com.hartwig.pipeline.calling.germline;
 
+import static java.lang.String.format;
+
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.execution.JobStatus;
-import com.hartwig.pipeline.execution.vm.*;
+import com.hartwig.pipeline.execution.vm.BashStartupScript;
+import com.hartwig.pipeline.execution.vm.ComputeEngine;
+import com.hartwig.pipeline.execution.vm.InputDownload;
+import com.hartwig.pipeline.execution.vm.OutputUpload;
+import com.hartwig.pipeline.execution.vm.ResourceDownload;
+import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
+import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.resource.GATKDictAlias;
 import com.hartwig.pipeline.resource.ReferenceGenomeAlias;
 import com.hartwig.pipeline.resource.Resource;
 import com.hartwig.pipeline.resource.ResourceNames;
 
-import static java.lang.String.format;
-
 public class GermlineCaller {
 
-    static final String NAMESPACE = "germline_caller";
+    public static final String NAMESPACE = "germline_caller";
 
     private static final String OUTPUT_FILENAME = "germline_output.gvcf";
 
@@ -63,6 +70,8 @@ public class GermlineCaller {
 
         ImmutableGermlineCallerOutput.Builder outputBuilder = GermlineCallerOutput.builder();
         JobStatus status = executor.submit(bucket, VirtualMachineJobDefinition.germlineCalling(startupScript, resultsDirectory));
-        return outputBuilder.status(status).build();
+        return outputBuilder.status(status)
+                .addReportComponents(new RunLogComponent(bucket, GermlineCaller.NAMESPACE, alignmentOutput.sample().name(), resultsDirectory))
+                .build();
     }
 }

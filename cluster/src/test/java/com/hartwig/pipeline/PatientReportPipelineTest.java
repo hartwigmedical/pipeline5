@@ -1,7 +1,21 @@
 package com.hartwig.pipeline;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.Optional;
+import java.util.concurrent.Executors;
+
+import com.google.cloud.storage.Bucket;
+import com.google.cloud.storage.Storage;
 import com.hartwig.patient.Sample;
-import com.hartwig.pipeline.alignment.*;
+import com.hartwig.pipeline.alignment.Aligner;
+import com.hartwig.pipeline.alignment.AlignmentOutput;
+import com.hartwig.pipeline.alignment.AlignmentOutputStorage;
+import com.hartwig.pipeline.alignment.AlignmentPair;
+import com.hartwig.pipeline.alignment.ImmutableAlignmentOutput;
 import com.hartwig.pipeline.alignment.after.metrics.BamMetrics;
 import com.hartwig.pipeline.alignment.after.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.alignment.after.metrics.BamMetricsOutputStorage;
@@ -15,6 +29,11 @@ import com.hartwig.pipeline.calling.somatic.SomaticCallerOutput;
 import com.hartwig.pipeline.calling.structural.StructuralCaller;
 import com.hartwig.pipeline.calling.structural.StructuralCallerOutput;
 import com.hartwig.pipeline.execution.JobStatus;
+import com.hartwig.pipeline.metadata.PatientMetadata;
+import com.hartwig.pipeline.metadata.PatientMetadataApi;
+import com.hartwig.pipeline.report.PatientReport;
+import com.hartwig.pipeline.report.PatientReportProvider;
+import com.hartwig.pipeline.report.ReportComponent;
 import com.hartwig.pipeline.tertiary.amber.Amber;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
 import com.hartwig.pipeline.tertiary.cobalt.Cobalt;
@@ -26,16 +45,9 @@ import com.hartwig.pipeline.tertiary.purple.ImmutablePurpleOutput;
 import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.testsupport.TestSamples;
+
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.Optional;
-import java.util.concurrent.Executors;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class PatientReportPipelineTest {
 
@@ -69,6 +81,7 @@ public class PatientReportPipelineTest {
     private static final ImmutableAlignmentOutput MATE_ALIGNMENT_OUTPUT =
             AlignmentOutput.builder().status(JobStatus.SUCCESS).sample(TUMOR).build();
     private static final AlignmentPair ALIGNMENT_PAIR = AlignmentPair.of(SUCCESSFUL_ALIGNMENT_OUTPUT, MATE_ALIGNMENT_OUTPUT);
+    private PatientReport patientReport;
 
     @Before
     public void setUp() throws Exception {
@@ -83,7 +96,11 @@ public class PatientReportPipelineTest {
         healthChecker = mock(HealthChecker.class);
         alignmentOutputStorage = mock(AlignmentOutputStorage.class);
         bamMetricsOutputStorage = mock(BamMetricsOutputStorage.class);
-        victim = new PatientReportPipeline(aligner,
+        PatientMetadataApi patientMetadataApi = mock(PatientMetadataApi.class);
+        when(patientMetadataApi.getMetadata()).thenReturn(PatientMetadata.of("set"));
+        patientReport = PatientReportProvider.from(mock(Storage.class), Arguments.testDefaults()).get();
+        victim = new PatientReportPipeline(patientMetadataApi,
+                aligner,
                 bamMetrics,
                 germlineCaller,
                 somaticCaller,
@@ -94,6 +111,7 @@ public class PatientReportPipelineTest {
                 healthChecker,
                 alignmentOutputStorage,
                 bamMetricsOutputStorage,
+                patientReport,
                 Executors.newSingleThreadExecutor());
     }
 
@@ -138,7 +156,9 @@ public class PatientReportPipelineTest {
         when(bamMetricsOutputStorage.get(TUMOR)).thenReturn(MATE_BAM_METRICS);
         ImmutableSomaticCallerOutput somaticCallerOutput = SomaticCallerOutput.builder().status(JobStatus.FAILED).build();
         when(somaticCaller.run(ALIGNMENT_PAIR)).thenReturn(somaticCallerOutput);
-        when(structuralCaller.run(ALIGNMENT_PAIR, SUCCESSFUL_BAM_METRICS, MATE_BAM_METRICS)).thenReturn(SUCCESSFUL_STRUCTURAL_CALLER_OUTPUT);
+        when(structuralCaller.run(ALIGNMENT_PAIR,
+                SUCCESSFUL_BAM_METRICS,
+                MATE_BAM_METRICS)).thenReturn(SUCCESSFUL_STRUCTURAL_CALLER_OUTPUT);
         when(cobalt.run(ALIGNMENT_PAIR)).thenReturn(SUCCESSFUL_COBALT_OUTPUT);
         when(amber.run(ALIGNMENT_PAIR)).thenReturn(SUCCESSFUL_AMBER_OUTPUT);
         PipelineState state = victim.run();
@@ -160,7 +180,9 @@ public class PatientReportPipelineTest {
         when(alignmentOutputStorage.get(TUMOR)).thenReturn(Optional.of(MATE_ALIGNMENT_OUTPUT));
         when(bamMetricsOutputStorage.get(TUMOR)).thenReturn(MATE_BAM_METRICS);
         when(somaticCaller.run(ALIGNMENT_PAIR)).thenReturn(SUCCESSFUL_SOMATIC_CALLER_OUTPUT);
-        when(structuralCaller.run(ALIGNMENT_PAIR, SUCCESSFUL_BAM_METRICS, MATE_BAM_METRICS)).thenReturn(SUCCESSFUL_STRUCTURAL_CALLER_OUTPUT);
+        when(structuralCaller.run(ALIGNMENT_PAIR,
+                SUCCESSFUL_BAM_METRICS,
+                MATE_BAM_METRICS)).thenReturn(SUCCESSFUL_STRUCTURAL_CALLER_OUTPUT);
         when(cobalt.run(ALIGNMENT_PAIR)).thenReturn(SUCCESSFUL_COBALT_OUTPUT);
         when(amber.run(ALIGNMENT_PAIR)).thenReturn(SUCCESSFUL_AMBER_OUTPUT);
         ImmutablePurpleOutput purpleOutput = PurpleOutput.builder().status(JobStatus.FAILED).build();
@@ -188,7 +210,9 @@ public class PatientReportPipelineTest {
         when(germlineCaller.run(SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(SUCCESSFUL_GERMLINE_OUTPUT);
         when(alignmentOutputStorage.get(TUMOR)).thenReturn(Optional.of(MATE_ALIGNMENT_OUTPUT));
         when(somaticCaller.run(ALIGNMENT_PAIR)).thenReturn(SUCCESSFUL_SOMATIC_CALLER_OUTPUT);
-        when(structuralCaller.run(ALIGNMENT_PAIR, SUCCESSFUL_BAM_METRICS, MATE_BAM_METRICS)).thenReturn(SUCCESSFUL_STRUCTURAL_CALLER_OUTPUT);
+        when(structuralCaller.run(ALIGNMENT_PAIR,
+                SUCCESSFUL_BAM_METRICS,
+                MATE_BAM_METRICS)).thenReturn(SUCCESSFUL_STRUCTURAL_CALLER_OUTPUT);
         when(cobalt.run(ALIGNMENT_PAIR)).thenReturn(SUCCESSFUL_COBALT_OUTPUT);
         when(amber.run(ALIGNMENT_PAIR)).thenReturn(SUCCESSFUL_AMBER_OUTPUT);
         when(purple.run(ALIGNMENT_PAIR,
@@ -224,7 +248,9 @@ public class PatientReportPipelineTest {
         when(germlineCaller.run(SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(SUCCESSFUL_GERMLINE_OUTPUT);
         when(alignmentOutputStorage.get(TUMOR)).thenReturn(Optional.of(MATE_ALIGNMENT_OUTPUT));
         when(somaticCaller.run(ALIGNMENT_PAIR)).thenReturn(SUCCESSFUL_SOMATIC_CALLER_OUTPUT);
-        when(structuralCaller.run(ALIGNMENT_PAIR, SUCCESSFUL_BAM_METRICS, MATE_BAM_METRICS)).thenReturn(SUCCESSFUL_STRUCTURAL_CALLER_OUTPUT);
+        when(structuralCaller.run(ALIGNMENT_PAIR,
+                SUCCESSFUL_BAM_METRICS,
+                MATE_BAM_METRICS)).thenReturn(SUCCESSFUL_STRUCTURAL_CALLER_OUTPUT);
         when(cobalt.run(ALIGNMENT_PAIR)).thenReturn(SUCCESSFUL_COBALT_OUTPUT);
         when(amber.run(ALIGNMENT_PAIR)).thenReturn(SUCCESSFUL_AMBER_OUTPUT);
         when(purple.run(ALIGNMENT_PAIR,
@@ -264,11 +290,49 @@ public class PatientReportPipelineTest {
                 SUCCESSFUL_GERMLINE_OUTPUT);
     }
 
+    @Test
+    public void addsCompleteStagesToFinalPatientReport() throws Exception {
+
+        TestReportComponent alignerComponent = new TestReportComponent();
+        TestReportComponent metricsComponent = new TestReportComponent();
+        TestReportComponent germlineComponent = new TestReportComponent();
+
+        AlignmentOutput alignmentWithReportComponents =
+                AlignmentOutput.builder().from(SUCCESSFUL_ALIGNMENT_OUTPUT).addReportComponents(alignerComponent).build();
+        when(aligner.run()).thenReturn(alignmentWithReportComponents);
+        when(bamMetrics.run(alignmentWithReportComponents)).thenReturn(BamMetricsOutput.builder()
+                .from(alignmentWithReportComponents)
+                .addReportComponents(metricsComponent)
+                .build());
+        when(germlineCaller.run(alignmentWithReportComponents)).thenReturn(GermlineCallerOutput.builder()
+                .from(SUCCESSFUL_GERMLINE_OUTPUT)
+                .addReportComponents(germlineComponent)
+                .build());
+        victim.run();
+        assertThat(alignerComponent.isAdded()).isTrue();
+        assertThat(metricsComponent.isAdded()).isTrue();
+        assertThat(germlineComponent.isAdded()).isTrue();
+    }
+
     private void assertFailed(final PipelineState runOutput) throws Exception {
         assertThat(runOutput.status()).isEqualTo(JobStatus.FAILED);
     }
 
     private void assertSucceeded(final PipelineState runOutput) throws Exception {
         assertThat(runOutput.status()).isEqualTo(JobStatus.SUCCESS);
+    }
+
+    private class TestReportComponent implements ReportComponent {
+
+        private boolean isAdded;
+
+        @Override
+        public void addToReport(final Storage storage, final Bucket reportBucket, final String setName) {
+            isAdded = true;
+        }
+
+        boolean isAdded() {
+            return isAdded;
+        }
     }
 }

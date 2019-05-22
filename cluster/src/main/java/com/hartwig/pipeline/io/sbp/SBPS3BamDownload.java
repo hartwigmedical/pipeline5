@@ -10,9 +10,9 @@ import com.amazonaws.services.s3.transfer.TransferManagerBuilder;
 import com.amazonaws.services.s3.transfer.Upload;
 import com.google.cloud.storage.Blob;
 import com.hartwig.patient.Sample;
+import com.hartwig.pipeline.alignment.AlignmentOutputPaths;
 import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.io.BamDownload;
-import com.hartwig.pipeline.alignment.AlignmentOutputPaths;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
 
@@ -96,7 +96,7 @@ public class SBPS3BamDownload implements BamDownload {
         PutObjectRequest request = new PutObjectRequest(s3Bucket, s3Key, Channels.newInputStream(blob.reader()), metadata);
         request.getRequestClientOptions().setReadLimit(Integer.MAX_VALUE);
 
-        LOGGER.info("Downloading from [gs://{}/{}] and uploading it to SBP S3 at [s3://{}/{}]",
+        LOGGER.info("Downloading of [gs://{}/{}] and uploading it to SBP S3 at [s3://{}/{}]",
                 runtimeBucket.name(),
                 blob.getName(),
                 s3Bucket,

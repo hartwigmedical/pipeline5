@@ -17,7 +17,7 @@ public class ReferenceGenomeAlias implements Function<String, String> {
             return "fa";
         } else {
             throw new IllegalArgumentException(String.format("Can only alias reference fasta files with extensions fa or fasta. "
-                    + "Please remove [%s] from the reference genome bucket or rename appropriately", s));
+                    + "Please remove [%s] of the reference genome bucket or rename appropriately", s));
         }
     }
 

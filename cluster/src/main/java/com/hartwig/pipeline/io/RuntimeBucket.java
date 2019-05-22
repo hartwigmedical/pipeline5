@@ -1,16 +1,21 @@
 package com.hartwig.pipeline.io;
 
+import java.io.InputStream;
+import java.util.List;
+
 import com.google.api.gax.paging.Page;
-import com.google.cloud.storage.*;
+import com.google.cloud.storage.Blob;
+import com.google.cloud.storage.BlobInfo;
+import com.google.cloud.storage.Bucket;
+import com.google.cloud.storage.BucketInfo;
+import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.StorageClass;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.Run;
 
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.InputStream;
-import java.util.List;
 
 public class RuntimeBucket {
 
@@ -35,12 +40,11 @@ public class RuntimeBucket {
             final Run run) {
         Bucket bucket = storage.get(run.id());
         if (bucket == null) {
-            LOGGER.info("Creating runtime bucket [{}] in Google Storage", run.id());
+            LOGGER.debug("Creating runtime bucket [{}] in Google Storage", run.id());
             bucket = storage.create(BucketInfo.newBuilder(run.id())
                     .setStorageClass(StorageClass.REGIONAL)
                     .setLocation(arguments.region())
                     .build());
-            LOGGER.info("Creating runtime bucket complete");
         }
         return new RuntimeBucket(storage, bucket, namespace, run);
     }
@@ -77,6 +81,11 @@ public class RuntimeBucket {
     public void copyInto(String sourceBucket, String sourceBlobName, String targetBlobName) {
         BlobInfo targetBlobInfo = BlobInfo.newBuilder(bucket.getName(), namespace(targetBlobName)).build();
         storage.copy(Storage.CopyRequest.of(sourceBucket, sourceBlobName, targetBlobInfo));
+    }
+
+    public void copyOutOf(String sourceBlobName, String targetBucket, String targetBlob) {
+        BlobInfo targetBlobInfo = BlobInfo.newBuilder(targetBucket, targetBlob).build();
+        storage.copy(Storage.CopyRequest.of(bucket.getName(), namespace(sourceBlobName), targetBlobInfo));
     }
 
     void compose(List<String> sources, String target) {

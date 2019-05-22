@@ -38,7 +38,7 @@ public class Resource {
         if (staticDataBucket != null) {
             Page<Blob> blobs = staticDataBucket.list(Storage.BlobListOption.prefix(name));
             String fullyQualifiedSourceBucket = commonResourcesBucket + "/" + name;
-            LOGGER.debug("Copying static data from [{}] into [{}]", fullyQualifiedSourceBucket, runtimeBucket.name());
+            LOGGER.debug("Copying static data of [{}] into [{}]", fullyQualifiedSourceBucket, runtimeBucket.name());
             for (Blob source : blobs.iterateAll()) {
                 String aliased = alias.apply(source.getName());
                 String[] targetPath = aliased.split("/");

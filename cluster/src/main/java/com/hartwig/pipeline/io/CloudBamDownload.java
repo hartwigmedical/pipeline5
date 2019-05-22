@@ -31,7 +31,7 @@ public class CloudBamDownload implements BamDownload {
             String targetBam = targetResolver.apply(sample);
             cloudCopy.copy(bamPath, targetBam);
             cloudCopy.copy(bai(bamPath), bai(targetBam));
-            LOGGER.info("Downloaded BAM (and BAI) from {} to {}", bamPath, targetBam);
+            LOGGER.info("Downloaded BAM (and BAI) of {} to {}", bamPath, targetBam);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

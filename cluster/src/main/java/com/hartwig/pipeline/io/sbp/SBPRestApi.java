@@ -37,7 +37,7 @@ public class SBPRestApi {
 
     @NotNull
     private RuntimeException error(final Response response) {
-        return new RuntimeException(String.format("Received an error status defaultDirectory [%s] from SBP Api at [%s]",
+        return new RuntimeException(String.format("Received an error status defaultDirectory [%s] of SBP Api at [%s]",
                 response.getStatus(),
                 target.getUri()));
     }

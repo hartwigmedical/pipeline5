@@ -22,7 +22,7 @@ public class ResourceDownload implements BashCommand {
 
     @Override
     public String asBash() {
-        return String.format("gsutil -m cp gs://%s/* %s", resourceLocation.bucket(), RESOURCES_PATH);
+        return String.format("gsutil -qm cp gs://%s/* %s", resourceLocation.bucket(), RESOURCES_PATH);
     }
 
     List<String> getLocalPaths() {

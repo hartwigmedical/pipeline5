@@ -4,17 +4,24 @@ import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.execution.JobStatus;
-import com.hartwig.pipeline.execution.vm.*;
+import com.hartwig.pipeline.execution.vm.BashStartupScript;
+import com.hartwig.pipeline.execution.vm.ComputeEngine;
+import com.hartwig.pipeline.execution.vm.InputDownload;
+import com.hartwig.pipeline.execution.vm.OutputUpload;
+import com.hartwig.pipeline.execution.vm.ResourceDownload;
+import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
+import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.resource.GATKDictAlias;
 import com.hartwig.pipeline.resource.ReferenceGenomeAlias;
 import com.hartwig.pipeline.resource.Resource;
 import com.hartwig.pipeline.resource.ResourceNames;
 
 public class BamMetrics {
-    static final String NAMESPACE = "bam_metrics";
+    public static final String NAMESPACE = "bam_metrics";
     private final Arguments arguments;
     private final ComputeEngine executor;
     private final Storage storage;
@@ -34,7 +41,9 @@ public class BamMetrics {
         }
 
         RuntimeBucket bucket = RuntimeBucket.from(storage, NAMESPACE, alignmentOutput.sample().name(), arguments);
-        Resource referenceGenome = new Resource(storage, arguments.resourceBucket(), ResourceNames.REFERENCE_GENOME,
+        Resource referenceGenome = new Resource(storage,
+                arguments.resourceBucket(),
+                ResourceNames.REFERENCE_GENOME,
                 new ReferenceGenomeAlias().andThen(new GATKDictAlias()));
         ResourceDownload genomeDownload = new ResourceDownload(referenceGenome.copyInto(bucket));
         InputDownload bam = new InputDownload(alignmentOutput.finalBamLocation());
@@ -54,6 +63,7 @@ public class BamMetrics {
         return BamMetricsOutput.builder()
                 .status(status)
                 .maybeMetricsOutputFile(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(outputFile)))
+                .addReportComponents(new RunLogComponent(bucket, BamMetrics.NAMESPACE, alignmentOutput.sample().name(), resultsDirectory))
                 .build();
     }
 }
