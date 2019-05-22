@@ -27,7 +27,7 @@ public class Preprocess {
     public PreprocessResult initialise(String inputBam, String sampleName, String referenceGenome, String insertSizeMetrics, String outputSvBam) {
         CollectGridssMetricsAndExtractSvReads collector = factory.buildCollectGridssMetricsAndExtractSvReads(inputBam, insertSizeMetrics, sampleName);
         ComputeSamTags computeSamTags = factory.buildComputeSamTags(collector.resultantBam(), referenceGenome, sampleName);
-        SoftClipsToSplitReads.ForPreprocess softClips = factory.buildSoftClipsToSplitReadsForPreProcess(computeSamTags.resultantBam(), outputSvBam, referenceGenome);
+        SoftClipsToSplitReads.ForPreprocess softClips = factory.buildSoftClipsToSplitReadsForPreProcess(computeSamTags.resultantBam(), referenceGenome, outputSvBam);
 
         return ImmutablePreprocessResult.builder().svBam(outputSvBam)
                 .metrics(collector.resultantMetrics())

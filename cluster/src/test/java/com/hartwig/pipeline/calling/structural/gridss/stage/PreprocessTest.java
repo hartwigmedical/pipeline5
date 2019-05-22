@@ -63,7 +63,7 @@ public class PreprocessTest implements CommonEntities {
 
     @Test
     public void shouldRequestSoftClipsToSplitReadsFromFactoryPassingBamFromPreviousCommand() {
-        verify(factory).buildSoftClipsToSplitReadsForPreProcess(computeSamTagsBam, OUTPUT_BAM, REFERENCE_GENOME);
+        verify(factory).buildSoftClipsToSplitReadsForPreProcess(computeSamTagsBam, REFERENCE_GENOME, OUTPUT_BAM);
     }
 
     @Test
