@@ -22,8 +22,6 @@ public class TestInputs {
                 .status(JobStatus.SUCCESS)
                 .maybeFinalBamLocation(gsLocation(bucket, RESULTS + sample + ".bam"))
                 .maybeFinalBaiLocation(gsLocation(bucket, RESULTS + sample + ".bam.bai"))
-                .maybeRecalibratedBamLocation(gsLocation(bucket, RESULTS + sample + ".recalibrated.bam"))
-                .maybeRecalibratedBaiLocation(gsLocation(bucket, RESULTS + sample + ".recalibrated.bam.bai"))
                 .sample(Sample.builder("", sample).type(type).build())
                 .build();
     }

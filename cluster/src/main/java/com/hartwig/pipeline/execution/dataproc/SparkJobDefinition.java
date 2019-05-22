@@ -1,17 +1,16 @@
 package com.hartwig.pipeline.execution.dataproc;
 
+import java.util.List;
+import java.util.Map;
+
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.BamCreationPipeline;
 import com.hartwig.pipeline.execution.JobDefinition;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
 
 import org.immutables.value.Value;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.List;
-import java.util.Map;
 
 @Value.Immutable
 public interface SparkJobDefinition extends JobDefinition<DataprocPerformanceProfile> {
@@ -51,23 +50,6 @@ public interface SparkJobDefinition extends JobDefinition<DataprocPerformancePro
                         runtimeBucket.name(),
                         arguments.project(),
                         sample.name(),
-                        resultsPath(runtimeBucket, resultsDirectory))
-                .sparkProperties(SparkProperties.asMap(performanceProfile))
-                .performanceProfile(performanceProfile)
-                .build();
-    }
-
-    static SparkJobDefinition sortAndIndexRecalibrated(JarLocation jarLocation, Arguments arguments, RuntimeBucket runtimeBucket,
-            Sample sample, ResultsDirectory resultsDirectory) {
-        DataprocPerformanceProfile performanceProfile = DataprocPerformanceProfile.singleNode();
-        return ImmutableSparkJobDefinition.builder()
-                .name("RecalibratedSortAndIndex")
-                .mainClass(SORT_INDEX_MAIN)
-                .jarLocation(jarLocation.uri())
-                .addArguments(arguments.version(),
-                        runtimeBucket.name(),
-                        arguments.project(),
-                        sample.name() + "." + BamCreationPipeline.RECALIBRATED_SUFFIX,
                         resultsPath(runtimeBucket, resultsDirectory))
                 .sparkProperties(SparkProperties.asMap(performanceProfile))
                 .performanceProfile(performanceProfile)

@@ -1,5 +1,11 @@
 package com.hartwig.pipeline.alignment;
 
+import static com.hartwig.pipeline.io.GoogleStorageLocation.of;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
@@ -8,13 +14,9 @@ import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.testsupport.TestSamples;
+
 import org.junit.Before;
 import org.junit.Test;
-
-import static com.hartwig.pipeline.io.GoogleStorageLocation.of;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class AlignmentOutputStorageTest {
 
@@ -23,14 +25,10 @@ public class AlignmentOutputStorageTest {
     private static final String NAMESPACED_BUCKET_NAME = BUCKET_NAME + "/aligner";
     private static final String SORTED_PATH = RESULTS_DIRECTORY.path("sample.sorted.bam");
     private static final String SORTED_BAI_PATH = RESULTS_DIRECTORY.path("sample.sorted.bam.bai");
-    private static final String RECALIBRATED_PATH = RESULTS_DIRECTORY.path("sample.recalibrated.sorted.bam");
-    private static final String RECALIBRATED_BAI_PATH = RESULTS_DIRECTORY.path("sample.recalibrated.sorted.bam.bai");
-    private static final AlignmentOutput EXPECTED_OUTPUT = AlignmentOutput.builder()
+     private static final AlignmentOutput EXPECTED_OUTPUT = AlignmentOutput.builder()
             .status(JobStatus.SUCCESS)
             .maybeFinalBamLocation(GoogleStorageLocation.of(NAMESPACED_BUCKET_NAME, SORTED_PATH))
             .maybeFinalBaiLocation(of(NAMESPACED_BUCKET_NAME, SORTED_BAI_PATH))
-            .maybeRecalibratedBamLocation(of(NAMESPACED_BUCKET_NAME, RECALIBRATED_PATH))
-            .maybeRecalibratedBaiLocation(of(NAMESPACED_BUCKET_NAME, RECALIBRATED_BAI_PATH))
             .sample(TestSamples.simpleReferenceSample())
             .build();
     private AlignmentOutputStorage victim;
@@ -49,8 +47,6 @@ public class AlignmentOutputStorageTest {
     public void returnsDatalocationsForExistingSample() {
         mockBlob(SORTED_PATH);
         mockBlob(SORTED_BAI_PATH);
-        mockBlob(RECALIBRATED_PATH);
-        mockBlob(RECALIBRATED_BAI_PATH);
         assertThat(victim.get(TestSamples.simpleReferenceSample())).hasValue(EXPECTED_OUTPUT);
     }
 
@@ -58,12 +54,6 @@ public class AlignmentOutputStorageTest {
     public void returnsEmptyIfNoMetricsInBucket() {
         mockBlob(SORTED_PATH);
         assertThat(victim.get(TestSamples.simpleReferenceSample())).isEmpty();
-    }
-
-    @Test(expected = IllegalStateException.class)
-    public void throwsIllegalStateWhenMetricsExistButNoBams() {
-        mockBlob(RECALIBRATED_PATH);
-        victim.get(TestSamples.simpleReferenceSample());
     }
 
     private void mockBlob(final String blobPath) {

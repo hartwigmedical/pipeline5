@@ -4,8 +4,6 @@ import com.hartwig.patient.Patient;
 import com.hartwig.patient.input.PatientReader;
 import com.hartwig.pipeline.GunZip;
 import com.hartwig.pipeline.runtime.configuration.Configuration;
-import com.hartwig.pipeline.runtime.configuration.KnownIndelParameters;
-import com.hartwig.pipeline.runtime.configuration.KnownSnpParameters;
 import com.hartwig.pipeline.runtime.configuration.PatientParameters;
 import com.hartwig.pipeline.runtime.configuration.PipelineParameters;
 import com.hartwig.pipeline.runtime.configuration.ReferenceGenomeParameters;
@@ -51,8 +49,6 @@ public class GoogleCloudGunzip {
         Configuration configuration = Configuration.builder()
                 .pipeline(PipelineParameters.builder().hdfs("gs:///").build())
                 .referenceGenome(ReferenceGenomeParameters.builder().file("N/A").build())
-                .knownIndel(KnownIndelParameters.builder().addFiles("N/A").build())
-                .knownSnp(KnownSnpParameters.builder().addFiles("N/A").build())
                 .patient(PatientParameters.builder().directory(namespace + "/samples").name("").build())
                 .build();
         new GoogleCloudGunzip(configuration).execute();

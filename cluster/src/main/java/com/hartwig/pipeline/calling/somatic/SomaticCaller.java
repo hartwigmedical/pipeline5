@@ -74,10 +74,10 @@ public class SomaticCaller {
                 .addCommand(knownSnpsResourceDownload)
                 .addCommand(cosmicResourceDownload);
 
-        InputDownload tumorBam = new InputDownload(pair.tumor().recalibratedBamLocation());
-        InputDownload tumorBai = new InputDownload(pair.tumor().recalibratedBaiLocation());
-        InputDownload referenceBam = new InputDownload(pair.reference().recalibratedBamLocation());
-        InputDownload referenceBai = new InputDownload(pair.reference().recalibratedBaiLocation());
+        InputDownload tumorBam = new InputDownload(pair.tumor().finalBamLocation());
+        InputDownload tumorBai = new InputDownload(pair.tumor().finalBaiLocation());
+        InputDownload referenceBam = new InputDownload(pair.reference().finalBamLocation());
+        InputDownload referenceBai = new InputDownload(pair.reference().finalBaiLocation());
         bash.addCommand(tumorBam).addCommand(referenceBam).addCommand(tumorBai).addCommand(referenceBai);
 
         String tumorBamPath = tumorBam.getLocalTargetPath();

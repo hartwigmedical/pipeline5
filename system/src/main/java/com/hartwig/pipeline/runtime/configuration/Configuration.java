@@ -20,10 +20,6 @@ public interface Configuration {
 
     ReferenceGenomeParameters referenceGenome();
 
-    KnownIndelParameters knownIndel();
-
-    KnownSnpParameters knownSnp();
-
     Map<String, String> spark();
 
     static ImmutableConfiguration.Builder builder() {

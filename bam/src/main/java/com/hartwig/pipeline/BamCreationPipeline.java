@@ -25,15 +25,9 @@ public abstract class BamCreationPipeline {
         StatusReporter.Status status = StatusReporter.Status.SUCCESS;
         try {
             InputOutput<AlignmentRecordDataset> aligned = executeAndCache(InputOutput.seed(sample), alignment());
-            QCResult qcResult = qc(finalQC(), aligned, "alignment (bwa mem)");
+            QCResult qcResult = qc(finalQC(), aligned);
             if (qcResult.isOk()) {
-                InputOutput<AlignmentRecordDataset> duplicatesMarked = executeAndCache(aligned, markDuplicates());
-                InputOutput<AlignmentRecordDataset> recalibrated = executeAndCache(duplicatesMarked, recalibration());
-                qcResult = qc(finalQC(), recalibrated, "recalibration");
-                if (qcResult.isOk()) {
-                    finalBamStore().store(duplicatesMarked);
-                    finalBamStore().store(recalibrated, RECALIBRATED_SUFFIX);
-                }
+                finalBamStore().store(executeAndCache(aligned, markDuplicates()));
             }
             if (!qcResult.isOk()) {
                 status = StatusReporter.Status.FAILED_FINAL_QC;
@@ -57,11 +51,10 @@ public abstract class BamCreationPipeline {
         return result;
     }
 
-    private QCResult qc(final QualityControl<AlignmentRecordDataset> qcCheck, final InputOutput<AlignmentRecordDataset> toQC,
-            final String stageName) {
+    private QCResult qc(final QualityControl<AlignmentRecordDataset> qcCheck, final InputOutput<AlignmentRecordDataset> toQC) {
         QCResult qcResult = qcCheck.check(toQC);
         if (!qcResult.isOk()) {
-            LOGGER.error("QC failed for [{}] stage with reason [{}]", stageName, qcResult.message());
+            LOGGER.error("QC failed for [{}] stage with reason [{}]", "alignment (bwa mem)", qcResult.message());
         }
         return qcResult;
     }
@@ -71,8 +64,6 @@ public abstract class BamCreationPipeline {
     protected abstract AlignmentStage alignment();
 
     protected abstract Stage<AlignmentRecordDataset, AlignmentRecordDataset> markDuplicates();
-
-    protected abstract Stage<AlignmentRecordDataset, AlignmentRecordDataset> recalibration();
 
     protected abstract OutputStore<AlignmentRecordDataset> finalBamStore();
 

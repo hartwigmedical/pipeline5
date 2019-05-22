@@ -35,8 +35,6 @@ public class PipelineRuntime {
             BamCreationPipeline adamPipeline = Pipelines.bamCreationConsolidated(adamContext,
                     fileSystem, configuration.pipeline().resultsDirectory(),
                     configuration.referenceGenome().path(),
-                    configuration.knownIndel().paths(),
-                    configuration.knownSnp().paths(),
                     configuration.pipeline().bwa().threads(), configuration.pipeline().saveResultsAsSingleFile());
             adamPipeline.execute(PatientReader.fromHDFS(fileSystem, configuration.patient().directory(), configuration.patient().name())
                     .reference());

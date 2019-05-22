@@ -3,7 +3,6 @@ package com.hartwig.pipeline.alignment;
 import java.util.Optional;
 
 import com.google.cloud.storage.Blob;
-import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.Arguments;
@@ -35,24 +34,15 @@ public class AlignmentOutputStorage {
         String sorted = AlignmentOutputPaths.sorted(sample);
         Blob bamBlob = bucket.get(resultsDirectory.path(sorted));
         Blob baiBlob = bucket.get(resultsDirectory.path(AlignmentOutputPaths.bai(sorted)));
-        String recalibrated = AlignmentOutputPaths.recalibrated(sample);
-        Blob recalibratedBamBlob = bucket.get(resultsDirectory.path(recalibrated));
-        Blob recalibratedBaiBlob = bucket.get(resultsDirectory.path(AlignmentOutputPaths.bai(recalibrated)));
-        if (recalibratedBamBlob != null) {
-            if (bamBlob == null) {
-                throw new IllegalStateException(String.format("Recalibrated bam in bucket [%s] but the sorted bam was missing. "
-                        + "This output is corrupted and cannot be used for downstream processing", bucket));
-            }
+        if (bamBlob != null && baiBlob != null) {
             return Optional.of(AlignmentOutput.builder()
                     .status(JobStatus.SUCCESS)
                     .maybeFinalBamLocation(location(bucket, bamBlob))
                     .maybeFinalBaiLocation(location(bucket, baiBlob))
-                    .maybeRecalibratedBamLocation(location(bucket, recalibratedBamBlob))
-                    .maybeRecalibratedBaiLocation(location(bucket, recalibratedBaiBlob))
                     .sample(sample)
                     .build());
         } else {
-            LOGGER.info("No recalibrated BAM found in bucket [{}]. Alignment stage is likely not yet complete.", bucket);
+            LOGGER.info("No BAM found in bucket [{}]. Alignment stage is likely not yet complete.", bucket);
         }
 
         return Optional.empty();

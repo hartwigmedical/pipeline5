@@ -18,7 +18,6 @@ public class BamCreationPipelineTest {
     private static final InputOutput<AlignmentRecordDataset> ALIGNED_BAM = InputOutput.of(SAMPLE, mock(AlignmentRecordDataset.class));
     private static final InputOutput<AlignmentRecordDataset> ENRICHED_BAM = InputOutput.of(SAMPLE, mock(AlignmentRecordDataset.class));
     private static final InputOutput<AlignmentRecordDataset> FINAL_BAM = InputOutput.of(SAMPLE, mock(AlignmentRecordDataset.class));
-    private static final InputOutput<AlignmentRecordDataset> RECALIBRATED_BAM = InputOutput.of(SAMPLE, mock(AlignmentRecordDataset.class));
     private InputOutput<AlignmentRecordDataset> lastStored;
     private InputOutput<AlignmentRecordDataset> lastStoredWithSuffix;
     private String lastSuffix;
@@ -39,20 +38,11 @@ public class BamCreationPipelineTest {
         assertThat(lastStatus).isEqualTo(StatusReporter.Status.FAILED_FINAL_QC);
     }
 
-    @Test
-    public void storedRecalibratedBamSeparately() {
-        BamCreationPipeline victim = createPipeline(QCResult.ok());
-        victim.execute(SAMPLE);
-        assertThat(lastStoredWithSuffix).isEqualTo(RECALIBRATED_BAM);
-        assertThat(lastSuffix).isEqualTo("recalibrated");
-    }
-
     @NotNull
     private ImmutableBamCreationPipeline createPipeline(QCResult finalQC) {
         return BamCreationPipeline.builder()
                 .alignment(input -> ALIGNED_BAM)
                 .markDuplicates(markDups())
-                .recalibration(bqsr())
                 .finalBamStore(finalStore())
                 .finalDatasource(sample -> FINAL_BAM)
                 .finalQC(toQC -> finalQC)
@@ -89,10 +79,5 @@ public class BamCreationPipelineTest {
     @NotNull
     private Stage<AlignmentRecordDataset, AlignmentRecordDataset> markDups() {
         return input -> ENRICHED_BAM;
-    }
-
-    @NotNull
-    private Stage<AlignmentRecordDataset, AlignmentRecordDataset> bqsr() {
-        return input -> RECALIBRATED_BAM;
     }
 }

@@ -33,9 +33,4 @@ public class AssertionChain {
     public void isEqualToExpected() {
         assertions.forEach(BAMFileAssertion::isEqualToExpected);
     }
-
-    public AssertionChain recalibrated() {
-        assertions.add(new BaseQualityRecalibratedAssertion(workingDirectory, sample));
-        return this;
-    }
 }

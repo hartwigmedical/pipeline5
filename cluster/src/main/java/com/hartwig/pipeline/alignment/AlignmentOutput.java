@@ -5,11 +5,9 @@ import java.util.function.Supplier;
 
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.StageOutput;
-import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 
 import org.immutables.value.Value;
-import org.jetbrains.annotations.NotNull;
 
 @Value.Immutable
 public interface AlignmentOutput extends StageOutput {
@@ -24,24 +22,12 @@ public interface AlignmentOutput extends StageOutput {
 
     Optional<GoogleStorageLocation> maybeFinalBaiLocation();
 
-    Optional<GoogleStorageLocation> maybeRecalibratedBamLocation();
-
-    Optional<GoogleStorageLocation> maybeRecalibratedBaiLocation();
-
     default GoogleStorageLocation finalBamLocation() {
         return maybeFinalBamLocation().orElseThrow(noBamAvailable());
     }
 
     default GoogleStorageLocation finalBaiLocation() {
         return maybeFinalBaiLocation().orElseThrow(noBaiAvailable());
-    }
-
-    default GoogleStorageLocation recalibratedBamLocation() {
-        return maybeRecalibratedBamLocation().orElseThrow(noBamAvailable());
-    }
-
-    default GoogleStorageLocation recalibratedBaiLocation() {
-        return maybeRecalibratedBaiLocation().orElseThrow(noBaiAvailable());
     }
 
     static Supplier<IllegalStateException> noBamAvailable() {

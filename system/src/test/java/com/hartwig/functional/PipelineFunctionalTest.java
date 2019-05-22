@@ -4,8 +4,6 @@ import static com.hartwig.testsupport.Assertions.assertThatOutput;
 import static com.hartwig.testsupport.TestConfigurations.HUNDREDK_READS_HISEQ;
 import static com.hartwig.testsupport.TestConfigurations.HUNDREDK_READS_HISEQ_PATIENT_NAME;
 
-import java.util.Collections;
-
 import com.hartwig.patient.Sample;
 import com.hartwig.patient.input.PatientReader;
 import com.hartwig.pipeline.adam.Pipelines;
@@ -47,13 +45,13 @@ public class PipelineFunctionalTest {
     public void adamBamCreationMatchesCurrentPipelineOutput() throws Exception {
         FileSystem fileSystem = Hadoop.localFilesystem();
         Pipelines.bamCreationConsolidated(new ADAMContext(SPARK_CONTEXT.sc()),
-                fileSystem, RESULT_DIR,
+                fileSystem,
+                RESULT_DIR,
                 HUNDREDK_READS_HISEQ.referenceGenome().path(),
-                Collections.emptyList(),
-                HUNDREDK_READS_HISEQ.knownSnp().paths(),
-                1, true)
+                1,
+                true)
                 .execute(PatientReader.fromHDFS(fileSystem, HUNDREDK_READS_HISEQ.patient().directory(), HUNDREDK_READS_HISEQ_PATIENT_NAME)
                         .reference());
-        assertThatOutput(RESULT_DIR, REFERENCE_SAMPLE).aligned().duplicatesMarked().recalibrated().isEqualToExpected();
+        assertThatOutput(RESULT_DIR, REFERENCE_SAMPLE).aligned().duplicatesMarked().isEqualToExpected();
     }
 }

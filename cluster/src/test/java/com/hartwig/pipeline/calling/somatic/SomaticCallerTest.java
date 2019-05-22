@@ -1,12 +1,18 @@
 package com.hartwig.pipeline.calling.somatic;
 
-import static com.hartwig.pipeline.resource.ResourceNames.*;
+import static com.hartwig.pipeline.resource.ResourceNames.BEDS;
+import static com.hartwig.pipeline.resource.ResourceNames.COSMIC;
+import static com.hartwig.pipeline.resource.ResourceNames.KNOWN_SNPS;
+import static com.hartwig.pipeline.resource.ResourceNames.MAPPABILITY;
+import static com.hartwig.pipeline.resource.ResourceNames.PON;
+import static com.hartwig.pipeline.resource.ResourceNames.REFERENCE_GENOME;
+import static com.hartwig.pipeline.resource.ResourceNames.SAGE;
+import static com.hartwig.pipeline.resource.ResourceNames.SNPEFF;
+import static com.hartwig.pipeline.resource.ResourceNames.STRELKA_CONFIG;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.cloud.storage.Bucket;
@@ -18,7 +24,6 @@ import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
-import com.hartwig.pipeline.resource.ResourceNames;
 import com.hartwig.pipeline.testsupport.MockResource;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
@@ -77,10 +82,10 @@ public class SomaticCallerTest {
         when(computeEngine.submit(any(), jobDefinition.capture())).thenReturn(JobStatus.SUCCESS);
         victim.run(TestInputs.defaultPair());
         assertThat(jobDefinition.getValue().startupCommand().asUnixString()).contains(
-                "gsutil -qm cp gs://run-tumor/aligner/results/tumor.recalibrated.bam /data/input/tumor.recalibrated.bam",
-                "gsutil -qm cp gs://run-reference/aligner/results/reference.recalibrated.bam /data/input/reference.recalibrated.bam",
-                "gsutil -qm cp gs://run-tumor/aligner/results/tumor.recalibrated.bam.bai /data/input/tumor.recalibrated.bam.bai",
-                "gsutil -qm cp gs://run-reference/aligner/results/reference.recalibrated.bam.bai /data/input/reference.recalibrated.bam.bai");
+                "gsutil -qm cp gs://run-tumor/aligner/results/tumor.bam /data/input/tumor.bam",
+                "gsutil -qm cp gs://run-reference/aligner/results/reference.bam /data/input/reference.bam",
+                "gsutil -qm cp gs://run-tumor/aligner/results/tumor.bam.bai /data/input/tumor.bam.bai",
+                "gsutil -qm cp gs://run-reference/aligner/results/reference.bam.bai /data/input/reference.bam.bai");
     }
 
     @Test

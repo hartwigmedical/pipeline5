@@ -2,19 +2,12 @@ package com.hartwig.pipeline.alignment;
 
 import static java.lang.String.format;
 
-import static com.hartwig.pipeline.resource.ResourceNames.KNOWN_INDELS;
-import static com.hartwig.pipeline.resource.ResourceNames.KNOWN_SNPS;
 import static com.hartwig.pipeline.resource.ResourceNames.REFERENCE_GENOME;
-
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Storage;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.BamCreationPipeline;
 import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.execution.dataproc.ClusterOptimizer;
 import com.hartwig.pipeline.execution.dataproc.JarLocation;
@@ -83,8 +76,6 @@ public class Aligner {
 
         RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, NAMESPACE, sampleData.sample().name(), arguments);
         new Resource(storage, arguments.resourceBucket(), REFERENCE_GENOME, new ReferenceGenomeAlias()).copyInto(runtimeBucket);
-        new Resource(storage, arguments.resourceBucket(), KNOWN_INDELS).copyInto(runtimeBucket);
-        new Resource(storage, arguments.resourceBucket(), KNOWN_SNPS).copyInto(runtimeBucket);
         if (arguments.upload()) {
             sampleUpload.run(sample, runtimeBucket);
         }
@@ -96,20 +87,10 @@ public class Aligner {
                 runtimeBucket);
 
         compose(sample, runtimeBucket);
-        compose(sample, runtimeBucket, BamCreationPipeline.RECALIBRATED_SUFFIX);
 
-        ExecutorService executorService = Executors.newFixedThreadPool(2);
-
-        Future<?> sortIndexBamFuture = executorService.submit(() -> runJob(Jobs.noStatusCheck(dataproc),
+        runJob(Jobs.noStatusCheck(dataproc),
                 SparkJobDefinition.sortAndIndex(jarLocation, arguments, runtimeBucket, sample, resultsDirectory),
-                runtimeBucket));
-
-        Future<?> sortIndexRecalibratedBamFuture = executorService.submit(() -> runJob(Jobs.noStatusCheck(dataproc),
-                SparkJobDefinition.sortAndIndexRecalibrated(jarLocation, arguments, runtimeBucket, sample, resultsDirectory),
-                runtimeBucket));
-
-        sortIndexBamFuture.get();
-        sortIndexRecalibratedBamFuture.get();
+                runtimeBucket);
 
         AlignmentOutput alignmentOutput =
                 alignmentOutputStorage.get(sample).orElseThrow(() -> new RuntimeException("No results found in Google Storage for sample"));
@@ -117,10 +98,7 @@ public class Aligner {
         if (arguments.download()) {
             bamDownload.run(sample, runtimeBucket, JobStatus.SUCCESS);
         }
-        return AlignmentOutput.builder()
-                .from(alignmentOutput)
-                .addReportComponents(new DataprocLogComponent(sample, runtimeBucket))
-                .build();
+        return AlignmentOutput.builder().from(alignmentOutput).addReportComponents(new DataprocLogComponent(sample, runtimeBucket)).build();
     }
 
     private void compose(final Sample sample, final RuntimeBucket runtimeBucket) {
