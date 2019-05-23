@@ -16,7 +16,6 @@ import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.resource.ResourceNames;
-import com.hartwig.pipeline.tertiary.amber.Amber;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
 import com.hartwig.pipeline.tertiary.cobalt.CobaltOutput;
 import com.hartwig.pipeline.testsupport.MockResource;
@@ -79,7 +78,8 @@ public class PurpleTest {
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains("java -Xmx8G -jar "
                 + "/data/tools/purple/2.25/purple.jar -reference reference -tumor tumor -output_dir /data/output -amber /data/input -cobalt "
                 + "/data/input -gc_profile /data/resources/gc_profile.cnp -somatic_vcf /data/input/somatic.vcf -structural_vcf "
-                + "/data/input/structural.vcf -sv_recovery_vcf /data/input/sv_recovery.vcf -circos /data/tools/ -threads 16");
+                + "/data/input/structural.vcf -sv_recovery_vcf /data/input/sv_recovery.vcf -circos /data/tools/circos/0.69.6/bin/circos "
+                + "-threads 16");
     }
 
     @Test
@@ -111,7 +111,9 @@ public class PurpleTest {
                 StructuralCallerOutput.builder()
                         .status(JobStatus.SUCCESS)
                         .maybeStructuralVcf(GoogleStorageLocation.of(RUNTIME_BUCKET, "structural.vcf"))
+                        .maybeStructuralVcfIndex(GoogleStorageLocation.of(RUNTIME_BUCKET, "structural.vcf.tbi"))
                         .maybeSvRecoveryVcf(GoogleStorageLocation.of(RUNTIME_BUCKET, "sv_recovery.vcf"))
+                        .maybeSvRecoveryVcfIndex(GoogleStorageLocation.of(RUNTIME_BUCKET, "sv_recovery.vcf.tbi"))
                         .build(),
                 CobaltOutput.builder()
                         .status(JobStatus.SUCCESS)
