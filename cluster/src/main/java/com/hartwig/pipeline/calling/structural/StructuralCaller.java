@@ -124,8 +124,10 @@ public class StructuralCaller {
 
         return StructuralCallerOutput.builder()
                 .status(status)
-                .maybeStructuralVcf(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path()))
-                .maybeSvRecoveryVcf(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path()))
+                .maybeStructuralVcf(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path("annotated.vcf.gz")))
+                .maybeStructuralVcfIndex(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path("annotated.vcf.gz.tbi")))
+                .maybeSvRecoveryVcf(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path("annotated.vcf.gz")))
+                .maybeSvRecoveryVcfIndex(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path("annotated.vcf.gz.tbi")))
                 .build();
     }
 

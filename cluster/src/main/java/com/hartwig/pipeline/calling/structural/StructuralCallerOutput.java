@@ -3,7 +3,6 @@ package com.hartwig.pipeline.calling.structural;
 import java.util.Optional;
 
 import com.hartwig.pipeline.StageOutput;
-import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 
 import org.immutables.value.Value;
@@ -18,14 +17,26 @@ public interface StructuralCallerOutput extends StageOutput {
 
     Optional<GoogleStorageLocation> maybeStructuralVcf();
 
+    Optional<GoogleStorageLocation> maybeStructuralVcfIndex();
+
     Optional<GoogleStorageLocation> maybeSvRecoveryVcf();
 
-    default GoogleStorageLocation structuralVcf(){
-        return maybeStructuralVcf().orElseThrow(() -> new IllegalStateException("No structural VCF available"));
+    Optional<GoogleStorageLocation> maybeSvRecoveryVcfIndex();
+
+    default GoogleStorageLocation structuralVcf() {
+        return maybeStructuralVcf().orElseThrow(() -> new IllegalStateException("No VCF available"));
     }
 
     default GoogleStorageLocation svRecoveryVcf() {
         return maybeSvRecoveryVcf().orElseThrow(() -> new IllegalStateException("No sv recovery VCF available"));
+    }
+
+    default GoogleStorageLocation structuralVcfIndex() {
+        return maybeStructuralVcfIndex().orElseThrow(() -> new IllegalStateException("No VCF available"));
+    }
+
+    default GoogleStorageLocation svRecoveryVcfIndex() {
+        return maybeSvRecoveryVcfIndex().orElseThrow(() -> new IllegalStateException("No sv recovery VCF available"));
     }
 
     static ImmutableStructuralCallerOutput.Builder builder() {

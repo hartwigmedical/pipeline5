@@ -23,6 +23,7 @@ public interface Versions {
     String COBALT = "1.6";
     String HEALTH_CHECKER = "2.4";
     String PURPLE = "2.25";
+    String CIRCOS = "0.69.6";
 
     static void printAll() {
         Logger logger = LoggerFactory.getLogger(Versions.class);

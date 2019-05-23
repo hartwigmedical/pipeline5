@@ -9,7 +9,6 @@ import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.InputDownload;
-import com.hartwig.pipeline.execution.vm.OutputFile;
 import com.hartwig.pipeline.execution.vm.OutputUpload;
 import com.hartwig.pipeline.execution.vm.ResourceDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
@@ -17,9 +16,11 @@ import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
+import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.resource.ResourceNames;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
 import com.hartwig.pipeline.tertiary.cobalt.CobaltOutput;
+import com.hartwig.pipeline.tools.Versions;
 
 public class Purple {
 
@@ -56,6 +57,8 @@ public class Purple {
 
         InputDownload somaticVcfDownload = new InputDownload(somaticCallerOutput.finalSomaticVcf());
         InputDownload structuralVcfDownload = new InputDownload(structuralCallerOutput.structuralVcf());
+        InputDownload structuralVcfIndexDownload = new InputDownload(structuralCallerOutput.structuralVcfIndex());
+        InputDownload svRecoveryVcfIndexDownload = new InputDownload(structuralCallerOutput.svRecoveryVcfIndex());
         InputDownload svRecoveryVcfDownload = new InputDownload(structuralCallerOutput.svRecoveryVcf());
         InputDownload amberOutputDownload = new InputDownload(amberOutput.outputDirectory());
         InputDownload cobaltOutputDownload = new InputDownload(cobaltOutput.outputDirectory());
@@ -63,7 +66,9 @@ public class Purple {
                 .addCommand(structuralVcfDownload)
                 .addCommand(svRecoveryVcfDownload)
                 .addCommand(amberOutputDownload)
-                .addCommand(cobaltOutputDownload);
+                .addCommand(cobaltOutputDownload)
+                .addCommand(structuralVcfIndexDownload)
+                .addCommand(svRecoveryVcfIndexDownload);
 
         bash.addCommand(new PurpleApplicationCommand(referenceSampleName,
                 tumorSampleName,
@@ -73,12 +78,13 @@ public class Purple {
                 somaticVcfDownload.getLocalTargetPath(),
                 structuralVcfDownload.getLocalTargetPath(),
                 svRecoveryVcfDownload.getLocalTargetPath(),
-                VmDirectories.TOOLS + "/"));
+                VmDirectories.TOOLS + "/circos/" + Versions.CIRCOS + "/bin/circos"));
         bash.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path())));
         JobStatus status = computeEngine.submit(runtimeBucket, VirtualMachineJobDefinition.purple(bash, resultsDirectory));
         return PurpleOutput.builder()
                 .status(status)
                 .maybeOutputDirectory(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path(), true))
+                .addReportComponents(new EntireOutputComponent(runtimeBucket, pair, NAMESPACE, resultsDirectory))
                 .build();
     }
 }
