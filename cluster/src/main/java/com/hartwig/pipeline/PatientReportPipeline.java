@@ -95,6 +95,7 @@ public class PatientReportPipeline {
 
     public PipelineState run() throws Exception {
         Versions.printAll();
+        String setName = patientMetadataApi.getMetadata().setName();
         PipelineState state = new PipelineState();
         AlignmentOutput alignmentOutput = report.add(state.add(aligner.run()));
         if (state.shouldProceed()) {
@@ -134,7 +135,8 @@ public class PatientReportPipeline {
                                     mateMetricsOutput,
                                     somaticCallerOutput,
                                     purpleOutput,
-                                    amberOutput)));
+                                    amberOutput,
+                                    setName)));
                         }
                     }
                 }
@@ -143,7 +145,8 @@ public class PatientReportPipeline {
             }
             report.add(state.add(futurePayload(germlineCallerFuture)));
         }
-        report.compose(patientMetadataApi.getMetadata().setName());
+
+        report.compose(setName);
         return state;
     }
 

@@ -6,11 +6,11 @@ import com.hartwig.pipeline.tools.Versions;
 
 class HealthCheckerApplicationCommand extends JavaJarCommand {
 
-    HealthCheckerApplicationCommand(String runDirectory, String outputDirectory) {
+    HealthCheckerApplicationCommand(String runDirectory, String outputPath) {
         super("health-checker",
                 Versions.HEALTH_CHECKER,
-                "health-checker",
+                "health-checker.jar",
                 "10G",
-                Lists.newArrayList("-run_dir", runDirectory, "-report_file_path", outputDirectory));
+                Lists.newArrayList("-run_dir", runDirectory, "-report_file_path", outputPath));
     }
 }

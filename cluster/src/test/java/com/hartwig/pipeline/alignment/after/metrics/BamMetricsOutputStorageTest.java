@@ -8,7 +8,6 @@ import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.alignment.after.metrics.BamMetricsOutputStorage;
 import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
@@ -31,6 +30,7 @@ public class BamMetricsOutputStorageTest {
         BamMetricsOutputStorage victim = new BamMetricsOutputStorage(storage, Arguments.testDefaults(), RESULTS_DIRECTORY);
         assertThat(victim.get(sample)).isEqualTo(BamMetricsOutput.builder()
                 .status(JobStatus.SUCCESS)
+                .sample(TestSamples.simpleReferenceSample())
                 .maybeMetricsOutputFile(GoogleStorageLocation.of(runtimeBucketName + "/" + BamMetrics.NAMESPACE,
                         RESULTS_DIRECTORY.path(sample.name() + ".wgsmetrics"))).build());
     }

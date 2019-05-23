@@ -52,8 +52,6 @@ import org.junit.Test;
 public class PatientReportPipelineTest {
 
     private static final GermlineCallerOutput SUCCESSFUL_GERMLINE_OUTPUT = GermlineCallerOutput.builder().status(JobStatus.SUCCESS).build();
-    private static final BamMetricsOutput SUCCESSFUL_BAM_METRICS = BamMetricsOutput.builder().status(JobStatus.SUCCESS).build();
-    private static final BamMetricsOutput MATE_BAM_METRICS = BamMetricsOutput.builder().status(JobStatus.SUCCESS).build();
     private static final CobaltOutput SUCCESSFUL_COBALT_OUTPUT = CobaltOutput.builder().status(JobStatus.SUCCESS).build();
     private static final AmberOutput SUCCESSFUL_AMBER_OUTPUT = AmberOutput.builder().status(JobStatus.SUCCESS).build();
     private static final StructuralCallerOutput SUCCESSFUL_STRUCTURAL_CALLER_OUTPUT =
@@ -62,6 +60,7 @@ public class PatientReportPipelineTest {
             SomaticCallerOutput.builder().status(JobStatus.SUCCESS).build();
     private static final ImmutablePurpleOutput SUCCESSFUL_PURPLE_OUTPUT = PurpleOutput.builder().status(JobStatus.SUCCESS).build();
     private static final ImmutableHealthCheckOutput SUCCESSFUL_HEALTH_CHECK = HealthCheckOutput.builder().status(JobStatus.SUCCESS).build();
+    private static final String SET_NAME = "set_name";
     private PatientReportPipeline victim;
     private Aligner aligner;
     private BamMetrics bamMetrics;
@@ -76,12 +75,14 @@ public class PatientReportPipelineTest {
     private BamMetricsOutputStorage bamMetricsOutputStorage;
     private static final Sample REFERENCE = Sample.builder("", "TESTR").type(Sample.Type.REFERENCE).build();
     private static final Sample TUMOR = Sample.builder("", "TESTT").type(Sample.Type.TUMOR).build();
+    private static final BamMetricsOutput SUCCESSFUL_BAM_METRICS =
+            BamMetricsOutput.builder().status(JobStatus.SUCCESS).sample(REFERENCE).build();
+    private static final BamMetricsOutput MATE_BAM_METRICS = BamMetricsOutput.builder().status(JobStatus.SUCCESS).sample(TUMOR).build();
     private static final ImmutableAlignmentOutput SUCCESSFUL_ALIGNMENT_OUTPUT =
             AlignmentOutput.builder().status(JobStatus.SUCCESS).sample(REFERENCE).build();
     private static final ImmutableAlignmentOutput MATE_ALIGNMENT_OUTPUT =
             AlignmentOutput.builder().status(JobStatus.SUCCESS).sample(TUMOR).build();
     private static final AlignmentPair ALIGNMENT_PAIR = AlignmentPair.of(SUCCESSFUL_ALIGNMENT_OUTPUT, MATE_ALIGNMENT_OUTPUT);
-    private PatientReport patientReport;
 
     @Before
     public void setUp() throws Exception {
@@ -97,8 +98,8 @@ public class PatientReportPipelineTest {
         alignmentOutputStorage = mock(AlignmentOutputStorage.class);
         bamMetricsOutputStorage = mock(BamMetricsOutputStorage.class);
         PatientMetadataApi patientMetadataApi = mock(PatientMetadataApi.class);
-        when(patientMetadataApi.getMetadata()).thenReturn(PatientMetadata.of("set"));
-        patientReport = PatientReportProvider.from(mock(Storage.class), Arguments.testDefaults()).get();
+        when(patientMetadataApi.getMetadata()).thenReturn(PatientMetadata.of(SET_NAME));
+        final PatientReport patientReport = PatientReportProvider.from(mock(Storage.class), Arguments.testDefaults()).get();
         victim = new PatientReportPipeline(patientMetadataApi,
                 aligner,
                 bamMetrics,
@@ -128,7 +129,7 @@ public class PatientReportPipelineTest {
     @Test
     public void returnsFailedPipelineRunWhenMetricsStageFail() throws Exception {
         when(aligner.run()).thenReturn(SUCCESSFUL_ALIGNMENT_OUTPUT);
-        ImmutableBamMetricsOutput bamMetricsOutput = BamMetricsOutput.builder().status(JobStatus.FAILED).build();
+        ImmutableBamMetricsOutput bamMetricsOutput = BamMetricsOutput.builder().status(JobStatus.FAILED).sample(REFERENCE).build();
         when(bamMetrics.run(any())).thenReturn(bamMetricsOutput);
         when(germlineCaller.run(any())).thenReturn(SUCCESSFUL_GERMLINE_OUTPUT);
         PipelineState runOutput = victim.run();
@@ -227,7 +228,8 @@ public class PatientReportPipelineTest {
                 MATE_BAM_METRICS,
                 SUCCESSFUL_SOMATIC_CALLER_OUTPUT,
                 SUCCESSFUL_PURPLE_OUTPUT,
-                SUCCESSFUL_AMBER_OUTPUT)).thenReturn(healthCheckOutput);
+                SUCCESSFUL_AMBER_OUTPUT,
+                SET_NAME)).thenReturn(healthCheckOutput);
         PipelineState state = victim.run();
         assertFailed(state);
         assertThat(state.stageOutputs()).containsExactlyInAnyOrder(SUCCESSFUL_ALIGNMENT_OUTPUT,
@@ -264,7 +266,8 @@ public class PatientReportPipelineTest {
                 MATE_BAM_METRICS,
                 SUCCESSFUL_SOMATIC_CALLER_OUTPUT,
                 SUCCESSFUL_PURPLE_OUTPUT,
-                SUCCESSFUL_AMBER_OUTPUT)).thenReturn(SUCCESSFUL_HEALTH_CHECK);
+                SUCCESSFUL_AMBER_OUTPUT,
+                SET_NAME)).thenReturn(SUCCESSFUL_HEALTH_CHECK);
         PipelineState state = victim.run();
         assertSucceeded(state);
         assertThat(state.stageOutputs()).containsExactlyInAnyOrder(SUCCESSFUL_ALIGNMENT_OUTPUT,
@@ -303,6 +306,7 @@ public class PatientReportPipelineTest {
         when(bamMetrics.run(alignmentWithReportComponents)).thenReturn(BamMetricsOutput.builder()
                 .from(alignmentWithReportComponents)
                 .addReportComponents(metricsComponent)
+                .sample(TUMOR)
                 .build());
         when(germlineCaller.run(alignmentWithReportComponents)).thenReturn(GermlineCallerOutput.builder()
                 .from(SUCCESSFUL_GERMLINE_OUTPUT)

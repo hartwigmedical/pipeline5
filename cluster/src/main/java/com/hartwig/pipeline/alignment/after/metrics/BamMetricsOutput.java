@@ -1,15 +1,19 @@
 package com.hartwig.pipeline.alignment.after.metrics;
 
+import java.util.Optional;
+
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
-import org.immutables.value.Value;
 
-import java.util.Optional;
+import org.immutables.value.Value;
 
 @Value.Immutable
 public interface BamMetricsOutput extends StageOutput {
+
+    Sample sample();
+
     JobStatus status();
 
     @Override

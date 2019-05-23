@@ -1,8 +1,8 @@
 package com.hartwig.pipeline.execution.vm;
 
-import com.hartwig.pipeline.io.GoogleStorageLocation;
-
 import static java.lang.String.format;
+
+import com.hartwig.pipeline.io.GoogleStorageLocation;
 
 public class InputDownload implements BashCommand {
 
@@ -10,11 +10,15 @@ public class InputDownload implements BashCommand {
     private final String localTargetPath;
 
     public InputDownload(final GoogleStorageLocation sourceLocation) {
-        this.sourceLocation = sourceLocation;
-        this.localTargetPath = localPath(sourceLocation);
+        this(sourceLocation, localPath(sourceLocation));
     }
 
-    private String localPath(final GoogleStorageLocation sourceLocation) {
+    public InputDownload(final GoogleStorageLocation sourceLocation, final String localTargetPath) {
+        this.sourceLocation = sourceLocation;
+        this.localTargetPath = localTargetPath;
+    }
+
+    private static String localPath(final GoogleStorageLocation sourceLocation) {
         String[] splitPath = sourceLocation.path().split("/");
         return VmDirectories.INPUT + (sourceLocation.isDirectory() ? "" : "/" + splitPath[splitPath.length - 1]);
     }

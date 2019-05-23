@@ -62,6 +62,7 @@ public class BamMetrics {
         JobStatus status = executor.submit(bucket, VirtualMachineJobDefinition.bamMetrics(startup, resultsDirectory));
         return BamMetricsOutput.builder()
                 .status(status)
+                .sample(alignmentOutput.sample())
                 .maybeMetricsOutputFile(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(outputFile)))
                 .addReportComponents(new RunLogComponent(bucket, BamMetrics.NAMESPACE, alignmentOutput.sample().name(), resultsDirectory))
                 .build();
