@@ -57,10 +57,7 @@ public class HealthCheckerTest {
     public void returnsHealthCheckerOutputFile() {
         when(computeEngine.submit(any(), any())).thenReturn(JobStatus.SUCCESS);
         HealthCheckOutput output = runVictim();
-        assertThat(output).isEqualTo(HealthCheckOutput.builder()
-                .status(JobStatus.SUCCESS)
-                .maybeOutputFile(GoogleStorageLocation.of(RUNTIME_BUCKET + "/health_checker", "results/HealthCheck.out"))
-                .build());
+        assertThat(output.outputFile()).isEqualTo(GoogleStorageLocation.of(RUNTIME_BUCKET + "/health_checker", "results/HealthCheck.out"));
     }
 
     @Test

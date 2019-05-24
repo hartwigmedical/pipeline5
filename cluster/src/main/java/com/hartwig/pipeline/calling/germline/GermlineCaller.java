@@ -18,6 +18,7 @@ import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.report.RunLogComponent;
+import com.hartwig.pipeline.report.SingleFileComponent;
 import com.hartwig.pipeline.resource.GATKDictAlias;
 import com.hartwig.pipeline.resource.ReferenceGenomeAlias;
 import com.hartwig.pipeline.resource.Resource;
@@ -48,7 +49,8 @@ public class GermlineCaller {
             return GermlineCallerOutput.builder().status(JobStatus.SKIPPED).build();
         }
 
-        RuntimeBucket bucket = RuntimeBucket.from(storage, NAMESPACE, alignmentOutput.sample().name(), arguments);
+        String sampleName = alignmentOutput.sample().name();
+        RuntimeBucket bucket = RuntimeBucket.from(storage, NAMESPACE, sampleName, arguments);
 
         Resource referenceGenome = new Resource(storage,
                 arguments.resourceBucket(),
@@ -72,7 +74,8 @@ public class GermlineCaller {
         ImmutableGermlineCallerOutput.Builder outputBuilder = GermlineCallerOutput.builder();
         JobStatus status = executor.submit(bucket, VirtualMachineJobDefinition.germlineCalling(startupScript, resultsDirectory));
         return outputBuilder.status(status)
-                .addReportComponents(new RunLogComponent(bucket, GermlineCaller.NAMESPACE, alignmentOutput.sample().name(), resultsDirectory))
+                .addReportComponents(new RunLogComponent(bucket, NAMESPACE, sampleName, resultsDirectory))
+                .addReportComponents(new SingleFileComponent(bucket, NAMESPACE, sampleName, OUTPUT_FILENAME, resultsDirectory))
                 .build();
     }
 }

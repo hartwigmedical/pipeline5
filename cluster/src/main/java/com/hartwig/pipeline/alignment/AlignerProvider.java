@@ -90,9 +90,7 @@ public abstract class AlignerProvider {
                     sampleUpload,
                     spark,
                     new GoogleStorageJarUpload(),
-                    optimizer,
-                    credentials,
-                    resultsDirectory,
+                    optimizer, resultsDirectory,
                     alignmentOutputStorage);
         }
     }
@@ -132,9 +130,7 @@ public abstract class AlignerProvider {
                     sampleUpload,
                     dataproc,
                     new GoogleStorageJarUpload(),
-                    optimizer,
-                    credentials,
-                    resultsDirectory,
+                    optimizer, resultsDirectory,
                     alignmentOutputStorage);
         }
     }

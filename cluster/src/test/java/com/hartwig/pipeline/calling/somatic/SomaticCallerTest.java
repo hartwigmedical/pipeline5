@@ -69,11 +69,8 @@ public class SomaticCallerTest {
     public void returnsFinalVcfGoogleStorageLocation() {
         AlignmentPair input = TestInputs.defaultPair();
         when(computeEngine.submit(any(), any())).thenReturn(JobStatus.SUCCESS);
-        assertThat(victim.run(input)).isEqualTo(SomaticCallerOutput.builder()
-                .status(JobStatus.SUCCESS)
-                .maybeFinalSomaticVcf(GoogleStorageLocation.of(RUNTIME_BUCKET + "/" + SomaticCaller.NAMESPACE,
-                        "results/tumor.cosmic.annotated.vcf.gz"))
-                .build());
+        assertThat(victim.run(input).finalSomaticVcf()).isEqualTo(GoogleStorageLocation.of(RUNTIME_BUCKET + "/" + SomaticCaller.NAMESPACE,
+                "results/tumor.cosmic.annotated.vcf.gz"));
     }
 
     @Test

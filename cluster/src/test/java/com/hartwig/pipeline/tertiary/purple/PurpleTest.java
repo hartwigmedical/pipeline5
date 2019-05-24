@@ -58,10 +58,7 @@ public class PurpleTest {
     public void returnsPurpleOutputDirectory() {
         when(computeEngine.submit(any(), any())).thenReturn(JobStatus.SUCCESS);
         PurpleOutput output = runVictim();
-        assertThat(output).isEqualTo(PurpleOutput.builder()
-                .status(JobStatus.SUCCESS)
-                .maybeOutputDirectory(GoogleStorageLocation.of(RUNTIME_BUCKET + "/purple", "results", true))
-                .build());
+        assertThat(output.outputDirectory()).isEqualTo(GoogleStorageLocation.of(RUNTIME_BUCKET + "/purple", "results", true));
     }
 
     @Test

@@ -14,14 +14,14 @@ public class PatientMetadataApiTest {
 
     @Test
     public void usesRunIdAndSampleNameAsSetName() {
-        PatientMetadataApi victim = new PatientMetadataApi(Arguments.testDefaultsBuilder().runId("testmetadata").sampleId("sample").build(),
+        PatientMetadataApi victim = new PatientMetadataApi(Arguments.testDefaultsBuilder().runId("testmetadata").sampleId("sampler").build(),
                 NOW);
         assertThat(victim.getMetadata().setName()).isEqualTo("sample-testmetadata");
     }
 
     @Test
     public void usesSampleAndTimestamp() {
-        PatientMetadataApi victim = new PatientMetadataApi(Arguments.testDefaultsBuilder().sampleId("sample").build(), NOW);
+        PatientMetadataApi victim = new PatientMetadataApi(Arguments.testDefaultsBuilder().sampleId("sampler").build(), NOW);
         assertThat(victim.getMetadata().setName()).isEqualTo("sample-20190521192500");
     }
 }

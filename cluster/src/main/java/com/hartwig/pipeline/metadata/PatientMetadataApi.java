@@ -17,9 +17,13 @@ public class PatientMetadataApi {
 
     public PatientMetadata getMetadata() {
         return arguments.runId()
-                .map(runId -> arguments.sampleId() + "-" + runId)
+                .map(runId -> trim(arguments.sampleId()) + "-" + runId)
                 .map(PatientMetadata::of)
                 .orElse(PatientMetadata.of(
-                        arguments.sampleId() + "-" + timestamp.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"))));
+                        trim(arguments.sampleId()) + "-" + timestamp.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"))));
+    }
+
+    private String trim(final String sampleId) {
+        return sampleId.substring(0, arguments.sampleId().length() - 1);
     }
 }

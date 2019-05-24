@@ -2,7 +2,6 @@ package com.hartwig.pipeline.io;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -16,9 +15,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.swing.ListSelectionModel;
-
-import com.google.api.gax.paging.Page;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Storage;
 import com.hartwig.patient.Sample;
@@ -39,7 +35,6 @@ public class BamComposerTest {
 
     private Storage storage;
     private RuntimeBucket runtime;
-    private Page<Blob> page;
     private BamComposer victim;
 
     @Before
@@ -50,15 +45,12 @@ public class BamComposerTest {
         Blob headerBlob = mock(Blob.class);
         when(runtime.get(HEADER)).thenReturn(headerBlob);
         when(headerBlob.getName()).thenReturn(NAMESPACE + HEADER);
-        //noinspection unchecked
-        page = mock(Page.class);
-        when(runtime.list(any())).thenReturn(page);
-        victim = new BamComposer(storage, RESULTS_DIRECTORY, 3);
+        victim = new BamComposer(RESULTS_DIRECTORY, 3);
     }
 
     @Test
     public void noBlobsInBucketDoesNothing() {
-        when(page.iterateAll()).thenReturn(new ArrayList<>());
+        when(runtime.list(any())).thenReturn(new ArrayList<>());
         victim.run(Sample.builder("", SAMPLE).build(), runtime);
         verify(storage, never()).compose(any());
     }
@@ -69,7 +61,7 @@ public class BamComposerTest {
         String tailPart1 = part(0);
         String tailPart2 = part(1);
         List<Blob> blobs = Arrays.asList(blobOf(tailPart1), blobOf(tailPart2));
-        when(page.iterateAll()).thenReturn(blobs);
+        when(runtime.list(any())).thenReturn(blobs);
         ArgumentCaptor<List<String>> sourceCaptor = ArgumentCaptor.forClass(List.class);
         victim.run(Sample.builder("", SAMPLE).build(), runtime);
         verify(runtime, times(1)).compose(sourceCaptor.capture(), any());
@@ -84,7 +76,7 @@ public class BamComposerTest {
     public void recursivelyComposesInPartitionsToASingleFile() {
         List<String> parts = tenTailParts();
         List<Blob> blobs = parts.stream().map(BamComposerTest::blobOf).collect(Collectors.toList());
-        when(page.iterateAll()).thenReturn(blobs);
+        when(runtime.list(any())).thenReturn(blobs);
         ArgumentCaptor<List<String>> sourceCaptor = ArgumentCaptor.forClass(List.class);
         ArgumentCaptor<String> targetCaptor = ArgumentCaptor.forClass(String.class);
         victim.run(Sample.builder("", SAMPLE).build(), runtime);
@@ -103,14 +95,14 @@ public class BamComposerTest {
 
     @Test
     public void optionallyIncludedSuffixInBamName() {
-        victim = new BamComposer(storage, RESULTS_DIRECTORY, 3, "suffix");
+        victim = new BamComposer(RESULTS_DIRECTORY, 3, "suffix");
         String head = RESULTS_DIRECTORY.path("COLO829T.suffix.bam_head");
         Blob headerBlob = mock(Blob.class);
         when(headerBlob.getName()).thenReturn(NAMESPACE + head);
         when(runtime.get(head)).thenReturn(headerBlob);
         String tailPart1 = part(0);
         List<Blob> blobs = Collections.singletonList(blobOf(tailPart1));
-        when(page.iterateAll()).thenReturn(blobs);
+        when(runtime.list(any())).thenReturn(blobs);
 
         ArgumentCaptor<List<String>> sourceCaptor = ArgumentCaptor.forClass(List.class);
         ArgumentCaptor<String> targetCaptor = ArgumentCaptor.forClass(String.class);

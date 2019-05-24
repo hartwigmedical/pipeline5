@@ -18,6 +18,7 @@ import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
+import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 
@@ -79,6 +80,7 @@ public class HealthChecker {
         return HealthCheckOutput.builder()
                 .status(status)
                 .maybeOutputFile((GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path(healthCheckOutput))))
+                .addReportComponents(new EntireOutputComponent(runtimeBucket, pair, NAMESPACE, resultsDirectory))
                 .build();
     }
 

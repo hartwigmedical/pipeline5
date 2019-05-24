@@ -55,10 +55,7 @@ public class AmberTest {
     public void returnsAmberBafFileGoogleStorageLocation() {
         when(computeEngine.submit(any(), any())).thenReturn(JobStatus.SUCCESS);
         AmberOutput output = victim.run(TestInputs.defaultPair());
-        assertThat(output).isEqualTo(AmberOutput.builder()
-                .status(JobStatus.SUCCESS)
-                .maybeOutputDirectory(GoogleStorageLocation.of(RUNTIME_BUCKET + "/amber", "results", true))
-                .build());
+        assertThat(output.outputDirectory()).isEqualTo(GoogleStorageLocation.of(RUNTIME_BUCKET + "/amber", "results", true));
     }
 
     @Test

@@ -16,10 +16,12 @@ public class HealthCheckEvaluationCommand implements BashCommand {
 
     @Override
     public String asBash() {
-        return String.format("if [[ $(perl %s/health-checker/%s/do_healthcheck_qctests.pl  --healthcheck-log-file %s | tail -1 ) =~ OK ]];"
-                        + " then touch \"%s/HealthCheckEvaluation.success\"; fi",
+        return String.format(
+                "[[ $(perl %s/health-checker/%s/do_healthcheck_qctests.pl  --healthcheck-log-file %s | tail -1 ) =~ OK ]] "
+                        + "&& touch \"%s/HealthCheckEvaluation.success\"",
                 VmDirectories.TOOLS,
-                Versions.HEALTH_CHECKER,outputPath +  healthCheckFile,
+                Versions.HEALTH_CHECKER,
+                outputPath + healthCheckFile,
                 outputPath);
     }
 }

@@ -2,13 +2,11 @@ package com.hartwig.pipeline.io;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.util.Collections;
 
 import com.google.api.gax.paging.Page;
 import com.google.cloud.storage.Blob;
@@ -83,6 +81,15 @@ public class RuntimeBucketTest {
     }
 
     @Test
+    public void doesNotNamespaceIfNamespacedAlready() {
+        RuntimeBucket victim = defaultBucket();
+        ArgumentCaptor<String> blobNameCaptor = ArgumentCaptor.forClass(String.class);
+        victim.get("test/path/to/blob");
+        verify(bucket).get(blobNameCaptor.capture());
+        assertThat(blobNameCaptor.getValue()).isEqualTo(NAMESPACED_BLOB);
+    }
+
+    @Test
     public void namespacesCreateOperationBytes() {
         RuntimeBucket victim = defaultBucket();
         ArgumentCaptor<String> blobNameCaptor = ArgumentCaptor.forClass(String.class);
@@ -104,21 +111,25 @@ public class RuntimeBucketTest {
         assertThat(blobNameCaptor.getValue()).isEqualTo(NAMESPACED_BLOB);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void namespacesListOperationNoPrefix() {
         RuntimeBucket victim = defaultBucket();
         ArgumentCaptor<Storage.BlobListOption> listOptionCaptor = ArgumentCaptor.forClass(Storage.BlobListOption.class);
+        Page<Blob> page = mock(Page.class);
+        when(bucket.list(listOptionCaptor.capture())).thenReturn(page);
         victim.list();
-        verify(bucket).list(listOptionCaptor.capture());
         assertThat(listOptionCaptor.getValue()).isEqualTo(Storage.BlobListOption.prefix("test"));
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void namespacesListOperationPrefix() {
         RuntimeBucket victim = defaultBucket();
         ArgumentCaptor<Storage.BlobListOption> listOptionCaptor = ArgumentCaptor.forClass(Storage.BlobListOption.class);
+        Page<Blob> page = mock(Page.class);
+        when(bucket.list(listOptionCaptor.capture())).thenReturn(page);
         victim.list("prefix");
-        verify(bucket).list(listOptionCaptor.capture());
         assertThat(listOptionCaptor.getValue()).isEqualTo(Storage.BlobListOption.prefix("test/prefix"));
     }
 

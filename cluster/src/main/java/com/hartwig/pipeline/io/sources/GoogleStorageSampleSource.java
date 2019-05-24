@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.io.sources;
 
+import java.util.stream.StreamSupport;
+
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
@@ -8,8 +10,6 @@ import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.io.RuntimeBucket;
-
-import java.util.stream.StreamSupport;
 
 public class GoogleStorageSampleSource implements SampleSource {
 
@@ -29,7 +29,7 @@ public class GoogleStorageSampleSource implements SampleSource {
 
         RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, Aligner.NAMESPACE, arguments.sampleId(), arguments);
 
-        Iterable<Blob> blobs = runtimeBucket.list("samples/").iterateAll();
+        Iterable<Blob> blobs = runtimeBucket.list("samples/");
         if (Iterables.isEmpty(blobs)) {
             throw new IllegalArgumentException(String.format("No sample data found in bucket [%s] so there is no input to process. "
                     + "You cannot use the upload=false flag if no sample has already been uploaded", runtimeBucket.name()));

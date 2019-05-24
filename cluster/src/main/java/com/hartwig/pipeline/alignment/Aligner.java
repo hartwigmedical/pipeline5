@@ -2,9 +2,10 @@ package com.hartwig.pipeline.alignment;
 
 import static java.lang.String.format;
 
+import static com.hartwig.pipeline.alignment.AlignmentOutputPaths.bai;
+import static com.hartwig.pipeline.alignment.AlignmentOutputPaths.sorted;
 import static com.hartwig.pipeline.resource.ResourceNames.REFERENCE_GENOME;
 
-import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Storage;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.Arguments;
@@ -21,6 +22,7 @@ import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.io.SampleUpload;
 import com.hartwig.pipeline.io.sources.SampleData;
 import com.hartwig.pipeline.io.sources.SampleSource;
+import com.hartwig.pipeline.report.SingleFileComponent;
 import com.hartwig.pipeline.resource.ReferenceGenomeAlias;
 import com.hartwig.pipeline.resource.Resource;
 
@@ -41,13 +43,12 @@ public class Aligner {
     private final SparkExecutor dataproc;
     private final JarUpload jarUpload;
     private final ClusterOptimizer clusterOptimizer;
-    private final GoogleCredentials credentials;
     private final ResultsDirectory resultsDirectory;
     private final AlignmentOutputStorage alignmentOutputStorage;
 
     Aligner(final Arguments arguments, final Storage storage, final SampleSource sampleSource, final BamDownload bamDownload,
             final SampleUpload sampleUpload, final SparkExecutor dataproc, final JarUpload jarUpload,
-            final ClusterOptimizer clusterOptimizer, final GoogleCredentials credentials, final ResultsDirectory resultsDirectory,
+            final ClusterOptimizer clusterOptimizer, final ResultsDirectory resultsDirectory,
             final AlignmentOutputStorage alignmentOutputStorage) {
         this.arguments = arguments;
         this.storage = storage;
@@ -58,7 +59,6 @@ public class Aligner {
         this.jarUpload = jarUpload;
         this.clusterOptimizer = clusterOptimizer;
         this.resultsDirectory = resultsDirectory;
-        this.credentials = credentials;
         this.alignmentOutputStorage = alignmentOutputStorage;
     }
 
@@ -98,15 +98,16 @@ public class Aligner {
         if (arguments.download()) {
             bamDownload.run(sample, runtimeBucket, JobStatus.SUCCESS);
         }
-        return AlignmentOutput.builder().from(alignmentOutput).addReportComponents(new DataprocLogComponent(sample, runtimeBucket)).build();
+        return AlignmentOutput.builder()
+                .from(alignmentOutput)
+                .addReportComponents(new DataprocLogComponent(sample, runtimeBucket),
+                        new SingleFileComponent(runtimeBucket, NAMESPACE, sample.name(), sorted(sample), resultsDirectory),
+                        new SingleFileComponent(runtimeBucket, NAMESPACE, sample.name(), bai(sorted(sample)), resultsDirectory))
+                .build();
     }
 
     private void compose(final Sample sample, final RuntimeBucket runtimeBucket) {
-        compose(sample, runtimeBucket, "");
-    }
-
-    private void compose(final Sample sample, final RuntimeBucket runtimeBucket, final String suffix) {
-        new BamComposer(storage, resultsDirectory, 32, suffix).run(sample, runtimeBucket);
+        new BamComposer(resultsDirectory, 32, "").run(sample, runtimeBucket);
     }
 
     private void runJob(SparkExecutor executor, SparkJobDefinition jobDefinition, RuntimeBucket runtimeBucket) {

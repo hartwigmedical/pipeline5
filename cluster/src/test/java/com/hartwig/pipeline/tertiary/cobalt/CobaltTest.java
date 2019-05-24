@@ -14,8 +14,6 @@ import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.resource.ResourceNames;
-import com.hartwig.pipeline.tertiary.amber.Amber;
-import com.hartwig.pipeline.tertiary.amber.AmberOutput;
 import com.hartwig.pipeline.testsupport.MockResource;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
@@ -53,13 +51,10 @@ public class CobaltTest {
     }
 
     @Test
-    public void returnsCobaltFileGoogleStorageLocation() {
+    public void returnsCobaltOutputDirGoogleStorageLocation() {
         when(computeEngine.submit(any(), any())).thenReturn(JobStatus.SUCCESS);
         CobaltOutput output = victim.run(TestInputs.defaultPair());
-        assertThat(output).isEqualTo(CobaltOutput.builder()
-                .status(JobStatus.SUCCESS)
-                .maybeOutputDirectory(GoogleStorageLocation.of(RUNTIME_BUCKET + "/cobalt", "results", true))
-                .build());
+        assertThat(output.outputDirectory()).isEqualTo(GoogleStorageLocation.of(RUNTIME_BUCKET + "/cobalt", "results", true));
     }
 
     @Test

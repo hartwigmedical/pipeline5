@@ -4,11 +4,8 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
-import com.google.api.gax.paging.Page;
 import com.google.cloud.storage.Blob;
-import com.google.cloud.storage.Storage;
 import com.google.common.collect.Lists;
 import com.hartwig.patient.Sample;
 
@@ -18,30 +15,28 @@ import org.slf4j.LoggerFactory;
 public class BamComposer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BamComposer.class);
-    private final Storage storage;
     private final ResultsDirectory resultsDirectory;
     private final int maxComponentsPerCompose;
     private final String optionalSuffix;
 
-    public BamComposer(Storage storage, ResultsDirectory resultsDirectory, int maxComponentsPerCompose, String optionalSuffix) {
-        this.storage = storage;
+    public BamComposer(ResultsDirectory resultsDirectory, int maxComponentsPerCompose, String optionalSuffix) {
         this.resultsDirectory = resultsDirectory;
         this.maxComponentsPerCompose = maxComponentsPerCompose;
         this.optionalSuffix = optionalSuffix;
     }
 
-    BamComposer(Storage storage, ResultsDirectory resultsDirectory, int maxComponentsPerCompose) {
-        this(storage, resultsDirectory, maxComponentsPerCompose, "");
+    BamComposer(ResultsDirectory resultsDirectory, int maxComponentsPerCompose) {
+        this(resultsDirectory, maxComponentsPerCompose, "");
     }
 
     public void run(Sample sample, RuntimeBucket runtimeBucket) {
         LOGGER.info("Composing sharded BAM into a single downloadable BAM file on GS.");
         String headerBlob = runtimeBucket.get(resultsDirectory.path(sample.name() + optionalSuffix() + ".bam_head")).getName();
         String tailDirectory = "%s%s.bam_tail";
-        Page<Blob> blobs =
+        List<Blob> blobs =
                 runtimeBucket.list(resultsDirectory.path(String.format(tailDirectory + "/part-r-", sample.name(), optionalSuffix())));
         List<String> toCompose =
-                StreamSupport.stream(blobs.iterateAll().spliterator(), false).map(Blob::getName).collect(Collectors.toList());
+                blobs.stream().map(Blob::getName).collect(Collectors.toList());
         if (!toCompose.isEmpty()) {
             toCompose.add(0, headerBlob);
             List<List<String>> partitioned = Lists.partition(toCompose, maxComponentsPerCompose);
@@ -62,7 +57,7 @@ public class BamComposer {
     }
 
     private void deletePath(final RuntimeBucket runtimeBucket, final String directory) {
-        runtimeBucket.list(directory).iterateAll().forEach(blob -> blob.delete());
+        runtimeBucket.list(directory).forEach(blob -> blob.delete());
     }
 
     private void recursivelyCompose(final Sample sample, final RuntimeBucket runtimeBucket, final List<List<String>> partitioned,

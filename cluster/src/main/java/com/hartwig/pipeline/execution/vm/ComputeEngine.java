@@ -1,30 +1,40 @@
 package com.hartwig.pipeline.execution.vm;
 
+import static java.lang.String.format;
+import static java.util.Collections.singletonList;
+
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.gax.paging.Page;
 import com.google.api.services.compute.Compute;
 import com.google.api.services.compute.ComputeRequest;
-import com.google.api.services.compute.model.*;
+import com.google.api.services.compute.model.AccessConfig;
+import com.google.api.services.compute.model.AttachedDisk;
+import com.google.api.services.compute.model.AttachedDiskInitializeParams;
+import com.google.api.services.compute.model.Image;
+import com.google.api.services.compute.model.Instance;
+import com.google.api.services.compute.model.Metadata;
+import com.google.api.services.compute.model.NetworkInterface;
+import com.google.api.services.compute.model.Operation;
+import com.google.api.services.compute.model.ServiceAccount;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Blob;
+import com.google.common.collect.ImmutableMap;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.execution.CloudExecutor;
 import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.io.RuntimeBucket;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.util.concurrent.TimeUnit;
-
-import static java.lang.String.format;
-import static java.util.Collections.singletonList;
 
 public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition> {
     private final static String APPLICATION_NAME = "vm-hosted-workload";
@@ -60,6 +70,8 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
             instance.setZone(ZONE_NAME);
             String project = arguments.project();
             instance.setMachineType(machineType(ZONE_NAME, jobDefinition.performanceProfile().uri(), project));
+
+            instance.setLabels(ImmutableMap.of("run_id", bucket.runId()));
 
             addServiceAccount(instance);
             Image image = attachDisk(compute,
@@ -200,8 +212,8 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
     }
 
     private boolean bucketContainsFile(RuntimeBucket bucket, String filename) {
-        Page<Blob> objects = bucket.list();
-        for (Blob blob : objects.iterateAll()) {
+        List<Blob> objects = bucket.list();
+        for (Blob blob : objects) {
             String name = blob.getName();
             if (name.equals(bucket.getNamespace() + "/" + filename)) {
                 return true;

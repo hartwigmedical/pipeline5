@@ -1,18 +1,16 @@
 package com.hartwig.pipeline.testsupport;
 
-import com.google.api.gax.paging.Page;
-import com.google.cloud.ReadChannel;
-import com.google.cloud.storage.Blob;
-import com.google.cloud.storage.Bucket;
-import com.hartwig.pipeline.io.RuntimeBucket;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import com.google.cloud.ReadChannel;
+import com.google.cloud.storage.Blob;
+import com.hartwig.pipeline.io.RuntimeBucket;
 
 @SuppressWarnings("unchecked")
 public class MockRuntimeBucket {
@@ -25,10 +23,8 @@ public class MockRuntimeBucket {
         when(runtimeBucket.name()).thenReturn(name);
         when(runtimeBucket.getNamespace()).thenReturn(name);
         when(runtimeBucket.runId()).thenReturn(name);
-        Page page = mock(Page.class);
-        when(runtimeBucket.list(any())).thenReturn(page);
-        when(runtimeBucket.list()).thenReturn(page);
-        when(page.iterateAll()).thenReturn(blobs);
+        when(runtimeBucket.list(any())).thenReturn(blobs);
+        when(runtimeBucket.list()).thenReturn(blobs);
     }
 
     public static MockRuntimeBucket of(String name) {

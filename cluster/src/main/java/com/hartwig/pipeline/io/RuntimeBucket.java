@@ -3,13 +3,13 @@ package com.hartwig.pipeline.io;
 import java.io.InputStream;
 import java.util.List;
 
-import com.google.api.gax.paging.Page;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.BucketInfo;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageClass;
+import com.google.common.collect.Lists;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.Run;
 
@@ -59,7 +59,9 @@ public class RuntimeBucket {
 
     @NotNull
     private String namespace(final String blobName) {
-        return namespace + (blobName.startsWith("/") ? blobName : ("/" + blobName));
+        return !blobName.replace("/", "").startsWith(namespace)
+                ? namespace + (blobName.startsWith("/") ? blobName : ("/" + blobName))
+                : blobName;
     }
 
     public void create(String blobName, byte[] content) {
@@ -70,12 +72,12 @@ public class RuntimeBucket {
         bucket.create(namespace(blobName), content);
     }
 
-    public Page<Blob> list() {
-        return bucket.list(Storage.BlobListOption.prefix(namespace));
+    public List<Blob> list() {
+        return Lists.newArrayList(bucket.list(Storage.BlobListOption.prefix(namespace)).iterateAll());
     }
 
-    public Page<Blob> list(String prefix) {
-        return bucket.list(Storage.BlobListOption.prefix(namespace(prefix)));
+    public List<Blob> list(String prefix) {
+        return Lists.newArrayList(bucket.list(Storage.BlobListOption.prefix(namespace(prefix))).iterateAll());
     }
 
     public void copyInto(String sourceBucket, String sourceBlobName, String targetBlobName) {

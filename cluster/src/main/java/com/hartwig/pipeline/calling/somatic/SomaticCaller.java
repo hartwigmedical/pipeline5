@@ -14,6 +14,7 @@ import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
+import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.resource.GATKDictAlias;
 import com.hartwig.pipeline.resource.ReferenceGenomeAlias;
 import com.hartwig.pipeline.resource.Resource;
@@ -63,7 +64,8 @@ public class SomaticCaller {
                 ResourceDownload.from(storage, arguments.resourceBucket(), ResourceNames.SNPEFF, runtimeBucket);
         ResourceDownload knownSnpsResourceDownload =
                 ResourceDownload.from(storage, arguments.resourceBucket(), ResourceNames.KNOWN_SNPS, runtimeBucket);
-        ResourceDownload cosmicResourceDownload = ResourceDownload.from(storage,arguments.resourceBucket(), ResourceNames.COSMIC, runtimeBucket);
+        ResourceDownload cosmicResourceDownload =
+                ResourceDownload.from(storage, arguments.resourceBucket(), ResourceNames.COSMIC, runtimeBucket);
         bash.addCommand(referenceGenomeDownload)
                 .addCommand(strelkaConfigDownload)
                 .addCommand(mappabilityResources)
@@ -114,6 +116,7 @@ public class SomaticCaller {
                 .status(status)
                 .maybeFinalSomaticVcf(GoogleStorageLocation.of(runtimeBucket.name(),
                         resultsDirectory.path(mergedOutput.outputFile().fileName())))
+                .addReportComponents(new EntireOutputComponent(runtimeBucket, pair, NAMESPACE, resultsDirectory, "chromosomes"))
                 .build();
 
     }
@@ -122,6 +125,7 @@ public class SomaticCaller {
     private Resource referenceGenomeResource() {
         return new Resource(storage,
                 arguments.resourceBucket(),
-                ResourceNames.REFERENCE_GENOME, new ReferenceGenomeAlias().andThen(new GATKDictAlias()));
+                ResourceNames.REFERENCE_GENOME,
+                new ReferenceGenomeAlias().andThen(new GATKDictAlias()));
     }
 }

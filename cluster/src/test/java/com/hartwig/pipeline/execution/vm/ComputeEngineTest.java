@@ -1,6 +1,16 @@
 package com.hartwig.pipeline.execution.vm;
 
-import com.google.api.gax.paging.Page;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.api.services.compute.Compute;
 import com.google.api.services.compute.model.Image;
 import com.google.api.services.compute.model.Instance;
@@ -15,14 +25,6 @@ import com.hartwig.pipeline.testsupport.MockRuntimeBucket;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
 
 @SuppressWarnings("unchecked")
 public class ComputeEngineTest {
@@ -86,12 +88,6 @@ public class ComputeEngineTest {
     @Test
     public void createsVmWithRunScriptAndWaitsForCompletion() {
         runtimeBucket = runtimeBucket.with(successBlob(), 1);
-
-        Page page = mock(Page.class);
-        //noinspection unchecked
-        when(page.iterateAll()).thenReturn(new ArrayList<>());
-
-        Page withFlag = mock(Page.class);
         List<Blob> blobs = new ArrayList<>();
         try {
             Blob mockBlob = mock(Blob.class);
@@ -107,8 +103,7 @@ public class ComputeEngineTest {
             throw new RuntimeException(e);
         }
 
-        when(withFlag.iterateAll()).thenReturn(blobs);
-        when(runtimeBucket.getRuntimeBucket().list()).thenReturn(page).thenReturn(page).thenReturn(withFlag);
+        when(runtimeBucket.getRuntimeBucket().list()).thenReturn(new ArrayList<>()).thenReturn(new ArrayList<>()).thenReturn(blobs);
         assertThat(victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition)).isEqualTo(JobStatus.SUCCESS);
     }
 
@@ -116,11 +111,6 @@ public class ComputeEngineTest {
     public void returnsJobFailedWhenScriptFailsRemotely() {
         runtimeBucket = runtimeBucket.with(failureBlob(), 1);
 
-        Page page = mock(Page.class);
-        //noinspection unchecked
-        when(page.iterateAll()).thenReturn(new ArrayList<>());
-
-        Page withFlag = mock(Page.class);
         List<Blob> blobs = new ArrayList<>();
         try {
             Blob mockBlob = mock(Blob.class);
@@ -135,9 +125,7 @@ public class ComputeEngineTest {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-        when(withFlag.iterateAll()).thenReturn(blobs);
-        when(runtimeBucket.getRuntimeBucket().list()).thenReturn(page).thenReturn(page).thenReturn(withFlag);
+        when(runtimeBucket.getRuntimeBucket().list()).thenReturn(new ArrayList<>()).thenReturn(new ArrayList<>()).thenReturn(blobs);
         assertThat(victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition)).isEqualTo(JobStatus.FAILED);
     }
 
