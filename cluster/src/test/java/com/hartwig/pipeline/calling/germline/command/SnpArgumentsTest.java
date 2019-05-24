@@ -10,10 +10,10 @@ import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class SnpConfigTest {
+public class SnpArgumentsTest {
     @Test
     public void shouldReturnSnpTypes() {
-        String snpTypes = new SnpConfig().snpTypes();
+        String snpTypes = new SnpArguments().snpTypes();
         String argKey = "-snpType";
         assertThat(snpTypes).isNotEmpty();
         List<String> tokens = asList(snpTypes.split(" +"));
@@ -35,7 +35,7 @@ public class SnpConfigTest {
         pairs.put("SNP_MQRankSumLow", "MQRankSum < -12.5");
         pairs.put("SNP_ReadPosRankSumLow", "ReadPosRankSum < -8.0");
 
-        String actual = new SnpConfig().snpFilters().trim();
+        String actual = new SnpArguments().snpFilters().trim();
         for (String key: pairs.keySet()) {
             String quartet = format("-snpFilterName %s -snpFilterExpression \"%s\"", key, pairs.get(key));
             assertThat(actual).isNotEmpty();

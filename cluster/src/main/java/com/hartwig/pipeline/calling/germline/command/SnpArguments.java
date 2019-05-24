@@ -5,7 +5,7 @@ import java.util.Map;
 
 import static java.lang.String.format;
 
-public class SnpConfig {
+public class SnpArguments {
     public String snpTypes() {
         String argKey = "-snpType";
         return format("%s SNP %s NO_VARIATION", argKey, argKey);
