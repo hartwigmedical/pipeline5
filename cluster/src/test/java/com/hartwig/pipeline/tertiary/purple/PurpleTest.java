@@ -1,10 +1,5 @@
 package com.hartwig.pipeline.tertiary.purple;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
@@ -20,10 +15,14 @@ import com.hartwig.pipeline.tertiary.amber.AmberOutput;
 import com.hartwig.pipeline.tertiary.cobalt.CobaltOutput;
 import com.hartwig.pipeline.testsupport.MockResource;
 import com.hartwig.pipeline.testsupport.TestInputs;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class PurpleTest {
 
@@ -110,10 +109,10 @@ public class PurpleTest {
                         .build(),
                 StructuralCallerOutput.builder()
                         .status(JobStatus.SUCCESS)
-                        .maybeStructuralVcf(GoogleStorageLocation.of(RUNTIME_BUCKET, "structural.vcf"))
-                        .maybeStructuralVcfIndex(GoogleStorageLocation.of(RUNTIME_BUCKET, "structural.vcf.tbi"))
-                        .maybeSvRecoveryVcf(GoogleStorageLocation.of(RUNTIME_BUCKET, "sv_recovery.vcf"))
-                        .maybeSvRecoveryVcfIndex(GoogleStorageLocation.of(RUNTIME_BUCKET, "sv_recovery.vcf.tbi"))
+                        .maybeFilteredVcf(GoogleStorageLocation.of(RUNTIME_BUCKET, "structural.vcf"))
+                        .maybeFilteredVcfIndex(GoogleStorageLocation.of(RUNTIME_BUCKET, "structural.vcf.tbi"))
+                        .maybeFullVcf(GoogleStorageLocation.of(RUNTIME_BUCKET, "sv_recovery.vcf"))
+                        .maybeFullVcfIndex(GoogleStorageLocation.of(RUNTIME_BUCKET, "sv_recovery.vcf.tbi"))
                         .build(),
                 CobaltOutput.builder()
                         .status(JobStatus.SUCCESS)

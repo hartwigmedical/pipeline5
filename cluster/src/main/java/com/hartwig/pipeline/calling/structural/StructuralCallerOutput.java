@@ -1,11 +1,10 @@
 package com.hartwig.pipeline.calling.structural;
 
-import java.util.Optional;
-
 import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
-
 import org.immutables.value.Value;
+
+import java.util.Optional;
 
 @Value.Immutable
 public interface StructuralCallerOutput extends StageOutput {
@@ -15,28 +14,28 @@ public interface StructuralCallerOutput extends StageOutput {
         return "structural_caller";
     }
 
-    Optional<GoogleStorageLocation> maybeStructuralVcf();
+    Optional<GoogleStorageLocation> maybeFilteredVcf();
 
-    Optional<GoogleStorageLocation> maybeStructuralVcfIndex();
+    Optional<GoogleStorageLocation> maybeFilteredVcfIndex();
 
-    Optional<GoogleStorageLocation> maybeSvRecoveryVcf();
+    Optional<GoogleStorageLocation> maybeFullVcf();
 
-    Optional<GoogleStorageLocation> maybeSvRecoveryVcfIndex();
+    Optional<GoogleStorageLocation> maybeFullVcfIndex();
 
-    default GoogleStorageLocation structuralVcf() {
-        return maybeStructuralVcf().orElseThrow(() -> new IllegalStateException("No VCF available"));
+    default GoogleStorageLocation filteredVcf() {
+        return maybeFilteredVcf().orElseThrow(() -> new IllegalStateException("No VCF available"));
     }
 
-    default GoogleStorageLocation svRecoveryVcf() {
-        return maybeSvRecoveryVcf().orElseThrow(() -> new IllegalStateException("No sv recovery VCF available"));
+    default GoogleStorageLocation fullVcf() {
+        return maybeFullVcf().orElseThrow(() -> new IllegalStateException("No sv recovery VCF available"));
     }
 
-    default GoogleStorageLocation structuralVcfIndex() {
-        return maybeStructuralVcfIndex().orElseThrow(() -> new IllegalStateException("No VCF available"));
+    default GoogleStorageLocation filteredVcfIndex() {
+        return maybeFilteredVcfIndex().orElseThrow(() -> new IllegalStateException("No VCF available"));
     }
 
-    default GoogleStorageLocation svRecoveryVcfIndex() {
-        return maybeSvRecoveryVcfIndex().orElseThrow(() -> new IllegalStateException("No sv recovery VCF available"));
+    default GoogleStorageLocation fullVcfIndex() {
+        return maybeFullVcfIndex().orElseThrow(() -> new IllegalStateException("No sv recovery VCF available"));
     }
 
     static ImmutableStructuralCallerOutput.Builder builder() {

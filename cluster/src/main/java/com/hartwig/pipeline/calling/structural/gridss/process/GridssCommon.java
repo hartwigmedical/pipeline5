@@ -40,7 +40,9 @@ public class GridssCommon {
     }
     static String pathToSamtools() {
         return format("%s/samtools/1.2/samtools", VmDirectories.TOOLS);
-
+    }
+    public static String pathToGridssScripts() {
+        return format("%s/gridss-scripts/4.8", VmDirectories.TOOLS);
     }
 
     public static String configFile() {
@@ -53,5 +55,9 @@ public class GridssCommon {
 
     public static String tmpDir() {
         return "/tmp";
+    }
+
+    public static String ponDir() {
+        return format("%s/gridss_pon", VmDirectories.RESOURCES);
     }
 }

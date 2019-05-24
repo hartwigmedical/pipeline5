@@ -1,10 +1,5 @@
 package com.hartwig.pipeline.calling.structural;
 
-import static java.lang.String.format;
-import static java.util.Arrays.asList;
-
-import java.io.File;
-
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.AlignmentPair;
@@ -16,18 +11,17 @@ import com.hartwig.pipeline.calling.structural.gridss.stage.Assemble;
 import com.hartwig.pipeline.calling.structural.gridss.stage.CommandFactory;
 import com.hartwig.pipeline.calling.structural.gridss.stage.Preprocess;
 import com.hartwig.pipeline.execution.JobStatus;
-import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.ComputeEngine;
-import com.hartwig.pipeline.execution.vm.InputDownload;
-import com.hartwig.pipeline.execution.vm.OutputUpload;
-import com.hartwig.pipeline.execution.vm.ResourceDownload;
-import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
-import com.hartwig.pipeline.execution.vm.VmDirectories;
+import com.hartwig.pipeline.execution.vm.*;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.resource.Resource;
 import com.hartwig.pipeline.resource.ResourceNames;
+
+import java.io.File;
+
+import static java.lang.String.format;
+import static java.util.Arrays.asList;
 
 public class StructuralCaller {
 
@@ -124,10 +118,10 @@ public class StructuralCaller {
 
         return StructuralCallerOutput.builder()
                 .status(status)
-                .maybeStructuralVcf(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path("annotated.vcf.gz")))
-                .maybeStructuralVcfIndex(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path("annotated.vcf.gz.tbi")))
-                .maybeSvRecoveryVcf(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path("annotated.vcf.gz")))
-                .maybeSvRecoveryVcfIndex(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path("annotated.vcf.gz.tbi")))
+                .maybeFilteredVcf(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path("annotated.vcf.gz")))
+                .maybeFilteredVcfIndex(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path("annotated.vcf.gz.tbi")))
+                .maybeFullVcf(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path("annotated.vcf.gz")))
+                .maybeFullVcfIndex(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path("annotated.vcf.gz.tbi")))
                 .build();
     }
 

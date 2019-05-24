@@ -6,13 +6,7 @@ import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.calling.somatic.SomaticCallerOutput;
 import com.hartwig.pipeline.calling.structural.StructuralCallerOutput;
 import com.hartwig.pipeline.execution.JobStatus;
-import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.ComputeEngine;
-import com.hartwig.pipeline.execution.vm.InputDownload;
-import com.hartwig.pipeline.execution.vm.OutputUpload;
-import com.hartwig.pipeline.execution.vm.ResourceDownload;
-import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
-import com.hartwig.pipeline.execution.vm.VmDirectories;
+import com.hartwig.pipeline.execution.vm.*;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
@@ -55,10 +49,10 @@ public class Purple {
         bash.addCommand(gcProfileDownload).addCommand(referenceGenomeDownload);
 
         InputDownload somaticVcfDownload = new InputDownload(somaticCallerOutput.finalSomaticVcf());
-        InputDownload structuralVcfDownload = new InputDownload(structuralCallerOutput.structuralVcf());
-        InputDownload structuralVcfIndexDownload = new InputDownload(structuralCallerOutput.structuralVcfIndex());
-        InputDownload svRecoveryVcfIndexDownload = new InputDownload(structuralCallerOutput.svRecoveryVcfIndex());
-        InputDownload svRecoveryVcfDownload = new InputDownload(structuralCallerOutput.svRecoveryVcf());
+        InputDownload structuralVcfDownload = new InputDownload(structuralCallerOutput.filteredVcf());
+        InputDownload structuralVcfIndexDownload = new InputDownload(structuralCallerOutput.filteredVcfIndex());
+        InputDownload svRecoveryVcfIndexDownload = new InputDownload(structuralCallerOutput.fullVcfIndex());
+        InputDownload svRecoveryVcfDownload = new InputDownload(structuralCallerOutput.fullVcf());
         InputDownload amberOutputDownload = new InputDownload(amberOutput.outputDirectory());
         InputDownload cobaltOutputDownload = new InputDownload(cobaltOutput.outputDirectory());
         bash.addCommand(somaticVcfDownload)
