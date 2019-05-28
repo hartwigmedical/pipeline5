@@ -16,19 +16,23 @@ The goals are:
 * _Work on a UNIX-like environment with access to a BASH shell and the `gcloud` tool._
 * _Take advantage of existing GCP tools, infrastructure and conventions whenever possible._
 
-## How is this used?
+## Usage
 
-1. Author a new "command file" containing those commands you want to be run against the new instance via `ssh` when it has come
-   up. This might include for instance special packages required by the instance. You may include comments in this file (lines starting
-   with `#`); it should act as documentation as well as code, and nothing should have to be done manually after your command file
-   has been run.
+1. Amend the `standard.cmds` file.
 1. Run the `create_custom_image.sh` script to generate a shell script that you can run, passing your new commands file as the only
    argument. You may decide to redirect the output to a file, or run it directly by piping the output thru `sh`.
-1. Once you're happy with the VM image that's been created you may manually clean up the VM that was created to build it. The
-   script does not reap the VM automatically (by design). 
+1. If you know you're not going to use it, delete the VM instance as the script uses a static name for the VM and will fail fast
+   if the VM already exists when it is next invoked.
 
-Note that the resultant image will be named according to the commands file you've passed to it. Any subsequent invocations of the
-same commands file will result in a newer version of the image with the same family. Code creating instances from the images may
-specify either a particular version of the image, or just the family, which will result in the newest member of that family being
-selected.
+## Notes
 
+* Successive runs of the script produce a new image in the same family, currently including a timestamp in the name. As of this
+    writing our VM bootstrap code will create a VM from the latest image in the family (based upon its creation time, not its
+    filename, though both should be the same image).
+* The script leaves the imaging VM around in case you want to make any adjustments. If the VM is present when it is called the 
+    script will fail fast.
+* There is also a R dependencies installation script here, used to build all the R dependencies needed by various components. It 
+    can be manually invoked on a VM if/when the R libraries need to be updated. Further usage notes are in the script itself.
+* GCP will automatically resize the filesystem of a created instance to the size requested at *VM* creation time, and this does not 
+    depend on the size of the image its filesystem is being initialised from. This works at least for the images based on the Debian 
+    9 series that we're using and maybe others. 
