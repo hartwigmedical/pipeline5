@@ -59,7 +59,8 @@ public class RuntimeBucket {
 
     @NotNull
     private String namespace(final String blobName) {
-        return !blobName.replace("/", "").startsWith(namespace)
+        String[] blobPath = blobName.split("/");
+        return !blobPath[0].equals(namespace)
                 ? namespace + (blobName.startsWith("/") ? blobName : ("/" + blobName))
                 : blobName;
     }

@@ -31,20 +31,20 @@ public class BamComposer {
 
     public void run(Sample sample, RuntimeBucket runtimeBucket) {
         LOGGER.info("Composing sharded BAM into a single downloadable BAM file on GS.");
-        String headerBlob = runtimeBucket.get(resultsDirectory.path(sample.name() + optionalSuffix() + ".bam_head")).getName();
+        Blob headerBlob = runtimeBucket.get(resultsDirectory.path(sample.name() + optionalSuffix() + ".bam_head"));
         String tailDirectory = "%s%s.bam_tail";
         List<Blob> blobs =
                 runtimeBucket.list(resultsDirectory.path(String.format(tailDirectory + "/part-r-", sample.name(), optionalSuffix())));
         List<String> toCompose =
                 blobs.stream().map(Blob::getName).collect(Collectors.toList());
-        if (!toCompose.isEmpty()) {
-            toCompose.add(0, headerBlob);
+        if (headerBlob != null && !toCompose.isEmpty()) {
+            toCompose.add(0, headerBlob.getName());
             List<List<String>> partitioned = Lists.partition(toCompose, maxComponentsPerCompose);
             recursivelyCompose(sample, runtimeBucket, partitioned, 1);
             LOGGER.info("Compose complete");
             LOGGER.info("Deleting shards and temporary files");
             deletePath(runtimeBucket, resultsDirectory.path(String.format(tailDirectory, sample.name(), optionalSuffix())));
-            deletePath(runtimeBucket, headerBlob);
+            deletePath(runtimeBucket, headerBlob.getName());
             deletePath(runtimeBucket, resultsDirectory.path("composed/"));
             LOGGER.info("Delete complete");
         } else {
