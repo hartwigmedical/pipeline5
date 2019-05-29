@@ -15,6 +15,8 @@ import com.hartwig.pipeline.tertiary.amber.AmberOutput;
 import com.hartwig.pipeline.tertiary.cobalt.CobaltOutput;
 import com.hartwig.pipeline.testsupport.MockResource;
 import com.hartwig.pipeline.testsupport.TestInputs;
+import com.hartwig.pipeline.tools.Versions;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -72,10 +74,10 @@ public class PurpleTest {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
         runVictim();
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains("java -Xmx8G -jar "
-                + "/data/tools/purple/2.25/purple.jar -reference reference -tumor tumor -output_dir /data/output -amber /data/input -cobalt "
-                + "/data/input -gc_profile /data/resources/gc_profile.cnp -somatic_vcf /data/input/somatic.vcf -structural_vcf "
-                + "/data/input/structural.vcf -sv_recovery_vcf /data/input/sv_recovery.vcf -circos /data/tools/circos/0.69.6/bin/circos "
-                + "-threads 16");
+                + "/data/tools/purple/" + Versions.PURPLE + "/purple.jar -reference reference -tumor tumor -output_dir /data/output -amber "
+                + "/data/input -cobalt /data/input -gc_profile /data/resources/gc_profile.cnp -somatic_vcf /data/input/somatic.vcf "
+                + "-structural_vcf /data/input/structural.vcf -sv_recovery_vcf /data/input/sv_recovery.vcf -circos "
+                + "/data/tools/circos/0.69.6/bin/circos -threads 16");
     }
 
     @Test
