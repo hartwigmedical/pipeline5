@@ -22,7 +22,7 @@ public interface Lane extends FileSystemEntity, Named {
     String suffix();
 
     default String recordGroupId() {
-        // KODU: Assumption is that name follows "sample_lane" format.
+        // Assumption is that name follows "sample_lane" format.
         String[] split = name().split("_");
         return String.format("%s_%s_%s_%s_%s", split[0], flowCellId(), index(), split[1], suffix());
     }

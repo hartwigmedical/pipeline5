@@ -26,7 +26,7 @@ class BwaCommand {
                 sample.name(),
                 lane.flowCellId(),
                 sample.name()));
-        // KODU: Soft-clipping supplementary reads rather than hard-clipping will help GRIDSS downstream.
+        // Soft-clipping supplementary reads rather than hard-clipping will help GRIDSS downstream.
         cmd.add("-Y");
         cmd.add("-t");
         cmd.add(String.valueOf(bwaThreads));
