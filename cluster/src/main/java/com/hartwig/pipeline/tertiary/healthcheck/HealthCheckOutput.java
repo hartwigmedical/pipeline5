@@ -3,7 +3,6 @@ package com.hartwig.pipeline.tertiary.healthcheck;
 import java.util.Optional;
 
 import com.hartwig.pipeline.StageOutput;
-import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 
 import org.immutables.value.Value;
@@ -16,12 +15,11 @@ public interface HealthCheckOutput extends StageOutput {
         return HealthChecker.NAMESPACE;
     }
 
-    Optional<GoogleStorageLocation> maybeOutputFile();
+    Optional<GoogleStorageLocation> maybeOutputDirectory();
 
-    default GoogleStorageLocation outputFile() {
-        return maybeOutputFile().orElseThrow(() -> new IllegalStateException("No output file available"));
+    default GoogleStorageLocation outputDirectory() {
+        return maybeOutputDirectory().orElseThrow(() -> new IllegalStateException("No output directory available"));
     }
-
     static ImmutableHealthCheckOutput.Builder builder() {
         return ImmutableHealthCheckOutput.builder();
     }

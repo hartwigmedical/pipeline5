@@ -223,13 +223,8 @@ public class PatientReportPipelineTest {
                 SUCCESSFUL_AMBER_OUTPUT)).thenReturn(SUCCESSFUL_PURPLE_OUTPUT);
         when(bamMetricsOutputStorage.get(TUMOR)).thenReturn(MATE_BAM_METRICS);
         ImmutableHealthCheckOutput healthCheckOutput = HealthCheckOutput.builder().status(JobStatus.FAILED).build();
-        when(healthChecker.run(ALIGNMENT_PAIR,
-                SUCCESSFUL_BAM_METRICS,
-                MATE_BAM_METRICS,
-                SUCCESSFUL_SOMATIC_CALLER_OUTPUT,
-                SUCCESSFUL_PURPLE_OUTPUT,
-                SUCCESSFUL_AMBER_OUTPUT,
-                SET_NAME)).thenReturn(healthCheckOutput);
+        when(healthChecker.run(ALIGNMENT_PAIR, SUCCESSFUL_BAM_METRICS, MATE_BAM_METRICS, SUCCESSFUL_AMBER_OUTPUT, SUCCESSFUL_PURPLE_OUTPUT))
+                .thenReturn(healthCheckOutput);
         PipelineState state = victim.run();
         assertFailed(state);
         assertThat(state.stageOutputs()).containsExactlyInAnyOrder(SUCCESSFUL_ALIGNMENT_OUTPUT,
@@ -261,13 +256,8 @@ public class PatientReportPipelineTest {
                 SUCCESSFUL_COBALT_OUTPUT,
                 SUCCESSFUL_AMBER_OUTPUT)).thenReturn(SUCCESSFUL_PURPLE_OUTPUT);
         when(bamMetricsOutputStorage.get(TUMOR)).thenReturn(MATE_BAM_METRICS);
-        when(healthChecker.run(ALIGNMENT_PAIR,
-                SUCCESSFUL_BAM_METRICS,
-                MATE_BAM_METRICS,
-                SUCCESSFUL_SOMATIC_CALLER_OUTPUT,
-                SUCCESSFUL_PURPLE_OUTPUT,
-                SUCCESSFUL_AMBER_OUTPUT,
-                SET_NAME)).thenReturn(SUCCESSFUL_HEALTH_CHECK);
+        when(healthChecker.run(ALIGNMENT_PAIR, SUCCESSFUL_BAM_METRICS, MATE_BAM_METRICS, SUCCESSFUL_AMBER_OUTPUT, SUCCESSFUL_PURPLE_OUTPUT))
+                .thenReturn(SUCCESSFUL_HEALTH_CHECK);
         PipelineState state = victim.run();
         assertSucceeded(state);
         assertThat(state.stageOutputs()).containsExactlyInAnyOrder(SUCCESSFUL_ALIGNMENT_OUTPUT,
@@ -318,11 +308,11 @@ public class PatientReportPipelineTest {
         assertThat(germlineComponent.isAdded()).isTrue();
     }
 
-    private void assertFailed(final PipelineState runOutput) throws Exception {
+    private void assertFailed(final PipelineState runOutput) {
         assertThat(runOutput.status()).isEqualTo(JobStatus.FAILED);
     }
 
-    private void assertSucceeded(final PipelineState runOutput) throws Exception {
+    private void assertSucceeded(final PipelineState runOutput) {
         assertThat(runOutput.status()).isEqualTo(JobStatus.SUCCESS);
     }
 

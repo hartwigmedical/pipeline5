@@ -10,7 +10,6 @@ import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.alignment.after.metrics.BamMetricsOutput;
-import com.hartwig.pipeline.calling.somatic.SomaticCallerOutput;
 import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
@@ -19,6 +18,7 @@ import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.testsupport.TestInputs;
+import com.hartwig.pipeline.tools.Versions;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -27,9 +27,9 @@ import org.mockito.ArgumentCaptor;
 public class HealthCheckerTest {
 
     private static final String RUNTIME_BUCKET = "run-reference-tumor";
-    private static final String SET_NAME = "set_name";
-    private ComputeEngine computeEngine;
     private static final Arguments ARGUMENTS = Arguments.testDefaults();
+
+    private ComputeEngine computeEngine;
     private HealthChecker victim;
     private Storage storage;
 
@@ -54,10 +54,10 @@ public class HealthCheckerTest {
     }
 
     @Test
-    public void returnsHealthCheckerOutputFile() {
+    public void returnsHealthCheckerOutputDirectory() {
         when(computeEngine.submit(any(), any())).thenReturn(JobStatus.SUCCESS);
         HealthCheckOutput output = runVictim();
-        assertThat(output.outputFile()).isEqualTo(GoogleStorageLocation.of(RUNTIME_BUCKET + "/health_checker", "results/HealthCheck.out"));
+        assertThat(output.outputDirectory()).isEqualTo(GoogleStorageLocation.of(RUNTIME_BUCKET + "/health_checker", "results"));
     }
 
     @Test
@@ -70,36 +70,20 @@ public class HealthCheckerTest {
     public void runsHealthCheckApplicationOnComputeEngine() {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
         runVictim();
+        System.out.println(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString());
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
-                "java -Xmx10G -jar /data/tools/health-checker/2.4/health-checker.jar -run_dir /data/input "
-                        + "-report_file_path /data/output/HealthCheck.out");
+                "java -Xmx10G -jar /data/tools/health-checker/" + Versions.HEALTH_CHECKER + "/health-checker.jar -reference reference "
+                        + "-tumor tumor -metrics_dir /data/input/metrics -amber_dir /data/input/amber -purple_dir /data/input/purple "
+                        + "-output_dir /data/output");
     }
 
     @Test
-    public void runsPerlHealthCheckEvaluationOnComputeEngine() {
+    public void downloadsInputMetricsPurpleAndAmberOutput() {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
         runVictim();
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
-                "perl /data/tools/health-checker/2.4/do_healthcheck_qctests.pl  --healthcheck-log-file /data/output/HealthCheck.out");
-    }
-
-    @Test
-    public void makesMetadataJsonFile() {
-        ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
-        runVictim();
-        assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
-                "echo '{\"ref_sample\":\"reference\",\"tumor_sample\":\"tumor\",\"set_name\":\"set_name\"}' | tee /data/input/metadata");
-    }
-
-    @Test
-    public void downloadsInputMetricsSomaticVcfPurpleAndAmberOutput() {
-        ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
-        runVictim();
-        assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains("mkdir /data/input/purple",
-                "mkdir /data/input/amber",
-                "gsutil -qm cp gs://run-reference/reference.wgsmetrics /data/input/QCStats/reference/reference_WGSMetrics.txt",
-                "gsutil -qm cp gs://run-tumor/tumor.wgsmetrics /data/input/QCStats/tumor/tumor_WGSMetrics.txt",
-                "gsutil -qm cp gs://run-reference-tumor/somatic.vcf /data/input/tumor_post_processed.vcf.gz",
+                "gsutil -qm cp gs://run-reference/reference.wgsmetrics /data/input/metrics/reference.wgsmetrics",
+                "gsutil -qm cp gs://run-tumor/tumor.wgsmetrics /data/input/metrics/tumor.wgsmetrics",
                 "gsutil -qm cp gs://run-reference-tumor/purple/* /data/input/purple/",
                 "gsutil -qm cp gs://run-reference-tumor/amber/* /data/input/amber");
     }
@@ -120,7 +104,6 @@ public class HealthCheckerTest {
     }
 
     private HealthCheckOutput runVictim() {
-
         AlignmentPair pair = TestInputs.defaultPair();
         return victim.run(pair,
                 BamMetricsOutput.builder()
@@ -133,18 +116,13 @@ public class HealthCheckerTest {
                         .maybeMetricsOutputFile(GoogleStorageLocation.of("run-tumor", "tumor.wgsmetrics"))
                         .sample(pair.tumor().sample())
                         .build(),
-                SomaticCallerOutput.builder()
-                        .status(JobStatus.SUCCESS)
-                        .maybeFinalSomaticVcf(GoogleStorageLocation.of(RUNTIME_BUCKET, "somatic.vcf"))
-                        .build(),
-                PurpleOutput.builder()
-                        .status(JobStatus.SUCCESS)
-                        .maybeOutputDirectory(GoogleStorageLocation.of(RUNTIME_BUCKET, "purple", true))
-                        .build(),
                 AmberOutput.builder()
                         .status(JobStatus.SUCCESS)
                         .maybeOutputDirectory(GoogleStorageLocation.of(RUNTIME_BUCKET, "amber", true))
                         .build(),
-                SET_NAME);
+                PurpleOutput.builder()
+                        .status(JobStatus.SUCCESS)
+                        .maybeOutputDirectory(GoogleStorageLocation.of(RUNTIME_BUCKET, "purple", true))
+                        .build());
     }
 }

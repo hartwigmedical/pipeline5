@@ -133,10 +133,8 @@ public class PatientReportPipeline {
                             report.add(state.add(healthChecker.run(pair,
                                     metricsOutput,
                                     mateMetricsOutput,
-                                    somaticCallerOutput,
-                                    purpleOutput,
                                     amberOutput,
-                                    setName)));
+                                    purpleOutput)));
                         }
                     }
                 }
