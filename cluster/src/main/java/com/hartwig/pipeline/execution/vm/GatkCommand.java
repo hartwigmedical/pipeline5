@@ -10,7 +10,7 @@ import static java.lang.String.format;
 
 public class GatkCommand extends JavaJarCommand {
 
-    public GatkCommand(final String maxHeapSize, final String analysisType, final String... arguments) {
+    public GatkCommand(final String maxHeapSize, final String analysisType, final String ... arguments) {
         super("gatk", Versions.GATK, "GenomeAnalysisTK.jar", maxHeapSize, concat(Lists.newArrayList("-T", analysisType), arguments));
     }
 

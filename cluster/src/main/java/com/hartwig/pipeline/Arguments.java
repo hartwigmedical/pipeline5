@@ -28,6 +28,8 @@ public interface Arguments {
 
     boolean runAligner();
 
+    boolean runSnpGenotyper();
+
     boolean runGermlineCaller();
 
     boolean runSomaticCaller();
@@ -120,6 +122,7 @@ public interface Arguments {
                     .upload(true)
                     .runBamMetrics(true)
                     .runAligner(true)
+                    .runSnpGenotyper(true)
                     .runGermlineCaller(true)
                     .runSomaticCaller(true)
                     .runStructuralCaller(true)
@@ -147,6 +150,7 @@ public interface Arguments {
                     .upload(true)
                     .runBamMetrics(true)
                     .runAligner(true)
+                    .runSnpGenotyper(true)
                     .runGermlineCaller(true)
                     .runSomaticCaller(true)
                     .runTertiary(true)

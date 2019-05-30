@@ -29,11 +29,14 @@ import com.hartwig.pipeline.calling.structural.StructuralCaller;
 import com.hartwig.pipeline.calling.structural.StructuralCallerOutput;
 import com.hartwig.pipeline.calling.structural.StructuralCallerProvider;
 import com.hartwig.pipeline.credentials.CredentialProvider;
+import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.metadata.PatientMetadataApi;
 import com.hartwig.pipeline.metadata.PatientMetadataApiProvider;
 import com.hartwig.pipeline.report.PatientReport;
 import com.hartwig.pipeline.report.PatientReportProvider;
+import com.hartwig.pipeline.snpgenotype.SnpGenotype;
+import com.hartwig.pipeline.snpgenotype.SnpGenotypeOutput;
 import com.hartwig.pipeline.storage.StorageProvider;
 import com.hartwig.pipeline.tertiary.amber.Amber;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
@@ -69,14 +72,15 @@ public class PatientReportPipeline {
     private final HealthChecker healthChecker;
     private final AlignmentOutputStorage alignmentOutputStorage;
     private final BamMetricsOutputStorage bamMetricsOutputStorage;
+    private final SnpGenotype snpGenotype;
     private final PatientReport report;
     private final ExecutorService executorService;
 
     PatientReportPipeline(final PatientMetadataApi patientMetadataApi, final Aligner aligner, final BamMetrics metrics,
-            final GermlineCaller germlineCaller, final SomaticCaller somaticCaller, final StructuralCaller structuralCaller,
-            final Amber amber, final Cobalt cobalt, final Purple purple, final HealthChecker healthChecker,
-            final AlignmentOutputStorage alignmentOutputStorage, final BamMetricsOutputStorage bamMetricsOutputStorage,
-            final PatientReport report, final ExecutorService executorService) {
+                          final GermlineCaller germlineCaller, final SomaticCaller somaticCaller, final StructuralCaller structuralCaller,
+                          final Amber amber, final Cobalt cobalt, final Purple purple, final HealthChecker healthChecker,
+                          final AlignmentOutputStorage alignmentOutputStorage, final BamMetricsOutputStorage bamMetricsOutputStorage,
+                          final SnpGenotype snpGenotype, final PatientReport report, final ExecutorService executorService) {
         this.patientMetadataApi = patientMetadataApi;
         this.aligner = aligner;
         this.metrics = metrics;
@@ -89,6 +93,7 @@ public class PatientReportPipeline {
         this.healthChecker = healthChecker;
         this.alignmentOutputStorage = alignmentOutputStorage;
         this.bamMetricsOutputStorage = bamMetricsOutputStorage;
+        this.snpGenotype = snpGenotype;
         this.report = report;
         this.executorService = executorService;
     }
@@ -99,8 +104,10 @@ public class PatientReportPipeline {
         PipelineState state = new PipelineState();
         AlignmentOutput alignmentOutput = report.add(state.add(aligner.run()));
         if (state.shouldProceed()) {
+
             Future<BamMetricsOutput> bamMetricsFuture = executorService.submit(() -> metrics.run(alignmentOutput));
             Future<GermlineCallerOutput> germlineCallerFuture = executorService.submit(() -> germlineCaller.run(alignmentOutput));
+            Future<SnpGenotypeOutput> unifiedGenotyperFuture = executorService.submit(() -> snpGenotype.run(alignmentOutput));
 
             Optional<AlignmentOutput> maybeMate = alignmentOutputStorage.get(mate(alignmentOutput.sample()));
             if (maybeMate.isPresent()) {
@@ -142,6 +149,7 @@ public class PatientReportPipeline {
                 report.add(state.add(futurePayload(bamMetricsFuture)));
             }
             report.add(state.add(futurePayload(germlineCallerFuture)));
+            report.add(state.add(futurePayload(unifiedGenotyperFuture)));
         }
 
         report.compose(setName);
@@ -175,7 +183,7 @@ public class PatientReportPipeline {
                         HealthCheckerProvider.from(arguments, credentials, storage).get(),
                         new AlignmentOutputStorage(storage, arguments, ResultsDirectory.defaultDirectory()),
                         new BamMetricsOutputStorage(storage, arguments, ResultsDirectory.defaultDirectory()),
-                        PatientReportProvider.from(storage, arguments).get(),
+                        new SnpGenotype(arguments, ComputeEngine.from(arguments, credentials), storage, ResultsDirectory.defaultDirectory()), PatientReportProvider.from(storage, arguments).get(),
                         Executors.newCachedThreadPool()).run();
                 LOGGER.info("Patient report pipeline is complete with status [{}]. Stages run were [{}]", state.status(), state);
             } catch (Exception e) {

@@ -34,6 +34,9 @@ import com.hartwig.pipeline.metadata.PatientMetadataApi;
 import com.hartwig.pipeline.report.PatientReport;
 import com.hartwig.pipeline.report.PatientReportProvider;
 import com.hartwig.pipeline.report.ReportComponent;
+import com.hartwig.pipeline.snpgenotype.ImmutableSnpGenotypeOutput;
+import com.hartwig.pipeline.snpgenotype.SnpGenotype;
+import com.hartwig.pipeline.snpgenotype.SnpGenotypeOutput;
 import com.hartwig.pipeline.tertiary.amber.Amber;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
 import com.hartwig.pipeline.tertiary.cobalt.Cobalt;
@@ -51,6 +54,7 @@ import org.junit.Test;
 
 public class PatientReportPipelineTest {
 
+    private static final SnpGenotypeOutput SUCCESSFUL_SNPGENOTYPE_OUTPUT = SnpGenotypeOutput.builder().status(JobStatus.SUCCESS).build();
     private static final GermlineCallerOutput SUCCESSFUL_GERMLINE_OUTPUT = GermlineCallerOutput.builder().status(JobStatus.SUCCESS).build();
     private static final CobaltOutput SUCCESSFUL_COBALT_OUTPUT = CobaltOutput.builder().status(JobStatus.SUCCESS).build();
     private static final AmberOutput SUCCESSFUL_AMBER_OUTPUT = AmberOutput.builder().status(JobStatus.SUCCESS).build();
@@ -70,6 +74,7 @@ public class PatientReportPipelineTest {
     private Amber amber;
     private Cobalt cobalt;
     private Purple purple;
+    private SnpGenotype snpGenotype;
     private HealthChecker healthChecker;
     private AlignmentOutputStorage alignmentOutputStorage;
     private BamMetricsOutputStorage bamMetricsOutputStorage;
@@ -94,6 +99,7 @@ public class PatientReportPipelineTest {
         amber = mock(Amber.class);
         cobalt = mock(Cobalt.class);
         purple = mock(Purple.class);
+        snpGenotype = mock(SnpGenotype.class);
         healthChecker = mock(HealthChecker.class);
         alignmentOutputStorage = mock(AlignmentOutputStorage.class);
         bamMetricsOutputStorage = mock(BamMetricsOutputStorage.class);
@@ -112,6 +118,7 @@ public class PatientReportPipelineTest {
                 healthChecker,
                 alignmentOutputStorage,
                 bamMetricsOutputStorage,
+                snpGenotype,
                 patientReport,
                 Executors.newSingleThreadExecutor());
     }
@@ -127,14 +134,27 @@ public class PatientReportPipelineTest {
     }
 
     @Test
+    public void returnsFailedPipelineRunWhenSnpGenotypeStageFail() throws Exception {
+        when(aligner.run()).thenReturn(SUCCESSFUL_ALIGNMENT_OUTPUT);
+        ImmutableSnpGenotypeOutput snpGenotypeOutput = SnpGenotypeOutput.builder().status(JobStatus.FAILED).build();
+        when(bamMetrics.run(any())).thenReturn(SUCCESSFUL_BAM_METRICS);
+        when(germlineCaller.run(any())).thenReturn(SUCCESSFUL_GERMLINE_OUTPUT);
+        when(snpGenotype.run(any())).thenReturn(snpGenotypeOutput);
+        PipelineState runOutput = victim.run();
+        assertFailed(runOutput);
+        assertThat(runOutput.stageOutputs()).containsExactly(SUCCESSFUL_ALIGNMENT_OUTPUT, SUCCESSFUL_BAM_METRICS, SUCCESSFUL_GERMLINE_OUTPUT, snpGenotypeOutput);
+    }
+
+    @Test
     public void returnsFailedPipelineRunWhenMetricsStageFail() throws Exception {
         when(aligner.run()).thenReturn(SUCCESSFUL_ALIGNMENT_OUTPUT);
         ImmutableBamMetricsOutput bamMetricsOutput = BamMetricsOutput.builder().status(JobStatus.FAILED).sample(REFERENCE).build();
         when(bamMetrics.run(any())).thenReturn(bamMetricsOutput);
         when(germlineCaller.run(any())).thenReturn(SUCCESSFUL_GERMLINE_OUTPUT);
+        when(snpGenotype.run(any())).thenReturn(SUCCESSFUL_SNPGENOTYPE_OUTPUT);
         PipelineState runOutput = victim.run();
         assertFailed(runOutput);
-        assertThat(runOutput.stageOutputs()).containsExactly(SUCCESSFUL_ALIGNMENT_OUTPUT, bamMetricsOutput, SUCCESSFUL_GERMLINE_OUTPUT);
+        assertThat(runOutput.stageOutputs()).containsExactly(SUCCESSFUL_ALIGNMENT_OUTPUT, bamMetricsOutput, SUCCESSFUL_GERMLINE_OUTPUT, SUCCESSFUL_SNPGENOTYPE_OUTPUT);
     }
 
     @Test
@@ -143,9 +163,10 @@ public class PatientReportPipelineTest {
         when(bamMetrics.run(any())).thenReturn(SUCCESSFUL_BAM_METRICS);
         ImmutableGermlineCallerOutput germlineCallerOutput = GermlineCallerOutput.builder().status(JobStatus.FAILED).build();
         when(germlineCaller.run(SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(germlineCallerOutput);
+        when(snpGenotype.run(any())).thenReturn(SUCCESSFUL_SNPGENOTYPE_OUTPUT);
         PipelineState state = victim.run();
         assertFailed(state);
-        assertThat(state.stageOutputs()).containsExactly(SUCCESSFUL_ALIGNMENT_OUTPUT, SUCCESSFUL_BAM_METRICS, germlineCallerOutput);
+        assertThat(state.stageOutputs()).containsExactly(SUCCESSFUL_ALIGNMENT_OUTPUT, SUCCESSFUL_BAM_METRICS, germlineCallerOutput, SUCCESSFUL_SNPGENOTYPE_OUTPUT);
     }
 
     @Test
@@ -153,6 +174,7 @@ public class PatientReportPipelineTest {
         when(aligner.run()).thenReturn(SUCCESSFUL_ALIGNMENT_OUTPUT);
         when(bamMetrics.run(any())).thenReturn(SUCCESSFUL_BAM_METRICS);
         when(germlineCaller.run(SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(SUCCESSFUL_GERMLINE_OUTPUT);
+        when(snpGenotype.run(SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(SUCCESSFUL_SNPGENOTYPE_OUTPUT);
         when(alignmentOutputStorage.get(TUMOR)).thenReturn(Optional.of(MATE_ALIGNMENT_OUTPUT));
         when(bamMetricsOutputStorage.get(TUMOR)).thenReturn(MATE_BAM_METRICS);
         ImmutableSomaticCallerOutput somaticCallerOutput = SomaticCallerOutput.builder().status(JobStatus.FAILED).build();
@@ -167,6 +189,7 @@ public class PatientReportPipelineTest {
         assertThat(state.stageOutputs()).containsExactlyInAnyOrder(SUCCESSFUL_ALIGNMENT_OUTPUT,
                 SUCCESSFUL_BAM_METRICS,
                 SUCCESSFUL_GERMLINE_OUTPUT,
+                SUCCESSFUL_SNPGENOTYPE_OUTPUT,
                 somaticCallerOutput,
                 SUCCESSFUL_STRUCTURAL_CALLER_OUTPUT,
                 SUCCESSFUL_COBALT_OUTPUT,
@@ -178,6 +201,7 @@ public class PatientReportPipelineTest {
         when(aligner.run()).thenReturn(SUCCESSFUL_ALIGNMENT_OUTPUT);
         when(bamMetrics.run(any())).thenReturn(SUCCESSFUL_BAM_METRICS);
         when(germlineCaller.run(SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(SUCCESSFUL_GERMLINE_OUTPUT);
+        when(snpGenotype.run(SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(SUCCESSFUL_SNPGENOTYPE_OUTPUT);
         when(alignmentOutputStorage.get(TUMOR)).thenReturn(Optional.of(MATE_ALIGNMENT_OUTPUT));
         when(bamMetricsOutputStorage.get(TUMOR)).thenReturn(MATE_BAM_METRICS);
         when(somaticCaller.run(ALIGNMENT_PAIR)).thenReturn(SUCCESSFUL_SOMATIC_CALLER_OUTPUT);
@@ -197,6 +221,7 @@ public class PatientReportPipelineTest {
         assertThat(state.stageOutputs()).containsExactlyInAnyOrder(SUCCESSFUL_ALIGNMENT_OUTPUT,
                 SUCCESSFUL_BAM_METRICS,
                 SUCCESSFUL_GERMLINE_OUTPUT,
+                SUCCESSFUL_SNPGENOTYPE_OUTPUT,
                 SUCCESSFUL_SOMATIC_CALLER_OUTPUT,
                 SUCCESSFUL_STRUCTURAL_CALLER_OUTPUT,
                 SUCCESSFUL_COBALT_OUTPUT,
@@ -209,6 +234,7 @@ public class PatientReportPipelineTest {
         when(aligner.run()).thenReturn(SUCCESSFUL_ALIGNMENT_OUTPUT);
         when(bamMetrics.run(any())).thenReturn(SUCCESSFUL_BAM_METRICS);
         when(germlineCaller.run(SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(SUCCESSFUL_GERMLINE_OUTPUT);
+        when(snpGenotype.run(SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(SUCCESSFUL_SNPGENOTYPE_OUTPUT);
         when(alignmentOutputStorage.get(TUMOR)).thenReturn(Optional.of(MATE_ALIGNMENT_OUTPUT));
         when(somaticCaller.run(ALIGNMENT_PAIR)).thenReturn(SUCCESSFUL_SOMATIC_CALLER_OUTPUT);
         when(structuralCaller.run(ALIGNMENT_PAIR,
@@ -230,6 +256,7 @@ public class PatientReportPipelineTest {
         assertThat(state.stageOutputs()).containsExactlyInAnyOrder(SUCCESSFUL_ALIGNMENT_OUTPUT,
                 SUCCESSFUL_BAM_METRICS,
                 SUCCESSFUL_GERMLINE_OUTPUT,
+                SUCCESSFUL_SNPGENOTYPE_OUTPUT,
                 SUCCESSFUL_SOMATIC_CALLER_OUTPUT,
                 SUCCESSFUL_STRUCTURAL_CALLER_OUTPUT,
                 SUCCESSFUL_COBALT_OUTPUT,
@@ -243,6 +270,7 @@ public class PatientReportPipelineTest {
         when(aligner.run()).thenReturn(SUCCESSFUL_ALIGNMENT_OUTPUT);
         when(bamMetrics.run(any())).thenReturn(SUCCESSFUL_BAM_METRICS);
         when(germlineCaller.run(SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(SUCCESSFUL_GERMLINE_OUTPUT);
+        when(snpGenotype.run(SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(SUCCESSFUL_SNPGENOTYPE_OUTPUT);
         when(alignmentOutputStorage.get(TUMOR)).thenReturn(Optional.of(MATE_ALIGNMENT_OUTPUT));
         when(somaticCaller.run(ALIGNMENT_PAIR)).thenReturn(SUCCESSFUL_SOMATIC_CALLER_OUTPUT);
         when(structuralCaller.run(ALIGNMENT_PAIR,
@@ -263,6 +291,7 @@ public class PatientReportPipelineTest {
         assertThat(state.stageOutputs()).containsExactlyInAnyOrder(SUCCESSFUL_ALIGNMENT_OUTPUT,
                 SUCCESSFUL_BAM_METRICS,
                 SUCCESSFUL_GERMLINE_OUTPUT,
+                SUCCESSFUL_SNPGENOTYPE_OUTPUT,
                 SUCCESSFUL_SOMATIC_CALLER_OUTPUT,
                 SUCCESSFUL_STRUCTURAL_CALLER_OUTPUT,
                 SUCCESSFUL_COBALT_OUTPUT,
@@ -276,11 +305,13 @@ public class PatientReportPipelineTest {
         when(aligner.run()).thenReturn(SUCCESSFUL_ALIGNMENT_OUTPUT);
         when(bamMetrics.run(any())).thenReturn(SUCCESSFUL_BAM_METRICS);
         when(germlineCaller.run(SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(SUCCESSFUL_GERMLINE_OUTPUT);
+        when(snpGenotype.run(SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(SUCCESSFUL_SNPGENOTYPE_OUTPUT);
         PipelineState state = victim.run();
         assertSucceeded(state);
         assertThat(state.stageOutputs()).containsExactlyInAnyOrder(SUCCESSFUL_ALIGNMENT_OUTPUT,
                 SUCCESSFUL_BAM_METRICS,
-                SUCCESSFUL_GERMLINE_OUTPUT);
+                SUCCESSFUL_GERMLINE_OUTPUT,
+                SUCCESSFUL_SNPGENOTYPE_OUTPUT);
     }
 
     @Test
@@ -289,6 +320,7 @@ public class PatientReportPipelineTest {
         TestReportComponent alignerComponent = new TestReportComponent();
         TestReportComponent metricsComponent = new TestReportComponent();
         TestReportComponent germlineComponent = new TestReportComponent();
+        TestReportComponent snpgenotypeComponent = new TestReportComponent();
 
         AlignmentOutput alignmentWithReportComponents =
                 AlignmentOutput.builder().from(SUCCESSFUL_ALIGNMENT_OUTPUT).addReportComponents(alignerComponent).build();
@@ -302,10 +334,15 @@ public class PatientReportPipelineTest {
                 .from(SUCCESSFUL_GERMLINE_OUTPUT)
                 .addReportComponents(germlineComponent)
                 .build());
+        when(snpGenotype.run(alignmentWithReportComponents)).thenReturn(SnpGenotypeOutput.builder()
+                .from(SUCCESSFUL_SNPGENOTYPE_OUTPUT)
+                .addReportComponents(snpgenotypeComponent)
+                .build());
         victim.run();
         assertThat(alignerComponent.isAdded()).isTrue();
         assertThat(metricsComponent.isAdded()).isTrue();
         assertThat(germlineComponent.isAdded()).isTrue();
+        assertThat(snpgenotypeComponent.isAdded()).isTrue();
     }
 
     private void assertFailed(final PipelineState runOutput) {
