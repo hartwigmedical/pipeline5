@@ -8,6 +8,7 @@ import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.InputDownload;
+import com.hartwig.pipeline.execution.vm.MkDirCommand;
 import com.hartwig.pipeline.execution.vm.OutputUpload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
@@ -50,13 +51,15 @@ public class HealthChecker {
 
         BashStartupScript bash = BashStartupScript.of(runtimeBucket.name());
 
-
         InputDownload metricsDownload = new InputDownload(metricsOutput.metricsOutputFile(), localMetricsPath(metricsOutput));
         InputDownload mateMetricsDownload = new InputDownload(mateMetricsOutput.metricsOutputFile(), localMetricsPath(mateMetricsOutput));
         InputDownload amberDownload = new InputDownload(amberOutput.outputDirectory(), LOCAL_AMBER_DIR);
         InputDownload purpleDownload = new InputDownload(purpleOutput.outputDirectory(), LOCAL_PURPLE_DIR);
 
-        bash.addCommand(metricsDownload)
+        bash.addCommand(new MkDirCommand(LOCAL_METRICS_DIR))
+                .addCommand(new MkDirCommand(LOCAL_AMBER_DIR))
+                .addCommand(new MkDirCommand(LOCAL_PURPLE_DIR))
+                .addCommand(metricsDownload)
                 .addCommand(mateMetricsDownload)
                 .addCommand(amberDownload)
                 .addCommand(purpleDownload)
