@@ -1,5 +1,6 @@
 package com.hartwig.pipeline.calling.somatic;
 
+import com.hartwig.pipeline.calling.SubStage;
 import com.hartwig.pipeline.calling.command.TabixCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.OutputFile;
@@ -10,7 +11,7 @@ class SagePonFilter extends SubStage {
     }
 
     @Override
-    BashStartupScript bash(final OutputFile input, final OutputFile output, final BashStartupScript bash) {
+    public BashStartupScript bash(final OutputFile input, final OutputFile output, final BashStartupScript bash) {
         return bash.addCommand(new BcfToolsExcludeFilterCommand("'SAGE_PON_COUNT!=\".\" && MIN(SAGE_PON_COUNT) > 0'",
                 "SAGE_PON",
                 input.path(),

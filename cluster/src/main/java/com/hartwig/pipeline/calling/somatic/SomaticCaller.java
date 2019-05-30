@@ -3,6 +3,7 @@ package com.hartwig.pipeline.calling.somatic;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.AlignmentPair;
+import com.hartwig.pipeline.calling.SubStageInputOutput;
 import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;

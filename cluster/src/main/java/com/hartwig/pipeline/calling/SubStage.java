@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.calling.somatic;
+package com.hartwig.pipeline.calling;
 
 import java.util.function.Function;
 
@@ -17,9 +17,9 @@ public abstract class SubStage implements Function<SubStageInputOutput, SubStage
 
     @Override
     public SubStageInputOutput apply(final SubStageInputOutput input) {
-        OutputFile outputFile = OutputFile.of(input.tumorSampleName(), stageName, fileOutputType);
-        return SubStageInputOutput.of(input.tumorSampleName(), outputFile, bash(input.outputFile(), outputFile, input.currentBash()));
+        OutputFile outputFile = OutputFile.of(input.sampleName(), stageName, fileOutputType);
+        return SubStageInputOutput.of(input.sampleName(), outputFile, bash(input.outputFile(), outputFile, input.currentBash()));
     }
 
-    abstract BashStartupScript bash(final OutputFile input, OutputFile output, final BashStartupScript bash);
+    public abstract BashStartupScript bash(final OutputFile input, OutputFile output, final BashStartupScript bash);
 }

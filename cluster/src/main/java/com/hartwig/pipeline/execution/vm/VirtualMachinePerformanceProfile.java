@@ -1,10 +1,11 @@
 package com.hartwig.pipeline.execution.vm;
 
+import static java.lang.String.format;
+
 import com.hartwig.pipeline.execution.MachineType;
 import com.hartwig.pipeline.execution.PerformanceProfile;
-import org.immutables.value.Value;
 
-import static java.lang.String.format;
+import org.immutables.value.Value;
 
 @Value.Immutable
 public interface VirtualMachinePerformanceProfile extends PerformanceProfile{
@@ -17,11 +18,7 @@ public interface VirtualMachinePerformanceProfile extends PerformanceProfile{
     }
 
     static VirtualMachinePerformanceProfile defaultVm() {
-        return ImmutableVirtualMachinePerformanceProfile.builder().uri(MachineType.defaultWorker().uri()).build();
-    }
-
-    static VirtualMachinePerformanceProfile highCpuVm() {
-        return ImmutableVirtualMachinePerformanceProfile.builder().uri(MachineType.highCpu().uri()).build();
+        return ImmutableVirtualMachinePerformanceProfile.builder().uri(MachineType.defaultVm().uri()).build();
     }
 
     static VirtualMachinePerformanceProfile custom(int cores, int memoryGb) {

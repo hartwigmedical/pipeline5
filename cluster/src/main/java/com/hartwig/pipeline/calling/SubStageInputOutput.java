@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.calling.somatic;
+package com.hartwig.pipeline.calling;
 
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.OutputFile;
@@ -9,7 +9,7 @@ import org.immutables.value.Value;
 public interface SubStageInputOutput {
 
     @Value.Parameter
-    String tumorSampleName();
+    String sampleName();
 
     @Value.Parameter
     OutputFile outputFile();

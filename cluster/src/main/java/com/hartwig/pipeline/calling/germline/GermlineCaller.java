@@ -5,11 +5,12 @@ import static java.lang.String.format;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
-import com.hartwig.pipeline.calling.germline.command.GatkHaplotypeCallerCommand;
+import com.hartwig.pipeline.calling.SubStageInputOutput;
 import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.InputDownload;
+import com.hartwig.pipeline.execution.vm.OutputFile;
 import com.hartwig.pipeline.execution.vm.OutputUpload;
 import com.hartwig.pipeline.execution.vm.ResourceDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
@@ -63,13 +64,15 @@ public class GermlineCaller {
                 .addCommand(new InputDownload(alignmentOutput.finalBamLocation()))
                 .addCommand(new InputDownload(alignmentOutput.finalBaiLocation()))
                 .addCommand(new ResourceDownload(knownSnps.copyInto(bucket)))
-                .addCommand(new ResourceDownload(referenceGenome.copyInto(bucket)))
-                .addCommand(new GatkHaplotypeCallerCommand(format("%s/*.bam", VmDirectories.INPUT),
-                        format("%s/*.fasta", VmDirectories.RESOURCES),
-                        format("%s/dbsnp_137.b37.vcf", VmDirectories.RESOURCES),
-                        format("%s/%s", VmDirectories.OUTPUT, OUTPUT_FILENAME)))
-                .addLine("echo Processing finished at $(date)")
-                .addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path())));
+                .addCommand(new ResourceDownload(referenceGenome.copyInto(bucket)));
+
+        new GatkGermlineCaller(format("%s/*.bam", VmDirectories.INPUT),
+                format("%s/*.fasta", VmDirectories.RESOURCES),
+                format("%s/dbsnp_137.b37.vcf", VmDirectories.RESOURCES)).apply(SubStageInputOutput.of(alignmentOutput.sample().name(),
+                OutputFile.empty(),
+                startupScript));
+
+        startupScript.addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path())));
 
         ImmutableGermlineCallerOutput.Builder outputBuilder = GermlineCallerOutput.builder();
         JobStatus status = executor.submit(bucket, VirtualMachineJobDefinition.germlineCalling(startupScript, resultsDirectory));

@@ -2,6 +2,8 @@ package com.hartwig.pipeline.calling.somatic;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.hartwig.pipeline.calling.SubStage;
+
 import org.junit.Test;
 
 public class StrelkaPostProcessTest extends SubStageTest {
