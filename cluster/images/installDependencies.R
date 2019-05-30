@@ -3,33 +3,50 @@
 # to build them all in one directory to allow that to be archived in a GCP bucket and pulled down to the VMs quickly. This also
 # speeds up disk image creation because the R libs take about an hour to build.
 #
-# The goal of this script is to get the dependencies installed such that the stuff will run. Not objective beauty.
+# To determine the versions of the R libraries that have been installed you could do something like this:
+#   * Get a VM running from our standard image and extract the tarball of the R libraries to `/usr/local/lib/R/site-library`
+#   * Run the listing script from this directory: `Rscript ./listInstalledLibs.R`
+#
+# We make the assumption that any libraries installed in the R library search path (try `.libPaths()` from an R shell) will not
+# contain anything other than what has been packaged with the in-use R distribution. We do not use a custom library path via
+# `R_LIBS_USER` because it complicates all R client programs.
 
-install.packages("BiocManager", lib="/data/tools/gridss/2.2.2/rlibs")
-install.packages("devtools", lib="/data/tools/gridss/2.2.2/rlibs")
+install.packages("BiocManager")
+install.packages("devtools")
 library(BiocManager)
 library(devtools)
 
-install.packages("dplyr", lib="/data/tools/gridss/2.2.2/rlibs")
-install.packages("ggplot2", update = T, ask = F, lib="/data/tools/gridss/2.2.2/rlibs")
-install.packages("VariantAnnotation", update = T, ask = F, lib="/data/tools/gridss/2.2.2/rlibs")
-install.packages("copynumber", update = T, ask = F, lib="/data/tools/gridss/2.2.2/rlibs")
+install.packages("dplyr")
+install.packages("ggplot2", update = T, ask = F)
+install.packages("VariantAnnotation", update = T, ask = F)
+install.packages("copynumber", update = T, ask = F)
+install.packages("cowplot", update = T, ask = F)
 
-install.packages("argparser", update = T, ask = F, lib="/data/tools/gridss/2.2.2/rlibs")
-install.packages("XML", update = T, ask = F, lib="/data/tools/gridss/2.2.2/rlibs")
-install.packages("rtracklayer", update = T, ask = F, lib="/data/tools/gridss/2.2.2/rlibs")
-install.packages("BSgenome", update = T, ask = F, lib="/data/tools/gridss/2.2.2/rlibs")
-install.packages("BSgenome.Hsapiens.UCSC.hg19", update = T, ask = F, lib="/data/tools/gridss/2.2.2/rlibs")
-install.packages("tidyverse", update = T, ask = F, lib="/data/tools/gridss/2.2.2/rlibs")
+install.packages("argparser", update = T, ask = F)
+install.packages("XML", update = T, ask = F)
+install.packages("rtracklayer", update = T, ask = F)
+install.packages("BSgenome", update = T, ask = F)
+install.packages("BSgenome.Hsapiens.UCSC.hg19", update = T, ask = F)
+install.packages("tidyverse", update = T, ask = F)
+install.packages("rlang", update = T, ask = F)
+install.packages("R6", update = T, ask = F)
 
-BiocManager::install("VariantAnnotation", lib="/data/tools/gridss/2.2.2/rlibs")
-BiocManager::install("BSgenome.Hsapiens.UCSC.hg19", lib="/data/tools/gridss/2.2.2/rlibs")
+BiocManager::install("VariantAnnotation")
+BiocManager::install("BSgenome.Hsapiens.UCSC.hg19")
+BiocManager::install("BiocGenerics")
+BiocManager::install("S4Vectors")
+BiocManager::install("IRanges")
+BiocManager::install("GenomeInfoDb")
+BiocManager::install("GenomicRanges")
+BiocManager::install("Biostrings")
+BiocManager::install("Rsamtools")
+BiocManager::install("GenomicAlignments")
 
-install.packages("testthat", update = T, ask = F, lib="/data/tools/gridss/2.2.2/rlibs")
-install.packages("stringdist", update = T, ask = F, lib="/data/tools/gridss/2.2.2/rlibs")
-install.packages("assertthat", update = T, ask = F, lib="/data/tools/gridss/2.2.2/rlibs")
+install.packages("testthat", update = T, ask = F)
+install.packages("stringdist", update = T, ask = F)
+install.packages("assertthat", update = T, ask = F)
 
 # As of May 2019 some symbols have been stripped from the latest mirrored version of this library so build one from Github that
 # still has them intact.
-devtools::install_github("PapenfussLab/StructuralVariantAnnotation", ref="pre_bioconductor", lib="/data/tools/gridss/2.2.2/rlibs")
+devtools::install_github("PapenfussLab/StructuralVariantAnnotation", ref="pre_bioconductor")
 

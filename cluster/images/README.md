@@ -19,6 +19,12 @@ The goals are:
 ## Usage
 
 1. Amend the `standard.cmds` file.
+1. *If you are updating R dependencies*, probably best to rebuild them on a clean VM:
+     * Create a new VM from the existing standard image
+     * Amend the `installDependencies.R` file, copy it to the VM, run it. This will take quite some time probably.
+     * `tar` up the contents of the `R` system libraries and push those to the bucket. To be safe include the contents of all the
+         libraries, find them by running `.libPaths()` at an R prompt, eg:
+         `tar cvf /data/rlibs-merged.tar /usr/local/lib/R/site-library /usr/lib/R/site-library /usr/lib/R/library`
 1. Run the `create_custom_image.sh` script to generate a shell script that you can run, passing your new commands file as the only
    argument. You may decide to redirect the output to a file, or run it directly by piping the output thru `sh`.
 1. If you know you're not going to use it, delete the VM instance as the script uses a static name for the VM and will fail fast
