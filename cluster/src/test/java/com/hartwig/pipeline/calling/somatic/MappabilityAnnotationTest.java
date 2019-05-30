@@ -3,18 +3,19 @@ package com.hartwig.pipeline.calling.somatic;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.hartwig.pipeline.calling.SubStage;
+import com.hartwig.pipeline.calling.SubStageTest;
 
 import org.junit.Test;
 
 public class MappabilityAnnotationTest extends SubStageTest {
 
     @Override
-    SubStage createVictim() {
+    public SubStage createVictim() {
         return new MappabilityAnnotation("mappability.bed", "mappability.hdr");
     }
 
     @Override
-    String expectedPath() {
+    public String expectedPath() {
         return "/data/output/tumor.mappability.annotated.vcf.gz";
     }
 

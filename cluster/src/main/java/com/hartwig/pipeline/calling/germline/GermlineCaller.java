@@ -1,11 +1,10 @@
 package com.hartwig.pipeline.calling.germline;
 
-import static java.lang.String.format;
-
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.calling.SubStageInputOutput;
+import com.hartwig.pipeline.calling.substages.SnpEff;
 import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
@@ -14,7 +13,6 @@ import com.hartwig.pipeline.execution.vm.OutputFile;
 import com.hartwig.pipeline.execution.vm.OutputUpload;
 import com.hartwig.pipeline.execution.vm.ResourceDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
-import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
@@ -53,24 +51,26 @@ public class GermlineCaller {
         String sampleName = alignmentOutput.sample().name();
         RuntimeBucket bucket = RuntimeBucket.from(storage, NAMESPACE, sampleName, arguments);
 
-        Resource referenceGenome = new Resource(storage,
-                arguments.resourceBucket(),
-                ResourceNames.REFERENCE_GENOME,
-                new ReferenceGenomeAlias().andThen(new GATKDictAlias()));
-        Resource knownSnps = new Resource(storage, arguments.resourceBucket(), ResourceNames.KNOWN_SNPS);
+        ResourceDownload referenceGenome = ResourceDownload.from(bucket,
+                new Resource(storage,
+                        arguments.resourceBucket(),
+                        ResourceNames.REFERENCE_GENOME,
+                        new ReferenceGenomeAlias().andThen(new GATKDictAlias())));
+        ResourceDownload knownSnps = ResourceDownload.from(storage, arguments.resourceBucket(), ResourceNames.KNOWN_SNPS, bucket);
+        ResourceDownload snpEffResource = ResourceDownload.from(storage, arguments.resourceBucket(), ResourceNames.SNPEFF, bucket);
 
+        InputDownload bamDownload = new InputDownload(alignmentOutput.finalBamLocation());
         BashStartupScript startupScript = BashStartupScript.of(bucket.name())
-                .addLine("echo Starting up at $(date)")
-                .addCommand(new InputDownload(alignmentOutput.finalBamLocation()))
+                .addCommand(bamDownload)
                 .addCommand(new InputDownload(alignmentOutput.finalBaiLocation()))
-                .addCommand(new ResourceDownload(knownSnps.copyInto(bucket)))
-                .addCommand(new ResourceDownload(referenceGenome.copyInto(bucket)));
+                .addCommand(referenceGenome)
+                .addCommand(knownSnps)
+                .addCommand(snpEffResource);
 
-        new GatkGermlineCaller(format("%s/*.bam", VmDirectories.INPUT),
-                format("%s/*.fasta", VmDirectories.RESOURCES),
-                format("%s/dbsnp_137.b37.vcf", VmDirectories.RESOURCES)).apply(SubStageInputOutput.of(alignmentOutput.sample().name(),
-                OutputFile.empty(),
-                startupScript));
+        new GatkGermlineCaller(bamDownload.getLocalTargetPath(),
+                referenceGenome.find("fasta"),
+                knownSnps.find("dbsnp_137.b37.vcf")).andThen(new SnpEff(snpEffResource.find("config")))
+                .apply(SubStageInputOutput.of(alignmentOutput.sample().name(), OutputFile.empty(), startupScript));
 
         startupScript.addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path())));
 

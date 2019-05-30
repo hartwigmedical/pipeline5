@@ -3,13 +3,14 @@ package com.hartwig.pipeline.calling.somatic;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.hartwig.pipeline.calling.SubStage;
+import com.hartwig.pipeline.calling.SubStageTest;
 
 import org.junit.Test;
 
 public class SageHotspotsApplicationTest extends SubStageTest {
 
     @Override
-    SubStage createVictim() {
+    public SubStage createVictim() {
         return new SageHotspotsApplication("known_hotspots.tsv",
                 "coding_regions.bed",
                 "reference_genome.fasta",
@@ -20,7 +21,7 @@ public class SageHotspotsApplicationTest extends SubStageTest {
     }
 
     @Override
-    String expectedPath() {
+    public String expectedPath() {
         return "/data/output/tumor.sage.hotspots.vcf.gz";
     }
 

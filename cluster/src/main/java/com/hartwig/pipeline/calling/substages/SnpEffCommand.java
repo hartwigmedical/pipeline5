@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.calling.somatic;
+package com.hartwig.pipeline.calling.substages;
 
 import com.hartwig.pipeline.calling.command.VersionedToolCommand;
 import com.hartwig.pipeline.execution.vm.VmDirectories;

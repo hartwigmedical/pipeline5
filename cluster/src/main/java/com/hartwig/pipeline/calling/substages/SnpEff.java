@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.calling.somatic;
+package com.hartwig.pipeline.calling.substages;
 
 import com.hartwig.pipeline.calling.SubStage;
 import com.hartwig.pipeline.calling.command.BgzipCommand;
@@ -6,11 +6,11 @@ import com.hartwig.pipeline.calling.command.TabixCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.OutputFile;
 
-class SnpEff extends SubStage {
+public class SnpEff extends SubStage {
 
     private final String config;
 
-    SnpEff(final String config) {
+    public SnpEff(final String config) {
         super("snpeff.annotated", OutputFile.GZIPPED_VCF);
         this.config = config;
     }

@@ -1,20 +1,21 @@
-package com.hartwig.pipeline.calling.somatic;
+package com.hartwig.pipeline.calling.substages;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.hartwig.pipeline.calling.SubStage;
+import com.hartwig.pipeline.calling.SubStageTest;
 
 import org.junit.Test;
 
 public class SnpEffTest extends SubStageTest {
 
     @Override
-    SubStage createVictim() {
+    public SubStage createVictim() {
         return new SnpEff("snpeff.config");
     }
 
     @Override
-    String expectedPath() {
+    public String expectedPath() {
         return "/data/output/tumor.snpeff.annotated.vcf.gz";
     }
 
@@ -32,7 +33,7 @@ public class SnpEffTest extends SubStageTest {
 
     @Test
     public void runsTabix() {
-        assertThat(output.currentBash()
-                .asUnixString()).contains("/data/tools/tabix/0.2.6/tabix /data/output/tumor.snpeff.annotated.vcf.gz -p vcf");
+        assertThat(output.currentBash().asUnixString()).contains(
+                "/data/tools/tabix/0.2.6/tabix /data/output/tumor.snpeff.annotated.vcf.gz -p vcf");
     }
 }

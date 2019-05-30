@@ -1,9 +1,7 @@
-package com.hartwig.pipeline.calling.somatic;
+package com.hartwig.pipeline.calling;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.hartwig.pipeline.calling.SubStage;
-import com.hartwig.pipeline.calling.SubStageInputOutput;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.OutputFile;
 
@@ -21,9 +19,9 @@ public abstract class SubStageTest {
                 BashStartupScript.of("runtime_bucket")));
     }
 
-    abstract SubStage createVictim();
+    public abstract SubStage createVictim();
 
-    abstract String expectedPath();
+    public abstract String expectedPath();
 
     @Test
     public void returnsPathToCorrectOutputFile() {
