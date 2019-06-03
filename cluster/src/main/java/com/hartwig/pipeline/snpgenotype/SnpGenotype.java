@@ -70,10 +70,8 @@ public class SnpGenotype {
                         format("%s/%s", VmDirectories.OUTPUT, OUTPUT_FILENAME)))
                 .addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path())));
 
-        ImmutableSnpGenotypeOutput.Builder outputBuilder = SnpGenotypeOutput.builder();
-
         JobStatus status = executor.submit(bucket, VirtualMachineJobDefinition.snpGenptyping(startupScript, resultsDirectory));
-        return outputBuilder.status(status)
+        return SnpGenotypeOutput.builder().status(status)
                 .addReportComponents(new RunLogComponent(bucket, NAMESPACE, sampleName, resultsDirectory))
                 .addReportComponents(new SingleFileComponent(bucket, NAMESPACE, sampleName, OUTPUT_FILENAME, resultsDirectory))
                 .build();
