@@ -2,6 +2,7 @@ package com.hartwig.pipeline.execution.vm;
 
 import com.hartwig.pipeline.execution.JobDefinition;
 import com.hartwig.pipeline.io.ResultsDirectory;
+
 import org.immutables.value.Value;
 
 @Value.Immutable
@@ -10,7 +11,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
     String STANDARD_IMAGE = "diskimager-standard";
 
     @Value.Default
-    default String imageFamily(){
+    default String imageFamily() {
         return STANDARD_IMAGE;
     }
 
@@ -20,7 +21,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
 
     @Override
     @Value.Default
-    default VirtualMachinePerformanceProfile performanceProfile(){
+    default VirtualMachinePerformanceProfile performanceProfile() {
         return VirtualMachinePerformanceProfile.defaultVm();
     }
 
@@ -100,6 +101,15 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .name("health-checker")
                 .startupCommand(startupScript)
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(8, 32))
+                .namespacedResults(resultsDirectory)
+                .build();
+    }
+
+    static VirtualMachineJobDefinition flagstat(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
+        return ImmutableVirtualMachineJobDefinition.builder()
+                .name("flagstat")
+                .startupCommand(startupScript)
+                .performanceProfile(VirtualMachinePerformanceProfile.defaultVm())
                 .namespacedResults(resultsDirectory)
                 .build();
     }

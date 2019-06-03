@@ -30,6 +30,9 @@ import com.hartwig.pipeline.calling.structural.StructuralCallerOutput;
 import com.hartwig.pipeline.calling.structural.StructuralCallerProvider;
 import com.hartwig.pipeline.credentials.CredentialProvider;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
+import com.hartwig.pipeline.flagstat.Flagstat;
+import com.hartwig.pipeline.flagstat.FlagstatOutput;
+import com.hartwig.pipeline.flagstat.FlagstatProvider;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.metadata.PatientMetadataApi;
 import com.hartwig.pipeline.metadata.PatientMetadataApiProvider;
@@ -73,14 +76,15 @@ public class PatientReportPipeline {
     private final AlignmentOutputStorage alignmentOutputStorage;
     private final BamMetricsOutputStorage bamMetricsOutputStorage;
     private final SnpGenotype snpGenotype;
+    private final Flagstat flagstat;
     private final PatientReport report;
     private final ExecutorService executorService;
 
     PatientReportPipeline(final PatientMetadataApi patientMetadataApi, final Aligner aligner, final BamMetrics metrics,
-                          final GermlineCaller germlineCaller, final SomaticCaller somaticCaller, final StructuralCaller structuralCaller,
-                          final Amber amber, final Cobalt cobalt, final Purple purple, final HealthChecker healthChecker,
-                          final AlignmentOutputStorage alignmentOutputStorage, final BamMetricsOutputStorage bamMetricsOutputStorage,
-                          final SnpGenotype snpGenotype, final PatientReport report, final ExecutorService executorService) {
+            final GermlineCaller germlineCaller, final SomaticCaller somaticCaller, final StructuralCaller structuralCaller,
+            final Amber amber, final Cobalt cobalt, final Purple purple, final HealthChecker healthChecker,
+            final AlignmentOutputStorage alignmentOutputStorage, final BamMetricsOutputStorage bamMetricsOutputStorage,
+            final SnpGenotype snpGenotype, final Flagstat flagstat, final PatientReport report, final ExecutorService executorService) {
         this.patientMetadataApi = patientMetadataApi;
         this.aligner = aligner;
         this.metrics = metrics;
@@ -94,6 +98,7 @@ public class PatientReportPipeline {
         this.alignmentOutputStorage = alignmentOutputStorage;
         this.bamMetricsOutputStorage = bamMetricsOutputStorage;
         this.snpGenotype = snpGenotype;
+        this.flagstat = flagstat;
         this.report = report;
         this.executorService = executorService;
     }
@@ -108,6 +113,7 @@ public class PatientReportPipeline {
             Future<BamMetricsOutput> bamMetricsFuture = executorService.submit(() -> metrics.run(alignmentOutput));
             Future<GermlineCallerOutput> germlineCallerFuture = executorService.submit(() -> germlineCaller.run(alignmentOutput));
             Future<SnpGenotypeOutput> unifiedGenotyperFuture = executorService.submit(() -> snpGenotype.run(alignmentOutput));
+            Future<FlagstatOutput> flagstatOutputFuture = executorService.submit(() -> flagstat.run(alignmentOutput));
 
             Optional<AlignmentOutput> maybeMate = alignmentOutputStorage.get(mate(alignmentOutput.sample()));
             if (maybeMate.isPresent()) {
@@ -137,11 +143,7 @@ public class PatientReportPipeline {
                                 cobaltOutput,
                                 amberOutput)));
                         if (state.shouldProceed()) {
-                            report.add(state.add(healthChecker.run(pair,
-                                    metricsOutput,
-                                    mateMetricsOutput,
-                                    amberOutput,
-                                    purpleOutput)));
+                            report.add(state.add(healthChecker.run(pair, metricsOutput, mateMetricsOutput, amberOutput, purpleOutput)));
                         }
                     }
                 }
@@ -150,6 +152,7 @@ public class PatientReportPipeline {
             }
             report.add(state.add(futurePayload(germlineCallerFuture)));
             report.add(state.add(futurePayload(unifiedGenotyperFuture)));
+            report.add(state.add(futurePayload(flagstatOutputFuture)));
         }
 
         report.compose(setName);
@@ -183,7 +186,12 @@ public class PatientReportPipeline {
                         HealthCheckerProvider.from(arguments, credentials, storage).get(),
                         new AlignmentOutputStorage(storage, arguments, ResultsDirectory.defaultDirectory()),
                         new BamMetricsOutputStorage(storage, arguments, ResultsDirectory.defaultDirectory()),
-                        new SnpGenotype(arguments, ComputeEngine.from(arguments, credentials), storage, ResultsDirectory.defaultDirectory()), PatientReportProvider.from(storage, arguments).get(),
+                        new SnpGenotype(arguments,
+                                ComputeEngine.from(arguments, credentials),
+                                storage,
+                                ResultsDirectory.defaultDirectory()),
+                        FlagstatProvider.from(arguments, credentials, storage).get(),
+                        PatientReportProvider.from(storage, arguments).get(),
                         Executors.newCachedThreadPool()).run();
                 LOGGER.info("Patient report pipeline is complete with status [{}]. Stages run were [{}]", state.status(), state);
             } catch (Exception e) {
