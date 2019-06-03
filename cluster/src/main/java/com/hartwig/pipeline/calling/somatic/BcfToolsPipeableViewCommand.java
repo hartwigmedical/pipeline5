@@ -3,6 +3,7 @@ package com.hartwig.pipeline.calling.somatic;
 import java.util.List;
 
 import com.google.common.collect.Lists;
+import com.hartwig.pipeline.calling.command.BcfToolsCommand;
 
 import org.jetbrains.annotations.NotNull;
 

@@ -14,4 +14,6 @@ public interface ResourceNames {
     String SNPEFF = "snpeff";
     String COSMIC = "cosmic_v85";
     String AMBER_PON = "amber_pon";
+    String DBNSFP = "dbNSFP_v2.9";
+    String GONL = "gonl_v5";
 }

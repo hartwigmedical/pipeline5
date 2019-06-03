@@ -3,6 +3,7 @@ package com.hartwig.pipeline.calling.somatic;
 import java.util.List;
 
 import com.hartwig.pipeline.calling.SubStage;
+import com.hartwig.pipeline.calling.command.BcfToolsAnnotationCommand;
 import com.hartwig.pipeline.calling.command.TabixCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.OutputFile;

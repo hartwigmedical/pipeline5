@@ -1,16 +1,17 @@
-package com.hartwig.pipeline.calling.somatic;
+package com.hartwig.pipeline.calling.substages;
 
 import com.google.common.collect.Lists;
 import com.hartwig.pipeline.calling.SubStage;
+import com.hartwig.pipeline.calling.command.BcfToolsAnnotationCommand;
 import com.hartwig.pipeline.calling.command.TabixCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.OutputFile;
 
-class CosmicAnnotation extends SubStage {
+public class CosmicAnnotation extends SubStage {
 
     private final String cosmicDB;
 
-    CosmicAnnotation(final String cosmicDB) {
+    public CosmicAnnotation(final String cosmicDB) {
         super("cosmic.annotated", OutputFile.GZIPPED_VCF);
         this.cosmicDB = cosmicDB;
     }

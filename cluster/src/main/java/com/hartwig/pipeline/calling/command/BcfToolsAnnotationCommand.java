@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.calling.somatic;
+package com.hartwig.pipeline.calling.command;
 
 import java.util.List;
 
@@ -6,8 +6,8 @@ import com.google.common.collect.Lists;
 
 import org.jetbrains.annotations.NotNull;
 
-class BcfToolsAnnotationCommand extends BcfToolsCommand {
-    BcfToolsAnnotationCommand(List<String> annotationArguments, final String inputVcf, final String outputVcf) {
+public class BcfToolsAnnotationCommand extends BcfToolsCommand {
+    public BcfToolsAnnotationCommand(List<String> annotationArguments, final String inputVcf, final String outputVcf) {
         super(arguments(annotationArguments, inputVcf, outputVcf));
     }
 

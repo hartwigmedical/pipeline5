@@ -13,7 +13,12 @@ public class TestInputs {
     private static final String RESULTS = "results/";
 
     public static AlignmentPair defaultPair() {
-        return AlignmentPair.of(alignerOutput("reference", Sample.Type.REFERENCE), alignerOutput("tumor", Sample.Type.TUMOR));
+        return AlignmentPair.of(referenceAlignmentOutput(), alignerOutput("tumor", Sample.Type.TUMOR));
+    }
+
+    @NotNull
+    public static AlignmentOutput referenceAlignmentOutput() {
+        return alignerOutput("reference", Sample.Type.REFERENCE);
     }
 
     private static AlignmentOutput alignerOutput(final String sample, final Sample.Type type) {
