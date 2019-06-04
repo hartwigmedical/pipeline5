@@ -28,7 +28,9 @@ import com.hartwig.pipeline.calling.somatic.SomaticCallerProvider;
 import com.hartwig.pipeline.calling.structural.StructuralCaller;
 import com.hartwig.pipeline.calling.structural.StructuralCallerOutput;
 import com.hartwig.pipeline.calling.structural.StructuralCallerProvider;
+import com.hartwig.pipeline.cleanup.Cleanup;
 import com.hartwig.pipeline.credentials.CredentialProvider;
+import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.flagstat.Flagstat;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
@@ -79,12 +81,14 @@ public class PatientReportPipeline {
     private final Flagstat flagstat;
     private final PatientReport report;
     private final ExecutorService executorService;
+    private final Cleanup cleanup;
 
     PatientReportPipeline(final PatientMetadataApi patientMetadataApi, final Aligner aligner, final BamMetrics metrics,
             final GermlineCaller germlineCaller, final SomaticCaller somaticCaller, final StructuralCaller structuralCaller,
             final Amber amber, final Cobalt cobalt, final Purple purple, final HealthChecker healthChecker,
             final AlignmentOutputStorage alignmentOutputStorage, final BamMetricsOutputStorage bamMetricsOutputStorage,
-            final SnpGenotype snpGenotype, final Flagstat flagstat, final PatientReport report, final ExecutorService executorService) {
+            final SnpGenotype snpGenotype, final Flagstat flagstat, final PatientReport report, final ExecutorService executorService,
+            final Cleanup cleanup) {
         this.patientMetadataApi = patientMetadataApi;
         this.aligner = aligner;
         this.metrics = metrics;
@@ -101,6 +105,7 @@ public class PatientReportPipeline {
         this.flagstat = flagstat;
         this.report = report;
         this.executorService = executorService;
+        this.cleanup = cleanup;
     }
 
     public PipelineState run() throws Exception {
@@ -147,15 +152,21 @@ public class PatientReportPipeline {
                         }
                     }
                 }
+                report.add(state.add(futurePayload(germlineCallerFuture)));
+                report.add(state.add(futurePayload(unifiedGenotyperFuture)));
+                report.add(state.add(futurePayload(flagstatOutputFuture)));
+                report.compose(setName);
+                if (state.status() == JobStatus.SUCCESS) {
+                    cleanup.run(pair);
+                }
             } else {
                 report.add(state.add(futurePayload(bamMetricsFuture)));
+                report.add(state.add(futurePayload(germlineCallerFuture)));
+                report.add(state.add(futurePayload(unifiedGenotyperFuture)));
+                report.add(state.add(futurePayload(flagstatOutputFuture)));
+                report.compose(setName);
             }
-            report.add(state.add(futurePayload(germlineCallerFuture)));
-            report.add(state.add(futurePayload(unifiedGenotyperFuture)));
-            report.add(state.add(futurePayload(flagstatOutputFuture)));
         }
-
-        report.compose(setName);
         return state;
     }
 
@@ -192,8 +203,10 @@ public class PatientReportPipeline {
                                 ResultsDirectory.defaultDirectory()),
                         FlagstatProvider.from(arguments, credentials, storage).get(),
                         PatientReportProvider.from(storage, arguments).get(),
-                        Executors.newCachedThreadPool()).run();
+                        Executors.newCachedThreadPool(),
+                        new Cleanup(storage, arguments)).run();
                 LOGGER.info("Patient report pipeline is complete with status [{}]. Stages run were [{}]", state.status(), state);
+
             } catch (Exception e) {
                 LOGGER.error("An unexpected issue arose while running the pipeline. See the attached exception for more details.", e);
                 System.exit(1);

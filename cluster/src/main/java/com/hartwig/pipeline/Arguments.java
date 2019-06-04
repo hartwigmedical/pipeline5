@@ -144,7 +144,7 @@ public interface Arguments {
                     .cloudSdkPath(DEFAULT_DEVELOPMENT_CLOUD_SDK_PATH)
                     .serviceAccountEmail(DEFAULT_DEVELOPMENT_SERVICE_ACCOUNT_EMAIL)
                     .forceJarUpload(false)
-                    .cleanup(false)
+                    .cleanup(true)
                     .usePreemptibleVms(true)
                     .download(false)
                     .upload(true)

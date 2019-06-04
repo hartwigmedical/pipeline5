@@ -9,7 +9,7 @@ import com.hartwig.pipeline.execution.JobStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class PipelineState {
+public class PipelineState {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PipelineState.class);
     private final List<StageOutput> stageOutputs = Lists.newArrayList();

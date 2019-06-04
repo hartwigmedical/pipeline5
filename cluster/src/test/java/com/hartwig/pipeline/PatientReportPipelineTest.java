@@ -3,6 +3,8 @@ package com.hartwig.pipeline;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
@@ -28,6 +30,7 @@ import com.hartwig.pipeline.calling.somatic.SomaticCaller;
 import com.hartwig.pipeline.calling.somatic.SomaticCallerOutput;
 import com.hartwig.pipeline.calling.structural.StructuralCaller;
 import com.hartwig.pipeline.calling.structural.StructuralCallerOutput;
+import com.hartwig.pipeline.cleanup.Cleanup;
 import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.flagstat.Flagstat;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
@@ -93,6 +96,7 @@ public class PatientReportPipelineTest {
     private static final ImmutableAlignmentOutput MATE_ALIGNMENT_OUTPUT =
             AlignmentOutput.builder().status(JobStatus.SUCCESS).sample(TUMOR).build();
     private static final AlignmentPair ALIGNMENT_PAIR = AlignmentPair.of(SUCCESSFUL_ALIGNMENT_OUTPUT, MATE_ALIGNMENT_OUTPUT);
+    private Cleanup cleanup;
 
     @Before
     public void setUp() throws Exception {
@@ -112,6 +116,7 @@ public class PatientReportPipelineTest {
         PatientMetadataApi patientMetadataApi = mock(PatientMetadataApi.class);
         when(patientMetadataApi.getMetadata()).thenReturn(PatientMetadata.of(SET_NAME));
         final PatientReport patientReport = PatientReportProvider.from(mock(Storage.class), Arguments.testDefaults()).get();
+        cleanup = mock(Cleanup.class);
         victim = new PatientReportPipeline(patientMetadataApi,
                 aligner,
                 bamMetrics,
@@ -127,7 +132,8 @@ public class PatientReportPipelineTest {
                 snpGenotype,
                 flagstat,
                 patientReport,
-                Executors.newSingleThreadExecutor());
+                Executors.newSingleThreadExecutor(),
+                cleanup);
     }
 
     @Test
@@ -311,7 +317,7 @@ public class PatientReportPipelineTest {
     }
 
     @Test
-    public void returnsSuccessfulPipelineRunAllStagesSucceed() throws Exception {
+    public void returnsSuccessfulPipelineRunAndCleansUpAllStagesSucceed() throws Exception {
         when(aligner.run()).thenReturn(SUCCESSFUL_ALIGNMENT_OUTPUT);
         when(bamMetrics.run(any())).thenReturn(SUCCESSFUL_BAM_METRICS);
         when(germlineCaller.run(SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(SUCCESSFUL_GERMLINE_OUTPUT);
@@ -345,6 +351,7 @@ public class PatientReportPipelineTest {
                 SUCCESSFUL_AMBER_OUTPUT,
                 SUCCESSFUL_PURPLE_OUTPUT,
                 SUCCESSFUL_HEALTH_CHECK);
+        verify(cleanup, times(1)).run(ALIGNMENT_PAIR);
     }
 
     @Test
