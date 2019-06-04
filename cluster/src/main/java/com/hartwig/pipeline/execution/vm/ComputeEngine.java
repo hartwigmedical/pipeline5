@@ -90,6 +90,7 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
             if (status == JobStatus.SUCCESS) {
                 delete(project, vmName);
             }
+            LOGGER.info("Execution of [{}] complete", vmName);
         } catch (Exception e) {
             String message = format("An error occurred running job on compute engine [%s]", vmName);
             LOGGER.error(message, e);
