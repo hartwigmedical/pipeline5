@@ -4,10 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,6 +37,7 @@ public class ComputeEngineTest {
     private MockRuntimeBucket runtimeBucket;
     private Compute compute;
     private ImmutableVirtualMachineJobDefinition jobDefinition;
+    private Compute.Instances instances;
 
     @Before
     public void setUp() throws Exception {
@@ -48,7 +50,7 @@ public class ComputeEngineTest {
         Compute.Instances.Insert insert = mock(Compute.Instances.Insert.class);
         Operation insertOperation = mock(Operation.class);
         when(insertOperation.getName()).thenReturn("insert");
-        Compute.Instances instances = mock(Compute.Instances.class);
+        instances = mock(Compute.Instances.class);
         when(instances.insert(eq(ARGUMENTS.project()), eq(ComputeEngine.ZONE_NAME), instanceArgumentCaptor.capture())).thenReturn(insert);
         when(insert.execute()).thenReturn(insertOperation);
         Compute.Instances.Stop stop = mock(Compute.Instances.Stop.class);
@@ -57,6 +59,13 @@ public class ComputeEngineTest {
         when(stopOperation.getStatus()).thenReturn("DONE");
         when(stop.execute()).thenReturn(stopOperation);
         when(instances.stop(ARGUMENTS.project(), ComputeEngine.ZONE_NAME, "test-test")).thenReturn(stop);
+
+        Compute.Instances.Delete delete = mock(Compute.Instances.Delete.class);
+        Operation deleteOperation = mock(Operation.class);
+        when(deleteOperation.getName()).thenReturn("delete");
+        when(deleteOperation.getStatus()).thenReturn("DONE");
+        when(delete.execute()).thenReturn(stopOperation);
+        when(instances.delete(ARGUMENTS.project(), ComputeEngine.ZONE_NAME, "test-test")).thenReturn(delete);
 
         Compute.ZoneOperations zoneOperations = mock(Compute.ZoneOperations.class);
         Compute.ZoneOperations.Get zoneOpGet = mock(Compute.ZoneOperations.Get.class);
@@ -86,45 +95,37 @@ public class ComputeEngineTest {
     }
 
     @Test
-    public void createsVmWithRunScriptAndWaitsForCompletion() {
+    public void createsVmWithRunScriptAndWaitsForCompletion() throws Exception {
         runtimeBucket = runtimeBucket.with(successBlob(), 1);
         List<Blob> blobs = new ArrayList<>();
-        try {
-            Blob mockBlob = mock(Blob.class);
-            ReadChannel mockReadChannel = mock(ReadChannel.class);
-            when(mockReadChannel.read(any())).thenReturn(-1);
-            when(mockBlob.getName()).thenReturn(successBlob());
-            when(mockBlob.getSize()).thenReturn(1L);
-            when(mockBlob.reader()).thenReturn(mockReadChannel);
-            when(mockBlob.getMd5()).thenReturn("");
-            blobs.add(mockBlob);
-            when(runtimeBucket.getRuntimeBucket().get(BashStartupScript.JOB_SUCCEEDED_FLAG)).thenReturn(mockBlob);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        Blob mockBlob = mock(Blob.class);
+        ReadChannel mockReadChannel = mock(ReadChannel.class);
+        when(mockReadChannel.read(any())).thenReturn(-1);
+        when(mockBlob.getName()).thenReturn(successBlob());
+        when(mockBlob.getSize()).thenReturn(1L);
+        when(mockBlob.reader()).thenReturn(mockReadChannel);
+        when(mockBlob.getMd5()).thenReturn("");
+        blobs.add(mockBlob);
+        when(runtimeBucket.getRuntimeBucket().get(BashStartupScript.JOB_SUCCEEDED_FLAG)).thenReturn(mockBlob);
 
         when(runtimeBucket.getRuntimeBucket().list()).thenReturn(new ArrayList<>()).thenReturn(new ArrayList<>()).thenReturn(blobs);
         assertThat(victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition)).isEqualTo(JobStatus.SUCCESS);
     }
 
     @Test
-    public void returnsJobFailedWhenScriptFailsRemotely() {
+    public void returnsJobFailedWhenScriptFailsRemotely() throws Exception {
         runtimeBucket = runtimeBucket.with(failureBlob(), 1);
 
         List<Blob> blobs = new ArrayList<>();
-        try {
-            Blob mockBlob = mock(Blob.class);
-            ReadChannel mockReadChannel = mock(ReadChannel.class);
-            when(mockReadChannel.read(any())).thenReturn(-1);
-            when(mockBlob.getName()).thenReturn(failureBlob());
-            when(mockBlob.getSize()).thenReturn(1L);
-            when(mockBlob.reader()).thenReturn(mockReadChannel);
-            when(mockBlob.getMd5()).thenReturn("");
-            blobs.add(mockBlob);
-            when(runtimeBucket.getRuntimeBucket().get(BashStartupScript.JOB_FAILED_FLAG)).thenReturn(mockBlob);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        Blob mockBlob = mock(Blob.class);
+        ReadChannel mockReadChannel = mock(ReadChannel.class);
+        when(mockReadChannel.read(any())).thenReturn(-1);
+        when(mockBlob.getName()).thenReturn(failureBlob());
+        when(mockBlob.getSize()).thenReturn(1L);
+        when(mockBlob.reader()).thenReturn(mockReadChannel);
+        when(mockBlob.getMd5()).thenReturn("");
+        blobs.add(mockBlob);
+        when(runtimeBucket.getRuntimeBucket().get(BashStartupScript.JOB_FAILED_FLAG)).thenReturn(mockBlob);
         when(runtimeBucket.getRuntimeBucket().list()).thenReturn(new ArrayList<>()).thenReturn(new ArrayList<>()).thenReturn(blobs);
         assertThat(victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition)).isEqualTo(JobStatus.FAILED);
     }
@@ -137,10 +138,21 @@ public class ComputeEngineTest {
     }
 
     @Test
-    public void shouldSkipJobWhenFailureFlagFileAlreadyExists() {
-        runtimeBucket = runtimeBucket.with(failureBlob(), 1);
-        assertThat(victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition)).isEqualTo(JobStatus.SKIPPED);
-        verifyNoMoreInteractions(compute);
+    public void deletesVmWhenJobIsSuccessful() throws Exception {
+        runtimeBucket = runtimeBucket.with(successBlob(), 1);
+        List<Blob> blobs = new ArrayList<>();
+        Blob mockBlob = mock(Blob.class);
+        ReadChannel mockReadChannel = mock(ReadChannel.class);
+        when(mockReadChannel.read(any())).thenReturn(-1);
+        when(mockBlob.getName()).thenReturn(successBlob());
+        when(mockBlob.getSize()).thenReturn(1L);
+        when(mockBlob.reader()).thenReturn(mockReadChannel);
+        when(mockBlob.getMd5()).thenReturn("");
+        blobs.add(mockBlob);
+        when(runtimeBucket.getRuntimeBucket().get(BashStartupScript.JOB_SUCCEEDED_FLAG)).thenReturn(mockBlob);
+        when(runtimeBucket.getRuntimeBucket().list()).thenReturn(new ArrayList<>()).thenReturn(new ArrayList<>()).thenReturn(blobs);
+        victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
+        verify(instances, times(1)).delete(ARGUMENTS.project(), ComputeEngine.ZONE_NAME, "test-test");
     }
 
     private String successBlob() {

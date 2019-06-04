@@ -59,8 +59,7 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
         String vmName = bucket.runId() + "-" + jobDefinition.name();
         JobStatus status;
         try {
-            if (bucketContainsFile(bucket, jobDefinition.startupCommand().successFlag()) || bucketContainsFile(bucket,
-                    jobDefinition.startupCommand().failureFlag())) {
+            if (bucketContainsFile(bucket, jobDefinition.startupCommand().successFlag())) {
                 LOGGER.info("Compute engine job [{}] already exists. Skipping job.", vmName);
                 return JobStatus.SKIPPED;
             }
@@ -88,6 +87,9 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
             LOGGER.debug("Successfully initialised [{}]", vmName);
             status = waitForCompletion(bucket, jobDefinition);
             stop(project, vmName);
+            if (status == JobStatus.SUCCESS) {
+                delete(project, vmName);
+            }
         } catch (Exception e) {
             String message = format("An error occurred running job on compute engine [%s]", vmName);
             LOGGER.error(message, e);
@@ -238,15 +240,11 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
         }
     }
 
-    private void stop(String projectName, String vmName) {
-        LOGGER.info("Stopping [{}]", vmName);
-        try {
-            executeSynchronously(compute.instances().stop(projectName, ZONE_NAME, vmName), projectName);
-            LOGGER.info("Stopped [{}]", vmName);
-        } catch (Exception e) {
-            String message = format("Failed to stop [%s]", this);
-            LOGGER.error(message, e);
-            throw new RuntimeException(message, e);
-        }
+    private void stop(String projectName, String vmName) throws Exception {
+        executeSynchronously(compute.instances().stop(projectName, ZONE_NAME, vmName), projectName);
+    }
+
+    private void delete(String projectName, String vmName) throws Exception {
+        executeSynchronously(compute.instances().delete(projectName, ZONE_NAME, vmName), projectName);
     }
 }
