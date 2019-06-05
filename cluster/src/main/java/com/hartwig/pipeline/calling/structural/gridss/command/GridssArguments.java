@@ -1,5 +1,6 @@
-package com.hartwig.pipeline.calling.structural.gridss.process;
+package com.hartwig.pipeline.calling.structural.gridss.command;
 
+import com.hartwig.pipeline.calling.structural.gridss.GridssCommon;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 
 import java.util.ArrayList;

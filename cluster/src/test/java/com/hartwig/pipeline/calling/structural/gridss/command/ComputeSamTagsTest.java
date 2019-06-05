@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.calling.structural.gridss.process;
+package com.hartwig.pipeline.calling.structural.gridss.command;
 
 import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
 import org.junit.Before;
@@ -19,8 +19,13 @@ public class ComputeSamTagsTest implements CommonEntities {
     }
 
     @Test
-    public void shouldCreateCommandLineStartingWithJavaCommandAndJvmArgumentsAndClassName() {
-        GridssCommonArgumentsAssert.assertThat(command).hasJvmArgsAndClassName(CLASSNAME, "4G");
+    public void shouldReturnClassname() {
+        assertThat(command.className()).isEqualTo(CLASSNAME);
+    }
+
+    @Test
+    public void shouldUseStandardAmountOfMemory() {
+        GridssCommonArgumentsAssert.assertThat(command).usesStandardAmountOfMemory();
     }
 
     @Test
@@ -43,9 +48,9 @@ public class ComputeSamTagsTest implements CommonEntities {
                 .and("tags", "Q2")
                 .and("tags", "MC")
                 .and("tags", "MQ")
-                .and("assume_sorted", format("true | %s sort -O bam -T /tmp/samtools.sort.tmp -@ 2 -o %s", PATH_TO_SAMTOOLS, expectedOutputFile))
-                .andNoMore()
-                .andGridssArgumentsAfterClassnameAreCorrect(CLASSNAME);
+                .and("assume_sorted", "true")
+                .andNoMore();
+//                .andGridssArgumentsAfterClassnameAreCorrect(CLASSNAME);
     }
 
     @Test

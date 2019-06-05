@@ -1,28 +1,15 @@
 package com.hartwig.pipeline.calling.structural;
 
-import static java.lang.String.format;
-import static java.util.Arrays.asList;
-
-import java.io.File;
-
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.alignment.after.metrics.BamMetricsOutput;
-import com.hartwig.pipeline.calling.structural.gridss.process.GridssCommon;
-import com.hartwig.pipeline.calling.structural.gridss.process.IdentifyVariants;
-import com.hartwig.pipeline.calling.structural.gridss.stage.Annotation;
-import com.hartwig.pipeline.calling.structural.gridss.stage.Assemble;
-import com.hartwig.pipeline.calling.structural.gridss.stage.CommandFactory;
-import com.hartwig.pipeline.calling.structural.gridss.stage.Preprocess;
+import com.hartwig.pipeline.calling.structural.gridss.GridssCommon;
+import com.hartwig.pipeline.calling.structural.gridss.command.GridssToBashCommandConverter;
+import com.hartwig.pipeline.calling.structural.gridss.command.IdentifyVariants;
+import com.hartwig.pipeline.calling.structural.gridss.stage.*;
 import com.hartwig.pipeline.execution.JobStatus;
-import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.ComputeEngine;
-import com.hartwig.pipeline.execution.vm.InputDownload;
-import com.hartwig.pipeline.execution.vm.OutputUpload;
-import com.hartwig.pipeline.execution.vm.ResourceDownload;
-import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
-import com.hartwig.pipeline.execution.vm.VmDirectories;
+import com.hartwig.pipeline.execution.vm.*;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
@@ -30,6 +17,11 @@ import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.resource.Resource;
 import com.hartwig.pipeline.resource.ResourceNames;
 import com.hartwig.pipeline.trace.StageTrace;
+
+import java.io.File;
+
+import static java.lang.String.format;
+import static java.util.Arrays.asList;
 
 public class StructuralCaller {
 
@@ -72,37 +64,40 @@ public class StructuralCaller {
 
         InputDownload mateMetricsDownload = new InputDownload(mateMetricsOutput.metricsOutputFile());
 
-        bash.addCommands(asList(tumorBam, referenceBam, tumorBai, referenceBai, metricsDownload, mateMetricsDownload));
-        CommandFactory commandFactory = new CommandFactory();
+        bash.addCommands(asList(tumorBam, referenceBam, tumorBai, referenceBai, metricsDownload, mateMetricsDownload, referenceGenomeDownload));
 
+        bash.addLine("ulimit -n 102400");
         bash.addLine(format("gsutil -qm cp gs://common-resources/gridss_config/gridss.properties %s", GridssCommon.configFile()));
         bash.addLine(format("gsutil -qm cp gs://common-resources/gridss_config/ENCFF001TDO.bed %s", GridssCommon.blacklist()));
-        bash.addLine(format("mkdir -p %s", GridssCommon.tmpDir()));
 
         String gridssWorkingDirForReferenceBam =
                 format("%s/%s.gridss.working", VmDirectories.OUTPUT, basename(referenceBam.getLocalTargetPath()));
         String gridssWorkingDirForTumorBam = format("%s/%s.gridss.working", VmDirectories.OUTPUT, basename(tumorBam.getLocalTargetPath()));
 
-        bash.addLine(format("mkdir -p %s", gridssWorkingDirForReferenceBam));
-        bash.addLine(format("mkdir -p %s", gridssWorkingDirForTumorBam));
+        bash.addCommand(new MkDirCommand(GridssCommon.tmpDir()));
+        bash.addCommand(new MkDirCommand(gridssWorkingDirForReferenceBam));
+        bash.addCommand(new MkDirCommand(gridssWorkingDirForTumorBam));
 
         String preprocessSvOutputReferenceBam =
                 format("%s/%s.sv.bam", gridssWorkingDirForReferenceBam, basename(referenceBam.getLocalTargetPath()));
         String preprocessSvOutputTumorBam = format("%s/%s.sv.bam", gridssWorkingDirForTumorBam, basename(tumorBam.getLocalTargetPath()));
 
-        Preprocess.PreprocessResult preprocessedSample = new Preprocess(commandFactory).initialise(referenceBam.getLocalTargetPath(),
+        CommandFactory commandFactory = new CommandFactory();
+        GridssToBashCommandConverter commandConverter = new GridssToBashCommandConverter();
+
+        Preprocess.PreprocessResult preprocessedSample = new Preprocess(commandFactory, commandConverter).initialise(referenceBam.getLocalTargetPath(),
                 referenceSampleName,
                 referenceGenomePath,
                 metricsDownload.getLocalTargetPath(),
                 preprocessSvOutputReferenceBam);
-        Preprocess.PreprocessResult preprocessedTumor = new Preprocess(commandFactory).initialise(tumorBam.getLocalTargetPath(),
+        Preprocess.PreprocessResult preprocessedTumor = new Preprocess(commandFactory, commandConverter).initialise(tumorBam.getLocalTargetPath(),
                 tumorSampleName,
                 referenceGenomePath,
                 mateMetricsDownload.getLocalTargetPath(),
                 preprocessSvOutputTumorBam);
 
         Assemble.AssembleResult assemblyResult =
-                new Assemble(commandFactory).initialise(preprocessedSample.svBam(), preprocessedTumor.svBam(), referenceGenomePath);
+                new Assemble(commandFactory, commandConverter).initialise(preprocessedSample.svBam(), preprocessedTumor.svBam(), referenceGenomePath);
 
         IdentifyVariants calling = commandFactory.buildIdentifyVariants(referenceBam.getLocalTargetPath(),
                 tumorBam.getLocalTargetPath(),
@@ -110,18 +105,20 @@ public class StructuralCaller {
                 referenceGenomePath,
                 GridssCommon.blacklist());
 
-        Annotation.AnnotationResult annotationResult = new Annotation(commandFactory).initialise(referenceBam.getLocalTargetPath(),
+        Annotation.AnnotationResult annotationResult = new Annotation(commandFactory, commandConverter).initialise(referenceBam.getLocalTargetPath(),
                 tumorBam.getLocalTargetPath(),
                 assemblyResult.assemblyBam(),
                 calling.resultantVcf(),
                 referenceGenomePath);
 
-        bash.addCommand(referenceGenomeDownload)
-                .addCommands(preprocessedSample.commands())
+        Filter.FilterResult filterResult = new Filter().initialise(annotationResult.annotatedVcf(), basename(tumorBam.getLocalTargetPath()));
+
+        bash.addCommands(preprocessedSample.commands())
                 .addCommands(preprocessedTumor.commands())
                 .addCommands(assemblyResult.commands())
-                .addCommand(calling)
-                .addCommands(annotationResult.commands());
+                .addCommand(commandConverter.convert(calling))
+                .addCommands(annotationResult.commands())
+                .addCommands(filterResult.commands());
 
         bash.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path())));
         JobStatus status = computeEngine.submit(runtimeBucket, VirtualMachineJobDefinition.structuralCalling(bash, resultsDirectory));

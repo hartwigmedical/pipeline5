@@ -1,18 +1,16 @@
-package com.hartwig.pipeline.calling.structural.gridss.process;
+package com.hartwig.pipeline.calling.structural.gridss.command;
 
 import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
 import org.junit.Before;
 import org.junit.Test;
 
-import static java.util.Arrays.asList;
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class IdentifyVariantsTest implements CommonEntities {
-    private static final String OUTPUT_FILE = String.format("%s/sv_calling.vcf", OUT_DIR);
-
     private IdentifyVariants command;
     private String assemblyBam;
-    private String className = "gridss.IdentifyVariants";
+    private String expectedOutputFile = format("%s/sv_calling.vcf", OUT_DIR);
 
     @Before
     public void setup() {
@@ -21,31 +19,34 @@ public class IdentifyVariantsTest implements CommonEntities {
     }
 
     @Test
-    public void shouldCreateCommandLineStartingWithJavaCommandAndJvmArgumentsAndClassname() {
-        GridssCommonArgumentsAssert.assertThat(command).hasJvmArgsAndClassName(
-                asList("-Dgridss.output_to_temp_file=true"), className, "8G");
+    public void shouldReturnClassName() {
+        assertThat(command.className()).isEqualTo("gridss.IdentifyVariants");
     }
 
     @Test
-    public void shouldEndCommandLineWithGridssOptions() {
+    public void shouldUseStandardAmountOfMemory() {
+        GridssCommonArgumentsAssert.assertThat(command).usesStandardAmountOfMemory();
+    }
+
+    @Test
+    public void shouldReturnGridssOptions() {
         GridssCommonArgumentsAssert.assertThat(command)
                 .hasGridssArguments(ARGS_TMP_DIR)
                 .and("working_dir", OUT_DIR)
                 .and(ARGS_REFERENCE_SEQUENCE)
                 .and(ARG_KEY_INPUT, REFERENCE_BAM)
                 .and(ARG_KEY_INPUT, TUMOR_BAM)
-                .and("output_vcf", OUTPUT_FILE)
+                .and("output_vcf", expectedOutputFile)
                 .and("assembly", assemblyBam)
                 .and(ARG_KEY_WORKER_THREADS, "16")
                 .and(ARGS_BLACKLIST)
                 .and(ARGS_GRIDSS_CONFIG)
-                .andNoMore()
-                .andGridssArgumentsAfterClassnameAreCorrect(className);
+                .andNoMore();
     }
 
     @Test
     public void shouldReturnOutputVcf() {
         assertThat(command.resultantVcf()).isNotNull();
-        assertThat(command.resultantVcf()).isEqualTo(OUTPUT_FILE);
+        assertThat(command.resultantVcf()).isEqualTo(expectedOutputFile);
     }
 }

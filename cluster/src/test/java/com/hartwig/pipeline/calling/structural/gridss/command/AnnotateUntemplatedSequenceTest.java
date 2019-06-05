@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.calling.structural.gridss.process;
+package com.hartwig.pipeline.calling.structural.gridss.command;
 
 import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
 import org.junit.Before;
@@ -20,12 +20,17 @@ public class AnnotateUntemplatedSequenceTest implements CommonEntities {
     }
 
     @Test
-    public void shouldCreateCommandLineStartingWithJavaCommandAndJvmArgumentsAndClassname() {
-        GridssCommonArgumentsAssert.assertThat(command).hasJvmArgsAndClassName(className, "8G");
+    public void shouldReturnClassName() {
+        assertThat(command.className()).isEqualTo(className);
     }
 
     @Test
-    public void shouldEndCommandLineWithGridssOptions() {
+    public void shouldUseStandardGridssHeapSize() {
+        GridssCommonArgumentsAssert.assertThat(command).usesStandardAmountOfMemory();
+    }
+
+    @Test
+    public void shouldConstructGridssOptions() {
         GridssCommonArgumentsAssert.assertThat(command)
                 .hasGridssArguments(ARGS_REFERENCE_SEQUENCE)
                 .and(ARG_KEY_INPUT, inputVcf)
@@ -39,8 +44,7 @@ public class AnnotateUntemplatedSequenceTest implements CommonEntities {
                 .and("'aligner_command_line", "%3$d'")
                 .and("'aligner_command_line", "%2$s'")
                 .and("'aligner_command_line", "%1$s'")
-                .andNoMore()
-                .andGridssArgumentsAfterClassnameAreCorrect(className);
+                .andNoMore();
     }
 
     @Test

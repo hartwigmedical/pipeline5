@@ -1,10 +1,9 @@
-package com.hartwig.pipeline.calling.structural.gridss.process;
+package com.hartwig.pipeline.calling.structural.gridss.command;
 
-import com.hartwig.pipeline.execution.vm.BashCommand;
+import com.hartwig.pipeline.calling.structural.gridss.GridssCommon;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 
 import static java.lang.String.format;
-import static java.util.Arrays.asList;
 
 public class SoftClipsToSplitReads {
     private final static String CLASS_NAME = "gridss.SoftClipsToSplitReads";
@@ -28,7 +27,7 @@ public class SoftClipsToSplitReads {
                 .add("'aligner_command_line", "%1$s'");
     }
 
-    public static class ForPreprocess implements BashCommand {
+    public static class ForPreprocess implements GridssCommand {
         private String intermediateBam;
         private String referenceGenome;
         private String outputBam;
@@ -40,14 +39,17 @@ public class SoftClipsToSplitReads {
         }
 
         @Override
-        public String asBash() {
-            return GridssCommon.gridssCommand(CLASS_NAME, "4G", asList("-Dgridss.output_to_temp_file=true"),
-                    sharedArguments(intermediateBam, outputBam, referenceGenome, 2).asBash())
-                    .asBash();
+        public String arguments() {
+            return sharedArguments(intermediateBam, outputBam, referenceGenome, 2).asBash();
+        }
+
+        @Override
+        public String className() {
+            return CLASS_NAME;
         }
     }
 
-    public static class ForAssemble implements BashCommand {
+    public static class ForAssemble implements GridssCommand {
         private final String inputBam;
         private final String referenceGenome;
         private final String outputBam;
@@ -59,12 +61,14 @@ public class SoftClipsToSplitReads {
         }
 
         @Override
-        public String asBash() {
-            String gridssArgs = sharedArguments(inputBam, outputBam, referenceGenome, 2)
+        public String arguments() {
+            return sharedArguments(inputBam, outputBam, referenceGenome, 2)
                 .add("realign_entire_read", "true").asBash();
-            return GridssCommon.gridssCommand(CLASS_NAME, "8G",
-                    asList("-Dgridss.async.buffersize=16", "-Dgridss.output_to_temp_file=true"),
-                    gridssArgs).asBash();
+        }
+
+        @Override
+        public String className() {
+            return CLASS_NAME;
         }
     }
 }

@@ -1,9 +1,8 @@
-package com.hartwig.pipeline.calling.structural.gridss.process;
+package com.hartwig.pipeline.calling.structural.gridss.command;
 
-import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 
-public class CollectGridssMetrics implements BashCommand {
+public class CollectGridssMetrics implements GridssCommand {
     private String inputFile;
 
     public CollectGridssMetrics(String inputFile) {
@@ -11,9 +10,8 @@ public class CollectGridssMetrics implements BashCommand {
     }
 
     @Override
-    public String asBash() {
-        return GridssCommon.gridssCommand("gridss.analysis.CollectGridssMetrics", "256M",
-                new GridssArguments()
+    public String arguments() {
+        return new GridssArguments()
                         .add("tmp_dir", "/tmp")
                         .add("assume_sorted", "true")
                         .add("i", inputFile)
@@ -28,11 +26,15 @@ public class CollectGridssMetrics implements BashCommand {
                         .add("gridss_program", "ReportThresholdCoverage")
                         .add("program", "null")
                         .add("program", "CollectInsertSizeMetrics")
-                        .asBash())
-                .asBash();
+                        .asBash();
     }
 
     public String metrics() {
         return VmDirectories.outputFile("collect_gridss.metrics");
+    }
+
+    @Override
+    public String className() {
+        return "gridss.analysis.CollectGridssMetrics";
     }
 }

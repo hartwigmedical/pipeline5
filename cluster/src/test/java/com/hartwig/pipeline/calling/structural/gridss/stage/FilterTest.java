@@ -2,23 +2,26 @@ package com.hartwig.pipeline.calling.structural.gridss.stage;
 
 import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
 import com.hartwig.pipeline.execution.vm.BashCommand;
+import com.hartwig.pipeline.execution.vm.VmDirectories;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class FilterTest implements CommonEntities {
     private static final String PATH_TO_GRIDSS_SCRIPTS = format("%s/gridss-scripts/4.8", TOOLS_DIR);
     private static final String PATH_TO_GRIDSS_PON = format("%s/gridss_pon", RESOURCE_DIR);
-    private static final int RSCRIPT_LINE_NUMBER = 2;
+    private static final int RSCRIPT_LINE_NUMBER = 4;
 
-    private BashCommand command;
+    private List<BashCommand> commands;
+    private String bashCommands;
     private String originalVcf;
     private String uncompressedVcf;
 
@@ -26,13 +29,24 @@ public class FilterTest implements CommonEntities {
     public void setup() {
         uncompressedVcf = "/path/to/original.vcf";
         originalVcf = uncompressedVcf + ".gz";
-        command = new Filter().initialise(originalVcf, TUMOR_SAMPLE).command();
+        commands = new Filter().initialise(originalVcf, TUMOR_SAMPLE).commands();
+        bashCommands = commands.stream().map(c -> c.asBash()).collect(Collectors.joining("\n"));
     }
 
     @Test
-    public void shouldGunzipOriginalVcfAsFirstStep() {
+    public void shouldMakeLocalDirectoryAndCopyBlacklistFirst() {
         String firstLine = extractOutputLine(1);
-        assertThat(firstLine).isEqualTo(format("gunzip -c %s > %s", originalVcf, uncompressedVcf));
+        assertThat(firstLine).isEqualTo(format("mkdir -p %s/gridss_pon", VmDirectories.RESOURCES));
+
+        String secondLine = extractOutputLine(2);
+        assertThat(secondLine).isEqualTo(format("gsutil cp gs://common-resources/gridss_pon/* %s/gridss_pon",
+                RESOURCE_DIR));
+    }
+
+    @Test
+    public void shouldGunzipOriginalVcfAsSecondStep() {
+        String firstLine = extractOutputLine(3);
+        assertThat(firstLine).isEqualTo(format("gunzip -kd %s", originalVcf, uncompressedVcf));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -41,8 +55,8 @@ public class FilterTest implements CommonEntities {
     }
 
     @Test
-    public void shouldRunRscriptWithCorrectScriptAsSecondStep() {
-        String secondLine = extractOutputLine(2);
+    public void shouldRunRscriptWithCorrectScriptAsThirdStep() {
+        String secondLine = extractOutputLine(4);
         assertThat(secondLine).startsWith(format("Rscript %s/gridss_somatic_filter.R ", PATH_TO_GRIDSS_SCRIPTS));
     }
 
@@ -111,15 +125,15 @@ public class FilterTest implements CommonEntities {
     }
 
     private String extractOutputLine(int lineNo) {
-        assertThat(command).isNotNull();
-        String[] lines = command.asBash().split("\n");
+        assertThat(bashCommands).isNotNull();
+        String[] lines = bashCommands.split("\n");
         assertThat(lines[lineNo - 1]).isNotEmpty();
         return lines[lineNo - 1];
     }
 
     private void assertThatLinesAfterRscriptContain(String line) {
-        String[] lines = command.asBash().split("\n");
-        List<String> remainingLines = Arrays.asList(lines).subList(RSCRIPT_LINE_NUMBER, lines.length);
+        String[] lines = bashCommands.split("\n");
+        List<String> remainingLines = asList(lines).subList(RSCRIPT_LINE_NUMBER, lines.length);
         assertThat(remainingLines).contains(line);
     }
 }

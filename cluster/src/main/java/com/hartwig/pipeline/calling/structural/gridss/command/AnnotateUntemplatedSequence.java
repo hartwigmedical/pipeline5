@@ -1,9 +1,9 @@
-package com.hartwig.pipeline.calling.structural.gridss.process;
+package com.hartwig.pipeline.calling.structural.gridss.command;
 
-import com.hartwig.pipeline.execution.vm.BashCommand;
+import com.hartwig.pipeline.calling.structural.gridss.GridssCommon;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 
-public class AnnotateUntemplatedSequence implements BashCommand {
+public class AnnotateUntemplatedSequence implements GridssCommand {
 
     private String inputVcf;
     private String referenceGenome;
@@ -13,9 +13,18 @@ public class AnnotateUntemplatedSequence implements BashCommand {
         this.referenceGenome = referenceGenome;
     }
 
+    public String resultantVcf() {
+        return VmDirectories.outputFile("annotated.vcf");
+    }
+
     @Override
-    public String asBash() {
-        return GridssCommon.gridssCommand("gridss.AnnotateUntemplatedSequence", "8G", new GridssArguments()
+    public String className() {
+        return "gridss.AnnotateUntemplatedSequence";
+    }
+
+    @Override
+    public String arguments() {
+        return new GridssArguments()
                 .add("reference_sequence", referenceGenome)
                 .add("input", inputVcf)
                 .add("output", resultantVcf())
@@ -28,11 +37,6 @@ public class AnnotateUntemplatedSequence implements BashCommand {
                 .add("'aligner_command_line", "%3$d'")
                 .add("'aligner_command_line", "%2$s'")
                 .add("'aligner_command_line", "%1$s'")
-                .asBash()
-        ).asBash();
-    }
-
-    public String resultantVcf() {
-        return VmDirectories.outputFile("annotated.vcf");
+                .asBash();
     }
 }

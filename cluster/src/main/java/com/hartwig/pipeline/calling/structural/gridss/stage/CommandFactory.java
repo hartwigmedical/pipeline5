@@ -2,7 +2,7 @@ package com.hartwig.pipeline.calling.structural.gridss.stage;
 
 import com.hartwig.pipeline.calling.command.BgzipCommand;
 import com.hartwig.pipeline.calling.command.TabixCommand;
-import com.hartwig.pipeline.calling.structural.gridss.process.*;
+import com.hartwig.pipeline.calling.structural.gridss.command.*;
 
 public class CommandFactory {
     public AnnotateUntemplatedSequence buildAnnotateUntemplatedSequence(String annotatedVcf, String referenceGenome) {

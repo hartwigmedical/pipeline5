@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.calling.structural.gridss.process;
+package com.hartwig.pipeline.calling.structural.gridss.command;
 
 import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
 import org.junit.Before;
@@ -10,18 +10,24 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class CollectGridssMetricsTest implements CommonEntities  {
     private CollectGridssMetrics command;
     private String inputFile;
-    private static final String CLASSNAME = "gridss.analysis.CollectGridssMetrics";
-    private static final String METRICS_OUT = format("%s/collect_gridss.metrics", OUT_DIR);
+    private String outputMetrics;
 
     @Before
     public void setup() {
         inputFile = "input_file";
+        outputMetrics = format("%s/collect_gridss.metrics", OUT_DIR);
         command = new CollectGridssMetrics(inputFile);
     }
 
     @Test
-    public void shouldCreateCommandLineStartingWithJavaCommandAndJvmArgumentsAndClassName() {
-        GridssCommonArgumentsAssert.assertThat(command).hasJvmArgsAndClassName(CLASSNAME, "256M");
+    public void shouldReturnClassName() {
+        assertThat(command.className()).isEqualTo("gridss.analysis.CollectGridssMetrics");
+
+    }
+
+    @Test
+    public void shouldUseStandardAmountOfMemory() {
+        GridssCommonArgumentsAssert.assertThat(command).usesStandardAmountOfMemory();
     }
 
     @Test
@@ -30,7 +36,7 @@ public class CollectGridssMetricsTest implements CommonEntities  {
                 .hasGridssArguments("tmp_dir", "/tmp")
                 .and("assume_sorted", "true")
                 .and("i", inputFile)
-                .and("o", METRICS_OUT)
+                .and("o", outputMetrics)
                 .and("threshold_coverage", "50000")
                 .and("file_extension", "null")
                 .and("gridss_program", "null")
@@ -41,12 +47,12 @@ public class CollectGridssMetricsTest implements CommonEntities  {
                 .and("gridss_program", "ReportThresholdCoverage")
                 .and("program", "null")
                 .and("program", "CollectInsertSizeMetrics")
-                .andNoMore().andGridssArgumentsAfterClassnameAreCorrect(CLASSNAME);
+                .andNoMore();
     }
 
     @Test
     public void shouldReturnMetrics() {
         assertThat(command.metrics()).isNotNull();
-        assertThat(command.metrics()).isEqualTo(METRICS_OUT);
+        assertThat(command.metrics()).isEqualTo(outputMetrics);
     }
 }

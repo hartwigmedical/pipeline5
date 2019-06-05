@@ -1,11 +1,11 @@
-package com.hartwig.pipeline.calling.structural.gridss.process;
+package com.hartwig.pipeline.calling.structural.gridss.command;
 
-import com.hartwig.pipeline.execution.vm.BashCommand;
+import com.hartwig.pipeline.calling.structural.gridss.GridssCommon;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 
 import static java.lang.String.format;
 
-public class ComputeSamTags implements BashCommand {
+public class ComputeSamTags implements GridssCommand {
     private String inProgressBam;
     private String referenceGenome;
     private String sampleName;
@@ -16,12 +16,12 @@ public class ComputeSamTags implements BashCommand {
         this.sampleName = sampleName;
     }
 
-    @Override
-    public String asBash() {
-        return GridssCommon.gridssCommand("gridss.ComputeSamTags", "4G", arguments()).asBash();
+    public String resultantBam() {
+        return VmDirectories.outputFile(format("gridss.tmp.withtags.%s.sv.bam", sampleName));
     }
 
-    private String arguments() {
+    @Override
+    public String arguments() {
         return new GridssArguments()
                 .add("tmp_dir", GridssCommon.tmpDir())
                 .add("working_dir", VmDirectories.OUTPUT)
@@ -40,12 +40,11 @@ public class ComputeSamTags implements BashCommand {
                 .add("tags", "Q2")
                 .add("tags", "MC")
                 .add("tags", "MQ")
-                .add("assume_sorted", format("true | %s sort -O bam -T /tmp/samtools.sort.tmp -@ 2 -o %s",
-                        GridssCommon.pathToSamtools(), resultantBam()))
-        .asBash();
+                .add("assume_sorted", "true").asBash();
     }
 
-    public String resultantBam() {
-        return VmDirectories.outputFile(format("gridss.tmp.withtags.%s.sv.bam", sampleName));
+    @Override
+    public String className() {
+        return "gridss.ComputeSamTags";
     }
 }

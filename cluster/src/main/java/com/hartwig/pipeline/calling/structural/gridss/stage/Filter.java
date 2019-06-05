@@ -1,6 +1,7 @@
 package com.hartwig.pipeline.calling.structural.gridss.stage;
 
 import com.hartwig.pipeline.execution.vm.BashCommand;
+import com.hartwig.pipeline.execution.vm.MkDirCommand;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import org.immutables.value.Value;
 
@@ -8,17 +9,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
-import static com.hartwig.pipeline.calling.structural.gridss.process.GridssCommon.pathToGridssScripts;
-import static com.hartwig.pipeline.calling.structural.gridss.process.GridssCommon.ponDir;
+import static com.hartwig.pipeline.calling.structural.gridss.GridssCommon.pathToGridssScripts;
+import static com.hartwig.pipeline.calling.structural.gridss.GridssCommon.ponDir;
 import static java.lang.String.format;
 
 public class Filter {
 
     @Value.Immutable
     public interface FilterResult {
-        BashCommand command();
+        List<BashCommand> commands();
         String fullVcf();
         String filteredVcf();
     }
@@ -35,20 +35,27 @@ public class Filter {
         String outputVcf = VmDirectories.outputFile(format("%s.gridss.somatic.vcf", tumorSample));
         String fullVcf = VmDirectories.outputFile(format("%s.gridss.somatic.full.vcf", tumorSample));
         String filteredVcf = VmDirectories.outputFile(format("%s.gridss.somatic.vcf.gz", tumorSample));
-        String resultantVcf = VmDirectories.outputFile(format("%s.gridss.somatic.full.vcf.gz", tumorSample));
+        String fullVcfCompressed = VmDirectories.outputFile(format("%s.gridss.somatic.full.vcf.gz", tumorSample));
 
-        List<String> lines = new ArrayList<>();
-        lines.add(format("gunzip -c %s > %s", originalVcf, unzippedOriginalVcf));
-        lines.add(format("Rscript %s/gridss_somatic_filter.R -p %s -i %s -o %s -f %s -s %s",
-                pathToGridssScripts(), ponDir(), unzippedOriginalVcf, outputVcf, resultantVcf, pathToGridssScripts()));
-        lines.add(format("mv %s.bgz %s", fullVcf, resultantVcf));
-        lines.add(format("mv %s.bgz.tbi %s.tbi", fullVcf, resultantVcf));
-        lines.add(format("mv %s.bgz %s", outputVcf, filteredVcf));
-        lines.add(format("mv %s.bgz.tbi %s.tbi", outputVcf, filteredVcf));
+        List<BashCommand> commands = new ArrayList<>();
+        commands.add(new MkDirCommand(format("%s/gridss_pon", VmDirectories.RESOURCES)));
+        commands.add(() -> format("gsutil cp gs://common-resources/gridss_pon/* %s/gridss_pon", VmDirectories.RESOURCES));
+        commands.add(() -> format("gunzip -kd %s", originalVcf));
+        commands.add(() -> format("Rscript %s/gridss_somatic_filter.R -p %s -i %s -o %s -f %s -s %s",
+                pathToGridssScripts(),
+                ponDir(),
+                unzippedOriginalVcf,
+                outputVcf,
+                fullVcfCompressed,
+                pathToGridssScripts()));
+        commands.add(() -> format("mv %s.bgz %s", fullVcf, fullVcfCompressed));
+        commands.add(() -> format("mv %s.bgz.tbi %s.tbi", fullVcf, fullVcfCompressed));
+        commands.add(() -> format("mv %s.bgz %s", outputVcf, filteredVcf));
+        commands.add(() -> format("mv %s.bgz.tbi %s.tbi", outputVcf, filteredVcf));
 
         return ImmutableFilterResult.builder()
-                .command(() -> lines.stream().collect(Collectors.joining("\n")))
-                .fullVcf(resultantVcf)
+                .commands(commands)
+                .fullVcf(fullVcfCompressed)
                 .filteredVcf(filteredVcf)
                 .build();
     }

@@ -1,10 +1,10 @@
-package com.hartwig.pipeline.calling.structural.gridss.process;
+package com.hartwig.pipeline.calling.structural.gridss.command;
 
 import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
 import org.junit.Before;
 import org.junit.Test;
 
-import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class AssembleSoftClipsToSplitReadsTest implements CommonEntities {
     private String className;
@@ -17,14 +17,17 @@ public class AssembleSoftClipsToSplitReadsTest implements CommonEntities {
     }
 
     @Test
-    public void shouldCreateCommandLineStartingWithJavaCommandAndJvmArgumentsAndClassName() {
-        GridssCommonArgumentsAssert.assertThat(command).hasJvmArgsAndClassName(
-                asList("-Dgridss.async.buffersize=16", "-Dgridss.output_to_temp_file=true"),
-                className, "8G");
+    public void shouldReturnClassName() {
+        assertThat(command.className()).isEqualTo(className);
     }
 
     @Test
-    public void shouldCreateCommandLineEndingWithGridssArguments() {
+    public void shouldUseStandardAmountOfMemory() {
+        GridssCommonArgumentsAssert.assertThat(command).usesStandardAmountOfMemory();
+    }
+
+    @Test
+    public void shouldConstructGridssArguments() {
         GridssCommonArgumentsAssert.assertThat(command).hasGridssArguments(ARGS_TMP_DIR)
                 .and(ARGS_WORKING_DIR)
                 .and(ARGS_REFERENCE_SEQUENCE)
@@ -40,7 +43,6 @@ public class AssembleSoftClipsToSplitReadsTest implements CommonEntities {
                 .and("'aligner_command_line", "%2$s'")
                 .and("'aligner_command_line", "%1$s'")
                 .and("realign_entire_read", "true")
-                .andNoMore()
-                .andGridssArgumentsAfterClassnameAreCorrect(className);
+                .andNoMore();
     }
 }

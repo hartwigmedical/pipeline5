@@ -1,15 +1,16 @@
-package com.hartwig.pipeline.calling.structural.gridss.process;
+package com.hartwig.pipeline.calling.structural.gridss.command;
 
 import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.execution.vm.VmDirectories;
 import org.assertj.core.api.AbstractAssert;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
-public class GridssCommonArgumentsAssert extends AbstractAssert<GridssCommonArgumentsAssert, BashCommand> {
+public class GridssCommonArgumentsAssert extends AbstractAssert<GridssCommonArgumentsAssert, GridssCommand> {
     private GridssArgumentsListBuilder argumentsBuilder;
 
     class GridssArgumentsListBuilder {
@@ -31,6 +32,12 @@ public class GridssCommonArgumentsAssert extends AbstractAssert<GridssCommonArgu
         }
 
         public GridssCommonArgumentsAssert andNoMore() {
+            String actualGridssArgs = actual.arguments().trim();
+            if (actualGridssArgs == null || !actualGridssArgs.equals(argumentsBuilder.argsAsString())) {
+                failWithMessage("Expected GRIDSS arguments to be \n<%s> \nbut got:\n<%s>", argumentsBuilder.argsAsString(),
+                        actualGridssArgs);
+            }
+
             return parent;
         }
 
@@ -43,40 +50,45 @@ public class GridssCommonArgumentsAssert extends AbstractAssert<GridssCommonArgu
         }
     }
 
-    GridssCommonArgumentsAssert(BashCommand actual) {
+    GridssCommonArgumentsAssert(GridssCommand actual) {
         super(actual, GridssCommonArgumentsAssert.class);
     }
 
+    // TODO this needs to go, just to prevent compile errors while working through refactor to abstract-based setup
     public static GridssCommonArgumentsAssert assertThat(BashCommand actual) {
+        return new GridssCommonArgumentsAssert(new GridssCommand() {
+            @Override
+            public String className() {
+                return null;
+            }
+
+            @Override
+            public String arguments() {
+                return null;
+            }
+        });
+    }
+
+    public static GridssCommonArgumentsAssert assertThat(GridssCommand actual) {
         return new GridssCommonArgumentsAssert(actual);
     }
 
-    public GridssCommonArgumentsAssert hasJvmArgsAndClassName(String className, String memory) {
-        return hasJvmArgsAndClassName(Collections.emptyList(), className, memory);
+    public GridssCommonArgumentsAssert usesStandardAmountOfMemory() {
+        int standardMemoryGb = 8;
+        if (actual.memoryGb() != standardMemoryGb) {
+            failWithMessage(format("Command is not using the standard %sGB of memory", standardMemoryGb));
+        }
+        return this;
     }
 
-    public GridssCommonArgumentsAssert hasJvmArgsAndClassName(List<String> additionalJvmArgs, String className, String memory) {
-        isNotNull();
 
-        List<String> javaArgs = new ArrayList<>(Arrays.asList("java",
-                "-Xmx" + memory,
-                "-ea",
-                "-Dsamjdk.create_index=true",
-                "-Dsamjdk.use_async_io_read_samtools=true",
-                "-Dsamjdk.use_async_io_write_samtools=true",
-                "-Dsamjdk.use_async_io_write_tribble=true"));
-        javaArgs.addAll(additionalJvmArgs);
-        javaArgs.add(format("-cp %s/gridss/2.2.2/gridss.jar", VmDirectories.TOOLS));
-        javaArgs.add(className);
+    public GridssArgumentsListBuilder hasJvmArgsAndClassName(List<String> args, String mem, String classname) {
+        return null;
+    }
 
-        String expectedStart = javaArgs.stream().collect(Collectors.joining(" ")).trim();
-        String actualStart =  actual.asBash().trim();
-        if (!actualStart.startsWith(expectedStart)) {
-            failWithMessage("Expected Java command starting with \n<%s>\nbut was:\n<%s>", expectedStart,
-                    actualStart);
-        }
-
-        return this;
+    public GridssArgumentsListBuilder hasJvmArgsAndClassName(String mem, String classname) {
+        failWithMessage("This method should no longer be being used!");
+        return null;
     }
 
     public GridssArgumentsListBuilder hasGridssArguments(Map.Entry<String, String> pair) {
@@ -91,7 +103,8 @@ public class GridssCommonArgumentsAssert extends AbstractAssert<GridssCommonArgu
     }
 
     public GridssCommonArgumentsAssert andGridssArgumentsAfterClassnameAreCorrect(String className) {
-        String actualArgs[] = actual.asBash().trim().split(className);
+        failWithMessage("This method should no longer be being called!");
+        String actualArgs[] = actual.arguments().trim().split(className);
         if (actualArgs.length != 2) {
             failWithMessage("Did not find <%s> followed by GRIDSS arguments in command line!", className);
         }

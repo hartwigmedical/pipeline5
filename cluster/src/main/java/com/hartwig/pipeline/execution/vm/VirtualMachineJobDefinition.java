@@ -2,7 +2,6 @@ package com.hartwig.pipeline.execution.vm;
 
 import com.hartwig.pipeline.execution.JobDefinition;
 import com.hartwig.pipeline.io.ResultsDirectory;
-
 import org.immutables.value.Value;
 
 @Value.Immutable
@@ -59,6 +58,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("gridss")
                 .startupCommand(startupScript)
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(8, 32))
                 .namespacedResults(resultsDirectory)
                 .build();
     }

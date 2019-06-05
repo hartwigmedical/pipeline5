@@ -1,11 +1,8 @@
-package com.hartwig.pipeline.calling.structural.gridss.process;
+package com.hartwig.pipeline.calling.structural.gridss.command;
 
-import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 
-import static java.lang.String.format;
-
-public class AssembleBreakends implements BashCommand {
+public class AssembleBreakends implements GridssCommand {
     private static final int WORKER_THREADS = 2;
 
     private final String referenceGenome;
@@ -18,13 +15,26 @@ public class AssembleBreakends implements BashCommand {
         this.sampleBam = sampleBam;
         this.tumorBam = tumorBam;
 
-        this.assemblyBam = VmDirectories.outputFile(format("reference-tumor.assembly.bam", sampleBam));
+        this.assemblyBam = VmDirectories.outputFile("reference-tumor.assembly.bam");
+    }
+
+    public String assemblyBam() {
+        return assemblyBam;
     }
 
     @Override
-    public String asBash() {
-        return GridssCommon.gridssCommand("gridss.AssembleBreakends", "31G",
-                new GridssArguments()
+    public String className() {
+        return "gridss.AssembleBreakends";
+    }
+
+    @Override
+    public int memoryGb() {
+        return 31;
+    }
+
+    @Override
+    public String arguments() {
+         return new GridssArguments()
                         .addTempDir()
                         .add("working_dir", VmDirectories.OUTPUT)
                         .add("reference_sequence", referenceGenome)
@@ -34,10 +44,6 @@ public class AssembleBreakends implements BashCommand {
                         .add("worker_threads", String.valueOf(WORKER_THREADS))
                         .addBlacklist()
                         .addConfigFile()
-                        .asBash()).asBash();
-    }
-
-    public String assemblyBam() {
-        return assemblyBam;
+                        .asBash();
     }
 }

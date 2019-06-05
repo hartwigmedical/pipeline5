@@ -1,29 +1,31 @@
-package com.hartwig.pipeline.calling.structural.gridss.process;
+package com.hartwig.pipeline.calling.structural.gridss.command;
 
 import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
 import org.junit.Before;
 import org.junit.Test;
 
-import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PreProcessSoftClipsToSplitReadsTest implements CommonEntities {
     private SoftClipsToSplitReads.ForPreprocess command;
-    private String className;
 
     @Before
     public void setup() {
-        className = "gridss.SoftClipsToSplitReads";
         command = new SoftClipsToSplitReads.ForPreprocess(TUMOR_BAM, REFERENCE_GENOME, OUTPUT_BAM);
     }
 
     @Test
-    public void shouldCreateCommandLineStartingWithJavaCommandAndJvmArgumentsAndClassName() {
-        GridssCommonArgumentsAssert.assertThat(command).hasJvmArgsAndClassName(
-                asList("-Dgridss.output_to_temp_file=true"), className, "4G");
+    public void shouldReturnClassName() {
+        assertThat(command.className()).isEqualTo("gridss.SoftClipsToSplitReads");
     }
 
     @Test
-    public void shouldCreateCommandLineEndingWithGridssArguments() {
+    public void shouldUseStandardAmountOfMemory() {
+        GridssCommonArgumentsAssert.assertThat(command).usesStandardAmountOfMemory();
+    }
+
+    @Test
+    public void shouldGenerateGridssOptions() {
         GridssCommonArgumentsAssert.assertThat(command).hasGridssArguments("tmp_dir", "/tmp")
                 .and("working_dir", OUT_DIR)
                 .and("reference_sequence", REFERENCE_GENOME)
@@ -38,7 +40,6 @@ public class PreProcessSoftClipsToSplitReadsTest implements CommonEntities {
                 .and("'aligner_command_line", "%3$d'")
                 .and("'aligner_command_line", "%2$s'")
                 .and("'aligner_command_line", "%1$s'")
-                .andNoMore()
-                .andGridssArgumentsAfterClassnameAreCorrect(className);
+                .andNoMore();
     }
 }

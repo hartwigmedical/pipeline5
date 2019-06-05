@@ -1,11 +1,11 @@
-package com.hartwig.pipeline.calling.structural.gridss.process;
+package com.hartwig.pipeline.calling.structural.gridss.command;
 
-import com.hartwig.pipeline.execution.vm.BashCommand;
+import com.hartwig.pipeline.calling.structural.gridss.GridssCommon;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 
 import static java.lang.String.format;
 
-public class CollectGridssMetricsAndExtractSvReads implements BashCommand {
+public class CollectGridssMetricsAndExtractSvReads implements GridssCommand {
 
     private final String inputBam;
     private String insertSizeMetrics;
@@ -15,11 +15,6 @@ public class CollectGridssMetricsAndExtractSvReads implements BashCommand {
         this.inputBam = inputFile;
         this.insertSizeMetrics = insertSizeMetrics;
         this.sampleName = sampleName;
-    }
-
-    @Override
-    public String asBash() {
-        return GridssCommon.gridssCommand("gridss.CollectGridssMetricsAndExtractSVReads", "4G", gridssArgs()).asBash();
     }
 
     public String resultantBam() {
@@ -34,7 +29,8 @@ public class CollectGridssMetricsAndExtractSvReads implements BashCommand {
         return VmDirectories.outputFile(format("%s.gridss.working", sampleName));
     }
 
-    private String gridssArgs() {
+    @Override
+    public String arguments() {
         return new GridssArguments()
                 .add("tmp_dir", GridssCommon.tmpDir())
                 .add("assume_sorted", "true")
@@ -56,8 +52,11 @@ public class CollectGridssMetricsAndExtractSvReads implements BashCommand {
                 .add("insert_size_metrics", insertSizeMetrics)
                 .add("unmapped_reads", "false")
                 .add("min_clip_length", "5")
-                .add("include_duplicates", format("true | %s sort -O bam -T /tmp/samtools.sort.tmp -n -l 0 -@ 2 -o %s",
-                        GridssCommon.pathToSamtools(), resultantBam()))
-        .asBash();
+                .add("include_duplicates", "true").asBash();
+    }
+
+    @Override
+    public String className() {
+        return "gridss.CollectGridssMetricsAndExtractSVReads";
     }
 }
