@@ -17,7 +17,7 @@ public class CombineFilteredVariants extends SubStage {
     @Override
     public BashStartupScript bash(final OutputFile input, final OutputFile output, final BashStartupScript bash) {
         return bash.addCommand(new GatkCommand("10G",
-                "CombineFilteredVariants",
+                "CombineVariants",
                 "-V",
                 input.path(),
                 "-V",
