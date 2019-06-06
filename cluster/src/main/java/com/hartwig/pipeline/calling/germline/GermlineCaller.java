@@ -1,6 +1,10 @@
 package com.hartwig.pipeline.calling.germline;
 
+import java.util.Map;
+
 import com.google.cloud.storage.Storage;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.calling.SubStageInputOutput;
@@ -29,6 +33,20 @@ import com.hartwig.pipeline.resource.ResourceNames;
 public class GermlineCaller {
 
     public static final String NAMESPACE = "germline_caller";
+    private static final Map<String, String> SNP_FILTER_EXPRESSION =
+            ImmutableMap.<String, String>builder().put("SNP_LowQualityDepth", "QD < 2.0")
+                    .put("SNP_MappingQuality", "MQ < 40.0")
+                    .put("SNP_StrandBias", "FS > 60.0")
+                    .put("SNP_HaplotypeScoreHigh", "HaplotypeScore > 13.0")
+                    .put("SNP_MQRankSumLow", "MQRankSum < -12.5")
+                    .put("SNP_ReadPosRankSumLow", "ReadPosRankSum < -8.0")
+                    .build();
+    private static final Map<String, String> INDEL_FILTER_EXPRESSION = ImmutableMap.of("INDEL_LowQualityDepth",
+            "QD < 2.0",
+            "INDEL_StrandBias",
+            "FS > 200.0",
+            "INDEL_ReadPosRankSumLow",
+            "ReadPosRankSum < -20.0");
 
     private final Arguments arguments;
     private final ComputeEngine executor;
@@ -75,13 +93,30 @@ public class GermlineCaller {
                 .addCommand(frequencyDbDownload);
 
         String snpEffConfig = snpEffResource.find("config");
-        SubStageInputOutput finalOutput = new GatkGermlineCaller(bamDownload.getLocalTargetPath(),
-                referenceGenome.find("fasta"),
-                knownSnps.find("vcf")).andThen(new SnpEff(snpEffConfig))
-                .andThen(new SnpSiftDbnsfpAnnotation(dbNSFPResource.find("txt.gz"), snpEffConfig))
-                .andThen(new CosmicAnnotation(cosmicResourceDownload.find("vcf.gz")))
-                .andThen(new SnpSiftFrequenciesAnnotation(frequencyDbDownload.find("vcf.gz"), snpEffConfig))
-                .apply(SubStageInputOutput.of(alignmentOutput.sample().name(), OutputFile.empty(), startupScript));
+
+        String referenceGenomePath = referenceGenome.find("fasta");
+        SubStageInputOutput callerOutput =
+                new GatkGermlineCaller(bamDownload.getLocalTargetPath(), referenceGenomePath, knownSnps.find("vcf")).apply(
+                        SubStageInputOutput.of(alignmentOutput.sample().name(), OutputFile.empty(), startupScript));
+
+        SubStageInputOutput snpFilterOutput =
+                new SelectVariants("snp", Lists.newArrayList("SNP", "NO_VARIATION"), referenceGenomePath).andThen(new VariantFilteration(
+                        "snp",
+                        SNP_FILTER_EXPRESSION,
+                        referenceGenomePath)).apply(callerOutput);
+
+        SubStageInputOutput indelFilterOutput =
+                new SelectVariants("indels", Lists.newArrayList("INDEL", "MIXED"), referenceGenomePath).andThen(new VariantFilteration(
+                        "indels",
+                        INDEL_FILTER_EXPRESSION,
+                        referenceGenomePath)).apply(callerOutput);
+
+        SubStageInputOutput finalOutput =
+                new CombineFilteredVariants(indelFilterOutput.outputFile().path()).andThen(new SnpEff(snpEffConfig))
+                        .andThen(new SnpSiftDbnsfpAnnotation(dbNSFPResource.find("txt.gz"), snpEffConfig))
+                        .andThen(new CosmicAnnotation(cosmicResourceDownload.find("vcf.gz")))
+                        .andThen(new SnpSiftFrequenciesAnnotation(frequencyDbDownload.find("vcf.gz"), snpEffConfig))
+                        .apply(snpFilterOutput);
 
         startupScript.addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path())));
 

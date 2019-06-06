@@ -8,7 +8,7 @@ class CombineVcfsCommand extends GatkCommand {
 
     CombineVcfsCommand(String referenceGenomePath, String snvVcfPath, String indelsVcfPath, String outputPath) {
         super(PIPELINE_V4_HEAP_SETTING,
-                "CombineVariants",
+                "CombineFilteredVariants",
                 "-R",
                 referenceGenomePath,
                 "--genotypemergeoption",

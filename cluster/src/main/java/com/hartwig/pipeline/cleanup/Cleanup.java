@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 public class Cleanup {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(Logger.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(Cleanup.class);
     private final Storage storage;
     private final Arguments arguments;
 

@@ -14,9 +14,13 @@ public abstract class SubStageTest {
 
     @Before
     public void setUp() throws Exception {
-        output = createVictim().apply(SubStageInputOutput.of("tumor",
-                OutputFile.of("tumor", "strelka", "vcf"),
+        output = createVictim().apply(SubStageInputOutput.of(sampleName(),
+                OutputFile.of(sampleName(), "strelka", "vcf"),
                 BashStartupScript.of("runtime_bucket")));
+    }
+
+    protected String sampleName() {
+        return "tumor";
     }
 
     public abstract SubStage createVictim();
