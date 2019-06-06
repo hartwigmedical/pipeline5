@@ -52,9 +52,9 @@ def start_kubernetes_job(args):
                     containers=[
                         kubernetes.client.V1Container(
                             name='pipelinev5-{0}-{1}'.format(args['sbp_sample_id'], timestamp),
-                            image='hartwigmedicalfoundation/bootstrap:{0}'.format(os.environ['PIPELINE_VERSION']),
+                            image='hartwigmedicalfoundation/pipeline5:{0}'.format(os.environ['PIPELINE_VERSION']),
                             command=[
-                                '/bootstrap.sh'
+                                '/pipeline5.sh'
                             ],
                             args=job_args,
                             env=[
