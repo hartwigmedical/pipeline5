@@ -48,7 +48,7 @@ public class CommandLineOptionsTest {
     @Test
     public void booleanFlagDefaultsRespected() throws Exception {
         Arguments result = CommandLineOptions.from(new String[] { "-profile", "development", "-sample_id", "test" });
-        assertThat(result.cleanup()).isFalse();
+        assertThat(result.download()).isFalse();
     }
 
     @Test
