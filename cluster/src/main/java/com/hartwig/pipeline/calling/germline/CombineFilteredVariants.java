@@ -8,10 +8,12 @@ import com.hartwig.pipeline.execution.vm.OutputFile;
 public class CombineFilteredVariants extends SubStage {
 
     private final String otherVcfPath;
+    private final String referenceFasta;
 
-    CombineFilteredVariants(final String otherVcfPath) {
+    CombineFilteredVariants(final String otherVcfPath, final String referenceFasta) {
         super("filtered_variants", OutputFile.VCF);
         this.otherVcfPath = otherVcfPath;
+        this.referenceFasta = referenceFasta;
     }
 
     @Override
@@ -24,7 +26,8 @@ public class CombineFilteredVariants extends SubStage {
                 otherVcfPath,
                 "-o",
                 output.path(),
-                "--assumeIdenticalSamples",
-                "true"));
+                "-R",
+                referenceFasta,
+                "--assumeIdenticalSamples"));
     }
 }

@@ -29,6 +29,7 @@ import com.hartwig.pipeline.calling.structural.StructuralCaller;
 import com.hartwig.pipeline.calling.structural.StructuralCallerOutput;
 import com.hartwig.pipeline.calling.structural.StructuralCallerProvider;
 import com.hartwig.pipeline.cleanup.Cleanup;
+import com.hartwig.pipeline.cleanup.CleanupProvider;
 import com.hartwig.pipeline.credentials.CredentialProvider;
 import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
@@ -204,7 +205,7 @@ public class PatientReportPipeline {
                         FlagstatProvider.from(arguments, credentials, storage).get(),
                         PatientReportProvider.from(storage, arguments).get(),
                         Executors.newCachedThreadPool(),
-                        new Cleanup(storage, arguments)).run();
+                        CleanupProvider.from(credentials, arguments, storage).get()).run();
                 LOGGER.info("Patient report pipeline is complete with status [{}]. Stages run were [{}]", state.status(), state);
 
             } catch (Exception e) {

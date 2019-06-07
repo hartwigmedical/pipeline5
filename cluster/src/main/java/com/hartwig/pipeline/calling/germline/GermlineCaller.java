@@ -94,25 +94,25 @@ public class GermlineCaller {
 
         String snpEffConfig = snpEffResource.find("config");
 
-        String referenceGenomePath = referenceGenome.find("fasta");
+        String referenceFasta = referenceGenome.find("fasta");
         SubStageInputOutput callerOutput =
-                new GatkGermlineCaller(bamDownload.getLocalTargetPath(), referenceGenomePath, knownSnps.find("vcf")).apply(
+                new GatkGermlineCaller(bamDownload.getLocalTargetPath(), referenceFasta, knownSnps.find("vcf")).apply(
                         SubStageInputOutput.of(alignmentOutput.sample().name(), OutputFile.empty(), startupScript));
 
         SubStageInputOutput snpFilterOutput =
-                new SelectVariants("snp", Lists.newArrayList("SNP", "NO_VARIATION"), referenceGenomePath).andThen(new VariantFilteration(
+                new SelectVariants("snp", Lists.newArrayList("SNP", "NO_VARIATION"), referenceFasta).andThen(new VariantFilteration(
                         "snp",
                         SNP_FILTER_EXPRESSION,
-                        referenceGenomePath)).apply(callerOutput);
+                        referenceFasta)).apply(callerOutput);
 
         SubStageInputOutput indelFilterOutput =
-                new SelectVariants("indels", Lists.newArrayList("INDEL", "MIXED"), referenceGenomePath).andThen(new VariantFilteration(
+                new SelectVariants("indels", Lists.newArrayList("INDEL", "MIXED"), referenceFasta).andThen(new VariantFilteration(
                         "indels",
                         INDEL_FILTER_EXPRESSION,
-                        referenceGenomePath)).apply(callerOutput);
+                        referenceFasta)).apply(callerOutput);
 
         SubStageInputOutput finalOutput =
-                new CombineFilteredVariants(indelFilterOutput.outputFile().path()).andThen(new SnpEff(snpEffConfig))
+                new CombineFilteredVariants(indelFilterOutput.outputFile().path(), referenceFasta).andThen(new SnpEff(snpEffConfig))
                         .andThen(new SnpSiftDbnsfpAnnotation(dbNSFPResource.find("txt.gz"), snpEffConfig))
                         .andThen(new CosmicAnnotation(cosmicResourceDownload.find("vcf.gz")))
                         .andThen(new SnpSiftFrequenciesAnnotation(frequencyDbDownload.find("vcf.gz"), snpEffConfig))
