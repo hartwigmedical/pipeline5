@@ -1,6 +1,7 @@
 package com.hartwig.pipeline.io;
 
 import com.google.cloud.storage.Blob;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +27,7 @@ public class GoogleStorageStatusCheck implements StatusCheck {
         }
         blob = bucket.get(resultsDirectory.path(SUCCESS_PATH));
         if (blob != null) {
-            LOGGER.info("Pipeline run for [{}] was marked as successful", bucket.name());
+            LOGGER.debug("Pipeline run for [{}] was marked as successful", bucket.name());
             return Status.SUCCESS;
         }
         LOGGER.warn("Pipeline run for [{}] had no status. Check job logs for more information", bucket.name());

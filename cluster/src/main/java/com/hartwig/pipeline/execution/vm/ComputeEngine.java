@@ -79,7 +79,7 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
                     project,
                     vmName,
                     jobDefinition.performanceProfile().diskGb());
-            LOGGER.info("Initialising [{}] using image [{}], output will go to bucket [{}]", vmName, image.getName(), bucket.name());
+            LOGGER.info("Submitting compute engine job [{}] using image [{}]", jobDefinition.name(), image.getName());
             addStartupCommand(instance, bucket, jobDefinition.startupCommand());
             addNetworkInterface(instance, project);
 
@@ -90,7 +90,7 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
             if (status == JobStatus.SUCCESS) {
                 delete(project, vmName);
             }
-            LOGGER.info("Execution of [{}] complete", vmName);
+            LOGGER.info("Compute engine job [{}] is complete with status [{}]", jobDefinition.name(), status);
         } catch (Exception e) {
             String message = format("An error occurred running job on compute engine [%s]", vmName);
             LOGGER.error(message, e);

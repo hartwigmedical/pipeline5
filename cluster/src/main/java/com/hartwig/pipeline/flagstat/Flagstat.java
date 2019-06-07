@@ -16,6 +16,7 @@ import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.report.SingleFileComponent;
+import com.hartwig.pipeline.trace.StageTrace;
 
 public class Flagstat {
     public static final String NAMESPACE = "flagstat";
@@ -33,6 +34,7 @@ public class Flagstat {
 
     public FlagstatOutput run(AlignmentOutput alignmentOutput) {
 
+        StageTrace trace = new StageTrace(NAMESPACE, StageTrace.ExecutorType.COMPUTE_ENGINE).start();
         RuntimeBucket bucket = RuntimeBucket.from(storage, NAMESPACE, alignmentOutput.sample().name(), arguments);
 
         InputDownload bamDownload = new InputDownload(alignmentOutput.finalBamLocation());
@@ -45,6 +47,7 @@ public class Flagstat {
                 .addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path())));
 
         JobStatus status = executor.submit(bucket, VirtualMachineJobDefinition.flagstat(bash, resultsDirectory));
+        trace.stop();
         return FlagstatOutput.builder()
                 .status(status)
                 .addReportComponents(new RunLogComponent(bucket, Flagstat.NAMESPACE, alignmentOutput.sample().name(), resultsDirectory))

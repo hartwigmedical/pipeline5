@@ -20,6 +20,7 @@ import com.hartwig.pipeline.resource.GATKDictAlias;
 import com.hartwig.pipeline.resource.ReferenceGenomeAlias;
 import com.hartwig.pipeline.resource.Resource;
 import com.hartwig.pipeline.resource.ResourceNames;
+import com.hartwig.pipeline.trace.StageTrace;
 
 public class BamMetrics {
     public static final String NAMESPACE = "bam_metrics";
@@ -41,6 +42,7 @@ public class BamMetrics {
             return BamMetricsOutput.builder().status(JobStatus.SKIPPED).build();
         }
 
+        StageTrace trace = new StageTrace(NAMESPACE, StageTrace.ExecutorType.COMPUTE_ENGINE).start();
         RuntimeBucket bucket = RuntimeBucket.from(storage, NAMESPACE, alignmentOutput.sample().name(), arguments);
         Resource referenceGenome = new Resource(storage,
                 arguments.resourceBucket(),
@@ -61,6 +63,7 @@ public class BamMetrics {
                 .addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path())));
 
         JobStatus status = executor.submit(bucket, VirtualMachineJobDefinition.bamMetrics(startup, resultsDirectory));
+        trace.stop();
         return BamMetricsOutput.builder()
                 .status(status)
                 .sample(alignmentOutput.sample())

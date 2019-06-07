@@ -18,6 +18,7 @@ import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
+import com.hartwig.pipeline.trace.StageTrace;
 
 public class HealthChecker {
 
@@ -45,6 +46,8 @@ public class HealthChecker {
             return HealthCheckOutput.builder().status(JobStatus.SKIPPED).build();
         }
 
+        StageTrace trace = new StageTrace(NAMESPACE, StageTrace.ExecutorType.COMPUTE_ENGINE).start();
+
         String referenceSampleName = pair.reference().sample().name();
         String tumorSampleName = pair.tumor().sample().name();
         RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, NAMESPACE, referenceSampleName, tumorSampleName, arguments);
@@ -71,6 +74,7 @@ public class HealthChecker {
                         VmDirectories.OUTPUT))
                 .addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path())));
         JobStatus status = computeEngine.submit(runtimeBucket, VirtualMachineJobDefinition.healthChecker(bash, resultsDirectory));
+        trace.stop();
         return HealthCheckOutput.builder()
                 .status(status)
                 .maybeOutputDirectory(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path()))

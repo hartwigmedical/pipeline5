@@ -21,7 +21,7 @@ public class NodeInitialization {
     public String run(RuntimeBucket bucket) throws FileNotFoundException {
         String initDirectory = "node-init";
         File initScript = new File(initScriptPath);
-        LOGGER.info("Uploading node initialization script of [{}] into [gs://{}/{}]", initScriptPath, bucket.name(), initDirectory);
+        LOGGER.debug("Uploading node initialization script of [{}] into [gs://{}/{}]", initScriptPath, bucket.name(), initDirectory);
         String blobPath = String.format("%s/%s", initDirectory, initScript.getName());
         bucket.create(blobPath, new FileInputStream(initScript));
         return String.format("gs://%s/%s", bucket.name(), blobPath);

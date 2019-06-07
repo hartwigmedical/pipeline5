@@ -83,13 +83,14 @@ public class PatientReportPipeline {
     private final PatientReport report;
     private final ExecutorService executorService;
     private final Cleanup cleanup;
+    private final Arguments arguments;
 
     PatientReportPipeline(final PatientMetadataApi patientMetadataApi, final Aligner aligner, final BamMetrics metrics,
             final GermlineCaller germlineCaller, final SomaticCaller somaticCaller, final StructuralCaller structuralCaller,
             final Amber amber, final Cobalt cobalt, final Purple purple, final HealthChecker healthChecker,
             final AlignmentOutputStorage alignmentOutputStorage, final BamMetricsOutputStorage bamMetricsOutputStorage,
             final SnpGenotype snpGenotype, final Flagstat flagstat, final PatientReport report, final ExecutorService executorService,
-            final Cleanup cleanup) {
+            final Cleanup cleanup, final Arguments arguments) {
         this.patientMetadataApi = patientMetadataApi;
         this.aligner = aligner;
         this.metrics = metrics;
@@ -107,11 +108,16 @@ public class PatientReportPipeline {
         this.report = report;
         this.executorService = executorService;
         this.cleanup = cleanup;
+        this.arguments = arguments;
     }
 
     public PipelineState run() throws Exception {
         Versions.printAll();
         String setName = patientMetadataApi.getMetadata().setName();
+        LOGGER.info("Pipeline5 starting for sample [{}] in set [{}] {}",
+                arguments.sampleId(),
+                setName,
+                arguments.runId().map(runId -> String.format("with run id [%s]", runId)).orElse(""));
         PipelineState state = new PipelineState();
         AlignmentOutput alignmentOutput = report.add(state.add(aligner.run()));
         if (state.shouldProceed()) {
@@ -123,8 +129,10 @@ public class PatientReportPipeline {
 
             Optional<AlignmentOutput> maybeMate = alignmentOutputStorage.get(mate(alignmentOutput.sample()));
             if (maybeMate.isPresent()) {
-
                 AlignmentPair pair = AlignmentPair.of(alignmentOutput, maybeMate.get());
+                LOGGER.info("All samples in set have been aligned, starting somatic pipeline for reference [{}] and tumor [{}]",
+                        pair.reference().sample().name(),
+                        pair.tumor().sample().name());
 
                 Future<SomaticCallerOutput> somaticCallerFuture = executorService.submit(() -> somaticCaller.run(pair));
                 Future<AmberOutput> amberOutputFuture = executorService.submit(() -> amber.run(pair));
@@ -205,7 +213,8 @@ public class PatientReportPipeline {
                         FlagstatProvider.from(arguments, credentials, storage).get(),
                         PatientReportProvider.from(storage, arguments).get(),
                         Executors.newCachedThreadPool(),
-                        CleanupProvider.from(credentials, arguments, storage).get()).run();
+                        CleanupProvider.from(credentials, arguments, storage).get(),
+                        arguments).run();
                 LOGGER.info("Patient report pipeline is complete with status [{}]. Stages run were [{}]", state.status(), state);
 
             } catch (Exception e) {

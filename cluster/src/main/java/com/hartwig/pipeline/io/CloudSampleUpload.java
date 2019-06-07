@@ -28,9 +28,7 @@ public class CloudSampleUpload implements SampleUpload {
 
     @Override
     public void run(Sample sample, RuntimeBucket runtimeBucket) {
-        LOGGER.info("Uploading sample [{}] into [{}]", sample.name(), runtimeBucket.name());
         uploadSample(runtimeBucket, sample);
-        LOGGER.info("Upload complete");
     }
 
     private void uploadSample(final RuntimeBucket runtimeBucket, final Sample sample) {
@@ -50,11 +48,12 @@ public class CloudSampleUpload implements SampleUpload {
 
     private void gsutilCP(Sample sample, RuntimeBucket bucket, String file) {
         String target = singleSampleFile(sample, file);
+        String targetPath = format("gs://%s/%s", bucket.name(), target);
         if (bucket.get(target) != null || bucket.get(target.replaceAll(".gz", "") + "/") != null) {
-            LOGGER.info("Fastq [{}] already existed in Google Storage. Skipping upload", target);
+            LOGGER.info("Fastq [{}] already existed in Google Storage. Skipping upload", targetPath);
         } else {
-            LOGGER.info("Uploading fastq [{}] to Google Storage", file);
-            cloudCopy.copy(file, format("gs://%s/%s", bucket.name(), target));
+            LOGGER.info("Uploading fastq [{}] to Google Storage bucket [{}]", file, targetPath);
+            cloudCopy.copy(file, targetPath);
         }
     }
 

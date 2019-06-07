@@ -25,6 +25,7 @@ import com.hartwig.pipeline.io.sources.SampleSource;
 import com.hartwig.pipeline.report.SingleFileComponent;
 import com.hartwig.pipeline.resource.ReferenceGenomeAlias;
 import com.hartwig.pipeline.resource.Resource;
+import com.hartwig.pipeline.trace.StageTrace;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,6 +72,8 @@ public class Aligner {
                             arguments.sampleId())));
         }
 
+        StageTrace trace = new StageTrace(NAMESPACE, StageTrace.ExecutorType.DATAPROC).start();
+
         SampleData sampleData = sampleSource.sample(arguments);
         Sample sample = sampleData.sample();
 
@@ -98,6 +101,7 @@ public class Aligner {
         if (arguments.download()) {
             bamDownload.run(sample, runtimeBucket, JobStatus.SUCCESS);
         }
+        trace.stop();
         return AlignmentOutput.builder()
                 .from(alignmentOutput)
                 .addReportComponents(new DataprocLogComponent(sample, runtimeBucket),
@@ -116,7 +120,7 @@ public class Aligner {
             throw new RuntimeException(format("Job [%s] reported status failed. Check prior error messages or job logs on Google dataproc",
                     jobDefinition.name()));
         } else {
-            LOGGER.info("Job [{}] completed successfully", jobDefinition.name());
+            LOGGER.debug("Job [{}] completed successfully", jobDefinition.name());
         }
     }
 }

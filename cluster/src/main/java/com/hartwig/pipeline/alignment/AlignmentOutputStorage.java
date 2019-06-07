@@ -41,10 +41,7 @@ public class AlignmentOutputStorage {
                     .maybeFinalBaiLocation(location(bucket, baiBlob))
                     .sample(sample)
                     .build());
-        } else {
-            LOGGER.info("No BAM found in bucket [{}]. Alignment stage is likely not yet complete.", bucket);
         }
-
         return Optional.empty();
     }
 

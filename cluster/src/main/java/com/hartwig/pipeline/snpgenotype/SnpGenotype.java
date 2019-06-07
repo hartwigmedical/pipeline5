@@ -22,6 +22,7 @@ import com.hartwig.pipeline.resource.GATKDictAlias;
 import com.hartwig.pipeline.resource.ReferenceGenomeAlias;
 import com.hartwig.pipeline.resource.Resource;
 import com.hartwig.pipeline.resource.ResourceNames;
+import com.hartwig.pipeline.trace.StageTrace;
 
 public class SnpGenotype {
 
@@ -48,6 +49,8 @@ public class SnpGenotype {
             return SnpGenotypeOutput.builder().status(JobStatus.SKIPPED).build();
         }
 
+        StageTrace trace = new StageTrace(NAMESPACE, StageTrace.ExecutorType.COMPUTE_ENGINE).start();
+
         String sampleName = alignmentOutput.sample().name();
         RuntimeBucket bucket = RuntimeBucket.from(storage, NAMESPACE, sampleName, arguments);
 
@@ -71,6 +74,7 @@ public class SnpGenotype {
                 .addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path())));
 
         JobStatus status = executor.submit(bucket, VirtualMachineJobDefinition.snpGenptyping(startupScript, resultsDirectory));
+        trace.stop();
         return SnpGenotypeOutput.builder().status(status)
                 .addReportComponents(new RunLogComponent(bucket, NAMESPACE, sampleName, resultsDirectory))
                 .addReportComponents(new SingleFileComponent(bucket, NAMESPACE, sampleName, OUTPUT_FILENAME, resultsDirectory))

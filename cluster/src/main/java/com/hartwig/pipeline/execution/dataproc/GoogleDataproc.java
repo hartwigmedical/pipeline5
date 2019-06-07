@@ -53,10 +53,13 @@ public class GoogleDataproc implements SparkExecutor {
     @Override
     public JobStatus submit(RuntimeBucket runtimeBucket, SparkJobDefinition jobDefinition) {
         try {
+            JobStatus status;
             String jobIdAndClusterName = jobIdAndClusterName(runtimeBucket, jobDefinition);
-            final Job job = findExistingJob(arguments, jobIdAndClusterName).orElseGet(() -> submittedJob(jobDefinition,
-                    runtimeBucket,
-                    jobIdAndClusterName));
+            LOGGER.info("Submitting spark job [{}] to cluster [{}]", jobDefinition.name(), jobIdAndClusterName);
+            final Job job =
+                    findExistingJob(arguments, jobIdAndClusterName, jobDefinition.name()).orElseGet(() -> submittedJob(jobDefinition,
+                            runtimeBucket,
+                            jobIdAndClusterName));
             if (!isDone(job)) {
                 Job completed = waitForComplete(job,
                         j -> j.getStatus() != null && (j.getStatus().getState().equals("ERROR") || isDone(j) || j.getStatus()
@@ -68,15 +71,17 @@ public class GoogleDataproc implements SparkExecutor {
                                 .get(arguments.project(), arguments.region(), job.getReference().getJobId())
                                 .execute(),
                         GoogleDataproc::jobStatus);
-                LOGGER.info("Spark job is complete with status [{}] details [{}]",
-                        completed.getStatus().getState(),
-                        completed.getStatus().getDetails());
                 stop(jobIdAndClusterName);
-                if (completed.getStatus().getState().equals("ERROR")) {
-                    return JobStatus.FAILED;
+                if (completed.getStatus().getState().equals("DONE")) {
+                    status = JobStatus.SUCCESS;
+                } else {
+                    status = JobStatus.FAILED;
                 }
+            } else {
+                status = JobStatus.SKIPPED;
             }
-            return JobStatus.SUCCESS;
+            LOGGER.info("Spark job [{}] is complete with status [{}]", jobDefinition.name(), status);
+            return status;
         } catch (IOException e) {
             LOGGER.error("Exception while interacting with Google Dataproc APIs", e);
             return JobStatus.FAILED;
@@ -102,18 +107,17 @@ public class GoogleDataproc implements SparkExecutor {
                     GoogleClusterConfig.from(runtimeBucket, nodeInitialization, performanceProfile, arguments.toolsBucket()).config();
             Operation createCluster =
                     clusters.create(arguments.project(), arguments.region(), cluster(clusterConfig, clusterName)).execute();
-            LOGGER.info("Starting Google Dataproc cluster with name [{}]. This may take a minute or two...", clusterName);
+            LOGGER.debug("Starting Google Dataproc cluster with name [{}]. This may take a minute or two...", clusterName);
             waitForOperationComplete(createCluster);
-            LOGGER.info("Cluster started.");
+            LOGGER.debug("Cluster started.");
         } else {
-            LOGGER.info("Cluster [{}] already exists, using this cluster to run pipeline", clusterName);
+            LOGGER.debug("Cluster [{}] already exists, using this cluster to run pipeline", clusterName);
         }
     }
 
     private Job submittedJob(final SparkJobDefinition jobDefinition, final RuntimeBucket runtimeBucket, final String naturalJobId) {
         try {
             start(jobDefinition.performanceProfile(), runtimeBucket, arguments, naturalJobId);
-            LOGGER.info("Submitting spark job [{}] to cluster [{}]", jobDefinition.name(), naturalJobId);
             return dataproc.projects()
                     .regions()
                     .jobs()
@@ -134,9 +138,9 @@ public class GoogleDataproc implements SparkExecutor {
     private void stop(String clusterName) throws IOException {
         Operation deleteCluster =
                 dataproc.projects().regions().clusters().delete(arguments.project(), arguments.region(), clusterName).execute();
-        LOGGER.info("Deleting cluster [{}]. This may take a minute or two...", clusterName);
+        LOGGER.debug("Deleting cluster [{}]. This may take a minute or two...", clusterName);
         waitForOperationComplete(deleteCluster);
-        LOGGER.info("Cluster deleted");
+        LOGGER.debug("Cluster deleted");
     }
 
     private static String jobStatus(final Job job) {
@@ -157,20 +161,20 @@ public class GoogleDataproc implements SparkExecutor {
         }
     }
 
-    private Optional<Job> findExistingJob(Arguments arguments, String jobId) throws IOException {
+    private Optional<Job> findExistingJob(Arguments arguments, String jobId, String jobName) throws IOException {
         try {
             Job job = dataproc.projects().regions().jobs().get(arguments.project(), arguments.region(), jobId).execute();
             if (job != null) {
                 switch (job.getStatus().getState()) {
                     case "RUNNING":
-                        LOGGER.info("Job [{}] already existed and is running. Re-attaching to running job.", jobId);
+                        LOGGER.info("Job [{}] already existed and is running. Re-attaching to running job.", jobName);
                         return Optional.of(job);
                     case "DONE":
-                        LOGGER.info("Job [{}] already existed and completed successfully. Skipping job", jobId);
+                        LOGGER.info("Job [{}] already existed and completed successfully. Skipping job", jobName);
                         return Optional.of(job);
                     default:
                         LOGGER.info("Job [{}] already existed and but is [{}]. Deleting and re-submitting",
-                                jobId,
+                                jobName,
                                 job.getStatus().getState());
                         dataproc.projects().regions().jobs().delete(arguments.project(), arguments.region(), jobId).execute();
                 }

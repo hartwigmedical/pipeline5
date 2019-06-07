@@ -72,6 +72,7 @@ public class PatientReportPipelineTest {
     private static final ImmutableHealthCheckOutput SUCCESSFUL_HEALTH_CHECK = HealthCheckOutput.builder().status(JobStatus.SUCCESS).build();
     private static final ImmutableFlagstatOutput SUCCESSFUL_FLAGSTAT_OUTPUT = FlagstatOutput.builder().status(JobStatus.SUCCESS).build();
     private static final String SET_NAME = "set_name";
+    public static final Arguments ARGUMENTS = Arguments.testDefaults();
     private PatientReportPipeline victim;
     private Aligner aligner;
     private BamMetrics bamMetrics;
@@ -115,7 +116,10 @@ public class PatientReportPipelineTest {
         bamMetricsOutputStorage = mock(BamMetricsOutputStorage.class);
         PatientMetadataApi patientMetadataApi = mock(PatientMetadataApi.class);
         when(patientMetadataApi.getMetadata()).thenReturn(PatientMetadata.of(SET_NAME));
-        final PatientReport patientReport = PatientReportProvider.from(mock(Storage.class), Arguments.testDefaults()).get();
+        Storage storage = mock(Storage.class);
+        Bucket reportBucket = mock(Bucket.class);
+        when(storage.get(ARGUMENTS.patientReportBucket())).thenReturn(reportBucket);
+        final PatientReport patientReport = PatientReportProvider.from(storage, ARGUMENTS).get();
         cleanup = mock(Cleanup.class);
         victim = new PatientReportPipeline(patientMetadataApi,
                 aligner,
@@ -133,7 +137,8 @@ public class PatientReportPipelineTest {
                 flagstat,
                 patientReport,
                 Executors.newSingleThreadExecutor(),
-                cleanup);
+                cleanup,
+                ARGUMENTS);
     }
 
     @Test

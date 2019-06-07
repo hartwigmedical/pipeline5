@@ -26,9 +26,8 @@ public class GoogleStorageJarUpload implements JarUpload {
         Blob jarBlob = runtimeBucket.get(blobLocation);
         String blobUri = String.format("gs://%s/%s", runtimeBucket.name(), blobLocation);
         if (jarBlob == null || arguments.forceJarUpload()) {
-            LOGGER.info("Uploading jar [{}] into [{}]", jarPath, blobUri);
+            LOGGER.info("Uploading aligner jar [{}] to Google Storage bucket [{}]", jarPath, blobUri);
             runtimeBucket.create(blobLocation, new FileInputStream(jarPath));
-            LOGGER.info("Upload complete");
         }
         return JarLocation.of(blobUri);
     }

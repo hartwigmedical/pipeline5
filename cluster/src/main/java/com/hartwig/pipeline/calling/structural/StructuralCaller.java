@@ -29,6 +29,7 @@ import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.resource.Resource;
 import com.hartwig.pipeline.resource.ResourceNames;
+import com.hartwig.pipeline.trace.StageTrace;
 
 public class StructuralCaller {
 
@@ -51,6 +52,8 @@ public class StructuralCaller {
         if (!arguments.runStructuralCaller()) {
             return StructuralCallerOutput.builder().status(JobStatus.SKIPPED).build();
         }
+
+        StageTrace trace = new StageTrace(NAMESPACE, StageTrace.ExecutorType.COMPUTE_ENGINE).start();
 
         String tumorSampleName = pair.tumor().sample().name();
         String referenceSampleName = pair.reference().sample().name();
@@ -122,7 +125,7 @@ public class StructuralCaller {
 
         bash.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path())));
         JobStatus status = computeEngine.submit(runtimeBucket, VirtualMachineJobDefinition.structuralCalling(bash, resultsDirectory));
-
+        trace.stop();
         return StructuralCallerOutput.builder()
                 .status(status)
                 .maybeFilteredVcf(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path("annotated.vcf.gz")))

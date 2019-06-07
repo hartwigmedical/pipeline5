@@ -15,6 +15,7 @@ import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.resource.ResourceNames;
+import com.hartwig.pipeline.trace.StageTrace;
 
 public class Cobalt {
 
@@ -36,6 +37,8 @@ public class Cobalt {
         if (!arguments.runTertiary()) {
             return CobaltOutput.builder().status(JobStatus.SKIPPED).build();
         }
+
+        StageTrace trace = new StageTrace(NAMESPACE, StageTrace.ExecutorType.COMPUTE_ENGINE).start();
 
         String tumorSampleName = pair.tumor().sample().name();
         String referenceSampleName = pair.reference().sample().name();
@@ -59,6 +62,7 @@ public class Cobalt {
                 cobaltResourceDownload.find("cnp")));
         bash.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path())));
         JobStatus status = computeEngine.submit(runtimeBucket, VirtualMachineJobDefinition.cobalt(bash, resultsDirectory));
+        trace.stop();
         return CobaltOutput.builder()
                 .status(status)
                 .maybeOutputDirectory(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path(), true))

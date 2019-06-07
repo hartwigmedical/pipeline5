@@ -22,6 +22,7 @@ import com.hartwig.pipeline.resource.GATKDictAlias;
 import com.hartwig.pipeline.resource.ReferenceGenomeAlias;
 import com.hartwig.pipeline.resource.Resource;
 import com.hartwig.pipeline.resource.ResourceNames;
+import com.hartwig.pipeline.trace.StageTrace;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -46,6 +47,8 @@ public class SomaticCaller {
         if (!arguments.runSomaticCaller()) {
             return SomaticCallerOutput.builder().status(JobStatus.SKIPPED).build();
         }
+
+        StageTrace trace = new StageTrace(NAMESPACE, StageTrace.ExecutorType.COMPUTE_ENGINE).start();
 
         String tumorSampleName = pair.tumor().sample().name();
         String referenceSampleName = pair.reference().sample().name();
@@ -115,6 +118,7 @@ public class SomaticCaller {
 
         bash.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path())));
         JobStatus status = computeEngine.submit(runtimeBucket, VirtualMachineJobDefinition.somaticCalling(bash, resultsDirectory));
+        trace.stop();
         return SomaticCallerOutput.builder()
                 .status(status)
                 .maybeFinalSomaticVcf(GoogleStorageLocation.of(runtimeBucket.name(),

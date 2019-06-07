@@ -29,6 +29,7 @@ public class Cleanup {
     }
 
     public void run(AlignmentPair pair) {
+        LOGGER.info("Cleaning up all transient resources on successful somatic pipeline run (runtime buckets and dataproc jobs)");
         String referenceSampleName = pair.reference().sample().name();
         String tumorSampleName = pair.tumor().sample().name();
         Run referenceRun = Run.from(referenceSampleName, arguments);
@@ -44,7 +45,7 @@ public class Cleanup {
                 if (job.getReference().getJobId().startsWith(referenceRun.id()) || job.getReference()
                         .getJobId()
                         .startsWith(tumorRun.id())) {
-                    LOGGER.info("Deleting complete job [{}]", job.getReference().getJobId());
+                    LOGGER.debug("Deleting complete job [{}]", job.getReference().getJobId());
                     jobs.delete(arguments.project(), arguments.region(), job.getReference().getJobId()).execute();
                 }
             }
@@ -56,7 +57,7 @@ public class Cleanup {
     private void deleteBucket(final String runId) {
         Bucket bucket = storage.get(runId);
         if (bucket != null) {
-            LOGGER.info("Cleaning up runtime bucket [{}]", runId);
+            LOGGER.debug("Cleaning up runtime bucket [{}]", runId);
             for (Blob blob : bucket.list().iterateAll()) {
                 blob.delete();
             }

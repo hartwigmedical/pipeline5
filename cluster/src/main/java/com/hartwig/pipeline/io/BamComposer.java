@@ -30,7 +30,7 @@ public class BamComposer {
     }
 
     public void run(Sample sample, RuntimeBucket runtimeBucket) {
-        LOGGER.info("Composing sharded BAM into a single downloadable BAM file on GS.");
+        LOGGER.debug("Composing sharded BAM into a single downloadable BAM file on GS.");
         Blob headerBlob = runtimeBucket.get(resultsDirectory.path(sample.name() + optionalSuffix() + ".bam_head"));
         String tailDirectory = "%s%s.bam_tail";
         List<Blob> blobs =
@@ -41,14 +41,14 @@ public class BamComposer {
             toCompose.add(0, headerBlob.getName());
             List<List<String>> partitioned = Lists.partition(toCompose, maxComponentsPerCompose);
             recursivelyCompose(sample, runtimeBucket, partitioned, 1);
-            LOGGER.info("Compose complete");
-            LOGGER.info("Deleting shards and temporary files");
+            LOGGER.debug("Compose complete");
+            LOGGER.debug("Deleting shards and temporary files");
             deletePath(runtimeBucket, resultsDirectory.path(String.format(tailDirectory, sample.name(), optionalSuffix())));
             deletePath(runtimeBucket, headerBlob.getName());
             deletePath(runtimeBucket, resultsDirectory.path("composed/"));
-            LOGGER.info("Delete complete");
+            LOGGER.debug("Delete complete");
         } else {
-            LOGGER.info("No BAM parts were found to compose. Skipping this step.");
+            LOGGER.debug("No BAM parts were found to compose. Skipping this step.");
         }
     }
 

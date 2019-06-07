@@ -31,6 +31,7 @@ public class PatientReport {
     }
 
     public void compose(String setName) {
+        LOGGER.info("Composing final patient report for in bucket gs://{}/{}", reportBucket.getName(), setName);
         components.forEach(component -> {
             try {
                 component.addToReport(storage, reportBucket, setName);

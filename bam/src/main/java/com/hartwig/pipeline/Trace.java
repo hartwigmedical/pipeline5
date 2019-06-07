@@ -22,13 +22,13 @@ public class Trace {
     }
 
     public Trace start() {
-        logger.info(TEMPLATE, messagePrefix, "Started");
+        logger.debug(TEMPLATE, messagePrefix, "Started");
         startTimeMillis = System.currentTimeMillis();
         return this;
     }
 
     void finish() {
-        logger.info(TEMPLATE, messagePrefix, "Completed");
+        logger.debug(TEMPLATE, messagePrefix, "Completed");
         executionTime = System.currentTimeMillis() - startTimeMillis;
     }
 
