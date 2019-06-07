@@ -44,7 +44,7 @@ public class Cleanup {
                 if (job.getReference().getJobId().startsWith(referenceRun.id()) || job.getReference()
                         .getJobId()
                         .startsWith(tumorRun.id())) {
-                    LOGGER.info("Deleting complete job [{}]", job.getJobUuid());
+                    LOGGER.info("Deleting complete job [{}]", job.getReference().getJobId());
                     jobs.delete(arguments.project(), arguments.region(), job.getReference().getJobId()).execute();
                 }
             }
