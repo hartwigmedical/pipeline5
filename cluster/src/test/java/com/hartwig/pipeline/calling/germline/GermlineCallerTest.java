@@ -55,6 +55,12 @@ public class GermlineCallerTest {
     }
 
     @Test
+    public void returnsSkippedIfPassedATumorSample() {
+        GermlineCallerOutput output = victim.run(TestInputs.tumorAlignmentOutput());
+        assertThat(output.status()).isEqualTo(JobStatus.SKIPPED);
+    }
+
+    @Test
     public void returnsStatusFailedWhenJobFailsOnComputeEngine() {
         when(computeEngine.submit(any(), any())).thenReturn(JobStatus.FAILED);
         assertThat(victim.run(TestInputs.referenceAlignmentOutput()).status()).isEqualTo(JobStatus.FAILED);

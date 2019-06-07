@@ -5,6 +5,7 @@ import java.util.Map;
 import com.google.cloud.storage.Storage;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.calling.SubStageInputOutput;
@@ -64,7 +65,7 @@ public class GermlineCaller {
 
     public GermlineCallerOutput run(AlignmentOutput alignmentOutput) {
 
-        if (!arguments.runGermlineCaller()) {
+        if (!arguments.runGermlineCaller() || alignmentOutput.sample().type() == Sample.Type.TUMOR) {
             return GermlineCallerOutput.builder().status(JobStatus.SKIPPED).build();
         }
 
