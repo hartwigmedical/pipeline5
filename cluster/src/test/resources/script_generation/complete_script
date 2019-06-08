@@ -10,5 +10,6 @@ function die() {
 }
 
 uname -a >>/data/output/run.log 2>&1 || die
+echo "Running command ComplexCommand with bash: not_really_so_complex" >>/data/output/run.log 2>&1 || die
 not_really_so_complex >>/data/output/run.log 2>&1 || die
 (echo 0 > /tmp/JOB_SUCCESS && gsutil cp /tmp/JOB_SUCCESS gs://outputBucket) >>/data/output/run.log 2>&1 || die

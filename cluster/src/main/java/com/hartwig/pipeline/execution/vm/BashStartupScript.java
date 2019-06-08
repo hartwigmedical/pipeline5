@@ -1,10 +1,10 @@
 package com.hartwig.pipeline.execution.vm;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import static java.lang.String.format;
 import static java.util.stream.Collectors.joining;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class BashStartupScript {
     static final String JOB_SUCCEEDED_FLAG = "JOB_SUCCESS";
@@ -28,18 +28,14 @@ public class BashStartupScript {
     public String asUnixString() {
         String commandSuffix = format(" >>%s 2>&1 || die", LOG_FILE);
         String jobFailedFlag = "/tmp/" + JOB_FAILED_FLAG;
-        String preamble = "#!/bin/bash -x\n\n" +
-                "function die() {\n" +
-                "  exit_code=$?\n" +
-                "  echo \"Unknown failure: called command returned $exit_code\"\n" +
-                format("  gsutil -m cp %s gs://%s\n", LOG_FILE, runtimeBucketName) +
-                format("  echo $exit_code > %s\n", jobFailedFlag) +
-                format("  gsutil -m cp %s gs://%s\n", jobFailedFlag, runtimeBucketName) +
-                "  exit $exit_code\n" +
-                "}\n\n";
+        String preamble = "#!/bin/bash -x\n\n" + "function die() {\n" + "  exit_code=$?\n"
+                + "  echo \"Unknown failure: called command returned $exit_code\"\n" + format("  gsutil -m cp %s gs://%s\n",
+                LOG_FILE,
+                runtimeBucketName) + format("  echo $exit_code > %s\n", jobFailedFlag) + format("  gsutil -m cp %s gs://%s\n",
+                jobFailedFlag,
+                runtimeBucketName) + "  exit $exit_code\n" + "}\n\n";
         addCompletionCommands();
-        return preamble + commands.stream()
-                .collect(joining(format("%s\n", commandSuffix))) + (commands.isEmpty() ? "" : commandSuffix);
+        return preamble + commands.stream().collect(joining(format("%s\n", commandSuffix))) + (commands.isEmpty() ? "" : commandSuffix);
     }
 
     public BashStartupScript addLine(String lineOne) {
@@ -47,12 +43,14 @@ public class BashStartupScript {
         return this;
     }
 
-    public BashStartupScript addCommand(BashCommand command){
-        return addLine(command.asBash());
+    public BashStartupScript addCommand(BashCommand command) {
+        return addLine(String.format("echo \"Running command %s with bash: %s\"",
+                command.getClass().getSimpleName(),
+                command.asBash())).addLine(command.asBash());
     }
 
     public BashStartupScript addCommands(List<BashCommand> commands) {
-        for (BashCommand command: commands) {
+        for (BashCommand command : commands) {
             addCommand(command);
         }
         return this;

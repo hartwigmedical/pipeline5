@@ -1,15 +1,17 @@
 package com.hartwig.pipeline.execution.vm;
 
-import com.hartwig.support.test.Resources;
-import org.junit.Before;
-import org.junit.Test;
+import static com.hartwig.pipeline.execution.vm.BashStartupScript.of;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import static com.hartwig.pipeline.execution.vm.BashStartupScript.of;
-import static org.assertj.core.api.Assertions.assertThat;
+import com.hartwig.support.test.Resources;
+
+import org.junit.Before;
+import org.junit.Test;
 
 public class BashStartupScriptTest {
     private BashStartupScript scriptBuilder;
@@ -35,9 +37,15 @@ public class BashStartupScriptTest {
     public void shouldWriteCompleteScript() throws IOException {
         String expectedScript = Resources.testResource("script_generation/complete_script");
         String simpleCommand = "uname -a";
-        String complexCommand = "not_really_so_complex";
         scriptBuilder.addLine(simpleCommand);
-        scriptBuilder.addCommand(() -> complexCommand);
+        scriptBuilder.addCommand(new ComplexCommand());
         assertThat(scriptBuilder.asUnixString()).isEqualTo(new String(Files.readAllBytes(Paths.get(expectedScript))));
+    }
+
+    private class ComplexCommand implements BashCommand{
+        @Override
+        public String asBash() {
+            return "not_really_so_complex";
+        }
     }
 }
