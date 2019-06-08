@@ -46,7 +46,7 @@ public class FlagstatTest {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
         victim.run(TestInputs.referenceAlignmentOutput());
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
-                "samtools flagstat /data/input/reference.bam");
+                "sambamba flagstat -t 32 /data/input/reference.bam");
     }
 
     @Test
