@@ -45,7 +45,7 @@ public class BashStartupScriptTest {
     private class ComplexCommand implements BashCommand{
         @Override
         public String asBash() {
-            return "not_really_so_complex";
+            return "not_really_so_complex \"quoted\"";
         }
     }
 }

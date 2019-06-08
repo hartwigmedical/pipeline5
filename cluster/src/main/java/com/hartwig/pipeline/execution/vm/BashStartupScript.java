@@ -46,7 +46,11 @@ public class BashStartupScript {
     public BashStartupScript addCommand(BashCommand command) {
         return addLine(String.format("echo \"Running command %s with bash: %s\"",
                 command.getClass().getSimpleName(),
-                command.asBash())).addLine(command.asBash());
+                escapeQuotes(command.asBash()))).addLine(command.asBash());
+    }
+
+    private String escapeQuotes(final String s) {
+        return s.replace("\"", "\\\"");
     }
 
     public BashStartupScript addCommands(List<BashCommand> commands) {
