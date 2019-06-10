@@ -1,6 +1,7 @@
 package com.hartwig.pipeline.tertiary.purple;
 
 import com.google.common.collect.Lists;
+import com.hartwig.pipeline.execution.vm.Bash;
 import com.hartwig.pipeline.execution.vm.JavaJarCommand;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.tools.Versions;
@@ -33,6 +34,6 @@ class PurpleApplicationCommand extends JavaJarCommand {
                         "-circos",
                         circosPath,
                         "-threads",
-                        "16"));
+                        Bash.allCpus()));
     }
 }

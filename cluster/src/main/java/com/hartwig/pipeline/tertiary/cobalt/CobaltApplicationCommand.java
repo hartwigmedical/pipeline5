@@ -1,5 +1,6 @@
 package com.hartwig.pipeline.tertiary.cobalt;
 
+import com.hartwig.pipeline.execution.vm.Bash;
 import com.hartwig.pipeline.tertiary.HmfToolCommand;
 import com.hartwig.pipeline.tools.Versions;
 
@@ -16,6 +17,8 @@ class CobaltApplicationCommand extends HmfToolCommand {
                 tumorSampleName,
                 tumorBamPath,
                 "-gc_profile",
-                gcProfileBed);
+                gcProfileBed,
+                "-threads",
+                Bash.allCpus());
     }
 }

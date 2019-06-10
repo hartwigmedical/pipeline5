@@ -1,5 +1,6 @@
 package com.hartwig.pipeline.tertiary.amber;
 
+import com.hartwig.pipeline.execution.vm.Bash;
 import com.hartwig.pipeline.tertiary.HmfToolCommand;
 import com.hartwig.pipeline.tools.Versions;
 
@@ -18,6 +19,8 @@ class AmberApplicationCommand extends HmfToolCommand {
                 "-ref_genome",
                 referenceGenomePath,
                 "-bed",
-                bedPath);
+                bedPath,
+                "-threads",
+                Bash.allCpus());
     }
 }

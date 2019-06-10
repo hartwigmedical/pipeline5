@@ -1,5 +1,10 @@
 package com.hartwig.pipeline.tertiary.purple;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
@@ -20,11 +25,6 @@ import com.hartwig.pipeline.tools.Versions;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class PurpleTest {
 
@@ -77,7 +77,7 @@ public class PurpleTest {
                 + "/data/tools/purple/" + Versions.PURPLE + "/purple.jar -reference reference -tumor tumor -output_dir /data/output -amber "
                 + "/data/input -cobalt /data/input -gc_profile /data/resources/gc_profile.cnp -somatic_vcf /data/input/somatic.vcf "
                 + "-structural_vcf /data/input/structural.vcf -sv_recovery_vcf /data/input/sv_recovery.vcf -circos "
-                + "/data/tools/circos/0.69.6/bin/circos -threads 16");
+                + "/data/tools/circos/0.69.6/bin/circos -threads $(grep -c '^processor' /proc/cpuinfo)");
     }
 
     @Test
