@@ -15,8 +15,6 @@ public class GatkHaplotypeCallerCommand extends GatkCommand {
                 knownSnpsDb,
                 "--reference_sequence",
                 referenceFasta,
-                "-nct",
-                "$(grep -c '^processor' /proc/cpuinfo)",
                 "-variant_index_type",
                 "LINEAR",
                 "-variant_index_parameter",

@@ -4,7 +4,6 @@ import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.execution.JobStatus;
-import com.hartwig.pipeline.execution.MachineType;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.InputDownload;
@@ -44,10 +43,11 @@ public class Flagstat {
         BashStartupScript bash = BashStartupScript.of(bucket.name())
                 .addCommand(bamDownload)
                 .addCommand(new SubShellCommand(new SambambaFlagstatCommand(bamDownload.getLocalTargetPath(),
-                        VmDirectories.OUTPUT + "/" + outputFile, MachineType.defaultVm().cpus())))
+                        VmDirectories.OUTPUT + "/" + outputFile)))
                 .addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path())));
 
         JobStatus status = executor.submit(bucket, VirtualMachineJobDefinition.flagstat(bash, resultsDirectory));
+        trace.stop();
         return FlagstatOutput.builder()
                 .status(status)
                 .addReportComponents(new RunLogComponent(bucket, Flagstat.NAMESPACE, alignmentOutput.sample().name(), resultsDirectory))

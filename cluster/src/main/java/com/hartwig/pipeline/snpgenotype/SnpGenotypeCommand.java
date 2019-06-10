@@ -1,5 +1,6 @@
 package com.hartwig.pipeline.snpgenotype;
 
+import com.hartwig.pipeline.execution.vm.Bash;
 import com.hartwig.pipeline.execution.vm.GatkCommand;
 
 class SnpGenotypeCommand extends GatkCommand {
@@ -15,8 +16,7 @@ class SnpGenotypeCommand extends GatkCommand {
                 genotypeSnpsDb,
                 "--reference_sequence",
                 referenceFasta,
-                "-nct",
-                "$(grep -c '^processor' /proc/cpuinfo)",
+                "-nct", Bash.allCpus(),
                 "--output_mode EMIT_ALL_SITES"
         );
     }
