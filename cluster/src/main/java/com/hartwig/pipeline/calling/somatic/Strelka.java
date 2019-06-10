@@ -9,8 +9,6 @@ import com.hartwig.pipeline.execution.vm.OutputFile;
 class Strelka extends SubStage {
 
     private static final String STRELKA_ANALYSIS_DIRECTORY = "/strelkaAnalysis";
-    private static final int STRELKA_THREADS = 8;
-
     private final String recalibratedReferenceBamPath;
     private final String recalibratedTumorBamPath;
     private final String strelkaConfigPath;
@@ -33,7 +31,7 @@ class Strelka extends SubStage {
                 strelkaConfigPath,
                 referenceGenomePath,
                 strelkaAnalysisOutput))
-                .addCommand(new MakeStrelka(strelkaAnalysisOutput, STRELKA_THREADS))
+                .addCommand(new MakeStrelka(strelkaAnalysisOutput))
                 .addCommand(new CombineVcfsCommand(referenceGenomePath,
                         strelkaAnalysisOutput + "/results/passed.somatic.snvs.vcf",
                         strelkaAnalysisOutput + "/results/passed.somatic.indels.vcf",
