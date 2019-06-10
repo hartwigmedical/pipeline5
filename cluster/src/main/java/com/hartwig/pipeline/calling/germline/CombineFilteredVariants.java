@@ -18,7 +18,7 @@ public class CombineFilteredVariants extends SubStage {
 
     @Override
     public BashStartupScript bash(final OutputFile input, final OutputFile output, final BashStartupScript bash) {
-        return bash.addCommand(new GatkCommand("10G",
+        return bash.addCommand(new GatkCommand(GermlineCaller.TOOL_HEAP,
                 "CombineVariants",
                 "-V",
                 input.path(),

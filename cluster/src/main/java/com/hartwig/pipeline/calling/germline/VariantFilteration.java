@@ -44,7 +44,9 @@ public class VariantFilteration extends SubStage {
         arguments.add("3");
         arguments.add("--clusterWindowSize");
         arguments.add("35");
-        return bash.addCommand(new GatkCommand("10G", "VariantFiltration", arguments.toArray(new String[arguments.size()])));
+        return bash.addCommand(new GatkCommand(GermlineCaller.TOOL_HEAP,
+                "VariantFiltration",
+                arguments.toArray(new String[arguments.size()])));
     }
 
     private static String wrapInQuotes(final String string) {

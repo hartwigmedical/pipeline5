@@ -21,9 +21,9 @@ public class CombineFilteredVariantsTest extends SubStageTest{
 
     @Test
     public void combinesVariantsWithGatk() {
-        assertThat(output.currentBash().asUnixString()).contains("java -Xmx10G -jar /data/tools/gatk/3.8.0/GenomeAnalysisTK.jar -T "
-                + "CombineVariants -V /data/output/reference.strelka.vcf -V other.vcf -o /data/output/reference.filtered_variants.vcf "
-                + "-R reference.fasta --assumeIdenticalSamples");
+        assertThat(output.currentBash().asUnixString()).contains("java -Xmx20G -jar /data/tools/gatk/3.8.0/GenomeAnalysisTK.jar -T "
+                + "CombineVariants -nct $(grep -c '^processor' /proc/cpuinfo) -V /data/output/reference.strelka.vcf -V other.vcf -o "
+                + "/data/output/reference.filtered_variants.vcf -R reference.fasta --assumeIdenticalSamples");
     }
 
     @Override

@@ -35,6 +35,7 @@ import com.hartwig.pipeline.trace.StageTrace;
 public class GermlineCaller {
 
     public static final String NAMESPACE = "germline_caller";
+    public static final String TOOL_HEAP = "20G";
     private static final Map<String, String> SNP_FILTER_EXPRESSION =
             ImmutableMap.<String, String>builder().put("SNP_LowQualityDepth", "QD < 2.0")
                     .put("SNP_MappingQuality", "MQ < 40.0")

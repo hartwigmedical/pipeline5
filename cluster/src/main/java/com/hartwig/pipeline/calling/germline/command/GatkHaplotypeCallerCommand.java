@@ -1,11 +1,12 @@
 package com.hartwig.pipeline.calling.germline.command;
 
+import com.hartwig.pipeline.calling.germline.GermlineCaller;
 import com.hartwig.pipeline.execution.vm.GatkCommand;
 
 public class GatkHaplotypeCallerCommand extends GatkCommand {
 
     public GatkHaplotypeCallerCommand(String inputBam, String referenceFasta, String knownSnpsDb, String outputVcf) {
-        super("20G",
+        super(GermlineCaller.TOOL_HEAP,
                 "HaplotypeCaller",
                 "--input_file",
                 inputBam,

@@ -46,7 +46,8 @@ public class FlagstatTest {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
         victim.run(TestInputs.referenceAlignmentOutput());
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
-                "sambamba flagstat -t 32 /data/input/reference.bam");
+                "(/data/tools/sambamba/0.6.5/sambamba flagstat -t $(grep -c '^processor' /proc/cpuinfo) /data/input/reference.bam > "
+                        + "/data/output/reference.flagstat)");
     }
 
     @Test

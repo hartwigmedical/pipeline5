@@ -31,6 +31,6 @@ public class SelectVariants extends SubStage {
         arguments.add(input.path());
         arguments.add("-o");
         arguments.add(output.path());
-        return bash.addCommand(new GatkCommand("10G", "SelectVariants", arguments.toArray(new String[arguments.size()])));
+        return bash.addCommand(new GatkCommand(GermlineCaller.TOOL_HEAP, "SelectVariants", arguments.toArray(new String[arguments.size()])));
     }
 }
