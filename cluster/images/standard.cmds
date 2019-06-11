@@ -19,3 +19,5 @@ sudo tar xvf /data/tools/R/rlibs.tar -C /
 sudo chmod a+x /data/tools/bcftools/1.3.1/bcftools
 sudo chmod a+x /data/tools/snpEff/4.3s/snpEff.sh
 sudo chmod a+x /data/tools/bwa/0.7.17/bwa
+sudo chmod a+x /data/tools/sambamba/0.6.5/sambamba
+Var

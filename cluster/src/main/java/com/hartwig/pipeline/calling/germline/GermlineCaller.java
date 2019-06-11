@@ -105,13 +105,13 @@ public class GermlineCaller {
                         SubStageInputOutput.of(alignmentOutput.sample().name(), OutputFile.empty(), startupScript));
 
         SubStageInputOutput snpFilterOutput =
-                new SelectVariants("snp", Lists.newArrayList("SNP", "NO_VARIATION"), referenceFasta).andThen(new VariantFilteration(
+                new SelectVariants("snp", Lists.newArrayList("SNP", "NO_VARIATION"), referenceFasta).andThen(new VariantFiltration(
                         "snp",
                         SNP_FILTER_EXPRESSION,
                         referenceFasta)).apply(callerOutput);
 
         SubStageInputOutput indelFilterOutput =
-                new SelectVariants("indels", Lists.newArrayList("INDEL", "MIXED"), referenceFasta).andThen(new VariantFilteration(
+                new SelectVariants("indels", Lists.newArrayList("INDEL", "MIXED"), referenceFasta).andThen(new VariantFiltration(
                         "indels",
                         INDEL_FILTER_EXPRESSION,
                         referenceFasta)).apply(callerOutput);

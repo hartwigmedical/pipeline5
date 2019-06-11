@@ -1,9 +1,9 @@
 package com.hartwig.pipeline.calling.germline.command;
 
 import com.hartwig.pipeline.calling.germline.GermlineCaller;
-import com.hartwig.pipeline.execution.vm.GatkCommand;
+import com.hartwig.pipeline.execution.vm.ParallelGatkCommand;
 
-public class GatkHaplotypeCallerCommand extends GatkCommand {
+public class GatkHaplotypeCallerCommand extends ParallelGatkCommand {
 
     public GatkHaplotypeCallerCommand(String inputBam, String referenceFasta, String knownSnpsDb, String outputVcf) {
         super(GermlineCaller.TOOL_HEAP,

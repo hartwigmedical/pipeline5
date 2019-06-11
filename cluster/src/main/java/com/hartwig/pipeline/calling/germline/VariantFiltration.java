@@ -13,12 +13,12 @@ import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.GatkCommand;
 import com.hartwig.pipeline.execution.vm.OutputFile;
 
-public class VariantFilteration extends SubStage {
+public class VariantFiltration extends SubStage {
 
     private final Map<String, String> filterExpressions;
     private final String referenceFasta;
 
-    VariantFilteration(final String variantType, Map<String, String> filterExpressions, final String referenceFasta) {
+    VariantFiltration(final String variantType, Map<String, String> filterExpressions, final String referenceFasta) {
         super("filtered_" + variantType, OutputFile.VCF);
         this.filterExpressions = filterExpressions;
         this.referenceFasta = referenceFasta;

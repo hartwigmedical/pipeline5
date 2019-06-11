@@ -23,7 +23,7 @@ public class SelectVariantsTest extends SubStageTest{
     @Test
     public void selectsVariantsWithGatk() {
         assertThat(output.currentBash().asUnixString()).contains("java -Xmx20G -jar /data/tools/gatk/3.8.0/GenomeAnalysisTK.jar -T "
-                + "SelectVariants -nct $(grep -c '^processor' /proc/cpuinfo) -selectType SNP,NO_VARIATION -R reference.fasta -V "
+                + "SelectVariants -selectType SNP,NO_VARIATION -R reference.fasta -V "
                 + "/data/output/tumor.strelka.vcf -o /data/output/tumor.raw_snp.vcf");
     }
 }

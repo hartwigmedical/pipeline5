@@ -76,7 +76,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .name("cobalt")
                 .startupCommand(startupScript)
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(16, 8))
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(16, 16))
                 .build();
     }
 

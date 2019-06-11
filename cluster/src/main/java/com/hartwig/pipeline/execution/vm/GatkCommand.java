@@ -13,7 +13,7 @@ public class GatkCommand extends JavaJarCommand {
                 Versions.GATK,
                 "GenomeAnalysisTK.jar",
                 maxHeapSize,
-                concat(Lists.newArrayList("-T", analysisType, "-nct", Bash.allCpus()), arguments));
+                concat(Lists.newArrayList("-T", analysisType), arguments));
     }
 
     private static List<String> concat(List<String> first, String... rest) {
