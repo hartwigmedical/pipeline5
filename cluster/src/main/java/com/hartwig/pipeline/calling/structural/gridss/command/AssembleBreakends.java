@@ -3,8 +3,6 @@ package com.hartwig.pipeline.calling.structural.gridss.command;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 
 public class AssembleBreakends implements GridssCommand {
-    private static final int WORKER_THREADS = 2;
-
     private final String referenceGenome;
     private final String sampleBam;
     private final String tumorBam;
@@ -41,7 +39,6 @@ public class AssembleBreakends implements GridssCommand {
                         .add("input", sampleBam)
                         .add("input", tumorBam)
                         .add("output", assemblyBam)
-                        .add("worker_threads", String.valueOf(WORKER_THREADS))
                         .addBlacklist()
                         .addConfigFile()
                         .asBash();

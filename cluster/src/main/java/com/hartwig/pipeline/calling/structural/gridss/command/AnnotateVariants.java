@@ -38,7 +38,6 @@ public class AnnotateVariants implements GridssCommand {
                 .add("input_vcf", inputVcf)
                 .add("output_vcf", resultantVcf())
                 .add("assembly", assemblyBam)
-                .add("worker_threads", "2")
                 .add("blacklist", GridssCommon.blacklist())
                 .add("configuration_file", GridssCommon.configFile())
                 .asBash();

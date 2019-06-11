@@ -28,7 +28,6 @@ public class AnnotateUntemplatedSequence implements GridssCommand {
                 .add("reference_sequence", referenceGenome)
                 .add("input", inputVcf)
                 .add("output", resultantVcf())
-                .add("worker_threads", "2")
                 .add("aligner_command_line", "null")
                 .add("aligner_command_line", GridssCommon.pathToBwa())
                 .add("aligner_command_line", "mem")

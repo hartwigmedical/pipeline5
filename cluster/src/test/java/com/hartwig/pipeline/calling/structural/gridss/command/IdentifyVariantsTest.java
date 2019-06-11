@@ -38,7 +38,6 @@ public class IdentifyVariantsTest implements CommonEntities {
                 .and(ARG_KEY_INPUT, TUMOR_BAM)
                 .and("output_vcf", expectedOutputFile)
                 .and("assembly", assemblyBam)
-                .and(ARG_KEY_WORKER_THREADS, "16")
                 .and(ARGS_BLACKLIST)
                 .and(ARGS_GRIDSS_CONFIG)
                 .andNoMore();

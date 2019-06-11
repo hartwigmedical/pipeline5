@@ -26,7 +26,6 @@ public class IdentifyVariants implements GridssCommand {
                 .add("input", tumorBam)
                 .add("output_vcf", resultantVcf())
                 .add("assembly", assemblyBam)
-                .add("worker_threads", "16")
                 .addBlacklist()
                 .add("configuration_file", GridssCommon.configFile())
                 .asBash();

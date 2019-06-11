@@ -9,7 +9,7 @@ public class UlimitOpenFilesCommandTest {
     @Test
     public void shouldGenerateCommand() {
         int newValue = 10;
-        assertThat(new UlimitOpenFilesCommand(newValue).asBash()).isEqualTo(format("ulimit -Sn %d", newValue));
+        assertThat(new UlimitOpenFilesCommand(newValue).asBash()).isEqualTo(format("ulimit -n %d", newValue));
     }
 
 }

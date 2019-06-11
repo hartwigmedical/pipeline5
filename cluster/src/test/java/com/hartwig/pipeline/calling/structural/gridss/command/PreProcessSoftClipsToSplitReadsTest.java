@@ -31,7 +31,6 @@ public class PreProcessSoftClipsToSplitReadsTest implements CommonEntities {
                 .and("reference_sequence", REFERENCE_GENOME)
                 .and("i", TUMOR_BAM)
                 .and("o", OUTPUT_BAM)
-                .and("worker_threads", "2")
                 .and("aligner_command_line", "null")
                 .and("aligner_command_line", PATH_TO_BWA)
                 .and("aligner_command_line", "mem")

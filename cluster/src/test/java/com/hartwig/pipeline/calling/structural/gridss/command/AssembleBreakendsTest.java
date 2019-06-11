@@ -33,7 +33,6 @@ public class AssembleBreakendsTest implements CommonEntities {
                 .and(ARG_KEY_INPUT, REFERENCE_BAM)
                 .and(ARG_KEY_INPUT, TUMOR_BAM)
                 .and(ARG_KEY_OUTPUT, command.assemblyBam())
-                .and(ARG_KEY_WORKER_THREADS, "2")
                 .and(ARGS_BLACKLIST)
                 .and(ARGS_GRIDSS_CONFIG)
                 .andNoMore();

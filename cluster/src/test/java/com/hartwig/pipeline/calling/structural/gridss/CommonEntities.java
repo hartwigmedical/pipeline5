@@ -29,7 +29,6 @@ public interface CommonEntities {
     String ARG_KEY_INPUT_SHORT = "i";
     String ARG_KEY_OUTPUT = "output";
     String ARG_KEY_OUTPUT_SHORT = "o";
-    String ARG_KEY_WORKER_THREADS = "worker_threads";
     String ARG_KEY_WORKING_DIR = "working_dir";
 
     Map.Entry<String, String> ARGS_TMP_DIR = pair("tmp_dir", "/tmp");

@@ -14,6 +14,6 @@ public class UlimitOpenFilesCommand implements BashCommand {
 
     @Override
     public String asBash() {
-        return "ulimit -Sn " + newSoftLimit;
+        return "ulimit -n " + newSoftLimit;
     }
 }

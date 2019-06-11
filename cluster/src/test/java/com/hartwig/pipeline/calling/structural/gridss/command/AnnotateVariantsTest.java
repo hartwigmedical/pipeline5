@@ -49,7 +49,6 @@ public class AnnotateVariantsTest implements CommonEntities {
                 .and("input_vcf", inputVcf)
                 .and("output_vcf", expectedResultantVcf)
                 .and("assembly", assemblyBam)
-                .and("worker_threads", "2")
                 .and("blacklist", GridssCommon.blacklist())
                 .and("configuration_file", GridssCommon.configFile())
                 .andNoMore();

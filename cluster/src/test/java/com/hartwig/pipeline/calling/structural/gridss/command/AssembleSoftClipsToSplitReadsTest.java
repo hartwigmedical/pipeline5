@@ -33,7 +33,6 @@ public class AssembleSoftClipsToSplitReadsTest implements CommonEntities {
                 .and(ARGS_REFERENCE_SEQUENCE)
                 .and(ARG_KEY_INPUT_SHORT, REFERENCE_BAM)
                 .and(ARG_KEY_OUTPUT_SHORT, OUTPUT_BAM)
-                .and(ARG_KEY_WORKER_THREADS, "2")
                 .and("aligner_command_line", "null")
                 .and("aligner_command_line", PATH_TO_BWA)
                 .and("aligner_command_line", "mem")
