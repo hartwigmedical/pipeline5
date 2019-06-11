@@ -53,13 +53,11 @@ public class BamMetrics {
 
         String outputFile = BamMetricsOutput.outputFile(alignmentOutput.sample());
         BashStartupScript startup = BashStartupScript.of(bucket.name())
-                .addLine("echo Starting up at $(date)")
                 .addCommand(new InputDownload(alignmentOutput.finalBamLocation()))
                 .addCommand(genomeDownload)
                 .addCommand(new BamMetricsCommand(bam.getLocalTargetPath(),
                         genomeDownload.find(".fasta"),
                         VmDirectories.OUTPUT + "/" + outputFile))
-                .addLine("echo Processing finished at $(date)")
                 .addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path())));
 
         JobStatus status = executor.submit(bucket, VirtualMachineJobDefinition.bamMetrics(startup, resultsDirectory));

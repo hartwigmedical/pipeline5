@@ -140,12 +140,9 @@ public class PatientReportPipeline {
                 Future<AmberOutput> amberOutputFuture = executorService.submit(() -> amber.run(pair));
                 Future<CobaltOutput> cobaltOutputFuture = executorService.submit(() -> cobalt.run(pair));
 
-                BamMetricsOutput metricsOutput = report.add(state.add(futurePayload(bamMetricsFuture)));
-
                 if (state.shouldProceed()) {
-                    BamMetricsOutput mateMetricsOutput = bamMetricsOutputStorage.get(mate(alignmentOutput.sample()));
                     Future<StructuralCallerOutput> structuralCallerFuture =
-                            executorService.submit(() -> structuralCaller.run(pair, metricsOutput, mateMetricsOutput));
+                            executorService.submit(() -> structuralCaller.run(pair));
 
                     SomaticCallerOutput somaticCallerOutput = report.add(state.add(futurePayload(somaticCallerFuture)));
                     StructuralCallerOutput structuralCallerOutput = report.add(state.add(futurePayload(structuralCallerFuture)));
@@ -159,6 +156,8 @@ public class PatientReportPipeline {
                                 cobaltOutput,
                                 amberOutput)));
                         if (state.shouldProceed()) {
+                            BamMetricsOutput metricsOutput = report.add(state.add(futurePayload(bamMetricsFuture)));
+                            BamMetricsOutput mateMetricsOutput = bamMetricsOutputStorage.get(mate(alignmentOutput.sample()));
                             report.add(state.add(healthChecker.run(pair, metricsOutput, mateMetricsOutput, amberOutput, purpleOutput)));
                         }
                     }

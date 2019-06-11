@@ -1,20 +1,21 @@
 package com.hartwig.pipeline.alignment.after.metrics;
 
-import com.hartwig.patient.Sample;
-import com.hartwig.pipeline.execution.vm.VmDirectories;
+import static java.lang.String.format;
 
-import org.junit.Before;
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static java.lang.String.format;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import com.hartwig.patient.Sample;
+import com.hartwig.pipeline.execution.vm.VmDirectories;
+
+import org.junit.Before;
+import org.junit.Test;
 
 public class BamMetricsCommandTest {
     private static final String OPERATION = "CollectWgsMetrics";
@@ -38,7 +39,9 @@ public class BamMetricsCommandTest {
 
     @Test
     public void shouldStartCommandLineWithJarAndOperation() {
-        assertThat(actual).startsWith("java -Xmx24G -jar /data/tools/picard/2.18.27/picard.jar " + OPERATION);
+        assertThat(actual).startsWith("java -Xmx24G -Dsamjdk.use_async_io_read_samtools=true -Dsamjdk.use_async_io_write_samtools=true "
+                + "-Dsamjdk.use_async_io_write_tribble=true -Dsamjdk.buffer_size=4194304 -cp /data/tools/gridss/2.2.2/gridss.jar "
+                + "picard.cmdline.PicardCommandLine " + OPERATION);
     }
 
     @Test

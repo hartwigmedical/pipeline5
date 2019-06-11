@@ -230,15 +230,12 @@ public class PatientReportPipelineTest {
         when(bamMetricsOutputStorage.get(TUMOR)).thenReturn(MATE_BAM_METRICS);
         ImmutableSomaticCallerOutput somaticCallerOutput = SomaticCallerOutput.builder().status(JobStatus.FAILED).build();
         when(somaticCaller.run(ALIGNMENT_PAIR)).thenReturn(somaticCallerOutput);
-        when(structuralCaller.run(ALIGNMENT_PAIR,
-                SUCCESSFUL_BAM_METRICS,
-                MATE_BAM_METRICS)).thenReturn(SUCCESSFUL_STRUCTURAL_CALLER_OUTPUT);
+        when(structuralCaller.run(ALIGNMENT_PAIR)).thenReturn(SUCCESSFUL_STRUCTURAL_CALLER_OUTPUT);
         when(cobalt.run(ALIGNMENT_PAIR)).thenReturn(SUCCESSFUL_COBALT_OUTPUT);
         when(amber.run(ALIGNMENT_PAIR)).thenReturn(SUCCESSFUL_AMBER_OUTPUT);
         PipelineState state = victim.run();
         assertFailed(state);
         assertThat(state.stageOutputs()).containsExactlyInAnyOrder(SUCCESSFUL_ALIGNMENT_OUTPUT,
-                SUCCESSFUL_BAM_METRICS,
                 SUCCESSFUL_GERMLINE_OUTPUT,
                 SUCCESSFUL_SNPGENOTYPE_OUTPUT,
                 SUCCESSFUL_FLAGSTAT_OUTPUT,
@@ -258,9 +255,7 @@ public class PatientReportPipelineTest {
         when(alignmentOutputStorage.get(TUMOR)).thenReturn(Optional.of(MATE_ALIGNMENT_OUTPUT));
         when(bamMetricsOutputStorage.get(TUMOR)).thenReturn(MATE_BAM_METRICS);
         when(somaticCaller.run(ALIGNMENT_PAIR)).thenReturn(SUCCESSFUL_SOMATIC_CALLER_OUTPUT);
-        when(structuralCaller.run(ALIGNMENT_PAIR,
-                SUCCESSFUL_BAM_METRICS,
-                MATE_BAM_METRICS)).thenReturn(SUCCESSFUL_STRUCTURAL_CALLER_OUTPUT);
+        when(structuralCaller.run(ALIGNMENT_PAIR)).thenReturn(SUCCESSFUL_STRUCTURAL_CALLER_OUTPUT);
         when(cobalt.run(ALIGNMENT_PAIR)).thenReturn(SUCCESSFUL_COBALT_OUTPUT);
         when(amber.run(ALIGNMENT_PAIR)).thenReturn(SUCCESSFUL_AMBER_OUTPUT);
         ImmutablePurpleOutput purpleOutput = PurpleOutput.builder().status(JobStatus.FAILED).build();
@@ -272,7 +267,6 @@ public class PatientReportPipelineTest {
         PipelineState state = victim.run();
         assertFailed(state);
         assertThat(state.stageOutputs()).containsExactlyInAnyOrder(SUCCESSFUL_ALIGNMENT_OUTPUT,
-                SUCCESSFUL_BAM_METRICS,
                 SUCCESSFUL_GERMLINE_OUTPUT,
                 SUCCESSFUL_SNPGENOTYPE_OUTPUT,
                 SUCCESSFUL_FLAGSTAT_OUTPUT,
@@ -292,9 +286,7 @@ public class PatientReportPipelineTest {
         when(flagstat.run(any())).thenReturn(SUCCESSFUL_FLAGSTAT_OUTPUT);
         when(alignmentOutputStorage.get(TUMOR)).thenReturn(Optional.of(MATE_ALIGNMENT_OUTPUT));
         when(somaticCaller.run(ALIGNMENT_PAIR)).thenReturn(SUCCESSFUL_SOMATIC_CALLER_OUTPUT);
-        when(structuralCaller.run(ALIGNMENT_PAIR,
-                SUCCESSFUL_BAM_METRICS,
-                MATE_BAM_METRICS)).thenReturn(SUCCESSFUL_STRUCTURAL_CALLER_OUTPUT);
+        when(structuralCaller.run(ALIGNMENT_PAIR)).thenReturn(SUCCESSFUL_STRUCTURAL_CALLER_OUTPUT);
         when(cobalt.run(ALIGNMENT_PAIR)).thenReturn(SUCCESSFUL_COBALT_OUTPUT);
         when(amber.run(ALIGNMENT_PAIR)).thenReturn(SUCCESSFUL_AMBER_OUTPUT);
         when(purple.run(ALIGNMENT_PAIR,
@@ -330,9 +322,7 @@ public class PatientReportPipelineTest {
         when(flagstat.run(any())).thenReturn(SUCCESSFUL_FLAGSTAT_OUTPUT);
         when(alignmentOutputStorage.get(TUMOR)).thenReturn(Optional.of(MATE_ALIGNMENT_OUTPUT));
         when(somaticCaller.run(ALIGNMENT_PAIR)).thenReturn(SUCCESSFUL_SOMATIC_CALLER_OUTPUT);
-        when(structuralCaller.run(ALIGNMENT_PAIR,
-                SUCCESSFUL_BAM_METRICS,
-                MATE_BAM_METRICS)).thenReturn(SUCCESSFUL_STRUCTURAL_CALLER_OUTPUT);
+        when(structuralCaller.run(ALIGNMENT_PAIR)).thenReturn(SUCCESSFUL_STRUCTURAL_CALLER_OUTPUT);
         when(cobalt.run(ALIGNMENT_PAIR)).thenReturn(SUCCESSFUL_COBALT_OUTPUT);
         when(amber.run(ALIGNMENT_PAIR)).thenReturn(SUCCESSFUL_AMBER_OUTPUT);
         when(purple.run(ALIGNMENT_PAIR,
