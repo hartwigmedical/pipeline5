@@ -115,7 +115,7 @@ public class PatientReportPipelineTest {
         alignmentOutputStorage = mock(AlignmentOutputStorage.class);
         bamMetricsOutputStorage = mock(BamMetricsOutputStorage.class);
         PatientMetadataApi patientMetadataApi = mock(PatientMetadataApi.class);
-        when(patientMetadataApi.getMetadata()).thenReturn(PatientMetadata.of(SET_NAME));
+        when(patientMetadataApi.getMetadata()).thenReturn(PatientMetadata.of("TESTR", SET_NAME));
         Storage storage = mock(Storage.class);
         Bucket reportBucket = mock(Bucket.class);
         when(storage.get(ARGUMENTS.patientReportBucket())).thenReturn(reportBucket);

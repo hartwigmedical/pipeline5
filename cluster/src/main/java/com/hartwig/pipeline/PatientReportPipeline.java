@@ -37,6 +37,7 @@ import com.hartwig.pipeline.flagstat.Flagstat;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
 import com.hartwig.pipeline.flagstat.FlagstatProvider;
 import com.hartwig.pipeline.io.ResultsDirectory;
+import com.hartwig.pipeline.metadata.PatientMetadata;
 import com.hartwig.pipeline.metadata.PatientMetadataApi;
 import com.hartwig.pipeline.metadata.PatientMetadataApiProvider;
 import com.hartwig.pipeline.report.PatientReport;
@@ -113,9 +114,10 @@ public class PatientReportPipeline {
 
     public PipelineState run() throws Exception {
         Versions.printAll();
-        String setName = patientMetadataApi.getMetadata().setName();
+        PatientMetadata metadata = patientMetadataApi.getMetadata();
+        String setName = metadata.setName();
         LOGGER.info("Pipeline5 starting for sample [{}] in set [{}] {}",
-                arguments.sampleId(),
+                metadata.sample(),
                 setName,
                 arguments.runId().map(runId -> String.format("with run id [%s]", runId)).orElse(""));
         PipelineState state = new PipelineState();

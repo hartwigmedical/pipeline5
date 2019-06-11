@@ -16,11 +16,15 @@ public class PatientMetadataApi {
     }
 
     public PatientMetadata getMetadata() {
-        return arguments.runId()
-                .map(runId -> trim(arguments.sampleId()) + "-" + runId)
-                .map(PatientMetadata::of)
-                .orElse(PatientMetadata.of(
-                        trim(arguments.sampleId()) + "-" + timestamp.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"))));
+        if (!arguments.sbpApiSampleId().isPresent()) {
+            return arguments.runId()
+                    .map(runId -> trim(arguments.sampleId()) + "-" + runId)
+                    .map(runId -> PatientMetadata.of(arguments.sampleId(), runId))
+                    .orElse(PatientMetadata.of(arguments.sampleId(),
+                            trim(arguments.sampleId()) + "-" + timestamp.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"))));
+        } else {
+            return PatientMetadata.of(String.valueOf(arguments.sbpApiSampleId().get()), "sbp-test-set-" + arguments.sbpApiSampleId().get());
+        }
     }
 
     private String trim(final String sampleId) {

@@ -177,7 +177,7 @@ public class CommandLineOptions {
 
     @NotNull
     private static Option sampleId() {
-        return optionWithArg(SAMPLE_ID_FLAG, "Full path to the fastq files to process", true);
+        return optionWithArg(SAMPLE_ID_FLAG, "ID of the sample for which to process (ie COLO829R, CPCT12345678T)");
     }
 
     @NotNull
@@ -269,12 +269,7 @@ public class CommandLineOptions {
     }
 
     private static Option optionWithArg(final String option, final String description) {
-        return optionWithArg(option, description, false);
-    }
-
-    private static Option optionWithArg(final String option, final String description, final boolean required) {
-        Option.Builder builder = Option.builder(option).hasArg().argName(option).desc(description);
-        return required ? builder.required().build() : builder.build();
+        return Option.builder(option).hasArg().argName(option).desc(description).build();
     }
 
     private static Option optionWithBooleanArg(final String option, final String description) {

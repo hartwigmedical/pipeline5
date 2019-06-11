@@ -6,9 +6,12 @@ import org.immutables.value.Value;
 public interface PatientMetadata {
 
     @Value.Parameter
+    String sample();
+
+    @Value.Parameter
     String setName();
 
-    static PatientMetadata of(String setName){
-        return ImmutablePatientMetadata.of(setName);
+    static PatientMetadata of(String sample, String setName){
+        return ImmutablePatientMetadata.of(sample, setName);
     }
 }

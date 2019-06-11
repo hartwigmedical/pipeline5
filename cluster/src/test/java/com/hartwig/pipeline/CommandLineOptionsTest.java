@@ -2,7 +2,6 @@ package com.hartwig.pipeline;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.apache.commons.cli.MissingOptionException;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.UnrecognizedOptionException;
 import org.junit.Test;
@@ -26,11 +25,6 @@ public class CommandLineOptionsTest {
     @Test(expected = RuntimeException.class)
     public void unknownProfileTypeThrowsException() throws Exception {
         CommandLineOptions.from(new String[] { "-profile", "unknown", "-sample_id", "test" });
-    }
-
-    @Test(expected = MissingOptionException.class)
-    public void missingSampleIdThrowsException() throws Exception {
-        CommandLineOptions.from(new String[] { "-profile", "development" });
     }
 
     @Test(expected = UnrecognizedOptionException.class)
