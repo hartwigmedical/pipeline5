@@ -5,7 +5,7 @@ import com.hartwig.pipeline.calling.structural.gridss.command.CollectGridssMetri
 import com.hartwig.pipeline.calling.structural.gridss.command.GridssToBashCommandConverter;
 import com.hartwig.pipeline.calling.structural.gridss.command.SoftClipsToSplitReads;
 import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.execution.vm.MkDirCommand;
+import com.hartwig.pipeline.execution.vm.unix.MkDirCommand;
 import org.immutables.value.Value;
 
 import java.io.File;

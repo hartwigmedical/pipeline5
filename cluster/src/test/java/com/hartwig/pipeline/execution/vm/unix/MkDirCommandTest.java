@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.execution.vm;
+package com.hartwig.pipeline.execution.vm.unix;
 
 import org.junit.Test;
 

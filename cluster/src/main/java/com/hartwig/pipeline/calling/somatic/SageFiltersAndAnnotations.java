@@ -4,6 +4,7 @@ import com.hartwig.pipeline.calling.SubStage;
 import com.hartwig.pipeline.calling.command.TabixCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.OutputFile;
+import com.hartwig.pipeline.execution.vm.unix.PipeCommands;
 
 class SageFiltersAndAnnotations extends SubStage {
 

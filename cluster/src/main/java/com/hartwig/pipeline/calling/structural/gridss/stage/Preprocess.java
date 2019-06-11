@@ -1,13 +1,13 @@
 package com.hartwig.pipeline.calling.structural.gridss.stage;
 
-import com.hartwig.pipeline.calling.somatic.PipeCommands;
 import com.hartwig.pipeline.calling.structural.gridss.GridssCommon;
 import com.hartwig.pipeline.calling.structural.gridss.command.CollectGridssMetricsAndExtractSvReads;
 import com.hartwig.pipeline.calling.structural.gridss.command.ComputeSamTags;
 import com.hartwig.pipeline.calling.structural.gridss.command.GridssToBashCommandConverter;
 import com.hartwig.pipeline.calling.structural.gridss.command.SoftClipsToSplitReads;
 import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.execution.vm.SubShellCommand;
+import com.hartwig.pipeline.execution.vm.unix.PipeCommands;
+import com.hartwig.pipeline.execution.vm.unix.SubShellCommand;
 import org.immutables.value.Value;
 
 import java.util.List;

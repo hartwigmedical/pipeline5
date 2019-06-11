@@ -1,4 +1,6 @@
-package com.hartwig.pipeline.execution.vm;
+package com.hartwig.pipeline.execution.vm.unix;
+
+import com.hartwig.pipeline.execution.vm.BashCommand;
 
 public class MkDirCommand implements BashCommand {
 

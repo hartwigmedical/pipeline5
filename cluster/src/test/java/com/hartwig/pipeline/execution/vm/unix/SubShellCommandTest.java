@@ -1,8 +1,8 @@
-package com.hartwig.pipeline.execution.vm;
-
-import static org.assertj.core.api.Assertions.assertThat;
+package com.hartwig.pipeline.execution.vm.unix;
 
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class SubShellCommandTest {
 

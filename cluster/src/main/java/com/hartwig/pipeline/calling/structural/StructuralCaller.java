@@ -10,6 +10,9 @@ import com.hartwig.pipeline.calling.structural.gridss.command.IdentifyVariants;
 import com.hartwig.pipeline.calling.structural.gridss.stage.*;
 import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.execution.vm.*;
+import com.hartwig.pipeline.execution.vm.unix.ExportVariableCommand;
+import com.hartwig.pipeline.execution.vm.unix.MkDirCommand;
+import com.hartwig.pipeline.execution.vm.unix.UlimitOpenFilesCommand;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
@@ -65,8 +68,8 @@ public class StructuralCaller {
         InputDownload mateMetricsDownload = new InputDownload(mateMetricsOutput.metricsOutputFile());
 
         bash.addCommands(asList(tumorBam, referenceBam, tumorBai, referenceBai, metricsDownload, mateMetricsDownload, referenceGenomeDownload));
-
-        bash.addLine("ulimit -n 102400");
+        bash.addCommand(new UlimitOpenFilesCommand(102400));
+        bash.addCommand(new ExportVariableCommand("PATH", format("${PATH}:%s", dirname(GridssCommon.pathToBwa()))));
         bash.addLine(format("gsutil -qm cp gs://common-resources/gridss_config/gridss.properties %s", GridssCommon.configFile()));
         bash.addLine(format("gsutil -qm cp gs://common-resources/gridss_config/ENCFF001TDO.bed %s", GridssCommon.blacklist()));
 
@@ -135,5 +138,9 @@ public class StructuralCaller {
 
     private static String basename(String filename) {
         return new File(filename).getName();
+    }
+
+    private static String dirname(String filename) {
+        return new File(filename).getParent();
     }
 }

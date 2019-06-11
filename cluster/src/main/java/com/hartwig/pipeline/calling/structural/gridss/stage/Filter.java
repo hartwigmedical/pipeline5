@@ -1,8 +1,8 @@
 package com.hartwig.pipeline.calling.structural.gridss.stage;
 
 import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.execution.vm.MkDirCommand;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
+import com.hartwig.pipeline.execution.vm.unix.MkDirCommand;
 import org.immutables.value.Value;
 
 import java.util.ArrayList;

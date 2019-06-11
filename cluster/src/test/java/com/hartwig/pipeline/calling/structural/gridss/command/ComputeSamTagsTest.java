@@ -50,7 +50,6 @@ public class ComputeSamTagsTest implements CommonEntities {
                 .and("tags", "MQ")
                 .and("assume_sorted", "true")
                 .andNoMore();
-//                .andGridssArgumentsAfterClassnameAreCorrect(CLASSNAME);
     }
 
     @Test

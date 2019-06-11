@@ -1,6 +1,8 @@
-package com.hartwig.pipeline.execution.vm;
+package com.hartwig.pipeline.execution.vm.unix;
 
-public class SubShellCommand implements BashCommand{
+import com.hartwig.pipeline.execution.vm.BashCommand;
+
+public class SubShellCommand implements BashCommand {
 
     private final BashCommand decorated;
 

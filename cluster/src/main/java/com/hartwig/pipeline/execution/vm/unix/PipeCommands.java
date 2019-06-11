@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.calling.somatic;
+package com.hartwig.pipeline.execution.vm.unix;
 
 import com.hartwig.pipeline.execution.vm.BashCommand;
 
