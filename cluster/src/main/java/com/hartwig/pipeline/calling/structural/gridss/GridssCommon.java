@@ -5,8 +5,6 @@ import com.hartwig.pipeline.execution.vm.VmDirectories;
 import static java.lang.String.format;
 
 public class GridssCommon {
-    public static final int GRIDSS_BWA_BASES_PER_BATCH = 40000000;
-
     public static String pathToBwa() {
         return format("%s/bwa/0.7.17/bwa", VmDirectories.TOOLS);
     }

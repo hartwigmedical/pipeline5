@@ -1,9 +1,6 @@
 package com.hartwig.pipeline.calling.structural.gridss.command;
 
-import com.hartwig.pipeline.calling.structural.gridss.GridssCommon;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
-
-import static java.lang.String.format;
 
 public class SoftClipsToSplitReads {
     private final static String CLASS_NAME = "gridss.SoftClipsToSplitReads";
@@ -15,15 +12,7 @@ public class SoftClipsToSplitReads {
                 .add("working_dir", VmDirectories.OUTPUT)
                 .add("reference_sequence", referenceGenome)
                 .add("i", inputBam)
-                .add("o", outputBam)
-                .add("aligner_command_line", "null")
-                .add("aligner_command_line", GridssCommon.pathToBwa())
-                .add("aligner_command_line", "mem")
-                .add("'aligner_command_line", format("-K %d'", GridssCommon.GRIDSS_BWA_BASES_PER_BATCH))
-                .add("aligner_command_line", "-t")
-                .add("'aligner_command_line", "%3$d'")
-                .add("'aligner_command_line", "%2$s'")
-                .add("'aligner_command_line", "%1$s'");
+                .add("o", outputBam);
     }
 
     public static class ForPreprocess implements GridssCommand {

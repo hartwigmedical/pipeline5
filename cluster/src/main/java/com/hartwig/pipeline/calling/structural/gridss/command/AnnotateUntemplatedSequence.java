@@ -1,6 +1,5 @@
 package com.hartwig.pipeline.calling.structural.gridss.command;
 
-import com.hartwig.pipeline.calling.structural.gridss.GridssCommon;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 
 public class AnnotateUntemplatedSequence implements GridssCommand {
@@ -28,14 +27,6 @@ public class AnnotateUntemplatedSequence implements GridssCommand {
                 .add("reference_sequence", referenceGenome)
                 .add("input", inputVcf)
                 .add("output", resultantVcf())
-                .add("aligner_command_line", "null")
-                .add("aligner_command_line", GridssCommon.pathToBwa())
-                .add("aligner_command_line", "mem")
-                .add("'aligner_command_line", String.format("-K %d'", GridssCommon.GRIDSS_BWA_BASES_PER_BATCH))
-                .add("aligner_command_line", "-t")
-                .add("'aligner_command_line", "%3$d'")
-                .add("'aligner_command_line", "%2$s'")
-                .add("'aligner_command_line", "%1$s'")
                 .asBash();
     }
 }
