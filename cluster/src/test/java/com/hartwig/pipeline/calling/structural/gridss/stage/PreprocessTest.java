@@ -22,7 +22,6 @@ public class PreprocessTest implements CommonEntities {
     private String collectMetricsAndExtractReadsBam;
     private String computeSamTagsBam;
     private String collectorMetrics;
-    private String insertSizeMetrics;
 
     private String collectorBashCommands;
     private String computeSamTagsBashCommands;
@@ -37,7 +36,6 @@ public class PreprocessTest implements CommonEntities {
 
     @Before
     public void setup() {
-        insertSizeMetrics = "/some-other-path/insert.metrics";
         collectMetricsAndExtractReadsBam = REFERENCE_BAM + ".collected";
         collectorMetrics = "sv_metrics";
         computeSamTagsBam = collectMetricsAndExtractReadsBam + ".computed";
@@ -46,7 +44,7 @@ public class PreprocessTest implements CommonEntities {
         converter = mock(GridssToBashCommandConverter.class);
 
         collector = mock(CollectGridssMetricsAndExtractSvReads.class);
-        when(factory.buildCollectGridssMetricsAndExtractSvReads(any(), any(), any())).thenReturn(collector);
+        when(factory.buildCollectGridssMetricsAndExtractSvReads(any(), any())).thenReturn(collector);
         when(collector.resultantMetrics()).thenReturn(collectorMetrics);
         when(collector.resultantBam()).thenReturn(collectMetricsAndExtractReadsBam);
 
@@ -73,7 +71,7 @@ public class PreprocessTest implements CommonEntities {
         when(clipsBash.asBash()).thenReturn(clipsBashCommands);
 
         result = new Preprocess(factory, converter).initialise(REFERENCE_BAM,
-                REFERENCE_SAMPLE, REFERENCE_GENOME, insertSizeMetrics, OUTPUT_BAM);
+                REFERENCE_SAMPLE, REFERENCE_GENOME, OUTPUT_BAM);
     }
 
     @Test

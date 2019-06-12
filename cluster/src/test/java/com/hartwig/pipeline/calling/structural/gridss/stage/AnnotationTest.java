@@ -85,10 +85,10 @@ public class AnnotationTest implements CommonEntities {
     public void shouldReturnBashCommandOfAllCommandsConcatenatedTogether() {
         List<BashCommand> generatedCommands = result.commands();
         assertThat(generatedCommands).isNotEmpty();
-        assertThat(generatedCommands.size()).isEqualTo(3);
+        assertThat(generatedCommands.size()).isEqualTo(4);
         assertThat(generatedCommands.get(0).asBash()).isEqualTo(annotateVariantsBashCommands);
         assertThat(generatedCommands.get(1).asBash()).isEqualTo(annotateUntemplatedBashCommands);
         assertThat(generatedCommands.get(2)).isEqualTo(bgzip);
-//        assertThat(result.commands()).isEqualTo(asList(annotateVariants, annotateUntemplated, bgzip, tabix));
+        assertThat(generatedCommands.get(3)).isEqualTo(tabix);
     }
 }

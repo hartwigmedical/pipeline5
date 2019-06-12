@@ -1,6 +1,7 @@
 package com.hartwig.pipeline.calling.structural.gridss.stage;
 
 import com.hartwig.pipeline.calling.command.BgzipCommand;
+import com.hartwig.pipeline.calling.command.TabixCommand;
 import com.hartwig.pipeline.calling.structural.gridss.command.AnnotateUntemplatedSequence;
 import com.hartwig.pipeline.calling.structural.gridss.command.AnnotateVariants;
 import com.hartwig.pipeline.calling.structural.gridss.command.GridssToBashCommandConverter;
@@ -32,13 +33,11 @@ public class Annotation {
         AnnotateUntemplatedSequence untemplated = commandFactory.buildAnnotateUntemplatedSequence(variants.resultantVcf(), referenceGenome);
         BgzipCommand bgzip = commandFactory.buildBgzipCommand(untemplated.resultantVcf());
         String finalOutputPath = format("%s.gz", untemplated.resultantVcf());
-
-        // TODO verify that tabix is not required when `.gz` is provided for final filename
-        //TabixCommand tabix = commandFactory.buildTabixCommand(finalOutputPath);
+        TabixCommand tabix = commandFactory.buildTabixCommand(finalOutputPath);
 
         return ImmutableAnnotationResult.builder()
                 .annotatedVcf(finalOutputPath)
-                .commands(asList(converter.convert(variants), converter.convert(untemplated), bgzip /*, tabix*/))
+                .commands(asList(converter.convert(variants), converter.convert(untemplated), bgzip, tabix))
                 .build();
     }
 }

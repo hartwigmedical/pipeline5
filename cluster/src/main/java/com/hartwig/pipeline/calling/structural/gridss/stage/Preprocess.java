@@ -31,8 +31,8 @@ public class Preprocess {
         this.converter = converter;
     }
 
-    public PreprocessResult initialise(String inputBam, String sampleName, String referenceGenome, String insertSizeMetrics, String outputSvBam) {
-        CollectGridssMetricsAndExtractSvReads gridssCollectMetrics = factory.buildCollectGridssMetricsAndExtractSvReads(inputBam, insertSizeMetrics, sampleName);
+    public PreprocessResult initialise(String inputBam, String sampleName, String referenceGenome, String outputSvBam) {
+        CollectGridssMetricsAndExtractSvReads gridssCollectMetrics = factory.buildCollectGridssMetricsAndExtractSvReads(inputBam, sampleName);
         SubShellCommand firstSubStage = new SubShellCommand(new PipeCommands(
                 converter.convert(gridssCollectMetrics),
                 () -> format("%s sort -O bam -T /tmp/samtools.sort.tmp -n -l 0 -@ 2 -o %s",

@@ -19,7 +19,7 @@ public class CollectGridssMetricsAndExtractSvReadsTest implements CommonEntities
         insertSizeMetrics = "insertSizeMetrics";
         metricsOut = format("%s/%s.gridss.working.sv_metrics", OUT_DIR, REFERENCE_SAMPLE);
 
-        command = new CollectGridssMetricsAndExtractSvReads(inputFile, insertSizeMetrics, REFERENCE_SAMPLE);
+        command = new CollectGridssMetricsAndExtractSvReads(inputFile, REFERENCE_SAMPLE);
     }
 
     @Test
@@ -34,6 +34,7 @@ public class CollectGridssMetricsAndExtractSvReadsTest implements CommonEntities
 
     @Test
     public void shoulConstructGridssOptions() {
+        String inlineGeneratedInsertSizeMetrics = format("%s/%s.gridss.working.insert_size_metrics", OUT_DIR, REFERENCE_SAMPLE);
         GridssCommonArgumentsAssert.assertThat(command)
                 .hasGridssArguments(ARGS_TMP_DIR)
                 .and("assume_sorted", "true")
@@ -52,7 +53,7 @@ public class CollectGridssMetricsAndExtractSvReadsTest implements CommonEntities
                 .and("sv_output", "/dev/stdout")
                 .and(ARGS_NO_COMPRESSION)
                 .and("metrics_output", metricsOut)
-                .and("insert_size_metrics", insertSizeMetrics)
+                .and("insert_size_metrics", inlineGeneratedInsertSizeMetrics)
                 .and("unmapped_reads", "false")
                 .and("min_clip_length", "5")
                 .and("include_duplicates", "true")

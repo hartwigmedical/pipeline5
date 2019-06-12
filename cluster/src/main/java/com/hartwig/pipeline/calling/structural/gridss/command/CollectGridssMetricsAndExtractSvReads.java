@@ -8,12 +8,10 @@ import static java.lang.String.format;
 public class CollectGridssMetricsAndExtractSvReads implements GridssCommand {
 
     private final String inputBam;
-    private String insertSizeMetrics;
     private String sampleName;
 
-    public CollectGridssMetricsAndExtractSvReads(final String inputFile, String insertSizeMetrics, String sampleName) {
+    public CollectGridssMetricsAndExtractSvReads(final String inputFile, String sampleName) {
         this.inputBam = inputFile;
-        this.insertSizeMetrics = insertSizeMetrics;
         this.sampleName = sampleName;
     }
 
@@ -49,7 +47,7 @@ public class CollectGridssMetricsAndExtractSvReads implements GridssCommand {
                 .add("sv_output", "/dev/stdout")
                 .add("compression_level", "0")
                 .add("metrics_output", resultantMetrics())
-                .add("insert_size_metrics", insertSizeMetrics)
+                .add("insert_size_metrics", format("%s.insert_size_metrics", outputDirectory()))
                 .add("unmapped_reads", "false")
                 .add("min_clip_length", "5")
                 .add("include_duplicates", "true").asBash();

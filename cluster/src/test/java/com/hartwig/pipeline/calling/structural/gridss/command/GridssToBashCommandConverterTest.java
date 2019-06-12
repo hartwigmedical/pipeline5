@@ -27,7 +27,9 @@ public class GridssToBashCommandConverterTest {
                 "-Dsamjdk.create_index=true",
                 "-Dsamjdk.use_async_io_read_samtools=true",
                 "-Dsamjdk.use_async_io_write_samtools=true",
-                "-Dsamjdk.use_async_io_write_tribble=true");
+                "-Dsamjdk.use_async_io_write_tribble=true",
+                "-Dsamjdk.buffer_size=4194304"
+        );
 
         when(gridssCommand.memoryGb()).thenReturn(memoryGb);
         when(gridssCommand.className()).thenReturn(className);

@@ -25,8 +25,8 @@ public class CommandFactory {
         return new CollectGridssMetrics(assembledBam);
     }
 
-    public CollectGridssMetricsAndExtractSvReads buildCollectGridssMetricsAndExtractSvReads(String inputBam, String insertSizeMetrics, String sampleName) {
-        return new CollectGridssMetricsAndExtractSvReads(inputBam, insertSizeMetrics, sampleName);
+    public CollectGridssMetricsAndExtractSvReads buildCollectGridssMetricsAndExtractSvReads(String inputBam, String sampleName) {
+        return new CollectGridssMetricsAndExtractSvReads(inputBam, sampleName);
     }
 
     public ComputeSamTags buildComputeSamTags(String inProgressBam, String referenceGenome, String sampleName) {
