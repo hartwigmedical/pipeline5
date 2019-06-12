@@ -131,7 +131,7 @@ public class CommandLineOptions {
 
     private static Option nodeInitScript() {
         return optionWithArg(NODE_INIT_FLAG,
-                "Script to run on initialization defaultDirectory each cluster node. The default script installs BWA, sambamba and picard");
+                "Script to run on initialization directory each cluster node. The default script installs BWA, sambamba and picard");
     }
 
     private static Option runId() {
@@ -139,11 +139,11 @@ public class CommandLineOptions {
     }
 
     private static Option sbpApiUrl() {
-        return optionWithArg(SBP_API_URL_FLAG, "URL defaultDirectory the SBP API endpoint");
+        return optionWithArg(SBP_API_URL_FLAG, "URL of the SBP API endpoint");
     }
 
     private static Option sbpS3Url() {
-        return optionWithArg(SBP_S3_URL_FLAG, "URL defaultDirectory the SBP S3 endpoint");
+        return optionWithArg(SBP_S3_URL_FLAG, "URL of the SBP S3 endpoint");
     }
 
     private static Option sbpSampleId() {
@@ -172,7 +172,7 @@ public class CommandLineOptions {
     }
 
     private static Option version() {
-        return optionWithArg(VERSION_FLAG, "Version defaultDirectory pipeline5 to run in spark.");
+        return optionWithArg(VERSION_FLAG, "Version of pipeline5 to run in spark.");
     }
 
     @NotNull
@@ -182,7 +182,7 @@ public class CommandLineOptions {
 
     @NotNull
     private static Option sampleDirectory() {
-        return optionWithArg(SAMPLE_DIRECTORY_FLAG, "Root directory defaultDirectory the patient data");
+        return optionWithArg(SAMPLE_DIRECTORY_FLAG, "Root directory of the patient data");
     }
 
     public static Arguments from(String[] args) throws ParseException {
@@ -228,7 +228,7 @@ public class CommandLineOptions {
         } catch (ParseException e) {
             LOGGER.error("Could not parse command line args", e);
             HelpFormatter formatter = new HelpFormatter();
-            formatter.printHelp("bootstrap", options());
+            formatter.printHelp("pipeline5", options());
             throw e;
         }
     }

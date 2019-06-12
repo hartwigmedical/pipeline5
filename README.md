@@ -157,72 +157,111 @@ The first volume (-v) mounts a directory containing the private key (expected to
 Bootstrap has a decent amount of command line options you can use. Here is the useage description at the time of writing, but it's advisable to run `bootstrap help` to see the exact options available in the version you are running:
 
 ```
-usage: bootstrap
- -cloud_sdk <cloud_sdk>                 Path to the google cloud sdk bin
-                                        directory (with gsutil and gcloud)
-                                        Default is
-                                        /usr/lib/google-cloud-sdk/bin
- -cpu_per_gb <cpu_per_gb>               Number of CPUs to use per GB of
-                                        FASTQ. Default is 4
- -d <patient_directory>                 Root directory of the patient data
-                                        Default is /patients/
- -force_jar_upload                      Force upload of JAR even if the
-                                        version already exists in cloud
-                                        storage
- -k <private_key_path>                  Fully qualified path to the
-                                        private key for the service
-                                        account usedfor all Google Cloud
-                                        operations Default is
-                                        /secrets/bootstrap-key.json
- -l <jar_lib_directory>                 Directory containing the
-                                        system-{VERSION}.jar. Default is
-                                        /usr/share/pipeline5/
- -no_cleanup                            Don't delete the cluster or
-                                        runtime bucket after job is
-                                        complete
- -no_download                           Do not download the final BAM from
-                                        Google Storage. Will also leave
-                                        the runtime bucket in place
- -no_upload                             Don't upload the sample to
-                                        storage. This should be used in
-                                        combination with a run_id which
-                                        points at an existing bucket
- -node_init_script <node_init_script>   Script to run on initialization of
-                                        each cluster node. The default
-                                        script installs BWA Default is
-                                        node-init.sh
- -p <patient>                           ID of the patient to process.
-                                        Default is empty
- -project <project>                     The Google project for which to
-                                        create the cluster. Default is
-                                        hmf-pipeline-development
- -reference_genome <reference_genome>   Bucket from which to copy the
-                                        reference genome into the runtime
-                                        bucket. Just a name, not a url (no
-                                        gs://) Default is reference_genome
- -region <region>                       The region in which to create the
-                                        cluster. Default is europe-west4
- -run_id <run_id>                       Override the generated run id used
-                                        for runtime bucket and cluster
-                                        naming
- -s3_upload_threads <s3_upload_threads> Number of threads to use in
-                                        parallelizing uploading of large
-                                        files (multipart) to S3 Default
-                                        is 10
- -sbp_api_url <sbp_api_url>             URL of the SBP API endpoint
-                                        Default is http://hmfapi
- -sbp_s3_url <sbp_s3_url>               URL of the SBP S3 endpoint Default
-                                        is http://hmfapi
- -sbp_sample_id <sbp_sample_id>         SBP API internal numeric sample id
- -skip_upload                           Skip uploading of patient data
-                                        into cloud storeage
- -use_preemtible_vms                    Allocate half the cluster as
-                                        preemtible VMs to save cost. These
-                                        VMs can be reclaimed at any time
-                                        so can be unstable
- -v <version>                           Version of pipeline5 to run in
-                                        spark. Default is empty
- -verbose_cloud_sdk                     Have stdout and stderr from Google
-                                        tools like gsutil strem to the
-                                        console
+ -cleanup <true|false>                            Don't delete the runtime
+                                                  bucket after job is
+                                                  complete
+ -cloud_sdk <cloud_sdk>                           Path to the google cloud
+                                                  sdk bin directory (with
+                                                  gsutil and gcloud)
+ -download <true|false>                           Do not download the
+                                                  final BAM of Google
+                                                  Storage. Will also leave
+                                                  the runtime bucket in
+                                                  place
+ -force_jar_upload <true|false>                   Force upload
+                                                  defaultDirectory JAR
+                                                  even if the version
+                                                  already exists in cloud
+                                                  storage
+ -jar <jar>                                       Directory containing the
+                                                  system-{VERSION}.jar.
+ -node_init_script <node_init_script>             Script to run on
+                                                  initialization directory
+                                                  each cluster node. The
+                                                  default script installs
+                                                  BWA, sambamba and picard
+ -preemtible_vms <true|false>                     Do not allocate half the
+                                                  cluster as preemtible
+                                                  VMs to save cost. These
+                                                  VMs can be reclaimed at
+                                                  any time so using this
+                                                  option will make things
+                                                  more stable
+ -private_key_path <private_key_path>             Fully qualified path to
+                                                  the private key for the
+                                                  service account used for
+                                                  all Google Cloud
+                                                  operations
+ -profile <profile>                               Defaults profile to use.
+                                                  Accepts
+                                                  [production|development]
+ -project <project>                               The Google project for
+                                                  which to get the
+                                                  cluster.
+ -rclone_gcp_remote <rclone_gcp_remote>           RClone remote to use for
+                                                  Google Storage (upload
+                                                  fastqs and download
+                                                  bams)
+ -rclone_path <rclone_path>                       Path to rclone binary
+                                                  directory
+ -rclone_s3_remote <rclone_s3_remote>             RClone remote to use for
+                                                  AWS (download fastqs and
+                                                  upload bams)
+ -region <region>                                 The region in which to
+                                                  get the cluster.
+ -resource_bucket <resource_bucket>               Bucket containing all
+                                                  common resources
+                                                  (reference genome, known
+                                                  indels, pons, etc
+ -run_aligner <true|false>                        Run the aligner on
+                                                  Google Dataproc
+ -run_bam_metrics <true|false>                    Run wgs
+                                                  metricsOutputFile after
+                                                  BAM creation
+ -run_germline_caller <true|false>                Run germline calling
+                                                  (gatk) on a VM
+ -run_id <run_id>                                 Override the generated
+                                                  run id used for runtime
+                                                  bucket and cluster
+                                                  naming
+ -run_somatic_caller <true|false>                 Run somatic calling
+                                                  (strelka) on a VM
+ -run_structural_caller <true|false>              Run structural calling
+                                                  (gridss) on a VM
+ -run_tertiary <true|false>                       Run tertiary analysis
+                                                  algorithms (amber,
+                                                  cobalt, purple)
+ -sample_directory <sample_directory>             Root directory of the
+                                                  patient data
+ -sample_id <sample_id>                           ID of the sample for
+                                                  which to process (ie
+                                                  COLO829R, CPCT12345678T)
+ -sbp_api_url <sbp_api_url>                       URL of the SBP API
+                                                  endpoint
+ -sbp_s3_url <sbp_s3_url>                         URL of the SBP S3
+                                                  endpoint
+ -sbp_sample_id <sbp_sample_id>                   SBP API internal numeric
+                                                  sample id
+ -service_account_email <service_account_email>   Service account
+                                                  associated with the
+                                                  private key
+ -skip_upload <true|false>                        Skip uploading
+                                                  defaultDirectory patient
+                                                  data into cloud storage
+ -tools_bucket <tools_bucket>                     Bucket in which to
+                                                  persist the final
+                                                  patient report and
+                                                  accompanying data.
+ -upload <true|false>                             Don't upload the sample
+                                                  to storage. This should
+                                                  be used in combination
+                                                  with a run_id which
+                                                  points at an existing
+                                                  bucket
+ -verbose_cloud_sdk <true|false>                  Have stdout and stderr
+                                                  of Google tools like
+                                                  gsutil strem to the
+                                                  console
+ -version <version>                               Version of pipeline5 to
+                                                  run in spark.
 ```
