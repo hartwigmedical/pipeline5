@@ -2,12 +2,10 @@ package com.hartwig.pipeline.alignment;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.credentials.CredentialProvider;
 
 import org.junit.Before;
 import org.junit.Test;

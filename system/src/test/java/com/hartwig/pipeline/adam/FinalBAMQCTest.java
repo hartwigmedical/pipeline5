@@ -31,7 +31,7 @@ public class FinalBAMQCTest {
     @Test
     public void checkFailsOnEmptyInput() {
         QualityControl<AlignmentRecordDataset> victim = qc(CoverageThreshold.of(1, 1));
-        QCResult test = victim.check(InputOutput.of(Sample.builder("", "test").build(), TestRDDs.emptyAlignnmentRecordRDD(SPARK_CONTEXT)));
+        QCResult test = victim.check(InputOutput.of(Sample.builder("", "test").build(), TestRDDs.emptyAlignmentRecordRDD(SPARK_CONTEXT)));
         assertThat(test.isOk()).isFalse();
     }
 

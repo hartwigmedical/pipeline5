@@ -5,7 +5,6 @@ import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.io.ResultsDirectory;
-import com.hartwig.pipeline.tertiary.cobalt.Cobalt;
 
 public class PurpleProvider {
 

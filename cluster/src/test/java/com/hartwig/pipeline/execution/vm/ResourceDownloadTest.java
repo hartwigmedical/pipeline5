@@ -27,7 +27,7 @@ public class ResourceDownloadTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void findThrowsIlegalArgumentExceptionWhenExtensionNotInFiles() {
+    public void findThrowsIllegalArgumentExceptionWhenExtensionNotInFiles() {
         victim.find("ext3");
     }
 

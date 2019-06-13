@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.hartwig.patient.ImmutableLane;
-import com.hartwig.patient.ImmutableSample;
 import com.hartwig.patient.Lane;
 import com.hartwig.patient.Sample;
 
@@ -14,7 +13,6 @@ import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.GlobFilter;
 import org.apache.hadoop.fs.Path;
-import org.jetbrains.annotations.NotNull;
 
 class Samples {
 

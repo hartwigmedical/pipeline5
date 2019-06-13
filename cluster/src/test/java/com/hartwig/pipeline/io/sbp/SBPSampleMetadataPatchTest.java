@@ -11,8 +11,8 @@ import com.amazonaws.services.s3.model.Permission;
 import com.amazonaws.services.s3.model.S3Object;
 import com.hartwig.patient.ImmutableSample;
 import com.hartwig.patient.Sample;
-import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.alignment.AlignmentOutputPaths;
+import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.testsupport.MockRuntimeBucket;
 
@@ -31,7 +31,6 @@ public class SBPSampleMetadataPatchTest {
     private static final String READERS = READER_1 + "," + READER_2;
     private static final String READER_ACP = "reader_acp";
     private AmazonS3 s3;
-    private SBPRestApi sbpRestApi;
     private ResultsDirectory resultsDirectory;
     private SBPSampleMetadataPatch victim;
     private EnvironmentVariables environmentVariables;
@@ -40,7 +39,7 @@ public class SBPSampleMetadataPatchTest {
     public void setUp() throws Exception {
         s3 = mock(AmazonS3.class);
         when(s3.getObject(SBPS3FileTarget.ROOT_BUCKET, BAM_KEY)).thenReturn(new S3Object());
-        sbpRestApi = mock(SBPRestApi.class);
+        SBPRestApi sbpRestApi = mock(SBPRestApi.class);
         resultsDirectory = ResultsDirectory.defaultDirectory();
         environmentVariables = mock(EnvironmentVariables.class);
         victim = new SBPSampleMetadataPatch(s3, sbpRestApi, 1, (sample, runtimeBucket, result) -> {
@@ -49,7 +48,6 @@ public class SBPSampleMetadataPatchTest {
 
     @Test
     public void addsAclsToBamAndBaiFile() {
-
         when(environmentVariables.get(SBPSampleMetadataPatch.READERS_ID_ENV)).thenReturn(READERS);
         when(environmentVariables.get(SBPSampleMetadataPatch.READERS_ACP_ID_ENV)).thenReturn(READER_ACP);
 

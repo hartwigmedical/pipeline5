@@ -1,17 +1,21 @@
 package com.hartwig.pipeline.io;
 
-import com.hartwig.patient.Lane;
-import com.hartwig.patient.Sample;
-import com.hartwig.pipeline.testsupport.MockRuntimeBucket;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import java.util.function.Function;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import com.hartwig.patient.Lane;
+import com.hartwig.patient.Sample;
+import com.hartwig.pipeline.testsupport.MockRuntimeBucket;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 public class CloudSampleUploadTest {
 
@@ -48,7 +52,7 @@ public class CloudSampleUploadTest {
     }
 
     @Test
-    public void doesNotCopyWhenFileInStorage() throws Exception {
+    public void doesNotCopyWhenFileInStorage() {
         mockRuntimeBucket.with(SAMPLE_PATH + LANE_1.firstOfPairPath().replace(FASTQ_DIR, ""), 1)
                 .with(SAMPLE_PATH + LANE_1.secondOfPairPath().replace(FASTQ_DIR, ""), 1);
         victim.run(SAMPLE_ONE_LANE, mockRuntimeBucket.getRuntimeBucket());
@@ -56,7 +60,7 @@ public class CloudSampleUploadTest {
     }
 
     @Test
-    public void doesNotCopyWhenGunzippedInStorage() throws Exception {
+    public void doesNotCopyWhenGunzippedInStorage() {
         mockRuntimeBucket.with("samples/" + SAMPLE_NAME + "/" + LANE_1.firstOfPairPath().replace(FASTQ_DIR, "").replace(".gz", "") + "/", 1)
                 .with("samples/" + SAMPLE_NAME + "/" + LANE_1.secondOfPairPath().replace(FASTQ_DIR, "").replace(".gz", "") + "/", 1);
         victim.run(SAMPLE_ONE_LANE, mockRuntimeBucket.getRuntimeBucket());
@@ -64,7 +68,7 @@ public class CloudSampleUploadTest {
     }
 
     @Test
-    public void copiesFilesNotYetInStorage() throws Exception {
+    public void copiesFilesNotYetInStorage() {
         ArgumentCaptor<String> source = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> target = ArgumentCaptor.forClass(String.class);
         victim.run(SAMPLE_ONE_LANE, mockRuntimeBucket.getRuntimeBucket());

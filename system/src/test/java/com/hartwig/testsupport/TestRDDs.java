@@ -30,7 +30,7 @@ public class TestRDDs {
         return new JavaADAMContext(new ADAMContext(sparkContext.sc()));
     }
 
-    public static AlignmentRecordDataset emptyAlignnmentRecordRDD(JavaSparkContext sparkContext) {
+    public static AlignmentRecordDataset emptyAlignmentRecordRDD(JavaSparkContext sparkContext) {
         RDD<AlignmentRecord> rdd = sparkContext.<AlignmentRecord>emptyRDD().rdd();
         return new RDDBoundAlignmentRecordDataset(rdd, null, null, null, Option.empty());
     }

@@ -44,7 +44,7 @@ public class AlignmentOutputStorageTest {
     }
 
     @Test
-    public void returnsDatalocationsForExistingSample() {
+    public void returnsDataLocationsForExistingSample() {
         mockBlob(SORTED_PATH);
         mockBlob(SORTED_BAI_PATH);
         assertThat(victim.get(TestSamples.simpleReferenceSample())).hasValue(EXPECTED_OUTPUT);

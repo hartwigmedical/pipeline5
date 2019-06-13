@@ -70,7 +70,7 @@ public class CommandLineOptions {
                 .addOption(optionWithBooleanArg(DOWNLOAD_FLAG,
                         "Do not download the final BAM of Google Storage. Will also leave the runtime bucket in place"))
                 .addOption(optionWithBooleanArg(VERBOSE_CLOUD_SDK_FLAG,
-                        "Have stdout and stderr of Google tools like gsutil strem to the console"))
+                        "Have stdout and stderr of Google tools like gsutil stream to the console"))
                 .addOption(optionWithBooleanArg(UPLOAD_FLAG,
                         "Don't upload the sample to storage. "
                                 + "This should be used in combination with a run_id which points at an existing bucket"))

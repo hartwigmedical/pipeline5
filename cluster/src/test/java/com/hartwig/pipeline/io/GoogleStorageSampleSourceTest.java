@@ -16,7 +16,6 @@ import com.hartwig.pipeline.ImmutableArguments;
 import com.hartwig.pipeline.io.sources.GoogleStorageSampleSource;
 import com.hartwig.pipeline.io.sources.SampleData;
 import com.hartwig.pipeline.io.sources.SampleSource;
-import com.hartwig.pipeline.testsupport.MockRuntimeBucket;
 
 import org.junit.Before;
 import org.junit.Test;

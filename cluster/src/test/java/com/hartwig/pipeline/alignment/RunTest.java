@@ -1,9 +1,10 @@
 package com.hartwig.pipeline.alignment;
 
-import com.hartwig.pipeline.Arguments;
-import org.junit.Test;
-
 import static org.assertj.core.api.Assertions.assertThat;
+
+import com.hartwig.pipeline.Arguments;
+
+import org.junit.Test;
 
 public class RunTest {
 
@@ -17,7 +18,7 @@ public class RunTest {
     }
 
     @Test
-    public void idCanBeOveriddenFromArgumentsSingleSample() {
+    public void idCanBeOverriddenFromArgumentsSingleSample() {
         Run victim = Run.from(REFERENCE_SAMPLE,
                 Arguments.testDefaultsBuilder().profile(Arguments.DefaultsProfile.DEVELOPMENT).runId("override").build());
         assertThat(victim.id()).isEqualTo("run-reference-override");

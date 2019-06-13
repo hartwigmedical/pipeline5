@@ -71,7 +71,7 @@ public class BamCreationPipelineTest {
 
             @Override
             public void clear() {
-                // do nothin
+                // do nothing
             }
         };
     }

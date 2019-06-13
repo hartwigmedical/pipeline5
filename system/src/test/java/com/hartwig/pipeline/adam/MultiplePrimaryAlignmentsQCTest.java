@@ -34,7 +34,7 @@ public class MultiplePrimaryAlignmentsQCTest {
 
     @Test
     public void emptyRddInputReturnsOk() {
-        assertThat(victim.check(io(TestRDDs.emptyAlignnmentRecordRDD(SPARK_CONTEXT))).isOk()).isTrue();
+        assertThat(victim.check(io(TestRDDs.emptyAlignmentRecordRDD(SPARK_CONTEXT))).isOk()).isTrue();
     }
 
     @Test

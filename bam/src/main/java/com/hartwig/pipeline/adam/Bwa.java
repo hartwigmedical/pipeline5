@@ -4,7 +4,6 @@ import static java.util.Collections.singletonList;
 
 import static scala.collection.JavaConverters.asScalaBufferConverter;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -49,7 +48,7 @@ class Bwa implements AlignmentStage {
     }
 
     @Override
-    public InputOutput<AlignmentRecordDataset> execute(InputOutput<AlignmentRecordDataset> input) throws IOException {
+    public InputOutput<AlignmentRecordDataset> execute(InputOutput<AlignmentRecordDataset> input) {
         SequenceDictionary sequenceDictionary = adamContext.loadSequenceDictionary(referenceGenome.path() + ".dict");
         Sample sample = input.sample();
         List<AlignmentRecordDataset> laneRdds =
@@ -62,12 +61,13 @@ class Bwa implements AlignmentStage {
     }
 
     private AlignmentRecordDataset adamBwa(final SequenceDictionary sequenceDictionary, final Sample sample, final Lane lane) {
-        FragmentDataset FragmentDataset = adamContext.loadPairedFastq(lane.firstOfPairPath(), lane.secondOfPairPath(),
+        FragmentDataset fragmentDataset = adamContext.loadPairedFastq(lane.firstOfPairPath(),
+                lane.secondOfPairPath(),
                 Option.empty(),
                 Option.apply(StorageLevel.DISK_ONLY()),
                 ValidationStringency.STRICT).toFragments();
-        initializeBwaSharedMemoryPerExecutor(FragmentDataset);
-        return RDDs.persistDisk(RDDs.AlignmentRecordDataset(((FragmentDataset) FragmentDataset).pipe(BwaCommand.tokens(referenceGenome,
+        initializeBwaSharedMemoryPerExecutor(fragmentDataset);
+        return RDDs.persistDisk(RDDs.AlignmentRecordDataset(fragmentDataset.pipe(BwaCommand.tokens(referenceGenome,
                 sample,
                 lane,
                 bwaThreads),

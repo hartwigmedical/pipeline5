@@ -1,7 +1,5 @@
 package com.hartwig.pipeline.adam;
 
-import com.google.common.collect.ImmutableMap;
-
 import org.immutables.value.Value;
 
 @Value.Immutable

@@ -33,7 +33,7 @@ public class CommandLineOptionsTest {
     }
 
     @Test
-    public void defaultOptionsCanBeOveridden() throws Exception {
+    public void defaultOptionsCanBeOverridden() throws Exception {
         Arguments result = CommandLineOptions.from(new String[] { "-profile", "development", "-sample_id", "test", "-sample_directory",
                 OVERRIDDEN_SAMPLE_DIR });
         assertThat(result.sampleDirectory()).isEqualTo(OVERRIDDEN_SAMPLE_DIR);
@@ -46,13 +46,13 @@ public class CommandLineOptionsTest {
     }
 
     @Test
-    public void defaultFlagsCanBeOveriddenTrue() throws Exception {
+    public void defaultFlagsCanBeOverriddenTrue() throws Exception {
         Arguments result = CommandLineOptions.from(new String[] { "-profile", "development", "-sample_id", "test", "-upload", "true" });
         assertThat(result.upload()).isTrue();
     }
 
     @Test
-    public void defaultFlagsCanBeOveriddenFalse() throws Exception {
+    public void defaultFlagsCanBeOverriddenFalse() throws Exception {
         Arguments result = CommandLineOptions.from(new String[] { "-profile", "development", "-sample_id", "test", "-cleanup", "false" });
         assertThat(result.cleanup()).isFalse();
     }

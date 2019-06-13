@@ -1,11 +1,13 @@
 package com.hartwig.pipeline.calling.structural.gridss.command;
 
+import static java.lang.String.format;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
+
 import org.junit.Before;
 import org.junit.Test;
-
-import static java.lang.String.format;
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class CollectGridssMetricsAndExtractSvReadsTest implements CommonEntities {
     private String metricsOut;
@@ -33,7 +35,7 @@ public class CollectGridssMetricsAndExtractSvReadsTest implements CommonEntities
     }
 
     @Test
-    public void shoulConstructGridssOptions() {
+    public void shouldConstructGridssOptions() {
         String inlineGeneratedInsertSizeMetrics = format("%s/%s.gridss.working.insert_size_metrics", OUT_DIR, REFERENCE_SAMPLE);
         GridssCommonArgumentsAssert.assertThat(command)
                 .hasGridssArguments(ARGS_TMP_DIR)

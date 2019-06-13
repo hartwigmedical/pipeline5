@@ -36,14 +36,14 @@ This split is for practical reasons. For instance gunzipping 16 FASTQ files has 
 Uses Spark to read the zipped files and then write them back to HDFS in the default partition structure. This not only unzips the files, but allows BAM creation to effectively parallelize tasks across the data.
 
 ### Bam Creation
-Uses ADAM to transform FASTQ files into BAM files with BWA. BWA is run against all partitions of the FASTQ data in parallel which speeds up this step considerably. When complete the ADAM mark duplicate and realign indels algoritms are also run.
+Uses ADAM to transform FASTQ files into BAM files with BWA. BWA is run against all partitions of the FASTQ data in parallel which speeds up this step considerably. When complete the ADAM mark duplicate and realign indels algorithms are also run.
 
 ### Sorting and Indexing
 At the time of writing we've been unable to get ADAM's native sorting to perform reliably and as fast as [sambamba](http://lomereiter.github.io/sambamba/). While we address this with ADAM developers, this stage sorts and indexes the BAM with sambamba as a post-processing stage.
 
 ## Running Pv5 locally
 
-During development or testing it can be useful to run the pipeline in Intellij to debug or get quick feedback on changes. At the time of writing the entire pipeline cannot be run in one command localy, but the individual stages can. Most of the time the BAM creation stage will be run on its own, so this guide focussing on that.
+During development or testing it can be useful to run the pipeline in Intellij to debug or get quick feedback on changes. At the time of writing the entire pipeline cannot be run in one command locally, but the individual stages can. Most of the time the BAM creation stage will be run on its own, so this guide focusing on that.
 
 ### Configuration
 
@@ -145,7 +145,7 @@ Stackdriver is Google's internal metric and time series monitoring platform. It'
 When `sbp_id` is passed to bootstrap the pipeline will take inputs from and push outputs to the SBP object store. This ID corresponds to the sample ID from SBP's REST API. The Object Store is interacted with via `gsutil` and the AWS S3 Java API. It is expected that the correct external configuration for the S3 interface to the Object Store is mounted correctly.
 
 ### Running with Docker
-Bootstrap is released along with the pipeline jars as a docker container. This way it can be run anywhere with docker installed (or on a Kubernetes cluster as in production). Here is an example useage to run against `COLO829R` on `crunch003`.
+Bootstrap is released along with the pipeline jars as a docker container. This way it can be run anywhere with docker installed (or on a Kubernetes cluster as in production). Here is an example usage to run against `COLO829R` on `crunch003`.
 
 ```
 docker run -v /home/wolfe/:/secrets -v /data2/pipelineinput/COLO829_fastq/COLO829R:/patients/COLO829R/ docker.io/hartwigmedicalfoundation/bootstrap:5.1.358 -no_download
@@ -154,7 +154,7 @@ docker run -v /home/wolfe/:/secrets -v /data2/pipelineinput/COLO829_fastq/COLO82
 The first volume (-v) mounts a directory containing the private key (expected to be called bootstrap-key.json), this is required to authenticate as a service account with Google. You can create a key if you don't have one via the Google console. The second mount is for the FASTQ's to be uploaded, so is not required when running from SBP or against an existing runtime bucket. The `no_download` option is used to disable.
 
 ### Options
-Bootstrap has a decent amount of command line options you can use. Here is the useage description at the time of writing, but it's advisable to run `bootstrap help` to see the exact options available in the version you are running:
+Bootstrap has a decent amount of command line options you can use. Here is the usage description at the time of writing, but it's advisable to run `bootstrap help` to see the exact options available in the version you are running:
 
 ```
  -cleanup <true|false>                            Don't delete the runtime

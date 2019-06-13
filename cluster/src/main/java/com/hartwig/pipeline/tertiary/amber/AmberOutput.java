@@ -3,7 +3,6 @@ package com.hartwig.pipeline.tertiary.amber;
 import java.util.Optional;
 
 import com.hartwig.pipeline.StageOutput;
-import com.hartwig.pipeline.execution.JobStatus;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 
 import org.immutables.value.Value;

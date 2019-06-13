@@ -1,26 +1,28 @@
 package com.hartwig.pipeline.calling.structural.gridss.stage;
 
-import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
-import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.execution.vm.VmDirectories;
-import org.junit.Before;
-import org.junit.Test;
+import static java.lang.String.format;
+import static java.util.Arrays.asList;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static java.lang.String.format;
-import static java.util.Arrays.asList;
-import static org.assertj.core.api.Assertions.assertThat;
+import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
+import com.hartwig.pipeline.execution.vm.BashCommand;
+import com.hartwig.pipeline.execution.vm.VmDirectories;
+
+import org.junit.Before;
+import org.junit.Test;
 
 public class FilterTest implements CommonEntities {
+
     private static final String PATH_TO_GRIDSS_SCRIPTS = format("%s/gridss-scripts/4.8", TOOLS_DIR);
     private static final String PATH_TO_GRIDSS_PON = format("%s/gridss_pon", RESOURCE_DIR);
     private static final int RSCRIPT_LINE_NUMBER = 4;
 
-    private List<BashCommand> commands;
     private String bashCommands;
     private String originalVcf;
     private String uncompressedVcf;
@@ -29,7 +31,7 @@ public class FilterTest implements CommonEntities {
     public void setup() {
         uncompressedVcf = "/path/to/original.vcf";
         originalVcf = uncompressedVcf + ".gz";
-        commands = new Filter().initialise(originalVcf, TUMOR_SAMPLE).commands();
+        List<BashCommand> commands = new Filter().initialise(originalVcf, TUMOR_SAMPLE).commands();
         bashCommands = commands.stream().map(c -> c.asBash()).collect(Collectors.joining("\n"));
     }
 
@@ -46,7 +48,7 @@ public class FilterTest implements CommonEntities {
     @Test
     public void shouldGunzipOriginalVcfAsSecondStep() {
         String firstLine = extractOutputLine(3);
-        assertThat(firstLine).isEqualTo(format("gunzip -kd %s", originalVcf, uncompressedVcf));
+        assertThat(firstLine).isEqualTo(format("gunzip -kd %s", originalVcf));
     }
 
     @Test(expected = IllegalArgumentException.class)

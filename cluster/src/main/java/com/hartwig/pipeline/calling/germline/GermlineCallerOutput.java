@@ -1,10 +1,6 @@
 package com.hartwig.pipeline.calling.germline;
 
-import java.util.Optional;
-
 import com.hartwig.pipeline.StageOutput;
-import com.hartwig.pipeline.execution.JobStatus;
-import com.hartwig.pipeline.io.GoogleStorageLocation;
 
 import org.immutables.value.Value;
 
