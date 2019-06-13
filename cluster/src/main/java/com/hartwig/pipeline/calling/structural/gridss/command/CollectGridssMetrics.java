@@ -3,9 +3,9 @@ package com.hartwig.pipeline.calling.structural.gridss.command;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 
 public class CollectGridssMetrics implements GridssCommand {
-    private String inputFile;
+    private final String inputFile;
 
-    public CollectGridssMetrics(String inputFile) {
+    public CollectGridssMetrics(final String inputFile) {
         this.inputFile = inputFile;
     }
 

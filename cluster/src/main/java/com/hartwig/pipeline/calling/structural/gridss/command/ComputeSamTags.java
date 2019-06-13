@@ -6,11 +6,11 @@ import com.hartwig.pipeline.execution.vm.VmDirectories;
 import static java.lang.String.format;
 
 public class ComputeSamTags implements GridssCommand {
-    private String inProgressBam;
-    private String referenceGenome;
-    private String sampleName;
+    private final String inProgressBam;
+    private final String referenceGenome;
+    private final String sampleName;
 
-    public ComputeSamTags(String inProgressBam, String referenceGenome, String sampleName) {
+    public ComputeSamTags(final String inProgressBam, final String referenceGenome, final String sampleName) {
         this.inProgressBam = inProgressBam;
         this.referenceGenome = referenceGenome;
         this.sampleName = sampleName;

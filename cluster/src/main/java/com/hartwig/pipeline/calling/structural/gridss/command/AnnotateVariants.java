@@ -10,7 +10,8 @@ public class AnnotateVariants implements GridssCommand {
     private final String inputVcf;
     private final String referenceGenome;
 
-    public AnnotateVariants(String sampleBam, String tumorBam, String assemblyBam, String inputVcf, String referenceGenome) {
+    public AnnotateVariants(final String sampleBam, final String tumorBam, final String assemblyBam,
+                            final String inputVcf, final String referenceGenome) {
         this.sampleBam = sampleBam;
         this.tumorBam = tumorBam;
         this.assemblyBam = assemblyBam;

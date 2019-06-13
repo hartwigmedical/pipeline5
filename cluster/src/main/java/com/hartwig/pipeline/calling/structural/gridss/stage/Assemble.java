@@ -16,8 +16,8 @@ import static java.lang.String.format;
 import static java.util.Arrays.asList;
 
 public class Assemble {
-    private CommandFactory factory;
-    private GridssToBashCommandConverter converter;
+    private final CommandFactory factory;
+    private final GridssToBashCommandConverter converter;
 
     @Value.Immutable
     public interface AssembleResult {
@@ -26,12 +26,12 @@ public class Assemble {
         List<BashCommand> commands();
     }
 
-    public Assemble(CommandFactory factory, GridssToBashCommandConverter converter) {
+    public Assemble(final CommandFactory factory, final GridssToBashCommandConverter converter) {
         this.factory = factory;
         this.converter = converter;
     }
 
-    public AssembleResult initialise(String sampleBam, String tumorBam, String referenceGenome) {
+    public AssembleResult initialise(final String sampleBam, final String tumorBam, final String referenceGenome) {
         AssembleBreakends assembler = factory.buildAssembleBreakends(sampleBam, tumorBam, referenceGenome);
         CollectGridssMetrics metrics = factory.buildCollectGridssMetrics(assembler.assemblyBam());
 

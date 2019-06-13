@@ -8,7 +8,7 @@ import static java.lang.String.format;
 import static java.util.Arrays.asList;
 
 public class GridssToBashCommandConverter {
-    public JavaClassCommand convert(GridssCommand gridssCommand) {
+    public JavaClassCommand convert(final GridssCommand gridssCommand) {
         List<String> jvmArgs = asList(
                 "-ea",
                 "-Dsamjdk.create_index=true",
@@ -19,7 +19,7 @@ public class GridssToBashCommandConverter {
         );
 
         return new JavaClassCommand("gridss",
-                "2.2.2",
+                "2.2.3",
                 "gridss.jar",
                 gridssCommand.className(),
                 format("%dG", gridssCommand.memoryGb()),

@@ -40,7 +40,7 @@ public class GridssToBashCommandConverterTest {
 
         String bash = command.asBash();
         assertThat(bash).isNotEmpty();
-        assertThat(bash).isEqualTo(String.format("java -Xmx%s %s -cp %s/gridss/2.2.2/gridss.jar %s %s",
+        assertThat(bash).isEqualTo(String.format("java -Xmx%s %s -cp %s/gridss/2.2.3/gridss.jar %s %s",
                 memoryAsString,
                 jvmArgs.stream().collect(Collectors.joining(" ")),
                 CommonEntities.TOOLS_DIR,

@@ -16,8 +16,8 @@ import static java.lang.String.format;
 import static java.util.Arrays.asList;
 
 public class Preprocess {
-    private CommandFactory factory;
-    private GridssToBashCommandConverter converter;
+    private final CommandFactory factory;
+    private final GridssToBashCommandConverter converter;
 
     @Value.Immutable
     public interface PreprocessResult {
@@ -26,12 +26,13 @@ public class Preprocess {
         List<BashCommand> commands();
     }
 
-    public Preprocess(CommandFactory factory, GridssToBashCommandConverter converter) {
+    public Preprocess(final CommandFactory factory, final GridssToBashCommandConverter converter) {
         this.factory = factory;
         this.converter = converter;
     }
 
-    public PreprocessResult initialise(String inputBam, String sampleName, String referenceGenome, String outputSvBam) {
+    public PreprocessResult initialise(final String inputBam, final String sampleName, final String referenceGenome,
+                                       final String outputSvBam) {
         CollectGridssMetricsAndExtractSvReads gridssCollectMetrics = factory.buildCollectGridssMetricsAndExtractSvReads(inputBam, sampleName);
         SubShellCommand firstSubStage = new SubShellCommand(new PipeCommands(
                 converter.convert(gridssCollectMetrics),

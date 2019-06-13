@@ -14,7 +14,7 @@ public class GridssArguments implements BashCommand {
         arguments = new ArrayList<>();
     }
 
-    public GridssArguments add(String key, String value) {
+    public GridssArguments add(final String key, final String value) {
         arguments.add(new GridssArgument(key, value));
         return this;
     }

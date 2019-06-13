@@ -14,8 +14,8 @@ import static java.lang.String.format;
 import static java.util.Arrays.asList;
 
 public class Annotation {
-    private CommandFactory commandFactory;
-    private GridssToBashCommandConverter converter;
+    private final CommandFactory commandFactory;
+    private final GridssToBashCommandConverter converter;
 
     @Value.Immutable
     public interface AnnotationResult {
@@ -23,12 +23,13 @@ public class Annotation {
         List<BashCommand> commands();
     }
 
-    public Annotation(CommandFactory commandFactory, GridssToBashCommandConverter converter) {
+    public Annotation(final CommandFactory commandFactory, final GridssToBashCommandConverter converter) {
         this.commandFactory = commandFactory;
         this.converter = converter;
     }
 
-    public AnnotationResult initialise(String sampleBam, String tumorBam, String assemblyBam, String rawVcf, String referenceGenome) {
+    public AnnotationResult initialise(final String sampleBam, final String tumorBam, final String assemblyBam,
+                                       final String rawVcf, final String referenceGenome) {
         AnnotateVariants variants = commandFactory.buildAnnotateVariants(sampleBam, tumorBam, assemblyBam, rawVcf, referenceGenome);
         AnnotateUntemplatedSequence untemplated = commandFactory.buildAnnotateUntemplatedSequence(variants.resultantVcf(), referenceGenome);
         BgzipCommand bgzip = commandFactory.buildBgzipCommand(untemplated.resultantVcf());

@@ -9,7 +9,8 @@ public class IdentifyVariants implements GridssCommand {
     private final String assemblyBam;
     private final String referenceGenome;
 
-    public IdentifyVariants(String sampleBam, String tumorBam, String assemblyBam, String referenceGenome) {
+    public IdentifyVariants(final String sampleBam, final String tumorBam, final String assemblyBam,
+                            final String referenceGenome) {
         this.sampleBam = sampleBam;
         this.tumorBam = tumorBam;
         this.assemblyBam = assemblyBam;

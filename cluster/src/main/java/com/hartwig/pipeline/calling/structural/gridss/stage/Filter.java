@@ -1,20 +1,18 @@
 package com.hartwig.pipeline.calling.structural.gridss.stage;
 
-import static java.lang.String.format;
-
-import static com.hartwig.pipeline.calling.structural.gridss.GridssCommon.pathToGridssScripts;
-import static com.hartwig.pipeline.calling.structural.gridss.GridssCommon.ponDir;
+import com.hartwig.pipeline.execution.vm.BashCommand;
+import com.hartwig.pipeline.execution.vm.VmDirectories;
+import com.hartwig.pipeline.execution.vm.unix.MkDirCommand;
+import org.immutables.value.Value;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.execution.vm.VmDirectories;
-import com.hartwig.pipeline.execution.vm.unix.MkDirCommand;
-
-import org.immutables.value.Value;
+import static com.hartwig.pipeline.calling.structural.gridss.GridssCommon.pathToGridssScripts;
+import static com.hartwig.pipeline.calling.structural.gridss.GridssCommon.ponDir;
+import static java.lang.String.format;
 
 public class Filter {
 
@@ -25,7 +23,7 @@ public class Filter {
         String filteredVcf();
     }
 
-    public FilterResult initialise(String originalVcf, String tumorSample) {
+    public FilterResult initialise(final String originalVcf, final String tumorSample) {
         String unzippedOriginalVcf;
         Matcher matcher = Pattern.compile("(.+).gz$").matcher(originalVcf);
         if (matcher.matches()) {

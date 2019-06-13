@@ -4,10 +4,10 @@ import com.hartwig.pipeline.execution.vm.VmDirectories;
 
 public class AnnotateUntemplatedSequence implements GridssCommand {
 
-    private String inputVcf;
-    private String referenceGenome;
+    private final String inputVcf;
+    private final String referenceGenome;
 
-    public AnnotateUntemplatedSequence(String inputVcf, String referenceGenome) {
+    public AnnotateUntemplatedSequence(final String inputVcf, final String referenceGenome) {
         this.inputVcf = inputVcf;
         this.referenceGenome = referenceGenome;
     }

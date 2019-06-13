@@ -8,11 +8,10 @@ public class AssembleBreakends implements GridssCommand {
     private final String tumorBam;
     private final String assemblyBam;
 
-    public AssembleBreakends(String sampleBam, String tumorBam, String referenceGenome) {
+    public AssembleBreakends(final String sampleBam, final String tumorBam, final String referenceGenome) {
         this.referenceGenome = referenceGenome;
         this.sampleBam = sampleBam;
         this.tumorBam = tumorBam;
-
         this.assemblyBam = VmDirectories.outputFile("reference-tumor.assembly.bam");
     }
 

@@ -10,7 +10,7 @@ public class GridssArgument implements BashCommand {
     private final String key;
     private final String value;
 
-    public GridssArgument(String key, String value) {
+    public GridssArgument(final String key, final String value) {
         this.key = key.toUpperCase();
         this.value = value;
     }
@@ -21,7 +21,7 @@ public class GridssArgument implements BashCommand {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         GridssArgument that = (GridssArgument) o;

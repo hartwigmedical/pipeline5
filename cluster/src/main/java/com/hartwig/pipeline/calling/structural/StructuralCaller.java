@@ -42,7 +42,7 @@ public class StructuralCaller {
         this.resultsDirectory = resultsDirectory;
     }
 
-    public StructuralCallerOutput run(AlignmentPair pair) {
+    public StructuralCallerOutput run(final AlignmentPair pair) {
         if (!arguments.runStructuralCaller()) {
             return StructuralCallerOutput.builder().status(JobStatus.SKIPPED).build();
         }
@@ -102,8 +102,7 @@ public class StructuralCaller {
         IdentifyVariants calling = commandFactory.buildIdentifyVariants(referenceBam.getLocalTargetPath(),
                 tumorBam.getLocalTargetPath(),
                 assemblyResult.assemblyBam(),
-                referenceGenomePath,
-                GridssCommon.blacklist());
+                referenceGenomePath);
 
         Annotation.AnnotationResult annotationResult =
                 new Annotation(commandFactory, commandConverter).initialise(referenceBam.getLocalTargetPath(),

@@ -8,9 +8,9 @@ import static java.lang.String.format;
 public class CollectGridssMetricsAndExtractSvReads implements GridssCommand {
 
     private final String inputBam;
-    private String sampleName;
+    private final String sampleName;
 
-    public CollectGridssMetricsAndExtractSvReads(final String inputFile, String sampleName) {
+    public CollectGridssMetricsAndExtractSvReads(final String inputFile, final String sampleName) {
         this.inputBam = inputFile;
         this.sampleName = sampleName;
     }
