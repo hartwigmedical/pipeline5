@@ -14,6 +14,10 @@ public interface Arguments {
         DEVELOPMENT
     }
 
+    enum Mode{
+        SINGLE_SAMPLE, SOMATIC
+    }
+
     boolean forceJarUpload();
 
     boolean cleanup();
@@ -40,6 +44,8 @@ public interface Arguments {
 
     DefaultsProfile profile();
 
+    Mode mode();
+
     String project();
 
     String version();
@@ -51,6 +57,8 @@ public interface Arguments {
     String sampleDirectory();
 
     String sampleId();
+
+    String setId();
 
     String privateKeyPath();
 
@@ -78,6 +86,8 @@ public interface Arguments {
 
     Optional<Integer> sbpApiSampleId();
 
+    Optional<Integer> sbpApiSetId();
+
     Optional<String> runId();
 
     static ImmutableArguments.Builder builder() {
@@ -101,6 +111,7 @@ public interface Arguments {
         if (profile.equals(DefaultsProfile.PRODUCTION)) {
             return ImmutableArguments.builder()
                     .profile(profile)
+                    .mode(DEFAULT_MODE)
                     .rclonePath(DEFAULT_PRODUCTION_RCLONE_PATH)
                     .rcloneGcpRemote(DEFAULT_PRODUCTION_RCLONE_GCP_REMOTE)
                     .rcloneS3Remote(DEFAULT_PRODUCTION_RCLONE_S3_REMOTE)
@@ -128,12 +139,14 @@ public interface Arguments {
                     .runStructuralCaller(true)
                     .runTertiary(true)
                     .sampleId(EMPTY)
+                    .setId(EMPTY)
                     .toolsBucket(DEFAULT_COMMON_TOOLS_BUCKET)
                     .resourceBucket(DEFAULT_RESOURCE_BUCKET)
                     .patientReportBucket(DEFAULT_PATIENT_REPORT_BUCKET);
         } else {
             return ImmutableArguments.builder()
                     .profile(profile)
+                    .mode(DEFAULT_MODE)
                     .region(DEFAULT_DEVELOPMENT_REGION)
                     .project(DEFAULT_DEVELOPMENT_PROJECT)
                     .version(DEFAULT_DEVELOPMENT_VERSION)
@@ -161,6 +174,7 @@ public interface Arguments {
                     .sbpS3Url(NOT_APPLICABLE)
                     .sbpApiUrl(NOT_APPLICABLE)
                     .sampleId(EMPTY)
+                    .setId(EMPTY)
                     .toolsBucket(DEFAULT_COMMON_TOOLS_BUCKET)
                     .resourceBucket(DEFAULT_RESOURCE_BUCKET)
                     .patientReportBucket(DEFAULT_PATIENT_REPORT_BUCKET);
@@ -171,6 +185,7 @@ public interface Arguments {
         return System.getProperty("user.dir");
     }
 
+    Mode DEFAULT_MODE = Mode.SINGLE_SAMPLE;
     String DEFAULT_RESOURCE_BUCKET = "common-resources";
     String DEFAULT_COMMON_TOOLS_BUCKET = "common-tools";
     String DEFAULT_PATIENT_REPORT_BUCKET = "p5-patient-reports";

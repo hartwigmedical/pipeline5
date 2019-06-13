@@ -52,13 +52,17 @@ public class CommandLineOptions {
     private static final String TOOLS_BUCKET_FLAG = "tools_bucket";
     private static final String RESOURCE_BUCKET_FLAG = "resource_bucket";
     private static final String PATIENT_REPORT_BUCKET_FLAG = "patient_report_bucket";
+    private static final String MODE_FLAG = "mode";
+    private static final String SET_ID_FLAG = "set_id";
 
     private static Options options() {
-        return new Options().addOption(profileFlag())
-                .addOption(privateKeyFlag())
+        return new Options().addOption(profile())
+                .addOption(mode())
+                .addOption(privateKey())
                 .addOption(version())
                 .addOption(sampleDirectory())
                 .addOption(sampleId())
+                .addOption(setId())
                 .addOption(jarLibDirectory())
                 .addOption(optionWithBooleanArg(SKIP_UPLOAD_FLAG, "Skip uploading defaultDirectory patient data into cloud storage"))
                 .addOption(optionWithBooleanArg(FORCE_JAR_UPLOAD_FLAG,
@@ -97,6 +101,16 @@ public class CommandLineOptions {
                 .addOption(patientReportBucket());
     }
 
+    private static Option setId() {
+        return optionWithArg(SET_ID_FLAG,
+                "The id of the set for which to run a somatic pipeline. A set represents a valid reference/tumor pair (ie CPCT12345678). "
+                        + "Can only be used when mode is somatic and the single sample pipelines have been run for each sample");
+    }
+
+    private static Option mode() {
+        return optionWithArg(MODE_FLAG, "What mode in which to run the pipeline, single_sample and somatic are supported.");
+    }
+
     private static Option patientReportBucket() {
         return optionWithArg(TOOLS_BUCKET_FLAG, "Bucket in which to persist the final patient report and accompanying data.");
     }
@@ -109,7 +123,7 @@ public class CommandLineOptions {
         return optionWithArg(RESOURCE_BUCKET_FLAG, "Bucket containing all common resources (reference genome, known indels, pons, etc");
     }
 
-    private static Option profileFlag() {
+    private static Option profile() {
         return optionWithArg(PROFILE_FLAG, "Defaults profile to use. Accepts [production|development]");
     }
 
@@ -150,7 +164,7 @@ public class CommandLineOptions {
         return optionWithArg(SBP_SAMPLE_ID_FLAG, "SBP API internal numeric sample id");
     }
 
-    private static Option privateKeyFlag() {
+    private static Option privateKey() {
         return optionWithArg(PRIVATE_KEY_FLAG,
                 "Fully qualified path to the private key for the service account used for all Google Cloud operations");
     }
@@ -191,6 +205,8 @@ public class CommandLineOptions {
             CommandLine commandLine = defaultParser.parse(options(), args);
             Arguments defaults = Arguments.defaults(commandLine.getOptionValue(PROFILE_FLAG, DEFAULT_PROFILE));
             return Arguments.builder()
+                    .mode(Arguments.Mode.valueOf(commandLine.getOptionValue(MODE_FLAG, defaults.mode().name()).toUpperCase()))
+                    .setId(commandLine.getOptionValue(SET_ID_FLAG, defaults.setId()))
                     .privateKeyPath(commandLine.getOptionValue(PRIVATE_KEY_FLAG, defaults.privateKeyPath()))
                     .version(commandLine.getOptionValue(VERSION_FLAG, defaults.version()))
                     .sampleDirectory(commandLine.getOptionValue(SAMPLE_DIRECTORY_FLAG, defaults.sampleDirectory()))

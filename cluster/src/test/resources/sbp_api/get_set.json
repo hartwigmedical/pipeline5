@@ -1,0 +1,12 @@
+{
+  "ref_sample": "CPCT02020225R",
+  "fastq_portal": null,
+  "name": "160422_HMFreg0047_FR10303375_FR10303376_CPCT02020225",
+  "size": 331121039462,
+  "createTime": "2016-05-12",
+  "entity": "CPCT_EMC",
+  "sbp_id": 1670,
+  "tumor_sample": "CPCT02020225T",
+  "entity_id": 4,
+  "id": "1670"
+}

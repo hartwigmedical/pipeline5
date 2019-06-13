@@ -26,7 +26,9 @@ public class PatientReport {
     }
 
     public <T extends StageOutput> T add(T stageOutput) {
-        components.addAll(stageOutput.reportComponents());
+        if (stageOutput != null) {
+            components.addAll(stageOutput.reportComponents());
+        }
         return stageOutput;
     }
 

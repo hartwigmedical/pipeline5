@@ -97,7 +97,7 @@
                         <manifest>
                             <useUniqueVersions>false</useUniqueVersions>
                             <addClasspath>true</addClasspath>
-                            <mainClass>com.hartwig.pipeline.PatientReportPipeline</mainClass>
+                            <mainClass>com.hartwig.pipeline.PipelineMain</mainClass>
                             <classpathPrefix>lib/</classpathPrefix>
                         </manifest>
                     </archive>
@@ -124,7 +124,7 @@
                                 <manifest>
                                     <useUniqueVersions>false</useUniqueVersions>
                                     <addClasspath>true</addClasspath>
-                                    <mainClass>com.hartwig.pipeline.PatientReportPipeline</mainClass>
+                                    <mainClass>com.hartwig.pipeline.PipelineMain</mainClass>
                                     <classpathPrefix>lib/</classpathPrefix>
                                     <addDefaultImplementationEntries>
                                         true

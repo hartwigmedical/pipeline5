@@ -1,6 +1,7 @@
 package com.hartwig.pipeline;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.Lists;
@@ -33,6 +34,7 @@ public class PipelineState {
 
     JobStatus status() {
         return stageOutputs().stream()
+                .filter(Objects::nonNull)
                 .map(StageOutput::status)
                 .filter(status -> status == JobStatus.FAILED)
                 .findFirst()
