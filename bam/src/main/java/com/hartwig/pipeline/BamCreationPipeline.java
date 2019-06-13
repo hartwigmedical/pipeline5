@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 public abstract class BamCreationPipeline {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BamCreationPipeline.class);
-    public static final String RECALIBRATED_SUFFIX = "recalibrated";
 
     public void execute(final Sample sample) {
         LOGGER.info("Clearing result directory before starting");
