@@ -62,7 +62,8 @@ public class Amber {
                 tumorSampleName,
                 tumorBam.getLocalTargetPath(),
                 referenceGenomeDownload.find("fasta", "fa"),
-                amberResourceDownload.find("bed")));
+                amberResourceDownload.find("GermlineHetPon.hg19.bed"),
+                amberResourceDownload.find("GermlineSnp.hg19.bed")));
         bash.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path())));
         JobStatus status = computeEngine.submit(runtimeBucket, VirtualMachineJobDefinition.amber(bash, resultsDirectory));
         trace.stop();

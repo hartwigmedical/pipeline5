@@ -6,7 +6,7 @@ import com.hartwig.pipeline.tools.Versions;
 
 class AmberApplicationCommand extends HmfToolCommand {
     AmberApplicationCommand(String referenceSampleName, String referenceBamPath, String tumorSampleName, String tumorBamPath,
-            String referenceGenomePath, String bedPath) {
+            String referenceGenomePath, String bedPath, String snpBedPath) {
         super("amber",
                 Versions.AMBER,
                 "amber.jar",
@@ -20,6 +20,8 @@ class AmberApplicationCommand extends HmfToolCommand {
                 referenceGenomePath,
                 "-bed",
                 bedPath,
+                "-snp_bed",
+                snpBedPath,
                 "-threads",
                 Bash.allCpus());
     }

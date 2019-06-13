@@ -16,6 +16,7 @@ import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.resource.ResourceNames;
 import com.hartwig.pipeline.testsupport.MockResource;
 import com.hartwig.pipeline.testsupport.TestInputs;
+import com.hartwig.pipeline.tools.Versions;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -37,7 +38,7 @@ public class AmberTest {
         when(bucket.getName()).thenReturn(RUNTIME_BUCKET);
         when(storage.get(RUNTIME_BUCKET)).thenReturn(bucket);
         MockResource.addToStorage(storage, ResourceNames.REFERENCE_GENOME, "reference.fasta");
-        MockResource.addToStorage(storage, ResourceNames.AMBER_PON, "amber.bed");
+        MockResource.addToStorage(storage, ResourceNames.AMBER_PON, "GermlineHetPon.hg19.bed", "GermlineSnp.hg19.bed");
         victim = new Amber(ARGUMENTS, computeEngine, storage, ResultsDirectory.defaultDirectory());
     }
 
@@ -69,9 +70,9 @@ public class AmberTest {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
         victim.run(TestInputs.defaultPair());
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains("java -Xmx32G -cp "
-                + "/data/tools/amber/2.3/amber.jar com.hartwig.hmftools.amber.AmberApplication -reference reference -reference_bam "
+                + "/data/tools/amber/" + Versions.AMBER + "/amber.jar com.hartwig.hmftools.amber.AmberApplication -reference reference -reference_bam "
                 + "/data/input/reference.bam -tumor tumor -tumor_bam /data/input/tumor.bam -output_dir /data/output -threads 16 -ref_genome "
-                + "/data/resources/reference.fasta -bed /data/resources/amber.bed");
+                + "/data/resources/reference.fasta -bed /data/resources/GermlineHetPon.hg19.bed -snp_bed /data/resources/GermlineSnp.hg19.bed");
     }
 
     @Test

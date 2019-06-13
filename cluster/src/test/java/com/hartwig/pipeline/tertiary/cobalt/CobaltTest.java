@@ -16,6 +16,7 @@ import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.resource.ResourceNames;
 import com.hartwig.pipeline.testsupport.MockResource;
 import com.hartwig.pipeline.testsupport.TestInputs;
+import com.hartwig.pipeline.tools.Versions;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -68,7 +69,7 @@ public class CobaltTest {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
         victim.run(TestInputs.defaultPair());
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains("java -Xmx8G -cp "
-                + "/data/tools/cobalt/1.6/cobalt.jar com.hartwig.hmftools.cobalt.CountBamLinesApplication -reference reference "
+                + "/data/tools/cobalt/" + Versions.COBALT + "/cobalt.jar com.hartwig.hmftools.cobalt.CountBamLinesApplication -reference reference "
                 + "-reference_bam /data/input/reference.bam -tumor tumor -tumor_bam /data/input/tumor.bam -output_dir /data/output "
                 + "-threads 16 -gc_profile /data/resources/gc.cnp");
     }
