@@ -11,14 +11,16 @@ import com.hartwig.pipeline.tools.Versions;
 import org.jetbrains.annotations.NotNull;
 
 class SnpSiftCommand extends JavaJarCommand {
-    SnpSiftCommand(final String command, final String... args) {
-        super("snpEff", Versions.SNPEFF, "SnpSift.jar", GermlineCaller.TOOL_HEAP, arguments(command, args));
+    SnpSiftCommand(final String command, final String configPath, final String... args) {
+        super("snpEff", Versions.SNPEFF, "SnpSift.jar", GermlineCaller.TOOL_HEAP, arguments(command, configPath, args));
     }
 
     @NotNull
-    private static List<String> arguments(final String command, final String[] args) {
+    private static List<String> arguments(final String command, final String configPath, final String[] args) {
         List<String> additionalArguments = new ArrayList<>();
         additionalArguments.add(command);
+        additionalArguments.add("-c");
+        additionalArguments.add(configPath);
         additionalArguments.addAll(Arrays.asList(args));
         return additionalArguments;
     }
