@@ -40,7 +40,7 @@ public class GermlineCallerTest {
         MockResource.addToStorage(storage, ResourceNames.GONL, "gonl.vcf.gz");
         MockResource.addToStorage(storage, ResourceNames.COSMIC, "cosmic.vcf.gz");
         MockResource.addToStorage(storage, ResourceNames.SNPEFF, "snpeff.config");
-        MockResource.addToStorage(storage, ResourceNames.KNOWN_SNPS, "known_snps.vcf");
+        MockResource.addToStorage(storage, ResourceNames.DBSNPS, "dbsnps.vcf");
         victim = new GermlineCaller(ARGUMENTS, computeEngine, storage, ResultsDirectory.defaultDirectory());
     }
 

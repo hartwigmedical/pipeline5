@@ -80,7 +80,7 @@ public class GermlineCaller {
                         arguments.resourceBucket(),
                         ResourceNames.REFERENCE_GENOME,
                         new ReferenceGenomeAlias().andThen(new GATKDictAlias())));
-        ResourceDownload knownSnps = ResourceDownload.from(storage, arguments.resourceBucket(), ResourceNames.KNOWN_SNPS, bucket);
+        ResourceDownload knownSnps = ResourceDownload.from(storage, arguments.resourceBucket(), ResourceNames.DBSNPS, bucket);
         ResourceDownload snpEffResource = ResourceDownload.from(storage, arguments.resourceBucket(), ResourceNames.SNPEFF, bucket);
         ResourceDownload dbNSFPResource = ResourceDownload.from(storage, arguments.resourceBucket(), ResourceNames.DBNSFP, bucket);
         ResourceDownload cosmicResourceDownload = ResourceDownload.from(storage, arguments.resourceBucket(), ResourceNames.COSMIC, bucket);
@@ -119,7 +119,7 @@ public class GermlineCaller {
         SubStageInputOutput finalOutput =
                 new CombineFilteredVariants(indelFilterOutput.outputFile().path(), referenceFasta).andThen(new SnpEff(snpEffConfig))
                         .andThen(new SnpSiftDbnsfpAnnotation(dbNSFPResource.find("txt.gz"), snpEffConfig))
-                        .andThen(new CosmicAnnotation(cosmicResourceDownload.find("vcf.gz")))
+                        .andThen(new CosmicAnnotation(cosmicResourceDownload.find("vcf.gz"), "ID"))
                         .andThen(new SnpSiftFrequenciesAnnotation(frequencyDbDownload.find("vcf.gz"), snpEffConfig))
                         .apply(snpFilterOutput);
 

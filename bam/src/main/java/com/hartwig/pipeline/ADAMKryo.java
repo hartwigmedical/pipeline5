@@ -9,7 +9,6 @@ import com.esotericsoftware.kryo.Kryo;
 import com.hartwig.pipeline.adam.ImmutableMultiplePrimaryAlignments;
 import com.hartwig.pipeline.adam.MultiplePrimaryAlignments;
 import com.hartwig.pipeline.adam.MultiplePrimaryAlignmentsQC;
-import com.hartwig.pipeline.adam.PositionRangeKey;
 
 import org.apache.avro.generic.GenericData;
 import org.apache.spark.internal.io.FileCommitProtocol;
@@ -117,7 +116,6 @@ public class ADAMKryo implements KryoRegistrator {
             kryo.register(Object[].class);
             kryo.register(Double.class);
             kryo.register(Double[].class);
-            kryo.register(PositionRangeKey.class);
             kryo.register(Cigar.class);
             kryo.register(CigarElement.class);
             kryo.register(CigarOperator.class);

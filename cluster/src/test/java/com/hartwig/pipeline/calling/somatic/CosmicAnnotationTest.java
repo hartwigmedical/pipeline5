@@ -12,7 +12,7 @@ public class CosmicAnnotationTest extends SubStageTest {
 
     @Override
     public SubStage createVictim() {
-        return new CosmicAnnotation("cosmic.vcf.gz");
+        return new CosmicAnnotation("cosmic.vcf.gz", "ID,INFO");
     }
 
     @Override

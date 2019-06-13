@@ -10,15 +10,17 @@ import com.hartwig.pipeline.execution.vm.OutputFile;
 public class CosmicAnnotation extends SubStage {
 
     private final String cosmicDB;
+    private final String columns;
 
-    public CosmicAnnotation(final String cosmicDB) {
+    public CosmicAnnotation(final String cosmicDB, final String columns) {
         super("cosmic.annotated", OutputFile.GZIPPED_VCF);
         this.cosmicDB = cosmicDB;
+        this.columns = columns;
     }
 
     @Override
     public BashStartupScript bash(final OutputFile input, final OutputFile output, final BashStartupScript bash) {
-        return bash.addCommand(new BcfToolsAnnotationCommand(Lists.newArrayList(cosmicDB, "-c", "ID,INFO"), input.path(), output.path()))
+        return bash.addCommand(new BcfToolsAnnotationCommand(Lists.newArrayList(cosmicDB, "-c", columns), input.path(), output.path()))
                 .addCommand(new TabixCommand(output.path()));
     }
 }

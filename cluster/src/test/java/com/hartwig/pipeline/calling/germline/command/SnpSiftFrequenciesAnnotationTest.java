@@ -7,7 +7,7 @@ import com.hartwig.pipeline.calling.SubStageTest;
 
 import org.junit.Test;
 
-public class SnpSiftFrequenciesAnnotationTest extends SubStageTest{
+public class SnpSiftFrequenciesAnnotationTest extends SubStageTest {
 
     @Override
     public SubStage createVictim() {
@@ -21,9 +21,8 @@ public class SnpSiftFrequenciesAnnotationTest extends SubStageTest{
 
     @Test
     public void runsSnpSiftFrequenciesAnnotation() {
-        assertThat(output.currentBash().asUnixString()).contains("(java -Xmx20G -jar /data/tools/snpEff/4.3s/SnpSift.jar annotate -c "
-                + "snpEff.config -tabix -name GoNLv5 -info AF,AN,AC gonl_v5.vcf.gz /data/output/tumor.strelka.vcf > "
-                + "/data/output/tumor.gonlv5.annotated.vcf)");
+        assertThat(output.currentBash().asUnixString()).contains("(java -Xmx20G -jar /data/tools/snpEff/4.3s/SnpSift.jar annotate -tabix "
+                + "-name GoNLv5 -info AF,AN,AC gonl_v5.vcf.gz /data/output/tumor.strelka.vcf > /data/output/tumor.gonlv5.annotated.vcf)");
     }
 
     @Test

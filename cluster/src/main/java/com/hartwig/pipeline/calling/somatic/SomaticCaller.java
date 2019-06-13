@@ -56,7 +56,7 @@ public class SomaticCaller {
         BashStartupScript bash = BashStartupScript.of(runtimeBucket.name());
 
         ResourceDownload referenceGenomeDownload = ResourceDownload.from(runtimeBucket, referenceGenomeResource());
-        String referenceGenomePath = referenceGenomeDownload.find("fa", "fasta");
+        String referenceGenomePath = referenceGenomeDownload.find("fasta");
         ResourceDownload strelkaConfigDownload =
                 ResourceDownload.from(storage, arguments.resourceBucket(), ResourceNames.STRELKA_CONFIG, runtimeBucket);
         ResourceDownload mappabilityResources =
@@ -69,7 +69,7 @@ public class SomaticCaller {
         ResourceDownload snpEffResourceDownload =
                 ResourceDownload.from(storage, arguments.resourceBucket(), ResourceNames.SNPEFF, runtimeBucket);
         ResourceDownload knownSnpsResourceDownload =
-                ResourceDownload.from(storage, arguments.resourceBucket(), ResourceNames.KNOWN_SNPS, runtimeBucket);
+                ResourceDownload.from(storage, arguments.resourceBucket(), ResourceNames.DBSNPS, runtimeBucket);
         ResourceDownload cosmicResourceDownload =
                 ResourceDownload.from(storage, arguments.resourceBucket(), ResourceNames.COSMIC, runtimeBucket);
         bash.addCommand(referenceGenomeDownload)
@@ -113,7 +113,7 @@ public class SomaticCaller {
                 .andThen(new SageHotspotsAnnotation(sageResourceDownload.find("tsv"), sageOutput.outputFile().path()))
                 .andThen(new SnpEff(snpEffResourceDownload.find("config")))
                 .andThen(new DbSnpAnnotation(knownSnpsResourceDownload.find("vcf.gz")))
-                .andThen(new CosmicAnnotation(cosmicResourceDownload.find("vcf.gz")))
+                .andThen(new CosmicAnnotation(cosmicResourceDownload.find("vcf.gz"), "ID,INFO"))
                 .apply(SubStageInputOutput.of(tumorSampleName, OutputFile.empty(), bash));
 
         bash.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path())));

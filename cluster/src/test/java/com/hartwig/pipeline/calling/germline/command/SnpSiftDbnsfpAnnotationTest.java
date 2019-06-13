@@ -7,7 +7,7 @@ import com.hartwig.pipeline.calling.SubStageTest;
 
 import org.junit.Test;
 
-public class SnpSiftDbnsfpAnnotationTest extends SubStageTest{
+public class SnpSiftDbnsfpAnnotationTest extends SubStageTest {
 
     @Override
     public SubStage createVictim() {
@@ -21,10 +21,9 @@ public class SnpSiftDbnsfpAnnotationTest extends SubStageTest{
 
     @Test
     public void runsSnpSiftDbsnfpAnnotation() {
-        assertThat(output.currentBash().asUnixString()).contains("(java -Xmx20G -jar /data/tools/snpEff/4.3s/SnpSift.jar dbnsfp -c "
-                + "snpEff.config -v -f ");
-        assertThat(output.currentBash().asUnixString()).contains("-db dbnsfp.vcf.gz /data/output/tumor.strelka.vcf > "
-                + "/data/output/tumor.dbnsfp.annotated.vcf)");
+        assertThat(output.currentBash().asUnixString()).contains("(java -Xmx20G -jar /data/tools/snpEff/4.3s/SnpSift.jar dbnsfp -v -f");
+        assertThat(output.currentBash().asUnixString()).contains(
+                "-db dbnsfp.vcf.gz /data/output/tumor.strelka.vcf > /data/output/tumor.dbnsfp.annotated.vcf)");
     }
 
     @Test

@@ -40,9 +40,7 @@ public class SnpSiftDbnsfpAnnotation extends SubStage {
     @Override
     public BashStartupScript bash(final OutputFile input, final OutputFile output, final BashStartupScript bash) {
         String beforeZip = output.path().replace(".gz", "");
-        return bash.addCommand(new SubShellCommand(new SnpSiftCommand("dbnsfp",
-                snpEffConfig,
-                "-v",
+        return bash.addCommand(new SubShellCommand(new SnpSiftCommand("dbnsfp", "-v",
                 "-f",
                 FIELDS,
                 "-db",

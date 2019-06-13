@@ -21,9 +21,7 @@ public class SnpSiftFrequenciesAnnotation extends SubStage {
     @Override
     public BashStartupScript bash(final OutputFile input, final OutputFile output, final BashStartupScript bash) {
         String beforeZip = output.path().replace(".gz", "");
-        return bash.addCommand(new SubShellCommand(new SnpSiftCommand("annotate",
-                snpEffConfig,
-                "-tabix",
+        return bash.addCommand(new SubShellCommand(new SnpSiftCommand("annotate", "-tabix",
                 "-name",
                 "GoNLv5",
                 "-info",
