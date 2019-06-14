@@ -54,6 +54,7 @@ public class CommandLineOptions {
     private static final String PATIENT_REPORT_BUCKET_FLAG = "patient_report_bucket";
     private static final String MODE_FLAG = "mode";
     private static final String SET_ID_FLAG = "set_id";
+    private static final String SBP_RUN_ID_FLAG = "sbp_run_id";
 
     private static Options options() {
         return new Options().addOption(profile())
@@ -81,6 +82,7 @@ public class CommandLineOptions {
                 .addOption(project())
                 .addOption(region())
                 .addOption(sbpSampleId())
+                .addOption(sbpRunId())
                 .addOption(sbpApiUrl())
                 .addOption(sbpS3Url())
                 .addOption(runId())
@@ -99,6 +101,11 @@ public class CommandLineOptions {
                 .addOption(resourceBucket())
                 .addOption(toolsBucket())
                 .addOption(patientReportBucket());
+    }
+
+    private static Option sbpRunId() {
+        return optionWithArg(SBP_RUN_ID_FLAG, "The id of the run in the SBP API. This will be used to look up set information in the "
+                + "somatic pipeline, and to update the correct run on pipeline completion.");
     }
 
     private static Option setId() {
@@ -217,6 +224,7 @@ public class CommandLineOptions {
                     .sbpApiUrl(commandLine.getOptionValue(SBP_API_URL_FLAG, defaults.sbpApiUrl()))
                     .sbpApiSampleId(sbpApiSampleId(commandLine))
                     .sbpS3Url(commandLine.getOptionValue(SBP_S3_URL_FLAG, defaults.sbpS3Url()))
+                    .sbpApiRunId(sbpRunId(commandLine))
                     .forceJarUpload(booleanOptionWithDefault(commandLine, FORCE_JAR_UPLOAD_FLAG, defaults.forceJarUpload()))
                     .cleanup(booleanOptionWithDefault(commandLine, CLEANUP_FLAG, defaults.cleanup()))
                     .runId(runId(commandLine))
@@ -249,6 +257,17 @@ public class CommandLineOptions {
         }
     }
 
+    public static Optional<Integer> sbpRunId(final CommandLine commandLine) {
+        if (commandLine.hasOption(SBP_RUN_ID_FLAG)) {
+            try {
+                return Optional.of(Integer.parseInt(commandLine.getOptionValue(SBP_RUN_ID_FLAG)));
+            } catch (NumberFormatException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return Optional.empty();
+    }
+
     private static boolean booleanOptionWithDefault(final CommandLine commandLine, final String flag, final boolean defaultValue)
             throws ParseException {
         String value = commandLine.getOptionValue(flag, Boolean.toString(defaultValue));
@@ -270,8 +289,7 @@ public class CommandLineOptions {
             try {
                 return Optional.of(Integer.parseInt(commandLine.getOptionValue(SBP_SAMPLE_ID_FLAG)));
             } catch (NumberFormatException e) {
-                throw new RuntimeException("SBP API parameter was not a valid ID. This parameter takes the integer IDs which SBP uses in "
-                        + "its internal database", e);
+                throw new RuntimeException(e);
             }
         }
         return Optional.empty();

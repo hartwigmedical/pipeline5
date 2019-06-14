@@ -34,8 +34,8 @@ public class SBPRestApi {
         throw error(response);
     }
 
-    public String getSet(int setId) {
-        Response response = target.path("hmf").path("v1").path("set").queryParam("id", setId).request().buildGet().invoke();
+    public String getRun(int setId) {
+        Response response = target.path("hmf").path("v1").path("runs").queryParam("id", setId).request().buildGet().invoke();
         if (response.getStatus() == Response.Status.OK.getStatusCode()) {
             return response.readEntity(String.class);
         }

@@ -86,7 +86,7 @@ public interface Arguments {
 
     Optional<Integer> sbpApiSampleId();
 
-    Optional<Integer> sbpApiSetId();
+    Optional<Integer> sbpApiRunId();
 
     Optional<String> runId();
 

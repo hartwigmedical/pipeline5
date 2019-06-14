@@ -23,17 +23,17 @@ public class SbpSetMetadataApiTest {
     public void retrievesSetMetadataFromSbpRestApi() throws Exception {
         SBPRestApi sbpRestApi = mock(SBPRestApi.class);
         SetMetadataApi setMetadataApi = new SbpSetMetadataApi(SET_ID, sbpRestApi);
-        when(sbpRestApi.getSet(SET_ID)).thenReturn(testJson());
+        when(sbpRestApi.getRun(SET_ID)).thenReturn(testJson());
         SetMetadata setMetadata = setMetadataApi.get();
-        assertThat(setMetadata.setName()).isEqualTo("160422_HMFreg0047_FR10303375_FR10303376_CPCT02020225");
+        assertThat(setMetadata.setName()).isEqualTo("170724_HMFregCPCT_FR13999246_FR13999144_CPCT02290012");
         assertThat(setMetadata.reference().type()).isEqualTo(Sample.Type.REFERENCE);
-        assertThat(setMetadata.reference().name()).isEqualTo("CPCT02020225R");
+        assertThat(setMetadata.reference().name()).isEqualTo("CPCT02290012R");
         assertThat(setMetadata.tumor().type()).isEqualTo(Sample.Type.TUMOR);
-        assertThat(setMetadata.tumor().name()).isEqualTo("CPCT02020225T");
+        assertThat(setMetadata.tumor().name()).isEqualTo("CPCT02290012T");
     }
 
     @NotNull
     private String testJson() throws IOException {
-        return new String(Files.readAllBytes(Paths.get(Resources.testResource("sbp_api/get_set.json"))));
+        return new String(Files.readAllBytes(Paths.get(Resources.testResource("sbp_api/get_run.json"))));
     }
 }

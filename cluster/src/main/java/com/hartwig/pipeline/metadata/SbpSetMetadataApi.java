@@ -15,18 +15,19 @@ public class SbpSetMetadataApi implements SetMetadataApi {
         OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
-    private final int sbpSetId;
+    private final int sbpRunId;
     private final SBPRestApi sbpRestApi;
 
     SbpSetMetadataApi(final int sbpSetId, final SBPRestApi sbpRestApi) {
-        this.sbpSetId = sbpSetId;
+        this.sbpRunId = sbpSetId;
         this.sbpRestApi = sbpRestApi;
     }
 
     @Override
     public SetMetadata get() {
         try {
-            SbpSet sbpSet = OBJECT_MAPPER.readValue(sbpRestApi.getSet(sbpSetId), SbpSet.class);
+            SbpRun sbpRun = OBJECT_MAPPER.readValue(sbpRestApi.getRun(sbpRunId), SbpRun.class);
+            SbpSet sbpSet = sbpRun.set();
             return SetMetadata.of(sbpSet.name(),
                     Sample.builder("", sbpSet.tumor_sample()).type(Sample.Type.TUMOR).build(),
                     Sample.builder("", sbpSet.ref_sample()).type(Sample.Type.REFERENCE).build());
