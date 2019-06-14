@@ -14,8 +14,9 @@ public interface Arguments {
         DEVELOPMENT
     }
 
-    enum Mode{
-        SINGLE_SAMPLE, SOMATIC
+    enum Mode {
+        SINGLE_SAMPLE,
+        SOMATIC
     }
 
     boolean forceJarUpload();
@@ -140,9 +141,9 @@ public interface Arguments {
                     .runTertiary(true)
                     .sampleId(EMPTY)
                     .setId(EMPTY)
-                    .toolsBucket(DEFAULT_COMMON_TOOLS_BUCKET)
-                    .resourceBucket(DEFAULT_RESOURCE_BUCKET)
-                    .patientReportBucket(DEFAULT_PATIENT_REPORT_BUCKET);
+                    .toolsBucket(DEFAULT_PRODUCTION_COMMON_TOOLS_BUCKET)
+                    .resourceBucket(DEFAULT_PRODUCTION_RESOURCE_BUCKET)
+                    .patientReportBucket(DEFAULT_PRODUCTION_PATIENT_REPORT_BUCKET);
         } else {
             return ImmutableArguments.builder()
                     .profile(profile)
@@ -175,9 +176,9 @@ public interface Arguments {
                     .sbpApiUrl(NOT_APPLICABLE)
                     .sampleId(EMPTY)
                     .setId(EMPTY)
-                    .toolsBucket(DEFAULT_COMMON_TOOLS_BUCKET)
-                    .resourceBucket(DEFAULT_RESOURCE_BUCKET)
-                    .patientReportBucket(DEFAULT_PATIENT_REPORT_BUCKET);
+                    .toolsBucket(DEFAULT_DEVELOPMENT_COMMON_TOOLS_BUCKET)
+                    .resourceBucket(DEFAULT_DEVELOPMENT_RESOURCE_BUCKET)
+                    .patientReportBucket(DEFAULT_DEVELOPMENT_PATIENT_REPORT_BUCKET);
         }
     }
 
@@ -186,9 +187,6 @@ public interface Arguments {
     }
 
     Mode DEFAULT_MODE = Mode.SINGLE_SAMPLE;
-    String DEFAULT_RESOURCE_BUCKET = "common-resources";
-    String DEFAULT_COMMON_TOOLS_BUCKET = "common-tools";
-    String DEFAULT_PATIENT_REPORT_BUCKET = "p5-patient-reports";
 
     String DEFAULT_PRODUCTION_RCLONE_PATH = "/usr/bin";
     String DEFAULT_PRODUCTION_RCLONE_GCP_REMOTE = "gs";
@@ -204,6 +202,9 @@ public interface Arguments {
     String DEFAULT_PRODUCTION_KEY_PATH = "/secrets/bootstrap-key.json";
     String DEFAULT_PRODUCTION_CLOUD_SDK_PATH = "/usr/lib/google-cloud-sdk/bin";
     String DEFAULT_PRODUCTION_SERVICE_ACCOUNT_EMAIL = String.format("bootstrap@%s.iam.gserviceaccount.com", DEFAULT_PRODUCTION_PROJECT);
+    String DEFAULT_PRODUCTION_RESOURCE_BUCKET = "common-resources-prod";
+    String DEFAULT_PRODUCTION_COMMON_TOOLS_BUCKET = "common-tools-prod";
+    String DEFAULT_PRODUCTION_PATIENT_REPORT_BUCKET = "p5-patient-reports-prod";
 
     String NOT_APPLICABLE = "N/A";
     String DEFAULT_DEVELOPMENT_REGION = "europe-west4";
@@ -215,4 +216,7 @@ public interface Arguments {
     String DEFAULT_DEVELOPMENT_KEY_PATH = workingDir() + "/bootstrap-key.json";
     String DEFAULT_DEVELOPMENT_CLOUD_SDK_PATH = System.getProperty("user.home") + "/gcloud/google-cloud-sdk/bin";
     String DEFAULT_DEVELOPMENT_SERVICE_ACCOUNT_EMAIL = String.format("bootstrap@%s.iam.gserviceaccount.com", DEFAULT_DEVELOPMENT_PROJECT);
+    String DEFAULT_DEVELOPMENT_RESOURCE_BUCKET = "common-resources";
+    String DEFAULT_DEVELOPMENT_COMMON_TOOLS_BUCKET = "common-tools";
+    String DEFAULT_DEVELOPMENT_PATIENT_REPORT_BUCKET = "p5-patient-reports";
 }
