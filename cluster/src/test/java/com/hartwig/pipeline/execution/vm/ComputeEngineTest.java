@@ -138,6 +138,13 @@ public class ComputeEngineTest {
     }
 
     @Test
+    public void shouldDeleteStateWhenFailureFlagExists() {
+        runtimeBucket = runtimeBucket.with(failureBlob(), 1);
+        victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
+        verify(runtimeBucket.getRuntimeBucket(), times(1)).delete();
+    }
+
+    @Test
     public void deletesVmWhenJobIsSuccessful() throws Exception {
         runtimeBucket = runtimeBucket.with(successBlob(), 1);
         List<Blob> blobs = new ArrayList<>();

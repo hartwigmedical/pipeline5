@@ -81,6 +81,10 @@ public class RuntimeBucket {
         return Lists.newArrayList(bucket.list(Storage.BlobListOption.prefix(namespace(prefix))).iterateAll());
     }
 
+    public void delete() {
+        list().forEach(Blob::delete);
+    }
+
     public void copyInto(String sourceBucket, String sourceBlobName, String targetBlobName) {
         BlobInfo targetBlobInfo = BlobInfo.newBuilder(bucket.getName(), namespace(targetBlobName)).build();
         storage.copy(Storage.CopyRequest.of(sourceBucket, sourceBlobName, targetBlobInfo));
