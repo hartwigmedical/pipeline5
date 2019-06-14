@@ -45,7 +45,7 @@ public class AssembleTest implements CommonEntities {
 
         collectMetrics = mock(CollectGridssMetrics.class);
         when(factory.buildCollectGridssMetrics(any())).thenReturn(collectMetrics);
-        when(collectMetrics.metrics()).thenReturn("collect_metrics.metrics");
+        when(collectMetrics.outputBaseFilename()).thenReturn("collect_metrics.metrics");
 
         clips = mock(SoftClipsToSplitReads.ForAssemble.class);
         when(factory.buildSoftClipsToSplitReadsForAssemble(any(), any(), any())).thenReturn(clips);
@@ -80,7 +80,7 @@ public class AssembleTest implements CommonEntities {
 
     @Test
     public void shouldSetMetricsToResultOfCollectMetrics() {
-        assertThat(result.svMetrics()).isEqualTo(collectMetrics.metrics());
+        assertThat(result.svMetrics()).isEqualTo(collectMetrics.outputBaseFilename());
     }
 
     @Test

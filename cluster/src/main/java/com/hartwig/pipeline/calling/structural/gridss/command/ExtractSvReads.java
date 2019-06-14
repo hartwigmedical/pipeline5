@@ -5,14 +5,16 @@ import com.hartwig.pipeline.execution.vm.VmDirectories;
 
 import static java.lang.String.format;
 
-public class CollectGridssMetricsAndExtractSvReads implements GridssCommand {
+public class ExtractSvReads implements GridssCommand {
 
     private final String inputBam;
     private final String sampleName;
+    private final String insertSizeMetrics;
 
-    public CollectGridssMetricsAndExtractSvReads(final String inputFile, final String sampleName) {
+    public ExtractSvReads(final String inputFile, final String sampleName, final String insertSizeMetrics) {
         this.inputBam = inputFile;
         this.sampleName = sampleName;
+        this.insertSizeMetrics = insertSizeMetrics;
     }
 
     public String resultantBam() {
@@ -33,21 +35,10 @@ public class CollectGridssMetricsAndExtractSvReads implements GridssCommand {
                 .add("tmp_dir", GridssCommon.tmpDir())
                 .add("assume_sorted", "true")
                 .add("i", inputBam)
-                .add("o", outputDirectory())
-                .add("threshold_coverage", "50000")
-                .add("file_extension", "null")
-                .add("gridss_program", "null")
-                .add("gridss_program", "CollectCigarMetrics")
-                .add("gridss_program", "CollectMapqMetrics")
-                .add("gridss_program", "CollectTagMetrics")
-                .add("gridss_program", "CollectIdsvMetrics")
-                .add("gridss_program", "ReportThresholdCoverage")
-                .add("program", "null")
-                .add("program", "CollectInsertSizeMetrics")
-                .add("sv_output", "/dev/stdout")
+                .add("o", "/dev/stdout")
                 .add("compression_level", "0")
                 .add("metrics_output", resultantMetrics())
-                .add("insert_size_metrics", format("%s.insert_size_metrics", outputDirectory()))
+                .add("insert_size_metrics", insertSizeMetrics)
                 .add("unmapped_reads", "false")
                 .add("min_clip_length", "5")
                 .add("include_duplicates", "true").asBash();
@@ -55,6 +46,6 @@ public class CollectGridssMetricsAndExtractSvReads implements GridssCommand {
 
     @Override
     public String className() {
-        return "gridss.CollectGridssMetricsAndExtractSVReads";
+        return "gridss.ExtractSVReads";
     }
 }

@@ -1,5 +1,7 @@
 #!/bin/bash -x
 
+set -o pipefail
+
 function die() {
   exit_code=$?
   echo "Unknown failure: called command returned $exit_code"

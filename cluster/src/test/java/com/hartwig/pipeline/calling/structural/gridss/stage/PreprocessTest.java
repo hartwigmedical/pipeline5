@@ -1,10 +1,7 @@
 package com.hartwig.pipeline.calling.structural.gridss.stage;
 
 import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
-import com.hartwig.pipeline.calling.structural.gridss.command.CollectGridssMetricsAndExtractSvReads;
-import com.hartwig.pipeline.calling.structural.gridss.command.ComputeSamTags;
-import com.hartwig.pipeline.calling.structural.gridss.command.GridssToBashCommandConverter;
-import com.hartwig.pipeline.calling.structural.gridss.command.SoftClipsToSplitReads;
+import com.hartwig.pipeline.calling.structural.gridss.command.*;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.JavaClassCommand;
 import org.junit.Before;
@@ -21,32 +18,44 @@ import static org.mockito.Mockito.when;
 public class PreprocessTest implements CommonEntities {
     private String collectMetricsAndExtractReadsBam;
     private String computeSamTagsBam;
-    private String collectorMetrics;
 
-    private String collectorBashCommands;
+    private String extractSvReadsBashCommands;
     private String computeSamTagsBashCommands;
     private String clipsBashCommands;
+    private String collectMetricsBaseOutputFilename;
+    private String collectMetricsBashCommands;
 
+    private CollectGridssMetrics collectGridssMetrics;
     private ComputeSamTags computeSamTags;
     private SoftClipsToSplitReads.ForPreprocess clips;
-    private CollectGridssMetricsAndExtractSvReads collector;
+    private ExtractSvReads extractSvReads;
     private CommandFactory factory;
     private GridssToBashCommandConverter converter;
     private Preprocess.PreprocessResult result;
 
+
     @Before
     public void setup() {
         collectMetricsAndExtractReadsBam = REFERENCE_BAM + ".collected";
-        collectorMetrics = "sv_metrics";
+        collectMetricsBaseOutputFilename = REFERENCE_BAM + "_metrics";
+
         computeSamTagsBam = collectMetricsAndExtractReadsBam + ".computed";
 
         factory = mock(CommandFactory.class);
         converter = mock(GridssToBashCommandConverter.class);
 
-        collector = mock(CollectGridssMetricsAndExtractSvReads.class);
-        when(factory.buildCollectGridssMetricsAndExtractSvReads(any(), any())).thenReturn(collector);
-        when(collector.resultantMetrics()).thenReturn(collectorMetrics);
-        when(collector.resultantBam()).thenReturn(collectMetricsAndExtractReadsBam);
+        collectGridssMetrics = mock(CollectGridssMetrics.class);
+        collectMetricsBashCommands = "collect metrics bash commands";
+        when(factory.buildCollectGridssMetrics(any())).thenReturn(collectGridssMetrics);
+        when(collectGridssMetrics.outputBaseFilename()).thenReturn(collectMetricsBaseOutputFilename);
+        JavaClassCommand collectMetricsBash = mock(JavaClassCommand.class);
+        when(converter.convert(collectGridssMetrics)).thenReturn(collectMetricsBash);
+        when(collectMetricsBash.asBash()).thenReturn(collectMetricsBashCommands);
+
+        extractSvReads = mock(ExtractSvReads.class);
+        when(factory.buildExtractSvReads(any(), any(), any())).thenReturn(extractSvReads);
+        when(extractSvReads.resultantMetrics()).thenReturn(collectMetricsBaseOutputFilename);
+        when(extractSvReads.resultantBam()).thenReturn(collectMetricsAndExtractReadsBam);
 
         computeSamTags = mock(ComputeSamTags.class);
         when(factory.buildComputeSamTags(any(), any(), any())).thenReturn(computeSamTags);
@@ -55,10 +64,10 @@ public class PreprocessTest implements CommonEntities {
         clips = mock(SoftClipsToSplitReads.ForPreprocess.class);
         when(factory.buildSoftClipsToSplitReadsForPreProcess(any(), any(), any())).thenReturn(clips);
 
-        collectorBashCommands = "collector bash commands";
+        extractSvReadsBashCommands = "extract sv reads bash commands";
         JavaClassCommand collectorBash = mock(JavaClassCommand.class);
-        when(converter.convert(collector)).thenReturn(collectorBash);
-        when(collectorBash.asBash()).thenReturn(collectorBashCommands);
+        when(converter.convert(extractSvReads)).thenReturn(collectorBash);
+        when(collectorBash.asBash()).thenReturn(extractSvReadsBashCommands);
 
         computeSamTagsBashCommands = "compute sam tags bash commands";
         JavaClassCommand computeSamTagsBash = mock(JavaClassCommand.class);
@@ -81,24 +90,25 @@ public class PreprocessTest implements CommonEntities {
 
     @Test
     public void shouldSetMetricsInResult() {
-        assertThat(result.metrics()).isEqualTo(collectorMetrics);
+        assertThat(result.metrics()).isEqualTo(collectMetricsBaseOutputFilename);
     }
 
     @Test
     public void shouldSetBashCommandInResultToConcatenationOfBashFromEachCommandInOrder() {
         String firstSort = format("%s sort -O bam -T /tmp/samtools.sort.tmp -n -l 0 -@ 2 -o %s",
                 PATH_TO_SAMTOOLS, collectMetricsAndExtractReadsBam);
-        String stageOne = format("(%s | %s)", collectorBashCommands, firstSort);
+        String stageTwo = format("(%s | %s)", extractSvReadsBashCommands, firstSort);
 
         String secondSort = format("%s sort -O bam -T /tmp/samtools.sort.tmp -@ 2 -o %s",
                 PATH_TO_SAMTOOLS, computeSamTagsBam);
-        String stageTwo = format("(%s | %s)", computeSamTagsBashCommands, secondSort);
+        String stageThree = format("(%s | %s)", computeSamTagsBashCommands, secondSort);
 
         List<BashCommand> generatedCommands = result.commands();
         assertThat(generatedCommands).isNotEmpty();
-        assertThat(generatedCommands.size()).isEqualTo(3);
-        assertThat(generatedCommands.get(0).asBash()).isEqualTo(stageOne);
+        assertThat(generatedCommands.size()).isEqualTo(4);
+        assertThat(generatedCommands.get(0).asBash()).isEqualTo(collectMetricsBashCommands);
         assertThat(generatedCommands.get(1).asBash()).isEqualTo(stageTwo);
-        assertThat(generatedCommands.get(2).asBash()).isEqualTo(clipsBashCommands);
+        assertThat(generatedCommands.get(2).asBash()).isEqualTo(stageThree);
+        assertThat(generatedCommands.get(3).asBash()).isEqualTo(clipsBashCommands);
     }
 }

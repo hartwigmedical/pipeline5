@@ -25,13 +25,14 @@ public class CommandFactory {
         return new BgzipCommand(annotatedVcf);
     }
 
-    public CollectGridssMetrics buildCollectGridssMetrics(final String assembledBam) {
-        return new CollectGridssMetrics(assembledBam);
+    public CollectGridssMetrics buildCollectGridssMetrics(final String inputBam) {
+        return new CollectGridssMetrics(inputBam);
     }
 
-    public CollectGridssMetricsAndExtractSvReads buildCollectGridssMetricsAndExtractSvReads(final String inputBam,
-                                                                                            final String sampleName) {
-        return new CollectGridssMetricsAndExtractSvReads(inputBam, sampleName);
+    public ExtractSvReads buildExtractSvReads(final String inputBam,
+                                              final String sampleName,
+                                              final String insertSizeMetrics) {
+        return new ExtractSvReads(inputBam, sampleName, insertSizeMetrics);
     }
 
     public ComputeSamTags buildComputeSamTags(final String inProgressBam, final String referenceGenome,

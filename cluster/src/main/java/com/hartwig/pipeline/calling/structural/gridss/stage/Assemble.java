@@ -46,7 +46,7 @@ public class Assemble {
                     converter.convert(metrics),
                     converter.convert(clipsToReads)))
                 .assemblyBam(assembleSvOutputBam)
-                .svMetrics(metrics.metrics())
+                .svMetrics(metrics.outputBaseFilename())
                 .build();
     }
 }

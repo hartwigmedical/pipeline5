@@ -14,15 +14,14 @@ public class CollectGridssMetricsTest implements CommonEntities  {
 
     @Before
     public void setup() {
-        inputFile = "input_file";
-        outputMetrics = format("%s/collect_gridss.metrics", OUT_DIR);
+        inputFile = "input-file.bam";
+        outputMetrics = format("%s/input-file_metrics", OUT_DIR);
         command = new CollectGridssMetrics(inputFile);
     }
 
     @Test
     public void shouldReturnClassName() {
         assertThat(command.className()).isEqualTo("gridss.analysis.CollectGridssMetrics");
-
     }
 
     @Test
@@ -52,7 +51,7 @@ public class CollectGridssMetricsTest implements CommonEntities  {
 
     @Test
     public void shouldReturnMetrics() {
-        assertThat(command.metrics()).isNotNull();
-        assertThat(command.metrics()).isEqualTo(outputMetrics);
+        assertThat(command.outputBaseFilename()).isNotNull();
+        assertThat(command.outputBaseFilename()).isEqualTo(outputMetrics);
     }
 }

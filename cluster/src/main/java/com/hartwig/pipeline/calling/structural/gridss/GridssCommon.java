@@ -2,6 +2,8 @@ package com.hartwig.pipeline.calling.structural.gridss;
 
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 
+import java.io.File;
+
 import static java.lang.String.format;
 
 public class GridssCommon {
@@ -29,5 +31,9 @@ public class GridssCommon {
 
     public static String ponDir() {
         return format("%s/gridss_pon", VmDirectories.RESOURCES);
+    }
+
+    public static String basenameNoExtensions(final String completeFilename) {
+        return new File(completeFilename).getName().split("\\.")[0];
     }
 }
