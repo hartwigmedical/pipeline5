@@ -60,4 +60,12 @@ public class CommandFactory {
     public TabixCommand buildTabixCommand(final String inputVcf) {
         return new TabixCommand(inputVcf);
     }
+
+    public SambambaGridssSortCommand buildSambambaCommandSortByName(String outputBam) {
+        return SambambaGridssSortCommand.sortByName(outputBam);
+    }
+
+    public SambambaGridssSortCommand buildSambambaCommandSortByDefault(String outputBam) {
+        return SambambaGridssSortCommand.sortByDefault(outputBam);
+    }
 }

@@ -24,6 +24,7 @@ public interface CommonEntities {
 
     String PATH_TO_BWA = format("%s/bwa/0.7.17/bwa", TOOLS_DIR);
     String PATH_TO_SAMTOOLS = format("%s/samtools/1.2/samtools", TOOLS_DIR);
+    String PATH_TO_SAMBAMBA = format("%s/sambamba/0.6.5/sambamba", TOOLS_DIR);
 
     String ARG_KEY_INPUT = "input";
     String ARG_KEY_INPUT_SHORT = "i";

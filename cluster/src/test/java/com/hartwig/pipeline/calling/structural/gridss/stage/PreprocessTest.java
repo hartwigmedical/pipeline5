@@ -24,6 +24,8 @@ public class PreprocessTest implements CommonEntities {
     private String clipsBashCommands;
     private String collectMetricsBaseOutputFilename;
     private String collectMetricsBashCommands;
+    private String sortByDefaultCommands;
+    private String sortByNameCommands;
 
     private CollectGridssMetrics collectGridssMetrics;
     private ComputeSamTags computeSamTags;
@@ -32,7 +34,8 @@ public class PreprocessTest implements CommonEntities {
     private CommandFactory factory;
     private GridssToBashCommandConverter converter;
     private Preprocess.PreprocessResult result;
-
+    private SambambaGridssSortCommand sortByDefault;
+    private SambambaGridssSortCommand sortByName;
 
     @Before
     public void setup() {
@@ -65,6 +68,15 @@ public class PreprocessTest implements CommonEntities {
         when(factory.buildSoftClipsToSplitReadsForPreProcess(any(), any(), any())).thenReturn(clips);
 
         extractSvReadsBashCommands = "extract sv reads bash commands";
+        sortByDefault = mock(SambambaGridssSortCommand.class);
+        sortByName = mock(SambambaGridssSortCommand.class);
+        when(factory.buildSambambaCommandSortByDefault(any())).thenReturn(sortByDefault);
+        when(factory.buildSambambaCommandSortByName(any())).thenReturn(sortByName);
+        sortByDefaultCommands = "sort by default";
+        when(sortByDefault.asBash()).thenReturn(sortByDefaultCommands);
+        sortByNameCommands = "sorting by name";
+        when(sortByName.asBash()).thenReturn(sortByNameCommands);
+
         JavaClassCommand collectorBash = mock(JavaClassCommand.class);
         when(converter.convert(extractSvReads)).thenReturn(collectorBash);
         when(collectorBash.asBash()).thenReturn(extractSvReadsBashCommands);
@@ -95,13 +107,8 @@ public class PreprocessTest implements CommonEntities {
 
     @Test
     public void shouldSetBashCommandInResultToConcatenationOfBashFromEachCommandInOrder() {
-        String firstSort = format("%s sort -O bam -T /tmp/samtools.sort.tmp -n -l 0 -@ 2 -o %s",
-                PATH_TO_SAMTOOLS, collectMetricsAndExtractReadsBam);
-        String stageTwo = format("(%s | %s)", extractSvReadsBashCommands, firstSort);
-
-        String secondSort = format("%s sort -O bam -T /tmp/samtools.sort.tmp -@ 2 -o %s",
-                PATH_TO_SAMTOOLS, computeSamTagsBam);
-        String stageThree = format("(%s | %s)", computeSamTagsBashCommands, secondSort);
+        String stageTwo = format("(%s | %s)", extractSvReadsBashCommands, sortByNameCommands);
+        String stageThree = format("(%s | %s)", computeSamTagsBashCommands, sortByDefaultCommands);
 
         List<BashCommand> generatedCommands = result.commands();
         assertThat(generatedCommands).isNotEmpty();

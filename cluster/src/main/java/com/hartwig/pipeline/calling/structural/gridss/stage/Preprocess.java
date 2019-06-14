@@ -1,6 +1,5 @@
 package com.hartwig.pipeline.calling.structural.gridss.stage;
 
-import com.hartwig.pipeline.calling.structural.gridss.GridssCommon;
 import com.hartwig.pipeline.calling.structural.gridss.command.*;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.unix.PipeCommands;
@@ -35,14 +34,11 @@ public class Preprocess {
                 format("%s.insert_size_metrics", gridssCollectMetrics.outputBaseFilename()));
         SubShellCommand secondSubStage = new SubShellCommand(new PipeCommands(
                 converter.convert(extractSvReads),
-                () -> format("%s sort -O bam -T /tmp/samtools.sort.tmp -n -l 0 -@ 2 -o %s",
-                        GridssCommon.pathToSamtools(), extractSvReads.resultantBam())));
-
+                factory.buildSambambaCommandSortByName(extractSvReads.resultantBam())));
         ComputeSamTags gridssComputeSamTags = factory.buildComputeSamTags(extractSvReads.resultantBam(), referenceGenome, sampleName);
         SubShellCommand thirdSubStage = new SubShellCommand(new PipeCommands(
                 converter.convert(gridssComputeSamTags),
-                () -> format("%s sort -O bam -T /tmp/samtools.sort.tmp -@ 2 -o %s",
-                        GridssCommon.pathToSamtools(), gridssComputeSamTags.resultantBam())));
+                factory.buildSambambaCommandSortByDefault(gridssComputeSamTags.resultantBam())));
         SoftClipsToSplitReads.ForPreprocess softClips = factory.buildSoftClipsToSplitReadsForPreProcess(gridssComputeSamTags.resultantBam(), referenceGenome, outputSvBam);
 
         return ImmutablePreprocessResult.builder().svBam(outputSvBam)
