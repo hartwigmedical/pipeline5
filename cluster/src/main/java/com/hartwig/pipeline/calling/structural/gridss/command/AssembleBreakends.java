@@ -26,7 +26,7 @@ public class AssembleBreakends implements GridssCommand {
 
     @Override
     public int memoryGb() {
-        return 31;
+        return 80;
     }
 
     @Override

@@ -21,8 +21,8 @@ public class AssembleBreakendsTest implements CommonEntities {
     }
 
     @Test
-    public void shouldUse31GigabytesOfHeap() {
-        assertThat(command.memoryGb()).isEqualTo(31);
+    public void shouldUseSpecificAmountOfHeap() {
+        assertThat(command.memoryGb()).isEqualTo(80);
     }
 
     @Test
