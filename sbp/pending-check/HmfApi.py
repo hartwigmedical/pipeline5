@@ -2,7 +2,6 @@ import json
 import os
 import requests
 
-
 class HmfApi(object):
     def __init__(self):
         self._url = os.getenv('HMF_APIHOST')
@@ -91,3 +90,32 @@ class Sample(HmfApi):
         self._type      = 'samples'
         self._keys      = ['barcode', 'name', 'submission', 'type', 'status', 'q30', 'q30_req', 'yld', 'yld_req', 'version']
         super(Sample, self).__init__()
+
+
+class Set(HmfApi):
+    def __init__(self):
+        self._type = 'sets'
+        self._keys = ['name', 'size', 'createTime', 'entity_id', 'ref_sample', 'tumor_sample', 'fastq_portal']
+        super(Set, self).__init__()
+
+
+class Run(HmfApi):
+    def __init__(self):
+        self._type = 'runs'
+        self._keys = ['set_id', 'stack_id', 'startTime', 'endTime', 'status', 'ini_id', 'bucket', 'cluster']
+        super(Run, self).__init__()
+
+
+class Ini(HmfApi):
+    def __init__(self):
+        self._type = 'inis'
+        self._keys = ['name']
+        super(Ini, self).__init__()
+
+
+class Stack(HmfApi):
+    def __init__(self):
+        self._type = 'stacks'
+        self._keys = ['name']
+        super(Stack, self).__init__()
+

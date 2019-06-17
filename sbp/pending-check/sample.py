@@ -40,7 +40,7 @@ def start_kubernetes_job(args):
 
     spec = kubernetes.client.V1Job(
         metadata=kubernetes.client.V1ObjectMeta(
-            name='pipelinev5-{0}-{1}'.format(args['sbp_sample_id'], timestamp)
+            name='pipelinev5-sample-{0}-{1}'.format(args['sbp_sample_id'], timestamp)
         ),
         spec=kubernetes.client.V1JobSpec(
             completions=1,
@@ -51,7 +51,7 @@ def start_kubernetes_job(args):
                     restart_policy='Never',
                     containers=[
                         kubernetes.client.V1Container(
-                            name='pipelinev5-{0}-{1}'.format(args['sbp_sample_id'], timestamp),
+                            name='pipelinev5-sample-{0}-{1}'.format(args['sbp_sample_id'], timestamp),
                             image='hartwigmedicalfoundation/pipeline5:{0}'.format(os.environ['PIPELINE_VERSION']),
                             command=[
                                 '/pipeline5.sh'
@@ -141,13 +141,13 @@ def main():
             sample.version = str(os.environ['PIPELINE_VERSION'])
             sample.save()
     else:
-        log('No Pipeline v5 runs currently ready to go')
+        log('No Pipeline v5 samples currently ready to go')
 
 
 try:
     main()
 except BaseException, e:
-    message = "Exception in pipeline5 pending-check\n\n"
+    message = "Exception in pipeline5 pending-check-sample\n\n"
     message += str(e) + "\n\n"
     message += traceback.format_exc()
     message += "\nWill now sleep until human takes a look"
