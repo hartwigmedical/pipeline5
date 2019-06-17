@@ -51,7 +51,7 @@ def start_kubernetes_job(args):
                     restart_policy='Never',
                     containers=[
                         kubernetes.client.V1Container(
-                            name='pipelinev5-somatic-{0}-{1}'.format(args['sbp_sample_id'], timestamp),
+                            name='pipelinev5-somatic-{0}-{1}'.format(args['sbp_run_id'], timestamp),
                             image='hartwigmedicalfoundation/pipeline5:{0}'.format(os.environ['PIPELINE_VERSION']),
                             command=[
                                 '/pipeline5.sh'
@@ -133,7 +133,7 @@ def main():
     max_starts = int(os.getenv('MAX_STARTS', '4'))
 
     if len(runs) > 0:
-        log('Scheduling {0} out of {1} somatic runs'.format(max_starts,len(samples)))
+        log('Scheduling {0} out of {1} somatic runs'.format(max_starts,len(runs)))
         del(runs[max_starts:])
 
         for run in runs:
