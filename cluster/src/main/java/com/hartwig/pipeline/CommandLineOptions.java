@@ -119,7 +119,7 @@ public class CommandLineOptions {
     }
 
     private static Option patientReportBucket() {
-        return optionWithArg(TOOLS_BUCKET_FLAG, "Bucket in which to persist the final patient report and accompanying data.");
+        return optionWithArg(PATIENT_REPORT_BUCKET_FLAG, "Bucket in which to persist the final patient report and accompanying data.");
     }
 
     private static Option toolsBucket() {
