@@ -32,6 +32,38 @@ class HmfApi(object):
 
         return json.dumps(data, sort_keys=True, indent=4)
 
+    def get(self, id):
+        url = self._url + self._version + self._type + '/' + str(id)
+
+        r = requests.get(url)
+
+        if r.status_code == 200:
+            response = r.json()
+
+            if len(response) > 0:
+                for key in self._keys + ['id']:
+                    if key in response:
+                        setattr(self, key, response[key])
+                return self
+
+        return False
+
+    def get_one(self, selector):
+        url = self._url + self._version + self._type
+
+        r = requests.get(url, params=selector)
+
+        if r.status_code == 200:
+            response = r.json()
+
+            if len(response) == 1:
+                for key in self._keys + ['id']:
+                    if key in response[0]:
+                        setattr(self, key, response[0][key])
+                return self
+
+        return False
+
     def get_all(self, _class, selector):
         url = self._url + self._version + _class()._type
 
