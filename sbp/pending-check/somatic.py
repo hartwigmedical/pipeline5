@@ -126,8 +126,8 @@ def start_kubernetes_job(args):
 
 
 def main():
-    ini = HmfApi().get_one(Ini, {'name': 'PipelineV5.ini'})
-    stack = HmfApi().get_one(Stack, {'name': 'Google Compute Platform'})
+    ini = Ini().get_one({'name': 'PipelineV5.ini'})
+    stack = Stack().get_one({'name': 'Google Compute Platform'})
     runs = HmfApi().get_all(Run, {'status': 'Pending', 'ini_id': ini.id})
 
     max_starts = int(os.getenv('MAX_STARTS', '4'))
