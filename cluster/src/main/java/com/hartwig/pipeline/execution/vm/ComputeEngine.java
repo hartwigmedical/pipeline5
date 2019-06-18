@@ -232,15 +232,19 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
     private JobStatus waitForCompletion(RuntimeBucket bucket, VirtualMachineJobDefinition jobDefinition) {
         LOGGER.debug("Waiting for job completion");
         while (true) {
-            if (bucketContainsFile(bucket, jobDefinition.startupCommand().successFlag())) {
-                return JobStatus.SUCCESS;
-            } else if (bucketContainsFile(bucket, jobDefinition.startupCommand().failureFlag())) {
-                return JobStatus.FAILED;
-            }
             try {
-                Thread.sleep(TimeUnit.SECONDS.toMillis(5));
-            } catch (InterruptedException ie) {
-                Thread.interrupted();
+                if (bucketContainsFile(bucket, jobDefinition.startupCommand().successFlag())) {
+                    return JobStatus.SUCCESS;
+                } else if (bucketContainsFile(bucket, jobDefinition.startupCommand().failureFlag())) {
+                    return JobStatus.FAILED;
+                }
+                try {
+                    Thread.sleep(TimeUnit.SECONDS.toMillis(5));
+                } catch (InterruptedException ie) {
+                    Thread.interrupted();
+                }
+            } catch (Exception e) {
+                LOGGER.error("Error while polling the results bucket for completion flag. Will try again in [5] seconds", e);
             }
         }
     }
