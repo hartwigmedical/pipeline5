@@ -141,7 +141,8 @@ public class ComputeEngineTest {
     public void shouldDeleteStateWhenFailureFlagExists() {
         runtimeBucket = runtimeBucket.with(failureBlob(), 1);
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
-        verify(runtimeBucket.getRuntimeBucket(), times(1)).delete();
+        verify(runtimeBucket.getRuntimeBucket(), times(1)).delete(BashStartupScript.JOB_FAILED_FLAG);
+        verify(runtimeBucket.getRuntimeBucket(), times(1)).delete("results");
     }
 
     @Test

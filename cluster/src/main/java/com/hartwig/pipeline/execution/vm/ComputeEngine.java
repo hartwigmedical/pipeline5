@@ -62,9 +62,10 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
             if (bucketContainsFile(bucket, jobDefinition.startupCommand().successFlag())) {
                 LOGGER.info("Compute engine job [{}] already exists, and succeeded. Skipping job.", vmName);
                 return JobStatus.SKIPPED;
-            }else if (bucketContainsFile(bucket, jobDefinition.startupCommand().failureFlag())){
+            } else if (bucketContainsFile(bucket, jobDefinition.startupCommand().failureFlag())) {
                 LOGGER.info("Compute engine job [{}] already exists, but failed. Deleting state and restarting.", vmName);
-                deleteOldState(bucket);
+                bucket.delete(jobDefinition.startupCommand().failureFlag());
+                bucket.delete(jobDefinition.namespacedResults().path());
             }
 
             Instance instance = new Instance();
@@ -100,12 +101,6 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
             return JobStatus.FAILED;
         }
         return status;
-    }
-
-    private void deleteOldState(final RuntimeBucket bucket) {
-        if (!bucket.list().isEmpty()) {
-            bucket.delete();
-        }
     }
 
     private static Compute initCompute(final GoogleCredentials credentials) throws Exception {
