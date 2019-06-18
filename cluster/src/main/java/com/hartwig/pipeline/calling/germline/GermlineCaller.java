@@ -101,18 +101,16 @@ public class GermlineCaller {
 
         String referenceFasta = referenceGenome.find("fasta");
         SubStageInputOutput callerOutput =
-                new GatkGermlineCaller(bamDownload.getLocalTargetPath(), referenceFasta, knownSnps.find("vcf")).apply(
-                        SubStageInputOutput.of(alignmentOutput.sample().name(), OutputFile.empty(), startupScript));
+                new GatkGermlineCaller(bamDownload.getLocalTargetPath(), referenceFasta, knownSnps.find("vcf")).andThen(new GenotypeGVCFs(
+                        referenceFasta)).apply(SubStageInputOutput.of(alignmentOutput.sample().name(), OutputFile.empty(), startupScript));
 
         SubStageInputOutput snpFilterOutput =
-                new SelectVariants("snp", Lists.newArrayList("SNP", "NO_VARIATION"), referenceFasta).andThen(new VariantFiltration(
-                        "snp",
+                new SelectVariants("snp", Lists.newArrayList("SNP", "NO_VARIATION"), referenceFasta).andThen(new VariantFiltration("snp",
                         SNP_FILTER_EXPRESSION,
                         referenceFasta)).apply(callerOutput);
 
         SubStageInputOutput indelFilterOutput =
-                new SelectVariants("indels", Lists.newArrayList("INDEL", "MIXED"), referenceFasta).andThen(new VariantFiltration(
-                        "indels",
+                new SelectVariants("indels", Lists.newArrayList("INDEL", "MIXED"), referenceFasta).andThen(new VariantFiltration("indels",
                         INDEL_FILTER_EXPRESSION,
                         referenceFasta)).apply(callerOutput);
 
