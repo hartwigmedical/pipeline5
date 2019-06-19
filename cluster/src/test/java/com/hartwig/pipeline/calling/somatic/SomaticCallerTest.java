@@ -52,7 +52,7 @@ public class SomaticCallerTest {
         MockResource.addToStorage(storage, BEDS, "strelka-post-process.bed");
         MockResource.addToStorage(storage, SNPEFF, "snpeff.config");
         MockResource.addToStorage(storage, DBSNPS, "dbsnp.vcf.gz");
-        MockResource.addToStorage(storage, COSMIC, "cosmic.vcf.gz");
+        MockResource.addToStorage(storage, COSMIC, "cosmic_collapsed.vcf.gz");
         computeEngine = mock(ComputeEngine.class);
         victim = new SomaticCaller(Arguments.testDefaults(), computeEngine, storage, ResultsDirectory.defaultDirectory());
     }

@@ -38,7 +38,7 @@ public class GermlineCallerTest {
         MockResource.addToStorage(storage, ResourceNames.REFERENCE_GENOME, "reference.fasta");
         MockResource.addToStorage(storage, ResourceNames.DBNSFP, "dbsnfp.txt.gz");
         MockResource.addToStorage(storage, ResourceNames.GONL, "gonl.vcf.gz");
-        MockResource.addToStorage(storage, ResourceNames.COSMIC, "cosmic.vcf.gz");
+        MockResource.addToStorage(storage, ResourceNames.COSMIC, "cosmic_collapsed.vcf.gz");
         MockResource.addToStorage(storage, ResourceNames.SNPEFF, "snpeff.config");
         MockResource.addToStorage(storage, ResourceNames.DBSNPS, "dbsnps.vcf");
         victim = new GermlineCaller(ARGUMENTS, computeEngine, storage, ResultsDirectory.defaultDirectory());
