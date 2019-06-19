@@ -113,7 +113,7 @@ public class SomaticCaller {
                 .andThen(new SageHotspotsAnnotation(sageResourceDownload.find("tsv"), sageOutput.outputFile().path()))
                 .andThen(new SnpEff(snpEffResourceDownload.find("config")))
                 .andThen(new DbSnpAnnotation(knownSnpsResourceDownload.find("vcf.gz")))
-                .andThen(new CosmicAnnotation(cosmicResourceDownload.find("vcf.gz"), "ID,INFO"))
+                .andThen(new CosmicAnnotation(cosmicResourceDownload.find("collapsed.vcf.gz"), "ID,INFO"))
                 .apply(SubStageInputOutput.of(tumorSampleName, OutputFile.empty(), bash));
 
         bash.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path())));

@@ -80,7 +80,7 @@ public class GermlineCaller {
                         arguments.resourceBucket(),
                         ResourceNames.REFERENCE_GENOME,
                         new ReferenceGenomeAlias().andThen(new GATKDictAlias())));
-        ResourceDownload knownSnps = ResourceDownload.from(storage, arguments.resourceBucket(), ResourceNames.DBSNPS, bucket);
+        ResourceDownload dbSnps = ResourceDownload.from(storage, arguments.resourceBucket(), ResourceNames.DBSNPS, bucket);
         ResourceDownload snpEffResource = ResourceDownload.from(storage, arguments.resourceBucket(), ResourceNames.SNPEFF, bucket);
         ResourceDownload dbNSFPResource = ResourceDownload.from(storage, arguments.resourceBucket(), ResourceNames.DBNSFP, bucket);
         ResourceDownload cosmicResourceDownload = ResourceDownload.from(storage, arguments.resourceBucket(), ResourceNames.COSMIC, bucket);
@@ -91,7 +91,7 @@ public class GermlineCaller {
                 .addCommand(bamDownload)
                 .addCommand(new InputDownload(alignmentOutput.finalBaiLocation()))
                 .addCommand(referenceGenome)
-                .addCommand(knownSnps)
+                .addCommand(dbSnps)
                 .addCommand(snpEffResource)
                 .addCommand(cosmicResourceDownload)
                 .addCommand(dbNSFPResource)
@@ -100,9 +100,10 @@ public class GermlineCaller {
         String snpEffConfig = snpEffResource.find("config");
 
         String referenceFasta = referenceGenome.find("fasta");
+        String dbsnpVcf = dbSnps.find("vcf");
         SubStageInputOutput callerOutput =
-                new GatkGermlineCaller(bamDownload.getLocalTargetPath(), referenceFasta, knownSnps.find("vcf")).andThen(new GenotypeGVCFs(
-                        referenceFasta)).apply(SubStageInputOutput.of(alignmentOutput.sample().name(), OutputFile.empty(), startupScript));
+                new GatkGermlineCaller(bamDownload.getLocalTargetPath(), referenceFasta, dbsnpVcf).andThen(new GenotypeGVCFs(
+                        referenceFasta, dbsnpVcf)).apply(SubStageInputOutput.of(alignmentOutput.sample().name(), OutputFile.empty(), startupScript));
 
         SubStageInputOutput snpFilterOutput =
                 new SelectVariants("snp", Lists.newArrayList("SNP", "NO_VARIATION"), referenceFasta).andThen(new VariantFiltration("snp",
@@ -117,7 +118,7 @@ public class GermlineCaller {
         SubStageInputOutput finalOutput =
                 new CombineFilteredVariants(indelFilterOutput.outputFile().path(), referenceFasta).andThen(new SnpEff(snpEffConfig))
                         .andThen(new SnpSiftDbnsfpAnnotation(dbNSFPResource.find("txt.gz"), snpEffConfig))
-                        .andThen(new CosmicAnnotation(cosmicResourceDownload.find("vcf.gz"), "ID"))
+                        .andThen(new CosmicAnnotation(cosmicResourceDownload.find("collapsed.vcf.gz"), "ID"))
                         .andThen(new SnpSiftFrequenciesAnnotation(frequencyDbDownload.find("vcf.gz"), snpEffConfig))
                         .apply(snpFilterOutput);
 

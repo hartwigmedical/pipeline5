@@ -8,10 +8,12 @@ import com.hartwig.pipeline.execution.vm.OutputFile;
 public class GenotypeGVCFs extends SubStage {
 
     private final String referenceFasta;
+    private final String dbSnps;
 
-    GenotypeGVCFs(final String referenceFasta) {
+    GenotypeGVCFs(final String referenceFasta, final String dbSnps) {
         super("genotype_vcfs", OutputFile.VCF);
         this.referenceFasta = referenceFasta;
+        this.dbSnps = dbSnps;
     }
 
     @Override
@@ -22,6 +24,8 @@ public class GenotypeGVCFs extends SubStage {
                 input.path(),
                 "-R",
                 referenceFasta,
+                "-D",
+                dbSnps,
                 "-o",
                 output.path()));
     }
