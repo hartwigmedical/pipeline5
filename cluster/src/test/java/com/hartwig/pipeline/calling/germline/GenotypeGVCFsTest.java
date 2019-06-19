@@ -7,7 +7,7 @@ import com.hartwig.pipeline.calling.SubStageTest;
 
 import org.junit.Test;
 
-public class GenotypeGVCFsTest  extends SubStageTest{
+public class GenotypeGVCFsTest extends SubStageTest {
 
     @Override
     public SubStage createVictim() {
