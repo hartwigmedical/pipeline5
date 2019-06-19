@@ -3,6 +3,8 @@ package com.hartwig.pipeline;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Executors;
@@ -19,12 +21,13 @@ import com.hartwig.pipeline.alignment.after.metrics.ImmutableBamMetricsOutput;
 import com.hartwig.pipeline.calling.germline.GermlineCaller;
 import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
 import com.hartwig.pipeline.calling.germline.ImmutableGermlineCallerOutput;
-import com.hartwig.pipeline.execution.JobStatus;
+import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.flagstat.Flagstat;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
 import com.hartwig.pipeline.flagstat.ImmutableFlagstatOutput;
-import com.hartwig.pipeline.metadata.PatientMetadata;
-import com.hartwig.pipeline.metadata.PatientMetadataApi;
+import com.hartwig.pipeline.metadata.LocalSampleMetadataApi;
+import com.hartwig.pipeline.metadata.SampleMetadata;
+import com.hartwig.pipeline.metadata.SampleMetadataApi;
 import com.hartwig.pipeline.report.PatientReport;
 import com.hartwig.pipeline.report.PatientReportProvider;
 import com.hartwig.pipeline.report.ReportComponent;
@@ -39,13 +42,16 @@ import org.junit.Test;
 public class SingleSamplePipelineTest {
 
     private static final Sample REFERENCE = Sample.builder("", "TESTR").type(Sample.Type.REFERENCE).build();
-    private static final SnpGenotypeOutput SUCCESSFUL_SNPGENOTYPE_OUTPUT = SnpGenotypeOutput.builder().status(JobStatus.SUCCESS).build();
-    private static final GermlineCallerOutput SUCCESSFUL_GERMLINE_OUTPUT = GermlineCallerOutput.builder().status(JobStatus.SUCCESS).build();
-    private static final ImmutableFlagstatOutput SUCCESSFUL_FLAGSTAT_OUTPUT = FlagstatOutput.builder().status(JobStatus.SUCCESS).build();
+    private static final SnpGenotypeOutput SUCCESSFUL_SNPGENOTYPE_OUTPUT =
+            SnpGenotypeOutput.builder().status(PipelineStatus.SUCCESS).build();
+    private static final GermlineCallerOutput SUCCESSFUL_GERMLINE_OUTPUT =
+            GermlineCallerOutput.builder().status(PipelineStatus.SUCCESS).build();
+    private static final ImmutableFlagstatOutput SUCCESSFUL_FLAGSTAT_OUTPUT =
+            FlagstatOutput.builder().status(PipelineStatus.SUCCESS).build();
     private static final BamMetricsOutput SUCCESSFUL_BAM_METRICS =
-            BamMetricsOutput.builder().status(JobStatus.SUCCESS).sample(REFERENCE).build();
+            BamMetricsOutput.builder().status(PipelineStatus.SUCCESS).sample(REFERENCE).build();
     private static final ImmutableAlignmentOutput SUCCESSFUL_ALIGNMENT_OUTPUT =
-            AlignmentOutput.builder().status(JobStatus.SUCCESS).sample(REFERENCE).build();
+            AlignmentOutput.builder().status(PipelineStatus.SUCCESS).sample(REFERENCE).build();
     private static final String SET_NAME = "set_name";
     public static final Arguments ARGUMENTS = Arguments.testDefaults();
     private SingleSamplePipeline victim;
@@ -54,6 +60,7 @@ public class SingleSamplePipelineTest {
     private GermlineCaller germlineCaller;
     private SnpGenotype snpGenotype;
     private Flagstat flagstat;
+    private SampleMetadataApi sampleMetadataApi;
 
     @Before
     public void setUp() throws Exception {
@@ -62,13 +69,13 @@ public class SingleSamplePipelineTest {
         germlineCaller = mock(GermlineCaller.class);
         snpGenotype = mock(SnpGenotype.class);
         flagstat = mock(Flagstat.class);
-        PatientMetadataApi patientMetadataApi = mock(PatientMetadataApi.class);
-        when(patientMetadataApi.getMetadata()).thenReturn(PatientMetadata.of("TESTR", SET_NAME));
+        sampleMetadataApi = mock(LocalSampleMetadataApi.class);
+        when(sampleMetadataApi.get()).thenReturn(SampleMetadata.builder().barcodeOrSampleName("TESTR").setName(SET_NAME).build());
         Storage storage = mock(Storage.class);
         Bucket reportBucket = mock(Bucket.class);
         when(storage.get(ARGUMENTS.patientReportBucket())).thenReturn(reportBucket);
         final PatientReport patientReport = PatientReportProvider.from(storage, ARGUMENTS).get();
-        victim = new SingleSamplePipeline(patientMetadataApi,
+        victim = new SingleSamplePipeline(sampleMetadataApi,
                 aligner,
                 bamMetrics,
                 germlineCaller,
@@ -82,7 +89,7 @@ public class SingleSamplePipelineTest {
     @Test
     public void returnsFailedPipelineRunWhenAlignerStageFail() throws Exception {
         ImmutableAlignmentOutput alignmentOutput =
-                AlignmentOutput.builder().status(JobStatus.FAILED).sample(TestSamples.simpleReferenceSample()).build();
+                AlignmentOutput.builder().status(PipelineStatus.FAILED).sample(TestSamples.simpleReferenceSample()).build();
         when(aligner.run()).thenReturn(alignmentOutput);
         PipelineState runOutput = victim.run();
         assertFailed(runOutput);
@@ -92,7 +99,7 @@ public class SingleSamplePipelineTest {
     @Test
     public void returnsFailedPipelineRunWhenFlagstatStageFail() throws Exception {
         when(aligner.run()).thenReturn(SUCCESSFUL_ALIGNMENT_OUTPUT);
-        FlagstatOutput flagstatOutput = FlagstatOutput.builder().status(JobStatus.FAILED).build();
+        FlagstatOutput flagstatOutput = FlagstatOutput.builder().status(PipelineStatus.FAILED).build();
         when(bamMetrics.run(any())).thenReturn(SUCCESSFUL_BAM_METRICS);
         when(germlineCaller.run(any())).thenReturn(SUCCESSFUL_GERMLINE_OUTPUT);
         when(snpGenotype.run(any())).thenReturn(SUCCESSFUL_SNPGENOTYPE_OUTPUT);
@@ -109,7 +116,7 @@ public class SingleSamplePipelineTest {
     @Test
     public void returnsFailedPipelineRunWhenSnpGenotypeStageFail() throws Exception {
         when(aligner.run()).thenReturn(SUCCESSFUL_ALIGNMENT_OUTPUT);
-        ImmutableSnpGenotypeOutput snpGenotypeOutput = SnpGenotypeOutput.builder().status(JobStatus.FAILED).build();
+        ImmutableSnpGenotypeOutput snpGenotypeOutput = SnpGenotypeOutput.builder().status(PipelineStatus.FAILED).build();
         when(bamMetrics.run(any())).thenReturn(SUCCESSFUL_BAM_METRICS);
         when(germlineCaller.run(any())).thenReturn(SUCCESSFUL_GERMLINE_OUTPUT);
         when(snpGenotype.run(any())).thenReturn(snpGenotypeOutput);
@@ -126,7 +133,7 @@ public class SingleSamplePipelineTest {
     @Test
     public void returnsFailedPipelineRunWhenMetricsStageFail() throws Exception {
         when(aligner.run()).thenReturn(SUCCESSFUL_ALIGNMENT_OUTPUT);
-        ImmutableBamMetricsOutput bamMetricsOutput = BamMetricsOutput.builder().status(JobStatus.FAILED).sample(REFERENCE).build();
+        ImmutableBamMetricsOutput bamMetricsOutput = BamMetricsOutput.builder().status(PipelineStatus.FAILED).sample(REFERENCE).build();
         when(bamMetrics.run(any())).thenReturn(bamMetricsOutput);
         when(germlineCaller.run(any())).thenReturn(SUCCESSFUL_GERMLINE_OUTPUT);
         when(snpGenotype.run(any())).thenReturn(SUCCESSFUL_SNPGENOTYPE_OUTPUT);
@@ -144,7 +151,7 @@ public class SingleSamplePipelineTest {
     public void returnsFailedPipelineRunWhenGermlineStageFail() throws Exception {
         when(aligner.run()).thenReturn(SUCCESSFUL_ALIGNMENT_OUTPUT);
         when(bamMetrics.run(any())).thenReturn(SUCCESSFUL_BAM_METRICS);
-        ImmutableGermlineCallerOutput germlineCallerOutput = GermlineCallerOutput.builder().status(JobStatus.FAILED).build();
+        ImmutableGermlineCallerOutput germlineCallerOutput = GermlineCallerOutput.builder().status(PipelineStatus.FAILED).build();
         when(germlineCaller.run(SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(germlineCallerOutput);
         when(snpGenotype.run(any())).thenReturn(SUCCESSFUL_SNPGENOTYPE_OUTPUT);
         when(flagstat.run(any())).thenReturn(SUCCESSFUL_FLAGSTAT_OUTPUT);
@@ -156,7 +163,6 @@ public class SingleSamplePipelineTest {
                 SUCCESSFUL_SNPGENOTYPE_OUTPUT,
                 SUCCESSFUL_FLAGSTAT_OUTPUT);
     }
-
 
     @Test
     public void returnsSuccessfulPipelineRunAllStagesSucceed() throws Exception {
@@ -212,12 +218,29 @@ public class SingleSamplePipelineTest {
         assertThat(flagstatComponent.isAdded()).isTrue();
     }
 
+    @Test
+    public void notifiesMetadataApiWhenAlignmentCompleteSuccessfully() throws Exception {
+        when(aligner.run()).thenReturn(SUCCESSFUL_ALIGNMENT_OUTPUT);
+        victim.run();
+        verify(sampleMetadataApi, times(1)).complete(PipelineStatus.SUCCESS);
+    }
+
+    @Test
+    public void notifiesMetadataApiWhenAlignmentFails() throws Exception {
+        when(aligner.run()).thenReturn(AlignmentOutput.builder()
+                .status(PipelineStatus.FAILED)
+                .sample(TestSamples.simpleReferenceSample())
+                .build());
+        victim.run();
+        verify(sampleMetadataApi, times(1)).complete(PipelineStatus.FAILED);
+    }
+
     private void assertFailed(final PipelineState runOutput) {
-        assertThat(runOutput.status()).isEqualTo(JobStatus.FAILED);
+        assertThat(runOutput.status()).isEqualTo(PipelineStatus.FAILED);
     }
 
     private void assertSucceeded(final PipelineState runOutput) {
-        assertThat(runOutput.status()).isEqualTo(JobStatus.SUCCESS);
+        assertThat(runOutput.status()).isEqualTo(PipelineStatus.SUCCESS);
     }
 
     private class TestReportComponent implements ReportComponent {

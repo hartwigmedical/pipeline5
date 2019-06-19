@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.execution.JobStatus;
+import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
@@ -48,20 +48,20 @@ public class CobaltTest {
                 storage,
                 ResultsDirectory.defaultDirectory());
         CobaltOutput output = victim.run(TestInputs.defaultPair());
-        assertThat(output.status()).isEqualTo(JobStatus.SKIPPED);
+        assertThat(output.status()).isEqualTo(PipelineStatus.SKIPPED);
     }
 
     @Test
     public void returnsCobaltOutputDirGoogleStorageLocation() {
-        when(computeEngine.submit(any(), any())).thenReturn(JobStatus.SUCCESS);
+        when(computeEngine.submit(any(), any())).thenReturn(PipelineStatus.SUCCESS);
         CobaltOutput output = victim.run(TestInputs.defaultPair());
         assertThat(output.outputDirectory()).isEqualTo(GoogleStorageLocation.of(RUNTIME_BUCKET + "/cobalt", "results", true));
     }
 
     @Test
     public void returnsStatusFailedWhenJobFailsOnComputeEngine() {
-        when(computeEngine.submit(any(), any())).thenReturn(JobStatus.FAILED);
-        assertThat(victim.run(TestInputs.defaultPair()).status()).isEqualTo(JobStatus.FAILED);
+        when(computeEngine.submit(any(), any())).thenReturn(PipelineStatus.FAILED);
+        assertThat(victim.run(TestInputs.defaultPair()).status()).isEqualTo(PipelineStatus.FAILED);
     }
 
     @Test
@@ -96,7 +96,7 @@ public class CobaltTest {
     private ArgumentCaptor<VirtualMachineJobDefinition> captureAndReturnSuccess() {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor =
                 ArgumentCaptor.forClass(VirtualMachineJobDefinition.class);
-        when(computeEngine.submit(any(), jobDefinitionArgumentCaptor.capture())).thenReturn(JobStatus.SUCCESS);
+        when(computeEngine.submit(any(), jobDefinitionArgumentCaptor.capture())).thenReturn(PipelineStatus.SUCCESS);
         return jobDefinitionArgumentCaptor;
     }
 

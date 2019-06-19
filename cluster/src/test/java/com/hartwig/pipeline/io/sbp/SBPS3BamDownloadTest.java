@@ -13,7 +13,7 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.transfer.TransferManager;
 import com.amazonaws.services.s3.transfer.Upload;
 import com.hartwig.patient.Sample;
-import com.hartwig.pipeline.execution.JobStatus;
+import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.testsupport.MockRuntimeBucket;
 
@@ -85,7 +85,7 @@ public class SBPS3BamDownloadTest {
         SBPS3BamDownload victim = victim(transferManager, 1);
         MockRuntimeBucket mockRuntimeBucket =
                 MockRuntimeBucket.of("test").with("results/test.sorted.bam", BAM_SIZE).with("results/test.sorted.bam.bai", BAI_SIZE);
-        victim.run(Sample.builder("", "test", "FR1234").build(), mockRuntimeBucket.getRuntimeBucket(), JobStatus.SUCCESS);
+        victim.run(Sample.builder("", "test", "FR1234").build(), mockRuntimeBucket.getRuntimeBucket(), PipelineStatus.SUCCESS);
     }
 
     @NotNull
@@ -103,7 +103,7 @@ public class SBPS3BamDownloadTest {
         MockRuntimeBucket mockRuntimeBucket = MockRuntimeBucket.of("test")
                 .with(NAMESPACED_RESULTS.path("test.sorted.bam"), BAM_SIZE)
                 .with(NAMESPACED_RESULTS.path("test.sorted.bam.bai"), BAI_SIZE);
-        victim.run(Sample.builder("", "test", "FR1234").build(), mockRuntimeBucket.getRuntimeBucket(), JobStatus.SUCCESS);
+        victim.run(Sample.builder("", "test", "FR1234").build(), mockRuntimeBucket.getRuntimeBucket(), PipelineStatus.SUCCESS);
         verify(transferManager, times(2)).upload(any());
         return request;
     }

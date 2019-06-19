@@ -6,7 +6,7 @@ import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Storage;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.execution.JobStatus;
+import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
@@ -36,7 +36,7 @@ public class AlignmentOutputStorage {
         Blob baiBlob = bucket.get(resultsDirectory.path(AlignmentOutputPaths.bai(sorted)));
         if (bamBlob != null && baiBlob != null) {
             return Optional.of(AlignmentOutput.builder()
-                    .status(JobStatus.SUCCESS)
+                    .status(PipelineStatus.SUCCESS)
                     .maybeFinalBamLocation(location(bucket, bamBlob))
                     .maybeFinalBaiLocation(location(bucket, baiBlob))
                     .sample(sample)

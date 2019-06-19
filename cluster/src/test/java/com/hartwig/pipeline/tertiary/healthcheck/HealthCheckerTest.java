@@ -10,7 +10,7 @@ import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.alignment.after.metrics.BamMetricsOutput;
-import com.hartwig.pipeline.execution.JobStatus;
+import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
@@ -50,20 +50,20 @@ public class HealthCheckerTest {
                 storage,
                 ResultsDirectory.defaultDirectory());
         HealthCheckOutput output = runVictim();
-        assertThat(output.status()).isEqualTo(JobStatus.SKIPPED);
+        assertThat(output.status()).isEqualTo(PipelineStatus.SKIPPED);
     }
 
     @Test
     public void returnsHealthCheckerOutputDirectory() {
-        when(computeEngine.submit(any(), any())).thenReturn(JobStatus.SUCCESS);
+        when(computeEngine.submit(any(), any())).thenReturn(PipelineStatus.SUCCESS);
         HealthCheckOutput output = runVictim();
         assertThat(output.outputDirectory()).isEqualTo(GoogleStorageLocation.of(RUNTIME_BUCKET + "/health_checker", "results"));
     }
 
     @Test
     public void returnsStatusFailedWhenJobFailsOnComputeEngine() {
-        when(computeEngine.submit(any(), any())).thenReturn(JobStatus.FAILED);
-        assertThat(runVictim().status()).isEqualTo(JobStatus.FAILED);
+        when(computeEngine.submit(any(), any())).thenReturn(PipelineStatus.FAILED);
+        assertThat(runVictim().status()).isEqualTo(PipelineStatus.FAILED);
     }
 
     @Test
@@ -99,7 +99,7 @@ public class HealthCheckerTest {
     private ArgumentCaptor<VirtualMachineJobDefinition> captureAndReturnSuccess() {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor =
                 ArgumentCaptor.forClass(VirtualMachineJobDefinition.class);
-        when(computeEngine.submit(any(), jobDefinitionArgumentCaptor.capture())).thenReturn(JobStatus.SUCCESS);
+        when(computeEngine.submit(any(), jobDefinitionArgumentCaptor.capture())).thenReturn(PipelineStatus.SUCCESS);
         return jobDefinitionArgumentCaptor;
     }
 
@@ -107,21 +107,21 @@ public class HealthCheckerTest {
         AlignmentPair pair = TestInputs.defaultPair();
         return victim.run(pair,
                 BamMetricsOutput.builder()
-                        .status(JobStatus.SUCCESS)
+                        .status(PipelineStatus.SUCCESS)
                         .maybeMetricsOutputFile(GoogleStorageLocation.of("run-reference", "reference.wgsmetrics"))
                         .sample(pair.reference().sample())
                         .build(),
                 BamMetricsOutput.builder()
-                        .status(JobStatus.SUCCESS)
+                        .status(PipelineStatus.SUCCESS)
                         .maybeMetricsOutputFile(GoogleStorageLocation.of("run-tumor", "tumor.wgsmetrics"))
                         .sample(pair.tumor().sample())
                         .build(),
                 AmberOutput.builder()
-                        .status(JobStatus.SUCCESS)
+                        .status(PipelineStatus.SUCCESS)
                         .maybeOutputDirectory(GoogleStorageLocation.of(RUNTIME_BUCKET, "amber", true))
                         .build(),
                 PurpleOutput.builder()
-                        .status(JobStatus.SUCCESS)
+                        .status(PipelineStatus.SUCCESS)
                         .maybeOutputDirectory(GoogleStorageLocation.of(RUNTIME_BUCKET, "purple", true))
                         .build());
     }

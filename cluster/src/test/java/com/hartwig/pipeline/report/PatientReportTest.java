@@ -10,7 +10,7 @@ import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.google.common.collect.Lists;
 import com.hartwig.pipeline.StageOutput;
-import com.hartwig.pipeline.execution.JobStatus;
+import com.hartwig.pipeline.execution.PipelineStatus;
 
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
@@ -57,8 +57,8 @@ public class PatientReportTest {
             }
 
             @Override
-            public JobStatus status() {
-                return JobStatus.SUCCESS;
+            public PipelineStatus status() {
+                return PipelineStatus.SUCCESS;
             }
 
             @Override

@@ -3,6 +3,7 @@ package com.hartwig.pipeline.metadata;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.hartwig.patient.Sample;
+import com.hartwig.pipeline.Arguments;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -13,7 +14,7 @@ public class LocalSetMetadataApiTest {
 
     @Before
     public void setUp() throws Exception {
-        victim = new LocalSetMetadataApi("CPCT12345678");
+        victim = new LocalSetMetadataApi(Arguments.testDefaultsBuilder().setId("CPCT12345678").build());
     }
 
     @Test

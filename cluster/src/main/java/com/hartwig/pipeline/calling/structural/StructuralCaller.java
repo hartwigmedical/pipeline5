@@ -1,14 +1,29 @@
 package com.hartwig.pipeline.calling.structural;
 
+import static java.lang.String.format;
+import static java.util.Arrays.asList;
+
+import java.io.File;
+
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.calling.structural.gridss.GridssCommon;
 import com.hartwig.pipeline.calling.structural.gridss.command.GridssToBashCommandConverter;
 import com.hartwig.pipeline.calling.structural.gridss.command.IdentifyVariants;
-import com.hartwig.pipeline.calling.structural.gridss.stage.*;
-import com.hartwig.pipeline.execution.JobStatus;
-import com.hartwig.pipeline.execution.vm.*;
+import com.hartwig.pipeline.calling.structural.gridss.stage.Annotation;
+import com.hartwig.pipeline.calling.structural.gridss.stage.Assemble;
+import com.hartwig.pipeline.calling.structural.gridss.stage.CommandFactory;
+import com.hartwig.pipeline.calling.structural.gridss.stage.Filter;
+import com.hartwig.pipeline.calling.structural.gridss.stage.Preprocess;
+import com.hartwig.pipeline.execution.PipelineStatus;
+import com.hartwig.pipeline.execution.vm.BashStartupScript;
+import com.hartwig.pipeline.execution.vm.ComputeEngine;
+import com.hartwig.pipeline.execution.vm.InputDownload;
+import com.hartwig.pipeline.execution.vm.OutputUpload;
+import com.hartwig.pipeline.execution.vm.ResourceDownload;
+import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.unix.ExportVariableCommand;
 import com.hartwig.pipeline.execution.vm.unix.MkDirCommand;
 import com.hartwig.pipeline.execution.vm.unix.UlimitOpenFilesCommand;
@@ -19,11 +34,6 @@ import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.resource.Resource;
 import com.hartwig.pipeline.resource.ResourceNames;
 import com.hartwig.pipeline.trace.StageTrace;
-
-import java.io.File;
-
-import static java.lang.String.format;
-import static java.util.Arrays.asList;
 
 public class StructuralCaller {
 
@@ -44,7 +54,7 @@ public class StructuralCaller {
 
     public StructuralCallerOutput run(final AlignmentPair pair) {
         if (!arguments.runStructuralCaller()) {
-            return StructuralCallerOutput.builder().status(JobStatus.SKIPPED).build();
+            return StructuralCallerOutput.builder().status(PipelineStatus.SKIPPED).build();
         }
 
         StageTrace trace = new StageTrace(NAMESPACE, StageTrace.ExecutorType.COMPUTE_ENGINE).start();
@@ -122,7 +132,7 @@ public class StructuralCaller {
                 .addCommands(filterResult.commands());
 
         bash.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path())));
-        JobStatus status = computeEngine.submit(runtimeBucket, VirtualMachineJobDefinition.structuralCalling(bash, resultsDirectory));
+        PipelineStatus status = computeEngine.submit(runtimeBucket, VirtualMachineJobDefinition.structuralCalling(bash, resultsDirectory));
         trace.stop();
         return StructuralCallerOutput.builder()
                 .status(status)

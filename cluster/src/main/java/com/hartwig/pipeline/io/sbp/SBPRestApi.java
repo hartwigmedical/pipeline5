@@ -9,6 +9,7 @@ import javax.ws.rs.core.Response;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.metadata.SbpStatusUpdate;
 
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.HttpUrlConnectorProvider;
@@ -20,6 +21,8 @@ public class SBPRestApi {
 
     private final static ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private final static Logger LOGGER = LoggerFactory.getLogger(SBPRestApi.class);
+    public static final String SAMPLES = "samples";
+    public static final String RUNS = "runs";
     private final WebTarget target;
 
     private SBPRestApi(final WebTarget target) {
@@ -27,15 +30,51 @@ public class SBPRestApi {
     }
 
     String getFastQ(int sampleId) {
-        Response response = target.path("hmf").path("v1").path("fastq").queryParam("sample_id", sampleId).request().buildGet().invoke();
+        return getBySampleId(sampleId, api().path("fastq"));
+    }
+
+    public String getSet(int sampleId) {
+        return getBySampleId(sampleId, api().path("sets"));
+    }
+
+    public String getRun(int setId) {
+        Response response = api().path(RUNS).path(String.valueOf(setId)).request().buildGet().invoke();
         if (response.getStatus() == Response.Status.OK.getStatusCode()) {
             return response.readEntity(String.class);
         }
         throw error(response);
     }
 
-    public String getRun(int setId) {
-        Response response = target.path("hmf").path("v1").path("runs").path(String.valueOf(setId)).request().buildGet().invoke();
+    public String getSample(int sampleId) {
+        Response response = api().path(SAMPLES).path(String.valueOf(sampleId)).request().buildGet().invoke();
+        if (response.getStatus() == Response.Status.OK.getStatusCode()) {
+            return response.readEntity(String.class);
+        }
+        throw error(response);
+    }
+
+    public void updateStatus(String entityType, String entityId, String status) {
+        try {
+            String json = OBJECT_MAPPER.writeValueAsString(SbpStatusUpdate.of(status));
+            LOGGER.info("Patching entity type [{}] id [{}] with status [{}]", entityType, entityId, status);
+            Response response = api().path(entityType)
+                    .path(entityId)
+                    .request()
+                    .build("PATCH", Entity.entity(json, MediaType.APPLICATION_JSON_TYPE))
+                    .invoke();
+            LOGGER.info("Patching complete with response [{}]", response.getStatus());
+
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private WebTarget api() {
+        return target.path("hmf").path("v1");
+    }
+
+    private String getBySampleId(final int sampleId, final WebTarget path) {
+        Response response = path.queryParam("sample_id", sampleId).request().buildGet().invoke();
         if (response.getStatus() == Response.Status.OK.getStatusCode()) {
             return response.readEntity(String.class);
         }
@@ -47,33 +86,6 @@ public class SBPRestApi {
         return new RuntimeException(String.format("Received an error status defaultDirectory [%s] of SBP Api at [%s]",
                 response.getStatus(),
                 target.getUri()));
-    }
-
-    String getSample(int sampleId) {
-        Response response = samplesApi().path(String.valueOf(sampleId)).request().buildGet().invoke();
-        if (response.getStatus() == Response.Status.OK.getStatusCode()) {
-            return response.readEntity(String.class);
-        }
-        throw error(response);
-    }
-
-    private WebTarget samplesApi() {
-        return target.path("hmf").path("v1").path("samples");
-    }
-
-    void patchBam(int sampleId, BamMetadata metadata) {
-        try {
-            String json = OBJECT_MAPPER.writeValueAsString(metadata);
-            LOGGER.info("Patching sample [{}] with [{}]", sampleId, json);
-            Response response = samplesApi().path(String.valueOf(sampleId))
-                    .request()
-                    .build("PATCH", Entity.entity(json, MediaType.APPLICATION_JSON_TYPE))
-                    .invoke();
-            LOGGER.info("Patching complete with response [{}]", response.getStatus());
-
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     public static SBPRestApi newInstance(Arguments arguments) {

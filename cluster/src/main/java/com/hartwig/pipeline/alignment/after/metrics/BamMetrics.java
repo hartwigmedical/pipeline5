@@ -3,7 +3,7 @@ package com.hartwig.pipeline.alignment.after.metrics;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
-import com.hartwig.pipeline.execution.JobStatus;
+import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.InputDownload;
@@ -39,7 +39,7 @@ public class BamMetrics {
     public BamMetricsOutput run(AlignmentOutput alignmentOutput) {
 
         if (!arguments.runBamMetrics()) {
-            return BamMetricsOutput.builder().status(JobStatus.SKIPPED).build();
+            return BamMetricsOutput.builder().status(PipelineStatus.SKIPPED).build();
         }
 
         StageTrace trace = new StageTrace(NAMESPACE, StageTrace.ExecutorType.COMPUTE_ENGINE).start();
@@ -60,7 +60,7 @@ public class BamMetrics {
                         VmDirectories.OUTPUT + "/" + outputFile))
                 .addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path())));
 
-        JobStatus status = executor.submit(bucket, VirtualMachineJobDefinition.bamMetrics(startup, resultsDirectory));
+        PipelineStatus status = executor.submit(bucket, VirtualMachineJobDefinition.bamMetrics(startup, resultsDirectory));
         trace.stop();
         return BamMetricsOutput.builder()
                 .status(status)

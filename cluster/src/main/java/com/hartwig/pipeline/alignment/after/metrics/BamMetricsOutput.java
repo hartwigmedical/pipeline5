@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.StageOutput;
-import com.hartwig.pipeline.execution.JobStatus;
+import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 
 import org.immutables.value.Value;
@@ -14,7 +14,7 @@ public interface BamMetricsOutput extends StageOutput {
 
     Sample sample();
 
-    JobStatus status();
+    PipelineStatus status();
 
     @Override
     default String name() {

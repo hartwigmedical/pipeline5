@@ -13,7 +13,7 @@ import com.hartwig.pipeline.calling.germline.command.SnpSiftDbnsfpAnnotation;
 import com.hartwig.pipeline.calling.germline.command.SnpSiftFrequenciesAnnotation;
 import com.hartwig.pipeline.calling.substages.CosmicAnnotation;
 import com.hartwig.pipeline.calling.substages.SnpEff;
-import com.hartwig.pipeline.execution.JobStatus;
+import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.InputDownload;
@@ -67,7 +67,7 @@ public class GermlineCaller {
     public GermlineCallerOutput run(AlignmentOutput alignmentOutput) {
 
         if (!arguments.runGermlineCaller() || alignmentOutput.sample().type() == Sample.Type.TUMOR) {
-            return GermlineCallerOutput.builder().status(JobStatus.SKIPPED).build();
+            return GermlineCallerOutput.builder().status(PipelineStatus.SKIPPED).build();
         }
 
         StageTrace trace = new StageTrace(NAMESPACE, StageTrace.ExecutorType.COMPUTE_ENGINE).start();
@@ -125,7 +125,7 @@ public class GermlineCaller {
         startupScript.addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path())));
 
         ImmutableGermlineCallerOutput.Builder outputBuilder = GermlineCallerOutput.builder();
-        JobStatus status = executor.submit(bucket, VirtualMachineJobDefinition.germlineCalling(startupScript, resultsDirectory));
+        PipelineStatus status = executor.submit(bucket, VirtualMachineJobDefinition.germlineCalling(startupScript, resultsDirectory));
         trace.stop();
         return outputBuilder.status(status)
                 .addReportComponents(new RunLogComponent(bucket, NAMESPACE, sampleName, resultsDirectory))

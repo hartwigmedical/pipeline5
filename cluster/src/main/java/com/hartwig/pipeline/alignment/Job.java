@@ -1,6 +1,6 @@
 package com.hartwig.pipeline.alignment;
 
-import com.hartwig.pipeline.execution.JobStatus;
+import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.dataproc.SparkExecutor;
 import com.hartwig.pipeline.execution.dataproc.SparkJobDefinition;
 import com.hartwig.pipeline.io.RuntimeBucket;
@@ -21,18 +21,18 @@ class Job implements SparkExecutor {
         this.statusCheck = statusCheck;
     }
 
-    public JobStatus submit(final RuntimeBucket runtimeBucket, final SparkJobDefinition sparkJobDefinition) {
+    public PipelineStatus submit(final RuntimeBucket runtimeBucket, final SparkJobDefinition sparkJobDefinition) {
         try {
             decorated.submit(runtimeBucket, sparkJobDefinition);
             StatusCheck.Status status = statusCheck.check(runtimeBucket);
             if (status == StatusCheck.Status.FAILED) {
-                return JobStatus.FAILED;
+                return PipelineStatus.FAILED;
             } else {
-                return JobStatus.SUCCESS;
+                return PipelineStatus.SUCCESS;
             }
         } catch (Exception e) {
             LOGGER.error(String.format("Unable to run job [%s]", sparkJobDefinition), e);
-            return JobStatus.FAILED;
+            return PipelineStatus.FAILED;
         }
     }
 }

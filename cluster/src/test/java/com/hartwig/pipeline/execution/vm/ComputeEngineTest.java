@@ -19,7 +19,7 @@ import com.google.api.services.compute.model.Operation;
 import com.google.cloud.ReadChannel;
 import com.google.cloud.storage.Blob;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.execution.JobStatus;
+import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.testsupport.MockRuntimeBucket;
 
@@ -91,7 +91,7 @@ public class ComputeEngineTest {
     @Test
     public void returnsStatusFailedOnUncaughtException() {
         when(compute.instances()).thenThrow(new NullPointerException());
-        assertThat(victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition)).isEqualTo(JobStatus.FAILED);
+        assertThat(victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition)).isEqualTo(PipelineStatus.FAILED);
     }
 
     @Test
@@ -109,7 +109,7 @@ public class ComputeEngineTest {
         when(runtimeBucket.getRuntimeBucket().get(BashStartupScript.JOB_SUCCEEDED_FLAG)).thenReturn(mockBlob);
 
         when(runtimeBucket.getRuntimeBucket().list()).thenReturn(new ArrayList<>()).thenReturn(new ArrayList<>()).thenReturn(blobs);
-        assertThat(victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition)).isEqualTo(JobStatus.SUCCESS);
+        assertThat(victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition)).isEqualTo(PipelineStatus.SUCCESS);
     }
 
     @Test
@@ -127,13 +127,13 @@ public class ComputeEngineTest {
         blobs.add(mockBlob);
         when(runtimeBucket.getRuntimeBucket().get(BashStartupScript.JOB_FAILED_FLAG)).thenReturn(mockBlob);
         when(runtimeBucket.getRuntimeBucket().list()).thenReturn(new ArrayList<>()).thenReturn(new ArrayList<>()).thenReturn(blobs);
-        assertThat(victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition)).isEqualTo(JobStatus.FAILED);
+        assertThat(victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition)).isEqualTo(PipelineStatus.FAILED);
     }
 
     @Test
     public void shouldSkipJobWhenSuccessFlagFileAlreadyExists() {
         runtimeBucket = runtimeBucket.with(successBlob(), 1);
-        assertThat(victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition)).isEqualTo(JobStatus.SKIPPED);
+        assertThat(victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition)).isEqualTo(PipelineStatus.SKIPPED);
         verifyNoMoreInteractions(compute);
     }
 

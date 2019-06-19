@@ -3,7 +3,7 @@ package com.hartwig.pipeline.calling.somatic;
 import java.util.Optional;
 
 import com.hartwig.pipeline.StageOutput;
-import com.hartwig.pipeline.execution.JobStatus;
+import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 
 import org.immutables.value.Value;
@@ -15,7 +15,7 @@ public interface SomaticCallerOutput extends StageOutput {
         return SomaticCaller.NAMESPACE;
     }
 
-    JobStatus status();
+    PipelineStatus status();
 
     Optional<GoogleStorageLocation> maybeFinalSomaticVcf();
 

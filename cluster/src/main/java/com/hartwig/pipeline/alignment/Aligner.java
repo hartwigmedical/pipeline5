@@ -9,7 +9,7 @@ import static com.hartwig.pipeline.resource.ResourceNames.REFERENCE_GENOME;
 import com.google.cloud.storage.Storage;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.execution.JobStatus;
+import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.dataproc.ClusterOptimizer;
 import com.hartwig.pipeline.execution.dataproc.JarLocation;
 import com.hartwig.pipeline.execution.dataproc.JarUpload;
@@ -99,7 +99,7 @@ public class Aligner {
                 alignmentOutputStorage.get(sample).orElseThrow(() -> new RuntimeException("No results found in Google Storage for sample"));
 
         if (arguments.download()) {
-            bamDownload.run(sample, runtimeBucket, JobStatus.SUCCESS);
+            bamDownload.run(sample, runtimeBucket, PipelineStatus.SUCCESS);
         }
         trace.stop();
         return AlignmentOutput.builder()
@@ -115,8 +115,8 @@ public class Aligner {
     }
 
     private void runJob(SparkExecutor executor, SparkJobDefinition jobDefinition, RuntimeBucket runtimeBucket) {
-        JobStatus result = executor.submit(runtimeBucket, jobDefinition);
-        if (result.equals(JobStatus.FAILED)) {
+        PipelineStatus result = executor.submit(runtimeBucket, jobDefinition);
+        if (result.equals(PipelineStatus.FAILED)) {
             throw new RuntimeException(format("Job [%s] reported status failed. Check prior error messages or job logs on Google dataproc",
                     jobDefinition.name()));
         } else {

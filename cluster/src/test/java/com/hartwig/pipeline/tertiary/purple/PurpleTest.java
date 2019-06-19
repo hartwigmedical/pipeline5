@@ -10,7 +10,7 @@ import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.calling.somatic.SomaticCallerOutput;
 import com.hartwig.pipeline.calling.structural.StructuralCallerOutput;
-import com.hartwig.pipeline.execution.JobStatus;
+import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
@@ -53,20 +53,20 @@ public class PurpleTest {
                 storage,
                 ResultsDirectory.defaultDirectory());
         PurpleOutput output = runVictim();
-        assertThat(output.status()).isEqualTo(JobStatus.SKIPPED);
+        assertThat(output.status()).isEqualTo(PipelineStatus.SKIPPED);
     }
 
     @Test
     public void returnsPurpleOutputDirectory() {
-        when(computeEngine.submit(any(), any())).thenReturn(JobStatus.SUCCESS);
+        when(computeEngine.submit(any(), any())).thenReturn(PipelineStatus.SUCCESS);
         PurpleOutput output = runVictim();
         assertThat(output.outputDirectory()).isEqualTo(GoogleStorageLocation.of(RUNTIME_BUCKET + "/purple", "results", true));
     }
 
     @Test
     public void returnsStatusFailedWhenJobFailsOnComputeEngine() {
-        when(computeEngine.submit(any(), any())).thenReturn(JobStatus.FAILED);
-        assertThat(runVictim().status()).isEqualTo(JobStatus.FAILED);
+        when(computeEngine.submit(any(), any())).thenReturn(PipelineStatus.FAILED);
+        assertThat(runVictim().status()).isEqualTo(PipelineStatus.FAILED);
     }
 
     @Test
@@ -103,22 +103,22 @@ public class PurpleTest {
     private PurpleOutput runVictim() {
         return victim.run(TestInputs.defaultPair(),
                 SomaticCallerOutput.builder()
-                        .status(JobStatus.SUCCESS)
+                        .status(PipelineStatus.SUCCESS)
                         .maybeFinalSomaticVcf(GoogleStorageLocation.of(RUNTIME_BUCKET, "somatic.vcf"))
                         .build(),
                 StructuralCallerOutput.builder()
-                        .status(JobStatus.SUCCESS)
+                        .status(PipelineStatus.SUCCESS)
                         .maybeFilteredVcf(GoogleStorageLocation.of(RUNTIME_BUCKET, "structural.vcf"))
                         .maybeFilteredVcfIndex(GoogleStorageLocation.of(RUNTIME_BUCKET, "structural.vcf.tbi"))
                         .maybeFullVcf(GoogleStorageLocation.of(RUNTIME_BUCKET, "sv_recovery.vcf"))
                         .maybeFullVcfIndex(GoogleStorageLocation.of(RUNTIME_BUCKET, "sv_recovery.vcf.tbi"))
                         .build(),
                 CobaltOutput.builder()
-                        .status(JobStatus.SUCCESS)
+                        .status(PipelineStatus.SUCCESS)
                         .maybeOutputDirectory(GoogleStorageLocation.of(RUNTIME_BUCKET, "cobalt", true))
                         .build(),
                 AmberOutput.builder()
-                        .status(JobStatus.SUCCESS)
+                        .status(PipelineStatus.SUCCESS)
                         .maybeOutputDirectory(GoogleStorageLocation.of(RUNTIME_BUCKET, "amber", true))
                         .build());
     }
@@ -126,7 +126,7 @@ public class PurpleTest {
     private ArgumentCaptor<VirtualMachineJobDefinition> captureAndReturnSuccess() {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor =
                 ArgumentCaptor.forClass(VirtualMachineJobDefinition.class);
-        when(computeEngine.submit(any(), jobDefinitionArgumentCaptor.capture())).thenReturn(JobStatus.SUCCESS);
+        when(computeEngine.submit(any(), jobDefinitionArgumentCaptor.capture())).thenReturn(PipelineStatus.SUCCESS);
         return jobDefinitionArgumentCaptor;
     }
 }

@@ -3,7 +3,7 @@ package com.hartwig.pipeline.tertiary.cobalt;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.AlignmentPair;
-import com.hartwig.pipeline.execution.JobStatus;
+import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.InputDownload;
@@ -35,7 +35,7 @@ public class Cobalt {
     public CobaltOutput run(AlignmentPair pair) {
 
         if (!arguments.runTertiary()) {
-            return CobaltOutput.builder().status(JobStatus.SKIPPED).build();
+            return CobaltOutput.builder().status(PipelineStatus.SKIPPED).build();
         }
 
         StageTrace trace = new StageTrace(NAMESPACE, StageTrace.ExecutorType.COMPUTE_ENGINE).start();
@@ -61,7 +61,7 @@ public class Cobalt {
                 tumorBam.getLocalTargetPath(),
                 cobaltResourceDownload.find("cnp")));
         bash.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path())));
-        JobStatus status = computeEngine.submit(runtimeBucket, VirtualMachineJobDefinition.cobalt(bash, resultsDirectory));
+        PipelineStatus status = computeEngine.submit(runtimeBucket, VirtualMachineJobDefinition.cobalt(bash, resultsDirectory));
         trace.stop();
         return CobaltOutput.builder()
                 .status(status)

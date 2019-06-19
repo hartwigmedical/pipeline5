@@ -19,7 +19,7 @@ import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.AlignmentPair;
-import com.hartwig.pipeline.execution.JobStatus;
+import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
@@ -62,13 +62,13 @@ public class SomaticCallerTest {
         assertThat(new SomaticCaller(Arguments.testDefaultsBuilder().runSomaticCaller(false).build(),
                 computeEngine,
                 storage,
-                ResultsDirectory.defaultDirectory()).run(TestInputs.defaultPair()).status()).isEqualTo(JobStatus.SKIPPED);
+                ResultsDirectory.defaultDirectory()).run(TestInputs.defaultPair()).status()).isEqualTo(PipelineStatus.SKIPPED);
     }
 
     @Test
     public void returnsFinalVcfGoogleStorageLocation() {
         AlignmentPair input = TestInputs.defaultPair();
-        when(computeEngine.submit(any(), any())).thenReturn(JobStatus.SUCCESS);
+        when(computeEngine.submit(any(), any())).thenReturn(PipelineStatus.SUCCESS);
         assertThat(victim.run(input).finalSomaticVcf()).isEqualTo(GoogleStorageLocation.of(RUNTIME_BUCKET + "/" + SomaticCaller.NAMESPACE,
                 "results/tumor.cosmic.annotated.vcf.gz"));
     }
@@ -76,7 +76,7 @@ public class SomaticCallerTest {
     @Test
     public void downloadsRecalibratedBamsAndBais() {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinition = ArgumentCaptor.forClass(VirtualMachineJobDefinition.class);
-        when(computeEngine.submit(any(), jobDefinition.capture())).thenReturn(JobStatus.SUCCESS);
+        when(computeEngine.submit(any(), jobDefinition.capture())).thenReturn(PipelineStatus.SUCCESS);
         victim.run(TestInputs.defaultPair());
         assertThat(jobDefinition.getValue().startupCommand().asUnixString()).contains(
                 "gsutil -qm cp gs://run-tumor/aligner/results/tumor.bam /data/input/tumor.bam",
@@ -87,7 +87,7 @@ public class SomaticCallerTest {
 
     @Test
     public void returnsFailedStatusWhenJobFails() {
-        when(computeEngine.submit(any(), any())).thenReturn(JobStatus.FAILED);
-        assertThat(victim.run(TestInputs.defaultPair()).status()).isEqualTo(JobStatus.FAILED);
+        when(computeEngine.submit(any(), any())).thenReturn(PipelineStatus.FAILED);
+        assertThat(victim.run(TestInputs.defaultPair()).status()).isEqualTo(PipelineStatus.FAILED);
     }
 }

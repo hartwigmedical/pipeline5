@@ -3,7 +3,7 @@ package com.hartwig.pipeline.tertiary.amber;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.AlignmentPair;
-import com.hartwig.pipeline.execution.JobStatus;
+import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.InputDownload;
@@ -35,7 +35,7 @@ public class Amber {
     public AmberOutput run(AlignmentPair pair) {
 
         if (!arguments.runTertiary()) {
-            return AmberOutput.builder().status(JobStatus.SKIPPED).build();
+            return AmberOutput.builder().status(PipelineStatus.SKIPPED).build();
         }
 
         StageTrace trace = new StageTrace(NAMESPACE, StageTrace.ExecutorType.COMPUTE_ENGINE).start();
@@ -65,7 +65,7 @@ public class Amber {
                 amberResourceDownload.find("GermlineHetPon.hg19.bed"),
                 amberResourceDownload.find("GermlineSnp.hg19.bed")));
         bash.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path())));
-        JobStatus status = computeEngine.submit(runtimeBucket, VirtualMachineJobDefinition.amber(bash, resultsDirectory));
+        PipelineStatus status = computeEngine.submit(runtimeBucket, VirtualMachineJobDefinition.amber(bash, resultsDirectory));
         trace.stop();
         return AmberOutput.builder()
                 .status(status)

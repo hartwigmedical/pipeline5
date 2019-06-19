@@ -3,7 +3,7 @@ package com.hartwig.pipeline.alignment.after.metrics;
 import com.google.cloud.storage.Storage;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.execution.JobStatus;
+import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
@@ -23,7 +23,7 @@ public class BamMetricsOutputStorage {
     public BamMetricsOutput get(Sample sample) {
         RuntimeBucket metricsBucket = RuntimeBucket.from(storage, BamMetrics.NAMESPACE, sample.name(), arguments);
         return BamMetricsOutput.builder()
-                .status(JobStatus.SUCCESS)
+                .status(PipelineStatus.SUCCESS)
                 .sample(sample)
                 .maybeMetricsOutputFile(GoogleStorageLocation.of(metricsBucket.name(),
                         resultsDirectory.path(BamMetricsOutput.outputFile(sample))))

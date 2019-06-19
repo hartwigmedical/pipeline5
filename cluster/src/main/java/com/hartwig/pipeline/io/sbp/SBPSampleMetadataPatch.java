@@ -1,7 +1,5 @@
 package com.hartwig.pipeline.io.sbp;
 
-import java.util.Base64;
-
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.AccessControlList;
 import com.amazonaws.services.s3.model.CanonicalGrantee;
@@ -10,13 +8,12 @@ import com.amazonaws.services.s3.model.Permission;
 import com.amazonaws.services.s3.model.S3Object;
 import com.google.cloud.storage.Blob;
 import com.hartwig.patient.Sample;
-import com.hartwig.pipeline.execution.JobStatus;
-import com.hartwig.pipeline.io.BamDownload;
 import com.hartwig.pipeline.alignment.AlignmentOutputPaths;
+import com.hartwig.pipeline.execution.PipelineStatus;
+import com.hartwig.pipeline.io.BamDownload;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
 
-import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +40,7 @@ public class SBPSampleMetadataPatch implements BamDownload {
     }
 
     @Override
-    public void run(final Sample sample, final RuntimeBucket runtimeBucket, final JobStatus result) {
+    public void run(final Sample sample, final RuntimeBucket runtimeBucket, final PipelineStatus result) {
         Blob bamBlob = runtimeBucket.get(resultsDirectory.path(AlignmentOutputPaths.sorted(sample)));
         decorated.run(sample, runtimeBucket, result);
         String bamFile = sample.name() + ".bam";
@@ -51,15 +48,15 @@ public class SBPSampleMetadataPatch implements BamDownload {
         S3Object s3Object = setACLs(sample, bamFile);
         setACLs(sample, baiFile);
         ObjectMetadata existing = s3Object.getObjectMetadata();
-        sbpRestApi.patchBam(sbpSampleId,
+      /*  sbpRestApi.patchSample(sbpSampleId,
                 BamMetadata.builder()
                         .bucket(SBPS3FileTarget.ROOT_BUCKET)
-                        .directory(sample.barcode())
+                        .directory(sample.barcodeOrSampleName())
                         .filename(bamFile)
                         .filesize(existing.getContentLength())
                         .hash(new String(Hex.encodeHex(Base64.getDecoder().decode(bamBlob.getMd5()))))
-                        .status(result == JobStatus.SUCCESS ? "Done_PipelineV5" : "Failed_PipelineV5")
-                        .build());
+                        .status(result == PipelineStatus.SUCCESS ? "Done_PipelineV5" : "Failed_PipelineV5")
+                        .build());*/
     }
 
     private S3Object setACLs(final Sample sample, final String bamFile) {

@@ -3,8 +3,13 @@ package com.hartwig.pipeline.flagstat;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
-import com.hartwig.pipeline.execution.JobStatus;
-import com.hartwig.pipeline.execution.vm.*;
+import com.hartwig.pipeline.execution.PipelineStatus;
+import com.hartwig.pipeline.execution.vm.BashStartupScript;
+import com.hartwig.pipeline.execution.vm.ComputeEngine;
+import com.hartwig.pipeline.execution.vm.InputDownload;
+import com.hartwig.pipeline.execution.vm.OutputUpload;
+import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.unix.SubShellCommand;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
@@ -41,7 +46,7 @@ public class Flagstat {
                         VmDirectories.OUTPUT + "/" + outputFile)))
                 .addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path())));
 
-        JobStatus status = executor.submit(bucket, VirtualMachineJobDefinition.flagstat(bash, resultsDirectory));
+        PipelineStatus status = executor.submit(bucket, VirtualMachineJobDefinition.flagstat(bash, resultsDirectory));
         trace.stop();
         return FlagstatOutput.builder()
                 .status(status)

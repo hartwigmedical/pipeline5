@@ -5,7 +5,7 @@ import static java.lang.String.format;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
-import com.hartwig.pipeline.execution.JobStatus;
+import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.InputDownload;
@@ -46,7 +46,7 @@ public class SnpGenotype {
     public SnpGenotypeOutput run(AlignmentOutput alignmentOutput) {
 
         if (!arguments.runSnpGenotyper()) {
-            return SnpGenotypeOutput.builder().status(JobStatus.SKIPPED).build();
+            return SnpGenotypeOutput.builder().status(PipelineStatus.SKIPPED).build();
         }
 
         StageTrace trace = new StageTrace(NAMESPACE, StageTrace.ExecutorType.COMPUTE_ENGINE).start();
@@ -73,7 +73,7 @@ public class SnpGenotype {
                         format("%s/%s", VmDirectories.OUTPUT, OUTPUT_FILENAME)))
                 .addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path())));
 
-        JobStatus status = executor.submit(bucket, VirtualMachineJobDefinition.snpGenotyping(startupScript, resultsDirectory));
+        PipelineStatus status = executor.submit(bucket, VirtualMachineJobDefinition.snpGenotyping(startupScript, resultsDirectory));
         trace.stop();
         return SnpGenotypeOutput.builder().status(status)
                 .addReportComponents(new RunLogComponent(bucket, NAMESPACE, sampleName, resultsDirectory))

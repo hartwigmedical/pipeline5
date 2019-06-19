@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hartwig.patient.ImmutableLane;
 import com.hartwig.patient.Lane;
 import com.hartwig.patient.Sample;
+import com.hartwig.pipeline.metadata.SbpSample;
 
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -101,7 +102,7 @@ public class SBPSampleReader {
         });
     }
 
-    private SampleMetadata parseSampleJson(final String json) throws IOException {
-        return OBJECT_MAPPER.readValue(json, SampleMetadata.class);
+    private SbpSample parseSampleJson(final String json) throws IOException {
+        return OBJECT_MAPPER.readValue(json, SbpSample.class);
     }
 }

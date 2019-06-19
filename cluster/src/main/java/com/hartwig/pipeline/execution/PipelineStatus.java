@@ -1,6 +1,6 @@
 package com.hartwig.pipeline.execution;
 
-public enum JobStatus {
+public enum PipelineStatus {
 
     SUCCESS,
     FAILED,

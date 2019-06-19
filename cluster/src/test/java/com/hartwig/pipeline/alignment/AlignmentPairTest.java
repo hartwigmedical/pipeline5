@@ -1,11 +1,12 @@
 package com.hartwig.pipeline.alignment;
 
-import static com.hartwig.pipeline.testsupport.TestSamples.*;
+import static com.hartwig.pipeline.testsupport.TestSamples.simpleReferenceSample;
+import static com.hartwig.pipeline.testsupport.TestSamples.simpleTumorSample;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.hartwig.patient.Sample;
-import com.hartwig.pipeline.execution.JobStatus;
+import com.hartwig.pipeline.execution.PipelineStatus;
 
 import org.junit.Test;
 
@@ -34,7 +35,7 @@ public class AlignmentPairTest {
     }
 
     public AlignmentOutput output(final Sample sample) {
-        return AlignmentOutput.builder().status(JobStatus.SUCCESS).sample(sample).build();
+        return AlignmentOutput.builder().status(PipelineStatus.SUCCESS).sample(sample).build();
     }
 
 }

@@ -17,6 +17,6 @@ public class SetMetadataApiProvider {
 
     public SetMetadataApi get() {
         return arguments.sbpApiRunId().<SetMetadataApi>map(setId -> new SbpSetMetadataApi(setId, SBPRestApi.newInstance(arguments))).orElse(
-                new LocalSetMetadataApi(arguments.setId()));
+                new LocalSetMetadataApi(arguments));
     }
 }

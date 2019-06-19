@@ -2,19 +2,14 @@ package com.hartwig.pipeline.metadata;
 
 import java.io.IOException;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hartwig.patient.Sample;
+import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.io.sbp.SBPRestApi;
 
 public class SbpSetMetadataApi implements SetMetadataApi {
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-
-    static {
-        OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    }
-
+    static final String SNP_CHECK = "SnpCheck";
+    static final String FAILED = "Failed";
     private final int sbpRunId;
     private final SBPRestApi sbpRestApi;
 
@@ -26,7 +21,7 @@ public class SbpSetMetadataApi implements SetMetadataApi {
     @Override
     public SetMetadata get() {
         try {
-            SbpRun sbpRun = OBJECT_MAPPER.readValue(sbpRestApi.getRun(sbpRunId), SbpRun.class);
+            SbpRun sbpRun = ObjectMappers.get().readValue(sbpRestApi.getRun(sbpRunId), SbpRun.class);
             SbpSet sbpSet = sbpRun.set();
             return SetMetadata.of(sbpSet.name(),
                     Sample.builder("", sbpSet.tumor_sample()).type(Sample.Type.TUMOR).build(),
@@ -34,5 +29,10 @@ public class SbpSetMetadataApi implements SetMetadataApi {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void complete(final PipelineStatus status) {
+        sbpRestApi.updateStatus(SBPRestApi.RUNS, String.valueOf(sbpRunId), status == PipelineStatus.SUCCESS ? SNP_CHECK : FAILED);
     }
 }

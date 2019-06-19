@@ -97,6 +97,7 @@ public class SomaticPipeline {
                     cleanup.run(pair);
                 }
             }
+            setMetadataApi.complete(state.status());
 
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);

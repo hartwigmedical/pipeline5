@@ -30,7 +30,7 @@ import com.google.cloud.storage.Blob;
 import com.google.common.collect.ImmutableMap;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.execution.CloudExecutor;
-import com.hartwig.pipeline.execution.JobStatus;
+import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.io.RuntimeBucket;
 
 import org.slf4j.Logger;
@@ -55,13 +55,13 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
     }
 
     @Override
-    public JobStatus submit(final RuntimeBucket bucket, final VirtualMachineJobDefinition jobDefinition) {
+    public PipelineStatus submit(final RuntimeBucket bucket, final VirtualMachineJobDefinition jobDefinition) {
         String vmName = bucket.runId() + "-" + jobDefinition.name();
-        JobStatus status;
+        PipelineStatus status;
         try {
             if (bucketContainsFile(bucket, jobDefinition.startupCommand().successFlag())) {
                 LOGGER.info("Compute engine job [{}] already exists, and succeeded. Skipping job.", vmName);
-                return JobStatus.SKIPPED;
+                return PipelineStatus.SKIPPED;
             } else if (bucketContainsFile(bucket, jobDefinition.startupCommand().failureFlag())) {
                 LOGGER.info("Compute engine job [{}] already exists, but failed. Deleting state and restarting.", vmName);
                 bucket.delete(jobDefinition.startupCommand().failureFlag());
@@ -91,14 +91,14 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
             LOGGER.debug("Successfully initialised [{}]", vmName);
             status = waitForCompletion(bucket, jobDefinition);
             stop(project, vmName);
-            if (status == JobStatus.SUCCESS) {
+            if (status == PipelineStatus.SUCCESS) {
                 delete(project, vmName);
             }
             LOGGER.info("Compute engine job [{}] is complete with status [{}]", jobDefinition.name(), status);
         } catch (Exception e) {
             String message = format("An error occurred running job on compute engine [%s]", vmName);
             LOGGER.error(message, e);
-            return JobStatus.FAILED;
+            return PipelineStatus.FAILED;
         }
         return status;
     }
@@ -229,19 +229,19 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
         return false;
     }
 
-    private JobStatus waitForCompletion(RuntimeBucket bucket, VirtualMachineJobDefinition jobDefinition) {
+    private PipelineStatus waitForCompletion(RuntimeBucket bucket, VirtualMachineJobDefinition jobDefinition) {
         LOGGER.debug("Waiting for job completion");
         while (true) {
             try {
-                if (bucketContainsFile(bucket, jobDefinition.startupCommand().successFlag())) {
-                    return JobStatus.SUCCESS;
-                } else if (bucketContainsFile(bucket, jobDefinition.startupCommand().failureFlag())) {
-                    return JobStatus.FAILED;
-                }
                 try {
                     Thread.sleep(TimeUnit.SECONDS.toMillis(5));
                 } catch (InterruptedException ie) {
                     Thread.interrupted();
+                }
+                if (bucketContainsFile(bucket, jobDefinition.startupCommand().successFlag())) {
+                    return PipelineStatus.SUCCESS;
+                } else if (bucketContainsFile(bucket, jobDefinition.startupCommand().failureFlag())) {
+                    return PipelineStatus.FAILED;
                 }
             } catch (Exception e) {
                 LOGGER.error("Error while polling the results bucket for completion flag. Will try again in [5] seconds", e);

@@ -16,7 +16,7 @@ import com.hartwig.pipeline.credentials.CredentialProvider;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.flagstat.FlagstatProvider;
 import com.hartwig.pipeline.io.ResultsDirectory;
-import com.hartwig.pipeline.metadata.PatientMetadataApiProvider;
+import com.hartwig.pipeline.metadata.SampleMetadataApiProvider;
 import com.hartwig.pipeline.metadata.SetMetadataApiProvider;
 import com.hartwig.pipeline.report.PatientReportProvider;
 import com.hartwig.pipeline.snpgenotype.SnpGenotype;
@@ -42,7 +42,7 @@ public class PipelineMain {
                 GoogleCredentials credentials = CredentialProvider.from(arguments).get();
                 Storage storage = StorageProvider.from(arguments, credentials).get();
                 if (arguments.mode().equals(Arguments.Mode.SINGLE_SAMPLE)) {
-                    PipelineState state = new SingleSamplePipeline(PatientMetadataApiProvider.from(arguments).get(),
+                    PipelineState state = new SingleSamplePipeline(SampleMetadataApiProvider.from(arguments).get(),
                             AlignerProvider.from(credentials, storage, arguments).get(),
                             BamMetricsProvider.from(arguments, credentials, storage).get(),
                             GermlineCallerProvider.from(credentials, storage, arguments).get(),

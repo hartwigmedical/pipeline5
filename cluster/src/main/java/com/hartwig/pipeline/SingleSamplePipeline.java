@@ -12,8 +12,8 @@ import com.hartwig.pipeline.calling.germline.GermlineCaller;
 import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
 import com.hartwig.pipeline.flagstat.Flagstat;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
-import com.hartwig.pipeline.metadata.PatientMetadata;
-import com.hartwig.pipeline.metadata.PatientMetadataApi;
+import com.hartwig.pipeline.metadata.SampleMetadata;
+import com.hartwig.pipeline.metadata.SampleMetadataApi;
 import com.hartwig.pipeline.report.PatientReport;
 import com.hartwig.pipeline.snpgenotype.SnpGenotype;
 import com.hartwig.pipeline.snpgenotype.SnpGenotypeOutput;
@@ -26,7 +26,7 @@ public class SingleSamplePipeline {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SingleSamplePipeline.class);
 
-    private final PatientMetadataApi patientMetadataApi;
+    private final SampleMetadataApi sampleMetadataApi;
     private final Aligner aligner;
     private final BamMetrics metrics;
     private final GermlineCaller germlineCaller;
@@ -36,10 +36,10 @@ public class SingleSamplePipeline {
     private final ExecutorService executorService;
     private final Arguments arguments;
 
-    SingleSamplePipeline(final PatientMetadataApi patientMetadataApi, final Aligner aligner, final BamMetrics metrics,
+    SingleSamplePipeline(final SampleMetadataApi sampleMetadataApi, final Aligner aligner, final BamMetrics metrics,
             final GermlineCaller germlineCaller, final SnpGenotype snpGenotype, final Flagstat flagstat, final PatientReport report,
             final ExecutorService executorService, final Arguments arguments) {
-        this.patientMetadataApi = patientMetadataApi;
+        this.sampleMetadataApi = sampleMetadataApi;
         this.aligner = aligner;
         this.metrics = metrics;
         this.germlineCaller = germlineCaller;
@@ -52,14 +52,15 @@ public class SingleSamplePipeline {
 
     public PipelineState run() throws Exception {
         Versions.printAll();
-        PatientMetadata metadata = patientMetadataApi.getMetadata();
+        SampleMetadata metadata = sampleMetadataApi.get();
         String setName = metadata.setName();
         LOGGER.info("Pipeline5 single sample pipeline starting for sample [{}] in set [{}] {}",
-                metadata.sample(),
+                metadata.barcodeOrSampleName(),
                 setName,
                 arguments.runId().map(runId -> String.format("with run id [%s]", runId)).orElse(""));
         PipelineState state = new PipelineState();
         AlignmentOutput alignmentOutput = report.add(state.add(aligner.run()));
+        sampleMetadataApi.complete(state.status());
         if (state.shouldProceed()) {
 
             Future<BamMetricsOutput> bamMetricsFuture = executorService.submit(() -> metrics.run(alignmentOutput));
@@ -68,6 +69,7 @@ public class SingleSamplePipeline {
             Future<FlagstatOutput> flagstatOutputFuture = executorService.submit(() -> flagstat.run(alignmentOutput));
 
             report.add(state.add(futurePayload(bamMetricsFuture)));
+
             report.add(state.add(futurePayload(germlineCallerFuture)));
             report.add(state.add(futurePayload(unifiedGenotyperFuture)));
             report.add(state.add(futurePayload(flagstatOutputFuture)));

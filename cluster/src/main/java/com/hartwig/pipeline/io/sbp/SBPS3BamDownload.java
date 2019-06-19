@@ -11,7 +11,7 @@ import com.amazonaws.services.s3.transfer.Upload;
 import com.google.cloud.storage.Blob;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.alignment.AlignmentOutputPaths;
-import com.hartwig.pipeline.execution.JobStatus;
+import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.io.BamDownload;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
@@ -47,7 +47,7 @@ public class SBPS3BamDownload implements BamDownload {
     }
 
     @Override
-    public void run(final Sample sample, final RuntimeBucket runtimeBucket, final JobStatus result) {
+    public void run(final Sample sample, final RuntimeBucket runtimeBucket, final PipelineStatus result) {
         int attempts = 1;
         boolean success = false;
         while (attempts <= maxAttempts && !success) {

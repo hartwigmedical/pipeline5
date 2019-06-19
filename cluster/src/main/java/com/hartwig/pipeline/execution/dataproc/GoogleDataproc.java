@@ -21,7 +21,7 @@ import com.google.api.services.dataproc.v1beta2.model.SubmitJobRequest;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.execution.JobStatus;
+import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.io.RuntimeBucket;
 
 import org.jetbrains.annotations.NotNull;
@@ -51,9 +51,9 @@ public class GoogleDataproc implements SparkExecutor {
     }
 
     @Override
-    public JobStatus submit(RuntimeBucket runtimeBucket, SparkJobDefinition jobDefinition) {
+    public PipelineStatus submit(RuntimeBucket runtimeBucket, SparkJobDefinition jobDefinition) {
         try {
-            JobStatus status;
+            PipelineStatus status;
             String jobIdAndClusterName = jobIdAndClusterName(runtimeBucket, jobDefinition);
             LOGGER.info("Submitting spark job [{}] to cluster [{}]", jobDefinition.name(), jobIdAndClusterName);
             final Job job =
@@ -73,18 +73,18 @@ public class GoogleDataproc implements SparkExecutor {
                         GoogleDataproc::jobStatus);
                 stop(jobIdAndClusterName);
                 if (completed.getStatus().getState().equals("DONE")) {
-                    status = JobStatus.SUCCESS;
+                    status = PipelineStatus.SUCCESS;
                 } else {
-                    status = JobStatus.FAILED;
+                    status = PipelineStatus.FAILED;
                 }
             } else {
-                status = JobStatus.SKIPPED;
+                status = PipelineStatus.SKIPPED;
             }
             LOGGER.info("Spark job [{}] is complete with status [{}]", jobDefinition.name(), status);
             return status;
         } catch (IOException e) {
             LOGGER.error("Exception while interacting with Google Dataproc APIs", e);
-            return JobStatus.FAILED;
+            return PipelineStatus.FAILED;
         }
     }
 
