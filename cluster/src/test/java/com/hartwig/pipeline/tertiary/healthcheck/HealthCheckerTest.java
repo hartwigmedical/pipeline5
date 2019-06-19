@@ -1,10 +1,14 @@
 package com.hartwig.pipeline.tertiary.healthcheck;
 
+import static com.hartwig.pipeline.testsupport.TestBlobs.pageOf;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.google.api.gax.paging.Page;
+import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
@@ -17,6 +21,7 @@ import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
+import com.hartwig.pipeline.testsupport.TestBlobs;
 import com.hartwig.pipeline.testsupport.TestInputs;
 import com.hartwig.pipeline.tools.Versions;
 
@@ -32,14 +37,16 @@ public class HealthCheckerTest {
     private ComputeEngine computeEngine;
     private HealthChecker victim;
     private Storage storage;
+    private Bucket bucket;
 
     @Before
     public void setUp() throws Exception {
         computeEngine = mock(ComputeEngine.class);
         storage = mock(Storage.class);
-        final Bucket bucket = mock(Bucket.class);
+        bucket = mock(Bucket.class);
         when(bucket.getName()).thenReturn(RUNTIME_BUCKET);
         when(storage.get(RUNTIME_BUCKET)).thenReturn(bucket);
+        returnHealthCheck(bucket, "tumor.HealthCheckSucceeded");
         victim = new HealthChecker(ARGUMENTS, computeEngine, storage, ResultsDirectory.defaultDirectory());
     }
 
@@ -95,6 +102,20 @@ public class HealthCheckerTest {
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
                 "gsutil -qm cp -r /data/output/* gs://run-reference-tumor/health_checker/results");
     }
+
+    @Test
+    public void returnsStatusFailsWhenHealthCheckerReportsFailure() {
+        when(computeEngine.submit(any(), any())).thenReturn(PipelineStatus.SUCCESS);
+        returnHealthCheck(bucket, "tumor.HealthCheckFailed");
+        assertThat(runVictim().status()).isEqualTo(PipelineStatus.FAILED);
+    }
+
+    private void returnHealthCheck(final Bucket bucket, final String status) {
+        Blob blob = TestBlobs.blob(status);
+        Page<Blob> page = pageOf(blob);
+        when(bucket.list(Storage.BlobListOption.prefix(HealthChecker.NAMESPACE + "/results/tumor"))).thenReturn(page);
+    }
+
 
     private ArgumentCaptor<VirtualMachineJobDefinition> captureAndReturnSuccess() {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor =

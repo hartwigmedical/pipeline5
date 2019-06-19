@@ -28,8 +28,12 @@ import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SomaticPipeline {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SomaticPipeline.class);
 
     private final AlignmentOutputStorage alignmentOutputStorage;
     private final BamMetricsOutputStorage bamMetricsOutputStorage;
@@ -63,9 +67,12 @@ public class SomaticPipeline {
     }
 
     public PipelineState run() {
+
         PipelineState state = new PipelineState();
 
         SetMetadata setMetadata = setMetadataApi.get();
+        LOGGER.info("Pipeline5 somatic pipeline starting for set [{}]", setMetadata.setName());
+
         Sample tumorSample = setMetadata.tumor();
         AlignmentOutput referenceAlignmentOutput = alignmentOutputStorage.get(tumorSample).orElseThrow(throwIllegalState(tumorSample));
         Sample referenceSample = setMetadata.reference();

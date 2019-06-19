@@ -1,5 +1,8 @@
 package com.hartwig.pipeline.tertiary.healthcheck;
 
+import java.util.List;
+
+import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.AlignmentPair;
@@ -20,8 +23,13 @@ import com.hartwig.pipeline.tertiary.amber.AmberOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.trace.StageTrace;
 
+import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class HealthChecker {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(HealthChecker.class);
     static final String NAMESPACE = "health_checker";
     private static final String LOCAL_METRICS_DIR = VmDirectories.INPUT + "/metrics";
     private static final String LOCAL_AMBER_DIR = VmDirectories.INPUT + "/amber";
@@ -74,12 +82,41 @@ public class HealthChecker {
                         VmDirectories.OUTPUT))
                 .addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path())));
         PipelineStatus status = computeEngine.submit(runtimeBucket, VirtualMachineJobDefinition.healthChecker(bash, resultsDirectory));
+
+        status = checkHealthCheckerOutput(tumorSampleName, runtimeBucket, status);
+
         trace.stop();
         return HealthCheckOutput.builder()
                 .status(status)
                 .maybeOutputDirectory(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path()))
                 .addReportComponents(new EntireOutputComponent(runtimeBucket, pair, NAMESPACE, resultsDirectory))
                 .build();
+    }
+
+    @NotNull
+    private PipelineStatus checkHealthCheckerOutput(final String tumorSampleName, final RuntimeBucket runtimeBucket, PipelineStatus status) {
+        List<Blob> healthCheckStatuses = runtimeBucket.list(resultsDirectory.path(tumorSampleName));
+        if (status == PipelineStatus.SUCCESS && healthCheckStatuses.size() == 1) {
+            Blob healthCheckStatus = healthCheckStatuses.get(0);
+            if (healthCheckStatus.getName().endsWith("HealthCheckSucceeded")) {
+                LOGGER.debug("Health check reported success");
+                status = PipelineStatus.SUCCESS;
+            } else if (healthCheckStatus.getName().endsWith("HealthCheckFailed")) {
+                LOGGER.warn("Health check reported failure. Check run.log in health checker out for reason");
+                status = PipelineStatus.FAILED;
+            } else {
+                LOGGER.warn(
+                        "Health check completed with unknown status [{}]. Failing the run. Check run.log in health checker out for more "
+                                + "detail",
+                        healthCheckStatus.getName());
+                status = PipelineStatus.FAILED;
+
+            }
+        } else {
+            LOGGER.error("Found [{}] files in the health checker output. Unable to determine status, this is likely a bug in the pipeline",
+                    healthCheckStatuses.size());
+            status = PipelineStatus.FAILED;
+        } return status;
     }
 
     private static String localMetricsPath(BamMetricsOutput metricsOutput) {
