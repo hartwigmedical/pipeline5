@@ -25,7 +25,7 @@ public class SnpSiftFrequenciesAnnotation extends SubStage {
                 snpEffConfig,
                 "-tabix",
                 "-name",
-                "GoNLv5",
+                "GoNLv5_",
                 "-info",
                 "AF,AN,AC",
                 frequencyDB,
