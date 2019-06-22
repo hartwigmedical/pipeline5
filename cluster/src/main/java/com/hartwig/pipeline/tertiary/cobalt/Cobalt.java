@@ -13,8 +13,9 @@ import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
-import com.hartwig.pipeline.report.EntireOutputComponent;
+import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.resource.ResourceNames;
+import com.hartwig.pipeline.results.EntireOutputComponent;
 import com.hartwig.pipeline.trace.StageTrace;
 
 public class Cobalt {
@@ -32,7 +33,7 @@ public class Cobalt {
         this.resultsDirectory = resultsDirectory;
     }
 
-    public CobaltOutput run(AlignmentPair pair) {
+    public CobaltOutput run(SomaticRunMetadata metadata, AlignmentPair pair) {
 
         if (!arguments.runTertiary()) {
             return CobaltOutput.builder().status(PipelineStatus.SKIPPED).build();
@@ -40,9 +41,9 @@ public class Cobalt {
 
         StageTrace trace = new StageTrace(NAMESPACE, StageTrace.ExecutorType.COMPUTE_ENGINE).start();
 
-        String tumorSampleName = pair.tumor().sample().name();
-        String referenceSampleName = pair.reference().sample().name();
-        RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, NAMESPACE, referenceSampleName, tumorSampleName, arguments);
+        String tumorSampleName = pair.tumor().sample();
+        String referenceSampleName = pair.reference().sample();
+        RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, NAMESPACE, metadata, arguments);
         BashStartupScript bash = BashStartupScript.of(runtimeBucket.name());
 
         ResourceDownload cobaltResourceDownload =

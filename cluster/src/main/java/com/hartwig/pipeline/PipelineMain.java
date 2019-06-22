@@ -18,13 +18,15 @@ import com.hartwig.pipeline.flagstat.FlagstatProvider;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.metadata.SampleMetadataApiProvider;
 import com.hartwig.pipeline.metadata.SetMetadataApiProvider;
-import com.hartwig.pipeline.report.PatientReportProvider;
+import com.hartwig.pipeline.results.FullSomaticResults;
+import com.hartwig.pipeline.results.PatientReportProvider;
 import com.hartwig.pipeline.snpgenotype.SnpGenotype;
 import com.hartwig.pipeline.storage.StorageProvider;
 import com.hartwig.pipeline.tertiary.amber.AmberProvider;
 import com.hartwig.pipeline.tertiary.cobalt.CobaltProvider;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthCheckerProvider;
 import com.hartwig.pipeline.tertiary.purple.PurpleProvider;
+import com.hartwig.pipeline.tools.Versions;
 
 import org.apache.commons.cli.ParseException;
 import org.slf4j.Logger;
@@ -38,6 +40,7 @@ public class PipelineMain {
         try {
             Arguments arguments = CommandLineOptions.from(args);
             LOGGER.info("Arguments [{}]", arguments);
+            Versions.printAll();
             try {
                 GoogleCredentials credentials = CredentialProvider.from(arguments).get();
                 Storage storage = StorageProvider.from(arguments, credentials).get();
@@ -61,6 +64,7 @@ public class PipelineMain {
                                     new BamMetricsOutputStorage(storage, arguments, ResultsDirectory.defaultDirectory()),
                                     SetMetadataApiProvider.from(arguments).get(),
                                     PatientReportProvider.from(storage, arguments).get(),
+                                    new FullSomaticResults(storage, arguments),
                                     CleanupProvider.from(credentials, arguments, storage).get(),
                                     AmberProvider.from(arguments, credentials, storage).get(),
                                     CobaltProvider.from(arguments, credentials, storage).get(),

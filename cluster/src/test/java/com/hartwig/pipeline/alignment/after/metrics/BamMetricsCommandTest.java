@@ -1,19 +1,21 @@
 package com.hartwig.pipeline.alignment.after.metrics;
 
-import com.hartwig.patient.Sample;
-import com.hartwig.pipeline.execution.vm.VmDirectories;
-import org.junit.Before;
-import org.junit.Test;
+import static java.lang.String.format;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static java.lang.String.format;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import com.hartwig.patient.Sample;
+import com.hartwig.pipeline.execution.vm.VmDirectories;
+
+import org.junit.Before;
+import org.junit.Test;
 
 public class BamMetricsCommandTest {
     private static final String OPERATION = "CollectWgsMetrics";
@@ -25,14 +27,14 @@ public class BamMetricsCommandTest {
 
     @Before
     public void setup() {
-        reference = "reference.fasta";
+        reference = "referenceSampleName.fasta";
         input = "input.bam";
         sampleName = "sample";
         sample = mock(Sample.class);
 
         when(sample.name()).thenReturn(sampleName);
 
-        actual = new BamMetricsCommand("input.bam", "reference.fasta", format("%s/%s.wgsmetrics", VmDirectories.OUTPUT, sample.name())).asBash();
+        actual = new BamMetricsCommand("input.bam", "referenceSampleName.fasta", format("%s/%s.wgsmetrics", VmDirectories.OUTPUT, sample.name())).asBash();
     }
 
     @Test

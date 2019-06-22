@@ -1,5 +1,8 @@
 package com.hartwig.pipeline.tertiary.cobalt;
 
+import static com.hartwig.pipeline.testsupport.TestInputs.defaultPair;
+import static com.hartwig.pipeline.testsupport.TestInputs.defaultSomaticRunMetadata;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -15,7 +18,6 @@ import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.resource.ResourceNames;
 import com.hartwig.pipeline.testsupport.MockResource;
-import com.hartwig.pipeline.testsupport.TestInputs;
 import com.hartwig.pipeline.tools.Versions;
 
 import org.junit.Before;
@@ -47,27 +49,27 @@ public class CobaltTest {
                 computeEngine,
                 storage,
                 ResultsDirectory.defaultDirectory());
-        CobaltOutput output = victim.run(TestInputs.defaultPair());
+        CobaltOutput output = victim.run(defaultSomaticRunMetadata(), defaultPair());
         assertThat(output.status()).isEqualTo(PipelineStatus.SKIPPED);
     }
 
     @Test
     public void returnsCobaltOutputDirGoogleStorageLocation() {
         when(computeEngine.submit(any(), any())).thenReturn(PipelineStatus.SUCCESS);
-        CobaltOutput output = victim.run(TestInputs.defaultPair());
+        CobaltOutput output = victim.run(defaultSomaticRunMetadata(),defaultPair());
         assertThat(output.outputDirectory()).isEqualTo(GoogleStorageLocation.of(RUNTIME_BUCKET + "/cobalt", "results", true));
     }
 
     @Test
     public void returnsStatusFailedWhenJobFailsOnComputeEngine() {
         when(computeEngine.submit(any(), any())).thenReturn(PipelineStatus.FAILED);
-        assertThat(victim.run(TestInputs.defaultPair()).status()).isEqualTo(PipelineStatus.FAILED);
+        assertThat(victim.run(defaultSomaticRunMetadata(),defaultPair()).status()).isEqualTo(PipelineStatus.FAILED);
     }
 
     @Test
     public void runsCobaltOnComputeEngine() {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
-        victim.run(TestInputs.defaultPair());
+        victim.run(defaultSomaticRunMetadata(),defaultPair());
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains("java -Xmx8G -cp "
                 + "/data/tools/cobalt/" + Versions.COBALT + "/cobalt.jar com.hartwig.hmftools.cobalt.CountBamLinesApplication -reference reference "
                 + "-reference_bam /data/input/reference.bam -tumor tumor -tumor_bam /data/input/tumor.bam -output_dir /data/output "
@@ -77,7 +79,7 @@ public class CobaltTest {
     @Test
     public void downloadsInputBamsAndBais() {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
-        victim.run(TestInputs.defaultPair());
+        victim.run(defaultSomaticRunMetadata(),defaultPair());
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
                 "gsutil -qm cp gs://run-tumor/aligner/results/tumor.bam /data/input/tumor.bam",
                 "gsutil -qm cp gs://run-reference/aligner/results/reference.bam /data/input/reference.bam",
@@ -88,7 +90,7 @@ public class CobaltTest {
     @Test
     public void uploadsOutputDirectory() {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
-        victim.run(TestInputs.defaultPair());
+        victim.run(defaultSomaticRunMetadata(),defaultPair());
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
                 "gsutil -qm cp -r /data/output/* gs://run-reference-tumor/cobalt/results");
     }

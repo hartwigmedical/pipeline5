@@ -4,20 +4,16 @@ import java.util.Optional;
 
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Storage;
-import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
+import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class AlignmentOutputStorage {
-
-    private final Logger LOGGER = LoggerFactory.getLogger(AlignmentOutputStorage.class);
 
     private final Storage storage;
     private final Arguments arguments;
@@ -29,9 +25,9 @@ public class AlignmentOutputStorage {
         this.resultsDirectory = resultsDirectory;
     }
 
-    public Optional<AlignmentOutput> get(final Sample sample) {
-        RuntimeBucket bucket = RuntimeBucket.from(storage, Aligner.NAMESPACE, sample.name(), arguments);
-        String sorted = AlignmentOutputPaths.sorted(sample);
+    public Optional<AlignmentOutput> get(SingleSampleRunMetadata metadata) {
+        RuntimeBucket bucket = RuntimeBucket.from(storage, Aligner.NAMESPACE, metadata, arguments);
+        String sorted = AlignmentOutputPaths.sorted(metadata.sampleName());
         Blob bamBlob = bucket.get(resultsDirectory.path(sorted));
         Blob baiBlob = bucket.get(resultsDirectory.path(AlignmentOutputPaths.bai(sorted)));
         if (bamBlob != null && baiBlob != null) {
@@ -39,7 +35,7 @@ public class AlignmentOutputStorage {
                     .status(PipelineStatus.SUCCESS)
                     .maybeFinalBamLocation(location(bucket, bamBlob))
                     .maybeFinalBaiLocation(location(bucket, baiBlob))
-                    .sample(sample)
+                    .sample(metadata.sampleName())
                     .build());
         }
         return Optional.empty();

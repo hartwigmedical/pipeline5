@@ -11,23 +11,23 @@ public class CombineFilteredVariantsTest extends SubStageTest{
 
     @Override
     public SubStage createVictim() {
-        return new CombineFilteredVariants("other.vcf", "reference.fasta");
+        return new CombineFilteredVariants("other.vcf", "referenceSampleName.fasta");
     }
 
     @Override
     public String expectedPath() {
-        return "/data/output/reference.filtered_variants.vcf";
+        return "/data/output/referenceSampleName.filtered_variants.vcf";
     }
 
     @Test
     public void combinesVariantsWithGatk() {
         assertThat(output.currentBash().asUnixString()).contains("java -Xmx20G -jar /data/tools/gatk/3.8.0/GenomeAnalysisTK.jar -T "
-                + "CombineVariants -V /data/output/reference.strelka.vcf -V other.vcf -o "
-                + "/data/output/reference.filtered_variants.vcf -R reference.fasta --assumeIdenticalSamples");
+                + "CombineVariants -V /data/output/referenceSampleName.strelka.vcf -V other.vcf -o "
+                + "/data/output/referenceSampleName.filtered_variants.vcf -R referenceSampleName.fasta --assumeIdenticalSamples");
     }
 
     @Override
     protected String sampleName() {
-        return "reference";
+        return "referenceSampleName";
     }
 }

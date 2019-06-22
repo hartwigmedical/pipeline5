@@ -9,6 +9,8 @@ import static com.hartwig.pipeline.resource.ResourceNames.REFERENCE_GENOME;
 import static com.hartwig.pipeline.resource.ResourceNames.SAGE;
 import static com.hartwig.pipeline.resource.ResourceNames.SNPEFF;
 import static com.hartwig.pipeline.resource.ResourceNames.STRELKA_CONFIG;
+import static com.hartwig.pipeline.testsupport.TestInputs.defaultPair;
+import static com.hartwig.pipeline.testsupport.TestInputs.defaultSomaticRunMetadata;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -25,7 +27,6 @@ import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.testsupport.MockResource;
-import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -62,22 +63,23 @@ public class SomaticCallerTest {
         assertThat(new SomaticCaller(Arguments.testDefaultsBuilder().runSomaticCaller(false).build(),
                 computeEngine,
                 storage,
-                ResultsDirectory.defaultDirectory()).run(TestInputs.defaultPair()).status()).isEqualTo(PipelineStatus.SKIPPED);
+                ResultsDirectory.defaultDirectory()).run(defaultSomaticRunMetadata(), defaultPair())
+                .status()).isEqualTo(PipelineStatus.SKIPPED);
     }
 
     @Test
     public void returnsFinalVcfGoogleStorageLocation() {
-        AlignmentPair input = TestInputs.defaultPair();
+        AlignmentPair input = defaultPair();
         when(computeEngine.submit(any(), any())).thenReturn(PipelineStatus.SUCCESS);
-        assertThat(victim.run(input).finalSomaticVcf()).isEqualTo(GoogleStorageLocation.of(RUNTIME_BUCKET + "/" + SomaticCaller.NAMESPACE,
-                "results/tumor.cosmic.annotated.vcf.gz"));
+        assertThat(victim.run(defaultSomaticRunMetadata(), input).finalSomaticVcf()).isEqualTo(GoogleStorageLocation.of(
+                RUNTIME_BUCKET + "/" + SomaticCaller.NAMESPACE, "results/tumor.cosmic.annotated.vcf.gz"));
     }
 
     @Test
     public void downloadsRecalibratedBamsAndBais() {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinition = ArgumentCaptor.forClass(VirtualMachineJobDefinition.class);
         when(computeEngine.submit(any(), jobDefinition.capture())).thenReturn(PipelineStatus.SUCCESS);
-        victim.run(TestInputs.defaultPair());
+        victim.run(defaultSomaticRunMetadata(), defaultPair());
         assertThat(jobDefinition.getValue().startupCommand().asUnixString()).contains(
                 "gsutil -qm cp gs://run-tumor/aligner/results/tumor.bam /data/input/tumor.bam",
                 "gsutil -qm cp gs://run-reference/aligner/results/reference.bam /data/input/reference.bam",
@@ -88,6 +90,6 @@ public class SomaticCallerTest {
     @Test
     public void returnsFailedStatusWhenJobFails() {
         when(computeEngine.submit(any(), any())).thenReturn(PipelineStatus.FAILED);
-        assertThat(victim.run(TestInputs.defaultPair()).status()).isEqualTo(PipelineStatus.FAILED);
+        assertThat(victim.run(defaultSomaticRunMetadata(), defaultPair()).status()).isEqualTo(PipelineStatus.FAILED);
     }
 }

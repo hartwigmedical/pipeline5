@@ -12,6 +12,8 @@ import com.google.cloud.storage.StorageClass;
 import com.google.common.collect.Lists;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.Run;
+import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
+import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -26,13 +28,17 @@ public class RuntimeBucket {
     private final String namespace;
     private final Run run;
 
-    public static RuntimeBucket from(final Storage storage, final String namespace, final String sampleName, final Arguments arguments) {
-        return createBucketIfNeeded(storage, namespace, arguments, Run.from(sampleName, arguments));
+    public static RuntimeBucket from(final Storage storage, final String namespace, final SingleSampleRunMetadata metadata,
+            final Arguments arguments) {
+        return createBucketIfNeeded(storage, namespace, arguments, Run.from(metadata.sampleId(), arguments));
     }
 
-    public static RuntimeBucket from(final Storage storage, final String namespace, final String referenceSampleName,
-            final String tumorSampleName, final Arguments arguments) {
-        return createBucketIfNeeded(storage, namespace, arguments, Run.from(referenceSampleName, tumorSampleName, arguments));
+    public static RuntimeBucket from(final Storage storage, final String namespace, final SomaticRunMetadata metadata,
+            final Arguments arguments) {
+        return createBucketIfNeeded(storage,
+                namespace,
+                arguments,
+                Run.from(metadata.reference().sampleId(), metadata.tumor().sampleId(), arguments));
     }
 
     @NotNull
@@ -60,9 +66,7 @@ public class RuntimeBucket {
     @NotNull
     private String namespace(final String blobName) {
         String[] blobPath = blobName.split("/");
-        return !blobPath[0].equals(namespace)
-                ? namespace + (blobName.startsWith("/") ? blobName : ("/" + blobName))
-                : blobName;
+        return !blobPath[0].equals(namespace) ? namespace + (blobName.startsWith("/") ? blobName : ("/" + blobName)) : blobName;
     }
 
     public void create(String blobName, byte[] content) {

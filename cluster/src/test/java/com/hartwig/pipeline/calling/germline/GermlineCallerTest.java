@@ -1,5 +1,8 @@
 package com.hartwig.pipeline.calling.germline;
 
+import static com.hartwig.pipeline.testsupport.TestInputs.referenceAlignmentOutput;
+import static com.hartwig.pipeline.testsupport.TestInputs.referenceRunMetadata;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -14,7 +17,6 @@ import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.resource.ResourceNames;
 import com.hartwig.pipeline.testsupport.MockResource;
-import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -50,26 +52,20 @@ public class GermlineCallerTest {
                 computeEngine,
                 storage,
                 ResultsDirectory.defaultDirectory());
-        GermlineCallerOutput output = victim.run(TestInputs.referenceAlignmentOutput());
-        assertThat(output.status()).isEqualTo(PipelineStatus.SKIPPED);
-    }
-
-    @Test
-    public void returnsSkippedIfPassedATumorSample() {
-        GermlineCallerOutput output = victim.run(TestInputs.tumorAlignmentOutput());
+        GermlineCallerOutput output = victim.run(referenceRunMetadata(), referenceAlignmentOutput());
         assertThat(output.status()).isEqualTo(PipelineStatus.SKIPPED);
     }
 
     @Test
     public void returnsStatusFailedWhenJobFailsOnComputeEngine() {
         when(computeEngine.submit(any(), any())).thenReturn(PipelineStatus.FAILED);
-        assertThat(victim.run(TestInputs.referenceAlignmentOutput()).status()).isEqualTo(PipelineStatus.FAILED);
+        assertThat(victim.run(referenceRunMetadata(), referenceAlignmentOutput()).status()).isEqualTo(PipelineStatus.FAILED);
     }
 
     @Test
     public void downloadsInputBamsAndBais() {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
-        victim.run(TestInputs.referenceAlignmentOutput());
+        victim.run(referenceRunMetadata(), referenceAlignmentOutput());
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
                 "gsutil -qm cp gs://run-reference/aligner/results/reference.bam /data/input/reference.bam",
                 "gsutil -qm cp gs://run-reference/aligner/results/reference.bam.bai /data/input/reference.bam.bai");
@@ -78,7 +74,7 @@ public class GermlineCallerTest {
     @Test
     public void uploadsOutputDirectory() {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
-        victim.run(TestInputs.referenceAlignmentOutput());
+        victim.run(referenceRunMetadata(), referenceAlignmentOutput());
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
                 "gsutil -qm cp -r /data/output/* gs://run-reference/germline_caller/results");
     }

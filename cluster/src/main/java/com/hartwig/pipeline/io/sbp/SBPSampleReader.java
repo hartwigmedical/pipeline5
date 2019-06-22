@@ -54,7 +54,10 @@ public class SBPSampleReader {
 
     @NotNull
     private String extract(final int sampleId, final List<FastQMetadata> fastqJson, final Function<String, String> stringFunction) {
-        return fastqJson.stream().map(FastQMetadata::name_r1).map(SBPSampleReader::removePath).map(stringFunction)
+        return fastqJson.stream()
+                .map(FastQMetadata::name_r1)
+                .map(SBPSampleReader::removePath)
+                .map(stringFunction)
                 .distinct()
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException(format("No FASTQ available in SBP object store for sample [%s]",
@@ -77,8 +80,7 @@ public class SBPSampleReader {
     private static ImmutableLane lane(final FastQMetadata fastQMetadata) {
         String bucket = fastQMetadata.bucket();
         if (bucket == null || bucket.isEmpty()) {
-            throw new IllegalStateException(format(
-                    "Bucket for fastq [%s] was null or empty. Has this sample id been cleaned up in S3?",
+            throw new IllegalStateException(format("Bucket for fastq [%s] was null or empty. Has this sample id been cleaned up in S3?",
                     fastQMetadata));
         }
         return Lane.builder()

@@ -3,7 +3,6 @@ package com.hartwig.pipeline.alignment;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 
@@ -12,7 +11,7 @@ import org.immutables.value.Value;
 @Value.Immutable
 public interface AlignmentOutput extends StageOutput {
 
-    Sample sample();
+    String sample();
 
     default String name() {
         return Aligner.NAMESPACE;

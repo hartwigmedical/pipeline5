@@ -1,12 +1,12 @@
 package com.hartwig.pipeline.alignment.after.metrics;
 
 import com.google.cloud.storage.Storage;
-import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
+import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 
 public class BamMetricsOutputStorage {
 
@@ -20,13 +20,13 @@ public class BamMetricsOutputStorage {
         this.resultsDirectory = resultsDirectory;
     }
 
-    public BamMetricsOutput get(Sample sample) {
-        RuntimeBucket metricsBucket = RuntimeBucket.from(storage, BamMetrics.NAMESPACE, sample.name(), arguments);
+    public BamMetricsOutput get(SingleSampleRunMetadata sample) {
+        RuntimeBucket metricsBucket = RuntimeBucket.from(storage, BamMetrics.NAMESPACE, sample, arguments);
         return BamMetricsOutput.builder()
                 .status(PipelineStatus.SUCCESS)
-                .sample(sample)
+                .sample(sample.sampleName())
                 .maybeMetricsOutputFile(GoogleStorageLocation.of(metricsBucket.name(),
-                        resultsDirectory.path(BamMetricsOutput.outputFile(sample))))
+                        resultsDirectory.path(BamMetricsOutput.outputFile(sample.sampleName()))))
                 .build();
     }
 }

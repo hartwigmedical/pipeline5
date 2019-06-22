@@ -1,5 +1,8 @@
 package com.hartwig.pipeline.tertiary.purple;
 
+import static com.hartwig.pipeline.testsupport.TestInputs.defaultPair;
+import static com.hartwig.pipeline.testsupport.TestInputs.defaultSomaticRunMetadata;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -19,7 +22,6 @@ import com.hartwig.pipeline.resource.ResourceNames;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
 import com.hartwig.pipeline.tertiary.cobalt.CobaltOutput;
 import com.hartwig.pipeline.testsupport.MockResource;
-import com.hartwig.pipeline.testsupport.TestInputs;
 import com.hartwig.pipeline.tools.Versions;
 
 import org.junit.Before;
@@ -73,11 +75,12 @@ public class PurpleTest {
     public void runsPurpleOnComputeEngine() {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
         runVictim();
-        assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains("java -Xmx8G -jar "
-                + "/data/tools/purple/" + Versions.PURPLE + "/purple.jar -reference reference -tumor tumor -output_dir /data/output -amber "
-                + "/data/input -cobalt /data/input -gc_profile /data/resources/gc_profile.cnp -somatic_vcf /data/input/somatic.vcf "
-                + "-structural_vcf /data/input/structural.vcf -sv_recovery_vcf /data/input/sv_recovery.vcf -circos "
-                + "/data/tools/circos/0.69.6/bin/circos -threads $(grep -c '^processor' /proc/cpuinfo)");
+        assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
+                "java -Xmx8G -jar " + "/data/tools/purple/" + Versions.PURPLE
+                        + "/purple.jar -reference reference -tumor tumor -output_dir /data/output -amber "
+                        + "/data/input -cobalt /data/input -gc_profile /data/resources/gc_profile.cnp -somatic_vcf /data/input/somatic.vcf "
+                        + "-structural_vcf /data/input/structural.vcf -sv_recovery_vcf /data/input/sv_recovery.vcf -circos "
+                        + "/data/tools/circos/0.69.6/bin/circos -threads $(grep -c '^processor' /proc/cpuinfo)");
     }
 
     @Test
@@ -101,7 +104,8 @@ public class PurpleTest {
     }
 
     private PurpleOutput runVictim() {
-        return victim.run(TestInputs.defaultPair(),
+        return victim.run(defaultSomaticRunMetadata(),
+                defaultPair(),
                 SomaticCallerOutput.builder()
                         .status(PipelineStatus.SUCCESS)
                         .maybeFinalSomaticVcf(GoogleStorageLocation.of(RUNTIME_BUCKET, "somatic.vcf"))

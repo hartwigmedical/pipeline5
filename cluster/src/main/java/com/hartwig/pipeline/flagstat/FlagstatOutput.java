@@ -1,6 +1,5 @@
 package com.hartwig.pipeline.flagstat;
 
-import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.StageOutput;
 
 import org.immutables.value.Value;
@@ -13,8 +12,8 @@ public interface FlagstatOutput extends StageOutput {
         return Flagstat.NAMESPACE;
     }
 
-    static String outputFile(Sample sample) {
-        return String.format("%s.flagstat", sample.name());
+    static String outputFile(String sample) {
+        return String.format("%s.flagstat", sample);
     }
 
     static ImmutableFlagstatOutput.Builder builder() {

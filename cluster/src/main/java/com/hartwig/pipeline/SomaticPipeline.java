@@ -5,7 +5,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.function.Supplier;
 
-import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.alignment.AlignmentOutputStorage;
 import com.hartwig.pipeline.alignment.AlignmentPair;
@@ -16,9 +15,10 @@ import com.hartwig.pipeline.calling.somatic.SomaticCallerOutput;
 import com.hartwig.pipeline.calling.structural.StructuralCaller;
 import com.hartwig.pipeline.calling.structural.StructuralCallerOutput;
 import com.hartwig.pipeline.cleanup.Cleanup;
-import com.hartwig.pipeline.metadata.SetMetadata;
-import com.hartwig.pipeline.metadata.SetMetadataApi;
-import com.hartwig.pipeline.report.PatientReport;
+import com.hartwig.pipeline.metadata.SomaticMetadataApi;
+import com.hartwig.pipeline.metadata.SomaticRunMetadata;
+import com.hartwig.pipeline.results.FullSomaticResults;
+import com.hartwig.pipeline.results.PipelineResults;
 import com.hartwig.pipeline.tertiary.amber.Amber;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
 import com.hartwig.pipeline.tertiary.cobalt.Cobalt;
@@ -37,8 +37,9 @@ public class SomaticPipeline {
 
     private final AlignmentOutputStorage alignmentOutputStorage;
     private final BamMetricsOutputStorage bamMetricsOutputStorage;
-    private final SetMetadataApi setMetadataApi;
-    private final PatientReport patientReport;
+    private final SomaticMetadataApi setMetadataApi;
+    private final PipelineResults pipelineResults;
+    private final FullSomaticResults fullSomaticResults;
     private final Cleanup cleanup;
     private final Amber amber;
     private final Cobalt cobalt;
@@ -49,13 +50,15 @@ public class SomaticPipeline {
     private final ExecutorService executorService;
 
     SomaticPipeline(final AlignmentOutputStorage alignmentOutputStorage, final BamMetricsOutputStorage bamMetricsOutputStorage,
-            final SetMetadataApi setMetadataApi, final PatientReport patientReport, final Cleanup cleanup, final Amber amber,
-            final Cobalt cobalt, final SomaticCaller somaticCaller, final StructuralCaller structuralCaller, final Purple purple,
-            final HealthChecker healthChecker, final ExecutorService executorService) {
+            final SomaticMetadataApi setMetadataApi, final PipelineResults pipelineResults, final FullSomaticResults fullSomaticResults,
+            final Cleanup cleanup, final Amber amber, final Cobalt cobalt, final SomaticCaller somaticCaller,
+            final StructuralCaller structuralCaller, final Purple purple, final HealthChecker healthChecker,
+            final ExecutorService executorService) {
         this.alignmentOutputStorage = alignmentOutputStorage;
         this.bamMetricsOutputStorage = bamMetricsOutputStorage;
         this.setMetadataApi = setMetadataApi;
-        this.patientReport = patientReport;
+        this.pipelineResults = pipelineResults;
+        this.fullSomaticResults = fullSomaticResults;
         this.cleanup = cleanup;
         this.amber = amber;
         this.cobalt = cobalt;
@@ -70,38 +73,46 @@ public class SomaticPipeline {
 
         PipelineState state = new PipelineState();
 
-        SetMetadata setMetadata = setMetadataApi.get();
-        LOGGER.info("Pipeline5 somatic pipeline starting for set [{}]", setMetadata.setName());
+        SomaticRunMetadata metadata = setMetadataApi.get();
+        LOGGER.info("Pipeline5 somatic pipeline starting for set [{}]", metadata.runName());
 
-        Sample tumorSample = setMetadata.tumor();
-        AlignmentOutput referenceAlignmentOutput = alignmentOutputStorage.get(tumorSample).orElseThrow(throwIllegalState(tumorSample));
-        Sample referenceSample = setMetadata.reference();
-        AlignmentOutput tumorAlignmentOutput = alignmentOutputStorage.get(referenceSample).orElseThrow(throwIllegalState(referenceSample));
-        AlignmentPair pair = AlignmentPair.of(tumorAlignmentOutput, referenceAlignmentOutput);
+        AlignmentOutput referenceAlignmentOutput =
+                alignmentOutputStorage.get(metadata.reference()).orElseThrow(throwIllegalState(metadata.reference().sampleId()));
+        AlignmentOutput tumorAlignmentOutput =
+                alignmentOutputStorage.get(metadata.tumor()).orElseThrow(throwIllegalState(metadata.tumor().sampleName()));
+        AlignmentPair pair = AlignmentPair.of(referenceAlignmentOutput, tumorAlignmentOutput);
 
         try {
-            Future<AmberOutput> amberOutputFuture = executorService.submit(() -> amber.run(pair));
-            Future<CobaltOutput> cobaltOutputFuture = executorService.submit(() -> cobalt.run(pair));
-            Future<SomaticCallerOutput> somaticCallerOutputFuture = executorService.submit(() -> somaticCaller.run(pair));
-            Future<StructuralCallerOutput> structuralCallerOutputFuture = executorService.submit(() -> structuralCaller.run(pair));
-            AmberOutput amberOutput = patientReport.add(state.add(amberOutputFuture.get()));
-            CobaltOutput cobaltOutput = patientReport.add(state.add(cobaltOutputFuture.get()));
-            SomaticCallerOutput somaticCallerOutput = patientReport.add(state.add(somaticCallerOutputFuture.get()));
-            StructuralCallerOutput structuralCallerOutput = patientReport.add(state.add(structuralCallerOutputFuture.get()));
+            Future<AmberOutput> amberOutputFuture = executorService.submit(() -> amber.run(metadata, pair));
+            Future<CobaltOutput> cobaltOutputFuture = executorService.submit(() -> cobalt.run(metadata, pair));
+            Future<SomaticCallerOutput> somaticCallerOutputFuture = executorService.submit(() -> somaticCaller.run(metadata, pair));
+            Future<StructuralCallerOutput> structuralCallerOutputFuture =
+                    executorService.submit(() -> structuralCaller.run(metadata, pair));
+            AmberOutput amberOutput = pipelineResults.add(state.add(amberOutputFuture.get()));
+            CobaltOutput cobaltOutput = pipelineResults.add(state.add(cobaltOutputFuture.get()));
+            SomaticCallerOutput somaticCallerOutput = pipelineResults.add(state.add(somaticCallerOutputFuture.get()));
+            StructuralCallerOutput structuralCallerOutput = pipelineResults.add(state.add(structuralCallerOutputFuture.get()));
 
             if (state.shouldProceed()) {
-                Future<PurpleOutput> purpleOutputFuture = executorService.submit(() -> patientReport.add(state.add(purple.run(pair,
+                Future<PurpleOutput> purpleOutputFuture = executorService.submit(() -> pipelineResults.add(state.add(purple.run(metadata,
+                        pair,
                         somaticCallerOutput,
                         structuralCallerOutput,
                         cobaltOutput,
                         amberOutput))));
                 PurpleOutput purpleOutput = purpleOutputFuture.get();
                 if (state.shouldProceed()) {
-                    BamMetricsOutput tumorMetrics = bamMetricsOutputStorage.get(tumorSample);
-                    BamMetricsOutput referenceMetrics = bamMetricsOutputStorage.get(referenceSample);
-                    patientReport.add(state.add(healthChecker.run(pair, tumorMetrics, referenceMetrics, amberOutput, purpleOutput)));
-                    patientReport.compose(setMetadata.setName());
-                    cleanup.run(pair);
+                    BamMetricsOutput tumorMetrics = bamMetricsOutputStorage.get(metadata.tumor());
+                    BamMetricsOutput referenceMetrics = bamMetricsOutputStorage.get(metadata.reference());
+                    pipelineResults.add(state.add(healthChecker.run(metadata,
+                            pair,
+                            tumorMetrics,
+                            referenceMetrics,
+                            amberOutput,
+                            purpleOutput)));
+                    pipelineResults.compose(metadata.runName());
+                    fullSomaticResults.compose(metadata);
+                    cleanup.run(metadata);
                 }
             }
             setMetadataApi.complete(state.status());
@@ -113,9 +124,9 @@ public class SomaticPipeline {
     }
 
     @NotNull
-    private static Supplier<RuntimeException> throwIllegalState(Sample sample) {
+    private static Supplier<RuntimeException> throwIllegalState(String sample) {
         return () -> new IllegalStateException(String.format(
                 "No alignment output found for sample [%s]. Has the single sample pipeline been run?",
-                sample.name()));
+                sample));
     }
 }

@@ -1,6 +1,8 @@
 package com.hartwig.pipeline.tertiary.healthcheck;
 
 import static com.hartwig.pipeline.testsupport.TestBlobs.pageOf;
+import static com.hartwig.pipeline.testsupport.TestInputs.defaultPair;
+import static com.hartwig.pipeline.testsupport.TestInputs.defaultSomaticRunMetadata;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -12,7 +14,6 @@ import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.alignment.after.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
@@ -22,7 +23,6 @@ import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.testsupport.TestBlobs;
-import com.hartwig.pipeline.testsupport.TestInputs;
 import com.hartwig.pipeline.tools.Versions;
 
 import org.junit.Before;
@@ -79,7 +79,8 @@ public class HealthCheckerTest {
         runVictim();
         System.out.println(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString());
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
-                "java -Xmx10G -jar /data/tools/health-checker/" + Versions.HEALTH_CHECKER + "/health-checker.jar -reference reference "
+                "java -Xmx10G -jar /data/tools/health-checker/" + Versions.HEALTH_CHECKER
+                        + "/health-checker.jar -reference reference "
                         + "-tumor tumor -metrics_dir /data/input/metrics -amber_dir /data/input/amber -purple_dir /data/input/purple "
                         + "-output_dir /data/output");
     }
@@ -116,7 +117,6 @@ public class HealthCheckerTest {
         when(bucket.list(Storage.BlobListOption.prefix(HealthChecker.NAMESPACE + "/results/tumor"))).thenReturn(page);
     }
 
-
     private ArgumentCaptor<VirtualMachineJobDefinition> captureAndReturnSuccess() {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor =
                 ArgumentCaptor.forClass(VirtualMachineJobDefinition.class);
@@ -125,17 +125,17 @@ public class HealthCheckerTest {
     }
 
     private HealthCheckOutput runVictim() {
-        AlignmentPair pair = TestInputs.defaultPair();
-        return victim.run(pair,
+        return victim.run(defaultSomaticRunMetadata(),
+                defaultPair(),
                 BamMetricsOutput.builder()
                         .status(PipelineStatus.SUCCESS)
                         .maybeMetricsOutputFile(GoogleStorageLocation.of("run-reference", "reference.wgsmetrics"))
-                        .sample(pair.reference().sample())
+                        .sample(defaultPair().reference().sample())
                         .build(),
                 BamMetricsOutput.builder()
                         .status(PipelineStatus.SUCCESS)
                         .maybeMetricsOutputFile(GoogleStorageLocation.of("run-tumor", "tumor.wgsmetrics"))
-                        .sample(pair.tumor().sample())
+                        .sample(defaultPair().tumor().sample())
                         .build(),
                 AmberOutput.builder()
                         .status(PipelineStatus.SUCCESS)

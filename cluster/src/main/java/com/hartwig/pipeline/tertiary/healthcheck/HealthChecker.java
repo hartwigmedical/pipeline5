@@ -18,7 +18,8 @@ import com.hartwig.pipeline.execution.vm.unix.MkDirCommand;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
-import com.hartwig.pipeline.report.EntireOutputComponent;
+import com.hartwig.pipeline.metadata.SomaticRunMetadata;
+import com.hartwig.pipeline.results.EntireOutputComponent;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.trace.StageTrace;
@@ -48,7 +49,7 @@ public class HealthChecker {
         this.resultsDirectory = resultsDirectory;
     }
 
-    public HealthCheckOutput run(AlignmentPair pair, BamMetricsOutput metricsOutput, BamMetricsOutput mateMetricsOutput,
+    public HealthCheckOutput run(SomaticRunMetadata metadata, AlignmentPair pair, BamMetricsOutput metricsOutput, BamMetricsOutput mateMetricsOutput,
             AmberOutput amberOutput, PurpleOutput purpleOutput) {
         if (!arguments.runTertiary()) {
             return HealthCheckOutput.builder().status(PipelineStatus.SKIPPED).build();
@@ -56,9 +57,9 @@ public class HealthChecker {
 
         StageTrace trace = new StageTrace(NAMESPACE, StageTrace.ExecutorType.COMPUTE_ENGINE).start();
 
-        String referenceSampleName = pair.reference().sample().name();
-        String tumorSampleName = pair.tumor().sample().name();
-        RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, NAMESPACE, referenceSampleName, tumorSampleName, arguments);
+        String referenceSampleName = pair.reference().sample();
+        String tumorSampleName = pair.tumor().sample();
+        RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, NAMESPACE, metadata, arguments);
 
         BashStartupScript bash = BashStartupScript.of(runtimeBucket.name());
 
@@ -94,7 +95,8 @@ public class HealthChecker {
     }
 
     @NotNull
-    private PipelineStatus checkHealthCheckerOutput(final String tumorSampleName, final RuntimeBucket runtimeBucket, PipelineStatus status) {
+    private PipelineStatus checkHealthCheckerOutput(final String tumorSampleName, final RuntimeBucket runtimeBucket,
+            PipelineStatus status) {
         List<Blob> healthCheckStatuses = runtimeBucket.list(resultsDirectory.path(tumorSampleName));
         if (status == PipelineStatus.SUCCESS && healthCheckStatuses.size() == 1) {
             Blob healthCheckStatus = healthCheckStatuses.get(0);
@@ -116,10 +118,11 @@ public class HealthChecker {
             LOGGER.error("Found [{}] files in the health checker output. Unable to determine status, this is likely a bug in the pipeline",
                     healthCheckStatuses.size());
             status = PipelineStatus.FAILED;
-        } return status;
+        }
+        return status;
     }
 
     private static String localMetricsPath(BamMetricsOutput metricsOutput) {
-        return LOCAL_METRICS_DIR + "/" + metricsOutput.sample().name() + ".wgsmetrics";
+        return LOCAL_METRICS_DIR + "/" + metricsOutput.sample() + ".wgsmetrics";
     }
 }

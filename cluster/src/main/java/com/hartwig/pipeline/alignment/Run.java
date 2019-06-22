@@ -1,9 +1,11 @@
 package com.hartwig.pipeline.alignment;
 
-import com.hartwig.pipeline.Arguments;
-import org.immutables.value.Value;
-
 import static java.lang.String.format;
+
+import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.RunTag;
+
+import org.immutables.value.Value;
 
 @Value.Immutable
 public interface Run {
@@ -12,8 +14,7 @@ public interface Run {
     String id();
 
     static Run from(String sampleName, Arguments arguments) {
-        return ImmutableRun.of(format("run-%s",
-                arguments.runId().map(id -> format("%s-%s", sampleName.toLowerCase(), id)).orElse(sampleName.toLowerCase())));
+        return ImmutableRun.of(format("run-%s", RunTag.apply(arguments, sampleName.toLowerCase())));
     }
 
     static Run from(String reference, String tumor, Arguments arguments) {

@@ -2,6 +2,7 @@ package com.hartwig.pipeline.cleanup;
 
 import static com.hartwig.pipeline.testsupport.TestBlobs.blob;
 import static com.hartwig.pipeline.testsupport.TestBlobs.pageOf;
+import static com.hartwig.pipeline.testsupport.TestInputs.defaultSomaticRunMetadata;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
@@ -22,7 +23,6 @@ import com.google.cloud.storage.Storage;
 import com.google.common.collect.Lists;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ImmutableArguments;
-import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
@@ -72,7 +72,7 @@ public class CleanupTest {
     @Test
     public void doesNothingWhenCleanupDisabled() {
         victim = new Cleanup(storage, Arguments.testDefaultsBuilder().cleanup(false).build(), dataproc);
-        victim.run(TestInputs.defaultPair());
+        victim.run(defaultSomaticRunMetadata());
         verify(referenceBucket, never()).delete();
     }
 
@@ -99,7 +99,7 @@ public class CleanupTest {
         ArgumentCaptor<String> deletedJobs = ArgumentCaptor.forClass(String.class);
         Dataproc.Projects.Regions.Jobs.Delete delete = mock(Dataproc.Projects.Regions.Jobs.Delete.class);
         when(jobs.delete(eq(ARGUMENTS.project()), eq(ARGUMENTS.region()), deletedJobs.capture())).thenReturn(delete);
-        victim.run(TestInputs.defaultPair());
+        victim.run(defaultSomaticRunMetadata());
         assertThat(deletedJobs.getAllValues()).hasSize(2);
         assertThat(deletedJobs.getAllValues().get(0)).isEqualTo(REFERENCE_GUNZIP);
         assertThat(deletedJobs.getAllValues().get(1)).isEqualTo(TUMOR_GUNZIP);
@@ -110,7 +110,7 @@ public class CleanupTest {
         Blob blob = blob("result");
         Page<Blob> page = pageOf(blob);
         when(bucket.list()).thenReturn(page);
-        victim.run(TestInputs.defaultPair());
+        victim.run(defaultSomaticRunMetadata());
         verify(bucket, times(1)).delete();
         verify(blob, times(1)).delete();
     }

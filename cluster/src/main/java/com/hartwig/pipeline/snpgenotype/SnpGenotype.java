@@ -16,12 +16,13 @@ import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
-import com.hartwig.pipeline.report.RunLogComponent;
-import com.hartwig.pipeline.report.SingleFileComponent;
+import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.resource.GATKDictAlias;
 import com.hartwig.pipeline.resource.ReferenceGenomeAlias;
 import com.hartwig.pipeline.resource.Resource;
 import com.hartwig.pipeline.resource.ResourceNames;
+import com.hartwig.pipeline.results.RunLogComponent;
+import com.hartwig.pipeline.results.SingleFileComponent;
 import com.hartwig.pipeline.trace.StageTrace;
 
 public class SnpGenotype {
@@ -43,7 +44,7 @@ public class SnpGenotype {
         this.resultsDirectory = resultsDirectory;
     }
 
-    public SnpGenotypeOutput run(AlignmentOutput alignmentOutput) {
+    public SnpGenotypeOutput run(SingleSampleRunMetadata metadata, AlignmentOutput alignmentOutput) {
 
         if (!arguments.runSnpGenotyper()) {
             return SnpGenotypeOutput.builder().status(PipelineStatus.SKIPPED).build();
@@ -51,8 +52,8 @@ public class SnpGenotype {
 
         StageTrace trace = new StageTrace(NAMESPACE, StageTrace.ExecutorType.COMPUTE_ENGINE).start();
 
-        String sampleName = alignmentOutput.sample().name();
-        RuntimeBucket bucket = RuntimeBucket.from(storage, NAMESPACE, sampleName, arguments);
+        String sampleName = alignmentOutput.sample();
+        RuntimeBucket bucket = RuntimeBucket.from(storage, NAMESPACE, metadata, arguments);
 
         ResourceDownload referenceGenomeDownload = ResourceDownload.from(bucket,
                 new Resource(storage,

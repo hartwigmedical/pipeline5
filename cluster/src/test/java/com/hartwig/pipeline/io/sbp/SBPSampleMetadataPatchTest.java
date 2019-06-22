@@ -22,7 +22,7 @@ import org.junit.Test;
 public class SBPSampleMetadataPatchTest {
 
     private static final String SAMPLE_NAME = "sample";
-    private static final String BARCODE = "barcodeOrSampleName";
+    private static final String BARCODE = "sampleId";
     private static final String BAM_KEY = BARCODE + "/" + SAMPLE_NAME + ".bam";
     private static final String BAI_KEY = BAM_KEY + ".bai";
     private static final ImmutableSample SAMPLE = Sample.builder("", SAMPLE_NAME).barcode(BARCODE).build();
@@ -55,7 +55,8 @@ public class SBPSampleMetadataPatchTest {
         when(s3.getObjectAcl(SBPS3FileTarget.ROOT_BUCKET, BAM_KEY)).thenReturn(bamAcl);
         AccessControlList baiAcl = new AccessControlList();
         when(s3.getObjectAcl(SBPS3FileTarget.ROOT_BUCKET, BAI_KEY)).thenReturn(baiAcl);
-        MockRuntimeBucket runtimeBucket = MockRuntimeBucket.of("test").with(resultsDirectory.path(AlignmentOutputPaths.sorted(SAMPLE)), 1, "md5");
+        MockRuntimeBucket runtimeBucket =
+                MockRuntimeBucket.of("test").with(resultsDirectory.path(AlignmentOutputPaths.sorted(SAMPLE_NAME)), 1, "md5");
         victim.run(SAMPLE, runtimeBucket.getRuntimeBucket(), PipelineStatus.SUCCESS);
         checkAcl(bamAcl);
         checkAcl(baiAcl);

@@ -41,7 +41,7 @@ public class SBPSampleMetadataPatch implements BamDownload {
 
     @Override
     public void run(final Sample sample, final RuntimeBucket runtimeBucket, final PipelineStatus result) {
-        Blob bamBlob = runtimeBucket.get(resultsDirectory.path(AlignmentOutputPaths.sorted(sample)));
+        Blob bamBlob = runtimeBucket.get(resultsDirectory.path(AlignmentOutputPaths.sorted(sample.name())));
         decorated.run(sample, runtimeBucket, result);
         String bamFile = sample.name() + ".bam";
         String baiFile = bamFile + ".bai";
@@ -51,7 +51,7 @@ public class SBPSampleMetadataPatch implements BamDownload {
       /*  sbpRestApi.patchSample(sbpSampleId,
                 BamMetadata.builder()
                         .bucket(SBPS3FileTarget.ROOT_BUCKET)
-                        .directory(sample.barcodeOrSampleName())
+                        .directory(sample.sampleId())
                         .filename(bamFile)
                         .filesize(existing.getContentLength())
                         .hash(new String(Hex.encodeHex(Base64.getDecoder().decode(bamBlob.getMd5()))))

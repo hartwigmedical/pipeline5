@@ -1,7 +1,5 @@
 package com.hartwig.pipeline.metadata;
 
-import java.time.LocalDateTime;
-
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.io.sbp.SBPRestApi;
 
@@ -15,7 +13,7 @@ public class SampleMetadataApiProvider {
 
     public SampleMetadataApi get() {
         return arguments.sbpApiSampleId().<SampleMetadataApi>map(sbpSampleId -> new SbpSampleMetadataApi(SBPRestApi.newInstance(arguments),
-                sbpSampleId)).orElse(new LocalSampleMetadataApi(arguments, LocalDateTime.now()));
+                sbpSampleId)).orElse(new LocalSampleMetadataApi(arguments.sampleId()));
     }
 
     public static SampleMetadataApiProvider from(final Arguments arguments) {

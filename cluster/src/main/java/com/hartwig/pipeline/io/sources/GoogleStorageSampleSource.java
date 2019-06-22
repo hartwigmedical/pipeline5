@@ -10,6 +10,7 @@ import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.io.RuntimeBucket;
+import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 
 public class GoogleStorageSampleSource implements SampleSource {
 
@@ -22,12 +23,12 @@ public class GoogleStorageSampleSource implements SampleSource {
     }
 
     @Override
-    public SampleData sample(final Arguments arguments) {
+    public SampleData sample(final SingleSampleRunMetadata metadata, final Arguments arguments) {
         if (arguments.sampleId() == null || arguments.sampleId().isEmpty()) {
             throw new IllegalArgumentException("Unable to run in -no_upload mode without an explicit patient/sample name (use -sample_id)");
         }
 
-        RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, Aligner.NAMESPACE, arguments.sampleId(), arguments);
+        RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, Aligner.NAMESPACE, metadata, arguments);
 
         Iterable<Blob> blobs = runtimeBucket.list("samples/");
         if (Iterables.isEmpty(blobs)) {

@@ -9,8 +9,8 @@ import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.alignment.Run;
+import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,10 +28,10 @@ public class Cleanup {
         this.dataproc = dataproc;
     }
 
-    public void run(AlignmentPair pair) {
+    public void run(SomaticRunMetadata metadata) {
         LOGGER.info("Cleaning up all transient resources on successful somatic pipeline run (runtime buckets and dataproc jobs)");
-        String referenceSampleName = pair.reference().sample().name();
-        String tumorSampleName = pair.tumor().sample().name();
+        String referenceSampleName = metadata.reference().sampleId();
+        String tumorSampleName = metadata.tumor().sampleId();
         Run referenceRun = Run.from(referenceSampleName, arguments);
         deleteBucket(referenceRun.id());
         Run tumorRun = Run.from(tumorSampleName, arguments);

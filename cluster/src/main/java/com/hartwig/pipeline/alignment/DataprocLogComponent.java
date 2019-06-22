@@ -6,7 +6,7 @@ import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.io.RuntimeBucket;
-import com.hartwig.pipeline.report.ReportComponent;
+import com.hartwig.pipeline.results.ReportComponent;
 
 public class DataprocLogComponent implements ReportComponent {
 

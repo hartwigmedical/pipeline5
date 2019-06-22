@@ -1,10 +1,10 @@
 package com.hartwig.pipeline.metadata;
 
-import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.RunTag;
 import com.hartwig.pipeline.execution.PipelineStatus;
 
-public class LocalSetMetadataApi implements SetMetadataApi {
+public class LocalSetMetadataApi implements SomaticMetadataApi {
 
     private final Arguments arguments;
 
@@ -13,12 +13,22 @@ public class LocalSetMetadataApi implements SetMetadataApi {
     }
 
     @Override
-    public SetMetadata get() {
+    public SomaticRunMetadata get() {
 
-        String setId = arguments.runId().map(runId -> arguments.setId() + "-" + runId).orElse(arguments.setId());
-        return SetMetadata.of(setId,
-                Sample.builder("", arguments.setId() + "T").type(Sample.Type.TUMOR).build(),
-                Sample.builder("", arguments.setId() + "R").type(Sample.Type.REFERENCE).build());
+        String setId = RunTag.apply(arguments, arguments.setId());
+        return SomaticRunMetadata.builder()
+                .runName(setId)
+                .tumor(SingleSampleRunMetadata.builder()
+                        .type(SingleSampleRunMetadata.SampleType.TUMOR)
+                        .sampleId(arguments.setId() + "T")
+                        .sampleName(arguments.setId() + "T")
+                        .build())
+                .reference(SingleSampleRunMetadata.builder()
+                        .type(SingleSampleRunMetadata.SampleType.TUMOR)
+                        .sampleId(arguments.setId() + "R")
+                        .sampleName(arguments.setId() + "R")
+                        .build())
+                .build();
     }
 
     @Override

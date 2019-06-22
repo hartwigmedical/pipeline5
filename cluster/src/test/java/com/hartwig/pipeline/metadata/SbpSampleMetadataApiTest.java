@@ -29,21 +29,13 @@ public class SbpSampleMetadataApiTest {
     public void getsSampleAndSetFromSbpRestApi() {
         when(sbpRestApi.getSample(1)).thenReturn(TestJson.get("get_sample"));
         when(sbpRestApi.getSet(1)).thenReturn(TestJson.get("get_set"));
-        SampleMetadata sampleMetadata = victim.get();
-        assertThat(sampleMetadata.barcodeOrSampleName()).isEqualTo("FR13257296");
-        assertThat(sampleMetadata.setName()).isEqualTo("160422_HMFreg0047_FR10303375_FR10303376_CPCT02020225");
+        SingleSampleRunMetadata sampleMetadata = victim.get();
+        assertThat(sampleMetadata.sampleId()).isEqualTo("FR13257296");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void illegalArgumentThrownWhenNoSampleForId() {
         when(sbpRestApi.getSample(1)).thenReturn("{\"RESULT\": \"sample not found\"}");
-        victim.get();
-    }
-
-    @Test(expected = IllegalStateException.class)
-    public void illegalStateThrownWhenNoSetsForSample() {
-        when(sbpRestApi.getSample(1)).thenReturn(TestJson.get("get_sample"));
-        when(sbpRestApi.getSet(1)).thenReturn("[]");
         victim.get();
     }
 

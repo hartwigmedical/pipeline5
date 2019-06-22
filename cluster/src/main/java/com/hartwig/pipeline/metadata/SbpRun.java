@@ -8,5 +8,7 @@ import org.immutables.value.Value;
 @JsonDeserialize(as = ImmutableSbpRun.class)
 public interface SbpRun {
 
+    String id();
+
     SbpSet set();
 }

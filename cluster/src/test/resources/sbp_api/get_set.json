@@ -1,14 +1,20 @@
-[
-  {
-    "ref_sample": "CPCT02020225R",
-    "fastq_portal": null,
-    "name": "160422_HMFreg0047_FR10303375_FR10303376_CPCT02020225",
-    "size": 331121039462,
-    "createTime": "2016-05-12",
-    "entity": "CPCT_EMC",
-    "sbp_id": 1670,
-    "tumor_sample": "CPCT02020225T",
-    "entity_id": 4,
-    "id": "1670"
-  }
-]
+{
+  "status": "Done_PipelineV5",
+  "updateTime": "2019-06-12T15:00:12",
+  "yld_req": null,
+  "hash": "8edcce6d953d73795da9b9acaf751c44",
+  "name": "CPCT12345678R",
+  "submission": "HMFtest",
+  "barcode": "FR33333333",
+  "bucket": "hmf-bam-storage",
+  "createTime": null,
+  "yld": null,
+  "q30": null,
+  "filesize": 1338872,
+  "version": "5.1.637",
+  "directory": "FR33333333",
+  "filename": "CPCT12345678R.bam",
+  "type": "ref",
+  "id": 3,
+  "q30_req": null
+}

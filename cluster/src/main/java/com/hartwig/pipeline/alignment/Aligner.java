@@ -22,9 +22,10 @@ import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.io.SampleUpload;
 import com.hartwig.pipeline.io.sources.SampleData;
 import com.hartwig.pipeline.io.sources.SampleSource;
-import com.hartwig.pipeline.report.SingleFileComponent;
+import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.resource.ReferenceGenomeAlias;
 import com.hartwig.pipeline.resource.Resource;
+import com.hartwig.pipeline.results.SingleFileComponent;
 import com.hartwig.pipeline.trace.StageTrace;
 
 import org.slf4j.Logger;
@@ -63,10 +64,10 @@ public class Aligner {
         this.alignmentOutputStorage = alignmentOutputStorage;
     }
 
-    public AlignmentOutput run() throws Exception {
+    public AlignmentOutput run(SingleSampleRunMetadata metadata) throws Exception {
 
         if (!arguments.runAligner()) {
-            return alignmentOutputStorage.get(Sample.builder(arguments.sampleId()).build())
+            return alignmentOutputStorage.get(metadata)
                     .orElseThrow(() -> new IllegalArgumentException(format(
                             "Unable to find output for sample [%s]. Please run the aligner first by setting -run_aligner to true",
                             arguments.sampleId())));
@@ -74,10 +75,10 @@ public class Aligner {
 
         StageTrace trace = new StageTrace(NAMESPACE, StageTrace.ExecutorType.DATAPROC).start();
 
-        SampleData sampleData = sampleSource.sample(arguments);
+        SampleData sampleData = sampleSource.sample(metadata, arguments);
         Sample sample = sampleData.sample();
 
-        RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, NAMESPACE, sampleData.sample().name(), arguments);
+        RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, NAMESPACE, metadata, arguments);
         new Resource(storage, arguments.resourceBucket(), REFERENCE_GENOME, new ReferenceGenomeAlias()).copyInto(runtimeBucket);
         if (arguments.upload()) {
             sampleUpload.run(sample, runtimeBucket);
@@ -95,8 +96,8 @@ public class Aligner {
                 SparkJobDefinition.sortAndIndex(jarLocation, arguments, runtimeBucket, sample, resultsDirectory),
                 runtimeBucket);
 
-        AlignmentOutput alignmentOutput =
-                alignmentOutputStorage.get(sample).orElseThrow(() -> new RuntimeException("No results found in Google Storage for sample"));
+        AlignmentOutput alignmentOutput = alignmentOutputStorage.get(metadata)
+                .orElseThrow(() -> new RuntimeException("No results found in Google Storage for sample"));
 
         if (arguments.download()) {
             bamDownload.run(sample, runtimeBucket, PipelineStatus.SUCCESS);
@@ -105,8 +106,8 @@ public class Aligner {
         return AlignmentOutput.builder()
                 .from(alignmentOutput)
                 .addReportComponents(new DataprocLogComponent(sample, runtimeBucket),
-                        new SingleFileComponent(runtimeBucket, NAMESPACE, sample.name(), sorted(sample), resultsDirectory),
-                        new SingleFileComponent(runtimeBucket, NAMESPACE, sample.name(), bai(sorted(sample)), resultsDirectory))
+                        new SingleFileComponent(runtimeBucket, NAMESPACE, sample.name(), sorted(sample.name()), resultsDirectory),
+                        new SingleFileComponent(runtimeBucket, NAMESPACE, sample.name(), bai(sorted(sample.name())), resultsDirectory))
                 .build();
     }
 

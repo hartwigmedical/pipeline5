@@ -1,5 +1,8 @@
 package com.hartwig.pipeline.io;
 
+import static com.hartwig.pipeline.testsupport.TestInputs.defaultSomaticRunMetadata;
+import static com.hartwig.pipeline.testsupport.TestInputs.referenceRunMetadata;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -25,8 +28,6 @@ public class RuntimeBucketTest {
 
     private static final String NAMESPACE = "test";
     private static final String REGION = "region";
-    private static final String REFERENCE_NAME = "reference";
-    private static final String TUMOR_NAME = "tumor";
     private static final String NAMESPACED_BLOB = "test/path/to/blob";
     private Storage storage;
     private ArgumentCaptor<BucketInfo> blobInfo;
@@ -44,7 +45,7 @@ public class RuntimeBucketTest {
     public void createsBucketIdFromSampleName() {
         RuntimeBucket.from(storage,
                 NAMESPACE,
-                REFERENCE_NAME,
+                referenceRunMetadata(),
                 Arguments.testDefaultsBuilder().profile(Arguments.DefaultsProfile.PRODUCTION).build());
         assertThat(blobInfo.getValue().getName()).isEqualTo("run-reference");
     }
@@ -53,15 +54,14 @@ public class RuntimeBucketTest {
     public void createsBucketIdFromTumorAndReferenceName() {
         RuntimeBucket.from(storage,
                 NAMESPACE,
-                REFERENCE_NAME,
-                TUMOR_NAME,
+                defaultSomaticRunMetadata(),
                 Arguments.testDefaultsBuilder().profile(Arguments.DefaultsProfile.PRODUCTION).build());
         assertThat(blobInfo.getValue().getName()).isEqualTo("run-reference-tumor");
     }
 
     @Test
     public void setsRegionToArguments() {
-        RuntimeBucket.from(storage, NAMESPACE, REFERENCE_NAME, Arguments.testDefaultsBuilder().region(REGION).build());
+        RuntimeBucket.from(storage, NAMESPACE, referenceRunMetadata(), Arguments.testDefaultsBuilder().region(REGION).build());
         assertThat(blobInfo.getValue().getLocation()).isEqualTo(REGION);
     }
 
@@ -135,6 +135,6 @@ public class RuntimeBucketTest {
 
     @NotNull
     private RuntimeBucket defaultBucket() {
-        return RuntimeBucket.from(storage, NAMESPACE, REFERENCE_NAME, Arguments.testDefaults());
+        return RuntimeBucket.from(storage, NAMESPACE, referenceRunMetadata(), Arguments.testDefaults());
     }
 }

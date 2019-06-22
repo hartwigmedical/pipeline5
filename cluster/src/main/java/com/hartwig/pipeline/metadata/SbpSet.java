@@ -13,4 +13,6 @@ public interface SbpSet {
     String ref_sample();
 
     String name();
+
+    String id();
 }

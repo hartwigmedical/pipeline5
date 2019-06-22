@@ -4,7 +4,7 @@ import com.hartwig.pipeline.execution.PipelineStatus;
 
 public interface SampleMetadataApi {
 
-    SampleMetadata get();
+    SingleSampleRunMetadata get();
 
     void complete(PipelineStatus status);
 }

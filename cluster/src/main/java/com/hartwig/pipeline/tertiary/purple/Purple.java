@@ -16,8 +16,9 @@ import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
-import com.hartwig.pipeline.report.EntireOutputComponent;
+import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.resource.ResourceNames;
+import com.hartwig.pipeline.results.EntireOutputComponent;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
 import com.hartwig.pipeline.tertiary.cobalt.CobaltOutput;
 import com.hartwig.pipeline.tools.Versions;
@@ -38,8 +39,8 @@ public class Purple {
         this.resultsDirectory = resultsDirectory;
     }
 
-    public PurpleOutput run(AlignmentPair pair, SomaticCallerOutput somaticCallerOutput, StructuralCallerOutput structuralCallerOutput,
-            CobaltOutput cobaltOutput, AmberOutput amberOutput) {
+    public PurpleOutput run(SomaticRunMetadata metadata, AlignmentPair pair, SomaticCallerOutput somaticCallerOutput,
+            StructuralCallerOutput structuralCallerOutput, CobaltOutput cobaltOutput, AmberOutput amberOutput) {
 
         if (!arguments.runTertiary()) {
             return PurpleOutput.builder().status(PipelineStatus.SKIPPED).build();
@@ -47,9 +48,9 @@ public class Purple {
 
         StageTrace trace = new StageTrace(NAMESPACE, StageTrace.ExecutorType.COMPUTE_ENGINE).start();
 
-        String tumorSampleName = pair.tumor().sample().name();
-        String referenceSampleName = pair.reference().sample().name();
-        RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, NAMESPACE, referenceSampleName, tumorSampleName, arguments);
+        String tumorSampleName = pair.tumor().sample();
+        String referenceSampleName = pair.reference().sample();
+        RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, NAMESPACE, metadata, arguments);
         BashStartupScript bash = BashStartupScript.of(runtimeBucket.name());
 
         ResourceDownload gcProfileDownload =

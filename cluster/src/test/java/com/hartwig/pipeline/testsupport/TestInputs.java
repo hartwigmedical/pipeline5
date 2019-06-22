@@ -5,12 +5,37 @@ import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
+import com.hartwig.pipeline.metadata.ImmutableSingleSampleRunMetadata;
+import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
+import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 
 import org.jetbrains.annotations.NotNull;
 
 public class TestInputs {
 
     private static final String RESULTS = "results/";
+
+    public static SomaticRunMetadata defaultSomaticRunMetadata() {
+        final SingleSampleRunMetadata tumor = tumorRunMetadata();
+        final SingleSampleRunMetadata reference = referenceRunMetadata();
+        return SomaticRunMetadata.builder().runName("run").tumor(tumor).reference(reference).build();
+    }
+
+    @NotNull
+    public static ImmutableSingleSampleRunMetadata referenceRunMetadata() {
+        return SingleSampleRunMetadata.builder()
+                .type(SingleSampleRunMetadata.SampleType.REFERENCE)
+                .sampleId(referenceAlignmentOutput().sample())
+                .build();
+    }
+
+    @NotNull
+    private static ImmutableSingleSampleRunMetadata tumorRunMetadata() {
+        return SingleSampleRunMetadata.builder()
+                .type(SingleSampleRunMetadata.SampleType.TUMOR)
+                .sampleId(tumorAlignmentOutput().sample())
+                .build();
+    }
 
     public static AlignmentPair defaultPair() {
         return AlignmentPair.of(referenceAlignmentOutput(), tumorAlignmentOutput());
@@ -30,7 +55,7 @@ public class TestInputs {
                 .status(PipelineStatus.SUCCESS)
                 .maybeFinalBamLocation(gsLocation(bucket, RESULTS + sample + ".bam"))
                 .maybeFinalBaiLocation(gsLocation(bucket, RESULTS + sample + ".bam.bai"))
-                .sample(Sample.builder("", sample).type(type).build())
+                .sample(sample)
                 .build();
     }
 

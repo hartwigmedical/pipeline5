@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.io;
 
+import static com.hartwig.pipeline.testsupport.TestInputs.referenceRunMetadata;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -37,7 +39,7 @@ public class GoogleStorageSampleSourceTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void patientIdArgumentMustBeSpecified() {
-        victim.sample(Arguments.testDefaults());
+        victim.sample(referenceRunMetadata(), Arguments.testDefaults());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -47,7 +49,7 @@ public class GoogleStorageSampleSourceTest {
         when(pages.iterateAll()).thenReturn(Lists.newArrayList());
         when(bucket.list(any())).thenReturn(pages);
         when(storage.get(anyString())).thenReturn(bucket);
-        victim.sample(ARGUMENTS);
+        victim.sample(referenceRunMetadata(), ARGUMENTS);
     }
 
     @Test
@@ -65,7 +67,7 @@ public class GoogleStorageSampleSourceTest {
 
         when(bucket.list(Storage.BlobListOption.prefix("aligner/samples/"))).thenReturn(blobs);
         when(storage.get(Mockito.anyString())).thenReturn(bucket);
-        SampleData sample = victim.sample(ARGUMENTS);
+        SampleData sample = victim.sample(referenceRunMetadata(), ARGUMENTS);
         assertThat(sample.sample().name()).isEqualTo(SAMPLE);
         assertThat(sample.sizeInBytesGZipped()).isEqualTo(11);
     }
@@ -85,7 +87,7 @@ public class GoogleStorageSampleSourceTest {
 
         when(bucket.list(Storage.BlobListOption.prefix("aligner/samples/"))).thenReturn(blobs);
         when(storage.get(Mockito.anyString())).thenReturn(bucket);
-        SampleData sample = victim.sample(ARGUMENTS);
+        SampleData sample = victim.sample(referenceRunMetadata(), ARGUMENTS);
         assertThat(sample.sample().name()).isEqualTo(SAMPLE);
         assertThat(sample.sizeInBytesGZipped()).isEqualTo(41);
     }

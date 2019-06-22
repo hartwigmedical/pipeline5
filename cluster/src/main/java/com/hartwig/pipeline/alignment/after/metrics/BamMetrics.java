@@ -14,12 +14,13 @@ import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
-import com.hartwig.pipeline.report.RunLogComponent;
-import com.hartwig.pipeline.report.SingleFileComponent;
+import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.resource.GATKDictAlias;
 import com.hartwig.pipeline.resource.ReferenceGenomeAlias;
 import com.hartwig.pipeline.resource.Resource;
 import com.hartwig.pipeline.resource.ResourceNames;
+import com.hartwig.pipeline.results.RunLogComponent;
+import com.hartwig.pipeline.results.SingleFileComponent;
 import com.hartwig.pipeline.trace.StageTrace;
 
 public class BamMetrics {
@@ -36,14 +37,14 @@ public class BamMetrics {
         this.resultsDirectory = results;
     }
 
-    public BamMetricsOutput run(AlignmentOutput alignmentOutput) {
+    public BamMetricsOutput run(SingleSampleRunMetadata metadata, AlignmentOutput alignmentOutput) {
 
         if (!arguments.runBamMetrics()) {
             return BamMetricsOutput.builder().status(PipelineStatus.SKIPPED).build();
         }
 
         StageTrace trace = new StageTrace(NAMESPACE, StageTrace.ExecutorType.COMPUTE_ENGINE).start();
-        RuntimeBucket bucket = RuntimeBucket.from(storage, NAMESPACE, alignmentOutput.sample().name(), arguments);
+        RuntimeBucket bucket = RuntimeBucket.from(storage, NAMESPACE, metadata, arguments);
         Resource referenceGenome = new Resource(storage,
                 arguments.resourceBucket(),
                 ResourceNames.REFERENCE_GENOME,
@@ -66,10 +67,10 @@ public class BamMetrics {
                 .status(status)
                 .sample(alignmentOutput.sample())
                 .maybeMetricsOutputFile(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(outputFile)))
-                .addReportComponents(new RunLogComponent(bucket, BamMetrics.NAMESPACE, alignmentOutput.sample().name(), resultsDirectory))
+                .addReportComponents(new RunLogComponent(bucket, BamMetrics.NAMESPACE, alignmentOutput.sample(), resultsDirectory))
                 .addReportComponents(new SingleFileComponent(bucket,
                         BamMetrics.NAMESPACE,
-                        alignmentOutput.sample().name(),
+                        alignmentOutput.sample(),
                         outputFile,
                         resultsDirectory))
                 .build();

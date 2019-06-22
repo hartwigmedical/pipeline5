@@ -1,5 +1,8 @@
 package com.hartwig.pipeline.flagstat;
 
+import static com.hartwig.pipeline.testsupport.TestInputs.referenceAlignmentOutput;
+import static com.hartwig.pipeline.testsupport.TestInputs.referenceRunMetadata;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -12,7 +15,6 @@ import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.io.ResultsDirectory;
-import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -38,13 +40,13 @@ public class FlagstatTest {
     @Test
     public void returnsStatusFailedWhenJobFailsOnComputeEngine() {
         when(computeEngine.submit(any(), any())).thenReturn(PipelineStatus.FAILED);
-        assertThat(victim.run(TestInputs.referenceAlignmentOutput()).status()).isEqualTo(PipelineStatus.FAILED);
+        assertThat(victim.run(referenceRunMetadata(), referenceAlignmentOutput()).status()).isEqualTo(PipelineStatus.FAILED);
     }
 
     @Test
     public void runsSamtoolsFlagstatOnComputeEngine() {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
-        victim.run(TestInputs.referenceAlignmentOutput());
+        victim.run(referenceRunMetadata(), referenceAlignmentOutput());
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
                 "(/data/tools/sambamba/0.6.5/sambamba flagstat -t $(grep -c '^processor' /proc/cpuinfo) /data/input/reference.bam > "
                         + "/data/output/reference.flagstat)");
@@ -53,7 +55,7 @@ public class FlagstatTest {
     @Test
     public void downloadsInputBam() {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
-        victim.run(TestInputs.referenceAlignmentOutput());
+        victim.run(referenceRunMetadata(), referenceAlignmentOutput());
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
                 "gsutil -qm cp gs://run-reference/aligner/results/reference.bam /data/input/reference.bam");
     }
@@ -61,7 +63,7 @@ public class FlagstatTest {
     @Test
     public void uploadsOutputDirectory() {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
-        victim.run(TestInputs.referenceAlignmentOutput());
+        victim.run(referenceRunMetadata(), referenceAlignmentOutput());
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
                 "gsutil -qm cp -r /data/output/* gs://run-reference/flagstat/results");
     }

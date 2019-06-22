@@ -172,7 +172,7 @@ public interface Arguments {
                     .rclonePath(NOT_APPLICABLE)
                     .rcloneS3Remote(NOT_APPLICABLE)
                     .rcloneGcpRemote(NOT_APPLICABLE)
-                    .sbpS3Url(NOT_APPLICABLE)
+                    .sbpS3Url(EMPTY)
                     .sbpApiUrl(NOT_APPLICABLE)
                     .sampleId(EMPTY)
                     .setId(EMPTY)

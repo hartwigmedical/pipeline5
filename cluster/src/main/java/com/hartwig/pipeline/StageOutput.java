@@ -3,7 +3,7 @@ package com.hartwig.pipeline;
 import java.util.List;
 
 import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.report.ReportComponent;
+import com.hartwig.pipeline.results.ReportComponent;
 
 public interface StageOutput {
 

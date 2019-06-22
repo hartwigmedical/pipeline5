@@ -6,12 +6,12 @@ import static org.mockito.Mockito.when;
 
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
-import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
-import com.hartwig.pipeline.testsupport.TestSamples;
+import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
+import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Test;
 
@@ -21,17 +21,17 @@ public class BamMetricsOutputStorageTest {
 
     @Test
     public void returnsBamMetricsOutputWithoutCheckingStorage() {
-        Sample sample = TestSamples.simpleReferenceSample();
-        String runtimeBucketName = "run-" + sample.name();
+        SingleSampleRunMetadata sample = TestInputs.referenceRunMetadata();
+        String runtimeBucketName = "run-" + sample.sampleId();
         Storage storage = mock(Storage.class);
         Bucket bucket = mock(Bucket.class);
         when(bucket.getName()).thenReturn(runtimeBucketName);
         when(storage.get(runtimeBucketName)).thenReturn(bucket);
         BamMetricsOutputStorage victim = new BamMetricsOutputStorage(storage, Arguments.testDefaults(), RESULTS_DIRECTORY);
-        assertThat(victim.get(sample)).isEqualTo(BamMetricsOutput.builder()
+        assertThat(victim.get(TestInputs.referenceRunMetadata())).isEqualTo(BamMetricsOutput.builder()
                 .status(PipelineStatus.SUCCESS)
-                .sample(TestSamples.simpleReferenceSample())
+                .sample(sample.sampleName())
                 .maybeMetricsOutputFile(GoogleStorageLocation.of(runtimeBucketName + "/" + BamMetrics.NAMESPACE,
-                        RESULTS_DIRECTORY.path(sample.name() + ".wgsmetrics"))).build());
+                        RESULTS_DIRECTORY.path(sample.sampleName() + ".wgsmetrics"))).build());
     }
 }

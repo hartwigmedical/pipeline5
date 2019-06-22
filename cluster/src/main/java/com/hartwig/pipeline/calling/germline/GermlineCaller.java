@@ -5,7 +5,6 @@ import java.util.Map;
 import com.google.cloud.storage.Storage;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.calling.SubStageInputOutput;
@@ -24,12 +23,13 @@ import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
-import com.hartwig.pipeline.report.RunLogComponent;
-import com.hartwig.pipeline.report.SingleFileComponent;
+import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.resource.GATKDictAlias;
 import com.hartwig.pipeline.resource.ReferenceGenomeAlias;
 import com.hartwig.pipeline.resource.Resource;
 import com.hartwig.pipeline.resource.ResourceNames;
+import com.hartwig.pipeline.results.RunLogComponent;
+import com.hartwig.pipeline.results.SingleFileComponent;
 import com.hartwig.pipeline.trace.StageTrace;
 
 public class GermlineCaller {
@@ -64,16 +64,16 @@ public class GermlineCaller {
         this.resultsDirectory = resultsDirectory;
     }
 
-    public GermlineCallerOutput run(AlignmentOutput alignmentOutput) {
+    public GermlineCallerOutput run(SingleSampleRunMetadata metadata, AlignmentOutput alignmentOutput) {
 
-        if (!arguments.runGermlineCaller() || alignmentOutput.sample().type() == Sample.Type.TUMOR) {
+        if (!arguments.runGermlineCaller()) {
             return GermlineCallerOutput.builder().status(PipelineStatus.SKIPPED).build();
         }
 
         StageTrace trace = new StageTrace(NAMESPACE, StageTrace.ExecutorType.COMPUTE_ENGINE).start();
 
-        String sampleName = alignmentOutput.sample().name();
-        RuntimeBucket bucket = RuntimeBucket.from(storage, NAMESPACE, sampleName, arguments);
+        String sampleName = alignmentOutput.sample();
+        RuntimeBucket bucket = RuntimeBucket.from(storage, NAMESPACE, metadata, arguments);
 
         ResourceDownload referenceGenome = ResourceDownload.from(bucket,
                 new Resource(storage,
@@ -102,8 +102,8 @@ public class GermlineCaller {
         String referenceFasta = referenceGenome.find("fasta");
         String dbsnpVcf = dbSnps.find("vcf");
         SubStageInputOutput callerOutput =
-                new GatkGermlineCaller(bamDownload.getLocalTargetPath(), referenceFasta, dbsnpVcf).andThen(new GenotypeGVCFs(
-                        referenceFasta, dbsnpVcf)).apply(SubStageInputOutput.of(alignmentOutput.sample().name(), OutputFile.empty(), startupScript));
+                new GatkGermlineCaller(bamDownload.getLocalTargetPath(), referenceFasta, dbsnpVcf).andThen(new GenotypeGVCFs(referenceFasta,
+                        dbsnpVcf)).apply(SubStageInputOutput.of(alignmentOutput.sample(), OutputFile.empty(), startupScript));
 
         SubStageInputOutput snpFilterOutput =
                 new SelectVariants("snp", Lists.newArrayList("SNP", "NO_VARIATION"), referenceFasta).andThen(new VariantFiltration("snp",

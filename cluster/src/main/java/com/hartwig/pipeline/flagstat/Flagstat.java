@@ -14,8 +14,9 @@ import com.hartwig.pipeline.execution.vm.unix.SubShellCommand;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
-import com.hartwig.pipeline.report.RunLogComponent;
-import com.hartwig.pipeline.report.SingleFileComponent;
+import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
+import com.hartwig.pipeline.results.RunLogComponent;
+import com.hartwig.pipeline.results.SingleFileComponent;
 import com.hartwig.pipeline.trace.StageTrace;
 
 public class Flagstat {
@@ -32,10 +33,10 @@ public class Flagstat {
         this.resultsDirectory = results;
     }
 
-    public FlagstatOutput run(AlignmentOutput alignmentOutput) {
+    public FlagstatOutput run(SingleSampleRunMetadata metadata, AlignmentOutput alignmentOutput) {
 
         StageTrace trace = new StageTrace(NAMESPACE, StageTrace.ExecutorType.COMPUTE_ENGINE).start();
-        RuntimeBucket bucket = RuntimeBucket.from(storage, NAMESPACE, alignmentOutput.sample().name(), arguments);
+        RuntimeBucket bucket = RuntimeBucket.from(storage, NAMESPACE, metadata, arguments);
 
         InputDownload bamDownload = new InputDownload(alignmentOutput.finalBamLocation());
 
@@ -50,10 +51,10 @@ public class Flagstat {
         trace.stop();
         return FlagstatOutput.builder()
                 .status(status)
-                .addReportComponents(new RunLogComponent(bucket, Flagstat.NAMESPACE, alignmentOutput.sample().name(), resultsDirectory))
+                .addReportComponents(new RunLogComponent(bucket, Flagstat.NAMESPACE, alignmentOutput.sample(), resultsDirectory))
                 .addReportComponents(new SingleFileComponent(bucket,
                         Flagstat.NAMESPACE,
-                        alignmentOutput.sample().name(),
+                        alignmentOutput.sample(),
                         outputFile,
                         resultsDirectory))
                 .build();

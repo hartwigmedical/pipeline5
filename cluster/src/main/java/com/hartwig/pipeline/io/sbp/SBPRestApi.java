@@ -25,7 +25,7 @@ public class SBPRestApi {
     public static final String RUNS = "runs";
     private final WebTarget target;
 
-    private SBPRestApi(final WebTarget target) {
+    SBPRestApi(final WebTarget target) {
         this.target = target;
     }
 
@@ -47,6 +47,14 @@ public class SBPRestApi {
 
     public String getSample(int sampleId) {
         Response response = api().path(SAMPLES).path(String.valueOf(sampleId)).request().buildGet().invoke();
+        if (response.getStatus() == Response.Status.OK.getStatusCode()) {
+            return response.readEntity(String.class);
+        }
+        throw error(response);
+    }
+
+    public String getSample(String setId) {
+        Response response = api().path(SAMPLES).queryParam("set_id", setId).request().buildGet().invoke();
         if (response.getStatus() == Response.Status.OK.getStatusCode()) {
             return response.readEntity(String.class);
         }
@@ -83,7 +91,7 @@ public class SBPRestApi {
 
     @NotNull
     private RuntimeException error(final Response response) {
-        return new RuntimeException(String.format("Received an error status defaultDirectory [%s] of SBP Api at [%s]",
+        return new RuntimeException(String.format("Received an error status result [%s] of SBP Api at [%s]",
                 response.getStatus(),
                 target.getUri()));
     }

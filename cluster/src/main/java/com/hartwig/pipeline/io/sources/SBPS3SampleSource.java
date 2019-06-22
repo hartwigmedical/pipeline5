@@ -6,6 +6,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.io.sbp.SBPSampleReader;
+import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +24,7 @@ public class SBPS3SampleSource implements SampleSource {
     }
 
     @Override
-    public SampleData sample(final Arguments arguments) {
+    public SampleData sample(final SingleSampleRunMetadata metadata, final Arguments arguments) {
         Sample sample = sbpSampleReader.read(arguments.sbpApiSampleId()
                 .orElseThrow(() -> new IllegalArgumentException("Arguments must "
                         + "contain an SBP id to use the SBP sample source. This looks like a programmatic mis-wiring somewhere")));

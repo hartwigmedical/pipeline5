@@ -30,9 +30,10 @@ import com.hartwig.pipeline.execution.vm.unix.UlimitOpenFilesCommand;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
-import com.hartwig.pipeline.report.EntireOutputComponent;
+import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.resource.Resource;
 import com.hartwig.pipeline.resource.ResourceNames;
+import com.hartwig.pipeline.results.EntireOutputComponent;
 import com.hartwig.pipeline.trace.StageTrace;
 
 public class StructuralCaller {
@@ -52,16 +53,16 @@ public class StructuralCaller {
         this.resultsDirectory = resultsDirectory;
     }
 
-    public StructuralCallerOutput run(final AlignmentPair pair) {
+    public StructuralCallerOutput run(final SomaticRunMetadata metadata, final AlignmentPair pair) {
         if (!arguments.runStructuralCaller()) {
             return StructuralCallerOutput.builder().status(PipelineStatus.SKIPPED).build();
         }
 
         StageTrace trace = new StageTrace(NAMESPACE, StageTrace.ExecutorType.COMPUTE_ENGINE).start();
 
-        String tumorSampleName = pair.tumor().sample().name();
-        String referenceSampleName = pair.reference().sample().name();
-        RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, NAMESPACE, referenceSampleName, tumorSampleName, arguments);
+        String tumorSampleName = pair.tumor().sample();
+        String referenceSampleName = pair.reference().sample();
+        RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, NAMESPACE, metadata, arguments);
         BashStartupScript bash = BashStartupScript.of(runtimeBucket.name());
 
         ResourceDownload referenceGenomeDownload =

@@ -2,7 +2,6 @@ package com.hartwig.pipeline.alignment.after.metrics;
 
 import java.util.Optional;
 
-import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
@@ -12,7 +11,7 @@ import org.immutables.value.Value;
 @Value.Immutable
 public interface BamMetricsOutput extends StageOutput {
 
-    Sample sample();
+    String sample();
 
     PipelineStatus status();
 
@@ -27,8 +26,8 @@ public interface BamMetricsOutput extends StageOutput {
         return maybeMetricsOutputFile().orElseThrow(() -> new IllegalStateException("No metrics file available"));
     }
 
-    static String outputFile(Sample sample) {
-        return String.format("%s.wgsmetrics", sample.name());
+    static String outputFile(String sample) {
+        return String.format("%s.wgsmetrics", sample);
     }
 
     static ImmutableBamMetricsOutput.Builder builder() {

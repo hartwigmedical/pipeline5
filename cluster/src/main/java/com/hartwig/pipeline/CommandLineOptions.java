@@ -127,7 +127,7 @@ public class CommandLineOptions {
     }
 
     private static Option resourceBucket() {
-        return optionWithArg(RESOURCE_BUCKET_FLAG, "Bucket containing all common resources (reference genome, known indels, pons, etc");
+        return optionWithArg(RESOURCE_BUCKET_FLAG, "Bucket containing all common resources (referenceSampleName genome, known indels, pons, etc");
     }
 
     private static Option profile() {
@@ -257,7 +257,7 @@ public class CommandLineOptions {
         }
     }
 
-    public static Optional<Integer> sbpRunId(final CommandLine commandLine) {
+    private static Optional<Integer> sbpRunId(final CommandLine commandLine) {
         if (commandLine.hasOption(SBP_RUN_ID_FLAG)) {
             try {
                 return Optional.of(Integer.parseInt(commandLine.getOptionValue(SBP_RUN_ID_FLAG)));
