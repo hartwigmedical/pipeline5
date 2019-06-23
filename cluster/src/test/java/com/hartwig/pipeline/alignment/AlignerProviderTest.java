@@ -8,6 +8,7 @@ import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class AlignerProviderTest {
@@ -29,6 +30,7 @@ public class AlignerProviderTest {
         assertThat(victim).isInstanceOf(AlignerProvider.LocalBootstrapProvider.class);
     }
 
+    @Ignore
     @Test
     public void wiresUpBootstrapWithSbpDependencies() throws Exception {
         AlignerProvider victim = AlignerProvider.from(credentials, storage, Arguments.testDefaultsBuilder().sbpApiSampleId(1).build());
