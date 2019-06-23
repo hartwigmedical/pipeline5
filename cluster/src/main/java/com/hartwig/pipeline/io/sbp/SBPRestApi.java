@@ -97,8 +97,8 @@ public class SBPRestApi {
     }
 
     public static SBPRestApi newInstance(Arguments arguments) {
-        ClientConfig config = new ClientConfig();
-        config.property(HttpUrlConnectorProvider.SET_METHOD_WORKAROUND, true);
-        return new SBPRestApi(ClientBuilder.newBuilder().withConfig(config).build().target(arguments.sbpApiUrl()));
+        ClientConfig clientConfig = new ClientConfig();
+        clientConfig.property(HttpUrlConnectorProvider.SET_METHOD_WORKAROUND, true);
+        return new SBPRestApi(ClientBuilder.newBuilder().withConfig(clientConfig).build().target(arguments.sbpApiUrl()));
     }
 }
