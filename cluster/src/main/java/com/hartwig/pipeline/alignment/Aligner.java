@@ -23,9 +23,9 @@ import com.hartwig.pipeline.io.SampleUpload;
 import com.hartwig.pipeline.io.sources.SampleData;
 import com.hartwig.pipeline.io.sources.SampleSource;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
+import com.hartwig.pipeline.report.SingleFileComponent;
 import com.hartwig.pipeline.resource.ReferenceGenomeAlias;
 import com.hartwig.pipeline.resource.Resource;
-import com.hartwig.pipeline.results.SingleFileComponent;
 import com.hartwig.pipeline.trace.StageTrace;
 
 import org.slf4j.Logger;

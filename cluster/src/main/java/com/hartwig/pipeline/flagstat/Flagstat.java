@@ -15,8 +15,8 @@ import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
-import com.hartwig.pipeline.results.RunLogComponent;
-import com.hartwig.pipeline.results.SingleFileComponent;
+import com.hartwig.pipeline.report.RunLogComponent;
+import com.hartwig.pipeline.report.SingleFileComponent;
 import com.hartwig.pipeline.trace.StageTrace;
 
 public class Flagstat {

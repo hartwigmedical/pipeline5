@@ -14,8 +14,8 @@ import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
+import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.resource.ResourceNames;
-import com.hartwig.pipeline.results.EntireOutputComponent;
 import com.hartwig.pipeline.trace.StageTrace;
 
 public class Amber {
