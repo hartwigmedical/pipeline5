@@ -41,24 +41,20 @@ public class SbpSomaticMetadataApiTest {
 
     @Test
     public void mapsSuccessStatusToPipeline5Done() {
-        ArgumentCaptor<String> entityType = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> entityId = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> status = ArgumentCaptor.forClass(String.class);
         victim.complete(PipelineStatus.SUCCESS);
-        verify(sbpRestApi, times(1)).updateStatus(entityType.capture(), entityId.capture(), status.capture());
-        assertThat(entityType.getValue()).isEqualTo(SBPRestApi.RUNS);
+        verify(sbpRestApi, times(1)).updateRunStatus(entityId.capture(), status.capture());
         assertThat(entityId.getValue()).isEqualTo(String.valueOf(SET_ID));
         assertThat(status.getValue()).isEqualTo(SbpSomaticMetadataApi.SNP_CHECK);
     }
 
     @Test
     public void mapsFailedStatusToPipeline5Finished() {
-        ArgumentCaptor<String> entityType = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> entityId = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> status = ArgumentCaptor.forClass(String.class);
         victim.complete(PipelineStatus.FAILED);
-        verify(sbpRestApi, times(1)).updateStatus(entityType.capture(), entityId.capture(), status.capture());
-        assertThat(entityType.getValue()).isEqualTo(SBPRestApi.RUNS);
+        verify(sbpRestApi, times(1)).updateRunStatus(entityId.capture(), status.capture());
         assertThat(entityId.getValue()).isEqualTo(String.valueOf(SET_ID));
         assertThat(status.getValue()).isEqualTo(SbpSomaticMetadataApi.FAILED);
     }

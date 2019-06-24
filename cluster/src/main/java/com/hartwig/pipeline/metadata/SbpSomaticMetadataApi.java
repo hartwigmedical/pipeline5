@@ -68,6 +68,6 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
 
     @Override
     public void complete(final PipelineStatus status) {
-        sbpRestApi.updateStatus(SBPRestApi.RUNS, String.valueOf(sbpRunId), status == PipelineStatus.SUCCESS ? SNP_CHECK : FAILED);
+        sbpRestApi.updateRunStatus(String.valueOf(sbpRunId), status == PipelineStatus.SUCCESS ? SNP_CHECK : FAILED);
     }
 }

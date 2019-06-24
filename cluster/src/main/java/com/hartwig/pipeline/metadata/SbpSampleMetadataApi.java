@@ -45,8 +45,6 @@ public class SbpSampleMetadataApi implements SampleMetadataApi {
 
     @Override
     public void complete(PipelineStatus status) {
-        sbpRestApi.updateStatus(SBPRestApi.SAMPLES,
-                valueOf(sampleId),
-                status == PipelineStatus.SUCCESS ? DONE_PIPELINE_V5 : FAILED_PIPELINE_V5);
+        sbpRestApi.updateSampleStatus(valueOf(sampleId), status == PipelineStatus.SUCCESS ? DONE_PIPELINE_V5 : FAILED_PIPELINE_V5);
     }
 }

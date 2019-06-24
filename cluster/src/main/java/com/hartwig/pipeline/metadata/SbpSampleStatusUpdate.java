@@ -4,14 +4,14 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import org.immutables.value.Value;
 
-@JsonSerialize(as = ImmutableSbpStatusUpdate.class)
+@JsonSerialize(as = ImmutableSbpSampleStatusUpdate.class)
 @Value.Immutable
-public interface SbpStatusUpdate {
+public interface SbpSampleStatusUpdate {
 
     @Value.Parameter
     String status();
 
-    static SbpStatusUpdate of (String status){
-        return ImmutableSbpStatusUpdate.of(status);
+    static SbpSampleStatusUpdate of(String status){
+        return ImmutableSbpSampleStatusUpdate.of(status);
     }
 }

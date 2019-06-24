@@ -9,7 +9,8 @@ import javax.ws.rs.core.Response;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.metadata.SbpStatusUpdate;
+import com.hartwig.pipeline.metadata.SbpRunStatusUpdate;
+import com.hartwig.pipeline.metadata.SbpSampleStatusUpdate;
 
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.HttpUrlConnectorProvider;
@@ -21,11 +22,11 @@ public class SBPRestApi {
 
     private final static ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private final static Logger LOGGER = LoggerFactory.getLogger(SBPRestApi.class);
-    public static final String SAMPLES = "samples";
-    public static final String RUNS = "runs";
+    private static final String SAMPLES = "samples";
+    private static final String RUNS = "runs";
     private final WebTarget target;
 
-    SBPRestApi(final WebTarget target) {
+    private SBPRestApi(final WebTarget target) {
         this.target = target;
     }
 
@@ -61,20 +62,34 @@ public class SBPRestApi {
         throw error(response);
     }
 
-    public void updateStatus(String entityType, String entityId, String status) {
+    public void updateSampleStatus(String sampleID, String status) {
         try {
-            String json = OBJECT_MAPPER.writeValueAsString(SbpStatusUpdate.of(status));
-            LOGGER.info("Patching entity type [{}] id [{}] with status [{}]", entityType, entityId, status);
-            Response response = api().path(entityType)
-                    .path(entityId)
-                    .request()
-                    .build("PATCH", Entity.entity(json, MediaType.APPLICATION_JSON_TYPE))
-                    .invoke();
-            LOGGER.info("Patching complete with response [{}]", response.getStatus());
+            String json = OBJECT_MAPPER.writeValueAsString(SbpSampleStatusUpdate.of(status));
+            patch(sampleID, status, json, SAMPLES);
 
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void updateRunStatus(String runID, String status) {
+        try {
+            String json = OBJECT_MAPPER.writeValueAsString(SbpRunStatusUpdate.of(status));
+            patch(runID, status, json, RUNS);
+
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void patch(final String sampleID, final String status, final String json, final String entityType) {
+        LOGGER.info("Patching sample id [{}] with status [{}]", sampleID, status);
+        Response response = api().path(entityType)
+                .path(sampleID)
+                .request()
+                .build("PATCH", Entity.entity(json, MediaType.APPLICATION_JSON_TYPE))
+                .invoke();
+        LOGGER.info("Patching complete with response [{}]", response.getStatus());
     }
 
     private WebTarget api() {
