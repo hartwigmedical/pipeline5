@@ -15,7 +15,7 @@ public abstract class SubStageTest {
     @Before
     public void setUp() throws Exception {
         output = createVictim().apply(SubStageInputOutput.of(sampleName(),
-                OutputFile.of(sampleName(), "strelka", "vcf"),
+                OutputFile.of(sampleName(), "strelka", "vcf", false),
                 BashStartupScript.of("runtime_bucket")));
     }
 

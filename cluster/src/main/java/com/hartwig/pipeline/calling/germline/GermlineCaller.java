@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
+import com.hartwig.pipeline.calling.FinalSubStage;
 import com.hartwig.pipeline.calling.SubStageInputOutput;
 import com.hartwig.pipeline.calling.germline.command.SnpSiftDbnsfpAnnotation;
 import com.hartwig.pipeline.calling.germline.command.SnpSiftFrequenciesAnnotation;
@@ -119,7 +120,7 @@ public class GermlineCaller {
                 new CombineFilteredVariants(indelFilterOutput.outputFile().path(), referenceFasta).andThen(new SnpEff(snpEffConfig))
                         .andThen(new SnpSiftDbnsfpAnnotation(dbNSFPResource.find("txt.gz"), snpEffConfig))
                         .andThen(new CosmicAnnotation(cosmicResourceDownload.find("collapsed.vcf.gz"), "ID"))
-                        .andThen(new SnpSiftFrequenciesAnnotation(frequencyDbDownload.find("vcf.gz"), snpEffConfig))
+                        .andThen(FinalSubStage.of(new SnpSiftFrequenciesAnnotation(frequencyDbDownload.find("vcf.gz"), snpEffConfig)))
                         .apply(snpFilterOutput);
 
         startupScript.addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path())));

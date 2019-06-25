@@ -3,6 +3,7 @@ package com.hartwig.pipeline.calling.somatic;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.AlignmentPair;
+import com.hartwig.pipeline.calling.FinalSubStage;
 import com.hartwig.pipeline.calling.SubStageInputOutput;
 import com.hartwig.pipeline.calling.substages.CosmicAnnotation;
 import com.hartwig.pipeline.calling.substages.SnpEff;
@@ -114,7 +115,7 @@ public class SomaticCaller {
                 .andThen(new SageHotspotsAnnotation(sageResourceDownload.find("tsv"), sageOutput.outputFile().path()))
                 .andThen(new SnpEff(snpEffResourceDownload.find("config")))
                 .andThen(new DbSnpAnnotation(knownSnpsResourceDownload.find("vcf.gz")))
-                .andThen(new CosmicAnnotation(cosmicResourceDownload.find("collapsed.vcf.gz"), "ID,INFO"))
+                .andThen(FinalSubStage.of(new CosmicAnnotation(cosmicResourceDownload.find("collapsed.vcf.gz"), "ID,INFO")))
                 .apply(SubStageInputOutput.of(tumorSampleName, OutputFile.empty(), bash));
 
         bash.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path())));

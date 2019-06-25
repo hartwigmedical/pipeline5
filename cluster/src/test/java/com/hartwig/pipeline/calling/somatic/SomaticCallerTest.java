@@ -72,7 +72,7 @@ public class SomaticCallerTest {
         AlignmentPair input = defaultPair();
         when(computeEngine.submit(any(), any())).thenReturn(PipelineStatus.SUCCESS);
         assertThat(victim.run(defaultSomaticRunMetadata(), input).finalSomaticVcf()).isEqualTo(GoogleStorageLocation.of(
-                RUNTIME_BUCKET + "/" + SomaticCaller.NAMESPACE, "results/tumor.cosmic.annotated.vcf.gz"));
+                RUNTIME_BUCKET + "/" + SomaticCaller.NAMESPACE, "results/tumor.cosmic.annotated.final.vcf.gz"));
     }
 
     @Test
