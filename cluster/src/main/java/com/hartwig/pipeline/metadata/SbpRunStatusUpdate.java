@@ -27,7 +27,7 @@ public interface SbpRunStatusUpdate {
 
     @Value.Default
     default String bucket() {
-        return "hmf-output-" + nowUtc().format(DateTimeFormatter.ofPattern("yyyy-dd"));
+        return "hmf-output-" + nowUtc().format(DateTimeFormatter.ofPattern("yyyy-ww"));
     }
 
     static LocalDateTime nowUtc() {
