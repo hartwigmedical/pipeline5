@@ -9,21 +9,16 @@ import com.hartwig.pipeline.execution.dataproc.CpuFastQSizeRatio;
 import com.hartwig.pipeline.execution.dataproc.GoogleDataproc;
 import com.hartwig.pipeline.execution.dataproc.GoogleStorageJarUpload;
 import com.hartwig.pipeline.execution.dataproc.NodeInitialization;
-import com.hartwig.pipeline.io.BamDownload;
-import com.hartwig.pipeline.io.CloudBamDownload;
 import com.hartwig.pipeline.io.CloudCopy;
 import com.hartwig.pipeline.io.CloudSampleUpload;
 import com.hartwig.pipeline.io.GSUtilCloudCopy;
 import com.hartwig.pipeline.io.LocalFileSource;
-import com.hartwig.pipeline.io.LocalFileTarget;
 import com.hartwig.pipeline.io.RCloneCloudCopy;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.S3;
 import com.hartwig.pipeline.io.SampleUpload;
 import com.hartwig.pipeline.io.sbp.SBPRestApi;
-import com.hartwig.pipeline.io.sbp.SBPS3BamDownload;
 import com.hartwig.pipeline.io.sbp.SBPS3FileSource;
-import com.hartwig.pipeline.io.sbp.SBPSampleMetadataPatch;
 import com.hartwig.pipeline.io.sbp.SBPSampleReader;
 import com.hartwig.pipeline.io.sources.FileSystemSampleSource;
 import com.hartwig.pipeline.io.sources.GoogleStorageSampleSource;
@@ -81,12 +76,10 @@ public abstract class AlignerProvider {
                     ? new FileSystemSampleSource(Hadoop.localFilesystem(), getArguments().sampleDirectory())
                     : new GoogleStorageSampleSource(storage);
             GSUtilCloudCopy gsUtilCloudCopy = new GSUtilCloudCopy(getArguments().cloudSdkPath());
-            BamDownload bamDownload = new CloudBamDownload(new LocalFileTarget(), resultsDirectory, gsUtilCloudCopy);
             SampleUpload sampleUpload = new CloudSampleUpload(new LocalFileSource(), gsUtilCloudCopy);
             return new Aligner(getArguments(),
                     storage,
                     sampleSource,
-                    bamDownload,
                     sampleUpload,
                     spark,
                     new GoogleStorageJarUpload(),
@@ -116,17 +109,10 @@ public abstract class AlignerProvider {
                     getArguments().rcloneGcpRemote(),
                     getArguments().rcloneS3Remote(),
                     ProcessBuilder::new);
-            BamDownload bamDownload = new SBPSampleMetadataPatch(s3,
-                    sbpRestApi,
-                    sbpSampleId,
-                    SBPS3BamDownload.from(s3, resultsDirectory),
-                    resultsDirectory,
-                    System::getenv);
             SampleUpload sampleUpload = new CloudSampleUpload(new SBPS3FileSource(), cloudCopy);
             return new Aligner(getArguments(),
                     storage,
                      sampleSource,
-                    bamDownload,
                     sampleUpload,
                     dataproc,
                     new GoogleStorageJarUpload(),

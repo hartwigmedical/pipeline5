@@ -16,7 +16,6 @@ import com.hartwig.pipeline.execution.dataproc.JarUpload;
 import com.hartwig.pipeline.execution.dataproc.SparkExecutor;
 import com.hartwig.pipeline.execution.dataproc.SparkJobDefinition;
 import com.hartwig.pipeline.io.BamComposer;
-import com.hartwig.pipeline.io.BamDownload;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.io.SampleUpload;
@@ -40,7 +39,6 @@ public class Aligner {
     private final Arguments arguments;
     private final Storage storage;
     private final SampleSource sampleSource;
-    private final BamDownload bamDownload;
     private final SampleUpload sampleUpload;
     private final SparkExecutor dataproc;
     private final JarUpload jarUpload;
@@ -48,14 +46,13 @@ public class Aligner {
     private final ResultsDirectory resultsDirectory;
     private final AlignmentOutputStorage alignmentOutputStorage;
 
-    Aligner(final Arguments arguments, final Storage storage, final SampleSource sampleSource, final BamDownload bamDownload,
+    Aligner(final Arguments arguments, final Storage storage, final SampleSource sampleSource,
             final SampleUpload sampleUpload, final SparkExecutor dataproc, final JarUpload jarUpload,
             final ClusterOptimizer clusterOptimizer, final ResultsDirectory resultsDirectory,
             final AlignmentOutputStorage alignmentOutputStorage) {
         this.arguments = arguments;
         this.storage = storage;
         this.sampleSource = sampleSource;
-        this.bamDownload = bamDownload;
         this.sampleUpload = sampleUpload;
         this.dataproc = dataproc;
         this.jarUpload = jarUpload;
@@ -98,10 +95,6 @@ public class Aligner {
 
         AlignmentOutput alignmentOutput = alignmentOutputStorage.get(metadata)
                 .orElseThrow(() -> new RuntimeException("No results found in Google Storage for sample"));
-
-        if (arguments.download()) {
-            bamDownload.run(sample, runtimeBucket, PipelineStatus.SUCCESS);
-        }
         trace.stop();
         return AlignmentOutput.builder()
                 .from(alignmentOutput)
