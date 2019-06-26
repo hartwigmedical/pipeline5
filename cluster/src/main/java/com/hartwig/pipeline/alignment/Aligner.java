@@ -3,6 +3,7 @@ package com.hartwig.pipeline.alignment;
 import static java.lang.String.format;
 
 import static com.hartwig.pipeline.alignment.AlignmentOutputPaths.bai;
+import static com.hartwig.pipeline.alignment.AlignmentOutputPaths.bam;
 import static com.hartwig.pipeline.alignment.AlignmentOutputPaths.sorted;
 import static com.hartwig.pipeline.resource.ResourceNames.REFERENCE_GENOME;
 
@@ -46,10 +47,9 @@ public class Aligner {
     private final ResultsDirectory resultsDirectory;
     private final AlignmentOutputStorage alignmentOutputStorage;
 
-    Aligner(final Arguments arguments, final Storage storage, final SampleSource sampleSource,
-            final SampleUpload sampleUpload, final SparkExecutor dataproc, final JarUpload jarUpload,
-            final ClusterOptimizer clusterOptimizer, final ResultsDirectory resultsDirectory,
-            final AlignmentOutputStorage alignmentOutputStorage) {
+    Aligner(final Arguments arguments, final Storage storage, final SampleSource sampleSource, final SampleUpload sampleUpload,
+            final SparkExecutor dataproc, final JarUpload jarUpload, final ClusterOptimizer clusterOptimizer,
+            final ResultsDirectory resultsDirectory, final AlignmentOutputStorage alignmentOutputStorage) {
         this.arguments = arguments;
         this.storage = storage;
         this.sampleSource = sampleSource;
@@ -99,8 +99,18 @@ public class Aligner {
         return AlignmentOutput.builder()
                 .from(alignmentOutput)
                 .addReportComponents(new DataprocLogComponent(sample, runtimeBucket, resultsDirectory),
-                        new SingleFileComponent(runtimeBucket, NAMESPACE, sample.name(), sorted(sample.name()), resultsDirectory),
-                        new SingleFileComponent(runtimeBucket, NAMESPACE, sample.name(), bai(sorted(sample.name())), resultsDirectory))
+                        new SingleFileComponent(runtimeBucket,
+                                NAMESPACE,
+                                sample.name(),
+                                sorted(sample.name()),
+                                bam(sample.name()),
+                                resultsDirectory),
+                        new SingleFileComponent(runtimeBucket,
+                                NAMESPACE,
+                                sample.name(),
+                                bai(sorted(sample.name())),
+                                bai(bam(sample.name())),
+                                resultsDirectory))
                 .build();
     }
 

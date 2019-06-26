@@ -59,7 +59,7 @@ public class DataprocLogComponent implements ReportComponent {
             storage.copy(Storage.CopyRequest.of(alignerBucket.runId(),
                     tempComposedLog,
                     BlobId.of(reportBucket.getName(),
-                            format("%s/%s/%s/%s", setName, sampleName, Aligner.NAMESPACE, withLogExtension(step)))));
+                            format("%s/%s/%s/working/%s", setName, sampleName, Aligner.NAMESPACE, withLogExtension(step)))));
         }
     }
 

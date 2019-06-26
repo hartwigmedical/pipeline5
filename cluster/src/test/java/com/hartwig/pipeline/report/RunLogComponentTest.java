@@ -33,6 +33,6 @@ public class RunLogComponentTest {
         verify(runtimeBucket, times(1)).copyOutOf(sourceBlobCaptor.capture(), targetBucketCaptor.capture(), targetBlobCaptor.capture());
         assertThat(sourceBlobCaptor.getValue()).isEqualTo("results/run.log");
         assertThat(targetBucketCaptor.getValue()).isEqualTo(REPORT_BUCKET);
-        assertThat(targetBlobCaptor.getValue()).isEqualTo("test_set/sample/test/run.log");
+        assertThat(targetBlobCaptor.getValue()).isEqualTo("test_set/sample/test/working/run.log");
     }
 }

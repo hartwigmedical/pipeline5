@@ -16,14 +16,21 @@ public class EntireOutputComponent implements ReportComponent {
     private final AlignmentPair pair;
     private final String namespace;
     private final ResultsDirectory resultsDirectory;
+    private final String pathPrefix;
     private final List<String> exclusions;
 
     public EntireOutputComponent(final RuntimeBucket runtimeBucket, final AlignmentPair pair, final String namespace,
+            final ResultsDirectory resultsDirectory, final String... exclusions) {
+        this(runtimeBucket, pair, namespace, "", resultsDirectory, exclusions);
+    }
+
+    EntireOutputComponent(final RuntimeBucket runtimeBucket, final AlignmentPair pair, final String namespace, final String pathPrefix,
             final ResultsDirectory resultsDirectory, final String... exclusions) {
         this.runtimeBucket = runtimeBucket;
         this.pair = pair;
         this.namespace = namespace;
         this.resultsDirectory = resultsDirectory;
+        this.pathPrefix = pathPrefix;
         this.exclusions = Arrays.asList(exclusions);
     }
 
@@ -39,7 +46,7 @@ public class EntireOutputComponent implements ReportComponent {
                                 setName,
                                 pair.reference().sample() + "_" + pair.tumor().sample(),
                                 namespace,
-                                filename));
+                                pathPrefix.isEmpty() ? filename : pathPrefix + "/" + filename));
             }
         }
     }

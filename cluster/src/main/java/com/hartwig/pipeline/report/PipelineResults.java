@@ -16,11 +16,13 @@ public class PipelineResults {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PipelineResults.class);
 
+    private final String version;
     private final Storage storage;
     private final Bucket reportBucket;
     private final List<ReportComponent> components = new ArrayList<>();
 
-    PipelineResults(final Storage storage, final Bucket reportBucket) {
+    PipelineResults(final String version, final Storage storage, final Bucket reportBucket) {
+        this.version = version;
         this.storage = storage;
         this.reportBucket = reportBucket;
     }
@@ -34,6 +36,7 @@ public class PipelineResults {
 
     public void compose(String name) {
         LOGGER.info("Composing pipeline run results for {} in bucket gs://{}/{}", name, reportBucket.getName(), name);
+        reportBucket.create(name + "/pipeline.version", version.getBytes());
         components.forEach(component -> {
             try {
                 component.addToReport(storage, reportBucket, name);

@@ -72,6 +72,7 @@ public class BamMetrics {
                         BamMetrics.NAMESPACE,
                         alignmentOutput.sample(),
                         outputFile,
+                        outputFile,
                         resultsDirectory))
                 .build();
     }

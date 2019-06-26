@@ -1,9 +1,15 @@
 package com.hartwig.pipeline.alignment;
 
+import static java.lang.String.format;
+
 public class AlignmentOutputPaths {
 
-    public static String sorted(String sample) {
-        return String.format("%s.sorted.bam", sample);
+    public static String bam(String name){
+        return format("%s.bam", name);
+    }
+
+    static String sorted(String sample) {
+        return bam(format("%s.sorted", sample));
     }
 
     public static String bai(String bam) {
@@ -11,6 +17,6 @@ public class AlignmentOutputPaths {
     }
 
     public static String metrics(final String sample) {
-        return String.format("%s.metrics", sample);
+        return format("%s.metrics", sample);
     }
 }

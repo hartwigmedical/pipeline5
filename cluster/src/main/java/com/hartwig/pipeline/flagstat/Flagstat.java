@@ -56,6 +56,7 @@ public class Flagstat {
                         Flagstat.NAMESPACE,
                         alignmentOutput.sample(),
                         outputFile,
+                        outputFile,
                         resultsDirectory))
                 .build();
     }

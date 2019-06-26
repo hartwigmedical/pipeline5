@@ -19,7 +19,7 @@ import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.metadata.SampleMetadataApiProvider;
 import com.hartwig.pipeline.metadata.SetMetadataApiProvider;
 import com.hartwig.pipeline.report.FullSomaticResults;
-import com.hartwig.pipeline.report.PatientReportProvider;
+import com.hartwig.pipeline.report.PipelineResultsProvider;
 import com.hartwig.pipeline.snpgenotype.SnpGenotype;
 import com.hartwig.pipeline.storage.StorageProvider;
 import com.hartwig.pipeline.tertiary.amber.AmberProvider;
@@ -54,7 +54,7 @@ public class PipelineMain {
                                     storage,
                                     ResultsDirectory.defaultDirectory()),
                             FlagstatProvider.from(arguments, credentials, storage).get(),
-                            PatientReportProvider.from(storage, arguments).get(),
+                            PipelineResultsProvider.from(storage, arguments, Versions.pipelineVersion()).get(),
                             Executors.newCachedThreadPool(),
                             arguments).run();
                     LOGGER.info("Single sample pipeline is complete with status [{}]. Stages run were [{}]", state.status(), state);
@@ -63,7 +63,7 @@ public class PipelineMain {
                             new SomaticPipeline(new AlignmentOutputStorage(storage, arguments, ResultsDirectory.defaultDirectory()),
                                     new BamMetricsOutputStorage(storage, arguments, ResultsDirectory.defaultDirectory()),
                                     SetMetadataApiProvider.from(arguments).get(),
-                                    PatientReportProvider.from(storage, arguments).get(),
+                                    PipelineResultsProvider.from(storage, arguments, Versions.pipelineVersion()).get(),
                                     new FullSomaticResults(storage, arguments),
                                     CleanupProvider.from(credentials, arguments, storage).get(),
                                     AmberProvider.from(arguments, credentials, storage).get(),

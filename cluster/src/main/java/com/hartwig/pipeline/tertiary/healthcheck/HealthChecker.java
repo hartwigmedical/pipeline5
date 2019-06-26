@@ -20,6 +20,7 @@ import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
+import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.trace.StageTrace;
@@ -90,7 +91,8 @@ public class HealthChecker {
         return HealthCheckOutput.builder()
                 .status(status)
                 .maybeOutputDirectory(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path()))
-                .addReportComponents(new EntireOutputComponent(runtimeBucket, pair, NAMESPACE, resultsDirectory))
+                .addReportComponents(new RunLogComponent(runtimeBucket, NAMESPACE, tumorSampleName, resultsDirectory))
+                .addReportComponents(new EntireOutputComponent(runtimeBucket, pair, NAMESPACE, resultsDirectory, "run.log"))
                 .build();
     }
 

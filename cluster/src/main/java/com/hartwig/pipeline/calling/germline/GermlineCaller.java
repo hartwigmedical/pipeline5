@@ -26,7 +26,7 @@ import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.report.RunLogComponent;
-import com.hartwig.pipeline.report.SingleFileComponent;
+import com.hartwig.pipeline.report.ZippedVcfAndIndexComponent;
 import com.hartwig.pipeline.resource.GATKDictAlias;
 import com.hartwig.pipeline.resource.ReferenceGenomeAlias;
 import com.hartwig.pipeline.resource.Resource;
@@ -130,10 +130,11 @@ public class GermlineCaller {
         trace.stop();
         return outputBuilder.status(status)
                 .addReportComponents(new RunLogComponent(bucket, NAMESPACE, sampleName, resultsDirectory))
-                .addReportComponents(new SingleFileComponent(bucket,
+                .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
                         NAMESPACE,
                         sampleName,
                         finalOutput.outputFile().fileName(),
+                        OutputFile.of(alignmentOutput.sample(), "germline_calling", OutputFile.GZIPPED_VCF, true).fileName(),
                         resultsDirectory))
                 .build();
     }

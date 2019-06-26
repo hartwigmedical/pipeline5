@@ -27,8 +27,8 @@ import com.hartwig.pipeline.metadata.ImmutableSingleSampleRunMetadata;
 import com.hartwig.pipeline.metadata.LocalSampleMetadataApi;
 import com.hartwig.pipeline.metadata.SampleMetadataApi;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
-import com.hartwig.pipeline.report.PatientReportProvider;
 import com.hartwig.pipeline.report.PipelineResults;
+import com.hartwig.pipeline.report.PipelineResultsProvider;
 import com.hartwig.pipeline.report.ReportComponent;
 import com.hartwig.pipeline.snpgenotype.ImmutableSnpGenotypeOutput;
 import com.hartwig.pipeline.snpgenotype.SnpGenotype;
@@ -75,7 +75,7 @@ public class SingleSamplePipelineTest {
         Storage storage = mock(Storage.class);
         Bucket reportBucket = mock(Bucket.class);
         when(storage.get(ARGUMENTS.patientReportBucket())).thenReturn(reportBucket);
-        final PipelineResults pipelineResults = PatientReportProvider.from(storage, ARGUMENTS).get();
+        final PipelineResults pipelineResults = PipelineResultsProvider.from(storage, ARGUMENTS, "test").get();
         victim = new SingleSamplePipeline(sampleMetadataApi,
                 aligner,
                 bamMetrics,

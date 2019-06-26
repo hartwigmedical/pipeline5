@@ -16,7 +16,7 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;
 
-public class PatientReportTest {
+public class PipelineResultsTest {
 
     private boolean firstComponentRan;
     private boolean secondComponentRan;
@@ -26,7 +26,7 @@ public class PatientReportTest {
     public void setUp() throws Exception {
         Storage storage = mock(Storage.class);
         Bucket reportBucket = mock(Bucket.class);
-        victim = new PipelineResults(storage, reportBucket);
+        victim = new PipelineResults("test", storage, reportBucket);
     }
 
     @Test

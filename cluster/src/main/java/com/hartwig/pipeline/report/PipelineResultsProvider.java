@@ -6,18 +6,20 @@ import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageClass;
 import com.hartwig.pipeline.Arguments;
 
-public class PatientReportProvider {
+public class PipelineResultsProvider {
 
     private final Storage storage;
     private final Arguments arguments;
+    private final String version;
 
-    private PatientReportProvider(final Storage storage, final Arguments arguments) {
+    private PipelineResultsProvider(final Storage storage, final Arguments arguments, final String version) {
         this.storage = storage;
         this.arguments = arguments;
+        this.version = version;
     }
 
-    public static PatientReportProvider from(final Storage storage, final Arguments arguments) {
-        return new PatientReportProvider(storage, arguments);
+    public static PipelineResultsProvider from(final Storage storage, final Arguments arguments, final String version) {
+        return new PipelineResultsProvider(storage, arguments, version);
     }
 
     public PipelineResults get() {
@@ -28,6 +30,6 @@ public class PatientReportProvider {
                     .setLocation(arguments.region())
                     .build());
         }
-        return new PipelineResults(storage, reportBucket);
+        return new PipelineResults(version, storage, reportBucket);
     }
 }

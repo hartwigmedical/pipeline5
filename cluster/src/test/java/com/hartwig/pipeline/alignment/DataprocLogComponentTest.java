@@ -101,7 +101,7 @@ public class DataprocLogComponentTest {
         assertThat(copyRequest.getSource().getBucket()).isEqualTo(runtimeBucket.runId());
         assertThat(copyRequest.getSource().getName()).isEqualTo(format("aligner/results/%s-run.log", stepName));
         assertThat(copyRequest.getTarget().getBucket()).isEqualTo(REPORT_BUCKET);
-        assertThat(copyRequest.getTarget().getName()).isEqualTo(format("test-set/sample/aligner/%s-run.log", stepName));
+        assertThat(copyRequest.getTarget().getName()).isEqualTo(format("test-set/sample/aligner/working/%s-run.log", stepName));
     }
 
     @Test

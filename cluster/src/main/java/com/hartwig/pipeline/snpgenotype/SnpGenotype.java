@@ -76,9 +76,15 @@ public class SnpGenotype {
 
         PipelineStatus status = executor.submit(bucket, VirtualMachineJobDefinition.snpGenotyping(startupScript, resultsDirectory));
         trace.stop();
-        return SnpGenotypeOutput.builder().status(status)
+        return SnpGenotypeOutput.builder()
+                .status(status)
                 .addReportComponents(new RunLogComponent(bucket, NAMESPACE, sampleName, resultsDirectory))
-                .addReportComponents(new SingleFileComponent(bucket, NAMESPACE, sampleName, OUTPUT_FILENAME, resultsDirectory))
+                .addReportComponents(new SingleFileComponent(bucket,
+                        NAMESPACE,
+                        sampleName,
+                        OUTPUT_FILENAME,
+                        OUTPUT_FILENAME,
+                        resultsDirectory))
                 .build();
     }
 }

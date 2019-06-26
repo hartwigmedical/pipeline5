@@ -32,8 +32,8 @@ import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.metadata.SomaticMetadataApi;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.FullSomaticResults;
-import com.hartwig.pipeline.report.PatientReportProvider;
 import com.hartwig.pipeline.report.PipelineResults;
+import com.hartwig.pipeline.report.PipelineResultsProvider;
 import com.hartwig.pipeline.tertiary.amber.Amber;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
 import com.hartwig.pipeline.tertiary.cobalt.Cobalt;
@@ -104,7 +104,7 @@ public class SomaticPipelineTest {
         Storage storage = mock(Storage.class);
         Bucket reportBucket = mock(Bucket.class);
         when(storage.get(ARGUMENTS.patientReportBucket())).thenReturn(reportBucket);
-        final PipelineResults pipelineResults = PatientReportProvider.from(storage, ARGUMENTS).get();
+        final PipelineResults pipelineResults = PipelineResultsProvider.from(storage, ARGUMENTS, "test").get();
         final FullSomaticResults fullSomaticResults = mock(FullSomaticResults.class);
         final Cleanup cleanup = mock(Cleanup.class);
         victim = new SomaticPipeline(alignmentOutputStorage,
