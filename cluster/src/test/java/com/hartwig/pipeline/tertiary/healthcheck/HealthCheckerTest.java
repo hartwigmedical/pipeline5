@@ -90,10 +90,10 @@ public class HealthCheckerTest {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
         runVictim();
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
-                "gsutil -qm cp gs://run-reference/reference.wgsmetrics /data/input/metrics/reference.wgsmetrics",
-                "gsutil -qm cp gs://run-tumor/tumor.wgsmetrics /data/input/metrics/tumor.wgsmetrics",
-                "gsutil -qm cp gs://run-reference-tumor/purple/* /data/input/purple/",
-                "gsutil -qm cp gs://run-reference-tumor/amber/* /data/input/amber");
+                "gsutil -qm cp -n gs://run-reference/reference.wgsmetrics /data/input/metrics/reference.wgsmetrics",
+                "gsutil -qm cp -n gs://run-tumor/tumor.wgsmetrics /data/input/metrics/tumor.wgsmetrics",
+                "gsutil -qm cp -n gs://run-reference-tumor/purple/* /data/input/purple/",
+                "gsutil -qm cp -n gs://run-reference-tumor/amber/* /data/input/amber");
     }
 
     @Test

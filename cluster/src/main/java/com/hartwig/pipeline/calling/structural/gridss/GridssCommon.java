@@ -1,17 +1,14 @@
 package com.hartwig.pipeline.calling.structural.gridss;
 
-import com.hartwig.pipeline.execution.vm.VmDirectories;
+import static java.lang.String.format;
 
 import java.io.File;
 
-import static java.lang.String.format;
+import com.hartwig.pipeline.execution.vm.VmDirectories;
 
 public class GridssCommon {
     public static String pathToBwa() {
         return format("%s/bwa/0.7.17/bwa", VmDirectories.TOOLS);
-    }
-    public static String pathToSamtools() {
-        return format("%s/samtools/1.2/samtools", VmDirectories.TOOLS);
     }
     public static String pathToGridssScripts() {
         return format("%s/gridss-scripts/4.8", VmDirectories.TOOLS);

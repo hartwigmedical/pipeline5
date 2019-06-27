@@ -1,13 +1,13 @@
 package com.hartwig.pipeline.calling.structural.gridss.command;
 
-import com.hartwig.pipeline.calling.command.VersionedToolCommand;
-import com.hartwig.pipeline.execution.vm.Bash;
-import com.hartwig.pipeline.tools.Versions;
+import static java.util.Arrays.asList;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static java.util.Arrays.asList;
+import com.hartwig.pipeline.calling.command.VersionedToolCommand;
+import com.hartwig.pipeline.execution.vm.Bash;
+import com.hartwig.pipeline.tools.Versions;
 
 public class SambambaGridssSortCommand extends VersionedToolCommand {
     private SambambaGridssSortCommand(String outputBam, boolean sortByName) {
@@ -15,9 +15,7 @@ public class SambambaGridssSortCommand extends VersionedToolCommand {
     }
 
     private static String[] argsAsArray(String outputBam, boolean sortByName) {
-        List<String> args = new ArrayList<>(asList("sort", "-t", Bash.allCpus(), "-l", "0"));
-        args.add("-o");
-        args.add(outputBam);
+        List<String> args = new ArrayList<>(asList("sort", "-m", "8G", "-t", Bash.allCpus(), "-l", "0", "-o", outputBam));
         if (sortByName) {
             args.add("-n");
         }

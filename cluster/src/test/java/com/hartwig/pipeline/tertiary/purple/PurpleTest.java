@@ -88,11 +88,11 @@ public class PurpleTest {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
         runVictim();
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
-                "gsutil -qm cp gs://run-reference-tumor/somatic.vcf /data/input/somatic.vcf",
-                "gsutil -qm cp gs://run-reference-tumor/structural.vcf /data/input/structural.vcf",
-                "gsutil -qm cp gs://run-reference-tumor/sv_recovery.vcf /data/input/sv_recovery.vcf",
-                "gsutil -qm cp gs://run-reference-tumor/amber/* /data/input/",
-                "gsutil -qm cp gs://run-reference-tumor/cobalt/* /data/input/");
+                "gsutil -qm cp -n gs://run-reference-tumor/somatic.vcf /data/input/somatic.vcf",
+                "gsutil -qm cp -n gs://run-reference-tumor/structural.vcf /data/input/structural.vcf",
+                "gsutil -qm cp -n gs://run-reference-tumor/sv_recovery.vcf /data/input/sv_recovery.vcf",
+                "gsutil -qm cp -n gs://run-reference-tumor/amber/* /data/input/",
+                "gsutil -qm cp -n gs://run-reference-tumor/cobalt/* /data/input/");
     }
 
     @Test

@@ -1,12 +1,14 @@
 package com.hartwig.pipeline.calling.structural.gridss.command;
 
-import org.junit.Before;
-import org.junit.Test;
+import static java.lang.String.format;
 
 import static com.hartwig.pipeline.calling.structural.gridss.CommonEntities.OUTPUT_BAM;
 import static com.hartwig.pipeline.calling.structural.gridss.CommonEntities.PATH_TO_SAMBAMBA;
-import static java.lang.String.format;
+
 import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.Before;
+import org.junit.Test;
 
 public class SambambaGridssSortCommandTest {
     private String common;
@@ -14,7 +16,7 @@ public class SambambaGridssSortCommandTest {
 
     @Before
     public void setup() {
-        common = format("%s sort -t $(grep -c '^processor' /proc/cpuinfo) -l 0 -o %s", PATH_TO_SAMBAMBA, OUTPUT_BAM);
+        common = format("%s sort -m 8G -t $(grep -c '^processor' /proc/cpuinfo) -l 0 -o %s", PATH_TO_SAMBAMBA, OUTPUT_BAM);
         input = "/dev/stdin";
     }
 

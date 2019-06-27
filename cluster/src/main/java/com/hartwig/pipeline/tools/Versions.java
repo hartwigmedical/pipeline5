@@ -1,12 +1,12 @@
 package com.hartwig.pipeline.tools;
 
-import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.stream.Stream;
+
+import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public interface Versions {
 
@@ -24,7 +24,7 @@ public interface Versions {
     String HEALTH_CHECKER = "3.0";
     String PURPLE = "2.30";
     String CIRCOS = "0.69.6";
-    String GRIDSS = "2.2.3";
+    String GRIDSS = "2.4.0";
 
     static void printAll() {
         Logger logger = LoggerFactory.getLogger(Versions.class);

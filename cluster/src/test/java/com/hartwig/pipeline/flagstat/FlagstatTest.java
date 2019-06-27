@@ -57,7 +57,7 @@ public class FlagstatTest {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
         victim.run(referenceRunMetadata(), referenceAlignmentOutput());
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
-                "gsutil -qm cp gs://run-reference/aligner/results/reference.bam /data/input/reference.bam");
+                "gsutil -qm cp -n gs://run-reference/aligner/results/reference.bam /data/input/reference.bam");
     }
 
     @Test

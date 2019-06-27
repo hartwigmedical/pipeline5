@@ -81,10 +81,10 @@ public class SomaticCallerTest {
         when(computeEngine.submit(any(), jobDefinition.capture())).thenReturn(PipelineStatus.SUCCESS);
         victim.run(defaultSomaticRunMetadata(), defaultPair());
         assertThat(jobDefinition.getValue().startupCommand().asUnixString()).contains(
-                "gsutil -qm cp gs://run-tumor/aligner/results/tumor.bam /data/input/tumor.bam",
-                "gsutil -qm cp gs://run-reference/aligner/results/reference.bam /data/input/reference.bam",
-                "gsutil -qm cp gs://run-tumor/aligner/results/tumor.bam.bai /data/input/tumor.bam.bai",
-                "gsutil -qm cp gs://run-reference/aligner/results/reference.bam.bai /data/input/reference.bam.bai");
+                "gsutil -qm cp -n gs://run-tumor/aligner/results/tumor.bam /data/input/tumor.bam",
+                "gsutil -qm cp -n gs://run-reference/aligner/results/reference.bam /data/input/reference.bam",
+                "gsutil -qm cp -n gs://run-tumor/aligner/results/tumor.bam.bai /data/input/tumor.bam.bai",
+                "gsutil -qm cp -n gs://run-reference/aligner/results/reference.bam.bai /data/input/reference.bam.bai");
     }
 
     @Test
