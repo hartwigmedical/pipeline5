@@ -47,10 +47,12 @@ public class EntireOutputComponentTest {
 
         Blob first = blob("results/file1.out");
         Blob second = blob("results/file2.out");
-        when(runtimeBucket.list("results")).thenReturn(Lists.newArrayList(first, second));
+        when(runtimeBucket.list("results/")).thenReturn(Lists.newArrayList(first, second));
 
-        EntireOutputComponent victim =
-                new EntireOutputComponent(runtimeBucket, TestInputs.defaultPair(), "namespace", ResultsDirectory.defaultDirectory());
+        EntireOutputComponent victim = new EntireOutputComponent(runtimeBucket,
+                Folder.from(TestInputs.defaultSomaticRunMetadata()),
+                "namespace",
+                ResultsDirectory.defaultDirectory());
         victim.addToReport(storage, reportBucket, "test_set");
         verify(runtimeBucket, times(2)).copyOutOf(sourceBlobCaptor.capture(), targetBucketCaptor.capture(), targetBlobCaptor.capture());
         assertThat(sourceBlobCaptor.getAllValues().get(0)).isEqualTo("results/file1.out");
@@ -67,13 +69,13 @@ public class EntireOutputComponentTest {
         Blob first = blob("results/file1.out");
         String excludedFileName = "results/file2.out";
         Blob excluded = blob(excludedFileName);
-        when(runtimeBucket.list("results")).thenReturn(Lists.newArrayList(first, excluded));
+        when(runtimeBucket.list("results/")).thenReturn(Lists.newArrayList(first, excluded));
 
         EntireOutputComponent victim = new EntireOutputComponent(runtimeBucket,
-                TestInputs.defaultPair(),
+                Folder.from(TestInputs.defaultSomaticRunMetadata()),
                 "namespace",
                 ResultsDirectory.defaultDirectory(),
-                excludedFileName);
+                s -> s.endsWith(excludedFileName));
         victim.addToReport(storage, reportBucket, "test_set");
         verify(runtimeBucket, times(1)).copyOutOf(sourceBlobCaptor.capture(), targetBucketCaptor.capture(), targetBlobCaptor.capture());
         assertThat(sourceBlobCaptor.getAllValues().get(0)).isEqualTo("results/file1.out");

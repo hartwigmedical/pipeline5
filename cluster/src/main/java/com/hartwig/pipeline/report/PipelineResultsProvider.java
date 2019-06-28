@@ -30,6 +30,6 @@ public class PipelineResultsProvider {
                     .setLocation(arguments.region())
                     .build());
         }
-        return new PipelineResults(version, storage, reportBucket);
+        return new PipelineResults(version, storage, reportBucket, arguments);
     }
 }

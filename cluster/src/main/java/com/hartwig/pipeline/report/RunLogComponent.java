@@ -5,8 +5,8 @@ import com.hartwig.pipeline.io.RuntimeBucket;
 
 public class RunLogComponent extends SingleFileComponent {
 
-    public RunLogComponent(final RuntimeBucket runtimeBucket, final String namespace, final String sampleName,
+    public RunLogComponent(final RuntimeBucket runtimeBucket, final String namespace, final Folder folder,
             final ResultsDirectory resultsDirectory) {
-        super(runtimeBucket, namespace, sampleName, "run.log", "working/run.log", resultsDirectory);
+        super(runtimeBucket, namespace, folder, "run.log", "run.log", resultsDirectory);
     }
 }

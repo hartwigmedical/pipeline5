@@ -4,6 +4,7 @@ import static java.lang.String.format;
 import static java.util.Arrays.asList;
 
 import java.io.File;
+import java.util.function.Predicate;
 
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
@@ -32,6 +33,7 @@ import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
+import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.resource.Resource;
 import com.hartwig.pipeline.resource.ResourceNames;
 import com.hartwig.pipeline.trace.StageTrace;
@@ -60,6 +62,7 @@ public class StructuralCaller {
 
         StageTrace trace = new StageTrace(NAMESPACE, StageTrace.ExecutorType.COMPUTE_ENGINE).start();
 
+        Folder jointFolder = Folder.from(metadata);
         String tumorSampleName = pair.tumor().sample();
         String referenceSampleName = pair.reference().sample();
         RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, NAMESPACE, metadata, arguments);
@@ -108,7 +111,8 @@ public class StructuralCaller {
 
         Assemble.AssembleResult assemblyResult = new Assemble(commandFactory, commandConverter).initialise(preprocessedSample.svBam(),
                 preprocessedTumor.svBam(),
-                referenceGenomePath);
+                referenceGenomePath,
+                jointFolder.name());
 
         IdentifyVariants calling = commandFactory.buildIdentifyVariants(referenceBam.getLocalTargetPath(),
                 tumorBam.getLocalTargetPath(),
@@ -120,7 +124,8 @@ public class StructuralCaller {
                         tumorBam.getLocalTargetPath(),
                         assemblyResult.assemblyBam(),
                         calling.resultantVcf(),
-                        referenceGenomePath);
+                        referenceGenomePath,
+                        jointFolder.name());
 
         Filter.FilterResult filterResult =
                 new Filter().initialise(annotationResult.annotatedVcf(), basename(tumorBam.getLocalTargetPath()));
@@ -137,12 +142,21 @@ public class StructuralCaller {
         trace.stop();
         return StructuralCallerOutput.builder()
                 .status(status)
-                .maybeFilteredVcf(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path("annotated.vcf.gz")))
-                .maybeFilteredVcfIndex(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path("annotated.vcf.gz.tbi")))
-                .maybeFullVcf(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path("annotated.vcf.gz")))
-                .maybeFullVcfIndex(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path("annotated.vcf.gz.tbi")))
-                .addReportComponents(new EntireOutputComponent(runtimeBucket, pair, NAMESPACE, resultsDirectory))
+                .maybeFilteredVcf(GoogleStorageLocation.of(runtimeBucket.name(),
+                        resultsDirectory.path(basename(filterResult.filteredVcf()))))
+                .maybeFilteredVcfIndex(GoogleStorageLocation.of(runtimeBucket.name(),
+                        resultsDirectory.path(basename(filterResult.filteredVcf() + ".tbi"))))
+                .maybeFullVcf(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path(basename(filterResult.fullVcf()))))
+                .maybeFullVcfIndex(GoogleStorageLocation.of(runtimeBucket.name(),
+                        resultsDirectory.path(basename(filterResult.fullVcf() + ".tbi"))))
+                .addReportComponents(new EntireOutputComponent(runtimeBucket, jointFolder, NAMESPACE, resultsDirectory, filterBams()))
                 .build();
+    }
+
+    private Predicate<String> filterBams() {
+        return ((Predicate<String>) s -> s.endsWith("assembly.bam")).or(s -> s.endsWith("assembly.bai"))
+                .or(s -> s.endsWith("sv.bam"))
+                .or(s -> s.endsWith("sv.bai"));
     }
 
     private static String basename(String filename) {

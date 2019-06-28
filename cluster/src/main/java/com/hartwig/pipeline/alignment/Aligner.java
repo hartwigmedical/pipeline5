@@ -23,6 +23,7 @@ import com.hartwig.pipeline.io.SampleUpload;
 import com.hartwig.pipeline.io.sources.SampleData;
 import com.hartwig.pipeline.io.sources.SampleSource;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
+import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.SingleFileComponent;
 import com.hartwig.pipeline.resource.ReferenceGenomeAlias;
 import com.hartwig.pipeline.resource.Resource;
@@ -101,13 +102,13 @@ public class Aligner {
                 .addReportComponents(new DataprocLogComponent(sample, runtimeBucket, resultsDirectory),
                         new SingleFileComponent(runtimeBucket,
                                 NAMESPACE,
-                                sample.name(),
+                                Folder.from(metadata),
                                 sorted(sample.name()),
                                 bam(sample.name()),
                                 resultsDirectory),
                         new SingleFileComponent(runtimeBucket,
                                 NAMESPACE,
-                                sample.name(),
+                                Folder.from(metadata),
                                 bai(sorted(sample.name())),
                                 bai(bam(sample.name())),
                                 resultsDirectory))

@@ -1,14 +1,15 @@
 package com.hartwig.pipeline.calling.structural.gridss.command;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
+
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 public class AnnotateUntemplatedSequenceTest implements CommonEntities {
     private String className;
-    private static final String OUTFILE = String.format("%s/annotated.vcf", OUT_DIR);
+    private static final String OUTFILE = "/data/output/sample12345678R_sample12345678T.annotated.vcf";
     private AnnotateUntemplatedSequence command;
     private String inputVcf;
 
@@ -16,7 +17,7 @@ public class AnnotateUntemplatedSequenceTest implements CommonEntities {
     public void setup() {
         className = "gridss.AnnotateUntemplatedSequence";
         inputVcf = "/intermediate.vcf";
-        command = new AnnotateUntemplatedSequence(inputVcf, REFERENCE_GENOME);
+        command = new AnnotateUntemplatedSequence(inputVcf, REFERENCE_GENOME, JOINT_NAME);
     }
 
     @Test

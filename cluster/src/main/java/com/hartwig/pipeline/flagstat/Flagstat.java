@@ -15,6 +15,7 @@ import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
+import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.report.SingleFileComponent;
 import com.hartwig.pipeline.trace.StageTrace;
@@ -51,10 +52,10 @@ public class Flagstat {
         trace.stop();
         return FlagstatOutput.builder()
                 .status(status)
-                .addReportComponents(new RunLogComponent(bucket, Flagstat.NAMESPACE, alignmentOutput.sample(), resultsDirectory))
+                .addReportComponents(new RunLogComponent(bucket, Flagstat.NAMESPACE, Folder.from(metadata), resultsDirectory))
                 .addReportComponents(new SingleFileComponent(bucket,
                         Flagstat.NAMESPACE,
-                        alignmentOutput.sample(),
+                        Folder.from(metadata),
                         outputFile,
                         outputFile,
                         resultsDirectory))

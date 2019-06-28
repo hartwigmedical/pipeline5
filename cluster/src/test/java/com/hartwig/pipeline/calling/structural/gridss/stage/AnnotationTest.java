@@ -1,5 +1,14 @@
 package com.hartwig.pipeline.calling.structural.gridss.stage;
 
+import static java.lang.String.format;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.List;
+
 import com.hartwig.pipeline.calling.command.BgzipCommand;
 import com.hartwig.pipeline.calling.command.TabixCommand;
 import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
@@ -8,16 +17,12 @@ import com.hartwig.pipeline.calling.structural.gridss.command.AnnotateVariants;
 import com.hartwig.pipeline.calling.structural.gridss.command.GridssToBashCommandConverter;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.JavaClassCommand;
+
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.List;
-
-import static java.lang.String.format;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
-
 public class AnnotationTest implements CommonEntities {
+
     private String sampleBam;
     private String tumorBam;
     private String rawVcf;
@@ -61,7 +66,7 @@ public class AnnotationTest implements CommonEntities {
 
         annotateUntemplated = mock(AnnotateUntemplatedSequence.class);
         when(annotateUntemplated.resultantVcf()).thenReturn(annotatedUntemplatedVcf);
-        when(factory.buildAnnotateUntemplatedSequence(any(), any())).thenReturn(annotateUntemplated);
+        when(factory.buildAnnotateUntemplatedSequence(any(), any(), any())).thenReturn(annotateUntemplated);
         annotateUntemplatedBash = mock(JavaClassCommand.class);
         when(converter.convert(annotateUntemplated)).thenReturn(annotateUntemplatedBash);
         annotateUntemplatedBashCommands = "annotate untemplated bash";
@@ -73,7 +78,11 @@ public class AnnotationTest implements CommonEntities {
         tabix = mock(TabixCommand.class);
         when(factory.buildTabixCommand(any())).thenReturn(tabix);
 
-        result = new Annotation(factory, converter).initialise(sampleBam, tumorBam, assemblyBam, rawVcf, REFERENCE_GENOME);
+        result = new Annotation(factory, converter).initialise(sampleBam,
+                tumorBam,
+                assemblyBam,
+                rawVcf,
+                REFERENCE_GENOME, JOINT_NAME);
     }
 
     @Test

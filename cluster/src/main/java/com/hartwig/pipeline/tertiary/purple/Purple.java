@@ -18,7 +18,7 @@ import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
-import com.hartwig.pipeline.report.RunLogComponent;
+import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.resource.ResourceNames;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
 import com.hartwig.pipeline.tertiary.cobalt.CobaltOutput;
@@ -90,8 +90,7 @@ public class Purple {
         return PurpleOutput.builder()
                 .status(status)
                 .maybeOutputDirectory(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path(), true))
-                .addReportComponents(new RunLogComponent(runtimeBucket, NAMESPACE, tumorSampleName, resultsDirectory))
-                .addReportComponents(new EntireOutputComponent(runtimeBucket, pair, NAMESPACE, resultsDirectory, "run.log"))
+                .addReportComponents(new EntireOutputComponent(runtimeBucket, Folder.from(metadata), NAMESPACE, resultsDirectory))
                 .build();
     }
 }

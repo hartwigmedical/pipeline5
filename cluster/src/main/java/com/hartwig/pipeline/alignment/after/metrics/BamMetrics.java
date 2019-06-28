@@ -15,6 +15,7 @@ import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
+import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.report.SingleFileComponent;
 import com.hartwig.pipeline.resource.GATKDictAlias;
@@ -67,10 +68,10 @@ public class BamMetrics {
                 .status(status)
                 .sample(alignmentOutput.sample())
                 .maybeMetricsOutputFile(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(outputFile)))
-                .addReportComponents(new RunLogComponent(bucket, BamMetrics.NAMESPACE, alignmentOutput.sample(), resultsDirectory))
+                .addReportComponents(new RunLogComponent(bucket, BamMetrics.NAMESPACE, Folder.from(metadata), resultsDirectory))
                 .addReportComponents(new SingleFileComponent(bucket,
                         BamMetrics.NAMESPACE,
-                        alignmentOutput.sample(),
+                        Folder.from(metadata),
                         outputFile,
                         outputFile,
                         resultsDirectory))

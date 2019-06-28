@@ -9,16 +9,16 @@ public class ZippedVcfAndIndexComponent implements ReportComponent {
 
     private final RuntimeBucket runtimeBucket;
     private final String namespace;
-    private final String sampleName;
+    private final Folder folder;
     private final String sourceVcfFileName;
     private final String targetFileName;
     private final ResultsDirectory resultsDirectory;
 
-    public ZippedVcfAndIndexComponent(final RuntimeBucket runtimeBucket, final String namespace, final String sampleName,
+    public ZippedVcfAndIndexComponent(final RuntimeBucket runtimeBucket, final String namespace, final Folder folder,
             final String sourceFileName, final String targetFileName, final ResultsDirectory resultsDirectory) {
         this.runtimeBucket = runtimeBucket;
         this.namespace = namespace;
-        this.sampleName = sampleName;
+        this.folder = folder;
         this.sourceVcfFileName = sourceFileName;
         this.targetFileName = targetFileName;
         this.resultsDirectory = resultsDirectory;
@@ -28,9 +28,9 @@ public class ZippedVcfAndIndexComponent implements ReportComponent {
     public void addToReport(final Storage storage, final Bucket reportBucket, final String setName) {
         runtimeBucket.copyOutOf(resultsDirectory.path(sourceVcfFileName),
                 reportBucket.getName(),
-                String.format("%s/%s/%s/%s", setName, sampleName, namespace, targetFileName));
+                String.format("%s/%s/%s/%s", setName, folder.name(), namespace, targetFileName));
         runtimeBucket.copyOutOf(resultsDirectory.path(sourceVcfFileName),
                 reportBucket.getName(),
-                String.format("%s/%s/%s/%s", setName, sampleName, namespace, targetFileName + ".tbi"));
+                String.format("%s/%s/%s/%s", setName, folder.name(), namespace, targetFileName + ".tbi"));
     }
 }

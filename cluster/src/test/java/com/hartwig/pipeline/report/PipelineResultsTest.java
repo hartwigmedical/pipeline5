@@ -9,8 +9,10 @@ import java.util.List;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.google.common.collect.Lists;
+import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.execution.PipelineStatus;
+import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
@@ -26,14 +28,14 @@ public class PipelineResultsTest {
     public void setUp() throws Exception {
         Storage storage = mock(Storage.class);
         Bucket reportBucket = mock(Bucket.class);
-        victim = new PipelineResults("test", storage, reportBucket);
+        victim = new PipelineResults("test", storage, reportBucket, Arguments.testDefaults());
     }
 
     @Test
     public void composesAllAddedComponents() {
         victim.add(stageOutput(Lists.newArrayList((s, r, setName) -> firstComponentRan = true,
                 (s, r, setName) -> secondComponentRan = true)));
-        victim.compose("test");
+        victim.compose(TestInputs.referenceRunMetadata());
         assertThat(firstComponentRan).isTrue();
         assertThat(secondComponentRan).isTrue();
     }
@@ -43,7 +45,7 @@ public class PipelineResultsTest {
         victim.add(stageOutput(Lists.newArrayList((s, r, setName) -> firstComponentRan = true, (s, r, setName) -> {
             throw new RuntimeException();
         }, (s, r, setName) -> secondComponentRan = true)));
-        victim.compose("test");
+        victim.compose(TestInputs.referenceRunMetadata());
         assertThat(firstComponentRan).isTrue();
         assertThat(secondComponentRan).isTrue();
     }

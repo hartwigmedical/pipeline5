@@ -11,6 +11,7 @@ import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.testsupport.MockRuntimeBucket;
+import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -28,11 +29,14 @@ public class RunLogComponentTest {
         ArgumentCaptor<String> sourceBlobCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> targetBucketCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> targetBlobCaptor = ArgumentCaptor.forClass(String.class);
-        RunLogComponent victim = new RunLogComponent(runtimeBucket, "test", "sample", ResultsDirectory.defaultDirectory());
+        RunLogComponent victim = new RunLogComponent(runtimeBucket,
+                "test",
+                Folder.from(TestInputs.referenceRunMetadata()),
+                ResultsDirectory.defaultDirectory());
         victim.addToReport(storage, reportBucket, "test_set");
         verify(runtimeBucket, times(1)).copyOutOf(sourceBlobCaptor.capture(), targetBucketCaptor.capture(), targetBlobCaptor.capture());
         assertThat(sourceBlobCaptor.getValue()).isEqualTo("results/run.log");
         assertThat(targetBucketCaptor.getValue()).isEqualTo(REPORT_BUCKET);
-        assertThat(targetBlobCaptor.getValue()).isEqualTo("test_set/sample/test/working/run.log");
+        assertThat(targetBlobCaptor.getValue()).isEqualTo("test_set/reference/test/run.log");
     }
 }

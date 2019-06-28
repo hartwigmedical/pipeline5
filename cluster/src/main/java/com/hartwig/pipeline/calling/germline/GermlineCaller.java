@@ -25,6 +25,7 @@ import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
+import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.report.ZippedVcfAndIndexComponent;
 import com.hartwig.pipeline.resource.GATKDictAlias;
@@ -129,10 +130,10 @@ public class GermlineCaller {
         PipelineStatus status = executor.submit(bucket, VirtualMachineJobDefinition.germlineCalling(startupScript, resultsDirectory));
         trace.stop();
         return outputBuilder.status(status)
-                .addReportComponents(new RunLogComponent(bucket, NAMESPACE, sampleName, resultsDirectory))
+                .addReportComponents(new RunLogComponent(bucket, NAMESPACE, Folder.from(metadata), resultsDirectory))
                 .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
                         NAMESPACE,
-                        sampleName,
+                        Folder.from(metadata),
                         finalOutput.outputFile().fileName(),
                         OutputFile.of(alignmentOutput.sample(), "germline_calling", OutputFile.GZIPPED_VCF, true).fileName(),
                         resultsDirectory))

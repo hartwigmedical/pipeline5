@@ -73,7 +73,7 @@ public class SingleSamplePipeline {
             report.add(state.add(futurePayload(bamMetricsFuture)));
             report.add(state.add(futurePayload(unifiedGenotyperFuture)));
             report.add(state.add(futurePayload(flagstatOutputFuture)));
-            report.compose(RunTag.apply(arguments, metadata.sampleId()));
+            report.compose(metadata);
         }
         return state;
     }

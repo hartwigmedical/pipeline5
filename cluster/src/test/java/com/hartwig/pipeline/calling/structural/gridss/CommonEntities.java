@@ -1,10 +1,10 @@
 package com.hartwig.pipeline.calling.structural.gridss;
 
-import com.hartwig.pipeline.execution.vm.VmDirectories;
+import static java.lang.String.format;
 
 import java.util.Map;
 
-import static java.lang.String.format;
+import com.hartwig.pipeline.execution.vm.VmDirectories;
 
 public interface CommonEntities {
     String OUT_DIR = "/data/output";
@@ -16,6 +16,7 @@ public interface CommonEntities {
     String TUMOR_SAMPLE = "sample12345678T";
     String REFERENCE_BAM = format("%s/%s.bam", IN_DIR, REFERENCE_SAMPLE);
     String TUMOR_BAM = format("%s/%s.bam", IN_DIR, TUMOR_SAMPLE);
+    String JOINT_NAME = REFERENCE_SAMPLE + "_" + TUMOR_SAMPLE;
 
     String OUTPUT_BAM = format("%s/output.bam", OUT_DIR);
     String REFERENCE_GENOME = format("%s/reference_genome.fasta", VmDirectories.RESOURCES);

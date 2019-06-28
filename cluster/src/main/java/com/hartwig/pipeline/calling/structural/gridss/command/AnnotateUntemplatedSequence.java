@@ -6,14 +6,16 @@ public class AnnotateUntemplatedSequence implements GridssCommand {
 
     private final String inputVcf;
     private final String referenceGenome;
+    private final String outputVcf;
 
-    public AnnotateUntemplatedSequence(final String inputVcf, final String referenceGenome) {
+    public AnnotateUntemplatedSequence(final String inputVcf, final String referenceGenome, final String jointName) {
         this.inputVcf = inputVcf;
         this.referenceGenome = referenceGenome;
+        this.outputVcf = VmDirectories.outputFile(jointName + ".annotated.vcf");
     }
 
     public String resultantVcf() {
-        return VmDirectories.outputFile("annotated.vcf");
+        return outputVcf;
     }
 
     @Override
@@ -23,8 +25,7 @@ public class AnnotateUntemplatedSequence implements GridssCommand {
 
     @Override
     public String arguments() {
-        return new GridssArguments()
-                .add("reference_sequence", referenceGenome)
+        return new GridssArguments().add("reference_sequence", referenceGenome)
                 .add("input", inputVcf)
                 .add("output", resultantVcf())
                 .asBash();

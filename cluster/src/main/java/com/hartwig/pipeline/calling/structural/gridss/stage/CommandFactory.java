@@ -2,23 +2,30 @@ package com.hartwig.pipeline.calling.structural.gridss.stage;
 
 import com.hartwig.pipeline.calling.command.BgzipCommand;
 import com.hartwig.pipeline.calling.command.TabixCommand;
-import com.hartwig.pipeline.calling.structural.gridss.command.*;
+import com.hartwig.pipeline.calling.structural.gridss.command.AnnotateUntemplatedSequence;
+import com.hartwig.pipeline.calling.structural.gridss.command.AnnotateVariants;
+import com.hartwig.pipeline.calling.structural.gridss.command.AssembleBreakends;
+import com.hartwig.pipeline.calling.structural.gridss.command.CollectGridssMetrics;
+import com.hartwig.pipeline.calling.structural.gridss.command.ComputeSamTags;
+import com.hartwig.pipeline.calling.structural.gridss.command.ExtractSvReads;
+import com.hartwig.pipeline.calling.structural.gridss.command.IdentifyVariants;
+import com.hartwig.pipeline.calling.structural.gridss.command.SambambaGridssSortCommand;
+import com.hartwig.pipeline.calling.structural.gridss.command.SoftClipsToSplitReads;
 
 public class CommandFactory {
-    public AnnotateUntemplatedSequence buildAnnotateUntemplatedSequence(final String annotatedVcf,
-                                                                        final String referenceGenome) {
-        return new AnnotateUntemplatedSequence(annotatedVcf, referenceGenome);
+    public AnnotateUntemplatedSequence buildAnnotateUntemplatedSequence(final String annotatedVcf, final String referenceGenome,
+            final String jointName) {
+        return new AnnotateUntemplatedSequence(annotatedVcf, referenceGenome, jointName);
     }
 
-    public AnnotateVariants buildAnnotateVariants(final String sampleBam, final String tumorBam,
-                                                  final String assemblyBam, final String rawVcf,
-                                                  final String referenceGenome) {
+    public AnnotateVariants buildAnnotateVariants(final String sampleBam, final String tumorBam, final String assemblyBam,
+            final String rawVcf, final String referenceGenome) {
         return new AnnotateVariants(sampleBam, tumorBam, assemblyBam, rawVcf, referenceGenome);
     }
 
-    public AssembleBreakends buildAssembleBreakends(final String sampleBam, final String tumorBam,
-                                                    final String referenceGenome) {
-        return new AssembleBreakends(sampleBam, tumorBam, referenceGenome);
+    public AssembleBreakends buildAssembleBreakends(final String sampleBam, final String tumorBam, final String referenceGenome,
+            final String jointName) {
+        return new AssembleBreakends(sampleBam, tumorBam, referenceGenome, jointName);
     }
 
     public BgzipCommand buildBgzipCommand(final String annotatedVcf) {
@@ -29,31 +36,26 @@ public class CommandFactory {
         return new CollectGridssMetrics(inputBam);
     }
 
-    public ExtractSvReads buildExtractSvReads(final String inputBam,
-                                              final String sampleName,
-                                              final String insertSizeMetrics) {
+    public ExtractSvReads buildExtractSvReads(final String inputBam, final String sampleName, final String insertSizeMetrics) {
         return new ExtractSvReads(inputBam, sampleName, insertSizeMetrics);
     }
 
-    public ComputeSamTags buildComputeSamTags(final String inProgressBam, final String referenceGenome,
-                                              final String sampleName) {
+    public ComputeSamTags buildComputeSamTags(final String inProgressBam, final String referenceGenome, final String sampleName) {
         return new ComputeSamTags(inProgressBam, referenceGenome, sampleName);
     }
 
-    public IdentifyVariants buildIdentifyVariants(final String sampleBam, final String tumorBam,
-                                                  final String assemblyBam, final String referenceGenome) {
+    public IdentifyVariants buildIdentifyVariants(final String sampleBam, final String tumorBam, final String assemblyBam,
+            final String referenceGenome) {
         return new IdentifyVariants(sampleBam, tumorBam, assemblyBam, referenceGenome);
     }
 
     public SoftClipsToSplitReads.ForAssemble buildSoftClipsToSplitReadsForAssemble(final String intermediateBamPath,
-                                                                                   final String referenceGenome,
-                                                                                   final String outputBam) {
+            final String referenceGenome, final String outputBam) {
         return new SoftClipsToSplitReads.ForAssemble(intermediateBamPath, referenceGenome, outputBam);
     }
 
     public SoftClipsToSplitReads.ForPreprocess buildSoftClipsToSplitReadsForPreProcess(final String intermediateBamPath,
-                                                                                       final String referenceGenome,
-                                                                                       final String outputBam) {
+            final String referenceGenome, final String outputBam) {
         return new SoftClipsToSplitReads.ForPreprocess(intermediateBamPath, referenceGenome, outputBam);
     }
 

@@ -110,9 +110,11 @@ public class SomaticPipeline {
                             referenceMetrics,
                             amberOutput,
                             purpleOutput)));
-                    pipelineResults.compose(metadata.runName());
+                    pipelineResults.compose(metadata);
                     fullSomaticResults.compose(metadata);
-                    cleanup.run(metadata);
+                    if (state.shouldProceed()) {
+                        cleanup.run(metadata);
+                    }
                 }
             }
             setMetadataApi.complete(state.status());

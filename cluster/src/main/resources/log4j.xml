@@ -10,6 +10,14 @@
         </layout>
     </appender>
 
+    <appender name="file" class="org.apache.log4j.RollingFileAppender">
+        <param name="File" value="run.log"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern"
+                   value="%d{yyyy-MM-dd HH:mm:ss} %-5p- %m%n"/>
+        </layout>
+    </appender>
+
     <logger name="com.hartwig">
         <level value="INFO"/>
     </logger>
@@ -19,6 +27,7 @@
     <root>
         <level value="WARN"/>
         <appender-ref ref="console"/>
+        <appender-ref ref="file" />
     </root>
 
 </log4j:configuration>

@@ -1,5 +1,16 @@
 package com.hartwig.pipeline.calling.structural.gridss.stage;
 
+import static java.lang.String.format;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.io.File;
+import java.util.List;
+
 import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
 import com.hartwig.pipeline.calling.structural.gridss.command.AssembleBreakends;
 import com.hartwig.pipeline.calling.structural.gridss.command.CollectGridssMetrics;
@@ -7,15 +18,9 @@ import com.hartwig.pipeline.calling.structural.gridss.command.GridssToBashComman
 import com.hartwig.pipeline.calling.structural.gridss.command.SoftClipsToSplitReads;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.JavaClassCommand;
+
 import org.junit.Before;
 import org.junit.Test;
-
-import java.io.File;
-import java.util.List;
-
-import static java.lang.String.format;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
 
 public class AssembleTest implements CommonEntities {
     private String assembledBam;
@@ -40,7 +45,7 @@ public class AssembleTest implements CommonEntities {
         converter = mock(GridssToBashCommandConverter.class);
 
         assembleBreakends = mock(AssembleBreakends.class);
-        when(factory.buildAssembleBreakends(any(), any(), any())).thenReturn(assembleBreakends);
+        when(factory.buildAssembleBreakends(any(), any(), any(), any())).thenReturn(assembleBreakends);
         when(assembleBreakends.assemblyBam()).thenReturn(assembledBam);
 
         collectMetrics = mock(CollectGridssMetrics.class);
@@ -60,12 +65,12 @@ public class AssembleTest implements CommonEntities {
         when(converter.convert(collectMetrics)).thenReturn(collectMetricsBash);
         when(converter.convert(clips)).thenReturn(clipsBash);
 
-        result = new Assemble(factory, converter).initialise(REFERENCE_BAM, TUMOR_BAM, REFERENCE_GENOME);
+        result = new Assemble(factory, converter).initialise(REFERENCE_BAM, TUMOR_BAM, REFERENCE_GENOME, JOINT_NAME);
     }
 
     @Test
     public void shouldRequestAssembleBreakendsCommandFromFactoryPassingInputBamsAndReferenceGenome() {
-        verify(factory).buildAssembleBreakends(REFERENCE_BAM, TUMOR_BAM, REFERENCE_GENOME);
+        verify(factory).buildAssembleBreakends(REFERENCE_BAM, TUMOR_BAM, REFERENCE_GENOME, JOINT_NAME);
     }
 
     @Test

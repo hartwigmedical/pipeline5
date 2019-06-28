@@ -19,7 +19,9 @@ import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
-import com.hartwig.pipeline.report.EntireWorkingOutputComponent;
+import com.hartwig.pipeline.report.EntireOutputComponent;
+import com.hartwig.pipeline.report.Folder;
+import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.report.ZippedVcfAndIndexComponent;
 import com.hartwig.pipeline.resource.GATKDictAlias;
 import com.hartwig.pipeline.resource.ReferenceGenomeAlias;
@@ -128,11 +130,17 @@ public class SomaticCaller {
                         resultsDirectory.path(mergedOutput.outputFile().fileName())))
                 .addReportComponents(new ZippedVcfAndIndexComponent(runtimeBucket,
                         NAMESPACE,
-                        tumorSampleName,
+                        Folder.from(metadata),
                         mergedOutput.outputFile().fileName(),
                         OutputFile.of(tumorSampleName, "somatic_caller_post_processed", OutputFile.GZIPPED_VCF, true).fileName(),
                         resultsDirectory))
-                .addReportComponents(new EntireWorkingOutputComponent(runtimeBucket, pair, NAMESPACE, resultsDirectory, "chromosomes"))
+                .addReportComponents(new EntireOutputComponent(runtimeBucket,
+                        Folder.from(metadata),
+                        NAMESPACE,
+                        "results/",
+                        resultsDirectory,
+                        s -> s.contains("chromosomes")))
+                .addReportComponents(new RunLogComponent(runtimeBucket, NAMESPACE, Folder.from(metadata), resultsDirectory))
                 .build();
 
     }

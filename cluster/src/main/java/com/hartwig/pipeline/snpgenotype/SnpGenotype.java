@@ -17,6 +17,7 @@ import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
+import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.report.SingleFileComponent;
 import com.hartwig.pipeline.resource.GATKDictAlias;
@@ -78,10 +79,10 @@ public class SnpGenotype {
         trace.stop();
         return SnpGenotypeOutput.builder()
                 .status(status)
-                .addReportComponents(new RunLogComponent(bucket, NAMESPACE, sampleName, resultsDirectory))
+                .addReportComponents(new RunLogComponent(bucket, NAMESPACE, Folder.from(metadata), resultsDirectory))
                 .addReportComponents(new SingleFileComponent(bucket,
                         NAMESPACE,
-                        sampleName,
+                        Folder.from(metadata),
                         OUTPUT_FILENAME,
                         OUTPUT_FILENAME,
                         resultsDirectory))

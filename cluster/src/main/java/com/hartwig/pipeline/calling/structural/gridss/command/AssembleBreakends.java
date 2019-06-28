@@ -4,15 +4,15 @@ import com.hartwig.pipeline.execution.vm.VmDirectories;
 
 public class AssembleBreakends implements GridssCommand {
     private final String referenceGenome;
-    private final String sampleBam;
+    private final String referenceBam;
     private final String tumorBam;
     private final String assemblyBam;
 
-    public AssembleBreakends(final String sampleBam, final String tumorBam, final String referenceGenome) {
+    public AssembleBreakends(final String referenceBam, final String tumorBam, final String referenceGenome, final String jointName) {
         this.referenceGenome = referenceGenome;
-        this.sampleBam = sampleBam;
+        this.referenceBam = referenceBam;
         this.tumorBam = tumorBam;
-        this.assemblyBam = VmDirectories.outputFile("reference-tumor.assembly.bam");
+        this.assemblyBam = VmDirectories.outputFile(jointName + ".assembly.bam");
     }
 
     public String assemblyBam() {
@@ -31,15 +31,14 @@ public class AssembleBreakends implements GridssCommand {
 
     @Override
     public String arguments() {
-         return new GridssArguments()
-                        .addTempDir()
-                        .add("working_dir", VmDirectories.OUTPUT)
-                        .add("reference_sequence", referenceGenome)
-                        .add("input", sampleBam)
-                        .add("input", tumorBam)
-                        .add("output", assemblyBam)
-                        .addBlacklist()
-                        .addConfigFile()
-                        .asBash();
+        return new GridssArguments().addTempDir()
+                .add("working_dir", VmDirectories.OUTPUT)
+                .add("reference_sequence", referenceGenome)
+                .add("input", referenceBam)
+                .add("input", tumorBam)
+                .add("output", assemblyBam)
+                .addBlacklist()
+                .addConfigFile()
+                .asBash();
     }
 }
