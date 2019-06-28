@@ -15,6 +15,6 @@ public class OutputUpload implements BashCommand {
 
     @Override
     public String asBash() {
-        return format("gsutil -qm cp -r %s/* gs://%s/%s", OUTPUT_DIRECTORY, targetLocation.bucket(), targetLocation.path());
+        return format("gsutil -qm cp -r %s/ gs://%s/%s", OUTPUT_DIRECTORY, targetLocation.bucket(), targetLocation.path());
     }
 }

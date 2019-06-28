@@ -156,7 +156,7 @@ public class StructuralCaller {
     private Predicate<String> filterBams() {
         return ((Predicate<String>) s -> s.endsWith("assembly.bam")).or(s -> s.endsWith("assembly.bai"))
                 .or(s -> s.endsWith("sv.bam"))
-                .or(s -> s.endsWith("sv.bai"));
+                .or(s -> s.endsWith("sv.bam.bai"));
     }
 
     private static String basename(String filename) {

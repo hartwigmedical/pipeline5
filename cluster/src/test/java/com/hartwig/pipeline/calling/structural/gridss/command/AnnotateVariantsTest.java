@@ -1,13 +1,15 @@
 package com.hartwig.pipeline.calling.structural.gridss.command;
 
+import static java.lang.String.format;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
 import com.hartwig.pipeline.calling.structural.gridss.GridssCommon;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
+
 import org.junit.Before;
 import org.junit.Test;
-
-import static java.lang.String.format;
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class AnnotateVariantsTest implements CommonEntities {
     private AnnotateVariants command;
@@ -20,7 +22,7 @@ public class AnnotateVariantsTest implements CommonEntities {
         assemblyBam = "assembly.bam";
         inputVcf = "input.vcf";
         expectedResultantVcf = format("%s/annotate_variants.vcf", OUT_DIR);
-        command = new AnnotateVariants(REFERENCE_BAM, TUMOR_BAM, assemblyBam, inputVcf, REFERENCE_GENOME);
+        command = new AnnotateVariants(REFERENCE_BAM, TUMOR_BAM, assemblyBam, inputVcf, REFERENCE_GENOME, JOINT_NAME);
     }
 
     @Test

@@ -58,7 +58,7 @@ public class AnnotationTest implements CommonEntities {
 
         annotateVariants = mock(AnnotateVariants.class);
         when(annotateVariants.resultantVcf()).thenReturn(annotatedVcf);
-        when(factory.buildAnnotateVariants(any(), any(), any(), any(), any())).thenReturn(annotateVariants);
+        when(factory.buildAnnotateVariants(any(), any(), any(), any(), any(), any())).thenReturn(annotateVariants);
         annotateVariantsBash = mock(JavaClassCommand.class);
         when(converter.convert(annotateVariants)).thenReturn(annotateVariantsBash);
         annotateVariantsBashCommands = "annotate variants bash";
@@ -78,11 +78,7 @@ public class AnnotationTest implements CommonEntities {
         tabix = mock(TabixCommand.class);
         when(factory.buildTabixCommand(any())).thenReturn(tabix);
 
-        result = new Annotation(factory, converter).initialise(sampleBam,
-                tumorBam,
-                assemblyBam,
-                rawVcf,
-                REFERENCE_GENOME, JOINT_NAME);
+        result = new Annotation(factory, converter).initialise(sampleBam, tumorBam, assemblyBam, rawVcf, REFERENCE_GENOME, JOINT_NAME);
     }
 
     @Test

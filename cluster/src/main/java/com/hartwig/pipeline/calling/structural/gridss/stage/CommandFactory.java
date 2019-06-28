@@ -19,8 +19,8 @@ public class CommandFactory {
     }
 
     public AnnotateVariants buildAnnotateVariants(final String sampleBam, final String tumorBam, final String assemblyBam,
-            final String rawVcf, final String referenceGenome) {
-        return new AnnotateVariants(sampleBam, tumorBam, assemblyBam, rawVcf, referenceGenome);
+            final String rawVcf, final String referenceGenome, final String jointName) {
+        return new AnnotateVariants(sampleBam, tumorBam, assemblyBam, rawVcf, referenceGenome, jointName);
     }
 
     public AssembleBreakends buildAssembleBreakends(final String sampleBam, final String tumorBam, final String referenceGenome,

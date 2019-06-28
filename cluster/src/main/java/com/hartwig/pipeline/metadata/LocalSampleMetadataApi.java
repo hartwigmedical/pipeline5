@@ -13,9 +13,9 @@ public class LocalSampleMetadataApi implements SampleMetadataApi {
     public SingleSampleRunMetadata get() {
         return SingleSampleRunMetadata.builder()
                 .sampleId(sampleId)
-                .type(sampleId.toUpperCase().endsWith("R")
-                        ? SingleSampleRunMetadata.SampleType.REFERENCE
-                        : SingleSampleRunMetadata.SampleType.TUMOR)
+                .type(sampleId.toUpperCase().endsWith("T")
+                        ? SingleSampleRunMetadata.SampleType.TUMOR
+                        : SingleSampleRunMetadata.SampleType.REFERENCE)
                 .build();
     }
 

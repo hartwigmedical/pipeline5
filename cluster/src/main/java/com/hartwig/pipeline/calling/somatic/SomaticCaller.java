@@ -137,9 +137,9 @@ public class SomaticCaller {
                 .addReportComponents(new EntireOutputComponent(runtimeBucket,
                         Folder.from(),
                         NAMESPACE,
-                        "results/",
+                        "strelkaAnalysis/",
                         resultsDirectory,
-                        s -> s.contains("chromosomes")))
+                        s -> s.contains("chromosomes") || s.contains("Makefile") || s.contains("task.complete")))
                 .addReportComponents(new RunLogComponent(runtimeBucket, NAMESPACE, Folder.from(), resultsDirectory))
                 .build();
 

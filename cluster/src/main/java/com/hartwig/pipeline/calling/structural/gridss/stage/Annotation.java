@@ -31,10 +31,11 @@ public class Annotation {
     }
 
     public AnnotationResult initialise(final String sampleBam, final String tumorBam, final String assemblyBam, final String rawVcf,
-            final String referenceGenome, final String jointCalling) {
-        AnnotateVariants variants = commandFactory.buildAnnotateVariants(sampleBam, tumorBam, assemblyBam, rawVcf, referenceGenome);
+            final String referenceGenome, final String jointName) {
+        AnnotateVariants variants =
+                commandFactory.buildAnnotateVariants(sampleBam, tumorBam, assemblyBam, rawVcf, referenceGenome, jointName);
         AnnotateUntemplatedSequence untemplated =
-                commandFactory.buildAnnotateUntemplatedSequence(variants.resultantVcf(), referenceGenome, jointCalling);
+                commandFactory.buildAnnotateUntemplatedSequence(variants.resultantVcf(), referenceGenome, jointName);
         BgzipCommand bgzip = commandFactory.buildBgzipCommand(untemplated.resultantVcf());
         String finalOutputPath = format("%s.gz", untemplated.resultantVcf());
         TabixCommand tabix = commandFactory.buildTabixCommand(finalOutputPath);

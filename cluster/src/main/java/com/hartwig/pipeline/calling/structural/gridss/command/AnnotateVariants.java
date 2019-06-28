@@ -8,19 +8,22 @@ public class AnnotateVariants implements GridssCommand {
     private final String tumorBam;
     private final String assemblyBam;
     private final String inputVcf;
+    private final String outputVcf;
     private final String referenceGenome;
 
-    public AnnotateVariants(final String sampleBam, final String tumorBam, final String assemblyBam,
-                            final String inputVcf, final String referenceGenome) {
-        this.sampleBam = sampleBam;
+    public AnnotateVariants(final String referenceBam, final String tumorBam, final String assemblyBam, final String inputVcf,
+            final String referenceGenome, final String jointName) {
+        this.sampleBam = referenceBam;
         this.tumorBam = tumorBam;
         this.assemblyBam = assemblyBam;
         this.inputVcf = inputVcf;
         this.referenceGenome = referenceGenome;
+        this.outputVcf = VmDirectories.outputFile(jointName + ".annotated_variants.vcf");
+        ;
     }
 
     public String resultantVcf() {
-        return VmDirectories.outputFile("annotate_variants.vcf");
+        return outputVcf;
     }
 
     @Override
@@ -30,8 +33,7 @@ public class AnnotateVariants implements GridssCommand {
 
     @Override
     public String arguments() {
-        return new GridssArguments()
-                .add("tmp_dir", "/tmp")
+        return new GridssArguments().add("tmp_dir", "/tmp")
                 .add("working_dir", VmDirectories.OUTPUT)
                 .add("reference_sequence", referenceGenome)
                 .add("input", sampleBam)
