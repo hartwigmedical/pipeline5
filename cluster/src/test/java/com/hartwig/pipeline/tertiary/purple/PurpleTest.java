@@ -100,7 +100,7 @@ public class PurpleTest {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
         runVictim();
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
-                "gsutil -qm cp -r /data/output/* gs://run-reference-tumor/purple/results");
+                "gsutil -qm cp -r /data/output/ gs://run-reference-tumor/purple/results");
     }
 
     private PurpleOutput runVictim() {

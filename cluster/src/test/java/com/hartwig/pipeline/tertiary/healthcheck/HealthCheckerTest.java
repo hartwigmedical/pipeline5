@@ -101,7 +101,7 @@ public class HealthCheckerTest {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
         runVictim();
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
-                "gsutil -qm cp -r /data/output/* gs://run-reference-tumor/health_checker/results");
+                "gsutil -qm cp -r /data/output/ gs://run-reference-tumor/health_checker/results");
     }
 
     @Test

@@ -76,7 +76,7 @@ public class GermlineCallerTest {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
         victim.run(referenceRunMetadata(), referenceAlignmentOutput());
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
-                "gsutil -qm cp -r /data/output/* gs://run-reference/germline_caller/results");
+                "gsutil -qm cp -r /data/output/ gs://run-reference/germline_caller/results");
     }
 
     private ArgumentCaptor<VirtualMachineJobDefinition> captureAndReturnSuccess() {

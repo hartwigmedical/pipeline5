@@ -21,7 +21,7 @@ public class AnnotateVariantsTest implements CommonEntities {
     public void setup() {
         assemblyBam = "assembly.bam";
         inputVcf = "input.vcf";
-        expectedResultantVcf = format("%s/annotate_variants.vcf", OUT_DIR);
+        expectedResultantVcf = format("%s/sample12345678R_sample12345678T.annotated_variants.vcf", OUT_DIR);
         command = new AnnotateVariants(REFERENCE_BAM, TUMOR_BAM, assemblyBam, inputVcf, REFERENCE_GENOME, JOINT_NAME);
     }
 

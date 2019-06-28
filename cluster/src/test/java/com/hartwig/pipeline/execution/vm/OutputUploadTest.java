@@ -11,6 +11,6 @@ public class OutputUploadTest {
     @Test
     public void createsBaseToCopyAllFilesAndDirsInOutputFolderToOutputBucket() {
         OutputUpload victim = new OutputUpload(GoogleStorageLocation.of("bucket", "results/"));
-        assertThat(victim.asBash()).isEqualTo("gsutil -qm cp -r /data/output/* gs://bucket/results/");
+        assertThat(victim.asBash()).isEqualTo("gsutil -qm cp -r /data/output/ gs://bucket/results/");
     }
 }
