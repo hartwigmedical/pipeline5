@@ -135,7 +135,7 @@ public class GermlineCaller {
                         NAMESPACE,
                         Folder.from(metadata),
                         finalOutput.outputFile().fileName(),
-                        OutputFile.of(alignmentOutput.sample(), "germline_calling", OutputFile.GZIPPED_VCF, true).fileName(),
+                        OutputFile.of(alignmentOutput.sample(), "germline", OutputFile.GZIPPED_VCF, false).fileName(),
                         resultsDirectory))
                 .build();
     }

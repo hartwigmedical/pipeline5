@@ -43,24 +43,62 @@ public class EntireOutputComponentTest {
     }
 
     @Test
-    public void copiesRunLogIntoReportBucket() {
+    public void copiesFilesIntoReportBucket() {
 
         Blob first = blob("results/file1.out");
         Blob second = blob("results/file2.out");
         when(runtimeBucket.list("results/")).thenReturn(Lists.newArrayList(first, second));
 
         EntireOutputComponent victim = new EntireOutputComponent(runtimeBucket,
-                Folder.from(TestInputs.defaultSomaticRunMetadata()),
+                Folder.from(),
                 "namespace",
                 ResultsDirectory.defaultDirectory());
         victim.addToReport(storage, reportBucket, "test_set");
         verify(runtimeBucket, times(2)).copyOutOf(sourceBlobCaptor.capture(), targetBucketCaptor.capture(), targetBlobCaptor.capture());
         assertThat(sourceBlobCaptor.getAllValues().get(0)).isEqualTo("results/file1.out");
         assertThat(targetBucketCaptor.getAllValues().get(0)).isEqualTo(REPORT_BUCKET);
-        assertThat(targetBlobCaptor.getAllValues().get(0)).isEqualTo("test_set/reference_tumor/namespace/file1.out");
+        assertThat(targetBlobCaptor.getAllValues().get(0)).isEqualTo("test_set/namespace/file1.out");
         assertThat(sourceBlobCaptor.getAllValues().get(1)).isEqualTo("results/file2.out");
         assertThat(targetBucketCaptor.getAllValues().get(1)).isEqualTo(REPORT_BUCKET);
-        assertThat(targetBlobCaptor.getAllValues().get(1)).isEqualTo("test_set/reference_tumor/namespace/file2.out");
+        assertThat(targetBlobCaptor.getAllValues().get(1)).isEqualTo("test_set/namespace/file2.out");
+    }
+
+    @Test
+    public void preservesDirectoryStructureInTarget() {
+
+        Blob first = blob("results/subdir1/file1.out");
+        Blob second = blob("results/subdir1/subdir2/file2.out");
+        when(runtimeBucket.list("results/")).thenReturn(Lists.newArrayList(first, second));
+
+        EntireOutputComponent victim = new EntireOutputComponent(runtimeBucket,
+                Folder.from(),
+                "namespace",
+                ResultsDirectory.defaultDirectory());
+        victim.addToReport(storage, reportBucket, "test_set");
+        verify(runtimeBucket, times(2)).copyOutOf(sourceBlobCaptor.capture(), targetBucketCaptor.capture(), targetBlobCaptor.capture());
+        assertThat(sourceBlobCaptor.getAllValues().get(0)).isEqualTo("results/subdir1/file1.out");
+        assertThat(targetBucketCaptor.getAllValues().get(0)).isEqualTo(REPORT_BUCKET);
+        assertThat(targetBlobCaptor.getAllValues().get(0)).isEqualTo("test_set/namespace/subdir1/file1.out");
+        assertThat(sourceBlobCaptor.getAllValues().get(1)).isEqualTo("results/subdir1/subdir2/file2.out");
+        assertThat(targetBucketCaptor.getAllValues().get(1)).isEqualTo(REPORT_BUCKET);
+        assertThat(targetBlobCaptor.getAllValues().get(1)).isEqualTo("test_set/namespace/subdir1/subdir2/file2.out");
+    }
+
+    @Test
+    public void copiesFilesIntoReportBucketWithFolder() {
+
+        Blob first = blob("results/file1.out");
+        when(runtimeBucket.list("results/")).thenReturn(Lists.newArrayList(first));
+
+        EntireOutputComponent victim = new EntireOutputComponent(runtimeBucket,
+                Folder.from(TestInputs.referenceRunMetadata()),
+                "namespace",
+                ResultsDirectory.defaultDirectory());
+        victim.addToReport(storage, reportBucket, "test_set");
+        verify(runtimeBucket, times(1)).copyOutOf(sourceBlobCaptor.capture(), targetBucketCaptor.capture(), targetBlobCaptor.capture());
+        assertThat(sourceBlobCaptor.getAllValues().get(0)).isEqualTo("results/file1.out");
+        assertThat(targetBucketCaptor.getAllValues().get(0)).isEqualTo(REPORT_BUCKET);
+        assertThat(targetBlobCaptor.getAllValues().get(0)).isEqualTo("test_set/reference/namespace/file1.out");
     }
 
     @Test
@@ -72,7 +110,7 @@ public class EntireOutputComponentTest {
         when(runtimeBucket.list("results/")).thenReturn(Lists.newArrayList(first, excluded));
 
         EntireOutputComponent victim = new EntireOutputComponent(runtimeBucket,
-                Folder.from(TestInputs.defaultSomaticRunMetadata()),
+                Folder.from(),
                 "namespace",
                 ResultsDirectory.defaultDirectory(),
                 s -> s.endsWith(excludedFileName));
@@ -80,6 +118,6 @@ public class EntireOutputComponentTest {
         verify(runtimeBucket, times(1)).copyOutOf(sourceBlobCaptor.capture(), targetBucketCaptor.capture(), targetBlobCaptor.capture());
         assertThat(sourceBlobCaptor.getAllValues().get(0)).isEqualTo("results/file1.out");
         assertThat(targetBucketCaptor.getAllValues().get(0)).isEqualTo(REPORT_BUCKET);
-        assertThat(targetBlobCaptor.getAllValues().get(0)).isEqualTo("test_set/reference_tumor/namespace/file1.out");
+        assertThat(targetBlobCaptor.getAllValues().get(0)).isEqualTo("test_set/namespace/file1.out");
     }
 }

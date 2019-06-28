@@ -39,19 +39,19 @@ public class EntireOutputComponent implements ReportComponent {
 
     @Override
     public void addToReport(final Storage storage, final Bucket reportBucket, final String setName) {
-        Iterable<Blob> blobs = runtimeBucket.list(resultsDirectory.path(sourceDirectory));
+        String rootPath = resultsDirectory.path(sourceDirectory);
+        Iterable<Blob> blobs = runtimeBucket.list(rootPath);
         for (Blob blob : blobs) {
-            String filename = parseFileName(blob);
+            String filename = parsePath(blob, rootPath);
             if (!exclusions.test(blob.getName())) {
                 runtimeBucket.copyOutOf(blob.getName(),
                         reportBucket.getName(),
-                        String.format("%s/%s/%s/%s", setName, folder.name(), namespace, filename));
+                        String.format("%s/%s%s/%s", setName, folder.name(), namespace, filename));
             }
         }
     }
 
-    private String parseFileName(final Blob blob) {
-        String[] split = blob.getName().split("/");
-        return split[split.length - 1];
+    private String parsePath(final Blob blob, final String rootPath) {
+        return blob.getName().substring(blob.getName().indexOf(rootPath) + rootPath.length(), blob.getName().length());
     }
 }

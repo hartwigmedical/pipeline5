@@ -91,7 +91,7 @@ public class HealthChecker {
         return HealthCheckOutput.builder()
                 .status(status)
                 .maybeOutputDirectory(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path()))
-                .addReportComponents(new EntireOutputComponent(runtimeBucket, Folder.from(metadata), NAMESPACE, resultsDirectory))
+                .addReportComponents(new EntireOutputComponent(runtimeBucket, Folder.from(), NAMESPACE, resultsDirectory))
                 .build();
     }
 

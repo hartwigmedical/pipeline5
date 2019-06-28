@@ -72,7 +72,7 @@ public class Amber {
         return AmberOutput.builder()
                 .status(status)
                 .maybeOutputDirectory(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path(), true))
-                .addReportComponents(new EntireOutputComponent(runtimeBucket, Folder.from(metadata), NAMESPACE, resultsDirectory))
+                .addReportComponents(new EntireOutputComponent(runtimeBucket, Folder.from(), NAMESPACE, resultsDirectory))
                 .build();
     }
 }

@@ -1,7 +1,11 @@
 package com.hartwig.pipeline.report;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,18 +21,23 @@ import com.hartwig.pipeline.testsupport.TestInputs;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 public class PipelineResultsTest {
 
+    public static final String PIPELINE_OUTPUT = "pipeline-output";
     private boolean firstComponentRan;
     private boolean secondComponentRan;
     private PipelineResults victim;
+    private Storage storage;
+    private Bucket outputBucket;
 
     @Before
     public void setUp() throws Exception {
-        Storage storage = mock(Storage.class);
-        Bucket reportBucket = mock(Bucket.class);
-        victim = new PipelineResults("test", storage, reportBucket, Arguments.testDefaults());
+        storage = mock(Storage.class);
+        outputBucket = mock(Bucket.class);
+        when(outputBucket.getName()).thenReturn(PIPELINE_OUTPUT);
+        victim = new PipelineResults("test", storage, outputBucket, Arguments.testDefaultsBuilder().runId("tag").build());
     }
 
     @Test
@@ -49,6 +58,25 @@ public class PipelineResultsTest {
         assertThat(firstComponentRan).isTrue();
         assertThat(secondComponentRan).isTrue();
     }
+
+    @Test
+    public void copiesMetadataRunAndVersionToRootOfBucketSingleSample() {
+        ArgumentCaptor<String> createBlobCaptor = ArgumentCaptor.forClass(String.class);
+        victim.compose(TestInputs.referenceRunMetadata());
+        verify(outputBucket, times(2)).create(createBlobCaptor.capture(), (byte[]) any());
+        assertThat(createBlobCaptor.getAllValues().get(0)).isEqualTo("reference-tag/reference/metadata.json");
+        assertThat(createBlobCaptor.getAllValues().get(1)).isEqualTo("reference-tag/reference/pipeline.version");
+    }
+
+    @Test
+    public void copiesMetadataRunAndVersionToRootOfBucketSomatic() {
+        ArgumentCaptor<String> createBlobCaptor = ArgumentCaptor.forClass(String.class);
+        victim.compose(TestInputs.defaultSomaticRunMetadata());
+        verify(outputBucket, times(2)).create(createBlobCaptor.capture(), (byte[]) any());
+        assertThat(createBlobCaptor.getAllValues().get(0)).isEqualTo("run/metadata.json");
+        assertThat(createBlobCaptor.getAllValues().get(1)).isEqualTo("run/pipeline.version");
+    }
+
 
     @NotNull
     private StageOutput stageOutput(final ArrayList<ReportComponent> components) {

@@ -130,17 +130,17 @@ public class SomaticCaller {
                         resultsDirectory.path(mergedOutput.outputFile().fileName())))
                 .addReportComponents(new ZippedVcfAndIndexComponent(runtimeBucket,
                         NAMESPACE,
-                        Folder.from(metadata),
+                        Folder.from(),
                         mergedOutput.outputFile().fileName(),
-                        OutputFile.of(tumorSampleName, "somatic_caller_post_processed", OutputFile.GZIPPED_VCF, true).fileName(),
+                        OutputFile.of(tumorSampleName, "somatic_caller_post_processed", OutputFile.GZIPPED_VCF, false).fileName(),
                         resultsDirectory))
                 .addReportComponents(new EntireOutputComponent(runtimeBucket,
-                        Folder.from(metadata),
+                        Folder.from(),
                         NAMESPACE,
                         "results/",
                         resultsDirectory,
                         s -> s.contains("chromosomes")))
-                .addReportComponents(new RunLogComponent(runtimeBucket, NAMESPACE, Folder.from(metadata), resultsDirectory))
+                .addReportComponents(new RunLogComponent(runtimeBucket, NAMESPACE, Folder.from(), resultsDirectory))
                 .build();
 
     }

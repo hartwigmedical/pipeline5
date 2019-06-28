@@ -200,7 +200,7 @@ public interface Arguments {
     String DEFAULT_PRODUCTION_SERVICE_ACCOUNT_EMAIL = String.format("bootstrap@%s.iam.gserviceaccount.com", DEFAULT_PRODUCTION_PROJECT);
     String DEFAULT_PRODUCTION_RESOURCE_BUCKET = "common-resources-prod";
     String DEFAULT_PRODUCTION_COMMON_TOOLS_BUCKET = "common-tools-prod";
-    String DEFAULT_PRODUCTION_PATIENT_REPORT_BUCKET = "p5-patient-reports-prod";
+    String DEFAULT_PRODUCTION_PATIENT_REPORT_BUCKET = "pipeline-output-prod";
 
     String NOT_APPLICABLE = "N/A";
     String DEFAULT_DEVELOPMENT_REGION = "europe-west4";
@@ -214,5 +214,5 @@ public interface Arguments {
     String DEFAULT_DEVELOPMENT_SERVICE_ACCOUNT_EMAIL = String.format("bootstrap@%s.iam.gserviceaccount.com", DEFAULT_DEVELOPMENT_PROJECT);
     String DEFAULT_DEVELOPMENT_RESOURCE_BUCKET = "common-resources";
     String DEFAULT_DEVELOPMENT_COMMON_TOOLS_BUCKET = "common-tools";
-    String DEFAULT_DEVELOPMENT_PATIENT_REPORT_BUCKET = "p5-patient-reports";
+    String DEFAULT_DEVELOPMENT_PATIENT_REPORT_BUCKET = "pipeline-output-dev";
 }

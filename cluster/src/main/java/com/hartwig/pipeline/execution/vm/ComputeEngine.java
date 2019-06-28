@@ -184,7 +184,7 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
             executeSynchronously(insert, projectName);
         } catch (GoogleJsonResponseException gjre) {
             if (HttpURLConnection.HTTP_CONFLICT == gjre.getDetails().getCode()) {
-                LOGGER.info("Found existing [{}] instance; deleting", vmName);
+                LOGGER.info("Found existing [{}] instance; deleting and restarting", vmName);
                 executeSynchronously(compute.instances().delete(projectName, ZONE_NAME, vmName), projectName);
                 executeSynchronously(insert, projectName);
             } else {

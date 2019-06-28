@@ -46,7 +46,7 @@ public class PipelineResults {
 
     public void compose(SomaticRunMetadata metadata) {
         String name = metadata.runName();
-        Folder folder = Folder.from(metadata);
+        Folder folder = Folder.from();
         writeMetadata(metadata, name, folder);
         compose(name, folder);
     }
@@ -84,7 +84,7 @@ public class PipelineResults {
     }
 
     private String path(final String name, final Folder folder, final String fileName) {
-        return String.format("%s/%s/%s", name, folder.name(), fileName);
+        return String.format("%s/%s%s", name, folder.name(), fileName);
     }
 
 }
