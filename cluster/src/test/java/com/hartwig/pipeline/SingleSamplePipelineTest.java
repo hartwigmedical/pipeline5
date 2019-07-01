@@ -41,8 +41,11 @@ import org.junit.Test;
 public class SingleSamplePipelineTest {
 
     private static final String REFERENCE = "TESTR";
-    private static final ImmutableSingleSampleRunMetadata REFERENCE_METADATA =
-            SingleSampleRunMetadata.builder().sampleId(REFERENCE).sampleName(REFERENCE).type(SingleSampleRunMetadata.SampleType.REFERENCE).build();
+    private static final ImmutableSingleSampleRunMetadata REFERENCE_METADATA = SingleSampleRunMetadata.builder()
+            .sampleId(REFERENCE)
+            .sampleName(REFERENCE)
+            .type(SingleSampleRunMetadata.SampleType.REFERENCE)
+            .build();
     private static final SnpGenotypeOutput SUCCESSFUL_SNPGENOTYPE_OUTPUT =
             SnpGenotypeOutput.builder().status(PipelineStatus.SUCCESS).build();
     private static final GermlineCallerOutput SUCCESSFUL_GERMLINE_OUTPUT =
@@ -168,7 +171,7 @@ public class SingleSamplePipelineTest {
     @Test
     public void returnsSuccessfulPipelineRunAllStagesSucceed() throws Exception {
         when(aligner.run(REFERENCE_METADATA)).thenReturn(SUCCESSFUL_ALIGNMENT_OUTPUT);
-        when(bamMetrics.run(REFERENCE_METADATA,SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(SUCCESSFUL_BAM_METRICS);
+        when(bamMetrics.run(REFERENCE_METADATA, SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(SUCCESSFUL_BAM_METRICS);
         when(germlineCaller.run(REFERENCE_METADATA, SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(SUCCESSFUL_GERMLINE_OUTPUT);
         when(snpGenotype.run(REFERENCE_METADATA, SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(SUCCESSFUL_SNPGENOTYPE_OUTPUT);
         when(flagstat.run(REFERENCE_METADATA, SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(SUCCESSFUL_FLAGSTAT_OUTPUT);
@@ -243,14 +246,39 @@ public class SingleSamplePipelineTest {
     public void notifiesMetadataApiWhenAlignmentCompleteSuccessfully() throws Exception {
         when(aligner.run(REFERENCE_METADATA)).thenReturn(SUCCESSFUL_ALIGNMENT_OUTPUT);
         victim.run();
-        verify(sampleMetadataApi, times(1)).complete(PipelineStatus.SUCCESS);
+        verify(sampleMetadataApi, times(1)).alignmentComplete(PipelineStatus.SUCCESS);
     }
 
     @Test
     public void notifiesMetadataApiWhenAlignmentFails() throws Exception {
         when(aligner.run(REFERENCE_METADATA)).thenReturn(AlignmentOutput.builder().status(PipelineStatus.FAILED).sample(REFERENCE).build());
         victim.run();
-        verify(sampleMetadataApi, times(1)).complete(PipelineStatus.FAILED);
+        verify(sampleMetadataApi, times(1)).alignmentComplete(PipelineStatus.FAILED);
+    }
+
+    @Test
+    public void notifiesMetadataApiWhenPipelineCompleteSuccessfully() throws Exception {
+        when(aligner.run(REFERENCE_METADATA)).thenReturn(SUCCESSFUL_ALIGNMENT_OUTPUT);
+        when(bamMetrics.run(REFERENCE_METADATA, SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(SUCCESSFUL_BAM_METRICS);
+        when(germlineCaller.run(REFERENCE_METADATA, SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(SUCCESSFUL_GERMLINE_OUTPUT);
+        when(snpGenotype.run(REFERENCE_METADATA, SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(SUCCESSFUL_SNPGENOTYPE_OUTPUT);
+        when(flagstat.run(REFERENCE_METADATA, SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(SUCCESSFUL_FLAGSTAT_OUTPUT);
+        victim.run();
+        verify(sampleMetadataApi, times(1)).alignmentComplete(PipelineStatus.SUCCESS);
+    }
+
+    @Test
+    public void notifiesMetadataApiWhenPipelineFails() throws Exception {
+        when(aligner.run(REFERENCE_METADATA)).thenReturn(SUCCESSFUL_ALIGNMENT_OUTPUT);
+        when(bamMetrics.run(REFERENCE_METADATA, SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(SUCCESSFUL_BAM_METRICS);
+        when(germlineCaller.run(REFERENCE_METADATA, SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(SUCCESSFUL_GERMLINE_OUTPUT);
+        when(snpGenotype.run(REFERENCE_METADATA, SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(SnpGenotypeOutput.builder()
+                .from(SUCCESSFUL_SNPGENOTYPE_OUTPUT)
+                .status(PipelineStatus.FAILED)
+                .build());
+        when(flagstat.run(REFERENCE_METADATA, SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(SUCCESSFUL_FLAGSTAT_OUTPUT);
+        victim.run();
+        verify(sampleMetadataApi, times(1)).alignmentComplete(PipelineStatus.SUCCESS);
     }
 
     private void assertFailed(final PipelineState runOutput) {
