@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.execution.dataproc;
 
+import static java.lang.String.format;
+
 import java.io.FileNotFoundException;
 import java.util.Collections;
 import java.util.List;
@@ -12,8 +14,9 @@ import com.google.api.services.dataproc.v1beta2.model.LifecycleConfig;
 import com.google.api.services.dataproc.v1beta2.model.NodeInitializationAction;
 import com.google.api.services.dataproc.v1beta2.model.SoftwareConfig;
 import com.google.common.collect.ImmutableMap;
-import com.hartwig.pipeline.io.RuntimeBucket;
+import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.execution.MachineType;
+import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.tools.Versions;
 
 import org.jetbrains.annotations.NotNull;
@@ -32,8 +35,7 @@ class GoogleClusterConfig {
     }
 
     static GoogleClusterConfig from(RuntimeBucket runtimeBucket, NodeInitialization nodeInitialization, DataprocPerformanceProfile profile,
-            final String toolsBucket)
-            throws FileNotFoundException {
+            final Arguments arguments) throws FileNotFoundException {
         DiskConfig diskConfig = diskConfig(profile.primaryWorkers());
         ClusterConfig config = clusterConfig(masterConfig(profile.master()),
                 primaryWorkerConfig(diskConfig, profile.primaryWorkers(), profile.numPrimaryWorkers()),
@@ -41,18 +43,24 @@ class GoogleClusterConfig {
                 runtimeBucket.runId(),
                 softwareConfig(),
                 initializationActions(runtimeBucket, nodeInitialization),
-                gceClusterConfig(toolsBucket),
+                gceClusterConfig(arguments),
                 lifecycleConfig(IDLE_TTL));
         return new GoogleClusterConfig(config);
     }
 
-    private static GceClusterConfig gceClusterConfig(final String toolsBucket) {
-        return new GceClusterConfig().setMetadata(ImmutableMap.of("bwa_version",
+    private static GceClusterConfig gceClusterConfig(final Arguments arguments) {
+        GceClusterConfig gceClusterConfig = new GceClusterConfig().setMetadata(ImmutableMap.of("bwa_version",
                 Versions.BWA,
                 "sambamba_version",
                 Versions.SAMBAMBA,
                 "common_tools_bucket",
-                toolsBucket));
+                arguments.toolsBucket()));
+        arguments.privateNetwork()
+                .ifPresent(privateNetwork -> gceClusterConfig.setSubnetworkUri(format("projects/%s/regions/%s/subnetworks/%s",
+                        arguments.project(),
+                        arguments.region(),
+                        privateNetwork)).setInternalIpOnly(true));
+        return gceClusterConfig;
     }
 
     private static LifecycleConfig lifecycleConfig(String idleTtl) {

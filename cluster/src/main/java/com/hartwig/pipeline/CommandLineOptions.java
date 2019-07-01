@@ -55,6 +55,7 @@ public class CommandLineOptions {
     private static final String MODE_FLAG = "mode";
     private static final String SET_ID_FLAG = "set_id";
     private static final String SBP_RUN_ID_FLAG = "sbp_run_id";
+    private static final String PRIVATE_NETWORK_FLAG = "private_network";
 
     private static Options options() {
         return new Options().addOption(profile())
@@ -100,12 +101,21 @@ public class CommandLineOptions {
                 .addOption(serviceAccountEmail())
                 .addOption(resourceBucket())
                 .addOption(toolsBucket())
-                .addOption(patientReportBucket());
+                .addOption(patientReportBucket())
+                .addOption(privateNetwork());
+    }
+
+    private static Option privateNetwork() {
+        return optionWithArg(PRIVATE_NETWORK_FLAG,
+                "The name of the private network to use. Specifying a value here will make p5 use this "
+                        + "network and subnet of the same name and disable external IPs. Ensure the network has been created in GCP before enabling "
+                        + "this flag");
     }
 
     private static Option sbpRunId() {
-        return optionWithArg(SBP_RUN_ID_FLAG, "The id of the run in the SBP API. This will be used to look up set information in the "
-                + "somatic pipeline, and to update the correct run on pipeline completion.");
+        return optionWithArg(SBP_RUN_ID_FLAG,
+                "The id of the run in the SBP API. This will be used to look up set information in the "
+                        + "somatic pipeline, and to update the correct run on pipeline completion.");
     }
 
     private static Option setId() {
@@ -127,7 +137,8 @@ public class CommandLineOptions {
     }
 
     private static Option resourceBucket() {
-        return optionWithArg(RESOURCE_BUCKET_FLAG, "Bucket containing all common resources (referenceSampleName genome, known indels, pons, etc");
+        return optionWithArg(RESOURCE_BUCKET_FLAG,
+                "Bucket containing all common resources (referenceSampleName genome, known indels, pons, etc");
     }
 
     private static Option profile() {
@@ -246,6 +257,7 @@ public class CommandLineOptions {
                     .resourceBucket(commandLine.getOptionValue(RESOURCE_BUCKET_FLAG, defaults.resourceBucket()))
                     .toolsBucket(commandLine.getOptionValue(TOOLS_BUCKET_FLAG, defaults.toolsBucket()))
                     .patientReportBucket(commandLine.getOptionValue(PATIENT_REPORT_BUCKET_FLAG, defaults.patientReportBucket()))
+                    .privateNetwork(privateNetwork(commandLine, defaults))
                     .profile(defaults.profile())
                     .build();
         } catch (ParseException e) {
@@ -254,6 +266,13 @@ public class CommandLineOptions {
             formatter.printHelp("pipeline5", options());
             throw e;
         }
+    }
+
+    private static Optional<String> privateNetwork(final CommandLine commandLine, final Arguments defaults) {
+        if (commandLine.hasOption(PRIVATE_NETWORK_FLAG)) {
+            return Optional.of(commandLine.getOptionValue(PRIVATE_NETWORK_FLAG));
+        }
+        return Optional.empty();
     }
 
     private static Optional<Integer> sbpRunId(final CommandLine commandLine) {

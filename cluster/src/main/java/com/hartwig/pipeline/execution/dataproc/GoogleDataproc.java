@@ -104,7 +104,7 @@ public class GoogleDataproc implements SparkExecutor {
         Cluster existing = findExistingCluster(arguments, clusterName);
         if (existing == null) {
             ClusterConfig clusterConfig =
-                    GoogleClusterConfig.from(runtimeBucket, nodeInitialization, performanceProfile, arguments.toolsBucket()).config();
+                    GoogleClusterConfig.from(runtimeBucket, nodeInitialization, performanceProfile, arguments).config();
             Operation createCluster =
                     clusters.create(arguments.project(), arguments.region(), cluster(clusterConfig, clusterName)).execute();
             LOGGER.debug("Starting Google Dataproc cluster with name [{}]. This may take a minute or two...", clusterName);

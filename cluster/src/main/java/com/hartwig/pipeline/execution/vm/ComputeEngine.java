@@ -115,13 +115,22 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
     }
 
     private void addNetworkInterface(Instance instance, String projectName) {
-        NetworkInterface iface = new NetworkInterface();
-        iface.setNetwork(format("%s/global/networks/default", apiBaseUrl(projectName)));
-        AccessConfig config = new AccessConfig();
-        config.setType("ONE_TO_ONE_NAT");
-        config.setName("External NAT");
-        iface.setAccessConfigs(singletonList(config));
-        instance.setNetworkInterfaces(singletonList(iface));
+        NetworkInterface networkInterface = arguments.privateNetwork().map(network -> {
+            NetworkInterface privateNetwork = new NetworkInterface();
+            privateNetwork.setNetwork(format("%s/global/networks/%s", apiBaseUrl(projectName), network));
+            privateNetwork.setSubnetwork(format("%s/regions/%s/subnetworks/%s", apiBaseUrl(projectName), arguments.region(), network));
+            privateNetwork.set("no-address", "true");
+            return privateNetwork;
+        }).orElseGet(() -> {
+            NetworkInterface publicNetwork = new NetworkInterface();
+            AccessConfig config = new AccessConfig();
+            publicNetwork.setNetwork(format("%s/global/networks/default", apiBaseUrl(projectName)));
+            config.setType("ONE_TO_ONE_NAT");
+            config.setName("External NAT");
+            publicNetwork.setAccessConfigs(singletonList(config));
+            return publicNetwork;
+        });
+        instance.setNetworkInterfaces(singletonList(networkInterface));
     }
 
     private Image attachDisk(Compute compute, Instance instance, String imageFamily, String projectName, String vmName, long diskSizeGB)

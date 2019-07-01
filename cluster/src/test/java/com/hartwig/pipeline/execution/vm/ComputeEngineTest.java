@@ -16,6 +16,7 @@ import java.util.List;
 import com.google.api.services.compute.Compute;
 import com.google.api.services.compute.model.Image;
 import com.google.api.services.compute.model.Instance;
+import com.google.api.services.compute.model.NetworkInterface;
 import com.google.api.services.compute.model.Operation;
 import com.google.cloud.ReadChannel;
 import com.google.cloud.storage.Blob;
@@ -97,19 +98,7 @@ public class ComputeEngineTest {
 
     @Test
     public void createsVmWithRunScriptAndWaitsForCompletion() throws Exception {
-        runtimeBucket = runtimeBucket.with(successBlob(), 1);
-        List<Blob> blobs = new ArrayList<>();
-        Blob mockBlob = mock(Blob.class);
-        ReadChannel mockReadChannel = mock(ReadChannel.class);
-        when(mockReadChannel.read(any())).thenReturn(-1);
-        when(mockBlob.getName()).thenReturn(successBlob());
-        when(mockBlob.getSize()).thenReturn(1L);
-        when(mockBlob.reader()).thenReturn(mockReadChannel);
-        when(mockBlob.getMd5()).thenReturn("");
-        blobs.add(mockBlob);
-        when(runtimeBucket.getRuntimeBucket().get(BashStartupScript.JOB_SUCCEEDED_FLAG)).thenReturn(mockBlob);
-
-        when(runtimeBucket.getRuntimeBucket().list()).thenReturn(new ArrayList<>()).thenReturn(new ArrayList<>()).thenReturn(blobs);
+        returnSuccess();
         assertThat(victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition)).isEqualTo(PipelineStatus.SUCCESS);
     }
 
@@ -119,12 +108,7 @@ public class ComputeEngineTest {
 
         List<Blob> blobs = new ArrayList<>();
         Blob mockBlob = mock(Blob.class);
-        ReadChannel mockReadChannel = mock(ReadChannel.class);
-        when(mockReadChannel.read(any())).thenReturn(-1);
-        when(mockBlob.getName()).thenReturn(failureBlob());
-        when(mockBlob.getSize()).thenReturn(1L);
-        when(mockBlob.reader()).thenReturn(mockReadChannel);
-        when(mockBlob.getMd5()).thenReturn("");
+        mockReadChannel(mockBlob, failureBlob());
         blobs.add(mockBlob);
         when(runtimeBucket.getRuntimeBucket().get(BashStartupScript.JOB_FAILED_FLAG)).thenReturn(mockBlob);
         when(runtimeBucket.getRuntimeBucket().list()).thenReturn(new ArrayList<>()).thenReturn(new ArrayList<>()).thenReturn(blobs);
@@ -148,42 +132,67 @@ public class ComputeEngineTest {
 
     @Test
     public void deletesVmWhenJobIsSuccessful() throws Exception {
-        runtimeBucket = runtimeBucket.with(successBlob(), 1);
-        List<Blob> blobs = new ArrayList<>();
-        Blob mockBlob = mock(Blob.class);
-        ReadChannel mockReadChannel = mock(ReadChannel.class);
-        when(mockReadChannel.read(any())).thenReturn(-1);
-        when(mockBlob.getName()).thenReturn(successBlob());
-        when(mockBlob.getSize()).thenReturn(1L);
-        when(mockBlob.reader()).thenReturn(mockReadChannel);
-        when(mockBlob.getMd5()).thenReturn("");
-        blobs.add(mockBlob);
-        when(runtimeBucket.getRuntimeBucket().get(BashStartupScript.JOB_SUCCEEDED_FLAG)).thenReturn(mockBlob);
-        when(runtimeBucket.getRuntimeBucket().list()).thenReturn(new ArrayList<>()).thenReturn(new ArrayList<>()).thenReturn(blobs);
+        returnSuccess();
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
         verify(instances, times(1)).delete(ARGUMENTS.project(), ComputeEngine.ZONE_NAME, "test-test");
     }
 
     @Test
     public void retriesStopDeleteOperationsOnFailures() throws Exception {
-        runtimeBucket = runtimeBucket.with(successBlob(), 1);
-        List<Blob> blobs = new ArrayList<>();
-        Blob mockBlob = mock(Blob.class);
-        ReadChannel mockReadChannel = mock(ReadChannel.class);
-        when(mockReadChannel.read(any())).thenReturn(-1);
-        when(mockBlob.getName()).thenReturn(successBlob());
-        when(mockBlob.getSize()).thenReturn(1L);
-        when(mockBlob.reader()).thenReturn(mockReadChannel);
-        when(mockBlob.getMd5()).thenReturn("");
-        blobs.add(mockBlob);
-        when(runtimeBucket.getRuntimeBucket().get(BashStartupScript.JOB_SUCCEEDED_FLAG)).thenReturn(mockBlob);
-        when(runtimeBucket.getRuntimeBucket().list()).thenReturn(new ArrayList<>()).thenReturn(new ArrayList<>()).thenReturn(blobs);
+        returnSuccess();
         Compute.Instances.Delete goingToFailOnce = mock(Compute.Instances.Delete.class);
         Operation operation = mock(Operation.class);
         when(goingToFailOnce.execute()).thenThrow(new IOException()).thenReturn(operation);
         when(instances.delete(ARGUMENTS.project(), ComputeEngine.ZONE_NAME, "test-test")).thenReturn(goingToFailOnce);
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
         verify(goingToFailOnce, times(2)).execute();
+    }
+
+    @Test
+    public void usesPublicNetworkIfNoPrivateSpecified() throws Exception {
+        returnSuccess();
+        ArgumentCaptor<Instance> instanceArgumentCaptor = ArgumentCaptor.forClass(Instance.class);
+        victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
+        verify(instances).insert(any(), any(), instanceArgumentCaptor.capture());
+        List<NetworkInterface> networkInterfaces = instanceArgumentCaptor.getValue().getNetworkInterfaces();
+        assertThat(networkInterfaces).hasSize(1);
+        assertThat(networkInterfaces.get(0).getNetwork()).isEqualTo(
+                "https://www.googleapis.com/compute/v1/projects/hmf-pipeline-development/global/networks/default");
+    }
+
+    @Test
+    public void usesPrivateNetworkWhenSpecified() throws Exception {
+        returnSuccess();
+        victim = new ComputeEngine(Arguments.testDefaultsBuilder().privateNetwork("private").build(), compute);
+        ArgumentCaptor<Instance> instanceArgumentCaptor = ArgumentCaptor.forClass(Instance.class);
+        victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
+        verify(instances).insert(any(), any(), instanceArgumentCaptor.capture());
+        List<NetworkInterface> networkInterfaces = instanceArgumentCaptor.getValue().getNetworkInterfaces();
+        assertThat(networkInterfaces).hasSize(1);
+        assertThat(networkInterfaces.get(0).getNetwork()).isEqualTo(
+                "https://www.googleapis.com/compute/v1/projects/hmf-pipeline-development/global/networks/private");
+        assertThat(networkInterfaces.get(0).getSubnetwork()).isEqualTo(
+                "https://www.googleapis.com/compute/v1/projects/hmf-pipeline-development/regions/europe-west4/subnetworks/private");
+        assertThat(networkInterfaces.get(0).get("no-address")).isEqualTo("true");
+    }
+
+    private void returnSuccess() throws IOException {
+        runtimeBucket = runtimeBucket.with(successBlob(), 1);
+        List<Blob> blobs = new ArrayList<>();
+        Blob mockBlob = mock(Blob.class);
+        mockReadChannel(mockBlob, successBlob());
+        blobs.add(mockBlob);
+        when(runtimeBucket.getRuntimeBucket().get(BashStartupScript.JOB_SUCCEEDED_FLAG)).thenReturn(mockBlob);
+        when(runtimeBucket.getRuntimeBucket().list()).thenReturn(new ArrayList<>()).thenReturn(new ArrayList<>()).thenReturn(blobs);
+    }
+
+    private void mockReadChannel(final Blob mockBlob, final String value2) throws IOException {
+        ReadChannel mockReadChannel = mock(ReadChannel.class);
+        when(mockReadChannel.read(any())).thenReturn(-1);
+        when(mockBlob.getName()).thenReturn(value2);
+        when(mockBlob.getSize()).thenReturn(1L);
+        when(mockBlob.reader()).thenReturn(mockReadChannel);
+        when(mockBlob.getMd5()).thenReturn("");
     }
 
     private String successBlob() {

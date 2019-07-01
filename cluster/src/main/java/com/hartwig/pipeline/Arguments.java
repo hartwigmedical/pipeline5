@@ -89,6 +89,8 @@ public interface Arguments {
 
     Optional<String> runId();
 
+    Optional<String> privateNetwork();
+
     static ImmutableArguments.Builder builder() {
         return ImmutableArguments.builder();
     }

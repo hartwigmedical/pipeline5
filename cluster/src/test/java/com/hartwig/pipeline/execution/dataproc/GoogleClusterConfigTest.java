@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.execution.MachineType;
 import com.hartwig.pipeline.io.RuntimeBucket;
 
@@ -12,7 +13,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class GoogleClusterConfigTest {
-
 
     private RuntimeBucket runtimeBucket;
     private NodeInitialization nodeInitialization;
@@ -23,13 +23,15 @@ public class GoogleClusterConfigTest {
         runtimeBucket = mock(RuntimeBucket.class);
         when(runtimeBucket.name()).thenReturn("runtime-bucket");
         nodeInitialization = mock(NodeInitialization.class);
-        victim = GoogleClusterConfig.from(runtimeBucket, nodeInitialization, profileBuilder().build(), "common-tools");
+        victim = GoogleClusterConfig.from(runtimeBucket, nodeInitialization, profileBuilder().build(), Arguments.testDefaults());
     }
 
     @Test
     public void oneMasterTwoPrimaryWorkersAndRemainingNodesSecondary() throws Exception {
-        GoogleClusterConfig victim =
-                GoogleClusterConfig.from(runtimeBucket, nodeInitialization, profileBuilder().numPreemtibleWorkers(3).build(), "common-tools");
+        GoogleClusterConfig victim = GoogleClusterConfig.from(runtimeBucket,
+                nodeInitialization,
+                profileBuilder().numPreemtibleWorkers(3).build(),
+                Arguments.testDefaults());
         assertThat(victim.config().getMasterConfig().getNumInstances()).isEqualTo(1);
         assertThat(victim.config().getWorkerConfig().getNumInstances()).isEqualTo(2);
         assertThat(victim.config().getSecondaryWorkerConfig().getNumInstances()).isEqualTo(3);
@@ -49,8 +51,18 @@ public class GoogleClusterConfigTest {
     }
 
     @Test
-    public void idleTtlSetOnLifecycleConfig()  {
+    public void idleTtlSetOnLifecycleConfig() {
         assertThat(victim.config().getLifecycleConfig().getIdleDeleteTtl()).isEqualTo("600s");
+    }
+
+    @Test
+    public void privateNetworkUsedWhenSpecified() throws Exception {
+        victim = GoogleClusterConfig.from(runtimeBucket,
+                nodeInitialization,
+                profileBuilder().build(),
+                Arguments.testDefaultsBuilder().privateNetwork("private").build());
+        assertThat(victim.config().getGceClusterConfig().getSubnetworkUri()).isEqualTo(
+                "projects/hmf-pipeline-development/regions/europe-west4/subnetworks/private");
     }
 
     @NotNull
