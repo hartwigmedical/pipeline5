@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.metadata;
 
+import javax.annotation.Nullable;
+
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import org.immutables.value.Value;
@@ -9,6 +11,9 @@ import org.immutables.value.Value;
 public interface SbpRun {
 
     String id();
+
+    @Nullable
+    String bucket();
 
     SbpSet set();
 }

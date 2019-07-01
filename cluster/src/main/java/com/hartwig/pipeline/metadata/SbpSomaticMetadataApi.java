@@ -2,7 +2,6 @@ package com.hartwig.pipeline.metadata;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,12 +28,15 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
     private final int sbpRunId;
     private final SBPRestApi sbpRestApi;
     private final ResultsPublisher publisher;
+    private final LocalDateTime now;
 
-    SbpSomaticMetadataApi(final Arguments arguments, final int sbpRunId, final SBPRestApi sbpRestApi, final ResultsPublisher publisher) {
+    SbpSomaticMetadataApi(final Arguments arguments, final int sbpRunId, final SBPRestApi sbpRestApi, final ResultsPublisher publisher,
+            final LocalDateTime now) {
         this.arguments = arguments;
         this.sbpRunId = sbpRunId;
         this.sbpRestApi = sbpRestApi;
         this.publisher = publisher;
+        this.now = now;
     }
 
     @Override
@@ -88,11 +90,14 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
     @Override
     public void complete(final PipelineStatus status, SomaticRunMetadata metadata) {
         String runIdAsString = String.valueOf(sbpRunId);
-        String sbpBucket = "hmf-output-" + LocalDateTime.now(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern("yyyy-ww"));
+        SbpRun sbpRun = getSbpRun();
+        String bucket = sbpRun.bucket();
+        String sbpBucket =
+                bucket == null || bucket.trim().isEmpty() ? "hmf-output-" + now.format(DateTimeFormatter.ofPattern("yyyy-ww")) : bucket;
         LOGGER.info("Recording pipeline completion with status [{}]", status);
         try {
             sbpRestApi.updateRunStatus(runIdAsString, UPLOADING, sbpBucket);
-            publisher.publish(metadata, getSbpRun(), sbpBucket);
+            publisher.publish(metadata, sbpRun, sbpBucket);
             sbpRestApi.updateRunStatus(runIdAsString, status == PipelineStatus.SUCCESS ? SNP_CHECK : FAILED, sbpBucket);
         } catch (Exception e) {
             sbpRestApi.updateRunStatus(runIdAsString, FAILED, sbpBucket);

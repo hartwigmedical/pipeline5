@@ -2,10 +2,13 @@ package com.hartwig.pipeline.metadata;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.time.LocalDateTime;
 
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.execution.PipelineStatus;
@@ -29,7 +32,11 @@ public class SbpSomaticMetadataApiTest {
         sbpRestApi = mock(SBPRestApi.class);
         resultsPublisher = mock(ResultsPublisher.class);
         somaticRunMetadata = mock(SomaticRunMetadata.class);
-        victim = new SbpSomaticMetadataApi(Arguments.testDefaults(), SET_ID, sbpRestApi, resultsPublisher);
+        victim = new SbpSomaticMetadataApi(Arguments.testDefaults(),
+                SET_ID,
+                sbpRestApi,
+                resultsPublisher,
+                LocalDateTime.of(2019, 7, 1, 0, 0));
     }
 
     @Test
@@ -65,5 +72,23 @@ public class SbpSomaticMetadataApiTest {
         verify(sbpRestApi, times(2)).updateRunStatus(entityId.capture(), status.capture(), any());
         assertThat(entityId.getValue()).isEqualTo(String.valueOf(SET_ID));
         assertThat(status.getAllValues().get(1)).isEqualTo(SbpSomaticMetadataApi.FAILED);
+    }
+
+    @Test
+    public void usesBucketFromRunIdIfExists() {
+        ArgumentCaptor<String> bucket = ArgumentCaptor.forClass(String.class);
+        when(sbpRestApi.getRun(SET_ID)).thenReturn(TestJson.get("get_run_custom_bucket"));
+        victim.complete(PipelineStatus.FAILED, somaticRunMetadata);
+        verify(resultsPublisher).publish(eq(somaticRunMetadata), any(), bucket.capture());
+        assertThat(bucket.getValue()).isEqualTo("custom");
+    }
+
+    @Test
+    public void createdWeeklyBucketIfNoBucketInRun() {
+        ArgumentCaptor<String> bucket = ArgumentCaptor.forClass(String.class);
+        when(sbpRestApi.getRun(SET_ID)).thenReturn(TestJson.get("get_run"));
+        victim.complete(PipelineStatus.FAILED, somaticRunMetadata);
+        verify(resultsPublisher).publish(eq(somaticRunMetadata), any(), bucket.capture());
+        assertThat(bucket.getValue()).isEqualTo("hmf-output-2019-27");
     }
 }

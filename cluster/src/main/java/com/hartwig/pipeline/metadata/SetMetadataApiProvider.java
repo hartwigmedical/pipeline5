@@ -1,5 +1,8 @@
 package com.hartwig.pipeline.metadata;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.io.sbp.ResultsPublisherProvider;
@@ -20,9 +23,10 @@ public class SetMetadataApiProvider {
     }
 
     public SomaticMetadataApi get() {
-        return arguments.sbpApiRunId()
-                .<SomaticMetadataApi>map(setId -> new SbpSomaticMetadataApi(arguments, setId, SBPRestApi.newInstance(arguments),
-                        ResultsPublisherProvider.from(arguments, storage).get()))
-                .orElse(new LocalSetMetadataApi(arguments));
+        return arguments.sbpApiRunId().<SomaticMetadataApi>map(setId -> new SbpSomaticMetadataApi(arguments,
+                setId,
+                SBPRestApi.newInstance(arguments),
+                ResultsPublisherProvider.from(arguments, storage).get(),
+                LocalDateTime.now(ZoneId.of("UTC")))).orElse(new LocalSetMetadataApi(arguments));
     }
 }
