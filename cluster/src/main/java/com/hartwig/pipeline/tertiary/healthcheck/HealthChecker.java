@@ -50,8 +50,8 @@ public class HealthChecker {
         this.resultsDirectory = resultsDirectory;
     }
 
-    public HealthCheckOutput run(SomaticRunMetadata metadata, AlignmentPair pair, BamMetricsOutput metricsOutput, BamMetricsOutput mateMetricsOutput,
-            AmberOutput amberOutput, PurpleOutput purpleOutput) {
+    public HealthCheckOutput run(SomaticRunMetadata metadata, AlignmentPair pair, BamMetricsOutput metricsOutput,
+            BamMetricsOutput mateMetricsOutput, AmberOutput amberOutput, PurpleOutput purpleOutput) {
         if (!arguments.runTertiary()) {
             return HealthCheckOutput.builder().status(PipelineStatus.SKIPPED).build();
         }
@@ -99,7 +99,7 @@ public class HealthChecker {
     private PipelineStatus checkHealthCheckerOutput(final String tumorSampleName, final RuntimeBucket runtimeBucket,
             PipelineStatus status) {
         List<Blob> healthCheckStatuses = runtimeBucket.list(resultsDirectory.path(tumorSampleName));
-        if (status == PipelineStatus.SUCCESS && healthCheckStatuses.size() == 1) {
+        if ((status == PipelineStatus.SKIPPED || status == PipelineStatus.SUCCESS) && healthCheckStatuses.size() == 1) {
             Blob healthCheckStatus = healthCheckStatuses.get(0);
             if (healthCheckStatus.getName().endsWith("HealthCheckSucceeded")) {
                 LOGGER.debug("Health check reported success");

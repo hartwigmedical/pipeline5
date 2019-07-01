@@ -60,9 +60,10 @@ public class SbpSomaticMetadataApiTest {
     public void mapsFailedStatusToPipeline5Finished() {
         ArgumentCaptor<String> entityId = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> status = ArgumentCaptor.forClass(String.class);
+        when(sbpRestApi.getRun(SET_ID)).thenReturn(TestJson.get("get_run"));
         victim.complete(PipelineStatus.FAILED, somaticRunMetadata);
-        verify(sbpRestApi, times(1)).updateRunStatus(entityId.capture(), status.capture(), any());
+        verify(sbpRestApi, times(2)).updateRunStatus(entityId.capture(), status.capture(), any());
         assertThat(entityId.getValue()).isEqualTo(String.valueOf(SET_ID));
-        assertThat(status.getValue()).isEqualTo(SbpSomaticMetadataApi.FAILED);
+        assertThat(status.getAllValues().get(1)).isEqualTo(SbpSomaticMetadataApi.FAILED);
     }
 }

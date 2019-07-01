@@ -90,17 +90,13 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
         String runIdAsString = String.valueOf(sbpRunId);
         String sbpBucket = "hmf-output-" + LocalDateTime.now(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern("yyyy-ww"));
         LOGGER.info("Recording pipeline completion with status [{}]", status);
-        if (status == PipelineStatus.SUCCESS) {
-            try {
-                sbpRestApi.updateRunStatus(runIdAsString, UPLOADING, sbpBucket);
-                publisher.publish(metadata, getSbpRun(), sbpBucket);
-                sbpRestApi.updateRunStatus(runIdAsString, SNP_CHECK, sbpBucket);
-            } catch (Exception e) {
-                sbpRestApi.updateRunStatus(runIdAsString, FAILED, sbpBucket);
-                throw e;
-            }
-        } else {
+        try {
+            sbpRestApi.updateRunStatus(runIdAsString, UPLOADING, sbpBucket);
+            publisher.publish(metadata, getSbpRun(), sbpBucket);
+            sbpRestApi.updateRunStatus(runIdAsString, status == PipelineStatus.SUCCESS ? SNP_CHECK : FAILED, sbpBucket);
+        } catch (Exception e) {
             sbpRestApi.updateRunStatus(runIdAsString, FAILED, sbpBucket);
+            throw e;
         }
     }
 }
