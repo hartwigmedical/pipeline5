@@ -57,7 +57,7 @@ public class SingleSamplePipeline {
                 arguments.runId().map(runId -> String.format("using run tag [%s]", runId)).orElse(""));
         PipelineState state = new PipelineState();
         AlignmentOutput alignmentOutput = report.add(state.add(aligner.run(metadata)));
-        sampleMetadataApi.complete(state.status());
+        sampleMetadataApi.alignmentComplete(state.status());
         if (state.shouldProceed()) {
 
             Future<BamMetricsOutput> bamMetricsFuture = executorService.submit(() -> metrics.run(metadata, alignmentOutput));
@@ -74,6 +74,7 @@ public class SingleSamplePipeline {
             report.add(state.add(futurePayload(unifiedGenotyperFuture)));
             report.add(state.add(futurePayload(flagstatOutputFuture)));
             report.compose(metadata);
+            sampleMetadataApi.complete(state.status());
         }
         return state;
     }

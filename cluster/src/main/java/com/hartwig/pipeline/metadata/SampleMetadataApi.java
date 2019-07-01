@@ -6,5 +6,7 @@ public interface SampleMetadataApi {
 
     SingleSampleRunMetadata get();
 
+    void alignmentComplete(PipelineStatus status);
+
     void complete(PipelineStatus status);
 }

@@ -20,6 +20,11 @@ public class LocalSampleMetadataApi implements SampleMetadataApi {
     }
 
     @Override
+    public void alignmentComplete(final PipelineStatus status) {
+        // do nothing
+    }
+
+    @Override
     public void complete(PipelineStatus status) {
         // do nothing
     }

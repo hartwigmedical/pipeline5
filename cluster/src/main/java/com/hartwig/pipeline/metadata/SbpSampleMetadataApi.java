@@ -11,6 +11,7 @@ import com.hartwig.pipeline.io.sbp.SBPRestApi;
 public class SbpSampleMetadataApi implements SampleMetadataApi {
 
     private static final String SAMPLE_NOT_FOUND = "sample not found";
+    static final String ALIGNMENT_DONE_PIPELINE_V5 = "AlignmentDone_PipelineV5";
     static final String DONE_PIPELINE_V5 = "Done_PipelineV5";
     static final String FAILED_PIPELINE_V5 = "Failed_PipelineV5";
 
@@ -41,6 +42,11 @@ public class SbpSampleMetadataApi implements SampleMetadataApi {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void alignmentComplete(PipelineStatus status){
+        sbpRestApi.updateSampleStatus(valueOf(sampleId), status == PipelineStatus.SUCCESS ? ALIGNMENT_DONE_PIPELINE_V5 : FAILED_PIPELINE_V5);
     }
 
     @Override

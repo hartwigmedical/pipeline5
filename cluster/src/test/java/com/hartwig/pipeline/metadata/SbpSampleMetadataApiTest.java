@@ -40,6 +40,16 @@ public class SbpSampleMetadataApiTest {
     }
 
     @Test
+    public void mapsAlignmentSuccessStatusToPipeline5Done() {
+        ArgumentCaptor<String> entityId = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> status = ArgumentCaptor.forClass(String.class);
+        victim.alignmentComplete(PipelineStatus.SUCCESS);
+        verify(sbpRestApi, times(1)).updateSampleStatus(entityId.capture(), status.capture());
+        assertThat(entityId.getValue()).isEqualTo(String.valueOf(SAMPLE_ID));
+        assertThat(status.getValue()).isEqualTo(SbpSampleMetadataApi.ALIGNMENT_DONE_PIPELINE_V5);
+    }
+
+    @Test
     public void mapsSuccessStatusToPipeline5Done() {
         ArgumentCaptor<String> entityId = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> status = ArgumentCaptor.forClass(String.class);
