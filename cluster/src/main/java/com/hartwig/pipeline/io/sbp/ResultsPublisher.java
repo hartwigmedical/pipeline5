@@ -20,42 +20,58 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ResultsPublisher {
-    private final ResultsDestinationBuilder destinationBuilder;
     private final CloudCopy cloudCopy;
-    private final SbpS3Acl sbpS3Acl;
+    private final SbpS3 sbpS3;
     private final SBPRestApi sbpApi;
     private final Bucket sourceBucket;
     private final static Logger LOGGER = LoggerFactory.getLogger(ResultsPublisher.class);
 
-    public ResultsPublisher(final ResultsDestinationBuilder destinationBuilder, final CloudCopy cloudCopy, final SbpS3Acl sbpS3Acl,
-            final SBPRestApi sbpApi, Bucket sourceBucket) {
-        this.destinationBuilder = destinationBuilder;
+    ResultsPublisher(final CloudCopy cloudCopy, final SbpS3 sbpS3, final SBPRestApi sbpApi, Bucket sourceBucket) {
         this.cloudCopy = cloudCopy;
-        this.sbpS3Acl = sbpS3Acl;
+        this.sbpS3 = sbpS3;
         this.sbpApi = sbpApi;
         this.sourceBucket = sourceBucket;
     }
 
     public void publish(SomaticRunMetadata metadata, SbpRun sbpRun, String sbpBucket) {
         LOGGER.info("Starting file transfer from {} to SBP at {}", sourceBucket.getName(), sbpBucket);
-        sbpS3Acl.ensureBucketExists(sbpBucket);
+        sbpS3.ensureBucketExists(sbpBucket);
         List<Blob> objects = find(sourceBucket, metadata.runName());
         List<SourceDestPair> allFiles = new ArrayList<>();
         for (Blob blob : objects) {
-            CloudFile dest = CloudFile.builder().provider("s3").bucket(sbpBucket).path(blob.getName()).build();
-            CloudFile source = CloudFile.builder().provider("gs").bucket(sourceBucket.getName()).path(blob.getName()).md5(blob.getMd5())
-                    .size(blob.getSize()).build();
+            LOGGER.debug("Synching object {}", blob.getName());
+            if (blob.getMd5() == null) {
+                String message = format("Object gs://%s/%s has a null MD5; investigate in Google Cloud",
+                        sourceBucket.getName(), blob.getName());
+                LOGGER.error(message);
+                throw new RuntimeException(message);
+            }
+            CloudFile dest = CloudFile.builder().provider("s3")
+                    .bucket(sbpBucket)
+                    .path(blob.getName())
+                    .size(blob.getSize())
+                    .md5(blob.getMd5())
+                    .build();
+            CloudFile source = CloudFile.builder()
+                    .provider("gs")
+                    .bucket(sourceBucket.getName())
+                    .path(blob.getName())
+                    .md5(blob.getMd5())
+                    .size(blob.getSize())
+                    .build();
             allFiles.add(new SourceDestPair(source, dest));
         }
 
         for (SourceDestPair pair : allFiles) {
             cloudCopy.copy(toUrl(pair.source), toUrl(pair.dest));
-            sbpS3Acl.setOn((pair.dest.bucket()), pair.dest.path());
-            SbpFileMetadata metaData = ImmutableSbpFileMetadata.builder().directory(extractDirectoryNameForSbp(pair.dest.path()))
+            sbpS3.setAclsOn((pair.dest.bucket()), pair.dest.path());
+            SbpFileMetadata metaData = ImmutableSbpFileMetadata.builder()
+                    .directory(extractDirectoryNameForSbp(pair.dest.path()))
                     .run_id(Integer.parseInt(sbpRun.id()))
                     .filename(new File(pair.dest.path()).getName())
                     .filesize(pair.source.size())
-                    .hash(convertMd5ToSbpFormat(pair.source.md5())).build();
+                    .hash(convertMd5ToSbpFormat(pair.source.md5()))
+                    .build();
             sbpApi.postFile(metaData);
         }
     }
@@ -77,9 +93,9 @@ public class ResultsPublisher {
         CloudFile dest;
 
         SourceDestPair(CloudFile source, CloudFile dest) {
-                    this.source = source;
-                        this.dest = dest;
-                    }
+            this.source = source;
+            this.dest = dest;
+        }
     }
 
     private List<Blob> find(Bucket bucket, String prefix) {

@@ -8,17 +8,17 @@ import com.amazonaws.services.s3.model.Permission;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SbpS3Acl {
+class SbpS3 {
     private static final String READERS_ID_ENV = "READER_ACL_IDS";
     private static final String READERS_ACP_ID_ENV = "READER_ACP_ACL_IDS";
-    private final Logger LOGGER = LoggerFactory.getLogger(SbpS3Acl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SbpS3.class);
     private final AmazonS3 s3Client;
 
-    public SbpS3Acl(final AmazonS3 s3Client) {
+    SbpS3(final AmazonS3 s3Client) {
         this.s3Client = s3Client;
     }
 
-    public void setOn(String bucket, String path) {
+    void setAclsOn(String bucket, String path) {
         AccessControlList objectAcl = s3Client.getObjectAcl(bucket, path);
         grant(READERS_ID_ENV, Permission.Read, objectAcl);
         grant(READERS_ACP_ID_ENV, Permission.ReadAcp, objectAcl);
@@ -37,7 +37,7 @@ public class SbpS3Acl {
         }
     }
 
-    public void ensureBucketExists(String bucketName) {
+    void ensureBucketExists(String bucketName) {
         if (!s3Client.doesBucketExistV2(bucketName)) {
             s3Client.createBucket(bucketName);
         }

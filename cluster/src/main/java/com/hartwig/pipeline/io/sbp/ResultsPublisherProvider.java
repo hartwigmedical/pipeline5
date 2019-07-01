@@ -25,13 +25,12 @@ public class ResultsPublisherProvider {
                 arguments.rcloneS3Remote(),
                 ProcessBuilder::new);
 
-        ResultsDestinationBuilder destinationBuilder = new ResultsDestinationBuilder(arguments.rcloneS3Remote(), "ignore");
-        SbpS3Acl sbpS3Acl = new SbpS3Acl(S3.newClient(arguments.sbpS3Url()));
+        SbpS3 sbpS3 = new SbpS3(S3.newClient(arguments.sbpS3Url()));
         SBPRestApi sbpRestApi = SBPRestApi.newInstance(arguments);
 
         try {
             Bucket sourceBucket = storage.get(arguments.patientReportBucket());
-            return new ResultsPublisher(destinationBuilder, cloudCopy, sbpS3Acl, sbpRestApi, sourceBucket);
+            return new ResultsPublisher(cloudCopy, sbpS3, sbpRestApi, sourceBucket);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
