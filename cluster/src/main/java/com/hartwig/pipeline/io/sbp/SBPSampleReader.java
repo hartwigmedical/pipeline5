@@ -41,6 +41,10 @@ public class SBPSampleReader {
             String barcode = parseSampleJson(sbpRestApi.getSample(sampleId)).barcode();
             Sample sample = sample(sampleName, barcode, fastqJson);
             LOGGER.info("Found sample [{}] in SBP", sample);
+            if (sample.lanes().isEmpty()) {
+                throw new IllegalArgumentException(
+                        "No lanes (fastq) were found for sample [{}]. Either no fastq files in the api or none " + "pass qc");
+            }
             return sample;
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -72,8 +76,16 @@ public class SBPSampleReader {
 
     @NotNull
     private Sample sample(final String sampleName, final String barcode, final List<FastQMetadata> fastqJson) {
-        List<Lane> lanes = fastqJson.stream().filter(FastQMetadata::qc_pass).map(SBPSampleReader::lane).collect(Collectors.toList());
+        List<Lane> lanes = fastqJson.stream().filter(SBPSampleReader::qcPass).map(SBPSampleReader::lane).collect(Collectors.toList());
         return Sample.builder("", sampleName, barcode).addAllLanes(lanes).build();
+    }
+
+    private static boolean qcPass(FastQMetadata fastQMetadata) {
+        if (!fastQMetadata.qc_pass()) {
+            LOGGER.warn("FastQ file [{}] did not pass QC, filtering from sample.", fastQMetadata.name_r1());
+            return false;
+        }
+        return true;
     }
 
     @NotNull

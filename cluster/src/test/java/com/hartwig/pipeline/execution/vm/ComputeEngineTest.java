@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -161,6 +162,28 @@ public class ComputeEngineTest {
         when(runtimeBucket.getRuntimeBucket().list()).thenReturn(new ArrayList<>()).thenReturn(new ArrayList<>()).thenReturn(blobs);
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
         verify(instances, times(1)).delete(ARGUMENTS.project(), ComputeEngine.ZONE_NAME, "test-test");
+    }
+
+    @Test
+    public void retriesStopDeleteOperationsOnFailures() throws Exception {
+        runtimeBucket = runtimeBucket.with(successBlob(), 1);
+        List<Blob> blobs = new ArrayList<>();
+        Blob mockBlob = mock(Blob.class);
+        ReadChannel mockReadChannel = mock(ReadChannel.class);
+        when(mockReadChannel.read(any())).thenReturn(-1);
+        when(mockBlob.getName()).thenReturn(successBlob());
+        when(mockBlob.getSize()).thenReturn(1L);
+        when(mockBlob.reader()).thenReturn(mockReadChannel);
+        when(mockBlob.getMd5()).thenReturn("");
+        blobs.add(mockBlob);
+        when(runtimeBucket.getRuntimeBucket().get(BashStartupScript.JOB_SUCCEEDED_FLAG)).thenReturn(mockBlob);
+        when(runtimeBucket.getRuntimeBucket().list()).thenReturn(new ArrayList<>()).thenReturn(new ArrayList<>()).thenReturn(blobs);
+        Compute.Instances.Delete goingToFailOnce = mock(Compute.Instances.Delete.class);
+        Operation operation = mock(Operation.class);
+        when(goingToFailOnce.execute()).thenThrow(new IOException()).thenReturn(operation);
+        when(instances.delete(ARGUMENTS.project(), ComputeEngine.ZONE_NAME, "test-test")).thenReturn(goingToFailOnce);
+        victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
+        verify(goingToFailOnce, times(2)).execute();
     }
 
     private String successBlob() {

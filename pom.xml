@@ -45,6 +45,7 @@
         <google-oauth-client.version>1.28.0</google-oauth-client.version>
         <google-oauth-client-java6.version>1.28.0</google-oauth-client-java6.version>
         <google-oauth-client-jetty.version>1.28.0</google-oauth-client-jetty.version>
+        <failsafe.version>2.0.1</failsafe.version>
     </properties>
 
     <scm>
@@ -248,6 +249,11 @@
                 <version>1.11.327</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>net.jodah</groupId>
+                <artifactId>failsafe</artifactId>
+                <version>${failsafe.version}</version>
             </dependency>
 
             <dependency>

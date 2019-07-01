@@ -5,6 +5,7 @@ import static java.util.Collections.singletonList;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -35,6 +36,10 @@ import com.hartwig.pipeline.io.RuntimeBucket;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import net.jodah.failsafe.Failsafe;
+import net.jodah.failsafe.RetryPolicy;
+import net.jodah.failsafe.function.CheckedSupplier;
 
 public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition> {
     private final static String APPLICATION_NAME = "vm-hosted-workload";
@@ -194,7 +199,7 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
     }
 
     private void executeSynchronously(ComputeRequest<Operation> request, String projectName) throws Exception {
-        Operation syncOp = request.execute();
+        Operation syncOp = executeWithRetries(request::execute);
         String logId = format("Operation [%s:%s]", syncOp.getOperationType(), syncOp.getName());
         LOGGER.debug("{} is executing synchronously", logId);
         while ("RUNNING".equals(fetchJobStatus(compute, syncOp.getName(), projectName))) {
@@ -206,7 +211,7 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
             }
         }
 
-        Operation execute = compute.zoneOperations().get(projectName, ZONE_NAME, syncOp.getName()).execute();
+        Operation execute = executeWithRetries(() -> compute.zoneOperations().get(projectName, ZONE_NAME, syncOp.getName()).execute());
         if (execute.getError() == null) {
             LOGGER.debug("{} confirmed {}", logId, fetchJobStatus(compute, syncOp.getName(), projectName));
         } else {
@@ -215,7 +220,12 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
     }
 
     private String fetchJobStatus(Compute compute, String jobName, String projectName) throws IOException {
-        return compute.zoneOperations().get(projectName, ZONE_NAME, jobName).execute().getStatus();
+        return executeWithRetries(() -> compute.zoneOperations().get(projectName, ZONE_NAME, jobName).execute()).getStatus();
+    }
+
+    private Operation executeWithRetries(final CheckedSupplier<Operation> operationCheckedSupplier) {
+        return Failsafe.with(new RetryPolicy<>().handle(IOException.class).withDelay(Duration.ofSeconds(5)).withMaxRetries(5))
+                .get(operationCheckedSupplier);
     }
 
     private boolean bucketContainsFile(RuntimeBucket bucket, String filename) {

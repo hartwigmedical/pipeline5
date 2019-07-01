@@ -25,7 +25,7 @@ public class SBPS3SampleSource implements SampleSource {
 
     @Override
     public SampleData sample(final SingleSampleRunMetadata metadata, final Arguments arguments) {
-        Sample sample = sbpSampleReader.read(arguments.sbpApiSampleId()
+          Sample sample = sbpSampleReader.read(arguments.sbpApiSampleId()
                 .orElseThrow(() -> new IllegalArgumentException("Arguments must "
                         + "contain an SBP id to use the SBP sample source. This looks like a programmatic mis-wiring somewhere")));
         long size = sample.lanes()

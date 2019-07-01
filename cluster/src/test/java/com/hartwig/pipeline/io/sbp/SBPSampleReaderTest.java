@@ -22,7 +22,8 @@ public class SBPSampleReaderTest {
 
     private static final String SAMPLE_NAME = "CPCT02330029T";
     private static final String FASTQ_JSON = "sbp_api/get_fastq.json";
-    private static final String FASTQ_JSON_QC_FAILED = "sbp_api/get_fastq_qc_failed.json";
+    private static final String FASTQ_JSON_SINGLE_QC_FAILED = "sbp_api/get_fastq_qc_failed.json";
+    private static final String FASTQ_JSON_ALL_QC_FAILED = "sbp_api/get_fastq_all_qc_failed.json";
     private static final String FASTQ_JSON_SUBDIRECTORIES = "sbp_api/get_fastq_subdirectories.json";
     private static final String SAMPLE_JSON = "sbp_api/get_sample.json";
     private SBPRestApi sbpRestApi;
@@ -65,7 +66,7 @@ public class SBPSampleReaderTest {
 
     @Test
     public void filtersLanesWhichHaveNotPassedQC() throws Exception {
-        returnJson(FASTQ_JSON_QC_FAILED);
+        returnJson(FASTQ_JSON_SINGLE_QC_FAILED);
         Sample sample = victim.read(EXISTS);
         assertThat(sample.lanes()).hasSize(1);
         assertThat(sample.lanes().get(0).firstOfPairPath()).contains("L001");
@@ -77,6 +78,12 @@ public class SBPSampleReaderTest {
         Sample sample = victim.read(EXISTS);
         assertThat(sample.lanes()).hasSize(2);
         assertThat(sample.name()).isEqualTo("CPCT02330029T");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void throwsIllegalArgumentWhenAllLanesFilteredQc() throws Exception{
+        returnJson(FASTQ_JSON_ALL_QC_FAILED);
+        Sample sample = victim.read(EXISTS);
     }
 
     private void returnJson(final String sampleJsonLocation) throws IOException {

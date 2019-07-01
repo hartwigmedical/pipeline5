@@ -75,6 +75,10 @@
             <artifactId>jackson-dataformat-yaml</artifactId>
         </dependency>
         <dependency>
+            <groupId>net.jodah</groupId>
+            <artifactId>failsafe</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.hartwig</groupId>
             <artifactId>system</artifactId>
             <scope>test</scope>
