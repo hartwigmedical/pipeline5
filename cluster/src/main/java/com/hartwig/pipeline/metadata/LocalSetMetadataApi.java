@@ -32,7 +32,7 @@ public class LocalSetMetadataApi implements SomaticMetadataApi {
     }
 
     @Override
-    public void complete(final PipelineStatus status) {
+    public void complete(final PipelineStatus status, SomaticRunMetadata metadata) {
         // do nothing
     }
 }

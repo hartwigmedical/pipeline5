@@ -15,6 +15,9 @@ public interface SbpRunStatusUpdate {
     @Value.Parameter
     String status();
 
+    @Value.Parameter
+    String bucketName();
+
     @Value.Default
     default String endTime() {
         return nowUtc().format(DateTimeFormatter.ISO_DATE_TIME);
@@ -25,16 +28,11 @@ public interface SbpRunStatusUpdate {
         return "object02";
     }
 
-    @Value.Default
-    default String bucket() {
-        return "hmf-output-" + nowUtc().format(DateTimeFormatter.ofPattern("yyyy-ww"));
-    }
-
     static LocalDateTime nowUtc() {
         return LocalDateTime.now(ZoneId.of("UTC"));
     }
 
-    static SbpRunStatusUpdate of (String status){
-        return ImmutableSbpRunStatusUpdate.of(status);
+    static SbpRunStatusUpdate of (String status, String bucketName){
+        return ImmutableSbpRunStatusUpdate.of(status, bucketName);
     }
 }

@@ -20,7 +20,6 @@ public class RCloneCloudCopyTest {
     private static final String PATH_TO_RCLONE = "/path/to/rclone";
     private static final String LOCAL_SOURCE_FILE = "/source/file.gz";
     private static final String LOCAL_TARGET_FILE = "target/file.gz";
-    private static final String ID = "id";
     private static final String GCP_REMOTE = "google";
     private static final String AWS_REMOTE = "aws";
     private ProcessBuilder processBuilder;
@@ -46,36 +45,51 @@ public class RCloneCloudCopyTest {
         victim.copy(LOCAL_SOURCE_FILE, LOCAL_TARGET_FILE);
         verify(processBuilder, times(1)).command(commandCaptor.capture());
         assertThat(commandCaptor.getValue().get(0)).isEqualTo(PATH_TO_RCLONE + RCloneCloudCopy.RCLONE);
+    }
+
+    @Test
+    public void shouldPassAppropriateSubCommandAndArguments() {
+        victim.copy(LOCAL_SOURCE_FILE, LOCAL_TARGET_FILE);
+        verify(processBuilder, times(1)).command(commandCaptor.capture());
         assertThat(commandCaptor.getValue().get(1)).isEqualTo("copyto");
+        assertThat(commandCaptor.getValue().get(2)).isEqualTo("-c");
     }
 
     @Test
     public void passesLocalFileSystemThroughToRclone() {
         victim.copy(LOCAL_SOURCE_FILE, LOCAL_TARGET_FILE);
         verify(processBuilder, times(1)).command(commandCaptor.capture());
-        assertThat(commandCaptor.getValue().get(2)).isEqualTo(LOCAL_SOURCE_FILE);
-        assertThat(commandCaptor.getValue().get(3)).isEqualTo(LOCAL_TARGET_FILE);
+        assertSourceIs(LOCAL_SOURCE_FILE);
+        assertDestIs(LOCAL_TARGET_FILE);
     }
 
     @Test
     public void substitutesGoogleRemoteForAnyGSPath() {
         victim.copy("gs://" + LOCAL_SOURCE_FILE, "gs://" + LOCAL_TARGET_FILE);
         verify(processBuilder, times(1)).command(commandCaptor.capture());
-        assertThat(commandCaptor.getValue().get(2)).isEqualTo(GCP_REMOTE + ":" + LOCAL_SOURCE_FILE);
-        assertThat(commandCaptor.getValue().get(3)).isEqualTo(GCP_REMOTE + ":" + LOCAL_TARGET_FILE);
+        assertSourceIs(GCP_REMOTE + ":" + LOCAL_SOURCE_FILE);
+        assertDestIs(GCP_REMOTE + ":" + LOCAL_TARGET_FILE);
     }
 
     @Test
     public void substitutesS3RemoteForAnyS3Path() {
         victim.copy("s3://" + LOCAL_SOURCE_FILE, "s3://" + LOCAL_TARGET_FILE);
         verify(processBuilder, times(1)).command(commandCaptor.capture());
-        assertThat(commandCaptor.getValue().get(2)).isEqualTo(AWS_REMOTE + ":" + LOCAL_SOURCE_FILE);
-        assertThat(commandCaptor.getValue().get(3)).isEqualTo(AWS_REMOTE + ":" + LOCAL_TARGET_FILE);
+        assertSourceIs(AWS_REMOTE + ":" + LOCAL_SOURCE_FILE);
+        assertDestIs(AWS_REMOTE + ":" + LOCAL_TARGET_FILE);
     }
 
     @Test(expected = RuntimeException.class)
     public void rethrowsAnyExceptionsRunningProcessAsRuntime() throws Exception {
         when(processBuilder.start()).thenThrow(new IOException());
         victim.copy(LOCAL_SOURCE_FILE, LOCAL_TARGET_FILE);
+    }
+
+    private void assertSourceIs(String expected) {
+        assertThat(commandCaptor.getValue().get(3)).isEqualTo(expected);
+    }
+
+    private void assertDestIs(String expected) {
+        assertThat(commandCaptor.getValue().get(4)).isEqualTo(expected);
     }
 }

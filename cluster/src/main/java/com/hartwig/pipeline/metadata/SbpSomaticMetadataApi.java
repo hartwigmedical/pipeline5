@@ -1,6 +1,9 @@
 package com.hartwig.pipeline.metadata;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -8,28 +11,36 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.RunTag;
 import com.hartwig.pipeline.execution.PipelineStatus;
+import com.hartwig.pipeline.io.sbp.ResultsPublisher;
 import com.hartwig.pipeline.io.sbp.SBPRestApi;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SbpSomaticMetadataApi implements SomaticMetadataApi {
 
     static final String SNP_CHECK = "SnpCheck";
     static final String FAILED = "Failed";
+    static final String UPLOADING = "Uploading";
     private static final String REF = "ref";
     private static final String TUMOR = "tumor";
+    private final static Logger LOGGER = LoggerFactory.getLogger(SomaticMetadataApi.class);
     private final Arguments arguments;
     private final int sbpRunId;
     private final SBPRestApi sbpRestApi;
+    private final ResultsPublisher publisher;
 
-    SbpSomaticMetadataApi(final Arguments arguments, final int sbpRunId, final SBPRestApi sbpRestApi) {
+    SbpSomaticMetadataApi(final Arguments arguments, final int sbpRunId, final SBPRestApi sbpRestApi, final ResultsPublisher publisher) {
         this.arguments = arguments;
         this.sbpRunId = sbpRunId;
         this.sbpRestApi = sbpRestApi;
+        this.publisher = publisher;
     }
 
     @Override
     public SomaticRunMetadata get() {
         try {
-            SbpRun sbpRun = ObjectMappers.get().readValue(sbpRestApi.getRun(sbpRunId), SbpRun.class);
+            SbpRun sbpRun = getSbpRun();
             SbpSet sbpSet = sbpRun.set();
             List<SbpSample> samplesBySet =
                     ObjectMappers.get().readValue(sbpRestApi.getSample(sbpSet.id()), new TypeReference<List<SbpSample>>() {
@@ -37,7 +48,7 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
             SbpSample reference = find(REF, sbpSet.id(), samplesBySet);
             SbpSample tumor = find(TUMOR, sbpSet.id(), samplesBySet);
             return SomaticRunMetadata.builder()
-                    .runName(RunTag.apply(arguments, sbpSet.name() + "-" + sbpRun.id()))
+                    .runName(RunTag.apply(arguments, sbpSet.name()))
                     .tumor(SingleSampleRunMetadata.builder()
                             .sampleName(tumor.name())
                             .sampleId(tumor.barcode())
@@ -54,6 +65,14 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
         }
     }
 
+    private SbpRun getSbpRun() {
+        try {
+            return ObjectMappers.get().readValue(sbpRestApi.getRun(sbpRunId), SbpRun.class);
+        } catch (IOException ioe) {
+            throw new RuntimeException(ioe);
+        }
+    }
+
     private SbpSample find(final String type, final String setName, final List<SbpSample> samplesBySet) throws IOException {
         List<SbpSample> sampleByType = samplesBySet.stream().filter(sample -> sample.type().equals(type)).collect(Collectors.toList());
         if (sampleByType.size() != 1) {
@@ -67,7 +86,21 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
     }
 
     @Override
-    public void complete(final PipelineStatus status) {
-        sbpRestApi.updateRunStatus(String.valueOf(sbpRunId), status == PipelineStatus.SUCCESS ? SNP_CHECK : FAILED);
+    public void complete(final PipelineStatus status, SomaticRunMetadata metadata) {
+        String runIdAsString = String.valueOf(sbpRunId);
+        String sbpBucket = "hmf-output-" + LocalDateTime.now(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern("yyyy-ww"));
+        LOGGER.info("Recording pipeline completion with status [{}]", status);
+        if (status == PipelineStatus.SUCCESS) {
+            try {
+                sbpRestApi.updateRunStatus(runIdAsString, UPLOADING, sbpBucket);
+                publisher.publish(metadata, getSbpRun(), sbpBucket);
+                sbpRestApi.updateRunStatus(runIdAsString, SNP_CHECK, sbpBucket);
+            } catch (Exception e) {
+                sbpRestApi.updateRunStatus(runIdAsString, FAILED, sbpBucket);
+                throw e;
+            }
+        } else {
+            sbpRestApi.updateRunStatus(runIdAsString, FAILED, sbpBucket);
+        }
     }
 }

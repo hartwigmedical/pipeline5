@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.io.sbp;
 
+import static java.lang.String.format;
+
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
@@ -24,6 +26,7 @@ public class SBPRestApi {
     private final static Logger LOGGER = LoggerFactory.getLogger(SBPRestApi.class);
     private static final String SAMPLES = "samples";
     private static final String RUNS = "runs";
+    private static final String FILES = "files";
     private final WebTarget target;
 
     private SBPRestApi(final WebTarget target) {
@@ -72,11 +75,26 @@ public class SBPRestApi {
         }
     }
 
-    public void updateRunStatus(String runID, String status) {
+    public void updateRunStatus(String runID, String status, String sbpBucket) {
         try {
-            String json = OBJECT_MAPPER.writeValueAsString(SbpRunStatusUpdate.of(status));
+            String json = OBJECT_MAPPER.writeValueAsString(SbpRunStatusUpdate.of(status, sbpBucket));
             patch(runID, status, json, RUNS);
 
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void postFile(final SbpFileMetadata metaData) {
+        LOGGER.info("Posting file [{}]", format("%s/%s(md5:%s)", metaData.directory(), metaData.filename(), metaData.hash()));
+        try {
+            String json = OBJECT_MAPPER.writeValueAsString(metaData);
+            LOGGER.info("Request JSON: {}", json);
+            Response response = api().path(FILES).request().buildPost(Entity.entity(json, MediaType.APPLICATION_JSON_TYPE)).invoke();
+            if (response.getStatus() != Response.Status.OK.getStatusCode()) {
+                LOGGER.info("Failed to POST file data: {}", response.readEntity(String.class));
+                throw error(response);
+            }
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
@@ -106,7 +124,7 @@ public class SBPRestApi {
 
     @NotNull
     private RuntimeException error(final Response response) {
-        return new RuntimeException(String.format("Received an error status result [%s] of SBP Api at [%s]",
+        return new RuntimeException(format("Received an error status result [%s] of SBP Api at [%s]",
                 response.getStatus(),
                 target.getUri()));
     }

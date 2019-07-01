@@ -6,5 +6,5 @@ public interface SomaticMetadataApi {
 
     SomaticRunMetadata get();
 
-    void complete(PipelineStatus status);
+    void complete(PipelineStatus status, SomaticRunMetadata metadata);
 }

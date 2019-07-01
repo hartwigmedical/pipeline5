@@ -117,7 +117,7 @@ public class SomaticPipeline {
                     }
                 }
             }
-            setMetadataApi.complete(state.status());
+            setMetadataApi.complete(state.status(), metadata);
 
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);

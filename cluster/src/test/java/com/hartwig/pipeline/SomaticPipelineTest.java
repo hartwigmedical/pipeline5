@@ -230,7 +230,7 @@ public class SomaticPipelineTest {
         bothMetricsAvailable();
         purpleAndHealthCheckSucceed();
         victim.run();
-        verify(setMetadataApi, times(1)).complete(PipelineStatus.SUCCESS);
+        verify(setMetadataApi, times(1)).complete(PipelineStatus.SUCCESS, SOMATIC_RUN_METADATA);
     }
 
     @Test
@@ -245,7 +245,7 @@ public class SomaticPipelineTest {
                 SUCCESSFUL_COBALT_OUTPUT,
                 SUCCESSFUL_AMBER_OUTPUT)).thenReturn(PurpleOutput.builder().status(PipelineStatus.FAILED).build());
         victim.run();
-        verify(setMetadataApi, times(1)).complete(PipelineStatus.FAILED);
+        verify(setMetadataApi, times(1)).complete(PipelineStatus.FAILED, SOMATIC_RUN_METADATA);
     }
 
     private void purpleAndHealthCheckSucceed() {

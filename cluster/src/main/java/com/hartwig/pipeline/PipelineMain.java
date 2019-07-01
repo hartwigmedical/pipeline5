@@ -62,7 +62,7 @@ public class PipelineMain {
                     PipelineState state =
                             new SomaticPipeline(new AlignmentOutputStorage(storage, arguments, ResultsDirectory.defaultDirectory()),
                                     new BamMetricsOutputStorage(storage, arguments, ResultsDirectory.defaultDirectory()),
-                                    SetMetadataApiProvider.from(arguments).get(),
+                                    SetMetadataApiProvider.from(arguments, storage).get(),
                                     PipelineResultsProvider.from(storage, arguments, Versions.pipelineVersion()).get(),
                                     new FullSomaticResults(storage, arguments),
                                     CleanupProvider.from(credentials, arguments, storage).get(),
