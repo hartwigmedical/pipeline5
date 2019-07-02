@@ -150,9 +150,5 @@ except BaseException, e:
     message = "Exception in pipeline5 pending-check-sample\n\n"
     message += str(e) + "\n\n"
     message += traceback.format_exc()
-    message += "\nWill now sleep until human takes a look"
 
     phone_home(message)
-
-    while True:
-        time.sleep(60)
