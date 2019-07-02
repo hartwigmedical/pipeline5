@@ -41,9 +41,19 @@ public class GermlineCallerTest {
         MockResource.addToStorage(storage, ResourceNames.DBNSFP, "dbsnfp.txt.gz");
         MockResource.addToStorage(storage, ResourceNames.GONL, "gonl.vcf.gz");
         MockResource.addToStorage(storage, ResourceNames.COSMIC, "cosmic_collapsed.vcf.gz");
-        MockResource.addToStorage(storage, ResourceNames.SNPEFF, "snpeff.config");
+        MockResource.addToStorage(storage, ResourceNames.SNPEFF, "snpeff.config", "database.zip");
         MockResource.addToStorage(storage, ResourceNames.DBSNPS, "dbsnps.vcf");
         victim = new GermlineCaller(ARGUMENTS, computeEngine, storage, ResultsDirectory.defaultDirectory());
+    }
+
+    @Test
+    public void shouldCopySnpeffDatabaseToResourcesDirectory() {
+        ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
+        victim.run(referenceRunMetadata(), referenceAlignmentOutput());
+        assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
+                "gsutil -qm cp gs://run-reference/germline_caller/snpeff/* /data/resources");
+        assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
+                "unzip -d /data/resources /data/resources/database.zip");
     }
 
     @Test

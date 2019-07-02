@@ -34,7 +34,7 @@ public class ResultsPublisher {
     }
 
     public void publish(SomaticRunMetadata metadata, SbpRun sbpRun, String sbpBucket) {
-        LOGGER.info("Starting file transfer from {} to SBP at {}", sourceBucket.getName(), sbpBucket);
+        LOGGER.info("Starting file transfer from {} to SBP bucket {}", sourceBucket.getName(), sbpBucket);
         sbpS3.ensureBucketExists(sbpBucket);
         List<Blob> objects = find(sourceBucket, metadata.runName());
         List<SourceDestPair> allFiles = new ArrayList<>();

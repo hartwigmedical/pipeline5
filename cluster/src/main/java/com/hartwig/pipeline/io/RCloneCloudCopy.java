@@ -35,7 +35,7 @@ public class RCloneCloudCopy implements CloudCopy {
             ProcessBuilder processBuilder = processBuilderSupplier.get();
             List<String> command = ImmutableList.of(rClonePath + RCLONE, "copyto", "-c", replaceRemotes(from), replaceRemotes(to));
             processBuilder.command(command);
-            LOGGER.info("Running rclone command [{}]", command.stream().collect(joining(" ")));
+            LOGGER.debug("Running rclone command [{}]", command.stream().collect(joining(" ")));
             Processes.run(processBuilder, true);
         } catch (Exception e) {
             throw new RuntimeException(e);

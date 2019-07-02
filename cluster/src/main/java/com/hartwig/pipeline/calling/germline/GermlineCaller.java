@@ -21,6 +21,8 @@ import com.hartwig.pipeline.execution.vm.OutputFile;
 import com.hartwig.pipeline.execution.vm.OutputUpload;
 import com.hartwig.pipeline.execution.vm.ResourceDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.pipeline.execution.vm.VmDirectories;
+import com.hartwig.pipeline.execution.vm.unix.UnzipToDirectoryCommand;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
@@ -74,7 +76,6 @@ public class GermlineCaller {
 
         StageTrace trace = new StageTrace(NAMESPACE, StageTrace.ExecutorType.COMPUTE_ENGINE).start();
 
-        String sampleName = alignmentOutput.sample();
         RuntimeBucket bucket = RuntimeBucket.from(storage, NAMESPACE, metadata, arguments);
 
         ResourceDownload referenceGenome = ResourceDownload.from(bucket,
@@ -100,6 +101,8 @@ public class GermlineCaller {
                 .addCommand(frequencyDbDownload);
 
         String snpEffConfig = snpEffResource.find("config");
+        String snpEffDb = snpEffResource.find("zip");
+        startupScript.addCommand(new UnzipToDirectoryCommand(VmDirectories.RESOURCES, snpEffDb));
 
         String referenceFasta = referenceGenome.find("fasta");
         String dbsnpVcf = dbSnps.find("vcf");

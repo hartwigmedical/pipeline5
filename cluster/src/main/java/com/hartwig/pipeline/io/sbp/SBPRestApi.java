@@ -86,10 +86,10 @@ public class SBPRestApi {
     }
 
     void postFile(final SbpFileMetadata metaData) {
-        LOGGER.info("Posting file [{}]", format("%s/%s(md5:%s)", metaData.directory(), metaData.filename(), metaData.hash()));
+        LOGGER.debug("Posting file [{}]", format("%s/%s(md5:%s)", metaData.directory(), metaData.filename(), metaData.hash()));
         try {
             String json = OBJECT_MAPPER.writeValueAsString(metaData);
-            LOGGER.info("Request JSON: {}", json);
+            LOGGER.debug("Request JSON: {}", json);
             Response response = api().path(FILES).request().buildPost(Entity.entity(json, MediaType.APPLICATION_JSON_TYPE)).invoke();
             if (response.getStatus() != Response.Status.CREATED.getStatusCode()) {
                 LOGGER.info("Failed to POST file data: {}", response.readEntity(String.class));

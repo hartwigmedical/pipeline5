@@ -26,11 +26,11 @@ class SbpS3 {
 
     private void grant(final String envKey, final Permission permission, final AccessControlList objectAcl) {
         String identifiers = System.getenv().get(envKey);
-        LOGGER.info("Using environment variable [{}] value [{}]", envKey, identifiers);
+        LOGGER.debug("Using environment variable [{}] value [{}]", envKey, identifiers);
         if (identifiers != null && !identifiers.trim().isEmpty()) {
             for (String identifier : identifiers.split(",")) {
                 if (identifier != null && !identifier.trim().isEmpty()) {
-                    LOGGER.info("S3 granting [{}] for [{}]", permission, identifier);
+                    LOGGER.debug("S3 granting [{}] for [{}]", permission, identifier);
                     objectAcl.grantPermission(new CanonicalGrantee(identifier), permission);
                 }
             }
