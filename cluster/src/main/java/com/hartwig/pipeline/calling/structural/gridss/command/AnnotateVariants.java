@@ -19,7 +19,6 @@ public class AnnotateVariants implements GridssCommand {
         this.inputVcf = inputVcf;
         this.referenceGenome = referenceGenome;
         this.outputVcf = VmDirectories.outputFile(jointName + ".annotated_variants.vcf");
-        ;
     }
 
     public String resultantVcf() {
