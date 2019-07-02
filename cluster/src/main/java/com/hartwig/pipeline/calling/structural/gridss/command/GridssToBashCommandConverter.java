@@ -25,6 +25,4 @@ public class GridssToBashCommandConverter {
                 jvmArgs,
                 gridssCommand.arguments());
     }
-
-
 }

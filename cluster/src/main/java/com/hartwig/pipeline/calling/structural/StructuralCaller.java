@@ -98,19 +98,19 @@ public class StructuralCaller {
         CommandFactory commandFactory = new CommandFactory();
         GridssToBashCommandConverter commandConverter = new GridssToBashCommandConverter();
 
-        Preprocess.PreprocessResult preprocessedSample =
+        Preprocess.PreprocessResult preprocessedRefSample =
                 new Preprocess(commandFactory, commandConverter).initialise(referenceBam.getLocalTargetPath(),
                         referenceSampleName,
                         referenceGenomePath,
                         preprocessSvOutputReferenceBam);
-        Preprocess.PreprocessResult preprocessedTumor =
+        Preprocess.PreprocessResult preprocessedTumorSample =
                 new Preprocess(commandFactory, commandConverter).initialise(tumorBam.getLocalTargetPath(),
                         tumorSampleName,
                         referenceGenomePath,
                         preprocessSvOutputTumorBam);
 
-        Assemble.AssembleResult assemblyResult = new Assemble(commandFactory, commandConverter).initialise(preprocessedSample.svBam(),
-                preprocessedTumor.svBam(),
+        Assemble.AssembleResult assemblyResult = new Assemble(commandFactory, commandConverter).initialise(preprocessedRefSample.svBam(),
+                preprocessedTumorSample.svBam(),
                 referenceGenomePath,
                 jointName);
 
@@ -130,8 +130,8 @@ public class StructuralCaller {
         Filter.FilterResult filterResult =
                 new Filter().initialise(annotationResult.annotatedVcf(), basename(tumorBam.getLocalTargetPath()));
 
-        bash.addCommands(preprocessedSample.commands())
-                .addCommands(preprocessedTumor.commands())
+        bash.addCommands(preprocessedRefSample.commands())
+                .addCommands(preprocessedTumorSample.commands())
                 .addCommands(assemblyResult.commands())
                 .addCommand(commandConverter.convert(calling))
                 .addCommands(annotationResult.commands())
@@ -154,6 +154,7 @@ public class StructuralCaller {
     }
 
     private Predicate<String> filterBams() {
+        // TODO Replace with a function based off objects? (assemblyResult.assemblyBam etc)
         return ((Predicate<String>) s -> s.endsWith("assembly.bam")).or(s -> s.endsWith("assembly.bai"))
                 .or(s -> s.endsWith("sv.bam"))
                 .or(s -> s.endsWith("sv.bam.bai"));

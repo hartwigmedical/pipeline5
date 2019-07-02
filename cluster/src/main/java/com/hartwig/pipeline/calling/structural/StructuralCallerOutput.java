@@ -1,10 +1,11 @@
 package com.hartwig.pipeline.calling.structural;
 
+import java.util.Optional;
+
 import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
-import org.immutables.value.Value;
 
-import java.util.Optional;
+import org.immutables.value.Value;
 
 @Value.Immutable
 public interface StructuralCallerOutput extends StageOutput {
@@ -23,19 +24,19 @@ public interface StructuralCallerOutput extends StageOutput {
     Optional<GoogleStorageLocation> maybeFullVcfIndex();
 
     default GoogleStorageLocation filteredVcf() {
-        return maybeFilteredVcf().orElseThrow(() -> new IllegalStateException("No VCF available"));
+        return maybeFilteredVcf().orElseThrow(() -> new IllegalStateException("No filtered VCF available"));
     }
 
     default GoogleStorageLocation fullVcf() {
-        return maybeFullVcf().orElseThrow(() -> new IllegalStateException("No sv recovery VCF available"));
+        return maybeFullVcf().orElseThrow(() -> new IllegalStateException("No full VCF available"));
     }
 
     default GoogleStorageLocation filteredVcfIndex() {
-        return maybeFilteredVcfIndex().orElseThrow(() -> new IllegalStateException("No VCF available"));
+        return maybeFilteredVcfIndex().orElseThrow(() -> new IllegalStateException("No filtered VCF index available"));
     }
 
     default GoogleStorageLocation fullVcfIndex() {
-        return maybeFullVcfIndex().orElseThrow(() -> new IllegalStateException("No sv recovery VCF available"));
+        return maybeFullVcfIndex().orElseThrow(() -> new IllegalStateException("No full VCF index available"));
     }
 
     static ImmutableStructuralCallerOutput.Builder builder() {
