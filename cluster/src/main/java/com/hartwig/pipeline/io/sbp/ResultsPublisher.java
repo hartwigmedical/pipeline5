@@ -39,27 +39,28 @@ public class ResultsPublisher {
         List<Blob> objects = find(sourceBucket, metadata.runName());
         List<SourceDestPair> allFiles = new ArrayList<>();
         for (Blob blob : objects) {
-            LOGGER.debug("Synching object {}", blob.getName());
+            LOGGER.debug("Syncing object {}", blob.getName());
             if (blob.getMd5() == null) {
-                String message = format("Object gs://%s/%s has a null MD5; investigate in Google Cloud",
-                        sourceBucket.getName(), blob.getName());
+                String message =
+                        format("Object gs://%s/%s has a null MD5; investigate in Google Cloud", sourceBucket.getName(), blob.getName());
                 LOGGER.error(message);
-                throw new RuntimeException(message);
+            } else {
+                CloudFile dest = CloudFile.builder()
+                        .provider("s3")
+                        .bucket(sbpBucket)
+                        .path(blob.getName())
+                        .size(blob.getSize())
+                        .md5(blob.getMd5())
+                        .build();
+                CloudFile source = CloudFile.builder()
+                        .provider("gs")
+                        .bucket(sourceBucket.getName())
+                        .path(blob.getName())
+                        .md5(blob.getMd5())
+                        .size(blob.getSize())
+                        .build();
+                allFiles.add(new SourceDestPair(source, dest));
             }
-            CloudFile dest = CloudFile.builder().provider("s3")
-                    .bucket(sbpBucket)
-                    .path(blob.getName())
-                    .size(blob.getSize())
-                    .md5(blob.getMd5())
-                    .build();
-            CloudFile source = CloudFile.builder()
-                    .provider("gs")
-                    .bucket(sourceBucket.getName())
-                    .path(blob.getName())
-                    .md5(blob.getMd5())
-                    .size(blob.getSize())
-                    .build();
-            allFiles.add(new SourceDestPair(source, dest));
         }
 
         for (SourceDestPair pair : allFiles) {
@@ -99,6 +100,6 @@ public class ResultsPublisher {
     }
 
     private List<Blob> find(Bucket bucket, String prefix) {
-        return Lists.newArrayList(bucket.list(Storage.BlobListOption.prefix(prefix)).iterateAll());
+        return Lists.newArrayList(bucket.list(Storage.BlobListOption.prefix(prefix + "/")).iterateAll());
     }
 }
