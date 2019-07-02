@@ -63,8 +63,8 @@ public class Purple {
         InputDownload somaticVcfDownload = new InputDownload(somaticCallerOutput.finalSomaticVcf());
         InputDownload structuralVcfDownload = new InputDownload(structuralCallerOutput.filteredVcf());
         InputDownload structuralVcfIndexDownload = new InputDownload(structuralCallerOutput.filteredVcfIndex());
-        InputDownload svRecoveryVcfIndexDownload = new InputDownload(structuralCallerOutput.fullVcfIndex());
         InputDownload svRecoveryVcfDownload = new InputDownload(structuralCallerOutput.fullVcf());
+        InputDownload svRecoveryVcfIndexDownload = new InputDownload(structuralCallerOutput.fullVcfIndex());
         InputDownload amberOutputDownload = new InputDownload(amberOutput.outputDirectory());
         InputDownload cobaltOutputDownload = new InputDownload(cobaltOutput.outputDirectory());
         bash.addCommand(somaticVcfDownload)
