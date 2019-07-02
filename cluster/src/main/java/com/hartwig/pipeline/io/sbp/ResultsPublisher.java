@@ -78,7 +78,8 @@ public class ResultsPublisher {
     }
 
     private String extractDirectoryNameForSbp(String fullDestFilePath) {
-        return new File(fullDestFilePath.substring(fullDestFilePath.indexOf("/") + 1, fullDestFilePath.length() - 1)).getParent();
+        String parent = new File(fullDestFilePath.substring(fullDestFilePath.indexOf("/") + 1, fullDestFilePath.length() - 1)).getParent();
+        return parent != null ? parent : "";
     }
 
     private String toUrl(CloudFile cloudFile) {

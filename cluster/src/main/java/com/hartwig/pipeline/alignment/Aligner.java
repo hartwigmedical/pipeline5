@@ -99,7 +99,7 @@ public class Aligner {
         trace.stop();
         return AlignmentOutput.builder()
                 .from(alignmentOutput)
-                .addReportComponents(new DataprocLogComponent(sample, runtimeBucket, resultsDirectory),
+                .addReportComponents(new DataprocLogComponent(sample, runtimeBucket),
                         new SingleFileComponent(runtimeBucket,
                                 NAMESPACE,
                                 Folder.from(metadata),
