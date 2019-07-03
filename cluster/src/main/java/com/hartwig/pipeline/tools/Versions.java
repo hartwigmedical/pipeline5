@@ -21,7 +21,7 @@ public interface Versions {
     String TABIX = "0.2.6";
     String AMBER = "2.5";
     String COBALT = "1.7";
-    String HEALTH_CHECKER = "3.0";
+    String HEALTH_CHECKER = "3.1";
     String PURPLE = "2.30";
     String CIRCOS = "0.69.6";
     String GRIDSS = "2.4.0";
