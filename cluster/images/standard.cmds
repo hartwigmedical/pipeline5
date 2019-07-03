@@ -9,7 +9,7 @@ sudo mkdir -p /data/tools
 sudo mkdir -p /data/input
 sudo mkdir -p /data/output
 sudo mkdir -p /data/resources
-sudo gsutil -m cp -r gs://common-tools/* /data/tools/
+sudo gsutil -m cp -r gs://$1/* /data/tools/
 sudo tar xvf /data/tools/strelka/1.0.14/strelka.tar -C /data/tools/strelka/1.0.14/
 sudo tar xvf /data/tools/tabix/0.2.6/tabix.tar -C /data/tools/tabix/0.2.6/
 sudo tar xvf /data/tools/samtools/1.2/samtools.tar.gz -C /data/tools/samtools/1.2/

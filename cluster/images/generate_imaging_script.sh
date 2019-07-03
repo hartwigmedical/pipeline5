@@ -4,6 +4,12 @@
 
 ZONE="europe-west4-a"
 PROJECT="hmf-pipeline-development"
+
+if [ -n "$1" ]
+  then
+    PROJECT=$1
+fi
+
 GCL="gcloud compute --project=${PROJECT}"
 
 which gcloud 2>&1 >/dev/null
