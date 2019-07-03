@@ -51,7 +51,7 @@ public class SomaticCallerTest {
         MockResource.addToStorage(storage, MAPPABILITY, "mappability.bed.gz", "mappability.hdr");
         MockResource.addToStorage(storage, PON, "GERMLINE_PON.vcf.gz", "SOMATIC_PON.vcf.gz");
         MockResource.addToStorage(storage, BEDS, "strelka-post-process.bed");
-        MockResource.addToStorage(storage, SNPEFF, "snpeff.config");
+        MockResource.addToStorage(storage, SNPEFF, "snpeff.config", "snpeffdb.zip");
         MockResource.addToStorage(storage, DBSNPS, "dbsnp.vcf.gz");
         MockResource.addToStorage(storage, COSMIC, "cosmic_collapsed.vcf.gz");
         computeEngine = mock(ComputeEngine.class);
@@ -76,6 +76,16 @@ public class SomaticCallerTest {
     }
 
     @Test
+    public void shouldCopySnpeffDatabaseToResourcesDirectory() {
+        ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
+        victim.run(defaultSomaticRunMetadata(), defaultPair());
+        assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
+                "gsutil -qm cp gs://run-reference-tumor/somatic_caller/snpeff/* /data/resources");
+        assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
+                "unzip -d /data/resources /data/resources/snpeffdb.zip ");
+    }
+
+    @Test
     public void downloadsRecalibratedBamsAndBais() {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinition = ArgumentCaptor.forClass(VirtualMachineJobDefinition.class);
         when(computeEngine.submit(any(), jobDefinition.capture())).thenReturn(PipelineStatus.SUCCESS);
@@ -91,5 +101,12 @@ public class SomaticCallerTest {
     public void returnsFailedStatusWhenJobFails() {
         when(computeEngine.submit(any(), any())).thenReturn(PipelineStatus.FAILED);
         assertThat(victim.run(defaultSomaticRunMetadata(), defaultPair()).status()).isEqualTo(PipelineStatus.FAILED);
+    }
+
+    private ArgumentCaptor<VirtualMachineJobDefinition> captureAndReturnSuccess() {
+        ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor =
+                ArgumentCaptor.forClass(VirtualMachineJobDefinition.class);
+        when(computeEngine.submit(any(), jobDefinitionArgumentCaptor.capture())).thenReturn(PipelineStatus.SUCCESS);
+        return jobDefinitionArgumentCaptor;
     }
 }

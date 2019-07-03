@@ -15,6 +15,8 @@ import com.hartwig.pipeline.execution.vm.OutputFile;
 import com.hartwig.pipeline.execution.vm.OutputUpload;
 import com.hartwig.pipeline.execution.vm.ResourceDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.pipeline.execution.vm.VmDirectories;
+import com.hartwig.pipeline.execution.vm.unix.UnzipToDirectoryCommand;
 import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.RuntimeBucket;
@@ -106,6 +108,8 @@ public class SomaticCaller {
                 .andThen(new SagePonFilter())
                 .apply(SubStageInputOutput.of(tumorSampleName, OutputFile.empty(), bash));
 
+        String snpEffDb = snpEffResourceDownload.find("zip");
+        bash.addCommand(new UnzipToDirectoryCommand(VmDirectories.RESOURCES, snpEffDb));
         SubStageInputOutput mergedOutput = new Strelka(referenceBamPath,
                 tumorBamPath,
                 strelkaConfigDownload.find("ini"),
