@@ -9,7 +9,7 @@ import org.junit.Test;
 
 public class AnnotateUntemplatedSequenceTest implements CommonEntities {
     private String className;
-    private static final String OUTFILE = "/data/output/sample12345678R_sample12345678T.annotated.vcf";
+    private static final String OUTFILE = "/data/output/sample12345678T.gridss.unfiltered.vcf";
     private AnnotateUntemplatedSequence command;
     private String inputVcf;
 
@@ -17,7 +17,7 @@ public class AnnotateUntemplatedSequenceTest implements CommonEntities {
     public void setup() {
         className = "gridss.AnnotateUntemplatedSequence";
         inputVcf = "/intermediate.vcf";
-        command = new AnnotateUntemplatedSequence(inputVcf, REFERENCE_GENOME, JOINT_NAME);
+        command = new AnnotateUntemplatedSequence(inputVcf, REFERENCE_GENOME, TUMOR_SAMPLE);
     }
 
     @Test
