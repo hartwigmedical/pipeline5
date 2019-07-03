@@ -22,7 +22,7 @@ public class ResultsPublisherProvider {
     public ResultsPublisher get() {
         RCloneCloudCopy cloudCopy = new RCloneCloudCopy(arguments.rclonePath(),
                 arguments.rcloneGcpRemote(),
-                arguments.rcloneS3Remote(),
+                arguments.rcloneS3RemoteUpload(),
                 ProcessBuilder::new);
 
         SbpS3 sbpS3 = new SbpS3(S3.newClient(arguments.sbpS3Url()));

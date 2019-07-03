@@ -36,7 +36,8 @@ public class CommandLineOptions {
     private static final String VERBOSE_CLOUD_SDK_FLAG = "verbose_cloud_sdk";
     private static final String RCLONE_PATH_FLAG = "rclone_path";
     private static final String RCLONE_GCP_REMOTE_FLAG = "rclone_gcp_remote";
-    private static final String RCLONE_S3_REMOTE_FLAG = "rclone_s3_remote";
+    private static final String RCLONE_S3_REMOTE_DOWNLOAD_FLAG = "rclone_s3_remote_download";
+    private static final String RCLONE_S3_REMOTE_UPLOAD_FLAG = "rclone_s3_remote_upload";
     private static final String RUN_METRICS_FLAG = "run_bam_metrics";
     private static final String PROFILE_FLAG = "profile";
     private static final String SAMPLE_ID_FLAG = "sample_id";
@@ -91,7 +92,8 @@ public class CommandLineOptions {
                 .addOption(gsutilPath())
                 .addOption(rclonePath())
                 .addOption(rcloneGcpRemote())
-                .addOption(rcloneS3Remote())
+                .addOption(rcloneS3RemoteDownload())
+                .addOption(rcloneS3RemoteUpload())
                 .addOption(optionWithBooleanArg(RUN_METRICS_FLAG, "Run wgs metricsOutputFile after BAM creation"))
                 .addOption(optionWithBooleanArg(RUN_ALIGNER_FLAG, "Run the aligner on Google Dataproc"))
                 .addOption(optionWithBooleanArg(RUN_GERMLINE_CALLER_FLAG, "Run germline calling (gatk) on a VM"))
@@ -150,11 +152,15 @@ public class CommandLineOptions {
     }
 
     private static Option rcloneGcpRemote() {
-        return optionWithArg(RCLONE_GCP_REMOTE_FLAG, "RClone remote to use for Google Storage (upload fastqs and download bams)");
+        return optionWithArg(RCLONE_GCP_REMOTE_FLAG, "RClone remote to use for Google Storage (upload fastqs and download outputs)");
     }
 
-    private static Option rcloneS3Remote() {
-        return optionWithArg(RCLONE_S3_REMOTE_FLAG, "RClone remote to use for AWS " + "(download fastqs and upload bams)");
+    private static Option rcloneS3RemoteDownload() {
+        return optionWithArg(RCLONE_S3_REMOTE_DOWNLOAD_FLAG, "RClone remote to use for AWS (download fastqs)");
+    }
+
+    private static Option rcloneS3RemoteUpload() {
+        return optionWithArg(RCLONE_S3_REMOTE_UPLOAD_FLAG, "RClone remote to use for AWS (upload outputs)");
     }
 
     private static Option gsutilPath() {
@@ -245,7 +251,8 @@ public class CommandLineOptions {
                     .upload(booleanOptionWithDefault(commandLine, UPLOAD_FLAG, defaults.upload()))
                     .rclonePath(commandLine.getOptionValue(RCLONE_PATH_FLAG, defaults.rclonePath()))
                     .rcloneGcpRemote(commandLine.getOptionValue(RCLONE_GCP_REMOTE_FLAG, defaults.rcloneGcpRemote()))
-                    .rcloneS3Remote(commandLine.getOptionValue(RCLONE_S3_REMOTE_FLAG, defaults.rcloneS3Remote()))
+                    .rcloneS3RemoteDownload(commandLine.getOptionValue(RCLONE_S3_REMOTE_DOWNLOAD_FLAG, defaults.rcloneS3RemoteDownload()))
+                    .rcloneS3RemoteUpload(commandLine.getOptionValue(RCLONE_S3_REMOTE_UPLOAD_FLAG, defaults.rcloneS3RemoteUpload()))
                     .runBamMetrics(booleanOptionWithDefault(commandLine, RUN_METRICS_FLAG, defaults.runBamMetrics()))
                     .runAligner(booleanOptionWithDefault(commandLine, RUN_ALIGNER_FLAG, defaults.runAligner()))
                     .runSnpGenotyper(booleanOptionWithDefault(commandLine, RUN_SNP_GENOTYPER_FLAG, defaults.runSnpGenotyper()))

@@ -75,7 +75,9 @@ public interface Arguments {
 
     String rcloneGcpRemote();
 
-    String rcloneS3Remote();
+    String rcloneS3RemoteDownload();
+
+    String rcloneS3RemoteUpload();
 
     String resourceBucket();
 
@@ -115,7 +117,8 @@ public interface Arguments {
                     .mode(DEFAULT_MODE)
                     .rclonePath(DEFAULT_PRODUCTION_RCLONE_PATH)
                     .rcloneGcpRemote(DEFAULT_PRODUCTION_RCLONE_GCP_REMOTE)
-                    .rcloneS3Remote(DEFAULT_PRODUCTION_RCLONE_S3_REMOTE)
+                    .rcloneS3RemoteDownload(DEFAULT_PRODUCTION_RCLONE_S3_REMOTE)
+                    .rcloneS3RemoteUpload(DEFAULT_PRODUCTION_RCLONE_S3_REMOTE)
                     .region(DEFAULT_PRODUCTION_REGION)
                     .project(DEFAULT_PRODUCTION_PROJECT)
                     .version(DEFAULT_PRODUCTION_VERSION)
@@ -168,7 +171,8 @@ public interface Arguments {
                     .runTertiary(true)
                     .runStructuralCaller(true)
                     .rclonePath(NOT_APPLICABLE)
-                    .rcloneS3Remote(NOT_APPLICABLE)
+                    .rcloneS3RemoteDownload(NOT_APPLICABLE)
+                    .rcloneS3RemoteUpload(NOT_APPLICABLE)
                     .rcloneGcpRemote(NOT_APPLICABLE)
                     .sbpS3Url(EMPTY)
                     .sbpApiUrl(NOT_APPLICABLE)

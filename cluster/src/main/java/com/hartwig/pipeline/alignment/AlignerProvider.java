@@ -107,7 +107,7 @@ public abstract class AlignerProvider {
             SampleSource sampleSource = new SBPS3SampleSource(s3, new SBPSampleReader(sbpRestApi));
             CloudCopy cloudCopy = new RCloneCloudCopy(getArguments().rclonePath(),
                     getArguments().rcloneGcpRemote(),
-                    getArguments().rcloneS3Remote(),
+                    getArguments().rcloneS3RemoteDownload(),
                     ProcessBuilder::new);
             SampleUpload sampleUpload = new CloudSampleUpload(new SBPS3FileSource(), cloudCopy);
             return new Aligner(getArguments(),
