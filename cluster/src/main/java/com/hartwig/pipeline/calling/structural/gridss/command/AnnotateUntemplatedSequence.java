@@ -8,10 +8,10 @@ public class AnnotateUntemplatedSequence implements GridssCommand {
     private final String referenceGenome;
     private final String outputVcf;
 
-    public AnnotateUntemplatedSequence(final String inputVcf, final String referenceGenome, final String jointName) {
+    public AnnotateUntemplatedSequence(final String inputVcf, final String referenceGenome, final String tumorSampleName) {
         this.inputVcf = inputVcf;
         this.referenceGenome = referenceGenome;
-        this.outputVcf = VmDirectories.outputFile(jointName + ".annotated.vcf");
+        this.outputVcf = VmDirectories.outputFile(tumorSampleName + ".gridss.unfiltered.vcf");
     }
 
     public String resultantVcf() {

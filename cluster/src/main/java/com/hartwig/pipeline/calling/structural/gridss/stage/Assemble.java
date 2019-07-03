@@ -28,6 +28,8 @@ public class Assemble {
         String svMetrics();
 
         List<BashCommand> commands();
+
+        String workingDir();
     }
 
     public Assemble(final CommandFactory factory, final GridssToBashCommandConverter converter) {
@@ -51,6 +53,7 @@ public class Assemble {
                         converter.convert(clipsToReads)))
                 .assemblyBam(assembleSvOutputBam)
                 .svMetrics(metrics.outputBaseFilename())
+                .workingDir(gridssWorkingDirForAssembleBam)
                 .build();
     }
 }

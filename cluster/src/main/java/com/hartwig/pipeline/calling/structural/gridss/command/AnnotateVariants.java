@@ -12,13 +12,13 @@ public class AnnotateVariants implements GridssCommand {
     private final String referenceGenome;
 
     public AnnotateVariants(final String referenceBam, final String tumorBam, final String assemblyBam, final String inputVcf,
-            final String referenceGenome, final String jointName) {
+            final String referenceGenome, final String tumorSampleName) {
         this.sampleBam = referenceBam;
         this.tumorBam = tumorBam;
         this.assemblyBam = assemblyBam;
         this.inputVcf = inputVcf;
         this.referenceGenome = referenceGenome;
-        this.outputVcf = VmDirectories.outputFile(jointName + ".annotated_variants.vcf");
+        this.outputVcf = VmDirectories.outputFile(tumorSampleName + ".annotated_variants.vcf");
     }
 
     public String resultantVcf() {

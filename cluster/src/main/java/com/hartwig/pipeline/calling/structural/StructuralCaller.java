@@ -4,7 +4,6 @@ import static java.lang.String.format;
 import static java.util.Arrays.asList;
 
 import java.io.File;
-import java.util.function.Predicate;
 
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
@@ -34,6 +33,7 @@ import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
+import com.hartwig.pipeline.report.ZippedVcfAndIndexComponent;
 import com.hartwig.pipeline.resource.Resource;
 import com.hartwig.pipeline.resource.ResourceNames;
 import com.hartwig.pipeline.trace.StageTrace;
@@ -125,10 +125,9 @@ public class StructuralCaller {
                         assemblyResult.assemblyBam(),
                         calling.resultantVcf(),
                         referenceGenomePath,
-                        jointName);
+                        tumorSampleName);
 
-        Filter.FilterResult filterResult =
-                new Filter().initialise(annotationResult.annotatedVcf(), basename(tumorBam.getLocalTargetPath()));
+        Filter.FilterResult filterResult = new Filter().initialise(annotationResult.annotatedVcf(), tumorSampleName);
 
         bash.addCommands(preprocessedRefSample.commands())
                 .addCommands(preprocessedTumorSample.commands())
@@ -149,15 +148,30 @@ public class StructuralCaller {
                 .maybeFullVcf(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path(basename(filterResult.fullVcf()))))
                 .maybeFullVcfIndex(GoogleStorageLocation.of(runtimeBucket.name(),
                         resultsDirectory.path(basename(filterResult.fullVcf() + ".tbi"))))
-                .addReportComponents(new EntireOutputComponent(runtimeBucket, Folder.from(), NAMESPACE, resultsDirectory, filterBams()))
+                .addReportComponents(new ZippedVcfAndIndexComponent(runtimeBucket,
+                        NAMESPACE,
+                        Folder.from(),
+                        basename(annotationResult.annotatedVcf()),
+                        basename(annotationResult.annotatedVcf()),
+                        resultsDirectory))
+                .addReportComponents(new ZippedVcfAndIndexComponent(runtimeBucket,
+                        NAMESPACE,
+                        Folder.from(),
+                        basename(filterResult.fullVcf()),
+                        basename(filterResult.fullVcf()),
+                        resultsDirectory))
+                .addReportComponents(new ZippedVcfAndIndexComponent(runtimeBucket,
+                        NAMESPACE,
+                        Folder.from(),
+                        basename(filterResult.filteredVcf()),
+                        basename(filterResult.filteredVcf()),
+                        resultsDirectory))
+                .addReportComponents(new EntireOutputComponent(runtimeBucket,
+                        Folder.from(),
+                        NAMESPACE,
+                        resultsDirectory,
+                        s -> !s.contains("working/") || s.endsWith("bam") || s.endsWith("bai")))
                 .build();
-    }
-
-    private Predicate<String> filterBams() {
-        // TODO Replace with a function based off objects? (assemblyResult.assemblyBam etc)
-        return ((Predicate<String>) s -> s.endsWith("assembly.bam")).or(s -> s.endsWith("assembly.bai"))
-                .or(s -> s.endsWith("sv.bam"))
-                .or(s -> s.endsWith("sv.bam.bai"));
     }
 
     private static String basename(String filename) {
