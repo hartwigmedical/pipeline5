@@ -39,7 +39,8 @@ class SbpS3 {
 
     void ensureBucketExists(String bucketName) {
         if (!s3Client.doesBucketExistV2(bucketName)) {
-            s3Client.createBucket(bucketName);
+            throw new IllegalStateException("Output bucket [%s] did not exist in S3. Check that the bucket is correctly named and exists in"
+                    + "the target S3 instance.");
         }
     }
 }
