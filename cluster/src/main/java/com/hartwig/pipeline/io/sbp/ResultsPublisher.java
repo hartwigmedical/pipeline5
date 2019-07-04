@@ -45,6 +45,7 @@ public class ResultsPublisher {
                         format("Object gs://%s/%s has a null MD5; investigate in Google Cloud", sourceBucket.getName(), blob.getName());
                 LOGGER.error(message);
             } else {
+                ContentTypeCorrection.get().apply(blob);
                 CloudFile dest = CloudFile.builder()
                         .provider("s3")
                         .bucket(sbpBucket)
