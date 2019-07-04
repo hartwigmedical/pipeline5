@@ -3,7 +3,8 @@ package com.hartwig.pipeline.io.sbp;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.io.RCloneCloudCopy;
+import com.hartwig.pipeline.io.CloudCopy;
+import com.hartwig.pipeline.io.GSUtilCloudCopy;
 import com.hartwig.pipeline.io.S3;
 
 public class ResultsPublisherProvider {
@@ -20,10 +21,7 @@ public class ResultsPublisherProvider {
     }
 
     public ResultsPublisher get() {
-        RCloneCloudCopy cloudCopy = new RCloneCloudCopy(arguments.rclonePath(),
-                arguments.rcloneGcpRemote(),
-                arguments.rcloneS3RemoteUpload(),
-                ProcessBuilder::new);
+        CloudCopy cloudCopy = new GSUtilCloudCopy(arguments.cloudSdkPath());
 
         SbpS3 sbpS3 = new SbpS3(S3.newClient(arguments.sbpS3Url()));
         SBPRestApi sbpRestApi = SBPRestApi.newInstance(arguments);
