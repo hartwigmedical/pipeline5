@@ -65,6 +65,10 @@ def start_kubernetes_job(args):
                                 kubernetes.client.V1EnvVar(
                                     name='READER_ACP_ACL_IDS',
                                     value='0403732075957f94c7baea5ad60b233f'
+                                ),
+                                kubernetes.client.V1EnvVar(
+                                    name='BOTO_PATH',
+                                    value='/mnt/boto-config/boto.cfg'
                                 )
                             ],
                             volume_mounts=[
@@ -79,6 +83,10 @@ def start_kubernetes_job(args):
                                 kubernetes.client.V1VolumeMount(
                                     name='rclone-config',
                                     mount_path='/root/.config/rclone'
+                                ),
+                                kubernetes.client.V1VolumeMount(
+                                    name='boto-config',
+                                    mount_path='/mnt/boto-config'
                                 )
                             ],
                             resources=kubernetes.client.V1ResourceRequirements(
@@ -105,6 +113,12 @@ def start_kubernetes_job(args):
                             name='rclone-config',
                             secret=kubernetes.client.V1SecretVolumeSource(
                                 secret_name='rclone-config'
+                            )
+                        ),
+                        kubernetes.client.V1Volume(
+                            name='boto-config',
+                            secret=kubernetes.client.V1ConfigMapVolumeSource(
+                                secret_name='boto-config'
                             )
                         )
                     ]
