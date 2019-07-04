@@ -7,11 +7,11 @@ PROD_RESOURCES_BUCKET="common-resources-prod"
 DEV_TOOLS_BUCKET="common-tools"
 DEV_RESOURCES_BUCKET="common-resources"
 
-gsutil rm -rf gs://$PROD_TOOLS_BUCKET
+gsutil rm -r gs://$PROD_TOOLS_BUCKET/**
 gsutil mb -l europe-west4 -p $PROD_PROJECT gs://$PROD_TOOLS_BUCKET
 gsutil -m cp -r gs://$DEV_TOOLS_BUCKET/* gs://$PROD_TOOLS_BUCKET
 
-gsutil rm -rf gs://$PROD_RESOURCES_BUCKET
+gsutil rm -rf gs://$PROD_RESOURCES_BUCKET/**
 gsutil mb -l europe-west4 -p $PROD_PROJECT gs://$PROD_RESOURCES_BUCKET
 gsutil -m cp -r gs://$DEV_RESOURCES_BUCKET/* gs://$PROD_RESOURCES_BUCKET
 
