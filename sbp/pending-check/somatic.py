@@ -117,8 +117,8 @@ def start_kubernetes_job(args):
                         ),
                         kubernetes.client.V1Volume(
                             name='boto-config',
-                            secret=kubernetes.client.V1ConfigMapVolumeSource(
-                                secret_name='boto-config'
+                            config_map=kubernetes.client.V1ConfigMapVolumeSource(
+                                name='boto-config'
                             )
                         )
                     ]
