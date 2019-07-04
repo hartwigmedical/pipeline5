@@ -64,7 +64,7 @@ public class ResultsPublisher {
         }
 
         for (SourceDestPair pair : allFiles) {
-            cloudCopy.copy(toUrl(pair.source), toUrl(pair.dest));
+            cloudCopy.copy(pair.source.toUrl(), pair.dest.toUrl());
             sbpS3.setAclsOn((pair.dest.bucket()), pair.dest.path());
             SbpFileMetadata metaData = ImmutableSbpFileMetadata.builder()
                     .directory(extractDirectoryNameForSbp(pair.dest.path()))
@@ -80,10 +80,6 @@ public class ResultsPublisher {
     private String extractDirectoryNameForSbp(String fullDestFilePath) {
         String parent = new File(fullDestFilePath.substring(fullDestFilePath.indexOf("/") + 1, fullDestFilePath.length() - 1)).getParent();
         return parent != null ? parent : "";
-    }
-
-    private String toUrl(CloudFile cloudFile) {
-        return format("%s://%s/%s", cloudFile.provider(), cloudFile.bucket(), cloudFile.path());
     }
 
     private String convertMd5ToSbpFormat(String originalMd5) {
