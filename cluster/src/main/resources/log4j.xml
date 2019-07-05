@@ -19,6 +19,9 @@
         </layout>
     </appender>
 
+    <logger name="com.amazonaws" >
+        <level value="DEBUG" />
+    </logger>
     <logger name="com.hartwig">
         <level value="INFO"/>
     </logger>
