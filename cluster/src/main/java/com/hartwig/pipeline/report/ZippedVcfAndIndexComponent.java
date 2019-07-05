@@ -29,7 +29,7 @@ public class ZippedVcfAndIndexComponent implements ReportComponent {
         runtimeBucket.copyOutOf(resultsDirectory.path(sourceVcfFileName),
                 reportBucket.getName(),
                 String.format("%s/%s%s/%s", setName, folder.name(), namespace, targetFileName));
-        runtimeBucket.copyOutOf(resultsDirectory.path(sourceVcfFileName),
+        runtimeBucket.copyOutOf(resultsDirectory.path(sourceVcfFileName + ".tbi"),
                 reportBucket.getName(),
                 String.format("%s/%s%s/%s", setName, folder.name(), namespace, targetFileName + ".tbi"));
     }
