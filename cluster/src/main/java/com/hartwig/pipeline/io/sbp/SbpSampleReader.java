@@ -19,17 +19,17 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SBPSampleReader {
+    public class SbpSampleReader {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SBPSampleReader.class);
-    private final SBPRestApi sbpRestApi;
+    private static final Logger LOGGER = LoggerFactory.getLogger(SbpSampleReader.class);
+    private final SbpRestApi sbpRestApi;
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     static {
         OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
-    public SBPSampleReader(final SBPRestApi sbpRestApi) {
+    public SbpSampleReader(final SbpRestApi sbpRestApi) {
         this.sbpRestApi = sbpRestApi;
     }
 
@@ -60,7 +60,7 @@ public class SBPSampleReader {
     private String extract(final int sampleId, final List<FastQMetadata> fastqJson, final Function<String, String> stringFunction) {
         return fastqJson.stream()
                 .map(FastQMetadata::name_r1)
-                .map(SBPSampleReader::removePath)
+                .map(SbpSampleReader::removePath)
                 .map(stringFunction)
                 .distinct()
                 .findFirst()
@@ -76,7 +76,7 @@ public class SBPSampleReader {
 
     @NotNull
     private Sample sample(final String sampleName, final String barcode, final List<FastQMetadata> fastqJson) {
-        List<Lane> lanes = fastqJson.stream().filter(SBPSampleReader::qcPass).map(SBPSampleReader::lane).collect(Collectors.toList());
+        List<Lane> lanes = fastqJson.stream().filter(SbpSampleReader::qcPass).map(SbpSampleReader::lane).collect(Collectors.toList());
         return Sample.builder("", sampleName, barcode).addAllLanes(lanes).build();
     }
 

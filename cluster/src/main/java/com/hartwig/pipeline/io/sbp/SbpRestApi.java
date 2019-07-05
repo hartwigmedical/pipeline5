@@ -20,16 +20,16 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SBPRestApi {
+public class SbpRestApi {
 
     private final static ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    private final static Logger LOGGER = LoggerFactory.getLogger(SBPRestApi.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(SbpRestApi.class);
     private static final String SAMPLES = "samples";
     private static final String RUNS = "runs";
     private static final String FILES = "files";
     private final WebTarget target;
 
-    private SBPRestApi(final WebTarget target) {
+    private SbpRestApi(final WebTarget target) {
         this.target = target;
     }
 
@@ -129,9 +129,9 @@ public class SBPRestApi {
                 target.getUri()));
     }
 
-    public static SBPRestApi newInstance(Arguments arguments) {
+    public static SbpRestApi newInstance(Arguments arguments) {
         ClientConfig clientConfig = new ClientConfig();
         clientConfig.property(HttpUrlConnectorProvider.SET_METHOD_WORKAROUND, true);
-        return new SBPRestApi(ClientBuilder.newBuilder().withConfig(clientConfig).build().target(arguments.sbpApiUrl()));
+        return new SbpRestApi(ClientBuilder.newBuilder().withConfig(clientConfig).build().target(arguments.sbpApiUrl()));
     }
 }

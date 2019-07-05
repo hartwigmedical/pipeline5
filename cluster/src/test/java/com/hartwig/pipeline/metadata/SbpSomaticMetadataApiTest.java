@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.io.sbp.ResultsPublisher;
-import com.hartwig.pipeline.io.sbp.SBPRestApi;
+import com.hartwig.pipeline.io.sbp.SbpRestApi;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -23,13 +23,13 @@ public class SbpSomaticMetadataApiTest {
 
     private static final int SET_ID = 1;
     private SomaticMetadataApi victim;
-    private SBPRestApi sbpRestApi;
+    private SbpRestApi sbpRestApi;
     private ResultsPublisher resultsPublisher;
     private SomaticRunMetadata somaticRunMetadata;
 
     @Before
     public void setUp() throws Exception {
-        sbpRestApi = mock(SBPRestApi.class);
+        sbpRestApi = mock(SbpRestApi.class);
         resultsPublisher = mock(ResultsPublisher.class);
         somaticRunMetadata = mock(SomaticRunMetadata.class);
         victim = new SbpSomaticMetadataApi(Arguments.testDefaults(),

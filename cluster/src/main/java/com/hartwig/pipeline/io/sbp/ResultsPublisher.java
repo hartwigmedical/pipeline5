@@ -22,11 +22,11 @@ import org.slf4j.LoggerFactory;
 public class ResultsPublisher {
     private final CloudCopy cloudCopy;
     private final SbpS3 sbpS3;
-    private final SBPRestApi sbpApi;
+    private final SbpRestApi sbpApi;
     private final Bucket sourceBucket;
     private final static Logger LOGGER = LoggerFactory.getLogger(ResultsPublisher.class);
 
-    ResultsPublisher(final CloudCopy cloudCopy, final SbpS3 sbpS3, final SBPRestApi sbpApi, Bucket sourceBucket) {
+    ResultsPublisher(final CloudCopy cloudCopy, final SbpS3 sbpS3, final SbpRestApi sbpApi, Bucket sourceBucket) {
         this.cloudCopy = cloudCopy;
         this.sbpS3 = sbpS3;
         this.sbpApi = sbpApi;

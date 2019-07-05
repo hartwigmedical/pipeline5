@@ -9,7 +9,7 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.hartwig.patient.Lane;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.io.sbp.SBPSampleReader;
+import com.hartwig.pipeline.io.sbp.SbpSampleReader;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Test;
@@ -21,7 +21,7 @@ public class SBPS3SampleSourceTest {
 
     @Test
     public void requestMadeToS3ForContentLength() {
-        SBPSampleReader sbpSampleReader = mock(SBPSampleReader.class);
+        SbpSampleReader sbpSampleReader = mock(SbpSampleReader.class);
         AmazonS3 s3 = mock(AmazonS3.class);
         SBPS3SampleSource victim = new SBPS3SampleSource(s3, sbpSampleReader);
 

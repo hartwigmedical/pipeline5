@@ -26,13 +26,13 @@ public class SBPSampleReaderTest {
     private static final String FASTQ_JSON_ALL_QC_FAILED = "sbp_api/get_fastq_all_qc_failed.json";
     private static final String FASTQ_JSON_SUBDIRECTORIES = "sbp_api/get_fastq_subdirectories.json";
     private static final String SAMPLE_JSON = "sbp_api/get_sample.json";
-    private SBPRestApi sbpRestApi;
-    private SBPSampleReader victim;
+    private SbpRestApi sbpRestApi;
+    private SbpSampleReader victim;
 
     @Before
     public void setUp() throws Exception {
-        sbpRestApi = mock(SBPRestApi.class);
-        victim = new SBPSampleReader(sbpRestApi);
+        sbpRestApi = mock(SbpRestApi.class);
+        victim = new SbpSampleReader(sbpRestApi);
         when(sbpRestApi.getSample(EXISTS)).thenReturn(testJson(SAMPLE_JSON));
     }
 

@@ -1,7 +1,7 @@
 package com.hartwig.pipeline.metadata;
 
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.io.sbp.SBPRestApi;
+import com.hartwig.pipeline.io.sbp.SbpRestApi;
 
 public class SampleMetadataApiProvider {
 
@@ -12,7 +12,7 @@ public class SampleMetadataApiProvider {
     }
 
     public SampleMetadataApi get() {
-        return arguments.sbpApiSampleId().<SampleMetadataApi>map(sbpSampleId -> new SbpSampleMetadataApi(SBPRestApi.newInstance(arguments),
+        return arguments.sbpApiSampleId().<SampleMetadataApi>map(sbpSampleId -> new SbpSampleMetadataApi(SbpRestApi.newInstance(arguments),
                 sbpSampleId)).orElse(new LocalSampleMetadataApi(arguments.sampleId()));
     }
 

@@ -27,7 +27,7 @@ public class ResultsPublisherProvider {
                 ProcessBuilder::new);
 
         SbpS3 sbpS3 = new SbpS3(S3.newClient(arguments.sbpS3Url()));
-        SBPRestApi sbpRestApi = SBPRestApi.newInstance(arguments);
+        SbpRestApi sbpRestApi = SbpRestApi.newInstance(arguments);
 
         try {
             Bucket sourceBucket = storage.get(arguments.patientReportBucket());

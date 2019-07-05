@@ -11,7 +11,7 @@ import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.RunTag;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.io.sbp.ResultsPublisher;
-import com.hartwig.pipeline.io.sbp.SBPRestApi;
+import com.hartwig.pipeline.io.sbp.SbpRestApi;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,11 +26,11 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
     private final static Logger LOGGER = LoggerFactory.getLogger(SomaticMetadataApi.class);
     private final Arguments arguments;
     private final int sbpRunId;
-    private final SBPRestApi sbpRestApi;
+    private final SbpRestApi sbpRestApi;
     private final ResultsPublisher publisher;
     private final LocalDateTime now;
 
-    SbpSomaticMetadataApi(final Arguments arguments, final int sbpRunId, final SBPRestApi sbpRestApi, final ResultsPublisher publisher,
+    SbpSomaticMetadataApi(final Arguments arguments, final int sbpRunId, final SbpRestApi sbpRestApi, final ResultsPublisher publisher,
             final LocalDateTime now) {
         this.arguments = arguments;
         this.sbpRunId = sbpRunId;

@@ -7,7 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.io.sbp.SBPRestApi;
+import com.hartwig.pipeline.io.sbp.SbpRestApi;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -16,12 +16,12 @@ import org.mockito.ArgumentCaptor;
 public class SbpSampleMetadataApiTest {
 
     private static final int SAMPLE_ID = 1;
-    private SBPRestApi sbpRestApi;
+    private SbpRestApi sbpRestApi;
     private SbpSampleMetadataApi victim;
 
     @Before
     public void setUp() throws Exception {
-        sbpRestApi = mock(SBPRestApi.class);
+        sbpRestApi = mock(SbpRestApi.class);
         victim = new SbpSampleMetadataApi(sbpRestApi, SAMPLE_ID);
     }
 

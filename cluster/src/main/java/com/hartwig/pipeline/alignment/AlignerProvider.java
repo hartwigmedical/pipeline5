@@ -17,9 +17,9 @@ import com.hartwig.pipeline.io.RCloneCloudCopy;
 import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.S3;
 import com.hartwig.pipeline.io.SampleUpload;
-import com.hartwig.pipeline.io.sbp.SBPRestApi;
+import com.hartwig.pipeline.io.sbp.SbpRestApi;
 import com.hartwig.pipeline.io.sbp.SBPS3FileSource;
-import com.hartwig.pipeline.io.sbp.SBPSampleReader;
+import com.hartwig.pipeline.io.sbp.SbpSampleReader;
 import com.hartwig.pipeline.io.sources.FileSystemSampleSource;
 import com.hartwig.pipeline.io.sources.GoogleStorageSampleSource;
 import com.hartwig.pipeline.io.sources.SBPS3SampleSource;
@@ -102,9 +102,9 @@ public abstract class AlignerProvider {
         Aligner wireUp(GoogleCredentials credentials, Storage storage, AlignmentOutputStorage alignmentOutputStorage,
                 ClusterOptimizer optimizer, GoogleDataproc dataproc, ResultsDirectory resultsDirectory)
                 throws Exception {
-            SBPRestApi sbpRestApi = SBPRestApi.newInstance(getArguments());
+            SbpRestApi sbpRestApi = SbpRestApi.newInstance(getArguments());
             AmazonS3 s3 = S3.newClient(getArguments().sbpS3Url());
-            SampleSource sampleSource = new SBPS3SampleSource(s3, new SBPSampleReader(sbpRestApi));
+            SampleSource sampleSource = new SBPS3SampleSource(s3, new SbpSampleReader(sbpRestApi));
             CloudCopy cloudCopy = new RCloneCloudCopy(getArguments().rclonePath(),
                     getArguments().rcloneGcpRemote(),
                     getArguments().rcloneS3RemoteDownload(),

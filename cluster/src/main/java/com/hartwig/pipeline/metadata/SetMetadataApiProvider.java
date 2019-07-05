@@ -6,7 +6,7 @@ import java.time.ZoneId;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.io.sbp.ResultsPublisherProvider;
-import com.hartwig.pipeline.io.sbp.SBPRestApi;
+import com.hartwig.pipeline.io.sbp.SbpRestApi;
 
 public class SetMetadataApiProvider {
 
@@ -25,7 +25,7 @@ public class SetMetadataApiProvider {
     public SomaticMetadataApi get() {
         return arguments.sbpApiRunId().<SomaticMetadataApi>map(setId -> new SbpSomaticMetadataApi(arguments,
                 setId,
-                SBPRestApi.newInstance(arguments),
+                SbpRestApi.newInstance(arguments),
                 ResultsPublisherProvider.from(arguments, storage).get(),
                 LocalDateTime.now(ZoneId.of("UTC")))).orElse(new LocalSetMetadataApi(arguments));
     }

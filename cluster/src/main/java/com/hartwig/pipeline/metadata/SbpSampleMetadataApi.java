@@ -6,7 +6,7 @@ import static java.lang.String.valueOf;
 import java.io.IOException;
 
 import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.io.sbp.SBPRestApi;
+import com.hartwig.pipeline.io.sbp.SbpRestApi;
 
 public class SbpSampleMetadataApi implements SampleMetadataApi {
 
@@ -15,10 +15,10 @@ public class SbpSampleMetadataApi implements SampleMetadataApi {
     static final String DONE_PIPELINE_V5 = "Done_PipelineV5";
     static final String FAILED_PIPELINE_V5 = "Failed_PipelineV5";
 
-    private final SBPRestApi sbpRestApi;
+    private final SbpRestApi sbpRestApi;
     private final int sampleId;
 
-    SbpSampleMetadataApi(final SBPRestApi sbpRestApi, final int sampleId) {
+    SbpSampleMetadataApi(final SbpRestApi sbpRestApi, final int sampleId) {
         this.sbpRestApi = sbpRestApi;
         this.sampleId = sampleId;
     }
