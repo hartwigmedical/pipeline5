@@ -15,7 +15,7 @@ import com.hartwig.pipeline.testsupport.TestInputs;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-public class SBPS3SampleSourceTest {
+public class SbpS3SampleSourceTest {
 
     private static final int SAMPLE_ID = 1;
 
@@ -23,7 +23,7 @@ public class SBPS3SampleSourceTest {
     public void requestMadeToS3ForContentLength() {
         SbpSampleReader sbpSampleReader = mock(SbpSampleReader.class);
         AmazonS3 s3 = mock(AmazonS3.class);
-        SBPS3SampleSource victim = new SBPS3SampleSource(s3, sbpSampleReader);
+        SbpS3SampleSource victim = new SbpS3SampleSource(s3, sbpSampleReader);
 
         ArgumentCaptor<String> bucketCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> objectCaptor = ArgumentCaptor.forClass(String.class);

@@ -18,11 +18,11 @@ import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.io.S3;
 import com.hartwig.pipeline.io.SampleUpload;
 import com.hartwig.pipeline.io.sbp.SbpRestApi;
-import com.hartwig.pipeline.io.sbp.SBPS3FileSource;
+import com.hartwig.pipeline.io.sbp.SbpS3FileSource;
 import com.hartwig.pipeline.io.sbp.SbpSampleReader;
 import com.hartwig.pipeline.io.sources.FileSystemSampleSource;
 import com.hartwig.pipeline.io.sources.GoogleStorageSampleSource;
-import com.hartwig.pipeline.io.sources.SBPS3SampleSource;
+import com.hartwig.pipeline.io.sources.SbpS3SampleSource;
 import com.hartwig.pipeline.io.sources.SampleSource;
 import com.hartwig.support.hadoop.Hadoop;
 
@@ -58,7 +58,7 @@ public abstract class AlignerProvider {
     }
 
     public static AlignerProvider from(GoogleCredentials credentials, Storage storage, Arguments arguments) throws Exception {
-        return arguments.sbpApiSampleId().<AlignerProvider>map(id -> new SBPBootstrapProvider(credentials, storage, arguments, id)).orElse(
+        return arguments.sbpApiSampleId().<AlignerProvider>map(id -> new SbpBootstrapProvider(credentials, storage, arguments, id)).orElse(
                 new LocalBootstrapProvider(credentials, storage, arguments));
     }
 
@@ -88,11 +88,11 @@ public abstract class AlignerProvider {
         }
     }
 
-    static class SBPBootstrapProvider extends AlignerProvider {
+    static class SbpBootstrapProvider extends AlignerProvider {
 
         private final int sbpSampleId;
 
-        private SBPBootstrapProvider(final GoogleCredentials credentials, final Storage storage, final Arguments arguments,
+        private SbpBootstrapProvider(final GoogleCredentials credentials, final Storage storage, final Arguments arguments,
                 final int sbpSampleId) {
             super(credentials, storage, arguments);
             this.sbpSampleId = sbpSampleId;
@@ -104,12 +104,12 @@ public abstract class AlignerProvider {
                 throws Exception {
             SbpRestApi sbpRestApi = SbpRestApi.newInstance(getArguments());
             AmazonS3 s3 = S3.newClient(getArguments().sbpS3Url());
-            SampleSource sampleSource = new SBPS3SampleSource(s3, new SbpSampleReader(sbpRestApi));
+            SampleSource sampleSource = new SbpS3SampleSource(s3, new SbpSampleReader(sbpRestApi));
             CloudCopy cloudCopy = new RCloneCloudCopy(getArguments().rclonePath(),
                     getArguments().rcloneGcpRemote(),
                     getArguments().rcloneS3RemoteDownload(),
                     ProcessBuilder::new);
-            SampleUpload sampleUpload = new CloudSampleUpload(new SBPS3FileSource(), cloudCopy);
+            SampleUpload sampleUpload = new CloudSampleUpload(new SbpS3FileSource(), cloudCopy);
             return new Aligner(getArguments(),
                     storage,
                      sampleSource,

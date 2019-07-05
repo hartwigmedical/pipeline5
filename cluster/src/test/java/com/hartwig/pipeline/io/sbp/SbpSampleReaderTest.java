@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;
 
-public class SBPSampleReaderTest {
+public class SbpSampleReaderTest {
 
     private static final int DOESNT_EXIST = 1;
     private static final int EXISTS = 64;

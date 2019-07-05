@@ -11,14 +11,14 @@ import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SBPS3SampleSource implements SampleSource {
+public class SbpS3SampleSource implements SampleSource {
 
     private final Logger LOGGER = LoggerFactory.getLogger(SampleSource.class);
 
     private final AmazonS3 s3;
     private final SbpSampleReader sbpSampleReader;
 
-    public SBPS3SampleSource(final AmazonS3 s3, final SbpSampleReader sbpSampleReader) {
+    public SbpS3SampleSource(final AmazonS3 s3, final SbpSampleReader sbpSampleReader) {
         this.s3 = s3;
         this.sbpSampleReader = sbpSampleReader;
     }
