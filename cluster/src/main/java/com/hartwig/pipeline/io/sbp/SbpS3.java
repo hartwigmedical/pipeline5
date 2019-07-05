@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.io.sbp;
 
+import java.util.Map;
+
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.AccessControlList;
 import com.amazonaws.services.s3.model.CanonicalGrantee;
@@ -9,29 +11,33 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 class SbpS3 {
-    private static final String READERS_ID_ENV = "READER_ACL_IDS";
+    static final String READERS_ID_ENV = "READER_ACL_IDS";
     private static final String READERS_ACP_ID_ENV = "READER_ACP_ACL_IDS";
     private static final Logger LOGGER = LoggerFactory.getLogger(SbpS3.class);
     private final AmazonS3 s3Client;
+    private Map<String, String> environment;
 
-    SbpS3(final AmazonS3 s3Client) {
+    SbpS3(final AmazonS3 s3Client, final Map<String, String> environment) {
         this.s3Client = s3Client;
+        this.environment = environment;
     }
 
     void setAclsOn(String bucket, String path) {
         AccessControlList objectAcl = s3Client.getObjectAcl(bucket, path);
-        grant(READERS_ID_ENV, Permission.Read, objectAcl);
-        grant(READERS_ACP_ID_ENV, Permission.ReadAcp, objectAcl);
+        grant(READERS_ID_ENV, Permission.Read, objectAcl, bucket, path);
+        grant(READERS_ACP_ID_ENV, Permission.ReadAcp, objectAcl, bucket, path);
     }
 
-    private void grant(final String envKey, final Permission permission, final AccessControlList objectAcl) {
-        String identifiers = System.getenv().get(envKey);
+    private void grant(final String envKey, final Permission permission, final AccessControlList objectAcl, final String bucket,
+            final String path) {
+        String identifiers = environment.get(envKey);
         LOGGER.info("Using environment variable [{}] value [{}]", envKey, identifiers);
         if (identifiers != null && !identifiers.trim().isEmpty()) {
             for (String identifier : identifiers.split(",")) {
                 if (identifier != null && !identifier.trim().isEmpty()) {
                     LOGGER.info("S3 granting [{}] for [{}]", permission, identifier);
                     objectAcl.grantPermission(new CanonicalGrantee(identifier), permission);
+                    s3Client.setObjectAcl(bucket, path, objectAcl);
                 }
             }
         }

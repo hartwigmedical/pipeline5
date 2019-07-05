@@ -26,7 +26,7 @@ public class ResultsPublisherProvider {
                 arguments.rcloneS3RemoteUpload(),
                 ProcessBuilder::new);
 
-        SbpS3 sbpS3 = new SbpS3(S3.newClient(arguments.sbpS3Url()));
+        SbpS3 sbpS3 = new SbpS3(S3.newClient(arguments.sbpS3Url()), System.getenv());
         SbpRestApi sbpRestApi = SbpRestApi.newInstance(arguments);
 
         try {
