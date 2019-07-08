@@ -33,6 +33,7 @@ import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
+import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.report.ZippedVcfAndIndexComponent;
 import com.hartwig.pipeline.resource.Resource;
 import com.hartwig.pipeline.resource.ResourceNames;
@@ -170,7 +171,8 @@ public class StructuralCaller {
                         Folder.from(),
                         NAMESPACE,
                         resultsDirectory,
-                        s -> !s.contains("working/") || s.endsWith("bam") || s.endsWith("bai")))
+                        s -> !s.contains("working")))
+                .addReportComponents(new RunLogComponent(runtimeBucket, NAMESPACE, Folder.from(), resultsDirectory))
                 .build();
     }
 
