@@ -24,13 +24,16 @@ public class ResultsPublisher {
     private final SbpS3 sbpS3;
     private final SbpRestApi sbpApi;
     private final Bucket sourceBucket;
+    private final ContentTypeCorrection contentTypeCorrection;
     private final static Logger LOGGER = LoggerFactory.getLogger(ResultsPublisher.class);
 
-    ResultsPublisher(final CloudCopy cloudCopy, final SbpS3 sbpS3, final SbpRestApi sbpApi, Bucket sourceBucket) {
+    ResultsPublisher(final CloudCopy cloudCopy, final SbpS3 sbpS3, final SbpRestApi sbpApi, Bucket sourceBucket,
+            ContentTypeCorrection contentTypeCorrection) {
         this.cloudCopy = cloudCopy;
         this.sbpS3 = sbpS3;
         this.sbpApi = sbpApi;
         this.sourceBucket = sourceBucket;
+        this.contentTypeCorrection = contentTypeCorrection;
     }
 
     public void publish(SomaticRunMetadata metadata, SbpRun sbpRun, String sbpBucket) {
@@ -45,7 +48,7 @@ public class ResultsPublisher {
                         format("Object gs://%s/%s has a null MD5; investigate in Google Cloud", sourceBucket.getName(), blob.getName());
                 LOGGER.error(message);
             } else {
-                ContentTypeCorrection.get().apply(blob);
+                contentTypeCorrection.apply(blob);
                 CloudFile dest = CloudFile.builder()
                         .provider("s3")
                         .bucket(sbpBucket)

@@ -31,7 +31,7 @@ public class ResultsPublisherProvider {
 
         try {
             Bucket sourceBucket = storage.get(arguments.patientReportBucket());
-            return new ResultsPublisher(cloudCopy, sbpS3, sbpRestApi, sourceBucket);
+            return new ResultsPublisher(cloudCopy, sbpS3, sbpRestApi, sourceBucket, ContentTypeCorrection.get());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
