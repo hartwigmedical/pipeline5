@@ -29,14 +29,10 @@ public class SbpS3Test {
         sbp = new SbpS3(s3, environment);
     }
 
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void shouldThrowIfBucketDoesNotExist() {
         when(s3.doesBucketExistV2(bucket)).thenReturn(false);
-        try {
-            sbp.ensureBucketExists(bucket);
-        } catch (IllegalStateException ise) {
-            // what we want
-        }
+        sbp.ensureBucketExists(bucket);
     }
 
     @Test
