@@ -1,16 +1,16 @@
 package com.hartwig.pipeline.calling.structural.gridss.command;
 
-import com.hartwig.pipeline.execution.vm.BashCommand;
+import static java.lang.String.format;
 
 import java.util.Objects;
 
-import static java.lang.String.format;
+import com.hartwig.pipeline.execution.vm.BashCommand;
 
 public class GridssArgument implements BashCommand {
     private final String key;
     private final String value;
 
-    public GridssArgument(final String key, final String value) {
+    GridssArgument(final String key, final String value) {
         this.key = key.toUpperCase();
         this.value = value;
     }

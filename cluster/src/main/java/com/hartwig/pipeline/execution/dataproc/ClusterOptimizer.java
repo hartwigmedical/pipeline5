@@ -1,8 +1,8 @@
 package com.hartwig.pipeline.execution.dataproc;
 
 import com.hartwig.patient.Sample;
+import com.hartwig.pipeline.alignment.sample.SampleData;
 import com.hartwig.pipeline.execution.MachineType;
-import com.hartwig.pipeline.io.sources.SampleData;
 
 public class ClusterOptimizer {
 

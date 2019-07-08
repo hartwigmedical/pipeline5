@@ -7,6 +7,7 @@ import java.io.File;
 
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.calling.structural.gridss.GridssCommon;
 import com.hartwig.pipeline.calling.structural.gridss.command.GridssToBashCommandConverter;
@@ -27,9 +28,6 @@ import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.unix.ExportVariableCommand;
 import com.hartwig.pipeline.execution.vm.unix.MkDirCommand;
 import com.hartwig.pipeline.execution.vm.unix.UlimitOpenFilesCommand;
-import com.hartwig.pipeline.io.GoogleStorageLocation;
-import com.hartwig.pipeline.io.ResultsDirectory;
-import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
@@ -37,6 +35,8 @@ import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.report.ZippedVcfAndIndexComponent;
 import com.hartwig.pipeline.resource.Resource;
 import com.hartwig.pipeline.resource.ResourceNames;
+import com.hartwig.pipeline.storage.GoogleStorageLocation;
+import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.trace.StageTrace;
 
 public class StructuralCaller {

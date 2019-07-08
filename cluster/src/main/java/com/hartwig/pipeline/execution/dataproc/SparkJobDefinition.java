@@ -5,9 +5,9 @@ import java.util.Map;
 
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.execution.JobDefinition;
-import com.hartwig.pipeline.io.ResultsDirectory;
-import com.hartwig.pipeline.io.RuntimeBucket;
+import com.hartwig.pipeline.storage.RuntimeBucket;
 
 import org.immutables.value.Value;
 import org.jetbrains.annotations.NotNull;

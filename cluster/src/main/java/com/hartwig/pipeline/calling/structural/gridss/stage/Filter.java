@@ -1,18 +1,20 @@
 package com.hartwig.pipeline.calling.structural.gridss.stage;
 
-import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.execution.vm.VmDirectories;
-import com.hartwig.pipeline.execution.vm.unix.MkDirCommand;
-import org.immutables.value.Value;
+import static java.lang.String.format;
+
+import static com.hartwig.pipeline.calling.structural.gridss.GridssCommon.pathToGridssScripts;
+import static com.hartwig.pipeline.calling.structural.gridss.GridssCommon.ponDir;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.hartwig.pipeline.calling.structural.gridss.GridssCommon.pathToGridssScripts;
-import static com.hartwig.pipeline.calling.structural.gridss.GridssCommon.ponDir;
-import static java.lang.String.format;
+import com.hartwig.pipeline.execution.vm.BashCommand;
+import com.hartwig.pipeline.execution.vm.VmDirectories;
+import com.hartwig.pipeline.execution.vm.unix.MkDirCommand;
+
+import org.immutables.value.Value;
 
 public class Filter {
 

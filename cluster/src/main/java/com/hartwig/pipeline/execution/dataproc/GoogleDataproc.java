@@ -22,7 +22,7 @@ import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.io.RuntimeBucket;
+import com.hartwig.pipeline.storage.RuntimeBucket;
 
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;

@@ -3,8 +3,8 @@ package com.hartwig.pipeline.alignment;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.dataproc.SparkExecutor;
 import com.hartwig.pipeline.execution.dataproc.SparkJobDefinition;
-import com.hartwig.pipeline.io.RuntimeBucket;
-import com.hartwig.pipeline.io.StatusCheck;
+import com.hartwig.pipeline.storage.RuntimeBucket;
+import com.hartwig.pipeline.storage.StatusCheck;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

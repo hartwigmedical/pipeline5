@@ -1,10 +1,10 @@
 package com.hartwig.pipeline.execution.vm;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import static java.lang.String.format;
 import static java.util.stream.Collectors.joining;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class BashStartupScript {
     static final String JOB_SUCCEEDED_FLAG = "JOB_SUCCESS";

@@ -7,7 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.io.sbp.SbpRestApi;
+import com.hartwig.pipeline.sbpapi.SbpRestApi;
 
 import org.junit.Before;
 import org.junit.Test;

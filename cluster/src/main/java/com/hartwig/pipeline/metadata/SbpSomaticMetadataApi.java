@@ -10,8 +10,12 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.RunTag;
 import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.io.sbp.ResultsPublisher;
-import com.hartwig.pipeline.io.sbp.SbpRestApi;
+import com.hartwig.pipeline.sbpapi.ObjectMappers;
+import com.hartwig.pipeline.sbpapi.SbpRestApi;
+import com.hartwig.pipeline.sbpapi.SbpRun;
+import com.hartwig.pipeline.sbpapi.SbpSample;
+import com.hartwig.pipeline.sbpapi.SbpSet;
+import com.hartwig.pipeline.transfer.SbpFileTransfer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,17 +24,17 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
 
     static final String SNP_CHECK = "SnpCheck";
     static final String FAILED = "Failed";
-    static final String UPLOADING = "Uploading";
+    private static final String UPLOADING = "Uploading";
     private static final String REF = "ref";
     private static final String TUMOR = "tumor";
     private final static Logger LOGGER = LoggerFactory.getLogger(SomaticMetadataApi.class);
     private final Arguments arguments;
     private final int sbpRunId;
     private final SbpRestApi sbpRestApi;
-    private final ResultsPublisher publisher;
+    private final SbpFileTransfer publisher;
     private final LocalDateTime now;
 
-    SbpSomaticMetadataApi(final Arguments arguments, final int sbpRunId, final SbpRestApi sbpRestApi, final ResultsPublisher publisher,
+    SbpSomaticMetadataApi(final Arguments arguments, final int sbpRunId, final SbpRestApi sbpRestApi, final SbpFileTransfer publisher,
             final LocalDateTime now) {
         this.arguments = arguments;
         this.sbpRunId = sbpRunId;

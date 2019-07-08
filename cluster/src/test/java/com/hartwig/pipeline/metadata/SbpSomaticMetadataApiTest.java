@@ -12,8 +12,8 @@ import java.time.LocalDateTime;
 
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.io.sbp.ResultsPublisher;
-import com.hartwig.pipeline.io.sbp.SbpRestApi;
+import com.hartwig.pipeline.sbpapi.SbpRestApi;
+import com.hartwig.pipeline.transfer.SbpFileTransfer;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -24,18 +24,17 @@ public class SbpSomaticMetadataApiTest {
     private static final int SET_ID = 1;
     private SomaticMetadataApi victim;
     private SbpRestApi sbpRestApi;
-    private ResultsPublisher resultsPublisher;
+    private SbpFileTransfer sbpFileTransfer;
     private SomaticRunMetadata somaticRunMetadata;
 
     @Before
     public void setUp() throws Exception {
         sbpRestApi = mock(SbpRestApi.class);
-        resultsPublisher = mock(ResultsPublisher.class);
+        sbpFileTransfer = mock(SbpFileTransfer.class);
         somaticRunMetadata = mock(SomaticRunMetadata.class);
         victim = new SbpSomaticMetadataApi(Arguments.testDefaults(),
                 SET_ID,
-                sbpRestApi,
-                resultsPublisher,
+                sbpRestApi, sbpFileTransfer,
                 LocalDateTime.of(2019, 7, 1, 0, 0));
     }
 
@@ -79,7 +78,7 @@ public class SbpSomaticMetadataApiTest {
         ArgumentCaptor<String> bucket = ArgumentCaptor.forClass(String.class);
         when(sbpRestApi.getRun(SET_ID)).thenReturn(TestJson.get("get_run_custom_bucket"));
         victim.complete(PipelineStatus.FAILED, somaticRunMetadata);
-        verify(resultsPublisher).publish(eq(somaticRunMetadata), any(), bucket.capture());
+        verify(sbpFileTransfer).publish(eq(somaticRunMetadata), any(), bucket.capture());
         assertThat(bucket.getValue()).isEqualTo("custom");
     }
 
@@ -88,7 +87,7 @@ public class SbpSomaticMetadataApiTest {
         ArgumentCaptor<String> bucket = ArgumentCaptor.forClass(String.class);
         when(sbpRestApi.getRun(SET_ID)).thenReturn(TestJson.get("get_run"));
         victim.complete(PipelineStatus.FAILED, somaticRunMetadata);
-        verify(resultsPublisher).publish(eq(somaticRunMetadata), any(), bucket.capture());
+        verify(sbpFileTransfer).publish(eq(somaticRunMetadata), any(), bucket.capture());
         assertThat(bucket.getValue()).isEqualTo("hmf-output-2019-27");
     }
 }

@@ -10,7 +10,7 @@ import java.util.List;
 
 import com.google.cloud.ReadChannel;
 import com.google.cloud.storage.Blob;
-import com.hartwig.pipeline.io.RuntimeBucket;
+import com.hartwig.pipeline.storage.RuntimeBucket;
 
 @SuppressWarnings("unchecked")
 public class MockRuntimeBucket {
@@ -36,10 +36,6 @@ public class MockRuntimeBucket {
     }
 
     public MockRuntimeBucket with(String blob, long size) {
-        return with(blob, size, "");
-    }
-
-    public MockRuntimeBucket with(String blob, long size, String md5) {
         try {
             Blob mockBlob = mock(Blob.class);
             ReadChannel mockReadChannel = mock(ReadChannel.class);
@@ -47,7 +43,7 @@ public class MockRuntimeBucket {
             when(mockBlob.getName()).thenReturn(blob);
             when(mockBlob.getSize()).thenReturn(size);
             when(mockBlob.reader()).thenReturn(mockReadChannel);
-            when(mockBlob.getMd5()).thenReturn(md5);
+            when(mockBlob.getMd5()).thenReturn("");
             blobs.add(mockBlob);
             when(runtimeBucket.get(blob)).thenReturn(mockBlob);
         } catch (IOException e) {

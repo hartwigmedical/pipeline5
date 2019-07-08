@@ -2,7 +2,7 @@ package com.hartwig.pipeline.execution.vm;
 
 import static java.lang.String.format;
 
-import com.hartwig.pipeline.io.GoogleStorageLocation;
+import com.hartwig.pipeline.storage.GoogleStorageLocation;
 
 public class InputDownload implements BashCommand {
 

@@ -2,6 +2,7 @@ package com.hartwig.pipeline.flagstat;
 
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
@@ -11,13 +12,12 @@ import com.hartwig.pipeline.execution.vm.OutputUpload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.unix.SubShellCommand;
-import com.hartwig.pipeline.io.GoogleStorageLocation;
-import com.hartwig.pipeline.io.ResultsDirectory;
-import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.report.SingleFileComponent;
+import com.hartwig.pipeline.storage.GoogleStorageLocation;
+import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.trace.StageTrace;
 
 public class Flagstat {

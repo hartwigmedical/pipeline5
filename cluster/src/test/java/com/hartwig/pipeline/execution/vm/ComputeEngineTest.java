@@ -21,8 +21,8 @@ import com.google.api.services.compute.model.Operation;
 import com.google.cloud.ReadChannel;
 import com.google.cloud.storage.Blob;
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.io.ResultsDirectory;
 import com.hartwig.pipeline.testsupport.MockRuntimeBucket;
 
 import org.junit.Before;

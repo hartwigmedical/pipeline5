@@ -6,14 +6,14 @@ import java.util.concurrent.Future;
 
 import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
-import com.hartwig.pipeline.alignment.after.metrics.BamMetrics;
-import com.hartwig.pipeline.alignment.after.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.calling.germline.GermlineCaller;
 import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
 import com.hartwig.pipeline.flagstat.Flagstat;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
 import com.hartwig.pipeline.metadata.SampleMetadataApi;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
+import com.hartwig.pipeline.metrics.BamMetrics;
+import com.hartwig.pipeline.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.report.PipelineResults;
 import com.hartwig.pipeline.snpgenotype.SnpGenotype;
 import com.hartwig.pipeline.snpgenotype.SnpGenotypeOutput;

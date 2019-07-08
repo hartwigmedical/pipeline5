@@ -1,9 +1,9 @@
 package com.hartwig.pipeline.calling.structural.gridss.command;
 
+import static java.lang.String.format;
+
 import com.hartwig.pipeline.calling.structural.gridss.GridssCommon;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
-
-import static java.lang.String.format;
 
 public class ExtractSvReads implements GridssCommand {
 

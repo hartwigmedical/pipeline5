@@ -1,7 +1,7 @@
 package com.hartwig.pipeline.report;
 
-import com.hartwig.pipeline.io.ResultsDirectory;
-import com.hartwig.pipeline.io.RuntimeBucket;
+import com.hartwig.pipeline.ResultsDirectory;
+import com.hartwig.pipeline.storage.RuntimeBucket;
 
 public class RunLogComponent extends SingleFileComponent {
 

@@ -4,7 +4,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 import com.hartwig.pipeline.StageOutput;
-import com.hartwig.pipeline.io.GoogleStorageLocation;
+import com.hartwig.pipeline.storage.GoogleStorageLocation;
 
 import org.immutables.value.Value;
 

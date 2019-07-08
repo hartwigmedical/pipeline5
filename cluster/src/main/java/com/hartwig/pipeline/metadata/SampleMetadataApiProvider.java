@@ -1,7 +1,7 @@
 package com.hartwig.pipeline.metadata;
 
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.io.sbp.SbpRestApi;
+import com.hartwig.pipeline.sbpapi.SbpRestApi;
 
 public class SampleMetadataApiProvider {
 

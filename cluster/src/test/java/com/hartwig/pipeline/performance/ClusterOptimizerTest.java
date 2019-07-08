@@ -5,11 +5,11 @@ import static org.mockito.Mockito.mock;
 
 import com.hartwig.patient.Lane;
 import com.hartwig.patient.Sample;
+import com.hartwig.pipeline.alignment.sample.SampleData;
 import com.hartwig.pipeline.execution.MachineType;
-import com.hartwig.pipeline.execution.dataproc.DataprocPerformanceProfile;
 import com.hartwig.pipeline.execution.dataproc.ClusterOptimizer;
 import com.hartwig.pipeline.execution.dataproc.CpuFastQSizeRatio;
-import com.hartwig.pipeline.io.sources.SampleData;
+import com.hartwig.pipeline.execution.dataproc.DataprocPerformanceProfile;
 
 import org.junit.Before;
 import org.junit.Test;

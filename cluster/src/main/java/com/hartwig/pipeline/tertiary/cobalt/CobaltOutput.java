@@ -3,7 +3,7 @@ package com.hartwig.pipeline.tertiary.cobalt;
 import java.util.Optional;
 
 import com.hartwig.pipeline.StageOutput;
-import com.hartwig.pipeline.io.GoogleStorageLocation;
+import com.hartwig.pipeline.storage.GoogleStorageLocation;
 
 import org.immutables.value.Value;
 
