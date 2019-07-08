@@ -1,9 +1,9 @@
 package com.hartwig.pipeline.alignment;
 
+import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.execution.dataproc.SparkExecutor;
-import com.hartwig.pipeline.io.GoogleStorageStatusCheck;
-import com.hartwig.pipeline.io.ResultsDirectory;
-import com.hartwig.pipeline.io.StatusCheck;
+import com.hartwig.pipeline.storage.GoogleStorageStatusCheck;
+import com.hartwig.pipeline.storage.StatusCheck;
 
 class Jobs {
 

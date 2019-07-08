@@ -1,11 +1,11 @@
 package com.hartwig.pipeline.calling.structural.gridss.command;
 
-import com.hartwig.pipeline.calling.structural.gridss.GridssCommon;
-import com.hartwig.pipeline.execution.vm.BashCommand;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.hartwig.pipeline.calling.structural.gridss.GridssCommon;
+import com.hartwig.pipeline.execution.vm.BashCommand;
 
 public class GridssArguments implements BashCommand {
     private final List<GridssArgument> arguments;
@@ -24,17 +24,17 @@ public class GridssArguments implements BashCommand {
         return arguments.stream().map(BashCommand::asBash).collect(Collectors.joining(" "));
     }
 
-    public GridssArguments addTempDir() {
+    GridssArguments addTempDir() {
         add("tmp_dir", "/tmp");
         return this;
     }
 
-    public GridssArguments addBlacklist() {
+    GridssArguments addBlacklist() {
         add("blacklist", GridssCommon.blacklist());
         return this;
     }
 
-    public GridssArguments addConfigFile() {
+    GridssArguments addConfigFile() {
         add("configuration_file", GridssCommon.configFile());
         return this;
     }

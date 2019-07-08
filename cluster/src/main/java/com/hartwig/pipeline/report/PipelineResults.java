@@ -13,9 +13,9 @@ import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.RunTag;
 import com.hartwig.pipeline.StageOutput;
-import com.hartwig.pipeline.metadata.ObjectMappers;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
+import com.hartwig.pipeline.sbpapi.ObjectMappers;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

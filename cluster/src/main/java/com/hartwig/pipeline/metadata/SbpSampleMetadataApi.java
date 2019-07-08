@@ -6,7 +6,9 @@ import static java.lang.String.valueOf;
 import java.io.IOException;
 
 import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.io.sbp.SbpRestApi;
+import com.hartwig.pipeline.sbpapi.ObjectMappers;
+import com.hartwig.pipeline.sbpapi.SbpRestApi;
+import com.hartwig.pipeline.sbpapi.SbpSample;
 
 public class SbpSampleMetadataApi implements SampleMetadataApi {
 

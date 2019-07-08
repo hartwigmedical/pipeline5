@@ -1,7 +1,8 @@
 package com.hartwig.pipeline.execution.vm;
 
+import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.execution.JobDefinition;
-import com.hartwig.pipeline.io.ResultsDirectory;
+
 import org.immutables.value.Value;
 
 @Value.Immutable

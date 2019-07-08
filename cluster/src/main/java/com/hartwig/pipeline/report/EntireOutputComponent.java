@@ -5,8 +5,8 @@ import java.util.function.Predicate;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
-import com.hartwig.pipeline.io.ResultsDirectory;
-import com.hartwig.pipeline.io.RuntimeBucket;
+import com.hartwig.pipeline.ResultsDirectory;
+import com.hartwig.pipeline.storage.RuntimeBucket;
 
 public class EntireOutputComponent implements ReportComponent {
 

@@ -1,12 +1,12 @@
 package com.hartwig.pipeline.calling.command;
 
-import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.execution.vm.VmDirectories;
+import static java.util.stream.Collectors.joining;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static java.util.stream.Collectors.joining;
+import com.hartwig.pipeline.execution.vm.BashCommand;
+import com.hartwig.pipeline.execution.vm.VmDirectories;
 
 public class VersionedToolCommand implements BashCommand {
 

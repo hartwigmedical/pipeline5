@@ -5,8 +5,8 @@ import java.time.ZoneId;
 
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.io.sbp.ResultsPublisherProvider;
-import com.hartwig.pipeline.io.sbp.SbpRestApi;
+import com.hartwig.pipeline.sbpapi.SbpRestApi;
+import com.hartwig.pipeline.transfer.ResultsPublisherProvider;
 
 public class SetMetadataApiProvider {
 

@@ -1,10 +1,10 @@
 package com.hartwig.pipeline.execution.vm.unix;
 
-import com.hartwig.pipeline.execution.vm.BashCommand;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.hartwig.pipeline.execution.vm.BashCommand;
 
 public class PipeCommands implements BashCommand {
 

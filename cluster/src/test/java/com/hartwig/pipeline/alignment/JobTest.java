@@ -10,8 +10,8 @@ import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.dataproc.JarLocation;
 import com.hartwig.pipeline.execution.dataproc.SparkExecutor;
 import com.hartwig.pipeline.execution.dataproc.SparkJobDefinition;
-import com.hartwig.pipeline.io.RuntimeBucket;
-import com.hartwig.pipeline.io.StatusCheck;
+import com.hartwig.pipeline.storage.RuntimeBucket;
+import com.hartwig.pipeline.storage.StatusCheck;
 import com.hartwig.pipeline.testsupport.MockRuntimeBucket;
 
 import org.junit.Before;

@@ -7,9 +7,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.google.cloud.storage.Storage;
-import com.hartwig.pipeline.io.RuntimeBucket;
 import com.hartwig.pipeline.resource.Resource;
 import com.hartwig.pipeline.resource.ResourceLocation;
+import com.hartwig.pipeline.storage.RuntimeBucket;
 
 public class ResourceDownload implements BashCommand {
 

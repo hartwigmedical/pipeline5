@@ -2,7 +2,7 @@ package com.hartwig.pipeline.execution.dataproc;
 
 import com.hartwig.pipeline.execution.CloudExecutor;
 import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.io.RuntimeBucket;
+import com.hartwig.pipeline.storage.RuntimeBucket;
 
 public interface SparkExecutor extends CloudExecutor<SparkJobDefinition> {
 

@@ -4,10 +4,10 @@ import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.io.GoogleStorageLocation;
 import com.hartwig.pipeline.metadata.ImmutableSingleSampleRunMetadata;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
+import com.hartwig.pipeline.storage.GoogleStorageLocation;
 
 import org.jetbrains.annotations.NotNull;
 

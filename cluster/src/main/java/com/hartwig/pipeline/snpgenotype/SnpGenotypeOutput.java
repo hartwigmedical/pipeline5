@@ -1,6 +1,7 @@
 package com.hartwig.pipeline.snpgenotype;
 
 import com.hartwig.pipeline.StageOutput;
+
 import org.immutables.value.Value;
 
 @Value.Immutable

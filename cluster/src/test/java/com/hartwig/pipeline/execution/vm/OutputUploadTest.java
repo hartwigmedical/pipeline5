@@ -2,7 +2,7 @@ package com.hartwig.pipeline.execution.vm;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.hartwig.pipeline.io.GoogleStorageLocation;
+import com.hartwig.pipeline.storage.GoogleStorageLocation;
 
 import org.junit.Test;
 
