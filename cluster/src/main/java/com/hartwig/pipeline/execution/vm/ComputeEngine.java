@@ -142,6 +142,7 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
         AttachedDiskInitializeParams params = new AttachedDiskInitializeParams();
         params.setDiskSizeGb(diskSizeGB);
         params.setSourceImage(sourceImage.getSelfLink());
+        params.setDiskType(format("%s/zones/%s/diskTypes/pd-ssd", apiBaseUrl(projectName), ZONE_NAME));
         disk.setInitializeParams(params);
         instance.setDisks(singletonList(disk));
         compute.instances().attachDisk(projectName, ZONE_NAME, vmName, disk);
@@ -231,7 +232,7 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
         }
     }
 
-    private String fetchJobStatus(Compute compute, String jobName, String projectName) throws IOException {
+    private String fetchJobStatus(Compute compute, String jobName, String projectName) {
         return executeWithRetries(() -> compute.zoneOperations().get(projectName, ZONE_NAME, jobName).execute()).getStatus();
     }
 
