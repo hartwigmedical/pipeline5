@@ -17,4 +17,5 @@ public interface ResourceNames {
     String DBNSFP = "dbNSFP_v2.9";
     String GONL = "gonl_v5";
     String GRIDSS_CONFIG = "gridss_config";
+    String GRIDSS_PON = "gridss_pon";
 }

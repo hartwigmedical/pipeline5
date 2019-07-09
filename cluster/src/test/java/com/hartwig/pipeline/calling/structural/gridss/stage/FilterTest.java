@@ -12,16 +12,14 @@ import java.util.stream.Collectors;
 
 import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
 import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.execution.vm.VmDirectories;
 
 import org.junit.Before;
 import org.junit.Test;
 
 public class FilterTest implements CommonEntities {
 
-    private static final String PATH_TO_GRIDSS_SCRIPTS = format("%s/gridss-scripts/4.8", TOOLS_DIR);
-    private static final String PATH_TO_GRIDSS_PON = format("%s/gridss_pon", RESOURCE_DIR);
-    private static final int RSCRIPT_LINE_NUMBER = 4;
+    private static final String PATH_TO_GRIDSS_SCRIPTS = format("%s/gridss-scripts/4.8.1", TOOLS_DIR);
+    private static final int RSCRIPT_LINE_NUMBER = 2;
 
     private String bashCommands;
     private String originalVcf;
@@ -32,22 +30,12 @@ public class FilterTest implements CommonEntities {
         uncompressedVcf = "/path/to/original.vcf";
         originalVcf = uncompressedVcf + ".gz";
         List<BashCommand> commands = new Filter().initialise(originalVcf, TUMOR_SAMPLE).commands();
-        bashCommands = commands.stream().map(c -> c.asBash()).collect(Collectors.joining("\n"));
+        bashCommands = commands.stream().map(BashCommand::asBash).collect(Collectors.joining("\n"));
     }
 
     @Test
-    public void shouldMakeLocalDirectoryAndCopyBlacklistFirst() {
+    public void shouldGunzipOriginalVcfAsFirstStep() {
         String firstLine = extractOutputLine(1);
-        assertThat(firstLine).isEqualTo(format("mkdir -p %s/gridss_pon", VmDirectories.RESOURCES));
-
-        String secondLine = extractOutputLine(2);
-        assertThat(secondLine).isEqualTo(format("gsutil cp gs://common-resources/gridss_pon/* %s/gridss_pon",
-                RESOURCE_DIR));
-    }
-
-    @Test
-    public void shouldGunzipOriginalVcfAsSecondStep() {
-        String firstLine = extractOutputLine(3);
         assertThat(firstLine).isEqualTo(format("gunzip -kd %s", originalVcf));
     }
 
@@ -57,15 +45,15 @@ public class FilterTest implements CommonEntities {
     }
 
     @Test
-    public void shouldRunRscriptWithCorrectScriptAsThirdStep() {
-        String secondLine = extractOutputLine(4);
+    public void shouldRunRscriptWithCorrectScriptAsSecondStep() {
+        String secondLine = extractOutputLine(2);
         assertThat(secondLine).startsWith(format("Rscript %s/gridss_somatic_filter.R ", PATH_TO_GRIDSS_SCRIPTS));
     }
 
     @Test
     public void shouldPassPonDirectory() {
         Map<String, String> remainingArgs = pairOffArgumentsAfterScriptPath(extractOutputLine(RSCRIPT_LINE_NUMBER));
-        assertThat(remainingArgs.get("-p")).isEqualTo(PATH_TO_GRIDSS_PON);
+        assertThat(remainingArgs.get("-p")).isEqualTo(RESOURCE_DIR);
     }
 
     @Test

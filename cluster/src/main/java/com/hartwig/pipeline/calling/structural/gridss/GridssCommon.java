@@ -11,7 +11,7 @@ public class GridssCommon {
         return format("%s/bwa/0.7.17/bwa", VmDirectories.TOOLS);
     }
     public static String pathToGridssScripts() {
-        return format("%s/gridss-scripts/4.8", VmDirectories.TOOLS);
+        return format("%s/gridss-scripts/4.8.1", VmDirectories.TOOLS);
     }
 
     public static String configFile() {
@@ -24,10 +24,6 @@ public class GridssCommon {
 
     public static String tmpDir() {
         return "/tmp";
-    }
-
-    public static String ponDir() {
-        return format("%s/gridss_pon", VmDirectories.RESOURCES);
     }
 
     public static String basenameNoExtensions(final String completeFilename) {

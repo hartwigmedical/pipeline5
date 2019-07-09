@@ -3,7 +3,6 @@ package com.hartwig.pipeline.calling.structural.gridss.stage;
 import static java.lang.String.format;
 
 import static com.hartwig.pipeline.calling.structural.gridss.GridssCommon.pathToGridssScripts;
-import static com.hartwig.pipeline.calling.structural.gridss.GridssCommon.ponDir;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +11,6 @@ import java.util.regex.Pattern;
 
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
-import com.hartwig.pipeline.execution.vm.unix.MkDirCommand;
 
 import org.immutables.value.Value;
 
@@ -40,12 +38,10 @@ public class Filter {
         String fullVcfCompressed = VmDirectories.outputFile(format("%s.gridss.somatic.full.vcf.gz", tumorSample));
 
         List<BashCommand> commands = new ArrayList<>();
-        commands.add(new MkDirCommand(format("%s/gridss_pon", VmDirectories.RESOURCES)));
-        commands.add(() -> format("gsutil cp gs://common-resources/gridss_pon/* %s/gridss_pon", VmDirectories.RESOURCES));
         commands.add(() -> format("gunzip -kd %s", originalVcf));
         commands.add(() -> format("Rscript %s/gridss_somatic_filter.R -p %s -i %s -o %s -f %s -s %s",
                 pathToGridssScripts(),
-                ponDir(),
+                VmDirectories.RESOURCES,
                 unzippedOriginalVcf,
                 outputVcf,
                 fullVcfCompressed,

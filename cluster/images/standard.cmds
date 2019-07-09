@@ -15,7 +15,7 @@ sudo tar xvf /data/tools/strelka/1.0.14/strelka.tar -C /data/tools/strelka/1.0.1
 sudo tar xvf /data/tools/tabix/0.2.6/tabix.tar -C /data/tools/tabix/0.2.6/
 sudo tar xvf /data/tools/samtools/1.2/samtools.tar.gz -C /data/tools/samtools/1.2/
 sudo tar xvf /data/tools/circos/0.69.6/circos.tar -C /data/tools/circos/0.69.6/
-sudo tar xvf /data/tools/gridss-scripts/4.8/scripts.tar -C /data/tools/gridss-scripts/4.8/
+sudo tar xvf /data/tools/gridss-scripts/4.8.1/scripts.tar -C /data/tools/gridss-scripts/4.8.1/
 # This guy is a little different from the others in that it extracts overtop the system-managed R libraries.
 sudo tar xvf /data/tools/R/rlibs.tar -C /
 sudo chmod a+x /data/tools/bcftools/1.3.1/bcftools

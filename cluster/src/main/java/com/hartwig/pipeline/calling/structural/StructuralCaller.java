@@ -72,16 +72,18 @@ public class StructuralCaller {
         ResourceDownload referenceGenomeDownload =
                 ResourceDownload.from(runtimeBucket, new Resource(storage, arguments.resourceBucket(), ResourceNames.REFERENCE_GENOME));
         String referenceGenomePath = referenceGenomeDownload.find("fa", "fasta");
-
         ResourceDownload gridssConfigFiles = ResourceDownload.from(runtimeBucket,
                 new Resource(storage, arguments.resourceBucket(), ResourceNames.GRIDSS_CONFIG));
+        ResourceDownload gridssPonFiles = ResourceDownload.from(runtimeBucket,
+                new Resource(storage, arguments.resourceBucket(), ResourceNames.GRIDSS_PON));
 
         InputDownload tumorBam = new InputDownload(pair.tumor().finalBamLocation());
         InputDownload tumorBai = new InputDownload(pair.tumor().finalBaiLocation());
         InputDownload referenceBam = new InputDownload(pair.reference().finalBamLocation());
         InputDownload referenceBai = new InputDownload(pair.reference().finalBaiLocation());
 
-        bash.addCommands(asList(tumorBam, referenceBam, tumorBai, referenceBai, referenceGenomeDownload, gridssConfigFiles));
+        bash.addCommands(asList(tumorBam, referenceBam, tumorBai, referenceBai, referenceGenomeDownload, gridssConfigFiles, gridssPonFiles));
+
         bash.addCommand(new UlimitOpenFilesCommand(102400));
         bash.addCommand(new ExportVariableCommand("PATH", format("${PATH}:%s", dirname(GridssCommon.pathToBwa()))));
 
