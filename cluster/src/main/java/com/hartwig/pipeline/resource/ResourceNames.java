@@ -16,4 +16,5 @@ public interface ResourceNames {
     String AMBER_PON = "amber_pon";
     String DBNSFP = "dbNSFP_v2.9";
     String GONL = "gonl_v5";
+    String GRIDSS_CONFIG = "gridss_config";
 }

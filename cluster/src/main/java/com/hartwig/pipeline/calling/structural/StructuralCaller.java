@@ -73,16 +73,17 @@ public class StructuralCaller {
                 ResourceDownload.from(runtimeBucket, new Resource(storage, arguments.resourceBucket(), ResourceNames.REFERENCE_GENOME));
         String referenceGenomePath = referenceGenomeDownload.find("fa", "fasta");
 
+        ResourceDownload gridssConfigFiles = ResourceDownload.from(runtimeBucket,
+                new Resource(storage, arguments.resourceBucket(), ResourceNames.GRIDSS_CONFIG));
+
         InputDownload tumorBam = new InputDownload(pair.tumor().finalBamLocation());
         InputDownload tumorBai = new InputDownload(pair.tumor().finalBaiLocation());
         InputDownload referenceBam = new InputDownload(pair.reference().finalBamLocation());
         InputDownload referenceBai = new InputDownload(pair.reference().finalBaiLocation());
 
-        bash.addCommands(asList(tumorBam, referenceBam, tumorBai, referenceBai, referenceGenomeDownload));
+        bash.addCommands(asList(tumorBam, referenceBam, tumorBai, referenceBai, referenceGenomeDownload, gridssConfigFiles));
         bash.addCommand(new UlimitOpenFilesCommand(102400));
         bash.addCommand(new ExportVariableCommand("PATH", format("${PATH}:%s", dirname(GridssCommon.pathToBwa()))));
-        bash.addLine(format("gsutil -qm cp gs://common-resources/gridss_config/gridss.properties %s", GridssCommon.configFile()));
-        bash.addLine(format("gsutil -qm cp gs://common-resources/gridss_config/ENCFF001TDO.bed %s", GridssCommon.blacklist()));
 
         String gridssWorkingDirForReferenceBam =
                 format("%s/%s.gridss.working", VmDirectories.OUTPUT, basename(referenceBam.getLocalTargetPath()));
