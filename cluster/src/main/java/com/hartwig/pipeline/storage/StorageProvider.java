@@ -21,8 +21,8 @@ public class StorageProvider {
         return builder.setCredentials(credentials)
                 .setProjectId(arguments.project())
                 .setTransportOptions(HttpTransportOptions.newBuilder()
-                        .setConnectTimeout(Integer.MAX_VALUE)
-                        .setReadTimeout(Integer.MAX_VALUE)
+                        .setConnectTimeout(0)
+                        .setReadTimeout(0)
                         .build())
                 .build()
                 .getService();
