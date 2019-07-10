@@ -65,4 +65,7 @@ GATk’s [HaplotypeCaller](https://software.broadinstitute.org/gatk/documentatio
 Final QC of the purple results and BAM metrics.
 
 ### 1.7 Production Environment at Schuberg Phillis
+
+[Schuberg Philis](https://schubergphilis.com/) manages our pipeline operations. The production deployment of Pv5 is run in their environment. SBP provides orchestration tooling to manage the ingestion of FASTQ data from the HMF labs and metadata management of the samples, runs and output files. They also administer the HMF GCP projects.
+
 ### 2. Developers Guide
