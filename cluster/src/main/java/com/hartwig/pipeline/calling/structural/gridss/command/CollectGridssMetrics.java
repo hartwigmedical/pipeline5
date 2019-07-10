@@ -1,10 +1,12 @@
 package com.hartwig.pipeline.calling.structural.gridss.command;
 
 import static java.lang.String.format;
+import static java.util.Arrays.asList;
 
 import java.io.File;
+import java.util.List;
 
-public class CollectGridssMetrics implements GridssCommand {
+public class CollectGridssMetrics extends GridssCommand {
     private final String inputBam;
     private final String workingDirectory;
 
@@ -14,23 +16,21 @@ public class CollectGridssMetrics implements GridssCommand {
     }
 
     @Override
-    public String arguments() {
-        return new GridssArguments()
-                        .add("tmp_dir", "/tmp")
-                        .add("assume_sorted", "true")
-                        .add("i", inputBam)
-                        .add("o", outputBaseFilename())
-                        .add("threshold_coverage", "50000")
-                        .add("file_extension", "null")
-                        .add("gridss_program", "null")
-                        .add("gridss_program", "CollectCigarMetrics")
-                        .add("gridss_program", "CollectMapqMetrics")
-                        .add("gridss_program", "CollectTagMetrics")
-                        .add("gridss_program", "CollectIdsvMetrics")
-                        .add("gridss_program", "ReportThresholdCoverage")
-                        .add("program", "null")
-                        .add("program", "CollectInsertSizeMetrics")
-                        .asBash();
+    public List<GridssArgument> arguments() {
+        return asList(GridssArgument.tempDir(),
+                new GridssArgument("assume_sorted", "true"),
+                new GridssArgument("i", inputBam),
+                new GridssArgument("o", outputBaseFilename()),
+                new GridssArgument("threshold_coverage", "50000"),
+                new GridssArgument("file_extension", "null"),
+                new GridssArgument("gridss_program", "null"),
+                new GridssArgument("gridss_program", "CollectCigarMetrics"),
+                new GridssArgument("gridss_program", "CollectMapqMetrics"),
+                new GridssArgument("gridss_program", "CollectTagMetrics"),
+                new GridssArgument("gridss_program", "CollectIdsvMetrics"),
+                new GridssArgument("gridss_program", "ReportThresholdCoverage"),
+                new GridssArgument("program", "null"),
+                new GridssArgument("program", "CollectInsertSizeMetrics"));
     }
 
     public String outputBaseFilename() {

@@ -9,14 +9,12 @@ import com.hartwig.pipeline.calling.command.BgzipCommand;
 import com.hartwig.pipeline.calling.command.TabixCommand;
 import com.hartwig.pipeline.calling.structural.gridss.command.AnnotateUntemplatedSequence;
 import com.hartwig.pipeline.calling.structural.gridss.command.AnnotateVariants;
-import com.hartwig.pipeline.calling.structural.gridss.command.GridssToBashCommandConverter;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 
 import org.immutables.value.Value;
 
 public class Annotation {
     private final CommandFactory commandFactory;
-    private final GridssToBashCommandConverter converter;
 
     @Value.Immutable
     public interface AnnotationResult {
@@ -25,9 +23,8 @@ public class Annotation {
         List<BashCommand> commands();
     }
 
-    public Annotation(final CommandFactory commandFactory, final GridssToBashCommandConverter converter) {
+    public Annotation(final CommandFactory commandFactory) {
         this.commandFactory = commandFactory;
-        this.converter = converter;
     }
 
     public AnnotationResult initialise(final String sampleBam, final String tumorBam, final String assemblyBam, final String rawVcf,
@@ -42,7 +39,7 @@ public class Annotation {
 
         return ImmutableAnnotationResult.builder()
                 .annotatedVcf(finalOutputPath)
-                .commands(asList(converter.convert(variants), converter.convert(untemplated), bgzip, tabix))
+                .commands(asList(variants, untemplated, bgzip, tabix))
                 .build();
     }
 }

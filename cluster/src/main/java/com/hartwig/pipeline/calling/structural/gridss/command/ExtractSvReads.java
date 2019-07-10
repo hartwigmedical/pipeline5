@@ -2,10 +2,12 @@ package com.hartwig.pipeline.calling.structural.gridss.command;
 
 import static java.lang.String.format;
 
-import com.hartwig.pipeline.calling.structural.gridss.GridssCommon;
+import java.util.Arrays;
+import java.util.List;
+
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 
-public class ExtractSvReads implements GridssCommand {
+public class ExtractSvReads extends GridssCommand {
 
     private final String inputBam;
     private final String sampleName;
@@ -30,18 +32,17 @@ public class ExtractSvReads implements GridssCommand {
     }
 
     @Override
-    public String arguments() {
-        return new GridssArguments()
-                .add("tmp_dir", GridssCommon.tmpDir())
-                .add("assume_sorted", "true")
-                .add("i", inputBam)
-                .add("o", "/dev/stdout")
-                .add("compression_level", "0")
-                .add("metrics_output", resultantMetrics())
-                .add("insert_size_metrics", insertSizeMetrics)
-                .add("unmapped_reads", "false")
-                .add("min_clip_length", "5")
-                .add("include_duplicates", "true").asBash();
+    public List<GridssArgument> arguments() {
+        return Arrays.asList(GridssArgument.tempDir(),
+                new GridssArgument("assume_sorted", "true"),
+                new GridssArgument("i", inputBam),
+                new GridssArgument("o", "/dev/stdout"),
+                new GridssArgument("compression_level", "0"),
+                new GridssArgument("metrics_output", resultantMetrics()),
+                new GridssArgument("insert_size_metrics", insertSizeMetrics),
+                new GridssArgument("unmapped_reads", "false"),
+                new GridssArgument("min_clip_length", "5"),
+                new GridssArgument("include_duplicates", "true"));
     }
 
     @Override

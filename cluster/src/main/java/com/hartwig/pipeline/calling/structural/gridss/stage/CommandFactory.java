@@ -20,12 +20,12 @@ public class CommandFactory {
 
     public AnnotateVariants buildAnnotateVariants(final String sampleBam, final String tumorBam, final String assemblyBam,
             final String rawVcf, final String referenceGenome, final String jointName) {
-        return new AnnotateVariants(sampleBam, tumorBam, assemblyBam, rawVcf, referenceGenome, jointName);
+        return new AnnotateVariants(sampleBam, tumorBam, assemblyBam, rawVcf, referenceGenome, jointName, null, null);
     }
 
     public AssembleBreakends buildAssembleBreakends(final String sampleBam, final String tumorBam, final String referenceGenome,
             final String jointName) {
-        return new AssembleBreakends(sampleBam, tumorBam, referenceGenome, jointName);
+        return new AssembleBreakends(sampleBam, tumorBam, referenceGenome, jointName, null, null);
     }
 
     public BgzipCommand buildBgzipCommand(final String annotatedVcf) {
@@ -46,7 +46,7 @@ public class CommandFactory {
 
     public IdentifyVariants buildIdentifyVariants(final String sampleBam, final String tumorBam, final String assemblyBam,
             final String referenceGenome) {
-        return new IdentifyVariants(sampleBam, tumorBam, assemblyBam, referenceGenome);
+        return new IdentifyVariants(sampleBam, tumorBam, assemblyBam, referenceGenome, null, null);
     }
 
     public SoftClipsToSplitReads.ForAssemble buildSoftClipsToSplitReadsForAssemble(final String intermediateBamPath,

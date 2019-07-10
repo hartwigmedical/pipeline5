@@ -14,10 +14,8 @@ import java.util.List;
 import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
 import com.hartwig.pipeline.calling.structural.gridss.command.AssembleBreakends;
 import com.hartwig.pipeline.calling.structural.gridss.command.CollectGridssMetrics;
-import com.hartwig.pipeline.calling.structural.gridss.command.GridssToBashCommandConverter;
 import com.hartwig.pipeline.calling.structural.gridss.command.SoftClipsToSplitReads;
 import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.execution.vm.JavaClassCommand;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -27,22 +25,16 @@ public class AssembleTest implements CommonEntities {
     private String fullOutputPath;
 
     private CommandFactory factory;
-    private GridssToBashCommandConverter converter;
 
     private AssembleBreakends assembleBreakends;
     private CollectGridssMetrics collectMetrics;
     private SoftClipsToSplitReads.ForAssemble clips;
     private Assemble.AssembleResult result;
 
-    private JavaClassCommand assembleBreakendsBash;
-    private JavaClassCommand collectMetricsBash;
-    private JavaClassCommand clipsBash;
-
     @Before
     public void setup() {
         assembledBam = "assembled.bam";
         factory = mock(CommandFactory.class);
-        converter = mock(GridssToBashCommandConverter.class);
 
         assembleBreakends = mock(AssembleBreakends.class);
         when(factory.buildAssembleBreakends(any(), any(), any(), any())).thenReturn(assembleBreakends);
@@ -56,16 +48,7 @@ public class AssembleTest implements CommonEntities {
         when(factory.buildSoftClipsToSplitReadsForAssemble(any(), any(), any())).thenReturn(clips);
 
         fullOutputPath = format("%s/%s.gridss.working/%s.sv.bam", OUT_DIR, assembledBam, assembledBam);
-
-        assembleBreakendsBash = mock(JavaClassCommand.class);
-        collectMetricsBash = mock(JavaClassCommand.class);
-        clipsBash = mock(JavaClassCommand.class);
-
-        when(converter.convert(assembleBreakends)).thenReturn(assembleBreakendsBash);
-        when(converter.convert(collectMetrics)).thenReturn(collectMetricsBash);
-        when(converter.convert(clips)).thenReturn(clipsBash);
-
-        result = new Assemble(factory, converter).initialise(REFERENCE_BAM, TUMOR_BAM, REFERENCE_GENOME, JOINT_NAME);
+        result = new Assemble(factory).initialise(REFERENCE_BAM, TUMOR_BAM, REFERENCE_GENOME, JOINT_NAME);
     }
 
     @Test
@@ -94,10 +77,8 @@ public class AssembleTest implements CommonEntities {
         assertThat(result).isNotNull();
         List<BashCommand> allCommands = result.commands();
         assertThat(allCommands.get(0).asBash()).isEqualTo(format("mkdir -p %s", new File(fullOutputPath).getParent()));
-        assertThat(allCommands.get(1)).isEqualTo(assembleBreakendsBash);
-        assertThat(allCommands.get(2)).isEqualTo(collectMetricsBash);
-        assertThat(allCommands.get(3)).isEqualTo(clipsBash);
+        assertThat(allCommands.get(1)).isEqualTo(assembleBreakends);
+        assertThat(allCommands.get(2)).isEqualTo(collectMetrics);
+        assertThat(allCommands.get(3)).isEqualTo(clips);
     }
-
-
 }

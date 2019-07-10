@@ -10,7 +10,6 @@ import java.util.List;
 
 import com.hartwig.pipeline.calling.structural.gridss.command.AssembleBreakends;
 import com.hartwig.pipeline.calling.structural.gridss.command.CollectGridssMetrics;
-import com.hartwig.pipeline.calling.structural.gridss.command.GridssToBashCommandConverter;
 import com.hartwig.pipeline.calling.structural.gridss.command.SoftClipsToSplitReads;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.unix.MkDirCommand;
@@ -19,7 +18,6 @@ import org.immutables.value.Value;
 
 public class Assemble {
     private final CommandFactory factory;
-    private final GridssToBashCommandConverter converter;
 
     @Value.Immutable
     public interface AssembleResult {
@@ -32,9 +30,8 @@ public class Assemble {
         String workingDir();
     }
 
-    public Assemble(final CommandFactory factory, final GridssToBashCommandConverter converter) {
+    public Assemble(final CommandFactory factory) {
         this.factory = factory;
-        this.converter = converter;
     }
 
     public AssembleResult initialise(final String sampleBam, final String tumorBam, final String referenceGenome, final String jointName) {
@@ -47,10 +44,7 @@ public class Assemble {
                 factory.buildSoftClipsToSplitReadsForAssemble(assembler.assemblyBam(), referenceGenome, assembleSvOutputBam);
 
         return ImmutableAssembleResult.builder()
-                .commands(asList(new MkDirCommand(gridssWorkingDirForAssembleBam),
-                        converter.convert(assembler),
-                        converter.convert(metrics),
-                        converter.convert(clipsToReads)))
+                .commands(asList(new MkDirCommand(gridssWorkingDirForAssembleBam), assembler, metrics, clipsToReads))
                 .assemblyBam(assembleSvOutputBam)
                 .svMetrics(metrics.outputBaseFilename())
                 .workingDir(gridssWorkingDirForAssembleBam)
