@@ -27,6 +27,7 @@ public class RCloneCloudCopyTest {
     private RCloneCloudCopy victim;
 
     @Before
+    @SuppressWarnings("unchecked")
     public void setUp() throws Exception {
         processBuilder = mock(ProcessBuilder.class);
         Process process = mock(Process.class);
@@ -35,13 +36,12 @@ public class RCloneCloudCopyTest {
         when(processBuilder.redirectOutput(ProcessBuilder.Redirect.INHERIT)).thenReturn(processBuilder);
         when(process.waitFor(anyLong(), any())).thenReturn(true);
         when(process.exitValue()).thenReturn(0);
-        //noinspection unchecked
         commandCaptor = ArgumentCaptor.forClass(List.class);
         victim = new RCloneCloudCopy(PATH_TO_RCLONE, GCP_REMOTE, AWS_REMOTE, () -> processBuilder);
     }
 
     @Test
-    public void usesRcloneFromSpecifiedPath() throws Exception {
+    public void usesRcloneFromSpecifiedPath() {
         victim.copy(LOCAL_SOURCE_FILE, LOCAL_TARGET_FILE);
         verify(processBuilder, times(1)).command(commandCaptor.capture());
         assertThat(commandCaptor.getValue().get(0)).isEqualTo(PATH_TO_RCLONE + RCloneCloudCopy.RCLONE);

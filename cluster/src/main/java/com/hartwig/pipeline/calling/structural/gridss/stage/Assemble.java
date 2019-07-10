@@ -39,9 +39,9 @@ public class Assemble {
 
     public AssembleResult initialise(final String sampleBam, final String tumorBam, final String referenceGenome, final String jointName) {
         AssembleBreakends assembler = factory.buildAssembleBreakends(sampleBam, tumorBam, referenceGenome, jointName);
-        CollectGridssMetrics metrics = factory.buildCollectGridssMetrics(assembler.assemblyBam());
-
         String gridssWorkingDirForAssembleBam = outputFile(format("%s.gridss.working", new File(assembler.assemblyBam()).getName()));
+        CollectGridssMetrics metrics = factory.buildCollectGridssMetrics(assembler.assemblyBam(), gridssWorkingDirForAssembleBam);
+
         String assembleSvOutputBam = format("%s/%s.sv.bam", gridssWorkingDirForAssembleBam, new File(assembler.assemblyBam()).getName());
         SoftClipsToSplitReads.ForAssemble clipsToReads =
                 factory.buildSoftClipsToSplitReadsForAssemble(assembler.assemblyBam(), referenceGenome, assembleSvOutputBam);

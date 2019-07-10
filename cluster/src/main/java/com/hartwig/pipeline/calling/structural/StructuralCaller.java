@@ -19,6 +19,7 @@ import com.hartwig.pipeline.calling.structural.gridss.stage.Filter;
 import com.hartwig.pipeline.calling.structural.gridss.stage.Preprocess;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
+import com.hartwig.pipeline.execution.vm.BatchInputDownload;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.OutputUpload;
@@ -82,7 +83,8 @@ public class StructuralCaller {
         InputDownload referenceBam = new InputDownload(pair.reference().finalBamLocation());
         InputDownload referenceBai = new InputDownload(pair.reference().finalBaiLocation());
 
-        bash.addCommands(asList(tumorBam, referenceBam, tumorBai, referenceBai, referenceGenomeDownload, gridssConfigFiles, gridssPonFiles));
+        bash.addCommand(new BatchInputDownload(referenceBam, referenceBai, tumorBam, tumorBai));
+        bash.addCommands(asList(referenceGenomeDownload, gridssConfigFiles, gridssPonFiles));
 
         bash.addCommand(new UlimitOpenFilesCommand(102400));
         bash.addCommand(new ExportVariableCommand("PATH", format("${PATH}:%s", dirname(GridssCommon.pathToBwa()))));
@@ -106,11 +108,13 @@ public class StructuralCaller {
                 new Preprocess(commandFactory, commandConverter).initialise(referenceBam.getLocalTargetPath(),
                         referenceSampleName,
                         referenceGenomePath,
+                        gridssWorkingDirForReferenceBam,
                         preprocessSvOutputReferenceBam);
         Preprocess.PreprocessResult preprocessedTumorSample =
                 new Preprocess(commandFactory, commandConverter).initialise(tumorBam.getLocalTargetPath(),
                         tumorSampleName,
                         referenceGenomePath,
+                        gridssWorkingDirForTumorBam,
                         preprocessSvOutputTumorBam);
 
         Assemble.AssembleResult assemblyResult = new Assemble(commandFactory, commandConverter).initialise(preprocessedRefSample.svBam(),

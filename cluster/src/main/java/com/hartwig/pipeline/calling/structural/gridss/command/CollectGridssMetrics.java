@@ -2,14 +2,15 @@ package com.hartwig.pipeline.calling.structural.gridss.command;
 
 import static java.lang.String.format;
 
-import com.hartwig.pipeline.calling.structural.gridss.GridssCommon;
-import com.hartwig.pipeline.execution.vm.VmDirectories;
+import java.io.File;
 
 public class CollectGridssMetrics implements GridssCommand {
     private final String inputBam;
+    private final String workingDirectory;
 
-    public CollectGridssMetrics(final String inputBam) {
+    public CollectGridssMetrics(final String inputBam, final String workingDirectory) {
         this.inputBam = inputBam;
+        this.workingDirectory = workingDirectory;
     }
 
     @Override
@@ -32,10 +33,8 @@ public class CollectGridssMetrics implements GridssCommand {
                         .asBash();
     }
 
-    // This GRIDSS command uses the "-o" argument to mean the fully-qualified basename for the output files. It will
-    // generate filenames for each of the requested metrics based upon that starting point.
     public String outputBaseFilename() {
-        return VmDirectories.outputFile(format("%s_metrics", GridssCommon.basenameNoExtensions(inputBam)));
+        return format("%s/%s", workingDirectory, new File(inputBam).getName());
     }
 
     @Override

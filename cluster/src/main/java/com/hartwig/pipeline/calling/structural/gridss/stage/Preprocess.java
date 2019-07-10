@@ -35,8 +35,8 @@ public class Preprocess {
     }
 
     public PreprocessResult initialise(final String inputBam, final String sampleName, final String referenceGenome,
-            final String outputSvBam) {
-        CollectGridssMetrics gridssCollectMetrics = factory.buildCollectGridssMetrics(inputBam);
+            final String workingDirectory, final String outputSvBam) {
+        CollectGridssMetrics gridssCollectMetrics = factory.buildCollectGridssMetrics(inputBam, workingDirectory);
         ExtractSvReads extractSvReads = factory.buildExtractSvReads(inputBam,
                 sampleName,
                 format("%s.insert_size_metrics", gridssCollectMetrics.outputBaseFilename()));

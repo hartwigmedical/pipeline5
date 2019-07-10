@@ -49,7 +49,7 @@ public class AssembleTest implements CommonEntities {
         when(assembleBreakends.assemblyBam()).thenReturn(assembledBam);
 
         collectMetrics = mock(CollectGridssMetrics.class);
-        when(factory.buildCollectGridssMetrics(any())).thenReturn(collectMetrics);
+        when(factory.buildCollectGridssMetrics(any(), any())).thenReturn(collectMetrics);
         when(collectMetrics.outputBaseFilename()).thenReturn("collect_metrics.metrics");
 
         clips = mock(SoftClipsToSplitReads.ForAssemble.class);
@@ -74,8 +74,9 @@ public class AssembleTest implements CommonEntities {
     }
 
     @Test
-    public void shouldRequestCollectGridssMetricsFromFactoryPassingAssembledBam() {
-        verify(factory).buildCollectGridssMetrics(assembledBam);
+    public void shouldRequestCollectGridssMetricsFromFactoryPassingAssembledBamAndWorkingDirectory() {
+        String workingDirectory = OUT_DIR + "/" + assembledBam + ".gridss.working";
+        verify(factory).buildCollectGridssMetrics(assembledBam, workingDirectory);
     }
 
     @Test
@@ -97,4 +98,6 @@ public class AssembleTest implements CommonEntities {
         assertThat(allCommands.get(2)).isEqualTo(collectMetricsBash);
         assertThat(allCommands.get(3)).isEqualTo(clipsBash);
     }
+
+
 }

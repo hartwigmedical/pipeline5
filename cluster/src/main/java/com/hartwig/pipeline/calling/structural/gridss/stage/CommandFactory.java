@@ -32,8 +32,8 @@ public class CommandFactory {
         return new BgzipCommand(annotatedVcf);
     }
 
-    public CollectGridssMetrics buildCollectGridssMetrics(final String inputBam) {
-        return new CollectGridssMetrics(inputBam);
+    public CollectGridssMetrics buildCollectGridssMetrics(final String inputBam, final String workingDirectory) {
+        return new CollectGridssMetrics(inputBam, workingDirectory);
     }
 
     public ExtractSvReads buildExtractSvReads(final String inputBam, final String sampleName, final String insertSizeMetrics) {
@@ -63,11 +63,11 @@ public class CommandFactory {
         return new TabixCommand(inputVcf);
     }
 
-    public SambambaGridssSortCommand buildSambambaCommandSortByName(String outputBam) {
+    public SambambaGridssSortCommand buildSambambaCommandSortByName(final String outputBam) {
         return SambambaGridssSortCommand.sortByName(outputBam);
     }
 
-    public SambambaGridssSortCommand buildSambambaCommandSortByDefault(String outputBam) {
+    public SambambaGridssSortCommand buildSambambaCommandSortByDefault(final String outputBam) {
         return SambambaGridssSortCommand.sortByDefault(outputBam);
     }
 }
