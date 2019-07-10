@@ -36,7 +36,7 @@ public class FullSomaticResults {
             String pathSplit = blob.getName().substring(blob.getName().indexOf("/") + 1, blob.getName().length());
             storage.copy(Storage.CopyRequest.of(arguments.patientReportBucket(),
                     blob.getName(),
-                    BlobId.of(arguments.patientReportBucket(), metadata.runName() + "/" + pathSplit)));
+                    BlobId.of(arguments.patientReportBucket(), metadata.runName() + "/" + pathSplit))).getResult();
             blob.delete();
         }
     }

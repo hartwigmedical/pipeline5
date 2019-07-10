@@ -30,15 +30,15 @@ public class RuntimeBucketTest {
     private static final String REGION = "region";
     private static final String NAMESPACED_BLOB = "test/path/to/blob";
     private Storage storage;
-    private ArgumentCaptor<BucketInfo> blobInfo;
+    private ArgumentCaptor<BucketInfo> bucketInfo;
     private Bucket bucket;
 
     @Before
     public void setUp() throws Exception {
         storage = mock(Storage.class);
         bucket = mock(Bucket.class);
-        blobInfo = ArgumentCaptor.forClass(BucketInfo.class);
-        when(storage.create(blobInfo.capture())).thenReturn(bucket);
+        bucketInfo = ArgumentCaptor.forClass(BucketInfo.class);
+        when(storage.create(bucketInfo.capture())).thenReturn(bucket);
     }
 
     @Test
@@ -47,7 +47,7 @@ public class RuntimeBucketTest {
                 NAMESPACE,
                 referenceRunMetadata(),
                 Arguments.testDefaultsBuilder().profile(Arguments.DefaultsProfile.PRODUCTION).build());
-        assertThat(blobInfo.getValue().getName()).isEqualTo("run-reference");
+        assertThat(bucketInfo.getValue().getName()).isEqualTo("run-reference");
     }
 
     @Test
@@ -56,19 +56,19 @@ public class RuntimeBucketTest {
                 NAMESPACE,
                 defaultSomaticRunMetadata(),
                 Arguments.testDefaultsBuilder().profile(Arguments.DefaultsProfile.PRODUCTION).build());
-        assertThat(blobInfo.getValue().getName()).isEqualTo("run-reference-tumor");
+        assertThat(bucketInfo.getValue().getName()).isEqualTo("run-reference-tumor");
     }
 
     @Test
     public void setsRegionToArguments() {
         RuntimeBucket.from(storage, NAMESPACE, referenceRunMetadata(), Arguments.testDefaultsBuilder().region(REGION).build());
-        assertThat(blobInfo.getValue().getLocation()).isEqualTo(REGION);
+        assertThat(bucketInfo.getValue().getLocation()).isEqualTo(REGION);
     }
 
     @Test
     public void usesRegionalStorageClass() {
         defaultBucket();
-        assertThat(blobInfo.getValue().getStorageClass()).isEqualTo(StorageClass.REGIONAL);
+        assertThat(bucketInfo.getValue().getStorageClass()).isEqualTo(StorageClass.REGIONAL);
     }
 
     @Test
@@ -131,6 +131,19 @@ public class RuntimeBucketTest {
         when(bucket.list(listOptionCaptor.capture())).thenReturn(page);
         victim.list("prefix");
         assertThat(listOptionCaptor.getValue()).isEqualTo(Storage.BlobListOption.prefix("test/prefix"));
+    }
+
+    @Test
+    public void usesCmekWhenProvided() {
+        RuntimeBucket.from(storage, NAMESPACE, referenceRunMetadata(), Arguments.testDefaultsBuilder().cmek("key").build());
+        assertThat(bucketInfo.getValue().getDefaultKmsKeyName()).isEqualTo(
+                "projects/hmf-pipeline-development/locations/europe-west4/keyRings/hmf-pipeline-development/cryptoKeys/key");
+    }
+
+    @Test
+    public void doesNotUseCmekIfNotProvided() {
+        RuntimeBucket.from(storage, NAMESPACE, referenceRunMetadata(), Arguments.testDefaults());
+        assertThat(bucketInfo.getValue().getDefaultKmsKeyName()).isNullOrEmpty();
     }
 
     @NotNull
