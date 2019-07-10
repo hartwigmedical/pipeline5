@@ -18,9 +18,9 @@ We evaluated both [Google Cloud Platform](https://cloud.google.com/) (GCP) and [
 The last point was quite important to us due to a design choice made to address resource contention. Pv5 uses ephemeral clusters tailored to each patient. This way at any point we are only using exactly the resources we need for our workload, never having to queue or idle. To make this possible we spin up large clusters quickly as new patients come in and tear them down again once the patient processing is complete.
 
 Pv5 makes use of the following GCP services:
-[Google Cloud Storage](https://cloud.google.com/storage/) to store transient patient data, supporting resources, configuration and tools.
-[Google Dataproc](https://cloud.google.com/dataproc/) to run ADAM/Spark workloads, currently only used in alignment (more on this later).
-[Google Compute Engine](https://cloud.google.com/compute/) to run workloads using tools not yet compatible with Spark (samtools, GATK, strelka, etc)
+- [Google Cloud Storage](https://cloud.google.com/storage/) to store transient patient data, supporting resources, configuration and tools.
+- [Google Dataproc](https://cloud.google.com/dataproc/) to run ADAM/Spark workloads, currently only used in alignment (more on this later).
+- [Google Compute Engine](https://cloud.google.com/compute/) to run workloads using tools not yet compatible with Spark (samtools, GATK, strelka, etc)
 
 ### 1.3 ADAM, Spark and Dataproc
 [ADAM](https://github.com/bigdatagenomics/adam) is a genomic analysis modeling and processing framework built on Apache Spark. Please see [the documentation](https://adam.readthedocs.io/en/latest/) for a complete description of the ADAM ecosystem and goals. At this point we only use the core APIs and datamodels. [Apache Spark](https://spark.apache.org/) is an analytics engine used for large scale data processing, also best to read their own docs for a complete description.
