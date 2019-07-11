@@ -69,3 +69,42 @@ Final QC of the purple results and BAM metrics.
 [Schuberg Philis](https://schubergphilis.com/) manages our pipeline operations. The production deployment of Pv5 is run in their environment. SBP provides orchestration tooling to manage the ingestion of FASTQ data from the HMF labs and metadata management of the samples, runs and output files. They also administer the HMF GCP projects.
 
 ### 2. Developers Guide
+
+#### Building and Testing Pipeline 5
+
+Pv5 is a Java application and is built with Maven. It is compatible with all builds of [Java 8](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) and [Maven 3](https://maven.apache.org/download.cgi) (if in doubt just use the latest).
+
+Otherwise only pre-requisite for running the build is having bwa installed locally (for the ADAM functional tests). For Mac users bwa can be installed easily via homebrew, and there are also packages for most linux distributions. All else fails you can build from source
+http://bio-bwa.sourceforge.net/
+
+To build the application and run all thes tests do the following
+
+```
+mvn clean install -DskipDocker
+```
+Note the `skipDocker`. Building the Docker image is quite time consuming and probably not necessary for most testing. If you remove this flag a docker image will be built for you based on the version of the artifact in your root pom.xml
+
+#### CI with Travis
+
+After each push our CI build runs on [Travis](https://travis-ci.org/). The build is basically the equivalent of running `mvn clean install`. On each CI build we:
+- Compile all the modules.
+- Run all the tests
+- Create a shaded jar for all code to be run on Spark.
+- Create a docker image which can be used to run the code in production.
+
+Each docker image gets a version of 5.{minor}.{build-number}. Every build should produce a releasable image, although not every release ends up in project (ie. we're not doing continuous delivery at this point). We do not use branches for different releases, only a single master.
+
+#### GIT and Pull Requests
+
+We use PRs to implement a pre-commit review process, not for long-lived feature branches. When working on a ticket for which you wish to have reviewed before ending up in production:
+- Create a ticket for you work in [JIRA](https://hartwigmedical.atlassian.net/secure/Dashboard.jspa)
+- Create a branch matching the name of the ticket.
+- Do some cool stuff
+- Push your new branch, make sure to expose it remotely
+- GitHub should detect your push to a branch and show you a button to create a PR at the top of the repo.
+- Assign a reviewer to your new PR.
+- Address any comments, then merge
+
+Small changes do not need to follow this process, its meant to help and not hinder productivity. Use your best judgement.
+
+All changes should be committed with quality commit messages, as this is a main source of documentation. Please the [7 rules](https://chris.beams.io/posts/git-commit/) and follow them.
