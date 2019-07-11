@@ -73,9 +73,9 @@ Final QC of the purple results and BAM metrics.
 
 [Schuberg Philis](https://schubergphilis.com/) manages our pipeline operations. The production deployment of Pv5 is run in their environment. SBP provides orchestration tooling to manage the ingestion of FASTQ data from the HMF labs and metadata management of the samples, runs and output files. They also administer the HMF GCP projects.
 
-### 2. Developers Guide
+## 2. Developers Guide
 
-#### Building and Testing Pipeline 5
+### 2.1 Building and Testing Pipeline 5
 
 Pv5 is a Java application and is built with Maven. It is compatible with all builds of [Java 8](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) and [Maven 3](https://maven.apache.org/download.cgi) (if in doubt just use the latest).
 
@@ -89,7 +89,7 @@ mvn clean install -DskipDocker
 ```
 Note the `skipDocker`. Building the Docker image is quite time consuming and probably not necessary for most testing. If you remove this flag a docker image will be built for you based on the version of the artifact in your root pom.xml
 
-#### CI with Travis
+### 2.2 CI with Travis
 
 After each push our CI build runs on [Travis](https://travis-ci.org/). The build is basically the equivalent of running `mvn clean install`. On each CI build we:
 - Compile all the modules.
@@ -99,7 +99,7 @@ After each push our CI build runs on [Travis](https://travis-ci.org/). The build
 
 Each docker image gets a version of 5.{minor}.{build-number}. Every build should produce a releasable image, although not every release ends up in project (ie. we're not doing continuous delivery at this point). We do not use branches for different releases, only a single master.
 
-#### GIT and Pull Requests
+### 2.3 GIT and Pull Requests
 
 We use PRs to implement a pre-commit review process, not for long-lived feature branches. When working on a ticket for which you wish to have reviewed before ending up in production:
 - Create a ticket for you work in [JIRA](https://hartwigmedical.atlassian.net/secure/Dashboard.jspa)
