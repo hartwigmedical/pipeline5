@@ -8,7 +8,6 @@ import java.util.List;
 import com.hartwig.pipeline.calling.structural.gridss.command.CollectGridssMetrics;
 import com.hartwig.pipeline.calling.structural.gridss.command.ComputeSamTags;
 import com.hartwig.pipeline.calling.structural.gridss.command.ExtractSvReads;
-import com.hartwig.pipeline.calling.structural.gridss.command.GridssToBashCommandConverter;
 import com.hartwig.pipeline.calling.structural.gridss.command.SoftClipsToSplitReads;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.unix.PipeCommands;
@@ -18,7 +17,6 @@ import org.immutables.value.Value;
 
 public class Preprocess {
     private final CommandFactory factory;
-    private final GridssToBashCommandConverter converter;
 
     @Value.Immutable
     public interface PreprocessResult {
@@ -29,22 +27,21 @@ public class Preprocess {
         List<BashCommand> commands();
     }
 
-    public Preprocess(final CommandFactory factory, final GridssToBashCommandConverter converter) {
+    public Preprocess(final CommandFactory factory) {
         this.factory = factory;
-        this.converter = converter;
     }
 
     public PreprocessResult initialise(final String inputBam, final String sampleName, final String referenceGenome,
-            final String outputSvBam, final String workingDirectory) {
-        CollectGridssMetrics gridssCollectMetrics = factory.buildCollectGridssMetrics(inputBam);
+            final String workingDirectory, final String outputSvBam) {
+        CollectGridssMetrics gridssCollectMetrics = factory.buildCollectGridssMetrics(inputBam, workingDirectory);
         ExtractSvReads extractSvReads = factory.buildExtractSvReads(inputBam,
                 sampleName,
                 format("%s.insert_size_metrics", gridssCollectMetrics.outputBaseFilename()),
                 workingDirectory);
-        SubShellCommand secondSubStage = new SubShellCommand(new PipeCommands(converter.convert(extractSvReads),
+        SubShellCommand secondSubStage = new SubShellCommand(new PipeCommands(extractSvReads,
                 factory.buildSambambaCommandSortByName(extractSvReads.resultantBam())));
         ComputeSamTags gridssComputeSamTags = factory.buildComputeSamTags(extractSvReads.resultantBam(), referenceGenome, sampleName);
-        SubShellCommand thirdSubStage = new SubShellCommand(new PipeCommands(converter.convert(gridssComputeSamTags),
+        SubShellCommand thirdSubStage = new SubShellCommand(new PipeCommands(gridssComputeSamTags,
                 factory.buildSambambaCommandSortByDefault(gridssComputeSamTags.resultantBam())));
         SoftClipsToSplitReads.ForPreprocess softClips =
                 factory.buildSoftClipsToSplitReadsForPreProcess(gridssComputeSamTags.resultantBam(), referenceGenome, outputSvBam);
@@ -52,7 +49,7 @@ public class Preprocess {
         return ImmutablePreprocessResult.builder()
                 .svBam(outputSvBam)
                 .metrics(gridssCollectMetrics.outputBaseFilename())
-                .commands(asList(converter.convert(gridssCollectMetrics), secondSubStage, thirdSubStage, converter.convert(softClips)))
+                .commands(asList(gridssCollectMetrics, secondSubStage, thirdSubStage, softClips))
                 .build();
 
     }

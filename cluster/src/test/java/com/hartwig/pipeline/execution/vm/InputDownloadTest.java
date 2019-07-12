@@ -10,26 +10,34 @@ import org.junit.Test;
 public class InputDownloadTest {
 
     private InputDownload victim;
+    private String remoteSourcePath;
+    private String bucket;
 
     @Before
     public void setUp() throws Exception {
-        victim = new InputDownload(GoogleStorageLocation.of("test", "path/to/input.file"));
+        remoteSourcePath = "path/to/input.file";
+        bucket = "test";
+        victim = new InputDownload(GoogleStorageLocation.of(bucket, remoteSourcePath));
     }
 
     @Test
     public void createsBashToCopyInputWithGsUtil() {
-        assertThat(victim.asBash()).isEqualTo("gsutil -qm cp -n gs://test/path/to/input.file /data/input/input.file");
+        assertThat(victim.asBash()).isEqualTo("gsutil -qm cp -n gs://" + bucket + "/" + remoteSourcePath + " /data/input/input.file");
     }
 
     @Test
     public void createsLocalPathUsingSourceLocationAndConvention() {
-        assertThat(victim.asBash()).isEqualTo("gsutil -qm cp -n gs://test/path/to/input.file /data/input/input.file");
+        assertThat(victim.asBash()).isEqualTo("gsutil -qm cp -n gs://" + bucket + "/" + remoteSourcePath + " /data/input/input.file");
     }
 
     @Test
     public void supportsCopyingOfInputDirectories() {
-        victim = new InputDownload(GoogleStorageLocation.of("test", "path/to/input/dir", true));
-        assertThat(victim.asBash()).isEqualTo("gsutil -qm cp -n gs://test/path/to/input/dir/* /data/input/");
+        victim = new InputDownload(GoogleStorageLocation.of(bucket, "path/to/input/dir", true));
+        assertThat(victim.asBash()).isEqualTo("gsutil -qm cp -n gs://" + bucket + "/path/to/input/dir/* /data/input/");
     }
 
+    @Test
+    public void shouldReturnRemoteSourcePath() {
+        assertThat(victim.getRemoteSourcePath()).isEqualTo("gs://" + bucket + "/" + remoteSourcePath);
+    }
 }

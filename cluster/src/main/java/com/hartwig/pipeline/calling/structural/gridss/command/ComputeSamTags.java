@@ -2,10 +2,12 @@ package com.hartwig.pipeline.calling.structural.gridss.command;
 
 import static java.lang.String.format;
 
-import com.hartwig.pipeline.calling.structural.gridss.GridssCommon;
+import java.util.Arrays;
+import java.util.List;
+
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 
-public class ComputeSamTags implements GridssCommand {
+public class ComputeSamTags extends GridssCommand {
     private final String inProgressBam;
     private final String referenceGenome;
     private final String sampleName;
@@ -21,28 +23,27 @@ public class ComputeSamTags implements GridssCommand {
     }
 
     @Override
-    public String arguments() {
-        return new GridssArguments()
-                .add("tmp_dir", GridssCommon.tmpDir())
-                .add("working_dir", VmDirectories.OUTPUT)
-                .add("reference_sequence", referenceGenome)
-                .add("compression_level", "0")
-                .add("i", inProgressBam)
-                .add("o", "/dev/stdout")
-                .add("recalculate_sa_supplementary", "true")
-                .add("soften_hard_clips", "true")
-                .add("fix_mate_information", "true")
-                .add("fix_duplicate_flag", "true")
-                .add("tags", "null")
-                .add("tags", "NM")
-                .add("tags", "SA")
-                .add("tags", "R2")
-                .add("tags", "Q2")
-                .add("tags", "MC")
-                .add("tags", "MQ")
-                .add("assume_sorted", "true").asBash();
+    public List<GridssArgument> arguments() {
+        return Arrays.asList(GridssArgument.tempDir(),
+                new GridssArgument("working_dir", VmDirectories.OUTPUT),
+                new GridssArgument("reference_sequence", referenceGenome),
+                new GridssArgument("compression_level", "0"),
+                new GridssArgument("i", inProgressBam),
+                new GridssArgument("o", "/dev/stdout"),
+                new GridssArgument("recalculate_sa_supplementary", "true"),
+                new GridssArgument("soften_hard_clips", "true"),
+                new GridssArgument("fix_mate_information", "true"),
+                new GridssArgument("fix_duplicate_flag", "true"),
+                new GridssArgument("tags", "null"),
+                new GridssArgument("tags", "NM"),
+                new GridssArgument("tags", "SA"),
+                new GridssArgument("tags", "R2"),
+                new GridssArgument("tags", "Q2"),
+                new GridssArgument("tags", "MC"),
+                new GridssArgument("tags", "MQ"),
+                new GridssArgument("assume_sorted", "true"));
     }
-
+    
     @Override
     public String className() {
         return "gridss.ComputeSamTags";

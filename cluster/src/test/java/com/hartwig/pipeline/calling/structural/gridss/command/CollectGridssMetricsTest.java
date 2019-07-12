@@ -1,22 +1,29 @@
 package com.hartwig.pipeline.calling.structural.gridss.command;
 
+import static java.lang.String.format;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
+
 import org.junit.Before;
 import org.junit.Test;
 
-import static java.lang.String.format;
-import static org.assertj.core.api.Assertions.assertThat;
-
-public class CollectGridssMetricsTest implements CommonEntities  {
+public class CollectGridssMetricsTest implements CommonEntities {
     private CollectGridssMetrics command;
-    private String inputFile;
-    private String outputMetrics;
+    private String inputBamBasename;
+    private String inputBamFullPath;
+    private String outputMetricsFilepathPrefix;
+    private String fullOutputMetricsFilepathPrefix;
 
     @Before
     public void setup() {
-        inputFile = "input-file.bam";
-        outputMetrics = format("%s/input-file_metrics", OUT_DIR);
-        command = new CollectGridssMetrics(inputFile);
+        inputBamBasename = "input-file.bam";
+        inputBamFullPath = "/full/path/to/" + inputBamBasename;
+        outputMetricsFilepathPrefix = format("%s/input-file_metrics", OUT_DIR);
+        fullOutputMetricsFilepathPrefix = format("%s/%s", outputMetricsFilepathPrefix, inputBamBasename);
+        command = new CollectGridssMetrics(inputBamFullPath, outputMetricsFilepathPrefix);
+
     }
 
     @Test
@@ -34,8 +41,8 @@ public class CollectGridssMetricsTest implements CommonEntities  {
         GridssCommonArgumentsAssert.assertThat(command)
                 .hasGridssArguments("tmp_dir", "/tmp")
                 .and("assume_sorted", "true")
-                .and("i", inputFile)
-                .and("o", outputMetrics)
+                .and("i", inputBamFullPath)
+                .and("o", fullOutputMetricsFilepathPrefix)
                 .and("threshold_coverage", "50000")
                 .and("file_extension", "null")
                 .and("gridss_program", "null")
@@ -51,7 +58,7 @@ public class CollectGridssMetricsTest implements CommonEntities  {
 
     @Test
     public void shouldReturnMetrics() {
-        assertThat(command.outputBaseFilename()).isNotNull();
-        assertThat(command.outputBaseFilename()).isEqualTo(outputMetrics);
+        assertThat(command.outputBaseFilename()).isNotEmpty();
+        assertThat(command.outputBaseFilename()).isEqualTo(fullOutputMetricsFilepathPrefix);
     }
 }
