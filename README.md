@@ -11,8 +11,8 @@ Pipeline5 (Pv5) is a processing and analysis pipeline for high throughput DNA se
 ### 1.2 Google Cloud Platform
 We chose Google Cloud Platform as our cloud infrastructure provider for the following reasons (evaluated fall 2018):
 - GCP had the best and simplest pricing model for our workload.
-- GCP has a more user friendly console for monitoring and operations
-- GCP’s managed Hadoop offering, Dataproc, had the fastest startup times.§§ b;5
+- GCP had the most user friendly console for monitoring and operations.
+- GCP had the fastest startup time for its managed Hadoop service.
 
 The last point was important to us due to a design choice made to address resource contention. Pv5 uses ephemeral clusters tailored to each patient. This way at any point we are only using exactly the resources we need for our workload, never having to queue or idle. To make this possible we spin up large clusters quickly as new patients come in and tear them down again once the patient processing is complete.
 
