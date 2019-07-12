@@ -57,6 +57,7 @@ public class CommandLineOptions {
     private static final String SET_ID_FLAG = "set_id";
     private static final String SBP_RUN_ID_FLAG = "sbp_run_id";
     private static final String PRIVATE_NETWORK_FLAG = "private_network";
+    private static final String CMEK_FLAG = "cmek";
 
     private static Options options() {
         return new Options().addOption(profile())
@@ -104,7 +105,13 @@ public class CommandLineOptions {
                 .addOption(resourceBucket())
                 .addOption(toolsBucket())
                 .addOption(patientReportBucket())
-                .addOption(privateNetwork());
+                .addOption(privateNetwork())
+                .addOption(cmek());
+    }
+
+    private static Option cmek() {
+        return optionWithArg(CMEK_FLAG,
+                "The name of the Customer Managed Encryption Key. When this flag is populated all runtime buckets " + "will use this key.");
     }
 
     private static Option privateNetwork() {
@@ -265,6 +272,7 @@ public class CommandLineOptions {
                     .toolsBucket(commandLine.getOptionValue(TOOLS_BUCKET_FLAG, defaults.toolsBucket()))
                     .patientReportBucket(commandLine.getOptionValue(PATIENT_REPORT_BUCKET_FLAG, defaults.patientReportBucket()))
                     .privateNetwork(privateNetwork(commandLine, defaults))
+                    .cmek(cmek(commandLine, defaults))
                     .profile(defaults.profile())
                     .build();
         } catch (ParseException e) {
@@ -275,11 +283,18 @@ public class CommandLineOptions {
         }
     }
 
+    private static Optional<String> cmek(final CommandLine commandLine, final Arguments defaults) {
+        if (commandLine.hasOption(CMEK_FLAG)) {
+            return Optional.of(commandLine.getOptionValue(CMEK_FLAG));
+        }
+        return defaults.cmek();
+    }
+
     private static Optional<String> privateNetwork(final CommandLine commandLine, final Arguments defaults) {
         if (commandLine.hasOption(PRIVATE_NETWORK_FLAG)) {
             return Optional.of(commandLine.getOptionValue(PRIVATE_NETWORK_FLAG));
         }
-        return Optional.empty();
+        return defaults.cmek();
     }
 
     private static Optional<Integer> sbpRunId(final CommandLine commandLine) {

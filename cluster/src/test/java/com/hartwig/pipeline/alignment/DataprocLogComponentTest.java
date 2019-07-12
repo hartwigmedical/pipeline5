@@ -6,7 +6,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -15,6 +14,7 @@ import java.util.List;
 import com.google.api.gax.paging.Page;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
+import com.google.cloud.storage.CopyWriter;
 import com.google.cloud.storage.Storage;
 import com.google.common.collect.Lists;
 import com.hartwig.pipeline.storage.RuntimeBucket;
@@ -68,7 +68,7 @@ public class DataprocLogComponentTest {
     }
 
     @Test
-    public void composesLogsByStepName() {
+    public void copiesLogsIntoOutput() {
         String gunzipPath = DataprocLogComponent.METADATA_PATH + "/xyz/jobs/run-test-gunzip/driveroutput.000000000";
         String sortPath = DataprocLogComponent.METADATA_PATH + "/xyz/jobs/run-test-sortandindex/driveroutput.000000000";
         List<Blob> blobs = Lists.newArrayList(TestBlobs.blob(gunzipPath),
@@ -78,8 +78,9 @@ public class DataprocLogComponentTest {
         Bucket bucket = mock(Bucket.class);
         when(bucket.getName()).thenReturn(REPORT_BUCKET);
         ArgumentCaptor<Storage.CopyRequest> copyCaptor = ArgumentCaptor.forClass(Storage.CopyRequest.class);
+        CopyWriter copyWriter = mock(CopyWriter.class);
+        when(storage.copy(copyCaptor.capture())).thenReturn(copyWriter);
         victim.addToReport(storage, bucket, TEST_SET);
-        verify(storage, times(2)).copy(copyCaptor.capture());
         assertThat(copyCaptor.getAllValues()).hasSize(2);
         checkCopy(copyCaptor, 0, "sortandindex");
         checkCopy(copyCaptor, 1, "gunzip");
