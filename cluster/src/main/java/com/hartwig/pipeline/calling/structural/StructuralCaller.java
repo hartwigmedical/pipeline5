@@ -112,12 +112,14 @@ public class StructuralCaller {
                 new Preprocess(commandFactory, commandConverter).initialise(referenceBam.getLocalTargetPath(),
                         referenceSampleName,
                         referenceGenomePath,
-                        preprocessSvOutputReferenceBam);
+                        preprocessSvOutputReferenceBam,
+                        gridssWorkingDirForReferenceBam);
         Preprocess.PreprocessResult preprocessedTumorSample =
                 new Preprocess(commandFactory, commandConverter).initialise(tumorBam.getLocalTargetPath(),
                         tumorSampleName,
                         referenceGenomePath,
-                        preprocessSvOutputTumorBam);
+                        preprocessSvOutputTumorBam,
+                        gridssWorkingDirForTumorBam);
 
         Assemble.AssembleResult assemblyResult = new Assemble(commandFactory, commandConverter).initialise(preprocessedRefSample.svBam(),
                 preprocessedTumorSample.svBam(),

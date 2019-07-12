@@ -10,11 +10,13 @@ public class ExtractSvReads implements GridssCommand {
     private final String inputBam;
     private final String sampleName;
     private final String insertSizeMetrics;
+    private final String workingDirectory;
 
-    public ExtractSvReads(final String inputFile, final String sampleName, final String insertSizeMetrics) {
+    public ExtractSvReads(final String inputFile, final String sampleName, final String insertSizeMetrics, final String workingDirectory) {
         this.inputBam = inputFile;
         this.sampleName = sampleName;
         this.insertSizeMetrics = insertSizeMetrics;
+        this.workingDirectory = workingDirectory;
     }
 
     public String resultantBam() {
@@ -22,17 +24,12 @@ public class ExtractSvReads implements GridssCommand {
     }
 
     public String resultantMetrics() {
-        return format("%s.sv_metrics", outputDirectory());
-    }
-
-    private String outputDirectory() {
-        return VmDirectories.outputFile(format("%s.gridss.working", sampleName));
+        return format("%s/%s.sv_metrics", workingDirectory, sampleName);
     }
 
     @Override
     public String arguments() {
-        return new GridssArguments()
-                .add("tmp_dir", GridssCommon.tmpDir())
+        return new GridssArguments().add("tmp_dir", GridssCommon.tmpDir())
                 .add("assume_sorted", "true")
                 .add("i", inputBam)
                 .add("o", "/dev/stdout")
@@ -41,7 +38,8 @@ public class ExtractSvReads implements GridssCommand {
                 .add("insert_size_metrics", insertSizeMetrics)
                 .add("unmapped_reads", "false")
                 .add("min_clip_length", "5")
-                .add("include_duplicates", "true").asBash();
+                .add("include_duplicates", "true")
+                .asBash();
     }
 
     @Override

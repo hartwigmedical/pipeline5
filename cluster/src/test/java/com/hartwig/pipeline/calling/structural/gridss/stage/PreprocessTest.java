@@ -1,19 +1,26 @@
 package com.hartwig.pipeline.calling.structural.gridss.stage;
 
-import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
-import com.hartwig.pipeline.calling.structural.gridss.command.*;
-import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.execution.vm.JavaClassCommand;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.util.List;
-
 import static java.lang.String.format;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import java.util.List;
+
+import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
+import com.hartwig.pipeline.calling.structural.gridss.command.CollectGridssMetrics;
+import com.hartwig.pipeline.calling.structural.gridss.command.ComputeSamTags;
+import com.hartwig.pipeline.calling.structural.gridss.command.ExtractSvReads;
+import com.hartwig.pipeline.calling.structural.gridss.command.GridssToBashCommandConverter;
+import com.hartwig.pipeline.calling.structural.gridss.command.SambambaGridssSortCommand;
+import com.hartwig.pipeline.calling.structural.gridss.command.SoftClipsToSplitReads;
+import com.hartwig.pipeline.execution.vm.BashCommand;
+import com.hartwig.pipeline.execution.vm.JavaClassCommand;
+
+import org.junit.Before;
+import org.junit.Test;
 
 public class PreprocessTest implements CommonEntities {
     private String collectMetricsAndExtractReadsBam;
@@ -56,7 +63,7 @@ public class PreprocessTest implements CommonEntities {
         when(collectMetricsBash.asBash()).thenReturn(collectMetricsBashCommands);
 
         extractSvReads = mock(ExtractSvReads.class);
-        when(factory.buildExtractSvReads(any(), any(), any())).thenReturn(extractSvReads);
+        when(factory.buildExtractSvReads(any(), any(), any(), any())).thenReturn(extractSvReads);
         when(extractSvReads.resultantMetrics()).thenReturn(collectMetricsBaseOutputFilename);
         when(extractSvReads.resultantBam()).thenReturn(collectMetricsAndExtractReadsBam);
 
@@ -92,7 +99,7 @@ public class PreprocessTest implements CommonEntities {
         when(clipsBash.asBash()).thenReturn(clipsBashCommands);
 
         result = new Preprocess(factory, converter).initialise(REFERENCE_BAM,
-                REFERENCE_SAMPLE, REFERENCE_GENOME, OUTPUT_BAM);
+                REFERENCE_SAMPLE, REFERENCE_GENOME, OUTPUT_BAM, "working");
     }
 
     @Test
