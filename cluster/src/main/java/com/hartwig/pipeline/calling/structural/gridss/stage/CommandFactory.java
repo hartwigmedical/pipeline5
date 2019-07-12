@@ -20,24 +20,25 @@ public class CommandFactory {
 
     public AnnotateVariants buildAnnotateVariants(final String sampleBam, final String tumorBam, final String assemblyBam,
             final String rawVcf, final String referenceGenome, final String jointName) {
-        return new AnnotateVariants(sampleBam, tumorBam, assemblyBam, rawVcf, referenceGenome, jointName);
+        return new AnnotateVariants(sampleBam, tumorBam, assemblyBam, rawVcf, referenceGenome, jointName, null, null);
     }
 
     public AssembleBreakends buildAssembleBreakends(final String sampleBam, final String tumorBam, final String referenceGenome,
             final String jointName) {
-        return new AssembleBreakends(sampleBam, tumorBam, referenceGenome, jointName);
+        return new AssembleBreakends(sampleBam, tumorBam, referenceGenome, jointName, null, null);
     }
 
     public BgzipCommand buildBgzipCommand(final String annotatedVcf) {
         return new BgzipCommand(annotatedVcf);
     }
 
-    public CollectGridssMetrics buildCollectGridssMetrics(final String inputBam) {
-        return new CollectGridssMetrics(inputBam);
+    public CollectGridssMetrics buildCollectGridssMetrics(final String inputBam, final String workingDirectory) {
+        return new CollectGridssMetrics(inputBam, workingDirectory);
     }
 
-    public ExtractSvReads buildExtractSvReads(final String inputBam, final String sampleName, final String insertSizeMetrics) {
-        return new ExtractSvReads(inputBam, sampleName, insertSizeMetrics);
+    public ExtractSvReads buildExtractSvReads(final String inputBam, final String sampleName, final String insertSizeMetrics,
+            final String workingDirectory) {
+        return new ExtractSvReads(inputBam, sampleName, insertSizeMetrics, workingDirectory);
     }
 
     public ComputeSamTags buildComputeSamTags(final String inProgressBam, final String referenceGenome, final String sampleName) {
@@ -46,7 +47,7 @@ public class CommandFactory {
 
     public IdentifyVariants buildIdentifyVariants(final String sampleBam, final String tumorBam, final String assemblyBam,
             final String referenceGenome) {
-        return new IdentifyVariants(sampleBam, tumorBam, assemblyBam, referenceGenome);
+        return new IdentifyVariants(sampleBam, tumorBam, assemblyBam, referenceGenome, null, null);
     }
 
     public SoftClipsToSplitReads.ForAssemble buildSoftClipsToSplitReadsForAssemble(final String intermediateBamPath,
@@ -63,11 +64,11 @@ public class CommandFactory {
         return new TabixCommand(inputVcf);
     }
 
-    public SambambaGridssSortCommand buildSambambaCommandSortByName(String outputBam) {
+    public SambambaGridssSortCommand buildSambambaCommandSortByName(final String outputBam) {
         return SambambaGridssSortCommand.sortByName(outputBam);
     }
 
-    public SambambaGridssSortCommand buildSambambaCommandSortByDefault(String outputBam) {
+    public SambambaGridssSortCommand buildSambambaCommandSortByDefault(final String outputBam) {
         return SambambaGridssSortCommand.sortByDefault(outputBam);
     }
 }

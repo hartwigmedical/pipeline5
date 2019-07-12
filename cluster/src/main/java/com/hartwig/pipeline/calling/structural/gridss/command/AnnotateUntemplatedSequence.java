@@ -1,8 +1,11 @@
 package com.hartwig.pipeline.calling.structural.gridss.command;
 
+import java.util.Arrays;
+import java.util.List;
+
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 
-public class AnnotateUntemplatedSequence implements GridssCommand {
+public class AnnotateUntemplatedSequence extends GridssCommand {
 
     private final String inputVcf;
     private final String referenceGenome;
@@ -24,10 +27,9 @@ public class AnnotateUntemplatedSequence implements GridssCommand {
     }
 
     @Override
-    public String arguments() {
-        return new GridssArguments().add("reference_sequence", referenceGenome)
-                .add("input", inputVcf)
-                .add("output", resultantVcf())
-                .asBash();
+    public List<GridssArgument> arguments() {
+        return Arrays.asList(new GridssArgument("reference_sequence", referenceGenome),
+                new GridssArgument("input", inputVcf),
+                new GridssArgument("output", resultantVcf()));
     }
 }
