@@ -9,11 +9,10 @@
 Pipeline5 (Pv5) is a processing and analysis pipeline for high throughput DNA sequencing data used in Hartwig Medical Foundation's (HMF) patient processing and research. The goals of the project are to deliver best in class performance and scalability using modern big data techniques and cloud infrastructure. To this end, Pv5 uses ADAM, Spark and Google Cloud Platform. Following is an overview of how they come together to form the Pv5 architecture.
 
 ### 1.2 Google Cloud Platform
-We evaluated both [Google Cloud Platform](https://cloud.google.com/) (GCP) and [Amazon Web Services](https://aws.amazon.com/) (AWS) as cloud infrastructure providers. While both are great platforms and offer roughly equivalent services, we chose GCP for the following reasons (all at the time of evaluation, fall 2019):
-- GCP is less expensive for our workload.
-- GCP has a simpler pricing model for compute.
+We chose Google Cloud Platform as our cloud infrastructure provider for the following reasons (evaluated fall 2018):
+- GCP had the best and simplest pricing model for our workload.
 - GCP has a more user friendly console for monitoring and operations
-- GCP’s managed Hadoop offering, Dataproc, has faster startup times
+- GCP’s managed Hadoop offering, Dataproc, had the fastest startup times.
 
 The last point was quite important to us due to a design choice made to address resource contention. Pv5 uses ephemeral clusters tailored to each patient. This way at any point we are only using exactly the resources we need for our workload, never having to queue or idle. To make this possible we spin up large clusters quickly as new patients come in and tear them down again once the patient processing is complete.
 
@@ -52,7 +51,7 @@ Also used in final QC, GATK’s [UnifiedGenotyper](https://software.broadinstitu
 #### 1.5.5 Germline Calling (GATK HaplotypeCaller)
 GATk’s [HaplotypeCaller](https://software.broadinstitute.org/gatk/documentation/tooldocs/3.8-0/org_broadinstitute_gatk_tools_walkers_haplotypecaller_HaplotypeCaller.php) is used to call germline variants on the reference sample only.
 #### 1.5.6 Somatic Variant Calling (Strelka)
-[Strelka2](https://github.com/Illumina/strelka) from illumina is used to call SNP and INDEL variants between the tumor/reference pair.
+[Strelka](https://github.com/Illumina/strelka) from illumina is used to call SNP and INDEL variants between the tumor/reference pair.
 #### 1.5.7 Structural Variant Calling (GRIDSS)
 [GRIDSS](https://github.com/PapenfussLab/gridss) is used to call structural variants between the tumor/reference pair.
 #### 1.5.8 Cobalt
