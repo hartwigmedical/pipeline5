@@ -19,7 +19,9 @@ public class Filter {
     @Value.Immutable
     public interface FilterResult {
         List<BashCommand> commands();
+
         String fullVcf();
+
         String filteredVcf();
     }
 
@@ -39,6 +41,11 @@ public class Filter {
 
         List<BashCommand> commands = new ArrayList<>();
         commands.add(() -> format("gunzip -kd %s", originalVcf));
+        commands.add(() -> format(
+                "gunzip -c %s | awk ' { if (length($0) >= 4000) { gsub(\":0.00:\", "
+                        + "\":0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+                        + "00000000000000000000000000000000000000:\")} ; print $0  } ' > %s",
+                originalVcf, unzippedOriginalVcf));
         commands.add(() -> format("Rscript %s/gridss_somatic_filter.R -p %s -i %s -o %s -f %s -s %s",
                 pathToGridssScripts(),
                 VmDirectories.RESOURCES,
@@ -51,11 +58,7 @@ public class Filter {
         commands.add(() -> format("mv %s.bgz %s", outputVcf, filteredVcf));
         commands.add(() -> format("mv %s.bgz.tbi %s.tbi", outputVcf, filteredVcf));
 
-        return ImmutableFilterResult.builder()
-                .commands(commands)
-                .fullVcf(fullVcfCompressed)
-                .filteredVcf(filteredVcf)
-                .build();
+        return ImmutableFilterResult.builder().commands(commands).fullVcf(fullVcfCompressed).filteredVcf(filteredVcf).build();
     }
 }
 

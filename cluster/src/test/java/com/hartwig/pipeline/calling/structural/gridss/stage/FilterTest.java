@@ -19,7 +19,7 @@ import org.junit.Test;
 public class FilterTest implements CommonEntities {
 
     private static final String PATH_TO_GRIDSS_SCRIPTS = format("%s/gridss-scripts/4.8.1", TOOLS_DIR);
-    private static final int RSCRIPT_LINE_NUMBER = 2;
+    private static final int RSCRIPT_LINE_NUMBER = 3;
 
     private String bashCommands;
     private String originalVcf;
@@ -46,7 +46,7 @@ public class FilterTest implements CommonEntities {
 
     @Test
     public void shouldRunRscriptWithCorrectScriptAsSecondStep() {
-        String secondLine = extractOutputLine(2);
+        String secondLine = extractOutputLine(RSCRIPT_LINE_NUMBER);
         assertThat(secondLine).startsWith(format("Rscript %s/gridss_somatic_filter.R ", PATH_TO_GRIDSS_SCRIPTS));
     }
 
