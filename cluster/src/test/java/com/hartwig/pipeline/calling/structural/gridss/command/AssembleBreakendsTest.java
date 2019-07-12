@@ -11,10 +11,15 @@ import org.junit.Test;
 
 public class AssembleBreakendsTest implements CommonEntities {
     private AssembleBreakends command;
+    private String configurationFile;
+    private String blacklist;
 
     @Before
     public void setup() {
-        command = new AssembleBreakends(REFERENCE_BAM, TUMOR_BAM, REFERENCE_GENOME, REFERENCE_SAMPLE + "_" + TUMOR_SAMPLE);
+        configurationFile = "/some/path/config.properties";
+        blacklist = "/blacklist.bed";
+        command = new AssembleBreakends(REFERENCE_BAM, TUMOR_BAM, REFERENCE_GENOME, REFERENCE_SAMPLE + "_" + TUMOR_SAMPLE,
+                configurationFile, blacklist);
     }
 
     @Test
@@ -35,8 +40,8 @@ public class AssembleBreakendsTest implements CommonEntities {
                 .and(ARG_KEY_INPUT, REFERENCE_BAM)
                 .and(ARG_KEY_INPUT, TUMOR_BAM)
                 .and(ARG_KEY_OUTPUT, command.assemblyBam())
-                .and(ARGS_BLACKLIST)
-                .and(ARGS_GRIDSS_CONFIG)
+                .andBlacklist(blacklist)
+                .andConfigFile(configurationFile)
                 .andNoMore();
     }
 

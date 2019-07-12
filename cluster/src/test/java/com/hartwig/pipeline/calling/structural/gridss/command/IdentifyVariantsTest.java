@@ -1,21 +1,27 @@
 package com.hartwig.pipeline.calling.structural.gridss.command;
 
+import static java.lang.String.format;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
+
 import org.junit.Before;
 import org.junit.Test;
-
-import static java.lang.String.format;
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class IdentifyVariantsTest implements CommonEntities {
     private IdentifyVariants command;
     private String assemblyBam;
     private String expectedOutputFile = format("%s/sv_calling.vcf", OUT_DIR);
+    private String configurationFile;
+    private String blacklist;
 
     @Before
     public void setup() {
         assemblyBam = "/assembly.bam";
-        command = new IdentifyVariants(REFERENCE_BAM, TUMOR_BAM, assemblyBam, REFERENCE_GENOME);
+        configurationFile = "/config.properties";
+        blacklist = "/path/to/blacklist.bed";
+        command = new IdentifyVariants(REFERENCE_BAM, TUMOR_BAM, assemblyBam, REFERENCE_GENOME, configurationFile, blacklist);
     }
 
     @Test
@@ -38,8 +44,8 @@ public class IdentifyVariantsTest implements CommonEntities {
                 .and(ARG_KEY_INPUT, TUMOR_BAM)
                 .and("output_vcf", expectedOutputFile)
                 .and("assembly", assemblyBam)
-                .and(ARGS_BLACKLIST)
-                .and(ARGS_GRIDSS_CONFIG)
+                .andBlacklist(blacklist)
+                .andConfigFile(configurationFile)
                 .andNoMore();
     }
 

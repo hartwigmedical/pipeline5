@@ -2,8 +2,6 @@ package com.hartwig.pipeline.calling.structural.gridss.stage;
 
 import static java.lang.String.format;
 
-import static com.hartwig.pipeline.calling.structural.gridss.GridssCommon.pathToGridssScripts;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -11,6 +9,8 @@ import java.util.regex.Pattern;
 
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
+import com.hartwig.pipeline.execution.vm.unix.GunzipAndKeepArchiveCommand;
+import com.hartwig.pipeline.execution.vm.unix.MvCommand;
 
 import org.immutables.value.Value;
 
@@ -25,7 +25,9 @@ public class Filter {
         String filteredVcf();
     }
 
+
     public FilterResult initialise(final String originalVcf, final String tumorSample) {
+        String pathToGridssScripts =  VmDirectories.TOOLS + "/gridss-scripts/4.8.1";
         String unzippedOriginalVcf;
         Matcher matcher = Pattern.compile("(.+).gz$").matcher(originalVcf);
         if (matcher.matches()) {
@@ -40,23 +42,23 @@ public class Filter {
         String fullVcfCompressed = VmDirectories.outputFile(format("%s.gridss.somatic.full.vcf.gz", tumorSample));
 
         List<BashCommand> commands = new ArrayList<>();
-        commands.add(() -> format("gunzip -kd %s", originalVcf));
+        commands.add(new GunzipAndKeepArchiveCommand(originalVcf));
         commands.add(() -> format(
                 "gunzip -c %s | awk ' { if (length($0) >= 4000) { gsub(\":0.00:\", "
                         + "\":0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
                         + "00000000000000000000000000000000000000:\")} ; print $0  } ' > %s",
-                originalVcf, unzippedOriginalVcf));
+                originalVcf, unzippedOriginalVcf));      
         commands.add(() -> format("Rscript %s/gridss_somatic_filter.R -p %s -i %s -o %s -f %s -s %s",
-                pathToGridssScripts(),
+                pathToGridssScripts,
                 VmDirectories.RESOURCES,
                 unzippedOriginalVcf,
                 outputVcf,
                 fullVcfCompressed,
-                pathToGridssScripts()));
-        commands.add(() -> format("mv %s.bgz %s", fullVcf, fullVcfCompressed));
-        commands.add(() -> format("mv %s.bgz.tbi %s.tbi", fullVcf, fullVcfCompressed));
-        commands.add(() -> format("mv %s.bgz %s", outputVcf, filteredVcf));
-        commands.add(() -> format("mv %s.bgz.tbi %s.tbi", outputVcf, filteredVcf));
+                pathToGridssScripts));
+        commands.add(new MvCommand(fullVcf + ".bgz", fullVcfCompressed));
+        commands.add(new MvCommand(fullVcf + ".bgz.tbi", fullVcfCompressed + ".tbi"));
+        commands.add(new MvCommand(outputVcf + ".bgz", filteredVcf));
+        commands.add(new MvCommand(outputVcf + ".bgz.tbi", filteredVcf + ".tbi"));
 
         return ImmutableFilterResult.builder().commands(commands).fullVcf(fullVcfCompressed).filteredVcf(filteredVcf).build();
     }

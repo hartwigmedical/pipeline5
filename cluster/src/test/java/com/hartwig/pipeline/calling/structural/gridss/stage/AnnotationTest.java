@@ -14,9 +14,7 @@ import com.hartwig.pipeline.calling.command.TabixCommand;
 import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
 import com.hartwig.pipeline.calling.structural.gridss.command.AnnotateUntemplatedSequence;
 import com.hartwig.pipeline.calling.structural.gridss.command.AnnotateVariants;
-import com.hartwig.pipeline.calling.structural.gridss.command.GridssToBashCommandConverter;
 import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.execution.vm.JavaClassCommand;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -30,7 +28,6 @@ public class AnnotationTest implements CommonEntities {
     private String annotatedUntemplatedVcf;
 
     private CommandFactory factory;
-    private GridssToBashCommandConverter converter;
 
     private AnnotateVariants annotateVariants;
     private AnnotateUntemplatedSequence annotateUntemplated;
@@ -38,8 +35,6 @@ public class AnnotationTest implements CommonEntities {
     private TabixCommand tabix;
     private Annotation.AnnotationResult result;
     private String assemblyBam;
-    private JavaClassCommand annotateVariantsBash;
-    private JavaClassCommand annotateUntemplatedBash;
     private String annotateVariantsBashCommands;
     private String annotateUntemplatedBashCommands;
 
@@ -54,23 +49,18 @@ public class AnnotationTest implements CommonEntities {
         annotatedUntemplatedVcf = "annotated_untemplated.vcf";
 
         factory = mock(CommandFactory.class);
-        converter = mock(GridssToBashCommandConverter.class);
 
         annotateVariants = mock(AnnotateVariants.class);
         when(annotateVariants.resultantVcf()).thenReturn(annotatedVcf);
         when(factory.buildAnnotateVariants(any(), any(), any(), any(), any(), any())).thenReturn(annotateVariants);
-        annotateVariantsBash = mock(JavaClassCommand.class);
-        when(converter.convert(annotateVariants)).thenReturn(annotateVariantsBash);
         annotateVariantsBashCommands = "annotate variants bash";
-        when(annotateVariantsBash.asBash()).thenReturn(annotateVariantsBashCommands);
+        when(annotateVariants.asBash()).thenReturn(annotateVariantsBashCommands);
 
         annotateUntemplated = mock(AnnotateUntemplatedSequence.class);
         when(annotateUntemplated.resultantVcf()).thenReturn(annotatedUntemplatedVcf);
         when(factory.buildAnnotateUntemplatedSequence(any(), any(), any())).thenReturn(annotateUntemplated);
-        annotateUntemplatedBash = mock(JavaClassCommand.class);
-        when(converter.convert(annotateUntemplated)).thenReturn(annotateUntemplatedBash);
         annotateUntemplatedBashCommands = "annotate untemplated bash";
-        when(annotateUntemplatedBash.asBash()).thenReturn(annotateUntemplatedBashCommands);
+        when(annotateUntemplated.asBash()).thenReturn(annotateUntemplatedBashCommands);
 
         bgzip = mock(BgzipCommand.class);
         when(factory.buildBgzipCommand(any())).thenReturn(bgzip);
@@ -78,7 +68,7 @@ public class AnnotationTest implements CommonEntities {
         tabix = mock(TabixCommand.class);
         when(factory.buildTabixCommand(any())).thenReturn(tabix);
 
-        result = new Annotation(factory, converter).initialise(sampleBam, tumorBam, assemblyBam, rawVcf, REFERENCE_GENOME, JOINT_NAME);
+        result = new Annotation(factory).initialise(sampleBam, tumorBam, assemblyBam, rawVcf, REFERENCE_GENOME, JOINT_NAME);
     }
 
     @Test

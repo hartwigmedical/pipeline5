@@ -4,9 +4,7 @@ import static java.lang.String.format;
 
 import java.util.Objects;
 
-import com.hartwig.pipeline.execution.vm.BashCommand;
-
-public class GridssArgument implements BashCommand {
+public class GridssArgument {
     private final String key;
     private final String value;
 
@@ -15,7 +13,18 @@ public class GridssArgument implements BashCommand {
         this.value = value;
     }
 
-    @Override
+    static GridssArgument tempDir() {
+        return new GridssArgument("tmp_dir", System.getProperty("java.io.tmpdir"));
+    }
+
+    static GridssArgument blacklist(String blacklist) {
+        return new GridssArgument("blacklist", blacklist);
+    }
+
+    static GridssArgument configFile(String configurationFile) {
+        return new GridssArgument("configuration_file", configurationFile);
+    }
+
     public String asBash() {
         return format("%s=%s", key, value);
     }

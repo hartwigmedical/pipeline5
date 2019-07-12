@@ -5,7 +5,6 @@ import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
-import com.hartwig.pipeline.calling.structural.gridss.GridssCommon;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 
 import org.junit.Before;
@@ -16,13 +15,17 @@ public class AnnotateVariantsTest implements CommonEntities {
     private String assemblyBam;
     private String inputVcf;
     private String expectedResultantVcf;
+    private String configurationFile;
+    private String blacklist;
 
     @Before
     public void setup() {
         assemblyBam = "assembly.bam";
+        configurationFile = "/some/stuff.props";
+        blacklist = "/the/blacklist";
         inputVcf = "input.vcf";
         expectedResultantVcf = format("%s/sample12345678R_sample12345678T.annotated_variants.vcf", OUT_DIR);
-        command = new AnnotateVariants(REFERENCE_BAM, TUMOR_BAM, assemblyBam, inputVcf, REFERENCE_GENOME, JOINT_NAME);
+        command = new AnnotateVariants(REFERENCE_BAM, TUMOR_BAM, assemblyBam, inputVcf, REFERENCE_GENOME, JOINT_NAME, configurationFile, blacklist);
     }
 
     @Test
@@ -51,8 +54,8 @@ public class AnnotateVariantsTest implements CommonEntities {
                 .and("input_vcf", inputVcf)
                 .and("output_vcf", expectedResultantVcf)
                 .and("assembly", assemblyBam)
-                .and("blacklist", GridssCommon.blacklist())
-                .and("configuration_file", GridssCommon.configFile())
+                .andBlacklist(blacklist)
+                .andConfigFile(configurationFile)
                 .andNoMore();
     }
 }

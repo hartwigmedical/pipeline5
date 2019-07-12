@@ -1,21 +1,24 @@
 package com.hartwig.pipeline.calling.structural.gridss.command;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 
 public class SoftClipsToSplitReads {
     private final static String CLASS_NAME = "gridss.SoftClipsToSplitReads";
 
-    private static GridssArguments sharedArguments(final String inputBam, final String outputBam,
+    private static List<GridssArgument> sharedArguments(final String inputBam, final String outputBam,
                                                    final String referenceGenome) {
-        return new GridssArguments()
-                .add("tmp_dir", "/tmp")
-                .add("working_dir", VmDirectories.OUTPUT)
-                .add("reference_sequence", referenceGenome)
-                .add("i", inputBam)
-                .add("o", outputBam);
+        return Arrays.asList(GridssArgument.tempDir(),
+                new GridssArgument("working_dir", VmDirectories.OUTPUT),
+                new GridssArgument("reference_sequence", referenceGenome),
+                new GridssArgument("i", inputBam),
+                new GridssArgument("o", outputBam));
     }
 
-    public static class ForPreprocess implements GridssCommand {
+    public static class ForPreprocess extends GridssCommand {
         private final String intermediateBam;
         private final String referenceGenome;
         private final String outputBam;
@@ -27,8 +30,8 @@ public class SoftClipsToSplitReads {
         }
 
         @Override
-        public String arguments() {
-            return sharedArguments(intermediateBam, outputBam, referenceGenome).asBash();
+        public List<GridssArgument> arguments() {
+            return sharedArguments(intermediateBam, outputBam, referenceGenome);
         }
 
         @Override
@@ -37,7 +40,7 @@ public class SoftClipsToSplitReads {
         }
     }
 
-    public static class ForAssemble implements GridssCommand {
+    public static class ForAssemble extends GridssCommand {
         private final String inputBam;
         private final String referenceGenome;
         private final String outputBam;
@@ -49,14 +52,19 @@ public class SoftClipsToSplitReads {
         }
 
         @Override
-        public String arguments() {
-            return sharedArguments(inputBam, outputBam, referenceGenome)
-                .add("realign_entire_read", "true").asBash();
+        public List<GridssArgument> arguments() {
+            List<GridssArgument> arguments = new ArrayList<>(sharedArguments(inputBam, outputBam, referenceGenome));
+            arguments.add(new GridssArgument("realign_entire_read", "true"));
+            return arguments;
         }
 
         @Override
         public String className() {
             return CLASS_NAME;
         }
+    }
+
+    public static final void main(String[] args) {
+        System.out.println(new SoftClipsToSplitReads.ForAssemble("input", "refgen", "output").asBash());
     }
 }

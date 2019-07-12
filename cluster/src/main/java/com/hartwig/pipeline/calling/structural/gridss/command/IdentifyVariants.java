@@ -1,35 +1,40 @@
 package com.hartwig.pipeline.calling.structural.gridss.command;
 
-import com.hartwig.pipeline.calling.structural.gridss.GridssCommon;
+import java.util.Arrays;
+import java.util.List;
+
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 
-public class IdentifyVariants implements GridssCommand {
+public class IdentifyVariants extends GridssCommand {
     private final String sampleBam;
     private final String tumorBam;
     private final String assemblyBam;
     private final String referenceGenome;
+    private final String configurationFile;
+    private final String blacklist;
 
     public IdentifyVariants(final String sampleBam, final String tumorBam, final String assemblyBam,
-                            final String referenceGenome) {
+                            final String referenceGenome, final String configurationFile, final String blacklist) {
         this.sampleBam = sampleBam;
         this.tumorBam = tumorBam;
         this.assemblyBam = assemblyBam;
         this.referenceGenome = referenceGenome;
+        this.configurationFile = configurationFile;
+        this.blacklist = blacklist;
     }
 
     @Override
-    public String arguments() {
-        return new GridssArguments()
-                .add("tmp_dir", "/tmp")
-                .add("working_dir", VmDirectories.OUTPUT)
-                .add("reference_sequence", referenceGenome)
-                .add("input", sampleBam)
-                .add("input", tumorBam)
-                .add("output_vcf", resultantVcf())
-                .add("assembly", assemblyBam)
-                .addBlacklist()
-                .add("configuration_file", GridssCommon.configFile())
-                .asBash();
+    public List<GridssArgument> arguments() {
+        return Arrays.asList(GridssArgument.tempDir(),
+                new GridssArgument("working_dir", VmDirectories.OUTPUT),
+                new GridssArgument("reference_sequence", referenceGenome),
+                new GridssArgument("input", sampleBam),
+                new GridssArgument("input", tumorBam),
+                new GridssArgument("output_vcf", resultantVcf()),
+                new GridssArgument("assembly", assemblyBam),
+                GridssArgument.blacklist(blacklist),
+                GridssArgument.configFile(configurationFile)
+        );
     }
 
     public String resultantVcf() {

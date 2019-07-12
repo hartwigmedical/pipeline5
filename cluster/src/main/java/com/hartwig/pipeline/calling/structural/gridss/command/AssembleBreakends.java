@@ -1,18 +1,26 @@
 package com.hartwig.pipeline.calling.structural.gridss.command;
 
+import java.util.Arrays;
+import java.util.List;
+
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 
-public class AssembleBreakends implements GridssCommand {
+public class AssembleBreakends extends GridssCommand {
     private final String referenceGenome;
     private final String referenceBam;
     private final String tumorBam;
     private final String assemblyBam;
+    private final String configurationFile;
+    private final String blacklist;
 
-    public AssembleBreakends(final String referenceBam, final String tumorBam, final String referenceGenome, final String jointName) {
+    public AssembleBreakends(final String referenceBam, final String tumorBam, final String referenceGenome, final String jointName,
+            final String configurationFile, final String blacklist) {
         this.referenceGenome = referenceGenome;
         this.referenceBam = referenceBam;
         this.tumorBam = tumorBam;
         this.assemblyBam = VmDirectories.outputFile(jointName + ".assembly.bam");
+        this.configurationFile = configurationFile;
+        this.blacklist = blacklist;
     }
 
     public String assemblyBam() {
@@ -30,15 +38,15 @@ public class AssembleBreakends implements GridssCommand {
     }
 
     @Override
-    public String arguments() {
-        return new GridssArguments().addTempDir()
-                .add("working_dir", VmDirectories.OUTPUT)
-                .add("reference_sequence", referenceGenome)
-                .add("input", referenceBam)
-                .add("input", tumorBam)
-                .add("output", assemblyBam)
-                .addBlacklist()
-                .addConfigFile()
-                .asBash();
+    public List<GridssArgument> arguments() {
+        return Arrays.asList(GridssArgument.tempDir(),
+                new GridssArgument("working_dir", VmDirectories.OUTPUT),
+                new GridssArgument("reference_sequence", referenceGenome),
+                new GridssArgument("input", referenceBam),
+                new GridssArgument("input", tumorBam),
+                new GridssArgument("output", assemblyBam),
+                GridssArgument.blacklist(blacklist),
+                GridssArgument.configFile(configurationFile)
+        );
     }
 }
