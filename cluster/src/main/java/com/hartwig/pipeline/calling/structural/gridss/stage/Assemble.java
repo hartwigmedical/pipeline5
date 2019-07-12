@@ -51,7 +51,7 @@ public class Assemble {
                         converter.convert(assembler),
                         converter.convert(metrics),
                         converter.convert(clipsToReads)))
-                .assemblyBam(assembleSvOutputBam)
+                .assemblyBam(assembler.assemblyBam())
                 .svMetrics(metrics.outputBaseFilename())
                 .workingDir(gridssWorkingDirForAssembleBam)
                 .build();
