@@ -6,12 +6,7 @@
 ## 1. Technical Overview
 
 ### 1.1 Introduction
-Pipeline5 (Pv5) is a processing and analysis pipeline for high throughput DNA sequencing data, build for Hartwig Medical Foundation (HMF). The goals of the project are to deliver best in class performance using modern big data software, and scalability using cloud infrastructure. Pv5 succeeds Pipeline4, which uses a central GridEngine HPC to parallelize workloads. While this approach has worked for HMF for the last 10 years, it has some key drawbacks:
-GridEngine itself is no longer evolving
-Requires centrally managed infrastructure which is constantly under or over utilized.
-The codebase is difficult to change due to brittle and untested scripts
-
-To this end, Pv5 uses ADAM, Spark and Google Cloud Platform. Following is an overview of how they come together to form the Pv5 architecture.
+Pipeline5 (Pv5) is a processing and analysis pipeline for high throughput DNA sequencing data used in Hartwig Medical Foundation's (HMF) patient processing and research. The goals of the project are to deliver best in class performance and scalability using modern big data techniques and cloud infrastructure. To this end, Pv5 uses ADAM, Spark and Google Cloud Platform. Following is an overview of how they come together to form the Pv5 architecture.
 
 ### 1.2 Google Cloud Platform
 We evaluated both [Google Cloud Platform](https://cloud.google.com/) (GCP) and [Amazon Web Services](https://aws.amazon.com/) (AWS) as cloud infrastructure providers. While both are great platforms and offer roughly equivalent services, we chose GCP for the following reasons (all at the time of evaluation, fall 2019):
