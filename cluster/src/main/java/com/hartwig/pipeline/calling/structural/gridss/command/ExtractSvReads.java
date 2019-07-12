@@ -12,11 +12,13 @@ public class ExtractSvReads extends GridssCommand {
     private final String inputBam;
     private final String sampleName;
     private final String insertSizeMetrics;
+    private final String workingDirectory;
 
-    public ExtractSvReads(final String inputFile, final String sampleName, final String insertSizeMetrics) {
+    public ExtractSvReads(final String inputFile, final String sampleName, final String insertSizeMetrics, final String workingDirectory) {
         this.inputBam = inputFile;
         this.sampleName = sampleName;
         this.insertSizeMetrics = insertSizeMetrics;
+        this.workingDirectory = workingDirectory;
     }
 
     public String resultantBam() {
@@ -24,11 +26,7 @@ public class ExtractSvReads extends GridssCommand {
     }
 
     public String resultantMetrics() {
-        return format("%s.sv_metrics", outputDirectory());
-    }
-
-    private String outputDirectory() {
-        return VmDirectories.outputFile(format("%s.gridss.working", sampleName));
+        return format("%s/%s.sv_metrics", workingDirectory, sampleName);
     }
 
     @Override

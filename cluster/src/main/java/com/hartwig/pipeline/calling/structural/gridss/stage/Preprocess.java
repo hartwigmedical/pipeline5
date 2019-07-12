@@ -36,7 +36,8 @@ public class Preprocess {
         CollectGridssMetrics gridssCollectMetrics = factory.buildCollectGridssMetrics(inputBam, workingDirectory);
         ExtractSvReads extractSvReads = factory.buildExtractSvReads(inputBam,
                 sampleName,
-                format("%s.insert_size_metrics", gridssCollectMetrics.outputBaseFilename()));
+                format("%s.insert_size_metrics", gridssCollectMetrics.outputBaseFilename()),
+                workingDirectory);
         SubShellCommand secondSubStage = new SubShellCommand(new PipeCommands(extractSvReads,
                 factory.buildSambambaCommandSortByName(extractSvReads.resultantBam())));
         ComputeSamTags gridssComputeSamTags = factory.buildComputeSamTags(extractSvReads.resultantBam(), referenceGenome, sampleName);

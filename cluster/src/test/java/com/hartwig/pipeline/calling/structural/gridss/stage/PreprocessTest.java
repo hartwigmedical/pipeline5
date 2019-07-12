@@ -61,7 +61,7 @@ public class PreprocessTest implements CommonEntities {
 
         extractSvReadsBashCommands = "extract sv reads bash commands";
         extractSvReads = mock(ExtractSvReads.class);
-        when(factory.buildExtractSvReads(any(), any(), any())).thenReturn(extractSvReads);
+        when(factory.buildExtractSvReads(any(), any(), any(), any())).thenReturn(extractSvReads);
         when(extractSvReads.resultantMetrics()).thenReturn(collectMetricsBaseOutputFilename);
         when(extractSvReads.resultantBam()).thenReturn(collectMetricsAndExtractReadsBam);
         when(extractSvReads.asBash()).thenReturn(extractSvReadsBashCommands);
