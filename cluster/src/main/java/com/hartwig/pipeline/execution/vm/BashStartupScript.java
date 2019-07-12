@@ -16,6 +16,7 @@ public class BashStartupScript {
     private BashStartupScript(final String runtimeBucketName) {
         this.runtimeBucketName = runtimeBucketName;
         this.commands = new ArrayList<>();
+        this.commands.add("echo $(date) Starting run");
     }
 
     public static BashStartupScript of(final String runtimeBucketName) {
@@ -35,11 +36,12 @@ public class BashStartupScript {
                 format("  echo $exit_code > %s\n", jobFailedFlag) +
                 format("  gsutil -m cp %s gs://%s\n", jobFailedFlag, runtimeBucketName) +
                 "  exit $exit_code\n" + "}\n\n";
+        addLine("echo $(date) Run complete");
         addCompletionCommands();
         return preamble + commands.stream().collect(joining(format("%s\n", commandSuffix))) + (commands.isEmpty() ? "" : commandSuffix);
     }
 
-    public BashStartupScript addLine(String lineOne) {
+    BashStartupScript addLine(String lineOne) {
         commands.add(lineOne);
         return this;
     }

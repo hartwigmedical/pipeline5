@@ -1,19 +1,25 @@
 package com.hartwig.pipeline.calling.structural.gridss.stage;
 
-import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
-import com.hartwig.pipeline.calling.structural.gridss.command.*;
-import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.execution.vm.JavaClassCommand;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.util.List;
-
 import static java.lang.String.format;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.util.List;
+
+import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
+import com.hartwig.pipeline.calling.structural.gridss.command.CollectGridssMetrics;
+import com.hartwig.pipeline.calling.structural.gridss.command.ComputeSamTags;
+import com.hartwig.pipeline.calling.structural.gridss.command.ExtractSvReads;
+import com.hartwig.pipeline.calling.structural.gridss.command.SambambaGridssSortCommand;
+import com.hartwig.pipeline.calling.structural.gridss.command.SoftClipsToSplitReads;
+import com.hartwig.pipeline.execution.vm.BashCommand;
+
+import org.junit.Before;
+import org.junit.Test;
 
 public class PreprocessTest implements CommonEntities {
     private String collectMetricsAndExtractReadsBam;
@@ -26,13 +32,13 @@ public class PreprocessTest implements CommonEntities {
     private String collectMetricsBashCommands;
     private String sortByDefaultCommands;
     private String sortByNameCommands;
+    private String collectGridsMetricsWorkingDirectory;
 
     private CollectGridssMetrics collectGridssMetrics;
     private ComputeSamTags computeSamTags;
     private SoftClipsToSplitReads.ForPreprocess clips;
     private ExtractSvReads extractSvReads;
     private CommandFactory factory;
-    private GridssToBashCommandConverter converter;
     private Preprocess.PreprocessResult result;
     private SambambaGridssSortCommand sortByDefault;
     private SambambaGridssSortCommand sortByName;
@@ -41,24 +47,24 @@ public class PreprocessTest implements CommonEntities {
     public void setup() {
         collectMetricsAndExtractReadsBam = REFERENCE_BAM + ".collected";
         collectMetricsBaseOutputFilename = REFERENCE_BAM + "_metrics";
+        collectGridsMetricsWorkingDirectory = "/some/directory/somewhere";
 
         computeSamTagsBam = collectMetricsAndExtractReadsBam + ".computed";
 
         factory = mock(CommandFactory.class);
-        converter = mock(GridssToBashCommandConverter.class);
 
         collectGridssMetrics = mock(CollectGridssMetrics.class);
         collectMetricsBashCommands = "collect metrics bash commands";
-        when(factory.buildCollectGridssMetrics(any())).thenReturn(collectGridssMetrics);
+        when(factory.buildCollectGridssMetrics(any(), any())).thenReturn(collectGridssMetrics);
         when(collectGridssMetrics.outputBaseFilename()).thenReturn(collectMetricsBaseOutputFilename);
-        JavaClassCommand collectMetricsBash = mock(JavaClassCommand.class);
-        when(converter.convert(collectGridssMetrics)).thenReturn(collectMetricsBash);
-        when(collectMetricsBash.asBash()).thenReturn(collectMetricsBashCommands);
+        when(collectGridssMetrics.asBash()).thenReturn(collectMetricsBashCommands);
 
+        extractSvReadsBashCommands = "extract sv reads bash commands";
         extractSvReads = mock(ExtractSvReads.class);
         when(factory.buildExtractSvReads(any(), any(), any())).thenReturn(extractSvReads);
         when(extractSvReads.resultantMetrics()).thenReturn(collectMetricsBaseOutputFilename);
         when(extractSvReads.resultantBam()).thenReturn(collectMetricsAndExtractReadsBam);
+        when(extractSvReads.asBash()).thenReturn(extractSvReadsBashCommands);
 
         computeSamTags = mock(ComputeSamTags.class);
         when(factory.buildComputeSamTags(any(), any(), any())).thenReturn(computeSamTags);
@@ -67,7 +73,6 @@ public class PreprocessTest implements CommonEntities {
         clips = mock(SoftClipsToSplitReads.ForPreprocess.class);
         when(factory.buildSoftClipsToSplitReadsForPreProcess(any(), any(), any())).thenReturn(clips);
 
-        extractSvReadsBashCommands = "extract sv reads bash commands";
         sortByDefault = mock(SambambaGridssSortCommand.class);
         sortByName = mock(SambambaGridssSortCommand.class);
         when(factory.buildSambambaCommandSortByDefault(any())).thenReturn(sortByDefault);
@@ -77,22 +82,14 @@ public class PreprocessTest implements CommonEntities {
         sortByNameCommands = "sorting by name";
         when(sortByName.asBash()).thenReturn(sortByNameCommands);
 
-        JavaClassCommand collectorBash = mock(JavaClassCommand.class);
-        when(converter.convert(extractSvReads)).thenReturn(collectorBash);
-        when(collectorBash.asBash()).thenReturn(extractSvReadsBashCommands);
-
         computeSamTagsBashCommands = "compute sam tags bash commands";
-        JavaClassCommand computeSamTagsBash = mock(JavaClassCommand.class);
-        when(converter.convert(computeSamTags)).thenReturn(computeSamTagsBash);
-        when(computeSamTagsBash.asBash()).thenReturn(computeSamTagsBashCommands);
+        when(computeSamTags.asBash()).thenReturn(computeSamTagsBashCommands);
 
         clipsBashCommands = "clips bash commands";
-        JavaClassCommand clipsBash = mock(JavaClassCommand.class);
-        when(converter.convert(clips)).thenReturn(clipsBash);
-        when(clipsBash.asBash()).thenReturn(clipsBashCommands);
+        when(clips.asBash()).thenReturn(clipsBashCommands);
 
-        result = new Preprocess(factory, converter).initialise(REFERENCE_BAM,
-                REFERENCE_SAMPLE, REFERENCE_GENOME, OUTPUT_BAM);
+        result = new Preprocess(factory).initialise(REFERENCE_BAM,
+                REFERENCE_SAMPLE, REFERENCE_GENOME, collectGridsMetricsWorkingDirectory, OUTPUT_BAM);
     }
 
     @Test
@@ -117,5 +114,10 @@ public class PreprocessTest implements CommonEntities {
         assertThat(generatedCommands.get(1).asBash()).isEqualTo(stageTwo);
         assertThat(generatedCommands.get(2).asBash()).isEqualTo(stageThree);
         assertThat(generatedCommands.get(3).asBash()).isEqualTo(clipsBashCommands);
+    }
+
+    @Test
+    public void shouldPassInputBamAndWorkingDirectoryToFactoryToGetCollectGridssMetrics() {
+        verify(factory).buildCollectGridssMetrics(REFERENCE_BAM, collectGridsMetricsWorkingDirectory);
     }
 }

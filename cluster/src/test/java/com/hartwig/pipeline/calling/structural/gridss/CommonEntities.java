@@ -38,7 +38,6 @@ public interface CommonEntities {
     Map.Entry<String, String> ARGS_OUTPUT_TO_STDOUT = pair(ARG_KEY_OUTPUT_SHORT, "/dev/stdout");
     Map.Entry<String, String> ARGS_NO_COMPRESSION = pair("compression_level", "0");
     Map.Entry<String, String> ARGS_BLACKLIST = pair("blacklist", BLACKLIST);
-    Map.Entry<String, String> ARGS_GRIDSS_CONFIG = pair("configuration_file", GRIDSS_CONFIG);
     Map.Entry<String, String> ARGS_WORKING_DIR = pair("working_dir", OUT_DIR);
 
     static Map.Entry<String, String> pair(String key, String value) {

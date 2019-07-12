@@ -42,7 +42,7 @@ public class BashStartupScriptTest {
         assertThat(scriptBuilder.asUnixString()).isEqualTo(new String(Files.readAllBytes(Paths.get(expectedScript))));
     }
 
-    private class ComplexCommand implements BashCommand{
+    private class ComplexCommand implements BashCommand {
         @Override
         public String asBash() {
             return "not_really_so_complex \"quoted\"";
