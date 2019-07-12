@@ -27,7 +27,7 @@ Pv5 makes use of the following GCP services:
 
 We use ADAM to parallelize processing of FASTQ and BAM files using hadoop. ADAM provides an avro datamodel to read and persist this data from and to HDFS, and the ability to hold the massive datasets in memory as they are processed.
 
-Google Cloud Platform offers Dataproc as a managed spark environment. Each patient gets its own Dataproc cluster which is started when their FASTQ lands and deleted when tertiary analysis is complete. Dataproc includes a connector to use Google Storage as HDFS. With this we can have these transient compute clusters, with permanent distributed data storage.
+Google Cloud Platform offers [Dataproc](https://cloud.google.com/dataproc/) as a managed spark environment. Each patient gets its own Dataproc cluster which is started when their FASTQ lands and deleted when tertiary analysis is complete. Dataproc includes a connector to use Google Storage as HDFS. With this we can have these transient compute clusters, with permanent distributed data storage.
 
 ### 1.4 Google Compute Engine
 Not all the algorithms in our pipeline are currently suited to ADAM. For these tools we’ve developed a small framework to run them on VMs in Java. To accomplish this we’ve created a standard VM image containing a complete repository of external and internal tools, and OS dependencies.
