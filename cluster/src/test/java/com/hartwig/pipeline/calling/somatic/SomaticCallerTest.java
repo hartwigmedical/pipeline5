@@ -18,6 +18,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.google.cloud.storage.Bucket;
+import com.google.cloud.storage.CopyWriter;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
@@ -45,6 +46,8 @@ public class SomaticCallerTest {
         Bucket bucket = mock(Bucket.class);
         when(bucket.getName()).thenReturn(RUNTIME_BUCKET);
         when(storage.get(RUNTIME_BUCKET)).thenReturn(bucket);
+        CopyWriter copyWriter = mock(CopyWriter.class);
+        when(storage.copy(any())).thenReturn(copyWriter);
         MockResource.addToStorage(storage, REFERENCE_GENOME, "reference.fasta");
         MockResource.addToStorage(storage, SAGE, "hotspots.tsv", "coding_regions.bed", "SAGE_PON.vcf.gz");
         MockResource.addToStorage(storage, STRELKA_CONFIG, "strelka.ini");

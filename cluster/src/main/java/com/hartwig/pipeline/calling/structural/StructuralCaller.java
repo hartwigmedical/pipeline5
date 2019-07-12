@@ -72,10 +72,10 @@ public class StructuralCaller {
         ResourceDownload referenceGenomeDownload =
                 ResourceDownload.from(runtimeBucket, new Resource(storage, arguments.resourceBucket(), ResourceNames.REFERENCE_GENOME));
         String referenceGenomePath = referenceGenomeDownload.find("fa", "fasta");
-        ResourceDownload gridssConfigFiles = ResourceDownload.from(runtimeBucket,
-                new Resource(storage, arguments.resourceBucket(), ResourceNames.GRIDSS_CONFIG));
-        ResourceDownload gridssPonFiles = ResourceDownload.from(runtimeBucket,
-                new Resource(storage, arguments.resourceBucket(), ResourceNames.GRIDSS_PON));
+        ResourceDownload gridssConfigFiles =
+                ResourceDownload.from(runtimeBucket, new Resource(storage, arguments.resourceBucket(), ResourceNames.GRIDSS_CONFIG));
+        ResourceDownload gridssPonFiles =
+                ResourceDownload.from(runtimeBucket, new Resource(storage, arguments.resourceBucket(), ResourceNames.GRIDSS_PON));
 
         InputDownload tumorBam = new InputDownload(pair.tumor().finalBamLocation());
         InputDownload tumorBai = new InputDownload(pair.tumor().finalBaiLocation());
@@ -103,12 +103,6 @@ public class StructuralCaller {
         String configurationFile = gridssConfigFiles.find("properties");
         String blacklist = gridssConfigFiles.find("bed");
         CommandFactory commandFactory = new CommandFactory();
-
-//        new PreprocessFunctional(commandFactory, normalBam.getLocalTargetPath(),
-//                        normalSampleName,
-//                        referenceGenomePath,
-//                        gridssWorkingDirForReferenceBam,
-//                        preprocessSvOutputReferenceBam);
 
         Preprocess.PreprocessResult preprocessedRefSample =
                 new Preprocess(commandFactory).initialise(normalBam.getLocalTargetPath(),
@@ -185,7 +179,7 @@ public class StructuralCaller {
                         Folder.from(),
                         NAMESPACE,
                         resultsDirectory,
-                        s -> !s.contains("working")))
+                        s -> !s.contains("working") || s.endsWith("sorted.bam.sv.bam") || s.endsWith("sorted.bam.sv.bai")))
                 .addReportComponents(new RunLogComponent(runtimeBucket, NAMESPACE, Folder.from(), resultsDirectory))
                 .build();
     }

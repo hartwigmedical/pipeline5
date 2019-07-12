@@ -43,6 +43,7 @@ public class Resource {
                 String aliased = alias.apply(source.getName());
                 String[] targetPath = aliased.split("/");
                 String targetBlob = String.format("%s/%s", name, targetPath[targetPath.length - 1]);
+                LOGGER.debug("Copying [{}] to [{}]", source.getName(), targetBlob);
                 runtimeBucket.copyInto(commonResourcesBucket, source.getName(), targetBlob);
                 locationBuilder.addFiles(aliased);
             }

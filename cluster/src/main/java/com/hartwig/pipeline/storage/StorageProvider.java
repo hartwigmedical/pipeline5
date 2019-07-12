@@ -1,6 +1,7 @@
 package com.hartwig.pipeline.storage;
 
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.cloud.http.HttpTransportOptions;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
 import com.hartwig.pipeline.Arguments;
@@ -16,7 +17,15 @@ public class StorageProvider {
     }
 
     public Storage get() {
-        return StorageOptions.newBuilder().setCredentials(credentials).setProjectId(arguments.project()).build().getService();
+        StorageOptions.Builder builder = StorageOptions.newBuilder();
+        return builder.setCredentials(credentials)
+                .setProjectId(arguments.project())
+                .setTransportOptions(HttpTransportOptions.newBuilder()
+                        .setConnectTimeout(0)
+                        .setReadTimeout(0)
+                        .build())
+                .build()
+                .getService();
     }
 
     public static StorageProvider from(Arguments arguments, GoogleCredentials credentials) {

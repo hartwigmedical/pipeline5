@@ -47,10 +47,17 @@ public class RuntimeBucket {
         Bucket bucket = storage.get(run.id());
         if (bucket == null) {
             LOGGER.debug("Creating runtime bucket [{}] in Google Storage", run.id());
-            bucket = storage.create(BucketInfo.newBuilder(run.id())
-                    .setStorageClass(StorageClass.REGIONAL)
-                    .setLocation(arguments.region())
-                    .build());
+            BucketInfo.Builder builder =
+                    BucketInfo.newBuilder(run.id()).setStorageClass(StorageClass.REGIONAL).setLocation(arguments.region());
+            arguments.cmek().ifPresent(key -> {
+                LOGGER.info("Using CMEK key [{}] to encrypt all buckets", key);
+                builder.setDefaultKmsKeyName(String.format("projects/%s/locations/%s/keyRings/%s/cryptoKeys/%s",
+                        arguments.project(),
+                        arguments.region(),
+                        arguments.project(),
+                        key));
+            });
+            bucket = storage.create(builder.build());
         }
         return new RuntimeBucket(storage, bucket, namespace, run);
     }
@@ -91,12 +98,12 @@ public class RuntimeBucket {
 
     public void copyInto(String sourceBucket, String sourceBlobName, String targetBlobName) {
         BlobInfo targetBlobInfo = BlobInfo.newBuilder(bucket.getName(), namespace(targetBlobName)).build();
-        storage.copy(Storage.CopyRequest.of(sourceBucket, sourceBlobName, targetBlobInfo));
+        storage.copy(Storage.CopyRequest.of(sourceBucket, sourceBlobName, targetBlobInfo)).getResult();
     }
 
     public void copyOutOf(String sourceBlobName, String targetBucket, String targetBlob) {
         BlobInfo targetBlobInfo = BlobInfo.newBuilder(targetBucket, targetBlob).build();
-        storage.copy(Storage.CopyRequest.of(bucket.getName(), namespace(sourceBlobName), targetBlobInfo));
+        storage.copy(Storage.CopyRequest.of(bucket.getName(), namespace(sourceBlobName), targetBlobInfo)).getResult();
     }
 
     void compose(List<String> sources, String target) {

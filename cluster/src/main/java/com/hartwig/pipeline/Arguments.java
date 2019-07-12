@@ -85,6 +85,8 @@ public interface Arguments {
 
     String patientReportBucket();
 
+    Optional<String> cmek();
+
     Optional<Integer> sbpApiSampleId();
 
     Optional<Integer> sbpApiRunId();
