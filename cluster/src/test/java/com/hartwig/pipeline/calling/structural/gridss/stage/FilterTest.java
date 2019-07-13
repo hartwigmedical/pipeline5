@@ -19,24 +19,17 @@ import org.junit.Test;
 public class FilterTest implements CommonEntities {
 
     private static final String PATH_TO_GRIDSS_SCRIPTS = format("%s/gridss-scripts/4.8.1", TOOLS_DIR);
-    private static final int RSCRIPT_LINE_NUMBER = 3;
+    private static final int RSCRIPT_LINE_NUMBER = 2;
 
     private String bashCommands;
-    private String originalVcf;
     private String uncompressedVcf;
 
     @Before
     public void setup() {
         uncompressedVcf = "/path/to/original.vcf";
-        originalVcf = uncompressedVcf + ".gz";
+        final String originalVcf = uncompressedVcf + ".gz";
         List<BashCommand> commands = new Filter().initialise(originalVcf, TUMOR_SAMPLE).commands();
         bashCommands = commands.stream().map(BashCommand::asBash).collect(Collectors.joining("\n"));
-    }
-
-    @Test
-    public void shouldGunzipOriginalVcfAsFirstStep() {
-        String firstLine = extractOutputLine(1);
-        assertThat(firstLine).isEqualTo(format("gunzip -kd %s", originalVcf));
     }
 
     @Test(expected = IllegalArgumentException.class)
