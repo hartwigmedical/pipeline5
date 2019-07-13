@@ -44,10 +44,7 @@ public class Assemble {
                 factory.buildSoftClipsToSplitReadsForAssemble(assembler.assemblyBam(), referenceGenome, assembleSvOutputBam);
 
         return ImmutableAssembleResult.builder()
-                .commands(asList(new MkDirCommand(gridssWorkingDirForAssembleBam),
-                        converter.convert(assembler),
-                        converter.convert(metrics),
-                        converter.convert(clipsToReads)))
+                .commands(asList(new MkDirCommand(gridssWorkingDirForAssembleBam), assembler, metrics, clipsToReads))
                 .assemblyBam(assembler.assemblyBam())
                 .svMetrics(metrics.outputBaseFilename())
                 .workingDir(gridssWorkingDirForAssembleBam)

@@ -26,7 +26,9 @@ public class AssembleTest implements CommonEntities {
 
     private CommandFactory factory;
 
+    private AssembleBreakends assembleBreakends;
     private CollectGridssMetrics collectMetrics;
+    private SoftClipsToSplitReads.ForAssemble clips;
     private Assemble.AssembleResult result;
 
     @Before
@@ -34,7 +36,7 @@ public class AssembleTest implements CommonEntities {
         assembledBam = "assembled.bam";
         factory = mock(CommandFactory.class);
 
-        final AssembleBreakends assembleBreakends = mock(AssembleBreakends.class);
+        assembleBreakends = mock(AssembleBreakends.class);
         when(factory.buildAssembleBreakends(any(), any(), any(), any())).thenReturn(assembleBreakends);
         when(assembleBreakends.assemblyBam()).thenReturn(assembledBam);
 
@@ -42,7 +44,7 @@ public class AssembleTest implements CommonEntities {
         when(factory.buildCollectGridssMetrics(any(), any())).thenReturn(collectMetrics);
         when(collectMetrics.outputBaseFilename()).thenReturn("collect_metrics.metrics");
 
-        final SoftClipsToSplitReads.ForAssemble clips = mock(SoftClipsToSplitReads.ForAssemble.class);
+        clips = mock(SoftClipsToSplitReads.ForAssemble.class);
         when(factory.buildSoftClipsToSplitReadsForAssemble(any(), any(), any())).thenReturn(clips);
 
         fullOutputPath = format("%s/%s.gridss.working/%s.sv.bam", OUT_DIR, assembledBam, assembledBam);
@@ -78,10 +80,5 @@ public class AssembleTest implements CommonEntities {
         assertThat(allCommands.get(1)).isEqualTo(assembleBreakends);
         assertThat(allCommands.get(2)).isEqualTo(collectMetrics);
         assertThat(allCommands.get(3)).isEqualTo(clips);
-    }
-
-    @Test
-    public void shouldPassOnAssembleBreakendsAssemblyBamToDownstream() {
-        assertThat(result.assemblyBam()).isEqualTo(assembledBam);
     }
 }
