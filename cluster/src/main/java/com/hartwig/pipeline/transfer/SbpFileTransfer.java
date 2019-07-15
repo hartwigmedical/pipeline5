@@ -11,6 +11,7 @@ import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.google.common.collect.Lists;
+import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.sbpapi.SbpFileMetadata;
 import com.hartwig.pipeline.sbpapi.SbpRestApi;
@@ -27,23 +28,25 @@ public class SbpFileTransfer {
     private final SbpRestApi sbpApi;
     private final Bucket sourceBucket;
     private final ContentTypeCorrection contentTypeCorrection;
+    private final Arguments arguments;
     private final static Logger LOGGER = LoggerFactory.getLogger(SbpFileTransfer.class);
 
     SbpFileTransfer(final CloudCopy cloudCopy, final SbpS3 sbpS3, final SbpRestApi sbpApi, Bucket sourceBucket,
-            ContentTypeCorrection contentTypeCorrection) {
+            ContentTypeCorrection contentTypeCorrection, final Arguments arguments) {
         this.cloudCopy = cloudCopy;
         this.sbpS3 = sbpS3;
         this.sbpApi = sbpApi;
         this.sourceBucket = sourceBucket;
         this.contentTypeCorrection = contentTypeCorrection;
+        this.arguments = arguments;
     }
 
     public void publish(SomaticRunMetadata metadata, SbpRun sbpRun, String sbpBucket) {
         LOGGER.info("Starting file transfer from {} to SBP bucket {}", sourceBucket.getName(), sbpBucket);
         sbpS3.ensureBucketExists(sbpBucket);
-        List<Blob> objects = find(sourceBucket, metadata.runName());
+        List<Blob> sourceObjects = find(sourceBucket, metadata.runName());
         List<SourceDestPair> allFiles = new ArrayList<>();
-        for (Blob blob : objects) {
+        for (Blob blob : sourceObjects) {
             LOGGER.debug("Syncing object {}", blob.getName());
             if (blob.getMd5() == null) {
                 String message =
@@ -80,6 +83,9 @@ public class SbpFileTransfer {
                     .hash(convertMd5ToSbpFormat(pair.source.md5()))
                     .build();
             sbpApi.postFile(metaData);
+        }
+        if (arguments.cleanup()){
+            sourceObjects.forEach(Blob::delete);
         }
     }
 

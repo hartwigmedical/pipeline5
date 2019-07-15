@@ -8,17 +8,17 @@ import com.hartwig.pipeline.storage.CloudCopy;
 import com.hartwig.pipeline.storage.RCloneCloudCopy;
 import com.hartwig.pipeline.storage.S3;
 
-public class ResultsPublisherProvider {
+public class SbpFileTransferProvider {
     private final Arguments arguments;
     private final Storage storage;
 
-    private ResultsPublisherProvider(Arguments arguments, final Storage storage) {
+    private SbpFileTransferProvider(Arguments arguments, final Storage storage) {
         this.arguments = arguments;
         this.storage = storage;
     }
 
-    public static ResultsPublisherProvider from(final Arguments arguments, final Storage storage) {
-        return new ResultsPublisherProvider(arguments, storage);
+    public static SbpFileTransferProvider from(final Arguments arguments, final Storage storage) {
+        return new SbpFileTransferProvider(arguments, storage);
     }
 
     public SbpFileTransfer get() {
@@ -32,7 +32,7 @@ public class ResultsPublisherProvider {
 
         try {
             Bucket sourceBucket = storage.get(arguments.patientReportBucket());
-            return new SbpFileTransfer(cloudCopy, sbpS3, sbpRestApi, sourceBucket, ContentTypeCorrection.get());
+            return new SbpFileTransfer(cloudCopy, sbpS3, sbpRestApi, sourceBucket, ContentTypeCorrection.get(), arguments);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
