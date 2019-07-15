@@ -13,62 +13,62 @@ import com.hartwig.pipeline.calling.structural.gridss.command.SambambaGridssSort
 import com.hartwig.pipeline.calling.structural.gridss.command.SoftClipsToSplitReads;
 
 public class CommandFactory {
-    public AnnotateUntemplatedSequence buildAnnotateUntemplatedSequence(final String annotatedVcf, final String referenceGenome,
+    AnnotateUntemplatedSequence buildAnnotateUntemplatedSequence(final String annotatedVcf, final String referenceGenome,
             final String jointName) {
         return new AnnotateUntemplatedSequence(annotatedVcf, referenceGenome, jointName);
     }
 
-    public AnnotateVariants buildAnnotateVariants(final String sampleBam, final String tumorBam, final String assemblyBam,
-            final String rawVcf, final String referenceGenome, final String jointName) {
-        return new AnnotateVariants(sampleBam, tumorBam, assemblyBam, rawVcf, referenceGenome, jointName, null, null);
+    AnnotateVariants buildAnnotateVariants(final String sampleBam, final String tumorBam, final String assemblyBam, final String rawVcf,
+            final String referenceGenome, final String jointName, final String configFile, final String blacklist) {
+        return new AnnotateVariants(sampleBam, tumorBam, assemblyBam, rawVcf, referenceGenome, jointName, configFile, blacklist);
     }
 
-    public AssembleBreakends buildAssembleBreakends(final String sampleBam, final String tumorBam, final String referenceGenome,
-            final String jointName) {
-        return new AssembleBreakends(sampleBam, tumorBam, referenceGenome, jointName, null, null);
+    AssembleBreakends buildAssembleBreakends(final String sampleBam, final String tumorBam, final String referenceGenome,
+            final String jointName, final String configFile, final String blacklist) {
+        return new AssembleBreakends(sampleBam, tumorBam, referenceGenome, jointName, configFile, blacklist);
     }
 
-    public BgzipCommand buildBgzipCommand(final String annotatedVcf) {
+    BgzipCommand buildBgzipCommand(final String annotatedVcf) {
         return new BgzipCommand(annotatedVcf);
     }
 
-    public CollectGridssMetrics buildCollectGridssMetrics(final String inputBam, final String workingDirectory) {
+    CollectGridssMetrics buildCollectGridssMetrics(final String inputBam, final String workingDirectory) {
         return new CollectGridssMetrics(inputBam, workingDirectory);
     }
 
-    public ExtractSvReads buildExtractSvReads(final String inputBam, final String sampleName, final String insertSizeMetrics,
+    ExtractSvReads buildExtractSvReads(final String inputBam, final String sampleName, final String insertSizeMetrics,
             final String workingDirectory) {
         return new ExtractSvReads(inputBam, sampleName, insertSizeMetrics, workingDirectory);
     }
 
-    public ComputeSamTags buildComputeSamTags(final String inProgressBam, final String referenceGenome, final String sampleName) {
+    ComputeSamTags buildComputeSamTags(final String inProgressBam, final String referenceGenome, final String sampleName) {
         return new ComputeSamTags(inProgressBam, referenceGenome, sampleName);
     }
 
     public IdentifyVariants buildIdentifyVariants(final String sampleBam, final String tumorBam, final String assemblyBam,
-            final String referenceGenome) {
-        return new IdentifyVariants(sampleBam, tumorBam, assemblyBam, referenceGenome, null, null);
+            final String referenceGenome, final String configFile, final String blacklist) {
+        return new IdentifyVariants(sampleBam, tumorBam, assemblyBam, referenceGenome, configFile, blacklist);
     }
 
-    public SoftClipsToSplitReads.ForAssemble buildSoftClipsToSplitReadsForAssemble(final String intermediateBamPath,
-            final String referenceGenome, final String outputBam) {
+    SoftClipsToSplitReads.ForAssemble buildSoftClipsToSplitReadsForAssemble(final String intermediateBamPath, final String referenceGenome,
+            final String outputBam) {
         return new SoftClipsToSplitReads.ForAssemble(intermediateBamPath, referenceGenome, outputBam);
     }
 
-    public SoftClipsToSplitReads.ForPreprocess buildSoftClipsToSplitReadsForPreProcess(final String intermediateBamPath,
+    SoftClipsToSplitReads.ForPreprocess buildSoftClipsToSplitReadsForPreProcess(final String intermediateBamPath,
             final String referenceGenome, final String outputBam) {
         return new SoftClipsToSplitReads.ForPreprocess(intermediateBamPath, referenceGenome, outputBam);
     }
 
-    public TabixCommand buildTabixCommand(final String inputVcf) {
+    TabixCommand buildTabixCommand(final String inputVcf) {
         return new TabixCommand(inputVcf);
     }
 
-    public SambambaGridssSortCommand buildSambambaCommandSortByName(final String outputBam) {
+    SambambaGridssSortCommand buildSambambaCommandSortByName(final String outputBam) {
         return SambambaGridssSortCommand.sortByName(outputBam);
     }
 
-    public SambambaGridssSortCommand buildSambambaCommandSortByDefault(final String outputBam) {
+    SambambaGridssSortCommand buildSambambaCommandSortByDefault(final String outputBam) {
         return SambambaGridssSortCommand.sortByDefault(outputBam);
     }
 }

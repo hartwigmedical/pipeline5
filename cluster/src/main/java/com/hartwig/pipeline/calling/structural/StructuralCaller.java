@@ -121,12 +121,14 @@ public class StructuralCaller {
         Assemble.AssembleResult assemblyResult = new Assemble(commandFactory).initialise(preprocessedRefSample.svBam(),
                 preprocessedTumorSample.svBam(),
                 referenceGenomePath,
-                jointName);
+                jointName,
+                configurationFile,
+                blacklist);
 
         IdentifyVariants calling = commandFactory.buildIdentifyVariants(normalBam.getLocalTargetPath(),
                 tumorBam.getLocalTargetPath(),
                 assemblyResult.assemblyBam(),
-                referenceGenomePath);
+                referenceGenomePath, configurationFile, blacklist);
 
         Annotation.AnnotationResult annotationResult =
                 new Annotation(commandFactory).initialise(normalBam.getLocalTargetPath(),
@@ -134,7 +136,9 @@ public class StructuralCaller {
                         assemblyResult.assemblyBam(),
                         calling.resultantVcf(),
                         referenceGenomePath,
-                        tumorSampleName);
+                        tumorSampleName,
+                        configurationFile,
+                        blacklist);
 
         Filter.FilterResult filterResult = new Filter().initialise(annotationResult.annotatedVcf(), tumorSampleName);
 

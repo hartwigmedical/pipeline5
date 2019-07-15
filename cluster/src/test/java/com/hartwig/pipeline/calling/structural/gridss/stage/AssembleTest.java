@@ -23,6 +23,8 @@ import org.junit.Test;
 public class AssembleTest implements CommonEntities {
     private String assembledBam;
     private String fullOutputPath;
+    private String configFile;
+    private String blacklist;
 
     private CommandFactory factory;
 
@@ -35,9 +37,11 @@ public class AssembleTest implements CommonEntities {
     public void setup() {
         assembledBam = "assembled.bam";
         factory = mock(CommandFactory.class);
+        configFile = "/path/to/gridss.properties";
+        blacklist = "/blacklist.path";
 
         assembleBreakends = mock(AssembleBreakends.class);
-        when(factory.buildAssembleBreakends(any(), any(), any(), any())).thenReturn(assembleBreakends);
+        when(factory.buildAssembleBreakends(any(), any(), any(), any(), any(), any())).thenReturn(assembleBreakends);
         when(assembleBreakends.assemblyBam()).thenReturn(assembledBam);
 
         collectMetrics = mock(CollectGridssMetrics.class);
@@ -48,12 +52,12 @@ public class AssembleTest implements CommonEntities {
         when(factory.buildSoftClipsToSplitReadsForAssemble(any(), any(), any())).thenReturn(clips);
 
         fullOutputPath = format("%s/%s.gridss.working/%s.sv.bam", OUT_DIR, assembledBam, assembledBam);
-        result = new Assemble(factory).initialise(REFERENCE_BAM, TUMOR_BAM, REFERENCE_GENOME, JOINT_NAME);
+        result = new Assemble(factory).initialise(REFERENCE_BAM, TUMOR_BAM, REFERENCE_GENOME, JOINT_NAME, configFile, blacklist);
     }
 
     @Test
     public void shouldRequestAssembleBreakendsCommandFromFactoryPassingInputBamsAndReferenceGenome() {
-        verify(factory).buildAssembleBreakends(REFERENCE_BAM, TUMOR_BAM, REFERENCE_GENOME, JOINT_NAME);
+        verify(factory).buildAssembleBreakends(REFERENCE_BAM, TUMOR_BAM, REFERENCE_GENOME, JOINT_NAME, configFile, blacklist);
     }
 
     @Test

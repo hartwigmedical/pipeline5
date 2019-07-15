@@ -26,6 +26,8 @@ public class AnnotationTest implements CommonEntities {
     private String rawVcf;
     private String annotatedVcf;
     private String annotatedUntemplatedVcf;
+    private String configFile;
+    private String blacklist;
 
     private CommandFactory factory;
 
@@ -45,6 +47,9 @@ public class AnnotationTest implements CommonEntities {
         rawVcf = "raw.vcf";
         assemblyBam = "assembly.bam";
 
+        configFile = "/config.properties";
+        blacklist = "/black.list";
+
         annotatedVcf = "annotated.vcf";
         annotatedUntemplatedVcf = "annotated_untemplated.vcf";
 
@@ -52,7 +57,7 @@ public class AnnotationTest implements CommonEntities {
 
         annotateVariants = mock(AnnotateVariants.class);
         when(annotateVariants.resultantVcf()).thenReturn(annotatedVcf);
-        when(factory.buildAnnotateVariants(any(), any(), any(), any(), any(), any())).thenReturn(annotateVariants);
+        when(factory.buildAnnotateVariants(any(), any(), any(), any(), any(), any(), any(), any())).thenReturn(annotateVariants);
         annotateVariantsBashCommands = "annotate variants bash";
         when(annotateVariants.asBash()).thenReturn(annotateVariantsBashCommands);
 
@@ -68,7 +73,7 @@ public class AnnotationTest implements CommonEntities {
         tabix = mock(TabixCommand.class);
         when(factory.buildTabixCommand(any())).thenReturn(tabix);
 
-        result = new Annotation(factory).initialise(sampleBam, tumorBam, assemblyBam, rawVcf, REFERENCE_GENOME, JOINT_NAME);
+        result = new Annotation(factory).initialise(sampleBam, tumorBam, assemblyBam, rawVcf, REFERENCE_GENOME, JOINT_NAME, configFile, blacklist);
     }
 
     @Test

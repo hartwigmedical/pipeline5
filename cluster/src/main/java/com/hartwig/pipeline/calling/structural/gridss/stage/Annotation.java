@@ -28,9 +28,10 @@ public class Annotation {
     }
 
     public AnnotationResult initialise(final String sampleBam, final String tumorBam, final String assemblyBam, final String rawVcf,
-            final String referenceGenome, final String tumorSampleName) {
+            final String referenceGenome, final String tumorSampleName, final String configFile, final String blacklist) {
         AnnotateVariants variants =
-                commandFactory.buildAnnotateVariants(sampleBam, tumorBam, assemblyBam, rawVcf, referenceGenome, tumorSampleName);
+                commandFactory.buildAnnotateVariants(sampleBam, tumorBam, assemblyBam, rawVcf, referenceGenome, tumorSampleName,
+                        configFile, blacklist);
         AnnotateUntemplatedSequence untemplated =
                 commandFactory.buildAnnotateUntemplatedSequence(variants.resultantVcf(), referenceGenome, tumorSampleName);
         BgzipCommand bgzip = commandFactory.buildBgzipCommand(untemplated.resultantVcf());

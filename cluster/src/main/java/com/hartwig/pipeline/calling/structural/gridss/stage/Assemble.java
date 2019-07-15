@@ -34,8 +34,9 @@ public class Assemble {
         this.factory = factory;
     }
 
-    public AssembleResult initialise(final String sampleBam, final String tumorBam, final String referenceGenome, final String jointName) {
-        AssembleBreakends assembler = factory.buildAssembleBreakends(sampleBam, tumorBam, referenceGenome, jointName);
+    public AssembleResult initialise(final String sampleBam, final String tumorBam, final String referenceGenome, final String jointName,
+            final String configFile, final String blacklist) {
+        AssembleBreakends assembler = factory.buildAssembleBreakends(sampleBam, tumorBam, referenceGenome, jointName, configFile, blacklist);
         String gridssWorkingDirForAssembleBam = outputFile(format("%s.gridss.working", new File(assembler.assemblyBam()).getName()));
         CollectGridssMetrics metrics = factory.buildCollectGridssMetrics(assembler.assemblyBam(), gridssWorkingDirForAssembleBam);
 
