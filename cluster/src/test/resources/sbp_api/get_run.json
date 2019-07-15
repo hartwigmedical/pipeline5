@@ -21,7 +21,7 @@
   "ref_sample": "CPCT02290012R",
   "slaStart": null,
   "name": "170724_HMFregCPCT_FR13999246_FR13999144_CPCT02290012",
-  "bucket": null,
+  "bucket": "hmf_output_2019-27",
   "sbp_id": 7048,
   "tumor_sample": "CPCT02290012T",
   "entity_id": 122,
