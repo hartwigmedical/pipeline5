@@ -4,6 +4,8 @@ import static java.lang.String.format;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -14,6 +16,7 @@ import com.google.api.gax.paging.Page;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
+import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.sbpapi.SbpFileMetadata;
 import com.hartwig.pipeline.sbpapi.SbpRestApi;
@@ -30,11 +33,10 @@ public class SbpFileTransferTest {
     private SbpRestApi sbpApi;
     private Bucket sourceBucket;
     private ContentTypeCorrection contentType;
-    private SbpFileTransfer publisher;
+    private SbpFileTransfer victim;
 
     private SomaticRunMetadata metadata;
     private SbpRun sbpRun;
-    private String runName;
     private String sbpBucket;
     private Blob blob;
 
@@ -53,10 +55,10 @@ public class SbpFileTransferTest {
 
         when(sourceBucket.getName()).thenReturn("source_bucket");
 
-        publisher = new SbpFileTransfer(cloudCopy, sbpS3, sbpApi, sourceBucket, contentType);
+        victim = new SbpFileTransfer(cloudCopy, sbpS3, sbpApi, sourceBucket, contentType, Arguments.testDefaults());
 
         metadata = mock(SomaticRunMetadata.class);
-        runName = "run_name";
+        final String runName = "run_name";
         when(metadata.runName()).thenReturn(runName);
         sbpBucket = "output_bucket";
 
@@ -73,26 +75,26 @@ public class SbpFileTransferTest {
 
     @Test
     public void shouldEnsureBucketExists() {
-        publisher.publish(metadata, sbpRun, sbpBucket);
+        victim.publish(metadata, sbpRun, sbpBucket);
         verify(sbpS3).ensureBucketExists(sbpBucket);
     }
 
     @Test
     public void shouldApplyContentTypeToBlob() {
-        publisher.publish(metadata, sbpRun, sbpBucket);
+        victim.publish(metadata, sbpRun, sbpBucket);
         verify(contentType).apply(blob);
     }
 
     @Test
     public void shouldConsiderFileWithNoMd5AsInvalidAndTakeNoActionOnIt() {
         when(blob.getMd5()).thenReturn(null);
-        publisher.publish(metadata, sbpRun, sbpBucket);
+        victim.publish(metadata, sbpRun, sbpBucket);
         verifyNoMoreInteractions(contentType, sbpApi);
     }
 
     @Test
     public void shouldCopyValidFileToSbpS3() {
-        publisher.publish(metadata, sbpRun, sbpBucket);
+        victim.publish(metadata, sbpRun, sbpBucket);
 
         String sourceUrl = format("%s://%s/%s", "gs", sourceBucket.getName(), fullBlobPath);
         String targetUrl = format("%s://%s/%s", "s3", sbpBucket, fullBlobPath);
@@ -102,13 +104,13 @@ public class SbpFileTransferTest {
 
     @Test
     public void shouldSetAclsForValidFileInSbpS3() {
-        publisher.publish(metadata, sbpRun, sbpBucket);
+        victim.publish(metadata, sbpRun, sbpBucket);
         verify(sbpS3).setAclsOn(sbpBucket, blob.getName());
     }
 
     @Test
     public void shouldPostValidFileToSbpApiUsingCorrectPath() {
-        publisher.publish(metadata, sbpRun, sbpBucket);
+        victim.publish(metadata, sbpRun, sbpBucket);
         ArgumentCaptor<SbpFileMetadata> metadataCaptor = ArgumentCaptor.forClass(SbpFileMetadata.class);
         verify(sbpApi).postFile(metadataCaptor.capture());
 
@@ -120,7 +122,7 @@ public class SbpFileTransferTest {
     @Test
     public void shouldSetDirectoryToEmptyStringInPostIfFileIsInRootOfSourceBucket() {
         when(blob.getName()).thenReturn("/filename");
-        publisher.publish(metadata, sbpRun, sbpBucket);
+        victim.publish(metadata, sbpRun, sbpBucket);
         ArgumentCaptor<SbpFileMetadata> metadataCaptor = ArgumentCaptor.forClass(SbpFileMetadata.class);
         verify(sbpApi).postFile(metadataCaptor.capture());
 
@@ -134,10 +136,28 @@ public class SbpFileTransferTest {
         String md5 = "a68824b4a1cf40437cff58a1b430ad78";
         String hexEncodedMd5 = "6baf3cdb86f86b571fe34e37edc7dfe7c6b56f8df469defc";
         when(blob.getMd5()).thenReturn(md5);
-        publisher.publish(metadata, sbpRun, sbpBucket);
+        victim.publish(metadata, sbpRun, sbpBucket);
         ArgumentCaptor<SbpFileMetadata> metadataCaptor = ArgumentCaptor.forClass(SbpFileMetadata.class);
         verify(sbpApi).postFile(metadataCaptor.capture());
 
         assertThat(metadataCaptor.getValue().hash()).isEqualTo(hexEncodedMd5);
+    }
+
+    @Test
+    public void shouldDeleteSourceObjectsOnSuccessfulTransfer() {
+        victim.publish(metadata, sbpRun, sbpBucket);
+        verify(blob, times(1)).delete();
+    }
+
+    @Test
+    public void shouldNotDeleteSourceBucketsWhenCleanupFalse() {
+        victim = new SbpFileTransfer(cloudCopy,
+                sbpS3,
+                sbpApi,
+                sourceBucket,
+                contentType,
+                Arguments.testDefaultsBuilder().cleanup(false).build());
+        victim.publish(metadata, sbpRun, sbpBucket);
+        verify(blob, never()).delete();
     }
 }
