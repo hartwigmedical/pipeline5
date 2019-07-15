@@ -65,7 +65,7 @@ public class StructuralCaller {
 
         String jointName = metadata.reference().sampleName() + "_" + metadata.tumor().sampleName();
         String tumorSampleName = pair.tumor().sample();
-        String normalSampleName = pair.reference().sample();
+        String referenceSampleName = pair.reference().sample();
         RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, NAMESPACE, metadata, arguments);
         BashStartupScript bash = BashStartupScript.of(runtimeBucket.name());
 
@@ -79,24 +79,24 @@ public class StructuralCaller {
 
         InputDownload tumorBam = new InputDownload(pair.tumor().finalBamLocation());
         InputDownload tumorBai = new InputDownload(pair.tumor().finalBaiLocation());
-        InputDownload normalBam = new InputDownload(pair.reference().finalBamLocation());
+        InputDownload referenceBam = new InputDownload(pair.reference().finalBamLocation());
         InputDownload referenceBai = new InputDownload(pair.reference().finalBaiLocation());
 
-        bash.addCommand(new BatchInputDownload(normalBam, referenceBai, tumorBam, tumorBai));
+        bash.addCommand(new BatchInputDownload(referenceBam, referenceBai, tumorBam, tumorBai));
         bash.addCommands(asList(referenceGenomeDownload, gridssConfigFiles, gridssPonFiles));
 
         bash.addCommand(new UlimitOpenFilesCommand(102400));
         bash.addCommand(new ExportVariableCommand("PATH", format("${PATH}:%s", dirname(new BwaCommand().asBash()))));
 
         String gridssWorkingDirForReferenceBam =
-                format("%s/%s.gridss.working", VmDirectories.OUTPUT, basename(normalBam.getLocalTargetPath()));
+                format("%s/%s.gridss.working", VmDirectories.OUTPUT, basename(referenceBam.getLocalTargetPath()));
         String gridssWorkingDirForTumorBam = format("%s/%s.gridss.working", VmDirectories.OUTPUT, basename(tumorBam.getLocalTargetPath()));
 
         bash.addCommand(new MkDirCommand(gridssWorkingDirForReferenceBam));
         bash.addCommand(new MkDirCommand(gridssWorkingDirForTumorBam));
 
         String preprocessSvOutputReferenceBam =
-                format("%s/%s.sv.bam", gridssWorkingDirForReferenceBam, basename(normalBam.getLocalTargetPath()));
+                format("%s/%s.sv.bam", gridssWorkingDirForReferenceBam, basename(referenceBam.getLocalTargetPath()));
         String preprocessSvOutputTumorBam = format("%s/%s.sv.bam", gridssWorkingDirForTumorBam, basename(tumorBam.getLocalTargetPath()));
 
 
@@ -105,8 +105,8 @@ public class StructuralCaller {
         CommandFactory commandFactory = new CommandFactory();
 
         Preprocess.PreprocessResult preprocessedRefSample =
-                new Preprocess(commandFactory).initialise(normalBam.getLocalTargetPath(),
-                        normalSampleName,
+                new Preprocess(commandFactory).initialise(referenceBam.getLocalTargetPath(),
+                        referenceSampleName,
                         referenceGenomePath,
                         gridssWorkingDirForReferenceBam,
                         preprocessSvOutputReferenceBam);
@@ -118,20 +118,20 @@ public class StructuralCaller {
                         gridssWorkingDirForTumorBam,
                         preprocessSvOutputTumorBam);
 
-        Assemble.AssembleResult assemblyResult = new Assemble(commandFactory).initialise(preprocessedRefSample.svBam(),
-                preprocessedTumorSample.svBam(),
+        Assemble.AssembleResult assemblyResult = new Assemble(commandFactory).initialise(referenceBam.getLocalTargetPath(),
+                tumorBam.getLocalTargetPath(),
                 referenceGenomePath,
                 jointName,
                 configurationFile,
                 blacklist);
 
-        IdentifyVariants calling = commandFactory.buildIdentifyVariants(normalBam.getLocalTargetPath(),
+        IdentifyVariants calling = commandFactory.buildIdentifyVariants(referenceBam.getLocalTargetPath(),
                 tumorBam.getLocalTargetPath(),
                 assemblyResult.assemblyBam(),
                 referenceGenomePath, configurationFile, blacklist);
 
         Annotation.AnnotationResult annotationResult =
-                new Annotation(commandFactory).initialise(normalBam.getLocalTargetPath(),
+                new Annotation(commandFactory).initialise(referenceBam.getLocalTargetPath(),
                         tumorBam.getLocalTargetPath(),
                         assemblyResult.assemblyBam(),
                         calling.resultantVcf(),
