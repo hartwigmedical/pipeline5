@@ -2,7 +2,6 @@ package com.hartwig.pipeline.metadata;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -24,13 +23,12 @@ public class SbpSomaticMetadataApiTest {
     private static final int SET_ID = 1;
     private SomaticMetadataApi victim;
     private SbpRestApi sbpRestApi;
-    private SbpFileTransfer sbpFileTransfer;
     private SomaticRunMetadata somaticRunMetadata;
 
     @Before
     public void setUp() throws Exception {
         sbpRestApi = mock(SbpRestApi.class);
-        sbpFileTransfer = mock(SbpFileTransfer.class);
+        final SbpFileTransfer sbpFileTransfer = mock(SbpFileTransfer.class);
         somaticRunMetadata = mock(SomaticRunMetadata.class);
         victim = new SbpSomaticMetadataApi(Arguments.testDefaults(),
                 SET_ID,
@@ -73,21 +71,9 @@ public class SbpSomaticMetadataApiTest {
         assertThat(status.getAllValues().get(1)).isEqualTo(SbpSomaticMetadataApi.FAILED);
     }
 
-    @Test
-    public void usesBucketFromRunIdIfExists() {
-        ArgumentCaptor<String> bucket = ArgumentCaptor.forClass(String.class);
-        when(sbpRestApi.getRun(SET_ID)).thenReturn(TestJson.get("get_run_custom_bucket"));
+    @Test(expected = IllegalStateException.class)
+    public void throwsIllegalStateIfNoBucketInRun() {
+        when(sbpRestApi.getRun(SET_ID)).thenReturn(TestJson.get("get_run_no_bucket"));
         victim.complete(PipelineStatus.FAILED, somaticRunMetadata);
-        verify(sbpFileTransfer).publish(eq(somaticRunMetadata), any(), bucket.capture());
-        assertThat(bucket.getValue()).isEqualTo("custom");
-    }
-
-    @Test
-    public void createdWeeklyBucketIfNoBucketInRun() {
-        ArgumentCaptor<String> bucket = ArgumentCaptor.forClass(String.class);
-        when(sbpRestApi.getRun(SET_ID)).thenReturn(TestJson.get("get_run"));
-        victim.complete(PipelineStatus.FAILED, somaticRunMetadata);
-        verify(sbpFileTransfer).publish(eq(somaticRunMetadata), any(), bucket.capture());
-        assertThat(bucket.getValue()).isEqualTo("hmf-output-2019-27");
     }
 }

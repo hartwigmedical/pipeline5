@@ -2,7 +2,6 @@ package com.hartwig.pipeline.metadata;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -95,17 +94,22 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
     public void complete(final PipelineStatus status, SomaticRunMetadata metadata) {
         String runIdAsString = String.valueOf(sbpRunId);
         SbpRun sbpRun = getSbpRun();
-        String bucket = sbpRun.bucket();
-        String sbpBucket =
-                bucket == null || bucket.trim().isEmpty() ? "hmf-output-" + now.format(DateTimeFormatter.ofPattern("yyyy-ww")) : bucket;
-        LOGGER.info("Recording pipeline completion with status [{}]", status);
-        try {
-            sbpRestApi.updateRunStatus(runIdAsString, UPLOADING, sbpBucket);
-            publisher.publish(metadata, sbpRun, sbpBucket);
-            sbpRestApi.updateRunStatus(runIdAsString, status == PipelineStatus.SUCCESS ? SNP_CHECK : FAILED, sbpBucket);
-        } catch (Exception e) {
-            sbpRestApi.updateRunStatus(runIdAsString, FAILED, sbpBucket);
-            throw e;
+        String sbpBucket = sbpRun.bucket();
+        if (sbpBucket != null) {
+            LOGGER.info("Recording pipeline completion with status [{}]", status);
+            try {
+                sbpRestApi.updateRunStatus(runIdAsString, UPLOADING, sbpBucket);
+                publisher.publish(metadata, sbpRun, sbpBucket);
+                sbpRestApi.updateRunStatus(runIdAsString, status == PipelineStatus.SUCCESS ? SNP_CHECK : FAILED, sbpBucket);
+            } catch (Exception e) {
+                sbpRestApi.updateRunStatus(runIdAsString, FAILED, sbpBucket);
+                throw e;
+            }
+        } else {
+            throw new IllegalStateException(String.format(
+                    "Run [%s] has no predefined bucket for output. The bucket should be populated externally to P5, check configuration in "
+                            + "SBP API.",
+                    sbpRunId));
         }
     }
 }
