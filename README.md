@@ -173,15 +173,58 @@ rules](https://chris.beams.io/posts/git-commit/) and follow them.
 
 ### 3.1 Overview
 
-This section documents the production integration with Schuberg Philis (SBP). At the highest level the Pv5 processing flow
-consists of these steps:
+This section documents the moving parts in the production environment. At the highest level the Pv5 processing flow
+consists of three steps:
 
 1. FASTQ file(s) become available and are copied to Google Cloud Storage (GCS). Pv5 is run (in Google Cloud Platform (GCP))
-   against them in single-sample mode
-1. When a single-sample run of at least one normal and one tumor are complete, Pv5 is invoked in somatic mode against the output
-   data from the single-sample runs
-1. Resulting data from the runs are collected into a final output structure and submitted back to SBP's storage cloud and
-   registered with SBP's API
+   against them in single-sample mode.
+1. When a single-sample run for at least one normal and one tumor are complete, Pv5 is invoked in somatic mode against the output
+   data from the single-sample runs.
+1. Resulting data from the runs are collected into a final output structure, submitted back to SBP's storage cloud and 
+   registered with SBP's API.
+
+#### 3.1.1 Operational Terminology
+
+To facilitate the rest of this discussion it is useful to define some terms for the rest of the guide:
+
+- A *sample* is the all data from a physical tissue sample for a patient
+- A *set* is all of the data available for a particular patient, the metadata that is needed to associate the constituent samples
+    to one another, and the execution of the pipeline for that set
+- A *run* is an invocation of the pipeline against a particular sample of a set, in a given mode
+- A *stage* is a part of a run which executes on either its own DataProc cluster or virtual machine in GCP
+
+### 3.2 Storage Buckets
+
+Before we continue this discussion: GCS makes a bucket seem more like a filesystem (or parent directory), with folders (or
+directories) and files, than some of the other cloud storage products out there. Here we'll treat buckets as cloud-backed filesystems.
+
+There are two sorts of buckets that are created when a run happens. Runtime buckets contain in-flight data that is required during
+the run's duration, while output buckets contain the finished results for one or many runs.
+
+#### 3.2.1 Runtime Buckets
+
+As the runs of a set are executing, the pipeline creates buckets to hold the input and output of the stages of the runs. From an 
+operational perspective the pipeline may be thought of as a series of operations, with the outputs from earlier stages becoming
+the inputs for later ones. Each stage in a run will get a folder, and inside that folder there will be:
+
+- Input data, which comes from previous stages' outputs or as input to the pipeline;
+- Results, which will be used as input to later stages or as final output of the pipeline;
+- Resource data, such as the reference genome or configuration files;
+- Administrative and control files (completion flags, log files, etc).
+
+The pipeline creates and manages buckets as required to support the operations that are selected for a given run. In a typical
+complete run comprising single-sample normal and tumor stages and the somatic stage, there will be three runtime buckets. The
+buckets are easy to find as they are named according to the sample and set data provided on the command line to the application.
+
+#### 3.2.2 Output Buckets
+
+When each stage of a run completes successfully the pipeline copies any results which are part of the finished pipeline to a
+folder in the output bucket for the set to which the run belongs. The output bucket may be controlled via arguments to the 
+pipeline application.
+
+In addition to the results from each stage, the output bucket will also contain in its top-level directory the log from the
+coordinating pipeline process, the set metadata, and some version information for the pipeline itself in order to make it easy to
+reproduce runs in the future and for auditing purposes.
 
 ### 3.2 Invocation
 
@@ -200,12 +243,26 @@ your run for these. As of this writing this subset contains:
 Other arguments may be desirable or this list may have changed by the time you read this; run the application with the `-help`
 argument to see a full list.
 
+### 3.3 Troubleshooting and Bug Reports
+
+Having discussed the output and runtime buckets and invocation options, it is now possible to provide some general troubleshooting
+and escalation procedures. Pulling together the threads from earlier, if something goes wrong with a run:
+
+- The pipeline log in the top level of the output bucket will contain information on the versions of the various components that
+    are in use, the success/failure status of each of the stages in the run, and any exceptions that may have occurred on the
+    coordinator instance itself.
+- Failure messages should be captured in the logs for each stage, which will be valuable for root-cause analysis for any failed
+    stage.
+- The output bucket will contain metadata and versioning information.
+
+Before logging any support requests all of the above should be inspected for useful information. If the cause of a failure cannot
+be determined, the same should be forwarded with any bug report.
+
 ### 3.3 Other stuff:
 
 * docker containers in production
 * Required GCP access
 * command line arguments
 * api access required for application
-* environment variables for s3
 * ...
 
