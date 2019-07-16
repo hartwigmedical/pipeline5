@@ -13,7 +13,7 @@ public class BatchInputDownload implements BashCommand {
 
     @Override
     public String asBash() {
-        return String.format("gsutil -m cp %s %s",
+        return String.format("gsutil -qm cp %s %s",
                 Arrays.stream(inputs).map(InputDownload::getRemoteSourcePath).collect(joining(" ")),
                 VmDirectories.INPUT);
     }

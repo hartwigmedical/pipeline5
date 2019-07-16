@@ -18,6 +18,6 @@ public class BatchInputDownloadTest implements CommonEntities {
         when(inputTwo.getRemoteSourcePath()).thenReturn("gs://remoter/location.2");
 
         String allInputSources = inputOne.getRemoteSourcePath() + " " + inputTwo.getRemoteSourcePath();
-        assertThat(download.asBash()).isEqualTo("gsutil -m cp " + allInputSources + " " + CommonEntities.IN_DIR);
+        assertThat(download.asBash()).isEqualTo("gsutil -qm cp " + allInputSources + " " + CommonEntities.IN_DIR);
     }
 }

@@ -36,7 +36,6 @@ public class BashStartupScript {
                 format("  echo $exit_code > %s\n", jobFailedFlag) +
                 format("  gsutil -m cp %s gs://%s\n", jobFailedFlag, runtimeBucketName) +
                 "  exit $exit_code\n" + "}\n\n";
-        addLine("echo $(date) Run complete");
         addCompletionCommands();
         return preamble + commands.stream().collect(joining(format("%s\n", commandSuffix))) + (commands.isEmpty() ? "" : commandSuffix);
     }

@@ -99,7 +99,6 @@ public class StructuralCaller {
                 format("%s/%s.sv.bam", gridssWorkingDirForReferenceBam, basename(referenceBam.getLocalTargetPath()));
         String preprocessSvOutputTumorBam = format("%s/%s.sv.bam", gridssWorkingDirForTumorBam, basename(tumorBam.getLocalTargetPath()));
 
-
         String configurationFile = gridssConfigFiles.find("properties");
         String blacklist = gridssConfigFiles.find("bed");
         CommandFactory commandFactory = new CommandFactory();
