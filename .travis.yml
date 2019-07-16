@@ -7,6 +7,8 @@ services:
 env:
   - PIPELINE5_VERSION=5.1.$TRAVIS_BUILD_NUMBER
 
+script:
+  -'[ "${TRAVIS_PULL_REQUEST}" = "false" ] && mvn clean install || mvn clean install -DskipDocker'
 
 before_install:
   - echo "$DOCKER_HUB_PASSWORD" | docker login -u "hartwigmedicalfoundation" --password-stdin
