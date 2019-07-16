@@ -7,6 +7,8 @@ services:
 env:
   - PIPELINE5_VERSION=5.1.$TRAVIS_BUILD_NUMBER
 
+script:
+  - '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && mvn clean install || mvn clean install -DskipDocker'
 
 before_install:
   - echo "$DOCKER_HUB_PASSWORD" | docker login -u "hartwigmedicalfoundation" --password-stdin
@@ -16,7 +18,7 @@ before_install:
   - ./travis-init.sh
   - export PATH=$PATH:$PWD/bwa/
 
-install:
+install: /bin/true
 
 after_success:
   - docker push hartwigmedicalfoundation/pipeline5:$PIPELINE5_VERSION
