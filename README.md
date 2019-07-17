@@ -127,7 +127,7 @@ of data are shown here:
 - BAM - Aligned sequence output produced by alignment stage.
 - VCF - Variants called by the pipeline and other final output files
 
-![alt text](https://github.com/hartwigmedical/pipeline5/blob/master/v5_architecture_overview.png "Pv5 Topology")
+![alt text](https://github.com/hartwigmedical/pipeline5/blob/master/pv5_architecture_overview.png "Pv5 Topology")
 
 ## 2 Developers Guide
 
