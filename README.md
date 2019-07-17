@@ -52,7 +52,7 @@ Using internal APIs we launch VM jobs by generating a bash startup script which 
 themselves, and copy the final results (or any errors) back up into google storage.
 
 VMs performance profiles can be created to use Google's standard machine type or custom cpu/ram combinations based on the
-workloa's requirements.
+workload's requirements.
 
 ### 1.5 Pipeline Stages
 The pipeline first runs primary and secondary analysis on a reference (blood/normal) sample and tumor sample before comparing
@@ -196,27 +196,40 @@ consists of three steps:
 
 #### 3.1.1 Operational Terminology
 
-To facilitate the rest of this discussion it is useful to define some terms for the rest of the guide:
+These terms will be used for the rest of the operational guide:
 
 - A *sample* is the all data from a physical tissue sample for a patient
 - A *set* is all of the data available for a particular patient, the metadata that is needed to associate the constituent samples
     to one another, and the execution of the pipeline for that set
 - A *run* is an invocation of the pipeline against a particular sample of a set, in a given mode
 - A *stage* is a part of a run which executes on either its own DataProc cluster or virtual machine in GCP
+- The *project* in GCP is the mechanism we use to keep development separate from production. While all the developers and probably
+    some operators have access to the development project, the production project is limited to operators.
+
+#### 3.1.2 Service Accounts
+
+GCP access can be managed in multiple ways but we are using [service
+accounts](https://cloud.google.com/compute/docs/access/service-accounts) to avoid maintenance and security overheads.
+Operationally once a user with adequate privileges has downloaded a JSON file containing the key from the GCP console, that file
+can be passed to the pipeline application on the command line and no further configuration should be necessary for the pipeline
+application to do its work.
 
 ### 3.2 Storage Buckets
 
-Before we continue this discussion: GCS makes a bucket seem more like a filesystem (or parent directory), with folders (or
-directories) and files, than some of the other cloud storage products out there. Here we'll treat buckets as cloud-backed filesystems.
+GCS makes a bucket seem more like a filesystem (or parent directory), with folders (or directories) and files, than some of the
+other cloud storage products out there. Here we'll treat buckets as cloud-backed filesystems.
 
 There are two sorts of buckets that are created when a run happens. Runtime buckets contain in-flight data that is required during
 the run's duration, while output buckets contain the finished results for one or many runs.
+
+Two other buckets are also involved in Pv5 runs: a "tools" bucket which stores the software that is used to generate a disk image
+for our VMs, and a "resources" bucket which holds data required by the runs.
 
 #### 3.2.1 Runtime Buckets
 
 As the runs of a set are executing, the pipeline creates buckets to hold the input and output of the stages of the runs. From an 
 operational perspective the pipeline may be thought of as a series of operations, with the outputs from earlier stages becoming
-the inputs for later ones. Each stage in a run will get a folder, and inside that folder there will be:
+the inputs for later ones. Each stage in a run will get a diretory which will contain:
 
 - Input data, which comes from previous stages' outputs or as input to the pipeline;
 - Results, which will be used as input to later stages or as final output of the pipeline;
@@ -237,7 +250,71 @@ In addition to the results from each stage, the output bucket will also contain 
 coordinating pipeline process, the set metadata, and some version information for the pipeline itself in order to make it easy to
 reproduce runs in the future and for auditing purposes.
 
-### 3.2 Invocation
+#### 3.2.3 Tools Bucket
+
+There is a tools bucket for each environment (eg development, production). This bucket is used at VM disk image creation time (see
+below) and contains all software that is not part of the base OS but which is required by any stage of the pipeline that is run
+under a VM. Deployment to production will typically involve promoting the contents of the development tools bucket to the
+production tools bucket.
+
+#### 3.2.4 Resources Bucket
+
+This contains data which is needed by the runs but which is not specific to a particular run. Examples would be white- and
+black-lists for genome regions, the reference genome currently in use, etc.
+
+While the tools bucket is used only at image-creation time, this bucket is used by multiple stages in every run. However as with
+the tools bucket this bucket's contents must be promoted from development to production when a deployment is done.
+
+### 3.3 Virtual Machines
+
+Pv5 uses custom VMs to run all stages of the pipeline that are not run under Google's
+[Dataproc](https://cloud.google.com/dataproc/) offering. Most stages require more flexibility than we can easily get from running
+a cluster and shelling out from Spark and thus are a better fit for running on virtual machines.
+
+#### 3.3.1 Custom Disk Images
+
+Our VMs are run against a customised version of one of the Google base virtual machine disk images. We start with their image as
+it provides something that is configured to run properly under their infrastructure then "freeze" off our customisations into our
+own disk image. This image will need to be updated from time to time using our image generation script, which automates these
+steps:
+
+1. A new VM is started using the latest version of the preferred Google disk image family.
+1. The script executes the set of commands in the custom commands list maintained in the source repository. The list has commands
+   to install OS packages and software from the tools bucket as well as anything else that may be needed.
+1. The VM is stopped and a custom image taken from its disk contents. This custom image is stored in Google's infrastructure under
+   the project.
+
+When the coordinator requests a new VM be created for a stage of the pipeline, the latest member of the series of custom images
+will be used. Therefore a new image must be cut whenever any tools change in development, and as a matter of procedure any
+production deployment should include a run of the imaging script against the production project.
+
+#### 3.3.2 Disk Layout
+
+We have isolated the "working" area of the disk images to the `/data/` directory. There are four directories under this top
+level:
+
+- `input` stores the files required by the stage, which will be copied into this location from the runtime bucket when the VM
+    instance starts
+- `resources` stores resources required by the stage from the resources bucket, which also will be copied from the runtime bucket
+    when the VM starts
+- `tools` is populated at image creation time with select contents from the tools bucket
+- `output` will contain the results of the run, which will be copied up to the output bucket when the stage completes
+
+Beyond these directories only the `/tmp` directory is expected to be used for anything as some of the stages have it set as their
+temporary or working directory.
+
+### 3.4 Promotion of a New Version
+
+As very little is shared between projects in GCP any changes to the Pv5 code or dependencies requires a promotion of the relevant
+parts of the development project to the production project. This means:
+
+1. Backing up the current production `tools` bucket and promoting the current contents of the development bucket to production;
+1. Repeating for the `resources` bucket;
+1. Running the image creation script against the production project.
+
+See scripts in `cluster/images`.
+
+### 3.5 Invocation
 
 Our build produces a Docker container that can be used to run the pipeline in production. 
 
@@ -254,10 +331,10 @@ your run for these. As of this writing this subset contains:
 Other arguments may be desirable or this list may have changed by the time you read this; run the application with the `-help`
 argument to see a full list.
 
-### 3.3 Troubleshooting and Bug Reports
+### 3.6 Troubleshooting and Bug Reports
 
 Having discussed the output and runtime buckets and invocation options, it is now possible to provide some general troubleshooting
-and escalation procedures. Pulling together the threads from earlier, if something goes wrong with a run:
+and escalation procedures. If something goes wrong with a run:
 
 - The pipeline log in the top level of the output bucket will contain information on the versions of the various components that
     are in use, the success/failure status of each of the stages in the run, and any exceptions that may have occurred on the
@@ -268,12 +345,4 @@ and escalation procedures. Pulling together the threads from earlier, if somethi
 
 Before logging any support requests all of the above should be inspected for useful information. If the cause of a failure cannot
 be determined, the same should be forwarded with any bug report.
-
-### 3.3 Other stuff:
-
-* docker containers in production
-* Required GCP access
-* command line arguments
-* api access required for application
-* ...
 
