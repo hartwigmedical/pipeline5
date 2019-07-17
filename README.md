@@ -238,7 +238,14 @@ the inputs for later ones. Each stage in a run will get a diretory which will co
 
 The pipeline creates and manages buckets as required to support the operations that are selected for a given run. In a typical
 complete run comprising single-sample normal and tumor stages and the somatic stage, there will be three runtime buckets. The
-buckets are easy to find as they are named according to the sample and set data provided on the command line to the application.
+buckets are easy to find as they are named according to the sample and set data provided on the command line to the application, for
+example:
+
+```
+run-cpct12345678r
+run-cpct12345678t
+run-cpct12345678r-cpct12345678t
+```
 
 #### 3.2.2 Output Buckets
 
@@ -250,12 +257,16 @@ In addition to the results from each stage, the output bucket will also contain 
 coordinating pipeline process, the set metadata, and some version information for the pipeline itself in order to make it easy to
 reproduce runs in the future and for auditing purposes.
 
+The output bucket can be configured at runtime with the `-patient_report_bucket`. The default for production is `pipeline-output-prod`.
+
 #### 3.2.3 Tools Bucket
 
 There is a tools bucket for each environment (eg development, production). This bucket is used at VM disk image creation time (see
 below) and contains all software that is not part of the base OS but which is required by any stage of the pipeline that is run
 under a VM. Deployment to production will typically involve promoting the contents of the development tools bucket to the
 production tools bucket.
+
+The tools bucket can be configured at runtime with `-tools_bucket`. The default for production is `common-tools-prod`.
 
 #### 3.2.4 Resources Bucket
 
@@ -264,6 +275,8 @@ black-lists for genome regions, the reference genome currently in use, etc.
 
 While the tools bucket is used only at image-creation time, this bucket is used by multiple stages in every run. However as with
 the tools bucket this bucket's contents must be promoted from development to production when a deployment is done.
+
+The resources bucket can be configured at runtime with `-resource_bucket`. The default for production is `common-resources-prod`.
 
 ### 3.3 Virtual Machines
 
