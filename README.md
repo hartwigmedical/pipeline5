@@ -210,9 +210,11 @@ These terms will be used for the rest of the operational guide:
 
 GCP access can be managed in multiple ways but we are using [service
 accounts](https://cloud.google.com/compute/docs/access/service-accounts) to avoid maintenance and security overheads.
-Operationally once a user with adequate privileges has downloaded a JSON file containing the key from the GCP console, that file
-can be passed to the pipeline application on the command line and no further configuration should be necessary for the pipeline
-application to do its work.
+Operationally a JSON file containing the private key needs to be downloaded from the GCP console; that file can either be placed
+in default location so it does not need to be specified on the command line, or that file can be mentioned by name on the command 
+line. See [Invocation](#3.5-invocation).
+
+The current production service account is called `pipeline5-scheduler`.
 
 ### 3.2 Storage Buckets
 
@@ -327,21 +329,21 @@ parts of the development project to the production project. This means:
 1. Repeating for the `resources` bucket;
 1. Running the image creation script against the production project.
 
-See scripts in `cluster/images`.
+See the `backup_to_bucket.sh`, `create_custom_image.sh` and `promote_environment.sh` scripts in `cluster/images`
 
 ### 3.5 Invocation
 
 Our build produces a Docker container that can be used to run the pipeline in production. 
 
 Pv5 runs are controlled via command line arguments to the main program which can be used to override the defaults. A subset of
-the arguments are defaulted to empty because a useful default does not exist; a value will need to be explicitly required for
-your run for these. As of this writing this subset contains:
+the arguments are defaulted to empty because a useful default does not exist; a value will need to be explicitly specified for
+the run for these. As of this writing this subset contains:
 
-- The `set_id`, which is needed to tie the run back to metadata in the SBP API when the run completes and we want to upload the
+- The `-set_id`, which is needed to tie the run back to metadata in the SBP API when the run completes and we want to upload the
     results.
-- The `sample_id`, needed to indicate which sample belonging to the set is being processed by this part of the run.
+- The `-sample_id`, needed to indicate which sample belonging to the set is being processed by this part of the run.
 - For the somatic phase, the program needs to be told to run in the somatic mode (see the [technical
-    overview](#1-technical-overview) section above).
+    overview](#1-technical-overview) section above). Pass `-mode somatic` on the command line.
 
 Other arguments may be desirable or this list may have changed by the time you read this; run the application with the `-help`
 argument to see a full list.
