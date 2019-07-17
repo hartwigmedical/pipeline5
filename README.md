@@ -240,13 +240,13 @@ the inputs for later ones. Each stage in a run will get a diretory which will co
 
 The pipeline creates and manages buckets as required to support the operations that are selected for a given run. In a typical
 complete run comprising single-sample normal and tumor stages and the somatic stage, there will be three runtime buckets. The
-buckets are easy to find as they are named according to the sample and set data provided on the command line to the application, for
-example:
+buckets are easy to find as they are named according to the sample barcode (if available) and set data provided on the command line to the
+application, for example:
 
 ```
-run-cpct12345678r
-run-cpct12345678t
-run-cpct12345678r-cpct12345678t
+run-fr11111111
+run-fr22222222
+run-fr11111111-fr22222222
 ```
 
 #### 3.2.2 Output Buckets
@@ -279,6 +279,23 @@ While the tools bucket is used only at image-creation time, this bucket is used 
 the tools bucket this bucket's contents must be promoted from development to production when a deployment is done.
 
 The resources bucket can be configured at runtime with `-resource_bucket`. The default for production is `common-resources-prod`.
+
+### 3.4 Google Dataproc Clusters
+
+The first compute steps in the pipeline are Spark jobs run on Google Dataproc. The JAR containing the Pv5 code to run is uploaded to the
+runtime bucket under `/jars`. A node initializing script is run which installs [BWA](http://bio-bwa.sourceforge.net/) and
+[sambamba](https://lomereiter.github.io/sambamba/).
+
+By default Pv5 will create clusters made up of just under 50% [preemptible VMs](https://cloud.google.com/preemptible-vms/). This is done as
+a cost reduction, as this setup should be tolerant of losing some nodes during processing. This can be disabled by setting
+`-use_preemptible_vms false`.
+
+Clusters and jobs are named in the same convention as the runtime buckets, suffixed with the sub-step id. There are 3 sub-steps to the
+Dataproc alignment, each with a distinct cluster, started up and torn down within the run:
+- Gunzip - Single node cluster.
+- BamCreation - Cluster size scaled based on FASTQ input size
+- SortAndIndex - Single node cluster
+
 
 ### 3.3 Virtual Machines
 
