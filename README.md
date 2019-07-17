@@ -301,6 +301,8 @@ When the coordinator requests a new VM be created for a stage of the pipeline, t
 will be used. Therefore a new image must be cut whenever any tools change in development, and as a matter of procedure any
 production deployment should include a run of the imaging script against the production project.
 
+The image family is named `disk-imager-standard`. All versions can be seen in the GCP Console, Compute Engine->Images.
+
 #### 3.3.2 Disk Layout
 
 We have isolated the "working" area of the disk images to the `/data/` directory. There are four directories under this top
