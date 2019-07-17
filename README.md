@@ -348,9 +348,19 @@ parts of the development project to the production project. This means:
 
 See the `backup_to_bucket.sh`, `create_custom_image.sh` and `promote_environment.sh` scripts in `cluster/images`
 
-### 3.6 Invocation
+### 3.6 Running Pv5
 
-Our build produces a Docker container that can be used to run the pipeline in production. 
+#### 3.6.1 Docker Container
+
+Our build produces a Docker container that can be used to run the pipeline in production. You will need to use Docker's `pull`
+command to fetch the `hatwigmedicalfoundation/pipeline5` image.
+
+The pipeline requires some files to be accessible to run, namely the private key JSON file from GCP and the FASTQ sample files for
+the run. You will need to use one of the available mechanisms to make these files available to the container (`-v` to share a
+host-side directory with the container, a custom Dockerfile, etc) and possibly some overrides to the command line when you invoke
+the application.
+
+#### 3.6.2 Command-line Arguments
 
 Pv5 runs are controlled via command line arguments to the main program which can be used to override the defaults. A subset of
 the arguments are defaulted to empty because a useful default does not exist; a value will need to be explicitly specified for
@@ -365,6 +375,18 @@ the run for these. As of this writing this subset contains:
 Other arguments may be desirable or this list may have changed by the time you read this; run the application with the `-help`
 argument to see a full list.
 
+#### 3.6.3 Invocation
+
+A typical invocation might look like this:
+
+`$ docker run -v /tmp/secrets:/secrets 123456789012 -set_id myset -sample_id CPCT12345678`
+
+Where the previously-downloaded private key file from GCP has been placed in the local `/tmp/secrets` directory (and the pipeline
+will just use the default value), `123456789012` is the `IMAGE ID` from the output of `docker images` and everything after it is
+an argument to the pipeline application itself. Command line arguments may be discovered like this:
+
+`$ docker run 123456789012 -help`
+
 ### 3.7 Troubleshooting and Bug Reports
 
 Having discussed the output and runtime buckets and invocation options, it is now possible to provide some general troubleshooting
@@ -377,6 +399,6 @@ and escalation procedures. If something goes wrong with a run:
     stage.
 - The output bucket will contain metadata and versioning information.
 
-Before logging any support requests all of the above should be inspected for useful information. If the cause of a failure cannot
-be determined, the same should be forwarded with any bug report.
+Before logging any support requests all of the above should be inspected for useful information. The same should be forwarded with 
+any bug report.
 
