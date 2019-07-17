@@ -280,7 +280,7 @@ the tools bucket this bucket's contents must be promoted from development to pro
 
 The resources bucket can be configured at runtime with `-resource_bucket`. The default for production is `common-resources-prod`.
 
-### 3.4 Google Dataproc Clusters
+### 3.3 Google Dataproc Clusters
 
 The first compute steps in the pipeline are Spark jobs run on Google Dataproc. The JAR containing the Pv5 code to run is uploaded to the
 runtime bucket under `/jars`. A node initializing script is run which installs [BWA](http://bio-bwa.sourceforge.net/) and
@@ -297,13 +297,13 @@ Dataproc alignment, each with a distinct cluster, started up and torn down withi
 - SortAndIndex - Single node cluster
 
 
-### 3.3 Virtual Machines
+### 3.4 Virtual Machines
 
 Pv5 uses custom VMs to run all stages of the pipeline that are not run under Google's
 [Dataproc](https://cloud.google.com/dataproc/) offering. Most stages require more flexibility than we can easily get from running
 a cluster and shelling out from Spark and thus are a better fit for running on virtual machines.
 
-#### 3.3.1 Custom Disk Images
+#### 3.4.1 Custom Disk Images
 
 Our VMs are run against a customised version of one of the Google base virtual machine disk images. We start with their image as
 it provides something that is configured to run properly under their infrastructure then "freeze" off our customisations into our
@@ -322,7 +322,7 @@ production deployment should include a run of the imaging script against the pro
 
 The image family is named `disk-imager-standard`. All versions can be seen in the GCP Console, Compute Engine->Images.
 
-#### 3.3.2 Disk Layout
+#### 3.4.2 Disk Layout
 
 We have isolated the "working" area of the disk images to the `/data/` directory. There are four directories under this top
 level:
@@ -337,7 +337,7 @@ level:
 Beyond these directories only the `/tmp` directory is expected to be used for anything as some of the stages have it set as their
 temporary or working directory.
 
-### 3.4 Promotion of a New Version
+### 3.5 Promotion of a New Version
 
 As very little is shared between projects in GCP any changes to the Pv5 code or dependencies requires a promotion of the relevant
 parts of the development project to the production project. This means:
@@ -348,7 +348,7 @@ parts of the development project to the production project. This means:
 
 See the `backup_to_bucket.sh`, `create_custom_image.sh` and `promote_environment.sh` scripts in `cluster/images`
 
-### 3.5 Invocation
+### 3.6 Invocation
 
 Our build produces a Docker container that can be used to run the pipeline in production. 
 
@@ -365,7 +365,7 @@ the run for these. As of this writing this subset contains:
 Other arguments may be desirable or this list may have changed by the time you read this; run the application with the `-help`
 argument to see a full list.
 
-### 3.6 Troubleshooting and Bug Reports
+### 3.7 Troubleshooting and Bug Reports
 
 Having discussed the output and runtime buckets and invocation options, it is now possible to provide some general troubleshooting
 and escalation procedures. If something goes wrong with a run:
