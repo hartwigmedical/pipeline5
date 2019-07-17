@@ -118,6 +118,17 @@ Final QC of the purple results and BAM metrics.
 environment. SBP provides orchestration tooling to manage the ingestion of FASTQ data from the HMF labs and metadata management
 of the samples, runs and output files. They also administer the HMF GCP projects.
 
+### 1.8 Data and Compute Topology
+
+The following diagram gives a simple overview of the dataflow between components, their executions platforms, and locations (ie what runs
+in GCP vs SBP private cloud). Dotted arrows represent API calls (create, start, stop, delete, etc) and solid dataflow. Three key pieces
+of data are shown here:
+- FASTQ - Raw sequencer output.
+- BAM - Aligned sequence output produced by alignment stage.
+- VCF - Variants called by the pipeline and other final output files
+
+![alt text](https://github.com/hartwigmedical/pipeline5/blob/master/v5_architecture_overview.png "Pv5 Topology")
+
 ## 2 Developers Guide
 
 ### 2.1 Building and Testing Pipeline 5
