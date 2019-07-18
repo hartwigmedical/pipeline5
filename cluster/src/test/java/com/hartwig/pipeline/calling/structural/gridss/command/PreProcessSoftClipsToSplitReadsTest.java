@@ -26,7 +26,7 @@ public class PreProcessSoftClipsToSplitReadsTest implements CommonEntities {
 
     @Test
     public void shouldGenerateGridssOptions() {
-        GridssCommonArgumentsAssert.assertThat(command).hasGridssArguments("tmp_dir", "/tmp")
+        GridssCommonArgumentsAssert.assertThat(command).hasGridssArguments(ARGS_TMP_DIR)
                 .and("working_dir", OUT_DIR)
                 .and("reference_sequence", REFERENCE_GENOME)
                 .and("i", TUMOR_BAM)

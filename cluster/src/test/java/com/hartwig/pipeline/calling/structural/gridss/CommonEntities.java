@@ -33,7 +33,7 @@ public interface CommonEntities {
     String ARG_KEY_OUTPUT_SHORT = "o";
     String ARG_KEY_WORKING_DIR = "working_dir";
 
-    Map.Entry<String, String> ARGS_TMP_DIR = pair("tmp_dir", "/tmp");
+    Map.Entry<String, String> ARGS_TMP_DIR = pair("tmp_dir", System.getProperty("java.io.tmpdir"));
     Map.Entry<String, String> ARGS_REFERENCE_SEQUENCE = pair("reference_sequence", REFERENCE_GENOME);
     Map.Entry<String, String> ARGS_OUTPUT_TO_STDOUT = pair(ARG_KEY_OUTPUT_SHORT, "/dev/stdout");
     Map.Entry<String, String> ARGS_NO_COMPRESSION = pair("compression_level", "0");

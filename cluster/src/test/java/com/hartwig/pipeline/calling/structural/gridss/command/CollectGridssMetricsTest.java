@@ -39,7 +39,7 @@ public class CollectGridssMetricsTest implements CommonEntities {
     @Test
     public void shouldCompleteCommandLineWithGridssArguments() {
         GridssCommonArgumentsAssert.assertThat(command)
-                .hasGridssArguments("tmp_dir", "/tmp")
+                .hasGridssArguments(ARGS_TMP_DIR)
                 .and("assume_sorted", "true")
                 .and("i", inputBamFullPath)
                 .and("o", fullOutputMetricsFilepathPrefix)
