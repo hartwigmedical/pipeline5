@@ -11,6 +11,7 @@ import com.hartwig.pipeline.calling.somatic.SomaticCallerProvider;
 import com.hartwig.pipeline.calling.structural.StructuralCallerProvider;
 import com.hartwig.pipeline.cleanup.CleanupProvider;
 import com.hartwig.pipeline.credentials.CredentialProvider;
+import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.flagstat.FlagstatProvider;
 import com.hartwig.pipeline.metadata.SampleMetadataApiProvider;
@@ -43,8 +44,9 @@ public class PipelineMain {
             try {
                 GoogleCredentials credentials = CredentialProvider.from(arguments).get();
                 Storage storage = StorageProvider.from(arguments, credentials).get();
+                PipelineState state;
                 if (arguments.mode().equals(Arguments.Mode.SINGLE_SAMPLE)) {
-                    PipelineState state = new SingleSamplePipeline(SampleMetadataApiProvider.from(arguments).get(),
+                    state = new SingleSamplePipeline(SampleMetadataApiProvider.from(arguments).get(),
                             AlignerProvider.from(credentials, storage, arguments).get(),
                             BamMetricsProvider.from(arguments, credentials, storage).get(),
                             GermlineCallerProvider.from(credentials, storage, arguments).get(),
@@ -58,27 +60,30 @@ public class PipelineMain {
                             arguments).run();
                     LOGGER.info("Single sample pipeline is complete with status [{}]. Stages run were [{}]", state.status(), state);
                 } else {
-                    PipelineState state =
-                            new SomaticPipeline(new AlignmentOutputStorage(storage, arguments, ResultsDirectory.defaultDirectory()),
-                                    new BamMetricsOutputStorage(storage, arguments, ResultsDirectory.defaultDirectory()),
-                                    SetMetadataApiProvider.from(arguments, storage).get(),
-                                    PipelineResultsProvider.from(storage, arguments, Versions.pipelineVersion()).get(),
-                                    new FullSomaticResults(storage, arguments),
-                                    CleanupProvider.from(credentials, arguments, storage).get(),
-                                    AmberProvider.from(arguments, credentials, storage).get(),
-                                    CobaltProvider.from(arguments, credentials, storage).get(),
-                                    SomaticCallerProvider.from(arguments, credentials, storage).get(),
-                                    StructuralCallerProvider.from(arguments, credentials, storage).get(),
-                                    PurpleProvider.from(arguments, credentials, storage).get(),
-                                    HealthCheckerProvider.from(arguments, credentials, storage).get(),
-                                    Executors.newCachedThreadPool()).run();
+                    state = new SomaticPipeline(new AlignmentOutputStorage(storage, arguments, ResultsDirectory.defaultDirectory()),
+                            new BamMetricsOutputStorage(storage, arguments, ResultsDirectory.defaultDirectory()),
+                            SetMetadataApiProvider.from(arguments, storage).get(),
+                            PipelineResultsProvider.from(storage, arguments, Versions.pipelineVersion()).get(),
+                            new FullSomaticResults(storage, arguments),
+                            CleanupProvider.from(credentials, arguments, storage).get(),
+                            AmberProvider.from(arguments, credentials, storage).get(),
+                            CobaltProvider.from(arguments, credentials, storage).get(),
+                            SomaticCallerProvider.from(arguments, credentials, storage).get(),
+                            StructuralCallerProvider.from(arguments, credentials, storage).get(),
+                            PurpleProvider.from(arguments, credentials, storage).get(),
+                            HealthCheckerProvider.from(arguments, credentials, storage).get(),
+                            Executors.newCachedThreadPool()).run();
                     LOGGER.info("Somatic pipeline is complete with status [{}]. Stages run were [{}]", state.status(), state);
+                }
+                if (state.status() == PipelineStatus.SUCCESS) {
+                    System.exit(0);
+                } else {
+                    System.exit(1);
                 }
             } catch (Exception e) {
                 LOGGER.error("An unexpected issue arose while running the pipeline. See the attached exception for more details.", e);
                 System.exit(1);
             }
-            System.exit(0);
         } catch (ParseException e) {
             LOGGER.info("Exiting due to incorrect arguments");
         }
