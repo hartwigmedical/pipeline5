@@ -20,6 +20,11 @@ public class PipelineState {
         return stageOutput;
     }
 
+    PipelineState combineWith(PipelineState state){
+        state.stageOutputs().forEach(this::add);
+        return this;
+    }
+
     List<StageOutput> stageOutputs() {
         return stageOutputs;
     }
