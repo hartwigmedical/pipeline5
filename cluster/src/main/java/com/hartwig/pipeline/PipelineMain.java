@@ -36,56 +36,77 @@ public class PipelineMain {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PipelineMain.class);
 
-    public static void main(String[] args) {
+    public void start(Arguments arguments) {
+        LOGGER.info("Arguments [{}]", arguments);
+        Versions.printAll();
         try {
-            Arguments arguments = CommandLineOptions.from(args);
-            LOGGER.info("Arguments [{}]", arguments);
-            Versions.printAll();
-            try {
-                GoogleCredentials credentials = CredentialProvider.from(arguments).get();
-                Storage storage = StorageProvider.from(arguments, credentials).get();
-                PipelineState state;
-                if (arguments.mode().equals(Arguments.Mode.SINGLE_SAMPLE)) {
-                    state = new SingleSamplePipeline(SampleMetadataApiProvider.from(arguments).get(),
-                            AlignerProvider.from(credentials, storage, arguments).get(),
-                            BamMetricsProvider.from(arguments, credentials, storage).get(),
-                            GermlineCallerProvider.from(credentials, storage, arguments).get(),
-                            new SnpGenotype(arguments,
-                                    ComputeEngine.from(arguments, credentials),
-                                    storage,
-                                    ResultsDirectory.defaultDirectory()),
-                            FlagstatProvider.from(arguments, credentials, storage).get(),
-                            PipelineResultsProvider.from(storage, arguments, Versions.pipelineVersion()).get(),
-                            Executors.newCachedThreadPool(),
-                            arguments).run();
-                    LOGGER.info("Single sample pipeline is complete with status [{}]. Stages run were [{}]", state.status(), state);
-                } else {
-                    state = new SomaticPipeline(new AlignmentOutputStorage(storage, arguments, ResultsDirectory.defaultDirectory()),
-                            new BamMetricsOutputStorage(storage, arguments, ResultsDirectory.defaultDirectory()),
-                            SetMetadataApiProvider.from(arguments, storage).get(),
-                            PipelineResultsProvider.from(storage, arguments, Versions.pipelineVersion()).get(),
-                            new FullSomaticResults(storage, arguments),
-                            CleanupProvider.from(credentials, arguments, storage).get(),
-                            AmberProvider.from(arguments, credentials, storage).get(),
-                            CobaltProvider.from(arguments, credentials, storage).get(),
-                            SomaticCallerProvider.from(arguments, credentials, storage).get(),
-                            StructuralCallerProvider.from(arguments, credentials, storage).get(),
-                            PurpleProvider.from(arguments, credentials, storage).get(),
-                            HealthCheckerProvider.from(arguments, credentials, storage).get(),
-                            Executors.newCachedThreadPool()).run();
-                    LOGGER.info("Somatic pipeline is complete with status [{}]. Stages run were [{}]", state.status(), state);
-                }
-                if (state.status() == PipelineStatus.SUCCESS) {
-                    System.exit(0);
-                } else {
-                    System.exit(1);
-                }
-            } catch (Exception e) {
-                LOGGER.error("An unexpected issue arose while running the pipeline. See the attached exception for more details.", e);
+            GoogleCredentials credentials = CredentialProvider.from(arguments).get();
+            Storage storage = StorageProvider.from(arguments, credentials).get();
+            PipelineState state;
+            if (arguments.mode().equals(Arguments.Mode.FULL)) {
+                String referenceSample = arguments.setId() + "R";
+                String tumorSample = arguments.setId() + "T";
+                state = new FullPipeline(singleSamplePipeline(addSampleId(arguments, referenceSample), credentials, storage),
+                        singleSamplePipeline(addSampleId(arguments, tumorSample), credentials, storage),
+                        somaticPipeline(arguments, credentials, storage),
+                        Executors.newCachedThreadPool()).run();
+            } else if (arguments.mode().equals(Arguments.Mode.SINGLE_SAMPLE)) {
+                state = singleSamplePipeline(arguments, credentials, storage).run();
+                LOGGER.info("Single sample pipeline is complete with status [{}]. Stages run were [{}]", state.status(), state);
+            } else {
+                state = somaticPipeline(arguments, credentials, storage).run();
+                LOGGER.info("Somatic pipeline is complete with status [{}]. Stages run were [{}]", state.status(), state);
+            }
+            if (state.status() == PipelineStatus.SUCCESS) {
+                System.exit(0);
+            } else {
                 System.exit(1);
             }
+        } catch (Exception e) {
+            LOGGER.error("An unexpected issue arose while running the pipeline. See the attached exception for more details.", e);
+            System.exit(1);
+        }
+    }
+
+    private static SomaticPipeline somaticPipeline(final Arguments arguments, final GoogleCredentials credentials, final Storage storage)
+            throws Exception {
+        return new SomaticPipeline(new AlignmentOutputStorage(storage, arguments, ResultsDirectory.defaultDirectory()),
+                new BamMetricsOutputStorage(storage, arguments, ResultsDirectory.defaultDirectory()),
+                SetMetadataApiProvider.from(arguments, storage).get(),
+                PipelineResultsProvider.from(storage, arguments, Versions.pipelineVersion()).get(),
+                new FullSomaticResults(storage, arguments),
+                CleanupProvider.from(credentials, arguments, storage).get(),
+                AmberProvider.from(arguments, credentials, storage).get(),
+                CobaltProvider.from(arguments, credentials, storage).get(),
+                SomaticCallerProvider.from(arguments, credentials, storage).get(),
+                StructuralCallerProvider.from(arguments, credentials, storage).get(),
+                PurpleProvider.from(arguments, credentials, storage).get(),
+                HealthCheckerProvider.from(arguments, credentials, storage).get(),
+                Executors.newCachedThreadPool());
+    }
+
+    private static Arguments addSampleId(final Arguments arguments, final String referenceSample) {
+        return Arguments.builder().from(arguments).sampleId(referenceSample).build();
+    }
+
+    private static SingleSamplePipeline singleSamplePipeline(final Arguments arguments, final GoogleCredentials credentials,
+            final Storage storage) throws Exception {
+        return new SingleSamplePipeline(SampleMetadataApiProvider.from(arguments).get(),
+                AlignerProvider.from(credentials, storage, arguments).get(),
+                BamMetricsProvider.from(arguments, credentials, storage).get(),
+                GermlineCallerProvider.from(credentials, storage, arguments).get(),
+                new SnpGenotype(arguments, ComputeEngine.from(arguments, credentials), storage, ResultsDirectory.defaultDirectory()),
+                FlagstatProvider.from(arguments, credentials, storage).get(),
+                PipelineResultsProvider.from(storage, arguments, Versions.pipelineVersion()).get(),
+                Executors.newCachedThreadPool(),
+                arguments);
+    }
+
+    public static void main(String[] args) {
+        try {
+            new PipelineMain().start(CommandLineOptions.from(args));
         } catch (ParseException e) {
-            LOGGER.info("Exiting due to incorrect arguments");
+            LOGGER.error("Exiting due to incorrect arguments");
         }
     }
 }

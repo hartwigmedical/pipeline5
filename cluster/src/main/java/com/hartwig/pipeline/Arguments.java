@@ -15,6 +15,7 @@ public interface Arguments {
     }
 
     enum Mode {
+        FULL,
         SINGLE_SAMPLE,
         SOMATIC
     }
