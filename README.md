@@ -30,9 +30,9 @@ Pv5 makes use of the following GCP services:
   (samtools, GATK, strelka, etc)
 
 ### 1.3 ADAM, Spark and Dataproc
-[ADAM](https://github.com/bigdatagenomics/adam) is a genomic analysis modeling and processing framework built on Apache Spark.
-Please see [the documentation](https://adam.readthedocs.io/en/latest/) for a complete description of the ADAM ecosystem and
-goals. At this point we only use the core APIs and datamodels. [Apache Spark](https://spark.apache.org/) is an analytics engine
+[ADAM](https://github.com/bigdatagenomics/adam) is a genomic analysis modeling and processing framework built on Apache Spark
+(read [the documentation](https://adam.readthedocs.io/en/latest/) for a complete description of the ADAM ecosystem and
+goals). At this point we only use the core APIs and datamodels. [Apache Spark](https://spark.apache.org/) is an analytics engine
 used for large scale data processing, also best to read their own docs for a complete description.
 
 We use ADAM to parallelize processing of FASTQ and BAM files using hadoop. ADAM provides an avro datamodel to read and persist
@@ -44,14 +44,14 @@ includes a connector to use Google Storage as HDFS. With this we can have these 
 distributed data storage.
 
 ### 1.4 Google Compute Engine
-Not all the algorithms in our pipeline are currently suited to ADAM. For these tools we've developed a small framework to run
-them on VMs in Java. To accomplish this we've created a standard VM image containing a complete repository of external and
-internal tools, and OS dependencies.
+Not all the algorithms in our pipeline are currently suited to ADAM. For these tools we've developed a small framework to run them
+on virtual machines (VMs) in Java. To accomplish this we've created a standard VM image containing a complete repository of
+external and internal tools, and OS dependencies.
 
-Using internal APIs we launch VM jobs by generating a bash startup script which will copy inputs and resources, run the tools
-themselves, and copy the final results (or any errors) back up into google storage.
+Using internal APIs we launch VM jobs by generating a `bash` startup script which will copy inputs and resources, run the tools
+themselves, and copy the final results (or any errors) back up into Google storage.
 
-VMs performance profiles can be created to use Google's standard machine type or custom cpu/ram combinations based on the
+VM performance profiles can be created to use Google's standard machine type or custom cpu/ram combinations based on the
 workload's requirements.
 
 ### 1.5 Pipeline Stages
@@ -70,7 +70,7 @@ persist it.
 It is worth noting there are both a pre-processing and post-processing step done here. Before alignment, we run a small Spark
 cluster to simply gunzip the data. Our input FASTQs come in gzipp-ed (not bgzipped) so cannot be properly parallelized by Spark
 in that state. After the alignment is complete, we run a sambamba sort and index, as the ADAM sort we've found unstable and does
-not perform indexing.  
+not perform indexing.
 
 #### 1.5.2 WGS Metrics
 Our downstream QC tools require certain metrics about the BAM. These are produced using Picard tools
@@ -137,9 +137,9 @@ Pv5 is a Java application and is built with Maven. It is compatible with all bui
 8](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) and [Maven
 3](https://maven.apache.org/download.cgi) (if in doubt just use the latest).
 
-Otherwise only pre-requisite for running the build is having bwa installed locally (for the ADAM functional tests). For Mac
-users bwa can be installed easily via homebrew, and there are also packages for most linux distributions. All else fails you can
-build from source http://bio-bwa.sourceforge.net/
+Otherwise only pre-requisite for running the build is having `bwa` installed locally (for the ADAM functional tests). For Mac
+users bwa can be installed easily via homebrew, and there are also packages for most linux distributions. If all else fails you can
+build from [source](http://bio-bwa.sourceforge.net/).
 
 To build the application and run all thes tests do the following
 
@@ -346,7 +346,7 @@ parts of the development project to the production project. This means:
 1. Repeating for the `resources` bucket;
 1. Running the image creation script against the production project.
 
-See the `backup_to_bucket.sh`, `create_custom_image.sh` and `promote_environment.sh` scripts in `cluster/images`
+See the `backup_to_bucket.sh`, `create_custom_image.sh` and `promote_environment.sh` scripts in `cluster/images`.
 
 ### 3.6 Running Pv5
 
@@ -380,20 +380,21 @@ the application.
 An invocation might look like this:
 
 ```
-$ docker run -v /my/key/dir:/secrets hatwigmedicalfoundation/pipeline5:5.1.123 -set_id myset -sample_id CPCT12345678
+$ docker run -v /my/key/dir:/secrets hartwigmedicalfoundation/pipeline5:5.1.123 -set_id myset -sample_id CPCT12345678
 ```
 
 where:
 
 - The previously-downloaded private key file from GCP has been placed in the local `/my/key/dir` directory (and the pipeline
     will just use the default path).
-- The version of the pipeline to run is `5.1.123` (also note the spelling error in the image name). If a specific version is 
-    not specified, the latest tagged version will be used.
+- The version of the pipeline to run is `5.1.123`. If a specific version is not specified, the latest tagged version will be used.
 - Everything after the image name is an argument to the pipeline application itself. 
 
 Command line arguments for Pv5 may be discovered like this:
 
-`$ docker run hatwigmedicalfoundation/pipeline5:5.1.123 -help`
+```
+$ docker run hartwigmedicalfoundation/pipeline5:5.1.123 -help
+```
 
 ### 3.7 Troubleshooting and Bug Reports
 
