@@ -29,7 +29,7 @@ public class Cleanup {
     }
 
     public void run(SomaticRunMetadata metadata) {
-        LOGGER.info("Cleaning up all transient resources on successful somatic pipeline run (runtime buckets and dataproc jobs)");
+        LOGGER.info("Cleaning up all transient resources on complete somatic pipeline run (runtime buckets and dataproc jobs)");
         String referenceSampleName = metadata.reference().sampleId();
         String tumorSampleName = metadata.tumor().sampleId();
         Run referenceRun = Run.from(referenceSampleName, arguments);

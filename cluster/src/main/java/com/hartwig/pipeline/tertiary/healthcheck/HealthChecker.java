@@ -106,7 +106,7 @@ public class HealthChecker {
                 status = PipelineStatus.SUCCESS;
             } else if (healthCheckStatus.getName().endsWith("HealthCheckFailed")) {
                 LOGGER.warn("Health check reported failure. Check run.log in health checker out for reason");
-                status = PipelineStatus.FAILED;
+                status = PipelineStatus.QC_FAILED;
             } else {
                 LOGGER.warn(
                         "Health check completed with unknown status [{}]. Failing the run. Check run.log in health checker out for more "
