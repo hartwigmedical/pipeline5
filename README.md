@@ -352,13 +352,8 @@ See the `backup_to_bucket.sh`, `create_custom_image.sh` and `promote_environment
 
 #### 3.6.1 Docker Container
 
-Our build produces a Docker container that can be used to run the pipeline in production. You will need to use Docker's `pull`
-command to fetch the `hatwigmedicalfoundation/pipeline5` image.
-
-The pipeline requires some files to be accessible to run, namely the private key JSON file from GCP and the FASTQ sample files for
-the run. You will need to use one of the available mechanisms to make these files available to the container (`-v` to share a
-host-side directory with the container, a custom Dockerfile, etc) and possibly some overrides to the command line when you invoke
-the application.
+Our build produces a Docker container that can be used to run the pipeline in production. You will need to be familiar with basic
+Docker usage before attempting to run the pipeline.
 
 #### 3.6.2 Command-line Arguments
 
@@ -372,20 +367,33 @@ the run for these. As of this writing this subset contains:
 - For the somatic phase, the program needs to be told to run in the somatic mode (see the [technical
     overview](#1-technical-overview) section above). Pass `-mode somatic` on the command line.
 
-Other arguments may be desirable or this list may have changed by the time you read this; run the application with the `-help`
+Other arguments may be desirable or the list may have changed by the time you read this; run the application with the `-help`
 argument to see a full list.
 
 #### 3.6.3 Invocation
 
-A typical invocation might look like this:
+The pipeline requires some files to be accessible to run, namely the private key JSON file from GCP and the FASTQ sample files for
+the run. You will need to use one of the available mechanisms to make these files available to the container (`-v` to share a
+host-side directory with the container, a custom Dockerfile, etc) and possibly some overrides to the command line when you invoke
+the application.
 
-`$ docker run -v /tmp/secrets:/secrets 123456789012 -set_id myset -sample_id CPCT12345678`
+An invocation might look like this:
 
-Where the previously-downloaded private key file from GCP has been placed in the local `/tmp/secrets` directory (and the pipeline
-will just use the default value), `123456789012` is the `IMAGE ID` from the output of `docker images` and everything after it is
-an argument to the pipeline application itself. Command line arguments may be discovered like this:
+```
+$ docker run -v /my/key/dir:/secrets hatwigmedicalfoundation/pipeline5:5.1.123 -set_id myset -sample_id CPCT12345678
+```
 
-`$ docker run 123456789012 -help`
+where:
+
+- The previously-downloaded private key file from GCP has been placed in the local `/my/key/dir` directory (and the pipeline
+    will just use the default path).
+- The version of the pipeline to run is `5.1.123` (also note the spelling error in the image name). If a specific version is 
+    not specified, the latest tagged version will be used.
+- Everything after the image name is an argument to the pipeline application itself. 
+
+Command line arguments for Pv5 may be discovered like this:
+
+`$ docker run hatwigmedicalfoundation/pipeline5:5.1.123 -help`
 
 ### 3.7 Troubleshooting and Bug Reports
 
