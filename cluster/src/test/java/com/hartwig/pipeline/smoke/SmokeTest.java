@@ -20,7 +20,7 @@ public class SmokeTest {
         PipelineState state = victim.start(Arguments.defaultsBuilder(Arguments.DefaultsProfile.DEVELOPMENT.toString())
                 .privateKeyPath("google-key.json")
                 .sampleDirectory(System.getProperty("user.dir") + "/../samples")
-                .version(Versions.pipelineVersion())
+                .version(System.getProperty("version"))
                 .jarDirectory(System.getProperty("user.dir") + "/../system/target")
                 .cloudSdkPath("/usr/bin")
                 .nodeInitializationScript(System.getProperty("user.dir") + "/src/main/resources/node-init.sh")
