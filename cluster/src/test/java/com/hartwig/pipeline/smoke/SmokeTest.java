@@ -26,7 +26,7 @@ public class SmokeTest {
                 .nodeInitializationScript(System.getProperty("user.dir") + "/src/main/resources/node-init.sh")
                 .setId("CPCT12345678")
                 .mode(Arguments.Mode.FULL)
-                .runId("smoke-" + version)
+                .runId("smoke-" + version.replace("\\.", ""))
                 .runGermlineCaller(false)
                 .cleanup(false)
                 .build());
