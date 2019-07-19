@@ -14,7 +14,6 @@ before_install:
 - mvn versions:set -DnewVersion=$PIPELINE5_VERSION
 - sudo apt-get -qq update
 - sudo apt-get install -y samtools google-cloud-sdk
-- curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-254.0.0-linux-x86_64.tar.gz
 - "./travis-init.sh"
 - export PATH=$PATH:$PWD/bwa/
 install: "/bin/true"

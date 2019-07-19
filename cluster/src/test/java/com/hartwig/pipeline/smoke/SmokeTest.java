@@ -21,13 +21,19 @@ public class SmokeTest {
                 .privateKeyPath("google-key.json")
                 .sampleDirectory("../samples")
                 .jarDirectory("../system/target")
+                .cloudSdkPath("/usr/bin")
                 .nodeInitializationScript("./src/main/resources/node-init.sh")
                 .setId("CPCT12345678")
                 .mode(Arguments.Mode.FULL)
-                .runId("smoke-test-" + Versions.pipelineVersion().toLowerCase())
+                .runId("smoke-test-" + version())
                 .runGermlineCaller(false)
                 .cleanup(false)
                 .build());
         assertThat(state.status()).isEqualTo(PipelineStatus.SUCCESS);
+    }
+
+    private String version() {
+        String version = Versions.class.getPackage().getImplementationVersion();
+        return version != null ? version : System.getProperty("user.name");
     }
 }
