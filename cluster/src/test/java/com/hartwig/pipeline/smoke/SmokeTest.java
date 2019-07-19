@@ -14,7 +14,7 @@ import org.junit.experimental.categories.Category;
 public class SmokeTest {
 
     @Test
-    public void runFullPipelineAndAssertNoErrors() {
+    public void runFullPipelineAndCheckFinalStatus() {
         PipelineMain victim = new PipelineMain();
         String version = System.getProperty("version");
         PipelineState state = victim.start(Arguments.defaultsBuilder(Arguments.DefaultsProfile.DEVELOPMENT.toString())
@@ -26,7 +26,7 @@ public class SmokeTest {
                 .nodeInitializationScript(System.getProperty("user.dir") + "/src/main/resources/node-init.sh")
                 .setId("CPCT12345678")
                 .mode(Arguments.Mode.FULL)
-                .runId("smoke-" + version.replace("\\.", ""))
+                .runId("smoke-" + version.replace(".", ""))
                 .runGermlineCaller(false)
                 .cleanup(false)
                 .build());
