@@ -37,7 +37,7 @@ public class PipelineState {
         return shouldProceed;
     }
 
-    PipelineStatus status() {
+    public PipelineStatus status() {
         return stageOutputs().stream()
                 .filter(Objects::nonNull)
                 .map(StageOutput::status)

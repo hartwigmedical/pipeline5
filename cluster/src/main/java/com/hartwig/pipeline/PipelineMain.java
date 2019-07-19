@@ -36,7 +36,7 @@ public class PipelineMain {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PipelineMain.class);
 
-    public void start(Arguments arguments) {
+    public PipelineState start(Arguments arguments) {
         LOGGER.info("Arguments [{}]", arguments);
         Versions.printAll();
         try {
@@ -57,14 +57,9 @@ public class PipelineMain {
                 state = somaticPipeline(arguments, credentials, storage).run();
                 LOGGER.info("Somatic pipeline is complete with status [{}]. Stages run were [{}]", state.status(), state);
             }
-            if (state.status() == PipelineStatus.SUCCESS) {
-                System.exit(0);
-            } else {
-                System.exit(1);
-            }
+            return state;
         } catch (Exception e) {
-            LOGGER.error("An unexpected issue arose while running the pipeline. See the attached exception for more details.", e);
-            System.exit(1);
+            throw new RuntimeException(e);
         }
     }
 
@@ -104,9 +99,17 @@ public class PipelineMain {
 
     public static void main(String[] args) {
         try {
-            new PipelineMain().start(CommandLineOptions.from(args));
+            PipelineState state = new PipelineMain().start(CommandLineOptions.from(args));
+            if (state.status() == PipelineStatus.SUCCESS) {
+                System.exit(0);
+            } else {
+                System.exit(1);
+            }
         } catch (ParseException e) {
             LOGGER.error("Exiting due to incorrect arguments");
+        } catch (Exception e) {
+            LOGGER.error("An unexpected issue arose while running the pipeline. See the attached exception for more details.", e);
+            System.exit(1);
         }
     }
 }
