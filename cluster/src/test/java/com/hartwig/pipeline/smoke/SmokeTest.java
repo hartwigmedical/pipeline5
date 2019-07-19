@@ -19,10 +19,10 @@ public class SmokeTest {
         PipelineMain victim = new PipelineMain();
         PipelineState state = victim.start(Arguments.defaultsBuilder(Arguments.DefaultsProfile.DEVELOPMENT.toString())
                 .privateKeyPath("google-key.json")
-                .sampleDirectory(System.getProperty("user.dir") + "/samples")
-                .jarDirectory(System.getProperty("user.dir") + "system/target")
+                .sampleDirectory(System.getProperty("user.dir") + "../samples")
+                .jarDirectory(System.getProperty("user.dir") + "../system/target")
                 .cloudSdkPath("/usr/bin")
-                .nodeInitializationScript(System.getProperty("user.dir") + "cluster/src/main/resources/node-init.sh")
+                .nodeInitializationScript(System.getProperty("user.dir") + "/src/main/resources/node-init.sh")
                 .setId("CPCT12345678")
                 .mode(Arguments.Mode.FULL)
                 .runId("smoke-test-" + version())
