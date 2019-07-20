@@ -111,11 +111,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <argLine>-Dversion=${project.version}</argLine>
-                </configuration>
-               <!-- <configuration>
                     <excludedGroups>com.hartwig.pipeline.smoke.IntegrationTest</excludedGroups>
-                </configuration>-->
+                </configuration>
             </plugin>
         </plugins>
     </build>
@@ -134,6 +131,7 @@
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-surefire-plugin</artifactId>
                         <configuration combine.self="override">
+                            <argLine>-Dversion=${project.version}</argLine>
                         </configuration>
 
                     </plugin>

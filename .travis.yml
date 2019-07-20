@@ -6,7 +6,7 @@ env:
 - PIPELINE5_VERSION=5.1.$TRAVIS_BUILD_NUMBER
 script:
 - '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && mvn clean install -B || mvn clean install
-  -DskipDocker -B'
+  -DskipDocker -DskipShade -B'
 before_install:
 - openssl aes-256-cbc -K $encrypted_f6c91b3577bb_key -iv $encrypted_f6c91b3577bb_iv
   -in cluster/google-key.json.enc -out cluster/google-key.json -d
