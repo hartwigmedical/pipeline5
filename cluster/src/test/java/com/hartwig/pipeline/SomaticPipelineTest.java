@@ -6,7 +6,9 @@ import static com.hartwig.pipeline.testsupport.TestSamples.simpleReferenceSample
 import static com.hartwig.pipeline.testsupport.TestSamples.simpleTumorSample;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -88,6 +90,7 @@ public class SomaticPipelineTest {
     private Purple purple;
     private HealthChecker healthChecker;
     private SomaticMetadataApi setMetadataApi;
+    private Cleanup cleanup;
 
     @Before
     public void setUp() throws Exception {
@@ -106,7 +109,7 @@ public class SomaticPipelineTest {
         when(storage.get(ARGUMENTS.patientReportBucket())).thenReturn(reportBucket);
         final PipelineResults pipelineResults = PipelineResultsProvider.from(storage, ARGUMENTS, "test").get();
         final FullSomaticResults fullSomaticResults = mock(FullSomaticResults.class);
-        final Cleanup cleanup = mock(Cleanup.class);
+        cleanup = mock(Cleanup.class);
         victim = new SomaticPipeline(alignmentOutputStorage,
                 bamMetricsOutputStorage,
                 setMetadataApi,
@@ -212,12 +215,7 @@ public class SomaticPipelineTest {
         bothAlignmentsAvailable();
         allCallersSucceed();
         bothMetricsAvailable();
-        when(purple.run(SOMATIC_RUN_METADATA,
-                PAIR,
-                SUCCESSFUL_SOMATIC_CALLER_OUTPUT,
-                SUCCESSFUL_STRUCTURAL_CALLER_OUTPUT,
-                SUCCESSFUL_COBALT_OUTPUT,
-                SUCCESSFUL_AMBER_OUTPUT)).thenReturn(PurpleOutput.builder().status(PipelineStatus.FAILED).build());
+        failPurple();
         PipelineState state = victim.run();
         assertThat(state.status()).isEqualTo(PipelineStatus.FAILED);
         verifyZeroInteractions(healthChecker);
@@ -238,14 +236,53 @@ public class SomaticPipelineTest {
         bothAlignmentsAvailable();
         allCallersSucceed();
         bothMetricsAvailable();
+        failPurple();
+        victim.run();
+        verify(setMetadataApi, times(1)).complete(PipelineStatus.FAILED, SOMATIC_RUN_METADATA);
+    }
+
+    private void failPurple() {
         when(purple.run(SOMATIC_RUN_METADATA,
                 PAIR,
                 SUCCESSFUL_SOMATIC_CALLER_OUTPUT,
                 SUCCESSFUL_STRUCTURAL_CALLER_OUTPUT,
                 SUCCESSFUL_COBALT_OUTPUT,
                 SUCCESSFUL_AMBER_OUTPUT)).thenReturn(PurpleOutput.builder().status(PipelineStatus.FAILED).build());
+    }
+
+    @Test
+    public void runsCleanupOnSuccessfulRun() {
+        bothAlignmentsAvailable();
+        allCallersSucceed();
+        bothMetricsAvailable();
+        purpleAndHealthCheckSucceed();
         victim.run();
-        verify(setMetadataApi, times(1)).complete(PipelineStatus.FAILED, SOMATIC_RUN_METADATA);
+        verify(cleanup, times(1)).run(SOMATIC_RUN_METADATA);
+    }
+
+    @Test
+    public void doesNotRunCleanupOnFailedRun() {
+        bothAlignmentsAvailable();
+        allCallersSucceed();
+        bothMetricsAvailable();
+        failPurple();
+        victim.run();
+        verify(cleanup, never()).run(SOMATIC_RUN_METADATA);
+    }
+
+    @Test
+    public void doesNotRunCleanupOnFailedTransfer() {
+        bothAlignmentsAvailable();
+        allCallersSucceed();
+        bothMetricsAvailable();
+        purpleAndHealthCheckSucceed();
+        doThrow(new NullPointerException()).when(setMetadataApi).complete(PipelineStatus.SUCCESS, SOMATIC_RUN_METADATA);
+        try {
+            victim.run();
+        } catch (Exception e) {
+            // continue
+        }
+        verify(cleanup, never()).run(SOMATIC_RUN_METADATA);
     }
 
     private void purpleAndHealthCheckSucceed() {

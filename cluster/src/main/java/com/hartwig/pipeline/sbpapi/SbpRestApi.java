@@ -99,7 +99,7 @@ public class SbpRestApi {
     }
 
     private void patch(final String sampleID, final String status, final String json, final String entityType) {
-        LOGGER.info("Patching sample id [{}] with status [{}]", sampleID, status);
+        LOGGER.info("Patching {} id [{}] with status [{}]",entityType, sampleID, status);
         Response response = api().path(entityType)
                 .path(sampleID)
                 .request()
