@@ -1,7 +1,5 @@
 package com.hartwig.pipeline.calling.structural.gridss.command;
 
-import static java.lang.String.format;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
@@ -20,8 +18,8 @@ public class CollectGridssMetricsTest implements CommonEntities {
     public void setup() {
         inputBamBasename = "input-file.bam";
         inputBamFullPath = "/full/path/to/" + inputBamBasename;
-        outputMetricsFilepathPrefix = format("%s/input-file_metrics", OUT_DIR);
-        fullOutputMetricsFilepathPrefix = format("%s/%s", outputMetricsFilepathPrefix, inputBamBasename);
+        outputMetricsFilepathPrefix = "/path/to/metrics/base.name";
+//        fullOutputMetricsFilepathPrefix = format("%s/%s", outputMetricsFilepathPrefix, inputBamBasename);
         command = new CollectGridssMetrics(inputBamFullPath, outputMetricsFilepathPrefix);
 
     }
@@ -42,7 +40,7 @@ public class CollectGridssMetricsTest implements CommonEntities {
                 .hasGridssArguments(ARGS_TMP_DIR)
                 .and("assume_sorted", "true")
                 .and("i", inputBamFullPath)
-                .and("o", fullOutputMetricsFilepathPrefix)
+                .and("o", outputMetricsFilepathPrefix)
                 .and("threshold_coverage", "50000")
                 .and("file_extension", "null")
                 .and("gridss_program", "null")
@@ -54,11 +52,5 @@ public class CollectGridssMetricsTest implements CommonEntities {
                 .and("program", "null")
                 .and("program", "CollectInsertSizeMetrics")
                 .andNoMore();
-    }
-
-    @Test
-    public void shouldReturnMetrics() {
-        assertThat(command.outputBaseFilename()).isNotEmpty();
-        assertThat(command.outputBaseFilename()).isEqualTo(fullOutputMetricsFilepathPrefix);
     }
 }

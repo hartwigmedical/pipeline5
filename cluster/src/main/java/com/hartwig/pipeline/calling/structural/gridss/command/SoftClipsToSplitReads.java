@@ -63,8 +63,4 @@ public class SoftClipsToSplitReads {
             return CLASS_NAME;
         }
     }
-
-    public static final void main(String[] args) {
-        System.out.println(new SoftClipsToSplitReads.ForAssemble("input", "refgen", "output").asBash());
-    }
 }

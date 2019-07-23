@@ -3,92 +3,100 @@ package com.hartwig.pipeline.calling.structural.gridss.stage;
 import static java.lang.String.format;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
 
+import com.hartwig.pipeline.calling.SubStage;
 import com.hartwig.pipeline.calling.command.BgzipCommand;
 import com.hartwig.pipeline.calling.command.TabixCommand;
-import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
 import com.hartwig.pipeline.calling.structural.gridss.command.AnnotateUntemplatedSequence;
 import com.hartwig.pipeline.calling.structural.gridss.command.AnnotateVariants;
 import com.hartwig.pipeline.execution.vm.BashCommand;
+import com.hartwig.pipeline.execution.vm.BashStartupScript;
+import com.hartwig.pipeline.execution.vm.OutputFile;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
-public class AnnotationTest implements CommonEntities {
+public class AnnotationTest extends GridssSubStageTest {
 
-    private String sampleBam;
-    private String tumorBam;
     private String rawVcf;
-    private String annotatedVcf;
-    private String annotatedUntemplatedVcf;
-    private String configFile;
-    private String blacklist;
-
-    private CommandFactory factory;
-
-    private AnnotateVariants annotateVariants;
-    private AnnotateUntemplatedSequence annotateUntemplated;
-    private BgzipCommand bgzip;
-    private TabixCommand tabix;
-    private Annotation.AnnotationResult result;
+    private String generatedAnnotatedOutputVcfName;
+    private String generatedUntemplatedOutputVcfName;
     private String assemblyBam;
-    private String annotateVariantsBashCommands;
-    private String annotateUntemplatedBashCommands;
+    private ArgumentCaptor<List<BashCommand>> commandsList;
+
+    @Override
+    public SubStage createVictim() {
+        return new Annotation(REFERENCE_BAM, TUMOR_BAM, assemblyBam, rawVcf, REFERENCE_GENOME, JOINT_NAME, CONFIG_FILE, BLACKLIST);
+    }
+
+    @Override
+    public String expectedPath() {
+        return format("%s/%s.annotation.vcf.gz", OUT_DIR, JOINT_NAME);
+    }
+
+    @Override
+    public String sampleName() {
+        return JOINT_NAME;
+    }
 
     @Before
+    @SuppressWarnings("unchecked")
     public void setup() {
-        sampleBam = "sample.bam";
-        tumorBam = "tumor.bam";
-        rawVcf = "raw.vcf";
+        final OutputFile input = mock(OutputFile.class);
+        final OutputFile output = mock(OutputFile.class);
+        when(input.path()).thenReturn("raw.vcf");
+        final BashStartupScript initialScript = mock(BashStartupScript.class);
+        captor = ArgumentCaptor.forClass(BashCommand.class);
+
         assemblyBam = "assembly.bam";
+        rawVcf = "raw.vcf";
+        generatedAnnotatedOutputVcfName = format("%s/%s.annotated_variants.vcf", OUT_DIR, JOINT_NAME);
+        generatedUntemplatedOutputVcfName = format("%s/%s_untemplated.vcf", OUT_DIR, JOINT_NAME);
 
-        configFile = "/config.properties";
-        blacklist = "/black.list";
-
-        annotatedVcf = "annotated.vcf";
-        annotatedUntemplatedVcf = "annotated_untemplated.vcf";
-
-        factory = mock(CommandFactory.class);
-
-        annotateVariants = mock(AnnotateVariants.class);
-        when(annotateVariants.resultantVcf()).thenReturn(annotatedVcf);
-        when(factory.buildAnnotateVariants(any(), any(), any(), any(), any(), any(), any(), any())).thenReturn(annotateVariants);
-        annotateVariantsBashCommands = "annotate variants bash";
-        when(annotateVariants.asBash()).thenReturn(annotateVariantsBashCommands);
-
-        annotateUntemplated = mock(AnnotateUntemplatedSequence.class);
-        when(annotateUntemplated.resultantVcf()).thenReturn(annotatedUntemplatedVcf);
-        when(factory.buildAnnotateUntemplatedSequence(any(), any(), any())).thenReturn(annotateUntemplated);
-        annotateUntemplatedBashCommands = "annotate untemplated bash";
-        when(annotateUntemplated.asBash()).thenReturn(annotateUntemplatedBashCommands);
-
-        bgzip = mock(BgzipCommand.class);
-        when(factory.buildBgzipCommand(any())).thenReturn(bgzip);
-
-        tabix = mock(TabixCommand.class);
-        when(factory.buildTabixCommand(any())).thenReturn(tabix);
-
-        result = new Annotation(factory).initialise(sampleBam, tumorBam, assemblyBam, rawVcf, REFERENCE_GENOME, JOINT_NAME, configFile, blacklist);
+        commandsList = ArgumentCaptor.forClass(List.class);
+        final BashStartupScript finishedScript = createVictim().bash(input, output, initialScript);
+        verify(finishedScript).addCommands(commandsList.capture());
     }
 
     @Test
-    public void shouldReturnPathToFinishedVcf() {
-        assertThat(result.annotatedVcf()).isEqualTo(format("%s.gz", annotatedUntemplatedVcf));
+    public void shouldAddCommandsInCorrectOrder() {
+        List<BashCommand> commands = commandsList.getValue();
+        assertThat(commands.size()).isEqualTo(4);
+        assertThat(commands.get(0).getClass().isAssignableFrom(AnnotateVariants.class)).isEqualTo(true);
+        assertThat(commands.get(1).getClass().isAssignableFrom(AnnotateUntemplatedSequence.class)).isEqualTo(true);
+        assertThat(commands.get(2).getClass().isAssignableFrom(BgzipCommand.class)).isEqualTo(true);
+        assertThat(commands.get(3).getClass().isAssignableFrom(TabixCommand.class)).isEqualTo(true);
     }
 
     @Test
-    public void shouldReturnBashCommandOfAllCommandsConcatenatedTogether() {
-        List<BashCommand> generatedCommands = result.commands();
-        assertThat(generatedCommands).isNotEmpty();
-        assertThat(generatedCommands.size()).isEqualTo(4);
-        assertThat(generatedCommands.get(0).asBash()).isEqualTo(annotateVariantsBashCommands);
-        assertThat(generatedCommands.get(1).asBash()).isEqualTo(annotateUntemplatedBashCommands);
-        assertThat(generatedCommands.get(2)).isEqualTo(bgzip);
-        assertThat(generatedCommands.get(3)).isEqualTo(tabix);
+    public void shouldCreateCorrectAnnotateVariants() {
+        List<BashCommand> commands = commandsList.getValue();
+        assertThat(commands.get(0).asBash()).isEqualTo(new AnnotateVariants(REFERENCE_BAM, TUMOR_BAM, assemblyBam,
+                rawVcf, REFERENCE_GENOME, generatedAnnotatedOutputVcfName, CONFIG_FILE, BLACKLIST).asBash());
+    }
+
+    @Test
+    public void shouldCreateCorrectAnnotateUntemplatedSequence() {
+        List<BashCommand> commands = commandsList.getValue();
+        assertThat(commands.get(1).asBash()).isEqualTo((new AnnotateUntemplatedSequence(generatedAnnotatedOutputVcfName, REFERENCE_GENOME,
+                generatedUntemplatedOutputVcfName).asBash()));
+    }
+
+    @Test
+    public void shouldCreateCorrectBgzip() {
+        List<BashCommand> commands = commandsList.getValue();
+        assertThat(commands.get(2).asBash()).isEqualTo(new BgzipCommand(generatedUntemplatedOutputVcfName).asBash());
+    }
+
+    @Test
+    public void shouldCreateCorrectTabix() {
+        List<BashCommand> commands = commandsList.getValue();
+        assertThat(commands.get(3).asBash()).isEqualTo(new TabixCommand(generatedUntemplatedOutputVcfName + ".gz").asBash());
     }
 }

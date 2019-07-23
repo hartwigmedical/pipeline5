@@ -13,18 +13,14 @@ public class AssembleBreakends extends GridssCommand {
     private final String configurationFile;
     private final String blacklist;
 
-    public AssembleBreakends(final String referenceBam, final String tumorBam, final String referenceGenome, final String jointName,
+    public AssembleBreakends(final String referenceBam, final String tumorBam, final String assemblyBam, final String referenceGenome,
             final String configurationFile, final String blacklist) {
         this.referenceGenome = referenceGenome;
         this.referenceBam = referenceBam;
         this.tumorBam = tumorBam;
-        this.assemblyBam = VmDirectories.outputFile(jointName + ".assembly.bam");
+        this.assemblyBam = assemblyBam;
         this.configurationFile = configurationFile;
         this.blacklist = blacklist;
-    }
-
-    public String assemblyBam() {
-        return assemblyBam;
     }
 
     @Override
