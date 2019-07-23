@@ -1,24 +1,21 @@
 sudo: required
 language: java
-
 services:
-  - docker
-
+- docker
 env:
-  - PIPELINE5_VERSION=5.1.$TRAVIS_BUILD_NUMBER
-
+- PIPELINE5_VERSION=5.1.$TRAVIS_BUILD_NUMBER
 script:
-  - '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && mvn clean install -B || mvn clean install -DskipDocker -DskipShade -B'
-
+- '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && mvn clean install -B || mvn clean install
+  -DskipDocker -DskipShade -B'
 before_install:
-  - echo "$DOCKER_HUB_PASSWORD" | docker login -u "hartwigmedicalfoundation" --password-stdin
-  - mvn versions:set -DnewVersion=$PIPELINE5_VERSION
-  - sudo apt-get -qq update
-  - sudo apt-get install -y samtools
-  - ./travis-init.sh
-  - export PATH=$PATH:$PWD/bwa/
-
-install: /bin/true
-
+- openssl aes-256-cbc -K $encrypted_f6c91b3577bb_key -iv $encrypted_f6c91b3577bb_iv
+  -in cluster/google-key.json.enc -out cluster/google-key.json -d
+- echo "$DOCKER_HUB_PASSWORD" | docker login -u "hartwigmedicalfoundation" --password-stdin
+- mvn versions:set -DnewVersion=$PIPELINE5_VERSION
+- sudo apt-get -qq update
+- sudo apt-get install -y samtools google-cloud-sdk
+- "./travis-init.sh"
+- export PATH=$PATH:$PWD/bwa/
+install: "/bin/true"
 after_success:
-  - docker push hartwigmedicalfoundation/pipeline5:$PIPELINE5_VERSION
+- docker push hartwigmedicalfoundation/pipeline5:$PIPELINE5_VERSION

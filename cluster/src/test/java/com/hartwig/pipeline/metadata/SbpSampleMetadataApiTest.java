@@ -6,6 +6,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.hartwig.pipeline.PipelineState;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.sbpapi.SbpRestApi;
 
@@ -43,7 +44,7 @@ public class SbpSampleMetadataApiTest {
     public void mapsAlignmentSuccessStatusToPipeline5Done() {
         ArgumentCaptor<String> entityId = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> status = ArgumentCaptor.forClass(String.class);
-        victim.alignmentComplete(PipelineStatus.SUCCESS);
+        victim.alignmentComplete(new PipelineState());
         verify(sbpRestApi, times(1)).updateSampleStatus(entityId.capture(), status.capture());
         assertThat(entityId.getValue()).isEqualTo(String.valueOf(SAMPLE_ID));
         assertThat(status.getValue()).isEqualTo(SbpSampleMetadataApi.ALIGNMENT_DONE_PIPELINE_V5);
@@ -53,7 +54,7 @@ public class SbpSampleMetadataApiTest {
     public void mapsSuccessStatusToPipeline5Done() {
         ArgumentCaptor<String> entityId = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> status = ArgumentCaptor.forClass(String.class);
-        victim.complete(PipelineStatus.SUCCESS);
+        victim.complete(new PipelineState());
         verify(sbpRestApi, times(1)).updateSampleStatus(entityId.capture(), status.capture());
         assertThat(entityId.getValue()).isEqualTo(String.valueOf(SAMPLE_ID));
         assertThat(status.getValue()).isEqualTo(SbpSampleMetadataApi.DONE_PIPELINE_V5);
@@ -63,9 +64,15 @@ public class SbpSampleMetadataApiTest {
     public void mapsFailedStatusToPipeline5Finished() {
         ArgumentCaptor<String> entityId = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> status = ArgumentCaptor.forClass(String.class);
-        victim.complete(PipelineStatus.FAILED);
+        victim.complete(failed());
         verify(sbpRestApi, times(1)).updateSampleStatus(entityId.capture(), status.capture());
         assertThat(entityId.getValue()).isEqualTo(String.valueOf(SAMPLE_ID));
         assertThat(status.getValue()).isEqualTo(SbpSampleMetadataApi.FAILED_PIPELINE_V5);
+    }
+
+    public PipelineState failed() {
+        PipelineState state = mock(PipelineState.class);
+        when(state.status()).thenReturn(PipelineStatus.FAILED);
+        return state;
     }
 }

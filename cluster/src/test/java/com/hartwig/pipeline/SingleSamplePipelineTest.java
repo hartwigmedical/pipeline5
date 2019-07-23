@@ -243,43 +243,23 @@ public class SingleSamplePipelineTest {
     }
 
     @Test
-    public void notifiesMetadataApiWhenAlignmentCompleteSuccessfully() throws Exception {
+    public void notifiesMetadataApiWhenAlignmentComplete() throws Exception {
         when(aligner.run(REFERENCE_METADATA)).thenReturn(SUCCESSFUL_ALIGNMENT_OUTPUT);
-        victim.run();
-        verify(sampleMetadataApi, times(1)).alignmentComplete(PipelineStatus.SUCCESS);
+        PipelineState result = victim.run();
+        verify(sampleMetadataApi, times(1)).alignmentComplete(result);
     }
 
     @Test
-    public void notifiesMetadataApiWhenAlignmentFails() throws Exception {
-        when(aligner.run(REFERENCE_METADATA)).thenReturn(AlignmentOutput.builder().status(PipelineStatus.FAILED).sample(REFERENCE).build());
-        victim.run();
-        verify(sampleMetadataApi, times(1)).alignmentComplete(PipelineStatus.FAILED);
-    }
-
-    @Test
-    public void notifiesMetadataApiWhenPipelineCompleteSuccessfully() throws Exception {
+    public void notifiesMetadataApiWhenPipelineComplete() throws Exception {
         when(aligner.run(REFERENCE_METADATA)).thenReturn(SUCCESSFUL_ALIGNMENT_OUTPUT);
         when(bamMetrics.run(REFERENCE_METADATA, SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(SUCCESSFUL_BAM_METRICS);
         when(germlineCaller.run(REFERENCE_METADATA, SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(SUCCESSFUL_GERMLINE_OUTPUT);
         when(snpGenotype.run(REFERENCE_METADATA, SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(SUCCESSFUL_SNPGENOTYPE_OUTPUT);
         when(flagstat.run(REFERENCE_METADATA, SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(SUCCESSFUL_FLAGSTAT_OUTPUT);
-        victim.run();
-        verify(sampleMetadataApi, times(1)).alignmentComplete(PipelineStatus.SUCCESS);
+        PipelineState result = victim.run();
+        verify(sampleMetadataApi, times(1)).alignmentComplete(result);
     }
 
-    @Test
-    public void notifiesMetadataApiWhenPipelineFails() throws Exception {
-        when(aligner.run(REFERENCE_METADATA)).thenReturn(SUCCESSFUL_ALIGNMENT_OUTPUT);
-        when(bamMetrics.run(REFERENCE_METADATA, SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(SUCCESSFUL_BAM_METRICS);
-        when(germlineCaller.run(REFERENCE_METADATA, SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(SUCCESSFUL_GERMLINE_OUTPUT);
-        when(snpGenotype.run(REFERENCE_METADATA, SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(SnpGenotypeOutput.builder()
-                .from(SUCCESSFUL_SNPGENOTYPE_OUTPUT)
-                .status(PipelineStatus.FAILED)
-                .build());
-        when(flagstat.run(REFERENCE_METADATA, SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(SUCCESSFUL_FLAGSTAT_OUTPUT);
-        victim.run();
-        verify(sampleMetadataApi, times(1)).alignmentComplete(PipelineStatus.SUCCESS);
-    }
 
     private void assertFailed(final PipelineState runOutput) {
         assertThat(runOutput.status()).isEqualTo(PipelineStatus.FAILED);
@@ -301,5 +281,11 @@ public class SingleSamplePipelineTest {
         boolean isAdded() {
             return isAdded;
         }
+    }
+
+    public PipelineState failed() {
+        PipelineState state = mock(PipelineState.class);
+        when(state.status()).thenReturn(PipelineStatus.FAILED);
+        return state;
     }
 }

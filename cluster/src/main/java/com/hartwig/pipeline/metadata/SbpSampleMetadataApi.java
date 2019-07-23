@@ -5,6 +5,7 @@ import static java.lang.String.valueOf;
 
 import java.io.IOException;
 
+import com.hartwig.pipeline.PipelineState;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.sbpapi.ObjectMappers;
 import com.hartwig.pipeline.sbpapi.SbpRestApi;
@@ -47,12 +48,13 @@ public class SbpSampleMetadataApi implements SampleMetadataApi {
     }
 
     @Override
-    public void alignmentComplete(PipelineStatus status){
-        sbpRestApi.updateSampleStatus(valueOf(sampleId), status == PipelineStatus.SUCCESS ? ALIGNMENT_DONE_PIPELINE_V5 : FAILED_PIPELINE_V5);
+    public void alignmentComplete(PipelineState state) {
+        sbpRestApi.updateSampleStatus(valueOf(sampleId),
+                state.status() == PipelineStatus.SUCCESS ? ALIGNMENT_DONE_PIPELINE_V5 : FAILED_PIPELINE_V5);
     }
 
     @Override
-    public void complete(PipelineStatus status) {
-        sbpRestApi.updateSampleStatus(valueOf(sampleId), status == PipelineStatus.SUCCESS ? DONE_PIPELINE_V5 : FAILED_PIPELINE_V5);
+    public void complete(PipelineState state) {
+        sbpRestApi.updateSampleStatus(valueOf(sampleId), state.status() == PipelineStatus.SUCCESS ? DONE_PIPELINE_V5 : FAILED_PIPELINE_V5);
     }
 }

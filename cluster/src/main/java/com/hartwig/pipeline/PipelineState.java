@@ -15,7 +15,7 @@ public class PipelineState {
     private static final Logger LOGGER = LoggerFactory.getLogger(PipelineState.class);
     private final List<StageOutput> stageOutputs = Lists.newArrayList();
 
-    <T extends StageOutput> T add(final T stageOutput) {
+    public <T extends StageOutput> T add(final T stageOutput) {
         stageOutputs.add(stageOutput);
         return stageOutput;
     }
@@ -37,7 +37,7 @@ public class PipelineState {
         return shouldProceed;
     }
 
-    PipelineStatus status() {
+    public PipelineStatus status() {
         return stageOutputs().stream()
                 .filter(Objects::nonNull)
                 .map(StageOutput::status)
