@@ -66,8 +66,8 @@ public class FullPipeline {
 
         @Override
         public void handleAlignmentComplete(final PipelineState status) {
-            latch.countDown();
             trappedState = status;
+            latch.countDown();
         }
     }
 }
