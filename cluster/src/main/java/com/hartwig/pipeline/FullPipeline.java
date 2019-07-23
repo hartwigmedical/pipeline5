@@ -1,8 +1,10 @@
 package com.hartwig.pipeline;
 
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
+
+import com.hartwig.pipeline.metadata.CompletionHandler;
+import com.hartwig.pipeline.metadata.LocalSampleMetadataApi;
 
 public class FullPipeline {
 
@@ -10,29 +12,62 @@ public class FullPipeline {
     private final SingleSamplePipeline tumorPipeline;
     private final SomaticPipeline somaticPipeline;
     private final ExecutorService executorService;
+    private final LocalSampleMetadataApi referenceApi;
+    private final LocalSampleMetadataApi tumorApi;
 
     FullPipeline(final SingleSamplePipeline referencePipeline, final SingleSamplePipeline tumorPipeline,
-            final SomaticPipeline somaticPipeline, final ExecutorService executorService) {
+            final SomaticPipeline somaticPipeline, final ExecutorService executorService, final LocalSampleMetadataApi referenceApi,
+            final LocalSampleMetadataApi tumorApi) {
         this.referencePipeline = referencePipeline;
         this.tumorPipeline = tumorPipeline;
         this.somaticPipeline = somaticPipeline;
         this.executorService = executorService;
+        this.referenceApi = referenceApi;
+        this.tumorApi = tumorApi;
     }
 
     public PipelineState run() {
-        Future<PipelineState> referenceStateFuture = executorService.submit(referencePipeline::run);
-        Future<PipelineState> tumorStateFuture = executorService.submit(tumorPipeline::run);
-        try {
-            PipelineState singleSampleState =
-                    new PipelineState().combineWith(referenceStateFuture.get()).combineWith(tumorStateFuture.get());
-            if (singleSampleState.shouldProceed()) {
-                return singleSampleState.combineWith(somaticPipeline.run());
-            } else {
-                return singleSampleState;
-            }
 
-        } catch (InterruptedException | ExecutionException e) {
+        final CountDownLatch bothSingleSamplesComplete = new CountDownLatch(2);
+
+        CountDownAndTrapStatus trapReference = new CountDownAndTrapStatus(bothSingleSamplesComplete);
+        CountDownAndTrapStatus trapTumor = new CountDownAndTrapStatus(bothSingleSamplesComplete);
+        referenceApi.register(trapReference);
+        tumorApi.register(trapTumor);
+        executorService.submit(referencePipeline::run);
+        executorService.submit(tumorPipeline::run);
+        waitForSingleSamples(bothSingleSamplesComplete);
+        PipelineState singleSampleState =
+                new PipelineState().combineWith(trapReference.trappedState).combineWith(trapTumor.trappedState);
+        if (singleSampleState.shouldProceed()) {
+            return singleSampleState.combineWith(somaticPipeline.run());
+        } else {
+            return singleSampleState;
+        }
+    }
+
+    private static void waitForSingleSamples(final CountDownLatch bothSingleSamplesComplete) {
+        try {
+            bothSingleSamplesComplete.await();
+        } catch (InterruptedException e) {
+            Thread.interrupted();
             throw new RuntimeException(e);
+        }
+    }
+
+    private static class CountDownAndTrapStatus implements CompletionHandler {
+
+        private final CountDownLatch latch;
+        private PipelineState trappedState;
+
+        private CountDownAndTrapStatus(final CountDownLatch latch) {
+            this.latch = latch;
+        }
+
+        @Override
+        public void handleAlignmentComplete(final PipelineState status) {
+            latch.countDown();
+            trappedState = status;
         }
     }
 }

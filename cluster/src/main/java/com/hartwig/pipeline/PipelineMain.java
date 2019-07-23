@@ -14,6 +14,8 @@ import com.hartwig.pipeline.credentials.CredentialProvider;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.flagstat.FlagstatProvider;
+import com.hartwig.pipeline.metadata.LocalSampleMetadataApi;
+import com.hartwig.pipeline.metadata.SampleMetadataApi;
 import com.hartwig.pipeline.metadata.SampleMetadataApiProvider;
 import com.hartwig.pipeline.metadata.SetMetadataApiProvider;
 import com.hartwig.pipeline.metrics.BamMetricsOutputStorage;
@@ -46,12 +48,16 @@ public class PipelineMain {
             if (arguments.mode().equals(Arguments.Mode.FULL)) {
                 String referenceSample = arguments.setId() + "R";
                 String tumorSample = arguments.setId() + "T";
-                state = new FullPipeline(singleSamplePipeline(addSampleId(arguments, referenceSample), credentials, storage),
-                        singleSamplePipeline(addSampleId(arguments, tumorSample), credentials, storage),
+                LocalSampleMetadataApi referenceApi = new LocalSampleMetadataApi(referenceSample);
+                LocalSampleMetadataApi tumorApi = new LocalSampleMetadataApi(tumorSample);
+                state = new FullPipeline(singleSamplePipeline(addSampleId(arguments, referenceSample), credentials, storage, referenceApi),
+                        singleSamplePipeline(addSampleId(arguments, tumorSample), credentials, storage, tumorApi),
                         somaticPipeline(arguments, credentials, storage),
-                        Executors.newCachedThreadPool()).run();
+                        Executors.newCachedThreadPool(),
+                        referenceApi,
+                        tumorApi).run();
             } else if (arguments.mode().equals(Arguments.Mode.SINGLE_SAMPLE)) {
-                state = singleSamplePipeline(arguments, credentials, storage).run();
+                state = singleSamplePipeline(arguments, credentials, storage, SampleMetadataApiProvider.from(arguments).get()).run();
                 LOGGER.info("Single sample pipeline is complete with status [{}]. Stages run were [{}]", state.status(), state);
             } else {
                 state = somaticPipeline(arguments, credentials, storage).run();
@@ -85,8 +91,8 @@ public class PipelineMain {
     }
 
     private static SingleSamplePipeline singleSamplePipeline(final Arguments arguments, final GoogleCredentials credentials,
-            final Storage storage) throws Exception {
-        return new SingleSamplePipeline(SampleMetadataApiProvider.from(arguments).get(),
+            final Storage storage, final SampleMetadataApi sampleMetadataApi) throws Exception {
+        return new SingleSamplePipeline(sampleMetadataApi,
                 AlignerProvider.from(credentials, storage, arguments).get(),
                 BamMetricsProvider.from(arguments, credentials, storage).get(),
                 GermlineCallerProvider.from(credentials, storage, arguments).get(),

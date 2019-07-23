@@ -1,12 +1,12 @@
 package com.hartwig.pipeline.metadata;
 
-import com.hartwig.pipeline.execution.PipelineStatus;
+import com.hartwig.pipeline.PipelineState;
 
 public interface SampleMetadataApi {
 
     SingleSampleRunMetadata get();
 
-    void alignmentComplete(PipelineStatus status);
+    void alignmentComplete(PipelineState state);
 
-    void complete(PipelineStatus status);
+    void complete(PipelineState state);
 }
