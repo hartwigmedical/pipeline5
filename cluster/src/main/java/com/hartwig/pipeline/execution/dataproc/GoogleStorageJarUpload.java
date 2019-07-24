@@ -20,7 +20,7 @@ public class GoogleStorageJarUpload implements JarUpload {
 
     @Override
     public JarLocation run(RuntimeBucket runtimeBucket, Arguments arguments) throws IOException {
-        String jarName = format("system%s.jar", version(arguments));
+        String jarName = format("bam%s.jar", version(arguments));
         String jarPath = arguments.jarDirectory() + File.separator + jarName;
         String blobLocation = format("%s/%s", JAR_BUCKET, jarName);
         Blob jarBlob = runtimeBucket.get(blobLocation);

@@ -46,6 +46,7 @@
         <google-oauth-client-java6.version>1.28.0</google-oauth-client-java6.version>
         <google-oauth-client-jetty.version>1.28.0</google-oauth-client-jetty.version>
         <failsafe.version>2.0.1</failsafe.version>
+        <annotations.version>16.0.1</annotations.version>
     </properties>
 
     <scm>
@@ -58,7 +59,6 @@
         <module>bam</module>
         <module>patients</module>
         <module>support</module>
-        <module>system</module>
         <module>cluster</module>
     </modules>
 
@@ -77,11 +77,6 @@
             <dependency>
                 <groupId>com.hartwig</groupId>
                 <artifactId>patients</artifactId>
-                <version>local-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.hartwig</groupId>
-                <artifactId>system</artifactId>
                 <version>local-SNAPSHOT</version>
             </dependency>
 
@@ -254,6 +249,11 @@
                 <groupId>net.jodah</groupId>
                 <artifactId>failsafe</artifactId>
                 <version>${failsafe.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jetbrains</groupId>
+                <artifactId>annotations</artifactId>
+                <version>${annotations.version}</version>
             </dependency>
 
             <dependency>
