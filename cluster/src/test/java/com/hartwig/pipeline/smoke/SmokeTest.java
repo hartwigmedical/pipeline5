@@ -21,7 +21,7 @@ public class SmokeTest {
                 .privateKeyPath("google-key.json")
                 .sampleDirectory(workingDir() + "/../samples")
                 .version(version)
-                .jarDirectory(workingDir() + "/../system/target")
+                .jarDirectory(workingDir() + "/../bam/target")
                 .cloudSdkPath("/usr/bin")
                 .nodeInitializationScript(workingDir() + "/src/main/resources/node-init.sh")
                 .setId("CPCT12345678")
