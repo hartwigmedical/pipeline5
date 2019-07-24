@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import com.hartwig.pipeline.after.Processes;
-
 public class GSUtil {
 
     private static boolean VERBOSE = false;

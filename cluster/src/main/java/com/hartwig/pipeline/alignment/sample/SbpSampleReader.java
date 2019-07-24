@@ -17,7 +17,6 @@ import com.hartwig.pipeline.sbpapi.SbpFastQ;
 import com.hartwig.pipeline.sbpapi.SbpRestApi;
 import com.hartwig.pipeline.sbpapi.SbpSample;
 
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,12 +52,10 @@ public class SbpSampleReader {
         }
     }
 
-    @NotNull
     public Function<String, String> name() {
         return fileName -> fileName.substring(0, fileName.indexOf("_"));
     }
 
-    @NotNull
     private String extract(final int sampleId, final List<SbpFastQ> fastqJson, final Function<String, String> stringFunction) {
         return fastqJson.stream()
                 .map(SbpFastQ::name_r1)
@@ -70,13 +67,11 @@ public class SbpSampleReader {
                         sampleId)));
     }
 
-    @NotNull
     private static String removePath(String name) {
         String[] split = name.split("/");
         return split[split.length - 1];
     }
 
-    @NotNull
     private Sample sample(final String sampleName, final String barcode, final List<SbpFastQ> fastqJson) {
         List<Lane> lanes = fastqJson.stream().filter(SbpSampleReader::qcPass).map(SbpSampleReader::lane).collect(Collectors.toList());
         return Sample.builder("", sampleName, barcode).addAllLanes(lanes).build();
@@ -90,7 +85,6 @@ public class SbpSampleReader {
         return true;
     }
 
-    @NotNull
     private static ImmutableLane lane(final SbpFastQ sbpFastQ) {
         String bucket = sbpFastQ.bucket();
         if (bucket == null || bucket.isEmpty()) {
@@ -108,7 +102,6 @@ public class SbpSampleReader {
                 .build();
     }
 
-    @NotNull
     private static String s3Path(final SbpFastQ sbpFastQ, final String file) {
         return sbpFastQ.bucket() + "/" + file;
     }

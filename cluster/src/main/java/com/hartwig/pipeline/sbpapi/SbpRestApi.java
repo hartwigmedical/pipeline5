@@ -14,7 +14,6 @@ import com.hartwig.pipeline.Arguments;
 
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.HttpUrlConnectorProvider;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -120,7 +119,6 @@ public class SbpRestApi {
         throw error(response);
     }
 
-    @NotNull
     private RuntimeException error(final Response response) {
         return new RuntimeException(format("Received an error status result [%s] of SBP Api at [%s]",
                 response.getStatus(),

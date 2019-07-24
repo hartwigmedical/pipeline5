@@ -15,7 +15,6 @@ import com.hartwig.pipeline.alignment.Run;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +40,6 @@ public class RuntimeBucket {
                 Run.from(metadata.reference().sampleId(), metadata.tumor().sampleId(), arguments));
     }
 
-    @NotNull
     private synchronized static RuntimeBucket createBucketIfNeeded(final Storage storage, final String namespace, final Arguments arguments,
             final Run run) {
         Bucket bucket = storage.get(run.id());
@@ -70,7 +68,6 @@ public class RuntimeBucket {
         return bucket.get(namespace(blobName));
     }
 
-    @NotNull
     private String namespace(final String blobName) {
         String[] blobPath = blobName.split("/");
         return !blobPath[0].equals(namespace) ? namespace + (blobName.startsWith("/") ? blobName : ("/" + blobName)) : blobName;

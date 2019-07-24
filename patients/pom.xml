@@ -19,10 +19,6 @@
             <artifactId>support</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.hartwig</groupId>
-            <artifactId>bam</artifactId>
-        </dependency>
-        <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
         </dependency>

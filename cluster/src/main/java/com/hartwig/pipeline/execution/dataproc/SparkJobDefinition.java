@@ -15,9 +15,9 @@ import org.jetbrains.annotations.NotNull;
 @Value.Immutable
 public interface SparkJobDefinition extends JobDefinition<DataprocPerformanceProfile> {
 
-    String GUNZIP_MAIN = "com.hartwig.pipeline.runtime.GoogleCloudGunzip";
-    String BAM_CREATION_MAIN = "com.hartwig.pipeline.runtime.GoogleCloudBamCreationRuntime";
-    String SORT_INDEX_MAIN = "com.hartwig.pipeline.runtime.GoogleCloudSortAndIndex";
+    String GUNZIP_MAIN = "com.hartwig.bam.runtime.GoogleCloudGunzip";
+    String BAM_CREATION_MAIN = "com.hartwig.bam.runtime.GoogleCloudBamCreationRuntime";
+    String SORT_INDEX_MAIN = "com.hartwig.bam.runtime.GoogleCloudSortAndIndex";
 
     String mainClass();
 

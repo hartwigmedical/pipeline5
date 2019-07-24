@@ -217,7 +217,7 @@ public interface Arguments {
     String DEFAULT_DEVELOPMENT_VERSION = "local-SNAPSHOT";
     String DEFAULT_DEVELOPMENT_SAMPLE_DIRECTORY = workingDir() + "/samples";
     String DEFAULT_DEVELOPMENT_NODE_INIT = workingDir() + "/cluster/src/main/resources/node-init.sh";
-    String DEFAULT_DEVELOPMENT_JAR_LIB = workingDir() + "/system/target";
+    String DEFAULT_DEVELOPMENT_JAR_LIB = workingDir() + "/bam/target";
     String DEFAULT_DEVELOPMENT_KEY_PATH = workingDir() + "/bootstrap-key.json";
     String DEFAULT_DEVELOPMENT_CLOUD_SDK_PATH = System.getProperty("user.home") + "/gcloud/google-cloud-sdk/bin";
     String DEFAULT_DEVELOPMENT_SERVICE_ACCOUNT_EMAIL = String.format("bootstrap@%s.iam.gserviceaccount.com", DEFAULT_DEVELOPMENT_PROJECT);
