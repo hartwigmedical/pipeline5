@@ -26,10 +26,14 @@ public class SmokeTest {
                 .nodeInitializationScript(System.getProperty("user.dir") + "/src/main/resources/node-init.sh")
                 .setId("CPCT12345678")
                 .mode(Arguments.Mode.FULL)
-                .runId("smoke-" + version.replace(".", ""))
+                .runId("smoke-" + noDots(version))
                 .runGermlineCaller(false)
                 .cleanup(false)
                 .build());
         assertThat(state.status()).isEqualTo(PipelineStatus.SUCCESS);
+    }
+
+    private static String noDots(final String version) {
+        return version.replace(".", "");
     }
 }
