@@ -19,11 +19,11 @@ public class SmokeTest {
         String version = System.getProperty("version");
         PipelineState state = victim.start(Arguments.defaultsBuilder(Arguments.DefaultsProfile.DEVELOPMENT.toString())
                 .privateKeyPath("google-key.json")
-                .sampleDirectory(System.getProperty("user.dir") + "/../samples")
+                .sampleDirectory(workingDir() + "/../samples")
                 .version(version)
-                .jarDirectory(System.getProperty("user.dir") + "/../system/target")
+                .jarDirectory(workingDir() + "/../system/target")
                 .cloudSdkPath("/usr/bin")
-                .nodeInitializationScript(System.getProperty("user.dir") + "/src/main/resources/node-init.sh")
+                .nodeInitializationScript(workingDir() + "/src/main/resources/node-init.sh")
                 .setId("CPCT12345678")
                 .mode(Arguments.Mode.FULL)
                 .runId("smoke-" + noDots(version))
@@ -31,6 +31,10 @@ public class SmokeTest {
                 .cleanup(false)
                 .build());
         assertThat(state.status()).isEqualTo(PipelineStatus.SUCCESS);
+    }
+
+    private static String workingDir() {
+        return System.getProperty("user.dir");
     }
 
     private static String noDots(final String version) {
