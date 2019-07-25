@@ -70,7 +70,7 @@ public class GermlineCaller {
 
     public GermlineCallerOutput run(SingleSampleRunMetadata metadata, AlignmentOutput alignmentOutput) {
 
-        if (!arguments.runGermlineCaller()) {
+        if (!arguments.runGermlineCaller() || arguments.shallow()) {
             return GermlineCallerOutput.builder().status(PipelineStatus.SKIPPED).build();
         }
 

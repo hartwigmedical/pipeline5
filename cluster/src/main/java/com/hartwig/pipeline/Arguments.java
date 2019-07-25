@@ -42,6 +42,8 @@ public interface Arguments {
 
     boolean runTertiary();
 
+    boolean shallow();
+
     DefaultsProfile profile();
 
     Mode mode();
@@ -144,6 +146,7 @@ public interface Arguments {
                     .runSomaticCaller(true)
                     .runStructuralCaller(true)
                     .runTertiary(true)
+                    .shallow(false)
                     .sampleId(EMPTY)
                     .setId(EMPTY)
                     .toolsBucket(DEFAULT_PRODUCTION_COMMON_TOOLS_BUCKET)
@@ -173,6 +176,7 @@ public interface Arguments {
                     .runSomaticCaller(true)
                     .runTertiary(true)
                     .runStructuralCaller(true)
+                    .shallow(false)
                     .rclonePath(NOT_APPLICABLE)
                     .rcloneS3RemoteDownload(NOT_APPLICABLE)
                     .rcloneS3RemoteUpload(NOT_APPLICABLE)

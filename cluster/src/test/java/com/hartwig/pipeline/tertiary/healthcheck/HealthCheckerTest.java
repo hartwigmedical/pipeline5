@@ -64,6 +64,16 @@ public class HealthCheckerTest {
     }
 
     @Test
+    public void returnsSkippedWhenShallow() {
+        victim = new HealthChecker(Arguments.testDefaultsBuilder().shallow(true).build(),
+                computeEngine,
+                storage,
+                ResultsDirectory.defaultDirectory());
+        HealthCheckOutput output = runVictim();
+        assertThat(output.status()).isEqualTo(PipelineStatus.SKIPPED);
+    }
+
+    @Test
     public void returnsHealthCheckerOutputDirectory() {
         when(computeEngine.submit(any(), any())).thenReturn(PipelineStatus.SUCCESS);
         HealthCheckOutput output = runVictim();

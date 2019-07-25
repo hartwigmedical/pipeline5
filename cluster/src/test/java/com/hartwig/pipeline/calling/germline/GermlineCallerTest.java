@@ -70,6 +70,16 @@ public class GermlineCallerTest {
     }
 
     @Test
+    public void returnsSkippedWhenShallowEnabled() {
+        victim = new GermlineCaller(Arguments.testDefaultsBuilder().shallow(true).build(),
+                computeEngine,
+                storage,
+                ResultsDirectory.defaultDirectory());
+        GermlineCallerOutput output = victim.run(referenceRunMetadata(), referenceAlignmentOutput());
+        assertThat(output.status()).isEqualTo(PipelineStatus.SKIPPED);
+    }
+
+    @Test
     public void returnsStatusFailedWhenJobFailsOnComputeEngine() {
         when(computeEngine.submit(any(), any())).thenReturn(PipelineStatus.FAILED);
         assertThat(victim.run(referenceRunMetadata(), referenceAlignmentOutput()).status()).isEqualTo(PipelineStatus.FAILED);

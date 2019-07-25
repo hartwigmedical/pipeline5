@@ -52,7 +52,7 @@ public class HealthChecker {
 
     public HealthCheckOutput run(SomaticRunMetadata metadata, AlignmentPair pair, BamMetricsOutput metricsOutput,
             BamMetricsOutput mateMetricsOutput, AmberOutput amberOutput, PurpleOutput purpleOutput) {
-        if (!arguments.runTertiary()) {
+        if (!arguments.runTertiary() || arguments.shallow()) {
             return HealthCheckOutput.builder().status(PipelineStatus.SKIPPED).build();
         }
 
