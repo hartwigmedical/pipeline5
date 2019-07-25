@@ -36,6 +36,6 @@ public class StartupScriptComponentTest {
         verify(runtimeBucket, times(1)).copyOutOf(sourceBlobCaptor.capture(), targetBucketCaptor.capture(), targetBlobCaptor.capture());
         assertThat(sourceBlobCaptor.getValue()).isEqualTo("copy_of_startup_script_used_for_this_run.sh");
         assertThat(targetBucketCaptor.getValue()).isEqualTo(REPORT_BUCKET);
-        assertThat(targetBlobCaptor.getValue()).isEqualTo("test_set/reference/test/bootstrap.sh");
+        assertThat(targetBlobCaptor.getValue()).isEqualTo("test_set/reference/test/run.sh");
     }
 }
