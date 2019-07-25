@@ -107,7 +107,7 @@ class GoogleClusterConfig {
 
     @NotNull
     private static DiskConfig diskConfig(MachineType machineType) {
-        return new DiskConfig().setBootDiskSizeGb(machineType.diskGB());
+        return new DiskConfig().setBootDiskType("pd-ssd").setBootDiskSizeGb(machineType.diskGB());
     }
 
     private static InstanceGroupConfig secondaryWorkerConfig(final DataprocPerformanceProfile profile, final DiskConfig diskConfig,
