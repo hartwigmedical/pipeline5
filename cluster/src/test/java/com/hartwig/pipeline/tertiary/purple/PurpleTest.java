@@ -87,6 +87,18 @@ public class PurpleTest {
     }
 
     @Test
+    public void runsPurpleWithLowCoverageArgsWhenShallow() {
+        victim = new Purple(Arguments.builder().from(ARGUMENTS).shallow(true).build(),
+                computeEngine,
+                storage,
+                ResultsDirectory.defaultDirectory());
+        ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
+        runVictim();
+        assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
+                " -highly_diploid_percentage 0.88 -somatic_min_total 100 -somatic_min_purity_spread 0.1");
+    }
+
+    @Test
     public void downloadsInputVcfsCobaltAndAmberOutput() {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
         runVictim();

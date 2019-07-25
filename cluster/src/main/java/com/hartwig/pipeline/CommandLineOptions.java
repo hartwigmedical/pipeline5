@@ -58,6 +58,7 @@ public class CommandLineOptions {
     private static final String SBP_RUN_ID_FLAG = "sbp_run_id";
     private static final String PRIVATE_NETWORK_FLAG = "private_network";
     private static final String CMEK_FLAG = "cmek";
+    private static final String SHALLOW_FLAG = "shallow";
 
     private static Options options() {
         return new Options().addOption(profile())
@@ -106,7 +107,10 @@ public class CommandLineOptions {
                 .addOption(toolsBucket())
                 .addOption(patientReportBucket())
                 .addOption(privateNetwork())
-                .addOption(cmek());
+                .addOption(cmek())
+                .addOption(optionWithBooleanArg(SHALLOW_FLAG,
+                        "Run with ShallowSeq configuration.Germline and health checker are disabled and purple is run with low coverage "
+                                + "options."));
     }
 
     private static Option cmek() {
@@ -273,6 +277,7 @@ public class CommandLineOptions {
                     .patientReportBucket(commandLine.getOptionValue(PATIENT_REPORT_BUCKET_FLAG, defaults.patientReportBucket()))
                     .privateNetwork(privateNetwork(commandLine, defaults))
                     .cmek(cmek(commandLine, defaults))
+                    .shallow(booleanOptionWithDefault(commandLine, SHALLOW_FLAG, defaults.shallow()))
                     .profile(defaults.profile())
                     .build();
         } catch (ParseException e) {

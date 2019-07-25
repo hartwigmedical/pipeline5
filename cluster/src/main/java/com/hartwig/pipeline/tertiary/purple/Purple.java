@@ -83,7 +83,8 @@ public class Purple {
                 somaticVcfDownload.getLocalTargetPath(),
                 structuralVcfDownload.getLocalTargetPath(),
                 svRecoveryVcfDownload.getLocalTargetPath(),
-                VmDirectories.TOOLS + "/circos/" + Versions.CIRCOS + "/bin/circos"));
+                VmDirectories.TOOLS + "/circos/" + Versions.CIRCOS + "/bin/circos",
+                arguments.shallow()));
         bash.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path())));
         PipelineStatus status = computeEngine.submit(runtimeBucket, VirtualMachineJobDefinition.purple(bash, resultsDirectory));
         trace.stop();
