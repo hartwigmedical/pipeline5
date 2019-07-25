@@ -22,6 +22,7 @@ import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
+import com.hartwig.pipeline.report.StartupScriptComponent;
 import com.hartwig.pipeline.report.ZippedVcfAndIndexComponent;
 import com.hartwig.pipeline.resource.GATKDictAlias;
 import com.hartwig.pipeline.resource.ReferenceGenomeAlias;
@@ -145,6 +146,7 @@ public class SomaticCaller {
                         resultsDirectory,
                         s -> s.contains("chromosomes") || s.contains("Makefile") || s.contains("task.complete")))
                 .addReportComponents(new RunLogComponent(runtimeBucket, NAMESPACE, Folder.from(), resultsDirectory))
+                .addReportComponents(new StartupScriptComponent(runtimeBucket, NAMESPACE, Folder.from()))
                 .build();
 
     }
