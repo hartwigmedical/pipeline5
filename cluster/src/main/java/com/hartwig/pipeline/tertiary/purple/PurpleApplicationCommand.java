@@ -13,6 +13,11 @@ import com.hartwig.pipeline.tools.Versions;
 import org.jetbrains.annotations.NotNull;
 
 class PurpleApplicationCommand extends JavaJarCommand {
+
+    private static final String LOW_COVERAGE_DIPLOID_PERCENTAGE = "0.88";
+    private static final String LOW_COVERAGE_SOMATIC_MIN_TOTAL = "100";
+    private static final String LOW_COVERAGE_SOMATIC_MIN_PURITY_SPREAD = "0.1";
+
     PurpleApplicationCommand(String referenceSampleName, String tumorSampleName, String amberDirectory, String cobaltDirectory,
             String gcProfile, String somaticVcf, String structuralVcf, String svRecoveryVcf, String circosPath, boolean isShallow) {
         super("purple",
@@ -27,19 +32,7 @@ class PurpleApplicationCommand extends JavaJarCommand {
                         somaticVcf,
                         structuralVcf,
                         svRecoveryVcf,
-                        circosPath), shallowArguments(isShallow)));
-    }
-
-    private static List<String> combine(List<String> first, List<String> second) {
-        first.addAll(second);
-        return first;
-    }
-
-    private static List<String> shallowArguments(final boolean isShallow) {
-        if (isShallow) {
-            return newArrayList("-highly_diploid_percentage", "0.88", "-somatic_min_total", "100", "-somatic_min_purity_spread", "0.1");
-        }
-        return new ArrayList<>();
+                        circosPath), maybeShallowArguments(isShallow)));
     }
 
     @NotNull
@@ -68,5 +61,22 @@ class PurpleApplicationCommand extends JavaJarCommand {
                 circosPath,
                 "-threads",
                 Bash.allCpus());
+    }
+
+    private static List<String> maybeShallowArguments(final boolean isShallow) {
+        if (isShallow) {
+            return newArrayList("-highly_diploid_percentage",
+                    LOW_COVERAGE_DIPLOID_PERCENTAGE,
+                    "-somatic_min_total",
+                    LOW_COVERAGE_SOMATIC_MIN_TOTAL,
+                    "-somatic_min_purity_spread",
+                    LOW_COVERAGE_SOMATIC_MIN_PURITY_SPREAD);
+        }
+        return new ArrayList<>();
+    }
+
+    private static List<String> combine(List<String> first, List<String> second) {
+        first.addAll(second);
+        return first;
     }
 }
