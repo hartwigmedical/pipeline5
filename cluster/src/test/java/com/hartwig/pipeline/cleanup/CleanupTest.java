@@ -5,6 +5,7 @@ import static com.hartwig.pipeline.testsupport.TestBlobs.pageOf;
 import static com.hartwig.pipeline.testsupport.TestInputs.defaultSomaticRunMetadata;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -12,6 +13,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.gax.paging.Page;
 import com.google.api.services.dataproc.v1beta2.Dataproc;
 import com.google.api.services.dataproc.v1beta2.model.Job;
@@ -99,10 +101,24 @@ public class CleanupTest {
         ArgumentCaptor<String> deletedJobs = ArgumentCaptor.forClass(String.class);
         Dataproc.Projects.Regions.Jobs.Delete delete = mock(Dataproc.Projects.Regions.Jobs.Delete.class);
         when(jobs.delete(eq(ARGUMENTS.project()), eq(ARGUMENTS.region()), deletedJobs.capture())).thenReturn(delete);
+        when(jobs.get(eq(ARGUMENTS.project()), eq(ARGUMENTS.region()), any())).thenThrow(GoogleJsonResponseException.class);
         victim.run(defaultSomaticRunMetadata());
         assertThat(deletedJobs.getAllValues()).hasSize(2);
         assertThat(deletedJobs.getAllValues().get(0)).isEqualTo(REFERENCE_GUNZIP);
         assertThat(deletedJobs.getAllValues().get(1)).isEqualTo(TUMOR_GUNZIP);
+    }
+
+    @Test
+    public void retriesDeletingDataprocJobsIfTheyStillExist() throws Exception{
+        Job job = job(REFERENCE_GUNZIP);
+        when(listJobsResponse.getJobs()).thenReturn(Lists.newArrayList(job));
+        Dataproc.Projects.Regions.Jobs.Delete delete = mock(Dataproc.Projects.Regions.Jobs.Delete.class);
+        when(jobs.delete(ARGUMENTS.project(), ARGUMENTS.region(), job.getReference().getJobId())).thenReturn(delete);
+        Dataproc.Projects.Regions.Jobs.Get get = mock(Dataproc.Projects.Regions.Jobs.Get.class);
+        when(get.execute()).thenReturn(job).thenThrow(GoogleJsonResponseException.class);
+        when(jobs.get(ARGUMENTS.project(), ARGUMENTS.region(), job.getReference().getJobId())).thenReturn(get);
+        victim.run(defaultSomaticRunMetadata());
+        verify(delete, times(2)).execute();
     }
 
     private void assertBucketDeleted(final String bucketName, final Bucket bucket) {
