@@ -9,11 +9,11 @@ public class ClusterOptimizer {
     private static final long BYTES_PER_GB = (long) Math.pow(1024, 3);
 
     private final CpuFastQSizeRatio cpuToFastQSizeRatio;
-    private final boolean noPreemtibleVms;
+    private final boolean usePreemtibleVms;
 
     public ClusterOptimizer(final CpuFastQSizeRatio cpuToFastQSizeRatio, final boolean usePreemtibleVms) {
         this.cpuToFastQSizeRatio = cpuToFastQSizeRatio;
-        this.noPreemtibleVms = usePreemtibleVms;
+        this.usePreemtibleVms = usePreemtibleVms;
     }
 
     public DataprocPerformanceProfile optimize(SampleData sampleData) {
@@ -26,7 +26,7 @@ public class ClusterOptimizer {
         double totalCpusRequired = totalFileSizeGB * cpuToFastQSizeRatio.cpusPerGB();
         MachineType defaultWorker = MachineType.defaultWorker();
         int numWorkers = new Double(totalCpusRequired / defaultWorker.cpus()).intValue();
-        int numPreemptible = noPreemtibleVms ? 0 : numWorkers / 2;
+        int numPreemptible = usePreemtibleVms ? numWorkers / 2 : 0;
         return DataprocPerformanceProfile.builder()
                 .master(MachineType.defaultMaster())
                 .primaryWorkers(defaultWorker)

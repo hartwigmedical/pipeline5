@@ -28,7 +28,6 @@ public class SmokeTest {
                 .mode(Arguments.Mode.FULL)
                 .runId("smoke-" + noDots(version))
                 .runGermlineCaller(false)
-                .cleanup(false)
                 .build());
         assertThat(state.status()).isEqualTo(PipelineStatus.SUCCESS);
     }
