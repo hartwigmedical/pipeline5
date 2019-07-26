@@ -45,12 +45,6 @@ public class GoogleClusterConfigTest {
     }
 
     @Test
-    public void workerDiskSizeSetToValueInProfile() {
-        assertThat(victim.config().getWorkerConfig().getDiskConfig().getBootDiskSizeGb()).isEqualTo(MachineType.DISK_GB);
-        assertThat(victim.config().getSecondaryWorkerConfig().getDiskConfig().getBootDiskSizeGb()).isEqualTo(MachineType.DISK_GB);
-    }
-
-    @Test
     public void idleTtlSetOnLifecycleConfig() {
         assertThat(victim.config().getLifecycleConfig().getIdleDeleteTtl()).isEqualTo("600s");
     }

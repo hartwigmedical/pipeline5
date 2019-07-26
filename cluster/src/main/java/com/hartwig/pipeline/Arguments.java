@@ -137,7 +137,7 @@ public interface Arguments {
                     .cloudSdkPath(DEFAULT_PRODUCTION_CLOUD_SDK_PATH)
                     .forceJarUpload(false)
                     .cleanup(true)
-                    .usePreemptibleVms(true)
+                    .usePreemptibleVms(false)
                     .upload(true)
                     .runBamMetrics(true)
                     .runAligner(true)

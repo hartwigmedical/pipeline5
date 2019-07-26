@@ -23,12 +23,12 @@ public class ClusterOptimizerTest {
 
     @Before
     public void setUp() {
-        victim = new ClusterOptimizer(CpuFastQSizeRatio.of(5), false);
+        victim = new ClusterOptimizer(CpuFastQSizeRatio.of(5), true);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void emptyFilesThrowsIllegalArgumentException() {
-        victim = new ClusterOptimizer(CpuFastQSizeRatio.of(5), false);
+        victim = new ClusterOptimizer(CpuFastQSizeRatio.of(5), true);
         victim.optimize(sampleData(SAMPLE_WITH_TWO_LANES, 0));
     }
 
@@ -56,7 +56,7 @@ public class ClusterOptimizerTest {
 
     @Test
     public void usesOnlyPrimaryVmsWhenSpecified() {
-        victim = new ClusterOptimizer(CpuFastQSizeRatio.of(5), true);
+        victim = new ClusterOptimizer(CpuFastQSizeRatio.of(5), false);
         DataprocPerformanceProfile profile = victim.optimize(sampleData(SAMPLE_WITH_TWO_LANES, FORTY_GIGS));
         assertThat(profile.numPreemtibleWorkers()).isZero();
         assertThat(profile.numPrimaryWorkers()).isEqualTo(6);
