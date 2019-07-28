@@ -19,7 +19,7 @@ class PurpleApplicationCommand extends JavaJarCommand {
     private static final String LOW_COVERAGE_SOMATIC_MIN_PURITY_SPREAD = "0.1";
 
     PurpleApplicationCommand(String referenceSampleName, String tumorSampleName, String amberDirectory, String cobaltDirectory,
-            String gcProfile, String somaticVcf, String structuralVcf, String svRecoveryVcf, String circosPath, boolean isShallow) {
+            String gcProfile, String somaticVcf, String structuralVcf, String svRecoveryVcf, String circosPath, String referenceGenomePath, boolean isShallow) {
         super("purple",
                 Versions.PURPLE,
                 "purple.jar",
@@ -32,13 +32,14 @@ class PurpleApplicationCommand extends JavaJarCommand {
                         somaticVcf,
                         structuralVcf,
                         svRecoveryVcf,
-                        circosPath), maybeShallowArguments(isShallow)));
+                        circosPath,
+                        referenceGenomePath), maybeShallowArguments(isShallow)));
     }
 
     @NotNull
     private static ArrayList<String> arguments(final String referenceSampleName, final String tumorSampleName, final String amberDirectory,
             final String cobaltDirectory, final String gcProfile, final String somaticVcf, final String structuralVcf,
-            final String svRecoveryVcf, final String circosPath) {
+            final String svRecoveryVcf, final String circosPath, String referenceGenomePath) {
         return newArrayList("-reference",
                 referenceSampleName,
                 "-tumor",
@@ -59,6 +60,8 @@ class PurpleApplicationCommand extends JavaJarCommand {
                 svRecoveryVcf,
                 "-circos",
                 circosPath,
+                "-ref_genome",
+                referenceGenomePath,
                 "-threads",
                 Bash.allCpus());
     }
