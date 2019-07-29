@@ -1,6 +1,8 @@
 package com.hartwig.pipeline.cleanup;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.util.Objects;
 
 import com.google.api.services.dataproc.v1beta2.Dataproc;
 import com.google.api.services.dataproc.v1beta2.model.Job;
@@ -12,12 +14,19 @@ import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.Run;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import net.jodah.failsafe.Failsafe;
+import net.jodah.failsafe.RetryPolicy;
+import net.jodah.failsafe.function.CheckedSupplier;
 
 public class Cleanup {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(Cleanup.class);
+    private static final int MAX_RETRIES = 5;
+    private static final int RETRY_DELAY = 3;
     private final Storage storage;
     private final Arguments arguments;
     private final Dataproc dataproc;
@@ -29,7 +38,7 @@ public class Cleanup {
     }
 
     public void run(SomaticRunMetadata metadata) {
-        if (!arguments.cleanup()){
+        if (!arguments.cleanup()) {
             return;
         }
         LOGGER.info("Cleaning up all transient resources on complete somatic pipeline run (runtime buckets and dataproc jobs)");
@@ -49,12 +58,38 @@ public class Cleanup {
                         .getJobId()
                         .startsWith(tumorRun.id())) {
                     LOGGER.debug("Deleting complete job [{}]", job.getReference().getJobId());
-                    jobs.delete(arguments.project(), arguments.region(), job.getReference().getJobId()).execute();
+                    deleteJob(jobs, job);
+
+                    Job existingJob = Failsafe.with(new RetryPolicy<>().handleResultIf(Objects::nonNull)
+                            .onFailedAttempt(objectExecutionCompletedEvent -> deleteJob(jobs, job))
+                            .withDelay(Duration.ofSeconds(RETRY_DELAY))
+                            .withMaxRetries(MAX_RETRIES)).get(getJobAndReturnNullOn404(jobs, job));
+                    if (existingJob != null) {
+                        LOGGER.warn("Job [{}] still exists after [{}] attempts to delete it. Aborting, it will need to be deleted by hand",
+                                job.getReference().getJobId(),
+                                MAX_RETRIES);
+                    }
+
                 }
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @NotNull
+    private CheckedSupplier<Job> getJobAndReturnNullOn404(final Dataproc.Projects.Regions.Jobs jobs, final Job job) {
+        return () -> {
+            try {
+                return jobs.get(arguments.project(), arguments.region(), job.getReference().getJobId()).execute();
+            } catch (IOException e) {
+                return null;
+            }
+        };
+    }
+
+    private void deleteJob(final Dataproc.Projects.Regions.Jobs jobs, final Job job) throws IOException {
+        jobs.delete(arguments.project(), arguments.region(), job.getReference().getJobId()).execute();
     }
 
     private void deleteBucket(final String runId) {
