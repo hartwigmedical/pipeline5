@@ -24,6 +24,7 @@ import org.jetbrains.annotations.NotNull;
 class GoogleClusterConfig {
 
     private static final String IDLE_TTL = "600s";
+    private static final int DISK_SIZE_GB = 1000;
     private final ClusterConfig config;
 
     private GoogleClusterConfig(final ClusterConfig config) {
@@ -107,7 +108,7 @@ class GoogleClusterConfig {
 
     @NotNull
     private static DiskConfig diskConfig() {
-        return new DiskConfig().setBootDiskType("pd-ssd").setNumLocalSsds(3);
+        return new DiskConfig().setBootDiskType("pd-ssd").setBootDiskSizeGb(DISK_SIZE_GB).setNumLocalSsds(2);
     }
 
     private static InstanceGroupConfig secondaryWorkerConfig(final DataprocPerformanceProfile profile, final DiskConfig diskConfig,
