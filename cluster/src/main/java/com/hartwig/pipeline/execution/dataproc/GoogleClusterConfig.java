@@ -25,6 +25,7 @@ class GoogleClusterConfig {
 
     private static final String IDLE_TTL = "600s";
     private static final int DISK_SIZE_GB = 1000;
+    private static final String LATEST_DATAPROC_IMAGE = "1.4";
     private final ClusterConfig config;
 
     private GoogleClusterConfig(final ClusterConfig config) {
@@ -69,12 +70,12 @@ class GoogleClusterConfig {
     }
 
     private static SoftwareConfig softwareConfig() {
-        return new SoftwareConfig().setProperties(ImmutableMap.<String, String>builder().put("dataproc:dataproc.logging.stackdriver.enable",
-                "false")
-                .put("yarn:yarn.nodemanager.vmem-check-enabled", "false")
-                .put("yarn:yarn.nodemanager.pmem-check-enabled", "false")
-                .put("dataproc:dataproc.allow.zero.workers", "true")
-                .build());
+        return new SoftwareConfig().setImageVersion(LATEST_DATAPROC_IMAGE)
+                .setProperties(ImmutableMap.<String, String>builder().put("dataproc:dataproc.logging.stackdriver.enable", "false")
+                        .put("yarn:yarn.nodemanager.vmem-check-enabled", "false")
+                        .put("yarn:yarn.nodemanager.pmem-check-enabled", "false")
+                        .put("dataproc:dataproc.allow.zero.workers", "true")
+                        .build());
     }
 
     @NotNull
