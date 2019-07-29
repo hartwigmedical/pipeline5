@@ -98,6 +98,8 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
             stop(project, vmName);
             if (status == PipelineStatus.SUCCESS) {
                 delete(project, vmName);
+            } else {
+                disableStartupScript(instance);
             }
             LOGGER.info("Compute engine job [{}] is complete with status [{}]", jobDefinition.name(), status);
         } catch (Exception e) {
@@ -106,6 +108,12 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
             return PipelineStatus.FAILED;
         }
         return status;
+    }
+
+    private void disableStartupScript(final Instance instance) throws Exception {
+        Metadata empty = new Metadata();
+        executeSynchronously(compute.instances().setMetadata(arguments.project(), ZONE_NAME, instance.getName(), empty),
+                arguments.project());
     }
 
     private static Compute initCompute(final GoogleCredentials credentials) throws Exception {
