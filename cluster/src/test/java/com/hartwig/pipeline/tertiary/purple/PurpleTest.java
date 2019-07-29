@@ -83,7 +83,7 @@ public class PurpleTest {
                         + "/purple.jar -reference reference -tumor tumor -output_dir /data/output -amber "
                         + "/data/input -cobalt /data/input -gc_profile /data/resources/gc_profile.cnp -somatic_vcf /data/input/somatic.vcf "
                         + "-structural_vcf /data/input/structural.vcf -sv_recovery_vcf /data/input/sv_recovery.vcf -circos "
-                        + "/data/tools/circos/0.69.6/bin/circos -threads $(grep -c '^processor' /proc/cpuinfo)");
+                        + "/data/tools/circos/0.69.6/bin/circos -ref_genome /data/resources/reference.fasta -threads $(grep -c '^processor' /proc/cpuinfo)");
     }
 
     @Test
