@@ -26,6 +26,7 @@ public class Cleanup {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(Cleanup.class);
     private static final int MAX_RETRIES = 5;
+    private static final int RETRY_DELAY = 3;
     private final Storage storage;
     private final Arguments arguments;
     private final Dataproc dataproc;
@@ -61,7 +62,7 @@ public class Cleanup {
 
                     Job existingJob = Failsafe.with(new RetryPolicy<>().handleResultIf(Objects::nonNull)
                             .onFailedAttempt(objectExecutionCompletedEvent -> deleteJob(jobs, job))
-                            .withDelay(Duration.ofSeconds(3))
+                            .withDelay(Duration.ofSeconds(RETRY_DELAY))
                             .withMaxRetries(MAX_RETRIES)).get(getJobAndReturnNullOn404(jobs, job));
                     if (existingJob != null) {
                         LOGGER.warn("Job [{}] still exists after [{}] attempts to delete it. Aborting, it will need to be deleted by hand",
