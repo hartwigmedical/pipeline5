@@ -116,4 +116,13 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .namespacedResults(resultsDirectory)
                 .build();
     }
+
+    static VirtualMachineJobDefinition bcl2fastq(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
+        return ImmutableVirtualMachineJobDefinition.builder()
+                .name("bcl2fastq")
+                .startupCommand(startupScript)
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(96, 90))
+                .namespacedResults(resultsDirectory)
+                .build();
+    }
 }

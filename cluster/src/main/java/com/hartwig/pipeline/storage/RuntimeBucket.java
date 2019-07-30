@@ -10,6 +10,7 @@ import com.google.cloud.storage.BucketInfo;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageClass;
 import com.google.common.collect.Lists;
+import com.hartwig.bcl2fastq.FlowcellMetadata;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.Run;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
@@ -26,6 +27,11 @@ public class RuntimeBucket {
     private final Bucket bucket;
     private final String namespace;
     private final Run run;
+
+    public static RuntimeBucket from(final Storage storage, final String namespace, final FlowcellMetadata flowcellMetadata,
+            final Arguments arguments) {
+        return createBucketIfNeeded(storage, namespace, arguments, Run.from(flowcellMetadata.flowcellId(), arguments));
+    }
 
     public static RuntimeBucket from(final Storage storage, final String namespace, final SingleSampleRunMetadata metadata,
             final Arguments arguments) {
@@ -44,7 +50,7 @@ public class RuntimeBucket {
             final Run run) {
         Bucket bucket = storage.get(run.id());
         if (bucket == null) {
-            LOGGER.debug("Creating runtime bucket [{}] in Google Storage", run.id());
+            LOGGER.info("Creating runtime bucket [{}] in Google Storage", run.id());
             BucketInfo.Builder builder =
                     BucketInfo.newBuilder(run.id()).setStorageClass(StorageClass.REGIONAL).setLocation(arguments.region());
             arguments.cmek().ifPresent(key -> {

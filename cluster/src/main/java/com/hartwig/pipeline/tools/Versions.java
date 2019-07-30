@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 public interface Versions {
 
+    String BCL2FASTQ = "2.20.0.422";
     String BWA = "0.7.17";
     String SAMBAMBA = "0.6.5";
     String GATK = "3.8.0";

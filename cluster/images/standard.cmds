@@ -22,6 +22,7 @@ sudo chmod a+x /data/tools/bcftools/1.3.1/bcftools
 sudo chmod a+x /data/tools/snpEff/4.3s/snpEff.sh
 sudo chmod a+x /data/tools/bwa/0.7.17/bwa
 sudo chmod a+x /data/tools/sambamba/0.6.5/sambamba
+sudo chmod a+x /data/tools/bcl2fastq/2.20.0.422/bcl2fastq
 sudo cpanm install Clone
 sudo cpanm install Config::General
 sudo cpanm install Font::TTF::Font
