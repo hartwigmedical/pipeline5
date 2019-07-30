@@ -128,8 +128,16 @@ public class ComputeEngineTest {
                 eq(INSTANCE_NAME),
                 newMetadataCaptor.capture())).thenReturn(setMetadata);
         when(zoneOperations.get(ARGUMENTS.project(), ComputeEngine.ZONE_NAME, opName)).thenReturn(zoneOpGet);
+
+        Compute.Instances.Get get = mock(Compute.Instances.Get.class);
+        String fingerprint = "fingerprint";
+        Instance latest = new Instance().setMetadata(new Metadata().setFingerprint(fingerprint));
+        when(get.execute()).thenReturn(latest);
+        when(instances.get(ARGUMENTS.project(), ComputeEngine.ZONE_NAME, INSTANCE_NAME)).thenReturn(get);
+
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
         assertThat(newMetadataCaptor.getValue().getItems()).isNull();
+        assertThat(newMetadataCaptor.getValue().getFingerprint()).isEqualTo(fingerprint);
     }
 
     @Test

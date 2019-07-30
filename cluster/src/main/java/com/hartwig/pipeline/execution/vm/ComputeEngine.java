@@ -111,8 +111,10 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
     }
 
     private void disableStartupScript(final Instance instance) throws Exception {
-        Metadata empty = new Metadata();
-        executeSynchronously(compute.instances().setMetadata(arguments.project(), ZONE_NAME, instance.getName(), empty),
+        String latestFingerprint =
+                compute.instances().get(arguments.project(), ZONE_NAME, instance.getName()).execute().getMetadata().getFingerprint();
+        executeSynchronously(compute.instances()
+                        .setMetadata(arguments.project(), ZONE_NAME, instance.getName(), new Metadata().setFingerprint(latestFingerprint)),
                 arguments.project());
     }
 
