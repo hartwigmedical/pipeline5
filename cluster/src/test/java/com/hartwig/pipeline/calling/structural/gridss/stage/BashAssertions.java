@@ -8,10 +8,8 @@ import com.hartwig.pipeline.execution.vm.BashCommand;
 
 import org.mockito.ArgumentCaptor;
 
-public abstract class GridssSubStageTest extends SubStageTest implements CommonEntities {
-    ArgumentCaptor<BashCommand> captor;
-
-    void assertBashContains(final BashCommand model) {
+public class BashAssertions {
+    static void assertBashContains(final BashCommand model, final ArgumentCaptor<BashCommand> captor) {
         for (BashCommand actual : captor.getAllValues()) {
             if (actual.getClass().isAssignableFrom(model.getClass())) {
                 if (actual.asBash().equals(model.asBash())) {

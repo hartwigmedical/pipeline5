@@ -2,6 +2,8 @@ package com.hartwig.pipeline.calling.structural.gridss.stage;
 
 import static java.lang.String.format;
 
+import static com.hartwig.pipeline.calling.structural.gridss.stage.BashAssertions.assertBashContains;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -9,6 +11,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.hartwig.pipeline.calling.SubStage;
+import com.hartwig.pipeline.calling.SubStageTest;
+import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
 import com.hartwig.pipeline.calling.structural.gridss.command.CollectGridssMetrics;
 import com.hartwig.pipeline.calling.structural.gridss.command.ComputeSamTags;
 import com.hartwig.pipeline.calling.structural.gridss.command.ExtractSvReads;
@@ -25,13 +29,15 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
 
-public class PreprocessTest extends GridssSubStageTest {
+public class PreprocessTest extends SubStageTest implements CommonEntities {
     private String workingDirectory = "/some/directory";
     private String inputBamFilename = REFERENCE_SAMPLE + ".bam";
     private String inputBamFullPath = format("%s/%s", IN_DIR, inputBamFilename);
     private BashStartupScript initialScript;
     private ExtractSvReads expectedExtractSvReads;
     private ComputeSamTags expectedComputeSamTags;
+    private ArgumentCaptor<BashCommand> captor;
+
 
     @Override
     public SubStage createVictim() {
@@ -72,23 +78,24 @@ public class PreprocessTest extends GridssSubStageTest {
 
     @Test
     public void shouldAddCorrectCollectGridssMetrics() {
-        assertBashContains(new CollectGridssMetrics(inputBamFullPath, format("%s/%s", workingDirectory, inputBamFilename)));
+        assertBashContains(new CollectGridssMetrics(inputBamFullPath, format("%s/%s", workingDirectory, inputBamFilename)), captor);
     }
 
     @Test
     public void shouldAddCorrectExtractSvReadsPipeline() {
         SambambaGridssSortCommand sortCommand = SambambaGridssSortCommand.sortByName(expectedExtractSvReads.resultantBam());
-        assertBashContains(new PipeCommands(expectedExtractSvReads, sortCommand));
+        assertBashContains(new PipeCommands(expectedExtractSvReads, sortCommand), captor);
     }
 
     @Test
     public void shouldAddCorrectComputeSamTagsPipeline() {
         SambambaGridssSortCommand sortCommand = SambambaGridssSortCommand.sortByDefault(expectedComputeSamTags.resultantBam());
-        assertBashContains(new PipeCommands(expectedComputeSamTags, sortCommand));
+        assertBashContains(new PipeCommands(expectedComputeSamTags, sortCommand), captor);
     }
 
     @Test
     public void shouldAddCorrectSoftClipsToSplitReads() {
-        assertBashContains(new SoftClipsToSplitReads.ForPreprocess(expectedComputeSamTags.resultantBam(), REFERENCE_GENOME, OUTPUT_BAM));
+        assertBashContains(new SoftClipsToSplitReads.ForPreprocess(expectedComputeSamTags.resultantBam(), REFERENCE_GENOME, OUTPUT_BAM),
+                captor);
     }
 }

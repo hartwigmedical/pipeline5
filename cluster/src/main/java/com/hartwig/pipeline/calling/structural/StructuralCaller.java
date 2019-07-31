@@ -117,50 +117,55 @@ public class StructuralCaller {
                 .apply(SubStageInputOutput.of(tumorSampleName, OutputFile.empty(), bash));
 
         Assemble assemble = new Assemble(refBamPath, tumorBamPath, jointName, referenceGenomePath, configurationFile, blacklist);
+        String filteredVcfBasename = VmDirectories.outputFile(format("%s.gridss.somatic.vcf", tumorSampleName));
+        String fullVcfBasename = VmDirectories.outputFile(format("%s.gridss.somatic.full.vcf", tumorSampleName));
+
         SubStageInputOutput result =
-                assemble.andThen(new Calling(refBamPath, tumorBamPath, "", referenceGenomePath, configurationFile, blacklist))
+                assemble.andThen(new Calling(refBamPath, tumorBamPath, referenceGenomePath, configurationFile, blacklist))
                         .andThen(new Annotation(referenceBam.getLocalTargetPath(),
                                 tumorBam.getLocalTargetPath(),
                                 assemble.completedBam(),
-                                "",
                                 referenceGenomePath,
                                 jointName,
                                 configurationFile,
                                 blacklist))
+                        .andThen(new Filter(filteredVcfBasename, fullVcfBasename))
                         .apply(SubStageInputOutput.of(jointName, OutputFile.empty(), bash));
-        Filter.FilterResult filterResult = new Filter().initialise(result.outputFile().path(), tumorSampleName);
-        bash.addCommands(filterResult.commands());
+
         bash.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path())));
 
         PipelineStatus status = computeEngine.submit(runtimeBucket, VirtualMachineJobDefinition.structuralCalling(bash, resultsDirectory));
+
         trace.stop();
-        String finalVcf = result.outputFile().path();
+
+        String filteredVcf = filteredVcfBasename + ".gz";
+        String fullVcfCompressed = fullVcfBasename + ".gz";
         return StructuralCallerOutput.builder()
                 .status(status)
                 .maybeFilteredVcf(GoogleStorageLocation.of(runtimeBucket.name(),
-                        resultsDirectory.path(basename(filterResult.filteredVcf()))))
+                        resultsDirectory.path(basename(filteredVcfBasename + ".gz"))))
                 .maybeFilteredVcfIndex(GoogleStorageLocation.of(runtimeBucket.name(),
-                        resultsDirectory.path(basename(filterResult.filteredVcf() + ".tbi"))))
-                .maybeFullVcf(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path(basename(filterResult.fullVcf()))))
+                        resultsDirectory.path(basename(filteredVcfBasename + ".tbi"))))
+                .maybeFullVcf(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path(basename(fullVcfBasename + ".gz"))))
                 .maybeFullVcfIndex(GoogleStorageLocation.of(runtimeBucket.name(),
-                        resultsDirectory.path(basename(filterResult.fullVcf() + ".tbi"))))
+                        resultsDirectory.path(basename(fullVcfBasename + ".tbi"))))
                 .addReportComponents(new ZippedVcfAndIndexComponent(runtimeBucket,
                         NAMESPACE,
                         Folder.from(),
-                        basename(finalVcf),
-                        basename(finalVcf),
+                        basename(result.outputFile().path()),
+                        basename(result.outputFile().path()),
                         resultsDirectory))
                 .addReportComponents(new ZippedVcfAndIndexComponent(runtimeBucket,
                         NAMESPACE,
                         Folder.from(),
-                        basename(filterResult.fullVcf()),
-                        basename(filterResult.fullVcf()),
+                        basename(fullVcfCompressed),
+                        basename(fullVcfCompressed),
                         resultsDirectory))
                 .addReportComponents(new ZippedVcfAndIndexComponent(runtimeBucket,
                         NAMESPACE,
                         Folder.from(),
-                        basename(filterResult.filteredVcf()),
-                        basename(filterResult.filteredVcf()),
+                        basename(filteredVcf),
+                        basename(filteredVcf),
                         resultsDirectory))
                 .addReportComponents(new EntireOutputComponent(runtimeBucket,
                         Folder.from(),

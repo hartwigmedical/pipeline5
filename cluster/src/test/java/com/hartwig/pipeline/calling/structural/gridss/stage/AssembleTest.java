@@ -2,6 +2,8 @@ package com.hartwig.pipeline.calling.structural.gridss.stage;
 
 import static java.lang.String.format;
 
+import static com.hartwig.pipeline.calling.structural.gridss.stage.BashAssertions.assertBashContains;
+
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -10,6 +12,8 @@ import static org.mockito.Mockito.verify;
 import java.io.File;
 
 import com.hartwig.pipeline.calling.SubStage;
+import com.hartwig.pipeline.calling.SubStageTest;
+import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
 import com.hartwig.pipeline.calling.structural.gridss.command.AssembleBreakends;
 import com.hartwig.pipeline.calling.structural.gridss.command.CollectGridssMetrics;
 import com.hartwig.pipeline.calling.structural.gridss.command.SoftClipsToSplitReads;
@@ -20,13 +24,15 @@ import com.hartwig.pipeline.execution.vm.unix.MkDirCommand;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.kohsuke.args4j.Argument;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
 
-public class AssembleTest extends GridssSubStageTest {
+public class AssembleTest extends SubStageTest implements CommonEntities {
     private BashStartupScript initialScript;
     private String workingDirectory;
+    private ArgumentCaptor<BashCommand> captor;
 
     @Override
     public SubStage createVictim() {
@@ -60,23 +66,23 @@ public class AssembleTest extends GridssSubStageTest {
 
     @Test
     public void shouldAddCorrectAssembleBreakends() {
-        assertBashContains(new AssembleBreakends(REFERENCE_BAM, TUMOR_BAM, ASSEMBLY_BAM, REFERENCE_GENOME, CONFIG_FILE, BLACKLIST));
+        assertBashContains(new AssembleBreakends(REFERENCE_BAM, TUMOR_BAM, ASSEMBLY_BAM, REFERENCE_GENOME, CONFIG_FILE, BLACKLIST), captor);
     }
 
     @Test
     public void shouldAddCorrectMkDirForWorkingDirectory() {
-        assertBashContains(new MkDirCommand(workingDirectory));
+        assertBashContains(new MkDirCommand(workingDirectory), captor);
     }
 
     @Test
     public void shouldAddCorrectCollectGridssMetrics() {
         String assemblyBasename = new File(ASSEMBLY_BAM).getName();
-        assertBashContains(new CollectGridssMetrics(ASSEMBLY_BAM, format("%s/%s", workingDirectory, assemblyBasename)));
+        assertBashContains(new CollectGridssMetrics(ASSEMBLY_BAM, format("%s/%s", workingDirectory, assemblyBasename)), captor);
     }
 
     @Test
     public void shouldAddCorrectSoftClipsToSplitReads() {
         String outputBam = format("%s/%s_%s.assemble.bam.sv.bam", workingDirectory, REFERENCE_SAMPLE, TUMOR_SAMPLE);
-        assertBashContains(new SoftClipsToSplitReads.ForAssemble(ASSEMBLY_BAM, REFERENCE_GENOME, outputBam));
+        assertBashContains(new SoftClipsToSplitReads.ForAssemble(ASSEMBLY_BAM, REFERENCE_GENOME, outputBam), captor);
     }
 }
