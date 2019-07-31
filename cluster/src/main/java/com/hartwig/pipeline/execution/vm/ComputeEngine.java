@@ -207,6 +207,8 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
                 } else {
                     throw gjre;
                 }
+            } else {
+                throw e;
             }
         }
     }
