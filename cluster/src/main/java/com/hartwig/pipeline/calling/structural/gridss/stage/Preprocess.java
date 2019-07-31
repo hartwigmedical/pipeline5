@@ -12,6 +12,7 @@ import com.hartwig.pipeline.calling.structural.gridss.command.SambambaGridssSort
 import com.hartwig.pipeline.calling.structural.gridss.command.SoftClipsToSplitReads;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.OutputFile;
+import com.hartwig.pipeline.execution.vm.unix.MkDirCommand;
 import com.hartwig.pipeline.execution.vm.unix.PipeCommands;
 
 public class Preprocess extends SubStage {
@@ -19,19 +20,18 @@ public class Preprocess extends SubStage {
     private final String workingDir;
     private final String sampleName;
     private final String referenceGenomePath;
-    private final String outputSvBam;
 
-    public Preprocess(String inputBam, String workingDir, String sampleName, String referenceGenomePath, String outputSvBam) {
+    public Preprocess(String inputBam, String workingDir, String sampleName, String referenceGenomePath) {
         super("preprocess", OutputFile.BAM);
         this.inputBam = inputBam;
         this.workingDir = workingDir;
         this.sampleName = sampleName;
         this.referenceGenomePath = referenceGenomePath;
-        this.outputSvBam = outputSvBam;
     }
 
     @Override
     public BashStartupScript bash(OutputFile input, OutputFile output, BashStartupScript bash) {
+        bash.addCommand(new MkDirCommand(workingDir));
         String inputBamBasename = new File(inputBam).getName();
         CollectGridssMetrics collectGridssMetrics = new CollectGridssMetrics(inputBam, format("%s/%s", workingDir, inputBamBasename));
         bash.addCommand(collectGridssMetrics);
@@ -40,6 +40,7 @@ public class Preprocess extends SubStage {
         bash.addCommand(new PipeCommands(extractSvReads, SambambaGridssSortCommand.sortByName(extractSvReads.resultantBam())));
         ComputeSamTags computeSamTags = new ComputeSamTags(extractSvReads.resultantBam(), referenceGenomePath, sampleName);
         bash.addCommand(new PipeCommands(computeSamTags, SambambaGridssSortCommand.sortByDefault(computeSamTags.resultantBam())));
+        String outputSvBam = format("%s/%s.sv.bam", workingDir, new File(inputBam).getName());
         bash.addCommand(new SoftClipsToSplitReads.ForPreprocess(computeSamTags.resultantBam(), referenceGenomePath, outputSvBam));
         return bash;
     }

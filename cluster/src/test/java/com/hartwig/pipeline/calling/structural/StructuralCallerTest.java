@@ -84,14 +84,6 @@ public class StructuralCallerTest {
     }
 
     @Test
-    public void shouldMakeWorkingDirectoriesBeforeAnyJavaCommandIsCalled() {
-        String beforeJava = getBash(of("java"));
-        String fmt = "\nmkdir -p /data/output/%s.gridss.working ";
-        assertThat(beforeJava).contains(format(fmt, new File(defaultPair().tumor().finalBamLocation().path()).getName()));
-        assertThat(beforeJava).contains(format(fmt, new File(defaultPair().reference().finalBamLocation().path()).getName()));
-    }
-
-    @Test
     public void shouldBatchDownloadInputBamsAndBais() {
         InputDownload referenceBam = new InputDownload(defaultPair().reference().finalBamLocation());
         InputDownload referenceBai = new InputDownload(defaultPair().reference().finalBaiLocation());

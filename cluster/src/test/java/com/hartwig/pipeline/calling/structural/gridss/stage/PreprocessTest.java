@@ -4,6 +4,7 @@ import static java.lang.String.format;
 
 import static com.hartwig.pipeline.calling.structural.gridss.stage.BashAssertions.assertBashContains;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -21,6 +22,7 @@ import com.hartwig.pipeline.calling.structural.gridss.command.SoftClipsToSplitRe
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.OutputFile;
+import com.hartwig.pipeline.execution.vm.unix.MkDirCommand;
 import com.hartwig.pipeline.execution.vm.unix.PipeCommands;
 
 import org.junit.Before;
@@ -38,10 +40,9 @@ public class PreprocessTest extends SubStageTest implements CommonEntities {
     private ComputeSamTags expectedComputeSamTags;
     private ArgumentCaptor<BashCommand> captor;
 
-
     @Override
     public SubStage createVictim() {
-        return new Preprocess(inputBamFullPath, workingDirectory, REFERENCE_SAMPLE, REFERENCE_GENOME, OUTPUT_BAM);
+        return new Preprocess(inputBamFullPath, workingDirectory, REFERENCE_SAMPLE, REFERENCE_GENOME);
     }
 
     @Override
@@ -65,15 +66,21 @@ public class PreprocessTest extends SubStageTest implements CommonEntities {
 
         captor = ArgumentCaptor.forClass(BashCommand.class);
         BashStartupScript finishedScript = createVictim().bash(inputFile, mock(OutputFile.class), initialScript);
-        verify(finishedScript, times(4)).addCommand(captor.capture());
+        verify(finishedScript, times(5)).addCommand(captor.capture());
     }
 
     @Test
     public void shouldAddCommandsInCorrectOrder() {
         InOrder inOrder = Mockito.inOrder(initialScript);
+        inOrder.verify(initialScript).addCommand(any(MkDirCommand.class));
         inOrder.verify(initialScript).addCommand(any(CollectGridssMetrics.class));
         inOrder.verify(initialScript, times(2)).addCommand(any(PipeCommands.class));
         inOrder.verify(initialScript).addCommand(any(SoftClipsToSplitReads.ForPreprocess.class));
+    }
+
+    @Test
+    public void shouldMakeWorkingDirectoryFirst() {
+        assertThat(captor.getAllValues().get(0).asBash()).isEqualTo(new MkDirCommand(workingDirectory).asBash());
     }
 
     @Test
@@ -95,7 +102,8 @@ public class PreprocessTest extends SubStageTest implements CommonEntities {
 
     @Test
     public void shouldAddCorrectSoftClipsToSplitReads() {
-        assertBashContains(new SoftClipsToSplitReads.ForPreprocess(expectedComputeSamTags.resultantBam(), REFERENCE_GENOME, OUTPUT_BAM),
+        String outputSvBam = format("%s/%s.sv.bam", workingDirectory, inputBamFilename);
+        assertBashContains(new SoftClipsToSplitReads.ForPreprocess(expectedComputeSamTags.resultantBam(), REFERENCE_GENOME, outputSvBam),
                 captor);
     }
 }

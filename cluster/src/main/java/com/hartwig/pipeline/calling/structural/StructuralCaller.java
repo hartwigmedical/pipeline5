@@ -99,21 +99,14 @@ public class StructuralCaller {
                 format("%s/%s.gridss.working", VmDirectories.OUTPUT, basename(referenceBam.getLocalTargetPath()));
         String tumorWorkingDir = format("%s/%s.gridss.working", VmDirectories.OUTPUT, basename(tumorBam.getLocalTargetPath()));
 
-        bash.addCommand(new MkDirCommand(referenceWorkingDir));
-        bash.addCommand(new MkDirCommand(tumorWorkingDir));
-
-        String preprocessSvOutputReferenceBam =
-                format("%s/%s.sv.bam", referenceWorkingDir, basename(referenceBam.getLocalTargetPath()));
-        String preprocessSvOutputTumorBam = format("%s/%s.sv.bam", tumorWorkingDir, basename(tumorBam.getLocalTargetPath()));
-
         String configurationFile = gridssConfigFiles.find("properties");
         String blacklist = gridssConfigFiles.find("bed");
 
         String refBamPath = referenceBam.getLocalTargetPath();
         String tumorBamPath = tumorBam.getLocalTargetPath();
-        new Preprocess(refBamPath, referenceWorkingDir, referenceSampleName, referenceGenomePath, preprocessSvOutputReferenceBam)
+        new Preprocess(refBamPath, referenceWorkingDir, referenceSampleName, referenceGenomePath)
                 .apply(SubStageInputOutput.of(referenceSampleName, OutputFile.empty(), bash));
-        new Preprocess(tumorBamPath, tumorWorkingDir, tumorSampleName, referenceGenomePath, preprocessSvOutputTumorBam)
+        new Preprocess(tumorBamPath, tumorWorkingDir, tumorSampleName, referenceGenomePath)
                 .apply(SubStageInputOutput.of(tumorSampleName, OutputFile.empty(), bash));
 
         Assemble assemble = new Assemble(refBamPath, tumorBamPath, jointName, referenceGenomePath, configurationFile, blacklist);
