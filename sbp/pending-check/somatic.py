@@ -159,9 +159,9 @@ def main():
         log('Scheduling {0} out of {1} somatic runs'.format(max_starts,len(runs)))
         del(runs[max_starts:])
 
-        credentials = 'hmf-upload-credentials'
-
         for run in runs:
+            credentials = 'hmf-upload-credentials'
+
             if runs.bucket is None:
                 dt = datetime.now().isocalendar()
                 runs.bucket = 'hmf-output-' + str(dt[0]) + '-' + str(dt[1])
