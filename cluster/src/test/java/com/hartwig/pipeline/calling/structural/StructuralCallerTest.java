@@ -1,7 +1,6 @@
 package com.hartwig.pipeline.calling.structural;
 
 import static java.lang.String.format;
-import static java.util.Optional.of;
 
 import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_CONFIG;
 import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_PON;
@@ -13,9 +12,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
-import java.io.File;
-import java.util.Optional;
 
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.CopyWriter;
@@ -66,7 +62,7 @@ public class StructuralCallerTest {
 
     @Test
     public void shouldDownloadResources() {
-        String bashBeforeJava = getBash(of("java"));
+        String bashBeforeJava = getBashBeforeJava();
         assertThat(bashBeforeJava).contains(resourceDownloadBash(RUNTIME_JOINT_BUCKET, REFERENCE_GENOME + "/*"));
         assertThat(bashBeforeJava).contains(resourceDownloadBash(RUNTIME_JOINT_BUCKET, GRIDSS_CONFIG + "/*"));
         assertThat(bashBeforeJava).contains(resourceDownloadBash(RUNTIME_JOINT_BUCKET, GRIDSS_PON + "/*"));
@@ -74,13 +70,12 @@ public class StructuralCallerTest {
 
     @Test
     public void shouldSetUlimitBeforeAnyJavaCommandsAreCalled() {
-        assertThat(getBash(of("java"))).contains("\nulimit -n 102400 ");
+        assertThat(getBashBeforeJava()).contains("\nulimit -n 102400 ");
     }
 
     @Test
     public void shouldExportPathWithBwaOnItBeforeAnyJavaCommandIsCalled() {
-        System.out.println(getBash(of("java")));
-        assertThat(getBash(of("java"))).contains("\nexport PATH=\"${PATH}:/data/tools/bwa/0.7.17\" ");
+        assertThat(getBashBeforeJava()).contains("\nexport PATH=\"${PATH}:/data/tools/bwa/0.7.17\" ");
     }
 
     @Test
@@ -90,7 +85,7 @@ public class StructuralCallerTest {
         InputDownload tumorBam = new InputDownload(defaultPair().tumor().finalBamLocation());
         InputDownload tumorBai = new InputDownload(defaultPair().tumor().finalBaiLocation());
         BatchInputDownload batchCommand = new BatchInputDownload(referenceBam, referenceBai, tumorBam, tumorBai);
-        assertThat(getBash(of("java"))).contains(batchCommand.asBash());
+        assertThat(getBashBeforeJava()).contains(batchCommand.asBash());
     }
 
     @Test
@@ -99,14 +94,12 @@ public class StructuralCallerTest {
         assertThat(victim.run(defaultSomaticRunMetadata(), defaultPair()).status()).isEqualTo(PipelineStatus.FAILED);
     }
 
-    private String getBash(Optional<String> excludeBeyondFirstOccurrenceOf) {
+    private String getBashBeforeJava() {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinition = ArgumentCaptor.forClass(VirtualMachineJobDefinition.class);
         when(computeEngine.submit(any(), jobDefinition.capture())).thenReturn(PipelineStatus.SUCCESS);
         victim.run(defaultSomaticRunMetadata(), defaultPair());
         String all = jobDefinition.getValue().startupCommand().asUnixString();
-        return excludeBeyondFirstOccurrenceOf
-                .map(b -> all.substring(0, all.indexOf(excludeBeyondFirstOccurrenceOf.get())))
-                .orElse(all);
+        return all.substring(0, all.indexOf("java"));
     }
 
     private String resourceDownloadBash(String bucketName, String path) {
