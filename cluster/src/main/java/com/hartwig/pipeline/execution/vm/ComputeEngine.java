@@ -227,8 +227,12 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
                 GoogleJsonResponseException gjre = (GoogleJsonResponseException) e.getCause();
                 if (HttpURLConnection.HTTP_CONFLICT == gjre.getDetails().getCode()) {
                     LOGGER.info("Found existing [{}] instance; deleting and restarting", vmName);
-                    executeSynchronously(compute.instances().delete(projectName, zoneName, vmName), projectName, zoneName);
-                    executeSynchronously(insert, projectName, zoneName);
+                    Operation delete = executeSynchronously(compute.instances().delete(projectName, zoneName, vmName), projectName, zoneName);
+                    if (delete.getError() == null) {
+                        return executeSynchronously(insert, projectName, zoneName);
+                    }else {
+                        throw new RuntimeException(delete.getError().toPrettyString());
+                    }
                 } else {
                     throw gjre;
                 }
@@ -236,7 +240,6 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
                 throw e;
             }
         }
-        return new Operation();
     }
 
     private Operation executeSynchronously(ComputeRequest<Operation> request, String projectName, String zoneName) throws Exception {
