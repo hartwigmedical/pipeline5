@@ -35,6 +35,10 @@ def start_kubernetes_job(args):
 
     job_args = ['-sbp_run_id', str(args['sbp_run_id'])]
 
+    if args['shallow']:
+        job_args.append('-shallow')
+        job_args.append('true')
+
     for i in range(1, len(sys.argv)):
         job_args.append(sys.argv[i])
 
@@ -100,7 +104,7 @@ def start_kubernetes_job(args):
                         kubernetes.client.V1Volume(
                             name='hmf-upload-credentials',
                             secret=kubernetes.client.V1SecretVolumeSource(
-                                secret_name='hmf-upload-credentials'
+                                secret_name=args['credentials']
                             )
                         ),
                         kubernetes.client.V1Volume(
@@ -112,7 +116,7 @@ def start_kubernetes_job(args):
                         kubernetes.client.V1Volume(
                             name='rclone-config',
                             secret=kubernetes.client.V1SecretVolumeSource(
-                                secret_name='rclone-config'
+                                secret_name='rclone-' + args['credentials']
                             )
                         ),
                         kubernetes.client.V1Volume(
@@ -140,9 +144,14 @@ def start_kubernetes_job(args):
 
 
 def main():
-    ini = Ini().get_one({'name': 'PipelineV5.ini'})
+    ini_somatic = Ini().get_one({'name': 'PipelineV5.ini'})
+    ini_shallow = Ini().get_one({'name': 'PipelineV5_ShallowSeq.ini'})
+
     stack = Stack().get_one({'name': 'Google Compute Platform'})
-    runs = HmfApi().get_all(Run, {'status': 'Pending', 'ini_id': ini.id})
+
+    runs_somatic = HmfApi().get_all(Run, {'status': 'Pending', 'ini_id': ini_somatic.id})
+    runs_shallow = HmfApi().get_all(Run, {'status': 'Pending', 'ini_id': ini_shallow.id})
+    runs = runs_shallow + runs_somatic
 
     max_starts = int(os.getenv('MAX_STARTS', '4'))
 
@@ -150,8 +159,27 @@ def main():
         log('Scheduling {0} out of {1} somatic runs'.format(max_starts,len(runs)))
         del(runs[max_starts:])
 
+        credentials = 'hmf-upload-credentials'
+
         for run in runs:
-            start_kubernetes_job({'sbp_run_id': run.id})
+            if runs.bucket is None:
+                dt = datetime.now().isocalendar()
+                runs.bucket = 'hmf-output-' + str(dt[0]) + '-' + str(dt[1])
+
+            if runs.bucket.startswith('hmf-output-')
+                weeknr = int(runs.bucket[-2:])
+
+                if weeknr % 2 == 0:
+                    credentials = 'hmf-upload-even'
+                else:
+                    credentials = 'hmf-upload-odd'
+
+            if runs.ini_id == ini_shallow.id:
+                shallow = True
+            else:
+                shallow = False
+
+            start_kubernetes_job({'sbp_run_id': run.id, 'credentials': credentials, 'shallow': shallow})
 
             phone_home('Starting Pipeline {0} for run {1}'.format(os.environ['PIPELINE_VERSION'], run.id))
 
