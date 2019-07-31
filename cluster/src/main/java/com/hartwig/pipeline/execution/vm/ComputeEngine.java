@@ -8,6 +8,7 @@ import java.net.HttpURLConnection;
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
@@ -25,6 +26,7 @@ import com.google.api.services.compute.model.Metadata;
 import com.google.api.services.compute.model.NetworkInterface;
 import com.google.api.services.compute.model.Operation;
 import com.google.api.services.compute.model.ServiceAccount;
+import com.google.api.services.compute.model.Zone;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Blob;
@@ -43,7 +45,6 @@ import net.jodah.failsafe.function.CheckedSupplier;
 
 public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition> {
     private final static String APPLICATION_NAME = "vm-hosted-workload";
-    static final String ZONE_NAME = "europe-west4-a";
 
     private final Logger LOGGER = LoggerFactory.getLogger(ComputeEngine.class);
 
@@ -62,7 +63,7 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
     @Override
     public PipelineStatus submit(final RuntimeBucket bucket, final VirtualMachineJobDefinition jobDefinition) {
         String vmName = bucket.runId() + "-" + jobDefinition.name();
-        PipelineStatus status;
+        PipelineStatus status = PipelineStatus.FAILED;
         try {
             if (bucketContainsFile(bucket, jobDefinition.startupCommand().successFlag())) {
                 LOGGER.info("Compute engine job [{}] already exists, and succeeded. Skipping job.", vmName);
@@ -73,33 +74,56 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
                 bucket.delete(jobDefinition.namespacedResults().path());
             }
 
-            Instance instance = new Instance();
-            instance.setName(vmName);
-            instance.setZone(ZONE_NAME);
-            String project = arguments.project();
-            instance.setMachineType(machineType(ZONE_NAME, jobDefinition.performanceProfile().uri(), project));
+            List<Zone> zones = compute.zones()
+                    .list(arguments.project())
+                    .execute()
+                    .getItems()
+                    .stream()
+                    .filter(zone -> zone.getRegion().endsWith(arguments.region()))
+                    .collect(Collectors.toList());
+            for (Zone zone : zones) {
+                Instance instance = new Instance();
+                instance.setName(vmName);
+                instance.setZone(zone.getName());
+                String project = arguments.project();
+                instance.setMachineType(machineType(zone.getName(), jobDefinition.performanceProfile().uri(), project));
 
-            instance.setLabels(ImmutableMap.of("run_id", bucket.runId(), "job_name", jobDefinition.name()));
+                instance.setLabels(ImmutableMap.of("run_id", bucket.runId(), "job_name", jobDefinition.name()));
 
-            addServiceAccount(instance);
-            Image image = attachDisk(compute,
-                    instance,
-                    jobDefinition.imageFamily(),
-                    project,
-                    vmName,
-                    jobDefinition.performanceProfile().diskGb());
-            LOGGER.info("Submitting compute engine job [{}] using image [{}]", jobDefinition.name(), image.getName());
-            addStartupCommand(instance, bucket, jobDefinition.startupCommand());
-            addNetworkInterface(instance, project);
+                addServiceAccount(instance);
+                Image image = attachDisk(compute,
+                        instance,
+                        jobDefinition.imageFamily(),
+                        project,
+                        vmName,
+                        jobDefinition.performanceProfile().diskGb(),
+                        zone.getName());
+                LOGGER.info("Submitting compute engine job [{}] using image [{}] in zone [{}]",
+                        jobDefinition.name(),
+                        image.getName(),
+                        zone.getName());
+                addStartupCommand(instance, bucket, jobDefinition.startupCommand());
+                addNetworkInterface(instance, project);
 
-            deleteOldInstancesAndStart(compute, instance, project, vmName);
-            LOGGER.debug("Successfully initialised [{}]", vmName);
-            status = waitForCompletion(bucket, jobDefinition);
-            stop(project, vmName);
-            if (status == PipelineStatus.SUCCESS) {
-                delete(project, vmName);
+                Operation result = deleteOldInstancesAndStart(compute, instance, project, zone.getName(), vmName);
+                if (result.getError() == null) {
+                    LOGGER.debug("Successfully initialised [{}]", vmName);
+                    status = waitForCompletion(bucket, jobDefinition);
+                    stop(project, zone.getName(), vmName);
+                    if (status == PipelineStatus.SUCCESS) {
+                        delete(project, zone.getName(), vmName);
+                    }
+                    LOGGER.info("Compute engine job [{}] is complete with status [{}]", jobDefinition.name(), status);
+                    break;
+                } else if (result.getError()
+                        .getErrors()
+                        .stream()
+                        .anyMatch(error -> error.getCode().equals("ZONE_RESOURCE_POOL_EXHAUSTED"))) {
+                    LOGGER.warn("Zone [{}] has insufficient resources to fulfill the request. Trying next zone", zone.getName());
+                } else {
+                    throw new RuntimeException(result.getError().toPrettyString());
+                }
             }
-            LOGGER.info("Compute engine job [{}] is complete with status [{}]", jobDefinition.name(), status);
         } catch (Exception e) {
             String message = format("An error occurred running job on compute engine [%s]", vmName);
             LOGGER.error(message, e);
@@ -133,8 +157,8 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
         instance.setNetworkInterfaces(singletonList(networkInterface));
     }
 
-    private Image attachDisk(Compute compute, Instance instance, String imageFamily, String projectName, String vmName, long diskSizeGB)
-            throws IOException {
+    private Image attachDisk(Compute compute, Instance instance, String imageFamily, String projectName, String vmName, long diskSizeGB,
+            String zone) throws IOException {
         Image sourceImage = resolveLatestImage(compute, imageFamily, projectName);
         AttachedDisk disk = new AttachedDisk();
         disk.setBoot(true);
@@ -142,10 +166,10 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
         AttachedDiskInitializeParams params = new AttachedDiskInitializeParams();
         params.setDiskSizeGb(diskSizeGB);
         params.setSourceImage(sourceImage.getSelfLink());
-        params.setDiskType(format("%s/zones/%s/diskTypes/pd-ssd", apiBaseUrl(projectName), ZONE_NAME));
+        params.setDiskType(format("%s/zones/%s/diskTypes/pd-ssd", apiBaseUrl(projectName), zone));
         disk.setInitializeParams(params);
         instance.setDisks(singletonList(disk));
-        compute.instances().attachDisk(projectName, ZONE_NAME, vmName, disk);
+        compute.instances().attachDisk(projectName, zone, vmName, disk);
         return sourceImage;
     }
 
@@ -193,17 +217,18 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
      * <p>
      * Note also that the VM will start as soon as it is inserted.
      */
-    private void deleteOldInstancesAndStart(Compute compute, Instance instance, String projectName, String vmName) throws Exception {
-        Compute.Instances.Insert insert = compute.instances().insert(projectName, ZONE_NAME, instance);
+    private Operation deleteOldInstancesAndStart(Compute compute, Instance instance, String projectName, String zoneName, String vmName)
+            throws Exception {
+        Compute.Instances.Insert insert = compute.instances().insert(projectName, zoneName, instance);
         try {
-            executeSynchronously(insert, projectName);
+            return executeSynchronously(insert, projectName, zoneName);
         } catch (Exception e) {
             if (e.getCause() instanceof GoogleJsonResponseException) {
                 GoogleJsonResponseException gjre = (GoogleJsonResponseException) e.getCause();
                 if (HttpURLConnection.HTTP_CONFLICT == gjre.getDetails().getCode()) {
                     LOGGER.info("Found existing [{}] instance; deleting and restarting", vmName);
-                    executeSynchronously(compute.instances().delete(projectName, ZONE_NAME, vmName), projectName);
-                    executeSynchronously(insert, projectName);
+                    executeSynchronously(compute.instances().delete(projectName, zoneName, vmName), projectName, zoneName);
+                    executeSynchronously(insert, projectName, zoneName);
                 } else {
                     throw gjre;
                 }
@@ -211,13 +236,14 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
                 throw e;
             }
         }
+        return new Operation();
     }
 
-    private void executeSynchronously(ComputeRequest<Operation> request, String projectName) throws Exception {
+    private Operation executeSynchronously(ComputeRequest<Operation> request, String projectName, String zoneName) throws Exception {
         Operation syncOp = executeWithRetries(request::execute);
         String logId = format("Operation [%s:%s]", syncOp.getOperationType(), syncOp.getName());
         LOGGER.debug("{} is executing synchronously", logId);
-        while ("RUNNING".equals(fetchJobStatus(compute, syncOp.getName(), projectName))) {
+        while ("RUNNING".equals(fetchJobStatus(compute, syncOp.getName(), projectName, zoneName))) {
             LOGGER.debug("{} not done yet", logId);
             try {
                 Thread.sleep(500);
@@ -226,16 +252,11 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
             }
         }
 
-        Operation execute = executeWithRetries(() -> compute.zoneOperations().get(projectName, ZONE_NAME, syncOp.getName()).execute());
-        if (execute.getError() == null) {
-            LOGGER.debug("{} confirmed {}", logId, fetchJobStatus(compute, syncOp.getName(), projectName));
-        } else {
-            throw new RuntimeException(format("Job [%s] did not succeed: %s", syncOp.getName(), execute.toPrettyString()));
-        }
+        return executeWithRetries(() -> compute.zoneOperations().get(projectName, zoneName, syncOp.getName()).execute());
     }
 
-    private String fetchJobStatus(Compute compute, String jobName, String projectName) {
-        return executeWithRetries(() -> compute.zoneOperations().get(projectName, ZONE_NAME, jobName).execute()).getStatus();
+    private String fetchJobStatus(Compute compute, String jobName, String projectName, String zoneName) {
+        return executeWithRetries(() -> compute.zoneOperations().get(projectName, zoneName, jobName).execute()).getStatus();
     }
 
     private Operation executeWithRetries(final CheckedSupplier<Operation> operationCheckedSupplier) {
@@ -274,11 +295,11 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
         }
     }
 
-    private void stop(String projectName, String vmName) throws Exception {
-        executeSynchronously(compute.instances().stop(projectName, ZONE_NAME, vmName), projectName);
+    private void stop(String projectName, String zoneName, String vmName) throws Exception {
+        executeSynchronously(compute.instances().stop(projectName, zoneName, vmName), projectName, zoneName);
     }
 
-    private void delete(String projectName, String vmName) throws Exception {
-        executeSynchronously(compute.instances().delete(projectName, ZONE_NAME, vmName), projectName);
+    private void delete(String projectName, String zoneName, String vmName) throws Exception {
+        executeSynchronously(compute.instances().delete(projectName, zoneName, vmName), projectName, zoneName);
     }
 }
