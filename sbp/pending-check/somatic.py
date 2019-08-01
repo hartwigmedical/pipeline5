@@ -162,19 +162,19 @@ def main():
         for run in runs:
             credentials = 'hmf-upload-credentials'
 
-            if runs.bucket is None:
+            if run.bucket is None:
                 dt = datetime.now().isocalendar()
-                runs.bucket = 'hmf-output-' + str(dt[0]) + '-' + str(dt[1])
+                run.bucket = 'hmf-output-' + str(dt[0]) + '-' + str(dt[1])
 
-            if runs.bucket.startswith('hmf-output-'):
-                weeknr = int(runs.bucket[-2:])
+            if run.bucket.startswith('hmf-output-'):
+                weeknr = int(run.bucket[-2:])
 
                 if weeknr % 2 == 0:
                     credentials = 'hmf-upload-even'
                 else:
                     credentials = 'hmf-upload-odd'
 
-            if runs.ini_id == ini_shallow.id:
+            if run.ini_id == ini_shallow.id:
                 shallow = True
             else:
                 shallow = False
