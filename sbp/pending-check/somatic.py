@@ -166,7 +166,7 @@ def main():
                 dt = datetime.now().isocalendar()
                 runs.bucket = 'hmf-output-' + str(dt[0]) + '-' + str(dt[1])
 
-            if runs.bucket.startswith('hmf-output-')
+            if runs.bucket.startswith('hmf-output-'):
                 weeknr = int(runs.bucket[-2:])
 
                 if weeknr % 2 == 0:
