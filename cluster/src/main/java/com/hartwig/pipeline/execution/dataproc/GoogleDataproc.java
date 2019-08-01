@@ -105,7 +105,7 @@ public class GoogleDataproc implements SparkExecutor {
         if (existing == null) {
             createCluster(performanceProfile, runtimeBucket, arguments, clusterName, clusters);
         } else if (existing.getStatus().getState().equals("ERROR")) {
-            clusters.delete(arguments.project(), arguments.region(), clusterName);
+            waitForOperationComplete(clusters.delete(arguments.project(), arguments.region(), clusterName).execute());
             createCluster(performanceProfile, runtimeBucket, arguments, clusterName, clusters);
         } else {
             LOGGER.debug("Cluster [{}] already exists, using this cluster to run pipeline", clusterName);
