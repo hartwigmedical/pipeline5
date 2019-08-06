@@ -23,6 +23,7 @@ import com.google.api.services.compute.model.Zone;
 import com.google.api.services.compute.model.ZoneList;
 import com.google.cloud.ReadChannel;
 import com.google.cloud.storage.Blob;
+import com.google.common.collect.Lists;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.execution.PipelineStatus;
@@ -38,12 +39,15 @@ public class ComputeEngineTest {
     private static final Arguments ARGUMENTS = Arguments.testDefaults();
     private static final ResultsDirectory RESULTS_DIRECTORY = ResultsDirectory.defaultDirectory();
     private static final String NAMESPACE = "test/";
-    private static final String ZONE_NAME = "europe-west4-a";
+    private static final String FIRST_ZONE_NAME = "europe-west4-a";
+    private static final String SECOND_ZONE_NAME = "europe-west4-b";
     private ComputeEngine victim;
     private MockRuntimeBucket runtimeBucket;
     private Compute compute;
     private ImmutableVirtualMachineJobDefinition jobDefinition;
     private Compute.Instances instances;
+    private Compute.Instances.Insert insert;
+    private Compute.ZoneOperations.Get zoneOpGet;
 
     @Before
     public void setUp() throws Exception {
@@ -53,33 +57,33 @@ public class ComputeEngineTest {
         when(images.getFromFamily(ARGUMENTS.project(), VirtualMachineJobDefinition.STANDARD_IMAGE)).thenReturn(getFromFamily);
 
         ArgumentCaptor<Instance> instanceArgumentCaptor = ArgumentCaptor.forClass(Instance.class);
-        Compute.Instances.Insert insert = mock(Compute.Instances.Insert.class);
+        insert = mock(Compute.Instances.Insert.class);
         Operation insertOperation = mock(Operation.class);
         when(insertOperation.getName()).thenReturn("insert");
         instances = mock(Compute.Instances.class);
-        when(instances.insert(eq(ARGUMENTS.project()), eq(ZONE_NAME), instanceArgumentCaptor.capture())).thenReturn(insert);
+        when(instances.insert(eq(ARGUMENTS.project()), eq(FIRST_ZONE_NAME), instanceArgumentCaptor.capture())).thenReturn(insert);
         when(insert.execute()).thenReturn(insertOperation);
         Compute.Instances.Stop stop = mock(Compute.Instances.Stop.class);
         Operation stopOperation = mock(Operation.class);
         when(stopOperation.getName()).thenReturn("stop");
         when(stopOperation.getStatus()).thenReturn("DONE");
         when(stop.execute()).thenReturn(stopOperation);
-        when(instances.stop(ARGUMENTS.project(), ZONE_NAME, "test-test")).thenReturn(stop);
+        when(instances.stop(ARGUMENTS.project(), FIRST_ZONE_NAME, "test-test")).thenReturn(stop);
 
         Compute.Instances.Delete delete = mock(Compute.Instances.Delete.class);
         Operation deleteOperation = mock(Operation.class);
         when(deleteOperation.getName()).thenReturn("delete");
         when(deleteOperation.getStatus()).thenReturn("DONE");
         when(delete.execute()).thenReturn(stopOperation);
-        when(instances.delete(ARGUMENTS.project(), ZONE_NAME, "test-test")).thenReturn(delete);
+        when(instances.delete(ARGUMENTS.project(), FIRST_ZONE_NAME, "test-test")).thenReturn(delete);
 
         Compute.ZoneOperations zoneOperations = mock(Compute.ZoneOperations.class);
-        Compute.ZoneOperations.Get zoneOpGet = mock(Compute.ZoneOperations.Get.class);
+        zoneOpGet = mock(Compute.ZoneOperations.Get.class);
         Operation zoneOpGetOperation = mock(Operation.class);
         when(zoneOpGetOperation.getStatus()).thenReturn("DONE");
         when(zoneOpGet.execute()).thenReturn(zoneOpGetOperation);
-        when(zoneOperations.get(ARGUMENTS.project(), ZONE_NAME, "insert")).thenReturn(zoneOpGet);
-        when(zoneOperations.get(ARGUMENTS.project(), ZONE_NAME, "stop")).thenReturn(zoneOpGet);
+        when(zoneOperations.get(ARGUMENTS.project(), FIRST_ZONE_NAME, "insert")).thenReturn(zoneOpGet);
+        when(zoneOperations.get(ARGUMENTS.project(), FIRST_ZONE_NAME, "stop")).thenReturn(zoneOpGet);
 
         compute = mock(Compute.class);
         when(compute.images()).thenReturn(images);
@@ -87,8 +91,7 @@ public class ComputeEngineTest {
         when(compute.zoneOperations()).thenReturn(zoneOperations);
         Compute.Zones zones = mock(Compute.Zones.class);
         Compute.Zones.List zonesList = mock(Compute.Zones.List.class);
-        when(zonesList.execute()).thenReturn(new ZoneList().setItems(Collections.singletonList(new Zone().setName(ZONE_NAME)
-                .setRegion(ARGUMENTS.region()))));
+        when(zonesList.execute()).thenReturn(new ZoneList().setItems(Lists.newArrayList(zone(FIRST_ZONE_NAME), zone(SECOND_ZONE_NAME))));
         when(zones.list(ARGUMENTS.project())).thenReturn(zonesList);
         when(compute.zones()).thenReturn(zones);
 
@@ -99,6 +102,10 @@ public class ComputeEngineTest {
                 .namespacedResults(RESULTS_DIRECTORY)
                 .startupCommand(BashStartupScript.of(runtimeBucket.getRuntimeBucket().name()))
                 .build();
+    }
+
+    private Zone zone(final String name) {
+        return new Zone().setName(name).setRegion(ARGUMENTS.region());
     }
 
     @Test
@@ -145,7 +152,7 @@ public class ComputeEngineTest {
     public void deletesVmWhenJobIsSuccessful() throws Exception {
         returnSuccess();
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
-        verify(instances, times(1)).delete(ARGUMENTS.project(), ZONE_NAME, "test-test");
+        verify(instances, times(1)).delete(ARGUMENTS.project(), FIRST_ZONE_NAME, "test-test");
     }
 
     @Test
@@ -154,7 +161,7 @@ public class ComputeEngineTest {
         Compute.Instances.Delete goingToFailOnce = mock(Compute.Instances.Delete.class);
         Operation operation = mock(Operation.class);
         when(goingToFailOnce.execute()).thenThrow(new IOException()).thenReturn(operation);
-        when(instances.delete(ARGUMENTS.project(), ZONE_NAME, "test-test")).thenReturn(goingToFailOnce);
+        when(instances.delete(ARGUMENTS.project(), FIRST_ZONE_NAME, "test-test")).thenReturn(goingToFailOnce);
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
         verify(goingToFailOnce, times(2)).execute();
     }
@@ -185,6 +192,17 @@ public class ComputeEngineTest {
         assertThat(networkInterfaces.get(0).getSubnetwork()).isEqualTo(
                 "https://www.googleapis.com/compute/v1/projects/hmf-pipeline-development/regions/europe-west4/subnetworks/private");
         assertThat(networkInterfaces.get(0).get("no-address")).isEqualTo("true");
+    }
+
+    @Test
+    public void triesMultipleZonesWhenResourcesExhausted() throws Exception {
+        Operation resourcesExhaused = new Operation().setStatus("DONE")
+                .setName("insert")
+                .setError(new Operation.Error().setErrors(Collections.singletonList(new Operation.Error.Errors().setCode(ComputeEngine.ZONE_EXHAUSTED_ERROR_CODE))));
+        when(insert.execute()).thenReturn(resourcesExhaused);
+        when(zoneOpGet.execute()).thenReturn(resourcesExhaused);
+        victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
+        verify(instances, times(1)).insert(eq(ARGUMENTS.project()), eq(SECOND_ZONE_NAME), any());
     }
 
     private void returnSuccess() throws IOException {
