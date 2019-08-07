@@ -144,8 +144,8 @@ def start_kubernetes_job(args):
 
 
 def main():
-    ini_somatic = Ini().get_one({'name': 'PipelineV5.ini'})
-    ini_shallow = Ini().get_one({'name': 'PipelineV5_ShallowSeq.ini'})
+    ini_somatic = Ini().get_one({'name': 'Somatic.ini'})
+    ini_shallow = Ini().get_one({'name': 'ShallowSeq.ini'})
 
     stack = Stack().get_one({'name': 'Google Compute Platform'})
 
