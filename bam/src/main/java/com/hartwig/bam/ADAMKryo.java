@@ -14,7 +14,7 @@ import org.apache.avro.generic.GenericData;
 import org.apache.spark.internal.io.FileCommitProtocol;
 import org.apache.spark.serializer.KryoRegistrator;
 import org.bdgenomics.adam.algorithms.consensus.Consensus;
-import org.bdgenomics.adam.converters.FastaConverter;
+import org.bdgenomics.adam.converters.FastaDescriptionLine;
 import org.bdgenomics.adam.models.IndelTable;
 import org.bdgenomics.adam.models.ReadGroup;
 import org.bdgenomics.adam.models.ReadGroupDictionary;
@@ -37,7 +37,6 @@ import org.bdgenomics.adam.serialization.AvroSerializer;
 import org.bdgenomics.adam.util.ReferenceContigMap;
 import org.bdgenomics.formats.avro.AlignmentRecord;
 import org.bdgenomics.formats.avro.Fragment;
-import org.bdgenomics.formats.avro.NucleotideContigFragment;
 import org.bdgenomics.formats.avro.ProcessingStep;
 import org.bdgenomics.formats.avro.Strand;
 import org.bdgenomics.formats.avro.Variant;
@@ -55,6 +54,7 @@ import htsjdk.samtools.SAMSequenceRecord;
 import htsjdk.samtools.ValidationStringency;
 import scala.collection.convert.Wrappers$;
 import scala.collection.immutable.RedBlackTree;
+import scala.collection.immutable.TreeMap;
 
 public class ADAMKryo implements KryoRegistrator {
 
@@ -83,8 +83,6 @@ public class ADAMKryo implements KryoRegistrator {
             kryo.register(Class.class);
             kryo.register(FileCommitProtocol.TaskCommitMessage.class);
             kryo.register(Class.forName("scala.collection.immutable.Set$EmptySet$", false, getClass().getClassLoader()));
-            kryo.register(FastaConverter.FastaDescriptionLine.class);
-            kryo.register(NucleotideContigFragment.class);
             kryo.register(IndelTable.class);
             kryo.register(ReferenceContigMap.class);
             kryo.register(TargetSet.class);
@@ -138,6 +136,9 @@ public class ADAMKryo implements KryoRegistrator {
             kryo.register(MultiplePrimaryAlignments.class);
             kryo.register(MultiplePrimaryAlignments.ReadOrdinal.class);
             kryo.register(ImmutableMultiplePrimaryAlignments.class);
+            kryo.register(FastaDescriptionLine.class);
+            kryo.register(TreeMap.class);
+            kryo.register(Class.forName("scala.math.Ordering$Long$", false, getClass().getClassLoader()));
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
