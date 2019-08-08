@@ -1,17 +1,17 @@
-package com.hartwig.pipeline.calling.structural.gridss.stage;
+package com.hartwig.pipeline.calling.structural.gridss.command;
 
 import static java.lang.String.format;
 
 import com.hartwig.pipeline.execution.vm.BashCommand;
 
-public class BiocondaVariantAnnotationWorkaround implements BashCommand{
+public class BiocondaVariantAnnotationWorkaround implements BashCommand {
 
     private final String originalVcf;
     private final String unzippedOriginalVcf;
 
-    BiocondaVariantAnnotationWorkaround(final String originalVcf, final String unzippedOriginalVzcf) {
+    public BiocondaVariantAnnotationWorkaround(final String originalVcf, final String unzippedOriginalVcf) {
         this.originalVcf = originalVcf;
-        this.unzippedOriginalVcf = unzippedOriginalVzcf;
+        this.unzippedOriginalVcf = unzippedOriginalVcf;
     }
 
     @Override

@@ -3,17 +3,23 @@ package com.hartwig.pipeline.calling.structural;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 
+import static com.hartwig.pipeline.execution.PipelineStatus.FAILED;
+import static com.hartwig.pipeline.execution.PipelineStatus.SKIPPED;
+
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.OpenOption;
+import java.nio.file.Path;
 
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.AlignmentPair;
+import com.hartwig.pipeline.calling.SubStageInputOutput;
 import com.hartwig.pipeline.calling.command.BwaCommand;
-import com.hartwig.pipeline.calling.structural.gridss.command.IdentifyVariants;
 import com.hartwig.pipeline.calling.structural.gridss.stage.Annotation;
 import com.hartwig.pipeline.calling.structural.gridss.stage.Assemble;
-import com.hartwig.pipeline.calling.structural.gridss.stage.CommandFactory;
+import com.hartwig.pipeline.calling.structural.gridss.stage.Calling;
 import com.hartwig.pipeline.calling.structural.gridss.stage.Filter;
 import com.hartwig.pipeline.calling.structural.gridss.stage.Preprocess;
 import com.hartwig.pipeline.execution.PipelineStatus;
@@ -21,6 +27,7 @@ import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.BatchInputDownload;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.InputDownload;
+import com.hartwig.pipeline.execution.vm.OutputFile;
 import com.hartwig.pipeline.execution.vm.OutputUpload;
 import com.hartwig.pipeline.execution.vm.ResourceDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
@@ -59,7 +66,7 @@ public class StructuralCaller {
 
     public StructuralCallerOutput run(final SomaticRunMetadata metadata, final AlignmentPair pair) {
         if (!arguments.runStructuralCaller()) {
-            return StructuralCallerOutput.builder().status(PipelineStatus.SKIPPED).build();
+            return StructuralCallerOutput.builder().status(SKIPPED).build();
         }
 
         StageTrace trace = new StageTrace(NAMESPACE, StageTrace.ExecutorType.COMPUTE_ENGINE).start();
@@ -89,95 +96,70 @@ public class StructuralCaller {
         bash.addCommand(new UlimitOpenFilesCommand(102400));
         bash.addCommand(new ExportVariableCommand("PATH", format("${PATH}:%s", dirname(new BwaCommand().asBash()))));
 
-        String gridssWorkingDirForReferenceBam =
+        String referenceWorkingDir =
                 format("%s/%s.gridss.working", VmDirectories.OUTPUT, basename(referenceBam.getLocalTargetPath()));
-        String gridssWorkingDirForTumorBam = format("%s/%s.gridss.working", VmDirectories.OUTPUT, basename(tumorBam.getLocalTargetPath()));
-
-        bash.addCommand(new MkDirCommand(gridssWorkingDirForReferenceBam));
-        bash.addCommand(new MkDirCommand(gridssWorkingDirForTumorBam));
-
-        String preprocessSvOutputReferenceBam =
-                format("%s/%s.sv.bam", gridssWorkingDirForReferenceBam, basename(referenceBam.getLocalTargetPath()));
-        String preprocessSvOutputTumorBam = format("%s/%s.sv.bam", gridssWorkingDirForTumorBam, basename(tumorBam.getLocalTargetPath()));
+        String tumorWorkingDir = format("%s/%s.gridss.working", VmDirectories.OUTPUT, basename(tumorBam.getLocalTargetPath()));
 
         String configurationFile = gridssConfigFiles.find("properties");
         String blacklist = gridssConfigFiles.find("bed");
-        CommandFactory commandFactory = new CommandFactory();
 
-        Preprocess.PreprocessResult preprocessedRefSample =
-                new Preprocess(commandFactory).initialise(referenceBam.getLocalTargetPath(),
-                        referenceSampleName,
-                        referenceGenomePath,
-                        gridssWorkingDirForReferenceBam,
-                        preprocessSvOutputReferenceBam);
+        String refBamPath = referenceBam.getLocalTargetPath();
+        String tumorBamPath = tumorBam.getLocalTargetPath();
+        new Preprocess(refBamPath, referenceWorkingDir, referenceSampleName, referenceGenomePath)
+                .apply(SubStageInputOutput.of(referenceSampleName, OutputFile.empty(), bash));
+        new Preprocess(tumorBamPath, tumorWorkingDir, tumorSampleName, referenceGenomePath)
+                .apply(SubStageInputOutput.of(tumorSampleName, OutputFile.empty(), bash));
 
-        Preprocess.PreprocessResult preprocessedTumorSample =
-                new Preprocess(commandFactory).initialise(tumorBam.getLocalTargetPath(),
-                        tumorSampleName,
-                        referenceGenomePath,
-                        gridssWorkingDirForTumorBam,
-                        preprocessSvOutputTumorBam);
+        Assemble assemble = new Assemble(refBamPath, tumorBamPath, jointName, referenceGenomePath, configurationFile, blacklist);
+        String filteredVcfBasename = VmDirectories.outputFile(format("%s.gridss.somatic.vcf", tumorSampleName));
+        String fullVcfBasename = VmDirectories.outputFile(format("%s.gridss.somatic.full.vcf", tumorSampleName));
 
-        Assemble.AssembleResult assemblyResult = new Assemble(commandFactory).initialise(referenceBam.getLocalTargetPath(),
-                tumorBam.getLocalTargetPath(),
-                referenceGenomePath,
-                jointName,
-                configurationFile,
-                blacklist);
-
-        IdentifyVariants calling = commandFactory.buildIdentifyVariants(referenceBam.getLocalTargetPath(),
-                tumorBam.getLocalTargetPath(),
-                assemblyResult.assemblyBam(),
-                referenceGenomePath, configurationFile, blacklist);
-
-        Annotation.AnnotationResult annotationResult =
-                new Annotation(commandFactory).initialise(referenceBam.getLocalTargetPath(),
-                        tumorBam.getLocalTargetPath(),
-                        assemblyResult.assemblyBam(),
-                        calling.resultantVcf(),
-                        referenceGenomePath,
-                        tumorSampleName,
-                        configurationFile,
-                        blacklist);
-
-        Filter.FilterResult filterResult = new Filter().initialise(annotationResult.annotatedVcf(), tumorSampleName);
-
-        bash.addCommands(preprocessedRefSample.commands())
-                .addCommands(preprocessedTumorSample.commands())
-                .addCommands(assemblyResult.commands())
-                .addCommand(calling)
-                .addCommands(annotationResult.commands())
-                .addCommands(filterResult.commands());
+        SubStageInputOutput result =
+                assemble.andThen(new Calling(refBamPath, tumorBamPath, referenceGenomePath, configurationFile, blacklist))
+                        .andThen(new Annotation(referenceBam.getLocalTargetPath(),
+                                tumorBam.getLocalTargetPath(),
+                                assemble.completedBam(),
+                                referenceGenomePath,
+                                jointName,
+                                configurationFile,
+                                blacklist))
+                        .andThen(new Filter(filteredVcfBasename, fullVcfBasename))
+                        .apply(SubStageInputOutput.of(jointName, OutputFile.empty(), bash));
 
         bash.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path())));
+
         PipelineStatus status = computeEngine.submit(runtimeBucket, VirtualMachineJobDefinition.structuralCalling(bash, resultsDirectory));
+
         trace.stop();
+
+        String filteredVcf = filteredVcfBasename + ".gz";
+        String fullVcfCompressed = fullVcfBasename + ".gz";
         return StructuralCallerOutput.builder()
                 .status(status)
                 .maybeFilteredVcf(GoogleStorageLocation.of(runtimeBucket.name(),
-                        resultsDirectory.path(basename(filterResult.filteredVcf()))))
+                        resultsDirectory.path(basename(filteredVcfBasename + ".gz"))))
                 .maybeFilteredVcfIndex(GoogleStorageLocation.of(runtimeBucket.name(),
-                        resultsDirectory.path(basename(filterResult.filteredVcf() + ".tbi"))))
-                .maybeFullVcf(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path(basename(filterResult.fullVcf()))))
+                        resultsDirectory.path(basename(filteredVcfBasename + ".tbi"))))
+                .maybeFullVcf(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path(basename(fullVcfBasename + ".gz"))))
                 .maybeFullVcfIndex(GoogleStorageLocation.of(runtimeBucket.name(),
-                        resultsDirectory.path(basename(filterResult.fullVcf() + ".tbi"))))
+                        resultsDirectory.path(basename(fullVcfBasename + ".tbi"))))
                 .addReportComponents(new ZippedVcfAndIndexComponent(runtimeBucket,
                         NAMESPACE,
                         Folder.from(),
-                        basename(annotationResult.annotatedVcf()),
-                        basename(annotationResult.annotatedVcf()),
+                        basename(result.outputFile().path()),
+                        basename(result.outputFile().path()),
                         resultsDirectory))
                 .addReportComponents(new ZippedVcfAndIndexComponent(runtimeBucket,
                         NAMESPACE,
                         Folder.from(),
-                        basename(filterResult.fullVcf()),
-                        basename(filterResult.fullVcf()),
+                        basename(fullVcfCompressed),
+                        basename(fullVcfCompressed),
                         resultsDirectory))
                 .addReportComponents(new ZippedVcfAndIndexComponent(runtimeBucket,
                         NAMESPACE,
                         Folder.from(),
-                        basename(filterResult.filteredVcf()),
-                        basename(filterResult.filteredVcf()),
+                        basename(filteredVcf),
+                        basename(filteredVcf),
                         resultsDirectory))
                 .addReportComponents(new EntireOutputComponent(runtimeBucket,
                         Folder.from(),

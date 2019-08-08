@@ -90,8 +90,7 @@ public class SomaticCallerTest {
 
     @Test
     public void downloadsRecalibratedBamsAndBais() {
-        ArgumentCaptor<VirtualMachineJobDefinition> jobDefinition = ArgumentCaptor.forClass(VirtualMachineJobDefinition.class);
-        when(computeEngine.submit(any(), jobDefinition.capture())).thenReturn(PipelineStatus.SUCCESS);
+        ArgumentCaptor<VirtualMachineJobDefinition> jobDefinition = captureAndReturnSuccess();
         victim.run(defaultSomaticRunMetadata(), defaultPair());
         assertThat(jobDefinition.getValue().startupCommand().asUnixString()).contains(
                 "gsutil -qm cp -n gs://run-tumor/aligner/results/tumor.bam /data/input/tumor.bam",

@@ -9,15 +9,16 @@ import org.junit.Test;
 
 public class AnnotateUntemplatedSequenceTest implements CommonEntities {
     private String className;
-    private static final String OUTFILE = "/data/output/sample12345678T.gridss.unfiltered.vcf";
     private AnnotateUntemplatedSequence command;
     private String inputVcf;
+    private String outputVcf;
 
     @Before
     public void setup() {
         className = "gridss.AnnotateUntemplatedSequence";
         inputVcf = "/intermediate.vcf";
-        command = new AnnotateUntemplatedSequence(inputVcf, REFERENCE_GENOME, TUMOR_SAMPLE);
+        outputVcf = "/path/to/output.vcf";
+        command = new AnnotateUntemplatedSequence(inputVcf, REFERENCE_GENOME, outputVcf);
     }
 
     @Test
@@ -35,13 +36,7 @@ public class AnnotateUntemplatedSequenceTest implements CommonEntities {
         GridssCommonArgumentsAssert.assertThat(command)
                 .hasGridssArguments(ARGS_REFERENCE_SEQUENCE)
                 .and(ARG_KEY_INPUT, inputVcf)
-                .and(ARG_KEY_OUTPUT, command.resultantVcf())
+                .and(ARG_KEY_OUTPUT, outputVcf)
                 .andNoMore();
-    }
-
-    @Test
-    public void shouldReturnResultantVcf() {
-        assertThat(command.resultantVcf()).isNotNull();
-        assertThat(command.resultantVcf()).isEqualTo(OUTFILE);
     }
 }

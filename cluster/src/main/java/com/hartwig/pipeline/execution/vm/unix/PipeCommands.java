@@ -16,6 +16,6 @@ public class PipeCommands implements BashCommand {
 
     @Override
     public String asBash() {
-        return pipedCommands.stream().map(BashCommand::asBash).collect(Collectors.joining(" | "));
+        return new SubShellCommand(() -> pipedCommands.stream().map(BashCommand::asBash).collect(Collectors.joining(" | "))).asBash();
     }
 }
