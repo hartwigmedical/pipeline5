@@ -38,7 +38,7 @@ class GoogleClusterConfig {
 
     static GoogleClusterConfig from(RuntimeBucket runtimeBucket, NodeInitialization nodeInitialization, DataprocPerformanceProfile profile,
             final Arguments arguments) throws FileNotFoundException {
-        DiskConfig diskConfig = diskConfig();
+        DiskConfig diskConfig = diskConfig(profile.primaryWorkers());
         ClusterConfig config = clusterConfig(masterConfig(profile.master()),
                 primaryWorkerConfig(diskConfig, profile.primaryWorkers(), profile.numPrimaryWorkers()),
                 secondaryWorkerConfig(profile, diskConfig, profile.preemtibleWorkers()),
@@ -85,7 +85,7 @@ class GoogleClusterConfig {
     }
 
     private static InstanceGroupConfig masterConfig(final MachineType machineType) {
-        return new InstanceGroupConfig().setMachineTypeUri(machineType.uri()).setNumInstances(1).setDiskConfig(diskConfig());
+        return new InstanceGroupConfig().setMachineTypeUri(machineType.uri()).setNumInstances(1).setDiskConfig(diskConfig(machineType));
     }
 
     private static ClusterConfig clusterConfig(final InstanceGroupConfig masterConfig, final InstanceGroupConfig primaryWorkerConfig,
@@ -108,8 +108,8 @@ class GoogleClusterConfig {
     }
 
     @NotNull
-    private static DiskConfig diskConfig() {
-        return new DiskConfig().setBootDiskType("pd-ssd").setBootDiskSizeGb(DISK_SIZE_GB).setNumLocalSsds(2);
+    private static DiskConfig diskConfig(MachineType machineType) {
+        return new DiskConfig().setBootDiskType("pd-ssd").setBootDiskSizeGb(machineType.diskSizeGB()).setNumLocalSsds(2);
     }
 
     private static InstanceGroupConfig secondaryWorkerConfig(final DataprocPerformanceProfile profile, final DiskConfig diskConfig,
