@@ -137,10 +137,10 @@ public class StructuralCaller {
         return StructuralCallerOutput.builder()
                 .status(status)
                 .maybeFilteredVcf(GoogleStorageLocation.of(runtimeBucket.name(),
-                        resultsDirectory.path(basename(filteredVcfBasename + ".gz"))))
+                        resultsDirectory.path(basename(filteredVcf))))
                 .maybeFilteredVcfIndex(GoogleStorageLocation.of(runtimeBucket.name(),
                         resultsDirectory.path(basename(filteredVcfBasename + ".tbi"))))
-                .maybeFullVcf(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path(basename(fullVcfBasename + ".gz"))))
+                .maybeFullVcf(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path(basename(fullVcfCompressed))))
                 .maybeFullVcfIndex(GoogleStorageLocation.of(runtimeBucket.name(),
                         resultsDirectory.path(basename(fullVcfBasename + ".tbi"))))
                 .addReportComponents(new ZippedVcfAndIndexComponent(runtimeBucket,
