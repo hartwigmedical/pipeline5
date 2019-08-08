@@ -64,7 +64,7 @@ public class SomaticPipelineTest {
             .sampleName(simpleReferenceSample().name())
             .build();
     private static final ImmutableSomaticRunMetadata SOMATIC_RUN_METADATA =
-            SomaticRunMetadata.builder().runName(SET_NAME).tumor(TUMOR).reference(REFERENCE).build();
+            SomaticRunMetadata.builder().runName(SET_NAME).maybeTumor(TUMOR).reference(REFERENCE).build();
     private static final CobaltOutput SUCCESSFUL_COBALT_OUTPUT = CobaltOutput.builder().status(PipelineStatus.SUCCESS).build();
     private static final AmberOutput SUCCESSFUL_AMBER_OUTPUT = AmberOutput.builder().status(PipelineStatus.SUCCESS).build();
     private static final StructuralCallerOutput SUCCESSFUL_STRUCTURAL_CALLER_OUTPUT =
@@ -241,15 +241,6 @@ public class SomaticPipelineTest {
         verify(setMetadataApi, times(1)).complete(PipelineStatus.FAILED, SOMATIC_RUN_METADATA);
     }
 
-    private void failPurple() {
-        when(purple.run(SOMATIC_RUN_METADATA,
-                PAIR,
-                SUCCESSFUL_SOMATIC_CALLER_OUTPUT,
-                SUCCESSFUL_STRUCTURAL_CALLER_OUTPUT,
-                SUCCESSFUL_COBALT_OUTPUT,
-                SUCCESSFUL_AMBER_OUTPUT)).thenReturn(PurpleOutput.builder().status(PipelineStatus.FAILED).build());
-    }
-
     @Test
     public void runsCleanupOnSuccessfulRun() {
         bothAlignmentsAvailable();
@@ -283,6 +274,23 @@ public class SomaticPipelineTest {
             // continue
         }
         verify(cleanup, never()).run(SOMATIC_RUN_METADATA);
+    }
+
+    @Test
+    public void onlyDoesTransferAndCleanupIfSingleSampleRun() {
+        when(alignmentOutputStorage.get(REFERENCE)).thenReturn(Optional.of(referenceAlignmentOutput()));
+        when(setMetadataApi.get()).thenReturn(SomaticRunMetadata.builder().from(SOMATIC_RUN_METADATA).maybeTumor(Optional.empty()).build());
+        victim.run();
+        verifyZeroInteractions(amber, cobalt, purple, structuralCaller, somaticCaller, healthChecker);
+    }
+
+    private void failPurple() {
+        when(purple.run(SOMATIC_RUN_METADATA,
+                PAIR,
+                SUCCESSFUL_SOMATIC_CALLER_OUTPUT,
+                SUCCESSFUL_STRUCTURAL_CALLER_OUTPUT,
+                SUCCESSFUL_COBALT_OUTPUT,
+                SUCCESSFUL_AMBER_OUTPUT)).thenReturn(PurpleOutput.builder().status(PipelineStatus.FAILED).build());
     }
 
     private void purpleAndHealthCheckSucceed() {

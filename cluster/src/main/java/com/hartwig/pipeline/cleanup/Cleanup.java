@@ -3,6 +3,7 @@ package com.hartwig.pipeline.cleanup;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Objects;
+import java.util.Optional;
 
 import com.google.api.services.dataproc.v1beta2.Dataproc;
 import com.google.api.services.dataproc.v1beta2.model.Job;
@@ -43,20 +44,24 @@ public class Cleanup {
         }
         LOGGER.info("Cleaning up all transient resources on complete somatic pipeline run (runtime buckets and dataproc jobs)");
         String referenceSampleName = metadata.reference().sampleId();
-        String tumorSampleName = metadata.tumor().sampleId();
         Run referenceRun = Run.from(referenceSampleName, arguments);
         deleteBucket(referenceRun.id());
-        Run tumorRun = Run.from(tumorSampleName, arguments);
-        deleteBucket(tumorRun.id());
-        deleteBucket(Run.from(referenceSampleName, tumorSampleName, arguments).id());
+
+        Optional<Run> maybeTumorRun = metadata.maybeTumor().map(tumor -> {
+            String tumorSampleName = tumor.sampleId();
+            Run tumorRun = Run.from(tumorSampleName, arguments);
+            deleteBucket(tumorRun.id());
+            deleteBucket(Run.from(referenceSampleName, tumorSampleName, arguments).id());
+            return tumorRun;
+        });
 
         try {
             Dataproc.Projects.Regions.Jobs jobs = dataproc.projects().regions().jobs();
             ListJobsResponse execute = jobs.list(arguments.project(), arguments.region()).execute();
             for (Job job : execute.getJobs()) {
-                if (job.getReference().getJobId().startsWith(referenceRun.id()) || job.getReference()
+                if (job.getReference().getJobId().startsWith(referenceRun.id()) || maybeTumorRun.map(tumorRun -> job.getReference()
                         .getJobId()
-                        .startsWith(tumorRun.id())) {
+                        .startsWith(tumorRun.id())).orElse(false)) {
                     LOGGER.debug("Deleting complete job [{}]", job.getReference().getJobId());
                     Integer attempt = deleteJob(jobs, job, 1);
                     Job existingJob = Failsafe.with(new RetryPolicy<>().handleResultIf(Objects::nonNull)

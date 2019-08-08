@@ -1,9 +1,8 @@
 package com.hartwig.pipeline.metadata;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.hartwig.pipeline.Arguments;
@@ -32,15 +31,12 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
     private final int sbpRunId;
     private final SbpRestApi sbpRestApi;
     private final SbpFileTransfer publisher;
-    private final LocalDateTime now;
 
-    SbpSomaticMetadataApi(final Arguments arguments, final int sbpRunId, final SbpRestApi sbpRestApi, final SbpFileTransfer publisher,
-            final LocalDateTime now) {
+    SbpSomaticMetadataApi(final Arguments arguments, final int sbpRunId, final SbpRestApi sbpRestApi, final SbpFileTransfer publisher) {
         this.arguments = arguments;
         this.sbpRunId = sbpRunId;
         this.sbpRestApi = sbpRestApi;
         this.publisher = publisher;
-        this.now = now;
     }
 
     @Override
@@ -51,24 +47,29 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
             List<SbpSample> samplesBySet =
                     ObjectMappers.get().readValue(sbpRestApi.getSample(sbpSet.id()), new TypeReference<List<SbpSample>>() {
                     });
-            SbpSample reference = find(REF, sbpSet.id(), samplesBySet);
-            SbpSample tumor = find(TUMOR, sbpSet.id(), samplesBySet);
+            SingleSampleRunMetadata reference = find(REF, samplesBySet).map(referenceSample -> toMetadata(referenceSample,
+                    SingleSampleRunMetadata.SampleType.REFERENCE))
+                    .orElseThrow(() -> new IllegalStateException(String.format("No reference sample found in SBP for set [%s]",
+                            sbpSet.name())));
+            Optional<SingleSampleRunMetadata> tumor = find(TUMOR, samplesBySet).map(referenceSample -> toMetadata(referenceSample,
+                    SingleSampleRunMetadata.SampleType.TUMOR));
             return SomaticRunMetadata.builder()
                     .runName(RunTag.apply(arguments, sbpSet.name()))
-                    .tumor(SingleSampleRunMetadata.builder()
-                            .sampleName(tumor.name())
-                            .sampleId(tumor.barcode())
-                            .type(SingleSampleRunMetadata.SampleType.TUMOR)
-                            .build())
-                    .reference(SingleSampleRunMetadata.builder()
-                            .sampleName(reference.name())
-                            .sampleId(reference.barcode())
-                            .type(SingleSampleRunMetadata.SampleType.REFERENCE)
-                            .build())
+                    .maybeTumor(tumor)
+                    .reference(reference)
                     .build();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static ImmutableSingleSampleRunMetadata toMetadata(final SbpSample referenceSample,
+            final SingleSampleRunMetadata.SampleType tumor) {
+        return SingleSampleRunMetadata.builder()
+                .sampleName(referenceSample.name())
+                .sampleId(referenceSample.barcode())
+                .type(tumor)
+                .build();
     }
 
     private SbpRun getSbpRun() {
@@ -79,16 +80,8 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
         }
     }
 
-    private SbpSample find(final String type, final String setName, final List<SbpSample> samplesBySet) throws IOException {
-        List<SbpSample> sampleByType = samplesBySet.stream().filter(sample -> sample.type().equals(type)).collect(Collectors.toList());
-        if (sampleByType.size() != 1) {
-            throw new IllegalStateException(String.format("Could not find a single [%s] sample for run id [%s] through set [%s]. Found [%s]",
-                    type,
-                    sbpRunId,
-                    setName,
-                    sampleByType.size()));
-        }
-        return sampleByType.get(0);
+    private Optional<SbpSample> find(final String type, final List<SbpSample> samplesBySet) throws IOException {
+        return samplesBySet.stream().filter(sample -> sample.type().equals(type)).findFirst();
     }
 
     @Override
