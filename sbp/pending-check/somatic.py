@@ -64,11 +64,11 @@ def start_kubernetes_job(args):
                             env=[
                                 kubernetes.client.V1EnvVar(
                                     name='READER_ACL_IDS',
-                                    value='0403732075957f94c7baea5ad60b233f,f39de0aec3c8b5bb9d78a22ad88428ad'
+                                    value='6f794a6db112f27499a06697c125d7c4,f39de0aec3c8b5bb9d78a22ad88428ad'
                                 ),
                                 kubernetes.client.V1EnvVar(
                                     name='READER_ACP_ACL_IDS',
-                                    value='0403732075957f94c7baea5ad60b233f'
+                                    value='f39de0aec3c8b5bb9d78a22ad88428ad'
                                 ),
                                 kubernetes.client.V1EnvVar(
                                     name='BOTO_PATH',
