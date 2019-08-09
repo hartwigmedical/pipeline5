@@ -35,6 +35,10 @@ def start_kubernetes_job(args):
 
     job_args = ['-sbp_run_id', str(args['sbp_run_id'])]
 
+    if args['shallow']:
+        job_args.append('-shallow')
+        job_args.append('true')
+
     for i in range(1, len(sys.argv)):
         job_args.append(sys.argv[i])
 
@@ -45,7 +49,7 @@ def start_kubernetes_job(args):
         spec=kubernetes.client.V1JobSpec(
             completions=1,
             parallelism=1,
-            backoff_limit=3,
+            backoff_limit=6,
             template=kubernetes.client.V1PodTemplateSpec(
                 spec=kubernetes.client.V1PodSpec(
                     restart_policy='Never',
@@ -60,11 +64,11 @@ def start_kubernetes_job(args):
                             env=[
                                 kubernetes.client.V1EnvVar(
                                     name='READER_ACL_IDS',
-                                    value='0403732075957f94c7baea5ad60b233f,f39de0aec3c8b5bb9d78a22ad88428ad'
+                                    value='6f794a6db112f27499a06697c125d7c4,f39de0aec3c8b5bb9d78a22ad88428ad'
                                 ),
                                 kubernetes.client.V1EnvVar(
                                     name='READER_ACP_ACL_IDS',
-                                    value='0403732075957f94c7baea5ad60b233f'
+                                    value='f39de0aec3c8b5bb9d78a22ad88428ad'
                                 ),
                                 kubernetes.client.V1EnvVar(
                                     name='BOTO_PATH',
@@ -100,7 +104,7 @@ def start_kubernetes_job(args):
                         kubernetes.client.V1Volume(
                             name='hmf-upload-credentials',
                             secret=kubernetes.client.V1SecretVolumeSource(
-                                secret_name='hmf-upload-credentials'
+                                secret_name=args['credentials']
                             )
                         ),
                         kubernetes.client.V1Volume(
@@ -112,7 +116,7 @@ def start_kubernetes_job(args):
                         kubernetes.client.V1Volume(
                             name='rclone-config',
                             secret=kubernetes.client.V1SecretVolumeSource(
-                                secret_name='rclone-config'
+                                secret_name='rclone-' + args['credentials']
                             )
                         ),
                         kubernetes.client.V1Volume(
@@ -140,9 +144,14 @@ def start_kubernetes_job(args):
 
 
 def main():
-    ini = Ini().get_one({'name': 'PipelineV5.ini'})
+    ini_somatic = Ini().get_one({'name': 'Somatic.ini'})
+    ini_shallow = Ini().get_one({'name': 'ShallowSeq.ini'})
+
     stack = Stack().get_one({'name': 'Google Compute Platform'})
-    runs = HmfApi().get_all(Run, {'status': 'Pending', 'ini_id': ini.id})
+
+    runs_somatic = HmfApi().get_all(Run, {'status': 'Pending', 'ini_id': ini_somatic.id})
+    runs_shallow = HmfApi().get_all(Run, {'status': 'Pending', 'ini_id': ini_shallow.id})
+    runs = runs_shallow + runs_somatic
 
     max_starts = int(os.getenv('MAX_STARTS', '4'))
 
@@ -151,7 +160,26 @@ def main():
         del(runs[max_starts:])
 
         for run in runs:
-            start_kubernetes_job({'sbp_run_id': run.id})
+            credentials = 'hmf-admin-credentials'
+
+            if run.bucket is None:
+                dt = datetime.now().isocalendar()
+                run.bucket = 'hmf-output-' + str(dt[0]) + '-' + str(dt[1])
+
+            if run.bucket.startswith('hmf-output-') and run.bucket[-2:].isdigit():
+                weeknr = int(run.bucket[-2:])
+
+                if weeknr % 2 == 0:
+                    credentials = 'hmf-upload-even'
+                else:
+                    credentials = 'hmf-upload-odd'
+
+            if run.ini_id == ini_shallow.id:
+                shallow = True
+            else:
+                shallow = False
+
+            start_kubernetes_job({'sbp_run_id': run.id, 'credentials': credentials, 'shallow': shallow})
 
             phone_home('Starting Pipeline {0} for run {1}'.format(os.environ['PIPELINE_VERSION'], run.id))
 

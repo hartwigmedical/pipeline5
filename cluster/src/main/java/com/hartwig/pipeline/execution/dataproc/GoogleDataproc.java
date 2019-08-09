@@ -103,16 +103,22 @@ public class GoogleDataproc implements SparkExecutor {
         Dataproc.Projects.Regions.Clusters clusters = dataproc.projects().regions().clusters();
         Cluster existing = findExistingCluster(arguments, clusterName);
         if (existing == null) {
-            ClusterConfig clusterConfig =
-                    GoogleClusterConfig.from(runtimeBucket, nodeInitialization, performanceProfile, arguments).config();
-            Operation createCluster =
-                    clusters.create(arguments.project(), arguments.region(), cluster(clusterConfig, clusterName)).execute();
-            LOGGER.debug("Starting Google Dataproc cluster with name [{}]. This may take a minute or two...", clusterName);
-            waitForOperationComplete(createCluster);
-            LOGGER.debug("Cluster started.");
+            createCluster(performanceProfile, runtimeBucket, arguments, clusterName, clusters);
+        } else if (existing.getStatus().getState().equals("ERROR")) {
+            waitForOperationComplete(clusters.delete(arguments.project(), arguments.region(), clusterName).execute());
+            createCluster(performanceProfile, runtimeBucket, arguments, clusterName, clusters);
         } else {
             LOGGER.debug("Cluster [{}] already exists, using this cluster to run pipeline", clusterName);
         }
+    }
+
+    private void createCluster(final DataprocPerformanceProfile performanceProfile, final RuntimeBucket runtimeBucket,
+            final Arguments arguments, final String clusterName, final Dataproc.Projects.Regions.Clusters clusters) throws IOException {
+        ClusterConfig clusterConfig = GoogleClusterConfig.from(runtimeBucket, nodeInitialization, performanceProfile, arguments).config();
+        Operation createCluster = clusters.create(arguments.project(), arguments.region(), cluster(clusterConfig, clusterName)).execute();
+        LOGGER.debug("Starting Google Dataproc cluster with name [{}]. This may take a minute or two...", clusterName);
+        waitForOperationComplete(createCluster);
+        LOGGER.debug("Cluster started.");
     }
 
     private Job submittedJob(final SparkJobDefinition jobDefinition, final RuntimeBucket runtimeBucket, final String naturalJobId) {

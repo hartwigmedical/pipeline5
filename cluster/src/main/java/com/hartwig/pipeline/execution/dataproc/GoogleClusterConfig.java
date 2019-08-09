@@ -25,6 +25,7 @@ class GoogleClusterConfig {
 
     private static final String IDLE_TTL = "600s";
     private static final int DISK_SIZE_GB = 1000;
+    private static final String LATEST_DATAPROC_IMAGE = "1.4";
     private final ClusterConfig config;
 
     private GoogleClusterConfig(final ClusterConfig config) {
@@ -37,7 +38,7 @@ class GoogleClusterConfig {
 
     static GoogleClusterConfig from(RuntimeBucket runtimeBucket, NodeInitialization nodeInitialization, DataprocPerformanceProfile profile,
             final Arguments arguments) throws FileNotFoundException {
-        DiskConfig diskConfig = diskConfig();
+        DiskConfig diskConfig = diskConfig(profile.primaryWorkers());
         ClusterConfig config = clusterConfig(masterConfig(profile.master()),
                 primaryWorkerConfig(diskConfig, profile.primaryWorkers(), profile.numPrimaryWorkers()),
                 secondaryWorkerConfig(profile, diskConfig, profile.preemtibleWorkers()),
@@ -69,12 +70,12 @@ class GoogleClusterConfig {
     }
 
     private static SoftwareConfig softwareConfig() {
-        return new SoftwareConfig().setProperties(ImmutableMap.<String, String>builder().put("dataproc:dataproc.logging.stackdriver.enable",
-                "false")
-                .put("yarn:yarn.nodemanager.vmem-check-enabled", "false")
-                .put("yarn:yarn.nodemanager.pmem-check-enabled", "false")
-                .put("dataproc:dataproc.allow.zero.workers", "true")
-                .build());
+        return new SoftwareConfig().setImageVersion(LATEST_DATAPROC_IMAGE)
+                .setProperties(ImmutableMap.<String, String>builder().put("dataproc:dataproc.logging.stackdriver.enable", "false")
+                        .put("yarn:yarn.nodemanager.vmem-check-enabled", "false")
+                        .put("yarn:yarn.nodemanager.pmem-check-enabled", "false")
+                        .put("dataproc:dataproc.allow.zero.workers", "true")
+                        .build());
     }
 
     @NotNull
@@ -84,7 +85,7 @@ class GoogleClusterConfig {
     }
 
     private static InstanceGroupConfig masterConfig(final MachineType machineType) {
-        return new InstanceGroupConfig().setMachineTypeUri(machineType.uri()).setNumInstances(1).setDiskConfig(diskConfig());
+        return new InstanceGroupConfig().setMachineTypeUri(machineType.uri()).setNumInstances(1).setDiskConfig(diskConfig(machineType));
     }
 
     private static ClusterConfig clusterConfig(final InstanceGroupConfig masterConfig, final InstanceGroupConfig primaryWorkerConfig,
@@ -107,8 +108,8 @@ class GoogleClusterConfig {
     }
 
     @NotNull
-    private static DiskConfig diskConfig() {
-        return new DiskConfig().setBootDiskType("pd-ssd").setBootDiskSizeGb(DISK_SIZE_GB).setNumLocalSsds(2);
+    private static DiskConfig diskConfig(MachineType machineType) {
+        return new DiskConfig().setBootDiskType("pd-ssd").setBootDiskSizeGb(machineType.diskSizeGB()).setNumLocalSsds(2);
     }
 
     private static InstanceGroupConfig secondaryWorkerConfig(final DataprocPerformanceProfile profile, final DiskConfig diskConfig,

@@ -3,22 +3,16 @@ package com.hartwig.pipeline.calling.structural.gridss.command;
 import java.util.Arrays;
 import java.util.List;
 
-import com.hartwig.pipeline.execution.vm.VmDirectories;
-
 public class AnnotateUntemplatedSequence extends GridssCommand {
 
     private final String inputVcf;
     private final String referenceGenome;
     private final String outputVcf;
 
-    public AnnotateUntemplatedSequence(final String inputVcf, final String referenceGenome, final String tumorSampleName) {
+    public AnnotateUntemplatedSequence(final String inputVcf, final String referenceGenome, final String outputVcf) {
         this.inputVcf = inputVcf;
         this.referenceGenome = referenceGenome;
-        this.outputVcf = VmDirectories.outputFile(tumorSampleName + ".gridss.unfiltered.vcf");
-    }
-
-    public String resultantVcf() {
-        return outputVcf;
+        this.outputVcf = outputVcf;
     }
 
     @Override
@@ -30,6 +24,6 @@ public class AnnotateUntemplatedSequence extends GridssCommand {
     public List<GridssArgument> arguments() {
         return Arrays.asList(new GridssArgument("reference_sequence", referenceGenome),
                 new GridssArgument("input", inputVcf),
-                new GridssArgument("output", resultantVcf()));
+                new GridssArgument("output", outputVcf));
     }
 }

@@ -17,7 +17,7 @@ public interface SubStageInputOutput {
     @Value.Parameter
     BashStartupScript currentBash();
 
-    static SubStageInputOutput of(final String tumorSampleName, final OutputFile outputFile, final BashStartupScript currentBash) {
-        return ImmutableSubStageInputOutput.of(tumorSampleName, outputFile, currentBash);
+    static SubStageInputOutput of(final String sampleName, final OutputFile outputFile, final BashStartupScript currentBash) {
+        return ImmutableSubStageInputOutput.of(sampleName, outputFile, currentBash);
     }
 }

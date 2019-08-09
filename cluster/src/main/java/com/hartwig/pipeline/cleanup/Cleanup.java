@@ -58,10 +58,9 @@ public class Cleanup {
                         .getJobId()
                         .startsWith(tumorRun.id())) {
                     LOGGER.debug("Deleting complete job [{}]", job.getReference().getJobId());
-                    deleteJob(jobs, job);
-
+                    Integer attempt = deleteJob(jobs, job, 1);
                     Job existingJob = Failsafe.with(new RetryPolicy<>().handleResultIf(Objects::nonNull)
-                            .onFailedAttempt(objectExecutionCompletedEvent -> deleteJob(jobs, job))
+                            .onFailedAttempt(objectExecutionCompletedEvent -> deleteJob(jobs, job, attempt))
                             .withDelay(Duration.ofSeconds(RETRY_DELAY))
                             .withMaxRetries(MAX_RETRIES)).get(getJobAndReturnNullOn404(jobs, job));
                     if (existingJob != null) {
@@ -88,8 +87,13 @@ public class Cleanup {
         };
     }
 
-    private void deleteJob(final Dataproc.Projects.Regions.Jobs jobs, final Job job) throws IOException {
+    private int deleteJob(final Dataproc.Projects.Regions.Jobs jobs, final Job job, Integer attempt) throws IOException {
+        if (attempt > 1) {
+            LOGGER.info("Retrying delete of job [{}]. This is attempt [{}]", job.getReference().getJobId(), attempt);
+        }
         jobs.delete(arguments.project(), arguments.region(), job.getReference().getJobId()).execute();
+        attempt = attempt + 1;
+        return attempt;
     }
 
     private void deleteBucket(final String runId) {

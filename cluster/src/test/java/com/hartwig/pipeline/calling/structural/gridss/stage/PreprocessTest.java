@@ -2,14 +2,17 @@ package com.hartwig.pipeline.calling.structural.gridss.stage;
 
 import static java.lang.String.format;
 
+import static com.hartwig.pipeline.calling.structural.gridss.stage.BashAssertions.assertBashContains;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
-
+import com.hartwig.pipeline.calling.SubStage;
+import com.hartwig.pipeline.calling.SubStageTest;
 import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
 import com.hartwig.pipeline.calling.structural.gridss.command.CollectGridssMetrics;
 import com.hartwig.pipeline.calling.structural.gridss.command.ComputeSamTags;
@@ -17,107 +20,90 @@ import com.hartwig.pipeline.calling.structural.gridss.command.ExtractSvReads;
 import com.hartwig.pipeline.calling.structural.gridss.command.SambambaGridssSortCommand;
 import com.hartwig.pipeline.calling.structural.gridss.command.SoftClipsToSplitReads;
 import com.hartwig.pipeline.execution.vm.BashCommand;
+import com.hartwig.pipeline.execution.vm.BashStartupScript;
+import com.hartwig.pipeline.execution.vm.OutputFile;
+import com.hartwig.pipeline.execution.vm.unix.MkDirCommand;
+import com.hartwig.pipeline.execution.vm.unix.PipeCommands;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
+import org.mockito.Mockito;
 
-public class PreprocessTest implements CommonEntities {
-    private String collectMetricsAndExtractReadsBam;
-    private String computeSamTagsBam;
+public class PreprocessTest extends SubStageTest implements CommonEntities {
+    private String workingDirectory = "/some/directory";
+    private String inputBamFilename = REFERENCE_SAMPLE + ".bam";
+    private String inputBamFullPath = format("%s/%s", IN_DIR, inputBamFilename);
+    private BashStartupScript initialScript;
+    private ExtractSvReads expectedExtractSvReads;
+    private ComputeSamTags expectedComputeSamTags;
+    private ArgumentCaptor<BashCommand> captor;
 
-    private String extractSvReadsBashCommands;
-    private String computeSamTagsBashCommands;
-    private String clipsBashCommands;
-    private String collectMetricsBaseOutputFilename;
-    private String collectMetricsBashCommands;
-    private String sortByDefaultCommands;
-    private String sortByNameCommands;
-    private String collectGridsMetricsWorkingDirectory;
+    @Override
+    public SubStage createVictim() {
+        return new Preprocess(inputBamFullPath, workingDirectory, REFERENCE_SAMPLE, REFERENCE_GENOME);
+    }
 
-    private CollectGridssMetrics collectGridssMetrics;
-    private ComputeSamTags computeSamTags;
-    private SoftClipsToSplitReads.ForPreprocess clips;
-    private ExtractSvReads extractSvReads;
-    private CommandFactory factory;
-    private Preprocess.PreprocessResult result;
-    private SambambaGridssSortCommand sortByDefault;
-    private SambambaGridssSortCommand sortByName;
+    @Override
+    public String expectedPath() {
+        return format("%s/%s.preprocess.bam", OUT_DIR, REFERENCE_SAMPLE);
+    }
+
+    @Override
+    protected String sampleName() {
+        return REFERENCE_SAMPLE;
+    }
 
     @Before
     public void setup() {
-        collectMetricsAndExtractReadsBam = REFERENCE_BAM + ".collected";
-        collectMetricsBaseOutputFilename = REFERENCE_BAM + "_metrics";
-        collectGridsMetricsWorkingDirectory = "/some/directory/somewhere";
+        String insertSizeMetrics = format("%s/%s.insert_size_metrics", workingDirectory, inputBamFilename);
+        expectedExtractSvReads = new ExtractSvReads(inputBamFullPath, REFERENCE_SAMPLE, insertSizeMetrics, workingDirectory);
+        expectedComputeSamTags = new ComputeSamTags(expectedExtractSvReads.resultantBam(), REFERENCE_GENOME, REFERENCE_SAMPLE);
 
-        computeSamTagsBam = collectMetricsAndExtractReadsBam + ".computed";
+        initialScript = mock(BashStartupScript.class);
+        OutputFile inputFile = mock(OutputFile.class);
 
-        factory = mock(CommandFactory.class);
-
-        collectGridssMetrics = mock(CollectGridssMetrics.class);
-        collectMetricsBashCommands = "collect metrics bash commands";
-        when(factory.buildCollectGridssMetrics(any(), any())).thenReturn(collectGridssMetrics);
-        when(collectGridssMetrics.outputBaseFilename()).thenReturn(collectMetricsBaseOutputFilename);
-        when(collectGridssMetrics.asBash()).thenReturn(collectMetricsBashCommands);
-
-        extractSvReadsBashCommands = "extract sv reads bash commands";
-        extractSvReads = mock(ExtractSvReads.class);
-        when(factory.buildExtractSvReads(any(), any(), any(), any())).thenReturn(extractSvReads);
-        when(extractSvReads.resultantMetrics()).thenReturn(collectMetricsBaseOutputFilename);
-        when(extractSvReads.resultantBam()).thenReturn(collectMetricsAndExtractReadsBam);
-        when(extractSvReads.asBash()).thenReturn(extractSvReadsBashCommands);
-
-        computeSamTags = mock(ComputeSamTags.class);
-        when(factory.buildComputeSamTags(any(), any(), any())).thenReturn(computeSamTags);
-        when(computeSamTags.resultantBam()).thenReturn(computeSamTagsBam);
-
-        clips = mock(SoftClipsToSplitReads.ForPreprocess.class);
-        when(factory.buildSoftClipsToSplitReadsForPreProcess(any(), any(), any())).thenReturn(clips);
-
-        sortByDefault = mock(SambambaGridssSortCommand.class);
-        sortByName = mock(SambambaGridssSortCommand.class);
-        when(factory.buildSambambaCommandSortByDefault(any())).thenReturn(sortByDefault);
-        when(factory.buildSambambaCommandSortByName(any())).thenReturn(sortByName);
-        sortByDefaultCommands = "sort by default";
-        when(sortByDefault.asBash()).thenReturn(sortByDefaultCommands);
-        sortByNameCommands = "sorting by name";
-        when(sortByName.asBash()).thenReturn(sortByNameCommands);
-
-        computeSamTagsBashCommands = "compute sam tags bash commands";
-        when(computeSamTags.asBash()).thenReturn(computeSamTagsBashCommands);
-
-        clipsBashCommands = "clips bash commands";
-        when(clips.asBash()).thenReturn(clipsBashCommands);
-
-        result = new Preprocess(factory).initialise(REFERENCE_BAM,
-                REFERENCE_SAMPLE, REFERENCE_GENOME, collectGridsMetricsWorkingDirectory, OUTPUT_BAM);
+        captor = ArgumentCaptor.forClass(BashCommand.class);
+        BashStartupScript finishedScript = createVictim().bash(inputFile, mock(OutputFile.class), initialScript);
+        verify(finishedScript, times(5)).addCommand(captor.capture());
     }
 
     @Test
-    public void shouldSetBamInResult() {
-        assertThat(result.svBam()).isEqualTo(OUTPUT_BAM);
+    public void shouldAddCommandsInCorrectOrder() {
+        InOrder inOrder = Mockito.inOrder(initialScript);
+        inOrder.verify(initialScript).addCommand(any(MkDirCommand.class));
+        inOrder.verify(initialScript).addCommand(any(CollectGridssMetrics.class));
+        inOrder.verify(initialScript, times(2)).addCommand(any(PipeCommands.class));
+        inOrder.verify(initialScript).addCommand(any(SoftClipsToSplitReads.ForPreprocess.class));
     }
 
     @Test
-    public void shouldSetMetricsInResult() {
-        assertThat(result.metrics()).isEqualTo(collectMetricsBaseOutputFilename);
+    public void shouldMakeWorkingDirectoryFirst() {
+        assertThat(captor.getAllValues().get(0).asBash()).isEqualTo(new MkDirCommand(workingDirectory).asBash());
     }
 
     @Test
-    public void shouldSetBashCommandInResultToConcatenationOfBashFromEachCommandInOrder() {
-        String stageTwo = format("(%s | %s)", extractSvReadsBashCommands, sortByNameCommands);
-        String stageThree = format("(%s | %s)", computeSamTagsBashCommands, sortByDefaultCommands);
-
-        List<BashCommand> generatedCommands = result.commands();
-        assertThat(generatedCommands).isNotEmpty();
-        assertThat(generatedCommands.size()).isEqualTo(4);
-        assertThat(generatedCommands.get(0).asBash()).isEqualTo(collectMetricsBashCommands);
-        assertThat(generatedCommands.get(1).asBash()).isEqualTo(stageTwo);
-        assertThat(generatedCommands.get(2).asBash()).isEqualTo(stageThree);
-        assertThat(generatedCommands.get(3).asBash()).isEqualTo(clipsBashCommands);
+    public void shouldAddCorrectCollectGridssMetrics() {
+        assertBashContains(new CollectGridssMetrics(inputBamFullPath, format("%s/%s", workingDirectory, inputBamFilename)), captor);
     }
 
     @Test
-    public void shouldPassInputBamAndWorkingDirectoryToFactoryToGetCollectGridssMetrics() {
-        verify(factory).buildCollectGridssMetrics(REFERENCE_BAM, collectGridsMetricsWorkingDirectory);
+    public void shouldAddCorrectExtractSvReadsPipeline() {
+        SambambaGridssSortCommand sortCommand = SambambaGridssSortCommand.sortByName(expectedExtractSvReads.resultantBam());
+        assertBashContains(new PipeCommands(expectedExtractSvReads, sortCommand), captor);
+    }
+
+    @Test
+    public void shouldAddCorrectComputeSamTagsPipeline() {
+        SambambaGridssSortCommand sortCommand = SambambaGridssSortCommand.sortByDefault(expectedComputeSamTags.resultantBam());
+        assertBashContains(new PipeCommands(expectedComputeSamTags, sortCommand), captor);
+    }
+
+    @Test
+    public void shouldAddCorrectSoftClipsToSplitReads() {
+        String outputSvBam = format("%s/%s.sv.bam", workingDirectory, inputBamFilename);
+        assertBashContains(new SoftClipsToSplitReads.ForPreprocess(expectedComputeSamTags.resultantBam(), REFERENCE_GENOME, outputSvBam),
+                captor);
     }
 }

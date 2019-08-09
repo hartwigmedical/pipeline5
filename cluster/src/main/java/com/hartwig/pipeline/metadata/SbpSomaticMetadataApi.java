@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 public class SbpSomaticMetadataApi implements SomaticMetadataApi {
 
+    static final String SUCCESS = "Success";
     static final String SNP_CHECK = "SnpCheck";
     static final String FAILED = "Failed";
     private static final String UPLOADING = "Uploading";
@@ -100,7 +101,7 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
             try {
                 sbpRestApi.updateRunStatus(runIdAsString, UPLOADING, sbpBucket);
                 publisher.publish(metadata, sbpRun, sbpBucket);
-                sbpRestApi.updateRunStatus(runIdAsString, status == PipelineStatus.SUCCESS ? SNP_CHECK : FAILED, sbpBucket);
+                sbpRestApi.updateRunStatus(runIdAsString, status == PipelineStatus.SUCCESS ? successStatus() : FAILED, sbpBucket);
             } catch (Exception e) {
                 sbpRestApi.updateRunStatus(runIdAsString, FAILED, sbpBucket);
                 throw e;
@@ -111,5 +112,9 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
                             + "SBP API.",
                     sbpRunId));
         }
+    }
+
+    private String successStatus() {
+        return arguments.shallow() ? SUCCESS : SNP_CHECK;
     }
 }

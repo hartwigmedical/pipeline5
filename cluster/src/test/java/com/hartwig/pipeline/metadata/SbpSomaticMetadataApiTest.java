@@ -21,19 +21,18 @@ import org.mockito.ArgumentCaptor;
 public class SbpSomaticMetadataApiTest {
 
     private static final int SET_ID = 1;
+    private static final LocalDateTime NOW = LocalDateTime.of(2019, 7, 1, 0, 0);
     private SomaticMetadataApi victim;
     private SbpRestApi sbpRestApi;
     private SomaticRunMetadata somaticRunMetadata;
+    private SbpFileTransfer sbpFileTransfer;
 
     @Before
     public void setUp() throws Exception {
         sbpRestApi = mock(SbpRestApi.class);
-        final SbpFileTransfer sbpFileTransfer = mock(SbpFileTransfer.class);
+        sbpFileTransfer = mock(SbpFileTransfer.class);
         somaticRunMetadata = mock(SomaticRunMetadata.class);
-        victim = new SbpSomaticMetadataApi(Arguments.testDefaults(),
-                SET_ID,
-                sbpRestApi, sbpFileTransfer,
-                LocalDateTime.of(2019, 7, 1, 0, 0));
+        victim = new SbpSomaticMetadataApi(Arguments.testDefaults(), SET_ID, sbpRestApi, sbpFileTransfer, NOW);
     }
 
     @Test
@@ -50,7 +49,7 @@ public class SbpSomaticMetadataApiTest {
     }
 
     @Test
-    public void mapsSuccessStatusToPipeline5Done() {
+    public void mapsSuccessStatusToSnpCheck() {
         ArgumentCaptor<String> entityId = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> status = ArgumentCaptor.forClass(String.class);
         when(sbpRestApi.getRun(SET_ID)).thenReturn(TestJson.get("get_run"));
@@ -58,6 +57,18 @@ public class SbpSomaticMetadataApiTest {
         verify(sbpRestApi, times(2)).updateRunStatus(entityId.capture(), status.capture(), any());
         assertThat(entityId.getValue()).isEqualTo(String.valueOf(SET_ID));
         assertThat(status.getValue()).isEqualTo(SbpSomaticMetadataApi.SNP_CHECK);
+    }
+
+    @Test
+    public void mapsSuccessStatusToSuccessWhenShallow() {
+        ArgumentCaptor<String> entityId = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> status = ArgumentCaptor.forClass(String.class);
+        when(sbpRestApi.getRun(SET_ID)).thenReturn(TestJson.get("get_run"));
+        victim = new SbpSomaticMetadataApi(Arguments.testDefaultsBuilder().shallow(true).build(), SET_ID, sbpRestApi, sbpFileTransfer, NOW);
+        victim.complete(PipelineStatus.SUCCESS, somaticRunMetadata);
+        verify(sbpRestApi, times(2)).updateRunStatus(entityId.capture(), status.capture(), any());
+        assertThat(entityId.getValue()).isEqualTo(String.valueOf(SET_ID));
+        assertThat(status.getValue()).isEqualTo(SbpSomaticMetadataApi.SUCCESS);
     }
 
     @Test
