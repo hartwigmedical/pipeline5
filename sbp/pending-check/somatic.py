@@ -160,7 +160,7 @@ def main():
         del(runs[max_starts:])
 
         for run in runs:
-            credentials = 'hmf-upload-credentials'
+            credentials = 'hmf-admin-credentials'
 
             if run.bucket is None:
                 dt = datetime.now().isocalendar()
