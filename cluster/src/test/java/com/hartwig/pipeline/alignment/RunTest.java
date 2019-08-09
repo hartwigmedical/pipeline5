@@ -31,4 +31,16 @@ public class RunTest {
                 Arguments.testDefaultsBuilder().profile(Arguments.DefaultsProfile.PRODUCTION).build());
         assertThat(victim.id()).isEqualTo("run-reference-tumor");
     }
+
+    @Test
+    public void replacesUnderscoresWithDashes() {
+        Run victim = Run.from(REFERENCE_SAMPLE + "_suf", TUMOR_SAMPLE + "_suf", Arguments.testDefaults());
+        assertThat(victim.id()).isEqualTo("run-reference-suf-tumor-suf");
+    }
+
+    @Test
+    public void truncatesSampleNamesToEnsureRunIdUnder40CharsInPair() {
+        Run victim = Run.from("very-long-reference-sample-name", "very-long-tumor-sample-name-NNNNN", Arguments.testDefaults());
+        assertThat(victim.id().length()).isLessThanOrEqualTo(35);
+    }
 }
