@@ -113,16 +113,12 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
                     stop(project, zone.getName(), vmName);
                     if (status == PipelineStatus.SUCCESS) {
                         delete(project, zone.getName(), vmName);
-                    }
-                    else {
-                        disableStartupScript(instance);
+                    } else {
+                        disableStartupScript(instance, zone.getName());
                     }
                     LOGGER.info("Compute engine job [{}] is complete with status [{}]", jobDefinition.name(), status);
                     break;
-                } else if (result.getError()
-                        .getErrors()
-                        .stream()
-                        .anyMatch(error -> error.getCode().equals(ZONE_EXHAUSTED_ERROR_CODE))) {
+                } else if (result.getError().getErrors().stream().anyMatch(error -> error.getCode().equals(ZONE_EXHAUSTED_ERROR_CODE))) {
                     LOGGER.warn("Zone [{}] has insufficient resources to fulfill the request. Trying next zone", zone.getName());
                 } else {
                     throw new RuntimeException(result.getError().toPrettyString());
@@ -136,12 +132,13 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
         return status;
     }
 
-    private void disableStartupScript(final Instance instance) throws Exception {
+    private void disableStartupScript(final Instance instance, final String zone) throws Exception {
         String latestFingerprint =
-                compute.instances().get(arguments.project(), ZONE_NAME, instance.getName()).execute().getMetadata().getFingerprint();
+                compute.instances().get(arguments.project(), zone, instance.getName()).execute().getMetadata().getFingerprint();
         executeSynchronously(compute.instances()
-                        .setMetadata(arguments.project(), ZONE_NAME, instance.getName(), new Metadata().setFingerprint(latestFingerprint)),
-                arguments.project());
+                        .setMetadata(arguments.project(), zone, instance.getName(), new Metadata().setFingerprint(latestFingerprint)),
+                arguments.project(),
+                zone);
     }
 
     private static Compute initCompute(final GoogleCredentials credentials) throws Exception {
@@ -239,10 +236,11 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
                 GoogleJsonResponseException gjre = (GoogleJsonResponseException) e.getCause();
                 if (HttpURLConnection.HTTP_CONFLICT == gjre.getDetails().getCode()) {
                     LOGGER.info("Found existing [{}] instance; deleting and restarting", vmName);
-                    Operation delete = executeSynchronously(compute.instances().delete(projectName, zoneName, vmName), projectName, zoneName);
+                    Operation delete =
+                            executeSynchronously(compute.instances().delete(projectName, zoneName, vmName), projectName, zoneName);
                     if (delete.getError() == null) {
                         return executeSynchronously(insert, projectName, zoneName);
-                    }else {
+                    } else {
                         throw new RuntimeException(delete.getError().toPrettyString());
                     }
                 } else {

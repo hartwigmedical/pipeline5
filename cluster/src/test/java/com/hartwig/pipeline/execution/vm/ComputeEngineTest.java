@@ -141,16 +141,16 @@ public class ComputeEngineTest {
         when(setMetadataOperation.getStatus()).thenReturn(DONE);
         when(setMetadata.execute()).thenReturn(setMetadataOperation);
         when(instances.setMetadata(eq(ARGUMENTS.project()),
-                eq(ComputeEngine.ZONE_NAME),
+                eq(FIRST_ZONE_NAME),
                 eq(INSTANCE_NAME),
                 newMetadataCaptor.capture())).thenReturn(setMetadata);
-        when(zoneOperations.get(ARGUMENTS.project(), ComputeEngine.ZONE_NAME, opName)).thenReturn(zoneOpGet);
+        when(zoneOperations.get(ARGUMENTS.project(), FIRST_ZONE_NAME, opName)).thenReturn(zoneOpGet);
 
         Compute.Instances.Get get = mock(Compute.Instances.Get.class);
         String fingerprint = "fingerprint";
         Instance latest = new Instance().setMetadata(new Metadata().setFingerprint(fingerprint));
         when(get.execute()).thenReturn(latest);
-        when(instances.get(ARGUMENTS.project(), ComputeEngine.ZONE_NAME, INSTANCE_NAME)).thenReturn(get);
+        when(instances.get(ARGUMENTS.project(), FIRST_ZONE_NAME, INSTANCE_NAME)).thenReturn(get);
 
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
         assertThat(newMetadataCaptor.getValue().getItems()).isNull();
