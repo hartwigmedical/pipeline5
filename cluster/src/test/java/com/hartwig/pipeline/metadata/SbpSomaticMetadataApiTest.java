@@ -7,8 +7,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.time.LocalDateTime;
-
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.sbpapi.SbpRestApi;
@@ -21,7 +19,6 @@ import org.mockito.ArgumentCaptor;
 public class SbpSomaticMetadataApiTest {
 
     private static final int SET_ID = 1;
-    private static final LocalDateTime NOW = LocalDateTime.of(2019, 7, 1, 0, 0);
     private SomaticMetadataApi victim;
     private SbpRestApi sbpRestApi;
     private SomaticRunMetadata somaticRunMetadata;
@@ -83,14 +80,21 @@ public class SbpSomaticMetadataApiTest {
     }
 
     @Test
-    public void handlesSetWithNoTumor() {
-        when(sbpRestApi.getRun(SET_ID)).thenReturn(TestJson.get("get_run_no_tumor"));
-        when(sbpRestApi.getSample("7141")).thenReturn(TestJson.get("get_samples_by_set_no_tumor"));
+    public void handlesSingleSampleSet() {
+        when(sbpRestApi.getRun(SET_ID)).thenReturn(TestJson.get("get_run_single_sample"));
+        when(sbpRestApi.getSample("7141")).thenReturn(TestJson.get("get_samples_by_set_single_sample"));
         SomaticRunMetadata setMetadata = victim.get();
         assertThat(setMetadata.runName()).isEqualTo("170724_HMFregCPCT_FR13999246_FR13999144_CPCT02290012");
         assertThat(setMetadata.reference().sampleName()).isEqualTo("ZR17SQ1-00649");
         assertThat(setMetadata.reference().sampleId()).isEqualTo("FR13257296");
         assertThat(setMetadata.maybeTumor()).isEmpty();
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void throwsExceptionWhenTumorIsMissing() {
+        when(sbpRestApi.getRun(SET_ID)).thenReturn(TestJson.get("get_run"));
+        when(sbpRestApi.getSample("7141")).thenReturn(TestJson.get("get_samples_by_set_single_sample"));
+        victim.get();
     }
 
     @Test(expected = IllegalStateException.class)

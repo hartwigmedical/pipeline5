@@ -47,17 +47,26 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
             List<SbpSample> samplesBySet =
                     ObjectMappers.get().readValue(sbpRestApi.getSample(sbpSet.id()), new TypeReference<List<SbpSample>>() {
                     });
+
             SingleSampleRunMetadata reference = find(REF, samplesBySet).map(referenceSample -> toMetadata(referenceSample,
                     SingleSampleRunMetadata.SampleType.REFERENCE))
                     .orElseThrow(() -> new IllegalStateException(String.format("No reference sample found in SBP for set [%s]",
                             sbpSet.name())));
-            Optional<SingleSampleRunMetadata> tumor = find(TUMOR, samplesBySet).map(referenceSample -> toMetadata(referenceSample,
-                    SingleSampleRunMetadata.SampleType.TUMOR));
-            return SomaticRunMetadata.builder()
-                    .runName(RunTag.apply(arguments, sbpSet.name()))
-                    .maybeTumor(tumor)
-                    .reference(reference)
-                    .build();
+            if (sbpRun.ini().equals("SingleSample.ini")) {
+                return SomaticRunMetadata.builder().runName(RunTag.apply(arguments, sbpSet.name())).reference(reference).build();
+            } else {
+                SingleSampleRunMetadata tumor = find(TUMOR, samplesBySet).map(referenceSample -> toMetadata(referenceSample,
+                        SingleSampleRunMetadata.SampleType.TUMOR))
+                        .orElseThrow((() -> new IllegalStateException(String.format(
+                                "No tumor sample found in SBP for set [%s] and this run " + "was not marked as single sample",
+                                sbpSet.name()))));
+                return SomaticRunMetadata.builder()
+                        .runName(RunTag.apply(arguments, sbpSet.name()))
+                        .reference(reference)
+                        .maybeTumor(tumor)
+                        .build();
+            }
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -65,11 +74,7 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
 
     private static ImmutableSingleSampleRunMetadata toMetadata(final SbpSample referenceSample,
             final SingleSampleRunMetadata.SampleType tumor) {
-        return SingleSampleRunMetadata.builder()
-                .sampleName(referenceSample.name())
-                .sampleId(referenceSample.barcode())
-                .type(tumor)
-                .build();
+        return SingleSampleRunMetadata.builder().sampleName(referenceSample.name()).sampleId(referenceSample.barcode()).type(tumor).build();
     }
 
     private SbpRun getSbpRun() {
