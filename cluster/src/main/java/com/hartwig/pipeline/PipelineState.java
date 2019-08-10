@@ -21,7 +21,11 @@ public class PipelineState {
     }
 
     PipelineState combineWith(PipelineState state){
-        state.stageOutputs().forEach(this::add);
+        if (state != null) {
+            state.stageOutputs().forEach(this::add);
+        }else {
+            throw new IllegalArgumentException("State from one of the two pipelines was null. Did that pipeline run successfully?");
+        }
         return this;
     }
 
