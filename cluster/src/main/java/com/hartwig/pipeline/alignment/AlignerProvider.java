@@ -28,7 +28,7 @@ import com.hartwig.support.hadoop.Hadoop;
 
 public abstract class AlignerProvider {
 
-    private static final int PERFECT_RATIO = 5;
+    private static final int PERFECT_RATIO = 4;
     private final GoogleCredentials credentials;
     private final Storage storage;
     private final Arguments arguments;

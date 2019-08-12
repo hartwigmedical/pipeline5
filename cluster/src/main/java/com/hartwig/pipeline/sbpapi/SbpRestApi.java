@@ -38,28 +38,47 @@ public class SbpRestApi {
         return getBySampleId(sampleId, api().path("sets"));
     }
 
-    public String getRun(int setId) {
-        Response response = api().path(RUNS).path(String.valueOf(setId)).request().buildGet().invoke();
+    public String getRun(int id) {
+        Response response = runs().path(String.valueOf(id)).request().buildGet().invoke();
+        return returnOrThrow(response);
+    }
+
+    public String getRunsByTumorName(String name) {
+        return getRunsBy("tumor_sample", name);
+    }
+
+    public String getRunsByReferenceName(String name) {
+        return getRunsBy("ref_sample", name);
+    }
+
+    private String getRunsBy(final String type, final String name) {
+        Response response = runs().queryParam(type, name).request().buildGet().invoke();
+        return returnOrThrow(response);
+    }
+
+    private String returnOrThrow(final Response response) {
         if (response.getStatus() == Response.Status.OK.getStatusCode()) {
             return response.readEntity(String.class);
         }
         throw error(response);
+    }
+
+    private WebTarget runs() {
+        return api().path(RUNS);
     }
 
     public String getSample(int sampleId) {
-        Response response = api().path(SAMPLES).path(String.valueOf(sampleId)).request().buildGet().invoke();
-        if (response.getStatus() == Response.Status.OK.getStatusCode()) {
-            return response.readEntity(String.class);
-        }
-        throw error(response);
+        Response response = sample().path(String.valueOf(sampleId)).request().buildGet().invoke();
+        return returnOrThrow(response);
+    }
+
+    public WebTarget sample() {
+        return api().path(SAMPLES);
     }
 
     public String getSample(String setId) {
-        Response response = api().path(SAMPLES).queryParam("set_id", setId).request().buildGet().invoke();
-        if (response.getStatus() == Response.Status.OK.getStatusCode()) {
-            return response.readEntity(String.class);
-        }
-        throw error(response);
+        Response response = sample().queryParam("set_id", setId).request().buildGet().invoke();
+        return returnOrThrow(response);
     }
 
     public void updateSampleStatus(String sampleID, String status) {
@@ -98,7 +117,7 @@ public class SbpRestApi {
     }
 
     private void patch(final String sampleID, final String status, final String json, final String entityType) {
-        LOGGER.info("Patching {} id [{}] with status [{}]",entityType, sampleID, status);
+        LOGGER.info("Patching {} id [{}] with status [{}]", entityType, sampleID, status);
         Response response = api().path(entityType)
                 .path(sampleID)
                 .request()
@@ -113,10 +132,7 @@ public class SbpRestApi {
 
     private String getBySampleId(final int sampleId, final WebTarget path) {
         Response response = path.queryParam("sample_id", sampleId).request().buildGet().invoke();
-        if (response.getStatus() == Response.Status.OK.getStatusCode()) {
-            return response.readEntity(String.class);
-        }
-        throw error(response);
+        return returnOrThrow(response);
     }
 
     private RuntimeException error(final Response response) {

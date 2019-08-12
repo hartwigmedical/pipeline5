@@ -25,6 +25,7 @@ import com.google.cloud.storage.Storage;
 import com.google.common.collect.Lists;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ImmutableArguments;
+import com.hartwig.pipeline.metadata.SomaticMetadataApi;
 
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
@@ -36,6 +37,8 @@ public class CleanupTest {
     public static final ImmutableArguments ARGUMENTS = Arguments.testDefaultsBuilder().cleanup(true).build();
     private static final String REFERENCE_GUNZIP = "run-reference-gunzip";
     private static final String TUMOR_GUNZIP = "run-tumor-gunzip";
+    private static final String RUN_REFERENCE = "run-reference";
+    private static final String RUN_TUMOR = "run-tumor";
     private Storage storage;
     private Bucket referenceBucket;
     private Cleanup victim;
@@ -44,6 +47,7 @@ public class CleanupTest {
     private ListJobsResponse listJobsResponse;
     private Dataproc.Projects.Regions.Jobs jobs;
     private Dataproc dataproc;
+    private SomaticMetadataApi somaticMetadataApi;
 
     @Before
     public void setUp() throws Exception {
@@ -63,7 +67,8 @@ public class CleanupTest {
         listJobsResponse = mock(ListJobsResponse.class);
         when(list.execute()).thenReturn(listJobsResponse);
 
-        victim = new Cleanup(storage, ARGUMENTS, dataproc);
+        somaticMetadataApi = mock(SomaticMetadataApi.class);
+        victim = new Cleanup(storage, ARGUMENTS, dataproc, somaticMetadataApi);
     }
 
     @NotNull
@@ -73,19 +78,19 @@ public class CleanupTest {
 
     @Test
     public void doesNothingWhenCleanupDisabled() {
-        victim = new Cleanup(storage, Arguments.testDefaultsBuilder().cleanup(false).build(), dataproc);
+        victim = new Cleanup(storage, Arguments.testDefaultsBuilder().cleanup(false).build(), dataproc, somaticMetadataApi);
         victim.run(defaultSomaticRunMetadata());
         verify(referenceBucket, never()).delete();
     }
 
     @Test
     public void deletesReferenceBucketIfExists() {
-        assertBucketDeleted("run-reference", referenceBucket);
+        assertBucketDeleted(RUN_REFERENCE, referenceBucket);
     }
 
     @Test
     public void deletesTumorBucketIfExists() {
-        assertBucketDeleted("run-tumor", tumorBucket);
+        assertBucketDeleted(RUN_TUMOR, tumorBucket);
     }
 
     @Test
@@ -94,7 +99,7 @@ public class CleanupTest {
     }
 
     @Test
-    public void deletesAllDataprocJobsMatchingRunIds() throws Exception{
+    public void deletesAllDataprocJobsMatchingRunIds() throws Exception {
         when(listJobsResponse.getJobs()).thenReturn(Lists.newArrayList(job(REFERENCE_GUNZIP),
                 job(TUMOR_GUNZIP),
                 job("run-something-else")));
@@ -109,7 +114,7 @@ public class CleanupTest {
     }
 
     @Test
-    public void retriesDeletingDataprocJobsIfTheyStillExist() throws Exception{
+    public void retriesDeletingDataprocJobsIfTheyStillExist() throws Exception {
         Job job = job(REFERENCE_GUNZIP);
         when(listJobsResponse.getJobs()).thenReturn(Lists.newArrayList(job));
         Dataproc.Projects.Regions.Jobs.Delete delete = mock(Dataproc.Projects.Regions.Jobs.Delete.class);
@@ -119,6 +124,15 @@ public class CleanupTest {
         when(jobs.get(ARGUMENTS.project(), ARGUMENTS.region(), job.getReference().getJobId())).thenReturn(get);
         victim.run(defaultSomaticRunMetadata());
         verify(delete, times(2)).execute();
+    }
+
+    @Test
+    public void preservesSingleSampleRuntimesIfTheyHaveDependencies() {
+        when(somaticMetadataApi.hasDependencies(defaultSomaticRunMetadata().reference().sampleName())).thenReturn(true);
+        when(somaticMetadataApi.hasDependencies(defaultSomaticRunMetadata().tumor().sampleName())).thenReturn(true);
+        victim.run(defaultSomaticRunMetadata());
+        verify(storage, never()).get(RUN_REFERENCE);
+        verify(storage, never()).get(RUN_TUMOR);
     }
 
     private void assertBucketDeleted(final String bucketName, final Bucket bucket) {

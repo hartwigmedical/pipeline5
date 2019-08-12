@@ -3,9 +3,11 @@ package com.hartwig.pipeline.metadata;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.common.collect.ImmutableSet;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.RunTag;
 import com.hartwig.pipeline.execution.PipelineStatus;
@@ -24,6 +26,7 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
     static final String SUCCESS = "Success";
     static final String SNP_CHECK = "SnpCheck";
     static final String FAILED = "Failed";
+    private static final Set<String> COMPLETE_STATUS = ImmutableSet.of("Success", "Failed", "SnpCheck", "Validated");
     private static final String UPLOADING = "Uploading";
     private static final String REF = "ref";
     private static final String TUMOR = "tumor";
@@ -69,6 +72,25 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public boolean hasDependencies(final String sampleName) {
+        try {
+            return hasPendingRuns(sbpRestApi.getRunsByTumorName(sampleName))
+                    || hasPendingRuns(sbpRestApi.getRunsByReferenceName(sampleName));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private boolean hasPendingRuns(final String runs) throws IOException {
+        if (runs != null) {
+            List<SbpRun> sbpRuns = ObjectMappers.get().readValue(runs, new TypeReference<List<SbpRun>>() {
+            });
+            return !sbpRuns.stream().map(SbpRun::status).allMatch(COMPLETE_STATUS::contains);
+        }
+        return false;
     }
 
     private SbpRun getSbpRun() {
