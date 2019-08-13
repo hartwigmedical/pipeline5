@@ -24,11 +24,14 @@ class Job implements SparkExecutor {
     public PipelineStatus submit(final RuntimeBucket runtimeBucket, final SparkJobDefinition sparkJobDefinition) {
         try {
             decorated.submit(runtimeBucket, sparkJobDefinition);
-            StatusCheck.Status status = statusCheck.check(runtimeBucket);
+            StatusCheck.Status status = statusCheck.check(runtimeBucket, sparkJobDefinition.name());
             if (status == StatusCheck.Status.FAILED) {
                 return PipelineStatus.FAILED;
-            } else {
+            } else if (status == StatusCheck.Status.SUCCESS) {
                 return PipelineStatus.SUCCESS;
+            } else {
+                LOGGER.warn("Pipeline run for [{}] had no status. Check job logs for more information", runtimeBucket.name());
+                return PipelineStatus.UNKNOWN;
             }
         } catch (Exception e) {
             LOGGER.error(String.format("Unable to run job [%s]", sparkJobDefinition), e);
