@@ -26,6 +26,7 @@ import com.google.common.collect.Lists;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ImmutableArguments;
 import com.hartwig.pipeline.metadata.SomaticMetadataApi;
+import com.hartwig.pipeline.testsupport.TestBlobs;
 
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
@@ -48,6 +49,7 @@ public class CleanupTest {
     private Dataproc.Projects.Regions.Jobs jobs;
     private Dataproc dataproc;
     private SomaticMetadataApi somaticMetadataApi;
+    private Bucket stagingBucket;
 
     @Before
     public void setUp() throws Exception {
@@ -66,6 +68,11 @@ public class CleanupTest {
         when(jobs.list(ARGUMENTS.project(), ARGUMENTS.region())).thenReturn(list);
         listJobsResponse = mock(ListJobsResponse.class);
         when(list.execute()).thenReturn(listJobsResponse);
+
+        stagingBucket = mock(Bucket.class);
+        when(storage.get(ARGUMENTS.patientReportBucket())).thenReturn(stagingBucket);
+        Page<Blob> page = TestBlobs.pageOf();
+        when(stagingBucket.list(any())).thenReturn(page);
 
         somaticMetadataApi = mock(SomaticMetadataApi.class);
         victim = new Cleanup(storage, ARGUMENTS, dataproc, somaticMetadataApi);
@@ -111,6 +118,15 @@ public class CleanupTest {
         assertThat(deletedJobs.getAllValues()).hasSize(2);
         assertThat(deletedJobs.getAllValues().get(0)).isEqualTo(REFERENCE_GUNZIP);
         assertThat(deletedJobs.getAllValues().get(1)).isEqualTo(TUMOR_GUNZIP);
+    }
+
+    @Test
+    public void deletesStagingBucketIfExists() {
+        Blob output = TestBlobs.blob("output.txt");
+        Page<Blob> page = TestBlobs.pageOf(output);
+        when(stagingBucket.list(Storage.BlobListOption.prefix("reference"))).thenReturn(page);
+        victim.run(defaultSomaticRunMetadata());
+        verify(output, times(1)).delete();
     }
 
     @Test

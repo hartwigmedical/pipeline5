@@ -11,6 +11,7 @@ import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.RunTag;
 import com.hartwig.pipeline.alignment.Run;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.metadata.SomaticMetadataApi;
@@ -56,6 +57,8 @@ public class Cleanup {
         if (!somaticMetadataApi.hasDependencies(metadata.sampleName())) {
             Run run = Run.from(metadata.sampleId(), arguments);
             deleteBucket(run.id());
+            deleteStagingDirectory(metadata);
+
             try {
                 Dataproc.Projects.Regions.Jobs jobs = dataproc.projects().regions().jobs();
                 ListJobsResponse execute = jobs.list(arguments.project(), arguments.region()).execute();
@@ -69,6 +72,13 @@ public class Cleanup {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+        }
+    }
+
+    private void deleteStagingDirectory(final SingleSampleRunMetadata metadata) {
+        Bucket stagingBucket = storage.get(arguments.patientReportBucket());
+        for (Blob blob : stagingBucket.list(Storage.BlobListOption.prefix(RunTag.apply(arguments, metadata.sampleId()))).iterateAll()) {
+            blob.delete();
         }
     }
 
