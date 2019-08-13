@@ -83,16 +83,17 @@ public class Aligner {
         }
         JarLocation jarLocation = jarUpload.run(runtimeBucket, arguments);
 
-        runJob(Jobs.noStatusCheck(dataproc), SparkJobDefinition.gunzip(jarLocation, runtimeBucket), runtimeBucket);
-        runJob(Jobs.statusCheckGoogleStorage(dataproc, resultsDirectory),
-                SparkJobDefinition.bamCreation(jarLocation, arguments, runtimeBucket, clusterOptimizer.optimize(sampleData)),
-                runtimeBucket);
+        SparkJobDefinition gunzipJob = SparkJobDefinition.gunzip(jarLocation, runtimeBucket);
+        runJob(Jobs.statusCheckGoogleStorage(dataproc, resultsDirectory), gunzipJob, runtimeBucket);
+
+        SparkJobDefinition bamCreationJob = SparkJobDefinition.bamCreation(jarLocation, arguments, runtimeBucket,
+                clusterOptimizer.optimize(sampleData));
+        runJob(Jobs.statusCheckGoogleStorage(dataproc, resultsDirectory), bamCreationJob, runtimeBucket);
 
         compose(sample, runtimeBucket);
 
-        runJob(Jobs.noStatusCheck(dataproc),
-                SparkJobDefinition.sortAndIndex(jarLocation, arguments, runtimeBucket, sample, resultsDirectory),
-                runtimeBucket);
+        SparkJobDefinition sortAndIndexJob = SparkJobDefinition.sortAndIndex(jarLocation, arguments, runtimeBucket, sample, resultsDirectory);
+        runJob(Jobs.statusCheckGoogleStorage(dataproc, resultsDirectory), sortAndIndexJob, runtimeBucket);
 
         AlignmentOutput alignmentOutput = alignmentOutputStorage.get(metadata)
                 .orElseThrow(() -> new RuntimeException("No results found in Google Storage for sample"));
@@ -121,11 +122,11 @@ public class Aligner {
 
     private void runJob(SparkExecutor executor, SparkJobDefinition jobDefinition, RuntimeBucket runtimeBucket) {
         PipelineStatus result = executor.submit(runtimeBucket, jobDefinition);
-        if (result.equals(PipelineStatus.FAILED)) {
-            throw new RuntimeException(format("Job [%s] reported status failed. Check prior error messages or job logs on Google dataproc",
+        if (result.equals(PipelineStatus.FAILED) || result.equals(PipelineStatus.UNKNOWN)) {
+            throw new RuntimeException(format("Job [%s] reported status failed or unknown. Check prior error messages or job logs on Google dataproc.",
                     jobDefinition.name()));
         } else {
-            LOGGER.debug("Job [{}] completed successfully", jobDefinition.name());
+            LOGGER.info("Job [{}] completed with status [{}]", jobDefinition.name(), result);
         }
     }
 }

@@ -8,9 +8,5 @@ public interface StatusCheck {
         UNKNOWN
     }
 
-    Status check(RuntimeBucket bucket);
-
-    static StatusCheck alwaysSuccess() {
-        return bucket -> Status.SUCCESS;
-    }
+    Status check(RuntimeBucket bucket, String jobName);
 }

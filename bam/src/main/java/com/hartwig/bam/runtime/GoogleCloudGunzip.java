@@ -1,5 +1,7 @@
 package com.hartwig.bam.runtime;
 
+import com.hartwig.bam.HadoopStatusReporter;
+import com.hartwig.bam.StatusReporter;
 import com.hartwig.bam.before.GunZip;
 import com.hartwig.bam.runtime.configuration.Configuration;
 import com.hartwig.bam.runtime.configuration.PatientParameters;
@@ -21,9 +23,11 @@ public class GoogleCloudGunzip {
     private static final Logger LOGGER = LoggerFactory.getLogger(GoogleCloudGunzip.class);
 
     private final Configuration configuration;
+    private final String name;
 
-    private GoogleCloudGunzip(final Configuration configuration) {
+    private GoogleCloudGunzip(final Configuration configuration, String name) {
         this.configuration = configuration;
+        this.name = name;
     }
 
     private void execute() {
@@ -32,7 +36,8 @@ public class GoogleCloudGunzip {
         try {
             FileSystem fileSystem = Hadoop.fileSystem(configuration.pipeline().hdfs());
             Patient patient = PatientReader.fromHDFS(fileSystem, configuration.patient().directory(), configuration.patient().name());
-            GunZip.execute(fileSystem, javaSparkContext, patient.reference(), false);
+            StatusReporter statusReporter = new HadoopStatusReporter(fileSystem, configuration.patient().directory(), name);
+            GunZip.execute(fileSystem, javaSparkContext, patient.reference(), false, statusReporter);
         } catch (Exception e) {
             LOGGER.error("Fatal error while running ADAM pipeline. See stack trace for more details", e);
             throw new RuntimeException(e);
@@ -46,11 +51,12 @@ public class GoogleCloudGunzip {
 
     public static void main(String[] args) {
         String namespace = args[0];
+        String name = args[1];
         Configuration configuration = Configuration.builder()
                 .pipeline(PipelineParameters.builder().hdfs("gs:///").build())
                 .referenceGenome(ReferenceGenomeParameters.builder().file("N/A").build())
                 .patient(PatientParameters.builder().directory(namespace + "/samples").name("").build())
                 .build();
-        new GoogleCloudGunzip(configuration).execute();
+        new GoogleCloudGunzip(configuration, name).execute();
     }
 }

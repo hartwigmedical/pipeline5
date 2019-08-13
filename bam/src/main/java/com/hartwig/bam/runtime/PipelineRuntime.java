@@ -21,9 +21,11 @@ public class PipelineRuntime {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PipelineRuntime.class);
     private final Configuration configuration;
+    private final String jobName;
 
-    PipelineRuntime(final Configuration configuration) {
+    PipelineRuntime(final Configuration configuration, final String jobName) {
         this.configuration = configuration;
+        this.jobName = jobName;
     }
 
     void start() {
@@ -35,7 +37,7 @@ public class PipelineRuntime {
             BamCreationPipeline adamPipeline = Pipelines.bamCreationConsolidated(adamContext,
                     fileSystem, configuration.pipeline().resultsDirectory(),
                     configuration.referenceGenome().path(),
-                    configuration.pipeline().bwa().threads(), configuration.pipeline().saveResultsAsSingleFile());
+                    configuration.pipeline().bwa().threads(), configuration.pipeline().saveResultsAsSingleFile(), jobName);
             adamPipeline.execute(PatientReader.fromHDFS(fileSystem, configuration.patient().directory(), configuration.patient().name())
                     .reference());
         } catch (Exception e) {
@@ -47,15 +49,5 @@ public class PipelineRuntime {
             LOGGER.info("Spark context stopped");
         }
         System.exit(0);
-    }
-
-    public static void main(String[] args) {
-        Configuration configuration;
-        try {
-            configuration = YAMLConfigurationReader.from(System.getProperty("user.dir"));
-            new PipelineRuntime(configuration).start();
-        } catch (IOException e) {
-            LOGGER.error("Unable to read configuration. Check configuration in /conf/pipeline.yaml", e);
-        }
     }
 }

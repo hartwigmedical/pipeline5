@@ -16,11 +16,13 @@ public class GoogleStorageStatusCheckTest {
     private RuntimeBucket runtime;
     private Blob blob;
     private StatusCheck statusCheck;
+    private String jobName;
 
     @Before
     public void setUp() throws Exception {
         runtime = mock(RuntimeBucket.class);
         blob = mock(Blob.class);
+        jobName = "job_name";
         when(blob.getContent()).thenReturn("reason".getBytes());
         statusCheck = new GoogleStorageStatusCheck(RESULTS_DIRECTORY);
     }
@@ -28,17 +30,17 @@ public class GoogleStorageStatusCheckTest {
     @Test
     public void findsSuccessStatusInRuntimeGoogleStorageBucket() {
         when(runtime.get(RESULTS_DIRECTORY.path("_SUCCESS"))).thenReturn(blob);
-        assertThat(statusCheck.check(runtime)).isEqualTo(StatusCheck.Status.SUCCESS);
+        assertThat(statusCheck.check(runtime, jobName)).isEqualTo(StatusCheck.Status.SUCCESS);
     }
 
     @Test
     public void findsFailureStatusInRuntimeGoogleStorageBucket() {
         when(runtime.get(RESULTS_DIRECTORY.path("_FAILURE"))).thenReturn(blob);
-        assertThat(statusCheck.check(runtime)).isEqualTo(StatusCheck.Status.FAILED);
+        assertThat(statusCheck.check(runtime, jobName)).isEqualTo(StatusCheck.Status.FAILED);
     }
 
     @Test
     public void returnsUnknownWhenNoStatusFileFoundInBucket() {
-        assertThat(statusCheck.check(runtime)).isEqualTo(StatusCheck.Status.UNKNOWN);
+        assertThat(statusCheck.check(runtime, jobName)).isEqualTo(StatusCheck.Status.UNKNOWN);
     }
 }

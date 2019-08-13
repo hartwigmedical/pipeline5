@@ -49,7 +49,8 @@ public class PipelineFunctionalTest {
                 RESULT_DIR,
                 HUNDREDK_READS_HISEQ.referenceGenome().path(),
                 1,
-                true)
+                true,
+                "alignmentJobName")
                 .execute(PatientReader.fromHDFS(fileSystem, HUNDREDK_READS_HISEQ.patient().directory(), HUNDREDK_READS_HISEQ_PATIENT_NAME)
                         .reference());
         assertThatOutput(RESULT_DIR, REFERENCE_SAMPLE).aligned().duplicatesMarked().isEqualToExpected();
