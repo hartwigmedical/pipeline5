@@ -47,6 +47,8 @@ public class HadoopStatusReporter implements StatusReporter {
 
     @NotNull
     private Path filePath(final String fileName) {
-        return new Path(fileSystem.getUri() + bamFolder + "/" + jobName + fileName);
+        Path path = new Path(fileSystem.getUri() + bamFolder + "/" + jobName + fileName);
+        LOGGER.info("Returning filepath: {}", path);
+        return path;
     }
 }

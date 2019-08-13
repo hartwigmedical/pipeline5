@@ -15,6 +15,8 @@ import com.hartwig.pipeline.testsupport.MockRuntimeBucket;
 import org.junit.Before;
 import org.junit.Test;
 
+import jdk.nashorn.internal.scripts.JO;
+
 public class JobTest {
 
     private static final JarLocation JAR_LOCATION = JarLocation.of("/path/to/jar");
@@ -43,19 +45,19 @@ public class JobTest {
 
     @Test
     public void reportsJobResultFailedWhenStatusCheckFails() {
-        when(statusCheck.check(runtimeBucket, jobName)).thenReturn(StatusCheck.Status.FAILED);
+        when(statusCheck.check(runtimeBucket, JOB_DEFINITION.name())).thenReturn(StatusCheck.Status.FAILED);
         assertThat(victim.submit(runtimeBucket, JOB_DEFINITION)).isEqualTo(PipelineStatus.FAILED);
     }
 
     @Test
     public void reportsSuccessWhenStatusCheckReturnsSuccess() {
-        when(statusCheck.check(runtimeBucket, jobName)).thenReturn(StatusCheck.Status.SUCCESS);
+        when(statusCheck.check(runtimeBucket, JOB_DEFINITION.name())).thenReturn(StatusCheck.Status.SUCCESS);
         assertThat(victim.submit(runtimeBucket, JOB_DEFINITION)).isEqualTo(PipelineStatus.SUCCESS);
     }
 
     @Test
     public void reportsUnknownWhenStatusCheckReturnsUnknown() {
-        when(statusCheck.check(runtimeBucket, jobName)).thenReturn(StatusCheck.Status.UNKNOWN);
+        when(statusCheck.check(runtimeBucket, JOB_DEFINITION.name())).thenReturn(StatusCheck.Status.UNKNOWN);
         assertThat(victim.submit(runtimeBucket, JOB_DEFINITION)).isEqualTo(PipelineStatus.UNKNOWN);
     }
 }

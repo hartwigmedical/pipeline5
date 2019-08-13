@@ -36,7 +36,7 @@ public class GoogleCloudGunzip {
         try {
             FileSystem fileSystem = Hadoop.fileSystem(configuration.pipeline().hdfs());
             Patient patient = PatientReader.fromHDFS(fileSystem, configuration.patient().directory(), configuration.patient().name());
-            StatusReporter statusReporter = new HadoopStatusReporter(fileSystem, configuration.patient().directory(), name);
+            StatusReporter statusReporter = new HadoopStatusReporter(fileSystem, configuration.pipeline().resultsDirectory(), name);
             GunZip.execute(fileSystem, javaSparkContext, patient.reference(), false, statusReporter);
         } catch (Exception e) {
             LOGGER.error("Fatal error while running ADAM pipeline. See stack trace for more details", e);
@@ -53,7 +53,10 @@ public class GoogleCloudGunzip {
         String namespace = args[0];
         String name = args[1];
         Configuration configuration = Configuration.builder()
-                .pipeline(PipelineParameters.builder().hdfs("gs:///").build())
+                .pipeline(PipelineParameters.builder()
+                        .hdfs("gs:///")
+                        .resultsDirectory(namespace + "/results")
+                        .build())
                 .referenceGenome(ReferenceGenomeParameters.builder().file("N/A").build())
                 .patient(PatientParameters.builder().directory(namespace + "/samples").name("").build())
                 .build();

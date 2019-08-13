@@ -29,13 +29,13 @@ public class GoogleStorageStatusCheckTest {
 
     @Test
     public void findsSuccessStatusInRuntimeGoogleStorageBucket() {
-        when(runtime.get(RESULTS_DIRECTORY.path("_SUCCESS"))).thenReturn(blob);
+        when(runtime.get(RESULTS_DIRECTORY.path(jobName + "_SUCCESS"))).thenReturn(blob);
         assertThat(statusCheck.check(runtime, jobName)).isEqualTo(StatusCheck.Status.SUCCESS);
     }
 
     @Test
     public void findsFailureStatusInRuntimeGoogleStorageBucket() {
-        when(runtime.get(RESULTS_DIRECTORY.path("_FAILURE"))).thenReturn(blob);
+        when(runtime.get(RESULTS_DIRECTORY.path(jobName + "_FAILURE"))).thenReturn(blob);
         assertThat(statusCheck.check(runtime, jobName)).isEqualTo(StatusCheck.Status.FAILED);
     }
 

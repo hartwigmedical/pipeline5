@@ -53,7 +53,7 @@ public interface SparkJobDefinition extends JobDefinition<DataprocPerformancePro
                         arguments.project(),
                         sample.name(),
                         resultsPath(runtimeBucket, resultsDirectory),
-                        name)
+                        runtimeBucket.getNamespace(), name)
                 .sparkProperties(SparkProperties.asMap(performanceProfile))
                 .performanceProfile(performanceProfile)
                 .build();

@@ -75,11 +75,12 @@ public class GoogleDataproc implements SparkExecutor {
                             jobDefinition,
                             runtimeBucket,
                             jobIdAndClusterName));
-            if (!isDone(jobDefinition.name(), runtimeBucket)) {
+            LOGGER.info("Found existing job: [{}]", job);
+            if (!isDone(job, jobDefinition.name(), runtimeBucket)) {
                 Job completed = waitForComplete(job,
                         j -> j.getStatus() != null && (j.getStatus().getState().equals("ERROR") || j.getStatus()
                                 .getState()
-                                .equals("CANCELLED") || isDone(jobDefinition.name(), runtimeBucket)),
+                                .equals("CANCELLED") || isDone(j, jobDefinition.name(), runtimeBucket)),
                         () -> dataproc.projects()
                                 .regions()
                                 .jobs()
@@ -109,9 +110,15 @@ public class GoogleDataproc implements SparkExecutor {
         return untrimmed.substring(0, Math.min(untrimmed.length(), 50));
     }
 
-    private boolean isDone(final String jobName, final RuntimeBucket runtimeBucket) {
-        List<StatusCheck.Status> finalStatuses = asList(StatusCheck.Status.SUCCESS, StatusCheck.Status.FAILED);
-        return finalStatuses.contains(getStatus(jobName, runtimeBucket));
+    private boolean isDone(final Job job, final String jobName, final RuntimeBucket runtimeBucket) {
+        LOGGER.info("Checking if job is done");
+        String state = job.getStatus().getState();
+        if (state.equals("DONE")) {
+            List<StatusCheck.Status> finalStatuses = asList(StatusCheck.Status.SUCCESS, StatusCheck.Status.FAILED);
+            LOGGER.info("Checker status: [{}]", getStatus(jobName, runtimeBucket));
+            return finalStatuses.contains(getStatus(jobName, runtimeBucket));
+        }
+        return false;
     }
 
     private StatusCheck.Status getStatus(final String jobName, final RuntimeBucket runtimeBucket) {
@@ -221,7 +228,7 @@ public class GoogleDataproc implements SparkExecutor {
         boolean operationComplete = isDone.test(operation);
         while (!operationComplete) {
             sleep();
-            LOGGER.debug("Operation [{}] not complete, waiting...", description.apply(operation));
+            LOGGER.info("Operation [{}] not complete, waiting...", description.apply(operation));
             operation = poll.poll();
             operationComplete = isDone.test(operation);
         }
