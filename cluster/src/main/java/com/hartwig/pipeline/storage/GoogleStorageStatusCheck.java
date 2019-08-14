@@ -21,7 +21,6 @@ public class GoogleStorageStatusCheck implements StatusCheck {
     public Status check(final RuntimeBucket bucket, final String jobName) {
         Blob blob = bucket.get(resultsDirectory.path(format("/%s_FAILURE", jobName)));
         if (blob != null) {
-            LOGGER.error("Pipeline run for [{}] was marked as failed with reason [{}]", bucket.name(), new String(blob.getContent()));
             return Status.FAILED;
         }
         blob = bucket.get(resultsDirectory.path(format("/%s_SUCCESS", jobName)));

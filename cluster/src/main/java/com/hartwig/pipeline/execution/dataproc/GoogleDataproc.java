@@ -3,7 +3,6 @@ package com.hartwig.pipeline.execution.dataproc;
 import static java.util.Arrays.asList;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -31,7 +30,6 @@ import com.hartwig.pipeline.storage.GoogleStorageStatusCheck;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.storage.StatusCheck;
 
-import org.apache.hadoop.fs.Stat;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,7 +73,6 @@ public class GoogleDataproc implements SparkExecutor {
                             jobDefinition,
                             runtimeBucket,
                             jobIdAndClusterName));
-            LOGGER.info("Found existing job: [{}]", job);
             if (!isDone(job, jobDefinition.name(), runtimeBucket)) {
                 Job completed = waitForComplete(job,
                         j -> j.getStatus() != null && (j.getStatus().getState().equals("ERROR") || j.getStatus()
@@ -111,11 +108,11 @@ public class GoogleDataproc implements SparkExecutor {
     }
 
     private boolean isDone(final Job job, final String jobName, final RuntimeBucket runtimeBucket) {
-        LOGGER.info("Checking if job is done");
+        LOGGER.debug("Checking if job is done");
         String state = job.getStatus().getState();
         if (state.equals("DONE")) {
             List<StatusCheck.Status> finalStatuses = asList(StatusCheck.Status.SUCCESS, StatusCheck.Status.FAILED);
-            LOGGER.info("Checker status: [{}]", getStatus(jobName, runtimeBucket));
+            LOGGER.debug("Checker status: [{}]", getStatus(jobName, runtimeBucket));
             return finalStatuses.contains(getStatus(jobName, runtimeBucket));
         }
         return false;
@@ -228,7 +225,7 @@ public class GoogleDataproc implements SparkExecutor {
         boolean operationComplete = isDone.test(operation);
         while (!operationComplete) {
             sleep();
-            LOGGER.info("Operation [{}] not complete, waiting...", description.apply(operation));
+            LOGGER.debug("Operation [{}] not complete, waiting...", description.apply(operation));
             operation = poll.poll();
             operationComplete = isDone.test(operation);
         }
