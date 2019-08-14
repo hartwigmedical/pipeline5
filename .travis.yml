@@ -1,6 +1,6 @@
 branches:
   only:
-  - bugfix-51918
+  - master
 sudo: required
 language: java
 services:
