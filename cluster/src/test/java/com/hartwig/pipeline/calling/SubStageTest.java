@@ -13,7 +13,7 @@ public abstract class SubStageTest {
     protected SubStageInputOutput output;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         output = createVictim().apply(SubStageInputOutput.of(sampleName(),
                 OutputFile.of(sampleName(), "strelka", "vcf", false),
                 BashStartupScript.of("runtime_bucket")));

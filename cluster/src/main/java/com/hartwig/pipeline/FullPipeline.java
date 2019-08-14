@@ -37,12 +37,23 @@ public class FullPipeline {
         executorService.submit(referencePipeline::run);
         executorService.submit(tumorPipeline::run);
         waitForSingleSamples(bothSingleSamplesComplete);
-        PipelineState singleSampleState =
-                new PipelineState().combineWith(trapReference.trappedState).combineWith(trapTumor.trappedState);
+        PipelineState singleSampleState = combine(trapReference, trapTumor);
         if (singleSampleState.shouldProceed()) {
             return singleSampleState.combineWith(somaticPipeline.run());
         } else {
             return singleSampleState;
+        }
+    }
+
+    private PipelineState combine(final CountDownAndTrapStatus trapReference, final CountDownAndTrapStatus trapTumor) {
+        checkState(trapReference, "Reference");
+        checkState(trapTumor, "Tumor");
+        return new PipelineState().combineWith(trapReference.trappedState).combineWith(trapTumor.trappedState);
+    }
+
+    private void checkState(final CountDownAndTrapStatus trap, final String type) {
+        if (trap.trappedState == null) {
+            throw new IllegalStateException(String.format("%s sample pipeline returned a null state. Failing pipeline run.", type));
         }
     }
 

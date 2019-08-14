@@ -17,14 +17,13 @@ public interface CommonEntities {
     String REFERENCE_BAM = format("%s/%s.bam", IN_DIR, REFERENCE_SAMPLE);
     String TUMOR_BAM = format("%s/%s.bam", IN_DIR, TUMOR_SAMPLE);
     String JOINT_NAME = REFERENCE_SAMPLE + "_" + TUMOR_SAMPLE;
+    String ASSEMBLY_BAM = format("%s/%s_%s.assemble.bam", OUT_DIR, REFERENCE_SAMPLE, TUMOR_SAMPLE);
 
     String OUTPUT_BAM = format("%s/output.bam", OUT_DIR);
     String REFERENCE_GENOME = format("%s/reference_genome.fasta", VmDirectories.RESOURCES);
     String BLACKLIST = format("%s/ENCFF001TDO.bed", VmDirectories.RESOURCES);
-    String GRIDSS_CONFIG = format("%s/gridss.properties", VmDirectories.RESOURCES);
+    String CONFIG_FILE = format("%s/gridss.properties", VmDirectories.RESOURCES);
 
-    String PATH_TO_BWA = format("%s/bwa/0.7.17/bwa", TOOLS_DIR);
-    String PATH_TO_SAMTOOLS = format("%s/samtools/1.2/samtools", TOOLS_DIR);
     String PATH_TO_SAMBAMBA = format("%s/sambamba/0.6.5/sambamba", TOOLS_DIR);
 
     String ARG_KEY_INPUT = "input";

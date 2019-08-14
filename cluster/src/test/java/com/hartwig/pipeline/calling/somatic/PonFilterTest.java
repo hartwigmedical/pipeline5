@@ -20,11 +20,11 @@ public class PonFilterTest extends SubStageTest {
     }
 
     @Test
-    public void runsTwoPipedBcfToolsFilterCommand() {
-        assertThat(output.currentBash().asUnixString()).contains("/data/tools/bcftools/1.3.1/bcftools filter -e "
+    public void runsTwoPipedBcfToolsFilterCommandInSubshell() {
+        assertThat(output.currentBash().asUnixString()).contains("(/data/tools/bcftools/1.3.1/bcftools filter -e "
                 + "'GERMLINE_PON_COUNT!= \".\" && MIN(GERMLINE_PON_COUNT) > 5' -s GERMLINE_PON -m+ /data/output/tumor.strelka.vcf -O u | "
                 + "/data/tools/bcftools/1.3.1/bcftools filter -e 'SOMATIC_PON_COUNT!=\".\" && MIN(SOMATIC_PON_COUNT) > 3' -s SOMATIC_PON "
-                + "-m+  -O z -o /data/output/tumor.pon.filtered.vcf.gz >>/data/output/run.log 2>&1 || die\n");
+                + "-m+  -O z -o /data/output/tumor.pon.filtered.vcf.gz) >>/data/output/run.log 2>&1 || die\n");
     }
 
     @Test

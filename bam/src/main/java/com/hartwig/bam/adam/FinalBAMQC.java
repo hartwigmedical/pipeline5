@@ -19,7 +19,6 @@ import org.apache.spark.api.java.JavaRDD;
 import org.bdgenomics.adam.api.java.JavaADAMContext;
 import org.bdgenomics.adam.rdd.read.AlignmentRecordDataset;
 import org.bdgenomics.formats.avro.AlignmentRecord;
-import org.bdgenomics.formats.avro.NucleotideContigFragment;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,9 +51,13 @@ public class FinalBAMQC implements QualityControl<AlignmentRecordDataset>, Seria
             return QCResult.failure("Final QC failed as the BAM was empty");
         }
 
-        JavaRDD<NucleotideContigFragment> referenceGenomeRDD =
-                adamContext.ac().loadFasta(referenceGenome.path(), Long.MAX_VALUE).rdd().toJavaRDD();
-        long totalCalledBases = referenceGenomeRDD.mapToDouble(fragment -> calledBases(fragment.getSequence()).length()).sum().longValue();
+        long totalCalledBases = adamContext.ac()
+                .loadFastaDna(referenceGenome.path())
+                .rdd()
+                .toJavaRDD()
+                .mapToDouble(sequence -> calledBases(sequence.getSequence()).length())
+                .sum()
+                .longValue();
 
         JavaDoubleRDD coverage = filterReads(toQC).rdd()
                 .toJavaRDD()
@@ -73,7 +76,9 @@ public class FinalBAMQC implements QualityControl<AlignmentRecordDataset>, Seria
             double percentage = percentage(totalCalledBases, totalExceeding);
             LOGGER.info(format("BAM QC [%sx at %f%%]: Results [%s of %s at %dx coverage] or [%f%%]",
                     threshold.coverage(),
-                    threshold.minimumPercentage(), totalExceeding, totalCalledBases,
+                    threshold.minimumPercentage(),
+                    totalExceeding,
+                    totalCalledBases,
                     threshold.coverage(),
                     percentage));
             if (percentage < threshold.minimumPercentage()) {
@@ -94,7 +99,8 @@ public class FinalBAMQC implements QualityControl<AlignmentRecordDataset>, Seria
                 .rdd()
                 .toJavaRDD()
                 .filter(AlignmentRecord::getReadMapped)
-                .filter(read -> !read.getDuplicateRead()).filter(read -> read.getMappingQuality() >= 20)
+                .filter(read -> !read.getDuplicateRead())
+                .filter(read -> read.getMappingQuality() >= 20)
                 .filter(AlignmentRecord::getPrimaryAlignment)
                 .filter(AlignmentRecord::getReadPaired);
         AlignmentRecordDataset AlignmentRecordDataset = toQC.payload();

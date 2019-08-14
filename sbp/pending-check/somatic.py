@@ -49,7 +49,7 @@ def start_kubernetes_job(args):
         spec=kubernetes.client.V1JobSpec(
             completions=1,
             parallelism=1,
-            backoff_limit=3,
+            backoff_limit=6,
             template=kubernetes.client.V1PodTemplateSpec(
                 spec=kubernetes.client.V1PodSpec(
                     restart_policy='Never',
@@ -64,11 +64,11 @@ def start_kubernetes_job(args):
                             env=[
                                 kubernetes.client.V1EnvVar(
                                     name='READER_ACL_IDS',
-                                    value='0403732075957f94c7baea5ad60b233f,f39de0aec3c8b5bb9d78a22ad88428ad'
+                                    value='6f794a6db112f27499a06697c125d7c4,f39de0aec3c8b5bb9d78a22ad88428ad'
                                 ),
                                 kubernetes.client.V1EnvVar(
                                     name='READER_ACP_ACL_IDS',
-                                    value='0403732075957f94c7baea5ad60b233f'
+                                    value='f39de0aec3c8b5bb9d78a22ad88428ad'
                                 ),
                                 kubernetes.client.V1EnvVar(
                                     name='BOTO_PATH',
@@ -144,8 +144,8 @@ def start_kubernetes_job(args):
 
 
 def main():
-    ini_somatic = Ini().get_one({'name': 'PipelineV5.ini'})
-    ini_shallow = Ini().get_one({'name': 'PipelineV5_ShallowSeq.ini'})
+    ini_somatic = Ini().get_one({'name': 'Somatic.ini'})
+    ini_shallow = Ini().get_one({'name': 'ShallowSeq.ini'})
 
     stack = Stack().get_one({'name': 'Google Compute Platform'})
 
@@ -160,13 +160,13 @@ def main():
         del(runs[max_starts:])
 
         for run in runs:
-            credentials = 'hmf-upload-credentials'
+            credentials = 'hmf-admin-credentials'
 
             if run.bucket is None:
                 dt = datetime.now().isocalendar()
                 run.bucket = 'hmf-output-' + str(dt[0]) + '-' + str(dt[1])
 
-            if run.bucket.startswith('hmf-output-'):
+            if run.bucket.startswith('hmf-output-') and run.bucket[-2:].isdigit():
                 weeknr = int(run.bucket[-2:])
 
                 if weeknr % 2 == 0:
