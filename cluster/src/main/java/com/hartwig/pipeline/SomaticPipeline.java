@@ -113,13 +113,13 @@ public class SomaticPipeline {
                                 amberOutput,
                                 purpleOutput)));
                         pipelineResults.compose(metadata);
-                        fullSomaticResults.compose(metadata);
                     }
                 }
             } catch (InterruptedException | ExecutionException e) {
                 throw new RuntimeException(e);
             }
         }
+        fullSomaticResults.compose(metadata);
         setMetadataApi.complete(state.status(), metadata);
         if (state.shouldProceed()) {
             cleanup.run(metadata);

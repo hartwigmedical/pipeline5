@@ -73,7 +73,6 @@ public class GoogleDataproc implements SparkExecutor {
                             jobDefinition,
                             runtimeBucket,
                             jobIdAndClusterName));
-            LOGGER.info("Found existing job: [{}]", job);
             if (!isDone(job, jobDefinition.name(), runtimeBucket)) {
                 Job completed = waitForComplete(job,
                         j -> j.getStatus() != null && (j.getStatus().getState().equals("ERROR") || j.getStatus()
@@ -112,7 +111,7 @@ public class GoogleDataproc implements SparkExecutor {
         String state = job.getStatus().getState();
         if (state.equals("DONE")) {
             List<StatusCheck.Status> finalStatuses = asList(StatusCheck.Status.SUCCESS, StatusCheck.Status.FAILED);
-            LOGGER.info("Checker status: [{}]", getStatus(jobName, runtimeBucket));
+            LOGGER.debug("Checker status: [{}]", getStatus(jobName, runtimeBucket));
             return finalStatuses.contains(getStatus(jobName, runtimeBucket));
         }
         return false;
