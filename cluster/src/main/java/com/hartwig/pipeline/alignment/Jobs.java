@@ -3,7 +3,6 @@ package com.hartwig.pipeline.alignment;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.execution.dataproc.SparkExecutor;
 import com.hartwig.pipeline.storage.GoogleStorageStatusCheck;
-import com.hartwig.pipeline.storage.StatusCheck;
 
 class Jobs {
     static Job statusCheckGoogleStorage(final SparkExecutor cluster, final ResultsDirectory resultsDirectory) {

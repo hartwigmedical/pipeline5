@@ -2,8 +2,8 @@ package com.hartwig.pipeline.metadata;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Set;
 import java.util.Optional;
+import java.util.Set;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.ImmutableSet;

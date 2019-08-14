@@ -7,9 +7,10 @@ import requests
 import sys
 import time
 import traceback
+from datetime import datetime
 
 from HmfApi import *
-from datetime import datetime
+
 
 def phone_home(message):
     print message

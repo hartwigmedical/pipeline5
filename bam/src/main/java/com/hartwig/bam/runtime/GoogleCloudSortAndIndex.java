@@ -7,8 +7,6 @@ import java.io.IOException;
 import com.hartwig.bam.HadoopStatusReporter;
 import com.hartwig.bam.StatusReporter;
 import com.hartwig.bam.after.BamIndexPipeline;
-import com.hartwig.bam.runtime.configuration.Configuration;
-import com.hartwig.bam.runtime.configuration.PipelineParameters;
 import com.hartwig.patient.Sample;
 import com.hartwig.support.hadoop.Hadoop;
 

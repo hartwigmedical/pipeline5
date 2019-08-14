@@ -15,8 +15,6 @@ import com.hartwig.pipeline.testsupport.MockRuntimeBucket;
 import org.junit.Before;
 import org.junit.Test;
 
-import jdk.nashorn.internal.scripts.JO;
-
 public class JobTest {
 
     private static final JarLocation JAR_LOCATION = JarLocation.of("/path/to/jar");

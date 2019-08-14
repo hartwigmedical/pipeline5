@@ -1,11 +1,8 @@
 package com.hartwig.bam.runtime;
 
-import java.io.IOException;
-
 import com.hartwig.bam.BamCreationPipeline;
 import com.hartwig.bam.adam.Pipelines;
 import com.hartwig.bam.runtime.configuration.Configuration;
-import com.hartwig.bam.runtime.configuration.YAMLConfigurationReader;
 import com.hartwig.bam.runtime.spark.SparkContexts;
 import com.hartwig.patient.input.PatientReader;
 import com.hartwig.support.hadoop.Hadoop;
