@@ -51,13 +51,13 @@ public abstract class AlignerProvider {
         NodeInitialization nodeInitialization = new NodeInitialization(arguments.nodeInitializationScript());
         CpuFastQSizeRatio ratio = CpuFastQSizeRatio.of(PERFECT_RATIO);
         ClusterOptimizer optimizer = new ClusterOptimizer(ratio, arguments.usePreemptibleVms());
-        GoogleDataproc dataproc = GoogleDataproc.from(credentials, nodeInitialization, arguments);
         ResultsDirectory resultsDirectory = ResultsDirectory.defaultDirectory();
+        GoogleDataproc dataproc = GoogleDataproc.from(credentials, nodeInitialization, arguments, resultsDirectory);
         AlignmentOutputStorage alignmentOutputStorage = new AlignmentOutputStorage(storage, arguments, resultsDirectory);
         return wireUp(credentials, storage, alignmentOutputStorage, optimizer, dataproc, resultsDirectory);
     }
 
-    public static AlignerProvider from(GoogleCredentials credentials, Storage storage, Arguments arguments) throws Exception {
+    public static AlignerProvider from(GoogleCredentials credentials, Storage storage, Arguments arguments) {
         return arguments.sbpApiSampleId().<AlignerProvider>map(id -> new SbpBootstrapProvider(credentials, storage, arguments, id)).orElse(
                 new LocalBootstrapProvider(credentials, storage, arguments));
     }

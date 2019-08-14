@@ -6,11 +6,6 @@ import com.hartwig.pipeline.storage.GoogleStorageStatusCheck;
 import com.hartwig.pipeline.storage.StatusCheck;
 
 class Jobs {
-
-    static Job noStatusCheck(final SparkExecutor cluster) {
-        return new Job(cluster, StatusCheck.alwaysSuccess());
-    }
-
     static Job statusCheckGoogleStorage(final SparkExecutor cluster, final ResultsDirectory resultsDirectory) {
         return new Job(cluster, new GoogleStorageStatusCheck(resultsDirectory));
     }

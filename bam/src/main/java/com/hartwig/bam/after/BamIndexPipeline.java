@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
+import com.hartwig.bam.HadoopStatusReporter;
+import com.hartwig.bam.StatusReporter;
 import com.hartwig.patient.Sample;
 
 import org.apache.hadoop.fs.FileSystem;
@@ -31,24 +33,31 @@ public class BamIndexPipeline {
         this.sortAndIndexer = sortAndIndexer;
     }
 
-    public void execute(Sample sample) throws IOException, InterruptedException {
-        String bamFileLocation = String.format("/%s/%s.bam", sourceBamDirectory, sample.name()).substring(1);
-        String unsortedBam = Bams.name(sample, localBamDirectory, "unsorted");
+    public void execute(Sample sample, StatusReporter statusReporter) {
+        StatusReporter.Status status = StatusReporter.Status.SUCCESS;
+        try {
+            String bamFileLocation = String.format("/%s/%s.bam", sourceBamDirectory, sample.name()).substring(1);
+            String unsortedBam = Bams.name(sample, localBamDirectory, "unsorted");
 
-        LOGGER.info("Copying BAM file to [{}]", unsortedBam);
-        FileUtil.copy(fileSystem.open(new Path(bamFileLocation)), new File(unsortedBam), noop());
-        LOGGER.info("Copy complete");
+            LOGGER.info("Copying BAM file to [{}]", unsortedBam);
+            FileUtil.copy(fileSystem.open(new Path(bamFileLocation)), new File(unsortedBam), noop());
+            LOGGER.info("Copy complete");
 
-        sortAndIndexer.execute(sample, localBamDirectory);
+            sortAndIndexer.execute(sample, localBamDirectory);
 
-        String sortedBam = Bams.name(sample, localBamDirectory, Bams.SORTED);
-        String bai = Bams.bai(sample, localBamDirectory, Bams.SORTED);
-        FileUtil.copy(new FileInputStream(sortedBam),
-                fileSystem.create(new Path(Bams.name(sample, sourceBamDirectory, Bams.SORTED))),
-                noop());
-        FileUtil.copy(new FileInputStream(bai),
-                fileSystem.create(new Path(Bams.name(sample, sourceBamDirectory, Bams.SORTED) + ".bai")),
-                noop());
+            String sortedBam = Bams.name(sample, localBamDirectory, Bams.SORTED);
+            String bai = Bams.bai(sample, localBamDirectory, Bams.SORTED);
+            FileUtil.copy(new FileInputStream(sortedBam),
+                    fileSystem.create(new Path(Bams.name(sample, sourceBamDirectory, Bams.SORTED))),
+                    noop());
+            FileUtil.copy(new FileInputStream(bai),
+                    fileSystem.create(new Path(Bams.name(sample, sourceBamDirectory, Bams.SORTED) + ".bai")),
+                    noop());
+        } catch (Exception e) {
+            status = StatusReporter.Status.FAILED_ERROR;
+        } finally {
+            statusReporter.report(status);
+        }
     }
 
     public static BamIndexPipeline fallback(final FileSystem fileSystem, final String sourceFolder) {

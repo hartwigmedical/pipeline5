@@ -11,7 +11,10 @@ import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.RunTag;
 import com.hartwig.pipeline.alignment.Run;
+import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
+import com.hartwig.pipeline.metadata.SomaticMetadataApi;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 
 import org.jetbrains.annotations.NotNull;
@@ -30,11 +33,13 @@ public class Cleanup {
     private final Storage storage;
     private final Arguments arguments;
     private final Dataproc dataproc;
+    private final SomaticMetadataApi somaticMetadataApi;
 
-    Cleanup(final Storage storage, final Arguments arguments, final Dataproc dataproc) {
+    Cleanup(final Storage storage, final Arguments arguments, final Dataproc dataproc, final SomaticMetadataApi somaticMetadataApi) {
         this.storage = storage;
         this.arguments = arguments;
         this.dataproc = dataproc;
+        this.somaticMetadataApi = somaticMetadataApi;
     }
 
     public void run(SomaticRunMetadata metadata) {
@@ -42,37 +47,50 @@ public class Cleanup {
             return;
         }
         LOGGER.info("Cleaning up all transient resources on complete somatic pipeline run (runtime buckets and dataproc jobs)");
-        String referenceSampleName = metadata.reference().sampleId();
-        String tumorSampleName = metadata.tumor().sampleId();
-        Run referenceRun = Run.from(referenceSampleName, arguments);
-        deleteBucket(referenceRun.id());
-        Run tumorRun = Run.from(tumorSampleName, arguments);
-        deleteBucket(tumorRun.id());
-        deleteBucket(Run.from(referenceSampleName, tumorSampleName, arguments).id());
 
-        try {
-            Dataproc.Projects.Regions.Jobs jobs = dataproc.projects().regions().jobs();
-            ListJobsResponse execute = jobs.list(arguments.project(), arguments.region()).execute();
-            for (Job job : execute.getJobs()) {
-                if (job.getReference().getJobId().startsWith(referenceRun.id()) || job.getReference()
-                        .getJobId()
-                        .startsWith(tumorRun.id())) {
-                    LOGGER.debug("Deleting complete job [{}]", job.getReference().getJobId());
-                    Integer attempt = deleteJob(jobs, job, 1);
-                    Job existingJob = Failsafe.with(new RetryPolicy<>().handleResultIf(Objects::nonNull)
-                            .onFailedAttempt(objectExecutionCompletedEvent -> deleteJob(jobs, job, attempt))
-                            .withDelay(Duration.ofSeconds(RETRY_DELAY))
-                            .withMaxRetries(MAX_RETRIES)).get(getJobAndReturnNullOn404(jobs, job));
-                    if (existingJob != null) {
-                        LOGGER.warn("Job [{}] still exists after [{}] attempts to delete it. Aborting, it will need to be deleted by hand",
-                                job.getReference().getJobId(),
-                                MAX_RETRIES);
+        deleteBucket(Run.from(metadata.reference().sampleId(), metadata.tumor().sampleId(), arguments).id());
+        cleanupSample(metadata.reference());
+        cleanupSample(metadata.tumor());
+    }
+
+    private void cleanupSample(final SingleSampleRunMetadata metadata) {
+        if (!somaticMetadataApi.hasDependencies(metadata.sampleName())) {
+            Run run = Run.from(metadata.sampleId(), arguments);
+            deleteBucket(run.id());
+            deleteStagingDirectory(metadata);
+
+            try {
+                Dataproc.Projects.Regions.Jobs jobs = dataproc.projects().regions().jobs();
+                ListJobsResponse execute = jobs.list(arguments.project(), arguments.region()).execute();
+                for (Job job : execute.getJobs()) {
+                    if (job.getReference().getJobId().startsWith(run.id())) {
+                        LOGGER.debug("Deleting complete job [{}]", job.getReference().getJobId());
+                        deleteJob(jobs, job);
+                        ensureDeleted(jobs, job);
                     }
-
                 }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        }
+    }
+
+    private void deleteStagingDirectory(final SingleSampleRunMetadata metadata) {
+        Bucket stagingBucket = storage.get(arguments.patientReportBucket());
+        for (Blob blob : stagingBucket.list(Storage.BlobListOption.prefix(RunTag.apply(arguments, metadata.sampleId()))).iterateAll()) {
+            blob.delete();
+        }
+    }
+
+    private void ensureDeleted(final Dataproc.Projects.Regions.Jobs jobs, final Job job) {
+        Job existingJob = Failsafe.with(new RetryPolicy<>().handleResultIf(Objects::nonNull)
+                .onFailedAttempt(objectExecutionCompletedEvent -> deleteJob(jobs, job))
+                .withDelay(Duration.ofSeconds(RETRY_DELAY))
+                .withMaxRetries(MAX_RETRIES)).get(getJobAndReturnNullOn404(jobs, job));
+        if (existingJob != null) {
+            LOGGER.warn("Job [{}] still exists after [{}] attempts to delete it. Aborting, it will need to be deleted by hand",
+                    job.getReference().getJobId(),
+                    MAX_RETRIES);
         }
     }
 
@@ -87,13 +105,8 @@ public class Cleanup {
         };
     }
 
-    private int deleteJob(final Dataproc.Projects.Regions.Jobs jobs, final Job job, Integer attempt) throws IOException {
-        if (attempt > 1) {
-            LOGGER.info("Retrying delete of job [{}]. This is attempt [{}]", job.getReference().getJobId(), attempt);
-        }
+    private void deleteJob(final Dataproc.Projects.Regions.Jobs jobs, final Job job) throws IOException {
         jobs.delete(arguments.project(), arguments.region(), job.getReference().getJobId()).execute();
-        attempt = attempt + 1;
-        return attempt;
     }
 
     private void deleteBucket(final String runId) {

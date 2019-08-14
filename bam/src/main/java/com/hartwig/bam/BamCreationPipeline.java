@@ -18,8 +18,6 @@ public abstract class BamCreationPipeline {
     private static final Logger LOGGER = LoggerFactory.getLogger(BamCreationPipeline.class);
 
     public void execute(final Sample sample) {
-        LOGGER.info("Clearing result directory before starting");
-        finalBamStore().clear();
         LOGGER.info("ADAM BAM creation started for sample [{}]", sample.name());
         StatusReporter.Status status = StatusReporter.Status.SUCCESS;
         try {

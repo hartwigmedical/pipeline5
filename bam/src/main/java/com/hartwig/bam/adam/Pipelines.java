@@ -13,7 +13,8 @@ import org.bdgenomics.adam.rdd.ADAMContext;
 public class Pipelines {
 
     public static BamCreationPipeline bamCreationConsolidated(final ADAMContext adamContext, final FileSystem fileSystem,
-            final String workingDirectory, final String referenceGenomePath, final int bwaThreads, final boolean mergeFinalFile) {
+            final String workingDirectory, final String referenceGenomePath, final int bwaThreads, final boolean mergeFinalFile,
+            final String jobName) {
         JavaADAMContext javaADAMContext = new JavaADAMContext(adamContext);
         ReferenceGenome referenceGenome = ReferenceGenome.of(fileSystem.getUri() + referenceGenomePath);
         DataLocation finalDataLocation = new FinalDataLocation(fileSystem, workingDirectory);
@@ -23,7 +24,7 @@ public class Pipelines {
                 .finalDatasource(new HDFSAlignmentRDDSource(javaADAMContext, finalDataLocation))
                 .finalBamStore(new HDFSBamStore(finalDataLocation, fileSystem, mergeFinalFile))
                 .markDuplicates(new MarkDups())
-                .statusReporter(new HadoopStatusReporter(fileSystem, workingDirectory))
+                .statusReporter(new HadoopStatusReporter(fileSystem, workingDirectory, jobName))
                 .build();
     }
 }

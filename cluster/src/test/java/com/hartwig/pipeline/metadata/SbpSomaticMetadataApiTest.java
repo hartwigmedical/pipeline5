@@ -22,6 +22,7 @@ public class SbpSomaticMetadataApiTest {
 
     private static final int SET_ID = 1;
     private static final LocalDateTime NOW = LocalDateTime.of(2019, 7, 1, 0, 0);
+    private static final String SAMPLE_ID = "7141";
     private SomaticMetadataApi victim;
     private SbpRestApi sbpRestApi;
     private SomaticRunMetadata somaticRunMetadata;
@@ -38,8 +39,8 @@ public class SbpSomaticMetadataApiTest {
     @Test
     public void retrievesSetMetadataFromSbpRestApi() throws Exception {
         when(sbpRestApi.getRun(SET_ID)).thenReturn(TestJson.get("get_run"));
-        when(sbpRestApi.getSample("7141")).thenReturn(TestJson.get("get_samples_by_set"));
-        when(sbpRestApi.getSample("7141")).thenReturn(TestJson.get("get_samples_by_set"));
+        when(sbpRestApi.getSample(SAMPLE_ID)).thenReturn(TestJson.get("get_samples_by_set"));
+        when(sbpRestApi.getSample(SAMPLE_ID)).thenReturn(TestJson.get("get_samples_by_set"));
         SomaticRunMetadata setMetadata = victim.get();
         assertThat(setMetadata.runName()).isEqualTo("170724_HMFregCPCT_FR13999246_FR13999144_CPCT02290012");
         assertThat(setMetadata.reference().sampleName()).isEqualTo("ZR17SQ1-00649");
@@ -86,5 +87,23 @@ public class SbpSomaticMetadataApiTest {
     public void throwsIllegalStateIfNoBucketInRun() {
         when(sbpRestApi.getRun(SET_ID)).thenReturn(TestJson.get("get_run_no_bucket"));
         victim.complete(PipelineStatus.FAILED, somaticRunMetadata);
+    }
+
+    @Test
+    public void checksForSampleInFlightDependenciesReference() {
+        when(sbpRestApi.getRunsByReferenceName("CPCT02290012R")).thenReturn(TestJson.get("get_runs_inflight"));
+        assertThat(victim.hasDependencies("CPCT02290012R")).isTrue();
+    }
+
+    @Test
+    public void checksForSampleInFlightDependenciesTumor() {
+        when(sbpRestApi.getRunsByReferenceName("CPCT02290012T")).thenReturn(TestJson.get("get_runs_inflight"));
+        assertThat(victim.hasDependencies("CPCT02290012T")).isTrue();
+    }
+
+    @Test
+    public void checksForSampleInFlightDependenciesAllComplete() {
+        when(sbpRestApi.getRunsByReferenceName("CPCT02290012T")).thenReturn(TestJson.get("get_runs_complete"));
+        assertThat(victim.hasDependencies("CPCT02290012T")).isFalse();
     }
 }
