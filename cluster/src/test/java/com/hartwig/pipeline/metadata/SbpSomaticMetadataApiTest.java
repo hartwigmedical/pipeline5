@@ -30,6 +30,7 @@ public class SbpSomaticMetadataApiTest {
         sbpRestApi = mock(SbpRestApi.class);
         sbpFileTransfer = mock(SbpFileTransfer.class);
         somaticRunMetadata = mock(SomaticRunMetadata.class);
+        when(sbpRestApi.getInis()).thenReturn(TestJson.get("get_inis"));
         victim = new SbpSomaticMetadataApi(Arguments.testDefaults(), SET_ID, sbpRestApi, sbpFileTransfer);
     }
 

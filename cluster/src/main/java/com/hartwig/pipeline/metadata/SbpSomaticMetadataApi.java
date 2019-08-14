@@ -11,6 +11,7 @@ import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.RunTag;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.sbpapi.ObjectMappers;
+import com.hartwig.pipeline.sbpapi.SbpIni;
 import com.hartwig.pipeline.sbpapi.SbpRestApi;
 import com.hartwig.pipeline.sbpapi.SbpRun;
 import com.hartwig.pipeline.sbpapi.SbpSample;
@@ -55,7 +56,10 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
                     SingleSampleRunMetadata.SampleType.REFERENCE))
                     .orElseThrow(() -> new IllegalStateException(String.format("No reference sample found in SBP for set [%s]",
                             sbpSet.name())));
-            if (sbpRun.ini().equals("SingleSample.ini")) {
+            SbpIni ini = findIni(sbpRun, ObjectMappers.get().readValue(sbpRestApi.getInis(), new TypeReference<List<SbpIni>>() {
+            }));
+            if (ini.name().startsWith("SingleSample")) {
+                LOGGER.info("Somatic run is using single sample configuration. No algorithms will be run, just transfer and cleanup");
                 return SomaticRunMetadata.builder().runName(RunTag.apply(arguments, sbpSet.name())).reference(reference).build();
             } else {
                 SingleSampleRunMetadata tumor = find(TUMOR, samplesBySet).map(referenceSample -> toMetadata(referenceSample,
@@ -73,6 +77,16 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private SbpIni findIni(final SbpRun sbpRun, final List<SbpIni> inis) {
+        return inis.stream()
+                .filter(i -> i.id() == sbpRun.ini_id())
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException(String.format(
+                        "Unable to find ini [%s] referenced in run [%s]. " + "Check the configuration in the SBP API",
+                        sbpRun.ini_id(),
+                        sbpRun.id())));
     }
 
     @Override

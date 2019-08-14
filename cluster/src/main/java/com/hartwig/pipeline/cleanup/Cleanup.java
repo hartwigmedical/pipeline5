@@ -48,7 +48,7 @@ public class Cleanup {
         }
         LOGGER.info("Cleaning up all transient resources on complete somatic pipeline run (runtime buckets and dataproc jobs)");
 
-        deleteBucket(Run.from(metadata.reference().sampleId(), metadata.tumor().sampleId(), arguments).id());
+        metadata.maybeTumor().ifPresent(tumor -> deleteBucket(Run.from(metadata.reference().sampleId(), tumor.sampleId(), arguments).id()));
         cleanupSample(metadata.reference());
         metadata.maybeTumor().ifPresent(this::cleanupSample);
     }

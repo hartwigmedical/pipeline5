@@ -24,10 +24,15 @@ public class SbpRestApi {
     private static final String SAMPLES = "samples";
     private static final String RUNS = "runs";
     private static final String FILES = "files";
+    private static final String INIS = "inis";
     private final WebTarget target;
 
     private SbpRestApi(final WebTarget target) {
         this.target = target;
+    }
+
+    public String getInis() {
+        return returnOrThrow(api().path(INIS).request().buildGet().invoke());
     }
 
     public String getFastQ(int sampleId) {

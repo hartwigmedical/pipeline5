@@ -119,9 +119,6 @@ public class SomaticPipeline {
             } catch (InterruptedException | ExecutionException e) {
                 throw new RuntimeException(e);
             }
-        } else {
-            LOGGER.info("No tumor sample present in set metadata for [{}]. Skipping somatic pipeline and running transfer/cleanup.",
-                    metadata.runName());
         }
         setMetadataApi.complete(state.status(), metadata);
         if (state.shouldProceed()) {

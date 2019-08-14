@@ -12,7 +12,7 @@ public interface SbpRun {
 
     String id();
 
-    String ini();
+    int ini_id();
 
     @Nullable
     String bucket();

@@ -104,7 +104,7 @@ public class SbpSampleReader {
     }
 
     private static String s3Path(final SbpFastQ sbpFastQ, final String file) {
-        return sbpFastQ.bucket() + "/" + file;
+        return sbpFastQ.bucket().replace("_", "") + "/" + file;
     }
 
     private List<SbpFastQ> parseFastqJson(final String json) throws IOException {
