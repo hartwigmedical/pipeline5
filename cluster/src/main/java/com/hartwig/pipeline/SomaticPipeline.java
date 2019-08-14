@@ -76,50 +76,56 @@ public class SomaticPipeline {
         SomaticRunMetadata metadata = setMetadataApi.get();
         LOGGER.info("Pipeline5 somatic pipeline starting for set [{}]", metadata.runName());
 
-        AlignmentOutput referenceAlignmentOutput =
-                alignmentOutputStorage.get(metadata.reference()).orElseThrow(throwIllegalState(metadata.reference().sampleId()));
-        AlignmentOutput tumorAlignmentOutput =
-                alignmentOutputStorage.get(metadata.tumor()).orElseThrow(throwIllegalState(metadata.tumor().sampleName()));
-        AlignmentPair pair = AlignmentPair.of(referenceAlignmentOutput, tumorAlignmentOutput);
+        if (metadata.maybeTumor().isPresent()) {
+            AlignmentOutput referenceAlignmentOutput =
+                    alignmentOutputStorage.get(metadata.reference()).orElseThrow(throwIllegalState(metadata.reference().sampleId()));
+            AlignmentOutput tumorAlignmentOutput =
+                    alignmentOutputStorage.get(metadata.tumor()).orElseThrow(throwIllegalState(metadata.tumor().sampleName()));
+            AlignmentPair pair = AlignmentPair.of(referenceAlignmentOutput, tumorAlignmentOutput);
 
-        try {
-            Future<AmberOutput> amberOutputFuture = executorService.submit(() -> amber.run(metadata, pair));
-            Future<CobaltOutput> cobaltOutputFuture = executorService.submit(() -> cobalt.run(metadata, pair));
-            Future<SomaticCallerOutput> somaticCallerOutputFuture = executorService.submit(() -> somaticCaller.run(metadata, pair));
-            Future<StructuralCallerOutput> structuralCallerOutputFuture =
-                    executorService.submit(() -> structuralCaller.run(metadata, pair));
-            AmberOutput amberOutput = pipelineResults.add(state.add(amberOutputFuture.get()));
-            CobaltOutput cobaltOutput = pipelineResults.add(state.add(cobaltOutputFuture.get()));
-            SomaticCallerOutput somaticCallerOutput = pipelineResults.add(state.add(somaticCallerOutputFuture.get()));
-            StructuralCallerOutput structuralCallerOutput = pipelineResults.add(state.add(structuralCallerOutputFuture.get()));
+            try {
+                Future<AmberOutput> amberOutputFuture = executorService.submit(() -> amber.run(metadata, pair));
+                Future<CobaltOutput> cobaltOutputFuture = executorService.submit(() -> cobalt.run(metadata, pair));
+                Future<SomaticCallerOutput> somaticCallerOutputFuture = executorService.submit(() -> somaticCaller.run(metadata, pair));
+                Future<StructuralCallerOutput> structuralCallerOutputFuture =
+                        executorService.submit(() -> structuralCaller.run(metadata, pair));
+                AmberOutput amberOutput = pipelineResults.add(state.add(amberOutputFuture.get()));
+                CobaltOutput cobaltOutput = pipelineResults.add(state.add(cobaltOutputFuture.get()));
+                SomaticCallerOutput somaticCallerOutput = pipelineResults.add(state.add(somaticCallerOutputFuture.get()));
+                StructuralCallerOutput structuralCallerOutput = pipelineResults.add(state.add(structuralCallerOutputFuture.get()));
 
-            if (state.shouldProceed()) {
-                Future<PurpleOutput> purpleOutputFuture = executorService.submit(() -> pipelineResults.add(state.add(purple.run(metadata,
-                        pair,
-                        somaticCallerOutput,
-                        structuralCallerOutput,
-                        cobaltOutput,
-                        amberOutput))));
-                PurpleOutput purpleOutput = purpleOutputFuture.get();
                 if (state.shouldProceed()) {
-                    BamMetricsOutput tumorMetrics = bamMetricsOutputStorage.get(metadata.tumor());
-                    BamMetricsOutput referenceMetrics = bamMetricsOutputStorage.get(metadata.reference());
-                    pipelineResults.add(state.add(healthChecker.run(metadata,
-                            pair,
-                            tumorMetrics,
-                            referenceMetrics,
-                            amberOutput,
-                            purpleOutput)));
-                    pipelineResults.compose(metadata);
-                    fullSomaticResults.compose(metadata);
+                    Future<PurpleOutput> purpleOutputFuture =
+                            executorService.submit(() -> pipelineResults.add(state.add(purple.run(metadata,
+                                    pair,
+                                    somaticCallerOutput,
+                                    structuralCallerOutput,
+                                    cobaltOutput,
+                                    amberOutput))));
+                    PurpleOutput purpleOutput = purpleOutputFuture.get();
+                    if (state.shouldProceed()) {
+                        BamMetricsOutput tumorMetrics = bamMetricsOutputStorage.get(metadata.tumor());
+                        BamMetricsOutput referenceMetrics = bamMetricsOutputStorage.get(metadata.reference());
+                        pipelineResults.add(state.add(healthChecker.run(metadata,
+                                pair,
+                                tumorMetrics,
+                                referenceMetrics,
+                                amberOutput,
+                                purpleOutput)));
+                        pipelineResults.compose(metadata);
+                        fullSomaticResults.compose(metadata);
+                    }
                 }
+            } catch (InterruptedException | ExecutionException e) {
+                throw new RuntimeException(e);
             }
-            setMetadataApi.complete(state.status(), metadata);
-            if (state.shouldProceed()) {
-                cleanup.run(metadata);
-            }
-        } catch (InterruptedException | ExecutionException e) {
-            throw new RuntimeException(e);
+        } else {
+            LOGGER.info("No tumor sample present in set metadata for [{}]. Skipping somatic pipeline and running transfer/cleanup.",
+                    metadata.runName());
+        }
+        setMetadataApi.complete(state.status(), metadata);
+        if (state.shouldProceed()) {
+            cleanup.run(metadata);
         }
         return state;
     }

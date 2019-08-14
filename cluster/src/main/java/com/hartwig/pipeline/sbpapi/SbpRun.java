@@ -12,6 +12,8 @@ public interface SbpRun {
 
     String id();
 
+    String ini();
+
     @Nullable
     String bucket();
 
