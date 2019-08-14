@@ -15,10 +15,12 @@ public class HadoopStatusReporter implements StatusReporter {
     private final Logger LOGGER = LoggerFactory.getLogger(StatusReporter.class);
     private final FileSystem fileSystem;
     private final String bamFolder;
+    private final String jobName;
 
-    public HadoopStatusReporter(final FileSystem fileSystem, final String bamFolder) {
+    public HadoopStatusReporter(final FileSystem fileSystem, final String bamFolder, final String jobName) {
         this.fileSystem = fileSystem;
         this.bamFolder = bamFolder;
+        this.jobName = jobName;
     }
 
     public void report(final StatusReporter.Status status) {
@@ -45,6 +47,8 @@ public class HadoopStatusReporter implements StatusReporter {
 
     @NotNull
     private Path filePath(final String fileName) {
-        return new Path(fileSystem.getUri() + bamFolder + "/" + fileName);
+        Path path = new Path(fileSystem.getUri() + bamFolder + "/" + jobName + fileName);
+        LOGGER.info("Returning filepath: {}", path);
+        return path;
     }
 }

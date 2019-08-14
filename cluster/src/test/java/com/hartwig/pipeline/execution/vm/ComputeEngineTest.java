@@ -17,6 +17,7 @@ import java.util.List;
 import com.google.api.services.compute.Compute;
 import com.google.api.services.compute.model.Image;
 import com.google.api.services.compute.model.Instance;
+import com.google.api.services.compute.model.Metadata;
 import com.google.api.services.compute.model.NetworkInterface;
 import com.google.api.services.compute.model.Operation;
 import com.google.api.services.compute.model.Zone;
@@ -39,6 +40,8 @@ public class ComputeEngineTest {
     private static final Arguments ARGUMENTS = Arguments.testDefaults();
     private static final ResultsDirectory RESULTS_DIRECTORY = ResultsDirectory.defaultDirectory();
     private static final String NAMESPACE = "test/";
+    private static final String INSTANCE_NAME = "test-test";
+    private static final String DONE = "DONE";
     private static final String FIRST_ZONE_NAME = "europe-west4-a";
     private static final String SECOND_ZONE_NAME = "europe-west4-b";
     private ComputeEngine victim;
@@ -46,6 +49,7 @@ public class ComputeEngineTest {
     private Compute compute;
     private ImmutableVirtualMachineJobDefinition jobDefinition;
     private Compute.Instances instances;
+    private Compute.ZoneOperations zoneOperations;
     private Compute.Instances.Insert insert;
     private Compute.ZoneOperations.Get zoneOpGet;
 
@@ -66,21 +70,21 @@ public class ComputeEngineTest {
         Compute.Instances.Stop stop = mock(Compute.Instances.Stop.class);
         Operation stopOperation = mock(Operation.class);
         when(stopOperation.getName()).thenReturn("stop");
-        when(stopOperation.getStatus()).thenReturn("DONE");
+        when(stopOperation.getStatus()).thenReturn(DONE);
         when(stop.execute()).thenReturn(stopOperation);
-        when(instances.stop(ARGUMENTS.project(), FIRST_ZONE_NAME, "test-test")).thenReturn(stop);
+        when(instances.stop(ARGUMENTS.project(), FIRST_ZONE_NAME, INSTANCE_NAME)).thenReturn(stop);
 
         Compute.Instances.Delete delete = mock(Compute.Instances.Delete.class);
         Operation deleteOperation = mock(Operation.class);
         when(deleteOperation.getName()).thenReturn("delete");
-        when(deleteOperation.getStatus()).thenReturn("DONE");
+        when(deleteOperation.getStatus()).thenReturn(DONE);
         when(delete.execute()).thenReturn(stopOperation);
-        when(instances.delete(ARGUMENTS.project(), FIRST_ZONE_NAME, "test-test")).thenReturn(delete);
+        when(instances.delete(ARGUMENTS.project(), FIRST_ZONE_NAME, INSTANCE_NAME)).thenReturn(delete);
 
-        Compute.ZoneOperations zoneOperations = mock(Compute.ZoneOperations.class);
+        zoneOperations = mock(Compute.ZoneOperations.class);
         zoneOpGet = mock(Compute.ZoneOperations.Get.class);
         Operation zoneOpGetOperation = mock(Operation.class);
-        when(zoneOpGetOperation.getStatus()).thenReturn("DONE");
+        when(zoneOpGetOperation.getStatus()).thenReturn(DONE);
         when(zoneOpGet.execute()).thenReturn(zoneOpGetOperation);
         when(zoneOperations.get(ARGUMENTS.project(), FIRST_ZONE_NAME, "insert")).thenReturn(zoneOpGet);
         when(zoneOperations.get(ARGUMENTS.project(), FIRST_ZONE_NAME, "stop")).thenReturn(zoneOpGet);
@@ -122,15 +126,35 @@ public class ComputeEngineTest {
 
     @Test
     public void returnsJobFailedWhenScriptFailsRemotely() throws Exception {
-        runtimeBucket = runtimeBucket.with(failureBlob(), 1);
-
-        List<Blob> blobs = new ArrayList<>();
-        Blob mockBlob = mock(Blob.class);
-        mockReadChannel(mockBlob, failureBlob());
-        blobs.add(mockBlob);
-        when(runtimeBucket.getRuntimeBucket().get(BashStartupScript.JOB_FAILED_FLAG)).thenReturn(mockBlob);
-        when(runtimeBucket.getRuntimeBucket().list()).thenReturn(new ArrayList<>()).thenReturn(new ArrayList<>()).thenReturn(blobs);
+        returnFailed();
         assertThat(victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition)).isEqualTo(PipelineStatus.FAILED);
+    }
+
+    @Test
+    public void disablesStartupScriptWhenScriptFailsRemotely() throws Exception {
+        returnFailed();
+        ArgumentCaptor<Metadata> newMetadataCaptor = ArgumentCaptor.forClass(Metadata.class);
+        Compute.Instances.SetMetadata setMetadata = mock(Compute.Instances.SetMetadata.class);
+        Operation setMetadataOperation = mock(Operation.class);
+        String opName = "setMetadata";
+        when(setMetadataOperation.getName()).thenReturn(opName);
+        when(setMetadataOperation.getStatus()).thenReturn(DONE);
+        when(setMetadata.execute()).thenReturn(setMetadataOperation);
+        when(instances.setMetadata(eq(ARGUMENTS.project()),
+                eq(FIRST_ZONE_NAME),
+                eq(INSTANCE_NAME),
+                newMetadataCaptor.capture())).thenReturn(setMetadata);
+        when(zoneOperations.get(ARGUMENTS.project(), FIRST_ZONE_NAME, opName)).thenReturn(zoneOpGet);
+
+        Compute.Instances.Get get = mock(Compute.Instances.Get.class);
+        String fingerprint = "fingerprint";
+        Instance latest = new Instance().setMetadata(new Metadata().setFingerprint(fingerprint));
+        when(get.execute()).thenReturn(latest);
+        when(instances.get(ARGUMENTS.project(), FIRST_ZONE_NAME, INSTANCE_NAME)).thenReturn(get);
+
+        victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
+        assertThat(newMetadataCaptor.getValue().getItems()).isNull();
+        assertThat(newMetadataCaptor.getValue().getFingerprint()).isEqualTo(fingerprint);
     }
 
     @Test
@@ -152,7 +176,7 @@ public class ComputeEngineTest {
     public void deletesVmWhenJobIsSuccessful() throws Exception {
         returnSuccess();
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
-        verify(instances, times(1)).delete(ARGUMENTS.project(), FIRST_ZONE_NAME, "test-test");
+        verify(instances, times(1)).delete(ARGUMENTS.project(), FIRST_ZONE_NAME, INSTANCE_NAME);
     }
 
     @Test
@@ -161,7 +185,7 @@ public class ComputeEngineTest {
         Compute.Instances.Delete goingToFailOnce = mock(Compute.Instances.Delete.class);
         Operation operation = mock(Operation.class);
         when(goingToFailOnce.execute()).thenThrow(new IOException()).thenReturn(operation);
-        when(instances.delete(ARGUMENTS.project(), FIRST_ZONE_NAME, "test-test")).thenReturn(goingToFailOnce);
+        when(instances.delete(ARGUMENTS.project(), FIRST_ZONE_NAME, INSTANCE_NAME)).thenReturn(goingToFailOnce);
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
         verify(goingToFailOnce, times(2)).execute();
     }
@@ -214,7 +238,17 @@ public class ComputeEngineTest {
         when(runtimeBucket.getRuntimeBucket().get(BashStartupScript.JOB_SUCCEEDED_FLAG)).thenReturn(mockBlob);
         when(runtimeBucket.getRuntimeBucket().list()).thenReturn(new ArrayList<>()).thenReturn(new ArrayList<>()).thenReturn(blobs);
     }
-
+    
+    private void returnFailed() throws IOException {
+        runtimeBucket = runtimeBucket.with(failureBlob(), 1);
+        List<Blob> blobs = new ArrayList<>();
+        Blob mockBlob = mock(Blob.class);
+        mockReadChannel(mockBlob, failureBlob());
+        blobs.add(mockBlob);
+        when(runtimeBucket.getRuntimeBucket().get(BashStartupScript.JOB_FAILED_FLAG)).thenReturn(mockBlob);
+        when(runtimeBucket.getRuntimeBucket().list()).thenReturn(new ArrayList<>()).thenReturn(new ArrayList<>()).thenReturn(blobs);
+  }
+  
     private void mockReadChannel(final Blob mockBlob, final String value2) throws IOException {
         ReadChannel mockReadChannel = mock(ReadChannel.class);
         when(mockReadChannel.read(any())).thenReturn(-1);

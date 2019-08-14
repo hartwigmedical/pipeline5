@@ -1,6 +1,7 @@
 package com.hartwig.bam.adam;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 import java.io.File;
 import java.io.IOException;
@@ -8,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import com.hartwig.bam.StatusReporter;
 import com.hartwig.bam.after.BamIndexPipeline;
 import com.hartwig.patient.Sample;
 import com.hartwig.support.hadoop.Hadoop;
@@ -25,6 +27,7 @@ public class BamIndexPipelineTest {
     private static final String TEST_DIR = "index_test";
     private static final String SOURCE_DIR = "/source/";
     private static final String TARGET_DIR = "/target/";
+    private StatusReporter statusReporter;
 
     @Before
     public void setUp() throws Exception {
@@ -34,7 +37,8 @@ public class BamIndexPipelineTest {
                 testDir.toString() + TARGET_DIR);
         FileUtils.deleteDirectory(testDir.toFile());
         moveTestFilesToTarget(testDir);
-        victim.execute(Sample.builder("", SAMPLE_NAME).build());
+        statusReporter = mock(StatusReporter.class);
+        victim.execute(Sample.builder("", SAMPLE_NAME).build(), statusReporter);
     }
 
     @Test

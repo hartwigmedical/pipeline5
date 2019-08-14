@@ -69,13 +69,13 @@ public class FilterTest implements CommonEntities {
     @Test
     public void shouldMoveInterimFullVcfAndTbiToFinalLocationAfterRscriptRuns() {
         assertThat(captor.getAllValues().get(2).asBash()).isEqualTo(format("mv %s.bgz %s.gz", outputFullVcf, outputFullVcf));
-        assertThat(captor.getAllValues().get(3).asBash()).isEqualTo(format("mv %s.bgz.tbi %s.tbi", outputFullVcf, outputFullVcf));
+        assertThat(captor.getAllValues().get(3).asBash()).isEqualTo(format("mv %s.bgz.tbi %s.gz.tbi", outputFullVcf, outputFullVcf));
     }
 
     @Test
     public void shouldMoveInterimFilteredVcfAndTbiToFinalLocation() {
         assertThat(captor.getAllValues().get(4).asBash()).isEqualTo(format("mv %s.bgz %s.gz", outputFilteredVcf, outputFilteredVcf));
-        assertThat(captor.getAllValues().get(5).asBash()).isEqualTo(format("mv %s.bgz.tbi %s.tbi", outputFilteredVcf, outputFilteredVcf));
+        assertThat(captor.getAllValues().get(5).asBash()).isEqualTo(format("mv %s.bgz.tbi %s.gz.tbi", outputFilteredVcf, outputFilteredVcf));
     }
 
     @Test

@@ -38,9 +38,9 @@ public class Filter extends SubStage {
         bash.addCommand(new SubShellCommand(new BiocondaVariantAnnotationWorkaround(input.path(), unzippedInputVcf)));
         bash.addCommand(new RscriptFilter(unzippedInputVcf, outputFilteredVcf, outputFullVcf));
         bash.addCommand(new MvCommand(outputFullVcf + ".bgz", outputFullVcf + ".gz"));
-        bash.addCommand(new MvCommand(outputFullVcf + ".bgz.tbi", outputFullVcf + ".tbi"));
+        bash.addCommand(new MvCommand(outputFullVcf + ".bgz.tbi", outputFullVcf + ".gz.tbi"));
         bash.addCommand(new MvCommand(outputFilteredVcf + ".bgz", outputFilteredVcf + ".gz"));
-        bash.addCommand(new MvCommand(outputFilteredVcf + ".bgz.tbi", outputFilteredVcf + ".tbi"));
+        bash.addCommand(new MvCommand(outputFilteredVcf + ".bgz.tbi", outputFilteredVcf + ".gz.tbi"));
         bash.addCommand(() -> "cp " + input.path() + " " + output.path());
         bash.addCommand(() -> "cp " + input.path() + ".tbi " + output.path() + ".tbi");
 

@@ -18,4 +18,6 @@ public interface SbpRun {
     String bucket();
 
     SbpSet set();
+
+    String status();
 }

@@ -32,6 +32,11 @@ public class LocalSetMetadataApi implements SomaticMetadataApi {
     }
 
     @Override
+    public boolean hasDependencies(final String sampleId) {
+        return false;
+    }
+
+    @Override
     public void complete(final PipelineStatus status, SomaticRunMetadata metadata) {
         // do nothing
     }

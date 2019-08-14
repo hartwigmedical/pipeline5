@@ -7,21 +7,26 @@ import com.google.auth.Credentials;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.metadata.SomaticMetadataApi;
 
 public class CleanupProvider {
 
     private final Credentials credentials;
     private final Arguments arguments;
     private final Storage storage;
+    private SomaticMetadataApi somaticMetadataApi;
 
-    private CleanupProvider(final Credentials credentials, final Arguments arguments, final Storage storage) {
+    private CleanupProvider(final Credentials credentials, final Arguments arguments, final Storage storage,
+            final SomaticMetadataApi somaticMetadataApi) {
         this.credentials = credentials;
         this.arguments = arguments;
         this.storage = storage;
+        this.somaticMetadataApi = somaticMetadataApi;
     }
 
-    public static CleanupProvider from(final Credentials credentials, final Arguments arguments, final Storage storage) {
-        return new CleanupProvider(credentials, arguments, storage);
+    public static CleanupProvider from(final Credentials credentials, final Arguments arguments, final Storage storage,
+            final SomaticMetadataApi somaticMetadataApi) {
+        return new CleanupProvider(credentials, arguments, storage, somaticMetadataApi);
     }
 
     public Cleanup get() {
@@ -29,6 +34,7 @@ public class CleanupProvider {
                 arguments,
                 new Dataproc.Builder(new NetHttpTransport(),
                         JacksonFactory.getDefaultInstance(),
-                        new HttpCredentialsAdapter(credentials)).setApplicationName("cleanup").build());
+                        new HttpCredentialsAdapter(credentials)).setApplicationName("cleanup").build(),
+                somaticMetadataApi);
     }
 }
