@@ -2,9 +2,7 @@ package com.hartwig.bam.after;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 
-import com.hartwig.bam.HadoopStatusReporter;
 import com.hartwig.bam.StatusReporter;
 import com.hartwig.patient.Sample;
 

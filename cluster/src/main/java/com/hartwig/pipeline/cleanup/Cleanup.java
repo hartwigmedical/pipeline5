@@ -50,7 +50,7 @@ public class Cleanup {
 
         deleteBucket(Run.from(metadata.reference().sampleId(), metadata.tumor().sampleId(), arguments).id());
         cleanupSample(metadata.reference());
-        cleanupSample(metadata.tumor());
+        metadata.maybeTumor().ifPresent(this::cleanupSample);
     }
 
     private void cleanupSample(final SingleSampleRunMetadata metadata) {

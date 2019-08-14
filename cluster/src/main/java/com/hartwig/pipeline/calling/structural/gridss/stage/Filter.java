@@ -10,7 +10,6 @@ import com.hartwig.pipeline.calling.structural.gridss.command.BiocondaVariantAnn
 import com.hartwig.pipeline.calling.structural.gridss.command.RscriptFilter;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.OutputFile;
-import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.unix.MvCommand;
 import com.hartwig.pipeline.execution.vm.unix.SubShellCommand;
 
