@@ -2,6 +2,7 @@ package com.hartwig.pipeline.metadata;
 
 import java.util.Optional;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import org.immutables.value.Value;
@@ -14,6 +15,7 @@ public interface SomaticRunMetadata {
 
     SingleSampleRunMetadata reference();
 
+    @JsonProperty("tumor")
     Optional<SingleSampleRunMetadata> maybeTumor();
 
     default SingleSampleRunMetadata tumor() {
