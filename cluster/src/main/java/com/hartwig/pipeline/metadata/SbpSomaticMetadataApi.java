@@ -1,6 +1,7 @@
 package com.hartwig.pipeline.metadata;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -27,7 +28,7 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
     static final String SUCCESS = "Success";
     static final String SNP_CHECK = "SnpCheck";
     static final String FAILED = "Failed";
-    private static final Set<String> COMPLETE_STATUS = ImmutableSet.of("Success", "Failed", "SnpCheck", "Validated");
+    private static final Set<String> COMPLETE_STATUS = ImmutableSet.of(SUCCESS, FAILED, SNP_CHECK, "Validated");
     private static final String UPLOADING = "Uploading";
     private static final String REF = "ref";
     private static final String TUMOR = "tumor";
@@ -93,20 +94,32 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
     @Override
     public boolean hasDependencies(final String sampleName) {
         try {
-            return hasPendingRuns(sbpRestApi.getRunsByTumorName(sampleName))
-                    || hasPendingRuns(sbpRestApi.getRunsByReferenceName(sampleName));
+            return hasPendingRuns(sampleName, sbpRestApi.getSetsByTumorName(sampleName)) || hasPendingRuns(sampleName,
+                    sbpRestApi.getSetsByReferenceName(sampleName));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private boolean hasPendingRuns(final String runs) throws IOException {
-        if (runs != null) {
-            List<SbpRun> sbpRuns = ObjectMappers.get().readValue(runs, new TypeReference<List<SbpRun>>() {
+    private boolean hasPendingRuns(final String sample, final String sets) throws IOException {
+        if (sets != null) {
+            List<SbpSet> sbpSets = ObjectMappers.get().readValue(sets, new TypeReference<List<SbpSet>>() {
             });
-            List<SbpRun> pending = sbpRuns.stream().filter(run -> !COMPLETE_STATUS.contains(run.status())).collect(Collectors.toList());
+
+            List<SbpRun> runsForSets = new ArrayList<>();
+            for (SbpSet sbpSet : sbpSets) {
+                String runsBySet = sbpRestApi.getRunsBySet(sbpSet.id());
+                if (runsBySet != null) {
+                    runsForSets.addAll(ObjectMappers.get().readValue(runsBySet, new TypeReference<List<SbpRun>>() {
+                    }));
+                }
+            }
+
+            List<SbpRun> pending = runsForSets.stream().filter(run -> !COMPLETE_STATUS.contains(run.status())).collect(Collectors.toList());
             if (!pending.isEmpty()) {
-                LOGGER.info("Founds dependent runs for run [{}], [{}]", pending.stream().map(SbpRun::id).collect(Collectors.joining(",")));
+                LOGGER.info("Founds dependent runs for sample [{}], [{}]",
+                        sample,
+                        pending.stream().map(SbpRun::id).collect(Collectors.joining(",")));
             }
             return !pending.isEmpty();
         }

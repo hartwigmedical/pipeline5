@@ -107,19 +107,31 @@ public class SbpSomaticMetadataApiTest {
 
     @Test
     public void checksForSampleInFlightDependenciesReference() {
-        when(sbpRestApi.getRunsByReferenceName("CPCT02290012R")).thenReturn(TestJson.get("get_runs_inflight"));
+        when(sbpRestApi.getSetsByReferenceName("CPCT02290012R")).thenReturn(TestJson.get("get_sets_by_sample"));
+        when(sbpRestApi.getRunsBySet("1")).thenReturn(TestJson.get("get_runs_complete"));
+        when(sbpRestApi.getRunsBySet("2")).thenReturn(TestJson.get("get_runs_inflight"));
         assertThat(victim.hasDependencies("CPCT02290012R")).isTrue();
     }
 
     @Test
     public void checksForSampleInFlightDependenciesTumor() {
-        when(sbpRestApi.getRunsByReferenceName("CPCT02290012T")).thenReturn(TestJson.get("get_runs_inflight"));
+        when(sbpRestApi.getSetsByTumorName("CPCT02290012T")).thenReturn(TestJson.get("get_sets_by_sample"));
+        when(sbpRestApi.getRunsBySet("1")).thenReturn(TestJson.get("get_runs_complete"));
+        when(sbpRestApi.getRunsBySet("2")).thenReturn(TestJson.get("get_runs_inflight"));
         assertThat(victim.hasDependencies("CPCT02290012T")).isTrue();
     }
 
     @Test
     public void checksForSampleInFlightDependenciesAllComplete() {
-        when(sbpRestApi.getRunsByReferenceName("CPCT02290012T")).thenReturn(TestJson.get("get_runs_complete"));
+        when(sbpRestApi.getSetsByTumorName("CPCT02290012T")).thenReturn(TestJson.get("get_sets_by_sample"));
+        when(sbpRestApi.getRunsBySet("1")).thenReturn(TestJson.get("get_runs_complete"));
+        when(sbpRestApi.getRunsBySet("2")).thenReturn(TestJson.get("get_runs_complete"));
         assertThat(victim.hasDependencies("CPCT02290012T")).isFalse();
+    }
+
+    @Test
+    public void checksForSampleInFlightDependenciesEmptyList() {
+        when(sbpRestApi.getSetsByReferenceName("CPCT02290012R")).thenReturn("[]");
+        assertThat(victim.hasDependencies("CPCT02290012R")).isFalse();
     }
 }

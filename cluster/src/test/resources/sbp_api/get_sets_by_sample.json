@@ -1,0 +1,22 @@
+[
+  {
+    "fastq_portal": false,
+    "entity_id": 1655,
+    "name": "set1",
+    "ref_sample": "CPCT02290012R",
+    "tumor_sample": "CPCT02290012T",
+    "id": 1,
+    "createTime": "2019-08-09T17:27:58",
+    "size": null
+  },
+  {
+    "fastq_portal": false,
+    "entity_id": 1755,
+    "name": "set2",
+    "ref_sample": "CPCT02290012R",
+    "tumor_sample": "CPCT02290012T",
+    "id": 2,
+    "createTime": "2019-08-15T14:52:08",
+    "size": null
+  }
+]
