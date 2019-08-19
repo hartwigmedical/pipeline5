@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.ImmutableSet;
@@ -103,7 +104,11 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
         if (runs != null) {
             List<SbpRun> sbpRuns = ObjectMappers.get().readValue(runs, new TypeReference<List<SbpRun>>() {
             });
-            return !sbpRuns.stream().map(SbpRun::status).allMatch(COMPLETE_STATUS::contains);
+            List<SbpRun> pending = sbpRuns.stream().filter(run -> !COMPLETE_STATUS.contains(run.status())).collect(Collectors.toList());
+            if (!pending.isEmpty()) {
+                LOGGER.info("Founds dependent runs for run [{}], [{}]", pending.stream().map(SbpRun::id).collect(Collectors.joining(",")));
+            }
+            return !pending.isEmpty();
         }
         return false;
     }
