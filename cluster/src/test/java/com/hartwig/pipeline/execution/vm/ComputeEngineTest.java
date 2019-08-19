@@ -52,6 +52,7 @@ public class ComputeEngineTest {
     private Compute.ZoneOperations zoneOperations;
     private Compute.Instances.Insert insert;
     private Compute.ZoneOperations.Get zoneOpGet;
+    private BashStartupScript startupScript;
 
     @Before
     public void setUp() throws Exception {
@@ -99,12 +100,13 @@ public class ComputeEngineTest {
         when(zones.list(ARGUMENTS.project())).thenReturn(zonesList);
         when(compute.zones()).thenReturn(zones);
 
+        startupScript = BashStartupScript.of(runtimeBucket.getRuntimeBucket().name());
         victim = new ComputeEngine(ARGUMENTS, compute);
         runtimeBucket = MockRuntimeBucket.test();
         jobDefinition = VirtualMachineJobDefinition.builder()
                 .name("test")
                 .namespacedResults(RESULTS_DIRECTORY)
-                .startupCommand(BashStartupScript.of(runtimeBucket.getRuntimeBucket().name()))
+                .startupCommand(startupScript)
                 .build();
     }
 
@@ -168,7 +170,7 @@ public class ComputeEngineTest {
     public void shouldDeleteStateWhenFailureFlagExists() {
         runtimeBucket = runtimeBucket.with(failureBlob(), 1);
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
-        verify(runtimeBucket.getRuntimeBucket(), times(1)).delete(BashStartupScript.JOB_FAILED_FLAG);
+        verify(runtimeBucket.getRuntimeBucket(), times(1)).delete(startupScript.failureFlag());
         verify(runtimeBucket.getRuntimeBucket(), times(1)).delete("results");
     }
 
@@ -235,7 +237,7 @@ public class ComputeEngineTest {
         Blob mockBlob = mock(Blob.class);
         mockReadChannel(mockBlob, successBlob());
         blobs.add(mockBlob);
-        when(runtimeBucket.getRuntimeBucket().get(BashStartupScript.JOB_SUCCEEDED_FLAG)).thenReturn(mockBlob);
+        when(runtimeBucket.getRuntimeBucket().get(startupScript.successFlag())).thenReturn(mockBlob);
         when(runtimeBucket.getRuntimeBucket().list()).thenReturn(new ArrayList<>()).thenReturn(new ArrayList<>()).thenReturn(blobs);
     }
     
@@ -245,7 +247,7 @@ public class ComputeEngineTest {
         Blob mockBlob = mock(Blob.class);
         mockReadChannel(mockBlob, failureBlob());
         blobs.add(mockBlob);
-        when(runtimeBucket.getRuntimeBucket().get(BashStartupScript.JOB_FAILED_FLAG)).thenReturn(mockBlob);
+        when(runtimeBucket.getRuntimeBucket().get(startupScript.failureFlag())).thenReturn(mockBlob);
         when(runtimeBucket.getRuntimeBucket().list()).thenReturn(new ArrayList<>()).thenReturn(new ArrayList<>()).thenReturn(blobs);
   }
   
@@ -259,10 +261,10 @@ public class ComputeEngineTest {
     }
 
     private String successBlob() {
-        return NAMESPACE + BashStartupScript.JOB_SUCCEEDED_FLAG;
+        return NAMESPACE + startupScript.successFlag();
     }
 
     private String failureBlob() {
-        return NAMESPACE + BashStartupScript.JOB_FAILED_FLAG;
+        return NAMESPACE + startupScript.failureFlag();
     }
 }

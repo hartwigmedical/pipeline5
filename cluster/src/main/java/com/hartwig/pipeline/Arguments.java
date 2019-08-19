@@ -20,6 +20,11 @@ public interface Arguments {
         SOMATIC
     }
 
+    enum AlignerType {
+        SPARK,
+        VM
+    }
+
     boolean forceJarUpload();
 
     boolean cleanup();
@@ -88,6 +93,8 @@ public interface Arguments {
 
     String patientReportBucket();
 
+    AlignerType alignerType();
+
     Optional<String> cmek();
 
     Optional<Integer> sbpApiSampleId();
@@ -141,6 +148,7 @@ public interface Arguments {
                     .upload(true)
                     .runBamMetrics(true)
                     .runAligner(true)
+                    .alignerType(DEFAULT_ALIGNER_TYPE)
                     .runSnpGenotyper(true)
                     .runGermlineCaller(true)
                     .runSomaticCaller(true)
@@ -171,6 +179,7 @@ public interface Arguments {
                     .upload(true)
                     .runBamMetrics(true)
                     .runAligner(true)
+                    .alignerType(DEFAULT_ALIGNER_TYPE)
                     .runSnpGenotyper(true)
                     .runGermlineCaller(true)
                     .runSomaticCaller(true)
@@ -196,6 +205,7 @@ public interface Arguments {
     }
 
     Mode DEFAULT_MODE = Mode.SINGLE_SAMPLE;
+    AlignerType DEFAULT_ALIGNER_TYPE = AlignerType.SPARK;
 
     String DEFAULT_PRODUCTION_RCLONE_PATH = "/usr/bin";
     String DEFAULT_PRODUCTION_RCLONE_GCP_REMOTE = "gs";

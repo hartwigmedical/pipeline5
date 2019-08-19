@@ -1,7 +1,8 @@
 echo 'tmpfs /root/.gsutil tmpfs size=128m 0 0' | sudo tee -a /etc/fstab
 sudo apt-get -y update
 sudo apt-get -y upgrade
-sudo apt-get -y install dirmngr apt-transport-https ca-certificates software-properties-common gnupg2 perl-modules make openjdk-8-jdk libcurl4-gnutls-dev libxml2-dev libssl-dev less libgd-dev cpanminus
+sudo apt-get -y install dirmngr apt-transport-https ca-certificates software-properties-common gnupg2 perl-modules make 
+sudo apt-get -y install openjdk-8-jdk libcurl4-gnutls-dev libxml2-dev libssl-dev less libgd-dev cpanminus parallel
 sudo apt-key adv --keyserver keys.gnupg.net --recv-key 'E19F5F87128899B192B1A2C2AD5F960A256A04AF'
 sudo add-apt-repository 'deb https://cloud.r-project.org/bin/linux/debian stretch-cran35/'
 sudo apt-get -y update
@@ -22,6 +23,7 @@ sudo chmod a+x /data/tools/bcftools/1.3.1/bcftools
 sudo chmod a+x /data/tools/snpEff/4.3s/snpEff.sh
 sudo chmod a+x /data/tools/bwa/0.7.17/bwa
 sudo chmod a+x /data/tools/sambamba/0.6.5/sambamba
+sudo chmod a+x /data/tools/sambamba/0.6.8/sambamba
 sudo cpanm install Clone
 sudo cpanm install Config::General
 sudo cpanm install Font::TTF::Font

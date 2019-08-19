@@ -7,20 +7,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BashStartupScript {
-    static final String JOB_SUCCEEDED_FLAG = "JOB_SUCCESS";
-    static final String JOB_FAILED_FLAG = "JOB_FAILURE";
+    static final String JOB_SUCCEEDED_FLAG_ENDING = "_SUCCESS";
+    static final String JOB_FAILED_FLAG_ENDING = "_FAILURE";
     private static final String LOG_FILE = VmDirectories.OUTPUT + "/run.log";
     private final List<String> commands;
     private final String runtimeBucketName;
+    private final String flagFilePrefix;
 
-    private BashStartupScript(final String runtimeBucketName) {
+    private BashStartupScript(final String runtimeBucketName, final String flagFilePrefix) {
         this.runtimeBucketName = runtimeBucketName;
+        this.flagFilePrefix = flagFilePrefix;
         this.commands = new ArrayList<>();
         this.commands.add("echo $(date) Starting run");
     }
 
     public static BashStartupScript of(final String runtimeBucketName) {
-        return new BashStartupScript(runtimeBucketName);
+        return new BashStartupScript(runtimeBucketName, "JOB");
+    }
+
+    public static BashStartupScript of(final String runtimeBucketName, String flagFilePrefix) {
+        return new BashStartupScript(runtimeBucketName, flagFilePrefix);
     }
 
     /**
@@ -28,7 +34,7 @@ public class BashStartupScript {
      */
     public String asUnixString() {
         String commandSuffix = format(" >>%s 2>&1 || die", LOG_FILE);
-        String jobFailedFlag = "/tmp/" + JOB_FAILED_FLAG;
+        String jobFailedFlag = "/tmp/" + failureFlag();
         String preamble = "#!/bin/bash -x\n\n" + "set -o pipefail\n\n" +
                 "function die() {\n" + "  exit_code=$?\n" +
                 "  echo \"Unknown failure: called command returned $exit_code\"\n" +
@@ -63,15 +69,15 @@ public class BashStartupScript {
     }
 
     private void addCompletionCommands() {
-        String successFlag = "/tmp/" + JOB_SUCCEEDED_FLAG;
+        String successFlag = "/tmp/" + successFlag();
         commands.add(format("(echo 0 > %s && gsutil cp %s gs://%s)", successFlag, successFlag, runtimeBucketName));
     }
 
     String successFlag() {
-        return JOB_SUCCEEDED_FLAG;
+        return flagFilePrefix + JOB_SUCCEEDED_FLAG_ENDING;
     }
 
     String failureFlag() {
-        return JOB_FAILED_FLAG;
+        return flagFilePrefix + JOB_FAILED_FLAG_ENDING;
     }
 }
