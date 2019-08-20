@@ -17,7 +17,7 @@ class SambambaMarkdupsCommand extends VersionedToolCommand {
 
     @NotNull
     private static String[] arguments(final List<String> inputBamPaths, final String outputBamPath) {
-        List<String> arguments = Lists.newArrayList("-t", Bash.allCpus(), "--overflow-list-size=15000000");
+        List<String> arguments = Lists.newArrayList("markdup", "-t", Bash.allCpus(), "--overflow-list-size=15000000");
         arguments.addAll(inputBamPaths);
         arguments.add(outputBamPath);
         return arguments.toArray(new String[arguments.size()]);

@@ -54,12 +54,15 @@ public class MergeAndMarkDups {
         String outputBamPath = AlignmentOutputPaths.sorted(metadata.sampleName());
         GoogleStorageLocation outputBamLocation = GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(outputBamPath));
 
-        bash.addCommand(new SambambaMarkdupsCommand(laneBams.stream().map(InputDownload::getLocalTargetPath).collect(Collectors.toList()),
-                outputBamPath)).addCommand(new OutputUpload(outputBamLocation));
+        bash.addCommand(new SambambaMarkdupsCommand(laneBams.stream()
+                .map(InputDownload::getLocalTargetPath)
+                .filter(path -> path.endsWith("bam"))
+                .collect(Collectors.toList()), outputBamPath)).addCommand(new OutputUpload(outputBamLocation));
 
         PipelineStatus status = computeEngine.submit(bucket, VirtualMachineJobDefinition.mergeMarkdups(bash, resultsDirectory));
 
         return AlignmentOutput.builder()
+                .sample(metadata.sampleName())
                 .status(status)
                 .maybeFinalBamLocation(outputBamLocation)
                 .maybeFinalBaiLocation(GoogleStorageLocation.of(bucket.name(),

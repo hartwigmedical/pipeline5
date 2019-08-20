@@ -10,4 +10,8 @@ public interface IndexedBamLocation {
     GoogleStorageLocation bam();
 
     GoogleStorageLocation bai();
+
+    static ImmutableIndexedBamLocation.Builder builder () {
+        return ImmutableIndexedBamLocation.builder();
+    }
 }
