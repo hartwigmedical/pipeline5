@@ -8,7 +8,7 @@ public class AlignmentOutputPaths {
         return format("%s.bam", name);
     }
 
-    static String sorted(String sample) {
+    public static String sorted(String sample) {
         return bam(format("%s.sorted", sample));
     }
 

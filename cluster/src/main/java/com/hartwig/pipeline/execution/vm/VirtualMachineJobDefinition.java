@@ -116,4 +116,13 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .namespacedResults(resultsDirectory)
                 .build();
     }
+
+    static VirtualMachineJobDefinition mergeMarkdups(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
+        return ImmutableVirtualMachineJobDefinition.builder()
+                .name("merge-markdups")
+                .startupCommand(startupScript)
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 32))
+                .namespacedResults(resultsDirectory)
+                .build();
+    }
 }
