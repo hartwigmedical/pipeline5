@@ -57,11 +57,12 @@ public class HDFSBamStore implements OutputStore<AlignmentRecordDataset> {
     @Override
     public void clear() {
         try {
-            for (FileStatus fileStatus : fileSystem.listStatus(new Path(dataLocation.rootUri()))) {
-                if (!fileStatus.getPath().getName().endsWith(StatusReporter.SUCCESS) && !fileStatus.getPath()
-                        .getName()
-                        .endsWith(StatusReporter.FAILURE)) {
-                    fileSystem.delete(fileStatus.getPath(), true);
+            Path rootPath = new Path(dataLocation.rootUri());
+            if (fileSystem.exists(rootPath)) {
+                for (FileStatus fileStatus : fileSystem.listStatus(rootPath)) {
+                    if (!fileStatus.getPath().getName().endsWith(StatusReporter.SUCCESS) && !fileStatus.getPath().getName().endsWith(StatusReporter.FAILURE)) {
+                        fileSystem.delete(fileStatus.getPath(), true);
+                    }
                 }
             }
         } catch (IOException e) {
