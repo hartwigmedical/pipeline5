@@ -26,6 +26,7 @@ public interface Versions {
     String CIRCOS = "0.69.6";
     String GRIDSS = "2.5.1";
 
+
     static void printAll() {
         Logger logger = LoggerFactory.getLogger(Versions.class);
         logger.info("Version of pipeline5 is [{}] ", pipelineVersion());
@@ -40,6 +41,20 @@ public interface Versions {
     static String pipelineVersion() {
         String version = Versions.class.getPackage().getImplementationVersion();
         return version != null ? version : "local-SNAPSHOT";
+    }
+
+    static String pipelineMajorMinorVersion() {
+        return majorMinorVersion(pipelineVersion());
+    }
+
+    static String majorMinorVersion(final String version) {
+        if (version != null) {
+            String[] parts = version.split("\\.");
+            if (parts.length == 3) {
+                return String.format("%s.%s", parts[0], parts[1]);
+            }
+        }
+        return version;
     }
 
     @NotNull

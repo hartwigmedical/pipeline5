@@ -30,10 +30,10 @@ import com.google.api.services.compute.model.Zone;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Blob;
-import com.google.common.collect.ImmutableMap;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.execution.CloudExecutor;
 import com.hartwig.pipeline.execution.PipelineStatus;
+import com.hartwig.pipeline.labels.Labels;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
 import org.slf4j.Logger;
@@ -89,7 +89,7 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
                 String project = arguments.project();
                 instance.setMachineType(machineType(zone.getName(), jobDefinition.performanceProfile().uri(), project));
 
-                instance.setLabels(ImmutableMap.of("run_id", bucket.runId(), "job_name", jobDefinition.name()));
+                instance.setLabels(Labels.ofRun(bucket.name(), jobDefinition.name(), arguments));
 
                 addServiceAccount(instance);
                 Image image = attachDisk(compute,
@@ -256,7 +256,7 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
         Operation syncOp = executeWithRetries(request::execute);
         String logId = format("Operation [%s:%s]", syncOp.getOperationType(), syncOp.getName());
         LOGGER.debug("{} is executing synchronously", logId);
-        while ("RUNNING".equals(fetchJobStatus(compute, syncOp.getName(), projectName, zoneName))) {
+        while ("RUNNING" .equals(fetchJobStatus(compute, syncOp.getName(), projectName, zoneName))) {
             LOGGER.debug("{} not done yet", logId);
             try {
                 Thread.sleep(500);

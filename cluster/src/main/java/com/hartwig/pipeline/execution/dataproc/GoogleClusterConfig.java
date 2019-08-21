@@ -24,7 +24,6 @@ import org.jetbrains.annotations.NotNull;
 class GoogleClusterConfig {
 
     private static final String IDLE_TTL = "600s";
-    private static final int DISK_SIZE_GB = 1000;
     private static final String LATEST_DATAPROC_IMAGE = "1.4";
     private final ClusterConfig config;
 

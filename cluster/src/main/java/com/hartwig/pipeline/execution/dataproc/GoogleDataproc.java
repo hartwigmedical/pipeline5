@@ -26,6 +26,7 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.execution.PipelineStatus;
+import com.hartwig.pipeline.labels.Labels;
 import com.hartwig.pipeline.storage.GoogleStorageStatusCheck;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.storage.StatusCheck;
@@ -122,23 +123,25 @@ public class GoogleDataproc implements SparkExecutor {
     }
 
     private void start(final DataprocPerformanceProfile performanceProfile, final RuntimeBucket runtimeBucket, final Arguments arguments,
-            final String clusterName) throws IOException {
+            final String clusterName, final String jobName) throws IOException {
         Dataproc.Projects.Regions.Clusters clusters = dataproc.projects().regions().clusters();
         Cluster existing = findExistingCluster(arguments, clusterName);
         if (existing == null) {
-            createCluster(performanceProfile, runtimeBucket, arguments, clusterName, clusters);
+            createCluster(performanceProfile, runtimeBucket, arguments, clusterName, clusters, jobName);
         } else if (existing.getStatus().getState().equals("ERROR")) {
             waitForOperationComplete(clusters.delete(arguments.project(), arguments.region(), clusterName).execute());
-            createCluster(performanceProfile, runtimeBucket, arguments, clusterName, clusters);
+            createCluster(performanceProfile, runtimeBucket, arguments, clusterName, clusters, jobName);
         } else {
             LOGGER.debug("Cluster [{}] already exists, using this cluster to run pipeline", clusterName);
         }
     }
 
     private void createCluster(final DataprocPerformanceProfile performanceProfile, final RuntimeBucket runtimeBucket,
-            final Arguments arguments, final String clusterName, final Dataproc.Projects.Regions.Clusters clusters) throws IOException {
+            final Arguments arguments, final String clusterName, final Dataproc.Projects.Regions.Clusters clusters, final String jobName)
+            throws IOException {
         ClusterConfig clusterConfig = GoogleClusterConfig.from(runtimeBucket, nodeInitialization, performanceProfile, arguments).config();
-        Operation createCluster = clusters.create(arguments.project(), arguments.region(), cluster(clusterConfig, clusterName)).execute();
+        Operation createCluster =
+                clusters.create(arguments.project(), arguments.region(), cluster(clusterConfig, clusterName, jobName)).execute();
         LOGGER.debug("Starting Google Dataproc cluster with name [{}]. This may take a minute or two...", clusterName);
         waitForOperationComplete(createCluster);
         LOGGER.debug("Cluster started.");
@@ -146,7 +149,7 @@ public class GoogleDataproc implements SparkExecutor {
 
     private Job submittedJob(final SparkJobDefinition jobDefinition, final RuntimeBucket runtimeBucket, final String naturalJobId) {
         try {
-            start(jobDefinition.performanceProfile(), runtimeBucket, arguments, naturalJobId);
+            start(jobDefinition.performanceProfile(), runtimeBucket, arguments, naturalJobId, jobDefinition.name());
             return dataproc.projects()
                     .regions()
                     .jobs()
@@ -195,7 +198,7 @@ public class GoogleDataproc implements SparkExecutor {
         try {
             Job job = dataproc.projects().regions().jobs().get(arguments.project(), arguments.region(), jobId).execute();
             if (job != null) {
-                if ("RUNNING".equals(job.getStatus().getState())) {
+                if ("RUNNING" .equals(job.getStatus().getState())) {
                     LOGGER.info("Job [{}] already existed and is running. Re-attaching to running job.", jobName);
                     return Optional.of(job);
                 } else if (getStatus(jobName, runtimeBucket).equals(StatusCheck.Status.SUCCESS)) {
@@ -203,7 +206,8 @@ public class GoogleDataproc implements SparkExecutor {
                     return Optional.of(job);
                 } else {
                     LOGGER.info("Job [{}] already existed with status [{}]. Deleting and re-submitting.",
-                            jobName, job.getStatus().getState());
+                            jobName,
+                            job.getStatus().getState());
                     dataproc.projects().regions().jobs().delete(arguments.project(), arguments.region(), jobId).execute();
                 }
             }
@@ -239,8 +243,8 @@ public class GoogleDataproc implements SparkExecutor {
         }
     }
 
-    private Cluster cluster(final ClusterConfig clusterConfig, final String clusterName) {
-        return new Cluster().setClusterName(clusterName).setConfig(clusterConfig);
+    private Cluster cluster(final ClusterConfig clusterConfig, final String clusterName, final String jobName) {
+        return new Cluster().setClusterName(clusterName).setConfig(clusterConfig).setLabels(Labels.ofRun(clusterName, jobName, arguments));
     }
 
     private interface Poll<T> {
