@@ -2,11 +2,13 @@ package com.hartwig.bam.adam;
 
 import java.io.IOException;
 
+import com.hartwig.bam.StatusReporter;
 import com.hartwig.io.DataLocation;
 import com.hartwig.io.InputOutput;
 import com.hartwig.io.OutputStore;
 import com.hartwig.patient.Sample;
 
+import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.parquet.hadoop.metadata.CompressionCodecName;
@@ -38,13 +40,7 @@ public class HDFSBamStore implements OutputStore<AlignmentRecordDataset> {
     public void store(final InputOutput<AlignmentRecordDataset> inputOutput, String suffix) {
         String storageUri = dataLocation.uri(inputOutput.sample(), suffix);
         LOGGER.info("persisting to... {}", storageUri);
-        JavaSaveArgs saveArgs = new JavaSaveArgs(storageUri,
-                128 * 1024 * 1024,
-                1024 * 1024,
-                CompressionCodecName.GZIP,
-                false,
-                true,
-                false);
+        JavaSaveArgs saveArgs = new JavaSaveArgs(storageUri, 128 * 1024 * 1024, 1024 * 1024, CompressionCodecName.GZIP, false, true, false);
         saveArgs.deferMerging_$eq(!mergeFinalFile);
         inputOutput.payload().save(saveArgs, true);
     }
@@ -61,7 +57,14 @@ public class HDFSBamStore implements OutputStore<AlignmentRecordDataset> {
     @Override
     public void clear() {
         try {
-            fileSystem.delete(new Path(dataLocation.rootUri()), true);
+            Path rootPath = new Path(dataLocation.rootUri());
+            if (fileSystem.exists(rootPath)) {
+                for (FileStatus fileStatus : fileSystem.listStatus(rootPath)) {
+                    if (!fileStatus.getPath().getName().endsWith(StatusReporter.SUCCESS) && !fileStatus.getPath().getName().endsWith(StatusReporter.FAILURE)) {
+                        fileSystem.delete(fileStatus.getPath(), true);
+                    }
+                }
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

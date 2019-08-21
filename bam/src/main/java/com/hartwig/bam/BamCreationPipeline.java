@@ -19,6 +19,7 @@ public abstract class BamCreationPipeline {
 
     public void execute(final Sample sample) {
         LOGGER.info("ADAM BAM creation started for sample [{}]", sample.name());
+        finalBamStore().clear();
         StatusReporter.Status status = StatusReporter.Status.SUCCESS;
         try {
             InputOutput<AlignmentRecordDataset> aligned = executeAndCache(InputOutput.seed(sample), alignment());
