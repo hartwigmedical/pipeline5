@@ -12,19 +12,26 @@ public class AssembleBreakendsTest implements CommonEntities {
     private String configurationFile;
     private String blacklist;
     private String assemblyBam;
+    private String className;
 
     @Before
     public void setup() {
         configurationFile = "/some/path/config.properties";
         blacklist = "/blacklist.bed";
         assemblyBam = "/some/path/to/output.bam";
+        className = "gridss.AssembleBreakends";
         command = new AssembleBreakends(REFERENCE_BAM, TUMOR_BAM, assemblyBam, REFERENCE_GENOME,
                 configurationFile, blacklist);
     }
 
     @Test
+    public void shouldGenerateCorrectJavaArguments() {
+        GridssCommonArgumentsAssert.assertThat(command).generatesJavaInvocationUpToAndIncludingClassname(className);
+    }
+
+    @Test
     public void shouldReturnClassName() {
-        assertThat(command.className()).isEqualTo("gridss.AssembleBreakends");
+        assertThat(command.className()).isEqualTo(className);
     }
 
     @Test

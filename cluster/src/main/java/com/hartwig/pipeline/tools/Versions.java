@@ -24,7 +24,7 @@ public interface Versions {
     String HEALTH_CHECKER = "3.1";
     String PURPLE = "2.33";
     String CIRCOS = "0.69.6";
-    String GRIDSS = "2.4.0";
+    String GRIDSS = "2.5.1";
 
     static void printAll() {
         Logger logger = LoggerFactory.getLogger(Versions.class);

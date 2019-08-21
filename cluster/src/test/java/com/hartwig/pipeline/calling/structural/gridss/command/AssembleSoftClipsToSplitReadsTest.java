@@ -1,10 +1,11 @@
 package com.hartwig.pipeline.calling.structural.gridss.command;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
+
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class AssembleSoftClipsToSplitReadsTest implements CommonEntities {
     private String className;
@@ -14,6 +15,11 @@ public class AssembleSoftClipsToSplitReadsTest implements CommonEntities {
     public void setup() {
         className = "gridss.SoftClipsToSplitReads";
         command = new SoftClipsToSplitReads.ForAssemble(REFERENCE_BAM, REFERENCE_GENOME, OUTPUT_BAM);
+    }
+
+    @Test
+    public void shouldGenerateCorrectJavaArguments() {
+        GridssCommonArgumentsAssert.assertThat(command).generatesJavaInvocationUpToAndIncludingClassname(className);
     }
 
     @Test

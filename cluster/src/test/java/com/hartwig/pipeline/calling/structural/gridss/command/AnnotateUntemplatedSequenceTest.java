@@ -22,6 +22,11 @@ public class AnnotateUntemplatedSequenceTest implements CommonEntities {
     }
 
     @Test
+    public void shouldGenerateCorrectJavaArguments() {
+        GridssCommonArgumentsAssert.assertThat(command).generatesJavaInvocationUpToAndIncludingClassname(className);
+    }
+
+    @Test
     public void shouldReturnClassName() {
         assertThat(command.className()).isEqualTo(className);
     }

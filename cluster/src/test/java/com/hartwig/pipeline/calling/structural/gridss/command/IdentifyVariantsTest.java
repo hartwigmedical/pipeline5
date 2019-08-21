@@ -15,6 +15,7 @@ public class IdentifyVariantsTest implements CommonEntities {
     private String outputVcf;
     private String configurationFile;
     private String blacklist;
+    private String className;
 
     @Before
     public void setup() {
@@ -22,12 +23,18 @@ public class IdentifyVariantsTest implements CommonEntities {
         configurationFile = "/config.properties";
         blacklist = "/path/to/blacklist.bed";
         outputVcf =  format("%s/sv_calling.vcf", OUT_DIR);
+        className = "gridss.IdentifyVariants";
         command = new IdentifyVariants(REFERENCE_BAM, TUMOR_BAM, assemblyBam, outputVcf, REFERENCE_GENOME, configurationFile, blacklist);
     }
 
     @Test
+    public void shouldGenerateCorrectJavaArguments() {
+        GridssCommonArgumentsAssert.assertThat(command).generatesJavaInvocationUpToAndIncludingClassname(className);
+    }
+
+    @Test
     public void shouldReturnClassName() {
-        assertThat(command.className()).isEqualTo("gridss.IdentifyVariants");
+        assertThat(command.className()).isEqualTo(className);
     }
 
     @Test

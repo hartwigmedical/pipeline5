@@ -1,22 +1,30 @@
 package com.hartwig.pipeline.calling.structural.gridss.command;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
+
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 public class PreProcessSoftClipsToSplitReadsTest implements CommonEntities {
     private SoftClipsToSplitReads.ForPreprocess command;
+    private String className;
 
     @Before
     public void setup() {
         command = new SoftClipsToSplitReads.ForPreprocess(TUMOR_BAM, REFERENCE_GENOME, OUTPUT_BAM);
+        className = "gridss.SoftClipsToSplitReads";
+    }
+
+    @Test
+    public void shouldGenerateCorrectJavaArguments() {
+        GridssCommonArgumentsAssert.assertThat(command).generatesJavaInvocationUpToAndIncludingClassname(className);
     }
 
     @Test
     public void shouldReturnClassName() {
-        assertThat(command.className()).isEqualTo("gridss.SoftClipsToSplitReads");
+        assertThat(command.className()).isEqualTo(className);
     }
 
     @Test
