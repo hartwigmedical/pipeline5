@@ -14,6 +14,7 @@ public class AnnotateVariantsTest implements CommonEntities {
     private String inputVcf;
     private String configurationFile;
     private String blacklist;
+    private String className;
     private String outputVcf;
 
     @Before
@@ -23,12 +24,18 @@ public class AnnotateVariantsTest implements CommonEntities {
         blacklist = "/the/blacklist";
         inputVcf = "input.vcf";
         outputVcf = "/some/path/output_file.vcf";
+        className = "gridss.AnnotateVariants";
         command = new AnnotateVariants(REFERENCE_BAM, TUMOR_BAM, assemblyBam, inputVcf, REFERENCE_GENOME, outputVcf, configurationFile, blacklist);
     }
 
     @Test
+    public void shouldGenerateCorrectJavaArguments() {
+        GridssCommonArgumentsAssert.assertThat(command).generatesJavaInvocationUpToAndIncludingClassname(className);
+    }
+
+    @Test
     public void shouldReturnClassname() {
-        assertThat(command.className()).isEqualTo("gridss.AnnotateVariants");
+        assertThat(command.className()).isEqualTo(className);
     }
 
     @Test

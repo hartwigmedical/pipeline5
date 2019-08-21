@@ -12,21 +12,26 @@ public class CollectGridssMetricsTest implements CommonEntities {
     private String inputBamBasename;
     private String inputBamFullPath;
     private String outputMetricsFilepathPrefix;
-    private String fullOutputMetricsFilepathPrefix;
+    private String className;
 
     @Before
     public void setup() {
         inputBamBasename = "input-file.bam";
         inputBamFullPath = "/full/path/to/" + inputBamBasename;
         outputMetricsFilepathPrefix = "/path/to/metrics/base.name";
-//        fullOutputMetricsFilepathPrefix = format("%s/%s", outputMetricsFilepathPrefix, inputBamBasename);
+        className = "gridss.analysis.CollectGridssMetrics";
         command = new CollectGridssMetrics(inputBamFullPath, outputMetricsFilepathPrefix);
 
     }
 
     @Test
+    public void shouldGenerateCorrectJavaArguments() {
+        GridssCommonArgumentsAssert.assertThat(command).generatesJavaInvocationUpToAndIncludingClassname(className);
+    }
+
+    @Test
     public void shouldReturnClassName() {
-        assertThat(command.className()).isEqualTo("gridss.analysis.CollectGridssMetrics");
+        assertThat(command.className()).isEqualTo(className);
     }
 
     @Test

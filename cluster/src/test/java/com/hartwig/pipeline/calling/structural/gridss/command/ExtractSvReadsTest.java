@@ -15,6 +15,7 @@ public class ExtractSvReadsTest implements CommonEntities {
     private String inputFile;
     private String insertSizeMetrics;
     private ExtractSvReads command;
+    private String className;
 
     @Before
     public void setup() {
@@ -22,13 +23,19 @@ public class ExtractSvReadsTest implements CommonEntities {
         insertSizeMetrics = "insertSizeMetrics";
         String workingDir = format("%s/%s.gridss.working/", VmDirectories.OUTPUT, REFERENCE_SAMPLE);
         metricsOut = format("%s/%s.sv_metrics", workingDir, REFERENCE_SAMPLE);
+        className = "gridss.ExtractSVReads";
 
         command = new ExtractSvReads(inputFile, REFERENCE_SAMPLE, insertSizeMetrics, workingDir);
     }
 
     @Test
+    public void shouldGenerateCorrectJavaArguments() {
+        GridssCommonArgumentsAssert.assertThat(command).generatesJavaInvocationUpToAndIncludingClassname(className);
+    }
+
+    @Test
     public void shouldReturnClassName() {
-        assertThat(command.className()).isEqualTo("gridss.ExtractSVReads");
+        assertThat(command.className()).isEqualTo(className);
     }
 
     @Test
