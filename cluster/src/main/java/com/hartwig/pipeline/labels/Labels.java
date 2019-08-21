@@ -10,11 +10,11 @@ public class Labels {
 
     public static Map<String, String> ofRun(String run, String jobName, Arguments arguments) {
         return ImmutableMap.of("run_id",
-                run,
+                run.toLowerCase(),
                 "job_name",
                 jobName.toLowerCase(),
                 "version",
-                Versions.pipelineMajorMinorVersion(),
+                Versions.pipelineMajorMinorVersion().toLowerCase(),
                 "shallow",
                 arguments.shallow() ? "true" : "false");
     }
