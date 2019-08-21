@@ -2,6 +2,8 @@ package com.hartwig.bam.adam;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.IOException;
+
 import com.hartwig.bam.runtime.spark.SparkContexts;
 import com.hartwig.io.FinalDataLocation;
 import com.hartwig.io.InputOutput;
@@ -50,7 +52,8 @@ public class HDFSBamStoreTest {
     }
 
     @Test
-    public void clearsEverythingInStoreExceptStatusFiles() throws Exception{
+    public void clearsEverythingInStoreExceptStatusFiles() throws Exception {
+        deleteAll();
         fileSystem.create(new Path(RESULTS_PATH + "/file1.txt"));
         fileSystem.create(new Path(RESULTS_PATH + "/Gunzip_SUCCESS"));
         fileSystem.create(new Path(RESULTS_PATH + "/BamCreation_FAILURE"));
@@ -58,6 +61,12 @@ public class HDFSBamStoreTest {
 
         FileStatus[] fileStatuses = fileSystem.listStatus(new Path(RESULTS_PATH));
         assertThat(fileStatuses).hasSize(2);
-        fileSystem.delete(new Path(RESULTS_PATH), true);
+        deleteAll();
+    }
+
+    private void deleteAll() throws IOException {
+        for (FileStatus fileStatus : fileSystem.listStatus(new Path(RESULTS_PATH))) {
+            fileSystem.delete(fileStatus.getPath(), true);
+        }
     }
 }
