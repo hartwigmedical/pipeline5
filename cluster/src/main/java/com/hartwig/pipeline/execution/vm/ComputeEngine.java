@@ -89,7 +89,7 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
                 String project = arguments.project();
                 instance.setMachineType(machineType(zone.getName(), jobDefinition.performanceProfile().uri(), project));
 
-                instance.setLabels(Labels.ofRun(bucket.name(), jobDefinition.name(), arguments));
+                instance.setLabels(Labels.ofRun(bucket.runId(), jobDefinition.name(), arguments));
 
                 addServiceAccount(instance);
                 Image image = attachDisk(compute,
