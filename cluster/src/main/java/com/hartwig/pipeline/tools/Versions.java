@@ -25,7 +25,7 @@ public interface Versions {
     String PURPLE = "2.33";
     String CIRCOS = "0.69.6";
     String GRIDSS = "2.5.1";
-
+    String PICARD = "2.18.27";
 
     static void printAll() {
         Logger logger = LoggerFactory.getLogger(Versions.class);

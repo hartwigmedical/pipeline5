@@ -18,6 +18,8 @@ import com.hartwig.pipeline.calling.structural.gridss.stage.Assemble;
 import com.hartwig.pipeline.calling.structural.gridss.stage.Calling;
 import com.hartwig.pipeline.calling.structural.gridss.stage.Filter;
 import com.hartwig.pipeline.calling.structural.gridss.stage.Preprocess;
+import com.hartwig.pipeline.calling.structural.gridss.stage.RepeatMaskerInsertionAnnotation;
+import com.hartwig.pipeline.calling.structural.gridss.stage.ViralAnnotation;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.BatchInputDownload;
@@ -109,6 +111,8 @@ public class StructuralCaller {
         String filteredVcfBasename = VmDirectories.outputFile(format("%s.gridss.somatic.vcf", tumorSampleName));
         String fullVcfBasename = VmDirectories.outputFile(format("%s.gridss.somatic.full.vcf", tumorSampleName));
 
+        ResourceDownload repeatMaskerDb = ResourceDownload.from(runtimeBucket, new Resource(storage, arguments.resourceBucket(),
+                ResourceNames.GRIDSS_REPEAT_MASKER_DB));
         SubStageInputOutput result =
                 assemble.andThen(new Calling(refBamPath, tumorBamPath, referenceGenomePath, configurationFile, blacklist))
                         .andThen(new Annotation(referenceBam.getLocalTargetPath(),
@@ -119,6 +123,8 @@ public class StructuralCaller {
                                 configurationFile,
                                 blacklist))
                         .andThen(new Filter(filteredVcfBasename, fullVcfBasename))
+                        .andThen(new ViralAnnotation(referenceGenomePath))
+                        .andThen(new RepeatMaskerInsertionAnnotation(repeatMaskerDb.find("fa.out")))
                         .apply(SubStageInputOutput.of(jointName, OutputFile.empty(), bash));
 
         bash.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path())));
