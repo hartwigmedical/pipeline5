@@ -3,27 +3,25 @@ sudo apt-get -y update
 sudo apt-get -y upgrade
 sudo apt-get -y install dirmngr apt-transport-https ca-certificates software-properties-common gnupg2 perl-modules make 
 sudo apt-get -y install openjdk-8-jdk libcurl4-gnutls-dev libxml2-dev libssl-dev less libgd-dev cpanminus parallel
+sudo apt-get -y install mdadm --no-install-recommends
 sudo apt-key adv --keyserver keys.gnupg.net --recv-key 'E19F5F87128899B192B1A2C2AD5F960A256A04AF'
 sudo add-apt-repository 'deb https://cloud.r-project.org/bin/linux/debian stretch-cran35/'
 sudo apt-get -y update
 sudo apt-get -y install r-base
-sudo mkdir -p /data/tools
-sudo mkdir -p /data/input
-sudo mkdir -p /data/output
-sudo mkdir -p /data/resources
-sudo gsutil -m cp -r gs://$1/* /data/tools/
-sudo tar xvf /data/tools/strelka/1.0.14/strelka.tar -C /data/tools/strelka/1.0.14/
-sudo tar xvf /data/tools/tabix/0.2.6/tabix.tar -C /data/tools/tabix/0.2.6/
-sudo tar xvf /data/tools/samtools/1.2/samtools.tar.gz -C /data/tools/samtools/1.2/
-sudo tar xvf /data/tools/circos/0.69.6/circos.tar -C /data/tools/circos/0.69.6/
-sudo tar xvf /data/tools/gridss-scripts/4.8.1/scripts.tar -C /data/tools/gridss-scripts/4.8.1/
+sudo mkdir /opt/tools
+sudo gsutil -m cp -r gs://$1/* /opt/tools/
+sudo tar xvf /opt/tools/strelka/1.0.14/strelka.tar -C /opt/tools/strelka/1.0.14/
+sudo tar xvf /opt/tools/tabix/0.2.6/tabix.tar -C /opt/tools/tabix/0.2.6/
+sudo tar xvf /opt/tools/samtools/1.2/samtools.tar.gz -C /opt/tools/samtools/1.2/
+sudo tar xvf /opt/tools/circos/0.69.6/circos.tar -C /opt/tools/circos/0.69.6/
+sudo tar xvf /opt/tools/gridss-scripts/4.8.1/scripts.tar -C /opt/tools/gridss-scripts/4.8.1/
 # This guy is a little different from the others in that it extracts overtop the system-managed R libraries.
-sudo tar xvf /data/tools/R/rlibs.tar -C /
-sudo chmod a+x /data/tools/bcftools/1.3.1/bcftools
-sudo chmod a+x /data/tools/snpEff/4.3s/snpEff.sh
-sudo chmod a+x /data/tools/bwa/0.7.17/bwa
-sudo chmod a+x /data/tools/sambamba/0.6.5/sambamba
-sudo chmod a+x /data/tools/sambamba/0.6.8/sambamba
+sudo tar xvf /opt/tools/R/rlibs.tar -C /
+sudo chmod a+x /opt/tools/bcftools/1.3.1/bcftools
+sudo chmod a+x /opt/tools/snpEff/4.3s/snpEff.sh
+sudo chmod a+x /opt/tools/bwa/0.7.17/bwa
+sudo chmod a+x /opt/tools/sambamba/0.6.5/sambamba
+sudo chmod a+x /opt/tools/sambamba/0.6.8/sambamba
 sudo cpanm install Clone
 sudo cpanm install Config::General
 sudo cpanm install Font::TTF::Font

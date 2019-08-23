@@ -1,6 +1,7 @@
 package com.hartwig.pipeline.execution.vm;
 
 import static java.lang.String.format;
+import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.joining;
 
 import java.util.ArrayList;
@@ -17,6 +18,8 @@ public class BashStartupScript {
         this.runtimeBucketName = runtimeBucketName;
         this.commands = new ArrayList<>();
         this.commands.add("echo $(date) Starting run");
+        this.commands.add("mkdir /data/input");
+        this.commands.add("mkdir /data/resources");
     }
 
     public static BashStartupScript of(final String runtimeBucketName) {
@@ -29,15 +32,34 @@ public class BashStartupScript {
     public String asUnixString() {
         String commandSuffix = format(" >>%s 2>&1 || die", LOG_FILE);
         String jobFailedFlag = "/tmp/" + JOB_FAILED_FLAG;
-        String preamble = "#!/bin/bash -x\n\n" + "set -o pipefail\n\n" +
-                "function die() {\n" + "  exit_code=$?\n" +
-                "  echo \"Unknown failure: called command returned $exit_code\"\n" +
-                format("  gsutil -m cp %s gs://%s\n", LOG_FILE, runtimeBucketName) +
-                format("  echo $exit_code > %s\n", jobFailedFlag) +
-                format("  gsutil -m cp %s gs://%s\n", jobFailedFlag, runtimeBucketName) +
-                "  exit $exit_code\n" + "}\n\n";
+
+        String raidDevice = "/dev/md0";
+        int numberOfDevices = 4;
+        String mdadm = format("mdadm --create %s --level=0 --raid-devices=%d ", raidDevice, numberOfDevices);
+        for (int i = 1; i <= numberOfDevices; i++) {
+            mdadm += format("/dev/nvme0n%d ", i);
+        }
+
+        List<String> preamble = asList(
+                "#!/bin/bash -x\n",
+                "set -o pipefail\n",
+                "function die() {",
+                "  exit_code=$?",
+                "  echo \"Unknown failure: called command returned $exit_code\"",
+                format("  gsutil -m cp %s gs://%s", LOG_FILE, runtimeBucketName),
+                format("  echo $exit_code > %s", jobFailedFlag),
+                format("  gsutil -m cp %s gs://%s", jobFailedFlag, runtimeBucketName),
+                "  exit $exit_code\n" + "}\n",
+                mdadm.trim(),
+                "mkfs.ext4 -F /dev/md0",
+                "mount /dev/md0 /data",
+                "mkdir /data/output\n"
+        );
+
         addCompletionCommands();
-        return preamble + commands.stream().collect(joining(format("%s\n", commandSuffix))) + (commands.isEmpty() ? "" : commandSuffix);
+        return preamble.stream().collect(joining("\n")) +
+                commands.stream().collect(joining(format("%s\n", commandSuffix))) +
+                (commands.isEmpty() ? "" : commandSuffix);
     }
 
     BashStartupScript addLine(String lineOne) {

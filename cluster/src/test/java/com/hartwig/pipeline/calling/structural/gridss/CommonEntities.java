@@ -9,7 +9,7 @@ import com.hartwig.pipeline.execution.vm.VmDirectories;
 public interface CommonEntities {
     String OUT_DIR = "/data/output";
     String RESOURCE_DIR = "/data/resources";
-    String TOOLS_DIR = "/data/tools";
+    String TOOLS_DIR = "/opt/tools";
     String IN_DIR = "/data/input";
 
     String REFERENCE_SAMPLE = "sample12345678R";

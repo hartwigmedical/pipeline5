@@ -14,7 +14,7 @@ public interface VirtualMachinePerformanceProfile extends PerformanceProfile{
 
     @Value.Default
     default int diskGb() {
-        return 1000;
+        return 10;
     }
 
     static VirtualMachinePerformanceProfile defaultVm() {

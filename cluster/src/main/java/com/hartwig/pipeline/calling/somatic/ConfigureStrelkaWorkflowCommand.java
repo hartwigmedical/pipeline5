@@ -23,7 +23,7 @@ public class ConfigureStrelkaWorkflowCommand implements BashCommand {
     @Override
     public String asBash() {
         return String.format(
-                "/data/tools/strelka/%s/bin/configureStrelkaWorkflow.pl --tumor %s " + "--normal %s --config %s --ref %s --output-dir %s",
+                "/opt/tools/strelka/%s/bin/configureStrelkaWorkflow.pl --tumor %s " + "--normal %s --config %s --ref %s --output-dir %s",
                 Versions.STRELKA,
                 tumorPath,
                 referencePath,

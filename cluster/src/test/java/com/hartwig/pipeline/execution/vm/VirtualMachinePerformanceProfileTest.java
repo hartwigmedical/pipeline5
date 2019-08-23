@@ -1,9 +1,10 @@
 package com.hartwig.pipeline.execution.vm;
 
-import org.junit.Test;
-
 import static java.lang.String.format;
+
 import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.Test;
 
 public class VirtualMachinePerformanceProfileTest {
     @Test
@@ -17,6 +18,6 @@ public class VirtualMachinePerformanceProfileTest {
 
     @Test
     public void shouldDefaultDiskSizeInGb() {
-        assertThat(VirtualMachinePerformanceProfile.defaultVm().diskGb()).isEqualTo(1000);
+        assertThat(VirtualMachinePerformanceProfile.defaultVm().diskGb()).isEqualTo(10);
     }
 }

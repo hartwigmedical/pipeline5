@@ -1,11 +1,13 @@
 package com.hartwig.pipeline.execution.vm;
 
 import static java.lang.String.format;
+import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -92,7 +94,7 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
                 instance.setLabels(Labels.ofRun(bucket.runId(), jobDefinition.name(), arguments));
 
                 addServiceAccount(instance);
-                Image image = attachDisk(compute,
+                Image image = attachDisks(compute,
                         instance,
                         jobDefinition.imageFamily(),
                         project,
@@ -166,7 +168,7 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
         instance.setNetworkInterfaces(singletonList(networkInterface));
     }
 
-    private Image attachDisk(Compute compute, Instance instance, String imageFamily, String projectName, String vmName, long diskSizeGB,
+    private Image attachDisks(Compute compute, Instance instance, String imageFamily, String projectName, String vmName, long diskSizeGB,
             String zone) throws IOException {
         Image sourceImage = resolveLatestImage(compute, imageFamily, projectName);
         AttachedDisk disk = new AttachedDisk();
@@ -177,9 +179,25 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
         params.setSourceImage(sourceImage.getSelfLink());
         params.setDiskType(format("%s/zones/%s/diskTypes/pd-ssd", apiBaseUrl(projectName), zone));
         disk.setInitializeParams(params);
-        instance.setDisks(singletonList(disk));
+        List<AttachedDisk> disks = new ArrayList<>(asList(disk));
+        attachLocalSsds(disks, projectName, zone);
+        instance.setDisks(disks);
         compute.instances().attachDisk(projectName, zone, vmName, disk);
         return sourceImage;
+    }
+
+    private void attachLocalSsds(List<AttachedDisk> disks, String projectName, String zone) throws IOException {
+        for (int i = 0; i < 4; i++) {
+            AttachedDisk disk = new AttachedDisk();
+            disk.setBoot(false);
+            disk.setAutoDelete(true);
+            AttachedDiskInitializeParams params = new AttachedDiskInitializeParams();
+            params.setDiskType(format("%s/zones/%s/diskTypes/local-ssd", apiBaseUrl(projectName), zone));
+            disk.setInitializeParams(params);
+            disk.setType("SCRATCH");
+            disk.setInterface("NVME");
+            disks.add(disk);
+        }
     }
 
     private void addServiceAccount(Instance instance) {

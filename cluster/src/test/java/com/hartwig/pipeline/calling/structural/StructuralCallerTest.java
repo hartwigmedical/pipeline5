@@ -75,7 +75,7 @@ public class StructuralCallerTest {
 
     @Test
     public void shouldExportPathWithBwaOnItBeforeAnyJavaCommandIsCalled() {
-        assertThat(getBashBeforeJava()).contains("\nexport PATH=\"${PATH}:/data/tools/bwa/0.7.17\" ");
+        assertThat(getBashBeforeJava()).contains("\nexport PATH=\"${PATH}:/opt/tools/bwa/0.7.17\" ");
     }
 
     @Test
