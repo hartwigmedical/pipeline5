@@ -29,7 +29,7 @@ import com.hartwig.support.hadoop.Hadoop;
 
 public abstract class AlignerProvider {
 
-    private static final int PERFECT_RATIO = 4;
+    private static final int PERFECT_RATIO = 2;
     private final GoogleCredentials credentials;
     private final Storage storage;
     private final Arguments arguments;
@@ -52,8 +52,8 @@ public abstract class AlignerProvider {
         NodeInitialization nodeInitialization = new NodeInitialization(arguments.nodeInitializationScript());
         CpuFastQSizeRatio ratio = CpuFastQSizeRatio.of(PERFECT_RATIO);
         ClusterOptimizer optimizer = new ClusterOptimizer(ratio, arguments.usePreemptibleVms());
-        GoogleDataproc dataproc = GoogleDataproc.from(credentials, nodeInitialization, arguments);
         ResultsDirectory resultsDirectory = ResultsDirectory.defaultDirectory();
+        GoogleDataproc dataproc = GoogleDataproc.from(credentials, nodeInitialization, arguments, resultsDirectory);
         AlignmentOutputStorage alignmentOutputStorage = new AlignmentOutputStorage(storage, arguments, resultsDirectory);
         return wireUp(credentials, storage, alignmentOutputStorage, optimizer, dataproc, resultsDirectory);
     }

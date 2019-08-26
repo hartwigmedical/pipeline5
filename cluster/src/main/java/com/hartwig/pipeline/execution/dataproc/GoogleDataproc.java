@@ -1,7 +1,10 @@
 package com.hartwig.pipeline.execution.dataproc;
 
+import static java.util.Arrays.asList;
+
 import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -21,8 +24,11 @@ import com.google.api.services.dataproc.v1beta2.model.SubmitJobRequest;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.execution.PipelineStatus;
+import com.hartwig.pipeline.storage.GoogleStorageStatusCheck;
 import com.hartwig.pipeline.storage.RuntimeBucket;
+import com.hartwig.pipeline.storage.StatusCheck;
 
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -36,18 +42,24 @@ public class GoogleDataproc implements SparkExecutor {
     private final Dataproc dataproc;
     private final NodeInitialization nodeInitialization;
     private final Arguments arguments;
+    private final GoogleStorageStatusCheck statusCheck;
 
-    GoogleDataproc(final Dataproc dataproc, final NodeInitialization nodeInitialization, final Arguments arguments) {
+    GoogleDataproc(final Dataproc dataproc, final NodeInitialization nodeInitialization, final Arguments arguments,
+            GoogleStorageStatusCheck statusCheck) {
         this.dataproc = dataproc;
         this.nodeInitialization = nodeInitialization;
         this.arguments = arguments;
+        this.statusCheck = statusCheck;
     }
 
     public static GoogleDataproc from(final GoogleCredentials credential, final NodeInitialization nodeInitialization,
-            final Arguments arguments) {
+            final Arguments arguments, ResultsDirectory resultsDirectory) {
         return new GoogleDataproc(new Dataproc.Builder(new NetHttpTransport(),
                 JacksonFactory.getDefaultInstance(),
-                new HttpCredentialsAdapter(credential)).setApplicationName(APPLICATION_NAME).build(), nodeInitialization, arguments);
+                new HttpCredentialsAdapter(credential)).setApplicationName(APPLICATION_NAME).build(),
+                nodeInitialization,
+                arguments,
+                new GoogleStorageStatusCheck(resultsDirectory));
     }
 
     @Override
@@ -57,14 +69,15 @@ public class GoogleDataproc implements SparkExecutor {
             String jobIdAndClusterName = jobIdAndClusterName(runtimeBucket, jobDefinition);
             LOGGER.info("Submitting spark job [{}] to cluster [{}]", jobDefinition.name(), jobIdAndClusterName);
             final Job job =
-                    findExistingJob(arguments, jobIdAndClusterName, jobDefinition.name()).orElseGet(() -> submittedJob(jobDefinition,
+                    findExistingJob(arguments, jobIdAndClusterName, jobDefinition.name(), runtimeBucket).orElseGet(() -> submittedJob(
+                            jobDefinition,
                             runtimeBucket,
                             jobIdAndClusterName));
-            if (!isDone(job)) {
+            if (!isDone(job, jobDefinition.name(), runtimeBucket)) {
                 Job completed = waitForComplete(job,
-                        j -> j.getStatus() != null && (j.getStatus().getState().equals("ERROR") || isDone(j) || j.getStatus()
+                        j -> j.getStatus() != null && (j.getStatus().getState().equals("ERROR") || j.getStatus()
                                 .getState()
-                                .equals("CANCELLED")),
+                                .equals("CANCELLED") || isDone(j, jobDefinition.name(), runtimeBucket)),
                         () -> dataproc.projects()
                                 .regions()
                                 .jobs()
@@ -94,8 +107,18 @@ public class GoogleDataproc implements SparkExecutor {
         return untrimmed.substring(0, Math.min(untrimmed.length(), 50));
     }
 
-    private boolean isDone(final Job job) {
-        return job.getStatus().getState().equals("DONE");
+    private boolean isDone(final Job job, final String jobName, final RuntimeBucket runtimeBucket) {
+        String state = job.getStatus().getState();
+        if (state.equals("DONE")) {
+            List<StatusCheck.Status> finalStatuses = asList(StatusCheck.Status.SUCCESS, StatusCheck.Status.FAILED);
+            LOGGER.debug("Checker status: [{}]", getStatus(jobName, runtimeBucket));
+            return finalStatuses.contains(getStatus(jobName, runtimeBucket));
+        }
+        return false;
+    }
+
+    private StatusCheck.Status getStatus(final String jobName, final RuntimeBucket runtimeBucket) {
+        return statusCheck.check(runtimeBucket, jobName);
     }
 
     private void start(final DataprocPerformanceProfile performanceProfile, final RuntimeBucket runtimeBucket, final Arguments arguments,
@@ -167,22 +190,21 @@ public class GoogleDataproc implements SparkExecutor {
         }
     }
 
-    private Optional<Job> findExistingJob(Arguments arguments, String jobId, String jobName) throws IOException {
+    private Optional<Job> findExistingJob(Arguments arguments, String jobId, String jobName, RuntimeBucket runtimeBucket)
+            throws IOException {
         try {
             Job job = dataproc.projects().regions().jobs().get(arguments.project(), arguments.region(), jobId).execute();
             if (job != null) {
-                switch (job.getStatus().getState()) {
-                    case "RUNNING":
-                        LOGGER.info("Job [{}] already existed and is running. Re-attaching to running job.", jobName);
-                        return Optional.of(job);
-                    case "DONE":
-                        LOGGER.info("Job [{}] already existed and completed successfully. Skipping job", jobName);
-                        return Optional.of(job);
-                    default:
-                        LOGGER.info("Job [{}] already existed and but is [{}]. Deleting and re-submitting",
-                                jobName,
-                                job.getStatus().getState());
-                        dataproc.projects().regions().jobs().delete(arguments.project(), arguments.region(), jobId).execute();
+                if ("RUNNING".equals(job.getStatus().getState())) {
+                    LOGGER.info("Job [{}] already existed and is running. Re-attaching to running job.", jobName);
+                    return Optional.of(job);
+                } else if (getStatus(jobName, runtimeBucket).equals(StatusCheck.Status.SUCCESS)) {
+                    LOGGER.info("Job [{}] already existed and completed successfully. Skipping job.", jobName);
+                    return Optional.of(job);
+                } else {
+                    LOGGER.info("Job [{}] already existed with status [{}]. Deleting and re-submitting.",
+                            jobName, job.getStatus().getState());
+                    dataproc.projects().regions().jobs().delete(arguments.project(), arguments.region(), jobId).execute();
                 }
             }
             return Optional.empty();

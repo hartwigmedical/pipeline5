@@ -4,11 +4,11 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import org.immutables.value.Value;
 
-@JsonDeserialize(as = ImmutableSbpSet.class)
 @Value.Immutable
-public interface SbpSet {
+@JsonDeserialize(as = ImmutableSbpIni.class)
+public interface SbpIni {
+
+    int id();
 
     String name();
-
-    String id();
 }

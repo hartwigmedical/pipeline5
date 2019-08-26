@@ -3,13 +3,9 @@ package com.hartwig.pipeline.calling.structural;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 
-import static com.hartwig.pipeline.execution.PipelineStatus.FAILED;
 import static com.hartwig.pipeline.execution.PipelineStatus.SKIPPED;
 
 import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.OpenOption;
-import java.nio.file.Path;
 
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
@@ -33,7 +29,6 @@ import com.hartwig.pipeline.execution.vm.ResourceDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.unix.ExportVariableCommand;
-import com.hartwig.pipeline.execution.vm.unix.MkDirCommand;
 import com.hartwig.pipeline.execution.vm.unix.UlimitOpenFilesCommand;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;

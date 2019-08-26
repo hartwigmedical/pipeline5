@@ -1,11 +1,13 @@
 package com.hartwig.bam.before;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 import java.io.IOException;
 import java.util.List;
 
 import com.google.common.collect.Lists;
+import com.hartwig.bam.StatusReporter;
 import com.hartwig.bam.runtime.spark.SparkContexts;
 import com.hartwig.patient.ImmutableSample;
 import com.hartwig.patient.Lane;
@@ -61,11 +63,13 @@ public class GunZipTest {
             .build();
     private GunZip victim;
     private FileSystem fileSystem;
+    private StatusReporter statusReporter;
 
     @Before
     public void setUp() throws Exception {
         fileSystem = Hadoop.localFilesystem();
-        victim = new GunZip(fileSystem, SPARK_CONTEXT, false);
+        statusReporter = mock(StatusReporter.class);
+        victim = new GunZip(fileSystem, SPARK_CONTEXT, false, statusReporter);
     }
 
     @After
@@ -112,7 +116,7 @@ public class GunZipTest {
 
     @Test
     public void onlyRenamesWhenFileIsAlreadyUnzipped() throws Exception {
-        victim = new GunZip(fileSystem, SPARK_CONTEXT, true);
+        victim = new GunZip(fileSystem, SPARK_CONTEXT, true, statusReporter);
         setupSample(NEEDS_RENAMING);
         Sample notZipped = sampleBuilder().addLanes(NEEDS_RENAMING_LANE).build();
         Sample result = victim.run(notZipped);

@@ -8,6 +8,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
+import com.hartwig.bam.StatusReporter;
 import com.hartwig.patient.ImmutableLane;
 import com.hartwig.patient.ImmutableSample;
 import com.hartwig.patient.Lane;
@@ -26,27 +27,38 @@ public class GunZip {
     private final FileSystem fileSystem;
     private final JavaSparkContext sparkContext;
     private final boolean alreadyUnzipped;
+    private final StatusReporter statusReporter;
 
-    GunZip(final FileSystem fileSystem, final JavaSparkContext sparkContext, final boolean alreadyUnzipped) {
+    GunZip(final FileSystem fileSystem, final JavaSparkContext sparkContext, final boolean alreadyUnzipped,
+            final StatusReporter statusReporter) {
         this.fileSystem = fileSystem;
         this.sparkContext = sparkContext;
         this.alreadyUnzipped = alreadyUnzipped;
+        this.statusReporter = statusReporter;
     }
 
     public Sample run(Sample sample) throws IOException {
-        ImmutableSample.Builder builder = ImmutableSample.builder().from(sample);
-        if (!alreadyUnzipped) {
-            unzipAllParallel(sample);
-        } else {
-            onlyRenameFile(sample);
+        StatusReporter.Status status = StatusReporter.Status.SUCCESS;
+        try {
+            ImmutableSample.Builder builder = ImmutableSample.builder().from(sample);
+            if (!alreadyUnzipped) {
+                unzipAllParallel(sample);
+            } else {
+                onlyRenameFile(sample);
+            }
+            List<Lane> unzippedLanes = sample.lanes().parallelStream().map(lane -> {
+                ImmutableLane.Builder laneBuilder = Lane.builder().from(lane);
+                laneBuilder.firstOfPairPath(truncateGZExtension(lane.firstOfPairPath()));
+                laneBuilder.secondOfPairPath(truncateGZExtension(lane.secondOfPairPath()));
+                return laneBuilder.build();
+            }).collect(Collectors.toList());
+            return builder.lanes(unzippedLanes).build();
+        } catch (Exception e) {
+            status = StatusReporter.Status.FAILED_ERROR;
+            throw e;
+        } finally {
+            statusReporter.report(status);
         }
-        List<Lane> unzippedLanes = sample.lanes().parallelStream().map(lane -> {
-            ImmutableLane.Builder laneBuilder = Lane.builder().from(lane);
-            laneBuilder.firstOfPairPath(truncateGZExtension(lane.firstOfPairPath()));
-            laneBuilder.secondOfPairPath(truncateGZExtension(lane.secondOfPairPath()));
-            return laneBuilder.build();
-        }).collect(Collectors.toList());
-        return builder.lanes(unzippedLanes).build();
     }
 
     private void onlyRenameFile(final Sample sample) throws IOException {
@@ -100,9 +112,10 @@ public class GunZip {
 
     }
 
-    public static Sample execute(FileSystem fileSystem, JavaSparkContext sparkContext, Sample sample, boolean alreadyUnzipped)
+    public static Sample execute(FileSystem fileSystem, JavaSparkContext sparkContext, Sample sample, boolean alreadyUnzipped,
+            StatusReporter statusReporter)
             throws IOException {
-        GunZip gunZip = new GunZip(fileSystem, sparkContext, alreadyUnzipped);
+        GunZip gunZip = new GunZip(fileSystem, sparkContext, alreadyUnzipped, statusReporter);
         return gunZip.run(sample);
     }
 }

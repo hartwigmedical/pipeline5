@@ -7,9 +7,10 @@ import requests
 import sys
 import time
 import traceback
+from datetime import datetime
 
 from HmfApi import *
-from datetime import datetime
+
 
 def phone_home(message):
     print message
@@ -145,13 +146,15 @@ def start_kubernetes_job(args):
 
 def main():
     ini_somatic = Ini().get_one({'name': 'Somatic.ini'})
+    ini_singles = Ini().get_one({'name': 'SingleSample.ini'})
     ini_shallow = Ini().get_one({'name': 'ShallowSeq.ini'})
 
     stack = Stack().get_one({'name': 'Google Compute Platform'})
 
     runs_somatic = HmfApi().get_all(Run, {'status': 'Pending', 'ini_id': ini_somatic.id})
+    runs_singles = HmfApi().get_all(Run, {'status': 'Pending', 'ini_id': ini_singles.id})
     runs_shallow = HmfApi().get_all(Run, {'status': 'Pending', 'ini_id': ini_shallow.id})
-    runs = runs_shallow + runs_somatic
+    runs = runs_shallow + runs_singles + runs_somatic
 
     max_starts = int(os.getenv('MAX_STARTS', '4'))
 

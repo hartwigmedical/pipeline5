@@ -14,11 +14,12 @@ public class GoogleCloudBamCreationRuntime {
     private static final Logger LOGGER = LoggerFactory.getLogger(GoogleCloudBamCreationRuntime.class);
 
     public static void main(String[] args) {
-        if (args.length == 4) {
+        if (args.length == 5) {
             String version = args[0];
             String runId = args[1];
             String project = args[2];
             String namespace = args[3];
+            String jobName = args[4];
             LOGGER.info("Starting pipeline with version [{}] run id [{}] for project [{}] in namespace [{}] on Google Dataproc",
                     version,
                     runId,
@@ -38,7 +39,7 @@ public class GoogleCloudBamCreationRuntime {
                     .patient(PatientParameters.builder().directory(namespace + "/samples").name("").build())
                     .build();
 
-            new PipelineRuntime(configuration).start();
+            new PipelineRuntime(configuration, jobName).start();
         }
 
     }

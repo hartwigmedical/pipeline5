@@ -43,8 +43,9 @@ public class SbpSampleReader {
             Sample sample = sample(sampleName, barcode, fastqJson);
             LOGGER.info("Found sample [{}] in SBP", sample);
             if (sample.lanes().isEmpty()) {
-                throw new IllegalArgumentException(
-                        "No lanes (fastq) were found for sample [{}]. Either no fastq files in the api or none " + "pass qc");
+                throw new IllegalArgumentException(String.format(
+                        "No lanes (fastq) were found for sample [%s]. Either no fastq files in the api or none pass qc",
+                        sample.name()));
             }
             return sample;
         } catch (IOException e) {

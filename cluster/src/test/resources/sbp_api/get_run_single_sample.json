@@ -12,7 +12,7 @@
     "name": "170724_HMFregCPCT_FR13999246_FR13999144_CPCT02290012",
     "size": 261107977129,
     "createTime": "2017-07-24T16:12:08",
-    "tumor_sample": "CPCT02290012T",
+    "tumor_sample": null,
     "entity_id": 122,
     "id": 7141
   },
@@ -24,6 +24,6 @@
   "sbp_id": 7048,
   "tumor_sample": "CPCT02290012T",
   "entity_id": 122,
-  "ini_id": 6,
+  "ini_id": 4,
   "stack_id": 85
 }

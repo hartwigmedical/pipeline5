@@ -18,6 +18,7 @@ import com.hartwig.pipeline.metadata.LocalSampleMetadataApi;
 import com.hartwig.pipeline.metadata.SampleMetadataApi;
 import com.hartwig.pipeline.metadata.SampleMetadataApiProvider;
 import com.hartwig.pipeline.metadata.SetMetadataApiProvider;
+import com.hartwig.pipeline.metadata.SomaticMetadataApi;
 import com.hartwig.pipeline.metrics.BamMetricsOutputStorage;
 import com.hartwig.pipeline.metrics.BamMetricsProvider;
 import com.hartwig.pipeline.report.FullSomaticResults;
@@ -71,12 +72,13 @@ public class PipelineMain {
 
     private static SomaticPipeline somaticPipeline(final Arguments arguments, final GoogleCredentials credentials, final Storage storage)
             throws Exception {
+        SomaticMetadataApi somaticMetadataApi = SetMetadataApiProvider.from(arguments, storage).get();
         return new SomaticPipeline(new AlignmentOutputStorage(storage, arguments, ResultsDirectory.defaultDirectory()),
                 new BamMetricsOutputStorage(storage, arguments, ResultsDirectory.defaultDirectory()),
-                SetMetadataApiProvider.from(arguments, storage).get(),
+                somaticMetadataApi,
                 PipelineResultsProvider.from(storage, arguments, Versions.pipelineVersion()).get(),
                 new FullSomaticResults(storage, arguments),
-                CleanupProvider.from(credentials, arguments, storage).get(),
+                CleanupProvider.from(credentials, arguments, storage, somaticMetadataApi).get(),
                 AmberProvider.from(arguments, credentials, storage).get(),
                 CobaltProvider.from(arguments, credentials, storage).get(),
                 SomaticCallerProvider.from(arguments, credentials, storage).get(),

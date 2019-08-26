@@ -1,0 +1,21 @@
+[
+  {
+    "status": "Deleted",
+    "updateTime": "2017-07-25T18:05:57",
+    "yld_req": 25000000000,
+    "hash": null,
+    "name": "ZR17SQ1-00649",
+    "submission": "HMFreg0147",
+    "barcode": "FR13257296",
+    "bucket": null,
+    "createTime": "2017-06-25T23:10:55",
+    "yld": 34589708618,
+    "q30": 67.878,
+    "filesize": null,
+    "directory": null,
+    "filename": null,
+    "type": "ref",
+    "id": 49,
+    "q30_req": 75.0
+  }
+]

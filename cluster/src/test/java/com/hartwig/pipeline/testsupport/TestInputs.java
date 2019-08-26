@@ -1,6 +1,5 @@
 package com.hartwig.pipeline.testsupport;
 
-import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.execution.PipelineStatus;
@@ -18,7 +17,7 @@ public class TestInputs {
     public static SomaticRunMetadata defaultSomaticRunMetadata() {
         final SingleSampleRunMetadata tumor = tumorRunMetadata();
         final SingleSampleRunMetadata reference = referenceRunMetadata();
-        return SomaticRunMetadata.builder().runName("run").tumor(tumor).reference(reference).build();
+        return SomaticRunMetadata.builder().runName("run").maybeTumor(tumor).reference(reference).build();
     }
 
     @NotNull
@@ -42,14 +41,14 @@ public class TestInputs {
     }
 
     public static AlignmentOutput referenceAlignmentOutput() {
-        return alignerOutput("reference", Sample.Type.REFERENCE);
+        return alignerOutput("reference");
     }
 
     public static AlignmentOutput tumorAlignmentOutput() {
-        return alignerOutput("tumor", Sample.Type.TUMOR);
+        return alignerOutput("tumor");
     }
 
-    private static AlignmentOutput alignerOutput(final String sample, final Sample.Type type) {
+    private static AlignmentOutput alignerOutput(final String sample) {
         String bucket = "run-" + sample + "/aligner";
         return AlignmentOutput.builder()
                 .status(PipelineStatus.SUCCESS)

@@ -18,7 +18,7 @@ public class LocalSetMetadataApi implements SomaticMetadataApi {
         String setId = RunTag.apply(arguments, arguments.setId());
         return SomaticRunMetadata.builder()
                 .runName(setId)
-                .tumor(SingleSampleRunMetadata.builder()
+                .maybeTumor(SingleSampleRunMetadata.builder()
                         .type(SingleSampleRunMetadata.SampleType.TUMOR)
                         .sampleId(arguments.setId() + "T")
                         .sampleName(arguments.setId() + "T")
@@ -29,6 +29,11 @@ public class LocalSetMetadataApi implements SomaticMetadataApi {
                         .sampleName(arguments.setId() + "R")
                         .build())
                 .build();
+    }
+
+    @Override
+    public boolean hasDependencies(final String sampleId) {
+        return false;
     }
 
     @Override
