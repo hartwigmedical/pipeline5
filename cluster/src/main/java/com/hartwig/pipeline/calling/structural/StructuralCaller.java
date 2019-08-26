@@ -144,7 +144,7 @@ public class StructuralCaller {
                         NAMESPACE,
                         Folder.from(),
                         basename(annotated.outputFile().path()),
-                        format("%s.gridss.unfiltered.vcf", tumorSampleName),
+                        format("%s.gridss.unfiltered.vcf.gz", tumorSampleName),
                         resultsDirectory))
                 .addReportComponents(new ZippedVcfAndIndexComponent(runtimeBucket,
                         NAMESPACE,
