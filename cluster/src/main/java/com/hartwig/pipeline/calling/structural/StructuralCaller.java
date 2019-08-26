@@ -91,8 +91,7 @@ public class StructuralCaller {
         bash.addCommand(new UlimitOpenFilesCommand(102400));
         bash.addCommand(new ExportVariableCommand("PATH", format("${PATH}:%s", dirname(new BwaCommand().asBash()))));
 
-        String referenceWorkingDir =
-                format("%s/%s.gridss.working", VmDirectories.OUTPUT, basename(referenceBam.getLocalTargetPath()));
+        String referenceWorkingDir = format("%s/%s.gridss.working", VmDirectories.OUTPUT, basename(referenceBam.getLocalTargetPath()));
         String tumorWorkingDir = format("%s/%s.gridss.working", VmDirectories.OUTPUT, basename(tumorBam.getLocalTargetPath()));
 
         String configurationFile = gridssConfigFiles.find("properties");
@@ -100,16 +99,19 @@ public class StructuralCaller {
 
         String refBamPath = referenceBam.getLocalTargetPath();
         String tumorBamPath = tumorBam.getLocalTargetPath();
-        new Preprocess(refBamPath, referenceWorkingDir, referenceSampleName, referenceGenomePath)
-                .apply(SubStageInputOutput.of(referenceSampleName, OutputFile.empty(), bash));
-        new Preprocess(tumorBamPath, tumorWorkingDir, tumorSampleName, referenceGenomePath)
-                .apply(SubStageInputOutput.of(tumorSampleName, OutputFile.empty(), bash));
+        new Preprocess(refBamPath, referenceWorkingDir, referenceSampleName, referenceGenomePath).apply(SubStageInputOutput.of(
+                referenceSampleName,
+                OutputFile.empty(),
+                bash));
+        new Preprocess(tumorBamPath, tumorWorkingDir, tumorSampleName, referenceGenomePath).apply(SubStageInputOutput.of(tumorSampleName,
+                OutputFile.empty(),
+                bash));
 
         Assemble assemble = new Assemble(refBamPath, tumorBamPath, jointName, referenceGenomePath, configurationFile, blacklist);
         String filteredVcfBasename = VmDirectories.outputFile(format("%s.gridss.somatic.vcf", tumorSampleName));
         String fullVcfBasename = VmDirectories.outputFile(format("%s.gridss.somatic.full.vcf", tumorSampleName));
 
-        SubStageInputOutput result =
+        SubStageInputOutput annotated =
                 assemble.andThen(new Calling(refBamPath, tumorBamPath, referenceGenomePath, configurationFile, blacklist))
                         .andThen(new Annotation(referenceBam.getLocalTargetPath(),
                                 tumorBam.getLocalTargetPath(),
@@ -118,8 +120,9 @@ public class StructuralCaller {
                                 jointName,
                                 configurationFile,
                                 blacklist))
-                        .andThen(new Filter(filteredVcfBasename, fullVcfBasename))
                         .apply(SubStageInputOutput.of(jointName, OutputFile.empty(), bash));
+
+        new Filter(filteredVcfBasename, fullVcfBasename).apply(annotated);
 
         bash.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path())));
 
@@ -131,8 +134,7 @@ public class StructuralCaller {
         String fullVcfCompressed = fullVcfBasename + ".gz";
         return StructuralCallerOutput.builder()
                 .status(status)
-                .maybeFilteredVcf(GoogleStorageLocation.of(runtimeBucket.name(),
-                        resultsDirectory.path(basename(filteredVcf))))
+                .maybeFilteredVcf(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path(basename(filteredVcf))))
                 .maybeFilteredVcfIndex(GoogleStorageLocation.of(runtimeBucket.name(),
                         resultsDirectory.path(basename(filteredVcf + ".tbi"))))
                 .maybeFullVcf(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path(basename(fullVcfCompressed))))
@@ -141,8 +143,8 @@ public class StructuralCaller {
                 .addReportComponents(new ZippedVcfAndIndexComponent(runtimeBucket,
                         NAMESPACE,
                         Folder.from(),
-                        basename(result.outputFile().path()),
-                        basename(result.outputFile().path()),
+                        basename(annotated.outputFile().path()),
+                        format("%s.gridss.unfiltered.vcf", tumorSampleName),
                         resultsDirectory))
                 .addReportComponents(new ZippedVcfAndIndexComponent(runtimeBucket,
                         NAMESPACE,
