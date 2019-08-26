@@ -95,7 +95,7 @@ public class SbpSampleReader {
         String[] tokens = sbpFastQ.name_r1().split("_");
         String laneNumber = tokens[3];
         return Lane.builder()
-                .name("")
+                .name(tokens[0] + "_" + laneNumber)
                 .laneNumber(laneNumber)
                 .firstOfPairPath(s3Path(sbpFastQ, sbpFastQ.name_r1()))
                 .secondOfPairPath(s3Path(sbpFastQ, sbpFastQ.name_r2()))
@@ -107,7 +107,7 @@ public class SbpSampleReader {
     }
 
     private static String s3Path(final SbpFastQ sbpFastQ, final String file) {
-        return sbpFastQ.bucket() + "/" + file;
+        return sbpFastQ.bucket().replace("_", "") + "/" + file;
     }
 
     private List<SbpFastQ> parseFastqJson(final String json) throws IOException {
