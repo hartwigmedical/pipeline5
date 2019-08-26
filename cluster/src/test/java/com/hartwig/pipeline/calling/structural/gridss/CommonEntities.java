@@ -24,7 +24,7 @@ public interface CommonEntities {
     String BLACKLIST = format("%s/ENCFF001TDO.bed", VmDirectories.RESOURCES);
     String CONFIG_FILE = format("%s/gridss.properties", VmDirectories.RESOURCES);
 
-    String PATH_TO_SAMBAMBA = format("%s/sambamba/0.6.5/sambamba", TOOLS_DIR);
+    String PATH_TO_SAMBAMBA = format("%s/sambamba/0.6.8/sambamba", TOOLS_DIR);
 
     String ARG_KEY_INPUT = "input";
     String ARG_KEY_INPUT_SHORT = "i";

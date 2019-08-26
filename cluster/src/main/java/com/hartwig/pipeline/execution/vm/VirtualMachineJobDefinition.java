@@ -126,11 +126,11 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .build();
     }
 
-    static VirtualMachineJobDefinition fastqGunzip(int cores, BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
+    static VirtualMachineJobDefinition mergeMarkdups(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
         return ImmutableVirtualMachineJobDefinition.builder()
-                .name("gunzip")
+                .name("merge-markdup")
                 .startupCommand(startupScript)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(cores, cores * 1))
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(32, 120))
                 .namespacedResults(resultsDirectory)
                 .build();
     }

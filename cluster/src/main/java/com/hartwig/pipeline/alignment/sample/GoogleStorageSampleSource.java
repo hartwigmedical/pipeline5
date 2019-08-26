@@ -32,7 +32,8 @@ public class GoogleStorageSampleSource implements SampleSource {
     @Override
     public SampleData sample(final SingleSampleRunMetadata metadata, final Arguments arguments) {
         if (arguments.sampleId() == null || arguments.sampleId().isEmpty()) {
-            throw new IllegalArgumentException("Unable to run in \"no upload\" mode without an explicit patient/sample name (use -sample_id)");
+            throw new IllegalArgumentException(
+                    "Unable to run in \"no upload\" mode without an explicit patient/sample name (use -sample_id)");
         }
 
         RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, Aligner.NAMESPACE, metadata, arguments);
@@ -60,31 +61,31 @@ public class GoogleStorageSampleSource implements SampleSource {
                 String sampleNameWithPostfix = arguments.sampleId();
                 List<Blob> files = runtimeBucket.list(sampleDirectory);
                 Map<String, ImmutableLane.Builder> builders = new HashMap<>();
-                for (Blob file : files) {
-                    String fileName = new File(file.getName()).getName();
+                for (Blob blob : files) {
+                    String fileName = new File(blob.getName()).getName();
                     if (!(fileName.endsWith(".fastq") || fileName.endsWith(".fastq.gz"))) {
                         continue;
                     }
-
                     String[] tokens = fileName.split("_");
-                    String laneName = tokens[3];
+                    String laneNumber = tokens[3];
                     String flowCellId = tokens[1];
-                    ImmutableLane.Builder builder = builders.computeIfAbsent(laneName + flowCellId,
+                    ImmutableLane.Builder builder = builders.computeIfAbsent(laneNumber + flowCellId,
                             s -> Lane.builder()
-                                    .directory(sampleDirectory.toString())
-                                    .name(sampleNameWithPostfix + "_" + laneName)
+                                    .directory(sampleDirectory)
+                                    .laneNumber(laneNumber)
+                                    .name(sampleNameWithPostfix + "_" + laneNumber)
                                     .flowCellId(flowCellId)
                                     .index(tokens[2])
                                     .suffix(tokens[5].substring(0, tokens[5].indexOf('.'))));
                     if (tokens[4].equals("R1")) {
-                        builder.firstOfPairPath(file.getName());
+                        builder.firstOfPairPath(blob.getName());
                     } else if (tokens[4].equals("R2")) {
-                        builder.secondOfPairPath(file.getName());
+                        builder.secondOfPairPath(blob.getName());
                     }
                     builder.flowCellId(flowCellId);
                 }
 
-                return SampleData.of(Sample.builder(sampleDirectory.toString(), sampleNameWithPostfix)
+                return SampleData.of(Sample.builder(sampleDirectory, sampleNameWithPostfix)
                         .addAllLanes(builders.values().stream().map(ImmutableLane.Builder::build).collect(Collectors.toList()))
                         .type(arguments.sampleId().toLowerCase().endsWith("r") ? Sample.Type.REFERENCE : Sample.Type.TUMOR)
                         .build(), zippedFileSizeInBytes + unzippedFileSizeInBytes);

@@ -92,8 +92,11 @@ public class SbpSampleReader {
             throw new IllegalStateException(format("Bucket for fastq [%s] was null or empty. Has this sample id been cleaned up in S3?",
                     sbpFastQ));
         }
+        String[] tokens = sbpFastQ.name_r1().split("_");
+        String laneNumber = tokens[3];
         return Lane.builder()
                 .name("")
+                .laneNumber(laneNumber)
                 .firstOfPairPath(s3Path(sbpFastQ, sbpFastQ.name_r1()))
                 .secondOfPairPath(s3Path(sbpFastQ, sbpFastQ.name_r2()))
                 .directory("")

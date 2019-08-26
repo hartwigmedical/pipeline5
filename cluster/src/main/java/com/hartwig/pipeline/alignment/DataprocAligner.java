@@ -64,10 +64,7 @@ public class DataprocAligner implements Aligner {
     public AlignmentOutput run(SingleSampleRunMetadata metadata) throws Exception {
 
         if (!arguments.runAligner()) {
-            return alignmentOutputStorage.get(metadata)
-                    .orElseThrow(() -> new IllegalArgumentException(format(
-                            "Unable to find output for sample [%s]. Please run the aligner first by setting -run_aligner to true",
-                            arguments.sampleId())));
+            return ExistingAlignment.find(metadata, alignmentOutputStorage, arguments);
         }
 
         StageTrace trace = new StageTrace(NAMESPACE, StageTrace.ExecutorType.DATAPROC).start();
@@ -82,14 +79,16 @@ public class DataprocAligner implements Aligner {
         }
         JarLocation jarLocation = jarUpload.run(runtimeBucket, arguments);
 
-        runJob(Jobs.noStatusCheck(dataproc), SparkJobDefinition.gunzip(jarLocation, runtimeBucket), runtimeBucket);
+        runJob(Jobs.statusCheckGoogleStorage(dataproc, resultsDirectory),
+                SparkJobDefinition.gunzip(jarLocation, runtimeBucket),
+                runtimeBucket);
         runJob(Jobs.statusCheckGoogleStorage(dataproc, resultsDirectory),
                 SparkJobDefinition.bamCreation(jarLocation, arguments, runtimeBucket, clusterOptimizer.optimize(sampleData)),
                 runtimeBucket);
 
         compose(sample, runtimeBucket);
 
-        runJob(Jobs.noStatusCheck(dataproc),
+        runJob(Jobs.statusCheckGoogleStorage(dataproc, resultsDirectory),
                 SparkJobDefinition.sortAndIndex(jarLocation, arguments, runtimeBucket, sample, resultsDirectory),
                 runtimeBucket);
 

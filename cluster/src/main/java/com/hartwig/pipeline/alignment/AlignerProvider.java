@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.alignment;
 
+import java.util.concurrent.Executors;
+
 import com.amazonaws.services.s3.AmazonS3;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Storage;
@@ -10,6 +12,7 @@ import com.hartwig.pipeline.alignment.sample.GoogleStorageSampleSource;
 import com.hartwig.pipeline.alignment.sample.SampleSource;
 import com.hartwig.pipeline.alignment.sample.SbpS3SampleSource;
 import com.hartwig.pipeline.alignment.sample.SbpSampleReader;
+import com.hartwig.pipeline.alignment.vm.VmAligner;
 import com.hartwig.pipeline.execution.dataproc.ClusterOptimizer;
 import com.hartwig.pipeline.execution.dataproc.CpuFastQSizeRatio;
 import com.hartwig.pipeline.execution.dataproc.GoogleDataproc;
@@ -45,8 +48,7 @@ public abstract class AlignerProvider {
     }
 
     abstract Aligner wireUp(GoogleCredentials credentials, Storage storage, AlignmentOutputStorage alignmentOutputStorage,
-            ClusterOptimizer optimizer, GoogleDataproc dataproc, ResultsDirectory resultsDirectory)
-            throws Exception;
+            ClusterOptimizer optimizer, GoogleDataproc dataproc, ResultsDirectory resultsDirectory) throws Exception;
 
     public Aligner get() throws Exception {
         NodeInitialization nodeInitialization = new NodeInitialization(arguments.nodeInitializationScript());
@@ -71,17 +73,28 @@ public abstract class AlignerProvider {
 
         @Override
         Aligner wireUp(GoogleCredentials credentials, Storage storage, AlignmentOutputStorage alignmentOutputStorage,
-                ClusterOptimizer optimizer, GoogleDataproc spark, ResultsDirectory resultsDirectory)
-                throws Exception {
+                ClusterOptimizer optimizer, GoogleDataproc spark, ResultsDirectory resultsDirectory) throws Exception {
             SampleSource sampleSource = getArguments().upload()
                     ? new FileSystemSampleSource(Hadoop.localFilesystem(), getArguments().sampleDirectory())
                     : new GoogleStorageSampleSource(storage);
             GSUtilCloudCopy gsUtilCloudCopy = new GSUtilCloudCopy(getArguments().cloudSdkPath());
             SampleUpload sampleUpload = new CloudSampleUpload(new LocalFileSource(), gsUtilCloudCopy);
-            return getArguments().alignerType().equals(Arguments.AlignerType.SPARK) ?
-                    constructDataprocAligner(getArguments(), storage, sampleSource, sampleUpload, spark, new GoogleStorageJarUpload(),
-                            optimizer, resultsDirectory, alignmentOutputStorage) :
-                    AlignerProvider.constructVmAligner(getArguments(), credentials, storage, sampleSource, sampleUpload, resultsDirectory,
+            return getArguments().alignerType().equals(Arguments.AlignerType.SPARK)
+                    ? constructDataprocAligner(getArguments(),
+                    storage,
+                    sampleSource,
+                    sampleUpload,
+                    spark,
+                    new GoogleStorageJarUpload(),
+                    optimizer,
+                    resultsDirectory,
+                    alignmentOutputStorage)
+                    : AlignerProvider.constructVmAligner(getArguments(),
+                            credentials,
+                            storage,
+                            sampleSource,
+                            sampleUpload,
+                            resultsDirectory,
                             alignmentOutputStorage);
         }
     }
@@ -98,8 +111,7 @@ public abstract class AlignerProvider {
 
         @Override
         Aligner wireUp(GoogleCredentials credentials, Storage storage, AlignmentOutputStorage alignmentOutputStorage,
-                ClusterOptimizer optimizer, GoogleDataproc dataproc, ResultsDirectory resultsDirectory)
-                throws Exception {
+                ClusterOptimizer optimizer, GoogleDataproc dataproc, ResultsDirectory resultsDirectory) throws Exception {
             SbpRestApi sbpRestApi = SbpRestApi.newInstance(getArguments());
             AmazonS3 s3 = S3.newClient(getArguments().sbpS3Url());
             SampleSource sampleSource = new SbpS3SampleSource(s3, new SbpSampleReader(sbpRestApi));
@@ -108,26 +120,52 @@ public abstract class AlignerProvider {
                     getArguments().rcloneS3RemoteDownload(),
                     ProcessBuilder::new);
             SampleUpload sampleUpload = new CloudSampleUpload(new SbpS3FileSource(), cloudCopy);
-            return getArguments().alignerType().equals(Arguments.AlignerType.SPARK) ?
-                    constructDataprocAligner(getArguments(), storage, sampleSource, sampleUpload, dataproc, new GoogleStorageJarUpload(),
-                            optimizer, resultsDirectory, alignmentOutputStorage) :
-                    AlignerProvider.constructVmAligner(getArguments(), credentials, storage, sampleSource, sampleUpload, resultsDirectory,
+            return getArguments().alignerType().equals(Arguments.AlignerType.SPARK)
+                    ? constructDataprocAligner(getArguments(),
+                    storage,
+                    sampleSource,
+                    sampleUpload,
+                    dataproc,
+                    new GoogleStorageJarUpload(),
+                    optimizer,
+                    resultsDirectory,
+                    alignmentOutputStorage)
+                    : AlignerProvider.constructVmAligner(getArguments(),
+                            credentials,
+                            storage,
+                            sampleSource,
+                            sampleUpload,
+                            resultsDirectory,
                             alignmentOutputStorage);
         }
     }
 
     private static Aligner constructDataprocAligner(final Arguments arguments, final Storage storage, final SampleSource sampleSource,
             final SampleUpload sampleUpload, final GoogleDataproc spark, final GoogleStorageJarUpload googleStorageJarUpload,
-            final ClusterOptimizer optimizer, final ResultsDirectory resultsDirectory, final AlignmentOutputStorage alignmentOutputStorage) {
-        return new DataprocAligner(arguments, storage, sampleSource, sampleUpload, spark, googleStorageJarUpload, optimizer,
-                resultsDirectory, alignmentOutputStorage);
+            final ClusterOptimizer optimizer, final ResultsDirectory resultsDirectory,
+            final AlignmentOutputStorage alignmentOutputStorage) {
+        return new DataprocAligner(arguments,
+                storage,
+                sampleSource,
+                sampleUpload,
+                spark,
+                googleStorageJarUpload,
+                optimizer,
+                resultsDirectory,
+                alignmentOutputStorage);
     }
 
     private static Aligner constructVmAligner(final Arguments arguments, final GoogleCredentials credentials, final Storage storage,
             final SampleSource sampleSource, final SampleUpload sampleUpload, final ResultsDirectory resultsDirectory,
-            final AlignmentOutputStorage alignmentOutputStorage)
-            throws Exception {
+            final AlignmentOutputStorage alignmentOutputStorage) throws Exception {
         ComputeEngine computeEngine = ComputeEngine.from(arguments, credentials);
-        return new VmAligner(arguments, computeEngine, storage, sampleSource, sampleUpload, resultsDirectory, alignmentOutputStorage);
+        return new VmAligner(arguments,
+                computeEngine,
+                storage,
+                sampleSource,
+                sampleUpload,
+                resultsDirectory,
+                alignmentOutputStorage,
+                Executors.newCachedThreadPool());
     }
 }

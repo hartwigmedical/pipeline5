@@ -6,6 +6,6 @@ import com.hartwig.patient.Lane;
 public class Lanes {
 
     public static ImmutableLane.Builder emptyBuilder() {
-        return Lane.builder().directory("").name("").firstOfPairPath("").secondOfPairPath("").flowCellId("").index("").suffix("");
+        return Lane.builder().laneNumber("").directory("").name("").firstOfPairPath("").secondOfPairPath("").flowCellId("").index("").suffix("");
     }
 }
