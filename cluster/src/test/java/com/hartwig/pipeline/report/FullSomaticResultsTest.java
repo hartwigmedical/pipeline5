@@ -38,8 +38,8 @@ public class FullSomaticResultsTest {
     @Test
     public void copiesSingleSampleReferenceAndTumorBucketIntoSomatic() {
 
-        Blob reference = returnSampleFromBucket(outputBucket, "reference");
-        Blob tumor = returnSampleFromBucket(outputBucket, "tumor");
+        Blob reference = returnSampleOnSecondAttempt(outputBucket, "reference");
+        Blob tumor = returnSampleOnSecondAttempt(outputBucket, "tumor");
 
         ArgumentCaptor<Storage.CopyRequest> copyRequestArgumentCaptor = ArgumentCaptor.forClass(Storage.CopyRequest.class);
         final CopyWriter copyWriter = mock(CopyWriter.class);
@@ -76,12 +76,4 @@ public class FullSomaticResultsTest {
         when(outputBucket.list(Storage.BlobListOption.prefix(sample))).thenReturn(page);
         return content;
     }
-
-    private static Blob returnSampleFromBucket(final Bucket outputBucket, final String sample) {
-        Blob blob = TestBlobs.blob(sample + "/" + sample + "/output.txt");
-        Page<Blob> page = TestBlobs.pageOf(blob);
-        when(outputBucket.list(Storage.BlobListOption.prefix(sample))).thenReturn(page);
-        return blob;
-    }
-
 }
