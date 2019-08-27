@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.time.Duration;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
@@ -25,6 +24,7 @@ import com.google.api.services.compute.model.Instance;
 import com.google.api.services.compute.model.Metadata;
 import com.google.api.services.compute.model.NetworkInterface;
 import com.google.api.services.compute.model.Operation;
+import com.google.api.services.compute.model.Scheduling;
 import com.google.api.services.compute.model.ServiceAccount;
 import com.google.api.services.compute.model.Zone;
 import com.google.auth.http.HttpCredentialsAdapter;
@@ -46,6 +46,7 @@ import net.jodah.failsafe.function.CheckedSupplier;
 public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition> {
     private final static String APPLICATION_NAME = "vm-hosted-workload";
     static final String ZONE_EXHAUSTED_ERROR_CODE = "ZONE_RESOURCE_POOL_EXHAUSTED";
+    static final String PREEMPTED_INSTANCE = "TERMINATED";
 
     private final Logger LOGGER = LoggerFactory.getLogger(ComputeEngine.class);
 
@@ -82,12 +83,19 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
                     .stream()
                     .filter(zone -> zone.getRegion().endsWith(arguments.region()))
                     .collect(Collectors.toList());
-            for (Zone zone : zones) {
+            int index = 0;
+            boolean keepTrying = !zones.isEmpty();
+            Zone previousZone = zones.stream().findFirst().orElse(new Zone());
+            while (keepTrying) {
+                Zone nextZone = zones.get(index % zones.size());
                 Instance instance = new Instance();
                 instance.setName(vmName);
-                instance.setZone(zone.getName());
+                instance.setZone(nextZone.getName());
+                if (arguments.usePreemptibleVms()) {
+                    instance.setScheduling(new Scheduling().setPreemptible(true));
+                }
                 String project = arguments.project();
-                instance.setMachineType(machineType(zone.getName(), jobDefinition.performanceProfile().uri(), project));
+                instance.setMachineType(machineType(nextZone.getName(), jobDefinition.performanceProfile().uri(), project));
 
                 instance.setLabels(Labels.ofRun(bucket.runId(), jobDefinition.name(), arguments));
 
@@ -98,31 +106,35 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
                         project,
                         vmName,
                         jobDefinition.performanceProfile().diskGb(),
-                        zone.getName());
+                        nextZone.getName());
                 LOGGER.info("Submitting compute engine job [{}] using image [{}] in zone [{}]",
                         jobDefinition.name(),
                         image.getName(),
-                        zone.getName());
+                        nextZone.getName());
                 addStartupCommand(instance, bucket, jobDefinition.startupCommand());
                 addNetworkInterface(instance, project);
 
-                Operation result = deleteOldInstancesAndStart(compute, instance, project, zone.getName(), vmName);
+                Operation result = deleteOldInstancesAndStart(compute, instance, project, previousZone, nextZone, vmName);
                 if (result.getError() == null) {
                     LOGGER.debug("Successfully initialised [{}]", vmName);
-                    status = waitForCompletion(bucket, jobDefinition);
-                    stop(project, zone.getName(), vmName);
-                    if (status == PipelineStatus.SUCCESS) {
-                        delete(project, zone.getName(), vmName);
-                    } else {
-                        disableStartupScript(instance, zone.getName());
+                    status = waitForCompletion(bucket, jobDefinition, nextZone, instance);
+                    if (status != PipelineStatus.PREEMPTED) {
+                        stop(project, nextZone.getName(), vmName);
+                        if (status == PipelineStatus.SUCCESS) {
+                            delete(project, nextZone.getName(), vmName);
+                        } else {
+                            disableStartupScript(instance, nextZone.getName());
+                        }
+                        LOGGER.info("Compute engine job [{}] is complete with status [{}]", jobDefinition.name(), status);
+                        keepTrying = false;
                     }
-                    LOGGER.info("Compute engine job [{}] is complete with status [{}]", jobDefinition.name(), status);
-                    break;
                 } else if (result.getError().getErrors().stream().anyMatch(error -> error.getCode().equals(ZONE_EXHAUSTED_ERROR_CODE))) {
-                    LOGGER.warn("Zone [{}] has insufficient resources to fulfill the request. Trying next zone", zone.getName());
+                    LOGGER.warn("Zone [{}] has insufficient resources to fulfill the request. Trying next zone", nextZone.getName());
                 } else {
                     throw new RuntimeException(result.getError().toPrettyString());
                 }
+                previousZone = nextZone;
+                index++;
             }
         } catch (Exception e) {
             String message = format("An error occurred running job on compute engine [%s]", vmName);
@@ -216,30 +228,21 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
         return format("%s/zones/%s/machineTypes/%s", apiBaseUrl(projectName), zone, type);
     }
 
-    /**
-     * Google's API will throw if another VM with the same name exists in the project/zone which seems
-     * a pragmatic approach for us to use too.
-     * <p>
-     * This method depends upon all the disks attached to the instance having been initialised with their
-     * <code>autoDelete</code> property set to <code>true</code>, as the disks attached by this class will
-     * have been.
-     * <p>
-     * Note also that the VM will start as soon as it is inserted.
-     */
-    private Operation deleteOldInstancesAndStart(Compute compute, Instance instance, String projectName, String zoneName, String vmName)
-            throws Exception {
-        Compute.Instances.Insert insert = compute.instances().insert(projectName, zoneName, instance);
+    private Operation deleteOldInstancesAndStart(Compute compute, Instance instance, String projectName, Zone previousZone, Zone newZone,
+            String vmName) throws Exception {
+        Compute.Instances.Insert insert = compute.instances().insert(projectName, newZone.getName(), instance);
         try {
-            return executeSynchronously(insert, projectName, zoneName);
+            return executeSynchronously(insert, projectName, newZone.getName());
         } catch (Exception e) {
             if (e.getCause() instanceof GoogleJsonResponseException) {
                 GoogleJsonResponseException gjre = (GoogleJsonResponseException) e.getCause();
                 if (HttpURLConnection.HTTP_CONFLICT == gjre.getDetails().getCode()) {
                     LOGGER.info("Found existing [{}] instance; deleting and restarting", vmName);
-                    Operation delete =
-                            executeSynchronously(compute.instances().delete(projectName, zoneName, vmName), projectName, zoneName);
+                    Operation delete = executeSynchronously(compute.instances().delete(projectName, previousZone.getName(), vmName),
+                            projectName,
+                            previousZone.getName());
                     if (delete.getError() == null) {
-                        return executeSynchronously(insert, projectName, zoneName);
+                        return executeSynchronously(insert, projectName, newZone.getName());
                     } else {
                         throw new RuntimeException(delete.getError().toPrettyString());
                     }
@@ -288,24 +291,24 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
         return false;
     }
 
-    private PipelineStatus waitForCompletion(RuntimeBucket bucket, VirtualMachineJobDefinition jobDefinition) {
-        LOGGER.debug("Waiting for job completion");
-        while (true) {
-            try {
-                try {
-                    Thread.sleep(TimeUnit.SECONDS.toMillis(5));
-                } catch (InterruptedException ie) {
-                    Thread.interrupted();
-                }
-                if (bucketContainsFile(bucket, jobDefinition.startupCommand().successFlag())) {
-                    return PipelineStatus.SUCCESS;
-                } else if (bucketContainsFile(bucket, jobDefinition.startupCommand().failureFlag())) {
-                    return PipelineStatus.FAILED;
-                }
-            } catch (Exception e) {
-                LOGGER.error("Error while polling the results bucket for completion flag. Will try again in [5] seconds", e);
+    private PipelineStatus waitForCompletion(RuntimeBucket bucket, VirtualMachineJobDefinition jobDefinition, Zone zone,
+            Instance instance) {
+        return Failsafe.with(new RetryPolicy<>().withMaxRetries(-1).withDelay(Duration.ofSeconds(5)).handleResult(null)).get(() -> {
+            if (bucketContainsFile(bucket, jobDefinition.startupCommand().successFlag())) {
+                return PipelineStatus.SUCCESS;
+            } else if (bucketContainsFile(bucket, jobDefinition.startupCommand().failureFlag())) {
+                return PipelineStatus.FAILED;
             }
-        }
+            if (compute.instances()
+                    .get(arguments.project(), zone.getName(), instance.getName())
+                    .execute()
+                    .getStatus()
+                    .equals(PREEMPTED_INSTANCE)) {
+                LOGGER.warn("Instance [{}] was preempted. Restarting in next zone", instance.getName());
+                return PipelineStatus.PREEMPTED;
+            }
+            return null;
+        });
     }
 
     private void stop(String projectName, String zoneName, String vmName) throws Exception {
