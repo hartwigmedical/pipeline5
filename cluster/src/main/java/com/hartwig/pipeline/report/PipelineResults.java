@@ -50,7 +50,7 @@ public class PipelineResults {
         Folder folder = Folder.from();
         writeMetadata(metadata, name, folder);
         compose(name, folder);
-        writeComplete(name, folder);
+        writeComplete(name);
     }
 
     public void compose(SingleSampleRunMetadata metadata) {
@@ -58,7 +58,7 @@ public class PipelineResults {
         Folder folder = Folder.from(metadata);
         writeMetadata(metadata, name, folder);
         compose(name, folder);
-        writeComplete(name, folder);
+        writeComplete(name);
     }
 
     private void compose(String name, Folder folder) {
@@ -86,8 +86,8 @@ public class PipelineResults {
         }
     }
 
-    private void writeComplete(final String name, final Folder folder) {
-        reportBucket.create(path(name, folder, STAGING_COMPLETE), new byte[] {});
+    private void writeComplete(final String name) {
+        reportBucket.create(String.format("%s/%s", name, STAGING_COMPLETE), new byte[] {});
     }
 
     private String path(final String name, final Folder folder, final String fileName) {

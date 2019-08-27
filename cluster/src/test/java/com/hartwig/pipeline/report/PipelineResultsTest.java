@@ -2,7 +2,6 @@ package com.hartwig.pipeline.report;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -60,33 +59,23 @@ public class PipelineResultsTest {
     }
 
     @Test
-    public void copiesMetadataRunAndVersionToRootOfBucketSingleSample() {
+    public void copiesMetadataRunVersionAndCompletionToRootOfBucketSingleSample() {
         ArgumentCaptor<String> createBlobCaptor = ArgumentCaptor.forClass(String.class);
         victim.compose(TestInputs.referenceRunMetadata());
-        verify(outputBucket, times(2)).create(createBlobCaptor.capture(), (byte[]) any());
+        verify(outputBucket, times(3)).create(createBlobCaptor.capture(), (byte[]) any());
         assertThat(createBlobCaptor.getAllValues().get(0)).isEqualTo("reference-tag/reference/metadata.json");
         assertThat(createBlobCaptor.getAllValues().get(1)).isEqualTo("reference-tag/reference/pipeline.version");
+        assertThat(createBlobCaptor.getAllValues().get(2)).isEqualTo("reference-tag/STAGED");
     }
 
     @Test
-    public void copiesMetadataRunAndVersionToRootOfBucketSomatic() {
+    public void copiesMetadataRunVersionAndCompletionToRootOfBucketSomatic() {
         ArgumentCaptor<String> createBlobCaptor = ArgumentCaptor.forClass(String.class);
         victim.compose(TestInputs.defaultSomaticRunMetadata());
-        verify(outputBucket, times(2)).create(createBlobCaptor.capture(), (byte[]) any());
+        verify(outputBucket, times(3)).create(createBlobCaptor.capture(), (byte[]) any());
         assertThat(createBlobCaptor.getAllValues().get(0)).isEqualTo("run/metadata.json");
         assertThat(createBlobCaptor.getAllValues().get(1)).isEqualTo("run/pipeline.version");
-    }
-
-    @Test
-    public void writesCompleteFlagOnSuccessfulStagingSomatic() {
-        victim.compose(TestInputs.defaultSomaticRunMetadata());
-        verify(outputBucket, times(1)).create(eq("run/STAGED"), eq(new byte[]{}));
-    }
-
-    @Test
-    public void writesCompleteFlagOnSuccessfulStagingSingleSample() {
-        victim.compose(TestInputs.defaultSomaticRunMetadata());
-        verify(outputBucket, times(1)).create(eq("run/STAGED"), eq(new byte[]{}));
+        assertThat(createBlobCaptor.getAllValues().get(2)).isEqualTo("run/STAGED");
     }
 
     @NotNull
