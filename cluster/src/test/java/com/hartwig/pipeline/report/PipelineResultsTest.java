@@ -2,6 +2,7 @@ package com.hartwig.pipeline.report;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -25,16 +26,15 @@ import org.mockito.ArgumentCaptor;
 
 public class PipelineResultsTest {
 
-    public static final String PIPELINE_OUTPUT = "pipeline-output";
+    private static final String PIPELINE_OUTPUT = "pipeline-output";
     private boolean firstComponentRan;
     private boolean secondComponentRan;
     private PipelineResults victim;
-    private Storage storage;
     private Bucket outputBucket;
 
     @Before
     public void setUp() throws Exception {
-        storage = mock(Storage.class);
+        final Storage storage = mock(Storage.class);
         outputBucket = mock(Bucket.class);
         when(outputBucket.getName()).thenReturn(PIPELINE_OUTPUT);
         victim = new PipelineResults("test", storage, outputBucket, Arguments.testDefaultsBuilder().runId("tag").build());
@@ -77,6 +77,17 @@ public class PipelineResultsTest {
         assertThat(createBlobCaptor.getAllValues().get(1)).isEqualTo("run/pipeline.version");
     }
 
+    @Test
+    public void writesCompleteFlagOnSuccessfulStagingSomatic() {
+        victim.compose(TestInputs.defaultSomaticRunMetadata());
+        verify(outputBucket, times(1)).create(eq("run/STAGED"), eq(new byte[]{}));
+    }
+
+    @Test
+    public void writesCompleteFlagOnSuccessfulStagingSingleSample() {
+        victim.compose(TestInputs.defaultSomaticRunMetadata());
+        verify(outputBucket, times(1)).create(eq("run/STAGED"), eq(new byte[]{}));
+    }
 
     @NotNull
     private StageOutput stageOutput(final ArrayList<ReportComponent> components) {

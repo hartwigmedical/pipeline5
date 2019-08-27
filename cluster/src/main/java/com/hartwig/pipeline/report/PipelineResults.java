@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 public class PipelineResults {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PipelineResults.class);
+    static final String STAGING_COMPLETE = "STAGED";
 
     private final String version;
     private final Storage storage;
@@ -49,6 +50,7 @@ public class PipelineResults {
         Folder folder = Folder.from();
         writeMetadata(metadata, name, folder);
         compose(name, folder);
+        writeComplete(name, folder);
     }
 
     public void compose(SingleSampleRunMetadata metadata) {
@@ -56,6 +58,7 @@ public class PipelineResults {
         Folder folder = Folder.from(metadata);
         writeMetadata(metadata, name, folder);
         compose(name, folder);
+        writeComplete(name, folder);
     }
 
     private void compose(String name, Folder folder) {
@@ -83,8 +86,11 @@ public class PipelineResults {
         }
     }
 
+    private void writeComplete(final String name, final Folder folder) {
+        reportBucket.create(path(name, folder, STAGING_COMPLETE), new byte[] {});
+    }
+
     private String path(final String name, final Folder folder, final String fileName) {
         return String.format("%s/%s%s", name, folder.name(), fileName);
     }
-
 }
