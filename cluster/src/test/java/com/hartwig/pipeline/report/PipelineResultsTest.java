@@ -25,16 +25,15 @@ import org.mockito.ArgumentCaptor;
 
 public class PipelineResultsTest {
 
-    public static final String PIPELINE_OUTPUT = "pipeline-output";
+    private static final String PIPELINE_OUTPUT = "pipeline-output";
     private boolean firstComponentRan;
     private boolean secondComponentRan;
     private PipelineResults victim;
-    private Storage storage;
     private Bucket outputBucket;
 
     @Before
     public void setUp() throws Exception {
-        storage = mock(Storage.class);
+        final Storage storage = mock(Storage.class);
         outputBucket = mock(Bucket.class);
         when(outputBucket.getName()).thenReturn(PIPELINE_OUTPUT);
         victim = new PipelineResults("test", storage, outputBucket, Arguments.testDefaultsBuilder().runId("tag").build());
@@ -60,23 +59,24 @@ public class PipelineResultsTest {
     }
 
     @Test
-    public void copiesMetadataRunAndVersionToRootOfBucketSingleSample() {
+    public void copiesMetadataRunVersionAndCompletionToRootOfBucketSingleSample() {
         ArgumentCaptor<String> createBlobCaptor = ArgumentCaptor.forClass(String.class);
         victim.compose(TestInputs.referenceRunMetadata());
-        verify(outputBucket, times(2)).create(createBlobCaptor.capture(), (byte[]) any());
+        verify(outputBucket, times(3)).create(createBlobCaptor.capture(), (byte[]) any());
         assertThat(createBlobCaptor.getAllValues().get(0)).isEqualTo("reference-tag/reference/metadata.json");
         assertThat(createBlobCaptor.getAllValues().get(1)).isEqualTo("reference-tag/reference/pipeline.version");
+        assertThat(createBlobCaptor.getAllValues().get(2)).isEqualTo("reference-tag/STAGED");
     }
 
     @Test
-    public void copiesMetadataRunAndVersionToRootOfBucketSomatic() {
+    public void copiesMetadataRunVersionAndCompletionToRootOfBucketSomatic() {
         ArgumentCaptor<String> createBlobCaptor = ArgumentCaptor.forClass(String.class);
         victim.compose(TestInputs.defaultSomaticRunMetadata());
-        verify(outputBucket, times(2)).create(createBlobCaptor.capture(), (byte[]) any());
+        verify(outputBucket, times(3)).create(createBlobCaptor.capture(), (byte[]) any());
         assertThat(createBlobCaptor.getAllValues().get(0)).isEqualTo("run/metadata.json");
         assertThat(createBlobCaptor.getAllValues().get(1)).isEqualTo("run/pipeline.version");
+        assertThat(createBlobCaptor.getAllValues().get(2)).isEqualTo("run/STAGED");
     }
-
 
     @NotNull
     private StageOutput stageOutput(final ArrayList<ReportComponent> components) {
