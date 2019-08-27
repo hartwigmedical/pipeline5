@@ -6,6 +6,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
@@ -13,6 +14,7 @@ import com.google.cloud.storage.Storage;
 import com.google.common.collect.Lists;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
+import com.hartwig.pipeline.report.PipelineResults;
 import com.hartwig.pipeline.sbpapi.SbpFileMetadata;
 import com.hartwig.pipeline.sbpapi.SbpRestApi;
 import com.hartwig.pipeline.sbpapi.SbpRun;
@@ -46,7 +48,7 @@ public class SbpFileTransfer {
         sbpS3.ensureBucketExists(sbpBucket);
         List<Blob> sourceObjects = find(sourceBucket, metadata.runName());
         List<SourceDestPair> allFiles = new ArrayList<>();
-        for (Blob blob : sourceObjects) {
+        for (Blob blob : filterStagingBlobs(sourceObjects)) {
             LOGGER.debug("Syncing object {}", blob.getName());
             if (blob.getMd5() == null) {
                 String message =
@@ -84,9 +86,15 @@ public class SbpFileTransfer {
                     .build();
             sbpApi.postFile(metaData);
         }
-        if (arguments.cleanup()){
+        if (arguments.cleanup()) {
             sourceObjects.forEach(Blob::delete);
         }
+    }
+
+    private List<Blob> filterStagingBlobs(final List<Blob> sourceObjects) {
+        return sourceObjects.stream()
+                .filter(blob -> !blob.getName().endsWith(PipelineResults.STAGING_COMPLETE))
+                .collect(Collectors.toList());
     }
 
     private String extractDirectoryNameForSbp(String fullDestFilePath) {

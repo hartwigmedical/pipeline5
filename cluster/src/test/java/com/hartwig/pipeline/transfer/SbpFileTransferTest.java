@@ -8,6 +8,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
@@ -18,6 +19,7 @@ import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
+import com.hartwig.pipeline.report.PipelineResults;
 import com.hartwig.pipeline.sbpapi.SbpFileMetadata;
 import com.hartwig.pipeline.sbpapi.SbpRestApi;
 import com.hartwig.pipeline.sbpapi.SbpRun;
@@ -159,5 +161,12 @@ public class SbpFileTransferTest {
                 Arguments.testDefaultsBuilder().cleanup(false).build());
         victim.publish(metadata, sbpRun, sbpBucket);
         verify(blob, never()).delete();
+    }
+
+    @Test
+    public void filtersOutStagingCompletionFiles() {
+        when(blob.getName()).thenReturn("/" + directoryForPost + "/" + PipelineResults.STAGING_COMPLETE);
+        victim.publish(metadata, sbpRun, sbpBucket);
+        verifyZeroInteractions(cloudCopy);
     }
 }

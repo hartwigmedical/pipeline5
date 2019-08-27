@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 public class PipelineResults {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PipelineResults.class);
-    static final String STAGING_COMPLETE = "STAGED";
+    public static final String STAGING_COMPLETE = "STAGED";
 
     private final String version;
     private final Storage storage;
