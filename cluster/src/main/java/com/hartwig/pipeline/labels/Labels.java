@@ -17,6 +17,6 @@ public class Labels {
     }
 
     private static String clean(final String run) {
-        return run.toLowerCase().replace("_", "-").replace("\\.", "-");
+        return run.toLowerCase().replace("_", "-").replace('.', '-');
     }
 }
