@@ -9,13 +9,14 @@ import com.hartwig.pipeline.tools.Versions;
 public class Labels {
 
     public static Map<String, String> ofRun(String run, String jobName, Arguments arguments) {
-        return ImmutableMap.of("run_id",
-                run.toLowerCase(),
-                "job_name",
-                jobName.toLowerCase(),
-                "version",
-                Versions.pipelineMajorMinorVersion().toLowerCase(),
+        return ImmutableMap.of("run_id", clean(run),
+                "job_name", clean(jobName),
+                "version", clean(Versions.pipelineMajorMinorVersion()),
                 "shallow",
                 arguments.shallow() ? "true" : "false");
+    }
+
+    private static String clean(final String run) {
+        return run.toLowerCase().replace("_", "-").replace("\\.", "-");
     }
 }
