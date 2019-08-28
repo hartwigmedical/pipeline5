@@ -6,7 +6,9 @@ import static java.util.Collections.singletonList;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.time.Duration;
+import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
@@ -52,14 +54,16 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
 
     private final Arguments arguments;
     private final Compute compute;
+    private final Consumer<List<Zone>> zoneRandomizer;
 
-    ComputeEngine(final Arguments arguments, final Compute compute) {
+    public ComputeEngine(final Arguments arguments, final Compute compute, final Consumer<List<Zone>> zoneRandomizer) {
         this.arguments = arguments;
         this.compute = compute;
+        this.zoneRandomizer = zoneRandomizer;
     }
 
     public static ComputeEngine from(final Arguments arguments, final GoogleCredentials credentials) throws Exception {
-        return new ComputeEngine(arguments, initCompute(credentials));
+        return new ComputeEngine(arguments, initCompute(credentials), Collections::shuffle);
     }
 
     @Override
@@ -83,6 +87,7 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
                     .stream()
                     .filter(zone -> zone.getRegion().endsWith(arguments.region()))
                     .collect(Collectors.toList());
+            zoneRandomizer.accept(zones);
             int index = 0;
             boolean keepTrying = !zones.isEmpty();
             Zone previousZone = zones.stream().findFirst().orElse(new Zone());

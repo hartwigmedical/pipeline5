@@ -100,7 +100,8 @@ public class ComputeEngineTest {
         when(zones.list(ARGUMENTS.project())).thenReturn(zonesList);
         when(compute.zones()).thenReturn(zones);
 
-        victim = new ComputeEngine(ARGUMENTS, compute);
+        victim = new ComputeEngine(ARGUMENTS, compute, z -> {
+        });
         runtimeBucket = MockRuntimeBucket.test();
         jobDefinition = VirtualMachineJobDefinition.builder()
                 .name("test")
@@ -206,7 +207,8 @@ public class ComputeEngineTest {
     @Test
     public void usesPrivateNetworkWhenSpecified() throws Exception {
         returnSuccess();
-        victim = new ComputeEngine(Arguments.testDefaultsBuilder().privateNetwork("private").build(), compute);
+        victim = new ComputeEngine(Arguments.testDefaultsBuilder().privateNetwork("private").build(), compute, z -> {
+        });
         ArgumentCaptor<Instance> instanceArgumentCaptor = ArgumentCaptor.forClass(Instance.class);
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
         verify(instances).insert(any(), any(), instanceArgumentCaptor.capture());
@@ -231,14 +233,14 @@ public class ComputeEngineTest {
     }
 
     @Test
-    public void setsVmsToPreemptibleWhenFlagEnabled() throws Exception{
+    public void setsVmsToPreemptibleWhenFlagEnabled() throws Exception {
         returnSuccess();
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
         assertThat(instanceArgumentCaptor.getValue().getScheduling().getPreemptible()).isTrue();
     }
 
     @Test
-    public void restartsPreemptedInstanceInNextZone() throws Exception{
+    public void restartsPreemptedInstanceInNextZone() throws Exception {
         returnTerminated();
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
         verify(instances, times(1)).insert(eq(ARGUMENTS.project()), eq(SECOND_ZONE_NAME), any());
@@ -263,7 +265,7 @@ public class ComputeEngineTest {
         when(runtimeBucket.getRuntimeBucket().get(BashStartupScript.JOB_FAILED_FLAG)).thenReturn(null);
         when(runtimeBucket.getRuntimeBucket().list()).thenReturn(new ArrayList<>());
     }
-    
+
     private void returnFailed() throws IOException {
         runtimeBucket = runtimeBucket.with(failureBlob(), 1);
         List<Blob> blobs = new ArrayList<>();
@@ -272,8 +274,8 @@ public class ComputeEngineTest {
         blobs.add(mockBlob);
         when(runtimeBucket.getRuntimeBucket().get(BashStartupScript.JOB_FAILED_FLAG)).thenReturn(mockBlob);
         when(runtimeBucket.getRuntimeBucket().list()).thenReturn(new ArrayList<>()).thenReturn(new ArrayList<>()).thenReturn(blobs);
-  }
-  
+    }
+
     private void mockReadChannel(final Blob mockBlob, final String value2) throws IOException {
         ReadChannel mockReadChannel = mock(ReadChannel.class);
         when(mockReadChannel.read(any())).thenReturn(-1);
