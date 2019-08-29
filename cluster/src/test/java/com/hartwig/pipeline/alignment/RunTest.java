@@ -43,4 +43,22 @@ public class RunTest {
         Run victim = Run.from("very-long-reference-sample-name", "very-long-tumor-sample-name-NNNNN", Arguments.testDefaults());
         assertThat(victim.id().length()).isLessThanOrEqualTo(35);
     }
+
+    @Test
+    public void appendsShallowOnShallowSingleSampleRuns() {
+        Run victim = Run.from(REFERENCE_SAMPLE, Arguments.testDefaultsBuilder().shallow(true).build());
+        assertThat(victim.id()).isEqualTo("run-reference-shallow");
+    }
+
+    @Test
+    public void appendsShallowOnShallowSomaticRuns() {
+        Run victim = Run.from(REFERENCE_SAMPLE, TUMOR_SAMPLE, Arguments.testDefaultsBuilder().shallow(true).build());
+        assertThat(victim.id()).isEqualTo("run-reference-tumor-shallow");
+    }
+
+    @Test
+    public void appendsShallowOnShallowBeforeRunTag() {
+        Run victim = Run.from(REFERENCE_SAMPLE, TUMOR_SAMPLE, Arguments.testDefaultsBuilder().shallow(true).runId("override").build());
+        assertThat(victim.id()).isEqualTo("run-reference-tumor-shallow-override");
+    }
 }

@@ -143,7 +143,7 @@ public class CleanupTest {
     }
 
     @Test
-    public void preservesSingleSampleRuntimesIfTheyHaveDependencies() {
+    public void preservesSingleSampleRuntimesIfTheyHaveDependenciesAndNotShallow() {
         when(somaticMetadataApi.hasDependencies(defaultSomaticRunMetadata().reference().sampleName())).thenReturn(true);
         when(somaticMetadataApi.hasDependencies(defaultSomaticRunMetadata().tumor().sampleName())).thenReturn(true);
         victim.run(defaultSomaticRunMetadata());
@@ -151,13 +151,32 @@ public class CleanupTest {
         verify(storage, never()).get(RUN_TUMOR);
     }
 
+    @Test
+    public void deletesAllShallowRunsEvenWithDependencies() {
+        Blob referenceBlob = returnBlob(RUN_REFERENCE + "-shallow", referenceBucket);
+        Blob tumorBlob = returnBlob(RUN_TUMOR + "-shallow", tumorBucket);
+        victim = new Cleanup(storage, Arguments.builder().from(ARGUMENTS).shallow(true).build(), dataproc, somaticMetadataApi);
+        when(somaticMetadataApi.hasDependencies(defaultSomaticRunMetadata().reference().sampleName())).thenReturn(true);
+        when(somaticMetadataApi.hasDependencies(defaultSomaticRunMetadata().tumor().sampleName())).thenReturn(true);
+        victim.run(defaultSomaticRunMetadata());
+        verify(referenceBlob, times(1)).delete();
+        verify(tumorBlob, times(1)).delete();
+        verify(referenceBucket, times(1)).delete();
+        verify(tumorBucket, times(1)).delete();
+    }
+
     private void assertBucketDeleted(final String bucketName, final Bucket bucket) {
+        Blob blob = returnBlob(bucketName, bucket);
+        victim.run(defaultSomaticRunMetadata());
+        verify(bucket, times(1)).delete();
+        verify(blob, times(1)).delete();
+    }
+
+    private Blob returnBlob(final String bucketName, final Bucket bucket) {
         when(storage.get(bucketName)).thenReturn(bucket);
         Blob blob = blob("result");
         Page<Blob> page = pageOf(blob);
         when(bucket.list()).thenReturn(page);
-        victim.run(defaultSomaticRunMetadata());
-        verify(bucket, times(1)).delete();
-        verify(blob, times(1)).delete();
+        return blob;
     }
 }

@@ -54,7 +54,7 @@ public class Cleanup {
     }
 
     private void cleanupSample(final SingleSampleRunMetadata metadata) {
-        if (!somaticMetadataApi.hasDependencies(metadata.sampleName())) {
+        if (!somaticMetadataApi.hasDependencies(metadata.sampleName()) || arguments.shallow()) {
             Run run = Run.from(metadata.sampleId(), arguments);
             deleteBucket(run.id());
             deleteStagingDirectory(metadata);
@@ -72,7 +72,7 @@ public class Cleanup {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-        }else {
+        } else {
             LOGGER.info("Skipping cleanup of sample [{}], it has other dependent runs.", metadata.sampleName());
         }
     }
