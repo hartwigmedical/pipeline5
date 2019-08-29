@@ -59,6 +59,6 @@ public class RunTest {
     @Test
     public void appendsShallowOnShallowBeforeRunTag() {
         Run victim = Run.from(REFERENCE_SAMPLE, TUMOR_SAMPLE, Arguments.testDefaultsBuilder().shallow(true).runId("override").build());
-        assertThat(victim.id()).isEqualTo("run-reference-tumor-shallow-override");
+        assertThat(victim.id()).isEqualTo("run-reference-tumor-override-shallow");
     }
 }
