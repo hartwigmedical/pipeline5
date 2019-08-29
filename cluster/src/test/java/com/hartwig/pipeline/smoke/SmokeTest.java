@@ -29,7 +29,7 @@ public class SmokeTest {
                 .runId("smoke-" + noDots(version))
                 .runGermlineCaller(false)
                 .build());
-        assertThat(state.status()).isEqualTo(PipelineStatus.SUCCESS);
+        assertThat(state.status()).isEqualTo(PipelineStatus.QC_FAILED);
     }
 
     private static String workingDir() {
