@@ -20,10 +20,10 @@ public class PipelineState {
         return stageOutput;
     }
 
-    PipelineState combineWith(PipelineState state){
+    PipelineState combineWith(PipelineState state) {
         if (state != null) {
             state.stageOutputs().forEach(this::add);
-        }else {
+        } else {
             throw new IllegalArgumentException("State from one of the two pipelines was null. Did that pipeline run successfully?");
         }
         return this;
@@ -45,7 +45,7 @@ public class PipelineState {
         return stageOutputs().stream()
                 .filter(Objects::nonNull)
                 .map(StageOutput::status)
-                .filter(status -> status == PipelineStatus.FAILED)
+                .filter(status -> !status.equals(PipelineStatus.SUCCESS) && !status.equals(PipelineStatus.SKIPPED))
                 .findFirst()
                 .orElse(PipelineStatus.SUCCESS);
     }
