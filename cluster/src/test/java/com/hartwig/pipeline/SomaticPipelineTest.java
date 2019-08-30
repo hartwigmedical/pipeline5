@@ -177,12 +177,7 @@ public class SomaticPipelineTest {
         bothAlignmentsAvailable();
         bothMetricsAvailable();
         allCallersSucceed();
-        when(purple.run(SOMATIC_RUN_METADATA,
-                PAIR,
-                SUCCESSFUL_SOMATIC_CALLER_OUTPUT,
-                SUCCESSFUL_STRUCTURAL_CALLER_OUTPUT,
-                SUCCESSFUL_COBALT_OUTPUT,
-                SUCCESSFUL_AMBER_OUTPUT)).thenReturn(SUCCESSFUL_PURPLE_OUTPUT);
+        purpleSucceeds();
         PipelineState state = victim.run();
         assertThat(state.stageOutputs()).contains(SUCCESSFUL_PURPLE_OUTPUT);
     }
@@ -284,6 +279,26 @@ public class SomaticPipelineTest {
         verifyZeroInteractions(amber, cobalt, purple, structuralCaller, somaticCaller, healthChecker);
     }
 
+    @Test
+    public void failsRunOnQcFailure() {
+        bothAlignmentsAvailable();
+        bothMetricsAvailable();
+        allCallersSucceed();
+        bothMetricsAvailable();
+        purpleSucceeds();
+        when(healthChecker.run(SOMATIC_RUN_METADATA,
+                PAIR,
+                TUMOR_BAM_METRICS_OUTPUT,
+                REFERENCE_BAM_METRICS_OUTPUT,
+                SUCCESSFUL_AMBER_OUTPUT,
+                SUCCESSFUL_PURPLE_OUTPUT)).thenReturn(HealthCheckOutput.builder()
+                .from(SUCCESSFUL_HEALTH_CHECK)
+                .status(PipelineStatus.QC_FAILED)
+                .build());
+        PipelineState state = victim.run();
+        assertThat(state.status()).isEqualTo(PipelineStatus.QC_FAILED);
+    }
+
     private void failPurple() {
         when(purple.run(SOMATIC_RUN_METADATA,
                 PAIR,
@@ -294,18 +309,22 @@ public class SomaticPipelineTest {
     }
 
     private void purpleAndHealthCheckSucceed() {
-        when(purple.run(SOMATIC_RUN_METADATA,
-                PAIR,
-                SUCCESSFUL_SOMATIC_CALLER_OUTPUT,
-                SUCCESSFUL_STRUCTURAL_CALLER_OUTPUT,
-                SUCCESSFUL_COBALT_OUTPUT,
-                SUCCESSFUL_AMBER_OUTPUT)).thenReturn(SUCCESSFUL_PURPLE_OUTPUT);
+        purpleSucceeds();
         when(healthChecker.run(SOMATIC_RUN_METADATA,
                 PAIR,
                 TUMOR_BAM_METRICS_OUTPUT,
                 REFERENCE_BAM_METRICS_OUTPUT,
                 SUCCESSFUL_AMBER_OUTPUT,
                 SUCCESSFUL_PURPLE_OUTPUT)).thenReturn(SUCCESSFUL_HEALTH_CHECK);
+    }
+
+    private void purpleSucceeds() {
+        when(purple.run(SOMATIC_RUN_METADATA,
+                PAIR,
+                SUCCESSFUL_SOMATIC_CALLER_OUTPUT,
+                SUCCESSFUL_STRUCTURAL_CALLER_OUTPUT,
+                SUCCESSFUL_COBALT_OUTPUT,
+                SUCCESSFUL_AMBER_OUTPUT)).thenReturn(SUCCESSFUL_PURPLE_OUTPUT);
     }
 
     private void bothMetricsAvailable() {

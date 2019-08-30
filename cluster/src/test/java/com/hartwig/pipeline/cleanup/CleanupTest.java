@@ -152,12 +152,17 @@ public class CleanupTest {
     }
 
     private void assertBucketDeleted(final String bucketName, final Bucket bucket) {
+        Blob blob = returnBlob(bucketName, bucket);
+        victim.run(defaultSomaticRunMetadata());
+        verify(bucket, times(1)).delete();
+        verify(blob, times(1)).delete();
+    }
+
+    private Blob returnBlob(final String bucketName, final Bucket bucket) {
         when(storage.get(bucketName)).thenReturn(bucket);
         Blob blob = blob("result");
         Page<Blob> page = pageOf(blob);
         when(bucket.list()).thenReturn(page);
-        victim.run(defaultSomaticRunMetadata());
-        verify(bucket, times(1)).delete();
-        verify(blob, times(1)).delete();
+        return blob;
     }
 }

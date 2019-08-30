@@ -117,7 +117,7 @@ public class GridssCommonArgumentsAssert extends AbstractAssert<GridssCommonArgu
             }
         }
 
-        String classpathTokens = "-cp /data/tools/gridss/2.5.1/gridss.jar";
+        String classpathTokens = "-cp /data/tools/gridss/2.5.2/gridss.jar";
         if (!actualJvmProperties.trim().endsWith(classpathTokens)) {
             failWithMessage(format("Did not find classpath entry \"%s\" for GRIDSS JAR in invocation: %s",
                     classpathTokens, invocation));

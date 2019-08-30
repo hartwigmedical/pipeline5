@@ -212,7 +212,7 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
         items.setKey("startup-script");
         items.setValue(startupCommand.asUnixString());
         startupMetadata.setItems(singletonList(items));
-        runtimeBucket.create("copy_of_startup_script_used_for_this_run.sh", startupCommand.asUnixString().getBytes());
+        runtimeBucket.create("copy_of_startup_script_for_run.sh", startupCommand.asUnixString().getBytes());
         instance.setMetadata(startupMetadata);
     }
 
