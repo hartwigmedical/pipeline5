@@ -238,7 +238,7 @@ public class ComputeEngineTest {
         when(runtimeBucket.getRuntimeBucket().get(BashStartupScript.JOB_SUCCEEDED_FLAG)).thenReturn(mockBlob);
         when(runtimeBucket.getRuntimeBucket().list()).thenReturn(new ArrayList<>()).thenReturn(new ArrayList<>()).thenReturn(blobs);
     }
-    
+
     private void returnFailed() throws IOException {
         runtimeBucket = runtimeBucket.with(failureBlob(), 1);
         List<Blob> blobs = new ArrayList<>();
@@ -247,8 +247,8 @@ public class ComputeEngineTest {
         blobs.add(mockBlob);
         when(runtimeBucket.getRuntimeBucket().get(BashStartupScript.JOB_FAILED_FLAG)).thenReturn(mockBlob);
         when(runtimeBucket.getRuntimeBucket().list()).thenReturn(new ArrayList<>()).thenReturn(new ArrayList<>()).thenReturn(blobs);
-  }
-  
+    }
+
     private void mockReadChannel(final Blob mockBlob, final String value2) throws IOException {
         ReadChannel mockReadChannel = mock(ReadChannel.class);
         when(mockReadChannel.read(any())).thenReturn(-1);

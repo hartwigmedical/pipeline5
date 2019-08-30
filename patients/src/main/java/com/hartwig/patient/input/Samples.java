@@ -24,12 +24,13 @@ class Samples {
                 new GlobFilter(sampleNameWithPostfix + "_*_S*_L*_R?_*.fastq*"))) {
             String fileName = fileStatus.getPath().getName();
             String[] tokens = fileName.split("_");
-            String laneName = tokens[3];
+            String laneNumber = tokens[3];
             String flowCellId = tokens[1];
-            ImmutableLane.Builder builder = builders.computeIfAbsent(laneName + flowCellId,
+            ImmutableLane.Builder builder = builders.computeIfAbsent(laneNumber + flowCellId,
                     s -> Lane.builder()
                             .directory(sampleDirectory.toString())
-                            .name(sampleNameWithPostfix + "_" + laneName)
+                            .laneNumber(laneNumber)
+                            .name(sampleNameWithPostfix + "_" + laneNumber)
                             .flowCellId(flowCellId)
                             .index(tokens[2])
                             .suffix(tokens[5].substring(0, tokens[5].indexOf('.'))));
