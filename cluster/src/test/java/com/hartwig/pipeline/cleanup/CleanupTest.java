@@ -143,26 +143,12 @@ public class CleanupTest {
     }
 
     @Test
-    public void preservesSingleSampleRuntimesIfTheyHaveDependenciesAndNotShallow() {
+    public void preservesSingleSampleRuntimesIfTheyHaveDependencies() {
         when(somaticMetadataApi.hasDependencies(defaultSomaticRunMetadata().reference().sampleName())).thenReturn(true);
         when(somaticMetadataApi.hasDependencies(defaultSomaticRunMetadata().tumor().sampleName())).thenReturn(true);
         victim.run(defaultSomaticRunMetadata());
         verify(storage, never()).get(RUN_REFERENCE);
         verify(storage, never()).get(RUN_TUMOR);
-    }
-
-    @Test
-    public void deletesAllShallowRunsEvenWithDependencies() {
-        Blob referenceBlob = returnBlob(RUN_REFERENCE + "-shallow", referenceBucket);
-        Blob tumorBlob = returnBlob(RUN_TUMOR + "-shallow", tumorBucket);
-        victim = new Cleanup(storage, Arguments.builder().from(ARGUMENTS).shallow(true).build(), dataproc, somaticMetadataApi);
-        when(somaticMetadataApi.hasDependencies(defaultSomaticRunMetadata().reference().sampleName())).thenReturn(true);
-        when(somaticMetadataApi.hasDependencies(defaultSomaticRunMetadata().tumor().sampleName())).thenReturn(true);
-        victim.run(defaultSomaticRunMetadata());
-        verify(referenceBlob, times(1)).delete();
-        verify(tumorBlob, times(1)).delete();
-        verify(referenceBucket, times(1)).delete();
-        verify(tumorBucket, times(1)).delete();
     }
 
     private void assertBucketDeleted(final String bucketName, final Bucket bucket) {

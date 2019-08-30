@@ -54,7 +54,7 @@ public class Cleanup {
     }
 
     private void cleanupSample(final SingleSampleRunMetadata metadata) {
-        if (!somaticMetadataApi.hasDependencies(metadata.sampleName()) || arguments.shallow()) {
+        if (!somaticMetadataApi.hasDependencies(metadata.sampleName())) {
             Run run = Run.from(metadata.sampleId(), arguments);
             deleteBucket(run.id());
             deleteStagingDirectory(metadata);

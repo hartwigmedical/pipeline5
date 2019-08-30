@@ -33,6 +33,7 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
     private static final String REF = "ref";
     private static final String TUMOR = "tumor";
     private final static Logger LOGGER = LoggerFactory.getLogger(SomaticMetadataApi.class);
+    private static final String SINGLE_SAMPLE_INI = "SingleSample";
     private final Arguments arguments;
     private final int sbpRunId;
     private final SbpRestApi sbpRestApi;
@@ -58,9 +59,8 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
                     SingleSampleRunMetadata.SampleType.REFERENCE))
                     .orElseThrow(() -> new IllegalStateException(String.format("No reference sample found in SBP for set [%s]",
                             sbpSet.name())));
-            SbpIni ini = findIni(sbpRun, ObjectMappers.get().readValue(sbpRestApi.getInis(), new TypeReference<List<SbpIni>>() {
-            }));
-            if (ini.name().startsWith("SingleSample")) {
+            SbpIni ini = findIni(sbpRun, getInis());
+            if (ini.name().startsWith(SINGLE_SAMPLE_INI)) {
                 LOGGER.info("Somatic run is using single sample configuration. No algorithms will be run, just transfer and cleanup");
                 return SomaticRunMetadata.builder().runName(RunTag.apply(arguments, sbpSet.name())).reference(reference).build();
             } else {
@@ -79,6 +79,11 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private List<SbpIni> getInis() throws IOException {
+        return ObjectMappers.get().readValue(sbpRestApi.getInis(), new TypeReference<List<SbpIni>>() {
+        });
     }
 
     private SbpIni findIni(final SbpRun sbpRun, final List<SbpIni> inis) {
@@ -115,7 +120,11 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
                 }
             }
 
-            List<SbpRun> pending = runsForSets.stream().filter(run -> !COMPLETE_STATUS.contains(run.status())).collect(Collectors.toList());
+            List<SbpIni> inis = getInis();
+            List<SbpRun> pending = runsForSets.stream()
+                    .filter(run -> !COMPLETE_STATUS.contains(run.status()))
+                    .filter(run -> arguments.shallow() == isShallow(inis, run))
+                    .collect(Collectors.toList());
             if (!pending.isEmpty()) {
                 LOGGER.info("Founds dependent runs for sample [{}], [{}]",
                         sample,
@@ -124,6 +133,10 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
             return !pending.isEmpty();
         }
         return false;
+    }
+
+    private boolean isShallow(final List<SbpIni> inis, final SbpRun run) {
+        return findIni(run, inis).name().toLowerCase().contains("shallow");
     }
 
     private static ImmutableSingleSampleRunMetadata toMetadata(final SbpSample referenceSample,
