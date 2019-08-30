@@ -26,9 +26,6 @@ public class BashStartupScript {
         return new BashStartupScript(runtimeBucketName);
     }
 
-    /**
-     * @return the generated script as a single <code>String</code> with UNIX newlines separating input lines
-     */
     public String asUnixString() {
         String commandSuffix = format(" >>%s 2>&1 || die", LOG_FILE);
         String jobFailedFlag = "/tmp/" + JOB_FAILED_FLAG;
@@ -55,7 +52,6 @@ public class BashStartupScript {
                 "mount /dev/md0 /data",
                 "mkdir /data/output\n"
         );
-
         addCompletionCommands();
         return preamble.stream().collect(joining("\n")) +
                 commands.stream().collect(joining(format("%s\n", commandSuffix))) +
@@ -77,15 +73,14 @@ public class BashStartupScript {
         return s.replace("\"", "\\\"");
     }
 
-    public BashStartupScript addCommands(List<BashCommand> commands) {
+    public void addCommands(List<BashCommand> commands) {
         for (BashCommand command : commands) {
             addCommand(command);
         }
-        return this;
     }
 
     private void addCompletionCommands() {
-        String successFlag = "/tmp/" + JOB_SUCCEEDED_FLAG;
+        String successFlag = "/tmp/" + successFlag();
         commands.add(format("(echo 0 > %s && gsutil cp %s gs://%s)", successFlag, successFlag, runtimeBucketName));
     }
 

@@ -45,7 +45,7 @@ public class FilterTest implements CommonEntities {
 
         initialScript = mock(BashStartupScript.class);
         BashStartupScript finishedScript = victim.bash(input, output, initialScript);
-        verify(finishedScript, times(8)).addCommand(captor.capture());
+        verify(finishedScript, times(6)).addCommand(captor.capture());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -77,13 +77,4 @@ public class FilterTest implements CommonEntities {
         assertThat(captor.getAllValues().get(4).asBash()).isEqualTo(format("mv %s.bgz %s.gz", outputFilteredVcf, outputFilteredVcf));
         assertThat(captor.getAllValues().get(5).asBash()).isEqualTo(format("mv %s.bgz.tbi %s.gz.tbi", outputFilteredVcf, outputFilteredVcf));
     }
-
-    @Test
-    public void shouldCopyInputPathToOutputPathAndCompanionTbisToo() {
-        String template = "cp " + input.path() + "%s " + output.path() + "%s";
-        assertThat(captor.getAllValues().get(6).asBash()).isEqualTo(format(template, "", ""));
-        assertThat(captor.getAllValues().get(7).asBash()).isEqualTo(format(template, ".tbi", ".tbi"));
-    }
-
-
 }

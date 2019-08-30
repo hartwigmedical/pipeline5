@@ -33,6 +33,7 @@ public class SbpS3SampleSourceTest {
                         .flowCellId("")
                         .suffix("")
                         .index("1")
+                        .laneNumber("L001")
                         .firstOfPairPath("obj02_input/HMF_COLO829/COLO829R/COLO829R_AHCT3FCCXY_S2_L001_R1_001.fastq.gz")
                         .secondOfPairPath("obj02_input/HMF_COLO829/COLO829R/COLO829R_AHCT3FCCXY_S2_L001_R2_001.fastq.gz")
                         .build())

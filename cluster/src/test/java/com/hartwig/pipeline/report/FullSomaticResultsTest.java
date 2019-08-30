@@ -1,7 +1,6 @@
 package com.hartwig.pipeline.report;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -39,8 +38,8 @@ public class FullSomaticResultsTest {
     @Test
     public void copiesSingleSampleReferenceAndTumorBucketIntoSomatic() {
 
-        Blob reference = returnSampleFromBucket(outputBucket, "reference");
-        Blob tumor = returnSampleFromBucket(outputBucket, "tumor");
+        Blob reference = returnSampleOnSecondAttempt(outputBucket, "reference");
+        Blob tumor = returnSampleOnSecondAttempt(outputBucket, "tumor");
 
         ArgumentCaptor<Storage.CopyRequest> copyRequestArgumentCaptor = ArgumentCaptor.forClass(Storage.CopyRequest.class);
         final CopyWriter copyWriter = mock(CopyWriter.class);
@@ -57,7 +56,7 @@ public class FullSomaticResultsTest {
     }
 
     @Test
-    public void waitsForSampleInMetadataIfNotExists() {
+    public void waitsForSingleSampleStagingComplete() {
         Blob reference = returnSampleOnSecondAttempt(outputBucket, "reference");
         Blob tumor = returnSampleOnSecondAttempt(outputBucket, "tumor");
         ArgumentCaptor<Storage.CopyRequest> copyRequestArgumentCaptor = ArgumentCaptor.forClass(Storage.CopyRequest.class);
@@ -65,22 +64,16 @@ public class FullSomaticResultsTest {
         when(copyWriter.getResult()).thenReturn(reference).thenReturn(tumor);
         when(storage.copy(copyRequestArgumentCaptor.capture())).thenReturn(copyWriter);
         victim.compose(TestInputs.defaultSomaticRunMetadata());
-        verify(outputBucket, times(4)).list(any());
+        verify(outputBucket, times(2)).get("reference/STAGED");
+        verify(outputBucket, times(2)).get("tumor/STAGED");
     }
 
     private static Blob returnSampleOnSecondAttempt(final Bucket outputBucket, final String sample) {
-        Blob blob = TestBlobs.blob(sample + "/" + sample + "/output.txt");
-        Page<Blob> page = TestBlobs.pageOf(blob);
-        Page<Blob> empty = TestBlobs.pageOf();
-        when(outputBucket.list(Storage.BlobListOption.prefix(sample))).thenReturn(empty).thenReturn(page);
-        return blob;
-    }
-
-    private static Blob returnSampleFromBucket(final Bucket outputBucket, final String sample) {
-        Blob blob = TestBlobs.blob(sample + "/" + sample + "/output.txt");
-        Page<Blob> page = TestBlobs.pageOf(blob);
+        Blob completion = TestBlobs.blob(sample + "/" + PipelineResults.STAGING_COMPLETE);
+        Blob content = TestBlobs.blob(sample + "/" + sample + "/output.txt");
+        Page<Blob> page = TestBlobs.pageOf(content);
+        when(outputBucket.get(completion.getName())).thenReturn(null).thenReturn(completion);
         when(outputBucket.list(Storage.BlobListOption.prefix(sample))).thenReturn(page);
-        return blob;
+        return content;
     }
-
 }

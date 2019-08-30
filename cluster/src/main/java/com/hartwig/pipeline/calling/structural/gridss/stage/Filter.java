@@ -40,8 +40,6 @@ public class Filter extends SubStage {
         bash.addCommand(new MvCommand(outputFullVcf + ".bgz.tbi", outputFullVcf + ".gz.tbi"));
         bash.addCommand(new MvCommand(outputFilteredVcf + ".bgz", outputFilteredVcf + ".gz"));
         bash.addCommand(new MvCommand(outputFilteredVcf + ".bgz.tbi", outputFilteredVcf + ".gz.tbi"));
-        bash.addCommand(() -> "cp " + input.path() + " " + output.path());
-        bash.addCommand(() -> "cp " + input.path() + ".tbi " + output.path() + ".tbi");
 
         return bash;
     }

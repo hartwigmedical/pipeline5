@@ -6,7 +6,7 @@ language: java
 services:
 - docker
 env:
-- PIPELINE5_VERSION=5.3.$TRAVIS_BUILD_NUMBER
+- PIPELINE5_VERSION=5.4.$TRAVIS_BUILD_NUMBER
 script:
 - 'if [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then mvn clean install -B; else mvn clean install -DskipDocker -DskipShade -B; fi'
 before_install:

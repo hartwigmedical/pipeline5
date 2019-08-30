@@ -72,7 +72,7 @@ public class Cleanup {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-        }else {
+        } else {
             LOGGER.info("Skipping cleanup of sample [{}], it has other dependent runs.", metadata.sampleName());
         }
     }

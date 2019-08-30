@@ -36,12 +36,13 @@ public class PurpleTest {
     private static final Arguments ARGUMENTS = Arguments.testDefaults();
     private Purple victim;
     private Storage storage;
+    private Bucket bucket;
 
     @Before
     public void setUp() throws Exception {
         computeEngine = mock(ComputeEngine.class);
         storage = mock(Storage.class);
-        final Bucket bucket = mock(Bucket.class);
+        bucket = mock(Bucket.class);
         when(bucket.getName()).thenReturn(RUNTIME_BUCKET);
         when(storage.get(RUNTIME_BUCKET)).thenReturn(bucket);
         CopyWriter copyWriter = mock(CopyWriter.class);
@@ -88,6 +89,7 @@ public class PurpleTest {
 
     @Test
     public void runsPurpleWithLowCoverageArgsWhenShallow() {
+        when(storage.get(RUNTIME_BUCKET  +"-shallow")).thenReturn(bucket);
         victim = new Purple(Arguments.builder().from(ARGUMENTS).shallow(true).build(),
                 computeEngine,
                 storage,
@@ -115,7 +117,7 @@ public class PurpleTest {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
         runVictim();
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
-                "gsutil -qm cp -r /data/output/ gs://run-reference-tumor/purple/results");
+                "gsutil -qm -o GSUtil:parallel_composite_upload_threshold=150M cp -r /data/output/ gs://run-reference-tumor/purple/results");
     }
 
     private PurpleOutput runVictim() {

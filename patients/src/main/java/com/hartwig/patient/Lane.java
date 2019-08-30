@@ -11,6 +11,8 @@ public interface Lane extends FileSystemEntity, Named {
     @Override
     String name();
 
+    String laneNumber();
+
     String firstOfPairPath();
 
     String secondOfPairPath();

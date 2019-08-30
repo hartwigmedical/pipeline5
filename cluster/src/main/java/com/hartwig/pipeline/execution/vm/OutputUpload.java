@@ -15,6 +15,9 @@ public class OutputUpload implements BashCommand {
 
     @Override
     public String asBash() {
-        return format("gsutil -qm cp -r %s/ gs://%s/%s", OUTPUT_DIRECTORY, targetLocation.bucket(), targetLocation.path());
+        return format("gsutil -qm -o GSUtil:parallel_composite_upload_threshold=150M cp -r %s/ gs://%s/%s",
+                OUTPUT_DIRECTORY,
+                targetLocation.bucket(),
+                targetLocation.path());
     }
 }
