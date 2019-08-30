@@ -52,6 +52,7 @@ public class ComputeEngineTest {
     private Compute.ZoneOperations zoneOperations;
     private Compute.Instances.Insert insert;
     private Compute.ZoneOperations.Get zoneOpGet;
+    private ArgumentCaptor<Instance> instanceArgumentCaptor;
 
     @Before
     public void setUp() throws Exception {
@@ -60,7 +61,7 @@ public class ComputeEngineTest {
         when(getFromFamily.execute()).thenReturn(new Image());
         when(images.getFromFamily(ARGUMENTS.project(), VirtualMachineJobDefinition.STANDARD_IMAGE)).thenReturn(getFromFamily);
 
-        ArgumentCaptor<Instance> instanceArgumentCaptor = ArgumentCaptor.forClass(Instance.class);
+        instanceArgumentCaptor = ArgumentCaptor.forClass(Instance.class);
         insert = mock(Compute.Instances.Insert.class);
         Operation insertOperation = mock(Operation.class);
         when(insertOperation.getName()).thenReturn("insert");
@@ -99,7 +100,8 @@ public class ComputeEngineTest {
         when(zones.list(ARGUMENTS.project())).thenReturn(zonesList);
         when(compute.zones()).thenReturn(zones);
 
-        victim = new ComputeEngine(ARGUMENTS, compute);
+        victim = new ComputeEngine(ARGUMENTS, compute, z -> {
+        });
         runtimeBucket = MockRuntimeBucket.test();
         jobDefinition = VirtualMachineJobDefinition.builder()
                 .name("test")
@@ -205,7 +207,8 @@ public class ComputeEngineTest {
     @Test
     public void usesPrivateNetworkWhenSpecified() throws Exception {
         returnSuccess();
-        victim = new ComputeEngine(Arguments.testDefaultsBuilder().privateNetwork("private").build(), compute);
+        victim = new ComputeEngine(Arguments.testDefaultsBuilder().privateNetwork("private").build(), compute, z -> {
+        });
         ArgumentCaptor<Instance> instanceArgumentCaptor = ArgumentCaptor.forClass(Instance.class);
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
         verify(instances).insert(any(), any(), instanceArgumentCaptor.capture());
@@ -229,6 +232,20 @@ public class ComputeEngineTest {
         verify(instances, times(1)).insert(eq(ARGUMENTS.project()), eq(SECOND_ZONE_NAME), any());
     }
 
+    @Test
+    public void setsVmsToPreemptibleWhenFlagEnabled() throws Exception {
+        returnSuccess();
+        victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
+        assertThat(instanceArgumentCaptor.getValue().getScheduling().getPreemptible()).isTrue();
+    }
+
+    @Test
+    public void restartsPreemptedInstanceInNextZone() throws Exception {
+        returnTerminated();
+        victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
+        verify(instances, times(1)).insert(eq(ARGUMENTS.project()), eq(SECOND_ZONE_NAME), any());
+    }
+
     private void returnSuccess() throws IOException {
         runtimeBucket = runtimeBucket.with(successBlob(), 1);
         List<Blob> blobs = new ArrayList<>();
@@ -237,6 +254,16 @@ public class ComputeEngineTest {
         blobs.add(mockBlob);
         when(runtimeBucket.getRuntimeBucket().get(BashStartupScript.JOB_SUCCEEDED_FLAG)).thenReturn(mockBlob);
         when(runtimeBucket.getRuntimeBucket().list()).thenReturn(new ArrayList<>()).thenReturn(new ArrayList<>()).thenReturn(blobs);
+    }
+
+    private void returnTerminated() throws IOException {
+        runtimeBucket = runtimeBucket.with(successBlob(), 1);
+        Compute.Instances.Get getInstances = mock(Compute.Instances.Get.class);
+        when(getInstances.execute()).thenReturn(new Instance().setStatus(ComputeEngine.PREEMPTED_INSTANCE));
+        when(instances.get(any(), any(), any())).thenReturn(getInstances);
+        when(runtimeBucket.getRuntimeBucket().get(BashStartupScript.JOB_SUCCEEDED_FLAG)).thenReturn(null);
+        when(runtimeBucket.getRuntimeBucket().get(BashStartupScript.JOB_FAILED_FLAG)).thenReturn(null);
+        when(runtimeBucket.getRuntimeBucket().list()).thenReturn(new ArrayList<>());
     }
 
     private void returnFailed() throws IOException {
