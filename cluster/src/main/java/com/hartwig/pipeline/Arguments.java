@@ -11,7 +11,8 @@ public interface Arguments {
 
     enum DefaultsProfile {
         PRODUCTION,
-        DEVELOPMENT
+        DEVELOPMENT,
+        DEVELOPMENT_DOCKER
     }
 
     enum Mode {
@@ -134,14 +135,14 @@ public interface Arguments {
                     .region(DEFAULT_PRODUCTION_REGION)
                     .project(DEFAULT_PRODUCTION_PROJECT)
                     .version(DEFAULT_PRODUCTION_VERSION)
-                    .sampleDirectory(DEFAULT_PRODUCTION_SAMPLE_DIRECTORY)
-                    .nodeInitializationScript(DEFAULT_PRODUCTION_NODE_INIT)
+                    .sampleDirectory(DEFAULT_DOCKER_SAMPLE_DIRECTORY)
+                    .nodeInitializationScript(DEFAULT_DOCKER_NODE_INIT)
                     .sbpApiUrl(DEFAULT_PRODUCTION_SBP_API_URL)
                     .sbpS3Url(DEFAULT_PRODUCTION_SBP_S3_URL)
-                    .jarDirectory(DEFAULT_PRODUCTION_JAR_LIB)
-                    .privateKeyPath(DEFAULT_PRODUCTION_KEY_PATH)
+                    .jarDirectory(DEFAULT_DOCKER_JAR_LIB)
+                    .privateKeyPath(DEFAULT_DOCKER_KEY_PATH)
                     .serviceAccountEmail(DEFAULT_PRODUCTION_SERVICE_ACCOUNT_EMAIL)
-                    .cloudSdkPath(DEFAULT_PRODUCTION_CLOUD_SDK_PATH)
+                    .cloudSdkPath(DEFAULT_DOCKER_CLOUD_SDK_PATH)
                     .forceJarUpload(false)
                     .cleanup(true)
                     .usePreemptibleVms(true)
@@ -160,7 +161,7 @@ public interface Arguments {
                     .toolsBucket(DEFAULT_PRODUCTION_COMMON_TOOLS_BUCKET)
                     .resourceBucket(DEFAULT_PRODUCTION_RESOURCE_BUCKET)
                     .patientReportBucket(DEFAULT_PRODUCTION_PATIENT_REPORT_BUCKET);
-        } else {
+        } else if (profile.equals(DefaultsProfile.DEVELOPMENT)) {
             return ImmutableArguments.builder()
                     .profile(profile)
                     .mode(DEFAULT_MODE)
@@ -197,7 +198,45 @@ public interface Arguments {
                     .toolsBucket(DEFAULT_DEVELOPMENT_COMMON_TOOLS_BUCKET)
                     .resourceBucket(DEFAULT_DEVELOPMENT_RESOURCE_BUCKET)
                     .patientReportBucket(DEFAULT_DEVELOPMENT_PATIENT_REPORT_BUCKET);
+        } else if (profile.equals(DefaultsProfile.DEVELOPMENT_DOCKER)) {
+            return ImmutableArguments.builder()
+                    .profile(profile)
+                    .mode(DEFAULT_MODE)
+                    .region(DEFAULT_DEVELOPMENT_REGION)
+                    .project(DEFAULT_DEVELOPMENT_PROJECT)
+                    .version(DEFAULT_DEVELOPMENT_VERSION)
+                    .sampleDirectory(DEFAULT_DOCKER_SAMPLE_DIRECTORY)
+                    .nodeInitializationScript(DEFAULT_DOCKER_NODE_INIT)
+                    .jarDirectory(DEFAULT_DOCKER_JAR_LIB)
+                    .privateKeyPath(DEFAULT_DOCKER_KEY_PATH)
+                    .cloudSdkPath(DEFAULT_DOCKER_CLOUD_SDK_PATH)
+                    .serviceAccountEmail(DEFAULT_DEVELOPMENT_SERVICE_ACCOUNT_EMAIL)
+                    .forceJarUpload(false)
+                    .cleanup(true)
+                    .usePreemptibleVms(true)
+                    .upload(true)
+                    .runBamMetrics(true)
+                    .runAligner(true)
+                    .alignerType(DEFAULT_ALIGNER_TYPE)
+                    .runSnpGenotyper(true)
+                    .runGermlineCaller(true)
+                    .runSomaticCaller(true)
+                    .runTertiary(true)
+                    .runStructuralCaller(true)
+                    .shallow(false)
+                    .rclonePath(NOT_APPLICABLE)
+                    .rcloneS3RemoteDownload(NOT_APPLICABLE)
+                    .rcloneS3RemoteUpload(NOT_APPLICABLE)
+                    .rcloneGcpRemote(NOT_APPLICABLE)
+                    .sbpS3Url(EMPTY)
+                    .sbpApiUrl(NOT_APPLICABLE)
+                    .sampleId(EMPTY)
+                    .setId(EMPTY)
+                    .toolsBucket(DEFAULT_DEVELOPMENT_COMMON_TOOLS_BUCKET)
+                    .resourceBucket(DEFAULT_DEVELOPMENT_RESOURCE_BUCKET)
+                    .patientReportBucket(DEFAULT_DEVELOPMENT_PATIENT_REPORT_BUCKET);
         }
+        throw new IllegalArgumentException(String.format("Unknown profile [%s], please create defaults for this profile.", profile));
     }
 
     static String workingDir() {
@@ -213,17 +252,18 @@ public interface Arguments {
     String DEFAULT_PRODUCTION_REGION = "europe-west4";
     String DEFAULT_PRODUCTION_PROJECT = "hmf-pipeline-prod-e45b00f2";
     String DEFAULT_PRODUCTION_VERSION = "";
-    String DEFAULT_PRODUCTION_SAMPLE_DIRECTORY = "/samples";
-    String DEFAULT_PRODUCTION_NODE_INIT = "node-init.sh";
     String DEFAULT_PRODUCTION_SBP_API_URL = "http://hmfapi";
     String DEFAULT_PRODUCTION_SBP_S3_URL = "https://s3.object02.schubergphilis.com";
-    String DEFAULT_PRODUCTION_JAR_LIB = "/usr/share/pipeline5";
-    String DEFAULT_PRODUCTION_KEY_PATH = "/secrets/bootstrap-key.json";
-    String DEFAULT_PRODUCTION_CLOUD_SDK_PATH = "/usr/lib/google-cloud-sdk/bin";
     String DEFAULT_PRODUCTION_SERVICE_ACCOUNT_EMAIL = String.format("bootstrap@%s.iam.gserviceaccount.com", DEFAULT_PRODUCTION_PROJECT);
     String DEFAULT_PRODUCTION_RESOURCE_BUCKET = "common-resources-prod";
     String DEFAULT_PRODUCTION_COMMON_TOOLS_BUCKET = "common-tools-prod";
     String DEFAULT_PRODUCTION_PATIENT_REPORT_BUCKET = "pipeline-output-prod";
+
+    String DEFAULT_DOCKER_SAMPLE_DIRECTORY = "/samples";
+    String DEFAULT_DOCKER_NODE_INIT = "node-init.sh";
+    String DEFAULT_DOCKER_JAR_LIB = "/usr/share/pipeline5";
+    String DEFAULT_DOCKER_KEY_PATH = "/secrets/bootstrap-key.json";
+    String DEFAULT_DOCKER_CLOUD_SDK_PATH = "/usr/lib/google-cloud-sdk/bin";
 
     String NOT_APPLICABLE = "N/A";
     String DEFAULT_DEVELOPMENT_REGION = "europe-west4";
