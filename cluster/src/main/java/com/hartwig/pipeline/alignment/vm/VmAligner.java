@@ -96,8 +96,10 @@ public class VmAligner implements Aligner {
 
             BashStartupScript bash = BashStartupScript.of(laneBucket.name());
 
-            InputDownload first = new InputDownload(GoogleStorageLocation.of(rootBucket.name(), fastQFileName(sample.name(), lane)));
-            InputDownload second = new InputDownload(GoogleStorageLocation.of(rootBucket.name(), fastQFileName(sample.name(), lane)));
+            InputDownload first =
+                    new InputDownload(GoogleStorageLocation.of(rootBucket.name(), fastQFileName(sample.name(), lane.firstOfPairPath())));
+            InputDownload second =
+                    new InputDownload(GoogleStorageLocation.of(rootBucket.name(), fastQFileName(sample.name(), lane.secondOfPairPath())));
 
             bash.addCommand(referenceGenomeDownload).addCommand(first).addCommand(second);
 
@@ -163,11 +165,12 @@ public class VmAligner implements Aligner {
         return futures.stream()
                 .map(VmAligner::getFuture)
                 .filter(status -> status.equals(PipelineStatus.FAILED))
-                .collect(Collectors.toList()).isEmpty();
+                .collect(Collectors.toList())
+                .isEmpty();
     }
 
-    private static String fastQFileName(final String sample, final Lane lane) {
-        return format("samples/%s/%s", sample, new File(lane.firstOfPairPath()).getName());
+    private static String fastQFileName(final String sample, final String fullFastQPath) {
+        return format("samples/%s/%s", sample, new File(fullFastQPath).getName());
     }
 
     private static PipelineStatus getFuture(Future<PipelineStatus> future) {
