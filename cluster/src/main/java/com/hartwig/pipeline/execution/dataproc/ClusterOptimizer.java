@@ -26,7 +26,7 @@ public class ClusterOptimizer {
         double totalCpusRequired = totalFileSizeGB * cpuToFastQSizeRatio.cpusPerGB();
         MachineType defaultWorker = MachineType.defaultWorker();
         int numWorkers = new Double(totalCpusRequired / defaultWorker.cpus()).intValue();
-        int numPreemptible = usePreemtibleVms ? Math.min(numWorkers / 2, 0) : 0;
+        int numPreemptible = usePreemtibleVms ? numWorkers / 2 : 0;
         return DataprocPerformanceProfile.builder()
                 .master(MachineType.defaultMaster())
                 .primaryWorkers(defaultWorker)
