@@ -49,7 +49,10 @@ public class BashStartupScript {
                 "  exit $exit_code\n" + "}\n",
                 mdadm.trim(),
                 "mkfs.ext4 -F /dev/md0",
+                "mkdir /data",
                 "mount /dev/md0 /data",
+                "mkdir /data/tmp",
+                "export TMPDIR=/data/tmp",
                 "mkdir /data/output\n"
         );
         addCompletionCommands();
