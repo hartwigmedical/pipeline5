@@ -61,6 +61,7 @@ class GoogleClusterConfig {
                         arguments.project(),
                         arguments.region(),
                         privateNetwork)).setInternalIpOnly(true));
+        arguments.zone().ifPresent(zone -> gceClusterConfig.setZoneUri(zone));
         return gceClusterConfig;
     }
 

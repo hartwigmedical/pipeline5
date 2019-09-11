@@ -98,6 +98,8 @@ public interface Arguments {
 
     Optional<String> privateNetwork();
 
+    Optional<String> zone();
+
     static ImmutableArguments.Builder builder() {
         return ImmutableArguments.builder();
     }
