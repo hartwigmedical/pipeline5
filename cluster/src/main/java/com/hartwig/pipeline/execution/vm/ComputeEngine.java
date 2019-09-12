@@ -4,7 +4,6 @@ import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
@@ -12,12 +11,10 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
-import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.compute.Compute;
-import com.google.api.services.compute.ComputeRequest;
 import com.google.api.services.compute.model.AccessConfig;
 import com.google.api.services.compute.model.AttachedDisk;
 import com.google.api.services.compute.model.AttachedDiskInitializeParams;
@@ -31,7 +28,6 @@ import com.google.api.services.compute.model.ServiceAccount;
 import com.google.api.services.compute.model.Zone;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
-import com.google.cloud.storage.Blob;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.execution.CloudExecutor;
 import com.hartwig.pipeline.execution.PipelineStatus;
@@ -43,7 +39,6 @@ import org.slf4j.LoggerFactory;
 
 import net.jodah.failsafe.Failsafe;
 import net.jodah.failsafe.RetryPolicy;
-import net.jodah.failsafe.function.CheckedSupplier;
 
 public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition> {
     private final static String APPLICATION_NAME = "vm-hosted-workload";
@@ -55,15 +50,23 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
     private final Arguments arguments;
     private final Compute compute;
     private final Consumer<List<Zone>> zoneRandomizer;
+    private final InstanceLifecycleManager lifecycleManager;
+    private final BucketCompletionWatcher bucketWatcher;
 
-    public ComputeEngine(final Arguments arguments, final Compute compute, final Consumer<List<Zone>> zoneRandomizer) {
+    public ComputeEngine(final Arguments arguments, final Compute compute, final Consumer<List<Zone>> zoneRandomizer,
+            InstanceLifecycleManager lifecycleManager, BucketCompletionWatcher bucketWatcher) {
         this.arguments = arguments;
         this.compute = compute;
         this.zoneRandomizer = zoneRandomizer;
+        this.lifecycleManager = lifecycleManager;
+        this.bucketWatcher = bucketWatcher;
     }
 
     public static ComputeEngine from(final Arguments arguments, final GoogleCredentials credentials) throws Exception {
-        return new ComputeEngine(arguments, initCompute(credentials), Collections::shuffle);
+        Compute compute = initCompute(credentials);
+        return new ComputeEngine(arguments, compute, Collections::shuffle,
+                new InstanceLifecycleManager(arguments, compute),
+                new BucketCompletionWatcher());
     }
 
     @Override
@@ -71,36 +74,30 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
         String vmName = bucket.runId() + "-" + jobDefinition.name();
         PipelineStatus status = PipelineStatus.FAILED;
         try {
-            if (bucketContainsFile(bucket, jobDefinition.startupCommand().successFlag())) {
+            BucketCompletionWatcher.State currentState = bucketWatcher.currentState(bucket, jobDefinition);
+            if (currentState == BucketCompletionWatcher.State.SUCCESS) {
                 LOGGER.info("Compute engine job [{}] already exists, and succeeded. Skipping job.", vmName);
                 return PipelineStatus.SKIPPED;
-            } else if (bucketContainsFile(bucket, jobDefinition.startupCommand().failureFlag())) {
+            } else if (currentState == BucketCompletionWatcher.State.FAILURE) {
                 LOGGER.info("Compute engine job [{}] already exists, but failed. Deleting state and restarting.", vmName);
                 bucket.delete(jobDefinition.startupCommand().failureFlag());
                 bucket.delete(jobDefinition.namespacedResults().path());
             }
 
-            List<Zone> zones = compute.zones()
-                    .list(arguments.project())
-                    .execute()
-                    .getItems()
-                    .stream()
-                    .filter(zone -> zone.getRegion().endsWith(arguments.region()))
-                    .collect(Collectors.toList());
+            String project = arguments.project();
+            List<Zone> zones = fetchZones();
             zoneRandomizer.accept(zones);
             int index = 0;
             boolean keepTrying = !zones.isEmpty();
-            Zone previousZone = zones.stream().findFirst().orElse(new Zone());
             while (keepTrying) {
-                Zone nextZone = zones.get(index % zones.size());
-                Instance instance = new Instance();
+                Zone currentZone = zones.get(index % zones.size());
+                Instance instance = lifecycleManager.newInstance();
                 instance.setName(vmName);
-                instance.setZone(nextZone.getName());
-                if (arguments.usePreemptibleVms()) {
+                instance.setZone(currentZone.getName());
+                if (arguments.usePreemptibleVms() && jobDefinition.preemptibleCompatible()) {
                     instance.setScheduling(new Scheduling().setPreemptible(true));
                 }
-                String project = arguments.project();
-                instance.setMachineType(machineType(nextZone.getName(), jobDefinition.performanceProfile().uri(), project));
+                instance.setMachineType(machineType(currentZone.getName(), jobDefinition.performanceProfile().uri(), project));
 
                 instance.setLabels(Labels.ofRun(bucket.runId(), jobDefinition.name(), arguments));
 
@@ -111,34 +108,35 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
                         project,
                         vmName,
                         jobDefinition.performanceProfile().diskGb(),
-                        nextZone.getName());
+                        currentZone.getName());
                 LOGGER.info("Submitting compute engine job [{}] using image [{}] in zone [{}]",
                         jobDefinition.name(),
                         image.getName(),
-                        nextZone.getName());
+                        currentZone.getName());
                 addStartupCommand(instance, bucket, jobDefinition.startupCommand());
                 addNetworkInterface(instance, project);
 
-                Operation result = deleteOldInstancesAndStart(compute, instance, project, previousZone, nextZone, vmName);
+                Operation result = lifecycleManager.deleteOldInstancesAndStart(instance, currentZone.getName(), vmName);
                 if (result.getError() == null) {
                     LOGGER.debug("Successfully initialised [{}]", vmName);
-                    status = waitForCompletion(bucket, jobDefinition, nextZone, instance);
+                    status = waitForCompletion(bucket, jobDefinition, currentZone, instance);
                     if (status != PipelineStatus.PREEMPTED) {
-                        stop(project, nextZone.getName(), vmName);
+                        lifecycleManager.stop(currentZone.getName(), vmName);
                         if (status == PipelineStatus.SUCCESS) {
-                            delete(project, nextZone.getName(), vmName);
+                            lifecycleManager.delete(currentZone.getName(), vmName);
                         } else {
-                            disableStartupScript(instance, nextZone.getName());
+                            lifecycleManager.disableStartupScript(currentZone.getName(), instance.getName());
                         }
-                        LOGGER.info("Compute engine job [{}] is complete with status [{}]", jobDefinition.name(), status);
+                        LOGGER.info("Compute engine job [{}] is complete with operationStatus [{}]", jobDefinition.name(), status);
                         keepTrying = false;
+                    } else {
+                        LOGGER.info("Instance [{}] in [{}] was pre-empted", vmName, currentZone.getName());
                     }
                 } else if (result.getError().getErrors().stream().anyMatch(error -> error.getCode().equals(ZONE_EXHAUSTED_ERROR_CODE))) {
-                    LOGGER.warn("Zone [{}] has insufficient resources to fulfill the request. Trying next zone", nextZone.getName());
+                    LOGGER.warn("Zone [{}] has insufficient resources to fulfill the request. Trying next zone", currentZone.getName());
                 } else {
                     throw new RuntimeException(result.getError().toPrettyString());
                 }
-                previousZone = nextZone;
                 index++;
             }
         } catch (Exception e) {
@@ -147,15 +145,6 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
             return PipelineStatus.FAILED;
         }
         return status;
-    }
-
-    private void disableStartupScript(final Instance instance, final String zone) throws Exception {
-        String latestFingerprint =
-                compute.instances().get(arguments.project(), zone, instance.getName()).execute().getMetadata().getFingerprint();
-        executeSynchronously(compute.instances()
-                        .setMetadata(arguments.project(), zone, instance.getName(), new Metadata().setFingerprint(latestFingerprint)),
-                arguments.project(),
-                zone);
     }
 
     private static Compute initCompute(final GoogleCredentials credentials) throws Exception {
@@ -233,94 +222,39 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
         return format("%s/zones/%s/machineTypes/%s", apiBaseUrl(projectName), zone, type);
     }
 
-    private Operation deleteOldInstancesAndStart(Compute compute, Instance instance, String projectName, Zone previousZone, Zone newZone,
-            String vmName) throws Exception {
-        Compute.Instances.Insert insert = compute.instances().insert(projectName, newZone.getName(), instance);
-        try {
-            return executeSynchronously(insert, projectName, newZone.getName());
-        } catch (Exception e) {
-            if (e.getCause() instanceof GoogleJsonResponseException) {
-                GoogleJsonResponseException gjre = (GoogleJsonResponseException) e.getCause();
-                if (HttpURLConnection.HTTP_CONFLICT == gjre.getDetails().getCode()) {
-                    LOGGER.info("Found existing [{}] instance; deleting and restarting", vmName);
-                    Operation delete = executeSynchronously(compute.instances().delete(projectName, previousZone.getName(), vmName),
-                            projectName,
-                            previousZone.getName());
-                    if (delete.getError() == null) {
-                        return executeSynchronously(insert, projectName, newZone.getName());
-                    } else {
-                        throw new RuntimeException(delete.getError().toPrettyString());
-                    }
-                } else {
-                    throw gjre;
-                }
-            } else {
-                throw e;
-            }
-        }
-    }
-
-    private Operation executeSynchronously(ComputeRequest<Operation> request, String projectName, String zoneName) throws Exception {
-        Operation syncOp = executeWithRetries(request::execute);
-        String logId = format("Operation [%s:%s]", syncOp.getOperationType(), syncOp.getName());
-        LOGGER.debug("{} is executing synchronously", logId);
-        while ("RUNNING" .equals(fetchJobStatus(compute, syncOp.getName(), projectName, zoneName))) {
-            LOGGER.debug("{} not done yet", logId);
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException ie) {
-                Thread.interrupted();
-            }
-        }
-
-        return executeWithRetries(() -> compute.zoneOperations().get(projectName, zoneName, syncOp.getName()).execute());
-    }
-
-    private String fetchJobStatus(Compute compute, String jobName, String projectName, String zoneName) {
-        return executeWithRetries(() -> compute.zoneOperations().get(projectName, zoneName, jobName).execute()).getStatus();
-    }
-
-    private Operation executeWithRetries(final CheckedSupplier<Operation> operationCheckedSupplier) {
-        return Failsafe.with(new RetryPolicy<>().handle(IOException.class).withDelay(Duration.ofSeconds(5)).withMaxRetries(5))
-                .get(operationCheckedSupplier);
-    }
-
-    private boolean bucketContainsFile(RuntimeBucket bucket, String filename) {
-        List<Blob> objects = bucket.list();
-        for (Blob blob : objects) {
-            String name = blob.getName();
-            if (name.equals(bucket.getNamespace() + "/" + filename)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     private PipelineStatus waitForCompletion(RuntimeBucket bucket, VirtualMachineJobDefinition jobDefinition, Zone zone,
             Instance instance) {
+        LOGGER.debug("Waiting for completion of {}", instance.getName());
         return Failsafe.with(new RetryPolicy<>().withMaxRetries(-1).withDelay(Duration.ofSeconds(5)).handleResult(null)).get(() -> {
-            if (bucketContainsFile(bucket, jobDefinition.startupCommand().successFlag())) {
+            LOGGER.debug("Checking bucket for state");
+            BucketCompletionWatcher.State bucketState = bucketWatcher.currentState(bucket, jobDefinition);
+            if (bucketState.equals(BucketCompletionWatcher.State.SUCCESS)) {
                 return PipelineStatus.SUCCESS;
-            } else if (bucketContainsFile(bucket, jobDefinition.startupCommand().failureFlag())) {
+            } else if (bucketState.equals(BucketCompletionWatcher.State.FAILURE)) {
                 return PipelineStatus.FAILED;
             }
-            if (compute.instances()
-                    .get(arguments.project(), zone.getName(), instance.getName())
-                    .execute()
-                    .getStatus()
-                    .equals(PREEMPTED_INSTANCE)) {
-                LOGGER.warn("Instance [{}] was preempted. Restarting in next zone", instance.getName());
-                return PipelineStatus.PREEMPTED;
+            LOGGER.debug("Bucket does not contain any state yet, checking instance");
+            try {
+                String status = lifecycleManager.instanceStatus(instance.getName(), zone.getName());
+                LOGGER.debug("Execution state of [{}]: [{}]", instance.getName(), status);
+                switch (status.trim()) {
+                    case PREEMPTED_INSTANCE: return PipelineStatus.PREEMPTED;
+                    default: return null;
+                }
+            } catch (Exception e) {
+                LOGGER.debug("Caught exception when looking for operationStatus, will continue to wait", e);
+                return null;
             }
-            return null;
         });
     }
 
-    private void stop(String projectName, String zoneName, String vmName) throws Exception {
-        executeSynchronously(compute.instances().stop(projectName, zoneName, vmName), projectName, zoneName);
-    }
-
-    private void delete(String projectName, String zoneName, String vmName) throws Exception {
-        executeSynchronously(compute.instances().delete(projectName, zoneName, vmName), projectName, zoneName);
+    private List<Zone> fetchZones() throws IOException {
+        return compute.zones()
+                .list(arguments.project())
+                .execute()
+                .getItems()
+                .stream()
+                .filter(zone -> zone.getRegion().endsWith(arguments.region()))
+                .collect(Collectors.toList());
     }
 }
