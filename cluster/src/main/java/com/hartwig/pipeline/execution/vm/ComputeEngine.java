@@ -4,7 +4,6 @@ import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
@@ -12,7 +11,6 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
-import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
@@ -23,6 +21,7 @@ import com.google.api.services.compute.model.AttachedDisk;
 import com.google.api.services.compute.model.AttachedDiskInitializeParams;
 import com.google.api.services.compute.model.Image;
 import com.google.api.services.compute.model.Instance;
+import com.google.api.services.compute.model.InstanceList;
 import com.google.api.services.compute.model.Metadata;
 import com.google.api.services.compute.model.NetworkInterface;
 import com.google.api.services.compute.model.Operation;
@@ -80,17 +79,10 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
                 bucket.delete(jobDefinition.namespacedResults().path());
             }
 
-            List<Zone> zones = compute.zones()
-                    .list(arguments.project())
-                    .execute()
-                    .getItems()
-                    .stream()
-                    .filter(zone -> zone.getRegion().endsWith(arguments.region()))
-                    .collect(Collectors.toList());
+            List<Zone> zones = fetchZones();
             zoneRandomizer.accept(zones);
             int index = 0;
             boolean keepTrying = !zones.isEmpty();
-            Zone previousZone = zones.stream().findFirst().orElse(new Zone());
             while (keepTrying) {
                 Zone nextZone = zones.get(index % zones.size());
                 Instance instance = new Instance();
@@ -119,7 +111,7 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
                 addStartupCommand(instance, bucket, jobDefinition.startupCommand());
                 addNetworkInterface(instance, project);
 
-                Operation result = deleteOldInstancesAndStart(compute, instance, project, previousZone, nextZone, vmName);
+                Operation result = deleteOldInstancesAndStart(compute, instance, project, nextZone, vmName);
                 if (result.getError() == null) {
                     LOGGER.debug("Successfully initialised [{}]", vmName);
                     status = waitForCompletion(bucket, jobDefinition, nextZone, instance);
@@ -138,7 +130,6 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
                 } else {
                     throw new RuntimeException(result.getError().toPrettyString());
                 }
-                previousZone = nextZone;
                 index++;
             }
         } catch (Exception e) {
@@ -233,29 +224,24 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
         return format("%s/zones/%s/machineTypes/%s", apiBaseUrl(projectName), zone, type);
     }
 
-    private Operation deleteOldInstancesAndStart(Compute compute, Instance instance, String projectName, Zone previousZone, Zone newZone,
-            String vmName) throws Exception {
-        Compute.Instances.Insert insert = compute.instances().insert(projectName, newZone.getName(), instance);
-        try {
-            return executeSynchronously(insert, projectName, newZone.getName());
-        } catch (Exception e) {
-            if (e.getCause() instanceof GoogleJsonResponseException) {
-                GoogleJsonResponseException gjre = (GoogleJsonResponseException) e.getCause();
-                if (HttpURLConnection.HTTP_CONFLICT == gjre.getDetails().getCode()) {
-                    LOGGER.info("Found existing [{}] instance; deleting and restarting", vmName);
-                    Operation delete = executeSynchronously(compute.instances().delete(projectName, previousZone.getName(), vmName),
-                            projectName,
-                            previousZone.getName());
-                    if (delete.getError() == null) {
-                        return executeSynchronously(insert, projectName, newZone.getName());
-                    } else {
+    private Operation deleteOldInstancesAndStart(Compute compute, Instance instance, String projectName, Zone newZone, String vmName)
+            throws Exception {
+        findAndDeleteAnyOldInstances(projectName, vmName);
+        return executeSynchronously(compute.instances().insert(projectName, newZone.getName(), instance), projectName, newZone.getName());
+    }
+
+    private void findAndDeleteAnyOldInstances(String projectName, String vmName) throws Exception {
+        for (String zone: fetchZones().stream().map(z -> z.getName()).collect(Collectors.toList())) {
+            InstanceList instances = compute.instances().list(projectName, zone).execute();
+            for (Instance instance: instances.getItems()) {
+                if (instance.getName().equals(vmName)) {
+                    LOGGER.info("Found existing [{}] instance; deleting", vmName);
+                    Operation delete = executeSynchronously(compute.instances().delete(projectName, zone, vmName),
+                            projectName, zone);
+                    if (delete.getError() != null) {
                         throw new RuntimeException(delete.getError().toPrettyString());
                     }
-                } else {
-                    throw gjre;
                 }
-            } else {
-                throw e;
             }
         }
     }
@@ -314,6 +300,16 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
             }
             return null;
         });
+    }
+
+    private List<Zone> fetchZones() throws IOException {
+        return compute.zones()
+                .list(arguments.project())
+                .execute()
+                .getItems()
+                .stream()
+                .filter(zone -> zone.getRegion().endsWith(arguments.region()))
+                .collect(Collectors.toList());
     }
 
     private void stop(String projectName, String zoneName, String vmName) throws Exception {
