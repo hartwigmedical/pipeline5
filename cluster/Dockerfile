@@ -2,7 +2,7 @@ FROM google/cloud-sdk:slim
 
 RUN apt-get update
 RUN apt-get --yes install openjdk-8-jre
-RUN curl https://downloads.rclone.org/rclone-current-linux-amd64.deb  --output rclone-current-linux-amd64.deb
+RUN curl https://downloads.rclone.org/v1.48.0/rclone-v1.48.0-linux-amd64.deb --output rclone-current-linux-amd64.deb
 RUN dpkg -i rclone-current-linux-amd64.deb
 
 
