@@ -96,7 +96,7 @@ public class AmberTest {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
         victim.run(defaultSomaticRunMetadata(),defaultPair());
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
-                "gsutil -qm cp -r /data/output/ gs://run-reference-tumor/amber/results");
+                "gsutil -qm -o GSUtil:parallel_composite_upload_threshold=150M cp -r /data/output/ gs://run-reference-tumor/amber/results");
     }
 
     private ArgumentCaptor<VirtualMachineJobDefinition> captureAndReturnSuccess() {

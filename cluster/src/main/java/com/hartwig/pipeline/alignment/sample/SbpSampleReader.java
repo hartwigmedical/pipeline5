@@ -92,8 +92,11 @@ public class SbpSampleReader {
             throw new IllegalStateException(format("Bucket for fastq [%s] was null or empty. Has this sample id been cleaned up in S3?",
                     sbpFastQ));
         }
+        String[] tokens = sbpFastQ.name_r1().split("_");
+        String laneNumber = tokens[3];
         return Lane.builder()
-                .name("")
+                .name(tokens[0] + "_" + laneNumber)
+                .laneNumber(laneNumber)
                 .firstOfPairPath(s3Path(sbpFastQ, sbpFastQ.name_r1()))
                 .secondOfPairPath(s3Path(sbpFastQ, sbpFastQ.name_r2()))
                 .directory("")
@@ -104,7 +107,7 @@ public class SbpSampleReader {
     }
 
     private static String s3Path(final SbpFastQ sbpFastQ, final String file) {
-        return sbpFastQ.bucket() + "/" + file;
+        return sbpFastQ.bucket().replace("_", "") + "/" + file;
     }
 
     private List<SbpFastQ> parseFastqJson(final String json) throws IOException {

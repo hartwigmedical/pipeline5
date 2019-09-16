@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
-import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.testsupport.MockRuntimeBucket;
 import com.hartwig.pipeline.testsupport.TestInputs;
@@ -34,7 +33,7 @@ public class StartupScriptComponentTest {
                 Folder.from(TestInputs.referenceRunMetadata()));
         victim.addToReport(storage, reportBucket, "test_set");
         verify(runtimeBucket, times(1)).copyOutOf(sourceBlobCaptor.capture(), targetBucketCaptor.capture(), targetBlobCaptor.capture());
-        assertThat(sourceBlobCaptor.getValue()).isEqualTo("copy_of_startup_script_used_for_this_run.sh");
+        assertThat(sourceBlobCaptor.getValue()).isEqualTo("copy_of_startup_script_for_run.sh");
         assertThat(targetBucketCaptor.getValue()).isEqualTo(REPORT_BUCKET);
         assertThat(targetBlobCaptor.getValue()).isEqualTo("test_set/reference/test/run.sh");
     }

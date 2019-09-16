@@ -11,12 +11,14 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import com.google.api.services.compute.Compute;
 import com.google.api.services.compute.model.Image;
 import com.google.api.services.compute.model.Instance;
+import com.google.api.services.compute.model.InstanceList;
 import com.google.api.services.compute.model.Metadata;
 import com.google.api.services.compute.model.NetworkInterface;
 import com.google.api.services.compute.model.Operation;
@@ -52,6 +54,7 @@ public class ComputeEngineTest {
     private Compute.ZoneOperations zoneOperations;
     private Compute.Instances.Insert insert;
     private Compute.ZoneOperations.Get zoneOpGet;
+    private ArgumentCaptor<Instance> instanceArgumentCaptor;
 
     @Before
     public void setUp() throws Exception {
@@ -60,7 +63,7 @@ public class ComputeEngineTest {
         when(getFromFamily.execute()).thenReturn(new Image());
         when(images.getFromFamily(ARGUMENTS.project(), VirtualMachineJobDefinition.STANDARD_IMAGE)).thenReturn(getFromFamily);
 
-        ArgumentCaptor<Instance> instanceArgumentCaptor = ArgumentCaptor.forClass(Instance.class);
+        instanceArgumentCaptor = ArgumentCaptor.forClass(Instance.class);
         insert = mock(Compute.Instances.Insert.class);
         Operation insertOperation = mock(Operation.class);
         when(insertOperation.getName()).thenReturn("insert");
@@ -81,6 +84,19 @@ public class ComputeEngineTest {
         when(delete.execute()).thenReturn(stopOperation);
         when(instances.delete(ARGUMENTS.project(), FIRST_ZONE_NAME, INSTANCE_NAME)).thenReturn(delete);
 
+        Compute.Instances.List list = mock(Compute.Instances.List.class);
+        InstanceList instanceList = mock(InstanceList.class);
+        Instance one = mock(Instance.class);
+        Instance two = mock(Instance.class);
+        Instance three = mock(Instance.class);
+        when(one.getName()).thenReturn("vm-1");
+        when(two.getName()).thenReturn("vm-2");
+        when(three.getName()).thenReturn("vm-3");
+        List<Instance> existingInstances = Arrays.asList(one, two, three);
+        when(instances.list(any(), any())).thenReturn(list);
+        when(list.execute()).thenReturn(instanceList);
+        when(instanceList.getItems()).thenReturn(existingInstances);
+
         zoneOperations = mock(Compute.ZoneOperations.class);
         zoneOpGet = mock(Compute.ZoneOperations.Get.class);
         Operation zoneOpGetOperation = mock(Operation.class);
@@ -99,7 +115,8 @@ public class ComputeEngineTest {
         when(zones.list(ARGUMENTS.project())).thenReturn(zonesList);
         when(compute.zones()).thenReturn(zones);
 
-        victim = new ComputeEngine(ARGUMENTS, compute);
+        victim = new ComputeEngine(ARGUMENTS, compute, z -> {
+        });
         runtimeBucket = MockRuntimeBucket.test();
         jobDefinition = VirtualMachineJobDefinition.builder()
                 .name("test")
@@ -205,7 +222,8 @@ public class ComputeEngineTest {
     @Test
     public void usesPrivateNetworkWhenSpecified() throws Exception {
         returnSuccess();
-        victim = new ComputeEngine(Arguments.testDefaultsBuilder().privateNetwork("private").build(), compute);
+        victim = new ComputeEngine(Arguments.testDefaultsBuilder().privateNetwork("private").build(), compute, z -> {
+        });
         ArgumentCaptor<Instance> instanceArgumentCaptor = ArgumentCaptor.forClass(Instance.class);
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
         verify(instances).insert(any(), any(), instanceArgumentCaptor.capture());
@@ -229,6 +247,20 @@ public class ComputeEngineTest {
         verify(instances, times(1)).insert(eq(ARGUMENTS.project()), eq(SECOND_ZONE_NAME), any());
     }
 
+    @Test
+    public void setsVmsToPreemptibleWhenFlagEnabled() throws Exception {
+        returnSuccess();
+        victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
+        assertThat(instanceArgumentCaptor.getValue().getScheduling().getPreemptible()).isTrue();
+    }
+
+    @Test
+    public void restartsPreemptedInstanceInNextZone() throws Exception {
+        returnTerminated();
+        victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
+        verify(instances, times(1)).insert(eq(ARGUMENTS.project()), eq(SECOND_ZONE_NAME), any());
+    }
+
     private void returnSuccess() throws IOException {
         runtimeBucket = runtimeBucket.with(successBlob(), 1);
         List<Blob> blobs = new ArrayList<>();
@@ -238,7 +270,17 @@ public class ComputeEngineTest {
         when(runtimeBucket.getRuntimeBucket().get(BashStartupScript.JOB_SUCCEEDED_FLAG)).thenReturn(mockBlob);
         when(runtimeBucket.getRuntimeBucket().list()).thenReturn(new ArrayList<>()).thenReturn(new ArrayList<>()).thenReturn(blobs);
     }
-    
+
+    private void returnTerminated() throws IOException {
+        runtimeBucket = runtimeBucket.with(successBlob(), 1);
+        Compute.Instances.Get getInstances = mock(Compute.Instances.Get.class);
+        when(getInstances.execute()).thenReturn(new Instance().setStatus(ComputeEngine.PREEMPTED_INSTANCE));
+        when(instances.get(any(), any(), any())).thenReturn(getInstances);
+        when(runtimeBucket.getRuntimeBucket().get(BashStartupScript.JOB_SUCCEEDED_FLAG)).thenReturn(null);
+        when(runtimeBucket.getRuntimeBucket().get(BashStartupScript.JOB_FAILED_FLAG)).thenReturn(null);
+        when(runtimeBucket.getRuntimeBucket().list()).thenReturn(new ArrayList<>());
+    }
+
     private void returnFailed() throws IOException {
         runtimeBucket = runtimeBucket.with(failureBlob(), 1);
         List<Blob> blobs = new ArrayList<>();
@@ -247,8 +289,8 @@ public class ComputeEngineTest {
         blobs.add(mockBlob);
         when(runtimeBucket.getRuntimeBucket().get(BashStartupScript.JOB_FAILED_FLAG)).thenReturn(mockBlob);
         when(runtimeBucket.getRuntimeBucket().list()).thenReturn(new ArrayList<>()).thenReturn(new ArrayList<>()).thenReturn(blobs);
-  }
-  
+    }
+
     private void mockReadChannel(final Blob mockBlob, final String value2) throws IOException {
         ReadChannel mockReadChannel = mock(ReadChannel.class);
         when(mockReadChannel.read(any())).thenReturn(-1);

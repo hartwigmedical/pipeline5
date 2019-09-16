@@ -116,4 +116,22 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .namespacedResults(resultsDirectory)
                 .build();
     }
+
+    static VirtualMachineJobDefinition alignment(String lane, BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
+        return ImmutableVirtualMachineJobDefinition.builder()
+                .name("aligner-" + lane)
+                .startupCommand(startupScript)
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(96, 96))
+                .namespacedResults(resultsDirectory)
+                .build();
+    }
+
+    static VirtualMachineJobDefinition mergeMarkdups(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
+        return ImmutableVirtualMachineJobDefinition.builder()
+                .name("merge-markdup")
+                .startupCommand(startupScript)
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(32, 120))
+                .namespacedResults(resultsDirectory)
+                .build();
+    }
 }

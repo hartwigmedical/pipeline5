@@ -12,6 +12,7 @@ import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
+import com.hartwig.pipeline.alignment.DataprocAligner;
 import com.hartwig.pipeline.alignment.ImmutableAlignmentOutput;
 import com.hartwig.pipeline.calling.germline.GermlineCaller;
 import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
@@ -68,7 +69,7 @@ public class SingleSamplePipelineTest {
 
     @Before
     public void setUp() throws Exception {
-        aligner = mock(Aligner.class);
+        aligner = mock(DataprocAligner.class);
         bamMetrics = mock(BamMetrics.class);
         germlineCaller = mock(GermlineCaller.class);
         snpGenotype = mock(SnpGenotype.class);

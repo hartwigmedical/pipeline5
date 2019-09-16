@@ -23,7 +23,6 @@ public class CommandLineOptions {
     private static final String UPLOAD_FLAG = "upload";
     private static final String PROJECT_FLAG = "project";
     private static final String REGION_FLAG = "region";
-    private static final String SKIP_UPLOAD_FLAG = "skip_upload";
     private static final String PRIVATE_KEY_FLAG = "private_key_path";
     private static final String SBP_SAMPLE_ID_FLAG = "sbp_sample_id";
     private static final String SBP_API_URL_FLAG = "sbp_api_url";
@@ -45,6 +44,7 @@ public class CommandLineOptions {
 
     private static final String DEFAULT_PROFILE = "production";
     private static final String RUN_ALIGNER_FLAG = "run_aligner";
+    private static final String ALIGNER_TYPE_FLAG = "aligner_type";
     private static final String RUN_GERMLINE_CALLER_FLAG = "run_germline_caller";
     private static final String RUN_SNP_GENOTYPER_FLAG = "run_snp_genotyper";
     private static final String RUN_SOMATIC_CALLER_FLAG = "run_somatic_caller";
@@ -70,7 +70,6 @@ public class CommandLineOptions {
                 .addOption(sampleId())
                 .addOption(setId())
                 .addOption(jarLibDirectory())
-                .addOption(optionWithBooleanArg(SKIP_UPLOAD_FLAG, "Skip uploading defaultDirectory patient data into cloud storage"))
                 .addOption(optionWithBooleanArg(FORCE_JAR_UPLOAD_FLAG,
                         "Force upload defaultDirectory JAR even if the version already exists in cloud storage"))
                 .addOption(optionWithBooleanArg(CLEANUP_FLAG, "Don't delete the runtime bucket after job is complete"))
@@ -112,7 +111,8 @@ public class CommandLineOptions {
                 .addOption(optionWithBooleanArg(SHALLOW_FLAG,
                         "Run with ShallowSeq configuration.Germline and health checker are disabled and purple is run with low coverage "
                                 + "options."))
-                .addOption(zone());
+                .addOption(zone())
+                .addOption(alignerType());
     }
 
     private static Option cmek() {
@@ -230,6 +230,10 @@ public class CommandLineOptions {
         return optionWithArg(VERSION_FLAG, "Version of pipeline5 to run in spark.");
     }
 
+    private static Option alignerType() {
+        return optionWithArg(ALIGNER_TYPE_FLAG, "Aligner implementation to invoke.");
+    }
+
     @NotNull
     private static Option sampleId() {
         return optionWithArg(SAMPLE_ID_FLAG, "ID of the sample for which to process (ie COLO829R, CPCT12345678T)");
@@ -285,6 +289,8 @@ public class CommandLineOptions {
                     .cmek(cmek(commandLine, defaults))
                     .shallow(booleanOptionWithDefault(commandLine, SHALLOW_FLAG, defaults.shallow()))
                     .zone(zone(commandLine, defaults))
+                    .alignerType(Arguments.AlignerType.valueOf(commandLine.getOptionValue(ALIGNER_TYPE_FLAG,
+                            defaults.alignerType().name()).toUpperCase()))
                     .profile(defaults.profile())
                     .build();
         } catch (ParseException e) {
