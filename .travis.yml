@@ -1,6 +1,6 @@
 branches:
   only:
-  - master
+  - DEV-919
 sudo: required
 language: java
 services:
