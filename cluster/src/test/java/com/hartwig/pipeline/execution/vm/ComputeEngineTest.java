@@ -10,7 +10,6 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -19,17 +18,16 @@ import com.google.api.services.compute.Compute;
 import com.google.api.services.compute.model.Image;
 import com.google.api.services.compute.model.Instance;
 import com.google.api.services.compute.model.InstanceList;
-import com.google.api.services.compute.model.Metadata;
 import com.google.api.services.compute.model.NetworkInterface;
 import com.google.api.services.compute.model.Operation;
+import com.google.api.services.compute.model.Scheduling;
 import com.google.api.services.compute.model.Zone;
 import com.google.api.services.compute.model.ZoneList;
-import com.google.cloud.ReadChannel;
-import com.google.cloud.storage.Blob;
 import com.google.common.collect.Lists;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.execution.PipelineStatus;
+import com.hartwig.pipeline.execution.vm.BucketCompletionWatcher.State;
 import com.hartwig.pipeline.testsupport.MockRuntimeBucket;
 
 import org.junit.Before;
@@ -41,7 +39,6 @@ public class ComputeEngineTest {
 
     private static final Arguments ARGUMENTS = Arguments.testDefaults();
     private static final ResultsDirectory RESULTS_DIRECTORY = ResultsDirectory.defaultDirectory();
-    private static final String NAMESPACE = "test/";
     private static final String INSTANCE_NAME = "test-test";
     private static final String DONE = "DONE";
     private static final String FIRST_ZONE_NAME = "europe-west4-a";
@@ -50,11 +47,13 @@ public class ComputeEngineTest {
     private MockRuntimeBucket runtimeBucket;
     private Compute compute;
     private ImmutableVirtualMachineJobDefinition jobDefinition;
+    private Instance instance;
     private Compute.Instances instances;
     private Compute.ZoneOperations zoneOperations;
-    private Compute.Instances.Insert insert;
     private Compute.ZoneOperations.Get zoneOpGet;
     private ArgumentCaptor<Instance> instanceArgumentCaptor;
+    private InstanceLifecycleManager lifecycleManager;
+    private BucketCompletionWatcher bucketWatcher;
 
     @Before
     public void setUp() throws Exception {
@@ -64,12 +63,14 @@ public class ComputeEngineTest {
         when(images.getFromFamily(ARGUMENTS.project(), VirtualMachineJobDefinition.STANDARD_IMAGE)).thenReturn(getFromFamily);
 
         instanceArgumentCaptor = ArgumentCaptor.forClass(Instance.class);
-        insert = mock(Compute.Instances.Insert.class);
         Operation insertOperation = mock(Operation.class);
         when(insertOperation.getName()).thenReturn("insert");
         instances = mock(Compute.Instances.class);
-        when(instances.insert(eq(ARGUMENTS.project()), eq(FIRST_ZONE_NAME), instanceArgumentCaptor.capture())).thenReturn(insert);
-        when(insert.execute()).thenReturn(insertOperation);
+        lifecycleManager = mock(InstanceLifecycleManager.class);
+        instance = mock(Instance.class);
+        when(lifecycleManager.newInstance()).thenReturn(instance);
+        when(lifecycleManager.deleteOldInstancesAndStart(instanceArgumentCaptor.capture(), any(), any())).thenReturn(insertOperation);
+        when(instance.getName()).thenReturn(INSTANCE_NAME);
         Compute.Instances.Stop stop = mock(Compute.Instances.Stop.class);
         Operation stopOperation = mock(Operation.class);
         when(stopOperation.getName()).thenReturn("stop");
@@ -115,8 +116,8 @@ public class ComputeEngineTest {
         when(zones.list(ARGUMENTS.project())).thenReturn(zonesList);
         when(compute.zones()).thenReturn(zones);
 
-        victim = new ComputeEngine(ARGUMENTS, compute, z -> {
-        });
+        bucketWatcher = mock(BucketCompletionWatcher.class);
+        victim = new ComputeEngine(ARGUMENTS, compute, z -> {}, lifecycleManager, bucketWatcher);
         runtimeBucket = MockRuntimeBucket.test();
         jobDefinition = VirtualMachineJobDefinition.builder()
                 .name("test")
@@ -150,71 +151,49 @@ public class ComputeEngineTest {
     @Test
     public void disablesStartupScriptWhenScriptFailsRemotely() throws Exception {
         returnFailed();
-        ArgumentCaptor<Metadata> newMetadataCaptor = ArgumentCaptor.forClass(Metadata.class);
-        Compute.Instances.SetMetadata setMetadata = mock(Compute.Instances.SetMetadata.class);
-        Operation setMetadataOperation = mock(Operation.class);
-        String opName = "setMetadata";
-        when(setMetadataOperation.getName()).thenReturn(opName);
-        when(setMetadataOperation.getStatus()).thenReturn(DONE);
-        when(setMetadata.execute()).thenReturn(setMetadataOperation);
-        when(instances.setMetadata(eq(ARGUMENTS.project()),
-                eq(FIRST_ZONE_NAME),
-                eq(INSTANCE_NAME),
-                newMetadataCaptor.capture())).thenReturn(setMetadata);
-        when(zoneOperations.get(ARGUMENTS.project(), FIRST_ZONE_NAME, opName)).thenReturn(zoneOpGet);
-
-        Compute.Instances.Get get = mock(Compute.Instances.Get.class);
-        String fingerprint = "fingerprint";
-        Instance latest = new Instance().setMetadata(new Metadata().setFingerprint(fingerprint));
-        when(get.execute()).thenReturn(latest);
-        when(instances.get(ARGUMENTS.project(), FIRST_ZONE_NAME, INSTANCE_NAME)).thenReturn(get);
-
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
-        assertThat(newMetadataCaptor.getValue().getItems()).isNull();
-        assertThat(newMetadataCaptor.getValue().getFingerprint()).isEqualTo(fingerprint);
+        verify(lifecycleManager).disableStartupScript(FIRST_ZONE_NAME, INSTANCE_NAME);
     }
 
     @Test
     public void shouldSkipJobWhenSuccessFlagFileAlreadyExists() {
-        runtimeBucket = runtimeBucket.with(successBlob(), 1);
+        when(bucketWatcher.currentState(any(), any())).thenReturn(State.SUCCESS);
         assertThat(victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition)).isEqualTo(PipelineStatus.SKIPPED);
         verifyNoMoreInteractions(compute);
     }
 
     @Test
     public void shouldDeleteStateWhenFailureFlagExists() {
-        runtimeBucket = runtimeBucket.with(failureBlob(), 1);
+        when(bucketWatcher.currentState(any(), any())).thenReturn(State.FAILURE);
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
         verify(runtimeBucket.getRuntimeBucket(), times(1)).delete(BashStartupScript.JOB_FAILED_FLAG);
         verify(runtimeBucket.getRuntimeBucket(), times(1)).delete("results");
     }
 
     @Test
-    public void deletesVmWhenJobIsSuccessful() throws Exception {
+    public void deletesVmAfterJobIsSuccessful() throws Exception {
         returnSuccess();
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
-        verify(instances, times(1)).delete(ARGUMENTS.project(), FIRST_ZONE_NAME, INSTANCE_NAME);
+        verify(lifecycleManager).delete(FIRST_ZONE_NAME, INSTANCE_NAME);
     }
 
+
     @Test
-    public void retriesStopDeleteOperationsOnFailures() throws Exception {
+    public void stopsInstanceUponCompletion() throws Exception {
         returnSuccess();
-        Compute.Instances.Delete goingToFailOnce = mock(Compute.Instances.Delete.class);
-        Operation operation = mock(Operation.class);
-        when(goingToFailOnce.execute()).thenThrow(new IOException()).thenReturn(operation);
-        when(instances.delete(ARGUMENTS.project(), FIRST_ZONE_NAME, INSTANCE_NAME)).thenReturn(goingToFailOnce);
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
-        verify(goingToFailOnce, times(2)).execute();
+        verify(lifecycleManager).stop(FIRST_ZONE_NAME, INSTANCE_NAME);
     }
 
     @Test
     public void usesPublicNetworkIfNoPrivateSpecified() throws Exception {
         returnSuccess();
-        ArgumentCaptor<Instance> instanceArgumentCaptor = ArgumentCaptor.forClass(Instance.class);
+        ArgumentCaptor<List<NetworkInterface>> captor = ArgumentCaptor.forClass(List.class);
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
-        verify(instances).insert(any(), any(), instanceArgumentCaptor.capture());
-        List<NetworkInterface> networkInterfaces = instanceArgumentCaptor.getValue().getNetworkInterfaces();
-        assertThat(networkInterfaces).hasSize(1);
+
+        verify(instance).setNetworkInterfaces(captor.capture());
+        List<NetworkInterface> networkInterfaces = captor.getValue();
+        assertThat(networkInterfaces.size()).isEqualTo(1);
         assertThat(networkInterfaces.get(0).getNetwork()).isEqualTo(
                 "https://www.googleapis.com/compute/v1/projects/hmf-pipeline-development/global/networks/default");
     }
@@ -223,11 +202,12 @@ public class ComputeEngineTest {
     public void usesPrivateNetworkWhenSpecified() throws Exception {
         returnSuccess();
         victim = new ComputeEngine(Arguments.testDefaultsBuilder().privateNetwork("private").build(), compute, z -> {
-        });
-        ArgumentCaptor<Instance> instanceArgumentCaptor = ArgumentCaptor.forClass(Instance.class);
+        }, lifecycleManager, bucketWatcher);
+        ArgumentCaptor<List<NetworkInterface>> interfaceCaptor = ArgumentCaptor.forClass(List.class);
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
-        verify(instances).insert(any(), any(), instanceArgumentCaptor.capture());
-        List<NetworkInterface> networkInterfaces = instanceArgumentCaptor.getValue().getNetworkInterfaces();
+
+        verify(instance).setNetworkInterfaces(interfaceCaptor.capture());
+        List<NetworkInterface> networkInterfaces = interfaceCaptor.getValue();
         assertThat(networkInterfaces).hasSize(1);
         assertThat(networkInterfaces.get(0).getNetwork()).isEqualTo(
                 "https://www.googleapis.com/compute/v1/projects/hmf-pipeline-development/global/networks/private");
@@ -238,73 +218,40 @@ public class ComputeEngineTest {
 
     @Test
     public void triesMultipleZonesWhenResourcesExhausted() throws Exception {
-        Operation resourcesExhaused = new Operation().setStatus("DONE")
-                .setName("insert")
-                .setError(new Operation.Error().setErrors(Collections.singletonList(new Operation.Error.Errors().setCode(ComputeEngine.ZONE_EXHAUSTED_ERROR_CODE))));
-        when(insert.execute()).thenReturn(resourcesExhaused);
-        when(zoneOpGet.execute()).thenReturn(resourcesExhaused);
+        Operation resourcesExhausted = new Operation().setStatus("DONE").setName("insert")
+                .setError(new Operation.Error().setErrors(Collections.singletonList(
+                        new Operation.Error.Errors().setCode(ComputeEngine.ZONE_EXHAUSTED_ERROR_CODE))));
+        when(lifecycleManager.deleteOldInstancesAndStart(instance, FIRST_ZONE_NAME, INSTANCE_NAME))
+                .thenReturn(resourcesExhausted, mock(Operation.class));
+        when(bucketWatcher.currentState(any(), any())).thenReturn(State.STILL_WAITING, State.STILL_WAITING, State.SUCCESS);
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
-        verify(instances, times(1)).insert(eq(ARGUMENTS.project()), eq(SECOND_ZONE_NAME), any());
+        verify(lifecycleManager).deleteOldInstancesAndStart(instance, SECOND_ZONE_NAME, INSTANCE_NAME);
     }
 
     @Test
     public void setsVmsToPreemptibleWhenFlagEnabled() throws Exception {
         returnSuccess();
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
-        assertThat(instanceArgumentCaptor.getValue().getScheduling().getPreemptible()).isTrue();
+        verify(instance).setScheduling(eq(new Scheduling().setPreemptible(true)));
     }
 
     @Test
     public void restartsPreemptedInstanceInNextZone() throws Exception {
-        returnTerminated();
+        when(lifecycleManager.instanceStatus(any(), any())).thenReturn(ComputeEngine.PREEMPTED_INSTANCE);
+        when(bucketWatcher.currentState(any(), any()))
+                .thenReturn(State.STILL_WAITING, State.STILL_WAITING, State.SUCCESS);
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
-        verify(instances, times(1)).insert(eq(ARGUMENTS.project()), eq(SECOND_ZONE_NAME), any());
+        verify(lifecycleManager).deleteOldInstancesAndStart(instance, FIRST_ZONE_NAME, INSTANCE_NAME);
+        verify(lifecycleManager).deleteOldInstancesAndStart(instance, SECOND_ZONE_NAME, INSTANCE_NAME);
     }
 
     private void returnSuccess() throws IOException {
-        runtimeBucket = runtimeBucket.with(successBlob(), 1);
-        List<Blob> blobs = new ArrayList<>();
-        Blob mockBlob = mock(Blob.class);
-        mockReadChannel(mockBlob, successBlob());
-        blobs.add(mockBlob);
-        when(runtimeBucket.getRuntimeBucket().get(BashStartupScript.JOB_SUCCEEDED_FLAG)).thenReturn(mockBlob);
-        when(runtimeBucket.getRuntimeBucket().list()).thenReturn(new ArrayList<>()).thenReturn(new ArrayList<>()).thenReturn(blobs);
-    }
-
-    private void returnTerminated() throws IOException {
-        runtimeBucket = runtimeBucket.with(successBlob(), 1);
-        Compute.Instances.Get getInstances = mock(Compute.Instances.Get.class);
-        when(getInstances.execute()).thenReturn(new Instance().setStatus(ComputeEngine.PREEMPTED_INSTANCE));
-        when(instances.get(any(), any(), any())).thenReturn(getInstances);
-        when(runtimeBucket.getRuntimeBucket().get(BashStartupScript.JOB_SUCCEEDED_FLAG)).thenReturn(null);
-        when(runtimeBucket.getRuntimeBucket().get(BashStartupScript.JOB_FAILED_FLAG)).thenReturn(null);
-        when(runtimeBucket.getRuntimeBucket().list()).thenReturn(new ArrayList<>());
+        when(bucketWatcher.currentState(any(), any())).thenReturn(State.STILL_WAITING, State.SUCCESS);
+        Operation successOperation = mock(Operation.class);
+        when(lifecycleManager.deleteOldInstancesAndStart(any(), any(), any())).thenReturn(successOperation);
     }
 
     private void returnFailed() throws IOException {
-        runtimeBucket = runtimeBucket.with(failureBlob(), 1);
-        List<Blob> blobs = new ArrayList<>();
-        Blob mockBlob = mock(Blob.class);
-        mockReadChannel(mockBlob, failureBlob());
-        blobs.add(mockBlob);
-        when(runtimeBucket.getRuntimeBucket().get(BashStartupScript.JOB_FAILED_FLAG)).thenReturn(mockBlob);
-        when(runtimeBucket.getRuntimeBucket().list()).thenReturn(new ArrayList<>()).thenReturn(new ArrayList<>()).thenReturn(blobs);
-    }
-
-    private void mockReadChannel(final Blob mockBlob, final String value2) throws IOException {
-        ReadChannel mockReadChannel = mock(ReadChannel.class);
-        when(mockReadChannel.read(any())).thenReturn(-1);
-        when(mockBlob.getName()).thenReturn(value2);
-        when(mockBlob.getSize()).thenReturn(1L);
-        when(mockBlob.reader()).thenReturn(mockReadChannel);
-        when(mockBlob.getMd5()).thenReturn("");
-    }
-
-    private String successBlob() {
-        return NAMESPACE + BashStartupScript.JOB_SUCCEEDED_FLAG;
-    }
-
-    private String failureBlob() {
-        return NAMESPACE + BashStartupScript.JOB_FAILED_FLAG;
+        when(bucketWatcher.currentState(any(), any())).thenReturn(State.STILL_WAITING, State.FAILURE);
     }
 }
