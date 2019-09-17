@@ -74,7 +74,7 @@ public class VmAligner implements Aligner {
             return ExistingAlignment.find(metadata, alignmentOutputStorage, arguments);
         }
 
-        StageTrace trace = new StageTrace(NAMESPACE, StageTrace.ExecutorType.COMPUTE_ENGINE).start();
+        StageTrace trace = new StageTrace(NAMESPACE, metadata.sampleName(), StageTrace.ExecutorType.COMPUTE_ENGINE).start();
         RuntimeBucket rootBucket = RuntimeBucket.from(storage, NAMESPACE, metadata, arguments);
 
         ResourceDownload referenceGenomeDownload =

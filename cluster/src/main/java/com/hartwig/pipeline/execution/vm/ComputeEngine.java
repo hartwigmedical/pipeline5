@@ -105,7 +105,7 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
                         jobDefinition.performanceProfile().diskGb(),
                         nextZone.getName());
                 LOGGER.info("Submitting compute engine job [{}] using image [{}] in zone [{}]",
-                        jobDefinition.name(),
+                        vmName,
                         image.getName(),
                         nextZone.getName());
                 addStartupCommand(instance, bucket, jobDefinition.startupCommand());
@@ -122,11 +122,13 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
                         } else {
                             disableStartupScript(instance, nextZone.getName());
                         }
-                        LOGGER.info("Compute engine job [{}] is complete with status [{}]", jobDefinition.name(), status);
+                        LOGGER.info("Compute engine job [{}] is complete with status [{}]", vmName, status);
                         keepTrying = false;
                     }
                 } else if (result.getError().getErrors().stream().anyMatch(error -> error.getCode().equals(ZONE_EXHAUSTED_ERROR_CODE))) {
-                    LOGGER.warn("Zone [{}] has insufficient resources to fulfill the request. Trying next zone", nextZone.getName());
+                    LOGGER.warn("Zone [{}] has insufficient resources to fulfill the request for [{}]. Trying next zone",
+                            nextZone.getName(),
+                            vmName);
                 } else {
                     throw new RuntimeException(result.getError().toPrettyString());
                 }

@@ -33,10 +33,6 @@ public class GoogleStorageSampleSource implements SampleSource {
 
     @Override
     public SampleData sample(final SingleSampleRunMetadata metadata) {
-        if (arguments.sampleId() == null || arguments.sampleId().isEmpty()) {
-            throw new IllegalArgumentException(
-                    "Unable to run in \"no upload\" mode without an explicit patient/sample name (use -sample_id)");
-        }
 
         RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, Aligner.NAMESPACE, metadata, arguments);
         Iterable<Blob> blobs = runtimeBucket.list("samples/");
@@ -56,11 +52,11 @@ public class GoogleStorageSampleSource implements SampleSource {
                 .sum();
 
         if (arguments.alignerType().equals(Arguments.AlignerType.SPARK)) {
-            return SampleData.of(Sample.builder("", arguments.sampleId()).build(), zippedFileSizeInBytes + unzippedFileSizeInBytes);
+            return SampleData.of(Sample.builder("", metadata.sampleId()).build(), zippedFileSizeInBytes + unzippedFileSizeInBytes);
         } else {
             try {
-                String sampleDirectory = "/samples/" + arguments.sampleId();
-                String sampleNameWithPostfix = arguments.sampleId();
+                String sampleDirectory = "/samples/" + metadata.sampleId();
+                String sampleNameWithPostfix = metadata.sampleId();
                 List<Blob> files = runtimeBucket.list(sampleDirectory);
                 Map<String, ImmutableLane.Builder> builders = new HashMap<>();
                 for (Blob blob : files) {
@@ -89,7 +85,7 @@ public class GoogleStorageSampleSource implements SampleSource {
 
                 return SampleData.of(Sample.builder(sampleDirectory, sampleNameWithPostfix)
                         .addAllLanes(builders.values().stream().map(ImmutableLane.Builder::build).collect(Collectors.toList()))
-                        .type(arguments.sampleId().toLowerCase().endsWith("r") ? Sample.Type.REFERENCE : Sample.Type.TUMOR)
+                        .type(metadata.sampleId().toLowerCase().endsWith("r") ? Sample.Type.REFERENCE : Sample.Type.TUMOR)
                         .build(), zippedFileSizeInBytes + unzippedFileSizeInBytes);
             } catch (Exception e) {
                 throw new RuntimeException(e);
