@@ -10,12 +10,14 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import com.google.api.services.compute.Compute;
 import com.google.api.services.compute.model.Image;
 import com.google.api.services.compute.model.Instance;
+import com.google.api.services.compute.model.InstanceList;
 import com.google.api.services.compute.model.NetworkInterface;
 import com.google.api.services.compute.model.Operation;
 import com.google.api.services.compute.model.Scheduling;
@@ -82,6 +84,19 @@ public class ComputeEngineTest {
         when(deleteOperation.getStatus()).thenReturn(DONE);
         when(delete.execute()).thenReturn(stopOperation);
         when(instances.delete(ARGUMENTS.project(), FIRST_ZONE_NAME, INSTANCE_NAME)).thenReturn(delete);
+
+        Compute.Instances.List list = mock(Compute.Instances.List.class);
+        InstanceList instanceList = mock(InstanceList.class);
+        Instance one = mock(Instance.class);
+        Instance two = mock(Instance.class);
+        Instance three = mock(Instance.class);
+        when(one.getName()).thenReturn("vm-1");
+        when(two.getName()).thenReturn("vm-2");
+        when(three.getName()).thenReturn("vm-3");
+        List<Instance> existingInstances = Arrays.asList(one, two, three);
+        when(instances.list(any(), any())).thenReturn(list);
+        when(list.execute()).thenReturn(instanceList);
+        when(instanceList.getItems()).thenReturn(existingInstances);
 
         zoneOperations = mock(Compute.ZoneOperations.class);
         zoneOpGet = mock(Compute.ZoneOperations.Get.class);
