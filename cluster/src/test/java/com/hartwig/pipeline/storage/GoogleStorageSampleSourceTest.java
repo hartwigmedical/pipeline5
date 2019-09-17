@@ -26,7 +26,7 @@ import org.mockito.Mockito;
 @SuppressWarnings("unchecked")
 public class GoogleStorageSampleSourceTest {
 
-    private static final String SAMPLE = "CPCT12345678";
+    private static final String SAMPLE = "reference";
     private static final ImmutableArguments ARGUMENTS =
             Arguments.testDefaultsBuilder().sampleId(SAMPLE).alignerType(Arguments.AlignerType.SPARK).build();
     private SampleSource victim;
@@ -36,12 +36,6 @@ public class GoogleStorageSampleSourceTest {
     public void setUp() throws Exception {
         storage = mock(Storage.class);
         victim = new GoogleStorageSampleSource(storage, ARGUMENTS);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void patientIdArgumentMustBeSpecified() {
-        victim = new GoogleStorageSampleSource(storage, Arguments.testDefaults());
-        victim.sample(referenceRunMetadata());
     }
 
     @Test(expected = IllegalArgumentException.class)
