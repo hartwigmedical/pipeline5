@@ -49,7 +49,7 @@ public class RuntimeBucketTest {
                 NAMESPACE,
                 referenceRunMetadata(),
                 Arguments.testDefaultsBuilder().profile(Arguments.DefaultsProfile.PRODUCTION).build());
-        assertThat(bucketInfo.getValue().getName()).isEqualTo("run-reference");
+        assertThat(bucketInfo.getValue().getName()).isEqualTo("run-reference-test");
     }
 
     @Test
@@ -58,7 +58,7 @@ public class RuntimeBucketTest {
                 NAMESPACE,
                 defaultSomaticRunMetadata(),
                 Arguments.testDefaultsBuilder().profile(Arguments.DefaultsProfile.PRODUCTION).build());
-        assertThat(bucketInfo.getValue().getName()).isEqualTo("run-reference-tumor");
+        assertThat(bucketInfo.getValue().getName()).isEqualTo("run-reference-tumor-test");
     }
 
     @Test

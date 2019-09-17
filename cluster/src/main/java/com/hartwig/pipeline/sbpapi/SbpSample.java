@@ -10,6 +10,8 @@ import org.immutables.value.Value;
 @Value.Immutable
 public interface SbpSample {
 
+    int id();
+
     String name();
 
     String barcode();

@@ -231,15 +231,16 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
     }
 
     private void findAndDeleteAnyOldInstances(String projectName, String vmName) throws Exception {
-        for (String zone: fetchZones().stream().map(z -> z.getName()).collect(Collectors.toList())) {
+        for (String zone : fetchZones().stream().map(Zone::getName).collect(Collectors.toList())) {
             InstanceList instances = compute.instances().list(projectName, zone).execute();
-            for (Instance instance: instances.getItems()) {
-                if (instance.getName().equals(vmName)) {
-                    LOGGER.info("Found existing [{}] instance; deleting", vmName);
-                    Operation delete = executeSynchronously(compute.instances().delete(projectName, zone, vmName),
-                            projectName, zone);
-                    if (delete.getError() != null) {
-                        throw new RuntimeException(delete.getError().toPrettyString());
+            if (instances != null && instances.getItems() != null) {
+                for (Instance instance : instances.getItems()) {
+                    if (instance.getName().equals(vmName)) {
+                        LOGGER.info("Found existing [{}] instance; deleting", vmName);
+                        Operation delete = executeSynchronously(compute.instances().delete(projectName, zone, vmName), projectName, zone);
+                        if (delete.getError() != null) {
+                            throw new RuntimeException(delete.getError().toPrettyString());
+                        }
                     }
                 }
             }
@@ -250,7 +251,7 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
         Operation syncOp = executeWithRetries(request::execute);
         String logId = format("Operation [%s:%s]", syncOp.getOperationType(), syncOp.getName());
         LOGGER.debug("{} is executing synchronously", logId);
-        while ("RUNNING" .equals(fetchJobStatus(compute, syncOp.getName(), projectName, zoneName))) {
+        while ("RUNNING".equals(fetchJobStatus(compute, syncOp.getName(), projectName, zoneName))) {
             LOGGER.debug("{} not done yet", logId);
             try {
                 Thread.sleep(500);

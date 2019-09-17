@@ -10,7 +10,9 @@ import java.util.concurrent.Executors;
 
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.metadata.LocalSampleMetadataApi;
+import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
+import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -18,6 +20,7 @@ import org.mockito.stubbing.Answer;
 
 public class FullPipelineTest {
 
+    private static final SomaticRunMetadata METADATA = TestInputs.defaultSomaticRunMetadata();
     private SingleSamplePipeline reference;
     private SingleSamplePipeline tumor;
     private SomaticPipeline somatic;
@@ -33,21 +36,21 @@ public class FullPipelineTest {
 
         referenceApi = new LocalSampleMetadataApi("testr");
         tumorApi = new LocalSampleMetadataApi("testt");
-        victim = new FullPipeline(reference, tumor, somatic, Executors.newCachedThreadPool(), referenceApi, tumorApi);
+        victim = new FullPipeline(reference, tumor, somatic, Executors.newCachedThreadPool(), referenceApi, tumorApi, METADATA);
     }
 
     @Test
     public void runsBothSingleSampleAndSomatic() throws Exception {
-        when(reference.run()).then(succeed(referenceApi));
-        when(tumor.run()).then(succeed(tumorApi));
+        when(reference.run(METADATA.reference())).then(succeed(referenceApi));
+        when(tumor.run(METADATA.tumor())).then(succeed(tumorApi));
         when(somatic.run()).thenReturn(succeeded());
         assertThat(victim.run().status()).isEqualTo(PipelineStatus.SUCCESS);
     }
 
     @Test
     public void failWhenReferencePipelineFails() throws Exception {
-        when(reference.run()).then(fail(referenceApi));
-        when(tumor.run()).then(succeed(tumorApi));
+        when(reference.run(METADATA.reference())).then(fail(referenceApi));
+        when(tumor.run(METADATA.tumor())).then(succeed(tumorApi));
         when(somatic.run()).thenReturn(succeeded());
         assertThat(victim.run().status()).isEqualTo(PipelineStatus.FAILED);
         verify(somatic, never()).run();
@@ -55,8 +58,8 @@ public class FullPipelineTest {
 
     @Test
     public void failWhenTumorPipelineFails() throws Exception {
-        when(reference.run()).then(succeed(referenceApi));
-        when(tumor.run()).then(fail(tumorApi));
+        when(reference.run(METADATA.reference())).then(succeed(referenceApi));
+        when(tumor.run(METADATA.tumor())).then(fail(tumorApi));
         when(somatic.run()).thenReturn(succeeded());
         assertThat(victim.run().status()).isEqualTo(PipelineStatus.FAILED);
         verify(somatic, never()).run();
@@ -64,8 +67,8 @@ public class FullPipelineTest {
 
     @Test
     public void failWhenSomaticPipelineFails() throws Exception {
-        when(reference.run()).then(succeed(referenceApi));
-        when(tumor.run()).then(succeed(tumorApi));
+        when(reference.run(METADATA.reference())).then(succeed(referenceApi));
+        when(tumor.run(METADATA.tumor())).then(succeed(tumorApi));
         when(somatic.run()).thenReturn(failed());
         assertThat(victim.run().status()).isEqualTo(PipelineStatus.FAILED);
     }

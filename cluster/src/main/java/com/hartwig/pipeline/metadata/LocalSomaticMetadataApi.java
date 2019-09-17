@@ -4,11 +4,11 @@ import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.RunTag;
 import com.hartwig.pipeline.execution.PipelineStatus;
 
-public class LocalSetMetadataApi implements SomaticMetadataApi {
+public class LocalSomaticMetadataApi implements SomaticMetadataApi {
 
     private final Arguments arguments;
 
-    LocalSetMetadataApi(final Arguments arguments) {
+    LocalSomaticMetadataApi(final Arguments arguments) {
         this.arguments = arguments;
     }
 
@@ -20,20 +20,17 @@ public class LocalSetMetadataApi implements SomaticMetadataApi {
                 .runName(setId)
                 .maybeTumor(SingleSampleRunMetadata.builder()
                         .type(SingleSampleRunMetadata.SampleType.TUMOR)
+                        .entityId(-1)
                         .sampleId(arguments.setId() + "T")
                         .sampleName(arguments.setId() + "T")
                         .build())
                 .reference(SingleSampleRunMetadata.builder()
                         .type(SingleSampleRunMetadata.SampleType.TUMOR)
+                        .entityId(-1)
                         .sampleId(arguments.setId() + "R")
                         .sampleName(arguments.setId() + "R")
                         .build())
                 .build();
-    }
-
-    @Override
-    public boolean hasDependencies(final String sampleId) {
-        return false;
     }
 
     @Override

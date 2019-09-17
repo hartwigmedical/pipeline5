@@ -16,9 +16,7 @@ public interface Run {
     String id();
 
     static Run from(String sampleName, Arguments arguments) {
-        return ImmutableRun.of(format("run-%s%s",
-                RunTag.apply(arguments, sampleName.toLowerCase()),
-                arguments.shallow() ? "-shallow" : "").replace("_", "-"));
+        return ImmutableRun.of(format("run-%s", RunTag.apply(arguments, sampleName.toLowerCase())).replace("_", "-"));
     }
 
     static Run from(String reference, String tumor, Arguments arguments) {

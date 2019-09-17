@@ -9,4 +9,6 @@ public interface SampleMetadataApi {
     void alignmentComplete(PipelineState state);
 
     void complete(PipelineState state);
+
+    void register(CompletionHandler completionHandler);
 }

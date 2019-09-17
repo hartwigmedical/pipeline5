@@ -24,13 +24,15 @@ public class GoogleStorageSampleSource implements SampleSource {
     private static final String GZ_EXTENSION = "gz";
     private static final int ESTIMATED_COMPRESSION = 4;
     private final Storage storage;
+    private final Arguments arguments;
 
-    public GoogleStorageSampleSource(final Storage storage) {
+    public GoogleStorageSampleSource(final Storage storage, final Arguments arguments) {
         this.storage = storage;
+        this.arguments = arguments;
     }
 
     @Override
-    public SampleData sample(final SingleSampleRunMetadata metadata, final Arguments arguments) {
+    public SampleData sample(final SingleSampleRunMetadata metadata) {
         if (arguments.sampleId() == null || arguments.sampleId().isEmpty()) {
             throw new IllegalArgumentException(
                     "Unable to run in \"no upload\" mode without an explicit patient/sample name (use -sample_id)");

@@ -32,6 +32,7 @@ public class SbpSampleMetadataApiTest {
         when(sbpRestApi.getSet(1)).thenReturn(TestJson.get("get_set"));
         SingleSampleRunMetadata sampleMetadata = victim.get();
         assertThat(sampleMetadata.sampleId()).isEqualTo("FR13257296");
+        assertThat(sampleMetadata.entityId()).isEqualTo(1);
     }
 
     @Test(expected = IllegalArgumentException.class)

@@ -27,19 +27,21 @@ import org.mockito.Mockito;
 public class GoogleStorageSampleSourceTest {
 
     private static final String SAMPLE = "CPCT12345678";
-    private static final ImmutableArguments ARGUMENTS = Arguments.testDefaultsBuilder().sampleId(SAMPLE).build();
+    private static final ImmutableArguments ARGUMENTS =
+            Arguments.testDefaultsBuilder().sampleId(SAMPLE).alignerType(Arguments.AlignerType.SPARK).build();
     private SampleSource victim;
     private Storage storage;
 
     @Before
     public void setUp() throws Exception {
         storage = mock(Storage.class);
-        victim = new GoogleStorageSampleSource(storage);
+        victim = new GoogleStorageSampleSource(storage, ARGUMENTS);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void patientIdArgumentMustBeSpecified() {
-        victim.sample(referenceRunMetadata(), Arguments.testDefaults());
+        victim = new GoogleStorageSampleSource(storage, Arguments.testDefaults());
+        victim.sample(referenceRunMetadata());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -49,7 +51,7 @@ public class GoogleStorageSampleSourceTest {
         when(pages.iterateAll()).thenReturn(Lists.newArrayList());
         when(bucket.list(any())).thenReturn(pages);
         when(storage.get(anyString())).thenReturn(bucket);
-        victim.sample(referenceRunMetadata(), ARGUMENTS);
+        victim.sample(referenceRunMetadata());
     }
 
     @Test
@@ -67,7 +69,7 @@ public class GoogleStorageSampleSourceTest {
 
         when(bucket.list(Storage.BlobListOption.prefix("aligner/samples/"))).thenReturn(blobs);
         when(storage.get(Mockito.anyString())).thenReturn(bucket);
-        SampleData sample = victim.sample(referenceRunMetadata(), ARGUMENTS);
+        SampleData sample = victim.sample(referenceRunMetadata());
         assertThat(sample.sample().name()).isEqualTo(SAMPLE);
         assertThat(sample.sizeInBytesGZipped()).isEqualTo(11);
     }
@@ -87,7 +89,7 @@ public class GoogleStorageSampleSourceTest {
 
         when(bucket.list(Storage.BlobListOption.prefix("aligner/samples/"))).thenReturn(blobs);
         when(storage.get(Mockito.anyString())).thenReturn(bucket);
-        SampleData sample = victim.sample(referenceRunMetadata(), ARGUMENTS);
+        SampleData sample = victim.sample(referenceRunMetadata());
         assertThat(sample.sample().name()).isEqualTo(SAMPLE);
         assertThat(sample.sizeInBytesGZipped()).isEqualTo(41);
     }

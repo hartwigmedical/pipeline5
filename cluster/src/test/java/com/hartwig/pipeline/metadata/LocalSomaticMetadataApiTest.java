@@ -7,13 +7,13 @@ import com.hartwig.pipeline.Arguments;
 import org.junit.Before;
 import org.junit.Test;
 
-public class LocalSetMetadataApiTest {
+public class LocalSomaticMetadataApiTest {
 
     private SomaticMetadataApi victim;
 
     @Before
     public void setUp() throws Exception {
-        victim = new LocalSetMetadataApi(Arguments.testDefaultsBuilder().setId("CPCT12345678").build());
+        victim = new LocalSomaticMetadataApi(Arguments.testDefaultsBuilder().setId("CPCT12345678").build());
     }
 
     @Test

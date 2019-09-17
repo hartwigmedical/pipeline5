@@ -4,7 +4,6 @@ import java.util.stream.Stream;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.hartwig.patient.Sample;
-import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 
 import org.slf4j.Logger;
@@ -23,10 +22,8 @@ public class SbpS3SampleSource implements SampleSource {
     }
 
     @Override
-    public SampleData sample(final SingleSampleRunMetadata metadata, final Arguments arguments) {
-          Sample sample = sbpSampleReader.read(arguments.sbpApiSampleId()
-                .orElseThrow(() -> new IllegalArgumentException("Arguments must "
-                        + "contain an SBP id to use the SBP sample source. This looks like a programmatic mis-wiring somewhere")));
+    public SampleData sample(final SingleSampleRunMetadata metadata) {
+        Sample sample = sbpSampleReader.read(metadata.entityId());
         long size = sample.lanes()
                 .stream()
                 .flatMap(lane -> Stream.of(lane.firstOfPairPath(), lane.secondOfPairPath()))

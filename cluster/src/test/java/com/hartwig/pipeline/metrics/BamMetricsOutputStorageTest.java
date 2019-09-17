@@ -29,7 +29,7 @@ public class BamMetricsOutputStorageTest {
     @Before
     public void setUp() throws Exception {
         sample = TestInputs.referenceRunMetadata();
-        runtimeBucketName = "run-" + sample.sampleId();
+        runtimeBucketName = "run-" + sample.sampleId()+"-test";
         final Storage storage = mock(Storage.class);
         bucket = mock(Bucket.class);
         when(bucket.getName()).thenReturn(runtimeBucketName);

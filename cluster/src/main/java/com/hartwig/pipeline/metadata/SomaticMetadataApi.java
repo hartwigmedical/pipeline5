@@ -6,7 +6,5 @@ public interface SomaticMetadataApi {
 
     SomaticRunMetadata get();
 
-    boolean hasDependencies(String sampleId);
-
     void complete(PipelineStatus status, SomaticRunMetadata metadata);
 }

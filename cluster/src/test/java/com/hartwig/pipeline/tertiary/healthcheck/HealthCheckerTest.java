@@ -32,7 +32,7 @@ import org.mockito.ArgumentCaptor;
 
 public class HealthCheckerTest {
 
-    private static final String RUNTIME_BUCKET = "run-reference-tumor";
+    private static final String RUNTIME_BUCKET = "run-reference-tumor-test";
     private static final Arguments ARGUMENTS = Arguments.testDefaults();
 
     private ComputeEngine computeEngine;
@@ -104,8 +104,8 @@ public class HealthCheckerTest {
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
                 "gsutil -qm cp -n gs://run-reference/reference.wgsmetrics /data/input/metrics/reference.wgsmetrics",
                 "gsutil -qm cp -n gs://run-tumor/tumor.wgsmetrics /data/input/metrics/tumor.wgsmetrics",
-                "gsutil -qm cp -n gs://run-reference-tumor/purple/* /data/input/purple/",
-                "gsutil -qm cp -n gs://run-reference-tumor/amber/* /data/input/amber");
+                "gsutil -qm cp -n gs://run-reference-tumor-test/purple/* /data/input/purple/",
+                "gsutil -qm cp -n gs://run-reference-tumor-test/amber/* /data/input/amber");
     }
 
     @Test
@@ -113,7 +113,8 @@ public class HealthCheckerTest {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
         runVictim();
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
-                "gsutil -qm -o GSUtil:parallel_composite_upload_threshold=150M cp -r /data/output/ gs://run-reference-tumor/health_checker/results");
+                "gsutil -qm -o GSUtil:parallel_composite_upload_threshold=150M cp -r /data/output/ "
+                        + "gs://run-reference-tumor-test/health_checker/results");
     }
 
     @Test

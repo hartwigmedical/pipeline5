@@ -81,7 +81,7 @@ public class VmAligner implements Aligner {
                 ResourceDownload.from(rootBucket, new Resource(storage, arguments.resourceBucket(), ResourceNames.REFERENCE_GENOME));
         String referenceGenomePath = referenceGenomeDownload.find("fa", "fasta");
 
-        SampleData sampleData = sampleSource.sample(metadata, arguments);
+        SampleData sampleData = sampleSource.sample(metadata);
         Sample sample = sampleData.sample();
         if (arguments.upload()) {
             sampleUpload.run(sample, rootBucket);

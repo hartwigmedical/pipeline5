@@ -38,8 +38,8 @@ public class FullSomaticResultsTest {
     @Test
     public void copiesSingleSampleReferenceAndTumorBucketIntoSomatic() {
 
-        Blob reference = returnSampleOnSecondAttempt(outputBucket, "reference");
-        Blob tumor = returnSampleOnSecondAttempt(outputBucket, "tumor");
+        Blob reference = returnSampleOnSecondAttempt(outputBucket, "reference-test");
+        Blob tumor = returnSampleOnSecondAttempt(outputBucket, "tumor-test");
 
         ArgumentCaptor<Storage.CopyRequest> copyRequestArgumentCaptor = ArgumentCaptor.forClass(Storage.CopyRequest.class);
         final CopyWriter copyWriter = mock(CopyWriter.class);
@@ -48,24 +48,24 @@ public class FullSomaticResultsTest {
 
         victim.compose(TestInputs.defaultSomaticRunMetadata());
 
-        assertThat(copyRequestArgumentCaptor.getAllValues().get(0).getSource().getName()).isEqualTo("reference/reference/output.txt");
-        assertThat(copyRequestArgumentCaptor.getAllValues().get(0).getTarget().getName()).isEqualTo("run/reference/output.txt");
+        assertThat(copyRequestArgumentCaptor.getAllValues().get(0).getSource().getName()).isEqualTo("reference-test/reference-test/output.txt");
+        assertThat(copyRequestArgumentCaptor.getAllValues().get(0).getTarget().getName()).isEqualTo("run/reference-test/output.txt");
 
-        assertThat(copyRequestArgumentCaptor.getAllValues().get(1).getSource().getName()).isEqualTo("tumor/tumor/output.txt");
-        assertThat(copyRequestArgumentCaptor.getAllValues().get(1).getTarget().getName()).isEqualTo("run/tumor/output.txt");
+        assertThat(copyRequestArgumentCaptor.getAllValues().get(1).getSource().getName()).isEqualTo("tumor-test/tumor-test/output.txt");
+        assertThat(copyRequestArgumentCaptor.getAllValues().get(1).getTarget().getName()).isEqualTo("run/tumor-test/output.txt");
     }
 
     @Test
     public void waitsForSingleSampleStagingComplete() {
-        Blob reference = returnSampleOnSecondAttempt(outputBucket, "reference");
-        Blob tumor = returnSampleOnSecondAttempt(outputBucket, "tumor");
+        Blob reference = returnSampleOnSecondAttempt(outputBucket, "reference-test");
+        Blob tumor = returnSampleOnSecondAttempt(outputBucket, "tumor-test");
         ArgumentCaptor<Storage.CopyRequest> copyRequestArgumentCaptor = ArgumentCaptor.forClass(Storage.CopyRequest.class);
         final CopyWriter copyWriter = mock(CopyWriter.class);
         when(copyWriter.getResult()).thenReturn(reference).thenReturn(tumor);
         when(storage.copy(copyRequestArgumentCaptor.capture())).thenReturn(copyWriter);
         victim.compose(TestInputs.defaultSomaticRunMetadata());
-        verify(outputBucket, times(2)).get("reference/STAGED");
-        verify(outputBucket, times(2)).get("tumor/STAGED");
+        verify(outputBucket, times(2)).get("reference-test/STAGED");
+        verify(outputBucket, times(2)).get("tumor-test/STAGED");
     }
 
     private static Blob returnSampleOnSecondAttempt(final Bucket outputBucket, final String sample) {

@@ -6,7 +6,6 @@ import java.util.stream.Stream;
 
 import com.hartwig.patient.Sample;
 import com.hartwig.patient.input.PatientReader;
-import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 
 import org.apache.hadoop.fs.FileStatus;
@@ -25,9 +24,9 @@ public class FileSystemSampleSource implements SampleSource {
     }
 
     @Override
-    public SampleData sample(final SingleSampleRunMetadata metadata, final Arguments arguments) {
+    public SampleData sample(final SingleSampleRunMetadata metadata) {
         try {
-            Sample sample = PatientReader.fromHDFS(fileSystem, patientDirectory, arguments.sampleId()).reference();
+            Sample sample = PatientReader.fromHDFS(fileSystem, patientDirectory, metadata.sampleId()).reference();
             long size = sample.lanes()
                     .stream()
                     .flatMap(lane -> Stream.of(lane.firstOfPairPath(), lane.secondOfPairPath()))
