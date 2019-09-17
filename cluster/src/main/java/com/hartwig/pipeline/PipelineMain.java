@@ -108,7 +108,7 @@ public class PipelineMain {
     public static void main(String[] args) {
         try {
             PipelineState state = new PipelineMain().start(CommandLineOptions.from(args));
-            if (state.status() == PipelineStatus.SUCCESS) {
+            if (state.status() != PipelineStatus.FAILED) {
                 System.exit(0);
             } else {
                 System.exit(1);
