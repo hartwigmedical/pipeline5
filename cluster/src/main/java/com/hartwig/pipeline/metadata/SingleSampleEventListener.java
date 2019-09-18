@@ -18,7 +18,7 @@ public class SingleSampleEventListener {
     }
 
     public void complete(PipelineState state) {
-        handlers.forEach(handler -> handler.handleAlignmentComplete(state));
+        handlers.forEach(handler -> handler.handleSingleSampleComplete(state));
     }
 
     public Set<CompletionHandler> getHandlers() {

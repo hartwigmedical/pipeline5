@@ -2,8 +2,6 @@ package com.hartwig.pipeline.metadata;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.hartwig.pipeline.PipelineState;
@@ -12,7 +10,6 @@ import com.hartwig.pipeline.sbpapi.SbpRestApi;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 
 public class SbpSampleMetadataApiTest {
 
@@ -39,36 +36,6 @@ public class SbpSampleMetadataApiTest {
     public void illegalArgumentThrownWhenNoSampleForId() {
         when(sbpRestApi.getSample(1)).thenReturn("{\"RESULT\": \"sample not found\"}");
         victim.get();
-    }
-
-    @Test
-    public void mapsAlignmentSuccessStatusToPipeline5Done() {
-        ArgumentCaptor<String> entityId = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<String> status = ArgumentCaptor.forClass(String.class);
-        victim.alignmentComplete(new PipelineState());
-        verify(sbpRestApi, times(1)).updateSampleStatus(entityId.capture(), status.capture());
-        assertThat(entityId.getValue()).isEqualTo(String.valueOf(SAMPLE_ID));
-        assertThat(status.getValue()).isEqualTo(SbpSampleMetadataApi.ALIGNMENT_DONE_PIPELINE_V5);
-    }
-
-    @Test
-    public void mapsSuccessStatusToPipeline5Done() {
-        ArgumentCaptor<String> entityId = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<String> status = ArgumentCaptor.forClass(String.class);
-        victim.complete(new PipelineState());
-        verify(sbpRestApi, times(1)).updateSampleStatus(entityId.capture(), status.capture());
-        assertThat(entityId.getValue()).isEqualTo(String.valueOf(SAMPLE_ID));
-        assertThat(status.getValue()).isEqualTo(SbpSampleMetadataApi.DONE_PIPELINE_V5);
-    }
-
-    @Test
-    public void mapsFailedStatusToPipeline5Finished() {
-        ArgumentCaptor<String> entityId = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<String> status = ArgumentCaptor.forClass(String.class);
-        victim.complete(failed());
-        verify(sbpRestApi, times(1)).updateSampleStatus(entityId.capture(), status.capture());
-        assertThat(entityId.getValue()).isEqualTo(String.valueOf(SAMPLE_ID));
-        assertThat(status.getValue()).isEqualTo(SbpSampleMetadataApi.FAILED_PIPELINE_V5);
     }
 
     public PipelineState failed() {

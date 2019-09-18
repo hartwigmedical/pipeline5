@@ -20,7 +20,6 @@ import com.google.api.services.compute.model.AttachedDisk;
 import com.google.api.services.compute.model.AttachedDiskInitializeParams;
 import com.google.api.services.compute.model.Image;
 import com.google.api.services.compute.model.Instance;
-import com.google.api.services.compute.model.InstanceList;
 import com.google.api.services.compute.model.Metadata;
 import com.google.api.services.compute.model.NetworkInterface;
 import com.google.api.services.compute.model.Operation;
@@ -135,7 +134,7 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
                     }
                 } else if (result.getError().getErrors().stream().anyMatch(error -> error.getCode().equals(ZONE_EXHAUSTED_ERROR_CODE))) {
                     LOGGER.warn("Zone [{}] has insufficient resources to fulfill the request for [{}]. Trying next zone",
-                            nextZone.getName(),
+                            currentZone.getName(),
                             vmName);
                 } else {
                     throw new RuntimeException(result.getError().toPrettyString());

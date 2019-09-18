@@ -19,8 +19,8 @@ public class FullPipeline {
     private final SingleSamplePipeline tumorPipeline;
     private final SomaticPipeline somaticPipeline;
     private final ExecutorService executorService;
-    private final SingleSampleEventListener referenceCompletionManager;
-    private final SingleSampleEventListener tumorCompletionManager;
+    private final SingleSampleEventListener referenceSampleEventListener;
+    private final SingleSampleEventListener tumorSampleEventListener;
     private final SomaticRunMetadata metadata;
 
     FullPipeline(final SingleSamplePipeline referencePipeline, final SingleSamplePipeline tumorPipeline,
@@ -30,8 +30,8 @@ public class FullPipeline {
         this.tumorPipeline = tumorPipeline;
         this.somaticPipeline = somaticPipeline;
         this.executorService = executorService;
-        this.referenceCompletionManager = referenceApi;
-        this.tumorCompletionManager = tumorApi;
+        this.referenceSampleEventListener = referenceApi;
+        this.tumorSampleEventListener = tumorApi;
         this.metadata = metadata;
     }
 
@@ -41,8 +41,8 @@ public class FullPipeline {
 
         CountDownAndTrapStatus trapReference = new CountDownAndTrapStatus(bothSingleSamplesComplete);
         CountDownAndTrapStatus trapTumor = new CountDownAndTrapStatus(bothSingleSamplesComplete);
-        referenceCompletionManager.register(trapReference);
-        tumorCompletionManager.register(trapTumor);
+        referenceSampleEventListener.register(trapReference);
+        tumorSampleEventListener.register(trapTumor);
         executorService.submit(() -> runPipeline(referencePipeline, metadata.reference(), bothSingleSamplesComplete));
         executorService.submit(() -> runPipeline(tumorPipeline, metadata.tumor(), bothSingleSamplesComplete));
         waitForSingleSamples(bothSingleSamplesComplete);

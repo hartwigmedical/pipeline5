@@ -1,20 +1,16 @@
 package com.hartwig.pipeline.metadata;
 
 import static java.lang.String.format;
-import static java.lang.String.valueOf;
 
 import java.io.IOException;
 
-import com.hartwig.pipeline.PipelineState;
-import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.sbpapi.ObjectMappers;
 import com.hartwig.pipeline.sbpapi.SbpRestApi;
 import com.hartwig.pipeline.sbpapi.SbpSample;
 
-public class SbpSampleMetadataApi extends SingleSampleEventListener implements SampleMetadataApi {
+public class SbpSampleMetadataApi implements SampleMetadataApi {
 
     private static final String SAMPLE_NOT_FOUND = "sample not found";
-    static final String ALIGNMENT_DONE_PIPELINE_V5 = "AlignmentDone_PipelineV5";
     static final String DONE_PIPELINE_V5 = "Done_PipelineV5";
     static final String FAILED_PIPELINE_V5 = "Failed_PipelineV5";
 
@@ -46,17 +42,5 @@ public class SbpSampleMetadataApi extends SingleSampleEventListener implements S
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    @Override
-    public void alignmentComplete(PipelineState state) {
-        sbpRestApi.updateSampleStatus(valueOf(sampleEntityId),
-                state.status() == PipelineStatus.SUCCESS ? ALIGNMENT_DONE_PIPELINE_V5 : FAILED_PIPELINE_V5);
-    }
-
-    @Override
-    public void complete(PipelineState state) {
-        sbpRestApi.updateSampleStatus(valueOf(sampleEntityId),
-                state.status() == PipelineStatus.SUCCESS ? DONE_PIPELINE_V5 : FAILED_PIPELINE_V5);
     }
 }

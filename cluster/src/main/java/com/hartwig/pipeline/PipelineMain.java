@@ -50,7 +50,6 @@ public class PipelineMain {
             if (arguments.mode().equals(Arguments.Mode.FULL)) {
                 SingleSampleEventListener referenceEventListener = new SingleSampleEventListener();
                 SingleSampleEventListener tumorEventListener = new SingleSampleEventListener();
-
                 state = new FullPipeline(singleSamplePipeline(arguments, credentials, storage, referenceEventListener),
                         singleSamplePipeline(arguments, credentials, storage, tumorEventListener),
                         somaticPipeline(arguments, credentials, storage, somaticMetadataApi),
