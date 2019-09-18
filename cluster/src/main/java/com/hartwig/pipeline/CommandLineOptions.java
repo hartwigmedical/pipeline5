@@ -59,6 +59,7 @@ public class CommandLineOptions {
     private static final String PRIVATE_NETWORK_FLAG = "private_network";
     private static final String CMEK_FLAG = "cmek";
     private static final String SHALLOW_FLAG = "shallow";
+    private static final String ZONE_FLAG = "zone";
 
     private static Options options() {
         return new Options().addOption(profile())
@@ -110,6 +111,7 @@ public class CommandLineOptions {
                 .addOption(optionWithBooleanArg(SHALLOW_FLAG,
                         "Run with ShallowSeq configuration.Germline and health checker are disabled and purple is run with low coverage "
                                 + "options."))
+                .addOption(zone())
                 .addOption(alignerType());
     }
 
@@ -216,6 +218,10 @@ public class CommandLineOptions {
         return optionWithArg(PROJECT_FLAG, "The Google project for which to get the cluster.");
     }
 
+    private static Option zone() {
+        return optionWithArg(ZONE_FLAG, "The zone for which to get the clusters.");
+    }
+
     private static Option jarLibDirectory() {
         return optionWithArg(JAR_DIRECTORY_FLAG, "Directory containing the system-{VERSION}.jar.");
     }
@@ -282,6 +288,7 @@ public class CommandLineOptions {
                     .privateNetwork(privateNetwork(commandLine, defaults))
                     .cmek(cmek(commandLine, defaults))
                     .shallow(booleanOptionWithDefault(commandLine, SHALLOW_FLAG, defaults.shallow()))
+                    .zone(zone(commandLine, defaults))
                     .alignerType(Arguments.AlignerType.valueOf(commandLine.getOptionValue(ALIGNER_TYPE_FLAG,
                             defaults.alignerType().name()).toUpperCase()))
                     .profile(defaults.profile())
@@ -305,7 +312,14 @@ public class CommandLineOptions {
         if (commandLine.hasOption(PRIVATE_NETWORK_FLAG)) {
             return Optional.of(commandLine.getOptionValue(PRIVATE_NETWORK_FLAG));
         }
-        return defaults.cmek();
+        return defaults.privateNetwork();
+    }
+
+    private static Optional<String> zone(final CommandLine commandLine, final Arguments defaults) {
+        if (commandLine.hasOption(ZONE_FLAG)) {
+            return Optional.of(commandLine.getOptionValue(ZONE_FLAG));
+        }
+        return defaults.zone();
     }
 
     private static Optional<Integer> sbpRunId(final CommandLine commandLine) {
