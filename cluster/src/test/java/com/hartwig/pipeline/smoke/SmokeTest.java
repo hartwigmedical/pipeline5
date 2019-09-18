@@ -28,6 +28,7 @@ public class SmokeTest {
                 .mode(Arguments.Mode.FULL)
                 .runId("smoke-" + noDots(version))
                 .runGermlineCaller(false)
+                .zone("europe-west4-a")
                 .build());
         assertThat(state.status()).isEqualTo(PipelineStatus.QC_FAILED);
     }
