@@ -61,13 +61,15 @@ public abstract class AlignerProvider {
     }
 
     public static AlignerProvider from(GoogleCredentials credentials, Storage storage, Arguments arguments) {
-        return arguments.sbpApiSampleId().<AlignerProvider>map(id -> new SbpBootstrapProvider(credentials, storage, arguments, id)).orElse(
-                new LocalBootstrapProvider(credentials, storage, arguments));
+        if (arguments.sbpApiRunId().isPresent() || arguments.sbpApiSampleId().isPresent()) {
+            return new SbpAlignerProvider(credentials, storage, arguments);
+        }
+        return new LocalAlignerProvider(credentials, storage, arguments);
     }
 
-    static class LocalBootstrapProvider extends AlignerProvider {
+    static class LocalAlignerProvider extends AlignerProvider {
 
-        private LocalBootstrapProvider(final GoogleCredentials credentials, final Storage storage, final Arguments arguments) {
+        private LocalAlignerProvider(final GoogleCredentials credentials, final Storage storage, final Arguments arguments) {
             super(credentials, storage, arguments);
         }
 
@@ -76,7 +78,7 @@ public abstract class AlignerProvider {
                 ClusterOptimizer optimizer, GoogleDataproc spark, ResultsDirectory resultsDirectory) throws Exception {
             SampleSource sampleSource = getArguments().upload()
                     ? new FileSystemSampleSource(Hadoop.localFilesystem(), getArguments().sampleDirectory())
-                    : new GoogleStorageSampleSource(storage);
+                    : new GoogleStorageSampleSource(storage, getArguments());
             GSUtilCloudCopy gsUtilCloudCopy = new GSUtilCloudCopy(getArguments().cloudSdkPath());
             SampleUpload sampleUpload = new CloudSampleUpload(new LocalFileSource(), gsUtilCloudCopy);
             return getArguments().alignerType().equals(Arguments.AlignerType.SPARK)
@@ -99,14 +101,10 @@ public abstract class AlignerProvider {
         }
     }
 
-    static class SbpBootstrapProvider extends AlignerProvider {
+    static class SbpAlignerProvider extends AlignerProvider {
 
-        private final int sbpSampleId;
-
-        private SbpBootstrapProvider(final GoogleCredentials credentials, final Storage storage, final Arguments arguments,
-                final int sbpSampleId) {
+        private SbpAlignerProvider(final GoogleCredentials credentials, final Storage storage, final Arguments arguments) {
             super(credentials, storage, arguments);
-            this.sbpSampleId = sbpSampleId;
         }
 
         @Override

@@ -25,7 +25,7 @@ import org.mockito.ArgumentCaptor;
 
 public class GermlineCallerTest {
 
-    private static final String RUNTIME_BUCKET = "run-reference";
+    private static final String RUNTIME_BUCKET = "run-reference-test";
     private ComputeEngine computeEngine;
     private static final Arguments ARGUMENTS = Arguments.testDefaults();
     private GermlineCaller victim;
@@ -54,7 +54,7 @@ public class GermlineCallerTest {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
         victim.run(referenceRunMetadata(), referenceAlignmentOutput());
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
-                "gsutil -qm cp gs://run-reference/germline_caller/snpeff/* /data/resources");
+                "gsutil -qm cp gs://run-reference-test/germline_caller/snpeff/* /data/resources");
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
                 "unzip -d /data/resources /data/resources/database.zip");
     }
@@ -99,7 +99,7 @@ public class GermlineCallerTest {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
         victim.run(referenceRunMetadata(), referenceAlignmentOutput());
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
-                "gsutil -qm -o GSUtil:parallel_composite_upload_threshold=150M cp -r /data/output/ gs://run-reference/germline_caller/results");
+                "gsutil -qm -o GSUtil:parallel_composite_upload_threshold=150M cp -r /data/output/ gs://run-reference-test/germline_caller/results");
     }
 
     private ArgumentCaptor<VirtualMachineJobDefinition> captureAndReturnSuccess() {

@@ -74,14 +74,14 @@ public class VmAligner implements Aligner {
             return ExistingAlignment.find(metadata, alignmentOutputStorage, arguments);
         }
 
-        StageTrace trace = new StageTrace(NAMESPACE, StageTrace.ExecutorType.COMPUTE_ENGINE).start();
+        StageTrace trace = new StageTrace(NAMESPACE, metadata.sampleName(), StageTrace.ExecutorType.COMPUTE_ENGINE).start();
         RuntimeBucket rootBucket = RuntimeBucket.from(storage, NAMESPACE, metadata, arguments);
 
         ResourceDownload referenceGenomeDownload =
                 ResourceDownload.from(rootBucket, new Resource(storage, arguments.resourceBucket(), ResourceNames.REFERENCE_GENOME));
         String referenceGenomePath = referenceGenomeDownload.find("fa", "fasta");
 
-        SampleData sampleData = sampleSource.sample(metadata, arguments);
+        SampleData sampleData = sampleSource.sample(metadata);
         Sample sample = sampleData.sample();
         if (arguments.upload()) {
             sampleUpload.run(sample, rootBucket);

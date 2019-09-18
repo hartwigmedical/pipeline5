@@ -121,7 +121,7 @@ public interface Arguments {
     }
 
     static ImmutableArguments.Builder testDefaultsBuilder() {
-        return defaultsBuilder(DefaultsProfile.DEVELOPMENT.name());
+        return defaultsBuilder(DefaultsProfile.DEVELOPMENT.name()).runId("test");
     }
 
     static ImmutableArguments.Builder defaultsBuilder(String profileString) {
@@ -246,7 +246,7 @@ public interface Arguments {
     }
 
     Mode DEFAULT_MODE = Mode.SINGLE_SAMPLE;
-    AlignerType DEFAULT_ALIGNER_TYPE = AlignerType.SPARK;
+    AlignerType DEFAULT_ALIGNER_TYPE = AlignerType.VM;
 
     String DEFAULT_PRODUCTION_RCLONE_PATH = "/usr/bin";
     String DEFAULT_PRODUCTION_RCLONE_GCP_REMOTE = "gs";

@@ -35,7 +35,7 @@ import org.mockito.ArgumentCaptor;
 
 public class SomaticCallerTest {
 
-    private static final String RUNTIME_BUCKET = "run-reference-tumor";
+    private static final String RUNTIME_BUCKET = "run-reference-tumor-test";
     private ComputeEngine computeEngine;
     private SomaticCaller victim;
     private Storage storage;
@@ -83,7 +83,7 @@ public class SomaticCallerTest {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
         victim.run(defaultSomaticRunMetadata(), defaultPair());
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
-                "gsutil -qm cp gs://run-reference-tumor/somatic_caller/snpeff/* /data/resources");
+                "gsutil -qm cp gs://run-reference-tumor-test/somatic_caller/snpeff/* /data/resources");
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
                 "unzip -d /data/resources /data/resources/snpeffdb.zip ");
     }

@@ -27,7 +27,7 @@ import org.mockito.ArgumentCaptor;
 
 public class CobaltTest {
 
-    private static final String RUNTIME_BUCKET = "run-reference-tumor";
+    private static final String RUNTIME_BUCKET = "run-reference-tumor-test";
     private ComputeEngine computeEngine;
     private static final Arguments ARGUMENTS = Arguments.testDefaults();
     private Cobalt victim;
@@ -59,30 +59,31 @@ public class CobaltTest {
     @Test
     public void returnsCobaltOutputDirGoogleStorageLocation() {
         when(computeEngine.submit(any(), any())).thenReturn(PipelineStatus.SUCCESS);
-        CobaltOutput output = victim.run(defaultSomaticRunMetadata(),defaultPair());
+        CobaltOutput output = victim.run(defaultSomaticRunMetadata(), defaultPair());
         assertThat(output.outputDirectory()).isEqualTo(GoogleStorageLocation.of(RUNTIME_BUCKET + "/cobalt", "results", true));
     }
 
     @Test
     public void returnsStatusFailedWhenJobFailsOnComputeEngine() {
         when(computeEngine.submit(any(), any())).thenReturn(PipelineStatus.FAILED);
-        assertThat(victim.run(defaultSomaticRunMetadata(),defaultPair()).status()).isEqualTo(PipelineStatus.FAILED);
+        assertThat(victim.run(defaultSomaticRunMetadata(), defaultPair()).status()).isEqualTo(PipelineStatus.FAILED);
     }
 
     @Test
     public void runsCobaltOnComputeEngine() {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
-        victim.run(defaultSomaticRunMetadata(),defaultPair());
-        assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains("java -Xmx8G -cp "
-                + "/data/tools/cobalt/" + Versions.COBALT + "/cobalt.jar com.hartwig.hmftools.cobalt.CountBamLinesApplication -reference reference "
-                + "-reference_bam /data/input/reference.bam -tumor tumor -tumor_bam /data/input/tumor.bam -output_dir /data/output "
-                + "-threads 16 -gc_profile /data/resources/gc.cnp");
+        victim.run(defaultSomaticRunMetadata(), defaultPair());
+        assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
+                "java -Xmx8G -cp " + "/data/tools/cobalt/" + Versions.COBALT
+                        + "/cobalt.jar com.hartwig.hmftools.cobalt.CountBamLinesApplication -reference reference "
+                        + "-reference_bam /data/input/reference.bam -tumor tumor -tumor_bam /data/input/tumor.bam -output_dir /data/output "
+                        + "-threads 16 -gc_profile /data/resources/gc.cnp");
     }
 
     @Test
     public void downloadsInputBamsAndBais() {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
-        victim.run(defaultSomaticRunMetadata(),defaultPair());
+        victim.run(defaultSomaticRunMetadata(), defaultPair());
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
                 "gsutil -qm cp -n gs://run-tumor/aligner/results/tumor.bam /data/input/tumor.bam",
                 "gsutil -qm cp -n gs://run-reference/aligner/results/reference.bam /data/input/reference.bam",
@@ -93,9 +94,9 @@ public class CobaltTest {
     @Test
     public void uploadsOutputDirectory() {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
-        victim.run(defaultSomaticRunMetadata(),defaultPair());
+        victim.run(defaultSomaticRunMetadata(), defaultPair());
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
-                "gsutil -qm -o GSUtil:parallel_composite_upload_threshold=150M cp -r /data/output/ gs://run-reference-tumor/cobalt/results");
+                "gsutil -qm -o GSUtil:parallel_composite_upload_threshold=150M cp -r /data/output/ gs://run-reference-tumor-test/cobalt/results");
     }
 
     private ArgumentCaptor<VirtualMachineJobDefinition> captureAndReturnSuccess() {

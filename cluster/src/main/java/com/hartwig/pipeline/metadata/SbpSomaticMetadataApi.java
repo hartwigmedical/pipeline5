@@ -1,16 +1,11 @@
 package com.hartwig.pipeline.metadata;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.google.common.collect.ImmutableSet;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.RunTag;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.sbpapi.ObjectMappers;
 import com.hartwig.pipeline.sbpapi.SbpIni;
@@ -28,7 +23,6 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
     static final String SUCCESS = "Success";
     static final String SNP_CHECK = "SnpCheck";
     static final String FAILED = "Failed";
-    private static final Set<String> COMPLETE_STATUS = ImmutableSet.of(SUCCESS, FAILED, SNP_CHECK, "Validated");
     private static final String UPLOADING = "Uploading";
     private static final String REF = "ref";
     private static final String TUMOR = "tumor";
@@ -62,18 +56,14 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
             SbpIni ini = findIni(sbpRun, getInis());
             if (ini.name().startsWith(SINGLE_SAMPLE_INI)) {
                 LOGGER.info("Somatic run is using single sample configuration. No algorithms will be run, just transfer and cleanup");
-                return SomaticRunMetadata.builder().runName(RunTag.apply(arguments, sbpSet.name())).reference(reference).build();
+                return SomaticRunMetadata.builder().runName(sbpSet.name()).reference(reference).build();
             } else {
                 SingleSampleRunMetadata tumor = find(TUMOR, samplesBySet).map(referenceSample -> toMetadata(referenceSample,
                         SingleSampleRunMetadata.SampleType.TUMOR))
                         .orElseThrow((() -> new IllegalStateException(String.format(
                                 "No tumor sample found in SBP for set [%s] and this run " + "was not marked as single sample",
                                 sbpSet.name()))));
-                return SomaticRunMetadata.builder()
-                        .runName(RunTag.apply(arguments, sbpSet.name()))
-                        .reference(reference)
-                        .maybeTumor(tumor)
-                        .build();
+                return SomaticRunMetadata.builder().runName(sbpSet.name()).reference(reference).maybeTumor(tumor).build();
             }
 
         } catch (IOException e) {
@@ -96,52 +86,13 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
                         sbpRun.id())));
     }
 
-    @Override
-    public boolean hasDependencies(final String sampleName) {
-        try {
-            return hasPendingRuns(sampleName, sbpRestApi.getSetsByTumorName(sampleName)) || hasPendingRuns(sampleName,
-                    sbpRestApi.getSetsByReferenceName(sampleName));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private boolean hasPendingRuns(final String sample, final String sets) throws IOException {
-        if (sets != null) {
-            List<SbpSet> sbpSets = ObjectMappers.get().readValue(sets, new TypeReference<List<SbpSet>>() {
-            });
-
-            List<SbpRun> runsForSets = new ArrayList<>();
-            for (SbpSet sbpSet : sbpSets) {
-                String runsBySet = sbpRestApi.getRunsBySet(sbpSet.id());
-                if (runsBySet != null) {
-                    runsForSets.addAll(ObjectMappers.get().readValue(runsBySet, new TypeReference<List<SbpRun>>() {
-                    }));
-                }
-            }
-
-            List<SbpIni> inis = getInis();
-            List<SbpRun> pending = runsForSets.stream()
-                    .filter(run -> !COMPLETE_STATUS.contains(run.status()))
-                    .filter(run -> arguments.shallow() == isShallow(inis, run))
-                    .collect(Collectors.toList());
-            if (!pending.isEmpty()) {
-                LOGGER.info("Founds dependent runs for sample [{}], [{}]",
-                        sample,
-                        pending.stream().map(SbpRun::id).collect(Collectors.joining(",")));
-            }
-            return !pending.isEmpty();
-        }
-        return false;
-    }
-
-    private boolean isShallow(final List<SbpIni> inis, final SbpRun run) {
-        return findIni(run, inis).name().toLowerCase().contains("shallow");
-    }
-
-    private static ImmutableSingleSampleRunMetadata toMetadata(final SbpSample referenceSample,
-            final SingleSampleRunMetadata.SampleType tumor) {
-        return SingleSampleRunMetadata.builder().sampleName(referenceSample.name()).sampleId(referenceSample.barcode()).type(tumor).build();
+    private static ImmutableSingleSampleRunMetadata toMetadata(final SbpSample sample, final SingleSampleRunMetadata.SampleType type) {
+        return SingleSampleRunMetadata.builder()
+                .sampleName(sample.name())
+                .sampleId(sample.barcode())
+                .entityId(sample.id())
+                .type(type)
+                .build();
     }
 
     private SbpRun getSbpRun() {

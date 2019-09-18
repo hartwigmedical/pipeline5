@@ -31,7 +31,7 @@ import org.mockito.ArgumentCaptor;
 
 public class PurpleTest {
 
-    private static final String RUNTIME_BUCKET = "run-reference-tumor";
+    private static final String RUNTIME_BUCKET = "run-reference-tumor-test";
     private ComputeEngine computeEngine;
     private static final Arguments ARGUMENTS = Arguments.testDefaults();
     private Purple victim;
@@ -89,7 +89,7 @@ public class PurpleTest {
 
     @Test
     public void runsPurpleWithLowCoverageArgsWhenShallow() {
-        when(storage.get(RUNTIME_BUCKET  +"-shallow")).thenReturn(bucket);
+        when(storage.get(RUNTIME_BUCKET + "-shallow")).thenReturn(bucket);
         victim = new Purple(Arguments.builder().from(ARGUMENTS).shallow(true).build(),
                 computeEngine,
                 storage,
@@ -105,11 +105,11 @@ public class PurpleTest {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
         runVictim();
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
-                "gsutil -qm cp -n gs://run-reference-tumor/somatic.vcf /data/input/somatic.vcf",
-                "gsutil -qm cp -n gs://run-reference-tumor/structural.vcf /data/input/structural.vcf",
-                "gsutil -qm cp -n gs://run-reference-tumor/sv_recovery.vcf /data/input/sv_recovery.vcf",
-                "gsutil -qm cp -n gs://run-reference-tumor/amber/* /data/input/",
-                "gsutil -qm cp -n gs://run-reference-tumor/cobalt/* /data/input/");
+                "gsutil -qm cp -n gs://run-reference-tumor-test/somatic.vcf /data/input/somatic.vcf",
+                "gsutil -qm cp -n gs://run-reference-tumor-test/structural.vcf /data/input/structural.vcf",
+                "gsutil -qm cp -n gs://run-reference-tumor-test/sv_recovery.vcf /data/input/sv_recovery.vcf",
+                "gsutil -qm cp -n gs://run-reference-tumor-test/amber/* /data/input/",
+                "gsutil -qm cp -n gs://run-reference-tumor-test/cobalt/* /data/input/");
     }
 
     @Test
@@ -117,7 +117,8 @@ public class PurpleTest {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
         runVictim();
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
-                "gsutil -qm -o GSUtil:parallel_composite_upload_threshold=150M cp -r /data/output/ gs://run-reference-tumor/purple/results");
+                "gsutil -qm -o GSUtil:parallel_composite_upload_threshold=150M cp -r /data/output/ "
+                        + "gs://run-reference-tumor-test/purple/results");
     }
 
     private PurpleOutput runVictim() {
