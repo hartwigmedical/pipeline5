@@ -15,9 +15,4 @@ public class VirtualMachinePerformanceProfileTest {
         assertThat(VirtualMachinePerformanceProfile.custom(cores, memoryGb).uri())
                 .isEqualTo(format("custom-%d-%d", cores, memoryMb));
     }
-
-    @Test
-    public void shouldDefaultDiskSizeInGb() {
-        assertThat(VirtualMachinePerformanceProfile.defaultVm().diskGb()).isEqualTo(10);
-    }
 }

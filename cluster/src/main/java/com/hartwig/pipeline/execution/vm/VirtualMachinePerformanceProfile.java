@@ -12,11 +12,6 @@ public interface VirtualMachinePerformanceProfile extends PerformanceProfile{
 
     String uri();
 
-    @Value.Default
-    default int diskGb() {
-        return 10;
-    }
-
     static VirtualMachinePerformanceProfile defaultVm() {
         return ImmutableVirtualMachinePerformanceProfile.builder().uri(MachineType.defaultVm().uri()).build();
     }

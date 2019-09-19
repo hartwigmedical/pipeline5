@@ -9,6 +9,7 @@ sudo apt-key adv --keyserver keys.gnupg.net --recv-key 'E19F5F87128899B192B1A2C2
 sudo add-apt-repository 'deb https://cloud.r-project.org/bin/linux/debian stretch-cran35/'
 sudo apt-get -y update
 sudo apt-get -y install r-base
+sudo mkdir /data
 sudo mkdir /opt/tools
 sudo gsutil -m cp -r gs://$1/* /opt/tools/
 sudo tar xvf /opt/tools/strelka/1.0.14/strelka.tar -C /opt/tools/strelka/1.0.14/

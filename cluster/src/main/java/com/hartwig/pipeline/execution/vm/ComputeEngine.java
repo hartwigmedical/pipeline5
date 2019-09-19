@@ -39,6 +39,7 @@ import com.google.cloud.storage.Blob;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.execution.CloudExecutor;
 import com.hartwig.pipeline.execution.PipelineStatus;
+import com.hartwig.pipeline.execution.vm.storage.LocalSsdStorageStrategy;
 import com.hartwig.pipeline.labels.Labels;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
@@ -51,6 +52,7 @@ import net.jodah.failsafe.function.CheckedSupplier;
 
 public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition> {
     private final static String APPLICATION_NAME = "vm-hosted-workload";
+    private final static int NUMBER_OF_PERSISTENT_SSDS = 4;
     static final String ZONE_EXHAUSTED_ERROR_CODE = "ZONE_RESOURCE_POOL_EXHAUSTED";
     static final String PREEMPTED_INSTANCE = "TERMINATED";
 
@@ -108,13 +110,14 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
                         jobDefinition.imageFamily(),
                         project,
                         vmName,
-                        jobDefinition.performanceProfile().diskGb(),
                         nextZone.getName());
                 LOGGER.info("Submitting compute engine job [{}] using image [{}] in zone [{}]",
                         jobDefinition.name(),
                         image.getName(),
                         nextZone.getName());
-                addStartupCommand(instance, bucket, jobDefinition.startupCommand());
+                String startupScript = arguments.useScratchSsds() ? jobDefinition.startupCommand().asUnixString(new LocalSsdStorageStrategy())
+                        : jobDefinition.startupCommand().asUnixString();
+                addStartupCommand(instance, bucket, startupScript);
                 addNetworkInterface(instance, project);
 
                 Operation result = deleteOldInstancesAndStart(compute, instance, project, previousZone, nextZone, vmName);
@@ -131,7 +134,7 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
                         LOGGER.info("Compute engine job [{}] is complete with status [{}]", jobDefinition.name(), status);
                         keepTrying = false;
                     }
-                } else if (result.getError().getErrors().stream().anyMatch(error -> error.getCode().equals(ZONE_EXHAUSTED_ERROR_CODE))) {
+                } else if (result.getError().getErrors().stream().anyMatch(error -> error.getCode().startsWith(ZONE_EXHAUSTED_ERROR_CODE))) {
                     LOGGER.warn("Zone [{}] has insufficient resources to fulfill the request. Trying next zone", nextZone.getName());
                 } else {
                     throw new RuntimeException(result.getError().toPrettyString());
@@ -181,26 +184,28 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
         instance.setNetworkInterfaces(singletonList(networkInterface));
     }
 
-    private Image attachDisks(Compute compute, Instance instance, String imageFamily, String projectName, String vmName, long diskSizeGB,
+    private Image attachDisks(Compute compute, Instance instance, String imageFamily, String projectName, String vmName,
             String zone) throws IOException {
         Image sourceImage = resolveLatestImage(compute, imageFamily, projectName);
         AttachedDisk disk = new AttachedDisk();
         disk.setBoot(true);
         disk.setAutoDelete(true);
         AttachedDiskInitializeParams params = new AttachedDiskInitializeParams();
-        params.setDiskSizeGb(diskSizeGB);
         params.setSourceImage(sourceImage.getSelfLink());
         params.setDiskType(format("%s/zones/%s/diskTypes/pd-ssd", apiBaseUrl(projectName), zone));
+        params.setDiskSizeGb(arguments.useScratchSsds() ? 10L : 1000L);
         disk.setInitializeParams(params);
         List<AttachedDisk> disks = new ArrayList<>(asList(disk));
-        attachLocalSsds(disks, projectName, zone);
+        if (arguments.useScratchSsds()) {
+            attachLocalSsds(disks, projectName, zone);
+        }
         instance.setDisks(disks);
         compute.instances().attachDisk(projectName, zone, vmName, disk);
         return sourceImage;
     }
 
-    private void attachLocalSsds(List<AttachedDisk> disks, String projectName, String zone) throws IOException {
-        for (int i = 0; i < 4; i++) {
+    private void attachLocalSsds(List<AttachedDisk> disks, String projectName, String zone) {
+        for (int i = 0; i < NUMBER_OF_PERSISTENT_SSDS; i++) {
             AttachedDisk disk = new AttachedDisk();
             disk.setBoot(false);
             disk.setAutoDelete(true);
@@ -220,13 +225,13 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
         instance.setServiceAccounts(singletonList(account));
     }
 
-    private void addStartupCommand(Instance instance, RuntimeBucket runtimeBucket, BashStartupScript startupCommand) {
+    private void addStartupCommand(Instance instance, RuntimeBucket runtimeBucket, String startupScript) {
         Metadata startupMetadata = new Metadata();
         Metadata.Items items = new Metadata.Items();
         items.setKey("startup-script");
-        items.setValue(startupCommand.asUnixString());
+        items.setValue(startupScript);
         startupMetadata.setItems(singletonList(items));
-        runtimeBucket.create("copy_of_startup_script_for_run.sh", startupCommand.asUnixString().getBytes());
+        runtimeBucket.create("copy_of_startup_script_for_run.sh", startupScript.getBytes());
         instance.setMetadata(startupMetadata);
     }
 
