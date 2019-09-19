@@ -7,10 +7,12 @@ import com.hartwig.pipeline.PipelineMain;
 import com.hartwig.pipeline.PipelineState;
 import com.hartwig.pipeline.execution.PipelineStatus;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 @Category(value = IntegrationTest.class)
+@Ignore
 public class SmokeTest {
 
     @Test
@@ -28,7 +30,6 @@ public class SmokeTest {
                 .mode(Arguments.Mode.FULL)
                 .runId("smoke-" + noDots(version))
                 .runGermlineCaller(false)
-                .zone("europe-west4-a")
                 .build());
         assertThat(state.status()).isEqualTo(PipelineStatus.QC_FAILED);
     }
