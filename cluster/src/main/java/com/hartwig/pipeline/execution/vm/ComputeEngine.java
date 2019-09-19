@@ -21,7 +21,6 @@ import com.google.api.services.compute.model.AccessConfig;
 import com.google.api.services.compute.model.AttachedDisk;
 import com.google.api.services.compute.model.AttachedDiskInitializeParams;
 import com.google.api.services.compute.model.Image;
-import com.google.api.services.compute.model.ImageList;
 import com.google.api.services.compute.model.Instance;
 import com.google.api.services.compute.model.Metadata;
 import com.google.api.services.compute.model.NetworkInterface;
@@ -45,8 +44,8 @@ import net.jodah.failsafe.Failsafe;
 import net.jodah.failsafe.RetryPolicy;
 
 public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition> {
+    public static final int NUMBER_OF_375G_LOCAL_SSD_DEVICES = 4;
     private final static String APPLICATION_NAME = "vm-hosted-workload";
-    private final static int NUMBER_OF_PERSISTENT_SSDS = 4;
     static final String ZONE_EXHAUSTED_ERROR_CODE = "ZONE_RESOURCE_POOL_EXHAUSTED";
     static final String PREEMPTED_INSTANCE = "TERMINATED";
 
@@ -117,7 +116,8 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
                         vmName,
                         image.getName(),
                         currentZone.getName());
-                String startupScript = arguments.useScratchSsds() ? jobDefinition.startupCommand().asUnixString(new LocalSsdStorageStrategy())
+                String startupScript = arguments.useLocalSsds()
+                        ? jobDefinition.startupCommand().asUnixString(new LocalSsdStorageStrategy(NUMBER_OF_375G_LOCAL_SSD_DEVICES))
                         : jobDefinition.startupCommand().asUnixString();
                 addStartupCommand(instance, bucket, startupScript);
                 addNetworkInterface(instance, project);
@@ -189,10 +189,10 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
         AttachedDiskInitializeParams params = new AttachedDiskInitializeParams();
         params.setSourceImage(sourceImage.getSelfLink());
         params.setDiskType(format("%s/zones/%s/diskTypes/pd-ssd", apiBaseUrl(projectName), zone));
-        params.setDiskSizeGb(arguments.useScratchSsds() ? 10L : 1000L);
+        params.setDiskSizeGb(arguments.useLocalSsds() ? 10L : 1000L);
         disk.setInitializeParams(params);
         List<AttachedDisk> disks = new ArrayList<>(asList(disk));
-        if (arguments.useScratchSsds()) {
+        if (arguments.useLocalSsds()) {
             attachLocalSsds(disks, projectName, zone);
         }
         instance.setDisks(disks);
@@ -201,7 +201,7 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
     }
 
     private void attachLocalSsds(List<AttachedDisk> disks, String projectName, String zone) {
-        for (int i = 0; i < NUMBER_OF_PERSISTENT_SSDS; i++) {
+        for (int i = 0; i < NUMBER_OF_375G_LOCAL_SSD_DEVICES; i++) {
             AttachedDisk disk = new AttachedDisk();
             disk.setBoot(false);
             disk.setAutoDelete(true);

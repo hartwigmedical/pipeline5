@@ -4,10 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.hartwig.pipeline.calling.SubStage;
 import com.hartwig.pipeline.calling.SubStageTest;
+import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
 
 import org.junit.Test;
 
-public class PonFilterTest extends SubStageTest {
+public class PonFilterTest extends SubStageTest implements CommonEntities {
 
     @Override
     public SubStage createVictim() {
@@ -24,7 +25,7 @@ public class PonFilterTest extends SubStageTest {
         assertThat(output.currentBash().asUnixString()).contains("(/opt/tools/bcftools/1.3.1/bcftools filter -e "
                 + "'GERMLINE_PON_COUNT!= \".\" && MIN(GERMLINE_PON_COUNT) > 5' -s GERMLINE_PON -m+ /data/output/tumor.strelka.vcf -O u | "
                 + "/opt/tools/bcftools/1.3.1/bcftools filter -e 'SOMATIC_PON_COUNT!=\".\" && MIN(SOMATIC_PON_COUNT) > 3' -s SOMATIC_PON "
-                + "-m+  -O z -o /data/output/tumor.pon.filtered.vcf.gz) >>/tmp/run.log 2>&1 || die\n");
+                + "-m+  -O z -o /data/output/tumor.pon.filtered.vcf.gz) >>" + LOG_FILE + " 2>&1 || die\n");
     }
 
     @Test

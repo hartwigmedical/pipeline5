@@ -12,7 +12,7 @@ import com.hartwig.pipeline.execution.vm.storage.StorageStrategy;
 public class BashStartupScript {
     static final String JOB_SUCCEEDED_FLAG = "JOB_SUCCESS";
     static final String JOB_FAILED_FLAG = "JOB_FAILURE";
-    private static final String LOG_FILE = "/tmp/run.log";
+    static final String LOG_FILE = "/var/log/run.log";
     private final List<String> commands;
     private final String runtimeBucketName;
 
@@ -80,7 +80,6 @@ public class BashStartupScript {
     private void addCompletionCommands() {
         String successFlag = "/tmp/" + successFlag();
         commands.add(format("(echo 0 > %s && gsutil cp %s gs://%s)", successFlag, successFlag, runtimeBucketName));
-        commands.add(format("cp %s %s", LOG_FILE, VmDirectories.OUTPUT));
     }
 
     String successFlag() {

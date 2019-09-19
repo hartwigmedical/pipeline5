@@ -1,10 +1,9 @@
 package com.hartwig.pipeline.calling.somatic;
 
-import static com.hartwig.pipeline.execution.vm.OutputUpload.OUTPUT_DIRECTORY;
-
 import com.hartwig.pipeline.calling.SubStage;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.OutputFile;
+import com.hartwig.pipeline.execution.vm.VmDirectories;
 
 class Strelka extends SubStage {
 
@@ -25,7 +24,7 @@ class Strelka extends SubStage {
 
     @Override
     public BashStartupScript bash(final OutputFile input, final OutputFile output, final BashStartupScript bash) {
-        String strelkaAnalysisOutput = OUTPUT_DIRECTORY + STRELKA_ANALYSIS_DIRECTORY;
+        String strelkaAnalysisOutput = VmDirectories.OUTPUT + STRELKA_ANALYSIS_DIRECTORY;
         return bash.addCommand(new ConfigureStrelkaWorkflowCommand(recalibratedTumorBamPath,
                 recalibratedReferenceBamPath,
                 strelkaConfigPath,

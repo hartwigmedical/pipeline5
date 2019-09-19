@@ -11,6 +11,7 @@ public interface CommonEntities {
     String RESOURCE_DIR = "/data/resources";
     String TOOLS_DIR = "/opt/tools";
     String IN_DIR = "/data/input";
+    String LOG_FILE = "/var/log/run.log";
 
     String REFERENCE_SAMPLE = "sample12345678R";
     String TUMOR_SAMPLE = "sample12345678T";

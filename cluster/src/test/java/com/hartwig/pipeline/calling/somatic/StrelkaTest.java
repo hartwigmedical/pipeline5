@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.hartwig.pipeline.calling.SubStage;
 import com.hartwig.pipeline.calling.SubStageTest;
+import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
 
 import org.junit.Test;
 
@@ -30,7 +31,7 @@ public class StrelkaTest extends SubStageTest {
     @Test
     public void runsStrelkaMakefile() {
         assertThat(output.currentBash().asUnixString()).contains("make -C /data/output/strelkaAnalysis "
-                + "-j $(grep -c '^processor' /proc/cpuinfo) >>/tmp/run.log");
+                + "-j $(grep -c '^processor' /proc/cpuinfo) >>" + CommonEntities.LOG_FILE);
     }
 
     @Test
