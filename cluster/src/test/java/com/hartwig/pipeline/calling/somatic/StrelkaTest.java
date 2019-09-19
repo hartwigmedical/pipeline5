@@ -22,7 +22,7 @@ public class StrelkaTest extends SubStageTest {
 
     @Test
     public void runsConfigureStrelkaWorkflow() {
-        assertThat(output.currentBash().asUnixString()).contains("/data/tools/strelka/1.0.14/bin/configureStrelkaWorkflow.pl "
+        assertThat(output.currentBash().asUnixString()).contains("/opt/tools/strelka/1.0.14/bin/configureStrelkaWorkflow.pl "
                 + "--tumor tumor.bam --normal reference.bam --config strelka.config --ref reference_genome.fasta "
                 + "--output-dir /data/output/strelkaAnalysis");
     }
@@ -30,12 +30,12 @@ public class StrelkaTest extends SubStageTest {
     @Test
     public void runsStrelkaMakefile() {
         assertThat(output.currentBash().asUnixString()).contains("make -C /data/output/strelkaAnalysis "
-                + "-j $(grep -c '^processor' /proc/cpuinfo) >>/data/output/run.log");
+                + "-j $(grep -c '^processor' /proc/cpuinfo) >>/tmp/run.log");
     }
 
     @Test
     public void runsGatkCombineVcf() {
-        assertThat(output.currentBash().asUnixString()).contains("java -Xmx20G -jar /data/tools/gatk/3.8.0/GenomeAnalysisTK.jar "
+        assertThat(output.currentBash().asUnixString()).contains("java -Xmx20G -jar /opt/tools/gatk/3.8.0/GenomeAnalysisTK.jar "
                 + "-T CombineVariants -R reference_genome.fasta --genotypemergeoption unsorted "
                 + "-V:snvs /data/output/strelkaAnalysis/results/passed.somatic.snvs.vcf -V:indels "
                 + "/data/output/strelkaAnalysis/results/passed.somatic.indels.vcf -o /data/output/tumor.strelka.vcf");

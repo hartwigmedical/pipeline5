@@ -32,6 +32,8 @@ public interface Arguments {
 
     boolean usePreemptibleVms();
 
+    boolean useScratchSsds();
+
     boolean upload();
 
     boolean runBamMetrics();
@@ -148,6 +150,7 @@ public interface Arguments {
                     .forceJarUpload(false)
                     .cleanup(true)
                     .usePreemptibleVms(true)
+                    .useScratchSsds(false)
                     .upload(true)
                     .runBamMetrics(true)
                     .runAligner(true)
@@ -179,6 +182,7 @@ public interface Arguments {
                     .forceJarUpload(false)
                     .cleanup(true)
                     .usePreemptibleVms(true)
+                    .useScratchSsds(false)
                     .upload(true)
                     .runBamMetrics(true)
                     .runAligner(true)

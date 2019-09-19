@@ -11,7 +11,13 @@ function die() {
   exit $exit_code
 }
 
+mdadm --create /dev/md0 --level=0 --raid-devices=4 /dev/nvme0n1 /dev/nvme0n2 /dev/nvme0n3 /dev/nvme0n4
+mkfs.ext4 -F /dev/md0
+mount /dev/md0 /data
+mkdir /data/output
 echo $(date) Starting run >>/data/output/run.log 2>&1 || die
+mkdir /data/input >>/data/output/run.log 2>&1 || die
+mkdir /data/resources >>/data/output/run.log 2>&1 || die
 uname -a >>/data/output/run.log 2>&1 || die
 echo "Running command ComplexCommand with bash: not_really_so_complex \"quoted\"" >>/data/output/run.log 2>&1 || die
 not_really_so_complex "quoted" >>/data/output/run.log 2>&1 || die

@@ -75,7 +75,7 @@ public class AmberTest {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
         victim.run(defaultSomaticRunMetadata(),defaultPair());
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains("java -Xmx32G -cp "
-                + "/data/tools/amber/" + Versions.AMBER + "/amber.jar com.hartwig.hmftools.amber.AmberApplication -reference reference -reference_bam "
+                + "/opt/tools/amber/" + Versions.AMBER + "/amber.jar com.hartwig.hmftools.amber.AmberApplication -reference reference -reference_bam "
                 + "/data/input/reference.bam -tumor tumor -tumor_bam /data/input/tumor.bam -output_dir /data/output -threads 16 -ref_genome "
                 + "/data/resources/reference.fasta -bed /data/resources/GermlineHetPon.hg19.bed -snp_bed /data/resources/GermlineSnp.hg19.bed");
     }

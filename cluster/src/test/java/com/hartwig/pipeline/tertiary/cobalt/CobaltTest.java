@@ -74,7 +74,7 @@ public class CobaltTest {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
         victim.run(defaultSomaticRunMetadata(), defaultPair());
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
-                "java -Xmx8G -cp " + "/data/tools/cobalt/" + Versions.COBALT
+                "java -Xmx8G -cp " + "/opt/tools/cobalt/" + Versions.COBALT
                         + "/cobalt.jar com.hartwig.hmftools.cobalt.CountBamLinesApplication -reference reference "
                         + "-reference_bam /data/input/reference.bam -tumor tumor -tumor_bam /data/input/tumor.bam -output_dir /data/output "
                         + "-threads 16 -gc_profile /data/resources/gc.cnp");

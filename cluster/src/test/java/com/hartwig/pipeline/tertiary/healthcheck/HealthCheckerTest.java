@@ -92,7 +92,7 @@ public class HealthCheckerTest {
         runVictim();
         System.out.println(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString());
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
-                "java -Xmx10G -jar /data/tools/health-checker/" + Versions.HEALTH_CHECKER + "/health-checker.jar -reference reference "
+                "java -Xmx10G -jar /opt/tools/health-checker/" + Versions.HEALTH_CHECKER + "/health-checker.jar -reference reference "
                         + "-tumor tumor -metrics_dir /data/input/metrics -amber_dir /data/input/amber -purple_dir /data/input/purple "
                         + "-output_dir /data/output");
     }

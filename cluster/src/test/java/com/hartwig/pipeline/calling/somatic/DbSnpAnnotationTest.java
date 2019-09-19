@@ -21,13 +21,13 @@ public class DbSnpAnnotationTest extends SubStageTest {
 
     @Test
     public void runsBcfToolsDbSnpAnnotation() {
-        assertThat(output.currentBash().asUnixString()).contains("/data/tools/bcftools/1.3.1/bcftools annotate -a dbsnp.vcf.gz -c ID -o "
+        assertThat(output.currentBash().asUnixString()).contains("/opt/tools/bcftools/1.3.1/bcftools annotate -a dbsnp.vcf.gz -c ID -o "
                 + "/data/output/tumor.dbsnp.annotated.vcf.gz -O z /data/output/tumor.strelka.vcf");
     }
 
     @Test
     public void runsTabix() {
-        assertThat(output.currentBash().asUnixString()).contains("/data/tools/tabix/0.2.6/tabix /data/output/tumor.dbsnp.annotated.vcf.gz "
-                + "-p vcf >>/data/output/run.log");
+        assertThat(output.currentBash().asUnixString()).contains("/opt/tools/tabix/0.2.6/tabix /data/output/tumor.dbsnp.annotated.vcf.gz "
+                + "-p vcf >>/tmp/run.log");
     }
 }

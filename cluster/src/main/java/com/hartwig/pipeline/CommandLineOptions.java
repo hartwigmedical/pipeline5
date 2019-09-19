@@ -30,7 +30,8 @@ public class CommandLineOptions {
     private static final String RUN_ID_FLAG = "run_id";
     private static final String NODE_INIT_FLAG = "node_init_script";
     private static final String CLOUD_SDK_PATH_FLAG = "cloud_sdk";
-    private static final String USE_PREEMTIBLE_VMS_FLAG = "preemtible_vms";
+    private static final String USE_PREEMTIBLE_VMS_FLAG = "preemptible_vms";
+    private static final String USE_SCRATCH_SSDS_FLAG = "scratch_ssds";
     private static final String DOWNLOAD_FLAG = "download";
     private static final String VERBOSE_CLOUD_SDK_FLAG = "verbose_cloud_sdk";
     private static final String RCLONE_PATH_FLAG = "rclone_path";
@@ -76,6 +77,9 @@ public class CommandLineOptions {
                 .addOption(optionWithBooleanArg(USE_PREEMTIBLE_VMS_FLAG,
                         "Do not allocate half the cluster as preemtible VMs to save cost. "
                                 + "These VMs can be reclaimed at any time so using this option will make things more stable"))
+                .addOption(optionWithBooleanArg(USE_SCRATCH_SSDS_FLAG,
+                        "Use scratch (\"local\") SSDs rather than persistent storage to lower cost and improve performance. "
+                                + "VMs started with these devices can only be started once so may not be suitable for development"))
                 .addOption(optionWithBooleanArg(DOWNLOAD_FLAG,
                         "Do not download the final BAM of Google Storage. Will also leave the runtime bucket in place"))
                 .addOption(optionWithBooleanArg(VERBOSE_CLOUD_SDK_FLAG,
@@ -269,6 +273,7 @@ public class CommandLineOptions {
                     .nodeInitializationScript(commandLine.getOptionValue(NODE_INIT_FLAG, defaults.nodeInitializationScript()))
                     .cloudSdkPath(commandLine.getOptionValue(CLOUD_SDK_PATH_FLAG, defaults.cloudSdkPath()))
                     .usePreemptibleVms(booleanOptionWithDefault(commandLine, USE_PREEMTIBLE_VMS_FLAG, defaults.usePreemptibleVms()))
+                    .useScratchSsds(booleanOptionWithDefault(commandLine, USE_SCRATCH_SSDS_FLAG, defaults.useScratchSsds()))
                     .upload(booleanOptionWithDefault(commandLine, UPLOAD_FLAG, defaults.upload()))
                     .rclonePath(commandLine.getOptionValue(RCLONE_PATH_FLAG, defaults.rclonePath()))
                     .rcloneGcpRemote(commandLine.getOptionValue(RCLONE_GCP_REMOTE_FLAG, defaults.rcloneGcpRemote()))
