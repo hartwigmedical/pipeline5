@@ -67,9 +67,9 @@ public class DataprocAligner implements Aligner {
             return ExistingAlignment.find(metadata, alignmentOutputStorage, arguments);
         }
 
-        StageTrace trace = new StageTrace(NAMESPACE, StageTrace.ExecutorType.DATAPROC).start();
+        StageTrace trace = new StageTrace(NAMESPACE, metadata.sampleName(), StageTrace.ExecutorType.DATAPROC).start();
 
-        SampleData sampleData = sampleSource.sample(metadata, arguments);
+        SampleData sampleData = sampleSource.sample(metadata);
         Sample sample = sampleData.sample();
 
         RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, NAMESPACE, metadata, arguments);

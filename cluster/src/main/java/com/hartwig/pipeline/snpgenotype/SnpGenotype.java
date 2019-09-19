@@ -52,7 +52,7 @@ public class SnpGenotype {
             return SnpGenotypeOutput.builder().status(PipelineStatus.SKIPPED).build();
         }
 
-        StageTrace trace = new StageTrace(NAMESPACE, StageTrace.ExecutorType.COMPUTE_ENGINE).start();
+        StageTrace trace = new StageTrace(NAMESPACE, metadata.sampleName(), StageTrace.ExecutorType.COMPUTE_ENGINE).start();
 
         String sampleName = alignmentOutput.sample();
         RuntimeBucket bucket = RuntimeBucket.from(storage, NAMESPACE, metadata, arguments);

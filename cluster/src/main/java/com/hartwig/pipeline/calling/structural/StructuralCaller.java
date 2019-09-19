@@ -64,7 +64,7 @@ public class StructuralCaller {
             return StructuralCallerOutput.builder().status(SKIPPED).build();
         }
 
-        StageTrace trace = new StageTrace(NAMESPACE, StageTrace.ExecutorType.COMPUTE_ENGINE).start();
+        StageTrace trace = new StageTrace(NAMESPACE, metadata.runName(), StageTrace.ExecutorType.COMPUTE_ENGINE).start();
 
         String jointName = metadata.reference().sampleName() + "_" + metadata.tumor().sampleName();
         String tumorSampleName = pair.tumor().sample();

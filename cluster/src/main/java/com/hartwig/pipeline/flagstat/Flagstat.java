@@ -37,7 +37,7 @@ public class Flagstat {
 
     public FlagstatOutput run(SingleSampleRunMetadata metadata, AlignmentOutput alignmentOutput) {
 
-        StageTrace trace = new StageTrace(NAMESPACE, StageTrace.ExecutorType.COMPUTE_ENGINE).start();
+        StageTrace trace = new StageTrace(NAMESPACE, metadata.sampleName(), StageTrace.ExecutorType.COMPUTE_ENGINE).start();
         RuntimeBucket bucket = RuntimeBucket.from(storage, NAMESPACE, metadata, arguments);
 
         InputDownload bamDownload = new InputDownload(alignmentOutput.finalBamLocation());

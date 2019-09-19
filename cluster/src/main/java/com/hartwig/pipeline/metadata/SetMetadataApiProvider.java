@@ -23,6 +23,6 @@ public class SetMetadataApiProvider {
         return arguments.sbpApiRunId().<SomaticMetadataApi>map(setId -> new SbpSomaticMetadataApi(arguments,
                 setId,
                 SbpRestApi.newInstance(arguments),
-                SbpFileTransferProvider.from(arguments, storage).get())).orElse(new LocalSetMetadataApi(arguments));
+                SbpFileTransferProvider.from(arguments, storage).get())).orElse(new LocalSomaticMetadataApi(arguments));
     }
 }

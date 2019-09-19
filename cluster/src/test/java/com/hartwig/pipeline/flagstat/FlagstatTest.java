@@ -22,7 +22,7 @@ import org.mockito.ArgumentCaptor;
 
 public class FlagstatTest {
 
-    private static final String RUNTIME_BUCKET = "run-reference";
+    private static final String RUNTIME_BUCKET = "run-reference-test";
     private ComputeEngine computeEngine;
     private static final Arguments ARGUMENTS = Arguments.testDefaults();
     private Flagstat victim;
@@ -65,7 +65,7 @@ public class FlagstatTest {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
         victim.run(referenceRunMetadata(), referenceAlignmentOutput());
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
-                "gsutil -qm -o GSUtil:parallel_composite_upload_threshold=150M cp -r /data/output/ gs://run-reference/flagstat/results");
+                "gsutil -qm -o GSUtil:parallel_composite_upload_threshold=150M cp -r /data/output/ gs://run-reference-test/flagstat/results");
     }
 
     private ArgumentCaptor<VirtualMachineJobDefinition> captureAndReturnSuccess() {

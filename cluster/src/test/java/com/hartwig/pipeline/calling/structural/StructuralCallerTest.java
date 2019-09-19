@@ -30,7 +30,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 public class StructuralCallerTest {
-    private static final String RUNTIME_JOINT_BUCKET = "run-reference-tumor";
+    private static final String RUNTIME_JOINT_BUCKET = "run-reference-tumor-test";
 
     private ComputeEngine computeEngine;
     private StructuralCaller victim;

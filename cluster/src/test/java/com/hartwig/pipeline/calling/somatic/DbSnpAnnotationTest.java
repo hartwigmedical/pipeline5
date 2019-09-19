@@ -28,6 +28,6 @@ public class DbSnpAnnotationTest extends SubStageTest {
     @Test
     public void runsTabix() {
         assertThat(output.currentBash().asUnixString()).contains("/opt/tools/tabix/0.2.6/tabix /data/output/tumor.dbsnp.annotated.vcf.gz "
-                + "-p vcf >>/data/output/run.log");
+                + "-p vcf >>/tmp/run.log");
     }
 }

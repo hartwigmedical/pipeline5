@@ -10,7 +10,7 @@ import com.hartwig.pipeline.calling.germline.GermlineCaller;
 import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
 import com.hartwig.pipeline.flagstat.Flagstat;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
-import com.hartwig.pipeline.metadata.SampleMetadataApi;
+import com.hartwig.pipeline.metadata.SingleSampleEventListener;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetrics;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
@@ -25,7 +25,7 @@ public class SingleSamplePipeline {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SingleSamplePipeline.class);
 
-    private final SampleMetadataApi sampleMetadataApi;
+    private final SingleSampleEventListener eventListener;
     private final Aligner aligner;
     private final BamMetrics metrics;
     private final GermlineCaller germlineCaller;
@@ -35,10 +35,10 @@ public class SingleSamplePipeline {
     private final ExecutorService executorService;
     private final Arguments arguments;
 
-    SingleSamplePipeline(final SampleMetadataApi sampleMetadataApi, final Aligner aligner, final BamMetrics metrics,
+    SingleSamplePipeline(final SingleSampleEventListener sampleMetadataApi, final Aligner aligner, final BamMetrics metrics,
             final GermlineCaller germlineCaller, final SnpGenotype snpGenotype, final Flagstat flagstat, final PipelineResults report,
             final ExecutorService executorService, final Arguments arguments) {
-        this.sampleMetadataApi = sampleMetadataApi;
+        this.eventListener = sampleMetadataApi;
         this.aligner = aligner;
         this.metrics = metrics;
         this.germlineCaller = germlineCaller;
@@ -49,15 +49,14 @@ public class SingleSamplePipeline {
         this.arguments = arguments;
     }
 
-    public PipelineState run() throws Exception {
-        SingleSampleRunMetadata metadata = sampleMetadataApi.get();
+    public PipelineState run(SingleSampleRunMetadata metadata) throws Exception {
         LOGGER.info("Pipeline5 single sample pipeline starting for sample name [{}] with id [{}] {}",
                 metadata.sampleName(),
                 metadata.sampleId(),
                 arguments.runId().map(runId -> String.format("using run tag [%s]", runId)).orElse(""));
         PipelineState state = new PipelineState();
         AlignmentOutput alignmentOutput = report.add(state.add(aligner.run(metadata)));
-        sampleMetadataApi.alignmentComplete(state);
+        eventListener.alignmentComplete(state);
         if (state.shouldProceed()) {
 
             Future<BamMetricsOutput> bamMetricsFuture = executorService.submit(() -> metrics.run(metadata, alignmentOutput));
@@ -74,7 +73,7 @@ public class SingleSamplePipeline {
             report.add(state.add(futurePayload(unifiedGenotyperFuture)));
             report.add(state.add(futurePayload(flagstatOutputFuture)));
             report.compose(metadata);
-            sampleMetadataApi.complete(state);
+            eventListener.complete(state);
         }
         return state;
     }

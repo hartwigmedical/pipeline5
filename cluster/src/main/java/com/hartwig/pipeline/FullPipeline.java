@@ -4,26 +4,35 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
 import com.hartwig.pipeline.metadata.CompletionHandler;
-import com.hartwig.pipeline.metadata.LocalSampleMetadataApi;
+import com.hartwig.pipeline.metadata.SingleSampleEventListener;
+import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
+import com.hartwig.pipeline.metadata.SomaticRunMetadata;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FullPipeline {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(FullPipeline.class);
 
     private final SingleSamplePipeline referencePipeline;
     private final SingleSamplePipeline tumorPipeline;
     private final SomaticPipeline somaticPipeline;
     private final ExecutorService executorService;
-    private final LocalSampleMetadataApi referenceApi;
-    private final LocalSampleMetadataApi tumorApi;
+    private final SingleSampleEventListener referenceSampleEventListener;
+    private final SingleSampleEventListener tumorSampleEventListener;
+    private final SomaticRunMetadata metadata;
 
     FullPipeline(final SingleSamplePipeline referencePipeline, final SingleSamplePipeline tumorPipeline,
-            final SomaticPipeline somaticPipeline, final ExecutorService executorService, final LocalSampleMetadataApi referenceApi,
-            final LocalSampleMetadataApi tumorApi) {
+            final SomaticPipeline somaticPipeline, final ExecutorService executorService, final SingleSampleEventListener referenceApi,
+            final SingleSampleEventListener tumorApi, final SomaticRunMetadata metadata) {
         this.referencePipeline = referencePipeline;
         this.tumorPipeline = tumorPipeline;
         this.somaticPipeline = somaticPipeline;
         this.executorService = executorService;
-        this.referenceApi = referenceApi;
-        this.tumorApi = tumorApi;
+        this.referenceSampleEventListener = referenceApi;
+        this.tumorSampleEventListener = tumorApi;
+        this.metadata = metadata;
     }
 
     public PipelineState run() {
@@ -32,16 +41,25 @@ public class FullPipeline {
 
         CountDownAndTrapStatus trapReference = new CountDownAndTrapStatus(bothSingleSamplesComplete);
         CountDownAndTrapStatus trapTumor = new CountDownAndTrapStatus(bothSingleSamplesComplete);
-        referenceApi.register(trapReference);
-        tumorApi.register(trapTumor);
-        executorService.submit(referencePipeline::run);
-        executorService.submit(tumorPipeline::run);
+        referenceSampleEventListener.register(trapReference);
+        tumorSampleEventListener.register(trapTumor);
+        executorService.submit(() -> runPipeline(referencePipeline, metadata.reference(), bothSingleSamplesComplete));
+        executorService.submit(() -> runPipeline(tumorPipeline, metadata.tumor(), bothSingleSamplesComplete));
         waitForSingleSamples(bothSingleSamplesComplete);
         PipelineState singleSampleState = combine(trapReference, trapTumor);
         if (singleSampleState.shouldProceed()) {
             return singleSampleState.combineWith(somaticPipeline.run());
         } else {
             return singleSampleState;
+        }
+    }
+
+    private void runPipeline(SingleSamplePipeline pipeline, SingleSampleRunMetadata metadata, CountDownLatch latch) {
+        try {
+            pipeline.run(metadata);
+        } catch (Exception e) {
+            LOGGER.error("Could not run single sample pipeline. ", e);
+            latch.countDown();
         }
     }
 

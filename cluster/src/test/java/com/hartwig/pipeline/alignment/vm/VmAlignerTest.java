@@ -103,8 +103,8 @@ public class VmAlignerTest {
                 ArgumentCaptor.forClass(VirtualMachineJobDefinition.class);
         when(computeEngine.submit(bucketCaptor.capture(), jobDefinitionArgumentCaptor.capture())).thenReturn(PipelineStatus.SUCCESS);
         victim.run(METADATA);
-        assertThat(bucketCaptor.getAllValues().get(0).name()).isEqualTo("run-reference/aligner/L001");
-        assertThat(bucketCaptor.getAllValues().get(1).name()).isEqualTo("run-reference/aligner/L002");
+        assertThat(bucketCaptor.getAllValues().get(0).name()).isEqualTo("run-reference-test/aligner/L001");
+        assertThat(bucketCaptor.getAllValues().get(1).name()).isEqualTo("run-reference-test/aligner/L002");
 
         assertThat(jobDefinitionArgumentCaptor.getAllValues().get(0).name()).isEqualTo("aligner-l001");
         assertThat(jobDefinitionArgumentCaptor.getAllValues().get(1).name()).isEqualTo("aligner-l002");
@@ -126,20 +126,20 @@ public class VmAlignerTest {
                 ArgumentCaptor.forClass(VirtualMachineJobDefinition.class);
         when(computeEngine.submit(bucketCaptor.capture(), jobDefinitionArgumentCaptor.capture())).thenReturn(PipelineStatus.SUCCESS);
         victim.run(METADATA);
-        assertThat(bucketCaptor.getAllValues().get(2).name()).isEqualTo("run-reference/aligner");
+        assertThat(bucketCaptor.getAllValues().get(2).name()).isEqualTo("run-reference-test/aligner");
         assertThat(jobDefinitionArgumentCaptor.getAllValues().get(2).name()).isEqualTo("merge-markdup");
     }
 
     private void setupMocks() {
         CopyWriter copyWriter = mock(CopyWriter.class);
         when(storage.copy(any())).thenReturn(copyWriter);
-        String rootBucketName = "run-" + METADATA.sampleName().toLowerCase();
+        String rootBucketName = "run-" + METADATA.sampleName().toLowerCase() +"-test";
         Bucket rootBucket = mock(Bucket.class);
         when(rootBucket.getName()).thenReturn(rootBucketName);
         when(storage.get(rootBucketName)).thenReturn(rootBucket);
         MockResource.addToStorage(storage, ResourceNames.REFERENCE_GENOME, "reference.fasta");
 
-        when(sampleSource.sample(METADATA, arguments)).thenReturn(SampleData.of(Sample.builder("", METADATA.sampleName())
+        when(sampleSource.sample(METADATA)).thenReturn(SampleData.of(Sample.builder("", METADATA.sampleName())
                 .addLanes(lane(1))
                 .addLanes(lane(2))
                 .build(), 1));

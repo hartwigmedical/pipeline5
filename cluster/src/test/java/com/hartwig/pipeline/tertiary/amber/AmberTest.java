@@ -27,7 +27,7 @@ import org.mockito.ArgumentCaptor;
 
 public class AmberTest {
 
-    private static final String RUNTIME_BUCKET = "run-reference-tumor";
+    private static final String RUNTIME_BUCKET = "run-reference-tumor-test";
     private ComputeEngine computeEngine;
     private static final Arguments ARGUMENTS = Arguments.testDefaults();
     private Amber victim;
@@ -96,7 +96,7 @@ public class AmberTest {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
         victim.run(defaultSomaticRunMetadata(),defaultPair());
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
-                "gsutil -qm -o GSUtil:parallel_composite_upload_threshold=150M cp -r /data/output/ gs://run-reference-tumor/amber/results");
+                "gsutil -qm -o GSUtil:parallel_composite_upload_threshold=150M cp -r /data/output/ gs://run-reference-tumor-test/amber/results");
     }
 
     private ArgumentCaptor<VirtualMachineJobDefinition> captureAndReturnSuccess() {

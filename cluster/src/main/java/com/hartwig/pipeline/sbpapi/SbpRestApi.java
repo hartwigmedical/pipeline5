@@ -25,7 +25,6 @@ public class SbpRestApi {
     private static final String RUNS = "runs";
     private static final String FILES = "files";
     private static final String INIS = "inis";
-    private static final String SETS = "sets";
     private final WebTarget target;
 
     private SbpRestApi(final WebTarget target) {
@@ -49,24 +48,6 @@ public class SbpRestApi {
         return returnOrThrow(response);
     }
 
-    public String getRunsBySet(String setId) {
-        Response response = runs().queryParam("set_id", setId).request().buildGet().invoke();
-        return returnOrThrow(response);
-    }
-
-    public String getSetsByTumorName(String name) {
-        return getSetsBy("tumor_sample", name);
-    }
-
-    public String getSetsByReferenceName(String name) {
-        return getSetsBy("ref_sample", name);
-    }
-
-    private String getSetsBy(final String type, final String name) {
-        Response response = sets().queryParam(type, name).request().buildGet().invoke();
-        return returnOrThrow(response);
-    }
-
     private String returnOrThrow(final Response response) {
         if (response.getStatus() == Response.Status.OK.getStatusCode()) {
             return response.readEntity(String.class);
@@ -76,10 +57,6 @@ public class SbpRestApi {
 
     private WebTarget runs() {
         return api().path(RUNS);
-    }
-
-    private WebTarget sets() {
-        return api().path(SETS);
     }
 
     public String getSample(int sampleId) {

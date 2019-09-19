@@ -43,8 +43,10 @@ public class SbpSomaticMetadataApiTest {
         assertThat(setMetadata.runName()).isEqualTo("170724_HMFregCPCT_FR13999246_FR13999144_CPCT02290012");
         assertThat(setMetadata.reference().sampleName()).isEqualTo("ZR17SQ1-00649");
         assertThat(setMetadata.reference().sampleId()).isEqualTo("FR13257296");
+        assertThat(setMetadata.reference().entityId()).isEqualTo(49);
         assertThat(setMetadata.tumor().sampleName()).isEqualTo("ZR17SQ1-00649");
         assertThat(setMetadata.tumor().sampleId()).isEqualTo("FR13257296");
+        assertThat(setMetadata.tumor().entityId()).isEqualTo(50);
     }
 
     @Test
@@ -103,62 +105,5 @@ public class SbpSomaticMetadataApiTest {
     public void throwsIllegalStateIfNoBucketInRun() {
         when(sbpRestApi.getRun(SET_ID)).thenReturn(TestJson.get("get_run_no_bucket"));
         victim.complete(PipelineStatus.FAILED, somaticRunMetadata);
-    }
-
-    @Test
-    public void checksForSampleInFlightDependenciesReference() {
-        when(sbpRestApi.getSetsByReferenceName("CPCT02290012R")).thenReturn(TestJson.get("get_sets_by_sample"));
-        when(sbpRestApi.getRunsBySet("1")).thenReturn(TestJson.get("get_runs_complete"));
-        when(sbpRestApi.getRunsBySet("2")).thenReturn(TestJson.get("get_runs_inflight"));
-        assertThat(victim.hasDependencies("CPCT02290012R")).isTrue();
-    }
-
-    @Test
-    public void checksForSampleInFlightDependenciesTumor() {
-        when(sbpRestApi.getSetsByTumorName("CPCT02290012T")).thenReturn(TestJson.get("get_sets_by_sample"));
-        when(sbpRestApi.getRunsBySet("1")).thenReturn(TestJson.get("get_runs_complete"));
-        when(sbpRestApi.getRunsBySet("2")).thenReturn(TestJson.get("get_runs_inflight"));
-        assertThat(victim.hasDependencies("CPCT02290012T")).isTrue();
-    }
-
-    @Test
-    public void checksForSampleInFlightDependenciesAllComplete() {
-        when(sbpRestApi.getSetsByTumorName("CPCT02290012T")).thenReturn(TestJson.get("get_sets_by_sample"));
-        when(sbpRestApi.getRunsBySet("1")).thenReturn(TestJson.get("get_runs_complete"));
-        when(sbpRestApi.getRunsBySet("2")).thenReturn(TestJson.get("get_runs_complete"));
-        assertThat(victim.hasDependencies("CPCT02290012T")).isFalse();
-    }
-
-    @Test
-    public void checksForSampleInFlightDependenciesEmptyList() {
-        when(sbpRestApi.getSetsByReferenceName("CPCT02290012R")).thenReturn("[]");
-        assertThat(victim.hasDependencies("CPCT02290012R")).isFalse();
-    }
-
-    @Test
-    public void checksForShallowSampleInFlightShallowDependencies() {
-        victim = new SbpSomaticMetadataApi(Arguments.testDefaultsBuilder().shallow(true).build(), SET_ID, sbpRestApi, sbpFileTransfer);
-        when(sbpRestApi.getRunsBySet("1")).thenReturn(TestJson.get("get_runs_shallow_inflight"));
-        when(sbpRestApi.getRunsBySet("2")).thenReturn(TestJson.get("get_runs_complete"));
-        when(sbpRestApi.getSetsByTumorName("CPCT02290012T")).thenReturn(TestJson.get("get_sets_by_sample"));
-        assertThat(victim.hasDependencies("CPCT02290012T")).isTrue();
-    }
-
-    @Test
-    public void checksForDeepSampleInFlightShallowDependencies() {
-        victim = new SbpSomaticMetadataApi(Arguments.testDefaultsBuilder().shallow(false).build(), SET_ID, sbpRestApi, sbpFileTransfer);
-        when(sbpRestApi.getRunsBySet("1")).thenReturn(TestJson.get("get_runs_shallow_inflight"));
-        when(sbpRestApi.getRunsBySet("2")).thenReturn(TestJson.get("get_runs_complete"));
-        when(sbpRestApi.getSetsByTumorName("CPCT02290012T")).thenReturn(TestJson.get("get_sets_by_sample"));
-        assertThat(victim.hasDependencies("CPCT02290012T")).isFalse();
-    }
-
-    @Test
-    public void checksForShallowSampleInFlightDeepDependencies() {
-        victim = new SbpSomaticMetadataApi(Arguments.testDefaultsBuilder().shallow(true).build(), SET_ID, sbpRestApi, sbpFileTransfer);
-        when(sbpRestApi.getRunsBySet("1")).thenReturn(TestJson.get("get_runs_inflight"));
-        when(sbpRestApi.getRunsBySet("2")).thenReturn(TestJson.get("get_runs_complete"));
-        when(sbpRestApi.getSetsByTumorName("CPCT02290012T")).thenReturn(TestJson.get("get_sets_by_sample"));
-        assertThat(victim.hasDependencies("CPCT02290012T")).isFalse();
     }
 }

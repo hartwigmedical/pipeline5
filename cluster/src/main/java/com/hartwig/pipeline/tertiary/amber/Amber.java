@@ -40,7 +40,7 @@ public class Amber {
             return AmberOutput.builder().status(PipelineStatus.SKIPPED).build();
         }
 
-        StageTrace trace = new StageTrace(NAMESPACE, StageTrace.ExecutorType.COMPUTE_ENGINE).start();
+        StageTrace trace = new StageTrace(NAMESPACE, metadata.runName(), StageTrace.ExecutorType.COMPUTE_ENGINE).start();
 
         String tumorSampleName = pair.tumor().sample();
         String referenceSampleName = pair.reference().sample();

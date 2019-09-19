@@ -30,7 +30,7 @@ public class StrelkaTest extends SubStageTest {
     @Test
     public void runsStrelkaMakefile() {
         assertThat(output.currentBash().asUnixString()).contains("make -C /data/output/strelkaAnalysis "
-                + "-j $(grep -c '^processor' /proc/cpuinfo) >>/data/output/run.log");
+                + "-j $(grep -c '^processor' /proc/cpuinfo) >>/tmp/run.log");
     }
 
     @Test

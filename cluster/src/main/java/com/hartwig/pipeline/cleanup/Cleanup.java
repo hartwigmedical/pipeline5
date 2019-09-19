@@ -54,26 +54,22 @@ public class Cleanup {
     }
 
     private void cleanupSample(final SingleSampleRunMetadata metadata) {
-        if (!somaticMetadataApi.hasDependencies(metadata.sampleName())) {
-            Run run = Run.from(metadata.sampleId(), arguments);
-            deleteBucket(run.id());
-            deleteStagingDirectory(metadata);
+        Run run = Run.from(metadata.sampleId(), arguments);
+        deleteBucket(run.id());
+        deleteStagingDirectory(metadata);
 
-            try {
-                Dataproc.Projects.Regions.Jobs jobs = dataproc.projects().regions().jobs();
-                ListJobsResponse execute = jobs.list(arguments.project(), arguments.region()).execute();
-                for (Job job : execute.getJobs()) {
-                    if (job.getReference().getJobId().startsWith(run.id())) {
-                        LOGGER.debug("Deleting complete job [{}]", job.getReference().getJobId());
-                        deleteJob(jobs, job);
-                        ensureDeleted(jobs, job);
-                    }
+        try {
+            Dataproc.Projects.Regions.Jobs jobs = dataproc.projects().regions().jobs();
+            ListJobsResponse execute = jobs.list(arguments.project(), arguments.region()).execute();
+            for (Job job : execute.getJobs()) {
+                if (job.getReference().getJobId().startsWith(run.id())) {
+                    LOGGER.debug("Deleting complete job [{}]", job.getReference().getJobId());
+                    deleteJob(jobs, job);
+                    ensureDeleted(jobs, job);
                 }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
             }
-        } else {
-            LOGGER.info("Skipping cleanup of sample [{}], it has other dependent runs.", metadata.sampleName());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

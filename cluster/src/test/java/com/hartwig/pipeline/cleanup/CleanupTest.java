@@ -36,10 +36,10 @@ import org.mockito.ArgumentCaptor;
 public class CleanupTest {
 
     public static final ImmutableArguments ARGUMENTS = Arguments.testDefaultsBuilder().cleanup(true).build();
-    private static final String REFERENCE_GUNZIP = "run-reference-gunzip";
-    private static final String TUMOR_GUNZIP = "run-tumor-gunzip";
-    private static final String RUN_REFERENCE = "run-reference";
-    private static final String RUN_TUMOR = "run-tumor";
+    private static final String REFERENCE_GUNZIP = "run-reference-test-gunzip";
+    private static final String TUMOR_GUNZIP = "run-tumor-test-gunzip";
+    private static final String RUN_REFERENCE = "run-reference-test";
+    private static final String RUN_TUMOR = "run-tumor-test";
     private Storage storage;
     private Bucket referenceBucket;
     private Cleanup victim;
@@ -102,7 +102,7 @@ public class CleanupTest {
 
     @Test
     public void deletesSomaticBucketIfExists() {
-        assertBucketDeleted("run-reference-tumor", somaticBucket);
+        assertBucketDeleted("run-reference-tumor-test", somaticBucket);
     }
 
     @Test
@@ -124,7 +124,7 @@ public class CleanupTest {
     public void deletesStagingBucketIfExists() {
         Blob output = TestBlobs.blob("output.txt");
         Page<Blob> page = TestBlobs.pageOf(output);
-        when(stagingBucket.list(Storage.BlobListOption.prefix("reference"))).thenReturn(page);
+        when(stagingBucket.list(Storage.BlobListOption.prefix("reference-test"))).thenReturn(page);
         victim.run(defaultSomaticRunMetadata());
         verify(output, times(1)).delete();
     }
@@ -140,15 +140,6 @@ public class CleanupTest {
         when(jobs.get(ARGUMENTS.project(), ARGUMENTS.region(), job.getReference().getJobId())).thenReturn(get);
         victim.run(defaultSomaticRunMetadata());
         verify(delete, times(2)).execute();
-    }
-
-    @Test
-    public void preservesSingleSampleRuntimesIfTheyHaveDependencies() {
-        when(somaticMetadataApi.hasDependencies(defaultSomaticRunMetadata().reference().sampleName())).thenReturn(true);
-        when(somaticMetadataApi.hasDependencies(defaultSomaticRunMetadata().tumor().sampleName())).thenReturn(true);
-        victim.run(defaultSomaticRunMetadata());
-        verify(storage, never()).get(RUN_REFERENCE);
-        verify(storage, never()).get(RUN_TUMOR);
     }
 
     private void assertBucketDeleted(final String bucketName, final Bucket bucket) {

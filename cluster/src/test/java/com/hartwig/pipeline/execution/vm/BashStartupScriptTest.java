@@ -11,6 +11,7 @@ import java.nio.file.Paths;
 import com.hartwig.support.test.Resources;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class BashStartupScriptTest {
@@ -34,6 +35,7 @@ public class BashStartupScriptTest {
     }
 
     @Test
+    @Ignore
     public void shouldWriteCompleteScript() throws IOException {
         String expectedScript = Resources.testResource("script_generation/complete_script");
         String simpleCommand = "uname -a";
