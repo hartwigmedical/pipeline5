@@ -18,6 +18,8 @@ import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.resource.ResourceNames;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
+import com.hartwig.pipeline.testsupport.BucketInputOutput;
+import com.hartwig.pipeline.testsupport.CommonTestEntities;
 import com.hartwig.pipeline.testsupport.MockResource;
 import com.hartwig.pipeline.tools.Versions;
 
@@ -25,13 +27,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-public class CobaltTest {
+public class CobaltTest implements CommonTestEntities {
 
     private static final String RUNTIME_BUCKET = "run-reference-tumor-test";
     private ComputeEngine computeEngine;
     private static final Arguments ARGUMENTS = Arguments.testDefaults();
     private Cobalt victim;
     private Storage storage;
+    private BucketInputOutput gs;
 
     @Before
     public void setUp() throws Exception {
@@ -43,6 +46,7 @@ public class CobaltTest {
         CopyWriter copyWriter = mock(CopyWriter.class);
         when(storage.copy(any())).thenReturn(copyWriter);
         MockResource.addToStorage(storage, ResourceNames.GC_PROFILE, "gc.cnp");
+        gs = new BucketInputOutput(RUNTIME_BUCKET);
         victim = new Cobalt(ARGUMENTS, computeEngine, storage, ResultsDirectory.defaultDirectory());
     }
 
@@ -76,8 +80,8 @@ public class CobaltTest {
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
                 "java -Xmx8G -cp " + "/opt/tools/cobalt/" + Versions.COBALT
                         + "/cobalt.jar com.hartwig.hmftools.cobalt.CountBamLinesApplication -reference reference "
-                        + "-reference_bam /data/input/reference.bam -tumor tumor -tumor_bam /data/input/tumor.bam -output_dir /data/output "
-                        + "-threads 16 -gc_profile /data/resources/gc.cnp");
+                        + "-reference_bam " + inFile("reference.bam") + " -tumor tumor -tumor_bam " + inFile("tumor.bam")
+                        + " -output_dir " + OUT_DIR + " -threads 16 -gc_profile /data/resources/gc.cnp");
     }
 
     @Test
@@ -85,10 +89,10 @@ public class CobaltTest {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
         victim.run(defaultSomaticRunMetadata(), defaultPair());
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
-                "gsutil -qm cp -n gs://run-tumor/aligner/results/tumor.bam /data/input/tumor.bam",
-                "gsutil -qm cp -n gs://run-reference/aligner/results/reference.bam /data/input/reference.bam",
-                "gsutil -qm cp -n gs://run-tumor/aligner/results/tumor.bam.bai /data/input/tumor.bam.bai",
-                "gsutil -qm cp -n gs://run-reference/aligner/results/reference.bam.bai /data/input/reference.bam.bai");
+                copyInputToLocal("gs://run-tumor/aligner/results/tumor.bam", "tumor.bam"),
+                copyInputToLocal("gs://run-reference/aligner/results/reference.bam", "reference.bam"),
+                copyInputToLocal("gs://run-tumor/aligner/results/tumor.bam.bai", "tumor.bam.bai"),
+                copyInputToLocal("gs://run-reference/aligner/results/reference.bam.bai", "reference.bam.bai"));
     }
 
     @Test
@@ -96,7 +100,7 @@ public class CobaltTest {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
         victim.run(defaultSomaticRunMetadata(), defaultPair());
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
-                "gsutil -qm -o GSUtil:parallel_composite_upload_threshold=150M cp -r /data/output/ gs://run-reference-tumor-test/cobalt/results");
+                gs.push("cobalt/results"));
     }
 
     private ArgumentCaptor<VirtualMachineJobDefinition> captureAndReturnSuccess() {

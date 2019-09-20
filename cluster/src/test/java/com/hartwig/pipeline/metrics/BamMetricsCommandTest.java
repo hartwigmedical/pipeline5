@@ -12,12 +12,12 @@ import java.util.List;
 import java.util.Map;
 
 import com.hartwig.patient.Sample;
-import com.hartwig.pipeline.execution.vm.VmDirectories;
+import com.hartwig.pipeline.testsupport.CommonTestEntities;
 
 import org.junit.Before;
 import org.junit.Test;
 
-public class BamMetricsCommandTest {
+public class BamMetricsCommandTest implements CommonTestEntities {
     private static final String OPERATION = "CollectWgsMetrics";
     private String actual;
     private String reference;
@@ -34,7 +34,7 @@ public class BamMetricsCommandTest {
 
         when(sample.name()).thenReturn(sampleName);
 
-        actual = new BamMetricsCommand("input.bam", "referenceSampleName.fasta", format("%s/%s.wgsmetrics", VmDirectories.OUTPUT, sample.name())).asBash();
+        actual = new BamMetricsCommand("input.bam", "referenceSampleName.fasta", outFile(sample.name() + ".wgsmetrics")).asBash();
     }
 
     @Test
@@ -55,7 +55,7 @@ public class BamMetricsCommandTest {
         Map<String, String> options = new HashMap<>();
         options.put("REFERENCE_SEQUENCE", reference);
         options.put("INPUT", input);
-        options.put("OUTPUT", format("/data/output/%s.wgsmetrics", sampleName));
+        options.put("OUTPUT", outFile(sampleName + ".wgsmetrics"));
         options.put("MINIMUM_MAPPING_QUALITY", "20");
         options.put("MINIMUM_BASE_QUALITY", "10");
         options.put("COVERAGE_CAP", "250");

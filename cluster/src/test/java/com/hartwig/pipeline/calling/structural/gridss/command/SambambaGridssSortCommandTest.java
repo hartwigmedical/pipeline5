@@ -2,8 +2,8 @@ package com.hartwig.pipeline.calling.structural.gridss.command;
 
 import static java.lang.String.format;
 
-import static com.hartwig.pipeline.calling.structural.gridss.CommonEntities.OUTPUT_BAM;
-import static com.hartwig.pipeline.calling.structural.gridss.CommonEntities.PATH_TO_SAMBAMBA;
+import static com.hartwig.pipeline.testsupport.CommonTestEntities.OUTPUT_BAM;
+import static com.hartwig.pipeline.testsupport.CommonTestEntities.PATH_TO_SAMBAMBA;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

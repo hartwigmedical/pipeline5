@@ -23,6 +23,8 @@ import com.hartwig.pipeline.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
+import com.hartwig.pipeline.testsupport.BucketInputOutput;
+import com.hartwig.pipeline.testsupport.CommonTestEntities;
 import com.hartwig.pipeline.testsupport.TestBlobs;
 import com.hartwig.pipeline.tools.Versions;
 
@@ -30,7 +32,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-public class HealthCheckerTest {
+public class HealthCheckerTest implements CommonTestEntities {
 
     private static final String RUNTIME_BUCKET = "run-reference-tumor-test";
     private static final Arguments ARGUMENTS = Arguments.testDefaults();
@@ -39,6 +41,7 @@ public class HealthCheckerTest {
     private HealthChecker victim;
     private Storage storage;
     private Bucket bucket;
+    private BucketInputOutput gs;
 
     @Before
     public void setUp() throws Exception {
@@ -50,6 +53,7 @@ public class HealthCheckerTest {
         CopyWriter copyWriter = mock(CopyWriter.class);
         when(storage.copy(any())).thenReturn(copyWriter);
         returnHealthCheck(bucket, "tumor.HealthCheckSucceeded");
+        gs = new BucketInputOutput(RUNTIME_BUCKET);
         victim = new HealthChecker(ARGUMENTS, computeEngine, storage, ResultsDirectory.defaultDirectory());
     }
 
@@ -90,11 +94,12 @@ public class HealthCheckerTest {
     public void runsHealthCheckApplicationOnComputeEngine() {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
         runVictim();
-        System.out.println(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString());
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
-                "java -Xmx10G -jar /opt/tools/health-checker/" + Versions.HEALTH_CHECKER + "/health-checker.jar -reference reference "
-                        + "-tumor tumor -metrics_dir /data/input/metrics -amber_dir /data/input/amber -purple_dir /data/input/purple "
-                        + "-output_dir /data/output");
+                "java -Xmx10G -jar /opt/tools/health-checker/" + Versions.HEALTH_CHECKER + "/health-checker.jar -reference reference"
+                        + " -tumor tumor -metrics_dir " + inFile("metrics")
+                        + " -amber_dir " + inFile("amber")
+                        + " -purple_dir " + inFile("purple")
+                        + " -output_dir " + OUT_DIR);
     }
 
     @Test
@@ -102,10 +107,10 @@ public class HealthCheckerTest {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
         runVictim();
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
-                "gsutil -qm cp -n gs://run-reference/reference.wgsmetrics /data/input/metrics/reference.wgsmetrics",
-                "gsutil -qm cp -n gs://run-tumor/tumor.wgsmetrics /data/input/metrics/tumor.wgsmetrics",
-                "gsutil -qm cp -n gs://run-reference-tumor-test/purple/* /data/input/purple/",
-                "gsutil -qm cp -n gs://run-reference-tumor-test/amber/* /data/input/amber");
+                copyInputToLocal("gs://run-reference/reference.wgsmetrics", "metrics/reference.wgsmetrics"),
+                copyInputToLocal("gs://run-tumor/tumor.wgsmetrics", "metrics/tumor.wgsmetrics"),
+                gs.pull("purple/*",  "purple/"),
+                gs.pull("amber/*", "amber"));
     }
 
     @Test
@@ -113,8 +118,7 @@ public class HealthCheckerTest {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
         runVictim();
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
-                "gsutil -qm -o GSUtil:parallel_composite_upload_threshold=150M cp -r /data/output/ "
-                        + "gs://run-reference-tumor-test/health_checker/results");
+                gs.push("health_checker/results"));
     }
 
     @Test

@@ -16,14 +16,14 @@ public class CombineFilteredVariantsTest extends SubStageTest{
 
     @Override
     public String expectedPath() {
-        return "/data/output/referenceSampleName.filtered_variants.vcf";
+        return outFile("referenceSampleName.filtered_variants.vcf");
     }
 
     @Test
     public void combinesVariantsWithGatk() {
         assertThat(output.currentBash().asUnixString()).contains("java -Xmx20G -jar /opt/tools/gatk/3.8.0/GenomeAnalysisTK.jar -T "
-                + "CombineVariants -V /data/output/referenceSampleName.strelka.vcf -V other.vcf -o "
-                + "/data/output/referenceSampleName.filtered_variants.vcf -R referenceSampleName.fasta --assumeIdenticalSamples");
+                + "CombineVariants -V " + outFile("referenceSampleName.strelka.vcf") + " -V other.vcf -o "
+                + expectedPath() + " -R referenceSampleName.fasta --assumeIdenticalSamples");
     }
 
     @Override

@@ -4,11 +4,11 @@ import static java.lang.String.format;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
+import com.hartwig.pipeline.calling.structural.gridss.GridssTestEntities;
 
 import org.junit.Test;
 
-public class RscriptFilterTest implements CommonEntities {
+public class RscriptFilterTest implements GridssTestEntities {
     @Test
     public void shouldGenerateCommand() {
         String inputFile = "input.vcf";

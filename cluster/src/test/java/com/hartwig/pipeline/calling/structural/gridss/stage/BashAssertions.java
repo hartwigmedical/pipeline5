@@ -2,8 +2,6 @@ package com.hartwig.pipeline.calling.structural.gridss.stage;
 
 import static org.junit.Assert.fail;
 
-import com.hartwig.pipeline.calling.SubStageTest;
-import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 
 import org.mockito.ArgumentCaptor;

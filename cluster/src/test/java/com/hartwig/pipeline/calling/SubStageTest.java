@@ -4,11 +4,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.OutputFile;
+import com.hartwig.pipeline.testsupport.CommonTestEntities;
 
 import org.junit.Before;
 import org.junit.Test;
 
-public abstract class SubStageTest {
+public abstract class SubStageTest implements CommonTestEntities {
 
     protected SubStageInputOutput output;
 

@@ -3,11 +3,11 @@ package com.hartwig.pipeline.calling.somatic;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.hartwig.pipeline.calling.SubStage;
-import com.hartwig.pipeline.calling.SubStageTest;
+import com.hartwig.pipeline.calling.TabixSubStageTest;
 
 import org.junit.Test;
 
-public class PonAnnotationTest extends SubStageTest {
+public class PonAnnotationTest extends TabixSubStageTest {
 
     @Override
     public SubStage createVictim() {
@@ -16,18 +16,12 @@ public class PonAnnotationTest extends SubStageTest {
 
     @Override
     public String expectedPath() {
-        return "/data/output/tumor.germline.pon.annotated.vcf.gz";
+        return outFile("tumor.germline.pon.annotated.vcf.gz");
     }
 
     @Test
     public void runsBcfToolsPonAnnotation() {
         assertThat(output.currentBash().asUnixString()).contains("/opt/tools/bcftools/1.3.1/bcftools annotate -a "
-                + "GERMLINE_PON.vcf.gz -c GERMLINE_PON_COUNT -o /data/output/tumor.germline.pon.annotated.vcf.gz");
-    }
-
-    @Test
-    public void runsTabix() {
-        assertThat(output.currentBash().asUnixString()).contains(
-                "/opt/tools/tabix/0.2.6/tabix /data/output/tumor.germline.pon.annotated.vcf.gz -p vcf");
+                + "GERMLINE_PON.vcf.gz -c GERMLINE_PON_COUNT -o " + expectedPath());
     }
 }

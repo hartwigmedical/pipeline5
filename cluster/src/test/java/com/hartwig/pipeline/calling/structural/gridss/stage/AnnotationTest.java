@@ -15,7 +15,7 @@ import com.hartwig.pipeline.calling.SubStage;
 import com.hartwig.pipeline.calling.SubStageTest;
 import com.hartwig.pipeline.calling.command.BgzipCommand;
 import com.hartwig.pipeline.calling.command.TabixCommand;
-import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
+import com.hartwig.pipeline.calling.structural.gridss.GridssTestEntities;
 import com.hartwig.pipeline.calling.structural.gridss.command.AnnotateUntemplatedSequence;
 import com.hartwig.pipeline.calling.structural.gridss.command.AnnotateVariants;
 import com.hartwig.pipeline.execution.vm.BashCommand;
@@ -26,7 +26,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-public class AnnotationTest extends SubStageTest implements CommonEntities {
+public class AnnotationTest extends SubStageTest implements GridssTestEntities {
 
     private static final String UNTEMPLATED_OUTPUT_VCF_NAME = format("%s/%s.annotation.vcf", OUT_DIR, JOINT_NAME);
     private String rawVcf;

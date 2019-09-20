@@ -4,12 +4,12 @@ import static java.lang.String.format;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
+import com.hartwig.pipeline.calling.structural.gridss.GridssTestEntities;
 
 import org.junit.Before;
 import org.junit.Test;
 
-public class ComputeSamTagsTest implements CommonEntities {
+public class ComputeSamTagsTest implements GridssTestEntities {
     private ComputeSamTags command;
     private String className;
     private String expectedOutputFile;

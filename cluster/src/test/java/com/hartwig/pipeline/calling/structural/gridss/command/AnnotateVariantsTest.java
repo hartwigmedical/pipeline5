@@ -2,13 +2,13 @@ package com.hartwig.pipeline.calling.structural.gridss.command;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
+import com.hartwig.pipeline.calling.structural.gridss.GridssTestEntities;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 
 import org.junit.Before;
 import org.junit.Test;
 
-public class AnnotateVariantsTest implements CommonEntities {
+public class AnnotateVariantsTest implements GridssTestEntities {
     private AnnotateVariants command;
     private String assemblyBam;
     private String inputVcf;

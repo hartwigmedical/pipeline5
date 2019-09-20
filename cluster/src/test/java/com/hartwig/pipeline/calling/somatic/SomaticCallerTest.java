@@ -5,7 +5,6 @@ import static com.hartwig.pipeline.resource.ResourceNames.COSMIC;
 import static com.hartwig.pipeline.resource.ResourceNames.DBSNPS;
 import static com.hartwig.pipeline.resource.ResourceNames.MAPPABILITY;
 import static com.hartwig.pipeline.resource.ResourceNames.PON;
-import static com.hartwig.pipeline.resource.ResourceNames.REFERENCE_GENOME;
 import static com.hartwig.pipeline.resource.ResourceNames.SAGE;
 import static com.hartwig.pipeline.resource.ResourceNames.SNPEFF;
 import static com.hartwig.pipeline.resource.ResourceNames.STRELKA_CONFIG;
@@ -26,14 +25,16 @@ import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.pipeline.resource.ResourceNames;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
+import com.hartwig.pipeline.testsupport.CommonTestEntities;
 import com.hartwig.pipeline.testsupport.MockResource;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-public class SomaticCallerTest {
+public class SomaticCallerTest implements CommonTestEntities {
 
     private static final String RUNTIME_BUCKET = "run-reference-tumor-test";
     private ComputeEngine computeEngine;
@@ -48,7 +49,7 @@ public class SomaticCallerTest {
         when(storage.get(RUNTIME_BUCKET)).thenReturn(bucket);
         CopyWriter copyWriter = mock(CopyWriter.class);
         when(storage.copy(any())).thenReturn(copyWriter);
-        MockResource.addToStorage(storage, REFERENCE_GENOME, "reference.fasta");
+        MockResource.addToStorage(storage, ResourceNames.REFERENCE_GENOME, "reference.fasta");
         MockResource.addToStorage(storage, SAGE, "hotspots.tsv", "coding_regions.bed", "SAGE_PON.vcf.gz");
         MockResource.addToStorage(storage, STRELKA_CONFIG, "strelka.ini");
         MockResource.addToStorage(storage, MAPPABILITY, "mappability.bed.gz", "mappability.hdr");
@@ -93,10 +94,10 @@ public class SomaticCallerTest {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinition = captureAndReturnSuccess();
         victim.run(defaultSomaticRunMetadata(), defaultPair());
         assertThat(jobDefinition.getValue().startupCommand().asUnixString()).contains(
-                "gsutil -qm cp -n gs://run-tumor/aligner/results/tumor.bam /data/input/tumor.bam",
-                "gsutil -qm cp -n gs://run-reference/aligner/results/reference.bam /data/input/reference.bam",
-                "gsutil -qm cp -n gs://run-tumor/aligner/results/tumor.bam.bai /data/input/tumor.bam.bai",
-                "gsutil -qm cp -n gs://run-reference/aligner/results/reference.bam.bai /data/input/reference.bam.bai");
+                copyInputToLocal("gs://run-tumor/aligner/results/tumor.bam", "tumor.bam"),
+                copyInputToLocal("gs://run-reference/aligner/results/reference.bam", "reference.bam"),
+                copyInputToLocal("gs://run-tumor/aligner/results/tumor.bam.bai", "tumor.bam.bai"),
+                copyInputToLocal("gs://run-reference/aligner/results/reference.bam.bai", "reference.bam.bai"));
     }
 
     @Test

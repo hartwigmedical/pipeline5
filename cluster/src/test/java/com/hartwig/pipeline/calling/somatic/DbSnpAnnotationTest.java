@@ -3,12 +3,11 @@ package com.hartwig.pipeline.calling.somatic;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.hartwig.pipeline.calling.SubStage;
-import com.hartwig.pipeline.calling.SubStageTest;
-import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
+import com.hartwig.pipeline.calling.TabixSubStageTest;
 
 import org.junit.Test;
 
-public class DbSnpAnnotationTest extends SubStageTest implements CommonEntities {
+public class DbSnpAnnotationTest extends TabixSubStageTest {
 
     @Override
     public SubStage createVictim() {
@@ -16,18 +15,14 @@ public class DbSnpAnnotationTest extends SubStageTest implements CommonEntities 
     }
 
     @Override
-    public String expectedPath() { return OUT_DIR + "/tumor.dbsnp.annotated.vcf.gz";
+    public String expectedPath() {
+        return outFile("tumor.dbsnp.annotated.vcf.gz");
     }
 
     @Test
     public void runsBcfToolsDbSnpAnnotation() {
-        assertThat(output.currentBash().asUnixString()).contains("/opt/tools/bcftools/1.3.1/bcftools annotate -a dbsnp.vcf.gz -c ID -o "
-                + "/data/output/tumor.dbsnp.annotated.vcf.gz -O z /data/output/tumor.strelka.vcf");
-    }
-
-    @Test
-    public void runsTabix() {
-        assertThat(output.currentBash().asUnixString()).contains("/opt/tools/tabix/0.2.6/tabix /data/output/tumor.dbsnp.annotated.vcf.gz "
-                + "-p vcf >>" + LOG_FILE);
+        assertThat(output.currentBash().asUnixString()).contains(
+                "/opt/tools/bcftools/1.3.1/bcftools annotate -a dbsnp.vcf.gz -c ID -o " + expectedPath() + " -O z " + outFile(
+                        "tumor.strelka.vcf"));
     }
 }

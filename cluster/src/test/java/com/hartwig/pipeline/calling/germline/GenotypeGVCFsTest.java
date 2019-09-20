@@ -16,14 +16,14 @@ public class GenotypeGVCFsTest extends SubStageTest {
 
     @Override
     public String expectedPath() {
-        return "/data/output/reference.genotype_vcfs.vcf";
+        return outFile("reference.genotype_vcfs.vcf");
     }
 
     @Test
     public void runsGatkGenotypeGvcfs() {
         assertThat(output.currentBash().asUnixString()).contains("java -Xmx20G -jar /opt/tools/gatk/3.8.0/GenomeAnalysisTK.jar -T "
-                + "GenotypeGVCFs -V /data/output/reference.strelka.vcf -R reference.fasta -D dbsnps.vcf -o "
-                + "/data/output/reference.genotype_vcfs.vcf ");
+                + "GenotypeGVCFs -V " + outFile("reference.strelka.vcf") + " -R reference.fasta -D dbsnps.vcf -o "
+                + expectedPath());
     }
 
     @Override

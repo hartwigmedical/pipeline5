@@ -4,7 +4,6 @@ import static java.lang.String.format;
 
 import static com.hartwig.pipeline.calling.structural.gridss.stage.BashAssertions.assertBashContains;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -13,7 +12,7 @@ import static org.mockito.Mockito.when;
 
 import com.hartwig.pipeline.calling.SubStage;
 import com.hartwig.pipeline.calling.SubStageTest;
-import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
+import com.hartwig.pipeline.calling.structural.gridss.GridssTestEntities;
 import com.hartwig.pipeline.calling.structural.gridss.command.IdentifyVariants;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
@@ -23,7 +22,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-public class CallingTest extends SubStageTest implements CommonEntities {
+public class CallingTest extends SubStageTest implements GridssTestEntities {
     private BashStartupScript initialScript;
     private String assemblyBam;
     private String outputVcf;

@@ -9,11 +9,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import com.hartwig.pipeline.calling.SubStage;
 import com.hartwig.pipeline.calling.SubStageTest;
-import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
 import com.hartwig.pipeline.calling.structural.gridss.command.CollectGridssMetrics;
 import com.hartwig.pipeline.calling.structural.gridss.command.ComputeSamTags;
 import com.hartwig.pipeline.calling.structural.gridss.command.ExtractSvReads;
@@ -31,7 +29,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
 
-public class PreprocessTest extends SubStageTest implements CommonEntities {
+public class PreprocessTest extends SubStageTest {
     private String workingDirectory = "/some/directory";
     private String inputBamFilename = REFERENCE_SAMPLE + ".bam";
     private String inputBamFullPath = format("%s/%s", IN_DIR, inputBamFilename);

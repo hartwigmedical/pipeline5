@@ -1,6 +1,5 @@
 package com.hartwig.pipeline.alignment.vm;
 
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.Lists;
@@ -9,7 +8,7 @@ import com.hartwig.pipeline.calling.SubStageTest;
 
 import org.junit.Test;
 
-public class MergeMarkDupsTest extends SubStageTest{
+public class MergeMarkDupsTest extends SubStageTest {
 
     @Override
     public SubStage createVictim() {
@@ -18,12 +17,12 @@ public class MergeMarkDupsTest extends SubStageTest{
 
     @Override
     public String expectedPath() {
-        return "/data/output/tumor.sorted.bam";
+        return outFile("tumor.sorted.bam");
     }
 
     @Test
     public void markdupsWithSambamba() {
         assertThat(output.currentBash().asUnixString()).contains("/opt/tools/sambamba/0.6.8/sambamba markdup -t $(grep -c '^processor' "
-                + "/proc/cpuinfo) --overflow-list-size=45000000 tumor.l001.bam tumor.l002.bam /data/output/tumor.sorted.bam");
+                + "/proc/cpuinfo) --overflow-list-size=45000000 tumor.l001.bam tumor.l002.bam " + expectedPath());
     }
 }

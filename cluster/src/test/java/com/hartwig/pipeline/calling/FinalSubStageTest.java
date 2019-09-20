@@ -4,17 +4,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.OutputFile;
+import com.hartwig.pipeline.testsupport.CommonTestEntities;
 
 import org.junit.Test;
 
-public class FinalSubStageTest {
+public class FinalSubStageTest implements CommonTestEntities {
 
     @Test
     public void appendsFinalConventionToOutputFile() {
         CaptureOutputFile capture = new CaptureOutputFile();
         FinalSubStage victim = FinalSubStage.of(capture);
         victim.apply(SubStageInputOutput.of("sample", OutputFile.empty(), BashStartupScript.of("bucket")));
-        assertThat(capture.outputFile.path()).isEqualTo("/data/output/sample.test.final.vcf");
+        assertThat(capture.outputFile.path()).isEqualTo(outFile("sample.test.final.vcf"));
     }
 
     private static class CaptureOutputFile extends SubStage{

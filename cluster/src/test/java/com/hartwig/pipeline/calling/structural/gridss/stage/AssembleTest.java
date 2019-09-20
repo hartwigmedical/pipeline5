@@ -13,7 +13,7 @@ import java.io.File;
 
 import com.hartwig.pipeline.calling.SubStage;
 import com.hartwig.pipeline.calling.SubStageTest;
-import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
+import com.hartwig.pipeline.calling.structural.gridss.GridssTestEntities;
 import com.hartwig.pipeline.calling.structural.gridss.command.AssembleBreakends;
 import com.hartwig.pipeline.calling.structural.gridss.command.CollectGridssMetrics;
 import com.hartwig.pipeline.calling.structural.gridss.command.SoftClipsToSplitReads;
@@ -24,12 +24,11 @@ import com.hartwig.pipeline.execution.vm.unix.MkDirCommand;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.kohsuke.args4j.Argument;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
 
-public class AssembleTest extends SubStageTest implements CommonEntities {
+public class AssembleTest extends SubStageTest implements GridssTestEntities {
     private BashStartupScript initialScript;
     private String workingDirectory;
     private ArgumentCaptor<BashCommand> captor;

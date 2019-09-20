@@ -16,24 +16,24 @@ public class SnpEffTest extends SubStageTest {
 
     @Override
     public String expectedPath() {
-        return "/data/output/tumor.snpeff.annotated.vcf.gz";
+        return outFile("tumor.snpeff.annotated.vcf.gz");
     }
 
     @Test
     public void runsSnpEff() {
         assertThat(output.currentBash().asUnixString()).contains("/opt/tools/snpEff/4.3s/snpEff.sh /opt/tools/snpEff/4.3s/snpEff.jar "
-                + "snpeff.config GRCh37.75 /data/output/tumor.strelka.vcf /data/output/tumor.snpeff.annotated.vcf");
+                + "snpeff.config GRCh37.75 " + outFile("tumor.strelka.vcf") + " " + outFile("tumor.snpeff.annotated.vcf"));
     }
 
     @Test
     public void bgzipsOutput() {
         assertThat(output.currentBash()
-                .asUnixString()).contains("/opt/tools/tabix/0.2.6/bgzip -f /data/output/tumor.snpeff.annotated.vcf");
+                .asUnixString()).contains("/opt/tools/tabix/0.2.6/bgzip -f " + outFile("tumor.snpeff.annotated.vcf"));
     }
 
     @Test
     public void runsTabix() {
         assertThat(output.currentBash().asUnixString()).contains(
-                "/opt/tools/tabix/0.2.6/tabix /data/output/tumor.snpeff.annotated.vcf.gz -p vcf");
+                "/opt/tools/tabix/0.2.6/tabix " + expectedPath() + " -p vcf");
     }
 }

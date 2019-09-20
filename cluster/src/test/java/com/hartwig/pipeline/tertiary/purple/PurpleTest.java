@@ -22,6 +22,8 @@ import com.hartwig.pipeline.resource.ResourceNames;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
 import com.hartwig.pipeline.tertiary.cobalt.CobaltOutput;
+import com.hartwig.pipeline.testsupport.BucketInputOutput;
+import com.hartwig.pipeline.testsupport.CommonTestEntities;
 import com.hartwig.pipeline.testsupport.MockResource;
 import com.hartwig.pipeline.tools.Versions;
 
@@ -29,7 +31,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-public class PurpleTest {
+public class PurpleTest implements CommonTestEntities {
 
     private static final String RUNTIME_BUCKET = "run-reference-tumor-test";
     private ComputeEngine computeEngine;
@@ -37,6 +39,7 @@ public class PurpleTest {
     private Purple victim;
     private Storage storage;
     private Bucket bucket;
+    private BucketInputOutput gs;
 
     @Before
     public void setUp() throws Exception {
@@ -49,6 +52,7 @@ public class PurpleTest {
         when(storage.copy(any())).thenReturn(copyWriter);
         MockResource.addToStorage(storage, ResourceNames.REFERENCE_GENOME, "reference.fasta");
         MockResource.addToStorage(storage, ResourceNames.GC_PROFILE, "gc_profile.cnp");
+        gs = new BucketInputOutput(RUNTIME_BUCKET);
         victim = new Purple(ARGUMENTS, computeEngine, storage, ResultsDirectory.defaultDirectory());
     }
 
@@ -81,10 +85,12 @@ public class PurpleTest {
         runVictim();
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
                 "java -Xmx8G -jar " + "/opt/tools/purple/" + Versions.PURPLE
-                        + "/purple.jar -reference reference -tumor tumor -output_dir /data/output -amber "
-                        + "/data/input -cobalt /data/input -gc_profile /data/resources/gc_profile.cnp -somatic_vcf /data/input/somatic.vcf "
-                        + "-structural_vcf /data/input/structural.vcf -sv_recovery_vcf /data/input/sv_recovery.vcf -circos "
-                        + "/opt/tools/circos/0.69.6/bin/circos -ref_genome /data/resources/reference.fasta -threads $(grep -c '^processor' /proc/cpuinfo)");
+                        + "/purple.jar -reference reference -tumor tumor -output_dir " + OUT_DIR + " -amber "
+                        + IN_DIR + " -cobalt " + IN_DIR + " -gc_profile /data/resources/gc_profile.cnp "
+                        + "-somatic_vcf " + inFile("somatic.vcf")
+                        + " -structural_vcf " + inFile("structural.vcf")
+                        + " -sv_recovery_vcf " + inFile("sv_recovery.vcf")
+                        + " -circos /opt/tools/circos/0.69.6/bin/circos -ref_genome /data/resources/reference.fasta -threads $(grep -c '^processor' /proc/cpuinfo)");
     }
 
     @Test
@@ -105,20 +111,18 @@ public class PurpleTest {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
         runVictim();
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
-                "gsutil -qm cp -n gs://run-reference-tumor-test/somatic.vcf /data/input/somatic.vcf",
-                "gsutil -qm cp -n gs://run-reference-tumor-test/structural.vcf /data/input/structural.vcf",
-                "gsutil -qm cp -n gs://run-reference-tumor-test/sv_recovery.vcf /data/input/sv_recovery.vcf",
-                "gsutil -qm cp -n gs://run-reference-tumor-test/amber/* /data/input/",
-                "gsutil -qm cp -n gs://run-reference-tumor-test/cobalt/* /data/input/");
+                gs.pull("somatic.vcf", "somatic.vcf"),
+                gs.pull("structural.vcf", "structural.vcf"),
+                gs.pull("sv_recovery.vcf", "sv_recovery.vcf"),
+                gs.pull("amber/*"),
+                gs.pull("cobalt/*"));
     }
 
     @Test
     public void uploadsOutputDirectory() {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
         runVictim();
-        assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
-                "gsutil -qm -o GSUtil:parallel_composite_upload_threshold=150M cp -r /data/output/ "
-                        + "gs://run-reference-tumor-test/purple/results");
+        assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(gs.push("purple/results"));
     }
 
     private PurpleOutput runVictim() {

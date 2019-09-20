@@ -2,12 +2,12 @@ package com.hartwig.pipeline.calling.structural.gridss.command;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
+import com.hartwig.pipeline.calling.structural.gridss.GridssTestEntities;
 
 import org.junit.Before;
 import org.junit.Test;
 
-public class AssembleBreakendsTest implements CommonEntities {
+public class AssembleBreakendsTest implements GridssTestEntities {
     private AssembleBreakends command;
     private String configurationFile;
     private String blacklist;

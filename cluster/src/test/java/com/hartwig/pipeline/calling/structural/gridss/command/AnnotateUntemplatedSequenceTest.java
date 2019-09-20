@@ -2,12 +2,12 @@ package com.hartwig.pipeline.calling.structural.gridss.command;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
+import com.hartwig.pipeline.calling.structural.gridss.GridssTestEntities;
 
 import org.junit.Before;
 import org.junit.Test;
 
-public class AnnotateUntemplatedSequenceTest implements CommonEntities {
+public class AnnotateUntemplatedSequenceTest implements GridssTestEntities {
     private String className;
     private AnnotateUntemplatedSequence command;
     private String inputVcf;

@@ -2,12 +2,12 @@ package com.hartwig.pipeline.calling.structural.gridss.command;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
+import com.hartwig.pipeline.calling.structural.gridss.GridssTestEntities;
 
 import org.junit.Before;
 import org.junit.Test;
 
-public class PreProcessSoftClipsToSplitReadsTest implements CommonEntities {
+public class PreProcessSoftClipsToSplitReadsTest implements GridssTestEntities {
     private SoftClipsToSplitReads.ForPreprocess command;
     private String className;
 

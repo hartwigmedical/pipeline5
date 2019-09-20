@@ -8,18 +8,18 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
 import com.hartwig.pipeline.calling.structural.gridss.command.BiocondaVariantAnnotationWorkaround;
 import com.hartwig.pipeline.calling.structural.gridss.command.RscriptFilter;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.OutputFile;
+import com.hartwig.pipeline.testsupport.CommonTestEntities;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-public class FilterTest implements CommonEntities {
+public class FilterTest implements CommonTestEntities {
     private String uncompressedVcf;
     private String outputFilteredVcf;
     private String outputFullVcf;

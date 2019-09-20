@@ -15,12 +15,13 @@ import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.pipeline.testsupport.CommonTestEntities;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-public class FlagstatTest {
+public class FlagstatTest implements CommonTestEntities {
 
     private static final String RUNTIME_BUCKET = "run-reference-test";
     private ComputeEngine computeEngine;
@@ -48,8 +49,8 @@ public class FlagstatTest {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
         victim.run(referenceRunMetadata(), referenceAlignmentOutput());
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
-                "(/opt/tools/sambamba/0.6.8/sambamba flagstat -t $(grep -c '^processor' /proc/cpuinfo) /data/input/reference.bam > "
-                        + "/data/output/reference.flagstat)");
+                "(/opt/tools/sambamba/0.6.8/sambamba flagstat -t $(grep -c '^processor' /proc/cpuinfo) " + inFile("reference.bam")
+                        + " > " + outFile("reference.flagstat)"));
     }
 
     @Test
@@ -57,7 +58,7 @@ public class FlagstatTest {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
         victim.run(referenceRunMetadata(), referenceAlignmentOutput());
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
-                "gsutil -qm cp -n gs://run-reference/aligner/results/reference.bam /data/input/reference.bam");
+                copyInputToLocal("gs://run-reference/aligner/results/reference.bam", "reference.bam"));
     }
 
     @Test
@@ -65,7 +66,7 @@ public class FlagstatTest {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
         victim.run(referenceRunMetadata(), referenceAlignmentOutput());
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
-                "gsutil -qm -o GSUtil:parallel_composite_upload_threshold=150M cp -r /data/output/ gs://run-reference-test/flagstat/results");
+                copyOutputToStorage("gs://run-reference-test/flagstat/results"));
     }
 
     private ArgumentCaptor<VirtualMachineJobDefinition> captureAndReturnSuccess() {

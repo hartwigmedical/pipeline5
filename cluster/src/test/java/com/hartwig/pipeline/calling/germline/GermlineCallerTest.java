@@ -17,19 +17,22 @@ import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.resource.ResourceNames;
+import com.hartwig.pipeline.testsupport.BucketInputOutput;
+import com.hartwig.pipeline.testsupport.CommonTestEntities;
 import com.hartwig.pipeline.testsupport.MockResource;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-public class GermlineCallerTest {
+public class GermlineCallerTest implements CommonTestEntities {
 
     private static final String RUNTIME_BUCKET = "run-reference-test";
     private ComputeEngine computeEngine;
     private static final Arguments ARGUMENTS = Arguments.testDefaults();
     private GermlineCaller victim;
     private Storage storage;
+    private BucketInputOutput gs;
 
     @Before
     public void setUp() throws Exception {
@@ -46,6 +49,7 @@ public class GermlineCallerTest {
         MockResource.addToStorage(storage, ResourceNames.COSMIC, "cosmic_collapsed.vcf.gz");
         MockResource.addToStorage(storage, ResourceNames.SNPEFF, "snpeff.config", "database.zip");
         MockResource.addToStorage(storage, ResourceNames.DBSNPS, "dbsnps.vcf");
+        gs = new BucketInputOutput(RUNTIME_BUCKET);
         victim = new GermlineCaller(ARGUMENTS, computeEngine, storage, ResultsDirectory.defaultDirectory());
     }
 
@@ -54,7 +58,7 @@ public class GermlineCallerTest {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
         victim.run(referenceRunMetadata(), referenceAlignmentOutput());
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
-                "gsutil -qm cp gs://run-reference-test/germline_caller/snpeff/* /data/resources");
+                gs.resource("germline_caller/snpeff/*"));
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
                 "unzip -d /data/resources /data/resources/database.zip");
     }
@@ -90,8 +94,8 @@ public class GermlineCallerTest {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
         victim.run(referenceRunMetadata(), referenceAlignmentOutput());
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
-                "gsutil -qm cp -n gs://run-reference/aligner/results/reference.bam /data/input/reference.bam",
-                "gsutil -qm cp -n gs://run-reference/aligner/results/reference.bam.bai /data/input/reference.bam.bai");
+                copyInputToLocal("gs://run-reference/aligner/results/reference.bam", "reference.bam"),
+                copyInputToLocal("gs://run-reference/aligner/results/reference.bam.bai", "reference.bam.bai"));
     }
 
     @Test
@@ -99,7 +103,7 @@ public class GermlineCallerTest {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
         victim.run(referenceRunMetadata(), referenceAlignmentOutput());
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
-                "gsutil -qm -o GSUtil:parallel_composite_upload_threshold=150M cp -r /data/output/ gs://run-reference-test/germline_caller/results");
+                gs.push("germline_caller/results"));
     }
 
     private ArgumentCaptor<VirtualMachineJobDefinition> captureAndReturnSuccess() {
