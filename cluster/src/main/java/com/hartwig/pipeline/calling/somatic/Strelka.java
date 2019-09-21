@@ -1,7 +1,10 @@
 package com.hartwig.pipeline.calling.somatic;
 
+import java.util.List;
+
+import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.calling.SubStage;
-import com.hartwig.pipeline.execution.vm.BashStartupScript;
+import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.OutputFile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 
@@ -23,15 +26,15 @@ class Strelka extends SubStage {
     }
 
     @Override
-    public BashStartupScript bash(final OutputFile input, final OutputFile output, final BashStartupScript bash) {
+    public List<BashCommand> bash(final OutputFile input, final OutputFile output) {
         String strelkaAnalysisOutput = VmDirectories.OUTPUT + STRELKA_ANALYSIS_DIRECTORY;
-        return bash.addCommand(new ConfigureStrelkaWorkflowCommand(recalibratedTumorBamPath,
-                recalibratedReferenceBamPath,
-                strelkaConfigPath,
-                referenceGenomePath,
-                strelkaAnalysisOutput))
-                .addCommand(new MakeStrelka(strelkaAnalysisOutput))
-                .addCommand(new CombineVcfsCommand(referenceGenomePath,
+        return ImmutableList.of(new ConfigureStrelkaWorkflowCommand(recalibratedTumorBamPath,
+                        recalibratedReferenceBamPath,
+                        strelkaConfigPath,
+                        referenceGenomePath,
+                        strelkaAnalysisOutput),
+                new MakeStrelka(strelkaAnalysisOutput),
+                new CombineVcfsCommand(referenceGenomePath,
                         strelkaAnalysisOutput + "/results/passed.somatic.snvs.vcf",
                         strelkaAnalysisOutput + "/results/passed.somatic.indels.vcf",
                         output.path()));

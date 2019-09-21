@@ -23,7 +23,6 @@ import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.BatchInputDownload;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.InputDownload;
-import com.hartwig.pipeline.execution.vm.OutputFile;
 import com.hartwig.pipeline.execution.vm.OutputUpload;
 import com.hartwig.pipeline.execution.vm.ResourceDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
@@ -99,13 +98,12 @@ public class StructuralCaller {
 
         String refBamPath = referenceBam.getLocalTargetPath();
         String tumorBamPath = tumorBam.getLocalTargetPath();
-        new Preprocess(refBamPath, referenceWorkingDir, referenceSampleName, referenceGenomePath).apply(SubStageInputOutput.of(
-                referenceSampleName,
-                OutputFile.empty(),
-                bash));
-        new Preprocess(tumorBamPath, tumorWorkingDir, tumorSampleName, referenceGenomePath).apply(SubStageInputOutput.of(tumorSampleName,
-                OutputFile.empty(),
-                bash));
+        new Preprocess(refBamPath, referenceWorkingDir, referenceSampleName, referenceGenomePath).apply(SubStageInputOutput.seed(
+                referenceSampleName));
+        new Preprocess(tumorBamPath,
+                tumorWorkingDir,
+                tumorSampleName,
+                referenceGenomePath).apply(SubStageInputOutput.seed(tumorSampleName));
 
         Assemble assemble = new Assemble(refBamPath, tumorBamPath, jointName, referenceGenomePath, configurationFile, blacklist);
         String filteredVcfBasename = VmDirectories.outputFile(format("%s.gridss.somatic.vcf", tumorSampleName));
@@ -120,7 +118,7 @@ public class StructuralCaller {
                                 jointName,
                                 configurationFile,
                                 blacklist))
-                        .apply(SubStageInputOutput.of(jointName, OutputFile.empty(), bash));
+                        .apply(SubStageInputOutput.seed(jointName));
 
         new Filter(filteredVcfBasename, fullVcfBasename).apply(annotated);
 

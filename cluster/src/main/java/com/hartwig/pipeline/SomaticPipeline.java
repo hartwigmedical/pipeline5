@@ -19,6 +19,7 @@ import com.hartwig.pipeline.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.metrics.BamMetricsOutputStorage;
 import com.hartwig.pipeline.report.FullSomaticResults;
 import com.hartwig.pipeline.report.PipelineResults;
+import com.hartwig.pipeline.stages.StageRunner;
 import com.hartwig.pipeline.tertiary.amber.Amber;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
 import com.hartwig.pipeline.tertiary.cobalt.Cobalt;
@@ -35,6 +36,7 @@ public class SomaticPipeline {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SomaticPipeline.class);
 
+    private final StageRunner<SomaticRunMetadata> stageRunner;
     private final AlignmentOutputStorage alignmentOutputStorage;
     private final BamMetricsOutputStorage bamMetricsOutputStorage;
     private final SomaticMetadataApi setMetadataApi;
@@ -43,17 +45,17 @@ public class SomaticPipeline {
     private final Cleanup cleanup;
     private final Amber amber;
     private final Cobalt cobalt;
-    private final SomaticCaller somaticCaller;
     private final StructuralCaller structuralCaller;
     private final Purple purple;
     private final HealthChecker healthChecker;
     private final ExecutorService executorService;
 
-    SomaticPipeline(final AlignmentOutputStorage alignmentOutputStorage, final BamMetricsOutputStorage bamMetricsOutputStorage,
-            final SomaticMetadataApi setMetadataApi, final PipelineResults pipelineResults, final FullSomaticResults fullSomaticResults,
-            final Cleanup cleanup, final Amber amber, final Cobalt cobalt, final SomaticCaller somaticCaller,
-            final StructuralCaller structuralCaller, final Purple purple, final HealthChecker healthChecker,
+    SomaticPipeline(final StageRunner<SomaticRunMetadata> stageRunner, final AlignmentOutputStorage alignmentOutputStorage,
+            final BamMetricsOutputStorage bamMetricsOutputStorage, final SomaticMetadataApi setMetadataApi,
+            final PipelineResults pipelineResults, final FullSomaticResults fullSomaticResults, final Cleanup cleanup, final Amber amber,
+            final Cobalt cobalt, final StructuralCaller structuralCaller, final Purple purple, final HealthChecker healthChecker,
             final ExecutorService executorService) {
+        this.stageRunner = stageRunner;
         this.alignmentOutputStorage = alignmentOutputStorage;
         this.bamMetricsOutputStorage = bamMetricsOutputStorage;
         this.setMetadataApi = setMetadataApi;
@@ -62,7 +64,6 @@ public class SomaticPipeline {
         this.cleanup = cleanup;
         this.amber = amber;
         this.cobalt = cobalt;
-        this.somaticCaller = somaticCaller;
         this.structuralCaller = structuralCaller;
         this.purple = purple;
         this.healthChecker = healthChecker;
@@ -86,7 +87,8 @@ public class SomaticPipeline {
             try {
                 Future<AmberOutput> amberOutputFuture = executorService.submit(() -> amber.run(metadata, pair));
                 Future<CobaltOutput> cobaltOutputFuture = executorService.submit(() -> cobalt.run(metadata, pair));
-                Future<SomaticCallerOutput> somaticCallerOutputFuture = executorService.submit(() -> somaticCaller.run(metadata, pair));
+                Future<SomaticCallerOutput> somaticCallerOutputFuture =
+                        executorService.submit(() -> stageRunner.run(metadata, new SomaticCaller(pair)));
                 Future<StructuralCallerOutput> structuralCallerOutputFuture =
                         executorService.submit(() -> structuralCaller.run(metadata, pair));
                 AmberOutput amberOutput = pipelineResults.add(state.add(amberOutputFuture.get()));

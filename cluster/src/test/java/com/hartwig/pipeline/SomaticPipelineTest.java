@@ -6,6 +6,8 @@ import static com.hartwig.pipeline.testsupport.TestSamples.simpleReferenceSample
 import static com.hartwig.pipeline.testsupport.TestSamples.simpleTumorSample;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -36,6 +38,7 @@ import com.hartwig.pipeline.metrics.BamMetricsOutputStorage;
 import com.hartwig.pipeline.report.FullSomaticResults;
 import com.hartwig.pipeline.report.PipelineResults;
 import com.hartwig.pipeline.report.PipelineResultsProvider;
+import com.hartwig.pipeline.stages.StageRunner;
 import com.hartwig.pipeline.tertiary.amber.Amber;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
 import com.hartwig.pipeline.tertiary.cobalt.Cobalt;
@@ -91,6 +94,7 @@ public class SomaticPipelineTest {
     private HealthChecker healthChecker;
     private SomaticMetadataApi setMetadataApi;
     private Cleanup cleanup;
+    private StageRunner<SomaticRunMetadata> stageRunner;
 
     @Before
     public void setUp() throws Exception {
@@ -110,7 +114,9 @@ public class SomaticPipelineTest {
         final PipelineResults pipelineResults = PipelineResultsProvider.from(storage, ARGUMENTS, "test").get();
         final FullSomaticResults fullSomaticResults = mock(FullSomaticResults.class);
         cleanup = mock(Cleanup.class);
-        victim = new SomaticPipeline(alignmentOutputStorage,
+        stageRunner = mock(StageRunner.class);
+        victim = new SomaticPipeline(stageRunner,
+                alignmentOutputStorage,
                 bamMetricsOutputStorage,
                 setMetadataApi,
                 pipelineResults,
@@ -118,7 +124,6 @@ public class SomaticPipelineTest {
                 cleanup,
                 amber,
                 cobalt,
-                somaticCaller,
                 structuralCaller,
                 purple,
                 healthChecker,
@@ -158,7 +163,7 @@ public class SomaticPipelineTest {
     public void runsSomaticCallerWhenBothAlignmentsAvailable() {
         bothAlignmentsAvailable();
         bothMetricsAvailable();
-        when(somaticCaller.run(SOMATIC_RUN_METADATA, PAIR)).thenReturn(SUCCESSFUL_SOMATIC_CALLER_OUTPUT);
+        when(stageRunner.run(eq(SOMATIC_RUN_METADATA), any())).thenReturn(SUCCESSFUL_SOMATIC_CALLER_OUTPUT);
         PipelineState state = victim.run();
         assertThat(state.stageOutputs()).contains(SUCCESSFUL_SOMATIC_CALLER_OUTPUT);
     }
@@ -187,7 +192,7 @@ public class SomaticPipelineTest {
         bothAlignmentsAvailable();
         bothMetricsAvailable();
         when(cobalt.run(SOMATIC_RUN_METADATA, PAIR)).thenReturn(SUCCESSFUL_COBALT_OUTPUT);
-        when(somaticCaller.run(SOMATIC_RUN_METADATA, PAIR)).thenReturn(SUCCESSFUL_SOMATIC_CALLER_OUTPUT);
+        when(stageRunner.run(eq(SOMATIC_RUN_METADATA), any())).thenReturn(SUCCESSFUL_SOMATIC_CALLER_OUTPUT);
         when(structuralCaller.run(SOMATIC_RUN_METADATA, PAIR)).thenReturn(SUCCESSFUL_STRUCTURAL_CALLER_OUTPUT);
         when(amber.run(SOMATIC_RUN_METADATA, PAIR)).thenReturn(AmberOutput.builder().status(PipelineStatus.FAILED).build());
         PipelineState state = victim.run();
@@ -335,7 +340,7 @@ public class SomaticPipelineTest {
     private void allCallersSucceed() {
         when(amber.run(SOMATIC_RUN_METADATA, PAIR)).thenReturn(SUCCESSFUL_AMBER_OUTPUT);
         when(cobalt.run(SOMATIC_RUN_METADATA, PAIR)).thenReturn(SUCCESSFUL_COBALT_OUTPUT);
-        when(somaticCaller.run(SOMATIC_RUN_METADATA, PAIR)).thenReturn(SUCCESSFUL_SOMATIC_CALLER_OUTPUT);
+        when(stageRunner.run(eq(SOMATIC_RUN_METADATA), any())).thenReturn(SUCCESSFUL_SOMATIC_CALLER_OUTPUT);
         when(structuralCaller.run(SOMATIC_RUN_METADATA, PAIR)).thenReturn(SUCCESSFUL_STRUCTURAL_CALLER_OUTPUT);
     }
 

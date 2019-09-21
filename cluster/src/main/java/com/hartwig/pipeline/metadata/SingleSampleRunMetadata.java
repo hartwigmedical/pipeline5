@@ -7,7 +7,7 @@ import org.immutables.value.Value;
 
 @JsonSerialize(as = ImmutableSingleSampleRunMetadata.class)
 @Value.Immutable
-public interface SingleSampleRunMetadata {
+public interface SingleSampleRunMetadata extends RunMetadata {
 
     enum SampleType {
         TUMOR,
@@ -28,6 +28,11 @@ public interface SingleSampleRunMetadata {
     String sampleId();
 
     SampleType type();
+
+    @Override
+    default String name() {
+        return sampleId();
+    }
 
     static ImmutableSingleSampleRunMetadata.Builder builder() {
         return ImmutableSingleSampleRunMetadata.builder();

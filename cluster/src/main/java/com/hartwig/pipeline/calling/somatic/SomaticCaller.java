@@ -1,6 +1,20 @@
 package com.hartwig.pipeline.calling.somatic;
 
+import static com.hartwig.pipeline.resource.ResourceNames.BEDS;
+import static com.hartwig.pipeline.resource.ResourceNames.COSMIC;
+import static com.hartwig.pipeline.resource.ResourceNames.DBSNPS;
+import static com.hartwig.pipeline.resource.ResourceNames.MAPPABILITY;
+import static com.hartwig.pipeline.resource.ResourceNames.PON;
+import static com.hartwig.pipeline.resource.ResourceNames.REFERENCE_GENOME;
+import static com.hartwig.pipeline.resource.ResourceNames.SAGE;
+import static com.hartwig.pipeline.resource.ResourceNames.SNPEFF;
+import static com.hartwig.pipeline.resource.ResourceNames.STRELKA_CONFIG;
+
+import java.util.List;
+import java.util.Map;
+
 import com.google.cloud.storage.Storage;
+import com.google.common.collect.Lists;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.AlignmentPair;
@@ -9,11 +23,10 @@ import com.hartwig.pipeline.calling.SubStageInputOutput;
 import com.hartwig.pipeline.calling.substages.CosmicAnnotation;
 import com.hartwig.pipeline.calling.substages.SnpEff;
 import com.hartwig.pipeline.execution.PipelineStatus;
+import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.OutputFile;
-import com.hartwig.pipeline.execution.vm.OutputUpload;
 import com.hartwig.pipeline.execution.vm.ResourceDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
@@ -27,135 +40,143 @@ import com.hartwig.pipeline.report.ZippedVcfAndIndexComponent;
 import com.hartwig.pipeline.resource.GATKDictAlias;
 import com.hartwig.pipeline.resource.ReferenceGenomeAlias;
 import com.hartwig.pipeline.resource.Resource;
-import com.hartwig.pipeline.resource.ResourceNames;
+import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
-import com.hartwig.pipeline.trace.StageTrace;
 
 import org.jetbrains.annotations.NotNull;
 
-public class SomaticCaller {
+public class SomaticCaller implements Stage<SomaticCallerOutput, SomaticRunMetadata> {
 
     static final String NAMESPACE = "somatic_caller";
-    private final Arguments arguments;
-    private final ComputeEngine computeEngine;
-    private final Storage storage;
-    private final ResultsDirectory resultsDirectory;
 
-    SomaticCaller(final Arguments arguments, final ComputeEngine computeEngine, final Storage storage,
-            final ResultsDirectory resultsDirectory) {
-        this.arguments = arguments;
-        this.computeEngine = computeEngine;
-        this.storage = storage;
-        this.resultsDirectory = resultsDirectory;
+    private final InputDownload tumorBam;
+    private final InputDownload tumorBai;
+    private final InputDownload referenceBam;
+    private final InputDownload referenceBai;
+    private OutputFile outputFile;
+
+    public SomaticCaller(final AlignmentPair pair) {
+        tumorBam = new InputDownload(pair.tumor().finalBamLocation());
+        tumorBai = new InputDownload(pair.tumor().finalBaiLocation());
+        referenceBam = new InputDownload(pair.reference().finalBamLocation());
+        referenceBai = new InputDownload(pair.reference().finalBaiLocation());
     }
 
-    public SomaticCallerOutput run(SomaticRunMetadata metadata, AlignmentPair pair) {
+    @Override
+    public List<InputDownload> inputs() {
+        return Lists.newArrayList(tumorBam, tumorBai, referenceBam, referenceBai);
+    }
 
-        if (!arguments.runSomaticCaller()) {
-            return SomaticCallerOutput.builder().status(PipelineStatus.SKIPPED).build();
-        }
+    @Override
+    public List<ResourceDownload> resources(final Storage storage, final String resourceBucket, final RuntimeBucket runtimeBucket) {
+        return Lists.newArrayList(ResourceDownload.from(runtimeBucket, referenceGenomeResource(storage, resourceBucket)),
+                ResourceDownload.from(storage, resourceBucket, STRELKA_CONFIG, runtimeBucket),
+                ResourceDownload.from(storage, resourceBucket, MAPPABILITY, runtimeBucket),
+                ResourceDownload.from(storage, resourceBucket, PON, runtimeBucket),
+                ResourceDownload.from(storage, resourceBucket, BEDS, runtimeBucket),
+                ResourceDownload.from(storage, resourceBucket, SAGE, runtimeBucket),
+                ResourceDownload.from(storage, resourceBucket, SNPEFF, runtimeBucket),
+                ResourceDownload.from(storage, resourceBucket, DBSNPS, runtimeBucket),
+                ResourceDownload.from(storage, resourceBucket, COSMIC, runtimeBucket));
+    }
 
-        StageTrace trace = new StageTrace(NAMESPACE, metadata.runName(), StageTrace.ExecutorType.COMPUTE_ENGINE).start();
+    @Override
+    public String namespace() {
+        return NAMESPACE;
+    }
 
-        String tumorSampleName = pair.tumor().sample();
-        String referenceSampleName = pair.reference().sample();
-        RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, NAMESPACE, metadata, arguments);
-        BashStartupScript bash = BashStartupScript.of(runtimeBucket.name());
+    @Override
+    public List<BashCommand> commands(final SomaticRunMetadata metadata, final Map<String, ResourceDownload> resources) {
 
-        ResourceDownload referenceGenomeDownload = ResourceDownload.from(runtimeBucket, referenceGenomeResource());
-        String referenceGenomePath = referenceGenomeDownload.find("fasta");
-        ResourceDownload strelkaConfigDownload =
-                ResourceDownload.from(storage, arguments.resourceBucket(), ResourceNames.STRELKA_CONFIG, runtimeBucket);
-        ResourceDownload mappabilityResources =
-                ResourceDownload.from(storage, arguments.resourceBucket(), ResourceNames.MAPPABILITY, runtimeBucket);
-        ResourceDownload ponv2Resources = ResourceDownload.from(storage, arguments.resourceBucket(), ResourceNames.PON, runtimeBucket);
-        ResourceDownload strelkaPostProcessBedResource =
-                ResourceDownload.from(storage, arguments.resourceBucket(), ResourceNames.BEDS, runtimeBucket);
-        ResourceDownload sageResourceDownload =
-                ResourceDownload.from(storage, arguments.resourceBucket(), ResourceNames.SAGE, runtimeBucket);
-        ResourceDownload snpEffResourceDownload =
-                ResourceDownload.from(storage, arguments.resourceBucket(), ResourceNames.SNPEFF, runtimeBucket);
-        ResourceDownload knownSnpsResourceDownload =
-                ResourceDownload.from(storage, arguments.resourceBucket(), ResourceNames.DBSNPS, runtimeBucket);
-        ResourceDownload cosmicResourceDownload =
-                ResourceDownload.from(storage, arguments.resourceBucket(), ResourceNames.COSMIC, runtimeBucket);
-        bash.addCommand(referenceGenomeDownload)
-                .addCommand(strelkaConfigDownload)
-                .addCommand(mappabilityResources)
-                .addCommand(ponv2Resources)
-                .addCommand(strelkaPostProcessBedResource)
-                .addCommand(sageResourceDownload)
-                .addCommand(snpEffResourceDownload)
-                .addCommand(knownSnpsResourceDownload)
-                .addCommand(cosmicResourceDownload);
-
-        InputDownload tumorBam = new InputDownload(pair.tumor().finalBamLocation());
-        InputDownload tumorBai = new InputDownload(pair.tumor().finalBaiLocation());
-        InputDownload referenceBam = new InputDownload(pair.reference().finalBamLocation());
-        InputDownload referenceBai = new InputDownload(pair.reference().finalBaiLocation());
-        bash.addCommand(tumorBam).addCommand(referenceBam).addCommand(tumorBai).addCommand(referenceBai);
+        List<BashCommand> commands = Lists.newArrayList();
 
         String tumorBamPath = tumorBam.getLocalTargetPath();
         String referenceBamPath = referenceBam.getLocalTargetPath();
-        SubStageInputOutput sageOutput = new SageHotspotsApplication(sageResourceDownload.find("tsv"),
-                sageResourceDownload.find("bed"),
+        String referenceGenomePath = resources.get(REFERENCE_GENOME).find("fasta");
+        String tumorSampleName = metadata.tumor().sampleName();
+        String referenceSampleName = metadata.reference().sampleName();
+        ResourceDownload sageResources = resources.get(SAGE);
+        SubStageInputOutput sageOutput = new SageHotspotsApplication(sageResources.find("tsv"),
+                sageResources.find("bed"),
                 referenceGenomePath,
                 tumorBamPath,
                 referenceBamPath,
                 tumorSampleName,
                 referenceSampleName).andThen(new SageFiltersAndAnnotations(tumorSampleName))
-                .andThen(new SagePonAnnotation(sageResourceDownload.find("SAGE_PON.vcf.gz")))
+                .andThen(new SagePonAnnotation(sageResources.find("SAGE_PON.vcf.gz")))
                 .andThen(new SagePonFilter())
-                .apply(SubStageInputOutput.of(tumorSampleName, OutputFile.empty(), bash));
+                .apply(SubStageInputOutput.seed(tumorSampleName));
 
-        String snpEffDb = snpEffResourceDownload.find("zip");
-        bash.addCommand(new UnzipToDirectoryCommand(VmDirectories.RESOURCES, snpEffDb));
+        commands.addAll(sageOutput.bash());
+
+        ResourceDownload snpEffResources = resources.get(SNPEFF);
+        String snpEffDb = snpEffResources.find("zip");
+        commands.add(new UnzipToDirectoryCommand(VmDirectories.RESOURCES, snpEffDb));
+
+        ResourceDownload mappabilityResources = resources.get(MAPPABILITY);
+        ResourceDownload ponV2Resources = resources.get(PON);
         SubStageInputOutput mergedOutput = new Strelka(referenceBamPath,
                 tumorBamPath,
-                strelkaConfigDownload.find("ini"),
+                resources.get(STRELKA_CONFIG).find("ini"),
                 referenceGenomePath).andThen(new MappabilityAnnotation(mappabilityResources.find("bed.gz"),
                 mappabilityResources.find("hdr")))
-                .andThen(new PonAnnotation("germline.pon", ponv2Resources.find("GERMLINE_PON.vcf.gz"), "GERMLINE_PON_COUNT"))
-                .andThen(new PonAnnotation("somatic.pon", ponv2Resources.find("SOMATIC_PON.vcf.gz"), "SOMATIC_PON_COUNT"))
-                .andThen(new StrelkaPostProcess(tumorSampleName, strelkaPostProcessBedResource.find("bed"), tumorBamPath))
+                .andThen(new PonAnnotation("germline.pon", ponV2Resources.find("GERMLINE_PON.vcf.gz"), "GERMLINE_PON_COUNT"))
+                .andThen(new PonAnnotation("somatic.pon", ponV2Resources.find("SOMATIC_PON.vcf.gz"), "SOMATIC_PON_COUNT"))
+                .andThen(new StrelkaPostProcess(tumorSampleName, resources.get(BEDS).find("bed"), tumorBamPath))
                 .andThen(new PonFilter())
-                .andThen(new SageHotspotsAnnotation(sageResourceDownload.find("tsv"), sageOutput.outputFile().path()))
-                .andThen(new SnpEff(snpEffResourceDownload.find("config")))
-                .andThen(new DbSnpAnnotation(knownSnpsResourceDownload.find("vcf.gz")))
-                .andThen(FinalSubStage.of(new CosmicAnnotation(cosmicResourceDownload.find("collapsed.vcf.gz"), "ID,INFO")))
-                .apply(SubStageInputOutput.of(tumorSampleName, OutputFile.empty(), bash));
+                .andThen(new SageHotspotsAnnotation(sageResources.find("tsv"), sageOutput.outputFile().path()))
+                .andThen(new SnpEff(snpEffResources.find("config")))
+                .andThen(new DbSnpAnnotation(resources.get(DBSNPS).find("vcf.gz")))
+                .andThen(FinalSubStage.of(new CosmicAnnotation(resources.get(COSMIC).find("collapsed.vcf.gz"), "ID,INFO")))
+                .apply(SubStageInputOutput.seed(tumorSampleName));
+        commands.addAll(mergedOutput.bash());
 
-        bash.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path())));
-        PipelineStatus status = computeEngine.submit(runtimeBucket, VirtualMachineJobDefinition.somaticCalling(bash, resultsDirectory));
-        trace.stop();
+        outputFile = mergedOutput.outputFile();
+        return commands;
+    }
+
+    @Override
+    public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
+        return VirtualMachineJobDefinition.somaticCalling(bash, resultsDirectory);
+    }
+
+    @Override
+    public SomaticCallerOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
+            final ResultsDirectory resultsDirectory) {
         return SomaticCallerOutput.builder()
-                .status(status)
-                .maybeFinalSomaticVcf(GoogleStorageLocation.of(runtimeBucket.name(),
-                        resultsDirectory.path(mergedOutput.outputFile().fileName())))
-                .addReportComponents(new ZippedVcfAndIndexComponent(runtimeBucket,
+                .status(jobStatus)
+                .maybeFinalSomaticVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(outputFile.fileName())))
+                .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
                         NAMESPACE,
                         Folder.from(),
-                        mergedOutput.outputFile().fileName(),
-                        OutputFile.of(tumorSampleName, "somatic_caller_post_processed", OutputFile.GZIPPED_VCF, false).fileName(),
+                        outputFile.fileName(),
+                        OutputFile.of(metadata.tumor().sampleName(), "somatic_caller_post_processed", OutputFile.GZIPPED_VCF, false)
+                                .fileName(),
                         resultsDirectory))
-                .addReportComponents(new EntireOutputComponent(runtimeBucket,
+                .addReportComponents(new EntireOutputComponent(bucket,
                         Folder.from(),
                         NAMESPACE,
                         "strelkaAnalysis/",
                         resultsDirectory,
                         s -> s.contains("chromosomes") || s.contains("Makefile") || s.contains("task.complete")))
-                .addReportComponents(new RunLogComponent(runtimeBucket, NAMESPACE, Folder.from(), resultsDirectory))
-                .addReportComponents(new StartupScriptComponent(runtimeBucket, NAMESPACE, Folder.from()))
+                .addReportComponents(new RunLogComponent(bucket, NAMESPACE, Folder.from(), resultsDirectory))
+                .addReportComponents(new StartupScriptComponent(bucket, NAMESPACE, Folder.from()))
                 .build();
+    }
 
+    @Override
+    public SomaticCallerOutput skippedOutput(final SomaticRunMetadata metadata) {
+        return SomaticCallerOutput.builder().status(PipelineStatus.SKIPPED).build();
+    }
+
+    @Override
+    public boolean shouldRun(final Arguments arguments) {
+        return arguments.runSomaticCaller();
     }
 
     @NotNull
-    private Resource referenceGenomeResource() {
-        return new Resource(storage,
-                arguments.resourceBucket(),
-                ResourceNames.REFERENCE_GENOME,
-                new ReferenceGenomeAlias().andThen(new GATKDictAlias()));
+    private Resource referenceGenomeResource(final Storage storage, final String resourceBucket) {
+        return new Resource(storage, resourceBucket, REFERENCE_GENOME, new ReferenceGenomeAlias().andThen(new GATKDictAlias()));
     }
 }

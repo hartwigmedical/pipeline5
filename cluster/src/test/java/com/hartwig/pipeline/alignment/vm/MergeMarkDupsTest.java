@@ -23,7 +23,7 @@ public class MergeMarkDupsTest extends SubStageTest{
 
     @Test
     public void markdupsWithSambamba() {
-        assertThat(output.currentBash().asUnixString()).contains("/opt/tools/sambamba/0.6.8/sambamba markdup -t $(grep -c '^processor' "
+        assertThat(bash()).contains("/opt/tools/sambamba/0.6.8/sambamba markdup -t $(grep -c '^processor' "
                 + "/proc/cpuinfo) --overflow-list-size=45000000 tumor.l001.bam tumor.l002.bam /data/output/tumor.sorted.bam");
     }
 }

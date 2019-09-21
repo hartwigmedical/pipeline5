@@ -1,41 +1,8 @@
 package com.hartwig.pipeline.calling.somatic;
 
-import static com.hartwig.pipeline.resource.ResourceNames.BEDS;
-import static com.hartwig.pipeline.resource.ResourceNames.COSMIC;
-import static com.hartwig.pipeline.resource.ResourceNames.DBSNPS;
-import static com.hartwig.pipeline.resource.ResourceNames.MAPPABILITY;
-import static com.hartwig.pipeline.resource.ResourceNames.PON;
-import static com.hartwig.pipeline.resource.ResourceNames.REFERENCE_GENOME;
-import static com.hartwig.pipeline.resource.ResourceNames.SAGE;
-import static com.hartwig.pipeline.resource.ResourceNames.SNPEFF;
-import static com.hartwig.pipeline.resource.ResourceNames.STRELKA_CONFIG;
-import static com.hartwig.pipeline.testsupport.TestInputs.defaultPair;
-import static com.hartwig.pipeline.testsupport.TestInputs.defaultSomaticRunMetadata;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import com.google.cloud.storage.Bucket;
-import com.google.cloud.storage.CopyWriter;
-import com.google.cloud.storage.Storage;
-import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.ResultsDirectory;
-import com.hartwig.pipeline.alignment.AlignmentPair;
-import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.execution.vm.ComputeEngine;
-import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
-import com.hartwig.pipeline.testsupport.MockResource;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-
 public class SomaticCallerTest {
 
-    private static final String RUNTIME_BUCKET = "run-reference-tumor-test";
+   /* private static final String RUNTIME_BUCKET = "run-reference-tumor-test";
     private ComputeEngine computeEngine;
     private SomaticCaller victim;
     private Storage storage;
@@ -110,5 +77,5 @@ public class SomaticCallerTest {
                 ArgumentCaptor.forClass(VirtualMachineJobDefinition.class);
         when(computeEngine.submit(any(), jobDefinitionArgumentCaptor.capture())).thenReturn(PipelineStatus.SUCCESS);
         return jobDefinitionArgumentCaptor;
-    }
+    }*/
 }

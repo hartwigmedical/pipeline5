@@ -21,13 +21,13 @@ public class PonAnnotationTest extends SubStageTest {
 
     @Test
     public void runsBcfToolsPonAnnotation() {
-        assertThat(output.currentBash().asUnixString()).contains("/opt/tools/bcftools/1.3.1/bcftools annotate -a "
+        assertThat(bash()).contains("/opt/tools/bcftools/1.3.1/bcftools annotate -a "
                 + "GERMLINE_PON.vcf.gz -c GERMLINE_PON_COUNT -o /data/output/tumor.germline.pon.annotated.vcf.gz");
     }
 
     @Test
     public void runsTabix() {
-        assertThat(output.currentBash().asUnixString()).contains(
+        assertThat(bash()).contains(
                 "/opt/tools/tabix/0.2.6/tabix /data/output/tumor.germline.pon.annotated.vcf.gz -p vcf");
     }
 }

@@ -21,13 +21,13 @@ public class DbSnpAnnotationTest extends SubStageTest implements CommonEntities 
 
     @Test
     public void runsBcfToolsDbSnpAnnotation() {
-        assertThat(output.currentBash().asUnixString()).contains("/opt/tools/bcftools/1.3.1/bcftools annotate -a dbsnp.vcf.gz -c ID -o "
+        assertThat(bash()).contains("/opt/tools/bcftools/1.3.1/bcftools annotate -a dbsnp.vcf.gz -c ID -o "
                 + "/data/output/tumor.dbsnp.annotated.vcf.gz -O z /data/output/tumor.strelka.vcf");
     }
 
     @Test
     public void runsTabix() {
-        assertThat(output.currentBash().asUnixString()).contains("/opt/tools/tabix/0.2.6/tabix /data/output/tumor.dbsnp.annotated.vcf.gz "
+        assertThat(bash()).contains("/opt/tools/tabix/0.2.6/tabix /data/output/tumor.dbsnp.annotated.vcf.gz "
                 + "-p vcf >>" + LOG_FILE);
     }
 }

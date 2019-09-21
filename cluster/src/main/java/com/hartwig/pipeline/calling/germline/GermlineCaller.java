@@ -109,7 +109,7 @@ public class GermlineCaller {
         String dbsnpVcf = dbSnps.find("vcf");
         SubStageInputOutput callerOutput =
                 new GatkGermlineCaller(bamDownload.getLocalTargetPath(), referenceFasta, dbsnpVcf).andThen(new GenotypeGVCFs(referenceFasta,
-                        dbsnpVcf)).apply(SubStageInputOutput.of(alignmentOutput.sample(), OutputFile.empty(), startupScript));
+                        dbsnpVcf)).apply(SubStageInputOutput.seed(alignmentOutput.sample()));
 
         SubStageInputOutput snpFilterOutput =
                 new SelectVariants("snp", Lists.newArrayList("SNP", "NO_VARIATION"), referenceFasta).andThen(new VariantFiltration("snp",

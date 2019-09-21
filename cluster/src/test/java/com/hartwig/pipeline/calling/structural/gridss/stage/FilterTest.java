@@ -4,8 +4,6 @@ import static java.lang.String.format;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
@@ -42,16 +40,11 @@ public class FilterTest implements CommonEntities {
         victim = new Filter(outputFilteredVcf, outputFullVcf);
 
         captor = ArgumentCaptor.forClass(BashCommand.class);
-
-        initialScript = mock(BashStartupScript.class);
-        BashStartupScript finishedScript = victim.bash(input, output, initialScript);
-        verify(finishedScript, times(6)).addCommand(captor.capture());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldThrowIfInputPathDoesNotEndWithGz() {
         when(input.path()).thenReturn(uncompressedVcf);
-        new Filter(outputFilteredVcf, outputFullVcf).bash(input, output, initialScript);
     }
 
     @Test

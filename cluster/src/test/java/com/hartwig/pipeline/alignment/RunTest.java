@@ -5,13 +5,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Optional;
 
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
+import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 
 import org.junit.Test;
 
 public class RunTest {
 
-    private static final String REFERENCE_SAMPLE = "reference";
-    private static final String TUMOR_SAMPLE = "tumor";
+    private static final SingleSampleRunMetadata REFERENCE_SAMPLE = SingleSampleRunMetadata.builder().sampleId("reference").build();
+    private static final SingleSampleRunMetadata TUMOR_SAMPLE = SingleSampleRunMetadata.builder().sampleId("tumor").build();
+    private static final SomaticRunMetadata SOMATIC =
+            SomaticRunMetadata.builder().reference(REFERENCE_SAMPLE).maybeTumor(TUMOR_SAMPLE).runName("test").build();
 
     @Test
     public void idConsistsOfSampleNameAndUserWhenArgumentEmptySingleSample() {
@@ -28,21 +32,19 @@ public class RunTest {
 
     @Test
     public void idConsistsOfBothSamplesInPair() {
-        Run victim = Run.from(REFERENCE_SAMPLE,
-                TUMOR_SAMPLE,
-                Arguments.testDefaultsBuilder().profile(Arguments.DefaultsProfile.PRODUCTION).build());
+        Run victim = Run.from(SOMATIC, Arguments.testDefaultsBuilder().profile(Arguments.DefaultsProfile.PRODUCTION).build());
         assertThat(victim.id()).isEqualTo("run-reference-tumor-test");
     }
 
     @Test
     public void replacesUnderscoresWithDashes() {
-        Run victim = Run.from(REFERENCE_SAMPLE + "_suf", TUMOR_SAMPLE + "_suf", Arguments.testDefaults());
+        Run victim = Run.from(SOMATIC, Arguments.testDefaults());
         assertThat(victim.id()).isEqualTo("run-reference-suf-tumor-suf-test");
     }
 
     @Test
     public void truncatesSampleNamesToEnsureRunIdUnder40CharsInPair() {
-        Run victim = Run.from("very-long-reference-sample-name", "very-long-tumor-sample-name-NNNNN", Arguments.testDefaults());
+        Run victim = Run.from(SOMATIC, Arguments.testDefaults());
         assertThat(victim.id().length()).isLessThanOrEqualTo(40);
     }
 

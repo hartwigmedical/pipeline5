@@ -2,7 +2,10 @@ package com.hartwig.pipeline.calling;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.hartwig.pipeline.execution.vm.BashStartupScript;
+import java.util.Collections;
+import java.util.List;
+
+import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.OutputFile;
 
 import org.junit.Test;
@@ -13,11 +16,11 @@ public class FinalSubStageTest {
     public void appendsFinalConventionToOutputFile() {
         CaptureOutputFile capture = new CaptureOutputFile();
         FinalSubStage victim = FinalSubStage.of(capture);
-        victim.apply(SubStageInputOutput.of("sample", OutputFile.empty(), BashStartupScript.of("bucket")));
+        victim.apply(SubStageInputOutput.seed("sample"));
         assertThat(capture.outputFile.path()).isEqualTo("/data/output/sample.test.final.vcf");
     }
 
-    private static class CaptureOutputFile extends SubStage{
+    private static class CaptureOutputFile extends SubStage {
         private OutputFile outputFile;
 
         CaptureOutputFile() {
@@ -25,9 +28,9 @@ public class FinalSubStageTest {
         }
 
         @Override
-        public BashStartupScript bash(final OutputFile input, final OutputFile output, final BashStartupScript bash) {
+        public List<BashCommand> bash(final OutputFile input, final OutputFile output) {
             outputFile = output;
-            return bash;
+            return Collections.emptyList();
         }
     }
 

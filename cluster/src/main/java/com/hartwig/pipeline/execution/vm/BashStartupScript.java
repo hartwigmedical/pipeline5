@@ -71,10 +71,11 @@ public class BashStartupScript {
         return s.replace("\"", "\\\"");
     }
 
-    public void addCommands(List<BashCommand> commands) {
+    public BashStartupScript addCommands(List<? extends BashCommand> commands) {
         for (BashCommand command : commands) {
             addCommand(command);
         }
+        return this;
     }
 
     private void addCompletionCommands() {

@@ -4,11 +4,7 @@ import static java.lang.String.format;
 
 import static com.hartwig.pipeline.calling.structural.gridss.stage.BashAssertions.assertBashContains;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.hartwig.pipeline.calling.SubStage;
@@ -39,11 +35,6 @@ public class CallingTest extends SubStageTest implements CommonEntities {
 
         when(input.path()).thenReturn(assemblyBam);
         when(output.path()).thenReturn(outputVcf);
-        when(initialScript.addCommand(any(BashCommand.class))).thenReturn(initialScript);
-
-        BashStartupScript finishedScript = createVictim().bash(input, output, initialScript);
-        captor = ArgumentCaptor.forClass(BashCommand.class);
-        verify(finishedScript, times(1)).addCommand(captor.capture());
     }
 
     @Override

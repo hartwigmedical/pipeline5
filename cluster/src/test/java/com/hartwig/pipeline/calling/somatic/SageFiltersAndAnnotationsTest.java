@@ -21,7 +21,7 @@ public class SageFiltersAndAnnotationsTest extends SubStageTest {
 
     @Test
     public void pipesBcfToolsFilterAndAnnotations() {
-        assertThat(output.currentBash().asUnixString()).contains("/opt/tools/bcftools/1.3.1/bcftools filter -i 'FILTER=\"PASS\"' "
+        assertThat(bash()).contains("/opt/tools/bcftools/1.3.1/bcftools filter -i 'FILTER=\"PASS\"' "
                 + "/data/output/tumor.strelka.vcf -O u | /opt/tools/bcftools/1.3.1/bcftools annotate -x INFO/HOTSPOT -O u | "
                 + "/opt/tools/bcftools/1.3.1/bcftools annotate -x FILTER/LOW_CONFIDENCE -O u | "
                 + "/opt/tools/bcftools/1.3.1/bcftools annotate -x FILTER/GERMLINE_INDEL -O u | "
@@ -30,7 +30,7 @@ public class SageFiltersAndAnnotationsTest extends SubStageTest {
 
     @Test
     public void runsTabix() {
-        assertThat(output.currentBash().asUnixString()).contains(
+        assertThat(bash()).contains(
                 "/opt/tools/tabix/0.2.6/tabix /data/output/tumor.sage.hotspots.filtered.vcf.gz -p vcf");
     }
 }

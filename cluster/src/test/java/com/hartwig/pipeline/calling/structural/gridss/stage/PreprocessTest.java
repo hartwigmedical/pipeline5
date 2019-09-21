@@ -8,8 +8,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import com.hartwig.pipeline.calling.SubStage;
 import com.hartwig.pipeline.calling.SubStageTest;
@@ -65,8 +63,6 @@ public class PreprocessTest extends SubStageTest implements CommonEntities {
         OutputFile inputFile = mock(OutputFile.class);
 
         captor = ArgumentCaptor.forClass(BashCommand.class);
-        BashStartupScript finishedScript = createVictim().bash(inputFile, mock(OutputFile.class), initialScript);
-        verify(finishedScript, times(5)).addCommand(captor.capture());
     }
 
     @Test

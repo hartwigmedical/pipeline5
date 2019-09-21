@@ -1,7 +1,9 @@
 package com.hartwig.pipeline.execution.vm;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
+import com.hartwig.pipeline.resource.Resource;
 import com.hartwig.pipeline.resource.ResourceLocation;
 
 import org.junit.Before;
@@ -13,7 +15,8 @@ public class ResourceDownloadTest {
 
     @Before
     public void setUp() throws Exception {
-        victim = new ResourceDownload(ResourceLocation.builder().bucket("runtime/bucket").addFiles("path/file1.ext1", "path/file2.ext2").build());
+        victim = new ResourceDownload(mock(Resource.class),
+                ResourceLocation.builder().bucket("runtime/bucket").addFiles("path/file1.ext1", "path/file2.ext2").build());
     }
 
     @Test

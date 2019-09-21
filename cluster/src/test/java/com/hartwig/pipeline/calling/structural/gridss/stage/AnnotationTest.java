@@ -3,10 +3,7 @@ package com.hartwig.pipeline.calling.structural.gridss.stage;
 import static java.lang.String.format;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -62,9 +59,6 @@ public class AnnotationTest extends SubStageTest implements CommonEntities {
         assemblyBam = "assembly.bam";
         generatedAnnotatedOutputVcfName = format("%s/%s.annotated_variants.vcf", OUT_DIR, JOINT_NAME);
 
-        when(initialScript.addCommand(any(BashCommand.class))).thenReturn(initialScript);
-        final BashStartupScript finishedScript = createVictim().bash(input, output, initialScript);
-        verify(finishedScript, times(4)).addCommand(captor.capture());
     }
 
     @Test
