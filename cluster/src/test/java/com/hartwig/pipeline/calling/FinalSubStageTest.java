@@ -1,14 +1,13 @@
 package com.hartwig.pipeline.calling;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.OutputFile;
-import com.hartwig.pipeline.testsupport.CommonTestEntities;
-
 import org.junit.Test;
 
-public class FinalSubStageTest implements CommonTestEntities {
+import static com.hartwig.pipeline.testsupport.TestConstants.outFile;
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class FinalSubStageTest {
 
     @Test
     public void appendsFinalConventionToOutputFile() {

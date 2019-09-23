@@ -1,13 +1,5 @@
 package com.hartwig.pipeline.calling.germline;
 
-import static com.hartwig.pipeline.testsupport.TestInputs.referenceAlignmentOutput;
-import static com.hartwig.pipeline.testsupport.TestInputs.referenceRunMetadata;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.CopyWriter;
 import com.google.cloud.storage.Storage;
@@ -18,14 +10,20 @@ import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.resource.ResourceNames;
 import com.hartwig.pipeline.testsupport.BucketInputOutput;
-import com.hartwig.pipeline.testsupport.CommonTestEntities;
 import com.hartwig.pipeline.testsupport.MockResource;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-public class GermlineCallerTest implements CommonTestEntities {
+import static com.hartwig.pipeline.testsupport.TestConstants.*;
+import static com.hartwig.pipeline.testsupport.TestInputs.referenceAlignmentOutput;
+import static com.hartwig.pipeline.testsupport.TestInputs.referenceRunMetadata;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+public class GermlineCallerTest {
 
     private static final String RUNTIME_BUCKET = "run-reference-test";
     private ComputeEngine computeEngine;
@@ -60,7 +58,7 @@ public class GermlineCallerTest implements CommonTestEntities {
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
                 gs.resource("germline_caller/snpeff/*"));
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
-                "unzip -d /data/resources /data/resources/database.zip");
+                "unzip -d " + RESOURCE_DIR + " " + resource("database.zip"));
     }
 
     @Test

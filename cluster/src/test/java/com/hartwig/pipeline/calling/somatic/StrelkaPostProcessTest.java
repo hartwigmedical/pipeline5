@@ -1,11 +1,12 @@
 package com.hartwig.pipeline.calling.somatic;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.hartwig.pipeline.calling.SubStage;
 import com.hartwig.pipeline.calling.SubStageTest;
-
 import org.junit.Test;
+
+import static com.hartwig.pipeline.testsupport.TestConstants.TOOLS_STRELKA_POSTPROCESS;
+import static com.hartwig.pipeline.testsupport.TestConstants.outFile;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class StrelkaPostProcessTest extends SubStageTest {
 
@@ -22,7 +23,7 @@ public class StrelkaPostProcessTest extends SubStageTest {
     @Test
     public void runsStrelkaPostProcessor() {
         assertThat(output.currentBash().asUnixString()).contains("java -Xmx20G -jar "
-                + "/opt/tools/strelka-post-process/1.4/strelka-post-process.jar -v " + outFile("tumor.strelka.vcf") + " -hc_bed NA12878.bed -t "
+                + TOOLS_STRELKA_POSTPROCESS + " -v " + outFile("tumor.strelka.vcf") + " -hc_bed NA12878.bed -t "
                 + "tumor -o " + expectedPath() + " -b tumor.bam");
     }
 }

@@ -1,12 +1,13 @@
 package com.hartwig.pipeline.calling.somatic;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.hartwig.pipeline.calling.SubStage;
 import com.hartwig.pipeline.calling.SubStageTest;
-import com.hartwig.pipeline.testsupport.CommonTestEntities;
-
+import com.hartwig.pipeline.testsupport.TestConstants;
+import com.hartwig.pipeline.tools.Versions;
 import org.junit.Test;
+
+import static com.hartwig.pipeline.testsupport.TestConstants.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class StrelkaTest extends SubStageTest {
 
@@ -23,7 +24,7 @@ public class StrelkaTest extends SubStageTest {
 
     @Test
     public void runsConfigureStrelkaWorkflow() {
-        assertThat(output.currentBash().asUnixString()).contains("/opt/tools/strelka/1.0.14/bin/configureStrelkaWorkflow.pl "
+        assertThat(output.currentBash().asUnixString()).contains(TOOLS_DIR + "/strelka/" + Versions.STRELKA + "/bin/configureStrelkaWorkflow.pl "
                 + "--tumor tumor.bam --normal reference.bam --config strelka.config --ref reference_genome.fasta "
                 + "--output-dir " + outFile("strelkaAnalysis"));
     }
@@ -31,13 +32,13 @@ public class StrelkaTest extends SubStageTest {
     @Test
     public void runsStrelkaMakefile() {
         assertThat(output.currentBash().asUnixString()).contains("make -C " + outFile("strelkaAnalysis")
-                + " -j $(grep -c '^processor' /proc/cpuinfo) >>" + CommonTestEntities.LOG_FILE);
+                + " -j " + PROC_COUNT + " >>" + TestConstants.LOG_FILE);
     }
 
     @Test
     public void runsGatkCombineVcf() {
-        assertThat(output.currentBash().asUnixString()).contains("java -Xmx20G -jar /opt/tools/gatk/3.8.0/GenomeAnalysisTK.jar "
-                + "-T CombineVariants -R reference_genome.fasta --genotypemergeoption unsorted "
+        assertThat(output.currentBash().asUnixString()).contains("java -Xmx20G -jar " + TOOLS_GATK_JAR
+                + " -T CombineVariants -R reference_genome.fasta --genotypemergeoption unsorted "
                 + "-V:snvs " + outFile("strelkaAnalysis/results/passed.somatic.snvs.vcf") + " -V:indels "
                 + outFile("strelkaAnalysis/results/passed.somatic.indels.vcf") + " -o " + expectedPath());
     }

@@ -1,16 +1,16 @@
 package com.hartwig.pipeline.execution.vm;
 
-import static java.lang.String.format;
-import static java.util.Arrays.asList;
-import static java.util.stream.Collectors.joining;
+import com.hartwig.pipeline.execution.vm.storage.StorageStrategy;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.hartwig.pipeline.execution.vm.storage.StorageStrategy;
+import static java.lang.String.format;
+import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.joining;
 
 public class BashStartupScript {
-    static final String JOB_SUCCEEDED_FLAG = "JOB_SUCCESS";
+    private static final String JOB_SUCCEEDED_FLAG = "JOB_SUCCESS";
     static final String JOB_FAILED_FLAG = "JOB_FAILURE";
     static final String LOG_FILE = "/var/log/run.log";
     private final List<String> commands;
@@ -20,11 +20,11 @@ public class BashStartupScript {
         this.runtimeBucketName = runtimeBucketName;
         this.commands = new ArrayList<>();
         this.commands.add("echo $(date) Starting run");
-        this.commands.add("mkdir -p /data/input");
-        this.commands.add("mkdir -p /data/resources");
-        this.commands.add("mkdir -p /data/output");
-        this.commands.add("mkdir -p /data/tmp");
-        this.commands.add("export TMPDIR=/data/tmp");
+        this.commands.add("mkdir -p " + VmDirectories.INPUT);
+        this.commands.add("mkdir -p " + VmDirectories.RESOURCES);
+        this.commands.add("mkdir -p " + VmDirectories.OUTPUT);
+        this.commands.add("mkdir -p " + VmDirectories.TEMP);
+        this.commands.add("export TMPDIR=" + VmDirectories.TEMP);
     }
 
     public static BashStartupScript of(final String runtimeBucketName) {
@@ -51,7 +51,7 @@ public class BashStartupScript {
                 "  exit $exit_code\n" + "}\n"));
         preamble.addAll(storageStrategy.initialise());
         addCompletionCommands();
-        return preamble.stream().collect(joining("\n")) + "\n" +
+        return String.join("\n", preamble) + "\n" +
                 commands.stream().collect(joining(format("%s\n", commandSuffix))) +
                 (commands.isEmpty() ? "" : commandSuffix);
     }

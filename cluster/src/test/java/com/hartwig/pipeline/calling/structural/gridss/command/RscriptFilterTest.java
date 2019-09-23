@@ -1,18 +1,16 @@
 package com.hartwig.pipeline.calling.structural.gridss.command;
 
-import static java.lang.String.format;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-import com.hartwig.pipeline.calling.structural.gridss.GridssTestEntities;
-
 import org.junit.Test;
 
-public class RscriptFilterTest implements GridssTestEntities {
+import static com.hartwig.pipeline.testsupport.TestConstants.*;
+import static java.lang.String.format;
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class RscriptFilterTest {
     @Test
     public void shouldGenerateCommand() {
         String inputFile = "input.vcf";
-        String outputFile = OUT_DIR + "/output.vcf";
+        String outputFile = outFile("/output.vcf");
         String fullCompressedVcf = "full.vcf.gz";
         String pathToScripts = TOOLS_DIR + "/gridss-scripts/4.8.1";
 

@@ -1,12 +1,13 @@
 package com.hartwig.pipeline.calling.germline;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.google.common.collect.ImmutableMap;
 import com.hartwig.pipeline.calling.SubStage;
 import com.hartwig.pipeline.calling.SubStageTest;
-
 import org.junit.Test;
+
+import static com.hartwig.pipeline.testsupport.TestConstants.TOOLS_GATK_JAR;
+import static com.hartwig.pipeline.testsupport.TestConstants.outFile;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class VariantFiltrationTest extends SubStageTest {
 
@@ -22,7 +23,7 @@ public class VariantFiltrationTest extends SubStageTest {
 
     @Test
     public void filtersVariantsWithGatk() {
-        assertThat(output.currentBash().asUnixString()).contains("java -Xmx20G -jar /opt/tools/gatk/3.8.0/GenomeAnalysisTK.jar -T "
+        assertThat(output.currentBash().asUnixString()).contains("java -Xmx20G -jar " + TOOLS_GATK_JAR + " -T "
                 + "VariantFiltration -R reference.fasta -V " + outFile("reference.strelka.vcf") + " -o "
                 + expectedPath() + " --filterExpression \"QD < 2.0\" --filterName \"filter1\" --filterExpression "
                 + "\"MQ < 10.0\" --filterName \"filter2\" --clusterSize 3 --clusterWindowSize 35 ");

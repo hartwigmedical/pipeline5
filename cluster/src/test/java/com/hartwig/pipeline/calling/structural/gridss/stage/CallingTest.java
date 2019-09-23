@@ -1,40 +1,35 @@
 package com.hartwig.pipeline.calling.structural.gridss.stage;
 
-import static java.lang.String.format;
-
-import static com.hartwig.pipeline.calling.structural.gridss.stage.BashAssertions.assertBashContains;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import com.hartwig.pipeline.calling.SubStage;
 import com.hartwig.pipeline.calling.SubStageTest;
-import com.hartwig.pipeline.calling.structural.gridss.GridssTestEntities;
 import com.hartwig.pipeline.calling.structural.gridss.command.IdentifyVariants;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.OutputFile;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-public class CallingTest extends SubStageTest implements GridssTestEntities {
-    private BashStartupScript initialScript;
+import static com.hartwig.pipeline.calling.structural.gridss.GridssTestConstants.*;
+import static com.hartwig.pipeline.calling.structural.gridss.stage.BashAssertions.assertBashContains;
+import static com.hartwig.pipeline.testsupport.TestConstants.OUT_DIR;
+import static com.hartwig.pipeline.testsupport.TestConstants.outFile;
+import static java.lang.String.format;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+public class CallingTest extends SubStageTest {
     private String assemblyBam;
     private String outputVcf;
     private ArgumentCaptor<BashCommand> captor;
 
     @Before
     public void setup() {
-        assemblyBam = format("%s/assembly.bam", OUT_DIR);
-        outputVcf = format("%s/output.vcf", OUT_DIR);
+        assemblyBam = outFile("assembly.bam");
+        outputVcf = outFile("output.vcf");
         OutputFile input = mock(OutputFile.class);
         OutputFile output = mock(OutputFile.class);
-        initialScript = mock(BashStartupScript.class);
+        BashStartupScript initialScript = mock(BashStartupScript.class);
 
         when(input.path()).thenReturn(assemblyBam);
         when(output.path()).thenReturn(outputVcf);

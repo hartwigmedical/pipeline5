@@ -1,12 +1,13 @@
 package com.hartwig.pipeline.calling.somatic;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.hartwig.pipeline.calling.SubStage;
 import com.hartwig.pipeline.calling.TabixSubStageTest;
 import com.hartwig.pipeline.calling.substages.CosmicAnnotation;
-
 import org.junit.Test;
+
+import static com.hartwig.pipeline.testsupport.TestConstants.TOOLS_BCFTOOLS;
+import static com.hartwig.pipeline.testsupport.TestConstants.outFile;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class CosmicAnnotationTest extends TabixSubStageTest {
 
@@ -23,7 +24,7 @@ public class CosmicAnnotationTest extends TabixSubStageTest {
     @Test
     public void runsBcfToolsDbSnpAnnotation() {
         assertThat(output.currentBash().asUnixString()).contains(
-                "/opt/tools/bcftools/1.3.1/bcftools annotate -a cosmic.vcf.gz -c ID,INFO "
+                TOOLS_BCFTOOLS + " annotate -a cosmic.vcf.gz -c ID,INFO "
                         + "-o " + expectedPath() + " -O z " + outFile("tumor.strelka.vcf"));
     }
 }

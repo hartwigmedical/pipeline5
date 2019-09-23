@@ -12,15 +12,15 @@ public class BucketInputOutput {
 
     public String push(String destination) {
         return format("gsutil -qm -o GSUtil:parallel_composite_upload_threshold=150M cp -r %s/ gs://%s/%s",
-                CommonTestEntities.OUT_DIR, bucket, destination);
+                TestConstants.OUT_DIR, bucket, destination);
     }
 
     public String pull(String source) {
-        return format("gsutil -qm cp -n gs://%s/%s %s/", bucket, source, CommonTestEntities.IN_DIR);
+        return format("gsutil -qm cp -n gs://%s/%s %s/", bucket, source, TestConstants.IN_DIR);
     }
 
     public String pull(String source, String destination) {
-        return format("gsutil -qm cp -n gs://%s/%s %s/%s", bucket, source, CommonTestEntities.IN_DIR, destination);
+        return format("gsutil -qm cp -n gs://%s/%s %s/%s", bucket, source, TestConstants.IN_DIR, destination);
     }
 
     public String resource(String source) {

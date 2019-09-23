@@ -1,26 +1,26 @@
 package com.hartwig.pipeline.execution.vm;
 
-import static com.hartwig.pipeline.execution.vm.BashStartupScript.of;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import com.hartwig.pipeline.execution.vm.storage.LocalSsdStorageStrategy;
+import com.hartwig.support.test.Resources;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Collections;
 
-import com.hartwig.support.test.Resources;
-
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import static com.hartwig.pipeline.execution.vm.BashStartupScript.of;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class BashStartupScriptTest {
     private BashStartupScript scriptBuilder;
-    private String bucketName;
 
     @Before
     public void setup() {
-        bucketName = "outputBucket";
+        String bucketName = "outputBucket";
         scriptBuilder = of(bucketName);
     }
 
@@ -35,9 +35,19 @@ public class BashStartupScriptTest {
     }
 
     @Test
-    @Ignore
-    public void shouldWriteCompleteScript() throws IOException {
-        String expectedScript = Resources.testResource("script_generation/complete_script");
+    public void shouldWriteCompleteScriptInLocalSsdMode() throws IOException {
+        String expectedScript = Resources.testResource("script_generation/local-ssd_script");
+        String simpleCommand = "uname -a";
+        scriptBuilder.addLine(simpleCommand);
+        scriptBuilder.addCommand(new ComplexCommand());
+        LocalSsdStorageStrategy storage = mock(LocalSsdStorageStrategy.class);
+        when(storage.initialise()).thenReturn(Collections.singletonList("echo \"raid device creation commands\""));
+        assertThat(scriptBuilder.asUnixString(storage)).isEqualTo(new String(Files.readAllBytes(Paths.get(expectedScript))));
+    }
+
+    @Test
+    public void shouldWriteCompleteScriptInPersistentStorageMode() throws IOException {
+        String expectedScript = Resources.testResource("script_generation/persistent-storage_script");
         String simpleCommand = "uname -a";
         scriptBuilder.addLine(simpleCommand);
         scriptBuilder.addCommand(new ComplexCommand());

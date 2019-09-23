@@ -1,14 +1,5 @@
 package com.hartwig.pipeline.tertiary.healthcheck;
 
-import static com.hartwig.pipeline.testsupport.TestBlobs.pageOf;
-import static com.hartwig.pipeline.testsupport.TestInputs.defaultPair;
-import static com.hartwig.pipeline.testsupport.TestInputs.defaultSomaticRunMetadata;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import com.google.api.gax.paging.Page;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
@@ -24,15 +15,21 @@ import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.testsupport.BucketInputOutput;
-import com.hartwig.pipeline.testsupport.CommonTestEntities;
 import com.hartwig.pipeline.testsupport.TestBlobs;
-import com.hartwig.pipeline.tools.Versions;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-public class HealthCheckerTest implements CommonTestEntities {
+import static com.hartwig.pipeline.testsupport.TestBlobs.pageOf;
+import static com.hartwig.pipeline.testsupport.TestConstants.*;
+import static com.hartwig.pipeline.testsupport.TestInputs.defaultPair;
+import static com.hartwig.pipeline.testsupport.TestInputs.defaultSomaticRunMetadata;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+public class HealthCheckerTest {
 
     private static final String RUNTIME_BUCKET = "run-reference-tumor-test";
     private static final Arguments ARGUMENTS = Arguments.testDefaults();
@@ -95,7 +92,7 @@ public class HealthCheckerTest implements CommonTestEntities {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
         runVictim();
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
-                "java -Xmx10G -jar /opt/tools/health-checker/" + Versions.HEALTH_CHECKER + "/health-checker.jar -reference reference"
+                "java -Xmx10G -jar " + TOOLS_HEALTHCHECKER_JAR + " -reference reference"
                         + " -tumor tumor -metrics_dir " + inFile("metrics")
                         + " -amber_dir " + inFile("amber")
                         + " -purple_dir " + inFile("purple")

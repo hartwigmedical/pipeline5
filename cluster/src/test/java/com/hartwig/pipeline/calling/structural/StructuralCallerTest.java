@@ -1,18 +1,5 @@
 package com.hartwig.pipeline.calling.structural;
 
-import static java.lang.String.format;
-
-import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_CONFIG;
-import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_PON;
-import static com.hartwig.pipeline.resource.ResourceNames.REFERENCE_GENOME;
-import static com.hartwig.pipeline.testsupport.TestInputs.defaultPair;
-import static com.hartwig.pipeline.testsupport.TestInputs.defaultSomaticRunMetadata;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.CopyWriter;
 import com.google.cloud.storage.Storage;
@@ -24,10 +11,20 @@ import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.testsupport.MockResource;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+
+import static com.hartwig.pipeline.resource.ResourceNames.*;
+import static com.hartwig.pipeline.testsupport.TestConstants.RESOURCE_DIR;
+import static com.hartwig.pipeline.testsupport.TestConstants.TOOLS_BWA_DIR;
+import static com.hartwig.pipeline.testsupport.TestInputs.defaultPair;
+import static com.hartwig.pipeline.testsupport.TestInputs.defaultSomaticRunMetadata;
+import static java.lang.String.format;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class StructuralCallerTest {
     private static final String RUNTIME_JOINT_BUCKET = "run-reference-tumor-test";
@@ -63,9 +60,9 @@ public class StructuralCallerTest {
     @Test
     public void shouldDownloadResources() {
         String bashBeforeJava = getBashBeforeJava();
-        assertThat(bashBeforeJava).contains(resourceDownloadBash(RUNTIME_JOINT_BUCKET, REFERENCE_GENOME + "/*"));
-        assertThat(bashBeforeJava).contains(resourceDownloadBash(RUNTIME_JOINT_BUCKET, GRIDSS_CONFIG + "/*"));
-        assertThat(bashBeforeJava).contains(resourceDownloadBash(RUNTIME_JOINT_BUCKET, GRIDSS_PON + "/*"));
+        assertThat(bashBeforeJava).contains(resourceDownloadBash(REFERENCE_GENOME + "/*"));
+        assertThat(bashBeforeJava).contains(resourceDownloadBash(GRIDSS_CONFIG + "/*"));
+        assertThat(bashBeforeJava).contains(resourceDownloadBash(GRIDSS_PON + "/*"));
     }
 
     @Test
@@ -75,7 +72,7 @@ public class StructuralCallerTest {
 
     @Test
     public void shouldExportPathWithBwaOnItBeforeAnyJavaCommandIsCalled() {
-        assertThat(getBashBeforeJava()).contains("\nexport PATH=\"${PATH}:/opt/tools/bwa/0.7.17\" ");
+        assertThat(getBashBeforeJava()).contains("\nexport PATH=\"${PATH}:" + TOOLS_BWA_DIR + "\" ");
     }
 
     @Test
@@ -102,7 +99,7 @@ public class StructuralCallerTest {
         return all.substring(0, all.indexOf("java"));
     }
 
-    private String resourceDownloadBash(String bucketName, String path) {
-        return format("\ngsutil -qm cp gs://%s/structural_caller/%s /data/resources ", bucketName, path);
+    private String resourceDownloadBash(String path) {
+        return format("\ngsutil -qm cp gs://%s/structural_caller/%s %s", RUNTIME_JOINT_BUCKET, path, RESOURCE_DIR);
     }
 }

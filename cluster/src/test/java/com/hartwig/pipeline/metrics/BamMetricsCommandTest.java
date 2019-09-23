@@ -1,23 +1,22 @@
 package com.hartwig.pipeline.metrics;
 
-import static java.lang.String.format;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import com.hartwig.patient.Sample;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.hartwig.patient.Sample;
-import com.hartwig.pipeline.testsupport.CommonTestEntities;
+import static com.hartwig.pipeline.testsupport.TestConstants.TOOLS_GRIDSS_JAR;
+import static com.hartwig.pipeline.testsupport.TestConstants.outFile;
+import static java.lang.String.format;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-import org.junit.Before;
-import org.junit.Test;
-
-public class BamMetricsCommandTest implements CommonTestEntities {
+public class BamMetricsCommandTest {
     private static final String OPERATION = "CollectWgsMetrics";
     private String actual;
     private String reference;
@@ -39,9 +38,9 @@ public class BamMetricsCommandTest implements CommonTestEntities {
 
     @Test
     public void shouldStartCommandLineWithJarAndOperation() {
-        assertThat(actual).startsWith("java -Xmx24G -Dsamjdk.use_async_io_read_samtools=true -Dsamjdk.use_async_io_write_samtools=true "
-                + "-Dsamjdk.use_async_io_write_tribble=true -Dsamjdk.buffer_size=4194304 -cp /opt/tools/gridss/2.5.2/gridss.jar "
-                + "picard.cmdline.PicardCommandLine " + OPERATION);
+        assertThat(actual).startsWith("java -Xmx24G -Dsamjdk.use_async_io_read_samtools=true -Dsamjdk.use_async_io_write_samtools=true"
+                + " -Dsamjdk.use_async_io_write_tribble=true -Dsamjdk.buffer_size=4194304 -cp " + TOOLS_GRIDSS_JAR
+                + " picard.cmdline.PicardCommandLine " + OPERATION);
     }
 
     @Test

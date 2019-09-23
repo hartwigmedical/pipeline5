@@ -1,13 +1,13 @@
 package com.hartwig.pipeline.calling.structural.gridss.command;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import com.hartwig.pipeline.calling.structural.gridss.GridssTestEntities;
-
 import org.junit.Before;
 import org.junit.Test;
 
-public class PreProcessSoftClipsToSplitReadsTest implements GridssTestEntities {
+import static com.hartwig.pipeline.calling.structural.gridss.GridssTestConstants.*;
+import static com.hartwig.pipeline.testsupport.TestConstants.OUT_DIR;
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class PreProcessSoftClipsToSplitReadsTest {
     private SoftClipsToSplitReads.ForPreprocess command;
     private String className;
 

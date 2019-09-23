@@ -1,16 +1,15 @@
 package com.hartwig.pipeline.execution.vm;
 
-import static java.lang.String.format;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
-import com.hartwig.pipeline.testsupport.CommonTestEntities;
-
 import org.junit.Before;
 import org.junit.Test;
 
-public class InputDownloadTest implements CommonTestEntities {
+import static com.hartwig.pipeline.testsupport.TestConstants.IN_DIR;
+import static com.hartwig.pipeline.testsupport.TestConstants.inFile;
+import static java.lang.String.format;
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class InputDownloadTest {
 
     private InputDownload victim;
     private String remoteSourcePath;

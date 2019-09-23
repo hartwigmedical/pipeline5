@@ -1,12 +1,13 @@
 package com.hartwig.pipeline.calling.germline;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.google.common.collect.Lists;
 import com.hartwig.pipeline.calling.SubStage;
 import com.hartwig.pipeline.calling.SubStageTest;
-
 import org.junit.Test;
+
+import static com.hartwig.pipeline.testsupport.TestConstants.TOOLS_GATK_JAR;
+import static com.hartwig.pipeline.testsupport.TestConstants.outFile;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class SelectVariantsTest extends SubStageTest{
 
@@ -22,8 +23,8 @@ public class SelectVariantsTest extends SubStageTest{
 
     @Test
     public void selectsVariantsWithGatk() {
-        assertThat(output.currentBash().asUnixString()).contains("java -Xmx20G -jar /opt/tools/gatk/3.8.0/GenomeAnalysisTK.jar -T "
-                + "SelectVariants -selectType SNP,NO_VARIATION -R referenceSampleName.fasta -V "
+        assertThat(output.currentBash().asUnixString()).contains("java -Xmx20G -jar " + TOOLS_GATK_JAR
+                + " -T SelectVariants -selectType SNP,NO_VARIATION -R referenceSampleName.fasta -V "
                 + outFile("tumor.strelka.vcf") + " -o " + expectedPath());
     }
 }

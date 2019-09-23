@@ -1,16 +1,15 @@
 package com.hartwig.pipeline.calling.structural.gridss.command;
 
-import static java.lang.String.format;
-import static java.util.Arrays.copyOfRange;
-import static java.util.Arrays.stream;
-import static java.util.stream.Collectors.joining;
+import org.assertj.core.api.AbstractAssert;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.assertj.core.api.AbstractAssert;
+import static com.hartwig.pipeline.testsupport.TestConstants.TOOLS_GRIDSS_JAR;
+import static java.lang.String.format;
+import static java.util.Arrays.copyOfRange;
 
 public class GridssCommonArgumentsAssert extends AbstractAssert<GridssCommonArgumentsAssert, GridssCommand> {
     private GridssArgumentsListBuilder argumentsBuilder;
@@ -20,7 +19,7 @@ public class GridssCommonArgumentsAssert extends AbstractAssert<GridssCommonArgu
         private final List<String> gridssArgs;
         private GridssCommonArgumentsAssert parent;
 
-        public GridssArgumentsListBuilder(GridssCommonArgumentsAssert parent) {
+        GridssArgumentsListBuilder(GridssCommonArgumentsAssert parent) {
             this.parent = parent;
             gridssArgs = new ArrayList<>();
         }
@@ -34,11 +33,11 @@ public class GridssCommonArgumentsAssert extends AbstractAssert<GridssCommonArgu
             return this;
         }
 
-        public GridssArgumentsListBuilder andConfigFile(String configFile) {
+        GridssArgumentsListBuilder andConfigFile(String configFile) {
             return and("configuration_file", configFile);
         }
 
-        public GridssArgumentsListBuilder andBlacklist(String blacklist) {
+        GridssArgumentsListBuilder andBlacklist(String blacklist) {
             return and("blacklist", blacklist);
         }
 
@@ -59,7 +58,7 @@ public class GridssCommonArgumentsAssert extends AbstractAssert<GridssCommonArgu
         }
 
         private String argsAsString() {
-            return gridssArgs.stream().collect(joining(" "));
+            return String.join(" ", gridssArgs);
         }
     }
 
@@ -71,7 +70,7 @@ public class GridssCommonArgumentsAssert extends AbstractAssert<GridssCommonArgu
         return new GridssCommonArgumentsAssert(actual);
     }
 
-    public GridssCommonArgumentsAssert usesStandardAmountOfMemory() {
+    GridssCommonArgumentsAssert usesStandardAmountOfMemory() {
         int standardMemoryGb = 8;
         if (actual.memoryGb() != standardMemoryGb) {
             failWithMessage(format("Command is not using the standard %sGB of memory", standardMemoryGb));
@@ -110,14 +109,14 @@ public class GridssCommonArgumentsAssert extends AbstractAssert<GridssCommonArgu
                 "-Dsamjdk.buffer_size=4194304"
         ));
 
-        String actualJvmProperties = " " + stream(copyOfRange(tokens, 2, tokens.length)).collect(joining(" ")) + " ";
+        String actualJvmProperties = " " + String.join(" ", copyOfRange(tokens, 2, tokens.length)) + " ";
         for (String expectedRemainingToken: expectedJvmProperties) {
             if (!actualJvmProperties.contains(format(" %s ", expectedRemainingToken))) {
                 failWithMessage("Invocation does not contain required argument '%s': '%s'", expectedRemainingToken, invocation);
             }
         }
 
-        String classpathTokens = "-cp /opt/tools/gridss/2.5.2/gridss.jar";
+        String classpathTokens = "-cp " + TOOLS_GRIDSS_JAR;
         if (!actualJvmProperties.trim().endsWith(classpathTokens)) {
             failWithMessage(format("Did not find classpath entry \"%s\" for GRIDSS JAR in invocation: %s",
                     classpathTokens, invocation));

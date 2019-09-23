@@ -1,32 +1,26 @@
 package com.hartwig.pipeline.calling.structural.gridss.stage;
 
-import static java.lang.String.format;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import com.hartwig.pipeline.calling.structural.gridss.command.BiocondaVariantAnnotationWorkaround;
 import com.hartwig.pipeline.calling.structural.gridss.command.RscriptFilter;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.OutputFile;
-import com.hartwig.pipeline.testsupport.CommonTestEntities;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-public class FilterTest implements CommonTestEntities {
+import static com.hartwig.pipeline.testsupport.TestConstants.outFile;
+import static java.lang.String.format;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
+
+public class FilterTest {
     private String uncompressedVcf;
     private String outputFilteredVcf;
     private String outputFullVcf;
 
     private BashStartupScript initialScript;
     private ArgumentCaptor<BashCommand> captor;
-    private Filter victim;
     private OutputFile input;
     private OutputFile output;
 
@@ -35,16 +29,15 @@ public class FilterTest implements CommonTestEntities {
         input = mock(OutputFile.class);
         output = mock(OutputFile.class);
 
-        uncompressedVcf = format("%s/original.vcf", OUT_DIR);
+        uncompressedVcf = outFile("original.vcf");
         when(input.path()).thenReturn(uncompressedVcf + ".gz");
         outputFilteredVcf = "filtered.vcf";
         outputFullVcf = "full.vcf";
-        victim = new Filter(outputFilteredVcf, outputFullVcf);
 
         captor = ArgumentCaptor.forClass(BashCommand.class);
 
         initialScript = mock(BashStartupScript.class);
-        BashStartupScript finishedScript = victim.bash(input, output, initialScript);
+        BashStartupScript finishedScript = new Filter(outputFilteredVcf, outputFullVcf).bash(input, output, initialScript);
         verify(finishedScript, times(6)).addCommand(captor.capture());
     }
 

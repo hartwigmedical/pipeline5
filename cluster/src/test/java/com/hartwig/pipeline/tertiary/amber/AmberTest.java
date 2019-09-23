@@ -1,13 +1,5 @@
 package com.hartwig.pipeline.tertiary.amber;
 
-import static com.hartwig.pipeline.testsupport.TestInputs.defaultPair;
-import static com.hartwig.pipeline.testsupport.TestInputs.defaultSomaticRunMetadata;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.CopyWriter;
 import com.google.cloud.storage.Storage;
@@ -19,15 +11,20 @@ import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.resource.ResourceNames;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.testsupport.BucketInputOutput;
-import com.hartwig.pipeline.testsupport.CommonTestEntities;
 import com.hartwig.pipeline.testsupport.MockResource;
-import com.hartwig.pipeline.tools.Versions;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-public class AmberTest implements CommonTestEntities {
+import static com.hartwig.pipeline.testsupport.TestConstants.*;
+import static com.hartwig.pipeline.testsupport.TestInputs.defaultPair;
+import static com.hartwig.pipeline.testsupport.TestInputs.defaultSomaticRunMetadata;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+public class AmberTest {
 
     private static final String RUNTIME_BUCKET = "run-reference-tumor-test";
     private ComputeEngine computeEngine;
@@ -79,9 +76,11 @@ public class AmberTest implements CommonTestEntities {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
         victim.run(defaultSomaticRunMetadata(),defaultPair());
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains("java -Xmx32G -cp "
-                + "/opt/tools/amber/" + Versions.AMBER + "/amber.jar com.hartwig.hmftools.amber.AmberApplication -reference reference -reference_bam "
-                + inFile("reference.bam") + " -tumor tumor -tumor_bam " + inFile("tumor.bam") + " -output_dir " + OUT_DIR + " -threads 16 -ref_genome "
-                + "/data/resources/reference.fasta -bed /data/resources/GermlineHetPon.hg19.bed -snp_bed /data/resources/GermlineSnp.hg19.bed");
+                + TOOLS_AMBER_JAR + " com.hartwig.hmftools.amber.AmberApplication -reference reference -reference_bam "
+                + inFile("reference.bam") + " -tumor tumor -tumor_bam " + inFile("tumor.bam")
+                + " -output_dir " + OUT_DIR + " -threads 16 -ref_genome "
+                + resource("reference.fasta") + " -bed " + resource("GermlineHetPon.hg19.bed")
+                + " -snp_bed " + resource("GermlineSnp.hg19.bed"));
     }
 
     @Test

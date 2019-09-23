@@ -1,16 +1,14 @@
 package com.hartwig.pipeline.calling.structural.gridss.command;
 
-import static java.lang.String.format;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-import com.hartwig.pipeline.calling.structural.gridss.GridssTestEntities;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
-
 import org.junit.Before;
 import org.junit.Test;
 
-public class ExtractSvReadsTest implements GridssTestEntities {
+import static com.hartwig.pipeline.calling.structural.gridss.GridssTestConstants.*;
+import static java.lang.String.format;
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class ExtractSvReadsTest {
     private String metricsOut;
     private String inputFile;
     private String insertSizeMetrics;

@@ -1,15 +1,15 @@
 package com.hartwig.pipeline.calling.structural.gridss.command;
 
-import static java.lang.String.format;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-import com.hartwig.pipeline.calling.structural.gridss.GridssTestEntities;
-
+import com.hartwig.pipeline.calling.structural.gridss.GridssTestConstants;
+import com.hartwig.pipeline.testsupport.TestConstants;
 import org.junit.Before;
 import org.junit.Test;
 
-public class IdentifyVariantsTest implements GridssTestEntities {
+import static com.hartwig.pipeline.calling.structural.gridss.GridssTestConstants.REFERENCE_GENOME;
+import static com.hartwig.pipeline.testsupport.TestConstants.OUT_DIR;
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class IdentifyVariantsTest {
     private IdentifyVariants command;
     private String assemblyBam;
     private String outputVcf;
@@ -22,9 +22,9 @@ public class IdentifyVariantsTest implements GridssTestEntities {
         assemblyBam = "/assembly.bam";
         configurationFile = "/config.properties";
         blacklist = "/path/to/blacklist.bed";
-        outputVcf =  format("%s/sv_calling.vcf", OUT_DIR);
+        outputVcf = TestConstants.outFile("sv_calling.vcf");
         className = "gridss.IdentifyVariants";
-        command = new IdentifyVariants(REFERENCE_BAM, TUMOR_BAM, assemblyBam, outputVcf, REFERENCE_GENOME, configurationFile, blacklist);
+        command = new IdentifyVariants(GridssTestConstants.REFERENCE_BAM, GridssTestConstants.TUMOR_BAM, assemblyBam, outputVcf, REFERENCE_GENOME, configurationFile, blacklist);
     }
 
     @Test
@@ -45,11 +45,11 @@ public class IdentifyVariantsTest implements GridssTestEntities {
     @Test
     public void shouldReturnGridssOptions() {
         GridssCommonArgumentsAssert.assertThat(command)
-                .hasGridssArguments(ARGS_TMP_DIR)
+                .hasGridssArguments(GridssTestConstants.ARGS_TMP_DIR)
                 .and("working_dir", OUT_DIR)
-                .and(ARGS_REFERENCE_SEQUENCE)
-                .and(ARG_KEY_INPUT, REFERENCE_BAM)
-                .and(ARG_KEY_INPUT, TUMOR_BAM)
+                .and(GridssTestConstants.ARGS_REFERENCE_SEQUENCE)
+                .and(GridssTestConstants.ARG_KEY_INPUT, GridssTestConstants.REFERENCE_BAM)
+                .and(GridssTestConstants.ARG_KEY_INPUT, GridssTestConstants.TUMOR_BAM)
                 .and("output_vcf", outputVcf)
                 .and("assembly", assemblyBam)
                 .andBlacklist(blacklist)

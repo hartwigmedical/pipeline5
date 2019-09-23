@@ -1,21 +1,5 @@
 package com.hartwig.pipeline.calling.somatic;
 
-import static com.hartwig.pipeline.resource.ResourceNames.BEDS;
-import static com.hartwig.pipeline.resource.ResourceNames.COSMIC;
-import static com.hartwig.pipeline.resource.ResourceNames.DBSNPS;
-import static com.hartwig.pipeline.resource.ResourceNames.MAPPABILITY;
-import static com.hartwig.pipeline.resource.ResourceNames.PON;
-import static com.hartwig.pipeline.resource.ResourceNames.SAGE;
-import static com.hartwig.pipeline.resource.ResourceNames.SNPEFF;
-import static com.hartwig.pipeline.resource.ResourceNames.STRELKA_CONFIG;
-import static com.hartwig.pipeline.testsupport.TestInputs.defaultPair;
-import static com.hartwig.pipeline.testsupport.TestInputs.defaultSomaticRunMetadata;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.CopyWriter;
 import com.google.cloud.storage.Storage;
@@ -27,14 +11,21 @@ import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.resource.ResourceNames;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
-import com.hartwig.pipeline.testsupport.CommonTestEntities;
 import com.hartwig.pipeline.testsupport.MockResource;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-public class SomaticCallerTest implements CommonTestEntities {
+import static com.hartwig.pipeline.resource.ResourceNames.*;
+import static com.hartwig.pipeline.testsupport.TestConstants.*;
+import static com.hartwig.pipeline.testsupport.TestInputs.defaultPair;
+import static com.hartwig.pipeline.testsupport.TestInputs.defaultSomaticRunMetadata;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+public class SomaticCallerTest {
 
     private static final String RUNTIME_BUCKET = "run-reference-tumor-test";
     private ComputeEngine computeEngine;
@@ -84,9 +75,9 @@ public class SomaticCallerTest implements CommonTestEntities {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
         victim.run(defaultSomaticRunMetadata(), defaultPair());
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
-                "gsutil -qm cp gs://run-reference-tumor-test/somatic_caller/snpeff/* /data/resources");
+                "gsutil -qm cp gs://run-reference-tumor-test/somatic_caller/snpeff/* " + RESOURCE_DIR);
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
-                "unzip -d /data/resources /data/resources/snpeffdb.zip ");
+                "unzip -d " + RESOURCE_DIR + " " + resource("snpeffdb.zip"));
     }
 
     @Test

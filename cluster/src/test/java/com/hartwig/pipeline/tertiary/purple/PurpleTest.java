@@ -1,13 +1,5 @@
 package com.hartwig.pipeline.tertiary.purple;
 
-import static com.hartwig.pipeline.testsupport.TestInputs.defaultPair;
-import static com.hartwig.pipeline.testsupport.TestInputs.defaultSomaticRunMetadata;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.CopyWriter;
 import com.google.cloud.storage.Storage;
@@ -23,15 +15,20 @@ import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
 import com.hartwig.pipeline.tertiary.cobalt.CobaltOutput;
 import com.hartwig.pipeline.testsupport.BucketInputOutput;
-import com.hartwig.pipeline.testsupport.CommonTestEntities;
 import com.hartwig.pipeline.testsupport.MockResource;
-import com.hartwig.pipeline.tools.Versions;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-public class PurpleTest implements CommonTestEntities {
+import static com.hartwig.pipeline.testsupport.TestConstants.*;
+import static com.hartwig.pipeline.testsupport.TestInputs.defaultPair;
+import static com.hartwig.pipeline.testsupport.TestInputs.defaultSomaticRunMetadata;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+public class PurpleTest {
 
     private static final String RUNTIME_BUCKET = "run-reference-tumor-test";
     private ComputeEngine computeEngine;
@@ -84,13 +81,13 @@ public class PurpleTest implements CommonTestEntities {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
         runVictim();
         assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
-                "java -Xmx8G -jar " + "/opt/tools/purple/" + Versions.PURPLE
-                        + "/purple.jar -reference reference -tumor tumor -output_dir " + OUT_DIR + " -amber "
-                        + IN_DIR + " -cobalt " + IN_DIR + " -gc_profile /data/resources/gc_profile.cnp "
-                        + "-somatic_vcf " + inFile("somatic.vcf")
+                "java -Xmx8G -jar " + TOOLS_PURPLE_JAR + " -reference reference -tumor tumor -output_dir " + OUT_DIR
+                        + " -amber " + IN_DIR + " -cobalt " + IN_DIR + " -gc_profile " + resource("gc_profile.cnp")
+                        + " -somatic_vcf " + inFile("somatic.vcf")
                         + " -structural_vcf " + inFile("structural.vcf")
                         + " -sv_recovery_vcf " + inFile("sv_recovery.vcf")
-                        + " -circos /opt/tools/circos/0.69.6/bin/circos -ref_genome /data/resources/reference.fasta -threads $(grep -c '^processor' /proc/cpuinfo)");
+                        + " -circos " + TOOLS_DIR + "/circos/0.69.6/bin/circos -ref_genome " + resource("reference.fasta")
+                        + " -threads " + PROC_COUNT);
     }
 
     @Test

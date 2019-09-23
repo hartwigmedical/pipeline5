@@ -1,11 +1,12 @@
 package com.hartwig.pipeline.calling.somatic;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.hartwig.pipeline.calling.SubStage;
 import com.hartwig.pipeline.calling.TabixSubStageTest;
-
 import org.junit.Test;
+
+import static com.hartwig.pipeline.testsupport.TestConstants.TOOLS_SAGE_JAR;
+import static com.hartwig.pipeline.testsupport.TestConstants.outFile;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class SageHotspotsApplicationTest extends TabixSubStageTest {
 
@@ -27,8 +28,8 @@ public class SageHotspotsApplicationTest extends TabixSubStageTest {
 
     @Test
     public void runsSageHotspotApplication() {
-        assertThat(output.currentBash().asUnixString()).contains("java -Xmx8G -cp /opt/tools/sage/1.1/sage.jar "
-                + "com.hartwig.hmftools.sage.SageHotspotApplication -tumor tumor -tumor_bam tumor.bam -reference reference -reference_bam "
+        assertThat(output.currentBash().asUnixString()).contains("java -Xmx8G -cp " + TOOLS_SAGE_JAR
+                + " com.hartwig.hmftools.sage.SageHotspotApplication -tumor tumor -tumor_bam tumor.bam -reference reference -reference_bam "
                 + "reference.bam -known_hotspots known_hotspots.tsv -coding_regions coding_regions.bed -ref_genome reference_genome.fasta "
                 + "-out " + outFile("tumor.sage.hotspots.vcf.gz"));
     }

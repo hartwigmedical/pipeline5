@@ -1,12 +1,11 @@
 package com.hartwig.pipeline.execution.vm;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import com.hartwig.pipeline.testsupport.CommonTestEntities;
-
 import org.junit.Test;
 
-public class JobCompleteTest implements CommonTestEntities {
+import static com.hartwig.pipeline.testsupport.TestConstants.outFile;
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class JobCompleteTest {
 
     @Test
     public void createsBashToPutCompletionFileWithDateIntoOutputDirectory(){

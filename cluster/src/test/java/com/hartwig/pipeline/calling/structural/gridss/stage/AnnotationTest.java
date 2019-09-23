@@ -1,32 +1,28 @@
 package com.hartwig.pipeline.calling.structural.gridss.stage;
 
-import static java.lang.String.format;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.List;
-
 import com.hartwig.pipeline.calling.SubStage;
 import com.hartwig.pipeline.calling.SubStageTest;
 import com.hartwig.pipeline.calling.command.BgzipCommand;
 import com.hartwig.pipeline.calling.command.TabixCommand;
-import com.hartwig.pipeline.calling.structural.gridss.GridssTestEntities;
 import com.hartwig.pipeline.calling.structural.gridss.command.AnnotateUntemplatedSequence;
 import com.hartwig.pipeline.calling.structural.gridss.command.AnnotateVariants;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.OutputFile;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-public class AnnotationTest extends SubStageTest implements GridssTestEntities {
+import java.util.List;
+
+import static com.hartwig.pipeline.calling.structural.gridss.GridssTestConstants.*;
+import static com.hartwig.pipeline.testsupport.TestConstants.OUT_DIR;
+import static java.lang.String.format;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+public class AnnotationTest extends SubStageTest {
 
     private static final String UNTEMPLATED_OUTPUT_VCF_NAME = format("%s/%s.annotation.vcf", OUT_DIR, JOINT_NAME);
     private String rawVcf;

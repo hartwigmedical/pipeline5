@@ -1,13 +1,12 @@
 package com.hartwig.pipeline.alignment.vm;
 
-import static com.hartwig.pipeline.alignment.vm.Lanes.emptyBuilder;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.hartwig.pipeline.calling.SubStage;
 import com.hartwig.pipeline.calling.SubStageTest;
-
 import org.junit.Test;
+
+import static com.hartwig.pipeline.alignment.vm.Lanes.emptyBuilder;
+import static com.hartwig.pipeline.testsupport.TestConstants.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class LaneAlignmentTest extends SubStageTest {
 
@@ -28,9 +27,9 @@ public class LaneAlignmentTest extends SubStageTest {
 
     @Test
     public void alignsBamsAndSortsEachLaneFastqPair() {
-        assertThat(output.currentBash().asUnixString()).contains("(/opt/tools/bwa/0.7.17/bwa mem -R "
-                + "\"@RG\\tID:tumor___L001_\\tLB:tumor\\tPL:ILLUMINA\\tPU:\\tSM:tumor\" -Y -t $(grep -c '^processor' /proc/cpuinfo) "
-                + "reference.fasta R1.fastq R2.fastq | /opt/tools/sambamba/0.6.8/sambamba view -f bam -S -l0 /dev/stdin | "
-                + "/opt/tools/sambamba/0.6.8/sambamba sort -o " + expectedPath() + " /dev/stdin)");
+        assertThat(output.currentBash().asUnixString()).contains("(" + TOOLS_BWA + " mem -R "
+                + "\"@RG\\tID:tumor___L001_\\tLB:tumor\\tPL:ILLUMINA\\tPU:\\tSM:tumor\" -Y -t " + PROC_COUNT
+                + " reference.fasta R1.fastq R2.fastq | " + TOOLS_SAMBAMBA + " view -f bam -S -l0 /dev/stdin | "
+                + TOOLS_SAMBAMBA + " sort -o " + expectedPath() + " /dev/stdin)");
     }
 }

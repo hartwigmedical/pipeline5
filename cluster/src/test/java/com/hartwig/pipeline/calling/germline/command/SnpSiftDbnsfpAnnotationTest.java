@@ -1,11 +1,12 @@
 package com.hartwig.pipeline.calling.germline.command;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.hartwig.pipeline.calling.SubStage;
 import com.hartwig.pipeline.calling.TabixSubStageTest;
-
 import org.junit.Test;
+
+import static com.hartwig.pipeline.testsupport.TestConstants.TOOLS_SNPEFF_DIR;
+import static com.hartwig.pipeline.testsupport.TestConstants.outFile;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class SnpSiftDbnsfpAnnotationTest extends TabixSubStageTest {
 
@@ -21,7 +22,7 @@ public class SnpSiftDbnsfpAnnotationTest extends TabixSubStageTest {
 
     @Test
     public void runsSnpSiftDbsnfpAnnotation() {
-        assertThat(output.currentBash().asUnixString()).contains("(java -Xmx20G -jar /opt/tools/snpEff/4.3s/SnpSift.jar dbnsfp -c "
+        assertThat(output.currentBash().asUnixString()).contains("(java -Xmx20G -jar " + TOOLS_SNPEFF_DIR + "/SnpSift.jar dbnsfp -c "
                 + "snpEff.config -v -f");
         assertThat(output.currentBash().asUnixString()).contains(
                 "-db dbnsfp.vcf.gz " + outFile("tumor.strelka.vcf") + " > " + outFile("tumor.dbnsfp.annotated.vcf"));

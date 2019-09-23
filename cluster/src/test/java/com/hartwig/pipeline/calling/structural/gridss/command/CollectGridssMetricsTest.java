@@ -1,13 +1,12 @@
 package com.hartwig.pipeline.calling.structural.gridss.command;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import com.hartwig.pipeline.calling.structural.gridss.GridssTestEntities;
-
 import org.junit.Before;
 import org.junit.Test;
 
-public class CollectGridssMetricsTest implements GridssTestEntities {
+import static com.hartwig.pipeline.calling.structural.gridss.GridssTestConstants.ARGS_TMP_DIR;
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class CollectGridssMetricsTest {
     private CollectGridssMetrics command;
     private String inputBamBasename;
     private String inputBamFullPath;
