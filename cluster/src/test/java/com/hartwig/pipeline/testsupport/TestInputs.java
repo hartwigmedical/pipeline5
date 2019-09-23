@@ -49,7 +49,7 @@ public class TestInputs {
     }
 
     private static AlignmentOutput alignerOutput(final String sample) {
-        String bucket = "run-" + sample + "/aligner";
+        String bucket = "run-" + sample + "-test/aligner";
         return AlignmentOutput.builder()
                 .status(PipelineStatus.SUCCESS)
                 .maybeFinalBamLocation(gsLocation(bucket, RESULTS + sample + ".bam"))

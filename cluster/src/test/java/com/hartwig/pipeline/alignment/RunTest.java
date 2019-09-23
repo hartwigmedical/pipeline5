@@ -5,17 +5,27 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Optional;
 
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.metadata.ImmutableSingleSampleRunMetadata;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 
+import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
 public class RunTest {
 
-    private static final SingleSampleRunMetadata REFERENCE_SAMPLE = SingleSampleRunMetadata.builder().sampleId("reference").build();
-    private static final SingleSampleRunMetadata TUMOR_SAMPLE = SingleSampleRunMetadata.builder().sampleId("tumor").build();
-    private static final SomaticRunMetadata SOMATIC =
-            SomaticRunMetadata.builder().reference(REFERENCE_SAMPLE).maybeTumor(TUMOR_SAMPLE).runName("test").build();
+    private static final SingleSampleRunMetadata REFERENCE_SAMPLE = sample(SingleSampleRunMetadata.SampleType.REFERENCE, "reference");
+    private static final SingleSampleRunMetadata TUMOR_SAMPLE = sample(SingleSampleRunMetadata.SampleType.TUMOR, "tumor");
+    private static final SomaticRunMetadata SOMATIC = somatic(REFERENCE_SAMPLE, TUMOR_SAMPLE);
+
+    @NotNull
+    private static SomaticRunMetadata somatic(final SingleSampleRunMetadata referenceSample, final SingleSampleRunMetadata tumorSample) {
+        return SomaticRunMetadata.builder().reference(referenceSample).maybeTumor(tumorSample).runName("test").build();
+    }
+
+    private static ImmutableSingleSampleRunMetadata sample(final SingleSampleRunMetadata.SampleType type, final String sampleId) {
+        return SingleSampleRunMetadata.builder().type(type).sampleId(sampleId).build();
+    }
 
     @Test
     public void idConsistsOfSampleNameAndUserWhenArgumentEmptySingleSample() {
@@ -38,7 +48,8 @@ public class RunTest {
 
     @Test
     public void replacesUnderscoresWithDashes() {
-        Run victim = Run.from(SOMATIC, Arguments.testDefaults());
+        Run victim = Run.from(somatic(sample(SingleSampleRunMetadata.SampleType.REFERENCE, "reference_suf"),
+                sample(SingleSampleRunMetadata.SampleType.TUMOR, "tumor_suf")), Arguments.testDefaults());
         assertThat(victim.id()).isEqualTo("run-reference-suf-tumor-suf-test");
     }
 

@@ -98,12 +98,12 @@ public class StructuralCaller {
 
         String refBamPath = referenceBam.getLocalTargetPath();
         String tumorBamPath = tumorBam.getLocalTargetPath();
-        new Preprocess(refBamPath, referenceWorkingDir, referenceSampleName, referenceGenomePath).apply(SubStageInputOutput.seed(
-                referenceSampleName));
-        new Preprocess(tumorBamPath,
-                tumorWorkingDir,
-                tumorSampleName,
-                referenceGenomePath).apply(SubStageInputOutput.seed(tumorSampleName));
+        SubStageInputOutput referencePreProcessed =
+                new Preprocess(refBamPath, referenceWorkingDir, referenceSampleName, referenceGenomePath).apply(SubStageInputOutput.seed(
+                        referenceSampleName));
+        SubStageInputOutput tumorPreProcessed =
+                new Preprocess(tumorBamPath, tumorWorkingDir, tumorSampleName, referenceGenomePath).apply(SubStageInputOutput.seed(
+                        tumorSampleName));
 
         Assemble assemble = new Assemble(refBamPath, tumorBamPath, jointName, referenceGenomePath, configurationFile, blacklist);
         String filteredVcfBasename = VmDirectories.outputFile(format("%s.gridss.somatic.vcf", tumorSampleName));
@@ -120,9 +120,12 @@ public class StructuralCaller {
                                 blacklist))
                         .apply(SubStageInputOutput.seed(jointName));
 
-        new Filter(filteredVcfBasename, fullVcfBasename).apply(annotated);
-
-        bash.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path())));
+        SubStageInputOutput filtered = new Filter(filteredVcfBasename, fullVcfBasename).apply(annotated);
+        bash.addCommands(referencePreProcessed.bash())
+                .addCommands(tumorPreProcessed.bash())
+                .addCommands(annotated.bash())
+                .addCommands(filtered.bash())
+                .addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path())));
 
         PipelineStatus status = computeEngine.submit(runtimeBucket, VirtualMachineJobDefinition.structuralCalling(bash, resultsDirectory));
 

@@ -102,14 +102,15 @@ public class VmAligner implements Aligner {
 
             bash.addCommand(referenceGenomeDownload).addCommand(first).addCommand(second);
 
-            perLaneBams.add(GoogleStorageLocation.of(laneBucket.name(),
-                    resultsDirectory.path(new LaneAlignment(referenceGenomePath,
-                            first.getLocalTargetPath(),
-                            second.getLocalTargetPath(),
-                            sample.name(),
-                            lane).apply(SubStageInputOutput.seed(sample.name())).outputFile().fileName())));
+            SubStageInputOutput alignment = new LaneAlignment(referenceGenomePath,
+                    first.getLocalTargetPath(),
+                    second.getLocalTargetPath(),
+                    sample.name(),
+                    lane).apply(SubStageInputOutput.seed(sample.name()));
+            perLaneBams.add(GoogleStorageLocation.of(laneBucket.name(), resultsDirectory.path(alignment.outputFile().fileName())));
 
-            bash.addCommand(new OutputUpload(GoogleStorageLocation.of(laneBucket.name(), resultsDirectory.path())));
+            bash.addCommands(alignment.bash())
+                    .addCommand(new OutputUpload(GoogleStorageLocation.of(laneBucket.name(), resultsDirectory.path())));
             futures.add(executorService.submit(() -> computeEngine.submit(laneBucket,
                     VirtualMachineJobDefinition.alignment(lane.laneNumber().toLowerCase(), bash, resultsDirectory))));
         }

@@ -6,13 +6,11 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.alignment.AlignerProvider;
 import com.hartwig.pipeline.alignment.AlignmentOutputStorage;
-import com.hartwig.pipeline.calling.germline.GermlineCallerProvider;
 import com.hartwig.pipeline.calling.structural.StructuralCallerProvider;
 import com.hartwig.pipeline.cleanup.CleanupProvider;
 import com.hartwig.pipeline.credentials.CredentialProvider;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
-import com.hartwig.pipeline.flagstat.FlagstatProvider;
 import com.hartwig.pipeline.metadata.SampleMetadataApi;
 import com.hartwig.pipeline.metadata.SampleMetadataApiProvider;
 import com.hartwig.pipeline.metadata.SetMetadataApiProvider;
@@ -21,7 +19,6 @@ import com.hartwig.pipeline.metadata.SomaticMetadataApi;
 import com.hartwig.pipeline.metrics.BamMetricsOutputStorage;
 import com.hartwig.pipeline.report.FullSomaticResults;
 import com.hartwig.pipeline.report.PipelineResultsProvider;
-import com.hartwig.pipeline.snpgenotype.SnpGenotype;
 import com.hartwig.pipeline.stages.StageRunner;
 import com.hartwig.pipeline.storage.StorageProvider;
 import com.hartwig.pipeline.tertiary.amber.AmberProvider;
@@ -95,9 +92,6 @@ public class PipelineMain {
         return new SingleSamplePipeline(eventListener,
                 new StageRunner<>(storage, arguments, ComputeEngine.from(arguments, credentials), ResultsDirectory.defaultDirectory()),
                 AlignerProvider.from(credentials, storage, arguments).get(),
-                GermlineCallerProvider.from(credentials, storage, arguments).get(),
-                new SnpGenotype(arguments, ComputeEngine.from(arguments, credentials), storage, ResultsDirectory.defaultDirectory()),
-                FlagstatProvider.from(arguments, credentials, storage).get(),
                 PipelineResultsProvider.from(storage, arguments, Versions.pipelineVersion()).get(),
                 Executors.newCachedThreadPool(),
                 arguments);

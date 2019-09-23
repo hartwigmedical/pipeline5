@@ -1,28 +1,67 @@
 package com.hartwig.pipeline.flagstat;
 
-import static com.hartwig.pipeline.testsupport.TestInputs.referenceAlignmentOutput;
-import static com.hartwig.pipeline.testsupport.TestInputs.referenceRunMetadata;
+import java.util.Collections;
+import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import com.google.cloud.storage.Bucket;
-import com.google.cloud.storage.Storage;
+import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.execution.vm.ComputeEngine;
-import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
+import com.hartwig.pipeline.stages.Stage;
+import com.hartwig.pipeline.stages.StageTest;
+import com.hartwig.pipeline.testsupport.TestInputs;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
+public class FlagstatTest extends StageTest<FlagstatOutput, SingleSampleRunMetadata> {
 
-public class FlagstatTest {
+    @Override
+    protected Arguments createDisabledArguments() {
+        return Arguments.testDefaults();
+    }
 
-    private static final String RUNTIME_BUCKET = "run-reference-test";
+    @Override
+    public void disabledAppropriately() {
+        // cannot be disabled
+    }
+
+    @Override
+    protected Stage<FlagstatOutput, SingleSampleRunMetadata> createVictim() {
+        return new Flagstat(TestInputs.referenceAlignmentOutput());
+    }
+
+    @Override
+    protected SingleSampleRunMetadata input() {
+        return TestInputs.referenceRunMetadata();
+    }
+
+    @Override
+    protected List<String> expectedInputs() {
+        return ImmutableList.of(input("run-reference-test/aligner/results/reference.bam", "reference.bam"));
+    }
+
+    @Override
+    protected List<String> expectedResources() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    protected String expectedRuntimeBucketName() {
+        return "run-reference-test";
+    }
+
+    @Override
+    protected List<String> expectedCommands() {
+        return Collections.singletonList(
+                "(/opt/tools/sambamba/0.6.8/sambamba flagstat -t $(grep -c '^processor' /proc/cpuinfo) /data/input/reference.bam > "
+                        + "/data/output/reference.flagstat)");
+    }
+
+    @Override
+    protected boolean validateOutput(final FlagstatOutput output) {
+        return output.status() == PipelineStatus.SUCCESS && output.reportComponents().size() == 3 && output.name()
+                .equals(victim.namespace());
+    }
+
+    /* private static final String RUNTIME_BUCKET = "run-reference-test";
     private ComputeEngine computeEngine;
     private static final Arguments ARGUMENTS = Arguments.testDefaults();
     private Flagstat victim;
@@ -73,6 +112,6 @@ public class FlagstatTest {
                 ArgumentCaptor.forClass(VirtualMachineJobDefinition.class);
         when(computeEngine.submit(any(), jobDefinitionArgumentCaptor.capture())).thenReturn(PipelineStatus.SUCCESS);
         return jobDefinitionArgumentCaptor;
-    }
+    }*/
 
 }

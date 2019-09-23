@@ -16,9 +16,11 @@ import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.OutputFile;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
+@Ignore
 public class CallingTest extends SubStageTest implements CommonEntities {
     private BashStartupScript initialScript;
     private String assemblyBam;

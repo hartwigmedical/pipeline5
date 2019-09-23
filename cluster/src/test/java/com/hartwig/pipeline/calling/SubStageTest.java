@@ -17,9 +17,12 @@ public abstract class SubStageTest {
 
     @Before
     public void setUp() {
-        output = createVictim().apply(SubStageInputOutput.of(sampleName(),
-                OutputFile.of(sampleName(), "strelka", "vcf", false),
+        output = createVictim().apply(SubStageInputOutput.of(sampleName(), input(),
                 Lists.newArrayList()));
+    }
+
+    protected OutputFile input() {
+        return OutputFile.of(sampleName(), "strelka", "vcf", false);
     }
 
     protected String bash() {

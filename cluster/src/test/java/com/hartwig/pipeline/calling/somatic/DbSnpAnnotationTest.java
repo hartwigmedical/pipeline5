@@ -27,7 +27,6 @@ public class DbSnpAnnotationTest extends SubStageTest implements CommonEntities 
 
     @Test
     public void runsTabix() {
-        assertThat(bash()).contains("/opt/tools/tabix/0.2.6/tabix /data/output/tumor.dbsnp.annotated.vcf.gz "
-                + "-p vcf >>" + LOG_FILE);
+        assertThat(bash()).contains("/opt/tools/tabix/0.2.6/tabix /data/output/tumor.dbsnp.annotated.vcf.gz");
     }
 }

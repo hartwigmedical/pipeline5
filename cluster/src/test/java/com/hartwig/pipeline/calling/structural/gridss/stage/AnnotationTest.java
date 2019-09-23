@@ -20,9 +20,11 @@ import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.OutputFile;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
+@Ignore
 public class AnnotationTest extends SubStageTest implements CommonEntities {
 
     private static final String UNTEMPLATED_OUTPUT_VCF_NAME = format("%s/%s.annotation.vcf", OUT_DIR, JOINT_NAME);

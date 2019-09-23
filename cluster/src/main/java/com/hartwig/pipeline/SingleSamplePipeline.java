@@ -29,22 +29,15 @@ public class SingleSamplePipeline {
     private final SingleSampleEventListener eventListener;
     private final StageRunner<SingleSampleRunMetadata> stageRunner;
     private final Aligner aligner;
-    private final GermlineCaller germlineCaller;
-    private final SnpGenotype snpGenotype;
-    private final Flagstat flagstat;
     private final PipelineResults report;
     private final ExecutorService executorService;
     private final Arguments arguments;
 
-    SingleSamplePipeline(final SingleSampleEventListener sampleMetadataApi, final StageRunner<SingleSampleRunMetadata> stageRunner, final Aligner aligner,
-            final GermlineCaller germlineCaller, final SnpGenotype snpGenotype, final Flagstat flagstat, final PipelineResults report,
-            final ExecutorService executorService, final Arguments arguments) {
+    SingleSamplePipeline(final SingleSampleEventListener sampleMetadataApi, final StageRunner<SingleSampleRunMetadata> stageRunner,
+            final Aligner aligner, final PipelineResults report, final ExecutorService executorService, final Arguments arguments) {
         this.eventListener = sampleMetadataApi;
         this.stageRunner = stageRunner;
         this.aligner = aligner;
-        this.germlineCaller = germlineCaller;
-        this.snpGenotype = snpGenotype;
-        this.flagstat = flagstat;
         this.report = report;
         this.executorService = executorService;
         this.arguments = arguments;
@@ -62,12 +55,14 @@ public class SingleSamplePipeline {
 
             Future<BamMetricsOutput> bamMetricsFuture =
                     executorService.submit(() -> stageRunner.run(metadata, new BamMetrics(alignmentOutput)));
-            Future<SnpGenotypeOutput> unifiedGenotyperFuture = executorService.submit(() -> snpGenotype.run(metadata, alignmentOutput));
-            Future<FlagstatOutput> flagstatOutputFuture = executorService.submit(() -> flagstat.run(metadata, alignmentOutput));
+            Future<SnpGenotypeOutput> unifiedGenotyperFuture =
+                    executorService.submit(() -> stageRunner.run(metadata, new SnpGenotype(alignmentOutput)));
+            Future<FlagstatOutput> flagstatOutputFuture =
+                    executorService.submit(() -> stageRunner.run(metadata, new Flagstat(alignmentOutput)));
 
             if (metadata.type().equals(SingleSampleRunMetadata.SampleType.REFERENCE)) {
                 Future<GermlineCallerOutput> germlineCallerFuture =
-                        executorService.submit(() -> germlineCaller.run(metadata, alignmentOutput));
+                        executorService.submit(() -> stageRunner.run(metadata, new GermlineCaller(alignmentOutput)));
                 report.add(state.add(futurePayload(germlineCallerFuture)));
             }
 

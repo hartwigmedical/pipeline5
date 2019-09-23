@@ -24,11 +24,13 @@ import com.hartwig.pipeline.execution.vm.unix.MkDirCommand;
 import com.hartwig.pipeline.execution.vm.unix.PipeCommands;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
 
+@Ignore
 public class PreprocessTest extends SubStageTest implements CommonEntities {
     private String workingDirectory = "/some/directory";
     private String inputBamFilename = REFERENCE_SAMPLE + ".bam";

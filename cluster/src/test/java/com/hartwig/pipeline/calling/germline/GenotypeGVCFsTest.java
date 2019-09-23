@@ -23,7 +23,7 @@ public class GenotypeGVCFsTest extends SubStageTest {
     public void runsGatkGenotypeGvcfs() {
         assertThat(bash()).contains("java -Xmx20G -jar /opt/tools/gatk/3.8.0/GenomeAnalysisTK.jar -T "
                 + "GenotypeGVCFs -V /data/output/reference.strelka.vcf -R reference.fasta -D dbsnps.vcf -o "
-                + "/data/output/reference.genotype_vcfs.vcf ");
+                + "/data/output/reference.genotype_vcfs.vcf");
     }
 
     @Override

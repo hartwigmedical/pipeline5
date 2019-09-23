@@ -30,7 +30,7 @@ public class CosmicAnnotationTest extends SubStageTest {
     @Test
     public void runsTabix() {
         assertThat(bash()).contains(
-                "/opt/tools/tabix/0.2.6/tabix /data/output/tumor.cosmic.annotated.vcf.gz -p vcf ");
+                "/opt/tools/tabix/0.2.6/tabix /data/output/tumor.cosmic.annotated.vcf.gz -p vcf");
     }
 
 }

@@ -22,11 +22,13 @@ import com.hartwig.pipeline.execution.vm.OutputFile;
 import com.hartwig.pipeline.execution.vm.unix.MkDirCommand;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
 
+@Ignore
 public class AssembleTest extends SubStageTest implements CommonEntities {
     private BashStartupScript initialScript;
     private String workingDirectory;

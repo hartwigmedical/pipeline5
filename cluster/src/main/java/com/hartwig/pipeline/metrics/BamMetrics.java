@@ -14,6 +14,7 @@ import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.ResourceDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
@@ -64,7 +65,7 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
     public List<BashCommand> commands(SingleSampleRunMetadata metadata, Map<String, ResourceDownload> resources) {
         return Collections.singletonList(new BamMetricsCommand(bamDownload.getLocalTargetPath(),
                 resources.get(ResourceNames.REFERENCE_GENOME).find("fasta"),
-                BamMetricsOutput.outputFile(metadata.sampleName())));
+                VmDirectories.OUTPUT + "/" + BamMetricsOutput.outputFile(metadata.sampleName())));
     }
 
     @Override

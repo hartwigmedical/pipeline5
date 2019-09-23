@@ -1,6 +1,7 @@
 package com.hartwig.pipeline.stages;
 
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -8,6 +9,7 @@ import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.StageOutput;
+import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.OutputUpload;
@@ -40,16 +42,19 @@ public class StageRunner<M extends RunMetadata> {
             List<ResourceDownload> resources = stage.resources(storage, arguments.resourceBucket(), bucket);
             bash.addCommands(stage.inputs())
                     .addCommands(resources)
-                    .addCommands(stage.commands(metadata,
-                            resources.stream()
-                                    .collect(Collectors.toMap(resource -> resource.getResource().getName(), Function.identity()))))
+                    .addCommands(stage.commands(metadata, resourceMap(resources)))
                     .addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path())));
+            PipelineStatus status = computeEngine.submit(bucket, stage.vmDefinition(bash, resultsDirectory));
             trace.stop();
-            return stage.output(metadata,
-                    computeEngine.submit(bucket, stage.vmDefinition(bash, resultsDirectory)),
+            return stage.output(metadata, status,
                     bucket,
                     resultsDirectory);
         }
         return stage.skippedOutput(metadata);
+    }
+
+    static Map<String, ResourceDownload> resourceMap(final List<ResourceDownload> resources) {
+        return resources.stream()
+                .collect(Collectors.toMap(resource -> resource.getResource().getName(), Function.identity()));
     }
 }
