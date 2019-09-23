@@ -21,10 +21,6 @@ import com.hartwig.pipeline.report.FullSomaticResults;
 import com.hartwig.pipeline.report.PipelineResultsProvider;
 import com.hartwig.pipeline.stages.StageRunner;
 import com.hartwig.pipeline.storage.StorageProvider;
-import com.hartwig.pipeline.tertiary.amber.AmberProvider;
-import com.hartwig.pipeline.tertiary.cobalt.CobaltProvider;
-import com.hartwig.pipeline.tertiary.healthcheck.HealthCheckerProvider;
-import com.hartwig.pipeline.tertiary.purple.PurpleProvider;
 import com.hartwig.pipeline.tools.Versions;
 
 import org.apache.commons.cli.ParseException;
@@ -69,21 +65,15 @@ public class PipelineMain {
 
     private static SomaticPipeline somaticPipeline(final Arguments arguments, final GoogleCredentials credentials, final Storage storage,
             final SomaticMetadataApi somaticMetadataApi) throws Exception {
-        return new SomaticPipeline(new StageRunner<>(storage,
-                arguments,
-                ComputeEngine.from(arguments, credentials),
-                ResultsDirectory.defaultDirectory()),
+        return new SomaticPipeline(arguments,
+                new StageRunner<>(storage, arguments, ComputeEngine.from(arguments, credentials), ResultsDirectory.defaultDirectory()),
                 new AlignmentOutputStorage(storage, arguments, ResultsDirectory.defaultDirectory()),
                 new BamMetricsOutputStorage(storage, arguments, ResultsDirectory.defaultDirectory()),
                 somaticMetadataApi,
                 PipelineResultsProvider.from(storage, arguments, Versions.pipelineVersion()).get(),
                 new FullSomaticResults(storage, arguments),
                 CleanupProvider.from(credentials, arguments, storage, somaticMetadataApi).get(),
-                AmberProvider.from(arguments, credentials, storage).get(),
-                CobaltProvider.from(arguments, credentials, storage).get(),
                 StructuralCallerProvider.from(arguments, credentials, storage).get(),
-                PurpleProvider.from(arguments, credentials, storage).get(),
-                HealthCheckerProvider.from(arguments, credentials, storage).get(),
                 Executors.newCachedThreadPool());
     }
 

@@ -43,7 +43,7 @@ import com.hartwig.pipeline.trace.StageTrace;
 
 public class StructuralCaller {
 
-    private static final String NAMESPACE = "structural_caller";
+    public static final String NAMESPACE = "structural_caller";
 
     private final Arguments arguments;
     private final ComputeEngine computeEngine;

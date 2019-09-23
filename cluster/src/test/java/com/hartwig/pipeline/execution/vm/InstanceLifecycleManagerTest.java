@@ -3,8 +3,6 @@ package com.hartwig.pipeline.execution.vm;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 
-import static com.hartwig.pipeline.SomaticPipelineTest.ARGUMENTS;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -20,6 +18,7 @@ import com.google.api.services.compute.model.InstanceList;
 import com.google.api.services.compute.model.Operation;
 import com.google.api.services.compute.model.Zone;
 import com.google.api.services.compute.model.ZoneList;
+import com.hartwig.pipeline.Arguments;
 
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Before;
@@ -27,6 +26,7 @@ import org.junit.Test;
 
 public class InstanceLifecycleManagerTest {
     private static final String DONE_STATUS = "DONE";
+    private static final Arguments ARGUMENTS = Arguments.testDefaults();
 
     private String zoneOne;
     private String zoneTwo;

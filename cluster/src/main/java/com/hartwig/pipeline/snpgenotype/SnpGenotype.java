@@ -37,14 +37,16 @@ public class SnpGenotype implements Stage<SnpGenotypeOutput, SingleSampleRunMeta
     private static final String OUTPUT_FILENAME = "snp_genotype_output.vcf";
 
     private final InputDownload bamDownload;
+    private final InputDownload baiDownload;
 
     public SnpGenotype(final AlignmentOutput alignmentOutput) {
         this.bamDownload = new InputDownload(alignmentOutput.finalBamLocation());
+        this.baiDownload = new InputDownload(alignmentOutput.finalBaiLocation());
     }
 
     @Override
     public List<InputDownload> inputs() {
-        return Collections.singletonList(bamDownload);
+        return ImmutableList.of(bamDownload, baiDownload);
     }
 
     @Override

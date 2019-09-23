@@ -25,7 +25,6 @@ import com.hartwig.pipeline.calling.substages.SnpEff;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.OutputFile;
 import com.hartwig.pipeline.execution.vm.ResourceDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
@@ -40,32 +39,20 @@ import com.hartwig.pipeline.report.ZippedVcfAndIndexComponent;
 import com.hartwig.pipeline.resource.GATKDictAlias;
 import com.hartwig.pipeline.resource.ReferenceGenomeAlias;
 import com.hartwig.pipeline.resource.Resource;
-import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
+import com.hartwig.pipeline.tertiary.TertiaryStage;
 
 import org.jetbrains.annotations.NotNull;
 
-public class SomaticCaller implements Stage<SomaticCallerOutput, SomaticRunMetadata> {
+public class SomaticCaller extends TertiaryStage<SomaticCallerOutput> {
 
-    static final String NAMESPACE = "somatic_caller";
+    public static final String NAMESPACE = "somatic_caller";
 
-    private final InputDownload tumorBam;
-    private final InputDownload tumorBai;
-    private final InputDownload referenceBam;
-    private final InputDownload referenceBai;
     private OutputFile outputFile;
 
-    public SomaticCaller(final AlignmentPair pair) {
-        tumorBam = new InputDownload(pair.tumor().finalBamLocation());
-        tumorBai = new InputDownload(pair.tumor().finalBaiLocation());
-        referenceBam = new InputDownload(pair.reference().finalBamLocation());
-        referenceBai = new InputDownload(pair.reference().finalBaiLocation());
-    }
-
-    @Override
-    public List<InputDownload> inputs() {
-        return Lists.newArrayList(tumorBam, tumorBai, referenceBam, referenceBai);
+    public SomaticCaller(final AlignmentPair alignmentPair) {
+        super(alignmentPair);
     }
 
     @Override
@@ -91,8 +78,8 @@ public class SomaticCaller implements Stage<SomaticCallerOutput, SomaticRunMetad
 
         List<BashCommand> commands = Lists.newArrayList();
 
-        String tumorBamPath = tumorBam.getLocalTargetPath();
-        String referenceBamPath = referenceBam.getLocalTargetPath();
+        String tumorBamPath = getTumorBamDownload().getLocalTargetPath();
+        String referenceBamPath = getReferenceBamDownload().getLocalTargetPath();
         String referenceGenomePath = resources.get(REFERENCE_GENOME).find("fasta");
         String tumorSampleName = metadata.tumor().sampleName();
         String referenceSampleName = metadata.reference().sampleName();

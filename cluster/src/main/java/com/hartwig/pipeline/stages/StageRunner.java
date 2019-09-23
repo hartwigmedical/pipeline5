@@ -53,7 +53,7 @@ public class StageRunner<M extends RunMetadata> {
         return stage.skippedOutput(metadata);
     }
 
-    static Map<String, ResourceDownload> resourceMap(final List<ResourceDownload> resources) {
+    public static Map<String, ResourceDownload> resourceMap(final List<ResourceDownload> resources) {
         return resources.stream()
                 .collect(Collectors.toMap(resource -> resource.getResource().getName(), Function.identity()));
     }

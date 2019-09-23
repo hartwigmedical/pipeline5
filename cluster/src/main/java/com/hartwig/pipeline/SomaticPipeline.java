@@ -36,6 +36,7 @@ public class SomaticPipeline {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SomaticPipeline.class);
 
+    private final Arguments arguments;
     private final StageRunner<SomaticRunMetadata> stageRunner;
     private final AlignmentOutputStorage alignmentOutputStorage;
     private final BamMetricsOutputStorage bamMetricsOutputStorage;
@@ -43,18 +44,14 @@ public class SomaticPipeline {
     private final PipelineResults pipelineResults;
     private final FullSomaticResults fullSomaticResults;
     private final Cleanup cleanup;
-    private final Amber amber;
-    private final Cobalt cobalt;
     private final StructuralCaller structuralCaller;
-    private final Purple purple;
-    private final HealthChecker healthChecker;
     private final ExecutorService executorService;
 
-    SomaticPipeline(final StageRunner<SomaticRunMetadata> stageRunner, final AlignmentOutputStorage alignmentOutputStorage,
-            final BamMetricsOutputStorage bamMetricsOutputStorage, final SomaticMetadataApi setMetadataApi,
-            final PipelineResults pipelineResults, final FullSomaticResults fullSomaticResults, final Cleanup cleanup, final Amber amber,
-            final Cobalt cobalt, final StructuralCaller structuralCaller, final Purple purple, final HealthChecker healthChecker,
-            final ExecutorService executorService) {
+    SomaticPipeline(final Arguments arguments, final StageRunner<SomaticRunMetadata> stageRunner,
+            final AlignmentOutputStorage alignmentOutputStorage, final BamMetricsOutputStorage bamMetricsOutputStorage,
+            final SomaticMetadataApi setMetadataApi, final PipelineResults pipelineResults, final FullSomaticResults fullSomaticResults,
+            final Cleanup cleanup, final StructuralCaller structuralCaller, final ExecutorService executorService) {
+        this.arguments = arguments;
         this.stageRunner = stageRunner;
         this.alignmentOutputStorage = alignmentOutputStorage;
         this.bamMetricsOutputStorage = bamMetricsOutputStorage;
@@ -62,11 +59,7 @@ public class SomaticPipeline {
         this.pipelineResults = pipelineResults;
         this.fullSomaticResults = fullSomaticResults;
         this.cleanup = cleanup;
-        this.amber = amber;
-        this.cobalt = cobalt;
         this.structuralCaller = structuralCaller;
-        this.purple = purple;
-        this.healthChecker = healthChecker;
         this.executorService = executorService;
     }
 
@@ -85,8 +78,8 @@ public class SomaticPipeline {
             AlignmentPair pair = AlignmentPair.of(referenceAlignmentOutput, tumorAlignmentOutput);
 
             try {
-                Future<AmberOutput> amberOutputFuture = executorService.submit(() -> amber.run(metadata, pair));
-                Future<CobaltOutput> cobaltOutputFuture = executorService.submit(() -> cobalt.run(metadata, pair));
+                Future<AmberOutput> amberOutputFuture = executorService.submit(() -> stageRunner.run(metadata, new Amber(pair)));
+                Future<CobaltOutput> cobaltOutputFuture = executorService.submit(() -> stageRunner.run(metadata, new Cobalt(pair)));
                 Future<SomaticCallerOutput> somaticCallerOutputFuture =
                         executorService.submit(() -> stageRunner.run(metadata, new SomaticCaller(pair)));
                 Future<StructuralCallerOutput> structuralCallerOutputFuture =
@@ -97,23 +90,15 @@ public class SomaticPipeline {
                 StructuralCallerOutput structuralCallerOutput = pipelineResults.add(state.add(structuralCallerOutputFuture.get()));
 
                 if (state.shouldProceed()) {
-                    Future<PurpleOutput> purpleOutputFuture =
-                            executorService.submit(() -> pipelineResults.add(state.add(purple.run(metadata,
-                                    pair,
-                                    somaticCallerOutput,
-                                    structuralCallerOutput,
-                                    cobaltOutput,
-                                    amberOutput))));
+                    Future<PurpleOutput> purpleOutputFuture = executorService.submit(() -> pipelineResults.add(state.add(stageRunner.run(
+                            metadata,
+                            new Purple(somaticCallerOutput, structuralCallerOutput, amberOutput, cobaltOutput, arguments.shallow())))));
                     PurpleOutput purpleOutput = purpleOutputFuture.get();
                     if (state.shouldProceed()) {
                         BamMetricsOutput tumorMetrics = bamMetricsOutputStorage.get(metadata.tumor());
                         BamMetricsOutput referenceMetrics = bamMetricsOutputStorage.get(metadata.reference());
-                        pipelineResults.add(state.add(healthChecker.run(metadata,
-                                pair,
-                                tumorMetrics,
-                                referenceMetrics,
-                                amberOutput,
-                                purpleOutput)));
+                        pipelineResults.add(state.add(stageRunner.run(metadata,
+                                new HealthChecker(referenceMetrics, tumorMetrics, amberOutput, purpleOutput))));
                         pipelineResults.compose(metadata);
                     }
                 }

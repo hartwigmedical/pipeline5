@@ -6,7 +6,6 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.resource.ResourceNames;
 import com.hartwig.pipeline.stages.Stage;
@@ -104,8 +103,7 @@ public class GermlineCallerTest extends StageTest<GermlineCallerOutput, SingleSa
     }
 
     @Override
-    protected boolean validateOutput(final GermlineCallerOutput output) {
-        return output.status() == PipelineStatus.SUCCESS && output.reportComponents().size() == 3 && output.name()
-                .equals(victim.namespace());
+    protected void validateOutput(final GermlineCallerOutput output) {
+        // no additional
     }
 }

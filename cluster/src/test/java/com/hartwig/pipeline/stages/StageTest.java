@@ -30,13 +30,14 @@ public abstract class StageTest<S extends StageOutput, M extends RunMetadata> {
     protected Storage storage;
     protected RuntimeBucket runtimeBucket;
     protected Stage<S, M> victim;
+    protected Bucket bucket;
 
     @Before
     public void setUp() throws Exception {
         victim = createVictim();
         String runtimeBucketName = expectedRuntimeBucketName() + "/" + victim.namespace();
         storage = mock(Storage.class);
-        final Bucket bucket = mock(Bucket.class);
+        bucket = mock(Bucket.class);
         when(storage.get(runtimeBucketName)).thenReturn(bucket);
         CopyWriter copyWriter = mock(CopyWriter.class);
         when(storage.copy(any())).thenReturn(copyWriter);
@@ -78,13 +79,13 @@ public abstract class StageTest<S extends StageOutput, M extends RunMetadata> {
 
     @Test
     public void returnsExpectedOutput() {
-        assertThat(validateOutput(victim.output(input(),
-                PipelineStatus.SUCCESS,
-                runtimeBucket,
-                ResultsDirectory.defaultDirectory()))).isTrue();
+        S output = victim.output(input(), PipelineStatus.SUCCESS, runtimeBucket, ResultsDirectory.defaultDirectory());
+        assertThat(output.status()).isEqualTo(PipelineStatus.SUCCESS);
+        assertThat(output.name()).isEqualTo(victim.namespace());
+        validateOutput(output);
     }
 
-    private Arguments defaultArguments() {
+    protected Arguments defaultArguments() {
         return Arguments.testDefaults();
     }
 
@@ -102,7 +103,7 @@ public abstract class StageTest<S extends StageOutput, M extends RunMetadata> {
 
     protected abstract List<String> expectedCommands();
 
-    protected abstract boolean validateOutput(final S output);
+    protected abstract void validateOutput(final S output);
 
     protected static String input(String source, String target) {
         return String.format("gsutil -qm cp -n gs://%s /data/input/%s", source, target);

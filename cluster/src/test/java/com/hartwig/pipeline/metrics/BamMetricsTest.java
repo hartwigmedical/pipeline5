@@ -1,15 +1,17 @@
 package com.hartwig.pipeline.metrics;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.Collections;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.resource.ResourceNames;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.StageTest;
+import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.testsupport.MockResource;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
@@ -46,7 +48,7 @@ public class BamMetricsTest extends StageTest<BamMetricsOutput, SingleSampleRunM
 
     @Override
     protected List<String> expectedResources() {
-        return Collections.singletonList(resource("reference_genome"));
+        return Collections.singletonList(resource(ResourceNames.REFERENCE_GENOME));
     }
 
     @Override
@@ -64,11 +66,9 @@ public class BamMetricsTest extends StageTest<BamMetricsOutput, SingleSampleRunM
     }
 
     @Override
-    protected boolean validateOutput(final BamMetricsOutput output) {
-        return output.status() == PipelineStatus.SUCCESS && output.reportComponents().size() == 3 && output.metricsOutputFile()
-                .bucket()
-                .equals("run-reference-test/bam_metrics") && output.metricsOutputFile().path().equals("results/reference.wgsmetrics")
-                && output.name().equals(victim.namespace());
+    protected void validateOutput(final BamMetricsOutput output) {
+        GoogleStorageLocation metricsOutputFile = output.metricsOutputFile();
+        assertThat(metricsOutputFile.bucket()).isEqualTo("run-reference-test/bam_metrics");
+        assertThat(metricsOutputFile.path()).isEqualTo("results/reference.wgsmetrics");
     }
-
 }
