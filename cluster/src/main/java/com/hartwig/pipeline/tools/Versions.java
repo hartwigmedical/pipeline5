@@ -26,7 +26,6 @@ public interface Versions {
     String CIRCOS = "0.69.6";
     String GRIDSS = "2.5.2";
 
-
     static void printAll() {
         Logger logger = LoggerFactory.getLogger(Versions.class);
         logger.info("Version of pipeline5 is [{}] ", pipelineVersion());
