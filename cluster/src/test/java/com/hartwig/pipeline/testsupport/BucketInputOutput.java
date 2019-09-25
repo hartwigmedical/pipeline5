@@ -10,16 +10,16 @@ public class BucketInputOutput {
         this.bucket = bucket;
     }
 
-    public String push(String destination) {
+    public String output(String destination) {
         return format("gsutil -qm -o GSUtil:parallel_composite_upload_threshold=150M cp -r %s/ gs://%s/%s",
                 TestConstants.OUT_DIR, bucket, destination);
     }
 
-    public String pull(String source) {
+    public String input(String source) {
         return format("gsutil -qm cp -n gs://%s/%s %s/", bucket, source, TestConstants.IN_DIR);
     }
 
-    public String pull(String source, String destination) {
+    public String input(String source, String destination) {
         return format("gsutil -qm cp -n gs://%s/%s %s/%s", bucket, source, TestConstants.IN_DIR, destination);
     }
 

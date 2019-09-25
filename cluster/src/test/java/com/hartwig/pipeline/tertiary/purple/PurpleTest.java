@@ -1,5 +1,20 @@
 package com.hartwig.pipeline.tertiary.purple;
 
+import static com.hartwig.pipeline.testsupport.TestConstants.IN_DIR;
+import static com.hartwig.pipeline.testsupport.TestConstants.OUT_DIR;
+import static com.hartwig.pipeline.testsupport.TestConstants.PROC_COUNT;
+import static com.hartwig.pipeline.testsupport.TestConstants.TOOLS_DIR;
+import static com.hartwig.pipeline.testsupport.TestConstants.TOOLS_PURPLE_JAR;
+import static com.hartwig.pipeline.testsupport.TestConstants.inFile;
+import static com.hartwig.pipeline.testsupport.TestConstants.resource;
+import static com.hartwig.pipeline.testsupport.TestInputs.defaultPair;
+import static com.hartwig.pipeline.testsupport.TestInputs.defaultSomaticRunMetadata;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.CopyWriter;
 import com.google.cloud.storage.Storage;
@@ -16,17 +31,10 @@ import com.hartwig.pipeline.tertiary.amber.AmberOutput;
 import com.hartwig.pipeline.tertiary.cobalt.CobaltOutput;
 import com.hartwig.pipeline.testsupport.BucketInputOutput;
 import com.hartwig.pipeline.testsupport.MockResource;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-
-import static com.hartwig.pipeline.testsupport.TestConstants.*;
-import static com.hartwig.pipeline.testsupport.TestInputs.defaultPair;
-import static com.hartwig.pipeline.testsupport.TestInputs.defaultSomaticRunMetadata;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class PurpleTest {
 
@@ -107,19 +115,18 @@ public class PurpleTest {
     public void downloadsInputVcfsCobaltAndAmberOutput() {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
         runVictim();
-        assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
-                gs.pull("somatic.vcf", "somatic.vcf"),
-                gs.pull("structural.vcf", "structural.vcf"),
-                gs.pull("sv_recovery.vcf", "sv_recovery.vcf"),
-                gs.pull("amber/*"),
-                gs.pull("cobalt/*"));
+        assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(gs.input("somatic.vcf", "somatic.vcf"),
+                gs.input("structural.vcf", "structural.vcf"),
+                gs.input("sv_recovery.vcf", "sv_recovery.vcf"),
+                gs.input("amber/*"),
+                gs.input("cobalt/*"));
     }
 
     @Test
     public void uploadsOutputDirectory() {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
         runVictim();
-        assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(gs.push("purple/results"));
+        assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(gs.output("purple/results"));
     }
 
     private PurpleOutput runVictim() {

@@ -1,5 +1,17 @@
 package com.hartwig.pipeline.tertiary.healthcheck;
 
+import static com.hartwig.pipeline.testsupport.TestBlobs.pageOf;
+import static com.hartwig.pipeline.testsupport.TestConstants.OUT_DIR;
+import static com.hartwig.pipeline.testsupport.TestConstants.TOOLS_HEALTHCHECKER_JAR;
+import static com.hartwig.pipeline.testsupport.TestConstants.inFile;
+import static com.hartwig.pipeline.testsupport.TestInputs.defaultPair;
+import static com.hartwig.pipeline.testsupport.TestInputs.defaultSomaticRunMetadata;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import com.google.api.gax.paging.Page;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
@@ -16,18 +28,10 @@ import com.hartwig.pipeline.tertiary.amber.AmberOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.testsupport.BucketInputOutput;
 import com.hartwig.pipeline.testsupport.TestBlobs;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-
-import static com.hartwig.pipeline.testsupport.TestBlobs.pageOf;
-import static com.hartwig.pipeline.testsupport.TestConstants.*;
-import static com.hartwig.pipeline.testsupport.TestInputs.defaultPair;
-import static com.hartwig.pipeline.testsupport.TestInputs.defaultSomaticRunMetadata;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class HealthCheckerTest {
 
@@ -103,19 +107,20 @@ public class HealthCheckerTest {
     public void downloadsInputMetricsPurpleAndAmberOutput() {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
         runVictim();
-        assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
-                copyInputToLocal("gs://run-reference/reference.wgsmetrics", "metrics/reference.wgsmetrics"),
-                copyInputToLocal("gs://run-tumor/tumor.wgsmetrics", "metrics/tumor.wgsmetrics"),
-                gs.pull("purple/*",  "purple/"),
-                gs.pull("amber/*", "amber"));
+        assertThat(jobDefinitionArgumentCaptor.getValue()
+                .startupCommand()
+                .asUnixString()).contains(new BucketInputOutput("run-reference").input("reference.wgsmetrics",
+                "metrics/reference.wgsmetrics"),
+                new BucketInputOutput("run-tumor").input("tumor.wgsmetrics", "metrics/tumor.wgsmetrics"),
+                gs.input("purple/*", "purple/"),
+                gs.input("amber/*", "amber"));
     }
 
     @Test
     public void uploadsOutputDirectory() {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
         runVictim();
-        assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
-                gs.push("health_checker/results"));
+        assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(gs.output("health_checker/results"));
     }
 
     @Test

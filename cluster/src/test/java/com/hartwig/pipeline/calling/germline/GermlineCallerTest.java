@@ -1,5 +1,15 @@
 package com.hartwig.pipeline.calling.germline;
 
+import static com.hartwig.pipeline.testsupport.TestConstants.RESOURCE_DIR;
+import static com.hartwig.pipeline.testsupport.TestConstants.resource;
+import static com.hartwig.pipeline.testsupport.TestInputs.referenceAlignmentOutput;
+import static com.hartwig.pipeline.testsupport.TestInputs.referenceRunMetadata;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.CopyWriter;
 import com.google.cloud.storage.Storage;
@@ -11,17 +21,10 @@ import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.resource.ResourceNames;
 import com.hartwig.pipeline.testsupport.BucketInputOutput;
 import com.hartwig.pipeline.testsupport.MockResource;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-
-import static com.hartwig.pipeline.testsupport.TestConstants.*;
-import static com.hartwig.pipeline.testsupport.TestInputs.referenceAlignmentOutput;
-import static com.hartwig.pipeline.testsupport.TestInputs.referenceRunMetadata;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class GermlineCallerTest {
 
@@ -91,17 +94,16 @@ public class GermlineCallerTest {
     public void downloadsInputBamsAndBais() {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
         victim.run(referenceRunMetadata(), referenceAlignmentOutput());
-        assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
-                copyInputToLocal("gs://run-reference/aligner/results/reference.bam", "reference.bam"),
-                copyInputToLocal("gs://run-reference/aligner/results/reference.bam.bai", "reference.bam.bai"));
+        BucketInputOutput bucketIo = new BucketInputOutput("run-reference");
+        assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(bucketIo.input(
+                "aligner/results/reference.bam"), bucketIo.input("aligner/results/reference.bam.bai"));
     }
 
     @Test
     public void uploadsOutputDirectory() {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
         victim.run(referenceRunMetadata(), referenceAlignmentOutput());
-        assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
-                gs.push("germline_caller/results"));
+        assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(gs.output("germline_caller/results"));
     }
 
     private ArgumentCaptor<VirtualMachineJobDefinition> captureAndReturnSuccess() {

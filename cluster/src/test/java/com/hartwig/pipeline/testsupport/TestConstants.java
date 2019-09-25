@@ -1,8 +1,8 @@
 package com.hartwig.pipeline.testsupport;
 
-import com.hartwig.pipeline.tools.Versions;
-
 import static java.lang.String.format;
+
+import com.hartwig.pipeline.tools.Versions;
 
 public class TestConstants {
     public static final String OUT_DIR = "/data/output";
@@ -43,13 +43,5 @@ public class TestConstants {
 
     public static String resource(String filename) {
         return RESOURCE_DIR + "/" + filename;
-    }
-
-    public static String copyOutputToStorage(String destination) {
-        return "gsutil -qm -o GSUtil:parallel_composite_upload_threshold=150M cp -r " + OUT_DIR + "/ " + destination;
-    }
-
-    public static String copyInputToLocal(String source, String destination) {
-        return format("gsutil -qm cp -n %s %s/%s", source, IN_DIR, destination);
     }
 }

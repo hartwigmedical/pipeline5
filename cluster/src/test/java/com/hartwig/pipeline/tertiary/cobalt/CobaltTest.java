@@ -1,5 +1,17 @@
 package com.hartwig.pipeline.tertiary.cobalt;
 
+import static com.hartwig.pipeline.testsupport.TestConstants.OUT_DIR;
+import static com.hartwig.pipeline.testsupport.TestConstants.TOOLS_COBALT_JAR;
+import static com.hartwig.pipeline.testsupport.TestConstants.inFile;
+import static com.hartwig.pipeline.testsupport.TestConstants.resource;
+import static com.hartwig.pipeline.testsupport.TestInputs.defaultPair;
+import static com.hartwig.pipeline.testsupport.TestInputs.defaultSomaticRunMetadata;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.CopyWriter;
 import com.google.cloud.storage.Storage;
@@ -12,17 +24,10 @@ import com.hartwig.pipeline.resource.ResourceNames;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.testsupport.BucketInputOutput;
 import com.hartwig.pipeline.testsupport.MockResource;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-
-import static com.hartwig.pipeline.testsupport.TestConstants.*;
-import static com.hartwig.pipeline.testsupport.TestInputs.defaultPair;
-import static com.hartwig.pipeline.testsupport.TestInputs.defaultSomaticRunMetadata;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class CobaltTest {
 
@@ -85,19 +90,20 @@ public class CobaltTest {
     public void downloadsInputBamsAndBais() {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
         victim.run(defaultSomaticRunMetadata(), defaultPair());
-        assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
-                copyInputToLocal("gs://run-tumor/aligner/results/tumor.bam", "tumor.bam"),
-                copyInputToLocal("gs://run-reference/aligner/results/reference.bam", "reference.bam"),
-                copyInputToLocal("gs://run-tumor/aligner/results/tumor.bam.bai", "tumor.bam.bai"),
-                copyInputToLocal("gs://run-reference/aligner/results/reference.bam.bai", "reference.bam.bai"));
+        BucketInputOutput tumorBucket = new BucketInputOutput("run-tumor");
+        BucketInputOutput referenceBucket = new BucketInputOutput("run-reference");
+        assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(tumorBucket.input(
+                "aligner/results/tumor.bam"),
+                referenceBucket.input("aligner/results/reference.bam"),
+                tumorBucket.input("aligner/results/tumor.bam.bai"),
+                referenceBucket.input("aligner/results/reference.bam.bai"));
     }
 
     @Test
     public void uploadsOutputDirectory() {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
         victim.run(defaultSomaticRunMetadata(), defaultPair());
-        assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
-                gs.push("cobalt/results"));
+        assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(gs.output("cobalt/results"));
     }
 
     private ArgumentCaptor<VirtualMachineJobDefinition> captureAndReturnSuccess() {

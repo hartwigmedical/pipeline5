@@ -1,5 +1,23 @@
 package com.hartwig.pipeline.calling.somatic;
 
+import static com.hartwig.pipeline.resource.ResourceNames.BEDS;
+import static com.hartwig.pipeline.resource.ResourceNames.COSMIC;
+import static com.hartwig.pipeline.resource.ResourceNames.DBSNPS;
+import static com.hartwig.pipeline.resource.ResourceNames.MAPPABILITY;
+import static com.hartwig.pipeline.resource.ResourceNames.PON;
+import static com.hartwig.pipeline.resource.ResourceNames.SAGE;
+import static com.hartwig.pipeline.resource.ResourceNames.SNPEFF;
+import static com.hartwig.pipeline.resource.ResourceNames.STRELKA_CONFIG;
+import static com.hartwig.pipeline.testsupport.TestConstants.RESOURCE_DIR;
+import static com.hartwig.pipeline.testsupport.TestConstants.resource;
+import static com.hartwig.pipeline.testsupport.TestInputs.defaultPair;
+import static com.hartwig.pipeline.testsupport.TestInputs.defaultSomaticRunMetadata;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.CopyWriter;
 import com.google.cloud.storage.Storage;
@@ -11,19 +29,12 @@ import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.resource.ResourceNames;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
+import com.hartwig.pipeline.testsupport.BucketInputOutput;
 import com.hartwig.pipeline.testsupport.MockResource;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-
-import static com.hartwig.pipeline.resource.ResourceNames.*;
-import static com.hartwig.pipeline.testsupport.TestConstants.*;
-import static com.hartwig.pipeline.testsupport.TestInputs.defaultPair;
-import static com.hartwig.pipeline.testsupport.TestInputs.defaultSomaticRunMetadata;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class SomaticCallerTest {
 
@@ -84,11 +95,12 @@ public class SomaticCallerTest {
     public void downloadsRecalibratedBamsAndBais() {
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinition = captureAndReturnSuccess();
         victim.run(defaultSomaticRunMetadata(), defaultPair());
-        assertThat(jobDefinition.getValue().startupCommand().asUnixString()).contains(
-                copyInputToLocal("gs://run-tumor/aligner/results/tumor.bam", "tumor.bam"),
-                copyInputToLocal("gs://run-reference/aligner/results/reference.bam", "reference.bam"),
-                copyInputToLocal("gs://run-tumor/aligner/results/tumor.bam.bai", "tumor.bam.bai"),
-                copyInputToLocal("gs://run-reference/aligner/results/reference.bam.bai", "reference.bam.bai"));
+        BucketInputOutput tumorBucket = new BucketInputOutput("run-tumor");
+        BucketInputOutput referenceBucket = new BucketInputOutput("run-reference");
+        assertThat(jobDefinition.getValue().startupCommand().asUnixString()).contains(tumorBucket.input("aligner/results/tumor.bam"),
+                referenceBucket.input("aligner/results/reference.bam"),
+                tumorBucket.input("aligner/results/tumor.bam.bai"),
+                referenceBucket.input("aligner/results/reference.bam.bai"));
     }
 
     @Test
