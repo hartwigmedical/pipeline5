@@ -1,44 +1,62 @@
 package com.hartwig.pipeline;
 
+import static com.hartwig.pipeline.testsupport.TestInputs.amberOutput;
+import static com.hartwig.pipeline.testsupport.TestInputs.cobaltOutput;
+import static com.hartwig.pipeline.testsupport.TestInputs.defaultPair;
+import static com.hartwig.pipeline.testsupport.TestInputs.defaultSomaticRunMetadata;
+import static com.hartwig.pipeline.testsupport.TestInputs.healthCheckerOutput;
+import static com.hartwig.pipeline.testsupport.TestInputs.purpleOutput;
+import static com.hartwig.pipeline.testsupport.TestInputs.referenceAlignmentOutput;
+import static com.hartwig.pipeline.testsupport.TestInputs.referenceMetricsOutput;
+import static com.hartwig.pipeline.testsupport.TestInputs.referenceRunMetadata;
+import static com.hartwig.pipeline.testsupport.TestInputs.somaticCallerOutput;
+import static com.hartwig.pipeline.testsupport.TestInputs.structuralCallerOutput;
+import static com.hartwig.pipeline.testsupport.TestInputs.tumorAlignmentOutput;
+import static com.hartwig.pipeline.testsupport.TestInputs.tumorMetricsOutput;
+import static com.hartwig.pipeline.testsupport.TestInputs.tumorRunMetadata;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
+
+import java.util.Optional;
+import java.util.concurrent.Executors;
+
+import com.google.cloud.storage.Bucket;
+import com.google.cloud.storage.Storage;
+import com.hartwig.pipeline.alignment.AlignmentOutputStorage;
+import com.hartwig.pipeline.calling.somatic.SomaticCallerOutput;
+import com.hartwig.pipeline.calling.structural.StructuralCaller;
+import com.hartwig.pipeline.cleanup.Cleanup;
+import com.hartwig.pipeline.execution.PipelineStatus;
+import com.hartwig.pipeline.metadata.SomaticMetadataApi;
+import com.hartwig.pipeline.metadata.SomaticRunMetadata;
+import com.hartwig.pipeline.metrics.BamMetricsOutputStorage;
+import com.hartwig.pipeline.report.FullSomaticResults;
+import com.hartwig.pipeline.report.PipelineResults;
+import com.hartwig.pipeline.report.PipelineResultsProvider;
+import com.hartwig.pipeline.stages.StageRunner;
+import com.hartwig.pipeline.tertiary.healthcheck.HealthCheckOutput;
+import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
+
+import org.junit.Before;
+import org.junit.Test;
+
 public class SomaticPipelineTest {
 
-   /* private static final String SET_NAME = "test_set";
-    private static final SingleSampleRunMetadata TUMOR = SingleSampleRunMetadata.builder()
-            .type(SingleSampleRunMetadata.SampleType.TUMOR)
-            .sampleId(simpleTumorSample().name())
-            .sampleName(simpleTumorSample().name())
-            .build();
-    private static final SingleSampleRunMetadata REFERENCE = SingleSampleRunMetadata.builder()
-            .type(SingleSampleRunMetadata.SampleType.REFERENCE)
-            .sampleId(simpleReferenceSample().name())
-            .sampleName(simpleReferenceSample().name())
-            .build();
-    private static final ImmutableSomaticRunMetadata SOMATIC_RUN_METADATA =
-            SomaticRunMetadata.builder().runName(SET_NAME).maybeTumor(TUMOR).reference(REFERENCE).build();
-    private static final CobaltOutput SUCCESSFUL_COBALT_OUTPUT = CobaltOutput.builder().status(PipelineStatus.SUCCESS).build();
-    private static final AmberOutput SUCCESSFUL_AMBER_OUTPUT = AmberOutput.builder().status(PipelineStatus.SUCCESS).build();
-    private static final StructuralCallerOutput SUCCESSFUL_STRUCTURAL_CALLER_OUTPUT =
-            StructuralCallerOutput.builder().status(PipelineStatus.SUCCESS).build();
-    private static final SomaticCallerOutput SUCCESSFUL_SOMATIC_CALLER_OUTPUT =
-            SomaticCallerOutput.builder().status(PipelineStatus.SUCCESS).build();
-    private static final ImmutablePurpleOutput SUCCESSFUL_PURPLE_OUTPUT = PurpleOutput.builder().status(PipelineStatus.SUCCESS).build();
-    private static final ImmutableHealthCheckOutput SUCCESSFUL_HEALTH_CHECK =
-            HealthCheckOutput.builder().status(PipelineStatus.SUCCESS).build();
-    private static final BamMetricsOutput REFERENCE_BAM_METRICS_OUTPUT =
-            BamMetricsOutput.builder().status(PipelineStatus.SUCCESS).sample(REFERENCE.sampleName()).build();
-    private static final BamMetricsOutput TUMOR_BAM_METRICS_OUTPUT =
-            BamMetricsOutput.builder().status(PipelineStatus.SUCCESS).sample(TUMOR.sampleName()).build();
-    private static final AlignmentPair PAIR = AlignmentPair.of(referenceAlignmentOutput(), tumorAlignmentOutput());
-    public static final Arguments ARGUMENTS = Arguments.testDefaults();
+
+    private static final Arguments ARGUMENTS = Arguments.testDefaults();
     private AlignmentOutputStorage alignmentOutputStorage;
     private BamMetricsOutputStorage bamMetricsOutputStorage;
     private SomaticPipeline victim;
-    private Amber amber;
-    private Cobalt cobalt;
-    private SomaticCaller somaticCaller;
     private StructuralCaller structuralCaller;
-    private Purple purple;
-    private HealthChecker healthChecker;
     private SomaticMetadataApi setMetadataApi;
     private Cleanup cleanup;
     private StageRunner<SomaticRunMetadata> stageRunner;
@@ -47,31 +65,26 @@ public class SomaticPipelineTest {
     public void setUp() throws Exception {
         alignmentOutputStorage = mock(AlignmentOutputStorage.class);
         bamMetricsOutputStorage = mock(BamMetricsOutputStorage.class);
-        amber = mock(Amber.class);
-        cobalt = mock(Cobalt.class);
-        somaticCaller = mock(SomaticCaller.class);
         structuralCaller = mock(StructuralCaller.class);
-        purple = mock(Purple.class);
-        healthChecker = mock(HealthChecker.class);
         setMetadataApi = mock(SomaticMetadataApi.class);
-        when(setMetadataApi.get()).thenReturn(SOMATIC_RUN_METADATA);
+        when(setMetadataApi.get()).thenReturn(defaultSomaticRunMetadata());
         Storage storage = mock(Storage.class);
         Bucket reportBucket = mock(Bucket.class);
         when(storage.get(ARGUMENTS.patientReportBucket())).thenReturn(reportBucket);
         final PipelineResults pipelineResults = PipelineResultsProvider.from(storage, ARGUMENTS, "test").get();
         final FullSomaticResults fullSomaticResults = mock(FullSomaticResults.class);
         cleanup = mock(Cleanup.class);
+        //noinspection unchecked
         stageRunner = mock(StageRunner.class);
-        victim = new SomaticPipeline(stageRunner,
+        victim = new SomaticPipeline(ARGUMENTS,
+                stageRunner,
                 alignmentOutputStorage,
                 bamMetricsOutputStorage,
                 setMetadataApi,
                 pipelineResults,
                 fullSomaticResults,
-                cleanup, cobalt,
+                cleanup,
                 structuralCaller,
-                purple,
-                healthChecker,
                 Executors.newSingleThreadExecutor());
     }
 
@@ -82,215 +95,149 @@ public class SomaticPipelineTest {
 
     @Test(expected = IllegalStateException.class)
     public void failsIfReferenceAlignmentNotAvailable() {
-        when(alignmentOutputStorage.get(TUMOR)).thenReturn(Optional.of(tumorAlignmentOutput()));
+        when(alignmentOutputStorage.get(tumorRunMetadata())).thenReturn(Optional.of(tumorAlignmentOutput()));
         victim.run();
     }
 
     @Test
-    public void runsAmberWhenBothAlignmentsAvailable() {
-        bothAlignmentsAvailable();
-        bothMetricsAvailable();
-        when(amber.run(SOMATIC_RUN_METADATA, PAIR)).thenReturn(SUCCESSFUL_AMBER_OUTPUT);
+    public void runsAllSomaticStagesWhenAlignmentAndMetricsExist() {
+        successfulRun();
         PipelineState state = victim.run();
-        assertThat(state.stageOutputs()).contains(SUCCESSFUL_AMBER_OUTPUT);
-    }
-
-    @Test
-    public void runsCobaltWhenBothAlignmentsAvailable() {
-        bothAlignmentsAvailable();
-        bothMetricsAvailable();
-        when(cobalt.run(SOMATIC_RUN_METADATA, PAIR)).thenReturn(SUCCESSFUL_COBALT_OUTPUT);
-        PipelineState state = victim.run();
-        assertThat(state.stageOutputs()).contains(SUCCESSFUL_COBALT_OUTPUT);
-    }
-
-    @Test
-    public void runsSomaticCallerWhenBothAlignmentsAvailable() {
-        bothAlignmentsAvailable();
-        bothMetricsAvailable();
-        when(stageRunner.run(eq(SOMATIC_RUN_METADATA), any())).thenReturn(SUCCESSFUL_SOMATIC_CALLER_OUTPUT);
-        PipelineState state = victim.run();
-        assertThat(state.stageOutputs()).contains(SUCCESSFUL_SOMATIC_CALLER_OUTPUT);
-    }
-
-    @Test
-    public void runsStructuralCallerWhenBothAlignmentsAvailable() {
-        bothAlignmentsAvailable();
-        bothMetricsAvailable();
-        when(structuralCaller.run(SOMATIC_RUN_METADATA, PAIR)).thenReturn(SUCCESSFUL_STRUCTURAL_CALLER_OUTPUT);
-        PipelineState state = victim.run();
-        assertThat(state.stageOutputs()).contains(SUCCESSFUL_STRUCTURAL_CALLER_OUTPUT);
-    }
-
-    @Test
-    public void runsPurpleWhenAllCallersSucceed() {
-        bothAlignmentsAvailable();
-        bothMetricsAvailable();
-        allCallersSucceed();
-        purpleSucceeds();
-        PipelineState state = victim.run();
-        assertThat(state.stageOutputs()).contains(SUCCESSFUL_PURPLE_OUTPUT);
+        assertThat(state.stageOutputs()).containsExactlyInAnyOrder(cobaltOutput(),
+                amberOutput(),
+                somaticCallerOutput(),
+                structuralCallerOutput(),
+                purpleOutput(),
+                healthCheckerOutput());
     }
 
     @Test
     public void doesNotRunPurpleIfAnyCallersFail() {
         bothAlignmentsAvailable();
         bothMetricsAvailable();
-        when(cobalt.run(SOMATIC_RUN_METADATA, PAIR)).thenReturn(SUCCESSFUL_COBALT_OUTPUT);
-        when(stageRunner.run(eq(SOMATIC_RUN_METADATA), any())).thenReturn(SUCCESSFUL_SOMATIC_CALLER_OUTPUT);
-        when(structuralCaller.run(SOMATIC_RUN_METADATA, PAIR)).thenReturn(SUCCESSFUL_STRUCTURAL_CALLER_OUTPUT);
-        when(amber.run(SOMATIC_RUN_METADATA, PAIR)).thenReturn(AmberOutput.builder().status(PipelineStatus.FAILED).build());
+        when(structuralCaller.run(defaultSomaticRunMetadata(), defaultPair())).thenReturn(structuralCallerOutput());
+        SomaticCallerOutput failSomatic = SomaticCallerOutput.builder().status(PipelineStatus.FAILED).build();
+        when(stageRunner.run(eq(defaultSomaticRunMetadata()), any())).thenReturn(amberOutput())
+                .thenReturn(cobaltOutput())
+                .thenReturn(failSomatic);
         PipelineState state = victim.run();
+        assertThat(state.stageOutputs()).containsExactlyInAnyOrder(cobaltOutput(), amberOutput(), failSomatic, structuralCallerOutput());
         assertThat(state.status()).isEqualTo(PipelineStatus.FAILED);
-        verifyZeroInteractions(purple);
-    }
-
-    @Test
-    public void runsHealthCheckWhenPurpleSucceeds() {
-        bothAlignmentsAvailable();
-        allCallersSucceed();
-        bothMetricsAvailable();
-        purpleAndHealthCheckSucceed();
-        PipelineState state = victim.run();
-        assertThat(state.stageOutputs()).contains(SUCCESSFUL_HEALTH_CHECK);
     }
 
     @Test
     public void doesNotRunHealthCheckWhenPurpleFails() {
         bothAlignmentsAvailable();
-        allCallersSucceed();
         bothMetricsAvailable();
-        failPurple();
+        when(structuralCaller.run(defaultSomaticRunMetadata(), defaultPair())).thenReturn(structuralCallerOutput());
+        PurpleOutput failPurple = PurpleOutput.builder().status(PipelineStatus.FAILED).build();
+        when(stageRunner.run(eq(defaultSomaticRunMetadata()), any())).thenReturn(amberOutput())
+                .thenReturn(cobaltOutput())
+                .thenReturn(somaticCallerOutput())
+                .thenReturn(failPurple);
         PipelineState state = victim.run();
+        assertThat(state.stageOutputs()).containsExactlyInAnyOrder(cobaltOutput(),
+                amberOutput(),
+                somaticCallerOutput(),
+                structuralCallerOutput(),
+                failPurple);
         assertThat(state.status()).isEqualTo(PipelineStatus.FAILED);
-        verifyZeroInteractions(healthChecker);
     }
 
     @Test
     public void notifiesSetMetadataApiOnSuccessfulRun() {
-        bothAlignmentsAvailable();
-        allCallersSucceed();
-        bothMetricsAvailable();
-        purpleAndHealthCheckSucceed();
+        successfulRun();
         victim.run();
-        verify(setMetadataApi, times(1)).complete(PipelineStatus.SUCCESS, SOMATIC_RUN_METADATA);
+        verify(setMetadataApi, times(1)).complete(PipelineStatus.SUCCESS, defaultSomaticRunMetadata());
     }
 
     @Test
     public void notifiesSetMetadataApiOnFailedRun() {
-        bothAlignmentsAvailable();
-        allCallersSucceed();
-        bothMetricsAvailable();
-        failPurple();
+        failedRun();
         victim.run();
-        verify(setMetadataApi, times(1)).complete(PipelineStatus.FAILED, SOMATIC_RUN_METADATA);
+        verify(setMetadataApi, times(1)).complete(PipelineStatus.FAILED, defaultSomaticRunMetadata());
     }
 
     @Test
     public void runsCleanupOnSuccessfulRun() {
-        bothAlignmentsAvailable();
-        allCallersSucceed();
-        bothMetricsAvailable();
-        purpleAndHealthCheckSucceed();
+        successfulRun();
         victim.run();
-        verify(cleanup, times(1)).run(SOMATIC_RUN_METADATA);
+        verify(cleanup, times(1)).run(defaultSomaticRunMetadata());
     }
 
     @Test
     public void doesNotRunCleanupOnFailedRun() {
-        bothAlignmentsAvailable();
-        allCallersSucceed();
-        bothMetricsAvailable();
-        failPurple();
+        failedRun();
         victim.run();
-        verify(cleanup, never()).run(SOMATIC_RUN_METADATA);
+        verify(cleanup, never()).run(defaultSomaticRunMetadata());
     }
 
     @Test
     public void doesNotRunCleanupOnFailedTransfer() {
-        bothAlignmentsAvailable();
-        allCallersSucceed();
-        bothMetricsAvailable();
-        purpleAndHealthCheckSucceed();
-        doThrow(new NullPointerException()).when(setMetadataApi).complete(PipelineStatus.SUCCESS, SOMATIC_RUN_METADATA);
+        successfulRun();
+        doThrow(new NullPointerException()).when(setMetadataApi).complete(PipelineStatus.SUCCESS, defaultSomaticRunMetadata());
         try {
             victim.run();
         } catch (Exception e) {
             // continue
         }
-        verify(cleanup, never()).run(SOMATIC_RUN_METADATA);
+        verify(cleanup, never()).run(defaultSomaticRunMetadata());
     }
 
     @Test
     public void onlyDoesTransferAndCleanupIfSingleSampleRun() {
-        when(alignmentOutputStorage.get(REFERENCE)).thenReturn(Optional.of(referenceAlignmentOutput()));
-        when(setMetadataApi.get()).thenReturn(SomaticRunMetadata.builder().from(SOMATIC_RUN_METADATA).maybeTumor(Optional.empty()).build());
+        when(alignmentOutputStorage.get(referenceRunMetadata())).thenReturn(Optional.of(referenceAlignmentOutput()));
+        when(setMetadataApi.get()).thenReturn(SomaticRunMetadata.builder()
+                .from(defaultSomaticRunMetadata())
+                .maybeTumor(Optional.empty())
+                .build());
         victim.run();
-        verifyZeroInteractions(amber, cobalt, purple, structuralCaller, somaticCaller, healthChecker);
+        verifyZeroInteractions(stageRunner, structuralCaller);
     }
 
     @Test
     public void failsRunOnQcFailure() {
         bothAlignmentsAvailable();
         bothMetricsAvailable();
-        allCallersSucceed();
-        bothMetricsAvailable();
-        purpleSucceeds();
-        when(healthChecker.run(SOMATIC_RUN_METADATA,
-                PAIR,
-                TUMOR_BAM_METRICS_OUTPUT,
-                REFERENCE_BAM_METRICS_OUTPUT,
-                SUCCESSFUL_AMBER_OUTPUT,
-                SUCCESSFUL_PURPLE_OUTPUT)).thenReturn(HealthCheckOutput.builder()
-                .from(SUCCESSFUL_HEALTH_CHECK)
-                .status(PipelineStatus.QC_FAILED)
-                .build());
+        when(structuralCaller.run(defaultSomaticRunMetadata(), defaultPair())).thenReturn(structuralCallerOutput());
+        when(stageRunner.run(eq(defaultSomaticRunMetadata()), any())).thenReturn(amberOutput())
+                .thenReturn(cobaltOutput())
+                .thenReturn(somaticCallerOutput())
+                .thenReturn(purpleOutput())
+                .thenReturn(HealthCheckOutput.builder().from(healthCheckerOutput()).status(PipelineStatus.QC_FAILED).build());
         PipelineState state = victim.run();
         assertThat(state.status()).isEqualTo(PipelineStatus.QC_FAILED);
     }
 
-    private void failPurple() {
-        when(purple.run(SOMATIC_RUN_METADATA,
-                PAIR,
-                SUCCESSFUL_SOMATIC_CALLER_OUTPUT,
-                SUCCESSFUL_STRUCTURAL_CALLER_OUTPUT,
-                SUCCESSFUL_COBALT_OUTPUT,
-                SUCCESSFUL_AMBER_OUTPUT)).thenReturn(PurpleOutput.builder().status(PipelineStatus.FAILED).build());
+    private void successfulRun() {
+        bothAlignmentsAvailable();
+        bothMetricsAvailable();
+        when(structuralCaller.run(defaultSomaticRunMetadata(), defaultPair())).thenReturn(structuralCallerOutput());
+        when(stageRunner.run(eq(defaultSomaticRunMetadata()), any())).thenReturn(amberOutput())
+                .thenReturn(cobaltOutput())
+                .thenReturn(somaticCallerOutput())
+                .thenReturn(purpleOutput())
+                .thenReturn(healthCheckerOutput());
     }
 
-    private void purpleAndHealthCheckSucceed() {
-        purpleSucceeds();
-        when(healthChecker.run(SOMATIC_RUN_METADATA,
-                PAIR,
-                TUMOR_BAM_METRICS_OUTPUT,
-                REFERENCE_BAM_METRICS_OUTPUT,
-                SUCCESSFUL_AMBER_OUTPUT,
-                SUCCESSFUL_PURPLE_OUTPUT)).thenReturn(SUCCESSFUL_HEALTH_CHECK);
-    }
-
-    private void purpleSucceeds() {
-        when(purple.run(SOMATIC_RUN_METADATA,
-                PAIR,
-                SUCCESSFUL_SOMATIC_CALLER_OUTPUT,
-                SUCCESSFUL_STRUCTURAL_CALLER_OUTPUT,
-                SUCCESSFUL_COBALT_OUTPUT,
-                SUCCESSFUL_AMBER_OUTPUT)).thenReturn(SUCCESSFUL_PURPLE_OUTPUT);
-    }
-
-    private void bothMetricsAvailable() {
-        when(bamMetricsOutputStorage.get(TUMOR)).thenReturn(TUMOR_BAM_METRICS_OUTPUT);
-        when(bamMetricsOutputStorage.get(REFERENCE)).thenReturn(REFERENCE_BAM_METRICS_OUTPUT);
-    }
-
-    private void allCallersSucceed() {
-        when(amber.run(SOMATIC_RUN_METADATA, PAIR)).thenReturn(SUCCESSFUL_AMBER_OUTPUT);
-        when(cobalt.run(SOMATIC_RUN_METADATA, PAIR)).thenReturn(SUCCESSFUL_COBALT_OUTPUT);
-        when(stageRunner.run(eq(SOMATIC_RUN_METADATA), any())).thenReturn(SUCCESSFUL_SOMATIC_CALLER_OUTPUT);
-        when(structuralCaller.run(SOMATIC_RUN_METADATA, PAIR)).thenReturn(SUCCESSFUL_STRUCTURAL_CALLER_OUTPUT);
+    private void failedRun() {
+        bothAlignmentsAvailable();
+        bothMetricsAvailable();
+        when(structuralCaller.run(defaultSomaticRunMetadata(), defaultPair())).thenReturn(structuralCallerOutput());
+        when(stageRunner.run(eq(defaultSomaticRunMetadata()), any())).thenReturn(amberOutput())
+                .thenReturn(cobaltOutput())
+                .thenReturn(somaticCallerOutput())
+                .thenReturn(PurpleOutput.builder().status(PipelineStatus.FAILED).build())
+                .thenReturn(healthCheckerOutput());
     }
 
     private void bothAlignmentsAvailable() {
-        when(alignmentOutputStorage.get(TUMOR)).thenReturn(Optional.of(tumorAlignmentOutput()));
-        when(alignmentOutputStorage.get(REFERENCE)).thenReturn(Optional.of(referenceAlignmentOutput()));
-    }*/
+        when(alignmentOutputStorage.get(tumorRunMetadata())).thenReturn(Optional.of(tumorAlignmentOutput()));
+        when(alignmentOutputStorage.get(referenceRunMetadata())).thenReturn(Optional.of(referenceAlignmentOutput()));
+    }
+
+    private void bothMetricsAvailable() {
+        when(bamMetricsOutputStorage.get(tumorRunMetadata())).thenReturn(tumorMetricsOutput());
+        when(bamMetricsOutputStorage.get(referenceRunMetadata())).thenReturn(referenceMetricsOutput());
+    }
 }

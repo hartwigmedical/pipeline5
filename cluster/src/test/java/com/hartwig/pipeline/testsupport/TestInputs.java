@@ -3,22 +3,26 @@ package com.hartwig.pipeline.testsupport;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.alignment.vm.VmAligner;
+import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
 import com.hartwig.pipeline.calling.somatic.SomaticCaller;
 import com.hartwig.pipeline.calling.somatic.SomaticCallerOutput;
 import com.hartwig.pipeline.calling.structural.StructuralCaller;
 import com.hartwig.pipeline.calling.structural.StructuralCallerOutput;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.OutputFile;
-import com.hartwig.pipeline.metadata.ImmutableSingleSampleRunMetadata;
+import com.hartwig.pipeline.flagstat.FlagstatOutput;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetrics;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
+import com.hartwig.pipeline.snpgenotype.SnpGenotypeOutput;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.tertiary.amber.Amber;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
 import com.hartwig.pipeline.tertiary.cobalt.Cobalt;
 import com.hartwig.pipeline.tertiary.cobalt.CobaltOutput;
+import com.hartwig.pipeline.tertiary.healthcheck.HealthCheckOutput;
+import com.hartwig.pipeline.tertiary.healthcheck.HealthChecker;
 import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 
@@ -31,6 +35,14 @@ public class TestInputs {
     private static final String TUMOR_SAMPLE = "tumor";
     private static final String SOMATIC_BUCKET = "run-" + REFERENCE_SAMPLE + "-" + TUMOR_SAMPLE + "-test";
 
+    public static String referenceSample() {
+        return REFERENCE_SAMPLE;
+    }
+
+    public static String tumorSample() {
+        return TUMOR_SAMPLE;
+    }
+
     public static SomaticRunMetadata defaultSomaticRunMetadata() {
         final SingleSampleRunMetadata tumor = tumorRunMetadata();
         final SingleSampleRunMetadata reference = referenceRunMetadata();
@@ -38,7 +50,7 @@ public class TestInputs {
     }
 
     @NotNull
-    public static ImmutableSingleSampleRunMetadata referenceRunMetadata() {
+    public static SingleSampleRunMetadata referenceRunMetadata() {
         return SingleSampleRunMetadata.builder()
                 .type(SingleSampleRunMetadata.SampleType.REFERENCE)
                 .sampleId(referenceAlignmentOutput().sample())
@@ -46,7 +58,7 @@ public class TestInputs {
     }
 
     @NotNull
-    private static ImmutableSingleSampleRunMetadata tumorRunMetadata() {
+    public static SingleSampleRunMetadata tumorRunMetadata() {
         return SingleSampleRunMetadata.builder()
                 .type(SingleSampleRunMetadata.SampleType.TUMOR)
                 .sampleId(tumorAlignmentOutput().sample())
@@ -81,6 +93,18 @@ public class TestInputs {
 
     public static BamMetricsOutput tumorMetricsOutput() {
         return metricsOutput(TUMOR_SAMPLE);
+    }
+
+    public static SnpGenotypeOutput snpGenotypeOutput() {
+        return SnpGenotypeOutput.builder().status(PipelineStatus.SUCCESS).build();
+    }
+
+    public static FlagstatOutput flagstatOutput() {
+        return FlagstatOutput.builder().status(PipelineStatus.SUCCESS).build();
+    }
+
+    public static GermlineCallerOutput germlineCallerOutput() {
+        return GermlineCallerOutput.builder().status(PipelineStatus.SUCCESS).build();
     }
 
     private static BamMetricsOutput metricsOutput(final String sample) {
@@ -136,6 +160,13 @@ public class TestInputs {
         return PurpleOutput.builder()
                 .status(PipelineStatus.SUCCESS)
                 .maybeOutputDirectory(gsLocation(somaticBucket(Purple.NAMESPACE), RESULTS))
+                .build();
+    }
+
+    public static HealthCheckOutput healthCheckerOutput() {
+        return HealthCheckOutput.builder()
+                .status(PipelineStatus.SUCCESS)
+                .maybeOutputDirectory(gsLocation(somaticBucket(HealthChecker.NAMESPACE), RESULTS))
                 .build();
     }
 

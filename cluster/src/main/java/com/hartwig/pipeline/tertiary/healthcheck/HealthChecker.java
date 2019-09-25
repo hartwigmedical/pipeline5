@@ -16,6 +16,7 @@ import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.ResourceDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
+import com.hartwig.pipeline.execution.vm.unix.MkDirCommand;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.report.EntireOutputComponent;
@@ -33,7 +34,7 @@ import org.slf4j.LoggerFactory;
 public class HealthChecker implements Stage<HealthCheckOutput, SomaticRunMetadata> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HealthChecker.class);
-    static final String NAMESPACE = "health_checker";
+    public static final String NAMESPACE = "health_checker";
     private static final String LOCAL_METRICS_DIR = VmDirectories.INPUT + "/metrics";
     private static final String LOCAL_AMBER_DIR = VmDirectories.INPUT + "/amber";
     private static final String LOCAL_PURPLE_DIR = VmDirectories.INPUT + "/purple";
@@ -51,8 +52,14 @@ public class HealthChecker implements Stage<HealthCheckOutput, SomaticRunMetadat
     }
 
     @Override
-    public List<InputDownload> inputs() {
-        return ImmutableList.of(referenceMetricsDownload, tumorMetricsDownload, amberDownload, purpleDownload);
+    public List<BashCommand> inputs() {
+        return ImmutableList.of(new MkDirCommand(LOCAL_METRICS_DIR),
+                new MkDirCommand(LOCAL_AMBER_DIR),
+                new MkDirCommand(LOCAL_PURPLE_DIR),
+                referenceMetricsDownload,
+                tumorMetricsDownload,
+                amberDownload,
+                purpleDownload);
     }
 
     @Override
@@ -67,7 +74,7 @@ public class HealthChecker implements Stage<HealthCheckOutput, SomaticRunMetadat
 
     @Override
     public List<BashCommand> commands(final SomaticRunMetadata metadata, final Map<String, ResourceDownload> resources) {
-        return Collections.singletonList(new HealthCheckerApplicationCommand(metadata.reference().sampleName(),
+        return ImmutableList.of(new HealthCheckerApplicationCommand(metadata.reference().sampleName(),
                 metadata.tumor().sampleName(),
                 LOCAL_METRICS_DIR,
                 LOCAL_AMBER_DIR,
@@ -77,7 +84,7 @@ public class HealthChecker implements Stage<HealthCheckOutput, SomaticRunMetadat
 
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
-        return VirtualMachineJobDefinition.cobalt(bash, resultsDirectory);
+        return VirtualMachineJobDefinition.healthChecker(bash, resultsDirectory);
     }
 
     @Override

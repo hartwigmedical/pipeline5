@@ -23,7 +23,7 @@ import com.hartwig.pipeline.alignment.sample.SampleSource;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
-import com.hartwig.pipeline.metadata.ImmutableSingleSampleRunMetadata;
+import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.resource.ResourceNames;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.storage.SampleUpload;
@@ -36,7 +36,7 @@ import org.mockito.ArgumentCaptor;
 
 public class VmAlignerTest {
 
-    private static final ImmutableSingleSampleRunMetadata METADATA = TestInputs.referenceRunMetadata();
+    private static final SingleSampleRunMetadata METADATA = TestInputs.referenceRunMetadata();
     private static final AlignmentOutput ALIGNMENT_OUTPUT = TestInputs.referenceAlignmentOutput();
     private VmAligner victim;
     private AlignmentOutputStorage alignmentOutputStorage;
@@ -119,7 +119,7 @@ public class VmAlignerTest {
     }
 
     @Test
-    public void mergesAllLanesIntoOneComputeEngineJob() throws Exception{
+    public void mergesAllLanesIntoOneComputeEngineJob() throws Exception {
         setupMocks();
         ArgumentCaptor<RuntimeBucket> bucketCaptor = ArgumentCaptor.forClass(RuntimeBucket.class);
         ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor =
@@ -133,7 +133,7 @@ public class VmAlignerTest {
     private void setupMocks() {
         CopyWriter copyWriter = mock(CopyWriter.class);
         when(storage.copy(any())).thenReturn(copyWriter);
-        String rootBucketName = "run-" + METADATA.sampleName().toLowerCase() +"-test";
+        String rootBucketName = "run-" + METADATA.sampleName().toLowerCase() + "-test";
         Bucket rootBucket = mock(Bucket.class);
         when(rootBucket.getName()).thenReturn(rootBucketName);
         when(storage.get(rootBucketName)).thenReturn(rootBucket);

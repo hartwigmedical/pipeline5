@@ -44,7 +44,10 @@ public class HealthCheckerTest extends TertiaryStageTest<HealthCheckOutput> {
 
     @Override
     protected List<String> expectedInputs() {
-        return ImmutableList.of(input("run-reference-test/bam_metrics/reference.wgsmetrics", "metrics/reference.wgsmetrics"),
+        return ImmutableList.of("mkdir -p /data/input/metrics",
+                "mkdir -p /data/input/amber",
+                "mkdir -p /data/input/purple",
+                input("run-reference-test/bam_metrics/reference.wgsmetrics", "metrics/reference.wgsmetrics"),
                 input("run-tumor-test/bam_metrics/tumor.wgsmetrics", "metrics/tumor.wgsmetrics"),
                 input(expectedRuntimeBucketName() + "/amber/results/", "amber"),
                 input(expectedRuntimeBucketName() + "/purple/results/", "purple"));
@@ -57,7 +60,7 @@ public class HealthCheckerTest extends TertiaryStageTest<HealthCheckOutput> {
 
     @Override
     protected List<String> expectedCommands() {
-        return Collections.singletonList("java -Xmx10G -jar /opt/tools/health-checker/3.1/health-checker.jar -reference reference -tumor "
+        return Collections.singletonList("java -Xmx10G -jar $TOOLS_DIR/health-checker/3.1/health-checker.jar -reference reference -tumor "
                 + "tumor -metrics_dir /data/input/metrics -amber_dir /data/input/amber -purple_dir /data/input/purple -output_dir "
                 + "/data/output");
     }

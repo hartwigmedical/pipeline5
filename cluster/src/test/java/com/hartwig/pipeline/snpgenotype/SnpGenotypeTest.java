@@ -58,7 +58,7 @@ public class SnpGenotypeTest extends StageTest<SnpGenotypeOutput, SingleSampleRu
     @Override
     protected List<String> expectedCommands() {
         return Collections.singletonList(
-                "java -Xmx20G -jar /opt/tools/gatk/3.8.0/GenomeAnalysisTK.jar -T UnifiedGenotyper -nct $(grep -c '^processor' /proc/cpuinfo) "
+                "java -Xmx20G -jar $TOOLS_DIR/gatk/3.8.0/GenomeAnalysisTK.jar -T UnifiedGenotyper -nct $(grep -c '^processor' /proc/cpuinfo) "
                         + "--input_file /data/input/reference.bam -o /data/output/snp_genotype_output.vcf -L /data/resources/26SNPtaq.vcf "
                         + "--reference_sequence /data/resources/reference.fasta --output_mode EMIT_ALL_SITES");
     }

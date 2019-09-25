@@ -10,7 +10,6 @@ import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.ResourceDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.metadata.RunMetadata;
@@ -18,7 +17,7 @@ import com.hartwig.pipeline.storage.RuntimeBucket;
 
 public interface Stage<S extends StageOutput, M extends RunMetadata> {
 
-    List<InputDownload> inputs();
+    List<BashCommand> inputs();
 
     List<ResourceDownload> resources(Storage storage, String resourceBucket, RuntimeBucket bucket);
 

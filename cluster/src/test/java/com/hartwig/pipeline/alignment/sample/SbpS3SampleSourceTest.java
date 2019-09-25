@@ -8,6 +8,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.S3Object;
 import com.hartwig.patient.Lane;
 import com.hartwig.patient.Sample;
+import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Test;
@@ -39,7 +40,7 @@ public class SbpS3SampleSourceTest {
                 .build());
         when(s3.getObject(bucketCaptor.capture(), objectCaptor.capture())).thenReturn(new S3Object());
 
-        victim.sample(TestInputs.referenceRunMetadata().withEntityId(SAMPLE_ID));
+        victim.sample(SingleSampleRunMetadata.builder().from(TestInputs.referenceRunMetadata()).entityId(SAMPLE_ID).build());
 
         assertThat(bucketCaptor.getAllValues().get(0)).isEqualTo("obj02_input");
         assertThat(objectCaptor.getAllValues().get(0)).isEqualTo("HMF_COLO829/COLO829R/COLO829R_AHCT3FCCXY_S2_L001_R1_001.fastq.gz");

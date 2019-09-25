@@ -45,7 +45,7 @@ public class SnpGenotype implements Stage<SnpGenotypeOutput, SingleSampleRunMeta
     }
 
     @Override
-    public List<InputDownload> inputs() {
+    public List<BashCommand> inputs() {
         return ImmutableList.of(bamDownload, baiDownload);
     }
 

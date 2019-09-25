@@ -79,7 +79,7 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
     }
 
     @Override
-    public List<InputDownload> inputs() {
+    public List<BashCommand> inputs() {
         return ImmutableList.of(somaticVcfDownload,
                 structuralVcfDownload,
                 structuralVcfIndexDownload,

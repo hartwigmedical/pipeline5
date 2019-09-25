@@ -34,7 +34,7 @@ public class Flagstat implements Stage<FlagstatOutput, SingleSampleRunMetadata> 
     }
 
     @Override
-    public List<InputDownload> inputs() {
+    public List<BashCommand> inputs() {
         return Collections.singletonList(bamDownload);
     }
 

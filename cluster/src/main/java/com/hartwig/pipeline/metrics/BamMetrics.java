@@ -43,7 +43,7 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
     }
 
     @Override
-    public List<InputDownload> inputs() {
+    public List<BashCommand> inputs() {
         return Collections.singletonList(bamDownload);
     }
 

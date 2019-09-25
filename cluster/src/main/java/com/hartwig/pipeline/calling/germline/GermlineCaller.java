@@ -72,7 +72,7 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
     }
 
     @Override
-    public List<InputDownload> inputs() {
+    public List<BashCommand> inputs() {
         return ImmutableList.of(bamDownload, baiDownload);
     }
 
@@ -149,6 +149,8 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
                         resultsDirectory))
                 .build();
     }
+
+
 
     @Override
     public GermlineCallerOutput skippedOutput(final SingleSampleRunMetadata metadata) {

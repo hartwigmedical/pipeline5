@@ -17,8 +17,8 @@ import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.ResourceDownload;
+import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.metadata.RunMetadata;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
@@ -48,7 +48,7 @@ public abstract class StageTest<S extends StageOutput, M extends RunMetadata> {
 
     @Test
     public void declaresExpectedInputs() {
-        assertThat(victim.inputs().stream().map(InputDownload::asBash).collect(Collectors.toList())).isEqualTo(expectedInputs());
+        assertThat(victim.inputs().stream().map(BashCommand::asBash).collect(Collectors.toList())).isEqualTo(expectedInputs());
     }
 
     @Test
@@ -63,8 +63,8 @@ public abstract class StageTest<S extends StageOutput, M extends RunMetadata> {
     public void declaredExpectedCommands() {
         Map<String, ResourceDownload> resourceMap =
                 StageRunner.resourceMap(victim.resources(storage, defaultArguments().resourceBucket(), runtimeBucket));
-        assertThat(victim.commands(input(), resourceMap).stream().map(BashCommand::asBash).collect(Collectors.toList())).isEqualTo(
-                expectedCommands());
+        assertThat(victim.commands(input(), resourceMap).stream().map(BashCommand::asBash).collect(Collectors.toList())).isEqualTo(commands(
+                expectedCommands()));
     }
 
     @Test
@@ -114,5 +114,9 @@ public abstract class StageTest<S extends StageOutput, M extends RunMetadata> {
                 expectedRuntimeBucketName(),
                 victim.namespace(),
                 resourceName);
+    }
+
+    private List<String> commands(List<String> commands) {
+        return commands.stream().map(command -> command.replace("$TOOLS_DIR", VmDirectories.TOOLS)).collect(Collectors.toList());
     }
 }
