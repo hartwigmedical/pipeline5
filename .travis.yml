@@ -1,6 +1,6 @@
 branches:
   only:
-  - master
+    - 5.4-hotfixes
 sudo: required
 language: java
 services:
