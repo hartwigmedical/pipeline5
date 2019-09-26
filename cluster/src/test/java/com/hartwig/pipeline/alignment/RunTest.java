@@ -9,7 +9,6 @@ import com.hartwig.pipeline.metadata.ImmutableSingleSampleRunMetadata;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 
-import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
 public class RunTest {
@@ -18,7 +17,6 @@ public class RunTest {
     private static final SingleSampleRunMetadata TUMOR_SAMPLE = sample(SingleSampleRunMetadata.SampleType.TUMOR, "tumor");
     private static final SomaticRunMetadata SOMATIC = somatic(REFERENCE_SAMPLE, TUMOR_SAMPLE);
 
-    @NotNull
     private static SomaticRunMetadata somatic(final SingleSampleRunMetadata referenceSample, final SingleSampleRunMetadata tumorSample) {
         return SomaticRunMetadata.builder().reference(referenceSample).maybeTumor(tumorSample).runName("test").build();
     }
