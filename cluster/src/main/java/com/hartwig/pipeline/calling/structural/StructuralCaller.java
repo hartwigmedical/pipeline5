@@ -99,10 +99,10 @@ public class StructuralCaller {
         String refBamPath = referenceBam.getLocalTargetPath();
         String tumorBamPath = tumorBam.getLocalTargetPath();
         SubStageInputOutput referencePreProcessed =
-                new Preprocess(refBamPath, referenceWorkingDir, referenceSampleName, referenceGenomePath).apply(SubStageInputOutput.seed(
+                new Preprocess(refBamPath, referenceWorkingDir, referenceSampleName, referenceGenomePath).apply(SubStageInputOutput.empty(
                         referenceSampleName));
         SubStageInputOutput tumorPreProcessed =
-                new Preprocess(tumorBamPath, tumorWorkingDir, tumorSampleName, referenceGenomePath).apply(SubStageInputOutput.seed(
+                new Preprocess(tumorBamPath, tumorWorkingDir, tumorSampleName, referenceGenomePath).apply(SubStageInputOutput.empty(
                         tumorSampleName));
 
         Assemble assemble = new Assemble(refBamPath, tumorBamPath, jointName, referenceGenomePath, configurationFile, blacklist);
@@ -118,7 +118,7 @@ public class StructuralCaller {
                                 jointName,
                                 configurationFile,
                                 blacklist))
-                        .apply(SubStageInputOutput.seed(jointName));
+                        .apply(SubStageInputOutput.empty(jointName));
 
         SubStageInputOutput filtered = new Filter(filteredVcfBasename, fullVcfBasename).apply(annotated);
         bash.addCommands(referencePreProcessed.bash())

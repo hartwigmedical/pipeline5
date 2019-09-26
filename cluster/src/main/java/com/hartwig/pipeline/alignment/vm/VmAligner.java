@@ -106,7 +106,7 @@ public class VmAligner implements Aligner {
                     first.getLocalTargetPath(),
                     second.getLocalTargetPath(),
                     sample.name(),
-                    lane).apply(SubStageInputOutput.seed(sample.name()));
+                    lane).apply(SubStageInputOutput.empty(sample.name()));
             perLaneBams.add(GoogleStorageLocation.of(laneBucket.name(), resultsDirectory.path(alignment.outputFile().fileName())));
 
             bash.addCommands(alignment.bash())
@@ -126,7 +126,7 @@ public class VmAligner implements Aligner {
             SubStageInputOutput merged = new MergeMarkDups(laneBams.stream()
                     .map(InputDownload::getLocalTargetPath)
                     .filter(path -> path.endsWith("bam"))
-                    .collect(Collectors.toList())).apply(SubStageInputOutput.seed(sample.name()));
+                    .collect(Collectors.toList())).apply(SubStageInputOutput.empty(sample.name()));
 
             mergeMarkdupsBash.addCommands(merged.bash());
 

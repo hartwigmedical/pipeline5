@@ -24,7 +24,7 @@ public interface SubStageInputOutput {
         return ImmutableSubStageInputOutput.of(sampleName, outputFile, bash);
     }
 
-    static SubStageInputOutput seed(final String sampleName) {
+    static SubStageInputOutput empty(final String sampleName) {
         return of(sampleName, OutputFile.empty(), Collections.emptyList());
     }
 }

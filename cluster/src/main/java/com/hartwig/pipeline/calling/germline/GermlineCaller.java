@@ -102,7 +102,7 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
 
         SubStageInputOutput callerOutput =
                 new GatkGermlineCaller(bamDownload.getLocalTargetPath(), referenceFasta, dbsnpVcf).andThen(new GenotypeGVCFs(referenceFasta,
-                        dbsnpVcf)).apply(SubStageInputOutput.seed(metadata.sampleName()));
+                        dbsnpVcf)).apply(SubStageInputOutput.empty(metadata.sampleName()));
 
         SubStageInputOutput snpFilterOutput =
                 new SelectVariants("snp", Lists.newArrayList("SNP", "NO_VARIATION"), referenceFasta).andThen(new VariantFiltration("snp",

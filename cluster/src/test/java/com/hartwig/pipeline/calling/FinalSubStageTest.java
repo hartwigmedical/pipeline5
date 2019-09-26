@@ -16,7 +16,7 @@ public class FinalSubStageTest {
     public void appendsFinalConventionToOutputFile() {
         CaptureOutputFile capture = new CaptureOutputFile();
         FinalSubStage victim = FinalSubStage.of(capture);
-        victim.apply(SubStageInputOutput.seed("sample"));
+        victim.apply(SubStageInputOutput.empty("sample"));
         assertThat(capture.outputFile.path()).isEqualTo("/data/output/sample.test.final.vcf");
     }
 

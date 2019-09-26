@@ -93,7 +93,7 @@ public class SomaticCaller extends TertiaryStage<SomaticCallerOutput> {
                 referenceSampleName).andThen(new SageFiltersAndAnnotations(tumorSampleName))
                 .andThen(new SagePonAnnotation(sageResources.find("SAGE_PON.vcf.gz")))
                 .andThen(new SagePonFilter())
-                .apply(SubStageInputOutput.seed(tumorSampleName));
+                .apply(SubStageInputOutput.empty(tumorSampleName));
 
         commands.addAll(sageOutput.bash());
 
@@ -116,7 +116,7 @@ public class SomaticCaller extends TertiaryStage<SomaticCallerOutput> {
                 .andThen(new SnpEff(snpEffResources.find("config")))
                 .andThen(new DbSnpAnnotation(resources.get(DBSNPS).find("vcf.gz")))
                 .andThen(FinalSubStage.of(new CosmicAnnotation(resources.get(COSMIC).find("collapsed.vcf.gz"), "ID,INFO")))
-                .apply(SubStageInputOutput.seed(tumorSampleName));
+                .apply(SubStageInputOutput.empty(tumorSampleName));
         commands.addAll(mergedOutput.bash());
 
         outputFile = mergedOutput.outputFile();
