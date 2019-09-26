@@ -23,6 +23,7 @@ import com.hartwig.pipeline.tertiary.cobalt.Cobalt;
 import com.hartwig.pipeline.tertiary.cobalt.CobaltOutput;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthCheckOutput;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthChecker;
+import com.hartwig.pipeline.tertiary.linx.LinxOutput;
 import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 
@@ -167,6 +168,12 @@ public class TestInputs {
         return HealthCheckOutput.builder()
                 .status(PipelineStatus.SUCCESS)
                 .maybeOutputDirectory(gsLocation(somaticBucket(HealthChecker.NAMESPACE), RESULTS))
+                .build();
+    }
+
+    public static LinxOutput linxOutput() {
+        return LinxOutput.builder()
+                .status(PipelineStatus.SUCCESS)
                 .build();
     }
 

@@ -5,6 +5,7 @@ import static com.hartwig.pipeline.testsupport.TestInputs.cobaltOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.defaultPair;
 import static com.hartwig.pipeline.testsupport.TestInputs.defaultSomaticRunMetadata;
 import static com.hartwig.pipeline.testsupport.TestInputs.healthCheckerOutput;
+import static com.hartwig.pipeline.testsupport.TestInputs.linxOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.purpleOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.referenceAlignmentOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.referenceMetricsOutput;
@@ -50,7 +51,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class SomaticPipelineTest {
-
 
     private static final Arguments ARGUMENTS = Arguments.testDefaults();
     private AlignmentOutputStorage alignmentOutputStorage;
@@ -108,7 +108,8 @@ public class SomaticPipelineTest {
                 somaticCallerOutput(),
                 structuralCallerOutput(),
                 purpleOutput(),
-                healthCheckerOutput());
+                healthCheckerOutput(),
+                linxOutput());
     }
 
     @Test
@@ -141,6 +142,27 @@ public class SomaticPipelineTest {
                 somaticCallerOutput(),
                 structuralCallerOutput(),
                 failPurple);
+        assertThat(state.status()).isEqualTo(PipelineStatus.FAILED);
+    }
+
+    @Test
+    public void doesNotRunLinxWhenWhenHealthCheckFails() {
+        bothAlignmentsAvailable();
+        bothMetricsAvailable();
+        when(structuralCaller.run(defaultSomaticRunMetadata(), defaultPair())).thenReturn(structuralCallerOutput());
+        HealthCheckOutput failHealthCheck = HealthCheckOutput.builder().status(PipelineStatus.FAILED).build();
+        when(stageRunner.run(eq(defaultSomaticRunMetadata()), any())).thenReturn(amberOutput())
+                .thenReturn(cobaltOutput())
+                .thenReturn(somaticCallerOutput())
+                .thenReturn(purpleOutput())
+                .thenReturn(failHealthCheck);
+        PipelineState state = victim.run();
+        assertThat(state.stageOutputs()).containsExactlyInAnyOrder(cobaltOutput(),
+                amberOutput(),
+                somaticCallerOutput(),
+                structuralCallerOutput(),
+                purpleOutput(),
+                failHealthCheck);
         assertThat(state.status()).isEqualTo(PipelineStatus.FAILED);
     }
 
@@ -217,7 +239,8 @@ public class SomaticPipelineTest {
                 .thenReturn(cobaltOutput())
                 .thenReturn(somaticCallerOutput())
                 .thenReturn(purpleOutput())
-                .thenReturn(healthCheckerOutput());
+                .thenReturn(healthCheckerOutput())
+                .thenReturn(linxOutput());
     }
 
     private void failedRun() {

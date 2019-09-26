@@ -25,6 +25,7 @@ import com.hartwig.pipeline.tertiary.amber.AmberOutput;
 import com.hartwig.pipeline.tertiary.cobalt.Cobalt;
 import com.hartwig.pipeline.tertiary.cobalt.CobaltOutput;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthChecker;
+import com.hartwig.pipeline.tertiary.linx.Linx;
 import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 
@@ -99,6 +100,9 @@ public class SomaticPipeline {
                         BamMetricsOutput referenceMetrics = bamMetricsOutputStorage.get(metadata.reference());
                         pipelineResults.add(state.add(stageRunner.run(metadata,
                                 new HealthChecker(referenceMetrics, tumorMetrics, amberOutput, purpleOutput))));
+                        if (state.shouldProceed()) {
+                            state.add(stageRunner.run(metadata, new Linx(purpleOutput)));
+                        }
                         pipelineResults.compose(metadata);
                     }
                 }
