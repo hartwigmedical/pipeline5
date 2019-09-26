@@ -143,13 +143,16 @@ public class ComputeEngineTest {
     }
 
     @Test
-    public void returnsJobFailedWhenScriptFailsRemotely() throws Exception {
+    public void returnsJobFailedWhenScriptFailsRemotely() {
         returnFailed();
         assertThat(victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition)).isEqualTo(PipelineStatus.FAILED);
     }
 
     @Test
-    public void disablesStartupScriptWhenScriptFailsRemotely() throws Exception {
+    public void disablesStartupScriptWhenInstanceWithPersistentDisksFailsRemotely() throws Exception {
+        Arguments arguments = Arguments.testDefaultsBuilder().useLocalSsds(false).build();
+        victim = new ComputeEngine(arguments, compute, z -> {
+        }, lifecycleManager, bucketWatcher);
         returnFailed();
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
         verify(lifecycleManager).disableStartupScript(FIRST_ZONE_NAME, INSTANCE_NAME);
@@ -179,10 +182,20 @@ public class ComputeEngineTest {
 
 
     @Test
-    public void stopsInstanceUponCompletion() throws Exception {
-        returnSuccess();
+    public void stopsInstanceWithPersistentDisksUponFailure() {
+        Arguments arguments = Arguments.testDefaultsBuilder().useLocalSsds(false).build();
+        victim = new ComputeEngine(arguments, compute, z -> {
+        }, lifecycleManager, bucketWatcher);
+        returnFailed();
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
         verify(lifecycleManager).stop(FIRST_ZONE_NAME, INSTANCE_NAME);
+    }
+
+    @Test
+    public void deletesInstanceWithLocalSSdsUponFailure() {
+        returnFailed();
+        victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
+        verify(lifecycleManager).delete(FIRST_ZONE_NAME, INSTANCE_NAME);
     }
 
     @Test
@@ -251,7 +264,7 @@ public class ComputeEngineTest {
         when(lifecycleManager.deleteOldInstancesAndStart(any(), any(), any())).thenReturn(successOperation);
     }
 
-    private void returnFailed() throws IOException {
+    private void returnFailed() {
         when(bucketWatcher.currentState(any(), any())).thenReturn(State.STILL_WAITING, State.FAILURE);
     }
 }

@@ -94,6 +94,7 @@ public class SbpSampleReader {
         }
         String[] tokens = sbpFastQ.name_r1().split("_");
         String laneNumber = tokens[3];
+        String flowCellId = tokens[1];
         return Lane.builder()
                 .name(tokens[0] + "_" + laneNumber)
                 .laneNumber(laneNumber)
@@ -101,7 +102,7 @@ public class SbpSampleReader {
                 .secondOfPairPath(s3Path(sbpFastQ, sbpFastQ.name_r2()))
                 .directory("")
                 .suffix("")
-                .flowCellId("")
+                .flowCellId(flowCellId)
                 .index("0")
                 .build();
     }

@@ -103,11 +103,11 @@ public class VmAlignerTest {
                 ArgumentCaptor.forClass(VirtualMachineJobDefinition.class);
         when(computeEngine.submit(bucketCaptor.capture(), jobDefinitionArgumentCaptor.capture())).thenReturn(PipelineStatus.SUCCESS);
         victim.run(METADATA);
-        assertThat(bucketCaptor.getAllValues().get(0).name()).isEqualTo("run-reference-test/aligner/L001");
-        assertThat(bucketCaptor.getAllValues().get(1).name()).isEqualTo("run-reference-test/aligner/L002");
+        assertThat(bucketCaptor.getAllValues().get(0).name()).isEqualTo("run-reference-test/aligner/flowcell-L001");
+        assertThat(bucketCaptor.getAllValues().get(1).name()).isEqualTo("run-reference-test/aligner/flowcell-L002");
 
-        assertThat(jobDefinitionArgumentCaptor.getAllValues().get(0).name()).isEqualTo("aligner-l001");
-        assertThat(jobDefinitionArgumentCaptor.getAllValues().get(1).name()).isEqualTo("aligner-l002");
+        assertThat(jobDefinitionArgumentCaptor.getAllValues().get(0).name()).isEqualTo("aligner-flowcell-l001");
+        assertThat(jobDefinitionArgumentCaptor.getAllValues().get(1).name()).isEqualTo("aligner-flowcell-l002");
     }
 
     @Test
@@ -148,6 +148,7 @@ public class VmAlignerTest {
     private static ImmutableLane lane(int index) {
         return Lanes.emptyBuilder()
                 .name(String.format("%s_L00%s", METADATA.sampleName(), index))
+                .flowCellId("flowcell")
                 .laneNumber(String.format("L00%s", index))
                 .build();
     }
