@@ -1,14 +1,18 @@
 package com.hartwig.pipeline.flagstat;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.execution.PipelineStatus;
+import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.InputDownload;
-import com.hartwig.pipeline.execution.vm.OutputUpload;
+import com.hartwig.pipeline.execution.vm.ResourceDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.unix.SubShellCommand;
@@ -17,40 +21,49 @@ import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.report.SingleFileComponent;
 import com.hartwig.pipeline.report.StartupScriptComponent;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
+import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.RuntimeBucket;
-import com.hartwig.pipeline.trace.StageTrace;
 
-public class Flagstat {
+public class Flagstat implements Stage<FlagstatOutput, SingleSampleRunMetadata> {
     public static final String NAMESPACE = "flagstat";
-    private final Arguments arguments;
-    private final ComputeEngine executor;
-    private final Storage storage;
-    private final ResultsDirectory resultsDirectory;
 
-    Flagstat(final Arguments arguments, final ComputeEngine executor, final Storage storage, final ResultsDirectory results) {
-        this.arguments = arguments;
-        this.executor = executor;
-        this.storage = storage;
-        this.resultsDirectory = results;
+    private final InputDownload bamDownload;
+
+    public Flagstat(final AlignmentOutput alignmentOutput) {
+        bamDownload = new InputDownload(alignmentOutput.finalBamLocation());
     }
 
-    public FlagstatOutput run(SingleSampleRunMetadata metadata, AlignmentOutput alignmentOutput) {
+    @Override
+    public List<BashCommand> inputs() {
+        return Collections.singletonList(bamDownload);
+    }
 
-        StageTrace trace = new StageTrace(NAMESPACE, metadata.sampleName(), StageTrace.ExecutorType.COMPUTE_ENGINE).start();
-        RuntimeBucket bucket = RuntimeBucket.from(storage, NAMESPACE, metadata, arguments);
+    @Override
+    public List<ResourceDownload> resources(final Storage storage, final String resourceBucket, final RuntimeBucket bucket) {
+        return Collections.emptyList();
+    }
 
-        InputDownload bamDownload = new InputDownload(alignmentOutput.finalBamLocation());
+    @Override
+    public String namespace() {
+        return NAMESPACE;
+    }
 
-        String outputFile = FlagstatOutput.outputFile(alignmentOutput.sample());
-        BashStartupScript bash = BashStartupScript.of(bucket.name())
-                .addCommand(bamDownload)
-                .addCommand(new SubShellCommand(new SambambaFlagstatCommand(bamDownload.getLocalTargetPath(),
-                        VmDirectories.OUTPUT + "/" + outputFile)))
-                .addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path())));
+    @Override
+    public List<BashCommand> commands(final SingleSampleRunMetadata metadata, final Map<String, ResourceDownload> resources) {
+        String outputFile = FlagstatOutput.outputFile(metadata.sampleName());
+        return Collections.singletonList(new SubShellCommand(new SambambaFlagstatCommand(bamDownload.getLocalTargetPath(),
+                VmDirectories.OUTPUT + "/" + outputFile)));
+    }
 
-        PipelineStatus status = executor.submit(bucket, VirtualMachineJobDefinition.flagstat(bash, resultsDirectory));
-        trace.stop();
+    @Override
+    public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
+        return VirtualMachineJobDefinition.flagstat(bash, resultsDirectory);
+    }
+
+    @Override
+    public FlagstatOutput output(final SingleSampleRunMetadata metadata, final PipelineStatus status, final RuntimeBucket bucket,
+            final ResultsDirectory resultsDirectory) {
+        String outputFile = FlagstatOutput.outputFile(metadata.sampleName());
         return FlagstatOutput.builder()
                 .status(status)
                 .addReportComponents(new RunLogComponent(bucket, Flagstat.NAMESPACE, Folder.from(metadata), resultsDirectory))
@@ -62,5 +75,15 @@ public class Flagstat {
                         outputFile,
                         resultsDirectory))
                 .build();
+    }
+
+    @Override
+    public FlagstatOutput skippedOutput(final SingleSampleRunMetadata metadata) {
+        throw new IllegalStateException("Flagstat cannot be skipped.");
+    }
+
+    @Override
+    public boolean shouldRun(final Arguments arguments) {
+        return true;
     }
 }

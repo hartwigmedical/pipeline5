@@ -33,7 +33,7 @@ class InstanceLifecycleManager {
     private final Compute compute;
     private final String region;
 
-    public InstanceLifecycleManager(final Arguments arguments, final Compute compute) {
+    InstanceLifecycleManager(final Arguments arguments, final Compute compute) {
         this.project = arguments.project();
         this.region = arguments.region();
         this.compute = compute;
@@ -44,7 +44,7 @@ class InstanceLifecycleManager {
     }
 
     Optional<Instance> findExistingInstance(String vmName) throws IOException {
-        for (String zone : fetchZones().stream().map(z -> z.getName()).collect(Collectors.toList())) {
+        for (String zone : fetchZones().stream().map(Zone::getName).collect(Collectors.toList())) {
             InstanceList instances = compute.instances().list(project, zone).execute();
             if (instances.getItems() != null) {
                 for (Instance instance : instances.getItems()) {
@@ -85,7 +85,7 @@ class InstanceLifecycleManager {
         executeSynchronously(getWithRetries(() -> compute.instances().stop(project, zone, vm)), project, zone);
     }
 
-    String operationStatus(String jobName, String zoneName) {
+    private String operationStatus(String jobName, String zoneName) {
         return executeWithRetries(() -> compute.zoneOperations().get(project, zoneName, jobName).execute()).getStatus();
     }
 

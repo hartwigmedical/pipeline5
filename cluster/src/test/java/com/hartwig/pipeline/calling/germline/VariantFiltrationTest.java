@@ -22,10 +22,10 @@ public class VariantFiltrationTest extends SubStageTest {
 
     @Test
     public void filtersVariantsWithGatk() {
-        assertThat(output.currentBash().asUnixString()).contains("java -Xmx20G -jar /opt/tools/gatk/3.8.0/GenomeAnalysisTK.jar -T "
+        assertThat(bash()).contains("java -Xmx20G -jar /opt/tools/gatk/3.8.0/GenomeAnalysisTK.jar -T "
                 + "VariantFiltration -R reference.fasta -V /data/output/reference.strelka.vcf -o "
                 + "/data/output/reference.filtered_snps.vcf --filterExpression \"QD < 2.0\" --filterName \"filter1\" --filterExpression "
-                + "\"MQ < 10.0\" --filterName \"filter2\" --clusterSize 3 --clusterWindowSize 35 ");
+                + "\"MQ < 10.0\" --filterName \"filter2\" --clusterSize 3 --clusterWindowSize 35");
     }
 
     @Override

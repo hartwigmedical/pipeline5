@@ -2,15 +2,19 @@ package com.hartwig.pipeline.snpgenotype;
 
 import static java.lang.String.format;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 import com.google.cloud.storage.Storage;
+import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.execution.PipelineStatus;
+import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.InputDownload;
-import com.hartwig.pipeline.execution.vm.OutputUpload;
 import com.hartwig.pipeline.execution.vm.ResourceDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
@@ -23,61 +27,59 @@ import com.hartwig.pipeline.resource.GATKDictAlias;
 import com.hartwig.pipeline.resource.ReferenceGenomeAlias;
 import com.hartwig.pipeline.resource.Resource;
 import com.hartwig.pipeline.resource.ResourceNames;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
+import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.RuntimeBucket;
-import com.hartwig.pipeline.trace.StageTrace;
 
-public class SnpGenotype {
+public class SnpGenotype implements Stage<SnpGenotypeOutput, SingleSampleRunMetadata> {
 
     public static final String NAMESPACE = "snp_genotype";
 
     private static final String OUTPUT_FILENAME = "snp_genotype_output.vcf";
 
-    private final Arguments arguments;
-    private final ComputeEngine executor;
-    private final Storage storage;
-    private final ResultsDirectory resultsDirectory;
+    private final InputDownload bamDownload;
+    private final InputDownload baiDownload;
 
-    public SnpGenotype(final Arguments arguments, final ComputeEngine executor, final Storage storage,
-            final ResultsDirectory resultsDirectory) {
-        this.arguments = arguments;
-        this.executor = executor;
-        this.storage = storage;
-        this.resultsDirectory = resultsDirectory;
+    public SnpGenotype(final AlignmentOutput alignmentOutput) {
+        this.bamDownload = new InputDownload(alignmentOutput.finalBamLocation());
+        this.baiDownload = new InputDownload(alignmentOutput.finalBaiLocation());
     }
 
-    public SnpGenotypeOutput run(SingleSampleRunMetadata metadata, AlignmentOutput alignmentOutput) {
+    @Override
+    public List<BashCommand> inputs() {
+        return ImmutableList.of(bamDownload, baiDownload);
+    }
 
-        if (!arguments.runSnpGenotyper()) {
-            return SnpGenotypeOutput.builder().status(PipelineStatus.SKIPPED).build();
-        }
-
-        StageTrace trace = new StageTrace(NAMESPACE, metadata.sampleName(), StageTrace.ExecutorType.COMPUTE_ENGINE).start();
-
-        String sampleName = alignmentOutput.sample();
-        RuntimeBucket bucket = RuntimeBucket.from(storage, NAMESPACE, metadata, arguments);
-
-        ResourceDownload referenceGenomeDownload = ResourceDownload.from(bucket,
+    @Override
+    public List<ResourceDownload> resources(final Storage storage, final String resourceBucket, final RuntimeBucket bucket) {
+        return ImmutableList.of(ResourceDownload.from(bucket,
                 new Resource(storage,
-                        arguments.resourceBucket(),
+                        resourceBucket,
                         ResourceNames.REFERENCE_GENOME,
-                        new ReferenceGenomeAlias().andThen(new GATKDictAlias())));
-        ResourceDownload genotypeSnps = ResourceDownload.from(storage, arguments.resourceBucket(), ResourceNames.GENOTYPE_SNPS, bucket);
+                        new ReferenceGenomeAlias().andThen(new GATKDictAlias()))),
+                ResourceDownload.from(storage, resourceBucket, ResourceNames.GENOTYPE_SNPS, bucket));
+    }
 
-        InputDownload bamDownload = new InputDownload(alignmentOutput.finalBamLocation());
-        BashStartupScript startupScript = BashStartupScript.of(bucket.name())
-                .addCommand(bamDownload)
-                .addCommand(new InputDownload(alignmentOutput.finalBaiLocation()))
-                .addCommand(referenceGenomeDownload)
-                .addCommand(genotypeSnps)
-                .addCommand(new SnpGenotypeCommand(bamDownload.getLocalTargetPath(),
-                        referenceGenomeDownload.find("fasta"),
-                        genotypeSnps.find("26SNPtaq.vcf"),
-                        format("%s/%s", VmDirectories.OUTPUT, OUTPUT_FILENAME)))
-                .addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path())));
+    @Override
+    public String namespace() {
+        return NAMESPACE;
+    }
 
-        PipelineStatus status = executor.submit(bucket, VirtualMachineJobDefinition.snpGenotyping(startupScript, resultsDirectory));
-        trace.stop();
+    @Override
+    public List<BashCommand> commands(final SingleSampleRunMetadata metadata, final Map<String, ResourceDownload> resources) {
+        return Collections.singletonList(new SnpGenotypeCommand(bamDownload.getLocalTargetPath(),
+                resources.get(ResourceNames.REFERENCE_GENOME).find("fasta"),
+                resources.get(ResourceNames.GENOTYPE_SNPS).find("26SNPtaq.vcf"),
+                format("%s/%s", VmDirectories.OUTPUT, OUTPUT_FILENAME)));
+    }
+
+    @Override
+    public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
+        return VirtualMachineJobDefinition.snpGenotyping(bash, resultsDirectory);
+    }
+
+    @Override
+    public SnpGenotypeOutput output(final SingleSampleRunMetadata metadata, final PipelineStatus status, final RuntimeBucket bucket,
+            final ResultsDirectory resultsDirectory) {
         return SnpGenotypeOutput.builder()
                 .status(status)
                 .addReportComponents(new RunLogComponent(bucket, NAMESPACE, Folder.from(metadata), resultsDirectory))
@@ -89,5 +91,15 @@ public class SnpGenotype {
                         OUTPUT_FILENAME,
                         resultsDirectory))
                 .build();
+    }
+
+    @Override
+    public SnpGenotypeOutput skippedOutput(final SingleSampleRunMetadata metadata) {
+        return SnpGenotypeOutput.builder().status(PipelineStatus.SKIPPED).build();
+    }
+
+    @Override
+    public boolean shouldRun(final Arguments arguments) {
+        return arguments.runSnpGenotyper();
     }
 }

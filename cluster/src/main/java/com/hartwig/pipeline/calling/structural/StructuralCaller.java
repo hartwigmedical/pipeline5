@@ -23,7 +23,6 @@ import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.BatchInputDownload;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.InputDownload;
-import com.hartwig.pipeline.execution.vm.OutputFile;
 import com.hartwig.pipeline.execution.vm.OutputUpload;
 import com.hartwig.pipeline.execution.vm.ResourceDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
@@ -44,7 +43,7 @@ import com.hartwig.pipeline.trace.StageTrace;
 
 public class StructuralCaller {
 
-    private static final String NAMESPACE = "structural_caller";
+    public static final String NAMESPACE = "structural_caller";
 
     private final Arguments arguments;
     private final ComputeEngine computeEngine;
@@ -99,13 +98,12 @@ public class StructuralCaller {
 
         String refBamPath = referenceBam.getLocalTargetPath();
         String tumorBamPath = tumorBam.getLocalTargetPath();
-        new Preprocess(refBamPath, referenceWorkingDir, referenceSampleName, referenceGenomePath).apply(SubStageInputOutput.of(
-                referenceSampleName,
-                OutputFile.empty(),
-                bash));
-        new Preprocess(tumorBamPath, tumorWorkingDir, tumorSampleName, referenceGenomePath).apply(SubStageInputOutput.of(tumorSampleName,
-                OutputFile.empty(),
-                bash));
+        SubStageInputOutput referencePreProcessed =
+                new Preprocess(refBamPath, referenceWorkingDir, referenceSampleName, referenceGenomePath).apply(SubStageInputOutput.empty(
+                        referenceSampleName));
+        SubStageInputOutput tumorPreProcessed =
+                new Preprocess(tumorBamPath, tumorWorkingDir, tumorSampleName, referenceGenomePath).apply(SubStageInputOutput.empty(
+                        tumorSampleName));
 
         Assemble assemble = new Assemble(refBamPath, tumorBamPath, jointName, referenceGenomePath, configurationFile, blacklist);
         String filteredVcfBasename = VmDirectories.outputFile(format("%s.gridss.somatic.vcf", tumorSampleName));
@@ -120,11 +118,14 @@ public class StructuralCaller {
                                 jointName,
                                 configurationFile,
                                 blacklist))
-                        .apply(SubStageInputOutput.of(jointName, OutputFile.empty(), bash));
+                        .apply(SubStageInputOutput.empty(jointName));
 
-        new Filter(filteredVcfBasename, fullVcfBasename).apply(annotated);
-
-        bash.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path())));
+        SubStageInputOutput filtered = new Filter(filteredVcfBasename, fullVcfBasename).apply(annotated);
+        bash.addCommands(referencePreProcessed.bash())
+                .addCommands(tumorPreProcessed.bash())
+                .addCommands(annotated.bash())
+                .addCommands(filtered.bash())
+                .addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path())));
 
         PipelineStatus status = computeEngine.submit(runtimeBucket, VirtualMachineJobDefinition.structuralCalling(bash, resultsDirectory));
 

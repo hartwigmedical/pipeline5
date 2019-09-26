@@ -3,78 +3,66 @@ package com.hartwig.pipeline.calling.structural.gridss.stage;
 import static java.lang.String.format;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
+import java.util.Collections;
+
+import com.hartwig.pipeline.calling.SubStage;
+import com.hartwig.pipeline.calling.SubStageInputOutput;
+import com.hartwig.pipeline.calling.SubStageTest;
 import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
 import com.hartwig.pipeline.calling.structural.gridss.command.BiocondaVariantAnnotationWorkaround;
 import com.hartwig.pipeline.calling.structural.gridss.command.RscriptFilter;
-import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.OutputFile;
 
-import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 
-public class FilterTest implements CommonEntities {
-    private String uncompressedVcf;
-    private String outputFilteredVcf;
-    private String outputFullVcf;
+public class FilterTest extends SubStageTest implements CommonEntities {
 
-    private BashStartupScript initialScript;
-    private ArgumentCaptor<BashCommand> captor;
-    private Filter victim;
-    private OutputFile input;
-    private OutputFile output;
+    private static final String UNZIPPED = "/data/output/tumor.gridss.vcf";
+    private static final String OUTPUT_FULL_VCF = "full.vcf";
+    private static final String OUTPUT_ORIGINAL_VCF = format("%s/original.vcf", OUT_DIR);
 
-    @Before
-    public void setup() {
-        input = mock(OutputFile.class);
-        output = mock(OutputFile.class);
+    @Override
+    public SubStage createVictim() {
+        return new Filter(OUTPUT_ORIGINAL_VCF, OUTPUT_FULL_VCF);
+    }
 
-        uncompressedVcf = format("%s/original.vcf", OUT_DIR);
-        when(input.path()).thenReturn(uncompressedVcf + ".gz");
-        outputFilteredVcf = "filtered.vcf";
-        outputFullVcf = "full.vcf";
-        victim = new Filter(outputFilteredVcf, outputFullVcf);
+    @Override
+    public String expectedPath() {
+        return "/data/output/tumor.filter.final.vcf.gz";
+    }
 
-        captor = ArgumentCaptor.forClass(BashCommand.class);
-
-        initialScript = mock(BashStartupScript.class);
-        BashStartupScript finishedScript = victim.bash(input, output, initialScript);
-        verify(finishedScript, times(6)).addCommand(captor.capture());
+    @Override
+    protected OutputFile input() {
+        return OutputFile.of(sampleName(), "gridss", OutputFile.GZIPPED_VCF, false);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldThrowIfInputPathDoesNotEndWithGz() {
-        when(input.path()).thenReturn(uncompressedVcf);
-        new Filter(outputFilteredVcf, outputFullVcf).bash(input, output, initialScript);
+        createVictim().apply(SubStageInputOutput.of("nogz", OutputFile.of("nogz", OutputFile.VCF), Collections.emptyList()));
     }
 
     @Test
     public void shouldRunBiocondaWorkaroundAsFirstStepPassingDeducedUncompressedFilenameAsOutput() {
-        BiocondaVariantAnnotationWorkaround command = new BiocondaVariantAnnotationWorkaround(input.path(), uncompressedVcf);
-        assertThat(captor.getAllValues().get(0).asBash()).isEqualTo(format("(%s)", command.asBash()));
+        BiocondaVariantAnnotationWorkaround command = new BiocondaVariantAnnotationWorkaround(input().path(), UNZIPPED);
+        assertThat(output.bash().get(0).asBash()).contains(format("(%s)", command.asBash()));
     }
 
     @Test
     public void shouldRunRscriptWithCorrectScriptAsSecondStep() {
-        String expectedRscript = new RscriptFilter(uncompressedVcf, outputFilteredVcf, outputFullVcf).asBash();
-        assertThat(captor.getAllValues().get(1).asBash()).isEqualTo(expectedRscript);
+        String expectedRscript = new RscriptFilter(UNZIPPED, "/data/output/original.vcf", "full.vcf").asBash();
+        assertThat(output.bash().get(1).asBash()).isEqualTo(expectedRscript);
     }
 
     @Test
     public void shouldMoveInterimFullVcfAndTbiToFinalLocationAfterRscriptRuns() {
-        assertThat(captor.getAllValues().get(2).asBash()).isEqualTo(format("mv %s.bgz %s.gz", outputFullVcf, outputFullVcf));
-        assertThat(captor.getAllValues().get(3).asBash()).isEqualTo(format("mv %s.bgz.tbi %s.gz.tbi", outputFullVcf, outputFullVcf));
+        assertThat(output.bash().get(2).asBash()).isEqualTo(format("mv %s.bgz %s.gz", OUTPUT_FULL_VCF, OUTPUT_FULL_VCF));
+        assertThat(output.bash().get(3).asBash()).isEqualTo(format("mv %s.bgz.tbi %s.gz.tbi", OUTPUT_FULL_VCF, OUTPUT_FULL_VCF));
     }
 
     @Test
     public void shouldMoveInterimFilteredVcfAndTbiToFinalLocation() {
-        assertThat(captor.getAllValues().get(4).asBash()).isEqualTo(format("mv %s.bgz %s.gz", outputFilteredVcf, outputFilteredVcf));
-        assertThat(captor.getAllValues().get(5).asBash()).isEqualTo(format("mv %s.bgz.tbi %s.gz.tbi", outputFilteredVcf, outputFilteredVcf));
+        assertThat(output.bash().get(4).asBash()).isEqualTo(format("mv %s.bgz %s.gz", OUTPUT_ORIGINAL_VCF, OUTPUT_ORIGINAL_VCF));
+        assertThat(output.bash().get(5).asBash()).isEqualTo(format("mv %s.bgz.tbi %s.gz.tbi", OUTPUT_ORIGINAL_VCF, OUTPUT_ORIGINAL_VCF));
     }
 }

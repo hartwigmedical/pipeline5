@@ -30,7 +30,6 @@ import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.InputDownload;
-import com.hartwig.pipeline.execution.vm.OutputFile;
 import com.hartwig.pipeline.execution.vm.OutputUpload;
 import com.hartwig.pipeline.execution.vm.ResourceDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
@@ -105,14 +104,15 @@ public class VmAligner implements Aligner {
 
             bash.addCommand(referenceGenomeDownload).addCommand(first).addCommand(second);
 
-            perLaneBams.add(GoogleStorageLocation.of(laneBucket.name(),
-                    resultsDirectory.path(new LaneAlignment(referenceGenomePath,
-                            first.getLocalTargetPath(),
-                            second.getLocalTargetPath(),
-                            sample.name(),
-                            lane).apply(SubStageInputOutput.of(sample.name(), OutputFile.empty(), bash)).outputFile().fileName())));
+            SubStageInputOutput alignment = new LaneAlignment(referenceGenomePath,
+                    first.getLocalTargetPath(),
+                    second.getLocalTargetPath(),
+                    sample.name(),
+                    lane).apply(SubStageInputOutput.empty(sample.name()));
+            perLaneBams.add(GoogleStorageLocation.of(laneBucket.name(), resultsDirectory.path(alignment.outputFile().fileName())));
 
-            bash.addCommand(new OutputUpload(GoogleStorageLocation.of(laneBucket.name(), resultsDirectory.path())));
+            bash.addCommands(alignment.bash())
+                    .addCommand(new OutputUpload(GoogleStorageLocation.of(laneBucket.name(), resultsDirectory.path())));
             futures.add(executorService.submit(() -> computeEngine.submit(laneBucket,
                     VirtualMachineJobDefinition.alignment(laneId(lane).toLowerCase(), bash, resultsDirectory))));
         }
@@ -128,7 +128,9 @@ public class VmAligner implements Aligner {
             SubStageInputOutput merged = new MergeMarkDups(laneBams.stream()
                     .map(InputDownload::getLocalTargetPath)
                     .filter(path -> path.endsWith("bam"))
-                    .collect(Collectors.toList())).apply(SubStageInputOutput.of(sample.name(), OutputFile.empty(), mergeMarkdupsBash));
+                    .collect(Collectors.toList())).apply(SubStageInputOutput.empty(sample.name()));
+
+            mergeMarkdupsBash.addCommands(merged.bash());
 
             mergeMarkdupsBash.addCommand(new OutputUpload(GoogleStorageLocation.of(rootBucket.name(), resultsDirectory.path())));
 

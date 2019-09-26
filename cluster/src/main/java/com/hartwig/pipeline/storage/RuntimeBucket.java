@@ -12,8 +12,7 @@ import com.google.cloud.storage.StorageClass;
 import com.google.common.collect.Lists;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.Run;
-import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
-import com.hartwig.pipeline.metadata.SomaticRunMetadata;
+import com.hartwig.pipeline.metadata.RunMetadata;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,17 +26,9 @@ public class RuntimeBucket {
     private final String namespace;
     private final Run run;
 
-    public static RuntimeBucket from(final Storage storage, final String namespace, final SingleSampleRunMetadata metadata,
+    public static RuntimeBucket from(final Storage storage, final String namespace, final RunMetadata metadata,
             final Arguments arguments) {
-        return createBucketIfNeeded(storage, namespace, arguments, Run.from(metadata.sampleId(), arguments));
-    }
-
-    public static RuntimeBucket from(final Storage storage, final String namespace, final SomaticRunMetadata metadata,
-            final Arguments arguments) {
-        return createBucketIfNeeded(storage,
-                namespace,
-                arguments,
-                Run.from(metadata.reference().sampleId(), metadata.tumor().sampleId(), arguments));
+        return createBucketIfNeeded(storage, namespace, arguments, Run.from(metadata, arguments));
     }
 
     private synchronized static RuntimeBucket createBucketIfNeeded(final Storage storage, final String namespace, final Arguments arguments,

@@ -3,13 +3,14 @@ package com.hartwig.pipeline.calling.germline;
 import static java.lang.String.format;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.hartwig.pipeline.calling.SubStage;
-import com.hartwig.pipeline.execution.vm.BashStartupScript;
+import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.GatkCommand;
 import com.hartwig.pipeline.execution.vm.OutputFile;
 
@@ -25,7 +26,7 @@ public class VariantFiltration extends SubStage {
     }
 
     @Override
-    public BashStartupScript bash(final OutputFile input, final OutputFile output, final BashStartupScript bash) {
+    public List<BashCommand> bash(final OutputFile input, final OutputFile output) {
         List<String> arguments = new ArrayList<>();
         arguments.add("-R");
         arguments.add(referenceFasta);
@@ -44,7 +45,7 @@ public class VariantFiltration extends SubStage {
         arguments.add("3");
         arguments.add("--clusterWindowSize");
         arguments.add("35");
-        return bash.addCommand(new GatkCommand(GermlineCaller.TOOL_HEAP,
+        return Collections.singletonList(new GatkCommand(GermlineCaller.TOOL_HEAP,
                 "VariantFiltration",
                 arguments.toArray(new String[arguments.size()])));
     }
