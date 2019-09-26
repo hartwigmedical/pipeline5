@@ -44,6 +44,8 @@ import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.storage.SampleUpload;
 import com.hartwig.pipeline.trace.StageTrace;
 
+import org.jetbrains.annotations.NotNull;
+
 public class VmAligner implements Aligner {
 
     private final Arguments arguments;
@@ -92,7 +94,7 @@ public class VmAligner implements Aligner {
         List<GoogleStorageLocation> perLaneBams = new ArrayList<>();
         for (Lane lane : sampleData.sample().lanes()) {
 
-            RuntimeBucket laneBucket = RuntimeBucket.from(storage, NAMESPACE + "/" + lane.laneNumber(), metadata, arguments);
+            RuntimeBucket laneBucket = RuntimeBucket.from(storage, laneNamespace(lane), metadata, arguments);
 
             BashStartupScript bash = BashStartupScript.of(laneBucket.name());
 
@@ -112,7 +114,7 @@ public class VmAligner implements Aligner {
 
             bash.addCommand(new OutputUpload(GoogleStorageLocation.of(laneBucket.name(), resultsDirectory.path())));
             futures.add(executorService.submit(() -> computeEngine.submit(laneBucket,
-                    VirtualMachineJobDefinition.alignment(lane.laneNumber().toLowerCase(), bash, resultsDirectory))));
+                    VirtualMachineJobDefinition.alignment(laneId(lane).toLowerCase(), bash, resultsDirectory))));
         }
 
         AlignmentOutput output;
@@ -159,6 +161,15 @@ public class VmAligner implements Aligner {
         trace.stop();
         executorService.shutdown();
         return output;
+    }
+
+    private static String laneNamespace(final Lane lane) {
+        return NAMESPACE + "/" + laneId(lane);
+    }
+
+    @NotNull
+    private static String laneId(final Lane lane) {
+        return lane.flowCellId() + "-" + lane.laneNumber();
     }
 
     private boolean lanesSuccessfullyComplete(final List<Future<PipelineStatus>> futures) {

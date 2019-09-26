@@ -112,7 +112,7 @@ public abstract class AlignerProvider {
                 ClusterOptimizer optimizer, GoogleDataproc dataproc, ResultsDirectory resultsDirectory) throws Exception {
             SbpRestApi sbpRestApi = SbpRestApi.newInstance(getArguments());
             AmazonS3 s3 = S3.newClient(getArguments().sbpS3Url());
-            SampleSource sampleSource = new SbpS3SampleSource(s3, new SbpSampleReader(sbpRestApi));
+            SampleSource sampleSource = new SbpS3SampleSource(new SbpSampleReader(sbpRestApi));
             CloudCopy cloudCopy = new RCloneCloudCopy(getArguments().rclonePath(),
                     getArguments().rcloneGcpRemote(),
                     getArguments().rcloneS3RemoteDownload(),
