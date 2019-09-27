@@ -150,8 +150,6 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
                 .build();
     }
 
-
-
     @Override
     public GermlineCallerOutput skippedOutput(final SingleSampleRunMetadata metadata) {
         return GermlineCallerOutput.builder().status(PipelineStatus.SKIPPED).build();

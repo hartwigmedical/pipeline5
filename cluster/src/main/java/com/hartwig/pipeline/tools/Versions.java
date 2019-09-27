@@ -17,7 +17,7 @@ public interface Versions {
     String STRELKA = "1.0.14";
     String SAGE = "1.1";
     String SNPEFF = "4.3s";
-    String STRELKA_POST_PROCESS = "1.4";
+    String STRELKA_POST_PROCESS = "1.6";
     String TABIX = "0.2.6";
     String AMBER = "2.5";
     String COBALT = "1.7";
