@@ -50,7 +50,7 @@ def start_kubernetes_job(args):
         spec=kubernetes.client.V1JobSpec(
             completions=1,
             parallelism=1,
-            backoff_limit=6,
+            backoff_limit=1,
             template=kubernetes.client.V1PodTemplateSpec(
                 spec=kubernetes.client.V1PodSpec(
                     restart_policy='Never',
