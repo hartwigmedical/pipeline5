@@ -146,27 +146,6 @@ public class SomaticPipelineTest {
     }
 
     @Test
-    public void doesNotRunLinxWhenWhenHealthCheckFails() {
-        bothAlignmentsAvailable();
-        bothMetricsAvailable();
-        when(structuralCaller.run(defaultSomaticRunMetadata(), defaultPair())).thenReturn(structuralCallerOutput());
-        HealthCheckOutput failHealthCheck = HealthCheckOutput.builder().status(PipelineStatus.FAILED).build();
-        when(stageRunner.run(eq(defaultSomaticRunMetadata()), any())).thenReturn(amberOutput())
-                .thenReturn(cobaltOutput())
-                .thenReturn(somaticCallerOutput())
-                .thenReturn(purpleOutput())
-                .thenReturn(failHealthCheck);
-        PipelineState state = victim.run();
-        assertThat(state.stageOutputs()).containsExactlyInAnyOrder(cobaltOutput(),
-                amberOutput(),
-                somaticCallerOutput(),
-                structuralCallerOutput(),
-                purpleOutput(),
-                failHealthCheck);
-        assertThat(state.status()).isEqualTo(PipelineStatus.FAILED);
-    }
-
-    @Test
     public void notifiesSetMetadataApiOnSuccessfulRun() {
         successfulRun();
         victim.run();
@@ -226,7 +205,8 @@ public class SomaticPipelineTest {
                 .thenReturn(cobaltOutput())
                 .thenReturn(somaticCallerOutput())
                 .thenReturn(purpleOutput())
-                .thenReturn(HealthCheckOutput.builder().from(healthCheckerOutput()).status(PipelineStatus.QC_FAILED).build());
+                .thenReturn(HealthCheckOutput.builder().from(healthCheckerOutput()).status(PipelineStatus.QC_FAILED).build())
+                .thenReturn(linxOutput());
         PipelineState state = victim.run();
         assertThat(state.status()).isEqualTo(PipelineStatus.QC_FAILED);
     }

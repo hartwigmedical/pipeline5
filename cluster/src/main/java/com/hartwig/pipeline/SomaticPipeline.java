@@ -24,8 +24,10 @@ import com.hartwig.pipeline.tertiary.amber.Amber;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
 import com.hartwig.pipeline.tertiary.cobalt.Cobalt;
 import com.hartwig.pipeline.tertiary.cobalt.CobaltOutput;
+import com.hartwig.pipeline.tertiary.healthcheck.HealthCheckOutput;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthChecker;
 import com.hartwig.pipeline.tertiary.linx.Linx;
+import com.hartwig.pipeline.tertiary.linx.LinxOutput;
 import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 
@@ -98,11 +100,13 @@ public class SomaticPipeline {
                     if (state.shouldProceed()) {
                         BamMetricsOutput tumorMetrics = bamMetricsOutputStorage.get(metadata.tumor());
                         BamMetricsOutput referenceMetrics = bamMetricsOutputStorage.get(metadata.reference());
-                        pipelineResults.add(state.add(stageRunner.run(metadata,
-                                new HealthChecker(referenceMetrics, tumorMetrics, amberOutput, purpleOutput))));
-                        if (state.shouldProceed()) {
-                            state.add(stageRunner.run(metadata, new Linx(purpleOutput)));
-                        }
+
+                        Future<HealthCheckOutput> healthCheckOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
+                                new HealthChecker(referenceMetrics, tumorMetrics, amberOutput, purpleOutput)));
+                        Future<LinxOutput> linxOutputFuture =
+                                executorService.submit(() -> stageRunner.run(metadata, new Linx(purpleOutput)));
+                        pipelineResults.add(state.add(healthCheckOutputFuture.get()));
+                        pipelineResults.add(state.add(linxOutputFuture.get()));
                         pipelineResults.compose(metadata);
                     }
                 }
