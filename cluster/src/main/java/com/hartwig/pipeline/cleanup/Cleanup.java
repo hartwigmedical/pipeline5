@@ -2,6 +2,7 @@ package com.hartwig.pipeline.cleanup;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.util.List;
 import java.util.Objects;
 
 import com.google.api.services.dataproc.v1beta2.Dataproc;
@@ -61,11 +62,14 @@ public class Cleanup {
         try {
             Dataproc.Projects.Regions.Jobs jobs = dataproc.projects().regions().jobs();
             ListJobsResponse execute = jobs.list(arguments.project(), arguments.region()).execute();
-            for (Job job : execute.getJobs()) {
-                if (job.getReference().getJobId().startsWith(run.id())) {
-                    LOGGER.debug("Deleting complete job [{}]", job.getReference().getJobId());
-                    deleteJob(jobs, job);
-                    ensureDeleted(jobs, job);
+            List<Job> existingJobs = execute.getJobs();
+            if (existingJobs != null) {
+                for (Job job : existingJobs) {
+                    if (job.getReference().getJobId().startsWith(run.id())) {
+                        LOGGER.debug("Deleting complete job [{}]", job.getReference().getJobId());
+                        deleteJob(jobs, job);
+                        ensureDeleted(jobs, job);
+                    }
                 }
             }
         } catch (IOException e) {
