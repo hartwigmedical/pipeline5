@@ -13,7 +13,7 @@ import com.hartwig.pipeline.storage.RuntimeBucket;
 
 public class ResourceDownload implements BashCommand {
 
-    private static final String RESOURCES_PATH = "/data/resources";
+    public static final String RESOURCES_PATH = "/data/resources";
     private final Resource resource;
     private final ResourceLocation resourceLocation;
 

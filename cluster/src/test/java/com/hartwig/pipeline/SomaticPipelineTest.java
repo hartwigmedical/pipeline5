@@ -5,6 +5,7 @@ import static com.hartwig.pipeline.testsupport.TestInputs.cobaltOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.defaultPair;
 import static com.hartwig.pipeline.testsupport.TestInputs.defaultSomaticRunMetadata;
 import static com.hartwig.pipeline.testsupport.TestInputs.healthCheckerOutput;
+import static com.hartwig.pipeline.testsupport.TestInputs.linxOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.purpleOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.referenceAlignmentOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.referenceMetricsOutput;
@@ -50,7 +51,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class SomaticPipelineTest {
-
 
     private static final Arguments ARGUMENTS = Arguments.testDefaults();
     private AlignmentOutputStorage alignmentOutputStorage;
@@ -108,7 +108,8 @@ public class SomaticPipelineTest {
                 somaticCallerOutput(),
                 structuralCallerOutput(),
                 purpleOutput(),
-                healthCheckerOutput());
+                healthCheckerOutput(),
+                linxOutput());
     }
 
     @Test
@@ -204,7 +205,8 @@ public class SomaticPipelineTest {
                 .thenReturn(cobaltOutput())
                 .thenReturn(somaticCallerOutput())
                 .thenReturn(purpleOutput())
-                .thenReturn(HealthCheckOutput.builder().from(healthCheckerOutput()).status(PipelineStatus.QC_FAILED).build());
+                .thenReturn(HealthCheckOutput.builder().from(healthCheckerOutput()).status(PipelineStatus.QC_FAILED).build())
+                .thenReturn(linxOutput());
         PipelineState state = victim.run();
         assertThat(state.status()).isEqualTo(PipelineStatus.QC_FAILED);
     }
@@ -217,7 +219,8 @@ public class SomaticPipelineTest {
                 .thenReturn(cobaltOutput())
                 .thenReturn(somaticCallerOutput())
                 .thenReturn(purpleOutput())
-                .thenReturn(healthCheckerOutput());
+                .thenReturn(healthCheckerOutput())
+                .thenReturn(linxOutput());
     }
 
     private void failedRun() {

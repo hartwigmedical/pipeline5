@@ -140,4 +140,13 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .namespacedResults(resultsDirectory)
                 .build();
     }
+
+    static VirtualMachineJobDefinition linx(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
+        return ImmutableVirtualMachineJobDefinition.builder()
+                .name("linx")
+                .startupCommand(startupScript)
+                .namespacedResults(resultsDirectory)
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 12))
+                .build();
+    }
 }
