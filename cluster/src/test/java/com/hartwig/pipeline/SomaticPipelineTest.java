@@ -33,6 +33,7 @@ import java.util.concurrent.Executors;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.alignment.AlignmentOutputStorage;
+import com.hartwig.pipeline.calling.germline.GermlineCallerOutputStorage;
 import com.hartwig.pipeline.calling.somatic.SomaticCallerOutput;
 import com.hartwig.pipeline.calling.structural.StructuralCaller;
 import com.hartwig.pipeline.cleanup.Cleanup;
@@ -76,11 +77,11 @@ public class SomaticPipelineTest {
         cleanup = mock(Cleanup.class);
         //noinspection unchecked
         stageRunner = mock(StageRunner.class);
+        GermlineCallerOutputStorage germlineCallerOutputStorage = mock(GermlineCallerOutputStorage.class);
         victim = new SomaticPipeline(ARGUMENTS,
                 stageRunner,
                 alignmentOutputStorage,
-                bamMetricsOutputStorage,
-                setMetadataApi,
+                bamMetricsOutputStorage, germlineCallerOutputStorage, setMetadataApi,
                 pipelineResults,
                 fullSomaticResults,
                 cleanup,

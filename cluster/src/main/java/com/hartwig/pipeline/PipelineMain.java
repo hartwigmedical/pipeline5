@@ -6,6 +6,7 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.alignment.AlignerProvider;
 import com.hartwig.pipeline.alignment.AlignmentOutputStorage;
+import com.hartwig.pipeline.calling.germline.GermlineCallerOutputStorage;
 import com.hartwig.pipeline.calling.structural.StructuralCallerProvider;
 import com.hartwig.pipeline.cleanup.CleanupProvider;
 import com.hartwig.pipeline.credentials.CredentialProvider;
@@ -69,6 +70,7 @@ public class PipelineMain {
                 new StageRunner<>(storage, arguments, ComputeEngine.from(arguments, credentials), ResultsDirectory.defaultDirectory()),
                 new AlignmentOutputStorage(storage, arguments, ResultsDirectory.defaultDirectory()),
                 new BamMetricsOutputStorage(storage, arguments, ResultsDirectory.defaultDirectory()),
+                new GermlineCallerOutputStorage(storage, arguments, ResultsDirectory.defaultDirectory()),
                 somaticMetadataApi,
                 PipelineResultsProvider.from(storage, arguments, Versions.pipelineVersion()).get(),
                 new FullSomaticResults(storage, arguments),

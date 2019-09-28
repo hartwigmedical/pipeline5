@@ -3,6 +3,7 @@ package com.hartwig.pipeline.testsupport;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.alignment.vm.VmAligner;
+import com.hartwig.pipeline.calling.germline.GermlineCaller;
 import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
 import com.hartwig.pipeline.calling.somatic.SomaticCaller;
 import com.hartwig.pipeline.calling.somatic.SomaticCallerOutput;
@@ -19,6 +20,7 @@ import com.hartwig.pipeline.snpgenotype.SnpGenotypeOutput;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.tertiary.amber.Amber;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
+import com.hartwig.pipeline.tertiary.bachelor.BachelorOutput;
 import com.hartwig.pipeline.tertiary.cobalt.Cobalt;
 import com.hartwig.pipeline.tertiary.cobalt.CobaltOutput;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthCheckOutput;
@@ -105,7 +107,11 @@ public class TestInputs {
     }
 
     public static GermlineCallerOutput germlineCallerOutput() {
-        return GermlineCallerOutput.builder().status(PipelineStatus.SUCCESS).build();
+        return GermlineCallerOutput.builder()
+                .status(PipelineStatus.SUCCESS)
+                .maybeGermlineVcfLocation(gsLocation(namespacedBucket(REFERENCE_SAMPLE, GermlineCaller.NAMESPACE),
+                        REFERENCE_SAMPLE + ".germline.vcf.gz"))
+                .build();
     }
 
     private static BamMetricsOutput metricsOutput(final String sample) {
@@ -172,9 +178,11 @@ public class TestInputs {
     }
 
     public static LinxOutput linxOutput() {
-        return LinxOutput.builder()
-                .status(PipelineStatus.SUCCESS)
-                .build();
+        return LinxOutput.builder().status(PipelineStatus.SUCCESS).build();
+    }
+
+    public static BachelorOutput bachelorOutput() {
+        return BachelorOutput.builder().status(PipelineStatus.SUCCESS).build();
     }
 
     private static GoogleStorageLocation gsLocation(final String bucket, final String path) {

@@ -8,6 +8,7 @@ import java.util.function.Supplier;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.alignment.AlignmentOutputStorage;
 import com.hartwig.pipeline.alignment.AlignmentPair;
+import com.hartwig.pipeline.calling.germline.GermlineCallerOutputStorage;
 import com.hartwig.pipeline.calling.somatic.SomaticCaller;
 import com.hartwig.pipeline.calling.somatic.SomaticCallerOutput;
 import com.hartwig.pipeline.calling.structural.StructuralCaller;
@@ -22,6 +23,8 @@ import com.hartwig.pipeline.report.PipelineResults;
 import com.hartwig.pipeline.stages.StageRunner;
 import com.hartwig.pipeline.tertiary.amber.Amber;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
+import com.hartwig.pipeline.tertiary.bachelor.Bachelor;
+import com.hartwig.pipeline.tertiary.bachelor.BachelorOutput;
 import com.hartwig.pipeline.tertiary.cobalt.Cobalt;
 import com.hartwig.pipeline.tertiary.cobalt.CobaltOutput;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthCheckOutput;
@@ -43,6 +46,7 @@ public class SomaticPipeline {
     private final StageRunner<SomaticRunMetadata> stageRunner;
     private final AlignmentOutputStorage alignmentOutputStorage;
     private final BamMetricsOutputStorage bamMetricsOutputStorage;
+    private final GermlineCallerOutputStorage germlineCallerOutputStorage;
     private final SomaticMetadataApi setMetadataApi;
     private final PipelineResults pipelineResults;
     private final FullSomaticResults fullSomaticResults;
@@ -52,12 +56,14 @@ public class SomaticPipeline {
 
     SomaticPipeline(final Arguments arguments, final StageRunner<SomaticRunMetadata> stageRunner,
             final AlignmentOutputStorage alignmentOutputStorage, final BamMetricsOutputStorage bamMetricsOutputStorage,
-            final SomaticMetadataApi setMetadataApi, final PipelineResults pipelineResults, final FullSomaticResults fullSomaticResults,
-            final Cleanup cleanup, final StructuralCaller structuralCaller, final ExecutorService executorService) {
+            final GermlineCallerOutputStorage germlineCallerOutputStorage, final SomaticMetadataApi setMetadataApi,
+            final PipelineResults pipelineResults, final FullSomaticResults fullSomaticResults, final Cleanup cleanup,
+            final StructuralCaller structuralCaller, final ExecutorService executorService) {
         this.arguments = arguments;
         this.stageRunner = stageRunner;
         this.alignmentOutputStorage = alignmentOutputStorage;
         this.bamMetricsOutputStorage = bamMetricsOutputStorage;
+        this.germlineCallerOutputStorage = germlineCallerOutputStorage;
         this.setMetadataApi = setMetadataApi;
         this.pipelineResults = pipelineResults;
         this.fullSomaticResults = fullSomaticResults;
@@ -105,8 +111,11 @@ public class SomaticPipeline {
                                 new HealthChecker(referenceMetrics, tumorMetrics, amberOutput, purpleOutput)));
                         Future<LinxOutput> linxOutputFuture =
                                 executorService.submit(() -> stageRunner.run(metadata, new Linx(purpleOutput)));
+                        Future<BachelorOutput> bachelorOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
+                                new Bachelor(purpleOutput, pair.tumor(), germlineCallerOutputStorage.get(metadata.reference()))));
                         pipelineResults.add(state.add(healthCheckOutputFuture.get()));
                         pipelineResults.add(state.add(linxOutputFuture.get()));
+                        pipelineResults.add(state.add(bachelorOutputFuture.get()));
                         pipelineResults.compose(metadata);
                     }
                 }

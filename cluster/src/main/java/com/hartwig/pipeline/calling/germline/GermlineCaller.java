@@ -41,6 +41,7 @@ import com.hartwig.pipeline.resource.GATKDictAlias;
 import com.hartwig.pipeline.resource.ReferenceGenomeAlias;
 import com.hartwig.pipeline.resource.Resource;
 import com.hartwig.pipeline.stages.Stage;
+import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
 public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleRunMetadata> {
@@ -136,6 +137,8 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
             final ResultsDirectory resultsDirectory) {
         return GermlineCallerOutput.builder()
                 .status(status)
+                .maybeGermlineVcfLocation(GoogleStorageLocation.of(bucket.name(),
+                        resultsDirectory.path(outputFile.fileName())))
                 .addReportComponents(new RunLogComponent(bucket, NAMESPACE, Folder.from(metadata), resultsDirectory))
                 .addReportComponents(new StartupScriptComponent(bucket, NAMESPACE, Folder.from(metadata)))
                 .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
