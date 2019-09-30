@@ -18,6 +18,8 @@ import com.hartwig.pipeline.execution.vm.ResourceDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
+import com.hartwig.pipeline.report.EntireOutputComponent;
+import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.resource.ResourceNames;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.RuntimeBucket;
@@ -75,7 +77,10 @@ public class Bachelor implements Stage<BachelorOutput, SomaticRunMetadata> {
     @Override
     public BachelorOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
             final ResultsDirectory resultsDirectory) {
-        return BachelorOutput.builder().status(jobStatus).build();
+        return BachelorOutput.builder()
+                .status(jobStatus)
+                .addReportComponents(new EntireOutputComponent(bucket, Folder.from(), NAMESPACE, resultsDirectory))
+                .build();
     }
 
     @Override
@@ -85,6 +90,6 @@ public class Bachelor implements Stage<BachelorOutput, SomaticRunMetadata> {
 
     @Override
     public boolean shouldRun(final Arguments arguments) {
-        return arguments.runTertiary();
+        return arguments.runTertiary() && arguments.runGermlineCaller();
     }
 }

@@ -94,9 +94,10 @@ public class GermlineCallerTest extends StageTest<GermlineCallerOutput, SingleSa
                 "$TOOLS_DIR/tabix/0.2.6/tabix /data/output/reference.dbnsfp.annotated.vcf.gz -p vcf",
                 "$TOOLS_DIR/bcftools/1.3.1/bcftools annotate -a /data/resources/cosmic_collapsed.vcf.gz -c ID -o /data/output/reference.cosmic.annotated.vcf.gz -O z /data/output/reference.dbnsfp.annotated.vcf.gz",
                 "$TOOLS_DIR/tabix/0.2.6/tabix /data/output/reference.cosmic.annotated.vcf.gz -p vcf",
-                "(java -Xmx20G -jar $TOOLS_DIR/snpEff/4.3s/SnpSift.jar annotate -c /data/resources/snpeff.config -tabix -name GoNLv5_ -info AF,AN,AC /data/resources/gonl.vcf.gz /data/output/reference.cosmic.annotated.vcf.gz > /data/output/reference.gonlv5.annotated.final.vcf)",
-                "$TOOLS_DIR/tabix/0.2.6/bgzip -f /data/output/reference.gonlv5.annotated.final.vcf",
-                "$TOOLS_DIR/tabix/0.2.6/tabix /data/output/reference.gonlv5.annotated.final.vcf.gz -p vcf").build();
+                "(java -Xmx20G -jar $TOOLS_DIR/snpEff/4.3s/SnpSift.jar annotate -c /data/resources/snpeff.config -tabix -name GoNLv5_ -info AF,AN,AC /data/resources/gonl.vcf.gz /data/output/reference.cosmic.annotated.vcf.gz > /data/output/reference.gonlv5.annotated.vcf)",
+                "$TOOLS_DIR/tabix/0.2.6/bgzip -f /data/output/reference.gonlv5.annotated.vcf",
+                "$TOOLS_DIR/tabix/0.2.6/tabix /data/output/reference.gonlv5.annotated.vcf.gz -p vcf",
+                "mv /data/output/reference.gonlv5.annotated.vcf.gz /data/output/reference.germline.vcf.gz").build();
     }
 
     @Override

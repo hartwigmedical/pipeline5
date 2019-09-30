@@ -21,5 +21,5 @@ public interface ResourceNames {
     String SV = "sv";
     String ENSEMBL = "ensembl";
     String KNOWLEDGEBASES = "knowledgebases";
-    String BACHELOR = "bachelor";
+    String BACHELOR = "bachelor_config";
 }

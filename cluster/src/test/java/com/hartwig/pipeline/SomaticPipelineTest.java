@@ -1,9 +1,11 @@
 package com.hartwig.pipeline;
 
 import static com.hartwig.pipeline.testsupport.TestInputs.amberOutput;
+import static com.hartwig.pipeline.testsupport.TestInputs.bachelorOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.cobaltOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.defaultPair;
 import static com.hartwig.pipeline.testsupport.TestInputs.defaultSomaticRunMetadata;
+import static com.hartwig.pipeline.testsupport.TestInputs.germlineCallerOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.healthCheckerOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.linxOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.purpleOutput;
@@ -33,14 +35,15 @@ import java.util.concurrent.Executors;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.alignment.AlignmentOutputStorage;
-import com.hartwig.pipeline.calling.germline.GermlineCallerOutputStorage;
+import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
 import com.hartwig.pipeline.calling.somatic.SomaticCallerOutput;
 import com.hartwig.pipeline.calling.structural.StructuralCaller;
 import com.hartwig.pipeline.cleanup.Cleanup;
 import com.hartwig.pipeline.execution.PipelineStatus;
+import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.metadata.SomaticMetadataApi;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
-import com.hartwig.pipeline.metrics.BamMetricsOutputStorage;
+import com.hartwig.pipeline.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.report.FullSomaticResults;
 import com.hartwig.pipeline.report.PipelineResults;
 import com.hartwig.pipeline.report.PipelineResultsProvider;
@@ -55,17 +58,19 @@ public class SomaticPipelineTest {
 
     private static final Arguments ARGUMENTS = Arguments.testDefaults();
     private AlignmentOutputStorage alignmentOutputStorage;
-    private BamMetricsOutputStorage bamMetricsOutputStorage;
+    private OutputStorage<BamMetricsOutput, SingleSampleRunMetadata> bamMetricsOutputStorage;
     private SomaticPipeline victim;
     private StructuralCaller structuralCaller;
     private SomaticMetadataApi setMetadataApi;
     private Cleanup cleanup;
     private StageRunner<SomaticRunMetadata> stageRunner;
+    private OutputStorage<GermlineCallerOutput, SingleSampleRunMetadata> germlineCallerOutputStorage;
 
+    @SuppressWarnings("unchecked")
     @Before
     public void setUp() throws Exception {
         alignmentOutputStorage = mock(AlignmentOutputStorage.class);
-        bamMetricsOutputStorage = mock(BamMetricsOutputStorage.class);
+        bamMetricsOutputStorage = mock(OutputStorage.class);
         structuralCaller = mock(StructuralCaller.class);
         setMetadataApi = mock(SomaticMetadataApi.class);
         when(setMetadataApi.get()).thenReturn(defaultSomaticRunMetadata());
@@ -75,13 +80,14 @@ public class SomaticPipelineTest {
         final PipelineResults pipelineResults = PipelineResultsProvider.from(storage, ARGUMENTS, "test").get();
         final FullSomaticResults fullSomaticResults = mock(FullSomaticResults.class);
         cleanup = mock(Cleanup.class);
-        //noinspection unchecked
         stageRunner = mock(StageRunner.class);
-        GermlineCallerOutputStorage germlineCallerOutputStorage = mock(GermlineCallerOutputStorage.class);
+        germlineCallerOutputStorage = mock(OutputStorage.class);
         victim = new SomaticPipeline(ARGUMENTS,
                 stageRunner,
                 alignmentOutputStorage,
-                bamMetricsOutputStorage, germlineCallerOutputStorage, setMetadataApi,
+                bamMetricsOutputStorage,
+                germlineCallerOutputStorage,
+                setMetadataApi,
                 pipelineResults,
                 fullSomaticResults,
                 cleanup,
@@ -110,7 +116,8 @@ public class SomaticPipelineTest {
                 structuralCallerOutput(),
                 purpleOutput(),
                 healthCheckerOutput(),
-                linxOutput());
+                linxOutput(),
+                bachelorOutput());
     }
 
     @Test
@@ -201,13 +208,15 @@ public class SomaticPipelineTest {
     public void failsRunOnQcFailure() {
         bothAlignmentsAvailable();
         bothMetricsAvailable();
+        germlineCallingAvailable();
         when(structuralCaller.run(defaultSomaticRunMetadata(), defaultPair())).thenReturn(structuralCallerOutput());
         when(stageRunner.run(eq(defaultSomaticRunMetadata()), any())).thenReturn(amberOutput())
                 .thenReturn(cobaltOutput())
                 .thenReturn(somaticCallerOutput())
                 .thenReturn(purpleOutput())
                 .thenReturn(HealthCheckOutput.builder().from(healthCheckerOutput()).status(PipelineStatus.QC_FAILED).build())
-                .thenReturn(linxOutput());
+                .thenReturn(linxOutput())
+                .thenReturn(bachelorOutput());
         PipelineState state = victim.run();
         assertThat(state.status()).isEqualTo(PipelineStatus.QC_FAILED);
     }
@@ -215,13 +224,15 @@ public class SomaticPipelineTest {
     private void successfulRun() {
         bothAlignmentsAvailable();
         bothMetricsAvailable();
+        germlineCallingAvailable();
         when(structuralCaller.run(defaultSomaticRunMetadata(), defaultPair())).thenReturn(structuralCallerOutput());
         when(stageRunner.run(eq(defaultSomaticRunMetadata()), any())).thenReturn(amberOutput())
                 .thenReturn(cobaltOutput())
                 .thenReturn(somaticCallerOutput())
                 .thenReturn(purpleOutput())
                 .thenReturn(healthCheckerOutput())
-                .thenReturn(linxOutput());
+                .thenReturn(linxOutput())
+                .thenReturn(bachelorOutput());
     }
 
     private void failedRun() {
@@ -241,7 +252,11 @@ public class SomaticPipelineTest {
     }
 
     private void bothMetricsAvailable() {
-        when(bamMetricsOutputStorage.get(tumorRunMetadata())).thenReturn(tumorMetricsOutput());
-        when(bamMetricsOutputStorage.get(referenceRunMetadata())).thenReturn(referenceMetricsOutput());
+        when(bamMetricsOutputStorage.get(eq(tumorRunMetadata()), any())).thenReturn(tumorMetricsOutput());
+        when(bamMetricsOutputStorage.get(eq(referenceRunMetadata()), any())).thenReturn(referenceMetricsOutput());
+    }
+
+    private void germlineCallingAvailable() {
+        when(germlineCallerOutputStorage.get(eq(referenceRunMetadata()), any())).thenReturn(germlineCallerOutput());
     }
 }

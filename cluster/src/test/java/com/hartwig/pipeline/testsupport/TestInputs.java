@@ -118,7 +118,7 @@ public class TestInputs {
         return BamMetricsOutput.builder()
                 .status(PipelineStatus.SUCCESS)
                 .sample(sample)
-                .maybeMetricsOutputFile(gsLocation(namespacedBucket(sample, BamMetrics.NAMESPACE), BamMetricsOutput.outputFile(sample)))
+                .maybeMetricsOutputFile(gsLocation(namespacedBucket(sample, BamMetrics.NAMESPACE), RESULTS + BamMetricsOutput.outputFile(sample)))
                 .build();
     }
 
@@ -177,6 +177,10 @@ public class TestInputs {
                 .build();
     }
 
+    public static String namespacedBucket(final String sample, final String namespace) {
+        return "run-" + sample + "-test/" + namespace;
+    }
+
     public static LinxOutput linxOutput() {
         return LinxOutput.builder().status(PipelineStatus.SUCCESS).build();
     }
@@ -187,9 +191,5 @@ public class TestInputs {
 
     private static GoogleStorageLocation gsLocation(final String bucket, final String path) {
         return GoogleStorageLocation.of(bucket, path);
-    }
-
-    private static String namespacedBucket(final String sample, final String namespace) {
-        return "run-" + sample + "-test/" + namespace;
     }
 }

@@ -10,7 +10,7 @@ import java.util.List;
 import com.hartwig.pipeline.execution.vm.storage.StorageStrategy;
 
 public class BashStartupScript {
-    static final String JOB_SUCCEEDED_FLAG = "JOB_SUCCESS";
+    public static final String JOB_SUCCEEDED_FLAG = "JOB_SUCCESS";
     static final String JOB_FAILED_FLAG = "JOB_FAILURE";
     static final String LOG_FILE = "/var/log/run.log";
     private final List<String> commands;
@@ -35,7 +35,7 @@ public class BashStartupScript {
         return asUnixString(new StorageStrategy() {});
     }
 
-    public String asUnixString(StorageStrategy storageStrategy) {
+    String asUnixString(StorageStrategy storageStrategy) {
         String commandSuffix = format(" >>%s 2>&1 || die", LOG_FILE);
         String jobFailedFlag = "/tmp/" + JOB_FAILED_FLAG;
 
