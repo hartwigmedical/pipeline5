@@ -14,7 +14,7 @@ public class OutputUploadTest implements CommonEntities {
     @Test
     public void createsBaseToCopyAllFilesAndDirsInOutputFolderToOutputBucket() {
         OutputUpload victim = new OutputUpload(GoogleStorageLocation.of("bucket", "results/"));
-        assertThat(victim.asBash()).isEqualTo(format("(cp %s %s && gsutil -qm -o GSUtil:parallel_composite_upload_threshold=150M cp -r %s/ gs://bucket/results/)",
+        assertThat(victim.asBash()).isEqualTo(format("(cp %s %s && gsutil -qm cp -r %s/ gs://bucket/results/)",
                 LOG_FILE, OUT_DIR, OUT_DIR));
     }
 }
