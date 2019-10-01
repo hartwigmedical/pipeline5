@@ -27,6 +27,7 @@ public interface Versions {
     String GRIDSS = "2.5.2";
     String PICARD = "2.18.27";
     String LINX = "1.4";
+    String BACHELOR = "1.9";
 
     static void printAll() {
         Logger logger = LoggerFactory.getLogger(Versions.class);

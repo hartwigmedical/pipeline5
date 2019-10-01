@@ -3,6 +3,7 @@ package com.hartwig.pipeline.testsupport;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.alignment.vm.VmAligner;
+import com.hartwig.pipeline.calling.germline.GermlineCaller;
 import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
 import com.hartwig.pipeline.calling.somatic.SomaticCaller;
 import com.hartwig.pipeline.calling.somatic.SomaticCallerOutput;
@@ -19,6 +20,7 @@ import com.hartwig.pipeline.snpgenotype.SnpGenotypeOutput;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.tertiary.amber.Amber;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
+import com.hartwig.pipeline.tertiary.bachelor.BachelorOutput;
 import com.hartwig.pipeline.tertiary.cobalt.Cobalt;
 import com.hartwig.pipeline.tertiary.cobalt.CobaltOutput;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthCheckOutput;
@@ -105,14 +107,18 @@ public class TestInputs {
     }
 
     public static GermlineCallerOutput germlineCallerOutput() {
-        return GermlineCallerOutput.builder().status(PipelineStatus.SUCCESS).build();
+        return GermlineCallerOutput.builder()
+                .status(PipelineStatus.SUCCESS)
+                .maybeGermlineVcfLocation(gsLocation(namespacedBucket(REFERENCE_SAMPLE, GermlineCaller.NAMESPACE),
+                        REFERENCE_SAMPLE + ".germline.vcf.gz"))
+                .build();
     }
 
     private static BamMetricsOutput metricsOutput(final String sample) {
         return BamMetricsOutput.builder()
                 .status(PipelineStatus.SUCCESS)
                 .sample(sample)
-                .maybeMetricsOutputFile(gsLocation(namespacedBucket(sample, BamMetrics.NAMESPACE), BamMetricsOutput.outputFile(sample)))
+                .maybeMetricsOutputFile(gsLocation(namespacedBucket(sample, BamMetrics.NAMESPACE), RESULTS + BamMetricsOutput.outputFile(sample)))
                 .build();
     }
 
@@ -171,17 +177,19 @@ public class TestInputs {
                 .build();
     }
 
+    public static String namespacedBucket(final String sample, final String namespace) {
+        return "run-" + sample + "-test/" + namespace;
+    }
+
     public static LinxOutput linxOutput() {
-        return LinxOutput.builder()
-                .status(PipelineStatus.SUCCESS)
-                .build();
+        return LinxOutput.builder().status(PipelineStatus.SUCCESS).build();
+    }
+
+    public static BachelorOutput bachelorOutput() {
+        return BachelorOutput.builder().status(PipelineStatus.SUCCESS).build();
     }
 
     private static GoogleStorageLocation gsLocation(final String bucket, final String path) {
         return GoogleStorageLocation.of(bucket, path);
-    }
-
-    private static String namespacedBucket(final String sample, final String namespace) {
-        return "run-" + sample + "-test/" + namespace;
     }
 }

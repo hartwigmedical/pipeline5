@@ -19,12 +19,11 @@ abstract class BAMFileAssertion {
     private final String resultDirectory;
     private final String suffix;
 
-    BAMFileAssertion(String resultDirectory, String suffix, Sample sample) {
+    private BAMFileAssertion(String resultDirectory, String suffix, Sample sample) {
         this.sample = sample;
         this.resultDirectory = resultDirectory;
         this.suffix = suffix;
     }
-
     BAMFileAssertion(String resultDirectory, Sample sample) {
         this(resultDirectory, "", sample);
     }

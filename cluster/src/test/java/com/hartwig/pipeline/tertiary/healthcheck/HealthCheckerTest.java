@@ -47,8 +47,8 @@ public class HealthCheckerTest extends TertiaryStageTest<HealthCheckOutput> {
         return ImmutableList.of("mkdir -p /data/input/metrics",
                 "mkdir -p /data/input/amber",
                 "mkdir -p /data/input/purple",
-                input("run-reference-test/bam_metrics/reference.wgsmetrics", "metrics/reference.wgsmetrics"),
-                input("run-tumor-test/bam_metrics/tumor.wgsmetrics", "metrics/tumor.wgsmetrics"),
+                input("run-reference-test/bam_metrics/results/reference.wgsmetrics", "metrics/reference.wgsmetrics"),
+                input("run-tumor-test/bam_metrics/results/tumor.wgsmetrics", "metrics/tumor.wgsmetrics"),
                 input(expectedRuntimeBucketName() + "/amber/results/", "amber"),
                 input(expectedRuntimeBucketName() + "/purple/results/", "purple"));
     }

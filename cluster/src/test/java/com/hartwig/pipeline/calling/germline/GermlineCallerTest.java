@@ -79,8 +79,8 @@ public class GermlineCallerTest extends StageTest<GermlineCallerOutput, SingleSa
     @Override
     protected List<String> expectedCommands() {
         return ImmutableList.<String>builder().add("unzip -d /data/resources /data/resources/database.zip",
-                "java -Xmx20G -jar $TOOLS_DIR/gatk/3.8.0/GenomeAnalysisTK.jar -T HaplotypeCaller -nct $(grep -c '^processor' /proc/cpuinfo) --input_file /data/input/reference.bam -o /data/output/reference.germline_calling.vcf.gz -D /data/resources/dbsnps.vcf --reference_sequence /data/resources/reference.fasta -variant_index_type LINEAR -variant_index_parameter 128000 -stand_call_conf 15.0 -ERC GVCF -GQB 5 -GQB 10 -GQB 15 -GQB 20 -GQB 30 -GQB 40 -GQB 50 -GQB 60 --sample_ploidy 2",
-                "java -Xmx20G -jar $TOOLS_DIR/gatk/3.8.0/GenomeAnalysisTK.jar -T GenotypeGVCFs -V /data/output/reference.germline_calling.vcf.gz -R /data/resources/reference.fasta -D /data/resources/dbsnps.vcf -o /data/output/reference.genotype_vcfs.vcf",
+                "java -Xmx20G -jar $TOOLS_DIR/gatk/3.8.0/GenomeAnalysisTK.jar -T HaplotypeCaller -nct $(grep -c '^processor' /proc/cpuinfo) --input_file /data/input/reference.bam -o /data/output/reference.raw_germline_caller.vcf.gz -D /data/resources/dbsnps.vcf --reference_sequence /data/resources/reference.fasta -variant_index_type LINEAR -variant_index_parameter 128000 -stand_call_conf 15.0 -ERC GVCF -GQB 5 -GQB 10 -GQB 15 -GQB 20 -GQB 30 -GQB 40 -GQB 50 -GQB 60 --sample_ploidy 2",
+                "java -Xmx20G -jar $TOOLS_DIR/gatk/3.8.0/GenomeAnalysisTK.jar -T GenotypeGVCFs -V /data/output/reference.raw_germline_caller.vcf.gz -R /data/resources/reference.fasta -D /data/resources/dbsnps.vcf -o /data/output/reference.genotype_vcfs.vcf",
                 "java -Xmx20G -jar $TOOLS_DIR/gatk/3.8.0/GenomeAnalysisTK.jar -T SelectVariants -selectType SNP -selectType NO_VARIATION -R /data/resources/reference.fasta -V /data/output/reference.genotype_vcfs.vcf -o /data/output/reference.raw_snp.vcf",
                 "java -Xmx20G -jar $TOOLS_DIR/gatk/3.8.0/GenomeAnalysisTK.jar -T VariantFiltration -R /data/resources/reference.fasta -V /data/output/reference.raw_snp.vcf -o /data/output/reference.filtered_snp.vcf --filterExpression \"QD < 2.0\" --filterName \"SNP_LowQualityDepth\" --filterExpression \"MQ < 40.0\" --filterName \"SNP_MappingQuality\" --filterExpression \"FS > 60.0\" --filterName \"SNP_StrandBias\" --filterExpression \"HaplotypeScore > 13.0\" --filterName \"SNP_HaplotypeScoreHigh\" --filterExpression \"MQRankSum < -12.5\" --filterName \"SNP_MQRankSumLow\" --filterExpression \"ReadPosRankSum < -8.0\" --filterName \"SNP_ReadPosRankSumLow\" --clusterSize 3 --clusterWindowSize 35",
                 "java -Xmx20G -jar $TOOLS_DIR/gatk/3.8.0/GenomeAnalysisTK.jar -T SelectVariants -selectType INDEL -selectType MIXED -R /data/resources/reference.fasta -V /data/output/reference.filtered_snp.vcf -o /data/output/reference.raw_indels.vcf",
@@ -94,9 +94,11 @@ public class GermlineCallerTest extends StageTest<GermlineCallerOutput, SingleSa
                 "$TOOLS_DIR/tabix/0.2.6/tabix /data/output/reference.dbnsfp.annotated.vcf.gz -p vcf",
                 "$TOOLS_DIR/bcftools/1.3.1/bcftools annotate -a /data/resources/cosmic_collapsed.vcf.gz -c ID -o /data/output/reference.cosmic.annotated.vcf.gz -O z /data/output/reference.dbnsfp.annotated.vcf.gz",
                 "$TOOLS_DIR/tabix/0.2.6/tabix /data/output/reference.cosmic.annotated.vcf.gz -p vcf",
-                "(java -Xmx20G -jar $TOOLS_DIR/snpEff/4.3s/SnpSift.jar annotate -c /data/resources/snpeff.config -tabix -name GoNLv5_ -info AF,AN,AC /data/resources/gonl.vcf.gz /data/output/reference.cosmic.annotated.vcf.gz > /data/output/reference.gonlv5.annotated.final.vcf)",
-                "$TOOLS_DIR/tabix/0.2.6/bgzip -f /data/output/reference.gonlv5.annotated.final.vcf",
-                "$TOOLS_DIR/tabix/0.2.6/tabix /data/output/reference.gonlv5.annotated.final.vcf.gz -p vcf").build();
+                "(java -Xmx20G -jar $TOOLS_DIR/snpEff/4.3s/SnpSift.jar annotate -c /data/resources/snpeff.config -tabix -name GoNLv5_ -info AF,AN,AC /data/resources/gonl.vcf.gz /data/output/reference.cosmic.annotated.vcf.gz > /data/output/reference.gonlv5.annotated.vcf)",
+                "$TOOLS_DIR/tabix/0.2.6/bgzip -f /data/output/reference.gonlv5.annotated.vcf",
+                "$TOOLS_DIR/tabix/0.2.6/tabix /data/output/reference.gonlv5.annotated.vcf.gz -p vcf",
+                "mv /data/output/reference.gonlv5.annotated.vcf.gz /data/output/reference.germline.vcf.gz",
+                "mv /data/output/reference.gonlv5.annotated.vcf.gz.tbi /data/output/reference.germline.vcf.gz.tbi").build();
     }
 
     @Override

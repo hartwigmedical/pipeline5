@@ -10,7 +10,7 @@ import java.util.List;
 import com.hartwig.pipeline.execution.vm.storage.StorageStrategy;
 
 public class BashStartupScript {
-    private static final String JOB_SUCCEEDED_FLAG = "JOB_SUCCESS";
+    public static final String JOB_SUCCEEDED_FLAG = "JOB_SUCCESS";
     static final String JOB_FAILED_FLAG = "JOB_FAILURE";
     static final String LOG_FILE = "/var/log/run.log";
     private final List<String> commands;

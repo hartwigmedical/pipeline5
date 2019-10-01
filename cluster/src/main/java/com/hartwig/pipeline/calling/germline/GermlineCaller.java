@@ -17,7 +17,6 @@ import com.google.common.collect.Lists;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
-import com.hartwig.pipeline.calling.FinalSubStage;
 import com.hartwig.pipeline.calling.SubStageInputOutput;
 import com.hartwig.pipeline.calling.germline.command.SnpSiftDbnsfpAnnotation;
 import com.hartwig.pipeline.calling.germline.command.SnpSiftFrequenciesAnnotation;
@@ -31,6 +30,7 @@ import com.hartwig.pipeline.execution.vm.OutputFile;
 import com.hartwig.pipeline.execution.vm.ResourceDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
+import com.hartwig.pipeline.execution.vm.unix.MvCommand;
 import com.hartwig.pipeline.execution.vm.unix.UnzipToDirectoryCommand;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.report.Folder;
@@ -41,6 +41,7 @@ import com.hartwig.pipeline.resource.GATKDictAlias;
 import com.hartwig.pipeline.resource.ReferenceGenomeAlias;
 import com.hartwig.pipeline.resource.Resource;
 import com.hartwig.pipeline.stages.Stage;
+import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
 public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleRunMetadata> {
@@ -64,11 +65,12 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
 
     private final InputDownload bamDownload;
     private final InputDownload baiDownload;
-    private OutputFile outputFile;
+    private final OutputFile outputFile;
 
     public GermlineCaller(final AlignmentOutput alignmentOutput) {
         this.bamDownload = new InputDownload(alignmentOutput.finalBamLocation());
         this.baiDownload = new InputDownload(alignmentOutput.finalBaiLocation());
+        outputFile = OutputFile.of(alignmentOutput.sample(), "germline", OutputFile.GZIPPED_VCF, false);
     }
 
     @Override
@@ -118,11 +120,13 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
                 new CombineFilteredVariants(indelFilterOutput.outputFile().path(), referenceFasta).andThen(new SnpEff(snpEffConfig))
                         .andThen(new SnpSiftDbnsfpAnnotation(resources.get(DBNSFP).find("txt.gz"), snpEffConfig))
                         .andThen(new CosmicAnnotation(resources.get(COSMIC).find("collapsed.vcf.gz"), "ID"))
-                        .andThen(FinalSubStage.of(new SnpSiftFrequenciesAnnotation(resources.get(GONL).find("vcf.gz"), snpEffConfig)))
+                        .andThen(new SnpSiftFrequenciesAnnotation(resources.get(GONL).find("vcf.gz"), snpEffConfig))
                         .apply(indelFilterOutput);
-        outputFile = finalOutput.outputFile();
+
         return ImmutableList.<BashCommand>builder().add(new UnzipToDirectoryCommand(VmDirectories.RESOURCES, snpEffDb))
                 .addAll(finalOutput.bash())
+                .add(new MvCommand(finalOutput.outputFile().path(), outputFile.path()))
+                .add(new MvCommand(finalOutput.outputFile().path() + ".tbi", outputFile.path() + ".tbi"))
                 .build();
     }
 
@@ -136,13 +140,14 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
             final ResultsDirectory resultsDirectory) {
         return GermlineCallerOutput.builder()
                 .status(status)
+                .maybeGermlineVcfLocation(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(outputFile.fileName())))
                 .addReportComponents(new RunLogComponent(bucket, NAMESPACE, Folder.from(metadata), resultsDirectory))
                 .addReportComponents(new StartupScriptComponent(bucket, NAMESPACE, Folder.from(metadata)))
                 .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
                         NAMESPACE,
                         Folder.from(metadata),
                         outputFile.fileName(),
-                        OutputFile.of(metadata.sampleName(), "germline", OutputFile.GZIPPED_VCF, false).fileName(),
+                        outputFile.fileName(),
                         resultsDirectory))
                 .build();
     }
