@@ -29,7 +29,7 @@ public class FilterTest extends SubStageTest implements CommonEntities {
 
     @Override
     public String expectedPath() {
-        return "/data/output/tumor.filter.final.vcf.gz";
+        return "/data/output/tumor.filter.vcf.gz";
     }
 
     @Override

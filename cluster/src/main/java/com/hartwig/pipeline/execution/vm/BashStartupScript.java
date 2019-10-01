@@ -10,7 +10,7 @@ import java.util.List;
 import com.hartwig.pipeline.execution.vm.storage.StorageStrategy;
 
 public class BashStartupScript {
-    static final String JOB_SUCCEEDED_FLAG = "JOB_SUCCESS";
+    private static final String JOB_SUCCEEDED_FLAG = "JOB_SUCCESS";
     static final String JOB_FAILED_FLAG = "JOB_FAILURE";
     static final String LOG_FILE = "/var/log/run.log";
     private final List<String> commands;
@@ -35,7 +35,7 @@ public class BashStartupScript {
         return asUnixString(new StorageStrategy() {});
     }
 
-    public String asUnixString(StorageStrategy storageStrategy) {
+    String asUnixString(StorageStrategy storageStrategy) {
         String commandSuffix = format(" >>%s 2>&1 || die", LOG_FILE);
         String jobFailedFlag = "/tmp/" + JOB_FAILED_FLAG;
 
@@ -52,7 +52,7 @@ public class BashStartupScript {
         preamble.addAll(storageStrategy.initialise());
         preamble.add("ulimit -n 102400");
         addCompletionCommands();
-        return preamble.stream().collect(joining("\n")) + "\n" +
+        return String.join("\n", preamble) + "\n" +
                 commands.stream().collect(joining(format("%s\n", commandSuffix))) +
                 (commands.isEmpty() ? "" : commandSuffix);
     }
@@ -63,7 +63,7 @@ public class BashStartupScript {
     }
 
     public BashStartupScript addCommand(BashCommand command) {
-        return addLine(String.format("echo \"Running command %s with bash: %s\"",
+        return addLine(String.format("echo $(date \"+%%Y-%%m-%%d %%H:%%M:%%S\") \"Running command %s with bash: %s\"",
                 command.getClass().getSimpleName(),
                 escapeQuotes(command.asBash()))).addLine(command.asBash());
     }

@@ -18,6 +18,8 @@ import com.hartwig.pipeline.calling.structural.gridss.stage.Assemble;
 import com.hartwig.pipeline.calling.structural.gridss.stage.Calling;
 import com.hartwig.pipeline.calling.structural.gridss.stage.Filter;
 import com.hartwig.pipeline.calling.structural.gridss.stage.Preprocess;
+import com.hartwig.pipeline.calling.structural.gridss.stage.RepeatMaskerInsertionAnnotation;
+import com.hartwig.pipeline.calling.structural.gridss.stage.ViralAnnotation;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.BatchInputDownload;
@@ -72,11 +74,18 @@ public class StructuralCaller {
 
         ResourceDownload referenceGenomeDownload =
                 ResourceDownload.from(runtimeBucket, new Resource(storage, arguments.resourceBucket(), ResourceNames.REFERENCE_GENOME));
-        String referenceGenomePath = referenceGenomeDownload.find("fa", "fasta");
         ResourceDownload gridssConfigFiles =
                 ResourceDownload.from(runtimeBucket, new Resource(storage, arguments.resourceBucket(), ResourceNames.GRIDSS_CONFIG));
         ResourceDownload gridssPonFiles =
                 ResourceDownload.from(runtimeBucket, new Resource(storage, arguments.resourceBucket(), ResourceNames.GRIDSS_PON));
+        ResourceDownload repeatMaskerDb = ResourceDownload.from(runtimeBucket,
+                new Resource(storage, arguments.resourceBucket(), ResourceNames.GRIDSS_REPEAT_MASKER_DB));
+        ResourceDownload virusReferenceGenomeDownload = ResourceDownload.from(runtimeBucket,
+                new Resource(storage, arguments.resourceBucket(), ResourceNames.VIRUS_REFERENCE_GENOME));
+
+        String referenceGenomePath = referenceGenomeDownload.find("fa", "fasta");
+        String virusReferenceGenomePath = virusReferenceGenomeDownload.find("human_virus.fa");
+        String repeatMaskerDbPath = repeatMaskerDb.find("hg19.fa.out");
 
         InputDownload tumorBam = new InputDownload(pair.tumor().finalBamLocation());
         InputDownload tumorBai = new InputDownload(pair.tumor().finalBaiLocation());
@@ -84,7 +93,7 @@ public class StructuralCaller {
         InputDownload referenceBai = new InputDownload(pair.reference().finalBaiLocation());
 
         bash.addCommand(new BatchInputDownload(referenceBam, referenceBai, tumorBam, tumorBai));
-        bash.addCommands(asList(referenceGenomeDownload, gridssConfigFiles, gridssPonFiles));
+        bash.addCommands(asList(referenceGenomeDownload, gridssConfigFiles, gridssPonFiles, virusReferenceGenomeDownload, repeatMaskerDb));
 
         bash.addCommand(new ExportVariableCommand("PATH", format("${PATH}:%s", dirname(new BwaCommand().asBash()))));
 

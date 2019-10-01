@@ -65,6 +65,7 @@ public class BucketCompletionWatcherTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void shouldWaitAndEventuallyReturnFailureState() {
         mockFlagFile(FAILURE_FLAG);
         when(runtimeBucket.getRuntimeBucket().list()).thenReturn(new ArrayList<>(), blobs);
@@ -73,6 +74,7 @@ public class BucketCompletionWatcherTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void shouldWaitAndEventuallyReturnSuccessState() {
         mockFlagFile(SUCCESS_FLAG);
         when(runtimeBucket.getRuntimeBucket().list()).thenReturn(new ArrayList<>(), blobs);
