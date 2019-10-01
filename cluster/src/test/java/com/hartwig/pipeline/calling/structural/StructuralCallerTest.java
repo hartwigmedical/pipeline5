@@ -73,11 +73,6 @@ public class StructuralCallerTest {
     }
 
     @Test
-    public void shouldSetUlimitBeforeAnyJavaCommandsAreCalled() {
-        assertThat(getBashBeforeJava()).contains("\nulimit -n 102400 ");
-    }
-
-    @Test
     public void shouldExportPathWithBwaOnItBeforeAnyJavaCommandIsCalled() {
         assertThat(getBashBeforeJava()).contains("\nexport PATH=\"${PATH}:/opt/tools/bwa/0.7.17\" ");
     }

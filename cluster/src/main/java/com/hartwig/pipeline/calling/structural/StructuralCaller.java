@@ -30,7 +30,6 @@ import com.hartwig.pipeline.execution.vm.ResourceDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.unix.ExportVariableCommand;
-import com.hartwig.pipeline.execution.vm.unix.UlimitOpenFilesCommand;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
@@ -96,7 +95,6 @@ public class StructuralCaller {
         bash.addCommand(new BatchInputDownload(referenceBam, referenceBai, tumorBam, tumorBai));
         bash.addCommands(asList(referenceGenomeDownload, gridssConfigFiles, gridssPonFiles, virusReferenceGenomeDownload, repeatMaskerDb));
 
-        bash.addCommand(new UlimitOpenFilesCommand(102400));
         bash.addCommand(new ExportVariableCommand("PATH", format("${PATH}:%s", dirname(new BwaCommand().asBash()))));
 
         String referenceWorkingDir = format("%s/%s.gridss.working", VmDirectories.OUTPUT, basename(referenceBam.getLocalTargetPath()));
