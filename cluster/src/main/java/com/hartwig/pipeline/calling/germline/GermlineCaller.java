@@ -154,7 +154,11 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
 
     @Override
     public GermlineCallerOutput skippedOutput(final SingleSampleRunMetadata metadata) {
-        return GermlineCallerOutput.builder().status(PipelineStatus.SKIPPED).build();
+        return GermlineCallerOutput.builder().status(PipelineStatus.SKIPPED).maybeGermlineVcfLocation(skipped()).build();
+    }
+
+    private static GoogleStorageLocation skipped() {
+        return GoogleStorageLocation.of("", "");
     }
 
     @Override
