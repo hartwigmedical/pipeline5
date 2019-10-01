@@ -148,6 +148,6 @@ class Ini(HmfApi):
 class Stack(HmfApi):
     def __init__(self):
         self._type = 'stacks'
-        self._keys = ['name']
+        self._keys = ['name', 'revision']
         super(Stack, self).__init__()
 
