@@ -126,6 +126,7 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
         return ImmutableList.<BashCommand>builder().add(new UnzipToDirectoryCommand(VmDirectories.RESOURCES, snpEffDb))
                 .addAll(finalOutput.bash())
                 .add(new MvCommand(finalOutput.outputFile().path(), outputFile.path()))
+                .add(new MvCommand(finalOutput.outputFile().path() + ".tbi", outputFile.path() + ".tbi"))
                 .build();
     }
 

@@ -15,7 +15,7 @@ public class GatkGermlineCaller extends SubStage {
     private final String dbsnp;
 
     GatkGermlineCaller(final String inputBam, final String referenceFasta, final String dbsnp) {
-        super("germline_calling", "vcf.gz");
+        super("raw_germline_caller", "vcf.gz");
         this.inputBam = inputBam;
         this.referenceFasta = referenceFasta;
         this.dbsnp = dbsnp;
