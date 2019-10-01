@@ -21,6 +21,7 @@ import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.tertiary.amber.Amber;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
 import com.hartwig.pipeline.tertiary.bachelor.BachelorOutput;
+import com.hartwig.pipeline.tertiary.chord.ChordOutput;
 import com.hartwig.pipeline.tertiary.cobalt.Cobalt;
 import com.hartwig.pipeline.tertiary.cobalt.CobaltOutput;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthCheckOutput;
@@ -118,7 +119,8 @@ public class TestInputs {
         return BamMetricsOutput.builder()
                 .status(PipelineStatus.SUCCESS)
                 .sample(sample)
-                .maybeMetricsOutputFile(gsLocation(namespacedBucket(sample, BamMetrics.NAMESPACE), RESULTS + BamMetricsOutput.outputFile(sample)))
+                .maybeMetricsOutputFile(gsLocation(namespacedBucket(sample, BamMetrics.NAMESPACE),
+                        RESULTS + BamMetricsOutput.outputFile(sample)))
                 .build();
     }
 
@@ -167,7 +169,13 @@ public class TestInputs {
         return PurpleOutput.builder()
                 .status(PipelineStatus.SUCCESS)
                 .maybeOutputDirectory(gsLocation(somaticBucket(Purple.NAMESPACE), RESULTS))
+                .maybeSomaticVcf(gsLocation(somaticBucket(Purple.NAMESPACE), TUMOR_SAMPLE + Purple.PURPLE_SOMATIC_VCF))
+                .maybeStructuralVcf(gsLocation(somaticBucket(Purple.NAMESPACE), TUMOR_SAMPLE + Purple.PURPLE_SV_VCF))
                 .build();
+    }
+
+    public static ChordOutput chordOutput() {
+        return ChordOutput.builder().status(PipelineStatus.SUCCESS).build();
     }
 
     public static HealthCheckOutput healthCheckerOutput() {

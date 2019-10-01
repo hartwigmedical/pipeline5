@@ -158,4 +158,13 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 12))
                 .build();
     }
+
+    static VirtualMachineJobDefinition chord(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
+        return ImmutableVirtualMachineJobDefinition.builder()
+                .name("chord")
+                .startupCommand(startupScript)
+                .namespacedResults(resultsDirectory)
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 12))
+                .build();
+    }
 }

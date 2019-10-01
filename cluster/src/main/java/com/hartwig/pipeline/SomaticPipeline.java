@@ -27,6 +27,8 @@ import com.hartwig.pipeline.tertiary.amber.Amber;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
 import com.hartwig.pipeline.tertiary.bachelor.Bachelor;
 import com.hartwig.pipeline.tertiary.bachelor.BachelorOutput;
+import com.hartwig.pipeline.tertiary.chord.Chord;
+import com.hartwig.pipeline.tertiary.chord.ChordOutput;
 import com.hartwig.pipeline.tertiary.cobalt.Cobalt;
 import com.hartwig.pipeline.tertiary.cobalt.CobaltOutput;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthCheckOutput;
@@ -119,9 +121,12 @@ public class SomaticPipeline {
                                 new Bachelor(purpleOutput,
                                         pair.tumor(),
                                         germlineCallerOutputStorage.get(metadata.reference(), new GermlineCaller(pair.reference())))));
+                        Future<ChordOutput> chordOutputFuture =
+                                executorService.submit(() -> stageRunner.run(metadata, new Chord(purpleOutput)));
                         pipelineResults.add(state.add(healthCheckOutputFuture.get()));
                         pipelineResults.add(state.add(linxOutputFuture.get()));
                         pipelineResults.add(state.add(bachelorOutputFuture.get()));
+                        pipelineResults.add(state.add(chordOutputFuture.get()));
                         pipelineResults.compose(metadata);
                     }
                 }
