@@ -5,6 +5,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.google.cloud.storage.Blob;
+import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetrics;
@@ -25,7 +26,7 @@ public class OutputStorageTest {
     public void setUp() throws Exception {
         runtimeBucket = mock(RuntimeBucket.class);
         when(runtimeBucket.name()).thenReturn(TestInputs.namespacedBucket(TestInputs.referenceSample(), BamMetrics.NAMESPACE));
-        victim = new OutputStorage<>(ResultsDirectory.defaultDirectory(), metadata -> runtimeBucket);
+        victim = new OutputStorage<>(ResultsDirectory.defaultDirectory(), Arguments.testDefaults(), metadata -> runtimeBucket);
     }
 
     @Test
@@ -34,5 +35,14 @@ public class OutputStorageTest {
         when(runtimeBucket.get(success.getName())).thenReturn(null).thenReturn(success);
         assertThat(victim.get(TestInputs.referenceRunMetadata(), new BamMetrics(TestInputs.referenceAlignmentOutput())).metricsOutputFile())
                 .isEqualTo(TestInputs.referenceMetricsOutput().metricsOutputFile());
+    }
+
+    @Test
+    public void returnsSkippedOutputWhenSkipped() {
+        victim = new OutputStorage<>(ResultsDirectory.defaultDirectory(),
+                Arguments.testDefaultsBuilder().runBamMetrics(false).build(),
+                metadata -> runtimeBucket);
+        assertThat(victim.get(TestInputs.referenceRunMetadata(), new BamMetrics(TestInputs.referenceAlignmentOutput())).status()).isEqualTo(
+                PipelineStatus.SKIPPED);
     }
 }

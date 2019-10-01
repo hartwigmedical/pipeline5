@@ -16,19 +16,24 @@ import net.jodah.failsafe.RetryPolicy;
 public class OutputStorage<S extends StageOutput, M extends RunMetadata> {
 
     private final ResultsDirectory resultsDirectory;
+    private final Arguments arguments;
 
     private final Function<M, RuntimeBucket> runtimeBucketProvider;
 
-    OutputStorage(final ResultsDirectory resultsDirectory, final Function<M, RuntimeBucket> runtimeBucketProvider) {
+    OutputStorage(final ResultsDirectory resultsDirectory, final Arguments arguments,
+            final Function<M, RuntimeBucket> runtimeBucketProvider) {
         this.resultsDirectory = resultsDirectory;
+        this.arguments = arguments;
         this.runtimeBucketProvider = runtimeBucketProvider;
     }
 
     public S get(M metadata, final Stage<S, M> stage) {
+        if (!stage.shouldRun(arguments)) {
+            return stage.skippedOutput(metadata);
+        }
         final RuntimeBucket runtimeBucket = runtimeBucketProvider.apply(metadata);
-        Blob metricsBlob =
-                Failsafe.with(new RetryPolicy<>().handleResult(null).withDelay(Duration.ofSeconds(5)).withMaxRetries(-1))
-                        .get(() -> runtimeBucket.get(BashStartupScript.JOB_SUCCEEDED_FLAG));
+        Blob metricsBlob = Failsafe.with(new RetryPolicy<>().handleResult(null).withDelay(Duration.ofSeconds(5)).withMaxRetries(-1))
+                .get(() -> runtimeBucket.get(BashStartupScript.JOB_SUCCEEDED_FLAG));
         if (metricsBlob != null) {
             return stage.output(metadata, PipelineStatus.SUCCESS, runtimeBucket, resultsDirectory);
         }
