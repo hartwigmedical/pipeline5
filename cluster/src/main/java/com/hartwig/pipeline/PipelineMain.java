@@ -17,6 +17,7 @@ import com.hartwig.pipeline.metadata.SampleMetadataApiProvider;
 import com.hartwig.pipeline.metadata.SetMetadataApiProvider;
 import com.hartwig.pipeline.metadata.SingleSampleEventListener;
 import com.hartwig.pipeline.metadata.SomaticMetadataApi;
+import com.hartwig.pipeline.metrics.BamMetrics;
 import com.hartwig.pipeline.report.FullSomaticResults;
 import com.hartwig.pipeline.report.PipelineResultsProvider;
 import com.hartwig.pipeline.stages.StageRunner;
@@ -70,7 +71,7 @@ public class PipelineMain {
                 new StageRunner<>(storage, arguments, ComputeEngine.from(arguments, credentials), ResultsDirectory.defaultDirectory()),
                 new AlignmentOutputStorage(storage, arguments, ResultsDirectory.defaultDirectory()),
                 new OutputStorage<>(ResultsDirectory.defaultDirectory(),
-                        metadata -> RuntimeBucket.from(storage, GermlineCaller.NAMESPACE, metadata, arguments)),
+                        metadata -> RuntimeBucket.from(storage, BamMetrics.NAMESPACE, metadata, arguments)),
                 new OutputStorage<>(ResultsDirectory.defaultDirectory(),
                         metadata -> RuntimeBucket.from(storage, GermlineCaller.NAMESPACE, metadata, arguments)),
                 somaticMetadataApi,
