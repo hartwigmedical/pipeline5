@@ -4,7 +4,9 @@ import static java.lang.String.format;
 
 import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_CONFIG;
 import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_PON;
+import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_REPEAT_MASKER_DB;
 import static com.hartwig.pipeline.resource.ResourceNames.REFERENCE_GENOME;
+import static com.hartwig.pipeline.resource.ResourceNames.VIRUS_REFERENCE_GENOME;
 import static com.hartwig.pipeline.testsupport.TestInputs.defaultPair;
 import static com.hartwig.pipeline.testsupport.TestInputs.defaultSomaticRunMetadata;
 
@@ -47,6 +49,8 @@ public class StructuralCallerTest {
         MockResource.addToStorage(storage, REFERENCE_GENOME, "reference.fasta");
         MockResource.addToStorage(storage, GRIDSS_CONFIG, "config.properties", "blacklist.bed");
         MockResource.addToStorage(storage, GRIDSS_PON, "gridss.pon");
+        MockResource.addToStorage(storage, GRIDSS_REPEAT_MASKER_DB, "hg19.fa.out");
+        MockResource.addToStorage(storage, VIRUS_REFERENCE_GENOME, "human_virus.fa");
         computeEngine = mock(ComputeEngine.class);
         victim = new StructuralCaller(Arguments.testDefaults(), computeEngine, storage, ResultsDirectory.defaultDirectory());
     }
@@ -66,11 +70,6 @@ public class StructuralCallerTest {
         assertThat(bashBeforeJava).contains(resourceDownloadBash(RUNTIME_JOINT_BUCKET, REFERENCE_GENOME + "/*"));
         assertThat(bashBeforeJava).contains(resourceDownloadBash(RUNTIME_JOINT_BUCKET, GRIDSS_CONFIG + "/*"));
         assertThat(bashBeforeJava).contains(resourceDownloadBash(RUNTIME_JOINT_BUCKET, GRIDSS_PON + "/*"));
-    }
-
-    @Test
-    public void shouldSetUlimitBeforeAnyJavaCommandsAreCalled() {
-        assertThat(getBashBeforeJava()).contains("\nulimit -n 102400 ");
     }
 
     @Test

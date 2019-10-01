@@ -50,8 +50,9 @@ public class BashStartupScript {
                 format("  gsutil -m cp %s gs://%s", jobFailedFlag, runtimeBucketName),
                 "  exit $exit_code\n" + "}\n"));
         preamble.addAll(storageStrategy.initialise());
+        preamble.add("ulimit -n 102400");
         addCompletionCommands();
-        return preamble.stream().collect(joining("\n")) + "\n" +
+        return String.join("\n", preamble) + "\n" +
                 commands.stream().collect(joining(format("%s\n", commandSuffix))) +
                 (commands.isEmpty() ? "" : commandSuffix);
     }
@@ -62,7 +63,7 @@ public class BashStartupScript {
     }
 
     public BashStartupScript addCommand(BashCommand command) {
-        return addLine(String.format("echo \"Running command %s with bash: %s\"",
+        return addLine(String.format("echo $(date \"+%%Y-%%m-%%d %%H:%%M:%%S\") \"Running command %s with bash: %s\"",
                 command.getClass().getSimpleName(),
                 escapeQuotes(command.asBash()))).addLine(command.asBash());
     }
