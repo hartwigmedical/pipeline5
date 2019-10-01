@@ -10,7 +10,7 @@ class ChordExtractSigPredictHRD extends VersionedToolCommand {
         super("chord",
                 "extractSigPredictHRD.R",
                 Versions.CHORD,
-                VmDirectories.TOOLS + "/chord",
+                VmDirectories.TOOLS + "/chord/" + Versions.CHORD,
                 VmDirectories.OUTPUT,
                 sampleName,
                 somaticVcfPath,
