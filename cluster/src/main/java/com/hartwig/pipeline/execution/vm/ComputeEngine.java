@@ -1,7 +1,6 @@
 package com.hartwig.pipeline.execution.vm;
 
 import static java.lang.String.format;
-import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 
 import java.io.IOException;
@@ -44,7 +43,7 @@ import net.jodah.failsafe.Failsafe;
 import net.jodah.failsafe.RetryPolicy;
 
 public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition> {
-    public static final int NUMBER_OF_375G_LOCAL_SSD_DEVICES = 4;
+    private static final int NUMBER_OF_375G_LOCAL_SSD_DEVICES = 4;
     private final static String APPLICATION_NAME = "vm-hosted-workload";
     static final String ZONE_EXHAUSTED_ERROR_CODE = "ZONE_RESOURCE_POOL_EXHAUSTED";
     static final String PREEMPTED_INSTANCE = "TERMINATED";
@@ -127,11 +126,16 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
                     LOGGER.debug("Successfully initialised [{}]", vmName);
                     status = waitForCompletion(bucket, jobDefinition, currentZone, instance);
                     if (status != PipelineStatus.PREEMPTED) {
-                        lifecycleManager.stop(currentZone.getName(), vmName);
-                        if (status == PipelineStatus.SUCCESS) {
+                        if (arguments.useLocalSsds()) {
+                            // Instances with local SSDs cannot be stopped or restarted
                             lifecycleManager.delete(currentZone.getName(), vmName);
                         } else {
-                            lifecycleManager.disableStartupScript(currentZone.getName(), instance.getName());
+                            lifecycleManager.stop(currentZone.getName(), vmName);
+                            if (status == PipelineStatus.SUCCESS) {
+                                lifecycleManager.delete(currentZone.getName(), vmName);
+                            } else {
+                                lifecycleManager.disableStartupScript(currentZone.getName(), instance.getName());
+                            }
                         }
                         LOGGER.info("Compute engine job [{}] is complete with status [{}]", vmName, status);
                         keepTrying = false;
@@ -191,7 +195,7 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
         params.setDiskType(format("%s/zones/%s/diskTypes/pd-ssd", apiBaseUrl(projectName), zone));
         params.setDiskSizeGb(arguments.useLocalSsds() ? 10L : 1000L);
         disk.setInitializeParams(params);
-        List<AttachedDisk> disks = new ArrayList<>(asList(disk));
+        List<AttachedDisk> disks = new ArrayList<>(singletonList(disk));
         if (arguments.useLocalSsds()) {
             attachLocalSsds(disks, projectName, zone);
         }
@@ -263,10 +267,7 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
             try {
                 String status = lifecycleManager.instanceStatus(instance.getName(), zone.getName());
                 LOGGER.debug("Execution state of [{}]: [{}]", instance.getName(), status);
-                switch (status.trim()) {
-                    case PREEMPTED_INSTANCE: return PipelineStatus.PREEMPTED;
-                    default: return null;
-                }
+                return status.trim().equals(PREEMPTED_INSTANCE) ? PipelineStatus.PREEMPTED : null;
             } catch (Exception e) {
                 LOGGER.debug("Caught exception when looking for operationStatus, will continue to wait", e);
                 return null;

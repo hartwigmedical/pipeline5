@@ -1,8 +1,11 @@
 package com.hartwig.pipeline.calling.germline;
 
+import java.util.Collections;
+import java.util.List;
+
 import com.hartwig.pipeline.calling.SubStage;
 import com.hartwig.pipeline.calling.germline.command.GatkHaplotypeCallerCommand;
-import com.hartwig.pipeline.execution.vm.BashStartupScript;
+import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.OutputFile;
 
 public class GatkGermlineCaller extends SubStage {
@@ -19,7 +22,7 @@ public class GatkGermlineCaller extends SubStage {
     }
 
     @Override
-    public BashStartupScript bash(final OutputFile input, OutputFile output, final BashStartupScript bash) {
-        return bash.addCommand(new GatkHaplotypeCallerCommand(inputBam, referenceFasta, dbsnp, output.path()));
+    public List<BashCommand> bash(final OutputFile input, OutputFile output) {
+        return Collections.singletonList(new GatkHaplotypeCallerCommand(inputBam, referenceFasta, dbsnp, output.path()));
     }
 }

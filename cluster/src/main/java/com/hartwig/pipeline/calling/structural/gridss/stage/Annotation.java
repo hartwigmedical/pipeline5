@@ -1,11 +1,14 @@
 package com.hartwig.pipeline.calling.structural.gridss.stage;
 
+import java.util.List;
+
+import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.calling.SubStage;
 import com.hartwig.pipeline.calling.command.BgzipCommand;
 import com.hartwig.pipeline.calling.command.TabixCommand;
 import com.hartwig.pipeline.calling.structural.gridss.command.AnnotateUntemplatedSequence;
 import com.hartwig.pipeline.calling.structural.gridss.command.AnnotateVariants;
-import com.hartwig.pipeline.execution.vm.BashStartupScript;
+import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.OutputFile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 
@@ -31,14 +34,20 @@ public class Annotation extends SubStage {
     }
 
     @Override
-    public BashStartupScript bash(OutputFile input, OutputFile output, BashStartupScript bash) {
+    public List<BashCommand> bash(OutputFile input, OutputFile output) {
         String annotatedVcf = VmDirectories.outputFile(jointName + ".annotated_variants.vcf");
         String untemplatedOutputVcf = output.path().replaceAll("\\." + OutputFile.GZIPPED_VCF + "$", ".vcf");
 
-        return bash.addCommand(new AnnotateVariants(sampleBam, tumorBam, assemblyBam, input.path(), referenceGenome, annotatedVcf,
-                configFile, blacklist))
-                .addCommand(new AnnotateUntemplatedSequence(annotatedVcf, referenceGenome, untemplatedOutputVcf))
-                .addCommand(new BgzipCommand(untemplatedOutputVcf))
-                .addCommand(new TabixCommand(output.path()));
+        return ImmutableList.of(new AnnotateVariants(sampleBam,
+                        tumorBam,
+                        assemblyBam,
+                        input.path(),
+                        referenceGenome,
+                        annotatedVcf,
+                        configFile,
+                        blacklist),
+                new AnnotateUntemplatedSequence(annotatedVcf, referenceGenome, untemplatedOutputVcf),
+                new BgzipCommand(untemplatedOutputVcf),
+                new TabixCommand(output.path()));
     }
 }

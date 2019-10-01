@@ -1,17 +1,19 @@
 package com.hartwig.pipeline.tertiary.healthcheck;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Storage;
+import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
-import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.execution.PipelineStatus;
+import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.InputDownload;
-import com.hartwig.pipeline.execution.vm.OutputUpload;
+import com.hartwig.pipeline.execution.vm.ResourceDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.unix.MkDirCommand;
@@ -19,85 +21,96 @@ import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
+import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
-import com.hartwig.pipeline.trace.StageTrace;
 
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HealthChecker {
+public class HealthChecker implements Stage<HealthCheckOutput, SomaticRunMetadata> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HealthChecker.class);
-    static final String NAMESPACE = "health_checker";
+    public static final String NAMESPACE = "health_checker";
     private static final String LOCAL_METRICS_DIR = VmDirectories.INPUT + "/metrics";
     private static final String LOCAL_AMBER_DIR = VmDirectories.INPUT + "/amber";
     private static final String LOCAL_PURPLE_DIR = VmDirectories.INPUT + "/purple";
+    private final InputDownload referenceMetricsDownload;
+    private final InputDownload tumorMetricsDownload;
+    private final InputDownload amberDownload;
+    private final InputDownload purpleDownload;
 
-    private final Arguments arguments;
-    private final ComputeEngine computeEngine;
-    private final Storage storage;
-    private final ResultsDirectory resultsDirectory;
-
-    HealthChecker(final Arguments arguments, final ComputeEngine computeEngine, final Storage storage,
-            final ResultsDirectory resultsDirectory) {
-        this.arguments = arguments;
-        this.computeEngine = computeEngine;
-        this.storage = storage;
-        this.resultsDirectory = resultsDirectory;
+    public HealthChecker(BamMetricsOutput referenceMetricsOutput, BamMetricsOutput tumorMetricsOutput, AmberOutput amberOutput,
+            PurpleOutput purpleOutput) {
+        referenceMetricsDownload = new InputDownload(referenceMetricsOutput.metricsOutputFile(), localMetricsPath(referenceMetricsOutput));
+        tumorMetricsDownload = new InputDownload(tumorMetricsOutput.metricsOutputFile(), localMetricsPath(tumorMetricsOutput));
+        amberDownload = new InputDownload(amberOutput.outputDirectory(), LOCAL_AMBER_DIR);
+        purpleDownload = new InputDownload(purpleOutput.outputDirectory(), LOCAL_PURPLE_DIR);
     }
 
-    public HealthCheckOutput run(SomaticRunMetadata metadata, AlignmentPair pair, BamMetricsOutput metricsOutput,
-            BamMetricsOutput mateMetricsOutput, AmberOutput amberOutput, PurpleOutput purpleOutput) {
-        if (!arguments.runTertiary() || arguments.shallow()) {
-            return HealthCheckOutput.builder().status(PipelineStatus.SKIPPED).build();
-        }
+    @Override
+    public List<BashCommand> inputs() {
+        return ImmutableList.of(new MkDirCommand(LOCAL_METRICS_DIR),
+                new MkDirCommand(LOCAL_AMBER_DIR),
+                new MkDirCommand(LOCAL_PURPLE_DIR),
+                referenceMetricsDownload,
+                tumorMetricsDownload,
+                amberDownload,
+                purpleDownload);
+    }
 
-        StageTrace trace = new StageTrace(NAMESPACE, metadata.runName(), StageTrace.ExecutorType.COMPUTE_ENGINE).start();
+    @Override
+    public List<ResourceDownload> resources(final Storage storage, final String resourceBucket, final RuntimeBucket bucket) {
+        return Collections.emptyList();
+    }
 
-        String referenceSampleName = pair.reference().sample();
-        String tumorSampleName = pair.tumor().sample();
-        RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, NAMESPACE, metadata, arguments);
+    @Override
+    public String namespace() {
+        return NAMESPACE;
+    }
 
-        BashStartupScript bash = BashStartupScript.of(runtimeBucket.name());
+    @Override
+    public List<BashCommand> commands(final SomaticRunMetadata metadata, final Map<String, ResourceDownload> resources) {
+        return ImmutableList.of(new HealthCheckerApplicationCommand(metadata.reference().sampleName(),
+                metadata.tumor().sampleName(),
+                LOCAL_METRICS_DIR,
+                LOCAL_AMBER_DIR,
+                LOCAL_PURPLE_DIR,
+                VmDirectories.OUTPUT));
+    }
 
-        InputDownload metricsDownload = new InputDownload(metricsOutput.metricsOutputFile(), localMetricsPath(metricsOutput));
-        InputDownload mateMetricsDownload = new InputDownload(mateMetricsOutput.metricsOutputFile(), localMetricsPath(mateMetricsOutput));
-        InputDownload amberDownload = new InputDownload(amberOutput.outputDirectory(), LOCAL_AMBER_DIR);
-        InputDownload purpleDownload = new InputDownload(purpleOutput.outputDirectory(), LOCAL_PURPLE_DIR);
+    @Override
+    public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
+        return VirtualMachineJobDefinition.healthChecker(bash, resultsDirectory);
+    }
 
-        bash.addCommand(new MkDirCommand(LOCAL_METRICS_DIR))
-                .addCommand(new MkDirCommand(LOCAL_AMBER_DIR))
-                .addCommand(new MkDirCommand(LOCAL_PURPLE_DIR))
-                .addCommand(metricsDownload)
-                .addCommand(mateMetricsDownload)
-                .addCommand(amberDownload)
-                .addCommand(purpleDownload)
-                .addCommand(new HealthCheckerApplicationCommand(referenceSampleName,
-                        tumorSampleName,
-                        LOCAL_METRICS_DIR,
-                        LOCAL_AMBER_DIR,
-                        LOCAL_PURPLE_DIR,
-                        VmDirectories.OUTPUT))
-                .addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path())));
-        PipelineStatus status = computeEngine.submit(runtimeBucket, VirtualMachineJobDefinition.healthChecker(bash, resultsDirectory));
+    @Override
+    public HealthCheckOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
+            final ResultsDirectory resultsDirectory) {
 
-        status = checkHealthCheckerOutput(tumorSampleName, runtimeBucket, status);
-
-        trace.stop();
         return HealthCheckOutput.builder()
-                .status(status)
-                .maybeOutputDirectory(GoogleStorageLocation.of(runtimeBucket.name(), resultsDirectory.path()))
-                .addReportComponents(new EntireOutputComponent(runtimeBucket, Folder.from(), NAMESPACE, resultsDirectory))
+                .status(checkHealthCheckerOutput(metadata.tumor().sampleName(), bucket, jobStatus, resultsDirectory))
+                .maybeOutputDirectory(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path()))
+                .addReportComponents(new EntireOutputComponent(bucket, Folder.from(), NAMESPACE, resultsDirectory))
                 .build();
     }
 
+    @Override
+    public HealthCheckOutput skippedOutput(final SomaticRunMetadata metadata) {
+        return HealthCheckOutput.builder().status(PipelineStatus.SKIPPED).build();
+    }
+
+    @Override
+    public boolean shouldRun(final Arguments arguments) {
+        return arguments.runTertiary();
+    }
+
     @NotNull
-    private PipelineStatus checkHealthCheckerOutput(final String tumorSampleName, final RuntimeBucket runtimeBucket,
-            PipelineStatus status) {
+    private PipelineStatus checkHealthCheckerOutput(final String tumorSampleName, final RuntimeBucket runtimeBucket, PipelineStatus status,
+            ResultsDirectory resultsDirectory) {
         List<Blob> healthCheckStatuses = runtimeBucket.list(resultsDirectory.path(tumorSampleName));
         if ((status == PipelineStatus.SKIPPED || status == PipelineStatus.SUCCESS) && healthCheckStatuses.size() == 1) {
             Blob healthCheckStatus = healthCheckStatuses.get(0);

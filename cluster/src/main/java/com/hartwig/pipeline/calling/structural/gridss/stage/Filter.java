@@ -2,13 +2,15 @@ package com.hartwig.pipeline.calling.structural.gridss.stage;
 
 import static java.lang.String.format;
 
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.calling.SubStage;
 import com.hartwig.pipeline.calling.structural.gridss.command.BiocondaVariantAnnotationWorkaround;
 import com.hartwig.pipeline.calling.structural.gridss.command.RscriptFilter;
-import com.hartwig.pipeline.execution.vm.BashStartupScript;
+import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.OutputFile;
 import com.hartwig.pipeline.execution.vm.unix.MvCommand;
 import com.hartwig.pipeline.execution.vm.unix.SubShellCommand;
@@ -24,24 +26,21 @@ public class Filter extends SubStage {
     }
 
     @Override
-    public BashStartupScript bash(final OutputFile input, final OutputFile output, final BashStartupScript bash) {
+    public List<BashCommand> bash(final OutputFile input, final OutputFile output) {
         Matcher matcher = Pattern.compile("(.+).gz$").matcher(input.path());
         String unzippedInputVcf;
         if (matcher.matches()) {
             unzippedInputVcf = matcher.group(1);
-        }
-        else {
+        } else {
             throw new IllegalArgumentException(format("%s must have a .gz extension!", input.path()));
         }
 
-        bash.addCommand(new SubShellCommand(new BiocondaVariantAnnotationWorkaround(input.path(), unzippedInputVcf)));
-        bash.addCommand(new RscriptFilter(unzippedInputVcf, outputFilteredVcf, outputFullVcf));
-        bash.addCommand(new MvCommand(outputFullVcf + ".bgz", outputFullVcf + ".gz"));
-        bash.addCommand(new MvCommand(outputFullVcf + ".bgz.tbi", outputFullVcf + ".gz.tbi"));
-        bash.addCommand(new MvCommand(outputFilteredVcf + ".bgz", outputFilteredVcf + ".gz"));
-        bash.addCommand(new MvCommand(outputFilteredVcf + ".bgz.tbi", outputFilteredVcf + ".gz.tbi"));
-
-        return bash;
+        return ImmutableList.of(new SubShellCommand(new BiocondaVariantAnnotationWorkaround(input.path(), unzippedInputVcf)),
+                new RscriptFilter(unzippedInputVcf, outputFilteredVcf, outputFullVcf),
+                new MvCommand(outputFullVcf + ".bgz", outputFullVcf + ".gz"),
+                new MvCommand(outputFullVcf + ".bgz.tbi", outputFullVcf + ".gz.tbi"),
+                new MvCommand(outputFilteredVcf + ".bgz", outputFilteredVcf + ".gz"),
+                new MvCommand(outputFilteredVcf + ".bgz.tbi", outputFilteredVcf + ".gz.tbi"));
     }
 }
 

@@ -13,16 +13,22 @@ import com.hartwig.pipeline.storage.RuntimeBucket;
 
 public class ResourceDownload implements BashCommand {
 
-    private static final String RESOURCES_PATH = "/data/resources";
+    public static final String RESOURCES_PATH = "/data/resources";
+    private final Resource resource;
     private final ResourceLocation resourceLocation;
 
-    public ResourceDownload(final ResourceLocation resourceLocation) {
+    public ResourceDownload(final Resource resource, final ResourceLocation resourceLocation) {
+        this.resource = resource;
         this.resourceLocation = resourceLocation;
     }
 
     @Override
     public String asBash() {
         return String.format("gsutil -qm cp gs://%s/* %s", resourceLocation.bucket(), RESOURCES_PATH);
+    }
+
+    public Resource getResource() {
+        return resource;
     }
 
     List<String> getLocalPaths() {
@@ -50,6 +56,6 @@ public class ResourceDownload implements BashCommand {
     }
 
     public static ResourceDownload from(final RuntimeBucket runtimeBucket, final Resource resource) {
-        return new ResourceDownload(resource.copyInto(runtimeBucket));
+        return new ResourceDownload(resource, resource.copyInto(runtimeBucket));
     }
 }

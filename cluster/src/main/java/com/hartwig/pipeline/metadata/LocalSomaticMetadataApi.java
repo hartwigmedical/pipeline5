@@ -24,7 +24,7 @@ public class LocalSomaticMetadataApi implements SomaticMetadataApi {
                         .sampleName(arguments.setId() + "T")
                         .build())
                 .reference(SingleSampleRunMetadata.builder()
-                        .type(SingleSampleRunMetadata.SampleType.TUMOR)
+                        .type(SingleSampleRunMetadata.SampleType.REFERENCE)
                         .sampleId(arguments.setId() + "R")
                         .sampleName(arguments.setId() + "R")
                         .build())

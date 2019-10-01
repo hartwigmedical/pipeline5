@@ -1,162 +1,96 @@
 package com.hartwig.pipeline.tertiary.healthcheck;
 
-import static com.hartwig.pipeline.testsupport.TestBlobs.pageOf;
-import static com.hartwig.pipeline.testsupport.TestInputs.defaultPair;
-import static com.hartwig.pipeline.testsupport.TestInputs.defaultSomaticRunMetadata;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.google.api.gax.paging.Page;
+import java.util.Collections;
+import java.util.List;
+
 import com.google.cloud.storage.Blob;
-import com.google.cloud.storage.Bucket;
-import com.google.cloud.storage.CopyWriter;
-import com.google.cloud.storage.Storage;
-import com.hartwig.pipeline.Arguments;
+import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.execution.vm.ComputeEngine;
-import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
-import com.hartwig.pipeline.metrics.BamMetricsOutput;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
-import com.hartwig.pipeline.tertiary.amber.AmberOutput;
-import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
+import com.hartwig.pipeline.metadata.SomaticRunMetadata;
+import com.hartwig.pipeline.stages.Stage;
+import com.hartwig.pipeline.storage.RuntimeBucket;
+import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestBlobs;
-import com.hartwig.pipeline.tools.Versions;
+import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
+import org.mockito.stubbing.OngoingStubbing;
 
-public class HealthCheckerTest {
-
-    private static final String RUNTIME_BUCKET = "run-reference-tumor-test";
-    private static final Arguments ARGUMENTS = Arguments.testDefaults();
-
-    private ComputeEngine computeEngine;
-    private HealthChecker victim;
-    private Storage storage;
-    private Bucket bucket;
+public class HealthCheckerTest extends TertiaryStageTest<HealthCheckOutput> {
 
     @Before
     public void setUp() throws Exception {
-        computeEngine = mock(ComputeEngine.class);
-        storage = mock(Storage.class);
-        bucket = mock(Bucket.class);
-        when(bucket.getName()).thenReturn(RUNTIME_BUCKET);
-        when(storage.get(RUNTIME_BUCKET)).thenReturn(bucket);
-        CopyWriter copyWriter = mock(CopyWriter.class);
-        when(storage.copy(any())).thenReturn(copyWriter);
-        returnHealthCheck(bucket, "tumor.HealthCheckSucceeded");
-        victim = new HealthChecker(ARGUMENTS, computeEngine, storage, ResultsDirectory.defaultDirectory());
+        super.setUp();
+        returnHealthCheck(runtimeBucket, "tumor.HealthCheckSucceeded");
+    }
+
+    @Override
+    protected Stage<HealthCheckOutput, SomaticRunMetadata> createVictim() {
+        return new HealthChecker(TestInputs.referenceMetricsOutput(),
+                TestInputs.tumorMetricsOutput(),
+                TestInputs.amberOutput(),
+                TestInputs.purpleOutput());
+    }
+
+    @Override
+    protected SomaticRunMetadata input() {
+        return TestInputs.defaultSomaticRunMetadata();
+    }
+
+    @Override
+    protected List<String> expectedInputs() {
+        return ImmutableList.of("mkdir -p /data/input/metrics",
+                "mkdir -p /data/input/amber",
+                "mkdir -p /data/input/purple",
+                input("run-reference-test/bam_metrics/reference.wgsmetrics", "metrics/reference.wgsmetrics"),
+                input("run-tumor-test/bam_metrics/tumor.wgsmetrics", "metrics/tumor.wgsmetrics"),
+                input(expectedRuntimeBucketName() + "/amber/results/", "amber"),
+                input(expectedRuntimeBucketName() + "/purple/results/", "purple"));
+    }
+
+    @Override
+    protected List<String> expectedResources() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    protected List<String> expectedCommands() {
+        return Collections.singletonList("java -Xmx10G -jar $TOOLS_DIR/health-checker/3.1/health-checker.jar -reference reference -tumor "
+                + "tumor -metrics_dir /data/input/metrics -amber_dir /data/input/amber -purple_dir /data/input/purple -output_dir "
+                + "/data/output");
     }
 
     @Test
-    public void returnsSkippedWhenTertiaryDisabledInArguments() {
-        victim = new HealthChecker(Arguments.testDefaultsBuilder().runTertiary(false).build(),
-                computeEngine,
-                storage,
-                ResultsDirectory.defaultDirectory());
-        HealthCheckOutput output = runVictim();
-        assertThat(output.status()).isEqualTo(PipelineStatus.SKIPPED);
+    public void returnsStatusQcFailsWhenHealthCheckerReportsFailure() {
+        returnHealthCheck(runtimeBucket, "tumor.HealthCheckFailed");
+        assertThat(victim.output(input(), PipelineStatus.SUCCESS, runtimeBucket, ResultsDirectory.defaultDirectory()).status()).isEqualTo(
+                PipelineStatus.QC_FAILED);
     }
 
     @Test
-    public void returnsSkippedWhenShallow() {
-        victim = new HealthChecker(Arguments.testDefaultsBuilder().shallow(true).build(),
-                computeEngine,
-                storage,
-                ResultsDirectory.defaultDirectory());
-        HealthCheckOutput output = runVictim();
-        assertThat(output.status()).isEqualTo(PipelineStatus.SKIPPED);
+    public void returnsStatusFailsWhenHealthCheckerReportsFailureNothingFailed() {
+        whenBucketChecked(runtimeBucket).thenReturn(Collections.emptyList());
+        assertThat(victim.output(input(), PipelineStatus.SUCCESS, runtimeBucket, ResultsDirectory.defaultDirectory()).status()).isEqualTo(
+                PipelineStatus.FAILED);
     }
 
-    @Test
-    public void returnsHealthCheckerOutputDirectory() {
-        when(computeEngine.submit(any(), any())).thenReturn(PipelineStatus.SUCCESS);
-        HealthCheckOutput output = runVictim();
-        assertThat(output.outputDirectory()).isEqualTo(GoogleStorageLocation.of(RUNTIME_BUCKET + "/health_checker", "results"));
+    @Override
+    protected void validateOutput(final HealthCheckOutput output) {
+        assertThat(output.outputDirectory().bucket()).isEqualTo(expectedRuntimeBucketName() + "/" + HealthChecker.NAMESPACE);
+        assertThat(output.outputDirectory().path()).isEqualTo("results");
     }
 
-    @Test
-    public void returnsStatusFailedWhenJobFailsOnComputeEngine() {
-        when(computeEngine.submit(any(), any())).thenReturn(PipelineStatus.FAILED);
-        assertThat(runVictim().status()).isEqualTo(PipelineStatus.FAILED);
-    }
-
-    @Test
-    public void runsHealthCheckApplicationOnComputeEngine() {
-        ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
-        runVictim();
-        System.out.println(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString());
-        assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
-                "java -Xmx10G -jar /opt/tools/health-checker/" + Versions.HEALTH_CHECKER + "/health-checker.jar -reference reference "
-                        + "-tumor tumor -metrics_dir /data/input/metrics -amber_dir /data/input/amber -purple_dir /data/input/purple "
-                        + "-output_dir /data/output");
-    }
-
-    @Test
-    public void downloadsInputMetricsPurpleAndAmberOutput() {
-        ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
-        runVictim();
-        assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
-                "gsutil -qm cp -n gs://run-reference/reference.wgsmetrics /data/input/metrics/reference.wgsmetrics",
-                "gsutil -qm cp -n gs://run-tumor/tumor.wgsmetrics /data/input/metrics/tumor.wgsmetrics",
-                "gsutil -qm cp -n gs://run-reference-tumor-test/purple/* /data/input/purple/",
-                "gsutil -qm cp -n gs://run-reference-tumor-test/amber/* /data/input/amber");
-    }
-
-    @Test
-    public void uploadsOutputDirectory() {
-        ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor = captureAndReturnSuccess();
-        runVictim();
-        assertThat(jobDefinitionArgumentCaptor.getValue().startupCommand().asUnixString()).contains(
-                "gsutil -qm -o GSUtil:parallel_composite_upload_threshold=150M cp -r /data/output/ "
-                        + "gs://run-reference-tumor-test/health_checker/results");
-    }
-
-    @Test
-    public void returnsStatusFailsWhenHealthCheckerReportsFailure() {
-        when(computeEngine.submit(any(), any())).thenReturn(PipelineStatus.SUCCESS);
-        returnHealthCheck(bucket, "tumor.HealthCheckFailed");
-        assertThat(runVictim().status()).isEqualTo(PipelineStatus.QC_FAILED);
-    }
-
-    private void returnHealthCheck(final Bucket bucket, final String status) {
+    private void returnHealthCheck(final RuntimeBucket bucket, final String status) {
         Blob blob = TestBlobs.blob(status);
-        Page<Blob> page = pageOf(blob);
-        when(bucket.list(Storage.BlobListOption.prefix(HealthChecker.NAMESPACE + "/results/tumor"))).thenReturn(page);
+        whenBucketChecked(bucket).thenReturn(Collections.singletonList(blob));
     }
 
-    private ArgumentCaptor<VirtualMachineJobDefinition> captureAndReturnSuccess() {
-        ArgumentCaptor<VirtualMachineJobDefinition> jobDefinitionArgumentCaptor =
-                ArgumentCaptor.forClass(VirtualMachineJobDefinition.class);
-        when(computeEngine.submit(any(), jobDefinitionArgumentCaptor.capture())).thenReturn(PipelineStatus.SUCCESS);
-        return jobDefinitionArgumentCaptor;
-    }
-
-    private HealthCheckOutput runVictim() {
-        return victim.run(defaultSomaticRunMetadata(),
-                defaultPair(),
-                BamMetricsOutput.builder()
-                        .status(PipelineStatus.SUCCESS)
-                        .maybeMetricsOutputFile(GoogleStorageLocation.of("run-reference", "reference.wgsmetrics"))
-                        .sample(defaultPair().reference().sample())
-                        .build(),
-                BamMetricsOutput.builder()
-                        .status(PipelineStatus.SUCCESS)
-                        .maybeMetricsOutputFile(GoogleStorageLocation.of("run-tumor", "tumor.wgsmetrics"))
-                        .sample(defaultPair().tumor().sample())
-                        .build(),
-                AmberOutput.builder()
-                        .status(PipelineStatus.SUCCESS)
-                        .maybeOutputDirectory(GoogleStorageLocation.of(RUNTIME_BUCKET, "amber", true))
-                        .build(),
-                PurpleOutput.builder()
-                        .status(PipelineStatus.SUCCESS)
-                        .maybeOutputDirectory(GoogleStorageLocation.of(RUNTIME_BUCKET, "purple", true))
-                        .build());
+    private OngoingStubbing<List<Blob>> whenBucketChecked(final RuntimeBucket bucket) {
+        return when(bucket.list("results/tumor"));
     }
 }

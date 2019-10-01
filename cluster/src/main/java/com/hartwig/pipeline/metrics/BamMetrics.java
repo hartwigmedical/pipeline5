@@ -1,14 +1,17 @@
 package com.hartwig.pipeline.metrics;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.execution.PipelineStatus;
+import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.InputDownload;
-import com.hartwig.pipeline.execution.vm.OutputUpload;
 import com.hartwig.pipeline.execution.vm.ResourceDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
@@ -21,62 +24,76 @@ import com.hartwig.pipeline.resource.GATKDictAlias;
 import com.hartwig.pipeline.resource.ReferenceGenomeAlias;
 import com.hartwig.pipeline.resource.Resource;
 import com.hartwig.pipeline.resource.ResourceNames;
+import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
-import com.hartwig.pipeline.trace.StageTrace;
 
-public class BamMetrics {
+public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetadata> {
+
     public static final String NAMESPACE = "bam_metrics";
-    private final Arguments arguments;
-    private final ComputeEngine executor;
-    private final Storage storage;
-    private final ResultsDirectory resultsDirectory;
+    private final InputDownload bamDownload;
 
-    BamMetrics(final Arguments arguments, final ComputeEngine executor, final Storage storage, final ResultsDirectory results) {
-        this.arguments = arguments;
-        this.executor = executor;
-        this.storage = storage;
-        this.resultsDirectory = results;
+    public BamMetrics(final AlignmentOutput alignmentOutput) {
+        bamDownload = new InputDownload(alignmentOutput.finalBamLocation());
     }
 
-    public BamMetricsOutput run(SingleSampleRunMetadata metadata, AlignmentOutput alignmentOutput) {
+    @Override
+    public boolean shouldRun(final Arguments arguments) {
+        return arguments.runBamMetrics();
+    }
 
-        if (!arguments.runBamMetrics()) {
-            return BamMetricsOutput.builder().status(PipelineStatus.SKIPPED).build();
-        }
+    @Override
+    public List<BashCommand> inputs() {
+        return Collections.singletonList(bamDownload);
+    }
 
-        StageTrace trace = new StageTrace(NAMESPACE, metadata.sampleName(), StageTrace.ExecutorType.COMPUTE_ENGINE).start();
-        RuntimeBucket bucket = RuntimeBucket.from(storage, NAMESPACE, metadata, arguments);
-        Resource referenceGenome = new Resource(storage,
-                arguments.resourceBucket(),
-                ResourceNames.REFERENCE_GENOME,
-                new ReferenceGenomeAlias().andThen(new GATKDictAlias()));
-        ResourceDownload genomeDownload = new ResourceDownload(referenceGenome.copyInto(bucket));
-        InputDownload bam = new InputDownload(alignmentOutput.finalBamLocation());
+    @Override
+    public List<ResourceDownload> resources(Storage storage, String resourceBucket, RuntimeBucket runtimeBucket) {
+        return Collections.singletonList(ResourceDownload.from(runtimeBucket,
+                new Resource(storage,
+                        resourceBucket,
+                        ResourceNames.REFERENCE_GENOME,
+                        new ReferenceGenomeAlias().andThen(new GATKDictAlias()))));
+    }
 
-        String outputFile = BamMetricsOutput.outputFile(alignmentOutput.sample());
-        BashStartupScript startup = BashStartupScript.of(bucket.name())
-                .addCommand(new InputDownload(alignmentOutput.finalBamLocation()))
-                .addCommand(genomeDownload)
-                .addCommand(new BamMetricsCommand(bam.getLocalTargetPath(),
-                        genomeDownload.find(".fasta"),
-                        VmDirectories.OUTPUT + "/" + outputFile))
-                .addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path())));
+    @Override
+    public String namespace() {
+        return NAMESPACE;
+    }
 
-        PipelineStatus status = executor.submit(bucket, VirtualMachineJobDefinition.bamMetrics(startup, resultsDirectory));
-        trace.stop();
+    @Override
+    public List<BashCommand> commands(SingleSampleRunMetadata metadata, Map<String, ResourceDownload> resources) {
+        return Collections.singletonList(new BamMetricsCommand(bamDownload.getLocalTargetPath(),
+                resources.get(ResourceNames.REFERENCE_GENOME).find("fasta"),
+                VmDirectories.OUTPUT + "/" + BamMetricsOutput.outputFile(metadata.sampleName())));
+    }
+
+    @Override
+    public VirtualMachineJobDefinition vmDefinition(final BashStartupScript script, final ResultsDirectory resultsDirectory) {
+        return VirtualMachineJobDefinition.bamMetrics(script, resultsDirectory);
+    }
+
+    @Override
+    public BamMetricsOutput output(final SingleSampleRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
+            final ResultsDirectory resultsDirectory) {
+        String outputFile = BamMetricsOutput.outputFile(metadata.sampleName());
         return BamMetricsOutput.builder()
-                .status(status)
-                .sample(alignmentOutput.sample())
+                .status(jobStatus)
+                .sample(metadata.sampleName())
                 .maybeMetricsOutputFile(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(outputFile)))
-                .addReportComponents(new RunLogComponent(bucket, BamMetrics.NAMESPACE, Folder.from(metadata), resultsDirectory))
-                .addReportComponents(new StartupScriptComponent(bucket, NAMESPACE, Folder.from(metadata)))
+                .addReportComponents(new RunLogComponent(bucket, namespace(), Folder.from(metadata), resultsDirectory))
+                .addReportComponents(new StartupScriptComponent(bucket, namespace(), Folder.from(metadata)))
                 .addReportComponents(new SingleFileComponent(bucket,
-                        BamMetrics.NAMESPACE,
+                        namespace(),
                         Folder.from(metadata),
                         outputFile,
                         outputFile,
                         resultsDirectory))
                 .build();
+    }
+
+    @Override
+    public BamMetricsOutput skippedOutput(SingleSampleRunMetadata metadata) {
+        return BamMetricsOutput.builder().sample(metadata.sampleName()).status(PipelineStatus.SKIPPED).build();
     }
 }

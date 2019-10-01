@@ -50,7 +50,7 @@ def start_kubernetes_job(args):
         spec=kubernetes.client.V1JobSpec(
             completions=1,
             parallelism=1,
-            backoff_limit=6,
+            backoff_limit=1,
             template=kubernetes.client.V1PodTemplateSpec(
                 spec=kubernetes.client.V1PodSpec(
                     restart_policy='Never',
@@ -149,7 +149,12 @@ def main():
     ini_singles = Ini().get_one({'name': 'SingleSample.ini'})
     ini_shallow = Ini().get_one({'name': 'ShallowSeq.ini'})
 
-    stack = Stack().get_one({'name': 'Google Compute Platform'})
+    stack = Stack()
+
+    if stack.get_one({'name': 'Google Compute Platform', 'revision': 'v' + os.environ['PIPELINE_VERSION']}) is False:
+        stack.name     = 'Google Compute Platform'
+        stack.revision = 'v' + os.environ['PIPELINE_VERSION']
+        stack.save()
 
     runs_somatic = HmfApi().get_all(Run, {'status': 'Pending', 'ini_id': ini_somatic.id})
     runs_singles = HmfApi().get_all(Run, {'status': 'Pending', 'ini_id': ini_singles.id})

@@ -1,8 +1,17 @@
 package com.hartwig.pipeline.calling.germline;
 
+import static com.hartwig.pipeline.resource.ResourceNames.COSMIC;
+import static com.hartwig.pipeline.resource.ResourceNames.DBNSFP;
+import static com.hartwig.pipeline.resource.ResourceNames.DBSNPS;
+import static com.hartwig.pipeline.resource.ResourceNames.GONL;
+import static com.hartwig.pipeline.resource.ResourceNames.REFERENCE_GENOME;
+import static com.hartwig.pipeline.resource.ResourceNames.SNPEFF;
+
+import java.util.List;
 import java.util.Map;
 
 import com.google.cloud.storage.Storage;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.hartwig.pipeline.Arguments;
@@ -15,11 +24,10 @@ import com.hartwig.pipeline.calling.germline.command.SnpSiftFrequenciesAnnotatio
 import com.hartwig.pipeline.calling.substages.CosmicAnnotation;
 import com.hartwig.pipeline.calling.substages.SnpEff;
 import com.hartwig.pipeline.execution.PipelineStatus;
+import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.OutputFile;
-import com.hartwig.pipeline.execution.vm.OutputUpload;
 import com.hartwig.pipeline.execution.vm.ResourceDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
@@ -32,12 +40,10 @@ import com.hartwig.pipeline.report.ZippedVcfAndIndexComponent;
 import com.hartwig.pipeline.resource.GATKDictAlias;
 import com.hartwig.pipeline.resource.ReferenceGenomeAlias;
 import com.hartwig.pipeline.resource.Resource;
-import com.hartwig.pipeline.resource.ResourceNames;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
+import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.RuntimeBucket;
-import com.hartwig.pipeline.trace.StageTrace;
 
-public class GermlineCaller {
+public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleRunMetadata> {
 
     public static final String NAMESPACE = "germline_caller";
     public static final String TOOL_HEAP = "20G";
@@ -56,60 +62,47 @@ public class GermlineCaller {
             "INDEL_ReadPosRankSumLow",
             "ReadPosRankSum < -20.0");
 
-    private final Arguments arguments;
-    private final ComputeEngine executor;
-    private final Storage storage;
-    private final ResultsDirectory resultsDirectory;
+    private final InputDownload bamDownload;
+    private final InputDownload baiDownload;
+    private OutputFile outputFile;
 
-    GermlineCaller(final Arguments arguments, final ComputeEngine executor, final Storage storage,
-            final ResultsDirectory resultsDirectory) {
-        this.arguments = arguments;
-        this.executor = executor;
-        this.storage = storage;
-        this.resultsDirectory = resultsDirectory;
+    public GermlineCaller(final AlignmentOutput alignmentOutput) {
+        this.bamDownload = new InputDownload(alignmentOutput.finalBamLocation());
+        this.baiDownload = new InputDownload(alignmentOutput.finalBaiLocation());
     }
 
-    public GermlineCallerOutput run(SingleSampleRunMetadata metadata, AlignmentOutput alignmentOutput) {
+    @Override
+    public List<BashCommand> inputs() {
+        return ImmutableList.of(bamDownload, baiDownload);
+    }
 
-        if (!arguments.runGermlineCaller() || arguments.shallow()) {
-            return GermlineCallerOutput.builder().status(PipelineStatus.SKIPPED).build();
-        }
+    @Override
+    public List<ResourceDownload> resources(final Storage storage, final String resourceBucket, final RuntimeBucket bucket) {
+        return ImmutableList.of(ResourceDownload.from(bucket,
+                new Resource(storage, resourceBucket, REFERENCE_GENOME, new ReferenceGenomeAlias().andThen(new GATKDictAlias()))),
+                ResourceDownload.from(storage, resourceBucket, DBSNPS, bucket),
+                ResourceDownload.from(storage, resourceBucket, SNPEFF, bucket),
+                ResourceDownload.from(storage, resourceBucket, DBNSFP, bucket),
+                ResourceDownload.from(storage, resourceBucket, COSMIC, bucket),
+                ResourceDownload.from(storage, resourceBucket, GONL, bucket));
+    }
 
-        StageTrace trace = new StageTrace(NAMESPACE, metadata.sampleName(), StageTrace.ExecutorType.COMPUTE_ENGINE).start();
+    @Override
+    public String namespace() {
+        return NAMESPACE;
+    }
 
-        RuntimeBucket bucket = RuntimeBucket.from(storage, NAMESPACE, metadata, arguments);
+    @Override
+    public List<BashCommand> commands(final SingleSampleRunMetadata metadata, final Map<String, ResourceDownload> resources) {
+        String snpEffConfig = resources.get(SNPEFF).find("config");
+        String snpEffDb = resources.get(SNPEFF).find("zip");
 
-        ResourceDownload referenceGenome = ResourceDownload.from(bucket,
-                new Resource(storage,
-                        arguments.resourceBucket(),
-                        ResourceNames.REFERENCE_GENOME,
-                        new ReferenceGenomeAlias().andThen(new GATKDictAlias())));
-        ResourceDownload dbSnps = ResourceDownload.from(storage, arguments.resourceBucket(), ResourceNames.DBSNPS, bucket);
-        ResourceDownload snpEffResource = ResourceDownload.from(storage, arguments.resourceBucket(), ResourceNames.SNPEFF, bucket);
-        ResourceDownload dbNSFPResource = ResourceDownload.from(storage, arguments.resourceBucket(), ResourceNames.DBNSFP, bucket);
-        ResourceDownload cosmicResourceDownload = ResourceDownload.from(storage, arguments.resourceBucket(), ResourceNames.COSMIC, bucket);
-        ResourceDownload frequencyDbDownload = ResourceDownload.from(storage, arguments.resourceBucket(), ResourceNames.GONL, bucket);
+        String referenceFasta = resources.get(REFERENCE_GENOME).find("fasta");
+        String dbsnpVcf = resources.get(DBSNPS).find("vcf");
 
-        InputDownload bamDownload = new InputDownload(alignmentOutput.finalBamLocation());
-        BashStartupScript startupScript = BashStartupScript.of(bucket.name())
-                .addCommand(bamDownload)
-                .addCommand(new InputDownload(alignmentOutput.finalBaiLocation()))
-                .addCommand(referenceGenome)
-                .addCommand(dbSnps)
-                .addCommand(snpEffResource)
-                .addCommand(cosmicResourceDownload)
-                .addCommand(dbNSFPResource)
-                .addCommand(frequencyDbDownload);
-
-        String snpEffConfig = snpEffResource.find("config");
-        String snpEffDb = snpEffResource.find("zip");
-        startupScript.addCommand(new UnzipToDirectoryCommand(VmDirectories.RESOURCES, snpEffDb));
-
-        String referenceFasta = referenceGenome.find("fasta");
-        String dbsnpVcf = dbSnps.find("vcf");
         SubStageInputOutput callerOutput =
                 new GatkGermlineCaller(bamDownload.getLocalTargetPath(), referenceFasta, dbsnpVcf).andThen(new GenotypeGVCFs(referenceFasta,
-                        dbsnpVcf)).apply(SubStageInputOutput.of(alignmentOutput.sample(), OutputFile.empty(), startupScript));
+                        dbsnpVcf)).apply(SubStageInputOutput.empty(metadata.sampleName()));
 
         SubStageInputOutput snpFilterOutput =
                 new SelectVariants("snp", Lists.newArrayList("SNP", "NO_VARIATION"), referenceFasta).andThen(new VariantFiltration("snp",
@@ -119,29 +112,48 @@ public class GermlineCaller {
         SubStageInputOutput indelFilterOutput =
                 new SelectVariants("indels", Lists.newArrayList("INDEL", "MIXED"), referenceFasta).andThen(new VariantFiltration("indels",
                         INDEL_FILTER_EXPRESSION,
-                        referenceFasta)).apply(callerOutput);
+                        referenceFasta)).apply(snpFilterOutput);
 
         SubStageInputOutput finalOutput =
                 new CombineFilteredVariants(indelFilterOutput.outputFile().path(), referenceFasta).andThen(new SnpEff(snpEffConfig))
-                        .andThen(new SnpSiftDbnsfpAnnotation(dbNSFPResource.find("txt.gz"), snpEffConfig))
-                        .andThen(new CosmicAnnotation(cosmicResourceDownload.find("collapsed.vcf.gz"), "ID"))
-                        .andThen(FinalSubStage.of(new SnpSiftFrequenciesAnnotation(frequencyDbDownload.find("vcf.gz"), snpEffConfig)))
-                        .apply(snpFilterOutput);
+                        .andThen(new SnpSiftDbnsfpAnnotation(resources.get(DBNSFP).find("txt.gz"), snpEffConfig))
+                        .andThen(new CosmicAnnotation(resources.get(COSMIC).find("collapsed.vcf.gz"), "ID"))
+                        .andThen(FinalSubStage.of(new SnpSiftFrequenciesAnnotation(resources.get(GONL).find("vcf.gz"), snpEffConfig)))
+                        .apply(indelFilterOutput);
+        outputFile = finalOutput.outputFile();
+        return ImmutableList.<BashCommand>builder().add(new UnzipToDirectoryCommand(VmDirectories.RESOURCES, snpEffDb))
+                .addAll(finalOutput.bash())
+                .build();
+    }
 
-        startupScript.addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path())));
+    @Override
+    public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
+        return VirtualMachineJobDefinition.germlineCalling(bash, resultsDirectory);
+    }
 
-        ImmutableGermlineCallerOutput.Builder outputBuilder = GermlineCallerOutput.builder();
-        PipelineStatus status = executor.submit(bucket, VirtualMachineJobDefinition.germlineCalling(startupScript, resultsDirectory));
-        trace.stop();
-        return outputBuilder.status(status)
+    @Override
+    public GermlineCallerOutput output(final SingleSampleRunMetadata metadata, final PipelineStatus status, final RuntimeBucket bucket,
+            final ResultsDirectory resultsDirectory) {
+        return GermlineCallerOutput.builder()
+                .status(status)
                 .addReportComponents(new RunLogComponent(bucket, NAMESPACE, Folder.from(metadata), resultsDirectory))
                 .addReportComponents(new StartupScriptComponent(bucket, NAMESPACE, Folder.from(metadata)))
                 .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
                         NAMESPACE,
                         Folder.from(metadata),
-                        finalOutput.outputFile().fileName(),
-                        OutputFile.of(alignmentOutput.sample(), "germline", OutputFile.GZIPPED_VCF, false).fileName(),
+                        outputFile.fileName(),
+                        OutputFile.of(metadata.sampleName(), "germline", OutputFile.GZIPPED_VCF, false).fileName(),
                         resultsDirectory))
                 .build();
+    }
+
+    @Override
+    public GermlineCallerOutput skippedOutput(final SingleSampleRunMetadata metadata) {
+        return GermlineCallerOutput.builder().status(PipelineStatus.SKIPPED).build();
+    }
+
+    @Override
+    public boolean shouldRun(final Arguments arguments) {
+        return arguments.runGermlineCaller() && !arguments.shallow();
     }
 }

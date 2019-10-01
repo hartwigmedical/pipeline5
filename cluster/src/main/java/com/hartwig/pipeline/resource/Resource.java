@@ -31,6 +31,10 @@ public class Resource {
         this(storage, commonResourcesBucket, name, Function.identity());
     }
 
+    public String getName() {
+        return name;
+    }
+
     public ResourceLocation copyInto(RuntimeBucket runtimeBucket) {
         ImmutableResourceLocation.Builder locationBuilder = ResourceLocation.builder();
         locationBuilder.bucket(runtimeBucket.name() + "/" + name);

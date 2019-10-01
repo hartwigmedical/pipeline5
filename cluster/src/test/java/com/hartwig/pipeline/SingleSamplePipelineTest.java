@@ -1,6 +1,19 @@
 package com.hartwig.pipeline;
 
+import static com.hartwig.pipeline.testsupport.TestInputs.flagstatOutput;
+import static com.hartwig.pipeline.testsupport.TestInputs.germlineCallerOutput;
+import static com.hartwig.pipeline.testsupport.TestInputs.referenceAlignmentOutput;
+import static com.hartwig.pipeline.testsupport.TestInputs.referenceMetricsOutput;
+import static com.hartwig.pipeline.testsupport.TestInputs.referenceRunMetadata;
+import static com.hartwig.pipeline.testsupport.TestInputs.referenceSample;
+import static com.hartwig.pipeline.testsupport.TestInputs.snpGenotypeOutput;
+import static com.hartwig.pipeline.testsupport.TestInputs.tumorAlignmentOutput;
+import static com.hartwig.pipeline.testsupport.TestInputs.tumorMetricsOutput;
+import static com.hartwig.pipeline.testsupport.TestInputs.tumorRunMetadata;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -12,78 +25,42 @@ import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
-import com.hartwig.pipeline.alignment.DataprocAligner;
-import com.hartwig.pipeline.alignment.ImmutableAlignmentOutput;
-import com.hartwig.pipeline.calling.germline.GermlineCaller;
 import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
-import com.hartwig.pipeline.calling.germline.ImmutableGermlineCallerOutput;
 import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.flagstat.Flagstat;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
-import com.hartwig.pipeline.flagstat.ImmutableFlagstatOutput;
-import com.hartwig.pipeline.metadata.ImmutableSingleSampleRunMetadata;
 import com.hartwig.pipeline.metadata.SingleSampleEventListener;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
-import com.hartwig.pipeline.metrics.BamMetrics;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
-import com.hartwig.pipeline.metrics.ImmutableBamMetricsOutput;
 import com.hartwig.pipeline.report.PipelineResults;
 import com.hartwig.pipeline.report.PipelineResultsProvider;
 import com.hartwig.pipeline.report.ReportComponent;
-import com.hartwig.pipeline.snpgenotype.ImmutableSnpGenotypeOutput;
-import com.hartwig.pipeline.snpgenotype.SnpGenotype;
 import com.hartwig.pipeline.snpgenotype.SnpGenotypeOutput;
-import com.hartwig.pipeline.testsupport.TestSamples;
+import com.hartwig.pipeline.stages.StageRunner;
 
 import org.junit.Before;
 import org.junit.Test;
 
 public class SingleSamplePipelineTest {
 
-    private static final String REFERENCE = "TESTR";
-    private static final ImmutableSingleSampleRunMetadata REFERENCE_METADATA = SingleSampleRunMetadata.builder()
-            .sampleId(REFERENCE)
-            .sampleName(REFERENCE)
-            .type(SingleSampleRunMetadata.SampleType.REFERENCE)
-            .build();
-    private static final SnpGenotypeOutput SUCCESSFUL_SNPGENOTYPE_OUTPUT =
-            SnpGenotypeOutput.builder().status(PipelineStatus.SUCCESS).build();
-    private static final GermlineCallerOutput SUCCESSFUL_GERMLINE_OUTPUT =
-            GermlineCallerOutput.builder().status(PipelineStatus.SUCCESS).build();
-    private static final ImmutableFlagstatOutput SUCCESSFUL_FLAGSTAT_OUTPUT =
-            FlagstatOutput.builder().status(PipelineStatus.SUCCESS).build();
-    private static final BamMetricsOutput SUCCESSFUL_BAM_METRICS =
-            BamMetricsOutput.builder().status(PipelineStatus.SUCCESS).sample(REFERENCE).build();
-    private static final ImmutableAlignmentOutput SUCCESSFUL_ALIGNMENT_OUTPUT =
-            AlignmentOutput.builder().status(PipelineStatus.SUCCESS).sample(REFERENCE).build();
-    public static final Arguments ARGUMENTS = Arguments.testDefaults();
-    private static final String TUMOR = "TESTT";
+    private static final Arguments ARGUMENTS = Arguments.testDefaults();
     private SingleSamplePipeline victim;
     private Aligner aligner;
-    private BamMetrics bamMetrics;
-    private GermlineCaller germlineCaller;
-    private SnpGenotype snpGenotype;
-    private Flagstat flagstat;
     private SingleSampleEventListener eventListener;
+    private StageRunner<SingleSampleRunMetadata> stageRunner;
 
     @Before
     public void setUp() throws Exception {
-        aligner = mock(DataprocAligner.class);
-        bamMetrics = mock(BamMetrics.class);
-        germlineCaller = mock(GermlineCaller.class);
-        snpGenotype = mock(SnpGenotype.class);
-        flagstat = mock(Flagstat.class);
+        aligner = mock(Aligner.class);
         eventListener = mock(SingleSampleEventListener.class);
         Storage storage = mock(Storage.class);
         Bucket reportBucket = mock(Bucket.class);
         when(storage.get(ARGUMENTS.patientReportBucket())).thenReturn(reportBucket);
         final PipelineResults pipelineResults = PipelineResultsProvider.from(storage, ARGUMENTS, "test").get();
+        //noinspection unchecked
+        stageRunner = mock(StageRunner.class);
         victim = new SingleSamplePipeline(eventListener,
+                stageRunner,
                 aligner,
-                bamMetrics,
-                germlineCaller,
-                snpGenotype,
-                flagstat,
                 pipelineResults,
                 Executors.newSingleThreadExecutor(),
                 ARGUMENTS);
@@ -91,115 +68,109 @@ public class SingleSamplePipelineTest {
 
     @Test
     public void returnsFailedPipelineRunWhenAlignerStageFail() throws Exception {
-        ImmutableAlignmentOutput alignmentOutput =
-                AlignmentOutput.builder().status(PipelineStatus.FAILED).sample(TestSamples.simpleReferenceSample().name()).build();
-        when(aligner.run(REFERENCE_METADATA)).thenReturn(alignmentOutput);
-        PipelineState runOutput = victim.run(REFERENCE_METADATA);
+        AlignmentOutput alignmentOutput = AlignmentOutput.builder().status(PipelineStatus.FAILED).sample(referenceSample()).build();
+        when(aligner.run(referenceRunMetadata())).thenReturn(alignmentOutput);
+        PipelineState runOutput = victim.run(referenceRunMetadata());
         assertFailed(runOutput);
         assertThat(runOutput.stageOutputs()).containsExactly(alignmentOutput);
     }
 
     @Test
     public void returnsFailedPipelineRunWhenFlagstatStageFail() throws Exception {
-        when(aligner.run(REFERENCE_METADATA)).thenReturn(SUCCESSFUL_ALIGNMENT_OUTPUT);
+        when(aligner.run(referenceRunMetadata())).thenReturn(referenceAlignmentOutput());
         FlagstatOutput flagstatOutput = FlagstatOutput.builder().status(PipelineStatus.FAILED).build();
-        when(bamMetrics.run(REFERENCE_METADATA, SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(SUCCESSFUL_BAM_METRICS);
-        when(germlineCaller.run(REFERENCE_METADATA, SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(SUCCESSFUL_GERMLINE_OUTPUT);
-        when(snpGenotype.run(REFERENCE_METADATA, SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(SUCCESSFUL_SNPGENOTYPE_OUTPUT);
-        when(flagstat.run(REFERENCE_METADATA, SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(flagstatOutput);
-        PipelineState runOutput = victim.run(REFERENCE_METADATA);
+        when(stageRunner.run(eq(referenceRunMetadata()), any())).thenReturn(referenceMetricsOutput())
+                .thenReturn(snpGenotypeOutput())
+                .thenReturn(flagstatOutput)
+                .thenReturn(germlineCallerOutput());
+        PipelineState runOutput = victim.run(referenceRunMetadata());
         assertFailed(runOutput);
-        assertThat(runOutput.stageOutputs()).containsExactly(SUCCESSFUL_ALIGNMENT_OUTPUT,
-                SUCCESSFUL_GERMLINE_OUTPUT,
-                SUCCESSFUL_BAM_METRICS,
-                SUCCESSFUL_SNPGENOTYPE_OUTPUT,
+        assertThat(runOutput.stageOutputs()).containsExactly(referenceAlignmentOutput(),
+                germlineCallerOutput(),
+                referenceMetricsOutput(),
+                snpGenotypeOutput(),
                 flagstatOutput);
     }
 
     @Test
     public void returnsFailedPipelineRunWhenSnpGenotypeStageFail() throws Exception {
-        when(aligner.run(REFERENCE_METADATA)).thenReturn(SUCCESSFUL_ALIGNMENT_OUTPUT);
-        ImmutableSnpGenotypeOutput snpGenotypeOutput = SnpGenotypeOutput.builder().status(PipelineStatus.FAILED).build();
-        when(bamMetrics.run(REFERENCE_METADATA, SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(SUCCESSFUL_BAM_METRICS);
-        when(germlineCaller.run(REFERENCE_METADATA, SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(SUCCESSFUL_GERMLINE_OUTPUT);
-        when(snpGenotype.run(REFERENCE_METADATA, SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(snpGenotypeOutput);
-        when(flagstat.run(REFERENCE_METADATA, SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(SUCCESSFUL_FLAGSTAT_OUTPUT);
-        PipelineState runOutput = victim.run(REFERENCE_METADATA);
+        when(aligner.run(referenceRunMetadata())).thenReturn(referenceAlignmentOutput());
+        SnpGenotypeOutput snpGenotypeOutput = SnpGenotypeOutput.builder().status(PipelineStatus.FAILED).build();
+        when(stageRunner.run(eq(referenceRunMetadata()), any())).thenReturn(referenceMetricsOutput())
+                .thenReturn(snpGenotypeOutput)
+                .thenReturn(flagstatOutput())
+                .thenReturn(germlineCallerOutput());
+        PipelineState runOutput = victim.run(referenceRunMetadata());
         assertFailed(runOutput);
-        assertThat(runOutput.stageOutputs()).containsExactly(SUCCESSFUL_ALIGNMENT_OUTPUT,
-                SUCCESSFUL_GERMLINE_OUTPUT,
-                SUCCESSFUL_BAM_METRICS,
+        assertThat(runOutput.stageOutputs()).containsExactly(referenceAlignmentOutput(),
+                germlineCallerOutput(),
+                referenceMetricsOutput(),
                 snpGenotypeOutput,
-                SUCCESSFUL_FLAGSTAT_OUTPUT);
+                flagstatOutput());
     }
 
     @Test
     public void returnsFailedPipelineRunWhenMetricsStageFail() throws Exception {
-        when(aligner.run(REFERENCE_METADATA)).thenReturn(SUCCESSFUL_ALIGNMENT_OUTPUT);
-        ImmutableBamMetricsOutput bamMetricsOutput = BamMetricsOutput.builder().status(PipelineStatus.FAILED).sample(REFERENCE).build();
-        when(bamMetrics.run(REFERENCE_METADATA, SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(bamMetricsOutput);
-        when(germlineCaller.run(REFERENCE_METADATA, SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(SUCCESSFUL_GERMLINE_OUTPUT);
-        when(snpGenotype.run(REFERENCE_METADATA, SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(SUCCESSFUL_SNPGENOTYPE_OUTPUT);
-        when(flagstat.run(REFERENCE_METADATA, SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(SUCCESSFUL_FLAGSTAT_OUTPUT);
-        PipelineState runOutput = victim.run(REFERENCE_METADATA);
+        when(aligner.run(referenceRunMetadata())).thenReturn(referenceAlignmentOutput());
+        BamMetricsOutput bamMetricsOutput = BamMetricsOutput.builder().status(PipelineStatus.FAILED).sample(referenceSample()).build();
+        when(stageRunner.run(eq(referenceRunMetadata()), any())).thenReturn(bamMetricsOutput)
+                .thenReturn(snpGenotypeOutput())
+                .thenReturn(flagstatOutput())
+                .thenReturn(germlineCallerOutput());
+        PipelineState runOutput = victim.run(referenceRunMetadata());
         assertFailed(runOutput);
-        assertThat(runOutput.stageOutputs()).containsExactly(SUCCESSFUL_ALIGNMENT_OUTPUT,
-                SUCCESSFUL_GERMLINE_OUTPUT,
+        assertThat(runOutput.stageOutputs()).containsExactly(referenceAlignmentOutput(),
+                germlineCallerOutput(),
                 bamMetricsOutput,
-                SUCCESSFUL_SNPGENOTYPE_OUTPUT,
-                SUCCESSFUL_FLAGSTAT_OUTPUT);
+                snpGenotypeOutput(),
+                flagstatOutput());
     }
 
     @Test
     public void returnsFailedPipelineRunWhenGermlineStageFail() throws Exception {
-        when(aligner.run(REFERENCE_METADATA)).thenReturn(SUCCESSFUL_ALIGNMENT_OUTPUT);
-        when(bamMetrics.run(REFERENCE_METADATA, SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(SUCCESSFUL_BAM_METRICS);
-        ImmutableGermlineCallerOutput germlineCallerOutput = GermlineCallerOutput.builder().status(PipelineStatus.FAILED).build();
-        when(germlineCaller.run(REFERENCE_METADATA, SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(germlineCallerOutput);
-        when(snpGenotype.run(REFERENCE_METADATA, SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(SUCCESSFUL_SNPGENOTYPE_OUTPUT);
-        when(flagstat.run(REFERENCE_METADATA, SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(SUCCESSFUL_FLAGSTAT_OUTPUT);
-        PipelineState state = victim.run(REFERENCE_METADATA);
-        assertFailed(state);
-        assertThat(state.stageOutputs()).containsExactly(SUCCESSFUL_ALIGNMENT_OUTPUT,
+        when(aligner.run(referenceRunMetadata())).thenReturn(referenceAlignmentOutput());
+        GermlineCallerOutput germlineCallerOutput = GermlineCallerOutput.builder().status(PipelineStatus.FAILED).build();
+        when(stageRunner.run(eq(referenceRunMetadata()), any())).thenReturn(referenceMetricsOutput())
+                .thenReturn(snpGenotypeOutput())
+                .thenReturn(flagstatOutput())
+                .thenReturn(germlineCallerOutput);
+        PipelineState runOutput = victim.run(referenceRunMetadata());
+        assertFailed(runOutput);
+        assertThat(runOutput.stageOutputs()).containsExactly(referenceAlignmentOutput(),
                 germlineCallerOutput,
-                SUCCESSFUL_BAM_METRICS,
-                SUCCESSFUL_SNPGENOTYPE_OUTPUT,
-                SUCCESSFUL_FLAGSTAT_OUTPUT);
+                referenceMetricsOutput(),
+                snpGenotypeOutput(),
+                flagstatOutput());
     }
 
     @Test
     public void returnsSuccessfulPipelineRunAllStagesSucceed() throws Exception {
-        when(aligner.run(REFERENCE_METADATA)).thenReturn(SUCCESSFUL_ALIGNMENT_OUTPUT);
-        when(bamMetrics.run(REFERENCE_METADATA, SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(SUCCESSFUL_BAM_METRICS);
-        when(germlineCaller.run(REFERENCE_METADATA, SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(SUCCESSFUL_GERMLINE_OUTPUT);
-        when(snpGenotype.run(REFERENCE_METADATA, SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(SUCCESSFUL_SNPGENOTYPE_OUTPUT);
-        when(flagstat.run(REFERENCE_METADATA, SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(SUCCESSFUL_FLAGSTAT_OUTPUT);
-        PipelineState state = victim.run(REFERENCE_METADATA);
-        assertSucceeded(state);
-        assertThat(state.stageOutputs()).containsExactlyInAnyOrder(SUCCESSFUL_ALIGNMENT_OUTPUT,
-                SUCCESSFUL_BAM_METRICS,
-                SUCCESSFUL_GERMLINE_OUTPUT,
-                SUCCESSFUL_SNPGENOTYPE_OUTPUT,
-                SUCCESSFUL_FLAGSTAT_OUTPUT);
+        when(aligner.run(referenceRunMetadata())).thenReturn(referenceAlignmentOutput());
+        when(stageRunner.run(eq(referenceRunMetadata()), any())).thenReturn(referenceMetricsOutput())
+                .thenReturn(snpGenotypeOutput())
+                .thenReturn(flagstatOutput())
+                .thenReturn(germlineCallerOutput());
+        PipelineState runOutput = victim.run(referenceRunMetadata());
+        assertSucceeded(runOutput);
+        assertThat(runOutput.stageOutputs()).containsExactly(referenceAlignmentOutput(),
+                germlineCallerOutput(),
+                referenceMetricsOutput(),
+                snpGenotypeOutput(),
+                flagstatOutput());
     }
 
     @Test
     public void skipsGermlineForTumorSamples() throws Exception {
-        ImmutableSingleSampleRunMetadata tumorMetadata =
-                SingleSampleRunMetadata.builder().sampleId(TUMOR).type(SingleSampleRunMetadata.SampleType.TUMOR).build();
-        AlignmentOutput tumorAlignment = AlignmentOutput.builder().from(SUCCESSFUL_ALIGNMENT_OUTPUT).sample(TUMOR).build();
-        when(aligner.run(tumorMetadata)).thenReturn(tumorAlignment);
-        BamMetricsOutput tumorMetrics = BamMetricsOutput.builder().from(SUCCESSFUL_BAM_METRICS).sample(TUMOR).build();
-        when(bamMetrics.run(tumorMetadata, tumorAlignment)).thenReturn(tumorMetrics);
-        when(germlineCaller.run(tumorMetadata, tumorAlignment)).thenReturn(SUCCESSFUL_GERMLINE_OUTPUT);
-        when(snpGenotype.run(tumorMetadata, tumorAlignment)).thenReturn(SUCCESSFUL_SNPGENOTYPE_OUTPUT);
-        when(flagstat.run(tumorMetadata, tumorAlignment)).thenReturn(SUCCESSFUL_FLAGSTAT_OUTPUT);
-        PipelineState state = victim.run(tumorMetadata);
-        assertSucceeded(state);
-        assertThat(state.stageOutputs()).containsExactlyInAnyOrder(tumorAlignment,
-                tumorMetrics,
-                SUCCESSFUL_SNPGENOTYPE_OUTPUT,
-                SUCCESSFUL_FLAGSTAT_OUTPUT);
+        when(aligner.run(tumorRunMetadata())).thenReturn(tumorAlignmentOutput());
+        when(stageRunner.run(eq(tumorRunMetadata()), any())).thenReturn(tumorMetricsOutput())
+                .thenReturn(snpGenotypeOutput())
+                .thenReturn(flagstatOutput());
+        PipelineState runOutput = victim.run(tumorRunMetadata());
+        assertSucceeded(runOutput);
+        assertThat(runOutput.stageOutputs()).containsExactly(tumorAlignmentOutput(),
+                tumorMetricsOutput(),
+                snpGenotypeOutput(),
+                flagstatOutput());
     }
 
     @Test
@@ -212,27 +183,17 @@ public class SingleSamplePipelineTest {
         TestReportComponent flagstatComponent = new TestReportComponent();
 
         AlignmentOutput alignmentWithReportComponents =
-                AlignmentOutput.builder().from(SUCCESSFUL_ALIGNMENT_OUTPUT).addReportComponents(alignerComponent).build();
-        when(aligner.run(REFERENCE_METADATA)).thenReturn(alignmentWithReportComponents);
-        when(bamMetrics.run(REFERENCE_METADATA, alignmentWithReportComponents)).thenReturn(BamMetricsOutput.builder()
+                AlignmentOutput.builder().from(referenceAlignmentOutput()).addReportComponents(alignerComponent).build();
+        when(aligner.run(referenceRunMetadata())).thenReturn(alignmentWithReportComponents);
+        when(stageRunner.run(eq(referenceRunMetadata()), any())).thenReturn(BamMetricsOutput.builder()
                 .from(alignmentWithReportComponents)
                 .addReportComponents(metricsComponent)
-                .sample(REFERENCE)
-                .build());
-        when(germlineCaller.run(REFERENCE_METADATA, alignmentWithReportComponents)).thenReturn(GermlineCallerOutput.builder()
-                .from(SUCCESSFUL_GERMLINE_OUTPUT)
-                .addReportComponents(germlineComponent)
-                .build());
-        when(snpGenotype.run(REFERENCE_METADATA, alignmentWithReportComponents)).thenReturn(SnpGenotypeOutput.builder()
-                .from(SUCCESSFUL_SNPGENOTYPE_OUTPUT)
-                .addReportComponents(snpgenotypeComponent)
-                .build());
-        when(flagstat.run(REFERENCE_METADATA, alignmentWithReportComponents)).thenReturn(FlagstatOutput.builder()
-                .from(SUCCESSFUL_FLAGSTAT_OUTPUT)
-                .addReportComponents(flagstatComponent)
-                .build());
-
-        victim.run(REFERENCE_METADATA);
+                .sample(referenceSample())
+                .build())
+                .thenReturn(SnpGenotypeOutput.builder().from(snpGenotypeOutput()).addReportComponents(snpgenotypeComponent).build())
+                .thenReturn(FlagstatOutput.builder().from(flagstatOutput()).addReportComponents(flagstatComponent).build())
+                .thenReturn(GermlineCallerOutput.builder().from(germlineCallerOutput()).addReportComponents(germlineComponent).build());
+        victim.run(referenceRunMetadata());
         assertThat(alignerComponent.isAdded()).isTrue();
         assertThat(metricsComponent.isAdded()).isTrue();
         assertThat(germlineComponent.isAdded()).isTrue();
@@ -242,19 +203,19 @@ public class SingleSamplePipelineTest {
 
     @Test
     public void notifiesMetadataApiWhenAlignmentComplete() throws Exception {
-        when(aligner.run(REFERENCE_METADATA)).thenReturn(SUCCESSFUL_ALIGNMENT_OUTPUT);
-        PipelineState result = victim.run(REFERENCE_METADATA);
+        when(aligner.run(referenceRunMetadata())).thenReturn(referenceAlignmentOutput());
+        PipelineState result = victim.run(referenceRunMetadata());
         verify(eventListener, times(1)).alignmentComplete(result);
     }
 
     @Test
     public void notifiesMetadataApiWhenPipelineComplete() throws Exception {
-        when(aligner.run(REFERENCE_METADATA)).thenReturn(SUCCESSFUL_ALIGNMENT_OUTPUT);
-        when(bamMetrics.run(REFERENCE_METADATA, SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(SUCCESSFUL_BAM_METRICS);
-        when(germlineCaller.run(REFERENCE_METADATA, SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(SUCCESSFUL_GERMLINE_OUTPUT);
-        when(snpGenotype.run(REFERENCE_METADATA, SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(SUCCESSFUL_SNPGENOTYPE_OUTPUT);
-        when(flagstat.run(REFERENCE_METADATA, SUCCESSFUL_ALIGNMENT_OUTPUT)).thenReturn(SUCCESSFUL_FLAGSTAT_OUTPUT);
-        PipelineState result = victim.run(REFERENCE_METADATA);
+        when(aligner.run(referenceRunMetadata())).thenReturn(referenceAlignmentOutput());
+        when(stageRunner.run(eq(referenceRunMetadata()), any())).thenReturn(referenceMetricsOutput())
+                .thenReturn(snpGenotypeOutput())
+                .thenReturn(flagstatOutput())
+                .thenReturn(germlineCallerOutput());
+        PipelineState result = victim.run(referenceRunMetadata());
         verify(eventListener, times(1)).alignmentComplete(result);
     }
 
@@ -278,11 +239,5 @@ public class SingleSamplePipelineTest {
         boolean isAdded() {
             return isAdded;
         }
-    }
-
-    public PipelineState failed() {
-        PipelineState state = mock(PipelineState.class);
-        when(state.status()).thenReturn(PipelineStatus.FAILED);
-        return state;
     }
 }

@@ -1,6 +1,8 @@
 package com.hartwig.pipeline.calling;
 
-import com.hartwig.pipeline.execution.vm.BashStartupScript;
+import java.util.List;
+
+import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.OutputFile;
 
 public class FinalSubStage extends SubStage{
@@ -17,7 +19,7 @@ public class FinalSubStage extends SubStage{
     }
 
     @Override
-    public BashStartupScript bash(final OutputFile input, final OutputFile output, final BashStartupScript bash) {
-        return decorated.bash(input, output, bash);
+    public List<BashCommand> bash(final OutputFile input, final OutputFile output) {
+        return decorated.bash(input, output);
     }
 }

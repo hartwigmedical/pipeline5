@@ -5,7 +5,7 @@ public interface ResourceNames {
     String REFERENCE_GENOME = "reference_genome";
     String DBSNPS = "dbsnps";
     String GENOTYPE_SNPS = "genotype_snps";
-    String GC_PROFILE  = "gc";
+    String GC_PROFILE = "gc";
     String STRELKA_CONFIG = "strelka_config";
     String MAPPABILITY = "mappability";
     String PON = "pon";
@@ -20,4 +20,7 @@ public interface ResourceNames {
     String GRIDSS_PON = "gridss_pon";
     String GRIDSS_REPEAT_MASKER_DB = "gridss_repeatmasker_db";
     String VIRUS_REFERENCE_GENOME = "virus_reference_genome";
+    String SV = "sv";
+    String ENSEMBL = "ensembl";
+    String KNOWLEDGEBASES = "knowledgebases";
 }

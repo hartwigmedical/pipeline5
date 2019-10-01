@@ -9,7 +9,9 @@ import org.immutables.value.Value;
 
 @JsonSerialize(as = ImmutableSomaticRunMetadata.class)
 @Value.Immutable
-public interface SomaticRunMetadata {
+public interface SomaticRunMetadata extends RunMetadata {
+
+    int MAX_SAMPLE_LENGTH = 13;
 
     String runName();
 
@@ -17,6 +19,15 @@ public interface SomaticRunMetadata {
 
     @JsonProperty("tumor")
     Optional<SingleSampleRunMetadata> maybeTumor();
+
+    @Override
+    default String name() {
+        return String.format("%s-%s", truncate(reference().sampleId()), truncate(tumor().sampleId()));
+    }
+
+    static String truncate(final String sample) {
+        return sample.length() > MAX_SAMPLE_LENGTH ? sample.substring(0, MAX_SAMPLE_LENGTH) : sample;
+    }
 
     default SingleSampleRunMetadata tumor() {
         return maybeTumor().orElseThrow(() -> new IllegalStateException(
