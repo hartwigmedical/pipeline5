@@ -24,7 +24,7 @@ sudo chmod a+x /opt/tools/snpEff/4.3s/snpEff.sh
 sudo chmod a+x /opt/tools/bwa/0.7.17/bwa
 sudo chmod a+x /opt/tools/sambamba/0.6.5/sambamba
 sudo chmod a+x /opt/tools/sambamba/0.6.8/sambamba
-sudo chmod a+x /opt/tools/chord/60.02/extractSigPredictHRD.R
+sudo chmod a+x /opt/tools/chord/60.02_1.03/extractSigPredictHRD.R
 sudo cpanm install Clone
 sudo cpanm install Config::General
 sudo cpanm install Font::TTF::Font

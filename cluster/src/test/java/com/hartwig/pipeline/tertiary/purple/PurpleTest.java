@@ -88,10 +88,10 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
         assertThat(output.outputDirectory().path()).isEqualTo("results");
         assertThat(output.outputDirectory().isDirectory()).isTrue();
         assertThat(output.somaticVcf().bucket()).isEqualTo(bucketName);
-        assertThat(output.somaticVcf().path()).isEqualTo("tumor.purple.somatic.vcf.gz");
+        assertThat(output.somaticVcf().path()).isEqualTo("results/tumor.purple.somatic.vcf.gz");
         assertThat(output.somaticVcf().isDirectory()).isFalse();
         assertThat(output.structuralVcf().bucket()).isEqualTo(bucketName);
-        assertThat(output.structuralVcf().path()).isEqualTo("tumor.purple.sv.vcf.gz");
+        assertThat(output.structuralVcf().path()).isEqualTo("results/tumor.purple.sv.vcf.gz");
         assertThat(output.structuralVcf().isDirectory()).isFalse();
     }
 }
