@@ -149,10 +149,11 @@ def main():
     ini_singles = Ini().get_one({'name': 'SingleSample.ini'})
     ini_shallow = Ini().get_one({'name': 'ShallowSeq.ini'})
 
+    name = 'GCP Pipeline v' + os.environ['PIPELINE_VERSION']
     stack = Stack()
 
-    if stack.get_one({'name': 'Google Compute Platform', 'revision': 'v' + os.environ['PIPELINE_VERSION']}) is False:
-        stack.name     = 'Google Compute Platform'
+    if stack.get_one({'name': name}) is False:
+        stack.name     = name
         stack.revision = 'v' + os.environ['PIPELINE_VERSION']
         stack.save()
 
