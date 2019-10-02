@@ -35,8 +35,7 @@ public class AnnotateVariants extends GridssCommand {
 
     @Override
     public List<GridssArgument> arguments() {
-        return asList(GridssArgument.tempDir(),
-                new GridssArgument("working_dir", VmDirectories.OUTPUT),
+        return asList(new GridssArgument("working_dir", VmDirectories.OUTPUT),
                 new GridssArgument("reference_sequence", referenceGenome),
                 new GridssArgument("input", sampleBam),
                 new GridssArgument("input", tumorBam),

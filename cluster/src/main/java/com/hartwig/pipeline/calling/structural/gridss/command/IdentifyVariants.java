@@ -27,8 +27,7 @@ public class IdentifyVariants extends GridssCommand {
 
     @Override
     public List<GridssArgument> arguments() {
-        return Arrays.asList(GridssArgument.tempDir(),
-                new GridssArgument("working_dir", VmDirectories.OUTPUT),
+        return Arrays.asList(new GridssArgument("working_dir", VmDirectories.OUTPUT),
                 new GridssArgument("reference_sequence", referenceGenome),
                 new GridssArgument("input", sampleBam),
                 new GridssArgument("input", tumorBam),

@@ -25,14 +25,13 @@ public class ExtractSvReads extends GridssCommand {
         return VmDirectories.outputFile(format("gridss.tmp.querysorted.%s.sv.bam", sampleName));
     }
 
-    public String resultantMetrics() {
+    String resultantMetrics() {
         return format("%s/%s.sv_metrics", workingDirectory, sampleName);
     }
 
     @Override
     public List<GridssArgument> arguments() {
-        return Arrays.asList(GridssArgument.tempDir(),
-                new GridssArgument("assume_sorted", "true"),
+        return Arrays.asList(new GridssArgument("assume_sorted", "true"),
                 new GridssArgument("i", inputBam),
                 new GridssArgument("o", "/dev/stdout"),
                 new GridssArgument("compression_level", "0"),
