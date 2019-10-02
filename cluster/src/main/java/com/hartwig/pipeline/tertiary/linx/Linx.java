@@ -30,15 +30,17 @@ import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
 
     public static final String NAMESPACE = "linx";
-    private final InputDownload purpleOutputDir;
+    private final InputDownload purpleOutputDirDownload;
+    private final InputDownload purpleStructuralVcfDownload;
 
     public Linx(PurpleOutput purpleOutput) {
-        purpleOutputDir = new InputDownload(purpleOutput.outputDirectory());
+        purpleOutputDirDownload = new InputDownload(purpleOutput.outputDirectory());
+        purpleStructuralVcfDownload = new InputDownload(purpleOutput.structuralVcf());
     }
 
     @Override
     public List<BashCommand> inputs() {
-        return Collections.singletonList(purpleOutputDir);
+        return Collections.singletonList(purpleOutputDirDownload);
     }
 
     @Override
@@ -59,8 +61,8 @@ public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
         ResourceDownload svResources = resources.get(SV);
         ResourceDownload knowledgebases = resources.get(KNOWLEDGEBASES);
         return Collections.singletonList(new LinxCommand(metadata.tumor().sampleName(),
-                purpleSvVcf(metadata),
-                purpleOutputDir.getLocalTargetPath(),
+                purpleStructuralVcfDownload.getLocalTargetPath(),
+                purpleOutputDirDownload.getLocalTargetPath(),
                 resources.get(REFERENCE_GENOME).find("fasta"),
                 VmDirectories.OUTPUT,
                 svResources.find("fragile_sites_hmf.csv"),
@@ -71,10 +73,6 @@ public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
                 knowledgebases.find("knownFusionPairs.csv"),
                 knowledgebases.find("knownPromiscuousFive.csv"),
                 knowledgebases.find("knownPromiscuousThree.csv")));
-    }
-
-    private String purpleSvVcf(final SomaticRunMetadata metadata) {
-        return purpleOutputDir.getLocalTargetPath() + "/" + metadata.tumor().sampleName() + ".purple.sv.vcf.gz";
     }
 
     @Override

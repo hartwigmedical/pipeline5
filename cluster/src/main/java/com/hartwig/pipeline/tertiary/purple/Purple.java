@@ -31,6 +31,8 @@ import com.hartwig.pipeline.tools.Versions;
 public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
 
     public static final String NAMESPACE = "purple";
+    public static final String PURPLE_SOMATIC_VCF = ".purple.somatic.vcf.gz";
+    public static final String PURPLE_SV_VCF = ".purple.sv.vcf.gz";
     private final InputDownload somaticVcfDownload;
     private final InputDownload structuralVcfDownload;
     private final InputDownload structuralVcfIndexDownload;
@@ -105,6 +107,10 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
         return PurpleOutput.builder()
                 .status(jobStatus)
                 .maybeOutputDirectory(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(), true))
+                .maybeSomaticVcf(GoogleStorageLocation.of(bucket.name(),
+                        resultsDirectory.path(metadata.tumor().sampleName() + PURPLE_SOMATIC_VCF)))
+                .maybeStructuralVcf(GoogleStorageLocation.of(bucket.name(),
+                        resultsDirectory.path(metadata.tumor().sampleName() + PURPLE_SV_VCF)))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.from(), NAMESPACE, resultsDirectory))
                 .build();
     }

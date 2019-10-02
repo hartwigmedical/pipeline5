@@ -2,6 +2,7 @@ package com.hartwig.pipeline;
 
 import static com.hartwig.pipeline.testsupport.TestInputs.amberOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.bachelorOutput;
+import static com.hartwig.pipeline.testsupport.TestInputs.chordOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.cobaltOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.defaultPair;
 import static com.hartwig.pipeline.testsupport.TestInputs.defaultSomaticRunMetadata;
@@ -117,7 +118,8 @@ public class SomaticPipelineTest {
                 purpleOutput(),
                 healthCheckerOutput(),
                 linxOutput(),
-                bachelorOutput());
+                bachelorOutput(),
+                chordOutput());
     }
 
     @Test
@@ -216,7 +218,8 @@ public class SomaticPipelineTest {
                 .thenReturn(purpleOutput())
                 .thenReturn(HealthCheckOutput.builder().from(healthCheckerOutput()).status(PipelineStatus.QC_FAILED).build())
                 .thenReturn(linxOutput())
-                .thenReturn(bachelorOutput());
+                .thenReturn(bachelorOutput())
+                .thenReturn(chordOutput());
         PipelineState state = victim.run();
         assertThat(state.status()).isEqualTo(PipelineStatus.QC_FAILED);
     }
@@ -232,7 +235,8 @@ public class SomaticPipelineTest {
                 .thenReturn(purpleOutput())
                 .thenReturn(healthCheckerOutput())
                 .thenReturn(linxOutput())
-                .thenReturn(bachelorOutput());
+                .thenReturn(bachelorOutput())
+                .thenReturn(chordOutput());
     }
 
     private void failedRun() {
