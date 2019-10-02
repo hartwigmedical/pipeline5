@@ -13,10 +13,6 @@ public class GridssArgument {
         this.value = value;
     }
 
-    static GridssArgument tempDir() {
-        return new GridssArgument("tmp_dir", System.getProperty("java.io.tmpdir"));
-    }
-
     static GridssArgument blacklist(String blacklist) {
         return new GridssArgument("blacklist", blacklist);
     }

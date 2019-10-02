@@ -38,9 +38,7 @@ public class ComputeSamTagsTest implements CommonEntities {
 
     @Test
     public void shouldCompleteCommandLineWithGridssArguments() {
-        GridssCommonArgumentsAssert.assertThat(command)
-                .hasGridssArguments(ARGS_TMP_DIR)
-                .and("working_dir", OUT_DIR)
+        GridssCommonArgumentsAssert.assertThat(command).hasGridssArguments("working_dir", OUT_DIR)
                 .and(ARGS_REFERENCE_SEQUENCE)
                 .and(ARGS_NO_COMPRESSION)
                 .and(ARG_KEY_INPUT_SHORT, REFERENCE_BAM)

@@ -41,9 +41,7 @@ public class CollectGridssMetricsTest implements CommonEntities {
 
     @Test
     public void shouldCompleteCommandLineWithGridssArguments() {
-        GridssCommonArgumentsAssert.assertThat(command)
-                .hasGridssArguments(ARGS_TMP_DIR)
-                .and("assume_sorted", "true")
+        GridssCommonArgumentsAssert.assertThat(command).hasGridssArguments("assume_sorted", "true")
                 .and("i", inputBamFullPath)
                 .and("o", outputMetricsFilepathPrefix)
                 .and("threshold_coverage", "50000")

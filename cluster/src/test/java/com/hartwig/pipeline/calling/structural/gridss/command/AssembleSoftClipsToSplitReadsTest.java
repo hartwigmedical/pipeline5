@@ -34,8 +34,7 @@ public class AssembleSoftClipsToSplitReadsTest implements CommonEntities {
 
     @Test
     public void shouldConstructGridssArguments() {
-        GridssCommonArgumentsAssert.assertThat(command).hasGridssArguments(ARGS_TMP_DIR)
-                .and(ARGS_WORKING_DIR)
+        GridssCommonArgumentsAssert.assertThat(command).hasGridssArguments(ARGS_WORKING_DIR)
                 .and(ARGS_REFERENCE_SEQUENCE)
                 .and(ARG_KEY_INPUT_SHORT, REFERENCE_BAM)
                 .and(ARG_KEY_OUTPUT_SHORT, OUTPUT_BAM)

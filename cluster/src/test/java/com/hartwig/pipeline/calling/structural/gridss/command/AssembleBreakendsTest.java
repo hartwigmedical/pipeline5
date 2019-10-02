@@ -41,8 +41,7 @@ public class AssembleBreakendsTest implements CommonEntities {
 
     @Test
     public void shouldConstructGridssArguments() {
-        GridssCommonArgumentsAssert.assertThat(command).hasGridssArguments(ARGS_TMP_DIR)
-                .and(ARG_KEY_WORKING_DIR, OUT_DIR)
+        GridssCommonArgumentsAssert.assertThat(command).hasGridssArguments(ARG_KEY_WORKING_DIR, OUT_DIR)
                 .and(ARGS_REFERENCE_SEQUENCE)
                 .and(ARG_KEY_INPUT, REFERENCE_BAM)
                 .and(ARG_KEY_INPUT, TUMOR_BAM)
