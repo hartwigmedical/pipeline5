@@ -1,6 +1,6 @@
 branches:
   only:
-    - master
+    - DEV-965
 sudo: required
 language: java
 services:
