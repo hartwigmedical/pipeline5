@@ -3,6 +3,7 @@ package com.hartwig.pipeline.transfer;
 import static java.lang.String.format;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Fail.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -88,13 +89,6 @@ public class SbpFileTransferTest {
     }
 
     @Test
-    public void shouldConsiderFileWithNoMd5AsInvalidAndTakeNoActionOnIt() {
-        when(blob.getMd5()).thenReturn(null);
-        victim.publish(metadata, sbpRun, sbpBucket);
-        verifyNoMoreInteractions(contentType, sbpApi);
-    }
-
-    @Test
     public void shouldCopyValidFileToSbpS3() {
         victim.publish(metadata, sbpRun, sbpBucket);
 
@@ -161,6 +155,18 @@ public class SbpFileTransferTest {
                 Arguments.testDefaultsBuilder().cleanup(false).build());
         victim.publish(metadata, sbpRun, sbpBucket);
         verify(blob, never()).delete();
+    }
+
+    @Test
+    public void shouldThrowWhenSourceBlobHasNullMd5() {
+        when(blob.getMd5()).thenReturn(null);
+        try {
+            victim.publish(metadata, sbpRun, sbpBucket);
+            fail("Should have thrown by now");
+        } catch (IllegalStateException ise) {
+            // the desired outcome
+        }
+        verifyNoMoreInteractions(contentType, sbpApi);
     }
 
     @Test

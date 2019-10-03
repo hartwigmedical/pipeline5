@@ -25,7 +25,10 @@ public interface Versions {
     String PURPLE = "2.34";
     String CIRCOS = "0.69.6";
     String GRIDSS = "2.5.2";
+    String PICARD = "2.18.27";
     String LINX = "1.4";
+    String BACHELOR = "1.9";
+    String CHORD = "60.02_1.03";
 
     static void printAll() {
         Logger logger = LoggerFactory.getLogger(Versions.class);

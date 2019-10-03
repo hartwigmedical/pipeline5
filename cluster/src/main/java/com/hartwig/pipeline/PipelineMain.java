@@ -6,6 +6,7 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.alignment.AlignerProvider;
 import com.hartwig.pipeline.alignment.AlignmentOutputStorage;
+import com.hartwig.pipeline.calling.germline.GermlineCaller;
 import com.hartwig.pipeline.cleanup.CleanupProvider;
 import com.hartwig.pipeline.credentials.CredentialProvider;
 import com.hartwig.pipeline.execution.PipelineStatus;
@@ -15,10 +16,11 @@ import com.hartwig.pipeline.metadata.SampleMetadataApiProvider;
 import com.hartwig.pipeline.metadata.SetMetadataApiProvider;
 import com.hartwig.pipeline.metadata.SingleSampleEventListener;
 import com.hartwig.pipeline.metadata.SomaticMetadataApi;
-import com.hartwig.pipeline.metrics.BamMetricsOutputStorage;
+import com.hartwig.pipeline.metrics.BamMetrics;
 import com.hartwig.pipeline.report.FullSomaticResults;
 import com.hartwig.pipeline.report.PipelineResultsProvider;
 import com.hartwig.pipeline.stages.StageRunner;
+import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.storage.StorageProvider;
 import com.hartwig.pipeline.tools.Versions;
 
@@ -67,7 +69,12 @@ public class PipelineMain {
         return new SomaticPipeline(arguments,
                 new StageRunner<>(storage, arguments, ComputeEngine.from(arguments, credentials), ResultsDirectory.defaultDirectory()),
                 new AlignmentOutputStorage(storage, arguments, ResultsDirectory.defaultDirectory()),
-                new BamMetricsOutputStorage(storage, arguments, ResultsDirectory.defaultDirectory()),
+                new OutputStorage<>(ResultsDirectory.defaultDirectory(),
+                        arguments,
+                        metadata -> RuntimeBucket.from(storage, BamMetrics.NAMESPACE, metadata, arguments)),
+                new OutputStorage<>(ResultsDirectory.defaultDirectory(),
+                        arguments,
+                        metadata -> RuntimeBucket.from(storage, GermlineCaller.NAMESPACE, metadata, arguments)),
                 somaticMetadataApi,
                 PipelineResultsProvider.from(storage, arguments, Versions.pipelineVersion()).get(),
                 new FullSomaticResults(storage, arguments),

@@ -45,8 +45,7 @@ public class AnnotateVariantsTest implements CommonEntities {
 
     @Test
     public void shouldConstructGridssOptions() {
-        GridssCommonArgumentsAssert.assertThat(command).hasGridssArguments(ARGS_TMP_DIR)
-                .and("working_dir", VmDirectories.OUTPUT)
+        GridssCommonArgumentsAssert.assertThat(command).hasGridssArguments("working_dir", VmDirectories.OUTPUT)
                 .and("reference_sequence", REFERENCE_GENOME)
                 .and("input", REFERENCE_BAM)
                 .and("input", TUMOR_BAM)

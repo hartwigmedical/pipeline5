@@ -15,8 +15,7 @@ public class CollectGridssMetrics extends GridssCommand {
 
     @Override
     public List<GridssArgument> arguments() {
-        return asList(GridssArgument.tempDir(),
-                new GridssArgument("assume_sorted", "true"),
+        return asList(new GridssArgument("assume_sorted", "true"),
                 new GridssArgument("i", inputBam),
                 new GridssArgument("o", outputFullPathPrefix),
                 new GridssArgument("threshold_coverage", "50000"),

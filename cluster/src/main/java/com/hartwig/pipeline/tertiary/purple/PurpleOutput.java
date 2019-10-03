@@ -17,8 +17,20 @@ public interface PurpleOutput extends StageOutput {
 
     Optional<GoogleStorageLocation> maybeOutputDirectory();
 
+    Optional<GoogleStorageLocation> maybeSomaticVcf();
+
+    Optional<GoogleStorageLocation> maybeStructuralVcf();
+
     default GoogleStorageLocation outputDirectory() {
         return maybeOutputDirectory().orElseThrow(() -> new IllegalStateException("No output directory available"));
+    }
+
+    default GoogleStorageLocation somaticVcf() {
+        return maybeSomaticVcf().orElseThrow(() -> new IllegalStateException("No somatic vcf available"));
+    }
+
+    default GoogleStorageLocation structuralVcf() {
+        return maybeStructuralVcf().orElseThrow(() -> new IllegalStateException("No structural vcf available"));
     }
 
     static ImmutablePurpleOutput.Builder builder() {

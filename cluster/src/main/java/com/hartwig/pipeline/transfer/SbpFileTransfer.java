@@ -51,9 +51,7 @@ public class SbpFileTransfer {
         for (Blob blob : filterStagingBlobs(sourceObjects)) {
             LOGGER.debug("Syncing object {}", blob.getName());
             if (blob.getMd5() == null) {
-                String message =
-                        format("Object gs://%s/%s has a null MD5; investigate in Google Cloud", sourceBucket.getName(), blob.getName());
-                LOGGER.error(message);
+                throw new IllegalStateException(format("Object gs://%s/%s has a null MD5", sourceBucket.getName(), blob.getName()));
             } else {
                 contentTypeCorrection.apply(blob);
                 CloudFile dest = CloudFile.builder()

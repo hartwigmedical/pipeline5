@@ -20,7 +20,7 @@ public class Filter extends SubStage {
     private final String outputFullVcf;
 
     public Filter(final String outputFilteredVcf, final String outputFullVcf) {
-        super("filter", OutputFile.GZIPPED_VCF, true);
+        super("filter", OutputFile.GZIPPED_VCF, false);
         this.outputFilteredVcf = outputFilteredVcf;
         this.outputFullVcf = outputFullVcf;
     }

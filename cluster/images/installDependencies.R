@@ -30,6 +30,7 @@ install.packages("BSgenome.Hsapiens.UCSC.hg19", update = T, ask = F)
 install.packages("tidyverse", update = T, ask = F)
 install.packages("rlang", update = T, ask = F)
 install.packages("R6", update = T, ask = F)
+install.packages("R6", update = T, ask = F)
 
 BiocManager::install("VariantAnnotation")
 BiocManager::install("BSgenome.Hsapiens.UCSC.hg19")

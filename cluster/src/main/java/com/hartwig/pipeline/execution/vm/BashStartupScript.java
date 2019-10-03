@@ -10,7 +10,7 @@ import java.util.List;
 import com.hartwig.pipeline.execution.vm.storage.StorageStrategy;
 
 public class BashStartupScript {
-    static final String JOB_SUCCEEDED_FLAG = "JOB_SUCCESS";
+    public static final String JOB_SUCCEEDED_FLAG = "JOB_SUCCESS";
     static final String JOB_FAILED_FLAG = "JOB_FAILURE";
     static final String LOG_FILE = "/var/log/run.log";
     private final List<String> commands;
@@ -20,11 +20,12 @@ public class BashStartupScript {
         this.runtimeBucketName = runtimeBucketName;
         this.commands = new ArrayList<>();
         this.commands.add("echo $(date) Starting run");
-        this.commands.add("mkdir -p /data/input");
-        this.commands.add("mkdir -p /data/resources");
-        this.commands.add("mkdir -p /data/output");
-        this.commands.add("mkdir -p /data/tmp");
-        this.commands.add("export TMPDIR=/data/tmp");
+        this.commands.add("mkdir -p " + VmDirectories.INPUT);
+        this.commands.add("mkdir -p " + VmDirectories.RESOURCES);
+        this.commands.add("mkdir -p " + VmDirectories.OUTPUT);
+        this.commands.add("mkdir -p " + VmDirectories.TEMP);
+        this.commands.add("export TMPDIR=" + VmDirectories.TEMP);
+        this.commands.add(format("export _JAVA_OPTIONS='-Djava.io.tmpdir=%s'", VmDirectories.TEMP));
     }
 
     public static BashStartupScript of(final String runtimeBucketName) {
@@ -35,7 +36,7 @@ public class BashStartupScript {
         return asUnixString(new StorageStrategy() {});
     }
 
-    public String asUnixString(StorageStrategy storageStrategy) {
+    String asUnixString(StorageStrategy storageStrategy) {
         String commandSuffix = format(" >>%s 2>&1 || die", LOG_FILE);
         String jobFailedFlag = "/tmp/" + JOB_FAILED_FLAG;
 
@@ -50,8 +51,9 @@ public class BashStartupScript {
                 format("  gsutil -m cp %s gs://%s", jobFailedFlag, runtimeBucketName),
                 "  exit $exit_code\n" + "}\n"));
         preamble.addAll(storageStrategy.initialise());
+        preamble.add("ulimit -n 102400");
         addCompletionCommands();
-        return preamble.stream().collect(joining("\n")) + "\n" +
+        return String.join("\n", preamble) + "\n" +
                 commands.stream().collect(joining(format("%s\n", commandSuffix))) +
                 (commands.isEmpty() ? "" : commandSuffix);
     }
@@ -62,7 +64,7 @@ public class BashStartupScript {
     }
 
     public BashStartupScript addCommand(BashCommand command) {
-        return addLine(String.format("echo \"Running command %s with bash: %s\"",
+        return addLine(String.format("echo $(date \"+%%Y-%%m-%%d %%H:%%M:%%S\") \"Running command %s with bash: %s\"",
                 command.getClass().getSimpleName(),
                 escapeQuotes(command.asBash()))).addLine(command.asBash());
     }
