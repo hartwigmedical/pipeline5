@@ -92,7 +92,6 @@ public class SomaticPipelineTest {
                 pipelineResults,
                 fullSomaticResults,
                 cleanup,
-                structuralCaller,
                 Executors.newSingleThreadExecutor());
     }
 
@@ -126,11 +125,9 @@ public class SomaticPipelineTest {
     public void doesNotRunPurpleIfAnyCallersFail() {
         bothAlignmentsAvailable();
         bothMetricsAvailable();
-        when(structuralCaller.run(defaultSomaticRunMetadata(), defaultPair())).thenReturn(structuralCallerOutput());
         SomaticCallerOutput failSomatic = SomaticCallerOutput.builder().status(PipelineStatus.FAILED).build();
         when(stageRunner.run(eq(defaultSomaticRunMetadata()), any())).thenReturn(amberOutput())
-                .thenReturn(cobaltOutput())
-                .thenReturn(failSomatic);
+                .thenReturn(cobaltOutput()).thenReturn(failSomatic).thenReturn(structuralCallerOutput());
         PipelineState state = victim.run();
         assertThat(state.stageOutputs()).containsExactlyInAnyOrder(cobaltOutput(), amberOutput(), failSomatic, structuralCallerOutput());
         assertThat(state.status()).isEqualTo(PipelineStatus.FAILED);
@@ -140,11 +137,10 @@ public class SomaticPipelineTest {
     public void doesNotRunHealthCheckWhenPurpleFails() {
         bothAlignmentsAvailable();
         bothMetricsAvailable();
-        when(structuralCaller.run(defaultSomaticRunMetadata(), defaultPair())).thenReturn(structuralCallerOutput());
         PurpleOutput failPurple = PurpleOutput.builder().status(PipelineStatus.FAILED).build();
         when(stageRunner.run(eq(defaultSomaticRunMetadata()), any())).thenReturn(amberOutput())
-                .thenReturn(cobaltOutput())
-                .thenReturn(somaticCallerOutput())
+                .thenReturn(cobaltOutput()).thenReturn(somaticCallerOutput())
+                .thenReturn(structuralCallerOutput())
                 .thenReturn(failPurple);
         PipelineState state = victim.run();
         assertThat(state.stageOutputs()).containsExactlyInAnyOrder(cobaltOutput(),
@@ -211,10 +207,8 @@ public class SomaticPipelineTest {
         bothAlignmentsAvailable();
         bothMetricsAvailable();
         germlineCallingAvailable();
-        when(structuralCaller.run(defaultSomaticRunMetadata(), defaultPair())).thenReturn(structuralCallerOutput());
         when(stageRunner.run(eq(defaultSomaticRunMetadata()), any())).thenReturn(amberOutput())
-                .thenReturn(cobaltOutput())
-                .thenReturn(somaticCallerOutput())
+                .thenReturn(cobaltOutput()).thenReturn(somaticCallerOutput()).thenReturn(structuralCallerOutput())
                 .thenReturn(purpleOutput())
                 .thenReturn(HealthCheckOutput.builder().from(healthCheckerOutput()).status(PipelineStatus.QC_FAILED).build())
                 .thenReturn(linxOutput())
@@ -228,10 +222,8 @@ public class SomaticPipelineTest {
         bothAlignmentsAvailable();
         bothMetricsAvailable();
         germlineCallingAvailable();
-        when(structuralCaller.run(defaultSomaticRunMetadata(), defaultPair())).thenReturn(structuralCallerOutput());
         when(stageRunner.run(eq(defaultSomaticRunMetadata()), any())).thenReturn(amberOutput())
-                .thenReturn(cobaltOutput())
-                .thenReturn(somaticCallerOutput())
+                .thenReturn(cobaltOutput()).thenReturn(somaticCallerOutput()).thenReturn(structuralCallerOutput())
                 .thenReturn(purpleOutput())
                 .thenReturn(healthCheckerOutput())
                 .thenReturn(linxOutput())
@@ -242,10 +234,8 @@ public class SomaticPipelineTest {
     private void failedRun() {
         bothAlignmentsAvailable();
         bothMetricsAvailable();
-        when(structuralCaller.run(defaultSomaticRunMetadata(), defaultPair())).thenReturn(structuralCallerOutput());
         when(stageRunner.run(eq(defaultSomaticRunMetadata()), any())).thenReturn(amberOutput())
-                .thenReturn(cobaltOutput())
-                .thenReturn(somaticCallerOutput())
+                .thenReturn(cobaltOutput()).thenReturn(somaticCallerOutput()).thenReturn(structuralCallerOutput())
                 .thenReturn(PurpleOutput.builder().status(PipelineStatus.FAILED).build())
                 .thenReturn(healthCheckerOutput());
     }

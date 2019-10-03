@@ -55,7 +55,6 @@ public class SomaticPipeline {
     private final PipelineResults pipelineResults;
     private final FullSomaticResults fullSomaticResults;
     private final Cleanup cleanup;
-    private final StructuralCaller structuralCaller;
     private final ExecutorService executorService;
 
     SomaticPipeline(final Arguments arguments, final StageRunner<SomaticRunMetadata> stageRunner,
@@ -63,7 +62,7 @@ public class SomaticPipeline {
             final OutputStorage<BamMetricsOutput, SingleSampleRunMetadata> bamMetricsOutputStorage,
             final OutputStorage<GermlineCallerOutput, SingleSampleRunMetadata> germlineCallerOutputStorage,
             final SomaticMetadataApi setMetadataApi, final PipelineResults pipelineResults, final FullSomaticResults fullSomaticResults,
-            final Cleanup cleanup, final StructuralCaller structuralCaller, final ExecutorService executorService) {
+            final Cleanup cleanup, final ExecutorService executorService) {
         this.arguments = arguments;
         this.stageRunner = stageRunner;
         this.alignmentOutputStorage = alignmentOutputStorage;
@@ -73,7 +72,6 @@ public class SomaticPipeline {
         this.pipelineResults = pipelineResults;
         this.fullSomaticResults = fullSomaticResults;
         this.cleanup = cleanup;
-        this.structuralCaller = structuralCaller;
         this.executorService = executorService;
     }
 
@@ -97,7 +95,7 @@ public class SomaticPipeline {
                 Future<SomaticCallerOutput> somaticCallerOutputFuture =
                         executorService.submit(() -> stageRunner.run(metadata, new SomaticCaller(pair)));
                 Future<StructuralCallerOutput> structuralCallerOutputFuture =
-                        executorService.submit(() -> structuralCaller.run(metadata, pair));
+                        executorService.submit(() -> stageRunner.run(metadata, new StructuralCaller(pair)));
                 AmberOutput amberOutput = pipelineResults.add(state.add(amberOutputFuture.get()));
                 CobaltOutput cobaltOutput = pipelineResults.add(state.add(cobaltOutputFuture.get()));
                 SomaticCallerOutput somaticCallerOutput = pipelineResults.add(state.add(somaticCallerOutputFuture.get()));

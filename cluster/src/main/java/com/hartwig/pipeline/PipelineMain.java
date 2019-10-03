@@ -7,7 +7,6 @@ import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.alignment.AlignerProvider;
 import com.hartwig.pipeline.alignment.AlignmentOutputStorage;
 import com.hartwig.pipeline.calling.germline.GermlineCaller;
-import com.hartwig.pipeline.calling.structural.StructuralCallerProvider;
 import com.hartwig.pipeline.cleanup.CleanupProvider;
 import com.hartwig.pipeline.credentials.CredentialProvider;
 import com.hartwig.pipeline.execution.PipelineStatus;
@@ -80,7 +79,6 @@ public class PipelineMain {
                 PipelineResultsProvider.from(storage, arguments, Versions.pipelineVersion()).get(),
                 new FullSomaticResults(storage, arguments),
                 CleanupProvider.from(credentials, arguments, storage, somaticMetadataApi).get(),
-                StructuralCallerProvider.from(arguments, credentials, storage).get(),
                 Executors.newCachedThreadPool());
     }
 

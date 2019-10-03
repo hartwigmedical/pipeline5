@@ -37,7 +37,10 @@ public class TestInputs {
     private static final String RESULTS = "results/";
     private static final String REFERENCE_SAMPLE = "reference";
     private static final String TUMOR_SAMPLE = "tumor";
-    private static final String SOMATIC_BUCKET = "run-" + REFERENCE_SAMPLE + "-" + TUMOR_SAMPLE + "-test";
+
+    public static final String REFERENCE_BUCKET = "run-" + REFERENCE_SAMPLE + "-test";
+    public static final String TUMOR_BUCKET = "run-" + TUMOR_SAMPLE + "-test";
+    public static final String SOMATIC_BUCKET = "run-" + REFERENCE_SAMPLE + "-" + TUMOR_SAMPLE + "-test";
 
     public static String referenceSample() {
         return REFERENCE_SAMPLE;
