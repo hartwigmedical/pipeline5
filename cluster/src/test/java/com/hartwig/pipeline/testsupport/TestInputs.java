@@ -20,6 +20,11 @@ public class TestInputs {
         return SomaticRunMetadata.builder().runName("run").maybeTumor(tumor).reference(reference).build();
     }
 
+    public static SomaticRunMetadata defaultSingleSampleRunMetadata() {
+        final SingleSampleRunMetadata reference = referenceRunMetadata();
+        return SomaticRunMetadata.builder().runName("run").reference(reference).build();
+    }
+
     @NotNull
     public static ImmutableSingleSampleRunMetadata referenceRunMetadata() {
         return SingleSampleRunMetadata.builder()
