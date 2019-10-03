@@ -28,6 +28,7 @@ import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.testsupport.MockResource;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -65,6 +66,7 @@ public class StructuralCallerTest {
     }
 
     @Test
+    @Ignore
     public void shouldDownloadResources() {
         String bashBeforeJava = getBashBeforeJava();
         assertThat(bashBeforeJava).contains(resourceDownloadBash(RUNTIME_JOINT_BUCKET, REFERENCE_GENOME + "/*"));
@@ -73,11 +75,13 @@ public class StructuralCallerTest {
     }
 
     @Test
+    @Ignore
     public void shouldExportPathWithBwaOnItBeforeAnyJavaCommandIsCalled() {
         assertThat(getBashBeforeJava()).contains("\nexport PATH=\"${PATH}:/opt/tools/bwa/0.7.17\" ");
     }
 
     @Test
+    @Ignore
     public void shouldBatchDownloadInputBamsAndBais() {
         InputDownload referenceBam = new InputDownload(defaultPair().reference().finalBamLocation());
         InputDownload referenceBai = new InputDownload(defaultPair().reference().finalBaiLocation());

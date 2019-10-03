@@ -20,11 +20,12 @@ public class BashStartupScript {
         this.runtimeBucketName = runtimeBucketName;
         this.commands = new ArrayList<>();
         this.commands.add("echo $(date) Starting run");
-        this.commands.add("mkdir -p /data/input");
-        this.commands.add("mkdir -p /data/resources");
-        this.commands.add("mkdir -p /data/output");
-        this.commands.add("mkdir -p /data/tmp");
-        this.commands.add("export TMPDIR=/data/tmp");
+        this.commands.add("mkdir -p " + VmDirectories.INPUT);
+        this.commands.add("mkdir -p " + VmDirectories.RESOURCES);
+        this.commands.add("mkdir -p " + VmDirectories.OUTPUT);
+        this.commands.add("mkdir -p " + VmDirectories.TEMP);
+        this.commands.add("export TMPDIR=" + VmDirectories.TEMP);
+        this.commands.add(format("export _JAVA_OPTIONS='-Djava.io.tmpdir=%s'", VmDirectories.TEMP));
     }
 
     public static BashStartupScript of(final String runtimeBucketName) {

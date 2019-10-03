@@ -45,9 +45,7 @@ public class ExtractSvReadsTest implements CommonEntities {
 
     @Test
     public void shouldConstructGridssOptions() {
-        GridssCommonArgumentsAssert.assertThat(command)
-                .hasGridssArguments(ARGS_TMP_DIR)
-                .and("assume_sorted", "true")
+        GridssCommonArgumentsAssert.assertThat(command).hasGridssArguments("assume_sorted", "true")
                 .and(ARG_KEY_INPUT_SHORT, inputFile)
                 .and(ARG_KEY_OUTPUT_SHORT, "/dev/stdout")
                 .and(ARGS_NO_COMPRESSION)

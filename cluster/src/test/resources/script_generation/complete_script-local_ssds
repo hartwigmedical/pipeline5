@@ -22,6 +22,7 @@ mkdir -p /data/resources >>/var/log/run.log 2>&1 || die
 mkdir -p /data/output >>/var/log/run.log 2>&1 || die
 mkdir -p /data/tmp >>/var/log/run.log 2>&1 || die
 export TMPDIR=/data/tmp >>/var/log/run.log 2>&1 || die
+export _JAVA_OPTIONS='-Djava.io.tmpdir=/data/tmp' >>/var/log/run.log 2>&1 || die
 uname -a >>/var/log/run.log 2>&1 || die
 echo $(date "+%Y-%m-%d %H:%M:%S") "Running command ComplexCommand with bash: not_really_so_complex \"quoted\"" >>/var/log/run.log 2>&1 || die
 not_really_so_complex "quoted" >>/var/log/run.log 2>&1 || die

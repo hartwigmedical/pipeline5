@@ -44,9 +44,7 @@ public class IdentifyVariantsTest implements CommonEntities {
 
     @Test
     public void shouldReturnGridssOptions() {
-        GridssCommonArgumentsAssert.assertThat(command)
-                .hasGridssArguments(ARGS_TMP_DIR)
-                .and("working_dir", OUT_DIR)
+        GridssCommonArgumentsAssert.assertThat(command).hasGridssArguments("working_dir", OUT_DIR)
                 .and(ARGS_REFERENCE_SEQUENCE)
                 .and(ARG_KEY_INPUT, REFERENCE_BAM)
                 .and(ARG_KEY_INPUT, TUMOR_BAM)
