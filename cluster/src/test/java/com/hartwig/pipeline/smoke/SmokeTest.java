@@ -15,11 +15,12 @@ import com.google.cloud.ReadChannel;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.Storage;
-import com.google.cloud.storage.StorageOptions;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.PipelineMain;
 import com.hartwig.pipeline.PipelineState;
+import com.hartwig.pipeline.credentials.CredentialProvider;
 import com.hartwig.pipeline.execution.PipelineStatus;
+import com.hartwig.pipeline.storage.StorageProvider;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -65,17 +66,16 @@ public class SmokeTest {
         PipelineState state = victim.start(arguments);
         assertThat(state.status()).isEqualTo(PipelineStatus.QC_FAILED);
 
-        assertThatAlignmentIsEqualToExpected(runId, arguments, REFERENCE_SAMPLE);
-        assertThatAlignmentIsEqualToExpected(runId, arguments, TUMOR_SAMPLE);
+        Storage storage = StorageProvider.from(arguments, CredentialProvider.from(arguments).get()).get();
+        assertThatAlignmentIsEqualToExpected(runId, arguments, REFERENCE_SAMPLE, storage);
+        assertThatAlignmentIsEqualToExpected(runId, arguments, TUMOR_SAMPLE, storage);
     }
 
-    private void assertThatAlignmentIsEqualToExpected(final String runId, final Arguments arguments, final String sample) throws Exception {
+    private void assertThatAlignmentIsEqualToExpected(final String runId, final Arguments arguments, final String sample,
+            final Storage storage) throws Exception {
         String bam = sample + ".bam";
         File results = new File(resultsDir.getPath() + "/" + bam);
-        download(StorageOptions.getDefaultInstance().getService(),
-                arguments.patientReportBucket(),
-                SET_ID + "-" + runId + "/" + sample + "/aligner/" + bam,
-                results);
+        download(storage, arguments.patientReportBucket(), SET_ID + "-" + runId + "/" + sample + "/aligner/" + bam, results);
         assertThatOutput(results.getParent(), "/" + sample).aligned().duplicatesMarked().sorted().isEqualToExpected();
     }
 
