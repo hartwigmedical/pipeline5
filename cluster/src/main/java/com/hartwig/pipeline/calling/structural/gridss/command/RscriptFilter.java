@@ -4,7 +4,7 @@ import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 
 public class RscriptFilter implements BashCommand {
-    private final static String SCRIPT_DIR = VmDirectories.TOOLS + "/gridss-scripts/4.8.1";
+    private final static String SCRIPT_DIR = VmDirectories.TOOLS + "/gridss/2.5.2";
     private final static String PON_DIR = VmDirectories.RESOURCES;
 
     private final String inputFile;
