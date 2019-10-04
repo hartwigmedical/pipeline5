@@ -73,20 +73,10 @@ public class SbpRestApi {
         return returnOrThrow(response);
     }
 
-    public void updateSampleStatus(String sampleID, String status) {
-        try {
-            String json = OBJECT_MAPPER.writeValueAsString(SbpSampleStatusUpdate.of(status));
-            patch(sampleID, status, json, SAMPLES);
-
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public void updateRunStatus(String runID, String status, String sbpBucket) {
         try {
             String json = OBJECT_MAPPER.writeValueAsString(SbpRunStatusUpdate.of(status, sbpBucket));
-            patch(runID, status, json, RUNS);
+            patch(runID, status, json);
 
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
@@ -108,9 +98,9 @@ public class SbpRestApi {
         }
     }
 
-    private void patch(final String sampleID, final String status, final String json, final String entityType) {
-        LOGGER.info("Patching {} id [{}] with status [{}]", entityType, sampleID, status);
-        Response response = api().path(entityType)
+    private void patch(final String sampleID, final String status, final String json) {
+        LOGGER.info("Patching {} id [{}] with status [{}]", SbpRestApi.RUNS, sampleID, status);
+        Response response = api().path(SbpRestApi.RUNS)
                 .path(sampleID)
                 .request()
                 .build("PATCH", Entity.entity(json, MediaType.APPLICATION_JSON_TYPE))

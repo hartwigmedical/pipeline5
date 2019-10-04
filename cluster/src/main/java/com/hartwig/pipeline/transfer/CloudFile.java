@@ -19,4 +19,8 @@ public interface CloudFile {
     default String toUrl() {
         return format("%s://%s/%s", provider(), bucket(), path());
     }
+
+    default String toManifestForm() {
+        return format("%.32s %15d %s", md5(), size(), path());
+    }
 }
