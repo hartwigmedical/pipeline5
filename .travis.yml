@@ -3,6 +3,8 @@ branches:
     - master
 sudo: required
 language: java
+jdk:
+  - openjdk8
 services:
 - docker
 env:
