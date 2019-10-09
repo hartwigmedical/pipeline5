@@ -1,16 +1,18 @@
 branches:
   only:
-    - DEV-966
+  - DEV-966
 sudo: required
 language: java
+jdk:
+- openjdk8
 services:
 - docker
 env:
-  - PIPELINE5_VERSION=5.5.$TRAVIS_BUILD_NUMBER
+- PIPELINE5_VERSION=5.5.$TRAVIS_BUILD_NUMBER
 script:
 - 'if [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then mvn clean install -B; else mvn clean install -DskipDocker -DskipShade -B; fi'
 before_install:
-- openssl aes-256-cbc -K $encrypted_f6c91b3577bb_key -iv $encrypted_f6c91b3577bb_iv
+- openssl aes-256-cbc -K $encrypted_7b504d6f794c_key -iv $encrypted_7b504d6f794c_iv
   -in cluster/google-key.json.enc -out cluster/google-key.json -d
 - echo "$DOCKER_HUB_PASSWORD" | docker login -u "hartwigmedicalfoundation" --password-stdin
 - mvn versions:set -DnewVersion=$PIPELINE5_VERSION
