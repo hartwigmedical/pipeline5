@@ -1,52 +1,36 @@
 package com.hartwig.pipeline.alignment.sample;
 
 import java.io.IOException;
-import java.util.function.Function;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.hartwig.patient.Lane;
 import com.hartwig.patient.Sample;
-import com.hartwig.patient.input.PatientReader;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
-
-import org.apache.hadoop.fs.FileStatus;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-import org.jetbrains.annotations.NotNull;
 
 public class FileSystemSampleSource implements SampleSource {
 
-    private final FileSystem fileSystem;
     private final String patientDirectory;
 
-    public FileSystemSampleSource(final FileSystem fileSystem, final String patientDirectory) {
-        this.fileSystem = fileSystem;
+    public FileSystemSampleSource(final String patientDirectory) {
         this.patientDirectory = patientDirectory;
     }
 
     @Override
-    public SampleData sample(final SingleSampleRunMetadata metadata) {
+    public Sample sample(final SingleSampleRunMetadata metadata) {
         try {
-            Sample sample = PatientReader.fromHDFS(fileSystem, patientDirectory, metadata.sampleId()).reference();
-            long size = sample.lanes()
-                    .stream()
-                    .flatMap(lane -> Stream.of(lane.firstOfPairPath(), lane.secondOfPairPath()))
-                    .map(toFileStatus())
-                    .mapToLong(FileStatus::getLen)
-                    .sum();
-            return SampleData.of(sample, size);
+            try (Stream<Path> files = Files.walk(Paths.get(patientDirectory + "/" + metadata.sampleName()), 1)) {
+                List<Lane> lanes = FastqFiles.toLanes(files.filter(file -> !Files.isDirectory(file))
+                        .map(Path::toString)
+                        .collect(Collectors.toList()), patientDirectory, metadata.sampleName());
+                return Sample.builder(patientDirectory, metadata.sampleName()).addAllLanes(lanes).build();
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    @NotNull
-    private Function<String, FileStatus> toFileStatus() {
-        return path -> {
-            try {
-                return fileSystem.getFileStatus(new Path(path));
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        };
     }
 }

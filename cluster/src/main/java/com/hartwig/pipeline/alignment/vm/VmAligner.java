@@ -23,7 +23,6 @@ import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.alignment.AlignmentOutputStorage;
 import com.hartwig.pipeline.alignment.ExistingAlignment;
-import com.hartwig.pipeline.alignment.sample.SampleData;
 import com.hartwig.pipeline.alignment.sample.SampleSource;
 import com.hartwig.pipeline.calling.SubStageInputOutput;
 import com.hartwig.pipeline.execution.PipelineStatus;
@@ -82,8 +81,7 @@ public class VmAligner implements Aligner {
                 ResourceDownload.from(rootBucket, new Resource(storage, arguments.resourceBucket(), ResourceNames.REFERENCE_GENOME));
         String referenceGenomePath = referenceGenomeDownload.find("fa", "fasta");
 
-        SampleData sampleData = sampleSource.sample(metadata);
-        Sample sample = sampleData.sample();
+        Sample sample = sampleSource.sample(metadata);
         if (arguments.upload()) {
             sampleUpload.run(sample, rootBucket);
         }
@@ -91,7 +89,7 @@ public class VmAligner implements Aligner {
         ExecutorService executorService = this.executorService;
         List<Future<PipelineStatus>> futures = new ArrayList<>();
         List<GoogleStorageLocation> perLaneBams = new ArrayList<>();
-        for (Lane lane : sampleData.sample().lanes()) {
+        for (Lane lane : sample.lanes()) {
 
             RuntimeBucket laneBucket = RuntimeBucket.from(storage, laneNamespace(lane), metadata, arguments);
 

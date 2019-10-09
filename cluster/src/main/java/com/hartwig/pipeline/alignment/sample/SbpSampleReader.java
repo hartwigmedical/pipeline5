@@ -88,13 +88,7 @@ public class SbpSampleReader {
 
     private static ImmutableLane lane(final SbpFastQ sbpFastQ) {
 
-        if (!FastqNamingConvention.apply(sbpFastQ.name_r1())) {
-            throw new IllegalArgumentException(String.format(
-                    "Unable to extract flowcell and sample index from fastq name [%s]. Failing this run. Please "
-                            + "rename fastq files to the correct convention "
-                            + "{samplename}_{flowcell}_{sampleindex}_{laneindex}_{pairindex}_{suffix}.fastq.[gz].",
-                    sbpFastQ.name_r1()));
-        }
+        FastqNamingConvention.apply(sbpFastQ.name_r1());
 
         String bucket = sbpFastQ.bucket();
         if (bucket == null || bucket.isEmpty()) {

@@ -42,14 +42,14 @@ public class CommandLineOptionsTest {
     @Test
     public void booleanFlagDefaultsRespected() throws Exception {
         Arguments result = CommandLineOptions.from(new String[] { "-profile", "development", "-sample_id", "test" });
-        assertThat(result.forceJarUpload()).isFalse();
+        assertThat(result.useLocalSsds()).isTrue();
     }
 
     @Test
     public void defaultFlagsCanBeOverriddenTrue() throws Exception {
         Arguments result =
-                CommandLineOptions.from(new String[] { "-profile", "development", "-sample_id", "test", "-force_jar_upload", "true" });
-        assertThat(result.forceJarUpload()).isTrue();
+                CommandLineOptions.from(new String[] { "-profile", "development", "-sample_id", "test", "-local_ssds", "false" });
+        assertThat(result.useLocalSsds()).isFalse();
     }
 
     @Test
