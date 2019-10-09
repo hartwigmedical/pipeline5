@@ -14,7 +14,7 @@ script:
   install -DskipDocker -DskipShade -B; fi
 before_install:
 - openssl aes-256-cbc -K $encrypted_f6c91b3577bb_key -iv $encrypted_f6c91b3577bb_iv
-  -in google-key.json.enc -out cluster/google-key.json -d
+  -in cluster/google-key.json.enc -out cluster/google-key.json -d
 - echo "$DOCKER_HUB_PASSWORD" | docker login -u "hartwigmedicalfoundation" --password-stdin
 - mvn versions:set -DnewVersion=$PIPELINE5_VERSION
 - sudo apt-get -qq update
