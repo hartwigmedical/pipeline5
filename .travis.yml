@@ -14,6 +14,8 @@ script:
 before_install:
 - openssl aes-256-cbc -K $encrypted_7b504d6f794c_key -iv $encrypted_7b504d6f794c_iv
   -in cluster/google-key.json.enc -out cluster/google-key.json -d
+- openssl aes-256-cbc -K $encrypted_965d6303826d_key -iv $encrypted_965d6303826d_iv
+  -in cluster/src/test/resources/smoke_test/api.jks.enc -out cluster/src/test/resources/smoke_test/api.jks -d
 - echo "$DOCKER_HUB_PASSWORD" | docker login -u "hartwigmedicalfoundation" --password-stdin
 - mvn versions:set -DnewVersion=$PIPELINE5_VERSION
 - sudo apt-get -qq update

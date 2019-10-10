@@ -39,12 +39,14 @@ public class SmokeTest {
     private static final int SET_ID = 9;
     private static final int RUN_ID = 12;
 
-
     @Test
     public void runFullPipelineAndCheckFinalStatus() throws IOException {
         String apiUrl = "https://api.acc.hartwigmedicalfoundation.nl";
         PipelineMain victim = new PipelineMain();
         String version = System.getProperty("version");
+
+        System.setProperty("javax.net.ssl.keyStorePassword", "changeit");
+        System.setProperty("javax.net.ssl.keyStore", Resources.testResource("smoke_test/api.jks"));
 
         Arguments arguments = Arguments.defaultsBuilder(Arguments.DefaultsProfile.DEVELOPMENT.toString()).privateKeyPath("google-key.json")
                 .sampleDirectory(workingDir() + "/../samples")
@@ -59,9 +61,10 @@ public class SmokeTest {
                 .sbpApiUrl(apiUrl).rclonePath(RCLONE_PATH).rcloneS3RemoteDownload(S3_REMOTE).rcloneS3RemoteUpload(S3_REMOTE)
                 .sbpS3Url("s3.us-east-2.amazonaws.com").rcloneGcpRemote(GCP_REMOTE)
                 .upload(true).build();
+        SbpRestApi api = SbpRestApi.newInstance(arguments);
 
-        String destinationBucket = bucketName(arguments);
-        String setName = setName(arguments);
+        String destinationBucket = bucketName(api);
+        String setName = setName(api);
 
         PipelineState state = victim.start(arguments);
         assertThat(state.status()).isEqualTo(PipelineStatus.QC_FAILED);
@@ -78,7 +81,7 @@ public class SmokeTest {
         assertThat(localCopyOfManifest.length()).isGreaterThan(0L);
 
         ArrayList<String> inManifest = new ArrayList<>(FileUtils.readLines(localCopyOfManifest));
-        List<String> rcloneSizesAndPaths = listRemoteFiles(format("%s:%s/%s/", S3_REMOTE, bucketName(arguments), setName));
+        List<String> rcloneSizesAndPaths = listRemoteFiles(format("%s:%s/%s/", S3_REMOTE, destinationBucket, setName));
         assertThat(inManifest.size()).isGreaterThan(0);
         assertThat(rcloneSizesAndPaths.size()).isGreaterThan(0);
         assertThat(inManifest.size()).isEqualTo(rcloneSizesAndPaths.size());
@@ -131,14 +134,14 @@ public class SmokeTest {
         return version.replace(".", "");
     }
 
-    private static String setName(Arguments arguments) throws IOException {
+    private static String setName(SbpRestApi api) throws IOException {
         List<SbpSet> sets =
-                ObjectMappers.get().readValue(SbpRestApi.newInstance(arguments).getSet(SET_ID), new TypeReference<List<SbpSet>>() {
+                ObjectMappers.get().readValue(api.getSet(SET_ID), new TypeReference<List<SbpSet>>() {
                 });
         return sets.get(0).name();
     }
 
-    private static String bucketName(Arguments arguments) throws IOException {
-        return ObjectMappers.get().readValue(SbpRestApi.newInstance(arguments).getRun(RUN_ID), SbpRun.class).bucket();
+    private static String bucketName(SbpRestApi api) throws IOException {
+        return ObjectMappers.get().readValue(api.getRun(RUN_ID), SbpRun.class).bucket();
     }
 }

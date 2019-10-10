@@ -76,7 +76,7 @@ public class SbpRestApi {
     public void updateRunStatus(String runID, String status, String sbpBucket) {
         try {
             String json = OBJECT_MAPPER.writeValueAsString(SbpRunStatusUpdate.of(status, sbpBucket));
-            patch(runID, status, json);
+            patchRun(runID, status, json);
 
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
@@ -98,9 +98,9 @@ public class SbpRestApi {
         }
     }
 
-    private void patch(final String sampleID, final String status, final String json) {
+    private void patchRun(final String sampleID, final String status, final String json) {
         LOGGER.info("Patching {} id [{}] with status [{}]", SbpRestApi.RUNS, sampleID, status);
-        Response response = api().path(SbpRestApi.RUNS)
+        Response response = api().path(RUNS)
                 .path(sampleID)
                 .request()
                 .build("PATCH", Entity.entity(json, MediaType.APPLICATION_JSON_TYPE))
