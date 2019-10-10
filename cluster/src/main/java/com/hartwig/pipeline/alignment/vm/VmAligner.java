@@ -33,7 +33,6 @@ import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.OutputUpload;
 import com.hartwig.pipeline.execution.vm.ResourceDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
-import com.hartwig.pipeline.execution.vm.unix.UlimitOpenFilesCommand;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.SingleFileComponent;
@@ -101,7 +100,7 @@ public class VmAligner implements Aligner {
             InputDownload second =
                     new InputDownload(GoogleStorageLocation.of(rootBucket.name(), fastQFileName(sample.name(), lane.secondOfPairPath())));
 
-            bash.addCommand(referenceGenomeDownload).addCommand(first).addCommand(second).addCommand(new UlimitOpenFilesCommand(102400));
+            bash.addCommand(referenceGenomeDownload).addCommand(first).addCommand(second);
 
             SubStageInputOutput alignment = new LaneAlignment(referenceGenomePath,
                     first.getLocalTargetPath(),
