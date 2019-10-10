@@ -33,6 +33,7 @@ import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.OutputUpload;
 import com.hartwig.pipeline.execution.vm.ResourceDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.pipeline.execution.vm.unix.UlimitOpenFilesCommand;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.SingleFileComponent;
@@ -42,8 +43,6 @@ import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.storage.SampleUpload;
 import com.hartwig.pipeline.trace.StageTrace;
-
-import org.jetbrains.annotations.NotNull;
 
 public class VmAligner implements Aligner {
 
@@ -102,7 +101,7 @@ public class VmAligner implements Aligner {
             InputDownload second =
                     new InputDownload(GoogleStorageLocation.of(rootBucket.name(), fastQFileName(sample.name(), lane.secondOfPairPath())));
 
-            bash.addCommand(referenceGenomeDownload).addCommand(first).addCommand(second);
+            bash.addCommand(referenceGenomeDownload).addCommand(first).addCommand(second).addCommand(new UlimitOpenFilesCommand(102400));
 
             SubStageInputOutput alignment = new LaneAlignment(referenceGenomePath,
                     first.getLocalTargetPath(),
@@ -169,8 +168,7 @@ public class VmAligner implements Aligner {
         return NAMESPACE + "/" + laneId(lane);
     }
 
-    @NotNull
-    private static String laneId(final Lane lane) {
+    static String laneId(final Lane lane) {
         return lane.flowCellId() + "-" + lane.laneNumber();
     }
 

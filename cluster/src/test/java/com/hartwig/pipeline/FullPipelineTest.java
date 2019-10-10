@@ -73,6 +73,20 @@ public class FullPipelineTest {
         assertThat(victim.run().status()).isEqualTo(PipelineStatus.FAILED);
     }
 
+    @Test
+    public void supportsSingleSampleIni() throws Exception{
+        victim = new FullPipeline(reference,
+                tumor,
+                somatic,
+                Executors.newCachedThreadPool(),
+                referenceListener,
+                tumorListener,
+                TestInputs.defaultSingleSampleRunMetadata());
+        when(reference.run(METADATA.reference())).then(succeed(referenceListener));
+        when(somatic.run()).thenReturn(succeeded());
+        assertThat(victim.run().status()).isEqualTo(PipelineStatus.SUCCESS);
+    }
+
     private static PipelineState succeeded() {
         return new PipelineState();
     }
