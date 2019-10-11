@@ -90,7 +90,7 @@ public class SmokeTest {
             String[] sizeAndPath = s3File.trim().split(" +");
             assertThat(sizeAndPath.length).isEqualTo(2);
             if (!sizeAndPath[1].trim().equals(SbpFileTransfer.MANIFEST_FILENAME)) {
-                assertThat(findInManifestAndDeleteIt(inManifest, sizeAndPath[0], sizeAndPath[1])).isTrue();
+                assertThat(findInManifestAndDeleteIt(inManifest, sizeAndPath[0], setName + "/" + sizeAndPath[1])).isTrue();
             }
         }
         assertThat(inManifest.size()).isEqualTo(0);
