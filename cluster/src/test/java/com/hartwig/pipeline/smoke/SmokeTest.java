@@ -67,6 +67,8 @@ public class SmokeTest {
         String destinationBucket = bucketName(api);
         String setName = setName(api);
 
+        rclone(ImmutableList.of("delete", format("%s:%s/%s", GCP_REMOTE, arguments.patientReportBucket(), setName)));
+
         PipelineState state = victim.start(arguments);
         assertThat(state.status()).isEqualTo(PipelineStatus.QC_FAILED);
 
@@ -115,13 +117,20 @@ public class SmokeTest {
 
     private List<String> listRemoteFiles(String remoteParent) {
         try {
-            ProcessBuilder processBuilder = new ProcessBuilder();
-            List<String> command = ImmutableList.of(RCLONE, "ls", remoteParent);
-            processBuilder.command(command);
-            return IOUtils.readLines(processBuilder.start().getInputStream(), FILE_ENCODING)
-                    .stream().map(String::trim)
+            return rclone(ImmutableList.of("ls", remoteParent)).stream().map(String::trim)
                     .filter(s -> !s.split(" +")[1].equals(SbpFileTransfer.MANIFEST_FILENAME))
                     .collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private List<String> rclone(List<String> arguments) {
+        try {
+            ProcessBuilder processBuilder = new ProcessBuilder();
+            List<String> command = ImmutableList.<String>builder().add(RCLONE).addAll(arguments).build();
+            processBuilder.command(command);
+            return IOUtils.readLines(processBuilder.start().getInputStream(), FILE_ENCODING);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
