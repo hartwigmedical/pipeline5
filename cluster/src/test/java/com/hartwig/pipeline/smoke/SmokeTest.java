@@ -59,7 +59,8 @@ public class SmokeTest {
                 .runId("smoke-" + noDots(version))
                 .runGermlineCaller(false).sbpApiRunId(RUN_ID)
                 .sbpApiUrl(apiUrl).rclonePath(RCLONE_PATH).rcloneS3RemoteDownload(S3_REMOTE).rcloneS3RemoteUpload(S3_REMOTE)
-                .sbpS3Url("s3.us-east-2.amazonaws.com").rcloneGcpRemote(GCP_REMOTE)
+                .sbpS3Url("s3.us-east-1.amazonaws.com")
+                .rcloneGcpRemote(GCP_REMOTE)
                 .upload(true).build();
         SbpRestApi api = SbpRestApi.newInstance(arguments);
 
