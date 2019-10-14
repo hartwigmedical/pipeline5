@@ -49,6 +49,7 @@ public class SingleSamplePipelineTest {
     private StageRunner<SingleSampleRunMetadata> stageRunner;
 
     @Before
+    @SuppressWarnings("unchecked")
     public void setUp() throws Exception {
         aligner = mock(Aligner.class);
         eventListener = mock(SingleSampleEventListener.class);
@@ -56,7 +57,6 @@ public class SingleSamplePipelineTest {
         Bucket reportBucket = mock(Bucket.class);
         when(storage.get(ARGUMENTS.patientReportBucket())).thenReturn(reportBucket);
         final PipelineResults pipelineResults = PipelineResultsProvider.from(storage, ARGUMENTS, "test").get();
-        //noinspection unchecked
         stageRunner = mock(StageRunner.class);
         victim = new SingleSamplePipeline(eventListener,
                 stageRunner,

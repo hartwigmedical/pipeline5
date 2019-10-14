@@ -56,7 +56,7 @@ public class FullSomaticResults {
                 .withDelay(Duration.ofSeconds(retryDelayInSeconds))
                 .withMaxRetries(INFINITE)).get(() -> bucket.get(completionFile));
         for (Blob blob : bucket.list(Storage.BlobListOption.prefix(directory)).iterateAll()) {
-            String pathSplit = blob.getName().substring(blob.getName().indexOf("/") + 1, blob.getName().length());
+            String pathSplit = blob.getName().substring(blob.getName().indexOf("/") + 1);
             storage.copy(Storage.CopyRequest.of(arguments.patientReportBucket(),
                     blob.getName(),
                     BlobId.of(arguments.patientReportBucket(), metadata.runName() + "/" + pathSplit))).getResult();
