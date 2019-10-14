@@ -2,6 +2,7 @@ package com.hartwig.pipeline;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
+import java.util.function.Supplier;
 
 import com.hartwig.pipeline.metadata.CompletionHandler;
 import com.hartwig.pipeline.metadata.SingleSampleEventListener;
@@ -44,9 +45,11 @@ public class FullPipeline {
         referenceSampleEventListener.register(trapReference);
         tumorSampleEventListener.register(trapTumor);
         executorService.submit(() -> runPipeline(referencePipeline, metadata.reference(), bothSingleSamplesComplete));
-        executorService.submit(() -> runPipeline(tumorPipeline, metadata.tumor(), bothSingleSamplesComplete));
+        executorService.submit(() -> metadata.maybeTumor()
+                .map(tumor -> runPipeline(tumorPipeline, tumor, bothSingleSamplesComplete))
+                .orElseGet(countdown(bothSingleSamplesComplete)));
         waitForSingleSamples(bothSingleSamplesComplete);
-        PipelineState singleSampleState = combine(trapReference, trapTumor);
+        PipelineState singleSampleState = combine(trapReference, trapTumor, metadata);
         if (singleSampleState.shouldProceed()) {
             return singleSampleState.combineWith(somaticPipeline.run());
         } else {
@@ -54,19 +57,36 @@ public class FullPipeline {
         }
     }
 
-    private void runPipeline(SingleSamplePipeline pipeline, SingleSampleRunMetadata metadata, CountDownLatch latch) {
+    private static Supplier<PipelineState> countdown(final CountDownLatch bothSingleSamplesComplete) {
+        return () -> {
+            bothSingleSamplesComplete.countDown();
+            return empty();
+        };
+    }
+
+    private PipelineState runPipeline(SingleSamplePipeline pipeline, SingleSampleRunMetadata metadata, CountDownLatch latch) {
         try {
-            pipeline.run(metadata);
+            return pipeline.run(metadata);
         } catch (Exception e) {
             LOGGER.error("Could not run single sample pipeline. ", e);
             latch.countDown();
+            return empty();
         }
     }
 
-    private PipelineState combine(final CountDownAndTrapStatus trapReference, final CountDownAndTrapStatus trapTumor) {
+    private static PipelineState empty() {
+        return new PipelineState();
+    }
+
+    private PipelineState combine(final CountDownAndTrapStatus trapReference, final CountDownAndTrapStatus trapTumor,
+            final SomaticRunMetadata metadata) {
         checkState(trapReference, "Reference");
-        checkState(trapTumor, "Tumor");
-        return new PipelineState().combineWith(trapReference.trappedState).combineWith(trapTumor.trappedState);
+        PipelineState combined = empty().combineWith(trapReference.trappedState);
+        metadata.maybeTumor().ifPresent(tumor -> {
+            checkState(trapTumor, "Tumor");
+            combined.combineWith(trapTumor.trappedState);
+        });
+        return combined;
     }
 
     private void checkState(final CountDownAndTrapStatus trap, final String type) {

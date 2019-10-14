@@ -19,7 +19,7 @@ public class LaneAlignment extends SubStage {
 
     LaneAlignment(final String referenceGenomePath, final String firstFastqPath, final String secondFastqPath, final String sampleName,
             final Lane lane) {
-        super("sorted." + lane.laneNumber(), OutputFile.BAM);
+        super("sorted." + VmAligner.laneId(lane), OutputFile.BAM);
         this.referenceGenomePath = referenceGenomePath;
         this.firstFastqPath = firstFastqPath;
         this.secondFastqPath = secondFastqPath;
