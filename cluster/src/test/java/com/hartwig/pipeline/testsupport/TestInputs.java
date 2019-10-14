@@ -116,10 +116,12 @@ public class TestInputs {
     }
 
     public static GermlineCallerOutput germlineCallerOutput() {
+        String germlineVcf = REFERENCE_SAMPLE + ".germline.vcf.gz";
         return GermlineCallerOutput.builder()
                 .status(PipelineStatus.SUCCESS)
-                .maybeGermlineVcfLocation(gsLocation(namespacedBucket(REFERENCE_SAMPLE, GermlineCaller.NAMESPACE),
-                        REFERENCE_SAMPLE + ".germline.vcf.gz"))
+                .maybeGermlineVcfLocation(gsLocation(namespacedBucket(REFERENCE_SAMPLE, GermlineCaller.NAMESPACE), germlineVcf))
+                .maybeGermlineVcfIndexLocation(gsLocation(namespacedBucket(REFERENCE_SAMPLE, GermlineCaller.NAMESPACE),
+                        germlineVcf + ".tbi"))
                 .build();
     }
 
