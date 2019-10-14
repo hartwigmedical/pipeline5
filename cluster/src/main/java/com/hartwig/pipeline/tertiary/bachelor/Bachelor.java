@@ -32,17 +32,19 @@ public class Bachelor implements Stage<BachelorOutput, SomaticRunMetadata> {
     private final InputDownload tumorBamDownload;
     private final InputDownload tumorBaiDownload;
     private final InputDownload germlineVcfDownload;
+    private final InputDownload germlineVcfIndexDownload;
 
     public Bachelor(final PurpleOutput purpleOutput, AlignmentOutput tumorAlignmentOutput, GermlineCallerOutput germlineCallerOutput) {
         this.purpleOutputDownload = new InputDownload(purpleOutput.outputDirectory());
         this.tumorBamDownload = new InputDownload(tumorAlignmentOutput.finalBamLocation());
         this.tumorBaiDownload = new InputDownload(tumorAlignmentOutput.finalBaiLocation());
         this.germlineVcfDownload = new InputDownload(germlineCallerOutput.germlineVcfLocation());
+        this.germlineVcfIndexDownload = new InputDownload(germlineCallerOutput.germlineVcfIndexLocation());
     }
 
     @Override
     public List<BashCommand> inputs() {
-        return ImmutableList.of(purpleOutputDownload, tumorBamDownload, tumorBaiDownload, germlineVcfDownload);
+        return ImmutableList.of(purpleOutputDownload, tumorBamDownload, tumorBaiDownload, germlineVcfDownload, germlineVcfIndexDownload);
     }
 
     @Override

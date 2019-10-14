@@ -141,6 +141,8 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
         return GermlineCallerOutput.builder()
                 .status(status)
                 .maybeGermlineVcfLocation(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(outputFile.fileName())))
+                .maybeGermlineVcfIndexLocation(GoogleStorageLocation.of(bucket.name(),
+                        resultsDirectory.path(outputFile.fileName() + ".tbi")))
                 .addReportComponents(new RunLogComponent(bucket, NAMESPACE, Folder.from(metadata), resultsDirectory))
                 .addReportComponents(new StartupScriptComponent(bucket, NAMESPACE, Folder.from(metadata)))
                 .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
@@ -154,7 +156,11 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
 
     @Override
     public GermlineCallerOutput skippedOutput(final SingleSampleRunMetadata metadata) {
-        return GermlineCallerOutput.builder().status(PipelineStatus.SKIPPED).maybeGermlineVcfLocation(skipped()).build();
+        return GermlineCallerOutput.builder()
+                .status(PipelineStatus.SKIPPED)
+                .maybeGermlineVcfLocation(skipped())
+                .maybeGermlineVcfIndexLocation(skipped())
+                .build();
     }
 
     private static GoogleStorageLocation skipped() {
