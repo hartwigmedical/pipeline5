@@ -23,8 +23,8 @@ import com.hartwig.pipeline.sbpapi.SbpRestApi;
 import com.hartwig.pipeline.sbpapi.SbpRun;
 import com.hartwig.pipeline.sbpapi.SbpSet;
 import com.hartwig.pipeline.storage.RCloneCloudCopy;
+import com.hartwig.pipeline.testsupport.Resources;
 import com.hartwig.pipeline.transfer.SbpFileTransfer;
-import com.hartwig.support.test.Resources;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
