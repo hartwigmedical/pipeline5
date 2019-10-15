@@ -40,7 +40,8 @@ public class BachelorTest extends TertiaryStageTest<BachelorOutput> {
         return ImmutableList.of(input(expectedRuntimeBucketName() + "/purple/results/", "results"),
                 input("run-tumor-test/aligner/results/tumor.bam", "tumor.bam"),
                 input("run-tumor-test/aligner/results/tumor.bam.bai", "tumor.bam.bai"),
-                input("run-reference-test/germline_caller/reference.germline.vcf.gz", "reference.germline.vcf.gz"));
+                input("run-reference-test/germline_caller/reference.germline.vcf.gz", "reference.germline.vcf.gz"),
+                input("run-reference-test/germline_caller/reference.germline.vcf.gz.tbi", "reference.germline.vcf.gz.tbi"));
     }
 
     @Override

@@ -42,8 +42,6 @@ import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.storage.SampleUpload;
 import com.hartwig.pipeline.trace.StageTrace;
 
-import org.jetbrains.annotations.NotNull;
-
 public class VmAligner implements Aligner {
 
     private final Arguments arguments;
@@ -167,8 +165,7 @@ public class VmAligner implements Aligner {
         return NAMESPACE + "/" + laneId(lane);
     }
 
-    @NotNull
-    private static String laneId(final Lane lane) {
+    static String laneId(final Lane lane) {
         return lane.flowCellId() + "-" + lane.laneNumber();
     }
 

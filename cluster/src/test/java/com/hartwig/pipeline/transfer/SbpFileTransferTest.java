@@ -9,10 +9,10 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
+import java.util.List;
 
 import com.google.api.gax.paging.Page;
 import com.google.cloud.storage.Blob;
@@ -41,11 +41,12 @@ public class SbpFileTransferTest {
     private SomaticRunMetadata metadata;
     private SbpRun sbpRun;
     private String sbpBucket;
-    private Blob blob;
+    private Blob fileBlob;
 
-    private String directoryForPost = "top_level_directory/and/the/rest/of_the";
-    private String filenameForPost = "file.name";
-    private String fullBlobPath = "/" + directoryForPost + "/" + filenameForPost;
+    private String directoryForFile;
+    private String filenameForPost;
+    private String fullBlobPath;
+    private String runName;
 
     @Before
     public void setup() {
@@ -61,18 +62,29 @@ public class SbpFileTransferTest {
         victim = new SbpFileTransfer(cloudCopy, sbpS3, sbpApi, sourceBucket, contentType, Arguments.testDefaults());
 
         metadata = mock(SomaticRunMetadata.class);
-        final String runName = "run_name";
+        runName = "run_name";
         when(metadata.runName()).thenReturn(runName);
         sbpBucket = "output_bucket";
+
+        filenameForPost = "file.name";
+        directoryForFile = runName + "/and/the/rest/of_the";
+        fullBlobPath = "/" + directoryForFile + "/" + filenameForPost;
 
         @SuppressWarnings("unchecked")
         Page<Blob> blobs = mock(Page.class);
         when(sourceBucket.list(Storage.BlobListOption.prefix(runName + "/"))).thenReturn(blobs);
-        blob = mock(Blob.class);
-        when(blob.getMd5()).thenReturn("md5");
-        when(blob.getName()).thenReturn(fullBlobPath);
-        when(blob.getSize()).thenReturn(10L);
-        when(blobs.iterateAll()).thenReturn(Collections.singletonList(blob));
+        fileBlob = mock(Blob.class);
+        when(fileBlob.getMd5()).thenReturn("md5");
+        when(fileBlob.getName()).thenReturn(fullBlobPath);
+        when(fileBlob.getSize()).thenReturn(10L);
+        when(blobs.iterateAll()).thenReturn(Collections.singletonList(fileBlob));
+
+        Blob manifestBlob = mock(Blob.class);
+        String fullManifestPath = runName + "/" + SbpFileTransfer.MANIFEST_FILENAME;
+        when(manifestBlob.getName()).thenReturn(fullManifestPath);
+        when(manifestBlob.getMd5()).thenReturn("md5");
+        when(sourceBucket.get(fullManifestPath)).thenReturn(manifestBlob);
+
         when(sbpRun.id()).thenReturn("123");
     }
 
@@ -85,7 +97,7 @@ public class SbpFileTransferTest {
     @Test
     public void shouldApplyContentTypeToBlob() {
         victim.publish(metadata, sbpRun, sbpBucket);
-        verify(contentType).apply(blob);
+        verify(contentType).apply(fileBlob);
     }
 
     @Test
@@ -101,28 +113,38 @@ public class SbpFileTransferTest {
     @Test
     public void shouldSetAclsForValidFileInSbpS3() {
         victim.publish(metadata, sbpRun, sbpBucket);
-        verify(sbpS3).setAclsOn(sbpBucket, blob.getName());
+        verify(sbpS3).setAclsOn(sbpBucket, fileBlob.getName());
     }
 
     @Test
     public void shouldPostValidFileToSbpApiUsingCorrectPath() {
         victim.publish(metadata, sbpRun, sbpBucket);
         ArgumentCaptor<SbpFileMetadata> metadataCaptor = ArgumentCaptor.forClass(SbpFileMetadata.class);
-        verify(sbpApi).postFile(metadataCaptor.capture());
+        verify(sbpApi, times(2)).postFile(metadataCaptor.capture());
 
-        SbpFileMetadata capturedMetadata = metadataCaptor.getValue();
-        assertThat(capturedMetadata.directory()).isEqualTo(directoryForPost);
-        assertThat(capturedMetadata.filename()).isEqualTo(filenameForPost);
+        List<SbpFileMetadata> capturedMetadata = metadataCaptor.getAllValues();
+        assertThat(capturedMetadata.get(0).directory()).isEqualTo(directoryForFile);
+        assertThat(capturedMetadata.get(0).filename()).isEqualTo(filenameForPost);
+    }
+
+    @Test
+    public void shouldPostManifestToSbpApiUsingCorrectPath() {
+        victim.publish(metadata, sbpRun, sbpBucket);
+        ArgumentCaptor<SbpFileMetadata> metadataCaptor = ArgumentCaptor.forClass(SbpFileMetadata.class);
+        verify(sbpApi, times(2)).postFile(metadataCaptor.capture());
+
+        List<SbpFileMetadata> capturedMetadata = metadataCaptor.getAllValues();
+        assertManifest(capturedMetadata.get(1));
     }
 
     @Test
     public void shouldSetDirectoryToEmptyStringInPostIfFileIsInRootOfSourceBucket() {
-        when(blob.getName()).thenReturn("/filename");
+        when(fileBlob.getName()).thenReturn("/filename");
         victim.publish(metadata, sbpRun, sbpBucket);
         ArgumentCaptor<SbpFileMetadata> metadataCaptor = ArgumentCaptor.forClass(SbpFileMetadata.class);
-        verify(sbpApi).postFile(metadataCaptor.capture());
+        verify(sbpApi, times(2)).postFile(metadataCaptor.capture());
 
-        SbpFileMetadata capturedMetadata = metadataCaptor.getValue();
+        SbpFileMetadata capturedMetadata = metadataCaptor.getAllValues().get(0);
         assertThat(capturedMetadata.directory()).isEqualTo("");
         assertThat(capturedMetadata.filename()).isEqualTo("filename");
     }
@@ -131,18 +153,18 @@ public class SbpFileTransferTest {
     public void shouldChangeFormatOfMd5ToHexEncodedForPost() {
         String md5 = "a68824b4a1cf40437cff58a1b430ad78";
         String hexEncodedMd5 = "6baf3cdb86f86b571fe34e37edc7dfe7c6b56f8df469defc";
-        when(blob.getMd5()).thenReturn(md5);
+        when(fileBlob.getMd5()).thenReturn(md5);
         victim.publish(metadata, sbpRun, sbpBucket);
         ArgumentCaptor<SbpFileMetadata> metadataCaptor = ArgumentCaptor.forClass(SbpFileMetadata.class);
-        verify(sbpApi).postFile(metadataCaptor.capture());
+        verify(sbpApi, times(2)).postFile(metadataCaptor.capture());
 
-        assertThat(metadataCaptor.getValue().hash()).isEqualTo(hexEncodedMd5);
+        assertThat(metadataCaptor.getAllValues().get(0).hash()).isEqualTo(hexEncodedMd5);
     }
 
     @Test
     public void shouldDeleteSourceObjectsOnSuccessfulTransfer() {
         victim.publish(metadata, sbpRun, sbpBucket);
-        verify(blob, times(1)).delete();
+        verify(fileBlob, times(1)).delete();
     }
 
     @Test
@@ -154,12 +176,12 @@ public class SbpFileTransferTest {
                 contentType,
                 Arguments.testDefaultsBuilder().cleanup(false).build());
         victim.publish(metadata, sbpRun, sbpBucket);
-        verify(blob, never()).delete();
+        verify(fileBlob, never()).delete();
     }
 
     @Test
     public void shouldThrowWhenSourceBlobHasNullMd5() {
-        when(blob.getMd5()).thenReturn(null);
+        when(fileBlob.getMd5()).thenReturn(null);
         try {
             victim.publish(metadata, sbpRun, sbpBucket);
             fail("Should have thrown by now");
@@ -171,8 +193,16 @@ public class SbpFileTransferTest {
 
     @Test
     public void filtersOutStagingCompletionFiles() {
-        when(blob.getName()).thenReturn("/" + directoryForPost + "/" + PipelineResults.STAGING_COMPLETE);
+        when(fileBlob.getName()).thenReturn("/" + directoryForFile + "/" + PipelineResults.STAGING_COMPLETE);
         victim.publish(metadata, sbpRun, sbpBucket);
-        verifyZeroInteractions(cloudCopy);
+        ArgumentCaptor<SbpFileMetadata> metadataCaptor = ArgumentCaptor.forClass(SbpFileMetadata.class);
+        verify(sbpApi).postFile(metadataCaptor.capture());
+
+        assertManifest(metadataCaptor.getValue());
+    }
+
+    private void assertManifest(SbpFileMetadata metadata) {
+        assertThat(metadata.directory()).isEqualTo("");
+        assertThat(metadata.filename()).isEqualTo(SbpFileTransfer.MANIFEST_FILENAME);
     }
 }

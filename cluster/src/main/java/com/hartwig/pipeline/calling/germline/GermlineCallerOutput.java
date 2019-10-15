@@ -17,8 +17,14 @@ public interface GermlineCallerOutput extends StageOutput{
 
     Optional<GoogleStorageLocation> maybeGermlineVcfLocation();
 
+    Optional<GoogleStorageLocation> maybeGermlineVcfIndexLocation();
+
     default GoogleStorageLocation germlineVcfLocation() {
         return maybeGermlineVcfLocation().orElseThrow(() -> new IllegalStateException("No germline VCF available"));
+    }
+
+    default GoogleStorageLocation germlineVcfIndexLocation() {
+        return maybeGermlineVcfIndexLocation().orElseThrow(() -> new IllegalStateException("No germline VCF index available"));
     }
 
     static ImmutableGermlineCallerOutput.Builder builder() {
