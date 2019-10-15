@@ -96,7 +96,8 @@ public class SmokeTest {
         String destinationBucket = bucketName(api);
         String setName = setName(api);
 
-        rclone(ImmutableList.of("delete", format("%s:%s/%s", GCP_REMOTE, arguments.patientReportBucket(), setName)));
+        rclone(delete(setName, GCP_REMOTE, arguments.patientReportBucket()));
+        rclone(delete(setName, S3_REMOTE, destinationBucket));
 
         PipelineState state = victim.start(arguments);
         assertThat(state.status()).isEqualTo(PipelineStatus.QC_FAILED);
@@ -129,6 +130,10 @@ public class SmokeTest {
 
         assertThatAlignmentIsEqualToExpected(destinationBucket, setName, REFERENCE_SAMPLE, rclone);
         assertThatAlignmentIsEqualToExpected(destinationBucket, setName, TUMOR_SAMPLE, rclone);
+    }
+
+    private List<String> delete(final String setName, final String remote, final String bucket) {
+        return ImmutableList.of("delete", format("%s:%s/%s", remote, bucket, setName));
     }
 
     private boolean findInManifestAndDeleteIt(final ArrayList<String> inManifest, final String size, final String path) {
