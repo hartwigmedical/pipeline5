@@ -21,13 +21,6 @@ public interface Arguments {
         SOMATIC
     }
 
-    enum AlignerType {
-        SPARK,
-        VM
-    }
-
-    boolean forceJarUpload();
-
     boolean cleanup();
 
     boolean usePreemptibleVms();
@@ -62,8 +55,6 @@ public interface Arguments {
 
     String region();
 
-    String jarDirectory();
-
     String sampleDirectory();
 
     String sampleId();
@@ -77,8 +68,6 @@ public interface Arguments {
     String sbpApiUrl();
 
     String sbpS3Url();
-
-    String nodeInitializationScript();
 
     String cloudSdkPath();
 
@@ -95,8 +84,6 @@ public interface Arguments {
     String toolsBucket();
 
     String patientReportBucket();
-
-    AlignerType alignerType();
 
     Optional<String> cmek();
 
@@ -140,21 +127,17 @@ public interface Arguments {
                     .project(DEFAULT_PRODUCTION_PROJECT)
                     .version(DEFAULT_PRODUCTION_VERSION)
                     .sampleDirectory(DEFAULT_DOCKER_SAMPLE_DIRECTORY)
-                    .nodeInitializationScript(DEFAULT_DOCKER_NODE_INIT)
                     .sbpApiUrl(DEFAULT_PRODUCTION_SBP_API_URL)
                     .sbpS3Url(DEFAULT_PRODUCTION_SBP_S3_URL)
-                    .jarDirectory(DEFAULT_DOCKER_JAR_LIB)
                     .privateKeyPath(DEFAULT_DOCKER_KEY_PATH)
                     .serviceAccountEmail(DEFAULT_PRODUCTION_SERVICE_ACCOUNT_EMAIL)
                     .cloudSdkPath(DEFAULT_DOCKER_CLOUD_SDK_PATH)
-                    .forceJarUpload(false)
                     .cleanup(true)
                     .usePreemptibleVms(true)
                     .useLocalSsds(true)
                     .upload(true)
                     .runBamMetrics(true)
                     .runAligner(true)
-                    .alignerType(DEFAULT_ALIGNER_TYPE)
                     .runSnpGenotyper(true)
                     .runGermlineCaller(true)
                     .runSomaticCaller(true)
@@ -174,19 +157,15 @@ public interface Arguments {
                     .project(DEFAULT_DEVELOPMENT_PROJECT)
                     .version(DEFAULT_DEVELOPMENT_VERSION)
                     .sampleDirectory(DEFAULT_DEVELOPMENT_SAMPLE_DIRECTORY)
-                    .nodeInitializationScript(DEFAULT_DEVELOPMENT_NODE_INIT)
-                    .jarDirectory(DEFAULT_DEVELOPMENT_JAR_LIB)
                     .privateKeyPath(DEFAULT_DEVELOPMENT_KEY_PATH)
                     .cloudSdkPath(DEFAULT_DEVELOPMENT_CLOUD_SDK_PATH)
                     .serviceAccountEmail(DEFAULT_DEVELOPMENT_SERVICE_ACCOUNT_EMAIL)
-                    .forceJarUpload(false)
                     .cleanup(true)
                     .usePreemptibleVms(true)
                     .useLocalSsds(true)
                     .upload(true)
                     .runBamMetrics(true)
                     .runAligner(true)
-                    .alignerType(DEFAULT_ALIGNER_TYPE)
                     .runSnpGenotyper(true)
                     .runGermlineCaller(true)
                     .runSomaticCaller(true)
@@ -212,19 +191,15 @@ public interface Arguments {
                     .project(DEFAULT_DEVELOPMENT_PROJECT)
                     .version(DEFAULT_DEVELOPMENT_VERSION)
                     .sampleDirectory(DEFAULT_DOCKER_SAMPLE_DIRECTORY)
-                    .nodeInitializationScript(DEFAULT_DOCKER_NODE_INIT)
-                    .jarDirectory(DEFAULT_DOCKER_JAR_LIB)
                     .privateKeyPath(DEFAULT_DOCKER_KEY_PATH)
                     .cloudSdkPath(DEFAULT_DOCKER_CLOUD_SDK_PATH)
                     .serviceAccountEmail(DEFAULT_DEVELOPMENT_SERVICE_ACCOUNT_EMAIL)
-                    .forceJarUpload(false)
                     .cleanup(true)
                     .usePreemptibleVms(true)
                     .useLocalSsds(true)
                     .upload(true)
                     .runBamMetrics(true)
                     .runAligner(true)
-                    .alignerType(DEFAULT_ALIGNER_TYPE)
                     .runSnpGenotyper(true)
                     .runGermlineCaller(true)
                     .runSomaticCaller(true)
@@ -251,8 +226,6 @@ public interface Arguments {
     }
 
     Mode DEFAULT_MODE = Mode.SINGLE_SAMPLE;
-    AlignerType DEFAULT_ALIGNER_TYPE = AlignerType.VM;
-
     String DEFAULT_PRODUCTION_RCLONE_PATH = "/usr/bin";
     String DEFAULT_PRODUCTION_RCLONE_GCP_REMOTE = "gs";
     String DEFAULT_PRODUCTION_RCLONE_S3_REMOTE = "s3";
@@ -267,8 +240,6 @@ public interface Arguments {
     String DEFAULT_PRODUCTION_PATIENT_REPORT_BUCKET = "pipeline-output-prod";
 
     String DEFAULT_DOCKER_SAMPLE_DIRECTORY = "/samples";
-    String DEFAULT_DOCKER_NODE_INIT = "node-init.sh";
-    String DEFAULT_DOCKER_JAR_LIB = "/usr/share/pipeline5";
     String DEFAULT_DOCKER_KEY_PATH = "/secrets/bootstrap-key.json";
     String DEFAULT_DOCKER_CLOUD_SDK_PATH = "/usr/lib/google-cloud-sdk/bin";
 
@@ -277,8 +248,6 @@ public interface Arguments {
     String DEFAULT_DEVELOPMENT_PROJECT = "hmf-pipeline-development";
     String DEFAULT_DEVELOPMENT_VERSION = "local-SNAPSHOT";
     String DEFAULT_DEVELOPMENT_SAMPLE_DIRECTORY = workingDir() + "/samples";
-    String DEFAULT_DEVELOPMENT_NODE_INIT = workingDir() + "/cluster/src/main/resources/node-init.sh";
-    String DEFAULT_DEVELOPMENT_JAR_LIB = workingDir() + "/bam/target";
     String DEFAULT_DEVELOPMENT_KEY_PATH = workingDir() + "/bootstrap-key.json";
     String DEFAULT_DEVELOPMENT_CLOUD_SDK_PATH = System.getProperty("user.home") + "/gcloud/google-cloud-sdk/bin";
     String DEFAULT_DEVELOPMENT_SERVICE_ACCOUNT_EMAIL = String.format("bootstrap@%s.iam.gserviceaccount.com", DEFAULT_DEVELOPMENT_PROJECT);

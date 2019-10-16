@@ -26,7 +26,7 @@ public class AlignmentOutputStorage {
     }
 
     public Optional<AlignmentOutput> get(SingleSampleRunMetadata metadata) {
-        RuntimeBucket bucket = RuntimeBucket.from(storage, DataprocAligner.NAMESPACE, metadata, arguments);
+        RuntimeBucket bucket = RuntimeBucket.from(storage, Aligner.NAMESPACE, metadata, arguments);
         String sorted = AlignmentOutputPaths.sorted(metadata.sampleName());
         Blob bamBlob = bucket.get(resultsDirectory.path(sorted));
         Blob baiBlob = bucket.get(resultsDirectory.path(AlignmentOutputPaths.bai(sorted)));
@@ -43,6 +43,6 @@ public class AlignmentOutputStorage {
 
     @NotNull
     private GoogleStorageLocation location(final RuntimeBucket bucket, final Blob blob) {
-        return GoogleStorageLocation.of(bucket.name(), blob.getName().replace(DataprocAligner.NAMESPACE + "/", ""));
+        return GoogleStorageLocation.of(bucket.name(), blob.getName().replace(Aligner.NAMESPACE + "/", ""));
     }
 }

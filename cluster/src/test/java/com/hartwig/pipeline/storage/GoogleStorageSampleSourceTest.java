@@ -13,11 +13,14 @@ import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.google.common.collect.Lists;
+import com.hartwig.patient.Lane;
+import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ImmutableArguments;
 import com.hartwig.pipeline.alignment.sample.GoogleStorageSampleSource;
-import com.hartwig.pipeline.alignment.sample.SampleData;
 import com.hartwig.pipeline.alignment.sample.SampleSource;
+import com.hartwig.pipeline.testsupport.TestBlobs;
+import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -26,9 +29,7 @@ import org.mockito.Mockito;
 @SuppressWarnings("unchecked")
 public class GoogleStorageSampleSourceTest {
 
-    private static final String SAMPLE = "reference";
-    private static final ImmutableArguments ARGUMENTS =
-            Arguments.testDefaultsBuilder().sampleId(SAMPLE).alignerType(Arguments.AlignerType.SPARK).build();
+    private static final ImmutableArguments ARGUMENTS = Arguments.testDefaultsBuilder().sampleId(TestInputs.referenceSample()).build();
     private SampleSource victim;
     private Storage storage;
 
@@ -49,42 +50,31 @@ public class GoogleStorageSampleSourceTest {
     }
 
     @Test
-    public void calculatesSizeOfAllFilesInSampleBucket() {
-        Bucket bucket = mock(Bucket.class);
-        Blob firstBlob = mock(Blob.class);
-        when(firstBlob.getSize()).thenReturn(1L);
-        when(firstBlob.getName()).thenReturn("fastq1_r1.gz");
-        Blob secondBlob = mock(Blob.class);
-        when(secondBlob.getSize()).thenReturn(10L);
-        when(secondBlob.getName()).thenReturn("fastq1_r2.gz");
-
-        Page<Blob> blobs = mock(Page.class);
-        when(blobs.iterateAll()).thenReturn(Lists.newArrayList(firstBlob, secondBlob));
-
-        when(bucket.list(Storage.BlobListOption.prefix("aligner/samples/"))).thenReturn(blobs);
-        when(storage.get(Mockito.anyString())).thenReturn(bucket);
-        SampleData sample = victim.sample(referenceRunMetadata());
-        assertThat(sample.sample().name()).isEqualTo(SAMPLE);
-        assertThat(sample.sizeInBytesGZipped()).isEqualTo(11);
+    public void findsSampleInExistingRuntimeBucket() {
+        verifyFastq(TestInputs.referenceSample() + "_HJJLGCCXX_S11_L001_R1_001.fastq.gz",
+                TestInputs.referenceSample() + "_HJJLGCCXX_S11_L001_R2_001.fastq.gz");
     }
 
-    @Test
-    public void fileSizeScaledDownWhenNotGzipped() {
-        Bucket bucket = mock(Bucket.class);
-        Blob firstBlob = mock(Blob.class);
-        when(firstBlob.getSize()).thenReturn(4L);
-        when(firstBlob.getName()).thenReturn("fastq1_r1");
-        Blob secondBlob = mock(Blob.class);
-        when(secondBlob.getSize()).thenReturn(40L);
-        when(secondBlob.getName()).thenReturn("fastq1_r2.gz");
-
-        Page<Blob> blobs = mock(Page.class);
-        when(blobs.iterateAll()).thenReturn(Lists.newArrayList(firstBlob, secondBlob));
-
-        when(bucket.list(Storage.BlobListOption.prefix("aligner/samples/"))).thenReturn(blobs);
-        when(storage.get(Mockito.anyString())).thenReturn(bucket);
-        SampleData sample = victim.sample(referenceRunMetadata());
-        assertThat(sample.sample().name()).isEqualTo(SAMPLE);
-        assertThat(sample.sizeInBytesGZipped()).isEqualTo(41);
+    @Test(expected = IllegalArgumentException.class)
+    public void illegalArgumentExceptionWhenFileNamingIncorrect() {
+        verifyFastq(TestInputs.referenceSample() + "_not_correct.fastq.gz",
+                TestInputs.referenceSample() + "_HJJLGCCXX_S11_L001_R2_001.fastq.gz");
     }
+
+    private void verifyFastq(final String firstOfPair, final String secondOfPair) {
+        Bucket bucket = mock(Bucket.class);
+        Blob firstBlob = TestBlobs.blob(firstOfPair);
+        Blob secondBlob = TestBlobs.blob(secondOfPair);
+
+        Page<Blob> page = TestBlobs.pageOf(firstBlob, secondBlob);
+        when(bucket.list(Storage.BlobListOption.prefix("aligner/samples/"))).thenReturn(page);
+        when(storage.get(Mockito.anyString())).thenReturn(bucket);
+        Sample sample = victim.sample(referenceRunMetadata());
+        assertThat(sample.name()).isEqualTo(TestInputs.referenceSample());
+        assertThat(sample.lanes()).hasSize(1);
+        Lane lane = sample.lanes().get(0);
+        assertThat(lane.firstOfPairPath()).isEqualTo(firstBlob.getName());
+        assertThat(lane.secondOfPairPath()).isEqualTo(secondBlob.getName());
+    }
+
 }

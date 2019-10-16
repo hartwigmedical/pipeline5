@@ -12,8 +12,7 @@ public class SbpS3SampleSource implements SampleSource {
     }
 
     @Override
-    public SampleData sample(final SingleSampleRunMetadata metadata) {
-        Sample sample = sbpSampleReader.read(metadata.entityId());
-        return SampleData.of(sample, 0);
+    public Sample sample(final SingleSampleRunMetadata metadata) {
+        return sbpSampleReader.read(metadata.entityId());
     }
 }

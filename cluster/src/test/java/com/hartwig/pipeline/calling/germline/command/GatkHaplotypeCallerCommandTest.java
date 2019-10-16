@@ -1,6 +1,6 @@
 package com.hartwig.pipeline.calling.germline.command;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
