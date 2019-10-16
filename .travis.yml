@@ -8,7 +8,7 @@ jdk:
 services:
 - docker
 env:
-- PIPELINE5_VERSION=5.5.$TRAVIS_BUILD_NUMBER
+- PIPELINE5_VERSION=5.6.$TRAVIS_BUILD_NUMBER
 script:
 - 'if [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then mvn clean install -B; else mvn clean install -DskipDocker -DskipShade -B; fi'
 before_install:
