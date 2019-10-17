@@ -7,7 +7,6 @@ import java.util.List;
 
 import com.hartwig.pipeline.calling.SubStage;
 import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.OutputFile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.tools.Versions;
@@ -33,7 +32,8 @@ public class RepeatMaskerInsertionAnnotation extends SubStage {
                 scriptDir));
 
         // The above is a workaround as we have a failure when invoking the repeatmasker on a VCF without any real
-        // data in it. When that is rectified upstream we can use these below and remove the invocation just above:
+        // data in it: https://github.com/PapenfussLab/gridss/issues/256
+        // When that is rectified upstream we can use these below and remove the invocation just above:
         /*
         String initialOutputPath = VmDirectories.outputFile("repeatmaster_annotation");
         bash.addCommand(new RscriptRepeatMasker(inputFile, output.path(), repeatMaskerDb));

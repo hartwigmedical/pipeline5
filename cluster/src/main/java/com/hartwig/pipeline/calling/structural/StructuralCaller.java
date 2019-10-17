@@ -70,7 +70,9 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
     public List<ResourceDownload> resources(final Storage storage, final String resourceBucket, final RuntimeBucket bucket) {
         return ImmutableList.of(ResourceDownload.from(bucket, new Resource(storage, resourceBucket, ResourceNames.REFERENCE_GENOME)),
                 ResourceDownload.from(bucket, new Resource(storage, resourceBucket, ResourceNames.GRIDSS_CONFIG)),
-                ResourceDownload.from(bucket, new Resource(storage, resourceBucket, ResourceNames.GRIDSS_PON)));
+                ResourceDownload.from(bucket, new Resource(storage, resourceBucket, ResourceNames.GRIDSS_PON)),
+                ResourceDownload.from(bucket, new Resource(storage, resourceBucket, ResourceNames.GRIDSS_REPEAT_MASKER_DB)),
+                ResourceDownload.from(bucket, new Resource(storage, resourceBucket, ResourceNames.VIRUS_REFERENCE_GENOME)));
     }
 
     @Override
@@ -96,6 +98,8 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
         String refBamPath = referenceBam.getLocalTargetPath();
         String tumorBamPath = tumorBam.getLocalTargetPath();
         String referenceGenomePath = resources.get(ResourceNames.REFERENCE_GENOME).find("fasta");
+        String virusReferenceGenomePath = resources.get(ResourceNames.VIRUS_REFERENCE_GENOME).find("human_virus.fa");
+        String repeatMaskerDbPath = resources.get(ResourceNames.GRIDSS_REPEAT_MASKER_DB).find("hg19.fa.out");
 
         commands.addAll(new Preprocess(refBamPath,
                 referenceWorkingDir,
@@ -108,8 +112,7 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
         String filteredVcfBasename = VmDirectories.outputFile(format("%s.gridss.somatic.vcf", tumorSampleName));
         String fullVcfBasename = VmDirectories.outputFile(format("%s.gridss.somatic.full.vcf", tumorSampleName));
 
-        SubStageInputOutput annotated =
-                assemble.andThen(new Calling(refBamPath, tumorBamPath, referenceGenomePath, configurationFile, blacklist))
+        commands.addAll(assemble.andThen(new Calling(refBamPath, tumorBamPath, referenceGenomePath, configurationFile, blacklist))
                         .andThen(new Annotation(referenceBam.getLocalTargetPath(),
                                 tumorBam.getLocalTargetPath(),
                                 assemble.completedBam(),
@@ -117,14 +120,15 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
                                 jointName,
                                 configurationFile,
                                 blacklist))
-                        .apply(SubStageInputOutput.empty(jointName));
-
-        commands.addAll(annotated.bash());
-        commands.addAll(new Filter(filteredVcfBasename, fullVcfBasename).apply(annotated).bash());
+                .andThen(new Filter(filteredVcfBasename, fullVcfBasename))
+                .andThen(new ViralAnnotation(virusReferenceGenomePath, filteredVcfBasename))
+                .andThen(new RepeatMaskerInsertionAnnotation(repeatMaskerDbPath, filteredVcfBasename))
+                .apply(SubStageInputOutput.empty(jointName))
+                .bash());
 
         filteredVcf = filteredVcfBasename + ".gz";
         fullVcfCompressed = fullVcfBasename + ".gz";
-        annotatedOutputFilePath = annotated.outputFile().path();
+        annotatedOutputFilePath = VmDirectories.outputFile(jointName + ".annotation.vcf.gz");
         return commands;
     }
 
