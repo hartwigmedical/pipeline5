@@ -170,7 +170,7 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
                         NAMESPACE,
                         Folder.from(),
                         basename(filteredVcf),
-                        format("%s.gridss.somatic.vcf", metadata.tumor().sampleName()),
+                        format("%s.gridss.somatic.vcf.gz", metadata.tumor().sampleName()),
                         resultsDirectory))
                 .addReportComponents(new EntireOutputComponent(bucket,
                         Folder.from(),

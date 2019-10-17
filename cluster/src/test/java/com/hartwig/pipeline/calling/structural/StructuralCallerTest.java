@@ -100,8 +100,8 @@ public class StructuralCallerTest extends StageTest<StructuralCallerOutput, Soma
                 "( (grep BEALN /data/output/tumor.gridss.somatic.vcf || true) | (grep -vE '^#' >> /data/output/tumor.gridss.somatic.withbealn.vcf || true) )",
                 "( (grep -v BEALN /data/output/tumor.gridss.somatic.vcf || true) | (grep -vE '^#' >> /data/output/tumor.gridss.somatic.missingbealn.vcf || true) )",
                 "java -Xmx8G -Dsamjdk.create_index=true -Dsamjdk.use_async_io_read_samtools=true -Dsamjdk.use_async_io_write_samtools=true -Dsamjdk.use_async_io_write_tribble=true -Dsamjdk.buffer_size=4194304 -cp /opt/tools/gridss/2.5.2/gridss.jar gridss.AnnotateUntemplatedSequence REFERENCE_SEQUENCE=/data/resources/human_virus.fa INPUT=/data/output/tumor.gridss.somatic.missingbealn.vcf OUTPUT=/data/output/tumor.gridss.somatic.withannotation.vcf",
-                "java -Xmx2G -jar /opt/tools/picard/2.18.27/picard.jar SortVcf I=/data/output/tumor.gridss.somatic.withbealn.vcf I=/data/output/tumor.gridss.somatic.withannotation.vcf O=/data/output/reference_tumor.viral_annotation.vcf",
-                "/bin/bash -e /opt/tools/gridss/2.5.2/failsafe_repeatmasker_invoker.sh /data/output/tumor.gridss.somatic.vcf /data/output/reference_tumor.repeatmaster_annotation.vcf.gz /data/resources/gridss.hg19.fa.out /opt/tools/gridss/2.5.2");
+                "java -Xmx2G -jar /opt/tools/picard/2.18.27/picard.jar SortVcf I=/data/output/tumor.gridss.somatic.withbealn.vcf I=/data/output/tumor.gridss.somatic.withannotation.vcf O=/data/output/reference_tumor.viral_annotation.vcf.gz",
+                "/bin/bash -e /opt/tools/gridss/2.5.2/failsafe_repeatmasker_invoker.sh /data/output/reference_tumor.viral_annotation.vcf.gz /data/output/reference_tumor.repeatmasker_annotation.vcf.gz /data/resources/gridss.hg19.fa.out /opt/tools/gridss/2.5.2");
     }
 
     @Override
