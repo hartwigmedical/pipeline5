@@ -8,6 +8,10 @@ public class GridssArgument {
     private final String key;
     private final String value;
 
+    static final GridssArgument ASSUME_SORTED = new GridssArgument("assume_sorted", "true");
+    static final GridssArgument NO_COMPRESSION = new GridssArgument("compression_level", "0");
+    static final GridssArgument NULL_FILE_EXTENSION = new GridssArgument("file_extension", "null");
+
     GridssArgument(final String key, final String value) {
         this.key = key.toUpperCase();
         this.value = value;
