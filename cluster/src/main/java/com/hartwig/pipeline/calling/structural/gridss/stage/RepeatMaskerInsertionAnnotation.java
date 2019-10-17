@@ -13,12 +13,10 @@ import com.hartwig.pipeline.tools.Versions;
 
 public class RepeatMaskerInsertionAnnotation extends SubStage {
     private final String repeatMaskerDb;
-    private final String inputFile;
 
-    public RepeatMaskerInsertionAnnotation(final String repeatMaskerDb, final String inputFile) {
-        super("repeatmaster_annotation", OutputFile.GZIPPED_VCF);
+    public RepeatMaskerInsertionAnnotation(final String repeatMaskerDb) {
+        super("repeatmasker_annotation", OutputFile.GZIPPED_VCF);
         this.repeatMaskerDb = repeatMaskerDb;
-        this.inputFile = inputFile;
     }
 
     @Override
@@ -26,7 +24,7 @@ public class RepeatMaskerInsertionAnnotation extends SubStage {
         String scriptDir = format("%s/gridss/%s", VmDirectories.TOOLS, Versions.GRIDSS);
         return Collections.singletonList(() -> format("/bin/bash -e %s/failsafe_repeatmasker_invoker.sh %s %s %s %s",
                 scriptDir,
-                inputFile,
+                input.path(),
                 output.path(),
                 repeatMaskerDb,
                 scriptDir));
