@@ -9,7 +9,6 @@ import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.calling.SubStage;
 import com.hartwig.pipeline.calling.structural.gridss.command.AnnotateUntemplatedSequence;
 import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.JavaJarCommand;
 import com.hartwig.pipeline.execution.vm.OutputFile;
 import com.hartwig.pipeline.execution.vm.unix.CpCommand;
@@ -23,7 +22,7 @@ public class ViralAnnotation extends SubStage {
     private final String inputFile;
 
     public ViralAnnotation(final String referenceGenome, final String inputFile) {
-        super("viral_annotation", OutputFile.VCF, false);
+        super("viral_annotation", OutputFile.GZIPPED_VCF, false);
         this.referenceGenome = referenceGenome;
         this.inputFile = inputFile;
     }
