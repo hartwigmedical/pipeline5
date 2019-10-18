@@ -78,6 +78,15 @@ purple/CPCT12345678T.purple.somatic.vcf.gz
 purple/CPCT12345678T.purple.somatic.vcf.gz.tbi
 purple/CPCT12345678T.purple.sv.vcf.gz
 purple/CPCT12345678T.purple.sv.vcf.gz.tbi
+purple/CPCT12345678T.purple.sv.ann.vcf.gz,
+purple/CPCT12345678T.purple.sv.ann.vcf.gz.tbi,
+purple/CPCT12345678T.purple.sv.missingbealn.vcf,
+purple/CPCT12345678T.purple.sv.vcf,
+purple/CPCT12345678T.purple.sv.withannotation.vcf,
+purple/CPCT12345678T.purple.sv.withannotation.vcf.idx,
+purple/CPCT12345678T.purple.sv.withbealn.vcf,
+purple/CPCT12345678T.purple.viral_annotation.vcf.gz,
+purple/CPCT12345678T.purple.viral_annotation.vcf.gz.tbi,
 purple/plot/CPCT12345678T.circos.png
 purple/plot/CPCT12345678T.copynumber.png
 purple/plot/CPCT12345678T.input.png
