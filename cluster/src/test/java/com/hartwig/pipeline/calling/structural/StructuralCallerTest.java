@@ -26,8 +26,6 @@ public class StructuralCallerTest extends StageTest<StructuralCallerOutput, Soma
         MockResource.addToStorage(storage, ResourceNames.REFERENCE_GENOME, "reference.fasta");
         MockResource.addToStorage(storage, ResourceNames.GRIDSS_CONFIG, "gridss.properties", "blacklist.bed");
         MockResource.addToStorage(storage, ResourceNames.GRIDSS_PON, "gridss.bed");
-        MockResource.addToStorage(storage, ResourceNames.GRIDSS_REPEAT_MASKER_DB, "gridss.hg19.fa.out");
-        MockResource.addToStorage(storage, ResourceNames.VIRUS_REFERENCE_GENOME, "human_virus.fa");
     }
 
     @Override
@@ -56,9 +54,7 @@ public class StructuralCallerTest extends StageTest<StructuralCallerOutput, Soma
     protected List<String> expectedResources() {
         return ImmutableList.of(resource("reference_genome"),
                 resource("gridss_config"),
-                resource("gridss_pon"),
-                resource("gridss_repeatmasker_db"),
-                resource("virus_reference_genome"));
+                resource("gridss_pon"));
     }
 
     @Override
@@ -93,15 +89,7 @@ public class StructuralCallerTest extends StageTest<StructuralCallerOutput, Soma
                 "mv /data/output/tumor.gridss.somatic.full.vcf.bgz /data/output/tumor.gridss.somatic.full.vcf.gz",
                 "mv /data/output/tumor.gridss.somatic.full.vcf.bgz.tbi /data/output/tumor.gridss.somatic.full.vcf.gz.tbi",
                 "mv /data/output/tumor.gridss.somatic.vcf.bgz /data/output/tumor.gridss.somatic.vcf.gz",
-                "mv /data/output/tumor.gridss.somatic.vcf.bgz.tbi /data/output/tumor.gridss.somatic.vcf.gz.tbi",
-                "gunzip -kd /data/output/tumor.gridss.somatic.vcf.gz",
-                "(grep -E '^#' /data/output/tumor.gridss.somatic.vcf > /data/output/tumor.gridss.somatic.withbealn.vcf || true)",
-                "cp /data/output/tumor.gridss.somatic.withbealn.vcf /data/output/tumor.gridss.somatic.missingbealn.vcf",
-                "( (grep BEALN /data/output/tumor.gridss.somatic.vcf || true) | (grep -vE '^#' >> /data/output/tumor.gridss.somatic.withbealn.vcf || true) )",
-                "( (grep -v BEALN /data/output/tumor.gridss.somatic.vcf || true) | (grep -vE '^#' >> /data/output/tumor.gridss.somatic.missingbealn.vcf || true) )",
-                "java -Xmx8G -Dsamjdk.create_index=true -Dsamjdk.use_async_io_read_samtools=true -Dsamjdk.use_async_io_write_samtools=true -Dsamjdk.use_async_io_write_tribble=true -Dsamjdk.buffer_size=4194304 -cp /opt/tools/gridss/2.5.2/gridss.jar gridss.AnnotateUntemplatedSequence REFERENCE_SEQUENCE=/data/resources/human_virus.fa INPUT=/data/output/tumor.gridss.somatic.missingbealn.vcf OUTPUT=/data/output/tumor.gridss.somatic.withannotation.vcf",
-                "java -Xmx2G -jar /opt/tools/picard/2.18.27/picard.jar SortVcf I=/data/output/tumor.gridss.somatic.withbealn.vcf I=/data/output/tumor.gridss.somatic.withannotation.vcf O=/data/output/reference_tumor.viral_annotation.vcf.gz",
-                "/bin/bash -e /opt/tools/gridss/2.5.2/failsafe_repeatmasker_invoker.sh /data/output/reference_tumor.viral_annotation.vcf.gz /data/output/reference_tumor.repeatmasker_annotation.vcf.gz /data/resources/gridss.hg19.fa.out /opt/tools/gridss/2.5.2");
+                "mv /data/output/tumor.gridss.somatic.vcf.bgz.tbi /data/output/tumor.gridss.somatic.vcf.gz.tbi");
     }
 
     @Override
