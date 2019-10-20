@@ -2,6 +2,7 @@ package com.hartwig.pipeline.tertiary.purple;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Collections;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
@@ -23,8 +24,6 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
         super.setUp();
         MockResource.addToStorage(storage, ResourceNames.REFERENCE_GENOME, "reference.fasta");
         MockResource.addToStorage(storage, ResourceNames.GC_PROFILE, "gc_profile.cnp");
-        MockResource.addToStorage(storage, ResourceNames.GRIDSS_REPEAT_MASKER_DB, "gridss.hg19.fa.out");
-        MockResource.addToStorage(storage, ResourceNames.VIRUS_REFERENCE_GENOME, "human_virus.fa");
     }
 
     @Override
@@ -57,23 +56,16 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
 
     @Override
     protected List<String> expectedResources() {
-        return ImmutableList.of(resource(ResourceNames.GC_PROFILE),
-                resource(ResourceNames.REFERENCE_GENOME),
-                resource(ResourceNames.VIRUS_REFERENCE_GENOME),
-                resource(ResourceNames.GRIDSS_REPEAT_MASKER_DB));
+        return ImmutableList.of(resource(ResourceNames.GC_PROFILE), resource(ResourceNames.REFERENCE_GENOME));
     }
 
     @Override
     protected List<String> expectedCommands() {
-        return ImmutableList.of("java -Xmx8G -jar /opt/tools/purple/2.34/purple.jar -reference reference -tumor tumor -output_dir /data/output -amber /data/input/results -cobalt /data/input/results -gc_profile /data/resources/gc_profile.cnp -somatic_vcf /data/input/tumor.vcf.gz -structural_vcf /data/input/tumor.gridss.filtered.vcf.gz -sv_recovery_vcf /data/input/tumor.gridss.full.vcf.gz -circos /opt/tools/circos/0.69.6/bin/circos -ref_genome /data/resources/reference.fasta -threads $(grep -c '^processor' /proc/cpuinfo)",
-                "gunzip -kd /data/output/tumor.purple.sv.vcf.gz",
-                "(grep -E '^#' /data/output/tumor.purple.sv.vcf > /data/output/tumor.purple.sv.withbealn.vcf || true)",
-                "cp /data/output/tumor.purple.sv.withbealn.vcf /data/output/tumor.purple.sv.missingbealn.vcf",
-                "( (grep BEALN /data/output/tumor.purple.sv.vcf || true) | (grep -vE '^#' >> /data/output/tumor.purple.sv.withbealn.vcf || true) )",
-                "( (grep -v BEALN /data/output/tumor.purple.sv.vcf || true) | (grep -vE '^#' >> /data/output/tumor.purple.sv.missingbealn.vcf || true) )",
-                "java -Xmx8G -Dsamjdk.create_index=true -Dsamjdk.use_async_io_read_samtools=true -Dsamjdk.use_async_io_write_samtools=true -Dsamjdk.use_async_io_write_tribble=true -Dsamjdk.buffer_size=4194304 -cp /opt/tools/gridss/2.5.2/gridss.jar gridss.AnnotateUntemplatedSequence REFERENCE_SEQUENCE=/data/resources/human_virus.fa INPUT=/data/output/tumor.purple.sv.missingbealn.vcf OUTPUT=/data/output/tumor.purple.sv.withannotation.vcf",
-                "java -Xmx2G -jar /opt/tools/picard/2.18.27/picard.jar SortVcf I=/data/output/tumor.purple.sv.withbealn.vcf I=/data/output/tumor.purple.sv.withannotation.vcf O=/data/output/tumor.purple.viral_annotation.vcf.gz",
-                "/bin/bash -e /opt/tools/gridss/2.5.2/failsafe_repeatmasker_invoker.sh /data/output/tumor.purple.viral_annotation.vcf.gz /data/output/tumor.purple.sv.ann.vcf.gz /data/resources/gridss.hg19.fa.out /opt/tools/gridss/2.5.2");
+        return Collections.singletonList("java -Xmx8G -jar $TOOLS_DIR/purple/2.34/purple.jar -reference reference -tumor tumor -output_dir "
+                + "/data/output -amber /data/input/results -cobalt /data/input/results -gc_profile /data/resources/gc_profile.cnp "
+                + "-somatic_vcf /data/input/tumor.vcf.gz -structural_vcf /data/input/tumor.gridss.filtered.vcf.gz -sv_recovery_vcf "
+                + "/data/input/tumor.gridss.full.vcf.gz -circos $TOOLS_DIR/circos/0.69.6/bin/circos -ref_genome "
+                + "/data/resources/reference.fasta -threads $(grep -c '^processor' /proc/cpuinfo)");
     }
 
     @Test
@@ -87,11 +79,6 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
                 StageRunner.resourceMap(victim.resources(storage, defaultArguments().resourceBucket(), runtimeBucket)))
                 .get(0)
                 .asBash()).contains("-highly_diploid_percentage 0.88 -somatic_min_total 100 -somatic_min_purity_spread 0.1");
-    }
-
-    @Override
-    public void returnsExpectedOutput() {
-        // do nothing
     }
 
     @Override

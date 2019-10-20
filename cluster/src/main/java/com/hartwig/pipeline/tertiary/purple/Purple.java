@@ -1,5 +1,6 @@
 package com.hartwig.pipeline.tertiary.purple;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -7,14 +8,12 @@ import com.google.cloud.storage.Storage;
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
-import com.hartwig.pipeline.calling.SubStageInputOutput;
 import com.hartwig.pipeline.calling.somatic.SomaticCallerOutput;
 import com.hartwig.pipeline.calling.structural.StructuralCallerOutput;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.InputDownload;
-import com.hartwig.pipeline.execution.vm.OutputFile;
 import com.hartwig.pipeline.execution.vm.ResourceDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
@@ -43,14 +42,10 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
     private final InputDownload cobaltOutputDownload;
     private final boolean shallow;
 
-    private OutputFile outputFile;
-
     @Override
     public List<ResourceDownload> resources(final Storage storage, final String resourceBucket, final RuntimeBucket bucket) {
         return ImmutableList.of(ResourceDownload.from(storage, resourceBucket, ResourceNames.GC_PROFILE, bucket),
-                ResourceDownload.from(storage, resourceBucket, ResourceNames.REFERENCE_GENOME, bucket),
-                ResourceDownload.from(storage, resourceBucket, ResourceNames.VIRUS_REFERENCE_GENOME, bucket),
-                ResourceDownload.from(storage, resourceBucket, ResourceNames.GRIDSS_REPEAT_MASKER_DB, bucket));
+                ResourceDownload.from(storage, resourceBucket, ResourceNames.REFERENCE_GENOME, bucket));
     }
 
     public Purple(SomaticCallerOutput somaticCallerOutput, StructuralCallerOutput structuralCallerOutput, AmberOutput amberOutput,
@@ -72,7 +67,7 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
 
     @Override
     public List<BashCommand> commands(final SomaticRunMetadata metadata, final Map<String, ResourceDownload> resources) {
-        SubStageInputOutput output = new PurpleApplicationCommand(metadata.reference().sampleName(),
+        return Collections.singletonList(new PurpleApplicationCommand(metadata.reference().sampleName(),
                 metadata.tumor().sampleName(),
                 amberOutputDownload.getLocalTargetPath(),
                 cobaltOutputDownload.getLocalTargetPath(),
@@ -82,11 +77,7 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
                 svRecoveryVcfDownload.getLocalTargetPath(),
                 VmDirectories.TOOLS + "/circos/" + Versions.CIRCOS + "/bin/circos",
                 resources.get(ResourceNames.REFERENCE_GENOME).find("fasta"),
-                shallow).andThen(new ViralAnnotation(resources.get(ResourceNames.VIRUS_REFERENCE_GENOME).find("human_virus.fa")))
-                .andThen(new RepeatMaskerInsertionAnnotation(resources.get(ResourceNames.GRIDSS_REPEAT_MASKER_DB).find("hg19.fa.out")))
-                .apply(SubStageInputOutput.empty(metadata.tumor().sampleName()));
-        outputFile = output.outputFile();
-        return output.bash();
+                shallow));
     }
 
     @Override
@@ -118,7 +109,8 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
                 .maybeOutputDirectory(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(), true))
                 .maybeSomaticVcf(GoogleStorageLocation.of(bucket.name(),
                         resultsDirectory.path(metadata.tumor().sampleName() + PURPLE_SOMATIC_VCF)))
-                .maybeStructuralVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(outputFile.fileName())))
+                .maybeStructuralVcf(GoogleStorageLocation.of(bucket.name(),
+                        resultsDirectory.path(metadata.tumor().sampleName() + PURPLE_SV_VCF)))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.from(), NAMESPACE, resultsDirectory))
                 .build();
     }

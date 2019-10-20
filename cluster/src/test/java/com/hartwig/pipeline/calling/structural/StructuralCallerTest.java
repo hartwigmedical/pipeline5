@@ -26,6 +26,8 @@ public class StructuralCallerTest extends StageTest<StructuralCallerOutput, Soma
         MockResource.addToStorage(storage, ResourceNames.REFERENCE_GENOME, "reference.fasta");
         MockResource.addToStorage(storage, ResourceNames.GRIDSS_CONFIG, "gridss.properties", "blacklist.bed");
         MockResource.addToStorage(storage, ResourceNames.GRIDSS_PON, "gridss.bed");
+        MockResource.addToStorage(storage, ResourceNames.GRIDSS_REPEAT_MASKER_DB, "gridss.hg19.fa.out");
+        MockResource.addToStorage(storage, ResourceNames.VIRUS_REFERENCE_GENOME, "human_virus.fa");
     }
 
     @Override
@@ -54,7 +56,9 @@ public class StructuralCallerTest extends StageTest<StructuralCallerOutput, Soma
     protected List<String> expectedResources() {
         return ImmutableList.of(resource("reference_genome"),
                 resource("gridss_config"),
-                resource("gridss_pon"));
+                resource("gridss_pon"),
+                resource("gridss_repeatmasker_db"),
+                resource("virus_reference_genome"));
     }
 
     @Override
@@ -84,8 +88,16 @@ public class StructuralCallerTest extends StageTest<StructuralCallerOutput, Soma
                 "java -Xmx8G -Dsamjdk.create_index=true -Dsamjdk.use_async_io_read_samtools=true -Dsamjdk.use_async_io_write_samtools=true -Dsamjdk.use_async_io_write_tribble=true -Dsamjdk.buffer_size=4194304 -cp /opt/tools/gridss/2.5.2/gridss.jar gridss.AnnotateUntemplatedSequence REFERENCE_SEQUENCE=/data/resources/reference.fasta INPUT=/data/output/reference_tumor.annotated_variants.vcf OUTPUT=/data/output/reference_tumor.annotation.vcf",
                 "/opt/tools/tabix/0.2.6/bgzip -f /data/output/reference_tumor.annotation.vcf",
                 "/opt/tools/tabix/0.2.6/tabix /data/output/reference_tumor.annotation.vcf.gz -p vcf",
-                "(gunzip -c /data/output/reference_tumor.annotation.vcf.gz | awk ' { if (length($0) >= 4000) { gsub(\":0.00:\", \":0.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000:\")} ; print $0  } ' > /data/output/reference_tumor.annotation.vcf)",
-                "Rscript /opt/tools/gridss/2.5.2/gridss_somatic_filter.R -p /data/resources -i /data/output/reference_tumor.annotation.vcf -o /data/output/tumor.gridss.somatic.vcf -f /data/output/tumor.gridss.somatic.full.vcf -s /opt/tools/gridss/2.5.2",
+                "gunzip -kd /data/output/reference_tumor.annotation.vcf.gz",
+                "(grep -E '^#' /data/output/reference_tumor.annotation.vcf > /data/output/reference_tumor.annotation.withbealn.vcf || true)",
+                "cp /data/output/reference_tumor.annotation.withbealn.vcf /data/output/reference_tumor.annotation.missingbealn.vcf",
+                "( (grep BEALN /data/output/reference_tumor.annotation.vcf || true) | (grep -vE '^#' >> /data/output/reference_tumor.annotation.withbealn.vcf || true) )",
+                "( (grep -v BEALN /data/output/reference_tumor.annotation.vcf || true) | (grep -vE '^#' >> /data/output/reference_tumor.annotation.missingbealn.vcf || true) )",
+                "java -Xmx8G -Dsamjdk.create_index=true -Dsamjdk.use_async_io_read_samtools=true -Dsamjdk.use_async_io_write_samtools=true -Dsamjdk.use_async_io_write_tribble=true -Dsamjdk.buffer_size=4194304 -cp /opt/tools/gridss/2.5.2/gridss.jar gridss.AnnotateUntemplatedSequence REFERENCE_SEQUENCE=/data/resources/human_virus.fa INPUT=/data/output/reference_tumor.annotation.missingbealn.vcf OUTPUT=/data/output/reference_tumor.annotation.withannotation.vcf",
+                "java -Xmx2G -jar /opt/tools/picard/2.18.27/picard.jar SortVcf I=/data/output/reference_tumor.annotation.withbealn.vcf I=/data/output/reference_tumor.annotation.withannotation.vcf O=/data/output/reference_tumor.viral_annotation.vcf",
+                "/bin/bash -e /opt/tools/gridss/2.5.2/failsafe_repeatmasker_invoker.sh /data/output/reference_tumor.viral_annotation.vcf /data/output/reference_tumor.repeatmasker_annotation.vcf.gz /data/resources/gridss.hg19.fa.out /opt/tools/gridss/2.5.2",
+                "(gunzip -c /data/output/reference_tumor.repeatmasker_annotation.vcf.gz | awk ' { if (length($0) >= 4000) { gsub(\":0.00:\", \":0.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000:\")} ; print $0  } ' > /data/output/reference_tumor.repeatmasker_annotation.vcf)",
+                "Rscript /opt/tools/gridss/2.5.2/gridss_somatic_filter.R -p /data/resources -i /data/output/reference_tumor.repeatmasker_annotation.vcf -o /data/output/tumor.gridss.somatic.vcf -f /data/output/tumor.gridss.somatic.full.vcf -s /opt/tools/gridss/2.5.2",
                 "mv /data/output/tumor.gridss.somatic.full.vcf.bgz /data/output/tumor.gridss.somatic.full.vcf.gz",
                 "mv /data/output/tumor.gridss.somatic.full.vcf.bgz.tbi /data/output/tumor.gridss.somatic.full.vcf.gz.tbi",
                 "mv /data/output/tumor.gridss.somatic.vcf.bgz /data/output/tumor.gridss.somatic.vcf.gz",

@@ -3,56 +3,24 @@ package com.hartwig.pipeline.tertiary.purple;
 import static com.google.common.collect.Lists.newArrayList;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-import com.hartwig.pipeline.calling.SubStage;
 import com.hartwig.pipeline.execution.vm.Bash;
-import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.JavaJarCommand;
-import com.hartwig.pipeline.execution.vm.OutputFile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.tools.Versions;
 
 import org.jetbrains.annotations.NotNull;
 
-class PurpleApplicationCommand extends SubStage {
+class PurpleApplicationCommand extends JavaJarCommand {
 
     private static final String LOW_COVERAGE_DIPLOID_PERCENTAGE = "0.88";
     private static final String LOW_COVERAGE_SOMATIC_MIN_TOTAL = "100";
     private static final String LOW_COVERAGE_SOMATIC_MIN_PURITY_SPREAD = "0.1";
-    private final String referenceSampleName;
-    private final String tumorSampleName;
-    private final String amberDirectory;
-    private final String cobaltDirectory;
-    private final String gcProfile;
-    private final String somaticVcf;
-    private final String structuralVcf;
-    private final String svRecoveryVcf;
-    private final String circosPath;
-    private final String referenceGenomePath;
-    private final boolean isShallow;
 
     PurpleApplicationCommand(String referenceSampleName, String tumorSampleName, String amberDirectory, String cobaltDirectory,
             String gcProfile, String somaticVcf, String structuralVcf, String svRecoveryVcf, String circosPath, String referenceGenomePath, boolean isShallow) {
-        super("purple.sv", OutputFile.GZIPPED_VCF);
-
-        this.referenceSampleName = referenceSampleName;
-        this.tumorSampleName = tumorSampleName;
-        this.amberDirectory = amberDirectory;
-        this.cobaltDirectory = cobaltDirectory;
-        this.gcProfile = gcProfile;
-        this.somaticVcf = somaticVcf;
-        this.structuralVcf = structuralVcf;
-        this.svRecoveryVcf = svRecoveryVcf;
-        this.circosPath = circosPath;
-        this.referenceGenomePath = referenceGenomePath;
-        this.isShallow = isShallow;
-    }
-
-    @Override
-    public List<BashCommand> bash(final OutputFile input, final OutputFile output) {
-        return Collections.singletonList(new JavaJarCommand("purple",
+        super("purple",
                 Versions.PURPLE,
                 "purple.jar",
                 "8G",
@@ -65,7 +33,7 @@ class PurpleApplicationCommand extends SubStage {
                         structuralVcf,
                         svRecoveryVcf,
                         circosPath,
-                        referenceGenomePath), maybeShallowArguments(isShallow))));
+                        referenceGenomePath), maybeShallowArguments(isShallow)));
     }
 
     @NotNull

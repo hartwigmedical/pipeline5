@@ -19,6 +19,8 @@ import com.hartwig.pipeline.calling.structural.gridss.stage.Assemble;
 import com.hartwig.pipeline.calling.structural.gridss.stage.Calling;
 import com.hartwig.pipeline.calling.structural.gridss.stage.Filter;
 import com.hartwig.pipeline.calling.structural.gridss.stage.Preprocess;
+import com.hartwig.pipeline.calling.structural.gridss.stage.RepeatMaskerInsertionAnnotation;
+import com.hartwig.pipeline.calling.structural.gridss.stage.ViralAnnotation;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
@@ -67,7 +69,9 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
     public List<ResourceDownload> resources(final Storage storage, final String resourceBucket, final RuntimeBucket bucket) {
         return ImmutableList.of(ResourceDownload.from(bucket, new Resource(storage, resourceBucket, ResourceNames.REFERENCE_GENOME)),
                 ResourceDownload.from(bucket, new Resource(storage, resourceBucket, ResourceNames.GRIDSS_CONFIG)),
-                ResourceDownload.from(bucket, new Resource(storage, resourceBucket, ResourceNames.GRIDSS_PON)));
+                ResourceDownload.from(bucket, new Resource(storage, resourceBucket, ResourceNames.GRIDSS_PON)),
+                ResourceDownload.from(bucket, new Resource(storage, resourceBucket, ResourceNames.GRIDSS_REPEAT_MASKER_DB)),
+                ResourceDownload.from(bucket, new Resource(storage, resourceBucket, ResourceNames.VIRUS_REFERENCE_GENOME)));
     }
 
     @Override
@@ -93,6 +97,9 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
         String refBamPath = referenceBam.getLocalTargetPath();
         String tumorBamPath = tumorBam.getLocalTargetPath();
         String referenceGenomePath = resources.get(ResourceNames.REFERENCE_GENOME).find("fasta");
+        String virusReferenceGenomePath = resources.get(ResourceNames.VIRUS_REFERENCE_GENOME).find("human_virus.fa");
+        String repeatMaskerDbPath = resources.get(ResourceNames.GRIDSS_REPEAT_MASKER_DB).find("hg19.fa.out");
+
         commands.addAll(new Preprocess(refBamPath,
                 referenceWorkingDir,
                 referenceSampleName,
@@ -113,11 +120,13 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
                                 jointName,
                                 configurationFile,
                                 blacklist))
+                        .andThen(new ViralAnnotation(virusReferenceGenomePath))
+                        .andThen(new RepeatMaskerInsertionAnnotation(repeatMaskerDbPath))
                         .andThen(new Filter(filteredVcfBasename, fullVcfBasename))
                         .apply(SubStageInputOutput.empty(jointName));
         commands.addAll(filteredAndAnnotated.bash());
 
-        filteredVcf = filteredVcfBasename + ".gz";
+        filteredVcf = filteredAndAnnotated.outputFile().path();
         fullVcfCompressed = fullVcfBasename + ".gz";
         annotatedOutputFilePath = VmDirectories.outputFile(jointName + ".annotation.vcf.gz");
         return commands;

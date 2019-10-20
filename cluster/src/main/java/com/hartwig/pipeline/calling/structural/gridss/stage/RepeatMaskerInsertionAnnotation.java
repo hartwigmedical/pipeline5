@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.tertiary.purple;
+package com.hartwig.pipeline.calling.structural.gridss.stage;
 
 import static java.lang.String.format;
 
@@ -14,8 +14,8 @@ import com.hartwig.pipeline.tools.Versions;
 public class RepeatMaskerInsertionAnnotation extends SubStage {
     private final String repeatMaskerDb;
 
-    RepeatMaskerInsertionAnnotation(final String repeatMaskerDb) {
-        super("purple.sv.ann", OutputFile.GZIPPED_VCF);
+    public RepeatMaskerInsertionAnnotation(final String repeatMaskerDb) {
+        super("repeatmasker_annotation", OutputFile.GZIPPED_VCF);
         this.repeatMaskerDb = repeatMaskerDb;
     }
 

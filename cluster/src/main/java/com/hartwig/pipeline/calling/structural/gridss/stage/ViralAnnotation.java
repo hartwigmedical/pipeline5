@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.tertiary.purple;
+package com.hartwig.pipeline.calling.structural.gridss.stage;
 
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
@@ -17,11 +17,10 @@ import com.hartwig.pipeline.execution.vm.unix.PipeCommands;
 import com.hartwig.pipeline.tools.Versions;
 
 public class ViralAnnotation extends SubStage {
-
     private final String referenceGenome;
 
-    ViralAnnotation(final String referenceGenome) {
-        super("purple.viral_annotation", OutputFile.GZIPPED_VCF, false);
+    public ViralAnnotation(final String referenceGenome) {
+        super("viral_annotation", OutputFile.VCF, false);
         this.referenceGenome = referenceGenome;
     }
 
