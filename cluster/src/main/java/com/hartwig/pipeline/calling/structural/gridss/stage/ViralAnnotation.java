@@ -20,7 +20,7 @@ public class ViralAnnotation extends SubStage {
     private final String referenceGenome;
 
     public ViralAnnotation(final String referenceGenome) {
-        super("viral_annotation", OutputFile.VCF, false);
+        super("viral_annotation", OutputFile.GZIPPED_VCF, false);
         this.referenceGenome = referenceGenome;
     }
 

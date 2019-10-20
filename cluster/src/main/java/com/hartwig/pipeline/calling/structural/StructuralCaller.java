@@ -120,8 +120,8 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
                                 jointName,
                                 configurationFile,
                                 blacklist))
-                        .andThen(new ViralAnnotation(virusReferenceGenomePath))
                         .andThen(new RepeatMaskerInsertionAnnotation(repeatMaskerDbPath))
+                        .andThen(new ViralAnnotation(virusReferenceGenomePath))
                         .andThen(new Filter(filteredVcfBasename, fullVcfBasename))
                         .apply(SubStageInputOutput.empty(jointName));
         commands.addAll(filteredAndAnnotated.bash());
