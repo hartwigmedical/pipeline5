@@ -117,7 +117,7 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
                         referenceFasta)).apply(snpFilterOutput);
 
         SubStageInputOutput finalOutput =
-                new CombineFilteredVariants(indelFilterOutput.outputFile().path(), referenceFasta).andThen(new SnpEff(snpEffConfig))
+                new CombineFilteredVariants(snpFilterOutput.outputFile().path(), referenceFasta).andThen(new SnpEff(snpEffConfig))
                         .andThen(new SnpSiftDbnsfpAnnotation(resources.get(DBNSFP).find("txt.gz"), snpEffConfig))
                         .andThen(new CosmicAnnotation(resources.get(COSMIC).find("collapsed.vcf.gz"), "ID"))
                         .andThen(new SnpSiftFrequenciesAnnotation(resources.get(GONL).find("vcf.gz"), snpEffConfig))
