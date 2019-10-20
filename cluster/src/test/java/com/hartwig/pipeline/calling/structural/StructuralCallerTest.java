@@ -88,7 +88,7 @@ public class StructuralCallerTest extends StageTest<StructuralCallerOutput, Soma
                 "java -Xmx8G -Dsamjdk.create_index=true -Dsamjdk.use_async_io_read_samtools=true -Dsamjdk.use_async_io_write_samtools=true -Dsamjdk.use_async_io_write_tribble=true -Dsamjdk.buffer_size=4194304 -cp /opt/tools/gridss/2.5.2/gridss.jar gridss.AnnotateUntemplatedSequence REFERENCE_SEQUENCE=/data/resources/reference.fasta INPUT=/data/output/reference_tumor.annotated_variants.vcf OUTPUT=/data/output/reference_tumor.annotation.vcf",
                 "/opt/tools/tabix/0.2.6/bgzip -f /data/output/reference_tumor.annotation.vcf",
                 "/opt/tools/tabix/0.2.6/tabix /data/output/reference_tumor.annotation.vcf.gz -p vcf",
-                "/bin/bash -e /opt/tools/gridss/2.5.2/failsafe_repeatmasker_invoker.sh /data/output/reference_tumor.annotation.vcf.gz /data/output/reference_tumor.repeatmasker_annotation.vcf /data/resources/gridss.hg19.fa.out /opt/tools/gridss/2.5.2",
+                "/bin/bash -e /opt/tools/gridss/2.5.2/failsafe_repeatmasker_invoker.sh /data/output/reference_tumor.annotation.vcf.gz /data/output/reference_tumor.repeatmasker_annotation.vcf.gz /data/resources/gridss.hg19.fa.out /opt/tools/gridss/2.5.2",
                 "gunzip -kd /data/output/reference_tumor.repeatmasker_annotation.vcf.gz",
                 "(grep -E '^#' /data/output/reference_tumor.repeatmasker_annotation.vcf > /data/output/reference_tumor.repeatmasker_annotation.withbealn.vcf || true)",
                 "cp /data/output/reference_tumor.repeatmasker_annotation.withbealn.vcf /data/output/reference_tumor.repeatmasker_annotation.missingbealn.vcf",

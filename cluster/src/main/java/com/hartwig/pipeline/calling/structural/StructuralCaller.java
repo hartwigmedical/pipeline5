@@ -126,7 +126,7 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
                         .apply(SubStageInputOutput.empty(jointName));
         commands.addAll(filteredAndAnnotated.bash());
 
-        filteredVcf = filteredAndAnnotated.outputFile().path();
+        filteredVcf = filteredVcfBasename + ".gz";
         fullVcfCompressed = fullVcfBasename + ".gz";
         annotatedOutputFilePath = VmDirectories.outputFile(jointName + ".annotation.vcf.gz");
         return commands;
