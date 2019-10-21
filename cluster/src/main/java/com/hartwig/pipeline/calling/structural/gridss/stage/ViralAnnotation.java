@@ -36,13 +36,15 @@ public class ViralAnnotation extends SubStage {
         return ImmutableList.of(new GunzipAndKeepArchiveCommand(input.path()),
                 () -> format("(grep -E '^#' %s > %s || true)", inputVcfGunzipped, withBealn),
                 new CpCommand(withBealn, missingBealn),
-                new PipeCommands(() -> format(" (grep BEALN %s || true)", inputVcfGunzipped), () -> format("(grep -vE '^#' >> %s || true) ", withBealn)),
-                new PipeCommands(() -> format(" (grep -v BEALN %s || true)", inputVcfGunzipped), () -> format("(grep -vE '^#' >> %s || true) ", missingBealn)),
+                new PipeCommands(() -> format(" (grep BEALN %s || true)", inputVcfGunzipped),
+                        () -> format("(grep -vE '^#' >> %s || true) ", withBealn)),
+                new PipeCommands(() -> format(" (grep -v BEALN %s || true)", inputVcfGunzipped),
+                        () -> format("(grep -vE '^#' >> %s || true) ", missingBealn)),
                 new AnnotateUntemplatedSequence(missingBealn, referenceGenome, annotatedBealn),
                 new JavaJarCommand("picard",
                         Versions.PICARD,
                         "picard.jar",
-                        "2G",
+                        "32G",
                         asList("SortVcf", "I=" + withBealn, "I=" + annotatedBealn, "O=" + output.path())));
     }
 }
