@@ -16,7 +16,7 @@ public class OutputUpload implements BashCommand {
     @Override
     public String asBash() {
         return new SubShellCommand(() ->
-                format("cp %s %s && gsutil -qm cp -r %s/ gs://%s/%s",
+                format("cp %s %s && gsutil -qm cp -r %s/* gs://%s/%s/",
                         BashStartupScript.LOG_FILE,
                         VmDirectories.OUTPUT,
                         VmDirectories.OUTPUT,
