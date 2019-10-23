@@ -10,7 +10,7 @@ import static org.mockito.Mockito.when;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.sbpapi.SbpRestApi;
-import com.hartwig.pipeline.transfer.SbpFileTransfer;
+import com.hartwig.pipeline.transfer.sbp.SbpFileTransfer;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -35,7 +35,7 @@ public class SbpSomaticMetadataApiTest {
     }
 
     @Test
-    public void retrievesSetMetadataFromSbpRestApi() throws Exception {
+    public void retrievesSetMetadataFromSbpRestApi() {
         when(sbpRestApi.getRun(SET_ID)).thenReturn(TestJson.get("get_run"));
         when(sbpRestApi.getSample(SAMPLE_ID)).thenReturn(TestJson.get("get_samples_by_set"));
         when(sbpRestApi.getSample(SAMPLE_ID)).thenReturn(TestJson.get("get_samples_by_set"));

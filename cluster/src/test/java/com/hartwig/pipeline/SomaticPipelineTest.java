@@ -4,7 +4,6 @@ import static com.hartwig.pipeline.testsupport.TestInputs.amberOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.bachelorOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.chordOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.cobaltOutput;
-import static com.hartwig.pipeline.testsupport.TestInputs.defaultPair;
 import static com.hartwig.pipeline.testsupport.TestInputs.defaultSomaticRunMetadata;
 import static com.hartwig.pipeline.testsupport.TestInputs.germlineCallerOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.healthCheckerOutput;
@@ -51,6 +50,7 @@ import com.hartwig.pipeline.report.PipelineResultsProvider;
 import com.hartwig.pipeline.stages.StageRunner;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthCheckOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
+import com.hartwig.pipeline.transfer.google.GoogleArchiver;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -63,6 +63,7 @@ public class SomaticPipelineTest {
     private SomaticPipeline victim;
     private StructuralCaller structuralCaller;
     private SomaticMetadataApi setMetadataApi;
+    private GoogleArchiver googleArchiver;
     private Cleanup cleanup;
     private StageRunner<SomaticRunMetadata> stageRunner;
     private OutputStorage<GermlineCallerOutput, SingleSampleRunMetadata> germlineCallerOutputStorage;
@@ -74,6 +75,7 @@ public class SomaticPipelineTest {
         bamMetricsOutputStorage = mock(OutputStorage.class);
         structuralCaller = mock(StructuralCaller.class);
         setMetadataApi = mock(SomaticMetadataApi.class);
+        googleArchiver = mock(GoogleArchiver.class);
         when(setMetadataApi.get()).thenReturn(defaultSomaticRunMetadata());
         Storage storage = mock(Storage.class);
         Bucket reportBucket = mock(Bucket.class);
@@ -87,8 +89,7 @@ public class SomaticPipelineTest {
                 stageRunner,
                 alignmentOutputStorage,
                 bamMetricsOutputStorage,
-                germlineCallerOutputStorage,
-                setMetadataApi,
+                germlineCallerOutputStorage, setMetadataApi, googleArchiver,
                 pipelineResults,
                 fullSomaticResults,
                 cleanup,
@@ -163,6 +164,13 @@ public class SomaticPipelineTest {
         failedRun();
         victim.run();
         verify(setMetadataApi, times(1)).complete(PipelineStatus.FAILED, defaultSomaticRunMetadata());
+    }
+
+    @Test
+    public void archivesRunOnSuccess() {
+        successfulRun();
+        victim.run();
+        verify(googleArchiver).transfer(defaultSomaticRunMetadata());
     }
 
     @Test

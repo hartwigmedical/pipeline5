@@ -2,7 +2,7 @@ package com.hartwig.pipeline.storage;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.hartwig.pipeline.transfer.SbpS3FileSource;
+import com.hartwig.pipeline.transfer.sbp.SbpS3FileSource;
 
 import org.junit.Test;
 

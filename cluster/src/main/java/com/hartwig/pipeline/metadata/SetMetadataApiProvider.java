@@ -3,7 +3,7 @@ package com.hartwig.pipeline.metadata;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.sbpapi.SbpRestApi;
-import com.hartwig.pipeline.transfer.SbpFileTransferProvider;
+import com.hartwig.pipeline.transfer.sbp.SbpFileTransferProvider;
 
 public class SetMetadataApiProvider {
 
