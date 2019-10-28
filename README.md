@@ -4,6 +4,16 @@
 2. [Developers Guide](#2-developers-guide)
 3. [Operators Guide](#3-operators-guide)
 
+---
+**NOTE**
+
+As of version 5.4 we have stopped using ADAM, Spark and Dataproc in favour of also running BWA on our VM management framework. 
+
+We were able to achieve similar performance with this approach, at a fraction of the cost, using pre-emptible VMs and local SSDs.
+
+We still love ADAM and hope to find a use for it in the future!
+
+---
 
 ## 1 Technical Overview
 

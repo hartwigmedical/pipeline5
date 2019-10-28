@@ -32,7 +32,7 @@ public class BashStartupScript {
         return new BashStartupScript(runtimeBucketName);
     }
 
-    public String asUnixString() {
+    String asUnixString() {
         return asUnixString(new StorageStrategy() {});
     }
 

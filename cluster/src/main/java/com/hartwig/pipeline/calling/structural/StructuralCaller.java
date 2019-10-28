@@ -60,7 +60,6 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
         tumorBai = new InputDownload(pair.tumor().finalBaiLocation());
     }
 
-
     @Override
     public List<BashCommand> inputs() {
         return ImmutableList.of(referenceBam, referenceBai, tumorBam, tumorBai);
@@ -70,7 +69,9 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
     public List<ResourceDownload> resources(final Storage storage, final String resourceBucket, final RuntimeBucket bucket) {
         return ImmutableList.of(ResourceDownload.from(bucket, new Resource(storage, resourceBucket, ResourceNames.REFERENCE_GENOME)),
                 ResourceDownload.from(bucket, new Resource(storage, resourceBucket, ResourceNames.GRIDSS_CONFIG)),
-                ResourceDownload.from(bucket, new Resource(storage, resourceBucket, ResourceNames.GRIDSS_PON)));
+                ResourceDownload.from(bucket, new Resource(storage, resourceBucket, ResourceNames.GRIDSS_PON)),
+                ResourceDownload.from(bucket, new Resource(storage, resourceBucket, ResourceNames.GRIDSS_REPEAT_MASKER_DB)),
+                ResourceDownload.from(bucket, new Resource(storage, resourceBucket, ResourceNames.VIRUS_REFERENCE_GENOME)));
     }
 
     @Override
@@ -96,6 +97,8 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
         String refBamPath = referenceBam.getLocalTargetPath();
         String tumorBamPath = tumorBam.getLocalTargetPath();
         String referenceGenomePath = resources.get(ResourceNames.REFERENCE_GENOME).find("fasta");
+        String virusReferenceGenomePath = resources.get(ResourceNames.VIRUS_REFERENCE_GENOME).find("human_virus.fa");
+        String repeatMaskerDbPath = resources.get(ResourceNames.GRIDSS_REPEAT_MASKER_DB).find("hg19.fa.out");
 
         commands.addAll(new Preprocess(refBamPath,
                 referenceWorkingDir,
@@ -108,7 +111,7 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
         String filteredVcfBasename = VmDirectories.outputFile(format("%s.gridss.somatic.vcf", tumorSampleName));
         String fullVcfBasename = VmDirectories.outputFile(format("%s.gridss.somatic.full.vcf", tumorSampleName));
 
-        SubStageInputOutput annotated =
+        SubStageInputOutput filteredAndAnnotated =
                 assemble.andThen(new Calling(refBamPath, tumorBamPath, referenceGenomePath, configurationFile, blacklist))
                         .andThen(new Annotation(referenceBam.getLocalTargetPath(),
                                 tumorBam.getLocalTargetPath(),
@@ -117,14 +120,15 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
                                 jointName,
                                 configurationFile,
                                 blacklist))
+                        .andThen(new RepeatMaskerInsertionAnnotation(repeatMaskerDbPath))
+                        .andThen(new ViralAnnotation(virusReferenceGenomePath))
+                        .andThen(new Filter(filteredVcfBasename, fullVcfBasename))
                         .apply(SubStageInputOutput.empty(jointName));
-
-        commands.addAll(annotated.bash());
-        commands.addAll(new Filter(filteredVcfBasename, fullVcfBasename).apply(annotated).bash());
+        commands.addAll(filteredAndAnnotated.bash());
 
         filteredVcf = filteredVcfBasename + ".gz";
         fullVcfCompressed = fullVcfBasename + ".gz";
-        annotatedOutputFilePath = annotated.outputFile().path();
+        annotatedOutputFilePath = VmDirectories.outputFile(jointName + ".annotation.vcf.gz");
         return commands;
     }
 
@@ -166,7 +170,7 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
                         NAMESPACE,
                         Folder.from(),
                         basename(filteredVcf),
-                        basename(filteredVcf),
+                        format("%s.gridss.somatic.vcf.gz", metadata.tumor().sampleName()),
                         resultsDirectory))
                 .addReportComponents(new EntireOutputComponent(bucket,
                         Folder.from(),
