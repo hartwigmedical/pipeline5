@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.transfer;
+package com.hartwig.pipeline.transfer.sbp;
 
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;

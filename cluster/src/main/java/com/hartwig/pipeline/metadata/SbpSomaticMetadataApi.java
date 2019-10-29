@@ -13,7 +13,7 @@ import com.hartwig.pipeline.sbpapi.SbpRestApi;
 import com.hartwig.pipeline.sbpapi.SbpRun;
 import com.hartwig.pipeline.sbpapi.SbpSample;
 import com.hartwig.pipeline.sbpapi.SbpSet;
-import com.hartwig.pipeline.transfer.SbpFileTransfer;
+import com.hartwig.pipeline.transfer.sbp.SbpFileTransfer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -103,7 +103,7 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
         }
     }
 
-    private Optional<SbpSample> find(final String type, final List<SbpSample> samplesBySet) throws IOException {
+    private Optional<SbpSample> find(final String type, final List<SbpSample> samplesBySet) {
         return samplesBySet.stream().filter(sample -> sample.type().equals(type)).findFirst();
     }
 

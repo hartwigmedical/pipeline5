@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.transfer;
+package com.hartwig.pipeline.transfer.sbp;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

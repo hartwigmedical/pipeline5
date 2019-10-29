@@ -24,7 +24,7 @@ import com.hartwig.pipeline.sbpapi.SbpRun;
 import com.hartwig.pipeline.sbpapi.SbpSet;
 import com.hartwig.pipeline.storage.RCloneCloudCopy;
 import com.hartwig.pipeline.testsupport.Resources;
-import com.hartwig.pipeline.transfer.SbpFileTransfer;
+import com.hartwig.pipeline.transfer.sbp.SbpFileTransfer;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -86,7 +86,7 @@ public class SmokeTest {
                 .sbpS3Url("s3.us-east-1.amazonaws.com")
                 .rcloneGcpRemote(GCP_REMOTE)
                 .upload(true)
-                .cleanup(false)
+                .cleanup(false).archiveBucket("smoke-test-archive-bucket")
                 .build();
 
         SbpRestApi api = SbpRestApi.newInstance(arguments);
@@ -113,7 +113,6 @@ public class SmokeTest {
 
         ArrayList<String> inManifest = new ArrayList<>(FileUtils.readLines(localCopyOfManifest));
         List<String> rcloneSizesAndPaths = listRemoteFiles(format("%s:%s/%s/", S3_REMOTE, destinationBucket, setName));
-        assertThat(inManifest.size()).isGreaterThan(0);
         assertThat(rcloneSizesAndPaths.size()).isGreaterThan(0);
         assertThat(inManifest.size()).isEqualTo(rcloneSizesAndPaths.size());
         for (String s3File : rcloneSizesAndPaths) {
@@ -124,10 +123,17 @@ public class SmokeTest {
             }
         }
         assertThat(inManifest.size()).isEqualTo(0);
+        assertArchivedCopy(arguments.archiveBucket(), setName, localCopyOfManifest);
         FileUtils.deleteQuietly(localCopyOfManifest);
 
         assertThatAlignmentIsEqualToExpected(destinationBucket, setName, REFERENCE_SAMPLE, rclone);
         assertThatAlignmentIsEqualToExpected(destinationBucket, setName, TUMOR_SAMPLE, rclone);
+    }
+
+    private void assertArchivedCopy(String archiveBucket, String archiveFolder, File localCopyOfManifest) throws IOException {
+        List<String> rcloneSizesAndPaths = new ArrayList<>(listRemoteFiles(format("%s:%s/%s/", GCP_REMOTE, archiveBucket, archiveFolder)));
+        ManifestAssert.assertThat(rcloneSizesAndPaths, REFERENCE_SAMPLE, TUMOR_SAMPLE)
+                .hasTheseFiles(localCopyOfManifest.getAbsolutePath(), archiveFolder + "/");
     }
 
     private List<String> delete(final String setName, final String remote, final String bucket) {
@@ -173,7 +179,7 @@ public class SmokeTest {
     }
 
     private void assertThatAlignmentIsEqualToExpected(final String s3Bucket, final String setID, final String sample,
-            final RCloneCloudCopy rclone) throws Exception {
+            final RCloneCloudCopy rclone) {
         String bam = sample + ".bam";
         File results = new File(resultsDir.getPath() + "/" + bam);
 

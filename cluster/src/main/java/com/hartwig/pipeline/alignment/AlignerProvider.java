@@ -20,7 +20,7 @@ import com.hartwig.pipeline.storage.GSUtilCloudCopy;
 import com.hartwig.pipeline.storage.LocalFileSource;
 import com.hartwig.pipeline.storage.RCloneCloudCopy;
 import com.hartwig.pipeline.storage.SampleUpload;
-import com.hartwig.pipeline.transfer.SbpS3FileSource;
+import com.hartwig.pipeline.transfer.sbp.SbpS3FileSource;
 
 public abstract class AlignerProvider {
 
