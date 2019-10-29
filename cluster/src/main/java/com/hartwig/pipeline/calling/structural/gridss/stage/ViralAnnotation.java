@@ -1,20 +1,18 @@
 package com.hartwig.pipeline.calling.structural.gridss.stage;
 
 import static java.lang.String.format;
-import static java.util.Arrays.asList;
 
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.calling.SubStage;
 import com.hartwig.pipeline.calling.structural.gridss.command.AnnotateUntemplatedSequence;
+import com.hartwig.pipeline.calling.structural.gridss.command.SortVcf;
 import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.execution.vm.JavaJarCommand;
 import com.hartwig.pipeline.execution.vm.OutputFile;
 import com.hartwig.pipeline.execution.vm.unix.CpCommand;
 import com.hartwig.pipeline.execution.vm.unix.GunzipAndKeepArchiveCommand;
 import com.hartwig.pipeline.execution.vm.unix.PipeCommands;
-import com.hartwig.pipeline.tools.Versions;
 
 public class ViralAnnotation extends SubStage {
     private final String referenceGenome;
@@ -41,11 +39,7 @@ public class ViralAnnotation extends SubStage {
                 new PipeCommands(() -> format(" (grep -v BEALN %s || true)", inputVcfGunzipped),
                         () -> format("(grep -vE '^#' >> %s || true) ", missingBealn)),
                 new AnnotateUntemplatedSequence(missingBealn, referenceGenome, annotatedBealn),
-                new JavaJarCommand("picard",
-                        Versions.PICARD,
-                        "picard.jar",
-                        "32G",
-                        asList("SortVcf", "I=" + withBealn, "I=" + annotatedBealn, "O=" + output.path())));
+                new SortVcf(withBealn, annotatedBealn, output.path()));
     }
 }
 
