@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
+import org.immutables.value.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,8 +24,11 @@ public class LocalOverrides {
             LOGGER.info("Overrides from [{}] found", rc.getAbsolutePath());
             ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
             try {
-                OverridesData yaml = mapper.readValue(rc, OverridesData.class);
-                overrides = yaml.toMap();
+                Overrides yaml = mapper.readValue(rc, Overrides.class);
+                overrides.put("version", yaml.version());
+                overrides.put("keystore", yaml.keystore());
+                overrides.put("privateKey", yaml.privateKey());
+                overrides.put("rclonePath", yaml.rclonePath());
             } catch (IOException e) {
                 LOGGER.warn("Could not parse local overrides", e);
             }
@@ -37,36 +41,15 @@ public class LocalOverrides {
         return overrides.getOrDefault(key, defaultValue);
     }
 
-    @JsonDeserialize
-    private static class OverridesData {
-        String version;
-        String keystore;
-        String privateKey;
-        String rclonePath;
+    @Value.Immutable
+    @JsonDeserialize(as = ImmutableOverrides.class)
+    public interface Overrides {
+        String version();
 
-        String getVersion() {
-            return version;
-        }
+        String keystore();
 
-        String getKeystore() {
-            return keystore;
-        }
+        String privateKey();
 
-        String getPrivateKey() {
-            return privateKey;
-        }
-
-        String getRclonePath() {
-            return rclonePath;
-        }
-
-        Map<String, String> toMap() {
-            Map<String, String> map = new HashMap<>();
-            map.put("version", getVersion());
-            map.put("keystore", getKeystore());
-            map.put("privateKey", getPrivateKey());
-            map.put("rclonePath", getRclonePath());
-            return map;
-        }
+        String rclonePath();
     }
 }
