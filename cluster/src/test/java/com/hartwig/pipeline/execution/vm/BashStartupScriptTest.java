@@ -9,7 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import com.hartwig.pipeline.execution.vm.storage.LocalSsdStorageStrategy;
-import com.hartwig.support.test.Resources;
+import com.hartwig.pipeline.testsupport.Resources;
 
 import org.junit.Before;
 import org.junit.Test;

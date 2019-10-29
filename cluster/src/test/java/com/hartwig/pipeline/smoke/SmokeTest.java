@@ -23,8 +23,8 @@ import com.hartwig.pipeline.sbpapi.SbpRestApi;
 import com.hartwig.pipeline.sbpapi.SbpRun;
 import com.hartwig.pipeline.sbpapi.SbpSet;
 import com.hartwig.pipeline.storage.RCloneCloudCopy;
+import com.hartwig.pipeline.testsupport.Resources;
 import com.hartwig.pipeline.transfer.sbp.SbpFileTransfer;
-import com.hartwig.support.test.Resources;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -73,9 +73,7 @@ public class SmokeTest {
                 .privateKeyPath(workingDir() + "/google-key.json")
                 .sampleDirectory(workingDir() + "/../samples")
                 .version(version)
-                .jarDirectory(workingDir() + "/../bam/target")
                 .cloudSdkPath("/usr/bin")
-                .nodeInitializationScript(workingDir() + "/src/main/resources/node-init.sh")
                 .setId(SET_ID)
                 .mode(Arguments.Mode.FULL)
                 .runId(runId)

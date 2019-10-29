@@ -79,7 +79,7 @@ public class PipelineMain {
                 somaticMetadataApi, new GoogleArchiver(arguments),
                 PipelineResultsProvider.from(storage, arguments, Versions.pipelineVersion()).get(),
                 new FullSomaticResults(storage, arguments),
-                CleanupProvider.from(credentials, arguments, storage, somaticMetadataApi).get(),
+                CleanupProvider.from(arguments, storage).get(),
                 Executors.newCachedThreadPool());
     }
 

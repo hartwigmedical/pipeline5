@@ -17,8 +17,6 @@ public class CommandLineOptions {
     private static final Logger LOGGER = LoggerFactory.getLogger(CommandLineOptions.class);
     private static final String SAMPLE_DIRECTORY_FLAG = "sample_directory";
     private static final String VERSION_FLAG = "version";
-    private static final String JAR_DIRECTORY_FLAG = "jar";
-    private static final String FORCE_JAR_UPLOAD_FLAG = "force_jar_upload";
     private static final String CLEANUP_FLAG = "cleanup";
     private static final String UPLOAD_FLAG = "upload";
     private static final String PROJECT_FLAG = "project";
@@ -28,7 +26,6 @@ public class CommandLineOptions {
     private static final String SBP_API_URL_FLAG = "sbp_api_url";
     private static final String SBP_S3_URL_FLAG = "sbp_s3_url";
     private static final String RUN_ID_FLAG = "run_id";
-    private static final String NODE_INIT_FLAG = "node_init_script";
     private static final String CLOUD_SDK_PATH_FLAG = "cloud_sdk";
     private static final String USE_PREEMTIBLE_VMS_FLAG = "preemptible_vms";
     private static final String USE_LOCAL_SSDS_FLAG = "local_ssds";
@@ -73,9 +70,6 @@ public class CommandLineOptions {
                 .addOption(sampleDirectory())
                 .addOption(sampleId())
                 .addOption(setId())
-                .addOption(jarLibDirectory())
-                .addOption(optionWithBooleanArg(FORCE_JAR_UPLOAD_FLAG,
-                        "Force upload defaultDirectory JAR even if the version already exists in cloud storage"))
                 .addOption(optionWithBooleanArg(CLEANUP_FLAG, "Don't delete the runtime bucket after job is complete"))
                 .addOption(optionWithBooleanArg(USE_PREEMTIBLE_VMS_FLAG,
                         "Do not allocate half the cluster as preemtible VMs to save cost. "
@@ -97,7 +91,6 @@ public class CommandLineOptions {
                 .addOption(sbpApiUrl())
                 .addOption(sbpS3Url())
                 .addOption(runId())
-                .addOption(nodeInitScript())
                 .addOption(gsutilPath())
                 .addOption(rclonePath())
                 .addOption(rcloneGcpRemote())
@@ -190,11 +183,6 @@ public class CommandLineOptions {
         return optionWithArg(CLOUD_SDK_PATH_FLAG, "Path to the google cloud sdk bin directory (with gsutil and gcloud)");
     }
 
-    private static Option nodeInitScript() {
-        return optionWithArg(NODE_INIT_FLAG,
-                "Script to run on initialization directory each cluster node. The default script installs BWA, sambamba and picard");
-    }
-
     private static Option runId() {
         return optionWithArg(RUN_ID_FLAG, "Override the generated run id used for runtime bucket and cluster naming");
     }
@@ -232,10 +220,6 @@ public class CommandLineOptions {
         return optionWithArg(ZONE_FLAG, "The zone for which to get the clusters.");
     }
 
-    private static Option jarLibDirectory() {
-        return optionWithArg(JAR_DIRECTORY_FLAG, "Directory containing the system-{VERSION}.jar.");
-    }
-
     private static Option version() {
         return optionWithArg(VERSION_FLAG, "Version of pipeline5 to run in spark.");
     }
@@ -266,17 +250,14 @@ public class CommandLineOptions {
                     .version(commandLine.getOptionValue(VERSION_FLAG, defaults.version()))
                     .sampleDirectory(commandLine.getOptionValue(SAMPLE_DIRECTORY_FLAG, defaults.sampleDirectory()))
                     .sampleId(commandLine.getOptionValue(SAMPLE_ID_FLAG, defaults.sampleId()))
-                    .jarDirectory(commandLine.getOptionValue(JAR_DIRECTORY_FLAG, defaults.jarDirectory()))
                     .project(commandLine.getOptionValue(PROJECT_FLAG, defaults.project()))
                     .region(handleDashesInRegion(commandLine, defaults.region()))
                     .sbpApiUrl(commandLine.getOptionValue(SBP_API_URL_FLAG, defaults.sbpApiUrl()))
                     .sbpApiSampleId(sbpApiSampleId(commandLine))
                     .sbpS3Url(commandLine.getOptionValue(SBP_S3_URL_FLAG, defaults.sbpS3Url()))
                     .sbpApiRunId(sbpRunId(commandLine))
-                    .forceJarUpload(booleanOptionWithDefault(commandLine, FORCE_JAR_UPLOAD_FLAG, defaults.forceJarUpload()))
                     .cleanup(booleanOptionWithDefault(commandLine, CLEANUP_FLAG, defaults.cleanup()))
                     .runId(runId(commandLine))
-                    .nodeInitializationScript(commandLine.getOptionValue(NODE_INIT_FLAG, defaults.nodeInitializationScript()))
                     .cloudSdkPath(commandLine.getOptionValue(CLOUD_SDK_PATH_FLAG, defaults.cloudSdkPath()))
                     .usePreemptibleVms(booleanOptionWithDefault(commandLine, USE_PREEMTIBLE_VMS_FLAG, defaults.usePreemptibleVms()))
                     .useLocalSsds(booleanOptionWithDefault(commandLine, USE_LOCAL_SSDS_FLAG, defaults.useLocalSsds()))
@@ -303,8 +284,6 @@ public class CommandLineOptions {
                     .cmek(cmek(commandLine, defaults))
                     .shallow(booleanOptionWithDefault(commandLine, SHALLOW_FLAG, defaults.shallow()))
                     .zone(zone(commandLine, defaults))
-                    .alignerType(Arguments.AlignerType.valueOf(commandLine.getOptionValue(ALIGNER_TYPE_FLAG,
-                            defaults.alignerType().name()).toUpperCase()))
                     .profile(defaults.profile())
                     .build();
         } catch (ParseException e) {

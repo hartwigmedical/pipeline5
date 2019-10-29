@@ -14,7 +14,7 @@ public interface AlignmentOutput extends StageOutput {
     String sample();
 
     default String name() {
-        return DataprocAligner.NAMESPACE;
+        return Aligner.NAMESPACE;
     }
 
     Optional<GoogleStorageLocation> maybeFinalBamLocation();
