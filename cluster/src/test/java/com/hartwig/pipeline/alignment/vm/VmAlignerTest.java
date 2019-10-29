@@ -18,7 +18,6 @@ import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.alignment.AlignmentOutputStorage;
-import com.hartwig.pipeline.alignment.sample.SampleData;
 import com.hartwig.pipeline.alignment.sample.SampleSource;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
@@ -139,10 +138,10 @@ public class VmAlignerTest {
         when(storage.get(rootBucketName)).thenReturn(rootBucket);
         MockResource.addToStorage(storage, ResourceNames.REFERENCE_GENOME, "reference.fasta");
 
-        when(sampleSource.sample(METADATA)).thenReturn(SampleData.of(Sample.builder("", METADATA.sampleName())
+        when(sampleSource.sample(METADATA)).thenReturn(Sample.builder("", METADATA.sampleName())
                 .addLanes(lane(1))
                 .addLanes(lane(2))
-                .build(), 1));
+                .build());
     }
 
     private static ImmutableLane lane(int index) {

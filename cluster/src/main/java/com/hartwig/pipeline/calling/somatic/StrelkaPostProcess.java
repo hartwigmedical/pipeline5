@@ -11,21 +11,17 @@ class StrelkaPostProcess extends SubStage {
 
     private final String tumorSampleName;
     private final String bed;
-    private final String recalibratedTumorBamPath;
+    private final String tumorBamPath;
 
-    StrelkaPostProcess(final String tumorSampleName, final String bed, final String recalibratedTumorBamPath) {
+    StrelkaPostProcess(final String tumorSampleName, final String bed, final String tumorBamPath) {
         super("strelka.post.processed", OutputFile.GZIPPED_VCF);
         this.tumorSampleName = tumorSampleName;
         this.bed = bed;
-        this.recalibratedTumorBamPath = recalibratedTumorBamPath;
+        this.tumorBamPath = tumorBamPath;
     }
 
     @Override
     public List<BashCommand> bash(final OutputFile input, final OutputFile output) {
-        return Collections.singletonList(new StrelkaPostProcessCommand(input.path(),
-                output.path(),
-                bed,
-                tumorSampleName,
-                recalibratedTumorBamPath));
+        return Collections.singletonList(new StrelkaPostProcessCommand(input.path(), output.path(), bed, tumorSampleName, tumorBamPath));
     }
 }

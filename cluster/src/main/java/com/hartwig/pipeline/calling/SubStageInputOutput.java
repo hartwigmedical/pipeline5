@@ -1,5 +1,6 @@
 package com.hartwig.pipeline.calling;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -19,6 +20,13 @@ public interface SubStageInputOutput {
 
     @Value.Parameter
     List<BashCommand> bash();
+
+    default SubStageInputOutput combine(SubStageInputOutput subStageInputOutput) {
+        List<BashCommand> commands = new ArrayList<>();
+        commands.addAll(bash());
+        commands.addAll(subStageInputOutput.bash());
+        return SubStageInputOutput.of(sampleName(), outputFile(), commands);
+    }
 
     static SubStageInputOutput of(final String sampleName, final OutputFile outputFile, final List<BashCommand> bash) {
         return ImmutableSubStageInputOutput.of(sampleName, outputFile, bash);
