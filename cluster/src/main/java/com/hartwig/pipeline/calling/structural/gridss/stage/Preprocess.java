@@ -2,14 +2,16 @@ package com.hartwig.pipeline.calling.structural.gridss.stage;
 
 import static java.lang.String.format;
 
+import static com.hartwig.pipeline.calling.structural.gridss.command.SambambaGridssSortCommand.sortByName;
+
 import java.io.File;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.calling.SubStage;
-import com.hartwig.pipeline.calling.structural.gridss.command.CollectGridssMetrics;
+import com.hartwig.pipeline.calling.structural.gridss.command.CollectGridssMetricsAndExtractSvReads;
+import com.hartwig.pipeline.calling.structural.gridss.command.CollectInsertSizeMetrics;
 import com.hartwig.pipeline.calling.structural.gridss.command.ComputeSamTags;
-import com.hartwig.pipeline.calling.structural.gridss.command.ExtractSvReads;
 import com.hartwig.pipeline.calling.structural.gridss.command.SambambaGridssSortCommand;
 import com.hartwig.pipeline.calling.structural.gridss.command.SoftClipsToSplitReads;
 import com.hartwig.pipeline.execution.vm.BashCommand;
@@ -34,14 +36,19 @@ public class Preprocess extends SubStage {
     @Override
     public List<BashCommand> bash(OutputFile input, OutputFile output) {
         String inputBamBasename = new File(inputBam).getName();
-        CollectGridssMetrics collectGridssMetrics = new CollectGridssMetrics(inputBam, format("%s/%s", workingDir, inputBamBasename));
         String insertSizeMetrics = format("%s/%s.insert_size_metrics", workingDir, inputBamBasename);
-        ExtractSvReads extractSvReads = new ExtractSvReads(inputBam, sampleName, insertSizeMetrics, workingDir);
-        ComputeSamTags computeSamTags = new ComputeSamTags(extractSvReads.resultantBam(), referenceGenomePath, sampleName);
+        String outputFullPathPrefix = format("%s/%s", workingDir, inputBamBasename);
+
+        CollectInsertSizeMetrics collectInsertSizeMetrics = new CollectInsertSizeMetrics(inputBam, outputFullPathPrefix);
+        CollectGridssMetricsAndExtractSvReads collectGridssMetricsAndExtractSvReads =
+                new CollectGridssMetricsAndExtractSvReads(inputBam, sampleName, insertSizeMetrics, outputFullPathPrefix, workingDir);
+
+        ComputeSamTags computeSamTags =
+                new ComputeSamTags(collectGridssMetricsAndExtractSvReads.resultantBam(), referenceGenomePath, sampleName);
         String outputSvBam = format("%s/%s.sv.bam", workingDir, new File(inputBam).getName());
         return ImmutableList.of(new MkDirCommand(workingDir),
-                collectGridssMetrics,
-                new PipeCommands(extractSvReads, SambambaGridssSortCommand.sortByName(extractSvReads.resultantBam())),
+                collectInsertSizeMetrics,
+                new PipeCommands(collectGridssMetricsAndExtractSvReads, sortByName(collectGridssMetricsAndExtractSvReads.resultantBam())),
                 new PipeCommands(computeSamTags, SambambaGridssSortCommand.sortByDefault(computeSamTags.resultantBam())),
                 new SoftClipsToSplitReads.ForPreprocess(computeSamTags.resultantBam(), referenceGenomePath, outputSvBam));
     }

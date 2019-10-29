@@ -15,11 +15,11 @@ public class CollectGridssMetrics extends GridssCommand {
 
     @Override
     public List<GridssArgument> arguments() {
-        return asList(new GridssArgument("assume_sorted", "true"),
+        return asList(GridssArgument.ASSUME_SORTED,
                 new GridssArgument("i", inputBam),
                 new GridssArgument("o", outputFullPathPrefix),
                 new GridssArgument("threshold_coverage", "50000"),
-                new GridssArgument("file_extension", "null"),
+                GridssArgument.NULL_FILE_EXTENSION,
                 new GridssArgument("gridss_program", "null"),
                 new GridssArgument("gridss_program", "CollectCigarMetrics"),
                 new GridssArgument("gridss_program", "CollectMapqMetrics"),
