@@ -37,8 +37,6 @@ import org.junit.experimental.categories.Category;
 public class SmokeTest {
     private static final String GCP_REMOTE = "gs";
     private static final String S3_REMOTE = "s3";
-    private static final String RCLONE_PATH = "/usr/bin";
-    private static final String RCLONE = format("%s/rclone", RCLONE_PATH);
     private static final String FILE_ENCODING = "UTF-8";
     private static final int SBP_SET_ID = 9;
     private static final int SBP_RUN_ID = 12;
@@ -48,8 +46,15 @@ public class SmokeTest {
     private static final String TUMOR_SAMPLE = SET_ID + "T";
     private File resultsDir;
 
+    private LocalOverrides overrides;
+    private String rclonePath;
+    private String rclone;
+
     @Before
     public void setUp() throws Exception {
+        overrides = new LocalOverrides();
+        rclonePath = overrides.get("rclonePath", "/usr/bin");
+        rclone = format("%s/rclone", rclonePath);
         resultsDir = new File(workingDir() + "/results");
         assertThat(resultsDir.mkdir()).isTrue();
     }
@@ -63,14 +68,14 @@ public class SmokeTest {
     public void runFullPipelineAndCheckFinalStatus() throws Exception {
         String apiUrl = "https://api.acc.hartwigmedicalfoundation.nl";
         PipelineMain victim = new PipelineMain();
-        String version = System.getProperty("version");
+        String version = overrides.get("version", System.getProperty("version"));
         String runId = "smoke-" + noDots(version);
 
         System.setProperty("javax.net.ssl.keyStorePassword", "changeit");
-        System.setProperty("javax.net.ssl.keyStore", Resources.testResource("smoke_test/api.jks"));
+        System.setProperty("javax.net.ssl.keyStore", overrides.get("keystore", Resources.testResource("smoke_test/api.jks")));
 
         Arguments arguments = Arguments.defaultsBuilder(Arguments.DefaultsProfile.DEVELOPMENT.toString())
-                .privateKeyPath(workingDir() + "/google-key.json")
+                .privateKeyPath(overrides.get("privateKey", workingDir() + "/google-key.json"))
                 .sampleDirectory(workingDir() + "/../samples")
                 .version(version)
                 .cloudSdkPath("/usr/bin")
@@ -80,7 +85,7 @@ public class SmokeTest {
                 .runGermlineCaller(false)
                 .sbpApiRunId(SBP_RUN_ID)
                 .sbpApiUrl(apiUrl)
-                .rclonePath(RCLONE_PATH)
+                .rclonePath(rclonePath)
                 .rcloneS3RemoteDownload(S3_REMOTE)
                 .rcloneS3RemoteUpload(S3_REMOTE)
                 .sbpS3Url("s3.us-east-1.amazonaws.com")
@@ -105,7 +110,7 @@ public class SmokeTest {
         List<String> expectedFiles = FileUtils.readLines(expectedFilesResource, FILE_ENCODING);
         assertThat(rcloneListing).containsOnlyElementsOf(expectedFiles);
 
-        RCloneCloudCopy rclone = new RCloneCloudCopy(RCLONE_PATH, GCP_REMOTE, S3_REMOTE, ProcessBuilder::new);
+        RCloneCloudCopy rclone = new RCloneCloudCopy(rclonePath, GCP_REMOTE, S3_REMOTE, ProcessBuilder::new);
         File localCopyOfManifest = File.createTempFile("smoke-test-manifest", null);
         rclone.copy(format("%s://%s/%s/%s", GCP_REMOTE, arguments.patientReportBucket(), setName, SbpFileTransfer.MANIFEST_FILENAME),
                 localCopyOfManifest.getAbsolutePath());
@@ -164,7 +169,7 @@ public class SmokeTest {
     private List<String> rclone(List<String> arguments) {
         try {
             ProcessBuilder processBuilder = new ProcessBuilder();
-            List<String> command = ImmutableList.<String>builder().add(RCLONE).addAll(arguments).build();
+            List<String> command = ImmutableList.<String>builder().add(rclone).addAll(arguments).build();
             processBuilder.command(command);
             return IOUtils.readLines(processBuilder.start().getInputStream(), FILE_ENCODING);
         } catch (Exception e) {
@@ -173,7 +178,7 @@ public class SmokeTest {
     }
 
     private void assertThatAlignmentIsEqualToExpected(final String s3Bucket, final String setID, final String sample,
-            final RCloneCloudCopy rclone) throws Exception {
+            final RCloneCloudCopy rclone) {
         String bam = sample + ".bam";
         File results = new File(resultsDir.getPath() + "/" + bam);
 

@@ -50,6 +50,7 @@ public class SomaticCaller extends TertiaryStage<SomaticCallerOutput> {
     public static final String NAMESPACE = "somatic_caller";
 
     private OutputFile outputFile;
+    private OutputFile sageOutputFile;
 
     public SomaticCaller(final AlignmentPair alignmentPair) {
         super(alignmentPair);
@@ -120,6 +121,7 @@ public class SomaticCaller extends TertiaryStage<SomaticCallerOutput> {
         commands.addAll(mergedOutput.bash());
 
         outputFile = mergedOutput.outputFile();
+        sageOutputFile = sageOutput.outputFile();
         return commands;
     }
 
@@ -139,7 +141,12 @@ public class SomaticCaller extends TertiaryStage<SomaticCallerOutput> {
                         Folder.from(),
                         outputFile.fileName(),
                         OutputFile.of(metadata.tumor().sampleName(), "somatic_caller_post_processed", OutputFile.GZIPPED_VCF, false)
-                                .fileName(),
+                                .fileName(), resultsDirectory))
+                .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
+                        NAMESPACE,
+                        Folder.from(),
+                        sageOutputFile.fileName(),
+                        OutputFile.of(metadata.tumor().sampleName(), "sage_hotspots", OutputFile.GZIPPED_VCF, false).fileName(),
                         resultsDirectory))
                 .addReportComponents(new EntireOutputComponent(bucket,
                         Folder.from(),
