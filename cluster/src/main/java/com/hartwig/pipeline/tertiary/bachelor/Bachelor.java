@@ -92,6 +92,6 @@ public class Bachelor implements Stage<BachelorOutput, SomaticRunMetadata> {
 
     @Override
     public boolean shouldRun(final Arguments arguments) {
-        return arguments.runTertiary() && arguments.runGermlineCaller();
+        return arguments.runTertiary() && arguments.runGermlineCaller() && !arguments.shallow();
     }
 }
