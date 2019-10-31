@@ -25,7 +25,7 @@ public class SbpFileTransferProvider {
         CloudCopy cloudCopy = new RCloneCloudCopy(arguments.rclonePath(),
                 arguments.rcloneGcpRemote(),
                 arguments.rcloneS3RemoteUpload(),
-                ProcessBuilder::new);
+                () -> new ProcessBuilder().inheritIO());
 
         SbpS3 sbpS3 = new SbpS3(S3.newClient(arguments.sbpS3Url()), System.getenv());
         SbpRestApi sbpRestApi = SbpRestApi.newInstance(arguments);

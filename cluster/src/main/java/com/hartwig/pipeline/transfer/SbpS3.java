@@ -1,10 +1,12 @@
 package com.hartwig.pipeline.transfer;
 
+import java.io.InputStream;
 import java.util.Map;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.AccessControlList;
 import com.amazonaws.services.s3.model.CanonicalGrantee;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.Permission;
 
 import org.slf4j.Logger;
@@ -20,6 +22,11 @@ class SbpS3 {
     SbpS3(final AmazonS3 s3Client, final Map<String, String> environment) {
         this.s3Client = s3Client;
         this.environment = environment;
+    }
+
+    void createFile(String bucket, String path, InputStream file){
+        s3Client.putObject(bucket, path, file, new ObjectMetadata());
+        setAclsOn(bucket, path);
     }
 
     void setAclsOn(String bucket, String path) {

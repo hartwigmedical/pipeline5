@@ -2,8 +2,8 @@ package com.hartwig.pipeline.transfer;
 
 import static java.lang.String.format;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -13,8 +13,6 @@ import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.google.common.collect.Lists;
-import com.google.common.hash.Hashing;
-import com.google.common.io.Files;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.PipelineResults;
@@ -24,7 +22,7 @@ import com.hartwig.pipeline.sbpapi.SbpRun;
 import com.hartwig.pipeline.storage.CloudCopy;
 
 import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,31 +82,22 @@ public class SbpFileTransfer {
         return new SourceDestPair(source, dest);
     }
 
-    @SuppressWarnings("UnstableApiUsage")
     private void writeManifest(List<SourceDestPair> allFiles, String sbpBucket, String directory, SbpRun sbpRun) {
         LOGGER.debug("Generating manifest");
-        try {
-            File inProgress = File.createTempFile("manifest", null);
-            for (SourceDestPair pair : allFiles) {
-                FileUtils.writeStringToFile(inProgress, pair.source.toManifestForm() + "\n", true);
-            }
+        String manifestContents =
+                allFiles.stream().map(SourceDestPair::getSource).map(CloudFile::toManifestForm).collect(Collectors.joining("\n"));
 
-            CloudFile dest = CloudFile.builder()
-                    .provider("s3")
-                    .bucket(sbpBucket)
-                    .path(format("%s/%s", directory, MANIFEST_FILENAME))
-                    .size(inProgress.length())
-                    .md5(Files.hash(inProgress, Hashing.md5()).toString())
-                    .build();
-            doRemoteWork(inProgress.getAbsolutePath(),
-                    Integer.parseInt(sbpRun.id()),
-                    inProgress.length(),
-                    Files.hash(inProgress, Hashing.md5()).toString(),
-                    dest);
-            FileUtils.deleteQuietly(inProgress);
-        } catch (IOException ioe) {
-            throw new RuntimeException("Failed to write manifest file for run", ioe);
-        }
+        String manifestKey = directory + "/" + MANIFEST_FILENAME;
+
+        sbpS3.createFile(sbpBucket, manifestKey, new ByteArrayInputStream(manifestContents.getBytes()));
+        SbpFileMetadata metaData = SbpFileMetadata.builder()
+                .directory(directory)
+                .run_id(Integer.parseInt(sbpRun.id()))
+                .filename(MANIFEST_FILENAME)
+                .filesize(manifestContents.getBytes().length)
+                .hash(DigestUtils.md5Hex(manifestContents.getBytes()))
+                .build();
+        sbpApi.postFile(metaData);
     }
 
     private void doRemoteWork(String sourceUrl, int runId, long filesize, String md5, CloudFile dest) {
@@ -139,13 +128,21 @@ public class SbpFileTransfer {
         return new String(Hex.encodeHex(Base64.getDecoder().decode(originalMd5)));
     }
 
-    private class SourceDestPair {
+    private static class SourceDestPair {
         CloudFile source;
         CloudFile dest;
 
         SourceDestPair(CloudFile source, CloudFile dest) {
             this.source = source;
             this.dest = dest;
+        }
+
+        public CloudFile getSource() {
+            return source;
+        }
+
+        public CloudFile getDest() {
+            return dest;
         }
 
         @Override
