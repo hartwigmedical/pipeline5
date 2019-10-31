@@ -20,6 +20,7 @@ import com.hartwig.pipeline.metrics.BamMetrics;
 import com.hartwig.pipeline.report.FullSomaticResults;
 import com.hartwig.pipeline.report.PipelineResultsProvider;
 import com.hartwig.pipeline.stages.StageRunner;
+import com.hartwig.pipeline.storage.RCloneCloudCopy;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.storage.StorageProvider;
 import com.hartwig.pipeline.tools.Versions;
@@ -76,7 +77,12 @@ public class PipelineMain {
                 new OutputStorage<>(ResultsDirectory.defaultDirectory(),
                         arguments,
                         metadata -> RuntimeBucket.from(storage, GermlineCaller.NAMESPACE, metadata, arguments)),
-                somaticMetadataApi, new GoogleArchiver(arguments),
+                somaticMetadataApi,
+                new GoogleArchiver(arguments,
+                        new RCloneCloudCopy(arguments.rclonePath(),
+                                arguments.rcloneGcpRemote(),
+                                arguments.rcloneS3RemoteUpload(),
+                                ProcessBuilder::new)),
                 PipelineResultsProvider.from(storage, arguments, Versions.pipelineVersion()).get(),
                 new FullSomaticResults(storage, arguments),
                 CleanupProvider.from(arguments, storage).get(),

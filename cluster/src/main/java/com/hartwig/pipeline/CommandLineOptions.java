@@ -52,8 +52,6 @@ public class CommandLineOptions {
     private static final String RESOURCE_BUCKET_FLAG = "resource_bucket";
     private static final String PATIENT_REPORT_BUCKET_FLAG = "patient_report_bucket";
     private static final String ARCHIVE_BUCKET_FLAG = "archive_bucket";
-    private static final String ARCHIVE_PRIVATE_KEY_FLAG = "archive_private_key_path";
-    private static final String ARCHIVE_PROJECT_FLAG = "archive_project";
     private static final String MODE_FLAG = "mode";
     private static final String SET_ID_FLAG = "set_id";
     private static final String SBP_RUN_ID_FLAG = "sbp_run_id";
@@ -278,8 +276,6 @@ public class CommandLineOptions {
                     .toolsBucket(commandLine.getOptionValue(TOOLS_BUCKET_FLAG, defaults.toolsBucket()))
                     .patientReportBucket(commandLine.getOptionValue(PATIENT_REPORT_BUCKET_FLAG, defaults.patientReportBucket()))
                     .archiveBucket(commandLine.getOptionValue(ARCHIVE_BUCKET_FLAG, defaults.archiveBucket()))
-                    .archivePrivateKeyPath(commandLine.getOptionValue(ARCHIVE_PRIVATE_KEY_FLAG, defaults.archivePrivateKeyPath()))
-                    .archiveProject(commandLine.getOptionValue(ARCHIVE_PROJECT_FLAG, defaults.archiveProject()))
                     .privateNetwork(privateNetwork(commandLine, defaults))
                     .cmek(cmek(commandLine, defaults))
                     .shallow(booleanOptionWithDefault(commandLine, SHALLOW_FLAG, defaults.shallow()))

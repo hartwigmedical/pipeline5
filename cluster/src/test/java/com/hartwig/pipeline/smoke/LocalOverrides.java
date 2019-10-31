@@ -31,6 +31,7 @@ public class LocalOverrides {
                 overrides.put("rclonePath", yaml.rclonePath());
             } catch (IOException e) {
                 LOGGER.warn("Could not parse local overrides", e);
+                throw new RuntimeException(e);
             }
         } else {
             LOGGER.info("No local overrides will be loaded for smoke test");
