@@ -192,7 +192,7 @@ public class SbpFileTransferTest {
         ArgumentCaptor<SbpFileMetadata> metadataCaptor = ArgumentCaptor.forClass(SbpFileMetadata.class);
         verify(sbpApi).postFile(metadataCaptor.capture());
 
-        assertManifest(metadataCaptor.getValue());
+        assertManifest(metadataCaptor.getAllValues().get(0));
     }
 
     private void assertManifest(SbpFileMetadata metadata) {

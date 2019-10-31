@@ -90,7 +90,7 @@ public class SbpFileTransfer {
         String md5 = DigestUtils.md5Hex(manifestContents.getBytes());
         sbpS3.createFile(sbpBucket, manifestKey, manifestContents.getBytes(), md5);
         SbpFileMetadata metaData = SbpFileMetadata.builder()
-                .directory(directory)
+                .directory("")
                 .run_id(Integer.parseInt(sbpRun.id()))
                 .filename(MANIFEST_FILENAME)
                 .filesize(manifestContents.getBytes().length)
