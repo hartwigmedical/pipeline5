@@ -13,6 +13,8 @@ import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.google.common.collect.Lists;
+import com.google.common.hash.Hashing;
+import com.google.common.io.Files;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.PipelineResults;
@@ -59,29 +61,11 @@ public class SbpFileTransfer {
                 allFiles.add(createPair(blob, sbpBucket));
             }
         }
-
-        String manifest = writeManifest(allFiles, metadata.runName());
-        Blob manifestBlob = sourceBucket.get(manifest);
-        if (manifestBlob == null) {
-            throw new RuntimeException("Failed to upload locally-generated manifest");
-        } else {
-            allFiles.add(createPair(manifestBlob, sbpBucket));
-        }
-
+        writeManifest(allFiles, sbpBucket, metadata.runName(), sbpRun);
         for (SourceDestPair pair : allFiles) {
             LOGGER.debug("Copying {}", pair);
-            cloudCopy.copy(pair.source.toUrl(), pair.dest.toUrl());
-            sbpS3.setAclsOn((pair.dest.bucket()), pair.dest.path());
-            SbpFileMetadata metaData = SbpFileMetadata.builder()
-                    .directory(extractDirectoryNameForSbp(pair.dest.path()))
-                    .run_id(Integer.parseInt(sbpRun.id()))
-                    .filename(new File(pair.dest.path()).getName())
-                    .filesize(pair.source.size())
-                    .hash(convertMd5ToSbpFormat(pair.source.md5()))
-                    .build();
-            sbpApi.postFile(metaData);
+            doRemoteWork(pair.source.toUrl(), Integer.parseInt(sbpRun.id()), pair.source.size(), pair.source.md5(), pair.dest);
         }
-
         if (arguments.cleanup()) {
             sourceObjects.forEach(Blob::delete);
         }
@@ -100,21 +84,44 @@ public class SbpFileTransfer {
         return new SourceDestPair(source, dest);
     }
 
-    private String writeManifest(List<SourceDestPair> allFiles, String directory) {
+    @SuppressWarnings("UnstableApiUsage")
+    private void writeManifest(List<SourceDestPair> allFiles, String sbpBucket, String directory, SbpRun sbpRun) {
         LOGGER.debug("Generating manifest");
         try {
             File inProgress = File.createTempFile("manifest", null);
             for (SourceDestPair pair : allFiles) {
                 FileUtils.writeStringToFile(inProgress, pair.source.toManifestForm() + "\n", true);
             }
-            String fullPath = directory + "/" + MANIFEST_FILENAME;
-            String remoteManifest = format("gs://%s/%s", sourceBucket.getName(), fullPath);
-            cloudCopy.copy(inProgress.getAbsolutePath(), remoteManifest);
+
+            CloudFile dest = CloudFile.builder()
+                    .provider("s3")
+                    .bucket(sbpBucket)
+                    .path(format("%s/%s", directory, MANIFEST_FILENAME))
+                    .size(inProgress.length())
+                    .md5(Files.hash(inProgress, Hashing.md5()).toString())
+                    .build();
+            doRemoteWork(inProgress.getAbsolutePath(),
+                    Integer.parseInt(sbpRun.id()),
+                    inProgress.length(),
+                    Files.hash(inProgress, Hashing.md5()).toString(),
+                    dest);
             FileUtils.deleteQuietly(inProgress);
-            return fullPath;
         } catch (IOException ioe) {
             throw new RuntimeException("Failed to write manifest file for run", ioe);
         }
+    }
+
+    private void doRemoteWork(String sourceUrl, int runId, long filesize, String md5, CloudFile dest) {
+        cloudCopy.copy(sourceUrl, dest.toUrl());
+        sbpS3.setAclsOn((dest.bucket()), dest.path());
+        SbpFileMetadata metaData = SbpFileMetadata.builder()
+                .directory(extractDirectoryNameForSbp(dest.path()))
+                .run_id(runId)
+                .filename(new File(dest.path()).getName())
+                .filesize(filesize)
+                .hash(convertMd5ToSbpFormat(md5))
+                .build();
+        sbpApi.postFile(metaData);
     }
 
     private List<Blob> filterStagingBlobs(final List<Blob> sourceObjects) {
