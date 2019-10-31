@@ -2,7 +2,6 @@ package com.hartwig.pipeline.transfer;
 
 import static java.lang.String.format;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -88,14 +87,14 @@ public class SbpFileTransfer {
                 allFiles.stream().map(SourceDestPair::getSource).map(CloudFile::toManifestForm).collect(Collectors.joining("\n"));
 
         String manifestKey = directory + "/" + MANIFEST_FILENAME;
-
-        sbpS3.createFile(sbpBucket, manifestKey, new ByteArrayInputStream(manifestContents.getBytes()));
+        String md5 = DigestUtils.md5Hex(manifestContents.getBytes());
+        sbpS3.createFile(sbpBucket, manifestKey, manifestContents.getBytes(), md5);
         SbpFileMetadata metaData = SbpFileMetadata.builder()
                 .directory(directory)
                 .run_id(Integer.parseInt(sbpRun.id()))
                 .filename(MANIFEST_FILENAME)
                 .filesize(manifestContents.getBytes().length)
-                .hash(DigestUtils.md5Hex(manifestContents.getBytes()))
+                .hash(md5)
                 .build();
         sbpApi.postFile(metaData);
     }
