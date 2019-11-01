@@ -3,7 +3,6 @@ package com.hartwig.pipeline.transfer.sbp;
 import static java.lang.String.format;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -22,7 +21,7 @@ import com.hartwig.pipeline.sbpapi.SbpRun;
 import com.hartwig.pipeline.storage.CloudCopy;
 
 import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,29 +58,11 @@ public class SbpFileTransfer {
                 allFiles.add(createPair(blob, sbpBucket));
             }
         }
-
-        String manifest = writeManifest(allFiles, metadata.runName());
-        Blob manifestBlob = sourceBucket.get(manifest);
-        if (manifestBlob == null) {
-            throw new RuntimeException("Failed to upload locally-generated manifest");
-        } else {
-            allFiles.add(createPair(manifestBlob, sbpBucket));
-        }
-
+        writeManifest(allFiles, sbpBucket, metadata.runName(), sbpRun);
         for (SourceDestPair pair : allFiles) {
             LOGGER.debug("Copying {}", pair);
-            cloudCopy.copy(pair.source.toUrl(), pair.dest.toUrl());
-            sbpS3.setAclsOn((pair.dest.bucket()), pair.dest.path());
-            SbpFileMetadata metaData = SbpFileMetadata.builder()
-                    .directory(extractDirectoryNameForSbp(pair.dest.path()))
-                    .run_id(Integer.parseInt(sbpRun.id()))
-                    .filename(new File(pair.dest.path()).getName())
-                    .filesize(pair.source.size())
-                    .hash(convertMd5ToSbpFormat(pair.source.md5()))
-                    .build();
-            sbpApi.postFile(metaData);
+            doRemoteWork(pair.source.toUrl(), Integer.parseInt(sbpRun.id()), pair.source.size(), pair.source.md5(), pair.dest);
         }
-
         if (arguments.cleanup()) {
             sourceObjects.forEach(Blob::delete);
         }
@@ -100,21 +81,35 @@ public class SbpFileTransfer {
         return new SourceDestPair(source, dest);
     }
 
-    private String writeManifest(List<SourceDestPair> allFiles, String directory) {
+    private void writeManifest(List<SourceDestPair> allFiles, String sbpBucket, String directory, SbpRun sbpRun) {
         LOGGER.debug("Generating manifest");
-        try {
-            File inProgress = File.createTempFile("manifest", null);
-            for (SourceDestPair pair : allFiles) {
-                FileUtils.writeStringToFile(inProgress, pair.source.toManifestForm() + "\n", true);
-            }
-            String fullPath = directory + "/" + MANIFEST_FILENAME;
-            String remoteManifest = format("gs://%s/%s", sourceBucket.getName(), fullPath);
-            cloudCopy.copy(inProgress.getAbsolutePath(), remoteManifest);
-            FileUtils.deleteQuietly(inProgress);
-            return fullPath;
-        } catch (IOException ioe) {
-            throw new RuntimeException("Failed to write manifest file for run", ioe);
-        }
+        String manifestContents =
+                allFiles.stream().map(SourceDestPair::getSource).map(CloudFile::toManifestForm).collect(Collectors.joining("\n"));
+
+        String manifestKey = directory + "/" + MANIFEST_FILENAME;
+        String md5 = DigestUtils.md5Hex(manifestContents.getBytes());
+        sbpS3.createFile(sbpBucket, manifestKey, manifestContents.getBytes(), md5);
+        SbpFileMetadata metaData = SbpFileMetadata.builder()
+                .directory("")
+                .run_id(Integer.parseInt(sbpRun.id()))
+                .filename(MANIFEST_FILENAME)
+                .filesize(manifestContents.getBytes().length)
+                .hash(md5)
+                .build();
+        sbpApi.postFile(metaData);
+    }
+
+    private void doRemoteWork(String sourceUrl, int runId, long filesize, String md5, CloudFile dest) {
+        cloudCopy.copy(sourceUrl, dest.toUrl());
+        sbpS3.setAclsOn((dest.bucket()), dest.path());
+        SbpFileMetadata metaData = SbpFileMetadata.builder()
+                .directory(extractDirectoryNameForSbp(dest.path()))
+                .run_id(runId)
+                .filename(new File(dest.path()).getName())
+                .filesize(filesize)
+                .hash(convertMd5ToSbpFormat(md5))
+                .build();
+        sbpApi.postFile(metaData);
     }
 
     private List<Blob> filterStagingBlobs(final List<Blob> sourceObjects) {
@@ -132,13 +127,21 @@ public class SbpFileTransfer {
         return new String(Hex.encodeHex(Base64.getDecoder().decode(originalMd5)));
     }
 
-    private class SourceDestPair {
+    private static class SourceDestPair {
         CloudFile source;
         CloudFile dest;
 
         SourceDestPair(CloudFile source, CloudFile dest) {
             this.source = source;
             this.dest = dest;
+        }
+
+        public CloudFile getSource() {
+            return source;
+        }
+
+        public CloudFile getDest() {
+            return dest;
         }
 
         @Override

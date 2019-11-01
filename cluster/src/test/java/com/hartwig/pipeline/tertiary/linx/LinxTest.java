@@ -5,10 +5,13 @@ import static com.hartwig.pipeline.resource.ResourceNames.KNOWLEDGEBASES;
 import static com.hartwig.pipeline.resource.ResourceNames.REFERENCE_GENOME;
 import static com.hartwig.pipeline.resource.ResourceNames.SV;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.Collections;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
+import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
@@ -16,6 +19,7 @@ import com.hartwig.pipeline.testsupport.MockResource;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Before;
+import org.junit.Test;
 
 public class LinxTest extends TertiaryStageTest<LinxOutput> {
 
@@ -53,6 +57,11 @@ public class LinxTest extends TertiaryStageTest<LinxOutput> {
                 + "/data/resources/viral_host_ref.csv -gene_transcripts_dir /data/resources -check_fusions -fusion_pairs_csv "
                 + "/data/resources/knownFusionPairs.csv -promiscuous_five_csv /data/resources/knownPromiscuousFive.csv "
                 + "-promiscuous_three_csv /data/resources/knownPromiscuousThree.csv -chaining_sv_limit 0 -check_drivers -write_vis_data");
+    }
+
+    @Test
+    public void doesntRunWhenShallowEnabled() {
+        assertThat(victim.shouldRun(Arguments.testDefaultsBuilder().shallow(true).runTertiary(true).build())).isFalse();
     }
 
     @Override

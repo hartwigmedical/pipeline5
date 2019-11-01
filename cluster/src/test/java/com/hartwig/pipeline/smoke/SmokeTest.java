@@ -8,7 +8,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -110,50 +109,13 @@ public class SmokeTest {
         assertThat(rcloneListing).containsOnlyElementsOf(expectedFiles);
 
         RCloneCloudCopy rclone = new RCloneCloudCopy(rclonePath, GCP_REMOTE, S3_REMOTE, ProcessBuilder::new);
-        File localCopyOfManifest = File.createTempFile("smoke-test-manifest", null);
-        rclone.copy(format("%s://%s/%s/%s", GCP_REMOTE, arguments.patientReportBucket(), setName, SbpFileTransfer.MANIFEST_FILENAME),
-                localCopyOfManifest.getAbsolutePath());
-        assertThat(localCopyOfManifest.length()).isGreaterThan(0L);
-
-        ArrayList<String> inManifest = new ArrayList<>(FileUtils.readLines(localCopyOfManifest));
-        List<String> rcloneSizesAndPaths = listRemoteFiles(format("%s:%s/%s/", S3_REMOTE, destinationBucket, setName));
-        assertThat(rcloneSizesAndPaths.size()).isGreaterThan(0);
-        assertThat(inManifest.size()).isEqualTo(rcloneSizesAndPaths.size());
-        for (String s3File : rcloneSizesAndPaths) {
-            String[] sizeAndPath = s3File.trim().split(" +");
-            assertThat(sizeAndPath.length).isEqualTo(2);
-            if (!sizeAndPath[1].trim().equals(SbpFileTransfer.MANIFEST_FILENAME)) {
-                assertThat(findInManifestAndDeleteIt(inManifest, sizeAndPath[0], setName + "/" + sizeAndPath[1])).isTrue();
-            }
-        }
-        assertThat(inManifest.size()).isEqualTo(0);
-        assertArchivedCopy(arguments.archiveBucket(), setName, localCopyOfManifest);
-        FileUtils.deleteQuietly(localCopyOfManifest);
 
         assertThatAlignmentIsEqualToExpected(destinationBucket, setName, REFERENCE_SAMPLE, rclone);
         assertThatAlignmentIsEqualToExpected(destinationBucket, setName, TUMOR_SAMPLE, rclone);
     }
 
-    private void assertArchivedCopy(String archiveBucket, String archiveFolder, File localCopyOfManifest) {
-        List<String> rcloneSizesAndPaths = new ArrayList<>(listRemoteFiles(format("%s:%s/%s/", GCP_REMOTE, archiveBucket, archiveFolder)));
-        ManifestAssert.assertThat(rcloneSizesAndPaths, REFERENCE_SAMPLE, TUMOR_SAMPLE)
-                .hasTheseFiles(localCopyOfManifest.getAbsolutePath(), archiveFolder + "/");
-    }
-
     private List<String> delete(final String setName, final String remote, final String bucket) {
         return ImmutableList.of("delete", format("%s:%s/%s", remote, bucket, setName));
-    }
-
-    private boolean findInManifestAndDeleteIt(final ArrayList<String> inManifest, final String size, final String path) {
-        for (int i = 0; i < inManifest.size(); i++) {
-            String[] tokens = inManifest.get(i).trim().split(" +");
-            assertThat(tokens.length).isEqualTo(3);
-            if (tokens[1].trim().equals(size.trim()) && tokens[2].trim().equals(path.trim())) {
-                inManifest.remove(i);
-                return true;
-            }
-        }
-        return false;
     }
 
     private List<String> listRemoteFilesNamesOnly(String remoteParent) {
