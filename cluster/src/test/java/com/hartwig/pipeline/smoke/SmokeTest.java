@@ -51,7 +51,7 @@ public class SmokeTest {
     private String rclone;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         overrides = new LocalOverrides();
         rclonePath = overrides.get("rclonePath", "/usr/bin");
         rclone = format("%s/rclone", rclonePath);

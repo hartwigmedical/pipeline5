@@ -5,11 +5,11 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 
 public class SortVcf extends GridssCommand {
-    private String withBealn;
-    private String annotatedBealn;
-    private String outputPath;
+    private final String withBealn;
+    private final String annotatedBealn;
+    private final String outputPath;
 
-    public SortVcf(String withBealn, String annotatedBealn, String outputPath) {
+    public SortVcf(final String withBealn, final String annotatedBealn, final String outputPath) {
         this.withBealn = withBealn;
         this.annotatedBealn = annotatedBealn;
         this.outputPath = outputPath;

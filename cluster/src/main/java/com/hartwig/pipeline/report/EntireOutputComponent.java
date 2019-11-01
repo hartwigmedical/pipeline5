@@ -52,6 +52,6 @@ public class EntireOutputComponent implements ReportComponent {
     }
 
     private String parsePath(final Blob blob, final String rootPath) {
-        return blob.getName().substring(blob.getName().indexOf(rootPath) + rootPath.length(), blob.getName().length());
+        return blob.getName().substring(blob.getName().indexOf(rootPath) + rootPath.length());
     }
 }
