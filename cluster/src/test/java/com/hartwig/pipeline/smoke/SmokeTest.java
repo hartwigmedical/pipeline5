@@ -109,9 +109,7 @@ public class SmokeTest {
 
         rclone(delete(setName, GCP_REMOTE, arguments.patientReportBucket()));
         rclone(delete(setName, S3_REMOTE, destinationBucket));
-        GSUtil.configure(true, 1);
-        GSUtil.auth(cloudSdkPath, archivePrivateKey);
-        gsutil(ImmutableList.of("-u", archiveProject, "rm", "-r", format("gs://%s/%s", archiveBucket, setName)));
+        cleanupArchiveBucket(setName);
 
         PipelineState state = victim.start(arguments);
         assertThat(state.status()).isEqualTo(PipelineStatus.QC_FAILED);
@@ -145,14 +143,30 @@ public class SmokeTest {
         }
     }
 
-    private void gsutil(List<String> arguments) {
+    private void cleanupArchiveBucket(String setName) {
+        GSUtil.configure(true, 1);
         try {
-            GSUtil.configure(true, 1);
             GSUtil.auth(cloudSdkPath, archivePrivateKey);
-            ProcessBuilder process = new ProcessBuilder(ImmutableList.<String>builder().add("gsutil").addAll(arguments).build());
+            runGsutil(ImmutableList.of("stat", format("gs://%s", archiveBucket)));
+        } catch (Exception e) {
+            throw new RuntimeException(format("Could not confirm archive bucket [%s] exists", archiveBucket));
+        }
+        try {
+            runGsutil(ImmutableList.of("stat", format("gs://%s/%s", archiveBucket, setName)));
+        } catch (Exception e) {
+            // Folder does not exist, removal will fail so just return
+            return;
+        }
+        runGsutil(ImmutableList.of("rm", "-r", format("gs://%s/%s", archiveBucket, setName)));
+    }
+
+    private void runGsutil(List<String> arguments) {
+        try {
+            ProcessBuilder process =
+                    new ProcessBuilder(ImmutableList.<String>builder().add("gsutil", "-u", archiveProject).addAll(arguments).build());
             Processes.run(process, true, 1, TimeUnit.HOURS);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to run gsutil", e);
+            throw new RuntimeException(e);
         }
     }
 
