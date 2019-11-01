@@ -144,7 +144,7 @@ public class SmokeTest {
     }
 
     private void cleanupArchiveBucket(String setName) {
-        GSUtil.configure(true, 1);
+        GSUtil.configure(false, 1);
         try {
             GSUtil.auth(cloudSdkPath, archivePrivateKey);
             runGsutil(ImmutableList.of("ls", format("gs://%s", archiveBucket)));
