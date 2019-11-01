@@ -19,11 +19,6 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
 
     ResultsDirectory namespacedResults();
 
-    @Value.Default
-    default boolean preemptible() {
-        return true;
-    }
-
     @Override
     @Value.Default
     default VirtualMachinePerformanceProfile performanceProfile() {
@@ -65,7 +60,6 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .name("gridss")
                 .startupCommand(startupScript)
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(24, 120))
-                .preemptible(false)
                 .namespacedResults(resultsDirectory)
                 .build();
     }
