@@ -9,6 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -21,6 +22,8 @@ import com.hartwig.pipeline.sbpapi.ObjectMappers;
 import com.hartwig.pipeline.sbpapi.SbpRestApi;
 import com.hartwig.pipeline.sbpapi.SbpRun;
 import com.hartwig.pipeline.sbpapi.SbpSet;
+import com.hartwig.pipeline.storage.GSUtil;
+import com.hartwig.pipeline.storage.Processes;
 import com.hartwig.pipeline.storage.RCloneCloudCopy;
 import com.hartwig.pipeline.testsupport.Resources;
 import com.hartwig.pipeline.transfer.sbp.SbpFileTransfer;
@@ -47,11 +50,21 @@ public class SmokeTest {
 
     private String rclonePath;
     private String rclone;
+    private String archiveBucket;
+    private String archivePrivateKey;
+    private String cloudSdkPath;
 
     @Before
     public void setUp() throws Exception {
         rclonePath = "/usr/bin";
         rclone = format("%s/rclone", rclonePath);
+        archiveBucket = "hmf-output-test";
+        archivePrivateKey = workingDir() + "/google-archive-key.json";
+        cloudSdkPath = "/usr/bin";
+
+        System.setProperty("javax.net.ssl.keyStorePassword", "changeit");
+        System.setProperty("javax.net.ssl.keyStore", Resources.testResource("smoke_test/api.jks"));
+
         resultsDir = new File(workingDir() + "/results");
         assertThat(resultsDir.mkdir()).isTrue();
     }
@@ -68,14 +81,10 @@ public class SmokeTest {
         String version = System.getProperty("version");
         String runId = "smoke-" + noDots(version);
 
-        System.setProperty("javax.net.ssl.keyStorePassword", "changeit");
-        System.setProperty("javax.net.ssl.keyStore", Resources.testResource("smoke_test/api.jks"));
-
         Arguments arguments = Arguments.defaultsBuilder(Arguments.DefaultsProfile.DEVELOPMENT.toString())
                 .privateKeyPath(workingDir() + "/google-key.json")
                 .sampleDirectory(workingDir() + "/../samples")
-                .version(version)
-                .cloudSdkPath("/usr/bin")
+                .version(version).cloudSdkPath(cloudSdkPath)
                 .setId(SET_ID)
                 .mode(Arguments.Mode.FULL)
                 .runId(runId)
@@ -88,10 +97,7 @@ public class SmokeTest {
                 .sbpS3Url("s3.us-east-1.amazonaws.com")
                 .rcloneGcpRemote(GCP_REMOTE)
                 .upload(true)
-                .cleanup(true)
-                //.archiveBucket("hmf-output-test")
-                //.archiveProject("hmf-database")
-                //.archivePrivateKeyPath(workingDir() + "/google-archive-key.json")
+                .cleanup(true).archiveBucket(archiveBucket).archiveProject("hmf-database").archivePrivateKeyPath(archivePrivateKey)
                 .build();
 
         SbpRestApi api = SbpRestApi.newInstance(arguments);
@@ -101,6 +107,9 @@ public class SmokeTest {
 
         rclone(delete(setName, GCP_REMOTE, arguments.patientReportBucket()));
         rclone(delete(setName, S3_REMOTE, destinationBucket));
+        GSUtil.configure(true, 1);
+        GSUtil.auth(cloudSdkPath, archivePrivateKey);
+        gsutil(ImmutableList.of("rm", "-r", format("gs://%s/%s", archiveBucket, setName)));
 
         PipelineState state = victim.start(arguments);
         assertThat(state.status()).isEqualTo(PipelineStatus.QC_FAILED);
@@ -131,6 +140,17 @@ public class SmokeTest {
                     .collect(Collectors.toList());
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private void gsutil(List<String> arguments) {
+        try {
+            GSUtil.configure(true, 1);
+            GSUtil.auth(cloudSdkPath, archivePrivateKey);
+            ProcessBuilder process = new ProcessBuilder(ImmutableList.<String>builder().add("gsutil").addAll(arguments).build());
+            Processes.run(process, true, 1, TimeUnit.HOURS);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to run gsutil", e);
         }
     }
 
