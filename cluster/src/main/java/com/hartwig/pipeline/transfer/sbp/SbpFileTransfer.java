@@ -68,24 +68,10 @@ public class SbpFileTransfer {
         }
     }
 
-    private SourceDestPair createPair(Blob blob, String sbpBucket) {
-        CloudFile dest =
-                CloudFile.builder().provider("s3").bucket(sbpBucket).path(blob.getName()).size(blob.getSize()).md5(blob.getMd5()).build();
-        CloudFile source = CloudFile.builder()
-                .provider("gs")
-                .bucket(sourceBucket.getName())
-                .path(blob.getName())
-                .md5(blob.getMd5())
-                .size(blob.getSize())
-                .build();
-        return new SourceDestPair(source, dest);
-    }
-
     private void writeManifest(List<SourceDestPair> allFiles, String sbpBucket, String directory, SbpRun sbpRun) {
         LOGGER.debug("Generating manifest");
         String manifestContents =
                 allFiles.stream().map(SourceDestPair::getSource).map(CloudFile::toManifestForm).collect(Collectors.joining("\n"));
-
         String manifestKey = directory + "/" + MANIFEST_FILENAME;
         String md5 = DigestUtils.md5Hex(manifestContents.getBytes());
         sbpS3.createFile(sbpBucket, manifestKey, manifestContents.getBytes(), md5);
@@ -110,6 +96,19 @@ public class SbpFileTransfer {
                 .hash(convertMd5ToSbpFormat(md5))
                 .build();
         sbpApi.postFile(metaData);
+    }
+
+    private SourceDestPair createPair(Blob blob, String sbpBucket) {
+        CloudFile dest =
+                CloudFile.builder().provider("s3").bucket(sbpBucket).path(blob.getName()).size(blob.getSize()).md5(blob.getMd5()).build();
+        CloudFile source = CloudFile.builder()
+                .provider("gs")
+                .bucket(sourceBucket.getName())
+                .path(blob.getName())
+                .md5(blob.getMd5())
+                .size(blob.getSize())
+                .build();
+        return new SourceDestPair(source, dest);
     }
 
     private List<Blob> filterStagingBlobs(final List<Blob> sourceObjects) {

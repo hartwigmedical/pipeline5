@@ -46,7 +46,6 @@ public class SbpFileTransferTest {
     private String directoryForFile;
     private String filenameForPost;
     private String fullBlobPath;
-    private String runName;
 
     @Before
     public void setup() {
@@ -62,7 +61,7 @@ public class SbpFileTransferTest {
         victim = new SbpFileTransfer(cloudCopy, sbpS3, sbpApi, sourceBucket, contentType, Arguments.testDefaults());
 
         metadata = mock(SomaticRunMetadata.class);
-        runName = "run_name";
+        final String runName = "run_name";
         when(metadata.runName()).thenReturn(runName);
         sbpBucket = "output_bucket";
 

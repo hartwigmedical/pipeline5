@@ -157,7 +157,7 @@ public interface Arguments {
                     .patientReportBucket(DEFAULT_PRODUCTION_PATIENT_REPORT_BUCKET)
                     .archiveBucket(DEFAULT_PRODUCTION_ARCHIVE_BUCKET)
                     .archiveProject(DEFAULT_PRODUCTION_ARCHIVE_PROJECT)
-                    .archivePrivateKeyPath(DEFAULT_PRODUCTION_ARCHIVE_KEY_PATH);
+                    .archivePrivateKeyPath(DEFAULT_DOCKER_ARCHIVE_KEY_PATH);
         } else if (profile.equals(DefaultsProfile.DEVELOPMENT)) {
             return ImmutableArguments.builder()
                     .profile(profile)
@@ -193,8 +193,8 @@ public interface Arguments {
                     .resourceBucket(DEFAULT_DEVELOPMENT_RESOURCE_BUCKET)
                     .patientReportBucket(DEFAULT_DEVELOPMENT_PATIENT_REPORT_BUCKET)
                     .archiveBucket(DEFAULT_DEVELOPMENT_ARCHIVE_BUCKET)
-                    .archiveProject(DEFAULT_DEVELOPMENT_ARCHIVE_PROJECT)
-                    .archivePrivateKeyPath(DEFAULT_DEVELOPMENT_ARCHIVE_KEY_PATH);
+                    .archiveProject(DEFAULT_DEVELOPMENT_PROJECT)
+                    .archivePrivateKeyPath(DEFAULT_DEVELOPMENT_KEY_PATH);
         } else if (profile.equals(DefaultsProfile.DEVELOPMENT_DOCKER)) {
             return ImmutableArguments.builder()
                     .profile(profile)
@@ -230,8 +230,8 @@ public interface Arguments {
                     .resourceBucket(DEFAULT_DEVELOPMENT_RESOURCE_BUCKET)
                     .patientReportBucket(DEFAULT_DEVELOPMENT_PATIENT_REPORT_BUCKET)
                     .archiveBucket(DEFAULT_DEVELOPMENT_ARCHIVE_BUCKET)
-                    .archiveProject(DEFAULT_DEVELOPMENT_ARCHIVE_PROJECT)
-                    .archivePrivateKeyPath(DEFAULT_DEVELOPMENT_ARCHIVE_KEY_PATH);
+                    .archiveProject(DEFAULT_DEVELOPMENT_PROJECT)
+                    .archivePrivateKeyPath(DEFAULT_DOCKER_KEY_PATH);
         }
         throw new IllegalArgumentException(String.format("Unknown profile [%s], please create defaults for this profile.", profile));
     }
@@ -258,9 +258,8 @@ public interface Arguments {
 
     String DEFAULT_DOCKER_SAMPLE_DIRECTORY = "/samples";
     String DEFAULT_DOCKER_KEY_PATH = "/secrets/bootstrap-key.json";
+    String DEFAULT_DOCKER_ARCHIVE_KEY_PATH = "/secrets/archive-key.json";
     String DEFAULT_DOCKER_CLOUD_SDK_PATH = "/usr/lib/google-cloud-sdk/bin";
-
-    String DEFAULT_PRODUCTION_ARCHIVE_KEY_PATH = DEFAULT_DOCKER_KEY_PATH;
 
     String NOT_APPLICABLE = "N/A";
     String DEFAULT_DEVELOPMENT_REGION = "europe-west4";
@@ -273,8 +272,5 @@ public interface Arguments {
     String DEFAULT_DEVELOPMENT_RESOURCE_BUCKET = "common-resources";
     String DEFAULT_DEVELOPMENT_COMMON_TOOLS_BUCKET = "common-tools";
     String DEFAULT_DEVELOPMENT_PATIENT_REPORT_BUCKET = "pipeline-output-dev";
-
-    String DEFAULT_DEVELOPMENT_ARCHIVE_PROJECT = DEFAULT_DEVELOPMENT_PROJECT;
     String DEFAULT_DEVELOPMENT_ARCHIVE_BUCKET = "pipeline-archive-dev";
-    String DEFAULT_DEVELOPMENT_ARCHIVE_KEY_PATH = DEFAULT_DEVELOPMENT_KEY_PATH;
 }
