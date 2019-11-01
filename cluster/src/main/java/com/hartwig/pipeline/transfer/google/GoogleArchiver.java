@@ -15,7 +15,7 @@ public class GoogleArchiver {
 
     public void transfer(SomaticRunMetadata metadata) {
         try {
-            GSUtil.configure(true, 1);
+            GSUtil.configure(false, 1);
             GSUtil.auth(arguments.cloudSdkPath(), arguments.archivePrivateKeyPath());
             GSUtil.cp(arguments.cloudSdkPath(),
                     format("gs://%s/%s", arguments.patientReportBucket(), metadata.runName()),
