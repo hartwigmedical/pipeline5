@@ -52,6 +52,8 @@ public class CommandLineOptions {
     private static final String RESOURCE_BUCKET_FLAG = "resource_bucket";
     private static final String PATIENT_REPORT_BUCKET_FLAG = "patient_report_bucket";
     private static final String ARCHIVE_BUCKET_FLAG = "archive_bucket";
+    private static final String ARCHIVE_PROJECT_FLAG = "archive_project";
+    private static final String ARCHIVE_PRIVATE_KEY_FLAG = "archive_private_key_path";
     private static final String MODE_FLAG = "mode";
     private static final String SET_ID_FLAG = "set_id";
     private static final String SBP_RUN_ID_FLAG = "sbp_run_id";
@@ -102,7 +104,11 @@ public class CommandLineOptions {
                 .addOption(optionWithBooleanArg(RUN_TERTIARY_FLAG, "Run tertiary analysis algorithms (amber, cobalt, purple)"))
                 .addOption(serviceAccountEmail())
                 .addOption(resourceBucket())
-                .addOption(toolsBucket()).addOption(patientReportBucket()).addOption(archiveBucket())
+                .addOption(toolsBucket())
+                .addOption(patientReportBucket())
+                .addOption(archiveBucket())
+                .addOption(archiveProject())
+                .addOption(archivePrivateKey())
                 .addOption(privateNetwork())
                 .addOption(cmek())
                 .addOption(optionWithBooleanArg(SHALLOW_FLAG,
@@ -145,7 +151,15 @@ public class CommandLineOptions {
     }
 
     private static Option archiveBucket() {
-        return optionWithArg(ARCHIVE_BUCKET_FLAG, "Bucket to copy output to for data requests.");
+        return optionWithArg(ARCHIVE_BUCKET_FLAG, "Bucket to use for data request archival.");
+    }
+
+    private static Option archiveProject() {
+        return optionWithArg(ARCHIVE_PROJECT_FLAG, "Project to use for data request archival.");
+    }
+
+    private static Option archivePrivateKey() {
+        return optionWithArg(ARCHIVE_PRIVATE_KEY_FLAG, "Private key to use for data request archival.");
     }
 
     private static Option toolsBucket() {
@@ -276,6 +290,8 @@ public class CommandLineOptions {
                     .toolsBucket(commandLine.getOptionValue(TOOLS_BUCKET_FLAG, defaults.toolsBucket()))
                     .patientReportBucket(commandLine.getOptionValue(PATIENT_REPORT_BUCKET_FLAG, defaults.patientReportBucket()))
                     .archiveBucket(commandLine.getOptionValue(ARCHIVE_BUCKET_FLAG, defaults.archiveBucket()))
+                    .archiveProject(commandLine.getOptionValue(ARCHIVE_PROJECT_FLAG, defaults.archiveProject()))
+                    .archivePrivateKeyPath(commandLine.getOptionValue(ARCHIVE_PRIVATE_KEY_FLAG, defaults.archivePrivateKeyPath()))
                     .privateNetwork(privateNetwork(commandLine, defaults))
                     .cmek(cmek(commandLine, defaults))
                     .shallow(booleanOptionWithDefault(commandLine, SHALLOW_FLAG, defaults.shallow()))

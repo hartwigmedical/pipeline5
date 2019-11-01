@@ -45,14 +45,12 @@ public class SmokeTest {
     private static final String TUMOR_SAMPLE = SET_ID + "T";
     private File resultsDir;
 
-    private LocalOverrides overrides;
     private String rclonePath;
     private String rclone;
 
     @Before
     public void setUp() throws Exception {
-        overrides = new LocalOverrides();
-        rclonePath = overrides.get("rclonePath", "/usr/bin");
+        rclonePath = "/usr/bin";
         rclone = format("%s/rclone", rclonePath);
         resultsDir = new File(workingDir() + "/results");
         assertThat(resultsDir.mkdir()).isTrue();
@@ -67,14 +65,14 @@ public class SmokeTest {
     public void runFullPipelineAndCheckFinalStatus() throws Exception {
         String apiUrl = "https://api.acc.hartwigmedicalfoundation.nl";
         PipelineMain victim = new PipelineMain();
-        String version = overrides.get("version", System.getProperty("version"));
+        String version = System.getProperty("version");
         String runId = "smoke-" + noDots(version);
 
         System.setProperty("javax.net.ssl.keyStorePassword", "changeit");
-        System.setProperty("javax.net.ssl.keyStore", overrides.get("keystore", Resources.testResource("smoke_test/api.jks")));
+        System.setProperty("javax.net.ssl.keyStore", Resources.testResource("smoke_test/api.jks"));
 
         Arguments arguments = Arguments.defaultsBuilder(Arguments.DefaultsProfile.DEVELOPMENT.toString())
-                .privateKeyPath(overrides.get("privateKey", workingDir() + "/google-key.json"))
+                .privateKeyPath(workingDir() + "/google-key.json")
                 .sampleDirectory(workingDir() + "/../samples")
                 .version(version)
                 .cloudSdkPath("/usr/bin")
@@ -88,7 +86,12 @@ public class SmokeTest {
                 .rcloneS3RemoteDownload(S3_REMOTE)
                 .rcloneS3RemoteUpload(S3_REMOTE)
                 .sbpS3Url("s3.us-east-1.amazonaws.com")
-                .rcloneGcpRemote(GCP_REMOTE).upload(true).cleanup(true).archiveBucket("smoke-test-archive-bucket")
+                .rcloneGcpRemote(GCP_REMOTE)
+                .upload(true)
+                .cleanup(true)
+                //.archiveBucket("hmf-output-test")
+                //.archiveProject("hmf-database")
+                //.archivePrivateKeyPath(workingDir() + "/google-archive-key.json")
                 .build();
 
         SbpRestApi api = SbpRestApi.newInstance(arguments);

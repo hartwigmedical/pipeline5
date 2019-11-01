@@ -4,19 +4,26 @@ import static java.lang.String.format;
 
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
-import com.hartwig.pipeline.storage.CloudCopy;
+import com.hartwig.pipeline.storage.GSUtil;
 
 public class GoogleArchiver {
     private final Arguments arguments;
-    private final CloudCopy cloudCopy;
 
-    public GoogleArchiver(Arguments arguments, CloudCopy cloudCopy) {
+    public GoogleArchiver(Arguments arguments) {
         this.arguments = arguments;
-        this.cloudCopy = cloudCopy;
     }
 
     public void transfer(SomaticRunMetadata metadata) {
-        String source = format("gs://%s/%s", arguments.patientReportBucket(), metadata.runName());
-        cloudCopy.copy(source, format("gs://%s", arguments.archiveBucket()));
+        try {
+            GSUtil.configure(true, 1);
+            GSUtil.auth(arguments.cloudSdkPath(), arguments.archivePrivateKeyPath());
+            GSUtil.cp(arguments.cloudSdkPath(),
+                    format("gs://%s/%s", arguments.patientReportBucket(), metadata.runName()),
+                    format("gs://%s/%s", arguments.archiveBucket(), metadata.runName()),
+                    arguments.archiveProject(),
+                    true);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }
