@@ -147,7 +147,7 @@ public class SmokeTest {
         GSUtil.configure(true, 1);
         try {
             GSUtil.auth(cloudSdkPath, archivePrivateKey);
-            runGsutil(ImmutableList.of("stat", format("gs://%s", archiveBucket)));
+            runGsutil(ImmutableList.of("ls", format("gs://%s", archiveBucket)));
         } catch (Exception e) {
             throw new RuntimeException(format("Could not confirm archive bucket [%s] exists", archiveBucket));
         }
