@@ -97,7 +97,8 @@ public class SmokeTest {
                 .sbpS3Url("s3.us-east-1.amazonaws.com")
                 .rcloneGcpRemote(GCP_REMOTE)
                 .upload(true)
-                .cleanup(true).archiveBucket(archiveBucket).archiveProject("hmf-database").archivePrivateKeyPath(archivePrivateKey)
+                .cleanup(true)
+                .archiveBucket(archiveBucket).archiveProject("hmf-database").archivePrivateKeyPath(archivePrivateKey)
                 .build();
 
         SbpRestApi api = SbpRestApi.newInstance(arguments);

@@ -56,7 +56,7 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
     private final InstanceLifecycleManager lifecycleManager;
     private final BucketCompletionWatcher bucketWatcher;
 
-    public ComputeEngine(final Arguments arguments, final Compute compute, final Consumer<List<Zone>> zoneRandomizer,
+    ComputeEngine(final Arguments arguments, final Compute compute, final Consumer<List<Zone>> zoneRandomizer,
             InstanceLifecycleManager lifecycleManager, BucketCompletionWatcher bucketWatcher) {
         this.arguments = arguments;
         this.compute = compute;
@@ -97,7 +97,7 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
                 Instance instance = lifecycleManager.newInstance();
                 instance.setName(vmName);
                 instance.setZone(currentZone.getName());
-                if (arguments.usePreemptibleVms() && jobDefinition.preemptible()) {
+                if (arguments.usePreemptibleVms()) {
                     instance.setScheduling(new Scheduling().setPreemptible(true));
                 }
                 instance.setMachineType(machineType(currentZone.getName(), jobDefinition.performanceProfile().uri(), project));

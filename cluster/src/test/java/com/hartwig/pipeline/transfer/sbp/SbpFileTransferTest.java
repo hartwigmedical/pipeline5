@@ -46,7 +46,6 @@ public class SbpFileTransferTest {
     private String directoryForFile;
     private String filenameForPost;
     private String fullBlobPath;
-    private String runName;
 
     @Before
     public void setup() {
@@ -62,7 +61,7 @@ public class SbpFileTransferTest {
         victim = new SbpFileTransfer(cloudCopy, sbpS3, sbpApi, sourceBucket, contentType, Arguments.testDefaults());
 
         metadata = mock(SomaticRunMetadata.class);
-        runName = "run_name";
+        final String runName = "run_name";
         when(metadata.runName()).thenReturn(runName);
         sbpBucket = "output_bucket";
 
@@ -78,6 +77,7 @@ public class SbpFileTransferTest {
         when(fileBlob.getName()).thenReturn(fullBlobPath);
         when(fileBlob.getSize()).thenReturn(10L);
         when(blobs.iterateAll()).thenReturn(Collections.singletonList(fileBlob));
+
         when(sbpRun.id()).thenReturn("123");
     }
 
@@ -191,7 +191,7 @@ public class SbpFileTransferTest {
         ArgumentCaptor<SbpFileMetadata> metadataCaptor = ArgumentCaptor.forClass(SbpFileMetadata.class);
         verify(sbpApi).postFile(metadataCaptor.capture());
 
-        assertManifest(metadataCaptor.getValue());
+        assertManifest(metadataCaptor.getAllValues().get(0));
     }
 
     private void assertManifest(SbpFileMetadata metadata) {

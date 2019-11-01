@@ -96,6 +96,6 @@ public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
 
     @Override
     public boolean shouldRun(final Arguments arguments) {
-        return arguments.runTertiary();
+        return arguments.runTertiary() && !arguments.shallow();
     }
 }

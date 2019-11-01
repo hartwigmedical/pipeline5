@@ -3,10 +3,13 @@ package com.hartwig.pipeline.tertiary.bachelor;
 import static com.hartwig.pipeline.resource.ResourceNames.BACHELOR;
 import static com.hartwig.pipeline.resource.ResourceNames.REFERENCE_GENOME;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.Collections;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
+import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
@@ -14,6 +17,7 @@ import com.hartwig.pipeline.testsupport.MockResource;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Before;
+import org.junit.Test;
 
 public class BachelorTest extends TertiaryStageTest<BachelorOutput> {
 
@@ -51,6 +55,16 @@ public class BachelorTest extends TertiaryStageTest<BachelorOutput> {
                 + "/data/input/results -xml_config /data/resources/bachelor_hmf.xml -ext_filter_file "
                 + "/data/resources/bachelor_clinvar_filters.csv -ref_genome /data/resources/reference.fasta -output_dir /data/output "
                 + "-log_debug");
+    }
+
+    @Test
+    public void doesntRunWhenShallowEnabled() {
+        assertThat(victim.shouldRun(Arguments.testDefaultsBuilder().shallow(true).runTertiary(true).build())).isFalse();
+    }
+
+    @Test
+    public void doesntRunWhenGermlineDisabled() {
+        assertThat(victim.shouldRun(Arguments.testDefaultsBuilder().runGermlineCaller(false).runTertiary(true).build())).isFalse();
     }
 
     @Override
