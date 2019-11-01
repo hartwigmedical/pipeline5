@@ -52,6 +52,7 @@ public class SmokeTest {
     private String rclone;
     private String archiveBucket;
     private String archivePrivateKey;
+    private String archiveProject;
     private String cloudSdkPath;
 
     @Before
@@ -60,6 +61,7 @@ public class SmokeTest {
         rclone = format("%s/rclone", rclonePath);
         archiveBucket = "hmf-output-test";
         archivePrivateKey = workingDir() + "/google-archive-key.json";
+        archiveProject = "hmf-database";
         cloudSdkPath = "/usr/bin";
 
         System.setProperty("javax.net.ssl.keyStorePassword", "changeit");
@@ -97,8 +99,7 @@ public class SmokeTest {
                 .sbpS3Url("s3.us-east-1.amazonaws.com")
                 .rcloneGcpRemote(GCP_REMOTE)
                 .upload(true)
-                .cleanup(true)
-                .archiveBucket(archiveBucket).archiveProject("hmf-database").archivePrivateKeyPath(archivePrivateKey)
+                .cleanup(true).archiveBucket(archiveBucket).archiveProject(archiveProject).archivePrivateKeyPath(archivePrivateKey)
                 .build();
 
         SbpRestApi api = SbpRestApi.newInstance(arguments);
@@ -110,7 +111,7 @@ public class SmokeTest {
         rclone(delete(setName, S3_REMOTE, destinationBucket));
         GSUtil.configure(true, 1);
         GSUtil.auth(cloudSdkPath, archivePrivateKey);
-        gsutil(ImmutableList.of("rm", "-r", format("gs://%s/%s", archiveBucket, setName)));
+        gsutil(ImmutableList.of("-u", archiveProject, "rm", "-r", format("gs://%s/%s", archiveBucket, setName)));
 
         PipelineState state = victim.start(arguments);
         assertThat(state.status()).isEqualTo(PipelineStatus.QC_FAILED);
