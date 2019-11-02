@@ -17,7 +17,7 @@ before_install:
 - openssl aes-256-cbc -K $encrypted_ec9457022768_key -iv $encrypted_ec9457022768_iv
   -in cluster/google-key.json.enc -out cluster/google-key.json -d
 - openssl aes-256-cbc -K $encrypted_e6c508956cde_key -iv $encrypted_e6c508956cde_iv
-  -in cluster/google-archive-key.json.enc -out cluster/google-archive-key.json
+  -in cluster/google-archive-key.json.enc -out cluster/google-archive-key.json -d
 
 - echo "$DOCKER_HUB_PASSWORD" | docker login -u "hartwigmedicalfoundation" --password-stdin
 - mvn versions:set -DnewVersion=$PIPELINE5_VERSION
