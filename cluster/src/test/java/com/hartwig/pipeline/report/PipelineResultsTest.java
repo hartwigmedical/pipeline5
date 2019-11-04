@@ -43,7 +43,7 @@ public class PipelineResultsTest {
     public void composesAllAddedComponents() {
         victim.add(stageOutput(Lists.newArrayList((s, r, setName) -> firstComponentRan = true,
                 (s, r, setName) -> secondComponentRan = true)));
-        victim.compose(TestInputs.referenceRunMetadata());
+        victim.compose(TestInputs.referenceRunMetadata(), false);
         assertThat(firstComponentRan).isTrue();
         assertThat(secondComponentRan).isTrue();
     }
@@ -53,18 +53,28 @@ public class PipelineResultsTest {
         victim.add(stageOutput(Lists.newArrayList((s, r, setName) -> firstComponentRan = true, (s, r, setName) -> {
             throw new RuntimeException();
         }, (s, r, setName) -> secondComponentRan = true)));
-        victim.compose(TestInputs.referenceRunMetadata());
+        victim.compose(TestInputs.referenceRunMetadata(), false);
         assertThat(firstComponentRan).isTrue();
         assertThat(secondComponentRan).isTrue();
     }
 
     @Test
-    public void copiesMetadataRunVersionAndCompletionToRootOfBucketSingleSample() {
+    public void copiesMetadataRunVersionAndCompletionToRootOfSingleSampleFolderWhenNotRunStandalone() {
         ArgumentCaptor<String> createBlobCaptor = ArgumentCaptor.forClass(String.class);
-        victim.compose(TestInputs.referenceRunMetadata());
+        victim.compose(TestInputs.referenceRunMetadata(), false);
         verify(outputBucket, times(3)).create(createBlobCaptor.capture(), (byte[]) any());
         assertThat(createBlobCaptor.getAllValues().get(0)).isEqualTo("reference-tag/reference/metadata.json");
         assertThat(createBlobCaptor.getAllValues().get(1)).isEqualTo("reference-tag/reference/pipeline.version");
+        assertThat(createBlobCaptor.getAllValues().get(2)).isEqualTo("reference-tag/STAGED");
+    }
+
+    @Test
+    public void copiesMetadataVersionAndCompletionToRootOfBucketSingleSampleWhenRunStandalone() {
+        ArgumentCaptor<String> createBlobCaptor = ArgumentCaptor.forClass(String.class);
+        victim.compose(TestInputs.referenceRunMetadata(), true);
+        verify(outputBucket, times(3)).create(createBlobCaptor.capture(), (byte[]) any());
+        assertThat(createBlobCaptor.getAllValues().get(0)).isEqualTo("reference-tag/metadata.json");
+        assertThat(createBlobCaptor.getAllValues().get(1)).isEqualTo("reference-tag/pipeline.version");
         assertThat(createBlobCaptor.getAllValues().get(2)).isEqualTo("reference-tag/STAGED");
     }
 

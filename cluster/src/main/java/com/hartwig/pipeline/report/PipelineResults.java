@@ -53,9 +53,9 @@ public class PipelineResults {
         writeComplete(name);
     }
 
-    public void compose(SingleSampleRunMetadata metadata) {
+    public void compose(SingleSampleRunMetadata metadata, Boolean isStandalone) {
         String name = RunTag.apply(arguments, metadata.sampleId());
-        Folder folder = Folder.from(metadata);
+        Folder folder = isStandalone ? Folder.from() : Folder.from(metadata);
         writeMetadata(metadata, name, folder);
         compose(name, folder);
         writeComplete(name);

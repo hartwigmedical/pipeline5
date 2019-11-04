@@ -47,6 +47,7 @@ public class SingleSamplePipelineTest {
     private Aligner aligner;
     private SingleSampleEventListener eventListener;
     private StageRunner<SingleSampleRunMetadata> stageRunner;
+    private PipelineResults pipelineResults;
 
     @Before
     @SuppressWarnings("unchecked")
@@ -56,13 +57,17 @@ public class SingleSamplePipelineTest {
         Storage storage = mock(Storage.class);
         Bucket reportBucket = mock(Bucket.class);
         when(storage.get(ARGUMENTS.patientReportBucket())).thenReturn(reportBucket);
-        final PipelineResults pipelineResults = PipelineResultsProvider.from(storage, ARGUMENTS, "test").get();
         stageRunner = mock(StageRunner.class);
+        pipelineResults = PipelineResultsProvider.from(storage, ARGUMENTS, "test").get();
+        initialiseVictim(false);
+    }
+
+    private void initialiseVictim(boolean standalone) {
         victim = new SingleSamplePipeline(eventListener,
                 stageRunner,
                 aligner,
                 pipelineResults,
-                Executors.newSingleThreadExecutor(),
+                Executors.newSingleThreadExecutor(), standalone,
                 ARGUMENTS);
     }
 
@@ -217,6 +222,26 @@ public class SingleSamplePipelineTest {
                 .thenReturn(germlineCallerOutput());
         PipelineState result = victim.run(referenceRunMetadata());
         verify(eventListener, times(1)).alignmentComplete(result);
+    }
+
+    @Test
+    public void passesFalseToReportCompositionWhenNotRunInStandaloneMode() throws Exception {
+        pipelineResults = mock(PipelineResults.class);
+        when(pipelineResults.add(any())).thenAnswer(i -> i.getArguments()[0]);
+        when(aligner.run(referenceRunMetadata())).thenReturn(referenceAlignmentOutput());
+        initialiseVictim(false);
+        victim.run(referenceRunMetadata());
+        verify(pipelineResults).compose(any(), eq(false));
+    }
+
+    @Test
+    public void passesTrueToReportCompositionWhenRunInStandaloneMode() throws Exception {
+        pipelineResults = mock(PipelineResults.class);
+        when(pipelineResults.add(any())).thenAnswer(i -> i.getArguments()[0]);
+        when(aligner.run(referenceRunMetadata())).thenReturn(referenceAlignmentOutput());
+        initialiseVictim(true);
+        victim.run(referenceRunMetadata());
+        verify(pipelineResults).compose(any(), eq(true));
     }
 
     private void assertFailed(final PipelineState runOutput) {
