@@ -12,7 +12,6 @@ public class OutputUploadTest implements CommonEntities {
     @Test
     public void createsBaseToCopyAllFilesAndDirsInOutputFolderToOutputBucket() {
         OutputUpload victim = new OutputUpload(GoogleStorageLocation.of("bucket", "results"));
-        assertThat(victim.asBash()).isEqualTo("(cp /var/log/run.log /data/output && gsutil rm -r gs://bucket/results && gsutil -qm cp -r "
-                + "/data/output/ gs://bucket/results)");
+        assertThat(victim.asBash()).isEqualTo("(cp /var/log/run.log /data/output && gsutil -qm rsync -dr /data/output gs://bucket/results)");
     }
 }
