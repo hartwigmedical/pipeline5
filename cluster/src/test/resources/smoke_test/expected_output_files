@@ -48,6 +48,13 @@ CPCT12345678T/snp_genotype/snp_genotype_output.vcf
 health_checker/CPCT12345678T.HealthCheckFailed
 health_checker/run.log
 linx/run.log
+linx/CPCT12345678T.linx.breakend.tsv,
+linx/CPCT12345678T.linx.clusters.tsv,
+linx/CPCT12345678T.linx.drivers.tsv,
+linx/CPCT12345678T.linx.fusion.tsv,
+linx/CPCT12345678T.linx.links.tsv,
+linx/CPCT12345678T.linx.svs.tsv,
+linx/CPCT12345678T.linx.viral_inserts.tsv,
 metadata.json
 pipeline.version
 purple/circos/CPCT12345678R.ratio.circos
