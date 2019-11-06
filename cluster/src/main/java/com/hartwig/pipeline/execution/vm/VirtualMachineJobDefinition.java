@@ -161,4 +161,14 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 12))
                 .build();
     }
+
+    static VirtualMachineJobDefinition cramMigration(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
+        return ImmutableVirtualMachineJobDefinition.builder()
+                .name("crammer")
+                .startupCommand(startupScript)
+                .namespacedResults(resultsDirectory)
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 6))
+                .imageFamily("cram-converter")
+                .build();
+    }
 }
