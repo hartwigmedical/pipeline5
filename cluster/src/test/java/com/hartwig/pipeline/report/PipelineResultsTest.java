@@ -48,14 +48,12 @@ public class PipelineResultsTest {
         assertThat(secondComponentRan).isTrue();
     }
 
-    @Test
-    public void doesNotFailWhenOneComponentFails() {
+    @Test (expected = RuntimeException.class)
+    public void failsHardWhenOneComponentFails(){
         victim.add(stageOutput(Lists.newArrayList((s, r, setName) -> firstComponentRan = true, (s, r, setName) -> {
             throw new RuntimeException();
         }, (s, r, setName) -> secondComponentRan = true)));
         victim.compose(TestInputs.referenceRunMetadata(), false);
-        assertThat(firstComponentRan).isTrue();
-        assertThat(secondComponentRan).isTrue();
     }
 
     @Test
