@@ -15,6 +15,11 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
         return STANDARD_IMAGE;
     }
 
+    @Value.Default
+    default long imageSizeGb() {
+        return 10L;
+    }
+
     BashStartupScript startupCommand();
 
     ResultsDirectory namespacedResults();
@@ -168,7 +173,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .startupCommand(startupScript)
                 .namespacedResults(resultsDirectory)
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 6))
-                .imageFamily("cram-converter")
+                .imageFamily("cram-converter").imageSizeGb(20L)
                 .build();
     }
 }

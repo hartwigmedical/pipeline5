@@ -5,7 +5,7 @@ import java.util.function.Function;
 
 import com.google.cloud.storage.Blob;
 import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.execution.vm.BashStartupScript;
+import com.hartwig.pipeline.execution.vm.RuntimeFiles;
 import com.hartwig.pipeline.metadata.RunMetadata;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.RuntimeBucket;
@@ -33,7 +33,7 @@ public class OutputStorage<S extends StageOutput, M extends RunMetadata> {
         }
         final RuntimeBucket runtimeBucket = runtimeBucketProvider.apply(metadata);
         Blob metricsBlob = Failsafe.with(new RetryPolicy<>().handleResult(null).withDelay(Duration.ofSeconds(5)).withMaxRetries(-1))
-                .get(() -> runtimeBucket.get(BashStartupScript.JOB_SUCCEEDED_FLAG));
+                .get(() -> runtimeBucket.get(RuntimeFiles.typical().success()));
         if (metricsBlob != null) {
             return stage.output(metadata, PipelineStatus.SUCCESS, runtimeBucket, resultsDirectory);
         }

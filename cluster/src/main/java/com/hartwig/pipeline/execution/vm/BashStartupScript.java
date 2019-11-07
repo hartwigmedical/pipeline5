@@ -10,14 +10,14 @@ import java.util.List;
 import com.hartwig.pipeline.execution.vm.storage.StorageStrategy;
 
 public class BashStartupScript {
-    public static final String JOB_SUCCEEDED_FLAG = "JOB_SUCCESS";
-    static final String JOB_FAILED_FLAG = "JOB_FAILURE";
-    static final String LOG_FILE = "/var/log/run.log";
+    static final String LOCAL_LOG_DIR = "/var/log";
     private final List<String> commands;
     private final String runtimeBucketName;
+    private final RuntimeFiles runtimeFiles;
 
-    private BashStartupScript(final String runtimeBucketName) {
+    private BashStartupScript(final String runtimeBucketName, final RuntimeFiles runtimeFiles) {
         this.runtimeBucketName = runtimeBucketName;
+        this.runtimeFiles = runtimeFiles;
         this.commands = new ArrayList<>();
         this.commands.add("echo $(date) Starting run");
         this.commands.add("mkdir -p " + VmDirectories.INPUT);
@@ -29,7 +29,11 @@ public class BashStartupScript {
     }
 
     public static BashStartupScript of(final String runtimeBucketName) {
-        return new BashStartupScript(runtimeBucketName);
+        return new BashStartupScript(runtimeBucketName, RuntimeFiles.typical());
+    }
+
+    public static BashStartupScript of(final String runtimeBucketName, RuntimeFiles flags) {
+        return new BashStartupScript(runtimeBucketName, flags);
     }
 
     String asUnixString() {
@@ -37,8 +41,9 @@ public class BashStartupScript {
     }
 
     String asUnixString(StorageStrategy storageStrategy) {
-        String commandSuffix = format(" >>%s 2>&1 || die", LOG_FILE);
-        String jobFailedFlag = "/tmp/" + JOB_FAILED_FLAG;
+        String localLogFile = format("%s/%s", LOCAL_LOG_DIR, runtimeFiles.log());
+        String commandSuffix = format(" >>%s 2>&1 || die", localLogFile);
+        String jobFailedFlag = "/tmp/" + runtimeFiles.failure();
 
         List<String> preamble = new ArrayList<>(asList(
                 "#!/bin/bash -x\n",
@@ -46,7 +51,7 @@ public class BashStartupScript {
                 "function die() {",
                 "  exit_code=$?",
                 "  echo \"Unknown failure: called command returned $exit_code\"",
-                format("  gsutil -m cp %s gs://%s", LOG_FILE, runtimeBucketName),
+                format("  gsutil -m cp %s gs://%s", localLogFile, runtimeBucketName),
                 format("  echo $exit_code > %s", jobFailedFlag),
                 format("  gsutil -m cp %s gs://%s", jobFailedFlag, runtimeBucketName),
                 "  exit $exit_code\n" + "}\n"));
@@ -81,15 +86,7 @@ public class BashStartupScript {
     }
 
     private void addCompletionCommands() {
-        String successFlag = "/tmp/" + successFlag();
+        String successFlag = "/tmp/" + runtimeFiles.success();
         commands.add(format("(echo 0 > %s && gsutil cp %s gs://%s)", successFlag, successFlag, runtimeBucketName));
-    }
-
-    String successFlag() {
-        return JOB_SUCCEEDED_FLAG;
-    }
-
-    String failureFlag() {
-        return JOB_FAILED_FLAG;
     }
 }

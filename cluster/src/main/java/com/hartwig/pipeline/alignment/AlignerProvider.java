@@ -107,7 +107,7 @@ public abstract class AlignerProvider {
     private static Aligner constructVmAligner(final Arguments arguments, final GoogleCredentials credentials, final Storage storage,
             final SampleSource sampleSource, final SampleUpload sampleUpload, final ResultsDirectory resultsDirectory,
             final AlignmentOutputStorage alignmentOutputStorage) throws Exception {
-        ComputeEngine computeEngine = ComputeEngine.from(arguments, credentials);
+        ComputeEngine computeEngine = ComputeEngine.from(arguments, credentials, arguments.shallow());
         return new VmAligner(arguments,
                 computeEngine,
                 storage,

@@ -68,7 +68,10 @@ public class PipelineMain {
     private static SomaticPipeline somaticPipeline(final Arguments arguments, final GoogleCredentials credentials, final Storage storage,
             final SomaticMetadataApi somaticMetadataApi) throws Exception {
         return new SomaticPipeline(arguments,
-                new StageRunner<>(storage, arguments, ComputeEngine.from(arguments, credentials), ResultsDirectory.defaultDirectory()),
+                new StageRunner<>(storage,
+                        arguments,
+                        ComputeEngine.from(arguments, credentials, arguments.shallow()),
+                        ResultsDirectory.defaultDirectory()),
                 new AlignmentOutputStorage(storage, arguments, ResultsDirectory.defaultDirectory()),
                 new OutputStorage<>(ResultsDirectory.defaultDirectory(),
                         arguments,
@@ -86,7 +89,10 @@ public class PipelineMain {
     private static SingleSamplePipeline singleSamplePipeline(final Arguments arguments, final GoogleCredentials credentials,
             final Storage storage, final SingleSampleEventListener eventListener) throws Exception {
         return new SingleSamplePipeline(eventListener,
-                new StageRunner<>(storage, arguments, ComputeEngine.from(arguments, credentials), ResultsDirectory.defaultDirectory()),
+                new StageRunner<>(storage,
+                        arguments,
+                        ComputeEngine.from(arguments, credentials, arguments.shallow()),
+                        ResultsDirectory.defaultDirectory()),
                 AlignerProvider.from(credentials, storage, arguments).get(),
                 PipelineResultsProvider.from(storage, arguments, Versions.pipelineVersion()).get(),
                 Executors.newCachedThreadPool(),

@@ -3,17 +3,18 @@ package com.hartwig.pipeline.labels;
 import java.util.Map;
 
 import com.google.common.collect.ImmutableMap;
-import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.tools.Versions;
 
 public class Labels {
 
-    public static Map<String, String> ofRun(String run, String jobName, Arguments arguments) {
+    public static Map<String, String> ofRun(String run, String jobName, boolean isShallow) {
         return ImmutableMap.of("run_id", clean(run),
-                "job_name", clean(jobName),
-                "version", clean(Versions.pipelineMajorMinorVersion()),
+                "job_name",
+                clean(jobName),
+                "version",
+                clean(Versions.pipelineMajorMinorVersion()),
                 "shallow",
-                arguments.shallow() ? "true" : "false");
+                isShallow ? "true" : "false");
     }
 
     private static String clean(final String run) {

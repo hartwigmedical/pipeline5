@@ -4,14 +4,14 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.http.HttpTransportOptions;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
-import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.CommonArguments;
 
 public class StorageProvider {
 
-    private final Arguments arguments;
+    private final CommonArguments arguments;
     private final GoogleCredentials credentials;
 
-    private StorageProvider(final Arguments arguments, final GoogleCredentials credentials) {
+    private StorageProvider(final CommonArguments arguments, final GoogleCredentials credentials) {
         this.arguments = arguments;
         this.credentials = credentials;
     }
@@ -28,7 +28,7 @@ public class StorageProvider {
                 .getService();
     }
 
-    public static StorageProvider from(Arguments arguments, GoogleCredentials credentials) {
+    public static StorageProvider from(CommonArguments arguments, GoogleCredentials credentials) {
         return new StorageProvider(arguments, credentials);
     }
 }

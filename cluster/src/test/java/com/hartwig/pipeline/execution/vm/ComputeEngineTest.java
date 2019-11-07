@@ -117,7 +117,8 @@ public class ComputeEngineTest {
         when(compute.zones()).thenReturn(zones);
 
         bucketWatcher = mock(BucketCompletionWatcher.class);
-        victim = new ComputeEngine(ARGUMENTS, compute, z -> {}, lifecycleManager, bucketWatcher);
+        victim = new ComputeEngine(ARGUMENTS, compute, z -> {
+        }, lifecycleManager, bucketWatcher, false);
         runtimeBucket = MockRuntimeBucket.test();
         jobDefinition = VirtualMachineJobDefinition.builder()
                 .name("test")
@@ -152,7 +153,7 @@ public class ComputeEngineTest {
     public void disablesStartupScriptWhenInstanceWithPersistentDisksFailsRemotely() throws Exception {
         Arguments arguments = Arguments.testDefaultsBuilder().useLocalSsds(false).build();
         victim = new ComputeEngine(arguments, compute, z -> {
-        }, lifecycleManager, bucketWatcher);
+        }, lifecycleManager, bucketWatcher, false);
         returnFailed();
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
         verify(lifecycleManager).disableStartupScript(FIRST_ZONE_NAME, INSTANCE_NAME);
@@ -169,7 +170,7 @@ public class ComputeEngineTest {
     public void shouldDeleteStateWhenFailureFlagExists() {
         when(bucketWatcher.currentState(any(), any())).thenReturn(State.FAILURE);
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
-        verify(runtimeBucket.getRuntimeBucket(), times(1)).delete(BashStartupScript.JOB_FAILED_FLAG);
+        verify(runtimeBucket.getRuntimeBucket(), times(1)).delete(RuntimeFiles.typical().failure());
         verify(runtimeBucket.getRuntimeBucket(), times(1)).delete("results");
     }
 
@@ -185,7 +186,7 @@ public class ComputeEngineTest {
     public void stopsInstanceWithPersistentDisksUponFailure() {
         Arguments arguments = Arguments.testDefaultsBuilder().useLocalSsds(false).build();
         victim = new ComputeEngine(arguments, compute, z -> {
-        }, lifecycleManager, bucketWatcher);
+        }, lifecycleManager, bucketWatcher, false);
         returnFailed();
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
         verify(lifecycleManager).stop(FIRST_ZONE_NAME, INSTANCE_NAME);
@@ -215,7 +216,7 @@ public class ComputeEngineTest {
     public void usesPrivateNetworkWhenSpecified() throws Exception {
         returnSuccess();
         victim = new ComputeEngine(Arguments.testDefaultsBuilder().privateNetwork("private").build(), compute, z -> {
-        }, lifecycleManager, bucketWatcher);
+        }, lifecycleManager, bucketWatcher, false);
         ArgumentCaptor<List<NetworkInterface>> interfaceCaptor = ArgumentCaptor.forClass(List.class);
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
 

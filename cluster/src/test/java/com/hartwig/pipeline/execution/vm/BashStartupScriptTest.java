@@ -24,15 +24,20 @@ public class BashStartupScriptTest {
         scriptBuilder = of(bucketName);
     }
 
-    @Test
-    public void shouldReturnSuccessFlagFilename() {
-        assertThat(scriptBuilder.successFlag()).isEqualTo("JOB_SUCCESS");
-    }
-
-    @Test
-    public void shouldReturnFailureFlagFilename() {
-        assertThat(scriptBuilder.failureFlag()).isEqualTo("JOB_FAILURE");
-    }
+    ////    @Test
+    ////    public void shouldReturnTypicalExecutionFlagsIfNotSpecified() {
+    ////        assertThat(scriptBuilder.
+    ////    }
+    ////
+    ////    @Test
+    ////    public void shouldReturnSuccessFlagFilename() {
+    ////        assertThat(scriptBuilder.successFlag()).isEqualTo("JOB_SUCCESS");
+    ////    }
+    //
+    //    @Test
+    //    public void shouldReturnFailureFlagFilename() {
+    //        assertThat(scriptBuilder.failureFlag()).isEqualTo("JOB_FAILURE");
+    //    }
 
     @Test
     public void shouldWriteCompleteScriptForLocalSsds() throws IOException {
