@@ -15,6 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -67,7 +68,8 @@ public class SingleSamplePipelineTest {
                 stageRunner,
                 aligner,
                 pipelineResults,
-                Executors.newSingleThreadExecutor(), standalone,
+                Executors.newSingleThreadExecutor(),
+                standalone,
                 ARGUMENTS);
     }
 
@@ -242,6 +244,15 @@ public class SingleSamplePipelineTest {
         initialiseVictim(true);
         victim.run(referenceRunMetadata());
         verify(pipelineResults).compose(any(), eq(true));
+    }
+
+    @Test
+    public void doesnotComposeReportIfStatusIsFailed() throws Exception {
+        pipelineResults = mock(PipelineResults.class);
+        AlignmentOutput alignmentOutput = AlignmentOutput.builder().status(PipelineStatus.FAILED).sample(referenceSample()).build();
+        when(aligner.run(referenceRunMetadata())).thenReturn(alignmentOutput);
+        victim.run(referenceRunMetadata());
+        verify(pipelineResults, never()).compose(any(), eq(true));
     }
 
     private void assertFailed(final PipelineState runOutput) {
