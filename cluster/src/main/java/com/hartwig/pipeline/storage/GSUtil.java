@@ -33,9 +33,6 @@ public class GSUtil {
             command.add("-u");
             command.add(userProject);
         }
-        if (VERBOSE) {
-            command.add("-D");
-        }
         command.add("-m");
         command.add("cp");
         if (recurse) {
@@ -43,7 +40,7 @@ public class GSUtil {
         }
         command.add(sourceUrl);
         command.add(targetUrl);
-        ProcessBuilder processBuilder = new ProcessBuilder(command);
+        ProcessBuilder processBuilder = new ProcessBuilder(command).inheritIO();
         Processes.run(processBuilder, VERBOSE, TIMEOUT_HOURS, TimeUnit.HOURS);
     }
 }

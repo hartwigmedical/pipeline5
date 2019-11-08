@@ -136,16 +136,8 @@ public class SomaticPipeline {
             }
         }
         fullSomaticResults.compose(metadata);
-        Future<Void> archiverFuture = executorService.submit(() -> {
-            archiver.transfer(metadata);
-            return null;
-        });
+        archiver.transfer(metadata);
         setMetadataApi.complete(state.status(), metadata);
-        try {
-            archiverFuture.get();
-        } catch (InterruptedException | ExecutionException e) {
-            throw new RuntimeException(e);
-        }
         if (state.shouldProceed()) {
             cleanup.run(metadata);
         }
