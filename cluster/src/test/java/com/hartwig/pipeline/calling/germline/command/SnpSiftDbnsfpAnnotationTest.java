@@ -21,7 +21,7 @@ public class SnpSiftDbnsfpAnnotationTest extends SubStageTest {
 
     @Test
     public void runsSnpSiftDbsnfpAnnotation() {
-        assertThat(bash()).contains("(java -Xmx20G -jar /opt/tools/snpEff/4.3s/SnpSift.jar dbnsfp -c "
+        assertThat(bash()).contains("(java -Xmx29G -jar /opt/tools/snpEff/4.3s/SnpSift.jar dbnsfp -c "
                 + "snpEff.config -v -f");
         assertThat(bash()).contains(
                 "-db dbnsfp.vcf.gz /data/output/tumor.strelka.vcf > /data/output/tumor.dbnsfp.annotated.vcf)");

@@ -13,7 +13,7 @@ public class GatkHaplotypeCallerCommandTest {
         String snpDb = randStr();
         String outputVcf = randStr();
 
-        String expected = "java -Xmx20G -jar /opt/tools/gatk/3.8.0/GenomeAnalysisTK.jar -T HaplotypeCaller "
+        String expected = "java -Xmx29G -jar /opt/tools/gatk/3.8.0/GenomeAnalysisTK.jar -T HaplotypeCaller "
                 + "-nct $(grep -c '^processor' /proc/cpuinfo) --input_file " + inputBam
                 + " -o " + outputVcf + " -D " + snpDb + " --reference_sequence " + referenceFasta
                 + " -variant_index_type LINEAR -variant_index_parameter 128000 -stand_call_conf 15.0"
