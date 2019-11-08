@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.execution.vm;
 
+import static java.lang.String.format;
+
 import com.hartwig.pipeline.execution.vm.unix.SubShellCommand;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 
