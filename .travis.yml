@@ -12,7 +12,7 @@ env:
 script:
 - 'if [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then mvn clean install -B; else mvn clean install -DskipDocker -DskipShade -B; fi'
 before_install:
-- openssl aes-256-cbc -K $encrypted_7b504d6f794c_key -iv $encrypted_7b504d6f794c_iv
+- openssl aes-256-cbc -K $encrypted_ec9457022768_key -iv $encrypted_ec9457022768_iv
   -in cluster/google-key.json.enc -out cluster/google-key.json -d
 - openssl aes-256-cbc -K $encrypted_965d6303826d_key -iv $encrypted_965d6303826d_iv
   -in cluster/src/test/resources/smoke_test/api.jks.enc -out cluster/src/test/resources/smoke_test/api.jks -d
