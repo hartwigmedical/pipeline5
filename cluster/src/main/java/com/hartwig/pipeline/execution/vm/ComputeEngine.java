@@ -151,7 +151,9 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
                                     + "start, or another operation has yet to complete. Trying next zone.",
                             vmName);
                 } else {
-                    LOGGER.error("GCE returned an error starting the vm [{}] failing pipeline", vmName);
+                    LOGGER.error("GCE returned an error starting the vm [{}] failing pipeline, [{}]",
+                            vmName,
+                            result.getError().toPrettyString());
                     return PipelineStatus.FAILED;
                 }
                 index++;
