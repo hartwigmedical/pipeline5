@@ -15,7 +15,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -40,7 +39,6 @@ import com.hartwig.pipeline.stages.StageRunner;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 public class SingleSamplePipelineTest {
 
@@ -220,15 +218,6 @@ public class SingleSamplePipelineTest {
                 .thenReturn(germlineCallerOutput());
         PipelineState result = victim.run(referenceRunMetadata());
         verify(eventListener, times(1)).alignmentComplete(result);
-    }
-
-    @Test
-    public void doesnotComposeReportIfStatusIsFailed() throws Exception {
-        pipelineResults = mock(PipelineResults.class);
-        AlignmentOutput alignmentOutput = AlignmentOutput.builder().status(PipelineStatus.FAILED).sample(referenceSample()).build();
-        when(aligner.run(referenceRunMetadata())).thenReturn(alignmentOutput);
-        victim.run(referenceRunMetadata());
-        verify(pipelineResults, never()).compose(Mockito.<SingleSampleRunMetadata>any());
     }
 
     private void assertFailed(final PipelineState runOutput) {
