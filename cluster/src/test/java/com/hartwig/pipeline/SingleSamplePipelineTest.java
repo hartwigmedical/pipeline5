@@ -40,6 +40,7 @@ import com.hartwig.pipeline.stages.StageRunner;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 public class SingleSamplePipelineTest {
 
@@ -48,6 +49,7 @@ public class SingleSamplePipelineTest {
     private Aligner aligner;
     private SingleSampleEventListener eventListener;
     private StageRunner<SingleSampleRunMetadata> stageRunner;
+    private PipelineResults pipelineResults;
 
     @Before
     @SuppressWarnings("unchecked")
@@ -57,7 +59,7 @@ public class SingleSamplePipelineTest {
         Storage storage = mock(Storage.class);
         Bucket reportBucket = mock(Bucket.class);
         when(storage.get(ARGUMENTS.patientReportBucket())).thenReturn(reportBucket);
-        final PipelineResults pipelineResults = PipelineResultsProvider.from(storage, ARGUMENTS, "test").get();
+        pipelineResults = PipelineResultsProvider.from(storage, ARGUMENTS, "test").get();
         stageRunner = mock(StageRunner.class);
         victim = new SingleSamplePipeline(eventListener,
                 stageRunner,
