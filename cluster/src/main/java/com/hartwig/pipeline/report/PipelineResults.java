@@ -73,7 +73,8 @@ public class PipelineResults {
             try {
                 component.addToReport(storage, reportBucket, name);
             } catch (Exception e) {
-                LOGGER.error(format("Unable add component [%s] to the final patient report.", component.getClass().getSimpleName()), e);
+                throw new RuntimeException(format("Unable add component [%s] to the final patient report.",
+                        component.getClass().getSimpleName()), e);
             }
         });
     }

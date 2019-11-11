@@ -69,7 +69,9 @@ public class SingleSamplePipeline {
             report.add(state.add(futurePayload(bamMetricsFuture)));
             report.add(state.add(futurePayload(unifiedGenotyperFuture)));
             report.add(state.add(futurePayload(flagstatOutputFuture)));
-            report.compose(metadata);
+            if(state.shouldProceed()) {
+                report.compose(metadata);
+            }
             eventListener.complete(state);
         }
         return state;
