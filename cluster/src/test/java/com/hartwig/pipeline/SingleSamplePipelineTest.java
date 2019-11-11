@@ -233,7 +233,7 @@ public class SingleSamplePipelineTest {
         when(aligner.run(referenceRunMetadata())).thenReturn(referenceAlignmentOutput());
         initialiseVictim(false);
         victim.run(referenceRunMetadata());
-        verify(pipelineResults).compose(any(), eq(false));
+        verify(pipelineResults).compose(any(), eq(false), any());
     }
 
     @Test
@@ -243,7 +243,7 @@ public class SingleSamplePipelineTest {
         when(aligner.run(referenceRunMetadata())).thenReturn(referenceAlignmentOutput());
         initialiseVictim(true);
         victim.run(referenceRunMetadata());
-        verify(pipelineResults).compose(any(), eq(true));
+        verify(pipelineResults).compose(any(), eq(true), any());
     }
 
     @Test
@@ -252,7 +252,7 @@ public class SingleSamplePipelineTest {
         AlignmentOutput alignmentOutput = AlignmentOutput.builder().status(PipelineStatus.FAILED).sample(referenceSample()).build();
         when(aligner.run(referenceRunMetadata())).thenReturn(alignmentOutput);
         victim.run(referenceRunMetadata());
-        verify(pipelineResults, never()).compose(any(), eq(true));
+        verify(pipelineResults, never()).compose(any(), eq(true), any());
     }
 
     private void assertFailed(final PipelineState runOutput) {

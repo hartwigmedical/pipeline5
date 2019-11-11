@@ -21,7 +21,7 @@ public class SnpSiftFrequenciesAnnotationTest extends SubStageTest {
 
     @Test
     public void runsSnpSiftFrequenciesAnnotation() {
-        assertThat(bash()).contains("(java -Xmx20G -jar /opt/tools/snpEff/4.3s/SnpSift.jar annotate -c "
+        assertThat(bash()).contains("(java -Xmx29G -jar /opt/tools/snpEff/4.3s/SnpSift.jar annotate -c "
                 + "snpEff.config -tabix -name GoNLv5_ -info AF,AN,AC gonl_v5.vcf.gz /data/output/tumor.strelka.vcf > "
                 + "/data/output/tumor.gonlv5.annotated.vcf)");
     }

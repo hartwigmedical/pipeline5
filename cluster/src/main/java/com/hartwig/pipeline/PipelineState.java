@@ -33,7 +33,7 @@ public class PipelineState {
         return stageOutputs;
     }
 
-    boolean shouldProceed() {
+    public boolean shouldProceed() {
         boolean shouldProceed = status() != PipelineStatus.FAILED;
         if (!shouldProceed) {
             LOGGER.warn("Halting pipeline due to required stage failure [{}]", this);

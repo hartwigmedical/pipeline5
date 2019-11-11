@@ -150,8 +150,15 @@ public class ComputeEngine implements CloudExecutor<VirtualMachineJobDefinition>
                             "Received unsupported operation from GCE for [{}], this likely means the instance was pre-empted before it could "
                                     + "start, or another operation has yet to complete. Trying next zone.",
                             vmName);
+                } else if (anyErrorMatch(result, UNSUPPORTED_OPERATION_ERROR_CODE)) {
+                    LOGGER.warn(
+                            "Received unsupported operation from GCE for [{}], this likely means the instance was pre-empted before it could "
+                                    + "start, or another operation has yet to complete. Trying next zone.",
+                            vmName);
                 } else {
-                    LOGGER.error("GCE returned an error starting the vm [{}] failing pipeline", vmName);
+                    LOGGER.error("GCE returned an error starting the vm [{}] failing pipeline, [{}]",
+                            vmName,
+                            result.getError().toPrettyString());
                     return PipelineStatus.FAILED;
                 }
                 index++;

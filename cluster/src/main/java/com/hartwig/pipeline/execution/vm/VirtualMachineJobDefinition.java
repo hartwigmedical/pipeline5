@@ -42,7 +42,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("germline")
                 .startupCommand(startupScript)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(32, 32))
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(32, 40))
                 .namespacedResults(resultsDirectory)
                 .build();
     }

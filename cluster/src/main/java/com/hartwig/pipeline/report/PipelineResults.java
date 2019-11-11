@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.PipelineState;
 import com.hartwig.pipeline.RunTag;
 import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
@@ -53,11 +54,13 @@ public class PipelineResults {
         writeComplete(name);
     }
 
-    public void compose(SingleSampleRunMetadata metadata, Boolean isStandalone) {
+    public void compose(SingleSampleRunMetadata metadata,  Boolean isStandalone, PipelineState state) {
         String name = RunTag.apply(arguments, metadata.sampleId());
-        Folder folder = isStandalone ? Folder.from() : Folder.from(metadata);
-        writeMetadata(metadata, name, folder);
-        compose(name, folder);
+        if (state.shouldProceed()) {
+            Folder folder = isStandalone ? Folder.from() : Folder.from(metadata);
+            writeMetadata(metadata, name, folder);
+            compose(name, folder);
+        }
         writeComplete(name);
     }
 
