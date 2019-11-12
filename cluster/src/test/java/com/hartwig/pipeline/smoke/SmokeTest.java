@@ -146,9 +146,12 @@ public class SmokeTest {
 
     private List<String> listArchiveFilenames(String setName) {
         confirmArchiveBucketExists();
-        return ImmutableList.<String>builder().add(runGsUtil(ImmutableList.of("ls",
-                "-r",
-                format("gs://%s/%s", archiveBucket, setName))).split("\n")).build();
+        String output = runGsUtil(ImmutableList.of("ls", "-r", format("gs://%s/%s", archiveBucket, setName)));
+        return ImmutableList.<String>builder().add(output.split("\n"))
+                .build()
+                .stream()
+                .filter(filename -> filename.matches("^gs://.*[^:]"))
+                .collect(Collectors.toList());
     }
 
     private void cleanupArchiveBucket(String setName) {
@@ -165,8 +168,7 @@ public class SmokeTest {
     private String runGsUtil(List<String> arguments) {
         try {
             ProcessBuilder process = new ProcessBuilder(ImmutableList.<String>builder().add("gsutil", "-u", archiveProject)
-                    .addAll(arguments)
-                    .build()).inheritIO();
+                    .addAll(arguments).build());
             return IOUtils.toString(process.start().getInputStream());
         } catch (Exception e) {
             throw new RuntimeException(e);
