@@ -151,6 +151,8 @@ public class SmokeTest {
                 .build()
                 .stream()
                 .filter(filename -> filename.matches("^gs://.*[^:]"))
+                .filter(filename -> !filename.equals(SbpFileTransfer.MANIFEST_FILENAME))
+                .map(filename -> filename.replaceAll(format("^gs://%s/%s/", archiveBucket, setName), ""))
                 .collect(Collectors.toList());
     }
 
