@@ -37,7 +37,6 @@ import com.hartwig.pipeline.tertiary.linx.Linx;
 import com.hartwig.pipeline.tertiary.linx.LinxOutput;
 import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
-import com.hartwig.pipeline.transfer.google.GoogleArchiver;
 
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -53,7 +52,6 @@ public class SomaticPipeline {
     private final OutputStorage<BamMetricsOutput, SingleSampleRunMetadata> bamMetricsOutputStorage;
     private final OutputStorage<GermlineCallerOutput, SingleSampleRunMetadata> germlineCallerOutputStorage;
     private final SomaticMetadataApi setMetadataApi;
-    private final GoogleArchiver archiver;
     private final PipelineResults pipelineResults;
     private final FullSomaticResults fullSomaticResults;
     private final Cleanup cleanup;
@@ -63,7 +61,7 @@ public class SomaticPipeline {
             final AlignmentOutputStorage alignmentOutputStorage,
             final OutputStorage<BamMetricsOutput, SingleSampleRunMetadata> bamMetricsOutputStorage,
             final OutputStorage<GermlineCallerOutput, SingleSampleRunMetadata> germlineCallerOutputStorage,
-            final SomaticMetadataApi setMetadataApi, final GoogleArchiver archiver, final PipelineResults pipelineResults,
+            final SomaticMetadataApi setMetadataApi, final PipelineResults pipelineResults,
             final FullSomaticResults fullSomaticResults, final Cleanup cleanup, final ExecutorService executorService) {
         this.arguments = arguments;
         this.stageRunner = stageRunner;
@@ -71,7 +69,6 @@ public class SomaticPipeline {
         this.bamMetricsOutputStorage = bamMetricsOutputStorage;
         this.germlineCallerOutputStorage = germlineCallerOutputStorage;
         this.setMetadataApi = setMetadataApi;
-        this.archiver = archiver;
         this.pipelineResults = pipelineResults;
         this.fullSomaticResults = fullSomaticResults;
         this.cleanup = cleanup;
@@ -136,7 +133,6 @@ public class SomaticPipeline {
             }
         }
         fullSomaticResults.compose(metadata);
-        archiver.transfer(metadata);
         setMetadataApi.complete(state.status(), metadata);
         if (state.shouldProceed()) {
             cleanup.run(metadata);

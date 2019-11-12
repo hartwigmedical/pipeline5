@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.sbpapi.SbpRestApi;
+import com.hartwig.pipeline.transfer.google.GoogleArchiver;
 import com.hartwig.pipeline.transfer.sbp.SbpFileTransfer;
 
 import org.junit.Before;
@@ -24,14 +25,16 @@ public class SbpSomaticMetadataApiTest {
     private SbpRestApi sbpRestApi;
     private SomaticRunMetadata somaticRunMetadata;
     private SbpFileTransfer sbpFileTransfer;
+    private GoogleArchiver googleArchiver;
 
     @Before
     public void setUp() throws Exception {
         sbpRestApi = mock(SbpRestApi.class);
         sbpFileTransfer = mock(SbpFileTransfer.class);
         somaticRunMetadata = mock(SomaticRunMetadata.class);
+        googleArchiver = mock(GoogleArchiver.class);
         when(sbpRestApi.getInis()).thenReturn(TestJson.get("get_inis"));
-        victim = new SbpSomaticMetadataApi(Arguments.testDefaults(), SET_ID, sbpRestApi, sbpFileTransfer);
+        victim = new SbpSomaticMetadataApi(Arguments.testDefaults(), SET_ID, sbpRestApi, sbpFileTransfer, googleArchiver);
     }
 
     @Test
@@ -65,7 +68,11 @@ public class SbpSomaticMetadataApiTest {
         ArgumentCaptor<String> entityId = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> status = ArgumentCaptor.forClass(String.class);
         when(sbpRestApi.getRun(SET_ID)).thenReturn(TestJson.get("get_run"));
-        victim = new SbpSomaticMetadataApi(Arguments.testDefaultsBuilder().shallow(true).build(), SET_ID, sbpRestApi, sbpFileTransfer);
+        victim = new SbpSomaticMetadataApi(Arguments.testDefaultsBuilder().shallow(true).build(),
+                SET_ID,
+                sbpRestApi,
+                sbpFileTransfer,
+                googleArchiver);
         victim.complete(PipelineStatus.SUCCESS, somaticRunMetadata);
         verify(sbpRestApi, times(2)).updateRunStatus(entityId.capture(), status.capture(), any());
         assertThat(entityId.getValue()).isEqualTo(String.valueOf(SET_ID));

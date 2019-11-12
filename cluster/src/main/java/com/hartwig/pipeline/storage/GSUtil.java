@@ -33,7 +33,7 @@ public class GSUtil {
             command.add("-u");
             command.add(userProject);
         }
-        command.add("-m");
+        command.add("-qm");
         command.add("cp");
         if (recurse) {
             command.add("-r");
