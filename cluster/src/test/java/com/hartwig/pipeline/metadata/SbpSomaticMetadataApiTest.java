@@ -1,7 +1,10 @@
 package com.hartwig.pipeline.metadata;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -26,6 +29,8 @@ public class SbpSomaticMetadataApiTest {
     private SomaticRunMetadata somaticRunMetadata;
     private SbpFileTransfer sbpFileTransfer;
     private GoogleArchiver googleArchiver;
+    private ArgumentCaptor<String> entityId;
+    private ArgumentCaptor<String> status;
 
     @Before
     public void setUp() throws Exception {
@@ -34,13 +39,14 @@ public class SbpSomaticMetadataApiTest {
         somaticRunMetadata = mock(SomaticRunMetadata.class);
         googleArchiver = mock(GoogleArchiver.class);
         when(sbpRestApi.getInis()).thenReturn(TestJson.get("get_inis"));
+        when(sbpRestApi.getRun(SET_ID)).thenReturn(TestJson.get("get_run"));
+        entityId = ArgumentCaptor.forClass(String.class);
+        status = ArgumentCaptor.forClass(String.class);
         victim = new SbpSomaticMetadataApi(Arguments.testDefaults(), SET_ID, sbpRestApi, sbpFileTransfer, googleArchiver);
     }
 
     @Test
     public void retrievesSetMetadataFromSbpRestApi() {
-        when(sbpRestApi.getRun(SET_ID)).thenReturn(TestJson.get("get_run"));
-        when(sbpRestApi.getSample(SAMPLE_ID)).thenReturn(TestJson.get("get_samples_by_set"));
         when(sbpRestApi.getSample(SAMPLE_ID)).thenReturn(TestJson.get("get_samples_by_set"));
         SomaticRunMetadata setMetadata = victim.get();
         assertThat(setMetadata.runName()).isEqualTo("170724_HMFregCPCT_FR13999246_FR13999144_CPCT02290012");
@@ -54,9 +60,6 @@ public class SbpSomaticMetadataApiTest {
 
     @Test
     public void mapsSuccessStatusToSnpCheck() {
-        ArgumentCaptor<String> entityId = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<String> status = ArgumentCaptor.forClass(String.class);
-        when(sbpRestApi.getRun(SET_ID)).thenReturn(TestJson.get("get_run"));
         victim.complete(PipelineStatus.SUCCESS, somaticRunMetadata);
         verify(sbpRestApi, times(2)).updateRunStatus(entityId.capture(), status.capture(), any());
         assertThat(entityId.getValue()).isEqualTo(String.valueOf(SET_ID));
@@ -65,9 +68,6 @@ public class SbpSomaticMetadataApiTest {
 
     @Test
     public void mapsSuccessStatusToSuccessWhenShallow() {
-        ArgumentCaptor<String> entityId = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<String> status = ArgumentCaptor.forClass(String.class);
-        when(sbpRestApi.getRun(SET_ID)).thenReturn(TestJson.get("get_run"));
         victim = new SbpSomaticMetadataApi(Arguments.testDefaultsBuilder().shallow(true).build(),
                 SET_ID,
                 sbpRestApi,
@@ -81,9 +81,6 @@ public class SbpSomaticMetadataApiTest {
 
     @Test
     public void mapsFailedStatusToPipeline5Finished() {
-        ArgumentCaptor<String> entityId = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<String> status = ArgumentCaptor.forClass(String.class);
-        when(sbpRestApi.getRun(SET_ID)).thenReturn(TestJson.get("get_run"));
         victim.complete(PipelineStatus.FAILED, somaticRunMetadata);
         verify(sbpRestApi, times(2)).updateRunStatus(entityId.capture(), status.capture(), any());
         assertThat(entityId.getValue()).isEqualTo(String.valueOf(SET_ID));
@@ -93,7 +90,7 @@ public class SbpSomaticMetadataApiTest {
     @Test
     public void handlesSingleSampleSet() {
         when(sbpRestApi.getRun(SET_ID)).thenReturn(TestJson.get("get_run_single_sample"));
-        when(sbpRestApi.getSample("7141")).thenReturn(TestJson.get("get_samples_by_set_single_sample"));
+        when(sbpRestApi.getSample(SAMPLE_ID)).thenReturn(TestJson.get("get_samples_by_set_single_sample"));
         SomaticRunMetadata setMetadata = victim.get();
         assertThat(setMetadata.runName()).isEqualTo("170724_HMFregCPCT_FR13999246_FR13999144_CPCT02290012");
         assertThat(setMetadata.reference().sampleName()).isEqualTo("ZR17SQ1-00649");
@@ -103,8 +100,7 @@ public class SbpSomaticMetadataApiTest {
 
     @Test(expected = IllegalStateException.class)
     public void throwsExceptionWhenTumorIsMissing() {
-        when(sbpRestApi.getRun(SET_ID)).thenReturn(TestJson.get("get_run"));
-        when(sbpRestApi.getSample("7141")).thenReturn(TestJson.get("get_samples_by_set_single_sample"));
+        when(sbpRestApi.getSample(SAMPLE_ID)).thenReturn(TestJson.get("get_samples_by_set_single_sample"));
         victim.get();
     }
 
@@ -112,5 +108,39 @@ public class SbpSomaticMetadataApiTest {
     public void throwsIllegalStateIfNoBucketInRun() {
         when(sbpRestApi.getRun(SET_ID)).thenReturn(TestJson.get("get_run_no_bucket"));
         victim.complete(PipelineStatus.FAILED, somaticRunMetadata);
+    }
+
+    @Test
+    public void shouldTransferToSbp() {
+        victim.complete(PipelineStatus.SUCCESS, somaticRunMetadata);
+        verify(sbpFileTransfer).publish(eq(somaticRunMetadata), any(), any());
+    }
+
+    @Test
+    public void setsRunToFailedAndRethrowsIfSbpTransferFails() {
+        doThrow(new RuntimeException()).when(sbpFileTransfer).publish(any(), any(), any());
+        try {
+            victim.complete(PipelineStatus.SUCCESS, somaticRunMetadata);
+            fail("An exception should have been thrown");
+        } catch (RuntimeException e) {
+            verify(sbpRestApi).updateRunStatus(any(), eq(SbpSomaticMetadataApi.FAILED), any());
+        }
+    }
+
+    @Test
+    public void shouldTransferToArchive() {
+        victim.complete(PipelineStatus.SUCCESS, somaticRunMetadata);
+        verify(googleArchiver).transfer(somaticRunMetadata);
+    }
+
+    @Test
+    public void setsRunToFailedAndRethrowsIfArchiveFails() {
+        doThrow(new RuntimeException()).when(googleArchiver).transfer(any());
+        try {
+            victim.complete(PipelineStatus.SUCCESS, somaticRunMetadata);
+            fail("An exception should have been thrown");
+        } catch (RuntimeException e) {
+            verify(sbpRestApi).updateRunStatus(any(), eq(SbpSomaticMetadataApi.FAILED), any());
+        }
     }
 }

@@ -9,7 +9,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -23,7 +22,6 @@ import com.hartwig.pipeline.sbpapi.SbpRestApi;
 import com.hartwig.pipeline.sbpapi.SbpRun;
 import com.hartwig.pipeline.sbpapi.SbpSet;
 import com.hartwig.pipeline.storage.GSUtil;
-import com.hartwig.pipeline.storage.Processes;
 import com.hartwig.pipeline.storage.RCloneCloudCopy;
 import com.hartwig.pipeline.testsupport.Resources;
 import com.hartwig.pipeline.transfer.sbp.SbpFileTransfer;
@@ -114,10 +112,13 @@ public class SmokeTest {
         PipelineState state = victim.start(arguments);
         assertThat(state.status()).isEqualTo(PipelineStatus.QC_FAILED);
 
-        List<String> rcloneListing = listRemoteFilesNamesOnly(format("%s:%s/%s/", S3_REMOTE, destinationBucket, setName));
+        List<String> s3Listing = listRemoteFilenames(format("%s:%s/%s/", S3_REMOTE, destinationBucket, setName));
         File expectedFilesResource = new File(Resources.testResource("smoke_test/expected_output_files"));
         List<String> expectedFiles = FileUtils.readLines(expectedFilesResource, FILE_ENCODING);
-        assertThat(rcloneListing).containsOnlyElementsOf(expectedFiles);
+        assertThat(s3Listing).containsOnlyElementsOf(expectedFiles);
+
+        List<String> archiveListing = listArchiveFilenames(setName);
+        assertThat(archiveListing).containsOnlyElementsOf(expectedFiles);
 
         RCloneCloudCopy rclone = new RCloneCloudCopy(rclonePath, GCP_REMOTE, S3_REMOTE, ProcessBuilder::new);
         assertThatAlignmentIsEqualToExpected(destinationBucket, setName, REFERENCE_SAMPLE, rclone);
@@ -128,7 +129,7 @@ public class SmokeTest {
         return ImmutableList.of("delete", format("%s:%s/%s", remote, bucket, setName));
     }
 
-    private List<String> listRemoteFilesNamesOnly(String remoteParent) {
+    private List<String> listRemoteFilenames(String remoteParent) {
         return listRemoteFiles(remoteParent).stream().map(s -> s.split(" +")[1]).collect(Collectors.toList());
     }
 
@@ -143,30 +144,42 @@ public class SmokeTest {
         }
     }
 
+    private List<String> listArchiveFilenames(String setName) {
+        confirmArchiveBucketExists();
+        return ImmutableList.<String>builder().add(runGsUtil(ImmutableList.of("ls",
+                "-r",
+                format("gs://%s/%s", archiveBucket, setName))).split("\n")).build();
+    }
+
     private void cleanupArchiveBucket(String setName) {
-        GSUtil.configure(false, 1);
+        confirmArchiveBucketExists();
         try {
-            GSUtil.auth(cloudSdkPath, archivePrivateKey);
-            runGsutil(ImmutableList.of("ls", format("gs://%s", archiveBucket)));
-        } catch (Exception e) {
-            throw new RuntimeException(format("Could not confirm archive bucket [%s] exists", archiveBucket));
-        }
-        try {
-            runGsutil(ImmutableList.of("stat", format("gs://%s/%s", archiveBucket, setName)));
+            runGsUtil(ImmutableList.of("stat", format("gs://%s/%s", archiveBucket, setName)));
         } catch (Exception e) {
             // Folder does not exist, removal will fail so just return
             return;
         }
-        runGsutil(ImmutableList.of("rm", "-r", format("gs://%s/%s", archiveBucket, setName)));
+        runGsUtil(ImmutableList.of("rm", "-r", format("gs://%s/%s", archiveBucket, setName)));
     }
 
-    private void runGsutil(List<String> arguments) {
+    private String runGsUtil(List<String> arguments) {
         try {
-            ProcessBuilder process =
-                    new ProcessBuilder(ImmutableList.<String>builder().add("gsutil", "-u", archiveProject).addAll(arguments).build());
-            Processes.run(process, true, 1, TimeUnit.HOURS);
+            ProcessBuilder process = new ProcessBuilder(ImmutableList.<String>builder().add("gsutil", "-u", archiveProject)
+                    .addAll(arguments)
+                    .build()).inheritIO();
+            return IOUtils.toString(process.start().getInputStream());
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private void confirmArchiveBucketExists() {
+        GSUtil.configure(false, 1);
+        try {
+            GSUtil.auth(cloudSdkPath, archivePrivateKey);
+            runGsUtil(ImmutableList.of("ls", format("gs://%s", archiveBucket)));
+        } catch (Exception e) {
+            throw new RuntimeException(format("Could not confirm archive bucket [%s] exists", archiveBucket));
         }
     }
 
