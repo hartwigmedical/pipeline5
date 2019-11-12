@@ -12,6 +12,6 @@ public class JobComplete implements BashCommand {
 
     @Override
     public String asBash() {
-        return format("date > %s/%s", OutputUpload.OUTPUT_DIRECTORY, flag);
+        return format("date > %s/%s", VmDirectories.OUTPUT, flag);
     }
 }

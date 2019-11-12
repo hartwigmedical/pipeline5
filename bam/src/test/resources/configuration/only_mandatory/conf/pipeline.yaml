@@ -1,8 +1,0 @@
-pipeline:
-  flavour: ADAM
-
-spark:
-  master: local[2]
-
-referenceGenome:
-  file: Homo_sapiens.GRCh37.GATK.illumina.chr22.fa

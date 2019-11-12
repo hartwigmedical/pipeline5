@@ -8,10 +8,6 @@ import org.immutables.value.Value;
 @Value.Immutable
 public interface SbpSet {
 
-    String tumor_sample();
-
-    String ref_sample();
-
     String name();
 
     String id();

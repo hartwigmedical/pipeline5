@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.PipelineState;
 import com.hartwig.pipeline.RunTag;
 import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
@@ -23,6 +24,7 @@ import org.slf4j.LoggerFactory;
 public class PipelineResults {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PipelineResults.class);
+    public static final String STAGING_COMPLETE = "STAGED";
 
     private final String version;
     private final Storage storage;
@@ -49,13 +51,17 @@ public class PipelineResults {
         Folder folder = Folder.from();
         writeMetadata(metadata, name, folder);
         compose(name, folder);
+        writeComplete(name);
     }
 
-    public void compose(SingleSampleRunMetadata metadata) {
+    public void compose(SingleSampleRunMetadata metadata,  Boolean isStandalone, PipelineState state) {
         String name = RunTag.apply(arguments, metadata.sampleId());
-        Folder folder = Folder.from(metadata);
-        writeMetadata(metadata, name, folder);
-        compose(name, folder);
+        if (state.shouldProceed()) {
+            Folder folder = isStandalone ? Folder.from() : Folder.from(metadata);
+            writeMetadata(metadata, name, folder);
+            compose(name, folder);
+        }
+        writeComplete(name);
     }
 
     private void compose(String name, Folder folder) {
@@ -70,7 +76,8 @@ public class PipelineResults {
             try {
                 component.addToReport(storage, reportBucket, name);
             } catch (Exception e) {
-                LOGGER.error(format("Unable add component [%s] to the final patient report.", component.getClass().getSimpleName()), e);
+                throw new RuntimeException(format("Unable add component [%s] to the final patient report.",
+                        component.getClass().getSimpleName()), e);
             }
         });
     }
@@ -83,8 +90,11 @@ public class PipelineResults {
         }
     }
 
+    private void writeComplete(final String name) {
+        reportBucket.create(String.format("%s/%s", name, STAGING_COMPLETE), new byte[] {});
+    }
+
     private String path(final String name, final Folder folder, final String fileName) {
         return String.format("%s/%s%s", name, folder.name(), fileName);
     }
-
 }

@@ -24,10 +24,9 @@ public class ComputeSamTags extends GridssCommand {
 
     @Override
     public List<GridssArgument> arguments() {
-        return Arrays.asList(GridssArgument.tempDir(),
-                new GridssArgument("working_dir", VmDirectories.OUTPUT),
+        return Arrays.asList(new GridssArgument("working_dir", VmDirectories.OUTPUT),
                 new GridssArgument("reference_sequence", referenceGenome),
-                new GridssArgument("compression_level", "0"),
+                GridssArgument.NO_COMPRESSION,
                 new GridssArgument("i", inProgressBam),
                 new GridssArgument("o", "/dev/stdout"),
                 new GridssArgument("recalculate_sa_supplementary", "true"),
@@ -41,7 +40,7 @@ public class ComputeSamTags extends GridssCommand {
                 new GridssArgument("tags", "Q2"),
                 new GridssArgument("tags", "MC"),
                 new GridssArgument("tags", "MQ"),
-                new GridssArgument("assume_sorted", "true"));
+                GridssArgument.ASSUME_SORTED);
     }
     
     @Override

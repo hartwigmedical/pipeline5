@@ -24,10 +24,15 @@ public class SbpRestApi {
     private static final String SAMPLES = "samples";
     private static final String RUNS = "runs";
     private static final String FILES = "files";
+    private static final String INIS = "inis";
     private final WebTarget target;
 
     private SbpRestApi(final WebTarget target) {
         this.target = target;
+    }
+
+    public String getInis() {
+        return returnOrThrow(api().path(INIS).request().buildGet().invoke());
     }
 
     public String getFastQ(int sampleId) {
@@ -38,44 +43,40 @@ public class SbpRestApi {
         return getBySampleId(sampleId, api().path("sets"));
     }
 
-    public String getRun(int setId) {
-        Response response = api().path(RUNS).path(String.valueOf(setId)).request().buildGet().invoke();
+    public String getRun(int id) {
+        Response response = runs().path(String.valueOf(id)).request().buildGet().invoke();
+        return returnOrThrow(response);
+    }
+
+    private String returnOrThrow(final Response response) {
         if (response.getStatus() == Response.Status.OK.getStatusCode()) {
             return response.readEntity(String.class);
         }
         throw error(response);
+    }
+
+    private WebTarget runs() {
+        return api().path(RUNS);
     }
 
     public String getSample(int sampleId) {
-        Response response = api().path(SAMPLES).path(String.valueOf(sampleId)).request().buildGet().invoke();
-        if (response.getStatus() == Response.Status.OK.getStatusCode()) {
-            return response.readEntity(String.class);
-        }
-        throw error(response);
+        Response response = sample().path(String.valueOf(sampleId)).request().buildGet().invoke();
+        return returnOrThrow(response);
+    }
+
+    public WebTarget sample() {
+        return api().path(SAMPLES);
     }
 
     public String getSample(String setId) {
-        Response response = api().path(SAMPLES).queryParam("set_id", setId).request().buildGet().invoke();
-        if (response.getStatus() == Response.Status.OK.getStatusCode()) {
-            return response.readEntity(String.class);
-        }
-        throw error(response);
-    }
-
-    public void updateSampleStatus(String sampleID, String status) {
-        try {
-            String json = OBJECT_MAPPER.writeValueAsString(SbpSampleStatusUpdate.of(status));
-            patch(sampleID, status, json, SAMPLES);
-
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+        Response response = sample().queryParam("set_id", setId).request().buildGet().invoke();
+        return returnOrThrow(response);
     }
 
     public void updateRunStatus(String runID, String status, String sbpBucket) {
         try {
             String json = OBJECT_MAPPER.writeValueAsString(SbpRunStatusUpdate.of(status, sbpBucket));
-            patch(runID, status, json, RUNS);
+            patchRun(runID, status, json);
 
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
@@ -97,9 +98,9 @@ public class SbpRestApi {
         }
     }
 
-    private void patch(final String sampleID, final String status, final String json, final String entityType) {
-        LOGGER.info("Patching {} id [{}] with status [{}]",entityType, sampleID, status);
-        Response response = api().path(entityType)
+    private void patchRun(final String sampleID, final String status, final String json) {
+        LOGGER.info("Patching {} id [{}] with status [{}]", SbpRestApi.RUNS, sampleID, status);
+        Response response = api().path(RUNS)
                 .path(sampleID)
                 .request()
                 .build("PATCH", Entity.entity(json, MediaType.APPLICATION_JSON_TYPE))
@@ -113,10 +114,7 @@ public class SbpRestApi {
 
     private String getBySampleId(final int sampleId, final WebTarget path) {
         Response response = path.queryParam("sample_id", sampleId).request().buildGet().invoke();
-        if (response.getStatus() == Response.Status.OK.getStatusCode()) {
-            return response.readEntity(String.class);
-        }
-        throw error(response);
+        return returnOrThrow(response);
     }
 
     private RuntimeException error(final Response response) {

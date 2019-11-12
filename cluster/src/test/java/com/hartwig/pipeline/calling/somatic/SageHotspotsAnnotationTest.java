@@ -21,7 +21,7 @@ public class SageHotspotsAnnotationTest extends SubStageTest {
 
     @Test
     public void runsSageHotspotsAnnotation() {
-        assertThat(output.currentBash().asUnixString()).contains("java -Xmx8G -cp /data/tools/sage/1.1/sage.jar "
+        assertThat(bash()).contains("java -Xmx8G -cp /opt/tools/sage/1.1/sage.jar "
                 + "com.hartwig.hmftools.sage.SageHotspotAnnotation -source_vcf /data/output/tumor.strelka.vcf -hotspot_vcf "
                 + "sage_hotspots.vcf -known_hotspots known_hotspots.tsv -out /data/output/tumor.sage.hotspots.annotated.vcf.gz");
     }

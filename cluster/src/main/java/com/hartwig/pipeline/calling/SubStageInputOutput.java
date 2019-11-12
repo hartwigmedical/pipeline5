@@ -1,6 +1,10 @@
 package com.hartwig.pipeline.calling;
 
-import com.hartwig.pipeline.execution.vm.BashStartupScript;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.OutputFile;
 
 import org.immutables.value.Value;
@@ -15,9 +19,20 @@ public interface SubStageInputOutput {
     OutputFile outputFile();
 
     @Value.Parameter
-    BashStartupScript currentBash();
+    List<BashCommand> bash();
 
-    static SubStageInputOutput of(final String tumorSampleName, final OutputFile outputFile, final BashStartupScript currentBash) {
-        return ImmutableSubStageInputOutput.of(tumorSampleName, outputFile, currentBash);
+    default SubStageInputOutput combine(SubStageInputOutput subStageInputOutput) {
+        List<BashCommand> commands = new ArrayList<>();
+        commands.addAll(bash());
+        commands.addAll(subStageInputOutput.bash());
+        return SubStageInputOutput.of(sampleName(), outputFile(), commands);
+    }
+
+    static SubStageInputOutput of(final String sampleName, final OutputFile outputFile, final List<BashCommand> bash) {
+        return ImmutableSubStageInputOutput.of(sampleName, outputFile, bash);
+    }
+
+    static SubStageInputOutput empty(final String sampleName) {
+        return of(sampleName, OutputFile.empty(), Collections.emptyList());
     }
 }

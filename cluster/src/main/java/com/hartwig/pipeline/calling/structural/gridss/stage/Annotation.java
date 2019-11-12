@@ -1,46 +1,53 @@
 package com.hartwig.pipeline.calling.structural.gridss.stage;
 
-import static java.lang.String.format;
-import static java.util.Arrays.asList;
-
 import java.util.List;
 
+import com.google.common.collect.ImmutableList;
+import com.hartwig.pipeline.calling.SubStage;
 import com.hartwig.pipeline.calling.command.BgzipCommand;
 import com.hartwig.pipeline.calling.command.TabixCommand;
 import com.hartwig.pipeline.calling.structural.gridss.command.AnnotateUntemplatedSequence;
 import com.hartwig.pipeline.calling.structural.gridss.command.AnnotateVariants;
 import com.hartwig.pipeline.execution.vm.BashCommand;
+import com.hartwig.pipeline.execution.vm.OutputFile;
+import com.hartwig.pipeline.execution.vm.VmDirectories;
 
-import org.immutables.value.Value;
+public class Annotation extends SubStage {
+    private final String sampleBam;
+    private final String tumorBam;
+    private final String assemblyBam;
+    private final String referenceGenome;
+    private final String jointName;
+    private final String configFile;
+    private final String blacklist;
 
-public class Annotation {
-    private final CommandFactory commandFactory;
-
-    @Value.Immutable
-    public interface AnnotationResult {
-        String annotatedVcf();
-
-        List<BashCommand> commands();
+    public Annotation(final String sampleBam, final String tumorBam, final String assemblyBam, final String referenceGenome,
+            final String jointName, final String configFile, final String blacklist) {
+        super("annotation", OutputFile.GZIPPED_VCF);
+        this.sampleBam = sampleBam;
+        this.tumorBam = tumorBam;
+        this.assemblyBam = assemblyBam;
+        this.referenceGenome = referenceGenome;
+        this.jointName = jointName;
+        this.configFile = configFile;
+        this.blacklist = blacklist;
     }
 
-    public Annotation(final CommandFactory commandFactory) {
-        this.commandFactory = commandFactory;
-    }
+    @Override
+    public List<BashCommand> bash(OutputFile input, OutputFile output) {
+        String annotatedVcf = VmDirectories.outputFile(jointName + ".annotated_variants.vcf");
+        String untemplatedOutputVcf = output.path().replaceAll("\\." + OutputFile.GZIPPED_VCF + "$", ".vcf");
 
-    public AnnotationResult initialise(final String sampleBam, final String tumorBam, final String assemblyBam, final String rawVcf,
-            final String referenceGenome, final String tumorSampleName, final String configFile, final String blacklist) {
-        AnnotateVariants variants =
-                commandFactory.buildAnnotateVariants(sampleBam, tumorBam, assemblyBam, rawVcf, referenceGenome, tumorSampleName,
-                        configFile, blacklist);
-        AnnotateUntemplatedSequence untemplated =
-                commandFactory.buildAnnotateUntemplatedSequence(variants.resultantVcf(), referenceGenome, tumorSampleName);
-        BgzipCommand bgzip = commandFactory.buildBgzipCommand(untemplated.resultantVcf());
-        String finalOutputPath = format("%s.gz", untemplated.resultantVcf());
-        TabixCommand tabix = commandFactory.buildTabixCommand(finalOutputPath);
-
-        return ImmutableAnnotationResult.builder()
-                .annotatedVcf(finalOutputPath)
-                .commands(asList(variants, untemplated, bgzip, tabix))
-                .build();
+        return ImmutableList.of(new AnnotateVariants(sampleBam,
+                        tumorBam,
+                        assemblyBam,
+                        input.path(),
+                        referenceGenome,
+                        annotatedVcf,
+                        configFile,
+                        blacklist),
+                new AnnotateUntemplatedSequence(annotatedVcf, referenceGenome, untemplatedOutputVcf),
+                new BgzipCommand(untemplatedOutputVcf),
+                new TabixCommand(output.path()));
     }
 }

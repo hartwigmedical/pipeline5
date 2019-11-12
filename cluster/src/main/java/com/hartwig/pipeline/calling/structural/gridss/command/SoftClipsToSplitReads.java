@@ -11,8 +11,7 @@ public class SoftClipsToSplitReads {
 
     private static List<GridssArgument> sharedArguments(final String inputBam, final String outputBam,
                                                    final String referenceGenome) {
-        return Arrays.asList(GridssArgument.tempDir(),
-                new GridssArgument("working_dir", VmDirectories.OUTPUT),
+        return Arrays.asList(new GridssArgument("working_dir", VmDirectories.OUTPUT),
                 new GridssArgument("reference_sequence", referenceGenome),
                 new GridssArgument("i", inputBam),
                 new GridssArgument("o", outputBam));
@@ -62,9 +61,5 @@ public class SoftClipsToSplitReads {
         public String className() {
             return CLASS_NAME;
         }
-    }
-
-    public static final void main(String[] args) {
-        System.out.println(new SoftClipsToSplitReads.ForAssemble("input", "refgen", "output").asBash());
     }
 }

@@ -1,56 +1,55 @@
 package com.hartwig.pipeline.calling.structural.gridss.stage;
 
 import static java.lang.String.format;
-import static java.util.Arrays.asList;
 
+import static com.hartwig.pipeline.calling.structural.gridss.command.SambambaGridssSortCommand.sortByName;
+
+import java.io.File;
 import java.util.List;
 
-import com.hartwig.pipeline.calling.structural.gridss.command.CollectGridssMetrics;
+import com.google.common.collect.ImmutableList;
+import com.hartwig.pipeline.calling.SubStage;
+import com.hartwig.pipeline.calling.structural.gridss.command.CollectGridssMetricsAndExtractSvReads;
+import com.hartwig.pipeline.calling.structural.gridss.command.CollectInsertSizeMetrics;
 import com.hartwig.pipeline.calling.structural.gridss.command.ComputeSamTags;
-import com.hartwig.pipeline.calling.structural.gridss.command.ExtractSvReads;
+import com.hartwig.pipeline.calling.structural.gridss.command.SambambaGridssSortCommand;
 import com.hartwig.pipeline.calling.structural.gridss.command.SoftClipsToSplitReads;
 import com.hartwig.pipeline.execution.vm.BashCommand;
+import com.hartwig.pipeline.execution.vm.OutputFile;
+import com.hartwig.pipeline.execution.vm.unix.MkDirCommand;
 import com.hartwig.pipeline.execution.vm.unix.PipeCommands;
-import com.hartwig.pipeline.execution.vm.unix.SubShellCommand;
 
-import org.immutables.value.Value;
+public class Preprocess extends SubStage {
+    private final String inputBam;
+    private final String workingDir;
+    private final String sampleName;
+    private final String referenceGenomePath;
 
-public class Preprocess {
-    private final CommandFactory factory;
-
-    @Value.Immutable
-    public interface PreprocessResult {
-        String svBam();
-
-        String metrics();
-
-        List<BashCommand> commands();
+    public Preprocess(String inputBam, String workingDir, String sampleName, String referenceGenomePath) {
+        super("preprocess", OutputFile.BAM);
+        this.inputBam = inputBam;
+        this.workingDir = workingDir;
+        this.sampleName = sampleName;
+        this.referenceGenomePath = referenceGenomePath;
     }
 
-    public Preprocess(final CommandFactory factory) {
-        this.factory = factory;
-    }
+    @Override
+    public List<BashCommand> bash(OutputFile input, OutputFile output) {
+        String inputBamBasename = new File(inputBam).getName();
+        String insertSizeMetrics = format("%s/%s.insert_size_metrics", workingDir, inputBamBasename);
+        String outputFullPathPrefix = format("%s/%s", workingDir, inputBamBasename);
 
-    public PreprocessResult initialise(final String inputBam, final String sampleName, final String referenceGenome,
-            final String workingDirectory, final String outputSvBam) {
-        CollectGridssMetrics gridssCollectMetrics = factory.buildCollectGridssMetrics(inputBam, workingDirectory);
-        ExtractSvReads extractSvReads = factory.buildExtractSvReads(inputBam,
-                sampleName,
-                format("%s.insert_size_metrics", gridssCollectMetrics.outputBaseFilename()),
-                workingDirectory);
-        SubShellCommand secondSubStage = new SubShellCommand(new PipeCommands(extractSvReads,
-                factory.buildSambambaCommandSortByName(extractSvReads.resultantBam())));
-        ComputeSamTags gridssComputeSamTags = factory.buildComputeSamTags(extractSvReads.resultantBam(), referenceGenome, sampleName);
-        SubShellCommand thirdSubStage = new SubShellCommand(new PipeCommands(gridssComputeSamTags,
-                factory.buildSambambaCommandSortByDefault(gridssComputeSamTags.resultantBam())));
-        SoftClipsToSplitReads.ForPreprocess softClips =
-                factory.buildSoftClipsToSplitReadsForPreProcess(gridssComputeSamTags.resultantBam(), referenceGenome, outputSvBam);
+        CollectInsertSizeMetrics collectInsertSizeMetrics = new CollectInsertSizeMetrics(inputBam, outputFullPathPrefix);
+        CollectGridssMetricsAndExtractSvReads collectGridssMetricsAndExtractSvReads =
+                new CollectGridssMetricsAndExtractSvReads(inputBam, sampleName, insertSizeMetrics, outputFullPathPrefix, workingDir);
 
-        return ImmutablePreprocessResult.builder()
-                .svBam(outputSvBam)
-                .metrics(gridssCollectMetrics.outputBaseFilename())
-                .commands(asList(gridssCollectMetrics, secondSubStage, thirdSubStage, softClips))
-                .build();
-
+        ComputeSamTags computeSamTags =
+                new ComputeSamTags(collectGridssMetricsAndExtractSvReads.resultantBam(), referenceGenomePath, sampleName);
+        String outputSvBam = format("%s/%s.sv.bam", workingDir, new File(inputBam).getName());
+        return ImmutableList.of(new MkDirCommand(workingDir),
+                collectInsertSizeMetrics,
+                new PipeCommands(collectGridssMetricsAndExtractSvReads, sortByName(collectGridssMetricsAndExtractSvReads.resultantBam())),
+                new PipeCommands(computeSamTags, SambambaGridssSortCommand.sortByDefault(computeSamTags.resultantBam())),
+                new SoftClipsToSplitReads.ForPreprocess(computeSamTags.resultantBam(), referenceGenomePath, outputSvBam));
     }
 }

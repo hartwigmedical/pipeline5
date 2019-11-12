@@ -12,21 +12,29 @@ import org.junit.Test;
 public class IdentifyVariantsTest implements CommonEntities {
     private IdentifyVariants command;
     private String assemblyBam;
-    private String expectedOutputFile = format("%s/sv_calling.vcf", OUT_DIR);
+    private String outputVcf;
     private String configurationFile;
     private String blacklist;
+    private String className;
 
     @Before
     public void setup() {
         assemblyBam = "/assembly.bam";
         configurationFile = "/config.properties";
         blacklist = "/path/to/blacklist.bed";
-        command = new IdentifyVariants(REFERENCE_BAM, TUMOR_BAM, assemblyBam, REFERENCE_GENOME, configurationFile, blacklist);
+        outputVcf =  format("%s/sv_calling.vcf", OUT_DIR);
+        className = "gridss.IdentifyVariants";
+        command = new IdentifyVariants(REFERENCE_BAM, TUMOR_BAM, assemblyBam, outputVcf, REFERENCE_GENOME, configurationFile, blacklist);
+    }
+
+    @Test
+    public void shouldGenerateCorrectJavaArguments() {
+        GridssCommonArgumentsAssert.assertThat(command).generatesJavaInvocationUpToAndIncludingClassname(className);
     }
 
     @Test
     public void shouldReturnClassName() {
-        assertThat(command.className()).isEqualTo("gridss.IdentifyVariants");
+        assertThat(command.className()).isEqualTo(className);
     }
 
     @Test
@@ -36,22 +44,14 @@ public class IdentifyVariantsTest implements CommonEntities {
 
     @Test
     public void shouldReturnGridssOptions() {
-        GridssCommonArgumentsAssert.assertThat(command)
-                .hasGridssArguments(ARGS_TMP_DIR)
-                .and("working_dir", OUT_DIR)
+        GridssCommonArgumentsAssert.assertThat(command).hasGridssArguments("working_dir", OUT_DIR)
                 .and(ARGS_REFERENCE_SEQUENCE)
                 .and(ARG_KEY_INPUT, REFERENCE_BAM)
                 .and(ARG_KEY_INPUT, TUMOR_BAM)
-                .and("output_vcf", expectedOutputFile)
+                .and("output_vcf", outputVcf)
                 .and("assembly", assemblyBam)
                 .andBlacklist(blacklist)
                 .andConfigFile(configurationFile)
                 .andNoMore();
-    }
-
-    @Test
-    public void shouldReturnOutputVcf() {
-        assertThat(command.resultantVcf()).isNotNull();
-        assertThat(command.resultantVcf()).isEqualTo(expectedOutputFile);
     }
 }

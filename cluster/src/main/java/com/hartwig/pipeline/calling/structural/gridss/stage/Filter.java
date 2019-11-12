@@ -2,59 +2,45 @@ package com.hartwig.pipeline.calling.structural.gridss.stage;
 
 import static java.lang.String.format;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.google.common.collect.ImmutableList;
+import com.hartwig.pipeline.calling.SubStage;
+import com.hartwig.pipeline.calling.structural.gridss.command.BiocondaVariantAnnotationWorkaround;
+import com.hartwig.pipeline.calling.structural.gridss.command.RscriptFilter;
 import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.execution.vm.VmDirectories;
+import com.hartwig.pipeline.execution.vm.OutputFile;
 import com.hartwig.pipeline.execution.vm.unix.MvCommand;
 import com.hartwig.pipeline.execution.vm.unix.SubShellCommand;
 
-import org.immutables.value.Value;
+public class Filter extends SubStage {
+    private final String outputFilteredVcf;
+    private final String outputFullVcf;
 
-public class Filter {
-
-    @Value.Immutable
-    public interface FilterResult {
-        List<BashCommand> commands();
-
-        String fullVcf();
-
-        String filteredVcf();
+    public Filter(final String outputFilteredVcf, final String outputFullVcf) {
+        super("filter", OutputFile.GZIPPED_VCF, false);
+        this.outputFilteredVcf = outputFilteredVcf;
+        this.outputFullVcf = outputFullVcf;
     }
 
-    public FilterResult initialise(final String originalVcf, final String tumorSample) {
-        String pathToGridssScripts = VmDirectories.TOOLS + "/gridss-scripts/4.8.1";
-        String unzippedOriginalVcf;
-        Matcher matcher = Pattern.compile("(.+).gz$").matcher(originalVcf);
+    @Override
+    public List<BashCommand> bash(final OutputFile input, final OutputFile output) {
+        Matcher matcher = Pattern.compile("(.+).gz$").matcher(input.path());
+        String unzippedInputVcf;
         if (matcher.matches()) {
-            unzippedOriginalVcf = matcher.group(1);
+            unzippedInputVcf = matcher.group(1);
         } else {
-            throw new IllegalArgumentException(format("%s must have a .gz extension!", originalVcf));
+            throw new IllegalArgumentException(format("%s must have a .gz extension!", input.path()));
         }
 
-        String outputVcf = VmDirectories.outputFile(format("%s.gridss.somatic.vcf", tumorSample));
-        String fullVcf = VmDirectories.outputFile(format("%s.gridss.somatic.full.vcf", tumorSample));
-        String filteredVcf = VmDirectories.outputFile(format("%s.gridss.somatic.vcf.gz", tumorSample));
-        String fullVcfCompressed = VmDirectories.outputFile(format("%s.gridss.somatic.full.vcf.gz", tumorSample));
-
-        List<BashCommand> commands = new ArrayList<>();
-        commands.add(new SubShellCommand(new BiocondaVariantAnnotationWorkaround(originalVcf, unzippedOriginalVcf)));
-        commands.add(() -> format("Rscript %s/gridss_somatic_filter.R -p %s -i %s -o %s -f %s -s %s",
-                pathToGridssScripts,
-                VmDirectories.RESOURCES,
-                unzippedOriginalVcf,
-                outputVcf,
-                fullVcfCompressed,
-                pathToGridssScripts));
-        commands.add(new MvCommand(fullVcf + ".bgz", fullVcfCompressed));
-        commands.add(new MvCommand(fullVcf + ".bgz.tbi", fullVcfCompressed + ".tbi"));
-        commands.add(new MvCommand(outputVcf + ".bgz", filteredVcf));
-        commands.add(new MvCommand(outputVcf + ".bgz.tbi", filteredVcf + ".tbi"));
-
-        return ImmutableFilterResult.builder().commands(commands).fullVcf(fullVcfCompressed).filteredVcf(filteredVcf).build();
+        return ImmutableList.of(new SubShellCommand(new BiocondaVariantAnnotationWorkaround(input.path(), unzippedInputVcf)),
+                new RscriptFilter(unzippedInputVcf, outputFilteredVcf, outputFullVcf),
+                new MvCommand(outputFullVcf + ".bgz", outputFullVcf + ".gz"),
+                new MvCommand(outputFullVcf + ".bgz.tbi", outputFullVcf + ".gz.tbi"),
+                new MvCommand(outputFilteredVcf + ".bgz", outputFilteredVcf + ".gz"),
+                new MvCommand(outputFilteredVcf + ".bgz.tbi", outputFilteredVcf + ".gz.tbi"));
     }
 }
 

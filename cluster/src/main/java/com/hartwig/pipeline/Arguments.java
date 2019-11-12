@@ -11,7 +11,8 @@ public interface Arguments {
 
     enum DefaultsProfile {
         PRODUCTION,
-        DEVELOPMENT
+        DEVELOPMENT,
+        DEVELOPMENT_DOCKER
     }
 
     enum Mode {
@@ -20,11 +21,11 @@ public interface Arguments {
         SOMATIC
     }
 
-    boolean forceJarUpload();
-
     boolean cleanup();
 
     boolean usePreemptibleVms();
+
+    boolean useLocalSsds();
 
     boolean upload();
 
@@ -54,8 +55,6 @@ public interface Arguments {
 
     String region();
 
-    String jarDirectory();
-
     String sampleDirectory();
 
     String sampleId();
@@ -69,8 +68,6 @@ public interface Arguments {
     String sbpApiUrl();
 
     String sbpS3Url();
-
-    String nodeInitializationScript();
 
     String cloudSdkPath();
 
@@ -88,6 +85,12 @@ public interface Arguments {
 
     String patientReportBucket();
 
+    String archiveBucket();
+
+    String archiveProject();
+
+    String archivePrivateKeyPath();
+
     Optional<String> cmek();
 
     Optional<Integer> sbpApiSampleId();
@@ -97,6 +100,8 @@ public interface Arguments {
     Optional<String> runId();
 
     Optional<String> privateNetwork();
+
+    Optional<String> zone();
 
     static ImmutableArguments.Builder builder() {
         return ImmutableArguments.builder();
@@ -111,7 +116,7 @@ public interface Arguments {
     }
 
     static ImmutableArguments.Builder testDefaultsBuilder() {
-        return defaultsBuilder(DefaultsProfile.DEVELOPMENT.name());
+        return defaultsBuilder(DefaultsProfile.DEVELOPMENT.name()).runId("test");
     }
 
     static ImmutableArguments.Builder defaultsBuilder(String profileString) {
@@ -127,17 +132,15 @@ public interface Arguments {
                     .region(DEFAULT_PRODUCTION_REGION)
                     .project(DEFAULT_PRODUCTION_PROJECT)
                     .version(DEFAULT_PRODUCTION_VERSION)
-                    .sampleDirectory(DEFAULT_PRODUCTION_SAMPLE_DIRECTORY)
-                    .nodeInitializationScript(DEFAULT_PRODUCTION_NODE_INIT)
+                    .sampleDirectory(DEFAULT_DOCKER_SAMPLE_DIRECTORY)
                     .sbpApiUrl(DEFAULT_PRODUCTION_SBP_API_URL)
                     .sbpS3Url(DEFAULT_PRODUCTION_SBP_S3_URL)
-                    .jarDirectory(DEFAULT_PRODUCTION_JAR_LIB)
-                    .privateKeyPath(DEFAULT_PRODUCTION_KEY_PATH)
+                    .privateKeyPath(DEFAULT_DOCKER_KEY_PATH)
                     .serviceAccountEmail(DEFAULT_PRODUCTION_SERVICE_ACCOUNT_EMAIL)
-                    .cloudSdkPath(DEFAULT_PRODUCTION_CLOUD_SDK_PATH)
-                    .forceJarUpload(false)
+                    .cloudSdkPath(DEFAULT_DOCKER_CLOUD_SDK_PATH)
                     .cleanup(true)
-                    .usePreemptibleVms(false)
+                    .usePreemptibleVms(true)
+                    .useLocalSsds(true)
                     .upload(true)
                     .runBamMetrics(true)
                     .runAligner(true)
@@ -151,8 +154,11 @@ public interface Arguments {
                     .setId(EMPTY)
                     .toolsBucket(DEFAULT_PRODUCTION_COMMON_TOOLS_BUCKET)
                     .resourceBucket(DEFAULT_PRODUCTION_RESOURCE_BUCKET)
-                    .patientReportBucket(DEFAULT_PRODUCTION_PATIENT_REPORT_BUCKET);
-        } else {
+                    .patientReportBucket(DEFAULT_PRODUCTION_PATIENT_REPORT_BUCKET)
+                    .archiveBucket(DEFAULT_PRODUCTION_ARCHIVE_BUCKET)
+                    .archiveProject(DEFAULT_PRODUCTION_ARCHIVE_PROJECT)
+                    .archivePrivateKeyPath(DEFAULT_DOCKER_ARCHIVE_KEY_PATH);
+        } else if (profile.equals(DefaultsProfile.DEVELOPMENT)) {
             return ImmutableArguments.builder()
                     .profile(profile)
                     .mode(DEFAULT_MODE)
@@ -160,14 +166,12 @@ public interface Arguments {
                     .project(DEFAULT_DEVELOPMENT_PROJECT)
                     .version(DEFAULT_DEVELOPMENT_VERSION)
                     .sampleDirectory(DEFAULT_DEVELOPMENT_SAMPLE_DIRECTORY)
-                    .nodeInitializationScript(DEFAULT_DEVELOPMENT_NODE_INIT)
-                    .jarDirectory(DEFAULT_DEVELOPMENT_JAR_LIB)
                     .privateKeyPath(DEFAULT_DEVELOPMENT_KEY_PATH)
                     .cloudSdkPath(DEFAULT_DEVELOPMENT_CLOUD_SDK_PATH)
                     .serviceAccountEmail(DEFAULT_DEVELOPMENT_SERVICE_ACCOUNT_EMAIL)
-                    .forceJarUpload(false)
                     .cleanup(true)
                     .usePreemptibleVms(true)
+                    .useLocalSsds(true)
                     .upload(true)
                     .runBamMetrics(true)
                     .runAligner(true)
@@ -187,8 +191,49 @@ public interface Arguments {
                     .setId(EMPTY)
                     .toolsBucket(DEFAULT_DEVELOPMENT_COMMON_TOOLS_BUCKET)
                     .resourceBucket(DEFAULT_DEVELOPMENT_RESOURCE_BUCKET)
-                    .patientReportBucket(DEFAULT_DEVELOPMENT_PATIENT_REPORT_BUCKET);
+                    .patientReportBucket(DEFAULT_DEVELOPMENT_PATIENT_REPORT_BUCKET)
+                    .archiveBucket(DEFAULT_DEVELOPMENT_ARCHIVE_BUCKET)
+                    .archiveProject(DEFAULT_DEVELOPMENT_PROJECT)
+                    .archivePrivateKeyPath(DEFAULT_DEVELOPMENT_KEY_PATH);
+        } else if (profile.equals(DefaultsProfile.DEVELOPMENT_DOCKER)) {
+            return ImmutableArguments.builder()
+                    .profile(profile)
+                    .mode(DEFAULT_MODE)
+                    .region(DEFAULT_DEVELOPMENT_REGION)
+                    .project(DEFAULT_DEVELOPMENT_PROJECT)
+                    .version(DEFAULT_DEVELOPMENT_VERSION)
+                    .sampleDirectory(DEFAULT_DOCKER_SAMPLE_DIRECTORY)
+                    .privateKeyPath(DEFAULT_DOCKER_KEY_PATH)
+                    .cloudSdkPath(DEFAULT_DOCKER_CLOUD_SDK_PATH)
+                    .serviceAccountEmail(DEFAULT_DEVELOPMENT_SERVICE_ACCOUNT_EMAIL)
+                    .cleanup(true)
+                    .usePreemptibleVms(true)
+                    .useLocalSsds(true)
+                    .upload(true)
+                    .runBamMetrics(true)
+                    .runAligner(true)
+                    .runSnpGenotyper(true)
+                    .runGermlineCaller(true)
+                    .runSomaticCaller(true)
+                    .runTertiary(true)
+                    .runStructuralCaller(true)
+                    .shallow(false)
+                    .rclonePath(NOT_APPLICABLE)
+                    .rcloneS3RemoteDownload(NOT_APPLICABLE)
+                    .rcloneS3RemoteUpload(NOT_APPLICABLE)
+                    .rcloneGcpRemote(NOT_APPLICABLE)
+                    .sbpS3Url(EMPTY)
+                    .sbpApiUrl(NOT_APPLICABLE)
+                    .sampleId(EMPTY)
+                    .setId(EMPTY)
+                    .toolsBucket(DEFAULT_DEVELOPMENT_COMMON_TOOLS_BUCKET)
+                    .resourceBucket(DEFAULT_DEVELOPMENT_RESOURCE_BUCKET)
+                    .patientReportBucket(DEFAULT_DEVELOPMENT_PATIENT_REPORT_BUCKET)
+                    .archiveBucket(DEFAULT_DEVELOPMENT_ARCHIVE_BUCKET)
+                    .archiveProject(DEFAULT_DEVELOPMENT_PROJECT)
+                    .archivePrivateKeyPath(DEFAULT_DOCKER_KEY_PATH);
         }
+        throw new IllegalArgumentException(String.format("Unknown profile [%s], please create defaults for this profile.", profile));
     }
 
     static String workingDir() {
@@ -196,36 +241,36 @@ public interface Arguments {
     }
 
     Mode DEFAULT_MODE = Mode.SINGLE_SAMPLE;
-
     String DEFAULT_PRODUCTION_RCLONE_PATH = "/usr/bin";
     String DEFAULT_PRODUCTION_RCLONE_GCP_REMOTE = "gs";
     String DEFAULT_PRODUCTION_RCLONE_S3_REMOTE = "s3";
     String DEFAULT_PRODUCTION_REGION = "europe-west4";
     String DEFAULT_PRODUCTION_PROJECT = "hmf-pipeline-prod-e45b00f2";
     String DEFAULT_PRODUCTION_VERSION = "";
-    String DEFAULT_PRODUCTION_SAMPLE_DIRECTORY = "/samples";
-    String DEFAULT_PRODUCTION_NODE_INIT = "node-init.sh";
     String DEFAULT_PRODUCTION_SBP_API_URL = "http://hmfapi";
     String DEFAULT_PRODUCTION_SBP_S3_URL = "https://s3.object02.schubergphilis.com";
-    String DEFAULT_PRODUCTION_JAR_LIB = "/usr/share/pipeline5";
-    String DEFAULT_PRODUCTION_KEY_PATH = "/secrets/bootstrap-key.json";
-    String DEFAULT_PRODUCTION_CLOUD_SDK_PATH = "/usr/lib/google-cloud-sdk/bin";
     String DEFAULT_PRODUCTION_SERVICE_ACCOUNT_EMAIL = String.format("bootstrap@%s.iam.gserviceaccount.com", DEFAULT_PRODUCTION_PROJECT);
     String DEFAULT_PRODUCTION_RESOURCE_BUCKET = "common-resources-prod";
     String DEFAULT_PRODUCTION_COMMON_TOOLS_BUCKET = "common-tools-prod";
     String DEFAULT_PRODUCTION_PATIENT_REPORT_BUCKET = "pipeline-output-prod";
+    String DEFAULT_PRODUCTION_ARCHIVE_BUCKET = "pipeline-archive-prod";
+    String DEFAULT_PRODUCTION_ARCHIVE_PROJECT = DEFAULT_PRODUCTION_PROJECT;
+
+    String DEFAULT_DOCKER_SAMPLE_DIRECTORY = "/samples";
+    String DEFAULT_DOCKER_KEY_PATH = "/secrets/bootstrap-key.json";
+    String DEFAULT_DOCKER_ARCHIVE_KEY_PATH = "/secrets/archive-key.json";
+    String DEFAULT_DOCKER_CLOUD_SDK_PATH = "/usr/lib/google-cloud-sdk/bin";
 
     String NOT_APPLICABLE = "N/A";
     String DEFAULT_DEVELOPMENT_REGION = "europe-west4";
     String DEFAULT_DEVELOPMENT_PROJECT = "hmf-pipeline-development";
     String DEFAULT_DEVELOPMENT_VERSION = "local-SNAPSHOT";
     String DEFAULT_DEVELOPMENT_SAMPLE_DIRECTORY = workingDir() + "/samples";
-    String DEFAULT_DEVELOPMENT_NODE_INIT = workingDir() + "/cluster/src/main/resources/node-init.sh";
-    String DEFAULT_DEVELOPMENT_JAR_LIB = workingDir() + "/bam/target";
     String DEFAULT_DEVELOPMENT_KEY_PATH = workingDir() + "/bootstrap-key.json";
     String DEFAULT_DEVELOPMENT_CLOUD_SDK_PATH = System.getProperty("user.home") + "/gcloud/google-cloud-sdk/bin";
     String DEFAULT_DEVELOPMENT_SERVICE_ACCOUNT_EMAIL = String.format("bootstrap@%s.iam.gserviceaccount.com", DEFAULT_DEVELOPMENT_PROJECT);
     String DEFAULT_DEVELOPMENT_RESOURCE_BUCKET = "common-resources";
     String DEFAULT_DEVELOPMENT_COMMON_TOOLS_BUCKET = "common-tools";
     String DEFAULT_DEVELOPMENT_PATIENT_REPORT_BUCKET = "pipeline-output-dev";
+    String DEFAULT_DEVELOPMENT_ARCHIVE_BUCKET = "pipeline-archive-dev";
 }

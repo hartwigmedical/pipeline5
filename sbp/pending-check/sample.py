@@ -35,6 +35,10 @@ def start_kubernetes_job(args):
 
     job_args = ['-sbp_sample_id', str(args['sbp_sample_id'])]
 
+    if args['shallow']:
+        job_args.append('-shallow')
+        job_args.append('true')
+
     for i in range(1, len(sys.argv)):
         job_args.append(sys.argv[i])
 
@@ -45,7 +49,7 @@ def start_kubernetes_job(args):
         spec=kubernetes.client.V1JobSpec(
             completions=1,
             parallelism=1,
-            backoff_limit=3,
+            backoff_limit=6,
             template=kubernetes.client.V1PodTemplateSpec(
                 spec=kubernetes.client.V1PodSpec(
                     restart_policy='Never',
@@ -60,11 +64,11 @@ def start_kubernetes_job(args):
                             env=[
                                 kubernetes.client.V1EnvVar(
                                     name='READER_ACL_IDS',
-                                    value='0403732075957f94c7baea5ad60b233f,f39de0aec3c8b5bb9d78a22ad88428ad'
+                                    value='6f794a6db112f27499a06697c125d7c4,f39de0aec3c8b5bb9d78a22ad88428ad'
                                 ),
                                 kubernetes.client.V1EnvVar(
                                     name='READER_ACP_ACL_IDS',
-                                    value='0403732075957f94c7baea5ad60b233f'
+                                    value='f39de0aec3c8b5bb9d78a22ad88428ad'
                                 ),
                                 kubernetes.client.V1EnvVar(
                                     name='BOTO_PATH',
@@ -140,14 +144,21 @@ def start_kubernetes_job(args):
 
 
 def main():
-    samples = HmfApi().get_all(Sample, {'status': 'Pending_PipelineV5'})
+    shallow = HmfApi().get_all(Sample, {'status': 'Pending_ShallowV5'})
+    somatic = HmfApi().get_all(Sample, {'status': 'Pending_PipelineV5'})
+    samples = shallow + somatic
     max_starts = int(os.getenv('MAX_STARTS', '4'))
 
     if len(samples) > 0:
         log('Scheduling {0} out of {1} samples'.format(max_starts,len(samples)))
         del(samples[max_starts:])
         for sample in samples:
-            start_kubernetes_job({'sbp_sample_id': sample.id})
+            if sample.status == 'Pending_ShallowV5':
+                shallow = True
+            else:
+                shallow = False
+
+            start_kubernetes_job({'sbp_sample_id': sample.id, 'shallow': shallow})
 
             phone_home('Starting Pipeline {0} for sample {1} barcode {2}'.format(os.environ['PIPELINE_VERSION'], sample.name, sample.barcode))
 

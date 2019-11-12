@@ -17,21 +17,18 @@ public class CommandLineOptions {
     private static final Logger LOGGER = LoggerFactory.getLogger(CommandLineOptions.class);
     private static final String SAMPLE_DIRECTORY_FLAG = "sample_directory";
     private static final String VERSION_FLAG = "version";
-    private static final String JAR_DIRECTORY_FLAG = "jar";
-    private static final String FORCE_JAR_UPLOAD_FLAG = "force_jar_upload";
     private static final String CLEANUP_FLAG = "cleanup";
     private static final String UPLOAD_FLAG = "upload";
     private static final String PROJECT_FLAG = "project";
     private static final String REGION_FLAG = "region";
-    private static final String SKIP_UPLOAD_FLAG = "skip_upload";
     private static final String PRIVATE_KEY_FLAG = "private_key_path";
     private static final String SBP_SAMPLE_ID_FLAG = "sbp_sample_id";
     private static final String SBP_API_URL_FLAG = "sbp_api_url";
     private static final String SBP_S3_URL_FLAG = "sbp_s3_url";
     private static final String RUN_ID_FLAG = "run_id";
-    private static final String NODE_INIT_FLAG = "node_init_script";
     private static final String CLOUD_SDK_PATH_FLAG = "cloud_sdk";
-    private static final String USE_PREEMTIBLE_VMS_FLAG = "preemtible_vms";
+    private static final String USE_PREEMTIBLE_VMS_FLAG = "preemptible_vms";
+    private static final String USE_LOCAL_SSDS_FLAG = "local_ssds";
     private static final String DOWNLOAD_FLAG = "download";
     private static final String VERBOSE_CLOUD_SDK_FLAG = "verbose_cloud_sdk";
     private static final String RCLONE_PATH_FLAG = "rclone_path";
@@ -45,6 +42,7 @@ public class CommandLineOptions {
 
     private static final String DEFAULT_PROFILE = "production";
     private static final String RUN_ALIGNER_FLAG = "run_aligner";
+    private static final String ALIGNER_TYPE_FLAG = "aligner_type";
     private static final String RUN_GERMLINE_CALLER_FLAG = "run_germline_caller";
     private static final String RUN_SNP_GENOTYPER_FLAG = "run_snp_genotyper";
     private static final String RUN_SOMATIC_CALLER_FLAG = "run_somatic_caller";
@@ -53,12 +51,16 @@ public class CommandLineOptions {
     private static final String TOOLS_BUCKET_FLAG = "tools_bucket";
     private static final String RESOURCE_BUCKET_FLAG = "resource_bucket";
     private static final String PATIENT_REPORT_BUCKET_FLAG = "patient_report_bucket";
+    private static final String ARCHIVE_BUCKET_FLAG = "archive_bucket";
+    private static final String ARCHIVE_PROJECT_FLAG = "archive_project";
+    private static final String ARCHIVE_PRIVATE_KEY_FLAG = "archive_private_key_path";
     private static final String MODE_FLAG = "mode";
     private static final String SET_ID_FLAG = "set_id";
     private static final String SBP_RUN_ID_FLAG = "sbp_run_id";
     private static final String PRIVATE_NETWORK_FLAG = "private_network";
     private static final String CMEK_FLAG = "cmek";
     private static final String SHALLOW_FLAG = "shallow";
+    private static final String ZONE_FLAG = "zone";
 
     private static Options options() {
         return new Options().addOption(profile())
@@ -68,14 +70,13 @@ public class CommandLineOptions {
                 .addOption(sampleDirectory())
                 .addOption(sampleId())
                 .addOption(setId())
-                .addOption(jarLibDirectory())
-                .addOption(optionWithBooleanArg(SKIP_UPLOAD_FLAG, "Skip uploading defaultDirectory patient data into cloud storage"))
-                .addOption(optionWithBooleanArg(FORCE_JAR_UPLOAD_FLAG,
-                        "Force upload defaultDirectory JAR even if the version already exists in cloud storage"))
                 .addOption(optionWithBooleanArg(CLEANUP_FLAG, "Don't delete the runtime bucket after job is complete"))
                 .addOption(optionWithBooleanArg(USE_PREEMTIBLE_VMS_FLAG,
                         "Do not allocate half the cluster as preemtible VMs to save cost. "
                                 + "These VMs can be reclaimed at any time so using this option will make things more stable"))
+                .addOption(optionWithBooleanArg(USE_LOCAL_SSDS_FLAG,
+                        "Use local (ephemeral) SSDs rather than persistent storage to lower cost and improve performance. "
+                                + "VMs started with these devices can only be started once so may not be suitable for development"))
                 .addOption(optionWithBooleanArg(DOWNLOAD_FLAG,
                         "Do not download the final BAM of Google Storage. Will also leave the runtime bucket in place"))
                 .addOption(optionWithBooleanArg(VERBOSE_CLOUD_SDK_FLAG,
@@ -90,7 +91,6 @@ public class CommandLineOptions {
                 .addOption(sbpApiUrl())
                 .addOption(sbpS3Url())
                 .addOption(runId())
-                .addOption(nodeInitScript())
                 .addOption(gsutilPath())
                 .addOption(rclonePath())
                 .addOption(rcloneGcpRemote())
@@ -106,11 +106,16 @@ public class CommandLineOptions {
                 .addOption(resourceBucket())
                 .addOption(toolsBucket())
                 .addOption(patientReportBucket())
+                .addOption(archiveBucket())
+                .addOption(archiveProject())
+                .addOption(archivePrivateKey())
                 .addOption(privateNetwork())
                 .addOption(cmek())
                 .addOption(optionWithBooleanArg(SHALLOW_FLAG,
                         "Run with ShallowSeq configuration.Germline and health checker are disabled and purple is run with low coverage "
-                                + "options."));
+                                + "options."))
+                .addOption(zone())
+                .addOption(alignerType());
     }
 
     private static Option cmek() {
@@ -143,6 +148,18 @@ public class CommandLineOptions {
 
     private static Option patientReportBucket() {
         return optionWithArg(PATIENT_REPORT_BUCKET_FLAG, "Bucket in which to persist the final patient report and accompanying data.");
+    }
+
+    private static Option archiveBucket() {
+        return optionWithArg(ARCHIVE_BUCKET_FLAG, "Bucket to use for data request archival.");
+    }
+
+    private static Option archiveProject() {
+        return optionWithArg(ARCHIVE_PROJECT_FLAG, "Project to use for data request archival.");
+    }
+
+    private static Option archivePrivateKey() {
+        return optionWithArg(ARCHIVE_PRIVATE_KEY_FLAG, "Private key to use for data request archival.");
     }
 
     private static Option toolsBucket() {
@@ -178,11 +195,6 @@ public class CommandLineOptions {
         return optionWithArg(CLOUD_SDK_PATH_FLAG, "Path to the google cloud sdk bin directory (with gsutil and gcloud)");
     }
 
-    private static Option nodeInitScript() {
-        return optionWithArg(NODE_INIT_FLAG,
-                "Script to run on initialization directory each cluster node. The default script installs BWA, sambamba and picard");
-    }
-
     private static Option runId() {
         return optionWithArg(RUN_ID_FLAG, "Override the generated run id used for runtime bucket and cluster naming");
     }
@@ -216,12 +228,16 @@ public class CommandLineOptions {
         return optionWithArg(PROJECT_FLAG, "The Google project for which to get the cluster.");
     }
 
-    private static Option jarLibDirectory() {
-        return optionWithArg(JAR_DIRECTORY_FLAG, "Directory containing the system-{VERSION}.jar.");
+    private static Option zone() {
+        return optionWithArg(ZONE_FLAG, "The zone for which to get the clusters.");
     }
 
     private static Option version() {
         return optionWithArg(VERSION_FLAG, "Version of pipeline5 to run in spark.");
+    }
+
+    private static Option alignerType() {
+        return optionWithArg(ALIGNER_TYPE_FLAG, "Aligner implementation to invoke.");
     }
 
     @NotNull
@@ -246,19 +262,17 @@ public class CommandLineOptions {
                     .version(commandLine.getOptionValue(VERSION_FLAG, defaults.version()))
                     .sampleDirectory(commandLine.getOptionValue(SAMPLE_DIRECTORY_FLAG, defaults.sampleDirectory()))
                     .sampleId(commandLine.getOptionValue(SAMPLE_ID_FLAG, defaults.sampleId()))
-                    .jarDirectory(commandLine.getOptionValue(JAR_DIRECTORY_FLAG, defaults.jarDirectory()))
                     .project(commandLine.getOptionValue(PROJECT_FLAG, defaults.project()))
                     .region(handleDashesInRegion(commandLine, defaults.region()))
                     .sbpApiUrl(commandLine.getOptionValue(SBP_API_URL_FLAG, defaults.sbpApiUrl()))
                     .sbpApiSampleId(sbpApiSampleId(commandLine))
                     .sbpS3Url(commandLine.getOptionValue(SBP_S3_URL_FLAG, defaults.sbpS3Url()))
                     .sbpApiRunId(sbpRunId(commandLine))
-                    .forceJarUpload(booleanOptionWithDefault(commandLine, FORCE_JAR_UPLOAD_FLAG, defaults.forceJarUpload()))
                     .cleanup(booleanOptionWithDefault(commandLine, CLEANUP_FLAG, defaults.cleanup()))
                     .runId(runId(commandLine))
-                    .nodeInitializationScript(commandLine.getOptionValue(NODE_INIT_FLAG, defaults.nodeInitializationScript()))
                     .cloudSdkPath(commandLine.getOptionValue(CLOUD_SDK_PATH_FLAG, defaults.cloudSdkPath()))
                     .usePreemptibleVms(booleanOptionWithDefault(commandLine, USE_PREEMTIBLE_VMS_FLAG, defaults.usePreemptibleVms()))
+                    .useLocalSsds(booleanOptionWithDefault(commandLine, USE_LOCAL_SSDS_FLAG, defaults.useLocalSsds()))
                     .upload(booleanOptionWithDefault(commandLine, UPLOAD_FLAG, defaults.upload()))
                     .rclonePath(commandLine.getOptionValue(RCLONE_PATH_FLAG, defaults.rclonePath()))
                     .rcloneGcpRemote(commandLine.getOptionValue(RCLONE_GCP_REMOTE_FLAG, defaults.rcloneGcpRemote()))
@@ -275,9 +289,13 @@ public class CommandLineOptions {
                     .resourceBucket(commandLine.getOptionValue(RESOURCE_BUCKET_FLAG, defaults.resourceBucket()))
                     .toolsBucket(commandLine.getOptionValue(TOOLS_BUCKET_FLAG, defaults.toolsBucket()))
                     .patientReportBucket(commandLine.getOptionValue(PATIENT_REPORT_BUCKET_FLAG, defaults.patientReportBucket()))
+                    .archiveBucket(commandLine.getOptionValue(ARCHIVE_BUCKET_FLAG, defaults.archiveBucket()))
+                    .archiveProject(commandLine.getOptionValue(ARCHIVE_PROJECT_FLAG, defaults.archiveProject()))
+                    .archivePrivateKeyPath(commandLine.getOptionValue(ARCHIVE_PRIVATE_KEY_FLAG, defaults.archivePrivateKeyPath()))
                     .privateNetwork(privateNetwork(commandLine, defaults))
                     .cmek(cmek(commandLine, defaults))
                     .shallow(booleanOptionWithDefault(commandLine, SHALLOW_FLAG, defaults.shallow()))
+                    .zone(zone(commandLine, defaults))
                     .profile(defaults.profile())
                     .build();
         } catch (ParseException e) {
@@ -299,7 +317,14 @@ public class CommandLineOptions {
         if (commandLine.hasOption(PRIVATE_NETWORK_FLAG)) {
             return Optional.of(commandLine.getOptionValue(PRIVATE_NETWORK_FLAG));
         }
-        return defaults.cmek();
+        return defaults.privateNetwork();
+    }
+
+    private static Optional<String> zone(final CommandLine commandLine, final Arguments defaults) {
+        if (commandLine.hasOption(ZONE_FLAG)) {
+            return Optional.of(commandLine.getOptionValue(ZONE_FLAG));
+        }
+        return defaults.zone();
     }
 
     private static Optional<Integer> sbpRunId(final CommandLine commandLine) {

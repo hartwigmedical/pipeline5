@@ -17,19 +17,15 @@ public class AnnotateVariants extends GridssCommand {
     private final String referenceGenome;
 
     public AnnotateVariants(final String referenceBam, final String tumorBam, final String assemblyBam, final String inputVcf,
-            final String referenceGenome, final String tumorSampleName, String configurationFile, String blacklist) {
+            final String referenceGenome, final String outputVcf, String configurationFile, String blacklist) {
         this.sampleBam = referenceBam;
         this.tumorBam = tumorBam;
         this.assemblyBam = assemblyBam;
         this.inputVcf = inputVcf;
         this.referenceGenome = referenceGenome;
-        this.outputVcf = VmDirectories.outputFile(tumorSampleName + ".annotated_variants.vcf");
+        this.outputVcf = outputVcf;
         this.configurationFile = configurationFile;
         this.blacklist = blacklist;
-    }
-
-    public String resultantVcf() {
-        return outputVcf;
     }
 
     @Override
@@ -39,13 +35,12 @@ public class AnnotateVariants extends GridssCommand {
 
     @Override
     public List<GridssArgument> arguments() {
-        return asList(GridssArgument.tempDir(),
-                new GridssArgument("working_dir", VmDirectories.OUTPUT),
+        return asList(new GridssArgument("working_dir", VmDirectories.OUTPUT),
                 new GridssArgument("reference_sequence", referenceGenome),
                 new GridssArgument("input", sampleBam),
                 new GridssArgument("input", tumorBam),
                 new GridssArgument("input_vcf", inputVcf),
-                new GridssArgument("output_vcf", resultantVcf()),
+                new GridssArgument("output_vcf", outputVcf),
                 new GridssArgument("assembly", assemblyBam),
                 GridssArgument.blacklist(blacklist),
                 GridssArgument.configFile(configurationFile));

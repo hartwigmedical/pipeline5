@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.JavaClassCommand;
+import com.hartwig.pipeline.tools.Versions;
 
 public abstract class GridssCommand implements BashCommand {
     int memoryGb() {
@@ -32,6 +33,7 @@ public abstract class GridssCommand implements BashCommand {
                 "-Dsamjdk.buffer_size=4194304");
 
         String gridssArgs = arguments().stream().map(GridssArgument::asBash).collect(Collectors.joining(" "));
-        return new JavaClassCommand("gridss", "2.4.0", "gridss.jar", className(), format("%dG", memoryGb()), jvmArgs, gridssArgs).asBash();
+        return new JavaClassCommand("gridss", Versions.GRIDSS, "gridss.jar", className(),
+                format("%dG", memoryGb()), jvmArgs, gridssArgs).asBash();
     }
 }

@@ -21,14 +21,14 @@ public class MappabilityAnnotationTest extends SubStageTest {
 
     @Test
     public void runsBcfToolsMappabilityAnnotation() {
-        assertThat(output.currentBash().asUnixString()).contains("/data/tools/bcftools/1.3.1/bcftools annotate -a "
+        assertThat(bash()).contains("/opt/tools/bcftools/1.3.1/bcftools annotate -a "
                 + "mappability.bed -h mappability.hdr -c CHROM,FROM,TO,-,MAPPABILITY -o /data/output/tumor.mappability.annotated.vcf.gz "
                 + "-O z /data/output/tumor.strelka.vcf");
     }
 
     @Test
     public void runsTabix() {
-        assertThat(output.currentBash().asUnixString()).contains(
-                "/data/tools/tabix/0.2.6/tabix /data/output/tumor.mappability.annotated.vcf.gz -p vcf");
+        assertThat(bash()).contains(
+                "/opt/tools/tabix/0.2.6/tabix /data/output/tumor.mappability.annotated.vcf.gz -p vcf");
     }
 }

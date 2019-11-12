@@ -27,7 +27,7 @@ public class AlignerProviderTest {
     public void wiresUpBootstrapWithLocalDependencies() throws Exception {
         AlignerProvider victim = AlignerProvider.from(credentials, storage, LOCAL_ARGUMENTS);
         assertThat(victim.get()).isNotNull();
-        assertThat(victim).isInstanceOf(AlignerProvider.LocalBootstrapProvider.class);
+        assertThat(victim).isInstanceOf(AlignerProvider.LocalAlignerProvider.class);
     }
 
     @Ignore
@@ -35,6 +35,6 @@ public class AlignerProviderTest {
     public void wiresUpBootstrapWithSbpDependencies() throws Exception {
         AlignerProvider victim = AlignerProvider.from(credentials, storage, Arguments.testDefaultsBuilder().sbpApiSampleId(1).build());
         assertThat(victim.get()).isNotNull();
-        assertThat(victim).isInstanceOf(AlignerProvider.SbpBootstrapProvider.class);
+        assertThat(victim).isInstanceOf(AlignerProvider.SbpAlignerProvider.class);
     }
 }

@@ -21,17 +21,26 @@ public class GSUtil {
         Processes.run(processBuilder, VERBOSE);
     }
 
-    static void cp(String gsdkPath, String sourceUrl, String targetUrl) throws IOException, InterruptedException {
+    public static void cp(String gsdkPath, String sourceUrl, String targetUrl) throws IOException, InterruptedException {
+        cp(gsdkPath, sourceUrl, targetUrl, null, false);
+    }
+
+    public static void cp(String gsdkPath, String sourceUrl, String targetUrl, String userProject, boolean recurse)
+            throws IOException, InterruptedException {
         List<String> command = new ArrayList<>();
         command.add(gsdkPath + "/gsutil");
-        if (VERBOSE) {
-            command.add("-D");
+        if (userProject != null) {
+            command.add("-u");
+            command.add(userProject);
         }
         command.add("-m");
         command.add("cp");
+        if (recurse) {
+            command.add("-r");
+        }
         command.add(sourceUrl);
         command.add(targetUrl);
-        ProcessBuilder processBuilder = new ProcessBuilder(command);
+        ProcessBuilder processBuilder = new ProcessBuilder(command).inheritIO();
         Processes.run(processBuilder, VERBOSE, TIMEOUT_HOURS, TimeUnit.HOURS);
     }
 }

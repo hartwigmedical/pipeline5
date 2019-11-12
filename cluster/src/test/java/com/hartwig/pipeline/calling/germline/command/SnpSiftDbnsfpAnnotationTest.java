@@ -21,19 +21,19 @@ public class SnpSiftDbnsfpAnnotationTest extends SubStageTest {
 
     @Test
     public void runsSnpSiftDbsnfpAnnotation() {
-        assertThat(output.currentBash().asUnixString()).contains("(java -Xmx20G -jar /data/tools/snpEff/4.3s/SnpSift.jar dbnsfp -c "
+        assertThat(bash()).contains("(java -Xmx29G -jar /opt/tools/snpEff/4.3s/SnpSift.jar dbnsfp -c "
                 + "snpEff.config -v -f");
-        assertThat(output.currentBash().asUnixString()).contains(
+        assertThat(bash()).contains(
                 "-db dbnsfp.vcf.gz /data/output/tumor.strelka.vcf > /data/output/tumor.dbnsfp.annotated.vcf)");
     }
 
     @Test
     public void runsBgZip() {
-        assertThat(output.currentBash().asUnixString()).contains("bgzip -f /data/output/tumor.dbnsfp.annotated.vcf");
+        assertThat(bash()).contains("bgzip -f /data/output/tumor.dbnsfp.annotated.vcf");
     }
 
     @Test
     public void runsTabix() {
-        assertThat(output.currentBash().asUnixString()).contains("tabix /data/output/tumor.dbnsfp.annotated.vcf.gz -p vcf");
+        assertThat(bash()).contains("tabix /data/output/tumor.dbnsfp.annotated.vcf.gz -p vcf");
     }
 }

@@ -22,16 +22,20 @@ public class CloudSampleUploadTest {
     private static final String SAMPLE_NAME = "TEST123";
     private static final String SAMPLE_PATH = "samples/" + SAMPLE_NAME + "/";
     private static final String FASTQ_DIR = "/fastq-dir/";
-    private static final Lane LANE_1 =
-            Lane.builder().firstOfPairPath(FASTQ_DIR + "reads1.fastq.gz").secondOfPairPath(FASTQ_DIR + "mates1.fastq.gz")
+    private static final Lane LANE_1 = Lane.builder()
+            .firstOfPairPath(FASTQ_DIR + "reads1.fastq.gz")
+            .secondOfPairPath(FASTQ_DIR + "mates1.fastq.gz")
+            .laneNumber("")
             .directory("")
             .index("")
             .suffix("")
             .name("")
             .flowCellId("")
             .build();
-    private static final Lane LANE_2 =
-            Lane.builder().firstOfPairPath(FASTQ_DIR + "reads2.fastq.gz").secondOfPairPath(FASTQ_DIR + "mates2.fastq.gz")
+    private static final Lane LANE_2 = Lane.builder()
+            .firstOfPairPath(FASTQ_DIR + "reads2.fastq.gz")
+            .secondOfPairPath(FASTQ_DIR + "mates2.fastq.gz")
+            .laneNumber("")
             .directory("")
             .index("")
             .suffix("")

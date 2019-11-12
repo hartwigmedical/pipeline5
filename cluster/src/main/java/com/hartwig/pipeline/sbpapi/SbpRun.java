@@ -12,8 +12,12 @@ public interface SbpRun {
 
     String id();
 
+    int ini_id();
+
     @Nullable
     String bucket();
 
     SbpSet set();
+
+    String status();
 }

@@ -1,15 +1,18 @@
 package com.hartwig.pipeline.execution.vm;
 
 import static java.lang.String.format;
+import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.joining;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import com.hartwig.pipeline.execution.vm.storage.StorageStrategy;
+
 public class BashStartupScript {
-    static final String JOB_SUCCEEDED_FLAG = "JOB_SUCCESS";
+    public static final String JOB_SUCCEEDED_FLAG = "JOB_SUCCESS";
     static final String JOB_FAILED_FLAG = "JOB_FAILURE";
-    private static final String LOG_FILE = VmDirectories.OUTPUT + "/run.log";
+    static final String LOG_FILE = "/var/log/run.log";
     private final List<String> commands;
     private final String runtimeBucketName;
 
@@ -17,27 +20,42 @@ public class BashStartupScript {
         this.runtimeBucketName = runtimeBucketName;
         this.commands = new ArrayList<>();
         this.commands.add("echo $(date) Starting run");
+        this.commands.add("mkdir -p " + VmDirectories.INPUT);
+        this.commands.add("mkdir -p " + VmDirectories.RESOURCES);
+        this.commands.add("mkdir -p " + VmDirectories.OUTPUT);
+        this.commands.add("mkdir -p " + VmDirectories.TEMP);
+        this.commands.add("export TMPDIR=" + VmDirectories.TEMP);
+        this.commands.add(format("export _JAVA_OPTIONS='-Djava.io.tmpdir=%s'", VmDirectories.TEMP));
     }
 
     public static BashStartupScript of(final String runtimeBucketName) {
         return new BashStartupScript(runtimeBucketName);
     }
 
-    /**
-     * @return the generated script as a single <code>String</code> with UNIX newlines separating input lines
-     */
-    public String asUnixString() {
+    String asUnixString() {
+        return asUnixString(new StorageStrategy() {});
+    }
+
+    String asUnixString(StorageStrategy storageStrategy) {
         String commandSuffix = format(" >>%s 2>&1 || die", LOG_FILE);
         String jobFailedFlag = "/tmp/" + JOB_FAILED_FLAG;
-        String preamble = "#!/bin/bash -x\n\n" + "set -o pipefail\n\n" +
-                "function die() {\n" + "  exit_code=$?\n" +
-                "  echo \"Unknown failure: called command returned $exit_code\"\n" +
-                format("  gsutil -m cp %s gs://%s\n", LOG_FILE, runtimeBucketName) +
-                format("  echo $exit_code > %s\n", jobFailedFlag) +
-                format("  gsutil -m cp %s gs://%s\n", jobFailedFlag, runtimeBucketName) +
-                "  exit $exit_code\n" + "}\n\n";
+
+        List<String> preamble = new ArrayList<>(asList(
+                "#!/bin/bash -x\n",
+                "set -o pipefail\n",
+                "function die() {",
+                "  exit_code=$?",
+                "  echo \"Unknown failure: called command returned $exit_code\"",
+                format("  gsutil -m cp %s gs://%s", LOG_FILE, runtimeBucketName),
+                format("  echo $exit_code > %s", jobFailedFlag),
+                format("  gsutil -m cp %s gs://%s", jobFailedFlag, runtimeBucketName),
+                "  exit $exit_code\n" + "}\n"));
+        preamble.addAll(storageStrategy.initialise());
+        preamble.add("ulimit -n 102400");
         addCompletionCommands();
-        return preamble + commands.stream().collect(joining(format("%s\n", commandSuffix))) + (commands.isEmpty() ? "" : commandSuffix);
+        return String.join("\n", preamble) + "\n" +
+                commands.stream().collect(joining(format("%s\n", commandSuffix))) +
+                (commands.isEmpty() ? "" : commandSuffix);
     }
 
     BashStartupScript addLine(String lineOne) {
@@ -46,7 +64,7 @@ public class BashStartupScript {
     }
 
     public BashStartupScript addCommand(BashCommand command) {
-        return addLine(String.format("echo \"Running command %s with bash: %s\"",
+        return addLine(String.format("echo $(date \"+%%Y-%%m-%%d %%H:%%M:%%S\") \"Running command %s with bash: %s\"",
                 command.getClass().getSimpleName(),
                 escapeQuotes(command.asBash()))).addLine(command.asBash());
     }
@@ -55,7 +73,7 @@ public class BashStartupScript {
         return s.replace("\"", "\\\"");
     }
 
-    public BashStartupScript addCommands(List<BashCommand> commands) {
+    public BashStartupScript addCommands(List<? extends BashCommand> commands) {
         for (BashCommand command : commands) {
             addCommand(command);
         }
@@ -63,7 +81,7 @@ public class BashStartupScript {
     }
 
     private void addCompletionCommands() {
-        String successFlag = "/tmp/" + JOB_SUCCEEDED_FLAG;
+        String successFlag = "/tmp/" + successFlag();
         commands.add(format("(echo 0 > %s && gsutil cp %s gs://%s)", successFlag, successFlag, runtimeBucketName));
     }
 

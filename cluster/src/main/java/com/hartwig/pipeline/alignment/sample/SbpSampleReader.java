@@ -43,8 +43,9 @@ public class SbpSampleReader {
             Sample sample = sample(sampleName, barcode, fastqJson);
             LOGGER.info("Found sample [{}] in SBP", sample);
             if (sample.lanes().isEmpty()) {
-                throw new IllegalArgumentException(
-                        "No lanes (fastq) were found for sample [{}]. Either no fastq files in the api or none " + "pass qc");
+                throw new IllegalArgumentException(String.format(
+                        "No lanes (fastq) were found for sample [%s]. Either no fastq files in the api or none pass qc",
+                        sample.name()));
             }
             return sample;
         } catch (IOException e) {
@@ -86,19 +87,26 @@ public class SbpSampleReader {
     }
 
     private static ImmutableLane lane(final SbpFastQ sbpFastQ) {
+
+        FastqNamingConvention.apply(sbpFastQ.name_r1());
+
         String bucket = sbpFastQ.bucket();
         if (bucket == null || bucket.isEmpty()) {
             throw new IllegalStateException(format("Bucket for fastq [%s] was null or empty. Has this sample id been cleaned up in S3?",
                     sbpFastQ));
         }
+        String[] tokens = sbpFastQ.name_r1().split("_");
+        String laneNumber = tokens[3];
+        String flowCellId = tokens[1];
         return Lane.builder()
-                .name("")
+                .name(tokens[0] + "_" + laneNumber)
+                .laneNumber(laneNumber)
                 .firstOfPairPath(s3Path(sbpFastQ, sbpFastQ.name_r1()))
                 .secondOfPairPath(s3Path(sbpFastQ, sbpFastQ.name_r2()))
                 .directory("")
                 .suffix("")
-                .flowCellId("")
-                .index("0")
+                .flowCellId(flowCellId)
+                .index(tokens[2])
                 .build();
     }
 

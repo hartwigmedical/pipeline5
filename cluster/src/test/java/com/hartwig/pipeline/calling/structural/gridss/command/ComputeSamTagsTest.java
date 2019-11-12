@@ -1,26 +1,34 @@
 package com.hartwig.pipeline.calling.structural.gridss.command;
 
+import static java.lang.String.format;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
+
 import org.junit.Before;
 import org.junit.Test;
 
-import static java.lang.String.format;
-import static org.assertj.core.api.Assertions.assertThat;
-
 public class ComputeSamTagsTest implements CommonEntities {
     private ComputeSamTags command;
-    private final String CLASSNAME = "gridss.ComputeSamTags";
+    private String className;
     private String expectedOutputFile;
 
     @Before
     public void setup() {
         command = new ComputeSamTags(REFERENCE_BAM, REFERENCE_GENOME, REFERENCE_SAMPLE);
+        className = "gridss.ComputeSamTags";
         expectedOutputFile = format("%s/gridss.tmp.withtags.%s.sv.bam", OUT_DIR, REFERENCE_SAMPLE);
     }
 
     @Test
+    public void shouldGenerateCorrectJavaArguments() {
+        GridssCommonArgumentsAssert.assertThat(command).generatesJavaInvocationUpToAndIncludingClassname(className);
+    }
+
+    @Test
     public void shouldReturnClassname() {
-        assertThat(command.className()).isEqualTo(CLASSNAME);
+        assertThat(command.className()).isEqualTo(className);
     }
 
     @Test
@@ -30,9 +38,7 @@ public class ComputeSamTagsTest implements CommonEntities {
 
     @Test
     public void shouldCompleteCommandLineWithGridssArguments() {
-        GridssCommonArgumentsAssert.assertThat(command)
-                .hasGridssArguments(ARGS_TMP_DIR)
-                .and("working_dir", OUT_DIR)
+        GridssCommonArgumentsAssert.assertThat(command).hasGridssArguments("working_dir", OUT_DIR)
                 .and(ARGS_REFERENCE_SEQUENCE)
                 .and(ARGS_NO_COMPRESSION)
                 .and(ARG_KEY_INPUT_SHORT, REFERENCE_BAM)

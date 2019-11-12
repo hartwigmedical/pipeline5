@@ -9,23 +9,23 @@ import com.hartwig.pipeline.execution.vm.VmDirectories;
 public interface CommonEntities {
     String OUT_DIR = "/data/output";
     String RESOURCE_DIR = "/data/resources";
-    String TOOLS_DIR = "/data/tools";
+    String TOOLS_DIR = "/opt/tools";
     String IN_DIR = "/data/input";
+    String LOG_FILE = "/var/log/run.log";
 
     String REFERENCE_SAMPLE = "sample12345678R";
     String TUMOR_SAMPLE = "sample12345678T";
     String REFERENCE_BAM = format("%s/%s.bam", IN_DIR, REFERENCE_SAMPLE);
     String TUMOR_BAM = format("%s/%s.bam", IN_DIR, TUMOR_SAMPLE);
     String JOINT_NAME = REFERENCE_SAMPLE + "_" + TUMOR_SAMPLE;
+    String ASSEMBLY_BAM = format("%s/%s_%s.assemble.bam", OUT_DIR, REFERENCE_SAMPLE, TUMOR_SAMPLE);
 
     String OUTPUT_BAM = format("%s/output.bam", OUT_DIR);
     String REFERENCE_GENOME = format("%s/reference_genome.fasta", VmDirectories.RESOURCES);
     String BLACKLIST = format("%s/ENCFF001TDO.bed", VmDirectories.RESOURCES);
-    String GRIDSS_CONFIG = format("%s/gridss.properties", VmDirectories.RESOURCES);
+    String CONFIG_FILE = format("%s/gridss.properties", VmDirectories.RESOURCES);
 
-    String PATH_TO_BWA = format("%s/bwa/0.7.17/bwa", TOOLS_DIR);
-    String PATH_TO_SAMTOOLS = format("%s/samtools/1.2/samtools", TOOLS_DIR);
-    String PATH_TO_SAMBAMBA = format("%s/sambamba/0.6.5/sambamba", TOOLS_DIR);
+    String PATH_TO_SAMBAMBA = format("%s/sambamba/0.6.8/sambamba", TOOLS_DIR);
 
     String ARG_KEY_INPUT = "input";
     String ARG_KEY_INPUT_SHORT = "i";

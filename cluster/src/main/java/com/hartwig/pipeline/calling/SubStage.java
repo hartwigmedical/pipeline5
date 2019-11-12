@@ -1,8 +1,10 @@
 package com.hartwig.pipeline.calling;
 
+import java.util.List;
 import java.util.function.Function;
 
-import com.hartwig.pipeline.execution.vm.BashStartupScript;
+import com.google.common.collect.ImmutableList;
+import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.OutputFile;
 
 public abstract class SubStage implements Function<SubStageInputOutput, SubStageInputOutput> {
@@ -32,8 +34,15 @@ public abstract class SubStage implements Function<SubStageInputOutput, SubStage
     @Override
     public SubStageInputOutput apply(final SubStageInputOutput input) {
         OutputFile outputFile = OutputFile.of(input.sampleName(), stageName, fileOutputType, isFinalSubStage);
-        return SubStageInputOutput.of(input.sampleName(), outputFile, bash(input.outputFile(), outputFile, input.currentBash()));
+        return SubStageInputOutput.of(input.sampleName(), outputFile, combine(input.bash(), bash(input.outputFile(), outputFile)));
     }
 
-    public abstract BashStartupScript bash(final OutputFile input, OutputFile output, final BashStartupScript bash);
+    private static List<BashCommand> combine(List<BashCommand> prior, List<BashCommand> next) {
+        ImmutableList.Builder<BashCommand> listBuilder = ImmutableList.builder();
+        listBuilder.addAll(prior);
+        listBuilder.addAll(next);
+        return listBuilder.build();
+    }
+
+    public abstract List<BashCommand> bash(final OutputFile input, OutputFile output);
 }

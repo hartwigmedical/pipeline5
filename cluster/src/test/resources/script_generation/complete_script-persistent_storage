@@ -1,0 +1,25 @@
+#!/bin/bash -x
+
+set -o pipefail
+
+function die() {
+  exit_code=$?
+  echo "Unknown failure: called command returned $exit_code"
+  gsutil -m cp /var/log/run.log gs://outputBucket
+  echo $exit_code > /tmp/JOB_FAILURE
+  gsutil -m cp /tmp/JOB_FAILURE gs://outputBucket
+  exit $exit_code
+}
+
+ulimit -n 102400
+echo $(date) Starting run >>/var/log/run.log 2>&1 || die
+mkdir -p /data/input >>/var/log/run.log 2>&1 || die
+mkdir -p /data/resources >>/var/log/run.log 2>&1 || die
+mkdir -p /data/output >>/var/log/run.log 2>&1 || die
+mkdir -p /data/tmp >>/var/log/run.log 2>&1 || die
+export TMPDIR=/data/tmp >>/var/log/run.log 2>&1 || die
+export _JAVA_OPTIONS='-Djava.io.tmpdir=/data/tmp' >>/var/log/run.log 2>&1 || die
+uname -a >>/var/log/run.log 2>&1 || die
+echo $(date "+%Y-%m-%d %H:%M:%S") "Running command ComplexCommand with bash: not_really_so_complex \"quoted\"" >>/var/log/run.log 2>&1 || die
+not_really_so_complex "quoted" >>/var/log/run.log 2>&1 || die
+(echo 0 > /tmp/JOB_SUCCESS && gsutil cp /tmp/JOB_SUCCESS gs://outputBucket) >>/var/log/run.log 2>&1 || die

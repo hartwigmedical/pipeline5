@@ -2,19 +2,17 @@ package com.hartwig.pipeline.execution.vm;
 
 import static java.lang.String.format;
 
+import com.hartwig.pipeline.execution.vm.unix.SubShellCommand;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 
-public class OutputUpload implements BashCommand {
-
-    public static final String OUTPUT_DIRECTORY = "/data/output";
-    private final GoogleStorageLocation targetLocation;
+public class OutputUpload extends SubShellCommand {
 
     public OutputUpload(final GoogleStorageLocation targetLocation) {
-        this.targetLocation = targetLocation;
-    }
-
-    @Override
-    public String asBash() {
-        return format("gsutil -qm cp -r %s/ gs://%s/%s", OUTPUT_DIRECTORY, targetLocation.bucket(), targetLocation.path());
+        super(() -> format("cp %s %s && gsutil -qm rsync -dr %s gs://%s/%s",
+                BashStartupScript.LOG_FILE,
+                VmDirectories.OUTPUT,
+                VmDirectories.OUTPUT,
+                targetLocation.bucket(),
+                targetLocation.path()));
     }
 }

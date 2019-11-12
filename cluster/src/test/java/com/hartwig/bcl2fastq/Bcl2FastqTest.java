@@ -8,8 +8,10 @@ import com.hartwig.pipeline.credentials.CredentialProvider;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.storage.StorageProvider;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
+@Ignore
 public class Bcl2FastqTest {
 
     @Test

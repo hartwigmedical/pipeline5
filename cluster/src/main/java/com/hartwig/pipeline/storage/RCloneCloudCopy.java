@@ -1,7 +1,5 @@
 package com.hartwig.pipeline.storage;
 
-import static java.util.stream.Collectors.joining;
-
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -34,7 +32,7 @@ public class RCloneCloudCopy implements CloudCopy {
             ProcessBuilder processBuilder = processBuilderSupplier.get();
             List<String> command = ImmutableList.of(rClonePath + RCLONE, "copyto", "-c", replaceRemotes(from), replaceRemotes(to));
             processBuilder.command(command);
-            LOGGER.debug("Running rclone command [{}]", command.stream().collect(joining(" ")));
+            LOGGER.debug("Running rclone command [{}]", String.join(" ", command));
             Processes.run(processBuilder, true);
         } catch (Exception e) {
             throw new RuntimeException(e);

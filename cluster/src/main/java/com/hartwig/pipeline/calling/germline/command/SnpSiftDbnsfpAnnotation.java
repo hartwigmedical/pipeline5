@@ -1,9 +1,12 @@
 package com.hartwig.pipeline.calling.germline.command;
 
+import java.util.List;
+
+import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.calling.SubStage;
 import com.hartwig.pipeline.calling.command.BgzipCommand;
 import com.hartwig.pipeline.calling.command.TabixCommand;
-import com.hartwig.pipeline.execution.vm.BashStartupScript;
+import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.OutputFile;
 import com.hartwig.pipeline.execution.vm.unix.SubShellCommand;
 
@@ -38,9 +41,9 @@ public class SnpSiftDbnsfpAnnotation extends SubStage {
     }
 
     @Override
-    public BashStartupScript bash(final OutputFile input, final OutputFile output, final BashStartupScript bash) {
+    public List<BashCommand> bash(final OutputFile input, final OutputFile output) {
         String beforeZip = output.path().replace(".gz", "");
-        return bash.addCommand(new SubShellCommand(new SnpSiftCommand("dbnsfp",
+        return ImmutableList.of(new SubShellCommand(new SnpSiftCommand("dbnsfp",
                 snpEffConfig,
                 "-v",
                 "-f",
@@ -49,6 +52,6 @@ public class SnpSiftDbnsfpAnnotation extends SubStage {
                 dbNSFP,
                 input.path(),
                 ">",
-                beforeZip))).addCommand(new BgzipCommand(beforeZip)).addCommand(new TabixCommand(output.path()));
+                beforeZip)), new BgzipCommand(beforeZip), new TabixCommand(output.path()));
     }
 }

@@ -1,8 +1,11 @@
 package com.hartwig.pipeline.calling.somatic;
 
+import java.util.List;
+
+import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.calling.SubStage;
 import com.hartwig.pipeline.calling.command.TabixCommand;
-import com.hartwig.pipeline.execution.vm.BashStartupScript;
+import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.OutputFile;
 
 class SageHotspotsApplication extends SubStage {
@@ -10,33 +13,32 @@ class SageHotspotsApplication extends SubStage {
     private final String knownHotspots;
     private final String codingRegions;
     private final String referenceGenomePath;
-    private final String recalibratedTumorBamPath;
-    private final String recalibratedReferenceBamPath;
+    private final String tumorBamPath;
+    private final String referenceBamPath;
     private final String tumorSampleName;
     private final String referenceSampleName;
 
     SageHotspotsApplication(final String knownHotspots, final String codingRegions, final String referenceGenomePath,
-            final String recalibratedTumorBamPath, final String recalibratedReferenceBamPath, final String tumorSampleName,
-            final String referenceSampleName) {
+            final String tumorBamPath, final String referenceBamPath, final String tumorSampleName, final String referenceSampleName) {
         super("sage.hotspots", OutputFile.GZIPPED_VCF);
         this.knownHotspots = knownHotspots;
         this.codingRegions = codingRegions;
         this.referenceGenomePath = referenceGenomePath;
-        this.recalibratedTumorBamPath = recalibratedTumorBamPath;
-        this.recalibratedReferenceBamPath = recalibratedReferenceBamPath;
+        this.tumorBamPath = tumorBamPath;
+        this.referenceBamPath = referenceBamPath;
         this.tumorSampleName = tumorSampleName;
         this.referenceSampleName = referenceSampleName;
     }
 
     @Override
-    public BashStartupScript bash(final OutputFile input, final OutputFile output, final BashStartupScript bash) {
-        return bash.addCommand(new SageApplicationCommand(tumorSampleName,
-                recalibratedTumorBamPath,
+    public List<BashCommand> bash(final OutputFile input, final OutputFile output) {
+        return ImmutableList.of(new SageApplicationCommand(tumorSampleName,
+                tumorBamPath,
                 referenceSampleName,
-                recalibratedReferenceBamPath,
+                referenceBamPath,
                 knownHotspots,
                 codingRegions,
                 referenceGenomePath,
-                output.path())).addCommand(new TabixCommand(output.path()));
+                output.path()), new TabixCommand(output.path()));
     }
 }

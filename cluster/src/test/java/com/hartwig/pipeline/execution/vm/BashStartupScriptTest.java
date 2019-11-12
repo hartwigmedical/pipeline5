@@ -8,7 +8,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import com.hartwig.support.test.Resources;
+import com.hartwig.pipeline.execution.vm.storage.LocalSsdStorageStrategy;
+import com.hartwig.pipeline.testsupport.Resources;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -34,8 +35,18 @@ public class BashStartupScriptTest {
     }
 
     @Test
-    public void shouldWriteCompleteScript() throws IOException {
-        String expectedScript = Resources.testResource("script_generation/complete_script");
+    public void shouldWriteCompleteScriptForLocalSsds() throws IOException {
+        String expectedScript = Resources.testResource("script_generation/complete_script-local_ssds");
+        String simpleCommand = "uname -a";
+        scriptBuilder.addLine(simpleCommand);
+        scriptBuilder.addCommand(new ComplexCommand());
+        LocalSsdStorageStrategy storageStrategy = new LocalSsdStorageStrategy(4);
+        assertThat(scriptBuilder.asUnixString(storageStrategy)).isEqualTo(new String(Files.readAllBytes(Paths.get(expectedScript))));
+    }
+
+    @Test
+    public void shouldWriteCompleteScriptForPersistentStorage() throws IOException {
+        String expectedScript = Resources.testResource("script_generation/complete_script-persistent_storage");
         String simpleCommand = "uname -a";
         scriptBuilder.addLine(simpleCommand);
         scriptBuilder.addCommand(new ComplexCommand());

@@ -21,8 +21,8 @@ public class StrelkaPostProcessTest extends SubStageTest {
 
     @Test
     public void runsStrelkaPostProcessor() {
-        assertThat(output.currentBash().asUnixString()).contains("java -Xmx20G -jar "
-                + "/data/tools/strelka-post-process/1.4/strelka-post-process.jar -v /data/output/tumor.strelka.vcf -hc_bed NA12878.bed -t "
+        assertThat(bash()).contains("java -Xmx20G -jar "
+                + "/opt/tools/strelka-post-process/1.6/strelka-post-process.jar -v /data/output/tumor.strelka.vcf -hc_bed NA12878.bed -t "
                 + "tumor -o /data/output/tumor.strelka.post.processed.vcf.gz -b tumor.bam");
     }
 }

@@ -1,9 +1,12 @@
 package com.hartwig.pipeline.calling.substages;
 
+import java.util.List;
+
+import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.calling.SubStage;
 import com.hartwig.pipeline.calling.command.BgzipCommand;
 import com.hartwig.pipeline.calling.command.TabixCommand;
-import com.hartwig.pipeline.execution.vm.BashStartupScript;
+import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.OutputFile;
 
 public class SnpEff extends SubStage {
@@ -16,10 +19,10 @@ public class SnpEff extends SubStage {
     }
 
     @Override
-    public BashStartupScript bash(final OutputFile input, final OutputFile output, final BashStartupScript bash) {
+    public List<BashCommand> bash(final OutputFile input, final OutputFile output) {
         String beforeZip = output.path().replace(".gz", "");
-        return bash.addCommand(new SnpEffCommand(config, input.path(), beforeZip))
-                .addCommand(new BgzipCommand(beforeZip))
-                .addCommand(new TabixCommand(output.path()));
+        return ImmutableList.of(new SnpEffCommand(config, input.path(), beforeZip),
+                new BgzipCommand(beforeZip),
+                new TabixCommand(output.path()));
     }
 }
