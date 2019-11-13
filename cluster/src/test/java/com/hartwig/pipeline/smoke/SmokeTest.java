@@ -44,6 +44,7 @@ public class SmokeTest {
     private static final String SET_ID = "CPCT12345678";
     private static final String REFERENCE_SAMPLE = SET_ID + "R";
     private static final String TUMOR_SAMPLE = SET_ID + "T";
+    private static final String STAGED_FLAG_FILE = "STAGED";
     private File resultsDir;
 
     private String rclonePath;
@@ -152,6 +153,7 @@ public class SmokeTest {
                 .stream()
                 .filter(filename -> filename.matches("^gs://.*[^:]"))
                 .filter(filename -> !filename.equals(SbpFileTransfer.MANIFEST_FILENAME))
+                .filter(filename -> !filename.equals(STAGED_FLAG_FILE))
                 .map(filename -> filename.replaceAll(format("^gs://%s/%s/", archiveBucket, setName), ""))
                 .collect(Collectors.toList());
     }
