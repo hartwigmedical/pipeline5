@@ -33,7 +33,7 @@ public class BatchDispatcher {
     private final InstanceFactory instanceFactory;
 
     @Value.Immutable
-    public interface StateTuple {
+    interface StateTuple {
         String id();
 
         String url();
@@ -64,7 +64,7 @@ public class BatchDispatcher {
             RuntimeBucket bucket = RuntimeBucket.from(storage, arguments.runName(), "batch", arguments);
             ComputeEngine compute = ComputeEngine.from(arguments, credentials, false);
             Future<PipelineStatus> future =
-                    executorService.submit(() -> compute.submit(bucket, instanceFactory.get().convert(url, bucket, label), label));
+                    executorService.submit(() -> compute.submit(bucket, instanceFactory.get().execute(url, bucket, label), label));
             state.add(ImmutableStateTuple.builder().id(label).url(url).future(future).build());
             i++;
         }

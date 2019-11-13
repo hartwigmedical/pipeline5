@@ -31,12 +31,12 @@ public interface BatchArguments extends CommonArguments {
 
     String inputFile();
 
-    String verb();
+    String command();
 
     static BatchArguments from(String[] args) {
         try {
             CommandLine commandLine = new DefaultParser().parse(options(), args);
-            return ImmutableBatchArguments.builder().verb(args[0])
+            return ImmutableBatchArguments.builder().command(args[0])
                     .project(commandLine.getOptionValue(PROJECT, "hmf-pipeline-development"))
                     .region(commandLine.getOptionValue(REGION, "europe-west4"))
                     .useLocalSsds(parseBoolean(commandLine.getOptionValue(LOCAL_SSDS, "true")))

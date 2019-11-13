@@ -30,7 +30,6 @@
 
     <build>
         <plugins>
-            <!--
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -39,13 +38,12 @@
                         <manifest>
                             <useUniqueVersions>false</useUniqueVersions>
                             <addClasspath>true</addClasspath>
-                            <mainClass>com.hartwig.pipeline.PipelineMain</mainClass>
+                            <mainClass>com.hartwig.batch.BatchDispatcher</mainClass>
                             <classpathPrefix>lib/</classpathPrefix>
                         </manifest>
                     </archive>
                 </configuration>
             </plugin>
-            -->
         </plugins>
     </build>
 
@@ -75,7 +73,7 @@
                                 <manifest>
                                     <useUniqueVersions>false</useUniqueVersions>
                                     <addClasspath>true</addClasspath>
-                                    <mainClass>com.hartwig.pipeline.PipelineMain</mainClass>
+                                    <mainClass>com.hartwig.batch.BatchDispatcher</mainClass>
                                     <classpathPrefix>lib/</classpathPrefix>
                                     <addDefaultImplementationEntries>
                                         true
@@ -135,7 +133,7 @@
                                 <configuration>
                                     <images>
                                         <image>
-                                            <name>hartwigmedicalfoundation/pipeline5</name>
+                                            <name>hartwigmedicalfoundation/batch5</name>
                                         </image>
                                     </images>
                                 </configuration>

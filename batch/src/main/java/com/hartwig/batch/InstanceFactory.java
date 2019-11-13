@@ -13,7 +13,7 @@ import org.reflections.util.ClasspathHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public interface InstanceFactory<T> {
+public interface InstanceFactory {
     Logger LOGGER = LoggerFactory.getLogger(InstanceFactory.class);
 
     BatchOperation get();
@@ -21,8 +21,8 @@ public interface InstanceFactory<T> {
     static InstanceFactory from(BatchArguments arguments) {
         Map<BatchOperation, Constructor> availableOperations = findBatchOperations();
         for (BatchOperation operation : availableOperations.keySet()) {
-            if (operation.descriptor().callName().equals(arguments.verb().trim())) {
-                LOGGER.info(format("Found [%s] to provide [%s]", operation.getClass().getName(), arguments.verb()));
+            if (operation.descriptor().callName().equals(arguments.command())) {
+                LOGGER.info(format("Found [%s] to provide [%s]", operation.getClass().getName(), arguments.command()));
                 return () -> {
                     try {
                         return (BatchOperation) availableOperations.get(operation).newInstance();
@@ -32,7 +32,7 @@ public interface InstanceFactory<T> {
                 };
             }
         }
-        throw new IllegalArgumentException(format("Could not find a class to handle requested action [%s]", arguments.verb()));
+        throw new IllegalArgumentException(format("Could not find a class to handle requested action [%s]", arguments.command()));
     }
 
     private static Map<BatchOperation, Constructor> findBatchOperations() {

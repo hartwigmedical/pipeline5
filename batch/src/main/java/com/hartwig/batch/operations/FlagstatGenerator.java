@@ -20,7 +20,7 @@ import com.hartwig.pipeline.tools.Versions;
 
 public class FlagstatGenerator implements BatchOperation {
     @Override
-    public VirtualMachineJobDefinition convert(final String input, final RuntimeBucket bucket, final String instanceId) {
+    public VirtualMachineJobDefinition execute(final String input, final RuntimeBucket bucket, final String instanceId) {
         String outputFile = VmDirectories.outputFile(new File(input).getName().replaceAll("\\.bam$", ".flagstat"));
         String localInput = String.format("%s/%s", VmDirectories.INPUT, new File(input).getName());
         RuntimeFiles executionFlags = RuntimeFiles.of(instanceId);
