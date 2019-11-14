@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.metadata;
 
+import static com.hartwig.pipeline.testsupport.TestBlobs.pageOf;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
@@ -10,11 +12,15 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.google.api.gax.paging.Page;
+import com.google.cloud.storage.Blob;
+import com.google.cloud.storage.Bucket;
+import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.sbpapi.SbpRestApi;
+import com.hartwig.pipeline.testsupport.TestInputs;
 import com.hartwig.pipeline.transfer.google.GoogleArchiver;
-import com.hartwig.pipeline.transfer.sbp.SbpFileTransfer;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -24,10 +30,12 @@ public class SbpSomaticMetadataApiTest {
 
     private static final int SET_ID = 1;
     private static final String SAMPLE_ID = "7141";
+    private static final Storage.BlobListOption PREFIX =
+            Storage.BlobListOption.prefix(TestInputs.defaultSomaticRunMetadata().runName() + "/");
     private SomaticMetadataApi victim;
     private SbpRestApi sbpRestApi;
     private SomaticRunMetadata somaticRunMetadata;
-    private SbpFileTransfer sbpFileTransfer;
+    private Bucket sourceBucket;
     private GoogleArchiver googleArchiver;
     private ArgumentCaptor<String> entityId;
     private ArgumentCaptor<String> status;
@@ -35,14 +43,16 @@ public class SbpSomaticMetadataApiTest {
     @Before
     public void setUp() throws Exception {
         sbpRestApi = mock(SbpRestApi.class);
-        sbpFileTransfer = mock(SbpFileTransfer.class);
-        somaticRunMetadata = mock(SomaticRunMetadata.class);
+        sourceBucket = mock(Bucket.class);
+        Page<Blob> empty = pageOf();
+        when(sourceBucket.list(PREFIX)).thenReturn(empty);
+        somaticRunMetadata = TestInputs.defaultSomaticRunMetadata();
         googleArchiver = mock(GoogleArchiver.class);
         when(sbpRestApi.getInis()).thenReturn(TestJson.get("get_inis"));
         when(sbpRestApi.getRun(SET_ID)).thenReturn(TestJson.get("get_run"));
         entityId = ArgumentCaptor.forClass(String.class);
         status = ArgumentCaptor.forClass(String.class);
-        victim = new SbpSomaticMetadataApi(Arguments.testDefaults(), SET_ID, sbpRestApi, sbpFileTransfer, googleArchiver);
+        victim = new SbpSomaticMetadataApi(Arguments.testDefaults(), SET_ID, sbpRestApi, sourceBucket, googleArchiver);
     }
 
     @Test
@@ -71,7 +81,7 @@ public class SbpSomaticMetadataApiTest {
         victim = new SbpSomaticMetadataApi(Arguments.testDefaultsBuilder().shallow(true).build(),
                 SET_ID,
                 sbpRestApi,
-                sbpFileTransfer,
+                sourceBucket,
                 googleArchiver);
         victim.complete(PipelineStatus.SUCCESS, somaticRunMetadata);
         verify(sbpRestApi, times(2)).updateRunStatus(entityId.capture(), status.capture(), any());
@@ -111,14 +121,14 @@ public class SbpSomaticMetadataApiTest {
     }
 
     @Test
-    public void shouldTransferToSbp() {
+    public void shouldIterateThroughOutputObjects() {
         victim.complete(PipelineStatus.SUCCESS, somaticRunMetadata);
-        verify(sbpFileTransfer).publish(eq(somaticRunMetadata), any(), any());
+        verify(sourceBucket).list(PREFIX);
     }
 
     @Test
     public void setsRunToFailedAndRethrowsIfSbpTransferFails() {
-        doThrow(new RuntimeException()).when(sbpFileTransfer).publish(any(), any(), any());
+        doThrow(new RuntimeException()).when(sourceBucket).list(PREFIX);
         try {
             victim.complete(PipelineStatus.SUCCESS, somaticRunMetadata);
             fail("An exception should have been thrown");

@@ -27,7 +27,7 @@ public class ContentTypeCorrection {
         }
     }
 
-    static ContentTypeCorrection get() {
+    public static ContentTypeCorrection get() {
         return new ContentTypeCorrection();
     }
 }

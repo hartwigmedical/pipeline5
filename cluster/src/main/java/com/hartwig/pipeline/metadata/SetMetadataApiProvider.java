@@ -4,7 +4,6 @@ import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.sbpapi.SbpRestApi;
 import com.hartwig.pipeline.transfer.google.GoogleArchiver;
-import com.hartwig.pipeline.transfer.sbp.SbpFileTransferProvider;
 
 public class SetMetadataApiProvider {
 
@@ -24,7 +23,7 @@ public class SetMetadataApiProvider {
         return arguments.sbpApiRunId().<SomaticMetadataApi>map(setId -> new SbpSomaticMetadataApi(arguments,
                 setId,
                 SbpRestApi.newInstance(arguments),
-                SbpFileTransferProvider.from(arguments, storage).get(),
+                storage.get(arguments.patientReportBucket()),
                 new GoogleArchiver(arguments))).orElse(new LocalSomaticMetadataApi(arguments));
     }
 }

@@ -25,7 +25,7 @@ public interface SbpRunStatusUpdate {
 
     @Value.Default
     default String cluster(){
-        return "object02";
+        return "gcp";
     }
 
     static LocalDateTime nowUtc() {
