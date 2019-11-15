@@ -18,20 +18,20 @@ public interface BatchArguments extends CommonArguments {
     String REGION = "region";
     String LOCAL_SSDS = "local_ssds";
     String PREEMPTIBLE_VMS = "preemptible_vms";
-    String RUN_NAME = "run_name";
     String PRIVATE_KEY_PATH = "private_key_path";
     String SERVICE_ACCOUNT_EMAIL = "service_account_email";
     String CLOUD_SDK = "cloud_sdk";
     String CONCURRENCY = "concurrency";
     String INPUT_FILE = "input_file";
-
-    String runName();
+    String OUTPUT_BUCKET = "output_bucket";
 
     int concurrency();
 
     String inputFile();
 
     String command();
+
+    String outputBucket();
 
     static BatchArguments from(String[] args) {
         try {
@@ -41,12 +41,11 @@ public interface BatchArguments extends CommonArguments {
                     .region(commandLine.getOptionValue(REGION, "europe-west4"))
                     .useLocalSsds(parseBoolean(commandLine.getOptionValue(LOCAL_SSDS, "true")))
                     .usePreemptibleVms(parseBoolean(commandLine.getOptionValue(PREEMPTIBLE_VMS, "true")))
-                    .runName(commandLine.getOptionValue(RUN_NAME))
                     .privateKeyPath(commandLine.getOptionValue(PRIVATE_KEY_PATH))
                     .cloudSdkPath(commandLine.getOptionValue(CLOUD_SDK, "/usr/bin"))
                     .serviceAccountEmail(commandLine.getOptionValue(SERVICE_ACCOUNT_EMAIL))
                     .concurrency(Integer.parseInt(commandLine.getOptionValue(CONCURRENCY, "100")))
-                    .inputFile(commandLine.getOptionValue(INPUT_FILE))
+                    .inputFile(commandLine.getOptionValue(INPUT_FILE)).outputBucket(commandLine.getOptionValue(OUTPUT_BUCKET))
                     .build();
         } catch (ParseException e) {
             throw new IllegalArgumentException("Failed to parse arguments", e);
@@ -63,7 +62,7 @@ public interface BatchArguments extends CommonArguments {
                 .addOption(booleanOption(PREEMPTIBLE_VMS, "Use pre-emptible VMs to lower cost"))
                 .addOption(stringOption(PRIVATE_KEY_PATH, "Path to local file containing service account credentials"))
                 .addOption(stringOption(SERVICE_ACCOUNT_EMAIL, "Email of service account"))
-                .addOption(stringOption(RUN_NAME, "Name of the run for VMs and buckets"));
+                .addOption(stringOption(OUTPUT_BUCKET, "Output bucket (must exist and must be writable by the service account)"));
     }
 
     private static Option stringOption(final String option, final String description) {
@@ -73,5 +72,4 @@ public interface BatchArguments extends CommonArguments {
     private static Option booleanOption(final String option, final String description) {
         return Option.builder(option).hasArg().argName("true|false").desc(description).build();
     }
-
 }

@@ -58,10 +58,12 @@ public class BatchDispatcher {
                 .collect(Collectors.toSet());
         LOGGER.info("Running {} distinct input files with up to {} concurrent VMs", urls.size(), arguments.concurrency());
         int i = 0;
-        String paddingFormat = format("%%0%dd", (urls.size() + "").length());
+        String paddingFormat = format("%%0%dd", String.valueOf(urls.size()).length());
+        confirmOutputBucketExists(storage);
+        RuntimeBucket bucket = RuntimeBucket.from(storage, arguments.outputBucket(), "batch", arguments);
+        LOGGER.info("Writing output to bucket [{}]", arguments.outputBucket());
         for (String url : urls) {
             final String label = format(paddingFormat, i + 1);
-            RuntimeBucket bucket = RuntimeBucket.from(storage, arguments.runName(), "batch", arguments);
             ComputeEngine compute = ComputeEngine.from(arguments, credentials, false);
             Future<PipelineStatus> future =
                     executorService.submit(() -> compute.submit(bucket, instanceFactory.get().execute(url, bucket, label), label));
@@ -85,6 +87,12 @@ public class BatchDispatcher {
         LOGGER.info("Batch completed");
         LOGGER.info(report.toString());
         System.exit(jobsFailed ? 1 : 0);
+    }
+
+    private void confirmOutputBucketExists(Storage storage) {
+        if (storage.get(arguments.outputBucket()) == null) {
+            throw new IllegalStateException(format("Output bucket [{%s}] does not exist", arguments.outputBucket()));
+        }
     }
 
     private void spawnProgessLogger(Set<StateTuple> state) {

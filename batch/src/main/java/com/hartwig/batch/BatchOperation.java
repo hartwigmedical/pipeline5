@@ -5,7 +5,7 @@ import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
 public interface BatchOperation {
-    VirtualMachineJobDefinition execute(String input, RuntimeBucket bucket, String instanceId);
+    VirtualMachineJobDefinition execute(String input, RuntimeBucket runtimeBucket, String instanceId);
 
     CommandDescriptor descriptor();
 }

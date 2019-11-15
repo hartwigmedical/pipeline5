@@ -18,7 +18,7 @@ import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tools.Versions;
 
 public class CramConverter implements BatchOperation {
-    public VirtualMachineJobDefinition execute(final String input, RuntimeBucket bucket, final String instanceId) {
+    public VirtualMachineJobDefinition execute(final String input, final RuntimeBucket bucket, final String instanceId) {
         String outputFile = VmDirectories.outputFile(new File(input).getName().replaceAll("\\.bam$", ".cram"));
         String localInput = String.format("%s/%s", VmDirectories.INPUT, new File(input).getName());
         RuntimeFiles executionFlags = RuntimeFiles.of(instanceId);
@@ -37,7 +37,7 @@ public class CramConverter implements BatchOperation {
                 "-T",
                 "/opt/reference_genome/Homo_sapiens.GRCh37.GATK.illumina.fasta"));
         startupScript.addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), "cram"), executionFlags));
-        return VirtualMachineJobDefinition.cramMigration(startupScript, ResultsDirectory.defaultDirectory());
+        return VirtualMachineJobDefinition.batchCramMigration(startupScript, ResultsDirectory.defaultDirectory());
     }
 
     @Override

@@ -21,7 +21,7 @@ import com.hartwig.pipeline.tools.Versions;
 public class FlagstatGenerator implements BatchOperation {
     @Override
     public VirtualMachineJobDefinition execute(final String input, final RuntimeBucket bucket, final String instanceId) {
-        String outputFile = VmDirectories.outputFile(new File(input).getName().replaceAll("\\.bam$", ".flagstat"));
+        String outputFile = VmDirectories.outputFile(new File(input).getName().replaceAll("$", ".batch.flagstat"));
         String localInput = String.format("%s/%s", VmDirectories.INPUT, new File(input).getName());
         RuntimeFiles executionFlags = RuntimeFiles.of(instanceId);
         BashStartupScript startupScript = BashStartupScript.of(bucket.name(), executionFlags);
@@ -34,7 +34,7 @@ public class FlagstatGenerator implements BatchOperation {
                 Bash.allCpus(),
                 localInput), () -> "tee " + outputFile));
         startupScript.addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), "flagstat"), executionFlags));
-        return VirtualMachineJobDefinition.cramMigration(startupScript, ResultsDirectory.defaultDirectory());
+        return VirtualMachineJobDefinition.batchFlagstat(startupScript, ResultsDirectory.defaultDirectory());
     }
 
     @Override
