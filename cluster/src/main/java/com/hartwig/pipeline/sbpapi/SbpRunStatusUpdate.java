@@ -16,7 +16,7 @@ public interface SbpRunStatusUpdate {
     String status();
 
     @Value.Parameter
-    String bucketName();
+    String bucket();
 
     @Value.Default
     default String endTime() {

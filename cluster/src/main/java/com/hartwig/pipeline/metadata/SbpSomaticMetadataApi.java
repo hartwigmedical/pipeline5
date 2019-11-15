@@ -123,7 +123,7 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
         if (sbpBucket != null) {
             LOGGER.info("Recording pipeline completion with status [{}]", status);
             try {
-                sbpRestApi.updateRunStatus(runIdAsString, UPLOADING, sbpBucket);
+                sbpRestApi.updateRunStatus(runIdAsString, UPLOADING, arguments.archiveBucket());
                 googleArchiver.transfer(metadata);
                 OutputIterator.from(new SbpFileApiUpdate(ContentTypeCorrection.get(),
                         sbpRun,
