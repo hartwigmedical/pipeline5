@@ -98,7 +98,6 @@ public class SmokeTest {
 
         SbpRestApi api = SbpRestApi.newInstance(arguments);
 
-        String destinationBucket = bucketName(api);
         String setName = setName(api);
 
         delete(format("gs://%s/%s", arguments.patientReportBucket(), setName));
@@ -113,8 +112,8 @@ public class SmokeTest {
         assertThat(archiveListing).containsOnlyElementsOf(expectedFiles);
 
         GSUtilCloudCopy gsutil = new GSUtilCloudCopy(arguments.cloudSdkPath());
-        assertThatAlignmentIsEqualToExpected(destinationBucket, setName, REFERENCE_SAMPLE, gsutil);
-        assertThatAlignmentIsEqualToExpected(destinationBucket, setName, TUMOR_SAMPLE, gsutil);
+        assertThatAlignmentIsEqualToExpected(ARCHIVE_BUCKET, setName, REFERENCE_SAMPLE, gsutil);
+        assertThatAlignmentIsEqualToExpected(ARCHIVE_BUCKET, setName, TUMOR_SAMPLE, gsutil);
     }
 
     private List<String> listArchiveFilenames(String setName) {
