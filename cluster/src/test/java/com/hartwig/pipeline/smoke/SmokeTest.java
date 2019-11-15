@@ -19,7 +19,6 @@ import com.hartwig.pipeline.PipelineState;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.sbpapi.ObjectMappers;
 import com.hartwig.pipeline.sbpapi.SbpRestApi;
-import com.hartwig.pipeline.sbpapi.SbpRun;
 import com.hartwig.pipeline.sbpapi.SbpSet;
 import com.hartwig.pipeline.storage.GSUtil;
 import com.hartwig.pipeline.storage.GSUtilCloudCopy;
@@ -112,8 +111,8 @@ public class SmokeTest {
         assertThat(archiveListing).containsOnlyElementsOf(expectedFiles);
 
         GSUtilCloudCopy gsutil = new GSUtilCloudCopy(arguments.cloudSdkPath());
-        assertThatAlignmentIsEqualToExpected(ARCHIVE_BUCKET, setName, REFERENCE_SAMPLE, gsutil);
-        assertThatAlignmentIsEqualToExpected(ARCHIVE_BUCKET, setName, TUMOR_SAMPLE, gsutil);
+        assertThatAlignmentIsEqualToExpected(setName, REFERENCE_SAMPLE, gsutil);
+        assertThatAlignmentIsEqualToExpected(setName, TUMOR_SAMPLE, gsutil);
     }
 
     private List<String> listArchiveFilenames(String setName) {
@@ -163,12 +162,13 @@ public class SmokeTest {
         }
     }
 
-    private void assertThatAlignmentIsEqualToExpected(final String archiveBucket, final String setID, final String sample,
-            final GSUtilCloudCopy gsUtil) {
+    private void assertThatAlignmentIsEqualToExpected(final String setID, final String sample, final GSUtilCloudCopy gsUtil) {
         String bam = sample + ".bam";
         File results = new File(resultsDir.getPath() + "/" + bam);
 
-        gsUtil.copy(format("%s://%s/%s/%s/aligner/%s", GCP_REMOTE, archiveBucket, setID, sample, bam), results.getPath());
+        runGsUtil(ImmutableList.of("cp",
+                format("%s://%s/%s/%s/aligner/%s", GCP_REMOTE, ARCHIVE_BUCKET, setID, sample, bam),
+                results.getPath()));
         assertThatOutput(results.getParent(), "/" + sample).aligned().duplicatesMarked().sorted().isEqualToExpected();
     }
 
@@ -184,9 +184,5 @@ public class SmokeTest {
         List<SbpSet> sets = ObjectMappers.get().readValue(api.getSet(SBP_SET_ID), new TypeReference<List<SbpSet>>() {
         });
         return sets.get(0).name();
-    }
-
-    private static String bucketName(SbpRestApi api) throws IOException {
-        return ObjectMappers.get().readValue(api.getRun(SBP_RUN_ID), SbpRun.class).bucket();
     }
 }
