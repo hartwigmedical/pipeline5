@@ -40,7 +40,7 @@ public class GSUtil {
         }
         command.add(sourceUrl);
         command.add(targetUrl);
-        ProcessBuilder processBuilder = new ProcessBuilder(command).inheritIO();
+        ProcessBuilder processBuilder = new ProcessBuilder(command);
         Processes.run(processBuilder, VERBOSE, TIMEOUT_HOURS, TimeUnit.HOURS);
     }
 }
