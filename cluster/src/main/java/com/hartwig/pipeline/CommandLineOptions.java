@@ -102,6 +102,7 @@ public class CommandLineOptions {
                 .addOption(optionWithBooleanArg(RUN_SOMATIC_CALLER_FLAG, "Run somatic calling (strelka) on a VM"))
                 .addOption(optionWithBooleanArg(RUN_STRUCTURAL_CALLER_FLAG, "Run structural calling (gridss) on a VM"))
                 .addOption(optionWithBooleanArg(RUN_TERTIARY_FLAG, "Run tertiary analysis algorithms (amber, cobalt, purple)"))
+                .addOption(optionWithBooleanArg(RUN_SNP_GENOTYPER_FLAG, "Run snp genotyper for QC against genotyping"))
                 .addOption(serviceAccountEmail())
                 .addOption(resourceBucket())
                 .addOption(toolsBucket())
@@ -344,7 +345,7 @@ public class CommandLineOptions {
         if (!value.equals("true") && !value.equals("false")) {
             throw new ParseException(flag + " is a flag and only accepts true|false");
         }
-        return Boolean.valueOf(value);
+        return Boolean.parseBoolean(value);
     }
 
     private static Optional<String> runId(CommandLine commandLine) {

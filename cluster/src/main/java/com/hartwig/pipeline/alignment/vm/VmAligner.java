@@ -34,6 +34,8 @@ import com.hartwig.pipeline.execution.vm.ResourceDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.report.Folder;
+import com.hartwig.pipeline.report.ReportComponent;
+import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.report.SingleFileComponent;
 import com.hartwig.pipeline.resource.Resource;
 import com.hartwig.pipeline.resource.ResourceNames;
@@ -87,6 +89,7 @@ public class VmAligner implements Aligner {
         ExecutorService executorService = this.executorService;
         List<Future<PipelineStatus>> futures = new ArrayList<>();
         List<GoogleStorageLocation> perLaneBams = new ArrayList<>();
+        List<ReportComponent> laneLogComponents = new ArrayList<>();
         for (Lane lane : sample.lanes()) {
 
             RuntimeBucket laneBucket = RuntimeBucket.from(storage, laneNamespace(lane), metadata, arguments);
@@ -111,6 +114,7 @@ public class VmAligner implements Aligner {
                     .addCommand(new OutputUpload(GoogleStorageLocation.of(laneBucket.name(), resultsDirectory.path())));
             futures.add(executorService.submit(() -> computeEngine.submit(laneBucket,
                     VirtualMachineJobDefinition.alignment(laneId(lane).toLowerCase(), bash, resultsDirectory))));
+            laneLogComponents.add(new RunLogComponent(laneBucket, laneNamespace(lane), Folder.from(metadata), resultsDirectory));
         }
 
         AlignmentOutput output;
@@ -140,6 +144,8 @@ public class VmAligner implements Aligner {
                             resultsDirectory.path(merged.outputFile().fileName())))
                     .maybeFinalBaiLocation(GoogleStorageLocation.of(rootBucket.name(),
                             resultsDirectory.path(bai(merged.outputFile().fileName()))))
+                    .addAllReportComponents(laneLogComponents)
+                    .addReportComponents(new RunLogComponent(rootBucket, VmAligner.NAMESPACE, Folder.from(metadata), resultsDirectory))
                     .addReportComponents(new SingleFileComponent(rootBucket,
                                     Aligner.NAMESPACE,
                                     Folder.from(metadata),
@@ -170,11 +176,7 @@ public class VmAligner implements Aligner {
     }
 
     private boolean lanesSuccessfullyComplete(final List<Future<PipelineStatus>> futures) {
-        return futures.stream()
-                .map(VmAligner::getFuture)
-                .filter(status -> status.equals(PipelineStatus.FAILED))
-                .collect(Collectors.toList())
-                .isEmpty();
+        return futures.stream().map(VmAligner::getFuture).noneMatch(status -> status.equals(PipelineStatus.FAILED));
     }
 
     private static String fastQFileName(final String sample, final String fullFastQPath) {
