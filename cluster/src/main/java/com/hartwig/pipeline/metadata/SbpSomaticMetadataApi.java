@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.cloud.storage.Bucket;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.sbpapi.ObjectMappers;
@@ -13,8 +14,11 @@ import com.hartwig.pipeline.sbpapi.SbpRestApi;
 import com.hartwig.pipeline.sbpapi.SbpRun;
 import com.hartwig.pipeline.sbpapi.SbpSample;
 import com.hartwig.pipeline.sbpapi.SbpSet;
+import com.hartwig.pipeline.transfer.BlobCleanup;
+import com.hartwig.pipeline.transfer.OutputIterator;
+import com.hartwig.pipeline.transfer.SbpFileApiUpdate;
 import com.hartwig.pipeline.transfer.google.GoogleArchiver;
-import com.hartwig.pipeline.transfer.sbp.SbpFileTransfer;
+import com.hartwig.pipeline.transfer.sbp.ContentTypeCorrection;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,15 +36,15 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
     private final Arguments arguments;
     private final int sbpRunId;
     private final SbpRestApi sbpRestApi;
-    private final SbpFileTransfer publisher;
+    private final Bucket sourceBucket;
     private final GoogleArchiver googleArchiver;
 
-    SbpSomaticMetadataApi(final Arguments arguments, final int sbpRunId, final SbpRestApi sbpRestApi, final SbpFileTransfer publisher,
+    SbpSomaticMetadataApi(final Arguments arguments, final int sbpRunId, final SbpRestApi sbpRestApi, final Bucket sourceBucket,
             final GoogleArchiver googleArchiver) {
         this.arguments = arguments;
         this.sbpRunId = sbpRunId;
         this.sbpRestApi = sbpRestApi;
-        this.publisher = publisher;
+        this.sourceBucket = sourceBucket;
         this.googleArchiver = googleArchiver;
     }
 
@@ -119,10 +123,15 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
         if (sbpBucket != null) {
             LOGGER.info("Recording pipeline completion with status [{}]", status);
             try {
-                sbpRestApi.updateRunStatus(runIdAsString, UPLOADING, sbpBucket);
+                sbpRestApi.updateRunStatus(runIdAsString, UPLOADING, arguments.archiveBucket());
                 googleArchiver.transfer(metadata);
-                publisher.publish(metadata, sbpRun, sbpBucket);
-                sbpRestApi.updateRunStatus(runIdAsString, status == PipelineStatus.SUCCESS ? successStatus() : FAILED, sbpBucket);
+                OutputIterator.from(new SbpFileApiUpdate(ContentTypeCorrection.get(),
+                        sbpRun,
+                        sourceBucket,
+                        sbpRestApi).andThen(new BlobCleanup()), sourceBucket).iterate(metadata);
+                sbpRestApi.updateRunStatus(runIdAsString,
+                        status == PipelineStatus.SUCCESS ? successStatus() : FAILED,
+                        arguments.archiveBucket());
             } catch (Exception e) {
                 sbpRestApi.updateRunStatus(runIdAsString, FAILED, sbpBucket);
                 throw e;
