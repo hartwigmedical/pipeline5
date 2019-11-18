@@ -32,10 +32,12 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 @Category(value = IntegrationTest.class)
+@Ignore
 public class SmokeTest {
     private static final String GCP_REMOTE = "gs";
     private static final String S3_REMOTE = "s3";
