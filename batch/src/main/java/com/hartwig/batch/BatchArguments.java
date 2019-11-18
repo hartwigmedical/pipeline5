@@ -18,13 +18,13 @@ public interface BatchArguments extends CommonArguments {
     String REGION = "region";
     String LOCAL_SSDS = "local_ssds";
     String PREEMPTIBLE_VMS = "preemptible_vms";
-    String COMPUTE_KEY_PATH = "compute_key_path";
     String STORAGE_KEY_PATH = "storage_key_path";
     String SERVICE_ACCOUNT_EMAIL = "service_account_email";
     String CLOUD_SDK = "cloud_sdk";
     String CONCURRENCY = "concurrency";
     String INPUT_FILE = "input_file";
     String OUTPUT_BUCKET = "output_bucket";
+    String PRIVATE_KEY_PATH = "private_key_path";
 
     int concurrency();
 
@@ -33,8 +33,6 @@ public interface BatchArguments extends CommonArguments {
     String command();
 
     String outputBucket();
-
-    String computeKeyPath();
 
     String storageKeyPath();
 
@@ -46,8 +44,8 @@ public interface BatchArguments extends CommonArguments {
                     .region(commandLine.getOptionValue(REGION, "europe-west4"))
                     .useLocalSsds(parseBoolean(commandLine.getOptionValue(LOCAL_SSDS, "true")))
                     .usePreemptibleVms(parseBoolean(commandLine.getOptionValue(PREEMPTIBLE_VMS, "true")))
-                    .computeKeyPath(commandLine.getOptionValue(COMPUTE_KEY_PATH))
                     .storageKeyPath(commandLine.getOptionValue(STORAGE_KEY_PATH))
+                    .privateKeyPath(commandLine.getOptionValue(PRIVATE_KEY_PATH))
                     .cloudSdkPath(commandLine.getOptionValue(CLOUD_SDK, "/usr/bin"))
                     .serviceAccountEmail(commandLine.getOptionValue(SERVICE_ACCOUNT_EMAIL))
                     .concurrency(Integer.parseInt(commandLine.getOptionValue(CONCURRENCY, "100")))
@@ -66,7 +64,7 @@ public interface BatchArguments extends CommonArguments {
                 .addOption(stringOption(INPUT_FILE, "Read list of target resources from this input file"))
                 .addOption(booleanOption(LOCAL_SSDS, "Whether to use local SSDs for better performance and lower cost"))
                 .addOption(booleanOption(PREEMPTIBLE_VMS, "Use pre-emptible VMs to lower cost"))
-                .addOption(stringOption(COMPUTE_KEY_PATH, "Path to JSON file containing compute and storage output credentials"))
+                .addOption(stringOption(PRIVATE_KEY_PATH, "Path to JSON file containing compute and storage output credentials"))
                 .addOption(stringOption(STORAGE_KEY_PATH, "Path to JSON file containing source storage credentials"))
                 .addOption(stringOption(SERVICE_ACCOUNT_EMAIL, "Email of service account"))
                 .addOption(stringOption(OUTPUT_BUCKET, "Output bucket (must exist and must be writable by the service account)"));
