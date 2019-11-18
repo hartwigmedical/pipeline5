@@ -48,8 +48,7 @@ public class Amber extends TertiaryStage<AmberOutput> {
                 metadata.tumor().sampleName(),
                 getTumorBamDownload().getLocalTargetPath(),
                 resources.get(ResourceNames.REFERENCE_GENOME).find("fasta"),
-                resources.get(ResourceNames.AMBER_PON).find("GermlineHetPon.hg19.bed"),
-                resources.get(ResourceNames.AMBER_PON).find("GermlineSnp.hg19.bed")));
+                resources.get(ResourceNames.AMBER_PON).find("vcf.gz"))); // require start match as well? 'GermlineHetPon
     }
 
     @Override

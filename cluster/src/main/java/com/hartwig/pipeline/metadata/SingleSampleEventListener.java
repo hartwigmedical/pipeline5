@@ -1,13 +1,13 @@
 package com.hartwig.pipeline.metadata;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.hartwig.pipeline.PipelineState;
 
 public class SingleSampleEventListener {
 
-    private final Set<CompletionHandler> handlers = new HashSet<>();
+    private final List<CompletionHandler> handlers = new ArrayList<>();
 
     public void register(CompletionHandler completionHandler) {
         handlers.add(completionHandler);
@@ -21,7 +21,7 @@ public class SingleSampleEventListener {
         handlers.forEach(handler -> handler.handleSingleSampleComplete(state));
     }
 
-    public Set<CompletionHandler> getHandlers() {
+    public List<CompletionHandler> getHandlers() {
         return handlers;
     }
 }

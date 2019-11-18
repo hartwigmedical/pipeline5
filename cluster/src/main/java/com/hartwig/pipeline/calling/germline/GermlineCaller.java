@@ -2,8 +2,6 @@ package com.hartwig.pipeline.calling.germline;
 
 import static com.hartwig.pipeline.resource.ResourceNames.COSMIC;
 import static com.hartwig.pipeline.resource.ResourceNames.DBNSFP;
-import static com.hartwig.pipeline.resource.ResourceNames.DBSNPS;
-import static com.hartwig.pipeline.resource.ResourceNames.GONL;
 import static com.hartwig.pipeline.resource.ResourceNames.REFERENCE_GENOME;
 import static com.hartwig.pipeline.resource.ResourceNames.SNPEFF;
 
@@ -48,7 +46,7 @@ import com.hartwig.pipeline.storage.RuntimeBucket;
 public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleRunMetadata> {
 
     public static final String NAMESPACE = "germline_caller";
-    public static final String TOOL_HEAP = "20G";
+    public static final String TOOL_HEAP = "29G";
     private static final Map<String, String> SNP_FILTER_EXPRESSION =
             ImmutableMap.<String, String>builder().put("SNP_LowQualityDepth", "QD < 2.0")
                     .put("SNP_MappingQuality", "MQ < 40.0")
@@ -82,12 +80,10 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
     @Override
     public List<ResourceDownload> resources(final Storage storage, final String resourceBucket, final RuntimeBucket bucket) {
         return ImmutableList.of(ResourceDownload.from(bucket,
-                new Resource(storage, resourceBucket, REFERENCE_GENOME, new ReferenceGenomeAlias().andThen(new GATKDictAlias()))),
-                ResourceDownload.from(storage, resourceBucket, DBSNPS, bucket),
+                new Resource(storage, resourceBucket, REFERENCE_GENOME)),
                 ResourceDownload.from(storage, resourceBucket, SNPEFF, bucket),
                 ResourceDownload.from(storage, resourceBucket, DBNSFP, bucket),
-                ResourceDownload.from(storage, resourceBucket, COSMIC, bucket),
-                ResourceDownload.from(storage, resourceBucket, GONL, bucket));
+                ResourceDownload.from(storage, resourceBucket, COSMIC, bucket));
     }
 
     @Override
@@ -101,11 +97,10 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
         String snpEffDb = resources.get(SNPEFF).find("zip");
 
         String referenceFasta = resources.get(REFERENCE_GENOME).find("fasta");
-        String dbsnpVcf = resources.get(DBSNPS).find("vcf");
 
         SubStageInputOutput callerOutput =
-                new GatkGermlineCaller(bamDownload.getLocalTargetPath(), referenceFasta, dbsnpVcf).andThen(new GenotypeGVCFs(referenceFasta,
-                        dbsnpVcf)).apply(SubStageInputOutput.empty(metadata.sampleName()));
+                new GatkGermlineCaller(bamDownload.getLocalTargetPath(), referenceFasta)
+                        .andThen(new GenotypeGVCFs(referenceFasta)).apply(SubStageInputOutput.empty(metadata.sampleName()));
 
         SubStageInputOutput snpFilterOutput =
                 new SelectVariants("snp", Lists.newArrayList("SNP", "NO_VARIATION"), referenceFasta).andThen(new VariantFiltration("snp",
@@ -124,7 +119,6 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
                 new CombineFilteredVariants(indelFilterOutput.outputFile().path(), referenceFasta).andThen(new SnpEff(snpEffConfig))
                         .andThen(new SnpSiftDbnsfpAnnotation(resources.get(DBNSFP).find("txt.gz"), snpEffConfig))
                         .andThen(new CosmicAnnotation(resources.get(COSMIC).find("collapsed.vcf.gz"), "ID"))
-                        .andThen(new SnpSiftFrequenciesAnnotation(resources.get(GONL).find("vcf.gz"), snpEffConfig))
                         .apply(combinedFilters);
 
         return ImmutableList.<BashCommand>builder().add(new UnzipToDirectoryCommand(VmDirectories.RESOURCES, snpEffDb))

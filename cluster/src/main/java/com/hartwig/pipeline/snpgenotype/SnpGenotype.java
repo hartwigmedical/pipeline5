@@ -52,10 +52,7 @@ public class SnpGenotype implements Stage<SnpGenotypeOutput, SingleSampleRunMeta
     @Override
     public List<ResourceDownload> resources(final Storage storage, final String resourceBucket, final RuntimeBucket bucket) {
         return ImmutableList.of(ResourceDownload.from(bucket,
-                new Resource(storage,
-                        resourceBucket,
-                        ResourceNames.REFERENCE_GENOME,
-                        new ReferenceGenomeAlias().andThen(new GATKDictAlias()))),
+                new Resource(storage, resourceBucket, ResourceNames.REFERENCE_GENOME)),
                 ResourceDownload.from(storage, resourceBucket, ResourceNames.GENOTYPE_SNPS, bucket));
     }
 

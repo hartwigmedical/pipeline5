@@ -2,7 +2,6 @@ package com.hartwig.pipeline.calling.somatic;
 
 import static com.hartwig.pipeline.resource.ResourceNames.BEDS;
 import static com.hartwig.pipeline.resource.ResourceNames.COSMIC;
-import static com.hartwig.pipeline.resource.ResourceNames.DBSNPS;
 import static com.hartwig.pipeline.resource.ResourceNames.MAPPABILITY;
 import static com.hartwig.pipeline.resource.ResourceNames.PON;
 import static com.hartwig.pipeline.resource.ResourceNames.REFERENCE_GENOME;
@@ -34,7 +33,6 @@ public class SomaticCallerTest extends TertiaryStageTest<SomaticCallerOutput> {
         MockResource.addToStorage(storage, PON, "GERMLINE_PON.vcf.gz", "SOMATIC_PON.vcf.gz");
         MockResource.addToStorage(storage, BEDS, "strelka-post-process.bed");
         MockResource.addToStorage(storage, SNPEFF, "snpeff.config", "snpeffdb.zip");
-        MockResource.addToStorage(storage, DBSNPS, "dbsnp.vcf.gz");
         MockResource.addToStorage(storage, COSMIC, "cosmic_collapsed.vcf.gz");
     }
 
@@ -52,7 +50,6 @@ public class SomaticCallerTest extends TertiaryStageTest<SomaticCallerOutput> {
                 resource(BEDS),
                 resource(SAGE),
                 resource(SNPEFF),
-                resource(DBSNPS),
                 resource(COSMIC));
     }
 

@@ -22,6 +22,6 @@ public class ReferenceGenomeAlias implements Function<String, String> {
     }
 
     private String alias(final String extension, final String name) {
-        return "reference." + name.substring(name.indexOf(extension), name.length());
+        return "reference." + name.substring(name.indexOf(extension));
     }
 }

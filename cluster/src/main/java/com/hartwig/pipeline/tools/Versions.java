@@ -19,14 +19,13 @@ public interface Versions {
     String SNPEFF = "4.3s";
     String STRELKA_POST_PROCESS = "1.6";
     String TABIX = "0.2.6";
-    String AMBER = "2.5";
+    String AMBER = "3.0";
     String COBALT = "1.7";
     String HEALTH_CHECKER = "3.1";
     String PURPLE = "2.34";
     String CIRCOS = "0.69.6";
     String GRIDSS = "2.5.2";
-    String PICARD = "2.18.27";
-    String LINX = "1.4";
+    String LINX = "1.5";
     String BACHELOR = "1.9";
     String CHORD = "60.02_1.03";
 

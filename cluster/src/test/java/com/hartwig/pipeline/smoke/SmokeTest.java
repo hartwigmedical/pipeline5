@@ -8,7 +8,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,6 +21,7 @@ import com.hartwig.pipeline.sbpapi.ObjectMappers;
 import com.hartwig.pipeline.sbpapi.SbpRestApi;
 import com.hartwig.pipeline.sbpapi.SbpRun;
 import com.hartwig.pipeline.sbpapi.SbpSet;
+import com.hartwig.pipeline.storage.GSUtil;
 import com.hartwig.pipeline.storage.RCloneCloudCopy;
 import com.hartwig.pipeline.testsupport.Resources;
 import com.hartwig.pipeline.transfer.sbp.SbpFileTransfer;
@@ -44,17 +44,28 @@ public class SmokeTest {
     private static final String SET_ID = "CPCT12345678";
     private static final String REFERENCE_SAMPLE = SET_ID + "R";
     private static final String TUMOR_SAMPLE = SET_ID + "T";
+    private static final String STAGED_FLAG_FILE = "STAGED";
     private File resultsDir;
 
-    private LocalOverrides overrides;
     private String rclonePath;
     private String rclone;
+    private String archiveBucket;
+    private String archivePrivateKey;
+    private String archiveProject;
+    private String cloudSdkPath;
 
     @Before
     public void setUp() throws Exception {
-        overrides = new LocalOverrides();
-        rclonePath = overrides.get("rclonePath", "/usr/bin");
+        rclonePath = "/usr/bin";
         rclone = format("%s/rclone", rclonePath);
+        archiveBucket = "hmf-output-test";
+        archivePrivateKey = workingDir() + "/google-archive-key.json";
+        archiveProject = "hmf-database";
+        cloudSdkPath = "/usr/bin";
+
+        System.setProperty("javax.net.ssl.keyStorePassword", "changeit");
+        System.setProperty("javax.net.ssl.keyStore", Resources.testResource("smoke_test/api.jks"));
+
         resultsDir = new File(workingDir() + "/results");
         assertThat(resultsDir.mkdir()).isTrue();
     }
@@ -68,17 +79,13 @@ public class SmokeTest {
     public void runFullPipelineAndCheckFinalStatus() throws Exception {
         String apiUrl = "https://api.acc.hartwigmedicalfoundation.nl";
         PipelineMain victim = new PipelineMain();
-        String version = overrides.get("version", System.getProperty("version"));
+        String version = System.getProperty("version");
         String runId = "smoke-" + noDots(version);
 
-        System.setProperty("javax.net.ssl.keyStorePassword", "changeit");
-        System.setProperty("javax.net.ssl.keyStore", overrides.get("keystore", Resources.testResource("smoke_test/api.jks")));
-
         Arguments arguments = Arguments.defaultsBuilder(Arguments.DefaultsProfile.DEVELOPMENT.toString())
-                .privateKeyPath(overrides.get("privateKey", workingDir() + "/google-key.json"))
+                .privateKeyPath(workingDir() + "/google-key.json")
                 .sampleDirectory(workingDir() + "/../samples")
-                .version(version)
-                .cloudSdkPath("/usr/bin")
+                .version(version).cloudSdkPath(cloudSdkPath)
                 .setId(SET_ID)
                 .mode(Arguments.Mode.FULL)
                 .runId(runId)
@@ -91,7 +98,7 @@ public class SmokeTest {
                 .sbpS3Url("s3.us-east-1.amazonaws.com")
                 .rcloneGcpRemote(GCP_REMOTE)
                 .upload(true)
-                .cleanup(false).archiveBucket("smoke-test-archive-bucket")
+                .cleanup(true).archiveBucket(archiveBucket).archiveProject(archiveProject).archivePrivateKeyPath(archivePrivateKey)
                 .build();
 
         SbpRestApi api = SbpRestApi.newInstance(arguments);
@@ -101,63 +108,29 @@ public class SmokeTest {
 
         rclone(delete(setName, GCP_REMOTE, arguments.patientReportBucket()));
         rclone(delete(setName, S3_REMOTE, destinationBucket));
+        cleanupArchiveBucket(setName);
 
         PipelineState state = victim.start(arguments);
         assertThat(state.status()).isEqualTo(PipelineStatus.QC_FAILED);
 
-        List<String> rcloneListing = listRemoteFilesNamesOnly(format("%s:%s/%s/", S3_REMOTE, destinationBucket, setName));
+        List<String> s3Listing = listRemoteFilenames(format("%s:%s/%s/", S3_REMOTE, destinationBucket, setName));
         File expectedFilesResource = new File(Resources.testResource("smoke_test/expected_output_files"));
         List<String> expectedFiles = FileUtils.readLines(expectedFilesResource, FILE_ENCODING);
-        assertThat(rcloneListing).containsOnlyElementsOf(expectedFiles);
+        assertThat(s3Listing).containsOnlyElementsOf(expectedFiles);
+
+        List<String> archiveListing = listArchiveFilenames(setName);
+        assertThat(archiveListing).containsOnlyElementsOf(expectedFiles);
 
         RCloneCloudCopy rclone = new RCloneCloudCopy(rclonePath, GCP_REMOTE, S3_REMOTE, ProcessBuilder::new);
-        File localCopyOfManifest = File.createTempFile("smoke-test-manifest", null);
-        rclone.copy(format("%s://%s/%s/%s", GCP_REMOTE, arguments.patientReportBucket(), setName, SbpFileTransfer.MANIFEST_FILENAME),
-                localCopyOfManifest.getAbsolutePath());
-        assertThat(localCopyOfManifest.length()).isGreaterThan(0L);
-
-        ArrayList<String> inManifest = new ArrayList<>(FileUtils.readLines(localCopyOfManifest));
-        List<String> rcloneSizesAndPaths = listRemoteFiles(format("%s:%s/%s/", S3_REMOTE, destinationBucket, setName));
-        assertThat(rcloneSizesAndPaths.size()).isGreaterThan(0);
-        assertThat(inManifest.size()).isEqualTo(rcloneSizesAndPaths.size());
-        for (String s3File : rcloneSizesAndPaths) {
-            String[] sizeAndPath = s3File.trim().split(" +");
-            assertThat(sizeAndPath.length).isEqualTo(2);
-            if (!sizeAndPath[1].trim().equals(SbpFileTransfer.MANIFEST_FILENAME)) {
-                assertThat(findInManifestAndDeleteIt(inManifest, sizeAndPath[0], setName + "/" + sizeAndPath[1])).isTrue();
-            }
-        }
-        assertThat(inManifest.size()).isEqualTo(0);
-        assertArchivedCopy(arguments.archiveBucket(), setName, localCopyOfManifest);
-        FileUtils.deleteQuietly(localCopyOfManifest);
-
         assertThatAlignmentIsEqualToExpected(destinationBucket, setName, REFERENCE_SAMPLE, rclone);
         assertThatAlignmentIsEqualToExpected(destinationBucket, setName, TUMOR_SAMPLE, rclone);
-    }
-
-    private void assertArchivedCopy(String archiveBucket, String archiveFolder, File localCopyOfManifest) throws IOException {
-        List<String> rcloneSizesAndPaths = new ArrayList<>(listRemoteFiles(format("%s:%s/%s/", GCP_REMOTE, archiveBucket, archiveFolder)));
-        ManifestAssert.assertThat(rcloneSizesAndPaths, REFERENCE_SAMPLE, TUMOR_SAMPLE)
-                .hasTheseFiles(localCopyOfManifest.getAbsolutePath(), archiveFolder + "/");
     }
 
     private List<String> delete(final String setName, final String remote, final String bucket) {
         return ImmutableList.of("delete", format("%s:%s/%s", remote, bucket, setName));
     }
 
-    private boolean findInManifestAndDeleteIt(final ArrayList<String> inManifest, final String size, final String path) {
-        for (int i = 0; i < inManifest.size(); i++) {
-            String[] tokens = inManifest.get(i).trim().split(" +");
-            assertThat(tokens.length).isEqualTo(3);
-            if (tokens[1].trim().equals(size.trim()) && tokens[2].trim().equals(path.trim())) {
-                inManifest.remove(i);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private List<String> listRemoteFilesNamesOnly(String remoteParent) {
+    private List<String> listRemoteFilenames(String remoteParent) {
         return listRemoteFiles(remoteParent).stream().map(s -> s.split(" +")[1]).collect(Collectors.toList());
     }
 
@@ -169,6 +142,50 @@ public class SmokeTest {
                     .collect(Collectors.toList());
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private List<String> listArchiveFilenames(String setName) {
+        confirmArchiveBucketExists();
+        String output = runGsUtil(ImmutableList.of("ls", "-r", format("gs://%s/%s", archiveBucket, setName)));
+        return ImmutableList.<String>builder().add(output.split("\n"))
+                .build()
+                .stream()
+                .filter(filename -> filename.matches("^gs://.*[^:]"))
+                .map(filename -> filename.replaceAll(format("^gs://%s/%s/", archiveBucket, setName), ""))
+                .filter(filename -> !filename.equals(SbpFileTransfer.MANIFEST_FILENAME))
+                .filter(filename -> !filename.equals(STAGED_FLAG_FILE))
+                .collect(Collectors.toList());
+    }
+
+    private void cleanupArchiveBucket(String setName) {
+        confirmArchiveBucketExists();
+        try {
+            runGsUtil(ImmutableList.of("stat", format("gs://%s/%s", archiveBucket, setName)));
+        } catch (Exception e) {
+            // Folder does not exist, removal will fail so just return
+            return;
+        }
+        runGsUtil(ImmutableList.of("rm", "-r", format("gs://%s/%s", archiveBucket, setName)));
+    }
+
+    private String runGsUtil(List<String> arguments) {
+        try {
+            ProcessBuilder process = new ProcessBuilder(ImmutableList.<String>builder().add("gsutil", "-u", archiveProject)
+                    .addAll(arguments).build());
+            return IOUtils.toString(process.start().getInputStream());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void confirmArchiveBucketExists() {
+        GSUtil.configure(false, 1);
+        try {
+            GSUtil.auth(cloudSdkPath, archivePrivateKey);
+            runGsUtil(ImmutableList.of("ls", format("gs://%s", archiveBucket)));
+        } catch (Exception e) {
+            throw new RuntimeException(format("Could not confirm archive bucket [%s] exists", archiveBucket));
         }
     }
 

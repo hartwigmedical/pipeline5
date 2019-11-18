@@ -50,10 +50,7 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
     @Override
     public List<ResourceDownload> resources(Storage storage, String resourceBucket, RuntimeBucket runtimeBucket) {
         return Collections.singletonList(ResourceDownload.from(runtimeBucket,
-                new Resource(storage,
-                        resourceBucket,
-                        ResourceNames.REFERENCE_GENOME,
-                        new ReferenceGenomeAlias().andThen(new GATKDictAlias()))));
+                new Resource(storage, resourceBucket, ResourceNames.REFERENCE_GENOME)));
     }
 
     @Override

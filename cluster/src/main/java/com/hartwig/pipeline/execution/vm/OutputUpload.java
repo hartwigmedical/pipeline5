@@ -5,22 +5,14 @@ import static java.lang.String.format;
 import com.hartwig.pipeline.execution.vm.unix.SubShellCommand;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 
-public class OutputUpload implements BashCommand {
-
-    private final GoogleStorageLocation targetLocation;
+public class OutputUpload extends SubShellCommand {
 
     public OutputUpload(final GoogleStorageLocation targetLocation) {
-        this.targetLocation = targetLocation;
-    }
-
-    @Override
-    public String asBash() {
-        return new SubShellCommand(() ->
-                format("cp %s %s && gsutil -qm cp -r %s/ gs://%s/%s",
-                        BashStartupScript.LOG_FILE,
-                        VmDirectories.OUTPUT,
-                        VmDirectories.OUTPUT,
-                        targetLocation.bucket(),
-                        targetLocation.path())).asBash();
+        super(() -> format("cp %s %s && gsutil -qm rsync -dr %s gs://%s/%s",
+                BashStartupScript.LOG_FILE,
+                VmDirectories.OUTPUT,
+                VmDirectories.OUTPUT,
+                targetLocation.bucket(),
+                targetLocation.path()));
     }
 }

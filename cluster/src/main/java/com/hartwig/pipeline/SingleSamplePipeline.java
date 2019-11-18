@@ -31,15 +31,18 @@ public class SingleSamplePipeline {
     private final Aligner aligner;
     private final PipelineResults report;
     private final ExecutorService executorService;
+    private final Boolean isStandalone;
     private final Arguments arguments;
 
     SingleSamplePipeline(final SingleSampleEventListener sampleMetadataApi, final StageRunner<SingleSampleRunMetadata> stageRunner,
-            final Aligner aligner, final PipelineResults report, final ExecutorService executorService, final Arguments arguments) {
+            final Aligner aligner, final PipelineResults report, final ExecutorService executorService, final Boolean isStandalone,
+            final Arguments arguments) {
         this.eventListener = sampleMetadataApi;
         this.stageRunner = stageRunner;
         this.aligner = aligner;
         this.report = report;
         this.executorService = executorService;
+        this.isStandalone = isStandalone;
         this.arguments = arguments;
     }
 
@@ -69,7 +72,7 @@ public class SingleSamplePipeline {
             report.add(state.add(futurePayload(bamMetricsFuture)));
             report.add(state.add(futurePayload(unifiedGenotyperFuture)));
             report.add(state.add(futurePayload(flagstatOutputFuture)));
-            report.compose(metadata);
+            report.compose(metadata, isStandalone, state);
             eventListener.complete(state);
         }
         return state;

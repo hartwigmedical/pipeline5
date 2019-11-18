@@ -2,7 +2,6 @@ package com.hartwig.pipeline.calling.somatic;
 
 import static com.hartwig.pipeline.resource.ResourceNames.BEDS;
 import static com.hartwig.pipeline.resource.ResourceNames.COSMIC;
-import static com.hartwig.pipeline.resource.ResourceNames.DBSNPS;
 import static com.hartwig.pipeline.resource.ResourceNames.MAPPABILITY;
 import static com.hartwig.pipeline.resource.ResourceNames.PON;
 import static com.hartwig.pipeline.resource.ResourceNames.REFERENCE_GENOME;
@@ -65,7 +64,6 @@ public class SomaticCaller extends TertiaryStage<SomaticCallerOutput> {
                 ResourceDownload.from(storage, resourceBucket, BEDS, runtimeBucket),
                 ResourceDownload.from(storage, resourceBucket, SAGE, runtimeBucket),
                 ResourceDownload.from(storage, resourceBucket, SNPEFF, runtimeBucket),
-                ResourceDownload.from(storage, resourceBucket, DBSNPS, runtimeBucket),
                 ResourceDownload.from(storage, resourceBucket, COSMIC, runtimeBucket));
     }
 
@@ -115,7 +113,6 @@ public class SomaticCaller extends TertiaryStage<SomaticCallerOutput> {
                 .andThen(new PonFilter())
                 .andThen(new SageHotspotsAnnotation(sageResources.find("tsv"), sageOutput.outputFile().path()))
                 .andThen(new SnpEff(snpEffResources.find("config")))
-                .andThen(new DbSnpAnnotation(resources.get(DBSNPS).find("vcf.gz")))
                 .andThen(FinalSubStage.of(new CosmicAnnotation(resources.get(COSMIC).find("collapsed.vcf.gz"), "ID,INFO")))
                 .apply(SubStageInputOutput.empty(tumorSampleName));
         commands.addAll(mergedOutput.bash());
@@ -171,6 +168,6 @@ public class SomaticCaller extends TertiaryStage<SomaticCallerOutput> {
 
     @NotNull
     private Resource referenceGenomeResource(final Storage storage, final String resourceBucket) {
-        return new Resource(storage, resourceBucket, REFERENCE_GENOME, new ReferenceGenomeAlias().andThen(new GATKDictAlias()));
+        return new Resource(storage, resourceBucket, REFERENCE_GENOME);
     }
 }

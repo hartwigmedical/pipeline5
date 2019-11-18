@@ -34,7 +34,12 @@ def start_kubernetes_job(args):
     with file('/var/run/secrets/kubernetes.io/serviceaccount/namespace') as f:
         namespace = f.read()
 
-    job_args = ['-sbp_run_id', str(args['sbp_run_id'])]
+    job_args = [
+        '-sbp_run_id', str(args['sbp_run_id']),
+        '-archive_private_key_path', '/archive/service_account.json',
+        '-archive_project', 'hmf-database',
+        '-archive_bucket', args['bucket'].replace('_', '-')
+    ]
 
     if args['shallow']:
         job_args.append('-shallow')
@@ -92,6 +97,10 @@ def start_kubernetes_job(args):
                                 kubernetes.client.V1VolumeMount(
                                     name='boto-config',
                                     mount_path='/mnt/boto-config'
+                                ),
+                                kubernetes.client.V1VolumeMount(
+                                    name='gcp-hmf-database',
+                                    mount_path='/archive/'
                                 )
                             ],
                             resources=kubernetes.client.V1ResourceRequirements(
@@ -124,6 +133,12 @@ def start_kubernetes_job(args):
                             name='boto-config',
                             config_map=kubernetes.client.V1ConfigMapVolumeSource(
                                 name='boto-config'
+                            )
+                        ),
+                        kubernetes.client.V1Volume(
+                            name='gcp-hmf-database',
+                            secret=kubernetes.client.V1SecretVolumeSource(
+                                secret_name='gcp-' + args['bucket'].replace('_', '-')
                             )
                         )
                     ]
@@ -188,7 +203,12 @@ def main():
             else:
                 shallow = False
 
-            start_kubernetes_job({'sbp_run_id': run.id, 'credentials': credentials, 'shallow': shallow})
+            start_kubernetes_job({
+                'sbp_run_id': run.id,
+                'credentials': credentials,
+                'shallow': shallow,
+                'bucket': str(run.bucket)
+            })
 
             phone_home('Starting Pipeline {0} for run {1}'.format(os.environ['PIPELINE_VERSION'], run.id))
 

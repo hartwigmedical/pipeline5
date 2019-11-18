@@ -14,8 +14,10 @@ import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.google.common.collect.Lists;
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.PipelineState;
 import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.execution.PipelineStatus;
+import com.hartwig.pipeline.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.jetbrains.annotations.NotNull;
@@ -43,28 +45,36 @@ public class PipelineResultsTest {
     public void composesAllAddedComponents() {
         victim.add(stageOutput(Lists.newArrayList((s, r, setName) -> firstComponentRan = true,
                 (s, r, setName) -> secondComponentRan = true)));
-        victim.compose(TestInputs.referenceRunMetadata());
+        victim.compose(TestInputs.referenceRunMetadata(), false, success());
         assertThat(firstComponentRan).isTrue();
         assertThat(secondComponentRan).isTrue();
     }
 
-    @Test
-    public void doesNotFailWhenOneComponentFails() {
+    @Test(expected = RuntimeException.class)
+    public void failsWhenOneComponentFails() {
         victim.add(stageOutput(Lists.newArrayList((s, r, setName) -> firstComponentRan = true, (s, r, setName) -> {
             throw new RuntimeException();
         }, (s, r, setName) -> secondComponentRan = true)));
-        victim.compose(TestInputs.referenceRunMetadata());
-        assertThat(firstComponentRan).isTrue();
-        assertThat(secondComponentRan).isTrue();
+        victim.compose(TestInputs.referenceRunMetadata(), false, success());
     }
 
     @Test
-    public void copiesMetadataRunVersionAndCompletionToRootOfBucketSingleSample() {
+    public void copiesMetadataRunVersionAndCompletionToRootOfSingleSampleFolderWhenNotRunStandalone() {
         ArgumentCaptor<String> createBlobCaptor = ArgumentCaptor.forClass(String.class);
-        victim.compose(TestInputs.referenceRunMetadata());
+        victim.compose(TestInputs.referenceRunMetadata(), false, success());
         verify(outputBucket, times(3)).create(createBlobCaptor.capture(), (byte[]) any());
         assertThat(createBlobCaptor.getAllValues().get(0)).isEqualTo("reference-tag/reference/metadata.json");
         assertThat(createBlobCaptor.getAllValues().get(1)).isEqualTo("reference-tag/reference/pipeline.version");
+        assertThat(createBlobCaptor.getAllValues().get(2)).isEqualTo("reference-tag/STAGED");
+    }
+
+    @Test
+    public void copiesMetadataVersionAndCompletionToRootOfBucketSingleSampleWhenRunStandalone() {
+        ArgumentCaptor<String> createBlobCaptor = ArgumentCaptor.forClass(String.class);
+        victim.compose(TestInputs.referenceRunMetadata(), true, success());
+        verify(outputBucket, times(3)).create(createBlobCaptor.capture(), (byte[]) any());
+        assertThat(createBlobCaptor.getAllValues().get(0)).isEqualTo("reference-tag/metadata.json");
+        assertThat(createBlobCaptor.getAllValues().get(1)).isEqualTo("reference-tag/pipeline.version");
         assertThat(createBlobCaptor.getAllValues().get(2)).isEqualTo("reference-tag/STAGED");
     }
 
@@ -76,6 +86,21 @@ public class PipelineResultsTest {
         assertThat(createBlobCaptor.getAllValues().get(0)).isEqualTo("run/metadata.json");
         assertThat(createBlobCaptor.getAllValues().get(1)).isEqualTo("run/pipeline.version");
         assertThat(createBlobCaptor.getAllValues().get(2)).isEqualTo("run/STAGED");
+    }
+
+    @Test
+    public void onlyWritesStagedFileWhenPipelineFailsSingleSample() {
+        ArgumentCaptor<String> createBlobCaptor = ArgumentCaptor.forClass(String.class);
+        PipelineState state = new PipelineState();
+        state.add(BamMetricsOutput.builder().sample("reference").status(PipelineStatus.FAILED).build());
+        victim.compose(TestInputs.referenceRunMetadata(), false, state);
+        verify(outputBucket, times(1)).create(createBlobCaptor.capture(), (byte[]) any());
+        assertThat(createBlobCaptor.getAllValues().get(0)).isEqualTo("reference-tag/STAGED");
+    }
+
+    @NotNull
+    public PipelineState success() {
+        return new PipelineState();
     }
 
     @NotNull

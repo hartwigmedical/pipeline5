@@ -13,6 +13,7 @@ import com.hartwig.pipeline.sbpapi.SbpRestApi;
 import com.hartwig.pipeline.sbpapi.SbpRun;
 import com.hartwig.pipeline.sbpapi.SbpSample;
 import com.hartwig.pipeline.sbpapi.SbpSet;
+import com.hartwig.pipeline.transfer.google.GoogleArchiver;
 import com.hartwig.pipeline.transfer.sbp.SbpFileTransfer;
 
 import org.slf4j.Logger;
@@ -32,12 +33,15 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
     private final int sbpRunId;
     private final SbpRestApi sbpRestApi;
     private final SbpFileTransfer publisher;
+    private final GoogleArchiver googleArchiver;
 
-    SbpSomaticMetadataApi(final Arguments arguments, final int sbpRunId, final SbpRestApi sbpRestApi, final SbpFileTransfer publisher) {
+    SbpSomaticMetadataApi(final Arguments arguments, final int sbpRunId, final SbpRestApi sbpRestApi, final SbpFileTransfer publisher,
+            final GoogleArchiver googleArchiver) {
         this.arguments = arguments;
         this.sbpRunId = sbpRunId;
         this.sbpRestApi = sbpRestApi;
         this.publisher = publisher;
+        this.googleArchiver = googleArchiver;
     }
 
     @Override
@@ -116,6 +120,7 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
             LOGGER.info("Recording pipeline completion with status [{}]", status);
             try {
                 sbpRestApi.updateRunStatus(runIdAsString, UPLOADING, sbpBucket);
+                googleArchiver.transfer(metadata);
                 publisher.publish(metadata, sbpRun, sbpBucket);
                 sbpRestApi.updateRunStatus(runIdAsString, status == PipelineStatus.SUCCESS ? successStatus() : FAILED, sbpBucket);
             } catch (Exception e) {

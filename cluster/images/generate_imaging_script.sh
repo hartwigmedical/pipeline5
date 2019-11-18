@@ -30,7 +30,7 @@ echo "#!$(which sh) -e"
 network="--network=diskimager --subnet=diskimager"
 [[ "${PROJECT}" = "${DEV_PROJECT}" ]] && network=""
 echo "$GCL instances create ${sourceInstance} --description=\"Instance for ${type} disk image creation\" --zone=${ZONE} ${network}"
-
+echo "sleep 5"
 # Ignore lines consisting only of spaces, or those beginning with '#'
 tunnel="--tunnel-through-iap"
 [[ "${PROJECT}" = "${DEV_PROJECT}" ]] && tunnel=""
