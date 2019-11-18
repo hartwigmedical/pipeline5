@@ -117,6 +117,7 @@ structural_caller/CPCT12345678R.sorted.bam.gridss.working/CPCT12345678R.sorted.b
 structural_caller/CPCT12345678R.sorted.bam.gridss.working/CPCT12345678R.sorted.bam.mapq_metrics
 structural_caller/CPCT12345678R.sorted.bam.gridss.working/CPCT12345678R.sorted.bam.sv_metrics
 structural_caller/CPCT12345678R.sorted.bam.gridss.working/CPCT12345678R.sorted.bam.tag_metrics
+structural_caller/CPCT12345678R.sorted.bam.gridss.working/CPCT12345678R.sorted.bam.sv.bam.bai
 structural_caller/CPCT12345678T.assembly.bam.gridss.working/CPCT12345678T.assembly.bam.alignment_summary_metrics
 structural_caller/CPCT12345678T.assembly.bam.gridss.working/CPCT12345678T.assembly.bam.cigar_metrics
 structural_caller/CPCT12345678T.assembly.bam.gridss.working/CPCT12345678T.assembly.bam.coverage.blacklist.bed
