@@ -5,6 +5,7 @@ import static java.lang.String.format;
 import java.io.File;
 
 import com.hartwig.batch.BatchOperation;
+import com.hartwig.batch.InputFileDescriptor;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.calling.command.VersionedToolCommand;
 import com.hartwig.pipeline.execution.vm.Bash;
@@ -18,11 +19,10 @@ import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tools.Versions;
 
 public class CramConverter implements BatchOperation {
-    public VirtualMachineJobDefinition execute(final String input, final RuntimeBucket bucket, final String instanceId) {
-        String outputFile = VmDirectories.outputFile(new File(input).getName().replaceAll("\\.bam$", ".cram"));
-        String localInput = String.format("%s/%s", VmDirectories.INPUT, new File(input).getName());
-        RuntimeFiles executionFlags = RuntimeFiles.of(instanceId);
-        BashStartupScript startupScript = BashStartupScript.of(bucket.name(), executionFlags);
+    public VirtualMachineJobDefinition execute(final InputFileDescriptor input, final RuntimeBucket bucket,
+            final BashStartupScript startupScript, final RuntimeFiles executionFlags) {
+        String outputFile = VmDirectories.outputFile(new File(input.remoteFilename()).getName().replaceAll("\\.bam$", ".cram"));
+        String localInput = String.format("%s/%s", VmDirectories.INPUT, new File(input.remoteFilename()).getName());
         startupScript.addCommand(() -> format("gsutil cp %s %s", input, localInput));
         startupScript.addCommand(new VersionedToolCommand("sambamba",
                 "sambamba",

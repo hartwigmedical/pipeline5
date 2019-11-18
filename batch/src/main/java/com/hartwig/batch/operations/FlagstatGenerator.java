@@ -1,10 +1,9 @@
 package com.hartwig.batch.operations;
 
-import static java.lang.String.format;
-
 import java.io.File;
 
 import com.hartwig.batch.BatchOperation;
+import com.hartwig.batch.InputFileDescriptor;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.calling.command.VersionedToolCommand;
 import com.hartwig.pipeline.execution.vm.Bash;
@@ -20,12 +19,11 @@ import com.hartwig.pipeline.tools.Versions;
 
 public class FlagstatGenerator implements BatchOperation {
     @Override
-    public VirtualMachineJobDefinition execute(final String input, final RuntimeBucket bucket, final String instanceId) {
-        String outputFile = VmDirectories.outputFile(new File(input).getName().replaceAll("$", ".batch.flagstat"));
-        String localInput = String.format("%s/%s", VmDirectories.INPUT, new File(input).getName());
-        RuntimeFiles executionFlags = RuntimeFiles.of(instanceId);
-        BashStartupScript startupScript = BashStartupScript.of(bucket.name(), executionFlags);
-        startupScript.addCommand(() -> format("gsutil cp %s %s", input, localInput));
+    public VirtualMachineJobDefinition execute(final InputFileDescriptor descriptor, final RuntimeBucket bucket,
+            final BashStartupScript startupScript, final RuntimeFiles executionFlags) {
+        String outputFile = VmDirectories.outputFile(new File(descriptor.remoteFilename()).getName().replaceAll("$", ".batch.flagstat"));
+        String localInput = String.format("%s/%s", VmDirectories.INPUT, new File(descriptor.remoteFilename()).getName());
+        startupScript.addCommand(() -> descriptor.toCommandForm(localInput));
         startupScript.addCommand(new PipeCommands(new VersionedToolCommand("sambamba",
                 "sambamba",
                 Versions.SAMBAMBA,

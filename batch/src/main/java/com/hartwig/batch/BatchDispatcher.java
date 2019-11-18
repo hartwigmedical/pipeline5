@@ -18,7 +18,9 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.credentials.CredentialProvider;
 import com.hartwig.pipeline.execution.PipelineStatus;
+import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
+import com.hartwig.pipeline.execution.vm.RuntimeFiles;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.storage.StorageProvider;
 
@@ -60,13 +62,18 @@ public class BatchDispatcher {
         int i = 0;
         String paddingFormat = format("%%0%dd", String.valueOf(urls.size()).length());
         confirmOutputBucketExists(storage);
-        RuntimeBucket bucket = RuntimeBucket.from(storage, arguments.outputBucket(), "batch", arguments);
+        RuntimeBucket outputBucket = RuntimeBucket.from(storage, arguments.outputBucket(), "batch", arguments);
         LOGGER.info("Writing output to bucket [{}]", arguments.outputBucket());
         for (String url : urls) {
             final String label = format(paddingFormat, i + 1);
             ComputeEngine compute = ComputeEngine.from(arguments, credentials, false);
-            Future<PipelineStatus> future =
-                    executorService.submit(() -> compute.submit(bucket, instanceFactory.get().execute(url, bucket, label), label));
+            RuntimeFiles executionFlags = RuntimeFiles.of(label);
+            BashStartupScript startupScript = BashStartupScript.of(outputBucket.name(), executionFlags);
+            ImmutableInputFileDescriptor descriptor =
+                    InputFileDescriptor.builder().billedProject(arguments.project()).remoteFilename(url).build();
+            Future<PipelineStatus> future = executorService.submit(() -> compute.submit(outputBucket,
+                    instanceFactory.get().execute(descriptor, outputBucket, startupScript, executionFlags),
+                    label));
             state.add(ImmutableStateTuple.builder().id(label).url(url).future(future).build());
             i++;
         }
