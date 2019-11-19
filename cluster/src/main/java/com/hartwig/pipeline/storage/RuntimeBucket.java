@@ -11,6 +11,7 @@ import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageClass;
 import com.google.common.collect.Lists;
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.CommonArguments;
 import com.hartwig.pipeline.alignment.Run;
 import com.hartwig.pipeline.metadata.RunMetadata;
 
@@ -24,20 +25,31 @@ public class RuntimeBucket {
     private final Storage storage;
     private final Bucket bucket;
     private final String namespace;
-    private final Run run;
+    private final String runId;
 
-    public static RuntimeBucket from(final Storage storage, final String namespace, final RunMetadata metadata,
-            final Arguments arguments) {
-        return createBucketIfNeeded(storage, namespace, arguments, Run.from(metadata, arguments));
+    private RuntimeBucket(final Storage storage, final Bucket bucket, final String namespace, final String runId) {
+        this.storage = storage;
+        this.bucket = bucket;
+        this.namespace = namespace;
+        this.runId = runId;
     }
 
-    private synchronized static RuntimeBucket createBucketIfNeeded(final Storage storage, final String namespace, final Arguments arguments,
-            final Run run) {
-        Bucket bucket = storage.get(run.id());
+    public static RuntimeBucket from(final Storage storage, final RunMetadata metadata, final String namespace,
+            final CommonArguments arguments) {
+        return createBucketIfNeeded(storage, namespace, arguments, metadata.name());
+    }
+
+    public static RuntimeBucket from(final Storage storage, final String namespace, final RunMetadata metadata, final Arguments arguments) {
+        return createBucketIfNeeded(storage, namespace, arguments, Run.from(metadata, arguments).id());
+    }
+
+    private synchronized static RuntimeBucket createBucketIfNeeded(final Storage storage, final String namespace,
+            final CommonArguments arguments, final String runId) {
+        Bucket bucket = storage.get(runId);
         if (bucket == null) {
-            LOGGER.info("Creating runtime bucket [{}] in Google Storage", run.id());
+            LOGGER.debug("Creating runtime bucket [{}] in Google Storage", runId);
             BucketInfo.Builder builder =
-                    BucketInfo.newBuilder(run.id()).setStorageClass(StorageClass.REGIONAL).setLocation(arguments.region());
+                    BucketInfo.newBuilder(runId).setStorageClass(StorageClass.REGIONAL).setLocation(arguments.region());
             arguments.cmek().ifPresent(key -> {
                 LOGGER.info("Using CMEK key [{}] to encrypt all buckets", key);
                 builder.setDefaultKmsKeyName(String.format("projects/%s/locations/%s/keyRings/%s/cryptoKeys/%s",
@@ -48,7 +60,7 @@ public class RuntimeBucket {
             });
             bucket = storage.create(builder.build());
         }
-        return new RuntimeBucket(storage, bucket, namespace, run);
+        return new RuntimeBucket(storage, bucket, namespace, runId);
     }
 
     public String getNamespace() {
@@ -98,19 +110,12 @@ public class RuntimeBucket {
         storage.compose(Storage.ComposeRequest.of(bucket.getName(), sources, namespace(target)));
     }
 
-    private RuntimeBucket(final Storage storage, final Bucket bucket, final String namespace, final Run run) {
-        this.storage = storage;
-        this.bucket = bucket;
-        this.namespace = namespace;
-        this.run = run;
-    }
-
     public String name() {
         return bucket.getName() + "/" + namespace;
     }
 
     public String runId() {
-        return run.id();
+        return runId;
     }
 
     @Override

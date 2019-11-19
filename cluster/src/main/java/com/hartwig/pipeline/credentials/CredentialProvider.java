@@ -5,14 +5,14 @@ import java.io.IOException;
 
 import com.google.api.services.compute.ComputeScopes;
 import com.google.auth.oauth2.GoogleCredentials;
-import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.CommonArguments;
 import com.hartwig.pipeline.storage.GSUtil;
 
 public class CredentialProvider {
 
-    private final Arguments arguments;
+    private final CommonArguments arguments;
 
-    private CredentialProvider(final Arguments arguments) {
+    private CredentialProvider(final CommonArguments arguments) {
         this.arguments = arguments;
     }
 
@@ -24,7 +24,7 @@ public class CredentialProvider {
         return credentials;
     }
 
-    public static CredentialProvider from(final Arguments arguments) {
+    public static CredentialProvider from(final CommonArguments arguments) {
         return new CredentialProvider(arguments);
     }
 }

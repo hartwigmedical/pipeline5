@@ -40,6 +40,7 @@
         <aws-java-sdk.version>1.11.327</aws-java-sdk.version>
         <commons-lang3.version>3.9</commons-lang3.version>
         <htsjdk.version>2.20.3</htsjdk.version>
+        <org-reflections.version>0.9.11</org-reflections.version>
     </properties>
 
     <scm>
@@ -49,9 +50,10 @@
     </scm>
 
     <modules>
+        <module>batch</module>
+        <module>bcl2fastq</module>
         <module>patients</module>
         <module>cluster</module>
-        <module>bcl2fastq</module>
     </modules>
 
     <dependencyManagement>
@@ -71,7 +73,6 @@
                 <artifactId>cluster</artifactId>
                 <version>local-SNAPSHOT</version>
             </dependency>
-
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
@@ -256,11 +257,15 @@
                 <artifactId>google-oauth-client-jetty</artifactId>
                 <version>${google-oauth-client-jetty.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.reflections</groupId>
+                <artifactId>reflections</artifactId>
+                <version>${org-reflections.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
     <dependencies>
-
         <dependency>
             <groupId>org.immutables</groupId>
             <artifactId>value</artifactId>

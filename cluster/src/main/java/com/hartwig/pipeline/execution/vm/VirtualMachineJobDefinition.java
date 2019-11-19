@@ -15,6 +15,11 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
         return STANDARD_IMAGE;
     }
 
+    @Value.Default
+    default long imageSizeGb() {
+        return 10L;
+    }
+
     BashStartupScript startupCommand();
 
     ResultsDirectory namespacedResults();
@@ -169,6 +174,23 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .startupCommand(startupScript)
                 .namespacedResults(resultsDirectory)
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 12))
+                .build();
+    }
+
+    static VirtualMachineJobDefinition batchCramMigration(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
+        return ImmutableVirtualMachineJobDefinition.builder().name("cram")
+                .startupCommand(startupScript)
+                .namespacedResults(resultsDirectory)
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 6)).imageFamily("diskimager-batch-cram").imageSizeGb(20L)
+                .build();
+    }
+
+    static VirtualMachineJobDefinition batchFlagstat(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
+        return ImmutableVirtualMachineJobDefinition.builder()
+                .name("flagstat")
+                .startupCommand(startupScript)
+                .namespacedResults(resultsDirectory)
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 6))
                 .build();
     }
 }

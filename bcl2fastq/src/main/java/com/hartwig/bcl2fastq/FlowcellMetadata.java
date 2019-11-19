@@ -12,10 +12,10 @@ public interface FlowcellMetadata extends RunMetadata {
 
     @Override
     default String name() {
-        return flowcellId();
+        return "conversion-"+flowcellId();
     }
 
-    static FlowcellMetadata from(Arguments arguments) {
+    static FlowcellMetadata from(Bcl2fastqArguments arguments) {
         return ImmutableFlowcellMetadata.of(arguments.flowcell());
     }
 }

@@ -106,7 +106,7 @@ public abstract class StageTest<S extends StageOutput, M extends RunMetadata> {
     protected abstract void validateOutput(final S output);
 
     protected static String input(String source, String target) {
-        return String.format("gsutil -qm cp -r -n gs://%s /data/input/%s", source, target);
+        return String.format("gsutil -qm cp -n gs://%s /data/input/%s", source, target);
     }
 
     protected String resource(String resourceName) {

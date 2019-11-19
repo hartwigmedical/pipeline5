@@ -9,18 +9,18 @@ import java.util.Collections;
 import com.hartwig.pipeline.calling.SubStage;
 import com.hartwig.pipeline.calling.SubStageInputOutput;
 import com.hartwig.pipeline.calling.SubStageTest;
-import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
 import com.hartwig.pipeline.calling.structural.gridss.command.BiocondaVariantAnnotationWorkaround;
 import com.hartwig.pipeline.calling.structural.gridss.command.RscriptFilter;
 import com.hartwig.pipeline.execution.vm.OutputFile;
+import com.hartwig.pipeline.execution.vm.VmDirectories;
 
 import org.junit.Test;
 
-public class FilterTest extends SubStageTest implements CommonEntities {
+public class FilterTest extends SubStageTest {
 
     private static final String UNZIPPED = "/data/output/tumor.gridss.vcf";
     private static final String OUTPUT_FULL_VCF = "full.vcf";
-    private static final String OUTPUT_ORIGINAL_VCF = format("%s/original.vcf", OUT_DIR);
+    private static final String OUTPUT_ORIGINAL_VCF = VmDirectories.outputFile("original.vcf");
 
     @Override
     public SubStage createVictim() {

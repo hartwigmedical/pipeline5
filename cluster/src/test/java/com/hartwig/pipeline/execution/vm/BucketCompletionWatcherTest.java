@@ -28,8 +28,8 @@ public class BucketCompletionWatcherTest {
     private MockRuntimeBucket runtimeBucket;
     private List<Blob> blobs;
     private Blob mockBlob;
-    private VirtualMachineJobDefinition job;
     private BucketCompletionWatcher victim;
+    private RuntimeFiles flags;
 
     @Before
     public void setup() {
@@ -38,30 +38,28 @@ public class BucketCompletionWatcherTest {
         mockBlob = mock(Blob.class);
         when(runtimeBucket.getRuntimeBucket().list()).thenReturn(blobs);
 
-        victim = new BucketCompletionWatcher();
+        flags = mock(RuntimeFiles.class);
+        when(flags.failure()).thenReturn(FAILURE_FLAG);
+        when(flags.success()).thenReturn(SUCCESS_FLAG);
 
-        job = mock(VirtualMachineJobDefinition.class);
-        final BashStartupScript startupCommand = mock(BashStartupScript.class);
-        when(job.startupCommand()).thenReturn(startupCommand);
-        when(startupCommand.successFlag()).thenReturn(SUCCESS_FLAG);
-        when(startupCommand.failureFlag()).thenReturn(FAILURE_FLAG);
+        victim = new BucketCompletionWatcher();
     }
 
     @Test
     public void shouldReturnFailureStateIfBucketContainsFailureFlag() {
         mockFlagFile(FAILURE_FLAG);
-        assertThat(victim.currentState(runtimeBucket.getRuntimeBucket(), job)).isEqualTo(State.FAILURE);
+        assertThat(victim.currentState(runtimeBucket.getRuntimeBucket(), flags)).isEqualTo(State.FAILURE);
     }
 
     @Test
     public void shouldReturnSuccessStateIfBucketContainsSuccessFlag() {
         mockFlagFile(SUCCESS_FLAG);
-        assertThat(victim.currentState(runtimeBucket.getRuntimeBucket(), job)).isEqualTo(State.SUCCESS);
+        assertThat(victim.currentState(runtimeBucket.getRuntimeBucket(), flags)).isEqualTo(State.SUCCESS);
     }
 
     @Test
     public void shouldReturnStillWaitingIfBucketContainsNeitherFlag() {
-        assertThat(victim.currentState(runtimeBucket.getRuntimeBucket(), job)).isEqualTo(State.STILL_WAITING);
+        assertThat(victim.currentState(runtimeBucket.getRuntimeBucket(), flags)).isEqualTo(State.STILL_WAITING);
     }
 
     @Test
@@ -69,7 +67,7 @@ public class BucketCompletionWatcherTest {
     public void shouldWaitAndEventuallyReturnFailureState() {
         mockFlagFile(FAILURE_FLAG);
         when(runtimeBucket.getRuntimeBucket().list()).thenReturn(new ArrayList<>(), blobs);
-        assertThat(victim.waitForCompletion(runtimeBucket.getRuntimeBucket(), job)).isEqualTo(State.FAILURE);
+        assertThat(victim.waitForCompletion(runtimeBucket.getRuntimeBucket(), flags)).isEqualTo(State.FAILURE);
         verify(runtimeBucket.getRuntimeBucket(), atLeast(2)).list();
     }
 
@@ -78,7 +76,7 @@ public class BucketCompletionWatcherTest {
     public void shouldWaitAndEventuallyReturnSuccessState() {
         mockFlagFile(SUCCESS_FLAG);
         when(runtimeBucket.getRuntimeBucket().list()).thenReturn(new ArrayList<>(), blobs);
-        assertThat(victim.waitForCompletion(runtimeBucket.getRuntimeBucket(), job)).isEqualTo(State.SUCCESS);
+        assertThat(victim.waitForCompletion(runtimeBucket.getRuntimeBucket(), flags)).isEqualTo(State.SUCCESS);
         verify(runtimeBucket.getRuntimeBucket(), atLeast(2)).list();
     }
 
