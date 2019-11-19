@@ -10,7 +10,6 @@ import com.google.cloud.storage.BucketInfo;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageClass;
 import com.google.common.collect.Lists;
-import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.CommonArguments;
 import com.hartwig.pipeline.alignment.Run;
 import com.hartwig.pipeline.metadata.RunMetadata;
@@ -34,12 +33,8 @@ public class RuntimeBucket {
         this.runId = runId;
     }
 
-    public static RuntimeBucket from(final Storage storage, final RunMetadata metadata, final String namespace,
+    public static RuntimeBucket from(final Storage storage, final String namespace, final RunMetadata metadata,
             final CommonArguments arguments) {
-        return createBucketIfNeeded(storage, namespace, arguments, metadata.name());
-    }
-
-    public static RuntimeBucket from(final Storage storage, final String namespace, final RunMetadata metadata, final Arguments arguments) {
         return createBucketIfNeeded(storage, namespace, arguments, Run.from(metadata, arguments).id());
     }
 

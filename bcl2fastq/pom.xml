@@ -106,7 +106,7 @@
                                 <configuration>
                                     <images>
                                         <image>
-                                            <name>hartwigmedicalfoundation/com.hartwig.bcl2fastq</name>
+                                            <name>hartwigmedicalfoundation/bcl2fastq</name>
                                         </image>
                                     </images>
                                 </configuration>

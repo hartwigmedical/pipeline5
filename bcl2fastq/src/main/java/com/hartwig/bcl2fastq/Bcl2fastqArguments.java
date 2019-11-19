@@ -16,8 +16,11 @@ public interface Bcl2fastqArguments extends CommonArguments {
 
     String INPUT_BUCKET = "input_bucket";
     String FLOWCELL = "flowcell";
+    String OUTPUT_BUCKET = "output_bucket";
 
     String inputBucket();
+
+    String outputBucket();
 
     String flowcell();
 
@@ -34,6 +37,7 @@ public interface Bcl2fastqArguments extends CommonArguments {
                     .serviceAccountEmail(commandLine.getOptionValue(SERVICE_ACCOUNT_EMAIL))
                     .flowcell(commandLine.getOptionValue(FLOWCELL))
                     .inputBucket(commandLine.getOptionValue(INPUT_BUCKET))
+                    .outputBucket(commandLine.getOptionValue(OUTPUT_BUCKET))
                     .build();
         } catch (ParseException e) {
             throw new IllegalArgumentException("Failed to parse arguments", e);
@@ -50,6 +54,7 @@ public interface Bcl2fastqArguments extends CommonArguments {
                 .addOption(stringOption(STORAGE_KEY_PATH, "Path to JSON file containing source storage credentials"))
                 .addOption(stringOption(SERVICE_ACCOUNT_EMAIL, "Email of service account"))
                 .addOption(stringOption(INPUT_BUCKET, "Location of BCL files to convert"))
+                .addOption(stringOption(OUTPUT_BUCKET, "Location to persist BCL files once converted"))
                 .addOption(stringOption(FLOWCELL, "ID of flowcell from which the BCL files were generated"));
     }
 

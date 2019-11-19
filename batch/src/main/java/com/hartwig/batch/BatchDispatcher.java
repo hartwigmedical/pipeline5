@@ -62,7 +62,7 @@ public class BatchDispatcher {
         int i = 0;
         String paddingFormat = format("%%0%dd", String.valueOf(urls.size()).length());
         confirmOutputBucketExists(storage);
-        RuntimeBucket outputBucket = RuntimeBucket.from(storage, () -> "batch", arguments.outputBucket(), arguments);
+        RuntimeBucket outputBucket = RuntimeBucket.from(storage, arguments.outputBucket(), () -> "batch", arguments);
         LOGGER.info("Writing output to bucket [{}]", arguments.outputBucket());
         for (String url : urls) {
             final String label = format(paddingFormat, i + 1);

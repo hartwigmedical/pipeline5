@@ -30,4 +30,8 @@ public interface CommonArguments {
     String serviceAccountEmail();
 
     Optional<String> cmek();
+
+    Optional<String> runId();
+
+    Optional<Integer> sbpApiRunId();
 }
