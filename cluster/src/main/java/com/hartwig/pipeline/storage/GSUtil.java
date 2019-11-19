@@ -43,4 +43,23 @@ public class GSUtil {
         ProcessBuilder processBuilder = new ProcessBuilder(command).inheritIO();
         Processes.run(processBuilder, VERBOSE, TIMEOUT_HOURS, TimeUnit.HOURS);
     }
+
+    public static void rsync(String gsdkPath, String sourceUrl, String targetUrl, String userProject, boolean recurse)
+            throws IOException, InterruptedException {
+        List<String> command = new ArrayList<>();
+        command.add(gsdkPath + "/gsutil");
+        if (userProject != null) {
+            command.add("-u");
+            command.add(userProject);
+        }
+        command.add("-qm");
+        command.add("rsync");
+        if (recurse) {
+            command.add("-r");
+        }
+        command.add(sourceUrl);
+        command.add(targetUrl);
+        ProcessBuilder processBuilder = new ProcessBuilder(command).inheritIO();
+        Processes.run(processBuilder, VERBOSE, TIMEOUT_HOURS, TimeUnit.HOURS);
+    }
 }
