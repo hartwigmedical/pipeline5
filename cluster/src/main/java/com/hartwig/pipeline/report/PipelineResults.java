@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.PipelineState;
 import com.hartwig.pipeline.RunTag;
 import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
@@ -53,11 +54,13 @@ public class PipelineResults {
         writeComplete(name);
     }
 
-    public void compose(SingleSampleRunMetadata metadata) {
+    public void compose(SingleSampleRunMetadata metadata,  Boolean isStandalone, PipelineState state) {
         String name = RunTag.apply(arguments, metadata.sampleId());
-        Folder folder = Folder.from(metadata);
-        writeMetadata(metadata, name, folder);
-        compose(name, folder);
+        if (state.shouldProceed()) {
+            Folder folder = isStandalone ? Folder.from() : Folder.from(metadata);
+            writeMetadata(metadata, name, folder);
+            compose(name, folder);
+        }
         writeComplete(name);
     }
 
@@ -73,7 +76,8 @@ public class PipelineResults {
             try {
                 component.addToReport(storage, reportBucket, name);
             } catch (Exception e) {
-                LOGGER.error(format("Unable add component [%s] to the final patient report.", component.getClass().getSimpleName()), e);
+                throw new RuntimeException(format("Unable add component [%s] to the final patient report.",
+                        component.getClass().getSimpleName()), e);
             }
         });
     }

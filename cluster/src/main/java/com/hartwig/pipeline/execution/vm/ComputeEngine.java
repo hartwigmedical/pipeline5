@@ -45,6 +45,7 @@ public class ComputeEngine {
     private static final int NUMBER_OF_375G_LOCAL_SSD_DEVICES = 4;
     private final static String APPLICATION_NAME = "vm-hosted-workload";
     static final String ZONE_EXHAUSTED_ERROR_CODE = "ZONE_RESOURCE_POOL_EXHAUSTED";
+    static final String UNSUPPORTED_OPERATION_ERROR_CODE = "UNSUPPORTED_OPERATION";
     static final String PREEMPTED_INSTANCE = "TERMINATED";
 
     private final Logger LOGGER = LoggerFactory.getLogger(ComputeEngine.class);
@@ -69,7 +70,9 @@ public class ComputeEngine {
     public static ComputeEngine from(final CommonArguments arguments, final GoogleCredentials credentials, final boolean isShallow)
             throws Exception {
         Compute compute = initCompute(credentials);
-        return new ComputeEngine(arguments, compute, Collections::shuffle,
+        return new ComputeEngine(arguments,
+                compute,
+                Collections::shuffle,
                 new InstanceLifecycleManager(arguments, compute),
                 new BucketCompletionWatcher(),
                 isShallow);
@@ -121,7 +124,8 @@ public class ComputeEngine {
                         image.getName(),
                         currentZone.getName());
                 String startupScript = arguments.useLocalSsds()
-                        ? jobDefinition.startupCommand().asUnixString(new LocalSsdStorageStrategy(NUMBER_OF_375G_LOCAL_SSD_DEVICES))
+                        ? jobDefinition.startupCommand()
+                        .asUnixString(new LocalSsdStorageStrategy(NUMBER_OF_375G_LOCAL_SSD_DEVICES))
                         : jobDefinition.startupCommand().asUnixString();
                 addStartupCommand(instance, bucket, flags, startupScript);
                 addNetworkInterface(instance, project);
@@ -147,12 +151,25 @@ public class ComputeEngine {
                     } else {
                         LOGGER.info("Instance [{}] in [{}] was pre-empted", vmName, currentZone.getName());
                     }
-                } else if (result.getError().getErrors().stream().anyMatch(error -> error.getCode().startsWith(ZONE_EXHAUSTED_ERROR_CODE))) {
+                } else if (anyErrorMatch(result, ZONE_EXHAUSTED_ERROR_CODE)) {
                     LOGGER.warn("Zone [{}] has insufficient resources to fulfill the request for [{}]. Trying next zone",
                             currentZone.getName(),
                             vmName);
+                } else if (anyErrorMatch(result, UNSUPPORTED_OPERATION_ERROR_CODE)) {
+                    LOGGER.warn(
+                            "Received unsupported operation from GCE for [{}], this likely means the instance was pre-empted before it could "
+                                    + "start, or another operation has yet to complete. Trying next zone.",
+                            vmName);
+                } else if (anyErrorMatch(result, UNSUPPORTED_OPERATION_ERROR_CODE)) {
+                    LOGGER.warn(
+                            "Received unsupported operation from GCE for [{}], this likely means the instance was pre-empted before it could "
+                                    + "start, or another operation has yet to complete. Trying next zone.",
+                            vmName);
                 } else {
-                    throw new RuntimeException(result.getError().toPrettyString());
+                    LOGGER.error("GCE returned an error starting the vm [{}] failing pipeline, [{}]",
+                            vmName,
+                            result.getError().toPrettyString());
+                    return PipelineStatus.FAILED;
                 }
                 index++;
             }
@@ -162,6 +179,10 @@ public class ComputeEngine {
             return PipelineStatus.FAILED;
         }
         return status;
+    }
+
+    private static boolean anyErrorMatch(final Operation result, final String zoneExhaustedErrorCode) {
+        return result.getError().getErrors().stream().anyMatch(error -> error.getCode().startsWith(zoneExhaustedErrorCode));
     }
 
     private static Compute initCompute(final GoogleCredentials credentials) throws Exception {

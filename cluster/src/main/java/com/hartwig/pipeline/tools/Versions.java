@@ -24,10 +24,11 @@ public interface Versions {
     String HEALTH_CHECKER = "3.1";
     String PURPLE = "2.34";
     String CIRCOS = "0.69.6";
-    String GRIDSS = "2.5.2";
-    String LINX = "1.4";
+    String GRIDSS = "2.7.2";
+    String LINX = "1.5";
     String BACHELOR = "1.9";
     String CHORD = "60.02_1.03";
+    String SAMTOOLS = "1.9";
 
     static void printAll() {
         Logger logger = LoggerFactory.getLogger(Versions.class);

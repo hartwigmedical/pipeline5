@@ -23,7 +23,6 @@ import com.hartwig.pipeline.stages.StageRunner;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.storage.StorageProvider;
 import com.hartwig.pipeline.tools.Versions;
-import com.hartwig.pipeline.transfer.google.GoogleArchiver;
 
 import org.apache.commons.cli.ParseException;
 import org.slf4j.Logger;
@@ -44,8 +43,8 @@ public class PipelineMain {
             if (arguments.mode().equals(Arguments.Mode.FULL)) {
                 SingleSampleEventListener referenceEventListener = new SingleSampleEventListener();
                 SingleSampleEventListener tumorEventListener = new SingleSampleEventListener();
-                state = new FullPipeline(singleSamplePipeline(arguments, credentials, storage, referenceEventListener),
-                        singleSamplePipeline(arguments, credentials, storage, tumorEventListener),
+                state = new FullPipeline(singleSamplePipeline(arguments, credentials, storage, referenceEventListener, false),
+                        singleSamplePipeline(arguments, credentials, storage, tumorEventListener, false),
                         somaticPipeline(arguments, credentials, storage, somaticMetadataApi),
                         Executors.newCachedThreadPool(),
                         referenceEventListener,
@@ -53,7 +52,11 @@ public class PipelineMain {
                         somaticMetadataApi.get()).run();
             } else if (arguments.mode().equals(Arguments.Mode.SINGLE_SAMPLE)) {
                 SampleMetadataApi referenceApi = SampleMetadataApiProvider.from(arguments).get();
-                state = singleSamplePipeline(arguments, credentials, storage, new SingleSampleEventListener()).run(referenceApi.get());
+                state = singleSamplePipeline(arguments,
+                        credentials,
+                        storage,
+                        new SingleSampleEventListener(),
+                        true).run(referenceApi.get());
                 LOGGER.info("Single sample pipeline is complete with status [{}]. Stages run were [{}]", state.status(), state);
             } else {
                 state = somaticPipeline(arguments, credentials, storage, somaticMetadataApi).run();
@@ -78,8 +81,7 @@ public class PipelineMain {
                         metadata -> RuntimeBucket.from(storage, BamMetrics.NAMESPACE, metadata, arguments)),
                 new OutputStorage<>(ResultsDirectory.defaultDirectory(),
                         arguments,
-                        metadata -> RuntimeBucket.from(storage, GermlineCaller.NAMESPACE, metadata, arguments)),
-                somaticMetadataApi, new GoogleArchiver(arguments),
+                        metadata -> RuntimeBucket.from(storage, GermlineCaller.NAMESPACE, metadata, arguments)), somaticMetadataApi,
                 PipelineResultsProvider.from(storage, arguments, Versions.pipelineVersion()).get(),
                 new FullSomaticResults(storage, arguments),
                 CleanupProvider.from(arguments, storage).get(),
@@ -87,7 +89,7 @@ public class PipelineMain {
     }
 
     private static SingleSamplePipeline singleSamplePipeline(final Arguments arguments, final GoogleCredentials credentials,
-            final Storage storage, final SingleSampleEventListener eventListener) throws Exception {
+            final Storage storage, final SingleSampleEventListener eventListener, final Boolean isStandalone) throws Exception {
         return new SingleSamplePipeline(eventListener,
                 new StageRunner<>(storage,
                         arguments,
@@ -96,6 +98,7 @@ public class PipelineMain {
                 AlignerProvider.from(credentials, storage, arguments).get(),
                 PipelineResultsProvider.from(storage, arguments, Versions.pipelineVersion()).get(),
                 Executors.newCachedThreadPool(),
+                isStandalone,
                 arguments);
     }
 

@@ -91,9 +91,9 @@ class InstanceLifecycleManager {
 
     String instanceStatus(String vm, String zone) {
         try {
-            Optional<Instance> instance = findExistingInstance(vm);
-            if (instance.isPresent()) {
-                return instance.get().getStatus();
+            Instance found = compute.instances().get(project, zone, vm).execute();
+            if (found != null) {
+                return found.getStatus();
             } else {
                 throw new IllegalStateException(format("Could not find instance [%s]", vm));
             }

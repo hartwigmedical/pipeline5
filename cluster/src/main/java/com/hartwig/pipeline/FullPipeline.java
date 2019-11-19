@@ -38,28 +38,38 @@ public class FullPipeline {
 
     public PipelineState run() {
 
-        final CountDownLatch bothSingleSamplesComplete = new CountDownLatch(2);
+        final CountDownLatch bothSingleSamplesAlignmentComplete = new CountDownLatch(2);
+        final CountDownLatch bothSingleSamplesPipelineComplete = new CountDownLatch(2);
 
-        CountDownAndTrapStatus trapReference = new CountDownAndTrapStatus(bothSingleSamplesComplete);
-        CountDownAndTrapStatus trapTumor = new CountDownAndTrapStatus(bothSingleSamplesComplete);
-        referenceSampleEventListener.register(trapReference);
-        tumorSampleEventListener.register(trapTumor);
-        executorService.submit(() -> runPipeline(referencePipeline, metadata.reference(), bothSingleSamplesComplete));
+        CountDownAndTrapStatus trapReferenceAlignmentComplete = new CountDownAndTrapStatus(bothSingleSamplesAlignmentComplete, true);
+        CountDownAndTrapStatus trapTumorAlignmentComplete = new CountDownAndTrapStatus(bothSingleSamplesAlignmentComplete, true);
+        CountDownAndTrapStatus trapReferencePipelineComplete = new CountDownAndTrapStatus(bothSingleSamplesPipelineComplete, false);
+        CountDownAndTrapStatus trapTumorPipelineComplete = new CountDownAndTrapStatus(bothSingleSamplesPipelineComplete, false);
+        referenceSampleEventListener.register(trapReferenceAlignmentComplete);
+        referenceSampleEventListener.register(trapReferencePipelineComplete);
+        tumorSampleEventListener.register(trapTumorAlignmentComplete);
+        tumorSampleEventListener.register(trapTumorPipelineComplete);
+        executorService.submit(() -> runPipeline(referencePipeline, metadata.reference(), bothSingleSamplesAlignmentComplete));
         executorService.submit(() -> metadata.maybeTumor()
-                .map(tumor -> runPipeline(tumorPipeline, tumor, bothSingleSamplesComplete))
-                .orElseGet(countdown(bothSingleSamplesComplete)));
-        waitForSingleSamples(bothSingleSamplesComplete);
-        PipelineState singleSampleState = combine(trapReference, trapTumor, metadata);
-        if (singleSampleState.shouldProceed()) {
-            return singleSampleState.combineWith(somaticPipeline.run());
+                .map(tumor -> runPipeline(tumorPipeline, tumor, bothSingleSamplesAlignmentComplete))
+                .orElseGet(countdown(bothSingleSamplesAlignmentComplete, bothSingleSamplesPipelineComplete)));
+        waitForSingleSamples(bothSingleSamplesAlignmentComplete);
+        PipelineState singleSampleAlignmentState = combine(trapReferenceAlignmentComplete, trapTumorAlignmentComplete, metadata);
+        if (singleSampleAlignmentState.shouldProceed()) {
+            PipelineState somaticState = somaticPipeline.run();
+            waitForSingleSamples(bothSingleSamplesPipelineComplete);
+            PipelineState singleSamplePipelineState = combine(trapReferencePipelineComplete, trapTumorPipelineComplete, metadata);
+            return singleSampleAlignmentState.combineWith(somaticState).combineWith(singleSamplePipelineState);
         } else {
-            return singleSampleState;
+            return singleSampleAlignmentState;
         }
     }
 
-    private static Supplier<PipelineState> countdown(final CountDownLatch bothSingleSamplesComplete) {
+    private static Supplier<PipelineState> countdown(final CountDownLatch bothSingleSamplesAlignmentComplete,
+            final CountDownLatch bothSingleSamplesPipelineComplete) {
         return () -> {
-            bothSingleSamplesComplete.countDown();
+            bothSingleSamplesAlignmentComplete.countDown();
+            bothSingleSamplesPipelineComplete.countDown();
             return empty();
         };
     }
@@ -99,7 +109,6 @@ public class FullPipeline {
         try {
             bothSingleSamplesComplete.await();
         } catch (InterruptedException e) {
-            Thread.interrupted();
             throw new RuntimeException(e);
         }
     }
@@ -107,14 +116,29 @@ public class FullPipeline {
     private static class CountDownAndTrapStatus implements CompletionHandler {
 
         private final CountDownLatch latch;
+        private boolean trapAlignment;
         private PipelineState trappedState;
 
-        private CountDownAndTrapStatus(final CountDownLatch latch) {
+        private CountDownAndTrapStatus(final CountDownLatch latch, final boolean trapAlignment) {
             this.latch = latch;
+            this.trapAlignment = trapAlignment;
         }
 
         @Override
         public void handleAlignmentComplete(final PipelineState status) {
+            if (trapAlignment) {
+                trapAndCountdown(status);
+            }
+        }
+
+        @Override
+        public void handleSingleSampleComplete(final PipelineState state) {
+            if (!trapAlignment) {
+                trapAndCountdown(state);
+            }
+        }
+
+        private void trapAndCountdown(final PipelineState status) {
             trappedState = status;
             latch.countDown();
         }

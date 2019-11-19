@@ -73,9 +73,9 @@ public class SbpRestApi {
         return returnOrThrow(response);
     }
 
-    public void updateRunStatus(String runID, String status, String sbpBucket) {
+    public void updateRunStatus(String runID, String status, String gcpBucket) {
         try {
-            String json = OBJECT_MAPPER.writeValueAsString(SbpRunStatusUpdate.of(status, sbpBucket));
+            String json = OBJECT_MAPPER.writeValueAsString(SbpRunStatusUpdate.of(status, gcpBucket));
             patchRun(runID, status, json);
 
         } catch (JsonProcessingException e) {
