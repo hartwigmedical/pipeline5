@@ -16,10 +16,14 @@ public abstract class InputFileDescriptor {
     public abstract String billedProject();
 
     public String toCommandForm(String localDestination) {
-        return String.format("gsutil -q -u %s %s%s %s", billedProject(), protocol(), remoteFilename(), localDestination);
+        return String.format("gsutil -q -u %s cp %s%s %s",
+                billedProject(),
+                protocol(),
+                remoteFilename().replaceAll("^gs://", ""),
+                localDestination);
     }
 
-    public static ImmutableInputFileDescriptor.Builder builder() {
+    static ImmutableInputFileDescriptor.Builder builder() {
         return ImmutableInputFileDescriptor.builder();
     }
 }
