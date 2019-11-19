@@ -16,7 +16,7 @@ import com.google.api.services.compute.model.InstanceList;
 import com.google.api.services.compute.model.Metadata;
 import com.google.api.services.compute.model.Operation;
 import com.google.api.services.compute.model.Zone;
-import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.CommonArguments;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +33,7 @@ class InstanceLifecycleManager {
     private final Compute compute;
     private final String region;
 
-    InstanceLifecycleManager(final Arguments arguments, final Compute compute) {
+    InstanceLifecycleManager(final CommonArguments arguments, final Compute compute) {
         this.project = arguments.project();
         this.region = arguments.region();
         this.compute = compute;

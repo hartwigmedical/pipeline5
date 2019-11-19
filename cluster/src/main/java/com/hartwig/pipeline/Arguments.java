@@ -5,7 +5,7 @@ import java.util.Optional;
 import org.immutables.value.Value;
 
 @Value.Immutable
-public interface Arguments {
+public interface Arguments extends CommonArguments {
 
     String EMPTY = "";
 
@@ -22,10 +22,6 @@ public interface Arguments {
     }
 
     boolean cleanup();
-
-    boolean usePreemptibleVms();
-
-    boolean useLocalSsds();
 
     boolean upload();
 
@@ -49,11 +45,7 @@ public interface Arguments {
 
     Mode mode();
 
-    String project();
-
     String version();
-
-    String region();
 
     String sampleDirectory();
 
@@ -61,15 +53,9 @@ public interface Arguments {
 
     String setId();
 
-    String privateKeyPath();
-
-    String serviceAccountEmail();
-
     String sbpApiUrl();
 
     String sbpS3Url();
-
-    String cloudSdkPath();
 
     String rclonePath();
 
@@ -91,15 +77,11 @@ public interface Arguments {
 
     String archivePrivateKeyPath();
 
-    Optional<String> cmek();
-
     Optional<Integer> sbpApiSampleId();
 
     Optional<Integer> sbpApiRunId();
 
     Optional<String> runId();
-
-    Optional<String> privateNetwork();
 
     Optional<String> zone();
 

@@ -9,16 +9,16 @@ import com.hartwig.pipeline.storage.RuntimeBucket;
 import net.jodah.failsafe.Failsafe;
 import net.jodah.failsafe.RetryPolicy;
 
-public class BucketCompletionWatcher {
+class BucketCompletionWatcher {
     enum State {
         SUCCESS,
         FAILURE,
         STILL_WAITING
     }
 
-    State waitForCompletion(RuntimeBucket bucket, VirtualMachineJobDefinition jobDefinition) {
+    State waitForCompletion(RuntimeBucket bucket, RuntimeFiles flags) {
         return Failsafe.with(new RetryPolicy<>().withMaxRetries(-1).withDelay(Duration.ofSeconds(5)).handleResult(null)).get(() -> {
-            State currentState = currentState(bucket, jobDefinition);
+            State currentState = currentState(bucket, flags);
             if (currentState.equals(State.STILL_WAITING)) {
                 return null;
             } else {
@@ -27,10 +27,10 @@ public class BucketCompletionWatcher {
         });
     }
 
-    State currentState(RuntimeBucket bucket, VirtualMachineJobDefinition jobDefinition) {
-        if (bucketContainsFile(bucket, jobDefinition.startupCommand().failureFlag())) {
+    State currentState(RuntimeBucket bucket, RuntimeFiles flags) {
+        if (bucketContainsFile(bucket, flags.failure())) {
             return State.FAILURE;
-        } else if (bucketContainsFile(bucket, jobDefinition.startupCommand().successFlag())) {
+        } else if (bucketContainsFile(bucket, flags.success())) {
             return State.SUCCESS;
         }
         return State.STILL_WAITING;

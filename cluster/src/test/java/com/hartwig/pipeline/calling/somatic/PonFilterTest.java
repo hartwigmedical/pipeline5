@@ -4,11 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.hartwig.pipeline.calling.SubStage;
 import com.hartwig.pipeline.calling.SubStageTest;
-import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
 
 import org.junit.Test;
 
-public class PonFilterTest extends SubStageTest implements CommonEntities {
+public class PonFilterTest extends SubStageTest {
 
     @Override
     public SubStage createVictim() {

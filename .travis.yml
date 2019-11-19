@@ -30,3 +30,4 @@ before_install:
 install: "/bin/true"
 after_success:
 - docker push hartwigmedicalfoundation/pipeline5:$PIPELINE5_VERSION
+- docker push hartwigmedicalfoundation/batch5:$PIPELINE5_VERSION

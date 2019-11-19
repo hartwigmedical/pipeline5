@@ -6,7 +6,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.cloud.storage.Blob;
 import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.execution.vm.BashStartupScript;
+import com.hartwig.pipeline.execution.vm.RuntimeFiles;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetrics;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
@@ -31,7 +31,7 @@ public class OutputStorageTest {
 
     @Test
     public void waitsForBamMetricsOutput() {
-        Blob success = TestBlobs.blob(BashStartupScript.JOB_SUCCEEDED_FLAG);
+        Blob success = TestBlobs.blob(RuntimeFiles.typical().success());
         when(runtimeBucket.get(success.getName())).thenReturn(null).thenReturn(success);
         assertThat(victim.get(TestInputs.referenceRunMetadata(), new BamMetrics(TestInputs.referenceAlignmentOutput())).metricsOutputFile())
                 .isEqualTo(TestInputs.referenceMetricsOutput().metricsOutputFile());

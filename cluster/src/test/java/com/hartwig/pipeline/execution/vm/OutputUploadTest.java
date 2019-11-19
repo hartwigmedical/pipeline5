@@ -1,17 +1,28 @@
 package com.hartwig.pipeline.execution.vm;
 
+import static java.lang.String.format;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 
 import org.junit.Test;
 
-public class OutputUploadTest implements CommonEntities {
+public class OutputUploadTest {
+    private static final String OUT_DIR = "/data/output";
 
     @Test
-    public void createsBaseToCopyAllFilesAndDirsInOutputFolderToOutputBucket() {
-        OutputUpload victim = new OutputUpload(GoogleStorageLocation.of("bucket", "results"));
-        assertThat(victim.asBash()).isEqualTo("(cp /var/log/run.log /data/output && gsutil -qm rsync -dr /data/output gs://bucket/results)");
+    public void createsBashToCopyAllFilesAndDirsInOutputFolderToOutputBucket() {
+        OutputUpload victim = new OutputUpload(GoogleStorageLocation.of("bucket", "results/"));
+        assertThat(victim.asBash()).isEqualTo(format("(cp %s/%s %s && gsutil -qm rsync -r %s/ gs://bucket/results/)",
+                BashStartupScript.LOCAL_LOG_DIR, RuntimeFiles.typical().log(), OUT_DIR, OUT_DIR));
+    }
+
+    @Test
+    public void createsBashWhenNonTypicalRuntimeFilesAreUsed() {
+        RuntimeFiles runtimeFiles = RuntimeFiles.of("123");
+        OutputUpload victim = new OutputUpload(GoogleStorageLocation.of("bucket", "results/"), runtimeFiles);
+        assertThat(victim.asBash()).isEqualTo(format("(cp %s/%s %s && gsutil -qm rsync -r %s/ gs://bucket/results/)",
+                BashStartupScript.LOCAL_LOG_DIR, runtimeFiles.log(), OUT_DIR, OUT_DIR));
     }
 }
