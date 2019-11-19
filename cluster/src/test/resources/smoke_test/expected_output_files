@@ -21,6 +21,10 @@ cobalt/CPCT12345678T.cobalt.ratio.tsv
 cobalt/run.log
 CPCT12345678R/aligner/CPCT12345678R.bam
 CPCT12345678R/aligner/CPCT12345678R.bam.bai
+CPCT12345678R/aligner/run.log
+CPCT12345678R/aligner/HJJLGCCXX-L001/run.log
+CPCT12345678T/aligner/run.log
+CPCT12345678T/aligner/HJJLGCCXX-L001/run.log
 CPCT12345678R/bam_metrics/CPCT12345678R.wgsmetrics
 CPCT12345678R/bam_metrics/run.log
 CPCT12345678R/bam_metrics/run.sh
