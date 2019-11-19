@@ -4,11 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.hartwig.pipeline.calling.structural.gridss.CommonEntities;
-
 import org.junit.Test;
 
-public class BatchInputDownloadTest implements CommonEntities {
+public class BatchInputDownloadTest {
     @Test
     public void shouldCreateSingleGsCopyCommandForAllInputsToInputDirectory() {
         InputDownload inputOne = mock(InputDownload.class);
@@ -18,6 +16,6 @@ public class BatchInputDownloadTest implements CommonEntities {
         when(inputTwo.getRemoteSourcePath()).thenReturn("gs://remoter/location.2");
 
         String allInputSources = inputOne.getRemoteSourcePath() + " " + inputTwo.getRemoteSourcePath();
-        assertThat(download.asBash()).isEqualTo("gsutil -qm cp " + allInputSources + " " + CommonEntities.IN_DIR);
+        assertThat(download.asBash()).isEqualTo("gsutil -qm cp " + allInputSources + " " + "/data/input");
     }
 }
