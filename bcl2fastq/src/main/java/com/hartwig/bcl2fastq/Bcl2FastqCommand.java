@@ -6,8 +6,7 @@ import com.hartwig.pipeline.tools.Versions;
 class Bcl2FastqCommand extends VersionedToolCommand {
 
     Bcl2FastqCommand(final String workingDirectory, final String outputDirectory) {
-        super("bcl2fastq",
-                "bcl2fastq",
+        super("bcl2fastq", "bcl2fastq",
                 Versions.BCL2FASTQ,
                 "-R",
                 workingDirectory,

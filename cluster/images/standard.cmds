@@ -17,6 +17,7 @@ sudo tar xvf /opt/tools/tabix/0.2.6/tabix.tar -C /opt/tools/tabix/0.2.6/
 sudo tar xvf /opt/tools/samtools/1.2/samtools.tar.gz -C /opt/tools/samtools/1.2/
 sudo tar xvf /opt/tools/circos/0.69.6/circos.tar -C /opt/tools/circos/0.69.6/
 sudo tar xvf /opt/tools/gridss/2.5.2/scripts.tar -C /opt/tools/gridss/2.5.2/
+sudo tar xvf /opt/tools/gridss/2.7.2/scripts.tar -C /opt/tools/gridss/2.7.2/
 # This guy is a little different from the others in that it extracts overtop the system-managed R libraries.
 sudo tar xvf /opt/tools/R/rlibs.tar -C /
 sudo chmod a+x /opt/tools/bcftools/1.3.1/bcftools
@@ -25,7 +26,9 @@ sudo chmod a+x /opt/tools/bwa/0.7.17/bwa
 sudo chmod a+x /opt/tools/sambamba/0.6.5/sambamba
 sudo chmod a+x /opt/tools/sambamba/0.6.8/sambamba
 sudo chmod a+x /opt/tools/chord/60.02_1.03/extractSigPredictHRD.R
-sudo chmod a+x /data/tools/bcl2fastq/2.20.0.422/bcl2fastq
+sudo chmod a+x /opt/tools/gridss/2.7.2/gridss.sh
+sudo chmod a+x /opt/tools/samtools/1.9/samtools
+sudo chmod a+x /opt/tools/bcl2fastq/2.20.0.422/bcl2fastq
 sudo cpanm install Clone
 sudo cpanm install Config::General
 sudo cpanm install Font::TTF::Font

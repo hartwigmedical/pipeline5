@@ -10,7 +10,7 @@ import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
-public class Bcl2Fastq {
+class Bcl2Fastq {
 
     private final Storage storage;
     private final ComputeEngine computeEngine;
@@ -25,9 +25,10 @@ public class Bcl2Fastq {
         this.resultsDirectory = resultsDirectory;
     }
 
-    public void run() {
+    void run() {
         FlowcellMetadata metadata = FlowcellMetadata.from(arguments);
-        RuntimeBucket bucket = RuntimeBucket.from(storage, "bcl2fastq", metadata, com.hartwig.pipeline.Arguments.defaults("development"));
+        RuntimeBucket bucket =
+                RuntimeBucket.from(storage, "bcl2fastq", metadata, com.hartwig.pipeline.Arguments.defaults("development"));
         BashStartupScript bash = BashStartupScript.of(bucket.name());
         BclDownload bclDownload = new BclDownload(arguments.inputBucket(), arguments.flowcell());
         bash.addCommand(bclDownload)

@@ -19,7 +19,7 @@ which gcloud 2>&1 >/dev/null
 type="standard"
 cmds="$(dirname "$0")/${type}.cmds"
 [[ ! -f ${cmds} ]] && echo "Cannot find commands file '${type}'!" >&2 && exit 1
-sourceInstance="diskimager-${type}"
+sourceInstance="com.hartwig.bcl2fastq-${type}"
 
 # From here on in we want to fail immediately on any surprises
 echo "#!$(which sh) -e"

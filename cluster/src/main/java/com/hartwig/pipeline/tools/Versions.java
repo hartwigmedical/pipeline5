@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 
 public interface Versions {
 
-    String BCL2FASTQ = "2.20.0.422";
     String BWA = "0.7.17";
     String SAMBAMBA = "0.6.8";
     String GATK = "3.8.0";
@@ -25,10 +24,12 @@ public interface Versions {
     String HEALTH_CHECKER = "3.1";
     String PURPLE = "2.34";
     String CIRCOS = "0.69.6";
-    String GRIDSS = "2.5.2";
+    String GRIDSS = "2.7.2";
     String LINX = "1.5";
     String BACHELOR = "1.9";
     String CHORD = "60.02_1.03";
+    String SAMTOOLS = "1.9";
+    String BCL2FASTQ = "2.20.0.422";
 
     static void printAll() {
         Logger logger = LoggerFactory.getLogger(Versions.class);

@@ -23,7 +23,6 @@ import com.hartwig.pipeline.stages.StageRunner;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.storage.StorageProvider;
 import com.hartwig.pipeline.tools.Versions;
-import com.hartwig.pipeline.transfer.google.GoogleArchiver;
 
 import org.apache.commons.cli.ParseException;
 import org.slf4j.Logger;
@@ -79,8 +78,7 @@ public class PipelineMain {
                         metadata -> RuntimeBucket.from(storage, BamMetrics.NAMESPACE, metadata, arguments)),
                 new OutputStorage<>(ResultsDirectory.defaultDirectory(),
                         arguments,
-                        metadata -> RuntimeBucket.from(storage, GermlineCaller.NAMESPACE, metadata, arguments)),
-                somaticMetadataApi, new GoogleArchiver(arguments),
+                        metadata -> RuntimeBucket.from(storage, GermlineCaller.NAMESPACE, metadata, arguments)), somaticMetadataApi,
                 PipelineResultsProvider.from(storage, arguments, Versions.pipelineVersion()).get(),
                 new FullSomaticResults(storage, arguments),
                 CleanupProvider.from(arguments, storage).get(),

@@ -14,11 +14,9 @@ import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.calling.SubStageInputOutput;
 import com.hartwig.pipeline.calling.command.BwaCommand;
-import com.hartwig.pipeline.calling.structural.gridss.stage.Annotation;
-import com.hartwig.pipeline.calling.structural.gridss.stage.Assemble;
-import com.hartwig.pipeline.calling.structural.gridss.stage.Calling;
+import com.hartwig.pipeline.calling.command.VersionedToolCommand;
+import com.hartwig.pipeline.calling.structural.gridss.stage.Driver;
 import com.hartwig.pipeline.calling.structural.gridss.stage.Filter;
-import com.hartwig.pipeline.calling.structural.gridss.stage.Preprocess;
 import com.hartwig.pipeline.calling.structural.gridss.stage.RepeatMaskerInsertionAnnotation;
 import com.hartwig.pipeline.calling.structural.gridss.stage.ViralAnnotation;
 import com.hartwig.pipeline.execution.PipelineStatus;
@@ -40,6 +38,7 @@ import com.hartwig.pipeline.resource.ResourceNames;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
+import com.hartwig.pipeline.tools.Versions;
 
 public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRunMetadata> {
     public static final String NAMESPACE = "structural_caller";
@@ -51,7 +50,6 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
 
     private String filteredVcf;
     private String fullVcfCompressed;
-    private String annotatedOutputFilePath;
 
     public StructuralCaller(final AlignmentPair pair) {
         referenceBam = new InputDownload(pair.reference().finalBamLocation());
@@ -83,52 +81,37 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
     public List<BashCommand> commands(final SomaticRunMetadata metadata, final Map<String, ResourceDownload> resources) {
         List<BashCommand> commands = new ArrayList<>();
         commands.add(new ExportVariableCommand("PATH", format("${PATH}:%s", dirname(new BwaCommand().asBash()))));
+        commands.add(new ExportVariableCommand("PATH",
+                format("${PATH}:%s", dirname(new VersionedToolCommand("samtools", "samtools", Versions.SAMTOOLS).asBash()))));
 
         String tumorSampleName = metadata.tumor().sampleName();
-        String referenceSampleName = metadata.reference().sampleName();
-        String jointName = referenceSampleName + "_" + tumorSampleName;
-
-        String referenceWorkingDir = format("%s/%s.gridss.working", VmDirectories.OUTPUT, basename(referenceBam.getLocalTargetPath()));
-        String tumorWorkingDir = format("%s/%s.gridss.working", VmDirectories.OUTPUT, basename(tumorBam.getLocalTargetPath()));
-
-        String configurationFile = resources.get(ResourceNames.GRIDSS_CONFIG).find("properties");
-        String blacklist = resources.get(ResourceNames.GRIDSS_CONFIG).find("bed");
-
         String refBamPath = referenceBam.getLocalTargetPath();
         String tumorBamPath = tumorBam.getLocalTargetPath();
+
+        String configurationFilePath = resources.get(ResourceNames.GRIDSS_CONFIG).find("properties");
+        String blacklistBedPath = resources.get(ResourceNames.GRIDSS_CONFIG).find("bed");
         String referenceGenomePath = resources.get(ResourceNames.REFERENCE_GENOME).find("fasta");
         String virusReferenceGenomePath = resources.get(ResourceNames.VIRUS_REFERENCE_GENOME).find("human_virus.fa");
         String repeatMaskerDbPath = resources.get(ResourceNames.GRIDSS_REPEAT_MASKER_DB).find("hg19.fa.out");
 
-        commands.addAll(new Preprocess(refBamPath,
-                referenceWorkingDir,
-                referenceSampleName,
-                referenceGenomePath).apply(SubStageInputOutput.empty(referenceSampleName)).bash());
-        commands.addAll(new Preprocess(tumorBamPath, tumorWorkingDir, tumorSampleName, referenceGenomePath).apply(SubStageInputOutput.empty(
-                tumorSampleName)).bash());
-
-        Assemble assemble = new Assemble(refBamPath, tumorBamPath, jointName, referenceGenomePath, configurationFile, blacklist);
         String filteredVcfBasename = VmDirectories.outputFile(format("%s.gridss.somatic.vcf", tumorSampleName));
-        String fullVcfBasename = VmDirectories.outputFile(format("%s.gridss.somatic.full.vcf", tumorSampleName));
+
+        Driver driver = new Driver(VmDirectories.outputFile(tumorSampleName + ".assembly.bam"),
+                referenceGenomePath,
+                blacklistBedPath,
+                configurationFilePath,
+                refBamPath,
+                tumorBamPath);
+        SubStageInputOutput fullSomaticVcf = driver.apply(SubStageInputOutput.empty(tumorSampleName));
 
         SubStageInputOutput filteredAndAnnotated =
-                assemble.andThen(new Calling(refBamPath, tumorBamPath, referenceGenomePath, configurationFile, blacklist))
-                        .andThen(new Annotation(referenceBam.getLocalTargetPath(),
-                                tumorBam.getLocalTargetPath(),
-                                assemble.completedBam(),
-                                referenceGenomePath,
-                                jointName,
-                                configurationFile,
-                                blacklist))
-                        .andThen(new RepeatMaskerInsertionAnnotation(repeatMaskerDbPath))
-                        .andThen(new ViralAnnotation(virusReferenceGenomePath))
-                        .andThen(new Filter(filteredVcfBasename, fullVcfBasename))
-                        .apply(SubStageInputOutput.empty(jointName));
+                new RepeatMaskerInsertionAnnotation(repeatMaskerDbPath).andThen(new ViralAnnotation(virusReferenceGenomePath))
+                        .andThen(new Filter(filteredVcfBasename, fullSomaticVcf.outputFile().path()))
+                        .apply(fullSomaticVcf);
         commands.addAll(filteredAndAnnotated.bash());
 
         filteredVcf = filteredVcfBasename + ".gz";
-        fullVcfCompressed = fullVcfBasename + ".gz";
-        annotatedOutputFilePath = VmDirectories.outputFile(jointName + ".annotation.vcf.gz");
+        fullVcfCompressed = fullSomaticVcf.outputFile().path() + ".gz";
         return commands;
     }
 
@@ -154,12 +137,6 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
                 .maybeFilteredVcfIndex(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(filteredVcf + ".tbi"))))
                 .maybeFullVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(fullVcfCompressed))))
                 .maybeFullVcfIndex(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(fullVcfCompressed + ".tbi"))))
-                .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
-                        NAMESPACE,
-                        Folder.from(),
-                        basename(annotatedOutputFilePath),
-                        format("%s.gridss.unfiltered.vcf.gz", metadata.tumor().sampleName()),
-                        resultsDirectory))
                 .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
                         NAMESPACE,
                         Folder.from(),
