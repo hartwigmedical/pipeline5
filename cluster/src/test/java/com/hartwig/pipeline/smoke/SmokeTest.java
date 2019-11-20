@@ -95,7 +95,7 @@ public class SmokeTest {
                 .archivePrivateKeyPath(ARCHIVE_PRIVATE_KEY)
                 .build();
 
-        SbpRestApi api = SbpRestApi.newInstance(arguments);
+        SbpRestApi api = SbpRestApi.newInstance(arguments.sbpApiUrl());
 
         String setName = setName(api);
 

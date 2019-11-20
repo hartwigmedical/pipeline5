@@ -41,6 +41,8 @@ public interface Arguments extends CommonArguments {
 
     boolean shallow();
 
+    boolean gsFastq();
+
     DefaultsProfile profile();
 
     Mode mode();

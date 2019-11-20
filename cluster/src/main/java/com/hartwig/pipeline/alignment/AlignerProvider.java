@@ -17,10 +17,11 @@ import com.hartwig.pipeline.sbpapi.SbpRestApi;
 import com.hartwig.pipeline.storage.CloudCopy;
 import com.hartwig.pipeline.storage.CloudSampleUpload;
 import com.hartwig.pipeline.storage.GSUtilCloudCopy;
+import com.hartwig.pipeline.storage.GoogleStorageFileSource;
 import com.hartwig.pipeline.storage.LocalFileSource;
 import com.hartwig.pipeline.storage.RCloneCloudCopy;
 import com.hartwig.pipeline.storage.SampleUpload;
-import com.hartwig.pipeline.transfer.sbp.SbpS3FileSource;
+import com.hartwig.pipeline.storage.SbpS3FileSource;
 
 public abstract class AlignerProvider {
 
@@ -87,13 +88,14 @@ public abstract class AlignerProvider {
         @Override
         Aligner wireUp(GoogleCredentials credentials, Storage storage, AlignmentOutputStorage alignmentOutputStorage,
                 ResultsDirectory resultsDirectory) throws Exception {
-            SbpRestApi sbpRestApi = SbpRestApi.newInstance(getArguments());
+            SbpRestApi sbpRestApi = SbpRestApi.newInstance(getArguments().sbpApiUrl());
             SampleSource sampleSource = new SbpS3SampleSource(new SbpSampleReader(sbpRestApi));
             CloudCopy cloudCopy = new RCloneCloudCopy(getArguments().rclonePath(),
                     getArguments().rcloneGcpRemote(),
                     getArguments().rcloneS3RemoteDownload(),
                     ProcessBuilder::new);
-            SampleUpload sampleUpload = new CloudSampleUpload(new SbpS3FileSource(), cloudCopy);
+            SampleUpload sampleUpload =
+                    new CloudSampleUpload(getArguments().gsFastq() ? new GoogleStorageFileSource() : new SbpS3FileSource(), cloudCopy);
             return AlignerProvider.constructVmAligner(getArguments(),
                     credentials,
                     storage,

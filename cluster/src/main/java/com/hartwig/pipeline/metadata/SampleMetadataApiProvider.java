@@ -12,7 +12,7 @@ public class SampleMetadataApiProvider {
     }
 
     public SampleMetadataApi get() {
-        return arguments.sbpApiSampleId().<SampleMetadataApi>map(sbpSampleId -> new SbpSampleMetadataApi(SbpRestApi.newInstance(arguments),
+        return arguments.sbpApiSampleId().<SampleMetadataApi>map(sbpSampleId -> new SbpSampleMetadataApi(SbpRestApi.newInstance(arguments.sbpApiUrl()),
                 sbpSampleId)).orElse(new LocalSampleMetadataApi(arguments.sampleId()));
     }
 

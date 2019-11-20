@@ -55,7 +55,7 @@ public interface Bcl2fastqArguments extends CommonArguments {
                 .addOption(stringOption(SERVICE_ACCOUNT_EMAIL, "Email of service account"))
                 .addOption(stringOption(INPUT_BUCKET, "Location of BCL files to convert"))
                 .addOption(stringOption(OUTPUT_BUCKET, "Location to persist BCL files once converted"))
-                .addOption(stringOption(FLOWCELL, "ID of flowcell from which the BCL files were generated"));
+                .addOption(stringOption(FLOWCELL, "ID of flowcell from which the BCL files were generated")).addOption(stringOption("sbp_api_url", "URL "));
     }
 
     private static Option stringOption(final String option, final String description) {
