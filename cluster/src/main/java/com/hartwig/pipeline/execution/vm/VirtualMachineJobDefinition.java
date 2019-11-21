@@ -57,7 +57,6 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .name("strelka")
                 .startupCommand(startupScript)
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(64, 64))
                 .build();
     }
 
@@ -100,7 +99,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("bam-metrics")
                 .startupCommand(startupScript)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(16, 64))
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(8, 32))
                 .namespacedResults(resultsDirectory)
                 .build();
     }
