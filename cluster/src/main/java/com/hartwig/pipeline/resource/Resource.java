@@ -11,7 +11,7 @@ import com.hartwig.pipeline.execution.vm.VmDirectories;
 public interface Resource {
 
     static String of(String name, String file) {
-        return String.format("%s/%s/%s/", VmDirectories.RESOURCES, name, file);
+        return String.format("%s/%s/%s", VmDirectories.RESOURCES, name, file);
     }
 
     String REFERENCE_GENOME_FASTA = Resource.of(REFERENCE_GENOME, "Homo_sapiens.GRCh37.GATK.illumina.fasta");
