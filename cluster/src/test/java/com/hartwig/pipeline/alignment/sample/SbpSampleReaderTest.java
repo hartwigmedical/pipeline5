@@ -4,8 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.io.IOException;
-
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.metadata.TestJson;
 import com.hartwig.pipeline.sbpapi.SbpRestApi;
@@ -42,7 +40,7 @@ public class SbpSampleReaderTest {
     }
 
     @Test
-    public void addsAllLanesToSample() throws Exception {
+    public void addsAllLanesToSample() {
         returnJson(FASTQ_JSON);
         Sample sample = victim.read(EXISTS);
         assertThat(sample).isNotNull();
@@ -50,29 +48,30 @@ public class SbpSampleReaderTest {
     }
 
     @Test
-    public void parsesPatientNameFromReadsFile() throws Exception {
+    public void parsesPatientNameFromReadsFile() {
         returnJson(FASTQ_JSON);
         Sample sample = victim.read(EXISTS);
         assertThat(sample.name()).isEqualTo(SAMPLE_NAME);
     }
 
     @Test
-    public void getsBarcodeFromAPi() throws Exception {
+    public void getsBarcodeFromAPi() {
         returnJson(FASTQ_JSON);
         Sample sample = victim.read(EXISTS);
         assertThat(sample.barcode()).isEqualTo("FR13257296");
     }
 
     @Test
-    public void getsFlowcellAndIndexFromFileName()  throws Exception {
+    public void getsFlowcellIndexAndSuffixFromFileName() {
         returnJson(FASTQ_JSON);
         Sample sample = victim.read(EXISTS);
         assertThat(sample.lanes().get(0).flowCellId()).isEqualTo("HJKLMALXX");
         assertThat(sample.lanes().get(0).index()).isEqualTo("S6");
+        assertThat(sample.lanes().get(0).suffix()).isEqualTo("001");
     }
 
     @Test
-    public void filtersLanesWhichHaveNotPassedQC() throws Exception {
+    public void filtersLanesWhichHaveNotPassedQC() {
         returnJson(FASTQ_JSON_SINGLE_QC_FAILED);
         Sample sample = victim.read(EXISTS);
         assertThat(sample.lanes()).hasSize(1);
@@ -80,7 +79,7 @@ public class SbpSampleReaderTest {
     }
 
     @Test
-    public void handlesSubdirectories() throws Exception {
+    public void handlesSubdirectories() {
         returnJson(FASTQ_JSON_SUBDIRECTORIES);
         Sample sample = victim.read(EXISTS);
         assertThat(sample.lanes()).hasSize(2);
@@ -88,18 +87,18 @@ public class SbpSampleReaderTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void throwsIllegalArgumentWhenAllLanesFilteredQc() throws Exception {
+    public void throwsIllegalArgumentWhenAllLanesFilteredQc() {
         returnJson(FASTQ_JSON_ALL_QC_FAILED);
         victim.read(EXISTS);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void throwsIllegalArgumentWhenFastqNameIncorrect() throws Exception {
+    public void throwsIllegalArgumentWhenFastqNameIncorrect() {
         returnJson(BAD_FASTQ_NAME);
         victim.read(EXISTS);
     }
 
-    private void returnJson(final String sampleJsonLocation) throws IOException {
+    private void returnJson(final String sampleJsonLocation) {
         when(sbpRestApi.getFastQ(EXISTS)).thenReturn(TestJson.get(sampleJsonLocation));
     }
 }

@@ -97,6 +97,7 @@ public class SbpSampleReader {
         }
         String[] tokens = sbpFastQ.name_r1().split("_");
         String laneNumber = tokens[3];
+        String suffix = suffix(tokens);
         String flowCellId = tokens[1];
         return Lane.builder()
                 .name(tokens[0] + "_" + laneNumber)
@@ -104,10 +105,15 @@ public class SbpSampleReader {
                 .firstOfPairPath(s3Path(sbpFastQ, sbpFastQ.name_r1()))
                 .secondOfPairPath(s3Path(sbpFastQ, sbpFastQ.name_r2()))
                 .directory("")
-                .suffix("")
+                .suffix(suffix)
                 .flowCellId(flowCellId)
                 .index(tokens[2])
                 .build();
+    }
+
+    private static String suffix(final String[] tokens) {
+        String suffixAndExtension = tokens.length >= 6 ? tokens[5] : "";
+        return suffixAndExtension.split("\\.")[0];
     }
 
     private static String s3Path(final SbpFastQ sbpFastQ, final String file) {
