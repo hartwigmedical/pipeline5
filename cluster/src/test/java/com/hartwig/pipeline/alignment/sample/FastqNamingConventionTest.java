@@ -37,6 +37,11 @@ public class FastqNamingConventionTest {
     }
 
     @Test
+    public void missingSuffix() {
+        assertThat(test("CPCT12345678R_HJJLGCCXX_S11_L001_R1.fastq.gz")).isFalse();
+    }
+
+    @Test
     public void nonNumericSampleIndex() {
         assertThat(test("CPCT12345678R_HJJLGCCXX_SA_L001_R1_001.fastq.gz")).isFalse();
     }
