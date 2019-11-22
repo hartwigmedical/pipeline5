@@ -21,7 +21,6 @@ import com.hartwig.pipeline.sbpapi.SbpRun;
 import com.hartwig.pipeline.storage.CloudCopy;
 
 import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +32,6 @@ public class SbpFileTransfer {
     private final ContentTypeCorrection contentTypeCorrection;
     private final Arguments arguments;
     private final static Logger LOGGER = LoggerFactory.getLogger(SbpFileTransfer.class);
-    public final static String MANIFEST_FILENAME = "MANIFEST";
 
     SbpFileTransfer(final CloudCopy cloudCopy, final SbpS3 sbpS3, final SbpRestApi sbpApi, Bucket sourceBucket,
             ContentTypeCorrection contentTypeCorrection, final Arguments arguments) {
@@ -58,7 +56,6 @@ public class SbpFileTransfer {
                 allFiles.add(createPair(blob, sbpBucket));
             }
         }
-        writeManifest(allFiles, sbpBucket, metadata.runName(), sbpRun);
         for (SourceDestPair pair : allFiles) {
             LOGGER.debug("Copying {}", pair);
             doRemoteWork(pair.source.toUrl(), Integer.parseInt(sbpRun.id()), pair.source.size(), pair.source.md5(), pair.dest);
@@ -66,23 +63,6 @@ public class SbpFileTransfer {
         if (arguments.cleanup()) {
             sourceObjects.forEach(Blob::delete);
         }
-    }
-
-    private void writeManifest(List<SourceDestPair> allFiles, String sbpBucket, String directory, SbpRun sbpRun) {
-        LOGGER.debug("Generating manifest");
-        String manifestContents =
-                allFiles.stream().map(SourceDestPair::getSource).map(CloudFile::toManifestForm).collect(Collectors.joining("\n"));
-        String manifestKey = directory + "/" + MANIFEST_FILENAME;
-        String md5 = DigestUtils.md5Hex(manifestContents.getBytes());
-        sbpS3.createFile(sbpBucket, manifestKey, manifestContents.getBytes(), md5);
-        SbpFileMetadata metaData = SbpFileMetadata.builder()
-                .directory("")
-                .run_id(Integer.parseInt(sbpRun.id()))
-                .filename(MANIFEST_FILENAME)
-                .filesize(manifestContents.getBytes().length)
-                .hash(md5)
-                .build();
-        sbpApi.postFile(metaData);
     }
 
     private void doRemoteWork(String sourceUrl, int runId, long filesize, String md5, CloudFile dest) {

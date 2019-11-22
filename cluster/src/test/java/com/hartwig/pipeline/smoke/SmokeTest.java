@@ -24,7 +24,6 @@ import com.hartwig.pipeline.sbpapi.SbpSet;
 import com.hartwig.pipeline.storage.GSUtil;
 import com.hartwig.pipeline.storage.RCloneCloudCopy;
 import com.hartwig.pipeline.testsupport.Resources;
-import com.hartwig.pipeline.transfer.sbp.SbpFileTransfer;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -138,7 +137,6 @@ public class SmokeTest {
         try {
             return rclone(ImmutableList.of("ls", remoteParent)).stream()
                     .map(String::trim)
-                    .filter(s -> !s.split(" +")[1].equals(SbpFileTransfer.MANIFEST_FILENAME))
                     .collect(Collectors.toList());
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -153,7 +151,6 @@ public class SmokeTest {
                 .stream()
                 .filter(filename -> filename.matches("^gs://.*[^:]"))
                 .map(filename -> filename.replaceAll(format("^gs://%s/%s/", archiveBucket, setName), ""))
-                .filter(filename -> !filename.equals(SbpFileTransfer.MANIFEST_FILENAME))
                 .filter(filename -> !filename.equals(STAGED_FLAG_FILE))
                 .collect(Collectors.toList());
     }

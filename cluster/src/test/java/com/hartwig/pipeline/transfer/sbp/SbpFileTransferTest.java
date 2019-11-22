@@ -113,21 +113,11 @@ public class SbpFileTransferTest {
     public void shouldPostValidFileToSbpApiUsingCorrectPath() {
         victim.publish(metadata, sbpRun, sbpBucket);
         ArgumentCaptor<SbpFileMetadata> metadataCaptor = ArgumentCaptor.forClass(SbpFileMetadata.class);
-        verify(sbpApi, times(2)).postFile(metadataCaptor.capture());
+        verify(sbpApi, times(1)).postFile(metadataCaptor.capture());
 
         List<SbpFileMetadata> capturedMetadata = metadataCaptor.getAllValues();
-        assertThat(capturedMetadata.get(1).directory()).isEqualTo(directoryForFile);
-        assertThat(capturedMetadata.get(1).filename()).isEqualTo(filenameForPost);
-    }
-
-    @Test
-    public void shouldPostManifestToSbpApiUsingCorrectPath() {
-        victim.publish(metadata, sbpRun, sbpBucket);
-        ArgumentCaptor<SbpFileMetadata> metadataCaptor = ArgumentCaptor.forClass(SbpFileMetadata.class);
-        verify(sbpApi, times(2)).postFile(metadataCaptor.capture());
-
-        List<SbpFileMetadata> capturedMetadata = metadataCaptor.getAllValues();
-        assertManifest(capturedMetadata.get(0));
+        assertThat(capturedMetadata.get(0).directory()).isEqualTo(directoryForFile);
+        assertThat(capturedMetadata.get(0).filename()).isEqualTo(filenameForPost);
     }
 
     @Test
@@ -135,9 +125,9 @@ public class SbpFileTransferTest {
         when(fileBlob.getName()).thenReturn("/filename");
         victim.publish(metadata, sbpRun, sbpBucket);
         ArgumentCaptor<SbpFileMetadata> metadataCaptor = ArgumentCaptor.forClass(SbpFileMetadata.class);
-        verify(sbpApi, times(2)).postFile(metadataCaptor.capture());
+        verify(sbpApi, times(1)).postFile(metadataCaptor.capture());
 
-        SbpFileMetadata capturedMetadata = metadataCaptor.getAllValues().get(1);
+        SbpFileMetadata capturedMetadata = metadataCaptor.getAllValues().get(0);
         assertThat(capturedMetadata.directory()).isEqualTo("");
         assertThat(capturedMetadata.filename()).isEqualTo("filename");
     }
@@ -149,9 +139,9 @@ public class SbpFileTransferTest {
         when(fileBlob.getMd5()).thenReturn(md5);
         victim.publish(metadata, sbpRun, sbpBucket);
         ArgumentCaptor<SbpFileMetadata> metadataCaptor = ArgumentCaptor.forClass(SbpFileMetadata.class);
-        verify(sbpApi, times(2)).postFile(metadataCaptor.capture());
+        verify(sbpApi, times(1)).postFile(metadataCaptor.capture());
 
-        assertThat(metadataCaptor.getAllValues().get(1).hash()).isEqualTo(hexEncodedMd5);
+        assertThat(metadataCaptor.getAllValues().get(0).hash()).isEqualTo(hexEncodedMd5);
     }
 
     @Test
@@ -188,14 +178,6 @@ public class SbpFileTransferTest {
     public void filtersOutStagingCompletionFiles() {
         when(fileBlob.getName()).thenReturn("/" + directoryForFile + "/" + PipelineResults.STAGING_COMPLETE);
         victim.publish(metadata, sbpRun, sbpBucket);
-        ArgumentCaptor<SbpFileMetadata> metadataCaptor = ArgumentCaptor.forClass(SbpFileMetadata.class);
-        verify(sbpApi).postFile(metadataCaptor.capture());
-
-        assertManifest(metadataCaptor.getAllValues().get(0));
     }
 
-    private void assertManifest(SbpFileMetadata metadata) {
-        assertThat(metadata.directory()).isEqualTo("");
-        assertThat(metadata.filename()).isEqualTo(SbpFileTransfer.MANIFEST_FILENAME);
-    }
 }
