@@ -25,7 +25,7 @@ public class GoogleArchiver {
             GSUtil.auth(arguments.cloudSdkPath(), arguments.archivePrivateKeyPath());
             String source = format("gs://%s/%s", arguments.patientReportBucket(), metadata.runName());
             String destination = format("gs://%s/%s", arguments.archiveBucket(), metadata.runName());
-            GSUtil.rsync(arguments.cloudSdkPath(), source, destination, arguments.archiveProject(), true);
+            GSUtil.rsync(arguments.cloudSdkPath(), source, destination, arguments.archiveProject(), true, "STAGED");
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

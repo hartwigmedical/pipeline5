@@ -44,13 +44,17 @@ public class GSUtil {
         Processes.run(processBuilder, VERBOSE, TIMEOUT_HOURS, TimeUnit.HOURS);
     }
 
-    public static void rsync(String gsdkPath, String sourceUrl, String targetUrl, String userProject, boolean recurse)
+    public static void rsync(String gsdkPath, String sourceUrl, String targetUrl, String userProject, boolean recurse, String exclude)
             throws IOException, InterruptedException {
         List<String> command = new ArrayList<>();
         command.add(gsdkPath + "/gsutil");
         if (userProject != null) {
             command.add("-u");
             command.add(userProject);
+        }
+        if (exclude != null){
+            command.add("-x");
+            command.add("'.*"+exclude+".*'");
         }
         command.add("-qm");
         command.add("rsync");
