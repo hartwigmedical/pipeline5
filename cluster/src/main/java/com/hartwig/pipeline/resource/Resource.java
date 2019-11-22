@@ -1,60 +1,23 @@
 package com.hartwig.pipeline.resource;
 
-import java.util.function.Function;
+import static com.hartwig.pipeline.resource.ResourceNames.COSMIC;
+import static com.hartwig.pipeline.resource.ResourceNames.DBNSFP;
+import static com.hartwig.pipeline.resource.ResourceNames.GC_PROFILE;
+import static com.hartwig.pipeline.resource.ResourceNames.REFERENCE_GENOME;
+import static com.hartwig.pipeline.resource.ResourceNames.SNPEFF;
 
-import com.google.api.gax.paging.Page;
-import com.google.cloud.storage.Blob;
-import com.google.cloud.storage.Bucket;
-import com.google.cloud.storage.Storage;
-import com.hartwig.pipeline.storage.RuntimeBucket;
+import com.hartwig.pipeline.execution.vm.VmDirectories;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+public interface Resource {
 
-public class Resource {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(Resource.class);
-
-    private final Storage storage;
-    private final String commonResourcesBucket;
-    private final String name;
-    private final Function<String, String> alias;
-
-    public Resource(final Storage storage, final String commonResourcesBucket, final String name, final Function<String, String> alias) {
-        this.storage = storage;
-        this.commonResourcesBucket = commonResourcesBucket;
-        this.name = name;
-        this.alias = alias;
+    static String of(String name, String file) {
+        return String.format("%s/%s/%s/", VmDirectories.RESOURCES, name, file);
     }
 
-    public Resource(final Storage storage, final String commonResourcesBucket, final String name) {
-        this(storage, commonResourcesBucket, name, Function.identity());
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public ResourceLocation copyInto(RuntimeBucket runtimeBucket) {
-        ImmutableResourceLocation.Builder locationBuilder = ResourceLocation.builder();
-        locationBuilder.bucket(runtimeBucket.name() + "/" + name);
-        Bucket staticDataBucket = storage.get(commonResourcesBucket);
-        if (staticDataBucket != null) {
-            Page<Blob> blobs = staticDataBucket.list(Storage.BlobListOption.prefix(name));
-            String fullyQualifiedSourceBucket = commonResourcesBucket + "/" + name;
-            LOGGER.debug("Copying static data of [{}] into [{}]", fullyQualifiedSourceBucket, runtimeBucket.name());
-            for (Blob source : blobs.iterateAll()) {
-                String aliased = alias.apply(source.getName());
-                String[] targetPath = aliased.split("/");
-                String targetBlob = String.format("%s/%s", name, targetPath[targetPath.length - 1]);
-                LOGGER.debug("Copying [{}] to [{}]", source.getName(), targetBlob);
-                runtimeBucket.copyInto(commonResourcesBucket, source.getName(), targetBlob);
-                locationBuilder.addFiles(aliased);
-            }
-            LOGGER.debug("Copying static data complete");
-        } else {
-            LOGGER.warn("No bucket found for static data [{}] check that it exists in storage", name);
-        }
-        return locationBuilder.build();
-    }
+    String REFERENCE_GENOME_FASTA = Resource.of(REFERENCE_GENOME, "Homo_sapiens.GRCh37.GATK.illumina.fasta");
+    String GC_PROFILE_CNP = Resource.of(GC_PROFILE, "GC_profile.1000bp.cnp");
+    String SNPEFF_CONFIG = Resource.of(SNPEFF, "snpEff.config");
+    String SNPEFF_DB = Resource.of(SNPEFF, "snpEff_v4_3_GRCh37.75.zip");
+    String DBSNPS_VCF = Resource.of(DBNSFP, "dbNSFP2.9.txt.gz");
+    String COSMIC_VCF_GZ = Resource.of(COSMIC, "CosmicCodingMuts_v85_collapsed.vcf.gz");
 }

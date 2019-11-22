@@ -6,10 +6,8 @@ import java.util.Collections;
 import java.util.List;
 
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
-import com.hartwig.pipeline.resource.ResourceNames;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
-import com.hartwig.pipeline.testsupport.MockResource;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Before;
@@ -19,7 +17,6 @@ public class CobaltTest extends TertiaryStageTest<CobaltOutput> {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        MockResource.addToStorage(storage, ResourceNames.GC_PROFILE, "gc.cnp");
     }
 
     @Override
@@ -28,16 +25,12 @@ public class CobaltTest extends TertiaryStageTest<CobaltOutput> {
     }
 
     @Override
-    protected List<String> expectedResources() {
-        return Collections.singletonList(resource(ResourceNames.GC_PROFILE));
-    }
-
-    @Override
     protected List<String> expectedCommands() {
         return Collections.singletonList(
-                "java -Xmx8G -cp $TOOLS_DIR/cobalt/1.7/cobalt.jar com.hartwig.hmftools.cobalt.CountBamLinesApplication -reference reference "
-                        + "-reference_bam /data/input/reference.bam -tumor tumor -tumor_bam /data/input/tumor.bam -output_dir /data/output "
-                        + "-threads 16 -gc_profile /data/resources/gc.cnp -threads $(grep -c '^processor' /proc/cpuinfo)");
+                "java -Xmx8G -cp /opt/tools/cobalt/1.7/cobalt.jar com.hartwig.hmftools.cobalt.CountBamLinesApplication -reference "
+                        + "reference -reference_bam /data/input/reference.bam -tumor tumor -tumor_bam /data/input/tumor.bam -output_dir "
+                        + "/data/output -threads 16 -gc_profile /opt/resources/gc/GC_profile.1000bp.cnp/ -threads $(grep -c '^processor' "
+                        + "/proc/cpuinfo)");
     }
 
     @Override

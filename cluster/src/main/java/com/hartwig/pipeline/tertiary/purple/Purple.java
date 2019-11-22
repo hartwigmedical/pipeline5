@@ -2,9 +2,7 @@ package com.hartwig.pipeline.tertiary.purple;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
-import com.google.cloud.storage.Storage;
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
@@ -14,13 +12,12 @@ import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.InputDownload;
-import com.hartwig.pipeline.execution.vm.ResourceDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
-import com.hartwig.pipeline.resource.ResourceNames;
+import com.hartwig.pipeline.resource.Resource;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
@@ -42,12 +39,6 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
     private final InputDownload cobaltOutputDownload;
     private final boolean shallow;
 
-    @Override
-    public List<ResourceDownload> resources(final Storage storage, final String resourceBucket, final RuntimeBucket bucket) {
-        return ImmutableList.of(ResourceDownload.from(storage, resourceBucket, ResourceNames.GC_PROFILE, bucket),
-                ResourceDownload.from(storage, resourceBucket, ResourceNames.REFERENCE_GENOME, bucket));
-    }
-
     public Purple(SomaticCallerOutput somaticCallerOutput, StructuralCallerOutput structuralCallerOutput, AmberOutput amberOutput,
             CobaltOutput cobaltOutput, final boolean shallow) {
         somaticVcfDownload = new InputDownload(somaticCallerOutput.finalSomaticVcf());
@@ -66,17 +57,17 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
     }
 
     @Override
-    public List<BashCommand> commands(final SomaticRunMetadata metadata, final Map<String, ResourceDownload> resources) {
+    public List<BashCommand> commands(final SomaticRunMetadata metadata) {
         return Collections.singletonList(new PurpleApplicationCommand(metadata.reference().sampleName(),
                 metadata.tumor().sampleName(),
                 amberOutputDownload.getLocalTargetPath(),
                 cobaltOutputDownload.getLocalTargetPath(),
-                resources.get(ResourceNames.GC_PROFILE).find("cnp"),
+                Resource.GC_PROFILE_CNP,
                 somaticVcfDownload.getLocalTargetPath(),
                 structuralVcfDownload.getLocalTargetPath(),
                 svRecoveryVcfDownload.getLocalTargetPath(),
                 VmDirectories.TOOLS + "/circos/" + Versions.CIRCOS + "/bin/circos",
-                resources.get(ResourceNames.REFERENCE_GENOME).find("fasta"),
+                Resource.REFERENCE_GENOME_FASTA,
                 shallow));
     }
 

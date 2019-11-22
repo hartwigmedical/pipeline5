@@ -1,11 +1,8 @@
 package com.hartwig.pipeline.tertiary.healthcheck;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import com.google.cloud.storage.Blob;
-import com.google.cloud.storage.Storage;
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
@@ -13,7 +10,6 @@ import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.InputDownload;
-import com.hartwig.pipeline.execution.vm.ResourceDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.unix.MkDirCommand;
@@ -63,17 +59,12 @@ public class HealthChecker implements Stage<HealthCheckOutput, SomaticRunMetadat
     }
 
     @Override
-    public List<ResourceDownload> resources(final Storage storage, final String resourceBucket, final RuntimeBucket bucket) {
-        return Collections.emptyList();
-    }
-
-    @Override
     public String namespace() {
         return NAMESPACE;
     }
 
     @Override
-    public List<BashCommand> commands(final SomaticRunMetadata metadata, final Map<String, ResourceDownload> resources) {
+    public List<BashCommand> commands(final SomaticRunMetadata metadata) {
         return ImmutableList.of(new HealthCheckerApplicationCommand(metadata.reference().sampleName(),
                 metadata.tumor().sampleName(),
                 LOCAL_METRICS_DIR,

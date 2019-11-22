@@ -19,7 +19,7 @@ which gcloud 2>&1 >/dev/null
 type="standard"
 cmds="$(dirname "$0")/${type}.cmds"
 [[ ! -f ${cmds} ]] && echo "Cannot find commands file '${type}'!" >&2 && exit 1
-sourceInstance="diskimager-${type}"
+sourceInstance="diskimager-resources-${type}"
 
 # From here on in we want to fail immediately on any surprises
 echo "#!$(which sh) -e"
@@ -29,7 +29,7 @@ echo "#!$(which sh) -e"
 # with the regex given in the help
 network="--network=diskimager --subnet=diskimager"
 [[ "${PROJECT}" = "${DEV_PROJECT}" ]] && network=""
-echo "$GCL instances create ${sourceInstance} --description=\"Instance for ${type} disk image creation\" --zone=${ZONE} ${network}"
+echo "$GCL instances create ${sourceInstance} --description=\"Instance for ${type} disk image creation\" --zone=${ZONE} ${network} --boot-disk-size 100"
 echo "sleep 5"
 # Ignore lines consisting only of spaces, or those beginning with '#'
 tunnel="--tunnel-through-iap"
