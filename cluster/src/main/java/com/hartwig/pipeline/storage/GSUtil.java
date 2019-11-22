@@ -52,12 +52,12 @@ public class GSUtil {
             command.add("-u");
             command.add(userProject);
         }
+        command.add("-qm");
+        command.add("rsync");
         if (exclude != null){
             command.add("-x");
             command.add("'.*"+exclude+".*'");
         }
-        command.add("-qm");
-        command.add("rsync");
         if (recurse) {
             command.add("-r");
         }
