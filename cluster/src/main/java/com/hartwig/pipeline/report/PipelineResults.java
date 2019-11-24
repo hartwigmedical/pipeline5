@@ -51,7 +51,6 @@ public class PipelineResults {
         Folder folder = Folder.from();
         writeMetadata(metadata, name, folder);
         compose(name, folder);
-        writeComplete(name);
     }
 
     public void compose(SingleSampleRunMetadata metadata,  Boolean isStandalone, PipelineState state) {
