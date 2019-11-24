@@ -79,13 +79,12 @@ public class PipelineResultsTest {
     }
 
     @Test
-    public void copiesMetadataRunVersionAndCompletionToRootOfBucketSomatic() {
+    public void copiesMetadataRunVersionToRootOfBucketSomatic() {
         ArgumentCaptor<String> createBlobCaptor = ArgumentCaptor.forClass(String.class);
         victim.compose(TestInputs.defaultSomaticRunMetadata());
-        verify(outputBucket, times(3)).create(createBlobCaptor.capture(), (byte[]) any());
+        verify(outputBucket, times(2)).create(createBlobCaptor.capture(), (byte[]) any());
         assertThat(createBlobCaptor.getAllValues().get(0)).isEqualTo("run/metadata.json");
         assertThat(createBlobCaptor.getAllValues().get(1)).isEqualTo("run/pipeline.version");
-        assertThat(createBlobCaptor.getAllValues().get(2)).isEqualTo("run/STAGED");
     }
 
     @Test
