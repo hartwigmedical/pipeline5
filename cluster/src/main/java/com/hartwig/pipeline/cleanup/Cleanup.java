@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.cleanup;
 
+import java.io.IOException;
+
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.RunTag;
 import com.hartwig.pipeline.alignment.Run;
@@ -23,11 +25,15 @@ public class Cleanup {
         if (!arguments.cleanup()) {
             return;
         }
-        LOGGER.info("Cleaning up runtime storage on complete somatic pipeline run");
-
-        metadata.maybeTumor().ifPresent(tumor -> deleteBucket(Run.from(metadata, arguments).id()));
-        cleanupSample(metadata.reference());
-        metadata.maybeTumor().ifPresent(this::cleanupSample);
+        try {
+            LOGGER.info("Cleaning up runtime storage on complete somatic pipeline run");
+            GSUtil.auth(arguments.cloudSdkPath(), arguments.privateKeyPath());
+            metadata.maybeTumor().ifPresent(tumor -> deleteBucket(Run.from(metadata, arguments).id()));
+            cleanupSample(metadata.reference());
+            metadata.maybeTumor().ifPresent(this::cleanupSample);
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void cleanupSample(final SingleSampleRunMetadata metadata) {
