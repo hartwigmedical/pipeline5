@@ -14,6 +14,10 @@ public interface Resource {
         return String.format("%s/%s/%s", VmDirectories.RESOURCES, name, file);
     }
 
+    static String of(String name) {
+        return of(name, "");
+    }
+
     String REFERENCE_GENOME_FASTA = Resource.of(REFERENCE_GENOME, "Homo_sapiens.GRCh37.GATK.illumina.fasta");
     String GC_PROFILE_CNP = Resource.of(GC_PROFILE, "GC_profile.1000bp.cnp");
     String SNPEFF_CONFIG = Resource.of(SNPEFF, "snpEff.config");

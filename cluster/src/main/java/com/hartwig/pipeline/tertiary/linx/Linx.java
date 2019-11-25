@@ -18,6 +18,7 @@ import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.resource.Resource;
+import com.hartwig.pipeline.resource.ResourceNames;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
@@ -54,7 +55,7 @@ public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
                 Resource.of(SV, "line_elements.csv"),
                 Resource.of(SV, "heli_rep_origins.bed"),
                 Resource.of(SV, "viral_host_ref.csv"),
-                VmDirectories.RESOURCES,
+                Resource.of(ResourceNames.ENSEMBL),
                 Resource.of(KNOWLEDGEBASES, "knownFusionPairs.csv"),
                 Resource.of(KNOWLEDGEBASES, "knownPromiscuousFive.csv"),
                 Resource.of(KNOWLEDGEBASES, "knownPromiscuousThree.csv")));
