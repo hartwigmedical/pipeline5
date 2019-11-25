@@ -16,7 +16,7 @@ class DbSnpAnnotation extends SubStage {
 
     DbSnpAnnotation(final String dbsnp) {
         super("dbsnp.annotated", OutputFile.GZIPPED_VCF);
-        this.dbsnp = dbsnp;
+        this.dbsnp = dbsnp.endsWith("gz") ? dbsnp : dbsnp + ".gz";
     }
 
     @Override

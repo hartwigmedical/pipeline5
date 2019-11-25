@@ -51,7 +51,7 @@ public class SomaticCallerTest extends TertiaryStageTest<SomaticCallerOutput> {
                 "/opt/tools/snpEff/4.3s/snpEff.sh /opt/tools/snpEff/4.3s/snpEff.jar /opt/resources/snpeff/snpEff.config GRCh37.75 /data/output/tumor.sage.hotspots.annotated.vcf.gz /data/output/tumor.snpeff.annotated.vcf",
                 "/opt/tools/tabix/0.2.6/bgzip -f /data/output/tumor.snpeff.annotated.vcf",
                 "/opt/tools/tabix/0.2.6/tabix /data/output/tumor.snpeff.annotated.vcf.gz -p vcf",
-                "/opt/tools/bcftools/1.3.1/bcftools annotate -a /opt/resources/dbsnps/dbsnp_137.b37.vcf -c ID -o /data/output/tumor.dbsnp.annotated.vcf.gz -O z /data/output/tumor.snpeff.annotated.vcf.gz",
+                "/opt/tools/bcftools/1.3.1/bcftools annotate -a /opt/resources/dbsnps/dbsnp_137.b37.vcf.gz -c ID -o /data/output/tumor.dbsnp.annotated.vcf.gz -O z /data/output/tumor.snpeff.annotated.vcf.gz",
                 "/opt/tools/tabix/0.2.6/tabix /data/output/tumor.dbsnp.annotated.vcf.gz -p vcf",
                 "/opt/tools/bcftools/1.3.1/bcftools annotate -a /opt/resources/cosmic_v85/CosmicCodingMuts_v85_collapsed.vcf.gz -c ID,INFO -o /data/output/tumor.cosmic.annotated.final.vcf.gz -O z /data/output/tumor.dbsnp.annotated.vcf.gz",
                 "/opt/tools/tabix/0.2.6/tabix /data/output/tumor.cosmic.annotated.final.vcf.gz -p vcf");
