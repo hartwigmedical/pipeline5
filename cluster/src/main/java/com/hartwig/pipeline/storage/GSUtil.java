@@ -28,7 +28,7 @@ public class GSUtil {
     public static void cp(String gsdkPath, String sourceUrl, String targetUrl, String userProject, boolean recurse)
             throws IOException, InterruptedException {
         List<String> command = new ArrayList<>();
-        command.add(gsdkPath + "/gsutil");
+        command.add(gsutil(gsdkPath));
         if (userProject != null) {
             command.add("-u");
             command.add(userProject);
@@ -47,7 +47,7 @@ public class GSUtil {
     public static void rsync(String gsdkPath, String sourceUrl, String targetUrl, String userProject, boolean recurse)
             throws IOException, InterruptedException {
         List<String> command = new ArrayList<>();
-        command.add(gsdkPath + "/gsutil");
+        command.add(gsutil(gsdkPath));
         if (userProject != null) {
             command.add("-u");
             command.add(userProject);
@@ -61,5 +61,24 @@ public class GSUtil {
         command.add(targetUrl);
         ProcessBuilder processBuilder = new ProcessBuilder(command).inheritIO();
         Processes.run(processBuilder, VERBOSE, TIMEOUT_HOURS, TimeUnit.HOURS);
+    }
+
+    public static void rm(String gsdkPath, String path) {
+        List<String> command = new ArrayList<>();
+        command.add(gsutil(gsdkPath));
+        command.add("-qm");
+        command.add("rm");
+        command.add("-r");
+        command.add("gs://" + path);
+        ProcessBuilder processBuilder = new ProcessBuilder(command).inheritIO();
+        try {
+            Processes.run(processBuilder, VERBOSE, TIMEOUT_HOURS, TimeUnit.HOURS);
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static String gsutil(final String gsdkPath) {
+        return gsdkPath + "/gsutil";
     }
 }
