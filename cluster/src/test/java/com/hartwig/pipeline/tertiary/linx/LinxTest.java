@@ -36,12 +36,12 @@ public class LinxTest extends TertiaryStageTest<LinxOutput> {
     protected List<String> expectedCommands() {
         return Collections.singletonList("java -Xmx8G -jar /opt/tools/linx/1.5/linx.jar -sample tumor -sv_vcf "
                 + "/data/input/tumor.purple.sv.vcf.gz -purple_dir /data/input/results -ref_genome "
-                + "/opt/resources/reference_genome/Homo_sapiens.GRCh37.GATK.illumina.fasta/ -output_dir /data/output -fragile_site_file "
-                + "/opt/resources/sv/fragile_sites_hmf.csv/ -line_element_file /opt/resources/sv/line_elements.csv/ "
-                + "-replication_origins_file /opt/resources/sv/heli_rep_origins.bed/ -viral_hosts_file /opt/resources/sv/viral_host_ref.csv/ "
-                + "-gene_transcripts_dir /opt/resources -check_fusions -fusion_pairs_csv /opt/resources/knowledgebases/knownFusionPairs.csv/ "
-                + "-promiscuous_five_csv /opt/resources/knowledgebases/knownPromiscuousFive.csv/ -promiscuous_three_csv "
-                + "/opt/resources/knowledgebases/knownPromiscuousThree.csv/ -chaining_sv_limit 0 -check_drivers -write_vis_data");
+                + "/opt/resources/reference_genome/Homo_sapiens.GRCh37.GATK.illumina.fasta -output_dir /data/output -fragile_site_file "
+                + "/opt/resources/sv/fragile_sites_hmf.csv -line_element_file /opt/resources/sv/line_elements.csv "
+                + "-replication_origins_file /opt/resources/sv/heli_rep_origins.bed -viral_hosts_file /opt/resources/sv/viral_host_ref.csv "
+                + "-gene_transcripts_dir /opt/resources -check_fusions -fusion_pairs_csv /opt/resources/knowledgebases/knownFusionPairs.csv "
+                + "-promiscuous_five_csv /opt/resources/knowledgebases/knownPromiscuousFive.csv -promiscuous_three_csv "
+                + "/opt/resources/knowledgebases/knownPromiscuousThree.csv -chaining_sv_limit 0 -check_drivers -write_vis_data");
     }
 
     @Test
