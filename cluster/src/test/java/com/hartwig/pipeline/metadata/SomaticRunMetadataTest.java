@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Optional;
 
-import com.hartwig.pipeline.sbpapi.ObjectMappers;
+import com.hartwig.pipeline.jackson.ObjectMappers;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Test;

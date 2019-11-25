@@ -47,7 +47,7 @@ class Bcl2Fastq {
         computeEngine.submit(bucket, VirtualMachineJobDefinition.bcl2fastq(bash, resultsDirectory));
 
         Conversion conversionResult =
-                Conversion.from(bucket.list(resultsDirectory.path("BaseCalls")).stream().map(Blob::getName).collect(Collectors.toList()));
+                Conversion.from(bucket.list(resultsDirectory.path("HMFregVAL")).stream().map(Blob::getName).collect(Collectors.toList()));
 
         for (ConvertedSample sample : conversionResult.samples()) {
             for (ConvertedFastq fastq : sample.fastq()) {
@@ -58,7 +58,7 @@ class Bcl2Fastq {
     }
 
     private void copy(final RuntimeBucket bucket, final ConvertedSample sample, final String path) {
-        storage.copy(Storage.CopyRequest.of(bucket.name(),
+        storage.copy(Storage.CopyRequest.of(bucket.bucket().getName(),
                 path,
                 BlobInfo.newBuilder(arguments.outputBucket(), sample.barcode() + "/" + new File(path).getName()).build())).getResult();
     }

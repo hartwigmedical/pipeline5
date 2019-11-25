@@ -29,9 +29,9 @@ public class ConversionTest {
         assertThat(sample.fastq()).hasSize(1);
         ConvertedFastq fastq = sample.fastq().get(0);
         assertThat(fastq.pathR1()).isEqualTo(
-                "run-bcl-conversion/bcl2fastq/results/Data/Intensities/BaseCalls/submission/barcode1/sample_S1_L001_R1_001.fastq.gz");
+                "bcl2fastq/results/submission/barcode1/sample_S1_L001_R1_001.fastq.gz");
         assertThat(fastq.pathR2()).isEqualTo(
-                "run-bcl-conversion/bcl2fastq/results/Data/Intensities/BaseCalls/submission/barcode1/sample_S1_L001_R2_001.fastq.gz");
+                "bcl2fastq/results/submission/barcode1/sample_S1_L001_R2_001.fastq.gz");
     }
 
     @Test
@@ -59,7 +59,7 @@ public class ConversionTest {
     }
 
     private String path(int numInPair, int lane, final String barcode) {
-        return String.format("run-bcl-conversion/bcl2fastq/results/Data/Intensities/BaseCalls/%s/%s/sample_S1_L00%s_R%s_001.fastq.gz",
+        return String.format("bcl2fastq/results/%s/%s/sample_S1_L00%s_R%s_001.fastq.gz",
                 SUBMISSION,
                 barcode,
                 lane,

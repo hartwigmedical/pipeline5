@@ -1,0 +1,521 @@
+{
+  "Flowcell": "HH5VTCCXX",
+  "RunNumber": 22,
+  "RunId": "151005_ST-00295_0022_BHH5VTCCXX",
+  "ReadInfosForLanes": [
+    {
+      "LaneNumber": 1,
+      "ReadInfos": [
+        {
+          "Number": 1,
+          "NumCycles": 151,
+          "IsIndexedRead": false
+        },
+        {
+          "Number": 2,
+          "NumCycles": 151,
+          "IsIndexedRead": false
+        }
+      ]
+    },
+    {
+      "LaneNumber": 2,
+      "ReadInfos": [
+        {
+          "Number": 1,
+          "NumCycles": 151,
+          "IsIndexedRead": false
+        },
+        {
+          "Number": 2,
+          "NumCycles": 151,
+          "IsIndexedRead": false
+        }
+      ]
+    },
+    {
+      "LaneNumber": 3,
+      "ReadInfos": [
+        {
+          "Number": 1,
+          "NumCycles": 151,
+          "IsIndexedRead": false
+        },
+        {
+          "Number": 2,
+          "NumCycles": 151,
+          "IsIndexedRead": false
+        }
+      ]
+    },
+    {
+      "LaneNumber": 4,
+      "ReadInfos": [
+        {
+          "Number": 1,
+          "NumCycles": 151,
+          "IsIndexedRead": false
+        },
+        {
+          "Number": 2,
+          "NumCycles": 151,
+          "IsIndexedRead": false
+        }
+      ]
+    },
+    {
+      "LaneNumber": 5,
+      "ReadInfos": [
+        {
+          "Number": 1,
+          "NumCycles": 151,
+          "IsIndexedRead": false
+        },
+        {
+          "Number": 2,
+          "NumCycles": 151,
+          "IsIndexedRead": false
+        }
+      ]
+    },
+    {
+      "LaneNumber": 6,
+      "ReadInfos": [
+        {
+          "Number": 1,
+          "NumCycles": 151,
+          "IsIndexedRead": false
+        },
+        {
+          "Number": 2,
+          "NumCycles": 151,
+          "IsIndexedRead": false
+        }
+      ]
+    },
+    {
+      "LaneNumber": 7,
+      "ReadInfos": [
+        {
+          "Number": 1,
+          "NumCycles": 151,
+          "IsIndexedRead": false
+        },
+        {
+          "Number": 2,
+          "NumCycles": 151,
+          "IsIndexedRead": false
+        }
+      ]
+    },
+    {
+      "LaneNumber": 8,
+      "ReadInfos": [
+        {
+          "Number": 1,
+          "NumCycles": 151,
+          "IsIndexedRead": false
+        },
+        {
+          "Number": 2,
+          "NumCycles": 151,
+          "IsIndexedRead": false
+        }
+      ]
+    }
+  ],
+  "ConversionResults": [
+    {
+      "LaneNumber": 1,
+      "TotalClustersRaw": 6470949,
+      "TotalClustersPF": 6470949,
+      "Yield": 1954226598,
+      "DemuxResults": [
+        {
+          "SampleId": "PhiX",
+          "SampleName": "PhiX",
+          "NumberReads": 6470949,
+          "Yield": 1954226598,
+          "ReadMetrics": [
+            {
+              "ReadNumber": 1,
+              "Yield": 977113299,
+              "YieldQ30": 758259637,
+              "QualityScoreSum": 27487064842,
+              "TrimmedBases": 2034725
+            },
+            {
+              "ReadNumber": 2,
+              "Yield": 977113299,
+              "YieldQ30": 758259637,
+              "QualityScoreSum": 27487064842,
+              "TrimmedBases": 2034725
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "LaneNumber": 2,
+      "TotalClustersRaw": 0,
+      "TotalClustersPF": 0,
+      "Yield": 0,
+      "DemuxResults": [
+        {
+          "SampleId": "PhiX",
+          "SampleName": "PhiX",
+          "NumberReads": 0,
+          "Yield": 0,
+          "ReadMetrics": [
+            {
+              "ReadNumber": 1,
+              "Yield": 0,
+              "YieldQ30": 0,
+              "QualityScoreSum": 0,
+              "TrimmedBases": 0
+            },
+            {
+              "ReadNumber": 2,
+              "Yield": 0,
+              "YieldQ30": 0,
+              "QualityScoreSum": 0,
+              "TrimmedBases": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "LaneNumber": 3,
+      "TotalClustersRaw": 0,
+      "TotalClustersPF": 0,
+      "Yield": 0,
+      "DemuxResults": [
+        {
+          "SampleId": "NA12878_100pM",
+          "SampleName": "NA12878_100pM",
+          "IndexMetrics": [
+            {
+              "IndexSequence": "CCGTCC",
+              "MismatchCounts": {
+                "0": 0,
+                "1": 0
+              }
+            }
+          ],
+          "NumberReads": 0,
+          "Yield": 0,
+          "ReadMetrics": [
+            {
+              "ReadNumber": 1,
+              "Yield": 0,
+              "YieldQ30": 0,
+              "QualityScoreSum": 0,
+              "TrimmedBases": 0
+            },
+            {
+              "ReadNumber": 2,
+              "Yield": 0,
+              "YieldQ30": 0,
+              "QualityScoreSum": 0,
+              "TrimmedBases": 0
+            }
+          ]
+        }
+      ],
+      "Undetermined": {
+        "NumberReads": 0,
+        "Yield": 0,
+        "ReadMetrics": [
+          {
+            "ReadNumber": 1,
+            "Yield": 0,
+            "YieldQ30": 0,
+            "QualityScoreSum": 0,
+            "TrimmedBases": 0
+          },
+          {
+            "ReadNumber": 2,
+            "Yield": 0,
+            "YieldQ30": 0,
+            "QualityScoreSum": 0,
+            "TrimmedBases": 0
+          }
+        ]
+      }
+    },
+    {
+      "LaneNumber": 4,
+      "TotalClustersRaw": 0,
+      "TotalClustersPF": 0,
+      "Yield": 0,
+      "DemuxResults": [
+        {
+          "SampleId": "NA12878_200pM",
+          "SampleName": "NA12878_200pM",
+          "IndexMetrics": [
+            {
+              "IndexSequence": "CCGTCC",
+              "MismatchCounts": {
+                "0": 0,
+                "1": 0
+              }
+            }
+          ],
+          "NumberReads": 0,
+          "Yield": 0,
+          "ReadMetrics": [
+            {
+              "ReadNumber": 1,
+              "Yield": 0,
+              "YieldQ30": 0,
+              "QualityScoreSum": 0,
+              "TrimmedBases": 0
+            },
+            {
+              "ReadNumber": 2,
+              "Yield": 0,
+              "YieldQ30": 0,
+              "QualityScoreSum": 0,
+              "TrimmedBases": 0
+            }
+          ]
+        }
+      ],
+      "Undetermined": {
+        "NumberReads": 0,
+        "Yield": 0,
+        "ReadMetrics": [
+          {
+            "ReadNumber": 1,
+            "Yield": 0,
+            "YieldQ30": 0,
+            "QualityScoreSum": 0,
+            "TrimmedBases": 0
+          },
+          {
+            "ReadNumber": 2,
+            "Yield": 0,
+            "YieldQ30": 0,
+            "QualityScoreSum": 0,
+            "TrimmedBases": 0
+          }
+        ]
+      }
+    },
+    {
+      "LaneNumber": 5,
+      "TotalClustersRaw": 0,
+      "TotalClustersPF": 0,
+      "Yield": 0,
+      "DemuxResults": [
+        {
+          "SampleId": "NA12878_300pM",
+          "SampleName": "NA12878_300pM",
+          "IndexMetrics": [
+            {
+              "IndexSequence": "CCGTCC",
+              "MismatchCounts": {
+                "0": 0,
+                "1": 0
+              }
+            }
+          ],
+          "NumberReads": 0,
+          "Yield": 0,
+          "ReadMetrics": [
+            {
+              "ReadNumber": 1,
+              "Yield": 0,
+              "YieldQ30": 0,
+              "QualityScoreSum": 0,
+              "TrimmedBases": 0
+            },
+            {
+              "ReadNumber": 2,
+              "Yield": 0,
+              "YieldQ30": 0,
+              "QualityScoreSum": 0,
+              "TrimmedBases": 0
+            }
+          ]
+        }
+      ],
+      "Undetermined": {
+        "NumberReads": 0,
+        "Yield": 0,
+        "ReadMetrics": [
+          {
+            "ReadNumber": 1,
+            "Yield": 0,
+            "YieldQ30": 0,
+            "QualityScoreSum": 0,
+            "TrimmedBases": 0
+          },
+          {
+            "ReadNumber": 2,
+            "Yield": 0,
+            "YieldQ30": 0,
+            "QualityScoreSum": 0,
+            "TrimmedBases": 0
+          }
+        ]
+      }
+    },
+    {
+      "LaneNumber": 6,
+      "TotalClustersRaw": 0,
+      "TotalClustersPF": 0,
+      "Yield": 0,
+      "DemuxResults": [
+        {
+          "SampleId": "NA12878_400pM",
+          "SampleName": "NA12878_400pM",
+          "IndexMetrics": [
+            {
+              "IndexSequence": "CCGTCC",
+              "MismatchCounts": {
+                "0": 0,
+                "1": 0
+              }
+            }
+          ],
+          "NumberReads": 0,
+          "Yield": 0,
+          "ReadMetrics": [
+            {
+              "ReadNumber": 1,
+              "Yield": 0,
+              "YieldQ30": 0,
+              "QualityScoreSum": 0,
+              "TrimmedBases": 0
+            },
+            {
+              "ReadNumber": 2,
+              "Yield": 0,
+              "YieldQ30": 0,
+              "QualityScoreSum": 0,
+              "TrimmedBases": 0
+            }
+          ]
+        }
+      ],
+      "Undetermined": {
+        "NumberReads": 0,
+        "Yield": 0,
+        "ReadMetrics": [
+          {
+            "ReadNumber": 1,
+            "Yield": 0,
+            "YieldQ30": 0,
+            "QualityScoreSum": 0,
+            "TrimmedBases": 0
+          },
+          {
+            "ReadNumber": 2,
+            "Yield": 0,
+            "YieldQ30": 0,
+            "QualityScoreSum": 0,
+            "TrimmedBases": 0
+          }
+        ]
+      }
+    },
+    {
+      "LaneNumber": 7,
+      "TotalClustersRaw": 0,
+      "TotalClustersPF": 0,
+      "Yield": 0,
+      "DemuxResults": [
+        {
+          "SampleId": "PhiX",
+          "SampleName": "PhiX",
+          "NumberReads": 0,
+          "Yield": 0,
+          "ReadMetrics": [
+            {
+              "ReadNumber": 1,
+              "Yield": 0,
+              "YieldQ30": 0,
+              "QualityScoreSum": 0,
+              "TrimmedBases": 0
+            },
+            {
+              "ReadNumber": 2,
+              "Yield": 0,
+              "YieldQ30": 0,
+              "QualityScoreSum": 0,
+              "TrimmedBases": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "LaneNumber": 8,
+      "TotalClustersRaw": 0,
+      "TotalClustersPF": 0,
+      "Yield": 0,
+      "DemuxResults": [
+        {
+          "SampleId": "PhiX",
+          "SampleName": "PhiX",
+          "NumberReads": 0,
+          "Yield": 0,
+          "ReadMetrics": [
+            {
+              "ReadNumber": 1,
+              "Yield": 0,
+              "YieldQ30": 0,
+              "QualityScoreSum": 0,
+              "TrimmedBases": 0
+            },
+            {
+              "ReadNumber": 2,
+              "Yield": 0,
+              "YieldQ30": 0,
+              "QualityScoreSum": 0,
+              "TrimmedBases": 0
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "UnknownBarcodes": [
+    {
+      "Lane": 1,
+      "Barcodes": {
+        "unknown": 6469580
+      }
+    },
+    {
+      "Lane": 2,
+      "Barcodes": {}
+    },
+    {
+      "Lane": 3,
+      "Barcodes": {}
+    },
+    {
+      "Lane": 4,
+      "Barcodes": {}
+    },
+    {
+      "Lane": 5,
+      "Barcodes": {}
+    },
+    {
+      "Lane": 6,
+      "Barcodes": {}
+    },
+    {
+      "Lane": 7,
+      "Barcodes": {}
+    },
+    {
+      "Lane": 8,
+      "Barcodes": {}
+    }
+  ]
+}

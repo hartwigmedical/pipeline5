@@ -101,16 +101,16 @@ public class RuntimeBucket {
         storage.copy(Storage.CopyRequest.of(bucket.getName(), namespace(sourceBlobName), targetBlobInfo)).getResult();
     }
 
-    void compose(List<String> sources, String target) {
-        storage.compose(Storage.ComposeRequest.of(bucket.getName(), sources, namespace(target)));
-    }
-
     public String name() {
         return bucket.getName() + "/" + namespace;
     }
 
     public String runId() {
         return runId;
+    }
+
+    public Bucket bucket() {
+        return bucket;
     }
 
     @Override

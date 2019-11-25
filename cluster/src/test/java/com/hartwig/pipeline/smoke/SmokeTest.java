@@ -17,7 +17,7 @@ import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.PipelineMain;
 import com.hartwig.pipeline.PipelineState;
 import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.sbpapi.ObjectMappers;
+import com.hartwig.pipeline.jackson.ObjectMappers;
 import com.hartwig.pipeline.sbpapi.SbpRestApi;
 import com.hartwig.pipeline.sbpapi.SbpSet;
 import com.hartwig.pipeline.storage.GSUtil;

@@ -22,6 +22,6 @@ public interface Conversion {
     }
 
     static String parseBarcode(String path) {
-        return path.split("/")[7];
+        return path.split("/")[3];
     }
 }
