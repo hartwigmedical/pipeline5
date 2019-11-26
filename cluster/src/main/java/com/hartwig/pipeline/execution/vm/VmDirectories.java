@@ -3,7 +3,7 @@ package com.hartwig.pipeline.execution.vm;
 public interface VmDirectories {
     String INPUT = "/data/input";
     String OUTPUT = "/data/output";
-    String RESOURCES = "/data/resources";
+    String RESOURCES = "/opt/resources";
     String TOOLS = "/opt/tools";
     String TEMP = "/data/tmp";
 

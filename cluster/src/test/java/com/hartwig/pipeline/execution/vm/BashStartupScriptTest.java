@@ -24,21 +24,6 @@ public class BashStartupScriptTest {
         scriptBuilder = of(bucketName);
     }
 
-    ////    @Test
-    ////    public void shouldReturnTypicalExecutionFlagsIfNotSpecified() {
-    ////        assertThat(scriptBuilder.
-    ////    }
-    ////
-    ////    @Test
-    ////    public void shouldReturnSuccessFlagFilename() {
-    ////        assertThat(scriptBuilder.successFlag()).isEqualTo("JOB_SUCCESS");
-    ////    }
-    //
-    //    @Test
-    //    public void shouldReturnFailureFlagFilename() {
-    //        assertThat(scriptBuilder.failureFlag()).isEqualTo("JOB_FAILURE");
-    //    }
-
     @Test
     public void shouldWriteCompleteScriptForLocalSsds() throws IOException {
         String expectedScript = Resources.testResource("script_generation/complete_script-local_ssds");
@@ -58,7 +43,7 @@ public class BashStartupScriptTest {
         assertThat(scriptBuilder.asUnixString()).isEqualTo(new String(Files.readAllBytes(Paths.get(expectedScript))));
     }
 
-    private class ComplexCommand implements BashCommand {
+    private static class ComplexCommand implements BashCommand {
         @Override
         public String asBash() {
             return "not_really_so_complex \"quoted\"";

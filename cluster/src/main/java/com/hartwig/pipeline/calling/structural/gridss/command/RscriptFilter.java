@@ -3,6 +3,7 @@ package com.hartwig.pipeline.calling.structural.gridss.command;
 import static java.lang.String.format;
 
 import com.hartwig.pipeline.execution.vm.VmDirectories;
+import com.hartwig.pipeline.resource.ResourceNames;
 
 public class RscriptFilter extends GridssRscript {
     private final String inputFile;
@@ -23,7 +24,7 @@ public class RscriptFilter extends GridssRscript {
     @Override
     String arguments() {
         return format("-p %s -i %s -o %s -f %s -s %s",
-                VmDirectories.RESOURCES,
+                VmDirectories.RESOURCES + "/" + ResourceNames.GRIDSS_PON,
                 inputFile,
                 outputFile,
                 outputFullCompressedVcf,

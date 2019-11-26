@@ -2,12 +2,14 @@ package com.hartwig.pipeline.calling.structural;
 
 import static java.lang.String.format;
 
+import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_CONFIG;
+import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_REPEAT_MASKER_DB;
+import static com.hartwig.pipeline.resource.ResourceNames.VIRUS_REFERENCE_GENOME;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-import com.google.cloud.storage.Storage;
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
@@ -23,7 +25,6 @@ import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.InputDownload;
-import com.hartwig.pipeline.execution.vm.ResourceDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.unix.ExportVariableCommand;
@@ -34,7 +35,6 @@ import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.report.StartupScriptComponent;
 import com.hartwig.pipeline.report.ZippedVcfAndIndexComponent;
 import com.hartwig.pipeline.resource.Resource;
-import com.hartwig.pipeline.resource.ResourceNames;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
@@ -64,21 +64,12 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
     }
 
     @Override
-    public List<ResourceDownload> resources(final Storage storage, final String resourceBucket, final RuntimeBucket bucket) {
-        return ImmutableList.of(ResourceDownload.from(bucket, new Resource(storage, resourceBucket, ResourceNames.REFERENCE_GENOME)),
-                ResourceDownload.from(bucket, new Resource(storage, resourceBucket, ResourceNames.GRIDSS_CONFIG)),
-                ResourceDownload.from(bucket, new Resource(storage, resourceBucket, ResourceNames.GRIDSS_PON)),
-                ResourceDownload.from(bucket, new Resource(storage, resourceBucket, ResourceNames.GRIDSS_REPEAT_MASKER_DB)),
-                ResourceDownload.from(bucket, new Resource(storage, resourceBucket, ResourceNames.VIRUS_REFERENCE_GENOME)));
-    }
-
-    @Override
     public String namespace() {
         return NAMESPACE;
     }
 
     @Override
-    public List<BashCommand> commands(final SomaticRunMetadata metadata, final Map<String, ResourceDownload> resources) {
+    public List<BashCommand> commands(final SomaticRunMetadata metadata) {
         List<BashCommand> commands = new ArrayList<>();
         commands.add(new ExportVariableCommand("PATH", format("${PATH}:%s", dirname(new BwaCommand().asBash()))));
         commands.add(new ExportVariableCommand("PATH",
@@ -88,11 +79,11 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
         String refBamPath = referenceBam.getLocalTargetPath();
         String tumorBamPath = tumorBam.getLocalTargetPath();
 
-        String configurationFilePath = resources.get(ResourceNames.GRIDSS_CONFIG).find("properties");
-        String blacklistBedPath = resources.get(ResourceNames.GRIDSS_CONFIG).find("bed");
-        String referenceGenomePath = resources.get(ResourceNames.REFERENCE_GENOME).find("fasta");
-        String virusReferenceGenomePath = resources.get(ResourceNames.VIRUS_REFERENCE_GENOME).find("human_virus.fa");
-        String repeatMaskerDbPath = resources.get(ResourceNames.GRIDSS_REPEAT_MASKER_DB).find("hg19.fa.out");
+        String configurationFilePath = Resource.of(GRIDSS_CONFIG, "gridss.properties");
+        String blacklistBedPath = Resource.of(GRIDSS_CONFIG, "ENCFF001TDO.bed");
+        String referenceGenomePath = Resource.REFERENCE_GENOME_FASTA;
+        String virusReferenceGenomePath = Resource.of(VIRUS_REFERENCE_GENOME, "human_virus.fa");
+        String repeatMaskerDbPath = Resource.of(GRIDSS_REPEAT_MASKER_DB, "hg19.fa.out");
 
         String filteredVcfBasename = VmDirectories.outputFile(format("%s.gridss.somatic.vcf", tumorSampleName));
 
