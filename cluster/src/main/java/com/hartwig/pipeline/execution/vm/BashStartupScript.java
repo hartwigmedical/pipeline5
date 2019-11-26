@@ -21,7 +21,6 @@ public class BashStartupScript {
         this.commands = new ArrayList<>();
         this.commands.add("echo $(date) Starting run");
         this.commands.add("mkdir -p " + VmDirectories.INPUT);
-        this.commands.add("mkdir -p " + VmDirectories.RESOURCES);
         this.commands.add("mkdir -p " + VmDirectories.OUTPUT);
         this.commands.add("mkdir -p " + VmDirectories.TEMP);
         this.commands.add("export TMPDIR=" + VmDirectories.TEMP);

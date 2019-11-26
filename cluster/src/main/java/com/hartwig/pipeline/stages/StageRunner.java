@@ -1,10 +1,5 @@
 package com.hartwig.pipeline.stages;
 
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
@@ -13,7 +8,6 @@ import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.OutputUpload;
-import com.hartwig.pipeline.execution.vm.ResourceDownload;
 import com.hartwig.pipeline.metadata.RunMetadata;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
@@ -39,10 +33,8 @@ public class StageRunner<M extends RunMetadata> {
             StageTrace trace = new StageTrace(stage.namespace(), metadata.name(), StageTrace.ExecutorType.COMPUTE_ENGINE);
             RuntimeBucket bucket = RuntimeBucket.from(storage, stage.namespace(), metadata, arguments);
             BashStartupScript bash = BashStartupScript.of(bucket.name());
-            List<ResourceDownload> resources = stage.resources(storage, arguments.resourceBucket(), bucket);
             bash.addCommands(stage.inputs())
-                    .addCommands(resources)
-                    .addCommands(stage.commands(metadata, resourceMap(resources)))
+                    .addCommands(stage.commands(metadata))
                     .addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path())));
             PipelineStatus status = computeEngine.submit(bucket, stage.vmDefinition(bash, resultsDirectory));
             trace.stop();
@@ -51,10 +43,5 @@ public class StageRunner<M extends RunMetadata> {
                     resultsDirectory);
         }
         return stage.skippedOutput(metadata);
-    }
-
-    public static Map<String, ResourceDownload> resourceMap(final List<ResourceDownload> resources) {
-        return resources.stream()
-                .collect(Collectors.toMap(resource -> resource.getResource().getName(), Function.identity()));
     }
 }

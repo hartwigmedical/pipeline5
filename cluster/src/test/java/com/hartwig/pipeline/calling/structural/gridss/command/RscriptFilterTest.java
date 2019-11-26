@@ -17,7 +17,7 @@ public class RscriptFilterTest {
         String fullCompressedVcf = "full.vcf.gz";
         String pathToScripts = "/opt/tools/gridss/" + Versions.GRIDSS;
 
-        String expected = format("Rscript %s/gridss_somatic_filter.R -p /data/resources -i %s -o %s -f %s -s %s",
+        String expected = format("Rscript %s/gridss_somatic_filter.R -p /opt/resources/gridss_pon -i %s -o %s -f %s -s %s",
                 pathToScripts,
                 inputFile,
                 outputFile,

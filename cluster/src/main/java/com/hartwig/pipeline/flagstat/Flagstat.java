@@ -2,9 +2,7 @@ package com.hartwig.pipeline.flagstat;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
-import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
@@ -12,7 +10,6 @@ import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.InputDownload;
-import com.hartwig.pipeline.execution.vm.ResourceDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.unix.SubShellCommand;
@@ -38,10 +35,6 @@ public class Flagstat implements Stage<FlagstatOutput, SingleSampleRunMetadata> 
         return Collections.singletonList(bamDownload);
     }
 
-    @Override
-    public List<ResourceDownload> resources(final Storage storage, final String resourceBucket, final RuntimeBucket bucket) {
-        return Collections.emptyList();
-    }
 
     @Override
     public String namespace() {
@@ -49,7 +42,7 @@ public class Flagstat implements Stage<FlagstatOutput, SingleSampleRunMetadata> 
     }
 
     @Override
-    public List<BashCommand> commands(final SingleSampleRunMetadata metadata, final Map<String, ResourceDownload> resources) {
+    public List<BashCommand> commands(final SingleSampleRunMetadata metadata) {
         String outputFile = FlagstatOutput.outputFile(metadata.sampleName());
         return Collections.singletonList(new SubShellCommand(new SambambaFlagstatCommand(bamDownload.getLocalTargetPath(),
                 VmDirectories.OUTPUT + "/" + outputFile)));

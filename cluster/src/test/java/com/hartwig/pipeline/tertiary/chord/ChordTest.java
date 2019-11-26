@@ -28,11 +28,6 @@ public class ChordTest extends TertiaryStageTest<ChordOutput> {
     }
 
     @Override
-    protected List<String> expectedResources() {
-        return Collections.emptyList();
-    }
-
-    @Override
     protected List<String> expectedCommands() {
         return Collections.singletonList("$TOOLS_DIR/chord/60.02_1.03/extractSigPredictHRD.R $TOOLS_DIR/chord/60.02_1.03 /data/output tumor "
                 + "/data/input/tumor.purple.somatic.vcf.gz /data/input/tumor.purple.sv.vcf.gz");

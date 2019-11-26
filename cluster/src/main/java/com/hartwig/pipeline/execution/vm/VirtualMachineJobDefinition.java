@@ -18,7 +18,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
 
     @Value.Default
     default long imageSizeGb() {
-        return 10L;
+        return 100L;
     }
 
     BashStartupScript startupCommand();
