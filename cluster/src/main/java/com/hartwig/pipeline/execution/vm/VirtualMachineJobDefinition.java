@@ -8,7 +8,7 @@ import org.immutables.value.Value;
 @Value.Immutable
 public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachinePerformanceProfile> {
 
-    String STANDARD_IMAGE = "diskimager-resources-standard";
+    String STANDARD_IMAGE = "diskimager-standard";
 
     @Value.Default
     default String imageFamily() {
