@@ -68,4 +68,8 @@ public interface Versions {
             throw new RuntimeException(e);
         }
     }
+
+    static String imageVersion() {
+        return "5-7";
+    }
 }
