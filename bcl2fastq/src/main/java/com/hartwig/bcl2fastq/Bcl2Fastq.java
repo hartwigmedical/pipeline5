@@ -8,6 +8,7 @@ import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
 import com.hartwig.bcl2fastq.metadata.ConversionMetadataApi;
+import com.hartwig.bcl2fastq.samplesheet.SampleSheet;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.credentials.CredentialProvider;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
@@ -19,8 +20,12 @@ import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.storage.StorageProvider;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 class Bcl2Fastq {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(Bcl2Fastq.class);
     private final Storage storage;
     private final ComputeEngine computeEngine;
     private final Bcl2fastqArguments arguments;
@@ -37,6 +42,8 @@ class Bcl2Fastq {
     }
 
     private void run() {
+        LOGGER.info("Starting bcl2fastq for flowcell [{}]", arguments.flowcell());
+        SampleSheet sampleSheet = new SampleSheet(storage.get(arguments.inputBucket()), arguments.flowcell());
         FlowcellMetadata metadata = FlowcellMetadata.from(arguments);
         RuntimeBucket bucket = RuntimeBucket.from(storage, "bcl2fastq", metadata, arguments);
         BashStartupScript bash = BashStartupScript.of(bucket.name());
@@ -45,14 +52,16 @@ class Bcl2Fastq {
                 .addCommand(new Bcl2FastqCommand(bclDownload.getLocalTargetPath(), VmDirectories.OUTPUT))
                 .addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path())));
         computeEngine.submit(bucket, VirtualMachineJobDefinition.bcl2fastq(bash, resultsDirectory));
+        for (String project : sampleSheet.projects()) {
+            LOGGER.info("Copying converted FASTQ into output bucket [{}] for project [{}]", arguments.outputBucket(), project);
+            Conversion conversionResult =
+                    Conversion.from(bucket.list(resultsDirectory.path(project)).stream().map(Blob::getName).collect(Collectors.toList()));
 
-        Conversion conversionResult =
-                Conversion.from(bucket.list(resultsDirectory.path("HMFregVAL")).stream().map(Blob::getName).collect(Collectors.toList()));
-
-        for (ConvertedSample sample : conversionResult.samples()) {
-            for (ConvertedFastq fastq : sample.fastq()) {
-                copy(bucket, sample, fastq.pathR1());
-                copy(bucket, sample, fastq.pathR2());
+            for (ConvertedSample sample : conversionResult.samples()) {
+                for (ConvertedFastq fastq : sample.fastq()) {
+                    copy(bucket, sample, fastq.pathR1());
+                    copy(bucket, sample, fastq.pathR2());
+                }
             }
         }
     }
