@@ -8,10 +8,12 @@ import org.immutables.value.Value;
 
 @Value.Immutable
 @JsonDeserialize(as = ImmutableLaneStats.class)
-@Value.Style(jdkOnly=true)
+@Value.Style(jdkOnly = true)
 public interface LaneStats {
 
     int laneNumber();
 
-    List<DemuxedStats> demuxResults();
+    List<SampleStats> demuxResults();
+
+    SampleStats undetermined();
 }
