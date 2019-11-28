@@ -1,26 +1,17 @@
 package com.hartwig.pipeline.alignment;
 
-import java.util.concurrent.Executors;
-
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
-import com.hartwig.pipeline.alignment.sample.FileSystemSampleSource;
-import com.hartwig.pipeline.alignment.sample.GoogleStorageSampleSource;
-import com.hartwig.pipeline.alignment.sample.SampleSource;
-import com.hartwig.pipeline.alignment.sample.SbpS3SampleSource;
-import com.hartwig.pipeline.alignment.sample.SbpSampleReader;
+import com.hartwig.pipeline.alignment.sample.*;
 import com.hartwig.pipeline.alignment.vm.VmAligner;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.sbpapi.SbpRestApi;
-import com.hartwig.pipeline.storage.CloudCopy;
-import com.hartwig.pipeline.storage.CloudSampleUpload;
-import com.hartwig.pipeline.storage.GSUtilCloudCopy;
-import com.hartwig.pipeline.storage.LocalFileSource;
-import com.hartwig.pipeline.storage.RCloneCloudCopy;
-import com.hartwig.pipeline.storage.SampleUpload;
+import com.hartwig.pipeline.storage.*;
 import com.hartwig.pipeline.transfer.sbp.SbpS3FileSource;
+
+import java.util.concurrent.Executors;
 
 public abstract class AlignerProvider {
 
@@ -107,7 +98,7 @@ public abstract class AlignerProvider {
     private static Aligner constructVmAligner(final Arguments arguments, final GoogleCredentials credentials, final Storage storage,
             final SampleSource sampleSource, final SampleUpload sampleUpload, final ResultsDirectory resultsDirectory,
             final AlignmentOutputStorage alignmentOutputStorage) throws Exception {
-        ComputeEngine computeEngine = ComputeEngine.from(arguments, credentials, arguments.shallow());
+        ComputeEngine computeEngine = ComputeEngine.from(arguments, credentials);
         return new VmAligner(arguments,
                 computeEngine,
                 storage,

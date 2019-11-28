@@ -1,8 +1,8 @@
 package com.hartwig.pipeline;
 
-import java.util.Optional;
-
 import org.immutables.value.Value;
+
+import java.util.Optional;
 
 @Value.Immutable
 public interface Arguments extends CommonArguments {
@@ -38,8 +38,6 @@ public interface Arguments extends CommonArguments {
     boolean runStructuralCaller();
 
     boolean runTertiary();
-
-    boolean shallow();
 
     DefaultsProfile profile();
 

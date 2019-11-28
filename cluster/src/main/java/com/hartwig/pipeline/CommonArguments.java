@@ -21,4 +21,5 @@ public interface CommonArguments {
 
     Optional<String> cmek();
 
+    boolean shallow();
 }
