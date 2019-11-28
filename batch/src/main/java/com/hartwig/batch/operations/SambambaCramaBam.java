@@ -1,26 +1,21 @@
 package com.hartwig.batch.operations;
 
-import static java.lang.String.format;
-
-import java.io.File;
-
 import com.hartwig.batch.BatchOperation;
 import com.hartwig.batch.InputFileDescriptor;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.calling.command.VersionedToolCommand;
-import com.hartwig.pipeline.execution.vm.Bash;
-import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.OutputUpload;
-import com.hartwig.pipeline.execution.vm.RuntimeFiles;
-import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
-import com.hartwig.pipeline.execution.vm.VmDirectories;
+import com.hartwig.pipeline.execution.vm.*;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tools.Versions;
 
-public class CramConverter implements BatchOperation {
+import java.io.File;
+
+import static java.lang.String.format;
+
+public class SambambaCramaBam implements BatchOperation {
     public VirtualMachineJobDefinition execute(final InputFileDescriptor input, final RuntimeBucket bucket,
-            final BashStartupScript startupScript, final RuntimeFiles executionFlags) {
+                                               final BashStartupScript startupScript, final RuntimeFiles executionFlags) {
         String outputFile = VmDirectories.outputFile(new File(input.remoteFilename()).getName().replaceAll("\\.bam$", ".cram"));
         String localInput = String.format("%s/%s", VmDirectories.INPUT, new File(input.remoteFilename()).getName());
         startupScript.addCommand(() -> format("gsutil cp %s %s", input, localInput));
@@ -37,11 +32,11 @@ public class CramConverter implements BatchOperation {
                 "-T",
                 "/opt/reference_genome/Homo_sapiens.GRCh37.GATK.illumina.fasta"));
         startupScript.addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), "cram"), executionFlags));
-        return VirtualMachineJobDefinition.batchCramMigration(startupScript, ResultsDirectory.defaultDirectory());
+        return VirtualMachineJobDefinition.batchSambambaCram(startupScript, ResultsDirectory.defaultDirectory());
     }
 
     @Override
     public CommandDescriptor descriptor() {
-        return CommandDescriptor.of("BamToCram", "Produce a CRAM file from each input BAM");
+        return CommandDescriptor.of("SambambaCramaBam", "Produce a CRAM file from each input BAM");
     }
 }

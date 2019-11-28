@@ -3,7 +3,6 @@ package com.hartwig.pipeline.execution.vm;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.execution.JobDefinition;
 import com.hartwig.pipeline.tools.Versions;
-
 import org.immutables.value.Value;
 
 @Value.Immutable
@@ -168,16 +167,25 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .build();
     }
 
-    static VirtualMachineJobDefinition batchCramMigration(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
-        return ImmutableVirtualMachineJobDefinition.builder()
-                .name("cram")
+    static VirtualMachineJobDefinition batchSamtoolsCram(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
+        return ImmutableVirtualMachineJobDefinition.builder().name("samtoolscram")
                 .startupCommand(startupScript)
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 6))
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 4))
                 .imageFamily("diskimager-batch-cram")
                 .imageSizeGb(20L)
                 .build();
     }
+
+    static VirtualMachineJobDefinition batchSambambaCram(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
+        return ImmutableVirtualMachineJobDefinition.builder().name("cram")
+                .startupCommand(startupScript)
+                .namespacedResults(resultsDirectory)
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 6))
+                .imageFamily("diskimager-batch-cram").imageSizeGb(20L)
+                .build();
+    }
+
 
     static VirtualMachineJobDefinition batchFlagstat(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
         return ImmutableVirtualMachineJobDefinition.builder()
