@@ -17,6 +17,7 @@ sudo gsutil -m cp -r gs://$2/* /opt/resources/
 sudo tar xvf /opt/tools/strelka/1.0.14/strelka.tar -C /opt/tools/strelka/1.0.14/
 sudo tar xvf /opt/tools/tabix/0.2.6/tabix.tar -C /opt/tools/tabix/0.2.6/
 sudo tar xvf /opt/tools/samtools/1.2/samtools.tar.gz -C /opt/tools/samtools/1.2/
+sudo tar xvf /opt/tools/samtools/1.9/samtools.tar.gz -C /opt/tools/samtools/1.9/
 sudo tar xvf /opt/tools/circos/0.69.6/circos.tar -C /opt/tools/circos/0.69.6/
 sudo tar xvf /opt/tools/gridss/2.5.2/scripts.tar -C /opt/tools/gridss/2.5.2/
 sudo tar xvf /opt/tools/gridss/2.7.2/scripts.tar -C /opt/tools/gridss/2.7.2/

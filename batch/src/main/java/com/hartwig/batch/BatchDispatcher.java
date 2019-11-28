@@ -1,8 +1,18 @@
 package com.hartwig.batch;
 
-import static java.lang.String.format;
-import static java.util.Comparator.comparing;
-import static java.util.stream.Collectors.toList;
+import com.google.auth.oauth2.GoogleCredentials;
+import com.google.cloud.storage.Storage;
+import com.hartwig.pipeline.credentials.CredentialProvider;
+import com.hartwig.pipeline.execution.PipelineStatus;
+import com.hartwig.pipeline.execution.vm.BashStartupScript;
+import com.hartwig.pipeline.execution.vm.ComputeEngine;
+import com.hartwig.pipeline.execution.vm.RuntimeFiles;
+import com.hartwig.pipeline.storage.RuntimeBucket;
+import com.hartwig.pipeline.storage.StorageProvider;
+import org.apache.commons.io.FileUtils;
+import org.immutables.value.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.HashSet;
@@ -14,20 +24,9 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import com.google.auth.oauth2.GoogleCredentials;
-import com.google.cloud.storage.Storage;
-import com.hartwig.pipeline.credentials.CredentialProvider;
-import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.ComputeEngine;
-import com.hartwig.pipeline.execution.vm.RuntimeFiles;
-import com.hartwig.pipeline.storage.RuntimeBucket;
-import com.hartwig.pipeline.storage.StorageProvider;
-
-import org.apache.commons.io.FileUtils;
-import org.immutables.value.Value;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static java.lang.String.format;
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toList;
 
 public class BatchDispatcher {
     private static final Logger LOGGER = LoggerFactory.getLogger(BatchDispatcher.class);
@@ -114,7 +113,7 @@ public class BatchDispatcher {
                         done++;
                     }
                 }
-                LOGGER.info("Job stats: {} running, {} finished, {} cancelled", state.size() - done - cancelled, done, cancelled);
+                LOGGER.info("Job stats: {} pending, {} finished, {} cancelled", state.size() - done - cancelled, done, cancelled);
                 try {
                     Thread.sleep(TimeUnit.SECONDS.toMillis(30));
                 } catch (InterruptedException e) {
