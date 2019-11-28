@@ -1,6 +1,5 @@
 package com.hartwig.pipeline.calling.germline;
 
-import static com.hartwig.pipeline.resource.ResourceNames.DBSNPS;
 import static com.hartwig.pipeline.resource.ResourceNames.GONL;
 
 import java.util.Collections;
@@ -80,11 +79,11 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
     public List<BashCommand> commands(final SingleSampleRunMetadata metadata) {
 
         String referenceFasta = Resource.REFERENCE_GENOME_FASTA;
-        String dbsnpVcf = Resource.of(DBSNPS, "dbsnp_137.b37.vcf");
 
         SubStageInputOutput callerOutput =
-                new GatkGermlineCaller(bamDownload.getLocalTargetPath(), referenceFasta, dbsnpVcf).andThen(new GenotypeGVCFs(referenceFasta,
-                        dbsnpVcf)).apply(SubStageInputOutput.empty(metadata.sampleName()));
+                new GatkGermlineCaller(bamDownload.getLocalTargetPath(), referenceFasta, Resource.DBSNPS_VCF).andThen(new GenotypeGVCFs(
+                        referenceFasta,
+                        Resource.DBSNPS_VCF)).apply(SubStageInputOutput.empty(metadata.sampleName()));
 
         SubStageInputOutput snpFilterOutput =
                 new SelectVariants("snp", Lists.newArrayList("SNP", "NO_VARIATION"), referenceFasta).andThen(new VariantFiltration("snp",
@@ -101,7 +100,7 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
 
         SubStageInputOutput finalOutput = new CombineFilteredVariants(indelFilterOutput.outputFile().path(),
                 referenceFasta).andThen(new SnpEff(Resource.SNPEFF_CONFIG))
-                .andThen(new SnpSiftDbnsfpAnnotation(Resource.DBSNPS_VCF, Resource.SNPEFF_CONFIG))
+                .andThen(new SnpSiftDbnsfpAnnotation(Resource.DBNSFP_VCF, Resource.SNPEFF_CONFIG))
                 .andThen(new CosmicAnnotation(Resource.COSMIC_VCF_GZ, "ID"))
                 .andThen(new SnpSiftFrequenciesAnnotation(Resource.of(GONL, "gonl.snps_indels.r5.sorted.vcf.gz"), Resource.SNPEFF_CONFIG))
                 .apply(combinedFilters);
