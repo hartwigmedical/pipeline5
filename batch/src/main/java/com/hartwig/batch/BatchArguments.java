@@ -41,6 +41,7 @@ public interface BatchArguments extends CommonArguments {
                     .serviceAccountEmail(commandLine.getOptionValue(SERVICE_ACCOUNT_EMAIL))
                     .concurrency(Integer.parseInt(commandLine.getOptionValue(CONCURRENCY, "100")))
                     .inputFile(commandLine.getOptionValue(INPUT_FILE)).outputBucket(commandLine.getOptionValue(OUTPUT_BUCKET))
+                    .shallow(false)
                     .build();
         } catch (ParseException e) {
             throw new IllegalArgumentException("Failed to parse arguments", e);
