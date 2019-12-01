@@ -172,8 +172,6 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .startupCommand(startupScript)
                 .namespacedResults(resultsDirectory)
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 4))
-                .imageFamily("diskimager-batch-cram")
-                .imageSizeGb(20L)
                 .build();
     }
 
@@ -182,7 +180,6 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .startupCommand(startupScript)
                 .namespacedResults(resultsDirectory)
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 6))
-                .imageFamily("diskimager-batch-cram").imageSizeGb(20L)
                 .build();
     }
 
@@ -193,6 +190,15 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .startupCommand(startupScript)
                 .namespacedResults(resultsDirectory)
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 6))
+                .build();
+    }
+
+    static VirtualMachineJobDefinition batchBam2Fastq(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
+        return ImmutableVirtualMachineJobDefinition.builder()
+                .name("bam2fastq")
+                .startupCommand(startupScript)
+                .namespacedResults(resultsDirectory)
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(8, 16))
                 .build();
     }
 }
