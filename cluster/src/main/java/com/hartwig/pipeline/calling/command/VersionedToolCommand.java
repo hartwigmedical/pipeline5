@@ -2,7 +2,6 @@ package com.hartwig.pipeline.calling.command;
 
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
-import com.hartwig.pipeline.tools.Versions;
 
 import java.util.Arrays;
 import java.util.List;
@@ -29,9 +28,5 @@ public class VersionedToolCommand implements BashCommand {
                 version,
                 toolBinaryName,
                 String.join(" ", arguments));
-    }
-
-    public static VersionedToolCommand sambamba(String... arguments) {
-        return new VersionedToolCommand("sambamba", "sambamba", Versions.SAMBAMBA, arguments);
     }
 }

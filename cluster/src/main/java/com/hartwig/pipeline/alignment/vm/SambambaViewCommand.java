@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.alignment.vm;
 
+import com.hartwig.pipeline.execution.vm.SambambaCommand;
+
 class SambambaViewCommand extends SambambaCommand {
 
     SambambaViewCommand() {

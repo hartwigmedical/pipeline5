@@ -192,13 +192,4 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 6))
                 .build();
     }
-
-    static VirtualMachineJobDefinition batchBam2Fastq(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
-        return ImmutableVirtualMachineJobDefinition.builder()
-                .name("bam2fastq")
-                .startupCommand(startupScript)
-                .namespacedResults(resultsDirectory)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(8, 16))
-                .build();
-    }
 }
