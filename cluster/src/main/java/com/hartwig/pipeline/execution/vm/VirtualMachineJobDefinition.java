@@ -186,6 +186,14 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .build();
     }
 
+    static VirtualMachineJobDefinition sage(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
+        return ImmutableVirtualMachineJobDefinition.builder()
+                .name("sage")
+                .startupCommand(startupScript)
+                .namespacedResults(resultsDirectory)
+                .build();
+    }
+
 
     static VirtualMachineJobDefinition batchFlagstat(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
         return ImmutableVirtualMachineJobDefinition.builder()
