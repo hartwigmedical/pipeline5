@@ -15,5 +15,5 @@ public interface LaneStats {
 
     List<SampleStats> demuxResults();
 
-    SampleStats undetermined();
+    UndeterminedStats undetermined();
 }

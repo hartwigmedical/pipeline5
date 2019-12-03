@@ -13,9 +13,11 @@ import com.hartwig.pipeline.calling.structural.StructuralCallerOutput;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
+import com.hartwig.pipeline.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.ResourceDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
@@ -61,11 +63,6 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
     }
 
     @Override
-    public String namespace() {
-        return NAMESPACE;
-    }
-
-    @Override
     public List<BashCommand> commands(final SomaticRunMetadata metadata, final Map<String, ResourceDownload> resources) {
         return Collections.singletonList(new PurpleApplicationCommand(metadata.reference().sampleName(),
                 metadata.tumor().sampleName(),
@@ -81,6 +78,36 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
     }
 
     @Override
+    public PurpleOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
+            final ResultsDirectory resultsDirectory) {
+        return PurpleOutput.builder()
+                .status(jobStatus)
+                .maybeOutputDirectory(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(), true))
+                .maybeSomaticVcf(GoogleStorageLocation.of(bucket.name(),
+                        resultsDirectory.path(metadata.tumor().sampleName() + PURPLE_SOMATIC_VCF)))
+                .maybeStructuralVcf(GoogleStorageLocation.of(bucket.name(),
+                        resultsDirectory.path(metadata.tumor().sampleName() + PURPLE_SV_VCF)))
+                .addReportComponents(new EntireOutputComponent(bucket, Folder.from(), NAMESPACE, resultsDirectory))
+                .build();
+    }
+
+    @Override
+    public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
+        return ImmutableVirtualMachineJobDefinition.builder()
+                .name("purple")
+                .startupCommand(bash)
+                .namespacedResults(resultsDirectory)
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 8))
+                .build();
+    }
+
+    @Override
+    public String namespace() {
+        return NAMESPACE;
+    }
+
+
+    @Override
     public List<BashCommand> inputs() {
         return ImmutableList.of(somaticVcfDownload,
                 structuralVcfDownload,
@@ -94,25 +121,6 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
     @Override
     public boolean shouldRun(final Arguments arguments) {
         return arguments.runTertiary();
-    }
-
-    @Override
-    public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
-        return VirtualMachineJobDefinition.purple(bash, resultsDirectory);
-    }
-
-    @Override
-    public PurpleOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
-            final ResultsDirectory resultsDirectory) {
-        return PurpleOutput.builder()
-                .status(jobStatus)
-                .maybeOutputDirectory(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(), true))
-                .maybeSomaticVcf(GoogleStorageLocation.of(bucket.name(),
-                        resultsDirectory.path(metadata.tumor().sampleName() + PURPLE_SOMATIC_VCF)))
-                .maybeStructuralVcf(GoogleStorageLocation.of(bucket.name(),
-                        resultsDirectory.path(metadata.tumor().sampleName() + PURPLE_SV_VCF)))
-                .addReportComponents(new EntireOutputComponent(bucket, Folder.from(), NAMESPACE, resultsDirectory))
-                .build();
     }
 
     @Override
