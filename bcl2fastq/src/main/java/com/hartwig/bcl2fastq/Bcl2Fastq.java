@@ -59,7 +59,7 @@ class Bcl2Fastq {
 
         QualityControlResults qcResults = qc.evaluate(stringOf(bucket, "/Stats/Stats.json"), stringOf(bucket, "/run.log"));
 
-        if (qcResults.flowcellPasses()) {
+        if (qcResults.flowcellPasses(arguments.flowcell())) {
             for (String project : sampleSheet.projects()) {
                 LOGGER.info("Copying converted FASTQ into output bucket [{}] for project [{}]", arguments.outputBucket(), project);
                 Conversion conversionResult = Conversion.from(bucket.list(resultsDirectory.path(project))
@@ -68,14 +68,16 @@ class Bcl2Fastq {
                         .collect(Collectors.toList()));
 
                 for (ConvertedSample sample : conversionResult.samples()) {
-                    for (ConvertedFastq fastq : sample.fastq()) {
-                        copy(bucket, sample, fastq.pathR1());
-                        copy(bucket, sample, fastq.pathR2());
+                    if (qcResults.samplePasses(sample.barcode())) {
+                        for (ConvertedFastq fastq : sample.fastq()) {
+                            if (qcResults.fastqPasses(fastq.id())) {
+                                copy(bucket, sample, fastq.pathR1());
+                                copy(bucket, sample, fastq.pathR2());
+                            }
+                        }
                     }
                 }
             }
-        } else {
-            LOGGER.warn("Flowcell [{}] did not pass QC", arguments.flowcell());
         }
     }
 

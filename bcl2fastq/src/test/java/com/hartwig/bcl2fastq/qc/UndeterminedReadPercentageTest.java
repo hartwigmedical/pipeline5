@@ -27,14 +27,6 @@ public class UndeterminedReadPercentageTest {
     }
 
     private ImmutableStats stats(final int sampleYield, final int undeterminedYield) {
-        return ImmutableStats.builder()
-                .flowcell("test")
-                .addConversionResults(ImmutableLaneStats.builder()
-                        .laneNumber(1)
-                        .addDemuxResults(ImmutableSampleStats.builder().yield(sampleYield).build())
-                        .undetermined(ImmutableSampleStats.builder().yield(undeterminedYield).build())
-                        .build())
-                .build();
+        return TestStats.stats(TestStats.laneStats(1, undeterminedYield, ImmutableSampleStats.builder().yield(sampleYield).build()));
     }
-
 }

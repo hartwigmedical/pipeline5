@@ -11,6 +11,8 @@ import org.immutables.value.Value;
 @Value.Immutable
 public interface ConvertedFastq {
 
+    FastqId id();
+
     String pathR1();
 
     String pathR2();
@@ -24,10 +26,26 @@ public interface ConvertedFastq {
                     lane.getKey(),
                     String.join(",", lane.getValue())));
         }
-        return ImmutableConvertedFastq.builder().pathR1(pathR1).pathR2(pathR2).build();
+        return ImmutableConvertedFastq.builder()
+                .id(FastqId.of(parseLane(pathR1), parseSampleId(pathR1)))
+                .pathR1(pathR1)
+                .pathR2(pathR2)
+                .build();
     }
 
     static String parseNumInPair(String path) {
-        return new File(path).getName().split("_")[3];
+        return part(path, 3);
+    }
+
+    static String parseSampleId(String path) {
+        return part(path, 0);
+    }
+
+    static int parseLane(String path) {
+        return Integer.parseInt(part(path, 2).replace("L", ""));
+    }
+
+    static String part(final String path, final int i) {
+        return new File(path).getName().split("_")[i];
     }
 }

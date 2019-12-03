@@ -9,6 +9,7 @@ import org.immutables.value.Value;
 
 @Value.Immutable
 @JsonDeserialize(as = ImmutableSampleStats.class)
+@Value.Style(jdkOnly=true)
 public interface SampleStats {
 
     Optional<String> sampleId();

@@ -9,6 +9,10 @@ public interface QualityControlResult {
 
     boolean pass();
 
+    default boolean fail() {
+        return !pass();
+    }
+
     static QualityControlResult of(String name, boolean pass) {
         return ImmutableQualityControlResult.builder().pass(pass).name(name).build();
     }

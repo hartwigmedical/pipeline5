@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.immutables.value.Value;
 
 @Value.Immutable
-@JsonDeserialize(as = ImmutableSampleStats.class)
+@JsonDeserialize(as = ImmutableUndeterminedStats.class)
 public interface UndeterminedStats {
 
     long yield();
