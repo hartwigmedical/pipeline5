@@ -15,12 +15,6 @@ public interface Arguments extends CommonArguments {
         DEVELOPMENT_DOCKER
     }
 
-    enum Mode {
-        FULL,
-        SINGLE_SAMPLE,
-        SOMATIC
-    }
-
     boolean cleanup();
 
     boolean upload();
@@ -40,8 +34,6 @@ public interface Arguments extends CommonArguments {
     boolean runTertiary();
 
     DefaultsProfile profile();
-
-    Mode mode();
 
     String version();
 
@@ -104,7 +96,6 @@ public interface Arguments extends CommonArguments {
         if (profile.equals(DefaultsProfile.PRODUCTION)) {
             return ImmutableArguments.builder()
                     .profile(profile)
-                    .mode(DEFAULT_MODE)
                     .rclonePath(DEFAULT_PRODUCTION_RCLONE_PATH)
                     .rcloneGcpRemote(DEFAULT_PRODUCTION_RCLONE_GCP_REMOTE)
                     .rcloneS3RemoteDownload(DEFAULT_PRODUCTION_RCLONE_S3_REMOTE)
@@ -141,7 +132,6 @@ public interface Arguments extends CommonArguments {
         } else if (profile.equals(DefaultsProfile.DEVELOPMENT)) {
             return ImmutableArguments.builder()
                     .profile(profile)
-                    .mode(DEFAULT_MODE)
                     .region(DEFAULT_DEVELOPMENT_REGION)
                     .project(DEFAULT_DEVELOPMENT_PROJECT)
                     .version(DEFAULT_DEVELOPMENT_VERSION)
@@ -178,7 +168,6 @@ public interface Arguments extends CommonArguments {
         } else if (profile.equals(DefaultsProfile.DEVELOPMENT_DOCKER)) {
             return ImmutableArguments.builder()
                     .profile(profile)
-                    .mode(DEFAULT_MODE)
                     .region(DEFAULT_DEVELOPMENT_REGION)
                     .project(DEFAULT_DEVELOPMENT_PROJECT)
                     .version(DEFAULT_DEVELOPMENT_VERSION)
@@ -220,7 +209,6 @@ public interface Arguments extends CommonArguments {
         return System.getProperty("user.dir");
     }
 
-    Mode DEFAULT_MODE = Mode.SINGLE_SAMPLE;
     String DEFAULT_PRODUCTION_RCLONE_PATH = "/usr/bin";
     String DEFAULT_PRODUCTION_RCLONE_GCP_REMOTE = "gs";
     String DEFAULT_PRODUCTION_RCLONE_S3_REMOTE = "s3";
