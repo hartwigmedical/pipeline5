@@ -30,6 +30,7 @@ public interface SomaticRunMetadata extends RunMetadata {
     }
 
     @JsonIgnore
+    @Value.Derived
     default boolean isSingleSample() {
         return maybeTumor().map(s -> Boolean.FALSE).orElse(Boolean.TRUE);
     }
