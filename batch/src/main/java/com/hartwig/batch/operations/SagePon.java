@@ -1,9 +1,7 @@
 package com.hartwig.batch.operations;
 
-import static java.lang.String.format;
-
 import com.hartwig.batch.BatchOperation;
-import com.hartwig.batch.InputFileDescriptor;
+import com.hartwig.batch.input.InputFileDescriptor;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.execution.vm.Bash;
 import com.hartwig.pipeline.execution.vm.BashCommand;
@@ -16,12 +14,15 @@ import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
+import java.util.List;
+
+import static java.lang.String.format;
+
 public class SagePon implements BatchOperation {
     @Override
-    public VirtualMachineJobDefinition execute(final InputFileDescriptor descriptor, final RuntimeBucket runtimeBucket,
-            final BashStartupScript startupScript, final RuntimeFiles executionFlags) {
-
-        String[] values = descriptor.remoteFilename().split(",");
+    public VirtualMachineJobDefinition execute(final List<InputFileDescriptor> inputs, final RuntimeBucket runtimeBucket,
+                                               final BashStartupScript startupScript, final RuntimeFiles executionFlags) {
+        String[] values = inputs.get(0).remoteFilename().split(",");
 
         String bucket = values[0];
         String set = values[1];
@@ -72,12 +73,12 @@ public class SagePon implements BatchOperation {
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s %s", "gs://batch-sage/resources/KnownHotspots.hg19.vcf.gz", hotspots));
 
         // Download bams
-        startupScript.addCommand(() -> "touch /data/input/files.list");
-        startupScript.addCommand(() -> format("echo %s | tee -a  /data/input/files.list", gcTumorBamFile));
-        startupScript.addCommand(() -> format("echo %s.bai | tee -a /data/input/files.list", gcTumorBamFile));
-        startupScript.addCommand(() -> format("echo %s | tee -a /data/input/files.list", gcReferenceBamFile));
-        startupScript.addCommand(() -> format("echo %s.bai | tee -a /data/input/files.list", gcReferenceBamFile));
-        startupScript.addCommand(() -> format("cat /data/input/files.list | gsutil -m -u hmf-crunch cp -I %s", "/data/input/"));
+        startupScript.addCommand(() -> "touch /data/inputs/files.list");
+        startupScript.addCommand(() -> format("echo %s | tee -a  /data/inputs/files.list", gcTumorBamFile));
+        startupScript.addCommand(() -> format("echo %s.bai | tee -a /data/inputs/files.list", gcTumorBamFile));
+        startupScript.addCommand(() -> format("echo %s | tee -a /data/inputs/files.list", gcReferenceBamFile));
+        startupScript.addCommand(() -> format("echo %s.bai | tee -a /data/inputs/files.list", gcReferenceBamFile));
+        startupScript.addCommand(() -> format("cat /data/inputs/files.list | gsutil -m -u hmf-crunch cp -I %s", "/data/inputs/"));
 
         // Prevent errors about index being older than bam
         startupScript.addCommand(() -> format("touch %s.bai", localTumorBamFile));

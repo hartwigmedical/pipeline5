@@ -167,25 +167,6 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .build();
     }
 
-    static VirtualMachineJobDefinition batchSamtoolsCram(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
-        return ImmutableVirtualMachineJobDefinition.builder().name("samtoolscram")
-                .startupCommand(startupScript)
-                .namespacedResults(resultsDirectory)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 4))
-                .imageFamily("diskimager-batch-cram")
-                .imageSizeGb(20L)
-                .build();
-    }
-
-    static VirtualMachineJobDefinition batchSambambaCram(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
-        return ImmutableVirtualMachineJobDefinition.builder().name("cram")
-                .startupCommand(startupScript)
-                .namespacedResults(resultsDirectory)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 6))
-                .imageFamily("diskimager-batch-cram").imageSizeGb(20L)
-                .build();
-    }
-
     static VirtualMachineJobDefinition sage(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("sage")

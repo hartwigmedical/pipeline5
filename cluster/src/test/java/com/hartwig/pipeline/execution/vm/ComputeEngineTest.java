@@ -1,7 +1,14 @@
 package com.hartwig.pipeline.execution.vm;
 
 import com.google.api.services.compute.Compute;
-import com.google.api.services.compute.model.*;
+import com.google.api.services.compute.model.Image;
+import com.google.api.services.compute.model.Instance;
+import com.google.api.services.compute.model.InstanceList;
+import com.google.api.services.compute.model.NetworkInterface;
+import com.google.api.services.compute.model.Operation;
+import com.google.api.services.compute.model.Scheduling;
+import com.google.api.services.compute.model.Zone;
+import com.google.api.services.compute.model.ZoneList;
 import com.google.common.collect.Lists;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
@@ -18,8 +25,13 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 @SuppressWarnings("unchecked")
 public class ComputeEngineTest {
