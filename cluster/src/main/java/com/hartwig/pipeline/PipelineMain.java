@@ -1,5 +1,7 @@
 package com.hartwig.pipeline;
 
+import java.util.concurrent.Executors;
+
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.alignment.AlignerProvider;
@@ -19,11 +21,10 @@ import com.hartwig.pipeline.stages.StageRunner;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.storage.StorageProvider;
 import com.hartwig.pipeline.tools.Versions;
+
 import org.apache.commons.cli.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.Executors;
 
 public class PipelineMain {
 
@@ -38,9 +39,9 @@ public class PipelineMain {
             SomaticMetadataApi somaticMetadataApi = SomaticMetadataApiProvider.from(arguments, storage).get();
             SingleSampleEventListener referenceEventListener = new SingleSampleEventListener();
             SingleSampleEventListener tumorEventListener = new SingleSampleEventListener();
-            boolean isStandalone = !somaticMetadataApi.get().isSingleSample();
-            return new FullPipeline(singleSamplePipeline(arguments, credentials, storage, referenceEventListener, isStandalone),
-                    singleSamplePipeline(arguments, credentials, storage, tumorEventListener, isStandalone),
+            boolean isSingleSample = somaticMetadataApi.get().isSingleSample();
+            return new FullPipeline(singleSamplePipeline(arguments, credentials, storage, referenceEventListener, isSingleSample),
+                    singleSamplePipeline(arguments, credentials, storage, tumorEventListener, isSingleSample),
                     somaticPipeline(arguments, credentials, storage, somaticMetadataApi),
                     Executors.newCachedThreadPool(),
                     referenceEventListener,
