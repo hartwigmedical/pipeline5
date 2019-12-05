@@ -9,7 +9,9 @@ import com.hartwig.pipeline.cleanup.CleanupProvider;
 import com.hartwig.pipeline.credentials.CredentialProvider;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
-import com.hartwig.pipeline.metadata.*;
+import com.hartwig.pipeline.metadata.SingleSampleEventListener;
+import com.hartwig.pipeline.metadata.SomaticMetadataApi;
+import com.hartwig.pipeline.metadata.SomaticMetadataApiProvider;
 import com.hartwig.pipeline.metrics.BamMetrics;
 import com.hartwig.pipeline.report.FullSomaticResults;
 import com.hartwig.pipeline.report.PipelineResultsProvider;
@@ -33,31 +35,17 @@ public class PipelineMain {
         try {
             GoogleCredentials credentials = CredentialProvider.from(arguments).get();
             Storage storage = StorageProvider.from(arguments, credentials).get();
-            SomaticMetadataApi somaticMetadataApi = SetMetadataApiProvider.from(arguments, storage).get();
-            PipelineState state;
-            if (arguments.mode().equals(Arguments.Mode.FULL)) {
-                SingleSampleEventListener referenceEventListener = new SingleSampleEventListener();
-                SingleSampleEventListener tumorEventListener = new SingleSampleEventListener();
-                state = new FullPipeline(singleSamplePipeline(arguments, credentials, storage, referenceEventListener, false),
-                        singleSamplePipeline(arguments, credentials, storage, tumorEventListener, false),
-                        somaticPipeline(arguments, credentials, storage, somaticMetadataApi),
-                        Executors.newCachedThreadPool(),
-                        referenceEventListener,
-                        tumorEventListener,
-                        somaticMetadataApi.get()).run();
-            } else if (arguments.mode().equals(Arguments.Mode.SINGLE_SAMPLE)) {
-                SampleMetadataApi referenceApi = SampleMetadataApiProvider.from(arguments).get();
-                state = singleSamplePipeline(arguments,
-                        credentials,
-                        storage,
-                        new SingleSampleEventListener(),
-                        true).run(referenceApi.get());
-                LOGGER.info("Single sample pipeline is complete with status [{}]. Stages run were [{}]", state.status(), state);
-            } else {
-                state = somaticPipeline(arguments, credentials, storage, somaticMetadataApi).run();
-                LOGGER.info("Somatic pipeline is complete with status [{}]. Stages run were [{}]", state.status(), state);
-            }
-            return state;
+            SomaticMetadataApi somaticMetadataApi = SomaticMetadataApiProvider.from(arguments, storage).get();
+            SingleSampleEventListener referenceEventListener = new SingleSampleEventListener();
+            SingleSampleEventListener tumorEventListener = new SingleSampleEventListener();
+            boolean isStandalone = !somaticMetadataApi.get().isSingleSample();
+            return new FullPipeline(singleSamplePipeline(arguments, credentials, storage, referenceEventListener, isStandalone),
+                    singleSamplePipeline(arguments, credentials, storage, tumorEventListener, isStandalone),
+                    somaticPipeline(arguments, credentials, storage, somaticMetadataApi),
+                    Executors.newCachedThreadPool(),
+                    referenceEventListener,
+                    tumorEventListener,
+                    somaticMetadataApi.get()).run();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
