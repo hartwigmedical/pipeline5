@@ -15,14 +15,15 @@ public interface ConvertedSample {
     List<ConvertedFastq> fastq();
 
     static ConvertedSample from(Map.Entry<String, List<String>> samplePaths) {
+        String barcode = samplePaths.getKey();
         return ImmutableConvertedSample.builder()
-                .barcode(samplePaths.getKey())
+                .barcode(barcode)
                 .fastq(samplePaths.getValue()
                         .stream()
                         .collect(Collectors.groupingBy(ConvertedSample::parseLane))
                         .entrySet()
                         .stream()
-                        .map(ConvertedFastq::from)
+                        .map(e -> ConvertedFastq.from(barcode, e))
                         .collect(Collectors.toList()))
                 .build();
     }

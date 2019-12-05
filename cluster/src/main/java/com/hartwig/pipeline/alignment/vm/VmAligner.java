@@ -30,7 +30,6 @@ import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.OutputUpload;
-import com.hartwig.pipeline.execution.vm.ResourceDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.report.Folder;
@@ -38,7 +37,6 @@ import com.hartwig.pipeline.report.ReportComponent;
 import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.report.SingleFileComponent;
 import com.hartwig.pipeline.resource.Resource;
-import com.hartwig.pipeline.resource.ResourceNames;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.storage.SampleUpload;
@@ -77,9 +75,7 @@ public class VmAligner implements Aligner {
         StageTrace trace = new StageTrace(NAMESPACE, metadata.sampleName(), StageTrace.ExecutorType.COMPUTE_ENGINE).start();
         RuntimeBucket rootBucket = RuntimeBucket.from(storage, NAMESPACE, metadata, arguments);
 
-        ResourceDownload referenceGenomeDownload =
-                ResourceDownload.from(rootBucket, new Resource(storage, arguments.resourceBucket(), ResourceNames.REFERENCE_GENOME));
-        String referenceGenomePath = referenceGenomeDownload.find("fa", "fasta");
+        String referenceGenomePath = Resource.REFERENCE_GENOME_FASTA;
 
         Sample sample = sampleSource.sample(metadata);
         if (arguments.upload()) {
@@ -101,7 +97,7 @@ public class VmAligner implements Aligner {
             InputDownload second =
                     new InputDownload(GoogleStorageLocation.of(rootBucket.name(), fastQFileName(sample.name(), lane.secondOfPairPath())));
 
-            bash.addCommand(referenceGenomeDownload).addCommand(first).addCommand(second);
+            bash.addCommand(first).addCommand(second);
 
             SubStageInputOutput alignment = new LaneAlignment(referenceGenomePath,
                     first.getLocalTargetPath(),

@@ -55,27 +55,24 @@ public class ComputeEngine {
     private final Consumer<List<Zone>> zoneRandomizer;
     private final InstanceLifecycleManager lifecycleManager;
     private final BucketCompletionWatcher bucketWatcher;
-    private final boolean isShallow;
 
     ComputeEngine(final CommonArguments arguments, final Compute compute, final Consumer<List<Zone>> zoneRandomizer,
-            final InstanceLifecycleManager lifecycleManager, final BucketCompletionWatcher bucketWatcher, final boolean isShallow) {
+                  final InstanceLifecycleManager lifecycleManager, final BucketCompletionWatcher bucketWatcher) {
         this.arguments = arguments;
         this.compute = compute;
         this.zoneRandomizer = zoneRandomizer;
         this.lifecycleManager = lifecycleManager;
         this.bucketWatcher = bucketWatcher;
-        this.isShallow = isShallow;
     }
 
-    public static ComputeEngine from(final CommonArguments arguments, final GoogleCredentials credentials, final boolean isShallow)
+    public static ComputeEngine from(final CommonArguments arguments, final GoogleCredentials credentials)
             throws Exception {
         Compute compute = initCompute(credentials);
         return new ComputeEngine(arguments,
                 compute,
                 Collections::shuffle,
                 new InstanceLifecycleManager(arguments, compute),
-                new BucketCompletionWatcher(),
-                isShallow);
+                new BucketCompletionWatcher());
     }
 
     public PipelineStatus submit(final RuntimeBucket bucket, final VirtualMachineJobDefinition jobDefinition) {
@@ -112,7 +109,7 @@ public class ComputeEngine {
                 }
                 instance.setMachineType(machineType(currentZone.getName(), jobDefinition.performanceProfile().uri(), project));
 
-                instance.setLabels(Labels.ofRun(bucket.runId(), jobDefinition.name(), isShallow));
+                instance.setLabels(Labels.ofRun(bucket.runId(), jobDefinition.name()));
 
                 addServiceAccount(instance);
                 Image image = attachDisks(compute, instance, jobDefinition.imageFamily(), jobDefinition.imageSizeGb(),

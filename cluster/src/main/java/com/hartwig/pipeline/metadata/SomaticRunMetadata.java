@@ -2,6 +2,7 @@ package com.hartwig.pipeline.metadata;
 
 import java.util.Optional;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
@@ -27,6 +28,12 @@ public interface SomaticRunMetadata extends RunMetadata {
 
     static String truncate(final String sample) {
         return sample.length() > MAX_SAMPLE_LENGTH ? sample.substring(0, MAX_SAMPLE_LENGTH) : sample;
+    }
+
+    @JsonIgnore
+    @Value.Derived
+    default boolean isSingleSample() {
+        return maybeTumor().map(s -> Boolean.FALSE).orElse(Boolean.TRUE);
     }
 
     default SingleSampleRunMetadata tumor() {

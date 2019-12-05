@@ -1,17 +1,11 @@
 package com.hartwig.pipeline.calling.germline;
 
-import static com.hartwig.pipeline.resource.ResourceNames.COSMIC;
-import static com.hartwig.pipeline.resource.ResourceNames.DBNSFP;
-import static com.hartwig.pipeline.resource.ResourceNames.DBSNPS;
 import static com.hartwig.pipeline.resource.ResourceNames.GONL;
-import static com.hartwig.pipeline.resource.ResourceNames.REFERENCE_GENOME;
-import static com.hartwig.pipeline.resource.ResourceNames.SNPEFF;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import com.google.cloud.storage.Storage;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -28,7 +22,6 @@ import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.OutputFile;
-import com.hartwig.pipeline.execution.vm.ResourceDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.unix.MvCommand;
@@ -38,8 +31,6 @@ import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.report.StartupScriptComponent;
 import com.hartwig.pipeline.report.ZippedVcfAndIndexComponent;
-import com.hartwig.pipeline.resource.GATKDictAlias;
-import com.hartwig.pipeline.resource.ReferenceGenomeAlias;
 import com.hartwig.pipeline.resource.Resource;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
@@ -80,32 +71,19 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
     }
 
     @Override
-    public List<ResourceDownload> resources(final Storage storage, final String resourceBucket, final RuntimeBucket bucket) {
-        return ImmutableList.of(ResourceDownload.from(bucket,
-                new Resource(storage, resourceBucket, REFERENCE_GENOME, new ReferenceGenomeAlias().andThen(new GATKDictAlias()))),
-                ResourceDownload.from(storage, resourceBucket, DBSNPS, bucket),
-                ResourceDownload.from(storage, resourceBucket, SNPEFF, bucket),
-                ResourceDownload.from(storage, resourceBucket, DBNSFP, bucket),
-                ResourceDownload.from(storage, resourceBucket, COSMIC, bucket),
-                ResourceDownload.from(storage, resourceBucket, GONL, bucket));
-    }
-
-    @Override
     public String namespace() {
         return NAMESPACE;
     }
 
     @Override
-    public List<BashCommand> commands(final SingleSampleRunMetadata metadata, final Map<String, ResourceDownload> resources) {
-        String snpEffConfig = resources.get(SNPEFF).find("config");
-        String snpEffDb = resources.get(SNPEFF).find("zip");
+    public List<BashCommand> commands(final SingleSampleRunMetadata metadata) {
 
-        String referenceFasta = resources.get(REFERENCE_GENOME).find("fasta");
-        String dbsnpVcf = resources.get(DBSNPS).find("vcf");
+        String referenceFasta = Resource.REFERENCE_GENOME_FASTA;
 
         SubStageInputOutput callerOutput =
-                new GatkGermlineCaller(bamDownload.getLocalTargetPath(), referenceFasta, dbsnpVcf).andThen(new GenotypeGVCFs(referenceFasta,
-                        dbsnpVcf)).apply(SubStageInputOutput.empty(metadata.sampleName()));
+                new GatkGermlineCaller(bamDownload.getLocalTargetPath(), referenceFasta, Resource.DBSNPS_VCF).andThen(new GenotypeGVCFs(
+                        referenceFasta,
+                        Resource.DBSNPS_VCF)).apply(SubStageInputOutput.empty(metadata.sampleName()));
 
         SubStageInputOutput snpFilterOutput =
                 new SelectVariants("snp", Lists.newArrayList("SNP", "NO_VARIATION"), referenceFasta).andThen(new VariantFiltration("snp",
@@ -120,14 +98,14 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
 
         SubStageInputOutput combinedFilters = snpFilterOutput.combine(indelFilterOutput);
 
-        SubStageInputOutput finalOutput =
-                new CombineFilteredVariants(indelFilterOutput.outputFile().path(), referenceFasta).andThen(new SnpEff(snpEffConfig))
-                        .andThen(new SnpSiftDbnsfpAnnotation(resources.get(DBNSFP).find("txt.gz"), snpEffConfig))
-                        .andThen(new CosmicAnnotation(resources.get(COSMIC).find("collapsed.vcf.gz"), "ID"))
-                        .andThen(new SnpSiftFrequenciesAnnotation(resources.get(GONL).find("vcf.gz"), snpEffConfig))
-                        .apply(combinedFilters);
+        SubStageInputOutput finalOutput = new CombineFilteredVariants(indelFilterOutput.outputFile().path(),
+                referenceFasta).andThen(new SnpEff(Resource.SNPEFF_CONFIG))
+                .andThen(new SnpSiftDbnsfpAnnotation(Resource.DBNSFP_VCF, Resource.SNPEFF_CONFIG))
+                .andThen(new CosmicAnnotation(Resource.COSMIC_VCF_GZ, "ID"))
+                .andThen(new SnpSiftFrequenciesAnnotation(Resource.of(GONL, "gonl.snps_indels.r5.sorted.vcf.gz"), Resource.SNPEFF_CONFIG))
+                .apply(combinedFilters);
 
-        return ImmutableList.<BashCommand>builder().add(new UnzipToDirectoryCommand(VmDirectories.RESOURCES, snpEffDb))
+        return ImmutableList.<BashCommand>builder().add(new UnzipToDirectoryCommand(VmDirectories.RESOURCES, Resource.SNPEFF_DB))
                 .addAll(finalOutput.bash())
                 .add(new MvCommand(finalOutput.outputFile().path(), outputFile.path()))
                 .add(new MvCommand(finalOutput.outputFile().path() + ".tbi", outputFile.path() + ".tbi"))

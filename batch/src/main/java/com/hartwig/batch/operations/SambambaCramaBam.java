@@ -18,9 +18,9 @@ import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tools.Versions;
 
-public class CramConverter implements BatchOperation {
+public class SambambaCramaBam implements BatchOperation {
     public VirtualMachineJobDefinition execute(final InputFileDescriptor input, final RuntimeBucket bucket,
-            final BashStartupScript startupScript, final RuntimeFiles executionFlags) {
+                                               final BashStartupScript startupScript, final RuntimeFiles executionFlags) {
         String outputFile = VmDirectories.outputFile(new File(input.remoteFilename()).getName().replaceAll("\\.bam$", ".cram"));
         String localInput = String.format("%s/%s", VmDirectories.INPUT, new File(input.remoteFilename()).getName());
         startupScript.addCommand(() -> format("gsutil cp %s %s", input, localInput));
@@ -37,11 +37,11 @@ public class CramConverter implements BatchOperation {
                 "-T",
                 "/opt/reference_genome/Homo_sapiens.GRCh37.GATK.illumina.fasta"));
         startupScript.addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), "cram"), executionFlags));
-        return VirtualMachineJobDefinition.batchCramMigration(startupScript, ResultsDirectory.defaultDirectory());
+        return VirtualMachineJobDefinition.batchSambambaCram(startupScript, ResultsDirectory.defaultDirectory());
     }
 
     @Override
     public CommandDescriptor descriptor() {
-        return CommandDescriptor.of("BamToCram", "Produce a CRAM file from each input BAM");
+        return CommandDescriptor.of("SambambaCramaBam", "Produce a CRAM file from each input BAM");
     }
 }

@@ -17,7 +17,6 @@ import com.hartwig.pipeline.sbpapi.SbpRestApi;
 import com.hartwig.pipeline.storage.CloudCopy;
 import com.hartwig.pipeline.storage.CloudSampleUpload;
 import com.hartwig.pipeline.storage.GSUtilCloudCopy;
-import com.hartwig.pipeline.storage.GoogleStorageFileSource;
 import com.hartwig.pipeline.storage.LocalFileSource;
 import com.hartwig.pipeline.storage.RCloneCloudCopy;
 import com.hartwig.pipeline.storage.SampleUpload;
@@ -94,8 +93,7 @@ public abstract class AlignerProvider {
                     getArguments().rcloneGcpRemote(),
                     getArguments().rcloneS3RemoteDownload(),
                     ProcessBuilder::new);
-            SampleUpload sampleUpload =
-                    new CloudSampleUpload(getArguments().gsFastq() ? new GoogleStorageFileSource() : new SbpS3FileSource(), cloudCopy);
+            SampleUpload sampleUpload = new CloudSampleUpload(new SbpS3FileSource(), cloudCopy);
             return AlignerProvider.constructVmAligner(getArguments(),
                     credentials,
                     storage,
@@ -109,7 +107,7 @@ public abstract class AlignerProvider {
     private static Aligner constructVmAligner(final Arguments arguments, final GoogleCredentials credentials, final Storage storage,
             final SampleSource sampleSource, final SampleUpload sampleUpload, final ResultsDirectory resultsDirectory,
             final AlignmentOutputStorage alignmentOutputStorage) throws Exception {
-        ComputeEngine computeEngine = ComputeEngine.from(arguments, credentials, arguments.shallow());
+        ComputeEngine computeEngine = ComputeEngine.from(arguments, credentials);
         return new VmAligner(arguments,
                 computeEngine,
                 storage,

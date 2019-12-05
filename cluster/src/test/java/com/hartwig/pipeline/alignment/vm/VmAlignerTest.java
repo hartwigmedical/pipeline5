@@ -23,10 +23,8 @@ import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
-import com.hartwig.pipeline.resource.ResourceNames;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.storage.SampleUpload;
-import com.hartwig.pipeline.testsupport.MockResource;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Before;
@@ -136,7 +134,6 @@ public class VmAlignerTest {
         Bucket rootBucket = mock(Bucket.class);
         when(rootBucket.getName()).thenReturn(rootBucketName);
         when(storage.get(rootBucketName)).thenReturn(rootBucket);
-        MockResource.addToStorage(storage, ResourceNames.REFERENCE_GENOME, "reference.fasta");
 
         when(sampleSource.sample(METADATA)).thenReturn(Sample.builder("", METADATA.sampleName())
                 .addLanes(lane(1))

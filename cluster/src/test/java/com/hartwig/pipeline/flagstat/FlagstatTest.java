@@ -38,11 +38,6 @@ public class FlagstatTest extends StageTest<FlagstatOutput, SingleSampleRunMetad
     }
 
     @Override
-    protected List<String> expectedResources() {
-        return Collections.emptyList();
-    }
-
-    @Override
     protected String expectedRuntimeBucketName() {
         return "run-reference-test";
     }

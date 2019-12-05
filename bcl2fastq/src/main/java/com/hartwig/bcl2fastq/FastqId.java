@@ -9,9 +9,9 @@ public interface FastqId {
     int lane();
 
     @Value.Parameter
-    String sample();
+    String barcode();
 
-    static FastqId of(int lane, String sample) {
-        return ImmutableFastqId.of(lane, sample);
+    static FastqId of(int lane, String barcode) {
+        return ImmutableFastqId.of(lane, barcode);
     }
 }

@@ -18,7 +18,6 @@ mount /dev/md0 /data
 ulimit -n 102400
 echo $(date) Starting run >>/var/log/run.log 2>&1 || die
 mkdir -p /data/input >>/var/log/run.log 2>&1 || die
-mkdir -p /data/resources >>/var/log/run.log 2>&1 || die
 mkdir -p /data/output >>/var/log/run.log 2>&1 || die
 mkdir -p /data/tmp >>/var/log/run.log 2>&1 || die
 export TMPDIR=/data/tmp >>/var/log/run.log 2>&1 || die

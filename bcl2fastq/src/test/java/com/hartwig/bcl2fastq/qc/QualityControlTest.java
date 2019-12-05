@@ -13,7 +13,9 @@ public class QualityControlTest {
 
     @Test
     public void checksUnderminedYieldPercentage() throws Exception {
-        QualityControl victim = new QualityControl(Collections.emptyList(), (stats, log) -> QualityControlResult.of("test", true));
+        QualityControl victim = new QualityControl(Collections.singletonList((stats, log) -> QualityControlResult.of("test", true)),
+                Collections.emptyList(),
+                Collections.emptyList());
         assertThat(victim.evaluate(new String(new FileInputStream(Resources.testResource("Stats.json")).readAllBytes()), "")
                 .flowcellLevel()).allMatch(QualityControlResult::pass);
     }

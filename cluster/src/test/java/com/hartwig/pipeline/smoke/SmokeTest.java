@@ -78,7 +78,6 @@ public class SmokeTest {
                 .version(version)
                 .cloudSdkPath(CLOUD_SDK_PATH)
                 .setId(SET_ID)
-                .mode(Arguments.Mode.FULL)
                 .runId(runId)
                 .runGermlineCaller(false)
                 .sbpApiRunId(SBP_RUN_ID)

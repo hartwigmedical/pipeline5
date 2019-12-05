@@ -17,12 +17,15 @@ public interface Bcl2fastqArguments extends CommonArguments {
     String INPUT_BUCKET = "input_bucket";
     String FLOWCELL = "flowcell";
     String OUTPUT_BUCKET = "output_bucket";
+    String SBP_API_URL = "sbp_api_url";
 
     String inputBucket();
 
     String outputBucket();
 
     String flowcell();
+
+    String sbpApiUrl();
 
     static Bcl2fastqArguments from(String[] args) {
         try {
@@ -38,6 +41,7 @@ public interface Bcl2fastqArguments extends CommonArguments {
                     .flowcell(commandLine.getOptionValue(FLOWCELL))
                     .inputBucket(commandLine.getOptionValue(INPUT_BUCKET))
                     .outputBucket(commandLine.getOptionValue(OUTPUT_BUCKET))
+                    .sbpApiUrl(commandLine.getOptionValue(SBP_API_URL))
                     .build();
         } catch (ParseException e) {
             throw new IllegalArgumentException("Failed to parse arguments", e);
@@ -55,7 +59,8 @@ public interface Bcl2fastqArguments extends CommonArguments {
                 .addOption(stringOption(SERVICE_ACCOUNT_EMAIL, "Email of service account"))
                 .addOption(stringOption(INPUT_BUCKET, "Location of BCL files to convert"))
                 .addOption(stringOption(OUTPUT_BUCKET, "Location to persist BCL files once converted"))
-                .addOption(stringOption(FLOWCELL, "ID of flowcell from which the BCL files were generated")).addOption(stringOption("sbp_api_url", "URL "));
+                .addOption(stringOption(FLOWCELL, "ID of flowcell from which the BCL files were generated"))
+                .addOption(stringOption(SBP_API_URL, "URL of the SBP metadata api"));
     }
 
     private static Option stringOption(final String option, final String description) {

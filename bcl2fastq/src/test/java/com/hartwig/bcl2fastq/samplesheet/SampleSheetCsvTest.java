@@ -12,13 +12,13 @@ import com.hartwig.pipeline.testsupport.Resources;
 
 import org.junit.Test;
 
-public class SampleSheetTest {
+public class SampleSheetCsvTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void noSampleSheetThrowsIllegalArgument() {
         Bucket inputBucket = mock(Bucket.class);
-        SampleSheet victim = new SampleSheet(inputBucket, "test");
-        victim.projects();
+        SampleSheetCsv victim = new SampleSheetCsv(inputBucket, "test");
+        victim.read().projects();
     }
 
     @Test
@@ -27,8 +27,9 @@ public class SampleSheetTest {
         Blob blob = mock(Blob.class);
         when(inputBucket.get("test/SampleSheet.csv")).thenReturn(blob);
         when(blob.getContent()).thenReturn(new FileInputStream(Resources.testResource("SampleSheet.csv")).readAllBytes());
-        SampleSheet victim = new SampleSheet(inputBucket, "test");
-        assertThat(victim.projects()).hasSize(2);
-        assertThat(victim.projects()).containsExactlyInAnyOrder("HMFregVAL2", "HMFregVAL");
+        SampleSheetCsv victim = new SampleSheetCsv(inputBucket, "test");
+        assertThat(victim.read().experimentName()).isEqualTo("IS19-0016");
+        assertThat(victim.read().projects()).hasSize(2);
+        assertThat(victim.read().projects()).containsExactlyInAnyOrder("HMFregVAL2", "HMFregVAL");
     }
 }

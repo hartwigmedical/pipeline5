@@ -2,20 +2,17 @@ package com.hartwig.pipeline.tertiary.cobalt;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
-import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.ResourceDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
-import com.hartwig.pipeline.resource.ResourceNames;
+import com.hartwig.pipeline.resource.Resource;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.TertiaryStage;
@@ -29,22 +26,17 @@ public class Cobalt extends TertiaryStage<CobaltOutput> {
     }
 
     @Override
-    public List<ResourceDownload> resources(final Storage storage, final String resourceBucket, final RuntimeBucket bucket) {
-        return Collections.singletonList(ResourceDownload.from(storage, resourceBucket, ResourceNames.GC_PROFILE, bucket));
-    }
-
-    @Override
     public String namespace() {
         return NAMESPACE;
     }
 
     @Override
-    public List<BashCommand> commands(final SomaticRunMetadata metadata, final Map<String, ResourceDownload> resources) {
+    public List<BashCommand> commands(final SomaticRunMetadata metadata) {
         return Collections.singletonList(new CobaltApplicationCommand(metadata.reference().sampleName(),
                 getReferenceBamDownload().getLocalTargetPath(),
                 metadata.tumor().sampleName(),
                 getTumorBamDownload().getLocalTargetPath(),
-                resources.get(ResourceNames.GC_PROFILE).find("cnp")));
+                Resource.GC_PROFILE_CNP));
     }
 
     @Override

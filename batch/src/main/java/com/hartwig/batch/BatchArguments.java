@@ -18,7 +18,6 @@ public interface BatchArguments extends CommonArguments {
     String REGION = "region";
     String LOCAL_SSDS = "local_ssds";
     String PREEMPTIBLE_VMS = "preemptible_vms";
-    String STORAGE_KEY_PATH = "storage_key_path";
     String SERVICE_ACCOUNT_EMAIL = "service_account_email";
     String CLOUD_SDK = "cloud_sdk";
     String CONCURRENCY = "concurrency";
@@ -34,8 +33,6 @@ public interface BatchArguments extends CommonArguments {
 
     String outputBucket();
 
-    String storageKeyPath();
-
     static BatchArguments from(String[] args) {
         try {
             CommandLine commandLine = new DefaultParser().parse(options(), args);
@@ -44,7 +41,6 @@ public interface BatchArguments extends CommonArguments {
                     .region(commandLine.getOptionValue(REGION, "europe-west4"))
                     .useLocalSsds(parseBoolean(commandLine.getOptionValue(LOCAL_SSDS, "true")))
                     .usePreemptibleVms(parseBoolean(commandLine.getOptionValue(PREEMPTIBLE_VMS, "true")))
-                    .storageKeyPath(commandLine.getOptionValue(STORAGE_KEY_PATH))
                     .privateKeyPath(commandLine.getOptionValue(PRIVATE_KEY_PATH))
                     .cloudSdkPath(commandLine.getOptionValue(CLOUD_SDK, "/usr/bin"))
                     .serviceAccountEmail(commandLine.getOptionValue(SERVICE_ACCOUNT_EMAIL))
@@ -64,8 +60,7 @@ public interface BatchArguments extends CommonArguments {
                 .addOption(stringOption(INPUT_FILE, "Read list of target resources from this input file"))
                 .addOption(booleanOption(LOCAL_SSDS, "Whether to use local SSDs for better performance and lower cost"))
                 .addOption(booleanOption(PREEMPTIBLE_VMS, "Use pre-emptible VMs to lower cost"))
-                .addOption(stringOption(PRIVATE_KEY_PATH, "Path to JSON file containing compute and storage output credentials"))
-                .addOption(stringOption(STORAGE_KEY_PATH, "Path to JSON file containing source storage credentials"))
+                .addOption(stringOption(PRIVATE_KEY_PATH, "Path to JSON file containing GCP credentials"))
                 .addOption(stringOption(SERVICE_ACCOUNT_EMAIL, "Email of service account"))
                 .addOption(stringOption(OUTPUT_BUCKET, "Output bucket (must exist and must be writable by the service account)"));
     }

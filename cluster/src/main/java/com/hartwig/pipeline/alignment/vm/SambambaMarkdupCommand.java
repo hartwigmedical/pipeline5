@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 import com.hartwig.pipeline.execution.vm.Bash;
+import com.hartwig.pipeline.execution.vm.SambambaCommand;
 
 import org.jetbrains.annotations.NotNull;
 

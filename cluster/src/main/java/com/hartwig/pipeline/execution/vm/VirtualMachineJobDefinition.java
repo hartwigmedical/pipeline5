@@ -2,13 +2,14 @@ package com.hartwig.pipeline.execution.vm;
 
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.execution.JobDefinition;
+import com.hartwig.pipeline.tools.Versions;
 
 import org.immutables.value.Value;
 
 @Value.Immutable
 public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachinePerformanceProfile> {
 
-    String STANDARD_IMAGE = "diskimager-standard";
+    String STANDARD_IMAGE = "pipeline5-" +Versions.imageVersion();
 
     @Value.Default
     default String imageFamily() {
@@ -17,7 +18,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
 
     @Value.Default
     default long imageSizeGb() {
-        return 10L;
+        return 100L;
     }
 
     BashStartupScript startupCommand();
@@ -168,13 +169,30 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .build();
     }
 
-    static VirtualMachineJobDefinition batchCramMigration(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
+    static VirtualMachineJobDefinition batchSamtoolsCram(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
+        return ImmutableVirtualMachineJobDefinition.builder().name("samtoolscram")
+                .startupCommand(startupScript)
+                .namespacedResults(resultsDirectory)
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 4))
+                .build();
+    }
+
+    static VirtualMachineJobDefinition batchSambambaCram(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
         return ImmutableVirtualMachineJobDefinition.builder().name("cram")
                 .startupCommand(startupScript)
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 6)).imageFamily("diskimager-batch-cram").imageSizeGb(20L)
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 6))
                 .build();
     }
+
+    static VirtualMachineJobDefinition sage(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
+        return ImmutableVirtualMachineJobDefinition.builder()
+                .name("sage")
+                .startupCommand(startupScript)
+                .namespacedResults(resultsDirectory)
+                .build();
+    }
+
 
     static VirtualMachineJobDefinition batchFlagstat(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
         return ImmutableVirtualMachineJobDefinition.builder()

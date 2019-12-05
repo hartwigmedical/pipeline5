@@ -1,9 +1,9 @@
 package com.hartwig.bcl2fastq.qc;
 
-public class UnderminedReadPercentage implements FlowcellQualityCheck {
+public class UndeterminedReadPercentage implements FlowcellQualityCheck {
     private final int maxUnderminedYieldPercentage;
 
-    UnderminedReadPercentage(final int maxUnderminedYieldPercentage) {
+    UndeterminedReadPercentage(final int maxUnderminedYieldPercentage) {
         this.maxUnderminedYieldPercentage = maxUnderminedYieldPercentage;
     }
 
@@ -19,6 +19,6 @@ public class UnderminedReadPercentage implements FlowcellQualityCheck {
     }
 
     private String name() {
-        return String.format("Undermined Percentage greater than [%s]", maxUnderminedYieldPercentage);
+        return String.format("Undetermined Percentage greater than [%s]", maxUnderminedYieldPercentage);
     }
 }

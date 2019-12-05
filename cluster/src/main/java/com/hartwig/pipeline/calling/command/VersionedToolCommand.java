@@ -1,7 +1,5 @@
 package com.hartwig.pipeline.calling.command;
 
-import static java.util.stream.Collectors.joining;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -29,6 +27,6 @@ public class VersionedToolCommand implements BashCommand {
                 toolName,
                 version,
                 toolBinaryName,
-                arguments.stream().collect(joining(" ")));
+                String.join(" ", arguments));
     }
 }

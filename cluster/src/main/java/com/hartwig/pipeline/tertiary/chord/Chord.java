@@ -2,9 +2,7 @@ package com.hartwig.pipeline.tertiary.chord;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
-import com.google.cloud.storage.Storage;
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
@@ -12,7 +10,6 @@ import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.InputDownload;
-import com.hartwig.pipeline.execution.vm.ResourceDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
@@ -38,17 +35,12 @@ public class Chord implements Stage<ChordOutput, SomaticRunMetadata> {
     }
 
     @Override
-    public List<ResourceDownload> resources(final Storage storage, final String resourceBucket, final RuntimeBucket bucket) {
-        return Collections.emptyList();
-    }
-
-    @Override
     public String namespace() {
         return NAMESPACE;
     }
 
     @Override
-    public List<BashCommand> commands(final SomaticRunMetadata metadata, final Map<String, ResourceDownload> resources) {
+    public List<BashCommand> commands(final SomaticRunMetadata metadata) {
         return Collections.singletonList(new ChordExtractSigPredictHRD(metadata.tumor().sampleName(),
                 purpleSomaticVcfDownload.getLocalTargetPath(),
                 purpleStructuralVcfDownload.getLocalTargetPath()));

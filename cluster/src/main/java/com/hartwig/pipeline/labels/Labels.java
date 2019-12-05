@@ -7,14 +7,13 @@ import com.hartwig.pipeline.tools.Versions;
 
 public class Labels {
 
-    public static Map<String, String> ofRun(String run, String jobName, boolean isShallow) {
-        return ImmutableMap.of("run_id", clean(run),
+    public static Map<String, String> ofRun(String run, String jobName) {
+        return ImmutableMap.of("run_id",
+                clean(run),
                 "job_name",
                 clean(jobName),
                 "version",
-                clean(Versions.pipelineMajorMinorVersion()),
-                "shallow",
-                isShallow ? "true" : "false");
+                clean(Versions.pipelineMajorMinorVersion()));
     }
 
     private static String clean(final String run) {

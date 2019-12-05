@@ -7,11 +7,11 @@ import org.junit.Test;
 
 public class UndeterminedReadPercentageTest {
 
-    private UnderminedReadPercentage victim;
+    private UndeterminedReadPercentage victim;
 
     @Before
     public void setUp() {
-        victim = new UnderminedReadPercentage(1);
+        victim = new UndeterminedReadPercentage(1);
     }
 
     @Test

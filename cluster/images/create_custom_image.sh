@@ -2,6 +2,7 @@
 
 set -e
 TOOLS_BUCKET="common-tools"
+RESOURCES_BUCKET="common-resources"
 PROJECT="hmf-pipeline-development"
 if [ -n "$1" ]
   then
@@ -17,6 +18,6 @@ touch "${script}"
 "$(dirname "$0")/generate_imaging_script.sh" $PROJECT > ${script}
 echo "Executing generated script ${script}"
 chmod +x ${script}
-${script} $TOOLS_BUCKET
+${script} $TOOLS_BUCKET $RESOURCES_BUCKET
 rm ${script}
 

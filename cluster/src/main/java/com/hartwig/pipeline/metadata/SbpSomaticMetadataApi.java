@@ -69,7 +69,7 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
                 SingleSampleRunMetadata tumor = find(TUMOR, samplesBySet).map(referenceSample -> toMetadata(referenceSample,
                         SingleSampleRunMetadata.SampleType.TUMOR))
                         .orElseThrow((() -> new IllegalStateException(String.format(
-                                "No tumor sample found in SBP for set [%s] and this run " + "was not marked as single sample",
+                                "No tumor sample found in SBP for set [%s] and this run was not marked as single sample",
                                 sbpSet.name()))));
                 return SomaticRunMetadata.builder().runName(sbpSet.name()).reference(reference).maybeTumor(tumor).build();
             }

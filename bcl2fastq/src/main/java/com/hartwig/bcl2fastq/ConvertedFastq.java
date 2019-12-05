@@ -17,7 +17,7 @@ public interface ConvertedFastq {
 
     String pathR2();
 
-    static ConvertedFastq from(Map.Entry<String, List<String>> lane) {
+    static ConvertedFastq from(String barcode, Map.Entry<String, List<String>> lane) {
         Map<String, String> pair = lane.getValue().stream().collect(Collectors.toMap(ConvertedFastq::parseNumInPair, Function.identity()));
         String pathR1 = pair.get("R1");
         String pathR2 = pair.get("R2");
@@ -27,7 +27,7 @@ public interface ConvertedFastq {
                     String.join(",", lane.getValue())));
         }
         return ImmutableConvertedFastq.builder()
-                .id(FastqId.of(parseLane(pathR1), parseSampleId(pathR1)))
+                .id(FastqId.of(parseLane(pathR1), barcode))
                 .pathR1(pathR1)
                 .pathR2(pathR2)
                 .build();
@@ -35,10 +35,6 @@ public interface ConvertedFastq {
 
     static String parseNumInPair(String path) {
         return part(path, 3);
-    }
-
-    static String parseSampleId(String path) {
-        return part(path, 0);
     }
 
     static int parseLane(String path) {

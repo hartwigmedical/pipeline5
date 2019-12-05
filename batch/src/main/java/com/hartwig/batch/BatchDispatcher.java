@@ -66,7 +66,7 @@ public class BatchDispatcher {
         LOGGER.info("Writing output to bucket [{}]", arguments.outputBucket());
         for (String url : urls) {
             final String label = format(paddingFormat, i + 1);
-            ComputeEngine compute = ComputeEngine.from(arguments, credentials, false);
+            ComputeEngine compute = ComputeEngine.from(arguments, credentials);
             RuntimeFiles executionFlags = RuntimeFiles.of(label);
             BashStartupScript startupScript = BashStartupScript.of(outputBucket.name(), executionFlags);
             ImmutableInputFileDescriptor descriptor =
@@ -114,7 +114,7 @@ public class BatchDispatcher {
                         done++;
                     }
                 }
-                LOGGER.info("Job stats: {} running, {} finished, {} cancelled", state.size() - done - cancelled, done, cancelled);
+                LOGGER.info("Job stats: {} pending, {} finished, {} cancelled", state.size() - done - cancelled, done, cancelled);
                 try {
                     Thread.sleep(TimeUnit.SECONDS.toMillis(30));
                 } catch (InterruptedException e) {

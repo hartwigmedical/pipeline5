@@ -11,7 +11,7 @@ public class FastqMinimumQ30 implements FastqQualityCheck {
     static final String QC_NAME = "Minimum Q30 not met";
     private final long minimumQ30;
 
-    public FastqMinimumQ30(final long minimumQ30) {
+    FastqMinimumQ30(final long minimumQ30) {
         this.minimumQ30 = minimumQ30;
     }
 

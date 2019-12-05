@@ -6,7 +6,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.google.cloud.storage.Bucket;
@@ -17,7 +16,6 @@ import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
-import com.hartwig.pipeline.execution.vm.ResourceDownload;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.metadata.RunMetadata;
 import com.hartwig.pipeline.storage.RuntimeBucket;
@@ -52,18 +50,8 @@ public abstract class StageTest<S extends StageOutput, M extends RunMetadata> {
     }
 
     @Test
-    public void declaresExpectedResources() {
-        assertThat(victim.resources(storage, defaultArguments().resourceBucket(), runtimeBucket)
-                .stream()
-                .map(ResourceDownload::asBash)
-                .collect(Collectors.toList())).isEqualTo(expectedResources());
-    }
-
-    @Test
     public void declaredExpectedCommands() {
-        Map<String, ResourceDownload> resourceMap =
-                StageRunner.resourceMap(victim.resources(storage, defaultArguments().resourceBucket(), runtimeBucket));
-        assertThat(victim.commands(input(), resourceMap).stream().map(BashCommand::asBash).collect(Collectors.toList())).isEqualTo(commands(
+        assertThat(victim.commands(input()).stream().map(BashCommand::asBash).collect(Collectors.toList())).isEqualTo(commands(
                 expectedCommands()));
     }
 
@@ -85,7 +73,7 @@ public abstract class StageTest<S extends StageOutput, M extends RunMetadata> {
         validateOutput(output);
     }
 
-    protected Arguments defaultArguments() {
+    private Arguments defaultArguments() {
         return Arguments.testDefaults();
     }
 
@@ -97,8 +85,6 @@ public abstract class StageTest<S extends StageOutput, M extends RunMetadata> {
 
     protected abstract List<String> expectedInputs();
 
-    protected abstract List<String> expectedResources();
-
     protected abstract String expectedRuntimeBucketName();
 
     protected abstract List<String> expectedCommands();
@@ -107,13 +93,6 @@ public abstract class StageTest<S extends StageOutput, M extends RunMetadata> {
 
     protected static String input(String source, String target) {
         return String.format("gsutil -qm cp -n gs://%s /data/input/%s", source, target);
-    }
-
-    protected String resource(String resourceName) {
-        return String.format("gsutil -qm cp gs://%s/%s/%s/* /data/resources",
-                expectedRuntimeBucketName(),
-                victim.namespace(),
-                resourceName);
     }
 
     private List<String> commands(List<String> commands) {
