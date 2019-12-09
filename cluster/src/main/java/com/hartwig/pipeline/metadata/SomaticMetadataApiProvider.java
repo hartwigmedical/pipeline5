@@ -5,18 +5,18 @@ import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.sbpapi.SbpRestApi;
 import com.hartwig.pipeline.transfer.google.GoogleArchiver;
 
-public class SetMetadataApiProvider {
+public class SomaticMetadataApiProvider {
 
     private final Arguments arguments;
     private final Storage storage;
 
-    private SetMetadataApiProvider(final Arguments arguments, final Storage storage) {
+    private SomaticMetadataApiProvider(final Arguments arguments, final Storage storage) {
         this.arguments = arguments;
         this.storage = storage;
     }
 
-    public static SetMetadataApiProvider from(final Arguments arguments, final Storage storage) {
-        return new SetMetadataApiProvider(arguments, storage);
+    public static SomaticMetadataApiProvider from(final Arguments arguments, final Storage storage) {
+        return new SomaticMetadataApiProvider(arguments, storage);
     }
 
     public SomaticMetadataApi get() {

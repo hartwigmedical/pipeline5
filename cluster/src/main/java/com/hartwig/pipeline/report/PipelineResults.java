@@ -54,10 +54,10 @@ public class PipelineResults {
         writeComplete(name);
     }
 
-    public void compose(SingleSampleRunMetadata metadata,  Boolean isStandalone, PipelineState state) {
+    public void compose(SingleSampleRunMetadata metadata,  Boolean isSingleSample, PipelineState state) {
         String name = RunTag.apply(arguments, metadata.sampleId());
         if (state.shouldProceed()) {
-            Folder folder = isStandalone ? Folder.from() : Folder.from(metadata);
+            Folder folder = isSingleSample ? Folder.from() : Folder.from(metadata);
             writeMetadata(metadata, name, folder);
             compose(name, folder);
         }

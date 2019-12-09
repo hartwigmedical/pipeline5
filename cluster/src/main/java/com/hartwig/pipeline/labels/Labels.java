@@ -1,21 +1,25 @@
 package com.hartwig.pipeline.labels;
 
+import java.util.Map;
+
 import com.google.common.collect.ImmutableMap;
 import com.hartwig.pipeline.CommonArguments;
 import com.hartwig.pipeline.tools.Versions;
-
-import java.util.Map;
 
 public class Labels {
 
     public static Map<String, String> ofRun(String run, String jobName, CommonArguments arguments) {
         return ImmutableMap.of("run_id",
-                run.toLowerCase(),
+                clean(run),
                 "job_name",
-                jobName.toLowerCase(),
+                clean(jobName),
                 "version",
-                Versions.pipelineMajorMinorVersion().toLowerCase(),
+                clean(Versions.pipelineMajorMinorVersion()),
                 "shallow",
                 arguments.shallow() ? "true" : "false");
+    }
+
+    private static String clean(final String run) {
+        return run.toLowerCase().replace("_", "-").replace('.', '-');
     }
 }

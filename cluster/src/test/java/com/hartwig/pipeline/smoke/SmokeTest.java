@@ -1,16 +1,5 @@
 package com.hartwig.pipeline.smoke;
 
-import static java.lang.String.format;
-
-import static com.hartwig.pipeline.testsupport.Assertions.assertThatOutput;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
@@ -23,13 +12,21 @@ import com.hartwig.pipeline.sbpapi.SbpSet;
 import com.hartwig.pipeline.storage.GSUtil;
 import com.hartwig.pipeline.storage.GSUtilCloudCopy;
 import com.hartwig.pipeline.testsupport.Resources;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.hartwig.pipeline.testsupport.Assertions.assertThatOutput;
+import static java.lang.String.format;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @Category(value = IntegrationTest.class)
 public class SmokeTest {
@@ -78,7 +75,6 @@ public class SmokeTest {
                 .version(version)
                 .cloudSdkPath(CLOUD_SDK_PATH)
                 .setId(SET_ID)
-                .mode(Arguments.Mode.FULL)
                 .runId(runId)
                 .runGermlineCaller(false)
                 .sbpApiRunId(SBP_RUN_ID)

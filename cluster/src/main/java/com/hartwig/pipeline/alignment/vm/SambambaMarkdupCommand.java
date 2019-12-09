@@ -1,11 +1,11 @@
 package com.hartwig.pipeline.alignment.vm;
 
-import java.util.List;
-
 import com.google.common.collect.Lists;
 import com.hartwig.pipeline.execution.vm.Bash;
-
+import com.hartwig.pipeline.execution.vm.SambambaCommand;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 class SambambaMarkdupCommand extends SambambaCommand {
 
