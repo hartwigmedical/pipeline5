@@ -9,6 +9,7 @@ import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.OutputUpload;
 import com.hartwig.pipeline.execution.vm.RuntimeFiles;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.unix.PipeCommands;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
@@ -40,7 +41,9 @@ public class FlagstatGenerator implements BatchOperation {
                 localInput), () -> "tee " + outputFile));
         startupScript.addCommand(() -> format("diff %s %s", localCopyOfOriginalFlagstat, outputFile));
         startupScript.addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), "flagstat"), executionFlags));
-        return VirtualMachineJobDefinition.batchFlagstat(startupScript, ResultsDirectory.defaultDirectory());
+        return VirtualMachineJobDefinition.builder().name("flagstat").startupCommand(startupScript)
+                .namespacedResults(ResultsDirectory.defaultDirectory())
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 6)).build();
     }
 
     @Override

@@ -2,9 +2,17 @@ package com.hartwig.batch.operations;
 
 import com.google.common.collect.ImmutableList;
 import com.hartwig.batch.BatchOperation;
-import com.hartwig.batch.InputFileDescriptor;
+import com.hartwig.batch.input.InputFileDescriptor;
 import com.hartwig.pipeline.ResultsDirectory;
-import com.hartwig.pipeline.execution.vm.*;
+import com.hartwig.pipeline.execution.vm.BashStartupScript;
+import com.hartwig.pipeline.execution.vm.ImmutableVirtualMachineJobDefinition;
+import com.hartwig.pipeline.execution.vm.JavaJarCommand;
+import com.hartwig.pipeline.execution.vm.OutputUpload;
+import com.hartwig.pipeline.execution.vm.RuntimeFiles;
+import com.hartwig.pipeline.execution.vm.SambambaCommand;
+import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
+import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.unix.PipeCommands;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
@@ -16,7 +24,8 @@ import static java.lang.String.format;
 
 public class Bam2Fastq implements BatchOperation {
     @Override
-    public VirtualMachineJobDefinition execute(InputFileDescriptor descriptor, RuntimeBucket bucket, BashStartupScript startupScript, RuntimeFiles executionFlags) {
+    public VirtualMachineJobDefinition execute(List<InputFileDescriptor> inputs, RuntimeBucket bucket, BashStartupScript startupScript, RuntimeFiles executionFlags) {
+        InputFileDescriptor descriptor = inputs.get(0);
         String localCopyOfBam = format("%s/%s", VmDirectories.OUTPUT, new File(descriptor.remoteFilename()).getName());
         startupScript.addCommand(() -> descriptor.toCommandForm(localCopyOfBam));
         startupScript.addCommand(new PipeCommands(new SambambaCommand("view", "-H", localCopyOfBam),
@@ -31,8 +40,7 @@ public class Bam2Fastq implements BatchOperation {
 
         return ImmutableVirtualMachineJobDefinition.builder().name("bam2fastq").startupCommand(startupScript)
                 .namespacedResults(ResultsDirectory.defaultDirectory())
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(8, 16))
-                .build();
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(8, 16)).build();
     }
 
     @Override

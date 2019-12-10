@@ -11,6 +11,7 @@ import com.hartwig.pipeline.execution.vm.OutputUpload;
 import com.hartwig.pipeline.execution.vm.RuntimeFiles;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
+import com.hartwig.pipeline.resource.Resource;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
@@ -40,7 +41,6 @@ public class SagePon implements BatchOperation {
         final String output = String.format("%s/%s.sage.vcf.gz", VmDirectories.OUTPUT, tumorSampleName);
         final String panel = "/opt/resources/sage/ActionableCodingPanel.hg19.bed.gz";
         final String hotspots = "/opt/resources/sage/KnownHotspots.hg19.vcf.gz";
-        final String refGenome = "/opt/resources/reference_genome/Homo_sapiens.GRCh37.GATK.illumina.fasta";
 
         final BashCommand sageCommand = new JavaClassCommand("sage",
                 "pilot",
@@ -61,7 +61,7 @@ public class SagePon implements BatchOperation {
                 "-hotspots",
                 hotspots,
                 "-ref_genome",
-                refGenome,
+                Resource.REFERENCE_GENOME_FASTA,
                 "-out",
                 output,
                 "-threads",
@@ -96,7 +96,8 @@ public class SagePon implements BatchOperation {
         // Store output
         startupScript.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), "sage"), executionFlags));
 
-        return VirtualMachineJobDefinition.sage(startupScript, ResultsDirectory.defaultDirectory());
+        return VirtualMachineJobDefinition.builder().name("sage").startupCommand(startupScript)
+                .namespacedResults(ResultsDirectory.defaultDirectory()).build();
     }
 
     @Override
