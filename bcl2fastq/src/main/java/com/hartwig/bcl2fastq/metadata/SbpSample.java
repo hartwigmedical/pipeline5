@@ -20,6 +20,8 @@ public interface SbpSample {
 
     String status();
 
+    Optional<Long> yld_req();
+
     static ImmutableSbpSample.Builder builder() {
         return ImmutableSbpSample.builder();
     }

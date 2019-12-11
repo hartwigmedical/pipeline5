@@ -3,6 +3,7 @@ package com.hartwig.bcl2fastq;
 import static java.lang.String.format;
 
 import java.io.File;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -36,6 +37,7 @@ import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.storage.StorageProvider;
 
+import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -102,17 +104,22 @@ class Bcl2Fastq {
                     for (ConvertedFastq fastq : sample.fastq()) {
                         boolean fastqPassesQC = qcResults.fastqPasses(fastq.id());
 
-                        String finalPathR1 = copy(bucket, sample, arguments.flowcell(), fastq.pathR1());
-                        String finalPathR2 = copy(bucket, sample, arguments.flowcell(), fastq.pathR2());
+                        Blob r1Blob = copy(bucket, sample, arguments.flowcell(), fastq.pathR1());
+                        Blob r2Blob = copy(bucket, sample, arguments.flowcell(), fastq.pathR2());
 
                         SbpLane sbpLane = lanes.get(lane(fastq.id().lane()));
                         int lane_id = sbpLane.id().orElseThrow();
+
                         SbpFastq sbpFastq = SbpFastq.builder()
                                 .sample_id(sbpSample.id().orElseThrow())
                                 .lane_id(lane_id)
                                 .bucket(arguments.outputBucket())
-                                .name_r1(finalPathR1)
-                                .name_r2(finalPathR2)
+                                .name_r1(r1Blob.getName())
+                                .size_r1(r1Blob.getSize())
+                                .hash_r1(convertMd5ToSbpFormat(r1Blob.getMd5()))
+                                .name_r2(r2Blob.getName())
+                                .size_r2(r2Blob.getSize())
+                                .hash_r2(convertMd5ToSbpFormat(r2Blob.getMd5()))
                                 .qc_pass(fastqPassesQC)
                                 .build();
 
@@ -132,6 +139,10 @@ class Bcl2Fastq {
         LOGGER.info("Updated flowcell [{}]", withTimestamp);
     }
 
+    private String convertMd5ToSbpFormat(String originalMd5) {
+        return new String(Hex.encodeHex(Base64.getDecoder().decode(originalMd5)));
+    }
+
     private String lane(final int laneNumber) {
         return format("L00%s", laneNumber);
     }
@@ -140,12 +151,11 @@ class Bcl2Fastq {
         return new String(bucket.get(resultsDirectory.path(blobName)).getContent());
     }
 
-    private String copy(final RuntimeBucket bucket, final ConvertedSample sample, final String flowcell, final String path) {
+    private Blob copy(final RuntimeBucket bucket, final ConvertedSample sample, final String flowcell, final String path) {
         return storage.copy(Storage.CopyRequest.of(bucket.bucket().getName(),
                 path,
                 BlobInfo.newBuilder(arguments.outputBucket(), flowcell + "/" + sample.barcode() + "/" + new File(path).getName()).build()))
-                .getResult()
-                .getName();
+                .getResult();
     }
 
     public static void main(String[] args) {
