@@ -32,9 +32,9 @@ before_install:
   - sudo dpkg -i rclone-current-linux-amd64.deb
   - "./travis-init.sh"
   - export PATH=$PATH:$PWD/bwa/
-install:
   - export GCLOUD_PROJECT=hmf-crunch
   - export GOOGLE_APPLICATION_CREDENTIALS=$TRAVIS_BUILD_DIR/deploy/key.json
+install: "/bin/true"
 after_success:
   - docker push hartwigmedicalfoundation/pipeline5:$PIPELINE5_VERSION
   - docker push hartwigmedicalfoundation/batch5:$PIPELINE5_VERSION
