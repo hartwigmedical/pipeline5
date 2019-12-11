@@ -1,6 +1,7 @@
 package com.hartwig.batch.operations;
 
 import com.hartwig.batch.BatchOperation;
+import com.hartwig.batch.input.InputBundle;
 import com.hartwig.batch.input.InputFileDescriptor;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.execution.vm.Bash;
@@ -16,19 +17,19 @@ import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
 public class SagePon implements BatchOperation {
     @Override
-    public VirtualMachineJobDefinition execute(final List<InputFileDescriptor> inputs, final RuntimeBucket runtimeBucket,
+    public VirtualMachineJobDefinition execute(final InputBundle inputs, final RuntimeBucket runtimeBucket,
                                                final BashStartupScript startupScript, final RuntimeFiles executionFlags) {
-        String[] values = inputs.get(0).remoteFilename().split(",");
+        String bucket = inputs.get("bucket").remoteFilename();
+        String set = inputs.get("set").remoteFilename();
+        String tumorSampleName = inputs.get("tumorSample").remoteFilename();
+        String referenceSampleName = inputs.get("referenceSample").remoteFilename();
 
-        String bucket = values[0];
-        String set = values[1];
-        String tumorSampleName = values[2];
-        String referenceSampleName = tumorSampleName.substring(0, 12) + "R";
         String tumorBamFile = tumorSampleName + "_dedup.realigned.bam";
         String referenceBamFile = referenceSampleName + "_dedup.realigned.bam";
 
@@ -100,8 +101,12 @@ public class SagePon implements BatchOperation {
                 .namespacedResults(ResultsDirectory.defaultDirectory()).build();
     }
 
+    String getInput(List<InputFileDescriptor> inputs, String key) {
+        return inputs.stream().filter(input -> input.name().equals(key)).collect(Collectors.toList()).get(0).remoteFilename();
+    }
+
     @Override
-    public CommandDescriptor descriptor() {
-        return CommandDescriptor.of("SagePon", "Generate sage output for PON creation");
+    public OperationDescriptor descriptor() {
+        return OperationDescriptor.of("SagePon", "Generate sage output for PON creation");
     }
 }

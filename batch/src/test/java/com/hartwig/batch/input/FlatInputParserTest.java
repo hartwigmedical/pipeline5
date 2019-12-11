@@ -11,11 +11,9 @@ public class FlatInputParserTest {
     @Test
     public void shouldReadInputsDiscardingBlankLinesAndDuplicates() {
         FlatInputParser parser = new FlatInputParser(testResource("input-parsers/batch_descriptor.txt"), "hmf-project");
-        List<List<InputFileDescriptor>> parsed = parser.parse();
+        List<InputBundle> parsed = parser.parse();
         assertThat(parsed.size()).isEqualTo(2);
-        assertThat(parsed.get(0).size()).isEqualTo(1);
-        assertThat(parsed.get(0).get(0).remoteFilename()).isEqualTo("gs://some-bucket/some-file");
-        assertThat(parsed.get(1).size()).isEqualTo(1);
-        assertThat(parsed.get(1).get(0).remoteFilename()).isEqualTo("gs://some-bucket/some-other-file");
+        assertThat(parsed.get(0).get().remoteFilename()).isEqualTo("gs://some-bucket/some-file");
+        assertThat(parsed.get(1).get().remoteFilename()).isEqualTo("gs://some-bucket/some-other-file");
     }
 }

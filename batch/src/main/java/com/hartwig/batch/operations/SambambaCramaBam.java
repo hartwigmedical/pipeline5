@@ -1,6 +1,7 @@
 package com.hartwig.batch.operations;
 
 import com.hartwig.batch.BatchOperation;
+import com.hartwig.batch.input.InputBundle;
 import com.hartwig.batch.input.InputFileDescriptor;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.calling.command.VersionedToolCommand;
@@ -17,12 +18,11 @@ import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tools.Versions;
 
 import java.io.File;
-import java.util.List;
 
 public class SambambaCramaBam implements BatchOperation {
-    public VirtualMachineJobDefinition execute(final List<InputFileDescriptor> inputs, final RuntimeBucket bucket,
+    public VirtualMachineJobDefinition execute(final InputBundle inputs, final RuntimeBucket bucket,
                                                final BashStartupScript startupScript, final RuntimeFiles executionFlags) {
-        InputFileDescriptor input = inputs.get(0);
+        InputFileDescriptor input = inputs.get();
         String outputFile = VmDirectories.outputFile(new File(input.remoteFilename()).getName().replaceAll("\\.bam$", ".cram"));
         String localInput = String.format("%s/%s", VmDirectories.INPUT, new File(input.remoteFilename()).getName());
         startupScript.addCommand(() -> input.toCommandForm(localInput));
@@ -47,7 +47,7 @@ public class SambambaCramaBam implements BatchOperation {
     }
 
     @Override
-    public CommandDescriptor descriptor() {
-        return CommandDescriptor.of("SambambaCramaBam", "Produce a CRAM file from each inputs BAM");
+    public OperationDescriptor descriptor() {
+        return OperationDescriptor.of("SambambaCramaBam", "Produce a CRAM file from each inputs BAM");
     }
 }

@@ -2,6 +2,7 @@ package com.hartwig.batch.operations;
 
 import com.google.common.collect.ImmutableList;
 import com.hartwig.batch.BatchOperation;
+import com.hartwig.batch.input.InputBundle;
 import com.hartwig.batch.input.InputFileDescriptor;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
@@ -24,8 +25,8 @@ import static java.lang.String.format;
 
 public class Bam2Fastq implements BatchOperation {
     @Override
-    public VirtualMachineJobDefinition execute(List<InputFileDescriptor> inputs, RuntimeBucket bucket, BashStartupScript startupScript, RuntimeFiles executionFlags) {
-        InputFileDescriptor descriptor = inputs.get(0);
+    public VirtualMachineJobDefinition execute(InputBundle inputs, RuntimeBucket bucket, BashStartupScript startupScript, RuntimeFiles executionFlags) {
+        InputFileDescriptor descriptor = inputs.get();
         String localCopyOfBam = format("%s/%s", VmDirectories.OUTPUT, new File(descriptor.remoteFilename()).getName());
         startupScript.addCommand(() -> descriptor.toCommandForm(localCopyOfBam));
         startupScript.addCommand(new PipeCommands(new SambambaCommand("view", "-H", localCopyOfBam),
@@ -44,7 +45,7 @@ public class Bam2Fastq implements BatchOperation {
     }
 
     @Override
-    public CommandDescriptor descriptor() {
-        return CommandDescriptor.of("Bam2Fastq", "Convert BAMs back to FASTQs");
+    public OperationDescriptor descriptor() {
+        return OperationDescriptor.of("Bam2Fastq", "Convert BAMs back to FASTQs");
     }
 }

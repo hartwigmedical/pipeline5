@@ -2,7 +2,7 @@ package com.hartwig.batch;
 
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Storage;
-import com.hartwig.batch.input.InputFileDescriptor;
+import com.hartwig.batch.input.InputBundle;
 import com.hartwig.batch.input.InputParser;
 import com.hartwig.batch.input.InputParserProvider;
 import com.hartwig.pipeline.credentials.CredentialProvider;
@@ -33,7 +33,6 @@ public class BatchDispatcher {
     private final BatchArguments arguments;
     private final InstanceFactory instanceFactory;
     private InputParser inputParser;
-    private final GoogleCredentials credentials;
     private final ComputeEngine computeEngine;
     private Storage storage;
     private ExecutorService executorService;
@@ -42,7 +41,7 @@ public class BatchDispatcher {
     interface StateTuple {
         String id();
 
-        List<InputFileDescriptor> inputs();
+        InputBundle inputs();
 
         Future<PipelineStatus> future();
 
@@ -52,12 +51,10 @@ public class BatchDispatcher {
     }
 
     BatchDispatcher(BatchArguments arguments, InstanceFactory instanceFactory, InputParser inputParser,
-                    GoogleCredentials credentials, ComputeEngine computeEngine, Storage storage,
-                    ExecutorService executorService) {
+                    ComputeEngine computeEngine, Storage storage, ExecutorService executorService) {
         this.arguments = arguments;
         this.instanceFactory = instanceFactory;
         this.inputParser = inputParser;
-        this.credentials = credentials;
         this.computeEngine = computeEngine;
         this.storage = storage;
         this.executorService = executorService;
@@ -65,7 +62,7 @@ public class BatchDispatcher {
 
     boolean runBatch() throws Exception {
         Set<StateTuple> state = new HashSet<>();
-        List<List<InputFileDescriptor>> inputs = inputParser.parse();
+        List<InputBundle> inputs = inputParser.parse();
 
         LOGGER.info("Running {} jobs with up to {} concurrent VMs", inputs.size(), arguments.concurrency());
         confirmOutputBucketExists(storage);
@@ -73,7 +70,7 @@ public class BatchDispatcher {
         String paddingFormat = format("%%0%dd", String.valueOf(inputs.size()).length());
         RuntimeBucket outputBucket = RuntimeBucket.from(storage, arguments.outputBucket(), "batch", arguments);
         LOGGER.info("Writing output to bucket [{}]", arguments.outputBucket());
-        for (List<InputFileDescriptor> operationInputs : inputs) {
+        for (InputBundle operationInputs : inputs) {
             final String label = format(paddingFormat, i + 1);
             RuntimeFiles executionFlags = RuntimeFiles.of(label);
             BashStartupScript startupScript = BashStartupScript.of(outputBucket.name(), executionFlags);
@@ -92,7 +89,7 @@ public class BatchDispatcher {
         boolean jobsFailed = false;
         List<StateTuple> tuples = state.stream().sorted(comparing(stateTuple -> Integer.valueOf(stateTuple.id()))).collect(toList());
         for (StateTuple stateTuple : tuples) {
-            report.append(String.format("  %s %s %s\n", stateTuple.id(), stateTuple.future().get(), stateTuple.inputs().get(0).remoteFilename()));
+            report.append(String.format("  %s %s %s\n", stateTuple.id(), stateTuple.future().get(), stateTuple.inputs().get().remoteFilename()));
             if (stateTuple.future().get() != PipelineStatus.SUCCESS) {
                 jobsFailed = true;
             }
@@ -138,7 +135,7 @@ public class BatchDispatcher {
         ComputeEngine compute = ComputeEngine.from(arguments, credentials);
         Storage storage = StorageProvider.from(arguments, credentials).get();
         boolean success = new BatchDispatcher(arguments, InstanceFactory.from(arguments), InputParserProvider.from(arguments),
-                credentials, compute, storage, Executors.newFixedThreadPool(arguments.concurrency())).runBatch();
+                compute, storage, Executors.newFixedThreadPool(arguments.concurrency())).runBatch();
         System.exit(success ? 0 : 1);
     }
 }

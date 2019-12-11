@@ -19,21 +19,21 @@ class JsonInputParser implements InputParser {
     }
 
     @Override
-    public List<List<InputFileDescriptor>> parse() throws RuntimeException {
+    public List<InputBundle> parse() throws RuntimeException {
         try {
             FileInputStream stream = new FileInputStream(inputFilePath);
             com.fasterxml.jackson.core.JsonParser jsonParser = new com.fasterxml.jackson.core.JsonFactory().createParser(stream);
             ObjectMapper mapper = new ObjectMapper();
             JavaType javaType = mapper.getTypeFactory().constructCollectionType(List.class, Map.class);
             List<Map<String, String>> objects = mapper.readValue(jsonParser, javaType);
-            List<List<InputFileDescriptor>> toReturn = new ArrayList<>();
+            List<InputBundle> toReturn = new ArrayList<>();
             objects.forEach(o -> {
                 List<InputFileDescriptor> fileDescriptors = new ArrayList<>();
                 for (String key : o.keySet()) {
                     fileDescriptors.add(InputFileDescriptor.builder().name(key).billedProject(billedProject)
                             .remoteFilename(o.get(key)).build());
                 }
-                toReturn.add(fileDescriptors);
+                toReturn.add(new InputBundle(fileDescriptors));
             });
             return toReturn;
         } catch (IOException ioe) {

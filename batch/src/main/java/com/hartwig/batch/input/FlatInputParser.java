@@ -19,8 +19,8 @@ public class FlatInputParser implements InputParser {
     }
 
     @Override
-    public List<List<InputFileDescriptor>> parse() throws RuntimeException {
-        List<List<InputFileDescriptor>> fileDescriptors = new ArrayList<>();
+    public List<InputBundle> parse() throws RuntimeException {
+        List<InputBundle> fileDescriptors = new ArrayList<>();
         try {
             FileUtils.readLines(new File(inputFile), "UTF-8")
                     .stream()
@@ -29,7 +29,7 @@ public class FlatInputParser implements InputParser {
                     .forEach(path -> {
                         InputFileDescriptor built = InputFileDescriptor.builder().remoteFilename(path)
                                 .billedProject(billedProject).name("path").build();
-                        fileDescriptors.add(ImmutableList.of(built));
+                        fileDescriptors.add(new InputBundle(ImmutableList.of(built)));
                     });
             return fileDescriptors;
         } catch (IOException ioe) {
