@@ -317,6 +317,13 @@
         </plugins>
     </build>
 
+    <distributionManagement>
+        <repository>
+            <id>hmf-release</id>
+            <url>gs://hmf-maven-repository/release</url>
+        </repository>
+    </distributionManagement>
+
     <repositories>
         <repository>
             <id>oss-sonatype</id>

@@ -34,13 +34,6 @@
         </dependency>
     </dependencies>
 
-    <distributionManagement>
-        <repository>
-            <id>hmf-release</id>
-            <url>gs://hmf-maven-repository/release</url>
-        </repository>
-    </distributionManagement>
-
     <build>
         <plugins>
             <plugin>
