@@ -1,4 +1,4 @@
-package com.hartwig.bcl2fastq.qc;
+package com.hartwig.bcl2fastq.stats;
 
 import java.util.List;
 

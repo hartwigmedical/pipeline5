@@ -16,7 +16,7 @@ public interface SbpFlowcell {
 
     String status();
 
-    String id();
+    int id();
 
     boolean undet_rds_p_pass();
 

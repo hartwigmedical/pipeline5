@@ -1,19 +1,30 @@
 package com.hartwig.bcl2fastq;
 
+import static java.lang.String.format;
+
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
+import com.hartwig.bcl2fastq.metadata.SbpFastq;
 import com.hartwig.bcl2fastq.metadata.SbpFastqMetadataApi;
 import com.hartwig.bcl2fastq.metadata.SbpFlowcell;
+import com.hartwig.bcl2fastq.metadata.SbpLane;
 import com.hartwig.bcl2fastq.metadata.SbpSample;
 import com.hartwig.bcl2fastq.qc.QualityControl;
 import com.hartwig.bcl2fastq.qc.QualityControlResults;
 import com.hartwig.bcl2fastq.samplesheet.SampleSheet;
 import com.hartwig.bcl2fastq.samplesheet.SampleSheetCsv;
+import com.hartwig.bcl2fastq.stats.LaneStats;
+import com.hartwig.bcl2fastq.stats.ReadMetrics;
+import com.hartwig.bcl2fastq.stats.SampleStats;
+import com.hartwig.bcl2fastq.stats.Stats;
+import com.hartwig.bcl2fastq.stats.StatsJson;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.credentials.CredentialProvider;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
@@ -60,26 +71,58 @@ class Bcl2Fastq {
         computeEngine.submit(bucket, VirtualMachineJobDefinition.bcl2fastq(bash, resultsDirectory));
 
         SampleSheet sampleSheet = new SampleSheetCsv(storage.get(arguments.inputBucket()), arguments.flowcell()).read();
-        QualityControlResults qcResults = qc.evaluate(stringOf(bucket, "/Stats/Stats.json"), stringOf(bucket, "/run.log"));
+        Stats stats = new StatsJson(stringOf(bucket, "/Stats/Stats.json")).stats();
+        QualityControlResults qcResults = qc.evaluate(stats, stringOf(bucket, "/run.log"));
+
         SbpFlowcell sbpFlowcell = sbpFastqMetadataApi.getFlowcell(sampleSheet.experimentName());
+        Map<String, SbpLane> lanes = new HashMap<>();
+        for (LaneStats lane : stats.conversionResults()) {
+            long yield = lane.demuxResults().stream().mapToLong(SampleStats::yield).sum();
+            long yieldQ30 = lane.demuxResults().stream().flatMap(s -> s.readMetrics().stream()).mapToLong(ReadMetrics::yieldQ30).sum();
+            SbpLane sbpLane = SbpLane.builder()
+                    .flowcell_id(sbpFlowcell.id())
+                    .name(lane(lane.laneNumber()))
+                    .yld(yield)
+                    .q30((double) yieldQ30 / yield)
+                    .build();
+            lanes.put(sbpLane.name(), sbpFastqMetadataApi.findOrCreate(sbpLane));
+        }
 
-        for (String project : sampleSheet.projects()) {
-            LOGGER.info("Copying converted FASTQ into output bucket [{}] for project [{}]", arguments.outputBucket(), project);
-            Conversion conversionResult =
-                    Conversion.from(bucket.list(resultsDirectory.path(project)).stream().map(Blob::getName).collect(Collectors.toList()));
+        boolean undet_rds_p_pass = qcResults.flowcellPasses(arguments.flowcell());
+        if (undet_rds_p_pass) {
+            for (String project : sampleSheet.projects()) {
+                LOGGER.info("Copying converted FASTQ into output bucket [{}] for project [{}]", arguments.outputBucket(), project);
+                Conversion conversionResult = Conversion.from(bucket.list(resultsDirectory.path(project))
+                        .stream()
+                        .map(Blob::getName)
+                        .collect(Collectors.toList()));
 
-            for (ConvertedSample sample : conversionResult.samples()) {
-                boolean samplePassesQC = qcResults.samplePasses(sample.barcode());
-                SbpSample sbpSample = sbpFastqMetadataApi.getOrCreate(sample.barcode(), project);
-                for (ConvertedFastq fastq : sample.fastq()) {
-                    boolean fastqPassesQC = qcResults.fastqPasses(fastq.id());
-                    copy(bucket, sample, fastq.pathR1());
-                    copy(bucket, sample, fastq.pathR2());
+                for (ConvertedSample sample : conversionResult.samples()) {
+                    SbpSample sbpSample = sbpFastqMetadataApi.findOrCreate(sample.barcode(), project);
+                    for (ConvertedFastq fastq : sample.fastq()) {
+                        boolean fastqPassesQC = qcResults.fastqPasses(fastq.id());
+
+                        String finalPathR1 = copy(bucket, sample, arguments.flowcell(), fastq.pathR1());
+                        String finalPathR2 = copy(bucket, sample, arguments.flowcell(), fastq.pathR2());
+
+                        SbpLane sbpLane = lanes.get(lane(fastq.id().lane()));
+                        int lane_id = sbpLane.id().orElseThrow();
+                        SbpFastq sbpFastq = SbpFastq.builder()
+                                .sample_id(sbpSample.id().orElseThrow())
+                                .lane_id(lane_id)
+                                .bucket(arguments.outputBucket())
+                                .name_r1(finalPathR1)
+                                .name_r2(finalPathR2)
+                                .qc_pass(fastqPassesQC)
+                                .build();
+
+                        sbpFastqMetadataApi.findOrCreate(sbpFastq);
+
+                    }
                 }
             }
         }
 
-        boolean undet_rds_p_pass = qcResults.flowcellPasses(arguments.flowcell());
         SbpFlowcell updated = sbpFastqMetadataApi.updateFlowcell(SbpFlowcell.builderFrom(sbpFlowcell)
                 .status("Converted")
                 .undet_rds_p_pass(undet_rds_p_pass)
@@ -89,14 +132,20 @@ class Bcl2Fastq {
         LOGGER.info("Updated flowcell [{}]", withTimestamp);
     }
 
+    private String lane(final int laneNumber) {
+        return format("L00%s", laneNumber);
+    }
+
     private String stringOf(final RuntimeBucket bucket, final String blobName) {
         return new String(bucket.get(resultsDirectory.path(blobName)).getContent());
     }
 
-    private void copy(final RuntimeBucket bucket, final ConvertedSample sample, final String path) {
-        storage.copy(Storage.CopyRequest.of(bucket.bucket().getName(),
+    private String copy(final RuntimeBucket bucket, final ConvertedSample sample, final String flowcell, final String path) {
+        return storage.copy(Storage.CopyRequest.of(bucket.bucket().getName(),
                 path,
-                BlobInfo.newBuilder(arguments.outputBucket(), sample.barcode() + "/" + new File(path).getName()).build())).getResult();
+                BlobInfo.newBuilder(arguments.outputBucket(), flowcell + "/" + sample.barcode() + "/" + new File(path).getName()).build()))
+                .getResult()
+                .getName();
     }
 
     public static void main(String[] args) {

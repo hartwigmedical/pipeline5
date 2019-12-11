@@ -1,5 +1,7 @@
 package com.hartwig.bcl2fastq.qc;
 
+import com.hartwig.bcl2fastq.stats.Stats;
+
 public class ErrorsInLog implements FlowcellQualityCheck {
     @Override
     public QualityControlResult apply(final Stats stats, final String log) {

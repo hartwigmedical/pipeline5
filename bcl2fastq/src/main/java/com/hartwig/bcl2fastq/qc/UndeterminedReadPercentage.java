@@ -1,5 +1,10 @@
 package com.hartwig.bcl2fastq.qc;
 
+import com.hartwig.bcl2fastq.stats.LaneStats;
+import com.hartwig.bcl2fastq.stats.SampleStats;
+import com.hartwig.bcl2fastq.stats.Stats;
+import com.hartwig.bcl2fastq.stats.UndeterminedStats;
+
 public class UndeterminedReadPercentage implements FlowcellQualityCheck {
     private final int maxUnderminedYieldPercentage;
 

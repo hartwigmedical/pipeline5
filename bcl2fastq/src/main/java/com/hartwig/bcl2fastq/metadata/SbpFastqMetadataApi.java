@@ -28,6 +28,7 @@ public class SbpFastqMetadataApi {
     private static final Logger LOGGER = LoggerFactory.getLogger(SbpFastqMetadataApi.class);
     private static final String FLOWCELLS = "flowcells";
     private static final String SAMPLES = "samples";
+    private static final String FASTQ = "fastq";
     private final WebTarget target;
     private final ObjectMapper objectMapper = ObjectMappers.get();
 
@@ -46,7 +47,7 @@ public class SbpFastqMetadataApi {
         }
     }
 
-    public SbpSample getOrCreate(String barcode, String submission) {
+    public SbpSample findOrCreate(String barcode, String submission) {
         try {
             return findOne(samples().queryParam("barcode", barcode).request(), new TypeReference<List<SbpSample>>() {
             }).orElseGet(() -> {
@@ -55,9 +56,9 @@ public class SbpFastqMetadataApi {
                     Response response = samples().request()
                             .post(Entity.entity(objectMapper.writeValueAsString(sample), MediaType.APPLICATION_JSON_TYPE));
                     if (response.getStatus() == 200) {
-                        return getOrCreate(barcode, submission);
+                        return findOrCreate(barcode, submission);
                     } else {
-                        throw new RuntimeException(String.format("Unable to pose new sample [%s] api returned status [%s] and message [%s]",
+                        throw new RuntimeException(String.format("Unable to post new sample [%s] api returned status [%s] and message [%s]",
                                 barcode,
                                 response.getStatus(),
                                 response.readEntity(String.class)));
@@ -71,14 +72,60 @@ public class SbpFastqMetadataApi {
         }
     }
 
+    public void findOrCreate(SbpFastq fastq) {
+        try {
+            String fastqJson = objectMapper.writeValueAsString(fastq);
+            Response response = fastq().request().post(Entity.entity(fastqJson, MediaType.APPLICATION_JSON_TYPE));
+            LOGGER.info("Posting fastq for sample [{}] and lane [{}] complete with status [{}]",
+                    fastq.sample_id(),
+                    fastq.lane_id(),
+                    response.getStatus());
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public SbpLane findOrCreate(final SbpLane sbpLane) {
+        try {
+            List<SbpLane> lanes = objectMapper.readValue(returnOrThrow(api().path("lanes")
+                    .queryParam("name", sbpLane.name())
+                    .queryParam("flowcell_id", sbpLane.flowcell_id())
+                    .request()
+                    .get()), new TypeReference<List<SbpLane>>() {
+            });
+            if (lanes.isEmpty()) {
+                Response response = api().path("lanes")
+                        .request()
+                        .post(Entity.entity(objectMapper.writeValueAsString(sbpLane), MediaType.APPLICATION_JSON_TYPE));
+                if (response.getStatus() == 200) {
+                    LOGGER.info("Posting lane for flowcell [{}] with name [{}] complete with status [{}]",
+                            sbpLane.flowcell_id(),
+                            sbpLane.name(),
+                            response.getStatus());
+                } else {
+                    throw new RuntimeException(response.readEntity(String.class));
+                }
+                return findOrCreate(sbpLane);
+            } else {
+                return lanes.stream().findFirst().orElseThrow();
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private WebTarget samples() {
         return api().path(SAMPLES);
+    }
+
+    private WebTarget fastq() {
+        return api().path(FASTQ);
     }
 
     public SbpFlowcell updateFlowcell(SbpFlowcell flowcell) {
         try {
             Response response = api().path(FLOWCELLS)
-                    .path(flowcell.id())
+                    .path(String.valueOf(flowcell.id()))
                     .request()
                     .build("PATCH", Entity.entity(objectMapper.writeValueAsString(flowcell), MediaType.APPLICATION_JSON_TYPE))
                     .invoke();

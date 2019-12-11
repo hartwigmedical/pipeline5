@@ -8,19 +8,21 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.immutables.value.Value;
 
 @Value.Immutable
-@JsonSerialize(as = ImmutableSbpSample.class)
-@JsonDeserialize(as = ImmutableSbpSample.class)
-public interface SbpSample {
+@JsonSerialize(as = ImmutableSbpLane.class)
+@JsonDeserialize(as = ImmutableSbpLane.class)
+public interface SbpLane {
 
     Optional<Integer> id();
 
-    String barcode();
+    int flowcell_id();
 
-    String submission();
+    String name();
 
-    String status();
+    long yld();
 
-    static ImmutableSbpSample.Builder builder() {
-        return ImmutableSbpSample.builder();
+    double q30();
+
+    static ImmutableSbpLane.Builder builder() {
+        return ImmutableSbpLane.builder();
     }
 }

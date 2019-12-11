@@ -5,6 +5,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.hartwig.bcl2fastq.FastqId;
+import com.hartwig.bcl2fastq.stats.ReadMetrics;
+import com.hartwig.bcl2fastq.stats.Stats;
 
 public class FastqMinimumQ30 implements FastqQualityCheck {
 

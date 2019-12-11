@@ -1,4 +1,4 @@
-package com.hartwig.bcl2fastq.qc;
+package com.hartwig.bcl2fastq.stats;
 
 import java.util.List;
 
@@ -14,4 +14,8 @@ public interface Stats {
     String flowcell();
 
     List<LaneStats> conversionResults();
+
+    static ImmutableStats.Builder builder() {
+        return ImmutableStats.builder();
+    }
 }

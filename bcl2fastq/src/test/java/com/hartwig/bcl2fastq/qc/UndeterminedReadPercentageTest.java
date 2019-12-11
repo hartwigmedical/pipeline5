@@ -2,6 +2,9 @@ package com.hartwig.bcl2fastq.qc;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.hartwig.bcl2fastq.stats.ImmutableSampleStats;
+import com.hartwig.bcl2fastq.stats.ImmutableStats;
+
 import org.junit.Before;
 import org.junit.Test;
 
