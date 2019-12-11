@@ -46,6 +46,7 @@ public class Bam2Fastq implements BatchOperation {
 
     @Override
     public OperationDescriptor descriptor() {
-        return OperationDescriptor.of("Bam2Fastq", "Convert BAMs back to FASTQs");
+        return OperationDescriptor.of("Bam2Fastq", "Convert BAMs back to FASTQs",
+                OperationDescriptor.InputType.FLAT);
     }
 }

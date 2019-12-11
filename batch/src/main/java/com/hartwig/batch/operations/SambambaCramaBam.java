@@ -48,6 +48,7 @@ public class SambambaCramaBam implements BatchOperation {
 
     @Override
     public OperationDescriptor descriptor() {
-        return OperationDescriptor.of("SambambaCramaBam", "Produce a CRAM file from each inputs BAM");
+        return OperationDescriptor.of("SambambaCramaBam", "Produce a CRAM file from each inputs BAM",
+                OperationDescriptor.InputType.FLAT);
     }
 }

@@ -51,6 +51,7 @@ public class SamtoolsCramToBam implements BatchOperation {
 
     @Override
     public OperationDescriptor descriptor() {
-        return OperationDescriptor.of("SamtoolsCramToBam", "Produce a CRAM file from each inputs BAM");
+        return OperationDescriptor.of("SamtoolsCramToBam", "Produce a CRAM file from each inputs BAM",
+                OperationDescriptor.InputType.FLAT);
     }
 }

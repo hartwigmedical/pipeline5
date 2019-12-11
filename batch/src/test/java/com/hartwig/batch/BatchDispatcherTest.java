@@ -5,9 +5,10 @@ import com.google.cloud.storage.Storage;
 import com.hartwig.batch.input.InputBundle;
 import com.hartwig.batch.input.InputFileDescriptor;
 import com.hartwig.batch.input.InputParser;
+import com.hartwig.batch.input.InputParserProvider;
 import com.hartwig.batch.operations.OperationDescriptor;
+import com.hartwig.batch.testsupport.TestingArguments;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
-import com.hartwig.pipeline.testsupport.Resources;
 import org.junit.Test;
 
 import java.util.concurrent.Callable;
@@ -27,9 +28,12 @@ public class BatchDispatcherTest {
     public void shouldCallOperationOnceForEachObjectInListOfInputs() throws Exception {
         String opName = "operationName";
         BatchOperation mockOp = mock(BatchOperation.class);
-        when(mockOp.descriptor()).thenReturn(OperationDescriptor.of(opName, "description"));
+        when(mockOp.descriptor()).thenReturn(OperationDescriptor.of(opName, "description",
+                OperationDescriptor.InputType.FLAT));
         InstanceFactory instanceFactory = mock(InstanceFactory.class);
+        InputParserProvider inputParserProvider = mock(InputParserProvider.class);
         InputParser inputParser = mock(InputParser.class);
+        BatchOperation operation = mock(BatchOperation.class);
         ComputeEngine computeEngine = mock(ComputeEngine.class);
         Storage storage = mock(Storage.class);
         Bucket bucket = mock(Bucket.class);
@@ -37,29 +41,19 @@ public class BatchDispatcherTest {
         InputBundle bundle1 = mock(InputBundle.class);
         InputBundle bundle2 = mock(InputBundle.class);
 
+        BatchArguments arguments = TestingArguments.defaultArgs(opName);
+        when(inputParserProvider.from(any(), any())).thenReturn(inputParser);
         when(inputParser.parse()).thenReturn(asList(bundle1, bundle2));
         when(bundle1.get()).thenReturn(mock(InputFileDescriptor.class));
         when(bundle2.get()).thenReturn(mock(InputFileDescriptor.class));
         when(executorService.submit((Callable) any())).thenReturn(mock(Future.class)).thenReturn(mock(Future.class));
 
-        BatchArguments arguments = defaultArgs(opName);
         when(storage.get(arguments.outputBucket())).thenReturn(bucket);
 
-        BatchDispatcher dispatcher = new BatchDispatcher(arguments, instanceFactory, inputParser,
+        BatchDispatcher dispatcher = new BatchDispatcher(arguments, instanceFactory, inputParserProvider,
                 computeEngine, storage, executorService);
 
         dispatcher.runBatch();
         verify(executorService, times(2)).submit((Callable) any());
-    }
-
-    private BatchArguments defaultArgs(String operation) {
-        BatchArguments baseWithDefaults = BatchArguments.from(new String[]{operation,
-                "-" + BatchArguments.PRIVATE_KEY_PATH, "irrelevant",
-                "-" + BatchArguments.SERVICE_ACCOUNT_EMAIL, "irrelevant",
-                "-" + BatchArguments.INPUT_FILE, Resources.testResource("batch-dispatcher/batch_descriptor.json"),
-                "-" + BatchArguments.OUTPUT_BUCKET, "irrelevant"});
-        return BatchArguments.builder().from(baseWithDefaults)
-                .inputFormat("json")
-                .build();
     }
 }

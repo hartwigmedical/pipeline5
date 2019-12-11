@@ -8,8 +8,8 @@ import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
 public interface BatchOperation {
-    VirtualMachineJobDefinition execute(InputBundle inputs, RuntimeBucket runtimeBucket,
-                                        BashStartupScript startupScript, RuntimeFiles executionFlags);
+    VirtualMachineJobDefinition execute(InputBundle inputs, RuntimeBucket runtimeBucket, BashStartupScript startupScript,
+                                        RuntimeFiles executionFlags);
 
     OperationDescriptor descriptor();
 }

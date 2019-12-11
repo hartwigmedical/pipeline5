@@ -48,6 +48,7 @@ public class FlagstatGenerator implements BatchOperation {
 
     @Override
     public OperationDescriptor descriptor() {
-        return OperationDescriptor.of("Flagstat", "Generate flagstat file for each inputs");
+        return OperationDescriptor.of("Flagstat", "Generate flagstat file for each inputs",
+                OperationDescriptor.InputType.FLAT);
     }
 }

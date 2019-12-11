@@ -107,6 +107,7 @@ public class SagePon implements BatchOperation {
 
     @Override
     public OperationDescriptor descriptor() {
-        return OperationDescriptor.of("SagePon", "Generate sage output for PON creation");
+        return OperationDescriptor.of("SagePon", "Generate sage output for PON creation",
+                OperationDescriptor.InputType.JSON);
     }
 }

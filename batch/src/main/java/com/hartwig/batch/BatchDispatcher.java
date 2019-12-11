@@ -32,7 +32,7 @@ public class BatchDispatcher {
     private static final Logger LOGGER = LoggerFactory.getLogger(BatchDispatcher.class);
     private final BatchArguments arguments;
     private final InstanceFactory instanceFactory;
-    private InputParser inputParser;
+    private InputParserProvider parserProvider;
     private final ComputeEngine computeEngine;
     private Storage storage;
     private ExecutorService executorService;
@@ -50,11 +50,11 @@ public class BatchDispatcher {
         }
     }
 
-    BatchDispatcher(BatchArguments arguments, InstanceFactory instanceFactory, InputParser inputParser,
+    BatchDispatcher(BatchArguments arguments, InstanceFactory instanceFactory, InputParserProvider parserProvider,
                     ComputeEngine computeEngine, Storage storage, ExecutorService executorService) {
         this.arguments = arguments;
         this.instanceFactory = instanceFactory;
-        this.inputParser = inputParser;
+        this.parserProvider = parserProvider;
         this.computeEngine = computeEngine;
         this.storage = storage;
         this.executorService = executorService;
@@ -62,6 +62,7 @@ public class BatchDispatcher {
 
     boolean runBatch() throws Exception {
         Set<StateTuple> state = new HashSet<>();
+        InputParser inputParser = parserProvider.from(arguments, instanceFactory.get());
         List<InputBundle> inputs = inputParser.parse();
 
         LOGGER.info("Running {} jobs with up to {} concurrent VMs", inputs.size(), arguments.concurrency());
@@ -134,7 +135,7 @@ public class BatchDispatcher {
         GoogleCredentials credentials = CredentialProvider.from(arguments).get();
         ComputeEngine compute = ComputeEngine.from(arguments, credentials);
         Storage storage = StorageProvider.from(arguments, credentials).get();
-        boolean success = new BatchDispatcher(arguments, InstanceFactory.from(arguments), InputParserProvider.from(arguments),
+        boolean success = new BatchDispatcher(arguments, InstanceFactory.from(arguments), new InputParserProvider(),
                 compute, storage, Executors.newFixedThreadPool(arguments.concurrency())).runBatch();
         System.exit(success ? 0 : 1);
     }
