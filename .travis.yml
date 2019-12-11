@@ -16,7 +16,7 @@ before_script:
   - export GCLOUD_PROJECT=hmf-crunch
   - export GOOGLE_APPLICATION_CREDENTIALS=$TRAVIS_BUILD_DIR/deploy/key.json
 script:
-  - 'if [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then mvn clean deploy -B; else mvn clean deploy -DskipDocker -DskipShade -B; fi'
+  - 'if [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then mvn clean deploy -B; else mvn clean install -DskipDocker -DskipShade -B; fi'
 before_install:
   - openssl aes-256-cbc -K $encrypted_965d6303826d_key -iv $encrypted_965d6303826d_iv
     -in cluster/src/test/resources/smoke_test/api.jks.enc -out cluster/src/test/resources/smoke_test/api.jks -d
