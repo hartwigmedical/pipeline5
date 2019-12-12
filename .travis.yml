@@ -13,7 +13,7 @@ cache:
   directories:
     - $HOME/.m2
 before_script:
-  - export GCLOUD_PROJECT=hmf-crunch
+  - export GCLOUD_PROJECT=hmf-pipeline-development
   - export GOOGLE_APPLICATION_CREDENTIALS=$TRAVIS_BUILD_DIR/deploy/key.json
 script:
   - 'if [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then mvn clean deploy -B; else mvn clean install -DskipDocker -DskipShade -B; fi'
