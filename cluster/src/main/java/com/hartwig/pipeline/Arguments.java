@@ -1,8 +1,8 @@
 package com.hartwig.pipeline;
 
-import org.immutables.value.Value;
-
 import java.util.Optional;
+
+import org.immutables.value.Value;
 
 @Value.Immutable
 public interface Arguments extends CommonArguments {
@@ -136,7 +136,6 @@ public interface Arguments extends CommonArguments {
                     .project(DEFAULT_DEVELOPMENT_PROJECT)
                     .version(DEFAULT_DEVELOPMENT_VERSION)
                     .sampleDirectory(DEFAULT_DEVELOPMENT_SAMPLE_DIRECTORY)
-                    .privateKeyPath(DEFAULT_DEVELOPMENT_KEY_PATH)
                     .cloudSdkPath(DEFAULT_DEVELOPMENT_CLOUD_SDK_PATH)
                     .serviceAccountEmail(DEFAULT_DEVELOPMENT_SERVICE_ACCOUNT_EMAIL)
                     .cleanup(true)
