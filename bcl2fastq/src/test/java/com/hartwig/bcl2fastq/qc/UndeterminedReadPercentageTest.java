@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.hartwig.bcl2fastq.stats.ImmutableSampleStats;
 import com.hartwig.bcl2fastq.stats.ImmutableStats;
+import com.hartwig.bcl2fastq.stats.TestStats;
 
 import org.junit.Before;
 import org.junit.Test;

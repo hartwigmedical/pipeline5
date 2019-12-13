@@ -162,4 +162,18 @@ public class SbpFastqMetadataApi {
         clientConfig.property(HttpUrlConnectorProvider.SET_METHOD_WORKAROUND, true);
         return new SbpFastqMetadataApi(ClientBuilder.newBuilder().withConfig(clientConfig).build().target(url));
     }
+
+    public void updateSample(final SbpSample sample) {
+        try {
+            Integer id = sample.id().orElseThrow();
+            Response response = api().path(SAMPLES)
+                    .path(String.valueOf(id))
+                    .request()
+                    .build("PATCH", Entity.entity(objectMapper.writeValueAsString(sample), MediaType.APPLICATION_JSON_TYPE))
+                    .invoke();
+            LOGGER.info("Patching sample [{}] complete with status [{}]", id, response.getStatus());
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

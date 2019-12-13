@@ -9,6 +9,7 @@ import com.hartwig.bcl2fastq.stats.ImmutableReadMetrics;
 import com.hartwig.bcl2fastq.stats.ImmutableSampleStats;
 import com.hartwig.bcl2fastq.stats.ImmutableStats;
 import com.hartwig.bcl2fastq.stats.SampleStats;
+import com.hartwig.bcl2fastq.stats.TestStats;
 
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;

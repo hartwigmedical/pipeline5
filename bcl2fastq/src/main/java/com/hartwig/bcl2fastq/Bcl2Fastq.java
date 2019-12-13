@@ -12,6 +12,7 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
+import com.hartwig.bcl2fastq.metadata.ImmutableSbpSample;
 import com.hartwig.bcl2fastq.metadata.SbpFastq;
 import com.hartwig.bcl2fastq.metadata.SbpFastqMetadataApi;
 import com.hartwig.bcl2fastq.metadata.SbpFlowcell;
@@ -21,6 +22,7 @@ import com.hartwig.bcl2fastq.qc.QualityControl;
 import com.hartwig.bcl2fastq.qc.QualityControlResults;
 import com.hartwig.bcl2fastq.samplesheet.SampleSheet;
 import com.hartwig.bcl2fastq.samplesheet.SampleSheetCsv;
+import com.hartwig.bcl2fastq.stats.Aggregations;
 import com.hartwig.bcl2fastq.stats.LaneStats;
 import com.hartwig.bcl2fastq.stats.ReadMetrics;
 import com.hartwig.bcl2fastq.stats.SampleStats;
@@ -124,8 +126,18 @@ class Bcl2Fastq {
                                 .build();
 
                         sbpFastqMetadataApi.findOrCreate(sbpFastq);
-
                     }
+                    final long sampleYield = Aggregations.yield(sbpSample.barcode(), stats);
+                    final double sampleQ30 = Aggregations.yieldQ30(sbpSample.barcode(), stats) / (double) sampleYield * 100;
+                    ImmutableSbpSample.Builder sampleUpdate = SbpSample.builder().from(sbpSample).yld(sampleYield).q30(sampleQ30);
+                    if (sbpSample.yld_req().map(yr -> yr < sampleYield).orElse(true) && sbpSample.q30_req()
+                            .map(qr -> qr < sampleQ30)
+                            .orElse(true)) {
+                        sampleUpdate.status("Ready");
+                    } else {
+                        sampleUpdate.status("Insufficient Quality");
+                    }
+                    sbpFastqMetadataApi.updateSample(sampleUpdate.build());
                 }
             }
         }

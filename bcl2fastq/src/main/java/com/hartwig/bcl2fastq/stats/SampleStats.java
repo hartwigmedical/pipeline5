@@ -1,7 +1,6 @@
 package com.hartwig.bcl2fastq.stats;
 
 import java.util.List;
-import java.util.Optional;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
@@ -12,7 +11,7 @@ import org.immutables.value.Value;
 @Value.Style(jdkOnly=true)
 public interface SampleStats {
 
-    Optional<String> sampleId();
+    String sampleId();
 
     long yield();
 

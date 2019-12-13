@@ -15,7 +15,7 @@ interface LaneAndSample {
     SampleStats sample();
 
     default FastqId toFastqId() {
-        return FastqId.of(lane(), sample().sampleId().orElseThrow());
+        return FastqId.of(lane(), sample().sampleId());
     }
 
     static LaneAndSample of(int lane, SampleStats sample) {
