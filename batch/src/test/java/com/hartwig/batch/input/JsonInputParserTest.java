@@ -11,8 +11,8 @@ public class JsonInputParserTest {
     @Test
     public void shouldHandleMultipleObjectsInInputMembers() {
         String project = "hmf-project";
-        JsonInputParser victim = new JsonInputParser(testResource("input-parsers/batch_descriptor.json"), project);
-        List<InputBundle> parsed = victim.parse();
+        JsonInputParser victim = new JsonInputParser();
+        List<InputBundle> parsed = victim.parse(testResource("input-parsers/batch_descriptor.json"), project);
         assertThat(parsed.size()).isEqualTo(2);
 
         assertThat(parsed.get(0).get("input1").remoteFilename()).isEqualTo("some-file");

@@ -42,8 +42,8 @@ public class BatchDispatcherTest {
         InputBundle bundle2 = mock(InputBundle.class);
 
         BatchArguments arguments = TestingArguments.defaultArgs(opName);
-        when(inputParserProvider.from(any(), any())).thenReturn(inputParser);
-        when(inputParser.parse()).thenReturn(asList(bundle1, bundle2));
+        when(inputParserProvider.from(any())).thenReturn(inputParser);
+        when(inputParser.parse(any(), any())).thenReturn(asList(bundle1, bundle2));
         when(bundle1.get()).thenReturn(mock(InputFileDescriptor.class));
         when(bundle2.get()).thenReturn(mock(InputFileDescriptor.class));
         when(executorService.submit((Callable) any())).thenReturn(mock(Future.class)).thenReturn(mock(Future.class));

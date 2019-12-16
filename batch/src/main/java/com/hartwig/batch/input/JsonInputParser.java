@@ -10,16 +10,8 @@ import java.util.List;
 import java.util.Map;
 
 class JsonInputParser implements InputParser {
-    private String inputFilePath;
-    private String billedProject;
-
-    JsonInputParser(String inputFilePath, String billedProject) {
-        this.inputFilePath = inputFilePath;
-        this.billedProject = billedProject;
-    }
-
     @Override
-    public List<InputBundle> parse() throws RuntimeException {
+    public List<InputBundle> parse(String inputFilePath, String billedProject) throws RuntimeException {
         try {
             FileInputStream stream = new FileInputStream(inputFilePath);
             com.fasterxml.jackson.core.JsonParser jsonParser = new com.fasterxml.jackson.core.JsonFactory().createParser(stream);

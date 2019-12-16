@@ -10,16 +10,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class FlatInputParser implements InputParser {
-    private String inputFile;
-    private String billedProject;
-
-    FlatInputParser(String inputFile, String billedProject) {
-        this.inputFile = inputFile;
-        this.billedProject = billedProject;
-    }
-
     @Override
-    public List<InputBundle> parse() throws RuntimeException {
+    public List<InputBundle> parse(String inputFile, String billedProject) throws RuntimeException {
         List<InputBundle> fileDescriptors = new ArrayList<>();
         try {
             FileUtils.readLines(new File(inputFile), "UTF-8")

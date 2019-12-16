@@ -20,7 +20,7 @@ public class InputParserProviderTest {
         OperationDescriptor descriptor = mock(OperationDescriptor.class);
         when(operation.descriptor()).thenReturn(descriptor);
         when(descriptor.inputType()).thenReturn(OperationDescriptor.InputType.JSON);
-        victim.from(arguments, operation);
+        victim.from(operation);
         assertThat(1).isEqualTo(1);
     }
 

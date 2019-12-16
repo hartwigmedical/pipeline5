@@ -32,10 +32,10 @@ public class BatchDispatcher {
     private static final Logger LOGGER = LoggerFactory.getLogger(BatchDispatcher.class);
     private final BatchArguments arguments;
     private final InstanceFactory instanceFactory;
-    private InputParserProvider parserProvider;
+    private final InputParserProvider parserProvider;
     private final ComputeEngine computeEngine;
-    private Storage storage;
-    private ExecutorService executorService;
+    private final Storage storage;
+    private final ExecutorService executorService;
 
     @Value.Immutable
     interface StateTuple {
@@ -62,8 +62,8 @@ public class BatchDispatcher {
 
     boolean runBatch() throws Exception {
         Set<StateTuple> state = new HashSet<>();
-        InputParser inputParser = parserProvider.from(arguments, instanceFactory.get());
-        List<InputBundle> inputs = inputParser.parse();
+        InputParser inputParser = parserProvider.from(instanceFactory.get());
+        List<InputBundle> inputs = inputParser.parse(arguments.inputFile(), arguments.project());
 
         LOGGER.info("Running {} jobs with up to {} concurrent VMs", inputs.size(), arguments.concurrency());
         confirmOutputBucketExists(storage);
