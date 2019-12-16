@@ -1,7 +1,5 @@
 package com.hartwig.pipeline;
 
-import java.util.Optional;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -11,6 +9,8 @@ import org.apache.commons.cli.ParseException;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Optional;
 
 public class CommandLineOptions {
 
@@ -48,8 +48,6 @@ public class CommandLineOptions {
     private static final String RUN_SOMATIC_CALLER_FLAG = "run_somatic_caller";
     private static final String RUN_STRUCTURAL_CALLER_FLAG = "run_structural_caller";
     private static final String RUN_TERTIARY_FLAG = "run_tertiary";
-    private static final String TOOLS_BUCKET_FLAG = "tools_bucket";
-    private static final String RESOURCE_BUCKET_FLAG = "resource_bucket";
     private static final String PATIENT_REPORT_BUCKET_FLAG = "patient_report_bucket";
     private static final String ARCHIVE_BUCKET_FLAG = "archive_bucket";
     private static final String ARCHIVE_PROJECT_FLAG = "archive_project";
@@ -102,8 +100,6 @@ public class CommandLineOptions {
                 .addOption(optionWithBooleanArg(RUN_TERTIARY_FLAG, "Run tertiary analysis algorithms (amber, cobalt, purple)"))
                 .addOption(optionWithBooleanArg(RUN_SNP_GENOTYPER_FLAG, "Run snp genotyper for QC against genotyping"))
                 .addOption(serviceAccountEmail())
-                .addOption(resourceBucket())
-                .addOption(toolsBucket())
                 .addOption(patientReportBucket())
                 .addOption(archiveBucket())
                 .addOption(archiveProject())
@@ -155,15 +151,6 @@ public class CommandLineOptions {
 
     private static Option archivePrivateKey() {
         return optionWithArg(ARCHIVE_PRIVATE_KEY_FLAG, "Private key to use for data request archival.");
-    }
-
-    private static Option toolsBucket() {
-        return optionWithArg(TOOLS_BUCKET_FLAG, "Bucket containing all common tools (gatk, picard, amber, cobalt, purple, etc");
-    }
-
-    private static Option resourceBucket() {
-        return optionWithArg(RESOURCE_BUCKET_FLAG,
-                "Bucket containing all common resources (referenceSampleName genome, known indels, pons, etc");
     }
 
     private static Option profile() {
@@ -280,8 +267,6 @@ public class CommandLineOptions {
                     .runStructuralCaller(booleanOptionWithDefault(commandLine, RUN_STRUCTURAL_CALLER_FLAG, defaults.runStructuralCaller()))
                     .runTertiary(booleanOptionWithDefault(commandLine, RUN_TERTIARY_FLAG, defaults.runTertiary()))
                     .serviceAccountEmail(commandLine.getOptionValue(SERVICE_ACCOUNT_EMAIL_FLAG, defaults.serviceAccountEmail()))
-                    .resourceBucket(commandLine.getOptionValue(RESOURCE_BUCKET_FLAG, defaults.resourceBucket()))
-                    .toolsBucket(commandLine.getOptionValue(TOOLS_BUCKET_FLAG, defaults.toolsBucket()))
                     .patientReportBucket(commandLine.getOptionValue(PATIENT_REPORT_BUCKET_FLAG, defaults.patientReportBucket()))
                     .archiveBucket(commandLine.getOptionValue(ARCHIVE_BUCKET_FLAG, defaults.archiveBucket()))
                     .archiveProject(commandLine.getOptionValue(ARCHIVE_PROJECT_FLAG, defaults.archiveProject()))

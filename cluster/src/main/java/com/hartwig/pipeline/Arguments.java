@@ -1,8 +1,8 @@
 package com.hartwig.pipeline;
 
-import java.util.Optional;
-
 import org.immutables.value.Value;
+
+import java.util.Optional;
 
 @Value.Immutable
 public interface Arguments extends CommonArguments {
@@ -54,10 +54,6 @@ public interface Arguments extends CommonArguments {
     String rcloneS3RemoteDownload();
 
     String rcloneS3RemoteUpload();
-
-    String resourceBucket();
-
-    String toolsBucket();
 
     String patientReportBucket();
 
@@ -123,8 +119,6 @@ public interface Arguments extends CommonArguments {
                     .shallow(false)
                     .sampleId(EMPTY)
                     .setId(EMPTY)
-                    .toolsBucket(DEFAULT_PRODUCTION_COMMON_TOOLS_BUCKET)
-                    .resourceBucket(DEFAULT_PRODUCTION_RESOURCE_BUCKET)
                     .patientReportBucket(DEFAULT_PRODUCTION_PATIENT_REPORT_BUCKET)
                     .archiveBucket(DEFAULT_PRODUCTION_ARCHIVE_BUCKET)
                     .archiveProject(DEFAULT_PRODUCTION_ARCHIVE_PROJECT)
@@ -158,8 +152,6 @@ public interface Arguments extends CommonArguments {
                     .sbpApiUrl(NOT_APPLICABLE)
                     .sampleId(EMPTY)
                     .setId(EMPTY)
-                    .toolsBucket(DEFAULT_DEVELOPMENT_COMMON_TOOLS_BUCKET)
-                    .resourceBucket(DEFAULT_DEVELOPMENT_RESOURCE_BUCKET)
                     .patientReportBucket(DEFAULT_DEVELOPMENT_PATIENT_REPORT_BUCKET)
                     .archiveBucket(DEFAULT_DEVELOPMENT_ARCHIVE_BUCKET)
                     .archiveProject(DEFAULT_DEVELOPMENT_PROJECT)
@@ -194,8 +186,6 @@ public interface Arguments extends CommonArguments {
                     .sbpApiUrl(NOT_APPLICABLE)
                     .sampleId(EMPTY)
                     .setId(EMPTY)
-                    .toolsBucket(DEFAULT_DEVELOPMENT_COMMON_TOOLS_BUCKET)
-                    .resourceBucket(DEFAULT_DEVELOPMENT_RESOURCE_BUCKET)
                     .patientReportBucket(DEFAULT_DEVELOPMENT_PATIENT_REPORT_BUCKET)
                     .archiveBucket(DEFAULT_DEVELOPMENT_ARCHIVE_BUCKET)
                     .archiveProject(DEFAULT_DEVELOPMENT_PROJECT)
@@ -217,8 +207,6 @@ public interface Arguments extends CommonArguments {
     String DEFAULT_PRODUCTION_SBP_API_URL = "http://hmfapi";
     String DEFAULT_PRODUCTION_SBP_S3_URL = "https://s3.object02.schubergphilis.com";
     String DEFAULT_PRODUCTION_SERVICE_ACCOUNT_EMAIL = String.format("bootstrap@%s.iam.gserviceaccount.com", DEFAULT_PRODUCTION_PROJECT);
-    String DEFAULT_PRODUCTION_RESOURCE_BUCKET = "common-resources-prod";
-    String DEFAULT_PRODUCTION_COMMON_TOOLS_BUCKET = "common-tools-prod";
     String DEFAULT_PRODUCTION_PATIENT_REPORT_BUCKET = "pipeline-output-prod";
     String DEFAULT_PRODUCTION_ARCHIVE_BUCKET = "pipeline-archive-prod";
     String DEFAULT_PRODUCTION_ARCHIVE_PROJECT = DEFAULT_PRODUCTION_PROJECT;
@@ -236,8 +224,6 @@ public interface Arguments extends CommonArguments {
     String DEFAULT_DEVELOPMENT_KEY_PATH = workingDir() + "/bootstrap-key.json";
     String DEFAULT_DEVELOPMENT_CLOUD_SDK_PATH = System.getProperty("user.home") + "/gcloud/google-cloud-sdk/bin";
     String DEFAULT_DEVELOPMENT_SERVICE_ACCOUNT_EMAIL = String.format("bootstrap@%s.iam.gserviceaccount.com", DEFAULT_DEVELOPMENT_PROJECT);
-    String DEFAULT_DEVELOPMENT_RESOURCE_BUCKET = "common-resources";
-    String DEFAULT_DEVELOPMENT_COMMON_TOOLS_BUCKET = "common-tools";
     String DEFAULT_DEVELOPMENT_PATIENT_REPORT_BUCKET = "pipeline-output-dev";
     String DEFAULT_DEVELOPMENT_ARCHIVE_BUCKET = "pipeline-archive-dev";
 }
