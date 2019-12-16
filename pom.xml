@@ -192,14 +192,7 @@
 
             <dependency>
                 <groupId>com.hartwig</groupId>
-                <artifactId>bam</artifactId>
-                <version>local-SNAPSHOT</version>
-                <type>test-jar</type>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.hartwig</groupId>
-                <artifactId>support</artifactId>
+                <artifactId>cluster</artifactId>
                 <version>local-SNAPSHOT</version>
                 <type>test-jar</type>
                 <scope>test</scope>
@@ -293,6 +286,13 @@
     </dependencies>
 
     <build>
+        <extensions>
+            <extension>
+                <groupId>com.gkatzioura.maven.cloud</groupId>
+                <artifactId>google-storage-wagon</artifactId>
+                <version>1.0</version>
+            </extension>
+        </extensions>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -323,6 +323,13 @@
             </plugin>
         </plugins>
     </build>
+
+    <distributionManagement>
+        <repository>
+            <id>hmf-release</id>
+            <url>gs://hmf-maven-repository/release</url>
+        </repository>
+    </distributionManagement>
 
     <repositories>
         <repository>

@@ -1,9 +1,8 @@
 package com.hartwig.batch.operations;
 
-import static java.lang.String.format;
-
 import com.hartwig.batch.BatchOperation;
-import com.hartwig.batch.InputFileDescriptor;
+import com.hartwig.batch.input.InputBundle;
+import com.hartwig.batch.input.InputFileDescriptor;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.execution.vm.Bash;
 import com.hartwig.pipeline.execution.vm.BashCommand;
@@ -13,20 +12,24 @@ import com.hartwig.pipeline.execution.vm.OutputUpload;
 import com.hartwig.pipeline.execution.vm.RuntimeFiles;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
+import com.hartwig.pipeline.resource.Resource;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static java.lang.String.format;
+
 public class SagePon implements BatchOperation {
     @Override
-    public VirtualMachineJobDefinition execute(final InputFileDescriptor descriptor, final RuntimeBucket runtimeBucket,
-            final BashStartupScript startupScript, final RuntimeFiles executionFlags) {
+    public VirtualMachineJobDefinition execute(final InputBundle inputs, final RuntimeBucket runtimeBucket,
+                                               final BashStartupScript startupScript, final RuntimeFiles executionFlags) {
+        String bucket = inputs.get("bucket").remoteFilename();
+        String set = inputs.get("set").remoteFilename();
+        String tumorSampleName = inputs.get("tumorSample").remoteFilename();
+        String referenceSampleName = inputs.get("referenceSample").remoteFilename();
 
-        String[] values = descriptor.remoteFilename().split(",");
-
-        String bucket = values[0];
-        String set = values[1];
-        String tumorSampleName = values[2];
-        String referenceSampleName = tumorSampleName.substring(0, 12) + "R";
         String tumorBamFile = tumorSampleName + "_dedup.realigned.bam";
         String referenceBamFile = referenceSampleName + "_dedup.realigned.bam";
 
@@ -39,7 +42,6 @@ public class SagePon implements BatchOperation {
         final String output = String.format("%s/%s.sage.vcf.gz", VmDirectories.OUTPUT, tumorSampleName);
         final String panel = "/opt/resources/sage/ActionableCodingPanel.hg19.bed.gz";
         final String hotspots = "/opt/resources/sage/KnownHotspots.hg19.vcf.gz";
-        final String refGenome = "/opt/resources/reference_genome/Homo_sapiens.GRCh37.GATK.illumina.fasta";
 
         final BashCommand sageCommand = new JavaClassCommand("sage",
                 "pilot",
@@ -60,7 +62,7 @@ public class SagePon implements BatchOperation {
                 "-hotspots",
                 hotspots,
                 "-ref_genome",
-                refGenome,
+                Resource.REFERENCE_GENOME_FASTA,
                 "-out",
                 output,
                 "-threads",
@@ -72,12 +74,12 @@ public class SagePon implements BatchOperation {
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s %s", "gs://batch-sage/resources/KnownHotspots.hg19.vcf.gz", hotspots));
 
         // Download bams
-        startupScript.addCommand(() -> "touch /data/input/files.list");
-        startupScript.addCommand(() -> format("echo %s | tee -a  /data/input/files.list", gcTumorBamFile));
-        startupScript.addCommand(() -> format("echo %s.bai | tee -a /data/input/files.list", gcTumorBamFile));
-        startupScript.addCommand(() -> format("echo %s | tee -a /data/input/files.list", gcReferenceBamFile));
-        startupScript.addCommand(() -> format("echo %s.bai | tee -a /data/input/files.list", gcReferenceBamFile));
-        startupScript.addCommand(() -> format("cat /data/input/files.list | gsutil -m -u hmf-crunch cp -I %s", "/data/input/"));
+        startupScript.addCommand(() -> "touch /data/inputs/files.list");
+        startupScript.addCommand(() -> format("echo %s | tee -a  /data/inputs/files.list", gcTumorBamFile));
+        startupScript.addCommand(() -> format("echo %s.bai | tee -a /data/inputs/files.list", gcTumorBamFile));
+        startupScript.addCommand(() -> format("echo %s | tee -a /data/inputs/files.list", gcReferenceBamFile));
+        startupScript.addCommand(() -> format("echo %s.bai | tee -a /data/inputs/files.list", gcReferenceBamFile));
+        startupScript.addCommand(() -> format("cat /data/inputs/files.list | gsutil -m -u hmf-crunch cp -I %s", "/data/inputs/"));
 
         // Prevent errors about index being older than bam
         startupScript.addCommand(() -> format("touch %s.bai", localTumorBamFile));
@@ -95,11 +97,17 @@ public class SagePon implements BatchOperation {
         // Store output
         startupScript.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), "sage"), executionFlags));
 
-        return VirtualMachineJobDefinition.sage(startupScript, ResultsDirectory.defaultDirectory());
+        return VirtualMachineJobDefinition.builder().name("sage").startupCommand(startupScript)
+                .namespacedResults(ResultsDirectory.defaultDirectory()).build();
+    }
+
+    String getInput(List<InputFileDescriptor> inputs, String key) {
+        return inputs.stream().filter(input -> input.name().equals(key)).collect(Collectors.toList()).get(0).remoteFilename();
     }
 
     @Override
-    public CommandDescriptor descriptor() {
-        return CommandDescriptor.of("SagePon", "Generate sage output for PON creation");
+    public OperationDescriptor descriptor() {
+        return OperationDescriptor.of("SagePon", "Generate sage output for PON creation",
+                OperationDescriptor.InputType.JSON);
     }
 }

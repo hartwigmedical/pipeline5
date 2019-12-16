@@ -1,14 +1,17 @@
-package com.hartwig.batch;
+package com.hartwig.batch.input;
 
 import org.immutables.value.Value;
 
 @Value.Immutable
 public abstract class InputFileDescriptor {
     @Value.Parameter
+    public abstract String name();
+
+    @Value.Parameter
     public abstract String remoteFilename();
 
     @Value.Parameter
-    public String protocol() {
+    private String protocol() {
         return "gs://";
     }
 
@@ -25,5 +28,9 @@ public abstract class InputFileDescriptor {
 
     static ImmutableInputFileDescriptor.Builder builder() {
         return ImmutableInputFileDescriptor.builder();
+    }
+
+    public static ImmutableInputFileDescriptor from(InputFileDescriptor original) {
+        return builder().from(original).build();
     }
 }
