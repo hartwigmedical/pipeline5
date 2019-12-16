@@ -34,6 +34,6 @@ public class HmfToolCommand extends JavaClassCommand {
                 "-threads",
                 Bash.allCpus());
         defaultArguments.addAll(Arrays.asList(arguments));
-        return defaultArguments.toArray(new String[defaultArguments.size()]);
+        return defaultArguments.toArray(new String[]{});
     }
 }
