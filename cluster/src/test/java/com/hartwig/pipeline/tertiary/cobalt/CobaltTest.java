@@ -1,16 +1,15 @@
 package com.hartwig.pipeline.tertiary.cobalt;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.Collections;
-import java.util.List;
-
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
-
 import org.junit.Before;
+
+import java.util.Collections;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class CobaltTest extends TertiaryStageTest<CobaltOutput> {
 
@@ -29,8 +28,7 @@ public class CobaltTest extends TertiaryStageTest<CobaltOutput> {
         return Collections.singletonList(
                 "java -Xmx8G -cp /opt/tools/cobalt/1.7/cobalt.jar com.hartwig.hmftools.cobalt.CountBamLinesApplication -reference "
                         + "reference -reference_bam /data/input/reference.bam -tumor tumor -tumor_bam /data/input/tumor.bam -output_dir "
-                        + "/data/output -threads 16 -gc_profile /opt/resources/gc/GC_profile.1000bp.cnp -threads $(grep -c '^processor' "
-                        + "/proc/cpuinfo)");
+                        + "/data/output -threads $(grep -c '^processor' /proc/cpuinfo) -gc_profile /opt/resources/gc/GC_profile.1000bp.cnp");
     }
 
     @Override
