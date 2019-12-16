@@ -20,24 +20,16 @@ import com.hartwig.pipeline.tools.Versions;
 import java.io.File;
 
 public class SambambaCramaBam implements BatchOperation {
+    @Override
     public VirtualMachineJobDefinition execute(final InputBundle inputs, final RuntimeBucket bucket,
                                                final BashStartupScript startupScript, final RuntimeFiles executionFlags) {
         InputFileDescriptor input = inputs.get();
         String outputFile = VmDirectories.outputFile(new File(input.remoteFilename()).getName().replaceAll("\\.bam$", ".cram"));
         String localInput = String.format("%s/%s", VmDirectories.INPUT, new File(input.remoteFilename()).getName());
         startupScript.addCommand(() -> input.toCommandForm(localInput));
-        startupScript.addCommand(new VersionedToolCommand("sambamba",
-                "sambamba",
-                Versions.SAMBAMBA,
-                "view",
-                localInput,
-                "-o",
-                outputFile,
-                "-t",
-                Bash.allCpus(),
-                "--format=cram",
-                "-T",
-                Resource.REFERENCE_GENOME_FASTA));
+        startupScript.addCommand(new VersionedToolCommand("sambamba", "sambamba", Versions.SAMBAMBA,
+                "view", localInput, "-o", outputFile, "-t", Bash.allCpus(), "--format=cram",
+                "-T", Resource.REFERENCE_GENOME_FASTA));
         startupScript.addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), "cram"), executionFlags));
 
         return VirtualMachineJobDefinition.builder().name("cram").startupCommand(startupScript)
@@ -48,7 +40,7 @@ public class SambambaCramaBam implements BatchOperation {
 
     @Override
     public OperationDescriptor descriptor() {
-        return OperationDescriptor.of("SambambaCramaBam", "Produce a CRAM file from each inputs BAM",
+        return OperationDescriptor.of("SambambaCramaBam", "Produce a CRAM file from each input BAM",
                 OperationDescriptor.InputType.FLAT);
     }
 }

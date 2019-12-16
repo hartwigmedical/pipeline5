@@ -32,14 +32,6 @@ If you do need to write your own operation there are two distinct approaches:
 * *Add the project as a dependency in Maven and implement locally*. If you just want to take advantage of the framework to run an
     operation that you define this may be easiest and quickest as you will not need to submit and wait for a pull request.
 
-In both cases you will need to create a new implementation of the `BatchOperation` interface. Make sure the operation name
-returned in the `BatchDescriptor` does not collide with an existing operation, and succintly describes your operation as it will
-be used to call it on the command line.
-
-A typical batch operation will download some inputs, do some processing and then write something back up to the cloud, but your
-operation may be different. The interfaces have been intentionally kept quite loose to allow the widest range of problems to be
-solved.
-
 ### Adding the Project as a Maven Dependency
 
 The artifacts are currently hosted in a GCP bucket and you must configure your Maven to find them. In your POM:
@@ -64,6 +56,78 @@ The artifacts are currently hosted in a GCP bucket and you must configure your M
             </extension>
 ...
 ```
+
+In both cases you will need to create a new implementation of the `BatchOperation` interface. Make sure the operation name
+returned in the `BatchDescriptor` does not collide with an existing operation, and succintly describes your operation as it will
+be used to call it on the command line.
+
+A typical batch operation will download some inputs, do some processing and then write something back up to the cloud, but your
+operation may be different. The interfaces have been intentionally kept quite loose to allow the widest range of problems to be
+solved.
+
+### Sample Operation
+
+```
+     1  package com.hartwig.batch.operations;
+     2
+     3  import com.hartwig.batch.BatchOperation;
+     4  import com.hartwig.batch.input.InputBundle;
+     5  import com.hartwig.batch.input.InputFileDescriptor;
+     6  import com.hartwig.pipeline.ResultsDirectory;
+     7  import com.hartwig.pipeline.calling.command.VersionedToolCommand;
+     8  import com.hartwig.pipeline.execution.vm.Bash;
+     9  import com.hartwig.pipeline.execution.vm.BashStartupScript;
+    10  import com.hartwig.pipeline.execution.vm.OutputUpload;
+    11  import com.hartwig.pipeline.execution.vm.RuntimeFiles;
+    12  import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
+    13  import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
+    14  import com.hartwig.pipeline.execution.vm.VmDirectories;
+    15  import com.hartwig.pipeline.resource.Resource;
+    16  import com.hartwig.pipeline.storage.GoogleStorageLocation;
+    17  import com.hartwig.pipeline.storage.RuntimeBucket;
+    18  import com.hartwig.pipeline.tools.Versions;
+    19
+    20  import java.io.File;
+    21
+    22  public class SambambaCramaBam implements BatchOperation {
+    23      @Override
+    24      public VirtualMachineJobDefinition execute(final InputBundle inputs, final RuntimeBucket bucket,
+    25                                                 final BashStartupScript startupScript, final RuntimeFiles executionFlags) {
+    26          InputFileDescriptor input = inputs.get();
+    27          String outputFile = VmDirectories.outputFile(new File(input.remoteFilename()).getName().replaceAll("\\.bam$", ".cram"));
+    28          String localInput = String.format("%s/%s", VmDirectories.INPUT, new File(input.remoteFilename()).getName());
+    29          startupScript.addCommand(() -> input.toCommandForm(localInput));
+    30          startupScript.addCommand(new VersionedToolCommand("sambamba", "sambamba", Versions.SAMBAMBA,
+    31                  "view", localInput, "-o", outputFile, "-t", Bash.allCpus(), "--format=cram",
+    32                  "-T", Resource.REFERENCE_GENOME_FASTA));
+    33          startupScript.addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), "cram"), executionFlags));
+    34
+    35          return VirtualMachineJobDefinition.builder().name("cram").startupCommand(startupScript)
+    36                  .namespacedResults(ResultsDirectory.defaultDirectory())
+    37                  .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 6))
+    38                  .build();
+    39      }
+    40
+    41      @Override
+    42      public OperationDescriptor descriptor() {
+    43          return OperationDescriptor.of("SambambaCramaBam", "Produce a CRAM file from each input BAM",
+    44                  OperationDescriptor.InputType.FLAT);
+    45      }
+    46  }
+```
+
+Discussion:
+
+* Line 1: For the moment make sure your operation lives in this package so the runtime locator finds it
+* 3-18: Other HMF classes you're likely to need or interact with
+* 22: Make sure you implement the `BatchOperation` interface
+* 26: This operation uses a "flat" input file style (see line 44). A richer JSON version is also available; in that case you'd
+  get elements from the input by key
+* 29-33: Build up `bash` commands to be executed on the VM instance. Your commands need to be well-behaved and return 0 on
+  success, non-zero on failure or the framework will not handle failure scenarios properly. Note that the final command here is an
+  upload to the output bucket of the file that has been generated.
+* 35-38: Describe performance characteristics of the VM.
+* 41-44: Provide a description of the operation to allow the framework to find it and the user to invoke it.
 
 ## Writing an Input File
 
