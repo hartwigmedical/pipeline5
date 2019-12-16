@@ -18,9 +18,13 @@ public class CredentialProvider {
 
     public GoogleCredentials get() throws IOException, InterruptedException {
         GoogleCredentials credentials =
-                GoogleCredentials.fromStream(new FileInputStream(arguments.privateKeyPath())).createScoped(ComputeScopes.all());
+                arguments.privateKeyPath().isPresent() ? GoogleCredentials.fromStream(new FileInputStream(arguments.privateKeyPath().get()))
+                        .createScoped(ComputeScopes.all()) : GoogleCredentials.getApplicationDefault();
+        ;
         GSUtil.configure(false, 4);
-        GSUtil.auth(arguments.cloudSdkPath(), arguments.privateKeyPath());
+        if (arguments.privateKeyPath().isPresent()) {
+            GSUtil.auth(arguments.cloudSdkPath(), arguments.privateKeyPath().get());
+        }
         return credentials;
     }
 

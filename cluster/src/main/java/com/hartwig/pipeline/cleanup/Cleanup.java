@@ -27,7 +27,9 @@ public class Cleanup {
         }
         try {
             LOGGER.info("Cleaning up runtime storage on complete somatic pipeline run");
-            GSUtil.auth(arguments.cloudSdkPath(), arguments.privateKeyPath());
+            if (arguments.privateKeyPath().isPresent()) {
+                GSUtil.auth(arguments.cloudSdkPath(), arguments.privateKeyPath().get());
+            }
             metadata.maybeTumor().ifPresent(tumor -> deleteBucket(Run.from(metadata, arguments).id()));
             cleanupSample(metadata.reference());
             metadata.maybeTumor().ifPresent(this::cleanupSample);
