@@ -27,21 +27,21 @@ public class Bam2Fastq implements BatchOperation {
     @Override
     public VirtualMachineJobDefinition execute(InputBundle inputs, RuntimeBucket bucket, BashStartupScript startupScript, RuntimeFiles executionFlags) {
         InputFileDescriptor descriptor = inputs.get();
-        String localCopyOfBam = format("%s/%s", VmDirectories.OUTPUT, new File(descriptor.remoteFilename()).getName());
+        String localCopyOfBam = format("%s/%s", VmDirectories.INPUT, new File(descriptor.remoteFilename()).getName());
         startupScript.addCommand(() -> descriptor.toCommandForm(localCopyOfBam));
         startupScript.addCommand(new PipeCommands(new SambambaCommand("view", "-H", localCopyOfBam),
                 () -> "grep ^@RG",
                 () -> "grep -cP \"_L00[1-8]_\""
         ));
         List<String> picargs = ImmutableList.of("SamToFastq", "ODIR=" + VmDirectories.OUTPUT, "OPRG=true", "RGT=ID", "NON_PF=true", "RC=true", "I=" + localCopyOfBam);
-        startupScript.addCommand(new JavaJarCommand("picard", "2.18.27", "picard.jar", "12G", picargs));
+        startupScript.addCommand(new JavaJarCommand("picard", "2.18.27", "picard.jar", "16G", picargs));
         startupScript.addCommand(() -> format("rename 's/(.+)_(.+)_(.+)_(.+)_(.+)__(.+)\\.fastq/$1_$2_$3_$4_R$6_$5.fastq/' %s/*.fastq", VmDirectories.OUTPUT));
         startupScript.addCommand(() -> format("pigz %s/*.fastq", VmDirectories.OUTPUT));
         startupScript.addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), "bam2fastq"), executionFlags));
 
         return ImmutableVirtualMachineJobDefinition.builder().name("bam2fastq").startupCommand(startupScript)
-                .namespacedResults(ResultsDirectory.defaultDirectory())
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(8, 16)).build();
+                .namespacedResults(ResultsDirectory.defaultDirectory()).workingDiskSpaceGb(1800)
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 20)).build();
     }
 
     @Override

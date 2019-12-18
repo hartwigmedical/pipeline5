@@ -10,19 +10,44 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
 
     String STANDARD_IMAGE = "pipeline5-" +Versions.imageVersion();
 
+    @Value.Derived
+    default long baseImageDiskSizeGb() {
+        return 100L;
+    }
+
     @Value.Default
     default String imageFamily() {
         return STANDARD_IMAGE;
     }
 
     @Value.Default
-    default long imageSizeGb() {
-        return 100L;
+    default long workingDiskSpaceGb() {
+        return 900L;
     }
 
     BashStartupScript startupCommand();
 
     ResultsDirectory namespacedResults();
+
+    @Value.Derived
+    default long totalPersistentDiskSizeGb() {
+        return baseImageDiskSizeGb() + workingDiskSpaceGb();
+    }
+
+    @Value.Derived
+    default int localSsdCount() {
+        int localSsdDeviceSizeGbb = 375;
+
+        int floor = Math.toIntExact(workingDiskSpaceGb() / localSsdDeviceSizeGbb);
+        long remainder = workingDiskSpaceGb() % localSsdDeviceSizeGbb;
+        if (remainder != 0) {
+            floor++;
+        }
+        if (floor % 2 != 0) {
+            floor++;
+        }
+        return floor;
+    }
 
     @Override
     @Value.Default
