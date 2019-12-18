@@ -8,7 +8,10 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.immutables.value.Value;
 
+import java.util.Optional;
+
 import static java.lang.Boolean.parseBoolean;
+import static java.lang.String.format;
 
 @Value.Immutable
 public interface BatchArguments extends CommonArguments {
@@ -40,7 +43,7 @@ public interface BatchArguments extends CommonArguments {
                     .region(commandLine.getOptionValue(REGION, "europe-west4"))
                     .useLocalSsds(parseBoolean(commandLine.getOptionValue(LOCAL_SSDS, "true")))
                     .usePreemptibleVms(parseBoolean(commandLine.getOptionValue(PREEMPTIBLE_VMS, "true")))
-                    .privateKeyPath(commandLine.getOptionValue(PRIVATE_KEY_PATH))
+                    .privateKeyPath(privateKey(commandLine))
                     .cloudSdkPath(commandLine.getOptionValue(CLOUD_SDK, "/usr/bin"))
                     .serviceAccountEmail(commandLine.getOptionValue(SERVICE_ACCOUNT_EMAIL))
                     .concurrency(Integer.parseInt(commandLine.getOptionValue(CONCURRENCY, "100")))
@@ -49,8 +52,32 @@ public interface BatchArguments extends CommonArguments {
                     .shallow(false)
                     .build();
         } catch (ParseException e) {
-            throw new IllegalArgumentException("Failed to parse arguments", e);
+            String message = "Failed to parse arguments";
+            System.err.println(format("%s: %s", message, e.getMessage()));
+            usage();
+            System.out.println();
+            throw new IllegalArgumentException(message, e);
         }
+    }
+
+    private static Optional<String> privateKey(CommandLine commandLine) {
+        if (commandLine.hasOption(PRIVATE_KEY_PATH)) {
+            return Optional.of(commandLine.getOptionValue(PRIVATE_KEY_PATH));
+        }
+        return Optional.empty();
+    }
+
+
+    private static void usage() {
+        System.err.println("\nRecognised options:");
+        int padding = 0;
+        for (Option option : options().getOptions()) {
+            if (option.getOpt().length() > padding) {
+                padding = option.getOpt().length();
+            }
+        }
+        final int i = padding;
+        options().getOptions().forEach(o -> System.err.println(format("-%-" + i + "s  %s", o.getOpt(), o.getDescription())));
     }
 
     private static Options options() {

@@ -132,7 +132,8 @@ public class BatchDispatcher {
 
     public static void main(String[] args) throws Exception {
         BatchArguments arguments = BatchArguments.from(args);
-        GoogleCredentials credentials = CredentialProvider.from(arguments).get();
+        GoogleCredentials credentials = arguments.privateKeyPath().isPresent() ?
+                CredentialProvider.from(arguments).get() : GoogleCredentials.getApplicationDefault();
         ComputeEngine compute = ComputeEngine.from(arguments, credentials);
         Storage storage = StorageProvider.from(arguments, credentials).get();
         boolean success = new BatchDispatcher(arguments, InstanceFactory.from(arguments), new InputParserProvider(),
