@@ -158,6 +158,8 @@ container is not configurable):
 
 ```
 $ cp jar-containing-operation.jar /tmp/jarfiles
-$ docker run -v /tmp/jarfiles:/usr/share/thirdpartyjars hartwigmedicalfoundation/batch5 MyOp -private_key_path ...
+$ docker run -it -v /tmp/jarfiles:/usr/share/thirdpartyjars hartwigmedicalfoundation/batch5 MyOp -help ...
 ```
 
+*NB* The `-it` in the command line is important as without it Docker will not be responsive to signals (such as Ctrl-C)
+and you will have to use `docker stop` or `docker kill` to shutdown the batch if you want to stop it early.
