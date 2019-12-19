@@ -1,6 +1,8 @@
 package com.hartwig.batch;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.batch.input.InputBundle;
 import com.hartwig.batch.input.InputParser;
@@ -12,12 +14,16 @@ import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.RuntimeFiles;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.storage.StorageProvider;
+import com.hartwig.pipeline.tools.Versions;
 import org.immutables.value.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileInputStream;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -30,6 +36,7 @@ import static java.util.stream.Collectors.toList;
 
 public class BatchDispatcher {
     private static final Logger LOGGER = LoggerFactory.getLogger(BatchDispatcher.class);
+    private static final String LOG_NAME = "run.log";
     private final BatchArguments arguments;
     private final InstanceFactory instanceFactory;
     private final InputParserProvider parserProvider;
@@ -61,6 +68,8 @@ public class BatchDispatcher {
     }
 
     boolean runBatch() throws Exception {
+        LOGGER.info("Invoked with arguments: [{}]", arguments);
+        Versions.printAll();
         Set<StateTuple> state = new HashSet<>();
         InputParser inputParser = parserProvider.from(instanceFactory.get());
         List<InputBundle> inputs = inputParser.parse(arguments.inputFile(), arguments.project());
@@ -69,19 +78,24 @@ public class BatchDispatcher {
         confirmOutputBucketExists(storage);
         int i = 0;
         String paddingFormat = format("%%0%dd", String.valueOf(inputs.size()).length());
-        RuntimeBucket outputBucket = RuntimeBucket.from(storage, arguments.outputBucket(), "batch", arguments);
         LOGGER.info("Writing output to bucket [{}]", arguments.outputBucket());
+        Map<String, InputBundle> jobAsString = new HashMap<>();
         for (InputBundle operationInputs : inputs) {
             final String label = format(paddingFormat, i + 1);
             RuntimeFiles executionFlags = RuntimeFiles.of(label);
+            RuntimeBucket outputBucket = RuntimeBucket.from(storage, arguments.outputBucket(), label, arguments);
             BashStartupScript startupScript = BashStartupScript.of(outputBucket.name(), executionFlags);
             Future<PipelineStatus> future = executorService.submit(() -> computeEngine.submit(outputBucket,
                     instanceFactory.get().execute(operationInputs, outputBucket, startupScript, executionFlags),
                     label));
             state.add(StateTuple.builder().id(label).inputs(operationInputs).future(future).build());
+            jobAsString.put(label, operationInputs);
             i++;
         }
         spawnProgessLogger(state);
+        RuntimeBucket outputBucket = RuntimeBucket.from(storage, arguments.outputBucket(), "", arguments);
+        Bucket bucketRoot = outputBucket.getUnderlyingBucket();
+        bucketRoot.create("job.json", new ObjectMapper().writeValueAsBytes(jobAsString));
         for (StateTuple job : state) {
             job.future().get();
         }
@@ -97,6 +111,8 @@ public class BatchDispatcher {
         }
         LOGGER.info("Batch completed");
         LOGGER.info(report.toString());
+
+        bucketRoot.create(LOG_NAME, new FileInputStream(LOG_NAME));
         return !jobsFailed;
     }
 
