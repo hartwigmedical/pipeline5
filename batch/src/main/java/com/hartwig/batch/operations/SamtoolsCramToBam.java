@@ -20,6 +20,7 @@ import com.hartwig.pipeline.tools.Versions;
 import java.io.File;
 
 public class SamtoolsCramToBam implements BatchOperation {
+    @Override
     public VirtualMachineJobDefinition execute(final InputBundle inputs, final RuntimeBucket bucket,
                                                final BashStartupScript startupScript, final RuntimeFiles executionFlags) {
         InputFileDescriptor input = inputs.get();
