@@ -59,6 +59,7 @@ linx/CPCT12345678T.linx.fusion.tsv
 linx/CPCT12345678T.linx.links.tsv
 linx/CPCT12345678T.linx.svs.tsv
 linx/CPCT12345678T.linx.viral_inserts.tsv
+linx/linx.version
 metadata.json
 pipeline.version
 purple/circos/CPCT12345678R.ratio.circos
