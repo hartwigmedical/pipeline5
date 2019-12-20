@@ -1,14 +1,5 @@
 package com.hartwig.pipeline.execution.vm;
 
-import static java.lang.String.format;
-
-import java.io.File;
-import java.io.IOException;
-import java.time.Duration;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 import com.google.api.services.compute.Compute;
 import com.google.api.services.compute.ComputeRequest;
 import com.google.api.services.compute.model.Instance;
@@ -17,13 +8,20 @@ import com.google.api.services.compute.model.Metadata;
 import com.google.api.services.compute.model.Operation;
 import com.google.api.services.compute.model.Zone;
 import com.hartwig.pipeline.CommonArguments;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.jodah.failsafe.Failsafe;
 import net.jodah.failsafe.RetryPolicy;
 import net.jodah.failsafe.function.CheckedSupplier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.time.Duration;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static java.lang.String.format;
 
 class InstanceLifecycleManager {
     private static final String RUNNING_STATUS = "RUNNING";
@@ -123,7 +121,7 @@ class InstanceLifecycleManager {
             try {
                 Thread.sleep(500);
             } catch (InterruptedException ie) {
-                Thread.interrupted();
+                Thread.currentThread().interrupt();
             }
         }
         return executeWithRetries(() -> compute.zoneOperations().get(projectName, zoneName, asyncOp.getName()).execute());
