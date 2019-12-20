@@ -36,100 +36,79 @@ the patient processing is complete.
 
 Pv5 makes use of the following GCP services:
 - [Google Cloud Storage](https://cloud.google.com/storage/) to store transient patient data, supporting resources, configuration and tools.
-- [Google Dataproc](https://cloud.google.com/dataproc/) to run ADAM/Spark workloads, currently only used in alignment (more on this later).
 - [Google Compute Engine](https://cloud.google.com/compute/) to run workloads using tools not yet compatible with Spark
   (samtools, GATK, strelka, etc)
 
-### 1.3 ADAM, Spark and Dataproc
-[ADAM](https://github.com/bigdatagenomics/adam) is a genomic analysis modeling and processing framework built on Apache Spark
-(read [the documentation](https://adam.readthedocs.io/en/latest/) for a complete description of the ADAM ecosystem and
-goals). At this point we only use the core APIs and datamodels. [Apache Spark](https://spark.apache.org/) is an analytics engine
-used for large scale data processing, also best to read their own docs for a complete description.
+### 1.3 Google Compute Engine
+We've developed a small framework in Java to run the pipeline components on virtual machines (VMs). We use a custom disk image
+containing a complete repository of external and internal tools, and OS dependencies.
 
-We use ADAM to parallelize processing of FASTQ and BAM files using hadoop. ADAM provides an avro datamodel to read and persist
-this data from and to HDFS, and the ability to hold the massive datasets in memory as they are processed.
+Using internal APIs we launch VM jobs by generating a `bash` startup script which will copy inputs, run the tools themselves, and
+copy the final results (or any errors) back up into Google storage.
 
-Google Cloud Platform offers [Dataproc](https://cloud.google.com/dataproc/) as a managed spark environment. Each patient gets
-its own Dataproc cluster which is started when their FASTQ lands and deleted when tertiary analysis is complete. Dataproc
-includes a connector to use Google Storage as HDFS. With this we can have these transient compute clusters, with permanent
-distributed data storage.
-
-### 1.4 Google Compute Engine
-Not all the algorithms in our pipeline are currently suited to ADAM. For these tools we've developed a small framework to run them
-on virtual machines (VMs) in Java. To accomplish this we've created a standard VM image containing a complete repository of
-external and internal tools, and OS dependencies.
-
-Using internal APIs we launch VM jobs by generating a `bash` startup script which will copy inputs and resources, run the tools
-themselves, and copy the final results (or any errors) back up into Google storage.
-
-VM performance profiles can be created to use Google's standard machine type or custom cpu/ram combinations based on the
+VM performance profiles can be created to use Google's standard machine type or custom CPU/RAM combinations based on the
 workload's requirements.
 
-### 1.5 Pipeline Stages
+### 1.4 Pipeline Stages
 The pipeline first runs primary and secondary analysis on a reference (blood/normal) sample and tumor sample before comparing
-them in the final somatic pipeline. Steps 1.5.1-1.5.5 are run in the single sample pipeline, where 1.5.6-1.5.11 are run in the
-somatic. Alignment is the only step which uses Google Dataproc, while the others run in Google Compute Engine on virtual
-machines.
+them in the final somatic pipeline. Steps 1.4.1-1.4.5 are run in the single sample pipeline, where 1.4.6-1.4.11 are run in the
+somatic. 
 
-#### 1.5.1 Alignment
+#### 1.4.1 Alignment
 Under normal circumstances Pv5 starts with the input of one to _n_ paired-end FASTQ files produced by sequencing. The first task
-of the pipeline is to align these reads to the human reference genome (using the BWA algorithm). This is where we most take
-advantage of ADAM, Spark and Dataproc. ADAM gives us an API to run external tools against small blocks of data in parallel.
-Using this API we run thousands of BWA processes in parallel then combine the alignment results into a single BAM file and
-persist it.
+of the pipeline is to align these reads to the human reference genome (using the BWA algorithm). We use the largest core counts
+available and parallelise by sample (tumor/normal) and lane within each sample to achieve reasonable performance.
 
-It is worth noting there are both a pre-processing and post-processing step done here. Before alignment, we run a small Spark
-cluster to simply gunzip the data. Our input FASTQs come in gzipp-ed (not bgzipped) so cannot be properly parallelized by Spark
-in that state. After the alignment is complete, we run a sambamba sort and index, as the ADAM sort we've found unstable and does
-not perform indexing.
+It is worth noting there are both a pre-processing and post-processing step done here. After the alignment is complete, we run a
+sambamba sort and index.
 
-#### 1.5.2 WGS Metrics
+#### 1.4.2 WGS Metrics
 Our downstream QC tools require certain metrics about the BAM. These are produced using Picard tools
 [CollectWgsMetrics](https://software.broadinstitute.org/gatk/documentation/tooldocs/4.0.0.0/picard_analysis_CollectWgsMetrics.php).
 
-#### 1.5.3 Samtools Flagstat
+#### 1.4.3 Samtools Flagstat
 [Samtools](http://www.htslib.org/doc/samtools.html) flag statistics are not consumed by any downstream stages, but very useful
 in ad hoc QC and analysis.  
 
-#### 1.5.4 SnpGenotype (GATK UnifiedGenotyper)
+#### 1.4.4 SnpGenotype (GATK UnifiedGenotyper)
 Also used in final QC, GATK's
 [UnifiedGenotyper](https://software.broadinstitute.org/gatk/documentation/tooldocs/3.8-0/org_broadinstitute_gatk_tools_walkers_genotyper_UnifiedGenotyper.php)
 is used to call variants around 26 specific locations. The results are used as a final sanity check of the pipeline output.
 
-#### 1.5.5 Germline Calling (GATK HaplotypeCaller)
+#### 1.4.5 Germline Calling (GATK HaplotypeCaller)
 GATK's
 [HaplotypeCaller](https://software.broadinstitute.org/gatk/documentation/tooldocs/3.8-0/org_broadinstitute_gatk_tools_walkers_haplotypecaller_HaplotypeCaller.php)
 is used to call germline variants on the reference sample only.
 
-#### 1.5.6 Somatic Variant Calling (Strelka)
+#### 1.4.6 Somatic Variant Calling (Strelka)
 [Strelka](https://github.com/Illumina/strelka) from illumina is used to call SNP and INDEL variants between the tumor/reference pair.
 
-#### 1.5.7 Structural Variant Calling (GRIDSS)
+#### 1.4.7 Structural Variant Calling (GRIDSS)
 [GRIDSS](https://github.com/PapenfussLab/gridss) is used to call structural variants between the tumor/reference pair.
 
-#### 1.5.8 Cobalt
+#### 1.4.8 Cobalt
 [Cobalt](https://github.com/hartwigmedical/hmftools/tree/master/count-bam-lines) is an HMF in-house tool used to determine read
 depth ratios.
 
-#### 1.5.8 Amber
+#### 1.4.8 Amber
 [Amber](https://github.com/hartwigmedical/hmftools/tree/master/amber) is an HMF in-house tool used to determine the B allele
 frequency of a tumor/reference pair.
 
-#### 1.5.9 Purple
+#### 1.4.9 Purple
 [Purple](https://github.com/hartwigmedical/hmftools/tree/master/purity-ploidy-estimator) is an HMF in-house tool which combines
 the read-depth ratios, BAF, and variants to produce the pipeline final output, used both in the final report and exposed to
 research.
 
-#### 1.5.10 Health Check
+#### 1.4.10 Health Check
 Final QC of the purple results and BAM metrics.
 
-### 1.7 Production Environment at Schuberg Phillis
+### 1.5 Production Environment at Schuberg Phillis
 
 [Schuberg Philis](https://schubergphilis.com/) manages our pipeline operations. The production deployment of Pv5 is run in their
 environment. SBP provides orchestration tooling to manage the ingestion of FASTQ data from the HMF labs and metadata management
 of the samples, runs and output files. They also administer the HMF GCP projects.
 
-### 1.8 Data and Compute Topology
+### 1.6 Data and Compute Topology
 
 The following diagram gives a simple overview of the dataflow between components, their executions platforms, and locations (ie what runs
 in GCP vs SBP private cloud). Dotted arrows represent API calls (create, start, stop, delete, etc) and solid dataflow. Three key pieces
@@ -148,11 +127,7 @@ Pv5 is a Java application and is built with Maven. It is compatible with all bui
 8](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) and [Maven
 3](https://maven.apache.org/download.cgi) (if in doubt just use the latest).
 
-Otherwise only pre-requisite for running the build is having `bwa` installed locally (for the ADAM functional tests). For Mac
-users bwa can be installed easily via homebrew, and there are also packages for most linux distributions. If all else fails you can
-build from [source](http://bio-bwa.sourceforge.net/).
-
-To build the application and run all thes tests do the following
+To build the application and run all the tests:
 
 ```
 mvn clean install -DskipDocker
@@ -166,7 +141,6 @@ After each push our CI build runs on [Travis](https://travis-ci.org/). The build
 clean install`. On each CI build we:
 - Compile all the modules.
 - Run all the tests
-- Create a shaded jar for all code to be run on Spark.
 - Create a docker image which can be used to run the code in production.
 
 Each docker image gets a version of 5.{minor}.{build-number}. Every build should produce a releasable image, although not every
@@ -186,10 +160,30 @@ wish to have reviewed before ending up in production:
 - Assign a reviewer to your new PR.
 - Address any comments, then merge
 
-Small changes do not need to follow this process, its meant to help and not hinder productivity. Use your best judgement.
+Small changes do not need to follow this process, it is meant to help and not hinder productivity. Use your best judgement.
 
 All changes should be committed with quality commit messages, as this is a main source of documentation. Please read the [7
 rules](https://chris.beams.io/posts/git-commit/) and follow them.
+
+### 2.4 Development Checklist
+
+There is some non-linearity in the development process because if you're adding new features to the image, you have to build an
+image _before_ you push your code to the repository if you want to test it. As mentioned the pipeline code will use the latest
+version of the image, but this is a little non-obvious when you're developing. We hope to improve the coupling between the code
+and the image in future.
+
+A good example scenario is adding a new version of an existing tool. This is an overview of what you would need to do as a
+developer:
+
+1. Add the new version of the tool to the tools bucket in the development environment. Since we're adding a new version of an
+   existing tool it should be obvious where to put your new file. The bucket is referenced in the image creation script below if
+   you're unsure of where to find it. IMPORTANT: add to the bucket but do not delete or move anything; reasoning discussed below.
+1. Have a look at the `pipeline5.cmds` file and the `create_custom_image.sh` script, both in the `cluster/images` subdirectory of
+   the code repository. Update the commands file if needed to perform additional actions when creating the image.
+1. Make the code changes in a branch that should correspond to a JIRA ticket.
+1. Run the `create_custom_image.sh` script to create a new image. Note that this is tied to no branch, the image just gets created
+   with the current release and a timestamp.
+1. Submit your code changes for review to a new remote branch following the guidelines above on `git` and pull requests.
 
 ## 3 Operators Guide
 
@@ -235,8 +229,8 @@ other cloud storage products out there. Here we'll treat buckets as cloud-backed
 There are two sorts of buckets that are created when a run happens. Runtime buckets contain in-flight data that is required during
 the run's duration, while output buckets contain the finished results for one or many runs.
 
-Two other buckets are also involved in Pv5 runs: a "tools" bucket which stores the software that is used to generate a disk image
-for our VMs, and a "resources" bucket which holds data required by the runs.
+Two other buckets are also involved in Pv5 development, a "tools" bucket which stores the software that is used to generate a disk image
+for our VMs, and a "resources" bucket which holds data required by the runs. These are discussed further down.
 
 #### 3.2.1 Runtime Buckets
 
@@ -246,7 +240,6 @@ the inputs for later ones. Each stage in a run will get a diretory which will co
 
 - Input data, which comes from previous stages' outputs or as input to the pipeline;
 - Results, which will be used as input to later stages or as final output of the pipeline;
-- Resource data, such as the reference genome or configuration files;
 - Administrative and control files (completion flags, log files, etc).
 
 The pipeline creates and manages buckets as required to support the operations that are selected for a given run. In a typical
@@ -272,49 +265,7 @@ reproduce runs in the future and for auditing purposes.
 
 The output bucket can be configured at runtime with the `-patient_report_bucket`. The default for production is `pipeline-output-prod`.
 
-#### 3.2.3 Tools Bucket
-
-There is a tools bucket for each environment (eg development, production). This bucket is used at VM disk image creation time (see
-below) and contains all software that is not part of the base OS but which is required by any stage of the pipeline that is run
-under a VM. Deployment to production will typically involve promoting the contents of the development tools bucket to the
-production tools bucket.
-
-The tools bucket can be configured at runtime with `-tools_bucket`. The default for production is `common-tools-prod`.
-
-#### 3.2.4 Resources Bucket
-
-This contains data which is needed by the runs but which is not specific to a particular run. Examples would be white- and
-black-lists for genome regions, the reference genome currently in use, etc.
-
-While the tools bucket is used only at image-creation time, this bucket is used by multiple stages in every run. However as with
-the tools bucket this bucket's contents must be promoted from development to production when a deployment is done.
-
-The resources bucket can be configured at runtime with `-resource_bucket`. The default for production is `common-resources-prod`.
-
-### 3.3 Google Dataproc Clusters
-
-The first compute steps in the pipeline are Spark jobs run on Google Dataproc. The JAR containing the Pv5 code to run is uploaded to the
-runtime bucket under `/jars`. A node initializing script is run which installs [BWA](http://bio-bwa.sourceforge.net/) and
-[sambamba](https://lomereiter.github.io/sambamba/).
-
-By default Pv5 will create clusters made up of just under 50% [preemptible VMs](https://cloud.google.com/preemptible-vms/). This is done as
-a cost reduction, as this setup should be tolerant of losing some nodes during processing. This can be disabled by setting
-`-use_preemptible_vms false`.
-
-Clusters and jobs are named in the same convention as the runtime buckets, suffixed with the sub-step id. There are 3 sub-steps to the
-Dataproc alignment, each with a distinct cluster, started up and torn down within the run:
-- Gunzip - Single node cluster.
-- BamCreation - Cluster size scaled based on FASTQ input size
-- SortAndIndex - Single node cluster
-
-
-### 3.4 Virtual Machines
-
-Pv5 uses custom VMs to run all stages of the pipeline that are not run under Google's
-[Dataproc](https://cloud.google.com/dataproc/) offering. Most stages require more flexibility than we can easily get from running
-a cluster and shelling out from Spark and thus are a better fit for running on virtual machines.
-
-#### 3.4.1 Custom Disk Images
+### 3.3 Custom Disk Images
 
 Our VMs are run against a customised version of one of the Google base virtual machine disk images. We start with their image as
 it provides something that is configured to run properly under their infrastructure then "freeze" off our customisations into our
@@ -328,45 +279,51 @@ steps:
    the project.
 
 When the coordinator requests a new VM be created for a stage of the pipeline, the latest member of the series of custom images
-will be used. Therefore a new image must be cut whenever any tools change in development, and as a matter of procedure any
-production deployment should include a run of the imaging script against the production project.
+will be used. Therefore a new image must be cut whenever any tools change in development. Release notes should include the version
+of the image that is to be imported to production for a release.
 
-The image family is named `disk-imager-standard`. All versions can be seen in the GCP Console, Compute Engine->Images.
+The image family name starts with `pipeline5`. All versions can be seen in the GCP Console, Compute Engine->Images.
 
-#### 3.4.2 Disk Layout
+#### 3.3.1 Disk Layout
 
 We have isolated the "working" area of the disk images to the `/data/` directory. There are four directories under this top
 level:
 
 - `input` stores the files required by the stage, which will be copied into this location from the runtime bucket when the VM
     instance starts
-- `resources` stores resources required by the stage from the resources bucket, which also will be copied from the runtime bucket
-    when the VM starts
-- `tools` is populated at image creation time with select contents from the tools bucket
 - `output` will contain the results of the run, which will be copied up to the output bucket when the stage completes
+
+The tools and resources are copied into `/opt/tools` and `/opt/resources` respectively.
 
 Beyond these directories only the `/tmp` directory is expected to be used for anything as some of the stages have it set as their
 temporary or working directory.
 
-### 3.5 Promotion of a New Version
+### 3.4 Promotion of a New Version
 
-As very little is shared between projects in GCP any changes to the Pv5 code or dependencies requires a promotion of the relevant
-parts of the development project to the production project. This means:
+Updating the in-use version of the pipeline has two components:
 
-1. Backing up the current production `tools` bucket and promoting the current contents of the development bucket to production;
-1. Repeating for the `resources` bucket;
-1. Running the image creation script against the production project.
+1. Updating the version of the Docker container that encapsulates the controlling process;
+1. Ensuring the disk image referenced corresponds to the new version of the Docker container.
 
-See the `backup_to_bucket.sh`, `create_custom_image.sh` and `promote_environment.sh` scripts in `cluster/images`.
+On the first point, the CI environment takes care of creating a Docker container that encapsulates the executable portion of the
+pipeline. See below for more on Docker.
 
-### 3.6 Running Pv5
+For the second item, disk images are created in development according to need. See the discussion in the development guide above.
+When a release is being made both the code itself and the image must be promoted to the production environment. The required
+disk image version will be in the release notes. 
 
-#### 3.6.1 Docker Container
+There are scripts for this purpose in the `cluster/images` directory. First run `export_gcp_image.sh` to package the image into a
+file in a bucket. Then run `import_gcp_image.sh` (making sure to switch the the destination GCP project using the appropriate
+`gcloud auth` commands first!) to import the image into the production project.
+
+### 3.5 Running Pv5
+
+#### 3.5.1 Docker Container
 
 Our build produces a Docker container that can be used to run the pipeline in production. You will need to be familiar with basic
 Docker usage before attempting to run the pipeline.
 
-#### 3.6.2 Command-line Arguments
+#### 3.5.2 Command-line Arguments
 
 Pv5 runs are controlled via command line arguments to the main program which can be used to override the defaults. A subset of
 the arguments are defaulted to empty because a useful default does not exist; a value will need to be explicitly specified for
@@ -375,13 +332,11 @@ the run for these. As of this writing this subset contains:
 - The `-set_id`, which is needed to tie the run back to metadata in the SBP API when the run completes and we want to upload the
     results.
 - The `-sample_id`, needed to indicate which sample belonging to the set is being processed by this part of the run.
-- For the somatic phase, the program needs to be told to run in the somatic mode (see the [technical
-    overview](#1-technical-overview) section above). Pass `-mode somatic` on the command line.
 
 Other arguments may be desirable or the list may have changed by the time you read this; run the application with the `-help`
 argument to see a full list.
 
-#### 3.6.3 Invocation
+#### 3.5.3 Invocation
 
 The pipeline requires some files to be accessible to run, namely the private key JSON file from GCP and the FASTQ sample files for
 the run. You will need to use one of the available mechanisms to make these files available to the container (`-v` to share a
@@ -407,7 +362,7 @@ Command line arguments for Pv5 may be discovered like this:
 $ docker run hartwigmedicalfoundation/pipeline5:5.1.123 -help
 ```
 
-### 3.7 Troubleshooting and Bug Reports
+### 3.6 Troubleshooting and Bug Reports
 
 Having discussed the output and runtime buckets and invocation options, it is now possible to provide some general troubleshooting
 and escalation procedures. If something goes wrong with a run:
