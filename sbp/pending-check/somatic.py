@@ -188,7 +188,7 @@ def main():
 
             if run.bucket is None:
                 dt = datetime.now().isocalendar()
-                run.bucket = 'hmf-output-' + str(dt[0]) + '-' + str(dt[1])
+                run.bucket = 'hmf-output-' + str(dt[0]) + '-' + str(dt[1]).rjust(2, '0')
 
             if run.bucket.startswith('hmf-output-') and run.bucket[-2:].isdigit():
                 weeknr = int(run.bucket[-2:])
