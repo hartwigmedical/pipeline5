@@ -1,5 +1,17 @@
 package com.hartwig.batch;
 
+import static java.util.Arrays.asList;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.batch.input.InputBundle;
@@ -9,18 +21,8 @@ import com.hartwig.batch.input.InputParserProvider;
 import com.hartwig.batch.operations.OperationDescriptor;
 import com.hartwig.batch.testsupport.TestingArguments;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
+
 import org.junit.Test;
-
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
-
-import static java.util.Arrays.asList;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class BatchDispatcherTest {
     @Test

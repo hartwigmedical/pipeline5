@@ -1,10 +1,11 @@
 package com.hartwig.batch.input;
 
+import static java.lang.String.format;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.Before;
 import org.junit.Test;
-
-import static java.lang.String.format;
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class InputFileDescriptorTest {
     private String project;

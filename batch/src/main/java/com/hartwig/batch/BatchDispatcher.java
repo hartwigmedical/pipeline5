@@ -1,5 +1,20 @@
 package com.hartwig.batch;
 
+import static java.lang.String.format;
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toList;
+
+import java.io.FileInputStream;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Bucket;
@@ -15,24 +30,10 @@ import com.hartwig.pipeline.execution.vm.RuntimeFiles;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.storage.StorageProvider;
 import com.hartwig.pipeline.tools.Versions;
+
 import org.immutables.value.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.FileInputStream;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-
-import static java.lang.String.format;
-import static java.util.Comparator.comparing;
-import static java.util.stream.Collectors.toList;
 
 public class BatchDispatcher {
     private static final Logger LOGGER = LoggerFactory.getLogger(BatchDispatcher.class);
@@ -58,7 +59,7 @@ public class BatchDispatcher {
     }
 
     BatchDispatcher(BatchArguments arguments, InstanceFactory instanceFactory, InputParserProvider parserProvider,
-                    ComputeEngine computeEngine, Storage storage, ExecutorService executorService) {
+            ComputeEngine computeEngine, Storage storage, ExecutorService executorService) {
         this.arguments = arguments;
         this.instanceFactory = instanceFactory;
         this.parserProvider = parserProvider;
@@ -104,7 +105,10 @@ public class BatchDispatcher {
         boolean jobsFailed = false;
         List<StateTuple> tuples = state.stream().sorted(comparing(stateTuple -> Integer.valueOf(stateTuple.id()))).collect(toList());
         for (StateTuple stateTuple : tuples) {
-            report.append(String.format("  %s %s %s\n", stateTuple.id(), stateTuple.future().get(), stateTuple.inputs().get().remoteFilename()));
+            report.append(String.format("  %s %s %s\n",
+                    stateTuple.id(),
+                    stateTuple.future().get(),
+                    stateTuple.inputs().get().remoteFilename()));
             if (stateTuple.future().get() != PipelineStatus.SUCCESS) {
                 jobsFailed = true;
             }
@@ -148,12 +152,17 @@ public class BatchDispatcher {
 
     public static void main(String[] args) throws Exception {
         BatchArguments arguments = BatchArguments.from(args);
-        GoogleCredentials credentials = arguments.privateKeyPath().isPresent() ?
-                CredentialProvider.from(arguments).get() : GoogleCredentials.getApplicationDefault();
+        GoogleCredentials credentials = arguments.privateKeyPath().isPresent()
+                ? CredentialProvider.from(arguments).get()
+                : GoogleCredentials.getApplicationDefault();
         ComputeEngine compute = ComputeEngine.from(arguments, credentials);
         Storage storage = StorageProvider.from(arguments, credentials).get();
-        boolean success = new BatchDispatcher(arguments, InstanceFactory.from(arguments), new InputParserProvider(),
-                compute, storage, Executors.newFixedThreadPool(arguments.concurrency())).runBatch();
+        boolean success = new BatchDispatcher(arguments,
+                InstanceFactory.from(arguments),
+                new InputParserProvider(),
+                compute,
+                storage,
+                Executors.newFixedThreadPool(arguments.concurrency())).runBatch();
         System.exit(success ? 0 : 1);
     }
 }

@@ -1,11 +1,12 @@
 package com.hartwig.pipeline.metadata;
 
+import java.util.Optional;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.immutables.value.Value;
 
-import java.util.Optional;
+import org.immutables.value.Value;
 
 @JsonSerialize(as = ImmutableSomaticRunMetadata.class)
 @Value.Immutable

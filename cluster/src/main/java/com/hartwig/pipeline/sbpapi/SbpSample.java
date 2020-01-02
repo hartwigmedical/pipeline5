@@ -17,4 +17,8 @@ public interface SbpSample {
     String barcode();
 
     String type();
+
+    String status();
+
+
 }

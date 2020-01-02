@@ -3,6 +3,7 @@ package com.hartwig.pipeline.execution.vm;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.execution.JobDefinition;
 import com.hartwig.pipeline.tools.Versions;
+
 import org.immutables.value.Value;
 
 @Value.Immutable
@@ -111,15 +112,6 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .build();
     }
 
-    static VirtualMachineJobDefinition purple(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
-        return ImmutableVirtualMachineJobDefinition.builder()
-                .name("purple")
-                .startupCommand(startupScript)
-                .namespacedResults(resultsDirectory)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 8))
-                .build();
-    }
-
     static VirtualMachineJobDefinition bamMetrics(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("bam-metrics")
@@ -143,6 +135,16 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .name("flagstat")
                 .startupCommand(startupScript)
                 .performanceProfile(VirtualMachinePerformanceProfile.defaultVm())
+                .namespacedResults(resultsDirectory)
+                .build();
+    }
+
+    static VirtualMachineJobDefinition bcl2fastq(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
+        return ImmutableVirtualMachineJobDefinition.builder()
+                .name("bcl2fastq")
+                .imageFamily("bcl2fastq-standard")
+                .startupCommand(startupScript)
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(96, 90))
                 .namespacedResults(resultsDirectory)
                 .build();
     }

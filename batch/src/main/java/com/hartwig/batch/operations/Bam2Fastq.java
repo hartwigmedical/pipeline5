@@ -1,5 +1,10 @@
 package com.hartwig.batch.operations;
 
+import static java.lang.String.format;
+
+import java.io.File;
+import java.util.List;
+
 import com.google.common.collect.ImmutableList;
 import com.hartwig.batch.BatchOperation;
 import com.hartwig.batch.input.InputBundle;
@@ -17,11 +22,6 @@ import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.unix.PipeCommands;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
-
-import java.io.File;
-import java.util.List;
-
-import static java.lang.String.format;
 
 public class Bam2Fastq implements BatchOperation {
     @Override

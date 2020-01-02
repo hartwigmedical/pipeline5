@@ -10,7 +10,6 @@ import javax.ws.rs.core.Response;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hartwig.pipeline.Arguments;
 
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.HttpUrlConnectorProvider;
@@ -25,6 +24,7 @@ public class SbpRestApi {
     private static final String RUNS = "runs";
     private static final String FILES = "files";
     private static final String INIS = "inis";
+    private static final String FASTQ = "fastq";
     private final WebTarget target;
 
     private SbpRestApi(final WebTarget target) {
@@ -36,7 +36,7 @@ public class SbpRestApi {
     }
 
     public String getFastQ(int sampleId) {
-        return getBySampleId(sampleId, api().path("fastq"));
+        return getBySampleId(sampleId, api().path(FASTQ));
     }
 
     public String getSet(int sampleId) {
@@ -73,6 +73,11 @@ public class SbpRestApi {
         return returnOrThrow(response);
     }
 
+    public String getSampleByName(String sampleName) {
+        Response response = sample().queryParam("name", sampleName).request().buildGet().invoke();
+        return returnOrThrow(response);
+    }
+
     public void updateRunStatus(String runID, String status, String gcpBucket) {
         try {
             String json = OBJECT_MAPPER.writeValueAsString(SbpRunStatusUpdate.of(status, gcpBucket));
@@ -84,27 +89,42 @@ public class SbpRestApi {
     }
 
     public void postFile(final SbpFileMetadata metaData) {
-        LOGGER.debug("Posting file [{}]", format("%s/%s(md5:%s)", metaData.directory(), metaData.filename(), metaData.hash()));
         try {
-            String json = OBJECT_MAPPER.writeValueAsString(metaData);
-            LOGGER.debug("Request JSON: {}", json);
-            Response response = api().path(FILES).request().buildPost(Entity.entity(json, MediaType.APPLICATION_JSON_TYPE)).invoke();
-            if (response.getStatus() != Response.Status.CREATED.getStatusCode()) {
-                LOGGER.info("Failed to POST file data: {}", response.readEntity(String.class));
-                throw error(response);
-            }
+            post(api().path(FILES), OBJECT_MAPPER.writeValueAsString(metaData));
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
     }
 
+    public int postSample(final SbpSample sample) {
+        try {
+            post(api().path(SAMPLES), OBJECT_MAPPER.writeValueAsString(sample));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+        return 0;
+    }
+
+    public void postFastq(final SbpFastQ fastQ) {
+        try {
+            post(api().path(FASTQ), OBJECT_MAPPER.writeValueAsString(fastQ));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void post(final WebTarget path, final String json) throws JsonProcessingException {
+        Response response = path.request().buildPost(Entity.entity(json, MediaType.APPLICATION_JSON_TYPE)).invoke();
+        if (response.getStatus() != Response.Status.CREATED.getStatusCode()) {
+            LOGGER.error("Failed to POST file data: {}", response.readEntity(String.class));
+            throw error(response);
+        }
+    }
+
     private void patchRun(final String sampleID, final String status, final String json) {
         LOGGER.info("Patching {} id [{}] with status [{}]", SbpRestApi.RUNS, sampleID, status);
-        Response response = api().path(RUNS)
-                .path(sampleID)
-                .request()
-                .build("PATCH", Entity.entity(json, MediaType.APPLICATION_JSON_TYPE))
-                .invoke();
+        Response response =
+                api().path(RUNS).path(sampleID).request().build("PATCH", Entity.entity(json, MediaType.APPLICATION_JSON_TYPE)).invoke();
         LOGGER.info("Patching complete with response [{}]", response.getStatus());
     }
 
@@ -123,9 +143,9 @@ public class SbpRestApi {
                 target.getUri()));
     }
 
-    public static SbpRestApi newInstance(Arguments arguments) {
+    public static SbpRestApi newInstance(final String url) {
         ClientConfig clientConfig = new ClientConfig();
         clientConfig.property(HttpUrlConnectorProvider.SET_METHOD_WORKAROUND, true);
-        return new SbpRestApi(ClientBuilder.newBuilder().withConfig(clientConfig).build().target(arguments.sbpApiUrl()));
+        return new SbpRestApi(ClientBuilder.newBuilder().withConfig(clientConfig).build().target(url));
     }
 }

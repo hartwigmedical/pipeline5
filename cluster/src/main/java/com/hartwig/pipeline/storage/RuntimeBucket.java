@@ -1,5 +1,8 @@
 package com.hartwig.pipeline.storage;
 
+import java.io.InputStream;
+import java.util.List;
+
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Bucket;
@@ -7,15 +10,12 @@ import com.google.cloud.storage.BucketInfo;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageClass;
 import com.google.common.collect.Lists;
-import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.CommonArguments;
 import com.hartwig.pipeline.alignment.Run;
 import com.hartwig.pipeline.metadata.RunMetadata;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.InputStream;
-import java.util.List;
 
 public class RuntimeBucket {
 
@@ -38,7 +38,7 @@ public class RuntimeBucket {
     }
 
     public static RuntimeBucket from(final Storage storage, final String namespace, final RunMetadata metadata,
-            final Arguments arguments) {
+            final CommonArguments arguments) {
         return createBucketIfNeeded(storage, namespace, arguments, Run.from(metadata, arguments).id());
     }
 
@@ -103,10 +103,6 @@ public class RuntimeBucket {
     public void copyOutOf(String sourceBlobName, String targetBucket, String targetBlob) {
         BlobInfo targetBlobInfo = BlobInfo.newBuilder(targetBucket, targetBlob).build();
         storage.copy(Storage.CopyRequest.of(bucket.getName(), namespace(sourceBlobName), targetBlobInfo)).getResult();
-    }
-
-    void compose(List<String> sources, String target) {
-        storage.compose(Storage.ComposeRequest.of(bucket.getName(), sources, namespace(target)));
     }
 
     public String name() {

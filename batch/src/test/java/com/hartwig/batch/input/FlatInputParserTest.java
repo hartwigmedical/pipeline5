@@ -1,11 +1,12 @@
 package com.hartwig.batch.input;
 
-import org.junit.Test;
+import static com.hartwig.pipeline.testsupport.Resources.testResource;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
-import static com.hartwig.pipeline.testsupport.Resources.testResource;
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.Test;
 
 public class FlatInputParserTest {
     @Test

@@ -1,17 +1,18 @@
 package com.hartwig.batch;
 
+import static java.lang.Boolean.parseBoolean;
+import static java.lang.String.format;
+
+import java.util.Optional;
+
 import com.hartwig.pipeline.CommonArguments;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.immutables.value.Value;
-
-import java.util.Optional;
-
-import static java.lang.Boolean.parseBoolean;
-import static java.lang.String.format;
 
 @Value.Immutable
 public interface BatchArguments extends CommonArguments {
@@ -49,7 +50,6 @@ public interface BatchArguments extends CommonArguments {
                     .concurrency(Integer.parseInt(commandLine.getOptionValue(CONCURRENCY, "100")))
                     .inputFile(commandLine.getOptionValue(INPUT_FILE))
                     .outputBucket(commandLine.getOptionValue(OUTPUT_BUCKET))
-                    .shallow(false)
                     .build();
         } catch (ParseException e) {
             String message = "Failed to parse arguments";

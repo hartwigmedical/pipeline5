@@ -1,5 +1,7 @@
 package com.hartwig.batch.operations;
 
+import java.io.File;
+
 import com.hartwig.batch.BatchOperation;
 import com.hartwig.batch.input.InputBundle;
 import com.hartwig.batch.input.InputFileDescriptor;
@@ -16,8 +18,6 @@ import com.hartwig.pipeline.resource.Resource;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tools.Versions;
-
-import java.io.File;
 
 public class SambambaCramaBam implements BatchOperation {
     @Override

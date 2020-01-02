@@ -25,7 +25,7 @@ public class InputDownload implements BashCommand {
 
     @Override
     public String asBash() {
-        return format("gsutil -qm cp -n gs://%s/%s%s %s%s",
+        return format("gsutil -qm cp -r -n gs://%s/%s%s %s%s",
                 sourceLocation.bucket(),
                 sourceLocation.path(),
                 sourceLocation.isDirectory() ? "/*" : "",

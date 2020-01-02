@@ -1,15 +1,16 @@
 package com.hartwig.pipeline.tertiary.amber;
 
-import com.hartwig.pipeline.metadata.SomaticRunMetadata;
-import com.hartwig.pipeline.stages.Stage;
-import com.hartwig.pipeline.tertiary.TertiaryStageTest;
-import com.hartwig.pipeline.testsupport.TestInputs;
-import org.junit.Before;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Collections;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import com.hartwig.pipeline.metadata.SomaticRunMetadata;
+import com.hartwig.pipeline.stages.Stage;
+import com.hartwig.pipeline.tertiary.TertiaryStageTest;
+import com.hartwig.pipeline.testsupport.TestInputs;
+
+import org.junit.Before;
 
 public class AmberTest extends TertiaryStageTest<AmberOutput> {
 

@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.transfer.sbp;
+package com.hartwig.pipeline.storage;
 
 import java.util.function.Function;
 

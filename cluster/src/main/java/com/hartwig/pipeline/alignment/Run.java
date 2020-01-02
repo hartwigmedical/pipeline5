@@ -2,7 +2,7 @@ package com.hartwig.pipeline.alignment;
 
 import static java.lang.String.format;
 
-import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.CommonArguments;
 import com.hartwig.pipeline.RunTag;
 import com.hartwig.pipeline.metadata.RunMetadata;
 
@@ -14,7 +14,7 @@ public interface Run {
     @Value.Parameter
     String id();
 
-    static Run from(RunMetadata runMetadata, Arguments arguments) {
+    static Run from(RunMetadata runMetadata, CommonArguments arguments) {
         return ImmutableRun.of(format("run-%s", RunTag.apply(arguments, runMetadata.name().toLowerCase())).replace("_", "-"));
     }
 }

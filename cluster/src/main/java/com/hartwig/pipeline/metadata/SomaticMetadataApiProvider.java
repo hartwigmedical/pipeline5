@@ -22,7 +22,7 @@ public class SomaticMetadataApiProvider {
     public SomaticMetadataApi get() {
         return arguments.sbpApiRunId().<SomaticMetadataApi>map(setId -> new SbpSomaticMetadataApi(arguments,
                 setId,
-                SbpRestApi.newInstance(arguments),
+                SbpRestApi.newInstance(arguments.sbpApiUrl()),
                 storage.get(arguments.patientReportBucket()),
                 new GoogleArchiver(arguments))).orElse(new LocalSomaticMetadataApi(arguments));
     }

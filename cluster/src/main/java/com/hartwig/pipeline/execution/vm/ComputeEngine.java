@@ -1,5 +1,16 @@
 package com.hartwig.pipeline.execution.vm;
 
+import static java.lang.String.format;
+import static java.util.Collections.singletonList;
+
+import java.io.IOException;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
@@ -23,21 +34,12 @@ import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.storage.LocalSsdStorageStrategy;
 import com.hartwig.pipeline.labels.Labels;
 import com.hartwig.pipeline.storage.RuntimeBucket;
-import net.jodah.failsafe.Failsafe;
-import net.jodah.failsafe.RetryPolicy;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-
-import static java.lang.String.format;
-import static java.util.Collections.singletonList;
+import net.jodah.failsafe.Failsafe;
+import net.jodah.failsafe.RetryPolicy;
 
 public class ComputeEngine {
     private final static String APPLICATION_NAME = "vm-hosted-workload";
@@ -106,7 +108,7 @@ public class ComputeEngine {
                 }
                 instance.setMachineType(machineType(currentZone.getName(), jobDefinition.performanceProfile().uri(), project));
 
-                instance.setLabels(Labels.ofRun(bucket.runId(), jobDefinition.name(), arguments));
+                instance.setLabels(Labels.ofRun(bucket.runId(), jobDefinition.name()));
 
                 addServiceAccount(instance);
                 Image image = attachDisks(compute, instance, jobDefinition, project, vmName, currentZone.getName());

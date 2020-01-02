@@ -4,7 +4,7 @@ import static java.lang.String.format;
 
 import java.io.IOException;
 
-import com.hartwig.pipeline.sbpapi.ObjectMappers;
+import com.hartwig.pipeline.jackson.ObjectMappers;
 import com.hartwig.pipeline.sbpapi.SbpRestApi;
 import com.hartwig.pipeline.sbpapi.SbpSample;
 

@@ -1,12 +1,12 @@
 package com.hartwig.pipeline.tertiary;
 
+import java.util.Arrays;
+import java.util.List;
+
 import com.google.common.collect.Lists;
 import com.hartwig.pipeline.execution.vm.Bash;
 import com.hartwig.pipeline.execution.vm.JavaClassCommand;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
-
-import java.util.Arrays;
-import java.util.List;
 
 public class HmfToolCommand extends JavaClassCommand {
     public HmfToolCommand(String toolName, String version, String jar, String mainClass, String maxHeap, String referenceSampleName,

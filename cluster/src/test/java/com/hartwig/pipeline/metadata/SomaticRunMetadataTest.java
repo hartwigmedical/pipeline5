@@ -1,12 +1,14 @@
 package com.hartwig.pipeline.metadata;
 
-import com.hartwig.pipeline.sbpapi.ObjectMappers;
-import org.junit.Test;
+import static com.hartwig.pipeline.testsupport.TestInputs.defaultSomaticRunMetadata;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Optional;
 
-import static com.hartwig.pipeline.testsupport.TestInputs.defaultSomaticRunMetadata;
-import static org.assertj.core.api.Assertions.assertThat;
+import com.hartwig.pipeline.jackson.ObjectMappers;
+
+import org.junit.Test;
 
 public class SomaticRunMetadataTest {
 

@@ -22,18 +22,18 @@ public class InputDownloadTest {
 
     @Test
     public void createsBashToCopyInputWithGsUtil() {
-        assertThat(victim.asBash()).isEqualTo("gsutil -qm cp -n gs://" + bucket + "/" + remoteSourcePath + " /data/input/input.file");
+        assertThat(victim.asBash()).isEqualTo("gsutil -qm cp -r -n gs://" + bucket + "/" + remoteSourcePath + " /data/input/input.file");
     }
 
     @Test
     public void createsLocalPathUsingSourceLocationAndConvention() {
-        assertThat(victim.asBash()).isEqualTo("gsutil -qm cp -n gs://" + bucket + "/" + remoteSourcePath + " /data/input/input.file");
+        assertThat(victim.asBash()).isEqualTo("gsutil -qm cp -r -n gs://" + bucket + "/" + remoteSourcePath + " /data/input/input.file");
     }
 
     @Test
     public void supportsCopyingOfInputDirectories() {
         victim = new InputDownload(GoogleStorageLocation.of(bucket, "path/to/input/dir", true));
-        assertThat(victim.asBash()).isEqualTo("gsutil -qm cp -n gs://" + bucket + "/path/to/input/dir/* /data/input/");
+        assertThat(victim.asBash()).isEqualTo("gsutil -qm cp -r -n gs://" + bucket + "/path/to/input/dir/* /data/input/");
     }
 
     @Test

@@ -1,11 +1,12 @@
 package com.hartwig.pipeline.execution.vm;
 
-import com.hartwig.pipeline.ResultsDirectory;
-import org.junit.Before;
-import org.junit.Test;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+
+import com.hartwig.pipeline.ResultsDirectory;
+
+import org.junit.Before;
+import org.junit.Test;
 
 public class VirtualMachineJobDefinitionTest {
     private static final long BASE_IMAGE_SIZE_GB = 100L;

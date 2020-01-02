@@ -1,32 +1,35 @@
 package com.hartwig.pipeline.smoke;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.google.common.collect.ImmutableList;
-import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.PipelineMain;
-import com.hartwig.pipeline.PipelineState;
-import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.sbpapi.ObjectMappers;
-import com.hartwig.pipeline.sbpapi.SbpRestApi;
-import com.hartwig.pipeline.sbpapi.SbpSet;
-import com.hartwig.pipeline.storage.GSUtil;
-import com.hartwig.pipeline.storage.GSUtilCloudCopy;
-import com.hartwig.pipeline.testsupport.Resources;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import static java.lang.String.format;
+
+import static com.hartwig.pipeline.testsupport.Assertions.assertThatOutput;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.hartwig.pipeline.testsupport.Assertions.assertThatOutput;
-import static java.lang.String.format;
-import static org.assertj.core.api.Assertions.assertThat;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.common.collect.ImmutableList;
+import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.PipelineMain;
+import com.hartwig.pipeline.PipelineState;
+import com.hartwig.pipeline.execution.PipelineStatus;
+import com.hartwig.pipeline.jackson.ObjectMappers;
+import com.hartwig.pipeline.sbpapi.SbpRestApi;
+import com.hartwig.pipeline.sbpapi.SbpSet;
+import com.hartwig.pipeline.storage.GSUtil;
+import com.hartwig.pipeline.storage.GSUtilCloudCopy;
+import com.hartwig.pipeline.testsupport.Resources;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 @Category(value = IntegrationTest.class)
 public class SmokeTest {
@@ -91,7 +94,7 @@ public class SmokeTest {
                 .archivePrivateKeyPath(ARCHIVE_PRIVATE_KEY)
                 .build();
 
-        SbpRestApi api = SbpRestApi.newInstance(arguments);
+        SbpRestApi api = SbpRestApi.newInstance(arguments.sbpApiUrl());
 
         String setName = setName(api);
 

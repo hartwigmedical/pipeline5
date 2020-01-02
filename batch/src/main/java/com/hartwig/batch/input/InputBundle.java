@@ -1,13 +1,13 @@
 package com.hartwig.batch.input;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import static java.lang.String.format;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static java.lang.String.format;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @JsonSerialize
 public class InputBundle {

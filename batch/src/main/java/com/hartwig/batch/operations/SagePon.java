@@ -1,5 +1,10 @@
 package com.hartwig.batch.operations;
 
+import static java.lang.String.format;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
 import com.hartwig.batch.BatchOperation;
 import com.hartwig.batch.input.InputBundle;
 import com.hartwig.batch.input.InputFileDescriptor;
@@ -15,11 +20,6 @@ import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.resource.Resource;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
-
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static java.lang.String.format;
 
 public class SagePon implements BatchOperation {
     @Override
