@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.google.common.collect.Lists;
+import com.hartwig.pipeline.execution.vm.Bash;
 import com.hartwig.pipeline.execution.vm.JavaClassCommand;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 
@@ -31,8 +32,8 @@ public class HmfToolCommand extends JavaClassCommand {
                 "-output_dir",
                 VmDirectories.OUTPUT,
                 "-threads",
-                "16");
+                Bash.allCpus());
         defaultArguments.addAll(Arrays.asList(arguments));
-        return defaultArguments.toArray(new String[defaultArguments.size()]);
+        return defaultArguments.toArray(new String[]{});
     }
 }

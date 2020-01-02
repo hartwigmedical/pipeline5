@@ -31,6 +31,6 @@ public class UndeterminedReadPercentageTest {
     }
 
     private ImmutableStats stats(final int sampleYield, final int undeterminedYield) {
-        return TestStats.stats(TestStats.laneStats(1, undeterminedYield, ImmutableSampleStats.builder().yield(sampleYield).build()));
+        return TestStats.stats(TestStats.laneStats(1, undeterminedYield, ImmutableSampleStats.builder().sampleId("sample").yield(sampleYield).build()));
     }
 }

@@ -164,7 +164,7 @@ class Bcl2Fastq {
     }
 
     private Blob copy(final RuntimeBucket bucket, final ConvertedSample sample, final String flowcell, final String path) {
-        return storage.copy(Storage.CopyRequest.of(bucket.bucket().getName(),
+        return storage.copy(Storage.CopyRequest.of(bucket.getUnderlyingBucket().getName(),
                 path,
                 BlobInfo.newBuilder(arguments.outputBucket(), flowcell + "/" + sample.barcode() + "/" + new File(path).getName()).build()))
                 .getResult();

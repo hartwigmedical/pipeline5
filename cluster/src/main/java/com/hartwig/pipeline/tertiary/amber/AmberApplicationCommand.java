@@ -1,6 +1,5 @@
 package com.hartwig.pipeline.tertiary.amber;
 
-import com.hartwig.pipeline.execution.vm.Bash;
 import com.hartwig.pipeline.tertiary.HmfToolCommand;
 import com.hartwig.pipeline.tools.Versions;
 
@@ -21,8 +20,6 @@ class AmberApplicationCommand extends HmfToolCommand {
                 "-bed",
                 bedPath,
                 "-snp_bed",
-                snpBedPath,
-                "-threads",
-                Bash.allCpus());
+                snpBedPath);
     }
 }

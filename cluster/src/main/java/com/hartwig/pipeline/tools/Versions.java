@@ -25,7 +25,7 @@ public interface Versions {
     String PURPLE = "2.34";
     String CIRCOS = "0.69.6";
     String GRIDSS = "2.7.2";
-    String LINX = "1.5";
+    String LINX = "1.7";
     String BACHELOR = "1.9";
     String CHORD = "60.02_1.03";
     String SAMTOOLS = "1.9";
@@ -71,6 +71,6 @@ public interface Versions {
     }
 
     static String imageVersion() {
-        return "5-7";
+        return "5-8";
     }
 }

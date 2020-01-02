@@ -15,7 +15,7 @@ public interface CommonArguments {
 
     String project();
 
-    String privateKeyPath();
+    Optional<String> privateKeyPath();
 
     String cloudSdkPath();
 

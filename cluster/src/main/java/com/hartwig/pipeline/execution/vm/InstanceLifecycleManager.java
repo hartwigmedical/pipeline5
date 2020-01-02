@@ -123,7 +123,7 @@ class InstanceLifecycleManager {
             try {
                 Thread.sleep(500);
             } catch (InterruptedException ie) {
-                Thread.interrupted();
+                Thread.currentThread().interrupt();
             }
         }
         return executeWithRetries(() -> compute.zoneOperations().get(projectName, zoneName, asyncOp.getName()).execute());

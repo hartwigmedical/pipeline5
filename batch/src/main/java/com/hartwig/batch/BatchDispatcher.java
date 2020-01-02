@@ -4,18 +4,24 @@ import static java.lang.String.format;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
 
-import java.io.File;
+import java.io.FileInputStream;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
+import com.hartwig.batch.input.InputBundle;
+import com.hartwig.batch.input.InputParser;
+import com.hartwig.batch.input.InputParserProvider;
 import com.hartwig.pipeline.credentials.CredentialProvider;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
@@ -23,61 +29,74 @@ import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.RuntimeFiles;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.storage.StorageProvider;
+import com.hartwig.pipeline.tools.Versions;
 
-import org.apache.commons.io.FileUtils;
 import org.immutables.value.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class BatchDispatcher {
     private static final Logger LOGGER = LoggerFactory.getLogger(BatchDispatcher.class);
+    private static final String LOG_NAME = "run.log";
     private final BatchArguments arguments;
     private final InstanceFactory instanceFactory;
+    private final InputParserProvider parserProvider;
+    private final ComputeEngine computeEngine;
+    private final Storage storage;
+    private final ExecutorService executorService;
 
     @Value.Immutable
     interface StateTuple {
         String id();
 
-        String url();
+        InputBundle inputs();
 
         Future<PipelineStatus> future();
+
+        private static ImmutableStateTuple.Builder builder() {
+            return ImmutableStateTuple.builder();
+        }
     }
 
-    private BatchDispatcher(BatchArguments arguments) {
+    BatchDispatcher(BatchArguments arguments, InstanceFactory instanceFactory, InputParserProvider parserProvider,
+            ComputeEngine computeEngine, Storage storage, ExecutorService executorService) {
         this.arguments = arguments;
-        this.instanceFactory = InstanceFactory.from(arguments);
+        this.instanceFactory = instanceFactory;
+        this.parserProvider = parserProvider;
+        this.computeEngine = computeEngine;
+        this.storage = storage;
+        this.executorService = executorService;
     }
 
-    private void runBatch() throws Exception {
-        GoogleCredentials credentials = CredentialProvider.from(arguments).get();
-        Storage storage = StorageProvider.from(arguments, credentials).get();
-
-        ExecutorService executorService = Executors.newFixedThreadPool(arguments.concurrency());
+    boolean runBatch() throws Exception {
+        LOGGER.info("Invoked with arguments: [{}]", arguments);
+        Versions.printAll();
         Set<StateTuple> state = new HashSet<>();
-        Set<String> urls = FileUtils.readLines(new File(arguments.inputFile()), "UTF-8")
-                .stream()
-                .filter(s -> !s.trim().isEmpty())
-                .collect(Collectors.toSet());
-        LOGGER.info("Running {} distinct input files with up to {} concurrent VMs", urls.size(), arguments.concurrency());
-        int i = 0;
-        String paddingFormat = format("%%0%dd", String.valueOf(urls.size()).length());
+        InputParser inputParser = parserProvider.from(instanceFactory.get());
+        List<InputBundle> inputs = inputParser.parse(arguments.inputFile(), arguments.project());
+
+        LOGGER.info("Running {} jobs with up to {} concurrent VMs", inputs.size(), arguments.concurrency());
         confirmOutputBucketExists(storage);
-        RuntimeBucket outputBucket = RuntimeBucket.from(storage, arguments.outputBucket(), () -> "batch", arguments);
+        int i = 0;
+        String paddingFormat = format("%%0%dd", String.valueOf(inputs.size()).length());
         LOGGER.info("Writing output to bucket [{}]", arguments.outputBucket());
-        for (String url : urls) {
+        Map<String, InputBundle> jobAsString = new HashMap<>();
+        for (InputBundle operationInputs : inputs) {
             final String label = format(paddingFormat, i + 1);
-            ComputeEngine compute = ComputeEngine.from(arguments, credentials);
             RuntimeFiles executionFlags = RuntimeFiles.of(label);
+            RuntimeBucket outputBucket = RuntimeBucket.from(storage, arguments.outputBucket(), label, arguments);
             BashStartupScript startupScript = BashStartupScript.of(outputBucket.name(), executionFlags);
-            ImmutableInputFileDescriptor descriptor =
-                    InputFileDescriptor.builder().billedProject(arguments.project()).remoteFilename(url).build();
-            Future<PipelineStatus> future = executorService.submit(() -> compute.submit(outputBucket,
-                    instanceFactory.get().execute(descriptor, outputBucket, startupScript, executionFlags),
+            Future<PipelineStatus> future = executorService.submit(() -> computeEngine.submit(outputBucket,
+                    instanceFactory.get().execute(operationInputs, outputBucket, startupScript, executionFlags),
                     label));
-            state.add(ImmutableStateTuple.builder().id(label).url(url).future(future).build());
+            state.add(StateTuple.builder().id(label).inputs(operationInputs).future(future).build());
+            jobAsString.put(label, operationInputs);
             i++;
         }
         spawnProgessLogger(state);
+        RuntimeBucket outputBucket = RuntimeBucket.from(storage, arguments.outputBucket(), "", arguments);
+        Bucket bucketRoot = outputBucket.getUnderlyingBucket();
+        bucketRoot.create("job.json", new ObjectMapper().writeValueAsBytes(jobAsString));
         for (StateTuple job : state) {
             job.future().get();
         }
@@ -86,14 +105,19 @@ public class BatchDispatcher {
         boolean jobsFailed = false;
         List<StateTuple> tuples = state.stream().sorted(comparing(stateTuple -> Integer.valueOf(stateTuple.id()))).collect(toList());
         for (StateTuple stateTuple : tuples) {
-            report.append(String.format("  %s %s %s\n", stateTuple.id(), stateTuple.future().get(), stateTuple.url()));
+            report.append(String.format("  %s %s %s\n",
+                    stateTuple.id(),
+                    stateTuple.future().get(),
+                    stateTuple.inputs().get().remoteFilename()));
             if (stateTuple.future().get() != PipelineStatus.SUCCESS) {
                 jobsFailed = true;
             }
         }
         LOGGER.info("Batch completed");
         LOGGER.info(report.toString());
-        System.exit(jobsFailed ? 1 : 0);
+
+        bucketRoot.create(LOG_NAME, new FileInputStream(LOG_NAME));
+        return !jobsFailed;
     }
 
     private void confirmOutputBucketExists(Storage storage) {
@@ -118,7 +142,7 @@ public class BatchDispatcher {
                 try {
                     Thread.sleep(TimeUnit.SECONDS.toMillis(30));
                 } catch (InterruptedException e) {
-                    Thread.interrupted();
+                    Thread.currentThread().interrupt();
                 }
             }
         });
@@ -127,6 +151,18 @@ public class BatchDispatcher {
     }
 
     public static void main(String[] args) throws Exception {
-        new BatchDispatcher(BatchArguments.from(args)).runBatch();
+        BatchArguments arguments = BatchArguments.from(args);
+        GoogleCredentials credentials = arguments.privateKeyPath().isPresent()
+                ? CredentialProvider.from(arguments).get()
+                : GoogleCredentials.getApplicationDefault();
+        ComputeEngine compute = ComputeEngine.from(arguments, credentials);
+        Storage storage = StorageProvider.from(arguments, credentials).get();
+        boolean success = new BatchDispatcher(arguments,
+                InstanceFactory.from(arguments),
+                new InputParserProvider(),
+                compute,
+                storage,
+                Executors.newFixedThreadPool(arguments.concurrency())).runBatch();
+        System.exit(success ? 0 : 1);
     }
 }

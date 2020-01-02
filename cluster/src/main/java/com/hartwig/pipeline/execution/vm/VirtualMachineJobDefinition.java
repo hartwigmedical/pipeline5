@@ -11,19 +11,44 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
 
     String STANDARD_IMAGE = "pipeline5-" +Versions.imageVersion();
 
+    @Value.Derived
+    default long baseImageDiskSizeGb() {
+        return 100L;
+    }
+
     @Value.Default
     default String imageFamily() {
         return STANDARD_IMAGE;
     }
 
     @Value.Default
-    default long imageSizeGb() {
-        return 100L;
+    default long workingDiskSpaceGb() {
+        return 900L;
     }
 
     BashStartupScript startupCommand();
 
     ResultsDirectory namespacedResults();
+
+    @Value.Derived
+    default long totalPersistentDiskSizeGb() {
+        return baseImageDiskSizeGb() + workingDiskSpaceGb();
+    }
+
+    @Value.Derived
+    default int localSsdCount() {
+        int localSsdDeviceSizeGbb = 375;
+
+        int floor = Math.toIntExact(workingDiskSpaceGb() / localSsdDeviceSizeGbb);
+        long remainder = workingDiskSpaceGb() % localSsdDeviceSizeGbb;
+        if (remainder != 0) {
+            floor++;
+        }
+        if (floor % 2 != 0) {
+            floor++;
+        }
+        return floor;
+    }
 
     @Override
     @Value.Default
@@ -166,40 +191,6 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .startupCommand(startupScript)
                 .namespacedResults(resultsDirectory)
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 12))
-                .build();
-    }
-
-    static VirtualMachineJobDefinition batchSamtoolsCram(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
-        return ImmutableVirtualMachineJobDefinition.builder().name("samtoolscram")
-                .startupCommand(startupScript)
-                .namespacedResults(resultsDirectory)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 4))
-                .build();
-    }
-
-    static VirtualMachineJobDefinition batchSambambaCram(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
-        return ImmutableVirtualMachineJobDefinition.builder().name("cram")
-                .startupCommand(startupScript)
-                .namespacedResults(resultsDirectory)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 6))
-                .build();
-    }
-
-    static VirtualMachineJobDefinition sage(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
-        return ImmutableVirtualMachineJobDefinition.builder()
-                .name("sage")
-                .startupCommand(startupScript)
-                .namespacedResults(resultsDirectory)
-                .build();
-    }
-
-
-    static VirtualMachineJobDefinition batchFlagstat(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
-        return ImmutableVirtualMachineJobDefinition.builder()
-                .name("flagstat")
-                .startupCommand(startupScript)
-                .namespacedResults(resultsDirectory)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 6))
                 .build();
     }
 }

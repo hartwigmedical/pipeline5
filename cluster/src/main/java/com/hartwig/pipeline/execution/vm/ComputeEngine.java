@@ -42,7 +42,6 @@ import net.jodah.failsafe.Failsafe;
 import net.jodah.failsafe.RetryPolicy;
 
 public class ComputeEngine {
-    private static final int NUMBER_OF_375G_LOCAL_SSD_DEVICES = 4;
     private final static String APPLICATION_NAME = "vm-hosted-workload";
     static final String ZONE_EXHAUSTED_ERROR_CODE = "ZONE_RESOURCE_POOL_EXHAUSTED";
     static final String UNSUPPORTED_OPERATION_ERROR_CODE = "UNSUPPORTED_OPERATION";
@@ -112,17 +111,14 @@ public class ComputeEngine {
                 instance.setLabels(Labels.ofRun(bucket.runId(), jobDefinition.name()));
 
                 addServiceAccount(instance);
-                Image image = attachDisks(compute, instance, jobDefinition.imageFamily(), jobDefinition.imageSizeGb(),
-                        project,
-                        vmName,
-                        currentZone.getName());
+                Image image = attachDisks(compute, instance, jobDefinition, project, vmName, currentZone.getName());
                 LOGGER.info("Submitting compute engine job [{}] using image [{}] in zone [{}]",
                         vmName,
                         image.getName(),
                         currentZone.getName());
                 String startupScript = arguments.useLocalSsds()
                         ? jobDefinition.startupCommand()
-                        .asUnixString(new LocalSsdStorageStrategy(NUMBER_OF_375G_LOCAL_SSD_DEVICES))
+                        .asUnixString(new LocalSsdStorageStrategy(jobDefinition.localSsdCount()))
                         : jobDefinition.startupCommand().asUnixString();
                 addStartupCommand(instance, bucket, flags, startupScript);
                 addNetworkInterface(instance, project);
@@ -207,28 +203,28 @@ public class ComputeEngine {
         instance.setNetworkInterfaces(singletonList(networkInterface));
     }
 
-    private Image attachDisks(Compute compute, Instance instance, String imageFamily, long imageSizeGb, String projectName, String vmName,
-            String zone) throws IOException {
-        Image sourceImage = resolveLatestImage(compute, imageFamily, projectName);
+    private Image attachDisks(Compute compute, Instance instance, VirtualMachineJobDefinition jobDefinition, String projectName, String vmName,
+                              String zone) throws IOException {
+        Image sourceImage = resolveLatestImage(compute, jobDefinition.imageFamily(), projectName);
         AttachedDisk disk = new AttachedDisk();
         disk.setBoot(true);
         disk.setAutoDelete(true);
         AttachedDiskInitializeParams params = new AttachedDiskInitializeParams();
         params.setSourceImage(sourceImage.getSelfLink());
         params.setDiskType(format("%s/zones/%s/diskTypes/pd-ssd", apiBaseUrl(projectName), zone));
-        params.setDiskSizeGb(arguments.useLocalSsds() ? imageSizeGb : 1000L);
+        params.setDiskSizeGb(arguments.useLocalSsds() ? jobDefinition.baseImageDiskSizeGb() : jobDefinition.totalPersistentDiskSizeGb());
         disk.setInitializeParams(params);
         List<AttachedDisk> disks = new ArrayList<>(singletonList(disk));
         if (arguments.useLocalSsds()) {
-            attachLocalSsds(disks, projectName, zone);
+            attachLocalSsds(disks, jobDefinition.localSsdCount(), projectName, zone);
         }
         instance.setDisks(disks);
         compute.instances().attachDisk(projectName, zone, vmName, disk);
         return sourceImage;
     }
 
-    private void attachLocalSsds(List<AttachedDisk> disks, String projectName, String zone) {
-        for (int i = 0; i < NUMBER_OF_375G_LOCAL_SSD_DEVICES; i++) {
+    private void attachLocalSsds(List<AttachedDisk> disks, int deviceCount, String projectName, String zone) {
+        for (int i = 0; i < deviceCount; i++) {
             AttachedDisk disk = new AttachedDisk();
             disk.setBoot(false);
             disk.setAutoDelete(true);

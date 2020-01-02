@@ -33,6 +33,10 @@ public class RuntimeBucket {
         this.runId = runId;
     }
 
+    public static RuntimeBucket from(final Storage storage, final String name, final String namespace, final CommonArguments arguments) {
+        return createBucketIfNeeded(storage, namespace, arguments, name);
+    }
+
     public static RuntimeBucket from(final Storage storage, final String namespace, final RunMetadata metadata,
             final CommonArguments arguments) {
         return createBucketIfNeeded(storage, namespace, arguments, Run.from(metadata, arguments).id());
@@ -109,7 +113,7 @@ public class RuntimeBucket {
         return runId;
     }
 
-    public Bucket bucket() {
+    public Bucket getUnderlyingBucket() {
         return bucket;
     }
 
