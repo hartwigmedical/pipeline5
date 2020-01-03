@@ -1,4 +1,4 @@
-package com.hartwig.bcl2fastq;
+package com.hartwig.bcl2fastq.results;
 
 import org.immutables.value.Value;
 

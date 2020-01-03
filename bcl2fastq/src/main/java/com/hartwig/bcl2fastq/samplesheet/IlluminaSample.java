@@ -9,6 +9,16 @@ import org.immutables.value.Value;
 @JsonDeserialize(as = ImmutableIlluminaSample.class)
 public interface IlluminaSample {
 
+    @JsonProperty(value = "Sample_Name")
+    String sample();
+
+    @JsonProperty(value = "Sample_ID")
+    String barcode();
+
     @JsonProperty(value = "Sample_Project")
     String project();
+
+    static ImmutableIlluminaSample.Builder builder() {
+        return ImmutableIlluminaSample.builder();
+    }
 }

@@ -8,15 +8,12 @@ public class AggregationsTest {
 
     @Test
     public void sumsYieldForSample() {
-        Stats stats = TestStats.stats(TestStats.laneStats(1,
-                1,
-                statsWithYield("barcode1", 1),
-                statsWithYield("barcode2", 2),
-                statsWithYield("barcode1", 3)));
+        Stats stats = TestStats.stats("test",
+                TestStats.laneStats(1, 1, statsWithYield("barcode1", 1), statsWithYield("barcode2", 2), statsWithYield("barcode1", 3)));
         assertThat(Aggregations.yield("barcode1", stats)).isEqualTo(4);
     }
 
     private ImmutableSampleStats statsWithYield(final String barcode, final int yield) {
-        return ImmutableSampleStats.builder().yield(yield).sampleId(barcode).build();
+        return ImmutableSampleStats.builder().yield(yield).barcode(barcode).build();
     }
 }

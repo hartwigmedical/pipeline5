@@ -2,6 +2,7 @@ package com.hartwig.bcl2fastq.stats;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import org.immutables.value.Value;
@@ -11,7 +12,8 @@ import org.immutables.value.Value;
 @Value.Style(jdkOnly=true)
 public interface SampleStats {
 
-    String sampleId();
+    @JsonProperty(value = "sampleId")
+    String barcode();
 
     long yield();
 

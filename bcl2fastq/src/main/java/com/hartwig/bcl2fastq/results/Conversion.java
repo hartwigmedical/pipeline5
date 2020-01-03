@@ -1,4 +1,4 @@
-package com.hartwig.bcl2fastq;
+package com.hartwig.bcl2fastq.results;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -7,6 +7,12 @@ import org.immutables.value.Value;
 
 @Value.Immutable
 public interface Conversion {
+
+    String flowcell();
+
+    long undeterminedReads();
+
+    long totalReads();
 
     List<ConvertedSample> samples();
 

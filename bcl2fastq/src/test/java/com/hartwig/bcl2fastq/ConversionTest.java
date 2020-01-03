@@ -5,6 +5,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Collections;
 
 import com.google.common.collect.ImmutableList;
+import com.hartwig.bcl2fastq.results.Conversion;
+import com.hartwig.bcl2fastq.results.ConvertedFastq;
+import com.hartwig.bcl2fastq.results.ConvertedSample;
 
 import org.junit.Test;
 

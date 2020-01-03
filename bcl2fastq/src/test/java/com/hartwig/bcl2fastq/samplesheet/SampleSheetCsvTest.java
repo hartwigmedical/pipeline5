@@ -18,7 +18,7 @@ public class SampleSheetCsvTest {
     public void noSampleSheetThrowsIllegalArgument() {
         Bucket inputBucket = mock(Bucket.class);
         SampleSheetCsv victim = new SampleSheetCsv(inputBucket, "test");
-        victim.read().projects();
+        victim.read().samples();
     }
 
     @Test
@@ -29,7 +29,7 @@ public class SampleSheetCsvTest {
         when(blob.getContent()).thenReturn(new FileInputStream(Resources.testResource("SampleSheet.csv")).readAllBytes());
         SampleSheetCsv victim = new SampleSheetCsv(inputBucket, "test");
         assertThat(victim.read().experimentName()).isEqualTo("IS19-0016");
-        assertThat(victim.read().projects()).hasSize(2);
-        assertThat(victim.read().projects()).containsExactlyInAnyOrder("HMFregVAL2", "HMFregVAL");
+        assertThat(victim.read().samples()).hasSize(2);
+        assertThat(victim.read().samples().stream().map(IlluminaSample::project)).containsExactlyInAnyOrder("HMFregVAL2", "HMFregVAL");
     }
 }

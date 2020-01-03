@@ -18,9 +18,15 @@ public interface SbpLane {
 
     String name();
 
-    long yld();
+    @Value.Default
+    default long yld() {
+        return -1;
+    }
 
-    double q30();
+    @Value.Default
+    default double q30() {
+        return -1;
+    }
 
     static ImmutableSbpLane.Builder builder() {
         return ImmutableSbpLane.builder();

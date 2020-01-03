@@ -1,6 +1,6 @@
 package com.hartwig.bcl2fastq.samplesheet;
 
-import java.util.Set;
+import java.util.List;
 
 import org.immutables.value.Value;
 
@@ -9,7 +9,7 @@ public interface SampleSheet {
 
     String experimentName();
 
-    Set<String> projects();
+    List<IlluminaSample> samples();
 
     static ImmutableSampleSheet.Builder builder() {
         return ImmutableSampleSheet.builder();

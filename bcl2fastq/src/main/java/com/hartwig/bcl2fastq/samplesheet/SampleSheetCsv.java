@@ -1,7 +1,7 @@
 package com.hartwig.bcl2fastq.samplesheet;
 
 import java.io.IOException;
-import java.util.Set;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -26,7 +26,7 @@ public class SampleSheetCsv {
         if (blob != null) {
             String entireFile = new String(blob.getContent());
             String experimentName = entireFile.substring(entireFile.indexOf("ExperimentName")).split(",")[1];
-            return SampleSheet.builder().experimentName(experimentName).addAllProjects(projects(entireFile)).build();
+            return SampleSheet.builder().experimentName(experimentName).addAllSamples(samples(entireFile)).build();
         }
         throw new IllegalArgumentException(String.format("No [%s] found for flowcell [%s] in bucket [%s]. Check inputs to bcl2fastq.",
                 SAMPLE_SHEET_CSV,
@@ -34,13 +34,13 @@ public class SampleSheetCsv {
                 inputBucket.getName()));
     }
 
-    private Set<String> projects(String entireFile) {
+    private List<IlluminaSample> samples(String entireFile) {
         try {
             CsvSchema schema = CsvSchema.emptySchema().withHeader();
             CsvMapper mapper = new CsvMapper();
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             return mapper.readerFor(IlluminaSample.class).with(schema).<IlluminaSample>readValues(entireFile.substring(entireFile.indexOf(
-                    "Sample_ID"))).readAll().stream().map(IlluminaSample::project).filter(p -> !p.isEmpty()).collect(Collectors.toSet());
+                    "Sample_ID"))).readAll().stream().filter(s -> !s.barcode().isEmpty()).collect(Collectors.toList());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

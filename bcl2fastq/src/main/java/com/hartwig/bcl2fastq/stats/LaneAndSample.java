@@ -1,7 +1,6 @@
-package com.hartwig.bcl2fastq.qc;
+package com.hartwig.bcl2fastq.stats;
 
-import com.hartwig.bcl2fastq.FastqId;
-import com.hartwig.bcl2fastq.stats.SampleStats;
+import com.hartwig.bcl2fastq.results.FastqId;
 
 import org.immutables.value.Value;
 
@@ -15,7 +14,7 @@ interface LaneAndSample {
     SampleStats sample();
 
     default FastqId toFastqId() {
-        return FastqId.of(lane(), sample().sampleId());
+        return FastqId.of(lane(), sample().barcode());
     }
 
     static LaneAndSample of(int lane, SampleStats sample) {

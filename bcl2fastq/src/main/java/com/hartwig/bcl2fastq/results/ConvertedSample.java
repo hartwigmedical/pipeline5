@@ -1,4 +1,4 @@
-package com.hartwig.bcl2fastq;
+package com.hartwig.bcl2fastq.results;
 
 import java.io.File;
 import java.util.List;
@@ -11,6 +11,14 @@ import org.immutables.value.Value;
 public interface ConvertedSample {
 
     String barcode();
+
+    String sample();
+
+    String project();
+
+    long yield();
+
+    double yieldQ30();
 
     List<ConvertedFastq> fastq();
 
