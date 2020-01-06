@@ -2,9 +2,9 @@ package com.hartwig.bcl2fastq;
 
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Storage;
+import com.hartwig.bcl2fastq.conversion.ResultAggregation;
 import com.hartwig.bcl2fastq.metadata.FastqMetadataRegistration;
 import com.hartwig.bcl2fastq.metadata.SbpFastqMetadataApi;
-import com.hartwig.bcl2fastq.results.ResultAggregation;
 import com.hartwig.bcl2fastq.samplesheet.SampleSheet;
 import com.hartwig.bcl2fastq.samplesheet.SampleSheetCsv;
 import com.hartwig.bcl2fastq.stats.Stats;
@@ -44,7 +44,6 @@ class Bcl2Fastq {
     private void run() {
         LOGGER.info("Starting bcl2fastq for flowcell [{}]", arguments.flowcell());
 
-        // run bcl2fastq
         FlowcellMetadata metadata = FlowcellMetadata.from(arguments);
         RuntimeBucket bucket = RuntimeBucket.from(storage, "bcl2fastq", metadata, arguments);
         BashStartupScript bash = BashStartupScript.of(bucket.name());
@@ -55,12 +54,17 @@ class Bcl2Fastq {
         computeEngine.submit(bucket, VirtualMachineJobDefinition.bcl2fastq(bash, resultsDirectory));
 
         SampleSheet sampleSheet = new SampleSheetCsv(storage.get(arguments.inputBucket()), arguments.flowcell()).read();
-        Stats stats = new StatsJson(new String(bucket.get(resultsDirectory.path("/Stats/Stats.json")).getContent())).stats();
+        Stats stats = new StatsJson(stringOf(bucket, "/Stats/Stats.json")).stats();
 
         new OutputCopy(storage, arguments.outputBucket(), bucket).andThen(new FastqMetadataRegistration(sbpFastqMetadataApi,
-                arguments.outputBucket())).accept(new ResultAggregation(bucket.getUnderlyingBucket()).apply(sampleSheet, stats));
+                arguments.outputBucket(),
+                stringOf(bucket, "/run.log"))).accept(new ResultAggregation(bucket.getUnderlyingBucket()).apply(sampleSheet, stats));
 
         LOGGER.info("bcl2fastq complete for flowcell [{}]", arguments.flowcell());
+    }
+
+    private String stringOf(final RuntimeBucket bucket, final String blobName) {
+        return new String(bucket.get(resultsDirectory.path(blobName)).getContent());
     }
 
     public static void main(String[] args) {

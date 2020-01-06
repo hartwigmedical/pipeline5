@@ -1,4 +1,4 @@
-package com.hartwig.bcl2fastq.results;
+package com.hartwig.bcl2fastq.conversion;
 
 import static com.hartwig.bcl2fastq.stats.TestStats.laneStats;
 import static com.hartwig.bcl2fastq.stats.TestStats.sampleStats;

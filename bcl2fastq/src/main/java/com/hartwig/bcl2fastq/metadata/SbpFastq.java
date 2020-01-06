@@ -20,7 +20,7 @@ public interface SbpFastq {
 
     boolean qc_pass();
 
-    Optional<Long> q30();
+    Optional<Double> q30();
 
     Optional<Long> yld();
 

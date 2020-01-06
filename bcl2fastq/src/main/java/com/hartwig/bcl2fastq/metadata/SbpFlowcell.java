@@ -8,6 +8,8 @@ import org.immutables.value.Value;
 @JsonDeserialize(as = ImmutableSbpFlowcell.class)
 public interface SbpFlowcell {
 
+    String STATUS_CONVERTED = "Converted";
+
     String convertTime();
 
     String updateTime();
@@ -19,6 +21,10 @@ public interface SbpFlowcell {
     int id();
 
     boolean undet_rds_p_pass();
+
+    static ImmutableSbpFlowcell.Builder builder() {
+        return ImmutableSbpFlowcell.builder();
+    }
 
     static ImmutableSbpFlowcell.Builder builderFrom(SbpFlowcell other) {
         return ImmutableSbpFlowcell.builder().from(other);

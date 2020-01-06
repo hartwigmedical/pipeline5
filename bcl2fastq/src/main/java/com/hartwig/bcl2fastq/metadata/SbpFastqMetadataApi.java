@@ -72,7 +72,7 @@ public class SbpFastqMetadataApi {
         }
     }
 
-    public void findOrCreate(SbpFastq fastq) {
+    public void create(SbpFastq fastq) {
         try {
             String fastqJson = objectMapper.writeValueAsString(fastq);
             Response response = fastq().request().post(Entity.entity(fastqJson, MediaType.APPLICATION_JSON_TYPE));

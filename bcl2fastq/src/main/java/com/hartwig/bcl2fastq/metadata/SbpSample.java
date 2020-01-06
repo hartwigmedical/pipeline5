@@ -12,6 +12,9 @@ import org.immutables.value.Value;
 @JsonDeserialize(as = ImmutableSbpSample.class)
 public interface SbpSample {
 
+    String STATUS_READY = "Ready";
+    String STATUS_INSUFFICIENT_QUALITY = "Insufficient Quality";
+
     Optional<Integer> id();
 
     String barcode();

@@ -29,7 +29,18 @@ public class SampleSheetCsvTest {
         when(blob.getContent()).thenReturn(new FileInputStream(Resources.testResource("SampleSheet.csv")).readAllBytes());
         SampleSheetCsv victim = new SampleSheetCsv(inputBucket, "test");
         assertThat(victim.read().experimentName()).isEqualTo("IS19-0016");
-        assertThat(victim.read().samples()).hasSize(2);
-        assertThat(victim.read().samples().stream().map(IlluminaSample::project)).containsExactlyInAnyOrder("HMFregVAL2", "HMFregVAL");
+        assertThat(victim.read().samples()).hasSize(8);
+        assertThat(victim.read().samples().stream()).containsExactlyInAnyOrder(IlluminaSample.builder()
+                        .barcode("FR17453070")
+                        .sample("GIAB12878")
+                        .project("HMFregVAL")
+                        .build(),
+                IlluminaSample.builder().barcode("FR17453071").sample("GIAB12878").project("HMFregVAL").build(),
+                IlluminaSample.builder().barcode("FR17453072").sample("GIAB12878").project("HMFregVAL").build(),
+                IlluminaSample.builder().barcode("FR17453073").sample("GIAB12878").project("HMFregVAL").build(),
+                IlluminaSample.builder().barcode("FR17453074").sample("GIAB12878").project("HMFregVAL").build(),
+                IlluminaSample.builder().barcode("FR17453075").sample("GIAB12878").project("HMFregVAL").build(),
+                IlluminaSample.builder().barcode("FR17453076").sample("GIAB12878").project("HMFregVAL").build(),
+                IlluminaSample.builder().barcode("FR17453077").sample("GIAB12878").project("HMFregVAL2").build());
     }
 }

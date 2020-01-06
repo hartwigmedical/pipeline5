@@ -3,7 +3,7 @@ package com.hartwig.bcl2fastq.stats;
 import java.util.function.ToLongFunction;
 import java.util.stream.Collectors;
 
-import com.hartwig.bcl2fastq.results.FastqId;
+import com.hartwig.bcl2fastq.conversion.FastqId;
 
 public class Aggregations {
 

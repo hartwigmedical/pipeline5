@@ -1,6 +1,6 @@
 package com.hartwig.bcl2fastq.stats;
 
-import com.hartwig.bcl2fastq.results.FastqId;
+import com.hartwig.bcl2fastq.conversion.FastqId;
 
 import org.immutables.value.Value;
 

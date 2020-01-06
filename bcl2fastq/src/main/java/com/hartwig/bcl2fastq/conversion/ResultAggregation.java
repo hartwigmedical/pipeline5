@@ -1,4 +1,4 @@
-package com.hartwig.bcl2fastq.results;
+package com.hartwig.bcl2fastq.conversion;
 
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;

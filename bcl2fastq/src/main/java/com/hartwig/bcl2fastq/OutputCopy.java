@@ -4,9 +4,9 @@ import java.util.function.Consumer;
 
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
-import com.hartwig.bcl2fastq.results.Conversion;
-import com.hartwig.bcl2fastq.results.ConvertedFastq;
-import com.hartwig.bcl2fastq.results.ConvertedSample;
+import com.hartwig.bcl2fastq.conversion.Conversion;
+import com.hartwig.bcl2fastq.conversion.ConvertedFastq;
+import com.hartwig.bcl2fastq.conversion.ConvertedSample;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
 public class OutputCopy implements Consumer<Conversion> {
