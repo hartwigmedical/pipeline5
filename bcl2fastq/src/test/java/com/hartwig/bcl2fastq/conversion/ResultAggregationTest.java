@@ -9,18 +9,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.Collections;
 import java.util.List;
 
 import com.google.api.gax.paging.Page;
 import com.google.cloud.storage.Blob;
-import com.google.cloud.storage.Bucket;
-import com.google.cloud.storage.Storage;
+import com.google.common.collect.Lists;
 import com.hartwig.bcl2fastq.samplesheet.IlluminaSample;
 import com.hartwig.bcl2fastq.samplesheet.ImmutableSampleSheet;
 import com.hartwig.bcl2fastq.samplesheet.SampleSheet;
 import com.hartwig.bcl2fastq.stats.ImmutableLaneStats;
 import com.hartwig.bcl2fastq.stats.ImmutableStats;
 import com.hartwig.bcl2fastq.stats.TestStats;
+import com.hartwig.pipeline.ResultsDirectory;
+import com.hartwig.pipeline.storage.RuntimeBucket;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -32,7 +34,7 @@ public class ResultAggregationTest {
     private static final String BARCODE = "barcode";
     private static final String PROJECT = "project";
     private static final String SAMPLE = "sample";
-    private Bucket bucket;
+    private RuntimeBucket bucket;
     private ResultAggregation victim;
     private Blob first;
     private Blob second;
@@ -46,9 +48,9 @@ public class ResultAggregationTest {
 
     @Before
     public void setUp() {
-        bucket = mock(Bucket.class);
-        victim = new ResultAggregation(bucket);
-        path = String.format("%s/%s", PROJECT, BARCODE);
+        bucket = mock(RuntimeBucket.class);
+        victim = new ResultAggregation(bucket, ResultsDirectory.defaultDirectory());
+        path = String.format("results/%s/%s", PROJECT, BARCODE);
         first = blob(path + "/GIAB12878_S1_L001_R1_001.fastq.gz");
         second = blob(path + "/GIAB12878_S1_L001_R2_001.fastq.gz");
         third = blob(path + "/GIAB12878_S1_L002_R1_001.fastq.gz");
@@ -84,9 +86,7 @@ public class ResultAggregationTest {
     @Test
     public void singleSamplePopulatedWithFastQFilesInStorage() {
 
-        String path = String.format("%s/%s", PROJECT, BARCODE);
-        Page<Blob> page = pageOf(first, second, third, fourth);
-        when(bucket.list(Storage.BlobListOption.prefix(path))).thenReturn(page);
+        when(bucket.list(path)).thenReturn(Lists.newArrayList(first, second, third, fourth));
 
         Conversion conversion = victim.apply(sampleSheet(),
                 stats(laneStats(1, 1, sampleStats(BARCODE, 2, 1, 2)), laneStats(2, 1, sampleStats(BARCODE, 2, 1, 2))));
@@ -107,9 +107,7 @@ public class ResultAggregationTest {
     @Test(expected = IllegalStateException.class)
     public void failsWhenStatsMissingForFastq() {
 
-        String path = String.format("%s/%s", PROJECT, BARCODE);
-        Page<Blob> page = pageOf(first, second, third, fourth);
-        when(bucket.list(Storage.BlobListOption.prefix(path))).thenReturn(page);
+        when(bucket.list(path)).thenReturn(Lists.newArrayList(first, second, third, fourth));
 
         victim.apply(sampleSheet(), stats(laneStats(1, 1, sampleStats(BARCODE, 2, 1, 2))));
     }
@@ -117,10 +115,7 @@ public class ResultAggregationTest {
     @Test
     public void fastqYieldAndQ30CalculatedFromStats() {
 
-        String path = String.format("%s/%s", PROJECT, BARCODE);
-
-        Page<Blob> page = pageOf(first, second);
-        when(bucket.list(Storage.BlobListOption.prefix(path))).thenReturn(page);
+        when(bucket.list(path)).thenReturn(Lists.newArrayList(first, second));
 
         Conversion conversion = victim.apply(sampleSheet(), defaultStats());
 
@@ -135,8 +130,7 @@ public class ResultAggregationTest {
 
     @Test
     public void sizeAndMD5PopulatedFromGoogleCloudStorage() {
-        Page<Blob> page = pageOf(first, second);
-        when(bucket.list(Storage.BlobListOption.prefix(path))).thenReturn(page);
+        when(bucket.list(path)).thenReturn(Lists.newArrayList(first, second));
 
         Conversion conversion = victim.apply(sampleSheet(), defaultStats());
         List<ConvertedFastq> fastq = conversion.samples().get(0).fastq();
@@ -149,8 +143,7 @@ public class ResultAggregationTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void failsWhenUnpairedReadsEncountered() {
-        Page<Blob> page = pageOf(first);
-        when(bucket.list(Storage.BlobListOption.prefix(path))).thenReturn(page);
+        when(bucket.list(path)).thenReturn(Collections.singletonList(first));
         victim.apply(sampleSheet(), defaultStats());
     }
 
@@ -170,6 +163,17 @@ public class ResultAggregationTest {
         ConvertedSample sample = conversion.samples().get(0);
         assertThat(sample.yield()).isEqualTo(2);
         assertThat(sample.yieldQ30()).isEqualTo(3);
+    }
+
+    @Test
+    public void outputPathsSetAndIncludeFlowcellName() {
+        Page<Blob> page = pageOf(first, second);
+        when(bucket.list(path)).thenReturn(Lists.newArrayList(first, second));
+        Conversion conversion = victim.apply(sampleSheet(), defaultStats());
+        List<ConvertedFastq> fastq = conversion.samples().get(0).fastq();
+        ConvertedFastq firstFastq = fastq.get(0);
+        assertThat(firstFastq.outputPathR1()).isEqualTo("flowcell/barcode/GIAB12878_flowcell_S1_L001_R1_001.fastq.gz");
+        assertThat(firstFastq.outputPathR2()).isEqualTo("flowcell/barcode/GIAB12878_flowcell_S1_L001_R2_001.fastq.gz");
     }
 
     private static ImmutableStats defaultStats() {

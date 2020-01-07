@@ -55,7 +55,7 @@ public class FastqMetadataRegistration implements Consumer<Conversion> {
                                 .hash_r2(convertMd5ToSbpFormat(convertedFastq.md5R2()))
                                 .yld(convertedFastq.yield())
                                 .q30(Q30.of(convertedFastq))
-                                .qc_pass(QualityControl.minimumQ30(convertedFastq, sbpSample.q30_req().orElseThrow()))
+                                .qc_pass(QualityControl.minimumQ30(convertedFastq, sbpSample.q30_req().orElse(0d)))
                                 .build());
                     }
                 }

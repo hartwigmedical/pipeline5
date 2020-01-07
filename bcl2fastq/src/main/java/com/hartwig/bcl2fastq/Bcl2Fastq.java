@@ -16,6 +16,7 @@ import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.OutputUpload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
+import com.hartwig.pipeline.storage.GSUtil;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.storage.StorageProvider;
@@ -58,8 +59,9 @@ class Bcl2Fastq {
 
         new OutputCopy(storage, arguments.outputBucket(), bucket).andThen(new FastqMetadataRegistration(sbpFastqMetadataApi,
                 arguments.outputBucket(),
-                stringOf(bucket, "/run.log"))).accept(new ResultAggregation(bucket.getUnderlyingBucket()).apply(sampleSheet, stats));
+                stringOf(bucket, "/run.log"))).accept(new ResultAggregation(bucket, resultsDirectory).apply(sampleSheet, stats));
 
+        GSUtil.rm(arguments.cloudSdkPath(), bucket.runId());
         LOGGER.info("bcl2fastq complete for flowcell [{}]", arguments.flowcell());
     }
 
