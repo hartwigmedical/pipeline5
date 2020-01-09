@@ -169,7 +169,6 @@ public interface Arguments extends CommonArguments {
                     .project(DEFAULT_DEVELOPMENT_PROJECT)
                     .version(DEFAULT_DEVELOPMENT_VERSION)
                     .sampleDirectory(DEFAULT_DOCKER_SAMPLE_DIRECTORY)
-                    .privateKeyPath(DEFAULT_DOCKER_KEY_PATH)
                     .cloudSdkPath(DEFAULT_DOCKER_CLOUD_SDK_PATH)
                     .serviceAccountEmail(DEFAULT_DEVELOPMENT_SERVICE_ACCOUNT_EMAIL)
                     .cleanup(true)
