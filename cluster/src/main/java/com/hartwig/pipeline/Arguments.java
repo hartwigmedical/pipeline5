@@ -19,6 +19,8 @@ public interface Arguments extends CommonArguments {
 
     boolean upload();
 
+    boolean uploadFromGcp();
+
     boolean runBamMetrics();
 
     boolean runAligner();
@@ -111,6 +113,7 @@ public interface Arguments extends CommonArguments {
                     .usePreemptibleVms(true)
                     .useLocalSsds(true)
                     .upload(true)
+                    .uploadFromGcp(false)
                     .runBamMetrics(true)
                     .runAligner(true)
                     .runSnpGenotyper(true)
@@ -138,6 +141,7 @@ public interface Arguments extends CommonArguments {
                     .usePreemptibleVms(true)
                     .useLocalSsds(true)
                     .upload(true)
+                    .uploadFromGcp(false)
                     .runBamMetrics(true)
                     .runAligner(true)
                     .runSnpGenotyper(true)
@@ -172,6 +176,7 @@ public interface Arguments extends CommonArguments {
                     .usePreemptibleVms(true)
                     .useLocalSsds(true)
                     .upload(true)
+                    .uploadFromGcp(false)
                     .runBamMetrics(true)
                     .runAligner(true)
                     .runSnpGenotyper(true)

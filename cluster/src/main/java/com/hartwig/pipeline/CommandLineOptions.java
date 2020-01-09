@@ -19,6 +19,7 @@ public class CommandLineOptions {
     private static final String VERSION_FLAG = "version";
     private static final String CLEANUP_FLAG = "cleanup";
     private static final String UPLOAD_FLAG = "upload";
+    private static final String UPLOAD_FROM_GCP_FLAG = "upload_from_gcp";
     private static final String PROJECT_FLAG = "project";
     private static final String REGION_FLAG = "region";
     private static final String PRIVATE_KEY_FLAG = "private_key_path";
@@ -80,6 +81,8 @@ public class CommandLineOptions {
                 .addOption(optionWithBooleanArg(UPLOAD_FLAG,
                         "Don't upload the sample to storage. "
                                 + "This should be used in combination with a run_id which points at an existing bucket"))
+                .addOption(optionWithBooleanArg(UPLOAD_FROM_GCP_FLAG, "Upload sample fastq from GCP instead of SBP S3. "
+                        + "Temporary feature toggle while transitioning to bcl2fastq on GCP."))
                 .addOption(project())
                 .addOption(region())
                 .addOption(sbpSampleId())
@@ -255,6 +258,7 @@ public class CommandLineOptions {
                     .usePreemptibleVms(booleanOptionWithDefault(commandLine, USE_PREEMTIBLE_VMS_FLAG, defaults.usePreemptibleVms()))
                     .useLocalSsds(booleanOptionWithDefault(commandLine, USE_LOCAL_SSDS_FLAG, defaults.useLocalSsds()))
                     .upload(booleanOptionWithDefault(commandLine, UPLOAD_FLAG, defaults.upload()))
+                    .uploadFromGcp(booleanOptionWithDefault(commandLine, UPLOAD_FROM_GCP_FLAG, defaults.uploadFromGcp()))
                     .rclonePath(commandLine.getOptionValue(RCLONE_PATH_FLAG, defaults.rclonePath()))
                     .rcloneGcpRemote(commandLine.getOptionValue(RCLONE_GCP_REMOTE_FLAG, defaults.rcloneGcpRemote()))
                     .rcloneS3RemoteDownload(commandLine.getOptionValue(RCLONE_S3_REMOTE_DOWNLOAD_FLAG, defaults.rcloneS3RemoteDownload()))

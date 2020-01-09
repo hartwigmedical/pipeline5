@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.execution;
 
+import static java.lang.String.format;
+
 import org.immutables.value.Value;
 
 @Value.Immutable
@@ -17,7 +19,7 @@ public interface MachineType {
     int cpus();
 
     @Value.Default
-    default int diskSizeGB(){
+    default int diskSizeGB() {
         return DEFAULT_DISK_SIZE;
     }
 
@@ -39,6 +41,10 @@ public interface MachineType {
 
     static MachineType defaultMaster() {
         return ImmutableMachineType.builder().uri(GOOGLE_STANDARD_16).memoryGB(60).cpus(16).diskSizeGB(1000).build();
+    }
+
+    static MachineType custom(int memoryGB, int cores) {
+        return ImmutableMachineType.builder().uri(format("custom-%d-%d", cores, memoryGB * 1024)).cpus(cores).memoryGB(memoryGB).build();
     }
 
     static ImmutableMachineType.Builder builder() {
