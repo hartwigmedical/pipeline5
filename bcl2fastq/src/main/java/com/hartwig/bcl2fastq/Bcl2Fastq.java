@@ -77,6 +77,7 @@ class Bcl2Fastq {
                 .startupCommand(bash)
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(96, 90))
                 .namespacedResults(resultsDirectory)
+                .workingDiskSpaceGb(5000)
                 .build();
     }
 

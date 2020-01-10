@@ -41,6 +41,8 @@ public interface Bcl2fastqArguments extends CommonArguments {
                     .inputBucket(commandLine.getOptionValue(INPUT_BUCKET))
                     .outputBucket(commandLine.getOptionValue(OUTPUT_BUCKET))
                     .sbpApiUrl(commandLine.getOptionValue(SBP_API_URL))
+                    .useLocalSsds(false)
+                    .usePreemptibleVms(false)
                     .build();
         } catch (ParseException e) {
             throw new IllegalArgumentException("Failed to parse arguments", e);
