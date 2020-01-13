@@ -33,31 +33,29 @@ public class FastqMetadataRegistration implements Consumer<Conversion> {
         if (sbpFlowcell != null) {
             boolean flowcellQCPass = QualityControl.errorsInLogs(log) && QualityControl.undeterminedReadPercentage(conversion)
                     && QualityControl.minimumYield(conversion);
-            if (flowcellQCPass) {
-                for (ConvertedSample sample : conversion.samples()) {
-                    SbpSample sbpSample = sbpApi.findOrCreate(sample.barcode(), sample.project());
-                    updateSampleYieldAndStatus(sample, sbpSample);
-                    for (ConvertedFastq convertedFastq : sample.fastq()) {
-                        SbpLane sbpLane = sbpApi.findOrCreate(SbpLane.builder()
-                                .flowcell_id(sbpFlowcell.id())
-                                .name(lane(convertedFastq.id().lane()))
-                                .build());
+            for (ConvertedSample sample : conversion.samples()) {
+                SbpSample sbpSample = sbpApi.findOrCreate(sample.barcode(), sample.project());
+                updateSampleYieldAndStatus(sample, sbpSample);
+                for (ConvertedFastq convertedFastq : sample.fastq()) {
+                    SbpLane sbpLane = sbpApi.findOrCreate(SbpLane.builder()
+                            .flowcell_id(sbpFlowcell.id())
+                            .name(lane(convertedFastq.id().lane()))
+                            .build());
 
-                        sbpApi.create(SbpFastq.builder()
-                                .sample_id(sbpSample.id().orElseThrow())
-                                .lane_id(sbpLane.id().orElseThrow())
-                                .bucket(outputBucket)
-                                .name_r1(convertedFastq.outputPathR1())
-                                .size_r1(convertedFastq.sizeR1())
-                                .hash_r1(convertMd5ToSbpFormat(convertedFastq.md5R1()))
-                                .name_r2(convertedFastq.outputPathR2())
-                                .size_r2(convertedFastq.sizeR2())
-                                .hash_r2(convertMd5ToSbpFormat(convertedFastq.md5R2()))
-                                .yld(convertedFastq.yield())
-                                .q30(Q30.of(convertedFastq))
-                                .qc_pass(QualityControl.minimumQ30(convertedFastq, sbpSample.q30_req().orElse(0d)))
-                                .build());
-                    }
+                    sbpApi.create(SbpFastq.builder()
+                            .sample_id(sbpSample.id().orElseThrow())
+                            .lane_id(sbpLane.id().orElseThrow())
+                            .bucket(outputBucket)
+                            .name_r1(convertedFastq.outputPathR1())
+                            .size_r1(convertedFastq.sizeR1())
+                            .hash_r1(convertMd5ToSbpFormat(convertedFastq.md5R1()))
+                            .name_r2(convertedFastq.outputPathR2())
+                            .size_r2(convertedFastq.sizeR2())
+                            .hash_r2(convertMd5ToSbpFormat(convertedFastq.md5R2()))
+                            .yld(convertedFastq.yield())
+                            .q30(Q30.of(convertedFastq))
+                            .qc_pass(QualityControl.minimumQ30(convertedFastq, sbpSample.q30_req().orElse(0d)))
+                            .build());
                 }
             }
             SbpFlowcell updated = sbpApi.updateFlowcell(SbpFlowcell.builderFrom(sbpFlowcell)
