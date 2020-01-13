@@ -68,8 +68,8 @@ public class CommandLineOptions {
                 .addOption(setId())
                 .addOption(optionWithBooleanArg(CLEANUP_FLAG, "Don't delete the runtime bucket after job is complete"))
                 .addOption(optionWithBooleanArg(USE_PREEMTIBLE_VMS_FLAG,
-                        "Do not allocate half the cluster as preemtible VMs to save cost. "
-                                + "These VMs can be reclaimed at any time so using this option will make things more stable"))
+                        "Use preemtible VMs to lower cost. "
+                                + "These VMs can be reclaimed at any time so using them can make the run less stable."))
                 .addOption(optionWithBooleanArg(USE_LOCAL_SSDS_FLAG,
                         "Use local (ephemeral) SSDs rather than persistent storage to lower cost and improve performance. "
                                 + "VMs started with these devices can only be started once so may not be suitable for development"))

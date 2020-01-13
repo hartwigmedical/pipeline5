@@ -1,13 +1,5 @@
 package com.hartwig.pipeline.calling.somatic;
 
-import static com.hartwig.pipeline.resource.ResourceNames.BEDS;
-import static com.hartwig.pipeline.resource.ResourceNames.MAPPABILITY;
-import static com.hartwig.pipeline.resource.ResourceNames.PON;
-import static com.hartwig.pipeline.resource.ResourceNames.SAGE;
-import static com.hartwig.pipeline.resource.ResourceNames.STRELKA_CONFIG;
-
-import java.util.List;
-
 import com.google.common.collect.Lists;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
@@ -33,6 +25,14 @@ import com.hartwig.pipeline.resource.Resource;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.TertiaryStage;
+
+import java.util.List;
+
+import static com.hartwig.pipeline.resource.ResourceNames.BEDS;
+import static com.hartwig.pipeline.resource.ResourceNames.MAPPABILITY;
+import static com.hartwig.pipeline.resource.ResourceNames.PON;
+import static com.hartwig.pipeline.resource.ResourceNames.SAGE;
+import static com.hartwig.pipeline.resource.ResourceNames.STRELKA_CONFIG;
 
 public class SomaticCaller extends TertiaryStage<SomaticCallerOutput> {
 
@@ -61,13 +61,15 @@ public class SomaticCaller extends TertiaryStage<SomaticCallerOutput> {
         String tumorSampleName = metadata.tumor().sampleName();
         String referenceSampleName = metadata.reference().sampleName();
         String knownHotspotsTsv = Resource.of(SAGE, "KnownHotspots.tsv");
-        SubStageInputOutput sageOutput = new SageHotspotsApplication(knownHotspotsTsv,
+        SageHotspotsApplication sageHotspotsApplication = new SageHotspotsApplication(knownHotspotsTsv,
                 Resource.of(SAGE, "CodingRegions.bed"),
                 referenceGenomePath,
                 tumorBamPath,
                 referenceBamPath,
                 tumorSampleName,
-                referenceSampleName).andThen(new SageFiltersAndAnnotations(tumorSampleName))
+                referenceSampleName);
+        sageOutputFile = sageHotspotsApplication.apply(SubStageInputOutput.empty(tumorSampleName)).outputFile();
+        SubStageInputOutput sageOutput = sageHotspotsApplication.andThen(new SageFiltersAndAnnotations(tumorSampleName))
                 .andThen(new SagePonAnnotation(Resource.of(SAGE, "SAGE_PON.vcf.gz")))
                 .andThen(new SagePonFilter())
                 .apply(SubStageInputOutput.empty(tumorSampleName));
@@ -95,7 +97,6 @@ public class SomaticCaller extends TertiaryStage<SomaticCallerOutput> {
         commands.addAll(mergedOutput.bash());
 
         outputFile = mergedOutput.outputFile();
-        sageOutputFile = sageOutput.outputFile();
         return commands;
     }
 
