@@ -32,6 +32,7 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.hartwig.pipeline.CommonArguments;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.storage.LocalSsdStorageStrategy;
+import com.hartwig.pipeline.execution.vm.storage.PersistentStorageStrategy;
 import com.hartwig.pipeline.labels.Labels;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
@@ -46,6 +47,8 @@ public class ComputeEngine {
     static final String ZONE_EXHAUSTED_ERROR_CODE = "ZONE_RESOURCE_POOL_EXHAUSTED";
     static final String UNSUPPORTED_OPERATION_ERROR_CODE = "UNSUPPORTED_OPERATION";
     static final String PREEMPTED_INSTANCE = "TERMINATED";
+    private static final String LOCAL_SSD = "%s/zones/%s/diskTypes/local-ssd";
+    private static final String PD_SSD = "%s/zones/%s/diskTypes/pd-ssd";
 
     private final Logger LOGGER = LoggerFactory.getLogger(ComputeEngine.class);
 
@@ -56,7 +59,7 @@ public class ComputeEngine {
     private final BucketCompletionWatcher bucketWatcher;
 
     ComputeEngine(final CommonArguments arguments, final Compute compute, final Consumer<List<Zone>> zoneRandomizer,
-                  final InstanceLifecycleManager lifecycleManager, final BucketCompletionWatcher bucketWatcher) {
+            final InstanceLifecycleManager lifecycleManager, final BucketCompletionWatcher bucketWatcher) {
         this.arguments = arguments;
         this.compute = compute;
         this.zoneRandomizer = zoneRandomizer;
@@ -64,8 +67,7 @@ public class ComputeEngine {
         this.bucketWatcher = bucketWatcher;
     }
 
-    public static ComputeEngine from(final CommonArguments arguments, final GoogleCredentials credentials)
-            throws Exception {
+    public static ComputeEngine from(final CommonArguments arguments, final GoogleCredentials credentials) throws Exception {
         Compute compute = initCompute(credentials);
         return new ComputeEngine(arguments,
                 compute,
@@ -119,7 +121,7 @@ public class ComputeEngine {
                 String startupScript = arguments.useLocalSsds()
                         ? jobDefinition.startupCommand()
                         .asUnixString(new LocalSsdStorageStrategy(jobDefinition.localSsdCount()))
-                        : jobDefinition.startupCommand().asUnixString();
+                        : jobDefinition.startupCommand().asUnixString(new PersistentStorageStrategy());
                 addStartupCommand(instance, bucket, flags, startupScript);
                 addNetworkInterface(instance, project);
 
@@ -203,24 +205,37 @@ public class ComputeEngine {
         instance.setNetworkInterfaces(singletonList(networkInterface));
     }
 
-    private Image attachDisks(Compute compute, Instance instance, VirtualMachineJobDefinition jobDefinition, String projectName, String vmName,
-                              String zone) throws IOException {
+    private Image attachDisks(Compute compute, Instance instance, VirtualMachineJobDefinition jobDefinition, String projectName,
+            String vmName, String zone) throws IOException {
         Image sourceImage = resolveLatestImage(compute, jobDefinition.imageFamily(), projectName);
-        AttachedDisk disk = new AttachedDisk();
-        disk.setBoot(true);
-        disk.setAutoDelete(true);
+        AttachedDisk bootDisk = new AttachedDisk();
+        bootDisk.setBoot(true);
+        bootDisk.setAutoDelete(true);
         AttachedDiskInitializeParams params = new AttachedDiskInitializeParams();
         params.setSourceImage(sourceImage.getSelfLink());
-        params.setDiskType(format("%s/zones/%s/diskTypes/pd-ssd", apiBaseUrl(projectName), zone));
-        params.setDiskSizeGb(arguments.useLocalSsds() ? jobDefinition.baseImageDiskSizeGb() : jobDefinition.totalPersistentDiskSizeGb());
-        disk.setInitializeParams(params);
-        List<AttachedDisk> disks = new ArrayList<>(singletonList(disk));
+        params.setDiskType(pdssd(projectName, zone));
+        params.setDiskSizeGb(jobDefinition.baseImageDiskSizeGb());
+        bootDisk.setInitializeParams(params);
+        List<AttachedDisk> disks = new ArrayList<>(singletonList(bootDisk));
         if (arguments.useLocalSsds()) {
             attachLocalSsds(disks, jobDefinition.localSsdCount(), projectName, zone);
+        } else {
+            AttachedDiskInitializeParams workingDiskParams = new AttachedDiskInitializeParams();
+            workingDiskParams.setDiskType(pdssd(projectName, zone));
+            workingDiskParams.setDiskSizeGb(jobDefinition.workingDiskSpaceGb());
+            AttachedDisk workingDisk = new AttachedDisk();
+            workingDisk.setAutoDelete(true);
+            workingDisk.setBoot(false);
+            workingDisk.setInitializeParams(workingDiskParams);
+            disks.add(workingDisk);
         }
         instance.setDisks(disks);
-        compute.instances().attachDisk(projectName, zone, vmName, disk);
+        compute.instances().attachDisk(projectName, zone, vmName, bootDisk);
         return sourceImage;
+    }
+
+    private String pdssd(final String projectName, final String zone) {
+        return format(PD_SSD, apiBaseUrl(projectName), zone);
     }
 
     private void attachLocalSsds(List<AttachedDisk> disks, int deviceCount, String projectName, String zone) {
@@ -229,7 +244,7 @@ public class ComputeEngine {
             disk.setBoot(false);
             disk.setAutoDelete(true);
             AttachedDiskInitializeParams params = new AttachedDiskInitializeParams();
-            params.setDiskType(format("%s/zones/%s/diskTypes/local-ssd", apiBaseUrl(projectName), zone));
+            params.setDiskType(format(LOCAL_SSD, apiBaseUrl(projectName), zone));
             disk.setInitializeParams(params);
             disk.setType("SCRATCH");
             disk.setInterface("NVME");
@@ -271,8 +286,7 @@ public class ComputeEngine {
         return format("%s/zones/%s/machineTypes/%s", apiBaseUrl(projectName), zone, type);
     }
 
-    private PipelineStatus waitForCompletion(RuntimeBucket bucket, RuntimeFiles flags, Zone zone,
-            Instance instance) {
+    private PipelineStatus waitForCompletion(RuntimeBucket bucket, RuntimeFiles flags, Zone zone, Instance instance) {
         LOGGER.debug("Waiting for completion of {}", instance.getName());
         return Failsafe.with(new RetryPolicy<>().withMaxRetries(-1).withDelay(Duration.ofSeconds(5)).handleResult(null)).get(() -> {
             LOGGER.debug("Checking bucket for state");
