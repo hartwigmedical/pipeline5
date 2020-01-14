@@ -3,6 +3,7 @@ package com.hartwig.pipeline.execution.vm;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.execution.JobDefinition;
 import com.hartwig.pipeline.tools.Versions;
+
 import org.immutables.value.Value;
 
 @Value.Immutable
@@ -91,7 +92,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .name("purple")
                 .startupCommand(startupScript)
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 8))
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 12))
                 .build();
     }
 
