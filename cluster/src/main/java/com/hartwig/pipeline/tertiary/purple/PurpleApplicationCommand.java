@@ -23,7 +23,7 @@ class PurpleApplicationCommand extends JavaJarCommand {
         super("purple",
                 Versions.PURPLE,
                 "purple.jar",
-                "8G",
+                "12G",
                 combine(arguments(referenceSampleName,
                         tumorSampleName,
                         amberDirectory,
