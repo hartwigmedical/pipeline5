@@ -211,11 +211,11 @@ public class ComputeEngine {
         AttachedDisk bootDisk = new AttachedDisk();
         bootDisk.setBoot(true);
         bootDisk.setAutoDelete(true);
-        AttachedDiskInitializeParams params = new AttachedDiskInitializeParams();
-        params.setSourceImage(sourceImage.getSelfLink());
-        params.setDiskType(pdssd(projectName, zone));
-        params.setDiskSizeGb(jobDefinition.baseImageDiskSizeGb());
-        bootDisk.setInitializeParams(params);
+        AttachedDiskInitializeParams bootDiskParams = new AttachedDiskInitializeParams();
+        bootDiskParams.setSourceImage(sourceImage.getSelfLink());
+        bootDiskParams.setDiskType(pdssd(projectName, zone));
+        bootDiskParams.setDiskSizeGb(jobDefinition.baseImageDiskSizeGb());
+        bootDisk.setInitializeParams(bootDiskParams);
         List<AttachedDisk> disks = new ArrayList<>(singletonList(bootDisk));
         if (arguments.useLocalSsds()) {
             attachLocalSsds(disks, jobDefinition.localSsdCount(), projectName, zone);
