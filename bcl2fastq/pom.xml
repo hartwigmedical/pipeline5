@@ -57,7 +57,7 @@
                                 <manifest>
                                     <useUniqueVersions>false</useUniqueVersions>
                                     <addClasspath>true</addClasspath>
-                                    <mainClass>com.hartwig.pipeline.PipelineMain</mainClass>
+                                    <mainClass>com.hartwig.bcl2fastq.Bcl2Fastq</mainClass>
                                     <classpathPrefix>lib/</classpathPrefix>
                                     <addDefaultImplementationEntries>
                                         true

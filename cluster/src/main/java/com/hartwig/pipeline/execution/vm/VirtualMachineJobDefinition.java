@@ -139,16 +139,6 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .build();
     }
 
-    static VirtualMachineJobDefinition bcl2fastq(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
-        return ImmutableVirtualMachineJobDefinition.builder()
-                .name("bcl2fastq")
-                .imageFamily("bcl2fastq-standard")
-                .startupCommand(startupScript)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(96, 90))
-                .namespacedResults(resultsDirectory)
-                .build();
-    }
-
     static VirtualMachineJobDefinition alignment(String lane, BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("aligner-" + lane)

@@ -1,6 +1,6 @@
 branches:
   only:
-    - master
+    - DEV-1101
 sudo: required
 language: java
 jdk:

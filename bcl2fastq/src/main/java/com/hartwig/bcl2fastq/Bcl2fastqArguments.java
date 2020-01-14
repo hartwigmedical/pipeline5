@@ -35,13 +35,14 @@ public interface Bcl2fastqArguments extends CommonArguments {
                     .region(commandLine.getOptionValue(REGION, "europe-west4"))
                     .useLocalSsds(parseBoolean(commandLine.getOptionValue(LOCAL_SSDS, "true")))
                     .usePreemptibleVms(parseBoolean(commandLine.getOptionValue(PREEMPTIBLE_VMS, "true")))
-                    .privateKeyPath(commandLine.getOptionValue(PRIVATE_KEY_PATH))
                     .cloudSdkPath(commandLine.getOptionValue(CLOUD_SDK, System.getProperty("user.home") + "/gcloud/google-cloud-sdk/bin"))
                     .serviceAccountEmail(commandLine.getOptionValue(SERVICE_ACCOUNT_EMAIL))
                     .flowcell(commandLine.getOptionValue(FLOWCELL))
                     .inputBucket(commandLine.getOptionValue(INPUT_BUCKET))
                     .outputBucket(commandLine.getOptionValue(OUTPUT_BUCKET))
                     .sbpApiUrl(commandLine.getOptionValue(SBP_API_URL))
+                    .useLocalSsds(false)
+                    .usePreemptibleVms(false)
                     .build();
         } catch (ParseException e) {
             throw new IllegalArgumentException("Failed to parse arguments", e);

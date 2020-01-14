@@ -14,38 +14,38 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
-import com.google.api.gax.paging.Page;
 import com.google.cloud.storage.Blob;
-import com.google.cloud.storage.Bucket;
-import com.google.cloud.storage.Storage;
 import com.hartwig.bcl2fastq.samplesheet.IlluminaSample;
 import com.hartwig.bcl2fastq.samplesheet.SampleSheet;
 import com.hartwig.bcl2fastq.stats.LaneStats;
 import com.hartwig.bcl2fastq.stats.SampleStats;
 import com.hartwig.bcl2fastq.stats.Stats;
 import com.hartwig.bcl2fastq.stats.UndeterminedStats;
+import com.hartwig.pipeline.ResultsDirectory;
+import com.hartwig.pipeline.storage.RuntimeBucket;
 
 public class ResultAggregation {
 
-    private final Bucket bucket;
+    private final RuntimeBucket bucket;
+    private final ResultsDirectory resultsDirectory;
 
-    public ResultAggregation(final Bucket bucket) {
+    public ResultAggregation(final RuntimeBucket bucket, final ResultsDirectory resultsDirectory) {
         this.bucket = bucket;
+        this.resultsDirectory = resultsDirectory;
     }
 
     public Conversion apply(SampleSheet sampleSheet, Stats stats) {
         ImmutableConversion.Builder conversionBuilder = ImmutableConversion.builder();
         for (IlluminaSample sample : sampleSheet.samples()) {
-            Page<Blob> listResult = bucket.list(Storage.BlobListOption.prefix(String.format("%s/%s", sample.project(), sample.barcode())));
+            List<Blob> listResult = bucket.list(resultsDirectory.path(String.format("%s/%s", sample.project(), sample.barcode())));
             conversionBuilder.addSamples(ImmutableConvertedSample.builder()
                     .barcode(sample.barcode())
                     .sample(sample.sample())
                     .project(sample.project())
                     .yield(yield(sample.barcode(), stats))
                     .yieldQ30(yieldQ30(sample.barcode(), stats))
-                    .addAllFastq(listResult != null ? StreamSupport.stream(listResult.iterateAll().spliterator(), false)
+                    .addAllFastq(listResult != null ? listResult.stream()
                             .collect(groupingBy(b -> parseLane(b.getName())))
                             .entrySet()
                             .stream()
@@ -95,7 +95,15 @@ public class ResultAggregation {
     }
 
     private static String outputPath(final IlluminaSample sample, final Stats stats, final Blob blobR1) {
-        return stats.flowcell() + "/" + sample.barcode() + "/" + new File(blobR1.getName()).getName();
+        String[] fileNameSplit = new File(blobR1.getName()).getName().split("_");
+        String fileNameWithFlowcell = String.format("%s_%s_%s_%s_%s_%s",
+                fileNameSplit[0],
+                stats.flowcell(),
+                fileNameSplit[1],
+                fileNameSplit[2],
+                fileNameSplit[3],
+                fileNameSplit[4]);
+        return stats.flowcell() + "/" + sample.barcode() + "/" + fileNameWithFlowcell;
     }
 
     static String parseNumInPair(String path) {
