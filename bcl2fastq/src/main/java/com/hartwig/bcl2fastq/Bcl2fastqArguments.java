@@ -2,6 +2,8 @@ package com.hartwig.bcl2fastq;
 
 import static java.lang.Boolean.parseBoolean;
 
+import java.util.Optional;
+
 import com.hartwig.pipeline.CommonArguments;
 
 import org.apache.commons.cli.CommandLine;
@@ -41,6 +43,9 @@ public interface Bcl2fastqArguments extends CommonArguments {
                     .inputBucket(commandLine.getOptionValue(INPUT_BUCKET))
                     .outputBucket(commandLine.getOptionValue(OUTPUT_BUCKET))
                     .sbpApiUrl(commandLine.getOptionValue(SBP_API_URL))
+                    .privateKeyPath(commandLine.hasOption(PRIVATE_KEY_PATH)
+                            ? Optional.of(commandLine.getOptionValue(PRIVATE_KEY_PATH))
+                            : Optional.empty())
                     .useLocalSsds(false)
                     .usePreemptibleVms(false)
                     .build();
