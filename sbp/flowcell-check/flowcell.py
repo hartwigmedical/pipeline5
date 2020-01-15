@@ -33,14 +33,14 @@ def start_kubernetes_job(args):
     with file('/var/run/secrets/kubernetes.io/serviceaccount/namespace') as f:
         namespace = f.read()
 
-    job_args = ['-flowcell', str(args['flowcell_name'])]
+    job_args = ['-flowcell', str(args['flowcell'])]
 
     for i in range(1, len(sys.argv)):
         job_args.append(sys.argv[i])
 
     spec = kubernetes.client.V1Job(
         metadata=kubernetes.client.V1ObjectMeta(
-            name='bcl2fastq-flowcell-{0}-{1}'.format(args['sbp_sample_id'], timestamp)
+            name='bcl2fastq-flowcell-{0}-{1}'.format(args['flowcell'], timestamp)
         ),
         spec=kubernetes.client.V1JobSpec(
             completions=1,
@@ -104,7 +104,7 @@ def main():
         del(flowcells[max_starts:])
         for flowcell in flowcells:
 
-            start_kubernetes_job({'flowcell_name': flowcell.name })
+            start_kubernetes_job({'flowcell': flowcell.name })
 
             phone_home('Starting bcl2fastq {0} for flowcell {1}'.format(os.environ['PIPELINE_VERSION'], flowcell.name))
 
