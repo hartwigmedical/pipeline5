@@ -54,7 +54,7 @@ public class FastqMetadataRegistration implements Consumer<Conversion> {
                             .hash_r2(convertMd5ToSbpFormat(convertedFastq.md5R2()))
                             .yld(convertedFastq.yield())
                             .q30(Q30.of(convertedFastq))
-                            .qc_pass(QualityControl.minimumQ30(convertedFastq, sbpSample.q30_req().orElse(0d)))
+                            .qc_pass(flowcellQCPass && QualityControl.minimumQ30(convertedFastq, sbpSample.q30_req().orElse(0d)))
                             .build());
                 }
             }
@@ -85,11 +85,13 @@ public class FastqMetadataRegistration implements Consumer<Conversion> {
     private void updateSampleYieldAndStatus(final ConvertedSample sample, final SbpSample sbpSample) {
         final double sampleQ30 = Q30.of(sample);
         ImmutableSbpSample.Builder sampleUpdate = SbpSample.builder().from(sbpSample).yld(sample.yield()).q30(sampleQ30);
-        if (sbpSample.yld_req().map(yr -> yr < sample.yield()).orElse(true) && sbpSample.q30_req().map(qr -> qr < sampleQ30).orElse(true)) {
+        long totalYield = sbpSample.yld().orElse(0L) + sample.yield();
+        double averagedQ30 = (sbpSample.q30().orElse(0d) / 100 * sbpSample.yld().orElse(0L) + sample.yieldQ30()) / totalYield * 100;
+        if (sbpSample.yld_req().map(yr -> yr < totalYield).orElse(true) && sbpSample.q30_req().map(qr -> qr < averagedQ30).orElse(true)) {
             sampleUpdate.status(SbpSample.STATUS_READY);
         } else {
             sampleUpdate.status(SbpSample.STATUS_INSUFFICIENT_QUALITY);
         }
-        sbpApi.updateSample(sampleUpdate.build());
+        sbpApi.updateSample(sampleUpdate.yld(totalYield).q30(averagedQ30).build());
     }
 }
