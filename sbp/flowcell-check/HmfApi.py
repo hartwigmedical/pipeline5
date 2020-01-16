@@ -1,6 +1,10 @@
 import json
 import os
 import requests
+import time
+
+def log(msg):
+    print (time.strftime('[%Y-%m-%d %H:%M:%S] ') + str(msg))
 
 class HmfApi(object):
     def __init__(self):
@@ -9,6 +13,8 @@ class HmfApi(object):
 
         if self._url is None:
             self._url = 'http://hmfapi'
+
+        log('Connecting to SBP API at {0}'.format(self._url))
 
         self._version = '/hmf/v1/'
         self.id = None
