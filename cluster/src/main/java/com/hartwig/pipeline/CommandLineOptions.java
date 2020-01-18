@@ -1,7 +1,5 @@
 package com.hartwig.pipeline;
 
-import java.util.Optional;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -11,6 +9,8 @@ import org.apache.commons.cli.ParseException;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Optional;
 
 public class CommandLineOptions {
 
@@ -239,7 +239,7 @@ public class CommandLineOptions {
             Arguments defaults = Arguments.defaults(commandLine.getOptionValue(PROFILE_FLAG, DEFAULT_PROFILE));
             return Arguments.builder()
                     .setId(commandLine.getOptionValue(SET_ID_FLAG, defaults.setId()))
-                    .privateKeyPath(privateKey(commandLine, defaults))
+                    .privateKeyPath(CommonArguments.privateKey(commandLine).or(defaults::privateKeyPath))
                     .version(commandLine.getOptionValue(VERSION_FLAG, defaults.version()))
                     .sampleDirectory(commandLine.getOptionValue(SAMPLE_DIRECTORY_FLAG, defaults.sampleDirectory()))
                     .sampleId(commandLine.getOptionValue(SAMPLE_ID_FLAG, defaults.sampleId()))
@@ -297,13 +297,6 @@ public class CommandLineOptions {
             return Optional.of(commandLine.getOptionValue(PRIVATE_NETWORK_FLAG));
         }
         return defaults.privateNetwork();
-    }
-
-    private static Optional<String> privateKey(final CommandLine commandLine, final Arguments defaults) {
-        if (commandLine.hasOption(PRIVATE_KEY_FLAG)) {
-            return Optional.of(commandLine.getOptionValue(PRIVATE_KEY_FLAG));
-        }
-        return defaults.privateKeyPath();
     }
 
     private static Optional<String> zone(final CommandLine commandLine, final Arguments defaults) {

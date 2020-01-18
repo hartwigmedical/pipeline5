@@ -1,9 +1,6 @@
 package com.hartwig.bcl2fastq;
 
-import static java.lang.Boolean.parseBoolean;
-
 import com.hartwig.pipeline.CommonArguments;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Option;
@@ -14,8 +11,11 @@ import org.immutables.value.Value;
 @Value.Immutable
 public interface Bcl2fastqArguments extends CommonArguments {
 
-    String INPUT_BUCKET = "input_bucket";
+    String ARCHIVE_BUCKET = "archive_bucket";
+    String ARCHIVE_PRIVATE_KEY_PATH = "archive_private_key_path";
+    String ARCHIVE_PROJECT = "archive_project";
     String FLOWCELL = "flowcell";
+    String INPUT_BUCKET = "input_bucket";
     String OUTPUT_BUCKET = "output_bucket";
     String SBP_API_URL = "sbp_api_url";
 
@@ -23,25 +23,24 @@ public interface Bcl2fastqArguments extends CommonArguments {
 
     String outputBucket();
 
-    String flowcell();
-
-    String sbpApiUrl();
-
     static Bcl2fastqArguments from(String[] args) {
         try {
             CommandLine commandLine = new DefaultParser().parse(options(), args);
             return ImmutableBcl2fastqArguments.builder()
                     .project(commandLine.getOptionValue(PROJECT, "hmf-pipeline-development"))
                     .region(commandLine.getOptionValue(REGION, "europe-west4"))
-                    .useLocalSsds(parseBoolean(commandLine.getOptionValue(LOCAL_SSDS, "true")))
-                    .usePreemptibleVms(parseBoolean(commandLine.getOptionValue(PREEMPTIBLE_VMS, "true")))
-                    .privateKeyPath(commandLine.getOptionValue(PRIVATE_KEY_PATH))
+                    .useLocalSsds(Boolean.parseBoolean(commandLine.getOptionValue(LOCAL_SSDS, "true")))
+                    .usePreemptibleVms(Boolean.parseBoolean(commandLine.getOptionValue(PREEMPTIBLE_VMS, "true")))
+                    .privateKeyPath(CommonArguments.privateKey(commandLine))
                     .cloudSdkPath(commandLine.getOptionValue(CLOUD_SDK, System.getProperty("user.home") + "/gcloud/google-cloud-sdk/bin"))
                     .serviceAccountEmail(commandLine.getOptionValue(SERVICE_ACCOUNT_EMAIL))
                     .flowcell(commandLine.getOptionValue(FLOWCELL))
                     .inputBucket(commandLine.getOptionValue(INPUT_BUCKET))
                     .outputBucket(commandLine.getOptionValue(OUTPUT_BUCKET))
                     .sbpApiUrl(commandLine.getOptionValue(SBP_API_URL))
+                    .archiveBucket(commandLine.getOptionValue(ARCHIVE_BUCKET))
+                    .archivePrivateKeyPath(commandLine.getOptionValue(ARCHIVE_PRIVATE_KEY_PATH))
+                    .archiveProject(commandLine.getOptionValue(ARCHIVE_PROJECT))
                     .build();
         } catch (ParseException e) {
             throw new IllegalArgumentException("Failed to parse arguments", e);
@@ -60,8 +59,23 @@ public interface Bcl2fastqArguments extends CommonArguments {
                 .addOption(stringOption(INPUT_BUCKET, "Location of BCL files to convert"))
                 .addOption(stringOption(OUTPUT_BUCKET, "Location to persist BCL files once converted"))
                 .addOption(stringOption(FLOWCELL, "ID of flowcell from which the BCL files were generated"))
-                .addOption(stringOption(SBP_API_URL, "URL of the SBP metadata api"));
+                .addOption(stringOption(SBP_API_URL, "URL of the SBP metadata api"))
+                .addOption(stringOption(ARCHIVE_BUCKET, "Bucket to archive to on completion"))
+                .addOption(stringOption(ARCHIVE_PRIVATE_KEY_PATH, "Credentials used to perform archiving"))
+                .addOption(stringOption(ARCHIVE_PROJECT, "User project for archival"));
     }
+
+    static ImmutableBcl2fastqArguments.Builder builder() {
+        return ImmutableBcl2fastqArguments.builder();
+    }
+
+    String flowcell();
+
+    String sbpApiUrl();
+
+    String archiveBucket();
+
+    String archivePrivateKeyPath();
 
     private static Option stringOption(final String option, final String description) {
         return Option.builder(option).hasArg().desc(description).build();
@@ -70,4 +84,6 @@ public interface Bcl2fastqArguments extends CommonArguments {
     private static Option booleanOption(final String option, final String description) {
         return Option.builder(option).hasArg().argName("true|false").desc(description).build();
     }
+
+    String archiveProject();
 }

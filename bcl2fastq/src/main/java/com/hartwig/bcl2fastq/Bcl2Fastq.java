@@ -17,9 +17,9 @@ import com.hartwig.pipeline.execution.vm.OutputUpload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
+import com.hartwig.pipeline.storage.GsUtilFacade;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.storage.StorageProvider;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,9 +56,12 @@ class Bcl2Fastq {
         SampleSheet sampleSheet = new SampleSheetCsv(storage.get(arguments.inputBucket()), arguments.flowcell()).read();
         Stats stats = new StatsJson(stringOf(bucket, "/Stats/Stats.json")).stats();
 
-        new OutputCopy(storage, arguments.outputBucket(), bucket).andThen(new FastqMetadataRegistration(sbpFastqMetadataApi,
-                arguments.outputBucket(),
-                stringOf(bucket, "/run.log"))).accept(new ResultAggregation(bucket.getUnderlyingBucket()).apply(sampleSheet, stats));
+        new OutputCopy(storage, arguments.outputBucket(), bucket)
+                .andThen(new FastqMetadataRegistration(sbpFastqMetadataApi, arguments.outputBucket(),
+                        stringOf(bucket, "/run.log")))
+                .andThen(new OutputArchiver(arguments, new GsUtilFacade(arguments.cloudSdkPath(),
+                        arguments.archiveProject(), arguments.archivePrivateKeyPath())))
+                .accept(new ResultAggregation(bucket.getUnderlyingBucket()).apply(sampleSheet, stats));
 
         LOGGER.info("bcl2fastq complete for flowcell [{}]", arguments.flowcell());
     }
@@ -70,7 +73,9 @@ class Bcl2Fastq {
     public static void main(String[] args) {
         try {
             Bcl2fastqArguments arguments = Bcl2fastqArguments.from(args);
-            GoogleCredentials credentials = CredentialProvider.from(arguments).get();
+            GoogleCredentials credentials = arguments.privateKeyPath().isPresent()
+                    ? CredentialProvider.from(arguments).get()
+                    : GoogleCredentials.getApplicationDefault();
             new Bcl2Fastq(StorageProvider.from(arguments, credentials).get(),
                     ComputeEngine.from(arguments, credentials),
                     arguments,
