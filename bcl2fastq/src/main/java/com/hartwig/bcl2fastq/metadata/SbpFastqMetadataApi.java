@@ -55,7 +55,7 @@ public class SbpFastqMetadataApi {
                 try {
                     Response response = samples().request()
                             .post(Entity.entity(objectMapper.writeValueAsString(sample), MediaType.APPLICATION_JSON_TYPE));
-                    if (response.getStatus() == 200) {
+                    if (isCreated(response)) {
                         return findOrCreate(barcode, submission);
                     } else {
                         throw new RuntimeException(String.format("Unable to post new sample [%s] api returned status [%s] and message [%s]",
@@ -70,6 +70,10 @@ public class SbpFastqMetadataApi {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public boolean isCreated(final Response response) {
+        return response.getStatus() == Response.Status.CREATED.getStatusCode();
     }
 
     public void create(SbpFastq fastq) {
@@ -97,7 +101,7 @@ public class SbpFastqMetadataApi {
                 Response response = api().path("lanes")
                         .request()
                         .post(Entity.entity(objectMapper.writeValueAsString(sbpLane), MediaType.APPLICATION_JSON_TYPE));
-                if (response.getStatus() == 200) {
+                if (isCreated(response)) {
                     LOGGER.info("Posting lane for flowcell [{}] with name [{}] complete with status [{}]",
                             sbpLane.flowcell_id(),
                             sbpLane.name(),

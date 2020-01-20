@@ -38,7 +38,6 @@ public class FastqMetadataRegistrationTest {
     private ArgumentCaptor<SbpFlowcell> flowCellUpdateCaptor;
     private ArgumentCaptor<SbpSample> sampleUpdateCaptor;
     private ArgumentCaptor<SbpFastq> sbpFastqArgumentCaptor;
-    private SbpLane sbpLane;
 
     @Before
     public void setUp() {
@@ -73,7 +72,7 @@ public class FastqMetadataRegistrationTest {
                 .build());
         sampleUpdateCaptor = ArgumentCaptor.forClass(SbpSample.class);
         sbpFastqArgumentCaptor = ArgumentCaptor.forClass(SbpFastq.class);
-        sbpLane = SbpLane.builder().flowcell_id(FLOWCELL_ID).name("L001").build();
+        final SbpLane sbpLane = SbpLane.builder().flowcell_id(FLOWCELL_ID).name("L001").build();
         when(sbpApi.findOrCreate(sbpLane)).thenReturn(SbpLane.builder().from(sbpLane).id(LANE_ID).build());
     }
 
@@ -114,6 +113,44 @@ public class FastqMetadataRegistrationTest {
     }
 
     @Test
+    public void existingSampleYieldSummedWithNewFlowcell() {
+        when(sbpApi.findOrCreate(BARCODE, PROJECT)).thenReturn(SbpSample.builder()
+                .id(SAMPLE_ID)
+                .q30(90)
+                .yld(1)
+                .q30_req(Q30_REQ)
+                .yld_req(YLD_REQ)
+                .barcode(BARCODE)
+                .status("")
+                .submission(PROJECT)
+                .build());
+        victim.accept(conversion(EXISTS).addSamples(sample().yield(2_000_000_000L).yieldQ30(2_000_000_000L).build()).build());
+        verify(sbpApi).updateSample(sampleUpdateCaptor.capture());
+        SbpSample result = sampleUpdateCaptor.getValue();
+        assertThat(result.yld()).hasValue(2_000_000_001L);
+        assertThat(result.status()).isEqualTo(SbpSample.STATUS_READY);
+    }
+
+    @Test
+    public void existingSampleQ30ScaledAndAveragedWithNewFlowcell() {
+        when(sbpApi.findOrCreate(BARCODE, PROJECT)).thenReturn(SbpSample.builder()
+                .id(SAMPLE_ID)
+                .q30(80)
+                .yld(100)
+                .q30_req(86)
+                .yld_req(1)
+                .barcode(BARCODE)
+                .status("")
+                .submission(PROJECT)
+                .build());
+        victim.accept(conversion(EXISTS).addSamples(sample().yield(200).yieldQ30(180).build()).build());
+        verify(sbpApi).updateSample(sampleUpdateCaptor.capture());
+        SbpSample result = sampleUpdateCaptor.getValue();
+        assertThat(result.q30()).hasValue(86.66666666666667);
+        assertThat(result.status()).isEqualTo(SbpSample.STATUS_READY);
+    }
+
+    @Test
     public void setsSampleStatusToInsufficientIfYieldLessThanRequired() {
         victim.accept(conversion(EXISTS).addSamples(sample().yield(2_000_000_000).yieldQ30(2_000_000_000).build()).build());
         verify(sbpApi).updateSample(sampleUpdateCaptor.capture());
@@ -133,6 +170,16 @@ public class FastqMetadataRegistrationTest {
                 .yieldQ30(2_000_000_002)
                 .addFastq(fastq().yieldQ30(1).build())
                 .build()).build());
+        verify(sbpApi).create(sbpFastqArgumentCaptor.capture());
+        assertThat(sbpFastqArgumentCaptor.getValue().qc_pass()).isFalse();
+    }
+
+    @Test
+    public void setsQcFailOnFastQWhenFlowcellFails() {
+        victim.accept(conversion(EXISTS).undeterminedReads(7)
+                .totalReads(100)
+                .addSamples(sample().yield(2_000_000_002).yieldQ30(2_000_000_002).addFastq(fastq().build()).build())
+                .build());
         verify(sbpApi).create(sbpFastqArgumentCaptor.capture());
         assertThat(sbpFastqArgumentCaptor.getValue().qc_pass()).isFalse();
     }

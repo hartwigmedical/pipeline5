@@ -1,6 +1,9 @@
 package com.hartwig.bcl2fastq;
 
+import static java.lang.Boolean.parseBoolean;
+
 import com.hartwig.pipeline.CommonArguments;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Option;
@@ -23,14 +26,18 @@ public interface Bcl2fastqArguments extends CommonArguments {
 
     String outputBucket();
 
+    String flowcell();
+
+    String sbpApiUrl();
+
     static Bcl2fastqArguments from(String[] args) {
         try {
             CommandLine commandLine = new DefaultParser().parse(options(), args);
             return ImmutableBcl2fastqArguments.builder()
                     .project(commandLine.getOptionValue(PROJECT, "hmf-pipeline-development"))
                     .region(commandLine.getOptionValue(REGION, "europe-west4"))
-                    .useLocalSsds(Boolean.parseBoolean(commandLine.getOptionValue(LOCAL_SSDS, "true")))
-                    .usePreemptibleVms(Boolean.parseBoolean(commandLine.getOptionValue(PREEMPTIBLE_VMS, "true")))
+                    .useLocalSsds(parseBoolean(commandLine.getOptionValue(LOCAL_SSDS, "true")))
+                    .usePreemptibleVms(parseBoolean(commandLine.getOptionValue(PREEMPTIBLE_VMS, "true")))
                     .privateKeyPath(CommonArguments.privateKey(commandLine))
                     .cloudSdkPath(commandLine.getOptionValue(CLOUD_SDK, System.getProperty("user.home") + "/gcloud/google-cloud-sdk/bin"))
                     .serviceAccountEmail(commandLine.getOptionValue(SERVICE_ACCOUNT_EMAIL))
@@ -41,6 +48,8 @@ public interface Bcl2fastqArguments extends CommonArguments {
                     .archiveBucket(commandLine.getOptionValue(ARCHIVE_BUCKET))
                     .archivePrivateKeyPath(commandLine.getOptionValue(ARCHIVE_PRIVATE_KEY_PATH))
                     .archiveProject(commandLine.getOptionValue(ARCHIVE_PROJECT))
+                    .useLocalSsds(false)
+                    .usePreemptibleVms(false)
                     .build();
         } catch (ParseException e) {
             throw new IllegalArgumentException("Failed to parse arguments", e);
@@ -68,10 +77,6 @@ public interface Bcl2fastqArguments extends CommonArguments {
     static ImmutableBcl2fastqArguments.Builder builder() {
         return ImmutableBcl2fastqArguments.builder();
     }
-
-    String flowcell();
-
-    String sbpApiUrl();
 
     String archiveBucket();
 

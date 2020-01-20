@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.google.api.services.compute.Compute;
+import com.google.api.services.compute.model.AttachedDisk;
 import com.google.api.services.compute.model.Image;
 import com.google.api.services.compute.model.Instance;
 import com.google.api.services.compute.model.InstanceList;
@@ -181,7 +182,6 @@ public class ComputeEngineTest {
         verify(lifecycleManager).delete(FIRST_ZONE_NAME, INSTANCE_NAME);
     }
 
-
     @Test
     public void stopsInstanceWithPersistentDisksUponFailure() {
         Arguments arguments = Arguments.testDefaultsBuilder().useLocalSsds(false).build();
@@ -232,11 +232,11 @@ public class ComputeEngineTest {
 
     @Test
     public void triesMultipleZonesWhenResourcesExhausted() throws Exception {
-        Operation resourcesExhausted = new Operation().setStatus("DONE").setName("insert")
-                .setError(new Operation.Error().setErrors(Collections.singletonList(
-                        new Operation.Error.Errors().setCode(ComputeEngine.ZONE_EXHAUSTED_ERROR_CODE))));
-        when(lifecycleManager.deleteOldInstancesAndStart(instance, FIRST_ZONE_NAME, INSTANCE_NAME))
-                .thenReturn(resourcesExhausted, mock(Operation.class));
+        Operation resourcesExhausted = new Operation().setStatus("DONE")
+                .setName("insert")
+                .setError(new Operation.Error().setErrors(Collections.singletonList(new Operation.Error.Errors().setCode(ComputeEngine.ZONE_EXHAUSTED_ERROR_CODE))));
+        when(lifecycleManager.deleteOldInstancesAndStart(instance, FIRST_ZONE_NAME, INSTANCE_NAME)).thenReturn(resourcesExhausted,
+                mock(Operation.class));
         when(bucketWatcher.currentState(any(), any())).thenReturn(State.STILL_WAITING, State.STILL_WAITING, State.SUCCESS);
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
         verify(lifecycleManager).deleteOldInstancesAndStart(instance, SECOND_ZONE_NAME, INSTANCE_NAME);
@@ -244,11 +244,11 @@ public class ComputeEngineTest {
 
     @Test
     public void triesMultipleZonesWhenUnsupportedOperation() throws Exception {
-        Operation resourcesExhausted = new Operation().setStatus("DONE").setName("insert")
-                .setError(new Operation.Error().setErrors(Collections.singletonList(
-                        new Operation.Error.Errors().setCode(ComputeEngine.UNSUPPORTED_OPERATION_ERROR_CODE))));
-        when(lifecycleManager.deleteOldInstancesAndStart(instance, FIRST_ZONE_NAME, INSTANCE_NAME))
-                .thenReturn(resourcesExhausted, mock(Operation.class));
+        Operation resourcesExhausted = new Operation().setStatus("DONE")
+                .setName("insert")
+                .setError(new Operation.Error().setErrors(Collections.singletonList(new Operation.Error.Errors().setCode(ComputeEngine.UNSUPPORTED_OPERATION_ERROR_CODE))));
+        when(lifecycleManager.deleteOldInstancesAndStart(instance, FIRST_ZONE_NAME, INSTANCE_NAME)).thenReturn(resourcesExhausted,
+                mock(Operation.class));
         when(bucketWatcher.currentState(any(), any())).thenReturn(State.STILL_WAITING, State.STILL_WAITING, State.SUCCESS);
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
         verify(lifecycleManager).deleteOldInstancesAndStart(instance, SECOND_ZONE_NAME, INSTANCE_NAME);
@@ -264,11 +264,50 @@ public class ComputeEngineTest {
     @Test
     public void restartsPreemptedInstanceInNextZone() throws Exception {
         when(lifecycleManager.instanceStatus(any(), any())).thenReturn(ComputeEngine.PREEMPTED_INSTANCE);
-        when(bucketWatcher.currentState(any(), any()))
-                .thenReturn(State.STILL_WAITING, State.STILL_WAITING, State.SUCCESS);
+        when(bucketWatcher.currentState(any(), any())).thenReturn(State.STILL_WAITING, State.STILL_WAITING, State.SUCCESS);
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
         verify(lifecycleManager).deleteOldInstancesAndStart(instance, FIRST_ZONE_NAME, INSTANCE_NAME);
         verify(lifecycleManager).deleteOldInstancesAndStart(instance, SECOND_ZONE_NAME, INSTANCE_NAME);
+    }
+
+    @Test
+    public void attachesLocalSsdsWhenEnabled() throws Exception {
+        returnSuccess();
+        victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
+        ArgumentCaptor<List<AttachedDisk>> disksCaptor = ArgumentCaptor.forClass(List.class);
+        verify(instance).setDisks(disksCaptor.capture());
+        List<AttachedDisk> disks = disksCaptor.getValue();
+        assertThat(disks).hasSize(5);
+        assertThat(disks.get(0).getInitializeParams().getDiskType()).isEqualTo(
+                "https://www.googleapis.com/compute/v1/projects/hmf-pipeline-development/zones/europe-west4-a/diskTypes/pd-ssd");
+        assertThat(disks.get(0).getInitializeParams().getDiskSizeGb()).isEqualTo(100L);
+        isLocalSSD(disks.get(1));
+        isLocalSSD(disks.get(2));
+        isLocalSSD(disks.get(3));
+        isLocalSSD(disks.get(4));
+    }
+
+    @Test
+    public void attachesTwoPersisentDisksWhenLocalSSDDisabled() throws Exception {
+        victim = new ComputeEngine(Arguments.builder().from(ARGUMENTS).useLocalSsds(false).build(), compute, z -> {
+        }, lifecycleManager, bucketWatcher);
+        returnSuccess();
+        victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
+        ArgumentCaptor<List<AttachedDisk>> disksCaptor = ArgumentCaptor.forClass(List.class);
+        verify(instance).setDisks(disksCaptor.capture());
+        List<AttachedDisk> disks = disksCaptor.getValue();
+        assertThat(disks).hasSize(2);
+        assertThat(disks.get(0).getInitializeParams().getDiskType()).isEqualTo(
+                "https://www.googleapis.com/compute/v1/projects/hmf-pipeline-development/zones/europe-west4-a/diskTypes/pd-ssd");
+        assertThat(disks.get(0).getInitializeParams().getDiskSizeGb()).isEqualTo(100L);
+        assertThat(disks.get(1).getInitializeParams().getDiskType()).isEqualTo(
+                "https://www.googleapis.com/compute/v1/projects/hmf-pipeline-development/zones/europe-west4-a/diskTypes/pd-ssd");
+        assertThat(disks.get(1).getInitializeParams().getDiskSizeGb()).isEqualTo(900L);
+    }
+
+    public void isLocalSSD(final AttachedDisk disk) {
+        assertThat(disk.getInitializeParams().getDiskType()).isEqualTo(
+                "https://www.googleapis.com/compute/v1/projects/hmf-pipeline-development/zones/europe-west4-a/diskTypes/local-ssd");
     }
 
     private void returnSuccess() throws IOException {
