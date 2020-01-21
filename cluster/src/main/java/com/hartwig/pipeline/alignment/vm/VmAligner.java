@@ -1,25 +1,10 @@
 package com.hartwig.pipeline.alignment.vm;
 
-import static java.lang.String.format;
-
-import static com.hartwig.pipeline.alignment.AlignmentOutputPaths.bai;
-import static com.hartwig.pipeline.alignment.AlignmentOutputPaths.bam;
-import static com.hartwig.pipeline.alignment.AlignmentOutputPaths.sorted;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
-import java.util.stream.Collectors;
-
 import com.google.cloud.storage.Storage;
 import com.hartwig.patient.Lane;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
-import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.alignment.AlignmentOutputStorage;
 import com.hartwig.pipeline.alignment.ExistingAlignment;
@@ -42,7 +27,22 @@ import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.storage.SampleUpload;
 import com.hartwig.pipeline.trace.StageTrace;
 
-public class VmAligner implements Aligner {
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.stream.Collectors;
+
+import static com.hartwig.pipeline.alignment.AlignmentOutputPaths.bai;
+import static com.hartwig.pipeline.alignment.AlignmentOutputPaths.bam;
+import static com.hartwig.pipeline.alignment.AlignmentOutputPaths.sorted;
+import static java.lang.String.format;
+
+public class VmAligner {
+
+    public static String NAMESPACE = "aligner";
 
     private final Arguments arguments;
     private final ComputeEngine computeEngine;
@@ -53,9 +53,9 @@ public class VmAligner implements Aligner {
     private final AlignmentOutputStorage alignmentOutputStorage;
     private final ExecutorService executorService;
 
-    public VmAligner(final Arguments arguments, final ComputeEngine computeEngine, final Storage storage, final SampleSource sampleSource,
-            final SampleUpload sampleUpload, final ResultsDirectory resultsDirectory, final AlignmentOutputStorage alignmentOutputStorage,
-            final ExecutorService executorService) {
+    public VmAligner(final Arguments arguments, final ComputeEngine computeEngine, final Storage storage,
+                     final SampleSource sampleSource, final SampleUpload sampleUpload, final ResultsDirectory resultsDirectory,
+                     final AlignmentOutputStorage alignmentOutputStorage, final ExecutorService executorService) {
         this.arguments = arguments;
         this.computeEngine = computeEngine;
         this.storage = storage;
@@ -66,7 +66,6 @@ public class VmAligner implements Aligner {
         this.executorService = executorService;
     }
 
-    @Override
     public AlignmentOutput run(final SingleSampleRunMetadata metadata) throws Exception {
         if (!arguments.runAligner()) {
             return ExistingAlignment.find(metadata, alignmentOutputStorage, arguments);
@@ -143,13 +142,13 @@ public class VmAligner implements Aligner {
                     .addAllReportComponents(laneLogComponents)
                     .addReportComponents(new RunLogComponent(rootBucket, VmAligner.NAMESPACE, Folder.from(metadata), resultsDirectory))
                     .addReportComponents(new SingleFileComponent(rootBucket,
-                                    Aligner.NAMESPACE,
+                                    VmAligner.NAMESPACE,
                                     Folder.from(metadata),
                                     sorted(metadata.sampleName()),
                                     bam(metadata.sampleName()),
                                     resultsDirectory),
                             new SingleFileComponent(rootBucket,
-                                    Aligner.NAMESPACE,
+                                    VmAligner.NAMESPACE,
                                     Folder.from(metadata),
                                     bai(sorted(metadata.sampleName())),
                                     bai(bam(metadata.sampleName())),

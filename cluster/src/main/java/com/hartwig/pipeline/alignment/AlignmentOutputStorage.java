@@ -1,17 +1,17 @@
 package com.hartwig.pipeline.alignment;
 
-import java.util.Optional;
-
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
+import com.hartwig.pipeline.alignment.vm.VmAligner;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
-
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Optional;
 
 public class AlignmentOutputStorage {
 
@@ -26,7 +26,7 @@ public class AlignmentOutputStorage {
     }
 
     public Optional<AlignmentOutput> get(SingleSampleRunMetadata metadata) {
-        RuntimeBucket bucket = RuntimeBucket.from(storage, Aligner.NAMESPACE, metadata, arguments);
+        RuntimeBucket bucket = RuntimeBucket.from(storage, VmAligner.NAMESPACE, metadata, arguments);
         String sorted = AlignmentOutputPaths.sorted(metadata.sampleName());
         Blob bamBlob = bucket.get(resultsDirectory.path(sorted));
         Blob baiBlob = bucket.get(resultsDirectory.path(AlignmentOutputPaths.bai(sorted)));
@@ -43,6 +43,6 @@ public class AlignmentOutputStorage {
 
     @NotNull
     private GoogleStorageLocation location(final RuntimeBucket bucket, final Blob blob) {
-        return GoogleStorageLocation.of(bucket.name(), blob.getName().replace(Aligner.NAMESPACE + "/", ""));
+        return GoogleStorageLocation.of(bucket.name(), blob.getName().replace(VmAligner.NAMESPACE + "/", ""));
     }
 }

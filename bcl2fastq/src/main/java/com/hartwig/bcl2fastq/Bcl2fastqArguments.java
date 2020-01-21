@@ -1,15 +1,14 @@
 package com.hartwig.bcl2fastq;
 
-import static java.lang.Boolean.parseBoolean;
-
 import com.hartwig.pipeline.CommonArguments;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.immutables.value.Value;
+
+import static java.lang.Boolean.parseBoolean;
 
 @Value.Immutable
 public interface Bcl2fastqArguments extends CommonArguments {
@@ -19,12 +18,15 @@ public interface Bcl2fastqArguments extends CommonArguments {
     String ARCHIVE_PROJECT = "archive_project";
     String FLOWCELL = "flowcell";
     String INPUT_BUCKET = "input_bucket";
-    String OUTPUT_BUCKET = "output_bucket";
     String SBP_API_URL = "sbp_api_url";
 
-    String inputBucket();
+    String archiveBucket();
 
-    String outputBucket();
+    String archivePrivateKeyPath();
+
+    String archiveProject();
+
+    String inputBucket();
 
     String flowcell();
 
@@ -43,7 +45,6 @@ public interface Bcl2fastqArguments extends CommonArguments {
                     .serviceAccountEmail(commandLine.getOptionValue(SERVICE_ACCOUNT_EMAIL))
                     .flowcell(commandLine.getOptionValue(FLOWCELL))
                     .inputBucket(commandLine.getOptionValue(INPUT_BUCKET))
-                    .outputBucket(commandLine.getOptionValue(OUTPUT_BUCKET))
                     .sbpApiUrl(commandLine.getOptionValue(SBP_API_URL))
                     .archiveBucket(commandLine.getOptionValue(ARCHIVE_BUCKET))
                     .archivePrivateKeyPath(commandLine.getOptionValue(ARCHIVE_PRIVATE_KEY_PATH))
@@ -66,7 +67,6 @@ public interface Bcl2fastqArguments extends CommonArguments {
                 .addOption(stringOption(STORAGE_KEY_PATH, "Path to JSON file containing source storage credentials"))
                 .addOption(stringOption(SERVICE_ACCOUNT_EMAIL, "Email of service account"))
                 .addOption(stringOption(INPUT_BUCKET, "Location of BCL files to convert"))
-                .addOption(stringOption(OUTPUT_BUCKET, "Location to persist BCL files once converted"))
                 .addOption(stringOption(FLOWCELL, "ID of flowcell from which the BCL files were generated"))
                 .addOption(stringOption(SBP_API_URL, "URL of the SBP metadata api"))
                 .addOption(stringOption(ARCHIVE_BUCKET, "Bucket to archive to on completion"))
@@ -78,10 +78,6 @@ public interface Bcl2fastqArguments extends CommonArguments {
         return ImmutableBcl2fastqArguments.builder();
     }
 
-    String archiveBucket();
-
-    String archivePrivateKeyPath();
-
     private static Option stringOption(final String option, final String description) {
         return Option.builder(option).hasArg().desc(description).build();
     }
@@ -90,5 +86,4 @@ public interface Bcl2fastqArguments extends CommonArguments {
         return Option.builder(option).hasArg().argName("true|false").desc(description).build();
     }
 
-    String archiveProject();
 }
