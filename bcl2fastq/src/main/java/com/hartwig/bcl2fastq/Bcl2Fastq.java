@@ -20,9 +20,9 @@ import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.storage.GSUtil;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
+import com.hartwig.pipeline.storage.GsUtilFacade;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.storage.StorageProvider;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,9 +62,11 @@ class Bcl2Fastq {
         SampleSheet sampleSheet = new SampleSheetCsv(storage.get(arguments.inputBucket()), arguments.flowcell()).read();
         Stats stats = new StatsJson(stringOf(bucket, "/Stats/Stats.json")).stats();
 
-        new OutputCopy(storage, arguments.outputBucket(), bucket).andThen(new FastqMetadataRegistration(sbpFastqMetadataApi,
-                arguments.outputBucket(),
-                stringOf(bucket, "/run.log"))).accept(new ResultAggregation(bucket, resultsDirectory).apply(sampleSheet, stats));
+        new FastqMetadataRegistration(sbpFastqMetadataApi, arguments.outputBucket(),
+                stringOf(bucket, "/run.log"))
+                .andThen(new OutputCopier(arguments, bucket, new GsUtilFacade(arguments.cloudSdkPath(),
+                        arguments.outputProject(), arguments.outputPrivateKeyPath())))
+                .accept(new ResultAggregation(bucket, resultsDirectory).apply(sampleSheet, stats));
 
         GSUtil.rm(arguments.cloudSdkPath(), bucket.runId());
         LOGGER.info("bcl2fastq complete for flowcell [{}]", arguments.flowcell());

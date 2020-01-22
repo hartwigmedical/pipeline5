@@ -2,6 +2,7 @@ package com.hartwig.pipeline.storage;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -25,7 +26,12 @@ public class GSUtil {
         cp(gsdkPath, sourceUrl, targetUrl, null, false);
     }
 
-    public static void cp(String gsdkPath, String sourceUrl, String targetUrl, String userProject, boolean recurse)
+    public static void cp(String gsdkPath, String sourceUrl, String targetUrl, String userProject, String... switches)
+            throws IOException, InterruptedException {
+        cp(gsdkPath, sourceUrl, targetUrl, userProject, false, switches);
+    }
+
+    public static void cp(String gsdkPath, String sourceUrl, String targetUrl, String userProject, boolean recurse, String... switches)
             throws IOException, InterruptedException {
         List<String> command = new ArrayList<>();
         command.add(gsutil(gsdkPath));
@@ -34,6 +40,7 @@ public class GSUtil {
             command.add(userProject);
         }
         command.add("-qm");
+        command.addAll(Arrays.asList(switches));
         command.add("cp");
         if (recurse) {
             command.add("-r");

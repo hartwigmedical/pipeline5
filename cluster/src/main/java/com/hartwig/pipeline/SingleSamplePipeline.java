@@ -1,11 +1,7 @@
 package com.hartwig.pipeline;
 
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
-
-import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
+import com.hartwig.pipeline.alignment.vm.VmAligner;
 import com.hartwig.pipeline.calling.germline.GermlineCaller;
 import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
 import com.hartwig.pipeline.flagstat.Flagstat;
@@ -18,9 +14,12 @@ import com.hartwig.pipeline.report.PipelineResults;
 import com.hartwig.pipeline.snpgenotype.SnpGenotype;
 import com.hartwig.pipeline.snpgenotype.SnpGenotypeOutput;
 import com.hartwig.pipeline.stages.StageRunner;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 public class SingleSamplePipeline {
 
@@ -28,15 +27,15 @@ public class SingleSamplePipeline {
 
     private final SingleSampleEventListener eventListener;
     private final StageRunner<SingleSampleRunMetadata> stageRunner;
-    private final Aligner aligner;
+    private final VmAligner aligner;
     private final PipelineResults report;
     private final ExecutorService executorService;
     private final Boolean isStandalone;
     private final Arguments arguments;
 
     SingleSamplePipeline(final SingleSampleEventListener sampleMetadataApi, final StageRunner<SingleSampleRunMetadata> stageRunner,
-            final Aligner aligner, final PipelineResults report, final ExecutorService executorService, final Boolean isStandalone,
-            final Arguments arguments) {
+                         final VmAligner aligner, final PipelineResults report, final ExecutorService executorService, final Boolean isStandalone,
+                         final Arguments arguments) {
         this.eventListener = sampleMetadataApi;
         this.stageRunner = stageRunner;
         this.aligner = aligner;
