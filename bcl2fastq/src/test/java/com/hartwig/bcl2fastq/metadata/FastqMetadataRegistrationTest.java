@@ -230,6 +230,6 @@ public class FastqMetadataRegistrationTest {
         victim.accept(conversion(EXISTS).build());
         assertThat(flowCellUpdateCaptor.getValue().undet_rds_p_pass()).isTrue();
         assertThat(flowCellUpdateCaptor.getAllValues().get(0).status()).isEqualTo(SbpFlowcell.STATUS_CONVERTED);
-        assertThat(flowCellUpdateCaptor.getAllValues().get(1).convertTime()).isEqualTo(NEW_TIMESTAMP);
+        assertThat(flowCellUpdateCaptor.getAllValues().get(1).convertTime()).hasValue(NEW_TIMESTAMP);
     }
 }
