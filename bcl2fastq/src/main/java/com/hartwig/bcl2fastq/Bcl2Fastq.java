@@ -50,7 +50,7 @@ class Bcl2Fastq {
         FlowcellMetadata metadata = FlowcellMetadata.from(arguments);
         RuntimeBucket bucket = RuntimeBucket.from(storage, "bcl2fastq", metadata, arguments);
         BashStartupScript bash = BashStartupScript.of(bucket.name());
-        BclDownload bclDownload = new BclDownload(arguments.inputBucket(), arguments.flowcell());
+        BclDownload bclDownload = new BclDownload(storage.get(arguments.inputBucket()), arguments.flowcell());
         VirtualMachineJobDefinition jobDefinition = jobDefinition(bash);
         bash.addCommand(bclDownload)
                 .addCommand(new Bcl2FastqCommand(bclDownload.getLocalTargetPath(),

@@ -1,7 +1,9 @@
 import json
 import os
-import requests
 import time
+
+import requests
+
 
 def log(msg):
     print (time.strftime('[%Y-%m-%d %H:%M:%S] ') + str(msg))
@@ -125,6 +127,6 @@ class HmfApi(object):
 class Flowcell(HmfApi):
     def __init__(self):
         self._type      = 'flowcells'
-        self._keys      = ['name']
+        self._keys      = ['flowcell_id']
         super(Flowcell, self).__init__()
 

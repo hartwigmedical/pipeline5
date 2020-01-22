@@ -1,12 +1,9 @@
 #!/usr/bin/python
 
-import json
-import kubernetes
-import os
-import requests
 import sys
-import time
 import traceback
+
+import kubernetes
 
 from HmfApi import *
 
@@ -96,7 +93,7 @@ def start_kubernetes_job(args):
 
 
 def main():
-    flowcells = HmfApi().get_all(Flowcell, {'status': 'Ready'})
+    flowcells = HmfApi().get_all(Flowcell, {'status': 'Pending'})
     max_starts = int(os.getenv('MAX_STARTS', '4'))
 
     if len(flowcells) > 0:
@@ -104,7 +101,7 @@ def main():
         del(flowcells[max_starts:])
         for flowcell in flowcells:
 
-            start_kubernetes_job({'flowcell': flowcell.name })
+            start_kubernetes_job({'flowcell': flowcell.flowcell_id })
 
             phone_home('Starting bcl2fastq {0} for flowcell {1}'.format(os.environ['PIPELINE_VERSION'], flowcell.name))
 

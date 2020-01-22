@@ -36,12 +36,12 @@ public class SbpFastqMetadataApi {
         this.target = target;
     }
 
-    public SbpFlowcell getFlowcell(String name) {
+    public SbpFlowcell getFlowcell(String id) {
         try {
-            return findOne(api().path(FLOWCELLS).queryParam("name", name).request(), new TypeReference<List<SbpFlowcell>>() {
+            return findOne(api().path(FLOWCELLS).queryParam("flowcell_id", id).request(), new TypeReference<List<SbpFlowcell>>() {
             }).orElseThrow(() -> new IllegalArgumentException(String.format(
-                    "No flowcell found for experiment name [%s] Has it been registered with the SBP API?",
-                    name)));
+                    "No flowcell found for id [%s] Has it been registered with the SBP API?",
+                    id)));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
