@@ -1,18 +1,15 @@
 package com.hartwig.batch;
 
-import static java.lang.Boolean.parseBoolean;
-import static java.lang.String.format;
-
-import java.util.Optional;
-
 import com.hartwig.pipeline.CommonArguments;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.immutables.value.Value;
+
+import static java.lang.Boolean.parseBoolean;
+import static java.lang.String.format;
 
 @Value.Immutable
 public interface BatchArguments extends CommonArguments {
@@ -44,7 +41,7 @@ public interface BatchArguments extends CommonArguments {
                     .region(commandLine.getOptionValue(REGION, "europe-west4"))
                     .useLocalSsds(parseBoolean(commandLine.getOptionValue(LOCAL_SSDS, "true")))
                     .usePreemptibleVms(parseBoolean(commandLine.getOptionValue(PREEMPTIBLE_VMS, "true")))
-                    .privateKeyPath(privateKey(commandLine))
+                    .privateKeyPath(CommonArguments.privateKey(commandLine))
                     .cloudSdkPath(commandLine.getOptionValue(CLOUD_SDK, "/usr/bin"))
                     .serviceAccountEmail(commandLine.getOptionValue(SERVICE_ACCOUNT_EMAIL))
                     .concurrency(Integer.parseInt(commandLine.getOptionValue(CONCURRENCY, "100")))
@@ -59,14 +56,6 @@ public interface BatchArguments extends CommonArguments {
             throw new IllegalArgumentException(message, e);
         }
     }
-
-    private static Optional<String> privateKey(CommandLine commandLine) {
-        if (commandLine.hasOption(PRIVATE_KEY_PATH)) {
-            return Optional.of(commandLine.getOptionValue(PRIVATE_KEY_PATH));
-        }
-        return Optional.empty();
-    }
-
 
     private static void usage() {
         System.err.println("\nRecognised options:");
