@@ -19,10 +19,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-public class OutputArchiverTest {
+public class OutputCopierTest {
     private Bcl2fastqArguments arguments;
     private GsUtilFacade gsUtil;
-    private OutputArchiver victim;
+    private OutputCopier victim;
     private RuntimeBucket runtimeBucket;
     private String runtimeBucketName;
     private String runtimePath;
@@ -33,7 +33,7 @@ public class OutputArchiverTest {
         gsUtil = mock(GsUtilFacade.class);
         runtimeBucket = mock(RuntimeBucket.class);
         runtimePath = "results/directory";
-        victim = new OutputArchiver(arguments, runtimeBucket, gsUtil);
+        victim = new OutputCopier(arguments, runtimeBucket, gsUtil);
     }
 
     @Test
@@ -44,7 +44,7 @@ public class OutputArchiverTest {
     }
 
     @Test
-    public void shouldArchiveBothOutputFilesFromEachConvertedFastq() {
+    public void shouldCopyBothOutputFilesFromEachConvertedFastq() {
         String fastqaPathR1 = "fastqaPathR1";
         String fastqaPathR2 = "fastqaPathR2";
         String fastqbPathR1 = "fastqbPathR1";
@@ -89,15 +89,15 @@ public class OutputArchiverTest {
 
     private void verifyCopy(String source) {
         verify(gsUtil).copy(format("gs://%s/%s/%s", runtimeBucketName, runtimePath, source),
-                format("gs://%s/%s", arguments.archiveBucket(), source));
+                format("gs://%s/%s", arguments.outputBucket(), source));
     }
 
     private Bcl2fastqArguments arguments() {
         List<String> withValues = new ArrayList<>();
         ImmutableList.of(Bcl2fastqArguments.INPUT_BUCKET,
                 Bcl2fastqArguments.PRIVATE_KEY_PATH, Bcl2fastqArguments.SERVICE_ACCOUNT_EMAIL,
-                Bcl2fastqArguments.FLOWCELL, Bcl2fastqArguments.SBP_API_URL, Bcl2fastqArguments.ARCHIVE_BUCKET,
-                Bcl2fastqArguments.ARCHIVE_PRIVATE_KEY_PATH, Bcl2fastqArguments.ARCHIVE_PROJECT).forEach(s -> {
+                Bcl2fastqArguments.FLOWCELL, Bcl2fastqArguments.SBP_API_URL, Bcl2fastqArguments.OUTPUT_BUCKET,
+                Bcl2fastqArguments.OUTPUT_PRIVATE_KEY_PATH, Bcl2fastqArguments.OUTPUT_PROJECT).forEach(s -> {
             withValues.add("-" + s);
             withValues.add("empty");
         });

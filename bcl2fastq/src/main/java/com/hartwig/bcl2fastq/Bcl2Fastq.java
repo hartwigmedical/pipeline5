@@ -62,10 +62,10 @@ class Bcl2Fastq {
         SampleSheet sampleSheet = new SampleSheetCsv(storage.get(arguments.inputBucket()), arguments.flowcell()).read();
         Stats stats = new StatsJson(stringOf(bucket, "/Stats/Stats.json")).stats();
 
-        new FastqMetadataRegistration(sbpFastqMetadataApi, arguments.archiveBucket(),
+        new FastqMetadataRegistration(sbpFastqMetadataApi, arguments.outputBucket(),
                 stringOf(bucket, "/run.log"))
-                .andThen(new OutputArchiver(arguments, bucket, new GsUtilFacade(arguments.cloudSdkPath(),
-                        arguments.archiveProject(), arguments.archivePrivateKeyPath())))
+                .andThen(new OutputCopier(arguments, bucket, new GsUtilFacade(arguments.cloudSdkPath(),
+                        arguments.outputProject(), arguments.outputPrivateKeyPath())))
                 .accept(new ResultAggregation(bucket, resultsDirectory).apply(sampleSheet, stats));
 
         GSUtil.rm(arguments.cloudSdkPath(), bucket.runId());

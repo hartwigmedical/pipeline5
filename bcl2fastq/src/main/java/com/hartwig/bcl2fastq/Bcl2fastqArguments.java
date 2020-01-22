@@ -13,24 +13,12 @@ import static java.lang.Boolean.parseBoolean;
 @Value.Immutable
 public interface Bcl2fastqArguments extends CommonArguments {
 
-    String ARCHIVE_BUCKET = "archive_bucket";
-    String ARCHIVE_PRIVATE_KEY_PATH = "archive_private_key_path";
-    String ARCHIVE_PROJECT = "archive_project";
+    String OUTPUT_BUCKET = "output_bucket";
+    String OUTPUT_PRIVATE_KEY_PATH = "output_private_key_path";
+    String OUTPUT_PROJECT = "output_project";
     String FLOWCELL = "flowcell";
     String INPUT_BUCKET = "input_bucket";
     String SBP_API_URL = "sbp_api_url";
-
-    String archiveBucket();
-
-    String archivePrivateKeyPath();
-
-    String archiveProject();
-
-    String inputBucket();
-
-    String flowcell();
-
-    String sbpApiUrl();
 
     static Bcl2fastqArguments from(String[] args) {
         try {
@@ -46,9 +34,9 @@ public interface Bcl2fastqArguments extends CommonArguments {
                     .flowcell(commandLine.getOptionValue(FLOWCELL))
                     .inputBucket(commandLine.getOptionValue(INPUT_BUCKET))
                     .sbpApiUrl(commandLine.getOptionValue(SBP_API_URL))
-                    .archiveBucket(commandLine.getOptionValue(ARCHIVE_BUCKET))
-                    .archivePrivateKeyPath(commandLine.getOptionValue(ARCHIVE_PRIVATE_KEY_PATH))
-                    .archiveProject(commandLine.getOptionValue(ARCHIVE_PROJECT))
+                    .outputBucket(commandLine.getOptionValue(OUTPUT_BUCKET))
+                    .outputPrivateKeyPath(commandLine.getOptionValue(OUTPUT_PRIVATE_KEY_PATH))
+                    .outputProject(commandLine.getOptionValue(OUTPUT_PROJECT))
                     .useLocalSsds(false)
                     .usePreemptibleVms(false)
                     .build();
@@ -69,10 +57,22 @@ public interface Bcl2fastqArguments extends CommonArguments {
                 .addOption(stringOption(INPUT_BUCKET, "Location of BCL files to convert"))
                 .addOption(stringOption(FLOWCELL, "ID of flowcell from which the BCL files were generated"))
                 .addOption(stringOption(SBP_API_URL, "URL of the SBP metadata api"))
-                .addOption(stringOption(ARCHIVE_BUCKET, "Bucket to archive to on completion"))
-                .addOption(stringOption(ARCHIVE_PRIVATE_KEY_PATH, "Credentials used to perform archiving"))
-                .addOption(stringOption(ARCHIVE_PROJECT, "User project for archival"));
+                .addOption(stringOption(OUTPUT_BUCKET, "Bucket to copy to on completion"))
+                .addOption(stringOption(OUTPUT_PRIVATE_KEY_PATH, "Credentials used to copy output"))
+                .addOption(stringOption(OUTPUT_PROJECT, "User project for output copying"));
     }
+
+    String outputBucket();
+
+    String inputBucket();
+
+    String flowcell();
+
+    String sbpApiUrl();
+
+    String outputPrivateKeyPath();
+
+    String outputProject();
 
     static ImmutableBcl2fastqArguments.Builder builder() {
         return ImmutableBcl2fastqArguments.builder();
