@@ -6,7 +6,7 @@ import com.hartwig.pipeline.storage.GoogleStorageLocation;
 
 public class BclDownload extends InputDownload {
 
-    public BclDownload(final Bucket bclBucket, final String flowcellIdentifier) {
-        super(GoogleStorageLocation.of(bclBucket.getName(), InputPath.resolve(bclBucket, flowcellIdentifier), true));
+    public BclDownload(final Bucket bclBucket, final String flowcellPath) {
+        super(GoogleStorageLocation.of(bclBucket.getName(), flowcellPath, true));
     }
 }
