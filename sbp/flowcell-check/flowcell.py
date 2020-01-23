@@ -113,7 +113,7 @@ def main():
 
             start_kubernetes_job({'flowcell': flowcell.flowcell_id })
 
-            phone_home('Starting bcl2fastq {0} for flowcell {1}'.format(os.environ['PIPELINE_VERSION'], flowcell.name))
+            phone_home('Starting bcl2fastq {0} for flowcell {1}'.format(os.environ['PIPELINE_VERSION'], flowcell.flowcell_id))
 
             flowcell.status = 'Conversion Started'
             flowcell.save()
