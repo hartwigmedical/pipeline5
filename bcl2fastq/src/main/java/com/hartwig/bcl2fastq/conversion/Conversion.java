@@ -5,7 +5,7 @@ import java.util.List;
 import org.immutables.value.Value;
 
 @Value.Immutable
-public interface Conversion {
+public interface Conversion extends WithYieldAndQ30 {
 
     String flowcell();
 
@@ -13,9 +13,20 @@ public interface Conversion {
 
     long totalReads();
 
+    @Value.Derived
+    @Override
+    default long yield() {
+        return totalReads();
+    }
+
+    @Value.Derived
+    default long yieldQ30() {
+        return samples().stream().mapToLong(WithYieldAndQ30::yieldQ30).sum();
+    }
+
     List<ConvertedSample> samples();
 
-    static ImmutableConversion.Builder builder(){
-       return ImmutableConversion.builder();
+    static ImmutableConversion.Builder builder() {
+        return ImmutableConversion.builder();
     }
 }

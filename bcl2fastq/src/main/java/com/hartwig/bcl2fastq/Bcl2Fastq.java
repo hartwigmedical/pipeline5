@@ -24,6 +24,7 @@ import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.GsUtilFacade;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.storage.StorageProvider;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,13 +66,15 @@ class Bcl2Fastq {
         SampleSheet sampleSheet = new SampleSheetCsv(inputBucket, flowcellPath).read();
         Stats stats = new StatsJson(stringOf(bucket, "/Stats/Stats.json")).stats();
 
-        new FastqMetadataRegistration(sbpFastqMetadataApi, arguments.outputBucket(),
-                stringOf(bucket, "/run.log"))
-                .andThen(new OutputCopier(arguments, bucket, new GsUtilFacade(arguments.cloudSdkPath(),
-                        arguments.outputProject(), arguments.outputPrivateKeyPath())))
+        new FastqMetadataRegistration(sbpFastqMetadataApi, arguments.outputBucket(), stringOf(bucket, "/run.log")).andThen(new OutputCopier(
+                arguments,
+                bucket,
+                new GsUtilFacade(arguments.cloudSdkPath(), arguments.outputProject(), arguments.outputPrivateKeyPath())))
                 .accept(new ResultAggregation(bucket, resultsDirectory).apply(sampleSheet, stats));
 
-        GSUtil.rm(arguments.cloudSdkPath(), bucket.runId());
+        if (arguments.cleanup()) {
+            GSUtil.rm(arguments.cloudSdkPath(), bucket.runId());
+        }
         LOGGER.info("bcl2fastq complete for flowcell [{}]", arguments.flowcell());
     }
 

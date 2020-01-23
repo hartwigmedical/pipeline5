@@ -1,14 +1,15 @@
 package com.hartwig.bcl2fastq;
 
+import static java.lang.Boolean.parseBoolean;
+
 import com.hartwig.pipeline.CommonArguments;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.immutables.value.Value;
-
-import static java.lang.Boolean.parseBoolean;
 
 @Value.Immutable
 public interface Bcl2fastqArguments extends CommonArguments {
@@ -19,6 +20,7 @@ public interface Bcl2fastqArguments extends CommonArguments {
     String FLOWCELL = "flowcell";
     String INPUT_BUCKET = "input_bucket";
     String SBP_API_URL = "sbp_api_url";
+    String CLEANUP = "cleanup";
 
     static Bcl2fastqArguments from(String[] args) {
         try {
@@ -37,6 +39,7 @@ public interface Bcl2fastqArguments extends CommonArguments {
                     .outputBucket(commandLine.getOptionValue(OUTPUT_BUCKET))
                     .outputPrivateKeyPath(commandLine.getOptionValue(OUTPUT_PRIVATE_KEY_PATH))
                     .outputProject(commandLine.getOptionValue(OUTPUT_PROJECT))
+                    .cleanup(parseBoolean(commandLine.getOptionValue(CLEANUP, "true")))
                     .useLocalSsds(false)
                     .usePreemptibleVms(false)
                     .build();
@@ -51,6 +54,7 @@ public interface Bcl2fastqArguments extends CommonArguments {
                 .addOption(stringOption(CLOUD_SDK, "Local directory containing gcloud command"))
                 .addOption(booleanOption(LOCAL_SSDS, "Whether to use local SSDs for better performance and lower cost"))
                 .addOption(booleanOption(PREEMPTIBLE_VMS, "Use pre-emptible VMs to lower cost"))
+                .addOption(booleanOption(CLEANUP, "Cleanup runtime bucket when conversion completes."))
                 .addOption(stringOption(PRIVATE_KEY_PATH, "Path to JSON file containing compute and storage output credentials"))
                 .addOption(stringOption(STORAGE_KEY_PATH, "Path to JSON file containing source storage credentials"))
                 .addOption(stringOption(SERVICE_ACCOUNT_EMAIL, "Email of service account"))
@@ -73,6 +77,8 @@ public interface Bcl2fastqArguments extends CommonArguments {
     String outputPrivateKeyPath();
 
     String outputProject();
+
+    boolean cleanup();
 
     static ImmutableBcl2fastqArguments.Builder builder() {
         return ImmutableBcl2fastqArguments.builder();

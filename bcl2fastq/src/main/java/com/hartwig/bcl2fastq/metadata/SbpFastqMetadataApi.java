@@ -55,7 +55,7 @@ public class SbpFastqMetadataApi {
                 try {
                     Response response = samples().request()
                             .post(Entity.entity(objectMapper.writeValueAsString(sample), MediaType.APPLICATION_JSON_TYPE));
-                    if (isCreated(response)) {
+                    if (isSuccessful(response)) {
                         return findOrCreate(barcode, submission);
                     } else {
                         throw new RuntimeException(String.format("Unable to post new sample [%s] api returned status [%s] and message [%s]",
@@ -72,19 +72,43 @@ public class SbpFastqMetadataApi {
         }
     }
 
-    public boolean isCreated(final Response response) {
-        return response.getStatus() == Response.Status.CREATED.getStatusCode();
+    public boolean isSuccessful(final Response response) {
+        return response.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL;
     }
 
     public void create(SbpFastq fastq) {
         try {
-            String fastqJson = objectMapper.writeValueAsString(fastq);
-            Response response = fastq().request().post(Entity.entity(fastqJson, MediaType.APPLICATION_JSON_TYPE));
-            LOGGER.info("Posting fastq for sample [{}] and lane [{}] complete with status [{}]",
-                    fastq.sample_id(),
-                    fastq.lane_id(),
-                    response.getStatus());
-        } catch (JsonProcessingException e) {
+            Optional<SbpFastq> existing =
+                    objectMapper.<List<SbpFastq>>readValue(returnOrThrow(fastq().queryParam("sample_id", fastq.sample_id())
+                            .request()
+                            .get()), new TypeReference<List<SbpFastq>>() {
+                    }).stream()
+                            .filter(f -> f.lane_id() == fastq.lane_id())
+                            .filter(f -> f.bucket().equals(fastq.bucket()))
+                            .filter(f -> f.name_r1().equals(fastq.name_r1()))
+                            .filter(f -> f.name_r2().equals(fastq.name_r2()))
+                            .findFirst();
+
+            if (existing.isPresent()) {
+                SbpFastq update = SbpFastq.builder().from(fastq).id(existing.get().id()).build();
+                String fastqJson = objectMapper.writeValueAsString(update);
+                Response response = fastq().path(existing.get().id().orElseThrow().toString())
+                        .request()
+                        .build("PATCH", Entity.entity(fastqJson, MediaType.APPLICATION_JSON_TYPE))
+                        .invoke();
+                LOGGER.info("Patching fastq for sample [{}] and lane [{}] complete with status [{}]",
+                        fastq.sample_id(),
+                        fastq.lane_id(),
+                        response.getStatus());
+            } else {
+                String fastqJson = objectMapper.writeValueAsString(fastq);
+                Response response = fastq().request().post(Entity.entity(fastqJson, MediaType.APPLICATION_JSON_TYPE));
+                LOGGER.info("Posting fastq for sample [{}] and lane [{}] complete with status [{}]",
+                        fastq.sample_id(),
+                        fastq.lane_id(),
+                        response.getStatus());
+            }
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -101,7 +125,7 @@ public class SbpFastqMetadataApi {
                 Response response = api().path("lanes")
                         .request()
                         .post(Entity.entity(objectMapper.writeValueAsString(sbpLane), MediaType.APPLICATION_JSON_TYPE));
-                if (isCreated(response)) {
+                if (isSuccessful(response)) {
                     LOGGER.info("Posting lane for flowcell [{}] with name [{}] complete with status [{}]",
                             sbpLane.flowcell_id(),
                             sbpLane.name(),
@@ -134,7 +158,7 @@ public class SbpFastqMetadataApi {
                     .build("PATCH", Entity.entity(objectMapper.writeValueAsString(flowcell), MediaType.APPLICATION_JSON_TYPE))
                     .invoke();
             LOGGER.info("Patching flowcell [{}] complete with status [{}]", flowcell.name(), response.getStatus());
-            return getFlowcell(flowcell.name());
+            return getFlowcell(String.valueOf(flowcell.flowcell_id()));
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }

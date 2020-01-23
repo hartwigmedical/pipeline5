@@ -20,7 +20,17 @@ public interface SbpFlowcell {
 
     String status();
 
+    Optional<Long> yld();
+
+    Optional<Long> under_rds();
+
+    Optional<Double> q30();
+
+    Optional<Double> undet_rds_p();
+
     int id();
+
+    String flowcell_id();
 
     boolean undet_rds_p_pass();
 

@@ -23,8 +23,7 @@ public class QualityControl {
         return true;
     }
 
-    static boolean undeterminedReadPercentage(Conversion conversion) {
-        int percUndeterminedYield = (int) ((double) conversion.undeterminedReads() / (double) conversion.totalReads() * 100);
+    static boolean undeterminedReadPercentage(final double percUndeterminedYield) {
         if (percUndeterminedYield > MIN_UNDETERMINED_READ_PERCENTAGE) {
             LOGGER.warn(FAILED_QC + "Undetermined read percentage of [{}] was higher than the minimum of [{}]",
                     percUndeterminedYield,
