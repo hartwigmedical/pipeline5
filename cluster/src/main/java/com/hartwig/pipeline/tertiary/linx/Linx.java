@@ -26,6 +26,7 @@ import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
 
     public static final String NAMESPACE = "linx";
+    public static final String KNOWLEDGEBASE_OUTPUT = "output/";
     private final InputDownload purpleOutputDirDownload;
     private final InputDownload purpleStructuralVcfDownload;
 
@@ -56,9 +57,9 @@ public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
                 Resource.of(SV, "heli_rep_origins.bed"),
                 Resource.of(SV, "viral_host_ref.csv"),
                 Resource.of(ResourceNames.ENSEMBL) + "ensembl_data_cache",
-                Resource.of(KNOWLEDGEBASES, "knownFusionPairs.csv"),
-                Resource.of(KNOWLEDGEBASES, "knownPromiscuousFive.csv"),
-                Resource.of(KNOWLEDGEBASES, "knownPromiscuousThree.csv")));
+                Resource.of(KNOWLEDGEBASES, KNOWLEDGEBASE_OUTPUT +"knownFusionPairs.csv"),
+                Resource.of(KNOWLEDGEBASES, KNOWLEDGEBASE_OUTPUT + "knownPromiscuousFive.csv"),
+                Resource.of(KNOWLEDGEBASES, KNOWLEDGEBASE_OUTPUT + "knownPromiscuousThree.csv")));
     }
 
     @Override
