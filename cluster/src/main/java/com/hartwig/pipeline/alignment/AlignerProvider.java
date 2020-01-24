@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.alignment;
 
+import java.util.concurrent.Executors;
+
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
@@ -14,13 +16,12 @@ import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.sbpapi.SbpRestApi;
 import com.hartwig.pipeline.storage.CloudCopy;
 import com.hartwig.pipeline.storage.CloudSampleUpload;
+import com.hartwig.pipeline.storage.GSFileSource;
 import com.hartwig.pipeline.storage.GSUtilCloudCopy;
 import com.hartwig.pipeline.storage.LocalFileSource;
 import com.hartwig.pipeline.storage.RCloneCloudCopy;
 import com.hartwig.pipeline.storage.SampleUpload;
 import com.hartwig.pipeline.storage.SbpS3FileSource;
-
-import java.util.concurrent.Executors;
 
 public abstract class AlignerProvider {
 
@@ -107,7 +108,8 @@ public abstract class AlignerProvider {
                     getArguments().rcloneGcpRemote(),
                     getArguments().rcloneS3RemoteDownload(),
                     ProcessBuilder::new);
-            SampleUpload sampleUpload = new CloudSampleUpload(new SbpS3FileSource(), cloudCopy);
+            SampleUpload sampleUpload =
+                    new CloudSampleUpload(getArguments().uploadFromGcp() ? new GSFileSource() : new SbpS3FileSource(), cloudCopy);
             return AlignerProvider.constructVmAligner(getArguments(),
                     credentials,
                     storage,
