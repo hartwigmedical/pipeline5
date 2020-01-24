@@ -81,7 +81,6 @@ class Bcl2Fastq {
     private ImmutableVirtualMachineJobDefinition jobDefinition(final BashStartupScript bash) {
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("bcl2fastq")
-                .imageFamily("bcl2fastq-standard")
                 .startupCommand(bash)
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(96, 90))
                 .namespacedResults(resultsDirectory)
