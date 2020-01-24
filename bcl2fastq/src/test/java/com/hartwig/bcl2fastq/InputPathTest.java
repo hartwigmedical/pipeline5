@@ -33,7 +33,7 @@ public class InputPathTest {
     @Test
     public void returnsMostRecentPathMatchingFlowcellId() {
         String latestPath = "20200120_" + FLOWCELL_ID;
-        Blob latest = TestBlobs.blob(latestPath);
+        Blob latest = TestBlobs.blob(latestPath + "/");
         when(latest.getCreateTime()).thenReturn(2L);
         Blob older = TestBlobs.blob("20200119_" + FLOWCELL_ID);
         when(older.getCreateTime()).thenReturn(1L);

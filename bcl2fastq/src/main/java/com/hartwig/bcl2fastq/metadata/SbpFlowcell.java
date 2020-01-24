@@ -1,5 +1,7 @@
 package com.hartwig.bcl2fastq.metadata;
 
+import java.util.Optional;
+
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import org.immutables.value.Value;
@@ -10,15 +12,25 @@ public interface SbpFlowcell {
 
     String STATUS_CONVERTED = "Converted";
 
-    String convertTime();
+    Optional<String> convertTime();
 
-    String updateTime();
+    Optional<String> updateTime();
 
     String name();
 
     String status();
 
+    Optional<Long> yld();
+
+    Optional<Long> under_rds();
+
+    Optional<Double> q30();
+
+    Optional<Double> undet_rds_p();
+
     int id();
+
+    String flowcell_id();
 
     boolean undet_rds_p_pass();
 

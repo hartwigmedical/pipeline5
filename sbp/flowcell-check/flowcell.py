@@ -59,6 +59,10 @@ def start_kubernetes_job(args):
                                     name='gcp-bcl2fastq-scheduler',
                                     mount_path='/secrets/'
                                 ),
+                                kubernetes.client.V1VolumeMount(
+                                    name='gcp-hmf-database',
+                                    mount_path='/archive/'
+                                )
                             ],
                             resources=kubernetes.client.V1ResourceRequirements(
                                 requests={
@@ -72,6 +76,12 @@ def start_kubernetes_job(args):
                             name='gcp-bcl2fastq-scheduler',
                             secret=kubernetes.client.V1SecretVolumeSource(
                                 secret_name='gcp-pipeline5-scheduler'
+                            )
+                        ),
+                        kubernetes.client.V1Volume(
+                            name='gcp-hmf-database',
+                            secret=kubernetes.client.V1SecretVolumeSource(
+                                secret_name='gcp-' + args['bucket'].replace('_', '-')
                             )
                         )
                     ]
@@ -103,7 +113,7 @@ def main():
 
             start_kubernetes_job({'flowcell': flowcell.flowcell_id })
 
-            phone_home('Starting bcl2fastq {0} for flowcell {1}'.format(os.environ['PIPELINE_VERSION'], flowcell.name))
+            phone_home('Starting bcl2fastq {0} for flowcell {1}'.format(os.environ['PIPELINE_VERSION'], flowcell.flowcell_id))
 
             flowcell.status = 'Conversion Started'
             flowcell.save()

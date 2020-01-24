@@ -1,6 +1,7 @@
 package com.hartwig.bcl2fastq;
 
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.bcl2fastq.conversion.ResultAggregation;
 import com.hartwig.bcl2fastq.metadata.FastqMetadataRegistration;
@@ -23,6 +24,7 @@ import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.GsUtilFacade;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.storage.StorageProvider;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +52,9 @@ class Bcl2Fastq {
         FlowcellMetadata metadata = FlowcellMetadata.from(arguments);
         RuntimeBucket bucket = RuntimeBucket.from(storage, "bcl2fastq", metadata, arguments);
         BashStartupScript bash = BashStartupScript.of(bucket.name());
-        BclDownload bclDownload = new BclDownload(storage.get(arguments.inputBucket()), arguments.flowcell());
+        Bucket inputBucket = storage.get(arguments.inputBucket());
+        String flowcellPath = InputPath.resolve(inputBucket, arguments.flowcell());
+        BclDownload bclDownload = new BclDownload(inputBucket, flowcellPath);
         VirtualMachineJobDefinition jobDefinition = jobDefinition(bash);
         bash.addCommand(bclDownload)
                 .addCommand(new Bcl2FastqCommand(bclDownload.getLocalTargetPath(),
@@ -59,16 +63,18 @@ class Bcl2Fastq {
                 .addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path())));
         computeEngine.submit(bucket, jobDefinition);
 
-        SampleSheet sampleSheet = new SampleSheetCsv(storage.get(arguments.inputBucket()), arguments.flowcell()).read();
+        SampleSheet sampleSheet = new SampleSheetCsv(inputBucket, flowcellPath).read();
         Stats stats = new StatsJson(stringOf(bucket, "/Stats/Stats.json")).stats();
 
-        new FastqMetadataRegistration(sbpFastqMetadataApi, arguments.outputBucket(),
-                stringOf(bucket, "/run.log"))
-                .andThen(new OutputCopier(arguments, bucket, new GsUtilFacade(arguments.cloudSdkPath(),
-                        arguments.outputProject(), arguments.outputPrivateKeyPath())))
+        new FastqMetadataRegistration(sbpFastqMetadataApi, arguments.outputBucket(), stringOf(bucket, "/run.log")).andThen(new OutputCopier(
+                arguments,
+                bucket,
+                new GsUtilFacade(arguments.cloudSdkPath(), arguments.outputProject(), arguments.outputPrivateKeyPath())))
                 .accept(new ResultAggregation(bucket, resultsDirectory).apply(sampleSheet, stats));
 
-        GSUtil.rm(arguments.cloudSdkPath(), bucket.runId());
+        if (arguments.cleanup()) {
+            GSUtil.rm(arguments.cloudSdkPath(), bucket.runId());
+        }
         LOGGER.info("bcl2fastq complete for flowcell [{}]", arguments.flowcell());
     }
 

@@ -27,7 +27,7 @@ public class FastqMetadataRegistrationTest {
     private static final String PROJECT = "project";
     private static final int Q30_REQ = 10;
     private static final int YLD_REQ = 2_000_000_000;
-    private static final int FLOWCELL_ID = 1;
+    private static final int FLOWCELL_DB_ID = 1;
     private static final int SAMPLE_ID = 2;
     private static final int LANE_ID = 3;
     public static final String OUTPUT_BUCKET = "output_bucket";
@@ -46,6 +46,7 @@ public class FastqMetadataRegistrationTest {
         when(sbpApi.getFlowcell(EXISTS)).thenReturn(SbpFlowcell.builder()
                 .id(1)
                 .name(EXISTS)
+                .flowcell_id(EXISTS)
                 .status("Ready")
                 .undet_rds_p_pass(true)
                 .convertTime(TIMESTAMP)
@@ -53,8 +54,9 @@ public class FastqMetadataRegistrationTest {
                 .build());
         flowCellUpdateCaptor = ArgumentCaptor.forClass(SbpFlowcell.class);
         when(sbpApi.updateFlowcell(flowCellUpdateCaptor.capture())).thenReturn(SbpFlowcell.builder()
-                .id(FLOWCELL_ID)
+                .id(FLOWCELL_DB_ID)
                 .name(EXISTS)
+                .flowcell_id(EXISTS)
                 .status("Ready")
                 .undet_rds_p_pass(true)
                 .convertTime(TIMESTAMP)
@@ -72,7 +74,7 @@ public class FastqMetadataRegistrationTest {
                 .build());
         sampleUpdateCaptor = ArgumentCaptor.forClass(SbpSample.class);
         sbpFastqArgumentCaptor = ArgumentCaptor.forClass(SbpFastq.class);
-        final SbpLane sbpLane = SbpLane.builder().flowcell_id(FLOWCELL_ID).name("L001").build();
+        final SbpLane sbpLane = SbpLane.builder().flowcell_id(FLOWCELL_DB_ID).name("L001").build();
         when(sbpApi.findOrCreate(sbpLane)).thenReturn(SbpLane.builder().from(sbpLane).id(LANE_ID).build());
     }
 
@@ -230,6 +232,6 @@ public class FastqMetadataRegistrationTest {
         victim.accept(conversion(EXISTS).build());
         assertThat(flowCellUpdateCaptor.getValue().undet_rds_p_pass()).isTrue();
         assertThat(flowCellUpdateCaptor.getAllValues().get(0).status()).isEqualTo(SbpFlowcell.STATUS_CONVERTED);
-        assertThat(flowCellUpdateCaptor.getAllValues().get(1).convertTime()).isEqualTo(NEW_TIMESTAMP);
+        assertThat(flowCellUpdateCaptor.getAllValues().get(1).convertTime()).hasValue(NEW_TIMESTAMP);
     }
 }
