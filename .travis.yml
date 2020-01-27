@@ -1,6 +1,6 @@
 branches:
   only:
-    - master
+    - 5.8-umc
 sudo: required
 language: java
 jdk:
@@ -8,7 +8,7 @@ jdk:
 services:
   - docker
 env:
-- PIPELINE5_VERSION=5.8.$TRAVIS_BUILD_NUMBER
+- PIPELINE5_VERSION=5.8-umc.$TRAVIS_BUILD_NUMBER
 cache:
   directories:
     - $HOME/.m2

@@ -143,7 +143,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("aligner-" + lane)
                 .startupCommand(startupScript)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(96, 96))
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(32, 40))
                 .namespacedResults(resultsDirectory)
                 .build();
     }
