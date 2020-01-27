@@ -74,7 +74,7 @@ class Bcl2Fastq {
 
         if (arguments.cleanup()) {
             GSUtil.rm(arguments.cloudSdkPath(), bucket.runId());
-            GSUtil.rm(arguments.cloudSdkPath(), flowcellPath);
+            GSUtil.rm(arguments.cloudSdkPath(), inputBucket.getName() + "/" + flowcellPath);
         }
         LOGGER.info("bcl2fastq complete for flowcell [{}]", arguments.flowcell());
     }
