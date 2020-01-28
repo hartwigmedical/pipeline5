@@ -16,12 +16,13 @@ import com.hartwig.pipeline.execution.vm.JavaClassCommand;
 import com.hartwig.pipeline.execution.vm.OutputUpload;
 import com.hartwig.pipeline.execution.vm.RuntimeFiles;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.resource.Resource;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
-public class SagePon implements BatchOperation {
+public class SageGermline implements BatchOperation {
     @Override
     public VirtualMachineJobDefinition execute(final InputBundle inputs, final RuntimeBucket runtimeBucket,
                                                final BashStartupScript startupScript, final RuntimeFiles executionFlags) {
@@ -39,15 +40,16 @@ public class SagePon implements BatchOperation {
         String localTumorBamFile = String.format("%s/%s", VmDirectories.INPUT, tumorBamFile);
         String localReferenceBamFile = String.format("%s/%s", VmDirectories.INPUT, referenceBamFile);
 
-        final String output = String.format("%s/%s.sage.vcf.gz", VmDirectories.OUTPUT, tumorSampleName);
-        final String panel = "/opt/resources/sage/ActionableCodingPanel.hg19.bed.gz";
+        final String output = String.format("%s/%s.sage.germline.vcf.gz", VmDirectories.OUTPUT, tumorSampleName);
+        final String panelBed = "/opt/resources/sage/ActionableCodingPanel.hg19.bed.gz";
         final String hotspots = "/opt/resources/sage/KnownHotspots.hg19.vcf.gz";
+        final String highConfidenceBed = "/opt/resources/sage/NA12878_GIAB_highconf_IllFB-IllGATKHC-CG-Ion-Solid_ALLCHROM_v3.2.2_highconf.bed.gz";
 
         final BashCommand sageCommand = new JavaClassCommand("sage",
                 "pilot",
                 "sage.jar",
                 "com.hartwig.hmftools.sage.SageApplication",
-                "32G",
+                "100G",
                 "-reference",
                 referenceSampleName,
                 "-reference_bam",
@@ -56,9 +58,11 @@ public class SagePon implements BatchOperation {
                 tumorSampleName,
                 "-tumor_bam",
                 localTumorBamFile,
-                "-panel_only",
-                "-panel",
-                panel,
+                "-germline -hard_filter -hard_min_tumor_qual 0 -hard_min_tumor_raw_alt_support 3 -hard_min_tumor_raw_base_quality 30",
+                "-panel_bed",
+                panelBed,
+                "-high_confidence_bed",
+                highConfidenceBed,
                 "-hotspots",
                 hotspots,
                 "-ref_genome",
@@ -70,16 +74,17 @@ public class SagePon implements BatchOperation {
 
         // Download required resources
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s %s", "gs://batch-sage/resources/sage.jar", "/opt/tools/sage/pilot/sage.jar"));
-        startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s %s", "gs://batch-sage/resources/ActionableCodingPanel.hg19.bed.gz", panel));
+        startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s %s", "gs://batch-sage/resources/ActionableCodingPanel.hg19.bed.gz", panelBed));
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s %s", "gs://batch-sage/resources/KnownHotspots.hg19.vcf.gz", hotspots));
+        startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s %s", "gs://batch-sage/resources/NA12878_GIAB_highconf_IllFB-IllGATKHC-CG-Ion-Solid_ALLCHROM_v3.2.2_highconf.bed.gz", highConfidenceBed));
 
-        // Download bams
-        startupScript.addCommand(() -> "touch /data/inputs/files.list");
-        startupScript.addCommand(() -> format("echo %s | tee -a  /data/inputs/files.list", gcTumorBamFile));
-        startupScript.addCommand(() -> format("echo %s.bai | tee -a /data/inputs/files.list", gcTumorBamFile));
-        startupScript.addCommand(() -> format("echo %s | tee -a /data/inputs/files.list", gcReferenceBamFile));
-        startupScript.addCommand(() -> format("echo %s.bai | tee -a /data/inputs/files.list", gcReferenceBamFile));
-        startupScript.addCommand(() -> format("cat /data/inputs/files.list | gsutil -m -u hmf-crunch cp -I %s", "/data/inputs/"));
+        // Download bams (in parallel)
+        startupScript.addCommand(() -> "touch /data/input/files.list");
+        startupScript.addCommand(() -> format("echo %s | tee -a  /data/input/files.list", gcTumorBamFile));
+        startupScript.addCommand(() -> format("echo %s.bai | tee -a /data/input/files.list", gcTumorBamFile));
+        startupScript.addCommand(() -> format("echo %s | tee -a /data/input/files.list", gcReferenceBamFile));
+        startupScript.addCommand(() -> format("echo %s.bai | tee -a /data/input/files.list", gcReferenceBamFile));
+        startupScript.addCommand(() -> format("cat /data/input/files.list | gsutil -m -u hmf-crunch cp -I %s", "/data/input/"));
 
         // Prevent errors about index being older than bam
         startupScript.addCommand(() -> format("touch %s.bai", localTumorBamFile));
@@ -98,6 +103,7 @@ public class SagePon implements BatchOperation {
         startupScript.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), "sage"), executionFlags));
 
         return VirtualMachineJobDefinition.builder().name("sage").startupCommand(startupScript)
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(48, 128))
                 .namespacedResults(ResultsDirectory.defaultDirectory()).build();
     }
 
@@ -107,7 +113,7 @@ public class SagePon implements BatchOperation {
 
     @Override
     public OperationDescriptor descriptor() {
-        return OperationDescriptor.of("SagePon", "Generate sage output for PON creation",
+        return OperationDescriptor.of("SageGermline", "Generate sage germline output for PON creation",
                 OperationDescriptor.InputType.JSON);
     }
 }
