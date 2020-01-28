@@ -103,7 +103,7 @@ public class SageGermline implements BatchOperation {
         startupScript.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), "sage"), executionFlags));
 
         return VirtualMachineJobDefinition.builder().name("sage").startupCommand(startupScript)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(48, 128))
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(40, 128))
                 .namespacedResults(ResultsDirectory.defaultDirectory()).build();
     }
 
