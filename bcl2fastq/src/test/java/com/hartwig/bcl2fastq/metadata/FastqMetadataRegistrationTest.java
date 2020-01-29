@@ -2,6 +2,7 @@ package com.hartwig.bcl2fastq.metadata;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -158,6 +159,12 @@ public class FastqMetadataRegistrationTest {
         SbpSample result = sampleUpdateCaptor.getValue();
         assertThat(result.q30()).hasValue(86.66666666666667);
         assertThat(result.status()).isEqualTo(SbpSample.STATUS_READY);
+    }
+
+    @Test
+    public void sampleNotUpdatedWhenFlowcellFailsQC() {
+        victim.accept(conversion(EXISTS).undeterminedReads(7).totalReads(100).addSamples(sample().yield(1).build()).build());
+        verify(sbpApi, never()).updateSample(sampleUpdateCaptor.capture());
     }
 
     @Test
