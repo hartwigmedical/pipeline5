@@ -83,8 +83,8 @@ public class ResultAggregation {
                 .id(id)
                 .pathR1(blobR1.getName())
                 .pathR2(blobR2.getName())
-                .outputPathR1(outputPath(sample, stats, blobR1))
-                .outputPathR2(outputPath(sample, stats, blobR2))
+                .outputPathR1(outputPath(stats, blobR1))
+                .outputPathR2(outputPath(stats, blobR2))
                 .sizeR1(blobR1.getSize())
                 .sizeR2(blobR2.getSize())
                 .md5R1(blobR1.getMd5())
@@ -94,16 +94,15 @@ public class ResultAggregation {
                 .build();
     }
 
-    private static String outputPath(final IlluminaSample sample, final Stats stats, final Blob blobR1) {
+    private static String outputPath(final Stats stats, final Blob blobR1) {
         String[] fileNameSplit = new File(blobR1.getName()).getName().split("_");
-        String fileNameWithFlowcell = String.format("%s_%s_%s_%s_%s_%s",
+        return String.format("%s_%s_%s_%s_%s_%s",
                 fileNameSplit[0],
                 stats.flowcell(),
                 fileNameSplit[1],
                 fileNameSplit[2],
                 fileNameSplit[3],
                 fileNameSplit[4]);
-        return stats.flowcell() + "/" + sample.barcode() + "/" + fileNameWithFlowcell;
     }
 
     static String parseNumInPair(String path) {

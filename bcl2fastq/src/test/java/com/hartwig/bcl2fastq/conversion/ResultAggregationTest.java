@@ -3,7 +3,6 @@ package com.hartwig.bcl2fastq.conversion;
 import static com.hartwig.bcl2fastq.stats.TestStats.laneStats;
 import static com.hartwig.bcl2fastq.stats.TestStats.sampleStats;
 import static com.hartwig.pipeline.testsupport.TestBlobs.blob;
-import static com.hartwig.pipeline.testsupport.TestBlobs.pageOf;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -12,7 +11,6 @@ import static org.mockito.Mockito.when;
 import java.util.Collections;
 import java.util.List;
 
-import com.google.api.gax.paging.Page;
 import com.google.cloud.storage.Blob;
 import com.google.common.collect.Lists;
 import com.hartwig.bcl2fastq.samplesheet.IlluminaSample;
@@ -167,13 +165,12 @@ public class ResultAggregationTest {
 
     @Test
     public void outputPathsSetAndIncludeFlowcellName() {
-        Page<Blob> page = pageOf(first, second);
         when(bucket.list(path)).thenReturn(Lists.newArrayList(first, second));
         Conversion conversion = victim.apply(sampleSheet(), defaultStats());
         List<ConvertedFastq> fastq = conversion.samples().get(0).fastq();
         ConvertedFastq firstFastq = fastq.get(0);
-        assertThat(firstFastq.outputPathR1()).isEqualTo("flowcell/barcode/GIAB12878_flowcell_S1_L001_R1_001.fastq.gz");
-        assertThat(firstFastq.outputPathR2()).isEqualTo("flowcell/barcode/GIAB12878_flowcell_S1_L001_R2_001.fastq.gz");
+        assertThat(firstFastq.outputPathR1()).isEqualTo("GIAB12878_flowcell_S1_L001_R1_001.fastq.gz");
+        assertThat(firstFastq.outputPathR2()).isEqualTo("GIAB12878_flowcell_S1_L001_R2_001.fastq.gz");
     }
 
     private static ImmutableStats defaultStats() {
