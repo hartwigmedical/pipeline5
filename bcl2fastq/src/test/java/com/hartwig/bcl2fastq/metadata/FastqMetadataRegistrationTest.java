@@ -118,7 +118,7 @@ public class FastqMetadataRegistrationTest {
 
     @Test
     public void setsNameOnSample() {
-        victim.accept(conversion(EXISTS).addSamples(sample().build()).build());
+        victim.accept(conversion(EXISTS).addSamples(sample().yield(2_000_000_002).yieldQ30(2_000_000_002).build()).build());
         verify(sbpApi).updateSample(sampleUpdateCaptor.capture());
         assertThat(sampleUpdateCaptor.getValue().name()).hasValue(SAMPLE_NAME);
     }
@@ -147,14 +147,14 @@ public class FastqMetadataRegistrationTest {
         when(sbpApi.findOrCreate(BARCODE, PROJECT)).thenReturn(SbpSample.builder()
                 .id(SAMPLE_ID)
                 .q30(80)
-                .yld(100)
+                .yld(1000000000)
                 .q30_req(86)
-                .yld_req(1)
+                .yld_req(10000000)
                 .barcode(BARCODE)
                 .status("")
                 .submission(PROJECT)
                 .build());
-        victim.accept(conversion(EXISTS).addSamples(sample().yield(200).yieldQ30(180).build()).build());
+        victim.accept(conversion(EXISTS).addSamples(sample().yield(2000000000).yieldQ30(1800000000).build()).build());
         verify(sbpApi).updateSample(sampleUpdateCaptor.capture());
         SbpSample result = sampleUpdateCaptor.getValue();
         assertThat(result.q30()).hasValue(86.66666666666667);
