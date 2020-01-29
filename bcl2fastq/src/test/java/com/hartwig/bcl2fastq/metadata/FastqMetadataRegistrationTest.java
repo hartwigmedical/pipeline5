@@ -34,6 +34,7 @@ public class FastqMetadataRegistrationTest {
     public static final String OUTPUT_BUCKET = "output_bucket";
     public static final String OUTPUT_1 = "/output/1";
     public static final String OUTPUT_2 = "/output/2";
+    public static final String SAMPLE_NAME = "sample";
     private SbpFastqMetadataApi sbpApi;
     private FastqMetadataRegistration victim;
     private ArgumentCaptor<SbpFlowcell> flowCellUpdateCaptor;
@@ -116,6 +117,13 @@ public class FastqMetadataRegistrationTest {
     }
 
     @Test
+    public void setsNameOnSample() {
+        victim.accept(conversion(EXISTS).addSamples(sample().yield(2_000_000_002).yieldQ30(2_000_000_002).build()).build());
+        verify(sbpApi).updateSample(sampleUpdateCaptor.capture());
+        assertThat(sampleUpdateCaptor.getValue().name()).hasValue(SAMPLE_NAME);
+    }
+
+    @Test
     public void existingSampleYieldSummedWithNewFlowcell() {
         when(sbpApi.findOrCreate(BARCODE, PROJECT)).thenReturn(SbpSample.builder()
                 .id(SAMPLE_ID)
@@ -139,14 +147,14 @@ public class FastqMetadataRegistrationTest {
         when(sbpApi.findOrCreate(BARCODE, PROJECT)).thenReturn(SbpSample.builder()
                 .id(SAMPLE_ID)
                 .q30(80)
-                .yld(100)
+                .yld(1000000000)
                 .q30_req(86)
-                .yld_req(1)
+                .yld_req(10000000)
                 .barcode(BARCODE)
                 .status("")
                 .submission(PROJECT)
                 .build());
-        victim.accept(conversion(EXISTS).addSamples(sample().yield(200).yieldQ30(180).build()).build());
+        victim.accept(conversion(EXISTS).addSamples(sample().yield(2000000000).yieldQ30(1800000000).build()).build());
         verify(sbpApi).updateSample(sampleUpdateCaptor.capture());
         SbpSample result = sampleUpdateCaptor.getValue();
         assertThat(result.q30()).hasValue(86.66666666666667);
@@ -231,7 +239,7 @@ public class FastqMetadataRegistrationTest {
 
     @NotNull
     public ImmutableConvertedSample.Builder sample() {
-        return ConvertedSample.builder().barcode(BARCODE).project(PROJECT).sample("sample").yield(0).yieldQ30(0);
+        return ConvertedSample.builder().barcode(BARCODE).project(PROJECT).sample(SAMPLE_NAME).yield(0).yieldQ30(0);
     }
 
     @Test

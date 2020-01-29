@@ -99,6 +99,6 @@ public class FastqMetadataRegistration implements Consumer<Conversion> {
         } else {
             sampleUpdate.status(SbpSample.STATUS_INSUFFICIENT_QUALITY);
         }
-        sbpApi.updateSample(sampleUpdate.yld(totalYield).q30(averagedQ30).build());
+        sbpApi.updateSample(sampleUpdate.yld(totalYield).q30(averagedQ30).name(sample.sample()).build());
     }
 }
