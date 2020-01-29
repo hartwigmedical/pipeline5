@@ -33,6 +33,7 @@ public class FastqMetadataRegistrationTest {
     public static final String OUTPUT_BUCKET = "output_bucket";
     public static final String OUTPUT_1 = "/output/1";
     public static final String OUTPUT_2 = "/output/2";
+    public static final String SAMPLE_NAME = "sample";
     private SbpFastqMetadataApi sbpApi;
     private FastqMetadataRegistration victim;
     private ArgumentCaptor<SbpFlowcell> flowCellUpdateCaptor;
@@ -112,6 +113,13 @@ public class FastqMetadataRegistrationTest {
         victim.accept(conversion(EXISTS).addSamples(sample().yield(2_000_000_002).yieldQ30(2_000_000_002).build()).build());
         verify(sbpApi).updateSample(sampleUpdateCaptor.capture());
         assertThat(sampleUpdateCaptor.getValue().status()).isEqualTo(SbpSample.STATUS_READY);
+    }
+
+    @Test
+    public void setsNameOnSample() {
+        victim.accept(conversion(EXISTS).addSamples(sample().build()).build());
+        verify(sbpApi).updateSample(sampleUpdateCaptor.capture());
+        assertThat(sampleUpdateCaptor.getValue().name()).hasValue(SAMPLE_NAME);
     }
 
     @Test
@@ -224,7 +232,7 @@ public class FastqMetadataRegistrationTest {
 
     @NotNull
     public ImmutableConvertedSample.Builder sample() {
-        return ConvertedSample.builder().barcode(BARCODE).project(PROJECT).sample("sample").yield(0).yieldQ30(0);
+        return ConvertedSample.builder().barcode(BARCODE).project(PROJECT).sample(SAMPLE_NAME).yield(0).yieldQ30(0);
     }
 
     @Test

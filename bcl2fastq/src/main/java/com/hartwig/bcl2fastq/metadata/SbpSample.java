@@ -17,6 +17,8 @@ public interface SbpSample {
 
     Optional<Integer> id();
 
+    Optional<String> name();
+
     String barcode();
 
     String submission();
