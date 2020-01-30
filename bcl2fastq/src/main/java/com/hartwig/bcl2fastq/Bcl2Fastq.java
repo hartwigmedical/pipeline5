@@ -54,6 +54,7 @@ class Bcl2Fastq {
         BashStartupScript bash = BashStartupScript.of(bucket.name());
         Bucket inputBucket = storage.get(arguments.inputBucket());
         String flowcellPath = InputPath.resolve(inputBucket, arguments.flowcell());
+        LOGGER.info("Resolved input BCL path to [{}]", flowcellPath);
         BclDownload bclDownload = new BclDownload(inputBucket, flowcellPath);
         VirtualMachineJobDefinition jobDefinition = jobDefinition(bash);
         bash.addCommand(bclDownload)
@@ -63,6 +64,7 @@ class Bcl2Fastq {
                 .addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path())));
         computeEngine.submit(bucket, jobDefinition);
 
+        LOGGER.info("Conversion complete. Starting post-processing.");
         SampleSheet sampleSheet = new SampleSheetCsv(inputBucket, flowcellPath).read();
         Stats stats = new StatsJson(stringOf(bucket, "/Stats/Stats.json")).stats();
 
@@ -73,6 +75,7 @@ class Bcl2Fastq {
                 .accept(new ResultAggregation(bucket, resultsDirectory).apply(sampleSheet, stats));
 
         if (arguments.cleanup()) {
+            LOGGER.info("Cleaning up conversion inputs and runtime buckets.");
             GSUtil.rm(arguments.cloudSdkPath(), bucket.runId());
             GSUtil.rm(arguments.cloudSdkPath(), inputBucket.getName() + "/" + flowcellPath);
         }

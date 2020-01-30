@@ -20,12 +20,9 @@ import com.hartwig.pipeline.jackson.ObjectMappers;
 
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.HttpUrlConnectorProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SbpFastqMetadataApi {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SbpFastqMetadataApi.class);
     private static final String FLOWCELLS = "flowcells";
     private static final String SAMPLES = "samples";
     private static final String FASTQ = "fastq";
@@ -88,21 +85,13 @@ public class SbpFastqMetadataApi {
             if (existing.isPresent()) {
                 SbpFastq update = SbpFastq.builder().from(fastq).id(existing.get().id()).build();
                 String fastqJson = objectMapper.writeValueAsString(update);
-                Response response = fastq().path(existing.get().id().orElseThrow().toString())
+                returnOrThrow(fastq().path(existing.get().id().orElseThrow().toString())
                         .request()
                         .build("PATCH", Entity.entity(fastqJson, MediaType.APPLICATION_JSON_TYPE))
-                        .invoke();
-                LOGGER.info("Patching fastq for sample [{}] and lane [{}] complete with status [{}]",
-                        fastq.sample_id(),
-                        fastq.lane_id(),
-                        response.getStatus());
+                        .invoke());
             } else {
                 String fastqJson = objectMapper.writeValueAsString(fastq);
-                Response response = fastq().request().post(Entity.entity(fastqJson, MediaType.APPLICATION_JSON_TYPE));
-                LOGGER.info("Posting fastq for sample [{}] and lane [{}] complete with status [{}]",
-                        fastq.sample_id(),
-                        fastq.lane_id(),
-                        response.getStatus());
+                returnOrThrow(fastq().request().post(Entity.entity(fastqJson, MediaType.APPLICATION_JSON_TYPE)));
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -124,17 +113,9 @@ public class SbpFastqMetadataApi {
                     .get()), new TypeReference<List<SbpLane>>() {
             });
             if (lanes.isEmpty()) {
-                Response response = api().path("lanes")
+                returnOrThrow(api().path("lanes")
                         .request()
-                        .post(Entity.entity(objectMapper.writeValueAsString(sbpLane), MediaType.APPLICATION_JSON_TYPE));
-                if (isSuccessful(response)) {
-                    LOGGER.info("Posting lane for flowcell [{}] with name [{}] complete with status [{}]",
-                            sbpLane.flowcell_id(),
-                            sbpLane.name(),
-                            response.getStatus());
-                } else {
-                    throw new RuntimeException(response.readEntity(String.class));
-                }
+                        .post(Entity.entity(objectMapper.writeValueAsString(sbpLane), MediaType.APPLICATION_JSON_TYPE)));
                 return findOrCreate(sbpLane);
             } else {
                 return lanes.stream().findFirst().orElseThrow();
@@ -154,12 +135,11 @@ public class SbpFastqMetadataApi {
 
     public SbpFlowcell updateFlowcell(SbpFlowcell flowcell) {
         try {
-            Response response = api().path(FLOWCELLS)
+            returnOrThrow(api().path(FLOWCELLS)
                     .path(String.valueOf(flowcell.id()))
                     .request()
                     .build("PATCH", Entity.entity(objectMapper.writeValueAsString(flowcell), MediaType.APPLICATION_JSON_TYPE))
-                    .invoke();
-            LOGGER.info("Patching flowcell [{}] complete with status [{}]", flowcell.name(), response.getStatus());
+                    .invoke());
             return getFlowcell(String.valueOf(flowcell.flowcell_id()));
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
@@ -175,7 +155,7 @@ public class SbpFastqMetadataApi {
     }
 
     private String returnOrThrow(final Response response) {
-        if (response.getStatus() == Response.Status.OK.getStatusCode()) {
+        if (isSuccessful(response)) {
             return response.readEntity(String.class);
         }
         throw error(response);
@@ -196,12 +176,11 @@ public class SbpFastqMetadataApi {
     public void updateSample(final SbpSample sample) {
         try {
             Integer id = sample.id().orElseThrow();
-            Response response = api().path(SAMPLES)
+            returnOrThrow(api().path(SAMPLES)
                     .path(String.valueOf(id))
                     .request()
                     .build("PATCH", Entity.entity(objectMapper.writeValueAsString(sample), MediaType.APPLICATION_JSON_TYPE))
-                    .invoke();
-            LOGGER.info("Patching sample [{}] complete with status [{}]", id, response.getStatus());
+                    .invoke());
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
