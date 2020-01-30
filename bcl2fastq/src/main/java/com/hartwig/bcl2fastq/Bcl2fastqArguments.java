@@ -39,7 +39,7 @@ public interface Bcl2fastqArguments extends CommonArguments {
                     .outputBucket(commandLine.getOptionValue(OUTPUT_BUCKET))
                     .outputPrivateKeyPath(commandLine.getOptionValue(OUTPUT_PRIVATE_KEY_PATH))
                     .outputProject(commandLine.getOptionValue(OUTPUT_PROJECT))
-                    .cleanup(parseBoolean(commandLine.getOptionValue(CLEANUP, "true")))
+                    .cleanup(parseBoolean(commandLine.getOptionValue(CLEANUP, "false")))
                     .useLocalSsds(false)
                     .usePreemptibleVms(false)
                     .build();
