@@ -15,6 +15,18 @@ public interface ConvertedSample extends WithYieldAndQ30 {
 
     List<ConvertedFastq> fastq();
 
+    @Override
+    @Value.Derived
+    default long yield() {
+        return fastq().stream().mapToLong(WithYieldAndQ30::yield).sum();
+    }
+
+    @Override
+    @Value.Derived
+    default long yieldQ30() {
+        return fastq().stream().mapToLong(WithYieldAndQ30::yieldQ30).sum();
+    }
+
     static ImmutableConvertedSample.Builder builder() {
         return ImmutableConvertedSample.builder();
     }

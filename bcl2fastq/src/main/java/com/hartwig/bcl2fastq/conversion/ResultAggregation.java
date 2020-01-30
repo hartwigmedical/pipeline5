@@ -43,8 +43,6 @@ public class ResultAggregation {
                     .barcode(sample.barcode())
                     .sample(sample.sample())
                     .project(sample.project())
-                    .yield(yield(sample.barcode(), stats))
-                    .yieldQ30(yieldQ30(sample.barcode(), stats))
                     .addAllFastq(listResult != null ? listResult.stream()
                             .collect(groupingBy(b -> parseLane(b.getName())))
                             .entrySet()
