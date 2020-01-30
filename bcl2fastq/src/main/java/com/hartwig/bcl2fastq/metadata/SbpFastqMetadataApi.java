@@ -78,16 +78,12 @@ public class SbpFastqMetadataApi {
 
     public void create(SbpFastq fastq) {
         try {
-            Optional<SbpFastq> existing =
-                    objectMapper.<List<SbpFastq>>readValue(returnOrThrow(fastq().queryParam("sample_id", fastq.sample_id())
-                            .request()
-                            .get()), new TypeReference<List<SbpFastq>>() {
-                    }).stream()
-                            .filter(f -> f.lane_id() == fastq.lane_id())
-                            .filter(f -> f.bucket().equals(fastq.bucket()))
-                            .filter(f -> f.name_r1().equals(fastq.name_r1()))
-                            .filter(f -> f.name_r2().equals(fastq.name_r2()))
-                            .findFirst();
+            Optional<SbpFastq> existing = findFastq(fastq.sample_id()).stream()
+                    .filter(f -> f.lane_id() == fastq.lane_id())
+                    .filter(f -> f.bucket().equals(fastq.bucket()))
+                    .filter(f -> f.name_r1().equals(fastq.name_r1()))
+                    .filter(f -> f.name_r2().equals(fastq.name_r2()))
+                    .findFirst();
 
             if (existing.isPresent()) {
                 SbpFastq update = SbpFastq.builder().from(fastq).id(existing.get().id()).build();
@@ -111,6 +107,12 @@ public class SbpFastqMetadataApi {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private List<SbpFastq> findFastq(final int sampleId) throws IOException {
+        return objectMapper.readValue(returnOrThrow(fastq().queryParam("sample_id", sampleId).request().get()),
+                new TypeReference<List<SbpFastq>>() {
+                });
     }
 
     public SbpLane findOrCreate(final SbpLane sbpLane) {
@@ -201,6 +203,14 @@ public class SbpFastqMetadataApi {
                     .invoke();
             LOGGER.info("Patching sample [{}] complete with status [{}]", id, response.getStatus());
         } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public List<SbpFastq> getFastqs(final SbpSample sbpSample) {
+        try {
+            return findFastq(sbpSample.id().orElseThrow());
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }

@@ -21,7 +21,7 @@ public interface Conversion extends WithYieldAndQ30 {
 
     @Value.Derived
     default long yieldQ30() {
-        return samples().stream().mapToLong(WithYieldAndQ30::yieldQ30).sum();
+        return samples().stream().flatMap(s -> s.fastq().stream()).mapToLong(WithYieldAndQ30::yieldQ30).sum();
     }
 
     List<ConvertedSample> samples();

@@ -154,12 +154,13 @@ public class ResultAggregationTest {
     }
 
     @Test
-    public void sampleYieldAndQ30CalculatedFromStats() {
+    public void sampleYieldAndQ30CalculatedFromFastq() {
+        when(bucket.list(path)).thenReturn(Lists.newArrayList(first, second));
         Conversion conversion = victim.apply(sampleSheet(), defaultStats());
 
         assertThat(conversion.samples()).hasSize(1);
         ConvertedSample sample = conversion.samples().get(0);
-        assertThat(sample.yield()).isEqualTo(2);
+        assertThat(sample.yield()).isEqualTo(3);
         assertThat(sample.yieldQ30()).isEqualTo(3);
     }
 

@@ -3,11 +3,13 @@ package com.hartwig.bcl2fastq.metadata;
 import static java.lang.String.format;
 
 import java.util.Base64;
+import java.util.List;
 import java.util.function.Consumer;
 
 import com.hartwig.bcl2fastq.conversion.Conversion;
 import com.hartwig.bcl2fastq.conversion.ConvertedFastq;
 import com.hartwig.bcl2fastq.conversion.ConvertedSample;
+import com.hartwig.bcl2fastq.conversion.WithYieldAndQ30;
 
 import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
@@ -36,9 +38,6 @@ public class FastqMetadataRegistration implements Consumer<Conversion> {
                     && QualityControl.minimumYield(conversion);
             for (ConvertedSample sample : conversion.samples()) {
                 SbpSample sbpSample = sbpApi.findOrCreate(sample.barcode(), sample.project());
-                if (flowcellQCPass) {
-                    updateSampleYieldAndStatus(sample, sbpSample);
-                }
                 for (ConvertedFastq convertedFastq : sample.fastq()) {
                     SbpLane sbpLane = sbpApi.findOrCreate(SbpLane.builder()
                             .flowcell_id(sbpFlowcell.id())
@@ -60,6 +59,8 @@ public class FastqMetadataRegistration implements Consumer<Conversion> {
                             .qc_pass(flowcellQCPass && QualityControl.minimumQ30(convertedFastq, sbpSample.q30_req().orElse(0d)))
                             .build());
                 }
+                List<SbpFastq> sampleFastq = sbpApi.getFastqs(sbpSample);
+                updateSampleYieldAndStatus(sample, sbpSample, sampleFastq);
             }
             SbpFlowcell updated = sbpApi.updateFlowcell(SbpFlowcell.builderFrom(sbpFlowcell)
                     .status(SbpFlowcell.STATUS_CONVERTED)
@@ -89,16 +90,29 @@ public class FastqMetadataRegistration implements Consumer<Conversion> {
         return format("L00%s", laneNumber);
     }
 
-    private void updateSampleYieldAndStatus(final ConvertedSample sample, final SbpSample sbpSample) {
-        final double sampleQ30 = Q30.of(sample);
-        ImmutableSbpSample.Builder sampleUpdate = SbpSample.builder().from(sbpSample).yld(sample.yield()).q30(sampleQ30);
-        long totalYield = sbpSample.yld().orElse(0L) + sample.yield();
-        double averagedQ30 = (sbpSample.q30().orElse(0d) / 100 * sbpSample.yld().orElse(0L) + sample.yieldQ30()) / totalYield * 100;
-        if (sbpSample.yld_req().map(yr -> yr < totalYield).orElse(true) && sbpSample.q30_req().map(qr -> qr < averagedQ30).orElse(true)) {
+    private void updateSampleYieldAndStatus(final ConvertedSample sample, final SbpSample sbpSample, final List<SbpFastq> validFastq) {
+        long totalSampleYield = validFastq.stream().filter(SbpFastq::qc_pass).mapToLong(f -> f.yld().orElse(0L)).sum();
+        long totalSampleYieldQ30 =
+                validFastq.stream().filter(SbpFastq::qc_pass).mapToLong(f -> (long) (f.q30().orElse(0d)/100 * f.yld().orElse(0L))).sum();
+        double sampleQ30 = Q30.of(new WithYieldAndQ30() {
+            @Override
+            public long yield() {
+                return totalSampleYield;
+            }
+
+            @Override
+            public long yieldQ30() {
+                return totalSampleYieldQ30;
+            }
+        });
+        ImmutableSbpSample.Builder sampleUpdate = SbpSample.builder().from(sbpSample);
+        if (sbpSample.yld_req().map(yr -> yr < totalSampleYield).orElse(true) && sbpSample.q30_req()
+                .map(qr -> qr < sampleQ30)
+                .orElse(true)) {
             sampleUpdate.status(SbpSample.STATUS_READY);
         } else {
             sampleUpdate.status(SbpSample.STATUS_INSUFFICIENT_QUALITY);
         }
-        sbpApi.updateSample(sampleUpdate.yld(totalYield).q30(averagedQ30).name(sample.sample()).build());
+        sbpApi.updateSample(sampleUpdate.yld(totalSampleYield).q30(sampleQ30).name(sample.sample()).build());
     }
 }
