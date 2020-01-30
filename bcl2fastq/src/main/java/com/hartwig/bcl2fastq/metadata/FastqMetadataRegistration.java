@@ -33,6 +33,7 @@ public class FastqMetadataRegistration implements Consumer<Conversion> {
     public void accept(final Conversion conversion) {
         SbpFlowcell sbpFlowcell = sbpApi.getFlowcell(conversion.flowcell());
         if (sbpFlowcell != null) {
+            LOGGER.info("Updating SBP API with conversion results for SBP flowcell [{}]", sbpFlowcell.id());
             double percUndeterminedYield = (conversion.undeterminedReads() / (double) conversion.totalReads()) * 100;
             boolean flowcellQCPass = QualityControl.errorsInLogs(log) && QualityControl.undeterminedReadPercentage(percUndeterminedYield)
                     && QualityControl.minimumYield(conversion);
