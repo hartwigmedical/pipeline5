@@ -30,7 +30,7 @@ def start_kubernetes_job(args):
     with file('/var/run/secrets/kubernetes.io/serviceaccount/namespace') as f:
         namespace = f.read()
 
-    job_args = ['-flowcell', str(args['flowcell']), '-sbp_api_url', 'http://hmfapi']
+    job_args = ['-flowcell', str(args['flowcell'])]
 
     for i in range(1, len(sys.argv)):
         job_args.append(sys.argv[i])
