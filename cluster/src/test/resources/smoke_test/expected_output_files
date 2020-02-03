@@ -141,6 +141,8 @@ structural_caller/CPCT12345678T.gridss.somatic.full.vcf.gz
 structural_caller/CPCT12345678T.gridss.somatic.full.vcf.gz.tbi
 structural_caller/CPCT12345678T.gridss.somatic.vcf.gz
 structural_caller/CPCT12345678T.gridss.somatic.vcf.gz.tbi
+structural_caller/CPCT12345678T.gridss.unfiltered.vcf.gz
+structural_caller/CPCT12345678T.gridss.unfiltered.vcf.gz.tbi
 structural_caller/CPCT12345678T.sorted.bam.gridss.working/CPCT12345678T.sorted.bam.cigar_metrics
 structural_caller/CPCT12345678T.sorted.bam.gridss.working/CPCT12345678T.sorted.bam.coverage.blacklist.bed
 structural_caller/CPCT12345678T.sorted.bam.gridss.working/CPCT12345678T.sorted.bam.idsv_metrics

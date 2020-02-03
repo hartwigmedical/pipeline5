@@ -36,7 +36,7 @@ class AlignmentFileAssertion extends BAMFileAssertion {
 
     private void checkRecordCounts(final Map<Key, SAMRecord> recordMapExpected, final Map<Key, SAMRecord> recordMapResults) {
         assertThat(recordMapExpected.size()).as(
-                "Expected and result BAM files have different numbers of alignments. " + "Expected had [%s] and result had [%s]",
+                "Expected and result BAM files have different numbers of alignments. Expected had [%s] and result had [%s]",
                 recordMapExpected.size(),
                 recordMapResults.size()).isEqualTo(recordMapResults.size());
     }
