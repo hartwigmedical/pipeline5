@@ -123,8 +123,7 @@ of data are shown here:
 
 ### 2.1 Building and Testing Pipeline 5
 
-Pv5 is a Java application and is built with Maven. It is compatible with all builds of [Java
-8](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) and [Maven
+Pv5 is a Java application and is built with Maven. It is compatible with all builds of [Java 11](https://jdk.java.net/11/) and [Maven
 3](https://maven.apache.org/download.cgi) (if in doubt just use the latest).
 
 To build the application and run all the tests:
