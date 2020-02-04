@@ -52,7 +52,7 @@ def start_kubernetes_job(args):
                     restart_policy='Never',
                     containers=[
                         kubernetes.client.V1Container(
-                            name='bcl2fastq-flowcell-{0}-{1}'.format(args['flowcell'], timestamp).lower(),
+                            name='bcl2fastq-flowcell-{0}-{1}'.format(args['flowcell'].replace('_', '-'), timestamp).lower(),
                             image='hartwigmedicalfoundation/bcl2fastq:{0}'.format(os.environ['PIPELINE_VERSION']),
                             command=[
                                 '/bcl2fastq.sh'
