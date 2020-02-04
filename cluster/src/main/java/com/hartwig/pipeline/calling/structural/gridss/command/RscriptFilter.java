@@ -7,13 +7,13 @@ import com.hartwig.pipeline.resource.ResourceNames;
 
 public class RscriptFilter extends GridssRscript {
     private final String inputFile;
-    private final String outputFile;
-    private final String outputFullCompressedVcf;
+    private final String somaticAndQualityFilteredVcf;
+    private final String somaticFilteredVcf;
 
-    public RscriptFilter(final String inputFile, final String outputFile, final String outputFullCompressedVcf) {
+    public RscriptFilter(final String inputFile, final String somaticAndQualityFilteredVcf, final String somaticFilteredVcf) {
         this.inputFile = inputFile;
-        this.outputFile = outputFile;
-        this.outputFullCompressedVcf = outputFullCompressedVcf;
+        this.somaticAndQualityFilteredVcf = somaticAndQualityFilteredVcf;
+        this.somaticFilteredVcf = somaticFilteredVcf;
     }
 
     @Override
@@ -25,9 +25,7 @@ public class RscriptFilter extends GridssRscript {
     String arguments() {
         return format("-p %s -i %s -o %s -f %s -s %s",
                 VmDirectories.RESOURCES + "/" + ResourceNames.GRIDSS_PON,
-                inputFile,
-                outputFile,
-                outputFullCompressedVcf,
+                inputFile, somaticAndQualityFilteredVcf, somaticFilteredVcf,
                 GRIDSS_RSCRIPT_DIR);
     }
 }

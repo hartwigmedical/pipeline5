@@ -136,11 +136,11 @@ structural_caller/CPCT12345678T.assembly.bam.gridss.working/CPCT12345678T.assemb
 structural_caller/CPCT12345678T.assembly.bam.gridss.working/CPCT12345678T.assembly.bam.sv.bam
 structural_caller/CPCT12345678T.assembly.bam.gridss.working/CPCT12345678T.assembly.bam.sv.bam.bai
 structural_caller/CPCT12345678T.assembly.bam.gridss.working/CPCT12345678T.assembly.bam.tag_metrics
-structural_caller/CPCT12345678T.gridss.somatic.full.vcf.gridss.working/CPCT12345678T.gridss.somatic.full.vcf.allocated.vcf.idx
-structural_caller/CPCT12345678T.gridss.somatic.full.vcf.gz
-structural_caller/CPCT12345678T.gridss.somatic.full.vcf.gz.tbi
 structural_caller/CPCT12345678T.gridss.somatic.vcf.gz
 structural_caller/CPCT12345678T.gridss.somatic.vcf.gz.tbi
+structural_caller/CPCT12345678T.gridss.somatic.filtered.vcf.gz
+structural_caller/CPCT12345678T.gridss.somatic.filtered.vcf.gz.tbi
+structural_caller/CPCT12345678T.gridss.unfiltered.vcf.gz.gridss.working/CPCT12345678T.gridss.unfiltered.vcf.gz.allocated.vcf.idx
 structural_caller/CPCT12345678T.gridss.unfiltered.vcf.gz
 structural_caller/CPCT12345678T.gridss.unfiltered.vcf.gz.tbi
 structural_caller/CPCT12345678T.sorted.bam.gridss.working/CPCT12345678T.sorted.bam.cigar_metrics

@@ -20,6 +20,7 @@ import com.hartwig.pipeline.calling.command.VersionedToolCommand;
 import com.hartwig.pipeline.calling.structural.gridss.stage.Driver;
 import com.hartwig.pipeline.calling.structural.gridss.stage.Filter;
 import com.hartwig.pipeline.calling.structural.gridss.stage.RepeatMaskerInsertionAnnotation;
+import com.hartwig.pipeline.calling.structural.gridss.stage.TabixDriverOutput;
 import com.hartwig.pipeline.calling.structural.gridss.stage.ViralAnnotation;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
@@ -48,9 +49,9 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
     private final InputDownload tumorBam;
     private final InputDownload tumorBai;
 
-    private String filteredVcf;
-    private String fullVcfCompressed;
-    private String fullAnnotatedVcfName;
+    private String unfilteredVcf;
+    private String somaticFilteredVcf;
+    private String somaticAndQualityFilteredVcf;
 
     public StructuralCaller(final AlignmentPair pair) {
         referenceBam = new InputDownload(pair.reference().finalBamLocation());
@@ -86,26 +87,27 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
         String virusReferenceGenomePath = Resource.of(VIRUS_REFERENCE_GENOME, "human_virus.fa");
         String repeatMaskerDbPath = Resource.of(GRIDSS_REPEAT_MASKER_DB, "hg19.fa.out");
 
-        String filteredVcfBasename = VmDirectories.outputFile(format("%s.gridss.somatic.vcf", tumorSampleName));
-
         Driver driver = new Driver(VmDirectories.outputFile(tumorSampleName + ".assembly.bam"),
                 referenceGenomePath,
                 blacklistBedPath,
                 configurationFilePath,
                 refBamPath,
                 tumorBamPath);
-        SubStageInputOutput fullSomaticVcf = driver.apply(SubStageInputOutput.empty(tumorSampleName));
+        SubStageInputOutput unfilteredVcfOutput = driver.andThen(new TabixDriverOutput()).apply(SubStageInputOutput.empty(tumorSampleName));
 
-        SubStageInputOutput fullAnnotatedVcf =
+        SubStageInputOutput unfilteredAnnotatedVcfOutput =
                 new RepeatMaskerInsertionAnnotation(repeatMaskerDbPath).andThen(new ViralAnnotation(virusReferenceGenomePath))
-                        .apply(fullSomaticVcf);
+                        .apply(unfilteredVcfOutput);
 
-        SubStageInputOutput filteredAndAnnotated = new Filter(filteredVcfBasename, fullSomaticVcf.outputFile().path()).apply(fullAnnotatedVcf);
+        String somaticFilteredVcfBasename = VmDirectories.outputFile(format("%s.gridss.somatic.vcf", tumorSampleName));
+        String somaticAndQualityFilteredVcfBasename = VmDirectories.outputFile(format("%s.gridss.somatic.filtered.vcf", tumorSampleName));
+        SubStageInputOutput filteredAndAnnotated =
+                new Filter(somaticAndQualityFilteredVcfBasename, somaticFilteredVcfBasename).apply(unfilteredAnnotatedVcfOutput);
         commands.addAll(filteredAndAnnotated.bash());
 
-        filteredVcf = filteredVcfBasename + ".gz";
-        fullVcfCompressed = fullSomaticVcf.outputFile().path() + ".gz";
-        fullAnnotatedVcfName = fullAnnotatedVcf.outputFile().path() + ".gz";
+        unfilteredVcf = unfilteredVcfOutput.outputFile().path();
+        somaticFilteredVcf = somaticFilteredVcfBasename + ".gz";
+        somaticAndQualityFilteredVcf = somaticAndQualityFilteredVcfBasename + ".gz";
         return commands;
     }
 
@@ -127,27 +129,28 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
             final ResultsDirectory resultsDirectory) {
         return StructuralCallerOutput.builder()
                 .status(jobStatus)
-                .maybeFilteredVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(filteredVcf))))
-                .maybeFilteredVcfIndex(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(filteredVcf + ".tbi"))))
-                .maybeFullVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(fullVcfCompressed))))
-                .maybeFullVcfIndex(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(fullVcfCompressed + ".tbi"))))
+                .maybeFilteredVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(somaticAndQualityFilteredVcf))))
+                .maybeFilteredVcfIndex(GoogleStorageLocation.of(bucket.name(),
+                        resultsDirectory.path(basename(somaticAndQualityFilteredVcf + ".tbi"))))
+                .maybeFullVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(somaticFilteredVcf))))
+                .maybeFullVcfIndex(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(somaticFilteredVcf + ".tbi"))))
                 .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
                         NAMESPACE,
                         Folder.from(),
-                        basename(fullAnnotatedVcfName),
-                        format("%s.gridss.unfiltered.vcf.gz", metadata.tumor().sampleName()),
+                        basename(unfilteredVcf),
+                        basename(unfilteredVcf),
                         resultsDirectory))
                 .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
                         NAMESPACE,
                         Folder.from(),
-                        basename(fullVcfCompressed),
-                        basename(fullVcfCompressed),
+                        basename(somaticFilteredVcf),
+                        basename(somaticFilteredVcf),
                         resultsDirectory))
                 .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
                         NAMESPACE,
                         Folder.from(),
-                        basename(filteredVcf),
-                        format("%s.gridss.somatic.vcf.gz", metadata.tumor().sampleName()),
+                        basename(somaticAndQualityFilteredVcf),
+                        basename(somaticAndQualityFilteredVcf),
                         resultsDirectory))
                 .addReportComponents(new EntireOutputComponent(bucket,
                         Folder.from(),

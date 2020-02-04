@@ -16,13 +16,13 @@ import com.hartwig.pipeline.execution.vm.unix.MvCommand;
 import com.hartwig.pipeline.execution.vm.unix.SubShellCommand;
 
 public class Filter extends SubStage {
-    private final String outputFilteredVcf;
-    private final String outputFullVcf;
+    private final String somaticAndQualityFilteredVcf;
+    private final String somaticFilteredVcf;
 
-    public Filter(final String outputFilteredVcf, final String outputFullVcf) {
+    public Filter(final String somaticAndQualityFilteredVcf, final String somaticFilteredVcf) {
         super("filter", OutputFile.GZIPPED_VCF, false);
-        this.outputFilteredVcf = outputFilteredVcf;
-        this.outputFullVcf = outputFullVcf;
+        this.somaticAndQualityFilteredVcf = somaticAndQualityFilteredVcf;
+        this.somaticFilteredVcf = somaticFilteredVcf;
     }
 
     @Override
@@ -36,11 +36,11 @@ public class Filter extends SubStage {
         }
 
         return ImmutableList.of(new SubShellCommand(new BiocondaVariantAnnotationWorkaround(input.path(), unzippedInputVcf)),
-                new RscriptFilter(unzippedInputVcf, outputFilteredVcf, outputFullVcf),
-                new MvCommand(outputFullVcf + ".bgz", outputFullVcf + ".gz"),
-                new MvCommand(outputFullVcf + ".bgz.tbi", outputFullVcf + ".gz.tbi"),
-                new MvCommand(outputFilteredVcf + ".bgz", outputFilteredVcf + ".gz"),
-                new MvCommand(outputFilteredVcf + ".bgz.tbi", outputFilteredVcf + ".gz.tbi"));
+                new RscriptFilter(unzippedInputVcf, somaticAndQualityFilteredVcf, somaticFilteredVcf),
+                new MvCommand(somaticFilteredVcf + ".bgz", somaticFilteredVcf + ".gz"),
+                new MvCommand(somaticFilteredVcf + ".bgz.tbi", somaticFilteredVcf + ".gz.tbi"),
+                new MvCommand(somaticAndQualityFilteredVcf + ".bgz", somaticAndQualityFilteredVcf + ".gz"),
+                new MvCommand(somaticAndQualityFilteredVcf + ".bgz.tbi", somaticAndQualityFilteredVcf + ".gz.tbi"));
     }
 }
 

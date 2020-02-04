@@ -22,7 +22,7 @@ public class Driver extends SubStage {
 
     public Driver(final String assemblyBamPath, final String referenceGenomePath, final String blacklistBedPath,
             final String gridssConfigPath, final String referenceBamPath, final String tumorBamPath) {
-        super("gridss.somatic.full", OutputFile.VCF);
+        super("gridss.unfiltered", OutputFile.GZIPPED_VCF);
         this.assemblyBamPath = assemblyBamPath;
         this.referenceGenomePath = referenceGenomePath;
         this.blacklistBedPath = blacklistBedPath;
