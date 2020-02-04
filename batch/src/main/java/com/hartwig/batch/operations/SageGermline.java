@@ -31,11 +31,22 @@ public class SageGermline implements BatchOperation {
         String tumorSampleName = inputs.get("tumorSample").remoteFilename();
         String referenceSampleName = inputs.get("referenceSample").remoteFilename();
 
-        String tumorBamFile = tumorSampleName + "_dedup.realigned.bam";
-        String referenceBamFile = referenceSampleName + "_dedup.realigned.bam";
+        // 2017
+//        String locationFormat = "gs://%s/%s/%s/mapping/%s";
+//        String fileFormat = "_dedup.realigned.bam";
 
-        String gcTumorBamFile = String.format("gs://%s/%s/%s/mapping/%s", bucket, set, tumorSampleName, tumorBamFile);
-        String gcReferenceBamFile = String.format("gs://%s/%s/%s/mapping/%s", bucket, set, referenceSampleName, referenceBamFile);
+        // ??? Some other random format
+        String locationFormat = "gs://%s/%s/%s/mapping/%s";
+        String fileFormat = ".realigned.bam";
+
+        // 2019
+//        String locationFormat = "gs://%s/%s/%s/aligner/%s";
+//        String fileFormat = ".bam";
+
+        String tumorBamFile = tumorSampleName + fileFormat;
+        String referenceBamFile = referenceSampleName + fileFormat;
+        String gcTumorBamFile = String.format(locationFormat, bucket, set, tumorSampleName, tumorBamFile);
+        String gcReferenceBamFile = String.format(locationFormat, bucket, set, referenceSampleName, referenceBamFile);
 
         String localTumorBamFile = String.format("%s/%s", VmDirectories.INPUT, tumorBamFile);
         String localReferenceBamFile = String.format("%s/%s", VmDirectories.INPUT, referenceBamFile);
