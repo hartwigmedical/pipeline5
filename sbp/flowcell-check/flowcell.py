@@ -81,7 +81,7 @@ def start_kubernetes_job(args):
                         kubernetes.client.V1Volume(
                             name='gcp-hmf-database',
                             secret=kubernetes.client.V1SecretVolumeSource(
-                                secret_name='gcp-' + job_args['output_bucket'].replace('_', '-')
+                                secret_name='gcp-' + args['output_bucket'].replace('_', '-')
                             )
                         )
                     ]
