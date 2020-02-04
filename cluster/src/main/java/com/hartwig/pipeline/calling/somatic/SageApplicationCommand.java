@@ -4,8 +4,7 @@ class SageApplicationCommand extends SageCommand {
     SageApplicationCommand(final String tumorSampleName, final String tumorBamPath, final String referenceSampleName,
             final String referenceBamPath, final String knownHotspots, final String codingRegions, final String referenceGenomePath,
             final String outputVcf) {
-        super("com.hartwig.hmftools.sage.SageHotspotApplication",
-                "-tumor",
+        super("com.hartwig.hmftools.sage.SageHotspotApplication", "8G", "-tumor",
                 tumorSampleName,
                 "-tumor_bam",
                 tumorBamPath,
