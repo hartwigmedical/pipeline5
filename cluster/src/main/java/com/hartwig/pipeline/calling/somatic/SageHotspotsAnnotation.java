@@ -20,6 +20,6 @@ class SageHotspotsAnnotation extends SubStage {
 
     @Override
     public List<BashCommand> bash(final OutputFile input, final OutputFile output) {
-        return Collections.singletonList(new SageAnnotationCommand(input.path(), sageHotspotVcf, knownHotspots, output.path()));
+        return Collections.singletonList(new SageHotspotAnnotationCommand(input.path(), sageHotspotVcf, knownHotspots, output.path()));
     }
 }

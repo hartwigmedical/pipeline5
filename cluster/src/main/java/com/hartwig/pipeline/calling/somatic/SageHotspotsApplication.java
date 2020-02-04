@@ -32,7 +32,7 @@ class SageHotspotsApplication extends SubStage {
 
     @Override
     public List<BashCommand> bash(final OutputFile input, final OutputFile output) {
-        return ImmutableList.of(new SageApplicationCommand(tumorSampleName,
+        return ImmutableList.of(new SageHotspotApplicationCommand(tumorSampleName,
                 tumorBamPath,
                 referenceSampleName,
                 referenceBamPath,
