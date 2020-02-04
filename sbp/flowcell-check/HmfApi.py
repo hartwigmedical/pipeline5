@@ -127,6 +127,6 @@ class HmfApi(object):
 class Flowcell(HmfApi):
     def __init__(self):
         self._type      = 'flowcells'
-        self._keys      = ['flowcell_id']
+        self._keys      = ['flowcell_id', 'status']
         super(Flowcell, self).__init__()
 
