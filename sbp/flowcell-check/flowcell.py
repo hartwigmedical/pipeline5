@@ -31,9 +31,13 @@ def start_kubernetes_job(args):
         namespace = f.read()
 
     job_args = ['-flowcell', str(args['flowcell'])]
+    output_bucket = None
 
     for i in range(1, len(sys.argv)):
         job_args.append(sys.argv[i])
+
+        if sys.argv[i] == '-output_bucket':
+            output_bucket = sys.argv[i+1]
 
     spec = kubernetes.client.V1Job(
         metadata=kubernetes.client.V1ObjectMeta(
@@ -81,7 +85,7 @@ def start_kubernetes_job(args):
                         kubernetes.client.V1Volume(
                             name='gcp-hmf-database',
                             secret=kubernetes.client.V1SecretVolumeSource(
-                                secret_name='gcp-' + args['output_bucket'].replace('_', '-')
+                                secret_name='gcp-' + output_bucket.replace('_', '-')
                             )
                         )
                     ]
