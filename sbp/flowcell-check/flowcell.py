@@ -41,7 +41,7 @@ def start_kubernetes_job(args):
 
     spec = kubernetes.client.V1Job(
         metadata=kubernetes.client.V1ObjectMeta(
-            name='bcl2fastq-flowcell-{0}-{1}'.format(args['flowcell'], timestamp).lower()
+            name='bcl2fastq-flowcell-{0}-{1}'.format(args['flowcell'].replace('_', '-'), timestamp).lower()
         ),
         spec=kubernetes.client.V1JobSpec(
             completions=1,
