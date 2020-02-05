@@ -16,6 +16,7 @@ public interface Bcl2fastqArguments extends CommonArguments {
 
     String OUTPUT_BUCKET = "output_bucket";
     String OUTPUT_PRIVATE_KEY_PATH = "output_private_key_path";
+    String OUTPUT_SERVICE_ACCOUNT_EMAIL = "output_service_account_email";
     String OUTPUT_PROJECT = "output_project";
     String FLOWCELL = "flowcell";
     String INPUT_BUCKET = "input_bucket";
@@ -38,6 +39,7 @@ public interface Bcl2fastqArguments extends CommonArguments {
                     .sbpApiUrl(commandLine.getOptionValue(SBP_API_URL))
                     .outputBucket(commandLine.getOptionValue(OUTPUT_BUCKET))
                     .outputPrivateKeyPath(commandLine.getOptionValue(OUTPUT_PRIVATE_KEY_PATH))
+                    .outputServiceAccountEmail(commandLine.getOptionValue(OUTPUT_SERVICE_ACCOUNT_EMAIL))
                     .outputProject(commandLine.getOptionValue(OUTPUT_PROJECT))
                     .cleanup(parseBoolean(commandLine.getOptionValue(CLEANUP, "false")))
                     .useLocalSsds(false)
@@ -63,6 +65,8 @@ public interface Bcl2fastqArguments extends CommonArguments {
                 .addOption(stringOption(SBP_API_URL, "URL of the SBP metadata api"))
                 .addOption(stringOption(OUTPUT_BUCKET, "Bucket to copy to on completion"))
                 .addOption(stringOption(OUTPUT_PRIVATE_KEY_PATH, "Credentials used to copy output"))
+                .addOption(stringOption(OUTPUT_SERVICE_ACCOUNT_EMAIL, "Email of service account used to copy data from the conversion into "
+                        + "the fastq storage bucket. Will be added to the ACL of the runtime bucket."))
                 .addOption(stringOption(OUTPUT_PROJECT, "User project for output copying"));
     }
 
@@ -75,6 +79,8 @@ public interface Bcl2fastqArguments extends CommonArguments {
     String sbpApiUrl();
 
     String outputPrivateKeyPath();
+
+    String outputServiceAccountEmail();
 
     String outputProject();
 
