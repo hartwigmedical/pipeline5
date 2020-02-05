@@ -1,23 +1,25 @@
 package com.hartwig.bcl2fastq;
 
+import static java.lang.String.format;
+
+import java.util.function.Consumer;
+
+import com.google.cloud.storage.Acl;
 import com.hartwig.bcl2fastq.conversion.Conversion;
 import com.hartwig.bcl2fastq.conversion.ConvertedFastq;
 import com.hartwig.bcl2fastq.conversion.ConvertedSample;
 import com.hartwig.pipeline.storage.GsUtilFacade;
 import com.hartwig.pipeline.storage.RuntimeBucket;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.function.Consumer;
-
-import static java.lang.String.format;
 
 public class OutputCopier implements Consumer<Conversion> {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(OutputCopier.class);
     private final Bcl2fastqArguments args;
-    private RuntimeBucket runtimeBucket;
-    private GsUtilFacade gsUtil;
+    private final RuntimeBucket runtimeBucket;
+    private final GsUtilFacade gsUtil;
 
     public OutputCopier(Bcl2fastqArguments arguments, RuntimeBucket runtimeBucket, GsUtilFacade gsUtil) {
         this.args = arguments;
@@ -29,6 +31,7 @@ public class OutputCopier implements Consumer<Conversion> {
     public void accept(Conversion conversion) {
         LOGGER.info("Starting transfer from [{}] to GCP bucket [{}]", runtimeBucket.getUnderlyingBucket(),
                 args.outputBucket());
+        runtimeBucket.getUnderlyingBucket().createAcl(Acl.of(new Acl.User(args.outputServiceAccountEmail()), Acl.Role.READER));
         try {
             for (ConvertedSample sample : conversion.samples()) {
                 for (ConvertedFastq fastq : sample.fastq()) {
