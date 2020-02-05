@@ -22,7 +22,8 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 public class OutputCopierTest {
-    public static final String NA = "na";
+    private static final String NA = "na";
+    private static final String OUTPUT_SERVICE_ACCOUNT_EMAIL = "output@serviceaccount.com";
     private Bcl2fastqArguments arguments;
     private GsUtilFacade gsUtil;
     private OutputCopier victim;
@@ -91,7 +92,7 @@ public class OutputCopierTest {
         ArgumentCaptor<Acl> createdAcl = ArgumentCaptor.forClass(Acl.class);
         verify(bucket).createAcl(createdAcl.capture());
         Acl result = createdAcl.getValue();
-        assertThat(((Acl.User)result.getEntity()).getEmail()).isEqualTo("output@serviceaccount.com");
+        assertThat(((Acl.User) result.getEntity()).getEmail()).isEqualTo(OUTPUT_SERVICE_ACCOUNT_EMAIL);
         assertThat(result.getRole()).isEqualTo(Acl.Role.READER);
     }
 
@@ -116,7 +117,7 @@ public class OutputCopierTest {
                 .sbpApiUrl(NA)
                 .serviceAccountEmail(NA)
                 .flowcell(NA)
-                .outputServiceAccountEmail("output@serviceaccount.com")
+                .outputServiceAccountEmail(OUTPUT_SERVICE_ACCOUNT_EMAIL)
                 .outputProject(NA)
                 .outputBucket(NA)
                 .outputPrivateKeyPath(NA)
