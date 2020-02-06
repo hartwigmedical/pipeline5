@@ -68,11 +68,13 @@ class Bcl2Fastq {
         SampleSheet sampleSheet = new SampleSheetCsv(inputBucket, flowcellPath).read();
         Stats stats = new StatsJson(stringOf(bucket, "/Stats/Stats.json")).stats();
 
-        new FastqMetadataRegistration(sbpFastqMetadataApi, arguments.outputBucket(), stringOf(bucket, "/run.log")).andThen(new OutputCopier(
-                arguments,
+        new OutputCopier(arguments,
                 bucket,
-                new GsUtilFacade(arguments.cloudSdkPath(), arguments.outputProject(), arguments.outputPrivateKeyPath())))
-                .accept(new ResultAggregation(bucket, resultsDirectory).apply(sampleSheet, stats));
+                new GsUtilFacade(arguments.cloudSdkPath(),
+                        arguments.outputProject(),
+                        arguments.outputPrivateKeyPath())).andThen(new FastqMetadataRegistration(sbpFastqMetadataApi,
+                arguments.outputBucket(),
+                stringOf(bucket, "/run.log"))).accept(new ResultAggregation(bucket, resultsDirectory).apply(sampleSheet, stats));
 
         if (arguments.cleanup()) {
             LOGGER.info("Cleaning up conversion inputs and runtime buckets.");
