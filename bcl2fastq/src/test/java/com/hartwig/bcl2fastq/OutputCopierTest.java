@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.cloud.storage.Acl;
+import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.common.collect.ImmutableList;
 import com.hartwig.bcl2fastq.conversion.Conversion;
@@ -16,6 +17,7 @@ import com.hartwig.bcl2fastq.conversion.ConvertedFastq;
 import com.hartwig.bcl2fastq.conversion.ConvertedSample;
 import com.hartwig.pipeline.storage.GsUtilFacade;
 import com.hartwig.pipeline.storage.RuntimeBucket;
+import com.hartwig.pipeline.testsupport.TestBlobs;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -75,6 +77,12 @@ public class OutputCopierTest {
         when(sampleA.fastq()).thenReturn(ImmutableList.of(fastqA, fastqB));
         when(sampleB.fastq()).thenReturn(ImmutableList.of(fastqC));
 
+        Blob firstBlob = returnBlob(fastqaPathR1, bucket);
+        Blob secondBlob = returnBlob(fastqaPathR2, bucket);
+        returnBlob(fastqbPathR1, bucket);
+        returnBlob(fastqbPathR2, bucket);
+        returnBlob(fastqcPathR1, bucket);
+        returnBlob(fastqcPathR2, bucket);
         victim.accept(conversion);
 
         verifyCopy(fastqaPathR1);
@@ -83,6 +91,19 @@ public class OutputCopierTest {
         verifyCopy(fastqbPathR2);
         verifyCopy(fastqcPathR1);
         verifyCopy(fastqcPathR2);
+
+        ArgumentCaptor<Acl> firstAclCaptor = ArgumentCaptor.forClass(Acl.class);
+        ArgumentCaptor<Acl> secondAclCaptor = ArgumentCaptor.forClass(Acl.class);
+        verify(firstBlob).createAcl(firstAclCaptor.capture());
+        verify(secondBlob).createAcl(secondAclCaptor.capture());
+        verifyAcl(firstAclCaptor.getValue());
+        verifyAcl(secondAclCaptor.getValue());
+    }
+
+    public Blob returnBlob(final String path, final Bucket bucket) {
+        Blob blob = TestBlobs.blob(path);
+        when(bucket.get("results/directory/" + path)).thenReturn(blob);
+        return blob;
     }
 
     @Test
@@ -92,6 +113,10 @@ public class OutputCopierTest {
         ArgumentCaptor<Acl> createdAcl = ArgumentCaptor.forClass(Acl.class);
         verify(bucket).createAcl(createdAcl.capture());
         Acl result = createdAcl.getValue();
+        verifyAcl(result);
+    }
+
+    public void verifyAcl(final Acl result) {
         assertThat(((Acl.User) result.getEntity()).getEmail()).isEqualTo(OUTPUT_SERVICE_ACCOUNT_EMAIL);
         assertThat(result.getRole()).isEqualTo(Acl.Role.READER);
     }

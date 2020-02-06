@@ -29,12 +29,14 @@ public class OutputCopier implements Consumer<Conversion> {
 
     @Override
     public void accept(Conversion conversion) {
-        LOGGER.info("Starting transfer from [{}] to GCP bucket [{}]", runtimeBucket.getUnderlyingBucket(),
-                args.outputBucket());
-        runtimeBucket.getUnderlyingBucket().createAcl(Acl.of(new Acl.User(args.outputServiceAccountEmail()), Acl.Role.READER));
+        LOGGER.info("Starting transfer from [{}] to GCP bucket [{}]", runtimeBucket.getUnderlyingBucket(), args.outputBucket());
+        Acl reader = Acl.of(new Acl.User(args.outputServiceAccountEmail()), Acl.Role.READER);
+        runtimeBucket.getUnderlyingBucket().createAcl(reader);
         try {
             for (ConvertedSample sample : conversion.samples()) {
                 for (ConvertedFastq fastq : sample.fastq()) {
+                    runtimeBucket.getUnderlyingBucket().get(fastq.pathR1()).createAcl(reader);
+                    runtimeBucket.getUnderlyingBucket().get(fastq.pathR2()).createAcl(reader);
                     copy(fastq.pathR1(), fastq.outputPathR1());
                     copy(fastq.pathR2(), fastq.outputPathR2());
                 }
