@@ -83,7 +83,7 @@ public class BcfToolsCommandBuilderTest {
     @Test
     public void testIndex() {
         victim.includeHardPass();
-        List<BashCommand> commands = victim.buildWithIndex();
+        List<BashCommand> commands = victim.buildAndIndex();
         assertThat(commands.get(1).asBash()).contains("/opt/tools/tabix/0.2.6/tabix output.vcf.gz -p vcf");
     }
 }

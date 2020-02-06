@@ -75,7 +75,7 @@ public class BcfToolsCommandBuilder  {
         return new PipeCommands(finalCommands.toArray(new BashCommand[finalCommands.size()]));
     }
 
-    public List<BashCommand> buildWithIndex() {
+    public List<BashCommand> buildAndIndex() {
         return ImmutableList.of(build(), new TabixCommand(outputVcf));
     }
 }

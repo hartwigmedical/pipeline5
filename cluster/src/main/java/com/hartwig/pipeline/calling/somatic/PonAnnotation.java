@@ -1,10 +1,25 @@
 package com.hartwig.pipeline.calling.somatic;
 
-import static com.google.common.collect.Lists.newArrayList;
+import java.util.List;
 
-class PonAnnotation extends BcfToolsAnnotation {
+import com.hartwig.pipeline.calling.SubStage;
+import com.hartwig.pipeline.calling.command.BcfToolsCommandBuilder;
+import com.hartwig.pipeline.execution.vm.BashCommand;
+import com.hartwig.pipeline.execution.vm.OutputFile;
+
+class PonAnnotation extends SubStage {
+
+    private final String pon;
+    private final String type;
 
     PonAnnotation(final String name, final String pon, final String type) {
-        super(name, newArrayList(pon, "-c", type));
+        super(name + ".annotated", OutputFile.GZIPPED_VCF);
+        this.pon = pon;
+        this.type = type;
+    }
+
+    @Override
+    public List<BashCommand> bash(final OutputFile input, final OutputFile output) {
+        return new BcfToolsCommandBuilder(input.path(), output.path()).addAnnotation(pon, type).buildAndIndex();
     }
 }

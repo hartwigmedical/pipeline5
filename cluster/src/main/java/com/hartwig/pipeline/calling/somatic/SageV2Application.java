@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.calling.SubStage;
-import com.hartwig.pipeline.calling.command.TabixCommand;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.OutputFile;
 
@@ -42,6 +41,6 @@ class SageV2Application extends SubStage {
                 panelBed,
                 highConfidenceBed,
                 referenceGenomePath,
-                output.path()), new TabixCommand(output.path()));
+                output.path()));
     }
 }

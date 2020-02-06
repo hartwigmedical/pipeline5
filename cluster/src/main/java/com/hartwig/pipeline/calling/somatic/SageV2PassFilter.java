@@ -7,12 +7,11 @@ import com.hartwig.pipeline.calling.command.BcfToolsCommandBuilder;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.OutputFile;
 
-class SageFiltersAndAnnotations extends SubStage {
-
+class SageV2PassFilter extends SubStage {
     private final String tumorName;
 
-    SageFiltersAndAnnotations(final String tumorName) {
-        super("sage.hotspots.filtered", OutputFile.GZIPPED_VCF);
+    SageV2PassFilter(String tumorName) {
+        super("sage.pass", OutputFile.GZIPPED_VCF);
         this.tumorName = tumorName;
     }
 
@@ -20,9 +19,6 @@ class SageFiltersAndAnnotations extends SubStage {
     public List<BashCommand> bash(final OutputFile input, final OutputFile output) {
         return new BcfToolsCommandBuilder(input.path(), output.path())
                 .includeHardPass()
-                .removeAnnotation("INFO/HOTSPOT")
-                .removeAnnotation("FILTER/LOW_CONFIDENCE")
-                .removeAnnotation("FILTER/GERMLINE_INDEL")
                 .selectSample(tumorName)
                 .buildAndIndex();
     }
