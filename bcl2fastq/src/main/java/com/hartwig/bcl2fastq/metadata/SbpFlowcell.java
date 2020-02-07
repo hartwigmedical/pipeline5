@@ -22,7 +22,7 @@ public interface SbpFlowcell {
 
     Optional<Long> yld();
 
-    Optional<Long> under_rds();
+    Optional<Long> undet_rds();
 
     Optional<Double> q30();
 
