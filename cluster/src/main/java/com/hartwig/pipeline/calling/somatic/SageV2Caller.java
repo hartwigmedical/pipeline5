@@ -99,13 +99,13 @@ public class SageV2Caller extends TertiaryStage<SageV2CallerOutput> {
                         NAMESPACE,
                         Folder.from(),
                         outputFile.fileName(),
-                        OutputFile.of(metadata.tumor().sampleName(), "sage_post_processed", OutputFile.GZIPPED_VCF, false).fileName(),
+                        OutputFile.of(metadata.tumor().sampleName(), "sage.somatic.post_processed", OutputFile.GZIPPED_VCF, false).fileName(),
                         resultsDirectory))
                 .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
                         NAMESPACE,
                         Folder.from(),
                         sageOutputFile.fileName(),
-                        OutputFile.of(metadata.tumor().sampleName(), "sage", OutputFile.GZIPPED_VCF, false).fileName(),
+                        OutputFile.of(metadata.tumor().sampleName(), "sage.somatic", OutputFile.GZIPPED_VCF, false).fileName(),
                         resultsDirectory))
                 .addReportComponents(new RunLogComponent(bucket, NAMESPACE, Folder.from(), resultsDirectory))
                 .addReportComponents(new StartupScriptComponent(bucket, NAMESPACE, Folder.from()))

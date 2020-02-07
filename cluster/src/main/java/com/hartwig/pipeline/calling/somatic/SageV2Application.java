@@ -20,7 +20,7 @@ class SageV2Application extends SubStage {
 
     SageV2Application(final String hotspotsVcf, final String panelBed, final String highConfidenceBed, final String referenceGenomePath,
             final String tumorBamPath, final String referenceBamPath, final String tumorSampleName, final String referenceSampleName) {
-        super("sage.variants", OutputFile.GZIPPED_VCF);
+        super("sage.somatic", OutputFile.GZIPPED_VCF);
         this.hotspotsVcf = hotspotsVcf;
         this.panelBed = panelBed;
         this.highConfidenceBed = highConfidenceBed;
