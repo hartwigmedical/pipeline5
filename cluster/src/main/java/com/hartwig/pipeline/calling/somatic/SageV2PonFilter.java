@@ -15,7 +15,7 @@ class SageV2PonFilter extends SubStage {
     @Override
     public List<BashCommand> bash(final OutputFile input, final OutputFile output) {
         return new BcfToolsCommandBuilder(input.path(), output.path())
-                .excludeSoftFilter("'PON_COUNT!= \".\" && MIN(PON_COUNT) > 5'", "SAGE_PON")
+                .excludeSoftFilter("'PON_COUNT!= \".\" && (MIN(PON_COUNT) > 9 || (MIN(PON_COUNT) > 2 && INFO/TIER!=\"HOTSPOT\"))'", "SAGE_PON")
                 .buildAndIndex();
     }
 }
