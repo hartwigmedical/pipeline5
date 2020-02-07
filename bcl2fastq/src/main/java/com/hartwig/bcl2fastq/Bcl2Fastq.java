@@ -76,6 +76,8 @@ class Bcl2Fastq {
                 arguments.outputBucket(),
                 stringOf(bucket, "/run.log"))).accept(new ResultAggregation(bucket, resultsDirectory).apply(sampleSheet, stats));
 
+
+
         if (arguments.cleanup()) {
             LOGGER.info("Cleaning up conversion inputs and runtime buckets.");
             GSUtil.rm(arguments.cloudSdkPath(), bucket.runId());
