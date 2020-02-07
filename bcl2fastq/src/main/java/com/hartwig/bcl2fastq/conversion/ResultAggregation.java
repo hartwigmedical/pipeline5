@@ -57,7 +57,8 @@ public class ResultAggregation {
                 .map(LaneStats::undetermined)
                 .mapToLong(UndeterminedStats::yield)
                 .sum())
-                .totalReads(stats.conversionResults().stream().flatMap(c -> c.demuxResults().stream()).mapToLong(SampleStats::yield).sum())
+                .totalReads(stats.conversionResults().stream().flatMap(c -> c.demuxResults().stream()).mapToLong(SampleStats::yield).sum()
+                        + stats.conversionResults().stream().mapToLong(c -> c.undetermined().yield()).sum())
                 .flowcell(stats.flowcell())
                 .build();
     }

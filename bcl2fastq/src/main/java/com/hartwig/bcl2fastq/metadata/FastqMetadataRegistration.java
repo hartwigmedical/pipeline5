@@ -68,7 +68,7 @@ public class FastqMetadataRegistration implements Consumer<Conversion> {
                     .undet_rds_p_pass(flowcellQCPass)
                     .yld(conversion.totalReads())
                     .q30(Q30.of(conversion))
-                    .under_rds(conversion.undeterminedReads())
+                    .undet_rds(conversion.undeterminedReads())
                     .undet_rds_p(percUndeterminedYield * 100)
                     .build());
             SbpFlowcell withTimestamp = sbpApi.updateFlowcell(SbpFlowcell.builderFrom(updated)

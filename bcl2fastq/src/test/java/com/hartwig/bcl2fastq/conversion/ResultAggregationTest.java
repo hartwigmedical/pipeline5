@@ -150,7 +150,7 @@ public class ResultAggregationTest {
         Conversion conversion = victim.apply(sampleSheet(), defaultStats());
 
         assertThat(conversion.undeterminedReads()).isEqualTo(1);
-        assertThat(conversion.totalReads()).isEqualTo(2);
+        assertThat(conversion.totalReads()).isEqualTo(4);
     }
 
     @Test
@@ -175,7 +175,7 @@ public class ResultAggregationTest {
     }
 
     private static ImmutableStats defaultStats() {
-        return stats(laneStats(1, 1, sampleStats(BARCODE, 2, 1, 2)));
+        return stats(laneStats(1, 1, sampleStats(BARCODE, 3, 1, 2)));
     }
 
     private static ImmutableStats stats(final ImmutableLaneStats... lanes) {
