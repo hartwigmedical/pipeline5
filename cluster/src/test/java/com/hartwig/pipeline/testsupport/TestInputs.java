@@ -5,7 +5,6 @@ import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.alignment.vm.VmAligner;
 import com.hartwig.pipeline.calling.germline.GermlineCaller;
 import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
-import com.hartwig.pipeline.calling.somatic.SageV2Caller;
 import com.hartwig.pipeline.calling.somatic.SageV2CallerOutput;
 import com.hartwig.pipeline.calling.somatic.SomaticCaller;
 import com.hartwig.pipeline.calling.somatic.SomaticCallerOutput;
@@ -173,7 +172,6 @@ public class TestInputs {
     public static SageV2CallerOutput sageOutput() {
         return SageV2CallerOutput.builder()
                 .status(PipelineStatus.SUCCESS)
-                .maybeFinalSomaticVcf(gsLocation(somaticBucket(SageV2Caller.NAMESPACE), RESULTS))
                 .build();
     }
 
