@@ -61,15 +61,15 @@ public class SomaticCaller extends TertiaryStage<SomaticCallerOutput> {
         String tumorSampleName = metadata.tumor().sampleName();
         String referenceSampleName = metadata.reference().sampleName();
         String knownHotspotsTsv = Resource.of(SAGE, "KnownHotspots.tsv");
-        SageHotspotsApplication sageHotspotsApplication = new SageHotspotsApplication(knownHotspotsTsv,
+        SageHotspotApplication sageHotspotApplication = new SageHotspotApplication(knownHotspotsTsv,
                 Resource.of(SAGE, "CodingRegions.bed"),
                 referenceGenomePath,
                 tumorBamPath,
                 referenceBamPath,
                 tumorSampleName,
                 referenceSampleName);
-        sageOutputFile = sageHotspotsApplication.apply(SubStageInputOutput.empty(tumorSampleName)).outputFile();
-        SubStageInputOutput sageOutput = sageHotspotsApplication.andThen(new SageFiltersAndAnnotations(tumorSampleName))
+        sageOutputFile = sageHotspotApplication.apply(SubStageInputOutput.empty(tumorSampleName)).outputFile();
+        SubStageInputOutput sageOutput = sageHotspotApplication.andThen(new SageFiltersAndAnnotations(tumorSampleName))
                 .andThen(new PonAnnotation("sage.hotspots.pon", Resource.of(SAGE, "SAGE_PON.vcf.gz"), "SAGE_PON_COUNT"))
                 .andThen(new SagePonFilter())
                 .apply(SubStageInputOutput.empty(tumorSampleName));
@@ -89,7 +89,7 @@ public class SomaticCaller extends TertiaryStage<SomaticCallerOutput> {
                         Resource.of(BEDS, "NA12878_GIAB_highconf_IllFB-IllGATKHC-CG-Ion-Solid_ALLCHROM_v3.2.2_highconf.bed"),
                         tumorBamPath))
                 .andThen(new PonFilter())
-                .andThen(new SageHotspotsAnnotation(knownHotspotsTsv, sageOutput.outputFile().path()))
+                .andThen(new SageHotspotAnnotation(knownHotspotsTsv, sageOutput.outputFile().path()))
                 .andThen(new SnpEff(Resource.SNPEFF_CONFIG))
                 .andThen(new DbSnpAnnotation(Resource.DBSNPS_VCF))
                 .andThen(FinalSubStage.of(new CosmicAnnotation(Resource.COSMIC_VCF_GZ, "ID,INFO")))

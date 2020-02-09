@@ -7,11 +7,11 @@ import com.hartwig.pipeline.calling.SubStageTest;
 
 import org.junit.Test;
 
-public class SageHotspotsApplicationTest extends SubStageTest {
+public class SageHotspotApplicationTest extends SubStageTest {
 
     @Override
     public SubStage createVictim() {
-        return new SageHotspotsApplication("known_hotspots.tsv",
+        return new SageHotspotApplication("known_hotspots.tsv",
                 "coding_regions.bed",
                 "reference_genome.fasta",
                 "tumor.bam",

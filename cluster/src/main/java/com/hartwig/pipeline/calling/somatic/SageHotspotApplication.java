@@ -8,7 +8,7 @@ import com.hartwig.pipeline.calling.command.TabixCommand;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.OutputFile;
 
-class SageHotspotsApplication extends SubStage {
+class SageHotspotApplication extends SubStage {
 
     private final String knownHotspots;
     private final String codingRegions;
@@ -18,7 +18,7 @@ class SageHotspotsApplication extends SubStage {
     private final String tumorSampleName;
     private final String referenceSampleName;
 
-    SageHotspotsApplication(final String knownHotspots, final String codingRegions, final String referenceGenomePath,
+    SageHotspotApplication(final String knownHotspots, final String codingRegions, final String referenceGenomePath,
             final String tumorBamPath, final String referenceBamPath, final String tumorSampleName, final String referenceSampleName) {
         super("sage.hotspots", OutputFile.GZIPPED_VCF);
         this.knownHotspots = knownHotspots;
