@@ -3,7 +3,7 @@ package com.hartwig.pipeline.calling.substages;
 import java.util.List;
 
 import com.hartwig.pipeline.calling.SubStage;
-import com.hartwig.pipeline.calling.command.BcfToolsCommandBuilder;
+import com.hartwig.pipeline.calling.command.BcfToolsCommandListBuilder;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.OutputFile;
 
@@ -20,8 +20,6 @@ public class CosmicAnnotation extends SubStage {
 
     @Override
     public List<BashCommand> bash(final OutputFile input, final OutputFile output) {
-        return new BcfToolsCommandBuilder(input.path(), output.path())
-                .addAnnotation(cosmicDB, columns)
-                .buildAndIndex();
+        return new BcfToolsCommandListBuilder(input.path(), output.path()).withIndex().addAnnotation(cosmicDB, columns).build();
     }
 }
