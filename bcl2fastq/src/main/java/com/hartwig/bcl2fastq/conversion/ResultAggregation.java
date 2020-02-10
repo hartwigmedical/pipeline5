@@ -72,25 +72,24 @@ public class ResultAggregation {
                 lane.getValue().stream().collect(toMap(b -> ResultAggregation.parseNumInPair(b.getName()), Function.identity()));
         Blob blobR1 = pair.get("R1");
         Blob blobR2 = pair.get("R2");
-        if (blobR1 == null || blobR2 == null) {
-            throw new IllegalArgumentException(String.format("Missing one or both ends of pair in lane [%s] paths [%s]",
+        if (blobR1 == null) {
+            throw new IllegalArgumentException(String.format("Missing first end of pair in lane [%s] paths [%s]",
                     lane.getKey(),
                     lane.getValue().stream().map(Blob::getName).collect(Collectors.joining(","))));
         }
         FastqId id = FastqId.of(parseLaneIndex(blobR1.getName()), sample.barcode());
-        return ImmutableConvertedFastq.builder()
+        ImmutableConvertedFastq.Builder builder = ImmutableConvertedFastq.builder()
                 .id(id)
                 .pathR1(blobR1.getName())
-                .pathR2(blobR2.getName())
                 .outputPathR1(outputPath(stats, blobR1))
-                .outputPathR2(outputPath(stats, blobR2))
                 .sizeR1(blobR1.getSize())
-                .sizeR2(blobR2.getSize())
                 .md5R1(blobR1.getMd5())
-                .md5R2(blobR2.getMd5())
                 .yield(yield(id, stats))
-                .yieldQ30(yieldQ30(id, stats))
-                .build();
+                .yieldQ30(yieldQ30(id, stats));
+        if (blobR2 != null) {
+            builder.pathR2(blobR2.getName()).outputPathR2(outputPath(stats, blobR2)).sizeR2(blobR2.getSize()).md5R2(blobR2.getMd5());
+        }
+        return builder.build();
     }
 
     private static String outputPath(final Stats stats, final Blob blobR1) {

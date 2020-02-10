@@ -8,7 +8,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.Collections;
 import java.util.List;
 
 import com.google.cloud.storage.Blob;
@@ -95,11 +94,11 @@ public class ResultAggregationTest {
         ConvertedFastq firstFastq = fastq.get(0);
         assertThat(firstFastq.id()).isEqualTo(FastqId.of(1, BARCODE));
         assertThat(firstFastq.pathR1()).isEqualTo(first.getName());
-        assertThat(firstFastq.pathR2()).isEqualTo(second.getName());
+        assertThat(firstFastq.pathR2()).hasValue(second.getName());
         ConvertedFastq secondFastq = fastq.get(1);
         assertThat(secondFastq.id()).isEqualTo(FastqId.of(2, BARCODE));
         assertThat(secondFastq.pathR1()).isEqualTo(third.getName());
-        assertThat(secondFastq.pathR2()).isEqualTo(fourth.getName());
+        assertThat(secondFastq.pathR2()).hasValue(fourth.getName());
     }
 
     @Test(expected = IllegalStateException.class)
@@ -134,15 +133,9 @@ public class ResultAggregationTest {
         List<ConvertedFastq> fastq = conversion.samples().get(0).fastq();
         ConvertedFastq firstFastq = fastq.get(0);
         assertThat(firstFastq.sizeR1()).isEqualTo(SIZE_R1);
-        assertThat(firstFastq.sizeR2()).isEqualTo(SIZE_R2);
+        assertThat(firstFastq.sizeR2()).hasValue(SIZE_R2);
         assertThat(firstFastq.md5R1()).isEqualTo(MD5_R1);
-        assertThat(firstFastq.md5R2()).isEqualTo(MD5_R2);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void failsWhenUnpairedReadsEncountered() {
-        when(bucket.list(path)).thenReturn(Collections.singletonList(first));
-        victim.apply(sampleSheet(), defaultStats());
+        assertThat(firstFastq.md5R2()).hasValue(MD5_R2);
     }
 
     @Test
@@ -171,7 +164,7 @@ public class ResultAggregationTest {
         List<ConvertedFastq> fastq = conversion.samples().get(0).fastq();
         ConvertedFastq firstFastq = fastq.get(0);
         assertThat(firstFastq.outputPathR1()).isEqualTo("GIAB12878_flowcell_S1_L001_R1_001.fastq.gz");
-        assertThat(firstFastq.outputPathR2()).isEqualTo("GIAB12878_flowcell_S1_L001_R2_001.fastq.gz");
+        assertThat(firstFastq.outputPathR2()).hasValue("GIAB12878_flowcell_S1_L001_R2_001.fastq.gz");
     }
 
     private static ImmutableStats defaultStats() {

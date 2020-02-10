@@ -8,6 +8,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.Optional;
+
 import com.google.cloud.storage.Acl;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
@@ -125,8 +127,8 @@ public class OutputCopierTest {
         ConvertedFastq fastq = mock(ConvertedFastq.class);
         when(fastq.pathR1()).thenReturn(format("%s/%s", runtimePath, outputPathR1));
         when(fastq.outputPathR1()).thenReturn(outputPathR1);
-        when(fastq.pathR2()).thenReturn(format("%s/%s", runtimePath, outputPathR2));
-        when(fastq.outputPathR2()).thenReturn(outputPathR2);
+        when(fastq.pathR2()).thenReturn(Optional.of(format("%s/%s", runtimePath, outputPathR2)));
+        when(fastq.outputPathR2()).thenReturn(Optional.of(outputPathR2));
         return fastq;
     }
 
