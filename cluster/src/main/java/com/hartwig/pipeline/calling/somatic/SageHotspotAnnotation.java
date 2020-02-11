@@ -7,12 +7,12 @@ import com.hartwig.pipeline.calling.SubStage;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.OutputFile;
 
-class SageHotspotsAnnotation extends SubStage {
+class SageHotspotAnnotation extends SubStage {
 
     private final String knownHotspots;
     private final String sageHotspotVcf;
 
-    SageHotspotsAnnotation(final String knownHotspots, final String sageHotspotVcf) {
+    SageHotspotAnnotation(final String knownHotspots, final String sageHotspotVcf) {
         super("sage.hotspots.annotated", OutputFile.GZIPPED_VCF);
         this.knownHotspots = knownHotspots;
         this.sageHotspotVcf = sageHotspotVcf;
@@ -20,6 +20,6 @@ class SageHotspotsAnnotation extends SubStage {
 
     @Override
     public List<BashCommand> bash(final OutputFile input, final OutputFile output) {
-        return Collections.singletonList(new SageAnnotationCommand(input.path(), sageHotspotVcf, knownHotspots, output.path()));
+        return Collections.singletonList(new SageHotspotAnnotationCommand(input.path(), sageHotspotVcf, knownHotspots, output.path()));
     }
 }

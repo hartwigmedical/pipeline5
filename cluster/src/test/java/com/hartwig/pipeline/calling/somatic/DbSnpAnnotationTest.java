@@ -22,8 +22,7 @@ public class DbSnpAnnotationTest extends SubStageTest {
 
     @Test
     public void runsBcfToolsDbSnpAnnotation() {
-        assertThat(bash()).contains("/opt/tools/bcftools/1.3.1/bcftools annotate -a dbsnp.vcf.gz -c ID -o " + expectedPath()
-                + " -O z /data/output/tumor.strelka.vcf");
+        assertThat(bash()).contains("/opt/tools/bcftools/1.3.1/bcftools annotate -a dbsnp.vcf.gz -c ID /data/output/tumor.strelka.vcf -O z -o " + expectedPath());
     }
 
     @Test

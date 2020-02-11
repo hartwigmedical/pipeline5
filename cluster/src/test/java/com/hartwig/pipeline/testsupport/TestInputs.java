@@ -5,6 +5,7 @@ import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.alignment.vm.VmAligner;
 import com.hartwig.pipeline.calling.germline.GermlineCaller;
 import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
+import com.hartwig.pipeline.calling.somatic.SageV2CallerOutput;
 import com.hartwig.pipeline.calling.somatic.SomaticCaller;
 import com.hartwig.pipeline.calling.somatic.SomaticCallerOutput;
 import com.hartwig.pipeline.calling.structural.StructuralCaller;
@@ -165,6 +166,12 @@ public class TestInputs {
         return AmberOutput.builder()
                 .status(PipelineStatus.SUCCESS)
                 .maybeOutputDirectory(gsLocation(somaticBucket(Amber.NAMESPACE), RESULTS))
+                .build();
+    }
+
+    public static SageV2CallerOutput sageOutput() {
+        return SageV2CallerOutput.builder()
+                .status(PipelineStatus.SUCCESS)
                 .build();
     }
 

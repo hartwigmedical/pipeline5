@@ -24,7 +24,7 @@ public class CosmicAnnotationTest extends SubStageTest {
     public void runsBcfToolsDbSnpAnnotation() {
         assertThat(bash()).contains(
                 "/opt/tools/bcftools/1.3.1/bcftools annotate -a cosmic.vcf.gz -c ID,INFO "
-                        + "-o /data/output/tumor.cosmic.annotated.vcf.gz -O z /data/output/tumor.strelka.vcf");
+                        + "/data/output/tumor.strelka.vcf -O z -o /data/output/tumor.cosmic.annotated.vcf.gz");
     }
 
     @Test
