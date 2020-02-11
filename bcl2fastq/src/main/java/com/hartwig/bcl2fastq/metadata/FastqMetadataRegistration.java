@@ -52,9 +52,9 @@ public class FastqMetadataRegistration implements Consumer<Conversion> {
                             .name_r1(convertedFastq.outputPathR1())
                             .size_r1(convertedFastq.sizeR1())
                             .hash_r1(convertMd5ToSbpFormat(convertedFastq.md5R1()))
-                            .name_r2(convertedFastq.outputPathR2())
+                            .name_r2(convertedFastq.outputPathR2().orElse(""))
                             .size_r2(convertedFastq.sizeR2())
-                            .hash_r2(convertMd5ToSbpFormat(convertedFastq.md5R2()))
+                            .hash_r2(convertMd5ToSbpFormat(convertedFastq.md5R2().orElse("")))
                             .yld(convertedFastq.yield())
                             .q30(Q30.of(convertedFastq))
                             .qc_pass(flowcellQCPass && QualityControl.minimumQ30(convertedFastq, sbpSample.q30_req().orElse(0d)))
@@ -94,7 +94,7 @@ public class FastqMetadataRegistration implements Consumer<Conversion> {
     private void updateSampleYieldAndStatus(final ConvertedSample sample, final SbpSample sbpSample, final List<SbpFastq> validFastq) {
         long totalSampleYield = validFastq.stream().filter(SbpFastq::qc_pass).mapToLong(f -> f.yld().orElse(0L)).sum();
         long totalSampleYieldQ30 =
-                validFastq.stream().filter(SbpFastq::qc_pass).mapToLong(f -> (long) (f.q30().orElse(0d)/100 * f.yld().orElse(0L))).sum();
+                validFastq.stream().filter(SbpFastq::qc_pass).mapToLong(f -> (long) (f.q30().orElse(0d) / 100 * f.yld().orElse(0L))).sum();
         double sampleQ30 = Q30.of(new WithYieldAndQ30() {
             @Override
             public long yield() {

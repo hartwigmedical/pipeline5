@@ -36,9 +36,11 @@ public class OutputCopier implements Consumer<Conversion> {
             for (ConvertedSample sample : conversion.samples()) {
                 for (ConvertedFastq fastq : sample.fastq()) {
                     runtimeBucket.getUnderlyingBucket().get(fastq.pathR1()).createAcl(reader);
-                    runtimeBucket.getUnderlyingBucket().get(fastq.pathR2()).createAcl(reader);
                     copy(fastq.pathR1(), fastq.outputPathR1());
-                    copy(fastq.pathR2(), fastq.outputPathR2());
+                    if (fastq.pathR2().isPresent() && fastq.outputPathR2().isPresent()) {
+                        runtimeBucket.getUnderlyingBucket().get(fastq.pathR2().get()).createAcl(reader);
+                        copy(fastq.pathR2().get(), fastq.outputPathR2().get());
+                    }
                 }
             }
         } catch (Exception e) {
