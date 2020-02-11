@@ -34,7 +34,7 @@ public class FastqMetadataRegistration implements Consumer<Conversion> {
         SbpFlowcell sbpFlowcell = sbpApi.getFlowcell(conversion.flowcell());
         if (sbpFlowcell != null) {
             LOGGER.info("Updating SBP API with conversion results for SBP flowcell [{}]", sbpFlowcell.id());
-            double percUndeterminedYield = (conversion.undeterminedReads() / (double) conversion.totalReads()) * 100;
+            double percUndeterminedYield = (conversion.undetermined().yield() / (double) conversion.yield()) * 100;
             boolean flowcellQCPass = QualityControl.errorsInLogs(log) && QualityControl.undeterminedReadPercentage(percUndeterminedYield)
                     && QualityControl.minimumYield(conversion);
             for (ConvertedSample sample : conversion.samples()) {
@@ -66,9 +66,9 @@ public class FastqMetadataRegistration implements Consumer<Conversion> {
             SbpFlowcell updated = sbpApi.updateFlowcell(SbpFlowcell.builderFrom(sbpFlowcell)
                     .status(SbpFlowcell.STATUS_CONVERTED)
                     .undet_rds_p_pass(flowcellQCPass)
-                    .yld(conversion.totalReads())
+                    .yld(conversion.yield())
                     .q30(Q30.of(conversion))
-                    .undet_rds(conversion.undeterminedReads())
+                    .undet_rds(conversion.undetermined().yield())
                     .undet_rds_p(percUndeterminedYield * 100)
                     .build());
             SbpFlowcell withTimestamp = sbpApi.updateFlowcell(SbpFlowcell.builderFrom(updated)
@@ -94,7 +94,7 @@ public class FastqMetadataRegistration implements Consumer<Conversion> {
     private void updateSampleYieldAndStatus(final ConvertedSample sample, final SbpSample sbpSample, final List<SbpFastq> validFastq) {
         long totalSampleYield = validFastq.stream().filter(SbpFastq::qc_pass).mapToLong(f -> f.yld().orElse(0L)).sum();
         long totalSampleYieldQ30 =
-                validFastq.stream().filter(SbpFastq::qc_pass).mapToLong(f -> (long) (f.q30().orElse(0d)/100 * f.yld().orElse(0L))).sum();
+                validFastq.stream().filter(SbpFastq::qc_pass).mapToLong(f -> (long) (f.q30().orElse(0d) / 100 * f.yld().orElse(0L))).sum();
         double sampleQ30 = Q30.of(new WithYieldAndQ30() {
             @Override
             public long yield() {

@@ -147,10 +147,11 @@ public class ResultAggregationTest {
 
     @Test
     public void totalUndeterminedAndReadsCalculatedFromStats() {
+        when(bucket.list(path)).thenReturn(Lists.newArrayList(first, second));
         Conversion conversion = victim.apply(sampleSheet(), defaultStats());
 
-        assertThat(conversion.undeterminedReads()).isEqualTo(1);
-        assertThat(conversion.totalReads()).isEqualTo(4);
+        assertThat(conversion.undetermined().yield()).isEqualTo(1);
+        assertThat(conversion.yield()).isEqualTo(4);
     }
 
     @Test

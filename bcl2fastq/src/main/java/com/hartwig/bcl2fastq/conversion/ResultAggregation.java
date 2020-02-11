@@ -19,7 +19,7 @@ import com.google.cloud.storage.Blob;
 import com.hartwig.bcl2fastq.samplesheet.IlluminaSample;
 import com.hartwig.bcl2fastq.samplesheet.SampleSheet;
 import com.hartwig.bcl2fastq.stats.LaneStats;
-import com.hartwig.bcl2fastq.stats.SampleStats;
+import com.hartwig.bcl2fastq.stats.ReadMetrics;
 import com.hartwig.bcl2fastq.stats.Stats;
 import com.hartwig.bcl2fastq.stats.UndeterminedStats;
 import com.hartwig.pipeline.ResultsDirectory;
@@ -52,15 +52,15 @@ public class ResultAggregation {
                             .collect(toList()) : Collections.emptyList())
                     .build());
         }
-        return conversionBuilder.undeterminedReads(stats.conversionResults()
-                .stream()
-                .map(LaneStats::undetermined)
-                .mapToLong(UndeterminedStats::yield)
-                .sum())
-                .totalReads(stats.conversionResults().stream().flatMap(c -> c.demuxResults().stream()).mapToLong(SampleStats::yield).sum()
-                        + stats.conversionResults().stream().mapToLong(c -> c.undetermined().yield()).sum())
-                .flowcell(stats.flowcell())
-                .build();
+        return conversionBuilder.undetermined(ConvertedUndetermined.builder()
+                .yield(stats.conversionResults().stream().map(LaneStats::undetermined).mapToLong(UndeterminedStats::yield).sum())
+                .yieldQ30(stats.conversionResults()
+                        .stream()
+                        .map(LaneStats::undetermined)
+                        .flatMap(u -> u.readMetrics().stream())
+                        .mapToLong(ReadMetrics::yieldQ30)
+                        .sum())
+                .build()).flowcell(stats.flowcell()).build();
     }
 
     static String parseLane(String path) {

@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 import com.hartwig.bcl2fastq.conversion.Conversion;
 import com.hartwig.bcl2fastq.conversion.ConvertedFastq;
 import com.hartwig.bcl2fastq.conversion.ConvertedSample;
+import com.hartwig.bcl2fastq.conversion.ConvertedUndetermined;
 import com.hartwig.bcl2fastq.conversion.FastqId;
 import com.hartwig.bcl2fastq.conversion.ImmutableConversion;
 import com.hartwig.bcl2fastq.conversion.ImmutableConvertedFastq;
@@ -87,7 +88,7 @@ public class FastqMetadataRegistrationTest {
 
     @NotNull
     public ImmutableConversion.Builder conversion(final String name) {
-        return Conversion.builder().flowcell(name).undeterminedReads(5).totalReads(100);
+        return Conversion.builder().undetermined(ConvertedUndetermined.builder().yield(0).yieldQ30(0).build()).flowcell(name);
     }
 
     @Test
@@ -99,7 +100,7 @@ public class FastqMetadataRegistrationTest {
 
     @Test
     public void highUndeterminedYieldPercentageFailsFlowcellQC() {
-        victim.accept(conversion(EXISTS).undeterminedReads(7).totalReads(100).build());
+        victim.accept(highUndeterminedReads());
         assertThat(flowCellUpdateCaptor.getValue().undet_rds_p_pass()).isFalse();
     }
 
@@ -178,27 +179,27 @@ public class FastqMetadataRegistrationTest {
 
     @Test
     public void setsQcFailWhenFastQPairQ30LessThanRequired() {
-        victim.accept(conversion(EXISTS).addSamples(sample()
-                .addFastq(fastq().yieldQ30(1).build())
-                .build()).build());
+        victim.accept(conversion(EXISTS).addSamples(sample().addFastq(fastq().yieldQ30(1).build()).build()).build());
         verify(sbpApi).create(sbpFastqArgumentCaptor.capture());
         assertThat(sbpFastqArgumentCaptor.getValue().qc_pass()).isFalse();
     }
 
     @Test
     public void setsQcFailOnFastQWhenFlowcellFails() {
-        victim.accept(conversion(EXISTS).undeterminedReads(7)
-                .totalReads(100)
-                .addSamples(sample().addFastq(fastq().build()).build())
-                .build());
+        victim.accept(highUndeterminedReads());
         verify(sbpApi).create(sbpFastqArgumentCaptor.capture());
         assertThat(sbpFastqArgumentCaptor.getValue().qc_pass()).isFalse();
     }
 
+    private ImmutableConversion highUndeterminedReads() {
+        return conversion(EXISTS).undetermined(ConvertedUndetermined.builder().yieldQ30(7).yield(7).build())
+                .addSamples(sample().addFastq(fastq().yield(100).build()).build())
+                .build();
+    }
+
     @Test
     public void createsFastQQCPassQ30MeetsRequired() {
-        victim.accept(conversion(EXISTS).addSamples(sample().addFastq(fastq().build()).build())
-                .build());
+        victim.accept(conversion(EXISTS).addSamples(sample().addFastq(fastq().build()).build()).build());
         verify(sbpApi).create(sbpFastqArgumentCaptor.capture());
         SbpFastq sbpFastq = sbpFastqArgumentCaptor.getValue();
         assertThat(sbpFastq.qc_pass()).isTrue();

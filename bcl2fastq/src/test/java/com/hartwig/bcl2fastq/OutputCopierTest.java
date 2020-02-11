@@ -47,7 +47,7 @@ public class OutputCopierTest {
 
     @Test
     public void shouldDoNothingOnEmptyConversion() {
-        Conversion conversion = Conversion.builder().flowcell("flow").totalReads(0).undeterminedReads(0).build();
+        Conversion conversion = Conversion.builder().flowcell("flow").build();
         victim.accept(conversion);
         verifyZeroInteractions(gsUtil);
     }
@@ -108,7 +108,7 @@ public class OutputCopierTest {
 
     @Test
     public void addsOutputServiceAccountEmailToAcl() {
-        Conversion conversion = Conversion.builder().flowcell("flow").totalReads(0).undeterminedReads(0).build();
+        Conversion conversion = Conversion.builder().flowcell("flow").build();
         victim.accept(conversion);
         ArgumentCaptor<Acl> createdAcl = ArgumentCaptor.forClass(Acl.class);
         verify(bucket).createAcl(createdAcl.capture());
