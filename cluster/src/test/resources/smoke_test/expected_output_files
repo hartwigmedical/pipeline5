@@ -103,6 +103,12 @@ purple/plot/CPCT12345678T.somatic.png
 purple/plot/CPCT12345678T.somatic.rainfall.png
 purple/purple.version
 purple/run.log
+sage/CPCT12345678T.sage.somatic.post_processed.vcf.gz
+sage/CPCT12345678T.sage.somatic.post_processed.vcf.gz.tbi
+sage/CPCT12345678T.sage.somatic.vcf.gz
+sage/CPCT12345678T.sage.somatic.vcf.gz.tbi
+sage/run.log
+sage/run.sh
 somatic_caller/config/run.config.ini
 somatic_caller/CPCT12345678T.sage_hotspots.vcf.gz
 somatic_caller/CPCT12345678T.sage_hotspots.vcf.gz.tbi
