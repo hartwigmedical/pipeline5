@@ -15,10 +15,13 @@ import com.google.common.collect.ImmutableList;
 import com.hartwig.bcl2fastq.conversion.Conversion;
 import com.hartwig.bcl2fastq.conversion.ConvertedFastq;
 import com.hartwig.bcl2fastq.conversion.ConvertedSample;
+import com.hartwig.bcl2fastq.conversion.ConvertedUndetermined;
+import com.hartwig.bcl2fastq.conversion.ImmutableConvertedUndetermined;
 import com.hartwig.pipeline.storage.GsUtilFacade;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.testsupport.TestBlobs;
 
+import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -47,7 +50,7 @@ public class OutputCopierTest {
 
     @Test
     public void shouldDoNothingOnEmptyConversion() {
-        Conversion conversion = Conversion.builder().flowcell("flow").build();
+        Conversion conversion = Conversion.builder().flowcell("flow").undetermined(emptyUndetermined()).build();
         victim.accept(conversion);
         verifyZeroInteractions(gsUtil);
     }
@@ -108,12 +111,17 @@ public class OutputCopierTest {
 
     @Test
     public void addsOutputServiceAccountEmailToAcl() {
-        Conversion conversion = Conversion.builder().flowcell("flow").build();
+        Conversion conversion = Conversion.builder().flowcell("flow").undetermined(emptyUndetermined()).build();
         victim.accept(conversion);
         ArgumentCaptor<Acl> createdAcl = ArgumentCaptor.forClass(Acl.class);
         verify(bucket).createAcl(createdAcl.capture());
         Acl result = createdAcl.getValue();
         verifyAcl(result);
+    }
+
+    @NotNull
+    public ImmutableConvertedUndetermined emptyUndetermined() {
+        return ConvertedUndetermined.builder().yieldQ30(0).yield(0).build();
     }
 
     public void verifyAcl(final Acl result) {
