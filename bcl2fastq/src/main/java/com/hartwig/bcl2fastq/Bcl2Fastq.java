@@ -24,6 +24,7 @@ import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.GsUtilFacade;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.storage.StorageProvider;
+import com.hartwig.pipeline.tools.Versions;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +48,7 @@ class Bcl2Fastq {
     }
 
     private void run() {
+        Versions.printAll();
         LOGGER.info("Starting bcl2fastq for flowcell [{}]", arguments.flowcell());
 
         FlowcellMetadata metadata = FlowcellMetadata.from(arguments);
