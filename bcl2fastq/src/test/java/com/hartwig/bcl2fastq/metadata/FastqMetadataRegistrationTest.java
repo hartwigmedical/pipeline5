@@ -7,6 +7,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Optional;
+
 import com.hartwig.bcl2fastq.conversion.Conversion;
 import com.hartwig.bcl2fastq.conversion.ConvertedFastq;
 import com.hartwig.bcl2fastq.conversion.ConvertedSample;
@@ -116,6 +118,19 @@ public class FastqMetadataRegistrationTest {
         victim.accept(conversion(EXISTS).addSamples(sample().build()).build());
         verify(sbpApi).updateSample(sampleUpdateCaptor.capture());
         assertThat(sampleUpdateCaptor.getValue().status()).isEqualTo(SbpSample.STATUS_READY);
+    }
+
+    @Test
+    public void setsSampleStatusToUnregisteredYieldAndQ30MeetsDontExist() {
+        when(sbpApi.findOrCreate(BARCODE, PROJECT)).thenReturn(SbpSample.builder()
+                .from(SBP_SAMPLE)
+                .yld_req(Optional.empty())
+                .q30_req(Optional.empty())
+                .build());
+        when(sbpApi.getFastqs(SBP_SAMPLE)).thenReturn(newArrayList(sbpFastq(2_000_000_002, 100, true)));
+        victim.accept(conversion(EXISTS).addSamples(sample().build()).build());
+        verify(sbpApi).updateSample(sampleUpdateCaptor.capture());
+        assertThat(sampleUpdateCaptor.getValue().status()).isEqualTo(SbpSample.STATUS_UNREGISTERED);
     }
 
     @Test
