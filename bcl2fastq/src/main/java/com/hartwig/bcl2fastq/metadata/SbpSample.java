@@ -14,6 +14,7 @@ public interface SbpSample {
 
     String STATUS_READY = "Ready";
     String STATUS_INSUFFICIENT_QUALITY = "Insufficient Quality";
+    String STATUS_UNREGISTERED = "Unregistered";
 
     Optional<Integer> id();
 
