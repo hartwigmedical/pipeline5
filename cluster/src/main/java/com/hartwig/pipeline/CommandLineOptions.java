@@ -120,7 +120,7 @@ public class CommandLineOptions {
 
     private static Option cmek() {
         return optionWithArg(CMEK_FLAG,
-                "The name of the Customer Managed Encryption Key. When this flag is populated all runtime buckets " + "will use this key.");
+                "The name of the Customer Managed Encryption Key. When this flag is populated all runtime buckets will use this key.");
     }
 
     private static Option privateNetwork() {

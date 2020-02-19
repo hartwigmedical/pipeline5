@@ -51,11 +51,7 @@ public class RuntimeBucket {
                     BucketInfo.newBuilder(runId).setStorageClass(StorageClass.REGIONAL).setLocation(arguments.region());
             arguments.cmek().ifPresent(key -> {
                 LOGGER.info("Using CMEK key [{}] to encrypt all buckets", key);
-                builder.setDefaultKmsKeyName(String.format("projects/%s/locations/%s/keyRings/%s/cryptoKeys/%s",
-                        arguments.project(),
-                        arguments.region(),
-                        arguments.project(),
-                        key));
+                builder.setDefaultKmsKeyName(key);
             });
             bucket = storage.create(builder.build());
         }
