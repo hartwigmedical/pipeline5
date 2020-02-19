@@ -1,7 +1,5 @@
 package com.hartwig.pipeline.storage;
 
-import static java.lang.String.format;
-
 import static com.hartwig.pipeline.testsupport.TestInputs.defaultSomaticRunMetadata;
 import static com.hartwig.pipeline.testsupport.TestInputs.referenceRunMetadata;
 
@@ -140,11 +138,7 @@ public class RuntimeBucketTest {
         String keyName = "key";
         Arguments arguments = Arguments.testDefaultsBuilder().cmek(keyName).build();
         RuntimeBucket.from(storage, NAMESPACE, referenceRunMetadata(), arguments);
-        assertThat(bucketInfo.getValue().getDefaultKmsKeyName()).isEqualTo(format("projects/%s/locations/%s/keyRings/%s/cryptoKeys/%s",
-                arguments.project(),
-                arguments.region(),
-                arguments.project(),
-                keyName));
+        assertThat(bucketInfo.getValue().getDefaultKmsKeyName()).isEqualTo(keyName);
     }
 
     @Test
