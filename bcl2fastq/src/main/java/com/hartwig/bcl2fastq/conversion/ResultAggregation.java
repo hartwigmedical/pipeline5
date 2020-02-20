@@ -16,6 +16,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.google.cloud.storage.Blob;
+import com.google.cloud.storage.Bucket;
 import com.hartwig.bcl2fastq.samplesheet.IlluminaSample;
 import com.hartwig.bcl2fastq.samplesheet.SampleSheet;
 import com.hartwig.bcl2fastq.stats.LaneStats;
@@ -49,7 +50,7 @@ public class ResultAggregation {
                             .collect(groupingBy(b -> parseLane(b.getName())))
                             .entrySet()
                             .stream()
-                            .map(e -> ResultAggregation.fastq(sample, e, stats))
+                            .map(e -> ResultAggregation.fastq(sample, e, stats, bucket.getUnderlyingBucket()))
                             .sorted(Comparator.comparingInt(o -> o.id().lane()))
                             .collect(toList()) : Collections.emptyList())
                     .build());
@@ -69,11 +70,11 @@ public class ResultAggregation {
         return new File(path).getName().split("_")[2];
     }
 
-    static ConvertedFastq fastq(IlluminaSample sample, Map.Entry<String, List<Blob>> lane, Stats stats) {
+    static ConvertedFastq fastq(IlluminaSample sample, Map.Entry<String, List<Blob>> lane, Stats stats, Bucket bucket) {
         Map<String, Blob> pair =
                 lane.getValue().stream().collect(toMap(b -> ResultAggregation.parseNumInPair(b.getName()), Function.identity()));
-        Blob blobR1 = pair.get("R1");
-        Blob blobR2 = pair.get("R2");
+        Blob blobR1 = getWithMetadata(pair, "R1", bucket);
+        Blob blobR2 = getWithMetadata(pair, "R2", bucket);
         if (blobR1 == null) {
             throw new IllegalArgumentException(String.format("Missing first end of pair in lane [%s] paths [%s]",
                     lane.getKey(),
@@ -92,6 +93,14 @@ public class ResultAggregation {
             builder.pathR2(blobR2.getName()).outputPathR2(outputPath(stats, blobR2)).sizeR2(blobR2.getSize()).md5R2(blobR2.getMd5());
         }
         return builder.build();
+    }
+
+    private static Blob getWithMetadata(final Map<String, Blob> pair, final String name, final Bucket bucket) {
+        Blob blob = pair.get(name);
+        if (blob != null) {
+            return bucket.get(blob.getName());
+        }
+        return blob;
     }
 
     @NotNull

@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 
 import com.google.cloud.storage.Blob;
+import com.google.cloud.storage.Bucket;
 import com.google.common.collect.Lists;
 import com.hartwig.bcl2fastq.samplesheet.IlluminaSample;
 import com.hartwig.bcl2fastq.samplesheet.ImmutableSampleSheet;
@@ -32,6 +33,7 @@ public class ResultAggregationTest {
     private static final String PROJECT = "project";
     private static final String SAMPLE = "sample";
     private RuntimeBucket bucket;
+    private Bucket underlyingBucket;
     private ResultAggregation victim;
     private Blob first;
     private Blob second;
@@ -46,6 +48,8 @@ public class ResultAggregationTest {
     @Before
     public void setUp() {
         bucket = mock(RuntimeBucket.class);
+        underlyingBucket = mock(Bucket.class);
+        when(bucket.getUnderlyingBucket()).thenReturn(underlyingBucket);
         victim = new ResultAggregation(bucket, ResultsDirectory.defaultDirectory());
         path = String.format("results/%s/%s", PROJECT, BARCODE);
         first = blob(path + "/GIAB12878_S1_L001_R1_001.fastq.gz");
@@ -60,6 +64,10 @@ public class ResultAggregationTest {
         when(third.getMd5()).thenReturn(MD5_R1);
         when(fourth.getSize()).thenReturn(SIZE_R2);
         when(fourth.getMd5()).thenReturn(MD5_R2);
+        when(underlyingBucket.get(first.getName())).thenReturn(first);
+        when(underlyingBucket.get(second.getName())).thenReturn(second);
+        when(underlyingBucket.get(third.getName())).thenReturn(third);
+        when(underlyingBucket.get(fourth.getName())).thenReturn(fourth);
     }
 
     @Test
