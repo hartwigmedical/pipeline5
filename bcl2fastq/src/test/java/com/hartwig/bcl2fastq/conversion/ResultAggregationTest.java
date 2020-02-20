@@ -168,6 +168,13 @@ public class ResultAggregationTest {
         assertThat(firstFastq.outputPathR2()).hasValue("GIAB12878_flowcell_S1_L001_R2_001.fastq.gz");
     }
 
+    @Test(expected = IllegalStateException.class)
+    public void throwsIllegalStateIfMd5IsNull() {
+        when(bucket.list(path)).thenReturn(Lists.newArrayList(first, second));
+        when(first.getMd5()).thenReturn(null);
+        victim.apply(sampleSheet(), defaultStats());
+    }
+
     private static ImmutableStats defaultStats() {
         return stats(laneStats(1, 1, sampleStats(BARCODE, 3, 1, 2)));
     }

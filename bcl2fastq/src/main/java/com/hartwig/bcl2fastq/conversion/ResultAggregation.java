@@ -25,6 +25,8 @@ import com.hartwig.bcl2fastq.stats.UndeterminedStats;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
+import org.jetbrains.annotations.NotNull;
+
 public class ResultAggregation {
 
     private final RuntimeBucket bucket;
@@ -83,13 +85,22 @@ public class ResultAggregation {
                 .pathR1(blobR1.getName())
                 .outputPathR1(outputPath(stats, blobR1))
                 .sizeR1(blobR1.getSize())
-                .md5R1(blobR1.getMd5())
+                .md5R1(checkNull(blobR1))
                 .yield(yield(id, stats))
                 .yieldQ30(yieldQ30(id, stats));
         if (blobR2 != null) {
             builder.pathR2(blobR2.getName()).outputPathR2(outputPath(stats, blobR2)).sizeR2(blobR2.getSize()).md5R2(blobR2.getMd5());
         }
         return builder.build();
+    }
+
+    @NotNull
+    private static String checkNull(final Blob blob) {
+        if (blob.getMd5() == null) {
+            throw new IllegalStateException(String.format("Blob [%s] has no MD5 sum. Failing conversion, check object in GCS.",
+                    blob.getName()));
+        }
+        return blob.getMd5();
     }
 
     private static String outputPath(final Stats stats, final Blob blobR1) {
