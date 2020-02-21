@@ -5,6 +5,7 @@ import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.alignment.vm.VmAligner;
 import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
+import com.hartwig.pipeline.cram.CramOutput;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
 import com.hartwig.pipeline.metadata.SingleSampleEventListener;
@@ -20,6 +21,7 @@ import org.junit.Test;
 
 import java.util.concurrent.Executors;
 
+import static com.hartwig.pipeline.testsupport.TestInputs.cramOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.flagstatOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.germlineCallerOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.referenceAlignmentOutput;
@@ -87,6 +89,7 @@ public class SingleSamplePipelineTest {
         when(stageRunner.run(eq(referenceRunMetadata()), any())).thenReturn(referenceMetricsOutput())
                 .thenReturn(snpGenotypeOutput())
                 .thenReturn(flagstatOutput)
+                .thenReturn(cramOutput())
                 .thenReturn(germlineCallerOutput());
         PipelineState runOutput = victim.run(referenceRunMetadata());
         assertFailed(runOutput);
@@ -94,7 +97,8 @@ public class SingleSamplePipelineTest {
                 germlineCallerOutput(),
                 referenceMetricsOutput(),
                 snpGenotypeOutput(),
-                flagstatOutput);
+                flagstatOutput,
+                cramOutput());
     }
 
     @Test
@@ -104,6 +108,7 @@ public class SingleSamplePipelineTest {
         when(stageRunner.run(eq(referenceRunMetadata()), any())).thenReturn(referenceMetricsOutput())
                 .thenReturn(snpGenotypeOutput)
                 .thenReturn(flagstatOutput())
+                .thenReturn(cramOutput())
                 .thenReturn(germlineCallerOutput());
         PipelineState runOutput = victim.run(referenceRunMetadata());
         assertFailed(runOutput);
@@ -111,7 +116,8 @@ public class SingleSamplePipelineTest {
                 germlineCallerOutput(),
                 referenceMetricsOutput(),
                 snpGenotypeOutput,
-                flagstatOutput());
+                flagstatOutput(),
+                cramOutput());
     }
 
     @Test
@@ -121,6 +127,7 @@ public class SingleSamplePipelineTest {
         when(stageRunner.run(eq(referenceRunMetadata()), any())).thenReturn(bamMetricsOutput)
                 .thenReturn(snpGenotypeOutput())
                 .thenReturn(flagstatOutput())
+                .thenReturn(cramOutput())
                 .thenReturn(germlineCallerOutput());
         PipelineState runOutput = victim.run(referenceRunMetadata());
         assertFailed(runOutput);
@@ -128,7 +135,27 @@ public class SingleSamplePipelineTest {
                 germlineCallerOutput(),
                 bamMetricsOutput,
                 snpGenotypeOutput(),
-                flagstatOutput());
+                flagstatOutput(),
+                cramOutput());
+    }
+
+    @Test
+    public void returnsFailedPipelineRunWhenCramStageFail() throws Exception {
+        when(aligner.run(referenceRunMetadata())).thenReturn(referenceAlignmentOutput());
+        CramOutput cramOutput = CramOutput.builder().status(PipelineStatus.FAILED).build();
+        when(stageRunner.run(eq(referenceRunMetadata()), any())).thenReturn(referenceMetricsOutput())
+                .thenReturn(snpGenotypeOutput())
+                .thenReturn(flagstatOutput())
+                .thenReturn(cramOutput)
+                .thenReturn(germlineCallerOutput());
+        PipelineState runOutput = victim.run(referenceRunMetadata());
+        assertFailed(runOutput);
+        assertThat(runOutput.stageOutputs()).containsExactly(referenceAlignmentOutput(),
+                germlineCallerOutput(),
+                referenceMetricsOutput(),
+                snpGenotypeOutput(),
+                flagstatOutput(),
+                cramOutput);
     }
 
     @Test
@@ -138,6 +165,7 @@ public class SingleSamplePipelineTest {
         when(stageRunner.run(eq(referenceRunMetadata()), any())).thenReturn(referenceMetricsOutput())
                 .thenReturn(snpGenotypeOutput())
                 .thenReturn(flagstatOutput())
+                .thenReturn(cramOutput())
                 .thenReturn(germlineCallerOutput);
         PipelineState runOutput = victim.run(referenceRunMetadata());
         assertFailed(runOutput);
@@ -145,7 +173,8 @@ public class SingleSamplePipelineTest {
                 germlineCallerOutput,
                 referenceMetricsOutput(),
                 snpGenotypeOutput(),
-                flagstatOutput());
+                flagstatOutput(),
+                cramOutput());
     }
 
     @Test
@@ -154,6 +183,7 @@ public class SingleSamplePipelineTest {
         when(stageRunner.run(eq(referenceRunMetadata()), any())).thenReturn(referenceMetricsOutput())
                 .thenReturn(snpGenotypeOutput())
                 .thenReturn(flagstatOutput())
+                .thenReturn(cramOutput())
                 .thenReturn(germlineCallerOutput());
         PipelineState runOutput = victim.run(referenceRunMetadata());
         assertSucceeded(runOutput);
@@ -161,7 +191,8 @@ public class SingleSamplePipelineTest {
                 germlineCallerOutput(),
                 referenceMetricsOutput(),
                 snpGenotypeOutput(),
-                flagstatOutput());
+                flagstatOutput(),
+                cramOutput());
     }
 
     @Test
@@ -169,13 +200,15 @@ public class SingleSamplePipelineTest {
         when(aligner.run(tumorRunMetadata())).thenReturn(tumorAlignmentOutput());
         when(stageRunner.run(eq(tumorRunMetadata()), any())).thenReturn(tumorMetricsOutput())
                 .thenReturn(snpGenotypeOutput())
-                .thenReturn(flagstatOutput());
+                .thenReturn(flagstatOutput())
+                .thenReturn(cramOutput());
         PipelineState runOutput = victim.run(tumorRunMetadata());
         assertSucceeded(runOutput);
         assertThat(runOutput.stageOutputs()).containsExactly(tumorAlignmentOutput(),
                 tumorMetricsOutput(),
                 snpGenotypeOutput(),
-                flagstatOutput());
+                flagstatOutput(),
+                cramOutput());
     }
 
     @Test
@@ -186,6 +219,7 @@ public class SingleSamplePipelineTest {
         TestReportComponent germlineComponent = new TestReportComponent();
         TestReportComponent snpgenotypeComponent = new TestReportComponent();
         TestReportComponent flagstatComponent = new TestReportComponent();
+        TestReportComponent cramComponent = new TestReportComponent();
 
         AlignmentOutput alignmentWithReportComponents =
                 AlignmentOutput.builder().from(referenceAlignmentOutput()).addReportComponents(alignerComponent).build();
@@ -197,6 +231,7 @@ public class SingleSamplePipelineTest {
                 .build())
                 .thenReturn(SnpGenotypeOutput.builder().from(snpGenotypeOutput()).addReportComponents(snpgenotypeComponent).build())
                 .thenReturn(FlagstatOutput.builder().from(flagstatOutput()).addReportComponents(flagstatComponent).build())
+                .thenReturn(CramOutput.builder().from(cramOutput()).addReportComponents(cramComponent).build())
                 .thenReturn(GermlineCallerOutput.builder().from(germlineCallerOutput()).addReportComponents(germlineComponent).build());
         victim.run(referenceRunMetadata());
         assertThat(alignerComponent.isAdded()).isTrue();
@@ -204,6 +239,7 @@ public class SingleSamplePipelineTest {
         assertThat(germlineComponent.isAdded()).isTrue();
         assertThat(snpgenotypeComponent.isAdded()).isTrue();
         assertThat(flagstatComponent.isAdded()).isTrue();
+        assertThat(cramComponent.isAdded()).isTrue();
     }
 
     @Test
@@ -219,6 +255,7 @@ public class SingleSamplePipelineTest {
         when(stageRunner.run(eq(referenceRunMetadata()), any())).thenReturn(referenceMetricsOutput())
                 .thenReturn(snpGenotypeOutput())
                 .thenReturn(flagstatOutput())
+                .thenReturn(cramOutput())
                 .thenReturn(germlineCallerOutput());
         PipelineState result = victim.run(referenceRunMetadata());
         verify(eventListener, times(1)).alignmentComplete(result);
