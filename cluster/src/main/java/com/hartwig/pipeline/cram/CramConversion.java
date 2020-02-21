@@ -45,7 +45,7 @@ public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata
     @Override
     public List<BashCommand> commands(SingleSampleRunMetadata metadata) {
         return new CramAndValidateCommands(bamDownload.getLocalTargetPath(),
-                VmDirectories.outputFile(CramOutput.cramFile(metadata.sampleName()))).commands();
+                VmDirectories.outputFile(CramOutput.cramFile(bamDownload.getLocalTargetPath()))).commands();
     }
 
     @Override
