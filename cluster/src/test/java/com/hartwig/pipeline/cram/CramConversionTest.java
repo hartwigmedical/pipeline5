@@ -49,9 +49,9 @@ public class CramConversionTest extends StageTest<CramOutput, SingleSampleRunMet
     protected List<String> expectedCommands() {
         String samtools = "/opt/tools/samtools/1.9/samtools";
         String input = "/data/input/reference.bam";
-        String output = "/data/output/reference";
+        String output = "/data/output/reference.cram";
         return ImmutableList.of(
-                format("%s view -C -h -T %s -o %s -O CRAM -@ $(grep -c '^processor' /proc/cpuinfo) %s",
+                format("%s view -T %s -o %s -O cram,store_md=1,store_nm=1 -@ $(grep -c '^processor' /proc/cpuinfo) %s",
                         samtools, Resource.REFERENCE_GENOME_FASTA, output, input),
                 format("%s index %s", samtools, output),
                 format("java -Xmx4G -cp /opt/tools/bamcomp/0.1/bamcomp.jar com.hartwig.bamcomp.BamToCramValidator %s %s 6",
