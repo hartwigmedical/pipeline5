@@ -11,6 +11,7 @@ import com.hartwig.pipeline.testsupport.TestInputs;
 import java.util.List;
 
 import static java.lang.String.format;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class CramConversionTest extends StageTest<CramOutput, SingleSampleRunMetadata> {
     private static String BUCKET_NAME = "run-reference-test";
@@ -22,7 +23,12 @@ public class CramConversionTest extends StageTest<CramOutput, SingleSampleRunMet
 
     @Override
     public void disabledAppropriately() {
-        // cannot be disabled
+        assertThat(victim.shouldRun(createDisabledArguments())).isFalse();
+    }
+
+    @Override
+    public void enabledAppropriately() {
+        assertThat(victim.shouldRun(Arguments.testDefaultsBuilder().outputCram(true).build())).isTrue();
     }
 
     @Override

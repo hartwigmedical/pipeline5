@@ -3,7 +3,6 @@ package com.hartwig.pipeline.execution.vm;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.execution.JobDefinition;
 import com.hartwig.pipeline.tools.Versions;
-
 import org.immutables.value.Value;
 
 @Value.Immutable
@@ -37,10 +36,10 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
 
     @Value.Derived
     default int localSsdCount() {
-        int localSsdDeviceSizeGbb = 375;
+        int localSsdDeviceSizeGb = 375;
 
-        int floor = Math.toIntExact(workingDiskSpaceGb() / localSsdDeviceSizeGbb);
-        long remainder = workingDiskSpaceGb() % localSsdDeviceSizeGbb;
+        int floor = Math.toIntExact(workingDiskSpaceGb() / localSsdDeviceSizeGb);
+        long remainder = workingDiskSpaceGb() % localSsdDeviceSizeGb;
         if (remainder != 0) {
             floor++;
         }

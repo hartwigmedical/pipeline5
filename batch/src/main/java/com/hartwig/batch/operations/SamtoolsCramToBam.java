@@ -31,7 +31,7 @@ public class SamtoolsCramToBam implements BatchOperation {
 
         startupScript.addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), "samtools"), executionFlags));
         return VirtualMachineJobDefinition.builder().name("samtoolscram").startupCommand(startupScript)
-                .namespacedResults(ResultsDirectory.defaultDirectory())
+                .namespacedResults(ResultsDirectory.defaultDirectory()).workingDiskSpaceGb(650)
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(6, 6)).build();
     }
 

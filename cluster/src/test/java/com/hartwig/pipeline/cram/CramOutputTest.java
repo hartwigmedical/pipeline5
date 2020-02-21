@@ -12,6 +12,6 @@ public class CramOutputTest {
 
     @Test
     public void shouldExtractFilenameForCrai() {
-        assertThat(CramOutput.craiFile("/data/input/some-bam_123.bam")).isEqualTo("some-bam_123.cram.crai");
+        assertThat(CramOutput.craiFile("/data/output/123r.cram")).isEqualTo("/data/output/123r.cram.crai");
     }
 }

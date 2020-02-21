@@ -7,12 +7,12 @@ import java.io.File;
 
 @Value.Immutable
 public interface CramOutput extends StageOutput {
-    static String cramFile(String sample) {
-        return new File(sample.replaceAll("\\.bam$", ".cram")).getName();
+    static String cramFile(String inputBam) {
+        return new File(inputBam.replaceAll("\\.bam$", ".cram")).getName();
     }
 
-    static String craiFile(String sample) {
-        return cramFile(sample) + ".crai";
+    static String craiFile(String cram) {
+        return cram + ".crai";
     }
 
     static ImmutableCramOutput.Builder builder() {

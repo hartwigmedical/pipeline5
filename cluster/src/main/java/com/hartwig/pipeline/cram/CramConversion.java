@@ -19,6 +19,7 @@ import com.hartwig.pipeline.report.StartupScriptComponent;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
+import java.io.File;
 import java.util.Collections;
 import java.util.List;
 
@@ -27,9 +28,11 @@ public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata
     static final int NUMBER_OF_CORES = 6;
 
     private final InputDownload bamDownload;
+    private final String outputCram;
 
     public CramConversion(final AlignmentOutput alignmentOutput) {
         bamDownload = new InputDownload(alignmentOutput.finalBamLocation());
+        outputCram = VmDirectories.outputFile(CramOutput.cramFile(bamDownload.getLocalTargetPath()));
     }
 
     @Override
@@ -44,8 +47,7 @@ public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata
 
     @Override
     public List<BashCommand> commands(SingleSampleRunMetadata metadata) {
-        return new CramAndValidateCommands(bamDownload.getLocalTargetPath(),
-                VmDirectories.outputFile(CramOutput.cramFile(bamDownload.getLocalTargetPath()))).commands();
+        return new CramAndValidateCommands(bamDownload.getLocalTargetPath(), outputCram).commands();
     }
 
     @Override
@@ -54,14 +56,15 @@ public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata
                 .name("cram")
                 .startupCommand(bash)
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(NUMBER_OF_CORES, 6))
+                .workingDiskSpaceGb(650)
                 .namespacedResults(resultsDirectory)
                 .build();
     }
 
     @Override
     public CramOutput output(SingleSampleRunMetadata metadata, PipelineStatus jobStatus, RuntimeBucket bucket, ResultsDirectory resultsDirectory) {
-        String cram = CramOutput.cramFile(metadata.sampleName());
-        String crai = CramOutput.craiFile(metadata.sampleName());
+        String cram = new File(outputCram).getName();
+        String crai = CramOutput.craiFile(cram);
         Folder folder = Folder.from(metadata);
         return CramOutput.builder()
                 .status(jobStatus)
@@ -75,11 +78,11 @@ public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata
 
     @Override
     public CramOutput skippedOutput(SingleSampleRunMetadata metadata) {
-        throw new IllegalStateException("CRAM conversion cannot be skipped.");
+        return CramOutput.builder().status(PipelineStatus.SKIPPED).build();
     }
 
     @Override
     public boolean shouldRun(Arguments arguments) {
-        return true;
+        return arguments.outputCram();
     }
 }

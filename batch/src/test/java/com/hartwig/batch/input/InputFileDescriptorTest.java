@@ -1,11 +1,10 @@
 package com.hartwig.batch.input;
 
-import static java.lang.String.format;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.Before;
 import org.junit.Test;
+
+import static java.lang.String.format;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class InputFileDescriptorTest {
     private String project;
@@ -39,6 +38,6 @@ public class InputFileDescriptorTest {
     }
 
     private void assertCommandForm(String commandForm, String remoteFile) {
-        assertThat(commandForm).isEqualTo(format("gsutil -q -u %s cp gs://%s %s", project, remoteFile, local));
+        assertThat(commandForm).isEqualTo(format("gsutil -o 'GSUtil:parallel_thread_count=1' -o \"GSUtil:sliced_object_download_max_components=$(nproc)\" -q -u %s cp gs://%s %s", project, remoteFile, local));
     }
 }
