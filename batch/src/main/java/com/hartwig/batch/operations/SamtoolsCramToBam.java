@@ -11,6 +11,7 @@ import com.hartwig.pipeline.execution.vm.RuntimeFiles;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
+import com.hartwig.pipeline.execution.vm.unix.MvCommand;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
@@ -28,6 +29,8 @@ public class SamtoolsCramToBam implements BatchOperation {
         startupScript.addCommand(() -> input.toCommandForm(localInput));
 
         startupScript.addCommands(new CramAndValidateCommands(localInput, outputFile).commands());
+        startupScript.addCommand(new MvCommand("/data/output/*.bam", "/data/tmp"));
+        startupScript.addCommand(new MvCommand("/data/output/*.bam.flagstat", "/data/tmp"));
 
         startupScript.addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), "samtools"), executionFlags));
         return VirtualMachineJobDefinition.builder().name("samtoolscram").startupCommand(startupScript)
