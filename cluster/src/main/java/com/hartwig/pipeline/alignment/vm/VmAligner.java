@@ -8,6 +8,7 @@ import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.alignment.AlignmentOutputStorage;
 import com.hartwig.pipeline.alignment.ExistingAlignment;
+import com.hartwig.pipeline.alignment.ImmutableAlignmentOutput;
 import com.hartwig.pipeline.alignment.sample.SampleSource;
 import com.hartwig.pipeline.calling.SubStageInputOutput;
 import com.hartwig.pipeline.execution.PipelineStatus;
@@ -132,7 +133,7 @@ public class VmAligner {
             PipelineStatus status =
                     computeEngine.submit(rootBucket, VirtualMachineJobDefinition.mergeMarkdups(mergeMarkdupsBash, resultsDirectory));
 
-            output = AlignmentOutput.builder()
+            ImmutableAlignmentOutput.Builder outputBuilder = AlignmentOutput.builder()
                     .sample(metadata.sampleName())
                     .status(status)
                     .maybeFinalBamLocation(GoogleStorageLocation.of(rootBucket.name(),
@@ -140,20 +141,22 @@ public class VmAligner {
                     .maybeFinalBaiLocation(GoogleStorageLocation.of(rootBucket.name(),
                             resultsDirectory.path(bai(merged.outputFile().fileName()))))
                     .addAllReportComponents(laneLogComponents)
-                    .addReportComponents(new RunLogComponent(rootBucket, VmAligner.NAMESPACE, Folder.from(metadata), resultsDirectory))
-                    .addReportComponents(new SingleFileComponent(rootBucket,
-                                    VmAligner.NAMESPACE,
-                                    Folder.from(metadata),
-                                    sorted(metadata.sampleName()),
-                                    bam(metadata.sampleName()),
-                                    resultsDirectory),
-                            new SingleFileComponent(rootBucket,
-                                    VmAligner.NAMESPACE,
-                                    Folder.from(metadata),
-                                    bai(sorted(metadata.sampleName())),
-                                    bai(bam(metadata.sampleName())),
-                                    resultsDirectory))
-                    .build();
+                    .addReportComponents(new RunLogComponent(rootBucket, VmAligner.NAMESPACE, Folder.from(metadata), resultsDirectory));
+            if (!arguments.outputCram()) {
+                outputBuilder.addReportComponents(new SingleFileComponent(rootBucket,
+                                VmAligner.NAMESPACE,
+                                Folder.from(metadata),
+                                sorted(metadata.sampleName()),
+                                bam(metadata.sampleName()),
+                                resultsDirectory),
+                        new SingleFileComponent(rootBucket,
+                                VmAligner.NAMESPACE,
+                                Folder.from(metadata),
+                                bai(sorted(metadata.sampleName())),
+                                bai(bam(metadata.sampleName())),
+                                resultsDirectory));
+            }
+            output = outputBuilder.build();
         } else {
             output = AlignmentOutput.builder().sample(metadata.sampleName()).status(PipelineStatus.FAILED).build();
         }
