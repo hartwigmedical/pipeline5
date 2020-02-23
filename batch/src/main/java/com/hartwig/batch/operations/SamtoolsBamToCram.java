@@ -19,7 +19,7 @@ import java.io.File;
 
 import static java.lang.String.format;
 
-public class SamtoolsCramToBam implements BatchOperation {
+public class SamtoolsBamToCram implements BatchOperation {
     @Override
     public VirtualMachineJobDefinition execute(final InputBundle inputs, final RuntimeBucket bucket,
                                                final BashStartupScript startupScript, final RuntimeFiles executionFlags) {
@@ -40,7 +40,7 @@ public class SamtoolsCramToBam implements BatchOperation {
 
     @Override
     public OperationDescriptor descriptor() {
-        return OperationDescriptor.of("SamtoolsCramToBam", "Produce a CRAM file from each inputs BAM",
+        return OperationDescriptor.of("SamtoolsBamToCram", "Produce a CRAM file from each input BAM",
                 OperationDescriptor.InputType.FLAT);
     }
 }
