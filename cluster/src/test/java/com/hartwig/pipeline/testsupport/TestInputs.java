@@ -10,6 +10,7 @@ import com.hartwig.pipeline.calling.somatic.SomaticCaller;
 import com.hartwig.pipeline.calling.somatic.SomaticCallerOutput;
 import com.hartwig.pipeline.calling.structural.StructuralCaller;
 import com.hartwig.pipeline.calling.structural.StructuralCallerOutput;
+import com.hartwig.pipeline.cram.CramOutput;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.OutputFile;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
@@ -30,7 +31,6 @@ import com.hartwig.pipeline.tertiary.healthcheck.HealthChecker;
 import com.hartwig.pipeline.tertiary.linx.LinxOutput;
 import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
-
 import org.jetbrains.annotations.NotNull;
 
 public class TestInputs {
@@ -114,6 +114,10 @@ public class TestInputs {
 
     public static FlagstatOutput flagstatOutput() {
         return FlagstatOutput.builder().status(PipelineStatus.SUCCESS).build();
+    }
+
+    public static CramOutput cramOutput() {
+        return CramOutput.builder().status(PipelineStatus.SUCCESS).build();
     }
 
     public static GermlineCallerOutput germlineCallerOutput() {

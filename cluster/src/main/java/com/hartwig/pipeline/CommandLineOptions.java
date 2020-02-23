@@ -1,7 +1,5 @@
 package com.hartwig.pipeline;
 
-import java.util.Optional;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -11,6 +9,8 @@ import org.apache.commons.cli.ParseException;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Optional;
 
 public class CommandLineOptions {
 
@@ -44,6 +44,7 @@ public class CommandLineOptions {
     private static final String DEFAULT_PROFILE = "production";
     private static final String RUN_ALIGNER_FLAG = "run_aligner";
     private static final String ALIGNER_TYPE_FLAG = "aligner_type";
+    private static final String OUTPUT_CRAM_FLAG = "output_cram";
     private static final String RUN_GERMLINE_CALLER_FLAG = "run_germline_caller";
     private static final String RUN_SNP_GENOTYPER_FLAG = "run_snp_genotyper";
     private static final String RUN_SOMATIC_CALLER_FLAG = "run_somatic_caller";
@@ -114,6 +115,7 @@ public class CommandLineOptions {
                 .addOption(optionWithBooleanArg(SHALLOW_FLAG,
                         "Run with ShallowSeq configuration.Germline and health checker are disabled and purple is run with low coverage "
                                 + "options."))
+                .addOption(optionWithBooleanArg(OUTPUT_CRAM_FLAG, "Produce CRAM rather than BAM files"))
                 .addOption(zone())
                 .addOption(alignerType());
     }
@@ -281,6 +283,7 @@ public class CommandLineOptions {
                     .privateNetwork(privateNetwork(commandLine, defaults))
                     .cmek(cmek(commandLine, defaults))
                     .shallow(booleanOptionWithDefault(commandLine, SHALLOW_FLAG, defaults.shallow()))
+                    .outputCram(booleanOptionWithDefault(commandLine, OUTPUT_CRAM_FLAG, defaults.outputCram()))
                     .zone(zone(commandLine, defaults))
                     .profile(defaults.profile())
                     .build();

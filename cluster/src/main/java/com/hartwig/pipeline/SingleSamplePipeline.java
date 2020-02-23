@@ -4,6 +4,8 @@ import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.alignment.vm.VmAligner;
 import com.hartwig.pipeline.calling.germline.GermlineCaller;
 import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
+import com.hartwig.pipeline.cram.CramConversion;
+import com.hartwig.pipeline.cram.CramOutput;
 import com.hartwig.pipeline.flagstat.Flagstat;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
 import com.hartwig.pipeline.metadata.SingleSampleEventListener;
@@ -61,6 +63,8 @@ public class SingleSamplePipeline {
                     executorService.submit(() -> stageRunner.run(metadata, new SnpGenotype(alignmentOutput)));
             Future<FlagstatOutput> flagstatOutputFuture =
                     executorService.submit(() -> stageRunner.run(metadata, new Flagstat(alignmentOutput)));
+            Future<CramOutput> cramOutputFuture =
+                    executorService.submit(() -> stageRunner.run(metadata, new CramConversion(alignmentOutput)));
 
             if (metadata.type().equals(SingleSampleRunMetadata.SampleType.REFERENCE)) {
                 Future<GermlineCallerOutput> germlineCallerFuture =
@@ -71,6 +75,7 @@ public class SingleSamplePipeline {
             report.add(state.add(futurePayload(bamMetricsFuture)));
             report.add(state.add(futurePayload(unifiedGenotyperFuture)));
             report.add(state.add(futurePayload(flagstatOutputFuture)));
+            report.add(state.add(futurePayload(cramOutputFuture)));
             report.compose(metadata, isStandalone, state);
             eventListener.complete(state);
         }
