@@ -5,7 +5,7 @@
 ZONE="europe-west4-a"
 DEV_PROJECT="hmf-pipeline-development" 
 PROJECT="${DEV_PROJECT}"
-VERSION=5-8
+VERSION=5-9
 TYPE="pipeline5"
 
 if [ -n "$1" ]
