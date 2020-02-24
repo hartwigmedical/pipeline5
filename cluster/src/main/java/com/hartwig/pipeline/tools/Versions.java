@@ -1,12 +1,12 @@
 package com.hartwig.pipeline.tools;
 
-import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.stream.Stream;
+
+import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public interface Versions {
 
@@ -19,7 +19,7 @@ public interface Versions {
     String SNPEFF = "4.3s";
     String STRELKA_POST_PROCESS = "1.6";
     String TABIX = "0.2.6";
-    String AMBER = "2.5";
+    String AMBER = "3.2";
     String COBALT = "1.7";
     String HEALTH_CHECKER = "3.1";
     String PURPLE = "2.39";
