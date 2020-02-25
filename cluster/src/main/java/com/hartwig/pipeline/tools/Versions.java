@@ -1,12 +1,12 @@
 package com.hartwig.pipeline.tools;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.stream.Stream;
-
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.stream.Stream;
 
 public interface Versions {
 
@@ -30,7 +30,7 @@ public interface Versions {
     String CHORD = "60.02_1.03";
     String SAMTOOLS = "1.9";
     String BCL2FASTQ = "2.20.0.422";
-    String BAMCOMP = "1.0";
+    String BAMCOMP = "1.1";
 
     static void printAll() {
         Logger logger = LoggerFactory.getLogger(Versions.class);
