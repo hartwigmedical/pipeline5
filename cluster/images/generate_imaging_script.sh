@@ -5,7 +5,7 @@
 ZONE="europe-west4-a"
 DEV_PROJECT="hmf-pipeline-development" 
 PROJECT="${DEV_PROJECT}"
-VERSION=5-8
+VERSION=5-9
 TYPE="pipeline5"
 
 if [ -n "$1" ]
@@ -31,7 +31,7 @@ echo "#!$(which sh) -e"
 network="--network=${TYPE} --subnet=${TYPE}"
 [[ "${PROJECT}" = "${DEV_PROJECT}" ]] && network=""
 echo "$GCL instances create ${sourceInstance} --description=\"Instance for ${TYPE} disk image creation\" --zone=${ZONE} ${network} --boot-disk-size 100"
-echo "sleep 5"
+echo "sleep 10"
 # Ignore lines consisting only of spaces, or those beginning with '#'
 tunnel="--tunnel-through-iap"
 [[ "${PROJECT}" = "${DEV_PROJECT}" ]] && tunnel=""

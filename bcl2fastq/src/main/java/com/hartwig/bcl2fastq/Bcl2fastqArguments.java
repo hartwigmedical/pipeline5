@@ -2,6 +2,8 @@ package com.hartwig.bcl2fastq;
 
 import static java.lang.Boolean.parseBoolean;
 
+import java.util.Optional;
+
 import com.hartwig.pipeline.CommonArguments;
 
 import org.apache.commons.cli.CommandLine;
@@ -22,6 +24,7 @@ public interface Bcl2fastqArguments extends CommonArguments {
     String INPUT_BUCKET = "input_bucket";
     String SBP_API_URL = "sbp_api_url";
     String CLEANUP = "cleanup";
+    String CMEK = "cmek";
 
     static Bcl2fastqArguments from(String[] args) {
         try {
@@ -42,6 +45,7 @@ public interface Bcl2fastqArguments extends CommonArguments {
                     .outputServiceAccountEmail(commandLine.getOptionValue(OUTPUT_SERVICE_ACCOUNT_EMAIL))
                     .outputProject(commandLine.getOptionValue(OUTPUT_PROJECT))
                     .cleanup(parseBoolean(commandLine.getOptionValue(CLEANUP, "false")))
+                    .cmek(commandLine.hasOption(CMEK) ? Optional.of(commandLine.getOptionValue(CMEK)) : Optional.empty())
                     .useLocalSsds(false)
                     .usePreemptibleVms(false)
                     .build();
@@ -67,7 +71,9 @@ public interface Bcl2fastqArguments extends CommonArguments {
                 .addOption(stringOption(OUTPUT_PRIVATE_KEY_PATH, "Credentials used to copy output"))
                 .addOption(stringOption(OUTPUT_SERVICE_ACCOUNT_EMAIL, "Email of service account used to copy data from the conversion into "
                         + "the fastq storage bucket. Will be added to the ACL of the runtime bucket."))
-                .addOption(stringOption(OUTPUT_PROJECT, "User project for output copying"));
+                .addOption(stringOption(OUTPUT_PROJECT, "User project for output copying"))
+                .addOption(stringOption(CMEK, "The name of the Customer Managed Encryption Key. When this flag is populated all runtime "
+                        + "buckets will use this key."));
     }
 
     String outputBucket();

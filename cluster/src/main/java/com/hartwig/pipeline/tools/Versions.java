@@ -15,14 +15,14 @@ public interface Versions {
     String GATK = "3.8.0";
     String BCF_TOOLS = "1.3.1";
     String STRELKA = "1.0.14";
-    String SAGE = "1.1";
+    String SAGE = "2.1";
     String SNPEFF = "4.3s";
     String STRELKA_POST_PROCESS = "1.6";
     String TABIX = "0.2.6";
-    String AMBER = "2.5";
+    String AMBER = "3.2";
     String COBALT = "1.7";
     String HEALTH_CHECKER = "3.1";
-    String PURPLE = "2.34";
+    String PURPLE = "2.39";
     String CIRCOS = "0.69.6";
     String GRIDSS = "2.7.2";
     String LINX = "1.7";
@@ -30,6 +30,7 @@ public interface Versions {
     String CHORD = "60.02_1.03";
     String SAMTOOLS = "1.9";
     String BCL2FASTQ = "2.20.0.422";
+    String BAMCOMP = "1.0";
 
     static void printAll() {
         Logger logger = LoggerFactory.getLogger(Versions.class);
@@ -71,6 +72,6 @@ public interface Versions {
     }
 
     static String imageVersion() {
-        return "5-8";
+        return "5-9";
     }
 }

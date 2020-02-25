@@ -44,9 +44,11 @@ public class CommandLineOptions {
     private static final String DEFAULT_PROFILE = "production";
     private static final String RUN_ALIGNER_FLAG = "run_aligner";
     private static final String ALIGNER_TYPE_FLAG = "aligner_type";
+    private static final String OUTPUT_CRAM_FLAG = "output_cram";
     private static final String RUN_GERMLINE_CALLER_FLAG = "run_germline_caller";
     private static final String RUN_SNP_GENOTYPER_FLAG = "run_snp_genotyper";
     private static final String RUN_SOMATIC_CALLER_FLAG = "run_somatic_caller";
+    private static final String RUN_SAGE_CALLER_FLAG = "run_sage_caller";
     private static final String RUN_STRUCTURAL_CALLER_FLAG = "run_structural_caller";
     private static final String RUN_TERTIARY_FLAG = "run_tertiary";
     private static final String PATIENT_REPORT_BUCKET_FLAG = "patient_report_bucket";
@@ -99,6 +101,7 @@ public class CommandLineOptions {
                 .addOption(optionWithBooleanArg(RUN_ALIGNER_FLAG, "Run the aligner on Google Dataproc"))
                 .addOption(optionWithBooleanArg(RUN_GERMLINE_CALLER_FLAG, "Run germline calling (gatk) on a VM"))
                 .addOption(optionWithBooleanArg(RUN_SOMATIC_CALLER_FLAG, "Run somatic calling (strelka) on a VM"))
+                .addOption(optionWithBooleanArg(RUN_SAGE_CALLER_FLAG, "Run somatic calling (sage) on a VM"))
                 .addOption(optionWithBooleanArg(RUN_STRUCTURAL_CALLER_FLAG, "Run structural calling (gridss) on a VM"))
                 .addOption(optionWithBooleanArg(RUN_TERTIARY_FLAG, "Run tertiary analysis algorithms (amber, cobalt, purple)"))
                 .addOption(optionWithBooleanArg(RUN_SNP_GENOTYPER_FLAG, "Run snp genotyper for QC against genotyping"))
@@ -112,13 +115,14 @@ public class CommandLineOptions {
                 .addOption(optionWithBooleanArg(SHALLOW_FLAG,
                         "Run with ShallowSeq configuration.Germline and health checker are disabled and purple is run with low coverage "
                                 + "options."))
+                .addOption(optionWithBooleanArg(OUTPUT_CRAM_FLAG, "Produce CRAM rather than BAM files"))
                 .addOption(zone())
                 .addOption(alignerType());
     }
 
     private static Option cmek() {
         return optionWithArg(CMEK_FLAG,
-                "The name of the Customer Managed Encryption Key. When this flag is populated all runtime buckets " + "will use this key.");
+                "The name of the Customer Managed Encryption Key. When this flag is populated all runtime buckets will use this key.");
     }
 
     private static Option privateNetwork() {
@@ -268,6 +272,7 @@ public class CommandLineOptions {
                     .runSnpGenotyper(booleanOptionWithDefault(commandLine, RUN_SNP_GENOTYPER_FLAG, defaults.runSnpGenotyper()))
                     .runGermlineCaller(booleanOptionWithDefault(commandLine, RUN_GERMLINE_CALLER_FLAG, defaults.runGermlineCaller()))
                     .runSomaticCaller(booleanOptionWithDefault(commandLine, RUN_SOMATIC_CALLER_FLAG, defaults.runSomaticCaller()))
+                    .runSageCaller(booleanOptionWithDefault(commandLine, RUN_SAGE_CALLER_FLAG, defaults.runSageCaller()))
                     .runStructuralCaller(booleanOptionWithDefault(commandLine, RUN_STRUCTURAL_CALLER_FLAG, defaults.runStructuralCaller()))
                     .runTertiary(booleanOptionWithDefault(commandLine, RUN_TERTIARY_FLAG, defaults.runTertiary()))
                     .serviceAccountEmail(commandLine.getOptionValue(SERVICE_ACCOUNT_EMAIL_FLAG, defaults.serviceAccountEmail()))
@@ -278,6 +283,7 @@ public class CommandLineOptions {
                     .privateNetwork(privateNetwork(commandLine, defaults))
                     .cmek(cmek(commandLine, defaults))
                     .shallow(booleanOptionWithDefault(commandLine, SHALLOW_FLAG, defaults.shallow()))
+                    .outputCram(booleanOptionWithDefault(commandLine, OUTPUT_CRAM_FLAG, defaults.outputCram()))
                     .zone(zone(commandLine, defaults))
                     .profile(defaults.profile())
                     .build();

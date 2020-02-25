@@ -8,6 +8,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.Optional;
+
 import com.google.cloud.storage.Acl;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
@@ -15,10 +17,13 @@ import com.google.common.collect.ImmutableList;
 import com.hartwig.bcl2fastq.conversion.Conversion;
 import com.hartwig.bcl2fastq.conversion.ConvertedFastq;
 import com.hartwig.bcl2fastq.conversion.ConvertedSample;
+import com.hartwig.bcl2fastq.conversion.ConvertedUndetermined;
+import com.hartwig.bcl2fastq.conversion.ImmutableConvertedUndetermined;
 import com.hartwig.pipeline.storage.GsUtilFacade;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.testsupport.TestBlobs;
 
+import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -47,7 +52,7 @@ public class OutputCopierTest {
 
     @Test
     public void shouldDoNothingOnEmptyConversion() {
-        Conversion conversion = Conversion.builder().flowcell("flow").totalReads(0).undeterminedReads(0).build();
+        Conversion conversion = Conversion.builder().flowcell("flow").undetermined(emptyUndetermined()).build();
         victim.accept(conversion);
         verifyZeroInteractions(gsUtil);
     }
@@ -108,12 +113,17 @@ public class OutputCopierTest {
 
     @Test
     public void addsOutputServiceAccountEmailToAcl() {
-        Conversion conversion = Conversion.builder().flowcell("flow").totalReads(0).undeterminedReads(0).build();
+        Conversion conversion = Conversion.builder().flowcell("flow").undetermined(emptyUndetermined()).build();
         victim.accept(conversion);
         ArgumentCaptor<Acl> createdAcl = ArgumentCaptor.forClass(Acl.class);
         verify(bucket).createAcl(createdAcl.capture());
         Acl result = createdAcl.getValue();
         verifyAcl(result);
+    }
+
+    @NotNull
+    public ImmutableConvertedUndetermined emptyUndetermined() {
+        return ConvertedUndetermined.builder().yieldQ30(0).yield(0).build();
     }
 
     public void verifyAcl(final Acl result) {
@@ -125,8 +135,8 @@ public class OutputCopierTest {
         ConvertedFastq fastq = mock(ConvertedFastq.class);
         when(fastq.pathR1()).thenReturn(format("%s/%s", runtimePath, outputPathR1));
         when(fastq.outputPathR1()).thenReturn(outputPathR1);
-        when(fastq.pathR2()).thenReturn(format("%s/%s", runtimePath, outputPathR2));
-        when(fastq.outputPathR2()).thenReturn(outputPathR2);
+        when(fastq.pathR2()).thenReturn(Optional.of(format("%s/%s", runtimePath, outputPathR2)));
+        when(fastq.outputPathR2()).thenReturn(Optional.of(outputPathR2));
         return fastq;
     }
 

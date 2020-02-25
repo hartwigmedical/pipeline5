@@ -39,8 +39,7 @@ public class Amber extends TertiaryStage<AmberOutput> {
                 metadata.tumor().sampleName(),
                 getTumorBamDownload().getLocalTargetPath(),
                 Resource.REFERENCE_GENOME_FASTA,
-                Resource.of(ResourceNames.AMBER_PON, "GermlineHetPon.hg19.bed"),
-                Resource.of(ResourceNames.AMBER_PON, "GermlineSnp.hg19.bed")));
+                Resource.of(ResourceNames.AMBER_PON, "GermlineHetPon.hg19.vcf.gz")));
     }
 
     @Override

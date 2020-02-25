@@ -95,7 +95,7 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
                 .name("purple")
                 .startupCommand(bash)
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 8))
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 16))
                 .build();
     }
 

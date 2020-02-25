@@ -8,10 +8,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.Collections;
 import java.util.List;
 
 import com.google.cloud.storage.Blob;
+import com.google.cloud.storage.Bucket;
 import com.google.common.collect.Lists;
 import com.hartwig.bcl2fastq.samplesheet.IlluminaSample;
 import com.hartwig.bcl2fastq.samplesheet.ImmutableSampleSheet;
@@ -33,6 +33,7 @@ public class ResultAggregationTest {
     private static final String PROJECT = "project";
     private static final String SAMPLE = "sample";
     private RuntimeBucket bucket;
+    private Bucket underlyingBucket;
     private ResultAggregation victim;
     private Blob first;
     private Blob second;
@@ -47,6 +48,8 @@ public class ResultAggregationTest {
     @Before
     public void setUp() {
         bucket = mock(RuntimeBucket.class);
+        underlyingBucket = mock(Bucket.class);
+        when(bucket.getUnderlyingBucket()).thenReturn(underlyingBucket);
         victim = new ResultAggregation(bucket, ResultsDirectory.defaultDirectory());
         path = String.format("results/%s/%s", PROJECT, BARCODE);
         first = blob(path + "/GIAB12878_S1_L001_R1_001.fastq.gz");
@@ -61,6 +64,10 @@ public class ResultAggregationTest {
         when(third.getMd5()).thenReturn(MD5_R1);
         when(fourth.getSize()).thenReturn(SIZE_R2);
         when(fourth.getMd5()).thenReturn(MD5_R2);
+        when(underlyingBucket.get(first.getName())).thenReturn(first);
+        when(underlyingBucket.get(second.getName())).thenReturn(second);
+        when(underlyingBucket.get(third.getName())).thenReturn(third);
+        when(underlyingBucket.get(fourth.getName())).thenReturn(fourth);
     }
 
     @Test
@@ -95,11 +102,11 @@ public class ResultAggregationTest {
         ConvertedFastq firstFastq = fastq.get(0);
         assertThat(firstFastq.id()).isEqualTo(FastqId.of(1, BARCODE));
         assertThat(firstFastq.pathR1()).isEqualTo(first.getName());
-        assertThat(firstFastq.pathR2()).isEqualTo(second.getName());
+        assertThat(firstFastq.pathR2()).hasValue(second.getName());
         ConvertedFastq secondFastq = fastq.get(1);
         assertThat(secondFastq.id()).isEqualTo(FastqId.of(2, BARCODE));
         assertThat(secondFastq.pathR1()).isEqualTo(third.getName());
-        assertThat(secondFastq.pathR2()).isEqualTo(fourth.getName());
+        assertThat(secondFastq.pathR2()).hasValue(fourth.getName());
     }
 
     @Test(expected = IllegalStateException.class)
@@ -134,23 +141,18 @@ public class ResultAggregationTest {
         List<ConvertedFastq> fastq = conversion.samples().get(0).fastq();
         ConvertedFastq firstFastq = fastq.get(0);
         assertThat(firstFastq.sizeR1()).isEqualTo(SIZE_R1);
-        assertThat(firstFastq.sizeR2()).isEqualTo(SIZE_R2);
+        assertThat(firstFastq.sizeR2()).hasValue(SIZE_R2);
         assertThat(firstFastq.md5R1()).isEqualTo(MD5_R1);
-        assertThat(firstFastq.md5R2()).isEqualTo(MD5_R2);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void failsWhenUnpairedReadsEncountered() {
-        when(bucket.list(path)).thenReturn(Collections.singletonList(first));
-        victim.apply(sampleSheet(), defaultStats());
+        assertThat(firstFastq.md5R2()).hasValue(MD5_R2);
     }
 
     @Test
     public void totalUndeterminedAndReadsCalculatedFromStats() {
+        when(bucket.list(path)).thenReturn(Lists.newArrayList(first, second));
         Conversion conversion = victim.apply(sampleSheet(), defaultStats());
 
-        assertThat(conversion.undeterminedReads()).isEqualTo(1);
-        assertThat(conversion.totalReads()).isEqualTo(4);
+        assertThat(conversion.undetermined().yield()).isEqualTo(1);
+        assertThat(conversion.yield()).isEqualTo(4);
     }
 
     @Test
@@ -171,7 +173,14 @@ public class ResultAggregationTest {
         List<ConvertedFastq> fastq = conversion.samples().get(0).fastq();
         ConvertedFastq firstFastq = fastq.get(0);
         assertThat(firstFastq.outputPathR1()).isEqualTo("GIAB12878_flowcell_S1_L001_R1_001.fastq.gz");
-        assertThat(firstFastq.outputPathR2()).isEqualTo("GIAB12878_flowcell_S1_L001_R2_001.fastq.gz");
+        assertThat(firstFastq.outputPathR2()).hasValue("GIAB12878_flowcell_S1_L001_R2_001.fastq.gz");
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void throwsIllegalStateIfMd5IsNull() {
+        when(bucket.list(path)).thenReturn(Lists.newArrayList(first, second));
+        when(first.getMd5()).thenReturn(null);
+        victim.apply(sampleSheet(), defaultStats());
     }
 
     private static ImmutableStats defaultStats() {

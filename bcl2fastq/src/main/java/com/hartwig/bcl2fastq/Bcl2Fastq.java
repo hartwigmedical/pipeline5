@@ -6,6 +6,7 @@ import com.google.cloud.storage.Storage;
 import com.hartwig.bcl2fastq.conversion.ResultAggregation;
 import com.hartwig.bcl2fastq.metadata.FastqMetadataRegistration;
 import com.hartwig.bcl2fastq.metadata.SbpFastqMetadataApi;
+import com.hartwig.bcl2fastq.metadata.SbpFlowcell;
 import com.hartwig.bcl2fastq.samplesheet.SampleSheet;
 import com.hartwig.bcl2fastq.samplesheet.SampleSheetCsv;
 import com.hartwig.bcl2fastq.stats.Stats;
@@ -24,6 +25,7 @@ import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.GsUtilFacade;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.storage.StorageProvider;
+import com.hartwig.pipeline.tools.Versions;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +49,7 @@ class Bcl2Fastq {
     }
 
     private void run() {
+        Versions.printAll();
         LOGGER.info("Starting bcl2fastq for flowcell [{}]", arguments.flowcell());
 
         FlowcellMetadata metadata = FlowcellMetadata.from(arguments);
@@ -101,15 +104,17 @@ class Bcl2Fastq {
     }
 
     public static void main(String[] args) {
+        Bcl2fastqArguments arguments = Bcl2fastqArguments.from(args);
+        SbpFastqMetadataApi api = SbpFastqMetadataApi.newInstance(arguments.sbpApiUrl());
         try {
-            Bcl2fastqArguments arguments = Bcl2fastqArguments.from(args);
             GoogleCredentials credentials = CredentialProvider.from(arguments).get();
             new Bcl2Fastq(StorageProvider.from(arguments, credentials).get(),
                     ComputeEngine.from(arguments, credentials),
                     arguments,
                     ResultsDirectory.defaultDirectory(),
-                    SbpFastqMetadataApi.newInstance(arguments.sbpApiUrl())).run();
+                    api).run();
         } catch (Exception e) {
+            api.updateFlowcell(SbpFlowcell.builderFrom(api.getFlowcell(arguments.flowcell())).status("Failed").build());
             LOGGER.error("Unable to run bcl2fastq", e);
         }
     }

@@ -5,10 +5,12 @@ import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.alignment.vm.VmAligner;
 import com.hartwig.pipeline.calling.germline.GermlineCaller;
 import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
+import com.hartwig.pipeline.calling.somatic.SageV2CallerOutput;
 import com.hartwig.pipeline.calling.somatic.SomaticCaller;
 import com.hartwig.pipeline.calling.somatic.SomaticCallerOutput;
 import com.hartwig.pipeline.calling.structural.StructuralCaller;
 import com.hartwig.pipeline.calling.structural.StructuralCallerOutput;
+import com.hartwig.pipeline.cram.CramOutput;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.OutputFile;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
@@ -29,7 +31,6 @@ import com.hartwig.pipeline.tertiary.healthcheck.HealthChecker;
 import com.hartwig.pipeline.tertiary.linx.LinxOutput;
 import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
-
 import org.jetbrains.annotations.NotNull;
 
 public class TestInputs {
@@ -115,6 +116,10 @@ public class TestInputs {
         return FlagstatOutput.builder().status(PipelineStatus.SUCCESS).build();
     }
 
+    public static CramOutput cramOutput() {
+        return CramOutput.builder().status(PipelineStatus.SUCCESS).build();
+    }
+
     public static GermlineCallerOutput germlineCallerOutput() {
         String germlineVcf = REFERENCE_SAMPLE + ".germline.vcf.gz";
         return GermlineCallerOutput.builder()
@@ -165,6 +170,12 @@ public class TestInputs {
         return AmberOutput.builder()
                 .status(PipelineStatus.SUCCESS)
                 .maybeOutputDirectory(gsLocation(somaticBucket(Amber.NAMESPACE), RESULTS))
+                .build();
+    }
+
+    public static SageV2CallerOutput sageOutput() {
+        return SageV2CallerOutput.builder()
+                .status(PipelineStatus.SUCCESS)
                 .build();
     }
 

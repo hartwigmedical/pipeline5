@@ -16,14 +16,17 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.google.cloud.storage.Blob;
+import com.google.cloud.storage.Bucket;
 import com.hartwig.bcl2fastq.samplesheet.IlluminaSample;
 import com.hartwig.bcl2fastq.samplesheet.SampleSheet;
 import com.hartwig.bcl2fastq.stats.LaneStats;
-import com.hartwig.bcl2fastq.stats.SampleStats;
+import com.hartwig.bcl2fastq.stats.ReadMetrics;
 import com.hartwig.bcl2fastq.stats.Stats;
 import com.hartwig.bcl2fastq.stats.UndeterminedStats;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.storage.RuntimeBucket;
+
+import org.jetbrains.annotations.NotNull;
 
 public class ResultAggregation {
 
@@ -47,50 +50,66 @@ public class ResultAggregation {
                             .collect(groupingBy(b -> parseLane(b.getName())))
                             .entrySet()
                             .stream()
-                            .map(e -> ResultAggregation.fastq(sample, e, stats))
+                            .map(e -> ResultAggregation.fastq(sample, e, stats, bucket.getUnderlyingBucket()))
                             .sorted(Comparator.comparingInt(o -> o.id().lane()))
                             .collect(toList()) : Collections.emptyList())
                     .build());
         }
-        return conversionBuilder.undeterminedReads(stats.conversionResults()
-                .stream()
-                .map(LaneStats::undetermined)
-                .mapToLong(UndeterminedStats::yield)
-                .sum())
-                .totalReads(stats.conversionResults().stream().flatMap(c -> c.demuxResults().stream()).mapToLong(SampleStats::yield).sum()
-                        + stats.conversionResults().stream().mapToLong(c -> c.undetermined().yield()).sum())
-                .flowcell(stats.flowcell())
-                .build();
+        return conversionBuilder.undetermined(ConvertedUndetermined.builder()
+                .yield(stats.conversionResults().stream().map(LaneStats::undetermined).mapToLong(UndeterminedStats::yield).sum())
+                .yieldQ30(stats.conversionResults()
+                        .stream()
+                        .map(LaneStats::undetermined)
+                        .flatMap(u -> u.readMetrics().stream())
+                        .mapToLong(ReadMetrics::yieldQ30)
+                        .sum())
+                .build()).flowcell(stats.flowcell()).build();
     }
 
     static String parseLane(String path) {
         return new File(path).getName().split("_")[2];
     }
 
-    static ConvertedFastq fastq(IlluminaSample sample, Map.Entry<String, List<Blob>> lane, Stats stats) {
+    static ConvertedFastq fastq(IlluminaSample sample, Map.Entry<String, List<Blob>> lane, Stats stats, Bucket bucket) {
         Map<String, Blob> pair =
                 lane.getValue().stream().collect(toMap(b -> ResultAggregation.parseNumInPair(b.getName()), Function.identity()));
-        Blob blobR1 = pair.get("R1");
-        Blob blobR2 = pair.get("R2");
-        if (blobR1 == null || blobR2 == null) {
-            throw new IllegalArgumentException(String.format("Missing one or both ends of pair in lane [%s] paths [%s]",
+        Blob blobR1 = getWithMetadata(pair, "R1", bucket);
+        Blob blobR2 = getWithMetadata(pair, "R2", bucket);
+        if (blobR1 == null) {
+            throw new IllegalArgumentException(String.format("Missing first end of pair in lane [%s] paths [%s]",
                     lane.getKey(),
                     lane.getValue().stream().map(Blob::getName).collect(Collectors.joining(","))));
         }
         FastqId id = FastqId.of(parseLaneIndex(blobR1.getName()), sample.barcode());
-        return ImmutableConvertedFastq.builder()
+        ImmutableConvertedFastq.Builder builder = ImmutableConvertedFastq.builder()
                 .id(id)
                 .pathR1(blobR1.getName())
-                .pathR2(blobR2.getName())
                 .outputPathR1(outputPath(stats, blobR1))
-                .outputPathR2(outputPath(stats, blobR2))
                 .sizeR1(blobR1.getSize())
-                .sizeR2(blobR2.getSize())
-                .md5R1(blobR1.getMd5())
-                .md5R2(blobR2.getMd5())
+                .md5R1(checkNull(blobR1))
                 .yield(yield(id, stats))
-                .yieldQ30(yieldQ30(id, stats))
-                .build();
+                .yieldQ30(yieldQ30(id, stats));
+        if (blobR2 != null) {
+            builder.pathR2(blobR2.getName()).outputPathR2(outputPath(stats, blobR2)).sizeR2(blobR2.getSize()).md5R2(blobR2.getMd5());
+        }
+        return builder.build();
+    }
+
+    private static Blob getWithMetadata(final Map<String, Blob> pair, final String name, final Bucket bucket) {
+        Blob blob = pair.get(name);
+        if (blob != null) {
+            return bucket.get(blob.getName());
+        }
+        return blob;
+    }
+
+    @NotNull
+    private static String checkNull(final Blob blob) {
+        if (blob.getMd5() == null) {
+            throw new IllegalStateException(String.format("Blob [%s] has no MD5 sum. Failing conversion, check object in GCS.",
+                    blob.getName()));
+        }
+        return blob.getMd5();
     }
 
     private static String outputPath(final Stats stats, final Blob blobR1) {

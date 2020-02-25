@@ -26,11 +26,11 @@ public class AmberTest extends TertiaryStageTest<AmberOutput> {
 
     @Override
     protected List<String> expectedCommands() {
-        return Collections.singletonList("java -Xmx32G -cp /opt/tools/amber/2.5/amber.jar com.hartwig.hmftools.amber.AmberApplication "
+        return Collections.singletonList("java -Xmx32G -cp /opt/tools/amber/3.2/amber.jar com.hartwig.hmftools.amber.AmberApplication "
                 + "-reference reference -reference_bam /data/input/reference.bam -tumor tumor -tumor_bam /data/input/tumor.bam -output_dir "
                 + "/data/output -threads $(grep -c '^processor' /proc/cpuinfo) -ref_genome "
-                + "/opt/resources/reference_genome/Homo_sapiens.GRCh37.GATK.illumina.fasta -bed "
-                + "/opt/resources/amber_pon/GermlineHetPon.hg19.bed -snp_bed /opt/resources/amber_pon/GermlineSnp.hg19.bed");
+                + "/opt/resources/reference_genome/Homo_sapiens.GRCh37.GATK.illumina.fasta "
+                + "-loci /opt/resources/amber_pon/GermlineHetPon.hg19.vcf.gz");
     }
 
     @Override

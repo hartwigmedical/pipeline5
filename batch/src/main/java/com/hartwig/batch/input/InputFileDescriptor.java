@@ -2,7 +2,6 @@ package com.hartwig.batch.input;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
 import org.immutables.value.Value;
 
 @Value.Immutable
@@ -25,7 +24,7 @@ public abstract class InputFileDescriptor {
     public abstract String billedProject();
 
     public String toCommandForm(String localDestination) {
-        return String.format("gsutil -q -u %s cp %s%s %s",
+        return String.format("gsutil -o 'GSUtil:parallel_thread_count=1' -o \"GSUtil:sliced_object_download_max_components=$(nproc)\" -q -u %s cp %s%s %s",
                 billedProject(),
                 protocol(),
                 remoteFilename().replaceAll("^gs://", ""),
