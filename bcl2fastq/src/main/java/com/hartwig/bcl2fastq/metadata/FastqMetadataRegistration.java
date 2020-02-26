@@ -39,6 +39,11 @@ public class FastqMetadataRegistration implements Consumer<Conversion> {
                     && QualityControl.minimumYield(conversion);
             for (ConvertedSample sample : conversion.samples()) {
                 SbpSample sbpSample = sbpApi.findOrCreate(sample.barcode(), sample.project());
+                if (sbpSample.status().equals(SbpSample.STATUS_READY)) {
+                    LOGGER.warn("Sample {} is Ready but got additional data from flowcell {}}. " + "Please verify with lab how to proceed.",
+                            sbpSample.barcode(),
+                            sbpFlowcell.flowcell_id());
+                }
                 for (ConvertedFastq convertedFastq : sample.fastq()) {
                     SbpLane sbpLane = sbpApi.findOrCreate(SbpLane.builder()
                             .flowcell_id(sbpFlowcell.id())
