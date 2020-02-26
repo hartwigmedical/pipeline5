@@ -30,7 +30,7 @@ public interface Versions {
     String CHORD = "60.02_1.03";
     String SAMTOOLS = "1.9";
     String BCL2FASTQ = "2.20.0.422";
-    String BAMCOMP = "1.1";
+    String BAMCOMP = "1.2";
 
     static void printAll() {
         Logger logger = LoggerFactory.getLogger(Versions.class);
