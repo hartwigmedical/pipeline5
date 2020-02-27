@@ -60,13 +60,13 @@ public class SomaticCaller extends TertiaryStage<SomaticCallerOutput> {
 
         String tumorBamPath = getTumorBamDownload().getLocalTargetPath();
         String referenceBamPath = getReferenceBamDownload().getLocalTargetPath();
-        String referenceGenomePath = Resource.REFERENCE_GENOME_FASTA;
+        String referenceGenomePath = resource.refGenomeFile();
         String tumorSampleName = metadata.tumor().sampleName();
         String referenceSampleName = metadata.reference().sampleName();
         String knownHotspotsTsv = Resource.of(SAGE, "KnownHotspots.tsv");
         SageHotspotApplication sageHotspotApplication = new SageHotspotApplication(knownHotspotsTsv,
                 Resource.of(SAGE, "CodingRegions.bed"),
-                referenceGenomePath,
+                resource.refGenomeFile(),
                 tumorBamPath,
                 referenceBamPath,
                 tumorSampleName,
@@ -82,10 +82,8 @@ public class SomaticCaller extends TertiaryStage<SomaticCallerOutput> {
         commands.add(new UnzipToDirectoryCommand(VmDirectories.RESOURCES, resource.snpEffDb()));
 
         SubStageInputOutput mergedOutput = new Strelka(referenceBamPath,
-                tumorBamPath,
-                Resource.of(STRELKA_CONFIG, "strelka_config_bwa_genome.ini"),
-                referenceGenomePath).andThen(new MappabilityAnnotation(Resource.of(MAPPABILITY, "out_150_hg19.mappability.bed.gz"),
-                Resource.of(MAPPABILITY, "mappability.hdr")))
+                tumorBamPath, Resource.of(STRELKA_CONFIG, "strelka_config_bwa_genome.ini"), resource.refGenomeFile())
+                .andThen(new MappabilityAnnotation(resource.out150Mappability(), Resource.of(MAPPABILITY, "mappability.hdr")))
                 .andThen(new PonAnnotation("germline.pon", Resource.of(PON, "GERMLINE_PON.vcf.gz"), "GERMLINE_PON_COUNT"))
                 .andThen(new PonAnnotation("somatic.pon", Resource.of(PON, "SOMATIC_PON.vcf.gz"), "SOMATIC_PON_COUNT"))
                 .andThen(new StrelkaPostProcess(tumorSampleName,

@@ -39,6 +39,8 @@ import java.util.stream.Collectors;
 import static com.hartwig.pipeline.alignment.AlignmentOutputPaths.bai;
 import static com.hartwig.pipeline.alignment.AlignmentOutputPaths.bam;
 import static com.hartwig.pipeline.alignment.AlignmentOutputPaths.sorted;
+import static com.hartwig.pipeline.resource.ResourceFilesFactory.buildResourceFiles;
+
 import static java.lang.String.format;
 
 public class VmAligner {
@@ -75,7 +77,7 @@ public class VmAligner {
         StageTrace trace = new StageTrace(NAMESPACE, metadata.sampleName(), StageTrace.ExecutorType.COMPUTE_ENGINE).start();
         RuntimeBucket rootBucket = RuntimeBucket.from(storage, NAMESPACE, metadata, arguments);
 
-        String referenceGenomePath = Resource.REFERENCE_GENOME_FASTA;
+        final Resource resourceFiles = buildResourceFiles(arguments.refGenomeVersion());
 
         Sample sample = sampleSource.sample(metadata);
         if (arguments.upload()) {
@@ -99,7 +101,7 @@ public class VmAligner {
 
             bash.addCommand(first).addCommand(second);
 
-            SubStageInputOutput alignment = new LaneAlignment(referenceGenomePath,
+            SubStageInputOutput alignment = new LaneAlignment(resourceFiles.refGenomeFile(),
                     first.getLocalTargetPath(),
                     second.getLocalTargetPath(),
                     sample.name(),

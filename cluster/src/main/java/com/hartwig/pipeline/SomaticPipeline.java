@@ -1,5 +1,7 @@
 package com.hartwig.pipeline;
 
+import static com.hartwig.pipeline.resource.ResourceFilesFactory.buildResourceFiles;
+
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -88,7 +90,7 @@ public class SomaticPipeline {
         SomaticRunMetadata metadata = setMetadataApi.get();
         LOGGER.info("Pipeline5 somatic pipeline starting for set [{}]", metadata.runName());
 
-        Resource resourceFiles = arguments.refGenomeVersion() == RefGenomeVersion.HG37 ? new Hg37Resource() : new Hg38Resource();
+        final Resource resourceFiles = buildResourceFiles(arguments.refGenomeVersion());
 
         if (metadata.maybeTumor().isPresent()) {
             AlignmentOutput referenceAlignmentOutput =
@@ -127,7 +129,7 @@ public class SomaticPipeline {
                         Future<LinxOutput> linxOutputFuture =
                                 executorService.submit(() -> stageRunner.run(metadata, new Linx(purpleOutput, resourceFiles)));
                         Future<BachelorOutput> bachelorOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
-                                new Bachelor(purpleOutput,
+                                new Bachelor(resourceFiles, purpleOutput,
                                         pair.tumor(),
                                         germlineCallerOutputStorage.get(metadata.reference(), new GermlineCaller(pair.reference(), resourceFiles)))));
                         Future<ChordOutput> chordOutputFuture =

@@ -26,13 +26,16 @@ import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 public class Bachelor implements Stage<BachelorOutput, SomaticRunMetadata> {
 
     public static final String NAMESPACE = "bachelor";
+
+    private final Resource resource;
     private final InputDownload purpleOutputDownload;
     private final InputDownload tumorBamDownload;
     private final InputDownload tumorBaiDownload;
     private final InputDownload germlineVcfDownload;
     private final InputDownload germlineVcfIndexDownload;
 
-    public Bachelor(final PurpleOutput purpleOutput, AlignmentOutput tumorAlignmentOutput, GermlineCallerOutput germlineCallerOutput) {
+    public Bachelor(final Resource resource, final PurpleOutput purpleOutput, AlignmentOutput tumorAlignmentOutput, GermlineCallerOutput germlineCallerOutput) {
+        this.resource = resource;
         this.purpleOutputDownload = new InputDownload(purpleOutput.outputDirectory());
         this.tumorBamDownload = new InputDownload(tumorAlignmentOutput.finalBamLocation());
         this.tumorBaiDownload = new InputDownload(tumorAlignmentOutput.finalBaiLocation());
@@ -58,7 +61,7 @@ public class Bachelor implements Stage<BachelorOutput, SomaticRunMetadata> {
                 purpleOutputDownload.getLocalTargetPath(),
                 Resource.of(ResourceNames.BACHELOR, "bachelor_hmf.xml"),
                 Resource.of(ResourceNames.BACHELOR, "bachelor_clinvar_filters.csv"),
-                Resource.REFERENCE_GENOME_FASTA,
+                resource.refGenomeFile(),
                 VmDirectories.OUTPUT));
     }
 

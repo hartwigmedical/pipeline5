@@ -85,12 +85,11 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
 
         String configurationFilePath = Resource.of(GRIDSS_CONFIG, "gridss.properties");
         String blacklistBedPath = Resource.of(GRIDSS_CONFIG, "ENCFF001TDO.bed");
-        String referenceGenomePath = Resource.REFERENCE_GENOME_FASTA;
         String virusReferenceGenomePath = Resource.of(VIRUS_REFERENCE_GENOME, "human_virus.fa");
         String repeatMaskerDbPath = resource.gridssRepeatMaskerDb();
 
         Driver driver = new Driver(VmDirectories.outputFile(tumorSampleName + ".assembly.bam"),
-                referenceGenomePath,
+                resource.refGenomeFile(),
                 blacklistBedPath,
                 configurationFilePath,
                 refBamPath,

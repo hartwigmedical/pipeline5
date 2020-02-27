@@ -1,5 +1,7 @@
 package com.hartwig.pipeline;
 
+import static com.hartwig.pipeline.resource.ResourceFilesFactory.buildResourceFiles;
+
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.alignment.vm.VmAligner;
 import com.hartwig.pipeline.calling.germline.GermlineCaller;
@@ -57,7 +59,7 @@ public class SingleSamplePipeline {
                 metadata.sampleId(),
                 arguments.runId().map(runId -> String.format("using run tag [%s]", runId)).orElse(""));
         PipelineState state = new PipelineState();
-        Resource resourceFiles = arguments.refGenomeVersion() == RefGenomeVersion.HG37 ? new Hg37Resource() : new Hg38Resource();
+        final Resource resourceFiles = buildResourceFiles(arguments.refGenomeVersion());
         AlignmentOutput alignmentOutput = report.add(state.add(aligner.run(metadata)));
         eventListener.alignmentComplete(state);
         if (state.shouldProceed()) {
@@ -65,7 +67,7 @@ public class SingleSamplePipeline {
             Future<BamMetricsOutput> bamMetricsFuture =
                     executorService.submit(() -> stageRunner.run(metadata, new BamMetrics(alignmentOutput)));
             Future<SnpGenotypeOutput> unifiedGenotyperFuture =
-                    executorService.submit(() -> stageRunner.run(metadata, new SnpGenotype(alignmentOutput)));
+                    executorService.submit(() -> stageRunner.run(metadata, new SnpGenotype(resourceFiles, alignmentOutput)));
             Future<FlagstatOutput> flagstatOutputFuture =
                     executorService.submit(() -> stageRunner.run(metadata, new Flagstat(alignmentOutput)));
             Future<CramOutput> cramOutputFuture =
