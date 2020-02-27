@@ -24,6 +24,10 @@ import com.hartwig.pipeline.metrics.BamMetrics;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.report.FullSomaticResults;
 import com.hartwig.pipeline.report.PipelineResults;
+import com.hartwig.pipeline.resource.Hg37Resource;
+import com.hartwig.pipeline.resource.Hg38Resource;
+import com.hartwig.pipeline.resource.RefGenomeVersion;
+import com.hartwig.pipeline.resource.Resource;
 import com.hartwig.pipeline.stages.StageRunner;
 import com.hartwig.pipeline.tertiary.amber.Amber;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
@@ -84,6 +88,8 @@ public class SomaticPipeline {
         SomaticRunMetadata metadata = setMetadataApi.get();
         LOGGER.info("Pipeline5 somatic pipeline starting for set [{}]", metadata.runName());
 
+        Resource resource = arguments.refGenomeVersion() == RefGenomeVersion.HG37 ? new Hg37Resource() : new Hg38Resource();
+
         if (metadata.maybeTumor().isPresent()) {
             AlignmentOutput referenceAlignmentOutput =
                     alignmentOutputStorage.get(metadata.reference()).orElseThrow(throwIllegalState(metadata.reference().sampleId()));
@@ -119,7 +125,7 @@ public class SomaticPipeline {
                         Future<HealthCheckOutput> healthCheckOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                 new HealthChecker(referenceMetrics, tumorMetrics, amberOutput, purpleOutput)));
                         Future<LinxOutput> linxOutputFuture =
-                                executorService.submit(() -> stageRunner.run(metadata, new Linx(purpleOutput)));
+                                executorService.submit(() -> stageRunner.run(metadata, new Linx(purpleOutput, resource)));
                         Future<BachelorOutput> bachelorOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                 new Bachelor(purpleOutput,
                                         pair.tumor(),

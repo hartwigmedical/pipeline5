@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
+import com.hartwig.pipeline.resource.Hg37Resource;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
@@ -29,14 +30,15 @@ public class LinxTest extends TertiaryStageTest<LinxOutput> {
 
     @Override
     protected Stage<LinxOutput, SomaticRunMetadata> createVictim() {
-        return new Linx(TestInputs.purpleOutput());
+        return new Linx(TestInputs.purpleOutput(), new Hg37Resource());
     }
 
     @Override
     protected List<String> expectedCommands() {
         return Collections.singletonList("java -Xmx8G -jar /opt/tools/linx/1.7/linx.jar -sample tumor -sv_vcf "
-                + "/data/input/tumor.purple.sv.vcf.gz -purple_dir /data/input/results -ref_genome "
-                + "/opt/resources/reference_genome/Homo_sapiens.GRCh37.GATK.illumina.fasta -output_dir /data/output -fragile_site_file "
+                + "/data/input/tumor.purple.sv.vcf.gz -purple_dir /data/input/results "
+                + "-ref_genome /opt/resources/reference_genome/Homo_sapiens.GRCh37.GATK.illumina.fasta -ref_genome_version 37 "
+                + "-output_dir /data/output -fragile_site_file "
                 + "/opt/resources/sv/fragile_sites_hmf.csv -line_element_file /opt/resources/sv/line_elements.csv "
                 + "-replication_origins_file /opt/resources/sv/heli_rep_origins.bed -viral_hosts_file /opt/resources/sv/viral_host_ref.csv "
                 + "-gene_transcripts_dir /opt/resources/ensembl/ensembl_data_cache -check_fusions -fusion_pairs_csv "

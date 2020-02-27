@@ -29,10 +29,12 @@ public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
     public static final String KNOWLEDGEBASE_OUTPUT = "output/";
     private final InputDownload purpleOutputDirDownload;
     private final InputDownload purpleStructuralVcfDownload;
+    private final Resource resource;
 
-    public Linx(PurpleOutput purpleOutput) {
+    public Linx(PurpleOutput purpleOutput, Resource resource) {
         purpleOutputDirDownload = new InputDownload(purpleOutput.outputDirectory());
         purpleStructuralVcfDownload = new InputDownload(purpleOutput.structuralVcf());
+        this.resource = resource;
     }
 
     @Override
@@ -51,6 +53,7 @@ public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
                 purpleStructuralVcfDownload.getLocalTargetPath(),
                 purpleOutputDirDownload.getLocalTargetPath(),
                 Resource.REFERENCE_GENOME_FASTA,
+                resource.version(),
                 VmDirectories.OUTPUT,
                 Resource.of(SV, "fragile_sites_hmf.csv"),
                 Resource.of(SV, "line_elements.csv"),

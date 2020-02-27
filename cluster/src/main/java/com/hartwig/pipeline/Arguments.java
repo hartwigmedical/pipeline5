@@ -4,6 +4,8 @@ import org.immutables.value.Value;
 
 import java.util.Optional;
 
+import com.hartwig.pipeline.resource.RefGenomeVersion;
+
 @Value.Immutable
 public interface Arguments extends CommonArguments {
 
@@ -55,6 +57,7 @@ public interface Arguments extends CommonArguments {
                     .archiveBucket(DEFAULT_PRODUCTION_ARCHIVE_BUCKET)
                     .archiveProject(DEFAULT_PRODUCTION_ARCHIVE_PROJECT)
                     .archivePrivateKeyPath(DEFAULT_DOCKER_ARCHIVE_KEY_PATH)
+                    .refGenomeVersion(DEFAULT_REF_GENOME_VERSION)
                     .outputCram(false);
         } else if (profile.equals(DefaultsProfile.DEVELOPMENT)) {
             return ImmutableArguments.builder()
@@ -91,6 +94,7 @@ public interface Arguments extends CommonArguments {
                     .archiveBucket(DEFAULT_DEVELOPMENT_ARCHIVE_BUCKET)
                     .archiveProject(DEFAULT_DEVELOPMENT_PROJECT)
                     .archivePrivateKeyPath(DEFAULT_DEVELOPMENT_KEY_PATH)
+                    .refGenomeVersion(DEFAULT_REF_GENOME_VERSION)
                     .outputCram(false);
         } else if (profile.equals(DefaultsProfile.DEVELOPMENT_DOCKER)) {
             return ImmutableArguments.builder()
@@ -127,6 +131,7 @@ public interface Arguments extends CommonArguments {
                     .archiveBucket(DEFAULT_DEVELOPMENT_ARCHIVE_BUCKET)
                     .archiveProject(DEFAULT_DEVELOPMENT_PROJECT)
                     .archivePrivateKeyPath(DEFAULT_DOCKER_KEY_PATH)
+                    .refGenomeVersion(DEFAULT_REF_GENOME_VERSION)
                     .outputCram(false);
         }
         throw new IllegalArgumentException(String.format("Unknown profile [%s], please create defaults for this profile.", profile));
@@ -192,6 +197,8 @@ public interface Arguments extends CommonArguments {
 
     Optional<String> zone();
 
+    RefGenomeVersion refGenomeVersion();
+
     static ImmutableArguments.Builder builder() {
         return ImmutableArguments.builder();
     }
@@ -242,4 +249,6 @@ public interface Arguments extends CommonArguments {
     String DEFAULT_DEVELOPMENT_SERVICE_ACCOUNT_EMAIL = String.format("bootstrap@%s.iam.gserviceaccount.com", DEFAULT_DEVELOPMENT_PROJECT);
     String DEFAULT_DEVELOPMENT_PATIENT_REPORT_BUCKET = "pipeline-output-dev";
     String DEFAULT_DEVELOPMENT_ARCHIVE_BUCKET = "pipeline-archive-dev";
+
+    RefGenomeVersion DEFAULT_REF_GENOME_VERSION = RefGenomeVersion.HG37;
 }

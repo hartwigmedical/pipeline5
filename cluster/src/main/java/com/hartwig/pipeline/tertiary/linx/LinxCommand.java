@@ -1,11 +1,15 @@
 package com.hartwig.pipeline.tertiary.linx;
 
+import static com.hartwig.pipeline.resource.RefGenomeVersion.asInt;
+
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.execution.vm.JavaJarCommand;
+import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.tools.Versions;
 
 class LinxCommand extends JavaJarCommand {
-    LinxCommand(final String sample, final String svVcf, final String purpleDir, final String referenceGenome, final String outputDir,
+    LinxCommand(final String sample, final String svVcf, final String purpleDir, final String referenceGenome, final RefGenomeVersion refGenomeVersion,
+            final String outputDir,
             final String fragileSiteFile, final String lineElementFile, final String replicationsOriginsFile, final String viralHostsFile,
             final String geneTranscriptsDirectory, final String fusionsPairsCsv, final String promiscuousFiveCsv,
             final String promiscuousThreeCsv) {
@@ -21,6 +25,8 @@ class LinxCommand extends JavaJarCommand {
                         purpleDir,
                         "-ref_genome",
                         referenceGenome,
+                        "-ref_genome_version",
+                        RefGenomeVersion.asString(refGenomeVersion),
                         "-output_dir",
                         outputDir,
                         "-fragile_site_file",
