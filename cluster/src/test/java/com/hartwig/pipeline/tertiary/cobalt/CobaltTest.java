@@ -22,7 +22,7 @@ public class CobaltTest extends TertiaryStageTest<CobaltOutput> {
 
     @Override
     protected Stage<CobaltOutput, SomaticRunMetadata> createVictim() {
-        return new Cobalt(TestInputs.defaultPair(), new Hg37Resource());
+        return new Cobalt(TestInputs.defaultPair(), TestInputs.HG37_RESOURCE);
     }
 
     @Override

@@ -55,11 +55,13 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
             "INDEL_ReadPosRankSumLow",
             "ReadPosRankSum < -20.0");
 
+    private final Resource resource;
     private final InputDownload bamDownload;
     private final InputDownload baiDownload;
     private final OutputFile outputFile;
 
-    public GermlineCaller(final AlignmentOutput alignmentOutput) {
+    public GermlineCaller(final AlignmentOutput alignmentOutput, final Resource resource) {
+        this.resource = resource;
         this.bamDownload = new InputDownload(alignmentOutput.finalBamLocation());
         this.baiDownload = new InputDownload(alignmentOutput.finalBaiLocation());
         outputFile = OutputFile.of(alignmentOutput.sample(), "germline", OutputFile.GZIPPED_VCF, false);
@@ -78,7 +80,7 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
     @Override
     public List<BashCommand> commands(final SingleSampleRunMetadata metadata) {
 
-        String referenceFasta = Resource.REFERENCE_GENOME_FASTA;
+        String referenceFasta = resource.refGenomeFile();
 
         SubStageInputOutput callerOutput =
                 new GatkGermlineCaller(bamDownload.getLocalTargetPath(), referenceFasta, Resource.DBSNPS_VCF).andThen(new GenotypeGVCFs(
@@ -105,7 +107,7 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
                 .andThen(new SnpSiftFrequenciesAnnotation(Resource.of(GONL, "gonl.snps_indels.r5.sorted.vcf.gz"), Resource.SNPEFF_CONFIG))
                 .apply(combinedFilters);
 
-        return ImmutableList.<BashCommand>builder().add(new UnzipToDirectoryCommand(VmDirectories.RESOURCES, Resource.SNPEFF_DB))
+        return ImmutableList.<BashCommand>builder().add(new UnzipToDirectoryCommand(VmDirectories.RESOURCES, resource.snpEffDb()))
                 .addAll(finalOutput.bash())
                 .add(new MvCommand(finalOutput.outputFile().path(), outputFile.path()))
                 .add(new MvCommand(finalOutput.outputFile().path() + ".tbi", outputFile.path() + ".tbi"))

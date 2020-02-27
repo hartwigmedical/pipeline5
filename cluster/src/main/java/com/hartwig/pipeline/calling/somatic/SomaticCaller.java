@@ -38,11 +38,14 @@ public class SomaticCaller extends TertiaryStage<SomaticCallerOutput> {
 
     public static final String NAMESPACE = "somatic_caller";
 
+    private final Resource resource;
     private OutputFile outputFile;
     private OutputFile sageOutputFile;
 
-    public SomaticCaller(final AlignmentPair alignmentPair) {
+    public SomaticCaller(final AlignmentPair alignmentPair, final Resource resource)
+    {
         super(alignmentPair);
+        this.resource = resource;
     }
 
     @Override
@@ -76,7 +79,7 @@ public class SomaticCaller extends TertiaryStage<SomaticCallerOutput> {
 
         commands.addAll(sageOutput.bash());
 
-        commands.add(new UnzipToDirectoryCommand(VmDirectories.RESOURCES, Resource.SNPEFF_DB));
+        commands.add(new UnzipToDirectoryCommand(VmDirectories.RESOURCES, resource.snpEffDb()));
 
         SubStageInputOutput mergedOutput = new Strelka(referenceBamPath,
                 tumorBamPath,

@@ -20,7 +20,7 @@ public class SomaticCallerTest extends TertiaryStageTest<SomaticCallerOutput> {
 
     @Override
     protected Stage<SomaticCallerOutput, SomaticRunMetadata> createVictim() {
-        return new SomaticCaller(TestInputs.defaultPair());
+        return new SomaticCaller(TestInputs.defaultPair(), TestInputs.HG37_RESOURCE);
     }
 
     @Override

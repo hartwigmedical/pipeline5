@@ -88,7 +88,7 @@ public class SomaticPipeline {
         SomaticRunMetadata metadata = setMetadataApi.get();
         LOGGER.info("Pipeline5 somatic pipeline starting for set [{}]", metadata.runName());
 
-        Resource resource = arguments.refGenomeVersion() == RefGenomeVersion.HG37 ? new Hg37Resource() : new Hg38Resource();
+        Resource resourceFiles = arguments.refGenomeVersion() == RefGenomeVersion.HG37 ? new Hg37Resource() : new Hg38Resource();
 
         if (metadata.maybeTumor().isPresent()) {
             AlignmentOutput referenceAlignmentOutput =
@@ -98,14 +98,14 @@ public class SomaticPipeline {
             AlignmentPair pair = AlignmentPair.of(referenceAlignmentOutput, tumorAlignmentOutput);
 
             try {
-                Future<AmberOutput> amberOutputFuture = executorService.submit(() -> stageRunner.run(metadata, new Amber(pair, resource)));
-                Future<CobaltOutput> cobaltOutputFuture = executorService.submit(() -> stageRunner.run(metadata, new Cobalt(pair, resource)));
+                Future<AmberOutput> amberOutputFuture = executorService.submit(() -> stageRunner.run(metadata, new Amber(pair, resourceFiles)));
+                Future<CobaltOutput> cobaltOutputFuture = executorService.submit(() -> stageRunner.run(metadata, new Cobalt(pair, resourceFiles)));
                 Future<SageV2CallerOutput> sageCallerOutputFuture =
-                        executorService.submit(() -> stageRunner.run(metadata, new SageV2Caller(pair)));
+                        executorService.submit(() -> stageRunner.run(metadata, new SageV2Caller(pair, resourceFiles)));
                 Future<SomaticCallerOutput> somaticCallerOutputFuture =
-                        executorService.submit(() -> stageRunner.run(metadata, new SomaticCaller(pair)));
+                        executorService.submit(() -> stageRunner.run(metadata, new SomaticCaller(pair, resourceFiles)));
                 Future<StructuralCallerOutput> structuralCallerOutputFuture =
-                        executorService.submit(() -> stageRunner.run(metadata, new StructuralCaller(pair)));
+                        executorService.submit(() -> stageRunner.run(metadata, new StructuralCaller(pair, resourceFiles)));
                 AmberOutput amberOutput = pipelineResults.add(state.add(amberOutputFuture.get()));
                 CobaltOutput cobaltOutput = pipelineResults.add(state.add(cobaltOutputFuture.get()));
                 SageV2CallerOutput sageOutput = pipelineResults.add(state.add(sageCallerOutputFuture.get()));
@@ -115,7 +115,7 @@ public class SomaticPipeline {
                 if (state.shouldProceed()) {
                     Future<PurpleOutput> purpleOutputFuture = executorService.submit(() -> pipelineResults.add(state.add(stageRunner.run(
                             metadata,
-                            new Purple(somaticCallerOutput, structuralCallerOutput, amberOutput, cobaltOutput, arguments.shallow())))));
+                            new Purple(resourceFiles, somaticCallerOutput, structuralCallerOutput, amberOutput, cobaltOutput, arguments.shallow())))));
                     PurpleOutput purpleOutput = purpleOutputFuture.get();
                     if (state.shouldProceed()) {
                         BamMetricsOutput tumorMetrics = bamMetricsOutputStorage.get(metadata.tumor(), new BamMetrics(pair.tumor()));
@@ -125,11 +125,11 @@ public class SomaticPipeline {
                         Future<HealthCheckOutput> healthCheckOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                 new HealthChecker(referenceMetrics, tumorMetrics, amberOutput, purpleOutput)));
                         Future<LinxOutput> linxOutputFuture =
-                                executorService.submit(() -> stageRunner.run(metadata, new Linx(purpleOutput, resource)));
+                                executorService.submit(() -> stageRunner.run(metadata, new Linx(purpleOutput, resourceFiles)));
                         Future<BachelorOutput> bachelorOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                 new Bachelor(purpleOutput,
                                         pair.tumor(),
-                                        germlineCallerOutputStorage.get(metadata.reference(), new GermlineCaller(pair.reference())))));
+                                        germlineCallerOutputStorage.get(metadata.reference(), new GermlineCaller(pair.reference(), resourceFiles)))));
                         Future<ChordOutput> chordOutputFuture =
                                 executorService.submit(() -> stageRunner.run(metadata, new Chord(purpleOutput)));
                         pipelineResults.add(state.add(healthCheckOutputFuture.get()));

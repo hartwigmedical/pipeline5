@@ -29,8 +29,9 @@ public class StructuralCallerTest extends StageTest<StructuralCallerOutput, Soma
     }
 
     @Override
-    protected Stage<StructuralCallerOutput, SomaticRunMetadata> createVictim() {
-        return new StructuralCaller(TestInputs.defaultPair());
+    protected Stage<StructuralCallerOutput, SomaticRunMetadata> createVictim()
+    {
+        return new StructuralCaller(TestInputs.defaultPair(), TestInputs.HG37_RESOURCE);
     }
 
     @Override

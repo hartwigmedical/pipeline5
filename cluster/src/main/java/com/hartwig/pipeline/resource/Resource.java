@@ -24,15 +24,16 @@ public interface Resource {
 
     String refGenomeFile();
     String gcProfileFile();
-    String amberPon();
     String germlineHetPon();
     String gridssRepeatMaskerDb();
     String snpEffDb();
+    String sageKnownHotspots();
+    String sageActionableCodingPanel();
+    String out150Mappability();
+    String sageGermlinePon();
 
     String REFERENCE_GENOME_FASTA = Resource.of(REFERENCE_GENOME, "Homo_sapiens.GRCh37.GATK.illumina.fasta");
-    String GC_PROFILE_CNP = Resource.of(GC_PROFILE, "GC_profile.1000bp.cnp");
     String SNPEFF_CONFIG = Resource.of(SNPEFF, "snpEff.config");
-    String SNPEFF_DB = Resource.of(SNPEFF, "snpEff_v4_3_GRCh37.75.zip");
     String DBSNPS_VCF = Resource.of(DBSNPS, "dbsnp_137.b37.vcf");
     String DBNSFP_VCF = Resource.of(DBNSFP, "dbNSFP2.9.txt.gz");
     String COSMIC_VCF_GZ = Resource.of(COSMIC, "CosmicCodingMuts_v85_collapsed.vcf.gz");

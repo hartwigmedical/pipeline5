@@ -49,11 +49,13 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
     private final InputDownload tumorBam;
     private final InputDownload tumorBai;
 
+    private final Resource resource;
     private String unfilteredVcf;
     private String somaticFilteredVcf;
     private String somaticAndQualityFilteredVcf;
 
-    public StructuralCaller(final AlignmentPair pair) {
+    public StructuralCaller(final AlignmentPair pair, final Resource resource) {
+        this.resource = resource;
         referenceBam = new InputDownload(pair.reference().finalBamLocation());
         referenceBai = new InputDownload(pair.reference().finalBaiLocation());
         tumorBam = new InputDownload(pair.tumor().finalBamLocation());
@@ -85,7 +87,7 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
         String blacklistBedPath = Resource.of(GRIDSS_CONFIG, "ENCFF001TDO.bed");
         String referenceGenomePath = Resource.REFERENCE_GENOME_FASTA;
         String virusReferenceGenomePath = Resource.of(VIRUS_REFERENCE_GENOME, "human_virus.fa");
-        String repeatMaskerDbPath = Resource.of(GRIDSS_REPEAT_MASKER_DB, "hg19.fa.out");
+        String repeatMaskerDbPath = resource.gridssRepeatMaskerDb();
 
         Driver driver = new Driver(VmDirectories.outputFile(tumorSampleName + ".assembly.bam"),
                 referenceGenomePath,

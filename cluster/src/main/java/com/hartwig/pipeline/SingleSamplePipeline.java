@@ -13,6 +13,10 @@ import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetrics;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.report.PipelineResults;
+import com.hartwig.pipeline.resource.Hg37Resource;
+import com.hartwig.pipeline.resource.Hg38Resource;
+import com.hartwig.pipeline.resource.RefGenomeVersion;
+import com.hartwig.pipeline.resource.Resource;
 import com.hartwig.pipeline.snpgenotype.SnpGenotype;
 import com.hartwig.pipeline.snpgenotype.SnpGenotypeOutput;
 import com.hartwig.pipeline.stages.StageRunner;
@@ -53,6 +57,7 @@ public class SingleSamplePipeline {
                 metadata.sampleId(),
                 arguments.runId().map(runId -> String.format("using run tag [%s]", runId)).orElse(""));
         PipelineState state = new PipelineState();
+        Resource resourceFiles = arguments.refGenomeVersion() == RefGenomeVersion.HG37 ? new Hg37Resource() : new Hg38Resource();
         AlignmentOutput alignmentOutput = report.add(state.add(aligner.run(metadata)));
         eventListener.alignmentComplete(state);
         if (state.shouldProceed()) {
@@ -68,7 +73,7 @@ public class SingleSamplePipeline {
 
             if (metadata.type().equals(SingleSampleRunMetadata.SampleType.REFERENCE)) {
                 Future<GermlineCallerOutput> germlineCallerFuture =
-                        executorService.submit(() -> stageRunner.run(metadata, new GermlineCaller(alignmentOutput)));
+                        executorService.submit(() -> stageRunner.run(metadata, new GermlineCaller(alignmentOutput, resourceFiles)));
                 report.add(state.add(futurePayload(germlineCallerFuture)));
             }
 

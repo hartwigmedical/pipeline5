@@ -32,6 +32,8 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
     public static final String NAMESPACE = "purple";
     public static final String PURPLE_SOMATIC_VCF = ".purple.somatic.vcf.gz";
     public static final String PURPLE_SV_VCF = ".purple.sv.vcf.gz";
+
+    private final Resource resource;
     private final InputDownload somaticVcfDownload;
     private final InputDownload structuralVcfDownload;
     private final InputDownload structuralVcfIndexDownload;
@@ -41,8 +43,9 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
     private final InputDownload cobaltOutputDownload;
     private final boolean shallow;
 
-    public Purple(SomaticCallerOutput somaticCallerOutput, StructuralCallerOutput structuralCallerOutput, AmberOutput amberOutput,
+    public Purple(final Resource resource, SomaticCallerOutput somaticCallerOutput, StructuralCallerOutput structuralCallerOutput, AmberOutput amberOutput,
             CobaltOutput cobaltOutput, final boolean shallow) {
+        this.resource = resource;
         somaticVcfDownload = new InputDownload(somaticCallerOutput.finalSomaticVcf());
         structuralVcfDownload = new InputDownload(structuralCallerOutput.filteredVcf());
         structuralVcfIndexDownload = new InputDownload(structuralCallerOutput.filteredVcfIndex());
@@ -64,12 +67,12 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
                 metadata.tumor().sampleName(),
                 amberOutputDownload.getLocalTargetPath(),
                 cobaltOutputDownload.getLocalTargetPath(),
-                Resource.GC_PROFILE_CNP,
+                resource.gcProfileFile(),
                 somaticVcfDownload.getLocalTargetPath(),
                 structuralVcfDownload.getLocalTargetPath(),
                 svRecoveryVcfDownload.getLocalTargetPath(),
                 VmDirectories.TOOLS + "/circos/" + Versions.CIRCOS + "/bin/circos",
-                Resource.REFERENCE_GENOME_FASTA,
+                resource.refGenomeFile(),
                 shallow));
     }
 
