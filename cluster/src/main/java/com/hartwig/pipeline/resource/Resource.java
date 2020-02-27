@@ -22,6 +22,10 @@ public interface Resource {
     RefGenomeVersion version();
 
     String refGenomeFile();
+    String gcProfileFile();
+    String germlineHetPon();
+    String gridssRepeatMaskerDb();
+    String snpEffDb();
 
     String REFERENCE_GENOME_FASTA = Resource.of(REFERENCE_GENOME, "Homo_sapiens.GRCh37.GATK.illumina.fasta");
     String GC_PROFILE_CNP = Resource.of(GC_PROFILE, "GC_profile.1000bp.cnp");
