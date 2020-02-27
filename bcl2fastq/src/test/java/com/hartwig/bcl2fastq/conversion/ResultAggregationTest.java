@@ -18,6 +18,7 @@ import com.hartwig.bcl2fastq.samplesheet.ImmutableSampleSheet;
 import com.hartwig.bcl2fastq.samplesheet.SampleSheet;
 import com.hartwig.bcl2fastq.stats.ImmutableLaneStats;
 import com.hartwig.bcl2fastq.stats.ImmutableStats;
+import com.hartwig.bcl2fastq.stats.Stats;
 import com.hartwig.bcl2fastq.stats.TestStats;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.storage.RuntimeBucket;
@@ -123,6 +124,32 @@ public class ResultAggregationTest {
         when(bucket.list(path)).thenReturn(Lists.newArrayList(first, second));
 
         Conversion conversion = victim.apply(sampleSheet(), defaultStats());
+
+        assertThat(conversion.samples()).hasSize(1);
+        List<ConvertedFastq> fastq = conversion.samples().get(0).fastq();
+        assertThat(fastq).hasSize(1);
+        ConvertedFastq firstFastq = fastq.get(0);
+        assertThat(firstFastq.id()).isEqualTo(FastqId.of(1, BARCODE));
+        assertThat(firstFastq.yield()).isEqualTo(3);
+        assertThat(firstFastq.yieldQ30()).isEqualTo(3);
+    }
+
+    @Test
+    public void multipleSamplesWithDifferentProjects() {
+
+        String barcode2 = "barcode2";
+        String project2 = "project2";
+        when(bucket.list(path)).thenReturn(Lists.newArrayList(first, second));
+        when(bucket.list(String.format("results/%s/%s", project2, barcode2))).thenReturn(Lists.newArrayList(first, second));
+
+        SampleSheet sampleSheet = SampleSheet.builder()
+                .experimentName(EXPERIMENT)
+                .addSamples(illuminaSample(), IlluminaSample.builder().barcode(barcode2).project(project2).sample("sample2").build())
+                .build();
+
+        Stats stats = stats(laneStats(1, 1, sampleStats(BARCODE, 3, 1, 2), sampleStats(barcode2, 3, 1, 2)));
+
+        Conversion conversion = victim.apply(sampleSheet, stats);
 
         assertThat(conversion.samples()).hasSize(1);
         List<ConvertedFastq> fastq = conversion.samples().get(0).fastq();

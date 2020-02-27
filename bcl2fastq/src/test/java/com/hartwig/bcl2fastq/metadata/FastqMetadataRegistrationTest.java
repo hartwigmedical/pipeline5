@@ -122,15 +122,15 @@ public class FastqMetadataRegistrationTest {
 
     @Test
     public void setsSampleStatusToUnregisteredYieldAndQ30MeetsDontExist() {
-        when(sbpApi.findOrCreate(BARCODE, PROJECT)).thenReturn(SbpSample.builder()
-                .from(SBP_SAMPLE)
-                .yld_req(Optional.empty())
-                .q30_req(Optional.empty())
-                .build());
-        when(sbpApi.getFastqs(SBP_SAMPLE)).thenReturn(newArrayList(sbpFastq(2_000_000_002, 100, true)));
+        SbpSample sbpSample = SbpSample.builder().from(SBP_SAMPLE).yld_req(Optional.empty()).q30_req(Optional.empty()).build();
+        when(sbpApi.findOrCreate(BARCODE, PROJECT)).thenReturn(sbpSample);
+        when(sbpApi.getFastqs(sbpSample)).thenReturn(newArrayList(sbpFastq(2_000_000_002, 100, true)));
         victim.accept(conversion(EXISTS).addSamples(sample().build()).build());
         verify(sbpApi).updateSample(sampleUpdateCaptor.capture());
-        assertThat(sampleUpdateCaptor.getValue().status()).isEqualTo(SbpSample.STATUS_UNREGISTERED);
+        SbpSample result = sampleUpdateCaptor.getValue();
+        assertThat(result.status()).isEqualTo(SbpSample.STATUS_UNREGISTERED);
+        assertThat(result.yld()).hasValue(2000000002L);
+        assertThat(result.q30()).hasValue(100d);
     }
 
     @Test
