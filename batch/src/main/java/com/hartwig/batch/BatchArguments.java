@@ -1,15 +1,18 @@
 package com.hartwig.batch;
 
+import static java.lang.Boolean.parseBoolean;
+import static java.lang.String.format;
+
+import java.util.Optional;
+
 import com.hartwig.pipeline.CommonArguments;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.immutables.value.Value;
-
-import static java.lang.Boolean.parseBoolean;
-import static java.lang.String.format;
 
 @Value.Immutable
 public interface BatchArguments extends CommonArguments {
@@ -24,6 +27,7 @@ public interface BatchArguments extends CommonArguments {
     String INPUT_FILE = "input_file";
     String OUTPUT_BUCKET = "output_bucket";
     String PRIVATE_KEY_PATH = "private_key_path";
+    String CMEK = "cmek";
 
     int concurrency();
 
@@ -47,6 +51,7 @@ public interface BatchArguments extends CommonArguments {
                     .concurrency(Integer.parseInt(commandLine.getOptionValue(CONCURRENCY, "100")))
                     .inputFile(commandLine.getOptionValue(INPUT_FILE))
                     .outputBucket(commandLine.getOptionValue(OUTPUT_BUCKET))
+                    .cmek(commandLine.hasOption(CMEK) ? Optional.of(commandLine.getOptionValue(CMEK)) : Optional.empty())
                     .build();
         } catch (ParseException e) {
             String message = "Failed to parse arguments";
@@ -79,7 +84,9 @@ public interface BatchArguments extends CommonArguments {
                 .addOption(booleanOption(PREEMPTIBLE_VMS, "Use pre-emptible VMs to lower cost"))
                 .addOption(stringOption(PRIVATE_KEY_PATH, "Path to JSON file containing GCP credentials"))
                 .addOption(stringOption(SERVICE_ACCOUNT_EMAIL, "Email of service account"))
-                .addOption(stringOption(OUTPUT_BUCKET, "Output bucket (must exist and must be writable by the service account)"));
+                .addOption(stringOption(OUTPUT_BUCKET, "Output bucket (must exist and must be writable by the service account)"))
+                .addOption(stringOption(CMEK, "The name of the Customer Managed Encryption Key. When this flag is populated all runtime "
+                                + "buckets will use this key."));
     }
 
     private static Option stringOption(final String option, final String description) {
