@@ -23,8 +23,12 @@ public class Amber extends TertiaryStage<AmberOutput> {
 
     public static final String NAMESPACE = "amber";
 
-    public Amber(final AlignmentPair alignmentPair) {
+    private final Resource resource;
+
+    public Amber(final AlignmentPair alignmentPair, Resource resource)
+    {
         super(alignmentPair);
+        this.resource = resource;
     }
 
     @Override
@@ -38,7 +42,7 @@ public class Amber extends TertiaryStage<AmberOutput> {
                 getReferenceBamDownload().getLocalTargetPath(),
                 metadata.tumor().sampleName(),
                 getTumorBamDownload().getLocalTargetPath(),
-                Resource.REFERENCE_GENOME_FASTA,
+                resource.refGenomeFile(),
                 Resource.of(ResourceNames.AMBER_PON, "GermlineHetPon.hg19.vcf.gz")));
     }
 

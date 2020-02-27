@@ -1,5 +1,6 @@
 package com.hartwig.pipeline.resource;
 
+import static com.hartwig.pipeline.resource.ResourceNames.AMBER_PON;
 import static com.hartwig.pipeline.resource.ResourceNames.COSMIC;
 import static com.hartwig.pipeline.resource.ResourceNames.DBNSFP;
 import static com.hartwig.pipeline.resource.ResourceNames.DBSNPS;
@@ -23,6 +24,7 @@ public interface Resource {
 
     String refGenomeFile();
     String gcProfileFile();
+    String amberPon();
     String germlineHetPon();
     String gridssRepeatMaskerDb();
     String snpEffDb();

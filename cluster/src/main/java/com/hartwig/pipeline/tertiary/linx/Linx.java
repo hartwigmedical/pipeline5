@@ -52,7 +52,7 @@ public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
         return Collections.singletonList(new LinxCommand(metadata.tumor().sampleName(),
                 purpleStructuralVcfDownload.getLocalTargetPath(),
                 purpleOutputDirDownload.getLocalTargetPath(),
-                Resource.REFERENCE_GENOME_FASTA,
+                resource.refGenomeFile(),
                 resource.version(),
                 VmDirectories.OUTPUT,
                 Resource.of(SV, "fragile_sites_hmf.csv"),

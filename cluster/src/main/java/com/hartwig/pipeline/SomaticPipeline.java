@@ -98,7 +98,7 @@ public class SomaticPipeline {
             AlignmentPair pair = AlignmentPair.of(referenceAlignmentOutput, tumorAlignmentOutput);
 
             try {
-                Future<AmberOutput> amberOutputFuture = executorService.submit(() -> stageRunner.run(metadata, new Amber(pair)));
+                Future<AmberOutput> amberOutputFuture = executorService.submit(() -> stageRunner.run(metadata, new Amber(pair, resource)));
                 Future<CobaltOutput> cobaltOutputFuture = executorService.submit(() -> stageRunner.run(metadata, new Cobalt(pair)));
                 Future<SageV2CallerOutput> sageCallerOutputFuture =
                         executorService.submit(() -> stageRunner.run(metadata, new SageV2Caller(pair)));
