@@ -25,7 +25,7 @@ public class Amber extends TertiaryStage<AmberOutput> {
 
     private final Resource resource;
 
-    public Amber(final AlignmentPair alignmentPair, Resource resource)
+    public Amber(final AlignmentPair alignmentPair, final Resource resource)
     {
         super(alignmentPair);
         this.resource = resource;

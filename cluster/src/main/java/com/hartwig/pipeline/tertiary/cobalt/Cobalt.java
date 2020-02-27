@@ -20,9 +20,12 @@ import com.hartwig.pipeline.tertiary.TertiaryStage;
 public class Cobalt extends TertiaryStage<CobaltOutput> {
 
     public static final String NAMESPACE = "cobalt";
+    private final Resource resource;
 
-    public Cobalt(final AlignmentPair alignmentPair) {
+    public Cobalt(final AlignmentPair alignmentPair, final Resource resource)
+    {
         super(alignmentPair);
+        this.resource = resource;
     }
 
     @Override
@@ -36,7 +39,7 @@ public class Cobalt extends TertiaryStage<CobaltOutput> {
                 getReferenceBamDownload().getLocalTargetPath(),
                 metadata.tumor().sampleName(),
                 getTumorBamDownload().getLocalTargetPath(),
-                Resource.GC_PROFILE_CNP));
+                resource.gcProfileFile()));
     }
 
     @Override

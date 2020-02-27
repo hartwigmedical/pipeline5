@@ -99,7 +99,7 @@ public class SomaticPipeline {
 
             try {
                 Future<AmberOutput> amberOutputFuture = executorService.submit(() -> stageRunner.run(metadata, new Amber(pair, resource)));
-                Future<CobaltOutput> cobaltOutputFuture = executorService.submit(() -> stageRunner.run(metadata, new Cobalt(pair)));
+                Future<CobaltOutput> cobaltOutputFuture = executorService.submit(() -> stageRunner.run(metadata, new Cobalt(pair, resource)));
                 Future<SageV2CallerOutput> sageCallerOutputFuture =
                         executorService.submit(() -> stageRunner.run(metadata, new SageV2Caller(pair)));
                 Future<SomaticCallerOutput> somaticCallerOutputFuture =

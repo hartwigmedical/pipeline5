@@ -31,7 +31,7 @@ public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
     private final InputDownload purpleStructuralVcfDownload;
     private final Resource resource;
 
-    public Linx(PurpleOutput purpleOutput, Resource resource) {
+    public Linx(PurpleOutput purpleOutput, final Resource resource) {
         purpleOutputDirDownload = new InputDownload(purpleOutput.outputDirectory());
         purpleStructuralVcfDownload = new InputDownload(purpleOutput.structuralVcf());
         this.resource = resource;

@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
+import com.hartwig.pipeline.resource.Hg37Resource;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
@@ -21,7 +22,7 @@ public class CobaltTest extends TertiaryStageTest<CobaltOutput> {
 
     @Override
     protected Stage<CobaltOutput, SomaticRunMetadata> createVictim() {
-        return new Cobalt(TestInputs.defaultPair());
+        return new Cobalt(TestInputs.defaultPair(), new Hg37Resource());
     }
 
     @Override
