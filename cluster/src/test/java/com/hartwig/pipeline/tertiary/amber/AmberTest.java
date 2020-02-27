@@ -21,7 +21,7 @@ public class AmberTest extends TertiaryStageTest<AmberOutput> {
 
     @Override
     protected Stage<AmberOutput, SomaticRunMetadata> createVictim() {
-        return new Amber(TestInputs.defaultPair(), TestInputs.HG37_RESOURCE);
+        return new Amber(TestInputs.defaultPair(), TestInputs.HG37_RESOURCE_FILES);
     }
 
     @Override

@@ -20,7 +20,7 @@ public class SageV2CallerTest extends TertiaryStageTest<SageV2CallerOutput> {
 
     @Override
     protected Stage<SageV2CallerOutput, SomaticRunMetadata> createVictim() {
-        return new SageV2Caller(TestInputs.defaultPair(), TestInputs.HG37_RESOURCE);
+        return new SageV2Caller(TestInputs.defaultPair(), TestInputs.HG37_RESOURCE_FILES);
     }
 
     @Override

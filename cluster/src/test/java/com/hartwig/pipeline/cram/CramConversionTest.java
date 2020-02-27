@@ -2,6 +2,8 @@ package com.hartwig.pipeline.cram;
 
 import static java.lang.String.format;
 
+import static com.hartwig.pipeline.resource.Hg37ResourceFiles.REFERENCE_GENOME_FASTA_HG37;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
@@ -59,7 +61,7 @@ public class CramConversionTest extends StageTest<CramOutput, SingleSampleRunMet
         String output = "/data/output/reference.cram";
         return ImmutableList.of(
                 format("%s view -T %s -o %s -O cram,store_md=1,store_nm=1 -@ $(grep -c '^processor' /proc/cpuinfo) %s",
-                        samtools, ResourceFiles.REFERENCE_GENOME_FASTA, output, input),
+                        samtools, REFERENCE_GENOME_FASTA_HG37, output, input),
                 format("%s index %s", samtools, output),
                 format("java -Xmx4G -cp /opt/tools/bamcomp/1.0/bamcomp.jar com.hartwig.bamcomp.BamToCramValidator %s %s 6",
                         input, output));

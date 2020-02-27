@@ -46,8 +46,8 @@ public class TestInputs {
     public static final String TUMOR_BUCKET = "run-" + TUMOR_SAMPLE + "-test";
     public static final String SOMATIC_BUCKET = "run-" + REFERENCE_SAMPLE + "-" + TUMOR_SAMPLE + "-test";
 
-    public static final ResourceFiles HG37_RESOURCE = new Hg37ResourceFiles();
-    public static final ResourceFiles HG38_RESOURCE = new Hg38ResourceFiles();
+    public static final ResourceFiles HG37_RESOURCE_FILES = new Hg37ResourceFiles();
+    public static final ResourceFiles HG38_RESOURCE_FILES = new Hg38ResourceFiles();
 
     public static String referenceSample() {
         return REFERENCE_SAMPLE;

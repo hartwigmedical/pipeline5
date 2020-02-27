@@ -25,9 +25,12 @@ import com.hartwig.pipeline.storage.RuntimeBucket;
 public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetadata> {
 
     public static final String NAMESPACE = "bam_metrics";
+
+    final ResourceFiles resourceFiles;
     private final InputDownload bamDownload;
 
-    public BamMetrics(final AlignmentOutput alignmentOutput) {
+    public BamMetrics(final ResourceFiles resourceFiles, final AlignmentOutput alignmentOutput) {
+        this.resourceFiles = resourceFiles;
         bamDownload = new InputDownload(alignmentOutput.finalBamLocation());
     }
 
@@ -49,7 +52,7 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
     @Override
     public List<BashCommand> commands(SingleSampleRunMetadata metadata) {
         return Collections.singletonList(new BamMetricsCommand(bamDownload.getLocalTargetPath(),
-                ResourceFiles.REFERENCE_GENOME_FASTA,
+                resourceFiles.refGenomeFile(),
                 VmDirectories.OUTPUT + "/" + BamMetricsOutput.outputFile(metadata.sampleName())));
     }
 

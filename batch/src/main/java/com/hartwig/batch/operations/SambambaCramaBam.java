@@ -1,5 +1,7 @@
 package com.hartwig.batch.operations;
 
+import static com.hartwig.pipeline.resource.Hg37ResourceFiles.REFERENCE_GENOME_FASTA_HG37;
+
 import java.io.File;
 
 import com.hartwig.batch.BatchOperation;
@@ -29,7 +31,7 @@ public class SambambaCramaBam implements BatchOperation {
         startupScript.addCommand(() -> input.toCommandForm(localInput));
         startupScript.addCommand(new VersionedToolCommand("sambamba", "sambamba", Versions.SAMBAMBA,
                 "view", localInput, "-o", outputFile, "-t", Bash.allCpus(), "--format=cram",
-                "-T", ResourceFiles.REFERENCE_GENOME_FASTA));
+                "-T", REFERENCE_GENOME_FASTA_HG37));
         startupScript.addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), "cram"), executionFlags));
 
         return VirtualMachineJobDefinition.builder().name("cram").startupCommand(startupScript)

@@ -25,7 +25,7 @@ public class BachelorTest extends TertiaryStageTest<BachelorOutput> {
 
     @Override
     protected Stage<BachelorOutput, SomaticRunMetadata> createVictim() {
-        return new Bachelor(TestInputs.HG37_RESOURCE, TestInputs.purpleOutput(), TestInputs.tumorAlignmentOutput(), TestInputs.germlineCallerOutput());
+        return new Bachelor(TestInputs.HG37_RESOURCE_FILES, TestInputs.purpleOutput(), TestInputs.tumorAlignmentOutput(), TestInputs.germlineCallerOutput());
     }
 
     @Override

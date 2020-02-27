@@ -30,7 +30,6 @@ public interface ResourceFiles {
     String out150Mappability();
     String sageGermlinePon();
 
-    String REFERENCE_GENOME_FASTA = ResourceFiles.of(REFERENCE_GENOME, "Homo_sapiens.GRCh37.GATK.illumina.fasta");
     String SNPEFF_CONFIG = ResourceFiles.of(SNPEFF, "snpEff.config");
     String DBSNPS_VCF = ResourceFiles.of(DBSNPS, "dbsnp_137.b37.vcf");
     String DBNSFP_VCF = ResourceFiles.of(DBNSFP, "dbNSFP2.9.txt.gz");

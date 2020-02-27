@@ -25,7 +25,7 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
     @Override
     protected Stage<PurpleOutput, SomaticRunMetadata> createVictim() {
         return new Purple(
-                TestInputs.HG37_RESOURCE,
+                TestInputs.HG37_RESOURCE_FILES,
                 TestInputs.somaticCallerOutput(),
                 TestInputs.structuralCallerOutput(),
                 TestInputs.amberOutput(),

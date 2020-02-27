@@ -117,9 +117,9 @@ public class SomaticPipeline {
                             new Purple(resourceFiles, somaticCallerOutput, structuralCallerOutput, amberOutput, cobaltOutput, arguments.shallow())))));
                     PurpleOutput purpleOutput = purpleOutputFuture.get();
                     if (state.shouldProceed()) {
-                        BamMetricsOutput tumorMetrics = bamMetricsOutputStorage.get(metadata.tumor(), new BamMetrics(pair.tumor()));
+                        BamMetricsOutput tumorMetrics = bamMetricsOutputStorage.get(metadata.tumor(), new BamMetrics(resourceFiles, pair.tumor()));
                         BamMetricsOutput referenceMetrics =
-                                bamMetricsOutputStorage.get(metadata.reference(), new BamMetrics(pair.reference()));
+                                bamMetricsOutputStorage.get(metadata.reference(), new BamMetrics(resourceFiles, pair.reference()));
 
                         Future<HealthCheckOutput> healthCheckOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                 new HealthChecker(referenceMetrics, tumorMetrics, amberOutput, purpleOutput)));

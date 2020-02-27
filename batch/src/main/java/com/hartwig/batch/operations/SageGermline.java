@@ -2,6 +2,8 @@ package com.hartwig.batch.operations;
 
 import static java.lang.String.format;
 
+import static com.hartwig.pipeline.resource.Hg37ResourceFiles.REFERENCE_GENOME_FASTA_HG37;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -77,7 +79,7 @@ public class SageGermline implements BatchOperation {
                 "-hotspots",
                 hotspots,
                 "-ref_genome",
-                ResourceFiles.REFERENCE_GENOME_FASTA,
+                REFERENCE_GENOME_FASTA_HG37,
                 "-out",
                 output,
                 "-threads",

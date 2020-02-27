@@ -12,7 +12,9 @@ public class Hg37ResourceFiles implements ResourceFiles
 {
     public RefGenomeVersion version() { return RefGenomeVersion.HG37; }
 
-    public String refGenomeFile() { return ResourceFiles.of(REFERENCE_GENOME, "Homo_sapiens.GRCh37.GATK.illumina.fasta"); }
+    public static final String REFERENCE_GENOME_FASTA_HG37 = ResourceFiles.of(REFERENCE_GENOME, "Homo_sapiens.GRCh37.GATK.illumina.fasta");
+
+    public String refGenomeFile() { return REFERENCE_GENOME_FASTA_HG37; }
 
     public String gcProfileFile() { return ResourceFiles.of(GC_PROFILE,"GC_profile.1000bp.cnp"); }
 
