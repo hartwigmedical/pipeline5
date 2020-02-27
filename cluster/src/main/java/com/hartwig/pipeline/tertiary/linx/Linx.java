@@ -17,7 +17,7 @@ import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
-import com.hartwig.pipeline.resource.Resource;
+import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.resource.ResourceNames;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.RuntimeBucket;
@@ -27,14 +27,15 @@ public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
 
     public static final String NAMESPACE = "linx";
     public static final String KNOWLEDGEBASE_OUTPUT = "output/";
+
     private final InputDownload purpleOutputDirDownload;
     private final InputDownload purpleStructuralVcfDownload;
-    private final Resource resource;
+    private final ResourceFiles resourceFiles;
 
-    public Linx(PurpleOutput purpleOutput, final Resource resource) {
+    public Linx(PurpleOutput purpleOutput, final ResourceFiles resourceFiles) {
         purpleOutputDirDownload = new InputDownload(purpleOutput.outputDirectory());
         purpleStructuralVcfDownload = new InputDownload(purpleOutput.structuralVcf());
-        this.resource = resource;
+        this.resourceFiles = resourceFiles;
     }
 
     @Override
@@ -52,17 +53,17 @@ public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
         return Collections.singletonList(new LinxCommand(metadata.tumor().sampleName(),
                 purpleStructuralVcfDownload.getLocalTargetPath(),
                 purpleOutputDirDownload.getLocalTargetPath(),
-                resource.refGenomeFile(),
-                resource.version(),
+                resourceFiles.refGenomeFile(),
+                resourceFiles.version(),
                 VmDirectories.OUTPUT,
-                Resource.of(SV, "fragile_sites_hmf.csv"),
-                Resource.of(SV, "line_elements.csv"),
-                Resource.of(SV, "heli_rep_origins.bed"),
-                Resource.of(SV, "viral_host_ref.csv"),
-                Resource.of(ResourceNames.ENSEMBL) + "ensembl_data_cache",
-                Resource.of(KNOWLEDGEBASES, KNOWLEDGEBASE_OUTPUT +"knownFusionPairs.csv"),
-                Resource.of(KNOWLEDGEBASES, KNOWLEDGEBASE_OUTPUT + "knownPromiscuousFive.csv"),
-                Resource.of(KNOWLEDGEBASES, KNOWLEDGEBASE_OUTPUT + "knownPromiscuousThree.csv")));
+                ResourceFiles.of(SV, "fragile_sites_hmf.csv"),
+                ResourceFiles.of(SV, "line_elements.csv"),
+                ResourceFiles.of(SV, "heli_rep_origins.bed"),
+                ResourceFiles.of(SV, "viral_host_ref.csv"),
+                ResourceFiles.of(ResourceNames.ENSEMBL) + "ensembl_data_cache",
+                ResourceFiles.of(KNOWLEDGEBASES, KNOWLEDGEBASE_OUTPUT +"knownFusionPairs.csv"),
+                ResourceFiles.of(KNOWLEDGEBASES, KNOWLEDGEBASE_OUTPUT + "knownPromiscuousFive.csv"),
+                ResourceFiles.of(KNOWLEDGEBASES, KNOWLEDGEBASE_OUTPUT + "knownPromiscuousThree.csv")));
     }
 
     @Override

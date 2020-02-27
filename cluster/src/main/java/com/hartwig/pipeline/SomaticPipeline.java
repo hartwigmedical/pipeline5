@@ -26,10 +26,7 @@ import com.hartwig.pipeline.metrics.BamMetrics;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.report.FullSomaticResults;
 import com.hartwig.pipeline.report.PipelineResults;
-import com.hartwig.pipeline.resource.Hg37Resource;
-import com.hartwig.pipeline.resource.Hg38Resource;
-import com.hartwig.pipeline.resource.RefGenomeVersion;
-import com.hartwig.pipeline.resource.Resource;
+import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.StageRunner;
 import com.hartwig.pipeline.tertiary.amber.Amber;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
@@ -90,7 +87,7 @@ public class SomaticPipeline {
         SomaticRunMetadata metadata = setMetadataApi.get();
         LOGGER.info("Pipeline5 somatic pipeline starting for set [{}]", metadata.runName());
 
-        final Resource resourceFiles = buildResourceFiles(arguments.refGenomeVersion());
+        final ResourceFiles resourceFiles = buildResourceFiles(arguments.refGenomeVersion());
 
         if (metadata.maybeTumor().isPresent()) {
             AlignmentOutput referenceAlignmentOutput =

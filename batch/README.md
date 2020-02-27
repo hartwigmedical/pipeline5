@@ -82,7 +82,7 @@ solved.
     12  import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
     13  import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
     14  import com.hartwig.pipeline.execution.vm.VmDirectories;
-    15  import com.hartwig.pipeline.resource.Resource;
+    15  import com.hartwig.pipeline.resource.ResourceFiles;
     16  import com.hartwig.pipeline.storage.GoogleStorageLocation;
     17  import com.hartwig.pipeline.storage.RuntimeBucket;
     18  import com.hartwig.pipeline.tools.Versions;

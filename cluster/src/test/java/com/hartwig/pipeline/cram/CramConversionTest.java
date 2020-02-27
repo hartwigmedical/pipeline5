@@ -9,7 +9,7 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
-import com.hartwig.pipeline.resource.Resource;
+import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.StageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
@@ -59,7 +59,7 @@ public class CramConversionTest extends StageTest<CramOutput, SingleSampleRunMet
         String output = "/data/output/reference.cram";
         return ImmutableList.of(
                 format("%s view -T %s -o %s -O cram,store_md=1,store_nm=1 -@ $(grep -c '^processor' /proc/cpuinfo) %s",
-                        samtools, Resource.REFERENCE_GENOME_FASTA, output, input),
+                        samtools, ResourceFiles.REFERENCE_GENOME_FASTA, output, input),
                 format("%s index %s", samtools, output),
                 format("java -Xmx4G -cp /opt/tools/bamcomp/1.0/bamcomp.jar com.hartwig.bamcomp.BamToCramValidator %s %s 6",
                         input, output));

@@ -2,7 +2,6 @@ package com.hartwig.pipeline.calling.somatic;
 
 import static com.hartwig.pipeline.resource.ResourceNames.BEDS;
 import static com.hartwig.pipeline.resource.ResourceNames.MAPPABILITY;
-import static com.hartwig.pipeline.resource.ResourceNames.SAGE;
 
 import java.util.List;
 
@@ -27,7 +26,7 @@ import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.report.StartupScriptComponent;
 import com.hartwig.pipeline.report.ZippedVcfAndIndexComponent;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
-import com.hartwig.pipeline.resource.Resource;
+import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.TertiaryStage;
 
@@ -35,13 +34,13 @@ public class SageV2Caller extends TertiaryStage<SageV2CallerOutput> {
 
     public static final String NAMESPACE = "sage";
 
-    private final Resource resource;
+    private final ResourceFiles resourceFiles;
     private OutputFile outputFile;
     private OutputFile sageOutputFile;
 
-    public SageV2Caller(final AlignmentPair alignmentPair, final Resource resource) {
+    public SageV2Caller(final AlignmentPair alignmentPair, final ResourceFiles resourceFiles) {
         super(alignmentPair);
-        this.resource = resource;
+        this.resourceFiles = resourceFiles;
     }
 
     @Override
@@ -53,18 +52,18 @@ public class SageV2Caller extends TertiaryStage<SageV2CallerOutput> {
     public List<BashCommand> commands(final SomaticRunMetadata metadata) {
 
         List<BashCommand> commands = Lists.newArrayList();
-        commands.add(new UnzipToDirectoryCommand(VmDirectories.RESOURCES, resource.snpEffDb()));
+        commands.add(new UnzipToDirectoryCommand(VmDirectories.RESOURCES, resourceFiles.snpEffDb()));
 
         String tumorBamPath = getTumorBamDownload().getLocalTargetPath();
         String referenceBamPath = getReferenceBamDownload().getLocalTargetPath();
-        String referenceGenomePath = resource.refGenomeFile();
+        String referenceGenomePath = resourceFiles.refGenomeFile();
         String tumorSampleName = metadata.tumor().sampleName();
         String referenceSampleName = metadata.reference().sampleName();
 
         SageV2Application sageV2Application = new SageV2Application(
-                resource.sageKnownHotspots(),
-                resource.sageActionableCodingPanel(),
-                Resource.of(BEDS, "NA12878_GIAB_highconf_IllFB-IllGATKHC-CG-Ion-Solid_ALLCHROM_v3.2.2_highconf.bed"),
+                resourceFiles.sageKnownHotspots(),
+                resourceFiles.sageActionableCodingPanel(),
+                ResourceFiles.of(BEDS, "NA12878_GIAB_highconf_IllFB-IllGATKHC-CG-Ion-Solid_ALLCHROM_v3.2.2_highconf.bed"),
                 referenceGenomePath,
                 tumorBamPath,
                 referenceBamPath,
@@ -72,16 +71,16 @@ public class SageV2Caller extends TertiaryStage<SageV2CallerOutput> {
                 referenceSampleName);
         sageOutputFile = sageV2Application.apply(SubStageInputOutput.empty(tumorSampleName)).outputFile();
 
-        final String refGenomeStr = resource.version() == RefGenomeVersion.HG37 ? "hg19" : "hg38";
+        final String refGenomeStr = resourceFiles.version() == RefGenomeVersion.HG37 ? "hg19" : "hg38";
 
         SubStageInputOutput sageOutput = sageV2Application
                 .andThen(new SageV2PassFilter(tumorSampleName))
-                .andThen(new MappabilityAnnotation(resource.out150Mappability(), Resource.of(MAPPABILITY, "mappability.hdr")))
-                .andThen(new PonAnnotation("sage.pon", resource.sageGermlinePon(), "PON_COUNT"))
+                .andThen(new MappabilityAnnotation(resourceFiles.out150Mappability(), ResourceFiles.of(MAPPABILITY, "mappability.hdr")))
+                .andThen(new PonAnnotation("sage.pon", resourceFiles.sageGermlinePon(), "PON_COUNT"))
                 .andThen(new SageV2PonFilter())
-                .andThen(new SnpEff(Resource.SNPEFF_CONFIG))
+                .andThen(new SnpEff(ResourceFiles.SNPEFF_CONFIG))
                 .andThen(new SageV2PostProcess( refGenomeStr))
-                .andThen(FinalSubStage.of(new CosmicAnnotation(Resource.COSMIC_VCF_GZ, "ID,INFO")))
+                .andThen(FinalSubStage.of(new CosmicAnnotation(ResourceFiles.COSMIC_VCF_GZ, "ID,INFO")))
                 .apply(SubStageInputOutput.empty(tumorSampleName));
 
         commands.addAll(sageOutput.bash());

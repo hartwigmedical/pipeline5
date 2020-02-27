@@ -5,7 +5,7 @@ import com.hartwig.pipeline.calling.command.VersionedToolCommand;
 import com.hartwig.pipeline.execution.vm.Bash;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.JavaClassCommand;
-import com.hartwig.pipeline.resource.Resource;
+import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.tools.Versions;
 
 import java.util.Collections;
@@ -27,7 +27,7 @@ public class CramAndValidateCommands {
                         Versions.SAMTOOLS,
                         "view",
                         "-T",
-                        Resource.REFERENCE_GENOME_FASTA,
+                        ResourceFiles.REFERENCE_GENOME_FASTA,
                         "-o",
                         outputCram,
                         "-O",

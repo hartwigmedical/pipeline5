@@ -19,7 +19,7 @@ import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
-import com.hartwig.pipeline.resource.Resource;
+import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
@@ -33,7 +33,7 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
     public static final String PURPLE_SOMATIC_VCF = ".purple.somatic.vcf.gz";
     public static final String PURPLE_SV_VCF = ".purple.sv.vcf.gz";
 
-    private final Resource resource;
+    private final ResourceFiles resourceFiles;
     private final InputDownload somaticVcfDownload;
     private final InputDownload structuralVcfDownload;
     private final InputDownload structuralVcfIndexDownload;
@@ -43,9 +43,9 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
     private final InputDownload cobaltOutputDownload;
     private final boolean shallow;
 
-    public Purple(final Resource resource, SomaticCallerOutput somaticCallerOutput, StructuralCallerOutput structuralCallerOutput, AmberOutput amberOutput,
+    public Purple(final ResourceFiles resourceFiles, SomaticCallerOutput somaticCallerOutput, StructuralCallerOutput structuralCallerOutput, AmberOutput amberOutput,
             CobaltOutput cobaltOutput, final boolean shallow) {
-        this.resource = resource;
+        this.resourceFiles = resourceFiles;
         somaticVcfDownload = new InputDownload(somaticCallerOutput.finalSomaticVcf());
         structuralVcfDownload = new InputDownload(structuralCallerOutput.filteredVcf());
         structuralVcfIndexDownload = new InputDownload(structuralCallerOutput.filteredVcfIndex());
@@ -67,12 +67,12 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
                 metadata.tumor().sampleName(),
                 amberOutputDownload.getLocalTargetPath(),
                 cobaltOutputDownload.getLocalTargetPath(),
-                resource.gcProfileFile(),
+                resourceFiles.gcProfileFile(),
                 somaticVcfDownload.getLocalTargetPath(),
                 structuralVcfDownload.getLocalTargetPath(),
                 svRecoveryVcfDownload.getLocalTargetPath(),
                 VmDirectories.TOOLS + "/circos/" + Versions.CIRCOS + "/bin/circos",
-                resource.refGenomeFile(),
+                resourceFiles.refGenomeFile(),
                 shallow));
     }
 

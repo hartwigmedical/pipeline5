@@ -22,7 +22,7 @@ import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.ReportComponent;
 import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.report.SingleFileComponent;
-import com.hartwig.pipeline.resource.Resource;
+import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.storage.SampleUpload;
@@ -77,7 +77,7 @@ public class VmAligner {
         StageTrace trace = new StageTrace(NAMESPACE, metadata.sampleName(), StageTrace.ExecutorType.COMPUTE_ENGINE).start();
         RuntimeBucket rootBucket = RuntimeBucket.from(storage, NAMESPACE, metadata, arguments);
 
-        final Resource resourceFiles = buildResourceFiles(arguments.refGenomeVersion());
+        final ResourceFiles resourceFiles = buildResourceFiles(arguments.refGenomeVersion());
 
         Sample sample = sampleSource.sample(metadata);
         if (arguments.upload()) {

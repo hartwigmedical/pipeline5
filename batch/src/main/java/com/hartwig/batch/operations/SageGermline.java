@@ -18,7 +18,7 @@ import com.hartwig.pipeline.execution.vm.RuntimeFiles;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
-import com.hartwig.pipeline.resource.Resource;
+import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
@@ -77,7 +77,7 @@ public class SageGermline implements BatchOperation {
                 "-hotspots",
                 hotspots,
                 "-ref_genome",
-                Resource.REFERENCE_GENOME_FASTA,
+                ResourceFiles.REFERENCE_GENOME_FASTA,
                 "-out",
                 output,
                 "-threads",

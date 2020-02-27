@@ -17,7 +17,7 @@ import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.report.SingleFileComponent;
 import com.hartwig.pipeline.report.StartupScriptComponent;
-import com.hartwig.pipeline.resource.Resource;
+import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
@@ -49,7 +49,7 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
     @Override
     public List<BashCommand> commands(SingleSampleRunMetadata metadata) {
         return Collections.singletonList(new BamMetricsCommand(bamDownload.getLocalTargetPath(),
-                Resource.REFERENCE_GENOME_FASTA,
+                ResourceFiles.REFERENCE_GENOME_FASTA,
                 VmDirectories.OUTPUT + "/" + BamMetricsOutput.outputFile(metadata.sampleName())));
     }
 

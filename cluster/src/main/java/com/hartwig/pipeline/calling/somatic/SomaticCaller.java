@@ -29,7 +29,7 @@ import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.report.StartupScriptComponent;
 import com.hartwig.pipeline.report.ZippedVcfAndIndexComponent;
-import com.hartwig.pipeline.resource.Resource;
+import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.TertiaryStage;
@@ -38,14 +38,14 @@ public class SomaticCaller extends TertiaryStage<SomaticCallerOutput> {
 
     public static final String NAMESPACE = "somatic_caller";
 
-    private final Resource resource;
+    private final ResourceFiles resourceFiles;
     private OutputFile outputFile;
     private OutputFile sageOutputFile;
 
-    public SomaticCaller(final AlignmentPair alignmentPair, final Resource resource)
+    public SomaticCaller(final AlignmentPair alignmentPair, final ResourceFiles resourceFiles)
     {
         super(alignmentPair);
-        this.resource = resource;
+        this.resourceFiles = resourceFiles;
     }
 
     @Override
@@ -60,40 +60,40 @@ public class SomaticCaller extends TertiaryStage<SomaticCallerOutput> {
 
         String tumorBamPath = getTumorBamDownload().getLocalTargetPath();
         String referenceBamPath = getReferenceBamDownload().getLocalTargetPath();
-        String referenceGenomePath = resource.refGenomeFile();
+        String referenceGenomePath = resourceFiles.refGenomeFile();
         String tumorSampleName = metadata.tumor().sampleName();
         String referenceSampleName = metadata.reference().sampleName();
-        String knownHotspotsTsv = Resource.of(SAGE, "KnownHotspots.tsv");
+        String knownHotspotsTsv = ResourceFiles.of(SAGE, "KnownHotspots.tsv");
         SageHotspotApplication sageHotspotApplication = new SageHotspotApplication(knownHotspotsTsv,
-                Resource.of(SAGE, "CodingRegions.bed"),
-                resource.refGenomeFile(),
+                ResourceFiles.of(SAGE, "CodingRegions.bed"),
+                resourceFiles.refGenomeFile(),
                 tumorBamPath,
                 referenceBamPath,
                 tumorSampleName,
                 referenceSampleName);
         sageOutputFile = sageHotspotApplication.apply(SubStageInputOutput.empty(tumorSampleName)).outputFile();
         SubStageInputOutput sageOutput = sageHotspotApplication.andThen(new SageFiltersAndAnnotations(tumorSampleName))
-                .andThen(new PonAnnotation("sage.hotspots.pon", Resource.of(SAGE, "SAGE_PON.vcf.gz"), "SAGE_PON_COUNT"))
+                .andThen(new PonAnnotation("sage.hotspots.pon", ResourceFiles.of(SAGE, "SAGE_PON.vcf.gz"), "SAGE_PON_COUNT"))
                 .andThen(new SagePonFilter())
                 .apply(SubStageInputOutput.empty(tumorSampleName));
 
         commands.addAll(sageOutput.bash());
 
-        commands.add(new UnzipToDirectoryCommand(VmDirectories.RESOURCES, resource.snpEffDb()));
+        commands.add(new UnzipToDirectoryCommand(VmDirectories.RESOURCES, resourceFiles.snpEffDb()));
 
         SubStageInputOutput mergedOutput = new Strelka(referenceBamPath,
-                tumorBamPath, Resource.of(STRELKA_CONFIG, "strelka_config_bwa_genome.ini"), resource.refGenomeFile())
-                .andThen(new MappabilityAnnotation(resource.out150Mappability(), Resource.of(MAPPABILITY, "mappability.hdr")))
-                .andThen(new PonAnnotation("germline.pon", Resource.of(PON, "GERMLINE_PON.vcf.gz"), "GERMLINE_PON_COUNT"))
-                .andThen(new PonAnnotation("somatic.pon", Resource.of(PON, "SOMATIC_PON.vcf.gz"), "SOMATIC_PON_COUNT"))
+                tumorBamPath, ResourceFiles.of(STRELKA_CONFIG, "strelka_config_bwa_genome.ini"), resourceFiles.refGenomeFile())
+                .andThen(new MappabilityAnnotation(resourceFiles.out150Mappability(), ResourceFiles.of(MAPPABILITY, "mappability.hdr")))
+                .andThen(new PonAnnotation("germline.pon", ResourceFiles.of(PON, "GERMLINE_PON.vcf.gz"), "GERMLINE_PON_COUNT"))
+                .andThen(new PonAnnotation("somatic.pon", ResourceFiles.of(PON, "SOMATIC_PON.vcf.gz"), "SOMATIC_PON_COUNT"))
                 .andThen(new StrelkaPostProcess(tumorSampleName,
-                        Resource.of(BEDS, "NA12878_GIAB_highconf_IllFB-IllGATKHC-CG-Ion-Solid_ALLCHROM_v3.2.2_highconf.bed"),
+                        ResourceFiles.of(BEDS, "NA12878_GIAB_highconf_IllFB-IllGATKHC-CG-Ion-Solid_ALLCHROM_v3.2.2_highconf.bed"),
                         tumorBamPath))
                 .andThen(new PonFilter())
                 .andThen(new SageHotspotAnnotation(knownHotspotsTsv, sageOutput.outputFile().path()))
-                .andThen(new SnpEff(Resource.SNPEFF_CONFIG))
-                .andThen(new DbSnpAnnotation(Resource.DBSNPS_VCF))
-                .andThen(FinalSubStage.of(new CosmicAnnotation(Resource.COSMIC_VCF_GZ, "ID,INFO")))
+                .andThen(new SnpEff(ResourceFiles.SNPEFF_CONFIG))
+                .andThen(new DbSnpAnnotation(ResourceFiles.DBSNPS_VCF))
+                .andThen(FinalSubStage.of(new CosmicAnnotation(ResourceFiles.COSMIC_VCF_GZ, "ID,INFO")))
                 .apply(SubStageInputOutput.empty(tumorSampleName));
         commands.addAll(mergedOutput.bash());
 

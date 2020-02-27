@@ -15,10 +15,7 @@ import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetrics;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.report.PipelineResults;
-import com.hartwig.pipeline.resource.Hg37Resource;
-import com.hartwig.pipeline.resource.Hg38Resource;
-import com.hartwig.pipeline.resource.RefGenomeVersion;
-import com.hartwig.pipeline.resource.Resource;
+import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.snpgenotype.SnpGenotype;
 import com.hartwig.pipeline.snpgenotype.SnpGenotypeOutput;
 import com.hartwig.pipeline.stages.StageRunner;
@@ -59,7 +56,7 @@ public class SingleSamplePipeline {
                 metadata.sampleId(),
                 arguments.runId().map(runId -> String.format("using run tag [%s]", runId)).orElse(""));
         PipelineState state = new PipelineState();
-        final Resource resourceFiles = buildResourceFiles(arguments.refGenomeVersion());
+        final ResourceFiles resourceFiles = buildResourceFiles(arguments.refGenomeVersion());
         AlignmentOutput alignmentOutput = report.add(state.add(aligner.run(metadata)));
         eventListener.alignmentComplete(state);
         if (state.shouldProceed()) {

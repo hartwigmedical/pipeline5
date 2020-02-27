@@ -17,7 +17,7 @@ import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
-import com.hartwig.pipeline.resource.Resource;
+import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.resource.ResourceNames;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.RuntimeBucket;
@@ -27,15 +27,15 @@ public class Bachelor implements Stage<BachelorOutput, SomaticRunMetadata> {
 
     public static final String NAMESPACE = "bachelor";
 
-    private final Resource resource;
+    private final ResourceFiles resourceFiles;
     private final InputDownload purpleOutputDownload;
     private final InputDownload tumorBamDownload;
     private final InputDownload tumorBaiDownload;
     private final InputDownload germlineVcfDownload;
     private final InputDownload germlineVcfIndexDownload;
 
-    public Bachelor(final Resource resource, final PurpleOutput purpleOutput, AlignmentOutput tumorAlignmentOutput, GermlineCallerOutput germlineCallerOutput) {
-        this.resource = resource;
+    public Bachelor(final ResourceFiles resourceFiles, final PurpleOutput purpleOutput, AlignmentOutput tumorAlignmentOutput, GermlineCallerOutput germlineCallerOutput) {
+        this.resourceFiles = resourceFiles;
         this.purpleOutputDownload = new InputDownload(purpleOutput.outputDirectory());
         this.tumorBamDownload = new InputDownload(tumorAlignmentOutput.finalBamLocation());
         this.tumorBaiDownload = new InputDownload(tumorAlignmentOutput.finalBaiLocation());
@@ -59,9 +59,9 @@ public class Bachelor implements Stage<BachelorOutput, SomaticRunMetadata> {
                 germlineVcfDownload.getLocalTargetPath(),
                 tumorBamDownload.getLocalTargetPath(),
                 purpleOutputDownload.getLocalTargetPath(),
-                Resource.of(ResourceNames.BACHELOR, "bachelor_hmf.xml"),
-                Resource.of(ResourceNames.BACHELOR, "bachelor_clinvar_filters.csv"),
-                resource.refGenomeFile(),
+                ResourceFiles.of(ResourceNames.BACHELOR, "bachelor_hmf.xml"),
+                ResourceFiles.of(ResourceNames.BACHELOR, "bachelor_clinvar_filters.csv"),
+                resourceFiles.refGenomeFile(),
                 VmDirectories.OUTPUT));
     }
 

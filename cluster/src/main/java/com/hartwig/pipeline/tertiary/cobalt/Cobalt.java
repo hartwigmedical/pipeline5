@@ -12,7 +12,7 @@ import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
-import com.hartwig.pipeline.resource.Resource;
+import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.TertiaryStage;
@@ -20,12 +20,13 @@ import com.hartwig.pipeline.tertiary.TertiaryStage;
 public class Cobalt extends TertiaryStage<CobaltOutput> {
 
     public static final String NAMESPACE = "cobalt";
-    private final Resource resource;
 
-    public Cobalt(final AlignmentPair alignmentPair, final Resource resource)
+    private final ResourceFiles resourceFiles;
+
+    public Cobalt(final AlignmentPair alignmentPair, final ResourceFiles resourceFiles)
     {
         super(alignmentPair);
-        this.resource = resource;
+        this.resourceFiles = resourceFiles;
     }
 
     @Override
@@ -39,7 +40,7 @@ public class Cobalt extends TertiaryStage<CobaltOutput> {
                 getReferenceBamDownload().getLocalTargetPath(),
                 metadata.tumor().sampleName(),
                 getTumorBamDownload().getLocalTargetPath(),
-                resource.gcProfileFile()));
+                resourceFiles.gcProfileFile()));
     }
 
     @Override

@@ -7,7 +7,7 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
-import com.hartwig.pipeline.resource.Hg37Resource;
+import com.hartwig.pipeline.resource.Hg37ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
@@ -63,7 +63,7 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
 
     @Test
     public void shallowModeUsesLowDepthSettings() {
-        Purple victim = new Purple(new Hg37Resource(), TestInputs.somaticCallerOutput(),
+        Purple victim = new Purple(new Hg37ResourceFiles(), TestInputs.somaticCallerOutput(),
                 TestInputs.structuralCallerOutput(),
                 TestInputs.amberOutput(),
                 TestInputs.cobaltOutput(),
