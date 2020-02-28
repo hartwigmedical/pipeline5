@@ -31,7 +31,6 @@ public interface ResourceFiles {
     String sageGermlinePon();
 
     String SNPEFF_CONFIG = ResourceFiles.of(SNPEFF, "snpEff.config");
-    String DBSNPS_VCF = ResourceFiles.of(DBSNPS, "dbsnp_137.b37.vcf");
     String DBNSFP_VCF = ResourceFiles.of(DBNSFP, "dbNSFP2.9.txt.gz");
     String COSMIC_VCF_GZ = ResourceFiles.of(COSMIC, "CosmicCodingMuts_v85_collapsed.vcf.gz");
 }
