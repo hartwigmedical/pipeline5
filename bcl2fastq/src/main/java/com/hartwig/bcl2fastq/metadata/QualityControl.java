@@ -11,7 +11,7 @@ public class QualityControl {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(QualityControl.class);
     private static final String FAILED_QC = "Failed QC: ";
-    private static final int MIN_UNDETERMINED_READ_PERCENTAGE = 6;
+    private static final int MIN_UNDETERMINED_READ_PERCENTAGE = 8;
     private static final int ONE_GIGABASE = 1_000_000_000;
     private static final long MIN_YIELD_PER_SAMPLE = ONE_GIGABASE;
 
