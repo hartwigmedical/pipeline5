@@ -160,6 +160,7 @@ public class OutputCopierTest {
                 .project(NA)
                 .cloudSdkPath(NA)
                 .region(NA)
+                .forensicBucket(NA)
                 .usePreemptibleVms(false)
                 .useLocalSsds(false)
                 .build();
