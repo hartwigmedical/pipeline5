@@ -53,6 +53,11 @@ public class GSUtil {
 
     public static void rsync(String gsdkPath, String sourceUrl, String targetUrl, String userProject, boolean recurse)
             throws IOException, InterruptedException {
+        rsync(gsdkPath, sourceUrl, targetUrl, userProject, null, recurse);
+    }
+
+    public static void rsync(String gsdkPath, String sourceUrl, String targetUrl, String userProject, String exclusions, boolean recurse)
+            throws IOException, InterruptedException {
         List<String> command = new ArrayList<>();
         command.add(gsutil(gsdkPath));
         if (userProject != null) {
@@ -61,6 +66,10 @@ public class GSUtil {
         }
         command.add("-qm");
         command.add("rsync");
+        if (exclusions != null){
+            command.add("-x");
+            command.add(exclusions);
+        }
         if (recurse) {
             command.add("-r");
         }

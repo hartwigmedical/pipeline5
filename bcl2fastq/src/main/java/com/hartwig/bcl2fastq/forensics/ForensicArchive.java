@@ -1,37 +1,39 @@
 package com.hartwig.bcl2fastq.forensics;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.util.List;
-
-import com.google.cloud.storage.Blob;
-import com.google.cloud.storage.BlobId;
-import com.google.cloud.storage.BlobInfo;
-import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.Bucket;
+import com.hartwig.bcl2fastq.Bcl2fastqArguments;
+import com.hartwig.pipeline.storage.GSUtil;
+import com.hartwig.pipeline.storage.RuntimeBucket;
 
 public class ForensicArchive {
 
-    private final Storage storage;
     private final String targetBucket;
+    private final Bcl2fastqArguments arguments;
 
-    public ForensicArchive(final Storage storage, final String targetBucket) {
-        this.storage = storage;
+    public ForensicArchive(final String targetBucket, final Bcl2fastqArguments arguments) {
         this.targetBucket = targetBucket;
+        this.arguments = arguments;
     }
 
-    public void store(String conversionName, List<Blob> blobsToArchive, String logName) {
-        for (Blob blob : blobsToArchive) {
-            String[] pathSplit = blob.getName().split("/");
-            String filename = pathSplit[pathSplit.length - 1];
-            Storage.CopyRequest copyRequest = Storage.CopyRequest.newBuilder()
-                    .setSource(BlobId.of(blob.getBucket(), blob.getName()))
-                    .setTarget(BlobInfo.newBuilder(targetBucket, conversionName + "/" + filename).build())
-                    .build();
-            storage.copy(copyRequest).getResult();
-        }
+    public void store(String conversionName, RuntimeBucket runtimeBucket, Bucket inputBucket, String logName) {
+
         try {
-            storage.get(targetBucket).create(conversionName + "/conversion.log", new FileInputStream(logName));
-        } catch (FileNotFoundException e) {
+            String targetUrl = "gs://" + targetBucket + "/" + conversionName + "/";
+            String outputTarget = targetUrl + "output";
+            GSUtil.rsync(arguments.cloudSdkPath(),
+                    "gs://" + runtimeBucket.name() + "/",
+                    outputTarget,
+                    arguments.project(),
+                    ".*\\.fastq(\\.gz)?",
+                    true);
+            GSUtil.rsync(arguments.cloudSdkPath(),
+                    "gs://" + inputBucket.getName() + "/" + conversionName + "/",
+                    targetUrl + "input",
+                    arguments.project(),
+                    ".*Logs.*|.*Images.*|.*PeriodicSaveRates.*|.*fastq\\.gz|.*Data.*",
+                    true);
+            GSUtil.cp(arguments.cloudSdkPath(), logName, outputTarget + "/" + logName);
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }

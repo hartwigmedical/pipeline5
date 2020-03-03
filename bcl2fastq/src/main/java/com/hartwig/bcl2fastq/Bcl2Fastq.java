@@ -92,7 +92,7 @@ class Bcl2Fastq {
                 arguments.outputBucket(),
                 stringOf(bucket, "/" + RUN_LOG))).accept(new ResultAggregation(bucket, resultsDirectory).apply(sampleSheet, stats));
 
-        forensicArchive.store(flowcellPath, forensicBlobs(bucket, inputBucket, flowcellPath), RUN_LOG);
+        forensicArchive.store(flowcellPath, bucket, inputBucket, RUN_LOG);
 
         if (arguments.cleanup()) {
             LOGGER.info("Cleaning up conversion inputs and runtime buckets.");
@@ -111,7 +111,7 @@ class Bcl2Fastq {
         forensicBlobs.addAll(bucket.list(resultsDirectory.path("Reports")));
 
         forensicBlobs.addAll(newArrayList(inputBucket.list(Storage.BlobListOption.prefix(flowcellPath + "/Config")).iterateAll()));
-        forensicBlobs.addAll(newArrayList(inputBucket.list(Storage.BlobListOption.prefix(flowcellPath + "/Interop")).iterateAll()));
+        forensicBlobs.addAll(newArrayList(inputBucket.list(Storage.BlobListOption.prefix(flowcellPath + "/InterOp")).iterateAll()));
         forensicBlobs.addAll(newArrayList(inputBucket.list(Storage.BlobListOption.prefix(flowcellPath + "/Recipe")).iterateAll()));
         forensicBlobs.addAll(StreamSupport.stream(inputBucket.list(Storage.BlobListOption.prefix(flowcellPath)).iterateAll().spliterator(),
                 false)
@@ -151,7 +151,7 @@ class Bcl2Fastq {
                     arguments,
                     ResultsDirectory.defaultDirectory(),
                     api,
-                    new ForensicArchive(storage, arguments.forensicBucket())).run();
+                    new ForensicArchive(arguments.forensicBucket(), arguments)).run();
         } catch (Exception e) {
             api.updateFlowcell(SbpFlowcell.builderFrom(api.getFlowcell(arguments.flowcell())).status("Failed").build());
             LOGGER.error("Unable to run bcl2fastq", e);
