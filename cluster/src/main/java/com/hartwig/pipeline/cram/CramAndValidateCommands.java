@@ -33,7 +33,7 @@ public class CramAndValidateCommands {
                         "-o",
                         outputCram,
                         "-O",
-                        "cram,store_md=1,store_nm=1",
+                        "cram,embed_ref=1",
                         "-@",
                         Bash.allCpus(),
                         inputBam),
