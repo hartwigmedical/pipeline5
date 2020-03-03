@@ -83,7 +83,6 @@ class Bcl2Fastq {
         LOGGER.info("Conversion complete. Starting post-processing.");
         SampleSheet sampleSheet = new SampleSheetCsv(inputBucket, flowcellPath).read();
         Stats stats = new StatsJson(stringOf(bucket, "/Stats/Stats.json")).stats();
-
         new OutputCopier(arguments,
                 bucket,
                 new GsUtilFacade(arguments.cloudSdkPath(),
