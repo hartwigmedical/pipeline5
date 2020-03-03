@@ -93,34 +93,32 @@ public class FastqMetadataRegistration implements Consumer<Conversion> {
 
     private void updateSampleYieldAndStatus(final ConvertedSample sample, final SbpSample sbpSample, final List<SbpFastq> validFastq) {
         ImmutableSbpSample.Builder sampleUpdate = SbpSample.builder().from(sbpSample);
+        long totalSampleYield = validFastq.stream().filter(SbpFastq::qc_pass).mapToLong(f -> f.yld().orElse(0L)).sum();
+        long totalSampleYieldQ30 =
+                validFastq.stream().filter(SbpFastq::qc_pass).mapToLong(f -> (long) (f.q30().orElse(0d) / 100 * f.yld().orElse(0L))).sum();
+        double sampleQ30 = Q30.of(new WithYieldAndQ30() {
+            @Override
+            public long yield() {
+                return totalSampleYield;
+            }
+
+            @Override
+            public long yieldQ30() {
+                return totalSampleYieldQ30;
+            }
+        });
         if (sbpSample.yld_req().isPresent() && sbpSample.q30_req().isPresent()) {
             long yldRequired = sbpSample.yld_req().get();
             double q30Required = sbpSample.q30_req().get();
-            long totalSampleYield = validFastq.stream().filter(SbpFastq::qc_pass).mapToLong(f -> f.yld().orElse(0L)).sum();
-            long totalSampleYieldQ30 = validFastq.stream()
-                    .filter(SbpFastq::qc_pass)
-                    .mapToLong(f -> (long) (f.q30().orElse(0d) / 100 * f.yld().orElse(0L)))
-                    .sum();
-            double sampleQ30 = Q30.of(new WithYieldAndQ30() {
-                @Override
-                public long yield() {
-                    return totalSampleYield;
-                }
-
-                @Override
-                public long yieldQ30() {
-                    return totalSampleYieldQ30;
-                }
-            });
             if (yldRequired < totalSampleYield && q30Required < sampleQ30) {
                 sampleUpdate.status(SbpSample.STATUS_READY);
             } else {
                 sampleUpdate.status(SbpSample.STATUS_INSUFFICIENT_QUALITY);
             }
-            sampleUpdate.yld(totalSampleYield).q30(sampleQ30);
+
         } else {
             sampleUpdate.status(SbpSample.STATUS_UNREGISTERED);
         }
-        sbpApi.updateSample(sampleUpdate.name(sample.sample()).build());
+        sbpApi.updateSample(sampleUpdate.name(sample.sample()).yld(totalSampleYield).q30(sampleQ30).build());
     }
 }
