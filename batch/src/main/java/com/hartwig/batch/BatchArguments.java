@@ -1,12 +1,6 @@
 package com.hartwig.batch;
 
-import static java.lang.Boolean.parseBoolean;
-import static java.lang.String.format;
-
-import java.util.Optional;
-
 import com.hartwig.pipeline.CommonArguments;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Option;
@@ -14,19 +8,17 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.immutables.value.Value;
 
+import java.util.Optional;
+
+import static java.lang.Boolean.parseBoolean;
+import static java.lang.String.format;
+
 @Value.Immutable
 public interface BatchArguments extends CommonArguments {
 
-    String PROJECT = "project";
-    String REGION = "region";
-    String LOCAL_SSDS = "local_ssds";
-    String PREEMPTIBLE_VMS = "preemptible_vms";
-    String SERVICE_ACCOUNT_EMAIL = "service_account_email";
-    String CLOUD_SDK = "cloud_sdk";
     String CONCURRENCY = "concurrency";
     String INPUT_FILE = "input_file";
     String OUTPUT_BUCKET = "output_bucket";
-    String PRIVATE_KEY_PATH = "private_key_path";
     String CMEK = "cmek";
 
     int concurrency();
@@ -45,6 +37,7 @@ public interface BatchArguments extends CommonArguments {
                     .region(commandLine.getOptionValue(REGION, "europe-west4"))
                     .useLocalSsds(parseBoolean(commandLine.getOptionValue(LOCAL_SSDS, "true")))
                     .usePreemptibleVms(parseBoolean(commandLine.getOptionValue(PREEMPTIBLE_VMS, "true")))
+                    .pollInterval(Integer.parseInt(commandLine.getOptionValue(POLL_INTERVAL, "60")))
                     .privateKeyPath(CommonArguments.privateKey(commandLine))
                     .cloudSdkPath(commandLine.getOptionValue(CLOUD_SDK, "/usr/bin"))
                     .serviceAccountEmail(commandLine.getOptionValue(SERVICE_ACCOUNT_EMAIL))

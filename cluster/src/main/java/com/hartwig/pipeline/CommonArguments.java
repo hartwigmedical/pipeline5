@@ -9,6 +9,7 @@ public interface CommonArguments {
     String PROJECT = "project";
     String REGION = "region";
     String LOCAL_SSDS = "local_ssds";
+    String POLL_INTERVAL = "poll_interval";
     String PREEMPTIBLE_VMS = "preemptible_vms";
     String STORAGE_KEY_PATH = "storage_key_path";
     String SERVICE_ACCOUNT_EMAIL = "service_account_email";
@@ -26,6 +27,8 @@ public interface CommonArguments {
     boolean usePreemptibleVms();
 
     boolean useLocalSsds();
+
+    Integer pollInterval();
 
     Optional<String> privateNetwork();
 
