@@ -146,6 +146,7 @@ public class OutputCopierTest {
     }
 
     private Bcl2fastqArguments arguments() {
+
         return Bcl2fastqArguments.builder()
                 .inputBucket(NA)
                 .privateKeyPath(NA)
