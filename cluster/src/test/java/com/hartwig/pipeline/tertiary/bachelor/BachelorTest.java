@@ -43,7 +43,7 @@ public class BachelorTest extends TertiaryStageTest<BachelorOutput> {
                 + "/data/input/reference.germline.vcf.gz -tumor_bam_file /data/input/tumor.bam -purple_data_dir /data/input/results "
                 + "-xml_config /opt/resources/bachelor_config/bachelor_hmf.xml -ext_filter_file "
                 + "/opt/resources/bachelor_config/bachelor_clinvar_filters.csv -ref_genome "
-                + "/opt/resources/reference_genome/Homo_sapiens.GRCh37.GATK.illumina.fasta -output_dir /data/output -log_debug");
+                + "/opt/resources/reference_genome/hg37/Homo_sapiens.GRCh37.GATK.illumina.fasta -output_dir /data/output -log_debug");
     }
 
     @Test

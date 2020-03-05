@@ -8,28 +8,43 @@ import static com.hartwig.pipeline.resource.ResourceNames.REFERENCE_GENOME;
 import static com.hartwig.pipeline.resource.ResourceNames.SAGE;
 import static com.hartwig.pipeline.resource.ResourceNames.SNPEFF;
 
+import com.hartwig.pipeline.execution.vm.VmDirectories;
+
 public class Hg37ResourceFiles implements ResourceFiles
 {
+    public static final String HG37_DIRECTORY = "hg37";
+
     public RefGenomeVersion version() { return RefGenomeVersion.HG37; }
 
-    public static final String REFERENCE_GENOME_FASTA_HG37 = ResourceFiles.of(REFERENCE_GENOME, "Homo_sapiens.GRCh37.GATK.illumina.fasta");
+    public String versionDirectory() { return HG37_DIRECTORY; }
 
-    public String refGenomeFile() { return REFERENCE_GENOME_FASTA_HG37; }
+    private String formPath(String name, String file) {
+        return String.format("%s/%s/%s/%s", VmDirectories.RESOURCES, name, versionDirectory(), file);
+    }
 
-    public String gcProfileFile() { return ResourceFiles.of(GC_PROFILE,"GC_profile.1000bp.cnp"); }
+    private static final String REF_GENOME_FASTA_HG37_FILE = "Homo_sapiens.GRCh37.GATK.illumina.fasta";
 
-    public String germlineHetPon() { return ResourceFiles.of(AMBER_PON, "GermlineHetPon.hg19.vcf.gz"); }
+    public static final String REFERENCE_GENOME_FASTA_HG37 =
+            String.format("%s/%s/%s/%s", VmDirectories.RESOURCES, REFERENCE_GENOME, HG37_DIRECTORY, REF_GENOME_FASTA_HG37_FILE);
 
-    public String gridssRepeatMaskerDb() { return ResourceFiles.of(GRIDSS_REPEAT_MASKER_DB,"hg19.fa.out"); }
+    public String refGenomeFile() { return formPath(REFERENCE_GENOME, REF_GENOME_FASTA_HG37_FILE); }
 
-    public String snpEffDb() { return ResourceFiles.of(SNPEFF,"snpEff_v4_3_GRCh37.75.zip"); }
+    public String gcProfileFile() { return formPath(GC_PROFILE,"GC_profile.1000bp.cnp"); }
 
-    public String sageKnownHotspots() { return ResourceFiles.of(SAGE, "KnownHotspots.hg19.vcf.gz"); }
+    public String germlineHetPon() { return formPath(AMBER_PON, "GermlineHetPon.hg19.vcf.gz"); }
 
-    public String sageActionableCodingPanel() { return ResourceFiles.of(SAGE, "ActionableCodingPanel.hg19.bed.gz"); }
+    public String gridssRepeatMaskerDb() { return formPath(GRIDSS_REPEAT_MASKER_DB,"hg19.fa.out"); }
 
-    public String out150Mappability() { return ResourceFiles.of(MAPPABILITY, "out_150_hg19.mappability.bed.gz"); }
+    public String snpEffDb() { return formPath(SNPEFF,"snpEff_v4_3_GRCh37.75.zip"); }
 
-    public String sageGermlinePon() { return ResourceFiles.of(SAGE, "SageGermlinePon.hg19.vcf.gz"); }
+    public String sageKnownHotspots() { return formPath(SAGE, "KnownHotspots.hg19.vcf.gz"); }
+
+    public String sageActionableCodingPanel() { return formPath(SAGE, "ActionableCodingPanel.hg19.bed.gz"); }
+
+    public String out150Mappability() { return formPath(MAPPABILITY, "out_150_hg19.mappability.bed.gz"); }
+
+    public String sageGermlinePon() { return formPath(SAGE, "SageGermlinePon.hg19.vcf.gz"); }
+
+    public String sageSomaticPon() { return formPath(SAGE, "SAGE_PON.vcf.gz"); }
 
 }

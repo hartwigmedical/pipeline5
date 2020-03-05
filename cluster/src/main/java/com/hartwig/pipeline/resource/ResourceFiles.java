@@ -20,6 +20,8 @@ public interface ResourceFiles {
 
     RefGenomeVersion version();
 
+    String versionDirectory();
+
     String refGenomeFile();
     String gcProfileFile();
     String germlineHetPon();
@@ -29,6 +31,7 @@ public interface ResourceFiles {
     String sageActionableCodingPanel();
     String out150Mappability();
     String sageGermlinePon();
+    String sageSomaticPon();
 
     String SNPEFF_CONFIG = ResourceFiles.of(SNPEFF, "snpEff.config");
     String DBNSFP_VCF = ResourceFiles.of(DBNSFP, "dbNSFP2.9.txt.gz");

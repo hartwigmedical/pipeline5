@@ -8,26 +8,38 @@ import static com.hartwig.pipeline.resource.ResourceNames.REFERENCE_GENOME;
 import static com.hartwig.pipeline.resource.ResourceNames.SAGE;
 import static com.hartwig.pipeline.resource.ResourceNames.SNPEFF;
 
+import com.hartwig.pipeline.execution.vm.VmDirectories;
+
 public class Hg38ResourceFiles implements ResourceFiles
 {
+    public static final String HG38_DIRECTORY = "hg38";
+
     public RefGenomeVersion version() { return RefGenomeVersion.HG38; }
 
-    public String refGenomeFile() { return ResourceFiles.of(REFERENCE_GENOME, "Homo_sapiens_assembly38.fasta"); }
+    public String versionDirectory() { return HG38_DIRECTORY; }
 
-    public String gcProfileFile() { return ResourceFiles.of(GC_PROFILE, "GC_profile.hg38.1000bp.cnp"); }
+    private String formPath(String name, String file) {
+        return String.format("%s/%s/%s/%s", VmDirectories.RESOURCES, name, versionDirectory(), file);
+    }
 
-    public String germlineHetPon() { return ResourceFiles.of(AMBER_PON, "GermlineHetPon.hg38.vcf.gz"); }
+    public String refGenomeFile() { return formPath(REFERENCE_GENOME, "Homo_sapiens_assembly38.fasta"); }
 
-    public String gridssRepeatMaskerDb() { return ResourceFiles.of(GRIDSS_REPEAT_MASKER_DB,"hg38.fa.out"); }
+    public String gcProfileFile() { return formPath(GC_PROFILE, "GC_profile.hg38.1000bp.cnp"); }
 
-    public String snpEffDb() { return ResourceFiles.of(SNPEFF,"snpEff_v4_3_GRCh38.92.zip"); }
+    public String germlineHetPon() { return formPath(AMBER_PON, "GermlineHetPon.hg38.vcf.gz"); }
 
-    public String sageKnownHotspots() { return ResourceFiles.of(SAGE, "KnownHotspots.hg38.vcf.gz"); }
+    public String gridssRepeatMaskerDb() { return formPath(GRIDSS_REPEAT_MASKER_DB,"hg38.fa.out"); }
+
+    public String snpEffDb() { return formPath(SNPEFF,"snpEff_v4_3_GRCh38.92.zip"); }
+
+    public String sageKnownHotspots() { return formPath(SAGE, "KnownHotspots.hg38.vcf.gz"); }
 
     public String sageActionableCodingPanel() { return "ActionableCodingPanel.hg38.bed.gz"; }
 
-    public String out150Mappability() { return ResourceFiles.of(MAPPABILITY, "out_150_hg38.mappability.bed.gz"); }
+    public String out150Mappability() { return formPath(MAPPABILITY, "out_150_hg38.mappability.bed.gz"); }
 
-    public String sageGermlinePon() { return ResourceFiles.of(SAGE, "SageGermlinePon.hg38.vcf.gz"); }
+    public String sageGermlinePon() { return formPath(SAGE, "SageGermlinePon.hg38.vcf.gz"); }
+
+    public String sageSomaticPon() { return formPath(SAGE, "SAGE_PON.vcf.gz"); }
 
 }
