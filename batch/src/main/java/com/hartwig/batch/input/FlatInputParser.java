@@ -20,7 +20,7 @@ public class FlatInputParser implements InputParser {
                     .filter(line -> !line.trim().isEmpty())
                     .collect(Collectors.toSet())
                     .forEach(path -> {
-                        InputFileDescriptor built = InputFileDescriptor.builder().remoteFilename(path)
+                        InputFileDescriptor built = InputFileDescriptor.builder().value(path)
                                 .billedProject(billedProject).name("path").build();
                         fileDescriptors.add(new InputBundle(ImmutableList.of(built)));
                     });

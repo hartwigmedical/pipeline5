@@ -29,7 +29,7 @@ public class RnaStarMapping implements BatchOperation {
             InputBundle inputs, RuntimeBucket bucket, BashStartupScript startupScript, RuntimeFiles executionFlags) {
         InputFileDescriptor descriptor = inputs.get();
 
-        final String sampleId = descriptor.remoteFilename();
+        final String sampleId = descriptor.value();
 
         // TMP: enable STAR for execution
         startupScript.addCommand(() -> "chmod a+x /opt/tools/star/2.7.3a/STAR");

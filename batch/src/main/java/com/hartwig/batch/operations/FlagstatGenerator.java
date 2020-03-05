@@ -26,10 +26,10 @@ public class FlagstatGenerator implements BatchOperation {
     public VirtualMachineJobDefinition execute(final InputBundle inputs, final RuntimeBucket bucket,
                                                final BashStartupScript startupScript, final RuntimeFiles executionFlags) {
         InputFileDescriptor input = inputs.get();
-        InputFileDescriptor existingFlagstat = InputFileDescriptor.from(input).withRemoteFilename(input.remoteFilename().replaceAll("\\.bam$", ".flagstat"));
-        String localCopyOfOriginalFlagstat = format("%s/%s", VmDirectories.OUTPUT, new File(existingFlagstat.remoteFilename()).getName());
-        String outputFile = VmDirectories.outputFile(new File(input.remoteFilename()).getName().replaceAll("\\.bam$", ".batch.flagstat"));
-        String localInput = format("%s/%s", VmDirectories.INPUT, new File(input.remoteFilename()).getName());
+        InputFileDescriptor existingFlagstat = InputFileDescriptor.from(input).withValue(input.value().replaceAll("\\.bam$", ".flagstat"));
+        String localCopyOfOriginalFlagstat = format("%s/%s", VmDirectories.OUTPUT, new File(existingFlagstat.value()).getName());
+        String outputFile = VmDirectories.outputFile(new File(input.value()).getName().replaceAll("\\.bam$", ".batch.flagstat"));
+        String localInput = format("%s/%s", VmDirectories.INPUT, new File(input.value()).getName());
         startupScript.addCommand(() -> input.toCommandForm(localInput));
         startupScript.addCommand(() -> existingFlagstat.toCommandForm(localCopyOfOriginalFlagstat));
         startupScript.addCommand(new PipeCommands(new VersionedToolCommand("sambamba",

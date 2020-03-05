@@ -13,7 +13,7 @@ public abstract class InputFileDescriptor {
 
     @Value.Parameter
     @JsonProperty("value")
-    public abstract String remoteFilename();
+    public abstract String value();
 
     @Value.Parameter
     private String protocol() {
@@ -27,7 +27,7 @@ public abstract class InputFileDescriptor {
         return String.format("gsutil -o 'GSUtil:parallel_thread_count=1' -o \"GSUtil:sliced_object_download_max_components=$(nproc)\" -q -u %s cp %s%s %s",
                 billedProject(),
                 protocol(),
-                remoteFilename().replaceAll("^gs://", ""),
+                value().replaceAll("^gs://", ""),
                 localDestination);
     }
 

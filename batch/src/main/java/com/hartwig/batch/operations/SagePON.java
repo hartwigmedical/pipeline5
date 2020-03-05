@@ -55,7 +55,7 @@ public class SagePON implements BatchOperation {
     }
 
     String getInput(List<InputFileDescriptor> inputs, String key) {
-        return inputs.stream().filter(input -> input.name().equals(key)).collect(Collectors.toList()).get(0).remoteFilename();
+        return inputs.stream().filter(input -> input.name().equals(key)).collect(Collectors.toList()).get(0).value();
     }
 
     @Override

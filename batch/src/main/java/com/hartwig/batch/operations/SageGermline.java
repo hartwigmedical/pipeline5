@@ -20,7 +20,6 @@ import com.hartwig.pipeline.execution.vm.RuntimeFiles;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
-import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
@@ -28,10 +27,10 @@ public class SageGermline implements BatchOperation {
     @Override
     public VirtualMachineJobDefinition execute(final InputBundle inputs, final RuntimeBucket runtimeBucket,
                                                final BashStartupScript startupScript, final RuntimeFiles executionFlags) {
-        String bucket = inputs.get("bucket").remoteFilename();
-        String set = inputs.get("set").remoteFilename();
-        String tumorSampleName = inputs.get("tumorSample").remoteFilename();
-        String referenceSampleName = inputs.get("referenceSample").remoteFilename();
+        String bucket = inputs.get("bucket").value();
+        String set = inputs.get("set").value();
+        String tumorSampleName = inputs.get("tumorSample").value();
+        String referenceSampleName = inputs.get("referenceSample").value();
 
         // 2017
 //        String locationFormat = "gs://%s/%s/%s/mapping/%s";
@@ -121,7 +120,7 @@ public class SageGermline implements BatchOperation {
     }
 
     String getInput(List<InputFileDescriptor> inputs, String key) {
-        return inputs.stream().filter(input -> input.name().equals(key)).collect(Collectors.toList()).get(0).remoteFilename();
+        return inputs.stream().filter(input -> input.name().equals(key)).collect(Collectors.toList()).get(0).value();
     }
 
     @Override
