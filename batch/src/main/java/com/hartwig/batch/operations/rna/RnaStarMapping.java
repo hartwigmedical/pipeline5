@@ -82,6 +82,14 @@ public class RnaStarMapping implements BatchOperation {
         startupScript.addCommand(() -> format("rm -f %s", bamFile));
         startupScript.addCommand(() -> format("rm -f %s", sortedBam));
 
+        // run QC stats on the fast-Qs as well
+        final String fastqcOutputDir = format("%s/fastqc", VmDirectories.OUTPUT);
+        startupScript.addCommand(() -> format("mkdir %s", fastqcOutputDir));
+
+        final String allFastQs = format("%s/*gz", VmDirectories.INPUT);
+        final String[] fastqcArgs = {"-o", fastqcOutputDir, allFastQs};
+        startupScript.addCommand(new VersionedToolCommand("fastqc", "fastqc", "0.11.4", fastqcArgs));
+
         // upload the results
         startupScript.addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), "star"), executionFlags));
 
