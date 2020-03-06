@@ -12,8 +12,9 @@ sudo apt-get -y install r-base
 sudo mkdir /data
 sudo mkdir /opt/tools
 sudo mkdir /opt/resources
-sudo gsutil -m cp -r gs://$1/* /opt/tools/
-sudo gsutil -m cp -r gs://$2/* /opt/resources/
+# Make sure the GSUtil:sliced_object_download_max_components is set to the number of cores on the imaging box
+sudo gsutil -m -o 'GSUtil:parallel_thread_count=1' -o 'GSUtil:sliced_object_download_max_components=4' cp -r gs://$1/* /opt/tools/
+sudo gsutil -m -o 'GSUtil:parallel_thread_count=1' -o 'GSUtil:sliced_object_download_max_components=4' cp -r gs://$2/* /opt/resources/
 sudo tar xvf /opt/tools/strelka/1.0.14/strelka.tar -C /opt/tools/strelka/1.0.14/
 sudo tar xvf /opt/tools/tabix/0.2.6/tabix.tar -C /opt/tools/tabix/0.2.6/
 sudo tar xvf /opt/tools/samtools/1.2/samtools.tar.gz -C /opt/tools/samtools/1.2/
@@ -32,6 +33,7 @@ sudo chmod a+x /opt/tools/chord/60.02_1.03/extractSigPredictHRD.R
 sudo chmod a+x /opt/tools/gridss/2.7.2/gridss.sh
 sudo chmod a+x /opt/tools/samtools/1.9/samtools
 sudo chmod a+x /opt/tools/bcl2fastq/2.20.0.422/bcl2fastq
+sudo chmod a+x /opt/tools/star/2.7.3a/STAR
 
 sudo cpanm install Clone
 sudo cpanm install Config::General

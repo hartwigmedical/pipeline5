@@ -1,6 +1,6 @@
 branches:
   only:
-    - 5.8-hotfix
+    - master
 sudo: required
 language: java
 jdk:
@@ -8,7 +8,7 @@ jdk:
 services:
   - docker
 env:
-- PIPELINE5_VERSION=5.8.$TRAVIS_BUILD_NUMBER
+- PIPELINE5_VERSION=5.9.$TRAVIS_BUILD_NUMBER
 cache:
   directories:
     - $HOME/.m2
