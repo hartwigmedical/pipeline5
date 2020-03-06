@@ -1,10 +1,11 @@
-package com.hartwig.batch.operations;
+package com.hartwig.batch.operations.rna;
 
 import static java.lang.String.format;
 
 import com.hartwig.batch.BatchOperation;
 import com.hartwig.batch.input.InputBundle;
 import com.hartwig.batch.input.InputFileDescriptor;
+import com.hartwig.batch.operations.OperationDescriptor;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.calling.command.VersionedToolCommand;
 import com.hartwig.pipeline.execution.vm.Bash;
@@ -22,7 +23,7 @@ import com.hartwig.pipeline.tools.Versions;
 
 public class RnaStarMapping implements BatchOperation {
 
-    private static final String REF_GENCODE_37 = "/opt/resources/hs37d5_GENCODE19/STAR_index_hs37d5_GENCODE19";
+    private static final String REF_GENCODE_37 = "/opt/resources/hs37d5_GENCODE19";
 
     @Override
     public VirtualMachineJobDefinition execute(
@@ -94,7 +95,5 @@ public class RnaStarMapping implements BatchOperation {
         return OperationDescriptor.of("RnaStarMapping", "Generate BAMs from RNA FASTQs",
                 OperationDescriptor.InputType.FLAT);
     }
-
-
 
 }

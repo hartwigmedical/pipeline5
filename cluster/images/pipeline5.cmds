@@ -34,6 +34,7 @@ sudo chmod a+x /opt/tools/gridss/2.7.2/gridss.sh
 sudo chmod a+x /opt/tools/samtools/1.9/samtools
 sudo chmod a+x /opt/tools/bcl2fastq/2.20.0.422/bcl2fastq
 sudo chmod a+x /opt/tools/star/2.7.3a/STAR
+sudo chmod a+x /opt/tools/salmon/1.0.0/salmon
 
 sudo cpanm install Clone
 sudo cpanm install Config::General
