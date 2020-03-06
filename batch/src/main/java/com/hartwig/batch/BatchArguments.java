@@ -27,7 +27,6 @@ public interface BatchArguments extends CommonArguments {
     String INPUT_FILE = "input_file";
     String OUTPUT_BUCKET = "output_bucket";
     String PRIVATE_KEY_PATH = "private_key_path";
-    String CMEK = "cmek";
 
     int concurrency();
 
@@ -40,7 +39,8 @@ public interface BatchArguments extends CommonArguments {
     static BatchArguments from(String[] args) {
         try {
             CommandLine commandLine = new DefaultParser().parse(options(), args);
-            return ImmutableBatchArguments.builder().command(args[0])
+            return ImmutableBatchArguments.builder()
+                    .command(args[0])
                     .project(commandLine.getOptionValue(PROJECT, "hmf-pipeline-development"))
                     .region(commandLine.getOptionValue(REGION, "europe-west4"))
                     .useLocalSsds(parseBoolean(commandLine.getOptionValue(LOCAL_SSDS, "true")))
@@ -52,6 +52,9 @@ public interface BatchArguments extends CommonArguments {
                     .inputFile(commandLine.getOptionValue(INPUT_FILE))
                     .outputBucket(commandLine.getOptionValue(OUTPUT_BUCKET))
                     .cmek(commandLine.hasOption(CMEK) ? Optional.of(commandLine.getOptionValue(CMEK)) : Optional.empty())
+                    .privateNetwork(commandLine.hasOption(PRIVATE_NETWORK)
+                            ? Optional.of(commandLine.getOptionValue(PRIVATE_NETWORK))
+                            : Optional.empty())
                     .build();
         } catch (ParseException e) {
             String message = "Failed to parse arguments";
@@ -85,8 +88,8 @@ public interface BatchArguments extends CommonArguments {
                 .addOption(stringOption(PRIVATE_KEY_PATH, "Path to JSON file containing GCP credentials"))
                 .addOption(stringOption(SERVICE_ACCOUNT_EMAIL, "Email of service account"))
                 .addOption(stringOption(OUTPUT_BUCKET, "Output bucket (must exist and must be writable by the service account)"))
-                .addOption(stringOption(CMEK, "The name of the Customer Managed Encryption Key. When this flag is populated all runtime "
-                                + "buckets will use this key."));
+                .addOption(stringOption(CMEK, CMEK_DESCRIPTION))
+                .addOption(stringOption(PRIVATE_NETWORK, PRIVATE_NETWORK_DESCRIPTION));
     }
 
     private static Option stringOption(final String option, final String description) {
