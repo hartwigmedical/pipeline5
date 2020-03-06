@@ -9,7 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class VirtualMachineJobDefinitionTest {
-    private static final long BASE_IMAGE_SIZE_GB = 100L;
+    private static final long BASE_IMAGE_SIZE_GB = 200L;
     private static final int LOCAL_SSD_DEVICE_CAPACITY_GB = 375;
 
     private VirtualMachineJobDefinition victim;
