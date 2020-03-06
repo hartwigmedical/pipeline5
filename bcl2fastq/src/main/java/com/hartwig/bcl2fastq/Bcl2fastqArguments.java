@@ -48,6 +48,9 @@ public interface Bcl2fastqArguments extends CommonArguments {
                     .cleanup(parseBoolean(commandLine.getOptionValue(CLEANUP, "false")))
                     .cmek(commandLine.hasOption(CMEK) ? Optional.of(commandLine.getOptionValue(CMEK)) : Optional.empty())
                     .forensicBucket(commandLine.getOptionValue(FORENSIC_BUCKET, "bcl-conversion-forensics"))
+                    .privateNetwork(commandLine.hasOption(PRIVATE_NETWORK)
+                            ? Optional.of(commandLine.getOptionValue(PRIVATE_NETWORK))
+                            : Optional.empty())
                     .useLocalSsds(false)
                     .usePreemptibleVms(false)
                     .build();
@@ -75,9 +78,8 @@ public interface Bcl2fastqArguments extends CommonArguments {
                         "Email of service account used to copy data from the conversion into "
                                 + "the fastq storage bucket. Will be added to the ACL of the runtime bucket."))
                 .addOption(stringOption(OUTPUT_PROJECT, "User project for output copying"))
-                .addOption(stringOption(CMEK,
-                        "The name of the Customer Managed Encryption Key. When this flag is populated all runtime "
-                                + "buckets will use this key."))
+                .addOption(stringOption(CMEK, CMEK_DESCRIPTION))
+                .addOption(stringOption(PRIVATE_NETWORK, PRIVATE_NETWORK_DESCRIPTION))
                 .addOption(stringOption(FORENSIC_BUCKET,
                         "Bucket to store metadata about the run for forensics. Logs, RunInfo.xml, " + "SampleSheet.csv, etc"));
     }
