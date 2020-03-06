@@ -1,12 +1,5 @@
 package com.hartwig.bcl2fastq;
 
-import static com.google.common.collect.Lists.newArrayList;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
@@ -99,26 +92,6 @@ class Bcl2Fastq {
             GSUtil.rm(arguments.cloudSdkPath(), inputBucket.getName() + "/" + flowcellPath);
         }
         LOGGER.info("bcl2fastq complete for flowcell [{}]", arguments.flowcell());
-    }
-
-    private List<Blob> forensicBlobs(final RuntimeBucket bucket, final Bucket inputBucket, final String flowcellPath) {
-        List<Blob> forensicBlobs = new ArrayList<>();
-        forensicBlobs.add(resultBlobOf(bucket, "/" + RUN_LOG));
-        forensicBlobs.add(bucket.get(STARTUP_SCRIPT_FOR_RUN));
-
-        forensicBlobs.addAll(bucket.list(resultsDirectory.path("Stats")));
-        forensicBlobs.addAll(bucket.list(resultsDirectory.path("Reports")));
-
-        forensicBlobs.addAll(newArrayList(inputBucket.list(Storage.BlobListOption.prefix(flowcellPath + "/Config")).iterateAll()));
-        forensicBlobs.addAll(newArrayList(inputBucket.list(Storage.BlobListOption.prefix(flowcellPath + "/InterOp")).iterateAll()));
-        forensicBlobs.addAll(newArrayList(inputBucket.list(Storage.BlobListOption.prefix(flowcellPath + "/Recipe")).iterateAll()));
-        forensicBlobs.addAll(StreamSupport.stream(inputBucket.list(Storage.BlobListOption.prefix(flowcellPath)).iterateAll().spliterator(),
-                false)
-                .filter(f -> f.getName().endsWith("txt") || f.getName().endsWith("csv") || f.getName().endsWith("xml"))
-                .filter(f -> !f.getName().contains("/Data/Intensities/BaseCalls") && !f.getName().contains("Alignment"))
-                .collect(Collectors.toList()));
-
-        return forensicBlobs;
     }
 
     private ImmutableVirtualMachineJobDefinition jobDefinition(final BashStartupScript bash) {
