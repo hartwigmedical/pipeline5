@@ -1,17 +1,17 @@
 package com.hartwig.bcl2fastq;
 
-import static java.lang.Boolean.parseBoolean;
-
-import java.util.Optional;
-
+import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.CommonArguments;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.immutables.value.Value;
+
+import java.util.Optional;
+
+import static java.lang.Boolean.parseBoolean;
 
 @Value.Immutable
 public interface Bcl2fastqArguments extends CommonArguments {
@@ -24,7 +24,6 @@ public interface Bcl2fastqArguments extends CommonArguments {
     String INPUT_BUCKET = "input_bucket";
     String SBP_API_URL = "sbp_api_url";
     String CLEANUP = "cleanup";
-    String CMEK = "cmek";
     String FORENSIC_BUCKET = "forensic_bucket";
 
     static Bcl2fastqArguments from(String[] args) {
@@ -46,7 +45,7 @@ public interface Bcl2fastqArguments extends CommonArguments {
                     .outputServiceAccountEmail(commandLine.getOptionValue(OUTPUT_SERVICE_ACCOUNT_EMAIL))
                     .outputProject(commandLine.getOptionValue(OUTPUT_PROJECT))
                     .cleanup(parseBoolean(commandLine.getOptionValue(CLEANUP, "false")))
-                    .cmek(commandLine.hasOption(CMEK) ? Optional.of(commandLine.getOptionValue(CMEK)) : Optional.empty())
+                    .cmek(commandLine.getOptionValue(CMEK, Arguments.DEFAULT_DEVELOPMENT_CMEK))
                     .privateNetwork(commandLine.hasOption(PRIVATE_NETWORK)
                             ? Optional.of(commandLine.getOptionValue(PRIVATE_NETWORK))
                             : Optional.empty())

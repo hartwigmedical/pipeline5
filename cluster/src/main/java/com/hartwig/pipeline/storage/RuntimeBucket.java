@@ -1,8 +1,5 @@
 package com.hartwig.pipeline.storage;
 
-import java.io.InputStream;
-import java.util.List;
-
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Bucket;
@@ -13,9 +10,11 @@ import com.google.common.collect.Lists;
 import com.hartwig.pipeline.CommonArguments;
 import com.hartwig.pipeline.alignment.Run;
 import com.hartwig.pipeline.metadata.RunMetadata;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.InputStream;
+import java.util.List;
 
 public class RuntimeBucket {
 
@@ -49,10 +48,11 @@ public class RuntimeBucket {
             LOGGER.debug("Creating runtime bucket [{}] in Google Storage", runId);
             BucketInfo.Builder builder =
                     BucketInfo.newBuilder(runId).setStorageClass(StorageClass.REGIONAL).setLocation(arguments.region());
-            arguments.cmek().ifPresent(key -> {
-                LOGGER.info("Using CMEK key [{}] to encrypt all buckets", key);
-                builder.setDefaultKmsKeyName(key);
-            });
+            if ("".equals(arguments.cmek().trim())) {
+                throw new IllegalArgumentException("CMEK key must be used");
+            }
+            LOGGER.info("Using CMEK key [{}] to encrypt all buckets", arguments.cmek());
+            builder.setDefaultKmsKeyName(arguments.cmek());
             bucket = storage.create(builder.build());
         }
         return new RuntimeBucket(storage, bucket, namespace, runId);
@@ -89,11 +89,6 @@ public class RuntimeBucket {
 
     public void delete(String prefix) {
         list(prefix).forEach(Blob::delete);
-    }
-
-    public void copyInto(String sourceBucket, String sourceBlobName, String targetBlobName) {
-        BlobInfo targetBlobInfo = BlobInfo.newBuilder(bucket.getName(), namespace(targetBlobName)).build();
-        storage.copy(Storage.CopyRequest.of(sourceBucket, sourceBlobName, targetBlobInfo)).getResult();
     }
 
     public void copyOutOf(String sourceBlobName, String targetBucket, String targetBlob) {

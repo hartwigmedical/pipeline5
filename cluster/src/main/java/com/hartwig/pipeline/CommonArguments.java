@@ -1,8 +1,8 @@
 package com.hartwig.pipeline;
 
-import java.util.Optional;
-
 import org.apache.commons.cli.CommandLine;
+
+import java.util.Optional;
 
 public interface CommonArguments {
 
@@ -39,7 +39,7 @@ public interface CommonArguments {
 
     String serviceAccountEmail();
 
-    Optional<String> cmek();
+    String cmek();
 
     Optional<String> runId();
 

@@ -1,10 +1,10 @@
 package com.hartwig.pipeline;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.UnrecognizedOptionException;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class CommandLineOptionsTest {
 
@@ -12,13 +12,13 @@ public class CommandLineOptionsTest {
 
     @Test
     public void createDefaultOptionsForDevelopment() throws Exception {
-        Arguments result = CommandLineOptions.from(new String[] { "-profile", "development", "-sample_id", "test" });
+        Arguments result = CommandLineOptions.from(new String[]{"-profile", "development", "-sample_id", "test"});
         assertThat(result.profile()).isEqualTo(Arguments.DefaultsProfile.DEVELOPMENT);
     }
 
     @Test
     public void createDefaultOptionsForProduction() throws Exception {
-        Arguments result = CommandLineOptions.from(new String[] { "-profile", "production", "-sample_id", "test" });
+        Arguments result = CommandLineOptions.from(new String[]{"-profile", "production", "-sample_id", "test"});
         assertThat(result.profile()).isEqualTo(Arguments.DefaultsProfile.PRODUCTION);
     }
 
