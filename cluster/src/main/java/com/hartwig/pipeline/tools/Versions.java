@@ -28,7 +28,7 @@ public interface Versions {
     String LINX = "1.7";
     String BACHELOR = "1.9";
     String CHORD = "60.02_1.03";
-    String SAMTOOLS = "1.9";
+    String SAMTOOLS = "1.10";
     String BCL2FASTQ = "2.20.0.422";
     String BAMCOMP = "1.2";
 
