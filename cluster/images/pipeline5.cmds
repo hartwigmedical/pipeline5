@@ -36,6 +36,7 @@ sudo chmod a+x /opt/tools/bcl2fastq/2.20.0.422/bcl2fastq
 sudo chmod a+x /opt/tools/star/2.7.3a/STAR
 sudo chmod a+x /opt/tools/salmon/1.0.0/salmon
 sudo chmod a+x /opt/tools/fastqc/0.11.4/fastqc
+sudo cp -r /opt/tools/bcl2fastq/2.20.0.422/share /opt/tools/bcl2fastq/
 
 sudo cpanm install Clone
 sudo cpanm install Config::General

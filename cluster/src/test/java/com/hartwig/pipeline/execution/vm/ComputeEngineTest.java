@@ -280,7 +280,7 @@ public class ComputeEngineTest {
         assertThat(disks).hasSize(5);
         assertThat(disks.get(0).getInitializeParams().getDiskType()).isEqualTo(
                 "https://www.googleapis.com/compute/v1/projects/hmf-pipeline-development/zones/europe-west4-a/diskTypes/pd-ssd");
-        assertThat(disks.get(0).getInitializeParams().getDiskSizeGb()).isEqualTo(100L);
+        assertThat(disks.get(0).getInitializeParams().getDiskSizeGb()).isEqualTo(200L);
         isLocalSSD(disks.get(1));
         isLocalSSD(disks.get(2));
         isLocalSSD(disks.get(3));
@@ -299,7 +299,7 @@ public class ComputeEngineTest {
         assertThat(disks).hasSize(2);
         assertThat(disks.get(0).getInitializeParams().getDiskType()).isEqualTo(
                 "https://www.googleapis.com/compute/v1/projects/hmf-pipeline-development/zones/europe-west4-a/diskTypes/pd-ssd");
-        assertThat(disks.get(0).getInitializeParams().getDiskSizeGb()).isEqualTo(100L);
+        assertThat(disks.get(0).getInitializeParams().getDiskSizeGb()).isEqualTo(200L);
         assertThat(disks.get(1).getInitializeParams().getDiskType()).isEqualTo(
                 "https://www.googleapis.com/compute/v1/projects/hmf-pipeline-development/zones/europe-west4-a/diskTypes/pd-ssd");
         assertThat(disks.get(1).getInitializeParams().getDiskSizeGb()).isEqualTo(900L);
