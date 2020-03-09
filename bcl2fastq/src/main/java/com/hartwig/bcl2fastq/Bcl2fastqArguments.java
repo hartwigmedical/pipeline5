@@ -25,6 +25,7 @@ public interface Bcl2fastqArguments extends CommonArguments {
     String SBP_API_URL = "sbp_api_url";
     String CLEANUP = "cleanup";
     String CMEK = "cmek";
+    String FORENSIC_BUCKET = "forensic_bucket";
 
     static Bcl2fastqArguments from(String[] args) {
         try {
@@ -46,6 +47,13 @@ public interface Bcl2fastqArguments extends CommonArguments {
                     .outputProject(commandLine.getOptionValue(OUTPUT_PROJECT))
                     .cleanup(parseBoolean(commandLine.getOptionValue(CLEANUP, "false")))
                     .cmek(commandLine.hasOption(CMEK) ? Optional.of(commandLine.getOptionValue(CMEK)) : Optional.empty())
+                    .privateNetwork(commandLine.hasOption(PRIVATE_NETWORK)
+                            ? Optional.of(commandLine.getOptionValue(PRIVATE_NETWORK))
+                            : Optional.empty())
+                    .forensicBucket(commandLine.getOptionValue(FORENSIC_BUCKET, "bcl-conversion-forensics"))
+                    .privateNetwork(commandLine.hasOption(PRIVATE_NETWORK)
+                            ? Optional.of(commandLine.getOptionValue(PRIVATE_NETWORK))
+                            : Optional.empty())
                     .useLocalSsds(false)
                     .usePreemptibleVms(false)
                     .build();
@@ -69,11 +77,14 @@ public interface Bcl2fastqArguments extends CommonArguments {
                 .addOption(stringOption(SBP_API_URL, "URL of the SBP metadata api"))
                 .addOption(stringOption(OUTPUT_BUCKET, "Bucket to copy to on completion"))
                 .addOption(stringOption(OUTPUT_PRIVATE_KEY_PATH, "Credentials used to copy output"))
-                .addOption(stringOption(OUTPUT_SERVICE_ACCOUNT_EMAIL, "Email of service account used to copy data from the conversion into "
-                        + "the fastq storage bucket. Will be added to the ACL of the runtime bucket."))
+                .addOption(stringOption(OUTPUT_SERVICE_ACCOUNT_EMAIL,
+                        "Email of service account used to copy data from the conversion into "
+                                + "the fastq storage bucket. Will be added to the ACL of the runtime bucket."))
                 .addOption(stringOption(OUTPUT_PROJECT, "User project for output copying"))
-                .addOption(stringOption(CMEK, "The name of the Customer Managed Encryption Key. When this flag is populated all runtime "
-                        + "buckets will use this key."));
+                .addOption(stringOption(CMEK, CMEK_DESCRIPTION))
+                .addOption(stringOption(PRIVATE_NETWORK, PRIVATE_NETWORK_DESCRIPTION))
+                .addOption(stringOption(FORENSIC_BUCKET,
+                        "Bucket to store metadata about the run for forensics. Logs, RunInfo.xml, " + "SampleSheet.csv, etc"));
     }
 
     String outputBucket();
@@ -90,6 +101,8 @@ public interface Bcl2fastqArguments extends CommonArguments {
 
     String outputProject();
 
+    String forensicBucket();
+
     boolean cleanup();
 
     static ImmutableBcl2fastqArguments.Builder builder() {
@@ -103,5 +116,4 @@ public interface Bcl2fastqArguments extends CommonArguments {
     private static Option booleanOption(final String option, final String description) {
         return Option.builder(option).hasArg().argName("true|false").desc(description).build();
     }
-
 }

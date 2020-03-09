@@ -1,9 +1,11 @@
 package com.hartwig.bcl2fastq;
 
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.bcl2fastq.conversion.ResultAggregation;
+import com.hartwig.bcl2fastq.forensics.ForensicArchive;
 import com.hartwig.bcl2fastq.metadata.FastqMetadataRegistration;
 import com.hartwig.bcl2fastq.metadata.SbpFastqMetadataApi;
 import com.hartwig.bcl2fastq.metadata.SbpFlowcell;
@@ -33,19 +35,23 @@ import org.slf4j.LoggerFactory;
 class Bcl2Fastq {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Bcl2Fastq.class);
+    public static final String RUN_LOG = "run.log";
+    public static final String STARTUP_SCRIPT_FOR_RUN = "copy_of_startup_script_for_run.sh";
     private final Storage storage;
     private final ComputeEngine computeEngine;
     private final Bcl2fastqArguments arguments;
     private final ResultsDirectory resultsDirectory;
     private final SbpFastqMetadataApi sbpFastqMetadataApi;
+    private final ForensicArchive forensicArchive;
 
     private Bcl2Fastq(final Storage storage, final ComputeEngine computeEngine, final Bcl2fastqArguments arguments,
-            final ResultsDirectory resultsDirectory, final SbpFastqMetadataApi sbpFastqMetadataApi) {
+            final ResultsDirectory resultsDirectory, final SbpFastqMetadataApi sbpFastqMetadataApi, final ForensicArchive forensicArchive) {
         this.storage = storage;
         this.computeEngine = computeEngine;
         this.arguments = arguments;
         this.resultsDirectory = resultsDirectory;
         this.sbpFastqMetadataApi = sbpFastqMetadataApi;
+        this.forensicArchive = forensicArchive;
     }
 
     private void run() {
@@ -70,14 +76,15 @@ class Bcl2Fastq {
         LOGGER.info("Conversion complete. Starting post-processing.");
         SampleSheet sampleSheet = new SampleSheetCsv(inputBucket, flowcellPath).read();
         Stats stats = new StatsJson(stringOf(bucket, "/Stats/Stats.json")).stats();
-
         new OutputCopier(arguments,
                 bucket,
                 new GsUtilFacade(arguments.cloudSdkPath(),
                         arguments.outputProject(),
                         arguments.outputPrivateKeyPath())).andThen(new FastqMetadataRegistration(sbpFastqMetadataApi,
                 arguments.outputBucket(),
-                stringOf(bucket, "/run.log"))).accept(new ResultAggregation(bucket, resultsDirectory).apply(sampleSheet, stats));
+                stringOf(bucket, "/" + RUN_LOG))).accept(new ResultAggregation(bucket, resultsDirectory).apply(sampleSheet, stats));
+
+        forensicArchive.store(flowcellPath, bucket, inputBucket, RUN_LOG);
 
         if (arguments.cleanup()) {
             LOGGER.info("Cleaning up conversion inputs and runtime buckets.");
@@ -98,7 +105,11 @@ class Bcl2Fastq {
     }
 
     private String stringOf(final RuntimeBucket bucket, final String blobName) {
-        return new String(bucket.get(resultsDirectory.path(blobName)).getContent());
+        return new String(resultBlobOf(bucket, blobName).getContent());
+    }
+
+    private Blob resultBlobOf(final RuntimeBucket bucket, final String blobName) {
+        return bucket.get(resultsDirectory.path(blobName));
     }
 
     public static void main(String[] args) {
@@ -106,11 +117,13 @@ class Bcl2Fastq {
         SbpFastqMetadataApi api = SbpFastqMetadataApi.newInstance(arguments.sbpApiUrl());
         try {
             GoogleCredentials credentials = CredentialProvider.from(arguments).get();
-            new Bcl2Fastq(StorageProvider.from(arguments, credentials).get(),
+            Storage storage = StorageProvider.from(arguments, credentials).get();
+            new Bcl2Fastq(storage,
                     ComputeEngine.from(arguments, credentials),
                     arguments,
                     ResultsDirectory.defaultDirectory(),
-                    api).run();
+                    api,
+                    new ForensicArchive(arguments.forensicBucket(), arguments)).run();
         } catch (Exception e) {
             api.updateFlowcell(SbpFlowcell.builderFrom(api.getFlowcell(arguments.flowcell())).status("Failed").build());
             LOGGER.error("Unable to run bcl2fastq", e);
