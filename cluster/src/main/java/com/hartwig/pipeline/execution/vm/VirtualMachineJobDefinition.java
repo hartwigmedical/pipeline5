@@ -3,6 +3,7 @@ package com.hartwig.pipeline.execution.vm;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.execution.JobDefinition;
 import com.hartwig.pipeline.tools.Versions;
+
 import org.immutables.value.Value;
 
 @Value.Immutable
@@ -12,7 +13,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
 
     @Value.Derived
     default long baseImageDiskSizeGb() {
-        return 100L;
+        return 200L;
     }
 
     @Value.Default

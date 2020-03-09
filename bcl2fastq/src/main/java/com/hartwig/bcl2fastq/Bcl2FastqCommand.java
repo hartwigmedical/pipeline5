@@ -13,6 +13,8 @@ class Bcl2FastqCommand extends VersionedToolCommand {
                 workingDirectory,
                 "-o",
                 outputDirectory,
+                "--reports-dir",
+                outputDirectory + "/Reports",
                 "-r",
                 String.valueOf(totalCpus / 2),
                 "-w",

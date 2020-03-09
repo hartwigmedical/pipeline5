@@ -146,6 +146,7 @@ public class OutputCopierTest {
     }
 
     private Bcl2fastqArguments arguments() {
+
         return Bcl2fastqArguments.builder()
                 .inputBucket(NA)
                 .privateKeyPath(NA)
@@ -160,6 +161,7 @@ public class OutputCopierTest {
                 .project(NA)
                 .cloudSdkPath(NA)
                 .region(NA)
+                .forensicBucket(NA)
                 .usePreemptibleVms(false)
                 .useLocalSsds(false)
                 .build();
