@@ -36,6 +36,7 @@ public class Hg37ResourceFiles implements ResourceFiles
     public String gridssRepeatMaskerDb() { return formPath(GRIDSS_REPEAT_MASKER_DB,"hg19.fa.out"); }
 
     public String snpEffDb() { return formPath(SNPEFF,"snpEff_v4_3_GRCh37.75.zip"); }
+    public String snpEffVersion() { return "GRCh37.75"; }
 
     public String sageKnownHotspots() { return formPath(SAGE, "KnownHotspots.hg19.vcf.gz"); }
 

@@ -78,7 +78,7 @@ public class SageV2Caller extends TertiaryStage<SageV2CallerOutput> {
                 .andThen(new MappabilityAnnotation(resourceFiles.out150Mappability(), ResourceFiles.of(MAPPABILITY, "mappability.hdr")))
                 .andThen(new PonAnnotation("sage.pon", resourceFiles.sageGermlinePon(), "PON_COUNT"))
                 .andThen(new SageV2PonFilter())
-                .andThen(new SnpEff(ResourceFiles.SNPEFF_CONFIG))
+                .andThen(new SnpEff(ResourceFiles.SNPEFF_CONFIG, resourceFiles))
                 .andThen(new SageV2PostProcess( refGenomeStr))
                 .andThen(FinalSubStage.of(new CosmicAnnotation(ResourceFiles.COSMIC_VCF_GZ, "ID,INFO")))
                 .apply(SubStageInputOutput.empty(tumorSampleName));

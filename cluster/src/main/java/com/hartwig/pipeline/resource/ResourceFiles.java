@@ -27,6 +27,7 @@ public interface ResourceFiles {
     String germlineHetPon();
     String gridssRepeatMaskerDb();
     String snpEffDb();
+    String snpEffVersion();
     String sageKnownHotspots();
     String sageActionableCodingPanel();
     String out150Mappability();

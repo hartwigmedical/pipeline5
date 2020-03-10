@@ -91,7 +91,7 @@ public class SomaticCaller extends TertiaryStage<SomaticCallerOutput> {
                         tumorBamPath))
                 .andThen(new PonFilter())
                 .andThen(new SageHotspotAnnotation(knownHotspotsTsv, sageOutput.outputFile().path()))
-                .andThen(new SnpEff(ResourceFiles.SNPEFF_CONFIG))
+                .andThen(new SnpEff(ResourceFiles.SNPEFF_CONFIG, resourceFiles))
                 .andThen(FinalSubStage.of(new CosmicAnnotation(ResourceFiles.COSMIC_VCF_GZ, "ID,INFO")))
                 .apply(SubStageInputOutput.empty(tumorSampleName));
         commands.addAll(mergedOutput.bash());

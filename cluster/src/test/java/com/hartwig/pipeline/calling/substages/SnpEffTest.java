@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.hartwig.pipeline.calling.SubStage;
 import com.hartwig.pipeline.calling.SubStageTest;
+import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Test;
 
@@ -11,7 +12,7 @@ public class SnpEffTest extends SubStageTest {
 
     @Override
     public SubStage createVictim() {
-        return new SnpEff("snpeff.config");
+        return new SnpEff("snpeff.config", TestInputs.HG37_RESOURCE_FILES);
     }
 
     @Override
