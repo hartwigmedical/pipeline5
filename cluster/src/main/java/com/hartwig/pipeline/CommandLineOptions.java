@@ -120,6 +120,7 @@ public class CommandLineOptions {
                                 + "options."))
                 .addOption(optionWithBooleanArg(OUTPUT_CRAM_FLAG, "Produce CRAM rather than BAM files"))
                 .addOption(zone())
+                .addOption(refGenomeVersion())
                 .addOption(alignerType());
     }
 
@@ -293,7 +294,7 @@ public class CommandLineOptions {
                     .outputCram(booleanOptionWithDefault(commandLine, OUTPUT_CRAM_FLAG, defaults.outputCram()))
                     .zone(zone(commandLine, defaults))
                     .profile(defaults.profile())
-                    .refGenomeVersion(defaults.refGenomeVersion())
+                    .refGenomeVersion(refGenomeVersion(commandLine, defaults))
                     .build();
         } catch (ParseException e) {
             LOGGER.error("Could not parse command line args", e);
