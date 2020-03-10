@@ -1,5 +1,7 @@
 package com.hartwig.pipeline;
 
+import java.util.Optional;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -9,8 +11,6 @@ import org.apache.commons.cli.ParseException;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Optional;
 
 public class CommandLineOptions {
 
@@ -83,8 +83,9 @@ public class CommandLineOptions {
                 .addOption(optionWithBooleanArg(UPLOAD_FLAG,
                         "Don't upload the sample to storage. "
                                 + "This should be used in combination with a run_id which points at an existing bucket"))
-                .addOption(optionWithBooleanArg(UPLOAD_FROM_GCP_FLAG, "Upload sample fastq from GCP instead of SBP S3. "
-                        + "Temporary feature toggle while transitioning to bcl2fastq on GCP."))
+                .addOption(optionWithBooleanArg(UPLOAD_FROM_GCP_FLAG,
+                        "Upload sample fastq from GCP instead of SBP S3. "
+                                + "Temporary feature toggle while transitioning to bcl2fastq on GCP."))
                 .addOption(project())
                 .addOption(region())
                 .addOption(sbpSampleId())
@@ -280,7 +281,7 @@ public class CommandLineOptions {
                     .archiveBucket(commandLine.getOptionValue(ARCHIVE_BUCKET_FLAG, defaults.archiveBucket()))
                     .archiveProject(commandLine.getOptionValue(ARCHIVE_PROJECT_FLAG, defaults.archiveProject()))
                     .archivePrivateKeyPath(commandLine.getOptionValue(ARCHIVE_PRIVATE_KEY_FLAG, defaults.archivePrivateKeyPath()))
-                    .privateNetwork(privateNetwork(commandLine, defaults))
+                    .privateNetwork(commandLine.getOptionValue(PRIVATE_NETWORK_FLAG, defaults.privateNetwork()))
                     .cmek(cmek(commandLine, defaults))
                     .shallow(booleanOptionWithDefault(commandLine, SHALLOW_FLAG, defaults.shallow()))
                     .outputCram(booleanOptionWithDefault(commandLine, OUTPUT_CRAM_FLAG, defaults.outputCram()))
@@ -300,13 +301,6 @@ public class CommandLineOptions {
             return Optional.of(commandLine.getOptionValue(CMEK_FLAG));
         }
         return defaults.cmek();
-    }
-
-    private static Optional<String> privateNetwork(final CommandLine commandLine, final Arguments defaults) {
-        if (commandLine.hasOption(PRIVATE_NETWORK_FLAG)) {
-            return Optional.of(commandLine.getOptionValue(PRIVATE_NETWORK_FLAG));
-        }
-        return defaults.privateNetwork();
     }
 
     private static Optional<String> zone(final CommandLine commandLine, final Arguments defaults) {
