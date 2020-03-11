@@ -17,6 +17,8 @@ public interface CommonArguments {
     String CMEK = "cmek";
     String PRIVATE_NETWORK = "private_network";
 
+    String DEFAULT_PRIVATE_NETWORK = "default";
+
     String CMEK_DESCRIPTION = "The name of the Customer Managed Encryption Key. When this flag is populated all runtime "
             + "buckets will use this key.";
     String PRIVATE_NETWORK_DESCRIPTION =  "The name of the private network to use. Specifying a value here will use this "
@@ -35,7 +37,7 @@ public interface CommonArguments {
 
     boolean useLocalSsds();
 
-    Optional<String> privateNetwork();
+    String privateNetwork();
 
     String serviceAccountEmail();
 
