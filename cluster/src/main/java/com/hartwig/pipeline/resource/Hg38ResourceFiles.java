@@ -29,6 +29,7 @@ public class Hg38ResourceFiles implements ResourceFiles
     public String germlineHetPon() { return formPath(AMBER_PON, "GermlineHetPon.hg38.vcf.gz"); }
 
     public String gridssRepeatMaskerDb() { return formPath(GRIDSS_REPEAT_MASKER_DB,"hg38.fa.out"); }
+    public String gridssBlacklistBed() { return formPath(GRIDSS_REPEAT_MASKER_DB,"ENCFF001TDO.hg38.bed"); }
 
     public String snpEffDb() { return formPath(SNPEFF,"snpEff_v4_3_GRCh38.92.zip"); }
     public String snpEffVersion() { return "GRCh38.92"; }

@@ -26,6 +26,7 @@ public interface ResourceFiles {
     String gcProfileFile();
     String germlineHetPon();
     String gridssRepeatMaskerDb();
+    String gridssBlacklistBed();
     String snpEffDb();
     String snpEffVersion();
     String sageKnownHotspots();

@@ -12,7 +12,7 @@ class SnpEffCommand extends VersionedToolCommand {
                 Versions.SNPEFF,
                 VmDirectories.TOOLS + "/snpEff/" + Versions.SNPEFF + "/snpEff.jar",
                 config,
-                refGenomeVersion, // "GRCh37.75"
+                refGenomeVersion,
                 inputVcf,
                 outputVcf);
     }

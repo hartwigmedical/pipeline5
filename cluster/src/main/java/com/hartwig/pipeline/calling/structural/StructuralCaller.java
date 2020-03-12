@@ -6,6 +6,8 @@ import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_CONFIG;
 import static com.hartwig.pipeline.resource.ResourceNames.VIRUS_REFERENCE_GENOME;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +36,7 @@ import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.report.StartupScriptComponent;
 import com.hartwig.pipeline.report.ZippedVcfAndIndexComponent;
+import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
@@ -78,12 +81,22 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
         commands.add(new ExportVariableCommand("PATH",
                 format("${PATH}:%s", dirname(new VersionedToolCommand("samtools", "samtools", Versions.SAMTOOLS).asBash()))));
 
+        // TEMP
+        if(resourceFiles.version() == RefGenomeVersion.HG38) {
+            final String bwtFileOld = "/opt/resources/reference_genome/hg38/Homo_sapiens_assembly38.fasta.64.bwt";
+
+            if(Files.exists(Paths.get(bwtFileOld))) {
+                final String bwtFileRenamed = "/opt/resources/reference_genome/hg38/Homo_sapiens_assembly38.fasta.bwt";
+                commands.add(() -> format("mv %s %s", bwtFileOld, bwtFileRenamed));
+            }
+        }
+
         String tumorSampleName = metadata.tumor().sampleName();
         String refBamPath = referenceBam.getLocalTargetPath();
         String tumorBamPath = tumorBam.getLocalTargetPath();
 
         String configurationFilePath = ResourceFiles.of(GRIDSS_CONFIG, "gridss.properties");
-        String blacklistBedPath = ResourceFiles.of(GRIDSS_CONFIG, "ENCFF001TDO.bed");
+        String blacklistBedPath = resourceFiles.gridssBlacklistBed();
         String virusReferenceGenomePath = ResourceFiles.of(VIRUS_REFERENCE_GENOME, "human_virus.fa");
         String repeatMaskerDbPath = resourceFiles.gridssRepeatMaskerDb();
 
