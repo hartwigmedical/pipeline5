@@ -84,10 +84,10 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
         // TEMP
         if(resourceFiles.version() == RefGenomeVersion.HG38) {
             final String bwtFileOld = "/opt/resources/reference_genome/hg38/Homo_sapiens_assembly38.fasta.64.bwt";
+            final String bwtFileNew = "/opt/resources/reference_genome/hg38/Homo_sapiens_assembly38.fasta.bwt";
 
-            if(Files.exists(Paths.get(bwtFileOld))) {
-                final String bwtFileRenamed = "/opt/resources/reference_genome/hg38/Homo_sapiens_assembly38.fasta.bwt";
-                commands.add(() -> format("mv %s %s", bwtFileOld, bwtFileRenamed));
+            if(Files.exists(Paths.get(bwtFileOld)) && !Files.exists(Paths.get(bwtFileNew)) ) {
+                commands.add(() -> format("cp %s %s", bwtFileOld, bwtFileNew));
             }
         }
 

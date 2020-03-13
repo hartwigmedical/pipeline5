@@ -24,6 +24,7 @@ public class SnpEff extends SubStage {
     @Override
     public List<BashCommand> bash(final OutputFile input, final OutputFile output) {
         String beforeZip = output.path().replace(".gz", "");
+
         return ImmutableList.of(new SnpEffCommand(config, input.path(), beforeZip, resourceFiles.snpEffVersion()),
                 new BgzipCommand(beforeZip),
                 new TabixCommand(output.path()));
