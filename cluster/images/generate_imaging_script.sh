@@ -5,7 +5,7 @@
 ZONE="europe-west4-a"
 DEV_PROJECT="hmf-pipeline-development" 
 PROJECT="${DEV_PROJECT}"
-VERSION=5-8
+VERSION=5-9
 TYPE="pipeline5"
 
 if [ -n "$1" ]
@@ -26,11 +26,9 @@ sourceInstance="${TYPE}-${VERSION}"
 echo "#!$(which sh) -e"
 
 # Defaults to Debian 9; we assume that for now
-# Also this will fail if there are underscores in the the name, and will succeed if there are hyphens, which doesn't really agree
-# with the regex given in the help
 network="--network=${TYPE} --subnet=${TYPE}"
 [[ "${PROJECT}" = "${DEV_PROJECT}" ]] && network=""
-echo "$GCL instances create ${sourceInstance} --description=\"Instance for ${TYPE} disk image creation\" --zone=${ZONE} ${network} --boot-disk-size 100"
+echo "$GCL instances create ${sourceInstance} --description=\"Instance for ${TYPE} disk image creation\" --zone=${ZONE} ${network} --boot-disk-size 200 --boot-disk-type pd-ssd --machine-type n1-highcpu-4"
 echo "sleep 10"
 # Ignore lines consisting only of spaces, or those beginning with '#'
 tunnel="--tunnel-through-iap"

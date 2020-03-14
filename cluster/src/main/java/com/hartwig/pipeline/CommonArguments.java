@@ -15,6 +15,14 @@ public interface CommonArguments {
     String SERVICE_ACCOUNT_EMAIL = "service_account_email";
     String CLOUD_SDK = "cloud_sdk";
     String PRIVATE_KEY_PATH = "private_key_path";
+    String CMEK = "cmek";
+    String PRIVATE_NETWORK = "private_network";
+
+    String CMEK_DESCRIPTION = "The name of the Customer Managed Encryption Key. When this flag is populated all runtime "
+            + "buckets will use this key.";
+    String PRIVATE_NETWORK_DESCRIPTION =  "The name of the private network to use. Specifying a value here will use this "
+            + "network and subnet of the same name and disable external IPs. Ensure the network has been created in GCP before enabling "
+            + "this flag";
 
     String project();
 
