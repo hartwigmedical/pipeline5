@@ -1,14 +1,5 @@
 package com.hartwig.pipeline.execution.vm;
 
-import static java.lang.String.format;
-
-import java.io.File;
-import java.io.IOException;
-import java.time.Duration;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 import com.google.api.services.compute.Compute;
 import com.google.api.services.compute.ComputeRequest;
 import com.google.api.services.compute.model.Instance;
@@ -17,13 +8,20 @@ import com.google.api.services.compute.model.Metadata;
 import com.google.api.services.compute.model.Operation;
 import com.google.api.services.compute.model.Zone;
 import com.hartwig.pipeline.CommonArguments;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.jodah.failsafe.Failsafe;
 import net.jodah.failsafe.RetryPolicy;
 import net.jodah.failsafe.function.CheckedSupplier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.time.Duration;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static java.lang.String.format;
 
 class InstanceLifecycleManager {
     private static final String RUNNING_STATUS = "RUNNING";
@@ -32,10 +30,12 @@ class InstanceLifecycleManager {
     private final String project;
     private final Compute compute;
     private final String region;
+    private final Integer pollInterval;
 
     InstanceLifecycleManager(final CommonArguments arguments, final Compute compute) {
         this.project = arguments.project();
         this.region = arguments.region();
+        this.pollInterval = arguments.pollInterval();
         this.compute = compute;
     }
 
@@ -110,7 +110,7 @@ class InstanceLifecycleManager {
     }
 
     private ComputeRequest<Operation> getWithRetries(final CheckedSupplier<ComputeRequest<Operation>> supplier) {
-        return Failsafe.with(new RetryPolicy<>().handle(Exception.class).withDelay(Duration.ofSeconds(5)).withMaxRetries(5))
+        return Failsafe.with(new RetryPolicy<>().handle(Exception.class).withDelay(Duration.ofSeconds(pollInterval)).withMaxRetries(5))
                 .get(supplier);
     }
 
@@ -121,7 +121,7 @@ class InstanceLifecycleManager {
         while (RUNNING_STATUS.equals(operationStatus(asyncOp.getName(), zoneName))) {
             LOGGER.debug("{} not done yet", logId);
             try {
-                Thread.sleep(500);
+                Thread.sleep(1000);
             } catch (InterruptedException ie) {
                 Thread.currentThread().interrupt();
             }
@@ -130,7 +130,7 @@ class InstanceLifecycleManager {
     }
 
     private Operation executeWithRetries(final CheckedSupplier<Operation> operationCheckedSupplier) {
-        return Failsafe.with(new RetryPolicy<>().handle(IOException.class).withDelay(Duration.ofSeconds(5)).withMaxRetries(5))
+        return Failsafe.with(new RetryPolicy<>().handle(IOException.class).withDelay(Duration.ofSeconds(pollInterval)).withMaxRetries(5))
                 .get(operationCheckedSupplier);
     }
 

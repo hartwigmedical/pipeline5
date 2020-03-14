@@ -116,6 +116,8 @@ public class CommandLineOptions {
                         "Run with ShallowSeq configuration.Germline and health checker are disabled and purple is run with low coverage "
                                 + "options."))
                 .addOption(optionWithBooleanArg(OUTPUT_CRAM_FLAG, "Produce CRAM rather than BAM files"))
+                .addOption(optionWithArg(CommonArguments.POLL_INTERVAL, "Time in seconds between status checks against GCP. " +
+                        "Increase to allow more concurrent VMs to run at the expense of state change detection resolution."))
                 .addOption(zone())
                 .addOption(alignerType());
     }
@@ -284,6 +286,7 @@ public class CommandLineOptions {
                     .cmek(cmek(commandLine, defaults))
                     .shallow(booleanOptionWithDefault(commandLine, SHALLOW_FLAG, defaults.shallow()))
                     .outputCram(booleanOptionWithDefault(commandLine, OUTPUT_CRAM_FLAG, defaults.outputCram()))
+                    .pollInterval(Integer.parseInt(commandLine.getOptionValue(CommonArguments.POLL_INTERVAL, defaults.pollInterval().toString())))
                     .zone(zone(commandLine, defaults))
                     .profile(defaults.profile())
                     .build();

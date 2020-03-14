@@ -1,15 +1,5 @@
 package com.hartwig.bcl2fastq;
 
-import static java.lang.String.format;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
-
-import java.util.Optional;
-
 import com.google.cloud.storage.Acl;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
@@ -22,11 +12,19 @@ import com.hartwig.bcl2fastq.conversion.ImmutableConvertedUndetermined;
 import com.hartwig.pipeline.storage.GsUtilFacade;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.testsupport.TestBlobs;
-
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+
+import java.util.Optional;
+
+import static java.lang.String.format;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 public class OutputCopierTest {
     private static final String NA = "na";
@@ -162,6 +160,7 @@ public class OutputCopierTest {
                 .region(NA)
                 .usePreemptibleVms(false)
                 .useLocalSsds(false)
+                .pollInterval(5)
                 .build();
     }
 }

@@ -1,17 +1,16 @@
 package com.hartwig.bcl2fastq;
 
-import static java.lang.Boolean.parseBoolean;
-
-import java.util.Optional;
-
 import com.hartwig.pipeline.CommonArguments;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.immutables.value.Value;
+
+import java.util.Optional;
+
+import static java.lang.Boolean.parseBoolean;
 
 @Value.Immutable
 public interface Bcl2fastqArguments extends CommonArguments {
@@ -34,6 +33,7 @@ public interface Bcl2fastqArguments extends CommonArguments {
                     .region(commandLine.getOptionValue(REGION, "europe-west4"))
                     .useLocalSsds(parseBoolean(commandLine.getOptionValue(LOCAL_SSDS, "true")))
                     .usePreemptibleVms(parseBoolean(commandLine.getOptionValue(PREEMPTIBLE_VMS, "true")))
+                    .pollInterval(Integer.parseInt(commandLine.getOptionValue(POLL_INTERVAL, "5")))
                     .privateKeyPath(CommonArguments.privateKey(commandLine))
                     .cloudSdkPath(commandLine.getOptionValue(CLOUD_SDK, System.getProperty("user.home") + "/gcloud/google-cloud-sdk/bin"))
                     .serviceAccountEmail(commandLine.getOptionValue(SERVICE_ACCOUNT_EMAIL))
