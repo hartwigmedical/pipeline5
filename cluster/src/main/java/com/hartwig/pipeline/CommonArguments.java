@@ -27,6 +27,7 @@ public interface CommonArguments {
     String DEFAULT_DEVELOPMENT_PROJECT = "hmf-pipeline-development";
     String DEFAULT_DEVELOPMENT_CLOUD_SDK_PATH = System.getProperty("user.home") + "/gcloud/google-cloud-sdk/bin";
     String DEFAULT_DEVELOPMENT_SERVICE_ACCOUNT_EMAIL = String.format("bootstrap@%s.iam.gserviceaccount.com", DEFAULT_DEVELOPMENT_PROJECT);
+    String DEFAULT_REGION = "europe-west4";
 
     String project();
 

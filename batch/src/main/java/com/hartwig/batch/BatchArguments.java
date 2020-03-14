@@ -1,6 +1,5 @@
 package com.hartwig.batch;
 
-import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.CommonArguments;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
@@ -34,7 +33,7 @@ public interface BatchArguments extends CommonArguments {
             return ImmutableBatchArguments.builder()
                     .command(args[0])
                     .project(commandLine.getOptionValue(PROJECT, CommonArguments.DEFAULT_DEVELOPMENT_PROJECT))
-                    .region(commandLine.getOptionValue(REGION, Arguments.DEFAULT_PRODUCTION_REGION))
+                    .region(commandLine.getOptionValue(REGION, CommonArguments.DEFAULT_REGION))
                     .useLocalSsds(parseBoolean(commandLine.getOptionValue(LOCAL_SSDS, "true")))
                     .usePreemptibleVms(parseBoolean(commandLine.getOptionValue(PREEMPTIBLE_VMS, "true")))
                     .privateKeyPath(CommonArguments.privateKey(commandLine))
