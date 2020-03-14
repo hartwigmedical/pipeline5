@@ -17,11 +17,16 @@ public interface CommonArguments {
     String CMEK = "cmek";
     String PRIVATE_NETWORK = "private_network";
 
-    String CMEK_DESCRIPTION = "The name of the Customer Managed Encryption Key. When this flag is populated all runtime "
-            + "buckets will use this key.";
-    String PRIVATE_NETWORK_DESCRIPTION =  "The name of the private network to use. Specifying a value here will use this "
+    String CMEK_DESCRIPTION = "The resource path of the Customer Managed Encryption Key. Runtime buckets will use this key.";
+    String PRIVATE_NETWORK_DESCRIPTION = "The name of the private network to use. Specifying a value here will use this "
             + "network and subnet of the same name and disable external IPs. Ensure the network has been created in GCP before enabling "
             + "this flag";
+    String DEFAULT_DEVELOPMENT_CMEK = "projects/hmf-pipeline-development/locations/europe-west4/keyRings"
+            + "/hmf-pipeline-development/cryptoKeys/default-test";
+    String DEFAULT_DEVELOPMENT_REGION = "europe-west4";
+    String DEFAULT_DEVELOPMENT_PROJECT = "hmf-pipeline-development";
+    String DEFAULT_DEVELOPMENT_CLOUD_SDK_PATH = System.getProperty("user.home") + "/gcloud/google-cloud-sdk/bin";
+    String DEFAULT_DEVELOPMENT_SERVICE_ACCOUNT_EMAIL = String.format("bootstrap@%s.iam.gserviceaccount.com", DEFAULT_DEVELOPMENT_PROJECT);
 
     String project();
 

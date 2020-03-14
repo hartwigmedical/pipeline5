@@ -48,7 +48,7 @@ public class RuntimeBucket {
             LOGGER.debug("Creating runtime bucket [{}] in Google Storage", runId);
             BucketInfo.Builder builder =
                     BucketInfo.newBuilder(runId).setStorageClass(StorageClass.REGIONAL).setLocation(arguments.region());
-            if ("".equals(arguments.cmek().trim())) {
+            if (arguments.cmek().trim().isEmpty()) {
                 throw new IllegalArgumentException("CMEK key must be used");
             }
             LOGGER.info("Using CMEK key [{}] to encrypt all buckets", arguments.cmek());

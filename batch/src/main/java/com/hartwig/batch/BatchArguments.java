@@ -33,7 +33,7 @@ public interface BatchArguments extends CommonArguments {
             CommandLine commandLine = new DefaultParser().parse(options(), args);
             return ImmutableBatchArguments.builder()
                     .command(args[0])
-                    .project(commandLine.getOptionValue(PROJECT, Arguments.DEFAULT_DEVELOPMENT_PROJECT))
+                    .project(commandLine.getOptionValue(PROJECT, CommonArguments.DEFAULT_DEVELOPMENT_PROJECT))
                     .region(commandLine.getOptionValue(REGION, Arguments.DEFAULT_PRODUCTION_REGION))
                     .useLocalSsds(parseBoolean(commandLine.getOptionValue(LOCAL_SSDS, "true")))
                     .usePreemptibleVms(parseBoolean(commandLine.getOptionValue(PREEMPTIBLE_VMS, "true")))
@@ -43,7 +43,7 @@ public interface BatchArguments extends CommonArguments {
                     .concurrency(Integer.parseInt(commandLine.getOptionValue(CONCURRENCY, "100")))
                     .inputFile(commandLine.getOptionValue(INPUT_FILE))
                     .outputBucket(commandLine.getOptionValue(OUTPUT_BUCKET))
-                    .cmek(commandLine.getOptionValue(CMEK, Arguments.DEFAULT_DEVELOPMENT_CMEK))
+                    .cmek(commandLine.getOptionValue(CMEK, CommonArguments.DEFAULT_DEVELOPMENT_CMEK))
                     .privateNetwork(commandLine.hasOption(PRIVATE_NETWORK)
                             ? Optional.of(commandLine.getOptionValue(PRIVATE_NETWORK))
                             : Optional.empty())

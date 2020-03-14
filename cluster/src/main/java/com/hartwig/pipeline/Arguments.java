@@ -17,8 +17,6 @@ public interface Arguments extends CommonArguments {
 
     boolean cleanup();
 
-    String DEFAULT_DOCKER_CMEK = "/secrets/storage-cmek.json";
-
     boolean upload();
 
     boolean uploadFromGcp();
@@ -117,17 +115,12 @@ public interface Arguments extends CommonArguments {
     String DEFAULT_DOCKER_SAMPLE_DIRECTORY = "/samples";
     String DEFAULT_DOCKER_KEY_PATH = "/secrets/bootstrap-key.json";
     String DEFAULT_DOCKER_ARCHIVE_KEY_PATH = "/secrets/archive-key.json";
-    String DEFAULT_DEVELOPMENT_CMEK = workingDir() + "/cmek.json";
     String DEFAULT_DOCKER_CLOUD_SDK_PATH = "/usr/lib/google-cloud-sdk/bin";
 
     String NOT_APPLICABLE = "N/A";
-    String DEFAULT_DEVELOPMENT_REGION = "europe-west4";
-    String DEFAULT_DEVELOPMENT_PROJECT = "hmf-pipeline-development";
     String DEFAULT_DEVELOPMENT_VERSION = "local-SNAPSHOT";
     String DEFAULT_DEVELOPMENT_SAMPLE_DIRECTORY = workingDir() + "/samples";
     String DEFAULT_DEVELOPMENT_KEY_PATH = workingDir() + "/bootstrap-key.json";
-    String DEFAULT_DEVELOPMENT_CLOUD_SDK_PATH = System.getProperty("user.home") + "/gcloud/google-cloud-sdk/bin";
-    String DEFAULT_DEVELOPMENT_SERVICE_ACCOUNT_EMAIL = String.format("bootstrap@%s.iam.gserviceaccount.com", DEFAULT_DEVELOPMENT_PROJECT);
     String DEFAULT_DEVELOPMENT_PATIENT_REPORT_BUCKET = "pipeline-output-dev";
     String DEFAULT_DEVELOPMENT_ARCHIVE_BUCKET = "pipeline-archive-dev";
 
@@ -174,12 +167,49 @@ public interface Arguments extends CommonArguments {
         } else if (profile.equals(DefaultsProfile.DEVELOPMENT)) {
             return ImmutableArguments.builder()
                     .profile(profile)
-                    .region(DEFAULT_DEVELOPMENT_REGION)
-                    .project(DEFAULT_DEVELOPMENT_PROJECT)
+                    .region(CommonArguments.DEFAULT_DEVELOPMENT_REGION)
+                    .project(CommonArguments.DEFAULT_DEVELOPMENT_PROJECT)
                     .version(DEFAULT_DEVELOPMENT_VERSION)
                     .sampleDirectory(DEFAULT_DEVELOPMENT_SAMPLE_DIRECTORY)
-                    .cloudSdkPath(DEFAULT_DEVELOPMENT_CLOUD_SDK_PATH)
-                    .serviceAccountEmail(DEFAULT_DEVELOPMENT_SERVICE_ACCOUNT_EMAIL)
+                    .cloudSdkPath(CommonArguments.DEFAULT_DEVELOPMENT_CLOUD_SDK_PATH)
+                    .serviceAccountEmail(CommonArguments.DEFAULT_DEVELOPMENT_SERVICE_ACCOUNT_EMAIL)
+                    .cleanup(true)
+                    .cmek(CommonArguments.DEFAULT_DEVELOPMENT_CMEK)
+                    .usePreemptibleVms(true)
+                    .useLocalSsds(true)
+                    .upload(true)
+                    .uploadFromGcp(false)
+                    .runBamMetrics(true)
+                    .runAligner(true)
+                    .runSnpGenotyper(true)
+                    .runGermlineCaller(true)
+                    .runSomaticCaller(true)
+                    .runSageCaller(true)
+                    .runTertiary(true)
+                    .runStructuralCaller(true)
+                    .shallow(false)
+                    .rclonePath(NOT_APPLICABLE)
+                    .rcloneS3RemoteDownload(NOT_APPLICABLE)
+                    .rcloneS3RemoteUpload(NOT_APPLICABLE)
+                    .rcloneGcpRemote(NOT_APPLICABLE)
+                    .sbpS3Url(EMPTY)
+                    .sbpApiUrl(NOT_APPLICABLE)
+                    .sampleId(EMPTY)
+                    .setId(EMPTY)
+                    .patientReportBucket(DEFAULT_DEVELOPMENT_PATIENT_REPORT_BUCKET)
+                    .archiveBucket(DEFAULT_DEVELOPMENT_ARCHIVE_BUCKET)
+                    .archiveProject(CommonArguments.DEFAULT_DEVELOPMENT_PROJECT)
+                    .archivePrivateKeyPath(DEFAULT_DEVELOPMENT_KEY_PATH)
+                    .outputCram(false);
+        } else if (profile.equals(DefaultsProfile.DEVELOPMENT_DOCKER)) {
+            return ImmutableArguments.builder()
+                    .profile(profile)
+                    .region(CommonArguments.DEFAULT_DEVELOPMENT_REGION)
+                    .project(CommonArguments.DEFAULT_DEVELOPMENT_PROJECT)
+                    .version(DEFAULT_DEVELOPMENT_VERSION)
+                    .sampleDirectory(DEFAULT_DOCKER_SAMPLE_DIRECTORY)
+                    .cloudSdkPath(DEFAULT_DOCKER_CLOUD_SDK_PATH)
+                    .serviceAccountEmail(CommonArguments.DEFAULT_DEVELOPMENT_SERVICE_ACCOUNT_EMAIL)
                     .cleanup(true)
                     .cmek(DEFAULT_DEVELOPMENT_CMEK)
                     .usePreemptibleVms(true)
@@ -205,44 +235,7 @@ public interface Arguments extends CommonArguments {
                     .setId(EMPTY)
                     .patientReportBucket(DEFAULT_DEVELOPMENT_PATIENT_REPORT_BUCKET)
                     .archiveBucket(DEFAULT_DEVELOPMENT_ARCHIVE_BUCKET)
-                    .archiveProject(DEFAULT_DEVELOPMENT_PROJECT)
-                    .archivePrivateKeyPath(DEFAULT_DEVELOPMENT_KEY_PATH)
-                    .outputCram(false);
-        } else if (profile.equals(DefaultsProfile.DEVELOPMENT_DOCKER)) {
-            return ImmutableArguments.builder()
-                    .profile(profile)
-                    .region(DEFAULT_DEVELOPMENT_REGION)
-                    .project(DEFAULT_DEVELOPMENT_PROJECT)
-                    .version(DEFAULT_DEVELOPMENT_VERSION)
-                    .sampleDirectory(DEFAULT_DOCKER_SAMPLE_DIRECTORY)
-                    .cloudSdkPath(DEFAULT_DOCKER_CLOUD_SDK_PATH)
-                    .serviceAccountEmail(DEFAULT_DEVELOPMENT_SERVICE_ACCOUNT_EMAIL)
-                    .cleanup(true)
-                    .cmek(DEFAULT_DOCKER_CMEK)
-                    .usePreemptibleVms(true)
-                    .useLocalSsds(true)
-                    .upload(true)
-                    .uploadFromGcp(false)
-                    .runBamMetrics(true)
-                    .runAligner(true)
-                    .runSnpGenotyper(true)
-                    .runGermlineCaller(true)
-                    .runSomaticCaller(true)
-                    .runSageCaller(true)
-                    .runTertiary(true)
-                    .runStructuralCaller(true)
-                    .shallow(false)
-                    .rclonePath(NOT_APPLICABLE)
-                    .rcloneS3RemoteDownload(NOT_APPLICABLE)
-                    .rcloneS3RemoteUpload(NOT_APPLICABLE)
-                    .rcloneGcpRemote(NOT_APPLICABLE)
-                    .sbpS3Url(EMPTY)
-                    .sbpApiUrl(NOT_APPLICABLE)
-                    .sampleId(EMPTY)
-                    .setId(EMPTY)
-                    .patientReportBucket(DEFAULT_DEVELOPMENT_PATIENT_REPORT_BUCKET)
-                    .archiveBucket(DEFAULT_DEVELOPMENT_ARCHIVE_BUCKET)
-                    .archiveProject(DEFAULT_DEVELOPMENT_PROJECT)
+                    .archiveProject(CommonArguments.DEFAULT_DEVELOPMENT_PROJECT)
                     .archivePrivateKeyPath(DEFAULT_DOCKER_KEY_PATH)
                     .outputCram(false);
         }
