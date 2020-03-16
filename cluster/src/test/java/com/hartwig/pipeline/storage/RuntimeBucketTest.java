@@ -1,16 +1,5 @@
 package com.hartwig.pipeline.storage;
 
-import static com.hartwig.pipeline.testsupport.TestInputs.defaultSomaticRunMetadata;
-import static com.hartwig.pipeline.testsupport.TestInputs.referenceRunMetadata;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-
 import com.google.api.gax.paging.Page;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
@@ -18,11 +7,20 @@ import com.google.cloud.storage.BucketInfo;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageClass;
 import com.hartwig.pipeline.Arguments;
-
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+
+import static com.hartwig.pipeline.testsupport.TestInputs.defaultSomaticRunMetadata;
+import static com.hartwig.pipeline.testsupport.TestInputs.referenceRunMetadata;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class RuntimeBucketTest {
 
@@ -134,17 +132,16 @@ public class RuntimeBucketTest {
     }
 
     @Test
-    public void usesCmekWhenProvided() {
+    public void usesCmek() {
         String keyName = "key";
         Arguments arguments = Arguments.testDefaultsBuilder().cmek(keyName).build();
         RuntimeBucket.from(storage, NAMESPACE, referenceRunMetadata(), arguments);
         assertThat(bucketInfo.getValue().getDefaultKmsKeyName()).isEqualTo(keyName);
     }
 
-    @Test
-    public void doesNotUseCmekIfNotProvided() {
-        RuntimeBucket.from(storage, NAMESPACE, referenceRunMetadata(), Arguments.testDefaults());
-        assertThat(bucketInfo.getValue().getDefaultKmsKeyName()).isNullOrEmpty();
+    @Test(expected = IllegalArgumentException.class)
+    public void throwsIfCmekIsEmpty() {
+        RuntimeBucket.from(storage, NAMESPACE, referenceRunMetadata(), Arguments.testDefaultsBuilder().cmek("").build());
     }
 
     @NotNull

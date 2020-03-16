@@ -296,9 +296,9 @@ public class CommandLineOptions {
         }
     }
 
-    private static Optional<String> cmek(final CommandLine commandLine, final Arguments defaults) {
+    private static String cmek(final CommandLine commandLine, final Arguments defaults) {
         if (commandLine.hasOption(CMEK_FLAG)) {
-            return Optional.of(commandLine.getOptionValue(CMEK_FLAG));
+            return commandLine.getOptionValue(CMEK_FLAG);
         }
         return defaults.cmek();
     }
