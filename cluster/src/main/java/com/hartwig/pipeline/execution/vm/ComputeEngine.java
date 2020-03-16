@@ -16,7 +16,6 @@ import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.compute.Compute;
-import com.google.api.services.compute.model.AccessConfig;
 import com.google.api.services.compute.model.AttachedDisk;
 import com.google.api.services.compute.model.AttachedDiskInitializeParams;
 import com.google.api.services.compute.model.Image;
@@ -187,22 +186,14 @@ public class ComputeEngine {
     }
 
     private void addNetworkInterface(Instance instance, String projectName) {
-        NetworkInterface networkInterface = arguments.privateNetwork().map(network -> {
-            NetworkInterface privateNetwork = new NetworkInterface();
-            privateNetwork.setNetwork(format("%s/global/networks/%s", apiBaseUrl(projectName), network));
-            privateNetwork.setSubnetwork(format("%s/regions/%s/subnetworks/%s", apiBaseUrl(projectName), arguments.region(), network));
-            privateNetwork.set("no-address", "true");
-            return privateNetwork;
-        }).orElseGet(() -> {
-            NetworkInterface publicNetwork = new NetworkInterface();
-            AccessConfig config = new AccessConfig();
-            publicNetwork.setNetwork(format("%s/global/networks/default", apiBaseUrl(projectName)));
-            config.setType("ONE_TO_ONE_NAT");
-            config.setName("External NAT");
-            publicNetwork.setAccessConfigs(singletonList(config));
-            return publicNetwork;
-        });
-        instance.setNetworkInterfaces(singletonList(networkInterface));
+        NetworkInterface privateNetwork = new NetworkInterface();
+        privateNetwork.setNetwork(format("%s/global/networks/%s", apiBaseUrl(projectName), arguments.privateNetwork()));
+        privateNetwork.setSubnetwork(format("%s/regions/%s/subnetworks/%s",
+                apiBaseUrl(projectName),
+                arguments.region(),
+                arguments.privateNetwork()));
+        privateNetwork.set("no-address", "true");
+        instance.setNetworkInterfaces(singletonList(privateNetwork));
     }
 
     private Image attachDisks(Compute compute, Instance instance, VirtualMachineJobDefinition jobDefinition, String projectName,

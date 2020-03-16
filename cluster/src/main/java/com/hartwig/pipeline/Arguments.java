@@ -1,8 +1,8 @@
 package com.hartwig.pipeline;
 
-import org.immutables.value.Value;
-
 import java.util.Optional;
+
+import org.immutables.value.Value;
 
 @Value.Immutable
 public interface Arguments extends CommonArguments {
@@ -16,6 +16,7 @@ public interface Arguments extends CommonArguments {
     }
 
     boolean cleanup();
+
 
     boolean upload();
 
@@ -162,6 +163,7 @@ public interface Arguments extends CommonArguments {
                     .archiveBucket(DEFAULT_PRODUCTION_ARCHIVE_BUCKET)
                     .archiveProject(DEFAULT_PRODUCTION_ARCHIVE_PROJECT)
                     .archivePrivateKeyPath(DEFAULT_DOCKER_ARCHIVE_KEY_PATH)
+                    .privateNetwork(DEFAULT_PRIVATE_NETWORK)
                     .outputCram(false);
         } else if (profile.equals(DefaultsProfile.DEVELOPMENT)) {
             return ImmutableArguments.builder()
@@ -199,6 +201,7 @@ public interface Arguments extends CommonArguments {
                     .archiveBucket(DEFAULT_DEVELOPMENT_ARCHIVE_BUCKET)
                     .archiveProject(CommonArguments.DEFAULT_DEVELOPMENT_PROJECT)
                     .archivePrivateKeyPath(DEFAULT_DEVELOPMENT_KEY_PATH)
+                    .privateNetwork(DEFAULT_PRIVATE_NETWORK)
                     .outputCram(false);
         } else if (profile.equals(DefaultsProfile.DEVELOPMENT_DOCKER)) {
             return ImmutableArguments.builder()
@@ -236,6 +239,7 @@ public interface Arguments extends CommonArguments {
                     .archiveBucket(DEFAULT_DEVELOPMENT_ARCHIVE_BUCKET)
                     .archiveProject(CommonArguments.DEFAULT_DEVELOPMENT_PROJECT)
                     .archivePrivateKeyPath(DEFAULT_DOCKER_KEY_PATH)
+                    .privateNetwork(DEFAULT_PRIVATE_NETWORK)
                     .outputCram(false);
         }
         throw new IllegalArgumentException(String.format("Unknown profile [%s], please create defaults for this profile.", profile));

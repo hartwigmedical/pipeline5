@@ -43,9 +43,7 @@ public interface BatchArguments extends CommonArguments {
                     .inputFile(commandLine.getOptionValue(INPUT_FILE))
                     .outputBucket(commandLine.getOptionValue(OUTPUT_BUCKET))
                     .cmek(commandLine.getOptionValue(CMEK, CommonArguments.DEFAULT_DEVELOPMENT_CMEK))
-                    .privateNetwork(commandLine.hasOption(PRIVATE_NETWORK)
-                            ? Optional.of(commandLine.getOptionValue(PRIVATE_NETWORK))
-                            : Optional.empty())
+                    .privateNetwork(commandLine.getOptionValue(PRIVATE_NETWORK, DEFAULT_PRIVATE_NETWORK))
                     .build();
         } catch (ParseException e) {
             String message = "Failed to parse arguments";

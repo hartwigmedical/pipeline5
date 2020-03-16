@@ -18,7 +18,9 @@ public interface CommonArguments {
     String PRIVATE_NETWORK = "private_network";
 
     String CMEK_DESCRIPTION = "The resource path of the Customer Managed Encryption Key. Runtime buckets will use this key.";
-    String PRIVATE_NETWORK_DESCRIPTION = "The name of the private network to use. Specifying a value here will use this "
+    String DEFAULT_PRIVATE_NETWORK = "default";
+
+    String PRIVATE_NETWORK_DESCRIPTION =  "The name of the private network to use. Specifying a value here will use this "
             + "network and subnet of the same name and disable external IPs. Ensure the network has been created in GCP before enabling "
             + "this flag";
     String DEFAULT_DEVELOPMENT_CMEK = "projects/hmf-pipeline-development/locations/europe-west4/keyRings"
@@ -41,7 +43,7 @@ public interface CommonArguments {
 
     boolean useLocalSsds();
 
-    Optional<String> privateNetwork();
+    String privateNetwork();
 
     String serviceAccountEmail();
 

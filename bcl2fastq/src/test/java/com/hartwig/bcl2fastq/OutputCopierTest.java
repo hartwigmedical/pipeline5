@@ -161,6 +161,7 @@ public class OutputCopierTest {
                 .cloudSdkPath(NA)
                 .region(NA)
                 .forensicBucket(NA)
+                .privateNetwork(NA)
                 .usePreemptibleVms(false)
                 .useLocalSsds(false)
                 .cmek(CommonArguments.DEFAULT_DEVELOPMENT_CMEK)
