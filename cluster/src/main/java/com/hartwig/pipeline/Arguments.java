@@ -1,8 +1,8 @@
 package com.hartwig.pipeline;
 
-import org.immutables.value.Value;
-
 import java.util.Optional;
+
+import org.immutables.value.Value;
 
 @Value.Immutable
 public interface Arguments extends CommonArguments {
@@ -79,6 +79,8 @@ public interface Arguments extends CommonArguments {
 
     Optional<String> zone();
 
+    int maxConcurrentLanes();
+
     static ImmutableArguments.Builder builder() {
         return ImmutableArguments.builder();
     }
@@ -130,6 +132,8 @@ public interface Arguments extends CommonArguments {
     String DEFAULT_DEVELOPMENT_PATIENT_REPORT_BUCKET = "pipeline-output-dev";
     String DEFAULT_DEVELOPMENT_ARCHIVE_BUCKET = "pipeline-archive-dev";
 
+    int DEFAULT_MAX_CONCURRENT_LANES = 8;
+
     static ImmutableArguments.Builder defaultsBuilder(String profileString) {
         DefaultsProfile profile = DefaultsProfile.valueOf(profileString.toUpperCase());
         if (profile.equals(DefaultsProfile.PRODUCTION)) {
@@ -168,7 +172,9 @@ public interface Arguments extends CommonArguments {
                     .archiveBucket(DEFAULT_PRODUCTION_ARCHIVE_BUCKET)
                     .archiveProject(DEFAULT_PRODUCTION_ARCHIVE_PROJECT)
                     .archivePrivateKeyPath(DEFAULT_DOCKER_ARCHIVE_KEY_PATH)
-                    .outputCram(false);
+                    .outputCram(false)
+                    .pollInterval(DEFAULT_POLL_INTERVAL)
+                    .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES);
         } else if (profile.equals(DefaultsProfile.DEVELOPMENT)) {
             return ImmutableArguments.builder()
                     .profile(profile)
@@ -243,8 +249,8 @@ public interface Arguments extends CommonArguments {
                     .archiveProject(DEFAULT_DEVELOPMENT_PROJECT)
                     .archivePrivateKeyPath(DEFAULT_DOCKER_KEY_PATH)
                     .outputCram(false)
-                    .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES)
-                    .pollInterval(DEFAULT_POLL_INTERVAL);
+                    .pollInterval(DEFAULT_POLL_INTERVAL)
+                    .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES);
         }
         throw new IllegalArgumentException(String.format("Unknown profile [%s], please create defaults for this profile.", profile));
     }
