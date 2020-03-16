@@ -30,13 +30,19 @@ public class RnaStarMapping implements BatchOperation {
             InputBundle inputs, RuntimeBucket bucket, BashStartupScript startupScript, RuntimeFiles executionFlags) {
         InputFileDescriptor descriptor = inputs.get();
 
-        final String sampleId = descriptor.value();
-
-        // TMP: enable STAR for execution
-        startupScript.addCommand(() -> "chmod a+x /opt/tools/star/2.7.3a/STAR");
+        final String sampleData = descriptor.value();
+        final String[] sampleItems = sampleData.split(",");
+        final String sampleId = sampleItems[0];
+        final String sampleDir = sampleItems[1];
 
         // copy down FASTQ files for this sample
-        startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s %s", "gs://rna-fastqs/*/*.gz", VmDirectories.INPUT));
+
+        // copy from crunch
+        //startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s %s", "gs://rna-fastqs/*/*.gz", VmDirectories.INPUT));
+
+        // copy from prod
+        final String sampleFastQs = String.format("gs://hmf-fastq-rna/RNA/%s/*.gz", sampleDir);
+        startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s %s", sampleFastQs, VmDirectories.INPUT));
 
         // locate the FASTQ files for reads 1 and 2
         final String r1Files = format("$(ls %s/*_R1* | tr '\\n' ',')", VmDirectories.INPUT);
@@ -51,10 +57,11 @@ public class RnaStarMapping implements BatchOperation {
         final String[] starArgs = {"--runThreadN", threadCount, "--genomeDir", REF_GENCODE_37, "--genomeLoad", "NoSharedMemory",
                 "--readFilesIn", r1Files, r2Files, "--readFilesCommand", "zcat", "--outSAMtype", "BAM", "Unsorted",
                 "--outSAMunmapped", "Within", "--outBAMcompression", "0", "--outSAMattributes", "All",
-                "--outFilterMultimapNmax", "1", "--outFilterMismatchNmax", "3", "limitOutSJcollapsed", "3000000",
-                "--chimSegmentMin", "10", "--chimOutType", "WithinBAM", "SoftClip", "--chimJunctionOverhangMin", "10",
+                "--outFilterMultimapNmax", "10", "--outFilterMismatchNmax", "3", "limitOutSJcollapsed", "3000000",
+                "--chimSegmentMin", "10", "--chimOutType", "WithinBAM", "SoftClip", "--chimJunctionOverhangMin", "10", "--chimSegmentReadGapMax", "3",
                 "--chimScoreMin", "1", "--chimScoreDropMax", "30", "--chimScoreJunctionNonGTAG", "0", "--chimScoreSeparation", "1",
-                "--alignSJstitchMismatchNmax", "5", "-1", "5", "5", "--chimSegmentReadGapMax", "3"};
+                "--outFilterScoreMinOverLread", "0.33", "--outFilterMatchNminOverLread", "0.33", "--outFilterMatchNmin", "35",
+                "--alignSplicedMateMapLminOverLmate", "0.33", "--alignSplicedMateMapLmin", "35", "--alignSJstitchMismatchNmax", "5", "-1", "5", "5"};
 
         startupScript.addCommand(new VersionedToolCommand("star", "STAR", "2.7.3a", starArgs));
 
