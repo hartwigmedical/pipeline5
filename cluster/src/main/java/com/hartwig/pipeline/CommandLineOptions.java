@@ -1,5 +1,7 @@
 package com.hartwig.pipeline;
 
+import java.util.Optional;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -9,8 +11,6 @@ import org.apache.commons.cli.ParseException;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Optional;
 
 public class CommandLineOptions {
 
@@ -40,6 +40,7 @@ public class CommandLineOptions {
     private static final String PROFILE_FLAG = "profile";
     private static final String SAMPLE_ID_FLAG = "sample_id";
     private static final String SERVICE_ACCOUNT_EMAIL_FLAG = "service_account_email";
+    private static final String MAX_CONCURRENT_LANES_FLAG = "max_concurrent_lanes";
 
     private static final String DEFAULT_PROFILE = "production";
     private static final String RUN_ALIGNER_FLAG = "run_aligner";
@@ -83,8 +84,9 @@ public class CommandLineOptions {
                 .addOption(optionWithBooleanArg(UPLOAD_FLAG,
                         "Don't upload the sample to storage. "
                                 + "This should be used in combination with a run_id which points at an existing bucket"))
-                .addOption(optionWithBooleanArg(UPLOAD_FROM_GCP_FLAG, "Upload sample fastq from GCP instead of SBP S3. "
-                        + "Temporary feature toggle while transitioning to bcl2fastq on GCP."))
+                .addOption(optionWithBooleanArg(UPLOAD_FROM_GCP_FLAG,
+                        "Upload sample fastq from GCP instead of SBP S3. "
+                                + "Temporary feature toggle while transitioning to bcl2fastq on GCP."))
                 .addOption(project())
                 .addOption(region())
                 .addOption(sbpSampleId())
@@ -119,7 +121,14 @@ public class CommandLineOptions {
                 .addOption(optionWithArg(CommonArguments.POLL_INTERVAL, "Time in seconds between status checks against GCP. " +
                         "Increase to allow more concurrent VMs to run at the expense of state change detection resolution."))
                 .addOption(zone())
-                .addOption(alignerType());
+                .addOption(alignerType())
+                .addOption(maxConcurrentLanes());
+    }
+
+    private static Option maxConcurrentLanes() {
+        return optionWithArg(MAX_CONCURRENT_LANES_FLAG,
+                "The max number of lanes to align concurrently. This option can be used to throttle"
+                        + "the amount of CPUs used during alignment for samples with a large number of lanes.");
     }
 
     private static Option cmek() {
@@ -288,6 +297,7 @@ public class CommandLineOptions {
                     .outputCram(booleanOptionWithDefault(commandLine, OUTPUT_CRAM_FLAG, defaults.outputCram()))
                     .pollInterval(Integer.parseInt(commandLine.getOptionValue(CommonArguments.POLL_INTERVAL, defaults.pollInterval().toString())))
                     .zone(zone(commandLine, defaults))
+                    .maxConcurrentLanes(maxConcurrentLanes(commandLine))
                     .profile(defaults.profile())
                     .build();
         } catch (ParseException e) {
@@ -328,6 +338,14 @@ public class CommandLineOptions {
             }
         }
         return Optional.empty();
+    }
+
+    private static int maxConcurrentLanes(final CommandLine commandLine) {
+        try {
+            return Integer.parseInt(commandLine.getOptionValue(MAX_CONCURRENT_LANES_FLAG));
+        } catch (NumberFormatException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static boolean booleanOptionWithDefault(final CommandLine commandLine, final String flag, final boolean defaultValue)

@@ -168,8 +168,7 @@ public interface Arguments extends CommonArguments {
                     .archiveBucket(DEFAULT_PRODUCTION_ARCHIVE_BUCKET)
                     .archiveProject(DEFAULT_PRODUCTION_ARCHIVE_PROJECT)
                     .archivePrivateKeyPath(DEFAULT_DOCKER_ARCHIVE_KEY_PATH)
-                    .outputCram(false)
-                    .pollInterval(DEFAULT_POLL_INTERVAL);
+                    .outputCram(false);
         } else if (profile.equals(DefaultsProfile.DEVELOPMENT)) {
             return ImmutableArguments.builder()
                     .profile(profile)
@@ -206,7 +205,8 @@ public interface Arguments extends CommonArguments {
                     .archiveProject(DEFAULT_DEVELOPMENT_PROJECT)
                     .archivePrivateKeyPath(DEFAULT_DEVELOPMENT_KEY_PATH)
                     .outputCram(false)
-                    .pollInterval(DEFAULT_POLL_INTERVAL);
+                    .pollInterval(DEFAULT_POLL_INTERVAL)
+                    .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES);
         } else if (profile.equals(DefaultsProfile.DEVELOPMENT_DOCKER)) {
             return ImmutableArguments.builder()
                     .profile(profile)
@@ -243,6 +243,7 @@ public interface Arguments extends CommonArguments {
                     .archiveProject(DEFAULT_DEVELOPMENT_PROJECT)
                     .archivePrivateKeyPath(DEFAULT_DOCKER_KEY_PATH)
                     .outputCram(false)
+                    .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES)
                     .pollInterval(DEFAULT_POLL_INTERVAL);
         }
         throw new IllegalArgumentException(String.format("Unknown profile [%s], please create defaults for this profile.", profile));
