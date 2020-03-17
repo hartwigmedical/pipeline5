@@ -1,6 +1,10 @@
 package com.hartwig.batch;
 
+import static java.lang.Boolean.parseBoolean;
+import static java.lang.String.format;
+
 import com.hartwig.pipeline.CommonArguments;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Option;
@@ -8,13 +12,9 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.immutables.value.Value;
 
-import java.util.Optional;
-
-import static java.lang.Boolean.parseBoolean;
-import static java.lang.String.format;
-
 @Value.Immutable
 public interface BatchArguments extends CommonArguments {
+
     String CONCURRENCY = "concurrency";
     String INPUT_FILE = "input_file";
     String OUTPUT_BUCKET = "output_bucket";
@@ -36,6 +36,7 @@ public interface BatchArguments extends CommonArguments {
                     .region(commandLine.getOptionValue(REGION, CommonArguments.DEFAULT_REGION))
                     .useLocalSsds(parseBoolean(commandLine.getOptionValue(LOCAL_SSDS, "true")))
                     .usePreemptibleVms(parseBoolean(commandLine.getOptionValue(PREEMPTIBLE_VMS, "true")))
+                    .pollInterval(Integer.parseInt(commandLine.getOptionValue(POLL_INTERVAL, "60")))
                     .privateKeyPath(CommonArguments.privateKey(commandLine))
                     .cloudSdkPath(commandLine.getOptionValue(CLOUD_SDK, "/usr/bin"))
                     .serviceAccountEmail(commandLine.getOptionValue(SERVICE_ACCOUNT_EMAIL))

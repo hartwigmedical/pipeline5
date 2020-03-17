@@ -1,5 +1,19 @@
 package com.hartwig.pipeline.alignment.vm;
 
+import static java.lang.String.format;
+
+import static com.hartwig.pipeline.alignment.AlignmentOutputPaths.bai;
+import static com.hartwig.pipeline.alignment.AlignmentOutputPaths.bam;
+import static com.hartwig.pipeline.alignment.AlignmentOutputPaths.sorted;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.stream.Collectors;
+
 import com.google.cloud.storage.Storage;
 import com.hartwig.patient.Lane;
 import com.hartwig.patient.Sample;
@@ -27,19 +41,6 @@ import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.storage.SampleUpload;
 import com.hartwig.pipeline.trace.StageTrace;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
-import java.util.stream.Collectors;
-
-import static com.hartwig.pipeline.alignment.AlignmentOutputPaths.bai;
-import static com.hartwig.pipeline.alignment.AlignmentOutputPaths.bam;
-import static com.hartwig.pipeline.alignment.AlignmentOutputPaths.sorted;
-import static java.lang.String.format;
 
 public class VmAligner {
 
@@ -82,7 +83,6 @@ public class VmAligner {
             sampleUpload.run(sample, rootBucket);
         }
 
-        ExecutorService executorService = this.executorService;
         List<Future<PipelineStatus>> futures = new ArrayList<>();
         List<GoogleStorageLocation> perLaneBams = new ArrayList<>();
         List<ReportComponent> laneLogComponents = new ArrayList<>();

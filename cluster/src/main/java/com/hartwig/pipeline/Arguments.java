@@ -17,6 +17,7 @@ public interface Arguments extends CommonArguments {
 
     boolean cleanup();
 
+    Integer DEFAULT_POLL_INTERVAL = 5;
 
     boolean upload();
 
@@ -78,6 +79,8 @@ public interface Arguments extends CommonArguments {
 
     Optional<String> zone();
 
+    int maxConcurrentLanes();
+
     static ImmutableArguments.Builder builder() {
         return ImmutableArguments.builder();
     }
@@ -124,6 +127,8 @@ public interface Arguments extends CommonArguments {
     String DEFAULT_DEVELOPMENT_PATIENT_REPORT_BUCKET = "pipeline-output-dev";
     String DEFAULT_DEVELOPMENT_ARCHIVE_BUCKET = "pipeline-archive-dev";
 
+    int DEFAULT_MAX_CONCURRENT_LANES = 8;
+
     static ImmutableArguments.Builder defaultsBuilder(String profileString) {
         DefaultsProfile profile = DefaultsProfile.valueOf(profileString.toUpperCase());
         if (profile.equals(DefaultsProfile.PRODUCTION)) {
@@ -164,7 +169,9 @@ public interface Arguments extends CommonArguments {
                     .archiveProject(DEFAULT_PRODUCTION_ARCHIVE_PROJECT)
                     .archivePrivateKeyPath(DEFAULT_DOCKER_ARCHIVE_KEY_PATH)
                     .privateNetwork(DEFAULT_PRIVATE_NETWORK)
-                    .outputCram(false);
+                    .outputCram(false)
+                    .pollInterval(DEFAULT_POLL_INTERVAL)
+                    .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES);
         } else if (profile.equals(DefaultsProfile.DEVELOPMENT)) {
             return ImmutableArguments.builder()
                     .profile(profile)
@@ -201,8 +208,10 @@ public interface Arguments extends CommonArguments {
                     .archiveBucket(DEFAULT_DEVELOPMENT_ARCHIVE_BUCKET)
                     .archiveProject(CommonArguments.DEFAULT_DEVELOPMENT_PROJECT)
                     .archivePrivateKeyPath(DEFAULT_DEVELOPMENT_KEY_PATH)
-                    .privateNetwork(DEFAULT_PRIVATE_NETWORK)
-                    .outputCram(false);
+                    .outputCram(false)
+                    .pollInterval(DEFAULT_POLL_INTERVAL)
+                    .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES)
+                    .privateNetwork(DEFAULT_PRIVATE_NETWORK);
         } else if (profile.equals(DefaultsProfile.DEVELOPMENT_DOCKER)) {
             return ImmutableArguments.builder()
                     .profile(profile)
@@ -240,7 +249,9 @@ public interface Arguments extends CommonArguments {
                     .archiveProject(CommonArguments.DEFAULT_DEVELOPMENT_PROJECT)
                     .archivePrivateKeyPath(DEFAULT_DOCKER_KEY_PATH)
                     .privateNetwork(DEFAULT_PRIVATE_NETWORK)
-                    .outputCram(false);
+                    .outputCram(false)
+                    .pollInterval(DEFAULT_POLL_INTERVAL)
+                    .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES);
         }
         throw new IllegalArgumentException(String.format("Unknown profile [%s], please create defaults for this profile.", profile));
     }

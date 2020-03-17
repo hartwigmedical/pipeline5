@@ -40,6 +40,7 @@ public class CommandLineOptions {
     private static final String PROFILE_FLAG = "profile";
     private static final String SAMPLE_ID_FLAG = "sample_id";
     private static final String SERVICE_ACCOUNT_EMAIL_FLAG = "service_account_email";
+    private static final String MAX_CONCURRENT_LANES_FLAG = "max_concurrent_lanes";
 
     private static final String DEFAULT_PROFILE = "production";
     private static final String RUN_ALIGNER_FLAG = "run_aligner";
@@ -117,8 +118,18 @@ public class CommandLineOptions {
                         "Run with ShallowSeq configuration.Germline and health checker are disabled and purple is run with low coverage "
                                 + "options."))
                 .addOption(optionWithBooleanArg(OUTPUT_CRAM_FLAG, "Produce CRAM rather than BAM files"))
+                .addOption(optionWithArg(CommonArguments.POLL_INTERVAL,
+                        "Time in seconds between status checks against GCP. "
+                                + "Increase to allow more concurrent VMs to run at the expense of state change detection resolution."))
                 .addOption(zone())
-                .addOption(alignerType());
+                .addOption(alignerType())
+                .addOption(maxConcurrentLanes());
+    }
+
+    private static Option maxConcurrentLanes() {
+        return optionWithArg(MAX_CONCURRENT_LANES_FLAG,
+                "The max number of lanes to align concurrently. This option can be used to throttle"
+                        + "the amount of CPUs used during alignment for samples with a large number of lanes.");
     }
 
     private static Option cmek() {
@@ -285,7 +296,10 @@ public class CommandLineOptions {
                     .cmek(cmek(commandLine, defaults))
                     .shallow(booleanOptionWithDefault(commandLine, SHALLOW_FLAG, defaults.shallow()))
                     .outputCram(booleanOptionWithDefault(commandLine, OUTPUT_CRAM_FLAG, defaults.outputCram()))
+                    .pollInterval(Integer.parseInt(commandLine.getOptionValue(CommonArguments.POLL_INTERVAL,
+                            defaults.pollInterval().toString())))
                     .zone(zone(commandLine, defaults))
+                    .maxConcurrentLanes(maxConcurrentLanes(commandLine, defaults.maxConcurrentLanes()))
                     .profile(defaults.profile())
                     .build();
         } catch (ParseException e) {
@@ -319,6 +333,17 @@ public class CommandLineOptions {
             }
         }
         return Optional.empty();
+    }
+
+    private static int maxConcurrentLanes(final CommandLine commandLine, final int defaultValue) {
+        try {
+            if (commandLine.hasOption(MAX_CONCURRENT_LANES_FLAG)) {
+                return Integer.parseInt(commandLine.getOptionValue(MAX_CONCURRENT_LANES_FLAG));
+            }
+            return defaultValue;
+        } catch (NumberFormatException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static boolean booleanOptionWithDefault(final CommandLine commandLine, final String flag, final boolean defaultValue)

@@ -32,10 +32,12 @@ class InstanceLifecycleManager {
     private final String project;
     private final Compute compute;
     private final String region;
+    private final Integer pollInterval;
 
     InstanceLifecycleManager(final CommonArguments arguments, final Compute compute) {
         this.project = arguments.project();
         this.region = arguments.region();
+        this.pollInterval = arguments.pollInterval();
         this.compute = compute;
     }
 
@@ -110,7 +112,7 @@ class InstanceLifecycleManager {
     }
 
     private ComputeRequest<Operation> getWithRetries(final CheckedSupplier<ComputeRequest<Operation>> supplier) {
-        return Failsafe.with(new RetryPolicy<>().handle(Exception.class).withDelay(Duration.ofSeconds(5)).withMaxRetries(5))
+        return Failsafe.with(new RetryPolicy<>().handle(Exception.class).withDelay(Duration.ofSeconds(pollInterval)).withMaxRetries(5))
                 .get(supplier);
     }
 
@@ -121,7 +123,7 @@ class InstanceLifecycleManager {
         while (RUNNING_STATUS.equals(operationStatus(asyncOp.getName(), zoneName))) {
             LOGGER.debug("{} not done yet", logId);
             try {
-                Thread.sleep(500);
+                Thread.sleep(1000);
             } catch (InterruptedException ie) {
                 Thread.currentThread().interrupt();
             }
@@ -130,7 +132,7 @@ class InstanceLifecycleManager {
     }
 
     private Operation executeWithRetries(final CheckedSupplier<Operation> operationCheckedSupplier) {
-        return Failsafe.with(new RetryPolicy<>().handle(IOException.class).withDelay(Duration.ofSeconds(5)).withMaxRetries(5))
+        return Failsafe.with(new RetryPolicy<>().handle(IOException.class).withDelay(Duration.ofSeconds(pollInterval)).withMaxRetries(5))
                 .get(operationCheckedSupplier);
     }
 
