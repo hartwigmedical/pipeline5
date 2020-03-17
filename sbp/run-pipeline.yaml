@@ -1,0 +1,77 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  creationTimestamp: "2020-03-13T04:00:05Z"
+  labels:
+    job-name: pipelinev5-somatic-test
+  name: pipelinev5-somatic-test
+  namespace: acceptance
+  selfLink: /apis/batch/v1/namespaces/acceptance/jobs/pipelinev5-somatic-test
+spec:
+  backoffLimit: 1
+  completions: 1
+  parallelism: 1
+  template:
+    metadata:
+      labels:
+        job-name: pipelinev5-somatic-test
+    spec:
+      containers:
+        - args:
+            - -sbp_run_id
+            - "15"
+            - -archive_private_key_path
+            - /secrets/bootstrap-key.json
+            - -archive_project
+            - hmf-pipeline-development
+            - -archive_bucket
+            - pipeline-archive-dev
+            - -project
+            - hmf-pipeline-development
+            - -service_account_email
+            - bootstrap@hmf-pipeline-development.iam.gserviceaccount.com
+            - -private_network
+            - default
+            - -patient_report_bucket
+            - pipeline-output-dev
+            - -upload_from_gcp
+            - "true"
+          command:
+            - /pipeline5.sh
+          image: hartwigmedicalfoundation/pipeline5:5.9.1503
+          imagePullPolicy: IfNotPresent
+          name: pipelinev5-somatic-63961-20200313040005
+          resources:
+            requests:
+              memory: 2Gi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /secrets/
+              name: gcp-pipeline5-scheduler
+            - mountPath: /root/.config/rclone
+              name: rclone-config
+      dnsPolicy: ClusterFirst
+      restartPolicy: Never
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - name: gcp-pipeline5-scheduler
+          secret:
+            defaultMode: 420
+            secretName: gcp-pipeline5-scheduler
+        - name: rclone-config
+          secret:
+            defaultMode: 420
+            secretName: rclone-hmf-admin-credentials
+
+status:
+  completionTime: "2020-03-13T13:37:12Z"
+  conditions:
+    - lastProbeTime: "2020-03-13T13:37:12Z"
+      lastTransitionTime: "2020-03-13T13:37:12Z"
+      status: "True"
+      type: Complete
+  startTime: "2020-03-13T04:00:05Z"
+  succeeded: 1
