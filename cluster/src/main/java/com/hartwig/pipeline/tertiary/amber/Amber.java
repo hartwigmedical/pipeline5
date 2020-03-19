@@ -42,7 +42,7 @@ public class Amber extends TertiaryStage<AmberOutput> {
                 metadata.tumor().sampleName(),
                 getTumorBamDownload().getLocalTargetPath(),
                 resourceFiles.refGenomeFile(),
-                resourceFiles.germlineHetPon()));
+                resourceFiles.amberHeterozygousLoci()));
     }
 
     @Override

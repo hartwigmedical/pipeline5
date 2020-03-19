@@ -26,7 +26,7 @@ public class Hg38ResourceFiles implements ResourceFiles
 
     public String gcProfileFile() { return formPath(GC_PROFILE, "GC_profile.hg38.1000bp.cnp"); }
 
-    public String germlineHetPon() { return formPath(AMBER_PON, "GermlineHetPon.hg38.vcf.gz"); }
+    public String amberHeterozygousLoci() { return formPath(AMBER_PON, "GermlineHetPon.hg38.vcf.gz"); }
 
     public String gridssRepeatMaskerDb() { return formPath(GRIDSS_REPEAT_MASKER_DB,"hg38.fa.out"); }
     public String gridssBlacklistBed() { return formPath(GRIDSS_REPEAT_MASKER_DB,"ENCFF001TDO.hg38.bed"); }

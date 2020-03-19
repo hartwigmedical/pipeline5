@@ -31,7 +31,7 @@ public class Hg37ResourceFiles implements ResourceFiles
 
     public String gcProfileFile() { return formPath(GC_PROFILE,"GC_profile.1000bp.cnp"); }
 
-    public String germlineHetPon() { return formPath(AMBER_PON, "GermlineHetPon.hg19.vcf.gz"); }
+    public String amberHeterozygousLoci() { return formPath(AMBER_PON, "GermlineHetPon.hg19.vcf.gz"); }
 
     public String gridssRepeatMaskerDb() { return formPath(GRIDSS_REPEAT_MASKER_DB,"hg19.fa.out"); }
     public String gridssBlacklistBed() { return formPath(GRIDSS_REPEAT_MASKER_DB,"ENCFF001TDO.hg37.bed"); }

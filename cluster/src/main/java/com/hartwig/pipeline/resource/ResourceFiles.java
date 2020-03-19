@@ -2,8 +2,6 @@ package com.hartwig.pipeline.resource;
 
 import static com.hartwig.pipeline.resource.ResourceNames.COSMIC;
 import static com.hartwig.pipeline.resource.ResourceNames.DBNSFP;
-import static com.hartwig.pipeline.resource.ResourceNames.DBSNPS;
-import static com.hartwig.pipeline.resource.ResourceNames.REFERENCE_GENOME;
 import static com.hartwig.pipeline.resource.ResourceNames.SNPEFF;
 
 import com.hartwig.pipeline.execution.vm.VmDirectories;
@@ -24,7 +22,7 @@ public interface ResourceFiles {
 
     String refGenomeFile();
     String gcProfileFile();
-    String germlineHetPon();
+    String amberHeterozygousLoci();
     String gridssRepeatMaskerDb();
     String gridssBlacklistBed();
     String snpEffDb();
