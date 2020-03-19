@@ -35,7 +35,6 @@ import org.junit.experimental.categories.Category;
 public class SmokeTest {
     private static final String ARCHIVE_BUCKET = "hmf-output-test";
     private static final String GCP_REMOTE = "gs";
-    private static final String S3_REMOTE = "s3";
     private static final String FILE_ENCODING = "UTF-8";
     private static final int SBP_SET_ID = 9;
     private static final int SBP_RUN_ID = 12;
@@ -83,9 +82,7 @@ public class SmokeTest {
                 .sbpApiRunId(SBP_RUN_ID)
                 .sbpApiUrl(apiUrl)
                 .rclonePath(RCLONE_PATH)
-                .rcloneS3RemoteDownload(S3_REMOTE)
-                .rcloneS3RemoteUpload(S3_REMOTE)
-                .sbpS3Url("s3.us-east-1.amazonaws.com")
+                .uploadFromGcp(true)
                 .rcloneGcpRemote(GCP_REMOTE)
                 .upload(true)
                 .cleanup(true)
