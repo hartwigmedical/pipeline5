@@ -53,13 +53,6 @@ public class RnaStarMapping implements BatchOperation {
         final String sampleId = batchItems[0];
         final String fastqFilelist = batchItems[1];
 
-        // download list of fastq files
-        // startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s %s",
-        //        "gs://rna-fastqs", RNA_FASTQ_FILE_LIST, VmDirectories.INPUT));
-
-        // final String fastqFilelist = VmDirectories.INPUT + "/" + RNA_FASTQ_FILE_LIST;
-
-
         final List<String> sampleFastqFiles = getSampleFastqFileList(sampleId, fastqFilelist);
 
         if(fastqFilelist.isEmpty()) {
@@ -129,7 +122,6 @@ public class RnaStarMapping implements BatchOperation {
         // TEMP until reimage has taken place
         // startupScript.addCommand(() -> format("chmod a+x /opt/tools/fastqc/0.11.4/fastqc"));
 
-        // currently not working, not sure why
         startupScript.addCommand(new VersionedToolCommand("fastqc", "fastqc", "0.11.4", fastqcArgs));
         */
 
@@ -144,7 +136,7 @@ public class RnaStarMapping implements BatchOperation {
         // startupScript.addCommand(new OutputUpload(GoogleStorageLocation.of("rna-cohort", sampleId), executionFlags));
 
         return ImmutableVirtualMachineJobDefinition.builder().name("rna-star-mapping").startupCommand(startupScript)
-                .namespacedResults(ResultsDirectory.defaultDirectory()).workingDiskSpaceGb(200)
+                .namespacedResults(ResultsDirectory.defaultDirectory()).workingDiskSpaceGb(400)
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(12, 36)).build();
     }
 
