@@ -3,8 +3,6 @@ package com.hartwig.batch;
 import static java.lang.Boolean.parseBoolean;
 import static java.lang.String.format;
 
-import java.util.Optional;
-
 import com.hartwig.pipeline.CommonArguments;
 
 import org.apache.commons.cli.CommandLine;
@@ -17,16 +15,9 @@ import org.immutables.value.Value;
 @Value.Immutable
 public interface BatchArguments extends CommonArguments {
 
-    String PROJECT = "project";
-    String REGION = "region";
-    String LOCAL_SSDS = "local_ssds";
-    String PREEMPTIBLE_VMS = "preemptible_vms";
-    String SERVICE_ACCOUNT_EMAIL = "service_account_email";
-    String CLOUD_SDK = "cloud_sdk";
     String CONCURRENCY = "concurrency";
     String INPUT_FILE = "input_file";
     String OUTPUT_BUCKET = "output_bucket";
-    String PRIVATE_KEY_PATH = "private_key_path";
 
     int concurrency();
 
@@ -41,20 +32,19 @@ public interface BatchArguments extends CommonArguments {
             CommandLine commandLine = new DefaultParser().parse(options(), args);
             return ImmutableBatchArguments.builder()
                     .command(args[0])
-                    .project(commandLine.getOptionValue(PROJECT, "hmf-pipeline-development"))
-                    .region(commandLine.getOptionValue(REGION, "europe-west4"))
+                    .project(commandLine.getOptionValue(PROJECT, CommonArguments.DEFAULT_DEVELOPMENT_PROJECT))
+                    .region(commandLine.getOptionValue(REGION, CommonArguments.DEFAULT_REGION))
                     .useLocalSsds(parseBoolean(commandLine.getOptionValue(LOCAL_SSDS, "true")))
                     .usePreemptibleVms(parseBoolean(commandLine.getOptionValue(PREEMPTIBLE_VMS, "true")))
+                    .pollInterval(Integer.parseInt(commandLine.getOptionValue(POLL_INTERVAL, "60")))
                     .privateKeyPath(CommonArguments.privateKey(commandLine))
                     .cloudSdkPath(commandLine.getOptionValue(CLOUD_SDK, "/usr/bin"))
                     .serviceAccountEmail(commandLine.getOptionValue(SERVICE_ACCOUNT_EMAIL))
                     .concurrency(Integer.parseInt(commandLine.getOptionValue(CONCURRENCY, "100")))
                     .inputFile(commandLine.getOptionValue(INPUT_FILE))
                     .outputBucket(commandLine.getOptionValue(OUTPUT_BUCKET))
-                    .cmek(commandLine.hasOption(CMEK) ? Optional.of(commandLine.getOptionValue(CMEK)) : Optional.empty())
-                    .privateNetwork(commandLine.hasOption(PRIVATE_NETWORK)
-                            ? Optional.of(commandLine.getOptionValue(PRIVATE_NETWORK))
-                            : Optional.empty())
+                    .cmek(commandLine.getOptionValue(CMEK, CommonArguments.DEFAULT_DEVELOPMENT_CMEK))
+                    .privateNetwork(commandLine.getOptionValue(PRIVATE_NETWORK, DEFAULT_PRIVATE_NETWORK))
                     .build();
         } catch (ParseException e) {
             String message = "Failed to parse arguments";

@@ -8,7 +8,7 @@ jdk:
 services:
   - docker
 env:
-- PIPELINE5_VERSION=5.8.$TRAVIS_BUILD_NUMBER
+- PIPELINE5_VERSION=5.9.$TRAVIS_BUILD_NUMBER
 cache:
   directories:
     - $HOME/.m2
@@ -30,7 +30,7 @@ before_install:
   - echo "$DOCKER_HUB_PASSWORD" | docker login -u "hartwigmedicalfoundation" --password-stdin
   - mvn versions:set -DnewVersion=$PIPELINE5_VERSION
   - sudo apt-get -qq update
-  - sudo apt-get install -y samtools google-cloud-sdk
+  - sudo apt-get install -y google-cloud-sdk
   - curl https://downloads.rclone.org/v1.48.0/rclone-v1.48.0-linux-amd64.deb --output rclone-current-linux-amd64.deb
   - sudo dpkg -i rclone-current-linux-amd64.deb
 install: "/bin/true"

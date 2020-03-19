@@ -19,6 +19,7 @@ import com.hartwig.bcl2fastq.conversion.ConvertedFastq;
 import com.hartwig.bcl2fastq.conversion.ConvertedSample;
 import com.hartwig.bcl2fastq.conversion.ConvertedUndetermined;
 import com.hartwig.bcl2fastq.conversion.ImmutableConvertedUndetermined;
+import com.hartwig.pipeline.CommonArguments;
 import com.hartwig.pipeline.storage.GsUtilFacade;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.testsupport.TestBlobs;
@@ -162,8 +163,11 @@ public class OutputCopierTest {
                 .cloudSdkPath(NA)
                 .region(NA)
                 .forensicBucket(NA)
+                .privateNetwork(NA)
                 .usePreemptibleVms(false)
                 .useLocalSsds(false)
+                .cmek(CommonArguments.DEFAULT_DEVELOPMENT_CMEK)
+                .pollInterval(5)
                 .build();
     }
 }

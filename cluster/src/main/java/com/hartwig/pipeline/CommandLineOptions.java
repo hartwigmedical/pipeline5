@@ -1,5 +1,7 @@
 package com.hartwig.pipeline;
 
+import java.util.Optional;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -9,8 +11,6 @@ import org.apache.commons.cli.ParseException;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Optional;
 
 import com.hartwig.pipeline.resource.RefGenomeVersion;
 
@@ -42,6 +42,7 @@ public class CommandLineOptions {
     private static final String PROFILE_FLAG = "profile";
     private static final String SAMPLE_ID_FLAG = "sample_id";
     private static final String SERVICE_ACCOUNT_EMAIL_FLAG = "service_account_email";
+    private static final String MAX_CONCURRENT_LANES_FLAG = "max_concurrent_lanes";
 
     private static final String DEFAULT_PROFILE = "production";
     private static final String RUN_ALIGNER_FLAG = "run_aligner";
@@ -86,8 +87,9 @@ public class CommandLineOptions {
                 .addOption(optionWithBooleanArg(UPLOAD_FLAG,
                         "Don't upload the sample to storage. "
                                 + "This should be used in combination with a run_id which points at an existing bucket"))
-                .addOption(optionWithBooleanArg(UPLOAD_FROM_GCP_FLAG, "Upload sample fastq from GCP instead of SBP S3. "
-                        + "Temporary feature toggle while transitioning to bcl2fastq on GCP."))
+                .addOption(optionWithBooleanArg(UPLOAD_FROM_GCP_FLAG,
+                        "Upload sample fastq from GCP instead of SBP S3. "
+                                + "Temporary feature toggle while transitioning to bcl2fastq on GCP."))
                 .addOption(project())
                 .addOption(region())
                 .addOption(sbpSampleId())
@@ -119,9 +121,18 @@ public class CommandLineOptions {
                         "Run with ShallowSeq configuration.Germline and health checker are disabled and purple is run with low coverage "
                                 + "options."))
                 .addOption(optionWithBooleanArg(OUTPUT_CRAM_FLAG, "Produce CRAM rather than BAM files"))
+                .addOption(optionWithArg(CommonArguments.POLL_INTERVAL,
+                        "Time in seconds between status checks against GCP. "
+                                + "Increase to allow more concurrent VMs to run at the expense of state change detection resolution."))
                 .addOption(zone())
                 .addOption(refGenomeVersion())
-                .addOption(alignerType());
+                .addOption(maxConcurrentLanes());
+    }
+
+    private static Option maxConcurrentLanes() {
+        return optionWithArg(MAX_CONCURRENT_LANES_FLAG,
+                "The max number of lanes to align concurrently. This option can be used to throttle"
+                        + "the amount of CPUs used during alignment for samples with a large number of lanes.");
     }
 
     private static Option cmek() {
@@ -288,11 +299,14 @@ public class CommandLineOptions {
                     .archiveBucket(commandLine.getOptionValue(ARCHIVE_BUCKET_FLAG, defaults.archiveBucket()))
                     .archiveProject(commandLine.getOptionValue(ARCHIVE_PROJECT_FLAG, defaults.archiveProject()))
                     .archivePrivateKeyPath(commandLine.getOptionValue(ARCHIVE_PRIVATE_KEY_FLAG, defaults.archivePrivateKeyPath()))
-                    .privateNetwork(privateNetwork(commandLine, defaults))
+                    .privateNetwork(commandLine.getOptionValue(PRIVATE_NETWORK_FLAG, defaults.privateNetwork()))
                     .cmek(cmek(commandLine, defaults))
                     .shallow(booleanOptionWithDefault(commandLine, SHALLOW_FLAG, defaults.shallow()))
                     .outputCram(booleanOptionWithDefault(commandLine, OUTPUT_CRAM_FLAG, defaults.outputCram()))
+                    .pollInterval(Integer.parseInt(commandLine.getOptionValue(CommonArguments.POLL_INTERVAL,
+                            defaults.pollInterval().toString())))
                     .zone(zone(commandLine, defaults))
+                    .maxConcurrentLanes(maxConcurrentLanes(commandLine, defaults.maxConcurrentLanes()))
                     .profile(defaults.profile())
                     .refGenomeVersion(refGenomeVersion(commandLine, defaults))
                     .build();
@@ -304,18 +318,11 @@ public class CommandLineOptions {
         }
     }
 
-    private static Optional<String> cmek(final CommandLine commandLine, final Arguments defaults) {
+    private static String cmek(final CommandLine commandLine, final Arguments defaults) {
         if (commandLine.hasOption(CMEK_FLAG)) {
-            return Optional.of(commandLine.getOptionValue(CMEK_FLAG));
+            return commandLine.getOptionValue(CMEK_FLAG);
         }
         return defaults.cmek();
-    }
-
-    private static Optional<String> privateNetwork(final CommandLine commandLine, final Arguments defaults) {
-        if (commandLine.hasOption(PRIVATE_NETWORK_FLAG)) {
-            return Optional.of(commandLine.getOptionValue(PRIVATE_NETWORK_FLAG));
-        }
-        return defaults.privateNetwork();
     }
 
     private static Optional<String> zone(final CommandLine commandLine, final Arguments defaults) {
@@ -341,6 +348,17 @@ public class CommandLineOptions {
             }
         }
         return Optional.empty();
+    }
+
+    private static int maxConcurrentLanes(final CommandLine commandLine, final int defaultValue) {
+        try {
+            if (commandLine.hasOption(MAX_CONCURRENT_LANES_FLAG)) {
+                return Integer.parseInt(commandLine.getOptionValue(MAX_CONCURRENT_LANES_FLAG));
+            }
+            return defaultValue;
+        } catch (NumberFormatException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static boolean booleanOptionWithDefault(final CommandLine commandLine, final String flag, final boolean defaultValue)

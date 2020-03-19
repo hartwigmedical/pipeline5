@@ -76,6 +76,8 @@ class Bcl2Fastq {
         LOGGER.info("Conversion complete. Starting post-processing.");
         SampleSheet sampleSheet = new SampleSheetCsv(inputBucket, flowcellPath).read();
         Stats stats = new StatsJson(stringOf(bucket, "/Stats/Stats.json")).stats();
+
+        forensicArchive.store(flowcellPath, bucket, inputBucket, RUN_LOG);
         new OutputCopier(arguments,
                 bucket,
                 new GsUtilFacade(arguments.cloudSdkPath(),
@@ -84,7 +86,6 @@ class Bcl2Fastq {
                 arguments.outputBucket(),
                 stringOf(bucket, "/" + RUN_LOG))).accept(new ResultAggregation(bucket, resultsDirectory).apply(sampleSheet, stats));
 
-        forensicArchive.store(flowcellPath, bucket, inputBucket, RUN_LOG);
 
         if (arguments.cleanup()) {
             LOGGER.info("Cleaning up conversion inputs and runtime buckets.");

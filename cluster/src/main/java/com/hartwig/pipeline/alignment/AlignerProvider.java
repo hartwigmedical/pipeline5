@@ -50,7 +50,7 @@ public abstract class AlignerProvider {
                 sampleUpload,
                 resultsDirectory,
                 alignmentOutputStorage,
-                Executors.newCachedThreadPool());
+                Executors.newFixedThreadPool(arguments.maxConcurrentLanes()));
     }
 
     abstract VmAligner wireUp(GoogleCredentials credentials, Storage storage, AlignmentOutputStorage alignmentOutputStorage,

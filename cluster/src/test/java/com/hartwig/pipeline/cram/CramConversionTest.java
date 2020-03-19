@@ -1,5 +1,11 @@
 package com.hartwig.pipeline.cram;
 
+import static java.lang.String.format;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.List;
+
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
@@ -8,11 +14,6 @@ import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.StageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
-
-import java.util.List;
-
-import static java.lang.String.format;
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class CramConversionTest extends StageTest<CramOutput, SingleSampleRunMetadata> {
     private static String BUCKET_NAME = "run-reference-test";
@@ -54,7 +55,7 @@ public class CramConversionTest extends StageTest<CramOutput, SingleSampleRunMet
 
     @Override
     protected List<String> expectedCommands() {
-        String samtools = "/opt/tools/samtools/1.9/samtools";
+        String samtools = "/opt/tools/samtools/1.10/samtools";
         String input = "/data/input/reference.bam";
         String output = "/data/output/reference.cram";
         return ImmutableList.of(

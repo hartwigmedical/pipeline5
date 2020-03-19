@@ -54,7 +54,7 @@ public class StructuralCallerTest extends StageTest<StructuralCallerOutput, Soma
     @Override
     protected List<String> expectedCommands() {
         return ImmutableList.of("export PATH=\"${PATH}:/opt/tools/bwa/0.7.17\"",
-                "export PATH=\"${PATH}:/opt/tools/samtools/1.9\"",
+                "export PATH=\"${PATH}:/opt/tools/samtools/1.10\"",
                 "/opt/tools/gridss/2.7.2/gridss.sh -o /data/output/tumor.gridss.unfiltered.vcf.gz -a /data/output/tumor.assembly.bam -w /data/output -r /opt/resources/reference_genome/hg37/Homo_sapiens.GRCh37.GATK.illumina.fasta -j /opt/tools/gridss/2.7.2/gridss.jar -b /opt/resources/gridss_repeatmasker_db/hg37/ENCFF001TDO.hg37.bed -c /opt/resources/gridss_config/gridss.properties /data/input/reference.bam /data/input/tumor.bam",
                 "/opt/tools/tabix/0.2.6/tabix /data/output/tumor.gridss.unfiltered.vcf.gz -p vcf",
                 "/bin/bash -e /opt/tools/gridss/2.7.2/failsafe_repeatmasker_invoker.sh /data/output/tumor.gridss.unfiltered.vcf.gz /data/output/tumor.repeatmasker_annotation.vcf.gz /opt/resources/gridss_repeatmasker_db/hg37/hg19.fa.out /opt/tools/gridss/2.7.2",

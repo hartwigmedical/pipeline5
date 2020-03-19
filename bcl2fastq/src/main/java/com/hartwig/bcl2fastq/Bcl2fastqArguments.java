@@ -2,8 +2,6 @@ package com.hartwig.bcl2fastq;
 
 import static java.lang.Boolean.parseBoolean;
 
-import java.util.Optional;
-
 import com.hartwig.pipeline.CommonArguments;
 
 import org.apache.commons.cli.CommandLine;
@@ -24,7 +22,6 @@ public interface Bcl2fastqArguments extends CommonArguments {
     String INPUT_BUCKET = "input_bucket";
     String SBP_API_URL = "sbp_api_url";
     String CLEANUP = "cleanup";
-    String CMEK = "cmek";
     String FORENSIC_BUCKET = "forensic_bucket";
 
     static Bcl2fastqArguments from(String[] args) {
@@ -35,6 +32,7 @@ public interface Bcl2fastqArguments extends CommonArguments {
                     .region(commandLine.getOptionValue(REGION, "europe-west4"))
                     .useLocalSsds(parseBoolean(commandLine.getOptionValue(LOCAL_SSDS, "true")))
                     .usePreemptibleVms(parseBoolean(commandLine.getOptionValue(PREEMPTIBLE_VMS, "true")))
+                    .pollInterval(Integer.parseInt(commandLine.getOptionValue(POLL_INTERVAL, "5")))
                     .privateKeyPath(CommonArguments.privateKey(commandLine))
                     .cloudSdkPath(commandLine.getOptionValue(CLOUD_SDK, System.getProperty("user.home") + "/gcloud/google-cloud-sdk/bin"))
                     .serviceAccountEmail(commandLine.getOptionValue(SERVICE_ACCOUNT_EMAIL))
@@ -46,14 +44,9 @@ public interface Bcl2fastqArguments extends CommonArguments {
                     .outputServiceAccountEmail(commandLine.getOptionValue(OUTPUT_SERVICE_ACCOUNT_EMAIL))
                     .outputProject(commandLine.getOptionValue(OUTPUT_PROJECT))
                     .cleanup(parseBoolean(commandLine.getOptionValue(CLEANUP, "false")))
-                    .cmek(commandLine.hasOption(CMEK) ? Optional.of(commandLine.getOptionValue(CMEK)) : Optional.empty())
-                    .privateNetwork(commandLine.hasOption(PRIVATE_NETWORK)
-                            ? Optional.of(commandLine.getOptionValue(PRIVATE_NETWORK))
-                            : Optional.empty())
+                    .cmek(commandLine.getOptionValue(CMEK, CommonArguments.DEFAULT_DEVELOPMENT_CMEK))
                     .forensicBucket(commandLine.getOptionValue(FORENSIC_BUCKET, "bcl-conversion-forensics"))
-                    .privateNetwork(commandLine.hasOption(PRIVATE_NETWORK)
-                            ? Optional.of(commandLine.getOptionValue(PRIVATE_NETWORK))
-                            : Optional.empty())
+                    .privateNetwork(commandLine.getOptionValue(PRIVATE_NETWORK, DEFAULT_PRIVATE_NETWORK))
                     .useLocalSsds(false)
                     .usePreemptibleVms(false)
                     .build();
