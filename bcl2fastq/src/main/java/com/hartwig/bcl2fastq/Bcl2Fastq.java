@@ -36,7 +36,6 @@ class Bcl2Fastq {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Bcl2Fastq.class);
     public static final String RUN_LOG = "run.log";
-    public static final String STARTUP_SCRIPT_FOR_RUN = "copy_of_startup_script_for_run.sh";
     private final Storage storage;
     private final ComputeEngine computeEngine;
     private final Bcl2fastqArguments arguments;
@@ -77,6 +76,7 @@ class Bcl2Fastq {
         SampleSheet sampleSheet = new SampleSheetCsv(inputBucket, flowcellPath).read();
         Stats stats = new StatsJson(stringOf(bucket, "/Stats/Stats.json")).stats();
 
+        LOGGER.info("Storing forensics for later analysis");
         forensicArchive.store(flowcellPath, bucket, inputBucket, RUN_LOG);
         new OutputCopier(arguments,
                 bucket,
