@@ -54,7 +54,7 @@ class Bcl2Fastq {
         this.forensicArchive = forensicArchive;
     }
 
-    private void run() {
+    private void run() throws Exception{
         Versions.printAll();
         LOGGER.info("Starting bcl2fastq for flowcell [{}]", arguments.flowcell());
 
@@ -89,6 +89,9 @@ class Bcl2Fastq {
 
         if (arguments.cleanup()) {
             LOGGER.info("Cleaning up conversion inputs and runtime buckets.");
+            if (arguments.privateKeyPath().isPresent()) {
+                GSUtil.auth(arguments.cloudSdkPath(), arguments.privateKeyPath().get());
+            }
             GSUtil.rm(arguments.cloudSdkPath(), bucket.runId());
             GSUtil.rm(arguments.cloudSdkPath(), inputBucket.getName() + "/" + flowcellPath);
         }
@@ -125,9 +128,11 @@ class Bcl2Fastq {
                     ResultsDirectory.defaultDirectory(),
                     api,
                     new ForensicArchive(arguments.forensicBucket(), arguments)).run();
+            System.exit(0);
         } catch (Exception e) {
             api.updateFlowcell(SbpFlowcell.builderFrom(api.getFlowcell(arguments.flowcell())).status("Failed").build());
             LOGGER.error("Unable to run bcl2fastq", e);
+            System.exit(1);
         }
     }
 }
