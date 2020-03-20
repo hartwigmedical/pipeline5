@@ -1,6 +1,7 @@
 package com.hartwig.pipeline.resource;
 
 import static com.hartwig.pipeline.resource.ResourceNames.AMBER_PON;
+import static com.hartwig.pipeline.resource.ResourceNames.BEDS;
 import static com.hartwig.pipeline.resource.ResourceNames.GC_PROFILE;
 import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_REPEAT_MASKER_DB;
 import static com.hartwig.pipeline.resource.ResourceNames.MAPPABILITY;
@@ -44,4 +45,5 @@ public class Hg38ResourceFiles implements ResourceFiles
 
     public String sageSomaticPon() { return formPath(SAGE, "SAGE_PON.vcf.gz"); }
 
+    public String giabHighConfidenceBed() { return formPath(BEDS, "HG001_GRCh38_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-X_v.3.3.2_highconf_nosomaticdel_noCENorHET7.bed.gz");  }
 }

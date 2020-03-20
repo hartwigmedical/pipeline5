@@ -32,6 +32,7 @@ public interface ResourceFiles {
     String out150Mappability();
     String sageGermlinePon();
     String sageSomaticPon();
+    String giabHighConfidenceBed();
 
     String SNPEFF_CONFIG = ResourceFiles.of(SNPEFF, "snpEff.config");
     String DBNSFP_VCF = ResourceFiles.of(DBNSFP, "dbNSFP2.9.txt.gz");

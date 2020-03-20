@@ -1,6 +1,5 @@
 package com.hartwig.pipeline.calling.somatic;
 
-import static com.hartwig.pipeline.resource.ResourceNames.BEDS;
 import static com.hartwig.pipeline.resource.ResourceNames.MAPPABILITY;
 
 import java.util.List;
@@ -63,7 +62,7 @@ public class SageV2Caller extends TertiaryStage<SageV2CallerOutput> {
         SageV2Application sageV2Application = new SageV2Application(
                 resourceFiles.sageKnownHotspots(),
                 resourceFiles.sageActionableCodingPanel(),
-                ResourceFiles.of(BEDS, "NA12878_GIAB_highconf_IllFB-IllGATKHC-CG-Ion-Solid_ALLCHROM_v3.2.2_highconf.bed"),
+                resourceFiles.giabHighConfidenceBed(),
                 referenceGenomePath,
                 tumorBamPath,
                 referenceBamPath,

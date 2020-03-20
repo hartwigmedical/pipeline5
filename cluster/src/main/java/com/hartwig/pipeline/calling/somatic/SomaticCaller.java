@@ -1,6 +1,5 @@
 package com.hartwig.pipeline.calling.somatic;
 
-import static com.hartwig.pipeline.resource.ResourceNames.BEDS;
 import static com.hartwig.pipeline.resource.ResourceNames.MAPPABILITY;
 import static com.hartwig.pipeline.resource.ResourceNames.PON;
 import static com.hartwig.pipeline.resource.ResourceNames.SAGE;
@@ -86,9 +85,7 @@ public class SomaticCaller extends TertiaryStage<SomaticCallerOutput> {
                 .andThen(new MappabilityAnnotation(resourceFiles.out150Mappability(), ResourceFiles.of(MAPPABILITY, "mappability.hdr")))
                 .andThen(new PonAnnotation("germline.pon", ResourceFiles.of(PON, "GERMLINE_PON.vcf.gz"), "GERMLINE_PON_COUNT"))
                 .andThen(new PonAnnotation("somatic.pon", ResourceFiles.of(PON, "SOMATIC_PON.vcf.gz"), "SOMATIC_PON_COUNT"))
-                .andThen(new StrelkaPostProcess(tumorSampleName,
-                        ResourceFiles.of(BEDS, "NA12878_GIAB_highconf_IllFB-IllGATKHC-CG-Ion-Solid_ALLCHROM_v3.2.2_highconf.bed"),
-                        tumorBamPath))
+                .andThen(new StrelkaPostProcess(tumorSampleName, resourceFiles.giabHighConfidenceBed(), tumorBamPath))
                 .andThen(new PonFilter())
                 .andThen(new SageHotspotAnnotation(knownHotspotsTsv, sageOutput.outputFile().path()))
                 .andThen(new SnpEff(ResourceFiles.SNPEFF_CONFIG, resourceFiles))
