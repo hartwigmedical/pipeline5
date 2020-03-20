@@ -44,6 +44,7 @@ public class RnaIsofox implements BatchOperation {
     private static final int FRAG_LENGTH_FRAG_COUNT = 1000000;
     private static final int LONG_FRAG_LENGTH_LIMIT = 550;
     private static final String FRAG_LENGTH_BUCKETS = "50-0;75-0;100-0;125-0;150-0;200-0;250-0;300-0;550-0";
+    private static final String ENRICHED_GENE_IDS = " ENSG00000213741;ENSG00000258486;ENSG00000165525;ENSG00000266037;ENSG00000265150;ENSG00000264462;ENSG00000264063";
 
     @Override
     public VirtualMachineJobDefinition execute(
@@ -142,6 +143,7 @@ public class RnaIsofox implements BatchOperation {
         isofoxArgs.append(String.format(" -write_exp_rates"));
         isofoxArgs.append(String.format(" -write_read_gc_ratios"));
         isofoxArgs.append(String.format(" -gc_ratio_bucket %f", readLength.equals(READ_LENGTH_76) ? GC_BUCKET_76 : GC_BUCKET_151));
+        isofoxArgs.append(String.format(" -enriched_gene_ids \"%s\" ", ENRICHED_GENE_IDS));
         isofoxArgs.append(String.format(" -threads %s", threadCount));
 
         startupScript.addCommand(() -> format("java -jar %s/%s %s", VmDirectories.TOOLS, ISOFOX_JAR, isofoxArgs.toString()));
@@ -155,7 +157,7 @@ public class RnaIsofox implements BatchOperation {
         startupScript.addCommand(() -> format("gsutil -m cp %s/* gs://rna-cohort/%s/isofox/", VmDirectories.OUTPUT, sampleId));
 
         return ImmutableVirtualMachineJobDefinition.builder().name("rna-isofox").startupCommand(startupScript)
-                .namespacedResults(ResultsDirectory.defaultDirectory()).workingDiskSpaceGb(200)
+                .namespacedResults(ResultsDirectory.defaultDirectory()).workingDiskSpaceGb(50)
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(12, 36)).build();
     }
 
