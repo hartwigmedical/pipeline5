@@ -72,7 +72,7 @@ public class SomaticCaller extends TertiaryStage<SomaticCallerOutput> {
                 referenceSampleName);
         sageOutputFile = sageHotspotApplication.apply(SubStageInputOutput.empty(tumorSampleName)).outputFile();
         SubStageInputOutput sageOutput = sageHotspotApplication.andThen(new SageFiltersAndAnnotations(tumorSampleName))
-                .andThen(new PonAnnotation("sage.hotspots.pon", resourceFiles.sageSomaticPon(), "SAGE_PON_COUNT"))
+                .andThen(new PonAnnotation("sage.hotspots.pon", ResourceFiles.of(SAGE, "SAGE_PON.vcf.gz"), "SAGE_PON_COUNT"))
                 .andThen(new SagePonFilter())
                 .apply(SubStageInputOutput.empty(tumorSampleName));
 

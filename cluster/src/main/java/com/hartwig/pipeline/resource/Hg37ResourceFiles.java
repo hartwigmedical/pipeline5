@@ -48,7 +48,5 @@ public class Hg37ResourceFiles implements ResourceFiles
 
     public String sageGermlinePon() { return formPath(SAGE, "SageGermlinePon.hg19.vcf.gz"); }
 
-    public String sageSomaticPon() { return formPath(SAGE, "SAGE_PON.vcf.gz"); }
-
     public String giabHighConfidenceBed() { return formPath(BEDS, "NA12878_GIAB_highconf_IllFB-IllGATKHC-CG-Ion-Solid_ALLCHROM_v3.2.2_highconf.bed.gz");  }
 }

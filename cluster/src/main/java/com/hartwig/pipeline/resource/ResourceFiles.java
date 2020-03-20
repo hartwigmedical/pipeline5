@@ -31,7 +31,6 @@ public interface ResourceFiles {
     String sageActionableCodingPanel();
     String out150Mappability();
     String sageGermlinePon();
-    String sageSomaticPon();
     String giabHighConfidenceBed();
 
     String SNPEFF_CONFIG = ResourceFiles.of(SNPEFF, "snpEff.config");

@@ -30,7 +30,7 @@ public class SomaticCallerTest extends TertiaryStageTest<SomaticCallerOutput> {
                 "/opt/tools/tabix/0.2.6/tabix /data/output/tumor.sage.hotspots.vcf.gz -p vcf",
                 "(/opt/tools/bcftools/1.3.1/bcftools filter -i 'FILTER=\"PASS\"' /data/output/tumor.sage.hotspots.vcf.gz -O u | /opt/tools/bcftools/1.3.1/bcftools annotate -x INFO/HOTSPOT -O u | /opt/tools/bcftools/1.3.1/bcftools annotate -x FILTER/LOW_CONFIDENCE -O u | /opt/tools/bcftools/1.3.1/bcftools annotate -x FILTER/GERMLINE_INDEL -O u | /opt/tools/bcftools/1.3.1/bcftools view -s tumor -O z -o /data/output/tumor.sage.hotspots.filtered.vcf.gz)",
                 "/opt/tools/tabix/0.2.6/tabix /data/output/tumor.sage.hotspots.filtered.vcf.gz -p vcf",
-                "(/opt/tools/bcftools/1.3.1/bcftools annotate -a /opt/resources/sage/hg37/SAGE_PON.vcf.gz -c SAGE_PON_COUNT /data/output/tumor.sage.hotspots.filtered.vcf.gz -O z -o /data/output/tumor.sage.hotspots.pon.annotated.vcf.gz)",
+                "(/opt/tools/bcftools/1.3.1/bcftools annotate -a /opt/resources/sage/SAGE_PON.vcf.gz -c SAGE_PON_COUNT /data/output/tumor.sage.hotspots.filtered.vcf.gz -O z -o /data/output/tumor.sage.hotspots.pon.annotated.vcf.gz)",
                 "/opt/tools/tabix/0.2.6/tabix /data/output/tumor.sage.hotspots.pon.annotated.vcf.gz -p vcf",
                 "(/opt/tools/bcftools/1.3.1/bcftools filter -e 'SAGE_PON_COUNT!=\".\" && MIN(SAGE_PON_COUNT) > 0' -s SAGE_PON -m+ /data/output/tumor.sage.hotspots.pon.annotated.vcf.gz -O z -o /data/output/tumor.sage.pon.filter.vcf.gz)",
                 "/opt/tools/tabix/0.2.6/tabix /data/output/tumor.sage.pon.filter.vcf.gz -p vcf",
