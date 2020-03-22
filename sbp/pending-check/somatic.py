@@ -145,13 +145,13 @@ def start_kubernetes_job(args):
                             secret=kubernetes.client.V1SecretVolumeSource(
                                 secret_name='gcp-' + args['bucket'].replace('_', '-')
                             )
-                        )
-                         kubernetes.client.V1Volume(
-                         	name='gcp-hmf-upload',
+                        ),
+                        kubernetes.client.V1Volume(
+                        	name='gcp-hmf-upload',
                           	secret=kubernetes.client.V1SecretVolumeSource(
                          		secret_name='gcp-hmf-fastq-storage'
                           	)
-                         )
+                        )
                     ]
                 )
             )
