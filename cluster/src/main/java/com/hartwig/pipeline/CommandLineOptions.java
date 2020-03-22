@@ -309,6 +309,7 @@ public class CommandLineOptions {
                     .zone(zone(commandLine, defaults))
                     .maxConcurrentLanes(maxConcurrentLanes(commandLine, defaults.maxConcurrentLanes()))
                     .profile(defaults.profile())
+                    .uploadPrivateKeyPath(defaults.uploadPrivateKeyPath())
                     .refGenomeVersion(refGenomeVersion(commandLine, defaults))
                     .build();
         } catch (ParseException e) {

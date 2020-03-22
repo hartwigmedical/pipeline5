@@ -11,6 +11,7 @@ import java.util.function.Function;
 
 import com.hartwig.patient.Lane;
 import com.hartwig.patient.Sample;
+import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.testsupport.MockRuntimeBucket;
 
 import org.junit.Before;
@@ -51,7 +52,7 @@ public class CloudSampleUploadTest {
     @Before
     public void setUp() throws Exception {
         cloudCopy = mock(CloudCopy.class);
-        victim = new CloudSampleUpload(Function.identity(), cloudCopy);
+        victim = new CloudSampleUpload(Function.identity(), cloudCopy, Arguments.testDefaults());
         mockRuntimeBucket = MockRuntimeBucket.of("run");
     }
 
