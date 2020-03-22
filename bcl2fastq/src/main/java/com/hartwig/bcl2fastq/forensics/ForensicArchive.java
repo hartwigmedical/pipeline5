@@ -20,16 +20,11 @@ public class ForensicArchive {
         try {
             String targetUrl = "gs://" + targetBucket + "/" + conversionName + "/";
             String outputTarget = targetUrl + "output";
-            GSUtil.rsync(arguments.cloudSdkPath(),
-                    "gs://" + runtimeBucket.name() + "/",
-                    outputTarget,
-                    arguments.project(),
-                    ".*\\.fastq(\\.gz)?",
-                    true);
+            GSUtil.rsync(arguments.cloudSdkPath(), "gs://" + runtimeBucket.name() + "/", outputTarget, null, ".*\\.fastq(\\.gz)?", true);
             GSUtil.rsync(arguments.cloudSdkPath(),
                     "gs://" + inputBucket.getName() + "/" + conversionName + "/",
                     targetUrl + "input",
-                    arguments.project(),
+                    null,
                     ".*Logs.*|.*Images.*|.*PeriodicSaveRates.*|.*fastq\\.gz|.*Data.*",
                     true);
             GSUtil.cp(arguments.cloudSdkPath(), logName, outputTarget + "/" + logName);
