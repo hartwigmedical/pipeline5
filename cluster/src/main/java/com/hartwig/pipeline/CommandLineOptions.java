@@ -56,6 +56,7 @@ public class CommandLineOptions {
     private static final String ARCHIVE_BUCKET_FLAG = "archive_bucket";
     private static final String ARCHIVE_PROJECT_FLAG = "archive_project";
     private static final String ARCHIVE_PRIVATE_KEY_FLAG = "archive_private_key_path";
+    private static final String UPLOAD_PRIVATE_KEY_FLAG = "upload_private_key_path";
     private static final String SET_ID_FLAG = "set_id";
     private static final String SBP_RUN_ID_FLAG = "sbp_run_id";
     private static final String PRIVATE_NETWORK_FLAG = "private_network";
@@ -112,6 +113,7 @@ public class CommandLineOptions {
                 .addOption(archiveBucket())
                 .addOption(archiveProject())
                 .addOption(archivePrivateKey())
+                .addOption(uploadPrivateKey())
                 .addOption(privateNetwork())
                 .addOption(cmek())
                 .addOption(optionWithBooleanArg(SHALLOW_FLAG,
@@ -166,6 +168,10 @@ public class CommandLineOptions {
 
     private static Option archiveProject() {
         return optionWithArg(ARCHIVE_PROJECT_FLAG, "Project to use for data request archival.");
+    }
+
+    private static Option uploadPrivateKey() {
+        return optionWithArg(UPLOAD_PRIVATE_KEY_FLAG, "Private key to use for upload of fastq files");
     }
 
     private static Option archivePrivateKey() {
@@ -292,6 +298,7 @@ public class CommandLineOptions {
                     .archiveBucket(commandLine.getOptionValue(ARCHIVE_BUCKET_FLAG, defaults.archiveBucket()))
                     .archiveProject(commandLine.getOptionValue(ARCHIVE_PROJECT_FLAG, defaults.archiveProject()))
                     .archivePrivateKeyPath(commandLine.getOptionValue(ARCHIVE_PRIVATE_KEY_FLAG, defaults.archivePrivateKeyPath()))
+                    .uploadPrivateKeyPath(commandLine.getOptionValue(UPLOAD_PRIVATE_KEY_FLAG, defaults.uploadPrivateKeyPath()))
                     .privateNetwork(privateNetwork(commandLine, defaults))
                     .cmek(cmek(commandLine, defaults))
                     .shallow(booleanOptionWithDefault(commandLine, SHALLOW_FLAG, defaults.shallow()))
@@ -301,7 +308,6 @@ public class CommandLineOptions {
                     .zone(zone(commandLine, defaults))
                     .maxConcurrentLanes(maxConcurrentLanes(commandLine, defaults.maxConcurrentLanes()))
                     .profile(defaults.profile())
-                    .uploadPrivateKeyPath(defaults.uploadPrivateKeyPath())
                     .build();
         } catch (ParseException e) {
             LOGGER.error("Could not parse command line args", e);
