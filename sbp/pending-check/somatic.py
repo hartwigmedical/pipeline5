@@ -38,7 +38,7 @@ def start_kubernetes_job(args):
         '-sbp_run_id', str(args['sbp_run_id']),
         '-archive_private_key_path', '/archive/service_account.json',
         '-archive_project', 'hmf-database',
-        '-archive_bucket', args['bucket'].replace('_', '-')
+        '-archive_bucket', args['bucket'].replace('_', '-'),
         '-upload_private_key_path', '/upload/service_account.json'
     ]
 
