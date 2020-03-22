@@ -104,10 +104,12 @@ public abstract class AlignerProvider {
                 ResultsDirectory resultsDirectory) throws Exception {
             SbpRestApi sbpRestApi = SbpRestApi.newInstance(getArguments().sbpApiUrl());
             SampleSource sampleSource = new SbpS3SampleSource(new SbpSampleReader(sbpRestApi));
-            CloudCopy cloudCopy = new RCloneCloudCopy(getArguments().rclonePath(),
-                    getArguments().rcloneGcpRemote(),
-                    getArguments().rcloneS3RemoteDownload(),
-                    ProcessBuilder::new);
+            CloudCopy cloudCopy = getArguments().uploadFromGcp()
+                    ? new GSUtilCloudCopy(getArguments().cloudSdkPath())
+                    : new RCloneCloudCopy(getArguments().rclonePath(),
+                            getArguments().rcloneGcpRemote(),
+                            getArguments().rcloneS3RemoteDownload(),
+                            ProcessBuilder::new);
             SampleUpload sampleUpload = new CloudSampleUpload(getArguments().uploadFromGcp() ? new GSFileSource() : new SbpS3FileSource(),
                     cloudCopy,
                     getArguments());
