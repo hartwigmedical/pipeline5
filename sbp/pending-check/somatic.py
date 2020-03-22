@@ -139,6 +139,12 @@ def start_kubernetes_job(args):
                                 secret_name='gcp-hmf-download'
                             )
                         )
+                         kubernetes.client.V1Volume(
+                         	name='gcp-hmf-upload',
+                          	secret=kubernetes.client.V1SecretVolumeSource(
+                         		secret_name='gcp-hmf-fastq-storage'
+                          	)
+                         )
                     ]
                 )
             )
