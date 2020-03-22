@@ -7,6 +7,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.google.cloud.storage.Acl;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.credentials.CredentialProvider;
@@ -35,6 +36,8 @@ public class CloudSampleUpload implements SampleUpload {
         try {
             if (arguments.uploadFromGcp()) {
                 LOGGER.info("Authorizing upload user with key [{}]", arguments.uploadPrivateKeyPath());
+                Acl writer = Acl.of(new Acl.User("hmf-fastq-storage@hmf-database.iam.gserviceaccount.com"), Acl.Role.WRITER);
+                runtimeBucket.getUnderlyingBucket().createAcl(writer);
                 GSUtil.auth(arguments.cloudSdkPath(), arguments.uploadPrivateKeyPath());
             }
             uploadSample(runtimeBucket, sample);
