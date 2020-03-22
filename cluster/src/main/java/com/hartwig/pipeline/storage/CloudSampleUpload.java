@@ -8,6 +8,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.hartwig.patient.Sample;
+import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.credentials.CredentialProvider;
 
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -20,15 +22,27 @@ public class CloudSampleUpload implements SampleUpload {
 
     private final Function<String, String> sourceResolver;
     private final CloudCopy cloudCopy;
+    private final Arguments arguments;
 
-    public CloudSampleUpload(final Function<String, String> sourceResolver, final CloudCopy cloudCopy) {
+    public CloudSampleUpload(final Function<String, String> sourceResolver, final CloudCopy cloudCopy, final Arguments arguments) {
         this.sourceResolver = sourceResolver;
         this.cloudCopy = cloudCopy;
+        this.arguments = arguments;
     }
 
     @Override
     public void run(Sample sample, RuntimeBucket runtimeBucket) {
-        uploadSample(runtimeBucket, sample);
+        try {
+            if (arguments.uploadFromGcp()) {
+                GSUtil.auth(arguments.cloudSdkPath(), arguments.uploadPrivateKeyPath());
+            }
+            uploadSample(runtimeBucket, sample);
+            if (arguments.uploadFromGcp()) {
+                CredentialProvider.authorize(arguments);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void uploadSample(final RuntimeBucket runtimeBucket, final Sample sample) {

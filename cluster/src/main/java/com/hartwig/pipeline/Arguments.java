@@ -71,6 +71,8 @@ public interface Arguments extends CommonArguments {
 
     String archivePrivateKeyPath();
 
+    String uploadPrivateKeyPath();
+
     Optional<Integer> sbpApiSampleId();
 
     Optional<Integer> sbpApiRunId();
@@ -119,6 +121,7 @@ public interface Arguments extends CommonArguments {
     String DEFAULT_DOCKER_SAMPLE_DIRECTORY = "/samples";
     String DEFAULT_DOCKER_KEY_PATH = "/secrets/bootstrap-key.json";
     String DEFAULT_DOCKER_ARCHIVE_KEY_PATH = "/secrets/archive-key.json";
+    String DEFAULT_DOCKER_UPLOAD_KEY_PATH = "/secrets/upload-key.json";
     String DEFAULT_DOCKER_CLOUD_SDK_PATH = "/usr/lib/google-cloud-sdk/bin";
 
     String NOT_APPLICABLE = "N/A";
@@ -172,6 +175,7 @@ public interface Arguments extends CommonArguments {
                     .archiveBucket(DEFAULT_PRODUCTION_ARCHIVE_BUCKET)
                     .archiveProject(DEFAULT_PRODUCTION_ARCHIVE_PROJECT)
                     .archivePrivateKeyPath(DEFAULT_DOCKER_ARCHIVE_KEY_PATH)
+                    .uploadPrivateKeyPath(DEFAULT_DOCKER_KEY_PATH)
                     .outputCram(false)
                     .pollInterval(DEFAULT_POLL_INTERVAL)
                     .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES);
@@ -210,6 +214,7 @@ public interface Arguments extends CommonArguments {
                     .archiveBucket(DEFAULT_DEVELOPMENT_ARCHIVE_BUCKET)
                     .archiveProject(DEFAULT_DEVELOPMENT_PROJECT)
                     .archivePrivateKeyPath(DEFAULT_DEVELOPMENT_KEY_PATH)
+                    .uploadPrivateKeyPath(DEFAULT_DEVELOPMENT_KEY_PATH)
                     .outputCram(false)
                     .pollInterval(DEFAULT_POLL_INTERVAL)
                     .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES);
@@ -248,6 +253,7 @@ public interface Arguments extends CommonArguments {
                     .archiveBucket(DEFAULT_DEVELOPMENT_ARCHIVE_BUCKET)
                     .archiveProject(DEFAULT_DEVELOPMENT_PROJECT)
                     .archivePrivateKeyPath(DEFAULT_DOCKER_KEY_PATH)
+                    .uploadPrivateKeyPath(DEFAULT_DOCKER_UPLOAD_KEY_PATH)
                     .outputCram(false)
                     .pollInterval(DEFAULT_POLL_INTERVAL)
                     .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES);
