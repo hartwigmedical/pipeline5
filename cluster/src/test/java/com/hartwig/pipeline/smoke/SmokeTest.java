@@ -73,8 +73,10 @@ public class SmokeTest {
 
         GSUtil.configure(true, 1);
 
+        String privateKeyPath = workingDir() + "/google-key.json";
         Arguments arguments = Arguments.defaultsBuilder(Arguments.DefaultsProfile.DEVELOPMENT.toString())
-                .privateKeyPath(workingDir() + "/google-key.json")
+                .privateKeyPath(privateKeyPath)
+                .uploadPrivateKeyPath(privateKeyPath)
                 .sampleDirectory(workingDir() + "/../samples")
                 .version(version)
                 .cloudSdkPath(CLOUD_SDK_PATH)
