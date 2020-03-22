@@ -34,6 +34,7 @@ public class CloudSampleUpload implements SampleUpload {
     public void run(Sample sample, RuntimeBucket runtimeBucket) {
         try {
             if (arguments.uploadFromGcp()) {
+                LOGGER.info("Authorizing upload user with key [{}]", arguments.uploadPrivateKeyPath());
                 GSUtil.auth(arguments.cloudSdkPath(), arguments.uploadPrivateKeyPath());
             }
             uploadSample(runtimeBucket, sample);
