@@ -71,6 +71,8 @@ public class SmokeTest {
         String version = System.getProperty("version");
         String runId = "smoke-" + noDots(version);
 
+        GSUtil.configure(true, 1);
+
         Arguments arguments = Arguments.defaultsBuilder(Arguments.DefaultsProfile.DEVELOPMENT.toString())
                 .privateKeyPath(workingDir() + "/google-key.json")
                 .sampleDirectory(workingDir() + "/../samples")
@@ -149,7 +151,6 @@ public class SmokeTest {
     }
 
     private void confirmArchiveBucketExists() {
-        GSUtil.configure(false, 1);
         try {
             GSUtil.auth(CLOUD_SDK_PATH, ARCHIVE_PRIVATE_KEY);
             runGsUtil(ImmutableList.of("ls", format("gs://%s", ARCHIVE_BUCKET)));
