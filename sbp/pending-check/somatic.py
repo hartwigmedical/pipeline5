@@ -1,13 +1,11 @@
 #!/usr/bin/python
 
-import json
-import kubernetes
-import os
-import requests
 import sys
 import time
 import traceback
 from datetime import datetime
+
+import kubernetes
 
 from HmfApi import *
 
@@ -39,7 +37,7 @@ def start_kubernetes_job(args):
         '-archive_private_key_path', '/archive/service_account.json',
         '-archive_project', 'hmf-database',
         '-archive_bucket', args['bucket'].replace('_', '-'),
-        '-upload_private_key_path', '/upload/service_account.json'
+        '-upload_private_key_path', '/download/service_account.json'
     ]
 
     if args['shallow']:
@@ -104,8 +102,8 @@ def start_kubernetes_job(args):
                                     mount_path='/archive/'
                                 ),
                                 kubernetes.client.V1VolumeMount(
-                                	name='gcp-hmf-upload',
-                                	mount_path='/upload/'
+                                	name='gcp-hmf-download',
+                                	mount_path='/download/'
                                 )
                             ],
                             resources=kubernetes.client.V1ResourceRequirements(
@@ -147,10 +145,10 @@ def start_kubernetes_job(args):
                             )
                         ),
                         kubernetes.client.V1Volume(
-                        	name='gcp-hmf-upload',
-                          	secret=kubernetes.client.V1SecretVolumeSource(
-                         		secret_name='gcp-hmf-fastq-storage'
-                          	)
+                            name='gcp-hmf-download',
+                            secret=kubernetes.client.V1SecretVolumeSource(
+                                secret_name='gcp-hmf-download'
+                            )
                         )
                     ]
                 )
