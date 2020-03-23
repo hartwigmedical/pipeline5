@@ -37,7 +37,7 @@ public class Hg38ResourceFiles implements ResourceFiles
 
     public String sageKnownHotspots() { return formPath(SAGE, "KnownHotspots.hg38.vcf.gz"); }
 
-    public String sageActionableCodingPanel() { return "ActionableCodingPanel.hg38.bed.gz"; }
+    public String sageActionableCodingPanel() { return formPath(SAGE, "ActionableCodingPanel.hg38.bed.gz"); }
 
     public String out150Mappability() { return formPath(MAPPABILITY, "out_150_hg38.mappability.bed.gz"); }
 
