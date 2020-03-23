@@ -7,10 +7,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.google.cloud.storage.Acl;
 import com.hartwig.patient.Sample;
-import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.credentials.CredentialProvider;
 
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -23,27 +20,16 @@ public class CloudSampleUpload implements SampleUpload {
 
     private final Function<String, String> sourceResolver;
     private final CloudCopy cloudCopy;
-    private final Arguments arguments;
 
-    public CloudSampleUpload(final Function<String, String> sourceResolver, final CloudCopy cloudCopy, final Arguments arguments) {
+    public CloudSampleUpload(final Function<String, String> sourceResolver, final CloudCopy cloudCopy) {
         this.sourceResolver = sourceResolver;
         this.cloudCopy = cloudCopy;
-        this.arguments = arguments;
     }
 
     @Override
     public void run(Sample sample, RuntimeBucket runtimeBucket) {
         try {
-            if (arguments.uploadFromGcp()) {
-                LOGGER.info("Authorizing upload user with key [{}]", arguments.uploadPrivateKeyPath());
-                Acl writer = Acl.of(new Acl.User("hmf-fastq-storage@hmf-database.iam.gserviceaccount.com"), Acl.Role.WRITER);
-                runtimeBucket.getUnderlyingBucket().createAcl(writer);
-                GSUtil.auth(arguments.cloudSdkPath(), arguments.uploadPrivateKeyPath());
-            }
             uploadSample(runtimeBucket, sample);
-            if (arguments.uploadFromGcp()) {
-                CredentialProvider.authorize(arguments);
-            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
