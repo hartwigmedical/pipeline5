@@ -82,7 +82,7 @@ public abstract class AlignerProvider {
                     ? new FileSystemSampleSource(getArguments().sampleDirectory())
                     : new GoogleStorageSampleSource(storage, getArguments());
             GSUtilCloudCopy gsUtilCloudCopy = new GSUtilCloudCopy(getArguments().cloudSdkPath());
-            SampleUpload sampleUpload = new CloudSampleUpload(new LocalFileSource(), gsUtilCloudCopy, getArguments());
+            SampleUpload sampleUpload = new CloudSampleUpload(new LocalFileSource(), gsUtilCloudCopy);
             return AlignerProvider.constructVmAligner(getArguments(),
                     credentials,
                     storage,
@@ -104,15 +104,12 @@ public abstract class AlignerProvider {
                 ResultsDirectory resultsDirectory) throws Exception {
             SbpRestApi sbpRestApi = SbpRestApi.newInstance(getArguments().sbpApiUrl());
             SampleSource sampleSource = new SbpS3SampleSource(new SbpSampleReader(sbpRestApi));
-            CloudCopy cloudCopy = getArguments().uploadFromGcp()
-                    ? new GSUtilCloudCopy(getArguments().cloudSdkPath())
-                    : new RCloneCloudCopy(getArguments().rclonePath(),
+            CloudCopy cloudCopy = new RCloneCloudCopy(getArguments().rclonePath(),
                             getArguments().rcloneGcpRemote(),
                             getArguments().rcloneS3RemoteDownload(),
                             ProcessBuilder::new);
             SampleUpload sampleUpload = new CloudSampleUpload(getArguments().uploadFromGcp() ? new GSFileSource() : new SbpS3FileSource(),
-                    cloudCopy,
-                    getArguments());
+                    cloudCopy);
             return AlignerProvider.constructVmAligner(getArguments(),
                     credentials,
                     storage,
