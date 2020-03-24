@@ -35,7 +35,6 @@ import org.junit.experimental.categories.Category;
 public class SmokeTest {
     private static final String ARCHIVE_BUCKET = "hmf-output-test";
     private static final String GCP_REMOTE = "gs";
-    private static final String S3_REMOTE = "s3";
     private static final String FILE_ENCODING = "UTF-8";
     private static final int SBP_SET_ID = 9;
     private static final int SBP_RUN_ID = 12;
@@ -72,8 +71,12 @@ public class SmokeTest {
         String version = System.getProperty("version");
         String runId = "smoke-" + noDots(version);
 
+        GSUtil.configure(true, 1);
+
+        String privateKeyPath = workingDir() + "/google-key.json";
         Arguments arguments = Arguments.defaultsBuilder(Arguments.DefaultsProfile.DEVELOPMENT.toString())
-                .privateKeyPath(workingDir() + "/google-key.json")
+                .privateKeyPath(privateKeyPath)
+                .uploadPrivateKeyPath(privateKeyPath)
                 .sampleDirectory(workingDir() + "/../samples")
                 .version(version)
                 .cloudSdkPath(CLOUD_SDK_PATH)
@@ -83,10 +86,9 @@ public class SmokeTest {
                 .sbpApiRunId(SBP_RUN_ID)
                 .sbpApiUrl(apiUrl)
                 .rclonePath(RCLONE_PATH)
-                .rcloneS3RemoteDownload(S3_REMOTE)
-                .rcloneS3RemoteUpload(S3_REMOTE)
-                .sbpS3Url("s3.us-east-1.amazonaws.com")
+                .uploadFromGcp(true)
                 .rcloneGcpRemote(GCP_REMOTE)
+                .rcloneS3RemoteDownload("download")
                 .upload(true)
                 .cleanup(true)
                 .archiveBucket(ARCHIVE_BUCKET)
@@ -152,7 +154,6 @@ public class SmokeTest {
     }
 
     private void confirmArchiveBucketExists() {
-        GSUtil.configure(false, 1);
         try {
             GSUtil.auth(CLOUD_SDK_PATH, ARCHIVE_PRIVATE_KEY);
             runGsUtil(ImmutableList.of("ls", format("gs://%s", ARCHIVE_BUCKET)));

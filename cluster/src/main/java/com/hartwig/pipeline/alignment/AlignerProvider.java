@@ -40,8 +40,8 @@ public abstract class AlignerProvider {
     }
 
     private static VmAligner constructVmAligner(final Arguments arguments, final GoogleCredentials credentials, final Storage storage,
-                                                final SampleSource sampleSource, final SampleUpload sampleUpload, final ResultsDirectory resultsDirectory,
-                                                final AlignmentOutputStorage alignmentOutputStorage) throws Exception {
+            final SampleSource sampleSource, final SampleUpload sampleUpload, final ResultsDirectory resultsDirectory,
+            final AlignmentOutputStorage alignmentOutputStorage) throws Exception {
         ComputeEngine computeEngine = ComputeEngine.from(arguments, credentials);
         return new VmAligner(arguments,
                 computeEngine,
@@ -54,7 +54,7 @@ public abstract class AlignerProvider {
     }
 
     abstract VmAligner wireUp(GoogleCredentials credentials, Storage storage, AlignmentOutputStorage alignmentOutputStorage,
-                              ResultsDirectory resultsDirectory) throws Exception;
+            ResultsDirectory resultsDirectory) throws Exception;
 
     public static AlignerProvider from(GoogleCredentials credentials, Storage storage, Arguments arguments) {
         if (arguments.sbpApiRunId().isPresent() || arguments.sbpApiSampleId().isPresent()) {
@@ -77,7 +77,7 @@ public abstract class AlignerProvider {
 
         @Override
         VmAligner wireUp(GoogleCredentials credentials, Storage storage, AlignmentOutputStorage alignmentOutputStorage,
-                         ResultsDirectory resultsDirectory) throws Exception {
+                ResultsDirectory resultsDirectory) throws Exception {
             SampleSource sampleSource = getArguments().upload()
                     ? new FileSystemSampleSource(getArguments().sampleDirectory())
                     : new GoogleStorageSampleSource(storage, getArguments());
@@ -101,15 +101,15 @@ public abstract class AlignerProvider {
 
         @Override
         VmAligner wireUp(GoogleCredentials credentials, Storage storage, AlignmentOutputStorage alignmentOutputStorage,
-                         ResultsDirectory resultsDirectory) throws Exception {
+                ResultsDirectory resultsDirectory) throws Exception {
             SbpRestApi sbpRestApi = SbpRestApi.newInstance(getArguments().sbpApiUrl());
             SampleSource sampleSource = new SbpS3SampleSource(new SbpSampleReader(sbpRestApi));
             CloudCopy cloudCopy = new RCloneCloudCopy(getArguments().rclonePath(),
-                    getArguments().rcloneGcpRemote(),
-                    getArguments().rcloneS3RemoteDownload(),
-                    ProcessBuilder::new);
-            SampleUpload sampleUpload =
-                    new CloudSampleUpload(getArguments().uploadFromGcp() ? new GSFileSource() : new SbpS3FileSource(), cloudCopy);
+                            getArguments().rcloneGcpRemote(),
+                            getArguments().rcloneS3RemoteDownload(),
+                            ProcessBuilder::new);
+            SampleUpload sampleUpload = new CloudSampleUpload(getArguments().uploadFromGcp() ? new GSFileSource() : new SbpS3FileSource(),
+                    cloudCopy);
             return AlignerProvider.constructVmAligner(getArguments(),
                     credentials,
                     storage,

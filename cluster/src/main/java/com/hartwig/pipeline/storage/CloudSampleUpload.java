@@ -28,7 +28,11 @@ public class CloudSampleUpload implements SampleUpload {
 
     @Override
     public void run(Sample sample, RuntimeBucket runtimeBucket) {
-        uploadSample(runtimeBucket, sample);
+        try {
+            uploadSample(runtimeBucket, sample);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void uploadSample(final RuntimeBucket runtimeBucket, final Sample sample) {
