@@ -14,7 +14,7 @@ spec:
   template:
     metadata:
       labels:
-        job-name: pipelinev5-somatic-test
+        job-name: pipelinev5-somatic-validation
     spec:
       containers:
         - args:
