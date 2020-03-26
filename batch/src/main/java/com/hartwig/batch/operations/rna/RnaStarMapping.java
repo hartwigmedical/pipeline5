@@ -111,6 +111,10 @@ public class RnaStarMapping implements BatchOperation {
         startupScript.addCommand(() -> format("rm -f %s", bamFile));
         startupScript.addCommand(() -> format("rm -f %s", sortedBam));
 
+        final String starStats = "Log.final.out";
+        final String statsFile = sampleId + "." + starStats;
+        startupScript.addCommand(() -> format("mv %s %s", starStats, statsFile));
+
         // run QC stats on the fast-Qs as well
         /*
         final String fastqcOutputDir = format("%s/fastqc", VmDirectories.OUTPUT);
@@ -136,8 +140,8 @@ public class RnaStarMapping implements BatchOperation {
         // startupScript.addCommand(new OutputUpload(GoogleStorageLocation.of("rna-cohort", sampleId), executionFlags));
 
         return ImmutableVirtualMachineJobDefinition.builder().name("rna-star-mapping").startupCommand(startupScript)
-                .namespacedResults(ResultsDirectory.defaultDirectory()).workingDiskSpaceGb(400)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(12, 36)).build();
+                .namespacedResults(ResultsDirectory.defaultDirectory()).workingDiskSpaceGb(500)
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(12, 48)).build();
     }
 
     private final List<String> getSampleFastqFileList(final String sampleId, final String fastqFilelist)
