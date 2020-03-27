@@ -20,12 +20,12 @@ public interface SbpLane {
 
     @Value.Default
     default long yld() {
-        return -1;
+        return 0;
     }
 
     @Value.Default
     default double q30() {
-        return -1;
+        return 0;
     }
 
     static ImmutableSbpLane.Builder builder() {
