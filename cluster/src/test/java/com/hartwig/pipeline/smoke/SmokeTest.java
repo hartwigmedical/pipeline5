@@ -70,7 +70,6 @@ public class SmokeTest {
         PipelineMain victim = new PipelineMain();
         String version = System.getProperty("version");
         String runId = "smoke-" + noDots(version);
-
         GSUtil.configure(true, 1);
 
         String privateKeyPath = workingDir() + "/google-key.json";
