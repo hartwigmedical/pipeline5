@@ -8,17 +8,6 @@ import kubernetes
 from HmfApi import *
 
 
-def phone_home(message):
-    print message
-
-    payload = {"text": '```' + message + '```'}
-    requests.post(
-        os.environ['SLACK_HOOK'],
-        data=json.dumps(payload),
-        headers={'Content-Type': 'application/json'}
-    )
-
-
 def log(msg):
     print (time.strftime('[%Y-%m-%d %H:%M:%S] ') + str(msg))
 
@@ -117,8 +106,6 @@ def main():
 
             start_kubernetes_job({'flowcell': flowcell.flowcell_id })
 
-            phone_home('Starting bcl2fastq {0} for flowcell {1}'.format(os.environ['PIPELINE_VERSION'], flowcell.flowcell_id))
-
             flowcell.status = 'Conversion Started'
             flowcell.save()
     else:
@@ -131,5 +118,3 @@ except BaseException, e:
     message = "Exception in bcl2fastq pending-check-flowcell\n\n"
     message += str(e) + "\n\n"
     message += traceback.format_exc()
-
-    phone_home(message)

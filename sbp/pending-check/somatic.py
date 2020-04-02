@@ -1,24 +1,12 @@
 #!/usr/bin/python
 
 import sys
-import time
 import traceback
 from datetime import datetime
 
 import kubernetes
 
 from HmfApi import *
-
-
-def phone_home(message):
-    print message
-
-    payload = {"text": '```' + message + '```'}
-    requests.post(
-        os.environ['SLACK_HOOK'],
-        data=json.dumps(payload),
-        headers={'Content-Type': 'application/json'}
-    )
 
 
 def log(msg):
@@ -219,8 +207,6 @@ def main():
                 'bucket': str(run.bucket)
             })
 
-            phone_home('Starting Pipeline {0} for run {1}'.format(os.environ['PIPELINE_VERSION'], run.id))
-
             run.status = 'Processing'
             run.stack_id = stack.id
             run.startTime = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
@@ -235,5 +221,3 @@ except BaseException, e:
     message = "Exception in pipeline5 pending-check-somatic\n\n"
     message += str(e) + "\n\n"
     message += traceback.format_exc()
-
-    phone_home(message)
