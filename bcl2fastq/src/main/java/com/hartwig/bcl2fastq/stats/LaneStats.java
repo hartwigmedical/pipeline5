@@ -15,5 +15,8 @@ public interface LaneStats {
 
     List<SampleStats> demuxResults();
 
-    UndeterminedStats undetermined();
+    @Value.Default
+    default UndeterminedStats undetermined() {
+        return ImmutableUndeterminedStats.builder().yield(0).build();
+    }
 }
