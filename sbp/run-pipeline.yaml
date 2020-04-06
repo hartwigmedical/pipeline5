@@ -1,7 +1,6 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  creationTimestamp: "2020-03-13T04:00:05Z"
   labels:
     job-name: pipelinev5-somatic-test
   name: pipelinev5-somatic-test
@@ -65,13 +64,3 @@ spec:
           secret:
             defaultMode: 420
             secretName: rclone-hmf-admin-credentials
-
-status:
-  completionTime: "2020-03-13T13:37:12Z"
-  conditions:
-    - lastProbeTime: "2020-03-13T13:37:12Z"
-      lastTransitionTime: "2020-03-13T13:37:12Z"
-      status: "True"
-      type: Complete
-  startTime: "2020-03-13T04:00:05Z"
-  succeeded: 1
