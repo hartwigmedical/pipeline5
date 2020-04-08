@@ -28,6 +28,7 @@ import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.report.StartupScriptComponent;
 import com.hartwig.pipeline.report.ZippedVcfAndIndexComponent;
+import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
@@ -138,6 +139,6 @@ public class SomaticCaller extends TertiaryStage<SomaticCallerOutput> {
 
     @Override
     public boolean shouldRun(final Arguments arguments) {
-        return arguments.runSomaticCaller();
+        return arguments.runSomaticCaller() && resourceFiles.version().equals(RefGenomeVersion.HG37);
     }
 }

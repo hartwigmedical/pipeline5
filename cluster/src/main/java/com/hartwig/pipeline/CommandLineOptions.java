@@ -263,7 +263,6 @@ public class CommandLineOptions {
             DefaultParser defaultParser = new DefaultParser();
             CommandLine commandLine = defaultParser.parse(options(), args);
             Arguments defaults = Arguments.defaults(commandLine.getOptionValue(PROFILE_FLAG, DEFAULT_PROFILE));
-            RefGenomeVersion refGenomeVersion = refGenomeVersion(commandLine, defaults);
 
             return Arguments.builder()
                     .setId(commandLine.getOptionValue(SET_ID_FLAG, defaults.setId()))
@@ -292,7 +291,7 @@ public class CommandLineOptions {
                     .runAligner(booleanOptionWithDefault(commandLine, RUN_ALIGNER_FLAG, defaults.runAligner()))
                     .runSnpGenotyper(booleanOptionWithDefault(commandLine, RUN_SNP_GENOTYPER_FLAG, defaults.runSnpGenotyper()))
                     .runGermlineCaller(booleanOptionWithDefault(commandLine, RUN_GERMLINE_CALLER_FLAG, defaults.runGermlineCaller()))
-                    .runSomaticCaller(refGenomeVersion.equals(RefGenomeVersion.HG37) && booleanOptionWithDefault(commandLine, RUN_SOMATIC_CALLER_FLAG, defaults.runSomaticCaller()))
+                    .runSomaticCaller(booleanOptionWithDefault(commandLine, RUN_SOMATIC_CALLER_FLAG, defaults.runSomaticCaller()))
                     .runSageCaller(booleanOptionWithDefault(commandLine, RUN_SAGE_CALLER_FLAG, defaults.runSageCaller()))
                     .runStructuralCaller(booleanOptionWithDefault(commandLine, RUN_STRUCTURAL_CALLER_FLAG, defaults.runStructuralCaller()))
                     .runTertiary(booleanOptionWithDefault(commandLine, RUN_TERTIARY_FLAG, defaults.runTertiary()))
@@ -310,7 +309,7 @@ public class CommandLineOptions {
                     .zone(zone(commandLine, defaults))
                     .maxConcurrentLanes(maxConcurrentLanes(commandLine, defaults.maxConcurrentLanes()))
                     .profile(defaults.profile())
-                    .refGenomeVersion(refGenomeVersion)
+                    .refGenomeVersion(refGenomeVersion(commandLine, defaults))
                     .build();
         } catch (ParseException e) {
             LOGGER.error("Could not parse command line args", e);
