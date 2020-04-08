@@ -2,6 +2,8 @@ package com.hartwig.pipeline;
 
 import java.util.Optional;
 
+import com.hartwig.pipeline.resource.RefGenomeVersion;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -11,8 +13,6 @@ import org.apache.commons.cli.ParseException;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.hartwig.pipeline.resource.RefGenomeVersion;
 
 public class CommandLineOptions {
 
@@ -263,6 +263,7 @@ public class CommandLineOptions {
             DefaultParser defaultParser = new DefaultParser();
             CommandLine commandLine = defaultParser.parse(options(), args);
             Arguments defaults = Arguments.defaults(commandLine.getOptionValue(PROFILE_FLAG, DEFAULT_PROFILE));
+
             return Arguments.builder()
                     .setId(commandLine.getOptionValue(SET_ID_FLAG, defaults.setId()))
                     .privateKeyPath(CommonArguments.privateKey(commandLine).or(defaults::privateKeyPath))

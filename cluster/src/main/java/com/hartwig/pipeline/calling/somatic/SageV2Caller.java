@@ -26,10 +26,11 @@ import com.hartwig.pipeline.report.StartupScriptComponent;
 import com.hartwig.pipeline.report.ZippedVcfAndIndexComponent;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.resource.ResourceFiles;
+import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.TertiaryStage;
 
-public class SageV2Caller extends TertiaryStage<SageV2CallerOutput> {
+public class SageV2Caller extends TertiaryStage<SomaticCallerOutput> {
 
     public static final String NAMESPACE = "sage";
 
@@ -93,10 +94,11 @@ public class SageV2Caller extends TertiaryStage<SageV2CallerOutput> {
     }
 
     @Override
-    public SageV2CallerOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
+    public SomaticCallerOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
             final ResultsDirectory resultsDirectory) {
-        return SageV2CallerOutput.builder()
+        return SomaticCallerOutput.builder(NAMESPACE)
                 .status(jobStatus)
+                .maybeFinalSomaticVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(outputFile.fileName())))
                 .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
                         NAMESPACE,
                         Folder.from(),
@@ -115,8 +117,8 @@ public class SageV2Caller extends TertiaryStage<SageV2CallerOutput> {
     }
 
     @Override
-    public SageV2CallerOutput skippedOutput(final SomaticRunMetadata metadata) {
-        return SageV2CallerOutput.builder().status(PipelineStatus.SKIPPED).build();
+    public SomaticCallerOutput skippedOutput(final SomaticRunMetadata metadata) {
+        return SomaticCallerOutput.builder(NAMESPACE).status(PipelineStatus.SKIPPED).build();
     }
 
     @Override

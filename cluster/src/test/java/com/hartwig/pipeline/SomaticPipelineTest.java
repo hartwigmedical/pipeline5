@@ -37,6 +37,7 @@ import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.alignment.AlignmentOutputStorage;
 import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
+import com.hartwig.pipeline.calling.somatic.SomaticCaller;
 import com.hartwig.pipeline.calling.somatic.SomaticCallerOutput;
 import com.hartwig.pipeline.calling.structural.StructuralCaller;
 import com.hartwig.pipeline.cleanup.Cleanup;
@@ -126,7 +127,7 @@ public class SomaticPipelineTest {
     public void doesNotRunPurpleIfAnyCallersFail() {
         bothAlignmentsAvailable();
         bothMetricsAvailable();
-        SomaticCallerOutput failSomatic = SomaticCallerOutput.builder().status(PipelineStatus.FAILED).build();
+        SomaticCallerOutput failSomatic = SomaticCallerOutput.builder(SomaticCaller.NAMESPACE).status(PipelineStatus.FAILED).build();
         when(stageRunner.run(eq(defaultSomaticRunMetadata()), any())).thenReturn(amberOutput())
                 .thenReturn(cobaltOutput())
                 .thenReturn(sageOutput())
