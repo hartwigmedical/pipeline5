@@ -2,6 +2,7 @@ package com.hartwig.pipeline;
 
 import java.util.Optional;
 
+import com.hartwig.pipeline.resource.RefGenomeVersion;
 import org.immutables.value.Value;
 
 @Value.Immutable
@@ -79,6 +80,8 @@ public interface Arguments extends CommonArguments {
 
     Optional<String> zone();
 
+    RefGenomeVersion refGenomeVersion();
+
     int maxConcurrentLanes();
 
     static ImmutableArguments.Builder builder() {
@@ -127,6 +130,8 @@ public interface Arguments extends CommonArguments {
     String DEFAULT_DEVELOPMENT_PATIENT_REPORT_BUCKET = "pipeline-output-dev";
     String DEFAULT_DEVELOPMENT_ARCHIVE_BUCKET = "pipeline-archive-dev";
 
+    RefGenomeVersion DEFAULT_REF_GENOME_VERSION = RefGenomeVersion.HG37;
+
     int DEFAULT_MAX_CONCURRENT_LANES = 8;
 
     static ImmutableArguments.Builder defaultsBuilder(String profileString) {
@@ -171,6 +176,7 @@ public interface Arguments extends CommonArguments {
                     .privateNetwork(DEFAULT_PRIVATE_NETWORK)
                     .outputCram(false)
                     .pollInterval(DEFAULT_POLL_INTERVAL)
+                    .refGenomeVersion(DEFAULT_REF_GENOME_VERSION)
                     .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES);
         } else if (profile.equals(DefaultsProfile.DEVELOPMENT)) {
             return ImmutableArguments.builder()
@@ -210,6 +216,7 @@ public interface Arguments extends CommonArguments {
                     .archivePrivateKeyPath(DEFAULT_DEVELOPMENT_KEY_PATH)
                     .outputCram(false)
                     .pollInterval(DEFAULT_POLL_INTERVAL)
+                    .refGenomeVersion(DEFAULT_REF_GENOME_VERSION)
                     .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES)
                     .privateNetwork(DEFAULT_PRIVATE_NETWORK);
         } else if (profile.equals(DefaultsProfile.DEVELOPMENT_DOCKER)) {
@@ -251,6 +258,7 @@ public interface Arguments extends CommonArguments {
                     .privateNetwork(DEFAULT_PRIVATE_NETWORK)
                     .outputCram(false)
                     .pollInterval(DEFAULT_POLL_INTERVAL)
+                    .refGenomeVersion(DEFAULT_REF_GENOME_VERSION)
                     .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES);
         }
         throw new IllegalArgumentException(String.format("Unknown profile [%s], please create defaults for this profile.", profile));

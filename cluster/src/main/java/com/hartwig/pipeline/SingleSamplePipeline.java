@@ -1,5 +1,7 @@
 package com.hartwig.pipeline;
 
+import static com.hartwig.pipeline.resource.ResourceFilesFactory.buildResourceFiles;
+
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.alignment.vm.VmAligner;
 import com.hartwig.pipeline.calling.germline.GermlineCaller;
@@ -13,6 +15,7 @@ import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetrics;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.report.PipelineResults;
+import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.snpgenotype.SnpGenotype;
 import com.hartwig.pipeline.snpgenotype.SnpGenotypeOutput;
 import com.hartwig.pipeline.stages.StageRunner;
@@ -53,14 +56,15 @@ public class SingleSamplePipeline {
                 metadata.sampleId(),
                 arguments.runId().map(runId -> String.format("using run tag [%s]", runId)).orElse(""));
         PipelineState state = new PipelineState();
+        final ResourceFiles resourceFiles = buildResourceFiles(arguments.refGenomeVersion());
         AlignmentOutput alignmentOutput = report.add(state.add(aligner.run(metadata)));
         eventListener.alignmentComplete(state);
         if (state.shouldProceed()) {
 
             Future<BamMetricsOutput> bamMetricsFuture =
-                    executorService.submit(() -> stageRunner.run(metadata, new BamMetrics(alignmentOutput)));
+                    executorService.submit(() -> stageRunner.run(metadata, new BamMetrics(resourceFiles, alignmentOutput)));
             Future<SnpGenotypeOutput> unifiedGenotyperFuture =
-                    executorService.submit(() -> stageRunner.run(metadata, new SnpGenotype(alignmentOutput)));
+                    executorService.submit(() -> stageRunner.run(metadata, new SnpGenotype(resourceFiles, alignmentOutput)));
             Future<FlagstatOutput> flagstatOutputFuture =
                     executorService.submit(() -> stageRunner.run(metadata, new Flagstat(alignmentOutput)));
             Future<CramOutput> cramOutputFuture =
@@ -68,7 +72,7 @@ public class SingleSamplePipeline {
 
             if (metadata.type().equals(SingleSampleRunMetadata.SampleType.REFERENCE)) {
                 Future<GermlineCallerOutput> germlineCallerFuture =
-                        executorService.submit(() -> stageRunner.run(metadata, new GermlineCaller(alignmentOutput)));
+                        executorService.submit(() -> stageRunner.run(metadata, new GermlineCaller(alignmentOutput, resourceFiles)));
                 report.add(state.add(futurePayload(germlineCallerFuture)));
             }
 

@@ -5,15 +5,13 @@ import com.hartwig.pipeline.execution.vm.ParallelGatkCommand;
 
 public class GatkHaplotypeCallerCommand extends ParallelGatkCommand {
 
-    public GatkHaplotypeCallerCommand(String inputBam, String referenceFasta, String knownSnpsDb, String outputVcf) {
+    public GatkHaplotypeCallerCommand(String inputBam, String referenceFasta, String outputVcf) {
         super(GermlineCaller.TOOL_HEAP,
                 "HaplotypeCaller",
                 "--input_file",
                 inputBam,
                 "-o",
                 outputVcf,
-                "-D",
-                knownSnpsDb,
                 "--reference_sequence",
                 referenceFasta,
                 "-variant_index_type",

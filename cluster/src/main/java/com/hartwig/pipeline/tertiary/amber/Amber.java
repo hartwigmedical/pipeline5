@@ -13,8 +13,7 @@ import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
-import com.hartwig.pipeline.resource.Resource;
-import com.hartwig.pipeline.resource.ResourceNames;
+import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.TertiaryStage;
@@ -23,8 +22,12 @@ public class Amber extends TertiaryStage<AmberOutput> {
 
     public static final String NAMESPACE = "amber";
 
-    public Amber(final AlignmentPair alignmentPair) {
+    private final ResourceFiles resourceFiles;
+
+    public Amber(final AlignmentPair alignmentPair, final ResourceFiles resourceFiles)
+    {
         super(alignmentPair);
+        this.resourceFiles = resourceFiles;
     }
 
     @Override
@@ -38,8 +41,8 @@ public class Amber extends TertiaryStage<AmberOutput> {
                 getReferenceBamDownload().getLocalTargetPath(),
                 metadata.tumor().sampleName(),
                 getTumorBamDownload().getLocalTargetPath(),
-                Resource.REFERENCE_GENOME_FASTA,
-                Resource.of(ResourceNames.AMBER_PON, "GermlineHetPon.hg19.vcf.gz")));
+                resourceFiles.refGenomeFile(),
+                resourceFiles.amberHeterozygousLoci()));
     }
 
     @Override

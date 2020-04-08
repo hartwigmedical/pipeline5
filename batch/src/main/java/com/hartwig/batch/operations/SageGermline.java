@@ -2,6 +2,8 @@ package com.hartwig.batch.operations;
 
 import static java.lang.String.format;
 
+import static com.hartwig.pipeline.resource.Hg37ResourceFiles.REFERENCE_GENOME_FASTA_HG37;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,7 +20,7 @@ import com.hartwig.pipeline.execution.vm.RuntimeFiles;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
-import com.hartwig.pipeline.resource.Resource;
+import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
@@ -52,8 +54,8 @@ public class SageGermline implements BatchOperation {
         String localReferenceBamFile = String.format("%s/%s", VmDirectories.INPUT, referenceBamFile);
 
         final String output = String.format("%s/%s.sage.germline.vcf.gz", VmDirectories.OUTPUT, tumorSampleName);
-        final String panelBed = "/opt/resources/sage/ActionableCodingPanel.hg19.bed.gz";
-        final String hotspots = "/opt/resources/sage/KnownHotspots.hg19.vcf.gz";
+        final String panelBed = "/opt/resources/sage/hg37/ActionableCodingPanel.hg19.bed.gz";
+        final String hotspots = "/opt/resources/sage/hg37/KnownHotspots.hg19.vcf.gz";
         final String highConfidenceBed = "/opt/resources/sage/NA12878_GIAB_highconf_IllFB-IllGATKHC-CG-Ion-Solid_ALLCHROM_v3.2.2_highconf.bed.gz";
 
         final BashCommand sageCommand = new JavaClassCommand("sage",
@@ -77,7 +79,7 @@ public class SageGermline implements BatchOperation {
                 "-hotspots",
                 hotspots,
                 "-ref_genome",
-                Resource.REFERENCE_GENOME_FASTA,
+                REFERENCE_GENOME_FASTA_HG37,
                 "-out",
                 output,
                 "-threads",

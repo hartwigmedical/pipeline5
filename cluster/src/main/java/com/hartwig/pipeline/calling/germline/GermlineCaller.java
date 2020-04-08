@@ -1,7 +1,11 @@
 package com.hartwig.pipeline.calling.germline;
 
+import static java.lang.String.format;
+
 import static com.hartwig.pipeline.resource.ResourceNames.GONL;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +35,8 @@ import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.report.StartupScriptComponent;
 import com.hartwig.pipeline.report.ZippedVcfAndIndexComponent;
-import com.hartwig.pipeline.resource.Resource;
+import com.hartwig.pipeline.resource.RefGenomeVersion;
+import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
@@ -55,11 +60,13 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
             "INDEL_ReadPosRankSumLow",
             "ReadPosRankSum < -20.0");
 
+    private final ResourceFiles resourceFiles;
     private final InputDownload bamDownload;
     private final InputDownload baiDownload;
     private final OutputFile outputFile;
 
-    public GermlineCaller(final AlignmentOutput alignmentOutput) {
+    public GermlineCaller(final AlignmentOutput alignmentOutput, final ResourceFiles resourceFiles) {
+        this.resourceFiles = resourceFiles;
         this.bamDownload = new InputDownload(alignmentOutput.finalBamLocation());
         this.baiDownload = new InputDownload(alignmentOutput.finalBaiLocation());
         outputFile = OutputFile.of(alignmentOutput.sample(), "germline", OutputFile.GZIPPED_VCF, false);
@@ -78,12 +85,11 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
     @Override
     public List<BashCommand> commands(final SingleSampleRunMetadata metadata) {
 
-        String referenceFasta = Resource.REFERENCE_GENOME_FASTA;
+        String referenceFasta = resourceFiles.refGenomeFile();
 
         SubStageInputOutput callerOutput =
-                new GatkGermlineCaller(bamDownload.getLocalTargetPath(), referenceFasta, Resource.DBSNPS_VCF).andThen(new GenotypeGVCFs(
-                        referenceFasta,
-                        Resource.DBSNPS_VCF)).apply(SubStageInputOutput.empty(metadata.sampleName()));
+                new GatkGermlineCaller(bamDownload.getLocalTargetPath(), referenceFasta)
+                        .andThen(new GenotypeGVCFs(referenceFasta)).apply(SubStageInputOutput.empty(metadata.sampleName()));
 
         SubStageInputOutput snpFilterOutput =
                 new SelectVariants("snp", Lists.newArrayList("SNP", "NO_VARIATION"), referenceFasta).andThen(new VariantFiltration("snp",
@@ -99,13 +105,13 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
         SubStageInputOutput combinedFilters = snpFilterOutput.combine(indelFilterOutput);
 
         SubStageInputOutput finalOutput = new CombineFilteredVariants(indelFilterOutput.outputFile().path(),
-                referenceFasta).andThen(new SnpEff(Resource.SNPEFF_CONFIG))
-                .andThen(new SnpSiftDbnsfpAnnotation(Resource.DBNSFP_VCF, Resource.SNPEFF_CONFIG))
-                .andThen(new CosmicAnnotation(Resource.COSMIC_VCF_GZ, "ID"))
-                .andThen(new SnpSiftFrequenciesAnnotation(Resource.of(GONL, "gonl.snps_indels.r5.sorted.vcf.gz"), Resource.SNPEFF_CONFIG))
+                referenceFasta).andThen(new SnpEff(ResourceFiles.SNPEFF_CONFIG, resourceFiles))
+                .andThen(new SnpSiftDbnsfpAnnotation(ResourceFiles.DBNSFP_VCF, ResourceFiles.SNPEFF_CONFIG))
+                .andThen(new CosmicAnnotation(ResourceFiles.COSMIC_VCF_GZ, "ID"))
+                .andThen(new SnpSiftFrequenciesAnnotation(ResourceFiles.of(GONL, "gonl.snps_indels.r5.sorted.vcf.gz"), ResourceFiles.SNPEFF_CONFIG))
                 .apply(combinedFilters);
 
-        return ImmutableList.<BashCommand>builder().add(new UnzipToDirectoryCommand(VmDirectories.RESOURCES, Resource.SNPEFF_DB))
+        return ImmutableList.<BashCommand>builder().add(new UnzipToDirectoryCommand(VmDirectories.RESOURCES, resourceFiles.snpEffDb()))
                 .addAll(finalOutput.bash())
                 .add(new MvCommand(finalOutput.outputFile().path(), outputFile.path()))
                 .add(new MvCommand(finalOutput.outputFile().path() + ".tbi", outputFile.path() + ".tbi"))

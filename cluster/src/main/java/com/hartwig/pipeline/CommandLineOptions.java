@@ -12,6 +12,8 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hartwig.pipeline.resource.RefGenomeVersion;
+
 public class CommandLineOptions {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CommandLineOptions.class);
@@ -62,6 +64,7 @@ public class CommandLineOptions {
     private static final String CMEK_FLAG = "cmek";
     private static final String SHALLOW_FLAG = "shallow";
     private static final String ZONE_FLAG = "zone";
+    private static final String REF_GENOME_VERSION = "ref_genome_version";
 
     private static Options options() {
         return new Options().addOption(profile())
@@ -122,7 +125,7 @@ public class CommandLineOptions {
                         "Time in seconds between status checks against GCP. "
                                 + "Increase to allow more concurrent VMs to run at the expense of state change detection resolution."))
                 .addOption(zone())
-                .addOption(alignerType())
+                .addOption(refGenomeVersion())
                 .addOption(maxConcurrentLanes());
     }
 
@@ -233,6 +236,10 @@ public class CommandLineOptions {
         return optionWithArg(ZONE_FLAG, "The zone for which to get the clusters.");
     }
 
+    private static Option refGenomeVersion() {
+        return optionWithArg(REF_GENOME_VERSION, "Ref genome version, default=37, values 37 or 38.");
+    }
+
     private static Option version() {
         return optionWithArg(VERSION_FLAG, "Version of pipeline5 to run in spark.");
     }
@@ -301,6 +308,7 @@ public class CommandLineOptions {
                     .zone(zone(commandLine, defaults))
                     .maxConcurrentLanes(maxConcurrentLanes(commandLine, defaults.maxConcurrentLanes()))
                     .profile(defaults.profile())
+                    .refGenomeVersion(refGenomeVersion(commandLine, defaults))
                     .build();
         } catch (ParseException e) {
             LOGGER.error("Could not parse command line args", e);
@@ -322,6 +330,13 @@ public class CommandLineOptions {
             return Optional.of(commandLine.getOptionValue(ZONE_FLAG));
         }
         return defaults.zone();
+    }
+
+    private static RefGenomeVersion refGenomeVersion(final CommandLine commandLine, final Arguments defaults) {
+        if (commandLine.hasOption(REF_GENOME_VERSION)) {
+            return RefGenomeVersion.valueOf(commandLine.getOptionValue(REF_GENOME_VERSION));
+        }
+        return defaults.refGenomeVersion();
     }
 
     private static Optional<Integer> sbpRunId(final CommandLine commandLine) {

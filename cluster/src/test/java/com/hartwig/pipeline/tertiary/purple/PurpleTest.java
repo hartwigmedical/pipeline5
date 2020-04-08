@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
+import com.hartwig.pipeline.resource.Hg37ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
@@ -23,7 +24,9 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
 
     @Override
     protected Stage<PurpleOutput, SomaticRunMetadata> createVictim() {
-        return new Purple(TestInputs.somaticCallerOutput(),
+        return new Purple(
+                TestInputs.HG37_RESOURCE_FILES,
+                TestInputs.somaticCallerOutput(),
                 TestInputs.structuralCallerOutput(),
                 TestInputs.amberOutput(),
                 TestInputs.cobaltOutput(),
@@ -52,15 +55,15 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
     @Override
     protected List<String> expectedCommands() {
         return Collections.singletonList("java -Xmx12G -jar /opt/tools/purple/2.39/purple.jar -reference reference -tumor tumor -output_dir "
-                + "/data/output -amber /data/input/results -cobalt /data/input/results -gc_profile /opt/resources/gc/GC_profile.1000bp.cnp "
+                + "/data/output -amber /data/input/results -cobalt /data/input/results -gc_profile /opt/resources/gc/hg37/GC_profile.1000bp.cnp "
                 + "-somatic_vcf /data/input/tumor.vcf.gz -structural_vcf /data/input/tumor.gridss.filtered.vcf.gz -sv_recovery_vcf "
                 + "/data/input/tumor.gridss.full.vcf.gz -circos /opt/tools/circos/0.69.6/bin/circos -ref_genome "
-                + "/opt/resources/reference_genome/Homo_sapiens.GRCh37.GATK.illumina.fasta -threads $(grep -c '^processor' /proc/cpuinfo)");
+                + "/opt/resources/reference_genome/hg37/Homo_sapiens.GRCh37.GATK.illumina.fasta -threads $(grep -c '^processor' /proc/cpuinfo)");
     }
 
     @Test
     public void shallowModeUsesLowDepthSettings() {
-        Purple victim = new Purple(TestInputs.somaticCallerOutput(),
+        Purple victim = new Purple(new Hg37ResourceFiles(), TestInputs.somaticCallerOutput(),
                 TestInputs.structuralCallerOutput(),
                 TestInputs.amberOutput(),
                 TestInputs.cobaltOutput(),

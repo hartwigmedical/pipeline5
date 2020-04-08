@@ -20,7 +20,7 @@ import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.report.SingleFileComponent;
 import com.hartwig.pipeline.report.StartupScriptComponent;
-import com.hartwig.pipeline.resource.Resource;
+import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.resource.ResourceNames;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.RuntimeBucket;
@@ -32,10 +32,12 @@ public class SnpGenotype implements Stage<SnpGenotypeOutput, SingleSampleRunMeta
     private static final String OUTPUT_FILENAME = "snp_genotype_output.vcf";
     private static final String SNP_VCF = "26SNPtaq.vcf";
 
+    private final ResourceFiles resourceFiles;
     private final InputDownload bamDownload;
     private final InputDownload baiDownload;
 
-    public SnpGenotype(final AlignmentOutput alignmentOutput) {
+    public SnpGenotype(final ResourceFiles resourceFiles, final AlignmentOutput alignmentOutput) {
+        this.resourceFiles = resourceFiles;
         this.bamDownload = new InputDownload(alignmentOutput.finalBamLocation());
         this.baiDownload = new InputDownload(alignmentOutput.finalBaiLocation());
     }
@@ -53,8 +55,8 @@ public class SnpGenotype implements Stage<SnpGenotypeOutput, SingleSampleRunMeta
     @Override
     public List<BashCommand> commands(final SingleSampleRunMetadata metadata) {
         return Collections.singletonList(new SnpGenotypeCommand(bamDownload.getLocalTargetPath(),
-                Resource.REFERENCE_GENOME_FASTA,
-                Resource.of(ResourceNames.GENOTYPE_SNPS, SNP_VCF),
+                resourceFiles.refGenomeFile(),
+                ResourceFiles.of(ResourceNames.GENOTYPE_SNPS, SNP_VCF),
                 format("%s/%s", VmDirectories.OUTPUT, OUTPUT_FILENAME)));
     }
 

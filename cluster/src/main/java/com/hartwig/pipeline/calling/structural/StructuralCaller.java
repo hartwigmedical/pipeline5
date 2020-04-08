@@ -3,10 +3,11 @@ package com.hartwig.pipeline.calling.structural;
 import static java.lang.String.format;
 
 import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_CONFIG;
-import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_REPEAT_MASKER_DB;
 import static com.hartwig.pipeline.resource.ResourceNames.VIRUS_REFERENCE_GENOME;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,7 +36,8 @@ import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.report.StartupScriptComponent;
 import com.hartwig.pipeline.report.ZippedVcfAndIndexComponent;
-import com.hartwig.pipeline.resource.Resource;
+import com.hartwig.pipeline.resource.RefGenomeVersion;
+import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
@@ -49,11 +51,13 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
     private final InputDownload tumorBam;
     private final InputDownload tumorBai;
 
+    private final ResourceFiles resourceFiles;
     private String unfilteredVcf;
     private String somaticFilteredVcf;
     private String somaticAndQualityFilteredVcf;
 
-    public StructuralCaller(final AlignmentPair pair) {
+    public StructuralCaller(final AlignmentPair pair, final ResourceFiles resourceFiles) {
+        this.resourceFiles = resourceFiles;
         referenceBam = new InputDownload(pair.reference().finalBamLocation());
         referenceBai = new InputDownload(pair.reference().finalBaiLocation());
         tumorBam = new InputDownload(pair.tumor().finalBamLocation());
@@ -77,18 +81,27 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
         commands.add(new ExportVariableCommand("PATH",
                 format("${PATH}:%s", dirname(new VersionedToolCommand("samtools", "samtools", Versions.SAMTOOLS).asBash()))));
 
+        // TEMP
+        if(resourceFiles.version() == RefGenomeVersion.HG38) {
+            final String bwtFileOld = "/opt/resources/reference_genome/hg38/Homo_sapiens_assembly38.fasta.64.bwt";
+            final String bwtFileNew = "/opt/resources/reference_genome/hg38/Homo_sapiens_assembly38.fasta.bwt";
+
+            if(Files.exists(Paths.get(bwtFileOld)) && !Files.exists(Paths.get(bwtFileNew)) ) {
+                commands.add(() -> format("cp %s %s", bwtFileOld, bwtFileNew));
+            }
+        }
+
         String tumorSampleName = metadata.tumor().sampleName();
         String refBamPath = referenceBam.getLocalTargetPath();
         String tumorBamPath = tumorBam.getLocalTargetPath();
 
-        String configurationFilePath = Resource.of(GRIDSS_CONFIG, "gridss.properties");
-        String blacklistBedPath = Resource.of(GRIDSS_CONFIG, "ENCFF001TDO.bed");
-        String referenceGenomePath = Resource.REFERENCE_GENOME_FASTA;
-        String virusReferenceGenomePath = Resource.of(VIRUS_REFERENCE_GENOME, "human_virus.fa");
-        String repeatMaskerDbPath = Resource.of(GRIDSS_REPEAT_MASKER_DB, "hg19.fa.out");
+        String configurationFilePath = ResourceFiles.of(GRIDSS_CONFIG, "gridss.properties");
+        String blacklistBedPath = resourceFiles.gridssBlacklistBed();
+        String virusReferenceGenomePath = ResourceFiles.of(VIRUS_REFERENCE_GENOME, "human_virus.fa");
+        String repeatMaskerDbPath = resourceFiles.gridssRepeatMaskerDb();
 
         Driver driver = new Driver(VmDirectories.outputFile(tumorSampleName + ".assembly.bam"),
-                referenceGenomePath,
+                resourceFiles.refGenomeFile(),
                 blacklistBedPath,
                 configurationFilePath,
                 refBamPath,
