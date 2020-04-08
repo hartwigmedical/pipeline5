@@ -11,10 +11,6 @@ import org.immutables.value.Value;
 @Value.Immutable
 public interface SomaticCallerOutput extends StageOutput {
 
-    default String name() {
-        return SomaticCaller.NAMESPACE;
-    }
-
     PipelineStatus status();
 
     Optional<GoogleStorageLocation> maybeFinalSomaticVcf();
@@ -23,7 +19,7 @@ public interface SomaticCallerOutput extends StageOutput {
         return maybeFinalSomaticVcf().orElseThrow(() -> new IllegalStateException("No final somatic vcf available"));
     }
 
-    static ImmutableSomaticCallerOutput.Builder builder() {
-        return ImmutableSomaticCallerOutput.builder();
+    static ImmutableSomaticCallerOutput.Builder builder(String nameSpace) {
+        return ImmutableSomaticCallerOutput.builder().name(nameSpace);
     }
 }

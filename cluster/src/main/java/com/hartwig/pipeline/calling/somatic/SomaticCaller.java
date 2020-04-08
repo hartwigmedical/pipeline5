@@ -59,7 +59,6 @@ public class SomaticCaller extends TertiaryStage<SomaticCallerOutput> {
 
         String tumorBamPath = getTumorBamDownload().getLocalTargetPath();
         String referenceBamPath = getReferenceBamDownload().getLocalTargetPath();
-        String referenceGenomePath = resourceFiles.refGenomeFile();
         String tumorSampleName = metadata.tumor().sampleName();
         String referenceSampleName = metadata.reference().sampleName();
         String knownHotspotsTsv = ResourceFiles.of(SAGE, "KnownHotspots.tsv");
@@ -105,7 +104,7 @@ public class SomaticCaller extends TertiaryStage<SomaticCallerOutput> {
     @Override
     public SomaticCallerOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
             final ResultsDirectory resultsDirectory) {
-        return SomaticCallerOutput.builder()
+        return SomaticCallerOutput.builder(NAMESPACE)
                 .status(jobStatus)
                 .maybeFinalSomaticVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(outputFile.fileName())))
                 .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
@@ -134,7 +133,7 @@ public class SomaticCaller extends TertiaryStage<SomaticCallerOutput> {
 
     @Override
     public SomaticCallerOutput skippedOutput(final SomaticRunMetadata metadata) {
-        return SomaticCallerOutput.builder().status(PipelineStatus.SKIPPED).build();
+        return SomaticCallerOutput.builder(NAMESPACE).status(PipelineStatus.SKIPPED).build();
     }
 
     @Override
