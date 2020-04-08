@@ -11,8 +11,7 @@ import static com.hartwig.pipeline.resource.ResourceNames.SNPEFF;
 
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 
-public class Hg38ResourceFiles implements ResourceFiles
-{
+public class Hg38ResourceFiles implements ResourceFiles {
     public static final String HG38_DIRECTORY = "hg38";
 
     public RefGenomeVersion version() { return RefGenomeVersion.HG38; }
