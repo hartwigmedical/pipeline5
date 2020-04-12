@@ -51,7 +51,7 @@ public class ResultAggregationTest {
         underlyingBucket = mock(Bucket.class);
         when(bucket.getUnderlyingBucket()).thenReturn(underlyingBucket);
         victim = new ResultAggregation(bucket, ResultsDirectory.defaultDirectory());
-        path = String.format("results/%s/%s", PROJECT, BARCODE);
+        path = String.format("results/%s/%s/", PROJECT, BARCODE);
         first = blob(path + "/GIAB12878_S1_L001_R1_001.fastq.gz");
         second = blob(path + "/GIAB12878_S1_L001_R2_001.fastq.gz");
         third = blob(path + "/GIAB12878_S1_L002_R1_001.fastq.gz");
