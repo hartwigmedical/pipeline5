@@ -100,7 +100,7 @@ class Bcl2Fastq {
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("bcl2fastq")
                 .startupCommand(bash)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(96, 90))
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(96, 120))
                 .namespacedResults(resultsDirectory)
                 .workingDiskSpaceGb(10000)
                 .build();
