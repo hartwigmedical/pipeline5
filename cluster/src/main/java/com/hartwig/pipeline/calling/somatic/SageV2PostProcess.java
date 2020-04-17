@@ -7,11 +7,11 @@ import com.hartwig.pipeline.calling.SubStage;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.OutputFile;
 
-class SageV2PostProcess extends SubStage {
+public class SageV2PostProcess extends SubStage {
 
     private final String assembly;
 
-    SageV2PostProcess(final String assembly) {
+    public SageV2PostProcess(final String assembly) {
         super("sage.post.processed", OutputFile.GZIPPED_VCF);
         this.assembly = assembly;
     }
