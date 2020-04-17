@@ -10,6 +10,7 @@ import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.calling.FinalSubStage;
 import com.hartwig.pipeline.calling.SubStageInputOutput;
+import com.hartwig.pipeline.calling.substages.CosmicAnnotation;
 import com.hartwig.pipeline.calling.substages.SnpEff;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
@@ -58,18 +59,22 @@ public class SageV2Caller extends TertiaryStage<SomaticCallerOutput> {
         String tumorSampleName = metadata.tumor().sampleName();
         String referenceSampleName = metadata.reference().sampleName();
 
-        SageV2Application sageV2Application =
-                new SageV2Application(resourceFiles, tumorBamPath, referenceBamPath, tumorSampleName, referenceSampleName);
+        SageV2Application sageV2Application = new SageV2Application(resourceFiles,
+                tumorBamPath,
+                referenceBamPath,
+                tumorSampleName,
+                referenceSampleName);
         sageOutputFile = sageV2Application.apply(SubStageInputOutput.empty(tumorSampleName)).outputFile();
 
         final String refGenomeStr = resourceFiles.version() == RefGenomeVersion.HG37 ? "hg19" : "hg38";
 
         SubStageInputOutput sageOutput = sageV2Application.andThen(new SageV2PassFilter())
                 .andThen(new MappabilityAnnotation(resourceFiles.out150Mappability(), ResourceFiles.of(MAPPABILITY, "mappability.hdr")))
-                .andThen(new PonAnnotation("sage.pon", resourceFiles.sageGermlinePon(), "PON_COUNT", "PON_MAX"))
+                .andThen(new PonAnnotation("sage.pon", resourceFiles.sageGermlinePon(), "PON_COUNT"))
                 .andThen(new SageV2PonFilter())
                 .andThen(new SnpEff(ResourceFiles.SNPEFF_CONFIG, resourceFiles))
-                .andThen(FinalSubStage.of(new SageV2PostProcess(refGenomeStr)))
+                .andThen(new SageV2PostProcess(refGenomeStr))
+                .andThen(FinalSubStage.of(new CosmicAnnotation(ResourceFiles.COSMIC_VCF_GZ, "ID,INFO")))
                 .apply(SubStageInputOutput.empty(tumorSampleName));
 
         commands.addAll(sageOutput.bash());

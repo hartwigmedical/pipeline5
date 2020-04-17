@@ -3,18 +3,16 @@ package com.hartwig.pipeline.calling.somatic;
 import java.util.StringJoiner;
 
 import com.hartwig.pipeline.execution.vm.Bash;
-import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.resource.ResourceFiles;
 
 public class SageCommandBuilder {
 
     private final ResourceFiles resourceFiles;
     private boolean panelOnly = false;
-    private boolean germlineMode = false;
-    private final StringJoiner tumor = new StringJoiner(",");
-    private final StringJoiner tumorBam = new StringJoiner(",");
-    private final StringJoiner reference = new StringJoiner(",");
-    private final StringJoiner referenceBam = new StringJoiner(",");
+    private StringJoiner tumor = new StringJoiner(",");
+    private StringJoiner tumorBam = new StringJoiner(",");
+    private StringJoiner reference = new StringJoiner(",");
+    private StringJoiner referenceBam = new StringJoiner(",");
 
     public SageCommandBuilder(ResourceFiles resourceFiles) {
         this.resourceFiles = resourceFiles;
@@ -37,11 +35,6 @@ public class SageCommandBuilder {
         return this;
     }
 
-    public SageCommandBuilder germlineMode() {
-        germlineMode = true;
-        return this;
-    }
-
     public SageCommand build(String outputVcf) {
         final StringJoiner arguments = new StringJoiner(" ");
 
@@ -59,20 +52,10 @@ public class SageCommandBuilder {
         arguments.add("-high_confidence_bed").add(resourceFiles.giabHighConfidenceBed());
         arguments.add("-ref_genome").add(resourceFiles.refGenomeFile());
         arguments.add("-out").add(outputVcf);
-        arguments.add("-assembly").add(resourceFiles.version().equals(RefGenomeVersion.HG38) ? "hg38" : "hg19");
         arguments.add("-threads").add(Bash.allCpus());
 
         if (panelOnly) {
             arguments.add("-panel_only");
-        }
-
-        if (germlineMode) {
-            arguments
-                    .add("-hard_filter_enabled true")
-                    .add("-soft_filter_enabled false")
-                    .add("-hard_min_tumor_qual 0")
-                    .add("-hard_min_tumor_raw_alt_support 3")
-                    .add("-hard_min_tumor_raw_base_quality 30");
         }
 
         return new SageCommand("com.hartwig.hmftools.sage.SageApplication", "110G", arguments.toString());
