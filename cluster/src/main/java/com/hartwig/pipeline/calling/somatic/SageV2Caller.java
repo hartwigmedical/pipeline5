@@ -56,30 +56,20 @@ public class SageV2Caller extends TertiaryStage<SomaticCallerOutput> {
 
         String tumorBamPath = getTumorBamDownload().getLocalTargetPath();
         String referenceBamPath = getReferenceBamDownload().getLocalTargetPath();
-        String referenceGenomePath = resourceFiles.refGenomeFile();
         String tumorSampleName = metadata.tumor().sampleName();
         String referenceSampleName = metadata.reference().sampleName();
 
-        SageV2Application sageV2Application = new SageV2Application(
-                resourceFiles.sageKnownHotspots(),
-                resourceFiles.sageActionableCodingPanel(),
-                resourceFiles.giabHighConfidenceBed(),
-                referenceGenomePath,
-                tumorBamPath,
-                referenceBamPath,
-                tumorSampleName,
-                referenceSampleName);
+        SageV2Application sageV2Application = new SageV2Application(resourceFiles, tumorBamPath, referenceBamPath, tumorSampleName, referenceSampleName);
         sageOutputFile = sageV2Application.apply(SubStageInputOutput.empty(tumorSampleName)).outputFile();
 
         final String refGenomeStr = resourceFiles.version() == RefGenomeVersion.HG37 ? "hg19" : "hg38";
 
-        SubStageInputOutput sageOutput = sageV2Application
-                .andThen(new SageV2PassFilter(tumorSampleName))
+        SubStageInputOutput sageOutput = sageV2Application.andThen(new SageV2PassFilter())
                 .andThen(new MappabilityAnnotation(resourceFiles.out150Mappability(), ResourceFiles.of(MAPPABILITY, "mappability.hdr")))
                 .andThen(new PonAnnotation("sage.pon", resourceFiles.sageGermlinePon(), "PON_COUNT"))
                 .andThen(new SageV2PonFilter())
                 .andThen(new SnpEff(ResourceFiles.SNPEFF_CONFIG, resourceFiles))
-                .andThen(new SageV2PostProcess( refGenomeStr))
+                .andThen(new SageV2PostProcess(refGenomeStr))
                 .andThen(FinalSubStage.of(new CosmicAnnotation(ResourceFiles.COSMIC_VCF_GZ, "ID,INFO")))
                 .apply(SubStageInputOutput.empty(tumorSampleName));
 
