@@ -26,7 +26,13 @@ public class InputBundle {
     }
 
     public InputFileDescriptor get(String key) {
-        return inputs.stream().filter(i -> i.name().equals(key)).findFirst()
+        return inputs.stream()
+                .filter(i -> i.name().equals(key))
+                .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException(format("No key [%s] in input", key)));
+    }
+
+    public boolean contains(String key) {
+        return inputs.stream().anyMatch(i -> i.name().equals(key));
     }
 }
