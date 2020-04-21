@@ -34,11 +34,27 @@ If you do need to write your own operation there are two distinct approaches:
 
 ### Adding the Project as a Maven Dependency
 
-The artifacts are currently hosted in a GCP bucket and you must configure your Maven to find them. In your POM:
+The artifacts are currently hosted in a GCP bucket and you must configure your Maven to find them. In your POM include at least
+the following:
 
 ```
 <project>
 ...
+    <properties>
+        <hartwig.version>5.x.y</hartwig.version>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+    </properties>
+
+    <repositories>
+        <repository>
+            <id>hmf-maven-repository-release</id>
+            <url>gs://hmf-maven-repository/release</url>
+        </repository>
+    </repositories>
+    
+    ...
+
     <dependencies>
         <dependency>
             <groupId>com.hartwig</groupId>
