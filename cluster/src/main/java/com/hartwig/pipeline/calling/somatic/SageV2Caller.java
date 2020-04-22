@@ -66,7 +66,7 @@ public class SageV2Caller extends TertiaryStage<SomaticCallerOutput> {
 
         SubStageInputOutput sageOutput = sageV2Application.andThen(new SageV2PassFilter())
                 .andThen(new MappabilityAnnotation(resourceFiles.out150Mappability(), ResourceFiles.of(MAPPABILITY, "mappability.hdr")))
-                .andThen(new PonAnnotation("sage.pon", resourceFiles.sageGermlinePon(), "PON_COUNT"))
+                .andThen(new PonAnnotation("sage.pon", resourceFiles.sageGermlinePon(), "PON_COUNT", "PON_MAX"))
                 .andThen(new SageV2PonFilter())
                 .andThen(new SnpEff(ResourceFiles.SNPEFF_CONFIG, resourceFiles))
                 .andThen(new SageV2PostProcess(refGenomeStr))
