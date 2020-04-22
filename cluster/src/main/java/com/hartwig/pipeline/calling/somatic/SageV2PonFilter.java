@@ -13,8 +13,8 @@ public class SageV2PonFilter extends SubStage {
     }
 
     private static final String HOTSPOT = "INFO/TIER=\"HOTSPOT\" && PON_MAX>=5 && PON_COUNT >= 10";
-    private static final String PANEL = "INFO/TIER=\"PANEL\" && PON_MAX>=5 && PON_COUNT >= 6";
-    private static final String OTHER = "INFO/TIER!=\"HOTSPOT\" && INFO/TIER!=\"PANEL\" && PON_COUNT >= 6";
+    private static final String PANEL = "INFO/TIER=\"PANEL\" && PON_MAX>=5 && PON_COUNT >= 3";
+    private static final String OTHER = "INFO/TIER!=\"HOTSPOT\" && INFO/TIER!=\"PANEL\" && PON_COUNT >= 3";
 
     @Override
     public List<BashCommand> bash(final OutputFile input, final OutputFile output) {
