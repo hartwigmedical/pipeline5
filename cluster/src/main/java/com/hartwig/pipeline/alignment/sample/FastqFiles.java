@@ -22,7 +22,6 @@ class FastqFiles {
             String flowCellId = tokens[1];
             ImmutableLane.Builder builder = builders.computeIfAbsent(laneNumber + flowCellId,
                     s -> Lane.builder()
-                            .directory(directory)
                             .laneNumber(laneNumber)
                             .name(sampleName + "_" + laneNumber)
                             .flowCellId(flowCellId)

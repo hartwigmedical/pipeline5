@@ -135,7 +135,7 @@ public class VmAlignerTest {
         when(rootBucket.getName()).thenReturn(rootBucketName);
         when(storage.get(rootBucketName)).thenReturn(rootBucket);
 
-        when(sampleSource.sample(METADATA)).thenReturn(Sample.builder("", METADATA.sampleName())
+        when(sampleSource.sample(METADATA)).thenReturn(Sample.builder(METADATA.sampleName())
                 .addLanes(lane(1))
                 .addLanes(lane(2))
                 .build());

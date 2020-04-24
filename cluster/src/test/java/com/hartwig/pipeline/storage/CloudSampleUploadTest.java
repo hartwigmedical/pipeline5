@@ -26,23 +26,12 @@ public class CloudSampleUploadTest {
             .firstOfPairPath(FASTQ_DIR + "reads1.fastq.gz")
             .secondOfPairPath(FASTQ_DIR + "mates1.fastq.gz")
             .laneNumber("")
-            .directory("")
             .index("")
             .suffix("")
             .name("")
             .flowCellId("")
             .build();
-    private static final Lane LANE_2 = Lane.builder()
-            .firstOfPairPath(FASTQ_DIR + "reads2.fastq.gz")
-            .secondOfPairPath(FASTQ_DIR + "mates2.fastq.gz")
-            .laneNumber("")
-            .directory("")
-            .index("")
-            .suffix("")
-            .name("")
-            .flowCellId("")
-            .build();
-    private static final Sample SAMPLE_ONE_LANE = Sample.builder("", SAMPLE_NAME).addLanes(LANE_1).build();
+    private static final Sample SAMPLE_ONE_LANE = Sample.builder(SAMPLE_NAME).addLanes(LANE_1).build();
     private static final String TARGET_PATH = "gs://run/samples/TEST123/";
     private CloudCopy cloudCopy;
     private CloudSampleUpload victim;

@@ -1,5 +1,10 @@
 package com.hartwig.pipeline.alignment.sample;
 
+import java.io.File;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Storage;
 import com.google.common.collect.Iterables;
@@ -9,11 +14,6 @@ import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.vm.VmAligner;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.storage.RuntimeBucket;
-
-import java.io.File;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 public class GoogleStorageSampleSource implements SampleSource {
 
@@ -45,7 +45,7 @@ public class GoogleStorageSampleSource implements SampleSource {
                 .map(File::getName)
                 .collect(Collectors.toList()), sampleDirectory, sampleNameWithPostfix);
 
-        return Sample.builder(sampleDirectory, sampleNameWithPostfix)
+        return Sample.builder(sampleNameWithPostfix)
                 .addAllLanes(lanes)
                 .type(metadata.sampleId().toLowerCase().endsWith("r") ? Sample.Type.REFERENCE : Sample.Type.TUMOR)
                 .build();

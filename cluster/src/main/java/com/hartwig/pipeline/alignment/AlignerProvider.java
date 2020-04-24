@@ -6,8 +6,8 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
-import com.hartwig.pipeline.alignment.sample.FileSystemSampleSource;
 import com.hartwig.pipeline.alignment.sample.GoogleStorageSampleSource;
+import com.hartwig.pipeline.alignment.sample.JsonSampleSource;
 import com.hartwig.pipeline.alignment.sample.SampleSource;
 import com.hartwig.pipeline.alignment.sample.SbpS3SampleSource;
 import com.hartwig.pipeline.alignment.sample.SbpSampleReader;
@@ -18,7 +18,6 @@ import com.hartwig.pipeline.storage.CloudCopy;
 import com.hartwig.pipeline.storage.CloudSampleUpload;
 import com.hartwig.pipeline.storage.GSFileSource;
 import com.hartwig.pipeline.storage.GSUtilCloudCopy;
-import com.hartwig.pipeline.storage.LocalFileSource;
 import com.hartwig.pipeline.storage.RCloneCloudCopy;
 import com.hartwig.pipeline.storage.SampleUpload;
 import com.hartwig.pipeline.storage.SbpS3FileSource;
@@ -40,8 +39,8 @@ public abstract class AlignerProvider {
     }
 
     private static VmAligner constructVmAligner(final Arguments arguments, final GoogleCredentials credentials, final Storage storage,
-                                                final SampleSource sampleSource, final SampleUpload sampleUpload, final ResultsDirectory resultsDirectory,
-                                                final AlignmentOutputStorage alignmentOutputStorage) throws Exception {
+            final SampleSource sampleSource, final SampleUpload sampleUpload, final ResultsDirectory resultsDirectory,
+            final AlignmentOutputStorage alignmentOutputStorage) throws Exception {
         ComputeEngine computeEngine = ComputeEngine.from(arguments, credentials);
         return new VmAligner(arguments,
                 computeEngine,
@@ -54,7 +53,7 @@ public abstract class AlignerProvider {
     }
 
     abstract VmAligner wireUp(GoogleCredentials credentials, Storage storage, AlignmentOutputStorage alignmentOutputStorage,
-                              ResultsDirectory resultsDirectory) throws Exception;
+            ResultsDirectory resultsDirectory) throws Exception;
 
     public static AlignerProvider from(GoogleCredentials credentials, Storage storage, Arguments arguments) {
         if (arguments.sbpApiRunId().isPresent() || arguments.sbpApiSampleId().isPresent()) {
@@ -77,12 +76,12 @@ public abstract class AlignerProvider {
 
         @Override
         VmAligner wireUp(GoogleCredentials credentials, Storage storage, AlignmentOutputStorage alignmentOutputStorage,
-                         ResultsDirectory resultsDirectory) throws Exception {
-            SampleSource sampleSource = getArguments().upload()
-                    ? new FileSystemSampleSource(getArguments().sampleDirectory())
-                    : new GoogleStorageSampleSource(storage, getArguments());
+                ResultsDirectory resultsDirectory) throws Exception {
+            SampleSource sampleSource = getArguments().json().<SampleSource>map(JsonSampleSource::new).orElse(new GoogleStorageSampleSource(
+                    storage,
+                    getArguments()));
             GSUtilCloudCopy gsUtilCloudCopy = new GSUtilCloudCopy(getArguments().cloudSdkPath());
-            SampleUpload sampleUpload = new CloudSampleUpload(new LocalFileSource(), gsUtilCloudCopy);
+            SampleUpload sampleUpload = new CloudSampleUpload(new GSFileSource(), gsUtilCloudCopy);
             return AlignerProvider.constructVmAligner(getArguments(),
                     credentials,
                     storage,
@@ -101,7 +100,7 @@ public abstract class AlignerProvider {
 
         @Override
         VmAligner wireUp(GoogleCredentials credentials, Storage storage, AlignmentOutputStorage alignmentOutputStorage,
-                         ResultsDirectory resultsDirectory) throws Exception {
+                ResultsDirectory resultsDirectory) throws Exception {
             SbpRestApi sbpRestApi = SbpRestApi.newInstance(getArguments().sbpApiUrl());
             SampleSource sampleSource = new SbpS3SampleSource(new SbpSampleReader(sbpRestApi));
             CloudCopy cloudCopy = new RCloneCloudCopy(getArguments().rclonePath(),

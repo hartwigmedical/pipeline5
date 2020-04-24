@@ -19,6 +19,4 @@ public interface SbpSample {
     String type();
 
     String status();
-
-
 }

@@ -84,7 +84,6 @@ public class SmokeTest {
                 .rclonePath(RCLONE_PATH)
                 .uploadFromGcp(true)
                 .rcloneGcpRemote(GCP_REMOTE)
-                .upload(true)
                 .cleanup(true)
                 .archiveBucket(ARCHIVE_BUCKET)
                 .archiveProject(ARCHIVE_PROJECT)

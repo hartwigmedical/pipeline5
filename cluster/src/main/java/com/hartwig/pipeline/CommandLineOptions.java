@@ -2,6 +2,8 @@ package com.hartwig.pipeline;
 
 import java.util.Optional;
 
+import com.hartwig.pipeline.resource.RefGenomeVersion;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -12,15 +14,12 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hartwig.pipeline.resource.RefGenomeVersion;
-
 public class CommandLineOptions {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CommandLineOptions.class);
     private static final String SAMPLE_DIRECTORY_FLAG = "sample_directory";
     private static final String VERSION_FLAG = "version";
     private static final String CLEANUP_FLAG = "cleanup";
-    private static final String UPLOAD_FLAG = "upload";
     private static final String UPLOAD_FROM_GCP_FLAG = "upload_from_gcp";
     private static final String PROJECT_FLAG = "project";
     private static final String REGION_FLAG = "region";
@@ -64,7 +63,8 @@ public class CommandLineOptions {
     private static final String CMEK_FLAG = "cmek";
     private static final String SHALLOW_FLAG = "shallow";
     private static final String ZONE_FLAG = "zone";
-    private static final String REF_GENOME_VERSION = "ref_genome_version";
+    private static final String REF_GENOME_VERSION_FLAG = "ref_genome_version";
+    private static final String JSON_FLAG = "json";
 
     private static Options options() {
         return new Options().addOption(profile())
@@ -84,9 +84,6 @@ public class CommandLineOptions {
                         "Do not download the final BAM of Google Storage. Will also leave the runtime bucket in place"))
                 .addOption(optionWithBooleanArg(VERBOSE_CLOUD_SDK_FLAG,
                         "Have stdout and stderr of Google tools like gsutil stream to the console"))
-                .addOption(optionWithBooleanArg(UPLOAD_FLAG,
-                        "Don't upload the sample to storage. "
-                                + "This should be used in combination with a run_id which points at an existing bucket"))
                 .addOption(optionWithBooleanArg(UPLOAD_FROM_GCP_FLAG,
                         "Upload sample fastq from GCP instead of SBP S3. "
                                 + "Temporary feature toggle while transitioning to bcl2fastq on GCP."))
@@ -126,7 +123,12 @@ public class CommandLineOptions {
                                 + "Increase to allow more concurrent VMs to run at the expense of state change detection resolution."))
                 .addOption(zone())
                 .addOption(refGenomeVersion())
-                .addOption(maxConcurrentLanes());
+                .addOption(maxConcurrentLanes())
+                .addOption(json());
+    }
+
+    private static Option json() {
+        return optionWithArg(JSON_FLAG, "JSON file defining the location of FASTQ inputs in GCP.");
     }
 
     private static Option maxConcurrentLanes() {
@@ -237,7 +239,7 @@ public class CommandLineOptions {
     }
 
     private static Option refGenomeVersion() {
-        return optionWithArg(REF_GENOME_VERSION, "Ref genome version, default=37, values 37 or 38.");
+        return optionWithArg(REF_GENOME_VERSION_FLAG, "Ref genome version, default=37, values 37 or 38.");
     }
 
     private static Option version() {
@@ -280,7 +282,6 @@ public class CommandLineOptions {
                     .cloudSdkPath(commandLine.getOptionValue(CLOUD_SDK_PATH_FLAG, defaults.cloudSdkPath()))
                     .usePreemptibleVms(booleanOptionWithDefault(commandLine, USE_PREEMTIBLE_VMS_FLAG, defaults.usePreemptibleVms()))
                     .useLocalSsds(booleanOptionWithDefault(commandLine, USE_LOCAL_SSDS_FLAG, defaults.useLocalSsds()))
-                    .upload(booleanOptionWithDefault(commandLine, UPLOAD_FLAG, defaults.upload()))
                     .uploadFromGcp(booleanOptionWithDefault(commandLine, UPLOAD_FROM_GCP_FLAG, defaults.uploadFromGcp()))
                     .rclonePath(commandLine.getOptionValue(RCLONE_PATH_FLAG, defaults.rclonePath()))
                     .rcloneGcpRemote(commandLine.getOptionValue(RCLONE_GCP_REMOTE_FLAG, defaults.rcloneGcpRemote()))
@@ -309,6 +310,7 @@ public class CommandLineOptions {
                     .maxConcurrentLanes(maxConcurrentLanes(commandLine, defaults.maxConcurrentLanes()))
                     .profile(defaults.profile())
                     .refGenomeVersion(refGenomeVersion(commandLine, defaults))
+                    .json(json(commandLine, defaults))
                     .build();
         } catch (ParseException e) {
             LOGGER.error("Could not parse command line args", e);
@@ -325,6 +327,13 @@ public class CommandLineOptions {
         return defaults.cmek();
     }
 
+    private static Optional<String> json(final CommandLine commandLine, final Arguments defaults) {
+        if (commandLine.hasOption(JSON_FLAG)) {
+            return Optional.of(commandLine.getOptionValue(JSON_FLAG));
+        }
+        return defaults.json();
+    }
+
     private static Optional<String> zone(final CommandLine commandLine, final Arguments defaults) {
         if (commandLine.hasOption(ZONE_FLAG)) {
             return Optional.of(commandLine.getOptionValue(ZONE_FLAG));
@@ -333,8 +342,8 @@ public class CommandLineOptions {
     }
 
     private static RefGenomeVersion refGenomeVersion(final CommandLine commandLine, final Arguments defaults) {
-        if (commandLine.hasOption(REF_GENOME_VERSION)) {
-            return RefGenomeVersion.valueOf(commandLine.getOptionValue(REF_GENOME_VERSION));
+        if (commandLine.hasOption(REF_GENOME_VERSION_FLAG)) {
+            return RefGenomeVersion.valueOf(commandLine.getOptionValue(REF_GENOME_VERSION_FLAG));
         }
         return defaults.refGenomeVersion();
     }
