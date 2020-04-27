@@ -11,8 +11,7 @@ import static com.hartwig.pipeline.resource.ResourceNames.SNPEFF;
 
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 
-public class Hg37ResourceFiles implements ResourceFiles
-{
+public class Hg37ResourceFiles implements ResourceFiles {
     public static final String HG37_DIRECTORY = "hg37";
 
     public RefGenomeVersion version() { return RefGenomeVersion.HG37; }
@@ -24,9 +23,6 @@ public class Hg37ResourceFiles implements ResourceFiles
     }
 
     private static final String REF_GENOME_FASTA_HG37_FILE = "Homo_sapiens.GRCh37.GATK.illumina.fasta";
-
-    public static final String REFERENCE_GENOME_FASTA_HG37 =
-            String.format("%s/%s/%s/%s", VmDirectories.RESOURCES, REFERENCE_GENOME, HG37_DIRECTORY, REF_GENOME_FASTA_HG37_FILE);
 
     public String refGenomeFile() { return formPath(REFERENCE_GENOME, REF_GENOME_FASTA_HG37_FILE); }
 

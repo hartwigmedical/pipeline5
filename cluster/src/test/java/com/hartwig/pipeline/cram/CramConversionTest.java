@@ -58,10 +58,12 @@ public class CramConversionTest extends StageTest<CramOutput, SingleSampleRunMet
         String samtools = "/opt/tools/samtools/1.10/samtools";
         String input = "/data/input/reference.bam";
         String output = "/data/output/reference.cram";
+        final Hg37ResourceFiles resourceFiles = new Hg37ResourceFiles();
+
         return ImmutableList.of(
 
                 format("%s view -T %s -o %s -O cram,embed_ref=1 -@ $(grep -c '^processor' /proc/cpuinfo) %s",
-                        samtools, Hg37ResourceFiles.REFERENCE_GENOME_FASTA_HG37, output, input),
+                        samtools, resourceFiles.refGenomeFile(), output, input),
                 format("%s index %s", samtools, output),
                 format("java -Xmx4G -cp /opt/tools/bamcomp/1.2/bamcomp.jar com.hartwig.bamcomp.BamToCramValidator %s %s 6",
                         input, output));

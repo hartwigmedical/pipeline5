@@ -13,7 +13,6 @@ import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.calling.germline.GermlineCaller;
 import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
 import com.hartwig.pipeline.calling.somatic.SageV2Caller;
-import com.hartwig.pipeline.calling.somatic.SageV2CallerOutput;
 import com.hartwig.pipeline.calling.somatic.SomaticCaller;
 import com.hartwig.pipeline.calling.somatic.SomaticCallerOutput;
 import com.hartwig.pipeline.calling.structural.StructuralCaller;
@@ -26,6 +25,7 @@ import com.hartwig.pipeline.metrics.BamMetrics;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.report.FullSomaticResults;
 import com.hartwig.pipeline.report.PipelineResults;
+import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.StageRunner;
 import com.hartwig.pipeline.tertiary.amber.Amber;
@@ -99,7 +99,7 @@ public class SomaticPipeline {
             try {
                 Future<AmberOutput> amberOutputFuture = executorService.submit(() -> stageRunner.run(metadata, new Amber(pair, resourceFiles)));
                 Future<CobaltOutput> cobaltOutputFuture = executorService.submit(() -> stageRunner.run(metadata, new Cobalt(pair, resourceFiles)));
-                Future<SageV2CallerOutput> sageCallerOutputFuture =
+                Future<SomaticCallerOutput> sageCallerOutputFuture =
                         executorService.submit(() -> stageRunner.run(metadata, new SageV2Caller(pair, resourceFiles)));
                 Future<SomaticCallerOutput> somaticCallerOutputFuture =
                         executorService.submit(() -> stageRunner.run(metadata, new SomaticCaller(pair, resourceFiles)));
@@ -107,14 +107,15 @@ public class SomaticPipeline {
                         executorService.submit(() -> stageRunner.run(metadata, new StructuralCaller(pair, resourceFiles)));
                 AmberOutput amberOutput = pipelineResults.add(state.add(amberOutputFuture.get()));
                 CobaltOutput cobaltOutput = pipelineResults.add(state.add(cobaltOutputFuture.get()));
-                SageV2CallerOutput sageOutput = pipelineResults.add(state.add(sageCallerOutputFuture.get()));
+                SomaticCallerOutput sageOutput = pipelineResults.add(state.add(sageCallerOutputFuture.get()));
                 SomaticCallerOutput somaticCallerOutput = pipelineResults.add(state.add(somaticCallerOutputFuture.get()));
+                SomaticCallerOutput purpleInput = arguments.refGenomeVersion().equals(RefGenomeVersion.HG37) ? somaticCallerOutput : sageOutput;
                 StructuralCallerOutput structuralCallerOutput = pipelineResults.add(state.add(structuralCallerOutputFuture.get()));
 
                 if (state.shouldProceed()) {
                     Future<PurpleOutput> purpleOutputFuture = executorService.submit(() -> pipelineResults.add(state.add(stageRunner.run(
                             metadata,
-                            new Purple(resourceFiles, somaticCallerOutput, structuralCallerOutput, amberOutput, cobaltOutput, arguments.shallow())))));
+                            new Purple(resourceFiles, purpleInput, structuralCallerOutput, amberOutput, cobaltOutput, arguments.shallow())))));
                     PurpleOutput purpleOutput = purpleOutputFuture.get();
                     if (state.shouldProceed()) {
                         BamMetricsOutput tumorMetrics = bamMetricsOutputStorage.get(metadata.tumor(), new BamMetrics(resourceFiles, pair.tumor()));

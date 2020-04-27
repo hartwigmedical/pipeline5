@@ -28,6 +28,7 @@ import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.report.StartupScriptComponent;
 import com.hartwig.pipeline.report.ZippedVcfAndIndexComponent;
+import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
@@ -59,7 +60,6 @@ public class SomaticCaller extends TertiaryStage<SomaticCallerOutput> {
 
         String tumorBamPath = getTumorBamDownload().getLocalTargetPath();
         String referenceBamPath = getReferenceBamDownload().getLocalTargetPath();
-        String referenceGenomePath = resourceFiles.refGenomeFile();
         String tumorSampleName = metadata.tumor().sampleName();
         String referenceSampleName = metadata.reference().sampleName();
         String knownHotspotsTsv = ResourceFiles.of(SAGE, "KnownHotspots.tsv");
@@ -105,7 +105,7 @@ public class SomaticCaller extends TertiaryStage<SomaticCallerOutput> {
     @Override
     public SomaticCallerOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
             final ResultsDirectory resultsDirectory) {
-        return SomaticCallerOutput.builder()
+        return SomaticCallerOutput.builder(NAMESPACE)
                 .status(jobStatus)
                 .maybeFinalSomaticVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(outputFile.fileName())))
                 .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
@@ -134,11 +134,11 @@ public class SomaticCaller extends TertiaryStage<SomaticCallerOutput> {
 
     @Override
     public SomaticCallerOutput skippedOutput(final SomaticRunMetadata metadata) {
-        return SomaticCallerOutput.builder().status(PipelineStatus.SKIPPED).build();
+        return SomaticCallerOutput.builder(NAMESPACE).status(PipelineStatus.SKIPPED).build();
     }
 
     @Override
     public boolean shouldRun(final Arguments arguments) {
-        return arguments.runSomaticCaller();
+        return arguments.runSomaticCaller() && resourceFiles.version().equals(RefGenomeVersion.HG37);
     }
 }

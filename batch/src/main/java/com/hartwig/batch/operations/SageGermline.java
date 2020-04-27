@@ -2,8 +2,6 @@ package com.hartwig.batch.operations;
 
 import static java.lang.String.format;
 
-import static com.hartwig.pipeline.resource.Hg37ResourceFiles.REFERENCE_GENOME_FASTA_HG37;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,6 +18,7 @@ import com.hartwig.pipeline.execution.vm.RuntimeFiles;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
+import com.hartwig.pipeline.resource.Hg37ResourceFiles;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
@@ -58,6 +57,8 @@ public class SageGermline implements BatchOperation {
         final String hotspots = "/opt/resources/sage/hg37/KnownHotspots.hg19.vcf.gz";
         final String highConfidenceBed = "/opt/resources/sage/NA12878_GIAB_highconf_IllFB-IllGATKHC-CG-Ion-Solid_ALLCHROM_v3.2.2_highconf.bed.gz";
 
+        final Hg37ResourceFiles resourceFiles = new Hg37ResourceFiles();
+
         final BashCommand sageCommand = new JavaClassCommand("sage",
                 "pilot",
                 "sage.jar",
@@ -79,7 +80,7 @@ public class SageGermline implements BatchOperation {
                 "-hotspots",
                 hotspots,
                 "-ref_genome",
-                REFERENCE_GENOME_FASTA_HG37,
+                resourceFiles.refGenomeFile(),
                 "-out",
                 output,
                 "-threads",

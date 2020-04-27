@@ -70,9 +70,12 @@ public class SmokeTest {
         PipelineMain victim = new PipelineMain();
         String version = System.getProperty("version");
         String runId = "smoke-" + noDots(version);
+        GSUtil.configure(true, 1);
 
+        String privateKeyPath = workingDir() + "/google-key.json";
         Arguments arguments = Arguments.defaultsBuilder(Arguments.DefaultsProfile.DEVELOPMENT.toString())
-                .privateKeyPath(workingDir() + "/google-key.json")
+                .privateKeyPath(privateKeyPath)
+                .uploadPrivateKeyPath(privateKeyPath)
                 .sampleDirectory(workingDir() + "/../samples")
                 .version(version)
                 .cloudSdkPath(CLOUD_SDK_PATH)
@@ -84,6 +87,8 @@ public class SmokeTest {
                 .rclonePath(RCLONE_PATH)
                 .uploadFromGcp(true)
                 .rcloneGcpRemote(GCP_REMOTE)
+                .rcloneS3RemoteDownload("download")
+                .upload(true)
                 .cleanup(true)
                 .archiveBucket(ARCHIVE_BUCKET)
                 .archiveProject(ARCHIVE_PROJECT)
@@ -148,7 +153,6 @@ public class SmokeTest {
     }
 
     private void confirmArchiveBucketExists() {
-        GSUtil.configure(false, 1);
         try {
             GSUtil.auth(CLOUD_SDK_PATH, ARCHIVE_PRIVATE_KEY);
             runGsUtil(ImmutableList.of("ls", format("gs://%s", ARCHIVE_BUCKET)));

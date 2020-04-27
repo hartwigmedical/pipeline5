@@ -41,7 +41,7 @@ public class ResultAggregation {
     public Conversion apply(SampleSheet sampleSheet, Stats stats) {
         ImmutableConversion.Builder conversionBuilder = ImmutableConversion.builder();
         for (IlluminaSample sample : sampleSheet.samples()) {
-            List<Blob> listResult = bucket.list(resultsDirectory.path(String.format("%s/%s", sample.project(), sample.barcode())));
+            List<Blob> listResult = bucket.list(resultsDirectory.path(String.format("%s/%s/", sample.project(), sample.barcode())));
             conversionBuilder.addSamples(ImmutableConvertedSample.builder()
                     .barcode(sample.barcode())
                     .sample(sample.sample())

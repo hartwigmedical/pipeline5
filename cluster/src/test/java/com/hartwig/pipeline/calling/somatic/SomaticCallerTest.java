@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.calling.somatic;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
@@ -10,12 +12,19 @@ import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Before;
+import org.junit.Test;
 
 public class SomaticCallerTest extends TertiaryStageTest<SomaticCallerOutput> {
 
     @Before
     public void setUp() throws Exception {
         super.setUp();
+    }
+
+    @Test
+    public void disabledInHG38() {
+        SomaticCaller victim = new SomaticCaller(TestInputs.defaultPair(), TestInputs.HG38_RESOURCE_FILES);
+        assertThat(victim.shouldRun(Arguments.testDefaults())).isEqualTo(false);
     }
 
     @Override

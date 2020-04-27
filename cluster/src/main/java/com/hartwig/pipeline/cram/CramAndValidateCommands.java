@@ -1,12 +1,11 @@
 package com.hartwig.pipeline.cram;
 
-import static com.hartwig.pipeline.resource.Hg37ResourceFiles.REFERENCE_GENOME_FASTA_HG37;
-
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.calling.command.VersionedToolCommand;
 import com.hartwig.pipeline.execution.vm.Bash;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.JavaClassCommand;
+import com.hartwig.pipeline.resource.Hg37ResourceFiles;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.tools.Versions;
 
@@ -17,9 +16,12 @@ public class CramAndValidateCommands {
     private final String inputBam;
     private final String outputCram;
 
+    private final ResourceFiles resourceFiles;
+
     public CramAndValidateCommands(String inputBam, String outputCram) {
         this.inputBam = inputBam;
         this.outputCram = outputCram;
+        resourceFiles = new Hg37ResourceFiles();
     }
 
     public List<BashCommand> commands() {
@@ -29,7 +31,7 @@ public class CramAndValidateCommands {
                         Versions.SAMTOOLS,
                         "view",
                         "-T",
-                        REFERENCE_GENOME_FASTA_HG37,
+                        resourceFiles.refGenomeFile(),
                         "-o",
                         outputCram,
                         "-O",

@@ -206,9 +206,27 @@ public class FastqMetadataRegistrationTest {
         assertThat(sbpFastqArgumentCaptor.getValue().qc_pass()).isFalse();
     }
 
+    @Test
+    public void handlesZeroYieldOnFastq() {
+        victim.accept(conversion(EXISTS).addSamples(sample().addFastq(fastq().yieldQ30(0).yield(0).build()).build()).build());
+        verify(sbpApi).create(sbpFastqArgumentCaptor.capture());
+        Optional<Double> q30 = sbpFastqArgumentCaptor.getValue().q30();
+        assertThat(q30).isPresent();
+        assertThat(Double.isNaN(q30.get())).isFalse();
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void throwsExceptionWhenYieldQ30ExceedsYield() {
+        victim.accept(conversion(EXISTS).addSamples(sample().addFastq(fastq().yieldQ30(1).yield(0).build()).build()).build());
+        verify(sbpApi).create(sbpFastqArgumentCaptor.capture());
+        Optional<Double> q30 = sbpFastqArgumentCaptor.getValue().q30();
+        assertThat(q30).isPresent();
+        assertThat(Double.isNaN(q30.get())).isFalse();
+    }
+
     private ImmutableConversion highUndeterminedReads() {
         return conversion(EXISTS).undetermined(ConvertedUndetermined.builder().yieldQ30(7).yield(7).build())
-                .addSamples(sample().addFastq(fastq().yield(100).build()).build())
+                .addSamples(sample().addFastq(fastq().yieldQ30(100).yield(100).build()).build())
                 .build();
     }
 

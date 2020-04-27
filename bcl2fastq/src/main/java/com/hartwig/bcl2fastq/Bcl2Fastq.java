@@ -93,7 +93,6 @@ class Bcl2Fastq {
                 GSUtil.auth(arguments.cloudSdkPath(), arguments.privateKeyPath().get());
             }
             GSUtil.rm(arguments.cloudSdkPath(), bucket.runId());
-            GSUtil.rm(arguments.cloudSdkPath(), inputBucket.getName() + "/" + flowcellPath);
         }
         LOGGER.info("bcl2fastq complete for flowcell [{}]", arguments.flowcell());
     }
@@ -102,7 +101,7 @@ class Bcl2Fastq {
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("bcl2fastq")
                 .startupCommand(bash)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(96, 90))
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(96, 512))
                 .namespacedResults(resultsDirectory)
                 .workingDiskSpaceGb(10000)
                 .build();

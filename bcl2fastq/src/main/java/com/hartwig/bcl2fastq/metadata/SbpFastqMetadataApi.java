@@ -20,8 +20,12 @@ import com.hartwig.pipeline.jackson.ObjectMappers;
 
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.HttpUrlConnectorProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SbpFastqMetadataApi {
+
+    private final static Logger LOGGER = LoggerFactory.getLogger(SbpFastqMetadataApi.class);
 
     private static final String FLOWCELLS = "flowcells";
     private static final String SAMPLES = "samples";
@@ -158,6 +162,7 @@ public class SbpFastqMetadataApi {
         if (isSuccessful(response)) {
             return response.readEntity(String.class);
         }
+        LOGGER.error(response.readEntity(String.class));
         throw error(response);
     }
 

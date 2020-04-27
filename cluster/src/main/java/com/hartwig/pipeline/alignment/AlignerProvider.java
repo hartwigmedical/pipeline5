@@ -104,11 +104,11 @@ public abstract class AlignerProvider {
             SbpRestApi sbpRestApi = SbpRestApi.newInstance(getArguments().sbpApiUrl());
             SampleSource sampleSource = new SbpS3SampleSource(new SbpSampleReader(sbpRestApi));
             CloudCopy cloudCopy = new RCloneCloudCopy(getArguments().rclonePath(),
-                    getArguments().rcloneGcpRemote(),
-                    getArguments().rcloneS3RemoteDownload(),
-                    ProcessBuilder::new);
-            SampleUpload sampleUpload =
-                    new CloudSampleUpload(getArguments().uploadFromGcp() ? new GSFileSource() : new SbpS3FileSource(), cloudCopy);
+                            getArguments().rcloneGcpRemote(),
+                            getArguments().rcloneS3RemoteDownload(),
+                            ProcessBuilder::new);
+            SampleUpload sampleUpload = new CloudSampleUpload(getArguments().uploadFromGcp() ? new GSFileSource() : new SbpS3FileSource(),
+                    cloudCopy);
             return AlignerProvider.constructVmAligner(getArguments(),
                     credentials,
                     storage,
