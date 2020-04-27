@@ -75,7 +75,7 @@ public class SbpSampleReader {
 
     private Sample sample(final String sampleName, final String barcode, final List<SbpFastQ> fastqJson) {
         List<Lane> lanes = fastqJson.stream().filter(SbpSampleReader::qcPass).map(SbpSampleReader::lane).collect(Collectors.toList());
-        return Sample.builder(sampleName).addAllLanes(lanes).build();
+        return Sample.builder(sampleName).barcode(barcode).addAllLanes(lanes).build();
     }
 
     private static boolean qcPass(SbpFastQ sbpFastQ) {

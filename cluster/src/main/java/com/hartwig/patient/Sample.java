@@ -30,6 +30,6 @@ public interface Sample {
     }
 
     static ImmutableSample.Builder builder(final String name) {
-        return ImmutableSample.builder().name(name);
+        return ImmutableSample.builder().name(name).type(name.toLowerCase().endsWith("t") ? Type.TUMOR : Type.REFERENCE);
     }
 }
