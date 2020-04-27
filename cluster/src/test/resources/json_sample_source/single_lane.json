@@ -1,6 +1,5 @@
 {
   "tumor": {
-    "type": "TUMOR",
     "name": "CPCT12345678T",
     "lanes": [
       {
@@ -12,7 +11,6 @@
     ]
   },
   "reference": {
-    "type": "REFERENCE",
     "name": "CPCT12345678R",
     "lanes": [
       {

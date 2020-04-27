@@ -13,14 +13,7 @@ public interface Sample {
 
     String NOT_APPLICABLE = "NA";
 
-    enum Type {
-        TUMOR,
-        REFERENCE
-    }
-
     String name();
-
-    Type type();
 
     List<Lane> lanes();
 
@@ -30,6 +23,6 @@ public interface Sample {
     }
 
     static ImmutableSample.Builder builder(final String name) {
-        return ImmutableSample.builder().name(name).type(name.toLowerCase().endsWith("t") ? Type.TUMOR : Type.REFERENCE);
+        return ImmutableSample.builder().name(name);
     }
 }

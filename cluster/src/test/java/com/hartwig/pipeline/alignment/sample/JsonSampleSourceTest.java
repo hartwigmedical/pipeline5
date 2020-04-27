@@ -27,7 +27,6 @@ public class JsonSampleSourceTest {
     public void simplePairParsedAndReferenceReturned() {
         JsonSampleSource victim = new JsonSampleSource(Resources.testResource("json_sample_source/single_lane.json"));
         Sample sample = victim.sample(TestInputs.referenceRunMetadata());
-        assertThat(sample.type()).isEqualTo(Sample.Type.REFERENCE);
         assertThat(sample.name()).isEqualTo("CPCT12345678R");
         assertThat(sample.lanes()).hasSize(1);
         Lane lane = sample.lanes().get(0);
@@ -40,7 +39,6 @@ public class JsonSampleSourceTest {
     public void simplePairParsedAndTumorReturned() {
         JsonSampleSource victim = new JsonSampleSource(Resources.testResource("json_sample_source/single_lane.json"));
         Sample sample = victim.sample(TestInputs.tumorRunMetadata());
-        assertThat(sample.type()).isEqualTo(Sample.Type.TUMOR);
         assertThat(sample.name()).isEqualTo("CPCT12345678T");
         assertThat(sample.lanes()).hasSize(1);
         Lane lane = sample.lanes().get(0);

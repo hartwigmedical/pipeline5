@@ -47,7 +47,6 @@ public class GoogleStorageSampleSource implements SampleSource {
 
         return Sample.builder(sampleNameWithPostfix)
                 .addAllLanes(lanes)
-                .type(metadata.sampleId().toLowerCase().endsWith("r") ? Sample.Type.REFERENCE : Sample.Type.TUMOR)
                 .build();
     }
 
