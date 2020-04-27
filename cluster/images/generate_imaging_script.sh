@@ -2,7 +2,8 @@
 #
 # Generate a creation script for a VM and image
 
-ZONE="europe-west4-a"
+LOCATION="europe-west4"
+ZONE="${LOCATION}-a"
 DEV_PROJECT="hmf-pipeline-development" 
 PROJECT="${DEV_PROJECT}"
 VERSION=5-10
@@ -39,5 +40,5 @@ do
 done
 
 echo "$GCL instances stop ${sourceInstance} --zone=${ZONE}"
-echo "$GCL images create ${sourceInstance}-$(date +%Y%m%d%H%M) --family=${sourceInstance} --source-disk=${sourceInstance} --source-disk-zone=${ZONE}"
+echo "$GCL images create ${sourceInstance}-$(date +%Y%m%d%H%M) --family=${sourceInstance} --source-disk=${sourceInstance} --source-disk-zone=${ZONE} --storage-location=${LOCATION}"
 echo "$GCL instances -q delete ${sourceInstance} --zone=${ZONE}"
