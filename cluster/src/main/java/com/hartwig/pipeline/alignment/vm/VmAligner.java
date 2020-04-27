@@ -5,6 +5,7 @@ import static java.lang.String.format;
 import static com.hartwig.pipeline.alignment.AlignmentOutputPaths.bai;
 import static com.hartwig.pipeline.alignment.AlignmentOutputPaths.bam;
 import static com.hartwig.pipeline.alignment.AlignmentOutputPaths.sorted;
+import static com.hartwig.pipeline.resource.ResourceFilesFactory.buildResourceFiles;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -42,8 +43,6 @@ import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.storage.SampleUpload;
 import com.hartwig.pipeline.trace.StageTrace;
 
-import static com.hartwig.pipeline.resource.ResourceFilesFactory.buildResourceFiles;
-
 public class VmAligner {
 
     public static String NAMESPACE = "aligner";
@@ -57,9 +56,9 @@ public class VmAligner {
     private final AlignmentOutputStorage alignmentOutputStorage;
     private final ExecutorService executorService;
 
-    public VmAligner(final Arguments arguments, final ComputeEngine computeEngine, final Storage storage,
-                     final SampleSource sampleSource, final SampleUpload sampleUpload, final ResultsDirectory resultsDirectory,
-                     final AlignmentOutputStorage alignmentOutputStorage, final ExecutorService executorService) {
+    public VmAligner(final Arguments arguments, final ComputeEngine computeEngine, final Storage storage, final SampleSource sampleSource,
+            final SampleUpload sampleUpload, final ResultsDirectory resultsDirectory, final AlignmentOutputStorage alignmentOutputStorage,
+            final ExecutorService executorService) {
         this.arguments = arguments;
         this.computeEngine = computeEngine;
         this.storage = storage;
@@ -81,9 +80,7 @@ public class VmAligner {
         final ResourceFiles resourceFiles = buildResourceFiles(arguments.refGenomeVersion());
 
         Sample sample = sampleSource.sample(metadata);
-        if (arguments.upload()) {
-            sampleUpload.run(sample, rootBucket);
-        }
+        sampleUpload.run(sample, rootBucket);
 
         List<Future<PipelineStatus>> futures = new ArrayList<>();
         List<GoogleStorageLocation> perLaneBams = new ArrayList<>();

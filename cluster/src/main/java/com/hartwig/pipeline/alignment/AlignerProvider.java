@@ -6,8 +6,8 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
-import com.hartwig.pipeline.alignment.sample.FileSystemSampleSource;
 import com.hartwig.pipeline.alignment.sample.GoogleStorageSampleSource;
+import com.hartwig.pipeline.alignment.sample.JsonSampleSource;
 import com.hartwig.pipeline.alignment.sample.SampleSource;
 import com.hartwig.pipeline.alignment.sample.SbpS3SampleSource;
 import com.hartwig.pipeline.alignment.sample.SbpSampleReader;
@@ -18,7 +18,6 @@ import com.hartwig.pipeline.storage.CloudCopy;
 import com.hartwig.pipeline.storage.CloudSampleUpload;
 import com.hartwig.pipeline.storage.GSFileSource;
 import com.hartwig.pipeline.storage.GSUtilCloudCopy;
-import com.hartwig.pipeline.storage.LocalFileSource;
 import com.hartwig.pipeline.storage.RCloneCloudCopy;
 import com.hartwig.pipeline.storage.SampleUpload;
 import com.hartwig.pipeline.storage.SbpS3FileSource;
@@ -78,11 +77,11 @@ public abstract class AlignerProvider {
         @Override
         VmAligner wireUp(GoogleCredentials credentials, Storage storage, AlignmentOutputStorage alignmentOutputStorage,
                 ResultsDirectory resultsDirectory) throws Exception {
-            SampleSource sampleSource = getArguments().upload()
-                    ? new FileSystemSampleSource(getArguments().sampleDirectory())
-                    : new GoogleStorageSampleSource(storage, getArguments());
+            SampleSource sampleSource = getArguments().sampleJson().<SampleSource>map(JsonSampleSource::new).orElse(new GoogleStorageSampleSource(
+                    storage,
+                    getArguments()));
             GSUtilCloudCopy gsUtilCloudCopy = new GSUtilCloudCopy(getArguments().cloudSdkPath());
-            SampleUpload sampleUpload = new CloudSampleUpload(new LocalFileSource(), gsUtilCloudCopy);
+            SampleUpload sampleUpload = new CloudSampleUpload(new GSFileSource(), gsUtilCloudCopy);
             return AlignerProvider.constructVmAligner(getArguments(),
                     credentials,
                     storage,

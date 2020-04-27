@@ -88,7 +88,6 @@ public class SmokeTest {
                 .uploadFromGcp(true)
                 .rcloneGcpRemote(GCP_REMOTE)
                 .rcloneS3RemoteDownload("download")
-                .upload(true)
                 .cleanup(true)
                 .archiveBucket(ARCHIVE_BUCKET)
                 .archiveProject(ARCHIVE_PROJECT)

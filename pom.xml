@@ -52,7 +52,6 @@
     <modules>
         <module>batch</module>
         <module>bcl2fastq</module>
-        <module>patients</module>
         <module>cluster</module>
     </modules>
 
@@ -61,11 +60,6 @@
             <dependency>
                 <groupId>com.hartwig</groupId>
                 <artifactId>support</artifactId>
-                <version>local-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.hartwig</groupId>
-                <artifactId>patients</artifactId>
                 <version>local-SNAPSHOT</version>
             </dependency>
             <dependency>

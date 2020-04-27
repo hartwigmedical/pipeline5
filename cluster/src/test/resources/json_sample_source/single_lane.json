@@ -1,0 +1,24 @@
+{
+  "tumor": {
+    "name": "CPCT12345678T",
+    "lanes": [
+      {
+        "directory": "bucket_name",
+        "laneNumber": "1",
+        "firstOfPairPath": "CPCT12345678T_R1.fastq",
+        "secondOfPairPath": "CPCT12345678T_R2.fastq"
+      }
+    ]
+  },
+  "reference": {
+    "name": "CPCT12345678R",
+    "lanes": [
+      {
+        "directory": "bucket_name",
+        "laneNumber": "1",
+        "firstOfPairPath": "CPCT12345678R_R1.fastq",
+        "secondOfPairPath": "CPCT12345678R_R2.fastq"
+      }
+    ]
+  }
+}

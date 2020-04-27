@@ -75,7 +75,7 @@ public class SbpSampleReader {
 
     private Sample sample(final String sampleName, final String barcode, final List<SbpFastQ> fastqJson) {
         List<Lane> lanes = fastqJson.stream().filter(SbpSampleReader::qcPass).map(SbpSampleReader::lane).collect(Collectors.toList());
-        return Sample.builder("", sampleName, barcode).addAllLanes(lanes).build();
+        return Sample.builder(sampleName).barcode(barcode).addAllLanes(lanes).build();
     }
 
     private static boolean qcPass(SbpFastQ sbpFastQ) {
@@ -103,7 +103,6 @@ public class SbpSampleReader {
                 .laneNumber(laneNumber)
                 .firstOfPairPath(s3Path(sbpFastQ, sbpFastQ.name_r1()))
                 .secondOfPairPath(s3Path(sbpFastQ, sbpFastQ.name_r2()))
-                .directory("")
                 .suffix("")
                 .flowCellId(flowCellId)
                 .index(tokens[2])

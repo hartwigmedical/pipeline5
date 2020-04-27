@@ -3,6 +3,7 @@ package com.hartwig.pipeline;
 import java.util.Optional;
 
 import com.hartwig.pipeline.resource.RefGenomeVersion;
+
 import org.immutables.value.Value;
 
 @Value.Immutable
@@ -19,8 +20,6 @@ public interface Arguments extends CommonArguments {
     boolean cleanup();
 
     Integer DEFAULT_POLL_INTERVAL = 5;
-
-    boolean upload();
 
     boolean uploadFromGcp();
 
@@ -81,6 +80,8 @@ public interface Arguments extends CommonArguments {
     Optional<String> runId();
 
     Optional<String> zone();
+
+    Optional<String> sampleJson();
 
     RefGenomeVersion refGenomeVersion();
 
@@ -158,7 +159,6 @@ public interface Arguments extends CommonArguments {
                     .cleanup(true)
                     .usePreemptibleVms(true)
                     .useLocalSsds(true)
-                    .upload(true)
                     .uploadFromGcp(false)
                     .runBamMetrics(true)
                     .runAligner(true)
@@ -194,8 +194,6 @@ public interface Arguments extends CommonArguments {
                     .cleanup(true)
                     .cmek(CommonArguments.DEFAULT_DEVELOPMENT_CMEK)
                     .usePreemptibleVms(true)
-                    .useLocalSsds(true)
-                    .upload(true)
                     .uploadFromGcp(false)
                     .runBamMetrics(true)
                     .runAligner(true)
@@ -223,7 +221,8 @@ public interface Arguments extends CommonArguments {
                     .pollInterval(DEFAULT_POLL_INTERVAL)
                     .refGenomeVersion(DEFAULT_REF_GENOME_VERSION)
                     .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES)
-                    .privateNetwork(DEFAULT_PRIVATE_NETWORK);
+                    .privateNetwork(DEFAULT_PRIVATE_NETWORK)
+                    .useLocalSsds(true);
         } else if (profile.equals(DefaultsProfile.DEVELOPMENT_DOCKER)) {
             return ImmutableArguments.builder()
                     .profile(profile)
@@ -237,7 +236,6 @@ public interface Arguments extends CommonArguments {
                     .cmek(DEFAULT_DEVELOPMENT_CMEK)
                     .usePreemptibleVms(true)
                     .useLocalSsds(true)
-                    .upload(true)
                     .uploadFromGcp(false)
                     .runBamMetrics(true)
                     .runAligner(true)
