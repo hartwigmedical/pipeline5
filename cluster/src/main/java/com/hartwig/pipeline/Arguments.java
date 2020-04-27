@@ -79,7 +79,7 @@ public interface Arguments extends CommonArguments {
 
     Optional<String> zone();
 
-    Optional<String> json();
+    Optional<String> sampleJson();
 
     RefGenomeVersion refGenomeVersion();
 

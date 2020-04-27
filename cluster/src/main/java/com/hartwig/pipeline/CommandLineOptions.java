@@ -64,7 +64,7 @@ public class CommandLineOptions {
     private static final String SHALLOW_FLAG = "shallow";
     private static final String ZONE_FLAG = "zone";
     private static final String REF_GENOME_VERSION_FLAG = "ref_genome_version";
-    private static final String JSON_FLAG = "json";
+    private static final String SAMPLE_JSON_FLAG = "sample_json";
 
     private static Options options() {
         return new Options().addOption(profile())
@@ -128,7 +128,7 @@ public class CommandLineOptions {
     }
 
     private static Option json() {
-        return optionWithArg(JSON_FLAG, "JSON file defining the location of FASTQ inputs in GCP.");
+        return optionWithArg(SAMPLE_JSON_FLAG, "JSON file defining the location of FASTQ inputs in GCP.");
     }
 
     private static Option maxConcurrentLanes() {
@@ -310,7 +310,7 @@ public class CommandLineOptions {
                     .maxConcurrentLanes(maxConcurrentLanes(commandLine, defaults.maxConcurrentLanes()))
                     .profile(defaults.profile())
                     .refGenomeVersion(refGenomeVersion(commandLine, defaults))
-                    .json(json(commandLine, defaults))
+                    .sampleJson(sampleJson(commandLine, defaults))
                     .build();
         } catch (ParseException e) {
             LOGGER.error("Could not parse command line args", e);
@@ -327,11 +327,11 @@ public class CommandLineOptions {
         return defaults.cmek();
     }
 
-    private static Optional<String> json(final CommandLine commandLine, final Arguments defaults) {
-        if (commandLine.hasOption(JSON_FLAG)) {
-            return Optional.of(commandLine.getOptionValue(JSON_FLAG));
+    private static Optional<String> sampleJson(final CommandLine commandLine, final Arguments defaults) {
+        if (commandLine.hasOption(SAMPLE_JSON_FLAG)) {
+            return Optional.of(commandLine.getOptionValue(SAMPLE_JSON_FLAG));
         }
-        return defaults.json();
+        return defaults.sampleJson();
     }
 
     private static Optional<String> zone(final CommandLine commandLine, final Arguments defaults) {

@@ -77,7 +77,7 @@ public abstract class AlignerProvider {
         @Override
         VmAligner wireUp(GoogleCredentials credentials, Storage storage, AlignmentOutputStorage alignmentOutputStorage,
                 ResultsDirectory resultsDirectory) throws Exception {
-            SampleSource sampleSource = getArguments().json().<SampleSource>map(JsonSampleSource::new).orElse(new GoogleStorageSampleSource(
+            SampleSource sampleSource = getArguments().sampleJson().<SampleSource>map(JsonSampleSource::new).orElse(new GoogleStorageSampleSource(
                     storage,
                     getArguments()));
             GSUtilCloudCopy gsUtilCloudCopy = new GSUtilCloudCopy(getArguments().cloudSdkPath());
