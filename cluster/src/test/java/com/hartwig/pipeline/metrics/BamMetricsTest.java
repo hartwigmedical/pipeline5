@@ -50,7 +50,7 @@ public class BamMetricsTest extends StageTest<BamMetricsOutput, SingleSampleRunM
     @Override
     protected List<String> expectedCommands() {
         return ImmutableList.of("java -Xmx24G -Dsamjdk.use_async_io_read_samtools=true -Dsamjdk.use_async_io_write_samtools=true "
-                + "-Dsamjdk.use_async_io_write_tribble=true -Dsamjdk.buffer_size=4194304 -cp /opt/tools/gridss/2.7.2/gridss.jar "
+                + "-Dsamjdk.use_async_io_write_tribble=true -Dsamjdk.buffer_size=4194304 -cp /opt/tools/gridss/2.8.3/gridss.jar "
                 + "picard.cmdline.PicardCommandLine CollectWgsMetrics "
                 + "REFERENCE_SEQUENCE=/opt/resources/reference_genome/hg37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
                 + "INPUT=/data/input/reference.bam OUTPUT=/data/output/reference.wgsmetrics MINIMUM_MAPPING_QUALITY=20 "
