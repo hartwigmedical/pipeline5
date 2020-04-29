@@ -1,6 +1,6 @@
 package com.hartwig.pipeline.tertiary.linx;
 
-import static com.hartwig.pipeline.resource.RefGenomeVersion.asInt;
+import static com.hartwig.pipeline.resource.RefGenomeVersion.HG37;
 
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.execution.vm.JavaJarCommand;
@@ -8,11 +8,10 @@ import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.tools.Versions;
 
 class LinxCommand extends JavaJarCommand {
-    LinxCommand(final String sample, final String svVcf, final String purpleDir, final String referenceGenome, final RefGenomeVersion refGenomeVersion,
-            final String outputDir,
-            final String fragileSiteFile, final String lineElementFile, final String replicationsOriginsFile, final String viralHostsFile,
-            final String geneTranscriptsDirectory, final String fusionsPairsCsv, final String promiscuousFiveCsv,
-            final String promiscuousThreeCsv) {
+    LinxCommand(final String sample, final String svVcf, final String purpleDir, final String referenceGenome,
+            final RefGenomeVersion refGenomeVersion, final String outputDir, final String fragileSiteFile, final String lineElementFile,
+            final String replicationsOriginsFile, final String viralHostsFile, final String geneTranscriptsDirectory,
+            final String fusionsPairsCsv, final String promiscuousFiveCsv, final String promiscuousThreeCsv) {
         super("linx",
                 Versions.LINX,
                 "linx.jar",
@@ -26,7 +25,7 @@ class LinxCommand extends JavaJarCommand {
                         "-ref_genome",
                         referenceGenome,
                         "-ref_genome_version",
-                        RefGenomeVersion.asString(refGenomeVersion),
+                        asString(refGenomeVersion),
                         "-output_dir",
                         outputDir,
                         "-fragile_site_file",
@@ -50,5 +49,9 @@ class LinxCommand extends JavaJarCommand {
                         "0",
                         "-check_drivers",
                         "-write_vis_data").build());
+    }
+
+    public static String asString(RefGenomeVersion version) {
+        return version == HG37 ? "HG37" : "HG38";
     }
 }
