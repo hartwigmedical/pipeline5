@@ -43,8 +43,8 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
     private final InputDownload cobaltOutputDownload;
     private final boolean shallow;
 
-    public Purple(final ResourceFiles resourceFiles, SomaticCallerOutput somaticCallerOutput, StructuralCallerOutput structuralCallerOutput, AmberOutput amberOutput,
-            CobaltOutput cobaltOutput, final boolean shallow) {
+    public Purple(final ResourceFiles resourceFiles, SomaticCallerOutput somaticCallerOutput, StructuralCallerOutput structuralCallerOutput,
+            AmberOutput amberOutput, CobaltOutput cobaltOutput, final boolean shallow) {
         this.resourceFiles = resourceFiles;
         somaticVcfDownload = new InputDownload(somaticCallerOutput.finalSomaticVcf());
         structuralVcfDownload = new InputDownload(structuralCallerOutput.filteredVcf());
@@ -73,6 +73,7 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
                 svRecoveryVcfDownload.getLocalTargetPath(),
                 VmDirectories.TOOLS + "/circos/" + Versions.CIRCOS + "/bin/circos",
                 resourceFiles.refGenomeFile(),
+                resourceFiles.sageKnownHotspots(),
                 shallow));
     }
 

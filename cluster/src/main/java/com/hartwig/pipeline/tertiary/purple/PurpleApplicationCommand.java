@@ -19,7 +19,8 @@ class PurpleApplicationCommand extends JavaJarCommand {
     private static final String LOW_COVERAGE_SOMATIC_MIN_PURITY_SPREAD = "0.1";
 
     PurpleApplicationCommand(String referenceSampleName, String tumorSampleName, String amberDirectory, String cobaltDirectory,
-            String gcProfile, String somaticVcf, String structuralVcf, String svRecoveryVcf, String circosPath, String referenceGenomePath, boolean isShallow) {
+            String gcProfile, String somaticVcf, String structuralVcf, String svRecoveryVcf, String circosPath, String referenceGenomePath,
+            String knownHotspots, boolean isShallow) {
         super("purple",
                 Versions.PURPLE,
                 "purple.jar",
@@ -33,13 +34,14 @@ class PurpleApplicationCommand extends JavaJarCommand {
                         structuralVcf,
                         svRecoveryVcf,
                         circosPath,
-                        referenceGenomePath), maybeShallowArguments(isShallow)));
+                        referenceGenomePath,
+                        knownHotspots), maybeShallowArguments(isShallow)));
     }
 
     @NotNull
     private static ArrayList<String> arguments(final String referenceSampleName, final String tumorSampleName, final String amberDirectory,
             final String cobaltDirectory, final String gcProfile, final String somaticVcf, final String structuralVcf,
-            final String svRecoveryVcf, final String circosPath, String referenceGenomePath) {
+            final String svRecoveryVcf, final String circosPath, String referenceGenomePath, String knownHotspots) {
         return newArrayList("-reference",
                 referenceSampleName,
                 "-tumor",
@@ -62,6 +64,9 @@ class PurpleApplicationCommand extends JavaJarCommand {
                 circosPath,
                 "-ref_genome",
                 referenceGenomePath,
+                "-driver_catalog",
+                "-hotspots",
+                knownHotspots,
                 "-threads",
                 Bash.allCpus());
     }
