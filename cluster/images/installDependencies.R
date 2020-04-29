@@ -33,6 +33,7 @@ install.packages("R6", update = T, ask = F)
 install.packages("R6", update = T, ask = F)
 
 BiocManager::install("VariantAnnotation")
+BiocManager::install("StructuralVariantAnnotation")
 BiocManager::install("BSgenome.Hsapiens.UCSC.hg19")
 BiocManager::install("BiocGenerics")
 BiocManager::install("S4Vectors")
@@ -46,8 +47,4 @@ BiocManager::install("GenomicAlignments")
 install.packages("testthat", update = T, ask = F)
 install.packages("stringdist", update = T, ask = F)
 install.packages("assertthat", update = T, ask = F)
-
-# As of May 2019 some symbols have been stripped from the latest mirrored version of this library so build one from Github that
-# still has them intact.
-devtools::install_github("PapenfussLab/StructuralVariantAnnotation", ref="pre_bioconductor")
 
