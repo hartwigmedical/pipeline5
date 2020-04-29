@@ -79,6 +79,7 @@ purple/circos/CPCT12345678T.map.circos
 purple/circos/CPCT12345678T.ratio.circos
 purple/circos/CPCT12345678T.snp.circos
 purple/circos/gaps.txt
+purple/CPCT12345678T.driver.catalog.tsv
 purple/CPCT12345678T.purple.cnv.gene.tsv
 purple/CPCT12345678T.purple.cnv.germline.tsv
 purple/CPCT12345678T.purple.cnv.somatic.tsv
@@ -136,8 +137,8 @@ structural_caller/CPCT12345678T.assembly.bam.gridss.working/CPCT12345678T.assemb
 structural_caller/CPCT12345678T.assembly.bam.gridss.working/CPCT12345678T.assembly.bam.excluded_0.bed
 structural_caller/CPCT12345678T.assembly.bam.gridss.working/CPCT12345678T.assembly.bam.idsv_metrics
 structural_caller/CPCT12345678T.assembly.bam.gridss.working/CPCT12345678T.assembly.bam.mapq_metrics
-structural_caller/CPCT12345678T.assembly.bam.gridss.working/CPCT12345678T.assembly.bam.quality_distribution.pdf
-structural_caller/CPCT12345678T.assembly.bam.gridss.working/CPCT12345678T.assembly.bam.quality_distribution_metrics
+structural_caller/CPCT12345678T.assembly.bam.gridss.working/CPCT12345678T.assembly.bam.quality_distribution.pdf",
+structural_caller/CPCT12345678T.assembly.bam.gridss.working/CPCT12345678T.assembly.bam.quality_distribution_metrics"
 structural_caller/CPCT12345678T.assembly.bam.gridss.working/CPCT12345678T.assembly.bam.subsetCalled_0.bed
 structural_caller/CPCT12345678T.assembly.bam.gridss.working/CPCT12345678T.assembly.bam.sv.bam
 structural_caller/CPCT12345678T.assembly.bam.gridss.working/CPCT12345678T.assembly.bam.sv.bam.bai
