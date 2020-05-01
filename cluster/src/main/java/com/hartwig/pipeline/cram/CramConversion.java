@@ -75,8 +75,8 @@ public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata
         String fullCram = format("%s%s/%s", folder.name(), NAMESPACE, cram);
         String fullCrai = format("%s%s/%s", folder.name(), NAMESPACE, crai);
 
-        AdditionalApiCalls.instance().register(fullCram, new LinkFileToSample(metadata.sampleId()));
-        AdditionalApiCalls.instance().register(fullCrai, new LinkFileToSample(metadata.sampleId()));
+        AdditionalApiCalls.instance().register(fullCram, new LinkFileToSample(metadata.entityId()));
+        AdditionalApiCalls.instance().register(fullCrai, new LinkFileToSample(metadata.entityId()));
         AdditionalApiCalls.instance().register(fullCram, new AddDatatypeToFile("reads"));
         AdditionalApiCalls.instance().register(fullCrai, new AddDatatypeToFile("reads"));
 

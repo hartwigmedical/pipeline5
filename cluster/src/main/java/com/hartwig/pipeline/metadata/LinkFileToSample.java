@@ -4,9 +4,9 @@ import com.hartwig.pipeline.sbpapi.FileResponse;
 import com.hartwig.pipeline.sbpapi.SbpRestApi;
 
 public class LinkFileToSample implements ApiFileOperation {
-    private final String sampleId;
+    private final int sampleId;
 
-    public LinkFileToSample(String sampleId) {
+    public LinkFileToSample(int sampleId) {
         this.sampleId = sampleId;
     }
 

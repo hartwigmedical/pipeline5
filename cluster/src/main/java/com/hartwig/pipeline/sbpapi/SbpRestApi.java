@@ -109,16 +109,16 @@ public class SbpRestApi {
         }
     }
 
-    public void linkFileToSample(final int id, final String sampleId) {
-        Map<String, String> request = new HashMap<>();
-        request.put("id", sampleId);
+    public void linkFileToSample(final int id, final int sampleId) {
+        Map<String, Integer> request = new HashMap<>();
+        request.put("sample_id", sampleId);
         submitJson(POST, api().path(format("%s/%d/sample", FILES, id)), request, Response.Status.CREATED);
     }
 
     public void patchFile(final int id, final String key, final String value) {
         Map<String, String> request = new HashMap<>();
         request.put(key, value);
-        submitJson(PATCH, api().path(format("%s/%d", FILES, id)), request, Response.Status.CREATED);
+        submitJson(PATCH, api().path(format("%s/%d", FILES, id)), request, Response.Status.OK);
     }
 
     private Response post(final WebTarget path, final String json) {
@@ -142,7 +142,11 @@ public class SbpRestApi {
                 LOGGER.info("{} complete with status [{}]", method, response.getStatus());
                 return response;
             } else {
-                LOGGER.error("{} to [{}] returned {}", method, path, response.getStatus());
+                LOGGER.error("{} to [{}] unexpectedly returned {}:\n{}",
+                        method,
+                        path,
+                        response.getStatus(),
+                        response.readEntity(String.class));
                 throw error(response);
             }
         } catch (JsonProcessingException e) {
