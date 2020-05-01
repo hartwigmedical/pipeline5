@@ -126,6 +126,7 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
                 sbpRestApi.updateRunStatus(runIdAsString, UPLOADING, arguments.archiveBucket());
                 googleArchiver.transfer(metadata);
                 OutputIterator.from(new SbpFileApiUpdate(ContentTypeCorrection.get(),
+                        AdditionalApiCalls.instance(),
                         sbpRun,
                         sourceBucket,
                         sbpRestApi).andThen(new BlobCleanup()), sourceBucket).iterate(metadata);

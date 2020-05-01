@@ -8,24 +8,31 @@ import java.util.function.Consumer;
 
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
+import com.hartwig.pipeline.metadata.AdditionalApiCalls;
 import com.hartwig.pipeline.report.PipelineResults;
+import com.hartwig.pipeline.sbpapi.FileResponse;
 import com.hartwig.pipeline.sbpapi.SbpFileMetadata;
 import com.hartwig.pipeline.sbpapi.SbpRestApi;
 import com.hartwig.pipeline.sbpapi.SbpRun;
 import com.hartwig.pipeline.transfer.sbp.ContentTypeCorrection;
 
 import org.apache.commons.codec.binary.Hex;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SbpFileApiUpdate implements Consumer<Blob> {
 
+    private final static Logger LOGGER = LoggerFactory.getLogger(SbpFileApiUpdate.class);
     private final ContentTypeCorrection contentTypeCorrection;
+    private final AdditionalApiCalls additionalApiCalls;
     private final SbpRun sbpRun;
     private final Bucket sourceBucket;
     private final SbpRestApi sbpApi;
 
-    public SbpFileApiUpdate(final ContentTypeCorrection contentTypeCorrection, final SbpRun sbpRun, final Bucket sourceBucket,
-            final SbpRestApi sbpApi) {
+    public SbpFileApiUpdate(final ContentTypeCorrection contentTypeCorrection, final AdditionalApiCalls additionalApiCalls,
+            final SbpRun sbpRun, final Bucket sourceBucket, final SbpRestApi sbpApi) {
         this.contentTypeCorrection = contentTypeCorrection;
+        this.additionalApiCalls = additionalApiCalls;
         this.sbpRun = sbpRun;
         this.sourceBucket = sourceBucket;
         this.sbpApi = sbpApi;
@@ -45,7 +52,8 @@ public class SbpFileApiUpdate implements Consumer<Blob> {
                         .filesize(blob.getSize())
                         .hash(convertMd5ToSbpFormat(blob.getMd5()))
                         .build();
-                sbpApi.postFile(metaData);
+                FileResponse response = sbpApi.postFile(metaData);
+                additionalApiCalls.apply(sbpApi, blob.getName(), response);
             }
         }
     }
