@@ -17,6 +17,7 @@ import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.PipelineState;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.sbpapi.SbpRestApi;
 import com.hartwig.pipeline.testsupport.TestInputs;
@@ -35,6 +36,7 @@ public class SbpSomaticMetadataApiTest {
     private SomaticMetadataApi victim;
     private SbpRestApi sbpRestApi;
     private SomaticRunMetadata somaticRunMetadata;
+    private PipelineState pipelineState;
     private Bucket sourceBucket;
     private GoogleArchiver googleArchiver;
     private ArgumentCaptor<String> entityId;
@@ -52,6 +54,7 @@ public class SbpSomaticMetadataApiTest {
         when(sbpRestApi.getRun(SET_ID)).thenReturn(TestJson.get("get_run"));
         entityId = ArgumentCaptor.forClass(String.class);
         status = ArgumentCaptor.forClass(String.class);
+        pipelineState = mock(PipelineState.class);
         victim = new SbpSomaticMetadataApi(Arguments.testDefaults(), SET_ID, sbpRestApi, sourceBucket, googleArchiver);
     }
 
@@ -70,7 +73,7 @@ public class SbpSomaticMetadataApiTest {
 
     @Test
     public void mapsSuccessStatusToSnpCheck() {
-        victim.complete(PipelineStatus.SUCCESS, somaticRunMetadata);
+        victim.complete(PipelineStatus.SUCCESS, somaticRunMetadata, pipelineState);
         verify(sbpRestApi, times(2)).updateRunStatus(entityId.capture(), status.capture(), any());
         assertThat(entityId.getValue()).isEqualTo(String.valueOf(SET_ID));
         assertThat(status.getValue()).isEqualTo(SbpSomaticMetadataApi.SNP_CHECK);
@@ -83,7 +86,7 @@ public class SbpSomaticMetadataApiTest {
                 sbpRestApi,
                 sourceBucket,
                 googleArchiver);
-        victim.complete(PipelineStatus.SUCCESS, somaticRunMetadata);
+        victim.complete(PipelineStatus.SUCCESS, somaticRunMetadata, pipelineState);
         verify(sbpRestApi, times(2)).updateRunStatus(entityId.capture(), status.capture(), any());
         assertThat(entityId.getValue()).isEqualTo(String.valueOf(SET_ID));
         assertThat(status.getValue()).isEqualTo(SbpSomaticMetadataApi.SUCCESS);
@@ -91,7 +94,7 @@ public class SbpSomaticMetadataApiTest {
 
     @Test
     public void mapsFailedStatusToPipeline5Finished() {
-        victim.complete(PipelineStatus.FAILED, somaticRunMetadata);
+        victim.complete(PipelineStatus.FAILED, somaticRunMetadata, pipelineState);
         verify(sbpRestApi, times(2)).updateRunStatus(entityId.capture(), status.capture(), any());
         assertThat(entityId.getValue()).isEqualTo(String.valueOf(SET_ID));
         assertThat(status.getAllValues().get(1)).isEqualTo(SbpSomaticMetadataApi.FAILED);
@@ -117,12 +120,12 @@ public class SbpSomaticMetadataApiTest {
     @Test(expected = IllegalStateException.class)
     public void throwsIllegalStateIfNoBucketInRun() {
         when(sbpRestApi.getRun(SET_ID)).thenReturn(TestJson.get("get_run_no_bucket"));
-        victim.complete(PipelineStatus.FAILED, somaticRunMetadata);
+        victim.complete(PipelineStatus.FAILED, somaticRunMetadata, pipelineState);
     }
 
     @Test
     public void shouldIterateThroughOutputObjects() {
-        victim.complete(PipelineStatus.SUCCESS, somaticRunMetadata);
+        victim.complete(PipelineStatus.SUCCESS, somaticRunMetadata, pipelineState);
         verify(sourceBucket).list(PREFIX);
     }
 
@@ -130,7 +133,7 @@ public class SbpSomaticMetadataApiTest {
     public void setsRunToFailedAndRethrowsIfSbpTransferFails() {
         doThrow(new RuntimeException()).when(sourceBucket).list(PREFIX);
         try {
-            victim.complete(PipelineStatus.SUCCESS, somaticRunMetadata);
+            victim.complete(PipelineStatus.SUCCESS, somaticRunMetadata, pipelineState);
             fail("An exception should have been thrown");
         } catch (RuntimeException e) {
             verify(sbpRestApi).updateRunStatus(any(), eq(SbpSomaticMetadataApi.FAILED), any());
@@ -139,7 +142,7 @@ public class SbpSomaticMetadataApiTest {
 
     @Test
     public void shouldTransferToArchive() {
-        victim.complete(PipelineStatus.SUCCESS, somaticRunMetadata);
+        victim.complete(PipelineStatus.SUCCESS, somaticRunMetadata, pipelineState);
         verify(googleArchiver).transfer(somaticRunMetadata);
     }
 
@@ -147,7 +150,7 @@ public class SbpSomaticMetadataApiTest {
     public void setsRunToFailedAndRethrowsIfArchiveFails() {
         doThrow(new RuntimeException()).when(googleArchiver).transfer(any());
         try {
-            victim.complete(PipelineStatus.SUCCESS, somaticRunMetadata);
+            victim.complete(PipelineStatus.SUCCESS, somaticRunMetadata, pipelineState);
             fail("An exception should have been thrown");
         } catch (RuntimeException e) {
             verify(sbpRestApi).updateRunStatus(any(), eq(SbpSomaticMetadataApi.FAILED), any());

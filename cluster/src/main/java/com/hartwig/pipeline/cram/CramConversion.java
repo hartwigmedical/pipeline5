@@ -18,7 +18,6 @@ import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.metadata.AddDatatypeToFile;
-import com.hartwig.pipeline.metadata.AdditionalApiCalls;
 import com.hartwig.pipeline.metadata.LinkFileToSample;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.report.Folder;
@@ -75,17 +74,16 @@ public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata
         String fullCram = format("%s%s/%s", folder.name(), NAMESPACE, cram);
         String fullCrai = format("%s%s/%s", folder.name(), NAMESPACE, crai);
 
-        AdditionalApiCalls.instance().register(fullCram, new LinkFileToSample(metadata.entityId()));
-        AdditionalApiCalls.instance().register(fullCrai, new LinkFileToSample(metadata.entityId()));
-        AdditionalApiCalls.instance().register(fullCram, new AddDatatypeToFile("reads"));
-        AdditionalApiCalls.instance().register(fullCrai, new AddDatatypeToFile("reads"));
-
         return CramOutput.builder()
                 .status(jobStatus)
                 .addReportComponents(new RunLogComponent(bucket, NAMESPACE, folder, resultsDirectory),
                         new StartupScriptComponent(bucket, NAMESPACE, folder),
                         new SingleFileComponent(bucket, NAMESPACE, folder, cram, cram, resultsDirectory),
                         new SingleFileComponent(bucket, NAMESPACE, folder, crai, crai, resultsDirectory))
+                .addFurtherOperations(new LinkFileToSample(fullCram, metadata.entityId()),
+                        new LinkFileToSample(fullCrai, metadata.entityId()),
+                        new AddDatatypeToFile(fullCram, "reads"),
+                        new AddDatatypeToFile(fullCrai, "reads"))
                 .build();
     }
 

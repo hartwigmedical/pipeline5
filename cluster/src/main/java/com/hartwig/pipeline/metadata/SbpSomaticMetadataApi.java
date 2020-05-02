@@ -7,6 +7,7 @@ import java.util.Optional;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.cloud.storage.Bucket;
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.PipelineState;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.jackson.ObjectMappers;
 import com.hartwig.pipeline.sbpapi.SbpIni;
@@ -116,7 +117,7 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
     }
 
     @Override
-    public void complete(final PipelineStatus status, SomaticRunMetadata metadata) {
+    public void complete(final PipelineStatus status, SomaticRunMetadata metadata, PipelineState pipelineState) {
         String runIdAsString = String.valueOf(sbpRunId);
         SbpRun sbpRun = getSbpRun();
         String sbpBucket = sbpRun.bucket();
@@ -129,7 +130,8 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
                         AdditionalApiCalls.instance(),
                         sbpRun,
                         sourceBucket,
-                        sbpRestApi).andThen(new BlobCleanup()), sourceBucket).iterate(metadata);
+                        sbpRestApi,
+                        pipelineState).andThen(new BlobCleanup()), sourceBucket).iterate(metadata);
                 sbpRestApi.updateRunStatus(runIdAsString,
                         status == PipelineStatus.SUCCESS ? successStatus() : FAILED,
                         arguments.archiveBucket());

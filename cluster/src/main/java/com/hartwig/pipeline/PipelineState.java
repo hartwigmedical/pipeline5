@@ -29,7 +29,7 @@ public class PipelineState {
         return this;
     }
 
-    List<StageOutput> stageOutputs() {
+    public List<StageOutput> stageOutputs() {
         return stageOutputs;
     }
 

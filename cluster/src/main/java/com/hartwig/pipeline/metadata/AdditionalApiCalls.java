@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.hartwig.pipeline.sbpapi.FileResponse;
+import com.hartwig.pipeline.sbpapi.AddFileApiResponse;
 import com.hartwig.pipeline.sbpapi.SbpRestApi;
 
 import org.slf4j.Logger;
@@ -31,7 +31,7 @@ public class AdditionalApiCalls {
         LOGGER.info("Registered [{}] to file path [{}]", extraOperation, filePath);
     }
 
-    public void apply(final SbpRestApi sbpApi, String filePath, FileResponse fileResponse) {
+    public void apply(final SbpRestApi sbpApi, String filePath, AddFileApiResponse fileResponse) {
         LOGGER.info("Applying additional operations for path [{}]", filePath);
 
         // Replace this with passing in the name to the constructor?

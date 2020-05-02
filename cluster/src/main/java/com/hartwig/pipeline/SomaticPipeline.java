@@ -144,7 +144,7 @@ public class SomaticPipeline {
             }
         }
         fullSomaticResults.compose(metadata);
-        setMetadataApi.complete(state.status(), metadata);
+        setMetadataApi.complete(state.status(), metadata, state);
         if (state.shouldProceed()) {
             cleanup.run(metadata);
         }

@@ -167,14 +167,14 @@ public class SomaticPipelineTest {
     public void notifiesSetMetadataApiOnSuccessfulRun() {
         successfulRun();
         victim.run();
-        verify(setMetadataApi, times(1)).complete(PipelineStatus.SUCCESS, defaultSomaticRunMetadata());
+        verify(setMetadataApi, times(1)).complete(eq(PipelineStatus.SUCCESS), eq(defaultSomaticRunMetadata()), any(PipelineState.class));
     }
 
     @Test
     public void notifiesSetMetadataApiOnFailedRun() {
         failedRun();
         victim.run();
-        verify(setMetadataApi, times(1)).complete(PipelineStatus.FAILED, defaultSomaticRunMetadata());
+        verify(setMetadataApi, times(1)).complete(eq(PipelineStatus.FAILED), eq(defaultSomaticRunMetadata()), any(PipelineState.class));
     }
 
     @Test
@@ -194,7 +194,8 @@ public class SomaticPipelineTest {
     @Test
     public void doesNotRunCleanupOnFailedTransfer() {
         successfulRun();
-        doThrow(new NullPointerException()).when(setMetadataApi).complete(PipelineStatus.SUCCESS, defaultSomaticRunMetadata());
+        doThrow(new NullPointerException()).when(setMetadataApi)
+                .complete(eq(PipelineStatus.SUCCESS), eq(defaultSomaticRunMetadata()), any(PipelineState.class));
         try {
             victim.run();
         } catch (Exception e) {

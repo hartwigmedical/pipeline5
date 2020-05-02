@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.hartwig.pipeline.execution.PipelineStatus;
+import com.hartwig.pipeline.metadata.ApiFileOperation;
 import com.hartwig.pipeline.report.ReportComponent;
 
 import org.jetbrains.annotations.NotNull;
@@ -57,6 +58,11 @@ public class PipelineStateTest {
 
             @Override
             public List<ReportComponent> reportComponents() {
+                return Collections.emptyList();
+            }
+
+            @Override
+            public List<ApiFileOperation> furtherOperations() {
                 return Collections.emptyList();
             }
         };

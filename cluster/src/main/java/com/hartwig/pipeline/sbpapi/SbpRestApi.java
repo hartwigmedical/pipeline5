@@ -99,11 +99,11 @@ public class SbpRestApi {
         }
     }
 
-    public FileResponse postFile(final SbpFileMetadata metaData) {
+    public AddFileApiResponse postFile(final SbpFileMetadata metaData) {
         try {
             return ObjectMappers.get()
                     .readValue(post(api().path(FILES), OBJECT_MAPPER.writeValueAsString(metaData)).readEntity(String.class),
-                            FileResponse.class);
+                            AddFileApiResponse.class);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
