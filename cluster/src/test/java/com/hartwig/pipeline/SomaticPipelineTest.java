@@ -21,12 +21,8 @@ import static com.hartwig.pipeline.testsupport.TestInputs.tumorRunMetadata;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
@@ -40,7 +36,6 @@ import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
 import com.hartwig.pipeline.calling.somatic.SomaticCaller;
 import com.hartwig.pipeline.calling.somatic.SomaticCallerOutput;
 import com.hartwig.pipeline.calling.structural.StructuralCaller;
-import com.hartwig.pipeline.cleanup.Cleanup;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.metadata.SomaticMetadataApi;
@@ -64,7 +59,6 @@ public class SomaticPipelineTest {
     private SomaticPipeline victim;
     private StructuralCaller structuralCaller;
     private SomaticMetadataApi setMetadataApi;
-    private Cleanup cleanup;
     private StageRunner<SomaticRunMetadata> stageRunner;
     private OutputStorage<GermlineCallerOutput, SingleSampleRunMetadata> germlineCallerOutputStorage;
 
@@ -81,7 +75,6 @@ public class SomaticPipelineTest {
         when(storage.get(ARGUMENTS.patientReportBucket())).thenReturn(reportBucket);
         final PipelineResults pipelineResults = PipelineResultsProvider.from(storage, ARGUMENTS, "test").get();
         final FullSomaticResults fullSomaticResults = mock(FullSomaticResults.class);
-        cleanup = mock(Cleanup.class);
         stageRunner = mock(StageRunner.class);
         germlineCallerOutputStorage = mock(OutputStorage.class);
         victim = new SomaticPipeline(ARGUMENTS,
@@ -92,7 +85,6 @@ public class SomaticPipelineTest {
                 setMetadataApi,
                 pipelineResults,
                 fullSomaticResults,
-                cleanup,
                 Executors.newSingleThreadExecutor());
     }
 
@@ -164,57 +156,6 @@ public class SomaticPipelineTest {
     }
 
     @Test
-    public void notifiesSetMetadataApiOnSuccessfulRun() {
-        successfulRun();
-        victim.run();
-        verify(setMetadataApi, times(1)).complete(PipelineStatus.SUCCESS, defaultSomaticRunMetadata());
-    }
-
-    @Test
-    public void notifiesSetMetadataApiOnFailedRun() {
-        failedRun();
-        victim.run();
-        verify(setMetadataApi, times(1)).complete(PipelineStatus.FAILED, defaultSomaticRunMetadata());
-    }
-
-    @Test
-    public void runsCleanupOnSuccessfulRun() {
-        successfulRun();
-        victim.run();
-        verify(cleanup, times(1)).run(defaultSomaticRunMetadata());
-    }
-
-    @Test
-    public void doesNotRunCleanupOnFailedRun() {
-        failedRun();
-        victim.run();
-        verify(cleanup, never()).run(defaultSomaticRunMetadata());
-    }
-
-    @Test
-    public void doesNotRunCleanupOnFailedTransfer() {
-        successfulRun();
-        doThrow(new NullPointerException()).when(setMetadataApi).complete(PipelineStatus.SUCCESS, defaultSomaticRunMetadata());
-        try {
-            victim.run();
-        } catch (Exception e) {
-            // continue
-        }
-        verify(cleanup, never()).run(defaultSomaticRunMetadata());
-    }
-
-    @Test
-    public void onlyDoesTransferAndCleanupIfSingleSampleRun() {
-        when(alignmentOutputStorage.get(referenceRunMetadata())).thenReturn(Optional.of(referenceAlignmentOutput()));
-        when(setMetadataApi.get()).thenReturn(SomaticRunMetadata.builder()
-                .from(defaultSomaticRunMetadata())
-                .maybeTumor(Optional.empty())
-                .build());
-        victim.run();
-        verifyZeroInteractions(stageRunner, structuralCaller);
-    }
-
-    @Test
     public void failsRunOnQcFailure() {
         bothAlignmentsAvailable();
         bothMetricsAvailable();
@@ -231,6 +172,17 @@ public class SomaticPipelineTest {
                 .thenReturn(chordOutput());
         PipelineState state = victim.run();
         assertThat(state.status()).isEqualTo(PipelineStatus.QC_FAILED);
+    }
+
+    @Test
+    public void skipsStructuralCallerIfSingleSampleRun() {
+        when(alignmentOutputStorage.get(referenceRunMetadata())).thenReturn(Optional.of(referenceAlignmentOutput()));
+        when(setMetadataApi.get()).thenReturn(SomaticRunMetadata.builder()
+                .from(defaultSomaticRunMetadata())
+                .maybeTumor(Optional.empty())
+                .build());
+        victim.run();
+        verifyZeroInteractions(stageRunner, structuralCaller);
     }
 
     private void successfulRun() {

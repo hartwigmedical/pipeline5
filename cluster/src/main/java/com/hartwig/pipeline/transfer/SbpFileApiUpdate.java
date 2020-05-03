@@ -3,32 +3,45 @@ package com.hartwig.pipeline.transfer;
 import static java.lang.String.format;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 import java.util.function.Consumer;
 
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
+import com.hartwig.pipeline.PipelineState;
+import com.hartwig.pipeline.metadata.AdditionalApiCalls;
+import com.hartwig.pipeline.metadata.ApiFileOperation;
 import com.hartwig.pipeline.report.PipelineResults;
+import com.hartwig.pipeline.sbpapi.AddFileApiResponse;
 import com.hartwig.pipeline.sbpapi.SbpFileMetadata;
 import com.hartwig.pipeline.sbpapi.SbpRestApi;
 import com.hartwig.pipeline.sbpapi.SbpRun;
 import com.hartwig.pipeline.transfer.sbp.ContentTypeCorrection;
 
 import org.apache.commons.codec.binary.Hex;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SbpFileApiUpdate implements Consumer<Blob> {
 
+    private final static Logger LOGGER = LoggerFactory.getLogger(SbpFileApiUpdate.class);
     private final ContentTypeCorrection contentTypeCorrection;
+    private final AdditionalApiCalls additionalApiCalls;
     private final SbpRun sbpRun;
     private final Bucket sourceBucket;
     private final SbpRestApi sbpApi;
+    private final List<ApiFileOperation> fileOperations = new ArrayList<>();
 
-    public SbpFileApiUpdate(final ContentTypeCorrection contentTypeCorrection, final SbpRun sbpRun, final Bucket sourceBucket,
-            final SbpRestApi sbpApi) {
+    public SbpFileApiUpdate(final ContentTypeCorrection contentTypeCorrection, final AdditionalApiCalls additionalApiCalls,
+            final SbpRun sbpRun, final Bucket sourceBucket, final SbpRestApi sbpApi, final PipelineState pipelineState) {
         this.contentTypeCorrection = contentTypeCorrection;
+        this.additionalApiCalls = additionalApiCalls;
         this.sbpRun = sbpRun;
         this.sourceBucket = sourceBucket;
         this.sbpApi = sbpApi;
+        pipelineState.stageOutputs().forEach(stageOutput -> fileOperations.addAll(stageOutput.furtherOperations()));
     }
 
     @Override
@@ -45,7 +58,14 @@ public class SbpFileApiUpdate implements Consumer<Blob> {
                         .filesize(blob.getSize())
                         .hash(convertMd5ToSbpFormat(blob.getMd5()))
                         .build();
-                sbpApi.postFile(metaData);
+                AddFileApiResponse fileResponse = sbpApi.postFile(metaData);
+
+                for (ApiFileOperation fileOperation : fileOperations) {
+                    if (fileOperation.path().equals(blob.getName().substring(blob.getName().indexOf("/") + 1))) {
+                        LOGGER.info("Found operation [{}] to apply", fileOperation);
+                        fileOperation.apply(sbpApi, fileResponse);
+                    }
+                }
             }
         }
     }

@@ -7,6 +7,7 @@ import java.util.Optional;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.cloud.storage.Bucket;
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.PipelineState;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.jackson.ObjectMappers;
 import com.hartwig.pipeline.sbpapi.SbpIni;
@@ -116,21 +117,22 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
     }
 
     @Override
-    public void complete(final PipelineStatus status, SomaticRunMetadata metadata) {
+    public void complete(final PipelineState pipelineState, final SomaticRunMetadata metadata) {
         String runIdAsString = String.valueOf(sbpRunId);
         SbpRun sbpRun = getSbpRun();
         String sbpBucket = sbpRun.bucket();
         if (sbpBucket != null) {
-            LOGGER.info("Recording pipeline completion with status [{}]", status);
+            LOGGER.info("Recording pipeline completion with status [{}]", pipelineState.status());
             try {
                 sbpRestApi.updateRunStatus(runIdAsString, UPLOADING, arguments.archiveBucket());
                 googleArchiver.transfer(metadata);
-                OutputIterator.from(new SbpFileApiUpdate(ContentTypeCorrection.get(),
+                OutputIterator.from(new SbpFileApiUpdate(ContentTypeCorrection.get(), AdditionalApiCalls.instance(),
                         sbpRun,
                         sourceBucket,
-                        sbpRestApi).andThen(new BlobCleanup()), sourceBucket).iterate(metadata);
+                        sbpRestApi,
+                        pipelineState).andThen(new BlobCleanup()), sourceBucket).iterate(metadata);
                 sbpRestApi.updateRunStatus(runIdAsString,
-                        status == PipelineStatus.SUCCESS ? successStatus() : FAILED,
+                        pipelineState.status() == PipelineStatus.SUCCESS ? successStatus() : FAILED,
                         arguments.archiveBucket());
             } catch (Exception e) {
                 sbpRestApi.updateRunStatus(runIdAsString, FAILED, sbpBucket);
