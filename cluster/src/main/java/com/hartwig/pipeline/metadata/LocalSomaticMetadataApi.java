@@ -3,7 +3,6 @@ package com.hartwig.pipeline.metadata;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.PipelineState;
 import com.hartwig.pipeline.RunTag;
-import com.hartwig.pipeline.execution.PipelineStatus;
 
 public class LocalSomaticMetadataApi implements SomaticMetadataApi {
 
@@ -33,7 +32,7 @@ public class LocalSomaticMetadataApi implements SomaticMetadataApi {
     }
 
     @Override
-    public void complete(final PipelineStatus status, SomaticRunMetadata metadata, PipelineState state) {
+    public void complete(final PipelineState state, SomaticRunMetadata metadata) {
         // do nothing
     }
 }

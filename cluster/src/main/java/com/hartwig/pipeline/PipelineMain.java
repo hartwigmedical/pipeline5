@@ -46,7 +46,8 @@ public class PipelineMain {
                     Executors.newCachedThreadPool(),
                     referenceEventListener,
                     tumorEventListener,
-                    somaticMetadataApi.get()).run();
+                    somaticMetadataApi,
+                    CleanupProvider.from(arguments, storage).get()).run();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -68,7 +69,6 @@ public class PipelineMain {
                         metadata -> RuntimeBucket.from(storage, GermlineCaller.NAMESPACE, metadata, arguments)), somaticMetadataApi,
                 PipelineResultsProvider.from(storage, arguments, Versions.pipelineVersion()).get(),
                 new FullSomaticResults(storage, arguments),
-                CleanupProvider.from(arguments, storage).get(),
                 Executors.newCachedThreadPool());
     }
 

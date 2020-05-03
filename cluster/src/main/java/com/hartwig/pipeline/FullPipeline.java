@@ -4,9 +4,11 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Supplier;
 
+import com.hartwig.pipeline.cleanup.Cleanup;
 import com.hartwig.pipeline.metadata.CompletionHandler;
 import com.hartwig.pipeline.metadata.SingleSampleEventListener;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
+import com.hartwig.pipeline.metadata.SomaticMetadataApi;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 
 import org.slf4j.Logger;
@@ -22,18 +24,22 @@ public class FullPipeline {
     private final ExecutorService executorService;
     private final SingleSampleEventListener referenceSampleEventListener;
     private final SingleSampleEventListener tumorSampleEventListener;
+    private final SomaticMetadataApi api;
     private final SomaticRunMetadata metadata;
+    private Cleanup cleanup;
 
     FullPipeline(final SingleSamplePipeline referencePipeline, final SingleSamplePipeline tumorPipeline,
             final SomaticPipeline somaticPipeline, final ExecutorService executorService, final SingleSampleEventListener referenceApi,
-            final SingleSampleEventListener tumorApi, final SomaticRunMetadata metadata) {
+            final SingleSampleEventListener tumorApi, final SomaticMetadataApi api, final Cleanup cleanup) {
         this.referencePipeline = referencePipeline;
         this.tumorPipeline = tumorPipeline;
         this.somaticPipeline = somaticPipeline;
         this.executorService = executorService;
         this.referenceSampleEventListener = referenceApi;
         this.tumorSampleEventListener = tumorApi;
-        this.metadata = metadata;
+        this.api = api;
+        this.metadata = api.get();
+        this.cleanup = cleanup;
     }
 
     public PipelineState run() {
@@ -59,7 +65,12 @@ public class FullPipeline {
             PipelineState somaticState = somaticPipeline.run();
             waitForSingleSamples(bothSingleSamplesPipelineComplete);
             PipelineState singleSamplePipelineState = combine(trapReferencePipelineComplete, trapTumorPipelineComplete, metadata);
-            return singleSampleAlignmentState.combineWith(somaticState).combineWith(singleSamplePipelineState);
+            PipelineState combinedState = singleSampleAlignmentState.combineWith(somaticState).combineWith(singleSamplePipelineState);
+            api.complete(combinedState, metadata);
+            if (combinedState.shouldProceed()) {
+                cleanup.run(metadata);
+            }
+            return combinedState;
         } else {
             return singleSampleAlignmentState;
         }

@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.google.cloud.storage.Bucket;
@@ -17,6 +18,7 @@ import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.PipelineState;
 import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.execution.PipelineStatus;
+import com.hartwig.pipeline.metadata.ApiFileOperation;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
@@ -119,6 +121,11 @@ public class PipelineResultsTest {
             @Override
             public List<ReportComponent> reportComponents() {
                 return components;
+            }
+
+            @Override
+            public List<ApiFileOperation> furtherOperations() {
+                return Collections.emptyList();
             }
         };
     }

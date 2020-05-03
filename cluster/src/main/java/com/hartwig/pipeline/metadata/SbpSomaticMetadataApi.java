@@ -117,23 +117,22 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
     }
 
     @Override
-    public void complete(final PipelineStatus status, SomaticRunMetadata metadata, PipelineState pipelineState) {
+    public void complete(final PipelineState pipelineState, final SomaticRunMetadata metadata) {
         String runIdAsString = String.valueOf(sbpRunId);
         SbpRun sbpRun = getSbpRun();
         String sbpBucket = sbpRun.bucket();
         if (sbpBucket != null) {
-            LOGGER.info("Recording pipeline completion with status [{}]", status);
+            LOGGER.info("Recording pipeline completion with status [{}]", pipelineState.status());
             try {
                 sbpRestApi.updateRunStatus(runIdAsString, UPLOADING, arguments.archiveBucket());
                 googleArchiver.transfer(metadata);
-                OutputIterator.from(new SbpFileApiUpdate(ContentTypeCorrection.get(),
-                        AdditionalApiCalls.instance(),
+                OutputIterator.from(new SbpFileApiUpdate(ContentTypeCorrection.get(), AdditionalApiCalls.instance(),
                         sbpRun,
                         sourceBucket,
                         sbpRestApi,
                         pipelineState).andThen(new BlobCleanup()), sourceBucket).iterate(metadata);
                 sbpRestApi.updateRunStatus(runIdAsString,
-                        status == PipelineStatus.SUCCESS ? successStatus() : FAILED,
+                        pipelineState.status() == PipelineStatus.SUCCESS ? successStatus() : FAILED,
                         arguments.archiveBucket());
             } catch (Exception e) {
                 sbpRestApi.updateRunStatus(runIdAsString, FAILED, sbpBucket);

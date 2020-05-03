@@ -17,7 +17,6 @@ import com.hartwig.pipeline.calling.somatic.SomaticCaller;
 import com.hartwig.pipeline.calling.somatic.SomaticCallerOutput;
 import com.hartwig.pipeline.calling.structural.StructuralCaller;
 import com.hartwig.pipeline.calling.structural.StructuralCallerOutput;
-import com.hartwig.pipeline.cleanup.Cleanup;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.metadata.SomaticMetadataApi;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
@@ -59,15 +58,14 @@ public class SomaticPipeline {
     private final SomaticMetadataApi setMetadataApi;
     private final PipelineResults pipelineResults;
     private final FullSomaticResults fullSomaticResults;
-    private final Cleanup cleanup;
     private final ExecutorService executorService;
 
     SomaticPipeline(final Arguments arguments, final StageRunner<SomaticRunMetadata> stageRunner,
             final AlignmentOutputStorage alignmentOutputStorage,
             final OutputStorage<BamMetricsOutput, SingleSampleRunMetadata> bamMetricsOutputStorage,
             final OutputStorage<GermlineCallerOutput, SingleSampleRunMetadata> germlineCallerOutputStorage,
-            final SomaticMetadataApi setMetadataApi, final PipelineResults pipelineResults,
-            final FullSomaticResults fullSomaticResults, final Cleanup cleanup, final ExecutorService executorService) {
+            final SomaticMetadataApi setMetadataApi, final PipelineResults pipelineResults, final FullSomaticResults fullSomaticResults,
+            final ExecutorService executorService) {
         this.arguments = arguments;
         this.stageRunner = stageRunner;
         this.alignmentOutputStorage = alignmentOutputStorage;
@@ -76,7 +74,6 @@ public class SomaticPipeline {
         this.setMetadataApi = setMetadataApi;
         this.pipelineResults = pipelineResults;
         this.fullSomaticResults = fullSomaticResults;
-        this.cleanup = cleanup;
         this.executorService = executorService;
     }
 
@@ -144,10 +141,6 @@ public class SomaticPipeline {
             }
         }
         fullSomaticResults.compose(metadata);
-        setMetadataApi.complete(state.status(), metadata, state);
-        if (state.shouldProceed()) {
-            cleanup.run(metadata);
-        }
         return state;
     }
 
