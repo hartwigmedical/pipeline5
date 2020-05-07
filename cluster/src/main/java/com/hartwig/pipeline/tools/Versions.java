@@ -24,8 +24,8 @@ public interface Versions {
     String HEALTH_CHECKER = "3.1";
     String PURPLE = "2.41";
     String CIRCOS = "0.69.6";
-    String GRIDSS = "2.9.0";
-    String LINX = "1.9";
+    String GRIDSS = "2.8.3";
+    String LINX = "1.7";
     String BACHELOR = "1.9";
     String CHORD = "60.02_1.03";
     String SAMTOOLS = "1.10";
@@ -72,6 +72,6 @@ public interface Versions {
     }
 
     static String imageVersion() {
-        return "5-11";
+        return "5-10";
     }
 }
