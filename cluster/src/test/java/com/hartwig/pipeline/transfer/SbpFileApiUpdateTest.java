@@ -9,7 +9,6 @@ import static org.mockito.Mockito.when;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.hartwig.pipeline.PipelineState;
-import com.hartwig.pipeline.metadata.AdditionalApiCalls;
 import com.hartwig.pipeline.sbpapi.SbpFileMetadata;
 import com.hartwig.pipeline.sbpapi.SbpRestApi;
 import com.hartwig.pipeline.sbpapi.SbpRun;
@@ -27,7 +26,6 @@ public class SbpFileApiUpdateTest {
     private SbpFileApiUpdate victim;
     private Blob blob;
     private ContentTypeCorrection correction;
-    private AdditionalApiCalls metadata;
     private PipelineState pipelineState;
 
     @Before
@@ -38,9 +36,8 @@ public class SbpFileApiUpdateTest {
         sbpRestApi = mock(SbpRestApi.class);
         blob = TestBlobs.blob("report/run/blob");
         correction = mock(ContentTypeCorrection.class);
-        metadata = mock(AdditionalApiCalls.class);
         pipelineState = mock(PipelineState.class);
-        victim = new SbpFileApiUpdate(correction, metadata, run, sourceBucket, sbpRestApi, pipelineState);
+        victim = new SbpFileApiUpdate(correction, run, sourceBucket, sbpRestApi, pipelineState);
     }
 
     @Test

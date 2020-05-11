@@ -11,7 +11,6 @@ import java.util.function.Consumer;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.hartwig.pipeline.PipelineState;
-import com.hartwig.pipeline.metadata.AdditionalApiCalls;
 import com.hartwig.pipeline.metadata.ApiFileOperation;
 import com.hartwig.pipeline.report.PipelineResults;
 import com.hartwig.pipeline.sbpapi.AddFileApiResponse;
@@ -28,16 +27,14 @@ public class SbpFileApiUpdate implements Consumer<Blob> {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(SbpFileApiUpdate.class);
     private final ContentTypeCorrection contentTypeCorrection;
-    private final AdditionalApiCalls additionalApiCalls;
     private final SbpRun sbpRun;
     private final Bucket sourceBucket;
     private final SbpRestApi sbpApi;
     private final List<ApiFileOperation> fileOperations = new ArrayList<>();
 
-    public SbpFileApiUpdate(final ContentTypeCorrection contentTypeCorrection, final AdditionalApiCalls additionalApiCalls,
-            final SbpRun sbpRun, final Bucket sourceBucket, final SbpRestApi sbpApi, final PipelineState pipelineState) {
+    public SbpFileApiUpdate(final ContentTypeCorrection contentTypeCorrection, final SbpRun sbpRun, final Bucket sourceBucket,
+            final SbpRestApi sbpApi, final PipelineState pipelineState) {
         this.contentTypeCorrection = contentTypeCorrection;
-        this.additionalApiCalls = additionalApiCalls;
         this.sbpRun = sbpRun;
         this.sourceBucket = sourceBucket;
         this.sbpApi = sbpApi;
