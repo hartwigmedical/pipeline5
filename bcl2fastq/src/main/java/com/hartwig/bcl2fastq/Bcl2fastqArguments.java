@@ -47,8 +47,8 @@ public interface Bcl2fastqArguments extends CommonArguments {
                     .cmek(commandLine.getOptionValue(CMEK, CommonArguments.DEFAULT_DEVELOPMENT_CMEK))
                     .forensicBucket(commandLine.getOptionValue(FORENSIC_BUCKET, "bcl-conversion-forensics"))
                     .privateNetwork(commandLine.getOptionValue(PRIVATE_NETWORK, DEFAULT_PRIVATE_NETWORK))
-                    .useLocalSsds(false)
-                    .usePreemptibleVms(false)
+                    .useLocalSsds(true)
+                    .usePreemptibleVms(true)
                     .build();
         } catch (ParseException e) {
             throw new IllegalArgumentException("Failed to parse arguments", e);
