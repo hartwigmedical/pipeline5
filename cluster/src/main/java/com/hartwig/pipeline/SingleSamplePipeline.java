@@ -2,6 +2,10 @@ package com.hartwig.pipeline;
 
 import static com.hartwig.pipeline.resource.ResourceFilesFactory.buildResourceFiles;
 
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.alignment.vm.VmAligner;
 import com.hartwig.pipeline.calling.germline.GermlineCaller;
@@ -19,12 +23,9 @@ import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.snpgenotype.SnpGenotype;
 import com.hartwig.pipeline.snpgenotype.SnpGenotypeOutput;
 import com.hartwig.pipeline.stages.StageRunner;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 
 public class SingleSamplePipeline {
 
@@ -60,7 +61,7 @@ public class SingleSamplePipeline {
         AlignmentOutput alignmentOutput = report.add(state.add(aligner.run(metadata)));
         eventListener.alignmentComplete(state);
         if (state.shouldProceed()) {
-
+            report.initialise(arguments, metadata);
             Future<BamMetricsOutput> bamMetricsFuture =
                     executorService.submit(() -> stageRunner.run(metadata, new BamMetrics(resourceFiles, alignmentOutput)));
             Future<SnpGenotypeOutput> unifiedGenotyperFuture =

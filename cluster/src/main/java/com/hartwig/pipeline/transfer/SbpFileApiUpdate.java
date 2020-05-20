@@ -59,7 +59,7 @@ public class SbpFileApiUpdate implements Consumer<Blob> {
 
                 for (ApiFileOperation fileOperation : fileOperations) {
                     if (fileOperation.path().equals(blob.getName().substring(blob.getName().indexOf("/") + 1))) {
-                        LOGGER.info("Found operation [{}] to apply", fileOperation);
+                        LOGGER.info("Applying: {}", fileOperation);
                         fileOperation.apply(sbpApi, fileResponse);
                     }
                 }
