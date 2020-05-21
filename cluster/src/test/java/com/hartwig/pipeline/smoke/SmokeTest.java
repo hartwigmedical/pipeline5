@@ -161,11 +161,11 @@ public class SmokeTest {
     }
 
     private void assertThatAlignmentIsEqualToExpected(final String setID, final String sample, final GSUtilCloudCopy gsUtil) {
-        String bam = sample + ".bam";
-        File results = new File(resultsDir.getPath() + "/" + bam);
+        String cram = sample + ".cram";
+        File results = new File(resultsDir.getPath() + "/" + cram);
 
         runGsUtil(ImmutableList.of("cp",
-                format("%s://%s/%s/%s/aligner/%s", GCP_REMOTE, ARCHIVE_BUCKET, setID, sample, bam),
+                format("%s://%s/%s/%s/cram/%s", GCP_REMOTE, ARCHIVE_BUCKET, setID, sample, cram),
                 results.getPath()));
         assertThatOutput(results.getParent(), "/" + sample).aligned().duplicatesMarked().sorted().isEqualToExpected();
     }
