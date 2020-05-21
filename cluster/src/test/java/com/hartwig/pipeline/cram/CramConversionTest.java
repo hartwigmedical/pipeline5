@@ -10,7 +10,6 @@ import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.resource.Hg37ResourceFiles;
-import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.StageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
@@ -20,7 +19,7 @@ public class CramConversionTest extends StageTest<CramOutput, SingleSampleRunMet
 
     @Override
     protected Arguments createDisabledArguments() {
-        return Arguments.testDefaults();
+        return Arguments.testDefaultsBuilder().outputCram(false).build();
     }
 
     @Override
