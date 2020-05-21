@@ -97,4 +97,12 @@ public class PipelineResults {
     private String path(final String name, final Folder folder, final String fileName) {
         return String.format("%s/%s%s", name, folder.name(), fileName);
     }
+
+    public void clearOldState(final Arguments arguments, final SingleSampleRunMetadata metadata) {
+        String name = RunTag.apply(arguments, metadata.sampleId());
+        boolean deleted = storage.delete(reportBucket.getName(), format("%s/%s", name, STAGING_COMPLETE));
+        if (deleted) {
+            LOGGER.info("Deleted existing staging complete flag");
+        }
+    }
 }

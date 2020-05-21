@@ -34,10 +34,11 @@ public class PipelineResultsTest {
     private boolean secondComponentRan;
     private PipelineResults victim;
     private Bucket outputBucket;
+    private Storage storage;
 
     @Before
     public void setUp() throws Exception {
-        final Storage storage = mock(Storage.class);
+        storage = mock(Storage.class);
         outputBucket = mock(Bucket.class);
         when(outputBucket.getName()).thenReturn(PIPELINE_OUTPUT);
         victim = new PipelineResults("test", storage, outputBucket, Arguments.testDefaultsBuilder().runId("tag").build());
@@ -98,6 +99,12 @@ public class PipelineResultsTest {
         victim.compose(TestInputs.referenceRunMetadata(), false, state);
         verify(outputBucket, times(1)).create(createBlobCaptor.capture(), (byte[]) any());
         assertThat(createBlobCaptor.getAllValues().get(0)).isEqualTo("reference-tag/STAGED");
+    }
+
+    @Test
+    public void initialisationClearsOutStagedFlag() {
+        victim.clearOldState(Arguments.testDefaults(), TestInputs.referenceRunMetadata());
+        verify(storage).delete(outputBucket.getName(), "reference-test/STAGED");
     }
 
     @NotNull

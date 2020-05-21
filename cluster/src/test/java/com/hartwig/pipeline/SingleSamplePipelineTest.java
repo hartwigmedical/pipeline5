@@ -1,5 +1,28 @@
 package com.hartwig.pipeline;
 
+import static com.hartwig.pipeline.testsupport.TestInputs.cramOutput;
+import static com.hartwig.pipeline.testsupport.TestInputs.flagstatOutput;
+import static com.hartwig.pipeline.testsupport.TestInputs.germlineCallerOutput;
+import static com.hartwig.pipeline.testsupport.TestInputs.referenceAlignmentOutput;
+import static com.hartwig.pipeline.testsupport.TestInputs.referenceMetricsOutput;
+import static com.hartwig.pipeline.testsupport.TestInputs.referenceRunMetadata;
+import static com.hartwig.pipeline.testsupport.TestInputs.referenceSample;
+import static com.hartwig.pipeline.testsupport.TestInputs.snpGenotypeOutput;
+import static com.hartwig.pipeline.testsupport.TestInputs.tumorAlignmentOutput;
+import static com.hartwig.pipeline.testsupport.TestInputs.tumorMetricsOutput;
+import static com.hartwig.pipeline.testsupport.TestInputs.tumorRunMetadata;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.concurrent.Executors;
+
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
@@ -16,30 +39,9 @@ import com.hartwig.pipeline.report.PipelineResultsProvider;
 import com.hartwig.pipeline.report.ReportComponent;
 import com.hartwig.pipeline.snpgenotype.SnpGenotypeOutput;
 import com.hartwig.pipeline.stages.StageRunner;
+
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.concurrent.Executors;
-
-import static com.hartwig.pipeline.testsupport.TestInputs.cramOutput;
-import static com.hartwig.pipeline.testsupport.TestInputs.flagstatOutput;
-import static com.hartwig.pipeline.testsupport.TestInputs.germlineCallerOutput;
-import static com.hartwig.pipeline.testsupport.TestInputs.referenceAlignmentOutput;
-import static com.hartwig.pipeline.testsupport.TestInputs.referenceMetricsOutput;
-import static com.hartwig.pipeline.testsupport.TestInputs.referenceRunMetadata;
-import static com.hartwig.pipeline.testsupport.TestInputs.referenceSample;
-import static com.hartwig.pipeline.testsupport.TestInputs.snpGenotypeOutput;
-import static com.hartwig.pipeline.testsupport.TestInputs.tumorAlignmentOutput;
-import static com.hartwig.pipeline.testsupport.TestInputs.tumorMetricsOutput;
-import static com.hartwig.pipeline.testsupport.TestInputs.tumorRunMetadata;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class SingleSamplePipelineTest {
 
@@ -282,12 +284,22 @@ public class SingleSamplePipelineTest {
     }
 
     @Test
-    public void doesnotComposeReportIfStatusIsFailed() throws Exception {
+    public void doesNotComposeReportIfStatusIsFailed() throws Exception {
         pipelineResults = mock(PipelineResults.class);
         AlignmentOutput alignmentOutput = AlignmentOutput.builder().status(PipelineStatus.FAILED).sample(referenceSample()).build();
         when(aligner.run(referenceRunMetadata())).thenReturn(alignmentOutput);
         victim.run(referenceRunMetadata());
         verify(pipelineResults, never()).compose(any(), eq(true), any());
+    }
+
+    @Test
+    public void clearsOutExistingStagingFlag() throws Exception {
+        pipelineResults = mock(PipelineResults.class);
+        when(pipelineResults.add(any())).thenAnswer(i -> i.getArguments()[0]);
+        when(aligner.run(referenceRunMetadata())).thenReturn(referenceAlignmentOutput());
+        initialiseVictim(false);
+        victim.run(referenceRunMetadata());
+        verify(pipelineResults).clearOldState(any(Arguments.class), eq(referenceRunMetadata()));
     }
 
     private void assertFailed(final PipelineState runOutput) {
