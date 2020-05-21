@@ -98,7 +98,7 @@ public class PipelineResults {
         return String.format("%s/%s%s", name, folder.name(), fileName);
     }
 
-    public void initialise(final Arguments arguments, final SingleSampleRunMetadata metadata) {
+    public void clearOldState(final Arguments arguments, final SingleSampleRunMetadata metadata) {
         String name = RunTag.apply(arguments, metadata.sampleId());
         boolean deleted = storage.delete(reportBucket.getName(), format("%s/%s", name, STAGING_COMPLETE));
         if (deleted) {

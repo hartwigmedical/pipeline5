@@ -103,7 +103,7 @@ public class PipelineResultsTest {
 
     @Test
     public void initialisationClearsOutStagedFlag() {
-        victim.initialise(Arguments.testDefaults(), TestInputs.referenceRunMetadata());
+        victim.clearOldState(Arguments.testDefaults(), TestInputs.referenceRunMetadata());
         verify(storage).delete(outputBucket.getName(), "reference-test/STAGED");
     }
 

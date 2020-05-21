@@ -299,7 +299,7 @@ public class SingleSamplePipelineTest {
         when(aligner.run(referenceRunMetadata())).thenReturn(referenceAlignmentOutput());
         initialiseVictim(false);
         victim.run(referenceRunMetadata());
-        verify(pipelineResults).initialise(any(Arguments.class), eq(referenceRunMetadata()));
+        verify(pipelineResults).clearOldState(any(Arguments.class), eq(referenceRunMetadata()));
     }
 
     private void assertFailed(final PipelineState runOutput) {
