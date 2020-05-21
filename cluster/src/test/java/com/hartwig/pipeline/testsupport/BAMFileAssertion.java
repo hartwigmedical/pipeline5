@@ -27,7 +27,7 @@ abstract class BAMFileAssertion {
     }
 
     void isEqualToExpected() {
-        String finalBamFile = sample + (suffix.isEmpty() ? "" : "." + suffix) + ".bam";
+        String finalBamFile = sample + (suffix.isEmpty() ? "" : "." + suffix) + ".cram";
         InputStream expected = Assertions.class.getResourceAsStream(String.format("/expected/%s", finalBamFile));
         if (expected == null) {
             fail(format("No expected file found for sample [%s]. Check that the sample name is correct and there is a "

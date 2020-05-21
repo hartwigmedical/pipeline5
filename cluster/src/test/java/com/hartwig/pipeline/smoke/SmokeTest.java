@@ -110,8 +110,8 @@ public class SmokeTest {
         assertThat(archiveListing).containsOnlyElementsOf(expectedFiles);
 
         GSUtilCloudCopy gsutil = new GSUtilCloudCopy(arguments.cloudSdkPath());
-        assertThatAlignmentIsEqualToExpected(setName, REFERENCE_SAMPLE, gsutil);
-        assertThatAlignmentIsEqualToExpected(setName, TUMOR_SAMPLE, gsutil);
+        assertThatAlignmentIsEqualToExpected(setName, REFERENCE_SAMPLE);
+        assertThatAlignmentIsEqualToExpected(setName, TUMOR_SAMPLE);
     }
 
     private List<String> listArchiveFilenames(String setName) {
@@ -160,7 +160,7 @@ public class SmokeTest {
         }
     }
 
-    private void assertThatAlignmentIsEqualToExpected(final String setID, final String sample, final GSUtilCloudCopy gsUtil) {
+    private void assertThatAlignmentIsEqualToExpected(final String setID, final String sample) {
         String cram = sample + ".cram";
         File results = new File(resultsDir.getPath() + "/" + cram);
 
