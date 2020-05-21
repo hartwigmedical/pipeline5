@@ -19,8 +19,10 @@ cobalt/CPCT12345678T.cobalt.gc.median
 cobalt/CPCT12345678T.cobalt.ratio.pcf
 cobalt/CPCT12345678T.cobalt.ratio.tsv
 cobalt/run.log
-CPCT12345678R/aligner/CPCT12345678R.bam
-CPCT12345678R/aligner/CPCT12345678R.bam.bai
+CPCT12345678R/cram/CPCT12345678R.cram
+CPCT12345678R/cram/CPCT12345678R.cram.crai
+CPCT12345678R/cram/run.log
+CPCT12345678R/cram/run.sh
 CPCT12345678R/aligner/run.log
 CPCT12345678R/aligner/HJJLGCCXX-L001/run.log
 CPCT12345678T/aligner/run.log
@@ -36,8 +38,10 @@ CPCT12345678R/pipeline.version
 CPCT12345678R/snp_genotype/run.log
 CPCT12345678R/snp_genotype/run.sh
 CPCT12345678R/snp_genotype/snp_genotype_output.vcf
-CPCT12345678T/aligner/CPCT12345678T.bam
-CPCT12345678T/aligner/CPCT12345678T.bam.bai
+CPCT12345678T/cram/CPCT12345678T.cram
+CPCT12345678T/cram/CPCT12345678T.cram.crai
+CPCT12345678T/cram/run.log
+CPCT12345678T/cram/run.sh
 CPCT12345678T/bam_metrics/CPCT12345678T.wgsmetrics
 CPCT12345678T/bam_metrics/run.log
 CPCT12345678T/bam_metrics/run.sh
