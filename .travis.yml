@@ -18,6 +18,8 @@ before_script:
 script:
   - 'if [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then mvn clean deploy -B; else mvn clean install -DskipDocker -DskipShade -B; fi'
 before_install:
+  - export GCLOUD_PROJECT=hmf-pipeline-development
+  - export GOOGLE_APPLICATION_CREDENTIALS=$TRAVIS_BUILD_DIR/deploy/key.json
   - openssl aes-256-cbc -K $encrypted_965d6303826d_key -iv $encrypted_965d6303826d_iv
     -in cluster/src/test/resources/smoke_test/api.jks.enc -out cluster/src/test/resources/smoke_test/api.jks -d
   - openssl aes-256-cbc -K $encrypted_ec9457022768_key -iv $encrypted_ec9457022768_iv
