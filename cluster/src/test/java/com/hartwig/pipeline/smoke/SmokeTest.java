@@ -21,7 +21,6 @@ import com.hartwig.pipeline.jackson.ObjectMappers;
 import com.hartwig.pipeline.sbpapi.SbpRestApi;
 import com.hartwig.pipeline.sbpapi.SbpSet;
 import com.hartwig.pipeline.storage.GSUtil;
-import com.hartwig.pipeline.storage.GSUtilCloudCopy;
 import com.hartwig.pipeline.testsupport.Resources;
 
 import org.apache.commons.io.FileUtils;
@@ -109,7 +108,6 @@ public class SmokeTest {
         List<String> archiveListing = listArchiveFilenames(setName);
         assertThat(archiveListing).containsOnlyElementsOf(expectedFiles);
 
-        GSUtilCloudCopy gsutil = new GSUtilCloudCopy(arguments.cloudSdkPath());
         assertThatAlignmentIsEqualToExpected(setName, REFERENCE_SAMPLE);
         assertThatAlignmentIsEqualToExpected(setName, TUMOR_SAMPLE);
     }

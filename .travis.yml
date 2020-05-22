@@ -28,6 +28,8 @@ before_install:
     -in deploy/key.json.enc -out deploy/key.json -d
   - echo "$DOCKER_HUB_PASSWORD" | docker login -u "hartwigmedicalfoundation" --password-stdin
   - mvn versions:set -DnewVersion=$PIPELINE5_VERSION
+  - gsutil cp gs://common-tools/htsjdk/htsjdk-2.21.2-9-g709c9f8-SNAPSHOT.jar /tmp/
+  - mvn install:install-file -Dfile=/tmp/htsjdk-2.21.2-9-g709c9f8-SNAPSHOT.jar -DgroupId=com.github.samtools -DartifactId=htsjdk -Dversion=2.21.2-9-g709c9f8-SNAPSHOT -Dpackaging=jar -DgeneratePom=true
   - sudo apt-get -qq update
   - sudo apt-get install -y google-cloud-sdk
   - curl https://downloads.rclone.org/v1.48.0/rclone-v1.48.0-linux-amd64.deb --output rclone-current-linux-amd64.deb
