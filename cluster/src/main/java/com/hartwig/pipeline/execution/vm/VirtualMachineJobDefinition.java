@@ -64,7 +64,6 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("snpgenotype")
                 .startupCommand(startupScript)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 16))
                 .namespacedResults(resultsDirectory)
                 .build();
     }
@@ -73,7 +72,6 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("germline")
                 .startupCommand(startupScript)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(32, 40))
                 .namespacedResults(resultsDirectory)
                 .build();
     }
@@ -98,7 +96,6 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("gridss")
                 .startupCommand(startupScript)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(24, 120))
                 .namespacedResults(resultsDirectory)
                 .build();
     }
@@ -116,7 +113,6 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .name("cobalt")
                 .startupCommand(startupScript)
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(16, 16))
                 .build();
     }
 
@@ -124,7 +120,6 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("bam-metrics")
                 .startupCommand(startupScript)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(8, 32))
                 .namespacedResults(resultsDirectory)
                 .build();
     }
@@ -133,7 +128,6 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("health-checker")
                 .startupCommand(startupScript)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(8, 32))
                 .namespacedResults(resultsDirectory)
                 .build();
     }
@@ -151,7 +145,6 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("aligner-" + lane)
                 .startupCommand(startupScript)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(96, 96))
                 .namespacedResults(resultsDirectory)
                 .build();
     }
@@ -160,7 +153,6 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("merge-markdup")
                 .startupCommand(startupScript)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(32, 120))
                 .namespacedResults(resultsDirectory)
                 .build();
     }
@@ -170,7 +162,6 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .name("linx")
                 .startupCommand(startupScript)
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 12))
                 .build();
     }
 
@@ -179,7 +170,6 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .name("bachelor")
                 .startupCommand(startupScript)
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 12))
                 .build();
     }
 
@@ -188,7 +178,6 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .name("chord")
                 .startupCommand(startupScript)
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 12))
                 .build();
     }
 }
