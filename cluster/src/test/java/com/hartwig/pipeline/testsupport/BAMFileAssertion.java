@@ -28,6 +28,7 @@ abstract class BAMFileAssertion {
 
     void isEqualToExpected() {
         String finalBamFile = sample + (suffix.isEmpty() ? "" : "." + suffix) + ".bam";
+        String finalCramFile = finalBamFile.replaceAll("\\.bam$", ".cram");
         InputStream expected = Assertions.class.getResourceAsStream(String.format("/expected/%s", finalBamFile));
         if (expected == null) {
             fail(format("No expected file found for sample [%s]. Check that the sample name is correct and there is a "
@@ -36,7 +37,7 @@ abstract class BAMFileAssertion {
 
         SamReaderFactory samReaderFactory = SamReaderFactory.make();
         SamReader samReaderExpected = samReaderFactory.open(SamInputResource.of(expected));
-        SamReader samReaderResults = samReaderFactory.open(new File(resultDirectory + finalBamFile));
+        SamReader samReaderResults = samReaderFactory.open(new File(resultDirectory + finalCramFile));
         assertFile(samReaderExpected, samReaderResults);
     }
 

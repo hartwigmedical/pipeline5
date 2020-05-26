@@ -21,7 +21,6 @@ import com.hartwig.pipeline.jackson.ObjectMappers;
 import com.hartwig.pipeline.sbpapi.SbpRestApi;
 import com.hartwig.pipeline.sbpapi.SbpSet;
 import com.hartwig.pipeline.storage.GSUtil;
-import com.hartwig.pipeline.storage.GSUtilCloudCopy;
 import com.hartwig.pipeline.testsupport.Resources;
 
 import org.apache.commons.io.FileUtils;
@@ -109,9 +108,8 @@ public class SmokeTest {
         List<String> archiveListing = listArchiveFilenames(setName);
         assertThat(archiveListing).containsOnlyElementsOf(expectedFiles);
 
-        GSUtilCloudCopy gsutil = new GSUtilCloudCopy(arguments.cloudSdkPath());
-        assertThatAlignmentIsEqualToExpected(setName, REFERENCE_SAMPLE, gsutil);
-        assertThatAlignmentIsEqualToExpected(setName, TUMOR_SAMPLE, gsutil);
+        assertThatAlignmentIsEqualToExpected(setName, REFERENCE_SAMPLE);
+        assertThatAlignmentIsEqualToExpected(setName, TUMOR_SAMPLE);
     }
 
     private List<String> listArchiveFilenames(String setName) {
@@ -160,12 +158,12 @@ public class SmokeTest {
         }
     }
 
-    private void assertThatAlignmentIsEqualToExpected(final String setID, final String sample, final GSUtilCloudCopy gsUtil) {
-        String bam = sample + ".bam";
-        File results = new File(resultsDir.getPath() + "/" + bam);
+    private void assertThatAlignmentIsEqualToExpected(final String setID, final String sample) {
+        String cram = sample + ".cram";
+        File results = new File(resultsDir.getPath() + "/" + cram);
 
         runGsUtil(ImmutableList.of("cp",
-                format("%s://%s/%s/%s/aligner/%s", GCP_REMOTE, ARCHIVE_BUCKET, setID, sample, bam),
+                format("%s://%s/%s/%s/cram/%s", GCP_REMOTE, ARCHIVE_BUCKET, setID, sample, cram),
                 results.getPath()));
         assertThatOutput(results.getParent(), "/" + sample).aligned().duplicatesMarked().sorted().isEqualToExpected();
     }

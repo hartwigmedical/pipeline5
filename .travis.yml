@@ -1,6 +1,6 @@
 branches:
   only:
-    - master
+    - DEV-1271
 sudo: required
 language: java
 jdk:
@@ -8,7 +8,7 @@ jdk:
 services:
   - docker
 env:
-- PIPELINE5_VERSION=5.10.$TRAVIS_BUILD_NUMBER
+- PIPELINE5_VERSION=5.11.$TRAVIS_BUILD_NUMBER
 cache:
   directories:
     - $HOME/.m2
@@ -18,6 +18,8 @@ before_script:
 script:
   - 'if [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then mvn clean deploy -B; else mvn clean install -DskipDocker -DskipShade -B; fi'
 before_install:
+  - export GCLOUD_PROJECT=hmf-pipeline-development
+  - export GOOGLE_APPLICATION_CREDENTIALS=$TRAVIS_BUILD_DIR/deploy/key.json
   - openssl aes-256-cbc -K $encrypted_965d6303826d_key -iv $encrypted_965d6303826d_iv
     -in cluster/src/test/resources/smoke_test/api.jks.enc -out cluster/src/test/resources/smoke_test/api.jks -d
   - openssl aes-256-cbc -K $encrypted_ec9457022768_key -iv $encrypted_ec9457022768_iv
@@ -28,6 +30,9 @@ before_install:
     -in deploy/key.json.enc -out deploy/key.json -d
   - echo "$DOCKER_HUB_PASSWORD" | docker login -u "hartwigmedicalfoundation" --password-stdin
   - mvn versions:set -DnewVersion=$PIPELINE5_VERSION
+  - gcloud auth activate-service-account --key-file=$TRAVIS_BUILD_DIR/deploy/key.json
+  - gsutil cp gs://common-tools/htsjdk/htsjdk-2.21.2-9-g709c9f8-SNAPSHOT.jar /tmp/
+  - mvn install:install-file -Dfile=/tmp/htsjdk-2.21.2-9-g709c9f8-SNAPSHOT.jar -DgroupId=com.github.samtools -DartifactId=htsjdk -Dversion=2.21.2-9-g709c9f8-SNAPSHOT -Dpackaging=jar -DgeneratePom=true
   - sudo apt-get -qq update
   - sudo apt-get install -y google-cloud-sdk
   - curl https://downloads.rclone.org/v1.48.0/rclone-v1.48.0-linux-amd64.deb --output rclone-current-linux-amd64.deb
