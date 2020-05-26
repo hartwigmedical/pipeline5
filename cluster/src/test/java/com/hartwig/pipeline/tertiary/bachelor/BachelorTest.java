@@ -46,9 +46,9 @@ public class BachelorTest extends TertiaryStageTest<BachelorOutput> {
                 + "/opt/resources/reference_genome/hg37/Homo_sapiens.GRCh37.GATK.illumina.fasta -output_dir /data/output -log_debug");
     }
 
-    @Test
-    public void doesntRunWhenShallowEnabled() {
-        assertThat(victim.shouldRun(Arguments.testDefaultsBuilder().shallow(true).runTertiary(true).build())).isFalse();
+    @Override
+    protected boolean isEnabledOnShallowSeq() {
+        return false;
     }
 
     @Test
