@@ -8,7 +8,6 @@ import java.util.List;
 
 import com.google.cloud.storage.Blob;
 import com.google.common.collect.ImmutableList;
-import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
@@ -75,9 +74,9 @@ public class HealthCheckerTest extends TertiaryStageTest<HealthCheckOutput> {
                 PipelineStatus.FAILED);
     }
 
-    @Test
-    public void doesntRunWhenShallowEnabled() {
-        assertThat(victim.shouldRun(Arguments.testDefaultsBuilder().shallow(true).runTertiary(true).build())).isFalse();
+    @Override
+    protected boolean isEnabledOnShallowSeq() {
+        return false;
     }
 
     @Override

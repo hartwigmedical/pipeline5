@@ -44,6 +44,11 @@ public class SageV2CallerTest extends TertiaryStageTest<SomaticCallerOutput> {
     }
 
     @Override
+    protected boolean isEnabledOnShallowSeq() {
+        return false;
+    }
+
+    @Override
     public void returnsExpectedOutput() {
         // ignored for now.
     }

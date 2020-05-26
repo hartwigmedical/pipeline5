@@ -1,7 +1,5 @@
 package com.hartwig.pipeline.calling.germline;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
@@ -12,7 +10,6 @@ import com.hartwig.pipeline.stages.StageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Before;
-import org.junit.Test;
 
 public class GermlineCallerTest extends StageTest<GermlineCallerOutput, SingleSampleRunMetadata> {
 
@@ -48,9 +45,9 @@ public class GermlineCallerTest extends StageTest<GermlineCallerOutput, SingleSa
         return Arguments.testDefaultsBuilder().runGermlineCaller(false).build();
     }
 
-    @Test
-    public void alsoDisabledWhenShallow() {
-        assertThat(victim.shouldRun(Arguments.testDefaultsBuilder().shallow(true).build())).isFalse();
+    @Override
+    protected boolean isEnabledOnShallowSeq() {
+        return false;
     }
 
     @Override

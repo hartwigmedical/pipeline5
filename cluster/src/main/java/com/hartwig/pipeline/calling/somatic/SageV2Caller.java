@@ -60,8 +60,7 @@ public class SageV2Caller extends TertiaryStage<SomaticCallerOutput> {
         String tumorSampleName = metadata.tumor().sampleName();
         String referenceSampleName = metadata.reference().sampleName();
 
-        SageV2Application sageV2Application = new SageV2Application(
-                resourceFiles.sageKnownHotspots(),
+        SageV2Application sageV2Application = new SageV2Application(resourceFiles.sageKnownHotspots(),
                 resourceFiles.sageActionableCodingPanel(),
                 resourceFiles.giabHighConfidenceBed(),
                 referenceGenomePath,
@@ -73,13 +72,12 @@ public class SageV2Caller extends TertiaryStage<SomaticCallerOutput> {
 
         final String refGenomeStr = resourceFiles.version() == RefGenomeVersion.HG37 ? "hg19" : "hg38";
 
-        SubStageInputOutput sageOutput = sageV2Application
-                .andThen(new SageV2PassFilter(tumorSampleName))
+        SubStageInputOutput sageOutput = sageV2Application.andThen(new SageV2PassFilter(tumorSampleName))
                 .andThen(new MappabilityAnnotation(resourceFiles.out150Mappability(), ResourceFiles.of(MAPPABILITY, "mappability.hdr")))
                 .andThen(new PonAnnotation("sage.pon", resourceFiles.sageGermlinePon(), "PON_COUNT"))
                 .andThen(new SageV2PonFilter())
                 .andThen(new SnpEff(ResourceFiles.SNPEFF_CONFIG, resourceFiles))
-                .andThen(new SageV2PostProcess( refGenomeStr))
+                .andThen(new SageV2PostProcess(refGenomeStr))
                 .andThen(FinalSubStage.of(new CosmicAnnotation(ResourceFiles.COSMIC_VCF_GZ, "ID,INFO")))
                 .apply(SubStageInputOutput.empty(tumorSampleName));
 
@@ -103,7 +101,8 @@ public class SageV2Caller extends TertiaryStage<SomaticCallerOutput> {
                         NAMESPACE,
                         Folder.from(),
                         outputFile.fileName(),
-                        OutputFile.of(metadata.tumor().sampleName(), "sage.somatic.post_processed", OutputFile.GZIPPED_VCF, false).fileName(),
+                        OutputFile.of(metadata.tumor().sampleName(), "sage.somatic.post_processed", OutputFile.GZIPPED_VCF, false)
+                                .fileName(),
                         resultsDirectory))
                 .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
                         NAMESPACE,
@@ -123,6 +122,6 @@ public class SageV2Caller extends TertiaryStage<SomaticCallerOutput> {
 
     @Override
     public boolean shouldRun(final Arguments arguments) {
-        return arguments.runSageCaller();
+        return !arguments.shallow() && arguments.runSageCaller();
     }
 }

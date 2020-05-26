@@ -1,18 +1,14 @@
 package com.hartwig.pipeline.tertiary.linx;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.Collections;
 import java.util.List;
 
-import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Before;
-import org.junit.Test;
 
 public class LinxTest extends TertiaryStageTest<LinxOutput> {
 
@@ -46,9 +42,9 @@ public class LinxTest extends TertiaryStageTest<LinxOutput> {
                 + "/opt/resources/knowledgebases/output/knownPromiscuousThree.csv -chaining_sv_limit 0 -check_drivers -write_vis_data");
     }
 
-    @Test
-    public void doesntRunWhenShallowEnabled() {
-        assertThat(victim.shouldRun(Arguments.testDefaultsBuilder().shallow(true).runTertiary(true).build())).isFalse();
+    @Override
+    protected boolean isEnabledOnShallowSeq() {
+        return false;
     }
 
     @Override
