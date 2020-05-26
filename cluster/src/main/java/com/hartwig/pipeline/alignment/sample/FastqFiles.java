@@ -20,13 +20,8 @@ class FastqFiles {
             String[] tokens = filename.split("_");
             String laneNumber = tokens[3];
             String flowCellId = tokens[1];
-            ImmutableLane.Builder builder = builders.computeIfAbsent(laneNumber + flowCellId,
-                    s -> Lane.builder()
-                            .laneNumber(laneNumber)
-                            .name(sampleName + "_" + laneNumber)
-                            .flowCellId(flowCellId)
-                            .index(tokens[2])
-                            .suffix(tokens[5].substring(0, tokens[5].indexOf('.'))));
+            ImmutableLane.Builder builder =
+                    builders.computeIfAbsent(laneNumber + flowCellId, s -> Lane.builder().laneNumber(laneNumber).flowCellId(flowCellId));
             if (tokens[4].equals("R1")) {
                 builder.firstOfPairPath(filename);
             } else if (tokens[4].equals("R2")) {
