@@ -26,6 +26,7 @@ sudo tar xvf /opt/tools/gridss/2.8.3/scripts.tar -C /opt/tools/gridss/2.8.3/
 # This guy is a little different from the others in that it extracts overtop the system-managed R libraries.
 sudo tar xvf /opt/tools/R/rlibs.tar -C /
 sudo chmod a+x /opt/tools/bcftools/1.3.1/bcftools
+sudo chmod a+x /opt/tools/bcftools/1.9/bcftools
 sudo chmod a+x /opt/tools/snpEff/4.3s/snpEff.sh
 sudo chmod a+x /opt/tools/bwa/0.7.17/bwa
 sudo chmod a+x /opt/tools/sambamba/0.6.5/sambamba
