@@ -1,6 +1,6 @@
 branches:
   only:
-    - DEV-1271
+    - master
 sudo: required
 language: java
 jdk:
@@ -8,7 +8,7 @@ jdk:
 services:
   - docker
 env:
-- PIPELINE5_VERSION=5.11.$TRAVIS_BUILD_NUMBER
+- PIPELINE5_VERSION=5.10.$TRAVIS_BUILD_NUMBER
 cache:
   directories:
     - $HOME/.m2
