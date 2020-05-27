@@ -98,7 +98,8 @@ public class VmAligner {
 
             bash.addCommand(first).addCommand(second);
 
-            SubStageInputOutput alignment = new LaneAlignment(resourceFiles.refGenomeFile(),
+            SubStageInputOutput alignment = new LaneAlignment(arguments.sbpApiRunId().isPresent(),
+                    resourceFiles.refGenomeFile(),
                     first.getLocalTargetPath(),
                     second.getLocalTargetPath(),
                     sample.name(),

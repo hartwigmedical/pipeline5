@@ -11,15 +11,17 @@ import com.hartwig.pipeline.execution.vm.unix.PipeCommands;
 
 public class LaneAlignment extends SubStage {
 
+    private final boolean strictFastqNaming;
     private final String referenceGenomePath;
     private final String firstFastqPath;
     private final String secondFastqPath;
     private final String sampleName;
     private final Lane lane;
 
-    LaneAlignment(final String referenceGenomePath, final String firstFastqPath, final String secondFastqPath, final String sampleName,
+    LaneAlignment(final boolean strictFastqNaming, final String referenceGenomePath, final String firstFastqPath, final String secondFastqPath, final String sampleName,
             final Lane lane) {
         super("sorted." + VmAligner.laneId(lane), OutputFile.BAM);
+        this.strictFastqNaming = strictFastqNaming;
         this.referenceGenomePath = referenceGenomePath;
         this.firstFastqPath = firstFastqPath;
         this.secondFastqPath = secondFastqPath;
@@ -29,7 +31,7 @@ public class LaneAlignment extends SubStage {
 
     @Override
     public List<BashCommand> bash(final OutputFile input, final OutputFile output) {
-        return Collections.singletonList(new PipeCommands(new BwaMemCommand(lane.recordGroupId(),
+        return Collections.singletonList(new PipeCommands(new BwaMemCommand(RecordGroupId.from(strictFastqNaming, firstFastqPath),
                 sampleName,
                 lane.flowCellId(),
                 referenceGenomePath,

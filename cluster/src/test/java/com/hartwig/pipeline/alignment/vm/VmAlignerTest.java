@@ -143,7 +143,6 @@ public class VmAlignerTest {
 
     private static ImmutableLane lane(int index) {
         return Lanes.emptyBuilder()
-                .name(String.format("%s_L00%s", METADATA.sampleName(), index))
                 .flowCellId("flowcell")
                 .laneNumber(String.format("L00%s", index))
                 .build();

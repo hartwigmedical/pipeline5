@@ -26,9 +26,6 @@ public class CloudSampleUploadTest {
             .firstOfPairPath(FASTQ_DIR + "reads1.fastq.gz")
             .secondOfPairPath(FASTQ_DIR + "mates1.fastq.gz")
             .laneNumber("")
-            .index("")
-            .suffix("")
-            .name("")
             .flowCellId("")
             .build();
     private static final Sample SAMPLE_ONE_LANE = Sample.builder(SAMPLE_NAME).addLanes(LANE_1).build();
