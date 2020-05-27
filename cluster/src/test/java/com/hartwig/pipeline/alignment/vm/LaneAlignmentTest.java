@@ -13,7 +13,8 @@ public class LaneAlignmentTest extends SubStageTest {
 
     @Override
     public SubStage createVictim() {
-        return new LaneAlignment("reference.fasta",
+        return new LaneAlignment(false,
+                "reference.fasta",
                 "COLO829v003R_AHHKYHDSXX_S13_L001_R1_001.fastq.gz",
                 "COLO829v003R_AHHKYHDSXX_S13_L001_R2_001.fastq.gz",
                 "tumor",
