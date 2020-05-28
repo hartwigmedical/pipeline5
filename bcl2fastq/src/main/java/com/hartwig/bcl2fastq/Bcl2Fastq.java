@@ -32,7 +32,7 @@ import com.hartwig.pipeline.tools.Versions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class Bcl2Fastq {
+class  Bcl2Fastq {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Bcl2Fastq.class);
     public static final String RUN_LOG = "run.log";
@@ -103,7 +103,7 @@ class Bcl2Fastq {
                 .startupCommand(bash)
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(96, 512))
                 .namespacedResults(resultsDirectory)
-                .workingDiskSpaceGb(10000)
+                .workingDiskSpaceGb(8500)
                 .build();
     }
 
