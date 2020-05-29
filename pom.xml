@@ -51,7 +51,6 @@
 
     <modules>
         <module>batch</module>
-        <module>bcl2fastq</module>
         <module>cluster</module>
     </modules>
 
