@@ -10,10 +10,11 @@ public class SageCommandBuilder {
 
     private final ResourceFiles resourceFiles;
     private boolean panelOnly = false;
-    private StringJoiner tumor = new StringJoiner(",");
-    private StringJoiner tumorBam = new StringJoiner(",");
-    private StringJoiner reference = new StringJoiner(",");
-    private StringJoiner referenceBam = new StringJoiner(",");
+    private boolean germlineMode = false;
+    private final StringJoiner tumor = new StringJoiner(",");
+    private final StringJoiner tumorBam = new StringJoiner(",");
+    private final StringJoiner reference = new StringJoiner(",");
+    private final StringJoiner referenceBam = new StringJoiner(",");
 
     public SageCommandBuilder(ResourceFiles resourceFiles) {
         this.resourceFiles = resourceFiles;
@@ -33,6 +34,11 @@ public class SageCommandBuilder {
     public SageCommandBuilder addReference(String sample, String bamFile) {
         reference.add(sample);
         referenceBam.add(bamFile);
+        return this;
+    }
+
+    public SageCommandBuilder germlineMode() {
+        germlineMode = true;
         return this;
     }
 
@@ -58,6 +64,15 @@ public class SageCommandBuilder {
 
         if (panelOnly) {
             arguments.add("-panel_only");
+        }
+
+        if (germlineMode) {
+            arguments
+                    .add("-hard_filter_enabled true")
+                    .add("-soft_filter_enabled false")
+                    .add("-hard_min_tumor_qual 0")
+                    .add("-hard_min_tumor_raw_alt_support 3")
+                    .add("-hard_min_tumor_raw_base_quality 30");
         }
 
         return new SageCommand("com.hartwig.hmftools.sage.SageApplication", "110G", arguments.toString());

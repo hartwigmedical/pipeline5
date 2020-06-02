@@ -2,132 +2,107 @@ package com.hartwig.batch.operations;
 
 import static java.lang.String.format;
 
+import java.io.File;
 import java.util.List;
-import java.util.stream.Collectors;
 
+import com.google.common.collect.Lists;
 import com.hartwig.batch.BatchOperation;
+import com.hartwig.batch.input.ImmutableInputFileDescriptor;
 import com.hartwig.batch.input.InputBundle;
 import com.hartwig.batch.input.InputFileDescriptor;
 import com.hartwig.pipeline.ResultsDirectory;
+import com.hartwig.pipeline.calling.SubStageInputOutput;
+import com.hartwig.pipeline.calling.command.VersionedToolCommand;
+import com.hartwig.pipeline.calling.somatic.SageV2Application;
 import com.hartwig.pipeline.execution.vm.Bash;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.JavaClassCommand;
 import com.hartwig.pipeline.execution.vm.OutputUpload;
 import com.hartwig.pipeline.execution.vm.RuntimeFiles;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
-import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
-import com.hartwig.pipeline.resource.Hg37ResourceFiles;
+import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.resource.ResourceFiles;
+import com.hartwig.pipeline.resource.ResourceFilesFactory;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
+import com.hartwig.pipeline.tools.Versions;
 
 public class SageGermline implements BatchOperation {
+
+    private static String localFilename(InputFileDescriptor remote) {
+        return format("%s/%s", VmDirectories.INPUT, new File(remote.remoteFilename()).getName());
+    }
+
+    private static InputFileDescriptor cramIndex(InputFileDescriptor bam) {
+        return ImmutableInputFileDescriptor.builder().from(bam).remoteFilename(bam.remoteFilename() + ".crai").build();
+    }
+
+    private static InputFileDescriptor bamIndex(InputFileDescriptor bam) {
+        return ImmutableInputFileDescriptor.builder().from(bam).remoteFilename(bam.remoteFilename() + ".bai").build();
+    }
+
     @Override
     public VirtualMachineJobDefinition execute(final InputBundle inputs, final RuntimeBucket runtimeBucket,
-                                               final BashStartupScript startupScript, final RuntimeFiles executionFlags) {
-        String bucket = inputs.get("bucket").remoteFilename();
-        String set = inputs.get("set").remoteFilename();
-        String tumorSampleName = inputs.get("tumorSample").remoteFilename();
-        String referenceSampleName = inputs.get("referenceSample").remoteFilename();
+            final BashStartupScript startupScript, final RuntimeFiles executionFlags) {
 
-        // 2017
-//        String locationFormat = "gs://%s/%s/%s/mapping/%s";
-//        String fileFormat = "_dedup.realigned.bam";
+        final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.HG37);
 
-        // ??? Some other random format
-        String locationFormat = "gs://%s/%s/%s/mapping/%s";
-        String fileFormat = ".realigned.bam";
+        final InputFileDescriptor remoteReferenceFile = inputs.get("reference");
+        final InputFileDescriptor remoteReferenceIndex = cramIndex(remoteReferenceFile);
+        final String localReferenceFile = localFilename(remoteReferenceFile);
+        final String localReferenceBam = localReferenceFile.replace("cram", "bam");
+        final String referenceSampleName = inputs.get("referenceSample").remoteFilename();
 
-        // 2019
-//        String locationFormat = "gs://%s/%s/%s/aligner/%s";
-//        String fileFormat = ".bam";
+        // Download latest jar file
+        startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s %s",
+                "gs://batch-sage-validation/resources/sage.jar",
+                "/opt/tools/sage/" + Versions.SAGE + "/sage.jar"));
 
-        String tumorBamFile = tumorSampleName + fileFormat;
-        String referenceBamFile = referenceSampleName + fileFormat;
-        String gcTumorBamFile = String.format(locationFormat, bucket, set, tumorSampleName, tumorBamFile);
-        String gcReferenceBamFile = String.format(locationFormat, bucket, set, referenceSampleName, referenceBamFile);
+        // Download normal
+        startupScript.addCommand(() -> remoteReferenceFile.toCommandForm(localReferenceFile));
+        startupScript.addCommand(() -> remoteReferenceIndex.toCommandForm(localFilename(remoteReferenceIndex)));
 
-        String localTumorBamFile = String.format("%s/%s", VmDirectories.INPUT, tumorBamFile);
-        String localReferenceBamFile = String.format("%s/%s", VmDirectories.INPUT, referenceBamFile);
+        SageV2Application sageV2Application = new SageV2Application(resourceFiles).germlineMode(referenceSampleName, localReferenceBam);
 
-        final String output = String.format("%s/%s.sage.germline.vcf.gz", VmDirectories.OUTPUT, tumorSampleName);
-        final String panelBed = "/opt/resources/sage/hg37/ActionableCodingPanel.hg19.bed.gz";
-        final String hotspots = "/opt/resources/sage/hg37/KnownHotspots.hg19.vcf.gz";
-        final String highConfidenceBed = "/opt/resources/sage/NA12878_GIAB_highconf_IllFB-IllGATKHC-CG-Ion-Solid_ALLCHROM_v3.2.2_highconf.bed.gz";
+        // Convert to bam if necessary
+        if (!localReferenceFile.equals(localReferenceBam)) {
+            startupScript.addCommands(cramToBam(localReferenceFile));
+        }
 
-        final Hg37ResourceFiles resourceFiles = new Hg37ResourceFiles();
-
-        final BashCommand sageCommand = new JavaClassCommand("sage",
-                "pilot",
-                "sage.jar",
-                "com.hartwig.hmftools.sage.SageApplication",
-                "100G",
-                "-reference",
-                referenceSampleName,
-                "-reference_bam",
-                localReferenceBamFile,
-                "-tumor",
-                tumorSampleName,
-                "-tumor_bam",
-                localTumorBamFile,
-                "-germline -hard_filter -hard_min_tumor_qual 0 -hard_min_tumor_raw_alt_support 3 -hard_min_tumor_raw_base_quality 30",
-                "-panel_bed",
-                panelBed,
-                "-high_confidence_bed",
-                highConfidenceBed,
-                "-hotspots",
-                hotspots,
-                "-ref_genome",
-                resourceFiles.refGenomeFile(),
-                "-out",
-                output,
-                "-threads",
-                Bash.allCpus());
-
-        // Download required resources
-        startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s %s", "gs://batch-sage/resources/sage.jar", "/opt/tools/sage/pilot/sage.jar"));
-        startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s %s", "gs://batch-sage/resources/ActionableCodingPanel.hg19.bed.gz", panelBed));
-        startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s %s", "gs://batch-sage/resources/KnownHotspots.hg19.vcf.gz", hotspots));
-        startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s %s", "gs://batch-sage/resources/NA12878_GIAB_highconf_IllFB-IllGATKHC-CG-Ion-Solid_ALLCHROM_v3.2.2_highconf.bed.gz", highConfidenceBed));
-
-        // Download bams (in parallel)
-        startupScript.addCommand(() -> "touch /data/input/files.list");
-        startupScript.addCommand(() -> format("echo %s | tee -a  /data/input/files.list", gcTumorBamFile));
-        startupScript.addCommand(() -> format("echo %s.bai | tee -a /data/input/files.list", gcTumorBamFile));
-        startupScript.addCommand(() -> format("echo %s | tee -a /data/input/files.list", gcReferenceBamFile));
-        startupScript.addCommand(() -> format("echo %s.bai | tee -a /data/input/files.list", gcReferenceBamFile));
-        startupScript.addCommand(() -> format("cat /data/input/files.list | gsutil -m -u hmf-crunch cp -I %s", "/data/input/"));
-
-        // Prevent errors about index being older than bam
-        startupScript.addCommand(() -> format("touch %s.bai", localTumorBamFile));
-        startupScript.addCommand(() -> format("touch %s.bai", localReferenceBamFile));
-
-
-        //        startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s %s", gcTumorBamFile, localTumorBamFile + ".bai"));
-        //        startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s %s", gcTumorBamFile + ".bai", localTumorBamFile + ".bai"));
-        //        startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s %s", gcReferenceBamFile, localReferenceBamFile));
-        //        startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s %s", gcReferenceBamFile + ".bai", localReferenceBamFile + ".bai"));
-
-        // Run Sage
-        startupScript.addCommand(sageCommand);
+        // Run post processing (NONE for germline)
+        final SubStageInputOutput postProcessing = sageV2Application.apply(SubStageInputOutput.empty(referenceSampleName));
+        startupScript.addCommands(postProcessing.bash());
 
         // Store output
         startupScript.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), "sage"), executionFlags));
 
-        return VirtualMachineJobDefinition.builder().name("sage").startupCommand(startupScript)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(40, 128))
-                .namespacedResults(ResultsDirectory.defaultDirectory()).build();
+        return VirtualMachineJobDefinition.sageCalling(startupScript, ResultsDirectory.defaultDirectory());
     }
 
-    String getInput(List<InputFileDescriptor> inputs, String key) {
-        return inputs.stream().filter(input -> input.name().equals(key)).collect(Collectors.toList()).get(0).remoteFilename();
+    private List<BashCommand> cramToBam(String cram) {
+
+        final String output = cram.replace("cram", "bam");
+        final BashCommand toBam = new VersionedToolCommand("samtools",
+                "samtools",
+                Versions.SAMTOOLS,
+                "view",
+                "-o",
+                output,
+                "-O",
+                "bam",
+                "-@",
+                Bash.allCpus(),
+                cram);
+
+        final BashCommand index =
+                new VersionedToolCommand("samtools", "samtools", Versions.SAMTOOLS, "index", "-@", Bash.allCpus(), output);
+
+        return Lists.newArrayList(toBam, index);
     }
 
     @Override
     public OperationDescriptor descriptor() {
-        return OperationDescriptor.of("SageGermline", "Generate sage germline output for PON creation",
-                OperationDescriptor.InputType.JSON);
+        return OperationDescriptor.of("SageGermline", "Generate germline output", OperationDescriptor.InputType.JSON);
     }
 }

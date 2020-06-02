@@ -20,12 +20,16 @@ public class SageV2Application extends SubStage {
     public SageV2Application(final ResourceFiles resourceFiles, final String tumorBamPath, final String referenceBamPath,
             final String tumorSampleName, final String referenceSampleName) {
         this(resourceFiles);
-        addReference(referenceSampleName, referenceBamPath);
-        addTumor(tumorSampleName, tumorBamPath);
+        sageCommandBuilder.addReference(referenceSampleName, referenceBamPath).addTumor(tumorSampleName, tumorBamPath);
     }
 
     public void panelOnly() {
         sageCommandBuilder.panelOnly();
+    }
+
+    public SageV2Application germlineMode(String sample, String bamFile) {
+        sageCommandBuilder.addTumor(sample, bamFile).germlineMode();
+        return this;
     }
 
     public void addTumor(String sample, String bamFile) {
