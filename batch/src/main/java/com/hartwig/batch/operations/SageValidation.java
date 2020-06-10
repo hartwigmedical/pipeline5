@@ -17,6 +17,7 @@ import com.hartwig.pipeline.calling.SubStageInputOutput;
 import com.hartwig.pipeline.calling.command.BcfToolsCommandListBuilder;
 import com.hartwig.pipeline.calling.command.VersionedToolCommand;
 import com.hartwig.pipeline.calling.somatic.PonAnnotation;
+import com.hartwig.pipeline.calling.somatic.SageCommandBuilder;
 import com.hartwig.pipeline.calling.somatic.SageV2Application;
 import com.hartwig.pipeline.calling.somatic.SageV2PonFilter;
 import com.hartwig.pipeline.calling.somatic.SageV2PostProcess;
@@ -95,8 +96,9 @@ public class SageValidation implements BatchOperation {
         startupScript.addCommand(() -> remoteReferenceFile.toCommandForm(localReferenceFile));
         startupScript.addCommand(() -> remoteReferenceIndex.toCommandForm(localFilename(remoteReferenceIndex)));
 
-        SageV2Application sageV2Application =
-                new SageV2Application(resourceFiles, localTumorBam, localReferenceBam, tumorSampleName, referenceSampleName);
+        final SageCommandBuilder sageCommandBuilder =
+                new SageCommandBuilder(resourceFiles).addReference(referenceSampleName, localReferenceBam)
+                        .addTumor(tumorSampleName, localTumorBam);
 
         if (inputs.contains("rna")) {
             final InputFileDescriptor remoteRnaBam = inputs.get("rna");
@@ -108,7 +110,7 @@ public class SageValidation implements BatchOperation {
             startupScript.addCommand(() -> remoteRnaBamIndex.toCommandForm(localFilename(remoteRnaBamIndex)));
 
             // Add to sage application
-            sageV2Application.addReference(referenceSampleName + "NA", localRnaBam);
+            sageCommandBuilder.addReference(referenceSampleName + "NA", localRnaBam);
         }
 
         // Convert to bam if necessary
@@ -120,6 +122,7 @@ public class SageValidation implements BatchOperation {
         }
 
         // Run post processing
+        final SageV2Application sageV2Application = new SageV2Application(sageCommandBuilder);
         final SubStageInputOutput postProcessing = sageV2Application.andThen(new CustomFilter())
                 .andThen(new PonAnnotation("sage.pon", resourceFiles.sageGermlinePon(), "PON_COUNT", "PON_MAX"))
                 .andThen(new SageV2PonFilter())

@@ -59,11 +59,9 @@ public class SageV2Caller extends TertiaryStage<SomaticCallerOutput> {
         String tumorSampleName = metadata.tumor().sampleName();
         String referenceSampleName = metadata.reference().sampleName();
 
-        SageV2Application sageV2Application = new SageV2Application(resourceFiles,
-                tumorBamPath,
-                referenceBamPath,
-                tumorSampleName,
-                referenceSampleName);
+        SageCommandBuilder sageCommandBuilder = new SageCommandBuilder(resourceFiles).addReference(referenceSampleName, referenceBamPath)
+                .addTumor(tumorSampleName, tumorBamPath);
+        SageV2Application sageV2Application = new SageV2Application(sageCommandBuilder);
         sageOutputFile = sageV2Application.apply(SubStageInputOutput.empty(tumorSampleName)).outputFile();
 
         final String refGenomeStr = resourceFiles.version() == RefGenomeVersion.HG37 ? "hg19" : "hg38";

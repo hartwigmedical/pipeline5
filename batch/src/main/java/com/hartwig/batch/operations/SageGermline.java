@@ -13,6 +13,7 @@ import com.hartwig.batch.input.InputFileDescriptor;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.calling.SubStageInputOutput;
 import com.hartwig.pipeline.calling.command.VersionedToolCommand;
+import com.hartwig.pipeline.calling.somatic.SageCommandBuilder;
 import com.hartwig.pipeline.calling.somatic.SageV2Application;
 import com.hartwig.pipeline.execution.vm.Bash;
 import com.hartwig.pipeline.execution.vm.BashCommand;
@@ -63,7 +64,9 @@ public class SageGermline implements BatchOperation {
         startupScript.addCommand(() -> remoteReferenceFile.toCommandForm(localReferenceFile));
         startupScript.addCommand(() -> remoteReferenceIndex.toCommandForm(localFilename(remoteReferenceIndex)));
 
-        SageV2Application sageV2Application = new SageV2Application(resourceFiles).germlineMode(referenceSampleName, localReferenceBam);
+        final SageCommandBuilder sageCommandBuilder =
+                new SageCommandBuilder(resourceFiles).germlineMode(referenceSampleName, localReferenceBam);
+        final SageV2Application sageV2Application = new SageV2Application(sageCommandBuilder);
 
         // Convert to bam if necessary
         if (!localReferenceFile.equals(localReferenceBam)) {
