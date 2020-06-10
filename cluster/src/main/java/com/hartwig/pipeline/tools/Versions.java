@@ -13,7 +13,7 @@ public interface Versions {
     String BWA = "0.7.17";
     String SAMBAMBA = "0.6.8";
     String GATK = "3.8.0";
-    String BCF_TOOLS = "1.3.1";
+    String BCF_TOOLS = "1.9";
     String STRELKA = "1.0.14";
     String SAGE = "2.1";
     String SNPEFF = "4.3s";
