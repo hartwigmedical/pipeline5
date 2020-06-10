@@ -58,7 +58,8 @@ public class SageV2Caller extends TertiaryStage<SomaticCallerOutput> {
         String tumorSampleName = metadata.tumor().sampleName();
         String referenceSampleName = metadata.reference().sampleName();
 
-        SageV2Application sageV2Application = new SageV2Application(resourceFiles, tumorBamPath, referenceBamPath, tumorSampleName, referenceSampleName);
+        SageV2Application sageV2Application =
+                new SageV2Application(resourceFiles, tumorBamPath, referenceBamPath, tumorSampleName, referenceSampleName);
         sageOutputFile = sageV2Application.apply(SubStageInputOutput.empty(tumorSampleName)).outputFile();
 
         final String refGenomeStr = resourceFiles.version() == RefGenomeVersion.HG37 ? "hg19" : "hg38";
@@ -91,7 +92,8 @@ public class SageV2Caller extends TertiaryStage<SomaticCallerOutput> {
                         NAMESPACE,
                         Folder.from(),
                         outputFile.fileName(),
-                        OutputFile.of(metadata.tumor().sampleName(), "sage.somatic.post_processed", OutputFile.GZIPPED_VCF, false).fileName(),
+                        OutputFile.of(metadata.tumor().sampleName(), "sage.somatic.post_processed", OutputFile.GZIPPED_VCF, false)
+                                .fileName(),
                         resultsDirectory))
                 .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
                         NAMESPACE,
@@ -111,6 +113,6 @@ public class SageV2Caller extends TertiaryStage<SomaticCallerOutput> {
 
     @Override
     public boolean shouldRun(final Arguments arguments) {
-        return arguments.runSageCaller();
+        return !arguments.shallow() && arguments.runSageCaller();
     }
 }
