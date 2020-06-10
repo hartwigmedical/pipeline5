@@ -21,7 +21,7 @@ public class PonAnnotationTest extends SubStageTest {
 
     @Test
     public void runsBcfToolsPonAnnotation() {
-        assertThat(bash()).contains("/opt/tools/bcftools/1.3.1/bcftools annotate -a "
+        assertThat(bash()).contains("/opt/tools/bcftools/1.9/bcftools annotate -a "
                 + "GERMLINE_PON.vcf.gz -c GERMLINE_PON_COUNT /data/output/tumor.strelka.vcf "
                 + "-O z -o /data/output/tumor.germline.pon.annotated.vcf.gz");
     }

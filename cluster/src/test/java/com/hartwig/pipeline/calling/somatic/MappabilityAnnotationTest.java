@@ -21,7 +21,7 @@ public class MappabilityAnnotationTest extends SubStageTest {
 
     @Test
     public void runsBcfToolsMappabilityAnnotation() {
-        assertThat(bash()).contains("/opt/tools/bcftools/1.3.1/bcftools annotate -a "
+        assertThat(bash()).contains("/opt/tools/bcftools/1.9/bcftools annotate -a "
                 + "mappability.bed -h mappability.hdr -c CHROM,FROM,TO,-,MAPPABILITY /data/output/tumor.strelka.vcf "
                 + "-O z -o /data/output/tumor.mappability.annotated.vcf.gz");
     }

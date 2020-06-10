@@ -12,7 +12,7 @@ import org.junit.Test;
 public class BcfToolsCommandListBuilderTest {
 
     private static final String TABIX = "/opt/tools/tabix/0.2.6/tabix";
-    private static final String BCFTOOLS = "/opt/tools/bcftools/1.3.1/bcftools";
+    private static final String BCFTOOLS = "/opt/tools/bcftools/1.9/bcftools";
 
     private BcfToolsCommandListBuilder victim;
 
@@ -80,7 +80,7 @@ public class BcfToolsCommandListBuilderTest {
 
         victim.includeHardFilter("expression2");
         String bash3 = victim.bcfCommand().asBash();
-        assertThat(bash3).contains(BCFTOOLS + " filter -i expression1 input.vcf.gz -O u | /opt/tools/bcftools/1.3.1/bcftools filter -i expression2 -O z -o output.vcf.gz");
+        assertThat(bash3).contains(BCFTOOLS + " filter -i expression1 input.vcf.gz -O u | /opt/tools/bcftools/1.9/bcftools filter -i expression2 -O z -o output.vcf.gz");
     }
 
     @Test

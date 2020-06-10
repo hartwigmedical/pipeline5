@@ -21,11 +21,11 @@ public class SageFiltersAndAnnotationsTest extends SubStageTest {
 
     @Test
     public void pipesBcfToolsFilterAndAnnotations() {
-        assertThat(bash()).contains("/opt/tools/bcftools/1.3.1/bcftools filter -i 'FILTER=\"PASS\"' "
-                + "/data/output/tumor.strelka.vcf -O u | /opt/tools/bcftools/1.3.1/bcftools annotate -x INFO/HOTSPOT -O u | "
-                + "/opt/tools/bcftools/1.3.1/bcftools annotate -x FILTER/LOW_CONFIDENCE -O u | "
-                + "/opt/tools/bcftools/1.3.1/bcftools annotate -x FILTER/GERMLINE_INDEL -O u | "
-                + "/opt/tools/bcftools/1.3.1/bcftools view -s tumor -O z -o /data/output/tumor.sage.hotspots.filtered.vcf.gz");
+        assertThat(bash()).contains("/opt/tools/bcftools/1.9/bcftools filter -i 'FILTER=\"PASS\"' "
+                + "/data/output/tumor.strelka.vcf -O u | /opt/tools/bcftools/1.9/bcftools annotate -x INFO/HOTSPOT -O u | "
+                + "/opt/tools/bcftools/1.9/bcftools annotate -x FILTER/LOW_CONFIDENCE -O u | "
+                + "/opt/tools/bcftools/1.9/bcftools annotate -x FILTER/GERMLINE_INDEL -O u | "
+                + "/opt/tools/bcftools/1.9/bcftools view -s tumor -O z -o /data/output/tumor.sage.hotspots.filtered.vcf.gz");
     }
 
     @Test

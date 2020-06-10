@@ -21,7 +21,7 @@ public class SageV2PonFilterTest extends SubStageTest {
 
     @Test
     public void runsTwoPipedBcfToolsFilterCommandInSubshell() {
-        assertThat(bash()).contains("(/opt/tools/bcftools/1.3.1/bcftools filter -e "
+        assertThat(bash()).contains("(/opt/tools/bcftools/1.9/bcftools filter -e "
                 + "'PON_COUNT!= \".\" && (MIN(PON_COUNT) > 9 || (MIN(PON_COUNT) > 2 && INFO/TIER!=\"HOTSPOT\"))' -s SAGE_PON -m+ /data/output/tumor.strelka.vcf "
                 + "-O z -o /data/output/tumor.sage.pon.filter.vcf.gz");
     }
