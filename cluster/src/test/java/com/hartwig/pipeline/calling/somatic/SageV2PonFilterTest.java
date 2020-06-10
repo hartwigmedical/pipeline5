@@ -21,8 +21,10 @@ public class SageV2PonFilterTest extends SubStageTest {
 
     @Test
     public void runsTwoPipedBcfToolsFilterCommandInSubshell() {
-        assertThat(bash()).contains("(/opt/tools/bcftools/1.9/bcftools filter -e "
-                + "'PON_COUNT!= \".\" && (MIN(PON_COUNT) > 9 || (MIN(PON_COUNT) > 2 && INFO/TIER!=\"HOTSPOT\"))' -s SAGE_PON -m+ /data/output/tumor.strelka.vcf "
+        assertThat(bash()).contains("("
+                + "/opt/tools/bcftools/1.9/bcftools filter -e 'PON_COUNT!=\".\" && INFO/TIER=\"HOTSPOT\" && PON_MAX>=5 && PON_COUNT >= 10' -s SAGE_PON -m+ /data/output/tumor.strelka.vcf -O u | "
+                + "/opt/tools/bcftools/1.9/bcftools filter -e 'PON_COUNT!=\".\" && INFO/TIER=\"PANEL\" && PON_MAX>=5 && PON_COUNT >= 6' -s SAGE_PON -m+ -O u | "
+                + "/opt/tools/bcftools/1.9/bcftools filter -e 'PON_COUNT!=\".\" && INFO/TIER!=\"HOTSPOT\" && INFO/TIER!=\"PANEL\" && PON_COUNT >= 6' -s SAGE_PON -m+ "
                 + "-O z -o /data/output/tumor.sage.pon.filter.vcf.gz");
     }
 

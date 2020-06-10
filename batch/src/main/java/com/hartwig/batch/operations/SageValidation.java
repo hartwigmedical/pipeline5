@@ -11,17 +11,26 @@ import com.hartwig.batch.input.ImmutableInputFileDescriptor;
 import com.hartwig.batch.input.InputBundle;
 import com.hartwig.batch.input.InputFileDescriptor;
 import com.hartwig.pipeline.ResultsDirectory;
+import com.hartwig.pipeline.calling.FinalSubStage;
+import com.hartwig.pipeline.calling.SubStage;
 import com.hartwig.pipeline.calling.SubStageInputOutput;
+import com.hartwig.pipeline.calling.command.BcfToolsCommandListBuilder;
 import com.hartwig.pipeline.calling.command.VersionedToolCommand;
+import com.hartwig.pipeline.calling.somatic.PonAnnotation;
 import com.hartwig.pipeline.calling.somatic.SageCommandBuilder;
 import com.hartwig.pipeline.calling.somatic.SageV2Application;
+import com.hartwig.pipeline.calling.somatic.SageV2PonFilter;
+import com.hartwig.pipeline.calling.somatic.SageV2PostProcess;
+import com.hartwig.pipeline.calling.substages.SnpEff;
 import com.hartwig.pipeline.execution.vm.Bash;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
+import com.hartwig.pipeline.execution.vm.OutputFile;
 import com.hartwig.pipeline.execution.vm.OutputUpload;
 import com.hartwig.pipeline.execution.vm.RuntimeFiles;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
+import com.hartwig.pipeline.execution.vm.unix.UnzipToDirectoryCommand;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.resource.ResourceFilesFactory;
@@ -29,7 +38,7 @@ import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tools.Versions;
 
-public class SageGermline implements BatchOperation {
+public class SageValidation implements BatchOperation {
 
     private static String localFilename(InputFileDescriptor remote) {
         return format("%s/%s", VmDirectories.INPUT, new File(remote.remoteFilename()).getName());
@@ -48,11 +57,22 @@ public class SageGermline implements BatchOperation {
             final BashStartupScript startupScript, final RuntimeFiles executionFlags) {
 
         final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.HG37);
+        // Prepare SnpEff
+        startupScript.addCommand(new UnzipToDirectoryCommand(VmDirectories.RESOURCES, resourceFiles.snpEffDb()));
 
+        final InputFileDescriptor remoteTumorFile = inputs.get("tumor");
         final InputFileDescriptor remoteReferenceFile = inputs.get("reference");
+
+        final InputFileDescriptor remoteTumorIndex = cramIndex(remoteTumorFile);
         final InputFileDescriptor remoteReferenceIndex = cramIndex(remoteReferenceFile);
+
+        final String localTumorFile = localFilename(remoteTumorFile);
         final String localReferenceFile = localFilename(remoteReferenceFile);
+
+        final String localTumorBam = localTumorFile.replace("cram", "bam");
         final String localReferenceBam = localReferenceFile.replace("cram", "bam");
+
+        final String tumorSampleName = inputs.get("tumorSample").remoteFilename();
         final String referenceSampleName = inputs.get("referenceSample").remoteFilename();
 
         // Download latest jar file
@@ -60,21 +80,55 @@ public class SageGermline implements BatchOperation {
                 "gs://batch-sage-validation/resources/sage.jar",
                 "/opt/tools/sage/" + Versions.SAGE + "/sage.jar"));
 
+        //TODO: Move this into the system image
+        // Download latest bcf tools
+        startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s %s",
+                "gs://batch-sage-validation/resources/bcftools",
+                "/opt/tools/bcftools/" + Versions.BCF_TOOLS + "/bcftools"));
+
+        startupScript.addCommand(() -> "sudo chmod a+x /opt/tools/bcftools/" + Versions.BCF_TOOLS + "/bcftools");
+
+        // Download tumor
+        startupScript.addCommand(() -> remoteTumorFile.toCommandForm(localTumorFile));
+        startupScript.addCommand(() -> remoteTumorIndex.toCommandForm(localFilename(remoteTumorIndex)));
+
         // Download normal
         startupScript.addCommand(() -> remoteReferenceFile.toCommandForm(localReferenceFile));
         startupScript.addCommand(() -> remoteReferenceIndex.toCommandForm(localFilename(remoteReferenceIndex)));
 
         final SageCommandBuilder sageCommandBuilder =
-                new SageCommandBuilder(resourceFiles).germlineMode(referenceSampleName, localReferenceBam);
-        final SageV2Application sageV2Application = new SageV2Application(sageCommandBuilder);
+                new SageCommandBuilder(resourceFiles).addReference(referenceSampleName, localReferenceBam)
+                        .addTumor(tumorSampleName, localTumorBam);
+
+        if (inputs.contains("rna")) {
+            final InputFileDescriptor remoteRnaBam = inputs.get("rna");
+            final InputFileDescriptor remoteRnaBamIndex = bamIndex(remoteRnaBam);
+            final String localRnaBam = localFilename(remoteRnaBam);
+
+            // Download rna
+            startupScript.addCommand(() -> remoteRnaBam.toCommandForm(localRnaBam));
+            startupScript.addCommand(() -> remoteRnaBamIndex.toCommandForm(localFilename(remoteRnaBamIndex)));
+
+            // Add to sage application
+            sageCommandBuilder.addReference(referenceSampleName + "NA", localRnaBam);
+        }
 
         // Convert to bam if necessary
+        if (!localTumorFile.equals(localTumorBam)) {
+            startupScript.addCommands(cramToBam(localTumorFile));
+        }
         if (!localReferenceFile.equals(localReferenceBam)) {
             startupScript.addCommands(cramToBam(localReferenceFile));
         }
 
-        // Run post processing (NONE for germline)
-        final SubStageInputOutput postProcessing = sageV2Application.apply(SubStageInputOutput.empty(referenceSampleName));
+        // Run post processing
+        final SageV2Application sageV2Application = new SageV2Application(sageCommandBuilder);
+        final SubStageInputOutput postProcessing = sageV2Application.andThen(new CustomFilter())
+                .andThen(new PonAnnotation("sage.pon", resourceFiles.sageGermlinePon(), "PON_COUNT", "PON_MAX"))
+                .andThen(new SageV2PonFilter())
+                .andThen(new SnpEff(ResourceFiles.SNPEFF_CONFIG, resourceFiles))
+                .andThen(FinalSubStage.of(new SageV2PostProcess("hg19")))
+                .apply(SubStageInputOutput.empty(tumorSampleName));
         startupScript.addCommands(postProcessing.bash());
 
         // Store output
@@ -106,6 +160,19 @@ public class SageGermline implements BatchOperation {
 
     @Override
     public OperationDescriptor descriptor() {
-        return OperationDescriptor.of("SageGermline", "Generate germline output", OperationDescriptor.InputType.JSON);
+        return OperationDescriptor.of("SageValidation", "Generate sage output for validation", OperationDescriptor.InputType.JSON);
     }
+
+    static class CustomFilter extends SubStage {
+
+        public CustomFilter() {
+            super("sage.pass", OutputFile.GZIPPED_VCF);
+        }
+
+        @Override
+        public List<BashCommand> bash(final OutputFile input, final OutputFile output) {
+            return new BcfToolsCommandListBuilder(input.path(), output.path()).withIndex().includeHardPass().build();
+        }
+    }
+
 }
