@@ -17,7 +17,7 @@ import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.calling.SubStageInputOutput;
 import com.hartwig.pipeline.calling.command.BwaCommand;
-import com.hartwig.pipeline.calling.command.VersionedToolCommand;
+import com.hartwig.pipeline.calling.command.SamtoolsCommand;
 import com.hartwig.pipeline.calling.structural.gridss.stage.Driver;
 import com.hartwig.pipeline.calling.structural.gridss.stage.Filter;
 import com.hartwig.pipeline.calling.structural.gridss.stage.RepeatMaskerInsertionAnnotation;
@@ -29,7 +29,7 @@ import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
-import com.hartwig.pipeline.execution.vm.unix.ExportVariableCommand;
+import com.hartwig.pipeline.execution.vm.unix.ExportPathCommand;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
@@ -41,7 +41,6 @@ import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
-import com.hartwig.pipeline.tools.Versions;
 
 public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRunMetadata> {
     public static final String NAMESPACE = "structural_caller";
@@ -77,9 +76,8 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
     @Override
     public List<BashCommand> commands(final SomaticRunMetadata metadata) {
         List<BashCommand> commands = new ArrayList<>();
-        commands.add(new ExportVariableCommand("PATH", format("${PATH}:%s", dirname(new BwaCommand().asBash()))));
-        commands.add(new ExportVariableCommand("PATH",
-                format("${PATH}:%s", dirname(new VersionedToolCommand("samtools", "samtools", Versions.SAMTOOLS).asBash()))));
+        commands.add(new ExportPathCommand(new BwaCommand()));
+        commands.add(new ExportPathCommand(new SamtoolsCommand()));
 
         // TEMP
         if(resourceFiles.version() == RefGenomeVersion.HG38) {
@@ -126,10 +124,6 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
 
     private static String basename(String filename) {
         return new File(filename).getName();
-    }
-
-    private static String dirname(String filename) {
-        return new File(filename).getParent();
     }
 
     @Override
