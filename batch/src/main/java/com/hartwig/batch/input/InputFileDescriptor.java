@@ -1,7 +1,13 @@
 package com.hartwig.batch.input;
 
+import static java.lang.String.format;
+
+import java.io.File;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.hartwig.pipeline.execution.vm.VmDirectories;
+
 import org.immutables.value.Value;
 
 @Value.Immutable
@@ -23,8 +29,13 @@ public abstract class InputFileDescriptor {
     @Value.Parameter
     public abstract String billedProject();
 
+    public String copyToLocalDestinationCommand() {
+        return toCommandForm(localDestination());
+    }
+
     public String toCommandForm(String localDestination) {
-        return String.format("gsutil -o 'GSUtil:parallel_thread_count=1' -o \"GSUtil:sliced_object_download_max_components=$(nproc)\" -q -u %s cp %s%s %s",
+        return String.format(
+                "gsutil -o 'GSUtil:parallel_thread_count=1' -o \"GSUtil:sliced_object_download_max_components=$(nproc)\" -q -u %s cp %s%s %s",
                 billedProject(),
                 protocol(),
                 remoteFilename().replaceAll("^gs://", ""),
@@ -37,5 +48,13 @@ public abstract class InputFileDescriptor {
 
     public static ImmutableInputFileDescriptor from(InputFileDescriptor original) {
         return builder().from(original).build();
+    }
+
+    public InputFileDescriptor index(String suffix) {
+        return builder().from(this).remoteFilename(remoteFilename() + suffix).build();
+    }
+
+    public String localDestination() {
+        return format("%s/%s", VmDirectories.INPUT, new File(remoteFilename()).getName());
     }
 }

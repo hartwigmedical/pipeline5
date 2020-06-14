@@ -33,6 +33,10 @@ public interface ResourceFiles {
     String sageGermlinePon();
     String giabHighConfidenceBed();
 
+    default String gridssRepeatMaskerDbBed() {
+        return gridssRepeatMaskerDb() + ".bed";
+    }
+
     String SNPEFF_CONFIG = ResourceFiles.of(SNPEFF, "snpEff.config");
     String DBNSFP_VCF = ResourceFiles.of(DBNSFP, "dbNSFP2.9.txt.gz");
     String COSMIC_VCF_GZ = ResourceFiles.of(COSMIC, "CosmicCodingMuts_v85_collapsed.vcf.gz");
