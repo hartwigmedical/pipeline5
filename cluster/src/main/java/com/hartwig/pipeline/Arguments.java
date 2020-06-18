@@ -105,6 +105,8 @@ public interface Arguments extends CommonArguments {
 
     boolean outputCram();
 
+    boolean publishToTurquoise();
+
     static String workingDir() {
         return System.getProperty("user.dir");
     }
@@ -179,6 +181,7 @@ public interface Arguments extends CommonArguments {
                     .uploadPrivateKeyPath(DEFAULT_DOCKER_KEY_PATH)
                     .privateNetwork(DEFAULT_PRIVATE_NETWORK)
                     .outputCram(true)
+                    .publishToTurquoise(false)
                     .pollInterval(DEFAULT_POLL_INTERVAL)
                     .refGenomeVersion(DEFAULT_REF_GENOME_VERSION)
                     .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES);
@@ -218,6 +221,7 @@ public interface Arguments extends CommonArguments {
                     .archivePrivateKeyPath(DEFAULT_DEVELOPMENT_KEY_PATH)
                     .uploadPrivateKeyPath(DEFAULT_DEVELOPMENT_KEY_PATH)
                     .outputCram(true)
+                    .publishToTurquoise(false)
                     .pollInterval(DEFAULT_POLL_INTERVAL)
                     .refGenomeVersion(DEFAULT_REF_GENOME_VERSION)
                     .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES)
@@ -261,6 +265,7 @@ public interface Arguments extends CommonArguments {
                     .uploadPrivateKeyPath(DEFAULT_DOCKER_UPLOAD_KEY_PATH)
                     .privateNetwork(DEFAULT_PRIVATE_NETWORK)
                     .outputCram(true)
+                    .publishToTurquoise(false)
                     .pollInterval(DEFAULT_POLL_INTERVAL)
                     .refGenomeVersion(DEFAULT_REF_GENOME_VERSION)
                     .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES);

@@ -47,6 +47,7 @@ public class CommandLineOptions {
     private static final String RUN_ALIGNER_FLAG = "run_aligner";
     private static final String ALIGNER_TYPE_FLAG = "aligner_type";
     private static final String OUTPUT_CRAM_FLAG = "output_cram";
+    private static final String PUBLISH_TO_TURQUOISE_FLAG = "publish_to_turquoise";
     private static final String RUN_GERMLINE_CALLER_FLAG = "run_germline_caller";
     private static final String RUN_SNP_GENOTYPER_FLAG = "run_snp_genotyper";
     private static final String RUN_SOMATIC_CALLER_FLAG = "run_somatic_caller";
@@ -120,6 +121,7 @@ public class CommandLineOptions {
                         "Run with ShallowSeq configuration.Germline and health checker are disabled and purple is run with low coverage "
                                 + "options."))
                 .addOption(optionWithBooleanArg(OUTPUT_CRAM_FLAG, "Produce CRAM rather than BAM files"))
+                .addOption(optionWithBooleanArg(PUBLISH_TO_TURQUOISE_FLAG, "Publish events on pipeline start and stop to turquoise."))
                 .addOption(optionWithArg(CommonArguments.POLL_INTERVAL,
                         "Time in seconds between status checks against GCP. "
                                 + "Increase to allow more concurrent VMs to run at the expense of state change detection resolution."))
@@ -312,6 +314,7 @@ public class CommandLineOptions {
                     .cmek(cmek(commandLine, defaults))
                     .shallow(booleanOptionWithDefault(commandLine, SHALLOW_FLAG, defaults.shallow()))
                     .outputCram(booleanOptionWithDefault(commandLine, OUTPUT_CRAM_FLAG, defaults.outputCram()))
+                    .publishToTurquoise(booleanOptionWithDefault(commandLine, PUBLISH_TO_TURQUOISE_FLAG, defaults.publishToTurquoise()))
                     .pollInterval(Integer.parseInt(commandLine.getOptionValue(CommonArguments.POLL_INTERVAL,
                             defaults.pollInterval().toString())))
                     .zone(zone(commandLine, defaults))
