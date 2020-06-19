@@ -4,12 +4,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 
 import com.google.api.core.ApiFuture;
 import com.google.cloud.pubsub.v1.Publisher;
 import com.google.pubsub.v1.PubsubMessage;
+import com.hartwig.pipeline.testsupport.Resources;
 
+import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -33,39 +38,18 @@ public class PipelineEventsTest {
 
     @Test
     public void startedEventCreatesEventWithCorrectSubjects() {
-        victim = PipelineStarted.builder()
-                .commonSubjects(common())
-                .timestamp(NOW)
-                .publisher(publisher)
-                .build();
+        victim = PipelineStarted.builder().commonSubjects(common()).timestamp(NOW).publisher(publisher).build();
         victim.publish();
         PubsubMessage message = jsonCaptor.getValue();
-        assertThat(new String(message.getData().toByteArray())).isEqualTo(
-                "{\"timestamp\":[2020,6,19,0,0],\"type\":{\"name\":\"pipeline.started\"},\"subjects\":"
-                        + "[{\"name\":\"sample\",\"type\":{\"name\":\"sample\"}}," + "{\"name\":\"set\",\"type\":{\"name\":\"set\"}},"
-                        + "{\"name\":\"somatic\",\"type\":{\"name\":\"type\"}},"
-                        + "{\"name\":\"ref_barcode\",\"type\":{\"name\":\"barcode\"}},"
-                        + "{\"name\":\"tumor_barcode\",\"type\":{\"name\":\"barcode\"}}"
-                        + ",{\"name\":\"1\",\"type\":{\"name\":\"run_id\"}}]}");
+        assertThat(new String(message.getData().toByteArray())).isEqualTo(json("pipeline.started"));
     }
 
     @Test
-    public void createsEventWithCorrectSubjects() {
-        victim = PipelineCompleted.builder()
-                .commonSubjects(common())
-                .timestamp(NOW)
-                .status("Success")
-                .publisher(publisher)
-                .build();
+    public void completedEventCreatesEventWithCorrectSubjects() {
+        victim = PipelineCompleted.builder().commonSubjects(common()).timestamp(NOW).status("Success").publisher(publisher).build();
         victim.publish();
         PubsubMessage message = jsonCaptor.getValue();
-        assertThat(new String(message.getData().toByteArray())).isEqualTo(
-                "{\"timestamp\":[2020,6,19,0,0],\"type\":{\"name\":\"pipeline.completed\"},\"subjects\":"
-                        + "[{\"name\":\"sample\",\"type\":{\"name\":\"sample\"}}," + "{\"name\":\"set\",\"type\":{\"name\":\"set\"}},"
-                        + "{\"name\":\"somatic\",\"type\":{\"name\":\"type\"}},"
-                        + "{\"name\":\"ref_barcode\",\"type\":{\"name\":\"barcode\"}},"
-                        + "{\"name\":\"tumor_barcode\",\"type\":{\"name\":\"barcode\"}}"
-                        + ",{\"name\":\"1\",\"type\":{\"name\":\"run_id\"}},{\"name\":\"Success\",\"type\":{\"name\":\"status\"}}]}");
+        assertThat(new String(message.getData().toByteArray())).isEqualTo(json("pipeline.completed"));
     }
 
     private static ImmutablePipelineSubjects common() {
@@ -77,5 +61,15 @@ public class PipelineEventsTest {
                 .tumorBarcode("tumor_barcode")
                 .runId(1)
                 .build();
+    }
+
+    @NotNull
+    private static String json(String name) {
+        try {
+            return new String(Files.readAllBytes(Paths.get(Resources.testResource("events/" + name + ".json")))).replace("\n", "")
+                    .replace(" ", "");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

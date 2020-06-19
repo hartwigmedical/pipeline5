@@ -15,12 +15,12 @@ interface Event {
     LocalDateTime timestamp();
 
     @Value.Parameter
-    EventType type();
+    String type();
 
     @Value.Parameter
     List<Subject> subjects();
 
     static Event of(LocalDateTime timestamp, String eventType, List<Subject> subject) {
-        return ImmutableEvent.of(timestamp, ImmutableEventType.of(eventType), subject);
+        return ImmutableEvent.of(timestamp, eventType, subject);
     }
 }

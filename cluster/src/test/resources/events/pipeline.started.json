@@ -1,0 +1,36 @@
+{
+  "timestamp": [
+    2020,
+    6,
+    19,
+    0,
+    0
+  ],
+  "type": "pipeline.started",
+  "subjects": [
+    {
+      "name": "sample",
+      "type": "sample"
+    },
+    {
+      "name": "set",
+      "type": "set"
+    },
+    {
+      "name": "somatic",
+      "type": "type"
+    },
+    {
+      "name": "ref_barcode",
+      "type": "barcode"
+    },
+    {
+      "name": "tumor_barcode",
+      "type": "barcode"
+    },
+    {
+      "name": "1",
+      "type": "run_id"
+    }
+  ]
+}

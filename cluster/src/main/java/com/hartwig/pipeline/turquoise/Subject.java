@@ -12,9 +12,9 @@ interface Subject {
     String name();
 
     @Value.Parameter
-    SubjectType type();
+    String type();
 
     static Subject of(String name, String type) {
-        return ImmutableSubject.of(name, ImmutableSubjectType.of(type));
+        return ImmutableSubject.of(name, type);
     }
 }
