@@ -43,4 +43,8 @@ public class Hg38ResourceFiles implements ResourceFiles {
     public String sageGermlinePon() { return formPath(SAGE, "SageGermlinePon.hg38.vcf.gz"); }
 
     public String giabHighConfidenceBed() { return formPath(BEDS, "HG001_GRCh38_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-X_v.3.3.2_highconf_nosomaticdel_noCENorHET7.bed.gz");  }
+
+    public String gridssBreakendPon() { throw new IllegalStateException(); }
+    public String gridssBreakpointPon() { throw new IllegalStateException(); }
+    public String knownFusionPairBedpe() { throw new IllegalStateException(); }
 }

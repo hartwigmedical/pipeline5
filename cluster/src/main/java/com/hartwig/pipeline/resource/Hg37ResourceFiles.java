@@ -3,7 +3,9 @@ package com.hartwig.pipeline.resource;
 import static com.hartwig.pipeline.resource.ResourceNames.AMBER_PON;
 import static com.hartwig.pipeline.resource.ResourceNames.BEDS;
 import static com.hartwig.pipeline.resource.ResourceNames.GC_PROFILE;
+import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_PON;
 import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_REPEAT_MASKER_DB;
+import static com.hartwig.pipeline.resource.ResourceNames.KNOWLEDGEBASES;
 import static com.hartwig.pipeline.resource.ResourceNames.MAPPABILITY;
 import static com.hartwig.pipeline.resource.ResourceNames.REFERENCE_GENOME;
 import static com.hartwig.pipeline.resource.ResourceNames.SAGE;
@@ -32,6 +34,8 @@ public class Hg37ResourceFiles implements ResourceFiles {
 
     public String gridssRepeatMaskerDb() { return formPath(GRIDSS_REPEAT_MASKER_DB,"hg19.fa.out"); }
     public String gridssBlacklistBed() { return formPath(GRIDSS_REPEAT_MASKER_DB,"ENCFF001TDO.hg37.bed"); }
+    public String gridssBreakendPon() { return formPath(GRIDSS_PON,"gridss_pon_single_breakend.bed"); }
+    public String gridssBreakpointPon() { return formPath(GRIDSS_PON,"gridss_pon_breakpoint.bedpe"); }
 
     public String snpEffDb() { return formPath(SNPEFF,"snpEff_v4_3_GRCh37.75.zip"); }
     public String snpEffVersion() { return "GRCh37.75"; }
@@ -45,4 +49,6 @@ public class Hg37ResourceFiles implements ResourceFiles {
     public String sageGermlinePon() { return formPath(SAGE, "SageGermlinePon.hg19.1000x.vcf.gz"); }
 
     public String giabHighConfidenceBed() { return formPath(BEDS, "NA12878_GIAB_highconf_IllFB-IllGATKHC-CG-Ion-Solid_ALLCHROM_v3.2.2_highconf.bed.gz");  }
+
+    public String knownFusionPairBedpe() { return formPath(KNOWLEDGEBASES,"KnownFusionPairs.hg19.bedpe"); }
 }

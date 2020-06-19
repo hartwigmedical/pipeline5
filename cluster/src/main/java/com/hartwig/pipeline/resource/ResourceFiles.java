@@ -25,6 +25,8 @@ public interface ResourceFiles {
     String amberHeterozygousLoci();
     String gridssRepeatMaskerDb();
     String gridssBlacklistBed();
+    String gridssBreakendPon();
+    String gridssBreakpointPon();
     String snpEffDb();
     String snpEffVersion();
     String sageKnownHotspots();
@@ -32,6 +34,7 @@ public interface ResourceFiles {
     String out150Mappability();
     String sageGermlinePon();
     String giabHighConfidenceBed();
+    String knownFusionPairBedpe();
 
     default String gridssRepeatMaskerDbBed() {
         return gridssRepeatMaskerDb() + ".bed";

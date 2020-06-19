@@ -71,14 +71,6 @@ public class SageValidation implements BatchOperation {
                 "gs://batch-sage-validation/resources/sage.jar",
                 "/opt/tools/sage/" + Versions.SAGE + "/sage.jar"));
 
-        //TODO: Move this into the system image
-        // Download latest bcf tools
-        startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s %s",
-                "gs://batch-sage-validation/resources/bcftools",
-                "/opt/tools/bcftools/" + Versions.BCF_TOOLS + "/bcftools"));
-
-        startupScript.addCommand(() -> "sudo chmod a+x /opt/tools/bcftools/" + Versions.BCF_TOOLS + "/bcftools");
-
         // Download tumor
         startupScript.addCommand(() -> remoteTumorFile.toCommandForm(localTumorFile));
         startupScript.addCommand(() -> remoteTumorIndex.toCommandForm(localFilename(remoteTumorIndex)));
