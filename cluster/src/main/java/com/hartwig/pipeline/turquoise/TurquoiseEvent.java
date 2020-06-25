@@ -1,6 +1,6 @@
 package com.hartwig.pipeline.turquoise;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -22,9 +22,11 @@ public interface TurquoiseEvent {
 
     List<Subject> subjects();
 
+    List<Label> labels();
+
     @Value.Default
-    default LocalDateTime timestamp() {
-        return LocalDateTime.now();
+    default ZonedDateTime timestamp() {
+        return ZonedDateTime.now();
     }
 
     Publisher publisher();
@@ -34,7 +36,7 @@ public interface TurquoiseEvent {
             LOGGER.info("Publishing message to Turquoise [{}]", this);
             ApiFuture<String> future = publisher().publish(PubsubMessage.newBuilder()
                     .setData(ByteString.copyFromUtf8(ObjectMappers.get()
-                            .writeValueAsString(Event.of(timestamp(), eventType(), subjects()))))
+                            .writeValueAsString(Event.of(timestamp(), eventType(), subjects(), labels()))))
                     .build());
             LOGGER.info("Message was published with id [{}]", future.get(10, TimeUnit.SECONDS));
         } catch (Exception e) {

@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.turquoise;
 
+import java.util.List;
+
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import org.immutables.value.Value;
@@ -14,7 +16,10 @@ interface Subject {
     @Value.Parameter
     String type();
 
-    static Subject of(String name, String type) {
-        return ImmutableSubject.of(name, type);
+    @Value.Parameter
+    List<Label> labels();
+
+    static Subject of(final String type, final String name, final List<Label> labels) {
+        return ImmutableSubject.of(name, type, labels);
     }
 }

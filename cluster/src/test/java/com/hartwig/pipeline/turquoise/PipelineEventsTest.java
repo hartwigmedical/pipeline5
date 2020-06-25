@@ -7,7 +7,8 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 import com.google.api.core.ApiFuture;
 import com.google.cloud.pubsub.v1.Publisher;
@@ -21,7 +22,7 @@ import org.mockito.ArgumentCaptor;
 
 public class PipelineEventsTest {
 
-    public static final LocalDateTime NOW = LocalDateTime.of(2020, 6, 19, 0, 0, 0);
+    public static final ZonedDateTime NOW = ZonedDateTime.of(2020, 6, 19, 0, 0, 0, 0, ZoneId.of("UTC"));
     private Publisher publisher;
     private ArgumentCaptor<PubsubMessage> jsonCaptor;
     private PipelineEvent victim;
@@ -38,7 +39,7 @@ public class PipelineEventsTest {
 
     @Test
     public void startedEventCreatesEventWithCorrectSubjects() {
-        victim = PipelineStarted.builder().commonSubjects(common()).timestamp(NOW).publisher(publisher).build();
+        victim = PipelineStarted.builder().properties(common()).timestamp(NOW).publisher(publisher).build();
         victim.publish();
         PubsubMessage message = jsonCaptor.getValue();
         assertThat(new String(message.getData().toByteArray())).isEqualTo(json("pipeline.started"));
@@ -46,14 +47,14 @@ public class PipelineEventsTest {
 
     @Test
     public void completedEventCreatesEventWithCorrectSubjects() {
-        victim = PipelineCompleted.builder().commonSubjects(common()).timestamp(NOW).status("Success").publisher(publisher).build();
+        victim = PipelineCompleted.builder().properties(common()).timestamp(NOW).status("Success").publisher(publisher).build();
         victim.publish();
         PubsubMessage message = jsonCaptor.getValue();
         assertThat(new String(message.getData().toByteArray())).isEqualTo(json("pipeline.completed"));
     }
 
-    private static ImmutablePipelineSubjects common() {
-        return PipelineSubjects.builder()
+    private static PipelineProperties common() {
+        return PipelineProperties.builder()
                 .type("somatic")
                 .sample("sample")
                 .set("set")

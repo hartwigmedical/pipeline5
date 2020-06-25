@@ -1,6 +1,6 @@
 package com.hartwig.pipeline.turquoise;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -12,7 +12,7 @@ import org.immutables.value.Value;
 interface Event {
 
     @Value.Parameter
-    LocalDateTime timestamp();
+    ZonedDateTime timestamp();
 
     @Value.Parameter
     String type();
@@ -20,7 +20,10 @@ interface Event {
     @Value.Parameter
     List<Subject> subjects();
 
-    static Event of(LocalDateTime timestamp, String eventType, List<Subject> subject) {
-        return ImmutableEvent.of(timestamp, eventType, subject);
+    @Value.Parameter
+    List<Label> labels();
+
+    static Event of(ZonedDateTime timestamp, String eventType, List<Subject> subject, List<Label> labels) {
+        return ImmutableEvent.of(timestamp, eventType, subject, labels);
     }
 }
