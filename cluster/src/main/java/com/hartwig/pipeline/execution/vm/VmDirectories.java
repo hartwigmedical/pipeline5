@@ -8,6 +8,15 @@ public interface VmDirectories {
     String TEMP = "/data/tmp";
 
     static String outputFile(String path) {
-        return String.format("%s/%s", OUTPUT, path);
+        return filePath(OUTPUT, path);
     }
+
+    static String inputFile(String path) {
+        return filePath(INPUT, path);
+    }
+
+    static String filePath(String directory, String path) {
+        return String.format("%s/%s", directory, path);
+    }
+
 }

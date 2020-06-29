@@ -25,6 +25,7 @@ public interface Versions {
     String PURPLE = "2.43";
     String CIRCOS = "0.69.6";
     String GRIDSS = "2.8.3";
+    String GRIPSS = "1.0";
     String LINX = "1.7";
     String BACHELOR = "1.9";
     String CHORD = "60.02_1.03";
