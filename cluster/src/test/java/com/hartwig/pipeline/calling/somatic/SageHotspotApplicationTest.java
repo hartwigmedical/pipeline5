@@ -27,7 +27,7 @@ public class SageHotspotApplicationTest extends SubStageTest {
 
     @Test
     public void runsSageHotspotApplication() {
-        assertThat(bash()).contains("java -Xmx8G -cp /opt/tools/sage/2.1/sage.jar "
+        assertThat(bash()).contains("java -Xmx8G -cp /opt/tools/sage/2.2/sage.jar "
                 + "com.hartwig.hmftools.sage.SageHotspotApplication -tumor tumor -tumor_bam tumor.bam -reference reference -reference_bam "
                 + "reference.bam -known_hotspots known_hotspots.tsv -coding_regions coding_regions.bed -ref_genome reference_genome.fasta "
                 + "-out /data/output/tumor.sage.hotspots.vcf.gz");
