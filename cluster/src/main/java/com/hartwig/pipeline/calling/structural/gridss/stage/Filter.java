@@ -20,7 +20,7 @@ public class Filter extends SubStage {
     private final String somaticFilteredVcf;
 
     public Filter(final String somaticAndQualityFilteredVcf, final String somaticFilteredVcf) {
-        super("filter", OutputFile.GZIPPED_VCF, false);
+        super("filter", OutputFile.GZIPPED_VCF);
         this.somaticAndQualityFilteredVcf = somaticAndQualityFilteredVcf;
         this.somaticFilteredVcf = somaticFilteredVcf;
     }

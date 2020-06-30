@@ -22,7 +22,7 @@ public abstract class SubStageTest {
     }
 
     protected OutputFile input() {
-        return OutputFile.of(sampleName(), "strelka", "vcf", false);
+        return OutputFile.of(sampleName(), "strelka", "vcf");
     }
 
     protected String bash() {

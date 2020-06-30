@@ -34,7 +34,7 @@ public class FilterTest extends SubStageTest {
 
     @Override
     protected OutputFile input() {
-        return OutputFile.of(sampleName(), "gridss", OutputFile.GZIPPED_VCF, false);
+        return OutputFile.of(sampleName(), "gridss", OutputFile.GZIPPED_VCF);
     }
 
     @Test(expected = IllegalArgumentException.class)
