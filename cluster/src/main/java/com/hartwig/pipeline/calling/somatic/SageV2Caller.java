@@ -8,7 +8,6 @@ import com.google.common.collect.Lists;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.AlignmentPair;
-import com.hartwig.pipeline.calling.FinalSubStage;
 import com.hartwig.pipeline.calling.SubStageInputOutput;
 import com.hartwig.pipeline.calling.substages.SnpEff;
 import com.hartwig.pipeline.execution.PipelineStatus;
@@ -34,8 +33,8 @@ public class SageV2Caller extends TertiaryStage<SomaticCallerOutput> {
     public static final String NAMESPACE = "sage";
 
     private final ResourceFiles resourceFiles;
-    private OutputFile outputFile;
-    private OutputFile sageOutputFile;
+    private OutputFile filteredOutputFile;
+    private OutputFile unfilteredOutputFile;
 
     public SageV2Caller(final AlignmentPair alignmentPair, final ResourceFiles resourceFiles) {
         super(alignmentPair);
@@ -61,7 +60,7 @@ public class SageV2Caller extends TertiaryStage<SomaticCallerOutput> {
         SageCommandBuilder sageCommandBuilder = new SageCommandBuilder(resourceFiles).addReference(referenceSampleName, referenceBamPath)
                 .addTumor(tumorSampleName, tumorBamPath);
         SageV2Application sageV2Application = new SageV2Application(sageCommandBuilder);
-        sageOutputFile = sageV2Application.apply(SubStageInputOutput.empty(tumorSampleName)).outputFile();
+        unfilteredOutputFile = sageV2Application.apply(SubStageInputOutput.empty(tumorSampleName)).outputFile();
 
         final String refGenomeStr = resourceFiles.version() == RefGenomeVersion.HG37 ? "hg19" : "hg38";
 
@@ -70,11 +69,11 @@ public class SageV2Caller extends TertiaryStage<SomaticCallerOutput> {
                 .andThen(new PonAnnotation("sage.pon", resourceFiles.sageGermlinePon(), "PON_COUNT", "PON_MAX"))
                 .andThen(new SageV2PonFilter())
                 .andThen(new SnpEff(ResourceFiles.SNPEFF_CONFIG, resourceFiles))
-                .andThen(FinalSubStage.of(new SageV2PostProcess(refGenomeStr)))
+                .andThen(new SageV2PostProcess(refGenomeStr))
                 .apply(SubStageInputOutput.empty(tumorSampleName));
 
         commands.addAll(sageOutput.bash());
-        outputFile = sageOutput.outputFile();
+        filteredOutputFile = sageOutput.outputFile();
         return commands;
     }
 
@@ -88,18 +87,18 @@ public class SageV2Caller extends TertiaryStage<SomaticCallerOutput> {
             final ResultsDirectory resultsDirectory) {
         return SomaticCallerOutput.builder(NAMESPACE)
                 .status(jobStatus)
-                .maybeFinalSomaticVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(outputFile.fileName())))
+                .maybeFinalSomaticVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(filteredOutputFile.fileName())))
                 .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
                         NAMESPACE,
                         Folder.from(),
-                        outputFile.fileName(),
-                        OutputFile.of(metadata.tumor().sampleName(), "sage.somatic.post_processed", OutputFile.GZIPPED_VCF)
+                        filteredOutputFile.fileName(),
+                        OutputFile.of(metadata.tumor().sampleName(), "sage.somatic.filtered", OutputFile.GZIPPED_VCF)
                                 .fileName(),
                         resultsDirectory))
                 .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
                         NAMESPACE,
                         Folder.from(),
-                        sageOutputFile.fileName(),
+                        unfilteredOutputFile.fileName(),
                         OutputFile.of(metadata.tumor().sampleName(), "sage.somatic", OutputFile.GZIPPED_VCF).fileName(),
                         resultsDirectory))
                 .addReportComponents(new RunLogComponent(bucket, NAMESPACE, Folder.from(), resultsDirectory))

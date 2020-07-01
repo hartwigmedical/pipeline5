@@ -38,7 +38,7 @@ public class SageV2CallerTest extends TertiaryStageTest<SomaticCallerOutput> {
                 "/opt/tools/snpEff/4.3s/snpEff.sh /opt/tools/snpEff/4.3s/snpEff.jar /opt/resources/snpeff/snpEff.config GRCh37.75 /data/output/tumor.sage.pon.filter.vcf.gz /data/output/tumor.snpeff.annotated.vcf",
                 "/opt/tools/tabix/0.2.6/bgzip -f /data/output/tumor.snpeff.annotated.vcf",
                 "/opt/tools/tabix/0.2.6/tabix /data/output/tumor.snpeff.annotated.vcf.gz -p vcf",
-                "java -Xmx8G -cp /opt/tools/sage/2.2/sage.jar com.hartwig.hmftools.sage.SagePostProcessApplication -in /data/output/tumor.snpeff.annotated.vcf.gz -out /data/output/tumor.sage.post.processed.final.vcf.gz -assembly hg19");
+                "java -Xmx8G -cp /opt/tools/sage/2.2/sage.jar com.hartwig.hmftools.sage.SagePostProcessApplication -in /data/output/tumor.snpeff.annotated.vcf.gz -out /data/output/tumor.sage.somatic.filtered.vcf.gz -assembly hg19");
     }
 
     @Override
