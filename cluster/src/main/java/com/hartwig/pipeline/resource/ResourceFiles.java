@@ -21,16 +21,31 @@ public interface ResourceFiles {
     String versionDirectory();
 
     String refGenomeFile();
+
     String gcProfileFile();
+
     String amberHeterozygousLoci();
+
     String gridssRepeatMaskerDb();
+
+    default String gridssRepeatMaskerDbBed() {
+        return gridssRepeatMaskerDb() + ".bed";
+    }
+
     String gridssBlacklistBed();
+
     String snpEffDb();
+
     String snpEffVersion();
+
     String sageKnownHotspots();
+
     String sageActionableCodingPanel();
+
     String out150Mappability();
+
     String sageGermlinePon();
+
     String giabHighConfidenceBed();
 
     String SNPEFF_CONFIG = ResourceFiles.of(SNPEFF, "snpEff.config");

@@ -20,7 +20,6 @@ import com.hartwig.pipeline.calling.command.BwaCommand;
 import com.hartwig.pipeline.calling.command.VersionedToolCommand;
 import com.hartwig.pipeline.calling.structural.gridss.stage.Driver;
 import com.hartwig.pipeline.calling.structural.gridss.stage.Filter;
-import com.hartwig.pipeline.calling.structural.gridss.stage.RepeatMaskerInsertionAnnotation;
 import com.hartwig.pipeline.calling.structural.gridss.stage.TabixDriverOutput;
 import com.hartwig.pipeline.calling.structural.gridss.stage.ViralAnnotation;
 import com.hartwig.pipeline.execution.PipelineStatus;
@@ -82,11 +81,11 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
                 format("${PATH}:%s", dirname(new VersionedToolCommand("samtools", "samtools", Versions.SAMTOOLS).asBash()))));
 
         // TEMP
-        if(resourceFiles.version() == RefGenomeVersion.HG38) {
+        if (resourceFiles.version() == RefGenomeVersion.HG38) {
             final String bwtFileOld = "/opt/resources/reference_genome/hg38/Homo_sapiens_assembly38.fasta.64.bwt";
             final String bwtFileNew = "/opt/resources/reference_genome/hg38/Homo_sapiens_assembly38.fasta.bwt";
 
-            if(Files.exists(Paths.get(bwtFileOld)) && !Files.exists(Paths.get(bwtFileNew)) ) {
+            if (Files.exists(Paths.get(bwtFileOld)) && !Files.exists(Paths.get(bwtFileNew))) {
                 commands.add(() -> format("cp %s %s", bwtFileOld, bwtFileNew));
             }
         }
@@ -104,13 +103,12 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
                 resourceFiles.refGenomeFile(),
                 blacklistBedPath,
                 configurationFilePath,
+                resourceFiles.gridssRepeatMaskerDbBed(),
                 refBamPath,
                 tumorBamPath);
         SubStageInputOutput unfilteredVcfOutput = driver.andThen(new TabixDriverOutput()).apply(SubStageInputOutput.empty(tumorSampleName));
 
-        SubStageInputOutput unfilteredAnnotatedVcfOutput =
-                new RepeatMaskerInsertionAnnotation(repeatMaskerDbPath).andThen(new ViralAnnotation(virusReferenceGenomePath))
-                        .apply(unfilteredVcfOutput);
+        SubStageInputOutput unfilteredAnnotatedVcfOutput = new ViralAnnotation(virusReferenceGenomePath).apply(unfilteredVcfOutput);
 
         String somaticFilteredVcfBasename = VmDirectories.outputFile(format("%s.gridss.somatic.vcf", tumorSampleName));
         String somaticAndQualityFilteredVcfBasename = VmDirectories.outputFile(format("%s.gridss.somatic.filtered.vcf", tumorSampleName));

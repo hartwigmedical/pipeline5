@@ -5,23 +5,23 @@
     "lanes": [
       {
         "laneNumber": "1",
-        "firstOfPairPath": "validation-samples/COLO829v003/COLO829v003T/fastq/COLO829v003T/COLO829v003T_AHHKYHDSXX_S12_L001_R1_001.fastq.gz",
-        "secondOfPairPath": "validation-samples/COLO829v003/COLO829v003T/fastq/COLO829v003T/COLO829v003T_AHHKYHDSXX_S12_L001_R2_001.fastq.gz"
+        "firstOfPairPath": "hmf-verification-data-fastq/COLO829v003/COLO829v003T_AHHKYHDSXX_S12_L001_R1_001.fastq.gz",
+        "secondOfPairPath": "hmf-verification-data-fastq/COLO829v003/COLO829v003T_AHHKYHDSXX_S12_L001_R2_001.fastq.gz"
       },
       {
         "laneNumber": "2",
-        "firstOfPairPath": "validation-samples/COLO829v003/COLO829v003T/fastq/COLO829v003T/COLO829v003T_AHHKYHDSXX_S12_L002_R1_001.fastq.gz",
-        "secondOfPairPath": "validation-samples/COLO829v003/COLO829v003T/fastq/COLO829v003T/COLO829v003T_AHHKYHDSXX_S12_L002_R2_001.fastq.gz"
+        "firstOfPairPath": "hmf-verification-data-fastq/COLO829v003/COLO829v003T_AHHKYHDSXX_S12_L002_R1_001.fastq.gz",
+        "secondOfPairPath": "hmf-verification-data-fastq/COLO829v003/COLO829v003T_AHHKYHDSXX_S12_L002_R2_001.fastq.gz"
       },
       {
         "laneNumber": "3",
-        "firstOfPairPath": "validation-samples/COLO829v003/COLO829v003T/fastq/COLO829v003T/COLO829v003T_AHHKYHDSXX_S12_L003_R1_001.fastq.gz",
-        "secondOfPairPath": "validation-samples/COLO829v003/COLO829v003T/fastq/COLO829v003T/COLO829v003T_AHHKYHDSXX_S12_L003_R2_001.fastq.gz"
+        "firstOfPairPath": "hmf-verification-data-fastq/COLO829v003/COLO829v003T_AHHKYHDSXX_S12_L003_R1_001.fastq.gz",
+        "secondOfPairPath": "hmf-verification-data-fastq/COLO829v003/COLO829v003T_AHHKYHDSXX_S12_L003_R2_001.fastq.gz"
       },
       {
         "laneNumber": "4",
-        "firstOfPairPath": "validation-samples/COLO829v003/COLO829v003T/fastq/COLO829v003T/COLO829v003T_AHHKYHDSXX_S12_L004_R1_001.fastq.gz",
-        "secondOfPairPath": "validation-samples/COLO829v003/COLO829v003T/fastq/COLO829v003T/COLO829v003T_AHHKYHDSXX_S12_L004_R2_001.fastq.gz"
+        "firstOfPairPath": "hmf-verification-data-fastq/COLO829v003/COLO829v003T_AHHKYHDSXX_S12_L004_R1_001.fastq.gz",
+        "secondOfPairPath": "hmf-verification-data-fastq/COLO829v003/COLO829v003T_AHHKYHDSXX_S12_L004_R2_001.fastq.gz"
       }
     ]
   },
@@ -31,23 +31,23 @@
     "lanes": [
       {
         "laneNumber": "1",
-        "firstOfPairPath": "validation-samples/COLO829v003/COLO829v003R/fastq/COLO829v003R/COLO829v003R_AHHKYHDSXX_S13_L001_R1_001.fastq.gz",
-        "secondOfPairPath": "validation-samples/COLO829v003/COLO829v003R/fastq/COLO829v003R/COLO829v003R_AHHKYHDSXX_S13_L001_R2_001.fastq.gz"
+        "firstOfPairPath": "hmf-verification-data-fastq/COLO829v003/COLO829v003R_AHHKYHDSXX_S13_L001_R1_001.fastq.gz",
+        "secondOfPairPath": "hmf-verification-data-fastq/COLO829v003/COLO829v003R_AHHKYHDSXX_S13_L001_R2_001.fastq.gz"
       },
       {
         "laneNumber": "2",
-        "firstOfPairPath": "validation-samples/COLO829v003/COLO829v003R/fastq/COLO829v003R/COLO829v003R_AHHKYHDSXX_S13_L002_R1_001.fastq.gz",
-        "secondOfPairPath": "validation-samples/COLO829v003/COLO829v003R/fastq/COLO829v003R/COLO829v003R_AHHKYHDSXX_S13_L002_R2_001.fastq.gz"
+        "firstOfPairPath": "hmf-verification-data-fastq/COLO829v003/COLO829v003R_AHHKYHDSXX_S13_L002_R1_001.fastq.gz",
+        "secondOfPairPath": "hmf-verification-data-fastq/COLO829v003/COLO829v003R_AHHKYHDSXX_S13_L002_R2_001.fastq.gz"
       },
       {
         "laneNumber": "3",
-        "firstOfPairPath": "validation-samples/COLO829v003/COLO829v003R/fastq/COLO829v003R/COLO829v003R_AHHKYHDSXX_S13_L003_R1_001.fastq.gz",
-        "secondOfPairPath": "validation-samples/COLO829v003/COLO829v003R/fastq/COLO829v003R/COLO829v003R_AHHKYHDSXX_S13_L003_R2_001.fastq.gz"
+        "firstOfPairPath": "hmf-verification-data-fastq/COLO829v003/COLO829v003R_AHHKYHDSXX_S13_L003_R1_001.fastq.gz",
+        "secondOfPairPath": "hmf-verification-data-fastq/COLO829v003/COLO829v003R_AHHKYHDSXX_S13_L003_R2_001.fastq.gz"
       },
       {
         "laneNumber": "4",
-        "firstOfPairPath": "validation-samples/COLO829v003/COLO829v003R/fastq/COLO829v003R/COLO829v003R_AHHKYHDSXX_S13_L004_R1_001.fastq.gz",
-        "secondOfPairPath": "validation-samples/COLO829v003/COLO829v003R/fastq/COLO829v003R/COLO829v003R_AHHKYHDSXX_S13_L004_R2_001.fastq.gz"
+        "firstOfPairPath": "hmf-verification-data-fastq/COLO829v003/COLO829v003R_AHHKYHDSXX_S13_L004_R1_001.fastq.gz",
+        "secondOfPairPath": "hmf-verification-data-fastq/COLO829v003/COLO829v003R_AHHKYHDSXX_S13_L004_R2_001.fastq.gz"
       }
     ]
   }

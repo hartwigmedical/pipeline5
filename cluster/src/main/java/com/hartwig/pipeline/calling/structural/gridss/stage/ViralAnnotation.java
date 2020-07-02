@@ -6,7 +6,7 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.calling.SubStage;
-import com.hartwig.pipeline.calling.structural.gridss.command.AnnotateUntemplatedSequence;
+import com.hartwig.pipeline.calling.structural.gridss.command.AnnotateInsertedSequence;
 import com.hartwig.pipeline.calling.structural.gridss.command.SortVcf;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.OutputFile;
@@ -38,7 +38,7 @@ public class ViralAnnotation extends SubStage {
                         () -> format("(grep -vE '^#' >> %s || true) ", withBealn)),
                 new PipeCommands(() -> format(" (grep -v BEALN %s || true)", inputVcfGunzipped),
                         () -> format("(grep -vE '^#' >> %s || true) ", missingBealn)),
-                new AnnotateUntemplatedSequence(missingBealn, referenceGenome, annotatedBealn),
+                new AnnotateInsertedSequence(missingBealn, referenceGenome, annotatedBealn),
                 new SortVcf(withBealn, annotatedBealn, output.path()));
     }
 }

@@ -22,7 +22,7 @@ public class Hg38ResourceFiles implements ResourceFiles {
         return String.format("%s/%s/%s/%s", VmDirectories.RESOURCES, name, versionDirectory(), file);
     }
 
-    public String refGenomeFile() { return formPath(REFERENCE_GENOME, "Homo_sapiens_assembly38.fasta"); }
+    public String refGenomeFile() { return formPath(REFERENCE_GENOME, "GCA_000001405.15_GRCh38_no_alt_analysis_set.fna"); }
 
     public String gcProfileFile() { return formPath(GC_PROFILE, "GC_profile.hg38.1000bp.cnp"); }
 
