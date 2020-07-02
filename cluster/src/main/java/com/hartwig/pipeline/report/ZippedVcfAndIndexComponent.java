@@ -15,6 +15,11 @@ public class ZippedVcfAndIndexComponent implements ReportComponent {
     private final ResultsDirectory resultsDirectory;
 
     public ZippedVcfAndIndexComponent(final RuntimeBucket runtimeBucket, final String namespace, final Folder folder,
+            final String filename, final ResultsDirectory resultsDirectory) {
+        this(runtimeBucket, namespace, folder, filename, filename, resultsDirectory);
+    }
+
+    public ZippedVcfAndIndexComponent(final RuntimeBucket runtimeBucket, final String namespace, final Folder folder,
             final String sourceFileName, final String targetFileName, final ResultsDirectory resultsDirectory) {
         this.runtimeBucket = runtimeBucket;
         this.namespace = namespace;

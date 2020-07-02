@@ -112,14 +112,14 @@ public class SomaticCaller extends TertiaryStage<SomaticCallerOutput> {
                         NAMESPACE,
                         Folder.from(),
                         outputFile.fileName(),
-                        OutputFile.of(metadata.tumor().sampleName(), "somatic_caller_post_processed", OutputFile.GZIPPED_VCF, false)
+                        OutputFile.of(metadata.tumor().sampleName(), "somatic_caller_post_processed", OutputFile.GZIPPED_VCF)
                                 .fileName(),
                         resultsDirectory))
                 .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
                         NAMESPACE,
                         Folder.from(),
                         sageOutputFile.fileName(),
-                        OutputFile.of(metadata.tumor().sampleName(), "sage_hotspots", OutputFile.GZIPPED_VCF, false).fileName(),
+                        OutputFile.of(metadata.tumor().sampleName(), "sage_hotspots", OutputFile.GZIPPED_VCF).fileName(),
                         resultsDirectory))
                 .addReportComponents(new EntireOutputComponent(bucket,
                         Folder.from(),

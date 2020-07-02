@@ -15,13 +15,8 @@ public interface OutputFile {
         return VmDirectories.OUTPUT + "/" + fileName();
     }
 
-    static OutputFile of(String sample, String subStageName, String type, boolean isFinal) {
-        if (!isFinal) {
-            return ImmutableOutputFile.of(String.format("%s.%s.%s", sample, subStageName, type));
-        }
-        else {
-            return ImmutableOutputFile.of(String.format("%s.%s.final.%s", sample, subStageName, type));
-        }
+    static OutputFile of(String sample, String subStageName, String type) {
+        return ImmutableOutputFile.of(String.format("%s.%s.%s", sample, subStageName, type));
     }
 
     static OutputFile of(String sample, String type) {

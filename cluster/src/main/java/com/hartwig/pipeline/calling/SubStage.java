@@ -11,16 +11,10 @@ public abstract class SubStage implements Function<SubStageInputOutput, SubStage
 
     private final String stageName;
     private final String fileOutputType;
-    private final boolean isFinalSubStage;
 
     public SubStage(final String stageName, final String fileOutputType) {
-        this(stageName, fileOutputType, false);
-    }
-
-    public SubStage(final String stageName, final String fileOutputType, final boolean isFinalSubStage) {
         this.stageName = stageName;
         this.fileOutputType = fileOutputType;
-        this.isFinalSubStage = isFinalSubStage;
     }
 
     String getStageName() {
@@ -33,7 +27,7 @@ public abstract class SubStage implements Function<SubStageInputOutput, SubStage
 
     @Override
     public SubStageInputOutput apply(final SubStageInputOutput input) {
-        OutputFile outputFile = OutputFile.of(input.sampleName(), stageName, fileOutputType, isFinalSubStage);
+        OutputFile outputFile = OutputFile.of(input.sampleName(), stageName, fileOutputType);
         return SubStageInputOutput.of(input.sampleName(), outputFile, combine(input.bash(), bash(input.outputFile(), outputFile)));
     }
 

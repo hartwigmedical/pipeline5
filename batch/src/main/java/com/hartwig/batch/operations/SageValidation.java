@@ -10,7 +10,6 @@ import com.hartwig.batch.BatchOperation;
 import com.hartwig.batch.input.InputBundle;
 import com.hartwig.batch.input.InputFileDescriptor;
 import com.hartwig.pipeline.ResultsDirectory;
-import com.hartwig.pipeline.calling.FinalSubStage;
 import com.hartwig.pipeline.calling.SubStage;
 import com.hartwig.pipeline.calling.SubStageInputOutput;
 import com.hartwig.pipeline.calling.command.BcfToolsCommandListBuilder;
@@ -110,7 +109,7 @@ public class SageValidation implements BatchOperation {
                 .andThen(new PonAnnotation("sage.pon", resourceFiles.sageGermlinePon(), "PON_COUNT", "PON_MAX"))
                 .andThen(new SageV2PonFilter())
                 .andThen(new SnpEff(ResourceFiles.SNPEFF_CONFIG, resourceFiles))
-                .andThen(FinalSubStage.of(new SageV2PostProcess("hg19")))
+                .andThen(new SageV2PostProcess("hg19"))
                 .apply(SubStageInputOutput.empty(tumorSampleName));
         startupScript.addCommands(postProcessing.bash());
 
