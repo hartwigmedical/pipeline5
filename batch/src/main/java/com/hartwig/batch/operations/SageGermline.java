@@ -31,7 +31,7 @@ import com.hartwig.pipeline.tools.Versions;
 public class SageGermline implements BatchOperation {
 
     private static String localFilename(InputFileDescriptor remote) {
-        return format("%s/%s", VmDirectories.INPUT, new File(remote.remoteFilename()).getName());
+        return format("%s/%s", VmDirectories.INPUT, new File(remote.inputValue()).getName());
     }
 
     @Override
@@ -44,7 +44,7 @@ public class SageGermline implements BatchOperation {
         final InputFileDescriptor remoteReferenceIndex = remoteReferenceFile.index(".crai");
         final String localReferenceFile = localFilename(remoteReferenceFile);
         final String localReferenceBam = localReferenceFile.replace("cram", "bam");
-        final String referenceSampleName = inputs.get("referenceSample").remoteFilename();
+        final String referenceSampleName = inputs.get("referenceSample").inputValue();
 
         // Download latest jar file
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s %s",

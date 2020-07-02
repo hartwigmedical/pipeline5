@@ -24,8 +24,8 @@ public class SamtoolsBamToCram implements BatchOperation {
     public VirtualMachineJobDefinition execute(final InputBundle inputs, final RuntimeBucket bucket,
                                                final BashStartupScript startupScript, final RuntimeFiles executionFlags) {
         InputFileDescriptor input = inputs.get();
-        String outputFile = VmDirectories.outputFile(new File(input.remoteFilename()).getName().replaceAll("\\.bam$", ".cram"));
-        String localInput = format("%s/%s", VmDirectories.INPUT, new File(input.remoteFilename()).getName());
+        String outputFile = VmDirectories.outputFile(new File(input.inputValue()).getName().replaceAll("\\.bam$", ".cram"));
+        String localInput = format("%s/%s", VmDirectories.INPUT, new File(input.inputValue()).getName());
         startupScript.addCommand(() -> input.toCommandForm(localInput));
 
         startupScript.addCommands(new CramAndValidateCommands(localInput, outputFile).commands());

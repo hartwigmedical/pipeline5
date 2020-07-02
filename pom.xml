@@ -39,7 +39,7 @@
         <annotations.version>16.0.1</annotations.version>
         <aws-java-sdk.version>1.11.327</aws-java-sdk.version>
         <commons-lang3.version>3.9</commons-lang3.version>
-        <htsjdk.version>2.21.2-9-g709c9f8-SNAPSHOT</htsjdk.version>
+        <htsjdk.version>2.20.3</htsjdk.version>
         <org-reflections.version>0.9.11</org-reflections.version>
     </properties>
 

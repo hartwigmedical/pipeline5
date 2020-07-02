@@ -36,7 +36,7 @@ public class GridssBackport implements BatchOperation {
             final BashStartupScript startupScript, final RuntimeFiles executionFlags) {
 
         final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.HG37);
-        final String sample = inputs.get("sample").remoteFilename();
+        final String sample = inputs.get("sample").inputValue();
         final InputFileDescriptor inputBam = inputs.get("inputBam");
         final InputFileDescriptor inputBamIndex = inputBam.index(".bai");
         final InputFileDescriptor inputVcf = inputs.get("inputVcf");

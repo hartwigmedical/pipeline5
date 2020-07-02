@@ -23,7 +23,7 @@ class JsonInputParser implements InputParser {
                 List<InputFileDescriptor> fileDescriptors = new ArrayList<>();
                 for (String key : o.keySet()) {
                     fileDescriptors.add(InputFileDescriptor.builder().name(key).billedProject(billedProject)
-                            .remoteFilename(o.get(key)).build());
+                            .inputValue(o.get(key)).build());
                 }
                 toReturn.add(new InputBundle(fileDescriptors));
             });

@@ -30,7 +30,7 @@ public class GridssFilter implements BatchOperation {
             final BashStartupScript startupScript, final RuntimeFiles executionFlags) {
 
         final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.HG37);
-        final String sample = inputs.get("sample").remoteFilename();
+        final String sample = inputs.get("sample").inputValue();
         final InputFileDescriptor inputVcf = inputs.get("inputVcf");
         final InputFileDescriptor inputVcfIndex = inputVcf.index(".tbi");
 

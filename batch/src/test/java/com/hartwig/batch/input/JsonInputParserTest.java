@@ -16,10 +16,10 @@ public class JsonInputParserTest {
         List<InputBundle> parsed = victim.parse(testResource("input-parsers/batch_descriptor.json"), project);
         assertThat(parsed.size()).isEqualTo(2);
 
-        assertThat(parsed.get(0).get("input1").remoteFilename()).isEqualTo("some-file");
-        assertThat(parsed.get(0).get("input2").remoteFilename()).isEqualTo("some-other-file");
+        assertThat(parsed.get(0).get("input1").inputValue()).isEqualTo("some-file");
+        assertThat(parsed.get(0).get("input2").inputValue()).isEqualTo("some-other-file");
 
-        assertThat(parsed.get(1).get("input1").remoteFilename()).isEqualTo("second-file");
-        assertThat(parsed.get(1).get("input2").remoteFilename()).isEqualTo("second-alternate");
+        assertThat(parsed.get(1).get("input1").inputValue()).isEqualTo("second-file");
+        assertThat(parsed.get(1).get("input2").inputValue()).isEqualTo("second-alternate");
     }
 }
