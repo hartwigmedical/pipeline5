@@ -15,7 +15,7 @@ public interface Versions {
     String GATK = "3.8.0";
     String BCF_TOOLS = "1.9";
     String STRELKA = "1.0.14";
-    String SAGE = "2.1";
+    String SAGE = "2.2";
     String SNPEFF = "4.3s";
     String STRELKA_POST_PROCESS = "1.6";
     String TABIX = "0.2.6";
