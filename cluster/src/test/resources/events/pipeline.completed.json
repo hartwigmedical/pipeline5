@@ -1,40 +1,38 @@
 {
-  "timestamp": [
-    2020,
-    6,
-    19,
-    0,
-    0
-  ],
+  "timestamp": 1592524800.000000000,
   "type": "pipeline.completed",
   "subjects": [
     {
       "name": "sample",
-      "type": "sample"
+      "type": "sample",
+      "labels": [
+        {
+          "name": "set",
+          "value": "set"
+        },
+        {
+          "name": "type",
+          "value": "somatic"
+        },
+        {
+          "name": "barcode",
+          "value": "ref_barcode"
+        },
+        {
+          "name": "barcode",
+          "value": "tumor_barcode"
+        }
+      ]
+    }
+  ],
+  "labels": [
+    {
+      "name": "run_id",
+      "value": "1"
     },
     {
-      "name": "set",
-      "type": "set"
-    },
-    {
-      "name": "somatic",
-      "type": "type"
-    },
-    {
-      "name": "ref_barcode",
-      "type": "barcode"
-    },
-    {
-      "name": "tumor_barcode",
-      "type": "barcode"
-    },
-    {
-      "name": "1",
-      "type": "run_id"
-    },
-    {
-      "name": "Success",
-      "type": "status"
+      "name": "status",
+      "value": "Success"
     }
   ]
 }

@@ -26,8 +26,8 @@ import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.storage.StorageProvider;
 import com.hartwig.pipeline.tools.Versions;
 import com.hartwig.pipeline.turquoise.PipelineCompleted;
+import com.hartwig.pipeline.turquoise.PipelineProperties;
 import com.hartwig.pipeline.turquoise.PipelineStarted;
-import com.hartwig.pipeline.turquoise.PipelineSubjects;
 import com.hartwig.pipeline.turquoise.TurquoiseEvent;
 
 import org.apache.commons.cli.ParseException;
@@ -51,7 +51,7 @@ public class PipelineMain {
             SomaticRunMetadata somaticRunMetadata = somaticMetadataApi.get();
             boolean isSingleSample = somaticRunMetadata.isSingleSample();
             String ini = somaticRunMetadata.isSingleSample() ? "single_sample" : arguments.shallow() ? "shallow" : "somatic";
-            PipelineSubjects eventSubjects = PipelineSubjects.builder()
+            PipelineProperties eventSubjects = PipelineProperties.builder()
                     .sample(somaticRunMetadata.tumor().sampleName())
                     .runId(arguments.sbpApiRunId())
                     .set(somaticRunMetadata.runName())
@@ -83,12 +83,12 @@ public class PipelineMain {
         }
     }
 
-    public void completedEvent(final PipelineSubjects subjects, final Publisher publisher, final String status, boolean publish) {
-        publish(PipelineCompleted.builder().commonSubjects(subjects).publisher(publisher).status(status).build(), publish);
+    public void completedEvent(final PipelineProperties properties, final Publisher publisher, final String status, boolean publish) {
+        publish(PipelineCompleted.builder().properties(properties).publisher(publisher).status(status).build(), publish);
     }
 
-    public void startedEvent(final PipelineSubjects subjects, final Publisher publisher, boolean publish) {
-        publish(PipelineStarted.builder().commonSubjects(subjects).publisher(publisher).build(), publish);
+    public void startedEvent(final PipelineProperties subjects, final Publisher publisher, boolean publish) {
+        publish(PipelineStarted.builder().properties(subjects).publisher(publisher).build(), publish);
     }
 
     private static SomaticPipeline somaticPipeline(final Arguments arguments, final GoogleCredentials credentials, final Storage storage,

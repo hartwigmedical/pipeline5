@@ -103,6 +103,15 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .build();
     }
 
+    static VirtualMachineJobDefinition structuralPostProcessCalling(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
+        return ImmutableVirtualMachineJobDefinition.builder()
+                .name("gripss")
+                .startupCommand(startupScript)
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 16))
+                .namespacedResults(resultsDirectory)
+                .build();
+    }
+
     static VirtualMachineJobDefinition amber(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("amber")

@@ -17,9 +17,9 @@ public class InputBundleTest {
     @Before
     public void setup() {
         key = "my_key";
-        InputFileDescriptor another = InputFileDescriptor.builder().name("some other key").remoteFilename("irrelevant")
+        InputFileDescriptor another = InputFileDescriptor.builder().name("some other key").inputValue("irrelevant")
                 .billedProject("project").build();
-        descriptor = InputFileDescriptor.builder().name(key).remoteFilename("irrelevant")
+        descriptor = InputFileDescriptor.builder().name(key).inputValue("irrelevant")
                 .billedProject("project").build();
         victim = new InputBundle(asList(descriptor, another));
     }

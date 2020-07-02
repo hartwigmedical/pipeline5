@@ -5,7 +5,7 @@ import java.util.Optional;
 import org.immutables.value.Value;
 
 @Value.Immutable
-public interface PipelineSubjects {
+public interface PipelineProperties {
     String SAMPLE = "sample";
     String SET = "set";
     String TYPE = "type";
@@ -24,7 +24,7 @@ public interface PipelineSubjects {
 
     Optional<String> tumorBarcode();
 
-    static ImmutablePipelineSubjects.Builder builder() {
-        return ImmutablePipelineSubjects.builder();
+    static ImmutablePipelineProperties.Builder builder() {
+        return ImmutablePipelineProperties.builder();
     }
 }

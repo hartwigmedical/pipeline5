@@ -4,6 +4,10 @@ import com.hartwig.pipeline.tools.Versions;
 
 public class BgzipCommand extends VersionedToolCommand {
 
+    public BgzipCommand() {
+        super("tabix", "bgzip", Versions.TABIX);
+    }
+
     public BgzipCommand(String vcf) {
         super("tabix", "bgzip", Versions.TABIX, "-f", vcf);
     }

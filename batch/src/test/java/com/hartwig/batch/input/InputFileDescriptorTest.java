@@ -1,10 +1,11 @@
 package com.hartwig.batch.input;
 
+import static java.lang.String.format;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.Before;
 import org.junit.Test;
-
-import static java.lang.String.format;
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class InputFileDescriptorTest {
     private String project;
@@ -24,17 +25,17 @@ public class InputFileDescriptorTest {
 
     @Test
     public void shouldAddProtocolIfLeftOutOfFilenames() {
-        assertCommandForm(builder.remoteFilename(format("gs://%s", remote)).build().toCommandForm(local), remote);
+        assertCommandForm(builder.inputValue(format("gs://%s", remote)).build().toCommandForm(local), remote);
     }
 
     @Test
     public void shouldNotDoubleAddProtocolIfIncludedInFilenames() {
-        assertCommandForm(builder.remoteFilename(remote).build().toCommandForm(local), remote);
+        assertCommandForm(builder.inputValue(remote).build().toCommandForm(local), remote);
     }
 
     @Test
     public void shouldSetName() {
-        assertThat(builder.remoteFilename(remote).build().name()).isEqualTo(name);
+        assertThat(builder.inputValue(remote).build().name()).isEqualTo(name);
     }
 
     private void assertCommandForm(String commandForm, String remoteFile) {

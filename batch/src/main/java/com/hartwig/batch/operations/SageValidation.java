@@ -7,7 +7,6 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 import com.hartwig.batch.BatchOperation;
-import com.hartwig.batch.input.ImmutableInputFileDescriptor;
 import com.hartwig.batch.input.InputBundle;
 import com.hartwig.batch.input.InputFileDescriptor;
 import com.hartwig.pipeline.ResultsDirectory;
@@ -41,15 +40,7 @@ import com.hartwig.pipeline.tools.Versions;
 public class SageValidation implements BatchOperation {
 
     private static String localFilename(InputFileDescriptor remote) {
-        return format("%s/%s", VmDirectories.INPUT, new File(remote.remoteFilename()).getName());
-    }
-
-    private static InputFileDescriptor cramIndex(InputFileDescriptor bam) {
-        return ImmutableInputFileDescriptor.builder().from(bam).remoteFilename(bam.remoteFilename() + ".crai").build();
-    }
-
-    private static InputFileDescriptor bamIndex(InputFileDescriptor bam) {
-        return ImmutableInputFileDescriptor.builder().from(bam).remoteFilename(bam.remoteFilename() + ".bai").build();
+        return format("%s/%s", VmDirectories.INPUT, new File(remote.inputValue()).getName());
     }
 
     @Override
@@ -63,8 +54,8 @@ public class SageValidation implements BatchOperation {
         final InputFileDescriptor remoteTumorFile = inputs.get("tumor");
         final InputFileDescriptor remoteReferenceFile = inputs.get("reference");
 
-        final InputFileDescriptor remoteTumorIndex = cramIndex(remoteTumorFile);
-        final InputFileDescriptor remoteReferenceIndex = cramIndex(remoteReferenceFile);
+        final InputFileDescriptor remoteTumorIndex = remoteTumorFile.index(".crai");
+        final InputFileDescriptor remoteReferenceIndex = remoteReferenceFile.index(".crai");
 
         final String localTumorFile = localFilename(remoteTumorFile);
         final String localReferenceFile = localFilename(remoteReferenceFile);
@@ -72,21 +63,13 @@ public class SageValidation implements BatchOperation {
         final String localTumorBam = localTumorFile.replace("cram", "bam");
         final String localReferenceBam = localReferenceFile.replace("cram", "bam");
 
-        final String tumorSampleName = inputs.get("tumorSample").remoteFilename();
-        final String referenceSampleName = inputs.get("referenceSample").remoteFilename();
+        final String tumorSampleName = inputs.get("tumorSample").inputValue();
+        final String referenceSampleName = inputs.get("referenceSample").inputValue();
 
         // Download latest jar file
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s %s",
                 "gs://batch-sage-validation/resources/sage.jar",
                 "/opt/tools/sage/" + Versions.SAGE + "/sage.jar"));
-
-        //TODO: Move this into the system image
-        // Download latest bcf tools
-        startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s %s",
-                "gs://batch-sage-validation/resources/bcftools",
-                "/opt/tools/bcftools/" + Versions.BCF_TOOLS + "/bcftools"));
-
-        startupScript.addCommand(() -> "sudo chmod a+x /opt/tools/bcftools/" + Versions.BCF_TOOLS + "/bcftools");
 
         // Download tumor
         startupScript.addCommand(() -> remoteTumorFile.toCommandForm(localTumorFile));
@@ -102,7 +85,7 @@ public class SageValidation implements BatchOperation {
 
         if (inputs.contains("rna")) {
             final InputFileDescriptor remoteRnaBam = inputs.get("rna");
-            final InputFileDescriptor remoteRnaBamIndex = bamIndex(remoteRnaBam);
+            final InputFileDescriptor remoteRnaBamIndex = remoteRnaBam.index(".bai");
             final String localRnaBam = localFilename(remoteRnaBam);
 
             // Download rna

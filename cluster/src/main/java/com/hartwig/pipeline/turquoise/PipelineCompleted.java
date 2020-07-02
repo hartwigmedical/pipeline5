@@ -15,10 +15,10 @@ public interface PipelineCompleted extends PipelineEvent {
     }
 
     @Override
-    default List<Subject> subjects() {
-        List<Subject> subjects = PipelineEvent.super.subjects();
-        subjects.add(Subject.of(status(), "status"));
-        return subjects;
+    default List<Label> labels() {
+        List<Label> labels = PipelineEvent.super.labels();
+        labels.add(Label.of("status", status()));
+        return labels;
     }
 
     static ImmutablePipelineCompleted.Builder builder() {

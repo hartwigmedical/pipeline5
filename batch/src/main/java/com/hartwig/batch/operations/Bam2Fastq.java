@@ -27,7 +27,7 @@ public class Bam2Fastq implements BatchOperation {
     @Override
     public VirtualMachineJobDefinition execute(InputBundle inputs, RuntimeBucket bucket, BashStartupScript startupScript, RuntimeFiles executionFlags) {
         InputFileDescriptor descriptor = inputs.get();
-        String localCopyOfBam = format("%s/%s", VmDirectories.INPUT, new File(descriptor.remoteFilename()).getName());
+        String localCopyOfBam = format("%s/%s", VmDirectories.INPUT, new File(descriptor.inputValue()).getName());
         startupScript.addCommand(() -> descriptor.toCommandForm(localCopyOfBam));
         startupScript.addCommand(new PipeCommands(new SambambaCommand("view", "-H", localCopyOfBam),
                 () -> "grep ^@RG",

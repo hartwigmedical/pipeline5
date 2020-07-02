@@ -108,7 +108,7 @@ public class BatchDispatcher {
             report.append(String.format("  %s %s %s\n",
                     stateTuple.id(),
                     stateTuple.future().get(),
-                    stateTuple.inputs().get().remoteFilename()));
+                    stateTuple.inputs().get().inputValue()));
             if (stateTuple.future().get() != PipelineStatus.SUCCESS) {
                 jobsFailed = true;
             }

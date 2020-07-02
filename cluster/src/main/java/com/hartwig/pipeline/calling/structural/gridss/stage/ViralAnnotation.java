@@ -38,7 +38,7 @@ public class ViralAnnotation extends SubStage {
                         () -> format("(grep -vE '^#' >> %s || true) ", withBealn)),
                 new PipeCommands(() -> format(" (grep -v BEALN %s || true)", inputVcfGunzipped),
                         () -> format("(grep -vE '^#' >> %s || true) ", missingBealn)),
-                new AnnotateInsertedSequence(missingBealn, referenceGenome, annotatedBealn),
+                AnnotateInsertedSequence.viralAnnotation(missingBealn, annotatedBealn, referenceGenome),
                 new SortVcf(withBealn, annotatedBealn, output.path()));
     }
 }

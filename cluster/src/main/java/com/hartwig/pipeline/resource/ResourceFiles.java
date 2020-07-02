@@ -34,6 +34,9 @@ public interface ResourceFiles {
 
     String gridssBlacklistBed();
 
+    String gridssBreakendPon();
+
+    String gridssBreakpointPon();
     String snpEffDb();
 
     String snpEffVersion();
@@ -47,6 +50,8 @@ public interface ResourceFiles {
     String sageGermlinePon();
 
     String giabHighConfidenceBed();
+
+    String knownFusionPairBedpe();
 
     String SNPEFF_CONFIG = ResourceFiles.of(SNPEFF, "snpEff.config");
     String DBNSFP_VCF = ResourceFiles.of(DBNSFP, "dbNSFP2.9.txt.gz");

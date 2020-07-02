@@ -7,7 +7,6 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 import com.hartwig.batch.BatchOperation;
-import com.hartwig.batch.input.ImmutableInputFileDescriptor;
 import com.hartwig.batch.input.InputBundle;
 import com.hartwig.batch.input.InputFileDescriptor;
 import com.hartwig.pipeline.ResultsDirectory;
@@ -32,15 +31,7 @@ import com.hartwig.pipeline.tools.Versions;
 public class SageGermline implements BatchOperation {
 
     private static String localFilename(InputFileDescriptor remote) {
-        return format("%s/%s", VmDirectories.INPUT, new File(remote.remoteFilename()).getName());
-    }
-
-    private static InputFileDescriptor cramIndex(InputFileDescriptor bam) {
-        return ImmutableInputFileDescriptor.builder().from(bam).remoteFilename(bam.remoteFilename() + ".crai").build();
-    }
-
-    private static InputFileDescriptor bamIndex(InputFileDescriptor bam) {
-        return ImmutableInputFileDescriptor.builder().from(bam).remoteFilename(bam.remoteFilename() + ".bai").build();
+        return format("%s/%s", VmDirectories.INPUT, new File(remote.inputValue()).getName());
     }
 
     @Override
@@ -50,10 +41,10 @@ public class SageGermline implements BatchOperation {
         final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.HG37);
 
         final InputFileDescriptor remoteReferenceFile = inputs.get("reference");
-        final InputFileDescriptor remoteReferenceIndex = cramIndex(remoteReferenceFile);
+        final InputFileDescriptor remoteReferenceIndex = remoteReferenceFile.index(".crai");
         final String localReferenceFile = localFilename(remoteReferenceFile);
         final String localReferenceBam = localReferenceFile.replace("cram", "bam");
-        final String referenceSampleName = inputs.get("referenceSample").remoteFilename();
+        final String referenceSampleName = inputs.get("referenceSample").inputValue();
 
         // Download latest jar file
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s %s",
