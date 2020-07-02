@@ -17,9 +17,12 @@ import com.hartwig.pipeline.execution.vm.OutputFile;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.unix.UnzipToDirectoryCommand;
+import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.Folder;
+import com.hartwig.pipeline.report.ReportComponent;
 import com.hartwig.pipeline.report.RunLogComponent;
+import com.hartwig.pipeline.report.SingleFileComponent;
 import com.hartwig.pipeline.report.StartupScriptComponent;
 import com.hartwig.pipeline.report.ZippedVcfAndIndexComponent;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
@@ -88,19 +91,12 @@ public class SageV2Caller extends TertiaryStage<SomaticCallerOutput> {
         return SomaticCallerOutput.builder(NAMESPACE)
                 .status(jobStatus)
                 .maybeFinalSomaticVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(filteredOutputFile.fileName())))
-                .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
-                        NAMESPACE,
-                        Folder.from(),
-                        filteredOutputFile.fileName(),
-                        OutputFile.of(metadata.tumor().sampleName(), "sage.somatic.filtered", OutputFile.GZIPPED_VCF)
-                                .fileName(),
-                        resultsDirectory))
-                .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
-                        NAMESPACE,
-                        Folder.from(),
-                        unfilteredOutputFile.fileName(),
-                        OutputFile.of(metadata.tumor().sampleName(), "sage.somatic", OutputFile.GZIPPED_VCF).fileName(),
-                        resultsDirectory))
+                .addReportComponents(bqrComponent(metadata.tumor(), "png", bucket, resultsDirectory))
+                .addReportComponents(bqrComponent(metadata.tumor(), "tsv", bucket, resultsDirectory))
+                .addReportComponents(bqrComponent(metadata.reference(), "png", bucket, resultsDirectory))
+                .addReportComponents(bqrComponent(metadata.reference(), "tsv", bucket, resultsDirectory))
+                .addReportComponents(vcfComponent(unfilteredOutputFile.fileName(), bucket, resultsDirectory))
+                .addReportComponents(vcfComponent(filteredOutputFile.fileName(), bucket, resultsDirectory))
                 .addReportComponents(new RunLogComponent(bucket, NAMESPACE, Folder.from(), resultsDirectory))
                 .addReportComponents(new StartupScriptComponent(bucket, NAMESPACE, Folder.from()))
                 .build();
@@ -113,6 +109,16 @@ public class SageV2Caller extends TertiaryStage<SomaticCallerOutput> {
 
     @Override
     public boolean shouldRun(final Arguments arguments) {
-        return !arguments.shallow() && arguments.runSageCaller();
+        return arguments.runSageCaller();
+    }
+
+    private ReportComponent bqrComponent(final SingleSampleRunMetadata metadata, final String extension, final RuntimeBucket bucket,
+            final ResultsDirectory resultsDirectory) {
+        String filename = String.format("%s.sage.bqr.%s", metadata.sampleName(), extension);
+        return new SingleFileComponent(bucket, NAMESPACE, Folder.from(), filename, filename, resultsDirectory);
+    }
+
+    private ReportComponent vcfComponent(final String filename, final RuntimeBucket bucket, final ResultsDirectory resultsDirectory) {
+        return new ZippedVcfAndIndexComponent(bucket, NAMESPACE, Folder.from(), filename, resultsDirectory);
     }
 }
