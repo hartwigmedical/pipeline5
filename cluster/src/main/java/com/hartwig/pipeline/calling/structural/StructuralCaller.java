@@ -20,8 +20,8 @@ import com.hartwig.pipeline.calling.command.BwaCommand;
 import com.hartwig.pipeline.calling.command.SamtoolsCommand;
 import com.hartwig.pipeline.calling.structural.gridss.stage.Driver;
 import com.hartwig.pipeline.calling.structural.gridss.stage.Filter;
+import com.hartwig.pipeline.calling.structural.gridss.stage.GridssAnnotation;
 import com.hartwig.pipeline.calling.structural.gridss.stage.TabixDriverOutput;
-import com.hartwig.pipeline.calling.structural.gridss.stage.ViralAnnotation;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
@@ -103,14 +103,14 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
                 resourceFiles.gridssRepeatMaskerDbBed(),
                 refBamPath,
                 tumorBamPath);
-        SubStageInputOutput unfilteredVcfOutput = driver.andThen(new TabixDriverOutput()).apply(SubStageInputOutput.empty(tumorSampleName));
-
-        SubStageInputOutput unfilteredAnnotatedVcfOutput = new ViralAnnotation(virusReferenceGenomePath).apply(unfilteredVcfOutput);
+        SubStageInputOutput unfilteredVcfOutput = driver.andThen(new TabixDriverOutput())
+                .andThen(new GridssAnnotation(resourceFiles, virusReferenceGenomePath, false))
+                .apply(SubStageInputOutput.empty(tumorSampleName));
 
         String somaticFilteredVcfBasename = VmDirectories.outputFile(format("%s.gridss.somatic.vcf", tumorSampleName));
         String somaticAndQualityFilteredVcfBasename = VmDirectories.outputFile(format("%s.gridss.somatic.filtered.vcf", tumorSampleName));
         SubStageInputOutput filteredAndAnnotated =
-                new Filter(somaticAndQualityFilteredVcfBasename, somaticFilteredVcfBasename).apply(unfilteredAnnotatedVcfOutput);
+                new Filter(somaticAndQualityFilteredVcfBasename, somaticFilteredVcfBasename).apply(unfilteredVcfOutput);
         commands.addAll(filteredAndAnnotated.bash());
 
         unfilteredVcf = unfilteredVcfOutput.outputFile().path();
