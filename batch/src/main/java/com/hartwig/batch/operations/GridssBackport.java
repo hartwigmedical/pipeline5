@@ -2,21 +2,25 @@ package com.hartwig.batch.operations;
 
 import static java.lang.String.format;
 
+import static com.hartwig.pipeline.execution.vm.OutputFile.GZIPPED_VCF;
 import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_CONFIG;
 import static com.hartwig.pipeline.resource.ResourceNames.VIRUS_REFERENCE_GENOME;
 
 import java.io.File;
+import java.util.Collections;
 
 import com.hartwig.batch.BatchOperation;
 import com.hartwig.batch.input.InputBundle;
 import com.hartwig.batch.input.InputFileDescriptor;
 import com.hartwig.pipeline.ResultsDirectory;
+import com.hartwig.pipeline.calling.SubStageInputOutput;
 import com.hartwig.pipeline.calling.command.BwaCommand;
 import com.hartwig.pipeline.calling.command.SamtoolsCommand;
 import com.hartwig.pipeline.calling.structural.gridss.command.AllocateEvidence;
-import com.hartwig.pipeline.calling.structural.gridss.command.AnnotateInsertedSequence;
 import com.hartwig.pipeline.calling.structural.gridss.command.SoftClipsToSplitReads;
+import com.hartwig.pipeline.calling.structural.gridss.stage.GridssAnnotation;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
+import com.hartwig.pipeline.execution.vm.OutputFile;
 import com.hartwig.pipeline.execution.vm.OutputUpload;
 import com.hartwig.pipeline.execution.vm.RuntimeFiles;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
@@ -31,11 +35,18 @@ import com.hartwig.pipeline.tools.Versions;
 
 public class GridssBackport implements BatchOperation {
 
+    public static GoogleStorageLocation remoteUnfilteredVcfArchivePath(final String set, final String sample) {
+        return GoogleStorageLocation.of("hmf-gridss",
+                "unfiltered" + File.separator + set + File.separator + sample + ".gridss.unfiltered.vcf.gz",
+                false);
+    }
+
     @Override
     public VirtualMachineJobDefinition execute(final InputBundle inputs, final RuntimeBucket runtimeBucket,
             final BashStartupScript startupScript, final RuntimeFiles executionFlags) {
 
         final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.HG37);
+        final String set = inputs.get("set").inputValue();
         final String sample = inputs.get("sample").inputValue();
         final InputFileDescriptor inputBam = inputs.get("inputBam");
         final InputFileDescriptor inputBamIndex = inputBam.index(".bai");
@@ -75,29 +86,34 @@ public class GridssBackport implements BatchOperation {
         startupScript.addCommand(new SoftClipsToSplitReads(inputBam.localDestination(), resourceFiles.refGenomeFile(), newAssemblyBam));
 
         // 6. Allocate Evidence
-        final String newRawVcf = VmDirectories.outputFile(sample + "." + Versions.GRIDSS.replace(".", "_") + ".raw.vcf.gz");
+        final OutputFile newRawVcf = OutputFile.of(sample, "gridss_" + Versions.GRIDSS.replace(".", "_") + ".raw", GZIPPED_VCF);
         final String configurationFilePath = ResourceFiles.of(GRIDSS_CONFIG, "gridss.properties");
         startupScript.addCommand(new AllocateEvidence(emptyBam1,
                 emptyBam2,
                 newAssemblyBam,
                 inputVcf.localDestination(),
-                newRawVcf,
+                newRawVcf.path(),
                 resourceFiles.refGenomeFile(),
                 configurationFilePath));
 
-        // 7. Viral Annotation
-        final String newViralAnnotatedVcf = VmDirectories.outputFile(sample + "." + Versions.GRIDSS.replace(".", "_") + ".viral.vcf.gz");
+        // 7. Gridss Annotation
+        // TODO: This should be in resource files!
         String virusReferenceGenomePath = ResourceFiles.of(VIRUS_REFERENCE_GENOME, "human_virus.fa");
-        startupScript.addCommand(AnnotateInsertedSequence.viralAnnotation(newRawVcf, newViralAnnotatedVcf, virusReferenceGenomePath));
+        final SubStageInputOutput annotation = new GridssAnnotation(resourceFiles, virusReferenceGenomePath).apply(SubStageInputOutput.of(
+                sample,
+                newRawVcf,
+                Collections.emptyList()));
+        startupScript.addCommands(annotation.bash());
 
-        // 8. Repeat Masker
-        final String outputVcf = VmDirectories.outputFile(sample + ".gridss.unfiltered.vcf.gz");
-        startupScript.addCommand(AnnotateInsertedSequence.repeatMasker(newViralAnnotatedVcf,
-                outputVcf,
-                resourceFiles.refGenomeFile(),
-                resourceFiles.gridssRepeatMaskerDbBed()));
+        // 8. Archive targeted output
+        final OutputFile unfilteredVcf = annotation.outputFile();
+        final OutputFile unfilteredVcfIndex = unfilteredVcf.index(".tbi");
+        final GoogleStorageLocation unfilteredVcfRemoteLocation = remoteUnfilteredVcfArchivePath(set, sample);
+        final GoogleStorageLocation unfilteredVcfIndexRemoteLocation = index(unfilteredVcfRemoteLocation,".tbi");
+        startupScript.addCommand(() -> unfilteredVcf.copyToRemoteLocation(unfilteredVcfRemoteLocation));
+        startupScript.addCommand(() -> unfilteredVcfIndex.copyToRemoteLocation(unfilteredVcfIndexRemoteLocation));
 
-        // 9. Upload output
+        // 9. Upload all output
         startupScript.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), "gridss"), executionFlags));
         return VirtualMachineJobDefinition.structuralCalling(startupScript, ResultsDirectory.defaultDirectory());
     }
@@ -121,4 +137,11 @@ public class GridssBackport implements BatchOperation {
         return dirname + "/" + basename + ".gridss.working/" + basename;
     }
 
+    private static GoogleStorageLocation index(GoogleStorageLocation template, String extension) {
+        if (template.isDirectory()) {
+            throw new IllegalArgumentException();
+        }
+
+        return GoogleStorageLocation.of(template.bucket(), template.path() + extension, template.isDirectory());
+    }
 }
