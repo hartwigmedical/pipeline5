@@ -24,15 +24,15 @@ public class GridssAnnotation extends SubStage {
     public List<BashCommand> bash(final OutputFile input, final OutputFile output) {
         List<BashCommand> result = Lists.newArrayList();
 
-        // Viral Annotation
-        final String interimFile = input.path() + ".viral.vcf.gz";
-        result.add(AnnotateInsertedSequence.viralAnnotation(input.path(), interimFile, virusReferenceGenomePath));
-
         // Repeat Masker
-        result.add(AnnotateInsertedSequence.repeatMasker(interimFile,
-                output.path(),
+        final String interimFile = input.path() + ".repeatmasker.vcf.gz";
+        result.add(AnnotateInsertedSequence.repeatMasker(input.path(),
+                interimFile,
                 resourceFiles.refGenomeFile(),
                 resourceFiles.gridssRepeatMaskerDbBed()));
+
+        // Viral Annotation
+        result.add(AnnotateInsertedSequence.viralAnnotation(interimFile, output.path(), virusReferenceGenomePath));
 
         return result;
     }
