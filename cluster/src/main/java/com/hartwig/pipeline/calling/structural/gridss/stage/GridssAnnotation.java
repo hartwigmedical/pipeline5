@@ -13,11 +13,13 @@ public class GridssAnnotation extends SubStage {
 
     private final String virusReferenceGenomePath;
     private final ResourceFiles resourceFiles;
+    private final boolean applyRepeatMasker;
 
-    public GridssAnnotation(final ResourceFiles resourceFiles, final String virusReferenceGenomePath) {
+    public GridssAnnotation(final ResourceFiles resourceFiles, final String virusReferenceGenomePath, final boolean applyRepeatMasker) {
         super("gridss.unfiltered", OutputFile.GZIPPED_VCF);
         this.resourceFiles = resourceFiles;
         this.virusReferenceGenomePath = virusReferenceGenomePath;
+        this.applyRepeatMasker = applyRepeatMasker;
     }
 
     @Override
@@ -25,15 +27,14 @@ public class GridssAnnotation extends SubStage {
         List<BashCommand> result = Lists.newArrayList();
 
         // Repeat Masker
-        final String interimFile = input.path() + ".repeatmasker.vcf.gz";
-        result.add(AnnotateInsertedSequence.repeatMasker(input.path(),
-                interimFile,
-                resourceFiles.refGenomeFile(),
-                resourceFiles.gridssRepeatMaskerDbBed()));
+        String interimFile = input.path();
+        if (applyRepeatMasker) {
+            interimFile += ".repeatmasker.vcf.gz";
+            result.add(AnnotateInsertedSequence.repeatMasker(input.path(), interimFile, resourceFiles.refGenomeFile(), resourceFiles.gridssRepeatMaskerDbBed()));
+        }
 
         // Viral Annotation
         result.add(AnnotateInsertedSequence.viralAnnotation(interimFile, output.path(), virusReferenceGenomePath));
-
         return result;
     }
 }

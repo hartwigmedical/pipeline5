@@ -21,24 +21,37 @@ public interface ResourceFiles {
     String versionDirectory();
 
     String refGenomeFile();
+
     String gcProfileFile();
+
     String amberHeterozygousLoci();
+
     String gridssRepeatMaskerDb();
-    String gridssBlacklistBed();
-    String gridssBreakendPon();
-    String gridssBreakpointPon();
-    String snpEffDb();
-    String snpEffVersion();
-    String sageKnownHotspots();
-    String sageActionableCodingPanel();
-    String out150Mappability();
-    String sageGermlinePon();
-    String giabHighConfidenceBed();
-    String knownFusionPairBedpe();
 
     default String gridssRepeatMaskerDbBed() {
         return gridssRepeatMaskerDb() + ".bed";
     }
+
+    String gridssBlacklistBed();
+
+    String gridssBreakendPon();
+
+    String gridssBreakpointPon();
+    String snpEffDb();
+
+    String snpEffVersion();
+
+    String sageKnownHotspots();
+
+    String sageActionableCodingPanel();
+
+    String out150Mappability();
+
+    String sageGermlinePon();
+
+    String giabHighConfidenceBed();
+
+    String knownFusionPairBedpe();
 
     String SNPEFF_CONFIG = ResourceFiles.of(SNPEFF, "snpEff.config");
     String DBNSFP_VCF = ResourceFiles.of(DBNSFP, "dbNSFP2.9.txt.gz");

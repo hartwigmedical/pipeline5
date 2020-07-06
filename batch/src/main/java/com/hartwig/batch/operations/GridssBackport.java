@@ -99,17 +99,17 @@ public class GridssBackport implements BatchOperation {
         // 7. Gridss Annotation
         // TODO: This should be in resource files!
         String virusReferenceGenomePath = ResourceFiles.of(VIRUS_REFERENCE_GENOME, "human_virus.fa");
-        final SubStageInputOutput annotation = new GridssAnnotation(resourceFiles, virusReferenceGenomePath).apply(SubStageInputOutput.of(
-                sample,
-                newRawVcf,
-                Collections.emptyList()));
+        final SubStageInputOutput annotation =
+                new GridssAnnotation(resourceFiles, virusReferenceGenomePath, true).apply(SubStageInputOutput.of(sample,
+                        newRawVcf,
+                        Collections.emptyList()));
         startupScript.addCommands(annotation.bash());
 
         // 8. Archive targeted output
         final OutputFile unfilteredVcf = annotation.outputFile();
         final OutputFile unfilteredVcfIndex = unfilteredVcf.index(".tbi");
         final GoogleStorageLocation unfilteredVcfRemoteLocation = remoteUnfilteredVcfArchivePath(set, sample);
-        final GoogleStorageLocation unfilteredVcfIndexRemoteLocation = index(unfilteredVcfRemoteLocation,".tbi");
+        final GoogleStorageLocation unfilteredVcfIndexRemoteLocation = index(unfilteredVcfRemoteLocation, ".tbi");
         startupScript.addCommand(() -> unfilteredVcf.copyToRemoteLocation(unfilteredVcfRemoteLocation));
         startupScript.addCommand(() -> unfilteredVcfIndex.copyToRemoteLocation(unfilteredVcfIndexRemoteLocation));
 
