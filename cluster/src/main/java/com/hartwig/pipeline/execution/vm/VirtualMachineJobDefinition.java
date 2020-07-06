@@ -107,7 +107,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("gripss")
                 .startupCommand(startupScript)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 16))
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 20))
                 .namespacedResults(resultsDirectory)
                 .build();
     }
