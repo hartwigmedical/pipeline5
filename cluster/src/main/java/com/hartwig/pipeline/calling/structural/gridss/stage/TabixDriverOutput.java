@@ -11,7 +11,7 @@ import com.hartwig.pipeline.execution.vm.OutputFile;
 public class TabixDriverOutput extends SubStage {
 
     public TabixDriverOutput() {
-        super("gridss.unfiltered", OutputFile.GZIPPED_VCF);
+        super("gridss.driver", OutputFile.GZIPPED_VCF);
     }
 
     @Override
