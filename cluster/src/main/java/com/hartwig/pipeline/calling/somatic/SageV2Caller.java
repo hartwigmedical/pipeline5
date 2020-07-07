@@ -1,7 +1,5 @@
 package com.hartwig.pipeline.calling.somatic;
 
-import static com.hartwig.pipeline.resource.ResourceNames.MAPPABILITY;
-
 import java.util.List;
 
 import com.google.common.collect.Lists;
@@ -9,7 +7,6 @@ import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.calling.SubStageInputOutput;
-import com.hartwig.pipeline.calling.substages.SnpEff;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
@@ -25,7 +22,6 @@ import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.report.SingleFileComponent;
 import com.hartwig.pipeline.report.StartupScriptComponent;
 import com.hartwig.pipeline.report.ZippedVcfAndIndexComponent;
-import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
@@ -63,19 +59,12 @@ public class SageV2Caller extends TertiaryStage<SomaticCallerOutput> {
         SageCommandBuilder sageCommandBuilder = new SageCommandBuilder(resourceFiles).addReference(referenceSampleName, referenceBamPath)
                 .addTumor(tumorSampleName, tumorBamPath);
         SageV2Application sageV2Application = new SageV2Application(sageCommandBuilder);
-        unfilteredOutputFile = sageV2Application.apply(SubStageInputOutput.empty(tumorSampleName)).outputFile();
+        SageV2PostProcess sageV2PostProcess = new SageV2PostProcess(tumorSampleName, resourceFiles);
 
-        final String refGenomeStr = resourceFiles.version() == RefGenomeVersion.HG37 ? "hg19" : "hg38";
-
-        SubStageInputOutput sageOutput = sageV2Application.andThen(new SageV2PassFilter())
-                .andThen(new MappabilityAnnotation(resourceFiles.out150Mappability(), ResourceFiles.of(MAPPABILITY, "mappability.hdr")))
-                .andThen(new PonAnnotation("sage.pon", resourceFiles.sageGermlinePon(), "PON_COUNT", "PON_MAX"))
-                .andThen(new SageV2PonFilter())
-                .andThen(new SnpEff(ResourceFiles.SNPEFF_CONFIG, resourceFiles))
-                .andThen(new SageV2PostProcess(refGenomeStr))
-                .apply(SubStageInputOutput.empty(tumorSampleName));
-
+        SubStageInputOutput sageOutput = sageV2Application.andThen(sageV2PostProcess).apply(SubStageInputOutput.empty(tumorSampleName));
         commands.addAll(sageOutput.bash());
+
+        unfilteredOutputFile = sageV2Application.apply(SubStageInputOutput.empty(tumorSampleName)).outputFile();
         filteredOutputFile = sageOutput.outputFile();
         return commands;
     }
