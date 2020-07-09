@@ -151,7 +151,7 @@ structural_caller/CPCT12345678T.gridss.somatic.vcf.gz
 structural_caller/CPCT12345678T.gridss.somatic.vcf.gz.tbi
 structural_caller/CPCT12345678T.gridss.somatic.filtered.vcf.gz
 structural_caller/CPCT12345678T.gridss.somatic.filtered.vcf.gz.tbi
-structural_caller/CPCT12345678T.gridss.unfiltered.vcf.gz.gridss.working/CPCT12345678T.gridss.unfiltered.vcf.gz.allocated.vcf.idx
+structural_caller/CPCT12345678T.gridss.driver.vcf.gz.gridss.working/CPCT12345678T.gridss.driver.vcf.gz.allocated.vcf.idx
 structural_caller/CPCT12345678T.gridss.unfiltered.vcf.gz
 structural_caller/CPCT12345678T.gridss.unfiltered.vcf.gz.tbi
 structural_caller/CPCT12345678T.sorted.bam.gridss.working/CPCT12345678T.sorted.bam.cigar_metrics
