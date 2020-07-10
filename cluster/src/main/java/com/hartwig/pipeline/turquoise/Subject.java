@@ -8,7 +8,7 @@ import org.immutables.value.Value;
 
 @Value.Immutable
 @JsonSerialize(as = ImmutableSubject.class)
-interface Subject {
+public interface Subject {
 
     @Value.Parameter
     String name();
