@@ -31,6 +31,7 @@ import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.OutputUpload;
+import com.hartwig.pipeline.execution.vm.RuntimeFiles;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.report.Folder;
@@ -107,7 +108,8 @@ public class VmAligner {
             perLaneBams.add(GoogleStorageLocation.of(laneBucket.name(), resultsDirectory.path(alignment.outputFile().fileName())));
 
             bash.addCommands(alignment.bash())
-                    .addCommand(new OutputUpload(GoogleStorageLocation.of(laneBucket.name(), resultsDirectory.path())));
+                    .addCommand(new OutputUpload(GoogleStorageLocation.of(laneBucket.name(), resultsDirectory.path()),
+                            RuntimeFiles.typical()));
             futures.add(executorService.submit(() -> computeEngine.submit(laneBucket,
                     VirtualMachineJobDefinition.alignment(laneId(lane).toLowerCase(), bash, resultsDirectory))));
             laneLogComponents.add(new RunLogComponent(laneBucket, laneNamespace(lane), Folder.from(metadata), resultsDirectory));
@@ -128,7 +130,8 @@ public class VmAligner {
 
             mergeMarkdupsBash.addCommands(merged.bash());
 
-            mergeMarkdupsBash.addCommand(new OutputUpload(GoogleStorageLocation.of(rootBucket.name(), resultsDirectory.path())));
+            mergeMarkdupsBash.addCommand(new OutputUpload(GoogleStorageLocation.of(rootBucket.name(), resultsDirectory.path()),
+                    RuntimeFiles.typical()));
 
             PipelineStatus status =
                     computeEngine.submit(rootBucket, VirtualMachineJobDefinition.mergeMarkdups(mergeMarkdupsBash, resultsDirectory));

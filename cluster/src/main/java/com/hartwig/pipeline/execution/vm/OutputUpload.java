@@ -8,16 +8,14 @@ import com.hartwig.pipeline.storage.GoogleStorageLocation;
 public class OutputUpload extends SubShellCommand {
 
     public OutputUpload(final GoogleStorageLocation targetLocation) {
-        this(targetLocation, RuntimeFiles.typical());
+        super(() -> copyOutputCommand(targetLocation));
     }
 
     public OutputUpload(final GoogleStorageLocation targetLocation, final RuntimeFiles runtimeFiles) {
-        super(() -> format("cp %s/%s %s && gsutil -qm rsync -r %s/ gs://%s/%s",
-                BashStartupScript.LOCAL_LOG_DIR,
-                runtimeFiles.log(),
-                        VmDirectories.OUTPUT,
-                        VmDirectories.OUTPUT,
-                        targetLocation.bucket(),
-                        targetLocation.path()));
+        super(() -> new CopyLogToOutput(runtimeFiles).asBash() + " && " + copyOutputCommand(targetLocation));
+    }
+
+    private static String copyOutputCommand(final GoogleStorageLocation targetLocation) {
+        return format("gsutil -qm rsync -r %s/ gs://%s/%s", VmDirectories.OUTPUT, targetLocation.bucket(), targetLocation.path());
     }
 }
