@@ -40,7 +40,7 @@ public class GridssPostProcessing implements BatchOperation {
         final String set = setDescriptor.inputValue();
         final String sample = inputs.get("sample").inputValue();
         final InputFileDescriptor inputVcf = inputFile(setDescriptor, GridssBackport.remoteUnfilteredVcfArchivePath(set, sample));
-        final InputFileDescriptor inputVcfIndex = inputVcf.index(".tbi");
+        final InputFileDescriptor inputVcfIndex = inputVcf.index();
 
         final GridssSomaticFilter somaticFilter = new GridssSomaticFilter(resourceFiles);
         final SubStageInputOutput postProcessing = somaticFilter.andThen(new GridssPassAndPonFilter())

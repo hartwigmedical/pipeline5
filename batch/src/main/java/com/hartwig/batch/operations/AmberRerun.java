@@ -37,8 +37,8 @@ public class AmberRerun implements BatchOperation {
         final String referenceSampleName = inputs.get("ref_sample").inputValue();
         final InputFileDescriptor remoteTumorFile = inputs.get("tumor_cram");
         final InputFileDescriptor remoteReferenceFile = inputs.get("ref_cram");
-        final InputFileDescriptor remoteTumorIndex = remoteTumorFile.index(".crai");
-        final InputFileDescriptor remoteReferenceIndex = remoteReferenceFile.index(".crai");
+        final InputFileDescriptor remoteTumorIndex = remoteTumorFile.index();
+        final InputFileDescriptor remoteReferenceIndex = remoteReferenceFile.index();
 
         final String localTumorFile = localFilename(remoteTumorFile);
         final String localReferenceFile = localFilename(remoteReferenceFile);

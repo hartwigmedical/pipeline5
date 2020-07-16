@@ -52,8 +52,8 @@ public class SageRerun implements BatchOperation {
         final InputFileDescriptor remoteTumorFile = inputs.get("tumor_cram");
         final InputFileDescriptor remoteReferenceFile = inputs.get("ref_cram");
 
-        final InputFileDescriptor remoteTumorIndex = remoteTumorFile.index(".crai");
-        final InputFileDescriptor remoteReferenceIndex = remoteReferenceFile.index(".crai");
+        final InputFileDescriptor remoteTumorIndex = remoteTumorFile.index();
+        final InputFileDescriptor remoteReferenceIndex = remoteReferenceFile.index();
 
         final String localTumorFile = localFilename(remoteTumorFile);
         final String localReferenceFile = localFilename(remoteReferenceFile);
@@ -83,7 +83,7 @@ public class SageRerun implements BatchOperation {
 
         if (inputs.contains("rna")) {
             final InputFileDescriptor remoteRnaBam = inputs.get("rna");
-            final InputFileDescriptor remoteRnaBamIndex = remoteRnaBam.index(".bai");
+            final InputFileDescriptor remoteRnaBamIndex = remoteRnaBam.index();
             final String localRnaBam = localFilename(remoteRnaBam);
 
             // Download rna
@@ -134,7 +134,7 @@ public class SageRerun implements BatchOperation {
         return ImmutableOutputFile.of(filename);
     }
 
-    private List<BashCommand> cramToBam(String cram) {
+    static List<BashCommand> cramToBam(String cram) {
 
         final String output = cram.replace("cram", "bam");
         final BashCommand toBam = new VersionedToolCommand("samtools",

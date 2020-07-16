@@ -49,9 +49,9 @@ public class GridssBackport implements BatchOperation {
         final String set = inputs.get("set").inputValue();
         final String sample = inputs.get("sample").inputValue();
         final InputFileDescriptor inputBam = inputs.get("inputBam");
-        final InputFileDescriptor inputBamIndex = inputBam.index(".bai");
+        final InputFileDescriptor inputBamIndex = inputBam.index();
         final InputFileDescriptor inputVcf = inputs.get("inputVcf");
-        final InputFileDescriptor inputVcfIndex = inputVcf.index(".tbi");
+        final InputFileDescriptor inputVcfIndex = inputVcf.index();
 
         // 1. Set up paths
         startupScript.addCommand(new ExportPathCommand(new BwaCommand()));
@@ -137,7 +137,7 @@ public class GridssBackport implements BatchOperation {
         return dirname + "/" + basename + ".gridss.working/" + basename;
     }
 
-    private static GoogleStorageLocation index(GoogleStorageLocation template, String extension) {
+    public static GoogleStorageLocation index(GoogleStorageLocation template, String extension) {
         if (template.isDirectory()) {
             throw new IllegalArgumentException();
         }
