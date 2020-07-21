@@ -5,12 +5,14 @@ import static java.lang.String.format;
 import java.io.File;
 import java.util.Base64;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.hartwig.pipeline.PipelineState;
+import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.metadata.ApiFileOperation;
 import com.hartwig.pipeline.report.PipelineResults;
 import com.hartwig.pipeline.sbpapi.AddFileApiResponse;
@@ -39,7 +41,7 @@ public class SbpFileApiUpdate implements Consumer<Blob> {
         this.sourceBucket = sourceBucket;
         this.sbpApi = sbpApi;
         fileOperations = new HashSet<>();
-        pipelineState.stageOutputs().forEach(stageOutput -> fileOperations.addAll(stageOutput.furtherOperations()));
+        storeOperations(pipelineState.stageOutputs());
     }
 
     @Override
@@ -65,6 +67,18 @@ public class SbpFileApiUpdate implements Consumer<Blob> {
                     }
                 }
             }
+        }
+    }
+
+    private void storeOperations(List<StageOutput> stageOutputs) {
+        int count = 0;
+        for (StageOutput stageOutput : stageOutputs) {
+            fileOperations.addAll(stageOutput.furtherOperations());
+            count = count + stageOutput.furtherOperations().size();
+        }
+        LOGGER.info("Stored {} operations for later", fileOperations.size());
+        if (fileOperations.size() < count) {
+            LOGGER.info("Ignored {} duplicate operations", count - fileOperations.size());
         }
     }
 
