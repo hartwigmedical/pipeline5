@@ -39,10 +39,10 @@ public class SingleSamplePipeline {
     private final Boolean isStandalone;
     private final Arguments arguments;
 
-    SingleSamplePipeline(final SingleSampleEventListener sampleMetadataApi, final StageRunner<SingleSampleRunMetadata> stageRunner,
-                         final VmAligner aligner, final PipelineResults report, final ExecutorService executorService, final Boolean isStandalone,
-                         final Arguments arguments) {
-        this.eventListener = sampleMetadataApi;
+    SingleSamplePipeline(final SingleSampleEventListener eventListener, final StageRunner<SingleSampleRunMetadata> stageRunner,
+            final VmAligner aligner, final PipelineResults report, final ExecutorService executorService, final Boolean isStandalone,
+            final Arguments arguments) {
+        this.eventListener = eventListener;
         this.stageRunner = stageRunner;
         this.aligner = aligner;
         this.report = report;
@@ -59,7 +59,7 @@ public class SingleSamplePipeline {
         PipelineState state = new PipelineState();
         final ResourceFiles resourceFiles = buildResourceFiles(arguments.refGenomeVersion());
         AlignmentOutput alignmentOutput = report.add(state.add(aligner.run(metadata)));
-        eventListener.alignmentComplete(state);
+        eventListener.alignmentComplete(state.copy());
         if (state.shouldProceed()) {
             report.clearOldState(arguments, metadata);
             Future<BamMetricsOutput> bamMetricsFuture =
