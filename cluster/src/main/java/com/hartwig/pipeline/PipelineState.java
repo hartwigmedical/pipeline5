@@ -19,7 +19,7 @@ public class PipelineState {
         this.stageOutputs = new ArrayList<>();
     }
 
-    public PipelineState(final List<StageOutput> stageOutputs) {
+    private PipelineState(final List<StageOutput> stageOutputs) {
         this.stageOutputs = stageOutputs;
     }
 

@@ -39,10 +39,10 @@ public class SingleSamplePipeline {
     private final Boolean isStandalone;
     private final Arguments arguments;
 
-    SingleSamplePipeline(final SingleSampleEventListener sampleMetadataApi, final StageRunner<SingleSampleRunMetadata> stageRunner,
+    SingleSamplePipeline(final SingleSampleEventListener eventListener, final StageRunner<SingleSampleRunMetadata> stageRunner,
             final VmAligner aligner, final PipelineResults report, final ExecutorService executorService, final Boolean isStandalone,
             final Arguments arguments) {
-        this.eventListener = sampleMetadataApi;
+        this.eventListener = eventListener;
         this.stageRunner = stageRunner;
         this.aligner = aligner;
         this.report = report;
