@@ -1,10 +1,10 @@
 package com.hartwig.pipeline;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import com.google.common.collect.Lists;
 import com.hartwig.pipeline.execution.PipelineStatus;
 
 import org.slf4j.Logger;
@@ -13,7 +13,15 @@ import org.slf4j.LoggerFactory;
 public class PipelineState {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PipelineState.class);
-    private final List<StageOutput> stageOutputs = Lists.newArrayList();
+    private final List<StageOutput> stageOutputs;
+
+    public PipelineState() {
+        this.stageOutputs = new ArrayList<>();
+    }
+
+    public PipelineState(final List<StageOutput> stageOutputs) {
+        this.stageOutputs = stageOutputs;
+    }
 
     public <T extends StageOutput> T add(final T stageOutput) {
         stageOutputs.add(stageOutput);
@@ -27,6 +35,10 @@ public class PipelineState {
             throw new IllegalArgumentException("State from one of the two pipelines was null. Did that pipeline run successfully?");
         }
         return this;
+    }
+
+    PipelineState copy() {
+        return new PipelineState(new ArrayList<>(this.stageOutputs()));
     }
 
     public List<StageOutput> stageOutputs() {
