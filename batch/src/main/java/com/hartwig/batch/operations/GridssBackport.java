@@ -10,6 +10,7 @@ import java.io.File;
 import java.util.Collections;
 
 import com.hartwig.batch.BatchOperation;
+import com.hartwig.batch.input.ImmutableInputFileDescriptor;
 import com.hartwig.batch.input.InputBundle;
 import com.hartwig.batch.input.InputFileDescriptor;
 import com.hartwig.pipeline.ResultsDirectory;
@@ -46,11 +47,14 @@ public class GridssBackport implements BatchOperation {
             final BashStartupScript startupScript, final RuntimeFiles executionFlags) {
 
         final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.HG37);
+        final InputFileDescriptor template = inputs.get("set");
         final String set = inputs.get("set").inputValue();
-        final String sample = inputs.get("sample").inputValue();
-        final InputFileDescriptor inputBam = inputs.get("inputBam");
+        final String sample = inputs.get("tumor_sample").inputValue();
+        final String bamFile = String.format("gs://hmf-gridss/assembly/%s/%s.assembly.bam.sv.bam", set, sample);
+        final String vcfFile = String.format("gs://hmf-gridss/original/%s/%s.gridss.unfiltered.vcf.gz", set, sample);
+        final InputFileDescriptor inputBam = ImmutableInputFileDescriptor.builder().from(template).inputValue(bamFile).build();
         final InputFileDescriptor inputBamIndex = inputBam.index();
-        final InputFileDescriptor inputVcf = inputs.get("inputVcf");
+        final InputFileDescriptor inputVcf = ImmutableInputFileDescriptor.builder().from(template).inputValue(vcfFile).build();
         final InputFileDescriptor inputVcfIndex = inputVcf.index();
 
         // 1. Set up paths

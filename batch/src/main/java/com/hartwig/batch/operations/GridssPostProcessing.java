@@ -38,7 +38,7 @@ public class GridssPostProcessing implements BatchOperation {
         final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.HG37);
         final InputFileDescriptor setDescriptor = inputs.get("set");
         final String set = setDescriptor.inputValue();
-        final String sample = inputs.get("sample").inputValue();
+        final String sample = inputs.get("tumor_sample").inputValue();
         final InputFileDescriptor inputVcf = inputFile(setDescriptor, GridssBackport.remoteUnfilteredVcfArchivePath(set, sample));
         final InputFileDescriptor inputVcfIndex = inputVcf.index();
 
