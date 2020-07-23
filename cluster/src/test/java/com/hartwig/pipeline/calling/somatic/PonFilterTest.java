@@ -7,11 +7,11 @@ import com.hartwig.pipeline.calling.SubStageTest;
 
 import org.junit.Test;
 
-public class SageV2PonFilterTest extends SubStageTest {
+public class PonFilterTest extends SubStageTest {
 
     @Override
     public SubStage createVictim() {
-        return new SageV2PonFilter();
+        return new PonFilter();
     }
 
     @Override

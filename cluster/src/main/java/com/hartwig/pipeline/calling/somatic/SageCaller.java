@@ -27,7 +27,7 @@ import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.TertiaryStage;
 
-public class SageV2Caller extends TertiaryStage<SomaticCallerOutput> {
+public class SageCaller extends TertiaryStage<SomaticCallerOutput> {
 
     public static final String NAMESPACE = "sage";
 
@@ -35,7 +35,7 @@ public class SageV2Caller extends TertiaryStage<SomaticCallerOutput> {
     private OutputFile filteredOutputFile;
     private OutputFile unfilteredOutputFile;
 
-    public SageV2Caller(final AlignmentPair alignmentPair, final ResourceFiles resourceFiles) {
+    public SageCaller(final AlignmentPair alignmentPair, final ResourceFiles resourceFiles) {
         super(alignmentPair);
         this.resourceFiles = resourceFiles;
     }
@@ -58,13 +58,13 @@ public class SageV2Caller extends TertiaryStage<SomaticCallerOutput> {
 
         SageCommandBuilder sageCommandBuilder = new SageCommandBuilder(resourceFiles).addReference(referenceSampleName, referenceBamPath)
                 .addTumor(tumorSampleName, tumorBamPath);
-        SageV2Application sageV2Application = new SageV2Application(sageCommandBuilder);
-        SageV2PostProcess sageV2PostProcess = new SageV2PostProcess(tumorSampleName, resourceFiles);
+        SageApplication sageApplication = new SageApplication(sageCommandBuilder);
+        SagePostProcess sagePostProcess = new SagePostProcess(tumorSampleName, resourceFiles);
 
-        SubStageInputOutput sageOutput = sageV2Application.andThen(sageV2PostProcess).apply(SubStageInputOutput.empty(tumorSampleName));
+        SubStageInputOutput sageOutput = sageApplication.andThen(sagePostProcess).apply(SubStageInputOutput.empty(tumorSampleName));
         commands.addAll(sageOutput.bash());
 
-        unfilteredOutputFile = sageV2Application.apply(SubStageInputOutput.empty(tumorSampleName)).outputFile();
+        unfilteredOutputFile = sageApplication.apply(SubStageInputOutput.empty(tumorSampleName)).outputFile();
         filteredOutputFile = sageOutput.outputFile();
         return commands;
     }

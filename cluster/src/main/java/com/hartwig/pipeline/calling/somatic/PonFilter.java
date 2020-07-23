@@ -7,8 +7,8 @@ import com.hartwig.pipeline.calling.command.BcfToolsCommandListBuilder;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.OutputFile;
 
-public class SageV2PonFilter extends SubStage {
-    public SageV2PonFilter() {
+class PonFilter extends SubStage {
+    PonFilter() {
         super("sage.pon.filter", OutputFile.GZIPPED_VCF);
     }
 

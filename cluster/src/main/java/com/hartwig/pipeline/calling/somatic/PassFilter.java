@@ -7,9 +7,9 @@ import com.hartwig.pipeline.calling.command.BcfToolsCommandListBuilder;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.OutputFile;
 
-class SageV2PassFilter extends SubStage {
+class PassFilter extends SubStage {
 
-    SageV2PassFilter() {
+    PassFilter() {
         super("sage.pass", OutputFile.GZIPPED_VCF);
     }
 

@@ -13,13 +13,13 @@ import com.hartwig.pipeline.execution.vm.OutputFile;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.resource.ResourceFiles;
 
-public class SageV2PostProcess extends SubStage {
+public class SagePostProcess extends SubStage {
 
     private final ResourceFiles resourceFiles;
     private final String assembly;
     private final SubStageInputOutput tumorSampleName;
 
-    public SageV2PostProcess(final String tumorSampleName, final ResourceFiles resourceFiles) {
+    public SagePostProcess(final String tumorSampleName, final ResourceFiles resourceFiles) {
         super("sage.somatic.filtered", OutputFile.GZIPPED_VCF);
         this.tumorSampleName = SubStageInputOutput.empty(tumorSampleName);
         this.resourceFiles = resourceFiles;
@@ -30,11 +30,11 @@ public class SageV2PostProcess extends SubStage {
     public List<BashCommand> bash(final OutputFile input, final OutputFile output) {
         final List<BashCommand> result = Lists.newArrayList();
 
-        SubStage passFilter = new SageV2PassFilter();
+        SubStage passFilter = new PassFilter();
         SubStage mappabilityAnnotation =
                 new MappabilityAnnotation(resourceFiles.out150Mappability(), ResourceFiles.of(MAPPABILITY, "mappability.hdr"));
         SubStage ponAnnotation = new PonAnnotation("sage.pon", resourceFiles.sageGermlinePon(), "PON_COUNT", "PON_MAX");
-        SubStage ponFilter = new SageV2PonFilter();
+        SubStage ponFilter = new PonFilter();
         SubStage snpEff = new SnpEff(ResourceFiles.SNPEFF_CONFIG, resourceFiles);
 
         OutputFile passFilterFile = passFilter.apply(tumorSampleName).outputFile();
@@ -48,7 +48,7 @@ public class SageV2PostProcess extends SubStage {
         result.addAll(ponAnnotation.bash(mappabilityAnnotationFile, ponAnnotationFile));
         result.addAll(ponFilter.bash(ponAnnotationFile, ponFilterFile));
         result.addAll(snpEff.bash(ponFilterFile, snpEffFile));
-        result.add(new SageV2PostProcessCommand(assembly, snpEffFile.path(), output.path()));
+        result.add(new SagePostProcessCommand(assembly, snpEffFile.path(), output.path()));
         return result;
     }
 }

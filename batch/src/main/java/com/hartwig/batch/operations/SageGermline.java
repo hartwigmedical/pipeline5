@@ -12,8 +12,8 @@ import com.hartwig.batch.input.InputFileDescriptor;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.calling.SubStageInputOutput;
 import com.hartwig.pipeline.calling.command.VersionedToolCommand;
+import com.hartwig.pipeline.calling.somatic.SageApplication;
 import com.hartwig.pipeline.calling.somatic.SageCommandBuilder;
-import com.hartwig.pipeline.calling.somatic.SageV2Application;
 import com.hartwig.pipeline.execution.vm.Bash;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
@@ -57,7 +57,7 @@ public class SageGermline implements BatchOperation {
 
         final SageCommandBuilder sageCommandBuilder =
                 new SageCommandBuilder(resourceFiles).germlineMode(referenceSampleName, localReferenceBam);
-        final SageV2Application sageV2Application = new SageV2Application(sageCommandBuilder);
+        final SageApplication sageApplication = new SageApplication(sageCommandBuilder);
 
         // Convert to bam if necessary
         if (!localReferenceFile.equals(localReferenceBam)) {
@@ -65,7 +65,7 @@ public class SageGermline implements BatchOperation {
         }
 
         // Run post processing (NONE for germline)
-        final SubStageInputOutput postProcessing = sageV2Application.apply(SubStageInputOutput.empty(referenceSampleName));
+        final SubStageInputOutput postProcessing = sageApplication.apply(SubStageInputOutput.empty(referenceSampleName));
         startupScript.addCommands(postProcessing.bash());
 
         // Store output
