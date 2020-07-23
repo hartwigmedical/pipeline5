@@ -6,7 +6,6 @@ import com.hartwig.pipeline.alignment.vm.VmAligner;
 import com.hartwig.pipeline.calling.germline.GermlineCaller;
 import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
 import com.hartwig.pipeline.calling.somatic.SageV2Caller;
-import com.hartwig.pipeline.calling.somatic.SomaticCaller;
 import com.hartwig.pipeline.calling.somatic.SomaticCallerOutput;
 import com.hartwig.pipeline.calling.structural.StructuralCaller;
 import com.hartwig.pipeline.calling.structural.StructuralCallerOutput;
@@ -143,14 +142,6 @@ public class TestInputs {
                 .sample(sample)
                 .maybeMetricsOutputFile(gsLocation(namespacedBucket(sample, BamMetrics.NAMESPACE),
                         RESULTS + BamMetricsOutput.outputFile(sample)))
-                .build();
-    }
-
-    public static SomaticCallerOutput somaticCallerOutput() {
-        return SomaticCallerOutput.builder(SomaticCaller.NAMESPACE)
-                .status(PipelineStatus.SUCCESS)
-                .maybeFinalSomaticVcf(gsLocation(somaticBucket(SomaticCaller.NAMESPACE),
-                        RESULTS + TUMOR_SAMPLE + "." + OutputFile.GZIPPED_VCF))
                 .build();
     }
 

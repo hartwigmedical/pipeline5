@@ -13,7 +13,6 @@ import static com.hartwig.pipeline.testsupport.TestInputs.referenceAlignmentOutp
 import static com.hartwig.pipeline.testsupport.TestInputs.referenceMetricsOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.referenceRunMetadata;
 import static com.hartwig.pipeline.testsupport.TestInputs.sageOutput;
-import static com.hartwig.pipeline.testsupport.TestInputs.somaticCallerOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.structuralCallerOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.tumorAlignmentOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.tumorMetricsOutput;
@@ -33,7 +32,7 @@ import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.alignment.AlignmentOutputStorage;
 import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
-import com.hartwig.pipeline.calling.somatic.SomaticCaller;
+import com.hartwig.pipeline.calling.somatic.SageV2Caller;
 import com.hartwig.pipeline.calling.somatic.SomaticCallerOutput;
 import com.hartwig.pipeline.calling.structural.StructuralCaller;
 import com.hartwig.pipeline.execution.PipelineStatus;
@@ -106,7 +105,6 @@ public class SomaticPipelineTest {
         assertThat(state.stageOutputs()).containsExactlyInAnyOrder(cobaltOutput(),
                 amberOutput(),
                 sageOutput(),
-                somaticCallerOutput(),
                 structuralCallerOutput(),
                 purpleOutput(),
                 healthCheckerOutput(),
@@ -119,16 +117,14 @@ public class SomaticPipelineTest {
     public void doesNotRunPurpleIfAnyCallersFail() {
         bothAlignmentsAvailable();
         bothMetricsAvailable();
-        SomaticCallerOutput failSomatic = SomaticCallerOutput.builder(SomaticCaller.NAMESPACE).status(PipelineStatus.FAILED).build();
+        SomaticCallerOutput failSomatic = SomaticCallerOutput.builder(SageV2Caller.NAMESPACE).status(PipelineStatus.FAILED).build();
         when(stageRunner.run(eq(defaultSomaticRunMetadata()), any())).thenReturn(amberOutput())
                 .thenReturn(cobaltOutput())
-                .thenReturn(sageOutput())
                 .thenReturn(failSomatic)
                 .thenReturn(structuralCallerOutput());
         PipelineState state = victim.run();
         assertThat(state.stageOutputs()).containsExactlyInAnyOrder(cobaltOutput(),
                 amberOutput(),
-                sageOutput(),
                 failSomatic,
                 structuralCallerOutput());
         assertThat(state.status()).isEqualTo(PipelineStatus.FAILED);
@@ -142,14 +138,12 @@ public class SomaticPipelineTest {
         when(stageRunner.run(eq(defaultSomaticRunMetadata()), any())).thenReturn(amberOutput())
                 .thenReturn(cobaltOutput())
                 .thenReturn(sageOutput())
-                .thenReturn(somaticCallerOutput())
                 .thenReturn(structuralCallerOutput())
                 .thenReturn(failPurple);
         PipelineState state = victim.run();
         assertThat(state.stageOutputs()).containsExactlyInAnyOrder(cobaltOutput(),
                 amberOutput(),
                 sageOutput(),
-                somaticCallerOutput(),
                 structuralCallerOutput(),
                 failPurple);
         assertThat(state.status()).isEqualTo(PipelineStatus.FAILED);
@@ -163,7 +157,6 @@ public class SomaticPipelineTest {
         when(stageRunner.run(eq(defaultSomaticRunMetadata()), any())).thenReturn(amberOutput())
                 .thenReturn(cobaltOutput())
                 .thenReturn(sageOutput())
-                .thenReturn(somaticCallerOutput())
                 .thenReturn(structuralCallerOutput())
                 .thenReturn(purpleOutput())
                 .thenReturn(HealthCheckOutput.builder().from(healthCheckerOutput()).status(PipelineStatus.QC_FAILED).build())
@@ -192,7 +185,6 @@ public class SomaticPipelineTest {
         when(stageRunner.run(eq(defaultSomaticRunMetadata()), any())).thenReturn(amberOutput())
                 .thenReturn(cobaltOutput())
                 .thenReturn(sageOutput())
-                .thenReturn(somaticCallerOutput())
                 .thenReturn(structuralCallerOutput())
                 .thenReturn(purpleOutput())
                 .thenReturn(healthCheckerOutput())
@@ -207,7 +199,6 @@ public class SomaticPipelineTest {
         when(stageRunner.run(eq(defaultSomaticRunMetadata()), any())).thenReturn(amberOutput())
                 .thenReturn(cobaltOutput())
                 .thenReturn(sageOutput())
-                .thenReturn(somaticCallerOutput())
                 .thenReturn(structuralCallerOutput())
                 .thenReturn(PurpleOutput.builder().status(PipelineStatus.FAILED).build())
                 .thenReturn(healthCheckerOutput());

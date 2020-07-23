@@ -13,7 +13,6 @@ import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.calling.germline.GermlineCaller;
 import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
 import com.hartwig.pipeline.calling.somatic.SageV2Caller;
-import com.hartwig.pipeline.calling.somatic.SomaticCaller;
 import com.hartwig.pipeline.calling.somatic.SomaticCallerOutput;
 import com.hartwig.pipeline.calling.structural.StructuralCaller;
 import com.hartwig.pipeline.calling.structural.StructuralCallerOutput;
@@ -97,14 +96,11 @@ public class SomaticPipeline {
                 Future<CobaltOutput> cobaltOutputFuture = executorService.submit(() -> stageRunner.run(metadata, new Cobalt(pair, resourceFiles)));
                 Future<SomaticCallerOutput> sageCallerOutputFuture =
                         executorService.submit(() -> stageRunner.run(metadata, new SageV2Caller(pair, resourceFiles)));
-                Future<SomaticCallerOutput> somaticCallerOutputFuture =
-                        executorService.submit(() -> stageRunner.run(metadata, new SomaticCaller(pair, resourceFiles)));
                 Future<StructuralCallerOutput> structuralCallerOutputFuture =
                         executorService.submit(() -> stageRunner.run(metadata, new StructuralCaller(pair, resourceFiles)));
                 AmberOutput amberOutput = pipelineResults.add(state.add(amberOutputFuture.get()));
                 CobaltOutput cobaltOutput = pipelineResults.add(state.add(cobaltOutputFuture.get()));
                 SomaticCallerOutput sageOutput = pipelineResults.add(state.add(sageCallerOutputFuture.get()));
-                SomaticCallerOutput somaticCallerOutput = pipelineResults.add(state.add(somaticCallerOutputFuture.get()));
                 StructuralCallerOutput structuralCallerOutput = pipelineResults.add(state.add(structuralCallerOutputFuture.get()));
 
                 if (state.shouldProceed()) {
