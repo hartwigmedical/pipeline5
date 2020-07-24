@@ -1,7 +1,9 @@
 package com.hartwig.pipeline.resource;
 
 import static com.hartwig.pipeline.resource.ResourceNames.AMBER_PON;
+import static com.hartwig.pipeline.resource.ResourceNames.BACHELOR;
 import static com.hartwig.pipeline.resource.ResourceNames.BEDS;
+import static com.hartwig.pipeline.resource.ResourceNames.ENSEMBL;
 import static com.hartwig.pipeline.resource.ResourceNames.GC_PROFILE;
 import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_PON;
 import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_REPEAT_MASKER_DB;
@@ -52,4 +54,9 @@ public class Hg37ResourceFiles implements ResourceFiles {
     public String giabHighConfidenceBed() { return formPath(BEDS, "NA12878_GIAB_highconf_IllFB-IllGATKHC-CG-Ion-Solid_ALLCHROM_v3.2.2_highconf.bed.gz");  }
 
     public String knownFusionPairBedpe() { return formPath(KNOWLEDGEBASES,"KnownFusionPairs.hg19.bedpe"); }
+
+    public String bachelorConfig() { return formPath(BACHELOR, "bachelor_hmf.xml"); }
+    public String bachelorClinvarFilters() { return formPath(BACHELOR, "bachelor_clinvar_filters.csv"); }
+
+    public String ensemblDataCache() { return formPath(ENSEMBL, "ensembl_data_cache"); }
 }

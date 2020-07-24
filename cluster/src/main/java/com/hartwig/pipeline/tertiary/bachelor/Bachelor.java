@@ -59,8 +59,8 @@ public class Bachelor implements Stage<BachelorOutput, SomaticRunMetadata> {
                 germlineVcfDownload.getLocalTargetPath(),
                 tumorBamDownload.getLocalTargetPath(),
                 purpleOutputDownload.getLocalTargetPath(),
-                ResourceFiles.of(ResourceNames.BACHELOR, "bachelor_hmf.xml"),
-                ResourceFiles.of(ResourceNames.BACHELOR, "bachelor_clinvar_filters.csv"),
+                resourceFiles.bachelorConfig(),
+                resourceFiles.bachelorClinvarFilters(),
                 resourceFiles.refGenomeFile(),
                 VmDirectories.OUTPUT));
     }

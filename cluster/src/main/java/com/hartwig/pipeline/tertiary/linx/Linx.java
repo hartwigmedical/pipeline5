@@ -60,7 +60,7 @@ public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
                 ResourceFiles.of(SV, "line_elements.csv"),
                 ResourceFiles.of(SV, "heli_rep_origins.bed"),
                 ResourceFiles.of(SV, "viral_host_ref.csv"),
-                ResourceFiles.of(ResourceNames.ENSEMBL) + "ensembl_data_cache",
+                resourceFiles.ensemblDataCache(),
                 ResourceFiles.of(KNOWLEDGEBASES, KNOWLEDGEBASE_OUTPUT +"knownFusionPairs.csv"),
                 ResourceFiles.of(KNOWLEDGEBASES, KNOWLEDGEBASE_OUTPUT + "knownPromiscuousFive.csv"),
                 ResourceFiles.of(KNOWLEDGEBASES, KNOWLEDGEBASE_OUTPUT + "knownPromiscuousThree.csv")));

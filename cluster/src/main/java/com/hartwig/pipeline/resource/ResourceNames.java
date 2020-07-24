@@ -3,7 +3,6 @@ package com.hartwig.pipeline.resource;
 public interface ResourceNames {
 
     String REFERENCE_GENOME = "reference_genome";
-    String DBSNPS = "dbsnps";
     String GENOTYPE_SNPS = "genotype_snps";
     String GC_PROFILE = "gc";
     String STRELKA_CONFIG = "strelka_config";

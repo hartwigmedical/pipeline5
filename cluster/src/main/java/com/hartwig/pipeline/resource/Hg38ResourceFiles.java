@@ -1,7 +1,9 @@
 package com.hartwig.pipeline.resource;
 
 import static com.hartwig.pipeline.resource.ResourceNames.AMBER_PON;
+import static com.hartwig.pipeline.resource.ResourceNames.BACHELOR;
 import static com.hartwig.pipeline.resource.ResourceNames.BEDS;
+import static com.hartwig.pipeline.resource.ResourceNames.ENSEMBL;
 import static com.hartwig.pipeline.resource.ResourceNames.GC_PROFILE;
 import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_REPEAT_MASKER_DB;
 import static com.hartwig.pipeline.resource.ResourceNames.MAPPABILITY;
@@ -47,4 +49,10 @@ public class Hg38ResourceFiles implements ResourceFiles {
     public String gridssBreakendPon() { throw new IllegalStateException(); }
     public String gridssBreakpointPon() { throw new IllegalStateException(); }
     public String knownFusionPairBedpe() { throw new IllegalStateException(); }
+
+    public String bachelorConfig() { return formPath(BACHELOR, "bachelor_hmf.xml"); }
+    public String bachelorClinvarFilters() { return formPath(BACHELOR, "bachelor_clinvar_filters.csv"); }
+
+    public String ensemblDataCache() { return formPath(ENSEMBL, "ensembl_data_cache"); }
+
 }
