@@ -1,7 +1,9 @@
 package com.hartwig.pipeline.resource;
 
+import static com.hartwig.pipeline.resource.ResourceNames.BACHELOR;
 import static com.hartwig.pipeline.resource.ResourceNames.COSMIC;
 import static com.hartwig.pipeline.resource.ResourceNames.DBNSFP;
+import static com.hartwig.pipeline.resource.ResourceNames.ENSEMBL;
 import static com.hartwig.pipeline.resource.ResourceNames.SNPEFF;
 
 import com.hartwig.pipeline.execution.vm.VmDirectories;
@@ -52,6 +54,11 @@ public interface ResourceFiles {
     String giabHighConfidenceBed();
 
     String knownFusionPairBedpe();
+
+    String bachelorConfig();
+    String bachelorClinvarFilters();
+
+    String ensemblDataCache();
 
     String SNPEFF_CONFIG = ResourceFiles.of(SNPEFF, "snpEff.config");
     String DBNSFP_VCF = ResourceFiles.of(DBNSFP, "dbNSFP2.9.txt.gz");
