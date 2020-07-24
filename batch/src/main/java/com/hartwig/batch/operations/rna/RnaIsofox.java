@@ -2,8 +2,6 @@ package com.hartwig.batch.operations.rna;
 
 import static java.lang.String.format;
 
-import java.util.StringJoiner;
-
 import com.hartwig.batch.BatchOperation;
 import com.hartwig.batch.input.InputBundle;
 import com.hartwig.batch.input.InputFileDescriptor;

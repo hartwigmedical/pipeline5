@@ -24,7 +24,6 @@ import com.hartwig.pipeline.metrics.BamMetrics;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.report.FullSomaticResults;
 import com.hartwig.pipeline.report.PipelineResults;
-import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.StageRunner;
 import com.hartwig.pipeline.tertiary.amber.Amber;
@@ -106,13 +105,12 @@ public class SomaticPipeline {
                 CobaltOutput cobaltOutput = pipelineResults.add(state.add(cobaltOutputFuture.get()));
                 SomaticCallerOutput sageOutput = pipelineResults.add(state.add(sageCallerOutputFuture.get()));
                 SomaticCallerOutput somaticCallerOutput = pipelineResults.add(state.add(somaticCallerOutputFuture.get()));
-                SomaticCallerOutput purpleInput = arguments.refGenomeVersion().equals(RefGenomeVersion.HG37) ? somaticCallerOutput : sageOutput;
                 StructuralCallerOutput structuralCallerOutput = pipelineResults.add(state.add(structuralCallerOutputFuture.get()));
 
                 if (state.shouldProceed()) {
                     Future<PurpleOutput> purpleOutputFuture = executorService.submit(() -> pipelineResults.add(state.add(stageRunner.run(
                             metadata,
-                            new Purple(resourceFiles, purpleInput, structuralCallerOutput, amberOutput, cobaltOutput, arguments.shallow())))));
+                            new Purple(resourceFiles, sageOutput, structuralCallerOutput, amberOutput, cobaltOutput, arguments.shallow())))));
                     PurpleOutput purpleOutput = purpleOutputFuture.get();
                     if (state.shouldProceed()) {
                         BamMetricsOutput tumorMetrics = bamMetricsOutputStorage.get(metadata.tumor(), new BamMetrics(resourceFiles, pair.tumor()));

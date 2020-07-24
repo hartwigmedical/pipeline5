@@ -17,16 +17,18 @@ public class Driver extends SubStage {
     private final String referenceGenomePath;
     private final String blacklistBedPath;
     private final String gridssConfigPath;
+    private final String repeatMaskerDbBed;
     private final String referenceBamPath;
     private final String tumorBamPath;
 
     public Driver(final String assemblyBamPath, final String referenceGenomePath, final String blacklistBedPath,
-            final String gridssConfigPath, final String referenceBamPath, final String tumorBamPath) {
-        super("gridss.unfiltered", OutputFile.GZIPPED_VCF);
+            final String gridssConfigPath, final String repeatMaskerDbBed, final String referenceBamPath, final String tumorBamPath) {
+        super("gridss.driver", OutputFile.GZIPPED_VCF);
         this.assemblyBamPath = assemblyBamPath;
         this.referenceGenomePath = referenceGenomePath;
         this.blacklistBedPath = blacklistBedPath;
         this.gridssConfigPath = gridssConfigPath;
+        this.repeatMaskerDbBed = repeatMaskerDbBed;
         this.referenceBamPath = referenceBamPath;
         this.tumorBamPath = tumorBamPath;
     }
@@ -50,6 +52,10 @@ public class Driver extends SubStage {
                 blacklistBedPath,
                 "-c",
                 gridssConfigPath,
+                "--repeatmaskerbed",
+                repeatMaskerDbBed,
+                "--jvmheap",
+                "100G",
                 referenceBamPath,
                 tumorBamPath));
     }

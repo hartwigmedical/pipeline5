@@ -154,6 +154,14 @@ public class TestInputs {
                 .build();
     }
 
+    public static SomaticCallerOutput sageOutput() {
+        return SomaticCallerOutput.builder(SageV2Caller.NAMESPACE)
+                .status(PipelineStatus.SUCCESS)
+                .maybeFinalSomaticVcf(gsLocation(somaticBucket(SageV2Caller.NAMESPACE),
+                        RESULTS + TUMOR_SAMPLE + "." + OutputFile.GZIPPED_VCF))
+                .build();
+    }
+
     public static StructuralCallerOutput structuralCallerOutput() {
         String filtered = ".gridss.filtered.";
         String full = ".gridss.full.";
@@ -177,12 +185,6 @@ public class TestInputs {
         return AmberOutput.builder()
                 .status(PipelineStatus.SUCCESS)
                 .maybeOutputDirectory(gsLocation(somaticBucket(Amber.NAMESPACE), RESULTS))
-                .build();
-    }
-
-    public static SomaticCallerOutput sageOutput() {
-        return SomaticCallerOutput.builder(SageV2Caller.NAMESPACE)
-                .status(PipelineStatus.SUCCESS)
                 .build();
     }
 

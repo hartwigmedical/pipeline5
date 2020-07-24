@@ -1,16 +1,12 @@
 package com.hartwig.pipeline.calling.somatic;
 
-import static com.hartwig.pipeline.resource.ResourceNames.MAPPABILITY;
-
 import java.util.List;
 
 import com.google.common.collect.Lists;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.AlignmentPair;
-import com.hartwig.pipeline.calling.FinalSubStage;
 import com.hartwig.pipeline.calling.SubStageInputOutput;
-import com.hartwig.pipeline.calling.substages.SnpEff;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
@@ -18,12 +14,14 @@ import com.hartwig.pipeline.execution.vm.OutputFile;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.unix.UnzipToDirectoryCommand;
+import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.Folder;
+import com.hartwig.pipeline.report.ReportComponent;
 import com.hartwig.pipeline.report.RunLogComponent;
+import com.hartwig.pipeline.report.SingleFileComponent;
 import com.hartwig.pipeline.report.StartupScriptComponent;
 import com.hartwig.pipeline.report.ZippedVcfAndIndexComponent;
-import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
@@ -34,8 +32,8 @@ public class SageV2Caller extends TertiaryStage<SomaticCallerOutput> {
     public static final String NAMESPACE = "sage";
 
     private final ResourceFiles resourceFiles;
-    private OutputFile outputFile;
-    private OutputFile sageOutputFile;
+    private OutputFile filteredOutputFile;
+    private OutputFile unfilteredOutputFile;
 
     public SageV2Caller(final AlignmentPair alignmentPair, final ResourceFiles resourceFiles) {
         super(alignmentPair);
@@ -61,20 +59,13 @@ public class SageV2Caller extends TertiaryStage<SomaticCallerOutput> {
         SageCommandBuilder sageCommandBuilder = new SageCommandBuilder(resourceFiles).addReference(referenceSampleName, referenceBamPath)
                 .addTumor(tumorSampleName, tumorBamPath);
         SageV2Application sageV2Application = new SageV2Application(sageCommandBuilder);
-        sageOutputFile = sageV2Application.apply(SubStageInputOutput.empty(tumorSampleName)).outputFile();
+        SageV2PostProcess sageV2PostProcess = new SageV2PostProcess(tumorSampleName, resourceFiles);
 
-        final String refGenomeStr = resourceFiles.version() == RefGenomeVersion.HG37 ? "hg19" : "hg38";
-
-        SubStageInputOutput sageOutput = sageV2Application.andThen(new SageV2PassFilter())
-                .andThen(new MappabilityAnnotation(resourceFiles.out150Mappability(), ResourceFiles.of(MAPPABILITY, "mappability.hdr")))
-                .andThen(new PonAnnotation("sage.pon", resourceFiles.sageGermlinePon(), "PON_COUNT", "PON_MAX"))
-                .andThen(new SageV2PonFilter())
-                .andThen(new SnpEff(ResourceFiles.SNPEFF_CONFIG, resourceFiles))
-                .andThen(FinalSubStage.of(new SageV2PostProcess(refGenomeStr)))
-                .apply(SubStageInputOutput.empty(tumorSampleName));
-
+        SubStageInputOutput sageOutput = sageV2Application.andThen(sageV2PostProcess).apply(SubStageInputOutput.empty(tumorSampleName));
         commands.addAll(sageOutput.bash());
-        outputFile = sageOutput.outputFile();
+
+        unfilteredOutputFile = sageV2Application.apply(SubStageInputOutput.empty(tumorSampleName)).outputFile();
+        filteredOutputFile = sageOutput.outputFile();
         return commands;
     }
 
@@ -88,20 +79,13 @@ public class SageV2Caller extends TertiaryStage<SomaticCallerOutput> {
             final ResultsDirectory resultsDirectory) {
         return SomaticCallerOutput.builder(NAMESPACE)
                 .status(jobStatus)
-                .maybeFinalSomaticVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(outputFile.fileName())))
-                .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
-                        NAMESPACE,
-                        Folder.from(),
-                        outputFile.fileName(),
-                        OutputFile.of(metadata.tumor().sampleName(), "sage.somatic.post_processed", OutputFile.GZIPPED_VCF, false)
-                                .fileName(),
-                        resultsDirectory))
-                .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
-                        NAMESPACE,
-                        Folder.from(),
-                        sageOutputFile.fileName(),
-                        OutputFile.of(metadata.tumor().sampleName(), "sage.somatic", OutputFile.GZIPPED_VCF, false).fileName(),
-                        resultsDirectory))
+                .maybeFinalSomaticVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(filteredOutputFile.fileName())))
+                .addReportComponents(bqrComponent(metadata.tumor(), "png", bucket, resultsDirectory))
+                .addReportComponents(bqrComponent(metadata.tumor(), "tsv", bucket, resultsDirectory))
+                .addReportComponents(bqrComponent(metadata.reference(), "png", bucket, resultsDirectory))
+                .addReportComponents(bqrComponent(metadata.reference(), "tsv", bucket, resultsDirectory))
+                .addReportComponents(vcfComponent(unfilteredOutputFile.fileName(), bucket, resultsDirectory))
+                .addReportComponents(vcfComponent(filteredOutputFile.fileName(), bucket, resultsDirectory))
                 .addReportComponents(new RunLogComponent(bucket, NAMESPACE, Folder.from(), resultsDirectory))
                 .addReportComponents(new StartupScriptComponent(bucket, NAMESPACE, Folder.from()))
                 .build();
@@ -114,6 +98,16 @@ public class SageV2Caller extends TertiaryStage<SomaticCallerOutput> {
 
     @Override
     public boolean shouldRun(final Arguments arguments) {
-        return !arguments.shallow() && arguments.runSageCaller();
+        return arguments.runSageCaller();
+    }
+
+    private ReportComponent bqrComponent(final SingleSampleRunMetadata metadata, final String extension, final RuntimeBucket bucket,
+            final ResultsDirectory resultsDirectory) {
+        String filename = String.format("%s.sage.bqr.%s", metadata.sampleName(), extension);
+        return new SingleFileComponent(bucket, NAMESPACE, Folder.from(), filename, filename, resultsDirectory);
+    }
+
+    private ReportComponent vcfComponent(final String filename, final RuntimeBucket bucket, final ResultsDirectory resultsDirectory) {
+        return new ZippedVcfAndIndexComponent(bucket, NAMESPACE, Folder.from(), filename, resultsDirectory);
     }
 }

@@ -50,6 +50,22 @@ public abstract class InputFileDescriptor {
         return builder().from(original).build();
     }
 
+    public InputFileDescriptor index() {
+        if (inputValue().endsWith(".bam")) {
+            return index(".bai");
+        }
+
+        if (inputValue().endsWith(".cram")) {
+            return index(".crai");
+        }
+
+        if (inputValue().endsWith(".vcf.gz")) {
+            return index(".tbi");
+        }
+
+        throw new IllegalArgumentException("Unknown file format");
+    }
+
     public InputFileDescriptor index(String suffix) {
         return builder().from(this).inputValue(inputValue() + suffix).build();
     }

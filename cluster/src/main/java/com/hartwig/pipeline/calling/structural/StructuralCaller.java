@@ -20,9 +20,8 @@ import com.hartwig.pipeline.calling.command.BwaCommand;
 import com.hartwig.pipeline.calling.command.SamtoolsCommand;
 import com.hartwig.pipeline.calling.structural.gridss.stage.Driver;
 import com.hartwig.pipeline.calling.structural.gridss.stage.Filter;
-import com.hartwig.pipeline.calling.structural.gridss.stage.RepeatMaskerInsertionAnnotation;
+import com.hartwig.pipeline.calling.structural.gridss.stage.GridssAnnotation;
 import com.hartwig.pipeline.calling.structural.gridss.stage.TabixDriverOutput;
-import com.hartwig.pipeline.calling.structural.gridss.stage.ViralAnnotation;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
@@ -80,11 +79,11 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
         commands.add(new ExportPathCommand(new SamtoolsCommand()));
 
         // TEMP
-        if(resourceFiles.version() == RefGenomeVersion.HG38) {
+        if (resourceFiles.version() == RefGenomeVersion.HG38) {
             final String bwtFileOld = "/opt/resources/reference_genome/hg38/Homo_sapiens_assembly38.fasta.64.bwt";
             final String bwtFileNew = "/opt/resources/reference_genome/hg38/Homo_sapiens_assembly38.fasta.bwt";
 
-            if(Files.exists(Paths.get(bwtFileOld)) && !Files.exists(Paths.get(bwtFileNew)) ) {
+            if (Files.exists(Paths.get(bwtFileOld)) && !Files.exists(Paths.get(bwtFileNew))) {
                 commands.add(() -> format("cp %s %s", bwtFileOld, bwtFileNew));
             }
         }
@@ -96,24 +95,22 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
         String configurationFilePath = ResourceFiles.of(GRIDSS_CONFIG, "gridss.properties");
         String blacklistBedPath = resourceFiles.gridssBlacklistBed();
         String virusReferenceGenomePath = ResourceFiles.of(VIRUS_REFERENCE_GENOME, "human_virus.fa");
-        String repeatMaskerDbPath = resourceFiles.gridssRepeatMaskerDb();
 
         Driver driver = new Driver(VmDirectories.outputFile(tumorSampleName + ".assembly.bam"),
                 resourceFiles.refGenomeFile(),
                 blacklistBedPath,
                 configurationFilePath,
+                resourceFiles.gridssRepeatMaskerDbBed(),
                 refBamPath,
                 tumorBamPath);
-        SubStageInputOutput unfilteredVcfOutput = driver.andThen(new TabixDriverOutput()).apply(SubStageInputOutput.empty(tumorSampleName));
-
-        SubStageInputOutput unfilteredAnnotatedVcfOutput =
-                new RepeatMaskerInsertionAnnotation(repeatMaskerDbPath).andThen(new ViralAnnotation(virusReferenceGenomePath))
-                        .apply(unfilteredVcfOutput);
+        SubStageInputOutput unfilteredVcfOutput = driver.andThen(new TabixDriverOutput())
+                .andThen(new GridssAnnotation(resourceFiles, virusReferenceGenomePath, false))
+                .apply(SubStageInputOutput.empty(tumorSampleName));
 
         String somaticFilteredVcfBasename = VmDirectories.outputFile(format("%s.gridss.somatic.vcf", tumorSampleName));
         String somaticAndQualityFilteredVcfBasename = VmDirectories.outputFile(format("%s.gridss.somatic.filtered.vcf", tumorSampleName));
         SubStageInputOutput filteredAndAnnotated =
-                new Filter(somaticAndQualityFilteredVcfBasename, somaticFilteredVcfBasename).apply(unfilteredAnnotatedVcfOutput);
+                new Filter(somaticAndQualityFilteredVcfBasename, somaticFilteredVcfBasename).apply(unfilteredVcfOutput);
         commands.addAll(filteredAndAnnotated.bash());
 
         unfilteredVcf = unfilteredVcfOutput.outputFile().path();

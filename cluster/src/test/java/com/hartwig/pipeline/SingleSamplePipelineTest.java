@@ -42,6 +42,7 @@ import com.hartwig.pipeline.stages.StageRunner;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 public class SingleSamplePipelineTest {
 
@@ -248,7 +249,13 @@ public class SingleSamplePipelineTest {
     public void notifiesMetadataApiWhenAlignmentComplete() throws Exception {
         when(aligner.run(referenceRunMetadata())).thenReturn(referenceAlignmentOutput());
         PipelineState result = victim.run(referenceRunMetadata());
-        verify(eventListener, times(1)).alignmentComplete(result);
+        ArgumentCaptor<PipelineState> stateCaptor = ArgumentCaptor.forClass(PipelineState.class);
+        verify(eventListener, times(1)).alignmentComplete(stateCaptor.capture());
+        PipelineState alignmentResult = stateCaptor.getValue();
+        assertThat(alignmentResult).isNotSameAs(result);
+        assertThat(alignmentResult.status()).isEqualTo(PipelineStatus.SUCCESS);
+        assertThat(alignmentResult.stageOutputs().size()).isEqualTo(1);
+        assertThat(alignmentResult.stageOutputs().get(0).name()).isEqualTo(referenceAlignmentOutput().name());
     }
 
     @Test
@@ -260,7 +267,7 @@ public class SingleSamplePipelineTest {
                 .thenReturn(cramOutput())
                 .thenReturn(germlineCallerOutput());
         PipelineState result = victim.run(referenceRunMetadata());
-        verify(eventListener, times(1)).alignmentComplete(result);
+        verify(eventListener, times(1)).complete(result);
     }
 
     @Test

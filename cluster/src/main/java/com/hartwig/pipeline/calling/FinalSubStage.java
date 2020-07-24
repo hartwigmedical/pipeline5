@@ -10,7 +10,7 @@ public class FinalSubStage extends SubStage{
     private final SubStage decorated;
 
     private FinalSubStage(final SubStage decorated) {
-        super(decorated.getStageName(), decorated.getFileOutputType(), true);
+        super(decorated.getStageName() + ".final", decorated.getFileOutputType());
         this.decorated = decorated;
     }
 

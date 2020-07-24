@@ -3,9 +3,9 @@ package com.hartwig.pipeline.transfer;
 import static java.lang.String.format;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Base64;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import com.google.cloud.storage.Blob;
@@ -30,7 +30,7 @@ public class SbpFileApiUpdate implements Consumer<Blob> {
     private final SbpRun sbpRun;
     private final Bucket sourceBucket;
     private final SbpRestApi sbpApi;
-    private final List<ApiFileOperation> fileOperations = new ArrayList<>();
+    private final Set<ApiFileOperation> fileOperations = new HashSet<>();
 
     public SbpFileApiUpdate(final ContentTypeCorrection contentTypeCorrection, final SbpRun sbpRun, final Bucket sourceBucket,
             final SbpRestApi sbpApi, final PipelineState pipelineState) {
@@ -59,7 +59,7 @@ public class SbpFileApiUpdate implements Consumer<Blob> {
 
                 for (ApiFileOperation fileOperation : fileOperations) {
                     if (fileOperation.path().equals(blob.getName().substring(blob.getName().indexOf("/") + 1))) {
-                        LOGGER.info("Applying: {}", fileOperation);
+                        LOGGER.info("Applying [{}] for [{}]", fileOperation, blob.getName());
                         fileOperation.apply(sbpApi, fileResponse);
                     }
                 }

@@ -41,7 +41,7 @@ public class SageGermline implements BatchOperation {
         final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.HG37);
 
         final InputFileDescriptor remoteReferenceFile = inputs.get("reference");
-        final InputFileDescriptor remoteReferenceIndex = remoteReferenceFile.index(".crai");
+        final InputFileDescriptor remoteReferenceIndex = remoteReferenceFile.index();
         final String localReferenceFile = localFilename(remoteReferenceFile);
         final String localReferenceBam = localReferenceFile.replace("cram", "bam");
         final String referenceSampleName = inputs.get("referenceSample").inputValue();

@@ -9,7 +9,7 @@ import org.immutables.value.Value;
 
 @Value.Immutable
 @JsonSerialize(as = ImmutableEvent.class)
-interface Event {
+public interface Event {
 
     @Value.Parameter
     ZonedDateTime timestamp();
