@@ -7,12 +7,12 @@ import com.hartwig.pipeline.calling.command.BcfToolsCommandListBuilder;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.OutputFile;
 
-public class PonAnnotation extends SubStage {
+class PonAnnotation extends SubStage {
 
     private final String pon;
     private final String type;
 
-    public PonAnnotation(final String name, final String pon, final String... columns) {
+    PonAnnotation(final String name, final String pon, final String... columns) {
         super(name + ".annotated", OutputFile.GZIPPED_VCF);
         this.pon = pon;
         this.type = String.join(",", columns);

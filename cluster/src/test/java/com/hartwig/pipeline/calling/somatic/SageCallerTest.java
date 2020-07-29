@@ -11,7 +11,7 @@ import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Before;
 
-public class SageV2CallerTest extends TertiaryStageTest<SomaticCallerOutput> {
+public class SageCallerTest extends TertiaryStageTest<SomaticCallerOutput> {
 
     @Before
     public void setUp() throws Exception {
@@ -20,7 +20,7 @@ public class SageV2CallerTest extends TertiaryStageTest<SomaticCallerOutput> {
 
     @Override
     protected Stage<SomaticCallerOutput, SomaticRunMetadata> createVictim() {
-        return new SageV2Caller(TestInputs.defaultPair(), TestInputs.HG37_RESOURCE_FILES);
+        return new SageCaller(TestInputs.defaultPair(), TestInputs.HG37_RESOURCE_FILES);
     }
 
     @Override

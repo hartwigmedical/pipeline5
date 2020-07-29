@@ -12,9 +12,9 @@ import com.hartwig.batch.input.InputFileDescriptor;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.calling.SubStageInputOutput;
 import com.hartwig.pipeline.calling.command.VersionedToolCommand;
+import com.hartwig.pipeline.calling.somatic.SageApplication;
 import com.hartwig.pipeline.calling.somatic.SageCommandBuilder;
-import com.hartwig.pipeline.calling.somatic.SageV2Application;
-import com.hartwig.pipeline.calling.somatic.SageV2PostProcess;
+import com.hartwig.pipeline.calling.somatic.SagePostProcess;
 import com.hartwig.pipeline.execution.vm.Bash;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
@@ -102,16 +102,16 @@ public class SageRerun implements BatchOperation {
             commands.addCommands(cramToBam(localReferenceFile));
         }
 
-        SageV2Application sageV2Application = new SageV2Application(sageCommandBuilder);
-        SageV2PostProcess sageV2PostProcess = new SageV2PostProcess(tumorSampleName, resourceFiles);
-        SubStageInputOutput sageOutput = sageV2Application.andThen(sageV2PostProcess).apply(SubStageInputOutput.empty(tumorSampleName));
+        SageApplication sageApplication = new SageApplication(sageCommandBuilder);
+        SagePostProcess sagePostProcess = new SagePostProcess(tumorSampleName, resourceFiles);
+        SubStageInputOutput sageOutput = sageApplication.andThen(sagePostProcess).apply(SubStageInputOutput.empty(tumorSampleName));
         commands.addCommands(sageOutput.bash());
 
         // 8. Archive targeted output
         final GoogleStorageLocation archiveStorageLocation = sageArchiveDirectory(set);
         final OutputFile filteredOutputFile = sageOutput.outputFile();
         final OutputFile filteredOutputFileIndex = filteredOutputFile.index(".tbi");
-        final OutputFile unfilteredOutputFile = sageV2Application.apply(SubStageInputOutput.empty(tumorSampleName)).outputFile();
+        final OutputFile unfilteredOutputFile = sageApplication.apply(SubStageInputOutput.empty(tumorSampleName)).outputFile();
         final OutputFile unfilteredOutputFileIndex = unfilteredOutputFile.index(".tbi");
 
         commands.addCommand(() -> filteredOutputFile.copyToRemoteLocation(archiveStorageLocation));
