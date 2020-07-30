@@ -14,10 +14,8 @@ public interface Versions {
     String SAMBAMBA = "0.6.8";
     String GATK = "3.8.0";
     String BCF_TOOLS = "1.9";
-    String STRELKA = "1.0.14";
     String SAGE = "2.2";
     String SNPEFF = "4.3s";
-    String STRELKA_POST_PROCESS = "1.6";
     String TABIX = "0.2.6";
     String AMBER = "3.3";
     String COBALT = "1.7";
@@ -30,8 +28,7 @@ public interface Versions {
     String BACHELOR = "1.9";
     String CHORD = "60.02_1.03";
     String SAMTOOLS = "1.10";
-    String BCL2FASTQ = "2.20.0.422";
-    String BAMCOMP = "1.2";
+    String BAMCOMP = "1.3";
 
     static void printAll() {
         Logger logger = LoggerFactory.getLogger(Versions.class);
