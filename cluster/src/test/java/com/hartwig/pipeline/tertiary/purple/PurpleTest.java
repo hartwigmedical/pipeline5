@@ -26,7 +26,7 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
     protected Stage<PurpleOutput, SomaticRunMetadata> createVictim() {
         return new Purple(
                 TestInputs.HG37_RESOURCE_FILES,
-                TestInputs.somaticCallerOutput(),
+                TestInputs.sageOutput(),
                 TestInputs.structuralCallerOutput(),
                 TestInputs.amberOutput(),
                 TestInputs.cobaltOutput(),
@@ -40,7 +40,7 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
 
     @Override
     protected List<String> expectedInputs() {
-        return ImmutableList.of(input(expectedRuntimeBucketName() + "/somatic_caller/results/tumor.vcf.gz", "tumor.vcf.gz"),
+        return ImmutableList.of(input(expectedRuntimeBucketName() + "/sage/results/tumor.vcf.gz", "tumor.vcf.gz"),
                 input(expectedRuntimeBucketName() + "/structural_caller/results/tumor.gridss.filtered.vcf.gz",
                         "tumor.gridss.filtered.vcf.gz"),
                 input(expectedRuntimeBucketName() + "/structural_caller/results/tumor.gridss.filtered.vcf.gz.tbi",
@@ -64,7 +64,7 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
 
     @Test
     public void shallowModeUsesLowDepthSettings() {
-        Purple victim = new Purple(new Hg37ResourceFiles(), TestInputs.somaticCallerOutput(),
+        Purple victim = new Purple(new Hg37ResourceFiles(), TestInputs.sageOutput(),
                 TestInputs.structuralCallerOutput(),
                 TestInputs.amberOutput(),
                 TestInputs.cobaltOutput(),

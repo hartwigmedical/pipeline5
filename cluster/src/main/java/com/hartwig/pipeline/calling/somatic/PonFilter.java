@@ -8,16 +8,21 @@ import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.OutputFile;
 
 class PonFilter extends SubStage {
-
     PonFilter() {
-        super("pon.filtered", OutputFile.GZIPPED_VCF);
+        super("sage.pon.filter", OutputFile.GZIPPED_VCF);
     }
+
+    private static final String PON_FILTER = "PON";
+    private static final String PANEL = "INFO/TIER=\"PANEL\" && PON_MAX>=5 && PON_COUNT >= 6";
+    private static final String OTHER = "INFO/TIER!=\"HOTSPOT\" && INFO/TIER!=\"PANEL\" && PON_COUNT >= 6";
+    private static final String HOTSPOT = "INFO/TIER=\"HOTSPOT\" && PON_MAX>=5 && PON_COUNT >= 10";
 
     @Override
     public List<BashCommand> bash(final OutputFile input, final OutputFile output) {
         return new BcfToolsCommandListBuilder(input.path(), output.path()).withIndex()
-                .excludeSoftFilter("'GERMLINE_PON_COUNT!= \".\" && MIN(GERMLINE_PON_COUNT) > 5'", "GERMLINE_PON")
-                .excludeSoftFilter("'SOMATIC_PON_COUNT!=\".\" && MIN(SOMATIC_PON_COUNT) > 3'", "SOMATIC_PON")
+                .excludeSoftFilter("'PON_COUNT!=\".\" && " + HOTSPOT + "'", PON_FILTER)
+                .excludeSoftFilter("'PON_COUNT!=\".\" && " + PANEL + "'", PON_FILTER)
+                .excludeSoftFilter("'PON_COUNT!=\".\" && " + OTHER + "'", PON_FILTER)
                 .build();
     }
 }
