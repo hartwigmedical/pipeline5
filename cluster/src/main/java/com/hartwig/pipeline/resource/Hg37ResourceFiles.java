@@ -34,24 +34,53 @@ public class Hg37ResourceFiles implements ResourceFiles {
 
     public String amberHeterozygousLoci() { return formPath(AMBER_PON, "GermlineHetPon.hg19.vcf.gz"); }
 
-    public String gridssRepeatMaskerDb() { return formPath(GRIDSS_REPEAT_MASKER_DB,"hg19.fa.out"); }
+    public String gridssRepeatMaskerDb() {
+        return formPath(GRIDSS_REPEAT_MASKER_DB, "hg19.fa.out");
+    }
 
-    public String gridssBlacklistBed() { return formPath(GRIDSS_REPEAT_MASKER_DB,"ENCFF001TDO.hg37.bed"); }
-    public String gridssBreakendPon() { return formPath(GRIDSS_PON,"gridss_pon_single_breakend.bed"); }
-    public String gridssBreakpointPon() { return formPath(GRIDSS_PON,"gridss_pon_breakpoint.bedpe"); }
+    public String gridssBlacklistBed() {
+        return formPath(GRIDSS_REPEAT_MASKER_DB, "ENCFF001TDO.hg37.bed");
+    }
 
-    public String snpEffDb() { return formPath(SNPEFF,"snpEff_v4_3_GRCh37.75.zip"); }
-    public String snpEffVersion() { return "GRCh37.75"; }
+    public String gridssBreakendPon() {
+        return formPath(GRIDSS_PON, "gridss_pon_single_breakend.bed");
+    }
 
-    public String sageKnownHotspots() { return formPath(SAGE, "KnownHotspots.hg19.vcf.gz"); }
+    public String gridssBreakpointPon() {
+        return formPath(GRIDSS_PON, "gridss_pon_breakpoint.bedpe");
+    }
 
-    public String sageActionableCodingPanel() { return formPath(SAGE, "ActionableCodingPanel.hg19.bed.gz"); }
+    public String snpEffDb() {
+        return formPath(SNPEFF, "snpEff_v4_3_GRCh37.75.zip");
+    }
 
-    public String out150Mappability() { return formPath(MAPPABILITY, "out_150_hg19.mappability.bed.gz"); }
+    public String snpEffVersion() {
+        return "GRCh37.75";
+    }
 
-    public String sageGermlinePon() { return formPath(SAGE, "SageGermlinePon.hg19.1000x.vcf.gz"); }
+    public String snpEffConfig() {
+        return formPath(SNPEFF, "snpEff.config");
+    }
 
-    public String giabHighConfidenceBed() { return formPath(BEDS, "NA12878_GIAB_highconf_IllFB-IllGATKHC-CG-Ion-Solid_ALLCHROM_v3.2.2_highconf.bed.gz");  }
+    public String sageKnownHotspots() {
+        return formPath(SAGE, "KnownHotspots.hg19.vcf.gz");
+    }
+
+    public String sageActionableCodingPanel() {
+        return formPath(SAGE, "ActionableCodingPanel.hg19.bed.gz");
+    }
+
+    public String out150Mappability() {
+        return formPath(MAPPABILITY, "out_150_hg19.mappability.bed.gz");
+    }
+
+    public String sageGermlinePon() {
+        return formPath(SAGE, "SageGermlinePon.hg19.1000x.vcf.gz");
+    }
+
+    public String giabHighConfidenceBed() {
+        return formPath(BEDS, "NA12878_GIAB_highconf_IllFB-IllGATKHC-CG-Ion-Solid_ALLCHROM_v3.2.2_highconf.bed.gz");
+    }
 
     public String knownFusionPairBedpe() { return formPath(KNOWLEDGEBASES,"KnownFusionPairs.hg19.bedpe"); }
 

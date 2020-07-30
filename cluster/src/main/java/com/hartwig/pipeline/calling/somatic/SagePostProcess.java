@@ -35,7 +35,7 @@ public class SagePostProcess extends SubStage {
                 new MappabilityAnnotation(resourceFiles.out150Mappability(), ResourceFiles.of(MAPPABILITY, "mappability.hdr"));
         SubStage ponAnnotation = new PonAnnotation("sage.pon", resourceFiles.sageGermlinePon(), "PON_COUNT", "PON_MAX");
         SubStage ponFilter = new PonFilter();
-        SubStage snpEff = new SnpEff(ResourceFiles.SNPEFF_CONFIG, resourceFiles);
+        SubStage snpEff = new SnpEff(resourceFiles);
 
         OutputFile passFilterFile = passFilter.apply(tumorSampleName).outputFile();
         OutputFile mappabilityAnnotationFile = mappabilityAnnotation.apply(tumorSampleName).outputFile();

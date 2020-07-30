@@ -1,10 +1,7 @@
 package com.hartwig.pipeline.resource;
 
-import static com.hartwig.pipeline.resource.ResourceNames.BACHELOR;
 import static com.hartwig.pipeline.resource.ResourceNames.COSMIC;
 import static com.hartwig.pipeline.resource.ResourceNames.DBNSFP;
-import static com.hartwig.pipeline.resource.ResourceNames.ENSEMBL;
-import static com.hartwig.pipeline.resource.ResourceNames.SNPEFF;
 
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 
@@ -39,9 +36,12 @@ public interface ResourceFiles {
     String gridssBreakendPon();
 
     String gridssBreakpointPon();
+
     String snpEffDb();
 
     String snpEffVersion();
+
+    String snpEffConfig();
 
     String sageKnownHotspots();
 
@@ -60,7 +60,6 @@ public interface ResourceFiles {
 
     String ensemblDataCache();
 
-    String SNPEFF_CONFIG = ResourceFiles.of(SNPEFF, "snpEff.config");
     String DBNSFP_VCF = ResourceFiles.of(DBNSFP, "dbNSFP2.9.txt.gz");
     String COSMIC_VCF_GZ = ResourceFiles.of(COSMIC, "CosmicCodingMuts_v85_collapsed.vcf.gz");
 }

@@ -100,10 +100,11 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
         SubStageInputOutput combinedFilters = snpFilterOutput.combine(indelFilterOutput);
 
         SubStageInputOutput finalOutput = new CombineFilteredVariants(indelFilterOutput.outputFile().path(),
-                referenceFasta).andThen(new SnpEff(ResourceFiles.SNPEFF_CONFIG, resourceFiles))
-                .andThen(new SnpSiftDbnsfpAnnotation(ResourceFiles.DBNSFP_VCF, ResourceFiles.SNPEFF_CONFIG))
+                referenceFasta).andThen(new SnpEff(resourceFiles))
+                .andThen(new SnpSiftDbnsfpAnnotation(ResourceFiles.DBNSFP_VCF, resourceFiles.snpEffConfig()))
                 .andThen(new CosmicAnnotation(ResourceFiles.COSMIC_VCF_GZ, "ID"))
-                .andThen(new SnpSiftFrequenciesAnnotation(ResourceFiles.of(GONL, "gonl.snps_indels.r5.sorted.vcf.gz"), ResourceFiles.SNPEFF_CONFIG))
+                .andThen(new SnpSiftFrequenciesAnnotation(ResourceFiles.of(GONL, "gonl.snps_indels.r5.sorted.vcf.gz"),
+                        resourceFiles.snpEffConfig()))
                 .apply(combinedFilters);
 
         return ImmutableList.<BashCommand>builder().add(new UnzipToDirectoryCommand(VmDirectories.RESOURCES, resourceFiles.snpEffDb()))
