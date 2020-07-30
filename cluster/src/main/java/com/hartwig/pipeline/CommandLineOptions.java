@@ -1,6 +1,10 @@
 package com.hartwig.pipeline;
 
+import static java.lang.String.format;
+
+import java.util.Arrays;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.hartwig.pipeline.resource.RefGenomeVersion;
 
@@ -247,7 +251,10 @@ public class CommandLineOptions {
     }
 
     private static Option refGenomeVersion() {
-        return optionWithArg(REF_GENOME_VERSION_FLAG, "Ref genome version, default=37, values 37 or 38.");
+        return optionWithArg(REF_GENOME_VERSION_FLAG,
+                format("Ref genome version, default [%s], values [%s]",
+                        RefGenomeVersion.HG37.name(),
+                        Arrays.stream(RefGenomeVersion.values()).map(Enum::name).collect(Collectors.joining(","))));
     }
 
     private static Option version() {
