@@ -12,15 +12,16 @@ public class DefaultBackoffPolicy<R> extends RetryPolicy<R> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultBackoffPolicy.class);
 
-    private DefaultBackoffPolicy(final String taskName) {
-        withBackoff(1, TimeUnit.MINUTES.toSeconds(5), ChronoUnit.SECONDS);
+    DefaultBackoffPolicy(final String taskName, final int delay, final long maxDelay) {
+        withBackoff(delay, maxDelay, ChronoUnit.SECONDS);
+        withMaxRetries(-1);
         handle(Exception.class);
         onFailedAttempt(rExecutionAttemptedEvent -> LOGGER.warn("Unable to execute action [{}] after [{}], trying again...",
                 taskName,
-                rExecutionAttemptedEvent.getElapsedTime()));
+                rExecutionAttemptedEvent.getElapsedTime().toSeconds()));
     }
 
     public static <R> DefaultBackoffPolicy<R> of(final String taskName) {
-        return new DefaultBackoffPolicy<R>(taskName);
+        return new DefaultBackoffPolicy<>(taskName, 1, TimeUnit.SECONDS.toMinutes(5));
     }
 }

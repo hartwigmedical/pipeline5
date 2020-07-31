@@ -29,6 +29,13 @@ import net.jodah.failsafe.function.CheckedSupplier;
 class InstanceLifecycleManager {
     private static final String RUNNING_STATUS = "RUNNING";
     private static final Logger LOGGER = LoggerFactory.getLogger(InstanceLifecycleManager.class);
+    private static final String LIST_INSTANCES = "listInstances";
+    public static final String DELETE_VM = "deleteVm";
+    public static final String STOP_VM = "stopVm";
+    public static final String OPERATION_STATUS = "operationStatus";
+    public static final String SET_METADATA = "setMetadata";
+    public static final String GET_ZONE_OPERATIONS = "getZoneOperations";
+    public static final String LIST_ZONES = "listZones";
 
     private final String project;
     private final Compute compute;
@@ -48,7 +55,7 @@ class InstanceLifecycleManager {
 
     Optional<Instance> findExistingInstance(String vmName) {
         for (String zone : fetchZones().stream().map(Zone::getName).collect(Collectors.toList())) {
-            InstanceList instances = executeWithRetries(() -> compute.instances().list(project, zone).execute(), "listInstances");
+            InstanceList instances = executeWithRetries(() -> compute.instances().list(project, zone).execute(), LIST_INSTANCES);
             if (instances.getItems() != null) {
                 for (Instance instance : instances.getItems()) {
                     if (instance.getName().equals(vmName)) {
@@ -66,7 +73,7 @@ class InstanceLifecycleManager {
                 String shortZone = new File(i.getZone()).getName();
                 LOGGER.debug("Removing existing VM instance [{}] in [{}]", i.getName(), shortZone);
                 Operation delete =
-                        executeSynchronously(compute.instances().delete(project, shortZone, vmName), project, shortZone, "deleteVm");
+                        executeSynchronously(compute.instances().delete(project, shortZone, vmName), project, shortZone, DELETE_VM);
                 if (delete.getError() != null) {
                     throw new RuntimeException(delete.getError().toPrettyString());
                 }
@@ -82,15 +89,15 @@ class InstanceLifecycleManager {
     }
 
     void delete(String zone, String vm) {
-        executeSynchronously(getWithRetries(() -> compute.instances().delete(project, zone, vm)), project, zone, "deleteVm");
+        executeSynchronously(getWithRetries(() -> compute.instances().delete(project, zone, vm)), project, zone, DELETE_VM);
     }
 
     void stop(String zone, String vm) {
-        executeSynchronously(getWithRetries(() -> compute.instances().stop(project, zone, vm)), project, zone, "stopVm");
+        executeSynchronously(getWithRetries(() -> compute.instances().stop(project, zone, vm)), project, zone, STOP_VM);
     }
 
     private String operationStatus(String jobName, String zoneName) {
-        return executeWithRetries(() -> compute.zoneOperations().get(project, zoneName, jobName).execute(), "operationStatus").getStatus();
+        return executeWithRetries(() -> compute.zoneOperations().get(project, zoneName, jobName).execute(), OPERATION_STATUS).getStatus();
     }
 
     String instanceStatus(String vm, String zone) {
@@ -110,8 +117,7 @@ class InstanceLifecycleManager {
         String latestFingerprint = compute.instances().get(project, zone, vm).execute().getMetadata().getFingerprint();
         executeSynchronously(compute.instances().setMetadata(project, zone, vm, new Metadata().setFingerprint(latestFingerprint)),
                 project,
-                zone,
-                "setMetadata");
+                zone, SET_METADATA);
     }
 
     private ComputeRequest<Operation> getWithRetries(final CheckedSupplier<ComputeRequest<Operation>> supplier) {
@@ -132,7 +138,7 @@ class InstanceLifecycleManager {
             }
         }
         return executeWithRetries(() -> compute.zoneOperations().get(projectName, zoneName, asyncOp.getName()).execute(),
-                "getZoneOperations");
+                GET_ZONE_OPERATIONS);
     }
 
     private <T> T executeWithRetries(final CheckedSupplier<T> operationCheckedSupplier, final String opName) {
@@ -147,6 +153,6 @@ class InstanceLifecycleManager {
                 .getItems()
                 .stream()
                 .filter(zone -> zone.getRegion().endsWith(region))
-                .collect(Collectors.toList()), "fetchZones");
+                .collect(Collectors.toList()), LIST_ZONES);
     }
 }
