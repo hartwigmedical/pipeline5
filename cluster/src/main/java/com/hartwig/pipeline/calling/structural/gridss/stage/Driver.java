@@ -55,7 +55,7 @@ public class Driver extends SubStage {
                 "--repeatmaskerbed",
                 repeatMaskerDbBed,
                 "--jvmheap",
-                "100G",
+                "31G",
                 referenceBamPath,
                 tumorBamPath));
     }

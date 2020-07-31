@@ -29,7 +29,8 @@ echo "#!$(which sh) -e"
 # Defaults to Debian 9; we assume that for now
 network="--network=${TYPE} --subnet=${TYPE}"
 [[ "${PROJECT}" = "${DEV_PROJECT}" ]] && network=""
-echo "$GCL instances create ${sourceInstance} --description=\"Instance for ${TYPE} disk image creation\" --zone=${ZONE} ${network} --boot-disk-size 200 --boot-disk-type pd-ssd --machine-type n1-highcpu-4"
+echo "$GCL instances create ${sourceInstance} --description=\"Instance for ${TYPE} disk image creation\" --zone=${ZONE} ${network} \
+  --boot-disk-size 200 --boot-disk-type pd-ssd --machine-type n1-highcpu-4 --image-project=debian-cloud --image-family=debian-9"
 echo "sleep 10"
 # Ignore lines consisting only of spaces, or those beginning with '#'
 tunnel="--tunnel-through-iap"

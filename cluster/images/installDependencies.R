@@ -1,7 +1,9 @@
-# This can be used to build the R dependencies used by various components in the pipeline.  It is not an automated part of the 
-# image creation process but rather is intended to be invoked manually when the dependencies are in need of updating. The idea is
-# to build them all in one directory to allow that to be archived in a GCP bucket and pulled down to the VMs quickly. This also
-# speeds up disk image creation because the R libs take about an hour to build.
+# Use this build the R dependencies for the pipeline.  It is not an automated part of image creation to keep the imaging time down
+# but can be invoked manually when the dependencies are in need of updating. It takes an hour or more to run.
+#
+# Start with a "clean" VM from the imaging configuration, that has been created without the extraction of the existing R
+# dependencies. You can get this just by removing the extract of the R tarball that came from the resources.  Then just run this with
+# `Rscript` and when it succeeds run `cd /; tar cvf rlibs.tar /usr/lib/lib/R/site-library` and replace the tarball in the resources bucket.
 #
 # To determine the versions of the R libraries that have been installed you could do something like this:
 #   * Get a VM running from our standard image and extract the tarball of the R libraries to `/usr/local/lib/R/site-library`

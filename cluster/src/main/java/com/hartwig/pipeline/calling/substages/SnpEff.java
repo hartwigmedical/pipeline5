@@ -12,12 +12,10 @@ import com.hartwig.pipeline.resource.ResourceFiles;
 
 public class SnpEff extends SubStage {
 
-    private final String config;
     private final ResourceFiles resourceFiles;
 
-    public SnpEff(final String config, final ResourceFiles resourceFiles) {
+    public SnpEff(final ResourceFiles resourceFiles) {
         super("snpeff.annotated", OutputFile.GZIPPED_VCF);
-        this.config = config;
         this.resourceFiles = resourceFiles;
     }
 
@@ -25,7 +23,7 @@ public class SnpEff extends SubStage {
     public List<BashCommand> bash(final OutputFile input, final OutputFile output) {
         String beforeZip = output.path().replace(".gz", "");
 
-        return ImmutableList.of(new SnpEffCommand(config, input.path(), beforeZip, resourceFiles.snpEffVersion()),
+        return ImmutableList.of(new SnpEffCommand(input.path(), beforeZip, resourceFiles),
                 new BgzipCommand(beforeZip),
                 new TabixCommand(output.path()));
     }

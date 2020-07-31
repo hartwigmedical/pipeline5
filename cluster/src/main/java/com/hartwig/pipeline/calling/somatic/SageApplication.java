@@ -7,11 +7,11 @@ import com.hartwig.pipeline.calling.SubStage;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.OutputFile;
 
-public class SageV2Application extends SubStage {
+public class SageApplication extends SubStage {
 
     private final SageCommandBuilder sageCommandBuilder;
 
-    public SageV2Application(final SageCommandBuilder sageCommandBuilder) {
+    public SageApplication(final SageCommandBuilder sageCommandBuilder) {
         super("sage.somatic", OutputFile.GZIPPED_VCF);
         this.sageCommandBuilder = sageCommandBuilder;
     }

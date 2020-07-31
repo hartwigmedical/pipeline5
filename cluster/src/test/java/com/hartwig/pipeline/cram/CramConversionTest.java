@@ -67,7 +67,7 @@ public class CramConversionTest extends StageTest<CramOutput, SingleSampleRunMet
                         output,
                         input),
                 format("%s index %s", samtools, output),
-                format("java -Xmx4G -cp /opt/tools/bamcomp/1.2/bamcomp.jar com.hartwig.bamcomp.BamToCramValidator %s %s 6", input, output));
+                format("java -Xmx4G -cp /opt/tools/bamcomp/1.3/bamcomp.jar com.hartwig.bamcomp.BamToCramValidator %s %s 6", input, output));
     }
 
     @Override

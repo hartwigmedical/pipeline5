@@ -11,10 +11,6 @@
           "value": "set"
         },
         {
-          "name": "type",
-          "value": "somatic"
-        },
-        {
           "name": "barcode",
           "value": "ref_barcode"
         },
@@ -29,6 +25,10 @@
     {
       "name": "run_id",
       "value": "1"
+    },
+    {
+      "name": "type",
+      "value": "somatic"
     }
   ]
 }

@@ -1,5 +1,6 @@
 # Eliminate stale cache issues with gsutil
 echo 'tmpfs /root/.gsutil tmpfs size=128m 0 0' | sudo tee -a /etc/fstab
+
 sudo apt-get -y update
 sudo apt-get -y upgrade
 sudo apt-get -y install dirmngr apt-transport-https ca-certificates software-properties-common gnupg2 perl-modules make 
