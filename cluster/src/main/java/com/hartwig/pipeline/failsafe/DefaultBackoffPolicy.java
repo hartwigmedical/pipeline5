@@ -22,6 +22,6 @@ public class DefaultBackoffPolicy<R> extends RetryPolicy<R> {
     }
 
     public static <R> DefaultBackoffPolicy<R> of(final String taskName) {
-        return new DefaultBackoffPolicy<>(taskName, 1, TimeUnit.SECONDS.toMinutes(5));
+        return new DefaultBackoffPolicy<>(taskName, 1, TimeUnit.MINUTES.toSeconds(5));
     }
 }
