@@ -1,16 +1,15 @@
 package com.hartwig.pipeline.cram;
 
+import java.util.Collections;
+import java.util.List;
+
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.calling.command.VersionedToolCommand;
 import com.hartwig.pipeline.execution.vm.Bash;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.JavaClassCommand;
-import com.hartwig.pipeline.resource.Hg37ResourceFiles;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.tools.Versions;
-
-import java.util.Collections;
-import java.util.List;
 
 public class CramAndValidateCommands {
     private final String inputBam;
@@ -18,10 +17,10 @@ public class CramAndValidateCommands {
 
     private final ResourceFiles resourceFiles;
 
-    public CramAndValidateCommands(String inputBam, String outputCram) {
+    public CramAndValidateCommands(String inputBam, String outputCram, ResourceFiles resourceFiles) {
         this.inputBam = inputBam;
         this.outputCram = outputCram;
-        resourceFiles = new Hg37ResourceFiles();
+        this.resourceFiles = resourceFiles;
     }
 
     public List<BashCommand> commands() {

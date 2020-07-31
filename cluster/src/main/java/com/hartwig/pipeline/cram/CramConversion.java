@@ -24,6 +24,7 @@ import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.report.SingleFileComponent;
 import com.hartwig.pipeline.report.StartupScriptComponent;
+import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
@@ -33,10 +34,12 @@ public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata
 
     private final InputDownload bamDownload;
     private final String outputCram;
+    private final ResourceFiles resourceFiles;
 
-    public CramConversion(final AlignmentOutput alignmentOutput) {
+    public CramConversion(final AlignmentOutput alignmentOutput, ResourceFiles resourceFiles) {
         bamDownload = new InputDownload(alignmentOutput.finalBamLocation());
         outputCram = VmDirectories.outputFile(alignmentOutput.sample() + ".cram");
+        this.resourceFiles = resourceFiles;
     }
 
     @Override
@@ -51,7 +54,7 @@ public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata
 
     @Override
     public List<BashCommand> commands(SingleSampleRunMetadata metadata) {
-        return new CramAndValidateCommands(bamDownload.getLocalTargetPath(), outputCram).commands();
+        return new CramAndValidateCommands(bamDownload.getLocalTargetPath(), outputCram, resourceFiles).commands();
     }
 
     @Override

@@ -69,7 +69,7 @@ public class SingleSamplePipeline {
             Future<FlagstatOutput> flagstatOutputFuture =
                     executorService.submit(() -> stageRunner.run(metadata, new Flagstat(alignmentOutput)));
             Future<CramOutput> cramOutputFuture =
-                    executorService.submit(() -> stageRunner.run(metadata, new CramConversion(alignmentOutput)));
+                    executorService.submit(() -> stageRunner.run(metadata, new CramConversion(alignmentOutput, resourceFiles)));
 
             if (metadata.type().equals(SingleSampleRunMetadata.SampleType.REFERENCE)) {
                 Future<GermlineCallerOutput> germlineCallerFuture =
