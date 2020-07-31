@@ -25,10 +25,14 @@ public class PipelineResultsProvider {
     public PipelineResults get() {
         Bucket reportBucket = storage.get(arguments.patientReportBucket());
         if (reportBucket == null) {
-            reportBucket = storage.create(BucketInfo.newBuilder(arguments.patientReportBucket())
+            BucketInfo.Builder builder = BucketInfo.newBuilder(arguments.patientReportBucket())
                     .setStorageClass(StorageClass.REGIONAL)
-                    .setLocation(arguments.region())
-                    .build());
+                    .setLocation(arguments.region());
+            if (arguments.cmek().trim().isEmpty()) {
+                throw new IllegalArgumentException("CMEK key must be used");
+            }
+            builder.setDefaultKmsKeyName(arguments.cmek());
+            storage.create(builder.build());
         }
         return new PipelineResults(version, storage, reportBucket, arguments);
     }
