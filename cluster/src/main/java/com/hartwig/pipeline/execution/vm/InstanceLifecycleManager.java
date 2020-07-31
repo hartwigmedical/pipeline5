@@ -5,10 +5,8 @@ import static java.lang.String.format;
 import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 import java.util.stream.Collectors;
 
 import com.google.api.services.compute.Compute;
@@ -19,6 +17,7 @@ import com.google.api.services.compute.model.Metadata;
 import com.google.api.services.compute.model.Operation;
 import com.google.api.services.compute.model.Zone;
 import com.hartwig.pipeline.CommonArguments;
+import com.hartwig.pipeline.failsafe.DefaultBackoffPolicy;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +29,6 @@ import net.jodah.failsafe.function.CheckedSupplier;
 class InstanceLifecycleManager {
     private static final String RUNNING_STATUS = "RUNNING";
     private static final Logger LOGGER = LoggerFactory.getLogger(InstanceLifecycleManager.class);
-    public static final int FIVE_MINUTES = 600;
 
     private final String project;
     private final Compute compute;
@@ -50,7 +48,7 @@ class InstanceLifecycleManager {
 
     Optional<Instance> findExistingInstance(String vmName) {
         for (String zone : fetchZones().stream().map(Zone::getName).collect(Collectors.toList())) {
-            InstanceList instances = executeWithRetries(() -> compute.instances().list(project, zone).execute(), Exception.class);
+            InstanceList instances = executeWithRetries(() -> compute.instances().list(project, zone).execute(), "listInstances");
             if (instances.getItems() != null) {
                 for (Instance instance : instances.getItems()) {
                     if (instance.getName().equals(vmName)) {
@@ -67,7 +65,8 @@ class InstanceLifecycleManager {
             try {
                 String shortZone = new File(i.getZone()).getName();
                 LOGGER.debug("Removing existing VM instance [{}] in [{}]", i.getName(), shortZone);
-                Operation delete = executeSynchronously(compute.instances().delete(project, shortZone, vmName), project, shortZone);
+                Operation delete =
+                        executeSynchronously(compute.instances().delete(project, shortZone, vmName), project, shortZone, "deleteVm");
                 if (delete.getError() != null) {
                     throw new RuntimeException(delete.getError().toPrettyString());
                 }
@@ -76,22 +75,22 @@ class InstanceLifecycleManager {
             }
         });
         try {
-            return executeSynchronously(compute.instances().insert(project, zone, instance), project, zone);
+            return executeSynchronously(compute.instances().insert(project, zone, instance), project, zone, "insertVm");
         } catch (IOException ioe) {
             throw new RuntimeException("Could not initialise insert operation!", ioe);
         }
     }
 
     void delete(String zone, String vm) {
-        executeSynchronously(getWithRetries(() -> compute.instances().delete(project, zone, vm)), project, zone);
+        executeSynchronously(getWithRetries(() -> compute.instances().delete(project, zone, vm)), project, zone, "deleteVm");
     }
 
     void stop(String zone, String vm) {
-        executeSynchronously(getWithRetries(() -> compute.instances().stop(project, zone, vm)), project, zone);
+        executeSynchronously(getWithRetries(() -> compute.instances().stop(project, zone, vm)), project, zone, "stopVm");
     }
 
     private String operationStatus(String jobName, String zoneName) {
-        return executeWithRetries(() -> compute.zoneOperations().get(project, zoneName, jobName).execute(), IOException.class).getStatus();
+        return executeWithRetries(() -> compute.zoneOperations().get(project, zoneName, jobName).execute(), "operationStatus").getStatus();
     }
 
     String instanceStatus(String vm, String zone) {
@@ -111,7 +110,8 @@ class InstanceLifecycleManager {
         String latestFingerprint = compute.instances().get(project, zone, vm).execute().getMetadata().getFingerprint();
         executeSynchronously(compute.instances().setMetadata(project, zone, vm, new Metadata().setFingerprint(latestFingerprint)),
                 project,
-                zone);
+                zone,
+                "setMetadata");
     }
 
     private ComputeRequest<Operation> getWithRetries(final CheckedSupplier<ComputeRequest<Operation>> supplier) {
@@ -119,8 +119,8 @@ class InstanceLifecycleManager {
                 .get(supplier);
     }
 
-    private Operation executeSynchronously(ComputeRequest<Operation> request, String projectName, String zoneName) {
-        Operation asyncOp = executeWithRetries(request::execute, IOException.class);
+    private Operation executeSynchronously(ComputeRequest<Operation> request, String projectName, String zoneName, String opName) {
+        Operation asyncOp = executeWithRetries(request::execute, opName);
         String logId = format("Operation [%s:%s]", asyncOp.getOperationType(), asyncOp.getName());
         LOGGER.debug("{} is executing synchronously", logId);
         while (RUNNING_STATUS.equals(operationStatus(asyncOp.getName(), zoneName))) {
@@ -132,12 +132,11 @@ class InstanceLifecycleManager {
             }
         }
         return executeWithRetries(() -> compute.zoneOperations().get(projectName, zoneName, asyncOp.getName()).execute(),
-                IOException.class);
+                "getZoneOperations");
     }
 
-    private <T> T executeWithRetries(final CheckedSupplier<T> operationCheckedSupplier, final Class<? extends Exception> exception) {
-        return Failsafe.with(new RetryPolicy<>().handle(exception)
-                .withBackoff(pollInterval, FIVE_MINUTES, ChronoUnit.SECONDS, new Random().nextInt(pollInterval)))
+    private <T> T executeWithRetries(final CheckedSupplier<T> operationCheckedSupplier, final String opName) {
+        return Failsafe.with(DefaultBackoffPolicy.of(String.format("Lifecycly manager operation [%s]", opName)))
                 .get(operationCheckedSupplier);
     }
 
@@ -148,6 +147,6 @@ class InstanceLifecycleManager {
                 .getItems()
                 .stream()
                 .filter(zone -> zone.getRegion().endsWith(region))
-                .collect(Collectors.toList()), Exception.class);
+                .collect(Collectors.toList()), "fetchZones");
     }
 }
