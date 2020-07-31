@@ -255,18 +255,6 @@ public class ComputeEngineTest {
     }
 
     @Test
-    public void retriesOnQuotaExceeded() throws Exception {
-        Operation resourcesExhausted = new Operation().setStatus("DONE")
-                .setName("insert")
-                .setError(new Operation.Error().setErrors(Collections.singletonList(new Operation.Error.Errors().setCode(ComputeEngine.QUOTA_EXCEEDED))));
-        when(lifecycleManager.deleteOldInstancesAndStart(instance, FIRST_ZONE_NAME, INSTANCE_NAME)).thenReturn(resourcesExhausted,
-                mock(Operation.class));
-        when(bucketWatcher.currentState(any(), any())).thenReturn(State.STILL_WAITING, State.STILL_WAITING, State.SUCCESS);
-        victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
-        verify(lifecycleManager).deleteOldInstancesAndStart(instance, SECOND_ZONE_NAME, INSTANCE_NAME);
-    }
-
-    @Test
     public void setsVmsToPreemptibleWhenFlagEnabled() throws Exception {
         returnSuccess();
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);

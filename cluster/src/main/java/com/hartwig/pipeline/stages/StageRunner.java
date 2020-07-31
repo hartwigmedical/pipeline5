@@ -9,10 +9,13 @@ import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.OutputUpload;
 import com.hartwig.pipeline.execution.vm.RuntimeFiles;
+import com.hartwig.pipeline.failsafe.DefaultBackoffPolicy;
 import com.hartwig.pipeline.metadata.RunMetadata;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.trace.StageTrace;
+
+import net.jodah.failsafe.Failsafe;
 
 public class StageRunner<M extends RunMetadata> {
 
@@ -37,7 +40,9 @@ public class StageRunner<M extends RunMetadata> {
             bash.addCommands(stage.inputs())
                     .addCommands(stage.commands(metadata))
                     .addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path()), RuntimeFiles.typical()));
-            PipelineStatus status = computeEngine.submit(bucket, stage.vmDefinition(bash, resultsDirectory));
+            PipelineStatus status =
+                    Failsafe.with(DefaultBackoffPolicy.of(String.format("[%s] stage [%s]", metadata.toString(), stage.namespace())))
+                            .get(() -> computeEngine.submit(bucket, stage.vmDefinition(bash, resultsDirectory)));
             trace.stop();
             return stage.output(metadata, status, bucket, resultsDirectory);
         }

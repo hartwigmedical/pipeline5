@@ -45,7 +45,6 @@ public class ComputeEngine {
     private final static String APPLICATION_NAME = "vm-hosted-workload";
     static final String ZONE_EXHAUSTED_ERROR_CODE = "ZONE_RESOURCE_POOL_EXHAUSTED";
     static final String UNSUPPORTED_OPERATION_ERROR_CODE = "UNSUPPORTED_OPERATION";
-    static final String QUOTA_EXCEEDED = "QUOTA_EXCEEDED";
     static final String PREEMPTED_INSTANCE = "TERMINATED";
     private static final String LOCAL_SSD = "%s/zones/%s/diskTypes/local-ssd";
     private static final String PD_SSD = "%s/zones/%s/diskTypes/pd-ssd";
@@ -159,10 +158,6 @@ public class ComputeEngine {
                     LOGGER.warn(
                             "Received unsupported operation from GCE for [{}], this likely means the instance was pre-empted before it could "
                                     + "start, or another operation has yet to complete. Trying next zone.",
-                            vmName);
-                } else if (anyErrorMatch(result, QUOTA_EXCEEDED)) {
-                    LOGGER.warn("Received quota exceeded from GCE for [{}] with message [{}]. Trying again until resources become available",
-                            result.getError(),
                             vmName);
                 } else {
                     LOGGER.error("GCE returned an error starting the vm [{}] failing pipeline, [{}]",
