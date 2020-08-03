@@ -1,7 +1,5 @@
 package com.hartwig.batch.operations;
 
-import static java.lang.String.format;
-
 import java.io.File;
 import java.util.Collections;
 
@@ -23,7 +21,6 @@ import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.resource.ResourceFilesFactory;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
-import com.hartwig.pipeline.tools.Versions;
 
 public class GridssPostProcessing implements BatchOperation {
 
@@ -46,10 +43,10 @@ public class GridssPostProcessing implements BatchOperation {
         final SubStageInputOutput postProcessing = somaticFilter.andThen(new GridssPassAndPonFilter())
                 .apply(SubStageInputOutput.of(sample, inputFile(inputVcf.localDestination()), Collections.emptyList()));
 
-        // 0. Download latest jar file
-        startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s %s",
-                "gs://hmf-gridss/resources/gripss.jar",
-                "/opt/tools/gripss/" + Versions.GRIPSS + "/gripss.jar"));
+//        // 0. Download latest jar file
+//        startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s %s",
+//                "gs://hmf-gridss/resources/gripss.jar",
+//                "/opt/tools/gripss/" + Versions.GRIPSS + "/gripss.jar"));
 
         // 1. Download input files
         startupScript.addCommand(inputVcf::copyToLocalDestinationCommand);
