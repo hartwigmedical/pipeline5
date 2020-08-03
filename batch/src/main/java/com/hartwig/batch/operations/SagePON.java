@@ -19,7 +19,6 @@ import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
-import com.hartwig.pipeline.tools.Versions;
 
 public class SagePON implements BatchOperation {
     @Override
@@ -37,24 +36,16 @@ public class SagePON implements BatchOperation {
                 Bash.allCpus());
 
         // Download required resources
-        startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s %s",
-                "gs://batch-sage-validation/resources/sage.jar",
-                "/opt/tools/sage/" + Versions.SAGE + "/sage.jar"));
+//        startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s %s",
+//                "gs://batch-sage-validation/resources/sage.jar",
+//                "/opt/tools/sage/" + Versions.SAGE + "/sage.jar"));
 
         // Download germline VCFS (and indexes)
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch -m cp %s %s",
-                "gs://batch-sage-validation/first200/*.sage.somatic.vcf.gz",
+                "gs://batch-sage/*/sage/*.sage.somatic.vcf.gz",
                 VmDirectories.INPUT));
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch -m cp %s %s",
-                "gs://batch-sage-validation/first200/*.sage.somatic.vcf.gz.tbi",
-                VmDirectories.INPUT));
-
-        // Download germline VCFS (and indexes)
-        startupScript.addCommand(() -> format("gsutil -u hmf-crunch -m cp %s %s",
-                "gs://batch-sage-validation/*/sage/*.sage.somatic.vcf.gz",
-                VmDirectories.INPUT));
-        startupScript.addCommand(() -> format("gsutil -u hmf-crunch -m cp %s %s",
-                "gs://batch-sage-validation/*/sage/*.sage.somatic.vcf.gz.tbi",
+                "gs://batch-sage/*/sage/*.sage.somatic.vcf.gz.tbi",
                 VmDirectories.INPUT));
 
         // Run Pon Generator

@@ -11,6 +11,7 @@ public class SageCommandBuilder {
     private final ResourceFiles resourceFiles;
     private boolean panelOnly = false;
     private boolean germlineMode = false;
+    private int tumorSamples = 0;
     private final StringJoiner tumor = new StringJoiner(",");
     private final StringJoiner tumorBam = new StringJoiner(",");
     private final StringJoiner reference = new StringJoiner(",");
@@ -26,6 +27,7 @@ public class SageCommandBuilder {
     }
 
     public SageCommandBuilder addTumor(String sample, String bamFile) {
+        tumorSamples++;
         tumor.add(sample);
         tumorBam.add(bamFile);
         return this;
@@ -45,7 +47,7 @@ public class SageCommandBuilder {
     public SageCommand build(String outputVcf) {
         final StringJoiner arguments = new StringJoiner(" ");
 
-        if (tumor.length() == 0) {
+        if (tumorSamples == 0) {
             throw new IllegalStateException("Must be at least one tumor");
         }
 
@@ -68,7 +70,7 @@ public class SageCommandBuilder {
 
         if (germlineMode) {
 
-            if (tumor.length() > 1) {
+            if (tumorSamples > 1) {
                 throw new IllegalStateException("Germline mode only supports one sample");
             }
 

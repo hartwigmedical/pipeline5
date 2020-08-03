@@ -47,9 +47,9 @@ public class SageGermline implements BatchOperation {
         final String referenceSampleName = inputs.get("referenceSample").inputValue();
 
         // Download latest jar file
-        startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s %s",
-                "gs://batch-sage-validation/resources/sage.jar",
-                "/opt/tools/sage/" + Versions.SAGE + "/sage.jar"));
+        //        startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s %s",
+        //                "gs://batch-sage-validation/resources/sage.jar",
+        //                "/opt/tools/sage/" + Versions.SAGE + "/sage.jar"));
 
         // Download normal
         startupScript.addCommand(() -> remoteReferenceFile.toCommandForm(localReferenceFile));

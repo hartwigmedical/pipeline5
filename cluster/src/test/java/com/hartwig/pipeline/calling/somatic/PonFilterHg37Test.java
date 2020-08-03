@@ -4,14 +4,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.hartwig.pipeline.calling.SubStage;
 import com.hartwig.pipeline.calling.SubStageTest;
+import com.hartwig.pipeline.resource.RefGenomeVersion;
 
 import org.junit.Test;
 
-public class PonFilterTest extends SubStageTest {
+public class PonFilterHg37Test extends SubStageTest {
 
     @Override
     public SubStage createVictim() {
-        return new PonFilter();
+        return new PonFilter(RefGenomeVersion.HG37);
     }
 
     @Override
