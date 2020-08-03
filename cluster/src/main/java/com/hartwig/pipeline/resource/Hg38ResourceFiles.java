@@ -12,6 +12,7 @@ import static com.hartwig.pipeline.resource.ResourceNames.MAPPABILITY;
 import static com.hartwig.pipeline.resource.ResourceNames.REFERENCE_GENOME;
 import static com.hartwig.pipeline.resource.ResourceNames.SAGE;
 import static com.hartwig.pipeline.resource.ResourceNames.SNPEFF;
+import static com.hartwig.pipeline.resource.ResourceNames.SV;
 
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 
@@ -68,5 +69,9 @@ public class Hg38ResourceFiles implements ResourceFiles {
     public String bachelorClinvarFilters() { return formPath(BACHELOR, "bachelor_clinvar_filters.csv"); }
 
     public String ensemblDataCache() { return formPath(ENSEMBL, "ensembl_data_cache"); }
+
+    public String fragileSites() { return formPath(SV, "fragile_sites_hmf.csv"); }
+    public String lineElements() { return formPath(SV, "line_elements.csv"); }
+    public String originsOfReplication() { return formPath(SV, "highconf_bed_empty.bed"); } // currently unsupported in HG38
 
 }
