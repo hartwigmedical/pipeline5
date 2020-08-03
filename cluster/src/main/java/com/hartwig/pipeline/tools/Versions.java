@@ -17,7 +17,7 @@ public interface Versions {
     String SAGE = "2.2";
     String SNPEFF = "4.3s";
     String TABIX = "0.2.6";
-    String AMBER = "3.3";
+    String AMBER = "3.4";
     String COBALT = "1.7";
     String HEALTH_CHECKER = "3.1";
     String PURPLE = "2.43";
