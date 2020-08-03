@@ -43,11 +43,11 @@ public class Hg37ResourceFiles implements ResourceFiles {
     }
 
     public String gridssBreakendPon() {
-        return formPath(GRIDSS_PON, "gridss_pon_single_breakend.bed");
+        return formPath(GRIDSS_PON, "gridss_pon_single_breakend.hg19.bed");
     }
 
     public String gridssBreakpointPon() {
-        return formPath(GRIDSS_PON, "gridss_pon_breakpoint.bedpe");
+        return formPath(GRIDSS_PON, "gridss_pon_breakpoint.hg19.bedpe");
     }
 
     public String snpEffDb() {

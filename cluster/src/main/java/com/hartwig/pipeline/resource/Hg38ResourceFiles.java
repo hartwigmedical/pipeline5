@@ -5,7 +5,9 @@ import static com.hartwig.pipeline.resource.ResourceNames.BACHELOR;
 import static com.hartwig.pipeline.resource.ResourceNames.BEDS;
 import static com.hartwig.pipeline.resource.ResourceNames.ENSEMBL;
 import static com.hartwig.pipeline.resource.ResourceNames.GC_PROFILE;
+import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_PON;
 import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_REPEAT_MASKER_DB;
+import static com.hartwig.pipeline.resource.ResourceNames.KNOWLEDGEBASES;
 import static com.hartwig.pipeline.resource.ResourceNames.MAPPABILITY;
 import static com.hartwig.pipeline.resource.ResourceNames.REFERENCE_GENOME;
 import static com.hartwig.pipeline.resource.ResourceNames.SAGE;
@@ -52,9 +54,15 @@ public class Hg38ResourceFiles implements ResourceFiles {
 
     public String giabHighConfidenceBed() { return formPath(BEDS, "HG001_GRCh38_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-X_v.3.3.2_highconf_nosomaticdel_noCENorHET7.bed.gz");  }
 
-    public String gridssBreakendPon() { throw new IllegalStateException(); }
-    public String gridssBreakpointPon() { throw new IllegalStateException(); }
-    public String knownFusionPairBedpe() { throw new IllegalStateException(); }
+    public String gridssBreakendPon() {
+        return formPath(GRIDSS_PON, "gridss_pon_single_breakend.hg38.bed");
+    }
+
+    public String gridssBreakpointPon() {
+        return formPath(GRIDSS_PON, "gridss_pon_breakpoint.hg38.bedpe");
+    }
+
+    public String knownFusionPairBedpe() { return formPath(KNOWLEDGEBASES,"KnownFusionPairs.hg38.bedpe"); }
 
     public String bachelorConfig() { return formPath(BACHELOR, "bachelor_hmf.xml"); }
     public String bachelorClinvarFilters() { return formPath(BACHELOR, "bachelor_clinvar_filters.csv"); }
