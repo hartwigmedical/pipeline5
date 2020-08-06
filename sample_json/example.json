@@ -1,0 +1,100 @@
+{
+  "pipeline_arguments": {
+    "ref_genome_version": "HG38",
+    "run_snp_genotyper": false
+  },
+  "samples": [
+    {
+      "COLO829": {
+        "tumor": {
+          "type": "TUMOR",
+          "name": "COLO829v003T",
+          "lanes": [
+            {
+              "laneNumber": "1",
+              "firstOfPairPath": "hmf-verification-data/fastq/COLO829v003/COLO829v003T_AHHKYHDSXX_S12_L001_R1_001.fastq.gz",
+              "secondOfPairPath": "hmf-verification-data/fastq/COLO829v003/COLO829v003T_AHHKYHDSXX_S12_L001_R2_001.fastq.gz"
+            },
+            {
+              "laneNumber": "2",
+              "firstOfPairPath": "hmf-verification-data/fastq/COLO829v003/COLO829v003T_AHHKYHDSXX_S12_L002_R1_001.fastq.gz",
+              "secondOfPairPath": "hmf-verification-data/fastq/COLO829v003/COLO829v003T_AHHKYHDSXX_S12_L002_R2_001.fastq.gz"
+            },
+            {
+              "laneNumber": "3",
+              "firstOfPairPath": "hmf-verification-data/fastq/COLO829v003/COLO829v003T_AHHKYHDSXX_S12_L003_R1_001.fastq.gz",
+              "secondOfPairPath": "hmf-verification-data/fastq/COLO829v003/COLO829v003T_AHHKYHDSXX_S12_L003_R2_001.fastq.gz"
+            },
+            {
+              "laneNumber": "4",
+              "firstOfPairPath": "hmf-verification-data/fastq/COLO829v003/COLO829v003T_AHHKYHDSXX_S12_L004_R1_001.fastq.gz",
+              "secondOfPairPath": "hmf-verification-data/fastq/COLO829v003/COLO829v003T_AHHKYHDSXX_S12_L004_R2_001.fastq.gz"
+            }
+          ]
+        },
+        "reference": {
+          "type": "REFERENCE",
+          "name": "COLO829v003R",
+          "lanes": [
+            {
+              "laneNumber": "1",
+              "firstOfPairPath": "hmf-verification-data/fastq/COLO829v003/COLO829v003R_AHHKYHDSXX_S13_L001_R1_001.fastq.gz",
+              "secondOfPairPath": "hmf-verification-data/fastq/COLO829v003/COLO829v003R_AHHKYHDSXX_S13_L001_R2_001.fastq.gz"
+            },
+            {
+              "laneNumber": "2",
+              "firstOfPairPath": "hmf-verification-data/fastq/COLO829v003/COLO829v003R_AHHKYHDSXX_S13_L002_R1_001.fastq.gz",
+              "secondOfPairPath": "hmf-verification-data/fastq/COLO829v003/COLO829v003R_AHHKYHDSXX_S13_L002_R2_001.fastq.gz"
+            },
+            {
+              "laneNumber": "3",
+              "firstOfPairPath": "hmf-verification-data/fastq/COLO829v003/COLO829v003R_AHHKYHDSXX_S13_L003_R1_001.fastq.gz",
+              "secondOfPairPath": "hmf-verification-data/fastq/COLO829v003/COLO829v003R_AHHKYHDSXX_S13_L003_R2_001.fastq.gz"
+            },
+            {
+              "laneNumber": "4",
+              "firstOfPairPath": "hmf-verification-data/fastq/COLO829v003/COLO829v003R_AHHKYHDSXX_S13_L004_R1_001.fastq.gz",
+              "secondOfPairPath": "hmf-verification-data/fastq/COLO829v003/COLO829v003R_AHHKYHDSXX_S13_L004_R2_001.fastq.gz"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "GIABMIXIN": {
+        "tumor": {
+          "type": "TUMOR",
+          "name": "GIABMIXv003T",
+          "lanes": [
+            {
+              "laneNumber": "1",
+              "firstOfPairPath": "hmf-verification-data-fastq/GIABMIXv003/GIABMIXv003T_AHHTC3DSXX_S10_L001_R1_001.fastq.gz",
+              "secondOfPairPath": "hmf-verification-data-fastq/GIABMIXv003/GIABMIXv003T_AHHTC3DSXX_S10_L001_R2_001.fastq.gz"
+            },
+            {
+              "laneNumber": "3",
+              "firstOfPairPath": "hmf-verification-data-fastq/GIABMIXv003/GIABMIXv003T_AHHVJTDSXX_S3_L003_R1_001.fastq.gz",
+              "secondOfPairPath": "hmf-verification-data-fastq/GIABMIXv003/GIABMIXv003T_AHHVJTDSXX_S3_L003_R2_001.fastq.gz"
+            },
+            {
+              "laneNumber": "4",
+              "firstOfPairPath": "hmf-verification-data-fastq/GIABMIXv003/GIABMIXv003T_AHHVJTDSXX_S3_L004_R1_001.fastq.gz",
+              "secondOfPairPath": "hmf-verification-data-fastq/GIABMIXv003/GIABMIXv003T_AHHVJTDSXX_S3_L004_R2_001.fastq.gz"
+            }
+          ]
+        },
+        "reference": {
+          "type": "REFERENCE",
+          "name": "GIABMIXv003R_AHHVJTDSXX_S3_L001_R1_001.fastq.gz",
+          "lanes": [
+            {
+              "laneNumber": "1",
+              "firstOfPairPath": "hmf-verification-data-fastq/GIABMIXv003/GIABMIXv003R_AHHVJTDSXX_S3_L001_R1_001.fastq.gz",
+              "secondOfPairPath": "hmf-verification-data-fastq/GIABMIXv003/GIABMIXv003R_AHHVJTDSXX_S3_L001_R2_001.fastq.gz"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
