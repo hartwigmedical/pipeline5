@@ -45,7 +45,7 @@ public class Cleanup {
     }
 
     private void deleteStagingDirectory(final SingleSampleRunMetadata metadata) {
-        GSUtil.rm(arguments.cloudSdkPath(), arguments.patientReportBucket() + "/" + RunTag.apply(arguments, metadata.sampleId()));
+        GSUtil.rm(arguments.cloudSdkPath(), arguments.outputBucket() + "/" + RunTag.apply(arguments, metadata.sampleId()));
     }
 
     private void deleteBucket(final String runId) {

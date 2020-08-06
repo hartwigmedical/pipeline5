@@ -75,8 +75,6 @@ public class SmokeTest {
         Arguments arguments = Arguments.defaultsBuilder(Arguments.DefaultsProfile.DEVELOPMENT.toString())
                 .privateKeyPath(privateKeyPath)
                 .uploadPrivateKeyPath(privateKeyPath)
-                .sampleDirectory(workingDir() + "/../samples")
-                .version(version)
                 .cloudSdkPath(CLOUD_SDK_PATH)
                 .setId(SET_ID)
                 .runId(runId)
@@ -84,7 +82,6 @@ public class SmokeTest {
                 .sbpApiRunId(SBP_RUN_ID)
                 .sbpApiUrl(apiUrl)
                 .rclonePath(RCLONE_PATH)
-                .uploadFromGcp(true)
                 .rcloneGcpRemote(GCP_REMOTE)
                 .rcloneS3RemoteDownload("download")
                 .cleanup(true)
@@ -97,7 +94,7 @@ public class SmokeTest {
 
         String setName = setName(api);
 
-        delete(format("gs://%s/%s", arguments.patientReportBucket(), setName));
+        delete(format("gs://%s/%s", arguments.outputBucket(), setName));
         cleanupArchiveBucket(setName);
 
         PipelineState state = victim.start(arguments);

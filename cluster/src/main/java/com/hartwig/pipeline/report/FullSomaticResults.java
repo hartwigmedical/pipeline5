@@ -38,7 +38,7 @@ public class FullSomaticResults {
     }
 
     public void compose(SomaticRunMetadata metadata) {
-        Bucket bucket = storage.get(arguments.patientReportBucket());
+        Bucket bucket = storage.get(arguments.outputBucket());
         copySingleSampleRun(metadata, bucket, directory(metadata.reference()));
         metadata.maybeTumor().ifPresent(tumor -> copySingleSampleRun(metadata, bucket, directory(tumor)));
     }
@@ -57,9 +57,9 @@ public class FullSomaticResults {
                 .withMaxRetries(INFINITE)).get(() -> bucket.get(completionFile));
         for (Blob blob : bucket.list(Storage.BlobListOption.prefix(directory)).iterateAll()) {
             String pathSplit = blob.getName().substring(blob.getName().indexOf("/") + 1);
-            storage.copy(Storage.CopyRequest.of(arguments.patientReportBucket(),
+            storage.copy(Storage.CopyRequest.of(arguments.outputBucket(),
                     blob.getName(),
-                    BlobId.of(arguments.patientReportBucket(), metadata.runName() + "/" + pathSplit))).getResult();
+                    BlobId.of(arguments.outputBucket(), metadata.runName() + "/" + pathSplit))).getResult();
         }
     }
 }

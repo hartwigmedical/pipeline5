@@ -12,6 +12,7 @@ public interface Arguments extends CommonArguments {
     String EMPTY = "";
 
     enum DefaultsProfile {
+        PUBLIC,
         PRODUCTION,
         DEVELOPMENT,
         DEVELOPMENT_DOCKER
@@ -20,8 +21,6 @@ public interface Arguments extends CommonArguments {
     boolean cleanup();
 
     Integer DEFAULT_POLL_INTERVAL = 5;
-
-    boolean uploadFromGcp();
 
     boolean runBamMetrics();
 
@@ -43,17 +42,9 @@ public interface Arguments extends CommonArguments {
 
     DefaultsProfile profile();
 
-    String version();
-
-    String sampleDirectory();
-
-    String sampleId();
-
     String setId();
 
     String sbpApiUrl();
-
-    String sbpS3Url();
 
     String rclonePath();
 
@@ -63,7 +54,7 @@ public interface Arguments extends CommonArguments {
 
     String rcloneS3RemoteUpload();
 
-    String patientReportBucket();
+    String outputBucket();
 
     String archiveBucket();
 
@@ -72,8 +63,6 @@ public interface Arguments extends CommonArguments {
     String archivePrivateKeyPath();
 
     String uploadPrivateKeyPath();
-
-    Optional<Integer> sbpApiSampleId();
 
     Optional<Integer> sbpApiRunId();
 
@@ -115,23 +104,18 @@ public interface Arguments extends CommonArguments {
     String DEFAULT_PRODUCTION_RCLONE_GCP_REMOTE = "gs";
     String DEFAULT_PRODUCTION_RCLONE_S3_REMOTE = "s3";
     String DEFAULT_PRODUCTION_PROJECT = "hmf-pipeline-prod-e45b00f2";
-    String DEFAULT_PRODUCTION_VERSION = "";
     String DEFAULT_PRODUCTION_SBP_API_URL = "http://hmfapi";
-    String DEFAULT_PRODUCTION_SBP_S3_URL = "https://s3.object02.schubergphilis.com";
     String DEFAULT_PRODUCTION_SERVICE_ACCOUNT_EMAIL = String.format("bootstrap@%s.iam.gserviceaccount.com", DEFAULT_PRODUCTION_PROJECT);
     String DEFAULT_PRODUCTION_PATIENT_REPORT_BUCKET = "pipeline-output-prod";
     String DEFAULT_PRODUCTION_ARCHIVE_BUCKET = "pipeline-archive-prod";
     String DEFAULT_PRODUCTION_ARCHIVE_PROJECT = DEFAULT_PRODUCTION_PROJECT;
 
-    String DEFAULT_DOCKER_SAMPLE_DIRECTORY = "/samples";
     String DEFAULT_DOCKER_KEY_PATH = "/secrets/bootstrap-key.json";
     String DEFAULT_DOCKER_ARCHIVE_KEY_PATH = "/secrets/archive-key.json";
     String DEFAULT_DOCKER_UPLOAD_KEY_PATH = "/secrets/upload-key.json";
     String DEFAULT_DOCKER_CLOUD_SDK_PATH = "/usr/lib/google-cloud-sdk/bin";
 
     String NOT_APPLICABLE = "N/A";
-    String DEFAULT_DEVELOPMENT_VERSION = "local-SNAPSHOT";
-    String DEFAULT_DEVELOPMENT_SAMPLE_DIRECTORY = workingDir() + "/samples";
     String DEFAULT_DEVELOPMENT_KEY_PATH = workingDir() + "/bootstrap-key.json";
     String DEFAULT_DEVELOPMENT_PATIENT_REPORT_BUCKET = "pipeline-output-dev";
     String DEFAULT_DEVELOPMENT_ARCHIVE_BUCKET = "pipeline-archive-dev";
@@ -145,23 +129,20 @@ public interface Arguments extends CommonArguments {
         if (profile.equals(DefaultsProfile.PRODUCTION)) {
             return ImmutableArguments.builder()
                     .profile(profile)
+                    .usePublicImage(false)
                     .rclonePath(DEFAULT_PRODUCTION_RCLONE_PATH)
                     .rcloneGcpRemote(DEFAULT_PRODUCTION_RCLONE_GCP_REMOTE)
                     .rcloneS3RemoteDownload(DEFAULT_PRODUCTION_RCLONE_S3_REMOTE)
                     .rcloneS3RemoteUpload(DEFAULT_PRODUCTION_RCLONE_S3_REMOTE)
                     .region(CommonArguments.DEFAULT_REGION)
                     .project(DEFAULT_PRODUCTION_PROJECT)
-                    .version(DEFAULT_PRODUCTION_VERSION)
-                    .sampleDirectory(DEFAULT_DOCKER_SAMPLE_DIRECTORY)
                     .sbpApiUrl(DEFAULT_PRODUCTION_SBP_API_URL)
-                    .sbpS3Url(DEFAULT_PRODUCTION_SBP_S3_URL)
                     .privateKeyPath(DEFAULT_DOCKER_KEY_PATH)
                     .serviceAccountEmail(DEFAULT_PRODUCTION_SERVICE_ACCOUNT_EMAIL)
                     .cloudSdkPath(DEFAULT_DOCKER_CLOUD_SDK_PATH)
                     .cleanup(true)
                     .usePreemptibleVms(true)
                     .useLocalSsds(true)
-                    .uploadFromGcp(false)
                     .runBamMetrics(true)
                     .runAligner(true)
                     .runSnpGenotyper(true)
@@ -171,15 +152,14 @@ public interface Arguments extends CommonArguments {
                     .runStructuralCaller(true)
                     .runTertiary(true)
                     .shallow(false)
-                    .sampleId(EMPTY)
                     .setId(EMPTY)
                     .cmek(EMPTY)
-                    .patientReportBucket(DEFAULT_PRODUCTION_PATIENT_REPORT_BUCKET)
+                    .outputBucket(DEFAULT_PRODUCTION_PATIENT_REPORT_BUCKET)
                     .archiveBucket(DEFAULT_PRODUCTION_ARCHIVE_BUCKET)
                     .archiveProject(DEFAULT_PRODUCTION_ARCHIVE_PROJECT)
                     .archivePrivateKeyPath(DEFAULT_DOCKER_ARCHIVE_KEY_PATH)
                     .uploadPrivateKeyPath(DEFAULT_DOCKER_KEY_PATH)
-                    .privateNetwork(DEFAULT_PRIVATE_NETWORK)
+                    .network(DEFAULT_NETWORK)
                     .outputCram(true)
                     .publishToTurquoise(false)
                     .pollInterval(DEFAULT_POLL_INTERVAL)
@@ -188,16 +168,14 @@ public interface Arguments extends CommonArguments {
         } else if (profile.equals(DefaultsProfile.DEVELOPMENT)) {
             return ImmutableArguments.builder()
                     .profile(profile)
+                    .usePublicImage(false)
                     .region(CommonArguments.DEFAULT_DEVELOPMENT_REGION)
                     .project(CommonArguments.DEFAULT_DEVELOPMENT_PROJECT)
-                    .version(DEFAULT_DEVELOPMENT_VERSION)
-                    .sampleDirectory(DEFAULT_DEVELOPMENT_SAMPLE_DIRECTORY)
                     .cloudSdkPath(CommonArguments.DEFAULT_DEVELOPMENT_CLOUD_SDK_PATH)
                     .serviceAccountEmail(CommonArguments.DEFAULT_DEVELOPMENT_SERVICE_ACCOUNT_EMAIL)
                     .cleanup(true)
                     .cmek(CommonArguments.DEFAULT_DEVELOPMENT_CMEK)
                     .usePreemptibleVms(true)
-                    .uploadFromGcp(false)
                     .runBamMetrics(true)
                     .runAligner(true)
                     .runSnpGenotyper(true)
@@ -211,11 +189,9 @@ public interface Arguments extends CommonArguments {
                     .rcloneS3RemoteDownload(NOT_APPLICABLE)
                     .rcloneS3RemoteUpload(NOT_APPLICABLE)
                     .rcloneGcpRemote(NOT_APPLICABLE)
-                    .sbpS3Url(EMPTY)
                     .sbpApiUrl(NOT_APPLICABLE)
-                    .sampleId(EMPTY)
                     .setId(EMPTY)
-                    .patientReportBucket(DEFAULT_DEVELOPMENT_PATIENT_REPORT_BUCKET)
+                    .outputBucket(DEFAULT_DEVELOPMENT_PATIENT_REPORT_BUCKET)
                     .archiveBucket(DEFAULT_DEVELOPMENT_ARCHIVE_BUCKET)
                     .archiveProject(CommonArguments.DEFAULT_DEVELOPMENT_PROJECT)
                     .archivePrivateKeyPath(DEFAULT_DEVELOPMENT_KEY_PATH)
@@ -225,22 +201,20 @@ public interface Arguments extends CommonArguments {
                     .pollInterval(DEFAULT_POLL_INTERVAL)
                     .refGenomeVersion(DEFAULT_REF_GENOME_VERSION)
                     .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES)
-                    .privateNetwork(DEFAULT_PRIVATE_NETWORK)
+                    .network(DEFAULT_NETWORK)
                     .useLocalSsds(true);
         } else if (profile.equals(DefaultsProfile.DEVELOPMENT_DOCKER)) {
             return ImmutableArguments.builder()
                     .profile(profile)
+                    .usePublicImage(false)
                     .region(CommonArguments.DEFAULT_DEVELOPMENT_REGION)
                     .project(CommonArguments.DEFAULT_DEVELOPMENT_PROJECT)
-                    .version(DEFAULT_DEVELOPMENT_VERSION)
-                    .sampleDirectory(DEFAULT_DOCKER_SAMPLE_DIRECTORY)
                     .cloudSdkPath(DEFAULT_DOCKER_CLOUD_SDK_PATH)
                     .serviceAccountEmail(CommonArguments.DEFAULT_DEVELOPMENT_SERVICE_ACCOUNT_EMAIL)
                     .cleanup(true)
                     .cmek(DEFAULT_DEVELOPMENT_CMEK)
                     .usePreemptibleVms(true)
                     .useLocalSsds(true)
-                    .uploadFromGcp(false)
                     .runBamMetrics(true)
                     .runAligner(true)
                     .runSnpGenotyper(true)
@@ -254,16 +228,51 @@ public interface Arguments extends CommonArguments {
                     .rcloneS3RemoteDownload(NOT_APPLICABLE)
                     .rcloneS3RemoteUpload(NOT_APPLICABLE)
                     .rcloneGcpRemote(NOT_APPLICABLE)
-                    .sbpS3Url(EMPTY)
                     .sbpApiUrl(NOT_APPLICABLE)
-                    .sampleId(EMPTY)
                     .setId(EMPTY)
-                    .patientReportBucket(DEFAULT_DEVELOPMENT_PATIENT_REPORT_BUCKET)
+                    .outputBucket(DEFAULT_DEVELOPMENT_PATIENT_REPORT_BUCKET)
                     .archiveBucket(DEFAULT_DEVELOPMENT_ARCHIVE_BUCKET)
                     .archiveProject(CommonArguments.DEFAULT_DEVELOPMENT_PROJECT)
                     .archivePrivateKeyPath(DEFAULT_DOCKER_KEY_PATH)
                     .uploadPrivateKeyPath(DEFAULT_DOCKER_UPLOAD_KEY_PATH)
-                    .privateNetwork(DEFAULT_PRIVATE_NETWORK)
+                    .network(DEFAULT_NETWORK)
+                    .outputCram(true)
+                    .publishToTurquoise(false)
+                    .pollInterval(DEFAULT_POLL_INTERVAL)
+                    .refGenomeVersion(DEFAULT_REF_GENOME_VERSION)
+                    .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES);
+        } else if (profile.equals(DefaultsProfile.PUBLIC)) {
+            return ImmutableArguments.builder()
+                    .profile(profile)
+                    .usePublicImage(true)
+                    .outputBucket(EMPTY)
+                    .region(EMPTY)
+                    .project(EMPTY)
+                    .serviceAccountEmail(EMPTY)
+                    .cloudSdkPath(DEFAULT_DOCKER_CLOUD_SDK_PATH)
+                    .cleanup(true)
+                    .usePreemptibleVms(true)
+                    .useLocalSsds(true)
+                    .runBamMetrics(true)
+                    .runAligner(true)
+                    .runSnpGenotyper(true)
+                    .runGermlineCaller(true)
+                    .runSomaticCaller(true)
+                    .runSageCaller(true)
+                    .runTertiary(true)
+                    .runStructuralCaller(true)
+                    .shallow(false)
+                    .rclonePath(NOT_APPLICABLE)
+                    .rcloneS3RemoteDownload(NOT_APPLICABLE)
+                    .rcloneS3RemoteUpload(NOT_APPLICABLE)
+                    .rcloneGcpRemote(NOT_APPLICABLE)
+                    .sbpApiUrl(NOT_APPLICABLE)
+                    .setId(EMPTY)
+                    .archiveBucket(DEFAULT_DEVELOPMENT_ARCHIVE_BUCKET)
+                    .archiveProject(CommonArguments.DEFAULT_DEVELOPMENT_PROJECT)
+                    .archivePrivateKeyPath(DEFAULT_DOCKER_KEY_PATH)
+                    .uploadPrivateKeyPath(DEFAULT_DOCKER_UPLOAD_KEY_PATH)
+                    .network(DEFAULT_NETWORK)
                     .outputCram(true)
                     .publishToTurquoise(false)
                     .pollInterval(DEFAULT_POLL_INTERVAL)

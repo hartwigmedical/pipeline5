@@ -29,7 +29,7 @@ public class FullSomaticResultsTest {
     @Before
     public void setUp() throws Exception {
         storage = mock(Storage.class);
-        Arguments arguments = Arguments.testDefaultsBuilder().patientReportBucket(OUTPUT_BUCKET).build();
+        Arguments arguments = Arguments.testDefaultsBuilder().outputBucket(OUTPUT_BUCKET).build();
         victim = new FullSomaticResults(storage, arguments, 1);
         outputBucket = mock(Bucket.class);
         when(storage.get(OUTPUT_BUCKET)).thenReturn(outputBucket);

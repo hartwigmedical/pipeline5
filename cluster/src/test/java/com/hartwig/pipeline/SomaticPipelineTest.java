@@ -71,7 +71,7 @@ public class SomaticPipelineTest {
         when(setMetadataApi.get()).thenReturn(defaultSomaticRunMetadata());
         Storage storage = mock(Storage.class);
         Bucket reportBucket = mock(Bucket.class);
-        when(storage.get(ARGUMENTS.patientReportBucket())).thenReturn(reportBucket);
+        when(storage.get(ARGUMENTS.outputBucket())).thenReturn(reportBucket);
         final PipelineResults pipelineResults = PipelineResultsProvider.from(storage, ARGUMENTS, "test").get();
         final FullSomaticResults fullSomaticResults = mock(FullSomaticResults.class);
         stageRunner = mock(StageRunner.class);

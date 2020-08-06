@@ -112,7 +112,15 @@ public class ComputeEngine {
                 instance.setLabels(Labels.ofRun(bucket.runId(), jobDefinition.name()));
 
                 addServiceAccount(instance);
-                Image image = attachDisks(compute, instance, jobDefinition, project, vmName, currentZone.getName());
+                Image image = attachDisks(compute,
+                        instance,
+                        jobDefinition,
+                        project,
+                        vmName,
+                        currentZone.getName(),
+                        arguments.usePublicImage() ? compute.images()
+                                .get(VirtualMachineJobDefinition.HMF_IMAGE_PROJECT, VirtualMachineJobDefinition.PUBLIC_IMAGE_NAME)
+                                .execute() : resolveLatestImage(compute, jobDefinition.imageFamily(), project));
                 LOGGER.info("Submitting compute engine job [{}] using image [{}] in zone [{}]",
                         vmName,
                         image.getName(),
@@ -186,19 +194,15 @@ public class ComputeEngine {
     }
 
     private void addNetworkInterface(Instance instance, String projectName) {
-        NetworkInterface privateNetwork = new NetworkInterface();
-        privateNetwork.setNetwork(format("%s/global/networks/%s", apiBaseUrl(projectName), arguments.privateNetwork()));
-        privateNetwork.setSubnetwork(format("%s/regions/%s/subnetworks/%s",
-                apiBaseUrl(projectName),
-                arguments.region(),
-                arguments.privateNetwork()));
-        privateNetwork.set("no-address", "true");
-        instance.setNetworkInterfaces(singletonList(privateNetwork));
+        NetworkInterface network = new NetworkInterface();
+        network.setNetwork(format("%s/global/networks/%s", apiBaseUrl(projectName), arguments.network()));
+        network.setSubnetwork(format("%s/regions/%s/subnetworks/%s", apiBaseUrl(projectName), arguments.region(), arguments.network()));
+        network.set("no-address", "true");
+        instance.setNetworkInterfaces(singletonList(network));
     }
 
     private Image attachDisks(Compute compute, Instance instance, VirtualMachineJobDefinition jobDefinition, String projectName,
-            String vmName, String zone) throws IOException {
-        Image sourceImage = resolveLatestImage(compute, jobDefinition.imageFamily(), projectName);
+            String vmName, String zone, final Image sourceImage) throws IOException {
         AttachedDisk bootDisk = new AttachedDisk();
         bootDisk.setBoot(true);
         bootDisk.setAutoDelete(true);

@@ -41,6 +41,7 @@
         <commons-lang3.version>3.9</commons-lang3.version>
         <htsjdk.version>2.22.0</htsjdk.version>
         <org-reflections.version>0.9.11</org-reflections.version>
+        <picocli.version>4.2.0</picocli.version>
     </properties>
 
     <scm>
@@ -182,6 +183,11 @@
                 <groupId>net.jodah</groupId>
                 <artifactId>failsafe</artifactId>
                 <version>${failsafe.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>info.picocli</groupId>
+                <artifactId>picocli</artifactId>
+                <version>${picocli.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jetbrains</groupId>

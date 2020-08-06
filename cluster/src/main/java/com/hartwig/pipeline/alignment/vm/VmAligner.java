@@ -72,7 +72,7 @@ public class VmAligner {
 
     public AlignmentOutput run(final SingleSampleRunMetadata metadata) throws Exception {
         if (!arguments.runAligner()) {
-            return ExistingAlignment.find(metadata, alignmentOutputStorage, arguments);
+            return ExistingAlignment.find(metadata, alignmentOutputStorage);
         }
 
         StageTrace trace = new StageTrace(NAMESPACE, metadata.sampleName(), StageTrace.ExecutorType.COMPUTE_ENGINE).start();

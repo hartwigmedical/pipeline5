@@ -20,7 +20,6 @@ import com.hartwig.pipeline.storage.GSFileSource;
 import com.hartwig.pipeline.storage.GSUtilCloudCopy;
 import com.hartwig.pipeline.storage.RCloneCloudCopy;
 import com.hartwig.pipeline.storage.SampleUpload;
-import com.hartwig.pipeline.storage.SbpS3FileSource;
 
 public abstract class AlignerProvider {
 
@@ -56,7 +55,7 @@ public abstract class AlignerProvider {
             ResultsDirectory resultsDirectory) throws Exception;
 
     public static AlignerProvider from(GoogleCredentials credentials, Storage storage, Arguments arguments) {
-        if (arguments.sbpApiRunId().isPresent() || arguments.sbpApiSampleId().isPresent()) {
+        if (arguments.sbpApiRunId().isPresent()) {
             return new SbpAlignerProvider(credentials, storage, arguments);
         }
         return new LocalAlignerProvider(credentials, storage, arguments);
@@ -77,9 +76,9 @@ public abstract class AlignerProvider {
         @Override
         VmAligner wireUp(GoogleCredentials credentials, Storage storage, AlignmentOutputStorage alignmentOutputStorage,
                 ResultsDirectory resultsDirectory) throws Exception {
-            SampleSource sampleSource = getArguments().sampleJson().<SampleSource>map(JsonSampleSource::new).orElse(new GoogleStorageSampleSource(
-                    storage,
-                    getArguments()));
+            SampleSource sampleSource =
+                    getArguments().sampleJson().<SampleSource>map(JsonSampleSource::new).orElse(new GoogleStorageSampleSource(storage,
+                            getArguments()));
             GSUtilCloudCopy gsUtilCloudCopy = new GSUtilCloudCopy(getArguments().cloudSdkPath());
             SampleUpload sampleUpload = new CloudSampleUpload(new GSFileSource(), gsUtilCloudCopy);
             return AlignerProvider.constructVmAligner(getArguments(),
@@ -104,11 +103,10 @@ public abstract class AlignerProvider {
             SbpRestApi sbpRestApi = SbpRestApi.newInstance(getArguments().sbpApiUrl());
             SampleSource sampleSource = new SbpS3SampleSource(new SbpSampleReader(sbpRestApi));
             CloudCopy cloudCopy = new RCloneCloudCopy(getArguments().rclonePath(),
-                            getArguments().rcloneGcpRemote(),
-                            getArguments().rcloneS3RemoteDownload(),
-                            ProcessBuilder::new);
-            SampleUpload sampleUpload = new CloudSampleUpload(getArguments().uploadFromGcp() ? new GSFileSource() : new SbpS3FileSource(),
-                    cloudCopy);
+                    getArguments().rcloneGcpRemote(),
+                    getArguments().rcloneS3RemoteDownload(),
+                    ProcessBuilder::new);
+            SampleUpload sampleUpload = new CloudSampleUpload(new GSFileSource(), cloudCopy);
             return AlignerProvider.constructVmAligner(getArguments(),
                     credentials,
                     storage,

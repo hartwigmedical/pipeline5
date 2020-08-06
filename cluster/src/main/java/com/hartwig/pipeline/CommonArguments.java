@@ -11,7 +11,6 @@ public interface CommonArguments {
     String LOCAL_SSDS = "local_ssds";
     String POLL_INTERVAL = "poll_interval";
     String PREEMPTIBLE_VMS = "preemptible_vms";
-    String STORAGE_KEY_PATH = "storage_key_path";
     String SERVICE_ACCOUNT_EMAIL = "service_account_email";
     String CLOUD_SDK = "cloud_sdk";
     String PRIVATE_KEY_PATH = "private_key_path";
@@ -19,7 +18,7 @@ public interface CommonArguments {
     String PRIVATE_NETWORK = "private_network";
 
     String CMEK_DESCRIPTION = "The resource path of the Customer Managed Encryption Key. Runtime buckets will use this key.";
-    String DEFAULT_PRIVATE_NETWORK = "default";
+    String DEFAULT_NETWORK = "default";
 
     String PRIVATE_NETWORK_DESCRIPTION =  "The name of the private network to use. Specifying a value here will use this "
             + "network and subnet of the same name and disable external IPs. Ensure the network has been created in GCP before enabling "
@@ -44,17 +43,19 @@ public interface CommonArguments {
 
     boolean useLocalSsds();
 
-    String privateNetwork();
+    String network();
 
     Integer pollInterval();
 
     String serviceAccountEmail();
 
-    String cmek();
+    Optional<String> cmek();
 
     Optional<String> runId();
 
     Optional<Integer> sbpApiRunId();
+
+    boolean usePublicImage();
 
     static Optional<String> privateKey(CommandLine commandLine) {
         if (commandLine.hasOption(PRIVATE_KEY_PATH)) {

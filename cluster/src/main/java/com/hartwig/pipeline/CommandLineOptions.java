@@ -22,13 +22,10 @@ public class CommandLineOptions {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CommandLineOptions.class);
     private static final String SAMPLE_DIRECTORY_FLAG = "sample_directory";
-    private static final String VERSION_FLAG = "version";
     private static final String CLEANUP_FLAG = "cleanup";
-    private static final String UPLOAD_FROM_GCP_FLAG = "upload_from_gcp";
     private static final String PROJECT_FLAG = "project";
     private static final String REGION_FLAG = "region";
     private static final String PRIVATE_KEY_FLAG = "private_key_path";
-    private static final String SBP_SAMPLE_ID_FLAG = "sbp_sample_id";
     private static final String SBP_API_URL_FLAG = "sbp_api_url";
     private static final String SBP_S3_URL_FLAG = "sbp_s3_url";
     private static final String RUN_ID_FLAG = "run_id";
@@ -43,13 +40,10 @@ public class CommandLineOptions {
     private static final String RCLONE_S3_REMOTE_UPLOAD_FLAG = "rclone_s3_remote_upload";
     private static final String RUN_METRICS_FLAG = "run_bam_metrics";
     private static final String PROFILE_FLAG = "profile";
-    private static final String SAMPLE_ID_FLAG = "sample_id";
     private static final String SERVICE_ACCOUNT_EMAIL_FLAG = "service_account_email";
     private static final String MAX_CONCURRENT_LANES_FLAG = "max_concurrent_lanes";
-
     private static final String DEFAULT_PROFILE = "production";
     private static final String RUN_ALIGNER_FLAG = "run_aligner";
-    private static final String ALIGNER_TYPE_FLAG = "aligner_type";
     private static final String OUTPUT_CRAM_FLAG = "output_cram";
     private static final String PUBLISH_TO_TURQUOISE_FLAG = "publish_to_turquoise";
     private static final String RUN_GERMLINE_CALLER_FLAG = "run_germline_caller";
@@ -58,14 +52,14 @@ public class CommandLineOptions {
     private static final String RUN_SAGE_CALLER_FLAG = "run_sage_caller";
     private static final String RUN_STRUCTURAL_CALLER_FLAG = "run_structural_caller";
     private static final String RUN_TERTIARY_FLAG = "run_tertiary";
-    private static final String PATIENT_REPORT_BUCKET_FLAG = "patient_report_bucket";
+    private static final String OUTPUT_BUCKET_FLAG = "output_bucket";
     private static final String ARCHIVE_BUCKET_FLAG = "archive_bucket";
     private static final String ARCHIVE_PROJECT_FLAG = "archive_project";
     private static final String ARCHIVE_PRIVATE_KEY_FLAG = "archive_private_key_path";
     private static final String UPLOAD_PRIVATE_KEY_FLAG = "upload_private_key_path";
     private static final String SET_ID_FLAG = "set_id";
     private static final String SBP_RUN_ID_FLAG = "sbp_run_id";
-    private static final String PRIVATE_NETWORK_FLAG = "private_network";
+    private static final String NETWORK_FLAG = "network";
     private static final String CMEK_FLAG = "cmek";
     private static final String SHALLOW_FLAG = "shallow";
     private static final String ZONE_FLAG = "zone";
@@ -75,9 +69,7 @@ public class CommandLineOptions {
     private static Options options() {
         return new Options().addOption(profile())
                 .addOption(privateKey())
-                .addOption(version())
                 .addOption(sampleDirectory())
-                .addOption(sampleId())
                 .addOption(setId())
                 .addOption(optionWithBooleanArg(CLEANUP_FLAG, "Don't delete the runtime bucket after job is complete"))
                 .addOption(optionWithBooleanArg(USE_PREEMTIBLE_VMS_FLAG,
@@ -90,12 +82,8 @@ public class CommandLineOptions {
                         "Do not download the final BAM of Google Storage. Will also leave the runtime bucket in place"))
                 .addOption(optionWithBooleanArg(VERBOSE_CLOUD_SDK_FLAG,
                         "Have stdout and stderr of Google tools like gsutil stream to the console"))
-                .addOption(optionWithBooleanArg(UPLOAD_FROM_GCP_FLAG,
-                        "Upload sample fastq from GCP instead of SBP S3. "
-                                + "Temporary feature toggle while transitioning to bcl2fastq on GCP."))
                 .addOption(project())
                 .addOption(region())
-                .addOption(sbpSampleId())
                 .addOption(sbpRunId())
                 .addOption(sbpApiUrl())
                 .addOption(sbpS3Url())
@@ -151,7 +139,7 @@ public class CommandLineOptions {
     }
 
     private static Option privateNetwork() {
-        return optionWithArg(PRIVATE_NETWORK_FLAG,
+        return optionWithArg(NETWORK_FLAG,
                 "The name of the private network to use. Specifying a value here will make p5 use this "
                         + "network and subnet of the same name and disable external IPs. Ensure the network has been created in GCP before enabling "
                         + "this flag");
@@ -170,7 +158,7 @@ public class CommandLineOptions {
     }
 
     private static Option patientReportBucket() {
-        return optionWithArg(PATIENT_REPORT_BUCKET_FLAG, "Bucket in which to persist the final patient report and accompanying data.");
+        return optionWithArg(OUTPUT_BUCKET_FLAG, "Bucket in which to persist the final patient report and accompanying data.");
     }
 
     private static Option archiveBucket() {
@@ -225,10 +213,6 @@ public class CommandLineOptions {
         return optionWithArg(SBP_S3_URL_FLAG, "URL of the SBP S3 endpoint");
     }
 
-    private static Option sbpSampleId() {
-        return optionWithArg(SBP_SAMPLE_ID_FLAG, "SBP API internal numeric sample id");
-    }
-
     private static Option privateKey() {
         return optionWithArg(PRIVATE_KEY_FLAG,
                 "Fully qualified path to the private key for the service account used for all Google Cloud operations");
@@ -257,19 +241,6 @@ public class CommandLineOptions {
                         Arrays.stream(RefGenomeVersion.values()).map(Enum::name).collect(Collectors.joining(","))));
     }
 
-    private static Option version() {
-        return optionWithArg(VERSION_FLAG, "Version of pipeline5 to run in spark.");
-    }
-
-    private static Option alignerType() {
-        return optionWithArg(ALIGNER_TYPE_FLAG, "Aligner implementation to invoke.");
-    }
-
-    @NotNull
-    private static Option sampleId() {
-        return optionWithArg(SAMPLE_ID_FLAG, "ID of the sample for which to process (ie COLO829R, CPCT12345678T)");
-    }
-
     @NotNull
     private static Option sampleDirectory() {
         return optionWithArg(SAMPLE_DIRECTORY_FLAG, "Root directory of the patient data");
@@ -282,23 +253,18 @@ public class CommandLineOptions {
             Arguments defaults = Arguments.defaults(commandLine.getOptionValue(PROFILE_FLAG, DEFAULT_PROFILE));
 
             return Arguments.builder()
+                    .usePublicImage(defaults.usePublicImage())
                     .setId(commandLine.getOptionValue(SET_ID_FLAG, defaults.setId()))
                     .privateKeyPath(CommonArguments.privateKey(commandLine).or(defaults::privateKeyPath))
-                    .version(commandLine.getOptionValue(VERSION_FLAG, defaults.version()))
-                    .sampleDirectory(commandLine.getOptionValue(SAMPLE_DIRECTORY_FLAG, defaults.sampleDirectory()))
-                    .sampleId(commandLine.getOptionValue(SAMPLE_ID_FLAG, defaults.sampleId()))
                     .project(commandLine.getOptionValue(PROJECT_FLAG, defaults.project()))
                     .region(handleDashesInRegion(commandLine, defaults.region()))
                     .sbpApiUrl(commandLine.getOptionValue(SBP_API_URL_FLAG, defaults.sbpApiUrl()))
-                    .sbpApiSampleId(sbpApiSampleId(commandLine))
-                    .sbpS3Url(commandLine.getOptionValue(SBP_S3_URL_FLAG, defaults.sbpS3Url()))
                     .sbpApiRunId(sbpRunId(commandLine))
                     .cleanup(booleanOptionWithDefault(commandLine, CLEANUP_FLAG, defaults.cleanup()))
                     .runId(runId(commandLine))
                     .cloudSdkPath(commandLine.getOptionValue(CLOUD_SDK_PATH_FLAG, defaults.cloudSdkPath()))
                     .usePreemptibleVms(booleanOptionWithDefault(commandLine, USE_PREEMTIBLE_VMS_FLAG, defaults.usePreemptibleVms()))
                     .useLocalSsds(booleanOptionWithDefault(commandLine, USE_LOCAL_SSDS_FLAG, defaults.useLocalSsds()))
-                    .uploadFromGcp(booleanOptionWithDefault(commandLine, UPLOAD_FROM_GCP_FLAG, defaults.uploadFromGcp()))
                     .rclonePath(commandLine.getOptionValue(RCLONE_PATH_FLAG, defaults.rclonePath()))
                     .rcloneGcpRemote(commandLine.getOptionValue(RCLONE_GCP_REMOTE_FLAG, defaults.rcloneGcpRemote()))
                     .rcloneS3RemoteDownload(commandLine.getOptionValue(RCLONE_S3_REMOTE_DOWNLOAD_FLAG, defaults.rcloneS3RemoteDownload()))
@@ -312,11 +278,11 @@ public class CommandLineOptions {
                     .runStructuralCaller(booleanOptionWithDefault(commandLine, RUN_STRUCTURAL_CALLER_FLAG, defaults.runStructuralCaller()))
                     .runTertiary(booleanOptionWithDefault(commandLine, RUN_TERTIARY_FLAG, defaults.runTertiary()))
                     .serviceAccountEmail(commandLine.getOptionValue(SERVICE_ACCOUNT_EMAIL_FLAG, defaults.serviceAccountEmail()))
-                    .patientReportBucket(commandLine.getOptionValue(PATIENT_REPORT_BUCKET_FLAG, defaults.patientReportBucket()))
+                    .outputBucket(commandLine.getOptionValue(OUTPUT_BUCKET_FLAG, defaults.outputBucket()))
                     .archiveBucket(commandLine.getOptionValue(ARCHIVE_BUCKET_FLAG, defaults.archiveBucket()))
                     .archiveProject(commandLine.getOptionValue(ARCHIVE_PROJECT_FLAG, defaults.archiveProject()))
                     .archivePrivateKeyPath(commandLine.getOptionValue(ARCHIVE_PRIVATE_KEY_FLAG, defaults.archivePrivateKeyPath()))
-                    .privateNetwork(commandLine.getOptionValue(PRIVATE_NETWORK_FLAG, defaults.privateNetwork()))
+                    .network(commandLine.getOptionValue(NETWORK_FLAG, defaults.network()))
                     .uploadPrivateKeyPath(commandLine.getOptionValue(UPLOAD_PRIVATE_KEY_FLAG, defaults.uploadPrivateKeyPath()))
                     .cmek(cmek(commandLine, defaults))
                     .shallow(booleanOptionWithDefault(commandLine, SHALLOW_FLAG, defaults.shallow()))
@@ -339,9 +305,9 @@ public class CommandLineOptions {
         }
     }
 
-    private static String cmek(final CommandLine commandLine, final Arguments defaults) {
+    private static Optional<String> cmek(final CommandLine commandLine, final Arguments defaults) {
         if (commandLine.hasOption(CMEK_FLAG)) {
-            return commandLine.getOptionValue(CMEK_FLAG);
+            return Optional.of(commandLine.getOptionValue(CMEK_FLAG));
         }
         return defaults.cmek();
     }
@@ -401,17 +367,6 @@ public class CommandLineOptions {
     private static Optional<String> runId(CommandLine commandLine) {
         if (commandLine.hasOption(RUN_ID_FLAG)) {
             return Optional.of(commandLine.getOptionValue(RUN_ID_FLAG));
-        }
-        return Optional.empty();
-    }
-
-    private static Optional<Integer> sbpApiSampleId(CommandLine commandLine) {
-        if (commandLine.hasOption(SBP_SAMPLE_ID_FLAG)) {
-            try {
-                return Optional.of(Integer.parseInt(commandLine.getOptionValue(SBP_SAMPLE_ID_FLAG)));
-            } catch (NumberFormatException e) {
-                throw new RuntimeException(e);
-            }
         }
         return Optional.empty();
     }
