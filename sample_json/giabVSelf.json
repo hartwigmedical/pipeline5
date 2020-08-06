@@ -1,0 +1,116 @@
+{
+  "reference": {
+    "name": "GIABvsSELFv004R",
+    "lanes": [
+      {
+        "laneNumber": "L001",
+        "firstOfPairPath": "hmf-verification-data-fastq/GIABvsSELFv004/GIABvsSELFv004R_AHJGCWDSXX_S18_L001_R1_001.fastq.gz",
+        "secondOfPairPath": "hmf-verification-data-fastq/GIABvsSELFv004/GIABvsSELFv004R_AHJGCWDSXX_S18_L001_R2_001.fastq.gz",
+        "flowCellId": "HJGCWDSXX"
+      },
+      {
+        "laneNumber": "L002",
+        "firstOfPairPath": "hmf-verification-data-fastq/GIABvsSELFv004/GIABvsSELFv004R_AHJGCWDSXX_S18_L002_R1_001.fastq.gz",
+        "secondOfPairPath": "hmf-verification-data-fastq/GIABvsSELFv004/GIABvsSELFv004R_AHJGCWDSXX_S18_L002_R2_001.fastq.gz",
+        "flowCellId": "HJGCWDSXX"
+      },
+      {
+        "laneNumber": "L003",
+        "firstOfPairPath": "hmf-verification-data-fastq/GIABvsSELFv004/GIABvsSELFv004R_AHJGCWDSXX_S18_L003_R1_001.fastq.gz",
+        "secondOfPairPath": "hmf-verification-data-fastq/GIABvsSELFv004/GIABvsSELFv004R_AHJGCWDSXX_S18_L003_R2_001.fastq.gz",
+        "flowCellId": "HJGCWDSXX"
+      },
+      {
+        "laneNumber": "L004",
+        "firstOfPairPath": "hmf-verification-data-fastq/GIABvsSELFv004/GIABvsSELFv004R_AHJGCWDSXX_S18_L004_R1_001.fastq.gz",
+        "secondOfPairPath": "hmf-verification-data-fastq/GIABvsSELFv004/GIABvsSELFv004R_AHJGCWDSXX_S18_L004_R2_001.fastq.gz",
+        "flowCellId": "HJGCWDSXX"
+      }
+    ],
+    "barcode": "NA"
+  },
+  "tumor": {
+    "name": "GIABvsSELFv004T",
+    "lanes": [
+      {
+        "laneNumber": "L001",
+        "firstOfPairPath": "hmf-verification-data-fastq/GIABvsSELFv004/GIABvsSELFv004T_AHGWWNDSXX_S1_L001_R1_001.fastq.gz",
+        "secondOfPairPath": "hmf-verification-data-fastq/GIABvsSELFv004/GIABvsSELFv004T_AHGWWNDSXX_S1_L001_R2_001.fastq.gz",
+        "flowCellId": "HGWWNDSXX"
+      },
+      {
+        "laneNumber": "L002",
+        "firstOfPairPath": "hmf-verification-data-fastq/GIABvsSELFv004/GIABvsSELFv004T_AHGWWNDSXX_S1_L002_R1_001.fastq.gz",
+        "secondOfPairPath": "hmf-verification-data-fastq/GIABvsSELFv004/GIABvsSELFv004T_AHGWWNDSXX_S1_L002_R2_001.fastq.gz",
+        "flowCellId": "HGWWNDSXX"
+      },
+      {
+        "laneNumber": "L003",
+        "firstOfPairPath": "hmf-verification-data-fastq/GIABvsSELFv004/GIABvsSELFv004T_AHGWWNDSXX_S1_L003_R1_001.fastq.gz",
+        "secondOfPairPath": "hmf-verification-data-fastq/GIABvsSELFv004/GIABvsSELFv004T_AHGWWNDSXX_S1_L003_R2_001.fastq.gz",
+        "flowCellId": "HGWWNDSXX"
+      },
+      {
+        "laneNumber": "L004",
+        "firstOfPairPath": "hmf-verification-data-fastq/GIABvsSELFv004/GIABvsSELFv004T_AHGWWNDSXX_S1_L004_R1_001.fastq.gz",
+        "secondOfPairPath": "hmf-verification-data-fastq/GIABvsSELFv004/GIABvsSELFv004T_AHGWWNDSXX_S1_L004_R2_001.fastq.gz",
+        "flowCellId": "HGWWNDSXX"
+      },
+      {
+        "laneNumber": "L001",
+        "firstOfPairPath": "hmf-verification-data-fastq/GIABvsSELFv004/GIABvsSELFv004T_AHHTC3DSXX_S10_L001_R1_001.fastq.gz",
+        "secondOfPairPath": "hmf-verification-data-fastq/GIABvsSELFv004/GIABvsSELFv004T_AHHTC3DSXX_S10_L001_R2_001.fastq.gz",
+        "flowCellId": "HHTC3DSXX"
+      },
+      {
+        "laneNumber": "L001",
+        "firstOfPairPath": "hmf-verification-data-fastq/GIABvsSELFv004/GIABvsSELFv004T_BHGV53DSXX_S23_L001_R1_001.fastq.gz",
+        "secondOfPairPath": "hmf-verification-data-fastq/GIABvsSELFv004/GIABvsSELFv004T_BHGV53DSXX_S23_L001_R2_001.fastq.gz",
+        "flowCellId": "HGV53DSXX"
+      },
+      {
+        "laneNumber": "L002",
+        "firstOfPairPath": "hmf-verification-data-fastq/GIABvsSELFv004/GIABvsSELFv004T_BHGV53DSXX_S23_L002_R1_001.fastq.gz",
+        "secondOfPairPath": "hmf-verification-data-fastq/GIABvsSELFv004/GIABvsSELFv004T_BHGV53DSXX_S23_L002_R2_001.fastq.gz",
+        "flowCellId": "HGV53DSXX"
+      },
+      {
+        "laneNumber": "L003",
+        "firstOfPairPath": "hmf-verification-data-fastq/GIABvsSELFv004/GIABvsSELFv004T_BHGV53DSXX_S23_L003_R1_001.fastq.gz",
+        "secondOfPairPath": "hmf-verification-data-fastq/GIABvsSELFv004/GIABvsSELFv004T_BHGV53DSXX_S23_L003_R2_001.fastq.gz",
+        "flowCellId": "HGV53DSXX"
+      },
+      {
+        "laneNumber": "L004",
+        "firstOfPairPath": "hmf-verification-data-fastq/GIABvsSELFv004/GIABvsSELFv004T_BHGV53DSXX_S23_L004_R1_001.fastq.gz",
+        "secondOfPairPath": "hmf-verification-data-fastq/GIABvsSELFv004/GIABvsSELFv004T_BHGV53DSXX_S23_L004_R2_001.fastq.gz",
+        "flowCellId": "HGV53DSXX"
+      },
+      {
+        "laneNumber": "L001",
+        "firstOfPairPath": "hmf-verification-data-fastq/GIABvsSELFv004/GIABvsSELFv004T_BHGWTFDSXX_S1_L001_R1_001.fastq.gz",
+        "secondOfPairPath": "hmf-verification-data-fastq/GIABvsSELFv004/GIABvsSELFv004T_BHGWTFDSXX_S1_L001_R2_001.fastq.gz",
+        "flowCellId": "HGWTFDSXX"
+      },
+      {
+        "laneNumber": "L002",
+        "firstOfPairPath": "hmf-verification-data-fastq/GIABvsSELFv004/GIABvsSELFv004T_BHGWTFDSXX_S1_L002_R1_001.fastq.gz",
+        "secondOfPairPath": "hmf-verification-data-fastq/GIABvsSELFv004/GIABvsSELFv004T_BHGWTFDSXX_S1_L002_R2_001.fastq.gz",
+        "flowCellId": "HGWTFDSXX"
+      },
+      {
+        "laneNumber": "L003",
+        "firstOfPairPath": "hmf-verification-data-fastq/GIABvsSELFv004/GIABvsSELFv004T_BHGWTFDSXX_S1_L003_R1_001.fastq.gz",
+        "secondOfPairPath": "hmf-verification-data-fastq/GIABvsSELFv004/GIABvsSELFv004T_BHGWTFDSXX_S1_L003_R2_001.fastq.gz",
+        "flowCellId": "HGWTFDSXX"
+      },
+      {
+        "laneNumber": "L004",
+        "firstOfPairPath": "hmf-verification-data-fastq/GIABvsSELFv004/GIABvsSELFv004T_BHGWTFDSXX_S1_L004_R1_001.fastq.gz",
+        "secondOfPairPath": "hmf-verification-data-fastq/GIABvsSELFv004/GIABvsSELFv004T_BHGWTFDSXX_S1_L004_R2_001.fastq.gz",
+        "flowCellId": "HGWTFDSXX"
+      }
+    ],
+    "barcode": "NA"
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "tumor": {
+    "type": "TUMOR",
+    "name": "GIABMIXv003T",
+    "lanes": [
+      {
+        "laneNumber": "1",
+        "firstOfPairPath": "hmf-verification-data-fastq/GIABMIXv003/GIABMIXv003T_AHHTC3DSXX_S10_L001_R1_001.fastq.gz",
+        "secondOfPairPath": "hmf-verification-data-fastq/GIABMIXv003/GIABMIXv003T_AHHTC3DSXX_S10_L001_R2_001.fastq.gz"
+      },
+      {
+        "laneNumber": "3",
+        "firstOfPairPath": "hmf-verification-data-fastq/GIABMIXv003/GIABMIXv003T_AHHVJTDSXX_S3_L003_R1_001.fastq.gz",
+        "secondOfPairPath": "hmf-verification-data-fastq/GIABMIXv003/GIABMIXv003T_AHHVJTDSXX_S3_L003_R2_001.fastq.gz"
+      },
+      {
+        "laneNumber": "4",
+        "firstOfPairPath": "hmf-verification-data-fastq/GIABMIXv003/GIABMIXv003T_AHHVJTDSXX_S3_L004_R1_001.fastq.gz",
+        "secondOfPairPath": "hmf-verification-data-fastq/GIABMIXv003/GIABMIXv003T_AHHVJTDSXX_S3_L004_R2_001.fastq.gz"
+      }
+    ]
+  },
+  "reference": {
+    "type": "REFERENCE",
+    "name": "GIABMIXv003R_AHHVJTDSXX_S3_L001_R1_001.fastq.gz",
+    "lanes": [
+      {
+        "laneNumber": "1",
+        "firstOfPairPath": "hmf-verification-data-fastq/GIABMIXv003/GIABMIXv003R_AHHVJTDSXX_S3_L001_R1_001.fastq.gz",
+        "secondOfPairPath": "hmf-verification-data-fastq/GIABMIXv003/GIABMIXv003R_AHHVJTDSXX_S3_L001_R2_001.fastq.gz"
+      }
+    ]
+  }
+}
