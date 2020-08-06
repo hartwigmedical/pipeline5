@@ -1,5 +1,8 @@
 package com.hartwig.pipeline.storage;
 
+import java.io.InputStream;
+import java.util.List;
+
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Bucket;
@@ -10,11 +13,9 @@ import com.google.common.collect.Lists;
 import com.hartwig.pipeline.CommonArguments;
 import com.hartwig.pipeline.alignment.Run;
 import com.hartwig.pipeline.metadata.RunMetadata;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.InputStream;
-import java.util.List;
 
 public class RuntimeBucket {
 
@@ -48,11 +49,7 @@ public class RuntimeBucket {
             LOGGER.debug("Creating runtime bucket [{}] in Google Storage", runId);
             BucketInfo.Builder builder =
                     BucketInfo.newBuilder(runId).setStorageClass(StorageClass.REGIONAL).setLocation(arguments.region());
-            if (arguments.cmek().trim().isEmpty()) {
-                throw new IllegalArgumentException("CMEK key must be used");
-            }
-            LOGGER.info("Using CMEK key [{}] to encrypt all buckets", arguments.cmek());
-            builder.setDefaultKmsKeyName(arguments.cmek());
+            arguments.cmek().ifPresent(builder::setDefaultKmsKeyName);
             bucket = storage.create(builder.build());
         }
         return new RuntimeBucket(storage, bucket, namespace, runId);

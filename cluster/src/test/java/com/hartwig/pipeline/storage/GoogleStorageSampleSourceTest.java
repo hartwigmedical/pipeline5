@@ -29,7 +29,7 @@ import org.mockito.Mockito;
 @SuppressWarnings("unchecked")
 public class GoogleStorageSampleSourceTest {
 
-    private static final ImmutableArguments ARGUMENTS = Arguments.testDefaultsBuilder().sampleId(TestInputs.referenceSample()).build();
+    private static final ImmutableArguments ARGUMENTS = Arguments.testDefaultsBuilder().build();
     private SampleSource victim;
     private Storage storage;
 

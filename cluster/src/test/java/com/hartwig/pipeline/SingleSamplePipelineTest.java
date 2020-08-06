@@ -60,7 +60,7 @@ public class SingleSamplePipelineTest {
         eventListener = mock(SingleSampleEventListener.class);
         Storage storage = mock(Storage.class);
         Bucket reportBucket = mock(Bucket.class);
-        when(storage.get(ARGUMENTS.patientReportBucket())).thenReturn(reportBucket);
+        when(storage.get(ARGUMENTS.outputBucket())).thenReturn(reportBucket);
         stageRunner = mock(StageRunner.class);
         pipelineResults = PipelineResultsProvider.from(storage, ARGUMENTS, "test").get();
         initialiseVictim(false);

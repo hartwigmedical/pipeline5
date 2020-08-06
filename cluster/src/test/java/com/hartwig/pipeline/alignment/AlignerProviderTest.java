@@ -33,7 +33,7 @@ public class AlignerProviderTest {
     @Ignore
     @Test
     public void wiresUpBootstrapWithSbpDependencies() throws Exception {
-        AlignerProvider victim = AlignerProvider.from(credentials, storage, Arguments.testDefaultsBuilder().sbpApiSampleId(1).build());
+        AlignerProvider victim = AlignerProvider.from(credentials, storage, Arguments.testDefaultsBuilder().build());
         assertThat(victim.get()).isNotNull();
         assertThat(victim).isInstanceOf(AlignerProvider.SbpAlignerProvider.class);
     }

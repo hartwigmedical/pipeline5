@@ -9,7 +9,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -49,10 +48,6 @@ public class ComputeEngineTest {
     private Compute compute;
     private ImmutableVirtualMachineJobDefinition jobDefinition;
     private Instance instance;
-    private Compute.Instances instances;
-    private Compute.ZoneOperations zoneOperations;
-    private Compute.ZoneOperations.Get zoneOpGet;
-    private ArgumentCaptor<Instance> instanceArgumentCaptor;
     private InstanceLifecycleManager lifecycleManager;
     private BucketCompletionWatcher bucketWatcher;
 
@@ -63,10 +58,10 @@ public class ComputeEngineTest {
         when(getFromFamily.execute()).thenReturn(new Image());
         when(images.getFromFamily(ARGUMENTS.project(), VirtualMachineJobDefinition.STANDARD_IMAGE)).thenReturn(getFromFamily);
 
-        instanceArgumentCaptor = ArgumentCaptor.forClass(Instance.class);
+        final ArgumentCaptor<Instance> instanceArgumentCaptor = ArgumentCaptor.forClass(Instance.class);
         Operation insertOperation = mock(Operation.class);
         when(insertOperation.getName()).thenReturn("insert");
-        instances = mock(Compute.Instances.class);
+        final Compute.Instances instances = mock(Compute.Instances.class);
         lifecycleManager = mock(InstanceLifecycleManager.class);
         instance = mock(Instance.class);
         when(lifecycleManager.newInstance()).thenReturn(instance);
@@ -99,8 +94,8 @@ public class ComputeEngineTest {
         when(list.execute()).thenReturn(instanceList);
         when(instanceList.getItems()).thenReturn(existingInstances);
 
-        zoneOperations = mock(Compute.ZoneOperations.class);
-        zoneOpGet = mock(Compute.ZoneOperations.Get.class);
+        final Compute.ZoneOperations zoneOperations = mock(Compute.ZoneOperations.class);
+        final Compute.ZoneOperations.Get zoneOpGet = mock(Compute.ZoneOperations.Get.class);
         Operation zoneOpGetOperation = mock(Operation.class);
         when(zoneOpGetOperation.getStatus()).thenReturn(DONE);
         when(zoneOpGet.execute()).thenReturn(zoneOpGetOperation);
@@ -139,7 +134,7 @@ public class ComputeEngineTest {
     }
 
     @Test
-    public void createsVmWithRunScriptAndWaitsForCompletion() throws Exception {
+    public void createsVmWithRunScriptAndWaitsForCompletion() {
         returnSuccess();
         assertThat(victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition)).isEqualTo(PipelineStatus.SUCCESS);
     }
@@ -176,7 +171,7 @@ public class ComputeEngineTest {
     }
 
     @Test
-    public void deletesVmAfterJobIsSuccessful() throws Exception {
+    public void deletesVmAfterJobIsSuccessful() {
         returnSuccess();
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
         verify(lifecycleManager).delete(FIRST_ZONE_NAME, INSTANCE_NAME);
@@ -200,7 +195,7 @@ public class ComputeEngineTest {
     }
 
     @Test
-    public void usesPublicNetworkIfNoPrivateSpecified() throws Exception {
+    public void usesPublicNetworkIfNoPrivateSpecified() {
         returnSuccess();
         ArgumentCaptor<List<NetworkInterface>> captor = ArgumentCaptor.forClass(List.class);
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
@@ -213,9 +208,9 @@ public class ComputeEngineTest {
     }
 
     @Test
-    public void usesPrivateNetworkWhenSpecified() throws Exception {
+    public void usesPrivateNetworkWhenSpecified() {
         returnSuccess();
-        victim = new ComputeEngine(Arguments.testDefaultsBuilder().privateNetwork("private").build(), compute, z -> {
+        victim = new ComputeEngine(Arguments.testDefaultsBuilder().network("private").build(), compute, z -> {
         }, lifecycleManager, bucketWatcher);
         ArgumentCaptor<List<NetworkInterface>> interfaceCaptor = ArgumentCaptor.forClass(List.class);
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
@@ -231,7 +226,7 @@ public class ComputeEngineTest {
     }
 
     @Test
-    public void triesMultipleZonesWhenResourcesExhausted() throws Exception {
+    public void triesMultipleZonesWhenResourcesExhausted() {
         Operation resourcesExhausted = new Operation().setStatus("DONE")
                 .setName("insert")
                 .setError(new Operation.Error().setErrors(Collections.singletonList(new Operation.Error.Errors().setCode(ComputeEngine.ZONE_EXHAUSTED_ERROR_CODE))));
@@ -243,7 +238,7 @@ public class ComputeEngineTest {
     }
 
     @Test
-    public void triesMultipleZonesWhenUnsupportedOperation() throws Exception {
+    public void triesMultipleZonesWhenUnsupportedOperation() {
         Operation resourcesExhausted = new Operation().setStatus("DONE")
                 .setName("insert")
                 .setError(new Operation.Error().setErrors(Collections.singletonList(new Operation.Error.Errors().setCode(ComputeEngine.UNSUPPORTED_OPERATION_ERROR_CODE))));
@@ -255,14 +250,14 @@ public class ComputeEngineTest {
     }
 
     @Test
-    public void setsVmsToPreemptibleWhenFlagEnabled() throws Exception {
+    public void setsVmsToPreemptibleWhenFlagEnabled() {
         returnSuccess();
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
         verify(instance).setScheduling(eq(new Scheduling().setPreemptible(true)));
     }
 
     @Test
-    public void restartsPreemptedInstanceInNextZone() throws Exception {
+    public void restartsPreemptedInstanceInNextZone() {
         when(lifecycleManager.instanceStatus(any(), any())).thenReturn(ComputeEngine.PREEMPTED_INSTANCE);
         when(bucketWatcher.currentState(any(), any())).thenReturn(State.STILL_WAITING, State.STILL_WAITING, State.SUCCESS);
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
@@ -271,7 +266,7 @@ public class ComputeEngineTest {
     }
 
     @Test
-    public void attachesLocalSsdsWhenEnabled() throws Exception {
+    public void attachesLocalSsdsWhenEnabled() {
         returnSuccess();
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
         ArgumentCaptor<List<AttachedDisk>> disksCaptor = ArgumentCaptor.forClass(List.class);
@@ -288,7 +283,7 @@ public class ComputeEngineTest {
     }
 
     @Test
-    public void attachesTwoPersisentDisksWhenLocalSSDDisabled() throws Exception {
+    public void attachesTwoPersisentDisksWhenLocalSSDDisabled() {
         victim = new ComputeEngine(Arguments.builder().from(ARGUMENTS).useLocalSsds(false).build(), compute, z -> {
         }, lifecycleManager, bucketWatcher);
         returnSuccess();
@@ -310,7 +305,7 @@ public class ComputeEngineTest {
                 "https://www.googleapis.com/compute/v1/projects/hmf-pipeline-development/zones/europe-west4-a/diskTypes/local-ssd");
     }
 
-    private void returnSuccess() throws IOException {
+    private void returnSuccess() {
         when(bucketWatcher.currentState(any(), any())).thenReturn(State.STILL_WAITING, State.SUCCESS);
         Operation successOperation = mock(Operation.class);
         when(lifecycleManager.deleteOldInstancesAndStart(any(), any(), any())).thenReturn(successOperation);
