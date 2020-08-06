@@ -31,11 +31,9 @@ public interface Arguments extends CommonArguments {
 
     boolean runGermlineCaller();
 
-    boolean runSomaticCaller();
-
     boolean runSageCaller();
 
-    boolean runStructuralCaller();
+    boolean runGridssCaller();
 
     boolean runTertiary();
 
@@ -166,9 +164,8 @@ public interface Arguments extends CommonArguments {
                     .runAligner(true)
                     .runSnpGenotyper(true)
                     .runGermlineCaller(true)
-                    .runSomaticCaller(true)
                     .runSageCaller(true)
-                    .runStructuralCaller(true)
+                    .runGridssCaller(true)
                     .runTertiary(true)
                     .shallow(false)
                     .sampleId(EMPTY)
@@ -202,10 +199,9 @@ public interface Arguments extends CommonArguments {
                     .runAligner(true)
                     .runSnpGenotyper(true)
                     .runGermlineCaller(true)
-                    .runSomaticCaller(true)
                     .runSageCaller(true)
                     .runTertiary(true)
-                    .runStructuralCaller(true)
+                    .runGridssCaller(true)
                     .shallow(false)
                     .rclonePath(NOT_APPLICABLE)
                     .rcloneS3RemoteDownload(NOT_APPLICABLE)
@@ -245,10 +241,9 @@ public interface Arguments extends CommonArguments {
                     .runAligner(true)
                     .runSnpGenotyper(true)
                     .runGermlineCaller(true)
-                    .runSomaticCaller(true)
                     .runSageCaller(true)
                     .runTertiary(true)
-                    .runStructuralCaller(true)
+                    .runGridssCaller(true)
                     .shallow(false)
                     .rclonePath(NOT_APPLICABLE)
                     .rcloneS3RemoteDownload(NOT_APPLICABLE)

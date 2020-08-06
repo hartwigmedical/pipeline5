@@ -34,7 +34,7 @@ import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
 public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRunMetadata> {
-    public static final String NAMESPACE = "structural_caller";
+    public static final String NAMESPACE = "gridss";
 
     private final InputDownload referenceBam;
     private final InputDownload referenceBai;
@@ -145,6 +145,6 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
 
     @Override
     public boolean shouldRun(final Arguments arguments) {
-        return arguments.runStructuralCaller();
+        return arguments.runGridssCaller();
     }
 }

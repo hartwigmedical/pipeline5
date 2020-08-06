@@ -12,7 +12,7 @@ public interface StructuralCallerOutput extends StageOutput {
 
     @Override
     default String name() {
-        return "structural_caller";
+        return StructuralCaller.NAMESPACE;
     }
 
     Optional<GoogleStorageLocation> maybeFilteredVcf();

@@ -41,12 +41,12 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
     @Override
     protected List<String> expectedInputs() {
         return ImmutableList.of(input(expectedRuntimeBucketName() + "/sage/results/tumor.vcf.gz", "tumor.vcf.gz"),
-                input(expectedRuntimeBucketName() + "/structural_caller/results/tumor.gridss.filtered.vcf.gz",
+                input(expectedRuntimeBucketName() + "/gridss/results/tumor.gridss.filtered.vcf.gz",
                         "tumor.gridss.filtered.vcf.gz"),
-                input(expectedRuntimeBucketName() + "/structural_caller/results/tumor.gridss.filtered.vcf.gz.tbi",
+                input(expectedRuntimeBucketName() + "/gridss/results/tumor.gridss.filtered.vcf.gz.tbi",
                         "tumor.gridss.filtered.vcf.gz.tbi"),
-                input(expectedRuntimeBucketName() + "/structural_caller/results/tumor.gridss.full.vcf.gz", "tumor.gridss.full.vcf.gz"),
-                input(expectedRuntimeBucketName() + "/structural_caller/results/tumor.gridss.full.vcf.gz.tbi",
+                input(expectedRuntimeBucketName() + "/gridss/results/tumor.gridss.full.vcf.gz", "tumor.gridss.full.vcf.gz"),
+                input(expectedRuntimeBucketName() + "/gridss/results/tumor.gridss.full.vcf.gz.tbi",
                         "tumor.gridss.full.vcf.gz.tbi"),
                 input(expectedRuntimeBucketName() + "/amber/results/", "results"),
                 input(expectedRuntimeBucketName() + "/cobalt/results/", "results"));
