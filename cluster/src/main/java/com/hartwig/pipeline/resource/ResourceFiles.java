@@ -2,6 +2,8 @@ package com.hartwig.pipeline.resource;
 
 import static com.hartwig.pipeline.resource.ResourceNames.COSMIC;
 import static com.hartwig.pipeline.resource.ResourceNames.DBNSFP;
+import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_CONFIG;
+import static com.hartwig.pipeline.resource.ResourceNames.VIRUS_REFERENCE_GENOME;
 
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 
@@ -29,6 +31,14 @@ public interface ResourceFiles {
 
     default String gridssRepeatMaskerDbBed() {
         return gridssRepeatMaskerDb() + ".bed";
+    }
+
+    default String gridssVirusRefGenomeFile() {
+       return of(VIRUS_REFERENCE_GENOME, "human_virus.fa");
+    }
+
+    default String gridssPropertiesFile() {
+        return of(GRIDSS_CONFIG, "gridss.properties");
     }
 
     String gridssBlacklistBed();

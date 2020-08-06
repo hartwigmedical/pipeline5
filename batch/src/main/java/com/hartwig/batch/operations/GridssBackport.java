@@ -3,8 +3,6 @@ package com.hartwig.batch.operations;
 import static java.lang.String.format;
 
 import static com.hartwig.pipeline.execution.vm.OutputFile.GZIPPED_VCF;
-import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_CONFIG;
-import static com.hartwig.pipeline.resource.ResourceNames.VIRUS_REFERENCE_GENOME;
 
 import java.io.File;
 import java.util.Collections;
@@ -91,20 +89,17 @@ public class GridssBackport implements BatchOperation {
 
         // 6. Allocate Evidence
         final OutputFile newRawVcf = OutputFile.of(sample, "gridss_" + Versions.GRIDSS.replace(".", "_") + ".raw", GZIPPED_VCF);
-        final String configurationFilePath = ResourceFiles.of(GRIDSS_CONFIG, "gridss.properties");
         startupScript.addCommand(new AllocateEvidence(emptyBam1,
                 emptyBam2,
                 newAssemblyBam,
                 inputVcf.localDestination(),
                 newRawVcf.path(),
                 resourceFiles.refGenomeFile(),
-                configurationFilePath));
+                resourceFiles.gridssPropertiesFile()));
 
         // 7. Gridss Annotation
-        // TODO: This should be in resource files!
-        String virusReferenceGenomePath = ResourceFiles.of(VIRUS_REFERENCE_GENOME, "human_virus.fa");
         final SubStageInputOutput annotation =
-                new GridssAnnotation(resourceFiles, virusReferenceGenomePath, true).apply(SubStageInputOutput.of(sample,
+                new GridssAnnotation(resourceFiles, true).apply(SubStageInputOutput.of(sample,
                         newRawVcf,
                         Collections.emptyList()));
         startupScript.addCommands(annotation.bash());

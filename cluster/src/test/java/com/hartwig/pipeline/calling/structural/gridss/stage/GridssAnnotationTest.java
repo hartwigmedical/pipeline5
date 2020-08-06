@@ -11,11 +11,9 @@ import org.junit.Test;
 
 public class GridssAnnotationTest extends SubStageTest {
 
-    private static final String VIRAL_GENOME = "/path/to/virus_genome.fa";
-
     @Override
     public SubStage createVictim() {
-        return new GridssAnnotation(TestInputs.HG37_RESOURCE_FILES, VIRAL_GENOME, true);
+        return new GridssAnnotation(TestInputs.HG37_RESOURCE_FILES, true);
     }
 
     @Override
@@ -31,7 +29,7 @@ public class GridssAnnotationTest extends SubStageTest {
         assertThat(output.bash().get(0).asBash()).contains(expectedGridssCall
                 + " gridss.AnnotateInsertedSequence REFERENCE_SEQUENCE=/opt/resources/reference_genome/hg37/Homo_sapiens.GRCh37.GATK.illumina.fasta INPUT=/data/output/tumor.strelka.vcf OUTPUT=/data/output/tumor.strelka.vcf.repeatmasker.vcf.gz ALIGNMENT=REPLACE WORKER_THREADS=$(grep -c '^processor' /proc/cpuinfo) REPEAT_MASKER_BED=/opt/resources/gridss_repeatmasker_db/hg37/hg19.fa.out.bed");
         assertThat(output.bash().get(1).asBash()).contains(expectedGridssCall
-                + " gridss.AnnotateInsertedSequence REFERENCE_SEQUENCE=/path/to/virus_genome.fa INPUT=/data/output/tumor.strelka.vcf.repeatmasker.vcf.gz OUTPUT=/data/output/tumor.gridss.unfiltered.vcf.gz ALIGNMENT=APPEND WORKER_THREADS=$(grep -c '^processor' /proc/cpuinfo)");
+                + " gridss.AnnotateInsertedSequence REFERENCE_SEQUENCE=/opt/resources/virus_reference_genome/human_virus.fa INPUT=/data/output/tumor.strelka.vcf.repeatmasker.vcf.gz OUTPUT=/data/output/tumor.gridss.unfiltered.vcf.gz ALIGNMENT=APPEND WORKER_THREADS=$(grep -c '^processor' /proc/cpuinfo)");
     }
 
 }

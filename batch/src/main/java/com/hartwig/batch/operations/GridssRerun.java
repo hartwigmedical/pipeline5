@@ -5,8 +5,6 @@ import static java.lang.String.format;
 import static com.hartwig.batch.operations.GridssBackport.index;
 import static com.hartwig.batch.operations.GridssBackport.remoteUnfilteredVcfArchivePath;
 import static com.hartwig.batch.operations.SageRerun.cramToBam;
-import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_CONFIG;
-import static com.hartwig.pipeline.resource.ResourceNames.VIRUS_REFERENCE_GENOME;
 
 import java.io.File;
 
@@ -19,7 +17,6 @@ import com.hartwig.pipeline.calling.command.BwaCommand;
 import com.hartwig.pipeline.calling.command.SamtoolsCommand;
 import com.hartwig.pipeline.calling.structural.gridss.stage.Driver;
 import com.hartwig.pipeline.calling.structural.gridss.stage.GridssAnnotation;
-import com.hartwig.pipeline.calling.structural.gridss.stage.TabixDriverOutput;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.OutputFile;
 import com.hartwig.pipeline.execution.vm.OutputUpload;
@@ -55,21 +52,9 @@ public class GridssRerun implements BatchOperation {
         final String tumorBamPath = localTumorFile.replace("cram", "bam");
         final String refBamPath = localReferenceFile.replace("cram", "bam");
 
-        // Copied from structural caller
-        String configurationFilePath = ResourceFiles.of(GRIDSS_CONFIG, "gridss.properties");
-        String blacklistBedPath = resourceFiles.gridssBlacklistBed();
-        String virusReferenceGenomePath = ResourceFiles.of(VIRUS_REFERENCE_GENOME, "human_virus.fa");
-
-        Driver driver = new Driver(VmDirectories.outputFile(tumorSampleName + ".assembly.bam"),
-                resourceFiles.refGenomeFile(),
-                blacklistBedPath,
-                configurationFilePath,
-                resourceFiles.gridssRepeatMaskerDbBed(),
-                refBamPath,
-                tumorBamPath);
-        SubStageInputOutput unfilteredVcfOutput = driver.andThen(new TabixDriverOutput())
-                .andThen(new GridssAnnotation(resourceFiles, virusReferenceGenomePath, false))
-                .apply(SubStageInputOutput.empty(tumorSampleName));
+        Driver driver = new Driver(resourceFiles, VmDirectories.outputFile(tumorSampleName + ".assembly.bam"), refBamPath, tumorBamPath);
+        GridssAnnotation viralAnnotation = new GridssAnnotation(resourceFiles, false);
+        SubStageInputOutput unfilteredVcfOutput = driver.andThen(viralAnnotation).apply(SubStageInputOutput.empty(tumorSampleName));
 
         final OutputFile unfilteredVcf = unfilteredVcfOutput.outputFile();
         final OutputFile unfilteredVcfIndex = unfilteredVcf.index(".tbi");
