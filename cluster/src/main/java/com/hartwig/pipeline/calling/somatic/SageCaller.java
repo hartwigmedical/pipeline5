@@ -98,7 +98,7 @@ public class SageCaller extends TertiaryStage<SomaticCallerOutput> {
 
     @Override
     public boolean shouldRun(final Arguments arguments) {
-        return arguments.runSageCaller();
+        return arguments.runSomaticCaller();
     }
 
     private ReportComponent bqrComponent(final SingleSampleRunMetadata metadata, final String extension, final RuntimeBucket bucket,

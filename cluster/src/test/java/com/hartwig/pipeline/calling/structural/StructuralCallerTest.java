@@ -25,7 +25,7 @@ public class StructuralCallerTest extends StageTest<StructuralCallerOutput, Soma
 
     @Override
     protected Arguments createDisabledArguments() {
-        return Arguments.testDefaultsBuilder().runGridssCaller(false).build();
+        return Arguments.testDefaultsBuilder().runStructuralCaller(false).build();
     }
 
     @Override

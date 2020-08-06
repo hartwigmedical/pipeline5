@@ -15,21 +15,15 @@ import com.hartwig.pipeline.tools.Versions;
 public class Driver extends SubStage {
 
     private static final String GRIDSS = "gridss";
+    private final ResourceFiles resourceFiles;
     private final String assemblyBamPath;
-    private final String referenceGenomePath;
-    private final String blacklistBedPath;
-    private final String gridssConfigPath;
-    private final String repeatMaskerDbBed;
-    private final String referenceBamPath;
     private final String tumorBamPath;
+    private final String referenceBamPath;
 
     public Driver(final ResourceFiles resourceFiles, final String assemblyBamPath, final String referenceBamPath, final String tumorBamPath) {
         super("gridss.driver", OutputFile.GZIPPED_VCF);
+        this.resourceFiles = resourceFiles;
         this.assemblyBamPath = assemblyBamPath;
-        this.referenceGenomePath =  resourceFiles.refGenomeFile();
-        this.blacklistBedPath = resourceFiles.gridssBlacklistBed();
-        this.gridssConfigPath = resourceFiles.gridssPropertiesFile();
-        this.repeatMaskerDbBed = resourceFiles.gridssRepeatMaskerDbBed();
         this.referenceBamPath = referenceBamPath;
         this.tumorBamPath = tumorBamPath;
     }
@@ -46,15 +40,15 @@ public class Driver extends SubStage {
                 "-w",
                 VmDirectories.OUTPUT,
                 "-r",
-                referenceGenomePath,
+                resourceFiles.refGenomeFile(),
                 "-j",
                 VmDirectories.TOOLS + "/" + GRIDSS + "/" + Versions.GRIDSS + "/gridss.jar",
                 "-b",
-                blacklistBedPath,
+                resourceFiles.gridssBlacklistBed(),
                 "-c",
-                gridssConfigPath,
+                resourceFiles.gridssPropertiesFile(),
                 "--repeatmaskerbed",
-                repeatMaskerDbBed,
+                resourceFiles.gridssRepeatMaskerDbBed(),
                 "--jvmheap",
                 "31G",
                 referenceBamPath,

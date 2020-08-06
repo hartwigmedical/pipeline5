@@ -54,8 +54,8 @@ public class CommandLineOptions {
     private static final String PUBLISH_TO_TURQUOISE_FLAG = "publish_to_turquoise";
     private static final String RUN_GERMLINE_CALLER_FLAG = "run_germline_caller";
     private static final String RUN_SNP_GENOTYPER_FLAG = "run_snp_genotyper";
-    private static final String RUN_SAGE_CALLER_FLAG = "run_sage_caller";
-    private static final String RUN_GRIDSS_CALLER_FLAG = "run_structural_caller";
+    private static final String RUN_SOMATIC_CALLER_FLAG = "run_somatic_caller";
+    private static final String RUN_STRUCTURAL_CALLER_FLAG = "run_structural_caller";
     private static final String RUN_TERTIARY_FLAG = "run_tertiary";
     private static final String PATIENT_REPORT_BUCKET_FLAG = "patient_report_bucket";
     private static final String ARCHIVE_BUCKET_FLAG = "archive_bucket";
@@ -107,8 +107,8 @@ public class CommandLineOptions {
                 .addOption(optionWithBooleanArg(RUN_METRICS_FLAG, "Run wgs metricsOutputFile after BAM creation"))
                 .addOption(optionWithBooleanArg(RUN_ALIGNER_FLAG, "Run the aligner on Google Dataproc"))
                 .addOption(optionWithBooleanArg(RUN_GERMLINE_CALLER_FLAG, "Run germline calling (gatk) on a VM"))
-                .addOption(optionWithBooleanArg(RUN_SAGE_CALLER_FLAG, "Run somatic calling (sage) on a VM"))
-                .addOption(optionWithBooleanArg(RUN_GRIDSS_CALLER_FLAG, "Run structural calling (gridss) on a VM"))
+                .addOption(optionWithBooleanArg(RUN_SOMATIC_CALLER_FLAG, "Run somatic calling (sage) on a VM"))
+                .addOption(optionWithBooleanArg(RUN_STRUCTURAL_CALLER_FLAG, "Run structural calling (gridss) on a VM"))
                 .addOption(optionWithBooleanArg(RUN_TERTIARY_FLAG, "Run tertiary analysis algorithms (amber, cobalt, purple)"))
                 .addOption(optionWithBooleanArg(RUN_SNP_GENOTYPER_FLAG, "Run snp genotyper for QC against genotyping"))
                 .addOption(serviceAccountEmail())
@@ -305,8 +305,8 @@ public class CommandLineOptions {
                     .runAligner(booleanOptionWithDefault(commandLine, RUN_ALIGNER_FLAG, defaults.runAligner()))
                     .runSnpGenotyper(booleanOptionWithDefault(commandLine, RUN_SNP_GENOTYPER_FLAG, defaults.runSnpGenotyper()))
                     .runGermlineCaller(booleanOptionWithDefault(commandLine, RUN_GERMLINE_CALLER_FLAG, defaults.runGermlineCaller()))
-                    .runSageCaller(booleanOptionWithDefault(commandLine, RUN_SAGE_CALLER_FLAG, defaults.runSageCaller()))
-                    .runGridssCaller(booleanOptionWithDefault(commandLine, RUN_GRIDSS_CALLER_FLAG, defaults.runGridssCaller()))
+                    .runSomaticCaller(booleanOptionWithDefault(commandLine, RUN_SOMATIC_CALLER_FLAG, defaults.runSomaticCaller()))
+                    .runStructuralCaller(booleanOptionWithDefault(commandLine, RUN_STRUCTURAL_CALLER_FLAG, defaults.runStructuralCaller()))
                     .runTertiary(booleanOptionWithDefault(commandLine, RUN_TERTIARY_FLAG, defaults.runTertiary()))
                     .serviceAccountEmail(commandLine.getOptionValue(SERVICE_ACCOUNT_EMAIL_FLAG, defaults.serviceAccountEmail()))
                     .patientReportBucket(commandLine.getOptionValue(PATIENT_REPORT_BUCKET_FLAG, defaults.patientReportBucket()))

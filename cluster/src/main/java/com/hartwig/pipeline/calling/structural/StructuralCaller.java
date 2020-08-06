@@ -145,6 +145,6 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
 
     @Override
     public boolean shouldRun(final Arguments arguments) {
-        return arguments.runGridssCaller();
+        return arguments.runStructuralCaller();
     }
 }
