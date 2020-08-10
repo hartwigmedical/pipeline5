@@ -1,13 +1,6 @@
 package com.hartwig.pipeline.calling.structural;
 
-import static java.lang.String.format;
-
-import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_CONFIG;
-import static com.hartwig.pipeline.resource.ResourceNames.VIRUS_REFERENCE_GENOME;
-
 import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,9 +12,9 @@ import com.hartwig.pipeline.calling.SubStageInputOutput;
 import com.hartwig.pipeline.calling.command.BwaCommand;
 import com.hartwig.pipeline.calling.command.SamtoolsCommand;
 import com.hartwig.pipeline.calling.structural.gridss.stage.Driver;
-import com.hartwig.pipeline.calling.structural.gridss.stage.Filter;
 import com.hartwig.pipeline.calling.structural.gridss.stage.GridssAnnotation;
-import com.hartwig.pipeline.calling.structural.gridss.stage.TabixDriverOutput;
+import com.hartwig.pipeline.calling.structural.gridss.stage.GridssPassAndPonFilter;
+import com.hartwig.pipeline.calling.structural.gridss.stage.GridssSomaticFilter;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
@@ -35,14 +28,13 @@ import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.report.StartupScriptComponent;
 import com.hartwig.pipeline.report.ZippedVcfAndIndexComponent;
-import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
 public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRunMetadata> {
-    public static final String NAMESPACE = "structural_caller";
+    public static final String NAMESPACE = "gridss";
 
     private final InputDownload referenceBam;
     private final InputDownload referenceBai;
@@ -51,8 +43,8 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
 
     private final ResourceFiles resourceFiles;
     private String unfilteredVcf;
+    private String somaticVcf;
     private String somaticFilteredVcf;
-    private String somaticAndQualityFilteredVcf;
 
     public StructuralCaller(final AlignmentPair pair, final ResourceFiles resourceFiles) {
         this.resourceFiles = resourceFiles;
@@ -74,48 +66,27 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
 
     @Override
     public List<BashCommand> commands(final SomaticRunMetadata metadata) {
-        List<BashCommand> commands = new ArrayList<>();
-        commands.add(new ExportPathCommand(new BwaCommand()));
-        commands.add(new ExportPathCommand(new SamtoolsCommand()));
-
-        // TEMP
-        if (resourceFiles.version() == RefGenomeVersion.HG38) {
-            final String bwtFileOld = "/opt/resources/reference_genome/hg38/Homo_sapiens_assembly38.fasta.64.bwt";
-            final String bwtFileNew = "/opt/resources/reference_genome/hg38/Homo_sapiens_assembly38.fasta.bwt";
-
-            if (Files.exists(Paths.get(bwtFileOld)) && !Files.exists(Paths.get(bwtFileNew))) {
-                commands.add(() -> format("cp %s %s", bwtFileOld, bwtFileNew));
-            }
-        }
-
         String tumorSampleName = metadata.tumor().sampleName();
         String refBamPath = referenceBam.getLocalTargetPath();
         String tumorBamPath = tumorBam.getLocalTargetPath();
 
-        String configurationFilePath = ResourceFiles.of(GRIDSS_CONFIG, "gridss.properties");
-        String blacklistBedPath = resourceFiles.gridssBlacklistBed();
-        String virusReferenceGenomePath = ResourceFiles.of(VIRUS_REFERENCE_GENOME, "human_virus.fa");
+        Driver driver = new Driver(resourceFiles, VmDirectories.outputFile(tumorSampleName + ".assembly.bam"), refBamPath, tumorBamPath);
+        GridssAnnotation viralAnnotation = new GridssAnnotation(resourceFiles, false);
+        GridssSomaticFilter somaticFilter = new GridssSomaticFilter(resourceFiles);
+        GridssPassAndPonFilter passAndPonFilter = new GridssPassAndPonFilter();
 
-        Driver driver = new Driver(VmDirectories.outputFile(tumorSampleName + ".assembly.bam"),
-                resourceFiles.refGenomeFile(),
-                blacklistBedPath,
-                configurationFilePath,
-                resourceFiles.gridssRepeatMaskerDbBed(),
-                refBamPath,
-                tumorBamPath);
-        SubStageInputOutput unfilteredVcfOutput = driver.andThen(new TabixDriverOutput())
-                .andThen(new GridssAnnotation(resourceFiles, virusReferenceGenomePath, false))
-                .apply(SubStageInputOutput.empty(tumorSampleName));
-
-        String somaticFilteredVcfBasename = VmDirectories.outputFile(format("%s.gridss.somatic.vcf", tumorSampleName));
-        String somaticAndQualityFilteredVcfBasename = VmDirectories.outputFile(format("%s.gridss.somatic.filtered.vcf", tumorSampleName));
-        SubStageInputOutput filteredAndAnnotated =
-                new Filter(somaticAndQualityFilteredVcfBasename, somaticFilteredVcfBasename).apply(unfilteredVcfOutput);
-        commands.addAll(filteredAndAnnotated.bash());
+        SubStageInputOutput unfilteredVcfOutput = driver.andThen(viralAnnotation).apply(SubStageInputOutput.empty(tumorSampleName));
+        SubStageInputOutput somaticOutput = somaticFilter.apply(unfilteredVcfOutput);
+        SubStageInputOutput somaticFilteredOutput = passAndPonFilter.apply(somaticOutput);
 
         unfilteredVcf = unfilteredVcfOutput.outputFile().path();
-        somaticFilteredVcf = somaticFilteredVcfBasename + ".gz";
-        somaticAndQualityFilteredVcf = somaticAndQualityFilteredVcfBasename + ".gz";
+        somaticVcf = somaticOutput.outputFile().path();
+        somaticFilteredVcf = somaticFilteredOutput.outputFile().path();
+
+        List<BashCommand> commands = new ArrayList<>();
+        commands.add(new ExportPathCommand(new BwaCommand()));
+        commands.add(new ExportPathCommand(new SamtoolsCommand()));
+        commands.addAll(somaticFilteredOutput.bash());
         return commands;
     }
 
@@ -133,11 +104,11 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
             final ResultsDirectory resultsDirectory) {
         return StructuralCallerOutput.builder()
                 .status(jobStatus)
-                .maybeFilteredVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(somaticAndQualityFilteredVcf))))
+                .maybeFilteredVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(somaticFilteredVcf))))
                 .maybeFilteredVcfIndex(GoogleStorageLocation.of(bucket.name(),
-                        resultsDirectory.path(basename(somaticAndQualityFilteredVcf + ".tbi"))))
-                .maybeFullVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(somaticFilteredVcf))))
-                .maybeFullVcfIndex(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(somaticFilteredVcf + ".tbi"))))
+                        resultsDirectory.path(basename(somaticFilteredVcf + ".tbi"))))
+                .maybeFullVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(somaticVcf))))
+                .maybeFullVcfIndex(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(somaticVcf + ".tbi"))))
                 .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
                         NAMESPACE,
                         Folder.from(),
@@ -147,14 +118,14 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
                 .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
                         NAMESPACE,
                         Folder.from(),
-                        basename(somaticFilteredVcf),
-                        basename(somaticFilteredVcf),
+                        basename(somaticVcf),
+                        basename(somaticVcf),
                         resultsDirectory))
                 .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
                         NAMESPACE,
                         Folder.from(),
-                        basename(somaticAndQualityFilteredVcf),
-                        basename(somaticAndQualityFilteredVcf),
+                        basename(somaticFilteredVcf),
+                        basename(somaticFilteredVcf),
                         resultsDirectory))
                 .addReportComponents(new EntireOutputComponent(bucket,
                         Folder.from(),

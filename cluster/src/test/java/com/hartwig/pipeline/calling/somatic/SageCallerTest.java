@@ -53,7 +53,7 @@ public class SageCallerTest extends TertiaryStageTest<SomaticCallerOutput> {
 
     @Override
     protected Arguments createDisabledArguments() {
-        return Arguments.testDefaultsBuilder().runSageCaller(false).build();
+        return Arguments.testDefaultsBuilder().runSomaticCaller(false).build();
     }
 
 }

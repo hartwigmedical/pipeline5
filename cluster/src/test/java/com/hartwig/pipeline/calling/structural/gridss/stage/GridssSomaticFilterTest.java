@@ -21,7 +21,7 @@ public class GridssSomaticFilterTest extends SubStageTest {
 
     @Test
     public void expectedOutput() {
-        assertThat(bash()).contains("java -Xmx16G -cp /opt/tools/gripss/1.1/gripss.jar com.hartwig.hmftools.gripss.GripssApplicationKt "
+        assertThat(bash()).contains("java -Xmx16G -cp /opt/tools/gripss/1.2/gripss.jar com.hartwig.hmftools.gripss.GripssApplicationKt "
                 + "-ref_genome /opt/resources/reference_genome/hg37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
                 + "-breakpoint_hotspot /opt/resources/knowledgebases/hg37/KnownFusionPairs.hg19.bedpe "
                 + "-breakend_pon /opt/resources/gridss_pon/hg37/gridss_pon_single_breakend.hg19.bed "

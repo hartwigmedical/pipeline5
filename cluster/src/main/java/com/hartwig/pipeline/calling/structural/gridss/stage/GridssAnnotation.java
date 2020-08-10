@@ -15,10 +15,10 @@ public class GridssAnnotation extends SubStage {
     private final ResourceFiles resourceFiles;
     private final boolean applyRepeatMasker;
 
-    public GridssAnnotation(final ResourceFiles resourceFiles, final String virusReferenceGenomePath, final boolean applyRepeatMasker) {
+    public GridssAnnotation(final ResourceFiles resourceFiles, final boolean applyRepeatMasker) {
         super("gridss.unfiltered", OutputFile.GZIPPED_VCF);
         this.resourceFiles = resourceFiles;
-        this.virusReferenceGenomePath = virusReferenceGenomePath;
+        this.virusReferenceGenomePath = resourceFiles.gridssVirusRefGenomeFile();
         this.applyRepeatMasker = applyRepeatMasker;
     }
 
