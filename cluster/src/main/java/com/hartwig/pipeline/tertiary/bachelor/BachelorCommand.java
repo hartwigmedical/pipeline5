@@ -25,6 +25,7 @@ class BachelorCommand extends JavaJarCommand {
                         clinVarFiltersPath,
                         "-ref_genome",
                         refGenomePath,
+                        "-include_vcf_filtered",
                         "-output_dir",
                         outputDir,
                         "-log_debug").build());

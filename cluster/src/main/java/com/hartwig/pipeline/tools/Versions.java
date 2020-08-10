@@ -25,7 +25,7 @@ public interface Versions {
     String GRIDSS = "2.9.3";
     String GRIPSS = "1.2";
     String LINX = "1.7";
-    String BACHELOR = "1.9";
+    String BACHELOR = "1.10";
     String CHORD = "60.02_1.03";
     String SAMTOOLS = "1.10";
     String BAMCOMP = "1.3";
