@@ -253,7 +253,6 @@ public interface Arguments extends CommonArguments {
                     .runSnpGenotyper(true)
                     .runGermlineCaller(true)
                     .runSomaticCaller(true)
-                    .runSageCaller(true)
                     .runTertiary(true)
                     .runStructuralCaller(true)
                     .shallow(false)
