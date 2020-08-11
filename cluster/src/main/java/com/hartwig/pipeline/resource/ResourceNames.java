@@ -6,7 +6,7 @@ public interface ResourceNames {
     String GENOTYPE_SNPS = "genotype_snps";
     String GC_PROFILE = "gc";
     String MAPPABILITY = "mappability";
-    String BEDS = "beds";
+    String GIAB_HIGH_CONF = "GIAB_high_conf";
     String SAGE = "sage";
     String SNPEFF = "snpeff";
     String AMBER_PON = "amber_pon";

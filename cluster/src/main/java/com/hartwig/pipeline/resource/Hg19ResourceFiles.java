@@ -2,9 +2,9 @@ package com.hartwig.pipeline.resource;
 
 import static com.hartwig.pipeline.resource.ResourceNames.AMBER_PON;
 import static com.hartwig.pipeline.resource.ResourceNames.BACHELOR;
-import static com.hartwig.pipeline.resource.ResourceNames.BEDS;
 import static com.hartwig.pipeline.resource.ResourceNames.ENSEMBL;
 import static com.hartwig.pipeline.resource.ResourceNames.GC_PROFILE;
+import static com.hartwig.pipeline.resource.ResourceNames.GIAB_HIGH_CONF;
 import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_PON;
 import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_REPEAT_MASKER_DB;
 import static com.hartwig.pipeline.resource.ResourceNames.KNOWLEDGEBASES;
@@ -80,7 +80,7 @@ public class Hg19ResourceFiles implements ResourceFiles {
     }
 
     public String giabHighConfidenceBed() {
-        return formPath(BEDS, "NA12878_GIAB_highconf_IllFB-IllGATKHC-CG-Ion-Solid_ALLCHROM_v3.2.2_highconf.bed.gz");
+        return formPath(GIAB_HIGH_CONF, "NA12878_GIAB_highconf_IllFB-IllGATKHC-CG-Ion-Solid_ALLCHROM_v3.2.2_highconf.bed.gz");
     }
 
     public String knownFusionPairBedpe() { return formPath(KNOWLEDGEBASES,"KnownFusionPairs.hg19.bedpe"); }
