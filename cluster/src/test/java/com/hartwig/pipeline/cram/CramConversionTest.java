@@ -9,7 +9,7 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
-import com.hartwig.pipeline.resource.Hg37ResourceFiles;
+import com.hartwig.pipeline.resource.Hg19ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.StageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
@@ -57,7 +57,7 @@ public class CramConversionTest extends StageTest<CramOutput, SingleSampleRunMet
         String samtools = "/opt/tools/samtools/1.10/samtools";
         String input = "/data/input/reference.bam";
         String output = "/data/output/reference.cram";
-        final Hg37ResourceFiles resourceFiles = new Hg37ResourceFiles();
+        final Hg19ResourceFiles resourceFiles = new Hg19ResourceFiles();
 
         return ImmutableList.of(
 

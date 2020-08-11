@@ -9,10 +9,7 @@ public interface ResourceNames {
     String BEDS = "beds";
     String SAGE = "sage";
     String SNPEFF = "snpeff";
-    String COSMIC = "cosmic_v85";
     String AMBER_PON = "amber_pon";
-    String DBNSFP = "dbNSFP_v2.9";
-    String GONL = "gonl_v5";
     String GRIDSS_CONFIG = "gridss_config";
     String GRIDSS_PON = "gridss_pon";
     String GRIDSS_REPEAT_MASKER_DB = "gridss_repeatmasker_db";

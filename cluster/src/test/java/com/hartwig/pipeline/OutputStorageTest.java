@@ -33,7 +33,7 @@ public class OutputStorageTest {
     public void waitsForBamMetricsOutput() {
         Blob success = TestBlobs.blob(RuntimeFiles.typical().success());
         when(runtimeBucket.get(success.getName())).thenReturn(null).thenReturn(success);
-        assertThat(victim.get(TestInputs.referenceRunMetadata(), new BamMetrics(TestInputs.HG37_RESOURCE_FILES, TestInputs.referenceAlignmentOutput())).metricsOutputFile())
+        assertThat(victim.get(TestInputs.referenceRunMetadata(), new BamMetrics(TestInputs.HG19_RESOURCE_FILES, TestInputs.referenceAlignmentOutput())).metricsOutputFile())
                 .isEqualTo(TestInputs.referenceMetricsOutput().metricsOutputFile());
     }
 
@@ -42,7 +42,7 @@ public class OutputStorageTest {
         victim = new OutputStorage<>(ResultsDirectory.defaultDirectory(),
                 Arguments.testDefaultsBuilder().runBamMetrics(false).build(),
                 metadata -> runtimeBucket);
-        assertThat(victim.get(TestInputs.referenceRunMetadata(), new BamMetrics(TestInputs.HG37_RESOURCE_FILES, TestInputs.referenceAlignmentOutput())).status()).isEqualTo(
+        assertThat(victim.get(TestInputs.referenceRunMetadata(), new BamMetrics(TestInputs.HG19_RESOURCE_FILES, TestInputs.referenceAlignmentOutput())).status()).isEqualTo(
                 PipelineStatus.SKIPPED);
     }
 }

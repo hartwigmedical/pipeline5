@@ -68,6 +68,6 @@ public class Chord implements Stage<ChordOutput, SomaticRunMetadata> {
 
     @Override
     public boolean shouldRun(final Arguments arguments) {
-        return arguments.runTertiary() && !arguments.shallow() && arguments.refGenomeVersion().equals(RefGenomeVersion.HG37);
+        return arguments.runTertiary() && !arguments.shallow() && arguments.refGenomeVersion().equals(RefGenomeVersion.HG19);
     }
 }

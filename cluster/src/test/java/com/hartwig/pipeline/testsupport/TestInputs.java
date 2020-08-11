@@ -17,7 +17,7 @@ import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetrics;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
-import com.hartwig.pipeline.resource.Hg37ResourceFiles;
+import com.hartwig.pipeline.resource.Hg19ResourceFiles;
 import com.hartwig.pipeline.resource.Hg38ResourceFiles;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.snpgenotype.SnpGenotypeOutput;
@@ -46,7 +46,7 @@ public class TestInputs {
     public static final String TUMOR_BUCKET = "run-" + TUMOR_SAMPLE + "-test";
     public static final String SOMATIC_BUCKET = "run-" + REFERENCE_SAMPLE + "-" + TUMOR_SAMPLE + "-test";
 
-    public static final ResourceFiles HG37_RESOURCE_FILES = new Hg37ResourceFiles();
+    public static final ResourceFiles HG19_RESOURCE_FILES = new Hg19ResourceFiles();
     public static final ResourceFiles HG38_RESOURCE_FILES = new Hg38ResourceFiles();
 
     public static String referenceSample() {

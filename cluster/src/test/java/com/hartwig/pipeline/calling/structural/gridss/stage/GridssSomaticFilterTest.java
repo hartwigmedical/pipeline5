@@ -11,7 +11,7 @@ import org.junit.Test;
 public class GridssSomaticFilterTest extends SubStageTest {
     @Override
     public SubStage createVictim() {
-        return new GridssSomaticFilter(TestInputs.HG37_RESOURCE_FILES);
+        return new GridssSomaticFilter(TestInputs.HG19_RESOURCE_FILES);
     }
 
     @Override
@@ -22,10 +22,10 @@ public class GridssSomaticFilterTest extends SubStageTest {
     @Test
     public void expectedOutput() {
         assertThat(bash()).contains("java -Xmx16G -cp /opt/tools/gripss/1.2/gripss.jar com.hartwig.hmftools.gripss.GripssApplicationKt "
-                + "-ref_genome /opt/resources/reference_genome/hg37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
-                + "-breakpoint_hotspot /opt/resources/knowledgebases/hg37/KnownFusionPairs.hg19.bedpe "
-                + "-breakend_pon /opt/resources/gridss_pon/hg37/gridss_pon_single_breakend.hg19.bed "
-                + "-breakpoint_pon /opt/resources/gridss_pon/hg37/gridss_pon_breakpoint.hg19.bedpe "
+                + "-ref_genome /opt/resources/reference_genome/hg19/Homo_sapiens.GRCh37.GATK.illumina.fasta "
+                + "-breakpoint_hotspot /opt/resources/knowledgebases/hg19/KnownFusionPairs.hg19.bedpe "
+                + "-breakend_pon /opt/resources/gridss_pon/hg19/gridss_pon_single_breakend.hg19.bed "
+                + "-breakpoint_pon /opt/resources/gridss_pon/hg19/gridss_pon_breakpoint.hg19.bedpe "
                 + "-input_vcf /data/output/tumor.strelka.vcf "
                 + "-output_vcf /data/output/tumor.gridss.somatic.vcf.gz"
         );

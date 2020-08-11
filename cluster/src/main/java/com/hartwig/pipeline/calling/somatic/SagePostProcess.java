@@ -1,7 +1,5 @@
 package com.hartwig.pipeline.calling.somatic;
 
-import static com.hartwig.pipeline.resource.ResourceNames.MAPPABILITY;
-
 import java.util.List;
 
 import com.google.api.client.util.Lists;
@@ -23,7 +21,7 @@ public class SagePostProcess extends SubStage {
         super("sage.somatic.filtered", OutputFile.GZIPPED_VCF);
         this.tumorSampleName = SubStageInputOutput.empty(tumorSampleName);
         this.resourceFiles = resourceFiles;
-        this.assembly = resourceFiles.version() == RefGenomeVersion.HG37 ? "hg19" : "hg38";
+        this.assembly = resourceFiles.version() == RefGenomeVersion.HG19 ? "hg19" : "hg38";
     }
 
     @Override
@@ -32,7 +30,7 @@ public class SagePostProcess extends SubStage {
 
         SubStage passFilter = new PassFilter();
         SubStage mappabilityAnnotation =
-                new MappabilityAnnotation(resourceFiles.out150Mappability(), ResourceFiles.of(MAPPABILITY, "mappability.hdr"));
+                new MappabilityAnnotation(resourceFiles.out150Mappability(), resourceFiles.mappabilityHDR());
         SubStage ponAnnotation = new PonAnnotation("sage.pon", resourceFiles.sageGermlinePon(), "PON_COUNT", "PON_MAX");
         SubStage ponFilter = new PonFilter(resourceFiles.version());
         SubStage snpEff = new SnpEff(resourceFiles);

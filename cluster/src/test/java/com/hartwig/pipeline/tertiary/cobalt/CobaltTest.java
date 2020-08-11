@@ -21,7 +21,7 @@ public class CobaltTest extends TertiaryStageTest<CobaltOutput> {
 
     @Override
     protected Stage<CobaltOutput, SomaticRunMetadata> createVictim() {
-        return new Cobalt(TestInputs.defaultPair(), TestInputs.HG37_RESOURCE_FILES);
+        return new Cobalt(TestInputs.defaultPair(), TestInputs.HG19_RESOURCE_FILES);
     }
 
     @Override
@@ -29,7 +29,7 @@ public class CobaltTest extends TertiaryStageTest<CobaltOutput> {
         return Collections.singletonList(
                 "java -Xmx8G -cp /opt/tools/cobalt/1.7/cobalt.jar com.hartwig.hmftools.cobalt.CountBamLinesApplication -reference "
                         + "reference -reference_bam /data/input/reference.bam -tumor tumor -tumor_bam /data/input/tumor.bam -output_dir "
-                        + "/data/output -threads $(grep -c '^processor' /proc/cpuinfo) -gc_profile /opt/resources/gc/hg37/GC_profile.1000bp.cnp");
+                        + "/data/output -threads $(grep -c '^processor' /proc/cpuinfo) -gc_profile /opt/resources/gc/hg19/GC_profile.1000bp.cnp");
     }
 
     @Override
