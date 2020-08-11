@@ -61,9 +61,7 @@ public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
                 resourceFiles.originsOfReplication(),
                 ResourceFiles.of(SV, "viral_host_ref.csv"),
                 resourceFiles.ensemblDataCache(),
-                ResourceFiles.of(KNOWLEDGEBASES, KNOWLEDGEBASE_OUTPUT +"knownFusionPairs.csv"),
-                ResourceFiles.of(KNOWLEDGEBASES, KNOWLEDGEBASE_OUTPUT + "knownPromiscuousFive.csv"),
-                ResourceFiles.of(KNOWLEDGEBASES, KNOWLEDGEBASE_OUTPUT + "knownPromiscuousThree.csv")));
+                resourceFiles.knownFusionData()));
     }
 
     @Override

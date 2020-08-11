@@ -73,6 +73,7 @@ public interface ResourceFiles {
     String fragileSites();
     String lineElements();
     String originsOfReplication();
+    String knownFusionData();
 
     String DBNSFP_VCF = ResourceFiles.of(DBNSFP, "dbNSFP2.9.txt.gz");
     String COSMIC_VCF_GZ = ResourceFiles.of(COSMIC, "CosmicCodingMuts_v85_collapsed.vcf.gz");
