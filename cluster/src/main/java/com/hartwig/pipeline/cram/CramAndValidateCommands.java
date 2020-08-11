@@ -44,7 +44,7 @@ public class CramAndValidateCommands {
                 new JavaClassCommand("bamcomp",
                         Versions.BAMCOMP,
                         "bamcomp.jar",
-                        "com.hartwig.bamcomp.BamToCramValidator",
+                        "com.hartwig.bamcomp.BampCompMain",
                         "4G",
                         Collections.emptyList(),
                         "-r",
