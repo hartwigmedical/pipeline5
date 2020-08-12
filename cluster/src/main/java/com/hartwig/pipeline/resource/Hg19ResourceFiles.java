@@ -145,5 +145,7 @@ public class Hg19ResourceFiles implements ResourceFiles {
     }
 
     @Override
-    public String knownFusionData() { return formPath(KNOWLEDGEBASES,"known_fusion_data.csv"); }
+    public String knownFusionData() {
+        return formPath(KNOWLEDGEBASES, "known_fusion_data.csv");
+    }
 }

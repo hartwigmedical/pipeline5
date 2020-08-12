@@ -2,6 +2,7 @@ package com.hartwig.pipeline.resource;
 
 import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_CONFIG;
 import static com.hartwig.pipeline.resource.ResourceNames.MAPPABILITY;
+import static com.hartwig.pipeline.resource.ResourceNames.SV;
 import static com.hartwig.pipeline.resource.ResourceNames.VIRUS_REFERENCE_GENOME;
 
 import com.hartwig.pipeline.execution.vm.VmDirectories;
@@ -79,9 +80,14 @@ public interface ResourceFiles {
     String lineElements();
 
     String originsOfReplication();
+
     String knownFusionData();
 
     String genotypeSnpsDB();
+
+    default String viralHostRefs() {
+        return of(SV, "viral_host_ref.csv");
+    }
 
     default String formPath(String name, String file) {
         return String.format("%s/%s/%s/%s", VmDirectories.RESOURCES, name, versionDirectory(), file);
