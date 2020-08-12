@@ -79,4 +79,10 @@ public interface ResourceFiles {
     String lineElements();
 
     String originsOfReplication();
+
+    String genotypeSnpsDB();
+
+    default String formPath(String name, String file) {
+        return String.format("%s/%s/%s/%s", VmDirectories.RESOURCES, name, versionDirectory(), file);
+    }
 }

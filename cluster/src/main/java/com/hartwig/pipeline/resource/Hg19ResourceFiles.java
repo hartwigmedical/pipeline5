@@ -4,6 +4,7 @@ import static com.hartwig.pipeline.resource.ResourceNames.AMBER_PON;
 import static com.hartwig.pipeline.resource.ResourceNames.BACHELOR;
 import static com.hartwig.pipeline.resource.ResourceNames.ENSEMBL;
 import static com.hartwig.pipeline.resource.ResourceNames.GC_PROFILE;
+import static com.hartwig.pipeline.resource.ResourceNames.GENOTYPE_SNPS;
 import static com.hartwig.pipeline.resource.ResourceNames.GIAB_HIGH_CONF;
 import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_PON;
 import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_REPEAT_MASKER_DB;
@@ -14,84 +15,132 @@ import static com.hartwig.pipeline.resource.ResourceNames.SAGE;
 import static com.hartwig.pipeline.resource.ResourceNames.SNPEFF;
 import static com.hartwig.pipeline.resource.ResourceNames.SV;
 
-import com.hartwig.pipeline.execution.vm.VmDirectories;
-
 public class Hg19ResourceFiles implements ResourceFiles {
     public static final String HG19_DIRECTORY = "hg19";
-
-    public RefGenomeVersion version() { return RefGenomeVersion.HG19; }
-
-    public String versionDirectory() { return HG19_DIRECTORY; }
-
-    private String formPath(String name, String file) {
-        return String.format("%s/%s/%s/%s", VmDirectories.RESOURCES, name, versionDirectory(), file);
-    }
-
     private static final String REF_GENOME_FASTA_HG19_FILE = "Homo_sapiens.GRCh37.GATK.illumina.fasta";
 
-    public String refGenomeFile() { return formPath(REFERENCE_GENOME, REF_GENOME_FASTA_HG19_FILE); }
+    @Override
+    public RefGenomeVersion version() {
+        return RefGenomeVersion.HG19;
+    }
 
-    public String gcProfileFile() { return formPath(GC_PROFILE,"GC_profile.1000bp.cnp"); }
+    @Override
+    public String versionDirectory() {
+        return HG19_DIRECTORY;
+    }
 
-    public String amberHeterozygousLoci() { return formPath(AMBER_PON, "GermlineHetPon.hg19.vcf.gz"); }
+    @Override
+    public String refGenomeFile() {
+        return formPath(REFERENCE_GENOME, REF_GENOME_FASTA_HG19_FILE);
+    }
 
+    @Override
+    public String gcProfileFile() {
+        return formPath(GC_PROFILE, "GC_profile.1000bp.cnp");
+    }
+
+    @Override
+    public String amberHeterozygousLoci() {
+        return formPath(AMBER_PON, "GermlineHetPon.hg19.vcf.gz");
+    }
+
+    @Override
     public String gridssRepeatMaskerDb() {
         return formPath(GRIDSS_REPEAT_MASKER_DB, "hg19.fa.out");
     }
 
+    @Override
     public String gridssBlacklistBed() {
         return formPath(GRIDSS_REPEAT_MASKER_DB, "ENCFF001TDO.bed");
     }
 
+    @Override
     public String gridssBreakendPon() {
         return formPath(GRIDSS_PON, "gridss_pon_single_breakend.hg19.bed");
     }
 
+    @Override
     public String gridssBreakpointPon() {
         return formPath(GRIDSS_PON, "gridss_pon_breakpoint.hg19.bedpe");
     }
 
+    @Override
     public String snpEffDb() {
         return formPath(SNPEFF, "snpEff_v4_3_GRCh37.75.zip");
     }
 
+    @Override
     public String snpEffVersion() {
         return "GRCh37.75";
     }
 
+    @Override
     public String snpEffConfig() {
         return formPath(SNPEFF, "snpEff.config");
     }
 
+    @Override
     public String sageKnownHotspots() {
         return formPath(SAGE, "KnownHotspots.hg19.vcf.gz");
     }
 
+    @Override
     public String sageActionableCodingPanel() {
         return formPath(SAGE, "ActionableCodingPanel.hg19.bed.gz");
     }
 
+    @Override
     public String out150Mappability() {
         return formPath(MAPPABILITY, "out_150_hg19.mappability.bed.gz");
     }
 
+    @Override
     public String sageGermlinePon() {
         return formPath(SAGE, "SageGermlinePon.hg19.1000x.vcf.gz");
     }
 
+    @Override
     public String giabHighConfidenceBed() {
         return formPath(GIAB_HIGH_CONF, "NA12878_GIAB_highconf_IllFB-IllGATKHC-CG-Ion-Solid_ALLCHROM_v3.2.2_highconf.bed.gz");
     }
 
-    public String knownFusionPairBedpe() { return formPath(KNOWLEDGEBASES,"KnownFusionPairs.hg19.bedpe"); }
+    @Override
+    public String knownFusionPairBedpe() {
+        return formPath(KNOWLEDGEBASES, "KnownFusionPairs.hg19.bedpe");
+    }
 
-    public String bachelorConfig() { return formPath(BACHELOR, "bachelor_hmf.xml"); }
-    public String bachelorClinvarFilters() { return formPath(BACHELOR, "bachelor_clinvar_filters.csv"); }
+    @Override
+    public String bachelorConfig() {
+        return formPath(BACHELOR, "bachelor_hmf.xml");
+    }
 
-    public String ensemblDataCache() { return formPath(ENSEMBL, "ensembl_data_cache"); }
+    @Override
+    public String bachelorClinvarFilters() {
+        return formPath(BACHELOR, "bachelor_clinvar_filters.csv");
+    }
 
-    public String fragileSites() { return formPath(SV, "fragile_sites_hmf.csv"); }
-    public String lineElements() { return formPath(SV, "line_elements.csv"); }
-    public String originsOfReplication() { return formPath(SV, "heli_rep_origins.bed"); }
+    @Override
+    public String ensemblDataCache() {
+        return formPath(ENSEMBL, "ensembl_data_cache");
+    }
 
+    @Override
+    public String fragileSites() {
+        return formPath(SV, "fragile_sites_hmf.csv");
+    }
+
+    @Override
+    public String lineElements() {
+        return formPath(SV, "line_elements.csv");
+    }
+
+    @Override
+    public String originsOfReplication() {
+        return formPath(SV, "heli_rep_origins.bed");
+    }
+
+    @Override
+    public String genotypeSnpsDB() {
+        return formPath(GENOTYPE_SNPS, "26SNPtaq.vcf");
+    }
 }
