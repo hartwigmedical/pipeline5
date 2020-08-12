@@ -9,7 +9,7 @@ public interface ResourceNames {
     String GIAB_HIGH_CONF = "GIAB_high_conf";
     String SAGE = "sage";
     String SNPEFF = "snpeff";
-    String AMBER_PON = "amber_pon";
+    String AMBER = "amber";
     String GRIDSS_CONFIG = "gridss_config";
     String GRIDSS_PON = "gridss_pon";
     String GRIDSS_REPEAT_MASKER_DB = "gridss_repeatmasker_db";

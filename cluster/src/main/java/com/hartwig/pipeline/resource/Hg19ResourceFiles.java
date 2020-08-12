@@ -1,6 +1,6 @@
 package com.hartwig.pipeline.resource;
 
-import static com.hartwig.pipeline.resource.ResourceNames.AMBER_PON;
+import static com.hartwig.pipeline.resource.ResourceNames.AMBER;
 import static com.hartwig.pipeline.resource.ResourceNames.BACHELOR;
 import static com.hartwig.pipeline.resource.ResourceNames.ENSEMBL;
 import static com.hartwig.pipeline.resource.ResourceNames.GC_PROFILE;
@@ -41,7 +41,7 @@ public class Hg19ResourceFiles implements ResourceFiles {
 
     @Override
     public String amberHeterozygousLoci() {
-        return formPath(AMBER_PON, "GermlineHetPon.hg19.vcf.gz");
+        return formPath(AMBER, "GermlineHetPon.hg19.vcf.gz");
     }
 
     @Override
