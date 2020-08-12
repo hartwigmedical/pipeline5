@@ -73,5 +73,6 @@ public class Hg38ResourceFiles implements ResourceFiles {
     public String fragileSites() { return formPath(SV, "fragile_sites_hmf.csv"); }
     public String lineElements() { return formPath(SV, "line_elements.csv"); }
     public String originsOfReplication() { return formPath(SV, "highconf_bed_empty.bed"); } // currently unsupported in HG38
+    public String knownFusionData() { return formPath(KNOWLEDGEBASES,"known_fusion_data.csv"); }
 
 }
