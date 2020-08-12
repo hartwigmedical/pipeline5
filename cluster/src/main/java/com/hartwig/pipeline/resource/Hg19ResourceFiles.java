@@ -143,4 +143,7 @@ public class Hg19ResourceFiles implements ResourceFiles {
     public String genotypeSnpsDB() {
         return formPath(GENOTYPE_SNPS, "26SNPtaq.vcf");
     }
+
+    @Override
+    public String knownFusionData() { return formPath(KNOWLEDGEBASES,"known_fusion_data.csv"); }
 }

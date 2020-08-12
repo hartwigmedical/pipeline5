@@ -11,7 +11,7 @@ class LinxCommand extends JavaJarCommand {
     LinxCommand(final String sample, final String svVcf, final String purpleDir, final String referenceGenome,
             final RefGenomeVersion refGenomeVersion, final String outputDir, final String fragileSiteFile, final String lineElementFile,
             final String replicationsOriginsFile, final String viralHostsFile, final String geneTranscriptsDirectory,
-            final String fusionsPairsCsv, final String promiscuousFiveCsv, final String promiscuousThreeCsv) {
+            final String knownFusionData) {
         super("linx",
                 Versions.LINX,
                 "linx.jar",
@@ -39,12 +39,8 @@ class LinxCommand extends JavaJarCommand {
                         "-gene_transcripts_dir",
                         geneTranscriptsDirectory,
                         "-check_fusions",
-                        "-fusion_pairs_csv",
-                        fusionsPairsCsv,
-                        "-promiscuous_five_csv",
-                        promiscuousFiveCsv,
-                        "-promiscuous_three_csv",
-                        promiscuousThreeCsv,
+                        "-known_fusion_file",
+                        knownFusionData,
                         "-chaining_sv_limit",
                         "0",
                         "-check_drivers",

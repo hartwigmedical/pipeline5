@@ -30,6 +30,7 @@ public class Hg38ResourceFiles implements ResourceFiles {
     public String refGenomeFile() {
         return formPath(REFERENCE_GENOME, "GCA_000001405.15_GRCh38_no_alt_analysis_set.fna");
     }
+
     @Override
     public String gcProfileFile() {
         return formPath(GC_PROFILE, "GC_profile.hg38.1000bp.cnp");
@@ -135,6 +136,11 @@ public class Hg38ResourceFiles implements ResourceFiles {
     public String originsOfReplication() {
         return formPath(SV, "highconf_bed_empty.bed");
     } // currently unsupported in HG38
+
+    @Override
+    public String knownFusionData() {
+        return formPath(KNOWLEDGEBASES, "known_fusion_data.csv");
+    }
 
     @Override
     public String genotypeSnpsDB() {

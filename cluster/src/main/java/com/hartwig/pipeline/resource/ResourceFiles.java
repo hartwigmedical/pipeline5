@@ -79,6 +79,7 @@ public interface ResourceFiles {
     String lineElements();
 
     String originsOfReplication();
+    String knownFusionData();
 
     String genotypeSnpsDB();
 
