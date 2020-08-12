@@ -1,8 +1,5 @@
 package com.hartwig.pipeline.tertiary.linx;
 
-import static com.hartwig.pipeline.resource.ResourceNames.KNOWLEDGEBASES;
-import static com.hartwig.pipeline.resource.ResourceNames.SV;
-
 import java.util.Collections;
 import java.util.List;
 
@@ -18,7 +15,6 @@ import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.resource.ResourceFiles;
-import com.hartwig.pipeline.resource.ResourceNames;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
@@ -59,7 +55,7 @@ public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
                 resourceFiles.fragileSites(),
                 resourceFiles.lineElements(),
                 resourceFiles.originsOfReplication(),
-                ResourceFiles.of(SV, "viral_host_ref.csv"),
+                resourceFiles.viralHostRefs(),
                 resourceFiles.ensemblDataCache(),
                 resourceFiles.knownFusionData()));
     }

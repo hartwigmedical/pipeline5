@@ -8,11 +8,11 @@ import com.hartwig.pipeline.resource.RefGenomeVersion;
 
 import org.junit.Test;
 
-public class PonFilterHg37Test extends SubStageTest {
+public class PonFilterHg19Test extends SubStageTest {
 
     @Override
     public SubStage createVictim() {
-        return new PonFilter(RefGenomeVersion.HG37);
+        return new PonFilter(RefGenomeVersion.HG19);
     }
 
     @Override

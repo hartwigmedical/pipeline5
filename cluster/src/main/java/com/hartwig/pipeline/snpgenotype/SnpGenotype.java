@@ -20,8 +20,8 @@ import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.report.SingleFileComponent;
 import com.hartwig.pipeline.report.StartupScriptComponent;
+import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.resource.ResourceFiles;
-import com.hartwig.pipeline.resource.ResourceNames;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
@@ -30,7 +30,6 @@ public class SnpGenotype implements Stage<SnpGenotypeOutput, SingleSampleRunMeta
     public static final String NAMESPACE = "snp_genotype";
 
     private static final String OUTPUT_FILENAME = "snp_genotype_output.vcf";
-    private static final String SNP_VCF = "26SNPtaq.vcf";
 
     private final ResourceFiles resourceFiles;
     private final InputDownload bamDownload;
@@ -56,7 +55,7 @@ public class SnpGenotype implements Stage<SnpGenotypeOutput, SingleSampleRunMeta
     public List<BashCommand> commands(final SingleSampleRunMetadata metadata) {
         return Collections.singletonList(new SnpGenotypeCommand(bamDownload.getLocalTargetPath(),
                 resourceFiles.refGenomeFile(),
-                ResourceFiles.of(ResourceNames.GENOTYPE_SNPS, SNP_VCF),
+                resourceFiles.genotypeSnpsDB(),
                 format("%s/%s", VmDirectories.OUTPUT, OUTPUT_FILENAME)));
     }
 
@@ -88,6 +87,6 @@ public class SnpGenotype implements Stage<SnpGenotypeOutput, SingleSampleRunMeta
 
     @Override
     public boolean shouldRun(final Arguments arguments) {
-        return arguments.runSnpGenotyper();
+        return arguments.runSnpGenotyper() && arguments.refGenomeVersion().equals(RefGenomeVersion.HG19);
     }
 }

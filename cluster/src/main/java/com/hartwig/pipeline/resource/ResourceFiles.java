@@ -1,8 +1,8 @@
 package com.hartwig.pipeline.resource;
 
-import static com.hartwig.pipeline.resource.ResourceNames.COSMIC;
-import static com.hartwig.pipeline.resource.ResourceNames.DBNSFP;
 import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_CONFIG;
+import static com.hartwig.pipeline.resource.ResourceNames.MAPPABILITY;
+import static com.hartwig.pipeline.resource.ResourceNames.SV;
 import static com.hartwig.pipeline.resource.ResourceNames.VIRUS_REFERENCE_GENOME;
 
 import com.hartwig.pipeline.execution.vm.VmDirectories;
@@ -34,7 +34,7 @@ public interface ResourceFiles {
     }
 
     default String gridssVirusRefGenomeFile() {
-       return of(VIRUS_REFERENCE_GENOME, "human_virus.fa");
+        return of(VIRUS_REFERENCE_GENOME, "human_virus.fa");
     }
 
     default String gridssPropertiesFile() {
@@ -59,6 +59,10 @@ public interface ResourceFiles {
 
     String out150Mappability();
 
+    default String mappabilityHDR() {
+        return of(MAPPABILITY, "mappability.hdr");
+    }
+
     String sageGermlinePon();
 
     String giabHighConfidenceBed();
@@ -66,15 +70,26 @@ public interface ResourceFiles {
     String knownFusionPairBedpe();
 
     String bachelorConfig();
+
     String bachelorClinvarFilters();
 
     String ensemblDataCache();
 
     String fragileSites();
+
     String lineElements();
+
     String originsOfReplication();
+
     String knownFusionData();
 
-    String DBNSFP_VCF = ResourceFiles.of(DBNSFP, "dbNSFP2.9.txt.gz");
-    String COSMIC_VCF_GZ = ResourceFiles.of(COSMIC, "CosmicCodingMuts_v85_collapsed.vcf.gz");
+    String genotypeSnpsDB();
+
+    default String viralHostRefs() {
+        return of(SV, "viral_host_ref.csv");
+    }
+
+    default String formPath(String name, String file) {
+        return String.format("%s/%s/%s/%s", VmDirectories.RESOURCES, name, versionDirectory(), file);
+    }
 }

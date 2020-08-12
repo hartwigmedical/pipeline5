@@ -9,7 +9,7 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
-import com.hartwig.pipeline.resource.Hg37ResourceFiles;
+import com.hartwig.pipeline.resource.Hg19ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.StageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
@@ -57,7 +57,7 @@ public class CramConversionTest extends StageTest<CramOutput, SingleSampleRunMet
         String samtools = "/opt/tools/samtools/1.10/samtools";
         String input = "/data/input/reference.bam";
         String output = "/data/output/reference.cram";
-        final Hg37ResourceFiles resourceFiles = new Hg37ResourceFiles();
+        final Hg19ResourceFiles resourceFiles = new Hg19ResourceFiles();
 
         return ImmutableList.of(
 
@@ -67,7 +67,11 @@ public class CramConversionTest extends StageTest<CramOutput, SingleSampleRunMet
                         output,
                         input),
                 format("%s index %s", samtools, output),
-                format("java -Xmx4G -cp /opt/tools/bamcomp/1.3/bamcomp.jar com.hartwig.bamcomp.BamToCramValidator %s %s 6", input, output));
+                format("java -Xmx4G -cp /opt/tools/bamcomp/1.3/bamcomp.jar com.hartwig.bamcomp.BamCompMain "
+                                + "-r /opt/resources/reference_genome/hg38/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna -1 %s -2 %s -n 6 "
+                                + "--samtools-binary /opt/tools/samtools/1.10/samtools --sambamba-binary /opt/tools/sambamba/0.6.8/sambamba",
+                        input,
+                        output));
     }
 
     @Override

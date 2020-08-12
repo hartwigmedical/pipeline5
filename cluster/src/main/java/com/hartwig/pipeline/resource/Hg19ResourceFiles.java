@@ -4,6 +4,7 @@ import static com.hartwig.pipeline.resource.ResourceNames.AMBER_PON;
 import static com.hartwig.pipeline.resource.ResourceNames.BACHELOR;
 import static com.hartwig.pipeline.resource.ResourceNames.ENSEMBL;
 import static com.hartwig.pipeline.resource.ResourceNames.GC_PROFILE;
+import static com.hartwig.pipeline.resource.ResourceNames.GENOTYPE_SNPS;
 import static com.hartwig.pipeline.resource.ResourceNames.GIAB_HIGH_CONF;
 import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_PON;
 import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_REPEAT_MASKER_DB;
@@ -14,36 +15,38 @@ import static com.hartwig.pipeline.resource.ResourceNames.SAGE;
 import static com.hartwig.pipeline.resource.ResourceNames.SNPEFF;
 import static com.hartwig.pipeline.resource.ResourceNames.SV;
 
-public class Hg38ResourceFiles implements ResourceFiles {
-    public static final String HG38_DIRECTORY = "hg38";
+public class Hg19ResourceFiles implements ResourceFiles {
+    public static final String HG19_DIRECTORY = "hg19";
+    private static final String REF_GENOME_FASTA_HG19_FILE = "Homo_sapiens.GRCh37.GATK.illumina.fasta";
 
+    @Override
     public RefGenomeVersion version() {
-        return RefGenomeVersion.HG38;
+        return RefGenomeVersion.HG19;
     }
 
     @Override
     public String versionDirectory() {
-        return HG38_DIRECTORY;
+        return HG19_DIRECTORY;
     }
 
     @Override
     public String refGenomeFile() {
-        return formPath(REFERENCE_GENOME, "GCA_000001405.15_GRCh38_no_alt_analysis_set.fna");
+        return formPath(REFERENCE_GENOME, REF_GENOME_FASTA_HG19_FILE);
     }
 
     @Override
     public String gcProfileFile() {
-        return formPath(GC_PROFILE, "GC_profile.hg38.1000bp.cnp");
+        return formPath(GC_PROFILE, "GC_profile.1000bp.cnp");
     }
 
     @Override
     public String amberHeterozygousLoci() {
-        return formPath(AMBER_PON, "GermlineHetPon.hg38.vcf.gz");
+        return formPath(AMBER_PON, "GermlineHetPon.hg19.vcf.gz");
     }
 
     @Override
     public String gridssRepeatMaskerDb() {
-        return formPath(GRIDSS_REPEAT_MASKER_DB, "hg38.fa.out");
+        return formPath(GRIDSS_REPEAT_MASKER_DB, "hg19.fa.out");
     }
 
     @Override
@@ -52,13 +55,23 @@ public class Hg38ResourceFiles implements ResourceFiles {
     }
 
     @Override
+    public String gridssBreakendPon() {
+        return formPath(GRIDSS_PON, "gridss_pon_single_breakend.hg19.bed");
+    }
+
+    @Override
+    public String gridssBreakpointPon() {
+        return formPath(GRIDSS_PON, "gridss_pon_breakpoint.hg19.bedpe");
+    }
+
+    @Override
     public String snpEffDb() {
-        return formPath(SNPEFF, "snpEff_v4_3_GRCh38.86.zip");
+        return formPath(SNPEFF, "snpEff_v4_3_GRCh37.75.zip");
     }
 
     @Override
     public String snpEffVersion() {
-        return "GRCh38.86";
+        return "GRCh37.75";
     }
 
     @Override
@@ -68,43 +81,32 @@ public class Hg38ResourceFiles implements ResourceFiles {
 
     @Override
     public String sageKnownHotspots() {
-        return formPath(SAGE, "KnownHotspots.hg38.vcf.gz");
+        return formPath(SAGE, "KnownHotspots.hg19.vcf.gz");
     }
 
     @Override
     public String sageActionableCodingPanel() {
-        return formPath(SAGE, "ActionableCodingPanel.hg38.bed.gz");
+        return formPath(SAGE, "ActionableCodingPanel.hg19.bed.gz");
     }
 
     @Override
     public String out150Mappability() {
-        return formPath(MAPPABILITY, "out_150_hg38.mappability.bed.gz");
+        return formPath(MAPPABILITY, "out_150_hg19.mappability.bed.gz");
     }
 
     @Override
     public String sageGermlinePon() {
-        return formPath(SAGE, "SageGermlinePon.hg38.98x.vcf.gz");
+        return formPath(SAGE, "SageGermlinePon.hg19.1000x.vcf.gz");
     }
 
     @Override
     public String giabHighConfidenceBed() {
-        return formPath(GIAB_HIGH_CONF,
-                "HG001_GRCh38_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-X_v.3.3.2_highconf_nosomaticdel_noCENorHET7.bed.gz");
-    }
-
-    @Override
-    public String gridssBreakendPon() {
-        return formPath(GRIDSS_PON, "gridss_pon_single_breakend.hg38.bed");
-    }
-
-    @Override
-    public String gridssBreakpointPon() {
-        return formPath(GRIDSS_PON, "gridss_pon_breakpoint.hg38.bedpe");
+        return formPath(GIAB_HIGH_CONF, "NA12878_GIAB_highconf_IllFB-IllGATKHC-CG-Ion-Solid_ALLCHROM_v3.2.2_highconf.bed.gz");
     }
 
     @Override
     public String knownFusionPairBedpe() {
-        return formPath(KNOWLEDGEBASES, "KnownFusionPairs.hg38.bedpe");
+        return formPath(KNOWLEDGEBASES, "KnownFusionPairs.hg19.bedpe");
     }
 
     @Override
@@ -134,16 +136,16 @@ public class Hg38ResourceFiles implements ResourceFiles {
 
     @Override
     public String originsOfReplication() {
-        return formPath(SV, "highconf_bed_empty.bed");
-    } // currently unsupported in HG38
-
-    @Override
-    public String knownFusionData() {
-        return formPath(KNOWLEDGEBASES, "known_fusion_data.csv");
+        return formPath(SV, "heli_rep_origins.bed");
     }
 
     @Override
     public String genotypeSnpsDB() {
-        throw new UnsupportedOperationException("[Genotype SNPs DB] does not yet have a valid HG38 version.");
+        return formPath(GENOTYPE_SNPS, "26SNPtaq.vcf");
+    }
+
+    @Override
+    public String knownFusionData() {
+        return formPath(KNOWLEDGEBASES, "known_fusion_data.csv");
     }
 }

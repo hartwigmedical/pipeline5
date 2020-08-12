@@ -1,7 +1,5 @@
 package com.hartwig.pipeline.calling.germline;
 
-import static com.hartwig.pipeline.resource.ResourceNames.GONL;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -13,9 +11,6 @@ import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.calling.SubStageInputOutput;
-import com.hartwig.pipeline.calling.germline.command.SnpSiftDbnsfpAnnotation;
-import com.hartwig.pipeline.calling.germline.command.SnpSiftFrequenciesAnnotation;
-import com.hartwig.pipeline.calling.substages.CosmicAnnotation;
 import com.hartwig.pipeline.calling.substages.SnpEff;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
@@ -101,10 +96,6 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
 
         SubStageInputOutput finalOutput = new CombineFilteredVariants(indelFilterOutput.outputFile().path(),
                 referenceFasta).andThen(new SnpEff(resourceFiles))
-                .andThen(new SnpSiftDbnsfpAnnotation(ResourceFiles.DBNSFP_VCF, resourceFiles.snpEffConfig()))
-                .andThen(new CosmicAnnotation(ResourceFiles.COSMIC_VCF_GZ, "ID"))
-                .andThen(new SnpSiftFrequenciesAnnotation(ResourceFiles.of(GONL, "gonl.snps_indels.r5.sorted.vcf.gz"),
-                        resourceFiles.snpEffConfig()))
                 .apply(combinedFilters);
 
         return ImmutableList.<BashCommand>builder().add(new UnzipToDirectoryCommand(VmDirectories.RESOURCES, resourceFiles.snpEffDb()))

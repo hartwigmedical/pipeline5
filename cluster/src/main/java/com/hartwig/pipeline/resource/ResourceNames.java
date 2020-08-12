@@ -6,13 +6,10 @@ public interface ResourceNames {
     String GENOTYPE_SNPS = "genotype_snps";
     String GC_PROFILE = "gc";
     String MAPPABILITY = "mappability";
-    String BEDS = "beds";
+    String GIAB_HIGH_CONF = "GIAB_high_conf";
     String SAGE = "sage";
     String SNPEFF = "snpeff";
-    String COSMIC = "cosmic_v85";
     String AMBER_PON = "amber_pon";
-    String DBNSFP = "dbNSFP_v2.9";
-    String GONL = "gonl_v5";
     String GRIDSS_CONFIG = "gridss_config";
     String GRIDSS_PON = "gridss_pon";
     String GRIDSS_REPEAT_MASKER_DB = "gridss_repeatmasker_db";
