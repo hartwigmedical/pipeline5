@@ -30,7 +30,7 @@ public class AmberTest extends TertiaryStageTest<AmberOutput> {
                 + "-reference reference -reference_bam /data/input/reference.bam -tumor tumor -tumor_bam /data/input/tumor.bam -output_dir "
                 + "/data/output -threads $(grep -c '^processor' /proc/cpuinfo) -ref_genome "
                 + "/opt/resources/reference_genome/hg19/Homo_sapiens.GRCh37.GATK.illumina.fasta "
-                + "-loci /opt/resources/amber_pon/hg19/GermlineHetPon.hg19.vcf.gz");
+                + "-loci /opt/resources/amber/hg19/GermlineHetPon.hg19.vcf.gz");
     }
 
     @Override
