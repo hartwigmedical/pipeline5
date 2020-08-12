@@ -48,6 +48,6 @@ class LinxCommand extends JavaJarCommand {
     }
 
     public static String asString(RefGenomeVersion version) {
-        return version == HG19 ? "37" : "38";
+        return version == HG19 ? "HG37" : "HG38";
     }
 }
