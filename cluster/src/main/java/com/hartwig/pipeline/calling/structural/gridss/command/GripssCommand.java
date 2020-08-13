@@ -11,7 +11,7 @@ public class GripssCommand extends JavaClassCommand {
                 Versions.GRIPSS,
                 "gripss.jar",
                 "com.hartwig.hmftools.gripss.GripssApplicationKt",
-                "16G",
+                "24G",
                 "-ref_genome",
                 resourceFiles.refGenomeFile(),
                 "-breakpoint_hotspot",
