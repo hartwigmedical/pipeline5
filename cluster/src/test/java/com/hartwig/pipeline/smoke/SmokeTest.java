@@ -52,10 +52,8 @@ public class SmokeTest {
 
     @Before
     public void setUp() throws Exception {
-
         System.setProperty("javax.net.ssl.keyStorePassword", "changeit");
         System.setProperty("javax.net.ssl.keyStore", Resources.testResource("smoke_test/api.jks"));
-
         resultsDir = new File(workingDir() + "/results");
         assertThat(resultsDir.mkdir()).isTrue();
     }
