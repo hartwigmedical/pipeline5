@@ -46,7 +46,7 @@ public class RuntimeBucket {
             final CommonArguments arguments, final String runId) {
         Bucket bucket = storage.get(runId);
         if (bucket == null) {
-            LOGGER.debug("Creating runtime bucket [{}] in Google Storage", runId);
+            LOGGER.info("Creating runtime bucket [{}] in Google Storage", runId);
             BucketInfo.Builder builder =
                     BucketInfo.newBuilder(runId).setStorageClass(StorageClass.REGIONAL).setLocation(arguments.region());
             arguments.cmek().ifPresent(builder::setDefaultKmsKeyName);
