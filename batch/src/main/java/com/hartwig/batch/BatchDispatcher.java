@@ -26,6 +26,7 @@ import com.hartwig.pipeline.credentials.CredentialProvider;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
+import com.hartwig.pipeline.execution.vm.GoogleComputeEngine;
 import com.hartwig.pipeline.execution.vm.RuntimeFiles;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.storage.StorageProvider;
@@ -155,7 +156,7 @@ public class BatchDispatcher {
         GoogleCredentials credentials = arguments.privateKeyPath().isPresent()
                 ? CredentialProvider.from(arguments).get()
                 : GoogleCredentials.getApplicationDefault();
-        ComputeEngine compute = ComputeEngine.from(arguments, credentials);
+        ComputeEngine compute = GoogleComputeEngine.from(arguments, credentials);
         Storage storage = StorageProvider.from(arguments, credentials).get();
         boolean success = new BatchDispatcher(arguments,
                 InstanceFactory.from(arguments),

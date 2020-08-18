@@ -20,7 +20,7 @@ import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.alignment.AlignmentOutputStorage;
 import com.hartwig.pipeline.alignment.sample.SampleSource;
 import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.execution.vm.ComputeEngine;
+import com.hartwig.pipeline.execution.vm.GoogleComputeEngine;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.storage.RuntimeBucket;
@@ -40,13 +40,13 @@ public class VmAlignerTest {
     private SampleUpload sampleUpload;
     private SampleSource sampleSource;
     private Storage storage;
-    private ComputeEngine computeEngine;
+    private GoogleComputeEngine computeEngine;
     private Arguments arguments;
 
     @Before
     public void setUp() throws Exception {
         arguments = Arguments.testDefaults();
-        computeEngine = mock(ComputeEngine.class);
+        computeEngine = mock(GoogleComputeEngine.class);
         storage = mock(Storage.class);
         sampleSource = mock(SampleSource.class);
         sampleUpload = mock(SampleUpload.class);

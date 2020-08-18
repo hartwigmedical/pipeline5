@@ -11,7 +11,7 @@ import com.hartwig.pipeline.calling.germline.GermlineCaller;
 import com.hartwig.pipeline.cleanup.CleanupProvider;
 import com.hartwig.pipeline.credentials.CredentialProvider;
 import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.execution.vm.ComputeEngine;
+import com.hartwig.pipeline.execution.vm.GoogleComputeEngine;
 import com.hartwig.pipeline.metadata.SingleSampleEventListener;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.metadata.SomaticMetadataApi;
@@ -94,7 +94,7 @@ public class PipelineMain {
     private static SomaticPipeline somaticPipeline(final Arguments arguments, final GoogleCredentials credentials, final Storage storage,
             final SomaticMetadataApi somaticMetadataApi) throws Exception {
         return new SomaticPipeline(arguments,
-                new StageRunner<>(storage, arguments, ComputeEngine.from(arguments, credentials), ResultsDirectory.defaultDirectory()),
+                new StageRunner<>(storage, arguments, GoogleComputeEngine.from(arguments, credentials), ResultsDirectory.defaultDirectory()),
                 new AlignmentOutputStorage(storage, arguments, ResultsDirectory.defaultDirectory()),
                 new OutputStorage<>(ResultsDirectory.defaultDirectory(),
                         arguments,
@@ -111,7 +111,7 @@ public class PipelineMain {
     private static SingleSamplePipeline singleSamplePipeline(final Arguments arguments, final GoogleCredentials credentials,
             final Storage storage, final SingleSampleEventListener eventListener, final Boolean isStandalone) throws Exception {
         return new SingleSamplePipeline(eventListener,
-                new StageRunner<>(storage, arguments, ComputeEngine.from(arguments, credentials), ResultsDirectory.defaultDirectory()),
+                new StageRunner<>(storage, arguments, GoogleComputeEngine.from(arguments, credentials), ResultsDirectory.defaultDirectory()),
                 AlignerProvider.from(credentials, storage, arguments).get(),
                 PipelineResultsProvider.from(storage, arguments, Versions.pipelineVersion()).get(),
                 Executors.newCachedThreadPool(),

@@ -33,6 +33,7 @@ import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.OutputUpload;
 import com.hartwig.pipeline.execution.vm.RuntimeFiles;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.pipeline.failsafe.DefaultBackoffPolicy;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.ReportComponent;
@@ -43,6 +44,8 @@ import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.storage.SampleUpload;
 import com.hartwig.pipeline.trace.StageTrace;
+
+import net.jodah.failsafe.Failsafe;
 
 public class VmAligner {
 
@@ -110,7 +113,8 @@ public class VmAligner {
             bash.addCommands(alignment.bash())
                     .addCommand(new OutputUpload(GoogleStorageLocation.of(laneBucket.name(), resultsDirectory.path()),
                             RuntimeFiles.typical()));
-            futures.add(executorService.submit(() -> computeEngine.submit(laneBucket,
+            futures.add(executorService.submit(() -> runWithRetries(metadata,
+                    laneBucket,
                     VirtualMachineJobDefinition.alignment(laneId(lane).toLowerCase(), bash, resultsDirectory))));
             laneLogComponents.add(new RunLogComponent(laneBucket, laneNamespace(lane), Folder.from(metadata), resultsDirectory));
         }
@@ -134,7 +138,7 @@ public class VmAligner {
                     RuntimeFiles.typical()));
 
             PipelineStatus status =
-                    computeEngine.submit(rootBucket, VirtualMachineJobDefinition.mergeMarkdups(mergeMarkdupsBash, resultsDirectory));
+                    runWithRetries(metadata, rootBucket, VirtualMachineJobDefinition.mergeMarkdups(mergeMarkdupsBash, resultsDirectory));
 
             ImmutableAlignmentOutput.Builder outputBuilder = AlignmentOutput.builder()
                     .sample(metadata.sampleName())
@@ -166,6 +170,12 @@ public class VmAligner {
         trace.stop();
         executorService.shutdown();
         return output;
+    }
+
+    public PipelineStatus runWithRetries(final SingleSampleRunMetadata metadata, final RuntimeBucket laneBucket,
+            final VirtualMachineJobDefinition jobDefinition) {
+        return Failsafe.with(DefaultBackoffPolicy.of(String.format("[%s] stage [%s]", metadata.toString(), VmAligner.NAMESPACE)))
+                .get(() -> computeEngine.submit(laneBucket, jobDefinition));
     }
 
     private static String laneNamespace(final Lane lane) {

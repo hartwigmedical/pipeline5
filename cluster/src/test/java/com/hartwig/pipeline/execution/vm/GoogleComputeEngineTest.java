@@ -35,7 +35,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 @SuppressWarnings("unchecked")
-public class ComputeEngineTest {
+public class GoogleComputeEngineTest {
 
     private static final Arguments ARGUMENTS = Arguments.testDefaults();
     private static final ResultsDirectory RESULTS_DIRECTORY = ResultsDirectory.defaultDirectory();
@@ -43,7 +43,7 @@ public class ComputeEngineTest {
     private static final String DONE = "DONE";
     private static final String FIRST_ZONE_NAME = "europe-west4-a";
     private static final String SECOND_ZONE_NAME = "europe-west4-b";
-    private ComputeEngine victim;
+    private GoogleComputeEngine victim;
     private MockRuntimeBucket runtimeBucket;
     private Compute compute;
     private ImmutableVirtualMachineJobDefinition jobDefinition;
@@ -113,7 +113,7 @@ public class ComputeEngineTest {
         when(compute.zones()).thenReturn(zones);
 
         bucketWatcher = mock(BucketCompletionWatcher.class);
-        victim = new ComputeEngine(ARGUMENTS, compute, z -> {
+        victim = new GoogleComputeEngine(ARGUMENTS, compute, z -> {
         }, lifecycleManager, bucketWatcher);
         runtimeBucket = MockRuntimeBucket.test();
         jobDefinition = VirtualMachineJobDefinition.builder()
@@ -125,12 +125,6 @@ public class ComputeEngineTest {
 
     private Zone zone(final String name) {
         return new Zone().setName(name).setRegion(ARGUMENTS.region());
-    }
-
-    @Test
-    public void returnsStatusFailedOnUncaughtException() {
-        when(compute.instances()).thenThrow(new NullPointerException());
-        assertThat(victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition)).isEqualTo(PipelineStatus.FAILED);
     }
 
     @Test
@@ -148,7 +142,7 @@ public class ComputeEngineTest {
     @Test
     public void disablesStartupScriptWhenInstanceWithPersistentDisksFailsRemotely() throws Exception {
         Arguments arguments = Arguments.testDefaultsBuilder().useLocalSsds(false).build();
-        victim = new ComputeEngine(arguments, compute, z -> {
+        victim = new GoogleComputeEngine(arguments, compute, z -> {
         }, lifecycleManager, bucketWatcher);
         returnFailed();
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
@@ -180,7 +174,7 @@ public class ComputeEngineTest {
     @Test
     public void stopsInstanceWithPersistentDisksUponFailure() {
         Arguments arguments = Arguments.testDefaultsBuilder().useLocalSsds(false).build();
-        victim = new ComputeEngine(arguments, compute, z -> {
+        victim = new GoogleComputeEngine(arguments, compute, z -> {
         }, lifecycleManager, bucketWatcher);
         returnFailed();
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
@@ -210,7 +204,7 @@ public class ComputeEngineTest {
     @Test
     public void usesPrivateNetworkWhenSpecified() {
         returnSuccess();
-        victim = new ComputeEngine(Arguments.testDefaultsBuilder().network("private").build(), compute, z -> {
+        victim = new GoogleComputeEngine(Arguments.testDefaultsBuilder().network("private").build(), compute, z -> {
         }, lifecycleManager, bucketWatcher);
         ArgumentCaptor<List<NetworkInterface>> interfaceCaptor = ArgumentCaptor.forClass(List.class);
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
@@ -229,7 +223,7 @@ public class ComputeEngineTest {
     public void triesMultipleZonesWhenResourcesExhausted() {
         Operation resourcesExhausted = new Operation().setStatus("DONE")
                 .setName("insert")
-                .setError(new Operation.Error().setErrors(Collections.singletonList(new Operation.Error.Errors().setCode(ComputeEngine.ZONE_EXHAUSTED_ERROR_CODE))));
+                .setError(new Operation.Error().setErrors(Collections.singletonList(new Operation.Error.Errors().setCode(GoogleComputeEngine.ZONE_EXHAUSTED_ERROR_CODE))));
         when(lifecycleManager.deleteOldInstancesAndStart(instance, FIRST_ZONE_NAME, INSTANCE_NAME)).thenReturn(resourcesExhausted,
                 mock(Operation.class));
         when(bucketWatcher.currentState(any(), any())).thenReturn(State.STILL_WAITING, State.STILL_WAITING, State.SUCCESS);
@@ -241,7 +235,7 @@ public class ComputeEngineTest {
     public void triesMultipleZonesWhenUnsupportedOperation() {
         Operation resourcesExhausted = new Operation().setStatus("DONE")
                 .setName("insert")
-                .setError(new Operation.Error().setErrors(Collections.singletonList(new Operation.Error.Errors().setCode(ComputeEngine.UNSUPPORTED_OPERATION_ERROR_CODE))));
+                .setError(new Operation.Error().setErrors(Collections.singletonList(new Operation.Error.Errors().setCode(GoogleComputeEngine.UNSUPPORTED_OPERATION_ERROR_CODE))));
         when(lifecycleManager.deleteOldInstancesAndStart(instance, FIRST_ZONE_NAME, INSTANCE_NAME)).thenReturn(resourcesExhausted,
                 mock(Operation.class));
         when(bucketWatcher.currentState(any(), any())).thenReturn(State.STILL_WAITING, State.STILL_WAITING, State.SUCCESS);
@@ -258,7 +252,7 @@ public class ComputeEngineTest {
 
     @Test
     public void restartsPreemptedInstanceInNextZone() {
-        when(lifecycleManager.instanceStatus(any(), any())).thenReturn(ComputeEngine.PREEMPTED_INSTANCE);
+        when(lifecycleManager.instanceStatus(any(), any())).thenReturn(GoogleComputeEngine.PREEMPTED_INSTANCE);
         when(bucketWatcher.currentState(any(), any())).thenReturn(State.STILL_WAITING, State.STILL_WAITING, State.SUCCESS);
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
         verify(lifecycleManager).deleteOldInstancesAndStart(instance, FIRST_ZONE_NAME, INSTANCE_NAME);
@@ -284,7 +278,7 @@ public class ComputeEngineTest {
 
     @Test
     public void attachesTwoPersisentDisksWhenLocalSSDDisabled() {
-        victim = new ComputeEngine(Arguments.builder().from(ARGUMENTS).useLocalSsds(false).build(), compute, z -> {
+        victim = new GoogleComputeEngine(Arguments.builder().from(ARGUMENTS).useLocalSsds(false).build(), compute, z -> {
         }, lifecycleManager, bucketWatcher);
         returnSuccess();
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);

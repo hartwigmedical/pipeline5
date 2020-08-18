@@ -13,6 +13,7 @@ import com.hartwig.pipeline.alignment.sample.SbpS3SampleSource;
 import com.hartwig.pipeline.alignment.sample.SbpSampleReader;
 import com.hartwig.pipeline.alignment.vm.VmAligner;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
+import com.hartwig.pipeline.execution.vm.GoogleComputeEngine;
 import com.hartwig.pipeline.sbpapi.SbpRestApi;
 import com.hartwig.pipeline.storage.CloudCopy;
 import com.hartwig.pipeline.storage.CloudSampleUpload;
@@ -40,7 +41,7 @@ public abstract class AlignerProvider {
     private static VmAligner constructVmAligner(final Arguments arguments, final GoogleCredentials credentials, final Storage storage,
             final SampleSource sampleSource, final SampleUpload sampleUpload, final ResultsDirectory resultsDirectory,
             final AlignmentOutputStorage alignmentOutputStorage) throws Exception {
-        ComputeEngine computeEngine = ComputeEngine.from(arguments, credentials);
+        ComputeEngine computeEngine = GoogleComputeEngine.from(arguments, credentials);
         return new VmAligner(arguments,
                 computeEngine,
                 storage,
