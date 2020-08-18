@@ -142,7 +142,7 @@ class InstanceLifecycleManager {
     }
 
     private <T> T executeWithRetries(final CheckedSupplier<T> operationCheckedSupplier, final String opName) {
-        return Failsafe.with(DefaultBackoffPolicy.of(String.format("Lifecycly manager operation [%s]", opName)))
+        return Failsafe.with(DefaultBackoffPolicy.of(String.format("Lifecycle manager operation [%s]", opName)))
                 .get(operationCheckedSupplier);
     }
 

@@ -14,7 +14,7 @@ public class DefaultBackoffPolicyTest {
     @Test
     public void backsOffUntilMaxIsReached() {
         ThrowExceptionThrice thrower = new ThrowExceptionThrice();
-        DefaultBackoffPolicy<Object> victim = new DefaultBackoffPolicy<>("test", 1, 3);
+        DefaultBackoffPolicy<Object> victim = new DefaultBackoffPolicy<>(1, 3);
         Failsafe.with(victim).run(thrower);
         assertThat(thrower.retries).isEqualTo(EXPECTED_RETRIES);
     }
