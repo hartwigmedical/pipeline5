@@ -74,7 +74,8 @@ public class GoogleComputeEngine implements ComputeEngine {
                 compute,
                 Collections::shuffle,
                 new InstanceLifecycleManager(arguments, compute),
-                new BucketCompletionWatcher()), initServiceUseage(credentials), arguments.region(), arguments.project());
+                new BucketCompletionWatcher()), initServiceUseage(credentials), arguments.region(), arguments.project(),
+                0.6);
     }
 
     public PipelineStatus submit(final RuntimeBucket bucket, final VirtualMachineJobDefinition jobDefinition) {

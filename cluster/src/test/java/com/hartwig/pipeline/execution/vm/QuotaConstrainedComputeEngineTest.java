@@ -38,7 +38,7 @@ public class QuotaConstrainedComputeEngineTest {
         when(consumerQuotaMetrics.limits()).thenReturn(limits);
         ArgumentCaptor<String> quotaName = ArgumentCaptor.forClass(String.class);
         when(limits.get(quotaName.capture())).thenReturn(limitsGet);
-        ConsumerQuotaLimit limit = new ConsumerQuotaLimit().setQuotaBuckets(List.of(new QuotaBucket().setEffectiveLimit(1L)
+        ConsumerQuotaLimit limit = new ConsumerQuotaLimit().setQuotaBuckets(List.of(new QuotaBucket().setEffectiveLimit(10L)
                 .setDimensions(Map.of(REGION, REGION))));
         when(limitsGet.execute()).thenReturn(limit);
 
@@ -52,12 +52,13 @@ public class QuotaConstrainedComputeEngineTest {
         ArgumentCaptor<VirtualMachineJobDefinition> constrained = ArgumentCaptor.forClass(VirtualMachineJobDefinition.class);
         when(decorated.submit(any(), constrained.capture(), any())).thenReturn(PipelineStatus.SUCCESS);
 
-        QuotaConstrainedComputeEngine victim = new QuotaConstrainedComputeEngine(decorated, serviceUsage, REGION, PROJECT);
+        QuotaConstrainedComputeEngine victim = new QuotaConstrainedComputeEngine(decorated, serviceUsage, REGION, PROJECT,
+                0.6);
         PipelineStatus result = victim.submit(MockRuntimeBucket.test().getRuntimeBucket(), jobDefinition);
         assertThat(result).isEqualTo(PipelineStatus.SUCCESS);
         MachineType machineType = constrained.getValue().performanceProfile().machineType();
-        assertThat(machineType.cpus()).isEqualTo(1);
-        assertThat(machineType.memoryGB()).isEqualTo(1);
+        assertThat(machineType.cpus()).isEqualTo(6);
+        assertThat(machineType.memoryGB()).isEqualTo(6);
     }
 
 }

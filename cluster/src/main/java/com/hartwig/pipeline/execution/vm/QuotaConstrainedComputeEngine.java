@@ -14,13 +14,15 @@ public class QuotaConstrainedComputeEngine implements ComputeEngine {
     private final ServiceUsage serviceUsage;
     private final String project;
     private final String region;
+    private final double contrainByPercentage;
 
     public QuotaConstrainedComputeEngine(final ComputeEngine decorated, final ServiceUsage serviceUsage, final String region,
-            final String project) {
+            final String project, final double contrainByPercentage) {
         this.decorated = decorated;
         this.serviceUsage = serviceUsage;
         this.project = project;
         this.region = region;
+        this.contrainByPercentage = contrainByPercentage;
     }
 
     @Override
@@ -45,7 +47,7 @@ public class QuotaConstrainedComputeEngine implements ComputeEngine {
                     .filter(b -> region(b).equals(region))
                     .findFirst()
                     .orElseThrow();
-            int maxCPU = regionalQuota.getEffectiveLimit().intValue();
+            int maxCPU = (int) (regionalQuota.getEffectiveLimit().intValue() * contrainByPercentage);
             if (machineType.cpus() > maxCPU) {
                 double reductionRatio = (double) maxCPU / machineType.cpus();
                 constrained = VirtualMachineJobDefinition.builder()
