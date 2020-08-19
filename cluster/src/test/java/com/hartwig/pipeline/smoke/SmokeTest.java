@@ -37,7 +37,6 @@ public class SmokeTest {
     private static final String FILE_ENCODING = "UTF-8";
     private static final int SBP_SET_ID = 9;
     private static final int SBP_RUN_ID = 12;
-
     private static final String SET_ID = "CPCT12345678";
     private static final String REFERENCE_SAMPLE = SET_ID + "R";
     private static final String TUMOR_SAMPLE = SET_ID + "T";
