@@ -9,7 +9,7 @@ import com.hartwig.batch.input.InputBundle;
 import com.hartwig.batch.input.InputFileDescriptor;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.calling.SubStageInputOutput;
-import com.hartwig.pipeline.calling.structural.gridss.stage.GridssPassAndPonFilter;
+import com.hartwig.pipeline.calling.structural.gridss.stage.GridssHardFilter;
 import com.hartwig.pipeline.calling.structural.gridss.stage.GridssSomaticFilter;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.OutputFile;
@@ -40,7 +40,7 @@ public class GridssPostProcessing implements BatchOperation {
         final InputFileDescriptor inputVcfIndex = inputVcf.index();
 
         final GridssSomaticFilter somaticFilter = new GridssSomaticFilter(resourceFiles);
-        final SubStageInputOutput postProcessing = somaticFilter.andThen(new GridssPassAndPonFilter())
+        final SubStageInputOutput postProcessing = somaticFilter.andThen(new GridssHardFilter())
                 .apply(SubStageInputOutput.of(sample, inputFile(inputVcf.localDestination()), Collections.emptyList()));
 
 //        // 0. Download latest jar file
