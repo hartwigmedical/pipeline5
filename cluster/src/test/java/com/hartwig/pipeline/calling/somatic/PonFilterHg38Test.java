@@ -23,9 +23,9 @@ public class PonFilterHg38Test extends SubStageTest {
     @Test
     public void runsTwoPipedBcfToolsFilterCommandInSubshell() {
         assertThat(bash()).contains("("
-                + "/opt/tools/bcftools/1.9/bcftools filter -e 'PON_COUNT!=\".\" && INFO/TIER=\"HOTSPOT\" && PON_MAX>=5 && PON_COUNT >= 2' -s PON -m+ /data/output/tumor.strelka.vcf -O u | "
+                + "/opt/tools/bcftools/1.9/bcftools filter -e 'PON_COUNT!=\".\" && INFO/TIER=\"HOTSPOT\" && PON_MAX>=5 && PON_COUNT >= 5' -s PON -m+ /data/output/tumor.strelka.vcf -O u | "
                 + "/opt/tools/bcftools/1.9/bcftools filter -e 'PON_COUNT!=\".\" && INFO/TIER=\"PANEL\" && PON_MAX>=5 && PON_COUNT >= 2' -s PON -m+ -O u | "
-                + "/opt/tools/bcftools/1.9/bcftools filter -e 'PON_COUNT!=\".\" && INFO/TIER!=\"HOTSPOT\" && INFO/TIER!=\"PANEL\" && PON_COUNT >= 5' -s PON -m+ "
+                + "/opt/tools/bcftools/1.9/bcftools filter -e 'PON_COUNT!=\".\" && INFO/TIER!=\"HOTSPOT\" && INFO/TIER!=\"PANEL\" && PON_COUNT >= 2' -s PON -m+ "
                 + "-O z -o /data/output/tumor.sage.pon.filter.vcf.gz");
     }
 

@@ -27,9 +27,9 @@ class PonFilter extends SubStage {
             panelFilter = String.format(PANEL, 5, 6);
             otherFilter = String.format(OTHER, 6);
         } else {
-            hotspotFilter = String.format(HOTSPOT, 5, 2);
+            hotspotFilter = String.format(HOTSPOT, 5, 5);
             panelFilter = String.format(PANEL, 5, 2);
-            otherFilter = String.format(OTHER, 5);
+            otherFilter = String.format(OTHER, 2);
         }
     }
 
