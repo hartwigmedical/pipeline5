@@ -9,7 +9,7 @@ import org.immutables.value.Value;
 @Value.Immutable
 public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachinePerformanceProfile> {
 
-    String STANDARD_IMAGE = "pipeline5-" +Versions.imageVersion();
+    String STANDARD_IMAGE = "pipeline5-" + Versions.imageVersion();
     String HMF_IMAGE_PROJECT = "hmf-images";
     String PUBLIC_IMAGE_NAME = "hmf-public-pipeline-v1";
 
@@ -83,14 +83,6 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
     static VirtualMachineJobDefinition sageCalling(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("sage")
-                .startupCommand(startupScript)
-                .namespacedResults(resultsDirectory)
-                .build();
-    }
-
-    static VirtualMachineJobDefinition somaticCalling(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
-        return ImmutableVirtualMachineJobDefinition.builder()
-                .name("strelka")
                 .startupCommand(startupScript)
                 .namespacedResults(resultsDirectory)
                 .build();

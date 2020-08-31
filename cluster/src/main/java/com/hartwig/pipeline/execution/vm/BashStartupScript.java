@@ -6,6 +6,7 @@ import static java.util.stream.Collectors.joining;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import com.hartwig.pipeline.execution.vm.storage.StorageStrategy;
 
@@ -35,17 +36,12 @@ public class BashStartupScript {
         return new BashStartupScript(runtimeBucketName, flags);
     }
 
-    String asUnixString() {
-        return asUnixString(new StorageStrategy() {});
-    }
-
-    String asUnixString(StorageStrategy storageStrategy) {
+    String asUnixString(StorageStrategy storageStrategy, Optional<String> customResourcesBucket) {
         String localLogFile = format("%s/%s", LOCAL_LOG_DIR, runtimeFiles.log());
         String commandSuffix = format(" >>%s 2>&1 || die", localLogFile);
         String jobFailedFlag = "/tmp/" + runtimeFiles.failure();
 
-        List<String> preamble = new ArrayList<>(asList(
-                "#!/bin/bash -x\n",
+        List<String> preamble = new ArrayList<>(asList("#!/bin/bash -x\n",
                 "set -o pipefail\n",
                 "function die() {",
                 "  exit_code=$?",
@@ -56,10 +52,14 @@ public class BashStartupScript {
                 "  exit $exit_code\n" + "}\n"));
         preamble.addAll(storageStrategy.initialise());
         preamble.add("ulimit -n 102400");
+        customResourcesBucket.ifPresent(b -> preamble.add(format(
+                "gsutil -m -o 'GSUtil:parallel_thread_count=1' -o 'GSUtil:sliced_object_download_max_components=4' cp -r gs://%s/* %s/ || die",
+                b,
+                VmDirectories.RESOURCES)));
         addCompletionCommands();
-        return String.join("\n", preamble) + "\n" +
-                commands.stream().collect(joining(format("%s\n", commandSuffix))) +
-                (commands.isEmpty() ? "" : commandSuffix);
+        return String.join("\n", preamble) + "\n" + commands.stream().collect(joining(format("%s\n", commandSuffix))) + (commands.isEmpty()
+                ? ""
+                : commandSuffix);
     }
 
     BashStartupScript addLine(String lineOne) {

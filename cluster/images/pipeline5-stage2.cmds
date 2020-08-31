@@ -1,0 +1,3 @@
+# Eliminate stale cache issues with gsutil
+echo 'tmpfs /root/.gsutil tmpfs size=128m 0 0' | sudo tee -a /etc/fstab
+sudo gsutil -m -o 'GSUtil:parallel_thread_count=1' -o 'GSUtil:sliced_object_download_max_components=4' cp -r gs://common-resources/* /opt/resources/

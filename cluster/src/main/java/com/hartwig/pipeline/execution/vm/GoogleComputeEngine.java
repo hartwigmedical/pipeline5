@@ -130,8 +130,8 @@ public class GoogleComputeEngine implements ComputeEngine {
                         currentZone.getName());
                 String startupScript = arguments.useLocalSsds()
                         ? jobDefinition.startupCommand()
-                        .asUnixString(new LocalSsdStorageStrategy(jobDefinition.localSsdCount()))
-                        : jobDefinition.startupCommand().asUnixString(new PersistentStorageStrategy());
+                        .asUnixString(new LocalSsdStorageStrategy(jobDefinition.localSsdCount()), arguments.customResourcesBucket())
+                        : jobDefinition.startupCommand().asUnixString(new PersistentStorageStrategy(), arguments.customResourcesBucket());
                 addStartupCommand(instance, bucket, flags, startupScript);
                 addNetworkInterface(instance, project);
 

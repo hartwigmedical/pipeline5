@@ -13,9 +13,7 @@ sudo apt-get -y install r-base
 sudo mkdir /data
 sudo mkdir /opt/tools
 sudo mkdir /opt/resources
-# Make sure the GSUtil:sliced_object_download_max_components is set to the number of cores on the imaging box
-sudo gsutil -m -o 'GSUtil:parallel_thread_count=1' -o 'GSUtil:sliced_object_download_max_components=4' cp -r gs://$1/* /opt/tools/
-sudo gsutil -m -o 'GSUtil:parallel_thread_count=1' -o 'GSUtil:sliced_object_download_max_components=4' cp -r gs://$2/* /opt/resources/
+sudo gsutil -m -o 'GSUtil:parallel_thread_count=1' -o "GSUtil:sliced_object_download_max_components=4" cp -r gs://common-tools/* /opt/tools/
 sudo tar xvf /opt/tools/strelka/1.0.14/strelka.tar -C /opt/tools/strelka/1.0.14/
 sudo tar xvf /opt/tools/tabix/0.2.6/tabix.tar -C /opt/tools/tabix/0.2.6/
 sudo tar xvf /opt/tools/samtools/1.2/samtools.tar.gz -C /opt/tools/samtools/1.2/
@@ -25,6 +23,7 @@ sudo tar xvf /opt/tools/gridss/2.5.2/scripts.tar -C /opt/tools/gridss/2.5.2/
 sudo tar xvf /opt/tools/gridss/2.7.2/scripts.tar -C /opt/tools/gridss/2.7.2/
 sudo tar xvf /opt/tools/gridss/2.8.3/scripts.tar -C /opt/tools/gridss/2.8.3/
 sudo tar xvf /opt/tools/gridss/2.9.3/scripts.tar -C /opt/tools/gridss/2.9.3/
+
 # This guy is a little different from the others in that it extracts overtop the system-managed R libraries.
 sudo tar xvf /opt/tools/R/rlibs.tar -C /
 sudo chmod a+x /opt/tools/bcftools/1.3.1/bcftools

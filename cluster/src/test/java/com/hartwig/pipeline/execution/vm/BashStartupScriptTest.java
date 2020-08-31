@@ -7,6 +7,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Optional;
 
 import com.hartwig.pipeline.execution.vm.storage.LocalSsdStorageStrategy;
 import com.hartwig.pipeline.testsupport.Resources;
@@ -31,16 +32,8 @@ public class BashStartupScriptTest {
         scriptBuilder.addLine(simpleCommand);
         scriptBuilder.addCommand(new ComplexCommand());
         LocalSsdStorageStrategy storageStrategy = new LocalSsdStorageStrategy(4);
-        assertThat(scriptBuilder.asUnixString(storageStrategy)).isEqualTo(new String(Files.readAllBytes(Paths.get(expectedScript))));
-    }
-
-    @Test
-    public void shouldWriteCompleteScriptForPersistentStorage() throws IOException {
-        String expectedScript = Resources.testResource("script_generation/complete_script-persistent_storage");
-        String simpleCommand = "uname -a";
-        scriptBuilder.addLine(simpleCommand);
-        scriptBuilder.addCommand(new ComplexCommand());
-        assertThat(scriptBuilder.asUnixString()).isEqualTo(new String(Files.readAllBytes(Paths.get(expectedScript))));
+        assertThat(scriptBuilder.asUnixString(storageStrategy, Optional.empty())).isEqualTo(new String(Files.readAllBytes(Paths.get(
+                expectedScript))));
     }
 
     private static class ComplexCommand implements BashCommand {

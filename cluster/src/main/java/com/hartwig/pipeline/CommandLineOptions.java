@@ -63,6 +63,7 @@ public class CommandLineOptions {
     private static final String SHALLOW_FLAG = "shallow";
     private static final String ZONE_FLAG = "zone";
     private static final String REF_GENOME_VERSION_FLAG = "ref_genome_version";
+    private static final String CUSTOM_RESOURCES_BUCKET_FLAG = "custom_resources_bucket";
     private static final String SAMPLE_JSON_FLAG = "sample_json";
 
     private static Options options() {
@@ -118,6 +119,7 @@ public class CommandLineOptions {
                 .addOption(zone())
                 .addOption(refGenomeVersion())
                 .addOption(maxConcurrentLanes())
+                .addOption(customResourcesBucket())
                 .addOption(json());
     }
 
@@ -239,6 +241,10 @@ public class CommandLineOptions {
                         Arrays.stream(RefGenomeVersion.values()).map(Enum::name).collect(Collectors.joining(","))));
     }
 
+    private static Option customResourcesBucket() {
+        return optionWithArg(CUSTOM_RESOURCES_BUCKET_FLAG, format("Bucket containing custom resources"));
+    }
+
     @NotNull
     private static Option sampleDirectory() {
         return optionWithArg(SAMPLE_DIRECTORY_FLAG, "Root directory of the patient data");
@@ -293,6 +299,7 @@ public class CommandLineOptions {
                     .uploadPrivateKeyPath(defaults.uploadPrivateKeyPath())
                     .refGenomeVersion(refGenomeVersion(commandLine, defaults))
                     .sampleJson(sampleJson(commandLine, defaults))
+                    .customResourcesBucket(customResourcesBucket(commandLine))
                     .build();
         } catch (ParseException e) {
             LOGGER.error("Could not parse command line args", e);
@@ -337,6 +344,13 @@ public class CommandLineOptions {
             } catch (NumberFormatException e) {
                 throw new RuntimeException(e);
             }
+        }
+        return Optional.empty();
+    }
+
+    private static Optional<String> customResourcesBucket(final CommandLine commandLine) {
+        if (commandLine.hasOption(CUSTOM_RESOURCES_BUCKET_FLAG)) {
+            return Optional.of(commandLine.getOptionValue(CUSTOM_RESOURCES_BUCKET_FLAG));
         }
         return Optional.empty();
     }

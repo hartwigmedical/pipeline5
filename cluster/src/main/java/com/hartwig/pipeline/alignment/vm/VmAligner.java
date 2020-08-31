@@ -81,7 +81,7 @@ public class VmAligner {
         StageTrace trace = new StageTrace(NAMESPACE, metadata.sampleName(), StageTrace.ExecutorType.COMPUTE_ENGINE).start();
         RuntimeBucket rootBucket = RuntimeBucket.from(storage, NAMESPACE, metadata, arguments);
 
-        final ResourceFiles resourceFiles = buildResourceFiles(arguments.refGenomeVersion());
+        final ResourceFiles resourceFiles = buildResourceFiles(arguments);
 
         Sample sample = sampleSource.sample(metadata);
         sampleUpload.run(sample, rootBucket);
