@@ -5,10 +5,7 @@ import static com.hartwig.pipeline.resource.ResourceFilesFactory.buildResourceFi
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-import java.util.function.Supplier;
 
-import com.hartwig.pipeline.alignment.AlignmentOutput;
-import com.hartwig.pipeline.alignment.AlignmentOutputStorage;
 import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.calling.germline.GermlineCaller;
 import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
@@ -21,7 +18,6 @@ import com.hartwig.pipeline.metadata.SomaticMetadataApi;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetrics;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
-import com.hartwig.pipeline.report.FullSomaticResults;
 import com.hartwig.pipeline.report.PipelineResults;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.StageRunner;
@@ -40,7 +36,6 @@ import com.hartwig.pipeline.tertiary.linx.LinxOutput;
 import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,32 +45,26 @@ public class SomaticPipeline {
 
     private final Arguments arguments;
     private final StageRunner<SomaticRunMetadata> stageRunner;
-    private final AlignmentOutputStorage alignmentOutputStorage;
     private final OutputStorage<BamMetricsOutput, SingleSampleRunMetadata> bamMetricsOutputStorage;
     private final OutputStorage<GermlineCallerOutput, SingleSampleRunMetadata> germlineCallerOutputStorage;
     private final SomaticMetadataApi setMetadataApi;
     private final PipelineResults pipelineResults;
-    private final FullSomaticResults fullSomaticResults;
     private final ExecutorService executorService;
 
     SomaticPipeline(final Arguments arguments, final StageRunner<SomaticRunMetadata> stageRunner,
-            final AlignmentOutputStorage alignmentOutputStorage,
             final OutputStorage<BamMetricsOutput, SingleSampleRunMetadata> bamMetricsOutputStorage,
             final OutputStorage<GermlineCallerOutput, SingleSampleRunMetadata> germlineCallerOutputStorage,
-            final SomaticMetadataApi setMetadataApi, final PipelineResults pipelineResults, final FullSomaticResults fullSomaticResults,
-            final ExecutorService executorService) {
+            final SomaticMetadataApi setMetadataApi, final PipelineResults pipelineResults, final ExecutorService executorService) {
         this.arguments = arguments;
         this.stageRunner = stageRunner;
-        this.alignmentOutputStorage = alignmentOutputStorage;
         this.bamMetricsOutputStorage = bamMetricsOutputStorage;
         this.germlineCallerOutputStorage = germlineCallerOutputStorage;
         this.setMetadataApi = setMetadataApi;
         this.pipelineResults = pipelineResults;
-        this.fullSomaticResults = fullSomaticResults;
         this.executorService = executorService;
     }
 
-    public PipelineState run() {
+    public PipelineState run(AlignmentPair pair) {
 
         PipelineState state = new PipelineState();
 
@@ -85,12 +74,6 @@ public class SomaticPipeline {
         final ResourceFiles resourceFiles = buildResourceFiles(arguments.refGenomeVersion());
 
         if (metadata.maybeTumor().isPresent()) {
-            AlignmentOutput referenceAlignmentOutput =
-                    alignmentOutputStorage.get(metadata.reference()).orElseThrow(throwIllegalState(metadata.reference().sampleId()));
-            AlignmentOutput tumorAlignmentOutput =
-                    alignmentOutputStorage.get(metadata.tumor()).orElseThrow(throwIllegalState(metadata.tumor().sampleName()));
-            AlignmentPair pair = AlignmentPair.of(referenceAlignmentOutput, tumorAlignmentOutput);
-
             try {
                 Future<AmberOutput> amberOutputFuture = executorService.submit(() -> stageRunner.run(metadata, new Amber(pair, resourceFiles)));
                 Future<CobaltOutput> cobaltOutputFuture = executorService.submit(() -> stageRunner.run(metadata, new Cobalt(pair, resourceFiles)));
@@ -134,14 +117,6 @@ public class SomaticPipeline {
                 throw new RuntimeException(e);
             }
         }
-        fullSomaticResults.compose(metadata);
         return state;
-    }
-
-    @NotNull
-    private static Supplier<RuntimeException> throwIllegalState(String sample) {
-        return () -> new IllegalStateException(String.format(
-                "No alignment output found for sample [%s]. Has the single sample pipeline been run?",
-                sample));
     }
 }

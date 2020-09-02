@@ -6,8 +6,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
+import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
-import com.hartwig.pipeline.alignment.vm.VmAligner;
 import com.hartwig.pipeline.calling.germline.GermlineCaller;
 import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
 import com.hartwig.pipeline.cram.CramConversion;
@@ -33,14 +33,14 @@ public class SingleSamplePipeline {
 
     private final SingleSampleEventListener eventListener;
     private final StageRunner<SingleSampleRunMetadata> stageRunner;
-    private final VmAligner aligner;
+    private final Aligner aligner;
     private final PipelineResults report;
     private final ExecutorService executorService;
     private final Boolean isStandalone;
     private final Arguments arguments;
 
     SingleSamplePipeline(final SingleSampleEventListener eventListener, final StageRunner<SingleSampleRunMetadata> stageRunner,
-            final VmAligner aligner, final PipelineResults report, final ExecutorService executorService, final Boolean isStandalone,
+            final Aligner aligner, final PipelineResults report, final ExecutorService executorService, final Boolean isStandalone,
             final Arguments arguments) {
         this.eventListener = eventListener;
         this.stageRunner = stageRunner;
@@ -59,7 +59,7 @@ public class SingleSamplePipeline {
         PipelineState state = new PipelineState();
         final ResourceFiles resourceFiles = buildResourceFiles(arguments.refGenomeVersion());
         AlignmentOutput alignmentOutput = report.add(state.add(aligner.run(metadata)));
-        eventListener.alignmentComplete(state.copy());
+        eventListener.alignmentComplete(alignmentOutput);
         if (state.shouldProceed()) {
             report.clearOldState(arguments, metadata);
             Future<BamMetricsOutput> bamMetricsFuture =

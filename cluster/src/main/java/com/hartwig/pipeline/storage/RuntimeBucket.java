@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.util.List;
 
 import com.google.cloud.storage.Blob;
+import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.BucketInfo;
@@ -91,6 +92,12 @@ public class RuntimeBucket {
     public void copyOutOf(String sourceBlobName, String targetBucket, String targetBlob) {
         BlobInfo targetBlobInfo = BlobInfo.newBuilder(targetBucket, targetBlob).build();
         storage.copy(Storage.CopyRequest.of(bucket.getName(), namespace(sourceBlobName), targetBlobInfo)).getResult();
+    }
+
+    public void copyInto(String sourceBucketName, String sourceBlobName, String targetBlobName) {
+        BlobId sourceBlobId = BlobId.of(sourceBucketName, sourceBlobName);
+        BlobId targetBlobId = BlobId.of(bucket.getName(), namespace(targetBlobName));
+        storage.copy(Storage.CopyRequest.of(sourceBlobId, targetBlobId)).getResult();
     }
 
     public String name() {

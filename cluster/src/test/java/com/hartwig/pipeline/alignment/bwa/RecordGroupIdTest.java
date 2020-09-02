@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.alignment.vm;
+package com.hartwig.pipeline.alignment.bwa;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

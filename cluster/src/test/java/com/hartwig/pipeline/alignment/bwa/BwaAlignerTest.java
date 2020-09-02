@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.alignment.vm;
+package com.hartwig.pipeline.alignment.bwa;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -6,7 +6,6 @@ import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.Optional;
 import java.util.concurrent.Executors;
 
 import com.google.cloud.storage.Bucket;
@@ -17,7 +16,6 @@ import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
-import com.hartwig.pipeline.alignment.AlignmentOutputStorage;
 import com.hartwig.pipeline.alignment.sample.SampleSource;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.GoogleComputeEngine;
@@ -31,12 +29,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-public class VmAlignerTest {
+public class BwaAlignerTest {
 
     private static final SingleSampleRunMetadata METADATA = TestInputs.referenceRunMetadata();
     private static final AlignmentOutput ALIGNMENT_OUTPUT = TestInputs.referenceAlignmentOutput();
-    private VmAligner victim;
-    private AlignmentOutputStorage alignmentOutputStorage;
+    private BwaAligner victim;
     private SampleUpload sampleUpload;
     private SampleSource sampleSource;
     private Storage storage;
@@ -50,45 +47,13 @@ public class VmAlignerTest {
         storage = mock(Storage.class);
         sampleSource = mock(SampleSource.class);
         sampleUpload = mock(SampleUpload.class);
-        alignmentOutputStorage = mock(AlignmentOutputStorage.class);
-        victim = new VmAligner(arguments,
+        victim = new BwaAligner(arguments,
                 computeEngine,
                 storage,
                 sampleSource,
                 sampleUpload,
                 ResultsDirectory.defaultDirectory(),
-                alignmentOutputStorage,
                 Executors.newSingleThreadExecutor());
-    }
-
-    @Test
-    public void returnsExistingBamsWhenDisabled() throws Exception {
-        arguments = Arguments.testDefaultsBuilder().runAligner(false).build();
-        victim = new VmAligner(arguments,
-                computeEngine,
-                storage,
-                sampleSource,
-                sampleUpload,
-                ResultsDirectory.defaultDirectory(),
-                alignmentOutputStorage,
-                Executors.newSingleThreadExecutor());
-        when(alignmentOutputStorage.get(METADATA)).thenReturn(Optional.of(ALIGNMENT_OUTPUT));
-        assertThat(victim.run(METADATA)).isEqualTo(ALIGNMENT_OUTPUT);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void throwsWhenDisabledAndNoBamsExist() throws Exception {
-        arguments = Arguments.testDefaultsBuilder().runAligner(false).build();
-        victim = new VmAligner(arguments,
-                computeEngine,
-                storage,
-                sampleSource,
-                sampleUpload,
-                ResultsDirectory.defaultDirectory(),
-                alignmentOutputStorage,
-                Executors.newSingleThreadExecutor());
-        when(alignmentOutputStorage.get(METADATA)).thenReturn(Optional.empty());
-        victim.run(METADATA);
     }
 
     @Test

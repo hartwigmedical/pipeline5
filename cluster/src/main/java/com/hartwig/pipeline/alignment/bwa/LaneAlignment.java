@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.alignment.vm;
+package com.hartwig.pipeline.alignment.bwa;
 
 import java.util.Collections;
 import java.util.List;
@@ -20,7 +20,7 @@ public class LaneAlignment extends SubStage {
 
     LaneAlignment(final boolean strictFastqNaming, final String referenceGenomePath, final String firstFastqPath, final String secondFastqPath, final String sampleName,
             final Lane lane) {
-        super("sorted." + VmAligner.laneId(lane), OutputFile.BAM);
+        super("sorted." + BwaAligner.laneId(lane), OutputFile.BAM);
         this.strictFastqNaming = strictFastqNaming;
         this.referenceGenomePath = referenceGenomePath;
         this.firstFastqPath = firstFastqPath;

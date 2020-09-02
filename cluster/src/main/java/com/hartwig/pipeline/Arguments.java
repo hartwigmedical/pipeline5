@@ -11,6 +11,8 @@ public interface Arguments extends CommonArguments {
 
     String EMPTY = "";
 
+    Optional<String> runFrom();
+
     enum DefaultsProfile {
         PUBLIC,
         PRODUCTION,
@@ -23,8 +25,6 @@ public interface Arguments extends CommonArguments {
     Integer DEFAULT_POLL_INTERVAL = 5;
 
     boolean runBamMetrics();
-
-    boolean runAligner();
 
     boolean runSnpGenotyper();
 
@@ -142,7 +142,6 @@ public interface Arguments extends CommonArguments {
                     .usePreemptibleVms(true)
                     .useLocalSsds(true)
                     .runBamMetrics(true)
-                    .runAligner(true)
                     .runSnpGenotyper(true)
                     .runGermlineCaller(true)
                     .runSomaticCaller(true)
@@ -174,7 +173,6 @@ public interface Arguments extends CommonArguments {
                     .cmek(CommonArguments.DEFAULT_DEVELOPMENT_CMEK)
                     .usePreemptibleVms(true)
                     .runBamMetrics(true)
-                    .runAligner(true)
                     .runSnpGenotyper(true)
                     .runGermlineCaller(true)
                     .runSomaticCaller(true)
@@ -212,7 +210,6 @@ public interface Arguments extends CommonArguments {
                     .usePreemptibleVms(true)
                     .useLocalSsds(true)
                     .runBamMetrics(true)
-                    .runAligner(true)
                     .runSnpGenotyper(true)
                     .runGermlineCaller(true)
                     .runSomaticCaller(true)
@@ -249,7 +246,6 @@ public interface Arguments extends CommonArguments {
                     .usePreemptibleVms(true)
                     .useLocalSsds(true)
                     .runBamMetrics(true)
-                    .runAligner(true)
                     .runSnpGenotyper(true)
                     .runGermlineCaller(true)
                     .runSomaticCaller(true)

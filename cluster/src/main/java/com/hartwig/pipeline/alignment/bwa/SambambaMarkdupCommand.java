@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.alignment.vm;
+package com.hartwig.pipeline.alignment.bwa;
 
 import java.util.List;
 
@@ -19,6 +19,6 @@ class SambambaMarkdupCommand extends SambambaCommand {
         List<String> arguments = Lists.newArrayList("markdup", "-t", Bash.allCpus(), "--overflow-list-size=45000000");
         arguments.addAll(inputBamPaths);
         arguments.add(outputBamPath);
-        return arguments.toArray(new String[arguments.size()]);
+        return arguments.toArray(new String[0]);
     }
 }

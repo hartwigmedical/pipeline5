@@ -6,7 +6,6 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.pubsub.v1.Publisher;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.alignment.AlignerProvider;
-import com.hartwig.pipeline.alignment.AlignmentOutputStorage;
 import com.hartwig.pipeline.calling.germline.GermlineCaller;
 import com.hartwig.pipeline.cleanup.CleanupProvider;
 import com.hartwig.pipeline.credentials.CredentialProvider;
@@ -60,15 +59,20 @@ public class PipelineMain {
                     .type(ini)
                     .build();
             startedEvent(eventSubjects, publisher, arguments.publishToTurquoise());
-            PipelineState state =
-                    new FullPipeline(singleSamplePipeline(arguments, credentials, storage, referenceEventListener, isSingleSample),
-                            singleSamplePipeline(arguments, credentials, storage, tumorEventListener, isSingleSample),
-                            somaticPipeline(arguments, credentials, storage, somaticMetadataApi),
-                            Executors.newCachedThreadPool(),
-                            referenceEventListener,
-                            tumorEventListener,
-                            somaticMetadataApi,
-                            CleanupProvider.from(arguments, storage).get()).run();
+            PipelineState state = new FullPipeline(singleSamplePipeline(arguments,
+                    credentials,
+                    storage,
+                    referenceEventListener,
+                    isSingleSample,
+                    somaticMetadataApi),
+                    singleSamplePipeline(arguments, credentials, storage, tumorEventListener, isSingleSample, somaticMetadataApi),
+                    somaticPipeline(arguments, credentials, storage, somaticMetadataApi),
+                    Executors.newCachedThreadPool(),
+                    referenceEventListener,
+                    tumorEventListener,
+                    somaticMetadataApi,
+                    new FullSomaticResults(storage, arguments),
+                    CleanupProvider.from(arguments, storage).get()).run();
             completedEvent(eventSubjects, publisher, state.status().toString(), arguments.publishToTurquoise());
             return state;
 
@@ -94,8 +98,10 @@ public class PipelineMain {
     private static SomaticPipeline somaticPipeline(final Arguments arguments, final GoogleCredentials credentials, final Storage storage,
             final SomaticMetadataApi somaticMetadataApi) throws Exception {
         return new SomaticPipeline(arguments,
-                new StageRunner<>(storage, arguments, GoogleComputeEngine.from(arguments, credentials), ResultsDirectory.defaultDirectory()),
-                new AlignmentOutputStorage(storage, arguments, ResultsDirectory.defaultDirectory()),
+                new StageRunner<>(storage,
+                        arguments,
+                        GoogleComputeEngine.from(arguments, credentials),
+                        ResultsDirectory.defaultDirectory()),
                 new OutputStorage<>(ResultsDirectory.defaultDirectory(),
                         arguments,
                         metadata -> RuntimeBucket.from(storage, BamMetrics.NAMESPACE, metadata, arguments)),
@@ -104,15 +110,18 @@ public class PipelineMain {
                         metadata -> RuntimeBucket.from(storage, GermlineCaller.NAMESPACE, metadata, arguments)),
                 somaticMetadataApi,
                 PipelineResultsProvider.from(storage, arguments, Versions.pipelineVersion()).get(),
-                new FullSomaticResults(storage, arguments),
                 Executors.newCachedThreadPool());
     }
 
     private static SingleSamplePipeline singleSamplePipeline(final Arguments arguments, final GoogleCredentials credentials,
-            final Storage storage, final SingleSampleEventListener eventListener, final Boolean isStandalone) throws Exception {
+            final Storage storage, final SingleSampleEventListener eventListener, final Boolean isStandalone,
+            final SomaticMetadataApi somaticMetadataApi) throws Exception {
         return new SingleSamplePipeline(eventListener,
-                new StageRunner<>(storage, arguments, GoogleComputeEngine.from(arguments, credentials), ResultsDirectory.defaultDirectory()),
-                AlignerProvider.from(credentials, storage, arguments).get(),
+                new StageRunner<>(storage,
+                        arguments,
+                        GoogleComputeEngine.from(arguments, credentials),
+                        ResultsDirectory.defaultDirectory()),
+                AlignerProvider.from(credentials, storage, somaticMetadataApi, arguments).get(),
                 PipelineResultsProvider.from(storage, arguments, Versions.pipelineVersion()).get(),
                 Executors.newCachedThreadPool(),
                 isStandalone,

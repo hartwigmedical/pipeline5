@@ -1,8 +1,8 @@
 package com.hartwig.pipeline.testsupport;
 
+import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.alignment.AlignmentPair;
-import com.hartwig.pipeline.alignment.vm.VmAligner;
 import com.hartwig.pipeline.calling.germline.GermlineCaller;
 import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
 import com.hartwig.pipeline.calling.somatic.SageCaller;
@@ -97,7 +97,7 @@ public class TestInputs {
     }
 
     private static AlignmentOutput alignerOutput(final String sample) {
-        String bucket = namespacedBucket(sample, VmAligner.NAMESPACE);
+        String bucket = namespacedBucket(sample, Aligner.NAMESPACE);
         return AlignmentOutput.builder()
                 .status(PipelineStatus.SUCCESS)
                 .maybeFinalBamLocation(gsLocation(bucket, RESULTS + sample + ".bam"))

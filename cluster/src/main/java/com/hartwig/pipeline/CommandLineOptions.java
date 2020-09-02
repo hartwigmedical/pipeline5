@@ -43,7 +43,6 @@ public class CommandLineOptions {
     private static final String SERVICE_ACCOUNT_EMAIL_FLAG = "service_account_email";
     private static final String MAX_CONCURRENT_LANES_FLAG = "max_concurrent_lanes";
     private static final String DEFAULT_PROFILE = "production";
-    private static final String RUN_ALIGNER_FLAG = "run_aligner";
     private static final String OUTPUT_CRAM_FLAG = "output_cram";
     private static final String PUBLISH_TO_TURQUOISE_FLAG = "publish_to_turquoise";
     private static final String RUN_GERMLINE_CALLER_FLAG = "run_germline_caller";
@@ -64,6 +63,7 @@ public class CommandLineOptions {
     private static final String ZONE_FLAG = "zone";
     private static final String REF_GENOME_VERSION_FLAG = "ref_genome_version";
     private static final String SAMPLE_JSON_FLAG = "sample_json";
+    private static final String RUN_FROM_FLAG = "run_from";
 
     private static Options options() {
         return new Options().addOption(profile())
@@ -93,7 +93,6 @@ public class CommandLineOptions {
                 .addOption(rcloneS3RemoteDownload())
                 .addOption(rcloneS3RemoteUpload())
                 .addOption(optionWithBooleanArg(RUN_METRICS_FLAG, "Run wgs metricsOutputFile after BAM creation"))
-                .addOption(optionWithBooleanArg(RUN_ALIGNER_FLAG, "Run the aligner on Google Dataproc"))
                 .addOption(optionWithBooleanArg(RUN_GERMLINE_CALLER_FLAG, "Run germline calling (gatk) on a VM"))
                 .addOption(optionWithBooleanArg(RUN_SOMATIC_CALLER_FLAG, "Run somatic calling (sage) on a VM"))
                 .addOption(optionWithBooleanArg(RUN_STRUCTURAL_CALLER_FLAG, "Run structural calling (gridss) on a VM"))
@@ -118,7 +117,12 @@ public class CommandLineOptions {
                 .addOption(zone())
                 .addOption(refGenomeVersion())
                 .addOption(maxConcurrentLanes())
-                .addOption(json());
+                .addOption(json())
+                .addOption(runFrom());
+    }
+
+    private static Option runFrom() {
+        return optionWithArg(RUN_FROM_FLAG, "Run from a specified stage namespace. Currently supported (aligner)");
     }
 
     private static Option json() {
@@ -268,7 +272,6 @@ public class CommandLineOptions {
                     .rcloneS3RemoteDownload(commandLine.getOptionValue(RCLONE_S3_REMOTE_DOWNLOAD_FLAG, defaults.rcloneS3RemoteDownload()))
                     .rcloneS3RemoteUpload(commandLine.getOptionValue(RCLONE_S3_REMOTE_UPLOAD_FLAG, defaults.rcloneS3RemoteUpload()))
                     .runBamMetrics(booleanOptionWithDefault(commandLine, RUN_METRICS_FLAG, defaults.runBamMetrics()))
-                    .runAligner(booleanOptionWithDefault(commandLine, RUN_ALIGNER_FLAG, defaults.runAligner()))
                     .runSnpGenotyper(booleanOptionWithDefault(commandLine, RUN_SNP_GENOTYPER_FLAG, defaults.runSnpGenotyper()))
                     .runGermlineCaller(booleanOptionWithDefault(commandLine, RUN_GERMLINE_CALLER_FLAG, defaults.runGermlineCaller()))
                     .runSomaticCaller(booleanOptionWithDefault(commandLine, RUN_SOMATIC_CALLER_FLAG, defaults.runSomaticCaller()))
@@ -293,6 +296,7 @@ public class CommandLineOptions {
                     .uploadPrivateKeyPath(defaults.uploadPrivateKeyPath())
                     .refGenomeVersion(refGenomeVersion(commandLine, defaults))
                     .sampleJson(sampleJson(commandLine, defaults))
+                    .runFrom(runFrom(commandLine, defaults))
                     .build();
         } catch (ParseException e) {
             LOGGER.error("Could not parse command line args", e);
@@ -300,6 +304,13 @@ public class CommandLineOptions {
             formatter.printHelp("pipeline5", options());
             throw e;
         }
+    }
+
+    private static Optional<String> runFrom(final CommandLine commandLine, final Arguments defaults) {
+        if (commandLine.hasOption(RUN_FROM_FLAG)) {
+            return Optional.of(commandLine.getOptionValue(RUN_FROM_FLAG));
+        }
+        return defaults.runFrom();
     }
 
     private static Optional<String> cmek(final CommandLine commandLine, final Arguments defaults) {

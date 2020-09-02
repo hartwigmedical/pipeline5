@@ -1,54 +1,10 @@
 package com.hartwig.pipeline;
 
-import static com.hartwig.pipeline.testsupport.TestInputs.cramOutput;
-import static com.hartwig.pipeline.testsupport.TestInputs.flagstatOutput;
-import static com.hartwig.pipeline.testsupport.TestInputs.germlineCallerOutput;
-import static com.hartwig.pipeline.testsupport.TestInputs.referenceAlignmentOutput;
-import static com.hartwig.pipeline.testsupport.TestInputs.referenceMetricsOutput;
-import static com.hartwig.pipeline.testsupport.TestInputs.referenceRunMetadata;
-import static com.hartwig.pipeline.testsupport.TestInputs.referenceSample;
-import static com.hartwig.pipeline.testsupport.TestInputs.snpGenotypeOutput;
-import static com.hartwig.pipeline.testsupport.TestInputs.tumorAlignmentOutput;
-import static com.hartwig.pipeline.testsupport.TestInputs.tumorMetricsOutput;
-import static com.hartwig.pipeline.testsupport.TestInputs.tumorRunMetadata;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.concurrent.Executors;
-
-import com.google.cloud.storage.Bucket;
-import com.google.cloud.storage.Storage;
-import com.hartwig.pipeline.alignment.AlignmentOutput;
-import com.hartwig.pipeline.alignment.vm.VmAligner;
-import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
-import com.hartwig.pipeline.cram.CramOutput;
-import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.flagstat.FlagstatOutput;
-import com.hartwig.pipeline.metadata.SingleSampleEventListener;
-import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
-import com.hartwig.pipeline.metrics.BamMetricsOutput;
-import com.hartwig.pipeline.report.PipelineResults;
-import com.hartwig.pipeline.report.PipelineResultsProvider;
-import com.hartwig.pipeline.report.ReportComponent;
-import com.hartwig.pipeline.snpgenotype.SnpGenotypeOutput;
-import com.hartwig.pipeline.stages.StageRunner;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-
 public class SingleSamplePipelineTest {
 
-    private static final Arguments ARGUMENTS = Arguments.testDefaults();
+/*    private static final Arguments ARGUMENTS = Arguments.testDefaults();
     private SingleSamplePipeline victim;
-    private VmAligner aligner;
+    private BwaAligner aligner;
     private SingleSampleEventListener eventListener;
     private StageRunner<SingleSampleRunMetadata> stageRunner;
     private PipelineResults pipelineResults;
@@ -56,7 +12,7 @@ public class SingleSamplePipelineTest {
     @Before
     @SuppressWarnings("unchecked")
     public void setUp() throws Exception {
-        aligner = mock(VmAligner.class);
+        aligner = mock(BwaAligner.class);
         eventListener = mock(SingleSampleEventListener.class);
         Storage storage = mock(Storage.class);
         Bucket reportBucket = mock(Bucket.class);
@@ -329,5 +285,5 @@ public class SingleSamplePipelineTest {
         boolean isAdded() {
             return isAdded;
         }
-    }
+    }*/
 }
