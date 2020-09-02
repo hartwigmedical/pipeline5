@@ -35,10 +35,9 @@ public class SageCallerTest extends TertiaryStageTest<SomaticCallerOutput> {
                 "/opt/tools/tabix/0.2.6/tabix /data/output/tumor.sage.pon.annotated.vcf.gz -p vcf",
                 "(/opt/tools/bcftools/1.9/bcftools filter -e 'PON_COUNT!=\".\" && INFO/TIER=\"HOTSPOT\" && PON_MAX>=5 && PON_COUNT >= 10' -s PON -m+ /data/output/tumor.sage.pon.annotated.vcf.gz -O u | /opt/tools/bcftools/1.9/bcftools filter -e 'PON_COUNT!=\".\" && INFO/TIER=\"PANEL\" && PON_MAX>=5 && PON_COUNT >= 6' -s PON -m+ -O u | /opt/tools/bcftools/1.9/bcftools filter -e 'PON_COUNT!=\".\" && INFO/TIER!=\"HOTSPOT\" && INFO/TIER!=\"PANEL\" && PON_COUNT >= 6' -s PON -m+ -O z -o /data/output/tumor.sage.pon.filter.vcf.gz)",
                 "/opt/tools/tabix/0.2.6/tabix /data/output/tumor.sage.pon.filter.vcf.gz -p vcf",
-                "/opt/tools/snpEff/4.3s/snpEff.sh /opt/tools/snpEff/4.3s/snpEff.jar /opt/resources/snpeff/hg19/snpEff.config GRCh37.75 /data/output/tumor.sage.pon.filter.vcf.gz /data/output/tumor.snpeff.annotated.vcf",
-                "/opt/tools/tabix/0.2.6/bgzip -f /data/output/tumor.snpeff.annotated.vcf",
-                "/opt/tools/tabix/0.2.6/tabix /data/output/tumor.snpeff.annotated.vcf.gz -p vcf",
-                "java -Xmx8G -cp /opt/tools/sage/2.2/sage.jar com.hartwig.hmftools.sage.SagePostProcessApplication -in /data/output/tumor.snpeff.annotated.vcf.gz -out /data/output/tumor.sage.somatic.filtered.vcf.gz -assembly hg19");
+                "/opt/tools/snpEff/4.3s/snpEff.sh /opt/tools/snpEff/4.3s/snpEff.jar /opt/resources/snpeff/hg19/snpEff.config GRCh37.75 /data/output/tumor.sage.pon.filter.vcf.gz /data/output/tumor.sage.somatic.filtered.vcf",
+                "/opt/tools/tabix/0.2.6/bgzip -f /data/output/tumor.sage.somatic.filtered.vcf",
+                "/opt/tools/tabix/0.2.6/tabix /data/output/tumor.sage.somatic.filtered.vcf.gz -p vcf");
     }
 
     @Override
