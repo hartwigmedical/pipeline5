@@ -20,7 +20,7 @@ public class GridssHardFilterTest extends SubStageTest {
 
     @Test
     public void expectedOutput() {
-        assertThat(bash()).contains("java -Xmx24G -cp /opt/tools/gripss/1.5/gripss.jar com.hartwig.hmftools.gripss.GripssHardFilterApplicationKt "
+        assertThat(bash()).contains("java -Xmx24G -cp /opt/tools/gripss/1.6/gripss.jar com.hartwig.hmftools.gripss.GripssHardFilterApplicationKt "
                 + "-input_vcf /data/output/tumor.strelka.vcf "
                 + "-output_vcf /data/output/tumor.gridss.somatic.filtered.vcf.gz"
         );
