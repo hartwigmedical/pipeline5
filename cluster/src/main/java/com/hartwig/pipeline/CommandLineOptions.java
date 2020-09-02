@@ -2,10 +2,14 @@ package com.hartwig.pipeline;
 
 import static java.lang.String.format;
 
+import static com.hartwig.pipeline.CommonArguments.CMEK;
+import static com.hartwig.pipeline.CommonArguments.IMAGE_NAME;
+
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.hartwig.pipeline.Arguments.DefaultsProfile;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
 
 import org.apache.commons.cli.CommandLine;
@@ -59,7 +63,7 @@ public class CommandLineOptions {
     private static final String SET_ID_FLAG = "set_id";
     private static final String SBP_RUN_ID_FLAG = "sbp_run_id";
     private static final String NETWORK_FLAG = "network";
-    private static final String CMEK_FLAG = "cmek";
+//    private static final String CMEK_FLAG = "cmek";
     private static final String SHALLOW_FLAG = "shallow";
     private static final String ZONE_FLAG = "zone";
     private static final String REF_GENOME_VERSION_FLAG = "ref_genome_version";
@@ -118,11 +122,16 @@ public class CommandLineOptions {
                 .addOption(zone())
                 .addOption(refGenomeVersion())
                 .addOption(maxConcurrentLanes())
-                .addOption(json());
+                .addOption(json())
+                .addOption(imageName());
     }
 
     private static Option json() {
         return optionWithArg(SAMPLE_JSON_FLAG, "JSON file defining the location of FASTQ inputs in GCP.");
+    }
+
+    private static Option imageName() {
+        return optionWithArg(IMAGE_NAME, "Image to use instead of the default");
     }
 
     private static Option maxConcurrentLanes() {
@@ -132,7 +141,7 @@ public class CommandLineOptions {
     }
 
     private static Option cmek() {
-        return optionWithArg(CMEK_FLAG,
+        return optionWithArg(CMEK,
                 "The name of the Customer Managed Encryption Key. When this flag is populated all runtime buckets will use this key.");
     }
 
@@ -176,7 +185,8 @@ public class CommandLineOptions {
     }
 
     private static Option profile() {
-        return optionWithArg(PROFILE_FLAG, "Defaults profile to use. Accepts [production|development]");
+        return optionWithArg(PROFILE_FLAG, format("Defaults profile to use. Accepts [%s]",
+                Arrays.stream(DefaultsProfile.values()).map(Enum::name).collect(Collectors.joining("|"))));
     }
 
     private static Option rclonePath() {
@@ -251,7 +261,6 @@ public class CommandLineOptions {
             Arguments defaults = Arguments.defaults(commandLine.getOptionValue(PROFILE_FLAG, DEFAULT_PROFILE));
 
             return Arguments.builder()
-                    .usePublicImage(defaults.usePublicImage())
                     .setId(commandLine.getOptionValue(SET_ID_FLAG, defaults.setId()))
                     .privateKeyPath(CommonArguments.privateKey(commandLine).or(defaults::privateKeyPath))
                     .project(commandLine.getOptionValue(PROJECT_FLAG, defaults.project()))
@@ -293,6 +302,7 @@ public class CommandLineOptions {
                     .uploadPrivateKeyPath(defaults.uploadPrivateKeyPath())
                     .refGenomeVersion(refGenomeVersion(commandLine, defaults))
                     .sampleJson(sampleJson(commandLine, defaults))
+                    .imageName(imageName(commandLine, defaults))
                     .build();
         } catch (ParseException e) {
             LOGGER.error("Could not parse command line args", e);
@@ -303,8 +313,8 @@ public class CommandLineOptions {
     }
 
     private static Optional<String> cmek(final CommandLine commandLine, final Arguments defaults) {
-        if (commandLine.hasOption(CMEK_FLAG)) {
-            return Optional.of(commandLine.getOptionValue(CMEK_FLAG));
+        if (commandLine.hasOption(CMEK)) {
+            return Optional.of(commandLine.getOptionValue(CMEK));
         }
         return defaults.cmek();
     }
@@ -314,6 +324,13 @@ public class CommandLineOptions {
             return Optional.of(commandLine.getOptionValue(SAMPLE_JSON_FLAG));
         }
         return defaults.sampleJson();
+    }
+
+    private static Optional<String> imageName(final CommandLine commandLine, final Arguments defaults) {
+        if (commandLine.hasOption(IMAGE_NAME)) {
+            return Optional.of(commandLine.getOptionValue(IMAGE_NAME));
+        }
+        return defaults.imageName();
     }
 
     private static Optional<String> zone(final CommandLine commandLine, final Arguments defaults) {

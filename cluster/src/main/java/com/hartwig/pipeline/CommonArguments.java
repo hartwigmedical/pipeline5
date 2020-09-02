@@ -16,6 +16,7 @@ public interface CommonArguments {
     String PRIVATE_KEY_PATH = "private_key_path";
     String CMEK = "cmek";
     String PRIVATE_NETWORK = "private_network";
+    String IMAGE_NAME = "image_name";
 
     String CMEK_DESCRIPTION = "The resource path of the Customer Managed Encryption Key. Runtime buckets will use this key.";
     String DEFAULT_NETWORK = "default";
@@ -55,7 +56,7 @@ public interface CommonArguments {
 
     Optional<Integer> sbpApiRunId();
 
-    boolean usePublicImage();
+    Optional<String> imageName();
 
     static Optional<String> privateKey(CommandLine commandLine) {
         if (commandLine.hasOption(PRIVATE_KEY_PATH)) {

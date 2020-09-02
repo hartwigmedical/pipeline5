@@ -2,6 +2,7 @@ package com.hartwig.pipeline;
 
 import java.util.Optional;
 
+import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
 
 import org.immutables.value.Value;
@@ -127,7 +128,6 @@ public interface Arguments extends CommonArguments {
         if (profile.equals(DefaultsProfile.PRODUCTION)) {
             return ImmutableArguments.builder()
                     .profile(profile)
-                    .usePublicImage(false)
                     .rclonePath(DEFAULT_PRODUCTION_RCLONE_PATH)
                     .rcloneGcpRemote(DEFAULT_PRODUCTION_RCLONE_GCP_REMOTE)
                     .rcloneS3RemoteDownload(DEFAULT_PRODUCTION_RCLONE_S3_REMOTE)
@@ -161,11 +161,11 @@ public interface Arguments extends CommonArguments {
                     .publishToTurquoise(false)
                     .pollInterval(DEFAULT_POLL_INTERVAL)
                     .refGenomeVersion(DEFAULT_REF_GENOME_VERSION)
-                    .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES);
+                    .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES)
+                    .imageName(EMPTY);
         } else if (profile.equals(DefaultsProfile.DEVELOPMENT)) {
             return ImmutableArguments.builder()
                     .profile(profile)
-                    .usePublicImage(false)
                     .region(CommonArguments.DEFAULT_DEVELOPMENT_REGION)
                     .project(CommonArguments.DEFAULT_DEVELOPMENT_PROJECT)
                     .cloudSdkPath(CommonArguments.DEFAULT_DEVELOPMENT_CLOUD_SDK_PATH)
@@ -198,11 +198,11 @@ public interface Arguments extends CommonArguments {
                     .refGenomeVersion(DEFAULT_REF_GENOME_VERSION)
                     .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES)
                     .network(DEFAULT_NETWORK)
-                    .useLocalSsds(true);
+                    .useLocalSsds(true)
+                    .imageName(EMPTY);
         } else if (profile.equals(DefaultsProfile.DEVELOPMENT_DOCKER)) {
             return ImmutableArguments.builder()
                     .profile(profile)
-                    .usePublicImage(false)
                     .region(CommonArguments.DEFAULT_DEVELOPMENT_REGION)
                     .project(CommonArguments.DEFAULT_DEVELOPMENT_PROJECT)
                     .cloudSdkPath(DEFAULT_DOCKER_CLOUD_SDK_PATH)
@@ -235,11 +235,11 @@ public interface Arguments extends CommonArguments {
                     .publishToTurquoise(false)
                     .pollInterval(DEFAULT_POLL_INTERVAL)
                     .refGenomeVersion(DEFAULT_REF_GENOME_VERSION)
-                    .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES);
+                    .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES)
+                    .imageName(EMPTY);
         } else if (profile.equals(DefaultsProfile.PUBLIC)) {
             return ImmutableArguments.builder()
                     .profile(profile)
-                    .usePublicImage(true)
                     .outputBucket(EMPTY)
                     .region(EMPTY)
                     .project(EMPTY)
@@ -271,7 +271,8 @@ public interface Arguments extends CommonArguments {
                     .publishToTurquoise(false)
                     .pollInterval(DEFAULT_POLL_INTERVAL)
                     .refGenomeVersion(DEFAULT_REF_GENOME_VERSION)
-                    .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES);
+                    .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES)
+                    .imageName(VirtualMachineJobDefinition.PUBLIC_IMAGE_NAME);
         }
         throw new IllegalArgumentException(String.format("Unknown profile [%s], please create defaults for this profile.", profile));
     }
