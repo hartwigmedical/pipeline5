@@ -2,15 +2,13 @@ package com.hartwig.pipeline;
 
 import static java.lang.String.format;
 
-import static com.hartwig.pipeline.CommonArguments.CMEK;
-import static com.hartwig.pipeline.CommonArguments.IMAGE_NAME;
-
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.hartwig.pipeline.Arguments.DefaultsProfile;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
+import com.hartwig.pipeline.tools.Versions;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
@@ -63,11 +61,12 @@ public class CommandLineOptions {
     private static final String SET_ID_FLAG = "set_id";
     private static final String SBP_RUN_ID_FLAG = "sbp_run_id";
     private static final String NETWORK_FLAG = "network";
-//    private static final String CMEK_FLAG = "cmek";
+    private static final String CMEK_FLAG = "cmek";
     private static final String SHALLOW_FLAG = "shallow";
     private static final String ZONE_FLAG = "zone";
     private static final String REF_GENOME_VERSION_FLAG = "ref_genome_version";
     private static final String SAMPLE_JSON_FLAG = "sample_json";
+    private static final String IMAGE_NAME_FLAG = "image_name";
 
     private static Options options() {
         return new Options().addOption(profile())
@@ -131,7 +130,7 @@ public class CommandLineOptions {
     }
 
     private static Option imageName() {
-        return optionWithArg(IMAGE_NAME, "Image to use instead of the default");
+        return optionWithArg(IMAGE_NAME_FLAG, String.format("Image to use instead of the latest %s image", Versions.imageVersion()));
     }
 
     private static Option maxConcurrentLanes() {
@@ -141,7 +140,7 @@ public class CommandLineOptions {
     }
 
     private static Option cmek() {
-        return optionWithArg(CMEK,
+        return optionWithArg(CMEK_FLAG,
                 "The name of the Customer Managed Encryption Key. When this flag is populated all runtime buckets will use this key.");
     }
 
@@ -313,8 +312,8 @@ public class CommandLineOptions {
     }
 
     private static Optional<String> cmek(final CommandLine commandLine, final Arguments defaults) {
-        if (commandLine.hasOption(CMEK)) {
-            return Optional.of(commandLine.getOptionValue(CMEK));
+        if (commandLine.hasOption(CMEK_FLAG)) {
+            return Optional.of(commandLine.getOptionValue(CMEK_FLAG));
         }
         return defaults.cmek();
     }
@@ -327,8 +326,8 @@ public class CommandLineOptions {
     }
 
     private static Optional<String> imageName(final CommandLine commandLine, final Arguments defaults) {
-        if (commandLine.hasOption(IMAGE_NAME)) {
-            return Optional.of(commandLine.getOptionValue(IMAGE_NAME));
+        if (commandLine.hasOption(IMAGE_NAME_FLAG)) {
+            return Optional.of(commandLine.getOptionValue(IMAGE_NAME_FLAG));
         }
         return defaults.imageName();
     }

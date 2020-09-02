@@ -2,7 +2,6 @@ package com.hartwig.pipeline;
 
 import java.util.Optional;
 
-import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
 
 import org.immutables.value.Value;
@@ -161,8 +160,7 @@ public interface Arguments extends CommonArguments {
                     .publishToTurquoise(false)
                     .pollInterval(DEFAULT_POLL_INTERVAL)
                     .refGenomeVersion(DEFAULT_REF_GENOME_VERSION)
-                    .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES)
-                    .imageName(EMPTY);
+                    .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES);
         } else if (profile.equals(DefaultsProfile.DEVELOPMENT)) {
             return ImmutableArguments.builder()
                     .profile(profile)
@@ -198,8 +196,7 @@ public interface Arguments extends CommonArguments {
                     .refGenomeVersion(DEFAULT_REF_GENOME_VERSION)
                     .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES)
                     .network(DEFAULT_NETWORK)
-                    .useLocalSsds(true)
-                    .imageName(EMPTY);
+                    .useLocalSsds(true);
         } else if (profile.equals(DefaultsProfile.DEVELOPMENT_DOCKER)) {
             return ImmutableArguments.builder()
                     .profile(profile)
@@ -235,8 +232,7 @@ public interface Arguments extends CommonArguments {
                     .publishToTurquoise(false)
                     .pollInterval(DEFAULT_POLL_INTERVAL)
                     .refGenomeVersion(DEFAULT_REF_GENOME_VERSION)
-                    .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES)
-                    .imageName(EMPTY);
+                    .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES);
         } else if (profile.equals(DefaultsProfile.PUBLIC)) {
             return ImmutableArguments.builder()
                     .profile(profile)
@@ -271,8 +267,7 @@ public interface Arguments extends CommonArguments {
                     .publishToTurquoise(false)
                     .pollInterval(DEFAULT_POLL_INTERVAL)
                     .refGenomeVersion(DEFAULT_REF_GENOME_VERSION)
-                    .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES)
-                    .imageName(VirtualMachineJobDefinition.PUBLIC_IMAGE_NAME);
+                    .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES);
         }
         throw new IllegalArgumentException(String.format("Unknown profile [%s], please create defaults for this profile.", profile));
     }
