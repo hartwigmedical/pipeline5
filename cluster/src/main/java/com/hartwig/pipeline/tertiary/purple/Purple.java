@@ -63,17 +63,15 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
 
     @Override
     public List<BashCommand> commands(final SomaticRunMetadata metadata) {
-        return Collections.singletonList(new PurpleApplicationCommand(metadata.reference().sampleName(),
+        return Collections.singletonList(new PurpleApplicationCommand(resourceFiles,
+                metadata.reference().sampleName(),
                 metadata.tumor().sampleName(),
                 amberOutputDownload.getLocalTargetPath(),
                 cobaltOutputDownload.getLocalTargetPath(),
-                resourceFiles.gcProfileFile(),
                 somaticVcfDownload.getLocalTargetPath(),
                 structuralVcfDownload.getLocalTargetPath(),
                 svRecoveryVcfDownload.getLocalTargetPath(),
                 VmDirectories.TOOLS + "/circos/" + Versions.CIRCOS + "/bin/circos",
-                resourceFiles.refGenomeFile(),
-                resourceFiles.sageKnownHotspots(),
                 shallow));
     }
 

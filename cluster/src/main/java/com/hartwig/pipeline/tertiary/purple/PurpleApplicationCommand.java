@@ -8,6 +8,7 @@ import java.util.List;
 import com.hartwig.pipeline.execution.vm.Bash;
 import com.hartwig.pipeline.execution.vm.JavaJarCommand;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
+import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.tools.Versions;
 
 import org.jetbrains.annotations.NotNull;
@@ -18,9 +19,8 @@ class PurpleApplicationCommand extends JavaJarCommand {
     private static final String LOW_COVERAGE_SOMATIC_MIN_TOTAL = "100";
     private static final String LOW_COVERAGE_SOMATIC_MIN_PURITY_SPREAD = "0.1";
 
-    PurpleApplicationCommand(String referenceSampleName, String tumorSampleName, String amberDirectory, String cobaltDirectory,
-            String gcProfile, String somaticVcf, String structuralVcf, String svRecoveryVcf, String circosPath, String referenceGenomePath,
-            String knownHotspots, boolean isShallow) {
+    PurpleApplicationCommand(ResourceFiles resourceFiles, String referenceSampleName, String tumorSampleName, String amberDirectory, String cobaltDirectory,
+                             String somaticVcf, String structuralVcf, String svRecoveryVcf, String circosPath, boolean isShallow) {
         super("purple",
                 Versions.PURPLE,
                 "purple.jar",
@@ -29,19 +29,21 @@ class PurpleApplicationCommand extends JavaJarCommand {
                         tumorSampleName,
                         amberDirectory,
                         cobaltDirectory,
-                        gcProfile,
+                        resourceFiles.gcProfileFile(),
                         somaticVcf,
                         structuralVcf,
                         svRecoveryVcf,
                         circosPath,
-                        referenceGenomePath,
-                        knownHotspots), maybeShallowArguments(isShallow)));
+                        resourceFiles.refGenomeFile(),
+                        resourceFiles.sageKnownHotspots(),
+                        resourceFiles.driverGenePanel()),
+                        maybeShallowArguments(isShallow)));
     }
 
     @NotNull
     private static ArrayList<String> arguments(final String referenceSampleName, final String tumorSampleName, final String amberDirectory,
-            final String cobaltDirectory, final String gcProfile, final String somaticVcf, final String structuralVcf,
-            final String svRecoveryVcf, final String circosPath, String referenceGenomePath, String knownHotspots) {
+                                               final String cobaltDirectory, final String gcProfile, final String somaticVcf, final String structuralVcf,
+                                               final String svRecoveryVcf, final String circosPath, String referenceGenomePath, String knownHotspots, String driverGenePanel) {
         return newArrayList("-reference",
                 referenceSampleName,
                 "-tumor",
@@ -67,6 +69,8 @@ class PurpleApplicationCommand extends JavaJarCommand {
                 "-driver_catalog",
                 "-hotspots",
                 knownHotspots,
+                "-driver_gene_panel",
+                driverGenePanel,
                 "-threads",
                 Bash.allCpus());
     }

@@ -54,12 +54,14 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
 
     @Override
     protected List<String> expectedCommands() {
-        return Collections.singletonList("java -Xmx12G -jar /opt/tools/purple/2.45/purple.jar -reference reference -tumor tumor -output_dir "
+        return Collections.singletonList("java -Xmx12G -jar /opt/tools/purple/2.47/purple.jar -reference reference -tumor tumor -output_dir "
                 + "/data/output -amber /data/input/results -cobalt /data/input/results -gc_profile /opt/resources/gc/hg19/GC_profile.1000bp.cnp "
                 + "-somatic_vcf /data/input/tumor.vcf.gz -structural_vcf /data/input/tumor.gridss.filtered.vcf.gz -sv_recovery_vcf "
                 + "/data/input/tumor.gridss.full.vcf.gz -circos /opt/tools/circos/0.69.6/bin/circos -ref_genome "
-                + "/opt/resources/reference_genome/hg19/Homo_sapiens.GRCh37.GATK.illumina.fasta -driver_catalog -hotspots "
-                + "/opt/resources/sage/hg19/KnownHotspots.hg19.vcf.gz -threads $(grep -c '^processor' /proc/cpuinfo)");
+                + "/opt/resources/reference_genome/hg19/Homo_sapiens.GRCh37.GATK.illumina.fasta "
+                + "-driver_catalog -hotspots /opt/resources/sage/hg19/KnownHotspots.hg19.vcf.gz "
+                + "-driver_gene_panel /opt/resources/gene_panel/hg19/DriverGenePanel.hg19.tsv "
+                + "-threads $(grep -c '^processor' /proc/cpuinfo)");
     }
 
     @Test
