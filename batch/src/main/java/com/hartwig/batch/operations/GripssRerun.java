@@ -22,10 +22,18 @@ import com.hartwig.pipeline.resource.ResourceFilesFactory;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
-public class GridssPostProcessing implements BatchOperation {
+public class GripssRerun implements BatchOperation {
 
     public static GoogleStorageLocation gripssArchiveDirectory(final String set) {
         return GoogleStorageLocation.of("hmf-gripss", set, true);
+    }
+
+    public static GoogleStorageLocation gripssSomaticFilteredFile(final String set, final String sample) {
+        return GoogleStorageLocation.of("hmf-gripss", set + "/" + sample + ".gridss.somatic.filtered.vcf.gz", false);
+    }
+
+    public static GoogleStorageLocation gripssRecoveryFile(final String set, final String sample) {
+        return GoogleStorageLocation.of("hmf-gripss", set + "/" + sample + ".gridss.somatic.vcf.gz", false);
     }
 
     @Override
@@ -73,7 +81,7 @@ public class GridssPostProcessing implements BatchOperation {
 
     @Override
     public OperationDescriptor descriptor() {
-        return OperationDescriptor.of("GridssPostProcessing", "Run GRIPSS", OperationDescriptor.InputType.JSON);
+        return OperationDescriptor.of("GripssRerun", "Run GRIPSS", OperationDescriptor.InputType.JSON);
     }
 
     private OutputFile inputFile(final String file) {

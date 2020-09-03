@@ -13,13 +13,13 @@ import com.hartwig.pipeline.tools.Versions;
 
 import org.jetbrains.annotations.NotNull;
 
-class PurpleApplicationCommand extends JavaJarCommand {
+public class PurpleApplicationCommand extends JavaJarCommand {
 
     private static final String LOW_COVERAGE_DIPLOID_PERCENTAGE = "0.88";
     private static final String LOW_COVERAGE_SOMATIC_MIN_TOTAL = "100";
     private static final String LOW_COVERAGE_SOMATIC_MIN_PURITY_SPREAD = "0.1";
 
-    PurpleApplicationCommand(ResourceFiles resourceFiles, String referenceSampleName, String tumorSampleName, String amberDirectory, String cobaltDirectory,
+    public PurpleApplicationCommand(ResourceFiles resourceFiles, String referenceSampleName, String tumorSampleName, String amberDirectory, String cobaltDirectory,
                              String somaticVcf, String structuralVcf, String svRecoveryVcf, String circosPath, boolean isShallow) {
         super("purple",
                 Versions.PURPLE,
