@@ -14,11 +14,6 @@ public class PersistedAmber extends PersistedStage<AmberOutput, SomaticRunMetada
     }
 
     @Override
-    public boolean shouldRun(final Arguments arguments) {
-        return false;
-    }
-
-    @Override
     public AmberOutput skippedOutput(final SomaticRunMetadata metadata) {
         return AmberOutput.builder()
                 .status(PipelineStatus.PERSISTED)
