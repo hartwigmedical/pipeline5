@@ -6,7 +6,9 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.hartwig.pipeline.Arguments.DefaultsProfile;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
+import com.hartwig.pipeline.tools.Versions;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
@@ -64,6 +66,7 @@ public class CommandLineOptions {
     private static final String ZONE_FLAG = "zone";
     private static final String REF_GENOME_VERSION_FLAG = "ref_genome_version";
     private static final String SAMPLE_JSON_FLAG = "sample_json";
+    private static final String IMAGE_NAME_FLAG = "image_name";
 
     private static Options options() {
         return new Options().addOption(profile())
@@ -118,11 +121,16 @@ public class CommandLineOptions {
                 .addOption(zone())
                 .addOption(refGenomeVersion())
                 .addOption(maxConcurrentLanes())
-                .addOption(json());
+                .addOption(json())
+                .addOption(imageName());
     }
 
     private static Option json() {
         return optionWithArg(SAMPLE_JSON_FLAG, "JSON file defining the location of FASTQ inputs in GCP.");
+    }
+
+    private static Option imageName() {
+        return optionWithArg(IMAGE_NAME_FLAG, String.format("Image to use instead of the latest %s image", Versions.imageVersion()));
     }
 
     private static Option maxConcurrentLanes() {
@@ -176,7 +184,8 @@ public class CommandLineOptions {
     }
 
     private static Option profile() {
-        return optionWithArg(PROFILE_FLAG, "Defaults profile to use. Accepts [production|development]");
+        return optionWithArg(PROFILE_FLAG, format("Defaults profile to use. Accepts [%s]",
+                Arrays.stream(DefaultsProfile.values()).map(Enum::name).collect(Collectors.joining("|"))));
     }
 
     private static Option rclonePath() {
@@ -251,7 +260,6 @@ public class CommandLineOptions {
             Arguments defaults = Arguments.defaults(commandLine.getOptionValue(PROFILE_FLAG, DEFAULT_PROFILE));
 
             return Arguments.builder()
-                    .usePublicImage(defaults.usePublicImage())
                     .setId(commandLine.getOptionValue(SET_ID_FLAG, defaults.setId()))
                     .privateKeyPath(CommonArguments.privateKey(commandLine).or(defaults::privateKeyPath))
                     .project(commandLine.getOptionValue(PROJECT_FLAG, defaults.project()))
@@ -293,6 +301,7 @@ public class CommandLineOptions {
                     .uploadPrivateKeyPath(defaults.uploadPrivateKeyPath())
                     .refGenomeVersion(refGenomeVersion(commandLine, defaults))
                     .sampleJson(sampleJson(commandLine, defaults))
+                    .imageName(imageName(commandLine, defaults))
                     .build();
         } catch (ParseException e) {
             LOGGER.error("Could not parse command line args", e);
@@ -314,6 +323,13 @@ public class CommandLineOptions {
             return Optional.of(commandLine.getOptionValue(SAMPLE_JSON_FLAG));
         }
         return defaults.sampleJson();
+    }
+
+    private static Optional<String> imageName(final CommandLine commandLine, final Arguments defaults) {
+        if (commandLine.hasOption(IMAGE_NAME_FLAG)) {
+            return Optional.of(commandLine.getOptionValue(IMAGE_NAME_FLAG));
+        }
+        return defaults.imageName();
     }
 
     private static Optional<String> zone(final CommandLine commandLine, final Arguments defaults) {

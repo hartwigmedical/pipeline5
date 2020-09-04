@@ -55,7 +55,7 @@ public interface CommonArguments {
 
     Optional<Integer> sbpApiRunId();
 
-    boolean usePublicImage();
+    Optional<String> imageName();
 
     static Optional<String> privateKey(CommandLine commandLine) {
         if (commandLine.hasOption(PRIVATE_KEY_PATH)) {

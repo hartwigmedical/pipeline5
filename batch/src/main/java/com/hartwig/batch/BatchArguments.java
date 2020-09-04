@@ -3,6 +3,8 @@ package com.hartwig.batch;
 import static java.lang.Boolean.parseBoolean;
 import static java.lang.String.format;
 
+import static com.hartwig.pipeline.Arguments.EMPTY;
+
 import com.hartwig.pipeline.CommonArguments;
 
 import org.apache.commons.cli.CommandLine;
@@ -45,7 +47,6 @@ public interface BatchArguments extends CommonArguments {
                     .outputBucket(commandLine.getOptionValue(OUTPUT_BUCKET))
                     .cmek(commandLine.getOptionValue(CMEK, CommonArguments.DEFAULT_DEVELOPMENT_CMEK))
                     .network(commandLine.getOptionValue(PRIVATE_NETWORK, DEFAULT_NETWORK))
-                    .usePublicImage(false)
                     .build();
         } catch (ParseException e) {
             String message = "Failed to parse arguments";
