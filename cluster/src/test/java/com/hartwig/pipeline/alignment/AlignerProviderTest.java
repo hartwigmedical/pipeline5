@@ -6,7 +6,6 @@ import static org.mockito.Mockito.mock;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.metadata.SomaticMetadataApi;
 
 import org.junit.Before;
 import org.junit.Ignore;
@@ -17,18 +16,16 @@ public class AlignerProviderTest {
     private static final Arguments LOCAL_ARGUMENTS = Arguments.testDefaults();
     private GoogleCredentials credentials;
     private Storage storage;
-    private SomaticMetadataApi somaticMetadataApi;
 
     @Before
     public void setUp() throws Exception {
         credentials = mock(GoogleCredentials.class);
         storage = mock(Storage.class);
-        somaticMetadataApi = mock(SomaticMetadataApi.class);
     }
 
     @Test
     public void wiresUpBootstrapWithLocalDependencies() throws Exception {
-        AlignerProvider victim = AlignerProvider.from(credentials, storage, somaticMetadataApi, LOCAL_ARGUMENTS);
+        AlignerProvider victim = AlignerProvider.from(credentials, storage, "", LOCAL_ARGUMENTS);
         assertThat(victim.get()).isNotNull();
         assertThat(victim).isInstanceOf(AlignerProvider.LocalAlignerProvider.class);
     }
@@ -36,7 +33,7 @@ public class AlignerProviderTest {
     @Ignore
     @Test
     public void wiresUpBootstrapWithSbpDependencies() throws Exception {
-        AlignerProvider victim = AlignerProvider.from(credentials, storage, somaticMetadataApi, Arguments.testDefaultsBuilder().build());
+        AlignerProvider victim = AlignerProvider.from(credentials, storage, "", Arguments.testDefaultsBuilder().build());
         assertThat(victim.get()).isNotNull();
         assertThat(victim).isInstanceOf(AlignerProvider.SbpAlignerProvider.class);
     }

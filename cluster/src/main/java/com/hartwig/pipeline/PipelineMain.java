@@ -1,12 +1,14 @@
 package com.hartwig.pipeline;
 
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executors;
 
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.pubsub.v1.Publisher;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.alignment.AlignerProvider;
-import com.hartwig.pipeline.calling.germline.GermlineCaller;
+import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
 import com.hartwig.pipeline.cleanup.CleanupProvider;
 import com.hartwig.pipeline.credentials.CredentialProvider;
 import com.hartwig.pipeline.execution.PipelineStatus;
@@ -16,12 +18,11 @@ import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.metadata.SomaticMetadataApi;
 import com.hartwig.pipeline.metadata.SomaticMetadataApiProvider;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
-import com.hartwig.pipeline.metrics.BamMetrics;
+import com.hartwig.pipeline.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.pubsub.PublisherProvider;
 import com.hartwig.pipeline.report.FullSomaticResults;
 import com.hartwig.pipeline.report.PipelineResultsProvider;
 import com.hartwig.pipeline.stages.StageRunner;
-import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.storage.StorageProvider;
 import com.hartwig.pipeline.tools.Versions;
 import com.hartwig.pipeline.turquoise.PipelineCompleted;
@@ -59,14 +60,32 @@ public class PipelineMain {
                     .type(ini)
                     .build();
             startedEvent(eventSubjects, publisher, arguments.publishToTurquoise());
+            BlockingQueue<BamMetricsOutput> referenceBamMetricsOutputQueue = new ArrayBlockingQueue<>(1);
+            BlockingQueue<BamMetricsOutput> tumorBamMetricsOutputQueue = new ArrayBlockingQueue<>(1);
+            BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue = new ArrayBlockingQueue<>(1);
             PipelineState state = new FullPipeline(singleSamplePipeline(arguments,
                     credentials,
                     storage,
                     referenceEventListener,
                     isSingleSample,
-                    somaticMetadataApi),
-                    singleSamplePipeline(arguments, credentials, storage, tumorEventListener, isSingleSample, somaticMetadataApi),
-                    somaticPipeline(arguments, credentials, storage, somaticMetadataApi),
+                    somaticRunMetadata.runName(),
+                    referenceBamMetricsOutputQueue,
+                    germlineCallerOutputQueue),
+                    singleSamplePipeline(arguments,
+                            credentials,
+                            storage,
+                            tumorEventListener,
+                            isSingleSample,
+                            somaticRunMetadata.runName(),
+                            tumorBamMetricsOutputQueue,
+                            germlineCallerOutputQueue),
+                    somaticPipeline(arguments,
+                            credentials,
+                            storage,
+                            somaticMetadataApi,
+                            referenceBamMetricsOutputQueue,
+                            tumorBamMetricsOutputQueue,
+                            germlineCallerOutputQueue),
                     Executors.newCachedThreadPool(),
                     referenceEventListener,
                     tumorEventListener,
@@ -96,36 +115,40 @@ public class PipelineMain {
     }
 
     private static SomaticPipeline somaticPipeline(final Arguments arguments, final GoogleCredentials credentials, final Storage storage,
-            final SomaticMetadataApi somaticMetadataApi) throws Exception {
+            final SomaticMetadataApi somaticMetadataApi, final BlockingQueue<BamMetricsOutput> referenceBamMetricsOutputQueue,
+            final BlockingQueue<BamMetricsOutput> tumourBamMetricsOutputQueue,
+            final BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue) throws Exception {
         return new SomaticPipeline(arguments,
                 new StageRunner<>(storage,
                         arguments,
                         GoogleComputeEngine.from(arguments, credentials),
                         ResultsDirectory.defaultDirectory()),
-                new OutputStorage<>(ResultsDirectory.defaultDirectory(),
-                        arguments,
-                        metadata -> RuntimeBucket.from(storage, BamMetrics.NAMESPACE, metadata, arguments)),
-                new OutputStorage<>(ResultsDirectory.defaultDirectory(),
-                        arguments,
-                        metadata -> RuntimeBucket.from(storage, GermlineCaller.NAMESPACE, metadata, arguments)),
+                referenceBamMetricsOutputQueue,
+                tumourBamMetricsOutputQueue,
+                germlineCallerOutputQueue,
                 somaticMetadataApi,
                 PipelineResultsProvider.from(storage, arguments, Versions.pipelineVersion()).get(),
                 Executors.newCachedThreadPool());
     }
 
     private static SingleSamplePipeline singleSamplePipeline(final Arguments arguments, final GoogleCredentials credentials,
-            final Storage storage, final SingleSampleEventListener eventListener, final Boolean isStandalone,
-            final SomaticMetadataApi somaticMetadataApi) throws Exception {
+            final Storage storage, final SingleSampleEventListener eventListener, final Boolean isStandalone, final String runName,
+            final BlockingQueue<BamMetricsOutput> metricsOutputQueue, final BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue)
+            throws Exception {
+
         return new SingleSamplePipeline(eventListener,
                 new StageRunner<>(storage,
                         arguments,
                         GoogleComputeEngine.from(arguments, credentials),
                         ResultsDirectory.defaultDirectory()),
-                AlignerProvider.from(credentials, storage, somaticMetadataApi, arguments).get(),
+                AlignerProvider.from(credentials, storage, runName, arguments).get(),
                 PipelineResultsProvider.from(storage, arguments, Versions.pipelineVersion()).get(),
                 Executors.newCachedThreadPool(),
                 isStandalone,
-                arguments);
+                arguments,
+                metricsOutputQueue,
+                germlineCallerOutputQueue,
+                runName);
     }
 
     public static void main(String[] args) {

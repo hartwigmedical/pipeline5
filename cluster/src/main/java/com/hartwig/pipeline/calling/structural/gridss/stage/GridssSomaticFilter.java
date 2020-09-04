@@ -11,10 +11,11 @@ import com.hartwig.pipeline.resource.ResourceFiles;
 
 public class GridssSomaticFilter extends SubStage {
 
+    public static final String GRIDSS_SOMATIC = "gridss.somatic";
     private final ResourceFiles resourceFiles;
 
     public GridssSomaticFilter(final ResourceFiles resourceFiles) {
-        super("gridss.somatic", OutputFile.GZIPPED_VCF);
+        super(GRIDSS_SOMATIC, OutputFile.GZIPPED_VCF);
         this.resourceFiles = resourceFiles;
     }
 

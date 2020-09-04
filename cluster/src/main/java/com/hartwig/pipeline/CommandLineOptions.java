@@ -63,7 +63,7 @@ public class CommandLineOptions {
     private static final String ZONE_FLAG = "zone";
     private static final String REF_GENOME_VERSION_FLAG = "ref_genome_version";
     private static final String SAMPLE_JSON_FLAG = "sample_json";
-    private static final String RUN_FROM_FLAG = "run_from";
+    private static final String STARTING_POINT_FLAG = "starting_point";
 
     private static Options options() {
         return new Options().addOption(profile())
@@ -118,11 +118,13 @@ public class CommandLineOptions {
                 .addOption(refGenomeVersion())
                 .addOption(maxConcurrentLanes())
                 .addOption(json())
-                .addOption(runFrom());
+                .addOption(startingPoint());
     }
 
-    private static Option runFrom() {
-        return optionWithArg(RUN_FROM_FLAG, "Run from a specified stage namespace. Currently supported (aligner)");
+    private static Option startingPoint() {
+        return optionWithArg(STARTING_POINT_FLAG,
+                "Run from a starting point after fastq alignment. Supporting starting points are (alignment_complete, calling_complete, "
+                        + "purple_complete)");
     }
 
     private static Option json() {
@@ -296,7 +298,7 @@ public class CommandLineOptions {
                     .uploadPrivateKeyPath(defaults.uploadPrivateKeyPath())
                     .refGenomeVersion(refGenomeVersion(commandLine, defaults))
                     .sampleJson(sampleJson(commandLine, defaults))
-                    .runFrom(runFrom(commandLine, defaults))
+                    .startingPoint(startingPoint(commandLine, defaults))
                     .build();
         } catch (ParseException e) {
             LOGGER.error("Could not parse command line args", e);
@@ -306,11 +308,11 @@ public class CommandLineOptions {
         }
     }
 
-    private static Optional<String> runFrom(final CommandLine commandLine, final Arguments defaults) {
-        if (commandLine.hasOption(RUN_FROM_FLAG)) {
-            return Optional.of(commandLine.getOptionValue(RUN_FROM_FLAG));
+    private static Optional<String> startingPoint(final CommandLine commandLine, final Arguments defaults) {
+        if (commandLine.hasOption(STARTING_POINT_FLAG)) {
+            return Optional.of(commandLine.getOptionValue(STARTING_POINT_FLAG));
         }
-        return defaults.runFrom();
+        return defaults.startingPoint();
     }
 
     private static Optional<String> cmek(final CommandLine commandLine, final Arguments defaults) {

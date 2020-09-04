@@ -11,7 +11,7 @@ public interface Arguments extends CommonArguments {
 
     String EMPTY = "";
 
-    Optional<String> runFrom();
+    Optional<String> startingPoint();
 
     enum DefaultsProfile {
         PUBLIC,

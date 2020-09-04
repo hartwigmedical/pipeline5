@@ -14,8 +14,8 @@ import com.hartwig.pipeline.alignment.sample.SbpS3SampleSource;
 import com.hartwig.pipeline.alignment.sample.SbpSampleReader;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.GoogleComputeEngine;
-import com.hartwig.pipeline.metadata.SomaticMetadataApi;
 import com.hartwig.pipeline.rerun.PersistedAlignment;
+import com.hartwig.pipeline.rerun.StartingPoint;
 import com.hartwig.pipeline.sbpapi.SbpRestApi;
 import com.hartwig.pipeline.storage.CloudCopy;
 import com.hartwig.pipeline.storage.CloudSampleUpload;
@@ -54,9 +54,9 @@ public abstract class AlignerProvider {
 
     abstract Aligner wireUp(GoogleCredentials credentials, Storage storage, ResultsDirectory resultsDirectory) throws Exception;
 
-    public static AlignerProvider from(GoogleCredentials credentials, Storage storage, SomaticMetadataApi api, Arguments arguments) {
-        if (arguments.runFrom().isPresent() && arguments.runFrom().get().equals(Aligner.NAMESPACE)) {
-            return new PersistedAlignerProvider(credentials, storage, api, arguments);
+    public static AlignerProvider from(GoogleCredentials credentials, Storage storage, String runName, Arguments arguments) {
+        if (new StartingPoint(arguments).usePersisted(Aligner.NAMESPACE)) {
+            return new PersistedAlignerProvider(credentials, storage, runName, arguments);
         }
         if (arguments.sbpApiRunId().isPresent()) {
             return new SbpAlignerProvider(credentials, storage, arguments);
@@ -107,17 +107,17 @@ public abstract class AlignerProvider {
 
     static class PersistedAlignerProvider extends AlignerProvider {
 
-        private final SomaticMetadataApi api;
+        private final String runName;
 
-        public PersistedAlignerProvider(final GoogleCredentials credentials, final Storage storage, final SomaticMetadataApi api,
+        public PersistedAlignerProvider(final GoogleCredentials credentials, final Storage storage, final String runName,
                 final Arguments arguments) {
             super(credentials, storage, arguments);
-            this.api = api;
+            this.runName = runName;
         }
 
         @Override
         Aligner wireUp(final GoogleCredentials credentials, final Storage storage, final ResultsDirectory resultsDirectory) {
-            return new PersistedAlignment(storage.get(getArguments().outputBucket()), api.get().runName(), getArguments());
+            return new PersistedAlignment(getArguments().outputBucket(), runName, getArguments().outputCram());
         }
     }
 }

@@ -1,18 +1,67 @@
 package com.hartwig.pipeline;
 
+import static com.hartwig.pipeline.testsupport.TestInputs.cramOutput;
+import static com.hartwig.pipeline.testsupport.TestInputs.flagstatOutput;
+import static com.hartwig.pipeline.testsupport.TestInputs.germlineCallerOutput;
+import static com.hartwig.pipeline.testsupport.TestInputs.referenceAlignmentOutput;
+import static com.hartwig.pipeline.testsupport.TestInputs.referenceMetricsOutput;
+import static com.hartwig.pipeline.testsupport.TestInputs.referenceRunMetadata;
+import static com.hartwig.pipeline.testsupport.TestInputs.referenceSample;
+import static com.hartwig.pipeline.testsupport.TestInputs.snpGenotypeOutput;
+import static com.hartwig.pipeline.testsupport.TestInputs.tumorAlignmentOutput;
+import static com.hartwig.pipeline.testsupport.TestInputs.tumorMetricsOutput;
+import static com.hartwig.pipeline.testsupport.TestInputs.tumorRunMetadata;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executors;
+
+import com.google.cloud.storage.Bucket;
+import com.google.cloud.storage.Storage;
+import com.hartwig.pipeline.alignment.Aligner;
+import com.hartwig.pipeline.alignment.AlignmentOutput;
+import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
+import com.hartwig.pipeline.cram.CramOutput;
+import com.hartwig.pipeline.execution.PipelineStatus;
+import com.hartwig.pipeline.flagstat.FlagstatOutput;
+import com.hartwig.pipeline.metadata.SingleSampleEventListener;
+import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
+import com.hartwig.pipeline.metrics.BamMetricsOutput;
+import com.hartwig.pipeline.report.PipelineResults;
+import com.hartwig.pipeline.report.PipelineResultsProvider;
+import com.hartwig.pipeline.report.ReportComponent;
+import com.hartwig.pipeline.snpgenotype.SnpGenotypeOutput;
+import com.hartwig.pipeline.stages.StageRunner;
+import com.hartwig.pipeline.testsupport.TestInputs;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+
 public class SingleSamplePipelineTest {
 
-/*    private static final Arguments ARGUMENTS = Arguments.testDefaults();
+    private static final Arguments ARGUMENTS = Arguments.testDefaults();
     private SingleSamplePipeline victim;
-    private BwaAligner aligner;
+    private Aligner aligner;
     private SingleSampleEventListener eventListener;
     private StageRunner<SingleSampleRunMetadata> stageRunner;
     private PipelineResults pipelineResults;
+    private BlockingQueue<BamMetricsOutput> metricsOutputQueue = new ArrayBlockingQueue<>(1);
+    private BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue = new ArrayBlockingQueue<>(1);
 
     @Before
     @SuppressWarnings("unchecked")
     public void setUp() throws Exception {
-        aligner = mock(BwaAligner.class);
+        aligner = mock(Aligner.class);
         eventListener = mock(SingleSampleEventListener.class);
         Storage storage = mock(Storage.class);
         Bucket reportBucket = mock(Bucket.class);
@@ -29,7 +78,10 @@ public class SingleSamplePipelineTest {
                 pipelineResults,
                 Executors.newSingleThreadExecutor(),
                 standalone,
-                ARGUMENTS);
+                ARGUMENTS,
+                metricsOutputQueue,
+                germlineCallerOutputQueue,
+                TestInputs.defaultSomaticRunMetadata().runName());
     }
 
     @Test
@@ -138,12 +190,7 @@ public class SingleSamplePipelineTest {
 
     @Test
     public void returnsSuccessfulPipelineRunAllStagesSucceed() throws Exception {
-        when(aligner.run(referenceRunMetadata())).thenReturn(referenceAlignmentOutput());
-        when(stageRunner.run(eq(referenceRunMetadata()), any())).thenReturn(referenceMetricsOutput())
-                .thenReturn(snpGenotypeOutput())
-                .thenReturn(flagstatOutput())
-                .thenReturn(cramOutput())
-                .thenReturn(germlineCallerOutput());
+        setupReferenceSamplePipeline();
         PipelineState runOutput = victim.run(referenceRunMetadata());
         assertSucceeded(runOutput);
         assertThat(runOutput.stageOutputs()).containsExactly(referenceAlignmentOutput(),
@@ -152,6 +199,8 @@ public class SingleSamplePipelineTest {
                 snpGenotypeOutput(),
                 flagstatOutput(),
                 cramOutput());
+        assertThat(metricsOutputQueue.poll()).isNotNull();
+        assertThat(germlineCallerOutputQueue.poll()).isNotNull();
     }
 
     @Test
@@ -203,25 +252,28 @@ public class SingleSamplePipelineTest {
 
     @Test
     public void notifiesMetadataApiWhenAlignmentComplete() throws Exception {
-        when(aligner.run(referenceRunMetadata())).thenReturn(referenceAlignmentOutput());
+        setupReferenceSamplePipeline();
         PipelineState result = victim.run(referenceRunMetadata());
-        ArgumentCaptor<PipelineState> stateCaptor = ArgumentCaptor.forClass(PipelineState.class);
+        ArgumentCaptor<AlignmentOutput> stateCaptor = ArgumentCaptor.forClass(AlignmentOutput.class);
         verify(eventListener, times(1)).alignmentComplete(stateCaptor.capture());
-        PipelineState alignmentResult = stateCaptor.getValue();
+        AlignmentOutput alignmentResult = stateCaptor.getValue();
         assertThat(alignmentResult).isNotSameAs(result);
         assertThat(alignmentResult.status()).isEqualTo(PipelineStatus.SUCCESS);
-        assertThat(alignmentResult.stageOutputs().size()).isEqualTo(1);
-        assertThat(alignmentResult.stageOutputs().get(0).name()).isEqualTo(referenceAlignmentOutput().name());
+        assertThat(alignmentResult).isEqualTo(referenceAlignmentOutput());
     }
 
-    @Test
-    public void notifiesMetadataApiWhenPipelineComplete() throws Exception {
+    public void setupReferenceSamplePipeline() throws Exception {
         when(aligner.run(referenceRunMetadata())).thenReturn(referenceAlignmentOutput());
         when(stageRunner.run(eq(referenceRunMetadata()), any())).thenReturn(referenceMetricsOutput())
                 .thenReturn(snpGenotypeOutput())
                 .thenReturn(flagstatOutput())
                 .thenReturn(cramOutput())
                 .thenReturn(germlineCallerOutput());
+    }
+
+    @Test
+    public void notifiesMetadataApiWhenPipelineComplete() throws Exception {
+        setupReferenceSamplePipeline();
         PipelineState result = victim.run(referenceRunMetadata());
         verify(eventListener, times(1)).complete(result);
     }
@@ -230,7 +282,7 @@ public class SingleSamplePipelineTest {
     public void passesFalseToReportCompositionWhenNotRunInStandaloneMode() throws Exception {
         pipelineResults = mock(PipelineResults.class);
         when(pipelineResults.add(any())).thenAnswer(i -> i.getArguments()[0]);
-        when(aligner.run(referenceRunMetadata())).thenReturn(referenceAlignmentOutput());
+        setupReferenceSamplePipeline();
         initialiseVictim(false);
         victim.run(referenceRunMetadata());
         verify(pipelineResults).compose(any(), eq(false), any());
@@ -240,7 +292,7 @@ public class SingleSamplePipelineTest {
     public void passesTrueToReportCompositionWhenRunInStandaloneMode() throws Exception {
         pipelineResults = mock(PipelineResults.class);
         when(pipelineResults.add(any())).thenAnswer(i -> i.getArguments()[0]);
-        when(aligner.run(referenceRunMetadata())).thenReturn(referenceAlignmentOutput());
+        setupReferenceSamplePipeline();
         initialiseVictim(true);
         victim.run(referenceRunMetadata());
         verify(pipelineResults).compose(any(), eq(true), any());
@@ -259,7 +311,7 @@ public class SingleSamplePipelineTest {
     public void clearsOutExistingStagingFlag() throws Exception {
         pipelineResults = mock(PipelineResults.class);
         when(pipelineResults.add(any())).thenAnswer(i -> i.getArguments()[0]);
-        when(aligner.run(referenceRunMetadata())).thenReturn(referenceAlignmentOutput());
+        setupReferenceSamplePipeline();
         initialiseVictim(false);
         victim.run(referenceRunMetadata());
         verify(pipelineResults).clearOldState(any(Arguments.class), eq(referenceRunMetadata()));
@@ -273,7 +325,7 @@ public class SingleSamplePipelineTest {
         assertThat(runOutput.status()).isEqualTo(PipelineStatus.SUCCESS);
     }
 
-    private class TestReportComponent implements ReportComponent {
+    private static class TestReportComponent implements ReportComponent {
 
         private boolean isAdded;
 
@@ -285,5 +337,5 @@ public class SingleSamplePipelineTest {
         boolean isAdded() {
             return isAdded;
         }
-    }*/
+    }
 }
