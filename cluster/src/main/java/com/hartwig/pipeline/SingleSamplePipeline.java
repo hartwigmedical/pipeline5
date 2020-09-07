@@ -20,8 +20,6 @@ import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetrics;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.report.PipelineResults;
-import com.hartwig.pipeline.rerun.PersistedBamMetrics;
-import com.hartwig.pipeline.rerun.PersistedGermlineCaller;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.snpgenotype.SnpGenotype;
 import com.hartwig.pipeline.snpgenotype.SnpGenotypeOutput;
@@ -72,8 +70,8 @@ public class SingleSamplePipeline {
         eventListener.alignmentComplete(alignmentOutput);
         if (state.shouldProceed()) {
             report.clearOldState(arguments, metadata);
-            Future<BamMetricsOutput> bamMetricsFuture = executorService.submit(() -> stageRunner.run(metadata,
-                    new PersistedBamMetrics(new BamMetrics(resourceFiles, alignmentOutput), arguments, runName)));
+            Future<BamMetricsOutput> bamMetricsFuture =
+                    executorService.submit(() -> stageRunner.run(metadata, new BamMetrics(resourceFiles, alignmentOutput)));
             Future<SnpGenotypeOutput> unifiedGenotyperFuture =
                     executorService.submit(() -> stageRunner.run(metadata, new SnpGenotype(resourceFiles, alignmentOutput)));
             Future<FlagstatOutput> flagstatOutputFuture =
@@ -82,8 +80,8 @@ public class SingleSamplePipeline {
                     executorService.submit(() -> stageRunner.run(metadata, new CramConversion(alignmentOutput, resourceFiles)));
 
             if (metadata.type().equals(SingleSampleRunMetadata.SampleType.REFERENCE)) {
-                Future<GermlineCallerOutput> germlineCallerFuture = executorService.submit(() -> stageRunner.run(metadata,
-                        new PersistedGermlineCaller(new GermlineCaller(alignmentOutput, resourceFiles), arguments, runName)));
+                Future<GermlineCallerOutput> germlineCallerFuture =
+                        executorService.submit(() -> stageRunner.run(metadata, new GermlineCaller(alignmentOutput, resourceFiles)));
                 GermlineCallerOutput germlineCallerOutput = futurePayload(germlineCallerFuture);
                 germlineCallerOutputQueue.put(germlineCallerOutput);
                 report.add(state.add(germlineCallerOutput));

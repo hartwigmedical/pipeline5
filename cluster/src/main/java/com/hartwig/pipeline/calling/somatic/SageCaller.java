@@ -23,6 +23,7 @@ import com.hartwig.pipeline.report.SingleFileComponent;
 import com.hartwig.pipeline.report.StartupScriptComponent;
 import com.hartwig.pipeline.report.ZippedVcfAndIndexComponent;
 import com.hartwig.pipeline.resource.ResourceFiles;
+import com.hartwig.pipeline.startingpoint.PersistedLocations;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.TertiaryStage;
@@ -99,6 +100,20 @@ public class SageCaller extends TertiaryStage<SomaticCallerOutput> {
     @Override
     public boolean shouldRun(final Arguments arguments) {
         return arguments.runSomaticCaller();
+    }
+
+    @Override
+    public SomaticCallerOutput persistedOutput(final String persistedBucket, final String persistedRun, final SomaticRunMetadata metadata) {
+        return SomaticCallerOutput.builder(namespace())
+                .status(PipelineStatus.PERSISTED)
+                .maybeFinalSomaticVcf(GoogleStorageLocation.of(persistedBucket,
+                        PersistedLocations.blobForSet(persistedRun,
+                                namespace(),
+                                String.format("%s.%s.%s",
+                                        metadata.tumor().sampleName(),
+                                        SagePostProcess.SAGE_SOMATIC_FILTERED,
+                                        OutputFile.GZIPPED_VCF))))
+                .build();
     }
 
     private ReportComponent bqrComponent(final SingleSampleRunMetadata metadata, final String extension, final RuntimeBucket bucket,

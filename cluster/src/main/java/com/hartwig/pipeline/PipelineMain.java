@@ -23,6 +23,7 @@ import com.hartwig.pipeline.pubsub.PublisherProvider;
 import com.hartwig.pipeline.report.FullSomaticResults;
 import com.hartwig.pipeline.report.PipelineResultsProvider;
 import com.hartwig.pipeline.stages.StageRunner;
+import com.hartwig.pipeline.startingpoint.StartingPoint;
 import com.hartwig.pipeline.storage.StorageProvider;
 import com.hartwig.pipeline.tools.Versions;
 import com.hartwig.pipeline.turquoise.PipelineCompleted;
@@ -63,6 +64,7 @@ public class PipelineMain {
             BlockingQueue<BamMetricsOutput> referenceBamMetricsOutputQueue = new ArrayBlockingQueue<>(1);
             BlockingQueue<BamMetricsOutput> tumorBamMetricsOutputQueue = new ArrayBlockingQueue<>(1);
             BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue = new ArrayBlockingQueue<>(1);
+            StartingPoint startingPoint = new StartingPoint(arguments);
             PipelineState state = new FullPipeline(singleSamplePipeline(arguments,
                     credentials,
                     storage,
@@ -70,7 +72,8 @@ public class PipelineMain {
                     isSingleSample,
                     somaticRunMetadata.runName(),
                     referenceBamMetricsOutputQueue,
-                    germlineCallerOutputQueue),
+                    germlineCallerOutputQueue,
+                    startingPoint),
                     singleSamplePipeline(arguments,
                             credentials,
                             storage,
@@ -78,14 +81,17 @@ public class PipelineMain {
                             isSingleSample,
                             somaticRunMetadata.runName(),
                             tumorBamMetricsOutputQueue,
-                            germlineCallerOutputQueue),
+                            germlineCallerOutputQueue,
+                            startingPoint),
                     somaticPipeline(arguments,
                             credentials,
                             storage,
                             somaticMetadataApi,
                             referenceBamMetricsOutputQueue,
                             tumorBamMetricsOutputQueue,
-                            germlineCallerOutputQueue),
+                            germlineCallerOutputQueue,
+                            startingPoint,
+                            somaticRunMetadata.runName()),
                     Executors.newCachedThreadPool(),
                     referenceEventListener,
                     tumorEventListener,
@@ -117,12 +123,15 @@ public class PipelineMain {
     private static SomaticPipeline somaticPipeline(final Arguments arguments, final GoogleCredentials credentials, final Storage storage,
             final SomaticMetadataApi somaticMetadataApi, final BlockingQueue<BamMetricsOutput> referenceBamMetricsOutputQueue,
             final BlockingQueue<BamMetricsOutput> tumourBamMetricsOutputQueue,
-            final BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue) throws Exception {
+            final BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue, final StartingPoint startingPoint, final String runName)
+            throws Exception {
         return new SomaticPipeline(arguments,
                 new StageRunner<>(storage,
                         arguments,
                         GoogleComputeEngine.from(arguments, credentials),
-                        ResultsDirectory.defaultDirectory()),
+                        ResultsDirectory.defaultDirectory(),
+                        startingPoint,
+                        runName),
                 referenceBamMetricsOutputQueue,
                 tumourBamMetricsOutputQueue,
                 germlineCallerOutputQueue,
@@ -133,14 +142,16 @@ public class PipelineMain {
 
     private static SingleSamplePipeline singleSamplePipeline(final Arguments arguments, final GoogleCredentials credentials,
             final Storage storage, final SingleSampleEventListener eventListener, final Boolean isStandalone, final String runName,
-            final BlockingQueue<BamMetricsOutput> metricsOutputQueue, final BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue)
-            throws Exception {
+            final BlockingQueue<BamMetricsOutput> metricsOutputQueue, final BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue,
+            final StartingPoint startingPoint) throws Exception {
 
         return new SingleSamplePipeline(eventListener,
                 new StageRunner<>(storage,
                         arguments,
                         GoogleComputeEngine.from(arguments, credentials),
-                        ResultsDirectory.defaultDirectory()),
+                        ResultsDirectory.defaultDirectory(),
+                        startingPoint,
+                        runName),
                 AlignerProvider.from(credentials, storage, runName, arguments).get(),
                 PipelineResultsProvider.from(storage, arguments, Versions.pipelineVersion()).get(),
                 Executors.newCachedThreadPool(),

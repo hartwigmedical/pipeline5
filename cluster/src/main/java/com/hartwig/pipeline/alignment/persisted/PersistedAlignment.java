@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.rerun;
+package com.hartwig.pipeline.alignment.persisted;
 
 import static com.hartwig.pipeline.alignment.AlignmentOutputPaths.bai;
 import static com.hartwig.pipeline.alignment.AlignmentOutputPaths.bam;
@@ -10,6 +10,7 @@ import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.cram.CramConversion;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
+import com.hartwig.pipeline.startingpoint.PersistedLocations;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 
 public class PersistedAlignment implements Aligner {
