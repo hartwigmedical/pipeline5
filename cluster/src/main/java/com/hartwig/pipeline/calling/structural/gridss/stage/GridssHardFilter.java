@@ -10,8 +10,10 @@ import com.hartwig.pipeline.execution.vm.OutputFile;
 
 public class GridssHardFilter extends SubStage {
 
+    public static final String GRIDSS_SOMATIC_FILTERED = "gridss.somatic.filtered";
+
     public GridssHardFilter() {
-        super("gridss.somatic.filtered", OutputFile.GZIPPED_VCF);
+        super(GRIDSS_SOMATIC_FILTERED, OutputFile.GZIPPED_VCF);
     }
 
     @Override

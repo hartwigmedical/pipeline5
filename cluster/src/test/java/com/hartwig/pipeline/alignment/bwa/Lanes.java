@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.alignment.vm;
+package com.hartwig.pipeline.alignment.bwa;
 
 import com.hartwig.patient.ImmutableLane;
 import com.hartwig.patient.Lane;

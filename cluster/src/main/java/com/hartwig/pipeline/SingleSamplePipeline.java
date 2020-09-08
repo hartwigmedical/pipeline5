@@ -2,12 +2,13 @@ package com.hartwig.pipeline;
 
 import static com.hartwig.pipeline.resource.ResourceFilesFactory.buildResourceFiles;
 
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
+import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
-import com.hartwig.pipeline.alignment.vm.VmAligner;
 import com.hartwig.pipeline.calling.germline.GermlineCaller;
 import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
 import com.hartwig.pipeline.cram.CramConversion;
@@ -33,15 +34,19 @@ public class SingleSamplePipeline {
 
     private final SingleSampleEventListener eventListener;
     private final StageRunner<SingleSampleRunMetadata> stageRunner;
-    private final VmAligner aligner;
+    private final Aligner aligner;
     private final PipelineResults report;
     private final ExecutorService executorService;
     private final Boolean isStandalone;
     private final Arguments arguments;
+    private final BlockingQueue<BamMetricsOutput> metricsOutputQueue;
+    private final BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue;
+    private final String runName;
 
     SingleSamplePipeline(final SingleSampleEventListener eventListener, final StageRunner<SingleSampleRunMetadata> stageRunner,
-            final VmAligner aligner, final PipelineResults report, final ExecutorService executorService, final Boolean isStandalone,
-            final Arguments arguments) {
+            final Aligner aligner, final PipelineResults report, final ExecutorService executorService, final Boolean isStandalone,
+            final Arguments arguments, final BlockingQueue<BamMetricsOutput> metricsOutputQueue,
+            final BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue, final String runName) {
         this.eventListener = eventListener;
         this.stageRunner = stageRunner;
         this.aligner = aligner;
@@ -49,6 +54,9 @@ public class SingleSamplePipeline {
         this.executorService = executorService;
         this.isStandalone = isStandalone;
         this.arguments = arguments;
+        this.metricsOutputQueue = metricsOutputQueue;
+        this.germlineCallerOutputQueue = germlineCallerOutputQueue;
+        this.runName = runName;
     }
 
     public PipelineState run(SingleSampleRunMetadata metadata) throws Exception {
@@ -59,7 +67,7 @@ public class SingleSamplePipeline {
         PipelineState state = new PipelineState();
         final ResourceFiles resourceFiles = buildResourceFiles(arguments.refGenomeVersion());
         AlignmentOutput alignmentOutput = report.add(state.add(aligner.run(metadata)));
-        eventListener.alignmentComplete(state.copy());
+        eventListener.alignmentComplete(alignmentOutput);
         if (state.shouldProceed()) {
             report.clearOldState(arguments, metadata);
             Future<BamMetricsOutput> bamMetricsFuture =
@@ -74,10 +82,14 @@ public class SingleSamplePipeline {
             if (metadata.type().equals(SingleSampleRunMetadata.SampleType.REFERENCE)) {
                 Future<GermlineCallerOutput> germlineCallerFuture =
                         executorService.submit(() -> stageRunner.run(metadata, new GermlineCaller(alignmentOutput, resourceFiles)));
-                report.add(state.add(futurePayload(germlineCallerFuture)));
+                GermlineCallerOutput germlineCallerOutput = futurePayload(germlineCallerFuture);
+                germlineCallerOutputQueue.put(germlineCallerOutput);
+                report.add(state.add(germlineCallerOutput));
             }
 
-            report.add(state.add(futurePayload(bamMetricsFuture)));
+            BamMetricsOutput bamMetricsOutput = futurePayload(bamMetricsFuture);
+            metricsOutputQueue.put(bamMetricsOutput);
+            report.add(state.add(bamMetricsOutput));
             report.add(state.add(futurePayload(unifiedGenotyperFuture)));
             report.add(state.add(futurePayload(flagstatOutputFuture)));
             report.add(state.add(futurePayload(cramOutputFuture)));

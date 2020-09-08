@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.hartwig.pipeline.PipelineState;
+import com.hartwig.pipeline.alignment.AlignmentOutput;
 
 public class SingleSampleEventListener {
 
@@ -13,7 +14,7 @@ public class SingleSampleEventListener {
         handlers.add(completionHandler);
     }
 
-    public void alignmentComplete(final PipelineState state) {
+    public void alignmentComplete(final AlignmentOutput state) {
         handlers.forEach(handler -> handler.handleAlignmentComplete(state));
     }
 

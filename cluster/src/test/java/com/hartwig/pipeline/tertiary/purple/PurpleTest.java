@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.resource.Hg19ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
+import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
@@ -87,5 +88,12 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
         assertThat(output.structuralVcf().bucket()).isEqualTo(bucketName);
         assertThat(output.structuralVcf().path()).isEqualTo("results/tumor.purple.sv.vcf.gz");
         assertThat(output.structuralVcf().isDirectory()).isFalse();
+    }
+
+    @Override
+    protected void validatePersistedOutput(final PurpleOutput output) {
+        assertThat(output.outputDirectory()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "run/purple", true));
+        assertThat(output.somaticVcf()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "run/purple/tumor.purple.somatic.vcf.gz"));
+        assertThat(output.structuralVcf()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "run/purple/tumor.purple.sv.vcf.gz"));
     }
 }

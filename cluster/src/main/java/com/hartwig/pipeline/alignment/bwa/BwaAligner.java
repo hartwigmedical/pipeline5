@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.alignment.vm;
+package com.hartwig.pipeline.alignment.bwa;
 
 import static java.lang.String.format;
 
@@ -20,9 +20,8 @@ import com.hartwig.patient.Lane;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
+import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
-import com.hartwig.pipeline.alignment.AlignmentOutputStorage;
-import com.hartwig.pipeline.alignment.ExistingAlignment;
 import com.hartwig.pipeline.alignment.ImmutableAlignmentOutput;
 import com.hartwig.pipeline.alignment.sample.SampleSource;
 import com.hartwig.pipeline.calling.SubStageInputOutput;
@@ -47,9 +46,7 @@ import com.hartwig.pipeline.trace.StageTrace;
 
 import net.jodah.failsafe.Failsafe;
 
-public class VmAligner {
-
-    public static String NAMESPACE = "aligner";
+public class BwaAligner implements Aligner {
 
     private final Arguments arguments;
     private final ComputeEngine computeEngine;
@@ -57,26 +54,20 @@ public class VmAligner {
     private final SampleSource sampleSource;
     private final SampleUpload sampleUpload;
     private final ResultsDirectory resultsDirectory;
-    private final AlignmentOutputStorage alignmentOutputStorage;
     private final ExecutorService executorService;
 
-    public VmAligner(final Arguments arguments, final ComputeEngine computeEngine, final Storage storage, final SampleSource sampleSource,
-            final SampleUpload sampleUpload, final ResultsDirectory resultsDirectory, final AlignmentOutputStorage alignmentOutputStorage,
-            final ExecutorService executorService) {
+    public BwaAligner(final Arguments arguments, final ComputeEngine computeEngine, final Storage storage, final SampleSource sampleSource,
+            final SampleUpload sampleUpload, final ResultsDirectory resultsDirectory, final ExecutorService executorService) {
         this.arguments = arguments;
         this.computeEngine = computeEngine;
         this.storage = storage;
         this.sampleSource = sampleSource;
         this.sampleUpload = sampleUpload;
         this.resultsDirectory = resultsDirectory;
-        this.alignmentOutputStorage = alignmentOutputStorage;
         this.executorService = executorService;
     }
 
     public AlignmentOutput run(final SingleSampleRunMetadata metadata) throws Exception {
-        if (!arguments.runAligner()) {
-            return ExistingAlignment.find(metadata, alignmentOutputStorage);
-        }
 
         StageTrace trace = new StageTrace(NAMESPACE, metadata.sampleName(), StageTrace.ExecutorType.COMPUTE_ENGINE).start();
         RuntimeBucket rootBucket = RuntimeBucket.from(storage, NAMESPACE, metadata, arguments);
@@ -148,16 +139,16 @@ public class VmAligner {
                     .maybeFinalBaiLocation(GoogleStorageLocation.of(rootBucket.name(),
                             resultsDirectory.path(bai(merged.outputFile().fileName()))))
                     .addAllReportComponents(laneLogComponents)
-                    .addReportComponents(new RunLogComponent(rootBucket, VmAligner.NAMESPACE, Folder.from(metadata), resultsDirectory));
+                    .addReportComponents(new RunLogComponent(rootBucket, Aligner.NAMESPACE, Folder.from(metadata), resultsDirectory));
             if (!arguments.outputCram()) {
                 outputBuilder.addReportComponents(new SingleFileComponent(rootBucket,
-                                VmAligner.NAMESPACE,
+                                Aligner.NAMESPACE,
                                 Folder.from(metadata),
                                 sorted(metadata.sampleName()),
                                 bam(metadata.sampleName()),
                                 resultsDirectory),
                         new SingleFileComponent(rootBucket,
-                                VmAligner.NAMESPACE,
+                                Aligner.NAMESPACE,
                                 Folder.from(metadata),
                                 bai(sorted(metadata.sampleName())),
                                 bai(bam(metadata.sampleName())),
@@ -174,7 +165,7 @@ public class VmAligner {
 
     public PipelineStatus runWithRetries(final SingleSampleRunMetadata metadata, final RuntimeBucket laneBucket,
             final VirtualMachineJobDefinition jobDefinition) {
-        return Failsafe.with(DefaultBackoffPolicy.of(String.format("[%s] stage [%s]", metadata.toString(), VmAligner.NAMESPACE)))
+        return Failsafe.with(DefaultBackoffPolicy.of(String.format("[%s] stage [%s]", metadata.toString(), Aligner.NAMESPACE)))
                 .get(() -> computeEngine.submit(laneBucket, jobDefinition));
     }
 
@@ -187,7 +178,7 @@ public class VmAligner {
     }
 
     private boolean lanesSuccessfullyComplete(final List<Future<PipelineStatus>> futures) {
-        return futures.stream().map(VmAligner::getFuture).noneMatch(status -> status.equals(PipelineStatus.FAILED));
+        return futures.stream().map(BwaAligner::getFuture).noneMatch(status -> status.equals(PipelineStatus.FAILED));
     }
 
     private static String fastQFileName(final String sample, final String fullFastQPath) {

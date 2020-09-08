@@ -1,6 +1,6 @@
-package com.hartwig.pipeline.alignment.vm;
+package com.hartwig.pipeline.alignment.bwa;
 
-import static com.hartwig.pipeline.alignment.vm.Lanes.emptyBuilder;
+import static com.hartwig.pipeline.alignment.bwa.Lanes.emptyBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

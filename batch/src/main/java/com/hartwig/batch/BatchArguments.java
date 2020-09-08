@@ -3,8 +3,6 @@ package com.hartwig.batch;
 import static java.lang.Boolean.parseBoolean;
 import static java.lang.String.format;
 
-import static com.hartwig.pipeline.Arguments.EMPTY;
-
 import com.hartwig.pipeline.CommonArguments;
 
 import org.apache.commons.cli.CommandLine;

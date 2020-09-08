@@ -4,12 +4,15 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Supplier;
 
+import com.hartwig.pipeline.alignment.AlignmentOutput;
+import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.cleanup.Cleanup;
 import com.hartwig.pipeline.metadata.CompletionHandler;
 import com.hartwig.pipeline.metadata.SingleSampleEventListener;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.metadata.SomaticMetadataApi;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
+import com.hartwig.pipeline.report.FullSomaticResults;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,11 +29,13 @@ public class FullPipeline {
     private final SingleSampleEventListener tumorSampleEventListener;
     private final SomaticMetadataApi api;
     private final SomaticRunMetadata metadata;
+    private final FullSomaticResults fullSomaticResults;
     private Cleanup cleanup;
 
     FullPipeline(final SingleSamplePipeline referencePipeline, final SingleSamplePipeline tumorPipeline,
             final SomaticPipeline somaticPipeline, final ExecutorService executorService, final SingleSampleEventListener referenceApi,
-            final SingleSampleEventListener tumorApi, final SomaticMetadataApi api, final Cleanup cleanup) {
+            final SingleSampleEventListener tumorApi, final SomaticMetadataApi api, final FullSomaticResults fullSomaticResults,
+            final Cleanup cleanup) {
         this.referencePipeline = referencePipeline;
         this.tumorPipeline = tumorPipeline;
         this.somaticPipeline = somaticPipeline;
@@ -39,6 +44,7 @@ public class FullPipeline {
         this.tumorSampleEventListener = tumorApi;
         this.api = api;
         this.metadata = api.get();
+        this.fullSomaticResults = fullSomaticResults;
         this.cleanup = cleanup;
     }
 
@@ -60,9 +66,15 @@ public class FullPipeline {
                 .map(tumor -> runPipeline(tumorPipeline, tumor, bothSingleSamplesAlignmentComplete))
                 .orElseGet(countdown(bothSingleSamplesAlignmentComplete, bothSingleSamplesPipelineComplete)));
         waitForSingleSamples(bothSingleSamplesAlignmentComplete);
+
         PipelineState singleSampleAlignmentState = combine(trapReferenceAlignmentComplete, trapTumorAlignmentComplete, metadata);
+
         if (singleSampleAlignmentState.shouldProceed()) {
-            PipelineState somaticState = somaticPipeline.run();
+            PipelineState somaticState = metadata.maybeTumor()
+                    .map(t -> somaticPipeline.run(AlignmentPair.of(trapReferenceAlignmentComplete.trappedAlignmentOutput,
+                            trapTumorAlignmentComplete.trappedAlignmentOutput)))
+                    .orElse(new PipelineState());
+            fullSomaticResults.compose(metadata);
             waitForSingleSamples(bothSingleSamplesPipelineComplete);
             PipelineState singleSamplePipelineState = combine(trapReferencePipelineComplete, trapTumorPipelineComplete, metadata);
             PipelineState combinedState = singleSampleAlignmentState.combineWith(somaticState).combineWith(singleSamplePipelineState);
@@ -111,7 +123,7 @@ public class FullPipeline {
     }
 
     private void checkState(final CountDownAndTrapStatus trap, final String type) {
-        if (trap.trappedState == null) {
+        if (trap.trappedState == null && trap.trappedAlignmentOutput == null) {
             throw new IllegalStateException(String.format("%s sample pipeline returned a null state. Failing pipeline run.", type));
         }
     }
@@ -129,6 +141,7 @@ public class FullPipeline {
         private final CountDownLatch latch;
         private boolean trapAlignment;
         private PipelineState trappedState;
+        private AlignmentOutput trappedAlignmentOutput;
 
         private CountDownAndTrapStatus(final CountDownLatch latch, final boolean trapAlignment) {
             this.latch = latch;
@@ -136,22 +149,21 @@ public class FullPipeline {
         }
 
         @Override
-        public void handleAlignmentComplete(final PipelineState status) {
+        public void handleAlignmentComplete(final AlignmentOutput output) {
             if (trapAlignment) {
-                trapAndCountdown(status);
+                trappedAlignmentOutput = output;
+                trappedState = new PipelineState();
+                trappedState.add(output);
+                latch.countDown();
             }
         }
 
         @Override
         public void handleSingleSampleComplete(final PipelineState state) {
             if (!trapAlignment) {
-                trapAndCountdown(state);
+                trappedState = state;
+                latch.countDown();
             }
-        }
-
-        private void trapAndCountdown(final PipelineState status) {
-            trappedState = status;
-            latch.countDown();
         }
     }
 }

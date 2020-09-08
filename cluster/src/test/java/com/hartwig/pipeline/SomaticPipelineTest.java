@@ -1,58 +1,8 @@
 package com.hartwig.pipeline;
 
-import static com.hartwig.pipeline.testsupport.TestInputs.amberOutput;
-import static com.hartwig.pipeline.testsupport.TestInputs.bachelorOutput;
-import static com.hartwig.pipeline.testsupport.TestInputs.chordOutput;
-import static com.hartwig.pipeline.testsupport.TestInputs.cobaltOutput;
-import static com.hartwig.pipeline.testsupport.TestInputs.defaultSomaticRunMetadata;
-import static com.hartwig.pipeline.testsupport.TestInputs.germlineCallerOutput;
-import static com.hartwig.pipeline.testsupport.TestInputs.healthCheckerOutput;
-import static com.hartwig.pipeline.testsupport.TestInputs.linxOutput;
-import static com.hartwig.pipeline.testsupport.TestInputs.purpleOutput;
-import static com.hartwig.pipeline.testsupport.TestInputs.referenceAlignmentOutput;
-import static com.hartwig.pipeline.testsupport.TestInputs.referenceMetricsOutput;
-import static com.hartwig.pipeline.testsupport.TestInputs.referenceRunMetadata;
-import static com.hartwig.pipeline.testsupport.TestInputs.sageOutput;
-import static com.hartwig.pipeline.testsupport.TestInputs.structuralCallerOutput;
-import static com.hartwig.pipeline.testsupport.TestInputs.tumorAlignmentOutput;
-import static com.hartwig.pipeline.testsupport.TestInputs.tumorMetricsOutput;
-import static com.hartwig.pipeline.testsupport.TestInputs.tumorRunMetadata;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
-
-import java.util.Optional;
-import java.util.concurrent.Executors;
-
-import com.google.cloud.storage.Bucket;
-import com.google.cloud.storage.Storage;
-import com.hartwig.pipeline.alignment.AlignmentOutputStorage;
-import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
-import com.hartwig.pipeline.calling.somatic.SageCaller;
-import com.hartwig.pipeline.calling.somatic.SomaticCallerOutput;
-import com.hartwig.pipeline.calling.structural.StructuralCaller;
-import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
-import com.hartwig.pipeline.metadata.SomaticMetadataApi;
-import com.hartwig.pipeline.metadata.SomaticRunMetadata;
-import com.hartwig.pipeline.metrics.BamMetricsOutput;
-import com.hartwig.pipeline.report.FullSomaticResults;
-import com.hartwig.pipeline.report.PipelineResults;
-import com.hartwig.pipeline.report.PipelineResultsProvider;
-import com.hartwig.pipeline.stages.StageRunner;
-import com.hartwig.pipeline.tertiary.healthcheck.HealthCheckOutput;
-import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
-
-import org.junit.Before;
-import org.junit.Test;
-
 public class SomaticPipelineTest {
 
-    private static final Arguments ARGUMENTS = Arguments.testDefaults();
+  /*  private static final Arguments ARGUMENTS = Arguments.testDefaults();
     private AlignmentOutputStorage alignmentOutputStorage;
     private OutputStorage<BamMetricsOutput, SingleSampleRunMetadata> bamMetricsOutputStorage;
     private SomaticPipeline victim;
@@ -216,5 +166,5 @@ public class SomaticPipelineTest {
 
     private void germlineCallingAvailable() {
         when(germlineCallerOutputStorage.get(eq(referenceRunMetadata()), any())).thenReturn(germlineCallerOutput());
-    }
+    }*/
 }

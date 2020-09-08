@@ -11,7 +11,7 @@ import com.google.common.collect.Iterables;
 import com.hartwig.patient.Lane;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.alignment.vm.VmAligner;
+import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
@@ -29,7 +29,7 @@ public class GoogleStorageSampleSource implements SampleSource {
     @Override
     public Sample sample(final SingleSampleRunMetadata metadata) {
 
-        RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, VmAligner.NAMESPACE, metadata, arguments);
+        RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, Aligner.NAMESPACE, metadata, arguments);
         Iterable<Blob> blobs = runtimeBucket.list("samples/");
         if (Iterables.isEmpty(blobs)) {
             throw new IllegalArgumentException(String.format("No sample data found in bucket [%s] so there is no input to process. "

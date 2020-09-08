@@ -22,10 +22,13 @@ public interface Stage<S extends StageOutput, M extends RunMetadata> {
 
     VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory);
 
-    S output(final M metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
-            final ResultsDirectory resultsDirectory);
+    S output(final M metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket, final ResultsDirectory resultsDirectory);
 
     S skippedOutput(M metadata);
+
+    default S persistedOutput(String persistedBucket, String persistedRun, M metadata) {
+        throw new UnsupportedOperationException(String.format("Stage [%s] does not support using persisted output.", namespace()));
+    }
 
     boolean shouldRun(Arguments arguments);
 }

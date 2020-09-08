@@ -38,7 +38,7 @@ public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata
 
     public CramConversion(final AlignmentOutput alignmentOutput, ResourceFiles resourceFiles) {
         bamDownload = new InputDownload(alignmentOutput.finalBamLocation());
-        outputCram = VmDirectories.outputFile(alignmentOutput.sample() + ".cram");
+        outputCram = VmDirectories.outputFile(CramOutput.cram(alignmentOutput.sample()));
         this.resourceFiles = resourceFiles;
     }
 
@@ -69,9 +69,10 @@ public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata
     }
 
     @Override
-    public CramOutput output(SingleSampleRunMetadata metadata, PipelineStatus jobStatus, RuntimeBucket bucket, ResultsDirectory resultsDirectory) {
+    public CramOutput output(SingleSampleRunMetadata metadata, PipelineStatus jobStatus, RuntimeBucket bucket,
+            ResultsDirectory resultsDirectory) {
         String cram = new File(outputCram).getName();
-        String crai = CramOutput.craiFile(cram);
+        String crai = CramOutput.crai(cram);
         Folder folder = Folder.from(metadata);
 
         String fullCram = format("%s%s/%s", folder.name(), NAMESPACE, cram);

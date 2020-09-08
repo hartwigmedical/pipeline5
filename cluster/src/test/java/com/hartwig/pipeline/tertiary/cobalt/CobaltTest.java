@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.stages.Stage;
+import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
@@ -37,5 +38,10 @@ public class CobaltTest extends TertiaryStageTest<CobaltOutput> {
         assertThat(output.outputDirectory().bucket()).isEqualTo(expectedRuntimeBucketName() + "/" + Cobalt.NAMESPACE);
         assertThat(output.outputDirectory().path()).isEqualTo("results");
         assertThat(output.outputDirectory().isDirectory()).isTrue();
+    }
+
+    @Override
+    protected void validatePersistedOutput(final CobaltOutput output) {
+        assertThat(output.outputDirectory()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "run/cobalt", true));
     }
 }

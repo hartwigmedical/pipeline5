@@ -19,6 +19,7 @@ import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
+import com.hartwig.pipeline.startingpoint.PersistedLocations;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
@@ -100,10 +101,8 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
         return PurpleOutput.builder()
                 .status(jobStatus)
                 .maybeOutputDirectory(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(), true))
-                .maybeSomaticVcf(GoogleStorageLocation.of(bucket.name(),
-                        resultsDirectory.path(metadata.tumor().sampleName() + PURPLE_SOMATIC_VCF)))
-                .maybeStructuralVcf(GoogleStorageLocation.of(bucket.name(),
-                        resultsDirectory.path(metadata.tumor().sampleName() + PURPLE_SV_VCF)))
+                .maybeSomaticVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(somaticVcf(metadata))))
+                .maybeStructuralVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(svVcf(metadata))))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.from(), NAMESPACE, resultsDirectory))
                 .build();
     }
@@ -111,5 +110,27 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
     @Override
     public PurpleOutput skippedOutput(final SomaticRunMetadata metadata) {
         return PurpleOutput.builder().status(PipelineStatus.SKIPPED).build();
+    }
+
+    @Override
+    public PurpleOutput persistedOutput(final String persistedBucket, final String persistedRun, final SomaticRunMetadata metadata) {
+        return PurpleOutput.builder()
+                .status(PipelineStatus.PERSISTED)
+                .maybeOutputDirectory(GoogleStorageLocation.of(persistedBucket,
+                        PersistedLocations.pathForSet(persistedRun, namespace()),
+                        true))
+                .maybeSomaticVcf(GoogleStorageLocation.of(persistedBucket,
+                        PersistedLocations.blobForSet(persistedRun, namespace(), somaticVcf(metadata))))
+                .maybeStructuralVcf(GoogleStorageLocation.of(persistedBucket,
+                        PersistedLocations.blobForSet(persistedRun, namespace(), svVcf(metadata))))
+                .build();
+    }
+
+    private static String svVcf(final SomaticRunMetadata metadata) {
+        return metadata.tumor().sampleName() + PURPLE_SV_VCF;
+    }
+
+    private static String somaticVcf(final SomaticRunMetadata metadata) {
+        return metadata.tumor().sampleName() + PURPLE_SOMATIC_VCF;
     }
 }

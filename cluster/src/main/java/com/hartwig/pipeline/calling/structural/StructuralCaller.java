@@ -19,6 +19,7 @@ import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.InputDownload;
+import com.hartwig.pipeline.execution.vm.OutputFile;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.unix.ExportPathCommand;
@@ -30,6 +31,7 @@ import com.hartwig.pipeline.report.StartupScriptComponent;
 import com.hartwig.pipeline.report.ZippedVcfAndIndexComponent;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
+import com.hartwig.pipeline.startingpoint.PersistedLocations;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
@@ -141,6 +143,28 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
     @Override
     public StructuralCallerOutput skippedOutput(final SomaticRunMetadata metadata) {
         return StructuralCallerOutput.builder().status(PipelineStatus.SKIPPED).build();
+    }
+
+    @Override
+    public StructuralCallerOutput persistedOutput(final String persistedBucket, final String persistedRun,
+            final SomaticRunMetadata metadata) {
+
+        String somaticFilteredVcf =
+                String.format("%s.%s.%s", metadata.tumor().sampleName(), GridssHardFilter.GRIDSS_SOMATIC_FILTERED, OutputFile.GZIPPED_VCF);
+        String somaticVcf =
+                String.format("%s.%s.%s", metadata.tumor().sampleName(), GridssSomaticFilter.GRIDSS_SOMATIC, OutputFile.GZIPPED_VCF);
+
+        return StructuralCallerOutput.builder()
+                .status(PipelineStatus.PERSISTED)
+                .maybeFilteredVcf(GoogleStorageLocation.of(persistedBucket,
+                        PersistedLocations.blobForSet(persistedRun, namespace(), somaticFilteredVcf)))
+                .maybeFilteredVcfIndex(GoogleStorageLocation.of(persistedBucket,
+                        PersistedLocations.blobForSet(persistedRun, namespace(), somaticFilteredVcf) + ".tbi"))
+                .maybeFullVcf(GoogleStorageLocation.of(persistedBucket,
+                        PersistedLocations.blobForSet(persistedRun, namespace(), somaticVcf)))
+                .maybeFullVcfIndex(GoogleStorageLocation.of(persistedBucket,
+                        PersistedLocations.blobForSet(persistedRun, namespace(), somaticVcf) + ".tbi"))
+                .build();
     }
 
     @Override

@@ -12,12 +12,15 @@ import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Executors;
 
+import com.hartwig.pipeline.alignment.AlignmentOutput;
+import com.hartwig.pipeline.alignment.ImmutableAlignmentOutput;
 import com.hartwig.pipeline.cleanup.Cleanup;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.metadata.SingleSampleEventListener;
 import com.hartwig.pipeline.metadata.SomaticMetadataApi;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
+import com.hartwig.pipeline.report.FullSomaticResults;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Before;
@@ -35,6 +38,7 @@ public class FullPipelineTest {
     private FullPipeline victim;
     private SingleSampleEventListener referenceListener;
     private SingleSampleEventListener tumorListener;
+    private FullSomaticResults results;
     private Cleanup cleanup;
 
     @Before
@@ -43,6 +47,7 @@ public class FullPipelineTest {
         tumor = mock(SingleSamplePipeline.class);
         somatic = mock(SomaticPipeline.class);
         cleanup = mock(Cleanup.class);
+        results = mock(FullSomaticResults.class);
 
         api = mock(SomaticMetadataApi.class);
         when(api.get()).thenReturn(METADATA);
@@ -56,57 +61,60 @@ public class FullPipelineTest {
                 referenceListener,
                 tumorListener,
                 api,
+                results,
                 cleanup);
     }
 
     @Test
     public void runsBothSingleSampleAndSomatic() throws Exception {
-        when(reference.run(METADATA.reference())).then(callHandlers(referenceListener, succeeded(), succeeded()));
-        when(tumor.run(METADATA.tumor())).then(callHandlers(tumorListener, succeeded(), succeeded()));
+        when(reference.run(METADATA.reference())).then(callHandlers(referenceListener, TestInputs.referenceAlignmentOutput(), succeeded()));
+        when(tumor.run(METADATA.tumor())).then(callHandlers(tumorListener, TestInputs.tumorAlignmentOutput(), succeeded()));
 
-        when(somatic.run()).thenReturn(succeeded());
+        when(somatic.run(TestInputs.defaultPair())).thenReturn(succeeded());
         assertThat(victim.run().status()).isEqualTo(PipelineStatus.SUCCESS);
     }
 
     @Test
     public void failWhenReferenceAlignmentFails() throws Exception {
-        when(reference.run(METADATA.reference())).then(callHandlers(referenceListener, failed(), succeeded()));
-        when(tumor.run(METADATA.tumor())).then(callHandlers(tumorListener, succeeded(), succeeded()));
-        when(somatic.run()).thenReturn(succeeded());
+        when(reference.run(METADATA.reference())).then(callHandlers(referenceListener,
+                failedAlignment(TestInputs.referenceAlignmentOutput()),
+                succeeded()));
+        when(tumor.run(METADATA.tumor())).then(callHandlers(tumorListener, TestInputs.tumorAlignmentOutput(), succeeded()));
         assertThat(victim.run().status()).isEqualTo(PipelineStatus.FAILED);
-        verify(somatic, never()).run();
+        verify(somatic, never()).run(TestInputs.defaultPair());
     }
 
     @Test
     public void failWhenTumorAlignmentFails() throws Exception {
-        when(reference.run(METADATA.reference())).then(callHandlers(referenceListener, succeeded(), succeeded()));
-        when(tumor.run(METADATA.tumor())).then(callHandlers(tumorListener, failed(), succeeded()));
-        when(somatic.run()).thenReturn(succeeded());
+        when(reference.run(METADATA.reference())).then(callHandlers(referenceListener, TestInputs.referenceAlignmentOutput(), succeeded()));
+        when(tumor.run(METADATA.tumor())).then(callHandlers(tumorListener,
+                failedAlignment(TestInputs.tumorAlignmentOutput()),
+                succeeded()));
         assertThat(victim.run().status()).isEqualTo(PipelineStatus.FAILED);
-        verify(somatic, never()).run();
+        verify(somatic, never()).run(TestInputs.defaultPair());
     }
 
     @Test
     public void failWhenReferencePipelineFails() throws Exception {
-        when(reference.run(METADATA.reference())).then(callHandlers(referenceListener, succeeded(), failed()));
-        when(tumor.run(METADATA.tumor())).then(callHandlers(tumorListener, succeeded(), succeeded()));
-        when(somatic.run()).thenReturn(succeeded());
+        when(reference.run(METADATA.reference())).then(callHandlers(referenceListener, TestInputs.referenceAlignmentOutput(), failed()));
+        when(tumor.run(METADATA.tumor())).then(callHandlers(tumorListener, TestInputs.tumorAlignmentOutput(), succeeded()));
+        when(somatic.run(TestInputs.defaultPair())).thenReturn(succeeded());
         assertThat(victim.run().status()).isEqualTo(PipelineStatus.FAILED);
     }
 
     @Test
     public void failWhenTumorPipelineFails() throws Exception {
-        when(reference.run(METADATA.reference())).then(callHandlers(referenceListener, succeeded(), succeeded()));
-        when(tumor.run(METADATA.tumor())).then(callHandlers(tumorListener, succeeded(), failed()));
-        when(somatic.run()).thenReturn(succeeded());
+        when(reference.run(METADATA.reference())).then(callHandlers(referenceListener, TestInputs.referenceAlignmentOutput(), succeeded()));
+        when(tumor.run(METADATA.tumor())).then(callHandlers(tumorListener, TestInputs.tumorAlignmentOutput(), failed()));
+        when(somatic.run(TestInputs.defaultPair())).thenReturn(succeeded());
         assertThat(victim.run().status()).isEqualTo(PipelineStatus.FAILED);
     }
 
     @Test
     public void failWhenSomaticPipelineFails() throws Exception {
-        when(reference.run(METADATA.reference())).then(callHandlers(referenceListener, succeeded(), succeeded()));
-        when(tumor.run(METADATA.tumor())).then(callHandlers(tumorListener, succeeded(), succeeded()));
-        when(somatic.run()).thenReturn(failed());
+        when(reference.run(METADATA.reference())).then(callHandlers(referenceListener, TestInputs.referenceAlignmentOutput(), succeeded()));
+        when(tumor.run(METADATA.tumor())).then(callHandlers(tumorListener, TestInputs.tumorAlignmentOutput(), succeeded()));
+        when(somatic.run(TestInputs.defaultPair())).thenReturn(failed());
         assertThat(victim.run().status()).isEqualTo(PipelineStatus.FAILED);
     }
 
@@ -121,17 +129,18 @@ public class FullPipelineTest {
                 referenceListener,
                 tumorListener,
                 api,
+                results,
                 cleanup);
-        when(reference.run(metadata.reference())).then(callHandlers(referenceListener, succeeded(), succeeded()));
-        when(somatic.run()).thenReturn(succeeded());
+        when(reference.run(metadata.reference())).then(callHandlers(referenceListener, TestInputs.referenceAlignmentOutput(), succeeded()));
+        when(somatic.run(TestInputs.defaultPair())).thenReturn(succeeded());
         assertThat(victim.run().status()).isEqualTo(PipelineStatus.SUCCESS);
     }
 
     @Test
     public void notifiesSetMetadataApiOnSuccessfulSomaticRun() throws Exception {
-        when(reference.run(METADATA.reference())).then(callHandlers(referenceListener, succeeded(), succeeded()));
-        when(tumor.run(METADATA.tumor())).then(callHandlers(tumorListener, succeeded(), succeeded()));
-        when(somatic.run()).thenReturn(succeeded());
+        when(reference.run(METADATA.reference())).then(callHandlers(referenceListener, TestInputs.referenceAlignmentOutput(), succeeded()));
+        when(tumor.run(METADATA.tumor())).then(callHandlers(tumorListener, TestInputs.tumorAlignmentOutput(), succeeded()));
+        when(somatic.run(TestInputs.defaultPair())).thenReturn(succeeded());
 
         victim.run();
 
@@ -142,9 +151,9 @@ public class FullPipelineTest {
 
     @Test
     public void notifiesSetMetadataApiOnFailedSomaticRun() throws Exception {
-        when(reference.run(METADATA.reference())).then(callHandlers(referenceListener, succeeded(), succeeded()));
-        when(tumor.run(METADATA.tumor())).then(callHandlers(tumorListener, succeeded(), succeeded()));
-        when(somatic.run()).thenReturn(failed());
+        when(reference.run(METADATA.reference())).then(callHandlers(referenceListener, TestInputs.referenceAlignmentOutput(), succeeded()));
+        when(tumor.run(METADATA.tumor())).then(callHandlers(tumorListener, TestInputs.tumorAlignmentOutput(), succeeded()));
+        when(somatic.run(TestInputs.defaultPair())).thenReturn(failed());
 
         victim.run();
 
@@ -155,9 +164,9 @@ public class FullPipelineTest {
 
     @Test
     public void runsCleanupOnSuccessfulSomaticRun() throws Exception {
-        when(reference.run(METADATA.reference())).then(callHandlers(referenceListener, succeeded(), succeeded()));
-        when(tumor.run(METADATA.tumor())).then(callHandlers(tumorListener, succeeded(), succeeded()));
-        when(somatic.run()).thenReturn(succeeded());
+        when(reference.run(METADATA.reference())).then(callHandlers(referenceListener, TestInputs.referenceAlignmentOutput(), succeeded()));
+        when(tumor.run(METADATA.tumor())).then(callHandlers(tumorListener, TestInputs.tumorAlignmentOutput(), succeeded()));
+        when(somatic.run(TestInputs.defaultPair())).thenReturn(succeeded());
 
         victim.run();
 
@@ -166,9 +175,9 @@ public class FullPipelineTest {
 
     @Test
     public void doesNotRunCleanupOnFailedSomaticRun() throws Exception {
-        when(reference.run(METADATA.reference())).then(callHandlers(referenceListener, succeeded(), succeeded()));
-        when(tumor.run(METADATA.tumor())).then(callHandlers(tumorListener, succeeded(), succeeded()));
-        when(somatic.run()).thenReturn(failed());
+        when(reference.run(METADATA.reference())).then(callHandlers(referenceListener, TestInputs.referenceAlignmentOutput(), succeeded()));
+        when(tumor.run(METADATA.tumor())).then(callHandlers(tumorListener, TestInputs.tumorAlignmentOutput(), succeeded()));
+        when(somatic.run(TestInputs.defaultPair())).thenReturn(failed());
 
         victim.run();
 
@@ -177,9 +186,9 @@ public class FullPipelineTest {
 
     @Test
     public void doesNotRunCleanupOnFailedTransfer() throws Exception {
-        when(reference.run(METADATA.reference())).then(callHandlers(referenceListener, succeeded(), succeeded()));
-        when(tumor.run(METADATA.tumor())).then(callHandlers(tumorListener, succeeded(), succeeded()));
-        when(somatic.run()).thenReturn(succeeded());
+        when(reference.run(METADATA.reference())).then(callHandlers(referenceListener, TestInputs.referenceAlignmentOutput(), succeeded()));
+        when(tumor.run(METADATA.tumor())).then(callHandlers(tumorListener, TestInputs.tumorAlignmentOutput(), succeeded()));
+        when(somatic.run(TestInputs.defaultPair())).thenReturn(succeeded());
         doThrow(new NullPointerException()).when(api).complete(any(PipelineState.class), any(SomaticRunMetadata.class));
 
         try {
@@ -200,7 +209,11 @@ public class FullPipelineTest {
         return failedState;
     }
 
-    private static Answer<PipelineState> callHandlers(final SingleSampleEventListener listener, final PipelineState alignmentState,
+    private static ImmutableAlignmentOutput failedAlignment(final AlignmentOutput from) {
+        return AlignmentOutput.builder().from(from).status(PipelineStatus.FAILED).build();
+    }
+
+    private static Answer<PipelineState> callHandlers(final SingleSampleEventListener listener, final AlignmentOutput alignmentState,
             final PipelineState pipelineState) {
         return invocation -> {
             listener.getHandlers().forEach(handler -> handler.handleAlignmentComplete(alignmentState));

@@ -1,12 +1,12 @@
 package com.hartwig.pipeline.alignment;
 
-import com.hartwig.pipeline.StageOutput;
-import com.hartwig.pipeline.alignment.vm.VmAligner;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
-import org.immutables.value.Value;
-
 import java.util.Optional;
 import java.util.function.Supplier;
+
+import com.hartwig.pipeline.StageOutput;
+import com.hartwig.pipeline.storage.GoogleStorageLocation;
+
+import org.immutables.value.Value;
 
 @Value.Immutable
 public interface AlignmentOutput extends StageOutput {
@@ -14,7 +14,7 @@ public interface AlignmentOutput extends StageOutput {
     String sample();
 
     default String name() {
-        return VmAligner.NAMESPACE;
+        return Aligner.NAMESPACE;
     }
 
     Optional<GoogleStorageLocation> maybeFinalBamLocation();

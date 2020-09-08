@@ -28,6 +28,7 @@ import com.hartwig.pipeline.report.StartupScriptComponent;
 import com.hartwig.pipeline.report.ZippedVcfAndIndexComponent;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
+import com.hartwig.pipeline.startingpoint.PersistedLocations;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
@@ -59,7 +60,7 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
         this.resourceFiles = resourceFiles;
         this.bamDownload = new InputDownload(alignmentOutput.finalBamLocation());
         this.baiDownload = new InputDownload(alignmentOutput.finalBaiLocation());
-        outputFile = OutputFile.of(alignmentOutput.sample(), "germline", OutputFile.GZIPPED_VCF);
+        outputFile = GermlineCallerOutput.outputFile(alignmentOutput.sample());
     }
 
     @Override
@@ -78,8 +79,8 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
         String referenceFasta = resourceFiles.refGenomeFile();
 
         SubStageInputOutput callerOutput =
-                new GatkGermlineCaller(bamDownload.getLocalTargetPath(), referenceFasta)
-                        .andThen(new GenotypeGVCFs(referenceFasta)).apply(SubStageInputOutput.empty(metadata.sampleName()));
+                new GatkGermlineCaller(bamDownload.getLocalTargetPath(), referenceFasta).andThen(new GenotypeGVCFs(referenceFasta))
+                        .apply(SubStageInputOutput.empty(metadata.sampleName()));
 
         SubStageInputOutput snpFilterOutput =
                 new SelectVariants("snp", Lists.newArrayList("SNP", "NO_VARIATION"), referenceFasta).andThen(new VariantFiltration("snp",
@@ -94,9 +95,9 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
 
         SubStageInputOutput combinedFilters = snpFilterOutput.combine(indelFilterOutput);
 
-        SubStageInputOutput finalOutput = new CombineFilteredVariants(indelFilterOutput.outputFile().path(),
-                referenceFasta).andThen(new SnpEff(resourceFiles))
-                .apply(combinedFilters);
+        SubStageInputOutput finalOutput =
+                new CombineFilteredVariants(indelFilterOutput.outputFile().path(), referenceFasta).andThen(new SnpEff(resourceFiles))
+                        .apply(combinedFilters);
 
         return ImmutableList.<BashCommand>builder().add(new UnzipToDirectoryCommand(VmDirectories.RESOURCES, resourceFiles.snpEffDb()))
                 .addAll(finalOutput.bash())
@@ -117,7 +118,7 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
                 .status(status)
                 .maybeGermlineVcfLocation(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(outputFile.fileName())))
                 .maybeGermlineVcfIndexLocation(GoogleStorageLocation.of(bucket.name(),
-                        resultsDirectory.path(outputFile.fileName() + ".tbi")))
+                        resultsDirectory.path(GermlineCallerOutput.tbi(outputFile.fileName()))))
                 .addReportComponents(new RunLogComponent(bucket, NAMESPACE, Folder.from(metadata), resultsDirectory))
                 .addReportComponents(new StartupScriptComponent(bucket, NAMESPACE, Folder.from(metadata)))
                 .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
@@ -135,6 +136,19 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
                 .status(PipelineStatus.SKIPPED)
                 .maybeGermlineVcfLocation(skipped())
                 .maybeGermlineVcfIndexLocation(skipped())
+                .build();
+    }
+
+    @Override
+    public GermlineCallerOutput persistedOutput(final String persistedBucket, final String persistedRun,
+            final SingleSampleRunMetadata metadata) {
+        String vcf = GermlineCallerOutput.outputFile(metadata.sampleName()).fileName();
+        return GermlineCallerOutput.builder()
+                .status(PipelineStatus.PERSISTED)
+                .maybeGermlineVcfLocation(GoogleStorageLocation.of(persistedBucket,
+                        PersistedLocations.blobForSingle(persistedRun, metadata.sampleName(), GermlineCaller.NAMESPACE, vcf)))
+                .maybeGermlineVcfIndexLocation(GoogleStorageLocation.of(persistedBucket,
+                        PersistedLocations.blobForSingle(persistedRun, metadata.sampleName(), namespace(), GermlineCallerOutput.tbi(vcf))))
                 .build();
     }
 

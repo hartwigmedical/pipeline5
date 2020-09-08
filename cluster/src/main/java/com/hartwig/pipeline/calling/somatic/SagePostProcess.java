@@ -12,11 +12,12 @@ import com.hartwig.pipeline.resource.ResourceFiles;
 
 public class SagePostProcess extends SubStage {
 
+    public static final String SAGE_SOMATIC_FILTERED = "sage.somatic.filtered";
     private final ResourceFiles resourceFiles;
     private final SubStageInputOutput tumorSampleName;
 
     public SagePostProcess(final String tumorSampleName, final ResourceFiles resourceFiles) {
-        super("sage.somatic.filtered", OutputFile.GZIPPED_VCF);
+        super(SAGE_SOMATIC_FILTERED, OutputFile.GZIPPED_VCF);
         this.tumorSampleName = SubStageInputOutput.empty(tumorSampleName);
         this.resourceFiles = resourceFiles;
     }
