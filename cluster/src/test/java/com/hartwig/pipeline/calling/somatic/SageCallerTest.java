@@ -1,11 +1,14 @@
 package com.hartwig.pipeline.calling.somatic;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.stages.Stage;
+import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
@@ -56,4 +59,9 @@ public class SageCallerTest extends TertiaryStageTest<SomaticCallerOutput> {
         return Arguments.testDefaultsBuilder().runSomaticCaller(false).build();
     }
 
+    @Override
+    protected void validatePersistedOutput(final SomaticCallerOutput output) {
+        assertThat(output.finalSomaticVcf()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
+                "run/sage/tumor.sage.somatic.filtered.vcf.gz"));
+    }
 }

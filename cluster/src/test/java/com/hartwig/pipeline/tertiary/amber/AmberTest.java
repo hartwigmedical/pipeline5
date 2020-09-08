@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.stages.Stage;
+import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
@@ -38,5 +39,10 @@ public class AmberTest extends TertiaryStageTest<AmberOutput> {
         assertThat(output.outputDirectory().bucket()).isEqualTo("run-reference-tumor-test/amber");
         assertThat(output.outputDirectory().path()).isEqualTo("results");
         assertThat(output.outputDirectory().isDirectory()).isTrue();
+    }
+
+    @Override
+    protected void validatePersistedOutput(final AmberOutput output) {
+        assertThat(output.outputDirectory()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "run/amber", true));
     }
 }

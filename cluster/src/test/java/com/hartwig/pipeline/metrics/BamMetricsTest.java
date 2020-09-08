@@ -63,4 +63,10 @@ public class BamMetricsTest extends StageTest<BamMetricsOutput, SingleSampleRunM
         assertThat(metricsOutputFile.bucket()).isEqualTo("run-reference-test/bam_metrics");
         assertThat(metricsOutputFile.path()).isEqualTo("results/reference.wgsmetrics");
     }
+
+    @Override
+    protected void validatePersistedOutput(final BamMetricsOutput output) {
+        assertThat(output.metricsOutputFile()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
+                "run/reference/bam_metrics/reference.wgsmetrics"));
+    }
 }

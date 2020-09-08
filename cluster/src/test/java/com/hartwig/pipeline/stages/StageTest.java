@@ -1,6 +1,7 @@
 package com.hartwig.pipeline.stages;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -19,11 +20,17 @@ import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.metadata.RunMetadata;
 import com.hartwig.pipeline.storage.RuntimeBucket;
+import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class StageTest<S extends StageOutput, M extends RunMetadata> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(StageTest.class);
+    protected static final String OUTPUT_BUCKET = Arguments.testDefaults().outputBucket();
 
     protected Storage storage;
     protected RuntimeBucket runtimeBucket;
@@ -76,6 +83,20 @@ public abstract class StageTest<S extends StageOutput, M extends RunMetadata> {
         assertThat(output.status()).isEqualTo(PipelineStatus.SUCCESS);
         assertThat(output.name()).isEqualTo(victim.namespace());
         validateOutput(output);
+    }
+
+    @Test
+    public void returnsExpectedPersistedOutput() {
+        try {
+            S output = victim.persistedOutput(OUTPUT_BUCKET, TestInputs.defaultSomaticRunMetadata().runName(), input());
+            validatePersistedOutput(output);
+        } catch (UnsupportedOperationException e) {
+            LOGGER.info("Persisted output not supported for stage [{}]. No test required", victim.namespace());
+        }
+    }
+
+    protected void validatePersistedOutput(final S output) {
+        fail("This class implements persisted output. Validate it by overriding this method!");
     }
 
     private Arguments defaultArguments() {

@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.resource.Hg19ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
+import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
@@ -24,8 +25,7 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
 
     @Override
     protected Stage<PurpleOutput, SomaticRunMetadata> createVictim() {
-        return new Purple(
-                TestInputs.HG19_RESOURCE_FILES,
+        return new Purple(TestInputs.HG19_RESOURCE_FILES,
                 TestInputs.sageOutput(),
                 TestInputs.structuralCallerOutput(),
                 TestInputs.amberOutput(),
@@ -41,30 +41,29 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
     @Override
     protected List<String> expectedInputs() {
         return ImmutableList.of(input(expectedRuntimeBucketName() + "/sage/results/tumor.vcf.gz", "tumor.vcf.gz"),
-                input(expectedRuntimeBucketName() + "/gridss/results/tumor.gridss.filtered.vcf.gz",
-                        "tumor.gridss.filtered.vcf.gz"),
-                input(expectedRuntimeBucketName() + "/gridss/results/tumor.gridss.filtered.vcf.gz.tbi",
-                        "tumor.gridss.filtered.vcf.gz.tbi"),
+                input(expectedRuntimeBucketName() + "/gridss/results/tumor.gridss.filtered.vcf.gz", "tumor.gridss.filtered.vcf.gz"),
+                input(expectedRuntimeBucketName() + "/gridss/results/tumor.gridss.filtered.vcf.gz.tbi", "tumor.gridss.filtered.vcf.gz.tbi"),
                 input(expectedRuntimeBucketName() + "/gridss/results/tumor.gridss.full.vcf.gz", "tumor.gridss.full.vcf.gz"),
-                input(expectedRuntimeBucketName() + "/gridss/results/tumor.gridss.full.vcf.gz.tbi",
-                        "tumor.gridss.full.vcf.gz.tbi"),
+                input(expectedRuntimeBucketName() + "/gridss/results/tumor.gridss.full.vcf.gz.tbi", "tumor.gridss.full.vcf.gz.tbi"),
                 input(expectedRuntimeBucketName() + "/amber/results/", "results"),
                 input(expectedRuntimeBucketName() + "/cobalt/results/", "results"));
     }
 
     @Override
     protected List<String> expectedCommands() {
-        return Collections.singletonList("java -Xmx12G -jar /opt/tools/purple/2.45/purple.jar -reference reference -tumor tumor -output_dir "
-                + "/data/output -amber /data/input/results -cobalt /data/input/results -gc_profile /opt/resources/gc/hg19/GC_profile.1000bp.cnp "
-                + "-somatic_vcf /data/input/tumor.vcf.gz -structural_vcf /data/input/tumor.gridss.filtered.vcf.gz -sv_recovery_vcf "
-                + "/data/input/tumor.gridss.full.vcf.gz -circos /opt/tools/circos/0.69.6/bin/circos -ref_genome "
-                + "/opt/resources/reference_genome/hg19/Homo_sapiens.GRCh37.GATK.illumina.fasta -driver_catalog -hotspots "
-                + "/opt/resources/sage/hg19/KnownHotspots.hg19.vcf.gz -threads $(grep -c '^processor' /proc/cpuinfo)");
+        return Collections.singletonList(
+                "java -Xmx12G -jar /opt/tools/purple/2.45/purple.jar -reference reference -tumor tumor -output_dir "
+                        + "/data/output -amber /data/input/results -cobalt /data/input/results -gc_profile /opt/resources/gc/hg19/GC_profile.1000bp.cnp "
+                        + "-somatic_vcf /data/input/tumor.vcf.gz -structural_vcf /data/input/tumor.gridss.filtered.vcf.gz -sv_recovery_vcf "
+                        + "/data/input/tumor.gridss.full.vcf.gz -circos /opt/tools/circos/0.69.6/bin/circos -ref_genome "
+                        + "/opt/resources/reference_genome/hg19/Homo_sapiens.GRCh37.GATK.illumina.fasta -driver_catalog -hotspots "
+                        + "/opt/resources/sage/hg19/KnownHotspots.hg19.vcf.gz -threads $(grep -c '^processor' /proc/cpuinfo)");
     }
 
     @Test
     public void shallowModeUsesLowDepthSettings() {
-        Purple victim = new Purple(new Hg19ResourceFiles(), TestInputs.sageOutput(),
+        Purple victim = new Purple(new Hg19ResourceFiles(),
+                TestInputs.sageOutput(),
                 TestInputs.structuralCallerOutput(),
                 TestInputs.amberOutput(),
                 TestInputs.cobaltOutput(),
@@ -85,5 +84,12 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
         assertThat(output.structuralVcf().bucket()).isEqualTo(bucketName);
         assertThat(output.structuralVcf().path()).isEqualTo("results/tumor.purple.sv.vcf.gz");
         assertThat(output.structuralVcf().isDirectory()).isFalse();
+    }
+
+    @Override
+    protected void validatePersistedOutput(final PurpleOutput output) {
+        assertThat(output.outputDirectory()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "run/purple", true));
+        assertThat(output.somaticVcf()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "run/purple/tumor.purple.somatic.vcf.gz"));
+        assertThat(output.structuralVcf()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "run/purple/tumor.purple.sv.vcf.gz"));
     }
 }

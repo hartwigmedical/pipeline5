@@ -5,6 +5,8 @@ import static java.lang.String.format;
 import static com.hartwig.pipeline.testsupport.TestInputs.REFERENCE_BUCKET;
 import static com.hartwig.pipeline.testsupport.TestInputs.TUMOR_BUCKET;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
@@ -12,6 +14,7 @@ import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.StageTest;
+import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Before;
@@ -75,5 +78,15 @@ public class StructuralCallerTest extends StageTest<StructuralCallerOutput, Soma
     @Override
     public void returnsExpectedOutput() {
         // not supported currently
+    }
+
+    @Override
+    protected void validatePersistedOutput(final StructuralCallerOutput output) {
+        assertThat(output.filteredVcf()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
+                "run/gridss/tumor.gridss.somatic.filtered.vcf.gz"));
+        assertThat(output.filteredVcfIndex()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
+                "run/gridss/tumor.gridss.somatic.filtered.vcf.gz.tbi"));
+        assertThat(output.fullVcf()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "run/gridss/tumor.gridss.somatic.vcf.gz"));
+        assertThat(output.fullVcfIndex()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "run/gridss/tumor.gridss.somatic.vcf.gz.tbi"));
     }
 }
