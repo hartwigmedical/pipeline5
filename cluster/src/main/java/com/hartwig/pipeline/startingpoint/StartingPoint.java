@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.rerun;
+package com.hartwig.pipeline.startingpoint;
 
 import java.util.Collections;
 import java.util.List;

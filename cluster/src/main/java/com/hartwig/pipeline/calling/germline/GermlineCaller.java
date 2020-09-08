@@ -28,6 +28,7 @@ import com.hartwig.pipeline.report.StartupScriptComponent;
 import com.hartwig.pipeline.report.ZippedVcfAndIndexComponent;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
+import com.hartwig.pipeline.startingpoint.PersistedLocations;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
@@ -135,6 +136,19 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
                 .status(PipelineStatus.SKIPPED)
                 .maybeGermlineVcfLocation(skipped())
                 .maybeGermlineVcfIndexLocation(skipped())
+                .build();
+    }
+
+    @Override
+    public GermlineCallerOutput persistedOutput(final String persistedBucket, final String persistedRun,
+            final SingleSampleRunMetadata metadata) {
+        String vcf = GermlineCallerOutput.outputFile(metadata.sampleName()).fileName();
+        return GermlineCallerOutput.builder()
+                .status(PipelineStatus.PERSISTED)
+                .maybeGermlineVcfLocation(GoogleStorageLocation.of(persistedBucket,
+                        PersistedLocations.blobForSingle(persistedRun, metadata.sampleName(), GermlineCaller.NAMESPACE, vcf)))
+                .maybeGermlineVcfIndexLocation(GoogleStorageLocation.of(persistedBucket,
+                        PersistedLocations.blobForSingle(persistedRun, metadata.sampleName(), namespace(), GermlineCallerOutput.tbi(vcf))))
                 .build();
     }
 

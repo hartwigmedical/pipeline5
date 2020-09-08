@@ -18,11 +18,6 @@ import com.hartwig.pipeline.metadata.SomaticMetadataApi;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.report.PipelineResults;
-import com.hartwig.pipeline.rerun.PersistedAmber;
-import com.hartwig.pipeline.rerun.PersistedCobalt;
-import com.hartwig.pipeline.rerun.PersistedPurple;
-import com.hartwig.pipeline.rerun.PersistedSage;
-import com.hartwig.pipeline.rerun.PersistedStructuralCaller;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.StageRunner;
 import com.hartwig.pipeline.tertiary.amber.Amber;
@@ -82,14 +77,14 @@ public class SomaticPipeline {
 
         if (metadata.maybeTumor().isPresent()) {
             try {
-                Future<AmberOutput> amberOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
-                        new PersistedAmber(new Amber(pair, resourceFiles), arguments, metadata.runName())));
-                Future<CobaltOutput> cobaltOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
-                        new PersistedCobalt(new Cobalt(pair, resourceFiles), arguments, metadata.runName())));
-                Future<SomaticCallerOutput> sageCallerOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
-                        new PersistedSage(new SageCaller(pair, resourceFiles), arguments, metadata.runName())));
-                Future<StructuralCallerOutput> structuralCallerOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
-                        new PersistedStructuralCaller(new StructuralCaller(pair, resourceFiles), arguments, metadata.runName())));
+                Future<AmberOutput> amberOutputFuture =
+                        executorService.submit(() -> stageRunner.run(metadata, new Amber(pair, resourceFiles)));
+                Future<CobaltOutput> cobaltOutputFuture =
+                        executorService.submit(() -> stageRunner.run(metadata, new Cobalt(pair, resourceFiles)));
+                Future<SomaticCallerOutput> sageCallerOutputFuture =
+                        executorService.submit(() -> stageRunner.run(metadata, new SageCaller(pair, resourceFiles)));
+                Future<StructuralCallerOutput> structuralCallerOutputFuture =
+                        executorService.submit(() -> stageRunner.run(metadata, new StructuralCaller(pair, resourceFiles)));
                 AmberOutput amberOutput = pipelineResults.add(state.add(amberOutputFuture.get()));
                 CobaltOutput cobaltOutput = pipelineResults.add(state.add(cobaltOutputFuture.get()));
                 SomaticCallerOutput sageOutput = pipelineResults.add(state.add(sageCallerOutputFuture.get()));
@@ -98,12 +93,12 @@ public class SomaticPipeline {
                 if (state.shouldProceed()) {
                     Future<PurpleOutput> purpleOutputFuture = executorService.submit(() -> pipelineResults.add(state.add(stageRunner.run(
                             metadata,
-                            new PersistedPurple(new Purple(resourceFiles,
+                            new Purple(resourceFiles,
                                     sageOutput,
                                     structuralCallerOutput,
                                     amberOutput,
                                     cobaltOutput,
-                                    arguments.shallow()), arguments, metadata.runName())))));
+                                    arguments.shallow())))));
                     PurpleOutput purpleOutput = purpleOutputFuture.get();
                     if (state.shouldProceed()) {
                         BamMetricsOutput tumorMetrics = pollOrThrow(tumorBamMetricsOutputQueue, "tumor metrics");

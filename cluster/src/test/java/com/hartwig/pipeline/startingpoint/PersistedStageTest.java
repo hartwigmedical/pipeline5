@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.rerun;
+package com.hartwig.pipeline.startingpoint;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -35,7 +35,7 @@ public class PersistedStageTest {
         StageRunner<SomaticRunMetadata> stageRunner = new StageRunner<>(mock(Storage.class),
                 Arguments.testDefaults(),
                 mock(ComputeEngine.class),
-                ResultsDirectory.defaultDirectory());
+                ResultsDirectory.defaultDirectory(), startingPoint, runName);
         StageOutput results = stageRunner.run(TestInputs.defaultSomaticRunMetadata(), victim);
         assertThat(results).isEqualTo(expected);
     }

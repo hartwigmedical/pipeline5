@@ -19,6 +19,7 @@ import com.hartwig.pipeline.report.SingleFileComponent;
 import com.hartwig.pipeline.report.StartupScriptComponent;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
+import com.hartwig.pipeline.startingpoint.PersistedLocations;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
@@ -83,5 +84,19 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
     @Override
     public BamMetricsOutput skippedOutput(SingleSampleRunMetadata metadata) {
         return BamMetricsOutput.builder().sample(metadata.sampleName()).status(PipelineStatus.SKIPPED).build();
+    }
+
+    @Override
+    public BamMetricsOutput persistedOutput(final String persistedBucket, final String persistedRun,
+            final SingleSampleRunMetadata metadata) {
+        return BamMetricsOutput.builder()
+                .status(PipelineStatus.PERSISTED)
+                .sample(metadata.sampleName())
+                .maybeMetricsOutputFile(GoogleStorageLocation.of(persistedBucket,
+                        PersistedLocations.blobForSingle(persistedRun,
+                                metadata.sampleName(),
+                                namespace(),
+                                BamMetricsOutput.outputFile(metadata.sampleName()))))
+                .build();
     }
 }
