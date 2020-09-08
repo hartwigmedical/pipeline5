@@ -129,6 +129,7 @@ public class PipelineMain {
             }
         } catch (ParseException e) {
             LOGGER.error("Exiting due to incorrect arguments");
+            System.exit(1);
         } catch (Exception e) {
             LOGGER.error("An unexpected issue arose while running the pipeline. See the attached exception for more details.", e);
             System.exit(1);
