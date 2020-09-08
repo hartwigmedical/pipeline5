@@ -4,6 +4,7 @@ import static com.hartwig.pipeline.resource.ResourceNames.AMBER;
 import static com.hartwig.pipeline.resource.ResourceNames.BACHELOR;
 import static com.hartwig.pipeline.resource.ResourceNames.ENSEMBL;
 import static com.hartwig.pipeline.resource.ResourceNames.GC_PROFILE;
+import static com.hartwig.pipeline.resource.ResourceNames.GENE_PANEL;
 import static com.hartwig.pipeline.resource.ResourceNames.GENOTYPE_SNPS;
 import static com.hartwig.pipeline.resource.ResourceNames.GIAB_HIGH_CONF;
 import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_PON;
@@ -142,6 +143,11 @@ public class Hg19ResourceFiles implements ResourceFiles {
     @Override
     public String genotypeSnpsDB() {
         return formPath(GENOTYPE_SNPS, "26SNPtaq.vcf");
+    }
+
+    @Override
+    public String driverGenePanel() {
+        return formPath(GENE_PANEL, "DriverGenePanel.hg19.tsv");
     }
 
     @Override

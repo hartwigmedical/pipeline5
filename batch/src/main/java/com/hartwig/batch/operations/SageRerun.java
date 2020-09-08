@@ -41,6 +41,10 @@ public class SageRerun implements BatchOperation {
         return GoogleStorageLocation.of("hmf-sage", set, true);
     }
 
+    public static GoogleStorageLocation sageSomaticFilteredFile(final String set, final String sample) {
+        return GoogleStorageLocation.of("hmf-sage", set + "/" + sample + ".sage.somatic.filtered.vcf.gz", false);
+    }
+
     @Override
     public VirtualMachineJobDefinition execute(final InputBundle inputs, final RuntimeBucket runtimeBucket,
             final BashStartupScript commands, final RuntimeFiles executionFlags) {

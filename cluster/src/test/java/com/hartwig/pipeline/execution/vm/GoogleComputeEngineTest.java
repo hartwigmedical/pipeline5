@@ -4,11 +4,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -50,13 +52,15 @@ public class GoogleComputeEngineTest {
     private Instance instance;
     private InstanceLifecycleManager lifecycleManager;
     private BucketCompletionWatcher bucketWatcher;
+    private Compute.Images images;
+    private Compute.Images.GetFromFamily imagesFromFamily;
 
     @Before
     public void setUp() throws Exception {
-        Compute.Images images = mock(Compute.Images.class);
-        Compute.Images.GetFromFamily getFromFamily = mock(Compute.Images.GetFromFamily.class);
-        when(getFromFamily.execute()).thenReturn(new Image());
-        when(images.getFromFamily(ARGUMENTS.project(), VirtualMachineJobDefinition.STANDARD_IMAGE)).thenReturn(getFromFamily);
+        images = mock(Compute.Images.class);
+        imagesFromFamily = mock(Compute.Images.GetFromFamily.class);
+        when(imagesFromFamily.execute()).thenReturn(new Image());
+        when(images.getFromFamily(ARGUMENTS.project(), VirtualMachineJobDefinition.STANDARD_IMAGE)).thenReturn(imagesFromFamily);
 
         final ArgumentCaptor<Instance> instanceArgumentCaptor = ArgumentCaptor.forClass(Instance.class);
         Operation insertOperation = mock(Operation.class);
@@ -292,6 +296,27 @@ public class GoogleComputeEngineTest {
         assertThat(disks.get(1).getInitializeParams().getDiskType()).isEqualTo(
                 "https://www.googleapis.com/compute/v1/projects/hmf-pipeline-development/zones/europe-west4-a/diskTypes/pd-ssd");
         assertThat(disks.get(1).getInitializeParams().getDiskSizeGb()).isEqualTo(900L);
+    }
+
+    @Test
+    public void usesLatestImageFromCurrentFamilyWhenNoImageGiven() throws IOException {
+        victim = new GoogleComputeEngine(ARGUMENTS, compute, z -> {}, lifecycleManager, bucketWatcher);
+        returnSuccess();
+        victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
+        verify(images).getFromFamily(ARGUMENTS.project(), VirtualMachineJobDefinition.STANDARD_IMAGE);
+    }
+
+    @Test
+    public void usesGivenImageFromPublicImageProjectWhenProvided() throws IOException {
+        String imageName = "alternate_image";
+        Compute.Images.Get specificImage = mock(Compute.Images.Get.class);
+        when(specificImage.execute()).thenReturn(mock(Image.class));
+        victim = new GoogleComputeEngine(Arguments.testDefaultsBuilder().imageName(imageName).build(), compute, z -> {}, lifecycleManager, bucketWatcher);
+        when(images.get(VirtualMachineJobDefinition.HMF_IMAGE_PROJECT, imageName)).thenReturn(specificImage);
+        returnSuccess();
+        victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
+        verify(images, never()).getFromFamily(any(), any());
+        verify(specificImage).execute();
     }
 
     public void isLocalSSD(final AttachedDisk disk) {

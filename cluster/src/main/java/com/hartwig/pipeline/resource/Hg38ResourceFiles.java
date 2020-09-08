@@ -4,6 +4,7 @@ import static com.hartwig.pipeline.resource.ResourceNames.AMBER;
 import static com.hartwig.pipeline.resource.ResourceNames.BACHELOR;
 import static com.hartwig.pipeline.resource.ResourceNames.ENSEMBL;
 import static com.hartwig.pipeline.resource.ResourceNames.GC_PROFILE;
+import static com.hartwig.pipeline.resource.ResourceNames.GENE_PANEL;
 import static com.hartwig.pipeline.resource.ResourceNames.GIAB_HIGH_CONF;
 import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_PON;
 import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_REPEAT_MASKER_DB;
@@ -145,5 +146,10 @@ public class Hg38ResourceFiles implements ResourceFiles {
     @Override
     public String genotypeSnpsDB() {
         throw new UnsupportedOperationException("[Genotype SNPs DB] does not yet have a valid HG38 version.");
+    }
+
+    @Override
+    public String driverGenePanel() {
+        return formPath(GENE_PANEL, "DriverGenePanel.hg38.tsv");
     }
 }

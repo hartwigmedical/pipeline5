@@ -85,6 +85,8 @@ public interface ResourceFiles {
 
     String genotypeSnpsDB();
 
+    String driverGenePanel();
+
     default String viralHostRefs() {
         return of(SV, "viral_host_ref.csv");
     }

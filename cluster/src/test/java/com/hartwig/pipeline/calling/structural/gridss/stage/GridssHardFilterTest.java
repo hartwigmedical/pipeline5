@@ -7,10 +7,10 @@ import com.hartwig.pipeline.calling.SubStageTest;
 
 import org.junit.Test;
 
-public class GridssPassAndPonFilterTest extends SubStageTest {
+public class GridssHardFilterTest extends SubStageTest {
     @Override
     public SubStage createVictim() {
-        return new GridssPassAndPonFilter();
+        return new GridssHardFilter();
     }
 
     @Override
@@ -20,9 +20,10 @@ public class GridssPassAndPonFilterTest extends SubStageTest {
 
     @Test
     public void expectedOutput() {
-        assertThat(bash()).contains(
-                "gunzip -c /data/output/tumor.strelka.vcf | awk '$7 == \"PASS\" || $7 == \"PON\" || $1 ~ /^#/ ' | /opt/tools/tabix/0.2.6/bgzip  | tee /data/output/tumor.gridss.somatic.filtered.vcf.gz > /dev/null");
+        assertThat(bash()).contains("java -Xmx24G -cp /opt/tools/gripss/1.7/gripss.jar com.hartwig.hmftools.gripss.GripssHardFilterApplicationKt "
+                + "-input_vcf /data/output/tumor.strelka.vcf "
+                + "-output_vcf /data/output/tumor.gridss.somatic.filtered.vcf.gz"
+        );
     }
-
 
 }

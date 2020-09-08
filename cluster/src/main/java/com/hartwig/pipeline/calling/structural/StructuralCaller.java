@@ -13,7 +13,7 @@ import com.hartwig.pipeline.calling.command.BwaCommand;
 import com.hartwig.pipeline.calling.command.SamtoolsCommand;
 import com.hartwig.pipeline.calling.structural.gridss.stage.Driver;
 import com.hartwig.pipeline.calling.structural.gridss.stage.GridssAnnotation;
-import com.hartwig.pipeline.calling.structural.gridss.stage.GridssPassAndPonFilter;
+import com.hartwig.pipeline.calling.structural.gridss.stage.GridssHardFilter;
 import com.hartwig.pipeline.calling.structural.gridss.stage.GridssSomaticFilter;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
@@ -75,7 +75,7 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
         Driver driver = new Driver(resourceFiles, VmDirectories.outputFile(tumorSampleName + ".assembly.bam"), refBamPath, tumorBamPath);
         GridssAnnotation viralAnnotation = new GridssAnnotation(resourceFiles, false);
         GridssSomaticFilter somaticFilter = new GridssSomaticFilter(resourceFiles);
-        GridssPassAndPonFilter passAndPonFilter = new GridssPassAndPonFilter();
+        GridssHardFilter passAndPonFilter = new GridssHardFilter();
 
         SubStageInputOutput unfilteredVcfOutput = driver.andThen(viralAnnotation).apply(SubStageInputOutput.empty(tumorSampleName));
         SubStageInputOutput somaticOutput = somaticFilter.apply(unfilteredVcfOutput);
@@ -149,10 +149,8 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
     public StructuralCallerOutput persistedOutput(final String persistedBucket, final String persistedRun,
             final SomaticRunMetadata metadata) {
 
-        String somaticFilteredVcf = String.format("%s.%s.%s",
-                metadata.tumor().sampleName(),
-                GridssPassAndPonFilter.GRIDSS_SOMATIC_FILTERED,
-                OutputFile.GZIPPED_VCF);
+        String somaticFilteredVcf =
+                String.format("%s.%s.%s", metadata.tumor().sampleName(), GridssHardFilter.GRIDSS_SOMATIC_FILTERED, OutputFile.GZIPPED_VCF);
         String somaticVcf =
                 String.format("%s.%s.%s", metadata.tumor().sampleName(), GridssSomaticFilter.GRIDSS_SOMATIC, OutputFile.GZIPPED_VCF);
 

@@ -18,4 +18,5 @@ public interface ResourceNames {
     String ENSEMBL = "ensembl";
     String KNOWLEDGEBASES = "knowledgebases";
     String BACHELOR = "bachelor_config";
+    String GENE_PANEL = "gene_panel";
 }

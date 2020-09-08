@@ -9,7 +9,7 @@ import com.hartwig.batch.input.InputBundle;
 import com.hartwig.batch.input.InputFileDescriptor;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.calling.SubStageInputOutput;
-import com.hartwig.pipeline.calling.structural.gridss.stage.GridssPassAndPonFilter;
+import com.hartwig.pipeline.calling.structural.gridss.stage.GridssHardFilter;
 import com.hartwig.pipeline.calling.structural.gridss.stage.GridssSomaticFilter;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.OutputFile;
@@ -22,10 +22,18 @@ import com.hartwig.pipeline.resource.ResourceFilesFactory;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
-public class GridssPostProcessing implements BatchOperation {
+public class GripssRerun implements BatchOperation {
 
     public static GoogleStorageLocation gripssArchiveDirectory(final String set) {
         return GoogleStorageLocation.of("hmf-gripss", set, true);
+    }
+
+    public static GoogleStorageLocation gripssSomaticFilteredFile(final String set, final String sample) {
+        return GoogleStorageLocation.of("hmf-gripss", set + "/" + sample + ".gridss.somatic.filtered.vcf.gz", false);
+    }
+
+    public static GoogleStorageLocation gripssRecoveryFile(final String set, final String sample) {
+        return GoogleStorageLocation.of("hmf-gripss", set + "/" + sample + ".gridss.somatic.vcf.gz", false);
     }
 
     @Override
@@ -40,7 +48,7 @@ public class GridssPostProcessing implements BatchOperation {
         final InputFileDescriptor inputVcfIndex = inputVcf.index();
 
         final GridssSomaticFilter somaticFilter = new GridssSomaticFilter(resourceFiles);
-        final SubStageInputOutput postProcessing = somaticFilter.andThen(new GridssPassAndPonFilter())
+        final SubStageInputOutput postProcessing = somaticFilter.andThen(new GridssHardFilter())
                 .apply(SubStageInputOutput.of(sample, inputFile(inputVcf.localDestination()), Collections.emptyList()));
 
 //        // 0. Download latest jar file
@@ -73,7 +81,7 @@ public class GridssPostProcessing implements BatchOperation {
 
     @Override
     public OperationDescriptor descriptor() {
-        return OperationDescriptor.of("GridssPostProcessing", "Run GRIPSS", OperationDescriptor.InputType.JSON);
+        return OperationDescriptor.of("GripssRerun", "Run GRIPSS", OperationDescriptor.InputType.JSON);
     }
 
     private OutputFile inputFile(final String file) {
