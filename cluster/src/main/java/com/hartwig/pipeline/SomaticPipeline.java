@@ -14,6 +14,8 @@ import com.hartwig.pipeline.calling.somatic.SageCaller;
 import com.hartwig.pipeline.calling.somatic.SomaticCallerOutput;
 import com.hartwig.pipeline.calling.structural.StructuralCaller;
 import com.hartwig.pipeline.calling.structural.StructuralCallerOutput;
+import com.hartwig.pipeline.calling.structural.StructuralCallerPostProcess;
+import com.hartwig.pipeline.calling.structural.StructuralCallerPostProcessOutput;
 import com.hartwig.pipeline.metadata.SomaticMetadataApi;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
@@ -89,39 +91,45 @@ public class SomaticPipeline {
                 CobaltOutput cobaltOutput = pipelineResults.add(state.add(cobaltOutputFuture.get()));
                 SomaticCallerOutput sageOutput = pipelineResults.add(state.add(sageCallerOutputFuture.get()));
                 StructuralCallerOutput structuralCallerOutput = pipelineResults.add(state.add(structuralCallerOutputFuture.get()));
-
                 if (state.shouldProceed()) {
-                    Future<PurpleOutput> purpleOutputFuture = executorService.submit(() -> pipelineResults.add(state.add(stageRunner.run(
-                            metadata,
-                            new Purple(resourceFiles,
-                                    sageOutput,
-                                    structuralCallerOutput,
-                                    amberOutput,
-                                    cobaltOutput,
-                                    arguments.shallow())))));
-                    PurpleOutput purpleOutput = purpleOutputFuture.get();
-                    if (state.shouldProceed()) {
-                        BamMetricsOutput tumorMetrics = pollOrThrow(tumorBamMetricsOutputQueue, "tumor metrics");
-                        BamMetricsOutput referenceMetrics = pollOrThrow(referenceBamMetricsOutputQueue, "reference metrics");
+                    Future<StructuralCallerPostProcessOutput> structuralCallerPostProcessOutputFuture =
+                            executorService.submit(() -> stageRunner.run(metadata, new StructuralCallerPostProcess(resourceFiles, structuralCallerOutput)));
+                    StructuralCallerPostProcessOutput structuralCallerPostProcessOutput = pipelineResults.add(state.add(structuralCallerPostProcessOutputFuture.get()));
 
-                        Future<HealthCheckOutput> healthCheckOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
-                                new HealthChecker(referenceMetrics, tumorMetrics, amberOutput, purpleOutput)));
-                        Future<LinxOutput> linxOutputFuture =
-                                executorService.submit(() -> stageRunner.run(metadata, new Linx(purpleOutput, resourceFiles)));
-                        Future<BachelorOutput> bachelorOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
-                                new Bachelor(resourceFiles,
-                                        purpleOutput,
-                                        pair.tumor(),
-                                        pollOrThrow(germlineCallerOutputStorage, "germline"))));
-                        Future<ChordOutput> chordOutputFuture =
-                                executorService.submit(() -> stageRunner.run(metadata, new Chord(purpleOutput)));
-                        pipelineResults.add(state.add(healthCheckOutputFuture.get()));
-                        pipelineResults.add(state.add(linxOutputFuture.get()));
-                        pipelineResults.add(state.add(bachelorOutputFuture.get()));
-                        pipelineResults.add(state.add(chordOutputFuture.get()));
-                        pipelineResults.compose(metadata);
+                    if (state.shouldProceed()) {
+                        Future<PurpleOutput> purpleOutputFuture = executorService.submit(() -> pipelineResults.add(state.add(stageRunner.run(
+                                metadata,
+                                new Purple(resourceFiles,
+                                        sageOutput,
+                                        structuralCallerPostProcessOutput,
+                                        amberOutput,
+                                        cobaltOutput,
+                                        arguments.shallow())))));
+                        PurpleOutput purpleOutput = purpleOutputFuture.get();
+                        if (state.shouldProceed()) {
+                            BamMetricsOutput tumorMetrics = pollOrThrow(tumorBamMetricsOutputQueue, "tumor metrics");
+                            BamMetricsOutput referenceMetrics = pollOrThrow(referenceBamMetricsOutputQueue, "reference metrics");
+
+                            Future<HealthCheckOutput> healthCheckOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
+                                    new HealthChecker(referenceMetrics, tumorMetrics, amberOutput, purpleOutput)));
+                            Future<LinxOutput> linxOutputFuture =
+                                    executorService.submit(() -> stageRunner.run(metadata, new Linx(purpleOutput, resourceFiles)));
+                            Future<BachelorOutput> bachelorOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
+                                    new Bachelor(resourceFiles,
+                                            purpleOutput,
+                                            pair.tumor(),
+                                            pollOrThrow(germlineCallerOutputStorage, "germline"))));
+                            Future<ChordOutput> chordOutputFuture =
+                                    executorService.submit(() -> stageRunner.run(metadata, new Chord(purpleOutput)));
+                            pipelineResults.add(state.add(healthCheckOutputFuture.get()));
+                            pipelineResults.add(state.add(linxOutputFuture.get()));
+                            pipelineResults.add(state.add(bachelorOutputFuture.get()));
+                            pipelineResults.add(state.add(chordOutputFuture.get()));
+                            pipelineResults.compose(metadata);
+                        }
                     }
                 }
+
             } catch (InterruptedException | ExecutionException e) {
                 throw new RuntimeException(e);
             }

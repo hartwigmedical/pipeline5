@@ -28,7 +28,7 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
         return new Purple(
                 TestInputs.HG19_RESOURCE_FILES,
                 TestInputs.sageOutput(),
-                TestInputs.structuralCallerOutput(),
+                TestInputs.structuralCallerPostProcessOutput(),
                 TestInputs.amberOutput(),
                 TestInputs.cobaltOutput(),
                 false);
@@ -42,13 +42,13 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
     @Override
     protected List<String> expectedInputs() {
         return ImmutableList.of(input(expectedRuntimeBucketName() + "/sage/results/tumor.vcf.gz", "tumor.vcf.gz"),
-                input(expectedRuntimeBucketName() + "/gridss/results/tumor.gridss.filtered.vcf.gz",
-                        "tumor.gridss.filtered.vcf.gz"),
-                input(expectedRuntimeBucketName() + "/gridss/results/tumor.gridss.filtered.vcf.gz.tbi",
-                        "tumor.gridss.filtered.vcf.gz.tbi"),
-                input(expectedRuntimeBucketName() + "/gridss/results/tumor.gridss.full.vcf.gz", "tumor.gridss.full.vcf.gz"),
-                input(expectedRuntimeBucketName() + "/gridss/results/tumor.gridss.full.vcf.gz.tbi",
-                        "tumor.gridss.full.vcf.gz.tbi"),
+                input(expectedRuntimeBucketName() + "/gripss/results/tumor.gripss.filtered.vcf.gz",
+                        "tumor.gripss.filtered.vcf.gz"),
+                input(expectedRuntimeBucketName() + "/gripss/results/tumor.gripss.filtered.vcf.gz.tbi",
+                        "tumor.gripss.filtered.vcf.gz.tbi"),
+                input(expectedRuntimeBucketName() + "/gripss/results/tumor.gripss.full.vcf.gz", "tumor.gripss.full.vcf.gz"),
+                input(expectedRuntimeBucketName() + "/gripss/results/tumor.gripss.full.vcf.gz.tbi",
+                        "tumor.gripss.full.vcf.gz.tbi"),
                 input(expectedRuntimeBucketName() + "/amber/results/", "results"),
                 input(expectedRuntimeBucketName() + "/cobalt/results/", "results"));
     }
@@ -57,8 +57,8 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
     protected List<String> expectedCommands() {
         return Collections.singletonList("java -Xmx12G -jar /opt/tools/purple/2.47/purple.jar -reference reference -tumor tumor -output_dir "
                 + "/data/output -amber /data/input/results -cobalt /data/input/results -gc_profile /opt/resources/gc/hg19/GC_profile.1000bp.cnp "
-                + "-somatic_vcf /data/input/tumor.vcf.gz -structural_vcf /data/input/tumor.gridss.filtered.vcf.gz -sv_recovery_vcf "
-                + "/data/input/tumor.gridss.full.vcf.gz -circos /opt/tools/circos/0.69.6/bin/circos -ref_genome "
+                + "-somatic_vcf /data/input/tumor.vcf.gz -structural_vcf /data/input/tumor.gripss.filtered.vcf.gz -sv_recovery_vcf "
+                + "/data/input/tumor.gripss.full.vcf.gz -circos /opt/tools/circos/0.69.6/bin/circos -ref_genome "
                 + "/opt/resources/reference_genome/hg19/Homo_sapiens.GRCh37.GATK.illumina.fasta "
                 + "-driver_catalog -hotspots /opt/resources/sage/hg19/KnownHotspots.hg19.vcf.gz "
                 + "-driver_gene_panel /opt/resources/gene_panel/hg19/DriverGenePanel.hg19.tsv "
@@ -68,7 +68,7 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
     @Test
     public void shallowModeUsesLowDepthSettings() {
         Purple victim = new Purple(new Hg19ResourceFiles(), TestInputs.sageOutput(),
-                TestInputs.structuralCallerOutput(),
+                TestInputs.structuralCallerPostProcessOutput(),
                 TestInputs.amberOutput(),
                 TestInputs.cobaltOutput(),
                 true);

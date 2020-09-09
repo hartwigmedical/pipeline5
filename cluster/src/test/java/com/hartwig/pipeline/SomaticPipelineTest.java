@@ -12,6 +12,7 @@ import static com.hartwig.pipeline.testsupport.TestInputs.purpleOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.referenceMetricsOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.sageOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.structuralCallerOutput;
+import static com.hartwig.pipeline.testsupport.TestInputs.structuralCallerPostProcessOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.tumorMetricsOutput;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,6 +33,7 @@ import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
 import com.hartwig.pipeline.calling.somatic.SageCaller;
 import com.hartwig.pipeline.calling.somatic.SomaticCallerOutput;
 import com.hartwig.pipeline.calling.structural.StructuralCaller;
+import com.hartwig.pipeline.calling.structural.StructuralCallerPostProcessOutput;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.metadata.SomaticMetadataApi;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
@@ -86,6 +88,7 @@ public class SomaticPipelineTest {
                 amberOutput(),
                 sageOutput(),
                 structuralCallerOutput(),
+                structuralCallerPostProcessOutput(),
                 purpleOutput(),
                 healthCheckerOutput(),
                 linxOutput(),
@@ -107,6 +110,24 @@ public class SomaticPipelineTest {
     }
 
     @Test
+    public void doesNotRunPurpleWhenGripssFails() {
+        bothMetricsAvailable();
+        StructuralCallerPostProcessOutput failGripss = StructuralCallerPostProcessOutput.builder().status(PipelineStatus.FAILED).build();
+        when(stageRunner.run(eq(defaultSomaticRunMetadata()), any())).thenReturn(amberOutput())
+                .thenReturn(cobaltOutput())
+                .thenReturn(sageOutput())
+                .thenReturn(structuralCallerOutput())
+                .thenReturn(failGripss);
+        PipelineState state = victim.run(TestInputs.defaultPair());
+        assertThat(state.stageOutputs()).containsExactlyInAnyOrder(cobaltOutput(),
+                amberOutput(),
+                sageOutput(),
+                structuralCallerOutput(),
+                failGripss);
+        assertThat(state.status()).isEqualTo(PipelineStatus.FAILED);
+    }
+
+    @Test
     public void doesNotRunHealthCheckWhenPurpleFails() {
         bothMetricsAvailable();
         PurpleOutput failPurple = PurpleOutput.builder().status(PipelineStatus.FAILED).build();
@@ -114,12 +135,14 @@ public class SomaticPipelineTest {
                 .thenReturn(cobaltOutput())
                 .thenReturn(sageOutput())
                 .thenReturn(structuralCallerOutput())
+                .thenReturn(structuralCallerPostProcessOutput())
                 .thenReturn(failPurple);
         PipelineState state = victim.run(TestInputs.defaultPair());
         assertThat(state.stageOutputs()).containsExactlyInAnyOrder(cobaltOutput(),
                 amberOutput(),
                 sageOutput(),
                 structuralCallerOutput(),
+                structuralCallerPostProcessOutput(),
                 failPurple);
         assertThat(state.status()).isEqualTo(PipelineStatus.FAILED);
     }
@@ -132,6 +155,7 @@ public class SomaticPipelineTest {
                 .thenReturn(cobaltOutput())
                 .thenReturn(sageOutput())
                 .thenReturn(structuralCallerOutput())
+                .thenReturn(structuralCallerPostProcessOutput())
                 .thenReturn(purpleOutput())
                 .thenReturn(HealthCheckOutput.builder().from(healthCheckerOutput()).status(PipelineStatus.QC_FAILED).build())
                 .thenReturn(linxOutput())
@@ -158,6 +182,7 @@ public class SomaticPipelineTest {
                 .thenReturn(cobaltOutput())
                 .thenReturn(sageOutput())
                 .thenReturn(structuralCallerOutput())
+                .thenReturn(structuralCallerPostProcessOutput())
                 .thenReturn(purpleOutput())
                 .thenReturn(healthCheckerOutput())
                 .thenReturn(linxOutput())

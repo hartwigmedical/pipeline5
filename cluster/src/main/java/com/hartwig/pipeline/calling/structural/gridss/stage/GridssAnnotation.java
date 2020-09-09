@@ -11,12 +11,13 @@ import com.hartwig.pipeline.resource.ResourceFiles;
 
 public class GridssAnnotation extends SubStage {
 
+    public static final String GRIDSS_ANNOTATED = "gridss.unfiltered";
     private final String virusReferenceGenomePath;
     private final ResourceFiles resourceFiles;
     private final boolean applyRepeatMasker;
 
     public GridssAnnotation(final ResourceFiles resourceFiles, final boolean applyRepeatMasker) {
-        super("gridss.unfiltered", OutputFile.GZIPPED_VCF);
+        super(GRIDSS_ANNOTATED, OutputFile.GZIPPED_VCF);
         this.resourceFiles = resourceFiles;
         this.virusReferenceGenomePath = resourceFiles.gridssVirusRefGenomeFile();
         this.applyRepeatMasker = applyRepeatMasker;
