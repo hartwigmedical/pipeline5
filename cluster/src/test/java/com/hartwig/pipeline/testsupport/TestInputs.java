@@ -154,6 +154,17 @@ public class TestInputs {
     }
 
     public static StructuralCallerOutput structuralCallerOutput() {
+        String unfiltered = ".gridss.unfiltered.";
+        return StructuralCallerOutput.builder()
+                .status(PipelineStatus.SUCCESS)
+                .maybeUnfilteredVcf(gsLocation(somaticBucket(StructuralCaller.NAMESPACE),
+                        RESULTS + TUMOR_SAMPLE + unfiltered + OutputFile.GZIPPED_VCF))
+                .maybeUnfilteredVcfIndex(gsLocation(somaticBucket(StructuralCaller.NAMESPACE),
+                        RESULTS + TUMOR_SAMPLE + unfiltered + OutputFile.GZIPPED_VCF + ".tbi"))
+                .build();
+    }
+
+    public static StructuralCallerOutput oldStructuralCallerOutput() { //TODO: RENAME
         String filtered = ".gridss.filtered.";
         String full = ".gridss.full.";
         return StructuralCallerOutput.builder()

@@ -8,23 +8,11 @@ import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import org.immutables.value.Value;
 
 @Value.Immutable
-public interface StructuralCallerOutput extends StageOutput {
+public interface StructuralCallerPostProcessOutput extends StageOutput {
 
     @Override
     default String name() {
-        return StructuralCaller.NAMESPACE;
-    }
-
-    Optional<GoogleStorageLocation> maybeUnfilteredVcf();
-
-    Optional<GoogleStorageLocation> maybeUnfilteredVcfIndex();
-
-    default GoogleStorageLocation unfilteredVcf() {
-        return maybeUnfilteredVcf().orElseThrow(() -> new IllegalStateException("No unfiltered VCF available"));
-    }
-
-    default GoogleStorageLocation unfilteredVcfIndex() {
-        return maybeUnfilteredVcfIndex().orElseThrow(() -> new IllegalStateException("No unfiltered VCF index available"));
+        return StructuralCallerPostProcess.NAMESPACE;
     }
 
     Optional<GoogleStorageLocation> maybeFilteredVcf();
@@ -51,7 +39,7 @@ public interface StructuralCallerOutput extends StageOutput {
         return maybeFullVcfIndex().orElseThrow(() -> new IllegalStateException("No full VCF index available"));
     }
 
-    static ImmutableStructuralCallerOutput.Builder builder() {
-        return ImmutableStructuralCallerOutput.builder();
+    static ImmutableStructuralCallerPostProcessOutput.Builder builder() {
+        return ImmutableStructuralCallerPostProcessOutput.builder();
     }
 }

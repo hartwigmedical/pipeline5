@@ -47,7 +47,7 @@ public class GripssRerun implements BatchOperation {
         final InputFileDescriptor inputVcf = inputFile(setDescriptor, GridssBackport.remoteUnfilteredVcfArchivePath(set, sample));
         final InputFileDescriptor inputVcfIndex = inputVcf.index();
 
-        final GridssSomaticFilter somaticFilter = new GridssSomaticFilter(resourceFiles);
+        final GridssSomaticFilter somaticFilter = new GridssSomaticFilter(resourceFiles, inputVcf.localDestination());
         final SubStageInputOutput postProcessing = somaticFilter.andThen(new GridssHardFilter())
                 .apply(SubStageInputOutput.of(sample, inputFile(inputVcf.localDestination()), Collections.emptyList()));
 

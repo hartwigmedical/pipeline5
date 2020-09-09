@@ -71,13 +71,14 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
         String tumorSampleName = metadata.tumor().sampleName();
         String refBamPath = referenceBam.getLocalTargetPath();
         String tumorBamPath = tumorBam.getLocalTargetPath();
+        GridssAnnotation viralAnnotation = new GridssAnnotation(resourceFiles, false);
 
         Driver driver = new Driver(resourceFiles, VmDirectories.outputFile(tumorSampleName + ".assembly.bam"), refBamPath, tumorBamPath);
-        GridssAnnotation viralAnnotation = new GridssAnnotation(resourceFiles, false);
-        GridssSomaticFilter somaticFilter = new GridssSomaticFilter(resourceFiles);
+        SubStageInputOutput unfilteredVcfOutput = driver.andThen(viralAnnotation).apply(SubStageInputOutput.empty(tumorSampleName));
+
+        GridssSomaticFilter somaticFilter = new GridssSomaticFilter(resourceFiles, unfilteredVcfOutput.outputFile().path());
         GridssHardFilter passAndPonFilter = new GridssHardFilter();
 
-        SubStageInputOutput unfilteredVcfOutput = driver.andThen(viralAnnotation).apply(SubStageInputOutput.empty(tumorSampleName));
         SubStageInputOutput somaticOutput = somaticFilter.apply(unfilteredVcfOutput);
         SubStageInputOutput somaticFilteredOutput = passAndPonFilter.apply(somaticOutput);
 
@@ -106,11 +107,12 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
             final ResultsDirectory resultsDirectory) {
         return StructuralCallerOutput.builder()
                 .status(jobStatus)
-                .maybeFilteredVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(somaticFilteredVcf))))
-                .maybeFilteredVcfIndex(GoogleStorageLocation.of(bucket.name(),
-                        resultsDirectory.path(basename(somaticFilteredVcf + ".tbi"))))
-                .maybeFullVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(somaticVcf))))
-                .maybeFullVcfIndex(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(somaticVcf + ".tbi"))))
+                .maybeUnfilteredVcf(resultLocation(bucket, resultsDirectory, unfilteredVcf))
+                .maybeUnfilteredVcfIndex(resultLocation(bucket, resultsDirectory, unfilteredVcf + ".tbi"))
+                .maybeFilteredVcf(resultLocation(bucket, resultsDirectory, somaticFilteredVcf))
+                .maybeFilteredVcfIndex(resultLocation(bucket, resultsDirectory, somaticFilteredVcf + ".tbi"))
+                .maybeFullVcf(resultLocation(bucket, resultsDirectory, somaticVcf))
+                .maybeFullVcfIndex(resultLocation(bucket, resultsDirectory, somaticVcf + ".tbi"))
                 .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
                         NAMESPACE,
                         Folder.from(),
@@ -153,9 +155,15 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
                 String.format("%s.%s.%s", metadata.tumor().sampleName(), GridssHardFilter.GRIDSS_SOMATIC_FILTERED, OutputFile.GZIPPED_VCF);
         String somaticVcf =
                 String.format("%s.%s.%s", metadata.tumor().sampleName(), GridssSomaticFilter.GRIDSS_SOMATIC, OutputFile.GZIPPED_VCF);
+        String unfilteredVcf =
+                String.format("%s.%s.%s", metadata.tumor().sampleName(), GridssAnnotation.GRIDSS_ANNOTATED, OutputFile.GZIPPED_VCF);
 
         return StructuralCallerOutput.builder()
                 .status(PipelineStatus.PERSISTED)
+                .maybeUnfilteredVcf(GoogleStorageLocation.of(persistedBucket,
+                        PersistedLocations.blobForSet(persistedRun, namespace(), unfilteredVcf)))
+                .maybeUnfilteredVcfIndex(GoogleStorageLocation.of(persistedBucket,
+                        PersistedLocations.blobForSet(persistedRun, namespace(), unfilteredVcf) + ".tbi"))
                 .maybeFilteredVcf(GoogleStorageLocation.of(persistedBucket,
                         PersistedLocations.blobForSet(persistedRun, namespace(), somaticFilteredVcf)))
                 .maybeFilteredVcfIndex(GoogleStorageLocation.of(persistedBucket,
@@ -170,5 +178,9 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
     @Override
     public boolean shouldRun(final Arguments arguments) {
         return arguments.runStructuralCaller();
+    }
+
+    private static GoogleStorageLocation resultLocation(final RuntimeBucket bucket, final ResultsDirectory resultsDirectory, String filename) {
+        return GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(filename)));
     }
 }

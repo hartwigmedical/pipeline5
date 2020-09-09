@@ -13,14 +13,16 @@ public class GridssSomaticFilter extends SubStage {
 
     public static final String GRIDSS_SOMATIC = "gridss.somatic";
     private final ResourceFiles resourceFiles;
+    private final String gridssPath;
 
-    public GridssSomaticFilter(final ResourceFiles resourceFiles) {
+    public GridssSomaticFilter(final ResourceFiles resourceFiles, final String gridssPath) {
         super(GRIDSS_SOMATIC, OutputFile.GZIPPED_VCF);
         this.resourceFiles = resourceFiles;
+        this.gridssPath = gridssPath;
     }
 
     @Override
     public List<BashCommand> bash(final OutputFile input, final OutputFile output) {
-        return Collections.singletonList(new GripssSoftFilterCommand(resourceFiles, input.path(), output.path()));
+        return Collections.singletonList(new GripssSoftFilterCommand(resourceFiles, gridssPath, output.path()));
     }
 }

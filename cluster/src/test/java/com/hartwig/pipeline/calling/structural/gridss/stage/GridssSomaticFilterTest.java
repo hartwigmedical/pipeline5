@@ -11,7 +11,7 @@ import org.junit.Test;
 public class GridssSomaticFilterTest extends SubStageTest {
     @Override
     public SubStage createVictim() {
-        return new GridssSomaticFilter(TestInputs.HG19_RESOURCE_FILES);
+        return new GridssSomaticFilter(TestInputs.HG19_RESOURCE_FILES, "/data/output/tumor.strelka.vcf");
     }
 
     @Override
