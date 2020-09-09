@@ -2,7 +2,6 @@ package com.hartwig.pipeline.metadata;
 
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.alignment.sample.JsonSampleSource;
 import com.hartwig.pipeline.sbpapi.SbpRestApi;
 import com.hartwig.pipeline.transfer.google.GoogleArchiver;
 
@@ -25,9 +24,6 @@ public class SomaticMetadataApiProvider {
                 setId,
                 SbpRestApi.newInstance(arguments.sbpApiUrl()),
                 storage.get(arguments.outputBucket()),
-                new GoogleArchiver(arguments))).orElse(new LocalSomaticMetadata(arguments,
-                arguments.sampleJson()
-                        .map(JsonSampleSource::new)
-                        .orElseThrow(() -> new IllegalArgumentException("Sample JSON must be provided when running in local mode"))));
+                new GoogleArchiver(arguments))).orElse(LocalSomaticMetadata.from(arguments));
     }
 }
