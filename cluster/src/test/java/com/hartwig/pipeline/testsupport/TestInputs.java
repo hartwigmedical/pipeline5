@@ -9,6 +9,7 @@ import com.hartwig.pipeline.calling.somatic.SageCaller;
 import com.hartwig.pipeline.calling.somatic.SomaticCallerOutput;
 import com.hartwig.pipeline.calling.structural.StructuralCaller;
 import com.hartwig.pipeline.calling.structural.StructuralCallerOutput;
+import com.hartwig.pipeline.calling.structural.StructuralCallerPostProcess;
 import com.hartwig.pipeline.calling.structural.StructuralCallerPostProcessOutput;
 import com.hartwig.pipeline.cram.CramOutput;
 import com.hartwig.pipeline.execution.PipelineStatus;
@@ -166,16 +167,16 @@ public class TestInputs {
     }
 
     public static StructuralCallerPostProcessOutput structuralCallerPostProcessOutput() {
-        String filtered = ".gridss.filtered.";
-        String full = ".gridss.full.";
+        String filtered = ".gripss.filtered.";
+        String full = ".gripss.full.";
         return StructuralCallerPostProcessOutput.builder()
                 .status(PipelineStatus.SUCCESS)
-                .maybeFilteredVcf(gsLocation(somaticBucket(StructuralCaller.NAMESPACE),
+                .maybeFilteredVcf(gsLocation(somaticBucket(StructuralCallerPostProcess.NAMESPACE),
                         RESULTS + TUMOR_SAMPLE + filtered + OutputFile.GZIPPED_VCF))
-                .maybeFilteredVcfIndex(gsLocation(somaticBucket(StructuralCaller.NAMESPACE),
+                .maybeFilteredVcfIndex(gsLocation(somaticBucket(StructuralCallerPostProcess.NAMESPACE),
                         RESULTS + TUMOR_SAMPLE + filtered + OutputFile.GZIPPED_VCF + ".tbi"))
-                .maybeFullVcf(gsLocation(somaticBucket(StructuralCaller.NAMESPACE), RESULTS + TUMOR_SAMPLE + full + OutputFile.GZIPPED_VCF))
-                .maybeFullVcfIndex(gsLocation(somaticBucket(StructuralCaller.NAMESPACE),
+                .maybeFullVcf(gsLocation(somaticBucket(StructuralCallerPostProcess.NAMESPACE), RESULTS + TUMOR_SAMPLE + full + OutputFile.GZIPPED_VCF))
+                .maybeFullVcfIndex(gsLocation(somaticBucket(StructuralCallerPostProcess.NAMESPACE),
                         RESULTS + TUMOR_SAMPLE + full + OutputFile.GZIPPED_VCF + ".tbi"))
                 .build();
     }

@@ -92,11 +92,9 @@ public class SomaticPipeline {
                 SomaticCallerOutput sageOutput = pipelineResults.add(state.add(sageCallerOutputFuture.get()));
                 StructuralCallerOutput structuralCallerOutput = pipelineResults.add(state.add(structuralCallerOutputFuture.get()));
                 if (state.shouldProceed()) {
-                    Future<StructuralCallerPostProcessOutput> gripssOutputFuture =
-                            executorService.submit(() -> pipelineResults.add(state.add(stageRunner.run(metadata,
-                                    new StructuralCallerPostProcess(resourceFiles, structuralCallerOutput)))));
-
-                    StructuralCallerPostProcessOutput structuralCallerPostProcessOutput = pipelineResults.add(state.add(gripssOutputFuture.get()));
+                    Future<StructuralCallerPostProcessOutput> structuralCallerPostProcessOutputFuture =
+                            executorService.submit(() -> stageRunner.run(metadata, new StructuralCallerPostProcess(resourceFiles, structuralCallerOutput)));
+                    StructuralCallerPostProcessOutput structuralCallerPostProcessOutput = pipelineResults.add(state.add(structuralCallerPostProcessOutputFuture.get()));
 
                     if (state.shouldProceed()) {
                         Future<PurpleOutput> purpleOutputFuture = executorService.submit(() -> pipelineResults.add(state.add(stageRunner.run(
