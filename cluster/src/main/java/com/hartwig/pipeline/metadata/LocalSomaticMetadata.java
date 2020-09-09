@@ -39,11 +39,4 @@ public class LocalSomaticMetadata implements SomaticMetadataApi {
     public void complete(final PipelineState state, SomaticRunMetadata metadata) {
         // do nothing
     }
-
-    static LocalSomaticMetadata from(final Arguments arguments) {
-        return new LocalSomaticMetadata(arguments,
-                arguments.sampleJson()
-                        .map(JsonSampleSource::new)
-                        .orElseThrow(() -> new IllegalArgumentException("Sample JSON must be provided when running in local mode")));
-    }
 }
