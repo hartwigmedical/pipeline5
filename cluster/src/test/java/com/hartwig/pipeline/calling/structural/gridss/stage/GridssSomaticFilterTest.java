@@ -16,7 +16,7 @@ public class GridssSomaticFilterTest extends SubStageTest {
 
     @Override
     public String expectedPath() {
-        return "/data/output/tumor.gridss.somatic.vcf.gz";
+        return "/data/output/tumor.gripss.somatic.vcf.gz";
     }
 
     @Test
@@ -27,7 +27,7 @@ public class GridssSomaticFilterTest extends SubStageTest {
                 + "-breakend_pon /opt/resources/gridss_pon/hg19/gridss_pon_single_breakend.hg19.bed "
                 + "-breakpoint_pon /opt/resources/gridss_pon/hg19/gridss_pon_breakpoint.hg19.bedpe "
                 + "-input_vcf /data/output/tumor.strelka.vcf "
-                + "-output_vcf /data/output/tumor.gridss.somatic.vcf.gz"
+                + "-output_vcf /data/output/tumor.gripss.somatic.vcf.gz"
         );
     }
 

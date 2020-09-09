@@ -149,10 +149,6 @@ gridss/CPCT12345678T.assembly.bam.gridss.working/CPCT12345678T.assembly.bam.subs
 gridss/CPCT12345678T.assembly.bam.gridss.working/CPCT12345678T.assembly.bam.sv.bam
 gridss/CPCT12345678T.assembly.bam.gridss.working/CPCT12345678T.assembly.bam.sv.bam.bai
 gridss/CPCT12345678T.assembly.bam.gridss.working/CPCT12345678T.assembly.bam.tag_metrics
-gridss/CPCT12345678T.gridss.somatic.vcf.gz
-gridss/CPCT12345678T.gridss.somatic.vcf.gz.tbi
-gridss/CPCT12345678T.gridss.somatic.filtered.vcf.gz
-gridss/CPCT12345678T.gridss.somatic.filtered.vcf.gz.tbi
 gridss/CPCT12345678T.gridss.driver.vcf.gz.gridss.working/CPCT12345678T.gridss.driver.vcf.gz.allocated.vcf.idx
 gridss/CPCT12345678T.gridss.unfiltered.vcf.gz
 gridss/CPCT12345678T.gridss.unfiltered.vcf.gz.tbi
@@ -167,3 +163,9 @@ gridss/CPCT12345678T.sorted.bam.gridss.working/CPCT12345678T.sorted.bam.sv_metri
 gridss/CPCT12345678T.sorted.bam.gridss.working/CPCT12345678T.sorted.bam.sv.bam.bai
 gridss/run.log
 gridss/run.sh
+gripss/CPCT12345678T.gripss.somatic.vcf.gz
+gripss/CPCT12345678T.gripss.somatic.vcf.gz.tbi
+gripss/CPCT12345678T.gripss.somatic.filtered.vcf.gz
+gripss/CPCT12345678T.gripss.somatic.filtered.vcf.gz.tbi
+gripss/run.log
+gripss/run.sh

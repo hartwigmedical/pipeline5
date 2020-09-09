@@ -53,8 +53,8 @@ public class StructuralCallerPostProcessTest extends StageTest<StructuralCallerP
     @Override
     protected List<String> expectedCommands() {
         return ImmutableList.of(
-                "java -Xmx24G -cp /opt/tools/gripss/1.7/gripss.jar com.hartwig.hmftools.gripss.GripssApplicationKt -ref_genome /opt/resources/reference_genome/hg19/Homo_sapiens.GRCh37.GATK.illumina.fasta -breakpoint_hotspot /opt/resources/knowledgebases/hg19/KnownFusionPairs.hg19.bedpe -breakend_pon /opt/resources/gridss_pon/hg19/gridss_pon_single_breakend.hg19.bed -breakpoint_pon /opt/resources/gridss_pon/hg19/gridss_pon_breakpoint.hg19.bedpe -input_vcf /data/input/tumor.gridss.unfiltered.vcf.gz -output_vcf /data/output/tumor.gridss.somatic.vcf.gz",
-                "java -Xmx24G -cp /opt/tools/gripss/1.7/gripss.jar com.hartwig.hmftools.gripss.GripssHardFilterApplicationKt -input_vcf /data/output/tumor.gridss.somatic.vcf.gz -output_vcf /data/output/tumor.gridss.somatic.filtered.vcf.gz");
+                "java -Xmx24G -cp /opt/tools/gripss/1.7/gripss.jar com.hartwig.hmftools.gripss.GripssApplicationKt -ref_genome /opt/resources/reference_genome/hg19/Homo_sapiens.GRCh37.GATK.illumina.fasta -breakpoint_hotspot /opt/resources/knowledgebases/hg19/KnownFusionPairs.hg19.bedpe -breakend_pon /opt/resources/gridss_pon/hg19/gridss_pon_single_breakend.hg19.bed -breakpoint_pon /opt/resources/gridss_pon/hg19/gridss_pon_breakpoint.hg19.bedpe -input_vcf /data/input/tumor.gridss.unfiltered.vcf.gz -output_vcf /data/output/tumor.gripss.somatic.vcf.gz",
+                "java -Xmx24G -cp /opt/tools/gripss/1.7/gripss.jar com.hartwig.hmftools.gripss.GripssHardFilterApplicationKt -input_vcf /data/output/tumor.gripss.somatic.vcf.gz -output_vcf /data/output/tumor.gripss.somatic.filtered.vcf.gz");
     }
 
     @Override
@@ -75,10 +75,10 @@ public class StructuralCallerPostProcessTest extends StageTest<StructuralCallerP
     @Override
     protected void validatePersistedOutput(final StructuralCallerPostProcessOutput output) {
         assertThat(output.filteredVcf()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
-                "run/gripss/tumor.gridss.somatic.filtered.vcf.gz"));
+                "run/gripss/tumor.gripss.somatic.filtered.vcf.gz"));
         assertThat(output.filteredVcfIndex()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
-                "run/gripss/tumor.gridss.somatic.filtered.vcf.gz.tbi"));
-        assertThat(output.fullVcf()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "run/gripss/tumor.gridss.somatic.vcf.gz"));
-        assertThat(output.fullVcfIndex()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "run/gripss/tumor.gridss.somatic.vcf.gz.tbi"));
+                "run/gripss/tumor.gripss.somatic.filtered.vcf.gz.tbi"));
+        assertThat(output.fullVcf()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "run/gripss/tumor.gripss.somatic.vcf.gz"));
+        assertThat(output.fullVcfIndex()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "run/gripss/tumor.gripss.somatic.vcf.gz.tbi"));
     }
 }

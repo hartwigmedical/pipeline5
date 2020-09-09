@@ -11,7 +11,7 @@ import com.hartwig.pipeline.resource.ResourceFiles;
 
 public class GridssSomaticFilter extends SubStage {
 
-    public static final String GRIDSS_SOMATIC = "gridss.somatic";
+    public static final String GRIDSS_SOMATIC = "gripss.somatic";
     private final ResourceFiles resourceFiles;
     private final String gridssPath;
 
