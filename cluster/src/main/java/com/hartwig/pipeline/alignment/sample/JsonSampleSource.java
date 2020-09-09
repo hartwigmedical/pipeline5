@@ -7,6 +7,7 @@ import com.hartwig.patient.ReferenceTumorPair;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.jackson.ObjectMappers;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
+import com.hartwig.pipeline.metadata.SingleSampleRunMetadata.SampleType;
 
 public class JsonSampleSource implements SampleSource {
 
@@ -22,8 +23,12 @@ public class JsonSampleSource implements SampleSource {
 
     @Override
     public Sample sample(final SingleSampleRunMetadata metadata) {
+        return sample(metadata.type());
+    }
+
+    public Sample sample(final SampleType sampleType) {
         try {
-            if (metadata.type().equals(SingleSampleRunMetadata.SampleType.REFERENCE)) {
+            if (sampleType.equals(SingleSampleRunMetadata.SampleType.REFERENCE)) {
                 return pair.reference();
             } else {
                 return pair.tumor();
