@@ -7,7 +7,7 @@ import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.calling.somatic.SomaticCallerOutput;
-import com.hartwig.pipeline.calling.structural.StructuralCallerOutput;
+import com.hartwig.pipeline.calling.structural.StructuralCallerPostProcessOutput;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
@@ -42,7 +42,7 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
     private final InputDownload cobaltOutputDownload;
     private final boolean shallow;
 
-    public Purple(final ResourceFiles resourceFiles, SomaticCallerOutput somaticCallerOutput, StructuralCallerOutput structuralCallerOutput,
+    public Purple(final ResourceFiles resourceFiles, SomaticCallerOutput somaticCallerOutput, StructuralCallerPostProcessOutput structuralCallerOutput,
             AmberOutput amberOutput, CobaltOutput cobaltOutput, final boolean shallow) {
         this.resourceFiles = resourceFiles;
         somaticVcfDownload = new InputDownload(somaticCallerOutput.finalSomaticVcf());

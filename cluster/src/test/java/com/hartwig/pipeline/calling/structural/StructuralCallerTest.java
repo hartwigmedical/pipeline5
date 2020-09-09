@@ -59,9 +59,7 @@ public class StructuralCallerTest extends StageTest<StructuralCallerOutput, Soma
                 "export PATH=\"${PATH}:/opt/tools/samtools/1.10\"",
                 "/opt/tools/gridss/2.9.3/gridss.sh -o /data/output/tumor.gridss.driver.vcf.gz -a /data/output/tumor.assembly.bam -w /data/output -r /opt/resources/reference_genome/hg19/Homo_sapiens.GRCh37.GATK.illumina.fasta -j /opt/tools/gridss/2.9.3/gridss.jar -b /opt/resources/gridss_repeatmasker_db/hg19/ENCFF001TDO.bed -c /opt/resources/gridss_config/gridss.properties --repeatmaskerbed /opt/resources/gridss_repeatmasker_db/hg19/hg19.fa.out.bed --jvmheap 31G /data/input/reference.bam /data/input/tumor.bam",
                 "/opt/tools/tabix/0.2.6/tabix /data/output/tumor.gridss.driver.vcf.gz -p vcf",
-                "java -Xmx8G -Dsamjdk.create_index=true -Dsamjdk.use_async_io_read_samtools=true -Dsamjdk.use_async_io_write_samtools=true -Dsamjdk.use_async_io_write_tribble=true -Dsamjdk.buffer_size=4194304 -cp /opt/tools/gridss/2.9.3/gridss.jar gridss.AnnotateInsertedSequence REFERENCE_SEQUENCE=/opt/resources/virus_reference_genome/human_virus.fa INPUT=/data/output/tumor.gridss.driver.vcf.gz OUTPUT=/data/output/tumor.gridss.unfiltered.vcf.gz ALIGNMENT=APPEND WORKER_THREADS=$(grep -c '^processor' /proc/cpuinfo)",
-                "java -Xmx24G -cp /opt/tools/gripss/1.7/gripss.jar com.hartwig.hmftools.gripss.GripssApplicationKt -ref_genome /opt/resources/reference_genome/hg19/Homo_sapiens.GRCh37.GATK.illumina.fasta -breakpoint_hotspot /opt/resources/knowledgebases/hg19/KnownFusionPairs.hg19.bedpe -breakend_pon /opt/resources/gridss_pon/hg19/gridss_pon_single_breakend.hg19.bed -breakpoint_pon /opt/resources/gridss_pon/hg19/gridss_pon_breakpoint.hg19.bedpe -input_vcf /data/output/tumor.gridss.unfiltered.vcf.gz -output_vcf /data/output/tumor.gridss.somatic.vcf.gz",
-                "java -Xmx24G -cp /opt/tools/gripss/1.7/gripss.jar com.hartwig.hmftools.gripss.GripssHardFilterApplicationKt -input_vcf /data/output/tumor.gridss.somatic.vcf.gz -output_vcf /data/output/tumor.gridss.somatic.filtered.vcf.gz");
+                "java -Xmx8G -Dsamjdk.create_index=true -Dsamjdk.use_async_io_read_samtools=true -Dsamjdk.use_async_io_write_samtools=true -Dsamjdk.use_async_io_write_tribble=true -Dsamjdk.buffer_size=4194304 -cp /opt/tools/gridss/2.9.3/gridss.jar gridss.AnnotateInsertedSequence REFERENCE_SEQUENCE=/opt/resources/virus_reference_genome/human_virus.fa INPUT=/data/output/tumor.gridss.driver.vcf.gz OUTPUT=/data/output/tumor.gridss.unfiltered.vcf.gz ALIGNMENT=APPEND WORKER_THREADS=$(grep -c '^processor' /proc/cpuinfo)");
     }
 
     @Override
@@ -85,11 +83,5 @@ public class StructuralCallerTest extends StageTest<StructuralCallerOutput, Soma
                 "run/gridss/tumor.gridss.unfiltered.vcf.gz"));
         assertThat(output.unfilteredVcfIndex()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
                 "run/gridss/tumor.gridss.unfiltered.vcf.gz.tbi"));
-        assertThat(output.filteredVcf()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
-                "run/gridss/tumor.gridss.somatic.filtered.vcf.gz"));
-        assertThat(output.filteredVcfIndex()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
-                "run/gridss/tumor.gridss.somatic.filtered.vcf.gz.tbi"));
-        assertThat(output.fullVcf()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "run/gridss/tumor.gridss.somatic.vcf.gz"));
-        assertThat(output.fullVcfIndex()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "run/gridss/tumor.gridss.somatic.vcf.gz.tbi"));
     }
 }

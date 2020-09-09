@@ -27,30 +27,6 @@ public interface StructuralCallerOutput extends StageOutput {
         return maybeUnfilteredVcfIndex().orElseThrow(() -> new IllegalStateException("No unfiltered VCF index available"));
     }
 
-    Optional<GoogleStorageLocation> maybeFilteredVcf();
-
-    Optional<GoogleStorageLocation> maybeFilteredVcfIndex();
-
-    Optional<GoogleStorageLocation> maybeFullVcf();
-
-    Optional<GoogleStorageLocation> maybeFullVcfIndex();
-
-    default GoogleStorageLocation filteredVcf() {
-        return maybeFilteredVcf().orElseThrow(() -> new IllegalStateException("No filtered VCF available"));
-    }
-
-    default GoogleStorageLocation fullVcf() {
-        return maybeFullVcf().orElseThrow(() -> new IllegalStateException("No full VCF available"));
-    }
-
-    default GoogleStorageLocation filteredVcfIndex() {
-        return maybeFilteredVcfIndex().orElseThrow(() -> new IllegalStateException("No filtered VCF index available"));
-    }
-
-    default GoogleStorageLocation fullVcfIndex() {
-        return maybeFullVcfIndex().orElseThrow(() -> new IllegalStateException("No full VCF index available"));
-    }
-
     static ImmutableStructuralCallerOutput.Builder builder() {
         return ImmutableStructuralCallerOutput.builder();
     }

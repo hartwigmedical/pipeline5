@@ -9,6 +9,7 @@ import com.hartwig.pipeline.calling.somatic.SageCaller;
 import com.hartwig.pipeline.calling.somatic.SomaticCallerOutput;
 import com.hartwig.pipeline.calling.structural.StructuralCaller;
 import com.hartwig.pipeline.calling.structural.StructuralCallerOutput;
+import com.hartwig.pipeline.calling.structural.StructuralCallerPostProcessOutput;
 import com.hartwig.pipeline.cram.CramOutput;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.OutputFile;
@@ -164,10 +165,10 @@ public class TestInputs {
                 .build();
     }
 
-    public static StructuralCallerOutput oldStructuralCallerOutput() { //TODO: RENAME
+    public static StructuralCallerPostProcessOutput structuralCallerPostProcessOutput() {
         String filtered = ".gridss.filtered.";
         String full = ".gridss.full.";
-        return StructuralCallerOutput.builder()
+        return StructuralCallerPostProcessOutput.builder()
                 .status(PipelineStatus.SUCCESS)
                 .maybeFilteredVcf(gsLocation(somaticBucket(StructuralCaller.NAMESPACE),
                         RESULTS + TUMOR_SAMPLE + filtered + OutputFile.GZIPPED_VCF))

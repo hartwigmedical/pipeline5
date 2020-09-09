@@ -28,7 +28,7 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
         return new Purple(
                 TestInputs.HG19_RESOURCE_FILES,
                 TestInputs.sageOutput(),
-                TestInputs.oldStructuralCallerOutput(),
+                TestInputs.structuralCallerPostProcessOutput(),
                 TestInputs.amberOutput(),
                 TestInputs.cobaltOutput(),
                 false);
@@ -68,7 +68,7 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
     @Test
     public void shallowModeUsesLowDepthSettings() {
         Purple victim = new Purple(new Hg19ResourceFiles(), TestInputs.sageOutput(),
-                TestInputs.oldStructuralCallerOutput(),
+                TestInputs.structuralCallerPostProcessOutput(),
                 TestInputs.amberOutput(),
                 TestInputs.cobaltOutput(),
                 true);
