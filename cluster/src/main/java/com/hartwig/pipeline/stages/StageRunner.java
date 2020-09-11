@@ -11,7 +11,7 @@ import com.hartwig.pipeline.execution.vm.OutputUpload;
 import com.hartwig.pipeline.execution.vm.RuntimeFiles;
 import com.hartwig.pipeline.failsafe.DefaultBackoffPolicy;
 import com.hartwig.pipeline.metadata.RunMetadata;
-import com.hartwig.pipeline.startingpoint.StartingPoint;
+import com.hartwig.pipeline.reruns.StartingPoint;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.trace.StageTrace;
@@ -25,16 +25,14 @@ public class StageRunner<M extends RunMetadata> {
     private final ComputeEngine computeEngine;
     private final ResultsDirectory resultsDirectory;
     private final StartingPoint startingPoint;
-    private final String runName;
 
     public StageRunner(final Storage storage, final Arguments arguments, final ComputeEngine computeEngine,
-            final ResultsDirectory resultsDirectory, final StartingPoint startingPoint, final String runName) {
+            final ResultsDirectory resultsDirectory, final StartingPoint startingPoint) {
         this.storage = storage;
         this.arguments = arguments;
         this.computeEngine = computeEngine;
         this.resultsDirectory = resultsDirectory;
         this.startingPoint = startingPoint;
-        this.runName = runName;
     }
 
     public <T extends StageOutput> T run(M metadata, Stage<T, M> stage) {
@@ -53,7 +51,7 @@ public class StageRunner<M extends RunMetadata> {
                 trace.stop();
                 return stage.output(metadata, status, bucket, resultsDirectory);
             }
-            return stage.persistedOutput(arguments.outputBucket(), runName, metadata);
+            return stage.persistedOutput(metadata);
         }
         return stage.skippedOutput(metadata);
     }

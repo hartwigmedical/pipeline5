@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.calling;
+package com.hartwig.pipeline.stages;
 
 import java.util.List;
 import java.util.function.Function;
@@ -27,7 +27,9 @@ public abstract class SubStage implements Function<SubStageInputOutput, SubStage
 
     @Override
     public SubStageInputOutput apply(final SubStageInputOutput input) {
-        OutputFile outputFile = OutputFile.of(input.sampleName(), stageName, fileOutputType);
+        OutputFile outputFile = stageName.isEmpty()
+                ? OutputFile.of(input.sampleName(), fileOutputType)
+                : OutputFile.of(input.sampleName(), stageName, fileOutputType);
         return SubStageInputOutput.of(input.sampleName(), outputFile, combine(input.bash(), bash(input.outputFile(), outputFile)));
     }
 

@@ -6,7 +6,7 @@ import com.google.common.collect.Lists;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.AlignmentPair;
-import com.hartwig.pipeline.calling.SubStageInputOutput;
+import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
@@ -22,8 +22,9 @@ import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.report.SingleFileComponent;
 import com.hartwig.pipeline.report.StartupScriptComponent;
 import com.hartwig.pipeline.report.ZippedVcfAndIndexComponent;
+import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
-import com.hartwig.pipeline.startingpoint.PersistedLocations;
+import com.hartwig.pipeline.stages.SubStageInputOutput;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.TertiaryStage;
@@ -103,16 +104,16 @@ public class SageCaller extends TertiaryStage<SomaticCallerOutput> {
     }
 
     @Override
-    public SomaticCallerOutput persistedOutput(final String persistedBucket, final String persistedRun, final SomaticRunMetadata metadata) {
+    public SomaticCallerOutput persistedOutput(final SomaticRunMetadata metadata) {
         return SomaticCallerOutput.builder(namespace())
                 .status(PipelineStatus.PERSISTED)
-                .maybeFinalSomaticVcf(GoogleStorageLocation.of(persistedBucket,
-                        PersistedLocations.blobForSet(persistedRun,
+                .maybeFinalSomaticVcf(GoogleStorageLocation.of(metadata.bucket(),
+                        PersistedLocations.blobForSet(metadata.set(),
                                 namespace(),
                                 String.format("%s.%s.%s",
                                         metadata.tumor().sampleName(),
                                         SagePostProcess.SAGE_SOMATIC_FILTERED,
-                                        OutputFile.GZIPPED_VCF))))
+                                        FileTypes.GZIPPED_VCF))))
                 .build();
     }
 

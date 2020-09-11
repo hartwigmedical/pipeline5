@@ -3,12 +3,13 @@ package com.hartwig.pipeline.calling.somatic;
 import java.util.List;
 
 import com.google.api.client.util.Lists;
-import com.hartwig.pipeline.calling.SubStage;
-import com.hartwig.pipeline.calling.SubStageInputOutput;
 import com.hartwig.pipeline.calling.substages.SnpEff;
+import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.OutputFile;
 import com.hartwig.pipeline.resource.ResourceFiles;
+import com.hartwig.pipeline.stages.SubStage;
+import com.hartwig.pipeline.stages.SubStageInputOutput;
 
 public class SagePostProcess extends SubStage {
 
@@ -17,7 +18,7 @@ public class SagePostProcess extends SubStage {
     private final SubStageInputOutput tumorSampleName;
 
     public SagePostProcess(final String tumorSampleName, final ResourceFiles resourceFiles) {
-        super(SAGE_SOMATIC_FILTERED, OutputFile.GZIPPED_VCF);
+        super(SAGE_SOMATIC_FILTERED, FileTypes.GZIPPED_VCF);
         this.tumorSampleName = SubStageInputOutput.empty(tumorSampleName);
         this.resourceFiles = resourceFiles;
     }

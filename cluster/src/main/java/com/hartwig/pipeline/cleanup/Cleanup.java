@@ -45,7 +45,7 @@ public class Cleanup {
     }
 
     private void deleteStagingDirectory(final SingleSampleRunMetadata metadata) {
-        GSUtil.rm(arguments.cloudSdkPath(), arguments.outputBucket() + "/" + RunTag.apply(arguments, metadata.sampleId()));
+        GSUtil.rm(arguments.cloudSdkPath(), arguments.outputBucket() + "/" + RunTag.apply(arguments, metadata.barcode()));
     }
 
     private void deleteBucket(final String runId) {

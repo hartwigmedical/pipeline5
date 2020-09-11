@@ -2,9 +2,8 @@ package com.hartwig.pipeline.alignment.bwa;
 
 import static java.lang.String.format;
 
-import static com.hartwig.pipeline.alignment.AlignmentOutputPaths.bai;
-import static com.hartwig.pipeline.alignment.AlignmentOutputPaths.bam;
-import static com.hartwig.pipeline.alignment.AlignmentOutputPaths.sorted;
+import static com.hartwig.pipeline.datatypes.FileTypes.bai;
+import static com.hartwig.pipeline.datatypes.FileTypes.bam;
 import static com.hartwig.pipeline.resource.ResourceFilesFactory.buildResourceFiles;
 
 import java.io.File;
@@ -24,7 +23,6 @@ import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.alignment.ImmutableAlignmentOutput;
 import com.hartwig.pipeline.alignment.sample.SampleSource;
-import com.hartwig.pipeline.calling.SubStageInputOutput;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
@@ -39,6 +37,7 @@ import com.hartwig.pipeline.report.ReportComponent;
 import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.report.SingleFileComponent;
 import com.hartwig.pipeline.resource.ResourceFiles;
+import com.hartwig.pipeline.stages.SubStageInputOutput;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.storage.SampleUpload;
@@ -144,13 +143,13 @@ public class BwaAligner implements Aligner {
                 outputBuilder.addReportComponents(new SingleFileComponent(rootBucket,
                                 Aligner.NAMESPACE,
                                 Folder.from(metadata),
-                                sorted(metadata.sampleName()),
+                                bam(metadata.sampleName()),
                                 bam(metadata.sampleName()),
                                 resultsDirectory),
                         new SingleFileComponent(rootBucket,
                                 Aligner.NAMESPACE,
                                 Folder.from(metadata),
-                                bai(sorted(metadata.sampleName())),
+                                bai(bam(metadata.sampleName())),
                                 bai(bam(metadata.sampleName())),
                                 resultsDirectory));
             }

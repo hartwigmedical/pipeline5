@@ -26,7 +26,7 @@ public interface Stage<S extends StageOutput, M extends RunMetadata> {
 
     S skippedOutput(M metadata);
 
-    default S persistedOutput(String persistedBucket, String persistedRun, M metadata) {
+    default S persistedOutput(M metadata) {
         throw new UnsupportedOperationException(String.format("Stage [%s] does not support using persisted output.", namespace()));
     }
 

@@ -73,7 +73,7 @@ public class SomaticPipeline {
         PipelineState state = new PipelineState();
 
         SomaticRunMetadata metadata = setMetadataApi.get();
-        LOGGER.info("Pipeline5 somatic pipeline starting for set [{}]", metadata.runName());
+        LOGGER.info("Pipeline5 somatic pipeline starting for set [{}]", metadata.set());
 
         final ResourceFiles resourceFiles = buildResourceFiles(arguments.refGenomeVersion());
 
@@ -93,18 +93,20 @@ public class SomaticPipeline {
                 StructuralCallerOutput structuralCallerOutput = pipelineResults.add(state.add(structuralCallerOutputFuture.get()));
                 if (state.shouldProceed()) {
                     Future<StructuralCallerPostProcessOutput> structuralCallerPostProcessOutputFuture =
-                            executorService.submit(() -> stageRunner.run(metadata, new StructuralCallerPostProcess(resourceFiles, structuralCallerOutput)));
-                    StructuralCallerPostProcessOutput structuralCallerPostProcessOutput = pipelineResults.add(state.add(structuralCallerPostProcessOutputFuture.get()));
+                            executorService.submit(() -> stageRunner.run(metadata,
+                                    new StructuralCallerPostProcess(resourceFiles, structuralCallerOutput)));
+                    StructuralCallerPostProcessOutput structuralCallerPostProcessOutput =
+                            pipelineResults.add(state.add(structuralCallerPostProcessOutputFuture.get()));
 
                     if (state.shouldProceed()) {
-                        Future<PurpleOutput> purpleOutputFuture = executorService.submit(() -> pipelineResults.add(state.add(stageRunner.run(
-                                metadata,
-                                new Purple(resourceFiles,
-                                        sageOutput,
-                                        structuralCallerPostProcessOutput,
-                                        amberOutput,
-                                        cobaltOutput,
-                                        arguments.shallow())))));
+                        Future<PurpleOutput> purpleOutputFuture =
+                                executorService.submit(() -> pipelineResults.add(state.add(stageRunner.run(metadata,
+                                        new Purple(resourceFiles,
+                                                sageOutput,
+                                                structuralCallerPostProcessOutput,
+                                                amberOutput,
+                                                cobaltOutput,
+                                                arguments.shallow())))));
                         PurpleOutput purpleOutput = purpleOutputFuture.get();
                         if (state.shouldProceed()) {
                             BamMetricsOutput tumorMetrics = pollOrThrow(tumorBamMetricsOutputQueue, "tumor metrics");

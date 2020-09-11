@@ -47,7 +47,7 @@ public class PipelineResults {
     }
 
     public void compose(SomaticRunMetadata metadata) {
-        String name = metadata.runName();
+        String name = metadata.set();
         Folder folder = Folder.from();
         writeMetadata(metadata, name, folder);
         compose(name, folder);
@@ -55,7 +55,7 @@ public class PipelineResults {
     }
 
     public void compose(SingleSampleRunMetadata metadata,  Boolean isSingleSample, PipelineState state) {
-        String name = RunTag.apply(arguments, metadata.sampleId());
+        String name = RunTag.apply(arguments, metadata.barcode());
         if (state.shouldProceed()) {
             Folder folder = isSingleSample ? Folder.from() : Folder.from(metadata);
             writeMetadata(metadata, name, folder);
@@ -99,7 +99,7 @@ public class PipelineResults {
     }
 
     public void clearOldState(final Arguments arguments, final SingleSampleRunMetadata metadata) {
-        String name = RunTag.apply(arguments, metadata.sampleId());
+        String name = RunTag.apply(arguments, metadata.barcode());
         boolean deleted = storage.delete(reportBucket.getName(), format("%s/%s", name, STAGING_COMPLETE));
         if (deleted) {
             LOGGER.info("Deleted existing staging complete flag");

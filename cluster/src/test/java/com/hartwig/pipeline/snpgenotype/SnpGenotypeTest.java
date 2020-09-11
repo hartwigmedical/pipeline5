@@ -1,10 +1,13 @@
 package com.hartwig.pipeline.snpgenotype;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.Collections;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.StageTest;
@@ -58,5 +61,10 @@ public class SnpGenotypeTest extends StageTest<SnpGenotypeOutput, SingleSampleRu
     @Override
     protected void validateOutput(final SnpGenotypeOutput output) {
         // nothing additional to validate
+    }
+
+    @Override
+    protected void validatePersistedOutput(final SnpGenotypeOutput output) {
+        assertThat(output).isEqualTo(SnpGenotypeOutput.builder().status(PipelineStatus.PERSISTED).build());
     }
 }

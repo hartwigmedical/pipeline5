@@ -12,7 +12,6 @@ import com.hartwig.batch.BatchOperation;
 import com.hartwig.batch.input.InputBundle;
 import com.hartwig.batch.input.InputFileDescriptor;
 import com.hartwig.pipeline.ResultsDirectory;
-import com.hartwig.pipeline.calling.SubStageInputOutput;
 import com.hartwig.pipeline.calling.command.BwaCommand;
 import com.hartwig.pipeline.calling.command.SamtoolsCommand;
 import com.hartwig.pipeline.calling.structural.gridss.stage.Driver;
@@ -27,6 +26,7 @@ import com.hartwig.pipeline.execution.vm.unix.ExportPathCommand;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.resource.ResourceFilesFactory;
+import com.hartwig.pipeline.stages.SubStageInputOutput;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 

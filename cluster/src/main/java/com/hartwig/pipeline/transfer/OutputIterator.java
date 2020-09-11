@@ -23,7 +23,7 @@ public class OutputIterator {
     }
 
     public void iterate(SomaticRunMetadata metadata) {
-        find(sourceBucket, metadata.runName()).forEach(action);
+        find(sourceBucket, metadata.set()).forEach(action);
     }
 
     private List<Blob> find(Bucket bucket, String prefix) {

@@ -7,6 +7,8 @@ import java.util.stream.Collectors;
 import com.google.common.collect.Lists;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.OutputFile;
+import com.hartwig.pipeline.stages.SubStage;
+import com.hartwig.pipeline.stages.SubStageInputOutput;
 
 import org.junit.Before;
 import org.junit.Test;

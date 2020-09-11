@@ -32,7 +32,7 @@ public class SbpSomaticMetadataApiTest {
     private static final int SET_ID = 1;
     private static final String SAMPLE_ID = "7141";
     private static final Storage.BlobListOption PREFIX =
-            Storage.BlobListOption.prefix(TestInputs.defaultSomaticRunMetadata().runName() + "/");
+            Storage.BlobListOption.prefix(TestInputs.defaultSomaticRunMetadata().set() + "/");
     private SomaticMetadataApi victim;
     private SbpRestApi sbpRestApi;
     private SomaticRunMetadata somaticRunMetadata;
@@ -63,12 +63,12 @@ public class SbpSomaticMetadataApiTest {
     public void retrievesSetMetadataFromSbpRestApi() {
         when(sbpRestApi.getSample(SAMPLE_ID)).thenReturn(TestJson.get("get_samples_by_set"));
         SomaticRunMetadata setMetadata = victim.get();
-        assertThat(setMetadata.runName()).isEqualTo("170724_HMFregCPCT_FR13999246_FR13999144_CPCT02290012");
+        assertThat(setMetadata.set()).isEqualTo("170724_HMFregCPCT_FR13999246_FR13999144_CPCT02290012");
         assertThat(setMetadata.reference().sampleName()).isEqualTo("ZR17SQ1-00649");
-        assertThat(setMetadata.reference().sampleId()).isEqualTo("FR13257296");
+        assertThat(setMetadata.reference().barcode()).isEqualTo("FR13257296");
         assertThat(setMetadata.reference().entityId()).isEqualTo(49);
         assertThat(setMetadata.tumor().sampleName()).isEqualTo("ZR17SQ1-00649");
-        assertThat(setMetadata.tumor().sampleId()).isEqualTo("FR13257296");
+        assertThat(setMetadata.tumor().barcode()).isEqualTo("FR13257296");
         assertThat(setMetadata.tumor().entityId()).isEqualTo(50);
     }
 
@@ -97,9 +97,9 @@ public class SbpSomaticMetadataApiTest {
     public void mapsFailedStatusToPipeline5Finished() {
         when(pipelineState.status()).thenReturn(PipelineStatus.FAILED);
         victim.complete(pipelineState, somaticRunMetadata);
-        verify(sbpRestApi, times(2)).updateRunStatus(entityId.capture(), status.capture(), any());
+        verify(sbpRestApi, times(1)).updateRunStatus(entityId.capture(), status.capture(), any());
         assertThat(entityId.getValue()).isEqualTo(String.valueOf(SET_ID));
-        assertThat(status.getAllValues().get(1)).isEqualTo(SbpSomaticMetadataApi.FAILED);
+        assertThat(status.getValue()).isEqualTo(SbpSomaticMetadataApi.FAILED);
     }
 
     @Test
@@ -107,9 +107,9 @@ public class SbpSomaticMetadataApiTest {
         when(sbpRestApi.getRun(SET_ID)).thenReturn(TestJson.get("get_run_single_sample"));
         when(sbpRestApi.getSample(SAMPLE_ID)).thenReturn(TestJson.get("get_samples_by_set_single_sample"));
         SomaticRunMetadata setMetadata = victim.get();
-        assertThat(setMetadata.runName()).isEqualTo("170724_HMFregCPCT_FR13999246_FR13999144_CPCT02290012");
+        assertThat(setMetadata.set()).isEqualTo("170724_HMFregCPCT_FR13999246_FR13999144_CPCT02290012");
         assertThat(setMetadata.reference().sampleName()).isEqualTo("ZR17SQ1-00649");
-        assertThat(setMetadata.reference().sampleId()).isEqualTo("FR13257296");
+        assertThat(setMetadata.reference().barcode()).isEqualTo("FR13257296");
         assertThat(setMetadata.maybeTumor()).isEmpty();
     }
 

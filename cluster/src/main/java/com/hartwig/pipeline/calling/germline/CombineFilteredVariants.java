@@ -3,10 +3,11 @@ package com.hartwig.pipeline.calling.germline;
 import java.util.Collections;
 import java.util.List;
 
-import com.hartwig.pipeline.calling.SubStage;
+import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.GatkCommand;
 import com.hartwig.pipeline.execution.vm.OutputFile;
+import com.hartwig.pipeline.stages.SubStage;
 
 public class CombineFilteredVariants extends SubStage {
 
@@ -14,7 +15,7 @@ public class CombineFilteredVariants extends SubStage {
     private final String referenceFasta;
 
     CombineFilteredVariants(final String otherVcfPath, final String referenceFasta) {
-        super("filtered_variants", OutputFile.VCF);
+        super("filtered_variants", FileTypes.VCF);
         this.otherVcfPath = otherVcfPath;
         this.referenceFasta = referenceFasta;
     }

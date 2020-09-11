@@ -61,6 +61,6 @@ public class SageCallerTest extends TertiaryStageTest<SomaticCallerOutput> {
     @Override
     protected void validatePersistedOutput(final SomaticCallerOutput output) {
         assertThat(output.finalSomaticVcf()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
-                "run/sage/tumor.sage.somatic.filtered.vcf.gz"));
+                "set/sage/tumor.sage.somatic.filtered.vcf.gz"));
     }
 }

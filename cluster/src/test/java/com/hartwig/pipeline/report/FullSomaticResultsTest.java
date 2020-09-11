@@ -49,10 +49,10 @@ public class FullSomaticResultsTest {
         victim.compose(TestInputs.defaultSomaticRunMetadata());
 
         assertThat(copyRequestArgumentCaptor.getAllValues().get(0).getSource().getName()).isEqualTo("reference-test/reference-test/output.txt");
-        assertThat(copyRequestArgumentCaptor.getAllValues().get(0).getTarget().getName()).isEqualTo("run/reference-test/output.txt");
+        assertThat(copyRequestArgumentCaptor.getAllValues().get(0).getTarget().getName()).isEqualTo("set/reference-test/output.txt");
 
         assertThat(copyRequestArgumentCaptor.getAllValues().get(1).getSource().getName()).isEqualTo("tumor-test/tumor-test/output.txt");
-        assertThat(copyRequestArgumentCaptor.getAllValues().get(1).getTarget().getName()).isEqualTo("run/tumor-test/output.txt");
+        assertThat(copyRequestArgumentCaptor.getAllValues().get(1).getTarget().getName()).isEqualTo("set/tumor-test/output.txt");
     }
 
     @Test

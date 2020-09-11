@@ -2,8 +2,6 @@ package com.hartwig.batch.operations;
 
 import static java.lang.String.format;
 
-import static com.hartwig.pipeline.execution.vm.OutputFile.GZIPPED_VCF;
-
 import java.io.File;
 import java.util.Collections;
 
@@ -12,12 +10,12 @@ import com.hartwig.batch.input.ImmutableInputFileDescriptor;
 import com.hartwig.batch.input.InputBundle;
 import com.hartwig.batch.input.InputFileDescriptor;
 import com.hartwig.pipeline.ResultsDirectory;
-import com.hartwig.pipeline.calling.SubStageInputOutput;
 import com.hartwig.pipeline.calling.command.BwaCommand;
 import com.hartwig.pipeline.calling.command.SamtoolsCommand;
 import com.hartwig.pipeline.calling.structural.gridss.command.AllocateEvidence;
 import com.hartwig.pipeline.calling.structural.gridss.command.SoftClipsToSplitReads;
 import com.hartwig.pipeline.calling.structural.gridss.stage.GridssAnnotation;
+import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.OutputFile;
 import com.hartwig.pipeline.execution.vm.OutputUpload;
@@ -28,6 +26,7 @@ import com.hartwig.pipeline.execution.vm.unix.ExportPathCommand;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.resource.ResourceFilesFactory;
+import com.hartwig.pipeline.stages.SubStageInputOutput;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tools.Versions;
@@ -88,7 +87,7 @@ public class GridssBackport implements BatchOperation {
         startupScript.addCommand(new SoftClipsToSplitReads(inputBam.localDestination(), resourceFiles.refGenomeFile(), newAssemblyBam));
 
         // 6. Allocate Evidence
-        final OutputFile newRawVcf = OutputFile.of(sample, "gridss_" + Versions.GRIDSS.replace(".", "_") + ".raw", GZIPPED_VCF);
+        final OutputFile newRawVcf = OutputFile.of(sample, "gridss_" + Versions.GRIDSS.replace(".", "_") + ".raw", FileTypes.GZIPPED_VCF);
         startupScript.addCommand(new AllocateEvidence(emptyBam1,
                 emptyBam2,
                 newAssemblyBam,
@@ -99,9 +98,7 @@ public class GridssBackport implements BatchOperation {
 
         // 7. Gridss Annotation
         final SubStageInputOutput annotation =
-                new GridssAnnotation(resourceFiles, true).apply(SubStageInputOutput.of(sample,
-                        newRawVcf,
-                        Collections.emptyList()));
+                new GridssAnnotation(resourceFiles, true).apply(SubStageInputOutput.of(sample, newRawVcf, Collections.emptyList()));
         startupScript.addCommands(annotation.bash());
 
         // 8. Archive targeted output

@@ -3,8 +3,8 @@ package com.hartwig.pipeline.calling.germline;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.Lists;
-import com.hartwig.pipeline.calling.SubStage;
 import com.hartwig.pipeline.calling.SubStageTest;
+import com.hartwig.pipeline.stages.SubStage;
 
 import org.junit.Test;
 

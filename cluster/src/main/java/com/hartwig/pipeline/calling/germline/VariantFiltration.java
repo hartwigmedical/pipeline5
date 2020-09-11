@@ -9,10 +9,11 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.hartwig.pipeline.calling.SubStage;
+import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.GatkCommand;
 import com.hartwig.pipeline.execution.vm.OutputFile;
+import com.hartwig.pipeline.stages.SubStage;
 
 public class VariantFiltration extends SubStage {
 
@@ -20,7 +21,7 @@ public class VariantFiltration extends SubStage {
     private final String referenceFasta;
 
     VariantFiltration(final String variantType, Map<String, String> filterExpressions, final String referenceFasta) {
-        super("filtered_" + variantType, OutputFile.VCF);
+        super("filtered_" + variantType, FileTypes.VCF);
         this.filterExpressions = filterExpressions;
         this.referenceFasta = referenceFasta;
     }
@@ -47,7 +48,7 @@ public class VariantFiltration extends SubStage {
         arguments.add("35");
         return Collections.singletonList(new GatkCommand(GermlineCaller.TOOL_HEAP,
                 "VariantFiltration",
-                arguments.toArray(new String[arguments.size()])));
+                arguments.toArray(new String[0])));
     }
 
     private static String wrapInQuotes(final String string) {

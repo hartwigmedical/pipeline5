@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.calling;
+package com.hartwig.pipeline.stages;
 
 import java.util.ArrayList;
 import java.util.Collections;

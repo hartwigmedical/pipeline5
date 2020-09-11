@@ -24,14 +24,25 @@ public class LocalSomaticMetadata implements SomaticMetadataApi {
         Sample tumor = jsonSampleSource.sample(SampleType.TUMOR);
 
         return SomaticRunMetadata.builder()
-                .runName(setId)
+                .set(setId)
+                .id(setId)
+                .bucket(arguments.outputBucket())
                 .maybeTumor(SingleSampleRunMetadata.builder()
+                        .id(setId)
+                        .bucket(arguments.outputBucket())
+                        .set(setId)
                         .type(SingleSampleRunMetadata.SampleType.TUMOR)
-                        .sampleId(tumor.name())
+                        .barcode(tumor.name())
                         .sampleName(tumor.name())
                         .build())
                 .reference(SingleSampleRunMetadata.builder()
-                        .type(SingleSampleRunMetadata.SampleType.REFERENCE).sampleId(reference.name()).sampleName(reference.name()).build())
+                        .id(setId)
+                        .bucket(arguments.outputBucket())
+                        .set(setId)
+                        .type(SingleSampleRunMetadata.SampleType.REFERENCE)
+                        .barcode(reference.name())
+                        .sampleName(reference.name())
+                        .build())
                 .build();
     }
 

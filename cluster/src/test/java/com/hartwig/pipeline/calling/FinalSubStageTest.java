@@ -5,8 +5,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Collections;
 import java.util.List;
 
+import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.OutputFile;
+import com.hartwig.pipeline.stages.FinalSubStage;
+import com.hartwig.pipeline.stages.SubStage;
+import com.hartwig.pipeline.stages.SubStageInputOutput;
 
 import org.junit.Test;
 
@@ -24,7 +28,7 @@ public class FinalSubStageTest {
         private OutputFile outputFile;
 
         CaptureOutputFile() {
-            super("test", OutputFile.VCF);
+            super("test", FileTypes.VCF);
         }
 
         @Override

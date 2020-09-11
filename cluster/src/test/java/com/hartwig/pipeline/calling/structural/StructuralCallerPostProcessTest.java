@@ -75,10 +75,10 @@ public class StructuralCallerPostProcessTest extends StageTest<StructuralCallerP
     @Override
     protected void validatePersistedOutput(final StructuralCallerPostProcessOutput output) {
         assertThat(output.filteredVcf()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
-                "run/gripss/tumor.gripss.somatic.filtered.vcf.gz"));
+                "set/gripss/tumor.gripss.somatic.filtered.vcf.gz"));
         assertThat(output.filteredVcfIndex()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
-                "run/gripss/tumor.gripss.somatic.filtered.vcf.gz.tbi"));
-        assertThat(output.fullVcf()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "run/gripss/tumor.gripss.somatic.vcf.gz"));
-        assertThat(output.fullVcfIndex()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "run/gripss/tumor.gripss.somatic.vcf.gz.tbi"));
+                "set/gripss/tumor.gripss.somatic.filtered.vcf.gz.tbi"));
+        assertThat(output.fullVcf()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "set/gripss/tumor.gripss.somatic.vcf.gz"));
+        assertThat(output.fullVcfIndex()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "set/gripss/tumor.gripss.somatic.vcf.gz.tbi"));
     }
 }

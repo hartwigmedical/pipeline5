@@ -8,8 +8,8 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
-import com.hartwig.pipeline.resource.Hg19ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.StageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
@@ -57,15 +57,11 @@ public class CramConversionTest extends StageTest<CramOutput, SingleSampleRunMet
         String samtools = "/opt/tools/samtools/1.10/samtools";
         String input = "/data/input/reference.bam";
         String output = "/data/output/reference.cram";
-        final Hg19ResourceFiles resourceFiles = new Hg19ResourceFiles();
-
-        return ImmutableList.of(
-
-                format("%s view -T %s -o %s -O cram,embed_ref=1 -@ $(grep -c '^processor' /proc/cpuinfo) %s",
-                        samtools,
-                        TestInputs.HG38_RESOURCE_FILES.refGenomeFile(),
-                        output,
-                        input),
+        return ImmutableList.of(format("%s view -T %s -o %s -O cram,embed_ref=1 -@ $(grep -c '^processor' /proc/cpuinfo) %s",
+                samtools,
+                TestInputs.HG38_RESOURCE_FILES.refGenomeFile(),
+                output,
+                input),
                 format("%s index %s", samtools, output),
                 format("java -Xmx4G -cp /opt/tools/bamcomp/1.3/bamcomp.jar com.hartwig.bamcomp.BamCompMain "
                                 + "-r /opt/resources/reference_genome/hg38/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna -1 %s -2 %s -n 6 "
@@ -77,5 +73,10 @@ public class CramConversionTest extends StageTest<CramOutput, SingleSampleRunMet
     @Override
     protected void validateOutput(CramOutput output) {
         // no additional validation
+    }
+
+    @Override
+    protected void validatePersistedOutput(final CramOutput output) {
+        assertThat(output).isEqualTo(CramOutput.builder().status(PipelineStatus.PERSISTED).build());
     }
 }

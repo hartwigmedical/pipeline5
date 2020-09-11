@@ -1,5 +1,6 @@
 package com.hartwig.pipeline.alignment;
 
+import java.util.Optional;
 import java.util.concurrent.Executors;
 
 import com.google.auth.oauth2.GoogleCredentials;
@@ -15,8 +16,12 @@ import com.hartwig.pipeline.alignment.sample.SbpS3SampleSource;
 import com.hartwig.pipeline.alignment.sample.SbpSampleReader;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.GoogleComputeEngine;
+import com.hartwig.pipeline.jackson.ObjectMappers;
+import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
+import com.hartwig.pipeline.reruns.ApiPersistedDataset;
+import com.hartwig.pipeline.reruns.PersistedDataset;
+import com.hartwig.pipeline.reruns.StartingPoint;
 import com.hartwig.pipeline.sbpapi.SbpRestApi;
-import com.hartwig.pipeline.startingpoint.StartingPoint;
 import com.hartwig.pipeline.storage.CloudCopy;
 import com.hartwig.pipeline.storage.CloudSampleUpload;
 import com.hartwig.pipeline.storage.GSFileSource;
@@ -54,9 +59,13 @@ public abstract class AlignerProvider {
 
     abstract Aligner wireUp(GoogleCredentials credentials, Storage storage, ResultsDirectory resultsDirectory) throws Exception;
 
-    public static AlignerProvider from(GoogleCredentials credentials, Storage storage, String runName, Arguments arguments) {
+    public static AlignerProvider from(GoogleCredentials credentials, Storage storage, Arguments arguments) {
         if (new StartingPoint(arguments).usePersisted(Aligner.NAMESPACE)) {
-            return new PersistedAlignerProvider(credentials, storage, runName, arguments);
+            return new PersistedAlignerProvider(credentials,
+                    storage,
+                    arguments,
+                    arguments.sbpApiRunId().<PersistedDataset<SingleSampleRunMetadata>>map(r -> new ApiPersistedDataset(SbpRestApi.newInstance(
+                            arguments.sbpApiUrl()), ObjectMappers.get())).orElse((m, r) -> Optional.empty()));
         }
         if (arguments.sbpApiRunId().isPresent()) {
             return new SbpAlignerProvider(credentials, storage, arguments);
@@ -107,17 +116,17 @@ public abstract class AlignerProvider {
 
     static class PersistedAlignerProvider extends AlignerProvider {
 
-        private final String runName;
+        private final PersistedDataset<SingleSampleRunMetadata> persistedDataset;
 
-        public PersistedAlignerProvider(final GoogleCredentials credentials, final Storage storage, final String runName,
-                final Arguments arguments) {
+        public PersistedAlignerProvider(final GoogleCredentials credentials, final Storage storage, final Arguments arguments,
+                final PersistedDataset<SingleSampleRunMetadata> persistedDataset) {
             super(credentials, storage, arguments);
-            this.runName = runName;
+            this.persistedDataset = persistedDataset;
         }
 
         @Override
         Aligner wireUp(final GoogleCredentials credentials, final Storage storage, final ResultsDirectory resultsDirectory) {
-            return new PersistedAlignment(getArguments().outputBucket(), runName, getArguments().outputCram());
+            return new PersistedAlignment(persistedDataset);
         }
     }
 }

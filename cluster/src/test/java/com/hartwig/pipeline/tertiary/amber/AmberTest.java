@@ -43,6 +43,6 @@ public class AmberTest extends TertiaryStageTest<AmberOutput> {
 
     @Override
     protected void validatePersistedOutput(final AmberOutput output) {
-        assertThat(output.outputDirectory()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "run/amber", true));
+        assertThat(output.outputDirectory()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "set/amber", true));
     }
 }

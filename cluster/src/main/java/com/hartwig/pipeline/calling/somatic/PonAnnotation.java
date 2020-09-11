@@ -2,10 +2,11 @@ package com.hartwig.pipeline.calling.somatic;
 
 import java.util.List;
 
-import com.hartwig.pipeline.calling.SubStage;
 import com.hartwig.pipeline.calling.command.BcfToolsCommandListBuilder;
+import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.OutputFile;
+import com.hartwig.pipeline.stages.SubStage;
 
 class PonAnnotation extends SubStage {
 
@@ -13,7 +14,7 @@ class PonAnnotation extends SubStage {
     private final String type;
 
     PonAnnotation(final String name, final String pon, final String... columns) {
-        super(name + ".annotated", OutputFile.GZIPPED_VCF);
+        super(name + ".annotated", FileTypes.GZIPPED_VCF);
         this.pon = pon;
         this.type = String.join(",", columns);
     }

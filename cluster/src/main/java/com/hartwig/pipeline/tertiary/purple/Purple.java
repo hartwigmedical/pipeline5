@@ -17,9 +17,9 @@ import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
+import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
-import com.hartwig.pipeline.startingpoint.PersistedLocations;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
@@ -42,8 +42,9 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
     private final InputDownload cobaltOutputDownload;
     private final boolean shallow;
 
-    public Purple(final ResourceFiles resourceFiles, SomaticCallerOutput somaticCallerOutput, StructuralCallerPostProcessOutput structuralCallerOutput,
-            AmberOutput amberOutput, CobaltOutput cobaltOutput, final boolean shallow) {
+    public Purple(final ResourceFiles resourceFiles, SomaticCallerOutput somaticCallerOutput,
+            StructuralCallerPostProcessOutput structuralCallerOutput, AmberOutput amberOutput, CobaltOutput cobaltOutput,
+            final boolean shallow) {
         this.resourceFiles = resourceFiles;
         somaticVcfDownload = new InputDownload(somaticCallerOutput.finalSomaticVcf());
         structuralVcfDownload = new InputDownload(structuralCallerOutput.filteredVcf());
@@ -113,16 +114,16 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
     }
 
     @Override
-    public PurpleOutput persistedOutput(final String persistedBucket, final String persistedRun, final SomaticRunMetadata metadata) {
+    public PurpleOutput persistedOutput(final SomaticRunMetadata metadata) {
         return PurpleOutput.builder()
                 .status(PipelineStatus.PERSISTED)
-                .maybeOutputDirectory(GoogleStorageLocation.of(persistedBucket,
-                        PersistedLocations.pathForSet(persistedRun, namespace()),
+                .maybeOutputDirectory(GoogleStorageLocation.of(metadata.bucket(),
+                        PersistedLocations.pathForSet(metadata.set(), namespace()),
                         true))
-                .maybeSomaticVcf(GoogleStorageLocation.of(persistedBucket,
-                        PersistedLocations.blobForSet(persistedRun, namespace(), somaticVcf(metadata))))
-                .maybeStructuralVcf(GoogleStorageLocation.of(persistedBucket,
-                        PersistedLocations.blobForSet(persistedRun, namespace(), svVcf(metadata))))
+                .maybeSomaticVcf(GoogleStorageLocation.of(metadata.bucket(),
+                        PersistedLocations.blobForSet(metadata.set(), namespace(), somaticVcf(metadata))))
+                .maybeStructuralVcf(GoogleStorageLocation.of(metadata.bucket(),
+                        PersistedLocations.blobForSet(metadata.set(), namespace(), svVcf(metadata))))
                 .build();
     }
 

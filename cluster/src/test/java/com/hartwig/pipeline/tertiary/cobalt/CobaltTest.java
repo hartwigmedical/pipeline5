@@ -42,6 +42,6 @@ public class CobaltTest extends TertiaryStageTest<CobaltOutput> {
 
     @Override
     protected void validatePersistedOutput(final CobaltOutput output) {
-        assertThat(output.outputDirectory()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "run/cobalt", true));
+        assertThat(output.outputDirectory()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "set/cobalt", true));
     }
 }

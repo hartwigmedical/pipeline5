@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 public abstract class StageTest<S extends StageOutput, M extends RunMetadata> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StageTest.class);
-    protected static final String OUTPUT_BUCKET = Arguments.testDefaults().outputBucket();
+    protected static final String OUTPUT_BUCKET = TestInputs.BUCKET;
 
     protected Storage storage;
     protected RuntimeBucket runtimeBucket;
@@ -88,7 +88,7 @@ public abstract class StageTest<S extends StageOutput, M extends RunMetadata> {
     @Test
     public void returnsExpectedPersistedOutput() {
         try {
-            S output = victim.persistedOutput(OUTPUT_BUCKET, TestInputs.defaultSomaticRunMetadata().runName(), input());
+            S output = victim.persistedOutput(input());
             validatePersistedOutput(output);
         } catch (UnsupportedOperationException e) {
             LOGGER.info("Persisted output not supported for stage [{}]. No test required", victim.namespace());
