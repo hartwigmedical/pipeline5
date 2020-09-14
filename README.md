@@ -7,7 +7,7 @@
 ---
 **NOTE**
 
-As of version 5.4 we have stopped using ADAM, Spark and Dataproc in favour of also running BWA on our VM management framework. 
+As of version 5.4 we have stopped using ADAM, Spark and DataProc in favour of also running BWA on our VM management framework. 
 
 We were able to achieve similar performance with this approach, at a fraction of the cost, using pre-emptible VMs and local SSDs.
 
@@ -36,12 +36,11 @@ the patient processing is complete.
 
 Pv5 makes use of the following GCP services:
 - [Google Cloud Storage](https://cloud.google.com/storage/) to store transient patient data, supporting resources, configuration and tools.
-- [Google Compute Engine](https://cloud.google.com/compute/) to run workloads using tools not yet compatible with Spark
-  (samtools, GATK, strelka, etc)
+- [Google Compute Engine](https://cloud.google.com/compute/) to run workloads.
 
 ### 1.3 Google Compute Engine
 We've developed a small framework in Java to run the pipeline components on virtual machines (VMs). We use a custom disk image
-containing a complete repository of external and internal tools, and OS dependencies.
+containing a complete repository of external and internal tools and resources, and OS dependencies.
 
 Using internal APIs we launch VM jobs by generating a `bash` startup script which will copy inputs, run the tools themselves, and
 copy the final results (or any errors) back up into Google storage.
@@ -67,7 +66,7 @@ Our downstream QC tools require certain metrics about the BAM. These are produce
 [CollectWgsMetrics](https://software.broadinstitute.org/gatk/documentation/tooldocs/4.0.0.0/picard_analysis_CollectWgsMetrics.php).
 
 #### 1.4.3 Samtools Flagstat
-[Samtools](http://www.htslib.org/doc/samtools.html) flag statistics are not consumed by any downstream stages, but very useful
+[Samtools](http://www.htslib.org/doc/samtools.html) flag statistics are not consumed by any downstream stages, but useful
 in ad hoc QC and analysis.  
 
 #### 1.4.4 SnpGenotype (GATK UnifiedGenotyper)
@@ -80,8 +79,9 @@ GATK's
 [HaplotypeCaller](https://software.broadinstitute.org/gatk/documentation/tooldocs/3.8-0/org_broadinstitute_gatk_tools_walkers_haplotypecaller_HaplotypeCaller.php)
 is used to call germline variants on the reference sample only.
 
-#### 1.4.6 Somatic Variant Calling (Strelka)
-[Strelka](https://github.com/Illumina/strelka) from illumina is used to call SNP and INDEL variants between the tumor/reference pair.
+#### 1.4.6 Somatic Variant Calling (SAGE)
+[SAGE](https://github.com/hartwigmedical/hmftools/tree/master/sage) is an HMF in-house tool used to call 
+somatic variants (SNVs and Indels) between the tumor/reference pair.
 
 #### 1.4.7 Structural Variant Calling (GRIDSS)
 [GRIDSS](https://github.com/PapenfussLab/gridss) is used to call structural variants between the tumor/reference pair.
@@ -102,13 +102,7 @@ research.
 #### 1.4.10 Health Check
 Final QC of the purple results and BAM metrics.
 
-### 1.5 Production Environment at Schuberg Phillis
-
-[Schuberg Philis](https://schubergphilis.com/) manages our pipeline operations. The production deployment of Pv5 is run in their
-environment. SBP provides orchestration tooling to manage the ingestion of FASTQ data from the HMF labs and metadata management
-of the samples, runs and output files. They also administer the HMF GCP projects.
-
-### 1.6 Data and Compute Topology
+### 1.5 Data and Compute Topology
 
 The following diagram gives a simple overview of the dataflow between components, their executions platforms, and locations (ie what runs
 in GCP vs SBP private cloud). Dotted arrows represent API calls (create, start, stop, delete, etc) and solid dataflow. Three key pieces
@@ -216,7 +210,7 @@ GCP access can be managed in multiple ways but we are using [service
 accounts](https://cloud.google.com/compute/docs/access/service-accounts) to avoid maintenance and security overheads.
 Operationally a JSON file containing the private key needs to be downloaded from the GCP console; that file can either be placed
 in default location so it does not need to be specified on the command line, or that file can be mentioned by name on the command 
-line. See [Invocation](#3.5-invocation).
+line. See [Invocation](#3.5.3-invocation).
 
 The current production service account is called `pipeline5-scheduler`.
 
@@ -235,7 +229,7 @@ for our VMs, and a "resources" bucket which holds data required by the runs. The
 
 As the runs of a set are executing, the pipeline creates buckets to hold the input and output of the stages of the runs. From an 
 operational perspective the pipeline may be thought of as a series of operations, with the outputs from earlier stages becoming
-the inputs for later ones. Each stage in a run will get a diretory which will contain:
+the inputs for later ones. Each stage in a run will get a directory which will contain:
 
 - Input data, which comes from previous stages' outputs or as input to the pipeline;
 - Results, which will be used as input to later stages or as final output of the pipeline;
