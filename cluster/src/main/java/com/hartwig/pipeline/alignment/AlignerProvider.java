@@ -23,6 +23,7 @@ import com.hartwig.pipeline.storage.GSFileSource;
 import com.hartwig.pipeline.storage.GSUtilCloudCopy;
 import com.hartwig.pipeline.storage.RCloneCloudCopy;
 import com.hartwig.pipeline.storage.SampleUpload;
+import com.hartwig.pipeline.storage.SbpS3FileSource;
 
 public abstract class AlignerProvider {
 
@@ -100,7 +101,7 @@ public abstract class AlignerProvider {
                     getArguments().rcloneGcpRemote(),
                     getArguments().rcloneS3RemoteDownload(),
                     ProcessBuilder::new);
-            SampleUpload sampleUpload = new CloudSampleUpload(new GSFileSource(), cloudCopy);
+            SampleUpload sampleUpload = new CloudSampleUpload(new SbpS3FileSource(), cloudCopy);
             return AlignerProvider.constructVmAligner(getArguments(), credentials, storage, sampleSource, sampleUpload, resultsDirectory);
         }
     }

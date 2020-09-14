@@ -53,7 +53,9 @@ public class PipelineMain {
             boolean isSingleSample = somaticRunMetadata.isSingleSample();
             String ini = somaticRunMetadata.isSingleSample() ? "single_sample" : arguments.shallow() ? "shallow" : "somatic";
             PipelineProperties eventSubjects = PipelineProperties.builder()
-                    .sample(somaticRunMetadata.tumor().sampleName())
+                    .sample(somaticRunMetadata.maybeTumor()
+                            .map(SingleSampleRunMetadata::sampleName)
+                            .orElse(somaticRunMetadata.reference().sampleName()))
                     .runId(arguments.sbpApiRunId())
                     .set(somaticRunMetadata.runName())
                     .referenceBarcode(somaticRunMetadata.reference().sampleId())
