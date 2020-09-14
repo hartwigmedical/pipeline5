@@ -39,7 +39,7 @@ public class BachelorTest extends TertiaryStageTest<BachelorOutput> {
 
     @Override
     protected List<String> expectedCommands() {
-        return Collections.singletonList("java -Xmx8G -jar /opt/tools/bachelor/1.10/bachelor.jar -sample tumor -germline_vcf "
+        return Collections.singletonList("java -Xmx8G -jar /opt/tools/bachelor/1.12/bachelor.jar -sample tumor -germline_vcf "
                 + "/data/input/reference.germline.vcf.gz -tumor_bam_file /data/input/tumor.bam -purple_data_dir /data/input/results "
                 + "-xml_config /opt/resources/bachelor_config/hg19/bachelor_hmf.xml -ext_filter_file "
                 + "/opt/resources/bachelor_config/hg19/bachelor_clinvar_filters.csv -ref_genome "
