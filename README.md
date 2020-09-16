@@ -80,8 +80,8 @@ GATK's
 is used to call germline variants on the reference sample only.
 
 #### 1.4.6 Amber
-[Amber](https://github.com/hartwigmedical/hmftools/tree/master/amber) is an HMF in-house tool used to determine the B allele
-frequency of a tumor/reference pair.
+[Amber](https://github.com/hartwigmedical/hmftools/tree/master/amber) is an HMF in-house tool used mainly to determine 
+the minor allele copy number of heterzygous germline variants in the tumor sample.
 
 #### 1.4.7 Cobalt
 [Cobalt](https://github.com/hartwigmedical/hmftools/tree/master/count-bam-lines) is an HMF in-house tool used to determine read
