@@ -50,7 +50,7 @@ workload's requirements.
 
 ### 1.4 Pipeline Stages
 The pipeline first runs primary and secondary analysis on a reference (blood/normal) sample and tumor sample before comparing
-them in the final somatic pipeline. Steps 1.4.1-1.4.5 are run in the single sample pipeline, where 1.4.6-1.4.11 are run in the
+them in the final somatic pipeline. Steps 1.4.1-1.4.5 are run in the single sample pipeline, where 1.4.6-1.4.15 are run in the
 somatic. 
 
 #### 1.4.1 Alignment
@@ -79,28 +79,43 @@ GATK's
 [HaplotypeCaller](https://software.broadinstitute.org/gatk/documentation/tooldocs/3.8-0/org_broadinstitute_gatk_tools_walkers_haplotypecaller_HaplotypeCaller.php)
 is used to call germline variants on the reference sample only.
 
-#### 1.4.6 Somatic Variant Calling (SAGE)
-[SAGE](https://github.com/hartwigmedical/hmftools/tree/master/sage) is an HMF in-house tool used to call 
-somatic variants (SNVs and Indels) between the tumor/reference pair.
-
-#### 1.4.7 Structural Variant Calling (GRIDSS)
-[GRIDSS](https://github.com/PapenfussLab/gridss) is used to call structural variants between the tumor/reference pair.
-
-#### 1.4.8 Cobalt
-[Cobalt](https://github.com/hartwigmedical/hmftools/tree/master/count-bam-lines) is an HMF in-house tool used to determine read
-depth ratios.
-
-#### 1.4.8 Amber
+#### 1.4.6 Amber
 [Amber](https://github.com/hartwigmedical/hmftools/tree/master/amber) is an HMF in-house tool used to determine the B allele
 frequency of a tumor/reference pair.
 
-#### 1.4.9 Purple
+#### 1.4.7 Cobalt
+[Cobalt](https://github.com/hartwigmedical/hmftools/tree/master/count-bam-lines) is an HMF in-house tool used to determine read
+depth ratios.
+
+#### 1.4.8 Somatic Variant Calling (SAGE)
+[SAGE](https://github.com/hartwigmedical/hmftools/tree/master/sage) is an HMF in-house tool used to call 
+somatic variants (SNVs and Indels) between the tumor/reference pair.
+
+#### 1.4.9 Structural Variant Calling (GRIDSS)
+[GRIDSS](https://github.com/PapenfussLab/gridss) is used to call structural variants between the tumor/reference pair.
+
+#### 1.4.10 Structural Variant Filtering (GRIPSS)
+[GRIPSS](https://github.com/hartwigmedical/hmftools/tree/master/gripss) is used to extract only the somatic variants from the full structural variant call set 
+and remove all low quality calls.
+
+#### 1.4.11 Purple
 [Purple](https://github.com/hartwigmedical/hmftools/tree/master/purity-ploidy-estimator) is an HMF in-house tool which combines
 the read-depth ratios, BAF, and variants to produce the pipeline final output, used both in the final report and exposed to
 research.
 
-#### 1.4.10 Health Check
-Final QC of the purple results and BAM metrics.
+#### 1.4.12 LINX
+[LINX](https://github.com/hartwigmedical/hmftools/tree/master/sv-linx) is an HMF in-house tool which interprets structural variants 
+and calls fusions and homozygously disrupted genes.
+
+#### 1.4.13 Bachelor
+[Bachelor](https://github.com/hartwigmedical/hmftools/tree/master/bachelor) is an HMF in-house tool which looks for pathogenic germline variants 
+and annotates them with their state in the tumor sample.
+
+#### 1.4.14 CHORD
+[CHORD](https://github.com/UMCUGenetics/CHORD) is an external tool which evaluates whether the tumor is HR-deficient based on the complete set of variants found.
+
+#### 1.4.15 Health Check
+[Health Checker](https://github.com/hartwigmedical/hmftools/tree/master/health-checker) is an HMF in-house doing a final QC based off the purple results and BAM metrics.
 
 ### 1.5 Data and Compute Topology
 
