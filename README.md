@@ -4,24 +4,13 @@
 2. [Developers Guide](#2-developers-guide)
 3. [Operators Guide](#3-operators-guide)
 
----
-**NOTE**
-
-As of version 5.4 we have stopped using ADAM, Spark and DataProc in favour of also running BWA on our VM management framework. 
-
-We were able to achieve similar performance with this approach, at a fraction of the cost, using pre-emptible VMs and local SSDs.
-
-We still love ADAM and hope to find a use for it in the future!
-
----
 
 ## 1 Technical Overview
 
 ### 1.1 Introduction
 Pipeline5 (Pv5) is a processing and analysis pipeline for high throughput DNA sequencing data used in Hartwig Medical
 Foundation's (HMF) patient processing and research. The goals of the project are to deliver best in class performance and
-scalability using modern big data techniques and cloud infrastructure. To this end, Pv5 uses ADAM, Spark and Google Cloud
-Platform. Following is an overview of how they come together to form the Pv5 architecture.
+scalability using cloud infrastructure. 
 
 ### 1.2 Google Cloud Platform
 We chose Google Cloud Platform as our cloud infrastructure provider for the following reasons (evaluated fall 2018):
@@ -29,10 +18,9 @@ We chose Google Cloud Platform as our cloud infrastructure provider for the foll
 - GCP had the most user friendly console for monitoring and operations.
 - GCP had the fastest startup time for its managed Hadoop service.
 
-The last point was important to us due to a design choice made to address resource contention. Pv5 uses ephemeral clusters
+The last point was important to us due to a design choice made to address resource contention. Pv5 uses ephemeral resources
 tailored to each patient. This way at any point we are only using exactly the resources we need for our workload, never having
-to queue or idle. To make this possible we spin up large clusters quickly as new patients come in and tear them down again once
-the patient processing is complete.
+to queue or idle. 
 
 Pv5 makes use of the following GCP services:
 - [Google Cloud Storage](https://cloud.google.com/storage/) to store transient patient data, supporting resources, configuration and tools.
@@ -56,10 +44,9 @@ somatic.
 #### 1.4.1 Alignment
 Under normal circumstances Pv5 starts with the input of one to _n_ paired-end FASTQ files produced by sequencing. The first task
 of the pipeline is to align these reads to the human reference genome (using the BWA algorithm). We use the largest core counts
-available and parallelise by sample (tumor/normal) and lane within each sample to achieve reasonable performance.
+available and parallelise by sample (tumor/normal) and lane within each sample to achieve reasonable performance. 
 
-It is worth noting there are both a pre-processing and post-processing step done here. After the alignment is complete, we run a
-sambamba sort and index.
+Mark duplicates and sorting is performed after the per lane alignments with [Sambamba](https://lomereiter.github.io/sambamba/).
 
 #### 1.4.2 WGS Metrics
 Our downstream QC tools require certain metrics about the BAM. These are produced using Picard tools
@@ -305,83 +292,3 @@ The tools and resources are copied into `/opt/tools` and `/opt/resources` respec
 
 Beyond these directories only the `/tmp` directory is expected to be used for anything as some of the stages have it set as their
 temporary or working directory.
-
-### 3.4 Promotion of a New Version
-
-Updating the in-use version of the pipeline has two components:
-
-1. Updating the version of the Docker container that encapsulates the controlling process;
-1. Ensuring the disk image referenced corresponds to the new version of the Docker container.
-
-On the first point, the CI environment takes care of creating a Docker container that encapsulates the executable portion of the
-pipeline. See below for more on Docker.
-
-For the second item, disk images are created in development according to need. See the discussion in the development guide above.
-When a release is being made both the code itself and the image must be promoted to the production environment. The required
-disk image version will be in the release notes. 
-
-There are scripts for this purpose in the `cluster/images` directory. First run `export_gcp_image.sh` to package the image into a
-file in a bucket. Then run `import_gcp_image.sh` (making sure to switch the the destination GCP project using the appropriate
-`gcloud auth` commands first!) to import the image into the production project.
-
-### 3.5 Running Pv5
-
-#### 3.5.1 Docker Container
-
-Our build produces a Docker container that can be used to run the pipeline in production. You will need to be familiar with basic
-Docker usage before attempting to run the pipeline.
-
-#### 3.5.2 Command-line Arguments
-
-Pv5 runs are controlled via command line arguments to the main program which can be used to override the defaults. A subset of
-the arguments are defaulted to empty because a useful default does not exist; a value will need to be explicitly specified for
-the run for these. As of this writing this subset contains:
-
-- The `-set_id`, which is needed to tie the run back to metadata in the SBP API when the run completes and we want to upload the
-    results.
-- The `-sample_id`, needed to indicate which sample belonging to the set is being processed by this part of the run.
-
-Other arguments may be desirable or the list may have changed by the time you read this; run the application with the `-help`
-argument to see a full list.
-
-#### 3.5.3 Invocation
-
-The pipeline requires some files to be accessible to run, namely the private key JSON file from GCP and the FASTQ sample files for
-the run. You will need to use one of the available mechanisms to make these files available to the container (`-v` to share a
-host-side directory with the container, a custom Dockerfile, etc) and possibly some overrides to the command line when you invoke
-the application.
-
-An invocation might look like this:
-
-```
-$ docker run -v /my/key/dir:/secrets hartwigmedicalfoundation/pipeline5:5.1.123 -set_id myset -sample_id CPCT12345678
-```
-
-where:
-
-- The previously-downloaded private key file from GCP has been placed in the local `/my/key/dir` directory (and the pipeline
-    will just use the default path).
-- The version of the pipeline to run is `5.1.123`. If a specific version is not specified, the latest tagged version will be used.
-- Everything after the image name is an argument to the pipeline application itself. 
-
-Command line arguments for Pv5 may be discovered like this:
-
-```
-$ docker run hartwigmedicalfoundation/pipeline5:5.1.123 -help
-```
-
-### 3.6 Troubleshooting and Bug Reports
-
-Having discussed the output and runtime buckets and invocation options, it is now possible to provide some general troubleshooting
-and escalation procedures. If something goes wrong with a run:
-
-- The pipeline log in the top level of the output bucket will contain information on the versions of the various components that
-    are in use, the success/failure status of each of the stages in the run, and any exceptions that may have occurred on the
-    coordinator instance itself.
-- Failure messages should be captured in the logs for each stage, which will be valuable for root-cause analysis for any failed
-    stage.
-- The output bucket will contain metadata and versioning information.
-
-Before logging any support requests all of the above should be inspected for useful information. The same should be forwarded with 
-any bug report.
-
