@@ -1,6 +1,6 @@
 branches:
   only:
-    - master
+    - 5.14-hotfix
 sudo: required
 language: java
 jdk:
