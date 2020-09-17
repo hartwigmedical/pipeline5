@@ -184,6 +184,6 @@ public class PipelineMain {
     }
 
     public static String completionMessage(final PipelineState state) {
-        return String.format("Pipeline completed with status [%s], summary: [%s]", state, state.toString());
+        return String.format("Pipeline completed with status [%s], summary: [%s]", state.status(), state);
     }
 }
