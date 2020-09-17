@@ -168,8 +168,10 @@ public class PipelineMain {
         try {
             PipelineState state = new PipelineMain().start(CommandLineOptions.from(args));
             if (state.status() != PipelineStatus.FAILED) {
+                LOGGER.info(completionMessage(state));
                 System.exit(0);
             } else {
+                LOGGER.error(completionMessage(state));
                 System.exit(1);
             }
         } catch (ParseException e) {
@@ -179,5 +181,9 @@ public class PipelineMain {
             LOGGER.error("An unexpected issue arose while running the pipeline. See the attached exception for more details.", e);
             System.exit(1);
         }
+    }
+
+    public static String completionMessage(final PipelineState state) {
+        return String.format("Pipeline completed with status [%s], summary: [%s]", state.status(), state);
     }
 }
