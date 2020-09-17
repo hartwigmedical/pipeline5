@@ -80,7 +80,7 @@ public class SmokeTest {
                 .sbpApiUrl(apiUrl)
                 .rclonePath(RCLONE_PATH)
                 .rcloneGcpRemote(GCP_REMOTE)
-                .rcloneS3RemoteDownload("download")
+                .rcloneS3RemoteDownload("s3")
                 .cleanup(true)
                 .archiveBucket(ARCHIVE_BUCKET)
                 .archiveProject(ARCHIVE_PROJECT)
