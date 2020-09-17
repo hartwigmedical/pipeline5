@@ -3,6 +3,7 @@ package com.hartwig.pipeline.calling.germline;
 import java.util.Optional;
 
 import com.hartwig.pipeline.StageOutput;
+import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.vm.OutputFile;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 
@@ -33,10 +34,6 @@ public interface GermlineCallerOutput extends StageOutput {
     }
 
     static OutputFile outputFile(String sample) {
-        return OutputFile.of(sample, "germline", OutputFile.GZIPPED_VCF);
-    }
-
-    static String tbi(String vcf) {
-        return vcf + ".tbi";
+        return OutputFile.of(sample, "germline", FileTypes.GZIPPED_VCF);
     }
 }

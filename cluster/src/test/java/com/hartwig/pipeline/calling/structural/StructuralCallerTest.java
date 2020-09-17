@@ -80,8 +80,8 @@ public class StructuralCallerTest extends StageTest<StructuralCallerOutput, Soma
     @Override
     protected void validatePersistedOutput(final StructuralCallerOutput output) {
         assertThat(output.unfilteredVcf()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
-                "run/gridss/tumor.gridss.unfiltered.vcf.gz"));
+                "set/gridss/tumor.gridss.unfiltered.vcf.gz"));
         assertThat(output.unfilteredVcfIndex()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
-                "run/gridss/tumor.gridss.unfiltered.vcf.gz.tbi"));
+                "set/gridss/tumor.gridss.unfiltered.vcf.gz.tbi"));
     }
 }

@@ -74,17 +74,21 @@ public class SbpRestApi {
         return returnOrThrow(response);
     }
 
+    public String getFileByBarcodeAndType(final String runId, final String barcode, final String dataType) {
+        return returnOrThrow(api().path(FILES)
+                .queryParam("run_id", runId)
+                .queryParam("barcode", barcode)
+                .queryParam("datatype", dataType)
+                .request()
+                .get());
+    }
+
     public WebTarget sample() {
         return api().path(SAMPLES);
     }
 
     public String getSample(String setId) {
         Response response = sample().queryParam("set_id", setId).request().buildGet().invoke();
-        return returnOrThrow(response);
-    }
-
-    public String getSampleByName(String sampleName) {
-        Response response = sample().queryParam("name", sampleName).request().buildGet().invoke();
         return returnOrThrow(response);
     }
 

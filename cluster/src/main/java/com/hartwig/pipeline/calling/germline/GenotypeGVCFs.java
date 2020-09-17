@@ -3,17 +3,18 @@ package com.hartwig.pipeline.calling.germline;
 import java.util.Collections;
 import java.util.List;
 
-import com.hartwig.pipeline.calling.SubStage;
+import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.GatkCommand;
 import com.hartwig.pipeline.execution.vm.OutputFile;
+import com.hartwig.pipeline.stages.SubStage;
 
 public class GenotypeGVCFs extends SubStage {
 
     private final String referenceFasta;
 
     GenotypeGVCFs(final String referenceFasta) {
-        super("genotype_vcfs", OutputFile.VCF);
+        super("genotype_vcfs", FileTypes.VCF);
         this.referenceFasta = referenceFasta;
     }
 

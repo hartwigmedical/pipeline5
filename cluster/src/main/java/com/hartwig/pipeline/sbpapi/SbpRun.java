@@ -1,6 +1,6 @@
 package com.hartwig.pipeline.sbpapi;
 
-import javax.annotation.Nullable;
+import java.util.Optional;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
@@ -14,8 +14,7 @@ public interface SbpRun {
 
     int ini_id();
 
-    @Nullable
-    String bucket();
+    Optional<String> bucket();
 
     SbpSet set();
 

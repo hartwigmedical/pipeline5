@@ -7,14 +7,6 @@ import org.immutables.value.Value;
 @Value.Immutable
 public interface CramOutput extends StageOutput {
 
-    static String cram(final String sampleName) {
-        return sampleName + ".cram";
-    }
-
-    static String crai(final String cram) {
-        return cram + ".crai";
-    }
-
     static ImmutableCramOutput.Builder builder() {
         return ImmutableCramOutput.builder();
     }

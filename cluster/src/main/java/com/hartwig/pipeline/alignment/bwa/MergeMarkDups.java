@@ -3,16 +3,17 @@ package com.hartwig.pipeline.alignment.bwa;
 import java.util.Collections;
 import java.util.List;
 
-import com.hartwig.pipeline.calling.SubStage;
+import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.OutputFile;
+import com.hartwig.pipeline.stages.SubStage;
 
 public class MergeMarkDups extends SubStage {
 
     private final List<String> inputBamPaths;
 
     MergeMarkDups(final List<String> inputBamPaths) {
-        super("sorted", OutputFile.BAM);
+        super("", FileTypes.BAM);
         this.inputBamPaths = inputBamPaths;
     }
 

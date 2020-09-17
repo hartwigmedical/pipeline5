@@ -12,8 +12,8 @@ import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
+import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
-import com.hartwig.pipeline.startingpoint.PersistedLocations;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.TertiaryStage;
@@ -64,11 +64,11 @@ public class Cobalt extends TertiaryStage<CobaltOutput> {
     }
 
     @Override
-    public CobaltOutput persistedOutput(final String persistedBucket, final String persistedRun, final SomaticRunMetadata metadata) {
+    public CobaltOutput persistedOutput(final SomaticRunMetadata metadata) {
         return CobaltOutput.builder()
                 .status(PipelineStatus.PERSISTED)
-                .maybeOutputDirectory(GoogleStorageLocation.of(persistedBucket,
-                        PersistedLocations.pathForSet(persistedRun, namespace()),
+                .maybeOutputDirectory(GoogleStorageLocation.of(metadata.bucket(),
+                        PersistedLocations.pathForSet(metadata.set(), namespace()),
                         true))
                 .build();
     }

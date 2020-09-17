@@ -1,5 +1,6 @@
 package com.hartwig.pipeline;
 
+import java.util.Optional;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executors;
@@ -13,6 +14,7 @@ import com.hartwig.pipeline.cleanup.CleanupProvider;
 import com.hartwig.pipeline.credentials.CredentialProvider;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.GoogleComputeEngine;
+import com.hartwig.pipeline.jackson.ObjectMappers;
 import com.hartwig.pipeline.metadata.SingleSampleEventListener;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.metadata.SomaticMetadataApi;
@@ -22,8 +24,11 @@ import com.hartwig.pipeline.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.pubsub.PublisherProvider;
 import com.hartwig.pipeline.report.FullSomaticResults;
 import com.hartwig.pipeline.report.PipelineResultsProvider;
+import com.hartwig.pipeline.reruns.ApiPersistedDataset;
+import com.hartwig.pipeline.reruns.PersistedDataset;
+import com.hartwig.pipeline.reruns.StartingPoint;
+import com.hartwig.pipeline.sbpapi.SbpRestApi;
 import com.hartwig.pipeline.stages.StageRunner;
-import com.hartwig.pipeline.startingpoint.StartingPoint;
 import com.hartwig.pipeline.storage.StorageProvider;
 import com.hartwig.pipeline.tools.Versions;
 import com.hartwig.pipeline.turquoise.PipelineCompleted;
@@ -57,9 +62,9 @@ public class PipelineMain {
                             .map(SingleSampleRunMetadata::sampleName)
                             .orElse(somaticRunMetadata.reference().sampleName()))
                     .runId(arguments.sbpApiRunId())
-                    .set(somaticRunMetadata.runName())
-                    .referenceBarcode(somaticRunMetadata.reference().sampleId())
-                    .tumorBarcode(somaticRunMetadata.maybeTumor().map(SingleSampleRunMetadata::sampleId))
+                    .set(somaticRunMetadata.set())
+                    .referenceBarcode(somaticRunMetadata.reference().barcode())
+                    .tumorBarcode(somaticRunMetadata.maybeTumor().map(SingleSampleRunMetadata::barcode))
                     .type(ini)
                     .build();
             startedEvent(eventSubjects, publisher, arguments.publishToTurquoise());
@@ -67,24 +72,29 @@ public class PipelineMain {
             BlockingQueue<BamMetricsOutput> tumorBamMetricsOutputQueue = new ArrayBlockingQueue<>(1);
             BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue = new ArrayBlockingQueue<>(1);
             StartingPoint startingPoint = new StartingPoint(arguments);
+            PersistedDataset<SingleSampleRunMetadata> dataset =
+                    arguments.sbpApiRunId().<PersistedDataset<SingleSampleRunMetadata>>map(r -> new ApiPersistedDataset(SbpRestApi.newInstance(
+                            arguments.sbpApiUrl()), ObjectMappers.get())).orElse((metdata, dataType) -> Optional.empty());
             PipelineState state = new FullPipeline(singleSamplePipeline(arguments,
                     credentials,
                     storage,
                     referenceEventListener,
                     isSingleSample,
-                    somaticRunMetadata.runName(),
+                    somaticRunMetadata.set(),
                     referenceBamMetricsOutputQueue,
                     germlineCallerOutputQueue,
-                    startingPoint),
+                    startingPoint,
+                    dataset),
                     singleSamplePipeline(arguments,
                             credentials,
                             storage,
                             tumorEventListener,
                             isSingleSample,
-                            somaticRunMetadata.runName(),
+                            somaticRunMetadata.set(),
                             tumorBamMetricsOutputQueue,
                             germlineCallerOutputQueue,
-                            startingPoint),
+                            startingPoint,
+                            dataset),
                     somaticPipeline(arguments,
                             credentials,
                             storage,
@@ -92,8 +102,7 @@ public class PipelineMain {
                             referenceBamMetricsOutputQueue,
                             tumorBamMetricsOutputQueue,
                             germlineCallerOutputQueue,
-                            startingPoint,
-                            somaticRunMetadata.runName()),
+                            startingPoint),
                     Executors.newCachedThreadPool(),
                     referenceEventListener,
                     tumorEventListener,
@@ -125,15 +134,13 @@ public class PipelineMain {
     private static SomaticPipeline somaticPipeline(final Arguments arguments, final GoogleCredentials credentials, final Storage storage,
             final SomaticMetadataApi somaticMetadataApi, final BlockingQueue<BamMetricsOutput> referenceBamMetricsOutputQueue,
             final BlockingQueue<BamMetricsOutput> tumourBamMetricsOutputQueue,
-            final BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue, final StartingPoint startingPoint, final String runName)
-            throws Exception {
+            final BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue, final StartingPoint startingPoint) throws Exception {
         return new SomaticPipeline(arguments,
                 new StageRunner<>(storage,
                         arguments,
                         GoogleComputeEngine.from(arguments, credentials),
                         ResultsDirectory.defaultDirectory(),
-                        startingPoint,
-                        runName),
+                        startingPoint),
                 referenceBamMetricsOutputQueue,
                 tumourBamMetricsOutputQueue,
                 germlineCallerOutputQueue,
@@ -145,23 +152,22 @@ public class PipelineMain {
     private static SingleSamplePipeline singleSamplePipeline(final Arguments arguments, final GoogleCredentials credentials,
             final Storage storage, final SingleSampleEventListener eventListener, final Boolean isStandalone, final String runName,
             final BlockingQueue<BamMetricsOutput> metricsOutputQueue, final BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue,
-            final StartingPoint startingPoint) throws Exception {
+            final StartingPoint startingPoint, final PersistedDataset<SingleSampleRunMetadata> persistedDataset) throws Exception {
 
         return new SingleSamplePipeline(eventListener,
                 new StageRunner<>(storage,
                         arguments,
                         GoogleComputeEngine.from(arguments, credentials),
                         ResultsDirectory.defaultDirectory(),
-                        startingPoint,
-                        runName),
-                AlignerProvider.from(credentials, storage, runName, arguments).get(),
+                        startingPoint),
+                AlignerProvider.from(credentials, storage, arguments).get(),
                 PipelineResultsProvider.from(storage, arguments, Versions.pipelineVersion()).get(),
                 Executors.newCachedThreadPool(),
                 isStandalone,
                 arguments,
+                persistedDataset,
                 metricsOutputQueue,
-                germlineCallerOutputQueue,
-                runName);
+                germlineCallerOutputQueue);
     }
 
     public static void main(String[] args) {

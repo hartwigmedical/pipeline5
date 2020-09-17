@@ -4,10 +4,11 @@ import java.util.Collections;
 import java.util.List;
 
 import com.hartwig.patient.Lane;
-import com.hartwig.pipeline.calling.SubStage;
+import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.OutputFile;
 import com.hartwig.pipeline.execution.vm.unix.PipeCommands;
+import com.hartwig.pipeline.stages.SubStage;
 
 public class LaneAlignment extends SubStage {
 
@@ -20,7 +21,7 @@ public class LaneAlignment extends SubStage {
 
     LaneAlignment(final boolean strictFastqNaming, final String referenceGenomePath, final String firstFastqPath, final String secondFastqPath, final String sampleName,
             final Lane lane) {
-        super("sorted." + BwaAligner.laneId(lane), OutputFile.BAM);
+        super(BwaAligner.laneId(lane), FileTypes.BAM);
         this.strictFastqNaming = strictFastqNaming;
         this.referenceGenomePath = referenceGenomePath;
         this.firstFastqPath = firstFastqPath;

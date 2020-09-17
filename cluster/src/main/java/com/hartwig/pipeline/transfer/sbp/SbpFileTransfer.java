@@ -48,7 +48,7 @@ public class SbpFileTransfer {
     public void publish(SomaticRunMetadata metadata, SbpRun sbpRun, String sbpBucket) {
         LOGGER.info("Starting file transfer from {} to SBP bucket {}", sourceBucket.getName(), sbpBucket);
         sbpS3.ensureBucketExists(sbpBucket);
-        List<Blob> sourceObjects = find(sourceBucket, metadata.runName());
+        List<Blob> sourceObjects = find(sourceBucket, metadata.set());
         List<SourceDestPair> allFiles = new ArrayList<>();
         for (Blob blob : filterStagingBlobs(sourceObjects)) {
             if (blob.getMd5() == null) {
@@ -58,7 +58,7 @@ public class SbpFileTransfer {
                 allFiles.add(createPair(blob, sbpBucket));
             }
         }
-        writeManifest(allFiles, sbpBucket, metadata.runName(), sbpRun);
+        writeManifest(allFiles, sbpBucket, metadata.set(), sbpRun);
         for (SourceDestPair pair : allFiles) {
             LOGGER.debug("Copying {}", pair);
             doRemoteWork(pair.source.toUrl(), Integer.parseInt(sbpRun.id()), pair.source.size(), pair.source.md5(), pair.dest);

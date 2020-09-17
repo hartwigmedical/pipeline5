@@ -38,7 +38,7 @@ public class LocalSomaticMetadataTest {
 
     @Test
     public void setsRunNameToSetIdCombinedWithRunId() {
-        assertThat(victim.get().runName()).isEqualTo(format("%s-%s", setId, Arguments.testDefaults().runId().get()));
+        assertThat(victim.get().set()).isEqualTo(format("%s-%s", setId, Arguments.testDefaults().runId().orElseThrow()));
     }
 
     @Test
@@ -48,7 +48,7 @@ public class LocalSomaticMetadataTest {
         assertThat(metadata.maybeTumor().isPresent()).isTrue();
         assertThat(metadata.tumor().type()).isEqualTo(SampleType.TUMOR);
         assertThat(metadata.tumor().sampleName()).isEqualTo(tumorName);
-        assertThat(metadata.tumor().sampleId()).isEqualTo(tumorName);
+        assertThat(metadata.tumor().barcode()).isEqualTo(tumorName);
     }
 
     @Test
@@ -57,6 +57,6 @@ public class LocalSomaticMetadataTest {
 
         assertThat(metadata.reference().type()).isEqualTo(SampleType.REFERENCE);
         assertThat(metadata.reference().sampleName()).isEqualTo(refName);
-        assertThat(metadata.reference().sampleId()).isEqualTo(refName);
+        assertThat(metadata.reference().barcode()).isEqualTo(refName);
     }
 }

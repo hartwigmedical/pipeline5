@@ -3,6 +3,7 @@ package com.hartwig.pipeline.metrics;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
@@ -29,7 +30,7 @@ public class BamMetricsTest extends StageTest<BamMetricsOutput, SingleSampleRunM
 
     @Override
     protected Stage<BamMetricsOutput, SingleSampleRunMetadata> createVictim() {
-        return new BamMetrics(TestInputs.HG19_RESOURCE_FILES, TestInputs.referenceAlignmentOutput());
+        return new BamMetrics(TestInputs.HG19_RESOURCE_FILES, TestInputs.referenceAlignmentOutput(), (m, r) -> Optional.empty());
     }
 
     @Override
@@ -67,6 +68,6 @@ public class BamMetricsTest extends StageTest<BamMetricsOutput, SingleSampleRunM
     @Override
     protected void validatePersistedOutput(final BamMetricsOutput output) {
         assertThat(output.metricsOutputFile()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
-                "run/reference/bam_metrics/reference.wgsmetrics"));
+                "set/reference/bam_metrics/reference.wgsmetrics"));
     }
 }

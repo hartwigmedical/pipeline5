@@ -9,6 +9,8 @@ import java.util.List;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
+import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
@@ -38,7 +40,7 @@ public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata
 
     public CramConversion(final AlignmentOutput alignmentOutput, ResourceFiles resourceFiles) {
         bamDownload = new InputDownload(alignmentOutput.finalBamLocation());
-        outputCram = VmDirectories.outputFile(CramOutput.cram(alignmentOutput.sample()));
+        outputCram = VmDirectories.outputFile(FileTypes.cram(alignmentOutput.sample()));
         this.resourceFiles = resourceFiles;
     }
 
@@ -72,7 +74,7 @@ public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata
     public CramOutput output(SingleSampleRunMetadata metadata, PipelineStatus jobStatus, RuntimeBucket bucket,
             ResultsDirectory resultsDirectory) {
         String cram = new File(outputCram).getName();
-        String crai = CramOutput.crai(cram);
+        String crai = FileTypes.crai(cram);
         Folder folder = Folder.from(metadata);
 
         String fullCram = format("%s%s/%s", folder.name(), NAMESPACE, cram);
@@ -86,14 +88,19 @@ public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata
                         new SingleFileComponent(bucket, NAMESPACE, folder, crai, crai, resultsDirectory))
                 .addFurtherOperations(new LinkFileToSample(fullCram, metadata.entityId()),
                         new LinkFileToSample(fullCrai, metadata.entityId()),
-                        new AddDatatypeToFile(fullCram, "reads"),
-                        new AddDatatypeToFile(fullCrai, "reads"))
+                        new AddDatatypeToFile(fullCram, DataType.READS),
+                        new AddDatatypeToFile(fullCrai, DataType.READS))
                 .build();
     }
 
     @Override
     public CramOutput skippedOutput(SingleSampleRunMetadata metadata) {
         return CramOutput.builder().status(PipelineStatus.SKIPPED).build();
+    }
+
+    @Override
+    public CramOutput persistedOutput(final SingleSampleRunMetadata metadata) {
+        return CramOutput.builder().status(PipelineStatus.PERSISTED).build();
     }
 
     @Override

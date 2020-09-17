@@ -1,10 +1,13 @@
 package com.hartwig.pipeline.flagstat;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.Collections;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.StageTest;
@@ -52,5 +55,10 @@ public class FlagstatTest extends StageTest<FlagstatOutput, SingleSampleRunMetad
     @Override
     protected void validateOutput(final FlagstatOutput output) {
         // no additional
+    }
+
+    @Override
+    protected void validatePersistedOutput(final FlagstatOutput output) {
+        assertThat(output).isEqualTo(FlagstatOutput.builder().status(PipelineStatus.PERSISTED).build());
     }
 }

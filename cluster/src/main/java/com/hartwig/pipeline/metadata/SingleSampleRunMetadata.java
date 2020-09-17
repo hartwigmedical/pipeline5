@@ -16,7 +16,7 @@ public interface SingleSampleRunMetadata extends RunMetadata {
 
     @Value.Default
     default String sampleName() {
-        return sampleId();
+        return barcode();
     }
 
     @Value.Default
@@ -25,13 +25,13 @@ public interface SingleSampleRunMetadata extends RunMetadata {
         return -1;
     }
 
-    String sampleId();
+    String barcode();
 
     SampleType type();
 
     @Override
     default String name() {
-        return sampleId();
+        return barcode();
     }
 
     static ImmutableSingleSampleRunMetadata.Builder builder() {

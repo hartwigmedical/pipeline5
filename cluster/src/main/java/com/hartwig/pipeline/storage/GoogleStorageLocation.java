@@ -17,6 +17,11 @@ public interface GoogleStorageLocation {
         return false;
     }
 
+    default GoogleStorageLocation parent() {
+        String[] split = path().split("/");
+        return GoogleStorageLocation.of(bucket(), split[split.length - 1], true);
+    }
+
     static GoogleStorageLocation of(String bucket, String path) {
         return of(bucket, path, false);
     }

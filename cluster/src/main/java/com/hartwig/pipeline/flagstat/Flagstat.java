@@ -35,7 +35,6 @@ public class Flagstat implements Stage<FlagstatOutput, SingleSampleRunMetadata> 
         return Collections.singletonList(bamDownload);
     }
 
-
     @Override
     public String namespace() {
         return NAMESPACE;
@@ -68,6 +67,11 @@ public class Flagstat implements Stage<FlagstatOutput, SingleSampleRunMetadata> 
                         outputFile,
                         resultsDirectory))
                 .build();
+    }
+
+    @Override
+    public FlagstatOutput persistedOutput(final SingleSampleRunMetadata metadata) {
+        return FlagstatOutput.builder().status(PipelineStatus.PERSISTED).build();
     }
 
     @Override

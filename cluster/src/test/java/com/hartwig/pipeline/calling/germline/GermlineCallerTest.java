@@ -3,6 +3,7 @@ package com.hartwig.pipeline.calling.germline;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
@@ -34,7 +35,7 @@ public class GermlineCallerTest extends StageTest<GermlineCallerOutput, SingleSa
 
     @Override
     protected Stage<GermlineCallerOutput, SingleSampleRunMetadata> createVictim() {
-        return new GermlineCaller(TestInputs.referenceAlignmentOutput(), TestInputs.HG19_RESOURCE_FILES);
+        return new GermlineCaller(TestInputs.referenceAlignmentOutput(), TestInputs.HG19_RESOURCE_FILES, (m, r) -> Optional.empty());
     }
 
     @Override
@@ -83,8 +84,8 @@ public class GermlineCallerTest extends StageTest<GermlineCallerOutput, SingleSa
     @Override
     protected void validatePersistedOutput(final GermlineCallerOutput output) {
         assertThat(output.germlineVcfLocation()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
-                "run/reference/germline_caller/reference.germline.vcf.gz"));
+                "set/reference/germline_caller/reference.germline.vcf.gz"));
         assertThat(output.germlineVcfIndexLocation()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
-                "run/reference/germline_caller/reference.germline.vcf.gz.tbi"));
+                "set/reference/germline_caller/reference.germline.vcf.gz.tbi"));
     }
 }

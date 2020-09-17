@@ -8,16 +8,15 @@ import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.AlignmentPair;
-import com.hartwig.pipeline.calling.SubStageInputOutput;
 import com.hartwig.pipeline.calling.command.BwaCommand;
 import com.hartwig.pipeline.calling.command.SamtoolsCommand;
 import com.hartwig.pipeline.calling.structural.gridss.stage.Driver;
 import com.hartwig.pipeline.calling.structural.gridss.stage.GridssAnnotation;
+import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.InputDownload;
-import com.hartwig.pipeline.execution.vm.OutputFile;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.unix.ExportPathCommand;
@@ -27,9 +26,10 @@ import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.report.StartupScriptComponent;
 import com.hartwig.pipeline.report.ZippedVcfAndIndexComponent;
+import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
-import com.hartwig.pipeline.startingpoint.PersistedLocations;
+import com.hartwig.pipeline.stages.SubStageInputOutput;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
@@ -119,18 +119,17 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
     }
 
     @Override
-    public StructuralCallerOutput persistedOutput(final String persistedBucket, final String persistedRun,
-            final SomaticRunMetadata metadata) {
+    public StructuralCallerOutput persistedOutput(final SomaticRunMetadata metadata) {
 
         String unfilteredVcf =
-                String.format("%s.%s.%s", metadata.tumor().sampleName(), GridssAnnotation.GRIDSS_ANNOTATED, OutputFile.GZIPPED_VCF);
+                String.format("%s.%s.%s", metadata.tumor().sampleName(), GridssAnnotation.GRIDSS_ANNOTATED, FileTypes.GZIPPED_VCF);
 
         return StructuralCallerOutput.builder()
                 .status(PipelineStatus.PERSISTED)
-                .maybeUnfilteredVcf(GoogleStorageLocation.of(persistedBucket,
-                        PersistedLocations.blobForSet(persistedRun, namespace(), unfilteredVcf)))
-                .maybeUnfilteredVcfIndex(GoogleStorageLocation.of(persistedBucket,
-                        PersistedLocations.blobForSet(persistedRun, namespace(), unfilteredVcf) + ".tbi"))
+                .maybeUnfilteredVcf(GoogleStorageLocation.of(metadata.bucket(),
+                        PersistedLocations.blobForSet(metadata.set(), namespace(), unfilteredVcf)))
+                .maybeUnfilteredVcfIndex(GoogleStorageLocation.of(metadata.bucket(),
+                        PersistedLocations.blobForSet(metadata.set(), namespace(), unfilteredVcf) + ".tbi"))
                 .build();
     }
 
@@ -139,7 +138,8 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
         return arguments.runStructuralCaller();
     }
 
-    private static GoogleStorageLocation resultLocation(final RuntimeBucket bucket, final ResultsDirectory resultsDirectory, String filename) {
+    private static GoogleStorageLocation resultLocation(final RuntimeBucket bucket, final ResultsDirectory resultsDirectory,
+            String filename) {
         return GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(filename)));
     }
 }
