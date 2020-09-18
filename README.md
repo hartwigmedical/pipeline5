@@ -1,58 +1,25 @@
 # Hartwig Medical Foundation - Pipeline5
 
-1. [Technical Overview](#1-technical-overview)
-2. [Developers Guide](#2-developers-guide)
-3. [Operators Guide](#3-operators-guide)
+Pipeline5 (Pv5) is a processing and analysis pipeline for high throughput DNA sequencing data used in Hartwig Medical Foundation's (HMF) 
+patient processing and research. The goals of the project are to deliver best in class performance and scalability using the Google Cloud Platform
 
-
-## 1 Technical Overview
-
-### 1.1 Introduction
-Pipeline5 (Pv5) is a processing and analysis pipeline for high throughput DNA sequencing data used in Hartwig Medical
-Foundation's (HMF) patient processing and research. The goals of the project are to deliver best in class performance and
-scalability using cloud infrastructure. 
-
-### 1.2 Google Cloud Platform
-We chose Google Cloud Platform as our cloud infrastructure provider for the following reasons (evaluated fall 2018):
-- GCP had the best and simplest pricing model for our workload.
-- GCP had the most user friendly console for monitoring and operations.
-- GCP had the fastest startup time for its managed Hadoop service.
-
-The last point was important to us due to a design choice made to address resource contention. Pv5 uses ephemeral resources
-tailored to each patient. This way at any point we are only using exactly the resources we need for our workload, never having
-to queue or idle. 
-
-Pv5 makes use of the following GCP services:
-- [Google Cloud Storage](https://cloud.google.com/storage/) to store transient patient data, supporting resources, configuration and tools.
-- [Google Compute Engine](https://cloud.google.com/compute/) to run workloads.
-
-### 1.3 Google Compute Engine
-We've developed a small framework in Java to run the pipeline components on virtual machines (VMs). We use a custom disk image
-containing a complete repository of external and internal tools and resources, and OS dependencies.
-
-Using internal APIs we launch VM jobs by generating a `bash` startup script which will copy inputs, run the tools themselves, and
-copy the final results (or any errors) back up into Google storage.
-
-VM performance profiles can be created to use Google's standard machine type or custom CPU/RAM combinations based on the
-workload's requirements.
-
-### 1.4 Pipeline Stages
+### Overview of Pipeline Stages
 The pipeline first runs primary and secondary analysis on a reference (blood/normal) sample and tumor sample before comparing
 them in the final somatic pipeline. Steps 1.4.1-1.4.5 are run in the single sample pipeline, where 1.4.6-1.4.15 are run in the
 somatic. 
 
-#### 1.4.1 Alignment
+#### Alignment
 Under normal circumstances Pv5 starts with the input of one to _n_ paired-end FASTQ files produced by sequencing. The first task
 of the pipeline is to align these reads to the human reference genome (using the BWA algorithm). We use the largest core counts
 available and parallelise by sample (tumor/normal) and lane within each sample to achieve reasonable performance. 
 
 Mark duplicates and sorting is performed after the per lane alignments with [Sambamba](https://lomereiter.github.io/sambamba/).
 
-#### 1.4.2 WGS Metrics
+#### WGS Metrics
 Our downstream QC tools require certain metrics about the BAM. These are produced using Picard tools
 [CollectWgsMetrics](https://software.broadinstitute.org/gatk/documentation/tooldocs/4.0.0.0/picard_analysis_CollectWgsMetrics.php).
 
-#### 1.4.3 Samtools Flagstat
+#### Samtools Flagstat
 [Samtools](http://www.htslib.org/doc/samtools.html) flag statistics are not consumed by any downstream stages, but useful
 in ad hoc QC and analysis.  
 
@@ -179,116 +146,3 @@ developer:
 1. Run the `create_custom_image.sh` script to create a new image. Note that this is tied to no branch, the image just gets created
    with the current release and a timestamp.
 1. Submit your code changes for review to a new remote branch following the guidelines above on `git` and pull requests.
-
-## 3 Operators Guide
-
-### 3.1 Overview
-
-This section documents the moving parts in the production environment. At the highest level the Pv5 processing flow
-consists of three steps:
-
-1. FASTQ file(s) become available and are copied to Google Cloud Storage (GCS). Pv5 is run (in Google Cloud Platform (GCP))
-   against them in single-sample mode.
-1. When a single-sample run for at least one normal and one tumor are complete, Pv5 is invoked in somatic mode against the output
-   data from the single-sample runs.
-1. Resulting data from the runs are collected into a final output structure, submitted back to SBP's storage cloud and 
-   registered with SBP's API.
-
-#### 3.1.1 Operational Terminology
-
-These terms will be used for the rest of the operational guide:
-
-- A *sample* is the all data from a physical tissue sample for a patient
-- A *set* is all of the data available for a particular patient, the metadata that is needed to associate the constituent samples
-    to one another, and the execution of the pipeline for that set
-- A *run* is an invocation of the pipeline against a particular sample of a set, in a given mode
-- A *stage* is a part of a run which executes on either its own DataProc cluster or virtual machine in GCP
-- The *project* in GCP is the mechanism we use to keep development separate from production. While all the developers and probably
-    some operators have access to the development project, the production project is limited to operators.
-
-#### 3.1.2 Service Accounts
-
-GCP access can be managed in multiple ways but we are using [service
-accounts](https://cloud.google.com/compute/docs/access/service-accounts) to avoid maintenance and security overheads.
-Operationally a JSON file containing the private key needs to be downloaded from the GCP console; that file can either be placed
-in default location so it does not need to be specified on the command line, or that file can be mentioned by name on the command 
-line. See [Invocation](#3.5.3-invocation).
-
-The current production service account is called `pipeline5-scheduler`.
-
-### 3.2 Storage Buckets
-
-GCS makes a bucket seem more like a filesystem (or parent directory), with folders (or directories) and files, than some of the
-other cloud storage products out there. Here we'll treat buckets as cloud-backed filesystems.
-
-There are two sorts of buckets that are created when a run happens. Runtime buckets contain in-flight data that is required during
-the run's duration, while output buckets contain the finished results for one or many runs.
-
-Two other buckets are also involved in Pv5 development, a "tools" bucket which stores the software that is used to generate a disk image
-for our VMs, and a "resources" bucket which holds data required by the runs. These are discussed further down.
-
-#### 3.2.1 Runtime Buckets
-
-As the runs of a set are executing, the pipeline creates buckets to hold the input and output of the stages of the runs. From an 
-operational perspective the pipeline may be thought of as a series of operations, with the outputs from earlier stages becoming
-the inputs for later ones. Each stage in a run will get a directory which will contain:
-
-- Input data, which comes from previous stages' outputs or as input to the pipeline;
-- Results, which will be used as input to later stages or as final output of the pipeline;
-- Administrative and control files (completion flags, log files, etc).
-
-The pipeline creates and manages buckets as required to support the operations that are selected for a given run. In a typical
-complete run comprising single-sample normal and tumor stages and the somatic stage, there will be three runtime buckets. The
-buckets are easy to find as they are named according to the sample barcode (if available) and set data provided on the command line to the
-application, for example:
-
-```
-run-fr11111111
-run-fr22222222
-run-fr11111111-fr22222222
-```
-
-#### 3.2.2 Output Buckets
-
-When each stage of a run completes successfully the pipeline copies any results which are part of the finished pipeline to a
-folder in the output bucket for the set to which the run belongs. The output bucket may be controlled via arguments to the 
-pipeline application.
-
-In addition to the results from each stage, the output bucket will also contain in its top-level directory the log from the
-coordinating pipeline process, the set metadata, and some version information for the pipeline itself in order to make it easy to
-reproduce runs in the future and for auditing purposes.
-
-The output bucket can be configured at runtime with the `-patient_report_bucket`. The default for production is `pipeline-output-prod`.
-
-### 3.3 Custom Disk Images
-
-Our VMs are run against a customised version of one of the Google base virtual machine disk images. We start with their image as
-it provides something that is configured to run properly under their infrastructure then "freeze" off our customisations into our
-own disk image. This image will need to be updated from time to time using our image generation script, which automates these
-steps:
-
-1. A new VM is started using the latest version of the preferred Google disk image family.
-1. The script executes the set of commands in the custom commands list maintained in the source repository. The list has commands
-   to install OS packages and software from the tools bucket as well as anything else that may be needed.
-1. The VM is stopped and a custom image taken from its disk contents. This custom image is stored in Google's infrastructure under
-   the project.
-
-When the coordinator requests a new VM be created for a stage of the pipeline, the latest member of the series of custom images
-will be used. Therefore a new image must be cut whenever any tools change in development. Release notes should include the version
-of the image that is to be imported to production for a release.
-
-The image family name starts with `pipeline5`. All versions can be seen in the GCP Console, Compute Engine->Images.
-
-#### 3.3.1 Disk Layout
-
-We have isolated the "working" area of the disk images to the `/data/` directory. There are four directories under this top
-level:
-
-- `input` stores the files required by the stage, which will be copied into this location from the runtime bucket when the VM
-    instance starts
-- `output` will contain the results of the run, which will be copied up to the output bucket when the stage completes
-
-The tools and resources are copied into `/opt/tools` and `/opt/resources` respectively.
-
-Beyond these directories only the `/tmp` directory is expected to be used for anything as some of the stages have it set as their
-temporary or working directory.
