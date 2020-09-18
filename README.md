@@ -71,17 +71,6 @@ and annotates them with their state in the tumor sample.
 #### Health Check
 [Health Checker](https://github.com/hartwigmedical/hmftools/tree/master/health-checker) is an HMF in-house doing a final QC based off the purple results and BAM metrics.
 
-### Data and Compute Topology
-
-The following diagram gives a simple overview of the dataflow between components, their executions platforms, and locations (ie what runs
-in GCP vs SBP private cloud). Dotted arrows represent API calls (create, start, stop, delete, etc) and solid dataflow. Three key pieces
-of data are shown here:
-- FASTQ - Raw sequencer output.
-- BAM - Aligned sequence output produced by alignment stage.
-- VCF - Variants called by the pipeline and other final output files
-
-![alt text](https://github.com/hartwigmedical/pipeline5/blob/master/pv5_architecture_overview.png "Pv5 Topology")
-
 ## Developers Guide
 
 ### Building and Testing Pipeline 5
