@@ -2,6 +2,7 @@ package com.hartwig.pipeline;
 
 import java.util.Optional;
 
+import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
 
 import org.immutables.value.Value;
@@ -263,7 +264,8 @@ public interface Arguments extends CommonArguments {
                     .publishToTurquoise(false)
                     .pollInterval(DEFAULT_POLL_INTERVAL)
                     .refGenomeVersion(DEFAULT_REF_GENOME_VERSION)
-                    .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES);
+                    .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES)
+                    .imageName(VirtualMachineJobDefinition.PUBLIC_IMAGE_NAME);
         }
         throw new IllegalArgumentException(String.format("Unknown profile [%s], please create defaults for this profile.", profile));
     }
