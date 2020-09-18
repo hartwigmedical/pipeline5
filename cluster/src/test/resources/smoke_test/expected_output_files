@@ -136,6 +136,7 @@ gridss/CPCT12345678R.bam.gridss.working/CPCT12345678R.bam.insert_size_metrics
 gridss/CPCT12345678R.bam.gridss.working/CPCT12345678R.bam.mapq_metrics
 gridss/CPCT12345678R.bam.gridss.working/CPCT12345678R.bam.sv_metrics
 gridss/CPCT12345678R.bam.gridss.working/CPCT12345678R.bam.tag_metrics
+gridss/CPCT12345678R.bam.gridss.working/CPCT12345678R.bam.sv.bam
 gridss/CPCT12345678R.bam.gridss.working/CPCT12345678R.bam.sv.bam.bai
 gridss/CPCT12345678T.assembly.bam.gridss.working/CPCT12345678T.assembly.bam.cigar_metrics
 gridss/CPCT12345678T.assembly.bam.gridss.working/CPCT12345678T.assembly.bam.coverage.blacklist.bed
@@ -160,6 +161,7 @@ gridss/CPCT12345678T.bam.gridss.working/CPCT12345678T.bam.insert_size_metrics
 gridss/CPCT12345678T.bam.gridss.working/CPCT12345678T.bam.mapq_metrics
 gridss/CPCT12345678T.bam.gridss.working/CPCT12345678T.bam.tag_metrics
 gridss/CPCT12345678T.bam.gridss.working/CPCT12345678T.bam.sv_metrics
+gridss/CPCT12345678T.bam.gridss.working/CPCT12345678T.bam.sv.bam
 gridss/CPCT12345678T.bam.gridss.working/CPCT12345678T.bam.sv.bam.bai
 gridss/run.log
 gridss/run.sh
