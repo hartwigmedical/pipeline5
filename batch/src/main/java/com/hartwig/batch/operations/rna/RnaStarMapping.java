@@ -31,7 +31,9 @@ import com.hartwig.pipeline.tools.Versions;
 
 public class RnaStarMapping implements BatchOperation {
 
-    private static final String REF_GENCODE_37 = "/opt/resources/hs37d5_GENCODE19";
+    private static final String REF_GENCODE_37 = "hs37d5_GENCODE19";
+    private static final String REF_GENCODE_37_LOCATION = "gs://isofox-resources";
+
 
     @Override
     public VirtualMachineJobDefinition execute(
@@ -68,13 +70,19 @@ public class RnaStarMapping implements BatchOperation {
         final String r1Files = format("$(ls %s/*_R1* | tr '\\n' ',')", VmDirectories.INPUT);
         final String r2Files = format("$(ls %s/*_R2* | tr '\\n' ',')", VmDirectories.INPUT);
 
+        // copy reference files for STAR
+        startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp -r %s/%s %s",
+                REF_GENCODE_37_LOCATION, REF_GENCODE_37, VmDirectories.INPUT));
+
+        final String refGenomeDir = String.format("%s/%s", VmDirectories.INPUT, REF_GENCODE_37);
+
         // logging
         final String threadCount = Bash.allCpus();
 
         startupScript.addCommand(() -> format("cd %s", VmDirectories.OUTPUT));
 
         // run the STAR mapper
-        final String[] starArgs = {"--runThreadN", threadCount, "--genomeDir", REF_GENCODE_37, "--genomeLoad", "NoSharedMemory",
+        final String[] starArgs = {"--runThreadN", threadCount, "--genomeDir", refGenomeDir, "--genomeLoad", "NoSharedMemory",
                 "--readFilesIn", r1Files, r2Files, "--readFilesCommand", "zcat", "--outSAMtype", "BAM", "Unsorted",
                 "--outSAMunmapped", "Within", "--outBAMcompression", "0", "--outSAMattributes", "All",
                 "--outFilterMultimapNmax", "10", "--outFilterMismatchNmax", "3", "limitOutSJcollapsed", "3000000",

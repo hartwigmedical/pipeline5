@@ -26,6 +26,7 @@ public class RnaIsofox implements BatchOperation {
     private static final String RNA_BAM_FILE_ID = ".sorted.dups.bam";
     private static final String RNA_BAM_INDEX_FILE_ID = ".sorted.dups.bam.bai";
     private static final String ENSEMBL_DATA_CACHE = "ensembl_data_cache";
+    private static final String KNOWN_FUSIONS_FILE = "known_fusion_data.csv";
     private static final String REF_GENOME = "Homo_sapiens.GRCh37.GATK.illumina.fasta";
     private static final String REF_GENOME_INDEX = "Homo_sapiens.GRCh37.GATK.illumina.fasta.fai";
     private static final String EXP_COUNTS_READ_76 = "read_76_exp_rates.csv";
@@ -35,7 +36,6 @@ public class RnaIsofox implements BatchOperation {
     private static final String READ_LENGTH_151 = "151";
 
     private static final int FRAG_LENGTH_FRAG_COUNT = 1000000;
-    private static final int GENE_READ_LIMIT = 2000000;
     private static final int LONG_FRAG_LENGTH_LIMIT = 550;
     private static final String FRAG_LENGTH_BUCKETS = "50-0;75-0;100-0;125-0;150-0;200-0;250-0;300-0;550-0";
     private static final String ENRICHED_GENE_IDS = "ENSG00000265150;ENSG00000258486;ENSG00000202198;ENSG00000266037;ENSG00000263740;ENSG00000265735";
@@ -98,6 +98,9 @@ public class RnaIsofox implements BatchOperation {
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s %s",
                 ISOFOX_LOCATION, EXP_GC_COUNTS_READ_100, VmDirectories.INPUT));
 
+        startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s %s",
+                ISOFOX_LOCATION, KNOWN_FUSIONS_FILE, VmDirectories.INPUT));
+
         final String threadCount = Bash.allCpus();
 
         startupScript.addCommand(() -> format("cd %s", VmDirectories.OUTPUT));
@@ -137,14 +140,16 @@ public class RnaIsofox implements BatchOperation {
                 isofoxArgs.append(String.format(" -write_exp_rates"));
         }
 
+        isofoxArgs.append(String.format(" -known_fusion_file %s/%s", VmDirectories.INPUT, KNOWN_FUSIONS_FILE));
+
         isofoxArgs.append(String.format(" -threads %s", threadCount));
 
-        startupScript.addCommand(() -> format("java -Xmx36G -jar %s/%s %s", VmDirectories.TOOLS, ISOFOX_JAR, isofoxArgs.toString()));
+        startupScript.addCommand(() -> format("java -Xmx40G -jar %s/%s %s", VmDirectories.TOOLS, ISOFOX_JAR, isofoxArgs.toString()));
 
         // upload the results
         startupScript.addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), "isofox"), executionFlags));
 
-        if(functionsStr.equals(functionsStr)) {
+        if(functionsStr.equals(FUNC_FUSIONS)) {
             startupScript.addCommand(() -> format("gsutil -m cp %s/*fusions.csv gs://rna-cohort/%s/isofox/", VmDirectories.OUTPUT, sampleId));
         }
         else
@@ -154,7 +159,7 @@ public class RnaIsofox implements BatchOperation {
         }
 
         return ImmutableVirtualMachineJobDefinition.builder().name("rna-isofox").startupCommand(startupScript)
-                .namespacedResults(ResultsDirectory.defaultDirectory()).workingDiskSpaceGb(50)
+                .namespacedResults(ResultsDirectory.defaultDirectory()).workingDiskSpaceGb(70)
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(12, 48)).build();
     }
 
