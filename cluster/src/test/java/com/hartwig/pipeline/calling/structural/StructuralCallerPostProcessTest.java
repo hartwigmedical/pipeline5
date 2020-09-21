@@ -9,6 +9,7 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
+import com.hartwig.pipeline.reruns.NoopPersistedDataset;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.StageTest;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
@@ -30,7 +31,9 @@ public class StructuralCallerPostProcessTest extends StageTest<StructuralCallerP
 
     @Override
     protected Stage<StructuralCallerPostProcessOutput, SomaticRunMetadata> createVictim() {
-        return new StructuralCallerPostProcess(TestInputs.HG19_RESOURCE_FILES, TestInputs.structuralCallerOutput());
+        return new StructuralCallerPostProcess(TestInputs.HG19_RESOURCE_FILES,
+                TestInputs.structuralCallerOutput(),
+                new NoopPersistedDataset());
     }
 
     @Override

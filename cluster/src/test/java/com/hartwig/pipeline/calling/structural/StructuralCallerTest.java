@@ -12,6 +12,7 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
+import com.hartwig.pipeline.reruns.NoopPersistedDataset;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.StageTest;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
@@ -33,7 +34,7 @@ public class StructuralCallerTest extends StageTest<StructuralCallerOutput, Soma
 
     @Override
     protected Stage<StructuralCallerOutput, SomaticRunMetadata> createVictim() {
-        return new StructuralCaller(TestInputs.defaultPair(), TestInputs.HG19_RESOURCE_FILES);
+        return new StructuralCaller(TestInputs.defaultPair(), TestInputs.HG19_RESOURCE_FILES, new NoopPersistedDataset());
     }
 
     @Override
@@ -79,8 +80,7 @@ public class StructuralCallerTest extends StageTest<StructuralCallerOutput, Soma
 
     @Override
     protected void validatePersistedOutput(final StructuralCallerOutput output) {
-        assertThat(output.unfilteredVcf()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
-                "set/gridss/tumor.gridss.unfiltered.vcf.gz"));
+        assertThat(output.unfilteredVcf()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "set/gridss/tumor.gridss.unfiltered.vcf.gz"));
         assertThat(output.unfilteredVcfIndex()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
                 "set/gridss/tumor.gridss.unfiltered.vcf.gz.tbi"));
     }

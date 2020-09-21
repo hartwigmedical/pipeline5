@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
+import com.hartwig.pipeline.reruns.NoopPersistedDataset;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
@@ -22,7 +23,7 @@ public class CobaltTest extends TertiaryStageTest<CobaltOutput> {
 
     @Override
     protected Stage<CobaltOutput, SomaticRunMetadata> createVictim() {
-        return new Cobalt(TestInputs.defaultPair(), TestInputs.HG19_RESOURCE_FILES);
+        return new Cobalt(TestInputs.defaultPair(), TestInputs.HG19_RESOURCE_FILES, new NoopPersistedDataset());
     }
 
     @Override

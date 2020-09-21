@@ -7,6 +7,7 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
+import com.hartwig.pipeline.reruns.NoopPersistedDataset;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
@@ -23,7 +24,7 @@ public class SageCallerTest extends TertiaryStageTest<SomaticCallerOutput> {
 
     @Override
     protected Stage<SomaticCallerOutput, SomaticRunMetadata> createVictim() {
-        return new SageCaller(TestInputs.defaultPair(), TestInputs.HG19_RESOURCE_FILES);
+        return new SageCaller(TestInputs.defaultPair(), TestInputs.HG19_RESOURCE_FILES, new NoopPersistedDataset());
     }
 
     @Override

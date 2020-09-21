@@ -88,8 +88,8 @@ public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata
                         new SingleFileComponent(bucket, NAMESPACE, folder, crai, crai, resultsDirectory))
                 .addFurtherOperations(new LinkFileToSample(fullCram, metadata.entityId()),
                         new LinkFileToSample(fullCrai, metadata.entityId()),
-                        new AddDatatypeToFile(fullCram, DataType.READS),
-                        new AddDatatypeToFile(fullCrai, DataType.READS))
+                        new AddDatatypeToFile(fullCram, DataType.ALIGNED_READS),
+                        new AddDatatypeToFile(fullCrai, DataType.ALIGNED_READS))
                 .build();
     }
 

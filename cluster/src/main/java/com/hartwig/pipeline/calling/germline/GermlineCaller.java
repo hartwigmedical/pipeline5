@@ -60,10 +60,10 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
     private final InputDownload bamDownload;
     private final InputDownload baiDownload;
     private final OutputFile outputFile;
-    private final PersistedDataset<SingleSampleRunMetadata> persistedDataset;
+    private final PersistedDataset persistedDataset;
 
     public GermlineCaller(final AlignmentOutput alignmentOutput, final ResourceFiles resourceFiles,
-            final PersistedDataset<SingleSampleRunMetadata> persistedDataset) {
+            final PersistedDataset persistedDataset) {
         this.resourceFiles = resourceFiles;
         this.bamDownload = new InputDownload(alignmentOutput.finalBamLocation());
         this.baiDownload = new InputDownload(alignmentOutput.finalBaiLocation());
@@ -149,7 +149,7 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
 
     @Override
     public GermlineCallerOutput persistedOutput(final SingleSampleRunMetadata metadata) {
-        String vcfPath = persistedDataset.find(metadata, DataType.GERMLINE_VARIANTS)
+        String vcfPath = persistedDataset.file(metadata, DataType.GERMLINE_VARIANTS)
                 .orElse(PersistedLocations.blobForSingle(metadata.set(),
                         metadata.sampleName(),
                         GermlineCaller.NAMESPACE,

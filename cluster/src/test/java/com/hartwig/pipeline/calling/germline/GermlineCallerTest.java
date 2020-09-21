@@ -3,11 +3,11 @@ package com.hartwig.pipeline.calling.germline;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
-import java.util.Optional;
 
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
+import com.hartwig.pipeline.reruns.NoopPersistedDataset;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.StageTest;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
@@ -35,7 +35,7 @@ public class GermlineCallerTest extends StageTest<GermlineCallerOutput, SingleSa
 
     @Override
     protected Stage<GermlineCallerOutput, SingleSampleRunMetadata> createVictim() {
-        return new GermlineCaller(TestInputs.referenceAlignmentOutput(), TestInputs.HG19_RESOURCE_FILES, (m, r) -> Optional.empty());
+        return new GermlineCaller(TestInputs.referenceAlignmentOutput(), TestInputs.HG19_RESOURCE_FILES, new NoopPersistedDataset());
     }
 
     @Override

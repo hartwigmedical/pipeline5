@@ -3,11 +3,11 @@ package com.hartwig.pipeline.metrics;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
-import java.util.Optional;
 
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
+import com.hartwig.pipeline.reruns.NoopPersistedDataset;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.StageTest;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
@@ -30,7 +30,7 @@ public class BamMetricsTest extends StageTest<BamMetricsOutput, SingleSampleRunM
 
     @Override
     protected Stage<BamMetricsOutput, SingleSampleRunMetadata> createVictim() {
-        return new BamMetrics(TestInputs.HG19_RESOURCE_FILES, TestInputs.referenceAlignmentOutput(), (m, r) -> Optional.empty());
+        return new BamMetrics(TestInputs.HG19_RESOURCE_FILES, TestInputs.referenceAlignmentOutput(), new NoopPersistedDataset());
     }
 
     @Override

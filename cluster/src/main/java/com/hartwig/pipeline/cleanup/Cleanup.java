@@ -2,6 +2,8 @@ package com.hartwig.pipeline.cleanup;
 
 import java.io.IOException;
 
+import com.google.cloud.storage.BlobId;
+import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.RunTag;
 import com.hartwig.pipeline.alignment.Run;
@@ -16,9 +18,11 @@ public class Cleanup {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(Cleanup.class);
     private final Arguments arguments;
+    private final Storage storage;
 
-    Cleanup(final Arguments arguments) {
+    Cleanup(final Arguments arguments, final Storage storage) {
         this.arguments = arguments;
+        this.storage = storage;
     }
 
     public void run(SomaticRunMetadata metadata) {
@@ -45,10 +49,14 @@ public class Cleanup {
     }
 
     private void deleteStagingDirectory(final SingleSampleRunMetadata metadata) {
-        GSUtil.rm(arguments.cloudSdkPath(), arguments.outputBucket() + "/" + RunTag.apply(arguments, metadata.barcode()));
+        if (storage.get(BlobId.of(arguments.outputBucket(), RunTag.apply(arguments, metadata.barcode()))) != null) {
+            GSUtil.rm(arguments.cloudSdkPath(), arguments.outputBucket() + "/" + RunTag.apply(arguments, metadata.barcode()));
+        }
     }
 
     private void deleteBucket(final String runId) {
-        GSUtil.rm(arguments.cloudSdkPath(), runId);
+        if (storage.get(runId) != null) {
+            GSUtil.rm(arguments.cloudSdkPath(), runId);
+        }
     }
 }

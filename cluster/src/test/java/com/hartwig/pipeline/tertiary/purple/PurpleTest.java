@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
+import com.hartwig.pipeline.reruns.NoopPersistedDataset;
 import com.hartwig.pipeline.resource.Hg19ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
@@ -30,6 +31,7 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
                 TestInputs.structuralCallerPostProcessOutput(),
                 TestInputs.amberOutput(),
                 TestInputs.cobaltOutput(),
+                new NoopPersistedDataset(),
                 false);
     }
 
@@ -69,6 +71,7 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
                 TestInputs.structuralCallerPostProcessOutput(),
                 TestInputs.amberOutput(),
                 TestInputs.cobaltOutput(),
+                new NoopPersistedDataset(),
                 true);
         assertThat(victim.commands(input()).get(0).asBash()).contains(
                 "-highly_diploid_percentage 0.88 -somatic_min_total 100 -somatic_min_purity_spread 0.1");

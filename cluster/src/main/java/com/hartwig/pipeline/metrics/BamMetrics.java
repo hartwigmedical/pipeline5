@@ -31,10 +31,10 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
 
     final ResourceFiles resourceFiles;
     private final InputDownload bamDownload;
-    private final PersistedDataset<SingleSampleRunMetadata> persistedDataset;
+    private final PersistedDataset persistedDataset;
 
     public BamMetrics(final ResourceFiles resourceFiles, final AlignmentOutput alignmentOutput,
-            final PersistedDataset<SingleSampleRunMetadata> persistedDataset) {
+            final PersistedDataset persistedDataset) {
         this.resourceFiles = resourceFiles;
         bamDownload = new InputDownload(alignmentOutput.finalBamLocation());
         this.persistedDataset = persistedDataset;
@@ -93,7 +93,7 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
 
     @Override
     public BamMetricsOutput persistedOutput(final SingleSampleRunMetadata metadata) {
-        String wgsMetricsPath = persistedDataset.find(metadata, DataType.WGSMETRICS).orElse(PersistedLocations.blobForSingle(metadata.set(),
+        String wgsMetricsPath = persistedDataset.file(metadata, DataType.WGSMETRICS).orElse(PersistedLocations.blobForSingle(metadata.set(),
                 metadata.sampleName(),
                 namespace(),
                 BamMetricsOutput.outputFile(metadata.sampleName())));

@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
+import com.hartwig.pipeline.reruns.NoopPersistedDataset;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
@@ -22,7 +23,7 @@ public class AmberTest extends TertiaryStageTest<AmberOutput> {
 
     @Override
     protected Stage<AmberOutput, SomaticRunMetadata> createVictim() {
-        return new Amber(TestInputs.defaultPair(), TestInputs.HG19_RESOURCE_FILES);
+        return new Amber(TestInputs.defaultPair(), TestInputs.HG19_RESOURCE_FILES, new NoopPersistedDataset());
     }
 
     @Override

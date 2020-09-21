@@ -174,9 +174,10 @@ public class SbpRestApi {
     }
 
     private RuntimeException error(final Response response) {
-        return new RuntimeException(format("Received an error status result [%s] of SBP Api at [%s]",
+        return new RuntimeException(format("Received an error status result [%s] of SBP Api at [%s] with message [%s]",
                 response.getStatus(),
-                target.getUri()));
+                target.getUri(),
+                response.readEntity(String.class)));
     }
 
     public static SbpRestApi newInstance(final String url) {

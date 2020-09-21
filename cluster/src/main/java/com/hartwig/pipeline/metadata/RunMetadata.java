@@ -9,4 +9,6 @@ public interface RunMetadata {
     String bucket();
 
     String set();
+
+    String barcode();
 }
