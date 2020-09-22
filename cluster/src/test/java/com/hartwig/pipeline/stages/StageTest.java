@@ -36,9 +36,11 @@ public abstract class StageTest<S extends StageOutput, M extends RunMetadata> {
     protected RuntimeBucket runtimeBucket;
     protected Stage<S, M> victim;
     protected Bucket bucket;
+    protected TestPersistedDataset persistedDataset;
 
     @Before
     public void setUp() throws Exception {
+        persistedDataset = new TestPersistedDataset();
         victim = createVictim();
         String runtimeBucketName = expectedRuntimeBucketName() + "/" + victim.namespace();
         storage = mock(Storage.class);
@@ -93,6 +95,25 @@ public abstract class StageTest<S extends StageOutput, M extends RunMetadata> {
         } catch (UnsupportedOperationException e) {
             LOGGER.info("Persisted output not supported for stage [{}]. No test required", victim.namespace());
         }
+    }
+
+    @Test
+    public void returnsExpectedPersistedOutputFromPersistedDataset() {
+        try {
+            setupPersistedDataset();
+            S output = victim.persistedOutput(input());
+            validatePersistedOutputFromPersistedDataset(output);
+        } catch (UnsupportedOperationException e) {
+            LOGGER.info("Persisted output not supported for stage [{}]. No test required", victim.namespace());
+        }
+    }
+
+    protected void setupPersistedDataset() {
+        // do nothing by default
+    }
+
+    protected void validatePersistedOutputFromPersistedDataset(final S output) {
+        validatePersistedOutput(output);
     }
 
     protected void validatePersistedOutput(final S output) {

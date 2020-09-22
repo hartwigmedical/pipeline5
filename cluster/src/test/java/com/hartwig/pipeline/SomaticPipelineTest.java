@@ -40,6 +40,7 @@ import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.report.PipelineResults;
 import com.hartwig.pipeline.report.PipelineResultsProvider;
+import com.hartwig.pipeline.reruns.NoopPersistedDataset;
 import com.hartwig.pipeline.stages.StageRunner;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthCheckOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
@@ -77,7 +78,8 @@ public class SomaticPipelineTest {
                 germlineCallerOutputQueue,
                 setMetadataApi,
                 pipelineResults,
-                Executors.newSingleThreadExecutor());
+                Executors.newSingleThreadExecutor(),
+                new NoopPersistedDataset());
     }
 
     @Test

@@ -24,6 +24,11 @@ public interface SomaticRunMetadata extends RunMetadata {
         return String.format("%s-%s", truncate(reference().barcode()), truncate(tumor().barcode()));
     }
 
+    @Override
+    default String barcode() {
+        return maybeTumor().map(SingleSampleRunMetadata::barcode).orElse(reference().barcode());
+    }
+
     static String truncate(final String sample) {
         return sample.length() > MAX_SAMPLE_LENGTH ? sample.substring(0, MAX_SAMPLE_LENGTH) : sample;
     }

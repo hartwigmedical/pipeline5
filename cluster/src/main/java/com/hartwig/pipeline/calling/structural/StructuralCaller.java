@@ -12,6 +12,7 @@ import com.hartwig.pipeline.calling.command.BwaCommand;
 import com.hartwig.pipeline.calling.command.SamtoolsCommand;
 import com.hartwig.pipeline.calling.structural.gridss.stage.Driver;
 import com.hartwig.pipeline.calling.structural.gridss.stage.GridssAnnotation;
+import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
@@ -26,6 +27,7 @@ import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.report.StartupScriptComponent;
 import com.hartwig.pipeline.report.ZippedVcfAndIndexComponent;
+import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
@@ -42,14 +44,16 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
     private final InputDownload tumorBai;
 
     private final ResourceFiles resourceFiles;
+    private final PersistedDataset persistedDataset;
     private String unfilteredVcf;
 
-    public StructuralCaller(final AlignmentPair pair, final ResourceFiles resourceFiles) {
+    public StructuralCaller(final AlignmentPair pair, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
         this.resourceFiles = resourceFiles;
         referenceBam = new InputDownload(pair.reference().finalBamLocation());
         referenceBai = new InputDownload(pair.reference().finalBaiLocation());
         tumorBam = new InputDownload(pair.tumor().finalBamLocation());
         tumorBai = new InputDownload(pair.tumor().finalBaiLocation());
+        this.persistedDataset = persistedDataset;
     }
 
     @Override
@@ -121,15 +125,18 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
     @Override
     public StructuralCallerOutput persistedOutput(final SomaticRunMetadata metadata) {
 
-        String unfilteredVcf =
-                String.format("%s.%s.%s", metadata.tumor().sampleName(), GridssAnnotation.GRIDSS_ANNOTATED, FileTypes.GZIPPED_VCF);
+        String unfilteredVcfPath = persistedDataset.file(metadata, DataType.STRUCTURAL_VARIANTS)
+                .orElse(PersistedLocations.blobForSet(metadata.set(),
+                        namespace(),
+                        String.format("%s.%s.%s",
+                                metadata.tumor().sampleName(),
+                                GridssAnnotation.GRIDSS_ANNOTATED,
+                                FileTypes.GZIPPED_VCF)));
 
         return StructuralCallerOutput.builder()
                 .status(PipelineStatus.PERSISTED)
-                .maybeUnfilteredVcf(GoogleStorageLocation.of(metadata.bucket(),
-                        PersistedLocations.blobForSet(metadata.set(), namespace(), unfilteredVcf)))
-                .maybeUnfilteredVcfIndex(GoogleStorageLocation.of(metadata.bucket(),
-                        PersistedLocations.blobForSet(metadata.set(), namespace(), unfilteredVcf) + ".tbi"))
+                .maybeUnfilteredVcf(GoogleStorageLocation.of(metadata.bucket(), unfilteredVcfPath))
+                .maybeUnfilteredVcfIndex(GoogleStorageLocation.of(metadata.bucket(), FileTypes.tabixIndex(unfilteredVcfPath)))
                 .build();
     }
 

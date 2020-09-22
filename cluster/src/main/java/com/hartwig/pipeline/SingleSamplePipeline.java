@@ -40,13 +40,13 @@ public class SingleSamplePipeline {
     private final ExecutorService executorService;
     private final Boolean isStandalone;
     private final Arguments arguments;
-    private final PersistedDataset<SingleSampleRunMetadata> persistedDataset;
+    private final PersistedDataset persistedDataset;
     private final BlockingQueue<BamMetricsOutput> metricsOutputQueue;
     private final BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue;
 
     SingleSamplePipeline(final SingleSampleEventListener eventListener, final StageRunner<SingleSampleRunMetadata> stageRunner,
             final Aligner aligner, final PipelineResults report, final ExecutorService executorService, final Boolean isStandalone,
-            final Arguments arguments, final PersistedDataset<SingleSampleRunMetadata> persistedDataset,
+            final Arguments arguments, final PersistedDataset persistedDataset,
             final BlockingQueue<BamMetricsOutput> metricsOutputQueue, final BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue) {
         this.eventListener = eventListener;
         this.stageRunner = stageRunner;

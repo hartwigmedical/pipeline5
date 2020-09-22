@@ -3,10 +3,10 @@ package com.hartwig.pipeline.metrics;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
-import java.util.Optional;
 
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.StageTest;
@@ -16,6 +16,8 @@ import com.hartwig.pipeline.testsupport.TestInputs;
 import org.junit.Before;
 
 public class BamMetricsTest extends StageTest<BamMetricsOutput, SingleSampleRunMetadata> {
+
+    public static final String REFERENCE_WGSMETRICS = "reference.wgsmetrics";
 
     @Override
     @Before
@@ -30,7 +32,7 @@ public class BamMetricsTest extends StageTest<BamMetricsOutput, SingleSampleRunM
 
     @Override
     protected Stage<BamMetricsOutput, SingleSampleRunMetadata> createVictim() {
-        return new BamMetrics(TestInputs.HG19_RESOURCE_FILES, TestInputs.referenceAlignmentOutput(), (m, r) -> Optional.empty());
+        return new BamMetrics(TestInputs.HG19_RESOURCE_FILES, TestInputs.referenceAlignmentOutput(), persistedDataset);
     }
 
     @Override
@@ -53,8 +55,8 @@ public class BamMetricsTest extends StageTest<BamMetricsOutput, SingleSampleRunM
         return ImmutableList.of("java -Xmx24G -Dsamjdk.use_async_io_read_samtools=true -Dsamjdk.use_async_io_write_samtools=true "
                 + "-Dsamjdk.use_async_io_write_tribble=true -Dsamjdk.buffer_size=4194304 -cp /opt/tools/gridss/2.9.3/gridss.jar "
                 + "picard.cmdline.PicardCommandLine CollectWgsMetrics "
-                + "REFERENCE_SEQUENCE=/opt/resources/reference_genome/hg19/Homo_sapiens.GRCh37.GATK.illumina.fasta "
-                + "INPUT=/data/input/reference.bam OUTPUT=/data/output/reference.wgsmetrics MINIMUM_MAPPING_QUALITY=20 "
+                + "REFERENCE_SEQUENCE=/opt/resources/reference_genome/hg19/Homo_sapiens.GRCh37.GATK.illumina.fasta " +
+                "INPUT=/data/input/reference.bam OUTPUT=/data/output/" + REFERENCE_WGSMETRICS + " MINIMUM_MAPPING_QUALITY=20 "
                 + "MINIMUM_BASE_QUALITY=10 COVERAGE_CAP=250");
     }
 
@@ -62,12 +64,22 @@ public class BamMetricsTest extends StageTest<BamMetricsOutput, SingleSampleRunM
     protected void validateOutput(final BamMetricsOutput output) {
         GoogleStorageLocation metricsOutputFile = output.metricsOutputFile();
         assertThat(metricsOutputFile.bucket()).isEqualTo("run-reference-test/bam_metrics");
-        assertThat(metricsOutputFile.path()).isEqualTo("results/reference.wgsmetrics");
+        assertThat(metricsOutputFile.path()).isEqualTo("results/" + REFERENCE_WGSMETRICS);
     }
 
     @Override
     protected void validatePersistedOutput(final BamMetricsOutput output) {
         assertThat(output.metricsOutputFile()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
-                "set/reference/bam_metrics/reference.wgsmetrics"));
+                "set/reference/bam_metrics/" + REFERENCE_WGSMETRICS));
+    }
+
+    @Override
+    protected void setupPersistedDataset() {
+        persistedDataset.addPath(DataType.WGSMETRICS, "bam_metrics/" + REFERENCE_WGSMETRICS);
+    }
+
+    @Override
+    protected void validatePersistedOutputFromPersistedDataset(final BamMetricsOutput output) {
+        assertThat(output.metricsOutputFile()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "bam_metrics/" + REFERENCE_WGSMETRICS));
     }
 }
