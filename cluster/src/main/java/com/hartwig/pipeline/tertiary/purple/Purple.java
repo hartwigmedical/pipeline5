@@ -123,11 +123,11 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
                 .orElse(PersistedLocations.blobForSet(metadata.set(), namespace(), somaticVcf(metadata)));
         String svsPath = persistedDataset.file(metadata, DataType.STRUCTURAL_VARIANTS_PURPLE)
                 .orElse(PersistedLocations.blobForSet(metadata.set(), namespace(), svVcf(metadata)));
+        String outputDirectory = persistedDataset.directory(metadata, DataType.SOMATIC_VARIANTS_PURPLE)
+                .orElse(PersistedLocations.pathForSet(metadata.set(), namespace()));
         return PurpleOutput.builder()
                 .status(PipelineStatus.PERSISTED)
-                .maybeOutputDirectory(GoogleStorageLocation.of(metadata.bucket(),
-                        PersistedLocations.pathForSet(metadata.set(), namespace()),
-                        true))
+                .maybeOutputDirectory(GoogleStorageLocation.of(metadata.bucket(), outputDirectory, true))
                 .maybeSomaticVcf(GoogleStorageLocation.of(metadata.bucket(), somaticVariantsPath))
                 .maybeStructuralVcf(GoogleStorageLocation.of(metadata.bucket(), svsPath))
                 .build();

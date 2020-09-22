@@ -41,6 +41,12 @@ public class ApiPersistedDatasetTest {
     @Test
     public void returnsFileForDatatype() {
         Optional<String> maybePath = victim.file(METADATA, DataType.ALIGNED_READS);
-        assertThat(maybePath).isPresent().hasValue("dir/file");
+        assertThat(maybePath).isPresent().hasValue("set/dir/file");
+    }
+
+    @Test
+    public void returnsDirectoryForDatatype() {
+        Optional<String> maybePath = victim.directory(METADATA, DataType.ALIGNED_READS);
+        assertThat(maybePath).isPresent().hasValue("set/dir");
     }
 }
