@@ -21,6 +21,7 @@ import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.unix.ExportPathCommand;
+import com.hartwig.pipeline.metadata.AddDatatypeToFile;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
@@ -102,18 +103,22 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
                 .maybeUnfilteredVcfIndex(resultLocation(bucket, resultsDirectory, unfilteredVcf + ".tbi"))
                 .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
                         NAMESPACE,
-                        Folder.from(),
+                        Folder.root(),
                         basename(unfilteredVcf),
                         basename(unfilteredVcf),
                         resultsDirectory))
                 .addReportComponents(new EntireOutputComponent(bucket,
-                        Folder.from(),
+                        Folder.root(),
                         NAMESPACE,
                         resultsDirectory,
                         s -> !s.contains("working") || s.endsWith("sorted.bam.sv.bam") || s.endsWith("sorted.bam.sv.bai")))
-                .addReportComponents(new RunLogComponent(bucket, NAMESPACE, Folder.from(), resultsDirectory))
-                .addReportComponents(new StartupScriptComponent(bucket, NAMESPACE, Folder.from()))
-
+                .addReportComponents(new RunLogComponent(bucket, NAMESPACE, Folder.root(), resultsDirectory))
+                .addReportComponents(new StartupScriptComponent(bucket, NAMESPACE, Folder.root()))
+                .addFurtherOperations(new AddDatatypeToFile(DataType.STRUCTURAL_VARIANTS,
+                        Folder.root(),
+                        namespace(),
+                        basename(unfilteredVcf),
+                        metadata.barcode()))
                 .build();
     }
 

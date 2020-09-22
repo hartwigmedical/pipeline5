@@ -10,6 +10,7 @@ import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.pipeline.metadata.AddDatatypeToFile;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
@@ -27,8 +28,7 @@ public class Cobalt extends TertiaryStage<CobaltOutput> {
     private final ResourceFiles resourceFiles;
     private final PersistedDataset persistedDataset;
 
-    public Cobalt(final AlignmentPair alignmentPair, final ResourceFiles resourceFiles,
-            final PersistedDataset persistedDataset) {
+    public Cobalt(final AlignmentPair alignmentPair, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
         super(alignmentPair);
         this.resourceFiles = resourceFiles;
         this.persistedDataset = persistedDataset;
@@ -59,7 +59,12 @@ public class Cobalt extends TertiaryStage<CobaltOutput> {
         return CobaltOutput.builder()
                 .status(jobStatus)
                 .maybeOutputDirectory(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(), true))
-                .addReportComponents(new EntireOutputComponent(bucket, Folder.from(), NAMESPACE, resultsDirectory))
+                .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), NAMESPACE, resultsDirectory))
+                .addFurtherOperations(new AddDatatypeToFile(DataType.TUMOR_READ_DEPTH_RATIO,
+                        Folder.root(),
+                        namespace(),
+                        String.format("%s.cobalt.ratio.pcf", metadata.tumor().sampleName()),
+                        metadata.barcode()))
                 .build();
     }
 

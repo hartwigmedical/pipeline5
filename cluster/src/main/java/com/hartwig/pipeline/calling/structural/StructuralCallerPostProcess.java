@@ -16,6 +16,7 @@ import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.pipeline.metadata.AddDatatypeToFile;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
@@ -94,19 +95,28 @@ public class StructuralCallerPostProcess implements Stage<StructuralCallerPostPr
                 .maybeFullVcfIndex(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(somaticVcf + ".tbi"))))
                 .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
                         NAMESPACE,
-                        Folder.from(),
+                        Folder.root(),
                         basename(somaticVcf),
                         basename(somaticVcf),
                         resultsDirectory))
                 .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
                         NAMESPACE,
-                        Folder.from(),
+                        Folder.root(),
                         basename(somaticFilteredVcf),
                         basename(somaticFilteredVcf),
                         resultsDirectory))
-                .addReportComponents(new RunLogComponent(bucket, NAMESPACE, Folder.from(), resultsDirectory))
-                .addReportComponents(new StartupScriptComponent(bucket, NAMESPACE, Folder.from()))
-
+                .addReportComponents(new RunLogComponent(bucket, NAMESPACE, Folder.root(), resultsDirectory))
+                .addReportComponents(new StartupScriptComponent(bucket, NAMESPACE, Folder.root()))
+                .addFurtherOperations(new AddDatatypeToFile(DataType.STRUCTURAL_VARIANTS_SOFT_FILTERED,
+                                Folder.root(),
+                                namespace(),
+                                basename(somaticVcf),
+                                metadata.barcode()),
+                        new AddDatatypeToFile(DataType.STRUCTURAL_VARIANTS_HARD_FILTERED,
+                                Folder.root(),
+                                namespace(),
+                                basename(somaticFilteredVcf),
+                                metadata.barcode()))
                 .build();
     }
 
