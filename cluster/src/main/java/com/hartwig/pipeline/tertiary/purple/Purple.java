@@ -15,6 +15,7 @@ import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
+import com.hartwig.pipeline.metadata.AddDatatypeToFile;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
@@ -108,7 +109,17 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
                 .maybeOutputDirectory(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(), true))
                 .maybeSomaticVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(somaticVcf(metadata))))
                 .maybeStructuralVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(svVcf(metadata))))
-                .addReportComponents(new EntireOutputComponent(bucket, Folder.from(), NAMESPACE, resultsDirectory))
+                .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), NAMESPACE, resultsDirectory))
+                .addFurtherOperations(new AddDatatypeToFile(DataType.SOMATIC_VARIANTS_PURPLE,
+                                Folder.root(),
+                                namespace(),
+                                somaticVcf(metadata),
+                                metadata.barcode()),
+                        new AddDatatypeToFile(DataType.STRUCTURAL_VARIANTS_PURPLE,
+                                Folder.root(),
+                                namespace(),
+                                svVcf(metadata),
+                                metadata.barcode()))
                 .build();
     }
 

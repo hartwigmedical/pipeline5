@@ -7,7 +7,10 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.metadata.AddDatatypeToFile;
+import com.hartwig.pipeline.metadata.ApiFileOperation;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
+import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.reruns.NoopPersistedDataset;
 import com.hartwig.pipeline.resource.Hg19ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
@@ -114,5 +117,19 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
         assertThat(output.outputDirectory()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "purple", true));
         assertThat(output.somaticVcf()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "purple/" + TUMOR_PURPLE_SOMATIC_VCF_GZ));
         assertThat(output.structuralVcf()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "purple/" + TUMOR_PURPLE_SV_VCF_GZ));
+    }
+
+    @Override
+    protected List<ApiFileOperation> expectedFurtherOperations() {
+        return List.of(new AddDatatypeToFile(DataType.SOMATIC_VARIANTS_PURPLE,
+                        Folder.root(),
+                        "purple",
+                        TUMOR_PURPLE_SOMATIC_VCF_GZ,
+                        TestInputs.defaultSomaticRunMetadata().barcode()),
+                new AddDatatypeToFile(DataType.STRUCTURAL_VARIANTS_PURPLE,
+                        Folder.root(),
+                        "purple",
+                        TUMOR_PURPLE_SV_VCF_GZ,
+                        TestInputs.defaultSomaticRunMetadata().barcode()));
     }
 }

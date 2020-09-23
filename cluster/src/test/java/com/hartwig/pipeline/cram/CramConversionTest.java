@@ -8,8 +8,12 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
+import com.hartwig.pipeline.metadata.AddDatatypeToFile;
+import com.hartwig.pipeline.metadata.ApiFileOperation;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
+import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.StageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
@@ -78,5 +82,14 @@ public class CramConversionTest extends StageTest<CramOutput, SingleSampleRunMet
     @Override
     protected void validatePersistedOutput(final CramOutput output) {
         assertThat(output).isEqualTo(CramOutput.builder().status(PipelineStatus.PERSISTED).build());
+    }
+
+    @Override
+    protected List<ApiFileOperation> expectedFurtherOperations() {
+        return List.of(new AddDatatypeToFile(DataType.ALIGNED_READS,
+                Folder.from(TestInputs.referenceRunMetadata()),
+                CramConversion.NAMESPACE,
+                "reference.cram",
+                TestInputs.referenceRunMetadata().barcode()));
     }
 }

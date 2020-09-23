@@ -13,6 +13,7 @@ import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
+import com.hartwig.pipeline.metadata.AddDatatypeToFile;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
@@ -33,8 +34,7 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
     private final InputDownload bamDownload;
     private final PersistedDataset persistedDataset;
 
-    public BamMetrics(final ResourceFiles resourceFiles, final AlignmentOutput alignmentOutput,
-            final PersistedDataset persistedDataset) {
+    public BamMetrics(final ResourceFiles resourceFiles, final AlignmentOutput alignmentOutput, final PersistedDataset persistedDataset) {
         this.resourceFiles = resourceFiles;
         bamDownload = new InputDownload(alignmentOutput.finalBamLocation());
         this.persistedDataset = persistedDataset;
@@ -83,6 +83,11 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
                         outputFile,
                         outputFile,
                         resultsDirectory))
+                .addFurtherOperations(new AddDatatypeToFile(DataType.WGSMETRICS,
+                        Folder.from(metadata),
+                        namespace(),
+                        outputFile,
+                        metadata.barcode()))
                 .build();
     }
 
@@ -93,10 +98,11 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
 
     @Override
     public BamMetricsOutput persistedOutput(final SingleSampleRunMetadata metadata) {
-        String wgsMetricsPath = persistedDataset.file(metadata, DataType.WGSMETRICS).orElse(PersistedLocations.blobForSingle(metadata.set(),
-                metadata.sampleName(),
-                namespace(),
-                BamMetricsOutput.outputFile(metadata.sampleName())));
+        String wgsMetricsPath = persistedDataset.file(metadata, DataType.WGSMETRICS)
+                .orElse(PersistedLocations.blobForSingle(metadata.set(),
+                        metadata.sampleName(),
+                        namespace(),
+                        BamMetricsOutput.outputFile(metadata.sampleName())));
         return BamMetricsOutput.builder()
                 .status(PipelineStatus.PERSISTED)
                 .sample(metadata.sampleName())

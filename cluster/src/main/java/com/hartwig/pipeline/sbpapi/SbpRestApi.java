@@ -8,6 +8,7 @@ import static javax.ws.rs.HttpMethod.POST;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -18,6 +19,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hartwig.pipeline.jackson.ObjectMappers;
 
@@ -59,7 +61,7 @@ public class SbpRestApi {
     }
 
     private String returnOrThrow(final Response response) {
-        if (response.getStatus() == Response.Status.OK.getStatusCode()) {
+        if (response.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL) {
             return response.readEntity(String.class);
         }
         throw error(response);
@@ -113,10 +115,19 @@ public class SbpRestApi {
         }
     }
 
-    public void linkFileToSample(final int id, final int sampleId) {
-        Map<String, Integer> request = new HashMap<>();
-        request.put("sample_id", sampleId);
-        submitJson(POST, api().path(format("%s/%d/sample", FILES, id)), request, Response.Status.CREATED);
+    public void linkFileToSample(final int id, final String barcode) {
+        try {
+            SbpSample sample = ObjectMappers.get().<List<SbpSample>>readValue(returnOrThrow(api().path(SAMPLES)
+                    .queryParam("barcode", barcode)
+                    .request()
+                    .get()), new TypeReference<List<SbpSample>>() {
+            }).stream().findFirst().orElseThrow();
+            Map<String, Integer> request = new HashMap<>();
+            request.put("sample_id", sample.id());
+            returnOrThrow(submitJson(POST, api().path(FILES).path(String.valueOf(id)).path("sample"), request, Response.Status.CREATED));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void patchFile(final int id, final String key, final String value) {

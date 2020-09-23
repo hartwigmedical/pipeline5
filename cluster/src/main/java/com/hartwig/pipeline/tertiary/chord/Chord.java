@@ -57,7 +57,7 @@ public class Chord implements Stage<ChordOutput, SomaticRunMetadata> {
             final ResultsDirectory resultsDirectory) {
         return ChordOutput.builder()
                 .status(jobStatus)
-                .addReportComponents(new EntireOutputComponent(bucket, Folder.from(), Chord.NAMESPACE, resultsDirectory))
+                .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), Chord.NAMESPACE, resultsDirectory))
                 .build();
     }
 

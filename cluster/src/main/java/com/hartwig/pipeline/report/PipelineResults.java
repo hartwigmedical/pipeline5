@@ -48,7 +48,7 @@ public class PipelineResults {
 
     public void compose(SomaticRunMetadata metadata) {
         String name = metadata.set();
-        Folder folder = Folder.from();
+        Folder folder = Folder.root();
         writeMetadata(metadata, name, folder);
         compose(name, folder);
         writeComplete(name);
@@ -57,7 +57,7 @@ public class PipelineResults {
     public void compose(SingleSampleRunMetadata metadata,  Boolean isSingleSample, PipelineState state) {
         String name = RunTag.apply(arguments, metadata.barcode());
         if (state.shouldProceed()) {
-            Folder folder = isSingleSample ? Folder.from() : Folder.from(metadata);
+            Folder folder = isSingleSample ? Folder.root() : Folder.from(metadata);
             writeMetadata(metadata, name, folder);
             compose(name, folder);
         }

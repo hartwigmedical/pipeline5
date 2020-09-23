@@ -80,7 +80,7 @@ public class GermlineCallerTest extends StageTest<GermlineCallerOutput, SingleSa
 
     @Override
     protected void validateOutput(final GermlineCallerOutput output) {
-        // no additional
+        // not supported currently
     }
 
     @Override
@@ -102,5 +102,10 @@ public class GermlineCallerTest extends StageTest<GermlineCallerOutput, SingleSa
                 "germline_caller/" + REFERENCE_GERMLINE_VCF_GZ));
         assertThat(output.germlineVcfIndexLocation()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
                 "germline_caller/" + REFERENCE_GERMLINE_VCF_GZ + ".tbi"));
+    }
+
+    @Override
+    public void returnsExpectedFurtherOperations() {
+        // not supported currently
     }
 }

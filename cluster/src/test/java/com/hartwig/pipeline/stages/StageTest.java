@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,6 +19,7 @@ import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
+import com.hartwig.pipeline.metadata.ApiFileOperation;
 import com.hartwig.pipeline.metadata.RunMetadata;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.testsupport.TestInputs;
@@ -106,6 +108,16 @@ public abstract class StageTest<S extends StageOutput, M extends RunMetadata> {
         } catch (UnsupportedOperationException e) {
             LOGGER.info("Persisted output not supported for stage [{}]. No test required", victim.namespace());
         }
+    }
+
+    @Test
+    public void returnsExpectedFurtherOperations() {
+        assertThat(victim.output(input(), PipelineStatus.SUCCESS, runtimeBucket, ResultsDirectory.defaultDirectory())
+                .furtherOperations()).isEqualTo(expectedFurtherOperations());
+    }
+
+    protected List<ApiFileOperation> expectedFurtherOperations() {
+        return Collections.emptyList();
     }
 
     protected void setupPersistedDataset() {

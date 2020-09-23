@@ -11,6 +11,7 @@ import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.pipeline.metadata.AddDatatypeToFile;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
@@ -28,8 +29,7 @@ public class Amber extends TertiaryStage<AmberOutput> {
     private final ResourceFiles resourceFiles;
     private final PersistedDataset persistedDataset;
 
-    public Amber(final AlignmentPair alignmentPair, final ResourceFiles resourceFiles,
-            final PersistedDataset persistedDataset) {
+    public Amber(final AlignmentPair alignmentPair, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
         super(alignmentPair);
         this.resourceFiles = resourceFiles;
         this.persistedDataset = persistedDataset;
@@ -61,7 +61,12 @@ public class Amber extends TertiaryStage<AmberOutput> {
         return AmberOutput.builder()
                 .status(jobStatus)
                 .maybeOutputDirectory(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(), true))
-                .addReportComponents(new EntireOutputComponent(bucket, Folder.from(), NAMESPACE, resultsDirectory))
+                .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), NAMESPACE, resultsDirectory))
+                .addFurtherOperations(new AddDatatypeToFile(DataType.B_ALLELE_FREQUENCY,
+                        Folder.root(),
+                        namespace(),
+                        String.format("%s.amber.baf.pcf", metadata.tumor().sampleName()),
+                        metadata.barcode()))
                 .build();
     }
 

@@ -50,7 +50,7 @@ public class EntireOutputComponentTest {
         when(runtimeBucket.list("results/")).thenReturn(Lists.newArrayList(first, second));
 
         EntireOutputComponent victim = new EntireOutputComponent(runtimeBucket,
-                Folder.from(),
+                Folder.root(),
                 "namespace",
                 ResultsDirectory.defaultDirectory());
         victim.addToReport(storage, reportBucket, "test_set");
@@ -71,7 +71,7 @@ public class EntireOutputComponentTest {
         when(runtimeBucket.list("results/")).thenReturn(Lists.newArrayList(first, second));
 
         EntireOutputComponent victim = new EntireOutputComponent(runtimeBucket,
-                Folder.from(),
+                Folder.root(),
                 "namespace",
                 ResultsDirectory.defaultDirectory());
         victim.addToReport(storage, reportBucket, "test_set");
@@ -110,7 +110,7 @@ public class EntireOutputComponentTest {
         when(runtimeBucket.list("results/")).thenReturn(Lists.newArrayList(first, excluded));
 
         EntireOutputComponent victim = new EntireOutputComponent(runtimeBucket,
-                Folder.from(),
+                Folder.root(),
                 "namespace",
                 ResultsDirectory.defaultDirectory(),
                 s -> s.endsWith(excludedFileName));

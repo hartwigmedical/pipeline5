@@ -93,8 +93,8 @@ public class SageCaller extends TertiaryStage<SomaticCallerOutput> {
                 .addReportComponents(bqrComponent(metadata.reference(), "tsv", bucket, resultsDirectory))
                 .addReportComponents(vcfComponent(unfilteredOutputFile.fileName(), bucket, resultsDirectory))
                 .addReportComponents(vcfComponent(filteredOutputFile.fileName(), bucket, resultsDirectory))
-                .addReportComponents(new RunLogComponent(bucket, NAMESPACE, Folder.from(), resultsDirectory))
-                .addReportComponents(new StartupScriptComponent(bucket, NAMESPACE, Folder.from()))
+                .addReportComponents(new RunLogComponent(bucket, NAMESPACE, Folder.root(), resultsDirectory))
+                .addReportComponents(new StartupScriptComponent(bucket, NAMESPACE, Folder.root()))
                 .build();
     }
 
@@ -126,10 +126,10 @@ public class SageCaller extends TertiaryStage<SomaticCallerOutput> {
     private ReportComponent bqrComponent(final SingleSampleRunMetadata metadata, final String extension, final RuntimeBucket bucket,
             final ResultsDirectory resultsDirectory) {
         String filename = String.format("%s.sage.bqr.%s", metadata.sampleName(), extension);
-        return new SingleFileComponent(bucket, NAMESPACE, Folder.from(), filename, filename, resultsDirectory);
+        return new SingleFileComponent(bucket, NAMESPACE, Folder.root(), filename, filename, resultsDirectory);
     }
 
     private ReportComponent vcfComponent(final String filename, final RuntimeBucket bucket, final ResultsDirectory resultsDirectory) {
-        return new ZippedVcfAndIndexComponent(bucket, NAMESPACE, Folder.from(), filename, resultsDirectory);
+        return new ZippedVcfAndIndexComponent(bucket, NAMESPACE, Folder.root(), filename, resultsDirectory);
     }
 }

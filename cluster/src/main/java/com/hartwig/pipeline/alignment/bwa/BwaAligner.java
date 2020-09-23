@@ -23,6 +23,7 @@ import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.alignment.ImmutableAlignmentOutput;
 import com.hartwig.pipeline.alignment.sample.SampleSource;
+import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
@@ -31,6 +32,7 @@ import com.hartwig.pipeline.execution.vm.OutputUpload;
 import com.hartwig.pipeline.execution.vm.RuntimeFiles;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.failsafe.DefaultBackoffPolicy;
+import com.hartwig.pipeline.metadata.AddDatatypeToFile;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.ReportComponent;
@@ -151,7 +153,12 @@ public class BwaAligner implements Aligner {
                                 Folder.from(metadata),
                                 bai(bam(metadata.sampleName())),
                                 bai(bam(metadata.sampleName())),
-                                resultsDirectory));
+                                resultsDirectory))
+                        .addFurtherOperations(new AddDatatypeToFile(DataType.ALIGNED_READS,
+                                Folder.from(metadata),
+                                BwaAligner.NAMESPACE,
+                                bam(metadata.sampleName()),
+                                metadata.barcode()));
             }
             output = outputBuilder.build();
         } else {

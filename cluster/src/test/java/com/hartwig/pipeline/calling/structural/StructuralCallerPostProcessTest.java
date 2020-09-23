@@ -104,4 +104,9 @@ public class StructuralCallerPostProcessTest extends StageTest<StructuralCallerP
         assertThat(output.fullVcf()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, GRIPSS + TUMOR_GRIPSS_SOMATIC_VCF_GZ));
         assertThat(output.fullVcfIndex()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, GRIPSS + TUMOR_GRIPSS_SOMATIC_VCF_GZ + ".tbi"));
     }
+
+    @Override
+    public void returnsExpectedFurtherOperations() {
+        // not supported currently
+    }
 }
