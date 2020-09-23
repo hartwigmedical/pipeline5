@@ -1,16 +1,12 @@
 package com.hartwig.pipeline.sbpapi;
 
 import static java.lang.String.format;
-
-import static javax.ws.rs.HttpMethod.PATCH;
-import static javax.ws.rs.HttpMethod.POST;
+import static java.lang.String.valueOf;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -56,7 +52,7 @@ public class SbpRestApi {
     }
 
     public String getRun(int id) {
-        Response response = runs().path(String.valueOf(id)).request().buildGet().invoke();
+        Response response = runs().path(valueOf(id)).request().buildGet().invoke();
         return returnOrThrow(response);
     }
 
@@ -72,7 +68,7 @@ public class SbpRestApi {
     }
 
     public String getSample(int sampleId) {
-        Response response = sample().path(String.valueOf(sampleId)).request().buildGet().invoke();
+        Response response = sample().path(valueOf(sampleId)).request().buildGet().invoke();
         return returnOrThrow(response);
     }
 
@@ -95,21 +91,14 @@ public class SbpRestApi {
     }
 
     public void updateRunStatus(String runID, String status, String gcpBucket) {
-        try {
-            String json = OBJECT_MAPPER.writeValueAsString(SbpRunStatusUpdate.of(status, gcpBucket));
-            LOGGER.info("Patching {} id [{}] with status [{}]", SbpRestApi.RUNS, runID, status);
-            patchRun(runID, status, json);
-
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+        LOGGER.info("Patching {} id [{}] with status [{}]", SbpRestApi.RUNS, runID, status);
+        returnOrThrow(api().path(RUNS).path(runID).request().build("PATCH", jsonEntity(SbpRunStatusUpdate.of(status, gcpBucket))).invoke());
     }
 
     public AddFileApiResponse postFile(final SbpFileMetadata metaData) {
         try {
             return ObjectMappers.get()
-                    .readValue(post(api().path(FILES), OBJECT_MAPPER.writeValueAsString(metaData)).readEntity(String.class),
-                            AddFileApiResponse.class);
+                    .readValue(returnOrThrow(api().path(FILES).request().post(jsonEntity(metaData))), AddFileApiResponse.class);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -122,57 +111,26 @@ public class SbpRestApi {
                     .request()
                     .get()), new TypeReference<List<SbpSample>>() {
             }).stream().findFirst().orElseThrow();
-            Map<String, Integer> request = new HashMap<>();
-            request.put("sample_id", sample.id());
-            returnOrThrow(submitJson(POST, api().path(FILES).path(String.valueOf(id)).path("sample"), request, Response.Status.CREATED));
+            Map<String, Integer> link = new HashMap<>();
+            link.put("sample_id", sample.id());
+            returnOrThrow(api().path(FILES).path(valueOf(id)).path("sample").request().post(jsonEntity(link)));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void patchFile(final int id, final String key, final String value) {
-        Map<String, String> request = new HashMap<>();
-        request.put(key, value);
-        submitJson(PATCH, api().path(format("%s/%d", FILES, id)), request, Response.Status.OK);
-    }
-
-    private Response post(final WebTarget path, final String json) {
-        Response response = path.request().buildPost(Entity.entity(json, MediaType.APPLICATION_JSON_TYPE)).invoke();
-        if (response.getStatus() != Response.Status.CREATED.getStatusCode()) {
-            LOGGER.error("Failed to POST file data: {}", response.readEntity(String.class));
-            throw error(response);
-        }
-        return response;
-    }
-
-    private Response submitJson(final String method, final WebTarget path, final Object jsonPayload, Response.Status... acceptableResults) {
+    public static <T> Entity<String> jsonEntity(T payload) {
         try {
-            String json = OBJECT_MAPPER.writeValueAsString(jsonPayload);
-            LOGGER.debug("Performing {} of [{}] to [{}]", method, json, path);
-            Response response = path.request().build(method, Entity.entity(json, MediaType.APPLICATION_JSON_TYPE)).invoke();
-            if (Arrays.stream(acceptableResults)
-                    .map(Response.Status::getStatusCode)
-                    .collect(Collectors.toList())
-                    .contains(response.getStatus())) {
-                LOGGER.info("{} complete with status [{}]", method, response.getStatus());
-                return response;
-            } else {
-                LOGGER.error("{} to [{}] unexpectedly returned {}:\n{}",
-                        method,
-                        path,
-                        response.getStatus(),
-                        response.readEntity(String.class));
-                throw error(response);
-            }
+            return Entity.entity(OBJECT_MAPPER.writeValueAsString(payload), MediaType.APPLICATION_JSON_TYPE);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("Failed to serialise payload", e);
+            throw new RuntimeException(e);
         }
     }
 
-    private void patchRun(final String sampleID, final String status, final String json) {
-        Response response =
-                api().path(RUNS).path(sampleID).request().build("PATCH", Entity.entity(json, MediaType.APPLICATION_JSON_TYPE)).invoke();
-        LOGGER.info("Patching complete with response [{}]", response.getStatus());
+    public void patchFile(final int id, final String key, final String value) {
+        Map<String, String> patchedFields = new HashMap<>();
+        patchedFields.put(key, value);
+        returnOrThrow(api().path(FILES).path(valueOf(id)).request().build("PATCH", jsonEntity(patchedFields)).invoke());
     }
 
     private WebTarget api() {
