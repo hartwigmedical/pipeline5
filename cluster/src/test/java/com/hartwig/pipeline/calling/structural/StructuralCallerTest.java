@@ -101,4 +101,9 @@ public class StructuralCallerTest extends StageTest<StructuralCallerOutput, Soma
         assertThat(output.unfilteredVcfIndex()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
                 GRIDSS + TUMOR_GRIDSS_UNFILTERED_VCF_GZ + ".tbi"));
     }
+
+    @Override
+    public void returnsExpectedFurtherOperations() {
+        // not supported currently
+    }
 }

@@ -7,7 +7,10 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.metadata.AddDatatypeToFile;
+import com.hartwig.pipeline.metadata.ApiFileOperation;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
+import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.StageTest;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
@@ -55,8 +58,8 @@ public class BamMetricsTest extends StageTest<BamMetricsOutput, SingleSampleRunM
         return ImmutableList.of("java -Xmx24G -Dsamjdk.use_async_io_read_samtools=true -Dsamjdk.use_async_io_write_samtools=true "
                 + "-Dsamjdk.use_async_io_write_tribble=true -Dsamjdk.buffer_size=4194304 -cp /opt/tools/gridss/2.9.3/gridss.jar "
                 + "picard.cmdline.PicardCommandLine CollectWgsMetrics "
-                + "REFERENCE_SEQUENCE=/opt/resources/reference_genome/hg19/Homo_sapiens.GRCh37.GATK.illumina.fasta " +
-                "INPUT=/data/input/reference.bam OUTPUT=/data/output/" + REFERENCE_WGSMETRICS + " MINIMUM_MAPPING_QUALITY=20 "
+                + "REFERENCE_SEQUENCE=/opt/resources/reference_genome/hg19/Homo_sapiens.GRCh37.GATK.illumina.fasta "
+                + "INPUT=/data/input/reference.bam OUTPUT=/data/output/" + REFERENCE_WGSMETRICS + " MINIMUM_MAPPING_QUALITY=20 "
                 + "MINIMUM_BASE_QUALITY=10 COVERAGE_CAP=250");
     }
 
@@ -81,5 +84,14 @@ public class BamMetricsTest extends StageTest<BamMetricsOutput, SingleSampleRunM
     @Override
     protected void validatePersistedOutputFromPersistedDataset(final BamMetricsOutput output) {
         assertThat(output.metricsOutputFile()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "bam_metrics/" + REFERENCE_WGSMETRICS));
+    }
+
+    @Override
+    protected List<ApiFileOperation> expectedFurtherOperations() {
+        return List.of(new AddDatatypeToFile(DataType.WGSMETRICS,
+                Folder.from(TestInputs.referenceRunMetadata()),
+                BamMetrics.NAMESPACE,
+                "reference.wgsmetrics",
+                TestInputs.referenceRunMetadata().barcode()));
     }
 }

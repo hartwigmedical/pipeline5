@@ -64,12 +64,13 @@ public class SbpFileApiUpdateTest {
     public void postsToFileApiForValidFile() {
         when(blob.getMd5()).thenReturn(MD5);
         when(blob.getSize()).thenReturn(1L);
+        mockFileApiResponse();
         ArgumentCaptor<SbpFileMetadata> fileMetadataArgumentCaptor = ArgumentCaptor.forClass(SbpFileMetadata.class);
         victim.accept(blob);
         verify(sbpRestApi).postFile(fileMetadataArgumentCaptor.capture());
         SbpFileMetadata result = fileMetadataArgumentCaptor.getValue();
         assertThat(result.filename()).isEqualTo("blob");
-        assertThat(result.directory()).isEqualTo("run");
+        assertThat(result.directory()).isEqualTo("namespace");
         assertThat(result.hash()).isEqualTo("99de");
         assertThat(result.filesize()).isEqualTo(1);
         assertThat(result.run_id()).isEqualTo(1);
@@ -79,6 +80,7 @@ public class SbpFileApiUpdateTest {
     public void appliesContentTypeCorrection() {
         when(blob.getMd5()).thenReturn(MD5);
         when(blob.getSize()).thenReturn(1L);
+        mockFileApiResponse();
         victim.accept(blob);
         verify(correction).apply(blob);
     }
@@ -87,10 +89,14 @@ public class SbpFileApiUpdateTest {
     public void runsFurtherOperationsForMatchingFiles() {
         when(blob.getMd5()).thenReturn(MD5);
         when(blob.getSize()).thenReturn(1L);
+        mockFileApiResponse();
+        victim.accept(blob);
+        verify(sbpRestApi).linkFileToSample(1, "barcode");
+    }
+
+    public void mockFileApiResponse() {
         AddFileApiResponse fileApiResponse = mock(AddFileApiResponse.class);
         when(fileApiResponse.id()).thenReturn(1);
         when(sbpRestApi.postFile(any())).thenReturn(fileApiResponse);
-        victim.accept(blob);
-        verify(sbpRestApi).linkFileToSample(1, "barcode");
     }
 }

@@ -6,7 +6,10 @@ import java.util.Collections;
 import java.util.List;
 
 import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.metadata.AddDatatypeToFile;
+import com.hartwig.pipeline.metadata.ApiFileOperation;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
+import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
@@ -55,5 +58,14 @@ public class AmberTest extends TertiaryStageTest<AmberOutput> {
     @Override
     protected void validatePersistedOutputFromPersistedDataset(final AmberOutput output) {
         assertThat(output.outputDirectory()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "amber", true));
+    }
+
+    @Override
+    protected List<ApiFileOperation> expectedFurtherOperations() {
+        return List.of(new AddDatatypeToFile(DataType.B_ALLELE_FREQUENCY,
+                Folder.root(),
+                Amber.NAMESPACE,
+                "tumor.amber.baf.pcf",
+                TestInputs.defaultSomaticRunMetadata().barcode()));
     }
 }
