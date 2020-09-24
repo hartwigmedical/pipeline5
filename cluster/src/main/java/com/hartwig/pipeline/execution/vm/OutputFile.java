@@ -8,9 +8,6 @@ import org.immutables.value.Value;
 
 @Value.Immutable
 public interface OutputFile {
-    String BAM = "bam";
-    String VCF = "vcf";
-    String GZIPPED_VCF = VCF + ".gz";
 
     @Value.Parameter
     String fileName();

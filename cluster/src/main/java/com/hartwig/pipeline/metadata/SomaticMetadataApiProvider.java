@@ -25,7 +25,7 @@ public class SomaticMetadataApiProvider {
                 setId,
                 SbpRestApi.newInstance(arguments.sbpApiUrl()),
                 storage.get(arguments.outputBucket()),
-                new GoogleArchiver(arguments))).orElse(new LocalSomaticMetadata(arguments,
+                new GoogleArchiver(arguments))).orElseGet(() -> new LocalSomaticMetadata(arguments,
                 arguments.sampleJson()
                         .map(JsonSampleSource::new)
                         .orElseThrow(() -> new IllegalArgumentException("Sample JSON must be provided when running in local mode"))));

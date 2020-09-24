@@ -3,17 +3,18 @@ package com.hartwig.pipeline.calling.structural.gridss.stage;
 import java.util.Collections;
 import java.util.List;
 
-import com.hartwig.pipeline.calling.SubStage;
 import com.hartwig.pipeline.calling.structural.gridss.command.GripssHardFilterCommand;
+import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.OutputFile;
+import com.hartwig.pipeline.stages.SubStage;
 
 public class GridssHardFilter extends SubStage {
 
-    public static final String GRIDSS_SOMATIC_FILTERED = "gridss.somatic.filtered";
+    public static final String GRIDSS_SOMATIC_FILTERED = "gripss.somatic.filtered";
 
     public GridssHardFilter() {
-        super(GRIDSS_SOMATIC_FILTERED, OutputFile.GZIPPED_VCF);
+        super(GRIDSS_SOMATIC_FILTERED, FileTypes.GZIPPED_VCF);
     }
 
     @Override

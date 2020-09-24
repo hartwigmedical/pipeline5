@@ -3,11 +3,13 @@ package com.hartwig.pipeline.metadata;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.cloud.storage.Bucket;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.PipelineState;
+import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.jackson.ObjectMappers;
 import com.hartwig.pipeline.sbpapi.SbpIni;
@@ -59,20 +61,33 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
                     });
 
             SingleSampleRunMetadata reference = find(REF, samplesBySet).map(referenceSample -> toMetadata(referenceSample,
+                    sbpRun,
                     SingleSampleRunMetadata.SampleType.REFERENCE))
                     .orElseThrow(() -> new IllegalStateException(String.format("No reference sample found in SBP for set [%s]",
                             sbpSet.name())));
             SbpIni ini = findIni(sbpRun, getInis());
             if (ini.name().startsWith(SINGLE_SAMPLE_INI)) {
                 LOGGER.info("Somatic run is using single sample configuration. No algorithms will be run, just transfer and cleanup");
-                return SomaticRunMetadata.builder().runName(sbpSet.name()).reference(reference).build();
+                return SomaticRunMetadata.builder()
+                        .bucket(sbpRun.bucket().orElseThrow())
+                        .set(sbpSet.name())
+                        .reference(reference)
+                        .id(sbpRun.id())
+                        .build();
             } else {
                 SingleSampleRunMetadata tumor = find(TUMOR, samplesBySet).map(referenceSample -> toMetadata(referenceSample,
+                        sbpRun,
                         SingleSampleRunMetadata.SampleType.TUMOR))
                         .orElseThrow((() -> new IllegalStateException(String.format(
                                 "No tumor sample found in SBP for set [%s] and this run was not marked as single sample",
                                 sbpSet.name()))));
-                return SomaticRunMetadata.builder().runName(sbpSet.name()).reference(reference).maybeTumor(tumor).build();
+                return SomaticRunMetadata.builder()
+                        .id(sbpRun.id())
+                        .bucket(sbpRun.bucket().orElseThrow())
+                        .set(sbpSet.name())
+                        .reference(reference)
+                        .maybeTumor(tumor)
+                        .build();
             }
 
         } catch (IOException e) {
@@ -95,10 +110,14 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
                         sbpRun.id())));
     }
 
-    private static ImmutableSingleSampleRunMetadata toMetadata(final SbpSample sample, final SingleSampleRunMetadata.SampleType type) {
+    private static ImmutableSingleSampleRunMetadata toMetadata(final SbpSample sample, final SbpRun aRun,
+            final SingleSampleRunMetadata.SampleType type) {
         return SingleSampleRunMetadata.builder()
+                .id(aRun.id())
+                .bucket(aRun.bucket().orElseThrow())
+                .set(aRun.set().name())
                 .sampleName(sample.name())
-                .sampleId(sample.barcode())
+                .barcode(sample.barcode())
                 .entityId(sample.id())
                 .type(type)
                 .build();
@@ -120,17 +139,24 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
     public void complete(final PipelineState pipelineState, final SomaticRunMetadata metadata) {
         String runIdAsString = String.valueOf(sbpRunId);
         SbpRun sbpRun = getSbpRun();
-        String sbpBucket = sbpRun.bucket();
+        String sbpBucket = sbpRun.bucket().orElse(null);
+
         if (sbpBucket != null) {
             LOGGER.info("Recording pipeline completion with status [{}]", pipelineState.status());
             try {
-                sbpRestApi.updateRunStatus(runIdAsString, UPLOADING, arguments.archiveBucket());
-                googleArchiver.transfer(metadata);
-                OutputIterator.from(new SbpFileApiUpdate(ContentTypeCorrection.get(),
-                        sbpRun,
-                        sourceBucket,
-                        sbpRestApi,
-                        pipelineState).andThen(new BlobCleanup()), sourceBucket).iterate(metadata);
+                if (pipelineState.status() != PipelineStatus.FAILED) {
+                    sbpRestApi.updateRunStatus(runIdAsString, UPLOADING, arguments.archiveBucket());
+                    googleArchiver.transfer(metadata);
+                    OutputIterator.from(new SbpFileApiUpdate(ContentTypeCorrection.get(),
+                            sbpRun,
+                            sourceBucket,
+                            sbpRestApi,
+                            pipelineState.stageOutputs()
+                                    .stream()
+                                    .map(StageOutput::furtherOperations)
+                                    .flatMap(List::stream)
+                                    .collect(Collectors.toSet())).andThen(new BlobCleanup()), sourceBucket).iterate(metadata);
+                }
                 sbpRestApi.updateRunStatus(runIdAsString,
                         pipelineState.status() == PipelineStatus.SUCCESS ? successStatus() : FAILED,
                         arguments.archiveBucket());

@@ -25,7 +25,7 @@ public interface Versions {
     String GRIDSS = "2.9.3";
     String GRIPSS = "1.7";
     String LINX = "1.10";
-    String BACHELOR = "1.10";
+    String BACHELOR = "1.12";
     String CHORD = "60.02_1.03";
     String SAMTOOLS = "1.10";
     String BAMCOMP = "1.3";
@@ -70,6 +70,6 @@ public interface Versions {
     }
 
     static String imageVersion() {
-        return "5-14";
+        return "5-15";
     }
 }

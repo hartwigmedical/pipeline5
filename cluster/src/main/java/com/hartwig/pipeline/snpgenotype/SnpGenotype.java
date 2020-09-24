@@ -65,6 +65,11 @@ public class SnpGenotype implements Stage<SnpGenotypeOutput, SingleSampleRunMeta
     }
 
     @Override
+    public SnpGenotypeOutput persistedOutput(final SingleSampleRunMetadata metadata) {
+        return SnpGenotypeOutput.builder().status(PipelineStatus.PERSISTED).build();
+    }
+
+    @Override
     public SnpGenotypeOutput output(final SingleSampleRunMetadata metadata, final PipelineStatus status, final RuntimeBucket bucket,
             final ResultsDirectory resultsDirectory) {
         return SnpGenotypeOutput.builder()

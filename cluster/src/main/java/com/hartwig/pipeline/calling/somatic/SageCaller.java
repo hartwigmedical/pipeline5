@@ -6,7 +6,8 @@ import com.google.common.collect.Lists;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.AlignmentPair;
-import com.hartwig.pipeline.calling.SubStageInputOutput;
+import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
@@ -22,8 +23,10 @@ import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.report.SingleFileComponent;
 import com.hartwig.pipeline.report.StartupScriptComponent;
 import com.hartwig.pipeline.report.ZippedVcfAndIndexComponent;
+import com.hartwig.pipeline.reruns.PersistedDataset;
+import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
-import com.hartwig.pipeline.startingpoint.PersistedLocations;
+import com.hartwig.pipeline.stages.SubStageInputOutput;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.TertiaryStage;
@@ -33,12 +36,15 @@ public class SageCaller extends TertiaryStage<SomaticCallerOutput> {
     public static final String NAMESPACE = "sage";
 
     private final ResourceFiles resourceFiles;
+    private final PersistedDataset persistedDataset;
     private OutputFile filteredOutputFile;
     private OutputFile unfilteredOutputFile;
 
-    public SageCaller(final AlignmentPair alignmentPair, final ResourceFiles resourceFiles) {
+    public SageCaller(final AlignmentPair alignmentPair, final ResourceFiles resourceFiles,
+            final PersistedDataset persistedDataset) {
         super(alignmentPair);
         this.resourceFiles = resourceFiles;
+        this.persistedDataset = persistedDataset;
     }
 
     @Override
@@ -87,8 +93,8 @@ public class SageCaller extends TertiaryStage<SomaticCallerOutput> {
                 .addReportComponents(bqrComponent(metadata.reference(), "tsv", bucket, resultsDirectory))
                 .addReportComponents(vcfComponent(unfilteredOutputFile.fileName(), bucket, resultsDirectory))
                 .addReportComponents(vcfComponent(filteredOutputFile.fileName(), bucket, resultsDirectory))
-                .addReportComponents(new RunLogComponent(bucket, NAMESPACE, Folder.from(), resultsDirectory))
-                .addReportComponents(new StartupScriptComponent(bucket, NAMESPACE, Folder.from()))
+                .addReportComponents(new RunLogComponent(bucket, NAMESPACE, Folder.root(), resultsDirectory))
+                .addReportComponents(new StartupScriptComponent(bucket, NAMESPACE, Folder.root()))
                 .build();
     }
 
@@ -103,26 +109,27 @@ public class SageCaller extends TertiaryStage<SomaticCallerOutput> {
     }
 
     @Override
-    public SomaticCallerOutput persistedOutput(final String persistedBucket, final String persistedRun, final SomaticRunMetadata metadata) {
+    public SomaticCallerOutput persistedOutput(final SomaticRunMetadata metadata) {
+        String vcfPath = persistedDataset.file(metadata, DataType.SOMATIC_VARIANTS)
+                .orElse(PersistedLocations.blobForSet(metadata.set(),
+                        namespace(),
+                        String.format("%s.%s.%s",
+                                metadata.tumor().sampleName(),
+                                SagePostProcess.SAGE_SOMATIC_FILTERED,
+                                FileTypes.GZIPPED_VCF)));
         return SomaticCallerOutput.builder(namespace())
                 .status(PipelineStatus.PERSISTED)
-                .maybeFinalSomaticVcf(GoogleStorageLocation.of(persistedBucket,
-                        PersistedLocations.blobForSet(persistedRun,
-                                namespace(),
-                                String.format("%s.%s.%s",
-                                        metadata.tumor().sampleName(),
-                                        SagePostProcess.SAGE_SOMATIC_FILTERED,
-                                        OutputFile.GZIPPED_VCF))))
+                .maybeFinalSomaticVcf(GoogleStorageLocation.of(metadata.bucket(), vcfPath))
                 .build();
     }
 
     private ReportComponent bqrComponent(final SingleSampleRunMetadata metadata, final String extension, final RuntimeBucket bucket,
             final ResultsDirectory resultsDirectory) {
         String filename = String.format("%s.sage.bqr.%s", metadata.sampleName(), extension);
-        return new SingleFileComponent(bucket, NAMESPACE, Folder.from(), filename, filename, resultsDirectory);
+        return new SingleFileComponent(bucket, NAMESPACE, Folder.root(), filename, filename, resultsDirectory);
     }
 
     private ReportComponent vcfComponent(final String filename, final RuntimeBucket bucket, final ResultsDirectory resultsDirectory) {
-        return new ZippedVcfAndIndexComponent(bucket, NAMESPACE, Folder.from(), filename, resultsDirectory);
+        return new ZippedVcfAndIndexComponent(bucket, NAMESPACE, Folder.root(), filename, resultsDirectory);
     }
 }

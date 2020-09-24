@@ -70,7 +70,7 @@ public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
             final ResultsDirectory resultsDirectory) {
         return LinxOutput.builder()
                 .status(jobStatus)
-                .addReportComponents(new EntireOutputComponent(bucket, Folder.from(), NAMESPACE, resultsDirectory))
+                .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), NAMESPACE, resultsDirectory))
                 .build();
     }
 

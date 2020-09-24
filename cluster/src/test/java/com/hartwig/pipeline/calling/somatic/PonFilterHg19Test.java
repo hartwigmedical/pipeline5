@@ -2,9 +2,9 @@ package com.hartwig.pipeline.calling.somatic;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.hartwig.pipeline.calling.SubStage;
 import com.hartwig.pipeline.calling.SubStageTest;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
+import com.hartwig.pipeline.stages.SubStage;
 
 import org.junit.Test;
 

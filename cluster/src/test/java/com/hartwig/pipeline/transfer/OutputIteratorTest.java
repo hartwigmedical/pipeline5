@@ -27,7 +27,7 @@ public class OutputIteratorTest {
         Blob first = blob("1");
         Blob second = blob("2");
         Page<Blob> page = pageOf(first, second);
-        when(sourceBucket.list(Storage.BlobListOption.prefix("run/"))).thenReturn(page);
+        when(sourceBucket.list(Storage.BlobListOption.prefix("set/"))).thenReturn(page);
         OutputIterator victim = OutputIterator.from(iterated::add, sourceBucket);
         victim.iterate(TestInputs.defaultSomaticRunMetadata());
         assertThat(iterated).hasSize(2);

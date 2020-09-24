@@ -85,7 +85,7 @@ public class HealthChecker implements Stage<HealthCheckOutput, SomaticRunMetadat
         return HealthCheckOutput.builder()
                 .status(checkHealthCheckerOutput(metadata.tumor().sampleName(), bucket, jobStatus, resultsDirectory))
                 .maybeOutputDirectory(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path()))
-                .addReportComponents(new EntireOutputComponent(bucket, Folder.from(), NAMESPACE, resultsDirectory))
+                .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), NAMESPACE, resultsDirectory))
                 .build();
     }
 

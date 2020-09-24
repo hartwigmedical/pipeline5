@@ -9,9 +9,11 @@ import com.hartwig.pipeline.calling.somatic.SageCaller;
 import com.hartwig.pipeline.calling.somatic.SomaticCallerOutput;
 import com.hartwig.pipeline.calling.structural.StructuralCaller;
 import com.hartwig.pipeline.calling.structural.StructuralCallerOutput;
+import com.hartwig.pipeline.calling.structural.StructuralCallerPostProcess;
+import com.hartwig.pipeline.calling.structural.StructuralCallerPostProcessOutput;
 import com.hartwig.pipeline.cram.CramOutput;
+import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.execution.vm.OutputFile;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
@@ -48,6 +50,9 @@ public class TestInputs {
 
     public static final ResourceFiles HG19_RESOURCE_FILES = new Hg19ResourceFiles();
     public static final ResourceFiles HG38_RESOURCE_FILES = new Hg38ResourceFiles();
+    public static final String SET = "set";
+    public static final String ID = "id";
+    public static final String BUCKET = "bucket";
 
     public static String referenceSample() {
         return REFERENCE_SAMPLE;
@@ -60,27 +65,33 @@ public class TestInputs {
     public static SomaticRunMetadata defaultSomaticRunMetadata() {
         final SingleSampleRunMetadata tumor = tumorRunMetadata();
         final SingleSampleRunMetadata reference = referenceRunMetadata();
-        return SomaticRunMetadata.builder().runName("run").maybeTumor(tumor).reference(reference).build();
+        return SomaticRunMetadata.builder().set(SET).maybeTumor(tumor).reference(reference).id(ID).bucket(BUCKET).build();
     }
 
     public static SomaticRunMetadata defaultSingleSampleRunMetadata() {
         final SingleSampleRunMetadata reference = referenceRunMetadata();
-        return SomaticRunMetadata.builder().runName("run").reference(reference).build();
+        return SomaticRunMetadata.builder().set(SET).reference(reference).id(ID).bucket(BUCKET).build();
     }
 
     @NotNull
     public static SingleSampleRunMetadata referenceRunMetadata() {
         return SingleSampleRunMetadata.builder()
+                .set(SET)
+                .id(ID)
+                .bucket(BUCKET)
                 .type(SingleSampleRunMetadata.SampleType.REFERENCE)
-                .sampleId(referenceAlignmentOutput().sample())
+                .barcode(referenceAlignmentOutput().sample())
                 .build();
     }
 
     @NotNull
     public static SingleSampleRunMetadata tumorRunMetadata() {
         return SingleSampleRunMetadata.builder()
+                .set(SET)
+                .id(ID)
+                .bucket(BUCKET)
                 .type(SingleSampleRunMetadata.SampleType.TUMOR)
-                .sampleId(tumorAlignmentOutput().sample())
+                .barcode(tumorAlignmentOutput().sample())
                 .build();
     }
 
@@ -148,23 +159,34 @@ public class TestInputs {
     public static SomaticCallerOutput sageOutput() {
         return SomaticCallerOutput.builder(SageCaller.NAMESPACE)
                 .status(PipelineStatus.SUCCESS)
-                .maybeFinalSomaticVcf(gsLocation(somaticBucket(SageCaller.NAMESPACE),
-                        RESULTS + TUMOR_SAMPLE + "." + OutputFile.GZIPPED_VCF))
+                .maybeFinalSomaticVcf(gsLocation(somaticBucket(SageCaller.NAMESPACE), RESULTS + TUMOR_SAMPLE + "." + FileTypes.GZIPPED_VCF))
                 .build();
     }
 
     public static StructuralCallerOutput structuralCallerOutput() {
-        String filtered = ".gridss.filtered.";
-        String full = ".gridss.full.";
+        String unfiltered = ".gridss.unfiltered.";
         return StructuralCallerOutput.builder()
                 .status(PipelineStatus.SUCCESS)
-                .maybeFilteredVcf(gsLocation(somaticBucket(StructuralCaller.NAMESPACE),
-                        RESULTS + TUMOR_SAMPLE + filtered + OutputFile.GZIPPED_VCF))
-                .maybeFilteredVcfIndex(gsLocation(somaticBucket(StructuralCaller.NAMESPACE),
-                        RESULTS + TUMOR_SAMPLE + filtered + OutputFile.GZIPPED_VCF + ".tbi"))
-                .maybeFullVcf(gsLocation(somaticBucket(StructuralCaller.NAMESPACE), RESULTS + TUMOR_SAMPLE + full + OutputFile.GZIPPED_VCF))
-                .maybeFullVcfIndex(gsLocation(somaticBucket(StructuralCaller.NAMESPACE),
-                        RESULTS + TUMOR_SAMPLE + full + OutputFile.GZIPPED_VCF + ".tbi"))
+                .maybeUnfilteredVcf(gsLocation(somaticBucket(StructuralCaller.NAMESPACE),
+                        RESULTS + TUMOR_SAMPLE + unfiltered + FileTypes.GZIPPED_VCF))
+                .maybeUnfilteredVcfIndex(gsLocation(somaticBucket(StructuralCaller.NAMESPACE),
+                        RESULTS + TUMOR_SAMPLE + unfiltered + FileTypes.GZIPPED_VCF + ".tbi"))
+                .build();
+    }
+
+    public static StructuralCallerPostProcessOutput structuralCallerPostProcessOutput() {
+        String filtered = ".gripss.filtered.";
+        String full = ".gripss.full.";
+        return StructuralCallerPostProcessOutput.builder()
+                .status(PipelineStatus.SUCCESS)
+                .maybeFilteredVcf(gsLocation(somaticBucket(StructuralCallerPostProcess.NAMESPACE),
+                        RESULTS + TUMOR_SAMPLE + filtered + FileTypes.GZIPPED_VCF))
+                .maybeFilteredVcfIndex(gsLocation(somaticBucket(StructuralCallerPostProcess.NAMESPACE),
+                        RESULTS + TUMOR_SAMPLE + filtered + FileTypes.GZIPPED_VCF + ".tbi"))
+                .maybeFullVcf(gsLocation(somaticBucket(StructuralCallerPostProcess.NAMESPACE),
+                        RESULTS + TUMOR_SAMPLE + full + FileTypes.GZIPPED_VCF))
+                .maybeFullVcfIndex(gsLocation(somaticBucket(StructuralCallerPostProcess.NAMESPACE),
+                        RESULTS + TUMOR_SAMPLE + full + FileTypes.GZIPPED_VCF + ".tbi"))
                 .build();
     }
 

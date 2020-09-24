@@ -2,8 +2,8 @@ package com.hartwig.pipeline.calling.structural.gridss.stage;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.hartwig.pipeline.calling.SubStage;
 import com.hartwig.pipeline.calling.SubStageTest;
+import com.hartwig.pipeline.stages.SubStage;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Test;
@@ -11,12 +11,12 @@ import org.junit.Test;
 public class GridssSomaticFilterTest extends SubStageTest {
     @Override
     public SubStage createVictim() {
-        return new GridssSomaticFilter(TestInputs.HG19_RESOURCE_FILES);
+        return new GridssSomaticFilter(TestInputs.HG19_RESOURCE_FILES, "/data/output/tumor.strelka.vcf");
     }
 
     @Override
     public String expectedPath() {
-        return "/data/output/tumor.gridss.somatic.vcf.gz";
+        return "/data/output/tumor.gripss.somatic.vcf.gz";
     }
 
     @Test
@@ -27,7 +27,7 @@ public class GridssSomaticFilterTest extends SubStageTest {
                 + "-breakend_pon /opt/resources/gridss_pon/hg19/gridss_pon_single_breakend.hg19.bed "
                 + "-breakpoint_pon /opt/resources/gridss_pon/hg19/gridss_pon_breakpoint.hg19.bedpe "
                 + "-input_vcf /data/output/tumor.strelka.vcf "
-                + "-output_vcf /data/output/tumor.gridss.somatic.vcf.gz"
+                + "-output_vcf /data/output/tumor.gripss.somatic.vcf.gz"
         );
     }
 

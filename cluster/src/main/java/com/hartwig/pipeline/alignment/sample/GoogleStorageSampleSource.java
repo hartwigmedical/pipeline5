@@ -36,8 +36,8 @@ public class GoogleStorageSampleSource implements SampleSource {
                     + "You cannot use the upload=false flag if no sample has already been uploaded", runtimeBucket.name()));
         }
 
-        String sampleDirectory = "/samples/" + metadata.sampleId();
-        String sampleNameWithPostfix = metadata.sampleId();
+        String sampleDirectory = "/samples/" + metadata.barcode();
+        String sampleNameWithPostfix = metadata.barcode();
 
         List<Lane> lanes = FastqFiles.toLanes(StreamSupport.stream(blobs.spliterator(), false)
                 .map(Blob::getName)

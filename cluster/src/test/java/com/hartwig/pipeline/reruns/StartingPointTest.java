@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.startingpoint;
+package com.hartwig.pipeline.reruns;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

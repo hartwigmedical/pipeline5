@@ -44,7 +44,7 @@ public class FullSomaticResults {
     }
 
     public String directory(final SingleSampleRunMetadata metadata) {
-        return RunTag.apply(arguments, metadata.sampleId());
+        return RunTag.apply(arguments, metadata.barcode());
     }
 
     private void copySingleSampleRun(final SomaticRunMetadata metadata, final Bucket bucket, final String directory) {
@@ -59,7 +59,7 @@ public class FullSomaticResults {
             String pathSplit = blob.getName().substring(blob.getName().indexOf("/") + 1);
             storage.copy(Storage.CopyRequest.of(arguments.outputBucket(),
                     blob.getName(),
-                    BlobId.of(arguments.outputBucket(), metadata.runName() + "/" + pathSplit))).getResult();
+                    BlobId.of(arguments.outputBucket(), metadata.set() + "/" + pathSplit))).getResult();
         }
     }
 }

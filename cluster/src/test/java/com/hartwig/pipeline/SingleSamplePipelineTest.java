@@ -39,9 +39,9 @@ import com.hartwig.pipeline.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.report.PipelineResults;
 import com.hartwig.pipeline.report.PipelineResultsProvider;
 import com.hartwig.pipeline.report.ReportComponent;
+import com.hartwig.pipeline.reruns.NoopPersistedDataset;
 import com.hartwig.pipeline.snpgenotype.SnpGenotypeOutput;
 import com.hartwig.pipeline.stages.StageRunner;
-import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -79,9 +79,9 @@ public class SingleSamplePipelineTest {
                 Executors.newSingleThreadExecutor(),
                 standalone,
                 ARGUMENTS,
+                new NoopPersistedDataset(),
                 metricsOutputQueue,
-                germlineCallerOutputQueue,
-                TestInputs.defaultSomaticRunMetadata().runName());
+                germlineCallerOutputQueue);
     }
 
     @Test

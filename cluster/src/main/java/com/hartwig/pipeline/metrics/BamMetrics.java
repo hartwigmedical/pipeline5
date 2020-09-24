@@ -6,20 +6,23 @@ import java.util.List;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
+import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
+import com.hartwig.pipeline.metadata.AddDatatypeToFile;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.report.SingleFileComponent;
 import com.hartwig.pipeline.report.StartupScriptComponent;
+import com.hartwig.pipeline.reruns.PersistedDataset;
+import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
-import com.hartwig.pipeline.startingpoint.PersistedLocations;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
@@ -29,10 +32,12 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
 
     final ResourceFiles resourceFiles;
     private final InputDownload bamDownload;
+    private final PersistedDataset persistedDataset;
 
-    public BamMetrics(final ResourceFiles resourceFiles, final AlignmentOutput alignmentOutput) {
+    public BamMetrics(final ResourceFiles resourceFiles, final AlignmentOutput alignmentOutput, final PersistedDataset persistedDataset) {
         this.resourceFiles = resourceFiles;
         bamDownload = new InputDownload(alignmentOutput.finalBamLocation());
+        this.persistedDataset = persistedDataset;
     }
 
     @Override
@@ -78,6 +83,11 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
                         outputFile,
                         outputFile,
                         resultsDirectory))
+                .addFurtherOperations(new AddDatatypeToFile(DataType.WGSMETRICS,
+                        Folder.from(metadata),
+                        namespace(),
+                        outputFile,
+                        metadata.barcode()))
                 .build();
     }
 
@@ -87,16 +97,16 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
     }
 
     @Override
-    public BamMetricsOutput persistedOutput(final String persistedBucket, final String persistedRun,
-            final SingleSampleRunMetadata metadata) {
+    public BamMetricsOutput persistedOutput(final SingleSampleRunMetadata metadata) {
+        String wgsMetricsPath = persistedDataset.file(metadata, DataType.WGSMETRICS)
+                .orElse(PersistedLocations.blobForSingle(metadata.set(),
+                        metadata.sampleName(),
+                        namespace(),
+                        BamMetricsOutput.outputFile(metadata.sampleName())));
         return BamMetricsOutput.builder()
                 .status(PipelineStatus.PERSISTED)
                 .sample(metadata.sampleName())
-                .maybeMetricsOutputFile(GoogleStorageLocation.of(persistedBucket,
-                        PersistedLocations.blobForSingle(persistedRun,
-                                metadata.sampleName(),
-                                namespace(),
-                                BamMetricsOutput.outputFile(metadata.sampleName()))))
+                .maybeMetricsOutputFile(GoogleStorageLocation.of(metadata.bucket(), wgsMetricsPath))
                 .build();
     }
 }

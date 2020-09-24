@@ -18,6 +18,6 @@ public class CleanupProvider {
     }
 
     public Cleanup get() {
-        return new Cleanup(arguments);
+        return new Cleanup(arguments, storage);
     }
 }

@@ -1,7 +1,5 @@
 package com.hartwig.pipeline.cram;
 
-import static java.lang.String.format;
-
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
@@ -9,6 +7,8 @@ import java.util.List;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
+import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
@@ -18,7 +18,6 @@ import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.metadata.AddDatatypeToFile;
-import com.hartwig.pipeline.metadata.LinkFileToSample;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
@@ -38,7 +37,7 @@ public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata
 
     public CramConversion(final AlignmentOutput alignmentOutput, ResourceFiles resourceFiles) {
         bamDownload = new InputDownload(alignmentOutput.finalBamLocation());
-        outputCram = VmDirectories.outputFile(CramOutput.cram(alignmentOutput.sample()));
+        outputCram = VmDirectories.outputFile(FileTypes.cram(alignmentOutput.sample()));
         this.resourceFiles = resourceFiles;
     }
 
@@ -72,11 +71,8 @@ public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata
     public CramOutput output(SingleSampleRunMetadata metadata, PipelineStatus jobStatus, RuntimeBucket bucket,
             ResultsDirectory resultsDirectory) {
         String cram = new File(outputCram).getName();
-        String crai = CramOutput.crai(cram);
+        String crai = FileTypes.crai(cram);
         Folder folder = Folder.from(metadata);
-
-        String fullCram = format("%s%s/%s", folder.name(), NAMESPACE, cram);
-        String fullCrai = format("%s%s/%s", folder.name(), NAMESPACE, crai);
 
         return CramOutput.builder()
                 .status(jobStatus)
@@ -84,16 +80,22 @@ public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata
                         new StartupScriptComponent(bucket, NAMESPACE, folder),
                         new SingleFileComponent(bucket, NAMESPACE, folder, cram, cram, resultsDirectory),
                         new SingleFileComponent(bucket, NAMESPACE, folder, crai, crai, resultsDirectory))
-                .addFurtherOperations(new LinkFileToSample(fullCram, metadata.entityId()),
-                        new LinkFileToSample(fullCrai, metadata.entityId()),
-                        new AddDatatypeToFile(fullCram, "reads"),
-                        new AddDatatypeToFile(fullCrai, "reads"))
+                .addFurtherOperations(new AddDatatypeToFile(DataType.ALIGNED_READS,
+                        Folder.from(metadata),
+                        namespace(),
+                        cram,
+                        metadata.barcode()))
                 .build();
     }
 
     @Override
     public CramOutput skippedOutput(SingleSampleRunMetadata metadata) {
         return CramOutput.builder().status(PipelineStatus.SKIPPED).build();
+    }
+
+    @Override
+    public CramOutput persistedOutput(final SingleSampleRunMetadata metadata) {
+        return CramOutput.builder().status(PipelineStatus.PERSISTED).build();
     }
 
     @Override

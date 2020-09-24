@@ -5,7 +5,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Collections;
 import java.util.List;
 
+import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.metadata.AddDatatypeToFile;
+import com.hartwig.pipeline.metadata.ApiFileOperation;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
+import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
@@ -22,7 +26,7 @@ public class CobaltTest extends TertiaryStageTest<CobaltOutput> {
 
     @Override
     protected Stage<CobaltOutput, SomaticRunMetadata> createVictim() {
-        return new Cobalt(TestInputs.defaultPair(), TestInputs.HG19_RESOURCE_FILES);
+        return new Cobalt(TestInputs.defaultPair(), TestInputs.HG19_RESOURCE_FILES, persistedDataset);
     }
 
     @Override
@@ -42,6 +46,25 @@ public class CobaltTest extends TertiaryStageTest<CobaltOutput> {
 
     @Override
     protected void validatePersistedOutput(final CobaltOutput output) {
-        assertThat(output.outputDirectory()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "run/cobalt", true));
+        assertThat(output.outputDirectory()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "set/cobalt", true));
+    }
+
+    @Override
+    protected void setupPersistedDataset() {
+        persistedDataset.addDir(DataType.TUMOR_READ_DEPTH_RATIO, "cobalt");
+    }
+
+    @Override
+    protected void validatePersistedOutputFromPersistedDataset(final CobaltOutput output) {
+        assertThat(output.outputDirectory()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "cobalt", true));
+    }
+
+    @Override
+    protected List<ApiFileOperation> expectedFurtherOperations() {
+        return List.of(new AddDatatypeToFile(DataType.TUMOR_READ_DEPTH_RATIO,
+                Folder.root(),
+                Cobalt.NAMESPACE,
+                "tumor.cobalt.ratio.pcf",
+                TestInputs.defaultSomaticRunMetadata().barcode()));
     }
 }

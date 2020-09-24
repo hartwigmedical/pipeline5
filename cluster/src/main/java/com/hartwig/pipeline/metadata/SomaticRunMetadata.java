@@ -14,8 +14,6 @@ public interface SomaticRunMetadata extends RunMetadata {
 
     int MAX_SAMPLE_LENGTH = 13;
 
-    String runName();
-
     SingleSampleRunMetadata reference();
 
     @JsonProperty("tumor")
@@ -23,7 +21,12 @@ public interface SomaticRunMetadata extends RunMetadata {
 
     @Override
     default String name() {
-        return String.format("%s-%s", truncate(reference().sampleId()), truncate(tumor().sampleId()));
+        return String.format("%s-%s", truncate(reference().barcode()), truncate(tumor().barcode()));
+    }
+
+    @Override
+    default String barcode() {
+        return maybeTumor().map(SingleSampleRunMetadata::barcode).orElse(reference().barcode());
     }
 
     static String truncate(final String sample) {

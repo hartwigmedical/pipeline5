@@ -6,7 +6,11 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.metadata.AddDatatypeToFile;
+import com.hartwig.pipeline.metadata.ApiFileOperation;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
+import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.StageTest;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
@@ -15,6 +19,8 @@ import com.hartwig.pipeline.testsupport.TestInputs;
 import org.junit.Before;
 
 public class BamMetricsTest extends StageTest<BamMetricsOutput, SingleSampleRunMetadata> {
+
+    public static final String REFERENCE_WGSMETRICS = "reference.wgsmetrics";
 
     @Override
     @Before
@@ -29,7 +35,7 @@ public class BamMetricsTest extends StageTest<BamMetricsOutput, SingleSampleRunM
 
     @Override
     protected Stage<BamMetricsOutput, SingleSampleRunMetadata> createVictim() {
-        return new BamMetrics(TestInputs.HG19_RESOURCE_FILES, TestInputs.referenceAlignmentOutput());
+        return new BamMetrics(TestInputs.HG19_RESOURCE_FILES, TestInputs.referenceAlignmentOutput(), persistedDataset);
     }
 
     @Override
@@ -53,7 +59,7 @@ public class BamMetricsTest extends StageTest<BamMetricsOutput, SingleSampleRunM
                 + "-Dsamjdk.use_async_io_write_tribble=true -Dsamjdk.buffer_size=4194304 -cp /opt/tools/gridss/2.9.3/gridss.jar "
                 + "picard.cmdline.PicardCommandLine CollectWgsMetrics "
                 + "REFERENCE_SEQUENCE=/opt/resources/reference_genome/hg19/Homo_sapiens.GRCh37.GATK.illumina.fasta "
-                + "INPUT=/data/input/reference.bam OUTPUT=/data/output/reference.wgsmetrics MINIMUM_MAPPING_QUALITY=20 "
+                + "INPUT=/data/input/reference.bam OUTPUT=/data/output/" + REFERENCE_WGSMETRICS + " MINIMUM_MAPPING_QUALITY=20 "
                 + "MINIMUM_BASE_QUALITY=10 COVERAGE_CAP=250");
     }
 
@@ -61,12 +67,31 @@ public class BamMetricsTest extends StageTest<BamMetricsOutput, SingleSampleRunM
     protected void validateOutput(final BamMetricsOutput output) {
         GoogleStorageLocation metricsOutputFile = output.metricsOutputFile();
         assertThat(metricsOutputFile.bucket()).isEqualTo("run-reference-test/bam_metrics");
-        assertThat(metricsOutputFile.path()).isEqualTo("results/reference.wgsmetrics");
+        assertThat(metricsOutputFile.path()).isEqualTo("results/" + REFERENCE_WGSMETRICS);
     }
 
     @Override
     protected void validatePersistedOutput(final BamMetricsOutput output) {
         assertThat(output.metricsOutputFile()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
-                "run/reference/bam_metrics/reference.wgsmetrics"));
+                "set/reference/bam_metrics/" + REFERENCE_WGSMETRICS));
+    }
+
+    @Override
+    protected void setupPersistedDataset() {
+        persistedDataset.addPath(DataType.WGSMETRICS, "bam_metrics/" + REFERENCE_WGSMETRICS);
+    }
+
+    @Override
+    protected void validatePersistedOutputFromPersistedDataset(final BamMetricsOutput output) {
+        assertThat(output.metricsOutputFile()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "bam_metrics/" + REFERENCE_WGSMETRICS));
+    }
+
+    @Override
+    protected List<ApiFileOperation> expectedFurtherOperations() {
+        return List.of(new AddDatatypeToFile(DataType.WGSMETRICS,
+                Folder.from(TestInputs.referenceRunMetadata()),
+                BamMetrics.NAMESPACE,
+                "reference.wgsmetrics",
+                TestInputs.referenceRunMetadata().barcode()));
     }
 }

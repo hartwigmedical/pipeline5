@@ -6,7 +6,7 @@ public interface Folder {
 
     String name();
 
-    static Folder from() {
+    static Folder root() {
         return () -> "";
     }
 

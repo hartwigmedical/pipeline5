@@ -23,8 +23,8 @@ public class GoogleArchiver {
         try {
             GSUtil.configure(false, 12);
             GSUtil.auth(arguments.cloudSdkPath(), arguments.archivePrivateKeyPath());
-            String source = format("gs://%s/%s", arguments.outputBucket(), metadata.runName());
-            String destination = format("gs://%s/%s", arguments.archiveBucket(), metadata.runName());
+            String source = format("gs://%s/%s", arguments.outputBucket(), metadata.set());
+            String destination = format("gs://%s/%s", arguments.archiveBucket(), metadata.set());
             GSUtil.rsync(arguments.cloudSdkPath(), source, destination, arguments.archiveProject(), true);
         } catch (Exception e) {
             throw new RuntimeException(e);

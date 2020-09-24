@@ -10,8 +10,9 @@ import com.google.common.collect.Lists;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
-import com.hartwig.pipeline.calling.SubStageInputOutput;
 import com.hartwig.pipeline.calling.substages.SnpEff;
+import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
@@ -21,14 +22,17 @@ import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.unix.MvCommand;
 import com.hartwig.pipeline.execution.vm.unix.UnzipToDirectoryCommand;
+import com.hartwig.pipeline.metadata.AddDatatypeToFile;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.report.StartupScriptComponent;
 import com.hartwig.pipeline.report.ZippedVcfAndIndexComponent;
+import com.hartwig.pipeline.reruns.PersistedDataset;
+import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
-import com.hartwig.pipeline.startingpoint.PersistedLocations;
+import com.hartwig.pipeline.stages.SubStageInputOutput;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
@@ -50,17 +54,22 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
             "FS > 200.0",
             "INDEL_ReadPosRankSumLow",
             "ReadPosRankSum < -20.0");
+    private static final String GERMLINE_VARIANTS_DATA_TYPE = "germline_variants";
+    private static final String GERMLINE_VARIANTS_INDEX_DATATYPE = "germline_variants_index";
 
     private final ResourceFiles resourceFiles;
     private final InputDownload bamDownload;
     private final InputDownload baiDownload;
     private final OutputFile outputFile;
+    private final PersistedDataset persistedDataset;
 
-    public GermlineCaller(final AlignmentOutput alignmentOutput, final ResourceFiles resourceFiles) {
+    public GermlineCaller(final AlignmentOutput alignmentOutput, final ResourceFiles resourceFiles,
+            final PersistedDataset persistedDataset) {
         this.resourceFiles = resourceFiles;
         this.bamDownload = new InputDownload(alignmentOutput.finalBamLocation());
         this.baiDownload = new InputDownload(alignmentOutput.finalBaiLocation());
         outputFile = GermlineCallerOutput.outputFile(alignmentOutput.sample());
+        this.persistedDataset = persistedDataset;
     }
 
     @Override
@@ -118,7 +127,7 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
                 .status(status)
                 .maybeGermlineVcfLocation(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(outputFile.fileName())))
                 .maybeGermlineVcfIndexLocation(GoogleStorageLocation.of(bucket.name(),
-                        resultsDirectory.path(GermlineCallerOutput.tbi(outputFile.fileName()))))
+                        resultsDirectory.path(FileTypes.tabixIndex(outputFile.fileName()))))
                 .addReportComponents(new RunLogComponent(bucket, NAMESPACE, Folder.from(metadata), resultsDirectory))
                 .addReportComponents(new StartupScriptComponent(bucket, NAMESPACE, Folder.from(metadata)))
                 .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
@@ -127,6 +136,11 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
                         outputFile.fileName(),
                         outputFile.fileName(),
                         resultsDirectory))
+                .addFurtherOperations(new AddDatatypeToFile(DataType.GERMLINE_VARIANTS,
+                        Folder.from(metadata),
+                        namespace(),
+                        outputFile.fileName(),
+                        metadata.barcode()))
                 .build();
     }
 
@@ -140,15 +154,16 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
     }
 
     @Override
-    public GermlineCallerOutput persistedOutput(final String persistedBucket, final String persistedRun,
-            final SingleSampleRunMetadata metadata) {
-        String vcf = GermlineCallerOutput.outputFile(metadata.sampleName()).fileName();
+    public GermlineCallerOutput persistedOutput(final SingleSampleRunMetadata metadata) {
+        String vcfPath = persistedDataset.file(metadata, DataType.GERMLINE_VARIANTS)
+                .orElse(PersistedLocations.blobForSingle(metadata.set(),
+                        metadata.sampleName(),
+                        GermlineCaller.NAMESPACE,
+                        GermlineCallerOutput.outputFile(metadata.sampleName()).fileName()));
         return GermlineCallerOutput.builder()
                 .status(PipelineStatus.PERSISTED)
-                .maybeGermlineVcfLocation(GoogleStorageLocation.of(persistedBucket,
-                        PersistedLocations.blobForSingle(persistedRun, metadata.sampleName(), GermlineCaller.NAMESPACE, vcf)))
-                .maybeGermlineVcfIndexLocation(GoogleStorageLocation.of(persistedBucket,
-                        PersistedLocations.blobForSingle(persistedRun, metadata.sampleName(), namespace(), GermlineCallerOutput.tbi(vcf))))
+                .maybeGermlineVcfLocation(GoogleStorageLocation.of(metadata.bucket(), vcfPath))
+                .maybeGermlineVcfIndexLocation(GoogleStorageLocation.of(metadata.bucket(), FileTypes.tabixIndex(vcfPath)))
                 .build();
     }
 
