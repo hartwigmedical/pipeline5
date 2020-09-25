@@ -2,6 +2,7 @@ package com.hartwig.pipeline.alignment.sample;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Optional;
 
 import com.hartwig.patient.ReferenceTumorPair;
 import com.hartwig.patient.Sample;
@@ -23,13 +24,13 @@ public class JsonSampleSource implements SampleSource {
 
     @Override
     public Sample sample(final SingleSampleRunMetadata metadata) {
-        return sample(metadata.type());
+        return sample(metadata.type()).orElseThrow();
     }
 
-    public Sample sample(final SampleType sampleType) {
+    public Optional<Sample> sample(final SampleType sampleType) {
         try {
             if (sampleType.equals(SingleSampleRunMetadata.SampleType.REFERENCE)) {
-                return pair.reference();
+                return Optional.of(pair.reference());
             } else {
                 return pair.tumor();
             }

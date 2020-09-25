@@ -1,5 +1,7 @@
 package com.hartwig.patient;
 
+import java.util.Optional;
+
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import org.immutables.value.Value;
@@ -10,5 +12,5 @@ public interface ReferenceTumorPair {
 
     Sample reference();
 
-    Sample tumor();
+    Optional<Sample> tumor();
 }
