@@ -64,7 +64,7 @@ public class CobaltTest extends TertiaryStageTest<CobaltOutput> {
         return List.of(new AddDatatypeToFile(DataType.TUMOR_READ_DEPTH_RATIO,
                 Folder.root(),
                 Cobalt.NAMESPACE,
-                "tumor.cobalt.ratio.pcf",
+                "tumor.cobalt",
                 TestInputs.defaultSomaticRunMetadata().barcode()));
     }
 }
