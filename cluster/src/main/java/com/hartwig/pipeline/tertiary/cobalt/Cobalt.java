@@ -63,7 +63,7 @@ public class Cobalt extends TertiaryStage<CobaltOutput> {
                 .addFurtherOperations(new AddDatatypeToFile(DataType.TUMOR_READ_DEPTH_RATIO,
                         Folder.root(),
                         namespace(),
-                        String.format("%s.cobalt", metadata.tumor().sampleName()),
+                        String.format("%s.cobalt.ratio.pcf", metadata.tumor().sampleName()),
                         metadata.barcode()))
                 .build();
     }
