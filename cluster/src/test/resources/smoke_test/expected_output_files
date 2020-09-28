@@ -14,10 +14,11 @@ chord/CPCT12345678T_chord_prediction.txt
 chord/CPCT12345678T_chord_signatures.txt
 chord/run.log
 cobalt/cobalt.version
-cobalt/CPCT12345678R.cobalt.gc.median
+cobalt/CPCT12345678R.cobalt.gc.median.tsv
+cobalt/CPCT12345678R.cobalt.ratio.median.tsv
 cobalt/CPCT12345678R.cobalt.ratio.pcf
 cobalt/CPCT12345678T.chr.len
-cobalt/CPCT12345678T.cobalt.gc.median
+cobalt/CPCT12345678T.cobalt.gc.median.tsv
 cobalt/CPCT12345678T.cobalt.ratio.pcf
 cobalt/CPCT12345678T.cobalt.ratio.tsv
 cobalt/run.log
