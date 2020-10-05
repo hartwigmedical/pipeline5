@@ -18,7 +18,7 @@ public interface Versions {
     String SNPEFF = "4.3s";
     String TABIX = "0.2.6";
     String AMBER = "3.4";
-    String COBALT = "1.9";
+    String COBALT = "1.7";
     String HEALTH_CHECKER = "3.1";
     String PURPLE = "2.47";
     String CIRCOS = "0.69.6";
@@ -26,7 +26,7 @@ public interface Versions {
     String GRIPSS = "1.8";
     String LINX = "1.10";
     String BACHELOR = "1.12";
-    String CHORD = "60.02_1.03";
+    String CHORD = "2.00_1.14";
     String SAMTOOLS = "1.10";
     String BAMCOMP = "1.3";
 
