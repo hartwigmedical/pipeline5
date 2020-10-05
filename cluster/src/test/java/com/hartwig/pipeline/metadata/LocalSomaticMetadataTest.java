@@ -6,6 +6,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.Optional;
+
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.sample.JsonSampleSource;
@@ -20,29 +22,32 @@ public class LocalSomaticMetadataTest {
     private String setId;
     private String tumorName;
     private String refName;
+    private JsonSampleSource jsonSampleSource;
+    private Sample tumorSample;
 
     @Before
     public void setUp() throws Exception {
         setId = "setId";
         tumorName = "CORE123T";
         refName = "CORE123R";
-        final JsonSampleSource jsonSampleSource = mock(JsonSampleSource.class);
-        final Sample tumorSample = mock(Sample.class);
+        jsonSampleSource = mock(JsonSampleSource.class);
+        tumorSample = mock(Sample.class);
         final Sample refSample = mock(Sample.class);
         victim = new LocalSomaticMetadata(Arguments.testDefaultsBuilder().setId(setId).build(), jsonSampleSource);
-        when(jsonSampleSource.sample(SampleType.TUMOR)).thenReturn(tumorSample);
-        when(jsonSampleSource.sample(SampleType.REFERENCE)).thenReturn(refSample);
+        when(jsonSampleSource.sample(SampleType.REFERENCE)).thenReturn(Optional.of(refSample));
         when(tumorSample.name()).thenReturn(tumorName);
         when(refSample.name()).thenReturn(refName);
     }
 
     @Test
     public void setsRunNameToSetIdCombinedWithRunId() {
+        when(jsonSampleSource.sample(SampleType.TUMOR)).thenReturn(Optional.of(tumorSample));
         assertThat(victim.get().set()).isEqualTo(format("%s-%s", setId, Arguments.testDefaults().runId().orElseThrow()));
     }
 
     @Test
     public void returnsTumorFromJson() {
+        when(jsonSampleSource.sample(SampleType.TUMOR)).thenReturn(Optional.of(tumorSample));
         SomaticRunMetadata metadata = victim.get();
 
         assertThat(metadata.maybeTumor().isPresent()).isTrue();
@@ -53,10 +58,23 @@ public class LocalSomaticMetadataTest {
 
     @Test
     public void returnsReferenceFromJson() {
+        when(jsonSampleSource.sample(SampleType.TUMOR)).thenReturn(Optional.of(tumorSample));
         SomaticRunMetadata metadata = victim.get();
 
         assertThat(metadata.reference().type()).isEqualTo(SampleType.REFERENCE);
         assertThat(metadata.reference().sampleName()).isEqualTo(refName);
         assertThat(metadata.reference().barcode()).isEqualTo(refName);
+    }
+
+    @Test
+    public void supportsSingleSample() {
+        when(jsonSampleSource.sample(SampleType.TUMOR)).thenReturn(Optional.empty());
+        SomaticRunMetadata metadata = victim.get();
+
+        assertThat(metadata.reference().type()).isEqualTo(SampleType.REFERENCE);
+        assertThat(metadata.reference().sampleName()).isEqualTo(refName);
+        assertThat(metadata.reference().barcode()).isEqualTo(refName);
+
+        assertThat(metadata.maybeTumor()).isEmpty();
     }
 }
