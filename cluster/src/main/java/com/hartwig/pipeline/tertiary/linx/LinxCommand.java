@@ -11,7 +11,7 @@ class LinxCommand extends JavaJarCommand {
     LinxCommand(final String sample, final String svVcf, final String purpleDir, final String referenceGenome,
             final RefGenomeVersion refGenomeVersion, final String outputDir, final String fragileSiteFile, final String lineElementFile,
             final String replicationsOriginsFile, final String viralHostsFile, final String geneTranscriptsDirectory,
-            final String knownFusionData) {
+            final String knownFusionData, final String driverGenePanel) {
         super("linx",
                 Versions.LINX,
                 "linx.jar",
@@ -41,9 +41,11 @@ class LinxCommand extends JavaJarCommand {
                         "-check_fusions",
                         "-known_fusion_file",
                         knownFusionData,
+                        "-check_drivers",
+                        "-driver_gene_panel",
+                        driverGenePanel,
                         "-chaining_sv_limit",
                         "0",
-                        "-check_drivers",
                         "-write_vis_data").build());
     }
 
