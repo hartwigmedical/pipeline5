@@ -57,7 +57,8 @@ public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
                 resourceFiles.originsOfReplication(),
                 resourceFiles.viralHostRefs(),
                 resourceFiles.ensemblDataCache(),
-                resourceFiles.knownFusionData()));
+                resourceFiles.knownFusionData(),
+                resourceFiles.driverGenePanel()));
     }
 
     @Override

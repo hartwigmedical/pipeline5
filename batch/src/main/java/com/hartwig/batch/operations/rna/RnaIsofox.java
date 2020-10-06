@@ -29,8 +29,8 @@ public class RnaIsofox implements BatchOperation {
     private static final String KNOWN_FUSIONS_FILE = "known_fusion_data.csv";
     private static final String REF_GENOME = "Homo_sapiens.GRCh37.GATK.illumina.fasta";
     private static final String REF_GENOME_INDEX = "Homo_sapiens.GRCh37.GATK.illumina.fasta.fai";
-    private static final String EXP_COUNTS_READ_76 = "read_76_exp_rates.csv";
-    private static final String EXP_COUNTS_READ_151 = "read_151_exp_rates.csv";
+    private static final String EXP_COUNTS_READ_76 = "read_76_exp_counts.csv";
+    private static final String EXP_COUNTS_READ_151 = "read_151_exp_counts.csv";
     private static final String EXP_GC_COUNTS_READ_100 = "read_100_exp_gc_ratios.csv";
     private static final String READ_LENGTH_76 = "76";
     private static final String READ_LENGTH_151 = "151";
@@ -129,6 +129,7 @@ public class RnaIsofox implements BatchOperation {
 
             isofoxArgs.append(String.format(" -apply_gc_bias_adjust"));
             isofoxArgs.append(String.format(" -exp_gc_ratios_file %s/%s", VmDirectories.INPUT, EXP_GC_COUNTS_READ_100));
+            isofoxArgs.append(String.format(" -apply_map_qual_adjust"));
 
             isofoxArgs.append(String.format(" -write_frag_lengths"));
             isofoxArgs.append(String.format(" -write_gc_data"));

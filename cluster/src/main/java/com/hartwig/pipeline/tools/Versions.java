@@ -18,13 +18,13 @@ public interface Versions {
     String SNPEFF = "4.3s";
     String TABIX = "0.2.6";
     String AMBER = "3.4";
-    String COBALT = "1.7";
+    String COBALT = "1.10";
     String HEALTH_CHECKER = "3.1";
-    String PURPLE = "2.47";
+    String PURPLE = "2.49";
     String CIRCOS = "0.69.6";
     String GRIDSS = "2.9.3";
     String GRIPSS = "1.8";
-    String LINX = "1.10";
+    String LINX = "1.11";
     String BACHELOR = "1.12";
     String CHORD = "2.00_1.14";
     String SAMTOOLS = "1.10";
