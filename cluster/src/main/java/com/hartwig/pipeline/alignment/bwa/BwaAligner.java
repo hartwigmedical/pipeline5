@@ -24,6 +24,7 @@ import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.alignment.ImmutableAlignmentOutput;
 import com.hartwig.pipeline.alignment.sample.SampleSource;
 import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
@@ -73,9 +74,17 @@ public class BwaAligner implements Aligner {
         StageTrace trace = new StageTrace(NAMESPACE, metadata.sampleName(), StageTrace.ExecutorType.COMPUTE_ENGINE).start();
         RuntimeBucket rootBucket = RuntimeBucket.from(storage, NAMESPACE, metadata, arguments);
 
-        final ResourceFiles resourceFiles = buildResourceFiles(arguments.refGenomeVersion());
-
         Sample sample = sampleSource.sample(metadata);
+        if (sample.maybeBam().isPresent()) {
+            String[] splitGSUtil = sample.maybeBam().orElseThrow().path().replace("gs://", "").split("/");
+            String bucket = splitGSUtil[0];
+            String path = splitGSUtil[1];
+            return AlignmentOutput.builder()
+                    .maybeFinalBamLocation(GoogleStorageLocation.of(bucket, path))
+                    .maybeFinalBaiLocation(GoogleStorageLocation.of(bucket, FileTypes.bai(path)))
+                    .build();
+        }
+        final ResourceFiles resourceFiles = buildResourceFiles(arguments.refGenomeVersion());
         sampleUpload.run(sample, rootBucket);
 
         List<Future<PipelineStatus>> futures = new ArrayList<>();

@@ -1,6 +1,7 @@
 package com.hartwig.patient;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
@@ -16,6 +17,8 @@ public interface Sample {
     String name();
 
     List<Lane> lanes();
+
+    Optional<Bam> maybeBam();
 
     @Value.Default
     default String barcode() {

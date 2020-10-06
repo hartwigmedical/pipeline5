@@ -48,6 +48,7 @@ public abstract class AlignerProvider {
     private static BwaAligner constructVmAligner(final Arguments arguments, final GoogleCredentials credentials, final Storage storage,
             final SampleSource sampleSource, final SampleUpload sampleUpload, final ResultsDirectory resultsDirectory) throws Exception {
         ComputeEngine computeEngine = GoogleComputeEngine.from(arguments, credentials);
+
         return new BwaAligner(arguments,
                 computeEngine,
                 storage,
