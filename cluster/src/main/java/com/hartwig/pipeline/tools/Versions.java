@@ -30,6 +30,7 @@ public interface Versions {
     String SAMTOOLS = "1.10";
     String BAMCOMP = "1.3";
 
+
     static void printAll() {
         Logger logger = LoggerFactory.getLogger(Versions.class);
         logger.info("Version of pipeline5 is [{}] ", pipelineVersion());
