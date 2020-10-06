@@ -74,11 +74,11 @@ linx/CPCT12345678T.linx.fusion.tsv
 linx/CPCT12345678T.linx.links.tsv
 linx/CPCT12345678T.linx.svs.tsv
 linx/CPCT12345678T.linx.viral_inserts.tsv
-linx/.linx.vis_copy_number.tsv",
-linx/.linx.vis_fusion.tsv",
-linx/.linx.vis_gene_exon.tsv",
-linx/.linx.vis_protein_domain.tsv",
-linx/.linx.vis_segments.tsv",
+linx/.linx.vis_copy_number.tsv
+linx/.linx.vis_fusion.tsv
+linx/.linx.vis_gene_exon.tsv
+linx/.linx.vis_protein_domain.tsv
+linx/.linx.vis_segments.tsv
 linx/.linx.vis_sv_data.tsv
 linx/linx.version
 metadata.json
