@@ -5,9 +5,10 @@ public class OverriddenReferenceGenome implements ResourceFiles {
     private final ResourceFiles decorated;
     private final String referenceGenomeFile;
 
-    public OverriddenReferenceGenome(final ResourceFiles decorated, final String referenceGenomeFile) {
+    public OverriddenReferenceGenome(final ResourceFiles decorated, final String referenceGenomeUrl) {
         this.decorated = decorated;
-        this.referenceGenomeFile = referenceGenomeFile;
+        this.referenceGenomeFile =
+                OverrideReferenceGenomeCommand.RESOURCES_OVERRIDE + referenceGenomeUrl.substring(referenceGenomeUrl.lastIndexOf("/"));
     }
 
     @Override

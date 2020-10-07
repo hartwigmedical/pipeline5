@@ -79,7 +79,7 @@ public class SomaticPipeline {
         SomaticRunMetadata metadata = setMetadataApi.get();
         LOGGER.info("Pipeline5 somatic pipeline starting for set [{}]", metadata.set());
 
-        final ResourceFiles resourceFiles = buildResourceFiles(arguments.refGenomeVersion());
+        final ResourceFiles resourceFiles = buildResourceFiles(arguments);
 
         if (metadata.maybeTumor().isPresent()) {
             try {

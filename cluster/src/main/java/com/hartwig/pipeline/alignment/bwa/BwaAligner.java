@@ -75,16 +75,19 @@ public class BwaAligner implements Aligner {
         RuntimeBucket rootBucket = RuntimeBucket.from(storage, NAMESPACE, metadata, arguments);
 
         Sample sample = sampleSource.sample(metadata);
-        if (sample.maybeBam().isPresent()) {
-            String[] splitGSUtil = sample.maybeBam().orElseThrow().path().replace("gs://", "").split("/");
-            String bucket = splitGSUtil[0];
-            String path = splitGSUtil[1];
+        if (sample.bam().isPresent()) {
+            String noPrefix = sample.bam().orElseThrow().replace("gs://", "");
+            int firstSlash = noPrefix.indexOf("/");
+            String bucket = noPrefix.substring(0, firstSlash);
+            String path = noPrefix.substring(firstSlash + 1);
             return AlignmentOutput.builder()
+                    .sample(metadata.sampleName())
+                    .status(PipelineStatus.PROVIDED)
                     .maybeFinalBamLocation(GoogleStorageLocation.of(bucket, path))
                     .maybeFinalBaiLocation(GoogleStorageLocation.of(bucket, FileTypes.bai(path)))
                     .build();
         }
-        final ResourceFiles resourceFiles = buildResourceFiles(arguments.refGenomeVersion());
+        final ResourceFiles resourceFiles = buildResourceFiles(arguments);
         sampleUpload.run(sample, rootBucket);
 
         List<Future<PipelineStatus>> futures = new ArrayList<>();

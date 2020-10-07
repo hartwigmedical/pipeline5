@@ -61,7 +61,7 @@ public interface CommonArguments {
 
     RefGenomeVersion refGenomeVersion();
 
-    Optional<String> refGenomePath();
+    Optional<String> refGenomeUrl();
 
     static Optional<String> privateKey(CommandLine commandLine) {
         if (commandLine.hasOption(PRIVATE_KEY_PATH)) {

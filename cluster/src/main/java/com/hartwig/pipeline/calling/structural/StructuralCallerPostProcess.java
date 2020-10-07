@@ -80,7 +80,7 @@ public class StructuralCallerPostProcess implements Stage<StructuralCallerPostPr
 
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
-        return VirtualMachineJobDefinition.structuralCalling(bash, resultsDirectory);
+        return VirtualMachineJobDefinition.structuralPostProcessCalling(bash, resultsDirectory);
     }
 
     @Override

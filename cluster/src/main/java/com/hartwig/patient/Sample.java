@@ -18,7 +18,7 @@ public interface Sample {
 
     List<Lane> lanes();
 
-    Optional<Bam> maybeBam();
+    Optional<String> bam();
 
     @Value.Default
     default String barcode() {
