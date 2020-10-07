@@ -1,13 +1,19 @@
 # Use this build the R dependencies for the pipeline.  It is not an automated part of image creation to keep the imaging time down
 # but can be invoked manually when the dependencies are in need of updating. It takes an hour or more to run.
 #
-# Start with a "clean" VM from the imaging configuration, that has been created without the extraction of the existing R
-# dependencies. You can get this just by removing the extract of the R tarball that came from the resources.  Then just run this with
-# `Rscript` and when it succeeds run `cd /; tar cvf rlibs.tar /usr/lib/lib/R/site-library` and replace the tarball in the resources bucket.
+# Once built the dependencies are `tar`red up and placed in the "tools" bucket on GCP we use for imaging. See `package.cmds` for
+# the current bucket name. The tarball is extracted at image creation time so if any R dependencies have to be updated a new
+# tarball must be created and pushed to the bucket and then the regular imaging script run. A general approach might be:
 #
-# To determine the versions of the R libraries that have been installed you could do something like this:
-#   * Get a VM running from our standard image and extract the tarball of the R libraries to `/usr/local/lib/R/site-library`
-#   * Run the listing script from this directory: `Rscript ./listInstalledLibs.R`
+#   1. Start a VM and make sure `/usr/local/lib/R/site-library` is empty. An easy way to start with a clean VM with the right
+#      versions of system software is to start with one of our pipeline images then remove the contents of
+#      `/usr/local/lib/R/site-library`. MAKE SURE the directory itself exists though or R will silently ignore it!
+#   2. Confirm `/usr/local/lib/R/site-library` is first in the output of `.libPaths()` from an R shell
+#   3. Run this script with `Rscript`
+#   4. Make sure `/usr/local/lib/R/site-library` was populated as expected
+#   5. Make a new tarball: `cd /; tar cvf rlibs.tar /usr/local/lib/R/site-library`
+#   6. Create a backup of the existing tarball in the tools bucket, then copy the new tarball over the original
+#   7. Re-run the imaging script and verify installed versions of R libs. See `./listInstalledLibs.R`.
 #
 # We make the assumption that any libraries installed in the R library search path (try `.libPaths()` from an R shell) will not
 # contain anything other than what has been packaged with the in-use R distribution. We do not use a custom library path via
