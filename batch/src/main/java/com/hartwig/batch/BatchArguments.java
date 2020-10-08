@@ -4,6 +4,7 @@ import static java.lang.Boolean.parseBoolean;
 import static java.lang.String.format;
 
 import com.hartwig.pipeline.CommonArguments;
+import com.hartwig.pipeline.resource.RefGenomeVersion;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
@@ -45,6 +46,7 @@ public interface BatchArguments extends CommonArguments {
                     .outputBucket(commandLine.getOptionValue(OUTPUT_BUCKET))
                     .cmek(commandLine.getOptionValue(CMEK, CommonArguments.DEFAULT_DEVELOPMENT_CMEK))
                     .network(commandLine.getOptionValue(PRIVATE_NETWORK, DEFAULT_NETWORK))
+                    .refGenomeVersion(RefGenomeVersion.HG19)
                     .build();
         } catch (ParseException e) {
             String message = "Failed to parse arguments";
