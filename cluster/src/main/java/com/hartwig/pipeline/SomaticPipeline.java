@@ -59,8 +59,7 @@ public class SomaticPipeline {
             final BlockingQueue<BamMetricsOutput> referenceBamMetricsOutputQueue,
             final BlockingQueue<BamMetricsOutput> tumorBamMetricsOutputQueue,
             final BlockingQueue<GermlineCallerOutput> germlineCallerOutputStorageQueue, final SomaticMetadataApi setMetadataApi,
-            final PipelineResults pipelineResults, final ExecutorService executorService,
-            final PersistedDataset persistedDataset) {
+            final PipelineResults pipelineResults, final ExecutorService executorService, final PersistedDataset persistedDataset) {
         this.arguments = arguments;
         this.stageRunner = stageRunner;
         this.referenceBamMetricsOutputQueue = referenceBamMetricsOutputQueue;
@@ -126,8 +125,8 @@ public class SomaticPipeline {
                                             purpleOutput,
                                             pair.tumor(),
                                             pollOrThrow(germlineCallerOutputStorage, "germline"))));
-                            Future<ChordOutput> chordOutputFuture =
-                                    executorService.submit(() -> stageRunner.run(metadata, new Chord(purpleOutput)));
+                            Future<ChordOutput> chordOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
+                                    new Chord(arguments.refGenomeVersion(), purpleOutput)));
                             pipelineResults.add(state.add(healthCheckOutputFuture.get()));
                             pipelineResults.add(state.add(linxOutputFuture.get()));
                             pipelineResults.add(state.add(bachelorOutputFuture.get()));
