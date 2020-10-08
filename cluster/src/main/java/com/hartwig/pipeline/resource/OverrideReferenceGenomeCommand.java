@@ -18,6 +18,6 @@ public class OverrideReferenceGenomeCommand {
     }
 
     private static BashCommand copyDownReferenceGenome(final String p) {
-        return () -> "gsutil -qm cp -n " + p.substring(0, p.lastIndexOf('.')) + "* " + RESOURCES_OVERRIDE;
+        return () -> String.format("gsutil -qm cp -n %s* %s", p.substring(0, p.lastIndexOf('.')), RESOURCES_OVERRIDE);
     }
 }
