@@ -66,7 +66,7 @@ public class SingleSamplePipeline {
                 metadata.barcode(),
                 arguments.runId().map(runId -> String.format("using run tag [%s]", runId)).orElse(""));
         PipelineState state = new PipelineState();
-        final ResourceFiles resourceFiles = buildResourceFiles(arguments.refGenomeVersion());
+        final ResourceFiles resourceFiles = buildResourceFiles(arguments);
         AlignmentOutput alignmentOutput = report.add(state.add(aligner.run(metadata)));
         eventListener.alignmentComplete(alignmentOutput);
         if (state.shouldProceed()) {
