@@ -51,4 +51,9 @@ public class LinxTest extends TertiaryStageTest<LinxOutput> {
     protected void validateOutput(final LinxOutput output) {
         // no additional validation
     }
+
+    @Override
+    public void addsLogs() {
+        // not supported currently
+    }
 }

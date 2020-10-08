@@ -53,7 +53,7 @@ public class OverriddenReferenceGenome implements ResourceFiles {
 
     @Override
     public String gridssBreakpointPon() {
-        return decorated.gridssBreakpointPon();
+        return decorated.gridssBreakendPon();
     }
 
     @Override

@@ -58,6 +58,7 @@ public class Flagstat implements Stage<FlagstatOutput, SingleSampleRunMetadata> 
         String outputFile = FlagstatOutput.outputFile(metadata.sampleName());
         return FlagstatOutput.builder()
                 .status(status)
+                .addLogs(bucket.get(resultsDirectory.path(RunLogComponent.LOG_FILE)))
                 .addReportComponents(new RunLogComponent(bucket, Flagstat.NAMESPACE, Folder.from(metadata), resultsDirectory))
                 .addReportComponents(new StartupScriptComponent(bucket, NAMESPACE, Folder.from(metadata)))
                 .addReportComponents(new SingleFileComponent(bucket,

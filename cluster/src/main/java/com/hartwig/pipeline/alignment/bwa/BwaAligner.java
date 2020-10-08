@@ -14,6 +14,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
+import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Storage;
 import com.hartwig.patient.Lane;
 import com.hartwig.patient.Sample;
@@ -93,6 +94,7 @@ public class BwaAligner implements Aligner {
         List<Future<PipelineStatus>> futures = new ArrayList<>();
         List<GoogleStorageLocation> perLaneBams = new ArrayList<>();
         List<ReportComponent> laneLogComponents = new ArrayList<>();
+        List<Blob> logs = new ArrayList<>();
         for (Lane lane : sample.lanes()) {
 
             RuntimeBucket laneBucket = RuntimeBucket.from(storage, laneNamespace(lane), metadata, arguments);
@@ -121,6 +123,7 @@ public class BwaAligner implements Aligner {
                     laneBucket,
                     VirtualMachineJobDefinition.alignment(laneId(lane).toLowerCase(), bash, resultsDirectory))));
             laneLogComponents.add(new RunLogComponent(laneBucket, laneNamespace(lane), Folder.from(metadata), resultsDirectory));
+            logs.add(laneBucket.get(resultsDirectory.path(RunLogComponent.LOG_FILE)));
         }
 
         AlignmentOutput output;
@@ -152,6 +155,8 @@ public class BwaAligner implements Aligner {
                     .maybeFinalBaiLocation(GoogleStorageLocation.of(rootBucket.name(),
                             resultsDirectory.path(bai(merged.outputFile().fileName()))))
                     .addAllReportComponents(laneLogComponents)
+                    .addAllLogs(logs)
+                    .addLogs(rootBucket.get(resultsDirectory.path(RunLogComponent.LOG_FILE)))
                     .addReportComponents(new RunLogComponent(rootBucket, Aligner.NAMESPACE, Folder.from(metadata), resultsDirectory));
             if (!arguments.outputCram()) {
                 outputBuilder.addReportComponents(new SingleFileComponent(rootBucket,

@@ -46,12 +46,17 @@ public class SageCallerTest extends TertiaryStageTest<SomaticCallerOutput> {
 
     @Override
     public void returnsExpectedOutput() {
-        // ignored for now.
+        // not supported currently
     }
 
     @Override
     protected void validateOutput(final SomaticCallerOutput output) {
-        // ignored for now.
+        // not supported currently
+    }
+
+    @Override
+    public void addsLogs() {
+        // not supported currently
     }
 
     @Override

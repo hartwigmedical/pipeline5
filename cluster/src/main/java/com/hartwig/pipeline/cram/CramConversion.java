@@ -76,6 +76,7 @@ public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata
 
         return CramOutput.builder()
                 .status(jobStatus)
+                .addLogs(bucket.get(resultsDirectory.path(RunLogComponent.LOG_FILE)))
                 .addReportComponents(new RunLogComponent(bucket, NAMESPACE, folder, resultsDirectory),
                         new StartupScriptComponent(bucket, NAMESPACE, folder),
                         new SingleFileComponent(bucket, NAMESPACE, folder, cram, cram, resultsDirectory),

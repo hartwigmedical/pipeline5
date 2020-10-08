@@ -50,7 +50,7 @@ public class BashStartupScript {
                 "function die() {",
                 "  exit_code=$?",
                 "  echo \"Unknown failure: called command returned $exit_code\"",
-                format("  gsutil -m cp %s gs://%s", localLogFile, runtimeBucketName),
+                format("  gsutil -m cp %s gs://%s/results/", localLogFile, runtimeBucketName),
                 format("  echo $exit_code > %s", jobFailedFlag),
                 format("  gsutil -m cp %s gs://%s", jobFailedFlag, runtimeBucketName),
                 "  exit $exit_code\n" + "}\n"));

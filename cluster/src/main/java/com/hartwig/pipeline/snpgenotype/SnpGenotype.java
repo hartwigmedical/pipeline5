@@ -74,6 +74,7 @@ public class SnpGenotype implements Stage<SnpGenotypeOutput, SingleSampleRunMeta
             final ResultsDirectory resultsDirectory) {
         return SnpGenotypeOutput.builder()
                 .status(status)
+                .addLogs(bucket.get(resultsDirectory.path(RunLogComponent.LOG_FILE)))
                 .addReportComponents(new RunLogComponent(bucket, NAMESPACE, Folder.from(metadata), resultsDirectory))
                 .addReportComponents(new StartupScriptComponent(bucket, NAMESPACE, Folder.from(metadata)))
                 .addReportComponents(new SingleFileComponent(bucket,

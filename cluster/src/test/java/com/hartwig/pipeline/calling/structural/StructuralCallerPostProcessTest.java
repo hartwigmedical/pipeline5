@@ -1,7 +1,5 @@
 package com.hartwig.pipeline.calling.structural;
 
-import static java.lang.String.format;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
@@ -46,10 +44,6 @@ public class StructuralCallerPostProcessTest extends StageTest<StructuralCallerP
                         "tumor.gridss.unfiltered.vcf.gz.tbi"));
     }
 
-    private String inputDownload(String bucket, String basename) {
-        return input(format("%s/aligner/results/%s", bucket, basename), basename);
-    }
-
     @Override
     protected String expectedRuntimeBucketName() {
         return TestInputs.SOMATIC_BUCKET;
@@ -76,6 +70,11 @@ public class StructuralCallerPostProcessTest extends StageTest<StructuralCallerP
 
     @Override
     public void returnsExpectedOutput() {
+        // not supported currently
+    }
+
+    @Override
+    public void addsLogs() {
         // not supported currently
     }
 

@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.google.common.collect.Lists;
@@ -132,6 +133,11 @@ public class PipelineResultsTest {
 
             @Override
             public List<ApiFileOperation> furtherOperations() {
+                return Collections.emptyList();
+            }
+
+            @Override
+            public List<Blob> logs() {
                 return Collections.emptyList();
             }
         };

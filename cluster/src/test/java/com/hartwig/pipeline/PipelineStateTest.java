@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Collections;
 import java.util.List;
 
+import com.google.cloud.storage.Blob;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.metadata.ApiFileOperation;
 import com.hartwig.pipeline.report.ReportComponent;
@@ -63,6 +64,11 @@ public class PipelineStateTest {
 
             @Override
             public List<ApiFileOperation> furtherOperations() {
+                return Collections.emptyList();
+            }
+
+            @Override
+            public List<Blob> logs() {
                 return Collections.emptyList();
             }
         };
