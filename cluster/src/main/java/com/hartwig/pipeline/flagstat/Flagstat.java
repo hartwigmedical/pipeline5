@@ -19,6 +19,7 @@ import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.report.SingleFileComponent;
 import com.hartwig.pipeline.report.StartupScriptComponent;
 import com.hartwig.pipeline.stages.Stage;
+import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
 public class Flagstat implements Stage<FlagstatOutput, SingleSampleRunMetadata> {
@@ -58,6 +59,7 @@ public class Flagstat implements Stage<FlagstatOutput, SingleSampleRunMetadata> 
         String outputFile = FlagstatOutput.outputFile(metadata.sampleName());
         return FlagstatOutput.builder()
                 .status(status)
+                .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new RunLogComponent(bucket, Flagstat.NAMESPACE, Folder.from(metadata), resultsDirectory))
                 .addReportComponents(new StartupScriptComponent(bucket, NAMESPACE, Folder.from(metadata)))
                 .addReportComponents(new SingleFileComponent(bucket,

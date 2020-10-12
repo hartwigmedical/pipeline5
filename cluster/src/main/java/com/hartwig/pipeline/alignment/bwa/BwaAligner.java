@@ -93,6 +93,7 @@ public class BwaAligner implements Aligner {
         List<Future<PipelineStatus>> futures = new ArrayList<>();
         List<GoogleStorageLocation> perLaneBams = new ArrayList<>();
         List<ReportComponent> laneLogComponents = new ArrayList<>();
+        List<GoogleStorageLocation> laneFailedLogs = new ArrayList<>();
         for (Lane lane : sample.lanes()) {
 
             RuntimeBucket laneBucket = RuntimeBucket.from(storage, laneNamespace(lane), metadata, arguments);
@@ -121,6 +122,7 @@ public class BwaAligner implements Aligner {
                     laneBucket,
                     VirtualMachineJobDefinition.alignment(laneId(lane).toLowerCase(), bash, resultsDirectory))));
             laneLogComponents.add(new RunLogComponent(laneBucket, laneNamespace(lane), Folder.from(metadata), resultsDirectory));
+            laneFailedLogs.add(GoogleStorageLocation.of(laneBucket.name(), RunLogComponent.LOG_FILE));
         }
 
         AlignmentOutput output;
@@ -152,6 +154,8 @@ public class BwaAligner implements Aligner {
                     .maybeFinalBaiLocation(GoogleStorageLocation.of(rootBucket.name(),
                             resultsDirectory.path(bai(merged.outputFile().fileName()))))
                     .addAllReportComponents(laneLogComponents)
+                    .addAllFailedLogLocations(laneFailedLogs)
+                    .addFailedLogLocations(GoogleStorageLocation.of(rootBucket.name(), RunLogComponent.LOG_FILE))
                     .addReportComponents(new RunLogComponent(rootBucket, Aligner.NAMESPACE, Folder.from(metadata), resultsDirectory));
             if (!arguments.outputCram()) {
                 outputBuilder.addReportComponents(new SingleFileComponent(rootBucket,

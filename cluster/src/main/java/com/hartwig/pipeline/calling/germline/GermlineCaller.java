@@ -125,6 +125,7 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
             final ResultsDirectory resultsDirectory) {
         return GermlineCallerOutput.builder()
                 .status(status)
+                .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .maybeGermlineVcfLocation(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(outputFile.fileName())))
                 .maybeGermlineVcfIndexLocation(GoogleStorageLocation.of(bucket.name(),
                         resultsDirectory.path(FileTypes.tabixIndex(outputFile.fileName()))))

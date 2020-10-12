@@ -86,6 +86,7 @@ public class SageCaller extends TertiaryStage<SomaticCallerOutput> {
             final ResultsDirectory resultsDirectory) {
         return SomaticCallerOutput.builder(NAMESPACE)
                 .status(jobStatus)
+                .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .maybeFinalSomaticVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(filteredOutputFile.fileName())))
                 .addReportComponents(bqrComponent(metadata.tumor(), "png", bucket, resultsDirectory))
                 .addReportComponents(bqrComponent(metadata.tumor(), "tsv", bucket, resultsDirectory))

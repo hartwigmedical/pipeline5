@@ -52,8 +52,7 @@ public class QuotaConstrainedComputeEngineTest {
         ArgumentCaptor<VirtualMachineJobDefinition> constrained = ArgumentCaptor.forClass(VirtualMachineJobDefinition.class);
         when(decorated.submit(any(), constrained.capture(), any())).thenReturn(PipelineStatus.SUCCESS);
 
-        QuotaConstrainedComputeEngine victim = new QuotaConstrainedComputeEngine(decorated, serviceUsage, REGION, PROJECT,
-                0.6);
+        QuotaConstrainedComputeEngine victim = new QuotaConstrainedComputeEngine(decorated, serviceUsage, REGION, PROJECT, 0.6);
         PipelineStatus result = victim.submit(MockRuntimeBucket.test().getRuntimeBucket(), jobDefinition);
         assertThat(result).isEqualTo(PipelineStatus.SUCCESS);
         MachineType machineType = constrained.getValue().performanceProfile().machineType();
