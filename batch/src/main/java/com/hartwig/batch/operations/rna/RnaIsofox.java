@@ -37,7 +37,7 @@ public class RnaIsofox implements BatchOperation {
 
     private static final int FRAG_LENGTH_FRAG_COUNT = 1000000;
     private static final int LONG_FRAG_LENGTH_LIMIT = 550;
-    private static final String FRAG_LENGTH_BUCKETS = "50-0;75-0;100-0;125-0;150-0;200-0;250-0;300-0;550-0";
+    private static final String FRAG_LENGTH_BUCKETS = "50-0;75-0;100-0;125-0;150-0;200-0;250-0;300-0;400-0;550-0";
     private static final String ENRICHED_GENE_IDS = "ENSG00000265150;ENSG00000258486;ENSG00000202198;ENSG00000266037;ENSG00000263740;ENSG00000265735";
 
     private static final String FUNC_TRANSCRIPT_COUNTS = "TRANSCRIPT_COUNTS";
