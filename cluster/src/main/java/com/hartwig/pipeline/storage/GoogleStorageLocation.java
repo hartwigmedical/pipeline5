@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.storage;
 
+import com.google.cloud.storage.BlobId;
+
 import org.immutables.value.Value;
 
 @Value.Immutable
@@ -17,9 +19,11 @@ public interface GoogleStorageLocation {
         return false;
     }
 
-    default GoogleStorageLocation parent() {
-        String[] split = path().split("/");
-        return GoogleStorageLocation.of(bucket(), split[split.length - 1], true);
+    default BlobId asBlobId() {
+        String[] splitBucket = bucket().split("/");
+        String bucketNoNamespace = splitBucket[0];
+        String namespace = splitBucket.length == 2 ? splitBucket[1] : "";
+        return BlobId.of(bucketNoNamespace, namespace + "/" + path());
     }
 
     static GoogleStorageLocation of(String bucket, String path) {

@@ -93,7 +93,7 @@ public class StructuralCallerPostProcess implements Stage<StructuralCallerPostPr
                         FileTypes.tabixIndex(resultsDirectory.path(basename(somaticFilteredVcf)))))
                 .maybeFullVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(somaticVcf))))
                 .maybeFullVcfIndex(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(somaticVcf + ".tbi"))))
-                .addLogs(bucket.get(RunLogComponent.LOG_FILE))
+                .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
                         NAMESPACE,
                         Folder.root(),

@@ -17,6 +17,7 @@ import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
+import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 
@@ -72,7 +73,7 @@ public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
             final ResultsDirectory resultsDirectory) {
         return LinxOutput.builder()
                 .status(jobStatus)
-                .addLogs(bucket.get(resultsDirectory.path(RunLogComponent.LOG_FILE)))
+                .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), NAMESPACE, resultsDirectory))
                 .build();
     }

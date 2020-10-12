@@ -120,7 +120,7 @@ public abstract class StageTest<S extends StageOutput, M extends RunMetadata> {
 
     @Test
     public void addsLogs() {
-        assertThat(victim.output(input(), PipelineStatus.SUCCESS, runtimeBucket, ResultsDirectory.defaultDirectory()).logs()).isNotEmpty();
+        assertThat(victim.output(input(), PipelineStatus.SUCCESS, runtimeBucket, ResultsDirectory.defaultDirectory()).failedLogLocations()).isNotEmpty();
     }
 
     protected List<ApiFileOperation> expectedFurtherOperations() {

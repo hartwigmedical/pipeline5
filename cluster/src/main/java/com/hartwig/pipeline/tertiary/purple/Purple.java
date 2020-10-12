@@ -107,7 +107,7 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
             final ResultsDirectory resultsDirectory) {
         return PurpleOutput.builder()
                 .status(jobStatus)
-                .addLogs(bucket.get(resultsDirectory.path(RunLogComponent.LOG_FILE)))
+                .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .maybeOutputDirectory(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(), true))
                 .maybeSomaticVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(somaticVcf(metadata))))
                 .maybeStructuralVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(svVcf(metadata))))

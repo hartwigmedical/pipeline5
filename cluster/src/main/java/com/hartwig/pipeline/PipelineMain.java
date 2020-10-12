@@ -21,9 +21,9 @@ import com.hartwig.pipeline.metadata.SomaticMetadataApiProvider;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.pubsub.PublisherProvider;
-import com.hartwig.pipeline.report.FailureSummary;
 import com.hartwig.pipeline.report.FullSomaticResults;
 import com.hartwig.pipeline.report.PipelineResultsProvider;
+import com.hartwig.pipeline.report.VmExecutionLogSummary;
 import com.hartwig.pipeline.reruns.ApiPersistedDataset;
 import com.hartwig.pipeline.reruns.NoopPersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedDataset;
@@ -112,7 +112,7 @@ public class PipelineMain {
                     new FullSomaticResults(storage, arguments),
                     CleanupProvider.from(arguments, storage).get()).run();
             completedEvent(eventSubjects, publisher, state.status().toString(), arguments.publishToTurquoise());
-            FailureSummary.of(storage, state);
+            VmExecutionLogSummary.ofFailedStages(storage, state);
             return state;
 
         } catch (Exception e) {

@@ -61,7 +61,7 @@ public class Amber extends TertiaryStage<AmberOutput> {
             final ResultsDirectory resultsDirectory) {
         return AmberOutput.builder()
                 .status(jobStatus)
-                .addLogs(bucket.get(resultsDirectory.path(RunLogComponent.LOG_FILE)))
+                .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .maybeOutputDirectory(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(), true))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), NAMESPACE, resultsDirectory))
                 .addFurtherOperations(new AddDatatypeToFile(DataType.B_ALLELE_FREQUENCY,

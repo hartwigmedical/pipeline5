@@ -86,7 +86,8 @@ public class BatchDispatcher {
             final String label = format(paddingFormat, i + 1);
             RuntimeFiles executionFlags = RuntimeFiles.of(label);
             RuntimeBucket outputBucket = RuntimeBucket.from(storage, arguments.outputBucket(), label, arguments);
-            BashStartupScript startupScript = BashStartupScript.of(outputBucket.name(), executionFlags);
+            BashStartupScript startupScript =
+                    BashStartupScript.of(outputBucket.name(), executionFlags);
             Future<PipelineStatus> future = executorService.submit(() -> computeEngine.submit(outputBucket,
                     instanceFactory.get().execute(operationInputs, outputBucket, startupScript, executionFlags),
                     label));

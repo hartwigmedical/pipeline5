@@ -36,7 +36,8 @@ public class BashStartupScript {
     }
 
     String asUnixString() {
-        return asUnixString(new StorageStrategy() {});
+        return asUnixString(new StorageStrategy() {
+        });
     }
 
     String asUnixString(StorageStrategy storageStrategy) {
@@ -44,22 +45,21 @@ public class BashStartupScript {
         String commandSuffix = format(" >>%s 2>&1 || die", localLogFile);
         String jobFailedFlag = "/tmp/" + runtimeFiles.failure();
 
-        List<String> preamble = new ArrayList<>(asList(
-                "#!/bin/bash -x\n",
+        List<String> preamble = new ArrayList<>(asList("#!/bin/bash -x\n",
                 "set -o pipefail\n",
                 "function die() {",
                 "  exit_code=$?",
                 "  echo \"Unknown failure: called command returned $exit_code\"",
-                format("  gsutil -m cp %s gs://%s/results/", localLogFile, runtimeBucketName),
+                format("  gsutil -m cp %s gs://%s", localLogFile, runtimeBucketName),
                 format("  echo $exit_code > %s", jobFailedFlag),
                 format("  gsutil -m cp %s gs://%s", jobFailedFlag, runtimeBucketName),
                 "  exit $exit_code\n" + "}\n"));
         preamble.addAll(storageStrategy.initialise());
         preamble.add("ulimit -n 102400");
         addCompletionCommands();
-        return String.join("\n", preamble) + "\n" +
-                commands.stream().collect(joining(format("%s\n", commandSuffix))) +
-                (commands.isEmpty() ? "" : commandSuffix);
+        return String.join("\n", preamble) + "\n" + commands.stream().collect(joining(format("%s\n", commandSuffix))) + (commands.isEmpty()
+                ? ""
+                : commandSuffix);
     }
 
     BashStartupScript addLine(String lineOne) {
