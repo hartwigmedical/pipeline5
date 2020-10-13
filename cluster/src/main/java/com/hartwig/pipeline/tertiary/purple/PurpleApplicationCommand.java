@@ -16,7 +16,6 @@ import org.jetbrains.annotations.NotNull;
 public class PurpleApplicationCommand extends JavaJarCommand {
 
     private static final String LOW_COVERAGE_DIPLOID_PERCENTAGE = "0.88";
-    private static final String LOW_COVERAGE_SOMATIC_MIN_VARIANTS = "100";
     private static final String LOW_COVERAGE_SOMATIC_MIN_PURITY_SPREAD = "0.1";
 
     public PurpleApplicationCommand(ResourceFiles resourceFiles, String referenceSampleName, String tumorSampleName, String amberDirectory, String cobaltDirectory,
@@ -79,7 +78,6 @@ public class PurpleApplicationCommand extends JavaJarCommand {
         if (isShallow) {
             return newArrayList("-highly_diploid_percentage",
                     LOW_COVERAGE_DIPLOID_PERCENTAGE,
-                    "-somatic_min_variants", LOW_COVERAGE_SOMATIC_MIN_VARIANTS,
                     "-somatic_min_purity_spread",
                     LOW_COVERAGE_SOMATIC_MIN_PURITY_SPREAD);
         }
