@@ -69,13 +69,22 @@ public class GoogleComputeEngine implements ComputeEngine {
     }
 
     public static ComputeEngine from(final CommonArguments arguments, final GoogleCredentials credentials) throws Exception {
+        return from(arguments, credentials, true);
+    }
+
+    public static ComputeEngine from(final CommonArguments arguments, final GoogleCredentials credentials, final boolean constrainQuotas)
+            throws Exception {
         Compute compute = initCompute(credentials);
-        return new QuotaConstrainedComputeEngine(new GoogleComputeEngine(arguments,
+        GoogleComputeEngine engine = new GoogleComputeEngine(arguments,
                 compute,
                 Collections::shuffle,
                 new InstanceLifecycleManager(arguments, compute),
-                new BucketCompletionWatcher()), initServiceUseage(credentials), arguments.region(), arguments.project(),
-                0.6);
+                new BucketCompletionWatcher());
+        return constrainQuotas ? new QuotaConstrainedComputeEngine(engine,
+                initServiceUseage(credentials),
+                arguments.region(),
+                arguments.project(),
+                0.6) : engine;
     }
 
     public PipelineStatus submit(final RuntimeBucket bucket, final VirtualMachineJobDefinition jobDefinition) {

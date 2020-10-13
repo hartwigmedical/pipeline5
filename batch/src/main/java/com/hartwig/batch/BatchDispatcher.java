@@ -157,7 +157,7 @@ public class BatchDispatcher {
         GoogleCredentials credentials = arguments.privateKeyPath().isPresent()
                 ? CredentialProvider.from(arguments).get()
                 : GoogleCredentials.getApplicationDefault();
-        ComputeEngine compute = GoogleComputeEngine.from(arguments, credentials);
+        ComputeEngine compute = GoogleComputeEngine.from(arguments, credentials, false);
         Storage storage = StorageProvider.from(arguments, credentials).get();
         boolean success = new BatchDispatcher(arguments,
                 InstanceFactory.from(arguments),
