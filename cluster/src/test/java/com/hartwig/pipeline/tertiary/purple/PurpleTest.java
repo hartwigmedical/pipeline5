@@ -81,7 +81,7 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
                 new NoopPersistedDataset(),
                 true);
         assertThat(victim.commands(input()).get(0).asBash()).contains(
-                "-highly_diploid_percentage 0.88 -somatic_min_total 100 -somatic_min_purity_spread 0.1");
+                "-highly_diploid_percentage 0.88 -somatic_min_variants 100 -somatic_min_purity_spread 0.1");
     }
 
     @Override
