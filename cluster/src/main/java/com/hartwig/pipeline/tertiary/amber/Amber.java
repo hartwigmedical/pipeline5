@@ -43,12 +43,11 @@ public class Amber extends TertiaryStage<AmberOutput> {
 
     @Override
     public List<BashCommand> commands(final SomaticRunMetadata metadata) {
-        return Collections.singletonList(new AmberApplicationCommand(metadata.reference().sampleName(),
+        return Collections.singletonList(new AmberApplicationCommand(resourceFiles,
+                metadata.reference().sampleName(),
                 getReferenceBamDownload().getLocalTargetPath(),
                 metadata.tumor().sampleName(),
-                getTumorBamDownload().getLocalTargetPath(),
-                resourceFiles.refGenomeFile(),
-                resourceFiles.amberHeterozygousLoci()));
+                getTumorBamDownload().getLocalTargetPath()));
     }
 
     @Override

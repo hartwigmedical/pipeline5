@@ -8,8 +8,8 @@ import com.hartwig.pipeline.execution.vm.Bash;
 import com.hartwig.pipeline.execution.vm.JavaClassCommand;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 
-public class HmfToolCommand extends JavaClassCommand {
-    public HmfToolCommand(String toolName, String version, String jar, String mainClass, String maxHeap, String referenceSampleName,
+public class TumorNormalCommand extends JavaClassCommand {
+    public TumorNormalCommand(String toolName, String version, String jar, String mainClass, String maxHeap, String referenceSampleName,
             String referenceBamPath, String tumorSampleName, String tumorBamPath, String... arguments) {
         super(toolName,
                 version,
