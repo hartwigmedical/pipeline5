@@ -111,7 +111,7 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
                         Folder.root(),
                         NAMESPACE,
                         resultsDirectory,
-                        s -> !s.contains("working") || s.endsWith("sorted.bam.sv.bam") || s.endsWith("sorted.bam.sv.bai")))
+                        s -> !s.contains("working") || s.endsWith("bam.sv.bam") || s.endsWith("bam.sv.bam.bai")))
                 .addReportComponents(new RunLogComponent(bucket, NAMESPACE, Folder.root(), resultsDirectory))
                 .addReportComponents(new StartupScriptComponent(bucket, NAMESPACE, Folder.root()))
                 .addFurtherOperations(new AddDatatypeToFile(DataType.STRUCTURAL_VARIANTS,
