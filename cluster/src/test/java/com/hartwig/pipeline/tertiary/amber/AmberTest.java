@@ -65,7 +65,7 @@ public class AmberTest extends TertiaryStageTest<AmberOutput> {
         return List.of(new AddDatatypeToFile(DataType.B_ALLELE_FREQUENCY,
                 Folder.root(),
                 Amber.NAMESPACE,
-                "tumor.amber.baf.pcf",
+                "tumor.amber.baf.tsv",
                 TestInputs.defaultSomaticRunMetadata().barcode()));
     }
 }

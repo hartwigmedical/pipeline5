@@ -95,7 +95,7 @@ public class SageCaller extends TertiaryStage<SomaticCallerOutput> {
                 .addReportComponents(vcfComponent(filteredOutputFile.fileName(), bucket, resultsDirectory))
                 .addReportComponents(new RunLogComponent(bucket, NAMESPACE, Folder.root(), resultsDirectory))
                 .addReportComponents(new StartupScriptComponent(bucket, NAMESPACE, Folder.root()))
-                .addFurtherOperations(new AddDatatypeToFile(DataType.SOMATIC_VARIANTS,
+                .addFurtherOperations(new AddDatatypeToFile(DataType.SOMATIC_VARIANTS_SAGE,
                         Folder.root(),
                         namespace(),
                         filteredOutputFile.fileName(),
@@ -115,7 +115,7 @@ public class SageCaller extends TertiaryStage<SomaticCallerOutput> {
 
     @Override
     public SomaticCallerOutput persistedOutput(final SomaticRunMetadata metadata) {
-        String vcfPath = persistedDataset.file(metadata, DataType.SOMATIC_VARIANTS)
+        String vcfPath = persistedDataset.file(metadata, DataType.SOMATIC_VARIANTS_SAGE)
                 .orElse(PersistedLocations.blobForSet(metadata.set(),
                         namespace(),
                         String.format("%s.%s.%s",

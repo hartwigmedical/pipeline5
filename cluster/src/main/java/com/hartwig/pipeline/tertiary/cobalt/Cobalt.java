@@ -60,10 +60,10 @@ public class Cobalt extends TertiaryStage<CobaltOutput> {
                 .status(jobStatus)
                 .maybeOutputDirectory(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(), true))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), NAMESPACE, resultsDirectory))
-                .addFurtherOperations(new AddDatatypeToFile(DataType.TUMOR_READ_DEPTH_RATIO,
+                .addFurtherOperations(new AddDatatypeToFile(DataType.READ_DEPTH_RATIO,
                         Folder.root(),
                         namespace(),
-                        String.format("%s.cobalt.ratio.pcf", metadata.tumor().sampleName()),
+                        String.format("%s.cobalt.ratio.tsv", metadata.tumor().sampleName()),
                         metadata.barcode()))
                 .build();
     }
@@ -78,7 +78,7 @@ public class Cobalt extends TertiaryStage<CobaltOutput> {
         return CobaltOutput.builder()
                 .status(PipelineStatus.PERSISTED)
                 .maybeOutputDirectory(GoogleStorageLocation.of(metadata.bucket(),
-                        persistedDataset.directory(metadata, DataType.TUMOR_READ_DEPTH_RATIO)
+                        persistedDataset.directory(metadata, DataType.READ_DEPTH_RATIO)
                                 .orElse(PersistedLocations.pathForSet(metadata.set(), namespace())),
                         true))
                 .build();
