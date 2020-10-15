@@ -1,6 +1,6 @@
 branches:
   only:
-    - 5.15-hotfix
+    - master
 sudo: required
 language: java
 jdk:
