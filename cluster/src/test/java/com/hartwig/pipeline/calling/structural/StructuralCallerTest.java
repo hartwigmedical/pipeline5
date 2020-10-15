@@ -97,7 +97,7 @@ public class StructuralCallerTest extends StageTest<StructuralCallerOutput, Soma
 
     @Override
     protected void setupPersistedDataset() {
-        persistedDataset.addPath(DataType.STRUCTURAL_VARIANTS, GRIDSS + TUMOR_GRIDSS_UNFILTERED_VCF_GZ);
+        persistedDataset.addPath(DataType.STRUCTURAL_VARIANTS_GRIDSS, GRIDSS + TUMOR_GRIDSS_UNFILTERED_VCF_GZ);
     }
 
     @Override

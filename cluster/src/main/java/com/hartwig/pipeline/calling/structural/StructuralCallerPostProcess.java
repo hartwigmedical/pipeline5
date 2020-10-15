@@ -108,12 +108,12 @@ public class StructuralCallerPostProcess implements Stage<StructuralCallerPostPr
                         resultsDirectory))
                 .addReportComponents(new RunLogComponent(bucket, NAMESPACE, Folder.root(), resultsDirectory))
                 .addReportComponents(new StartupScriptComponent(bucket, NAMESPACE, Folder.root()))
-                .addFurtherOperations(new AddDatatypeToFile(DataType.STRUCTURAL_VARIANTS_SOFT_FILTERED,
+                .addFurtherOperations(new AddDatatypeToFile(DataType.STRUCTURAL_VARIANTS_GRIPSS_RECOVERY,
                                 Folder.root(),
                                 namespace(),
                                 basename(somaticVcf),
                                 metadata.barcode()),
-                        new AddDatatypeToFile(DataType.STRUCTURAL_VARIANTS_HARD_FILTERED,
+                        new AddDatatypeToFile(DataType.STRUCTURAL_VARIANTS_GRIPSS,
                                 Folder.root(),
                                 namespace(),
                                 basename(somaticFilteredVcf),
@@ -129,14 +129,14 @@ public class StructuralCallerPostProcess implements Stage<StructuralCallerPostPr
     @Override
     public StructuralCallerPostProcessOutput persistedOutput(final SomaticRunMetadata metadata) {
 
-        String somaticFilteredVcf = persistedDataset.file(metadata, DataType.STRUCTURAL_VARIANTS_HARD_FILTERED)
+        String somaticFilteredVcf = persistedDataset.file(metadata, DataType.STRUCTURAL_VARIANTS_GRIPSS)
                 .orElse(PersistedLocations.blobForSet(metadata.set(),
                         namespace(),
                         String.format("%s.%s.%s",
                                 metadata.tumor().sampleName(),
                                 GridssHardFilter.GRIDSS_SOMATIC_FILTERED,
                                 FileTypes.GZIPPED_VCF)));
-        String somaticVcf = persistedDataset.file(metadata, DataType.STRUCTURAL_VARIANTS_SOFT_FILTERED)
+        String somaticVcf = persistedDataset.file(metadata, DataType.STRUCTURAL_VARIANTS_GRIPSS_RECOVERY)
                 .orElse(PersistedLocations.blobForSet(metadata.set(),
                         namespace(),
                         String.format("%s.%s.%s",

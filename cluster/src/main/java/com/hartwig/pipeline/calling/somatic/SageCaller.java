@@ -15,6 +15,7 @@ import com.hartwig.pipeline.execution.vm.OutputFile;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.unix.UnzipToDirectoryCommand;
+import com.hartwig.pipeline.metadata.AddDatatypeToFile;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.Folder;
@@ -40,8 +41,7 @@ public class SageCaller extends TertiaryStage<SomaticCallerOutput> {
     private OutputFile filteredOutputFile;
     private OutputFile unfilteredOutputFile;
 
-    public SageCaller(final AlignmentPair alignmentPair, final ResourceFiles resourceFiles,
-            final PersistedDataset persistedDataset) {
+    public SageCaller(final AlignmentPair alignmentPair, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
         super(alignmentPair);
         this.resourceFiles = resourceFiles;
         this.persistedDataset = persistedDataset;
@@ -96,6 +96,11 @@ public class SageCaller extends TertiaryStage<SomaticCallerOutput> {
                 .addReportComponents(vcfComponent(filteredOutputFile.fileName(), bucket, resultsDirectory))
                 .addReportComponents(new RunLogComponent(bucket, NAMESPACE, Folder.root(), resultsDirectory))
                 .addReportComponents(new StartupScriptComponent(bucket, NAMESPACE, Folder.root()))
+                .addFurtherOperations(new AddDatatypeToFile(DataType.SOMATIC_VARIANTS_SAGE,
+                        Folder.root(),
+                        namespace(),
+                        filteredOutputFile.fileName(),
+                        metadata.barcode()))
                 .build();
     }
 
@@ -111,7 +116,7 @@ public class SageCaller extends TertiaryStage<SomaticCallerOutput> {
 
     @Override
     public SomaticCallerOutput persistedOutput(final SomaticRunMetadata metadata) {
-        String vcfPath = persistedDataset.file(metadata, DataType.SOMATIC_VARIANTS)
+        String vcfPath = persistedDataset.file(metadata, DataType.SOMATIC_VARIANTS_SAGE)
                 .orElse(PersistedLocations.blobForSet(metadata.set(),
                         namespace(),
                         String.format("%s.%s.%s",
