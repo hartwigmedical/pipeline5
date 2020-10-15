@@ -51,6 +51,7 @@ sudo chmod a+x /opt/tools/gridss/2.10.0/*.sh /opt/tools/gridss/2.10.0/gridsstool
 sudo chmod a+x /opt/tools/trf/4.0.9/trf
 sudo chmod a+x /opt/tools/rmblast/2.10.0/*
 sudo chmod a+rx /opt/tools/kraken2/2.0.9/*
+sudo chmod a+rx /opt/tools/kraken2/2.1.0/*
 sudo chmod a+x /opt/tools/repeatmasker/4.1.1/* /opt/tools/repeatmasker/4.1.1/util/*
 
 sudo cpanm install Clone
