@@ -1,6 +1,6 @@
 branches:
   only:
-    - master
+    - DEV-1575
 sudo: required
 language: java
 jdk:

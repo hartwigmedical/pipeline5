@@ -1,5 +1,6 @@
 package com.hartwig.pipeline;
 
+import java.util.List;
 import java.util.Optional;
 
 import com.hartwig.pipeline.resource.RefGenomeVersion;
@@ -46,6 +47,10 @@ public interface CommonArguments {
     boolean useLocalSsds();
 
     String network();
+
+    Optional<String> subnet();
+
+    List<String> tags();
 
     Integer pollInterval();
 

@@ -25,6 +25,7 @@ import com.google.api.services.compute.model.NetworkInterface;
 import com.google.api.services.compute.model.Operation;
 import com.google.api.services.compute.model.Scheduling;
 import com.google.api.services.compute.model.ServiceAccount;
+import com.google.api.services.compute.model.Tags;
 import com.google.api.services.compute.model.Zone;
 import com.google.api.services.serviceusage.v1beta1.ServiceUsage;
 import com.google.auth.http.HttpCredentialsAdapter;
@@ -116,6 +117,7 @@ public class GoogleComputeEngine implements ComputeEngine {
                 Instance instance = lifecycleManager.newInstance();
                 instance.setName(vmName);
                 instance.setZone(currentZone.getName());
+                instance.setTags(new Tags().setItems(arguments.tags()));
                 if (arguments.usePreemptibleVms()) {
                     instance.setScheduling(new Scheduling().setPreemptible(true));
                 }
@@ -211,7 +213,10 @@ public class GoogleComputeEngine implements ComputeEngine {
     private void addNetworkInterface(Instance instance, String projectName) {
         NetworkInterface network = new NetworkInterface();
         network.setNetwork(format("%s/global/networks/%s", apiBaseUrl(projectName), arguments.network()));
-        network.setSubnetwork(format("%s/regions/%s/subnetworks/%s", apiBaseUrl(projectName), arguments.region(), arguments.network()));
+        network.setSubnetwork(format("%s/regions/%s/subnetworks/%s",
+                apiBaseUrl(projectName),
+                arguments.region(),
+                arguments.subnet().orElse(arguments.network())));
         network.set("no-address", "true");
         instance.setNetworkInterfaces(singletonList(network));
     }
