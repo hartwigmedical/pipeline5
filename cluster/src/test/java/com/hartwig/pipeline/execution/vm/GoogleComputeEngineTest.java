@@ -225,6 +225,25 @@ public class GoogleComputeEngineTest {
     }
 
     @Test
+    public void usesNetworkAsSubnetWhenNotSpecified() {
+        returnSuccess();
+        victim = new GoogleComputeEngine(Arguments.testDefaultsBuilder().network("private").build(), compute, z -> {
+        }, lifecycleManager, bucketWatcher);
+        ArgumentCaptor<List<NetworkInterface>> interfaceCaptor = ArgumentCaptor.forClass(List.class);
+        victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
+
+        verify(instance).setNetworkInterfaces(interfaceCaptor.capture());
+        List<NetworkInterface> networkInterfaces = interfaceCaptor.getValue();
+        assertThat(networkInterfaces).hasSize(1);
+        assertThat(networkInterfaces.get(0).getNetwork()).isEqualTo(
+                "https://www.googleapis.com/compute/v1/projects/hmf-pipeline-development/global/networks/private");
+        assertThat(networkInterfaces.get(0).getSubnetwork()).isEqualTo(
+                "https://www.googleapis.com/compute/v1/projects/hmf-pipeline-development/regions/europe-west4/subnetworks/private");
+        assertThat(networkInterfaces.get(0).get("no-address")).isEqualTo("true");
+    }
+
+
+    @Test
     public void addsTagsToComputeEngineInstances() {
         returnSuccess();
         victim = new GoogleComputeEngine(Arguments.testDefaultsBuilder().tags(List.of("tag")).build(), compute, z -> {
