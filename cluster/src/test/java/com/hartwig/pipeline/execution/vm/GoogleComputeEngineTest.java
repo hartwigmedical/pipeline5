@@ -202,8 +202,7 @@ public class GoogleComputeEngineTest {
         verify(instance).setNetworkInterfaces(captor.capture());
         List<NetworkInterface> networkInterfaces = captor.getValue();
         assertThat(networkInterfaces.size()).isEqualTo(1);
-        assertThat(networkInterfaces.get(0).getNetwork()).isEqualTo(
-                "https://www.googleapis.com/compute/v1/projects/hmf-pipeline-development/global/networks/default");
+        assertThat(networkInterfaces.get(0).getNetwork()).isEqualTo("projects/hmf-pipeline-development/global/networks/default");
     }
 
     @Test
@@ -217,10 +216,9 @@ public class GoogleComputeEngineTest {
         verify(instance).setNetworkInterfaces(interfaceCaptor.capture());
         List<NetworkInterface> networkInterfaces = interfaceCaptor.getValue();
         assertThat(networkInterfaces).hasSize(1);
-        assertThat(networkInterfaces.get(0).getNetwork()).isEqualTo(
-                "https://www.googleapis.com/compute/v1/projects/hmf-pipeline-development/global/networks/private");
+        assertThat(networkInterfaces.get(0).getNetwork()).isEqualTo("projects/hmf-pipeline-development/global/networks/private");
         assertThat(networkInterfaces.get(0).getSubnetwork()).isEqualTo(
-                "https://www.googleapis.com/compute/v1/projects/hmf-pipeline-development/regions/europe-west4/subnetworks/subnet");
+                "projects/hmf-pipeline-development/regions/europe-west4/subnetworks/subnet");
         assertThat(networkInterfaces.get(0).get("no-address")).isEqualTo("true");
     }
 
@@ -235,13 +233,29 @@ public class GoogleComputeEngineTest {
         verify(instance).setNetworkInterfaces(interfaceCaptor.capture());
         List<NetworkInterface> networkInterfaces = interfaceCaptor.getValue();
         assertThat(networkInterfaces).hasSize(1);
-        assertThat(networkInterfaces.get(0).getNetwork()).isEqualTo(
-                "https://www.googleapis.com/compute/v1/projects/hmf-pipeline-development/global/networks/private");
+        assertThat(networkInterfaces.get(0).getNetwork()).isEqualTo("projects/hmf-pipeline-development/global/networks/private");
         assertThat(networkInterfaces.get(0).getSubnetwork()).isEqualTo(
-                "https://www.googleapis.com/compute/v1/projects/hmf-pipeline-development/regions/europe-west4/subnetworks/private");
+                "projects/hmf-pipeline-development/regions/europe-west4/subnetworks/private");
         assertThat(networkInterfaces.get(0).get("no-address")).isEqualTo("true");
     }
 
+    @Test
+    public void usesFullNetworkAndSubnetWhenSpecified() {
+        returnSuccess();
+        String networkUrl = "projects/private";
+        String subnetUrl = "projects/subnet";
+        victim = new GoogleComputeEngine(Arguments.testDefaultsBuilder().network(networkUrl).subnet(subnetUrl).build(), compute, z -> {
+        }, lifecycleManager, bucketWatcher);
+        ArgumentCaptor<List<NetworkInterface>> interfaceCaptor = ArgumentCaptor.forClass(List.class);
+        victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
+
+        verify(instance).setNetworkInterfaces(interfaceCaptor.capture());
+        List<NetworkInterface> networkInterfaces = interfaceCaptor.getValue();
+        assertThat(networkInterfaces).hasSize(1);
+        assertThat(networkInterfaces.get(0).getNetwork()).isEqualTo(networkUrl);
+        assertThat(networkInterfaces.get(0).getSubnetwork()).isEqualTo(subnetUrl);
+        assertThat(networkInterfaces.get(0).get("no-address")).isEqualTo("true");
+    }
 
     @Test
     public void addsTagsToComputeEngineInstances() {

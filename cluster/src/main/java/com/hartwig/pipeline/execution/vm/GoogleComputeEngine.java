@@ -212,13 +212,19 @@ public class GoogleComputeEngine implements ComputeEngine {
 
     private void addNetworkInterface(Instance instance, String projectName) {
         NetworkInterface network = new NetworkInterface();
-        network.setNetwork(format("%s/global/networks/%s", apiBaseUrl(projectName), arguments.network()));
-        network.setSubnetwork(format("%s/regions/%s/subnetworks/%s",
-                apiBaseUrl(projectName),
-                arguments.region(),
-                arguments.subnet().orElse(arguments.network())));
+        network.setNetwork(isUrl(arguments.network())
+                ? arguments.network()
+                : format("projects/%s/global/networks/%s", projectName, arguments.network()));
+        String subnet = arguments.subnet().orElse(arguments.network());
+        network.setSubnetwork(isUrl(subnet)
+                ? subnet
+                : format("projects/%s/regions/%s/subnetworks/%s", projectName, arguments.region(), subnet));
         network.set("no-address", "true");
         instance.setNetworkInterfaces(singletonList(network));
+    }
+
+    private boolean isUrl(final String argument) {
+        return argument.startsWith("projects");
     }
 
     private Image attachDisks(Compute compute, Instance instance, VirtualMachineJobDefinition jobDefinition, String projectName,
