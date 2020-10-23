@@ -3,6 +3,7 @@ package com.hartwig.pipeline;
 import static java.lang.String.format;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -60,6 +61,8 @@ public class CommandLineOptions {
     private static final String SET_ID_FLAG = "set_id";
     private static final String SBP_RUN_ID_FLAG = "sbp_run_id";
     private static final String NETWORK_FLAG = "network";
+    private static final String SUBNET_FLAG = "subnet";
+    private static final String NETWORK_TAGS_FLAG = "network_tags";
     private static final String CMEK_FLAG = "cmek";
     private static final String SHALLOW_FLAG = "shallow";
     private static final String ZONE_FLAG = "zone";
@@ -108,7 +111,9 @@ public class CommandLineOptions {
                 .addOption(archiveProject())
                 .addOption(archivePrivateKey())
                 .addOption(uploadPrivateKey())
-                .addOption(privateNetwork())
+                .addOption(network())
+                .addOption(subnet())
+                .addOption(networkTags())
                 .addOption(cmek())
                 .addOption(optionWithBooleanArg(SHALLOW_FLAG,
                         "Run with ShallowSeq configuration.Germline and health checker are disabled and purple is run with low coverage "
@@ -156,11 +161,18 @@ public class CommandLineOptions {
                 "The name of the Customer Managed Encryption Key. When this flag is populated all runtime buckets will use this key.");
     }
 
-    private static Option privateNetwork() {
+    private static Option network() {
         return optionWithArg(NETWORK_FLAG,
-                "The name of the private network to use. Specifying a value here will make p5 use this "
-                        + "network and subnet of the same name and disable external IPs. Ensure the network has been created in GCP before enabling "
-                        + "this flag");
+                "The name of the network to use. Ensure the network has been created in GCP before enabling this flag");
+    }
+
+    private static Option subnet() {
+        return optionWithArg(SUBNET_FLAG,
+                "The name of the subnetwork to use. Ensure the subnetwork has been created in GCP before enabling this flag");
+    }
+
+    private static Option networkTags() {
+        return optionWithArg(NETWORK_TAGS_FLAG, "Network tags to apply to all GCE instances, comma delimited.");
     }
 
     private static Option sbpRunId() {
@@ -300,6 +312,8 @@ public class CommandLineOptions {
                     .archiveProject(commandLine.getOptionValue(ARCHIVE_PROJECT_FLAG, defaults.archiveProject()))
                     .archivePrivateKeyPath(commandLine.getOptionValue(ARCHIVE_PRIVATE_KEY_FLAG, defaults.archivePrivateKeyPath()))
                     .network(commandLine.getOptionValue(NETWORK_FLAG, defaults.network()))
+                    .subnet(subnet(commandLine, defaults))
+                    .tags(networkTags(commandLine, defaults))
                     .uploadPrivateKeyPath(commandLine.getOptionValue(UPLOAD_PRIVATE_KEY_FLAG, defaults.uploadPrivateKeyPath()))
                     .cmek(cmek(commandLine, defaults))
                     .shallow(booleanOptionWithDefault(commandLine, SHALLOW_FLAG, defaults.shallow()))
@@ -323,6 +337,20 @@ public class CommandLineOptions {
             formatter.printHelp("pipeline5", options());
             throw e;
         }
+    }
+
+    public static Optional<String> subnet(final CommandLine commandLine, final Arguments defaults) {
+        if (commandLine.hasOption(SUBNET_FLAG)) {
+            return Optional.of(commandLine.getOptionValue(SUBNET_FLAG));
+        }
+        return defaults.subnet();
+    }
+
+    public static List<String> networkTags(final CommandLine commandLine, final Arguments defaults) {
+        if (commandLine.hasOption(NETWORK_TAGS_FLAG)) {
+            return List.of(commandLine.getOptionValue(NETWORK_TAGS_FLAG).split(","));
+        }
+        return defaults.tags();
     }
 
     private static Optional<String> refGenomeUrl(final CommandLine commandLine, final Arguments defaults) {
