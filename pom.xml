@@ -53,6 +53,7 @@
     <modules>
         <module>batch</module>
         <module>cluster</module>
+        <module>batch-operations</module>
     </modules>
 
     <dependencyManagement>

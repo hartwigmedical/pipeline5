@@ -5,8 +5,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.hartwig.batch.BatchOperation;
-import com.hartwig.batch.operations.OperationDescriptor;
-import com.hartwig.batch.operations.OperationDescriptor.InputType;
+import com.hartwig.batch.OperationDescriptor;
+import com.hartwig.batch.OperationDescriptor.InputType;
 
 import org.junit.Test;
 
