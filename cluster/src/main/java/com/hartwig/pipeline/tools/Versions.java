@@ -20,7 +20,7 @@ public interface Versions {
     String AMBER = "3.4";
     String COBALT = "1.10";
     String HEALTH_CHECKER = "3.1";
-    String PURPLE = "2.50";
+    String PURPLE = "2.49";
     String CIRCOS = "0.69.6";
     String GRIDSS = "2.9.3";
     String GRIPSS = "1.8";
