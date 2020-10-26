@@ -2,6 +2,9 @@ package com.hartwig.batch.operations.rna;
 
 import static java.lang.String.format;
 
+import static com.hartwig.batch.operations.rna.RnaCommon.RNA_COHORT_LOCATION;
+import static com.hartwig.batch.operations.rna.RnaCommon.RNA_RESOURCES;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -34,8 +37,8 @@ public class RnaSalmon implements BatchOperation {
     private static final String SALMON = "salmon";
     private static final String SALMON_BINARY = "salmon/bin/salmon";
     private static final String SALMON_INDEX_DIR = "salmon_gene_index";
-    private static final String REF_LOCATION = "gs://isofox-resources";
 
+    private static final String SALMON_RESOURCES = String.format("%s/%s", RNA_RESOURCES, SALMON);
 
     @Override
     public VirtualMachineJobDefinition execute(
@@ -70,7 +73,7 @@ public class RnaSalmon implements BatchOperation {
 
         // copy down the executable
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp -r %s/%s %s",
-                REF_LOCATION, SALMON, VmDirectories.TOOLS));
+                SALMON_RESOURCES, SALMON, VmDirectories.TOOLS));
 
         startupScript.addCommand(() -> format("chmod a+x %s/%s", VmDirectories.TOOLS, SALMON_BINARY));
 
@@ -80,7 +83,7 @@ public class RnaSalmon implements BatchOperation {
 
         // copy reference files for SALMON
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp -r %s/%s %s",
-                REF_LOCATION, SALMON_INDEX_DIR, VmDirectories.INPUT));
+                SALMON_RESOURCES, SALMON_INDEX_DIR, VmDirectories.INPUT));
 
         final String salmonGeneIndexDir = String.format("%s/%s", VmDirectories.INPUT, SALMON_INDEX_DIR);
 
@@ -90,7 +93,7 @@ public class RnaSalmon implements BatchOperation {
         startupScript.addCommand(() -> format("cd %s", VmDirectories.OUTPUT));
 
         /*
-        genome_ref=$ref_root/salmon_gene_index
+        genome_ref=$ref_root/salmon_gene_ihs37d5_GENCODE19ndex
         READ1=${input_dir}/*R1_001.fastq.gz
         READ2=${input_dir}/*R2_001.fastq.gz
         threads=6
@@ -123,7 +126,7 @@ public class RnaSalmon implements BatchOperation {
         startupScript.addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), "salmon"), executionFlags));
 
         // copy results to rna-analysis location on crunch
-        startupScript.addCommand(() -> format("gsutil -m cp %s/* gs://rna-cohort/%s/salmon/", VmDirectories.OUTPUT, sampleId));
+        startupScript.addCommand(() -> format("gsutil -m cp %s/* %s/%s/salmon/", VmDirectories.OUTPUT, RNA_COHORT_LOCATION, sampleId));
 
         return ImmutableVirtualMachineJobDefinition.builder().name("rna-salmon").startupCommand(startupScript)
                 .namespacedResults(ResultsDirectory.defaultDirectory()).workingDiskSpaceGb(500)
