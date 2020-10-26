@@ -74,6 +74,7 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
         return BamMetricsOutput.builder()
                 .status(jobStatus)
                 .sample(metadata.sampleName())
+                .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .maybeMetricsOutputFile(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(outputFile)))
                 .addReportComponents(new RunLogComponent(bucket, namespace(), Folder.from(metadata), resultsDirectory))
                 .addReportComponents(new StartupScriptComponent(bucket, namespace(), Folder.from(metadata)))

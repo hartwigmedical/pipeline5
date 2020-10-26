@@ -23,6 +23,7 @@ import com.hartwig.pipeline.report.StartupScriptComponent;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
+import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
 public class SnpGenotype implements Stage<SnpGenotypeOutput, SingleSampleRunMetadata> {
@@ -74,6 +75,7 @@ public class SnpGenotype implements Stage<SnpGenotypeOutput, SingleSampleRunMeta
             final ResultsDirectory resultsDirectory) {
         return SnpGenotypeOutput.builder()
                 .status(status)
+                .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new RunLogComponent(bucket, NAMESPACE, Folder.from(metadata), resultsDirectory))
                 .addReportComponents(new StartupScriptComponent(bucket, NAMESPACE, Folder.from(metadata)))
                 .addReportComponents(new SingleFileComponent(bucket,

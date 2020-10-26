@@ -80,7 +80,7 @@ public class StructuralCallerPostProcess implements Stage<StructuralCallerPostPr
 
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
-        return VirtualMachineJobDefinition.structuralCalling(bash, resultsDirectory);
+        return VirtualMachineJobDefinition.structuralPostProcessCalling(bash, resultsDirectory);
     }
 
     @Override
@@ -93,6 +93,7 @@ public class StructuralCallerPostProcess implements Stage<StructuralCallerPostPr
                         FileTypes.tabixIndex(resultsDirectory.path(basename(somaticFilteredVcf)))))
                 .maybeFullVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(somaticVcf))))
                 .maybeFullVcfIndex(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(somaticVcf + ".tbi"))))
+                .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
                         NAMESPACE,
                         Folder.root(),
@@ -107,12 +108,12 @@ public class StructuralCallerPostProcess implements Stage<StructuralCallerPostPr
                         resultsDirectory))
                 .addReportComponents(new RunLogComponent(bucket, NAMESPACE, Folder.root(), resultsDirectory))
                 .addReportComponents(new StartupScriptComponent(bucket, NAMESPACE, Folder.root()))
-                .addFurtherOperations(new AddDatatypeToFile(DataType.STRUCTURAL_VARIANTS_SOFT_FILTERED,
+                .addFurtherOperations(new AddDatatypeToFile(DataType.STRUCTURAL_VARIANTS_GRIPSS_RECOVERY,
                                 Folder.root(),
                                 namespace(),
                                 basename(somaticVcf),
                                 metadata.barcode()),
-                        new AddDatatypeToFile(DataType.STRUCTURAL_VARIANTS_HARD_FILTERED,
+                        new AddDatatypeToFile(DataType.STRUCTURAL_VARIANTS_GRIPSS,
                                 Folder.root(),
                                 namespace(),
                                 basename(somaticFilteredVcf),
@@ -128,14 +129,14 @@ public class StructuralCallerPostProcess implements Stage<StructuralCallerPostPr
     @Override
     public StructuralCallerPostProcessOutput persistedOutput(final SomaticRunMetadata metadata) {
 
-        String somaticFilteredVcf = persistedDataset.file(metadata, DataType.STRUCTURAL_VARIANTS_HARD_FILTERED)
+        String somaticFilteredVcf = persistedDataset.file(metadata, DataType.STRUCTURAL_VARIANTS_GRIPSS)
                 .orElse(PersistedLocations.blobForSet(metadata.set(),
                         namespace(),
                         String.format("%s.%s.%s",
                                 metadata.tumor().sampleName(),
                                 GridssHardFilter.GRIDSS_SOMATIC_FILTERED,
                                 FileTypes.GZIPPED_VCF)));
-        String somaticVcf = persistedDataset.file(metadata, DataType.STRUCTURAL_VARIANTS_SOFT_FILTERED)
+        String somaticVcf = persistedDataset.file(metadata, DataType.STRUCTURAL_VARIANTS_GRIPSS_RECOVERY)
                 .orElse(PersistedLocations.blobForSet(metadata.set(),
                         namespace(),
                         String.format("%s.%s.%s",

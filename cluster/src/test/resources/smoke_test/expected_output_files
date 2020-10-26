@@ -69,13 +69,17 @@ health_checker/run.log
 linx/run.log
 linx/CPCT12345678T.linx.breakend.tsv
 linx/CPCT12345678T.linx.clusters.tsv
-linx/CPCT12345678T.linx.disruptions.tsv
 linx/CPCT12345678T.linx.drivers.tsv
 linx/CPCT12345678T.linx.fusion.tsv
 linx/CPCT12345678T.linx.links.tsv
-linx/CPCT12345678T.linx.reported_fusion.tsv
 linx/CPCT12345678T.linx.svs.tsv
 linx/CPCT12345678T.linx.viral_inserts.tsv
+linx/.linx.vis_copy_number.tsv
+linx/.linx.vis_fusion.tsv
+linx/.linx.vis_gene_exon.tsv
+linx/.linx.vis_protein_domain.tsv
+linx/.linx.vis_segments.tsv
+linx/.linx.vis_sv_data.tsv
 linx/linx.version
 metadata.json
 pipeline.version
@@ -137,8 +141,6 @@ gridss/CPCT12345678R.bam.gridss.working/CPCT12345678R.bam.insert_size_metrics
 gridss/CPCT12345678R.bam.gridss.working/CPCT12345678R.bam.mapq_metrics
 gridss/CPCT12345678R.bam.gridss.working/CPCT12345678R.bam.sv_metrics
 gridss/CPCT12345678R.bam.gridss.working/CPCT12345678R.bam.tag_metrics
-gridss/CPCT12345678R.bam.gridss.working/CPCT12345678R.bam.sv.bam
-gridss/CPCT12345678R.bam.gridss.working/CPCT12345678R.bam.sv.bam.bai
 gridss/CPCT12345678T.assembly.bam.gridss.working/CPCT12345678T.assembly.bam.cigar_metrics
 gridss/CPCT12345678T.assembly.bam.gridss.working/CPCT12345678T.assembly.bam.coverage.blacklist.bed
 gridss/CPCT12345678T.assembly.bam.gridss.working/CPCT12345678T.assembly.bam.downsampled_0.bed
@@ -148,8 +150,6 @@ gridss/CPCT12345678T.assembly.bam.gridss.working/CPCT12345678T.assembly.bam.mapq
 gridss/CPCT12345678T.assembly.bam.gridss.working/CPCT12345678T.assembly.bam.quality_distribution.pdf
 gridss/CPCT12345678T.assembly.bam.gridss.working/CPCT12345678T.assembly.bam.quality_distribution_metrics
 gridss/CPCT12345678T.assembly.bam.gridss.working/CPCT12345678T.assembly.bam.subsetCalled_0.bed
-gridss/CPCT12345678T.assembly.bam.gridss.working/CPCT12345678T.assembly.bam.sv.bam
-gridss/CPCT12345678T.assembly.bam.gridss.working/CPCT12345678T.assembly.bam.sv.bam.bai
 gridss/CPCT12345678T.assembly.bam.gridss.working/CPCT12345678T.assembly.bam.tag_metrics
 gridss/CPCT12345678T.gridss.driver.vcf.gz.gridss.working/CPCT12345678T.gridss.driver.vcf.gz.allocated.vcf.idx
 gridss/CPCT12345678T.gridss.unfiltered.vcf.gz
@@ -162,8 +162,6 @@ gridss/CPCT12345678T.bam.gridss.working/CPCT12345678T.bam.insert_size_metrics
 gridss/CPCT12345678T.bam.gridss.working/CPCT12345678T.bam.mapq_metrics
 gridss/CPCT12345678T.bam.gridss.working/CPCT12345678T.bam.tag_metrics
 gridss/CPCT12345678T.bam.gridss.working/CPCT12345678T.bam.sv_metrics
-gridss/CPCT12345678T.bam.gridss.working/CPCT12345678T.bam.sv.bam
-gridss/CPCT12345678T.bam.gridss.working/CPCT12345678T.bam.sv.bam.bai
 gridss/run.log
 gridss/run.sh
 gripss/CPCT12345678T.gripss.somatic.vcf.gz

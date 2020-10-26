@@ -34,6 +34,7 @@ sudo chmod a+x /opt/tools/bwa/0.7.17/bwa
 sudo chmod a+x /opt/tools/sambamba/0.6.5/sambamba
 sudo chmod a+x /opt/tools/sambamba/0.6.8/sambamba
 sudo chmod a+x /opt/tools/chord/60.02_1.03/extractSigPredictHRD.R
+sudo chmod a+x /opt/tools/chord/2.00_1.14/extractSigPredictHRD.R
 sudo chmod a+x /opt/tools/gridss/2.7.2/gridss.sh
 sudo chmod a+x /opt/tools/gridss/2.8.3/gridss.sh
 sudo chmod a+x /opt/tools/gridss/2.9.3/gridss.sh

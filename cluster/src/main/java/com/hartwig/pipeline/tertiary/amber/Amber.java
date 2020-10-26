@@ -15,6 +15,7 @@ import com.hartwig.pipeline.metadata.AddDatatypeToFile;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
+import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
@@ -60,12 +61,13 @@ public class Amber extends TertiaryStage<AmberOutput> {
             final ResultsDirectory resultsDirectory) {
         return AmberOutput.builder()
                 .status(jobStatus)
+                .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .maybeOutputDirectory(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(), true))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), NAMESPACE, resultsDirectory))
                 .addFurtherOperations(new AddDatatypeToFile(DataType.B_ALLELE_FREQUENCY,
                         Folder.root(),
                         namespace(),
-                        String.format("%s.amber.baf.pcf", metadata.tumor().sampleName()),
+                        String.format("%s.amber.baf.tsv", metadata.tumor().sampleName()),
                         metadata.barcode()))
                 .build();
     }

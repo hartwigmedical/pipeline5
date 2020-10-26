@@ -5,7 +5,7 @@ import com.hartwig.pipeline.storage.RuntimeBucket;
 
 public class RunLogComponent extends SingleFileComponent {
 
-    private static final String LOG_FILE = "run.log";
+    public static final String LOG_FILE = "run.log";
 
     public RunLogComponent(final RuntimeBucket runtimeBucket, final String namespace, final Folder folder,
             final ResultsDirectory resultsDirectory) {

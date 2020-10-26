@@ -24,6 +24,7 @@ import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.alignment.ImmutableAlignmentOutput;
 import com.hartwig.pipeline.alignment.sample.SampleSource;
 import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
@@ -73,14 +74,26 @@ public class BwaAligner implements Aligner {
         StageTrace trace = new StageTrace(NAMESPACE, metadata.sampleName(), StageTrace.ExecutorType.COMPUTE_ENGINE).start();
         RuntimeBucket rootBucket = RuntimeBucket.from(storage, NAMESPACE, metadata, arguments);
 
-        final ResourceFiles resourceFiles = buildResourceFiles(arguments.refGenomeVersion());
-
         Sample sample = sampleSource.sample(metadata);
+        if (sample.bam().isPresent()) {
+            String noPrefix = sample.bam().orElseThrow().replace("gs://", "");
+            int firstSlash = noPrefix.indexOf("/");
+            String bucket = noPrefix.substring(0, firstSlash);
+            String path = noPrefix.substring(firstSlash + 1);
+            return AlignmentOutput.builder()
+                    .sample(metadata.sampleName())
+                    .status(PipelineStatus.PROVIDED)
+                    .maybeFinalBamLocation(GoogleStorageLocation.of(bucket, path))
+                    .maybeFinalBaiLocation(GoogleStorageLocation.of(bucket, FileTypes.bai(path)))
+                    .build();
+        }
+        final ResourceFiles resourceFiles = buildResourceFiles(arguments);
         sampleUpload.run(sample, rootBucket);
 
         List<Future<PipelineStatus>> futures = new ArrayList<>();
         List<GoogleStorageLocation> perLaneBams = new ArrayList<>();
         List<ReportComponent> laneLogComponents = new ArrayList<>();
+        List<GoogleStorageLocation> laneFailedLogs = new ArrayList<>();
         for (Lane lane : sample.lanes()) {
 
             RuntimeBucket laneBucket = RuntimeBucket.from(storage, laneNamespace(lane), metadata, arguments);
@@ -109,6 +122,7 @@ public class BwaAligner implements Aligner {
                     laneBucket,
                     VirtualMachineJobDefinition.alignment(laneId(lane).toLowerCase(), bash, resultsDirectory))));
             laneLogComponents.add(new RunLogComponent(laneBucket, laneNamespace(lane), Folder.from(metadata), resultsDirectory));
+            laneFailedLogs.add(GoogleStorageLocation.of(laneBucket.name(), RunLogComponent.LOG_FILE));
         }
 
         AlignmentOutput output;
@@ -140,6 +154,8 @@ public class BwaAligner implements Aligner {
                     .maybeFinalBaiLocation(GoogleStorageLocation.of(rootBucket.name(),
                             resultsDirectory.path(bai(merged.outputFile().fileName()))))
                     .addAllReportComponents(laneLogComponents)
+                    .addAllFailedLogLocations(laneFailedLogs)
+                    .addFailedLogLocations(GoogleStorageLocation.of(rootBucket.name(), RunLogComponent.LOG_FILE))
                     .addReportComponents(new RunLogComponent(rootBucket, Aligner.NAMESPACE, Folder.from(metadata), resultsDirectory));
             if (!arguments.outputCram()) {
                 outputBuilder.addReportComponents(new SingleFileComponent(rootBucket,

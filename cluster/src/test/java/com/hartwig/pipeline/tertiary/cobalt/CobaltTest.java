@@ -51,7 +51,7 @@ public class CobaltTest extends TertiaryStageTest<CobaltOutput> {
 
     @Override
     protected void setupPersistedDataset() {
-        persistedDataset.addDir(DataType.TUMOR_READ_DEPTH_RATIO, "cobalt");
+        persistedDataset.addDir(DataType.READ_DEPTH_RATIO, "cobalt");
     }
 
     @Override
@@ -61,10 +61,10 @@ public class CobaltTest extends TertiaryStageTest<CobaltOutput> {
 
     @Override
     protected List<ApiFileOperation> expectedFurtherOperations() {
-        return List.of(new AddDatatypeToFile(DataType.TUMOR_READ_DEPTH_RATIO,
+        return List.of(new AddDatatypeToFile(DataType.READ_DEPTH_RATIO,
                 Folder.root(),
                 Cobalt.NAMESPACE,
-                "tumor.cobalt.ratio.pcf",
+                "tumor.cobalt.ratio.tsv",
                 TestInputs.defaultSomaticRunMetadata().barcode()));
     }
 }

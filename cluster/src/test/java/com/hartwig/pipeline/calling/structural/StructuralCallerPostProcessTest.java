@@ -1,7 +1,5 @@
 package com.hartwig.pipeline.calling.structural;
 
-import static java.lang.String.format;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
@@ -46,10 +44,6 @@ public class StructuralCallerPostProcessTest extends StageTest<StructuralCallerP
                         "tumor.gridss.unfiltered.vcf.gz.tbi"));
     }
 
-    private String inputDownload(String bucket, String basename) {
-        return input(format("%s/aligner/results/%s", bucket, basename), basename);
-    }
-
     @Override
     protected String expectedRuntimeBucketName() {
         return TestInputs.SOMATIC_BUCKET;
@@ -80,6 +74,11 @@ public class StructuralCallerPostProcessTest extends StageTest<StructuralCallerP
     }
 
     @Override
+    public void addsLogs() {
+        // not supported currently
+    }
+
+    @Override
     protected void validatePersistedOutput(final StructuralCallerPostProcessOutput output) {
         assertThat(output.filteredVcf()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
                 "set/gripss/" + TUMOR_GRIPSS_SOMATIC_FILTERED_VCF_GZ));
@@ -92,8 +91,8 @@ public class StructuralCallerPostProcessTest extends StageTest<StructuralCallerP
 
     @Override
     protected void setupPersistedDataset() {
-        persistedDataset.addPath(DataType.STRUCTURAL_VARIANTS_SOFT_FILTERED, GRIPSS + TUMOR_GRIPSS_SOMATIC_VCF_GZ);
-        persistedDataset.addPath(DataType.STRUCTURAL_VARIANTS_HARD_FILTERED, GRIPSS + TUMOR_GRIPSS_SOMATIC_FILTERED_VCF_GZ);
+        persistedDataset.addPath(DataType.STRUCTURAL_VARIANTS_GRIPSS_RECOVERY, GRIPSS + TUMOR_GRIPSS_SOMATIC_VCF_GZ);
+        persistedDataset.addPath(DataType.STRUCTURAL_VARIANTS_GRIPSS, GRIPSS + TUMOR_GRIPSS_SOMATIC_FILTERED_VCF_GZ);
     }
 
     @Override

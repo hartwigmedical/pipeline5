@@ -58,7 +58,12 @@ public class GermlineCallerTest extends StageTest<GermlineCallerOutput, SingleSa
 
     @Override
     public void returnsExpectedOutput() {
-        // not supported yet.
+        // not supported currently
+    }
+
+    @Override
+    public void addsLogs() {
+        // not supported currently
     }
 
     @Override

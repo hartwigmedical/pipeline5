@@ -25,6 +25,7 @@ import com.hartwig.pipeline.report.SingleFileComponent;
 import com.hartwig.pipeline.report.StartupScriptComponent;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
+import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
 public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata> {
@@ -76,6 +77,7 @@ public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata
 
         return CramOutput.builder()
                 .status(jobStatus)
+                .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new RunLogComponent(bucket, NAMESPACE, folder, resultsDirectory),
                         new StartupScriptComponent(bucket, NAMESPACE, folder),
                         new SingleFileComponent(bucket, NAMESPACE, folder, cram, cram, resultsDirectory),

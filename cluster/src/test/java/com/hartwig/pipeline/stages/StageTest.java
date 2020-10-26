@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.CopyWriter;
 import com.google.cloud.storage.Storage;
@@ -53,6 +54,7 @@ public abstract class StageTest<S extends StageOutput, M extends RunMetadata> {
         storage = mock(Storage.class);
         runtimeBucket = mock(RuntimeBucket.class);
         when(runtimeBucket.name()).thenReturn(runtimeBucketName);
+        when(runtimeBucket.get(any())).thenReturn(mock(Blob.class));
     }
 
     @Test
@@ -114,6 +116,11 @@ public abstract class StageTest<S extends StageOutput, M extends RunMetadata> {
     public void returnsExpectedFurtherOperations() {
         assertThat(victim.output(input(), PipelineStatus.SUCCESS, runtimeBucket, ResultsDirectory.defaultDirectory())
                 .furtherOperations()).isEqualTo(expectedFurtherOperations());
+    }
+
+    @Test
+    public void addsLogs() {
+        assertThat(victim.output(input(), PipelineStatus.SUCCESS, runtimeBucket, ResultsDirectory.defaultDirectory()).failedLogLocations()).isNotEmpty();
     }
 
     protected List<ApiFileOperation> expectedFurtherOperations() {

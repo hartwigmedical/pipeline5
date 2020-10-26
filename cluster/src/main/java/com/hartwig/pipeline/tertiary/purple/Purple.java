@@ -19,6 +19,7 @@ import com.hartwig.pipeline.metadata.AddDatatypeToFile;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
+import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
@@ -106,6 +107,7 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
             final ResultsDirectory resultsDirectory) {
         return PurpleOutput.builder()
                 .status(jobStatus)
+                .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .maybeOutputDirectory(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(), true))
                 .maybeSomaticVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(somaticVcf(metadata))))
                 .maybeStructuralVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(svVcf(metadata))))

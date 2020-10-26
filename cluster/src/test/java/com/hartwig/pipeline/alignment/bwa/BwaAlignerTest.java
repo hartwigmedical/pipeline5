@@ -21,6 +21,7 @@ import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.GoogleComputeEngine;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
+import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.storage.SampleUpload;
 import com.hartwig.pipeline.testsupport.TestInputs;
@@ -92,6 +93,16 @@ public class BwaAlignerTest {
         assertThat(jobDefinitionArgumentCaptor.getAllValues().get(2).name()).isEqualTo("merge-markdup");
     }
 
+    @Test
+    public void returnsProvidedBamIfInSample() throws Exception {
+        when(sampleSource.sample(METADATA)).thenReturn(Sample.builder(METADATA.sampleName()).bam("gs://bucket/path/reference.bam").build());
+        AlignmentOutput output = victim.run(METADATA);
+        assertThat(output.finalBamLocation()).isEqualTo(GoogleStorageLocation.of("bucket", "path/reference.bam"));
+        assertThat(output.finalBaiLocation()).isEqualTo(GoogleStorageLocation.of("bucket", "path/reference.bam.bai"));
+        assertThat(output.sample()).isEqualTo(METADATA.sampleName());
+        assertThat(output.status()).isEqualTo(PipelineStatus.PROVIDED);
+    }
+
     private void setupMocks() {
         CopyWriter copyWriter = mock(CopyWriter.class);
         when(storage.copy(any())).thenReturn(copyWriter);
@@ -100,16 +111,10 @@ public class BwaAlignerTest {
         when(rootBucket.getName()).thenReturn(rootBucketName);
         when(storage.get(rootBucketName)).thenReturn(rootBucket);
 
-        when(sampleSource.sample(METADATA)).thenReturn(Sample.builder(METADATA.sampleName())
-                .addLanes(lane(1))
-                .addLanes(lane(2))
-                .build());
+        when(sampleSource.sample(METADATA)).thenReturn(Sample.builder(METADATA.sampleName()).addLanes(lane(1)).addLanes(lane(2)).build());
     }
 
     private static ImmutableLane lane(int index) {
-        return Lanes.emptyBuilder()
-                .flowCellId("flowcell")
-                .laneNumber(String.format("L00%s", index))
-                .build();
+        return Lanes.emptyBuilder().flowCellId("flowcell").laneNumber(String.format("L00%s", index)).build();
     }
 }

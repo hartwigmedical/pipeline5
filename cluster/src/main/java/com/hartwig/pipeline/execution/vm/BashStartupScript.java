@@ -36,7 +36,8 @@ public class BashStartupScript {
     }
 
     String asUnixString() {
-        return asUnixString(new StorageStrategy() {});
+        return asUnixString(new StorageStrategy() {
+        });
     }
 
     String asUnixString(StorageStrategy storageStrategy) {
@@ -44,8 +45,7 @@ public class BashStartupScript {
         String commandSuffix = format(" >>%s 2>&1 || die", localLogFile);
         String jobFailedFlag = "/tmp/" + runtimeFiles.failure();
 
-        List<String> preamble = new ArrayList<>(asList(
-                "#!/bin/bash -x\n",
+        List<String> preamble = new ArrayList<>(asList("#!/bin/bash -x\n",
                 "set -o pipefail\n",
                 "function die() {",
                 "  exit_code=$?",
@@ -57,9 +57,9 @@ public class BashStartupScript {
         preamble.addAll(storageStrategy.initialise());
         preamble.add("ulimit -n 102400");
         addCompletionCommands();
-        return String.join("\n", preamble) + "\n" +
-                commands.stream().collect(joining(format("%s\n", commandSuffix))) +
-                (commands.isEmpty() ? "" : commandSuffix);
+        return String.join("\n", preamble) + "\n" + commands.stream().collect(joining(format("%s\n", commandSuffix))) + (commands.isEmpty()
+                ? ""
+                : commandSuffix);
     }
 
     BashStartupScript addLine(String lineOne) {

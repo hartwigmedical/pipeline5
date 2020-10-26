@@ -99,6 +99,7 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
             final ResultsDirectory resultsDirectory) {
         return StructuralCallerOutput.builder()
                 .status(jobStatus)
+                .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .maybeUnfilteredVcf(resultLocation(bucket, resultsDirectory, unfilteredVcf))
                 .maybeUnfilteredVcfIndex(resultLocation(bucket, resultsDirectory, unfilteredVcf + ".tbi"))
                 .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
@@ -111,10 +112,10 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
                         Folder.root(),
                         NAMESPACE,
                         resultsDirectory,
-                        s -> !s.contains("working") || s.endsWith("sorted.bam.sv.bam") || s.endsWith("sorted.bam.sv.bai")))
+                        s -> !s.contains("working") || s.endsWith("bam.sv.bam") || s.endsWith("bam.sv.bam.bai")))
                 .addReportComponents(new RunLogComponent(bucket, NAMESPACE, Folder.root(), resultsDirectory))
                 .addReportComponents(new StartupScriptComponent(bucket, NAMESPACE, Folder.root()))
-                .addFurtherOperations(new AddDatatypeToFile(DataType.STRUCTURAL_VARIANTS,
+                .addFurtherOperations(new AddDatatypeToFile(DataType.STRUCTURAL_VARIANTS_GRIDSS,
                         Folder.root(),
                         namespace(),
                         basename(unfilteredVcf),
@@ -130,7 +131,7 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
     @Override
     public StructuralCallerOutput persistedOutput(final SomaticRunMetadata metadata) {
 
-        String unfilteredVcfPath = persistedDataset.file(metadata, DataType.STRUCTURAL_VARIANTS)
+        String unfilteredVcfPath = persistedDataset.file(metadata, DataType.STRUCTURAL_VARIANTS_GRIDSS)
                 .orElse(PersistedLocations.blobForSet(metadata.set(),
                         namespace(),
                         String.format("%s.%s.%s",

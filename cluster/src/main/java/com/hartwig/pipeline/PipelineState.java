@@ -58,7 +58,7 @@ public class PipelineState {
                 .filter(Objects::nonNull)
                 .map(StageOutput::status)
                 .filter(status -> !status.equals(PipelineStatus.SUCCESS) && !status.equals(PipelineStatus.SKIPPED) && !status.equals(
-                        PipelineStatus.PERSISTED))
+                        PipelineStatus.PERSISTED) && !status.equals(PipelineStatus.PROVIDED))
                 .findFirst()
                 .orElse(PipelineStatus.SUCCESS);
     }

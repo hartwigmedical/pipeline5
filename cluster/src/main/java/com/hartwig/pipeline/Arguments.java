@@ -71,8 +71,6 @@ public interface Arguments extends CommonArguments {
 
     Optional<String> sampleJson();
 
-    RefGenomeVersion refGenomeVersion();
-
     int maxConcurrentLanes();
 
     static ImmutableArguments.Builder builder() {

@@ -14,18 +14,22 @@ import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
+import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.stages.Stage;
+import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 
 public class Chord implements Stage<ChordOutput, SomaticRunMetadata> {
     public static final String NAMESPACE = "chord";
 
+    private final RefGenomeVersion refGenomeVersion;
     private final InputDownload purpleStructuralVcfDownload;
     private final InputDownload purpleSomaticVcfDownload;
 
-    public Chord(final PurpleOutput purpleOutput) {
+    public Chord(final RefGenomeVersion refGenomeVersion, final PurpleOutput purpleOutput) {
+        this.refGenomeVersion = refGenomeVersion;
         purpleStructuralVcfDownload = new InputDownload(purpleOutput.structuralVcf());
         purpleSomaticVcfDownload = new InputDownload(purpleOutput.somaticVcf());
     }
@@ -44,7 +48,8 @@ public class Chord implements Stage<ChordOutput, SomaticRunMetadata> {
     public List<BashCommand> commands(final SomaticRunMetadata metadata) {
         return Collections.singletonList(new ChordExtractSigPredictHRD(metadata.tumor().sampleName(),
                 purpleSomaticVcfDownload.getLocalTargetPath(),
-                purpleStructuralVcfDownload.getLocalTargetPath()));
+                purpleStructuralVcfDownload.getLocalTargetPath(),
+                refGenomeVersion));
     }
 
     @Override
@@ -57,6 +62,7 @@ public class Chord implements Stage<ChordOutput, SomaticRunMetadata> {
             final ResultsDirectory resultsDirectory) {
         return ChordOutput.builder()
                 .status(jobStatus)
+                .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), Chord.NAMESPACE, resultsDirectory))
                 .build();
     }
@@ -68,6 +74,6 @@ public class Chord implements Stage<ChordOutput, SomaticRunMetadata> {
 
     @Override
     public boolean shouldRun(final Arguments arguments) {
-        return arguments.runTertiary() && !arguments.shallow() && arguments.refGenomeVersion().equals(RefGenomeVersion.HG19);
+        return arguments.runTertiary() && !arguments.shallow();
     }
 }

@@ -6,7 +6,7 @@ LOCATION="europe-west4"
 ZONE="${LOCATION}-a"
 PROJECT="hmf-pipeline-development" 
 TYPE="pipeline5"
-VERSION=5-15
+VERSION=5-16
 
 if [ -n "$1" ]; then
     FLAVOUR="$1"
