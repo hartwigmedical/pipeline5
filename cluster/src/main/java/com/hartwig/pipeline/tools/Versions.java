@@ -14,13 +14,13 @@ public interface Versions {
     String SAMBAMBA = "0.6.8";
     String GATK = "3.8.0";
     String BCF_TOOLS = "1.9";
-    String SAGE = "2.3";
+    String SAGE = "2.4";
     String SNPEFF = "4.3s";
     String TABIX = "0.2.6";
     String AMBER = "3.4";
     String COBALT = "1.10";
     String HEALTH_CHECKER = "3.1";
-    String PURPLE = "2.49";
+    String PURPLE = "2.51";
     String CIRCOS = "0.69.6";
     String GRIDSS = "2.9.3";
     String GRIPSS = "1.8";
