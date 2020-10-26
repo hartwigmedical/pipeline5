@@ -1,4 +1,4 @@
-package com.hartwig.batch.operations;
+package com.hartwig.batch;
 
 import org.immutables.value.Value;
 

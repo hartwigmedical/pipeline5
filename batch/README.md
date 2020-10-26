@@ -1,41 +1,37 @@
 # Hartwig Medical Foundation - Batch5
 
-This is a separate entry point to be used for building out batch operations that can be run in the cloud against large input sets
-without too much work. It is expected that it will be mostly used for making one-time operations easier, rather than for repeated
-invocations or unattended, pipeline-style automation.
-
-This guide is written for developers so a certain amount of expertise is assumed. The application is written in Java.
-
-To use the batch framework you author a batch descriptor file which contains your input URLs and a batch operation, which is a
-Java class that does the actual work. By design the interfaces are very fluid and loose to allow the widest variety of tasks to be
-accomplished.
-
-When you run the framework it will invoke your batch operation once for every input in your file, maintain instances to keep
-up the desired parallelism, log progress and produce a report at the end of execution.
+This is a separate entry point used for running batch operations in the cloud. When you run the framework it will invoke a 
+batch operation once for every path in your input file, maintain instances to keep up the desired parallelism, 
+log progress and produce a report at the end of execution.
 
 To use this framework:
 
-- Possibly write a new operation of your own;
-- Write an input file;
-- Make sure the GCP environment is configured;
-- Run your operation in a live environment.
+1. Package a Java class implementing the `BatchOperation` interface) into a JAR file;
+1. Write an input file with paths to your inputs;
+1. Optionally create a Docker container from our Dockerhub image;
+1. Run your operation in a live environment under Docker or your IDE using the JAR you made.
 
 ## Writing Batch Operations
 
-This is relevant if you want to write a custom batch operation. There are several operations already built in the project (search
-for implementors of the `BatchOperation` interface), one of which may suit your purposes and save your writing another.
+A batch operation is a Java class that implements the `BatchOperation` interface. You can either check out the `pipeline5` project
+and add an implementation in the `batch-operations` module or use Maven to import the framework as a dependency to your own project.
 
-If you do need to write your own operation there are two distinct approaches:
+Regardless of your choice:
 
-* *Check out the code and add your new operation*. Suitable if you're an HMF contributor and your operation will be committed back
-    into the project when you're done.
-* *Add the project as a dependency in Maven and implement locally*. If you just want to take advantage of the framework to run an
-    operation that you define this may be easiest and quickest as you will not need to submit and wait for a pull request.
+* Make sure each operation name returned in the `BatchDescriptor` is unique as the framework does not validate this.
+* You must package your operation into a JAR file and copy it to the host of the Docker container you create later on. You can
+  also choose to run using `BatchDispatcher` as your main class direct from your IDE but that approach is not covered here.
+
+### Adding the Operation in the Project
+
+Make your implementation of `BatchOperation` within the `batch-operations` module. When you are finished you may run `mvn clean package`
+on the command line to create a JAR containing the operations, or export the module's code as a JAR from your IDE. This JAR file will
+need to be copied to the machine hosting the Docker container.
 
 ### Adding the Project as a Maven Dependency
 
-The artifacts are currently hosted in a GCP bucket and you must configure your Maven to find them. In your POM include at least
-the following:
+With this approach you don't pull the code, just reference the framework as a dependency in Maven. In your project's POM include at
+least the following:
 
 ```
 <project>
@@ -73,13 +69,7 @@ the following:
 ...
 ```
 
-In both cases you will need to create a new implementation of the `BatchOperation` interface. Make sure the operation name
-returned in the `BatchDescriptor` does not collide with an existing operation, and succintly describes your operation as it will
-be used to call it on the command line.
-
-A typical batch operation will download some inputs, do some processing and then write something back up to the cloud, but your
-operation may be different. The interfaces have been intentionally kept quite loose to allow the widest range of problems to be
-solved.
+Then you should have access to the `BatchOperation` interface and other classes your `BatchOperation` needs.
 
 ### Sample Operation
 
@@ -151,7 +141,7 @@ The format of the input file is defined by the operation. Look at the code for e
 it is pretty much up to you what you put in here. There is a simple format that just runs one instance for every line in your file
 and a more-powerful JSON version. The operation must return the type it will use in its descriptor.
 
-## Confuring the GCP Environment
+## Configuring the GCP Environment
 
 The batch needs to be run with credentials for a service account that can both read from the bucket that is referenced in the
 batch descriptor and write to the output bucket. It also needs to be able to create and run VM instances in the chosen project.
@@ -168,14 +158,16 @@ The entry point for the application is the `BatchDispatcher` class.
 
 ### Docker 
 
-Our CI build publishes a `Docker` container for the batch framework under `hartwigmedicalfoundation/batch5`. In this case you need
-to make the JAR file containing your class available for the `Docker` instance to pick up at runtime (the path on the Docker
-container is not configurable):
+Create a Docker container from the `hartwigmedicalfoundation/batch5` image. Then make the JAR containing your class available for 
+the `Docker` instance to pick up at runtime (the path on the Docker container is not configurable):
 
 ```
 $ cp jar-containing-operation.jar /tmp/jarfiles
 $ docker run -it -v /tmp/jarfiles:/usr/share/thirdpartyjars hartwigmedicalfoundation/batch5 MyOp -help ...
 ```
+
+The container will periodically print out status information. You may wish to run the command above with GNU `screen` or equivalent
+to maintain interactive control of the process as it runs. 
 
 *NB* The `-it` in the command line is important as without it Docker will not be responsive to signals (such as Ctrl-C)
 and you will have to use `docker stop` or `docker kill` to shutdown the batch if you want to stop it early.

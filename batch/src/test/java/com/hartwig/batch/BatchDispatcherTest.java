@@ -18,7 +18,6 @@ import com.hartwig.batch.input.InputBundle;
 import com.hartwig.batch.input.InputFileDescriptor;
 import com.hartwig.batch.input.InputParser;
 import com.hartwig.batch.input.InputParserProvider;
-import com.hartwig.batch.operations.OperationDescriptor;
 import com.hartwig.batch.testsupport.TestingArguments;
 import com.hartwig.pipeline.execution.vm.GoogleComputeEngine;
 

@@ -9,6 +9,7 @@ import java.util.List;
 
 import com.google.api.client.util.Lists;
 import com.hartwig.batch.BatchOperation;
+import com.hartwig.batch.OperationDescriptor;
 import com.hartwig.batch.input.InputBundle;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.execution.vm.BashCommand;
