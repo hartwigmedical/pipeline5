@@ -43,6 +43,8 @@ public interface Arguments extends CommonArguments {
 
     String setId();
 
+    Optional<String> biopsy();
+
     String sbpApiUrl();
 
     String rclonePath();

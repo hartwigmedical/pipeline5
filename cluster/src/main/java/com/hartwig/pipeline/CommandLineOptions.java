@@ -71,6 +71,7 @@ public class CommandLineOptions {
     private static final String SAMPLE_JSON_FLAG = "sample_json";
     private static final String STARTING_POINT_FLAG = "starting_point";
     private static final String IMAGE_NAME_FLAG = "image_name";
+    private static final String BIOPSY_FLAG = "biopsy";
 
     private static Options options() {
         return new Options().addOption(profile())
@@ -129,7 +130,12 @@ public class CommandLineOptions {
                 .addOption(maxConcurrentLanes())
                 .addOption(json())
                 .addOption(startingPoint())
-                .addOption(imageName());
+                .addOption(imageName())
+                .addOption(biopsy());
+    }
+
+    private static Option biopsy() {
+        return optionWithArg(BIOPSY_FLAG, "Name of the biopsy registered in the API.");
     }
 
     private static Option refGenomeUrl() {
@@ -330,6 +336,7 @@ public class CommandLineOptions {
                     .sampleJson(sampleJson(commandLine, defaults))
                     .startingPoint(startingPoint(commandLine, defaults))
                     .imageName(imageName(commandLine, defaults))
+                    .biopsy(biopsy(commandLine, defaults))
                     .build();
         } catch (ParseException e) {
             LOGGER.error("Could not parse command line args", e);
@@ -337,6 +344,13 @@ public class CommandLineOptions {
             formatter.printHelp("pipeline5", options());
             throw e;
         }
+    }
+
+    public static Optional<String> biopsy(final CommandLine commandLine, final Arguments defaults) {
+        if (commandLine.hasOption(BIOPSY_FLAG)) {
+            return Optional.of(commandLine.getOptionValue(BIOPSY_FLAG));
+        }
+        return defaults.biopsy();
     }
 
     public static Optional<String> subnet(final CommandLine commandLine, final Arguments defaults) {

@@ -4,49 +4,43 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.Optional;
-
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.jackson.ObjectMappers;
-import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
-import com.hartwig.pipeline.sbpapi.ImmutableSbpFileMetadata;
-import com.hartwig.pipeline.sbpapi.SbpFileMetadata;
+import com.hartwig.pipeline.metadata.TestJson;
 import com.hartwig.pipeline.sbpapi.SbpRestApi;
-import com.hartwig.pipeline.testsupport.TestInputs;
+import com.hartwig.pipeline.storage.GoogleStorageLocation;
 
 import org.junit.Before;
 import org.junit.Test;
 
 public class ApiPersistedDatasetTest {
 
-    public static final ImmutableSbpFileMetadata FILE =
-            SbpFileMetadata.builder().directory("dir").filename("file").filesize(1).hash("hash").run_id(1).build();
-    private static final SingleSampleRunMetadata METADATA = TestInputs.referenceRunMetadata();
+    private static final String BIOPSY = "biopsy";
+    public static final String SAMPLE = "CPCT12345678R";
+    private SbpRestApi restApi;
     private ApiPersistedDataset victim;
 
     @Before
     public void setUp() throws Exception {
-        final SbpRestApi api = mock(SbpRestApi.class);
-        when(api.getFileByBarcodeAndType(TestInputs.ID, METADATA.barcode(), "germline_variants")).thenReturn("[]");
-        when(api.getFileByBarcodeAndType(TestInputs.ID, METADATA.barcode(), "aligned_reads")).thenReturn(String.format("[%s]",
-                ObjectMappers.get().writeValueAsString(FILE)));
-        victim = new ApiPersistedDataset(api, ObjectMappers.get());
+        restApi = mock(SbpRestApi.class);
+        when(restApi.getDataset(BIOPSY)).thenReturn(TestJson.get("get_dataset"));
+        victim = new ApiPersistedDataset(restApi, ObjectMappers.get(), BIOPSY);
     }
 
     @Test
-    public void returnsEmptyPathWhenDataTypeNotFound() {
-        assertThat(victim.file(METADATA, DataType.GERMLINE_VARIANTS)).isEmpty();
+    public void returnsEmptyIfDatatypeNotPresent() {
+        assertThat(victim.path(SAMPLE, DataType.GERMLINE_VARIANTS)).isEmpty();
     }
 
     @Test
-    public void returnsFileForDatatype() {
-        Optional<String> maybePath = victim.file(METADATA, DataType.ALIGNED_READS);
-        assertThat(maybePath).isPresent().hasValue("set/dir/file");
+    public void returnsEmptyIfSampleNotPresent() {
+        assertThat(victim.path(SAMPLE, DataType.SOMATIC_VARIANTS_SAGE)).isEmpty();
     }
 
     @Test
-    public void returnsDirectoryForDatatype() {
-        Optional<String> maybePath = victim.directory(METADATA, DataType.ALIGNED_READS);
-        assertThat(maybePath).isPresent().hasValue("set/dir");
+    public void returnsLocationOfExistingDataset() {
+        assertThat(victim.path(SAMPLE, DataType.ALIGNED_READS)).contains(GoogleStorageLocation.of("output-bucket",
+                "CPCT12345678R/aligner/CPCT12345678R.bam"));
     }
+
 }

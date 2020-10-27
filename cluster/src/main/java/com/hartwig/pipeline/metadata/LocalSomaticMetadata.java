@@ -27,10 +27,8 @@ public class LocalSomaticMetadata implements SomaticMetadataApi {
 
         return SomaticRunMetadata.builder()
                 .set(setId)
-                .id(setId)
                 .bucket(arguments.outputBucket())
                 .maybeTumor(tumor.map(t -> SingleSampleRunMetadata.builder()
-                        .id(setId)
                         .bucket(arguments.outputBucket())
                         .set(setId)
                         .type(SingleSampleRunMetadata.SampleType.TUMOR)
@@ -38,7 +36,6 @@ public class LocalSomaticMetadata implements SomaticMetadataApi {
                         .sampleName(t.name())
                         .build()))
                 .reference(SingleSampleRunMetadata.builder()
-                        .id(setId)
                         .bucket(arguments.outputBucket())
                         .set(setId)
                         .type(SingleSampleRunMetadata.SampleType.REFERENCE)

@@ -1,0 +1,16 @@
+[
+  {
+    "name": "CPCT12345678R",
+    "barcode": "FR11111111",
+    "type": "ref",
+    "id": 1,
+    "status": "Ready"
+  },
+  {
+    "name": "CPCT12345678T",
+    "barcode": "FR22222222",
+    "type": "tumor",
+    "id": 1,
+    "status": "Ready"
+  }
+]

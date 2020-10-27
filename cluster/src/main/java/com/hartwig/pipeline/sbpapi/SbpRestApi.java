@@ -72,13 +72,8 @@ public class SbpRestApi {
         return returnOrThrow(response);
     }
 
-    public String getFileByBarcodeAndType(final String runId, final String barcode, final String dataType) {
-        return returnOrThrow(api().path(FILES)
-                .queryParam("run_id", runId)
-                .queryParam("barcode", barcode)
-                .queryParam("datatype", dataType)
-                .request()
-                .get());
+    public String getDataset(final String biopsyName) {
+        return returnOrThrow(api().path("datasets").queryParam("biopsy", biopsyName).queryParam("output", "condensed").request().get());
     }
 
     public WebTarget sample() {
@@ -88,6 +83,21 @@ public class SbpRestApi {
     public String getSample(String setId) {
         Response response = sample().queryParam("set_id", setId).request().buildGet().invoke();
         return returnOrThrow(response);
+    }
+
+    public String getSamplesByBiopsy(final String biopsyName) {
+        try {
+            Map<String, String> biopsy = ObjectMappers.get().<List<Map<String, String>>>readValue(returnOrThrow(api().path("biopsies")
+                    .queryParam("name", biopsyName)
+                    .request()
+                    .get()), new TypeReference<List<Map<String, String>>>() {
+            }).stream()
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException(String.format("No biopsies were found for name [%s].", biopsyName)));
+            return returnOrThrow(sample().queryParam("biopsy_id", biopsy.get("id")).request().buildGet().invoke());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void updateRunStatus(String runID, String status, String gcpBucket) {

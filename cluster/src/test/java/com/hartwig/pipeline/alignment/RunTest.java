@@ -1,7 +1,6 @@
 package com.hartwig.pipeline.alignment;
 
 import static com.hartwig.pipeline.testsupport.TestInputs.BUCKET;
-import static com.hartwig.pipeline.testsupport.TestInputs.ID;
 import static com.hartwig.pipeline.testsupport.TestInputs.SET;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -22,11 +21,11 @@ public class RunTest {
     private static final SomaticRunMetadata SOMATIC = somatic(REFERENCE_SAMPLE, TUMOR_SAMPLE);
 
     private static SomaticRunMetadata somatic(final SingleSampleRunMetadata referenceSample, final SingleSampleRunMetadata tumorSample) {
-        return SomaticRunMetadata.builder().reference(referenceSample).maybeTumor(tumorSample).set("test").id(ID).bucket(BUCKET).build();
+        return SomaticRunMetadata.builder().reference(referenceSample).maybeTumor(tumorSample).set("test").bucket(BUCKET).build();
     }
 
     private static ImmutableSingleSampleRunMetadata sample(final SingleSampleRunMetadata.SampleType type, final String sampleId) {
-        return SingleSampleRunMetadata.builder().type(type).barcode(sampleId).id(ID).bucket(BUCKET).set(SET).build();
+        return SingleSampleRunMetadata.builder().type(type).barcode(sampleId).bucket(BUCKET).set(SET).build();
     }
 
     @Test

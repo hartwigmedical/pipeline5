@@ -26,6 +26,12 @@ public interface GoogleStorageLocation {
         return BlobId.of(bucketNoNamespace, namespace + "/" + path());
     }
 
+    static GoogleStorageLocation from(final String gcsPath) {
+        String removePrefix = gcsPath.replace("gs://", "");
+        String[] split = removePrefix.split("/");
+        return GoogleStorageLocation.of(split[0], removePrefix.substring(split[0].length() + 1));
+    }
+
     static GoogleStorageLocation of(String bucket, String path) {
         return of(bucket, path, false);
     }

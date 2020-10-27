@@ -129,27 +129,32 @@ public class StructuralCallerPostProcess implements Stage<StructuralCallerPostPr
     @Override
     public StructuralCallerPostProcessOutput persistedOutput(final SomaticRunMetadata metadata) {
 
-        String somaticFilteredVcf = persistedDataset.file(metadata, DataType.STRUCTURAL_VARIANTS_GRIPSS)
-                .orElse(PersistedLocations.blobForSet(metadata.set(),
-                        namespace(),
-                        String.format("%s.%s.%s",
-                                metadata.tumor().sampleName(),
-                                GridssHardFilter.GRIDSS_SOMATIC_FILTERED,
-                                FileTypes.GZIPPED_VCF)));
-        String somaticVcf = persistedDataset.file(metadata, DataType.STRUCTURAL_VARIANTS_GRIPSS_RECOVERY)
-                .orElse(PersistedLocations.blobForSet(metadata.set(),
-                        namespace(),
-                        String.format("%s.%s.%s",
-                                metadata.tumor().sampleName(),
-                                GridssSomaticFilter.GRIDSS_SOMATIC,
-                                FileTypes.GZIPPED_VCF)));
+        GoogleStorageLocation somaticFilteredLocation =
+                persistedDataset.path(metadata.tumor().sampleName(), DataType.STRUCTURAL_VARIANTS_GRIPSS)
+                        .orElse(GoogleStorageLocation.of(metadata.bucket(),
+                                PersistedLocations.blobForSet(metadata.set(),
+                                        namespace(),
+                                        String.format("%s.%s.%s",
+                                                metadata.tumor().sampleName(),
+                                                GridssHardFilter.GRIDSS_SOMATIC_FILTERED,
+                                                FileTypes.GZIPPED_VCF))));
+        GoogleStorageLocation somaticLocation =
+                persistedDataset.path(metadata.tumor().sampleName(), DataType.STRUCTURAL_VARIANTS_GRIPSS_RECOVERY)
+                        .orElse(GoogleStorageLocation.of(metadata.bucket(),
+                                PersistedLocations.blobForSet(metadata.set(),
+                                        namespace(),
+                                        String.format("%s.%s.%s",
+                                                metadata.tumor().sampleName(),
+                                                GridssSomaticFilter.GRIDSS_SOMATIC,
+                                                FileTypes.GZIPPED_VCF))));
 
         return StructuralCallerPostProcessOutput.builder()
                 .status(PipelineStatus.PERSISTED)
-                .maybeFilteredVcf(GoogleStorageLocation.of(metadata.bucket(), somaticFilteredVcf))
-                .maybeFilteredVcfIndex(GoogleStorageLocation.of(metadata.bucket(), FileTypes.tabixIndex(somaticFilteredVcf)))
-                .maybeFullVcf(GoogleStorageLocation.of(metadata.bucket(), somaticVcf))
-                .maybeFullVcfIndex(GoogleStorageLocation.of(metadata.bucket(), FileTypes.tabixIndex(somaticVcf)))
+                .maybeFilteredVcf(somaticFilteredLocation)
+                .maybeFilteredVcfIndex(GoogleStorageLocation.of(somaticFilteredLocation.bucket(),
+                        FileTypes.tabixIndex(somaticFilteredLocation.path())))
+                .maybeFullVcf(somaticLocation)
+                .maybeFullVcfIndex(GoogleStorageLocation.of(somaticLocation.bucket(), FileTypes.tabixIndex(somaticLocation.path())))
                 .build();
     }
 

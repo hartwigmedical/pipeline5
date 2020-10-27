@@ -51,7 +51,7 @@ public class CobaltTest extends TertiaryStageTest<CobaltOutput> {
 
     @Override
     protected void setupPersistedDataset() {
-        persistedDataset.addDir(DataType.READ_DEPTH_RATIO, "cobalt");
+        persistedDataset.addPath(DataType.READ_DEPTH_RATIO, "cobalt");
     }
 
     @Override
