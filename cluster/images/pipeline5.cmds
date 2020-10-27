@@ -27,6 +27,7 @@ sudo tar xvf /opt/tools/gridss/2.7.2/scripts.tar -C /opt/tools/gridss/2.7.2/
 sudo tar xvf /opt/tools/gridss/2.8.3/scripts.tar -C /opt/tools/gridss/2.8.3/
 sudo tar xvf /opt/tools/gridss/2.9.3/scripts.tar -C /opt/tools/gridss/2.9.3/
 sudo tar xvf /opt/tools/gridss/2.10.0/gridss-2.10.0.tar.gz -C /opt/tools/gridss/2.10.0/ --skip-old-files
+sudo tar xvf /opt/tools/gridss/2.10.1/gridss-2.10.1.tar.gz -C /opt/tools/gridss/2.10.1/ --skip-old-files
 sudo tar xvf /opt/tools/repeatmasker/4.1.1/repeatmasker.tar -C /opt/tools/repeatmasker/4.1.1/
 
 # This guy is a little different from the others in that it extracts overtop the system-managed R libraries.
@@ -47,7 +48,9 @@ sudo chmod a+x /opt/tools/bcl2fastq/2.20.0.422/bcl2fastq
 sudo chmod a+x /opt/tools/star/2.7.3a/STAR
 sudo cp -r /opt/tools/bcl2fastq/2.20.0.422/share /opt/tools/bcl2fastq/
 sudo ln -s /opt/tools/gridss/2.10.0/gridss-2.10.0-gridss-jar-with-dependencies.jar /opt/tools/gridss/2.10.0/gridss.jar
+sudo ln -s /opt/tools/gridss/2.10.1/gridss-2.10.1-gridss-jar-with-dependencies.jar /opt/tools/gridss/2.10.1/gridss.jar
 sudo chmod a+x /opt/tools/gridss/2.10.0/*.sh /opt/tools/gridss/2.10.0/gridsstools /opt/tools/gridss/2.10.0/gridss_somatic_filter.R
+sudo chmod a+x /opt/tools/gridss/2.10.1/*.sh /opt/tools/gridss/2.10.0/gridsstools /opt/tools/gridss/2.10.0/gridss_somatic_filter.R
 sudo chmod a+x /opt/tools/trf/4.0.9/trf
 sudo chmod a+x /opt/tools/rmblast/2.10.0/*
 sudo chmod a+rx /opt/tools/kraken2/2.0.9/*
