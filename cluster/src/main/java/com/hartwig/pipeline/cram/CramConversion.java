@@ -1,7 +1,5 @@
 package com.hartwig.pipeline.cram;
 
-import static java.lang.String.format;
-
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
@@ -20,7 +18,6 @@ import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.metadata.AddDatatypeToFile;
-import com.hartwig.pipeline.metadata.LinkFileToSample;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
@@ -28,6 +25,7 @@ import com.hartwig.pipeline.report.SingleFileComponent;
 import com.hartwig.pipeline.report.StartupScriptComponent;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
+import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
 public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata> {
@@ -77,19 +75,18 @@ public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata
         String crai = FileTypes.crai(cram);
         Folder folder = Folder.from(metadata);
 
-        String fullCram = format("%s%s/%s", folder.name(), NAMESPACE, cram);
-        String fullCrai = format("%s%s/%s", folder.name(), NAMESPACE, crai);
-
         return CramOutput.builder()
                 .status(jobStatus)
+                .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new RunLogComponent(bucket, NAMESPACE, folder, resultsDirectory),
                         new StartupScriptComponent(bucket, NAMESPACE, folder),
                         new SingleFileComponent(bucket, NAMESPACE, folder, cram, cram, resultsDirectory),
                         new SingleFileComponent(bucket, NAMESPACE, folder, crai, crai, resultsDirectory))
-                .addFurtherOperations(new LinkFileToSample(fullCram, metadata.entityId()),
-                        new LinkFileToSample(fullCrai, metadata.entityId()),
-                        new AddDatatypeToFile(fullCram, DataType.READS),
-                        new AddDatatypeToFile(fullCrai, DataType.READS))
+                .addFurtherOperations(new AddDatatypeToFile(DataType.ALIGNED_READS,
+                        Folder.from(metadata),
+                        namespace(),
+                        cram,
+                        metadata.barcode()))
                 .build();
     }
 

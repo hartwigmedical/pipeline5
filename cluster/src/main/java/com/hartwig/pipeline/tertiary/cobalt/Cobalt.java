@@ -5,13 +5,17 @@ import java.util.List;
 
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.AlignmentPair;
+import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.pipeline.metadata.AddDatatypeToFile;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
+import com.hartwig.pipeline.report.RunLogComponent;
+import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
@@ -23,10 +27,12 @@ public class Cobalt extends TertiaryStage<CobaltOutput> {
     public static final String NAMESPACE = "cobalt";
 
     private final ResourceFiles resourceFiles;
+    private final PersistedDataset persistedDataset;
 
-    public Cobalt(final AlignmentPair alignmentPair, final ResourceFiles resourceFiles) {
+    public Cobalt(final AlignmentPair alignmentPair, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
         super(alignmentPair);
         this.resourceFiles = resourceFiles;
+        this.persistedDataset = persistedDataset;
     }
 
     @Override
@@ -54,7 +60,13 @@ public class Cobalt extends TertiaryStage<CobaltOutput> {
         return CobaltOutput.builder()
                 .status(jobStatus)
                 .maybeOutputDirectory(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(), true))
-                .addReportComponents(new EntireOutputComponent(bucket, Folder.from(), NAMESPACE, resultsDirectory))
+                .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
+                .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), NAMESPACE, resultsDirectory))
+                .addFurtherOperations(new AddDatatypeToFile(DataType.READ_DEPTH_RATIO,
+                        Folder.root(),
+                        namespace(),
+                        String.format("%s.cobalt.ratio.tsv", metadata.tumor().sampleName()),
+                        metadata.barcode()))
                 .build();
     }
 
@@ -68,7 +80,8 @@ public class Cobalt extends TertiaryStage<CobaltOutput> {
         return CobaltOutput.builder()
                 .status(PipelineStatus.PERSISTED)
                 .maybeOutputDirectory(GoogleStorageLocation.of(metadata.bucket(),
-                        PersistedLocations.pathForSet(metadata.set(), namespace()),
+                        persistedDataset.directory(metadata, DataType.READ_DEPTH_RATIO)
+                                .orElse(PersistedLocations.pathForSet(metadata.set(), namespace())),
                         true))
                 .build();
     }

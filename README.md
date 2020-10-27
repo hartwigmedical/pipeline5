@@ -35,7 +35,7 @@ is used to call germline variants on the reference sample only.
 
 #### Amber
 [Amber](https://github.com/hartwigmedical/hmftools/tree/master/amber) is an HMF in-house tool used mainly to determine 
-the minor allele copy number of heterzygous germline variants in the tumor sample.
+the minor allele copy number of heterozygous germline variants in the tumor sample.
 
 #### Cobalt
 [Cobalt](https://github.com/hartwigmedical/hmftools/tree/master/count-bam-lines) is an HMF in-house tool used to determine read

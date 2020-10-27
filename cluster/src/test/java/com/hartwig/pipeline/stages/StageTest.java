@@ -6,9 +6,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.CopyWriter;
 import com.google.cloud.storage.Storage;
@@ -18,6 +20,7 @@ import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
+import com.hartwig.pipeline.metadata.ApiFileOperation;
 import com.hartwig.pipeline.metadata.RunMetadata;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.testsupport.TestInputs;
@@ -36,9 +39,11 @@ public abstract class StageTest<S extends StageOutput, M extends RunMetadata> {
     protected RuntimeBucket runtimeBucket;
     protected Stage<S, M> victim;
     protected Bucket bucket;
+    protected TestPersistedDataset persistedDataset;
 
     @Before
     public void setUp() throws Exception {
+        persistedDataset = new TestPersistedDataset();
         victim = createVictim();
         String runtimeBucketName = expectedRuntimeBucketName() + "/" + victim.namespace();
         storage = mock(Storage.class);
@@ -49,6 +54,7 @@ public abstract class StageTest<S extends StageOutput, M extends RunMetadata> {
         storage = mock(Storage.class);
         runtimeBucket = mock(RuntimeBucket.class);
         when(runtimeBucket.name()).thenReturn(runtimeBucketName);
+        when(runtimeBucket.get(any())).thenReturn(mock(Blob.class));
     }
 
     @Test
@@ -93,6 +99,40 @@ public abstract class StageTest<S extends StageOutput, M extends RunMetadata> {
         } catch (UnsupportedOperationException e) {
             LOGGER.info("Persisted output not supported for stage [{}]. No test required", victim.namespace());
         }
+    }
+
+    @Test
+    public void returnsExpectedPersistedOutputFromPersistedDataset() {
+        try {
+            setupPersistedDataset();
+            S output = victim.persistedOutput(input());
+            validatePersistedOutputFromPersistedDataset(output);
+        } catch (UnsupportedOperationException e) {
+            LOGGER.info("Persisted output not supported for stage [{}]. No test required", victim.namespace());
+        }
+    }
+
+    @Test
+    public void returnsExpectedFurtherOperations() {
+        assertThat(victim.output(input(), PipelineStatus.SUCCESS, runtimeBucket, ResultsDirectory.defaultDirectory())
+                .furtherOperations()).isEqualTo(expectedFurtherOperations());
+    }
+
+    @Test
+    public void addsLogs() {
+        assertThat(victim.output(input(), PipelineStatus.SUCCESS, runtimeBucket, ResultsDirectory.defaultDirectory()).failedLogLocations()).isNotEmpty();
+    }
+
+    protected List<ApiFileOperation> expectedFurtherOperations() {
+        return Collections.emptyList();
+    }
+
+    protected void setupPersistedDataset() {
+        // do nothing by default
+    }
+
+    protected void validatePersistedOutputFromPersistedDataset(final S output) {
+        validatePersistedOutput(output);
     }
 
     protected void validatePersistedOutput(final S output) {

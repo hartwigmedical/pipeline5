@@ -20,6 +20,7 @@ import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.metadata.ApiFileOperation;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
+import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.jetbrains.annotations.NotNull;
@@ -132,6 +133,11 @@ public class PipelineResultsTest {
 
             @Override
             public List<ApiFileOperation> furtherOperations() {
+                return Collections.emptyList();
+            }
+
+            @Override
+            public List<GoogleStorageLocation> failedLogLocations() {
                 return Collections.emptyList();
             }
         };

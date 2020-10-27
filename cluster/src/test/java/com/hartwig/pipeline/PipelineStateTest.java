@@ -8,6 +8,7 @@ import java.util.List;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.metadata.ApiFileOperation;
 import com.hartwig.pipeline.report.ReportComponent;
+import com.hartwig.pipeline.storage.GoogleStorageLocation;
 
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
@@ -63,6 +64,11 @@ public class PipelineStateTest {
 
             @Override
             public List<ApiFileOperation> furtherOperations() {
+                return Collections.emptyList();
+            }
+
+            @Override
+            public List<GoogleStorageLocation> failedLogLocations() {
                 return Collections.emptyList();
             }
         };

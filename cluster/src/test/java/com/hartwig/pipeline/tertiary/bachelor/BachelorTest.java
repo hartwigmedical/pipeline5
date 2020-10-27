@@ -60,4 +60,9 @@ public class BachelorTest extends TertiaryStageTest<BachelorOutput> {
     protected void validateOutput(final BachelorOutput output) {
         // no additional validation
     }
+
+    @Override
+    public void addsLogs() {
+        // not supported currently
+    }
 }

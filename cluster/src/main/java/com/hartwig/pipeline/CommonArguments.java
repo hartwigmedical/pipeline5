@@ -1,6 +1,9 @@
 package com.hartwig.pipeline;
 
+import java.util.List;
 import java.util.Optional;
+
+import com.hartwig.pipeline.resource.RefGenomeVersion;
 
 import org.apache.commons.cli.CommandLine;
 
@@ -20,11 +23,11 @@ public interface CommonArguments {
     String CMEK_DESCRIPTION = "The resource path of the Customer Managed Encryption Key. Runtime buckets will use this key.";
     String DEFAULT_NETWORK = "default";
 
-    String PRIVATE_NETWORK_DESCRIPTION =  "The name of the private network to use. Specifying a value here will use this "
+    String PRIVATE_NETWORK_DESCRIPTION = "The name of the private network to use. Specifying a value here will use this "
             + "network and subnet of the same name and disable external IPs. Ensure the network has been created in GCP before enabling "
             + "this flag";
-    String DEFAULT_DEVELOPMENT_CMEK = "projects/hmf-pipeline-development/locations/europe-west4/keyRings"
-            + "/hmf-pipeline-development/cryptoKeys/default-test";
+    String DEFAULT_DEVELOPMENT_CMEK =
+            "projects/hmf-pipeline-development/locations/europe-west4/keyRings" + "/hmf-pipeline-development/cryptoKeys/default-test";
     String DEFAULT_DEVELOPMENT_REGION = "europe-west4";
     String DEFAULT_DEVELOPMENT_PROJECT = "hmf-pipeline-development";
     String DEFAULT_DEVELOPMENT_CLOUD_SDK_PATH = System.getProperty("user.home") + "/gcloud/google-cloud-sdk/bin";
@@ -45,6 +48,10 @@ public interface CommonArguments {
 
     String network();
 
+    Optional<String> subnet();
+
+    List<String> tags();
+
     Integer pollInterval();
 
     String serviceAccountEmail();
@@ -56,6 +63,10 @@ public interface CommonArguments {
     Optional<Integer> sbpApiRunId();
 
     Optional<String> imageName();
+
+    RefGenomeVersion refGenomeVersion();
+
+    Optional<String> refGenomeUrl();
 
     static Optional<String> privateKey(CommandLine commandLine) {
         if (commandLine.hasOption(PRIVATE_KEY_PATH)) {

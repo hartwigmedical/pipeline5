@@ -5,7 +5,9 @@ import java.util.Optional;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.metadata.RunMetadata;
 
-public interface PersistedDataset<T extends RunMetadata> {
+public interface PersistedDataset {
 
-    Optional<String> find(final T metadata, final DataType dataType);
+    Optional<String> file(final RunMetadata metadata, final DataType dataType);
+
+    Optional<String> directory(final RunMetadata metadata, final DataType dataType);
 }

@@ -3,10 +3,10 @@ package com.hartwig.pipeline.calling.germline;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
-import java.util.Optional;
 
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.StageTest;
@@ -16,6 +16,8 @@ import com.hartwig.pipeline.testsupport.TestInputs;
 import org.junit.Before;
 
 public class GermlineCallerTest extends StageTest<GermlineCallerOutput, SingleSampleRunMetadata> {
+
+    public static final String REFERENCE_GERMLINE_VCF_GZ = "reference.germline.vcf.gz";
 
     @Override
     @Before
@@ -35,7 +37,7 @@ public class GermlineCallerTest extends StageTest<GermlineCallerOutput, SingleSa
 
     @Override
     protected Stage<GermlineCallerOutput, SingleSampleRunMetadata> createVictim() {
-        return new GermlineCaller(TestInputs.referenceAlignmentOutput(), TestInputs.HG19_RESOURCE_FILES, (m, r) -> Optional.empty());
+        return new GermlineCaller(TestInputs.referenceAlignmentOutput(), TestInputs.HG19_RESOURCE_FILES, persistedDataset);
     }
 
     @Override
@@ -56,7 +58,12 @@ public class GermlineCallerTest extends StageTest<GermlineCallerOutput, SingleSa
 
     @Override
     public void returnsExpectedOutput() {
-        // not supported yet.
+        // not supported currently
+    }
+
+    @Override
+    public void addsLogs() {
+        // not supported currently
     }
 
     @Override
@@ -72,20 +79,38 @@ public class GermlineCallerTest extends StageTest<GermlineCallerOutput, SingleSa
                 "/opt/tools/snpEff/4.3s/snpEff.sh /opt/tools/snpEff/4.3s/snpEff.jar /opt/resources/snpeff/hg19/snpEff.config GRCh37.75 /data/output/reference.filtered_variants.vcf /data/output/reference.snpeff.annotated.vcf",
                 "/opt/tools/tabix/0.2.6/bgzip -f /data/output/reference.snpeff.annotated.vcf",
                 "/opt/tools/tabix/0.2.6/tabix /data/output/reference.snpeff.annotated.vcf.gz -p vcf",
-                "mv /data/output/reference.snpeff.annotated.vcf.gz /data/output/reference.germline.vcf.gz",
-                "mv /data/output/reference.snpeff.annotated.vcf.gz.tbi /data/output/reference.germline.vcf.gz.tbi").build();
+                "mv /data/output/reference.snpeff.annotated.vcf.gz /data/output/" + REFERENCE_GERMLINE_VCF_GZ,
+                "mv /data/output/reference.snpeff.annotated.vcf.gz.tbi /data/output/" + REFERENCE_GERMLINE_VCF_GZ + ".tbi").build();
     }
 
     @Override
     protected void validateOutput(final GermlineCallerOutput output) {
-        // no additional
+        // not supported currently
     }
 
     @Override
     protected void validatePersistedOutput(final GermlineCallerOutput output) {
         assertThat(output.germlineVcfLocation()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
-                "set/reference/germline_caller/reference.germline.vcf.gz"));
+                "set/reference/germline_caller/" + REFERENCE_GERMLINE_VCF_GZ));
         assertThat(output.germlineVcfIndexLocation()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
-                "set/reference/germline_caller/reference.germline.vcf.gz.tbi"));
+                "set/reference/germline_caller/" + REFERENCE_GERMLINE_VCF_GZ + ".tbi"));
+    }
+
+    @Override
+    protected void setupPersistedDataset() {
+        persistedDataset.addPath(DataType.GERMLINE_VARIANTS, "germline_caller/" + REFERENCE_GERMLINE_VCF_GZ);
+    }
+
+    @Override
+    protected void validatePersistedOutputFromPersistedDataset(final GermlineCallerOutput output) {
+        assertThat(output.germlineVcfLocation()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
+                "germline_caller/" + REFERENCE_GERMLINE_VCF_GZ));
+        assertThat(output.germlineVcfIndexLocation()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
+                "germline_caller/" + REFERENCE_GERMLINE_VCF_GZ + ".tbi"));
+    }
+
+    @Override
+    public void returnsExpectedFurtherOperations() {
+        // not supported currently
     }
 }

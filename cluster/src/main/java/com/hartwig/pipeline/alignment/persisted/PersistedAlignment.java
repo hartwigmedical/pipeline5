@@ -12,15 +12,15 @@ import com.hartwig.pipeline.storage.GoogleStorageLocation;
 
 public class PersistedAlignment implements Aligner {
 
-    private final PersistedDataset<SingleSampleRunMetadata> persistedDataset;
+    private final PersistedDataset persistedDataset;
 
-    public PersistedAlignment(final PersistedDataset<SingleSampleRunMetadata> persistedDataset) {
+    public PersistedAlignment(final PersistedDataset persistedDataset) {
         this.persistedDataset = persistedDataset;
     }
 
     @Override
     public AlignmentOutput run(final SingleSampleRunMetadata metadata) {
-        String alignmentMapPath = persistedDataset.find(metadata, DataType.READS)
+        String alignmentMapPath = persistedDataset.file(metadata, DataType.ALIGNED_READS)
                 .orElse(PersistedLocations.blobForSingle(metadata.set(),
                         metadata.sampleName(),
                         Aligner.NAMESPACE,

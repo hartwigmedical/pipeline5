@@ -6,6 +6,7 @@ public enum PipelineStatus {
     QC_FAILED,
     SKIPPED,
     PERSISTED,
+    PROVIDED,
     PREEMPTED,
     UNKNOWN
 }

@@ -6,13 +6,17 @@ import java.util.List;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.AlignmentPair;
+import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.pipeline.metadata.AddDatatypeToFile;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
+import com.hartwig.pipeline.report.RunLogComponent;
+import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
@@ -24,10 +28,12 @@ public class Amber extends TertiaryStage<AmberOutput> {
     public static final String NAMESPACE = "amber";
 
     private final ResourceFiles resourceFiles;
+    private final PersistedDataset persistedDataset;
 
-    public Amber(final AlignmentPair alignmentPair, final ResourceFiles resourceFiles) {
+    public Amber(final AlignmentPair alignmentPair, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
         super(alignmentPair);
         this.resourceFiles = resourceFiles;
+        this.persistedDataset = persistedDataset;
     }
 
     @Override
@@ -55,8 +61,14 @@ public class Amber extends TertiaryStage<AmberOutput> {
             final ResultsDirectory resultsDirectory) {
         return AmberOutput.builder()
                 .status(jobStatus)
+                .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .maybeOutputDirectory(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(), true))
-                .addReportComponents(new EntireOutputComponent(bucket, Folder.from(), NAMESPACE, resultsDirectory))
+                .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), NAMESPACE, resultsDirectory))
+                .addFurtherOperations(new AddDatatypeToFile(DataType.B_ALLELE_FREQUENCY,
+                        Folder.root(),
+                        namespace(),
+                        String.format("%s.amber.baf.tsv", metadata.tumor().sampleName()),
+                        metadata.barcode()))
                 .build();
     }
 
@@ -70,7 +82,8 @@ public class Amber extends TertiaryStage<AmberOutput> {
         return AmberOutput.builder()
                 .status(PipelineStatus.PERSISTED)
                 .maybeOutputDirectory(GoogleStorageLocation.of(metadata.bucket(),
-                        PersistedLocations.pathForSet(metadata.set(), namespace()),
+                        persistedDataset.directory(metadata, DataType.B_ALLELE_FREQUENCY)
+                                .orElse(PersistedLocations.pathForSet(metadata.set(), namespace())),
                         true))
                 .build();
     }

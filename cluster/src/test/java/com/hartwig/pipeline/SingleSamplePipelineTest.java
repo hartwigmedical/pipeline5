@@ -21,7 +21,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Optional;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executors;
@@ -40,6 +39,7 @@ import com.hartwig.pipeline.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.report.PipelineResults;
 import com.hartwig.pipeline.report.PipelineResultsProvider;
 import com.hartwig.pipeline.report.ReportComponent;
+import com.hartwig.pipeline.reruns.NoopPersistedDataset;
 import com.hartwig.pipeline.snpgenotype.SnpGenotypeOutput;
 import com.hartwig.pipeline.stages.StageRunner;
 
@@ -78,7 +78,9 @@ public class SingleSamplePipelineTest {
                 pipelineResults,
                 Executors.newSingleThreadExecutor(),
                 standalone,
-                ARGUMENTS, (m,r) -> Optional.empty(), metricsOutputQueue,
+                ARGUMENTS,
+                new NoopPersistedDataset(),
+                metricsOutputQueue,
                 germlineCallerOutputQueue);
     }
 

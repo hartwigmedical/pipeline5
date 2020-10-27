@@ -1,13 +1,12 @@
 package com.hartwig.pipeline.calling.structural;
 
-import static java.lang.String.format;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.StageTest;
@@ -17,6 +16,10 @@ import com.hartwig.pipeline.testsupport.TestInputs;
 import org.junit.Before;
 
 public class StructuralCallerPostProcessTest extends StageTest<StructuralCallerPostProcessOutput, SomaticRunMetadata> {
+    private static final String TUMOR_GRIPSS_SOMATIC_VCF_GZ = "tumor.gripss.somatic.vcf.gz";
+    private static final String TUMOR_GRIPSS_SOMATIC_FILTERED_VCF_GZ = "tumor.gripss.somatic.filtered.vcf.gz";
+    private static final String GRIPSS = "gripss/";
+
     @Override
     @Before
     public void setUp() throws Exception {
@@ -30,7 +33,7 @@ public class StructuralCallerPostProcessTest extends StageTest<StructuralCallerP
 
     @Override
     protected Stage<StructuralCallerPostProcessOutput, SomaticRunMetadata> createVictim() {
-        return new StructuralCallerPostProcess(TestInputs.HG19_RESOURCE_FILES, TestInputs.structuralCallerOutput());
+        return new StructuralCallerPostProcess(TestInputs.HG19_RESOURCE_FILES, TestInputs.structuralCallerOutput(), persistedDataset);
     }
 
     @Override
@@ -41,10 +44,6 @@ public class StructuralCallerPostProcessTest extends StageTest<StructuralCallerP
                         "tumor.gridss.unfiltered.vcf.gz.tbi"));
     }
 
-    private String inputDownload(String bucket, String basename) {
-        return input(format("%s/aligner/results/%s", bucket, basename), basename);
-    }
-
     @Override
     protected String expectedRuntimeBucketName() {
         return TestInputs.SOMATIC_BUCKET;
@@ -53,8 +52,10 @@ public class StructuralCallerPostProcessTest extends StageTest<StructuralCallerP
     @Override
     protected List<String> expectedCommands() {
         return ImmutableList.of(
-                "java -Xmx24G -cp /opt/tools/gripss/1.7/gripss.jar com.hartwig.hmftools.gripss.GripssApplicationKt -ref_genome /opt/resources/reference_genome/hg19/Homo_sapiens.GRCh37.GATK.illumina.fasta -breakpoint_hotspot /opt/resources/knowledgebases/hg19/KnownFusionPairs.hg19.bedpe -breakend_pon /opt/resources/gridss_pon/hg19/gridss_pon_single_breakend.hg19.bed -breakpoint_pon /opt/resources/gridss_pon/hg19/gridss_pon_breakpoint.hg19.bedpe -input_vcf /data/input/tumor.gridss.unfiltered.vcf.gz -output_vcf /data/output/tumor.gripss.somatic.vcf.gz",
-                "java -Xmx24G -cp /opt/tools/gripss/1.7/gripss.jar com.hartwig.hmftools.gripss.GripssHardFilterApplicationKt -input_vcf /data/output/tumor.gripss.somatic.vcf.gz -output_vcf /data/output/tumor.gripss.somatic.filtered.vcf.gz");
+                "java -Xmx24G -cp /opt/tools/gripss/1.8/gripss.jar com.hartwig.hmftools.gripss.GripssApplicationKt -ref_genome /opt/resources/reference_genome/hg19/Homo_sapiens.GRCh37.GATK.illumina.fasta -breakpoint_hotspot /opt/resources/knowledgebases/hg19/KnownFusionPairs.hg19.bedpe -breakend_pon /opt/resources/gridss_pon/hg19/gridss_pon_single_breakend.hg19.bed -breakpoint_pon /opt/resources/gridss_pon/hg19/gridss_pon_breakpoint.hg19.bedpe -input_vcf /data/input/tumor.gridss.unfiltered.vcf.gz -output_vcf /data/output/"
+                        + TUMOR_GRIPSS_SOMATIC_VCF_GZ,
+                "java -Xmx24G -cp /opt/tools/gripss/1.8/gripss.jar com.hartwig.hmftools.gripss.GripssHardFilterApplicationKt -input_vcf /data/output/"
+                        + TUMOR_GRIPSS_SOMATIC_VCF_GZ + " -output_vcf /data/output/" + TUMOR_GRIPSS_SOMATIC_FILTERED_VCF_GZ);
     }
 
     @Override
@@ -73,12 +74,38 @@ public class StructuralCallerPostProcessTest extends StageTest<StructuralCallerP
     }
 
     @Override
+    public void addsLogs() {
+        // not supported currently
+    }
+
+    @Override
     protected void validatePersistedOutput(final StructuralCallerPostProcessOutput output) {
         assertThat(output.filteredVcf()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
-                "set/gripss/tumor.gripss.somatic.filtered.vcf.gz"));
+                "set/gripss/" + TUMOR_GRIPSS_SOMATIC_FILTERED_VCF_GZ));
         assertThat(output.filteredVcfIndex()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
-                "set/gripss/tumor.gripss.somatic.filtered.vcf.gz.tbi"));
-        assertThat(output.fullVcf()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "set/gripss/tumor.gripss.somatic.vcf.gz"));
-        assertThat(output.fullVcfIndex()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "set/gripss/tumor.gripss.somatic.vcf.gz.tbi"));
+                "set/gripss/" + TUMOR_GRIPSS_SOMATIC_FILTERED_VCF_GZ + ".tbi"));
+        assertThat(output.fullVcf()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "set/gripss/" + TUMOR_GRIPSS_SOMATIC_VCF_GZ));
+        assertThat(output.fullVcfIndex()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
+                "set/gripss/" + TUMOR_GRIPSS_SOMATIC_VCF_GZ + ".tbi"));
+    }
+
+    @Override
+    protected void setupPersistedDataset() {
+        persistedDataset.addPath(DataType.STRUCTURAL_VARIANTS_GRIPSS_RECOVERY, GRIPSS + TUMOR_GRIPSS_SOMATIC_VCF_GZ);
+        persistedDataset.addPath(DataType.STRUCTURAL_VARIANTS_GRIPSS, GRIPSS + TUMOR_GRIPSS_SOMATIC_FILTERED_VCF_GZ);
+    }
+
+    @Override
+    protected void validatePersistedOutputFromPersistedDataset(final StructuralCallerPostProcessOutput output) {
+        assertThat(output.filteredVcf()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, GRIPSS + TUMOR_GRIPSS_SOMATIC_FILTERED_VCF_GZ));
+        assertThat(output.filteredVcfIndex()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
+                GRIPSS + TUMOR_GRIPSS_SOMATIC_FILTERED_VCF_GZ + ".tbi"));
+        assertThat(output.fullVcf()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, GRIPSS + TUMOR_GRIPSS_SOMATIC_VCF_GZ));
+        assertThat(output.fullVcfIndex()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, GRIPSS + TUMOR_GRIPSS_SOMATIC_VCF_GZ + ".tbi"));
+    }
+
+    @Override
+    public void returnsExpectedFurtherOperations() {
+        // not supported currently
     }
 }

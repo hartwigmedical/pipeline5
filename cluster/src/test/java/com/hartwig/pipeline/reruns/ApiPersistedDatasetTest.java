@@ -28,19 +28,25 @@ public class ApiPersistedDatasetTest {
     public void setUp() throws Exception {
         final SbpRestApi api = mock(SbpRestApi.class);
         when(api.getFileByBarcodeAndType(TestInputs.ID, METADATA.barcode(), "germline_variants")).thenReturn("[]");
-        when(api.getFileByBarcodeAndType(TestInputs.ID, METADATA.barcode(), "reads")).thenReturn(String.format("[%s]",
+        when(api.getFileByBarcodeAndType(TestInputs.ID, METADATA.barcode(), "aligned_reads")).thenReturn(String.format("[%s]",
                 ObjectMappers.get().writeValueAsString(FILE)));
         victim = new ApiPersistedDataset(api, ObjectMappers.get());
     }
 
     @Test
     public void returnsEmptyPathWhenDataTypeNotFound() {
-        assertThat(victim.find(METADATA, DataType.GERMLINE_VARIANTS)).isEmpty();
+        assertThat(victim.file(METADATA, DataType.GERMLINE_VARIANTS)).isEmpty();
     }
 
     @Test
     public void returnsFileForDatatype() {
-        Optional<String> maybePath = victim.find(METADATA, DataType.READS);
-        assertThat(maybePath).isPresent().hasValue("dir/file");
+        Optional<String> maybePath = victim.file(METADATA, DataType.ALIGNED_READS);
+        assertThat(maybePath).isPresent().hasValue("set/dir/file");
+    }
+
+    @Test
+    public void returnsDirectoryForDatatype() {
+        Optional<String> maybePath = victim.directory(METADATA, DataType.ALIGNED_READS);
+        assertThat(maybePath).isPresent().hasValue("set/dir");
     }
 }

@@ -6,6 +6,7 @@ import java.io.File;
 import java.util.Collections;
 
 import com.hartwig.batch.BatchOperation;
+import com.hartwig.batch.OperationDescriptor;
 import com.hartwig.batch.input.ImmutableInputFileDescriptor;
 import com.hartwig.batch.input.InputBundle;
 import com.hartwig.batch.input.InputFileDescriptor;

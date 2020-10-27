@@ -7,6 +7,7 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
+import com.hartwig.pipeline.reruns.NoopPersistedDataset;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
@@ -23,13 +24,13 @@ public class SageCallerTest extends TertiaryStageTest<SomaticCallerOutput> {
 
     @Override
     protected Stage<SomaticCallerOutput, SomaticRunMetadata> createVictim() {
-        return new SageCaller(TestInputs.defaultPair(), TestInputs.HG19_RESOURCE_FILES);
+        return new SageCaller(TestInputs.defaultPair(), TestInputs.HG19_RESOURCE_FILES, new NoopPersistedDataset());
     }
 
     @Override
     protected List<String> expectedCommands() {
         return ImmutableList.of("unzip -d /opt/resources /opt/resources/snpeff/hg19/snpEff_v4_3_GRCh37.75.zip",
-                "java -Xmx110G -cp /opt/tools/sage/2.2/sage.jar com.hartwig.hmftools.sage.SageApplication -tumor tumor -tumor_bam /data/input/tumor.bam -reference reference -reference_bam /data/input/reference.bam -hotspots /opt/resources/sage/hg19/KnownHotspots.hg19.vcf.gz -panel_bed /opt/resources/sage/hg19/ActionableCodingPanel.hg19.bed.gz -high_confidence_bed /opt/resources/GIAB_high_conf/hg19/NA12878_GIAB_highconf_IllFB-IllGATKHC-CG-Ion-Solid_ALLCHROM_v3.2.2_highconf.bed.gz -ref_genome /opt/resources/reference_genome/hg19/Homo_sapiens.GRCh37.GATK.illumina.fasta -out /data/output/tumor.sage.somatic.vcf.gz -assembly hg19 -threads $(grep -c '^processor' /proc/cpuinfo)",
+                "java -Xmx110G -cp /opt/tools/sage/2.4/sage.jar com.hartwig.hmftools.sage.SageApplication -tumor tumor -tumor_bam /data/input/tumor.bam -reference reference -reference_bam /data/input/reference.bam -hotspots /opt/resources/sage/hg19/KnownHotspots.hg19.vcf.gz -panel_bed /opt/resources/sage/hg19/ActionableCodingPanel.hg19.bed.gz -high_confidence_bed /opt/resources/GIAB_high_conf/hg19/NA12878_GIAB_highconf_IllFB-IllGATKHC-CG-Ion-Solid_ALLCHROM_v3.2.2_highconf.bed.gz -ref_genome /opt/resources/reference_genome/hg19/Homo_sapiens.GRCh37.GATK.illumina.fasta -out /data/output/tumor.sage.somatic.vcf.gz -assembly hg19 -threads $(grep -c '^processor' /proc/cpuinfo)",
                 "(/opt/tools/bcftools/1.9/bcftools filter -i 'FILTER=\"PASS\"' /data/output/tumor.sage.somatic.vcf.gz -O z -o /data/output/tumor.sage.pass.vcf.gz)",
                 "/opt/tools/tabix/0.2.6/tabix /data/output/tumor.sage.pass.vcf.gz -p vcf",
                 "(/opt/tools/bcftools/1.9/bcftools annotate -a /opt/resources/mappability/hg19/out_150_hg19.mappability.bed.gz -h /opt/resources/mappability/mappability.hdr -c CHROM,FROM,TO,-,MAPPABILITY /data/output/tumor.sage.pass.vcf.gz -O z -o /data/output/tumor.mappability.annotated.vcf.gz)",
@@ -45,12 +46,17 @@ public class SageCallerTest extends TertiaryStageTest<SomaticCallerOutput> {
 
     @Override
     public void returnsExpectedOutput() {
-        // ignored for now.
+        // not supported currently
     }
 
     @Override
     protected void validateOutput(final SomaticCallerOutput output) {
-        // ignored for now.
+        // not supported currently
+    }
+
+    @Override
+    public void addsLogs() {
+        // not supported currently
     }
 
     @Override
@@ -62,5 +68,10 @@ public class SageCallerTest extends TertiaryStageTest<SomaticCallerOutput> {
     protected void validatePersistedOutput(final SomaticCallerOutput output) {
         assertThat(output.finalSomaticVcf()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
                 "set/sage/tumor.sage.somatic.filtered.vcf.gz"));
+    }
+
+    @Override
+    public void returnsExpectedFurtherOperations() {
+        // ignore for now
     }
 }

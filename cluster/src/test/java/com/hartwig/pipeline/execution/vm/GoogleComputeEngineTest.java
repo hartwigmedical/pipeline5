@@ -23,6 +23,7 @@ import com.google.api.services.compute.model.InstanceList;
 import com.google.api.services.compute.model.NetworkInterface;
 import com.google.api.services.compute.model.Operation;
 import com.google.api.services.compute.model.Scheduling;
+import com.google.api.services.compute.model.Tags;
 import com.google.api.services.compute.model.Zone;
 import com.google.api.services.compute.model.ZoneList;
 import com.google.common.collect.Lists;
@@ -201,12 +202,28 @@ public class GoogleComputeEngineTest {
         verify(instance).setNetworkInterfaces(captor.capture());
         List<NetworkInterface> networkInterfaces = captor.getValue();
         assertThat(networkInterfaces.size()).isEqualTo(1);
-        assertThat(networkInterfaces.get(0).getNetwork()).isEqualTo(
-                "https://www.googleapis.com/compute/v1/projects/hmf-pipeline-development/global/networks/default");
+        assertThat(networkInterfaces.get(0).getNetwork()).isEqualTo("projects/hmf-pipeline-development/global/networks/default");
     }
 
     @Test
-    public void usesPrivateNetworkWhenSpecified() {
+    public void usesNetworkAndSubnetWhenSpecified() {
+        returnSuccess();
+        victim = new GoogleComputeEngine(Arguments.testDefaultsBuilder().network("private").subnet("subnet").build(), compute, z -> {
+        }, lifecycleManager, bucketWatcher);
+        ArgumentCaptor<List<NetworkInterface>> interfaceCaptor = ArgumentCaptor.forClass(List.class);
+        victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
+
+        verify(instance).setNetworkInterfaces(interfaceCaptor.capture());
+        List<NetworkInterface> networkInterfaces = interfaceCaptor.getValue();
+        assertThat(networkInterfaces).hasSize(1);
+        assertThat(networkInterfaces.get(0).getNetwork()).isEqualTo("projects/hmf-pipeline-development/global/networks/private");
+        assertThat(networkInterfaces.get(0).getSubnetwork()).isEqualTo(
+                "projects/hmf-pipeline-development/regions/europe-west4/subnetworks/subnet");
+        assertThat(networkInterfaces.get(0).get("no-address")).isEqualTo("true");
+    }
+
+    @Test
+    public void usesNetworkAsSubnetWhenNotSpecified() {
         returnSuccess();
         victim = new GoogleComputeEngine(Arguments.testDefaultsBuilder().network("private").build(), compute, z -> {
         }, lifecycleManager, bucketWatcher);
@@ -216,11 +233,40 @@ public class GoogleComputeEngineTest {
         verify(instance).setNetworkInterfaces(interfaceCaptor.capture());
         List<NetworkInterface> networkInterfaces = interfaceCaptor.getValue();
         assertThat(networkInterfaces).hasSize(1);
-        assertThat(networkInterfaces.get(0).getNetwork()).isEqualTo(
-                "https://www.googleapis.com/compute/v1/projects/hmf-pipeline-development/global/networks/private");
+        assertThat(networkInterfaces.get(0).getNetwork()).isEqualTo("projects/hmf-pipeline-development/global/networks/private");
         assertThat(networkInterfaces.get(0).getSubnetwork()).isEqualTo(
-                "https://www.googleapis.com/compute/v1/projects/hmf-pipeline-development/regions/europe-west4/subnetworks/private");
+                "projects/hmf-pipeline-development/regions/europe-west4/subnetworks/private");
         assertThat(networkInterfaces.get(0).get("no-address")).isEqualTo("true");
+    }
+
+    @Test
+    public void usesFullNetworkAndSubnetWhenSpecified() {
+        returnSuccess();
+        String networkUrl = "projects/private";
+        String subnetUrl = "projects/subnet";
+        victim = new GoogleComputeEngine(Arguments.testDefaultsBuilder().network(networkUrl).subnet(subnetUrl).build(), compute, z -> {
+        }, lifecycleManager, bucketWatcher);
+        ArgumentCaptor<List<NetworkInterface>> interfaceCaptor = ArgumentCaptor.forClass(List.class);
+        victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
+
+        verify(instance).setNetworkInterfaces(interfaceCaptor.capture());
+        List<NetworkInterface> networkInterfaces = interfaceCaptor.getValue();
+        assertThat(networkInterfaces).hasSize(1);
+        assertThat(networkInterfaces.get(0).getNetwork()).isEqualTo(networkUrl);
+        assertThat(networkInterfaces.get(0).getSubnetwork()).isEqualTo(subnetUrl);
+        assertThat(networkInterfaces.get(0).get("no-address")).isEqualTo("true");
+    }
+
+    @Test
+    public void addsTagsToComputeEngineInstances() {
+        returnSuccess();
+        victim = new GoogleComputeEngine(Arguments.testDefaultsBuilder().tags(List.of("tag")).build(), compute, z -> {
+        }, lifecycleManager, bucketWatcher);
+        ArgumentCaptor<Tags> tagsArgumentCaptor = ArgumentCaptor.forClass(Tags.class);
+        victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
+
+        verify(instance).setTags(tagsArgumentCaptor.capture());
+        assertThat(tagsArgumentCaptor.getValue().getItems()).containsExactly("tag");
     }
 
     @Test
@@ -300,7 +346,8 @@ public class GoogleComputeEngineTest {
 
     @Test
     public void usesLatestImageFromCurrentFamilyWhenNoImageGiven() throws IOException {
-        victim = new GoogleComputeEngine(ARGUMENTS, compute, z -> {}, lifecycleManager, bucketWatcher);
+        victim = new GoogleComputeEngine(ARGUMENTS, compute, z -> {
+        }, lifecycleManager, bucketWatcher);
         returnSuccess();
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
         verify(images).getFromFamily(ARGUMENTS.project(), VirtualMachineJobDefinition.STANDARD_IMAGE);
@@ -311,7 +358,8 @@ public class GoogleComputeEngineTest {
         String imageName = "alternate_image";
         Compute.Images.Get specificImage = mock(Compute.Images.Get.class);
         when(specificImage.execute()).thenReturn(mock(Image.class));
-        victim = new GoogleComputeEngine(Arguments.testDefaultsBuilder().imageName(imageName).build(), compute, z -> {}, lifecycleManager, bucketWatcher);
+        victim = new GoogleComputeEngine(Arguments.testDefaultsBuilder().imageName(imageName).build(), compute, z -> {
+        }, lifecycleManager, bucketWatcher);
         when(images.get(VirtualMachineJobDefinition.HMF_IMAGE_PROJECT, imageName)).thenReturn(specificImage);
         returnSuccess();
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);

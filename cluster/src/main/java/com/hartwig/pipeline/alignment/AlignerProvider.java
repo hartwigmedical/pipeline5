@@ -1,6 +1,5 @@
 package com.hartwig.pipeline.alignment;
 
-import java.util.Optional;
 import java.util.concurrent.Executors;
 
 import com.google.auth.oauth2.GoogleCredentials;
@@ -17,8 +16,8 @@ import com.hartwig.pipeline.alignment.sample.SbpSampleReader;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.GoogleComputeEngine;
 import com.hartwig.pipeline.jackson.ObjectMappers;
-import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.reruns.ApiPersistedDataset;
+import com.hartwig.pipeline.reruns.NoopPersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.StartingPoint;
 import com.hartwig.pipeline.sbpapi.SbpRestApi;
@@ -49,6 +48,7 @@ public abstract class AlignerProvider {
     private static BwaAligner constructVmAligner(final Arguments arguments, final GoogleCredentials credentials, final Storage storage,
             final SampleSource sampleSource, final SampleUpload sampleUpload, final ResultsDirectory resultsDirectory) throws Exception {
         ComputeEngine computeEngine = GoogleComputeEngine.from(arguments, credentials);
+
         return new BwaAligner(arguments,
                 computeEngine,
                 storage,
@@ -65,8 +65,8 @@ public abstract class AlignerProvider {
             return new PersistedAlignerProvider(credentials,
                     storage,
                     arguments,
-                    arguments.sbpApiRunId().<PersistedDataset<SingleSampleRunMetadata>>map(r -> new ApiPersistedDataset(SbpRestApi.newInstance(
-                            arguments.sbpApiUrl()), ObjectMappers.get())).orElse((m, r) -> Optional.empty()));
+                    arguments.sbpApiRunId().<PersistedDataset>map(r -> new ApiPersistedDataset(SbpRestApi.newInstance(
+                            arguments.sbpApiUrl()), ObjectMappers.get())).orElse((new NoopPersistedDataset())));
         }
         if (arguments.sbpApiRunId().isPresent()) {
             return new SbpAlignerProvider(credentials, storage, arguments);
@@ -117,10 +117,10 @@ public abstract class AlignerProvider {
 
     static class PersistedAlignerProvider extends AlignerProvider {
 
-        private final PersistedDataset<SingleSampleRunMetadata> persistedDataset;
+        private final PersistedDataset persistedDataset;
 
         public PersistedAlignerProvider(final GoogleCredentials credentials, final Storage storage, final Arguments arguments,
-                final PersistedDataset<SingleSampleRunMetadata> persistedDataset) {
+                final PersistedDataset persistedDataset) {
             super(credentials, storage, arguments);
             this.persistedDataset = persistedDataset;
         }

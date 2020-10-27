@@ -8,15 +8,19 @@ import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.calling.somatic.SomaticCallerOutput;
 import com.hartwig.pipeline.calling.structural.StructuralCallerPostProcessOutput;
+import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
+import com.hartwig.pipeline.metadata.AddDatatypeToFile;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
+import com.hartwig.pipeline.report.RunLogComponent;
+import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
@@ -40,11 +44,12 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
     private final InputDownload svRecoveryVcfIndexDownload;
     private final InputDownload amberOutputDownload;
     private final InputDownload cobaltOutputDownload;
+    private final PersistedDataset persistedDataset;
     private final boolean shallow;
 
     public Purple(final ResourceFiles resourceFiles, SomaticCallerOutput somaticCallerOutput,
             StructuralCallerPostProcessOutput structuralCallerOutput, AmberOutput amberOutput, CobaltOutput cobaltOutput,
-            final boolean shallow) {
+            final PersistedDataset persistedDataset, final boolean shallow) {
         this.resourceFiles = resourceFiles;
         somaticVcfDownload = new InputDownload(somaticCallerOutput.finalSomaticVcf());
         structuralVcfDownload = new InputDownload(structuralCallerOutput.filteredVcf());
@@ -53,6 +58,7 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
         svRecoveryVcfIndexDownload = new InputDownload(structuralCallerOutput.fullVcfIndex());
         amberOutputDownload = new InputDownload(amberOutput.outputDirectory());
         cobaltOutputDownload = new InputDownload(cobaltOutput.outputDirectory());
+        this.persistedDataset = persistedDataset;
         this.shallow = shallow;
     }
 
@@ -101,10 +107,21 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
             final ResultsDirectory resultsDirectory) {
         return PurpleOutput.builder()
                 .status(jobStatus)
+                .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .maybeOutputDirectory(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(), true))
                 .maybeSomaticVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(somaticVcf(metadata))))
                 .maybeStructuralVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(svVcf(metadata))))
-                .addReportComponents(new EntireOutputComponent(bucket, Folder.from(), NAMESPACE, resultsDirectory))
+                .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), NAMESPACE, resultsDirectory))
+                .addFurtherOperations(new AddDatatypeToFile(DataType.SOMATIC_VARIANTS_PURPLE,
+                                Folder.root(),
+                                namespace(),
+                                somaticVcf(metadata),
+                                metadata.barcode()),
+                        new AddDatatypeToFile(DataType.STRUCTURAL_VARIANTS_PURPLE,
+                                Folder.root(),
+                                namespace(),
+                                svVcf(metadata),
+                                metadata.barcode()))
                 .build();
     }
 
@@ -115,15 +132,17 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
 
     @Override
     public PurpleOutput persistedOutput(final SomaticRunMetadata metadata) {
+        String somaticVariantsPath = persistedDataset.file(metadata, DataType.SOMATIC_VARIANTS_PURPLE)
+                .orElse(PersistedLocations.blobForSet(metadata.set(), namespace(), somaticVcf(metadata)));
+        String svsPath = persistedDataset.file(metadata, DataType.STRUCTURAL_VARIANTS_PURPLE)
+                .orElse(PersistedLocations.blobForSet(metadata.set(), namespace(), svVcf(metadata)));
+        String outputDirectory = persistedDataset.directory(metadata, DataType.SOMATIC_VARIANTS_PURPLE)
+                .orElse(PersistedLocations.pathForSet(metadata.set(), namespace()));
         return PurpleOutput.builder()
                 .status(PipelineStatus.PERSISTED)
-                .maybeOutputDirectory(GoogleStorageLocation.of(metadata.bucket(),
-                        PersistedLocations.pathForSet(metadata.set(), namespace()),
-                        true))
-                .maybeSomaticVcf(GoogleStorageLocation.of(metadata.bucket(),
-                        PersistedLocations.blobForSet(metadata.set(), namespace(), somaticVcf(metadata))))
-                .maybeStructuralVcf(GoogleStorageLocation.of(metadata.bucket(),
-                        PersistedLocations.blobForSet(metadata.set(), namespace(), svVcf(metadata))))
+                .maybeOutputDirectory(GoogleStorageLocation.of(metadata.bucket(), outputDirectory, true))
+                .maybeSomaticVcf(GoogleStorageLocation.of(metadata.bucket(), somaticVariantsPath))
+                .maybeStructuralVcf(GoogleStorageLocation.of(metadata.bucket(), svsPath))
                 .build();
     }
 

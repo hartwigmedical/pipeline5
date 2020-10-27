@@ -3,11 +3,13 @@ package com.hartwig.pipeline.metadata;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.cloud.storage.Bucket;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.PipelineState;
+import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.jackson.ObjectMappers;
 import com.hartwig.pipeline.sbpapi.SbpIni;
@@ -149,7 +151,11 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
                             sbpRun,
                             sourceBucket,
                             sbpRestApi,
-                            pipelineState).andThen(new BlobCleanup()), sourceBucket).iterate(metadata);
+                            pipelineState.stageOutputs()
+                                    .stream()
+                                    .map(StageOutput::furtherOperations)
+                                    .flatMap(List::stream)
+                                    .collect(Collectors.toSet())).andThen(new BlobCleanup()), sourceBucket).iterate(metadata);
                 }
                 sbpRestApi.updateRunStatus(runIdAsString,
                         pipelineState.status() == PipelineStatus.SUCCESS ? successStatus() : FAILED,

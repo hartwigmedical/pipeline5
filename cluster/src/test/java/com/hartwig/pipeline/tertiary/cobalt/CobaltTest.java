@@ -5,7 +5,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Collections;
 import java.util.List;
 
+import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.metadata.AddDatatypeToFile;
+import com.hartwig.pipeline.metadata.ApiFileOperation;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
+import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
@@ -22,13 +26,13 @@ public class CobaltTest extends TertiaryStageTest<CobaltOutput> {
 
     @Override
     protected Stage<CobaltOutput, SomaticRunMetadata> createVictim() {
-        return new Cobalt(TestInputs.defaultPair(), TestInputs.HG19_RESOURCE_FILES);
+        return new Cobalt(TestInputs.defaultPair(), TestInputs.HG19_RESOURCE_FILES, persistedDataset);
     }
 
     @Override
     protected List<String> expectedCommands() {
         return Collections.singletonList(
-                "java -Xmx8G -cp /opt/tools/cobalt/1.7/cobalt.jar com.hartwig.hmftools.cobalt.CountBamLinesApplication -reference "
+                "java -Xmx8G -cp /opt/tools/cobalt/1.10/cobalt.jar com.hartwig.hmftools.cobalt.CountBamLinesApplication -reference "
                         + "reference -reference_bam /data/input/reference.bam -tumor tumor -tumor_bam /data/input/tumor.bam -output_dir "
                         + "/data/output -threads $(grep -c '^processor' /proc/cpuinfo) -gc_profile /opt/resources/gc/hg19/GC_profile.1000bp.cnp");
     }
@@ -43,5 +47,24 @@ public class CobaltTest extends TertiaryStageTest<CobaltOutput> {
     @Override
     protected void validatePersistedOutput(final CobaltOutput output) {
         assertThat(output.outputDirectory()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "set/cobalt", true));
+    }
+
+    @Override
+    protected void setupPersistedDataset() {
+        persistedDataset.addDir(DataType.READ_DEPTH_RATIO, "cobalt");
+    }
+
+    @Override
+    protected void validatePersistedOutputFromPersistedDataset(final CobaltOutput output) {
+        assertThat(output.outputDirectory()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "cobalt", true));
+    }
+
+    @Override
+    protected List<ApiFileOperation> expectedFurtherOperations() {
+        return List.of(new AddDatatypeToFile(DataType.READ_DEPTH_RATIO,
+                Folder.root(),
+                Cobalt.NAMESPACE,
+                "tumor.cobalt.ratio.tsv",
+                TestInputs.defaultSomaticRunMetadata().barcode()));
     }
 }

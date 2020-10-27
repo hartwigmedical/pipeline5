@@ -5,7 +5,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Collections;
 import java.util.List;
 
+import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.metadata.AddDatatypeToFile;
+import com.hartwig.pipeline.metadata.ApiFileOperation;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
+import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
@@ -22,7 +26,7 @@ public class AmberTest extends TertiaryStageTest<AmberOutput> {
 
     @Override
     protected Stage<AmberOutput, SomaticRunMetadata> createVictim() {
-        return new Amber(TestInputs.defaultPair(), TestInputs.HG19_RESOURCE_FILES);
+        return new Amber(TestInputs.defaultPair(), TestInputs.HG19_RESOURCE_FILES, persistedDataset);
     }
 
     @Override
@@ -44,5 +48,24 @@ public class AmberTest extends TertiaryStageTest<AmberOutput> {
     @Override
     protected void validatePersistedOutput(final AmberOutput output) {
         assertThat(output.outputDirectory()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "set/amber", true));
+    }
+
+    @Override
+    protected void setupPersistedDataset() {
+        persistedDataset.addDir(DataType.B_ALLELE_FREQUENCY, "amber");
+    }
+
+    @Override
+    protected void validatePersistedOutputFromPersistedDataset(final AmberOutput output) {
+        assertThat(output.outputDirectory()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "amber", true));
+    }
+
+    @Override
+    protected List<ApiFileOperation> expectedFurtherOperations() {
+        return List.of(new AddDatatypeToFile(DataType.B_ALLELE_FREQUENCY,
+                Folder.root(),
+                Amber.NAMESPACE,
+                "tumor.amber.baf.tsv",
+                TestInputs.defaultSomaticRunMetadata().barcode()));
     }
 }

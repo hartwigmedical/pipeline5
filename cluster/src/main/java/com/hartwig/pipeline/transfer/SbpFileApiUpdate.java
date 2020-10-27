@@ -4,13 +4,11 @@ import static java.lang.String.format;
 
 import java.io.File;
 import java.util.Base64;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
 
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
-import com.hartwig.pipeline.PipelineState;
 import com.hartwig.pipeline.metadata.ApiFileOperation;
 import com.hartwig.pipeline.report.PipelineResults;
 import com.hartwig.pipeline.sbpapi.AddFileApiResponse;
@@ -30,15 +28,15 @@ public class SbpFileApiUpdate implements Consumer<Blob> {
     private final SbpRun sbpRun;
     private final Bucket sourceBucket;
     private final SbpRestApi sbpApi;
-    private final Set<ApiFileOperation> fileOperations = new HashSet<>();
+    private final Set<ApiFileOperation> fileOperations;
 
     public SbpFileApiUpdate(final ContentTypeCorrection contentTypeCorrection, final SbpRun sbpRun, final Bucket sourceBucket,
-            final SbpRestApi sbpApi, final PipelineState pipelineState) {
+            final SbpRestApi sbpApi, final Set<ApiFileOperation> fileOperations) {
         this.contentTypeCorrection = contentTypeCorrection;
         this.sbpRun = sbpRun;
         this.sourceBucket = sourceBucket;
         this.sbpApi = sbpApi;
-        pipelineState.stageOutputs().forEach(stageOutput -> fileOperations.addAll(stageOutput.furtherOperations()));
+        this.fileOperations = fileOperations;
     }
 
     @Override
