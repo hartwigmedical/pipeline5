@@ -5,8 +5,6 @@ sudo apt-get -y update
 sudo apt-get -y upgrade
 sudo apt-get -y install dirmngr apt-transport-https ca-certificates software-properties-common gnupg2 perl-modules make 
 sudo apt-get -y install openjdk-8-jdk libcurl4-gnutls-dev libxml2-dev libssl-dev less libgd-dev cpanminus parallel pigz
-sudo apt-get -y install time libbz2-dev liblzma-dev libz-dev libcurl4-openssl-dev # gridsstools
-sudo apt-get -y install python3-h5py # RepeatMasker 
 sudo apt-get -y install mdadm --no-install-recommends
 sudo apt-key adv --keyserver keys.gnupg.net --recv-key 'E19F5F87128899B192B1A2C2AD5F960A256A04AF'
 sudo add-apt-repository 'deb https://cloud.r-project.org/bin/linux/debian stretch-cran35/'
@@ -26,9 +24,6 @@ sudo tar xvf /opt/tools/gridss/2.5.2/scripts.tar -C /opt/tools/gridss/2.5.2/
 sudo tar xvf /opt/tools/gridss/2.7.2/scripts.tar -C /opt/tools/gridss/2.7.2/
 sudo tar xvf /opt/tools/gridss/2.8.3/scripts.tar -C /opt/tools/gridss/2.8.3/
 sudo tar xvf /opt/tools/gridss/2.9.3/scripts.tar -C /opt/tools/gridss/2.9.3/
-sudo tar xvf /opt/tools/gridss/2.10.0/gridss-2.10.0.tar.gz -C /opt/tools/gridss/2.10.0/ --skip-old-files
-sudo tar xvf /opt/tools/gridss/2.10.1/gridss-2.10.1.tar.gz -C /opt/tools/gridss/2.10.1/ --skip-old-files
-sudo tar xvf /opt/tools/repeatmasker/4.1.1/repeatmasker.tar -C /opt/tools/repeatmasker/4.1.1/
 
 # This guy is a little different from the others in that it extracts overtop the system-managed R libraries.
 sudo tar xvf /opt/tools/R/rlibs.tar -C /
@@ -48,15 +43,6 @@ sudo chmod a+x /opt/tools/samtools/1.10/samtools
 sudo chmod a+x /opt/tools/bcl2fastq/2.20.0.422/bcl2fastq
 sudo chmod a+x /opt/tools/star/2.7.3a/STAR
 sudo cp -r /opt/tools/bcl2fastq/2.20.0.422/share /opt/tools/bcl2fastq/
-sudo ln -s /opt/tools/gridss/2.10.0/gridss-2.10.0-gridss-jar-with-dependencies.jar /opt/tools/gridss/2.10.0/gridss.jar
-sudo ln -s /opt/tools/gridss/2.10.1/gridss-2.10.1-gridss-jar-with-dependencies.jar /opt/tools/gridss/2.10.1/gridss.jar
-sudo chmod a+x /opt/tools/gridss/2.10.0/*.sh /opt/tools/gridss/2.10.0/gridsstools /opt/tools/gridss/2.10.0/gridss_somatic_filter.R
-sudo chmod a+x /opt/tools/gridss/2.10.1/*.sh /opt/tools/gridss/2.10.0/gridsstools /opt/tools/gridss/2.10.0/gridss_somatic_filter.R
-sudo chmod a+x /opt/tools/trf/4.0.9/trf
-sudo chmod a+x /opt/tools/rmblast/2.10.0/*
-sudo chmod a+rx /opt/tools/kraken2/2.0.9/*
-sudo chmod a+rx /opt/tools/kraken2/2.1.0/*
-sudo chmod a+x /opt/tools/repeatmasker/4.1.1/* /opt/tools/repeatmasker/4.1.1/util/*
 
 sudo cpanm install Clone
 sudo cpanm install Config::General
@@ -74,4 +60,3 @@ sudo cpanm install SVG
 sudo cpanm install Set::IntSpan
 sudo cpanm install Statistics::Basic
 sudo cpanm install Text::Format
-sudo cpanm install Text::Soundex

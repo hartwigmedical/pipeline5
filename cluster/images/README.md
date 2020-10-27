@@ -42,11 +42,3 @@ The goals are:
 * GCP will automatically resize the filesystem of a created instance to the size requested at *VM* creation time, and this does not 
     depend on the size of the image its filesystem is being initialised from. This works at least for the images based on the Debian 
     9 series that we're using and maybe others. 
-
-## Build
-
-Some bioinformatics tools that do not have up-to-date OS packages are built from source then placed in the `gs://common-tools`.
-These tools need to be built on the same OS version as the cluster image.
-This is most easily achieved by manually creating a cluster image instance, building from there, then copying the resultant `/opt/tools` directories to `gs://common-tools`.
-Most of these build scripts are trivial, but some are more involved and require additional configuration.
-These non-trivial build scripts are found in the `build` subdirectory.
