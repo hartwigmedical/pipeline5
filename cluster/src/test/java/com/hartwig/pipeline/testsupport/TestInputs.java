@@ -133,6 +133,9 @@ public class TestInputs {
         return FlagstatOutput.builder().status(PipelineStatus.SUCCESS).build();
     }
 
+    public static FlagstatOutput referenceFlagstatOutput() { return flagstatOutput(REFERENCE_SAMPLE); }
+    public static FlagstatOutput tumorFlagstatOutput() { return flagstatOutput(TUMOR_SAMPLE); }
+
     public static CramOutput cramOutput() {
         return CramOutput.builder().status(PipelineStatus.SUCCESS).build();
     }

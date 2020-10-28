@@ -49,6 +49,8 @@ public class SomaticPipeline {
     private final StageRunner<SomaticRunMetadata> stageRunner;
     private final BlockingQueue<BamMetricsOutput> referenceBamMetricsOutputQueue;
     private final BlockingQueue<BamMetricsOutput> tumorBamMetricsOutputQueue;
+    private final BlockingQueue<FlagstatOutput> referenceFlagstatOutputQueue;
+    private final BlockingQueue<FlagstatOutput> tumorFlagstatOutputQueue;
     private final BlockingQueue<GermlineCallerOutput> germlineCallerOutputStorage;
     private final SomaticMetadataApi setMetadataApi;
     private final PipelineResults pipelineResults;
@@ -115,9 +117,11 @@ public class SomaticPipeline {
                         if (state.shouldProceed()) {
                             BamMetricsOutput tumorMetrics = pollOrThrow(tumorBamMetricsOutputQueue, "tumor metrics");
                             BamMetricsOutput referenceMetrics = pollOrThrow(referenceBamMetricsOutputQueue, "reference metrics");
+                            FlagstatOutput tumorFlagstat = pollOrThrow(tumorFlagstatOutputQueue, "tumor flagstat");
+                            FlagstatOutput referenceFlagstat = pollOrThrow(referenceFlagstatOutputQueue, "reference flagstat");
 
                             Future<HealthCheckOutput> healthCheckOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
-                                    new HealthChecker(referenceMetrics, tumorMetrics, amberOutput, purpleOutput)));
+                                    new HealthChecker(referenceMetrics, tumorMetrics, referenceFlagstat, tumorFlagstat, purpleOutput)));
                             Future<LinxOutput> linxOutputFuture =
                                     executorService.submit(() -> stageRunner.run(metadata, new Linx(purpleOutput, resourceFiles)));
                             Future<BachelorOutput> bachelorOutputFuture = executorService.submit(() -> stageRunner.run(metadata,

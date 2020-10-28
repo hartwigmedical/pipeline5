@@ -33,7 +33,8 @@ public class HealthCheckerTest extends TertiaryStageTest<HealthCheckOutput> {
     protected Stage<HealthCheckOutput, SomaticRunMetadata> createVictim() {
         return new HealthChecker(TestInputs.referenceMetricsOutput(),
                 TestInputs.tumorMetricsOutput(),
-                TestInputs.amberOutput(),
+                TestInputs.referenceFlagstatOutput(),
+                TestInputs.tumorFlagstatOutput(),
                 TestInputs.purpleOutput());
     }
 
