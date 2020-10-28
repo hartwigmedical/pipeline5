@@ -59,6 +59,8 @@ public class Flagstat implements Stage<FlagstatOutput, SingleSampleRunMetadata> 
         String outputFile = FlagstatOutput.outputFile(metadata.sampleName());
         return FlagstatOutput.builder()
                 .status(status)
+                .sample(metadata.sampleName())
+                .maybeFlagstatOutputFile(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(outputFile)))
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new RunLogComponent(bucket, Flagstat.NAMESPACE, Folder.from(metadata), resultsDirectory))
                 .addReportComponents(new StartupScriptComponent(bucket, NAMESPACE, Folder.from(metadata)))
@@ -73,7 +75,7 @@ public class Flagstat implements Stage<FlagstatOutput, SingleSampleRunMetadata> 
 
     @Override
     public FlagstatOutput persistedOutput(final SingleSampleRunMetadata metadata) {
-        return FlagstatOutput.builder().status(PipelineStatus.PERSISTED).build();
+        return FlagstatOutput.builder().status(PipelineStatus.PERSISTED).sample(metadata.name()).build();
     }
 
     @Override

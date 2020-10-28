@@ -56,6 +56,7 @@ public class SingleSamplePipelineTest {
     private StageRunner<SingleSampleRunMetadata> stageRunner;
     private PipelineResults pipelineResults;
     private BlockingQueue<BamMetricsOutput> metricsOutputQueue = new ArrayBlockingQueue<>(1);
+    private BlockingQueue<FlagstatOutput> flagstatOutputQueue = new ArrayBlockingQueue<>(1);
     private BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue = new ArrayBlockingQueue<>(1);
 
     @Before
@@ -81,6 +82,7 @@ public class SingleSamplePipelineTest {
                 ARGUMENTS,
                 new NoopPersistedDataset(),
                 metricsOutputQueue,
+                flagstatOutputQueue,
                 germlineCallerOutputQueue);
     }
 
@@ -96,7 +98,7 @@ public class SingleSamplePipelineTest {
     @Test
     public void returnsFailedPipelineRunWhenFlagstatStageFail() throws Exception {
         when(aligner.run(referenceRunMetadata())).thenReturn(referenceAlignmentOutput());
-        FlagstatOutput flagstatOutput = FlagstatOutput.builder().status(PipelineStatus.FAILED).build();
+        FlagstatOutput flagstatOutput = FlagstatOutput.builder().sample(referenceSample()).status(PipelineStatus.FAILED).build();
         when(stageRunner.run(eq(referenceRunMetadata()), any())).thenReturn(referenceMetricsOutput())
                 .thenReturn(snpGenotypeOutput())
                 .thenReturn(flagstatOutput)
@@ -200,6 +202,7 @@ public class SingleSamplePipelineTest {
                 flagstatOutput(),
                 cramOutput());
         assertThat(metricsOutputQueue.poll()).isNotNull();
+        assertThat(flagstatOutputQueue.poll()).isNotNull();
         assertThat(germlineCallerOutputQueue.poll()).isNotNull();
     }
 

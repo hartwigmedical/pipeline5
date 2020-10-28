@@ -9,10 +9,12 @@ import static com.hartwig.pipeline.testsupport.TestInputs.germlineCallerOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.healthCheckerOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.linxOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.purpleOutput;
+import static com.hartwig.pipeline.testsupport.TestInputs.referenceFlagstatOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.referenceMetricsOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.sageOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.structuralCallerOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.structuralCallerPostProcessOutput;
+import static com.hartwig.pipeline.testsupport.TestInputs.tumorFlagstatOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.tumorMetricsOutput;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,6 +37,7 @@ import com.hartwig.pipeline.calling.somatic.SomaticCallerOutput;
 import com.hartwig.pipeline.calling.structural.StructuralCaller;
 import com.hartwig.pipeline.calling.structural.StructuralCallerPostProcessOutput;
 import com.hartwig.pipeline.execution.PipelineStatus;
+import com.hartwig.pipeline.flagstat.FlagstatOutput;
 import com.hartwig.pipeline.metadata.SomaticMetadataApi;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
@@ -58,6 +61,8 @@ public class SomaticPipelineTest {
     private StageRunner<SomaticRunMetadata> stageRunner;
     private BlockingQueue<BamMetricsOutput> referenceMetricsOutputQueue = new ArrayBlockingQueue<>(1);
     private BlockingQueue<BamMetricsOutput> tumorMetricsOutputQueue = new ArrayBlockingQueue<>(1);
+    private BlockingQueue<FlagstatOutput> referenceFlagstatOutputQueue = new ArrayBlockingQueue<>(1);
+    private BlockingQueue<FlagstatOutput> tumorFlagstatOutputQueue = new ArrayBlockingQueue<>(1);
     private java.util.concurrent.BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue = new ArrayBlockingQueue<>(1);
 
     @SuppressWarnings("unchecked")
@@ -75,6 +80,8 @@ public class SomaticPipelineTest {
                 stageRunner,
                 referenceMetricsOutputQueue,
                 tumorMetricsOutputQueue,
+                referenceFlagstatOutputQueue,
+                tumorFlagstatOutputQueue,
                 germlineCallerOutputQueue,
                 setMetadataApi,
                 pipelineResults,
@@ -101,6 +108,7 @@ public class SomaticPipelineTest {
     @Test
     public void doesNotRunPurpleIfAnyCallersFail() {
         bothMetricsAvailable();
+        bothFlagstatsAvailable();
         SomaticCallerOutput failSomatic = SomaticCallerOutput.builder(SageCaller.NAMESPACE).status(PipelineStatus.FAILED).build();
         when(stageRunner.run(eq(defaultSomaticRunMetadata()), any())).thenReturn(amberOutput())
                 .thenReturn(cobaltOutput())
@@ -114,6 +122,7 @@ public class SomaticPipelineTest {
     @Test
     public void doesNotRunPurpleWhenGripssFails() {
         bothMetricsAvailable();
+        bothFlagstatsAvailable();
         StructuralCallerPostProcessOutput failGripss = StructuralCallerPostProcessOutput.builder().status(PipelineStatus.FAILED).build();
         when(stageRunner.run(eq(defaultSomaticRunMetadata()), any())).thenReturn(amberOutput())
                 .thenReturn(cobaltOutput())
@@ -132,6 +141,7 @@ public class SomaticPipelineTest {
     @Test
     public void doesNotRunHealthCheckWhenPurpleFails() {
         bothMetricsAvailable();
+        bothFlagstatsAvailable();
         PurpleOutput failPurple = PurpleOutput.builder().status(PipelineStatus.FAILED).build();
         when(stageRunner.run(eq(defaultSomaticRunMetadata()), any())).thenReturn(amberOutput())
                 .thenReturn(cobaltOutput())
@@ -152,6 +162,7 @@ public class SomaticPipelineTest {
     @Test
     public void failsRunOnQcFailure() {
         bothMetricsAvailable();
+        bothFlagstatsAvailable();
         germlineCallingAvailable();
         when(stageRunner.run(eq(defaultSomaticRunMetadata()), any())).thenReturn(amberOutput())
                 .thenReturn(cobaltOutput())
@@ -179,6 +190,7 @@ public class SomaticPipelineTest {
 
     private void successfulRun() {
         bothMetricsAvailable();
+        bothFlagstatsAvailable();
         germlineCallingAvailable();
         when(stageRunner.run(eq(defaultSomaticRunMetadata()), any())).thenReturn(amberOutput())
                 .thenReturn(cobaltOutput())
@@ -199,7 +211,15 @@ public class SomaticPipelineTest {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+    }
 
+    private void bothFlagstatsAvailable() {
+        try {
+            tumorFlagstatOutputQueue.put(referenceFlagstatOutput());
+            referenceFlagstatOutputQueue.put(tumorFlagstatOutput());
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void germlineCallingAvailable() {
