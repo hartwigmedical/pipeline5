@@ -67,7 +67,8 @@ public abstract class AlignerProvider {
                     arguments,
                     arguments.biopsy().<PersistedDataset>map(b -> new ApiPersistedDataset(SbpRestApi.newInstance(arguments.sbpApiUrl()),
                             ObjectMappers.get(),
-                            b)).orElse((new NoopPersistedDataset())));
+                            b,
+                            arguments.project())).orElse((new NoopPersistedDataset())));
         }
         if (arguments.sbpApiRunId().isPresent()) {
             return new SbpAlignerProvider(credentials, storage, arguments);

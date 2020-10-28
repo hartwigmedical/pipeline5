@@ -76,7 +76,8 @@ public class PipelineMain {
             PersistedDataset persistedDataset =
                     arguments.biopsy().<PersistedDataset>map(b -> new ApiPersistedDataset(SbpRestApi.newInstance(arguments.sbpApiUrl()),
                             ObjectMappers.get(),
-                            b)).orElse(new NoopPersistedDataset());
+                            b,
+                            arguments.project())).orElse(new NoopPersistedDataset());
             PipelineState state = new FullPipeline(singleSamplePipeline(arguments,
                     credentials,
                     storage,

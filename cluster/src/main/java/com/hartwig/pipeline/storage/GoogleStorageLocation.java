@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.storage;
 
+import java.util.Optional;
+
 import com.google.cloud.storage.BlobId;
 
 import org.immutables.value.Value;
@@ -19,6 +21,8 @@ public interface GoogleStorageLocation {
         return false;
     }
 
+    Optional<String> billingProject();
+
     default BlobId asBlobId() {
         String[] splitBucket = bucket().split("/");
         String bucketNoNamespace = splitBucket[0];
@@ -26,10 +30,14 @@ public interface GoogleStorageLocation {
         return BlobId.of(bucketNoNamespace, namespace + "/" + path());
     }
 
-    static GoogleStorageLocation from(final String gcsPath) {
+    static GoogleStorageLocation from(final String gcsPath, final String billingProject) {
         String removePrefix = gcsPath.replace("gs://", "");
         String[] split = removePrefix.split("/");
-        return GoogleStorageLocation.of(split[0], removePrefix.substring(split[0].length() + 1));
+        return ImmutableGoogleStorageLocation.builder()
+                .bucket(split[0])
+                .path(removePrefix.substring(split[0].length() + 1))
+                .billingProject(billingProject)
+                .build();
     }
 
     static GoogleStorageLocation of(String bucket, String path) {

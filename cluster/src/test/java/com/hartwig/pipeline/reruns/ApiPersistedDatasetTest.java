@@ -17,14 +17,13 @@ public class ApiPersistedDatasetTest {
 
     private static final String BIOPSY = "biopsy";
     public static final String SAMPLE = "CPCT12345678R";
-    private SbpRestApi restApi;
     private ApiPersistedDataset victim;
 
     @Before
     public void setUp() throws Exception {
-        restApi = mock(SbpRestApi.class);
+        final SbpRestApi restApi = mock(SbpRestApi.class);
         when(restApi.getDataset(BIOPSY)).thenReturn(TestJson.get("get_dataset"));
-        victim = new ApiPersistedDataset(restApi, ObjectMappers.get(), BIOPSY);
+        victim = new ApiPersistedDataset(restApi, ObjectMappers.get(), BIOPSY, "project");
     }
 
     @Test

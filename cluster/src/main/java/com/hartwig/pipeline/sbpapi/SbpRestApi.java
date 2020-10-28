@@ -4,6 +4,7 @@ import static java.lang.String.format;
 import static java.lang.String.valueOf;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -85,16 +86,30 @@ public class SbpRestApi {
         return returnOrThrow(response);
     }
 
-    public String getSamplesByBiopsy(final String biopsyName) {
+    public List<SbpSample> getSamplesByBiopsy(final String biopsyName) {
+        List<SbpSample> samples = null;
         try {
-            Map<String, String> biopsy = ObjectMappers.get().<List<Map<String, String>>>readValue(returnOrThrow(api().path("biopsies")
-                    .queryParam("name", biopsyName)
-                    .request()
-                    .get()), new TypeReference<List<Map<String, String>>>() {
-            }).stream()
-                    .findFirst()
-                    .orElseThrow(() -> new IllegalArgumentException(String.format("No biopsies were found for name [%s].", biopsyName)));
-            return returnOrThrow(sample().queryParam("biopsy_id", biopsy.get("id")).request().buildGet().invoke());
+            samples = ObjectMappers.get()
+                    .readValue(returnOrThrow(sample().queryParam("biopsy", biopsyName).request().buildGet().invoke()),
+                            new TypeReference<List<SbpSample>>() {
+                            });
+            return samples.stream().<List<SbpSet>>map(s1 -> readValue(getSet(s1.id()), new TypeReference<>() {
+            })).flatMap(Collection::stream)
+                    .map(s -> Map.entry(s, readValue(getSample(s.id()), new TypeReference<List<SbpSample>>() {
+                    })))
+                    .filter(e -> e.getValue().size() == 2)
+                    .min((e1, e2) -> e2.getKey().createTime().compareTo(e1.getKey().createTime()))
+                    .map(Map.Entry::getValue)
+                    .orElseThrow(() -> new IllegalArgumentException("No set found for biopsy [%s] with both a "
+                            + "tumor and ref sample. Unable to rerun pipeline with this sample"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public <T> T readValue(final String json, final TypeReference<T> valueTypeRef) {
+        try {
+            return ObjectMappers.get().readValue(json, valueTypeRef);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

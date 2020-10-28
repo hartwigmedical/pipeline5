@@ -15,8 +15,11 @@ import com.hartwig.pipeline.storage.GoogleStorageLocation;
 public class ApiPersistedDataset implements PersistedDataset {
 
     private final Map<String, Map<String, Map<String, String>>> datasetMap;
+    private final String billingProject;
 
-    public ApiPersistedDataset(final SbpRestApi restApi, final ObjectMapper objectMapper, final String biopsyName) {
+    public ApiPersistedDataset(final SbpRestApi restApi, final ObjectMapper objectMapper, final String biopsyName,
+            final String billingProject) {
+        this.billingProject = billingProject;
         try {
             String dataset = restApi.getDataset(biopsyName);
             this.datasetMap = objectMapper.readValue(dataset, new TypeReference<Map<String, Map<String, Map<String, String>>>>() {
@@ -30,6 +33,6 @@ public class ApiPersistedDataset implements PersistedDataset {
     public Optional<GoogleStorageLocation> path(final String sample, final DataType dataType) {
         return ofNullable(datasetMap.get(dataType.toString().toLowerCase())).map(d -> d.get(sample))
                 .map(d -> d.get("path"))
-                .map(GoogleStorageLocation::from);
+                .map(p -> GoogleStorageLocation.from(p, billingProject));
     }
 }

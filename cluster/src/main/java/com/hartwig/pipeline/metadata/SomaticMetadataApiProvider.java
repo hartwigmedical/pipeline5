@@ -5,7 +5,6 @@ import java.util.function.Supplier;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.sample.JsonSampleSource;
-import com.hartwig.pipeline.jackson.ObjectMappers;
 import com.hartwig.pipeline.sbpapi.SbpRestApi;
 import com.hartwig.pipeline.transfer.google.GoogleArchiver;
 
@@ -40,7 +39,7 @@ public class SomaticMetadataApiProvider {
     }
 
     public SomaticMetadataApi biopsyBasedRerun(final String biopsyName) {
-        return new BiopsyMetadataApi(SbpRestApi.newInstance(arguments.sbpApiUrl()), ObjectMappers.get(), biopsyName, arguments);
+        return new BiopsyMetadataApi(SbpRestApi.newInstance(arguments.sbpApiUrl()), biopsyName, arguments);
     }
 
     public SomaticMetadataApi productionStyleRun(final Integer setId) {

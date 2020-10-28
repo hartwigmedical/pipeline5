@@ -4,8 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.Collections;
+
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.jackson.ObjectMappers;
 import com.hartwig.pipeline.sbpapi.SbpRestApi;
 
 import org.junit.Before;
@@ -20,30 +21,30 @@ public class BiopsyMetadataApiTest {
     @Before
     public void setUp() throws Exception {
         restApi = mock(SbpRestApi.class);
-        victim = new BiopsyMetadataApi(restApi, ObjectMappers.get(), BIOPSY, Arguments.testDefaults());
+        victim = new BiopsyMetadataApi(restApi, BIOPSY, Arguments.testDefaults());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void noSamplesForBiopsy() {
-        when(restApi.getSamplesByBiopsy(BIOPSY)).thenReturn("[]");
+        when(restApi.getSamplesByBiopsy(BIOPSY)).thenReturn(Collections.emptyList());
         victim.get();
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void noTumorForBiopsy() {
-        when(restApi.getSamplesByBiopsy(BIOPSY)).thenReturn(TestJson.get("get_samples_by_biopsy_no_tumor"));
+        when(restApi.getSamplesByBiopsy(BIOPSY)).thenReturn(Collections.emptyList());
         victim.get();
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void noReferenceForBiopsy() {
-        when(restApi.getSamplesByBiopsy(BIOPSY)).thenReturn(TestJson.get("get_samples_by_biopsy_no_reference"));
+        when(restApi.getSamplesByBiopsy(BIOPSY)).thenReturn(Collections.emptyList());
         victim.get();
     }
 
     @Test
     public void returnsMetadataForBiopsySamples() {
-        when(restApi.getSamplesByBiopsy(BIOPSY)).thenReturn(TestJson.get("get_samples_by_biopsy"));
+        when(restApi.getSamplesByBiopsy(BIOPSY)).thenReturn(Collections.emptyList());
         SomaticRunMetadata somaticRunMetadata = victim.get();
         assertThat(somaticRunMetadata.bucket()).isEqualTo(Arguments.testDefaults().outputBucket());
         assertThat(somaticRunMetadata.name()).isEqualTo("FR11111111-FR22222222");
