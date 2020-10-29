@@ -3,10 +3,10 @@ package com.hartwig.batch.operations;
 import static java.lang.String.format;
 
 import com.hartwig.batch.BatchOperation;
+import com.hartwig.batch.OperationDescriptor;
 import com.hartwig.batch.input.InputBundle;
 import com.hartwig.batch.input.InputFileDescriptor;
 import com.hartwig.pipeline.ResultsDirectory;
-import com.hartwig.pipeline.execution.vm.Bash;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.OutputUpload;
@@ -15,9 +15,6 @@ import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.resource.Hg19ResourceFiles;
-import com.hartwig.pipeline.resource.RefGenomeVersion;
-import com.hartwig.pipeline.resource.ResourceFiles;
-import com.hartwig.pipeline.resource.ResourceFilesFactory;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
@@ -27,11 +24,6 @@ public class BachelorCohort implements BatchOperation {
 
     private static final String CLINVAR_FILTERS = "wide_germline_carriership_clinvar_filters.csv";
     private static final String BACHELOR_XML_CONFIG = "wide_germline_carriership_program.xml";
-
-    private static final String REF_GENOME_DIR = "gs://common-resources/reference_genome/hg19";
-    private static final String REF_GENOME = "Homo_sapiens.GRCh37.GATK.illumina.fasta";
-    private static final String REF_GENOME_INDEX = "Homo_sapiens.GRCh37.GATK.illumina.fasta.fai";
-    private static final String REF_GENOME_DICT = "Homo_sapiens.GRCh37.GATK.illumina.dict";
 
     private static final String BACHELOR_JAR = "/opt/tools/bachelor/1.12/bachelor.jar";
 

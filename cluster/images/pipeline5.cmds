@@ -24,6 +24,7 @@ sudo tar xvf /opt/tools/gridss/2.5.2/scripts.tar -C /opt/tools/gridss/2.5.2/
 sudo tar xvf /opt/tools/gridss/2.7.2/scripts.tar -C /opt/tools/gridss/2.7.2/
 sudo tar xvf /opt/tools/gridss/2.8.3/scripts.tar -C /opt/tools/gridss/2.8.3/
 sudo tar xvf /opt/tools/gridss/2.9.3/scripts.tar -C /opt/tools/gridss/2.9.3/
+sudo tar xvf /opt/tools/gridss/2.9.4/scripts.tar -C /opt/tools/gridss/2.9.4/
 
 # This guy is a little different from the others in that it extracts overtop the system-managed R libraries.
 sudo tar xvf /opt/tools/R/rlibs.tar -C /
@@ -38,6 +39,7 @@ sudo chmod a+x /opt/tools/chord/2.00_1.14/extractSigPredictHRD.R
 sudo chmod a+x /opt/tools/gridss/2.7.2/gridss.sh
 sudo chmod a+x /opt/tools/gridss/2.8.3/gridss.sh
 sudo chmod a+x /opt/tools/gridss/2.9.3/gridss.sh
+sudo chmod a+x /opt/tools/gridss/2.9.4/gridss.sh
 sudo chmod a+x /opt/tools/samtools/1.9/samtools
 sudo chmod a+x /opt/tools/samtools/1.10/samtools
 sudo chmod a+x /opt/tools/bcl2fastq/2.20.0.422/bcl2fastq
