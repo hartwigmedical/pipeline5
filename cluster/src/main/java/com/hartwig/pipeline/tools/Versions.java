@@ -22,7 +22,7 @@ public interface Versions {
     String HEALTH_CHECKER = "3.2";
     String PURPLE = "2.51";
     String CIRCOS = "0.69.6";
-    String GRIDSS = "2.10.1";
+    String GRIDSS = "2.9.4";
     String GRIPSS = "1.8";
     String LINX = "1.11";
     String BACHELOR = "1.12";
