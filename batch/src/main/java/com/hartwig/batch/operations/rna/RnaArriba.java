@@ -96,8 +96,8 @@ public class RnaArriba implements BatchOperation
         startupScript.addCommand(() -> format("gsutil -m cp %s/* %s/%s/arriba/", VmDirectories.OUTPUT, RNA_COHORT_LOCATION, sampleId));
 
         return ImmutableVirtualMachineJobDefinition.builder().name("rna-arriba").startupCommand(startupScript)
-                .namespacedResults(ResultsDirectory.defaultDirectory()).workingDiskSpaceGb(MAX_EXPECTED_BAM_SIZE_GB)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(12, 36)).build();
+                .namespacedResults(ResultsDirectory.defaultDirectory()).workingDiskSpaceGb(100)
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(12, 64)).build();
     }
 
     @Override
