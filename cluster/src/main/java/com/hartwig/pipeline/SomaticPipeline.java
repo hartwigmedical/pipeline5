@@ -16,6 +16,7 @@ import com.hartwig.pipeline.calling.structural.StructuralCaller;
 import com.hartwig.pipeline.calling.structural.StructuralCallerOutput;
 import com.hartwig.pipeline.calling.structural.StructuralCallerPostProcess;
 import com.hartwig.pipeline.calling.structural.StructuralCallerPostProcessOutput;
+import com.hartwig.pipeline.flagstat.FlagstatOutput;
 import com.hartwig.pipeline.metadata.SomaticMetadataApi;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
@@ -49,6 +50,8 @@ public class SomaticPipeline {
     private final StageRunner<SomaticRunMetadata> stageRunner;
     private final BlockingQueue<BamMetricsOutput> referenceBamMetricsOutputQueue;
     private final BlockingQueue<BamMetricsOutput> tumorBamMetricsOutputQueue;
+    private final BlockingQueue<FlagstatOutput> referenceFlagstatOutputQueue;
+    private final BlockingQueue<FlagstatOutput> tumorFlagstatOutputQueue;
     private final BlockingQueue<GermlineCallerOutput> germlineCallerOutputStorage;
     private final SomaticMetadataApi setMetadataApi;
     private final PipelineResults pipelineResults;
@@ -58,12 +61,15 @@ public class SomaticPipeline {
     SomaticPipeline(final Arguments arguments, final StageRunner<SomaticRunMetadata> stageRunner,
             final BlockingQueue<BamMetricsOutput> referenceBamMetricsOutputQueue,
             final BlockingQueue<BamMetricsOutput> tumorBamMetricsOutputQueue,
+            final BlockingQueue<FlagstatOutput> referenceFlagstatOutputQueue, final BlockingQueue<FlagstatOutput> tumorFlagstatOutputQueue,
             final BlockingQueue<GermlineCallerOutput> germlineCallerOutputStorageQueue, final SomaticMetadataApi setMetadataApi,
             final PipelineResults pipelineResults, final ExecutorService executorService, final PersistedDataset persistedDataset) {
         this.arguments = arguments;
         this.stageRunner = stageRunner;
         this.referenceBamMetricsOutputQueue = referenceBamMetricsOutputQueue;
         this.tumorBamMetricsOutputQueue = tumorBamMetricsOutputQueue;
+        this.referenceFlagstatOutputQueue = referenceFlagstatOutputQueue;
+        this.tumorFlagstatOutputQueue = tumorFlagstatOutputQueue;
         this.germlineCallerOutputStorage = germlineCallerOutputStorageQueue;
         this.setMetadataApi = setMetadataApi;
         this.pipelineResults = pipelineResults;
@@ -115,9 +121,11 @@ public class SomaticPipeline {
                         if (state.shouldProceed()) {
                             BamMetricsOutput tumorMetrics = pollOrThrow(tumorBamMetricsOutputQueue, "tumor metrics");
                             BamMetricsOutput referenceMetrics = pollOrThrow(referenceBamMetricsOutputQueue, "reference metrics");
+                            FlagstatOutput tumorFlagstat = pollOrThrow(tumorFlagstatOutputQueue, "tumor flagstat");
+                            FlagstatOutput referenceFlagstat = pollOrThrow(referenceFlagstatOutputQueue, "reference flagstat");
 
                             Future<HealthCheckOutput> healthCheckOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
-                                    new HealthChecker(referenceMetrics, tumorMetrics, amberOutput, purpleOutput)));
+                                    new HealthChecker(referenceMetrics, tumorMetrics, referenceFlagstat, tumorFlagstat, purpleOutput)));
                             Future<LinxOutput> linxOutputFuture =
                                     executorService.submit(() -> stageRunner.run(metadata, new Linx(purpleOutput, resourceFiles)));
                             Future<BachelorOutput> bachelorOutputFuture = executorService.submit(() -> stageRunner.run(metadata,

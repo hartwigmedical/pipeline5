@@ -25,6 +25,7 @@ import com.google.api.services.compute.model.NetworkInterface;
 import com.google.api.services.compute.model.Operation;
 import com.google.api.services.compute.model.Scheduling;
 import com.google.api.services.compute.model.ServiceAccount;
+import com.google.api.services.compute.model.Tags;
 import com.google.api.services.compute.model.Zone;
 import com.google.api.services.serviceusage.v1beta1.ServiceUsage;
 import com.google.auth.http.HttpCredentialsAdapter;
@@ -69,13 +70,22 @@ public class GoogleComputeEngine implements ComputeEngine {
     }
 
     public static ComputeEngine from(final CommonArguments arguments, final GoogleCredentials credentials) throws Exception {
+        return from(arguments, credentials, true);
+    }
+
+    public static ComputeEngine from(final CommonArguments arguments, final GoogleCredentials credentials, final boolean constrainQuotas)
+            throws Exception {
         Compute compute = initCompute(credentials);
-        return new QuotaConstrainedComputeEngine(new GoogleComputeEngine(arguments,
+        GoogleComputeEngine engine = new GoogleComputeEngine(arguments,
                 compute,
                 Collections::shuffle,
                 new InstanceLifecycleManager(arguments, compute),
-                new BucketCompletionWatcher()), initServiceUseage(credentials), arguments.region(), arguments.project(),
-                0.6);
+                new BucketCompletionWatcher());
+        return constrainQuotas ? new QuotaConstrainedComputeEngine(engine,
+                initServiceUseage(credentials),
+                arguments.region(),
+                arguments.project(),
+                0.6) : engine;
     }
 
     public PipelineStatus submit(final RuntimeBucket bucket, final VirtualMachineJobDefinition jobDefinition) {
@@ -107,6 +117,7 @@ public class GoogleComputeEngine implements ComputeEngine {
                 Instance instance = lifecycleManager.newInstance();
                 instance.setName(vmName);
                 instance.setZone(currentZone.getName());
+                instance.setTags(new Tags().setItems(arguments.tags()));
                 if (arguments.usePreemptibleVms()) {
                     instance.setScheduling(new Scheduling().setPreemptible(true));
                 }
@@ -201,10 +212,19 @@ public class GoogleComputeEngine implements ComputeEngine {
 
     private void addNetworkInterface(Instance instance, String projectName) {
         NetworkInterface network = new NetworkInterface();
-        network.setNetwork(format("%s/global/networks/%s", apiBaseUrl(projectName), arguments.network()));
-        network.setSubnetwork(format("%s/regions/%s/subnetworks/%s", apiBaseUrl(projectName), arguments.region(), arguments.network()));
+        network.setNetwork(isUrl(arguments.network())
+                ? arguments.network()
+                : format("projects/%s/global/networks/%s", projectName, arguments.network()));
+        String subnet = arguments.subnet().orElse(arguments.network());
+        network.setSubnetwork(isUrl(subnet)
+                ? subnet
+                : format("projects/%s/regions/%s/subnetworks/%s", projectName, arguments.region(), subnet));
         network.set("no-address", "true");
         instance.setNetworkInterfaces(singletonList(network));
+    }
+
+    private boolean isUrl(final String argument) {
+        return argument.startsWith("projects");
     }
 
     private Image attachDisks(Compute compute, Instance instance, VirtualMachineJobDefinition jobDefinition, String projectName,

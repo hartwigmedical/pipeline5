@@ -42,12 +42,13 @@ public class SingleSamplePipeline {
     private final Arguments arguments;
     private final PersistedDataset persistedDataset;
     private final BlockingQueue<BamMetricsOutput> metricsOutputQueue;
+    private final BlockingQueue<FlagstatOutput> flagstatOutputQueue;
     private final BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue;
 
     SingleSamplePipeline(final SingleSampleEventListener eventListener, final StageRunner<SingleSampleRunMetadata> stageRunner,
             final Aligner aligner, final PipelineResults report, final ExecutorService executorService, final Boolean isStandalone,
-            final Arguments arguments, final PersistedDataset persistedDataset,
-            final BlockingQueue<BamMetricsOutput> metricsOutputQueue, final BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue) {
+            final Arguments arguments, final PersistedDataset persistedDataset, final BlockingQueue<BamMetricsOutput> metricsOutputQueue,
+            final BlockingQueue<FlagstatOutput> flagstatOutputQueue, final BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue) {
         this.eventListener = eventListener;
         this.stageRunner = stageRunner;
         this.aligner = aligner;
@@ -57,6 +58,7 @@ public class SingleSamplePipeline {
         this.arguments = arguments;
         this.persistedDataset = persistedDataset;
         this.metricsOutputQueue = metricsOutputQueue;
+        this.flagstatOutputQueue = flagstatOutputQueue;
         this.germlineCallerOutputQueue = germlineCallerOutputQueue;
     }
 
@@ -90,9 +92,11 @@ public class SingleSamplePipeline {
 
             BamMetricsOutput bamMetricsOutput = futurePayload(bamMetricsFuture);
             metricsOutputQueue.put(bamMetricsOutput);
+            FlagstatOutput flagstatOutput = futurePayload(flagstatOutputFuture);
+            flagstatOutputQueue.put(flagstatOutput);
             report.add(state.add(bamMetricsOutput));
             report.add(state.add(futurePayload(unifiedGenotyperFuture)));
-            report.add(state.add(futurePayload(flagstatOutputFuture)));
+            report.add(state.add(flagstatOutput));
             report.add(state.add(futurePayload(cramOutputFuture)));
             report.compose(metadata, isStandalone, state);
             eventListener.complete(state);

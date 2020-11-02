@@ -40,7 +40,7 @@ public class BamMetricsCommandTest {
     @Test
     public void shouldStartCommandLineWithJarAndOperation() {
         assertThat(actual).startsWith("java -Xmx24G -Dsamjdk.use_async_io_read_samtools=true -Dsamjdk.use_async_io_write_samtools=true "
-                + "-Dsamjdk.use_async_io_write_tribble=true -Dsamjdk.buffer_size=4194304 -cp /opt/tools/gridss/2.9.3/gridss.jar "
+                + "-Dsamjdk.use_async_io_write_tribble=true -Dsamjdk.buffer_size=4194304 -cp /opt/tools/gridss/2.9.4/gridss.jar "
                 + "picard.cmdline.PicardCommandLine " + OPERATION);
     }
 

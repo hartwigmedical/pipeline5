@@ -61,9 +61,9 @@ public class StructuralCallerTest extends StageTest<StructuralCallerOutput, Soma
     protected List<String> expectedCommands() {
         return ImmutableList.of("export PATH=\"${PATH}:/opt/tools/bwa/0.7.17\"",
                 "export PATH=\"${PATH}:/opt/tools/samtools/1.10\"",
-                "/opt/tools/gridss/2.9.3/gridss.sh -o /data/output/tumor.gridss.driver.vcf.gz -a /data/output/tumor.assembly.bam -w /data/output -r /opt/resources/reference_genome/hg19/Homo_sapiens.GRCh37.GATK.illumina.fasta -j /opt/tools/gridss/2.9.3/gridss.jar -b /opt/resources/gridss_repeatmasker_db/hg19/ENCFF001TDO.bed -c /opt/resources/gridss_config/gridss.properties --repeatmaskerbed /opt/resources/gridss_repeatmasker_db/hg19/hg19.fa.out.bed --jvmheap 31G /data/input/reference.bam /data/input/tumor.bam",
+                "/opt/tools/gridss/2.9.4/gridss.sh -o /data/output/tumor.gridss.driver.vcf.gz -a /data/output/tumor.assembly.bam -w /data/output -r /opt/resources/reference_genome/hg19/Homo_sapiens.GRCh37.GATK.illumina.fasta -j /opt/tools/gridss/2.9.4/gridss.jar -b /opt/resources/gridss_repeatmasker_db/hg19/ENCFF001TDO.bed -c /opt/resources/gridss_config/gridss.properties --repeatmaskerbed /opt/resources/gridss_repeatmasker_db/hg19/hg19.fa.out.bed --jvmheap 31G /data/input/reference.bam /data/input/tumor.bam",
                 "/opt/tools/tabix/0.2.6/tabix /data/output/tumor.gridss.driver.vcf.gz -p vcf",
-                "java -Xmx8G -Dsamjdk.create_index=true -Dsamjdk.use_async_io_read_samtools=true -Dsamjdk.use_async_io_write_samtools=true -Dsamjdk.use_async_io_write_tribble=true -Dsamjdk.buffer_size=4194304 -cp /opt/tools/gridss/2.9.3/gridss.jar gridss.AnnotateInsertedSequence REFERENCE_SEQUENCE=/opt/resources/virus_reference_genome/human_virus.fa INPUT=/data/output/tumor.gridss.driver.vcf.gz OUTPUT=/data/output/"
+                "java -Xmx8G -Dsamjdk.create_index=true -Dsamjdk.use_async_io_read_samtools=true -Dsamjdk.use_async_io_write_samtools=true -Dsamjdk.use_async_io_write_tribble=true -Dsamjdk.buffer_size=4194304 -cp /opt/tools/gridss/2.9.4/gridss.jar gridss.AnnotateInsertedSequence REFERENCE_SEQUENCE=/opt/resources/virus_reference_genome/human_virus.fa INPUT=/data/output/tumor.gridss.driver.vcf.gz OUTPUT=/data/output/"
                         + TUMOR_GRIDSS_UNFILTERED_VCF_GZ + " ALIGNMENT=APPEND WORKER_THREADS=$(grep -c '^processor' /proc/cpuinfo)");
     }
 
@@ -97,7 +97,7 @@ public class StructuralCallerTest extends StageTest<StructuralCallerOutput, Soma
 
     @Override
     protected void setupPersistedDataset() {
-        persistedDataset.addPath(DataType.STRUCTURAL_VARIANTS, GRIDSS + TUMOR_GRIDSS_UNFILTERED_VCF_GZ);
+        persistedDataset.addPath(DataType.STRUCTURAL_VARIANTS_GRIDSS, GRIDSS + TUMOR_GRIDSS_UNFILTERED_VCF_GZ);
     }
 
     @Override

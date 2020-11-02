@@ -2,6 +2,10 @@ package com.hartwig.batch.operations.rna;
 
 import static java.lang.String.format;
 
+import static com.hartwig.batch.operations.rna.RnaCommon.REF_GENCODE_37_DIR;
+import static com.hartwig.batch.operations.rna.RnaCommon.RNA_COHORT_LOCATION;
+import static com.hartwig.batch.operations.rna.RnaCommon.RNA_RESOURCES;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -11,9 +15,9 @@ import java.util.stream.Collectors;
 
 import com.google.common.collect.Lists;
 import com.hartwig.batch.BatchOperation;
+import com.hartwig.batch.OperationDescriptor;
 import com.hartwig.batch.input.InputBundle;
 import com.hartwig.batch.input.InputFileDescriptor;
-import com.hartwig.batch.operations.OperationDescriptor;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.calling.command.VersionedToolCommand;
 import com.hartwig.pipeline.execution.vm.Bash;
@@ -30,9 +34,6 @@ import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tools.Versions;
 
 public class RnaStarMapping implements BatchOperation {
-
-    private static final String REF_GENCODE_37 = "hs37d5_GENCODE19";
-    private static final String REF_LOCATION = "gs://isofox-resources";
 
     @Override
     public VirtualMachineJobDefinition execute(
@@ -70,9 +71,9 @@ public class RnaStarMapping implements BatchOperation {
         final String r2Files = format("$(ls %s/*_R2* | tr '\\n' ',')", VmDirectories.INPUT);
 
         // copy reference files for STAR
-        startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp -r %s/%s %s", REF_LOCATION, REF_GENCODE_37, VmDirectories.INPUT));
+        startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp -r %s/%s %s", RNA_RESOURCES, REF_GENCODE_37_DIR, VmDirectories.INPUT));
 
-        final String refGenomeDir = String.format("%s/%s", VmDirectories.INPUT, REF_GENCODE_37);
+        final String refGenomeDir = String.format("%s/%s", VmDirectories.INPUT, REF_GENCODE_37_DIR);
 
         // logging
         final String threadCount = Bash.allCpus();
@@ -139,7 +140,7 @@ public class RnaStarMapping implements BatchOperation {
         // copy results to rna-analysis location on crunch
 
 
-        startupScript.addCommand(() -> format("gsutil -m cp %s/* gs://rna-cohort/%s/", VmDirectories.OUTPUT, sampleId));
+        startupScript.addCommand(() -> format("gsutil -m cp %s/* %s/%s/", VmDirectories.OUTPUT, RNA_COHORT_LOCATION, sampleId));
 
         // startupScript.addCommand(new OutputUpload(GoogleStorageLocation.of("rna-cohort", sampleId), executionFlags));
 

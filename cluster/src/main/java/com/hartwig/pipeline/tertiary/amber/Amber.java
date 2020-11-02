@@ -66,7 +66,7 @@ public class Amber extends TertiaryStage<AmberOutput> {
                 .addFurtherOperations(new AddDatatypeToFile(DataType.B_ALLELE_FREQUENCY,
                         Folder.root(),
                         namespace(),
-                        String.format("%s.amber.baf.pcf", metadata.tumor().sampleName()),
+                        String.format("%s.amber.baf.tsv", metadata.tumor().sampleName()),
                         metadata.barcode()))
                 .build();
     }

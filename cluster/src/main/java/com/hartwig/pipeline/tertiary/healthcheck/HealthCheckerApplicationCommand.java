@@ -6,8 +6,8 @@ import com.hartwig.pipeline.tools.Versions;
 
 class HealthCheckerApplicationCommand extends JavaJarCommand {
 
-    HealthCheckerApplicationCommand(String referenceSampleName, String tumorSampleName, String metricsPath, String amberPath,
-            String purplePath, String outputPath) {
+    HealthCheckerApplicationCommand(String referenceSampleName, String tumorSampleName, String referenceMetricsPath, String tumorMetricsPath,
+            String referenceFlagstatPath, String tumorFlagstatPath, String purplePath, String outputPath) {
         super("health-checker",
                 Versions.HEALTH_CHECKER,
                 "health-checker.jar",
@@ -16,10 +16,14 @@ class HealthCheckerApplicationCommand extends JavaJarCommand {
                         referenceSampleName,
                         "-tumor",
                         tumorSampleName,
-                        "-metrics_dir",
-                        metricsPath,
-                        "-amber_dir",
-                        amberPath,
+                        "-ref_wgs_metrics_file",
+                        referenceMetricsPath,
+                        "-tum_wgs_metrics_file",
+                        tumorMetricsPath,
+                        "-ref_flagstat_file",
+                        referenceFlagstatPath,
+                        "-tum_flagstat_file",
+                        tumorFlagstatPath,
                         "-purple_dir",
                         purplePath,
                         "-output_dir",

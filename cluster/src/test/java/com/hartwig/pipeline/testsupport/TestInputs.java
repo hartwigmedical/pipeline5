@@ -14,6 +14,7 @@ import com.hartwig.pipeline.calling.structural.StructuralCallerPostProcessOutput
 import com.hartwig.pipeline.cram.CramOutput;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.PipelineStatus;
+import com.hartwig.pipeline.flagstat.Flagstat;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
@@ -130,7 +131,23 @@ public class TestInputs {
     }
 
     public static FlagstatOutput flagstatOutput() {
-        return FlagstatOutput.builder().status(PipelineStatus.SUCCESS).build();
+        return referenceFlagstatOutput();
+    }
+
+    public static FlagstatOutput flagstatOutput(final String sample) {
+        return FlagstatOutput.builder()
+                .status(PipelineStatus.SUCCESS)
+                .sample(sample)
+                .maybeFlagstatOutputFile(gsLocation(namespacedBucket(sample, Flagstat.NAMESPACE), sample + ".flagstat"))
+                .build();
+    }
+
+    public static FlagstatOutput referenceFlagstatOutput() {
+        return flagstatOutput(REFERENCE_SAMPLE);
+    }
+
+    public static FlagstatOutput tumorFlagstatOutput() {
+        return flagstatOutput(TUMOR_SAMPLE);
     }
 
     public static CramOutput cramOutput() {

@@ -91,8 +91,8 @@ public class StructuralCallerPostProcessTest extends StageTest<StructuralCallerP
 
     @Override
     protected void setupPersistedDataset() {
-        persistedDataset.addPath(DataType.STRUCTURAL_VARIANTS_SOFT_FILTERED, GRIPSS + TUMOR_GRIPSS_SOMATIC_VCF_GZ);
-        persistedDataset.addPath(DataType.STRUCTURAL_VARIANTS_HARD_FILTERED, GRIPSS + TUMOR_GRIPSS_SOMATIC_FILTERED_VCF_GZ);
+        persistedDataset.addPath(DataType.STRUCTURAL_VARIANTS_GRIPSS_RECOVERY, GRIPSS + TUMOR_GRIPSS_SOMATIC_VCF_GZ);
+        persistedDataset.addPath(DataType.STRUCTURAL_VARIANTS_GRIPSS, GRIPSS + TUMOR_GRIPSS_SOMATIC_FILTERED_VCF_GZ);
     }
 
     @Override
