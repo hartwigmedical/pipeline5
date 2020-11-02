@@ -144,8 +144,7 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
         return StructuralCallerOutput.builder()
                 .status(PipelineStatus.PERSISTED)
                 .maybeUnfilteredVcf(unfilteredVcfLocation)
-                .maybeUnfilteredVcfIndex(GoogleStorageLocation.of(unfilteredVcfLocation.bucket(),
-                        FileTypes.tabixIndex(unfilteredVcfLocation.path())))
+                .maybeUnfilteredVcfIndex(unfilteredVcfLocation.transform(FileTypes::tabixIndex))
                 .build();
     }
 

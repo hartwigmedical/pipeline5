@@ -140,11 +140,9 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
         GoogleStorageLocation svsLocation = persistedDataset.path(metadata.tumor().sampleName(), DataType.STRUCTURAL_VARIANTS_PURPLE)
                 .orElse(GoogleStorageLocation.of(metadata.bucket(),
                         PersistedLocations.blobForSet(metadata.set(), namespace(), svVcf(metadata))));
-        GoogleStorageLocation outputDirectory =
-                GoogleStorageLocation.of(somaticVariantsLocation.bucket(), new File(somaticVariantsLocation.path()).getParent(), true);
         return PurpleOutput.builder()
                 .status(PipelineStatus.PERSISTED)
-                .maybeOutputDirectory(outputDirectory)
+                .maybeOutputDirectory(somaticVariantsLocation.transform(f -> new File(f).getParent()).asDirectory())
                 .maybeSomaticVcf(somaticVariantsLocation)
                 .maybeStructuralVcf(svsLocation)
                 .build();

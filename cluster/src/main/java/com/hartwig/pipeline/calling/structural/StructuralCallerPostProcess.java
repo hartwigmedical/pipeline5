@@ -151,10 +151,9 @@ public class StructuralCallerPostProcess implements Stage<StructuralCallerPostPr
         return StructuralCallerPostProcessOutput.builder()
                 .status(PipelineStatus.PERSISTED)
                 .maybeFilteredVcf(somaticFilteredLocation)
-                .maybeFilteredVcfIndex(GoogleStorageLocation.of(somaticFilteredLocation.bucket(),
-                        FileTypes.tabixIndex(somaticFilteredLocation.path())))
+                .maybeFilteredVcfIndex(somaticFilteredLocation.transform(FileTypes::tabixIndex))
                 .maybeFullVcf(somaticLocation)
-                .maybeFullVcfIndex(GoogleStorageLocation.of(somaticLocation.bucket(), FileTypes.tabixIndex(somaticLocation.path())))
+                .maybeFullVcfIndex(somaticLocation.transform(FileTypes::tabixIndex))
                 .build();
     }
 

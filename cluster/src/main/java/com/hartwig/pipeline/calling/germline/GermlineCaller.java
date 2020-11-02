@@ -165,7 +165,7 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
         return GermlineCallerOutput.builder()
                 .status(PipelineStatus.PERSISTED)
                 .maybeGermlineVcfLocation(vcfLocation)
-                .maybeGermlineVcfIndexLocation(GoogleStorageLocation.of(vcfLocation.bucket(), FileTypes.tabixIndex(vcfLocation.path())))
+                .maybeGermlineVcfIndexLocation(vcfLocation.transform(FileTypes::tabixIndex))
                 .build();
     }
 

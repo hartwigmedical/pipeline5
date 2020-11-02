@@ -82,7 +82,7 @@ public class Amber extends TertiaryStage<AmberOutput> {
         return AmberOutput.builder()
                 .status(PipelineStatus.PERSISTED)
                 .maybeOutputDirectory(persistedDataset.path(metadata.tumor().sampleName(), DataType.B_ALLELE_FREQUENCY)
-                        .map(l -> GoogleStorageLocation.of(l.bucket(), l.path(), true))
+                        .map(GoogleStorageLocation::asDirectory)
                         .orElse(GoogleStorageLocation.of(metadata.bucket(),
                                 PersistedLocations.pathForSet(metadata.set(), namespace()),
                                 true)))

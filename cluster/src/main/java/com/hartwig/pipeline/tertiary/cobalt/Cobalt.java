@@ -80,7 +80,7 @@ public class Cobalt extends TertiaryStage<CobaltOutput> {
         return CobaltOutput.builder()
                 .status(PipelineStatus.PERSISTED)
                 .maybeOutputDirectory(persistedDataset.path(metadata.tumor().sampleName(), DataType.READ_DEPTH_RATIO)
-                        .map(l -> GoogleStorageLocation.of(l.bucket(), l.path(), true))
+                        .map(GoogleStorageLocation::asDirectory)
                         .orElse(GoogleStorageLocation.of(metadata.bucket(),
                                 PersistedLocations.pathForSet(metadata.set(), namespace()),
                                 true)))

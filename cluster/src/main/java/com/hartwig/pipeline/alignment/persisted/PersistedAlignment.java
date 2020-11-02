@@ -30,7 +30,9 @@ public class PersistedAlignment implements Aligner {
                 .sample(metadata.sampleName())
                 .status(PipelineStatus.PERSISTED)
                 .maybeFinalBamLocation(alignmentMapLocation)
-                .maybeFinalBaiLocation(GoogleStorageLocation.of(alignmentMapLocation.bucket(), FileTypes.bai(alignmentMapLocation.path())))
+                .maybeFinalBaiLocation(alignmentMapLocation.path().endsWith("bam")
+                        ? alignmentMapLocation.transform(FileTypes::bai)
+                        : alignmentMapLocation.transform(FileTypes::crai))
                 .build();
     }
 }

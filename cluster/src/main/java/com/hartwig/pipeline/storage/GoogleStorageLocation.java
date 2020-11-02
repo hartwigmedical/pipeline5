@@ -1,6 +1,7 @@
 package com.hartwig.pipeline.storage;
 
 import java.util.Optional;
+import java.util.function.Function;
 
 import com.google.cloud.storage.BlobId;
 
@@ -22,6 +23,14 @@ public interface GoogleStorageLocation {
     }
 
     Optional<String> billingProject();
+
+    default GoogleStorageLocation transform(final Function<String, String> transform) {
+        return ImmutableGoogleStorageLocation.builder().from(this).path(transform.apply(path())).build();
+    }
+
+    default GoogleStorageLocation asDirectory() {
+        return ImmutableGoogleStorageLocation.builder().from(this).isDirectory(true).build();
+    }
 
     default BlobId asBlobId() {
         String[] splitBucket = bucket().split("/");

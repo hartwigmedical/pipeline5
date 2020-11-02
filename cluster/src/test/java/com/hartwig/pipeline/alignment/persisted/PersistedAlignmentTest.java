@@ -19,20 +19,20 @@ import org.junit.Test;
 
 public class PersistedAlignmentTest {
 
-    public static final GoogleStorageLocation PERSISTED_REFERENCE_BAM = GoogleStorageLocation.of("bucket", "persisted/reference.bam");
+    public static final GoogleStorageLocation PERSISTED_REFERENCE_CRAM = GoogleStorageLocation.of("bucket", "persisted/reference.cram");
 
     @Test
-    public void returnsPersistedWhenExists() {
+    public void returnsPersistedCramsWhenExists() {
         PersistedDataset persistedDataset = mock(PersistedDataset.class);
         when(persistedDataset.path(TestInputs.referenceRunMetadata().sampleName(), DataType.ALIGNED_READS)).thenReturn(Optional.of(
-                PERSISTED_REFERENCE_BAM));
+                PERSISTED_REFERENCE_CRAM));
         PersistedAlignment victim = new PersistedAlignment(persistedDataset);
         AlignmentOutput output = victim.run(TestInputs.referenceRunMetadata());
         assertThat(output.sample()).isEqualTo("reference");
         assertThat(output.status()).isEqualTo(PipelineStatus.PERSISTED);
-        assertThat(output.finalBamLocation()).isEqualTo(PERSISTED_REFERENCE_BAM);
-        assertThat(output.finalBaiLocation()).isEqualTo(GoogleStorageLocation.of(PERSISTED_REFERENCE_BAM.bucket(),
-                FileTypes.bai(PERSISTED_REFERENCE_BAM.path())));
+        assertThat(output.finalBamLocation()).isEqualTo(PERSISTED_REFERENCE_CRAM);
+        assertThat(output.finalBaiLocation()).isEqualTo(GoogleStorageLocation.of(PERSISTED_REFERENCE_CRAM.bucket(),
+                FileTypes.crai(PERSISTED_REFERENCE_CRAM.path())));
     }
 
     @Test
