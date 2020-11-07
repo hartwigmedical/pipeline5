@@ -38,8 +38,9 @@ public class ApiPersistedDatasetTest {
 
     @Test
     public void returnsLocationOfExistingDataset() {
-        assertThat(victim.path(SAMPLE, DataType.ALIGNED_READS)).contains(GoogleStorageLocation.of("output-bucket",
-                "CPCT12345678R/aligner/CPCT12345678R.bam"));
+        assertThat(victim.path(SAMPLE, DataType.ALIGNED_READS)).contains(GoogleStorageLocation.from(
+                "gs://output-bucket/CPCT12345678R/aligner/CPCT12345678R.bam",
+                "project"));
     }
 
 }
