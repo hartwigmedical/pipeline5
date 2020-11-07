@@ -59,6 +59,9 @@ public class FlagstatTest extends StageTest<FlagstatOutput, SingleSampleRunMetad
 
     @Override
     protected void validatePersistedOutput(final FlagstatOutput output) {
-        assertThat(output).isEqualTo(FlagstatOutput.builder().status(PipelineStatus.PERSISTED).build());
+        assertThat(output).isEqualTo(FlagstatOutput.builder()
+                .status(PipelineStatus.PERSISTED)
+                .sample(TestInputs.referenceSample())
+                .build());
     }
 }

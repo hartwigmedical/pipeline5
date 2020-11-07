@@ -7,9 +7,9 @@ import static com.hartwig.batch.operations.rna.RnaCommon.RNA_COHORT_LOCATION;
 import static com.hartwig.batch.operations.rna.RnaCommon.RNA_RESOURCES;
 
 import com.hartwig.batch.BatchOperation;
+import com.hartwig.batch.OperationDescriptor;
 import com.hartwig.batch.input.InputBundle;
 import com.hartwig.batch.input.InputFileDescriptor;
-import com.hartwig.batch.operations.OperationDescriptor;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.ImmutableVirtualMachineJobDefinition;
@@ -96,8 +96,8 @@ public class RnaArriba implements BatchOperation
         startupScript.addCommand(() -> format("gsutil -m cp %s/* %s/%s/arriba/", VmDirectories.OUTPUT, RNA_COHORT_LOCATION, sampleId));
 
         return ImmutableVirtualMachineJobDefinition.builder().name("rna-arriba").startupCommand(startupScript)
-                .namespacedResults(ResultsDirectory.defaultDirectory()).workingDiskSpaceGb(MAX_EXPECTED_BAM_SIZE_GB)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(12, 36)).build();
+                .namespacedResults(ResultsDirectory.defaultDirectory()).workingDiskSpaceGb(100)
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(12, 64)).build();
     }
 
     @Override
@@ -105,6 +105,4 @@ public class RnaArriba implements BatchOperation
         return OperationDescriptor.of("RnaArriba", "Run Arriba fusion calling",
                 OperationDescriptor.InputType.FLAT);
     }
-
-
 }

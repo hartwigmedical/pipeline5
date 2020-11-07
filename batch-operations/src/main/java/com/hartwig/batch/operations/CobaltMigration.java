@@ -3,6 +3,7 @@ package com.hartwig.batch.operations;
 import static java.lang.String.format;
 
 import com.hartwig.batch.BatchOperation;
+import com.hartwig.batch.OperationDescriptor;
 import com.hartwig.batch.input.InputBundle;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;

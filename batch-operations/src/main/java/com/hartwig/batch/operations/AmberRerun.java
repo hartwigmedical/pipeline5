@@ -5,6 +5,7 @@ import static java.lang.String.format;
 import java.io.File;
 
 import com.hartwig.batch.BatchOperation;
+import com.hartwig.batch.OperationDescriptor;
 import com.hartwig.batch.input.InputBundle;
 import com.hartwig.batch.input.InputFileDescriptor;
 import com.hartwig.pipeline.ResultsDirectory;
@@ -52,12 +53,11 @@ public class AmberRerun implements BatchOperation {
         commands.addCommand(() -> remoteReferenceIndex.toCommandForm(localFilename(remoteReferenceIndex)));
 
         final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.HG19);
-        commands.addCommand(() -> new AmberApplicationCommand(referenceSampleName,
+        commands.addCommand(() -> new AmberApplicationCommand(resourceFiles,
+                referenceSampleName,
                 localReferenceFile,
                 tumorSampleName,
-                localTumorFile,
-                resourceFiles.refGenomeFile(),
-                resourceFiles.amberHeterozygousLoci()).asBash());
+                localTumorFile).asBash());
 
         // Store output
         final GoogleStorageLocation archiveStorageLocation = amberArchiveDirectory(set);
