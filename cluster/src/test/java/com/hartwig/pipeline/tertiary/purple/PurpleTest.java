@@ -109,7 +109,6 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
     protected void setupPersistedDataset() {
         persistedDataset.addPath(DataType.STRUCTURAL_VARIANTS_PURPLE, "purple/" + TUMOR_PURPLE_SV_VCF_GZ);
         persistedDataset.addPath(DataType.SOMATIC_VARIANTS_PURPLE, "purple/" + TUMOR_PURPLE_SOMATIC_VCF_GZ);
-        persistedDataset.addDir(DataType.SOMATIC_VARIANTS_PURPLE, "purple");
     }
 
     @Override

@@ -116,16 +116,16 @@ public class SageCaller extends TertiaryStage<SomaticCallerOutput> {
 
     @Override
     public SomaticCallerOutput persistedOutput(final SomaticRunMetadata metadata) {
-        String vcfPath = persistedDataset.file(metadata, DataType.SOMATIC_VARIANTS_SAGE)
-                .orElse(PersistedLocations.blobForSet(metadata.set(),
-                        namespace(),
-                        String.format("%s.%s.%s",
-                                metadata.tumor().sampleName(),
-                                SagePostProcess.SAGE_SOMATIC_FILTERED,
-                                FileTypes.GZIPPED_VCF)));
         return SomaticCallerOutput.builder(namespace())
                 .status(PipelineStatus.PERSISTED)
-                .maybeFinalSomaticVcf(GoogleStorageLocation.of(metadata.bucket(), vcfPath))
+                .maybeFinalSomaticVcf(persistedDataset.path(metadata.tumor().sampleName(), DataType.SOMATIC_VARIANTS_SAGE)
+                        .orElse(GoogleStorageLocation.of(metadata.bucket(),
+                                PersistedLocations.blobForSet(metadata.set(),
+                                        namespace(),
+                                        String.format("%s.%s.%s",
+                                                metadata.tumor().sampleName(),
+                                                SagePostProcess.SAGE_SOMATIC_FILTERED,
+                                                FileTypes.GZIPPED_VCF)))))
                 .build();
     }
 

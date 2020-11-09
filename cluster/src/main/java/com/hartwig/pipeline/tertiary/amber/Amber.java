@@ -80,10 +80,11 @@ public class Amber extends TertiaryStage<AmberOutput> {
     public AmberOutput persistedOutput(final SomaticRunMetadata metadata) {
         return AmberOutput.builder()
                 .status(PipelineStatus.PERSISTED)
-                .maybeOutputDirectory(GoogleStorageLocation.of(metadata.bucket(),
-                        persistedDataset.directory(metadata, DataType.B_ALLELE_FREQUENCY)
-                                .orElse(PersistedLocations.pathForSet(metadata.set(), namespace())),
-                        true))
+                .maybeOutputDirectory(persistedDataset.path(metadata.tumor().sampleName(), DataType.B_ALLELE_FREQUENCY)
+                        .map(GoogleStorageLocation::asDirectory)
+                        .orElse(GoogleStorageLocation.of(metadata.bucket(),
+                                PersistedLocations.pathForSet(metadata.set(), namespace()),
+                                true)))
                 .build();
     }
 

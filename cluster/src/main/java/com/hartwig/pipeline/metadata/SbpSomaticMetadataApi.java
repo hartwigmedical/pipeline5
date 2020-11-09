@@ -72,7 +72,6 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
                         .bucket(sbpRun.bucket().orElseThrow())
                         .set(sbpSet.name())
                         .reference(reference)
-                        .id(sbpRun.id())
                         .build();
             } else {
                 SingleSampleRunMetadata tumor = find(TUMOR, samplesBySet).map(referenceSample -> toMetadata(referenceSample,
@@ -82,7 +81,6 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
                                 "No tumor sample found in SBP for set [%s] and this run was not marked as single sample",
                                 sbpSet.name()))));
                 return SomaticRunMetadata.builder()
-                        .id(sbpRun.id())
                         .bucket(sbpRun.bucket().orElseThrow())
                         .set(sbpSet.name())
                         .reference(reference)
@@ -113,7 +111,6 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
     private static ImmutableSingleSampleRunMetadata toMetadata(final SbpSample sample, final SbpRun aRun,
             final SingleSampleRunMetadata.SampleType type) {
         return SingleSampleRunMetadata.builder()
-                .id(aRun.id())
                 .bucket(aRun.bucket().orElseThrow())
                 .set(aRun.set().name())
                 .sampleName(sample.name())

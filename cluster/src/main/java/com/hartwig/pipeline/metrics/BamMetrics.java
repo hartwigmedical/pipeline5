@@ -99,15 +99,15 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
 
     @Override
     public BamMetricsOutput persistedOutput(final SingleSampleRunMetadata metadata) {
-        String wgsMetricsPath = persistedDataset.file(metadata, DataType.WGSMETRICS)
-                .orElse(PersistedLocations.blobForSingle(metadata.set(),
-                        metadata.sampleName(),
-                        namespace(),
-                        BamMetricsOutput.outputFile(metadata.sampleName())));
         return BamMetricsOutput.builder()
                 .status(PipelineStatus.PERSISTED)
                 .sample(metadata.sampleName())
-                .maybeMetricsOutputFile(GoogleStorageLocation.of(metadata.bucket(), wgsMetricsPath))
+                .maybeMetricsOutputFile(persistedDataset.path(metadata.sampleName(), DataType.WGSMETRICS)
+                        .orElse(GoogleStorageLocation.of(metadata.bucket(),
+                                PersistedLocations.blobForSingle(metadata.set(),
+                                        metadata.sampleName(),
+                                        namespace(),
+                                        BamMetricsOutput.outputFile(metadata.sampleName())))))
                 .build();
     }
 }

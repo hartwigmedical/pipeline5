@@ -23,7 +23,7 @@ public interface FlagstatOutput extends StageOutput {
     Optional<GoogleStorageLocation> maybeFlagstatOutputFile();
 
     default GoogleStorageLocation flagstatOutputFile() {
-        return maybeFlagstatOutputFile().orElseThrow(() -> new IllegalStateException("No flagstat file available"));
+        return maybeFlagstatOutputFile().orElse(GoogleStorageLocation.empty());
     }
 
     static String outputFile(String sample) {

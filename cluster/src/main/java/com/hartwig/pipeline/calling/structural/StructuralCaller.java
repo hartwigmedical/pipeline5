@@ -131,18 +131,20 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
     @Override
     public StructuralCallerOutput persistedOutput(final SomaticRunMetadata metadata) {
 
-        String unfilteredVcfPath = persistedDataset.file(metadata, DataType.STRUCTURAL_VARIANTS_GRIDSS)
-                .orElse(PersistedLocations.blobForSet(metadata.set(),
-                        namespace(),
-                        String.format("%s.%s.%s",
-                                metadata.tumor().sampleName(),
-                                GridssAnnotation.GRIDSS_ANNOTATED,
-                                FileTypes.GZIPPED_VCF)));
+        GoogleStorageLocation unfilteredVcfLocation =
+                persistedDataset.path(metadata.tumor().sampleName(), DataType.STRUCTURAL_VARIANTS_GRIDSS)
+                        .orElse(GoogleStorageLocation.of(metadata.bucket(),
+                                PersistedLocations.blobForSet(metadata.set(),
+                                        namespace(),
+                                        String.format("%s.%s.%s",
+                                                metadata.tumor().sampleName(),
+                                                GridssAnnotation.GRIDSS_ANNOTATED,
+                                                FileTypes.GZIPPED_VCF))));
 
         return StructuralCallerOutput.builder()
                 .status(PipelineStatus.PERSISTED)
-                .maybeUnfilteredVcf(GoogleStorageLocation.of(metadata.bucket(), unfilteredVcfPath))
-                .maybeUnfilteredVcfIndex(GoogleStorageLocation.of(metadata.bucket(), FileTypes.tabixIndex(unfilteredVcfPath)))
+                .maybeUnfilteredVcf(unfilteredVcfLocation)
+                .maybeUnfilteredVcfIndex(unfilteredVcfLocation.transform(FileTypes::tabixIndex))
                 .build();
     }
 
