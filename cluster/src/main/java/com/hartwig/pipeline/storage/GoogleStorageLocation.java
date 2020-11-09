@@ -32,6 +32,10 @@ public interface GoogleStorageLocation {
         return ImmutableGoogleStorageLocation.builder().from(this).isDirectory(true).build();
     }
 
+    static GoogleStorageLocation empty() {
+        return GoogleStorageLocation.of("empty", "empty");
+    }
+
     default BlobId asBlobId() {
         String[] splitBucket = bucket().split("/");
         String bucketNoNamespace = splitBucket[0];
