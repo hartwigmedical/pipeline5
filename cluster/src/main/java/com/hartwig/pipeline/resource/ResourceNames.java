@@ -5,6 +5,7 @@ public interface ResourceNames {
     String REFERENCE_GENOME = "reference_genome";
     String GENOTYPE_SNPS = "genotype_snps";
     String GC_PROFILE = "gc";
+    String COBALT = "cobalt";
     String MAPPABILITY = "mappability";
     String GIAB_HIGH_CONF = "GIAB_high_conf";
     String SAGE = "sage";

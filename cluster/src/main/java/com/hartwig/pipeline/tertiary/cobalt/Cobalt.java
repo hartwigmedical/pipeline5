@@ -42,11 +42,11 @@ public class Cobalt extends TertiaryStage<CobaltOutput> {
 
     @Override
     public List<BashCommand> commands(final SomaticRunMetadata metadata) {
-        return Collections.singletonList(new CobaltApplicationCommand(metadata.reference().sampleName(),
+        return Collections.singletonList(new CobaltApplicationCommand(resourceFiles,
+                metadata.reference().sampleName(),
                 getReferenceBamDownload().getLocalTargetPath(),
                 metadata.tumor().sampleName(),
-                getTumorBamDownload().getLocalTargetPath(),
-                resourceFiles.gcProfileFile()));
+                getTumorBamDownload().getLocalTargetPath()));
     }
 
     @Override
