@@ -25,6 +25,8 @@ public interface ResourceFiles {
 
     String gcProfileFile();
 
+    String diploidRegionsBed();
+
     String amberHeterozygousLoci();
 
     String gridssRepeatMaskerDb();

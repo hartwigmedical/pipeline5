@@ -32,6 +32,11 @@ public class OverriddenReferenceGenome implements ResourceFiles {
     }
 
     @Override
+    public String diploidRegionsBed() {
+        return decorated.diploidRegionsBed();
+    }
+
+    @Override
     public String amberHeterozygousLoci() {
         return decorated.amberHeterozygousLoci();
     }
