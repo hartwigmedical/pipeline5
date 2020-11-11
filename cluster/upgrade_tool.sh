@@ -16,3 +16,4 @@ fi
 
 mvn versions:set -DnewVersion=${full}
 mvn clean install -DskipTests -Dcontainer-registry=eu.gcr.io/hmf-build/pipeline5
+mvn versions:set -DnewVersion=local-SNAPSHOT
