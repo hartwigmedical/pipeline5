@@ -41,6 +41,8 @@ public class CobaltApplicationCommand implements BashCommand {
                 referenceBamPath,
                 tumorSampleName,
                 tumorBamPath,
+                "-ref_genome",
+                resourceFiles.refGenomeFile(),
                 "-gc_profile",
                 resourceFiles.gcProfileFile()).asBash();
     }
