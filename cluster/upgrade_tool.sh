@@ -1,3 +1,7 @@
+#!/usr/bin/env bash
+
+set -e
+
 tool=$1
 version=$2
 full=${tool}-${version}
@@ -9,7 +13,7 @@ else
 fi
 gsutil cp $local_jar "gs://common-tools/${tool}/${version}/${tool}.jar"
 if [ -z "$3" ]; then
-  rm local_jar
+  rm $local_jar
 fi
 
 ./images/create_custom_image.sh -t
