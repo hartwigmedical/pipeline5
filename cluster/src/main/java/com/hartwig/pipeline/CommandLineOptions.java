@@ -72,6 +72,7 @@ public class CommandLineOptions {
     private static final String STARTING_POINT_FLAG = "starting_point";
     private static final String IMAGE_NAME_FLAG = "image_name";
     private static final String BIOPSY_FLAG = "biopsy";
+    private static final String IMAGE_PROJECT_FLAG = "image_project";
 
     private static Options options() {
         return new Options().addOption(profile())
@@ -131,7 +132,12 @@ public class CommandLineOptions {
                 .addOption(json())
                 .addOption(startingPoint())
                 .addOption(imageName())
-                .addOption(biopsy());
+                .addOption(biopsy())
+                .addOption(imageProject());
+    }
+
+    private static Option imageProject() {
+        return optionWithArg(IMAGE_PROJECT_FLAG, "Project in which the source image is located");
     }
 
     private static Option biopsy() {
@@ -337,6 +343,7 @@ public class CommandLineOptions {
                     .startingPoint(startingPoint(commandLine, defaults))
                     .imageName(imageName(commandLine, defaults))
                     .biopsy(biopsy(commandLine, defaults))
+                    .imageProject(imageProject(commandLine, defaults))
                     .build();
         } catch (ParseException e) {
             LOGGER.error("Could not parse command line args", e);
@@ -393,6 +400,13 @@ public class CommandLineOptions {
             return Optional.of(commandLine.getOptionValue(SAMPLE_JSON_FLAG));
         }
         return defaults.sampleJson();
+    }
+
+    private static Optional<String> imageProject(final CommandLine commandLine, final Arguments defaults) {
+        if (commandLine.hasOption(IMAGE_PROJECT_FLAG)) {
+            return Optional.of(commandLine.getOptionValue(IMAGE_PROJECT_FLAG));
+        }
+        return defaults.imageProject();
     }
 
     private static Optional<String> imageName(final CommandLine commandLine, final Arguments defaults) {

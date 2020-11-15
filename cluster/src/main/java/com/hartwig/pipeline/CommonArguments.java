@@ -64,6 +64,8 @@ public interface CommonArguments {
 
     Optional<String> imageName();
 
+    Optional<String> imageProject();
+
     RefGenomeVersion refGenomeVersion();
 
     Optional<String> refGenomeUrl();
