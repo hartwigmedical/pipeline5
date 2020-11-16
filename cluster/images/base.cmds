@@ -15,9 +15,6 @@ sudo mkdir /opt/tools
 sudo mkdir /opt/resources
 sudo gsutil -m -o 'GSUtil:parallel_thread_count=1' -o 'GSUtil:sliced_object_download_max_components=4' cp -r gs://common-resources/* /opt/resources/
 
-# This guy is a little different from the others in that it extracts overtop the system-managed R libraries.
-sudo tar xvf /opt/tools/R/rlibs.tar -C /
-
 sudo cpanm install Clone
 sudo cpanm install Config::General
 sudo cpanm install Font::TTF::Font
