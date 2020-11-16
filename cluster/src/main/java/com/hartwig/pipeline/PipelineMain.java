@@ -47,7 +47,7 @@ public class PipelineMain {
     private static final Logger LOGGER = LoggerFactory.getLogger(PipelineMain.class);
 
     public PipelineState start(Arguments arguments) {
-        LOGGER.info("Arguments [{}]", arguments);
+        LOGGER.info("Arguments are [{}]", arguments);
         Versions.printAll();
         try {
             GoogleCredentials credentials = CredentialProvider.from(arguments).get();
