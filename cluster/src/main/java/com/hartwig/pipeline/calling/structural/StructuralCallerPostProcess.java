@@ -62,7 +62,9 @@ public class StructuralCallerPostProcess implements Stage<StructuralCallerPostPr
     @Override
     public List<BashCommand> commands(final SomaticRunMetadata metadata) {
         String tumorSampleName = metadata.tumor().sampleName();
-        GridssSomaticFilter somaticFilter = new GridssSomaticFilter(resourceFiles, gridssVcf.getLocalTargetPath());
+        String referenceSampleName = metadata.reference().sampleName();
+        GridssSomaticFilter somaticFilter =
+                new GridssSomaticFilter(resourceFiles, tumorSampleName, referenceSampleName, gridssVcf.getLocalTargetPath());
         GridssHardFilter passAndPonFilter = new GridssHardFilter();
 
         SubStageInputOutput somaticOutput = somaticFilter.apply(SubStageInputOutput.empty(tumorSampleName));
