@@ -263,7 +263,7 @@ public interface Arguments extends CommonArguments {
                     .outputCram(true)
                     .publishToTurquoise(false)
                     .pollInterval(DEFAULT_POLL_INTERVAL)
-                    .refGenomeVersion(DEFAULT_REF_GENOME_VERSION)
+                    .refGenomeVersion(RefGenomeVersion.HG38)
                     .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES)
                     .imageName(VirtualMachineJobDefinition.PUBLIC_IMAGE_NAME);
         }
