@@ -75,7 +75,7 @@ public class GcpSampleDataExtractor
 
             if(!extractSampleData(sampleId))
             {
-                writeSampleData(sampleId, false, "", "", "", "");
+                writeSampleData(sampleId, false, "", "", "");
             }
 
             if(i >= nextLog)
@@ -114,8 +114,6 @@ public class GcpSampleDataExtractor
                 if(mainObject.entrySet().isEmpty())
                     return false;
 
-                final String setId = mainObject.entrySet().iterator().next().getKey();
-
                 final String germlineVcf = extractJsonPath(sampleId, mainObject, GERMLINE_VCF);
 
                 if(germlineVcf == null)
@@ -133,7 +131,7 @@ public class GcpSampleDataExtractor
 
                 final String purpleDirectory = extractPurpleDirectory(purpleVcf);
 
-                writeSampleData(sampleId, true, setId, tumorCram, germlineVcf, purpleDirectory);
+                writeSampleData(sampleId, true, tumorCram, germlineVcf, purpleDirectory);
             }
         }
         catch (Exception e)
@@ -162,21 +160,18 @@ public class GcpSampleDataExtractor
     {
         try
         {
-            for(Map.Entry<String,JsonElement> entry : mainObject.entrySet())
+            final JsonElement fileElement = mainObject.get(getApiFileKey(fileType));
+
+            if(fileElement == null)
             {
-                final JsonElement fileElement = entry.getValue().getAsJsonObject().get(getApiFileKey(fileType));
-
-                if(fileElement == null)
-                {
-                    LOGGER.warning(String.format("sample(%s) failed to find fileType(%s) ", sampleId, fileType));
-                    return null;
-                }
-
-                final String sampleKey = fileElement.getAsJsonObject().has(sampleId) ?
-                        sampleId : fileElement.getAsJsonObject().entrySet().iterator().next().getKey();
-                final JsonObject fileObject = fileElement.getAsJsonObject().getAsJsonObject().getAsJsonObject(sampleKey);
-                return fileObject.get("path").getAsString();
+                // LOGGER.warning(String.format("sample(%s) failed to find fileType(%s) ", sampleId, fileType));
+                return null;
             }
+
+            final String sampleKey = fileElement.getAsJsonObject().has(sampleId) ?
+                    sampleId : fileElement.getAsJsonObject().entrySet().iterator().next().getKey();
+            final JsonObject fileObject = fileElement.getAsJsonObject().getAsJsonObject().getAsJsonObject(sampleKey);
+            return fileObject.get("path").getAsString();
         }
         catch (Exception e)
         {
@@ -230,7 +225,7 @@ public class GcpSampleDataExtractor
                 writer = Files.newBufferedWriter(outputPath, StandardOpenOption.CREATE);
             }
 
-            writer.write("SampleId,Valid,SetId,CramFile,GermlineVcf,PurpleDir");
+            writer.write("SampleId,Valid,CramFile,GermlineVcf,PurpleDir");
             writer.newLine();
             return writer;
         }
@@ -242,12 +237,11 @@ public class GcpSampleDataExtractor
         return null;
     }
 
-    private void writeSampleData(final String sampleId, boolean valid, final String setId,
-            final String cramFile, final String germlineVcf, final String purpleDir)
+    private void writeSampleData(final String sampleId, boolean valid, final String cramFile, final String germlineVcf, final String purpleDir)
     {
         try
         {
-            mWriter.write(String.format("%s,%s,%s,%s,%s,%s", sampleId, valid, setId, cramFile, germlineVcf, purpleDir));
+            mWriter.write(String.format("%s,%s,%s,%s,%s", sampleId, valid, cramFile, germlineVcf, purpleDir));
             mWriter.newLine();
         }
         catch(IOException e)

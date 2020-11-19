@@ -35,29 +35,32 @@ public class BachelorCohort implements BatchOperation {
 
         final String batchInputs = descriptor.inputValue();
 
-        // format: SetId,RefSampleId,TumorSampleId,RefCramFile,TumorCramFile,GermlineVcfFile
+        // file format: SampleId,CramFile,GermlineVcf,PurpleDir
         final String[] batchItems = batchInputs.split(",");
 
-        if(batchItems.length < 6)
+        if(batchItems.length < 4)
         {
             System.out.print(String.format("invalid input arguments(%d) vs expected(6) data(%s)", batchItems.length, batchInputs));
             return null;
         }
 
-        final String sampleId = batchItems[2];
+        final String sampleId = batchItems[0];
 
         // eg gs://hmf-cram-150720-hmfregcpct-hmfxx5-hmfxx6-cpct02020171/CPCT02020171T_dedup.realigned.cram
-        final String tumorBamPath = batchItems[4];
+        final String tumorBamPath = batchItems[1];
         final String[] tumorBamComponents = tumorBamPath.split("/");
         final String tumorBamFile = tumorBamComponents[tumorBamComponents.length - 1];
         final String tumorBamIndexPath = tumorBamPath + ".crai";
 
         // eg gs://hmf-output-2018-48/180731_HMFregCPCT_FR17019763_FR16983319_CPCT02030541/180731_HMFregCPCT_FR17019763_FR16983319_CPCT02030541.annotated.vcf.gz
-        final String germlineVcfPath = batchItems[5];
+        final String germlineVcfPath = batchItems[2];
         final String[] germlineVcfComponents = germlineVcfPath.split("/");
         final String germlineVcfFile = germlineVcfComponents[germlineVcfComponents.length - 1];
 
+        final String purplePath = batchItems[3];
+
         // copy down BAM and VCF file for this sample
+        startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp -r %s %s", purplePath, VmDirectories.INPUT));
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s %s", tumorBamIndexPath, VmDirectories.INPUT));
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s %s", tumorBamPath, VmDirectories.INPUT));
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s* %s", germlineVcfPath, VmDirectories.INPUT));
@@ -81,6 +84,7 @@ public class BachelorCohort implements BatchOperation {
         bachelorArgs.append(String.format(" -germline_vcf %s/%s", VmDirectories.INPUT, germlineVcfFile));
         bachelorArgs.append(String.format(" -xml_config %s/%s", VmDirectories.INPUT, BACHELOR_XML_CONFIG));
         bachelorArgs.append(String.format(" -ext_filter_file %s/%s", VmDirectories.INPUT, CLINVAR_FILTERS));
+        bachelorArgs.append(String.format(" -purple_data_dir %s/%s", VmDirectories.INPUT, "purple/"));
         bachelorArgs.append(String.format(" -ref_genome %s", refGenome));
         bachelorArgs.append(String.format(" -tumor_bam_file %s/%s", VmDirectories.INPUT, tumorBamFile));
         bachelorArgs.append(String.format(" -output_dir %s/", VmDirectories.OUTPUT));
