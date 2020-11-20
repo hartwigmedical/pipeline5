@@ -17,16 +17,21 @@ public class Driver extends SubStage {
 
     private static final String GRIDSS = "gridss";
     private final ResourceFiles resourceFiles;
+    private final String referenceSample;
+    private final String tumorSample;
     private final String assemblyBamPath;
     private final String tumorBamPath;
     private final String referenceBamPath;
 
-    public Driver(final ResourceFiles resourceFiles, final String assemblyBamPath, final String referenceBamPath, final String tumorBamPath) {
+    public Driver(final ResourceFiles resourceFiles, final String referenceSample, final String tumorSample, final String assemblyBamPath,
+            final String referenceBamPath, final String tumorBamPath) {
         super("gridss.driver", FileTypes.GZIPPED_VCF);
         this.resourceFiles = resourceFiles;
         this.assemblyBamPath = assemblyBamPath;
         this.referenceBamPath = referenceBamPath;
         this.tumorBamPath = tumorBamPath;
+        this.referenceSample = referenceSample;
+        this.tumorSample = tumorSample;
     }
 
     @Override
@@ -50,6 +55,8 @@ public class Driver extends SubStage {
                 resourceFiles.gridssPropertiesFile(),
                 "--repeatmaskerbed",
                 resourceFiles.gridssRepeatMaskerDbBed(),
+                "--labels",
+                referenceSample + "," + tumorSample,
                 "--jvmheap",
                 "31G",
                 referenceBamPath,
