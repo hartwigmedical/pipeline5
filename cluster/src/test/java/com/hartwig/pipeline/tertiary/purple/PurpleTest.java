@@ -66,7 +66,7 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
                         + "-somatic_vcf /data/input/tumor.vcf.gz -structural_vcf /data/input/tumor.gripss.filtered.vcf.gz -sv_recovery_vcf "
                         + "/data/input/tumor.gripss.full.vcf.gz -circos /opt/tools/circos/0.69.6/bin/circos -ref_genome "
                         + "/opt/resources/reference_genome/hg19/Homo_sapiens.GRCh37.GATK.illumina.fasta "
-                        + "-driver_catalog -hotspots /opt/resources/sage/hg19/KnownHotspots.hg19.vcf.gz "
+                        + "-driver_catalog -hotspots /opt/resources/sage/hg19/KnownHotspots.somatic.hg19.vcf.gz "
                         + "-driver_gene_panel /opt/resources/gene_panel/hg19/DriverGenePanel.hg19.tsv "
                         + "-threads $(grep -c '^processor' /proc/cpuinfo)");
     }

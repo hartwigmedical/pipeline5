@@ -6,24 +6,22 @@ import com.hartwig.pipeline.calling.command.BcfToolsCommandListBuilder;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.OutputFile;
+import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.SubStage;
 
-class MappabilityAnnotation extends SubStage {
+class ClinvarAnnotation extends SubStage {
 
-    private final String bed;
-    private final String hdr;
+    private final ResourceFiles resourceFiles;
 
-    MappabilityAnnotation(final String bed, final String hdr) {
-        super("mappability.annotated", FileTypes.GZIPPED_VCF);
-        this.bed = bed;
-        this.hdr = hdr;
+    ClinvarAnnotation(final ResourceFiles resourceFiles) {
+        super("clinvar", FileTypes.GZIPPED_VCF);
+        this.resourceFiles = resourceFiles;
     }
 
     @Override
     public List<BashCommand> bash(final OutputFile input, final OutputFile output) {
         return new BcfToolsCommandListBuilder(input.path(), output.path()).withIndex()
-                .addAnnotationWithHeader(bed, "CHROM,FROM,TO,-,MAPPABILITY", hdr)
+                .addAnnotation(resourceFiles.clinvarVcf(), "INFO/CLNSIG", "INFO/CLNSIGCONF")
                 .build();
     }
-
 }

@@ -87,13 +87,38 @@ public class Hg19ResourceFiles implements ResourceFiles {
     }
 
     @Override
-    public String sageKnownHotspots() {
-        return formPath(SAGE, "KnownHotspots.hg19.vcf.gz");
+    public String sageSomaticHotspots() {
+        return formPath(SAGE, "KnownHotspots.somatic.hg19.vcf.gz");
     }
 
     @Override
-    public String sageActionableCodingPanel() {
-        return formPath(SAGE, "ActionableCodingPanel.hg19.bed.gz");
+    public String sageSomaticCodingPanel() {
+        return formPath(SAGE, "ActionableCodingPanel.somatic.hg19.bed.gz");
+    }
+
+    @Override
+    public String sageGermlineHotspots() {
+        return formPath(SAGE, "KnownHotspots.germline.hg19.vcf.gz");
+    }
+
+    @Override
+    public String sageGermlineCodingPanel() {
+        return formPath(SAGE, "ActionableCodingPanel.germline.hg19.bed.gz");
+    }
+
+    @Override
+    public String sageGermlineBlacklistVcf() {
+        return formPath(SAGE, "KnownBlacklist.germline.hg19.vcf.gz");
+    }
+
+    @Override
+    public String sageGermlineBlacklistBed() {
+        return formPath(SAGE, "KnownBlacklist.germline.hg19.bed.gz");
+    }
+
+    @Override
+    public String clinvarVcf() {
+        return formPath(SAGE, "clinvar.hg19.vcf.gz");
     }
 
     @Override

@@ -77,13 +77,38 @@ public class OverriddenReferenceGenome implements ResourceFiles {
     }
 
     @Override
-    public String sageKnownHotspots() {
-        return decorated.sageKnownHotspots();
+    public String sageSomaticHotspots() {
+        return decorated.sageSomaticHotspots();
     }
 
     @Override
-    public String sageActionableCodingPanel() {
-        return decorated.sageActionableCodingPanel();
+    public String sageSomaticCodingPanel() {
+        return decorated.sageSomaticCodingPanel();
+    }
+
+    @Override
+    public String sageGermlineHotspots() {
+        return decorated.sageGermlineHotspots();
+    }
+
+    @Override
+    public String sageGermlineCodingPanel() {
+        return decorated.sageGermlineCodingPanel();
+    }
+
+    @Override
+    public String sageGermlineBlacklistVcf() {
+        return decorated.sageGermlineBlacklistVcf();
+    }
+
+    @Override
+    public String sageGermlineBlacklistBed() {
+        return decorated.sageGermlineBlacklistBed();
+    }
+
+    @Override
+    public String clinvarVcf() {
+        return decorated.clinvarVcf();
     }
 
     @Override

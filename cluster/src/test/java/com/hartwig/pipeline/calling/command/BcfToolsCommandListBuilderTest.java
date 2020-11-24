@@ -28,17 +28,25 @@ public class BcfToolsCommandListBuilderTest {
     }
 
     @Test
+    public void testExpressionQuote() {
+        String bash = victim.includeHardFilter("'expression1").includeHardFilter("expression2'").includeHardFilter("'expression3'").bcfCommand().asBash();
+        assertThat(bash).contains(BCFTOOLS + " filter -i 'expression1' input.vcf.gz -O u | ");
+        assertThat(bash).contains(BCFTOOLS + " filter -i 'expression2' -O u | ");
+        assertThat(bash).contains(BCFTOOLS + " filter -i 'expression3' -O z -o output.vcf.gz");
+    }
+
+    @Test
     public void pipingMultipleTools() {
         String bash = victim.includeHardFilter("expression1").includeHardFilter("expression2").includeHardFilter("expression3").bcfCommand().asBash();
-        assertThat(bash).contains(BCFTOOLS + " filter -i expression1 input.vcf.gz -O u | ");
-        assertThat(bash).contains(BCFTOOLS + " filter -i expression2 -O u | ");
-        assertThat(bash).contains(BCFTOOLS + " filter -i expression3 -O z -o output.vcf.gz");
+        assertThat(bash).contains(BCFTOOLS + " filter -i 'expression1' input.vcf.gz -O u | ");
+        assertThat(bash).contains(BCFTOOLS + " filter -i 'expression2' -O u | ");
+        assertThat(bash).contains(BCFTOOLS + " filter -i 'expression3' -O z -o output.vcf.gz");
     }
 
     @Test
     public void excludeSoftFilter() {
         String bash = victim.excludeSoftFilter("expression", "FLAG").bcfCommand().asBash();
-        assertThat(bash).contains(BCFTOOLS + " filter -e expression -s FLAG -m+ input.vcf.gz -O z -o output.vcf.gz");
+        assertThat(bash).contains(BCFTOOLS + " filter -e 'expression' -s FLAG -m+ input.vcf.gz -O z -o output.vcf.gz");
     }
 
     @Test
@@ -54,8 +62,20 @@ public class BcfToolsCommandListBuilderTest {
     }
 
     @Test
+    public void addAnnotationWithFlagButNoAnnotations() {
+        String bash = victim.addAnnotationWithFlag("file", "flag").bcfCommand().asBash();
+        assertThat(bash).contains(BCFTOOLS + " annotate -a file -m flag input.vcf.gz -O z -o output.vcf.gz");
+    }
+
+    @Test
+    public void addAnnotationWithFlag() {
+        String bash = victim.addAnnotationWithFlag("file", "flag", "column1", "column2").bcfCommand().asBash();
+        assertThat(bash).contains(BCFTOOLS + " annotate -a file -m flag -c column1,column2 input.vcf.gz -O z -o output.vcf.gz");
+    }
+
+    @Test
     public void addAnnotationWithHeader() {
-        String bash = victim.addAnnotation("file", "column", "header").bcfCommand().asBash();
+        String bash = victim.addAnnotationWithHeader("file", "column", "header").bcfCommand().asBash();
         assertThat(bash).contains(BCFTOOLS + " annotate -a file -h header -c column input.vcf.gz -O z -o output.vcf.gz");
     }
 
@@ -75,12 +95,12 @@ public class BcfToolsCommandListBuilderTest {
         victim.includeHardFilter("expression1");
         String bash1 = victim.bcfCommand().asBash();
         String bash2 = victim.bcfCommand().asBash();
-        assertThat(bash1).contains(BCFTOOLS + " filter -i expression1 input.vcf.gz -O z -o output.vcf.gz");
+        assertThat(bash1).contains(BCFTOOLS + " filter -i 'expression1' input.vcf.gz -O z -o output.vcf.gz");
         assertThat(bash1).isEqualTo(bash2);
 
         victim.includeHardFilter("expression2");
         String bash3 = victim.bcfCommand().asBash();
-        assertThat(bash3).contains(BCFTOOLS + " filter -i expression1 input.vcf.gz -O u | /opt/tools/bcftools/1.9/bcftools filter -i expression2 -O z -o output.vcf.gz");
+        assertThat(bash3).contains(BCFTOOLS + " filter -i 'expression1' input.vcf.gz -O u | /opt/tools/bcftools/1.9/bcftools filter -i 'expression2' -O z -o output.vcf.gz");
     }
 
     @Test

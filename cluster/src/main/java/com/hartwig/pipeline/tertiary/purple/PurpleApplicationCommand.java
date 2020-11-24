@@ -35,7 +35,7 @@ public class PurpleApplicationCommand extends JavaJarCommand {
                         svRecoveryVcf,
                         circosPath,
                         resourceFiles.refGenomeFile(),
-                        resourceFiles.sageKnownHotspots(),
+                        resourceFiles.sageSomaticHotspots(),
                         resourceFiles.driverGenePanel()), maybeShallowArguments(isShallow)));
     }
 
@@ -54,7 +54,7 @@ public class PurpleApplicationCommand extends JavaJarCommand {
                         svRecoveryVcf,
                         circosPath,
                         resourceFiles.refGenomeFile(),
-                        resourceFiles.sageKnownHotspots(),
+                        resourceFiles.sageSomaticHotspots(),
                         resourceFiles.driverGenePanel()), maybeShallowArguments(isShallow)));
     }
 

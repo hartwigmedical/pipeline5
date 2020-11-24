@@ -29,16 +29,16 @@ public class BcfToolsCommandListBuilder {
     }
 
     public BcfToolsCommandListBuilder includeHardPass() {
-        return includeHardFilter("'FILTER=\"PASS\"'");
+        return includeHardFilter("FILTER=\"PASS\"");
     }
 
     public BcfToolsCommandListBuilder includeHardFilter(String expression) {
-        addArguments("filter", "-i", expression);
+        addArguments("filter", "-i", singleQuote(expression));
         return this;
     }
 
     public BcfToolsCommandListBuilder excludeSoftFilter(String expression, String softFilter) {
-        addArguments("filter", "-e", expression, "-s", softFilter, "-m+");
+        addArguments("filter", "-e", singleQuote(expression), "-s", softFilter, "-m+");
         return this;
     }
 
@@ -47,18 +47,33 @@ public class BcfToolsCommandListBuilder {
         return this;
     }
 
-    public BcfToolsCommandListBuilder addAnnotation(String file, String annotation) {
-        addArguments("annotate", "-a", file, "-c", annotation);
+    public BcfToolsCommandListBuilder addAnnotation(String file, String... annotation) {
+        addArguments("annotate", "-a", file, "-c", String.join(",", annotation));
         return this;
     }
 
-    public BcfToolsCommandListBuilder addAnnotation(String file, String annotation, String header) {
+    public BcfToolsCommandListBuilder addAnnotationWithFlag(String file, String flag, String... annotation) {
+        final String columns = String.join(",", annotation);
+        if (columns.isEmpty()) {
+            addArguments("annotate", "-a", file, "-m", flag);
+        } else {
+            addArguments("annotate", "-a", file, "-m", flag, "-c", columns);
+        }
+
+        return this;
+    }
+
+    public BcfToolsCommandListBuilder addAnnotationWithHeader(String file, String annotation, String header) {
         addArguments("annotate", "-a", file, "-h", header, "-c", annotation);
         return this;
     }
 
-    public BcfToolsCommandListBuilder selectSample(String tumorSampleName) {
-        addArguments("view", "-s", tumorSampleName);
+    public BcfToolsCommandListBuilder selectSample(String ... tumorSampleNames) {
+        if (tumorSampleNames.length == 0) {
+            throw new IllegalArgumentException("At least one sample must be provided");
+        }
+
+        addArguments("view", "-s", String.join(",", tumorSampleNames));
         return this;
     }
 
@@ -80,7 +95,7 @@ public class BcfToolsCommandListBuilder {
         final BashCommand finalCommand = new BcfToolsCommand(currentArguments, "-O", "z", "-o", outputVcf);
         finalCommands.add(finalCommand);
 
-        return new PipeCommands(finalCommands.toArray(new BashCommand[finalCommands.size()]));
+        return new PipeCommands(finalCommands.toArray(new BashCommand[0]));
     }
 
     private void addArguments(String... argumentArray) {
@@ -92,4 +107,15 @@ public class BcfToolsCommandListBuilder {
             currentArguments = arguments;
         }
     }
+
+    private static String singleQuote(String expression) {
+        String trimmed = expression.trim();
+
+        if (!trimmed.startsWith("'")) {
+            return "'" + expression + (trimmed.endsWith("'") ? "" : "'");
+        }
+
+        return expression + (trimmed.endsWith("'") ? "" : "'");
+    }
+
 }

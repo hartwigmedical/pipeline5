@@ -13,7 +13,7 @@ public class SageApplication extends SubStage {
     private final SageCommandBuilder sageCommandBuilder;
 
     public SageApplication(final SageCommandBuilder sageCommandBuilder) {
-        super("sage.somatic", FileTypes.GZIPPED_VCF);
+        super(sageCommandBuilder.isSomatic() ? "sage.somatic" : "sage.germline", FileTypes.GZIPPED_VCF);
         this.sageCommandBuilder = sageCommandBuilder;
     }
 

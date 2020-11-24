@@ -6,23 +6,24 @@ import com.hartwig.pipeline.calling.command.BcfToolsCommandListBuilder;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.OutputFile;
+import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.SubStage;
 
-class MappabilityAnnotation extends SubStage {
+class BlacklistVcfAnnotation extends SubStage {
 
-    private final String bed;
-    private final String hdr;
+    public static final String BLACKLIST_VCF_FLAG = "BLACKLIST_VCF";
 
-    MappabilityAnnotation(final String bed, final String hdr) {
-        super("mappability.annotated", FileTypes.GZIPPED_VCF);
-        this.bed = bed;
-        this.hdr = hdr;
+    private final ResourceFiles resourceFiles;
+
+    BlacklistVcfAnnotation(final ResourceFiles resourceFiles) {
+        super("blacklist.variants", FileTypes.GZIPPED_VCF);
+        this.resourceFiles = resourceFiles;
     }
 
     @Override
     public List<BashCommand> bash(final OutputFile input, final OutputFile output) {
         return new BcfToolsCommandListBuilder(input.path(), output.path()).withIndex()
-                .addAnnotationWithHeader(bed, "CHROM,FROM,TO,-,MAPPABILITY", hdr)
+                .addAnnotationWithFlag(resourceFiles.sageGermlineBlacklistVcf(), BLACKLIST_VCF_FLAG)
                 .build();
     }
 
