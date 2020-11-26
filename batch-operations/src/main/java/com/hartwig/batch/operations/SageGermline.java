@@ -2,8 +2,6 @@ package com.hartwig.batch.operations;
 
 import static java.lang.String.format;
 
-import java.io.File;
-
 import com.hartwig.batch.BatchOperation;
 import com.hartwig.batch.OperationDescriptor;
 import com.hartwig.batch.input.InputBundle;
@@ -43,8 +41,8 @@ public class SageGermline implements BatchOperation {
         final InputFileDescriptor remoteTumorIndex = remoteTumorFile.index();
         final InputFileDescriptor remoteReferenceIndex = remoteReferenceFile.index();
 
-        final String localTumorFile = localFilename(remoteTumorFile);
-        final String localReferenceFile = localFilename(remoteReferenceFile);
+        final String localTumorFile = remoteTumorFile.localDestination();
+        final String localReferenceFile = remoteReferenceFile.localDestination();
 
         // Prepare SnpEff
         final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.HG19);
@@ -55,11 +53,11 @@ public class SageGermline implements BatchOperation {
 
         // Download tumor
         commands.addCommand(() -> remoteTumorFile.toCommandForm(localTumorFile));
-        commands.addCommand(() -> remoteTumorIndex.toCommandForm(localFilename(remoteTumorIndex)));
+        commands.addCommand(() -> remoteTumorIndex.toCommandForm(remoteTumorIndex.localDestination()));
 
         // Download normal
         commands.addCommand(() -> remoteReferenceFile.toCommandForm(localReferenceFile));
-        commands.addCommand(() -> remoteReferenceIndex.toCommandForm(localFilename(remoteReferenceIndex)));
+        commands.addCommand(() -> remoteReferenceIndex.toCommandForm(remoteReferenceIndex.localDestination()));
 
         final SageCommandBuilder sageCommandBuilder = new SageCommandBuilder(resourceFiles).germlineMode(referenceSampleName,
                 localReferenceFile,
@@ -82,9 +80,6 @@ public class SageGermline implements BatchOperation {
         return OperationDescriptor.of("SageGermline", "Generate sage output", OperationDescriptor.InputType.JSON);
     }
 
-    private static String localFilename(InputFileDescriptor remote) {
-        return format("%s/%s", VmDirectories.INPUT, new File(remote.inputValue()).getName());
-    }
 
     private BashCommand downloadExperimentalVersion() {
         return () -> format("gsutil -u hmf-crunch cp %s %s",

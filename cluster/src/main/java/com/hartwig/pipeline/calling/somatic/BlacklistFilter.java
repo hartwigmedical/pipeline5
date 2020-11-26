@@ -18,7 +18,8 @@ class BlacklistFilter extends SubStage {
 
     @Override
     public List<BashCommand> bash(final OutputFile input, final OutputFile output) {
-        final String expression = BlacklistBedAnnotation.BLACKLIST_BED_FLAG + "=1 || " + BlacklistVcfAnnotation.BLACKLIST_VCF_FLAG + "=1";
+        final String expression =
+                String.format("%s=1 || %s=1", BlacklistBedAnnotation.BLACKLIST_BED_FLAG, BlacklistVcfAnnotation.BLACKLIST_VCF_FLAG);
         return new BcfToolsCommandListBuilder(input.path(), output.path()).withIndex()
                 .excludeSoftFilter(expression, BLACKLIST_FILTER)
                 .build();

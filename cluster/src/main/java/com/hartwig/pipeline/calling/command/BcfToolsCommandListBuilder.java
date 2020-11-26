@@ -109,13 +109,7 @@ public class BcfToolsCommandListBuilder {
     }
 
     private static String singleQuote(String expression) {
-        String trimmed = expression.trim();
-
-        if (!trimmed.startsWith("'")) {
-            return "'" + expression + (trimmed.endsWith("'") ? "" : "'");
-        }
-
-        return expression + (trimmed.endsWith("'") ? "" : "'");
+        return String.format("'%s'", expression.trim().replaceAll("^'", "").replaceAll("'$", ""));
     }
 
 }
