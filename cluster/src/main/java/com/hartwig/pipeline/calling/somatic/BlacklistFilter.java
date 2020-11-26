@@ -8,22 +8,20 @@ import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.OutputFile;
 import com.hartwig.pipeline.stages.SubStage;
 
-class MappabilityAnnotation extends SubStage {
+class BlacklistFilter extends SubStage {
 
-    private final String bed;
-    private final String hdr;
+    public static final String BLACKLIST_FILTER = "BLACKLIST";
 
-    MappabilityAnnotation(final String bed, final String hdr) {
-        super("mappability.annotated", FileTypes.GZIPPED_VCF);
-        this.bed = bed;
-        this.hdr = hdr;
+    BlacklistFilter() {
+        super("blacklist.filter", FileTypes.GZIPPED_VCF);
     }
 
     @Override
     public List<BashCommand> bash(final OutputFile input, final OutputFile output) {
+        final String expression =
+                String.format("%s=1 || %s=1", BlacklistBedAnnotation.BLACKLIST_BED_FLAG, BlacklistVcfAnnotation.BLACKLIST_VCF_FLAG);
         return new BcfToolsCommandListBuilder(input.path(), output.path()).withIndex()
-                .addAnnotationWithHeader(bed, "CHROM,FROM,TO,-,MAPPABILITY", hdr)
+                .excludeSoftFilter(expression, BLACKLIST_FILTER)
                 .build();
     }
-
 }

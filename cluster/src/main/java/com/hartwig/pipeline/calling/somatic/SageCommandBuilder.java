@@ -10,6 +10,8 @@ public class SageCommandBuilder {
 
     private final ResourceFiles resourceFiles;
     private boolean panelOnly = false;
+    private boolean ponMode = false;
+    private boolean somaticMode = true;
     private boolean germlineMode = false;
     private int tumorSamples = 0;
     private final StringJoiner tumor = new StringJoiner(",");
@@ -21,8 +23,23 @@ public class SageCommandBuilder {
         this.resourceFiles = resourceFiles;
     }
 
+    public boolean isSomatic() {
+        return somaticMode;
+    }
+
     public SageCommandBuilder panelOnly() {
         panelOnly = true;
+        return this;
+    }
+
+    public SageCommandBuilder germlineMode(String referenceSample, String referenceBam, String tumorSample, String tumorBam) {
+        panelOnly = true;
+        germlineMode = true;
+        somaticMode = false;
+        // Note that we are adding the reference sample as the tumor
+        addTumor(referenceSample, referenceBam);
+        addReference(tumorSample, tumorBam);
+        panelOnly();
         return this;
     }
 
@@ -39,8 +56,8 @@ public class SageCommandBuilder {
         return this;
     }
 
-    public SageCommandBuilder germlineMode(String sample, String bamFile) {
-        germlineMode = true;
+    public SageCommandBuilder ponMode(String sample, String bamFile) {
+        ponMode = true;
         return addTumor(sample, bamFile);
     }
 
@@ -56,8 +73,23 @@ public class SageCommandBuilder {
             arguments.add("-reference").add(reference.toString()).add("-reference_bam").add(referenceBam.toString());
         }
 
-        arguments.add("-hotspots").add(resourceFiles.sageKnownHotspots());
-        arguments.add("-panel_bed").add(resourceFiles.sageActionableCodingPanel());
+        if (somaticMode) {
+            arguments.add("-hotspots").add(resourceFiles.sageSomaticHotspots());
+            arguments.add("-panel_bed").add(resourceFiles.sageSomaticCodingPanel());
+        }
+
+        if (germlineMode) {
+            arguments.add("-hotspots").add(resourceFiles.sageGermlineHotspots());
+            arguments.add("-panel_bed").add(resourceFiles.sageGermlineCodingPanel());
+            arguments.add("-hotspot_min_tumor_qual").add("50");
+            arguments.add("-panel_min_tumor_qual").add("75");
+            arguments.add("-hotspot_max_germline_vaf").add("100");
+            arguments.add("-hotspot_max_germline_rel_raw_base_qual").add("100");
+            arguments.add("-panel_max_germline_vaf").add("100");
+            arguments.add("-panel_max_germline_rel_raw_base_qual").add("100");
+            arguments.add("-mnv_filter_enabled").add("false");
+        }
+
         arguments.add("-high_confidence_bed").add(resourceFiles.giabHighConfidenceBed());
         arguments.add("-ref_genome").add(resourceFiles.refGenomeFile());
         arguments.add("-out").add(outputVcf);
@@ -68,7 +100,7 @@ public class SageCommandBuilder {
             arguments.add("-panel_only");
         }
 
-        if (germlineMode) {
+        if (ponMode) {
 
             if (tumorSamples > 1) {
                 throw new IllegalStateException("Germline mode only supports one sample");
