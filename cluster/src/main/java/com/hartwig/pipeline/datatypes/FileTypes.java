@@ -26,7 +26,7 @@ public class FileTypes {
         return cram + CRAI;
     }
 
-    public static String bai(final String bai) {
-        return bai + BAI;
+    public static String bai(final String bam) {
+        return bam + BAI;
     }
 }
