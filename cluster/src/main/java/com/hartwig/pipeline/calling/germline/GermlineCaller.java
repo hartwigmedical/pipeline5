@@ -156,15 +156,16 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
 
     @Override
     public GermlineCallerOutput persistedOutput(final SingleSampleRunMetadata metadata) {
-        String vcfPath = persistedDataset.file(metadata, DataType.GERMLINE_VARIANTS)
-                .orElse(PersistedLocations.blobForSingle(metadata.set(),
-                        metadata.sampleName(),
-                        GermlineCaller.NAMESPACE,
-                        GermlineCallerOutput.outputFile(metadata.sampleName()).fileName()));
+        GoogleStorageLocation vcfLocation = persistedDataset.path(metadata.sampleName(), DataType.GERMLINE_VARIANTS)
+                .orElse(GoogleStorageLocation.of(metadata.bucket(),
+                        PersistedLocations.blobForSingle(metadata.set(),
+                                metadata.sampleName(),
+                                GermlineCaller.NAMESPACE,
+                                GermlineCallerOutput.outputFile(metadata.sampleName()).fileName())));
         return GermlineCallerOutput.builder()
                 .status(PipelineStatus.PERSISTED)
-                .maybeGermlineVcfLocation(GoogleStorageLocation.of(metadata.bucket(), vcfPath))
-                .maybeGermlineVcfIndexLocation(GoogleStorageLocation.of(metadata.bucket(), FileTypes.tabixIndex(vcfPath)))
+                .maybeGermlineVcfLocation(vcfLocation)
+                .maybeGermlineVcfIndexLocation(vcfLocation.transform(FileTypes::tabixIndex))
                 .build();
     }
 

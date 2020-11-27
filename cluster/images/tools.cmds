@@ -1,20 +1,7 @@
 # Eliminate stale cache issues with gsutil
-echo 'tmpfs /root/.gsutil tmpfs size=128m 0 0' | sudo tee -a /etc/fstab
-
-sudo apt-get -y update
-sudo apt-get -y upgrade
-sudo apt-get -y install dirmngr apt-transport-https ca-certificates software-properties-common gnupg2 perl-modules make 
-sudo apt-get -y install openjdk-8-jdk libcurl4-gnutls-dev libxml2-dev libssl-dev less libgd-dev cpanminus parallel pigz
-sudo apt-get -y install mdadm --no-install-recommends
-sudo apt-key adv --keyserver keys.gnupg.net --recv-key 'E19F5F87128899B192B1A2C2AD5F960A256A04AF'
-sudo add-apt-repository 'deb https://cloud.r-project.org/bin/linux/debian stretch-cran35/'
-sudo apt-get -y update
-sudo apt-get -y install r-base
-sudo mkdir /data
-sudo mkdir /opt/tools
-sudo mkdir /opt/resources
-sudo gsutil -m -o 'GSUtil:parallel_thread_count=1' -o 'GSUtil:sliced_object_download_max_components=4' cp -r gs://common-tools/* /opt/tools/
-sudo gsutil -m -o 'GSUtil:parallel_thread_count=1' -o 'GSUtil:sliced_object_download_max_components=4' cp -r gs://common-resources/* /opt/resources/
+sudo gsutil -m -o 'GSUtil:parallel_thread_count=1' -o 'GSUtil:sliced_object_download_max_components=4' cp -n -r gs://common-tools/* /opt/tools/
+# This guy is a little different from the others in that it extracts overtop the system-managed R libraries.
+sudo tar xvf /opt/tools/R/rlibs.tar -C /
 sudo tar xvf /opt/tools/strelka/1.0.14/strelka.tar -C /opt/tools/strelka/1.0.14/
 sudo tar xvf /opt/tools/tabix/0.2.6/tabix.tar -C /opt/tools/tabix/0.2.6/
 sudo tar xvf /opt/tools/samtools/1.2/samtools.tar.gz -C /opt/tools/samtools/1.2/
@@ -25,9 +12,6 @@ sudo tar xvf /opt/tools/gridss/2.7.2/scripts.tar -C /opt/tools/gridss/2.7.2/
 sudo tar xvf /opt/tools/gridss/2.8.3/scripts.tar -C /opt/tools/gridss/2.8.3/
 sudo tar xvf /opt/tools/gridss/2.9.3/scripts.tar -C /opt/tools/gridss/2.9.3/
 sudo tar xvf /opt/tools/gridss/2.9.4/scripts.tar -C /opt/tools/gridss/2.9.4/
-
-# This guy is a little different from the others in that it extracts overtop the system-managed R libraries.
-sudo tar xvf /opt/tools/R/rlibs.tar -C /
 sudo chmod a+x /opt/tools/bcftools/1.3.1/bcftools
 sudo chmod a+x /opt/tools/bcftools/1.9/bcftools
 sudo chmod a+x /opt/tools/snpEff/4.3s/snpEff.sh
@@ -45,20 +29,3 @@ sudo chmod a+x /opt/tools/samtools/1.10/samtools
 sudo chmod a+x /opt/tools/bcl2fastq/2.20.0.422/bcl2fastq
 sudo chmod a+x /opt/tools/star/2.7.3a/STAR
 sudo cp -r /opt/tools/bcl2fastq/2.20.0.422/share /opt/tools/bcl2fastq/
-
-sudo cpanm install Clone
-sudo cpanm install Config::General
-sudo cpanm install Font::TTF::Font
-sudo cpanm install GD
-sudo cpanm install GD::Polyline
-sudo cpanm install List::MoreUtils
-sudo cpanm install Math::Bezier
-sudo cpanm install Math::Round
-sudo cpanm install Math::VecStat
-sudo cpanm install Params::Validate
-sudo cpanm install Readonly
-sudo cpanm install Regexp::Common
-sudo cpanm install SVG
-sudo cpanm install Set::IntSpan
-sudo cpanm install Statistics::Basic
-sudo cpanm install Text::Format

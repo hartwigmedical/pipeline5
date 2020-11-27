@@ -41,6 +41,7 @@ public class GridssRerun implements BatchOperation {
         final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.HG19);
         final String set = inputs.get("set").inputValue();
         final String tumorSampleName = inputs.get("tumor_sample").inputValue();
+        final String referenceSampleName = inputs.get("reference_sample").inputValue();
         final InputFileDescriptor remoteTumorFile = inputs.get("tumor_cram");
         final InputFileDescriptor remoteReferenceFile = inputs.get("ref_cram");
 
@@ -53,7 +54,12 @@ public class GridssRerun implements BatchOperation {
         final String tumorBamPath = localTumorFile.replace("cram", "bam");
         final String refBamPath = localReferenceFile.replace("cram", "bam");
 
-        Driver driver = new Driver(resourceFiles, VmDirectories.outputFile(tumorSampleName + ".assembly.bam"), refBamPath, tumorBamPath);
+        Driver driver = new Driver(resourceFiles,
+                referenceSampleName,
+                tumorSampleName,
+                VmDirectories.outputFile(tumorSampleName + ".assembly.bam"),
+                refBamPath,
+                tumorBamPath);
         GridssAnnotation viralAnnotation = new GridssAnnotation(resourceFiles, false);
         SubStageInputOutput unfilteredVcfOutput = driver.andThen(viralAnnotation).apply(SubStageInputOutput.empty(tumorSampleName));
 

@@ -354,6 +354,18 @@ public class GoogleComputeEngineTest {
     }
 
     @Test
+    public void usesLatestImageFromCurrentFamilyWithGivenProject() throws IOException {
+        String givenProject = "givenProject";
+        victim = new GoogleComputeEngine(Arguments.builder().from(ARGUMENTS).imageProject(givenProject).build(), compute, z -> {
+        }, lifecycleManager, bucketWatcher);
+        returnSuccess();
+        ArgumentCaptor<String> project = ArgumentCaptor.forClass(String.class);
+        when(images.getFromFamily(project.capture(), eq(VirtualMachineJobDefinition.STANDARD_IMAGE))).thenReturn(imagesFromFamily);
+        victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
+        assertThat(project.getValue()).isEqualTo(givenProject);
+    }
+
+    @Test
     public void usesGivenImageFromPublicImageProjectWhenProvided() throws IOException {
         String imageName = "alternate_image";
         Compute.Images.Get specificImage = mock(Compute.Images.Get.class);

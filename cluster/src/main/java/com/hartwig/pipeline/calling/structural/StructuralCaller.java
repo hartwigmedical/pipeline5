@@ -69,12 +69,18 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
 
     @Override
     public List<BashCommand> commands(final SomaticRunMetadata metadata) {
+        String referenceSampleName = metadata.reference().sampleName();
         String tumorSampleName = metadata.tumor().sampleName();
         String refBamPath = referenceBam.getLocalTargetPath();
         String tumorBamPath = tumorBam.getLocalTargetPath();
         GridssAnnotation viralAnnotation = new GridssAnnotation(resourceFiles, false);
 
-        Driver driver = new Driver(resourceFiles, VmDirectories.outputFile(tumorSampleName + ".assembly.bam"), refBamPath, tumorBamPath);
+        Driver driver = new Driver(resourceFiles,
+                referenceSampleName,
+                tumorSampleName,
+                VmDirectories.outputFile(tumorSampleName + ".assembly.bam"),
+                refBamPath,
+                tumorBamPath);
         SubStageInputOutput unfilteredVcfOutput = driver.andThen(viralAnnotation).apply(SubStageInputOutput.empty(tumorSampleName));
         unfilteredVcf = unfilteredVcfOutput.outputFile().path();
 
@@ -131,18 +137,20 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
     @Override
     public StructuralCallerOutput persistedOutput(final SomaticRunMetadata metadata) {
 
-        String unfilteredVcfPath = persistedDataset.file(metadata, DataType.STRUCTURAL_VARIANTS_GRIDSS)
-                .orElse(PersistedLocations.blobForSet(metadata.set(),
-                        namespace(),
-                        String.format("%s.%s.%s",
-                                metadata.tumor().sampleName(),
-                                GridssAnnotation.GRIDSS_ANNOTATED,
-                                FileTypes.GZIPPED_VCF)));
+        GoogleStorageLocation unfilteredVcfLocation =
+                persistedDataset.path(metadata.tumor().sampleName(), DataType.STRUCTURAL_VARIANTS_GRIDSS)
+                        .orElse(GoogleStorageLocation.of(metadata.bucket(),
+                                PersistedLocations.blobForSet(metadata.set(),
+                                        namespace(),
+                                        String.format("%s.%s.%s",
+                                                metadata.tumor().sampleName(),
+                                                GridssAnnotation.GRIDSS_ANNOTATED,
+                                                FileTypes.GZIPPED_VCF))));
 
         return StructuralCallerOutput.builder()
                 .status(PipelineStatus.PERSISTED)
-                .maybeUnfilteredVcf(GoogleStorageLocation.of(metadata.bucket(), unfilteredVcfPath))
-                .maybeUnfilteredVcfIndex(GoogleStorageLocation.of(metadata.bucket(), FileTypes.tabixIndex(unfilteredVcfPath)))
+                .maybeUnfilteredVcf(unfilteredVcfLocation)
+                .maybeUnfilteredVcfIndex(unfilteredVcfLocation.transform(FileTypes::tabixIndex))
                 .build();
     }
 

@@ -1,5 +1,6 @@
 package com.hartwig.pipeline.tertiary.purple;
 
+import java.io.File;
 import java.util.Collections;
 import java.util.List;
 
@@ -132,17 +133,18 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
 
     @Override
     public PurpleOutput persistedOutput(final SomaticRunMetadata metadata) {
-        String somaticVariantsPath = persistedDataset.file(metadata, DataType.SOMATIC_VARIANTS_PURPLE)
-                .orElse(PersistedLocations.blobForSet(metadata.set(), namespace(), somaticVcf(metadata)));
-        String svsPath = persistedDataset.file(metadata, DataType.STRUCTURAL_VARIANTS_PURPLE)
-                .orElse(PersistedLocations.blobForSet(metadata.set(), namespace(), svVcf(metadata)));
-        String outputDirectory = persistedDataset.directory(metadata, DataType.SOMATIC_VARIANTS_PURPLE)
-                .orElse(PersistedLocations.pathForSet(metadata.set(), namespace()));
+        GoogleStorageLocation somaticVariantsLocation =
+                persistedDataset.path(metadata.tumor().sampleName(), DataType.SOMATIC_VARIANTS_PURPLE)
+                        .orElse(GoogleStorageLocation.of(metadata.bucket(),
+                                PersistedLocations.blobForSet(metadata.set(), namespace(), somaticVcf(metadata))));
+        GoogleStorageLocation svsLocation = persistedDataset.path(metadata.tumor().sampleName(), DataType.STRUCTURAL_VARIANTS_PURPLE)
+                .orElse(GoogleStorageLocation.of(metadata.bucket(),
+                        PersistedLocations.blobForSet(metadata.set(), namespace(), svVcf(metadata))));
         return PurpleOutput.builder()
                 .status(PipelineStatus.PERSISTED)
-                .maybeOutputDirectory(GoogleStorageLocation.of(metadata.bucket(), outputDirectory, true))
-                .maybeSomaticVcf(GoogleStorageLocation.of(metadata.bucket(), somaticVariantsPath))
-                .maybeStructuralVcf(GoogleStorageLocation.of(metadata.bucket(), svsPath))
+                .maybeOutputDirectory(somaticVariantsLocation.transform(f -> new File(f).getParent()).asDirectory())
+                .maybeSomaticVcf(somaticVariantsLocation)
+                .maybeStructuralVcf(svsLocation)
                 .build();
     }
 

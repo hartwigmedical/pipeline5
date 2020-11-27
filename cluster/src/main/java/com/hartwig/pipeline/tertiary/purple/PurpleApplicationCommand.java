@@ -5,6 +5,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.collect.Lists;
 import com.hartwig.pipeline.execution.vm.Bash;
 import com.hartwig.pipeline.execution.vm.JavaJarCommand;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
@@ -18,13 +19,13 @@ public class PurpleApplicationCommand extends JavaJarCommand {
     private static final String LOW_COVERAGE_DIPLOID_PERCENTAGE = "0.88";
     private static final String LOW_COVERAGE_SOMATIC_MIN_PURITY_SPREAD = "0.1";
 
-    public PurpleApplicationCommand(ResourceFiles resourceFiles, String referenceSampleName, String tumorSampleName, String amberDirectory, String cobaltDirectory,
-                             String somaticVcf, String structuralVcf, String svRecoveryVcf, String circosPath, boolean isShallow) {
+    public PurpleApplicationCommand(ResourceFiles resourceFiles, String referenceSampleName, String tumorSampleName, String amberDirectory,
+            String cobaltDirectory, String somaticVcf, String structuralVcf, String svRecoveryVcf, String circosPath, boolean isShallow) {
         super("purple",
                 Versions.PURPLE,
                 "purple.jar",
                 "12G",
-                combine(arguments(referenceSampleName,
+                combine(pairedNormalArguments(referenceSampleName,
                         tumorSampleName,
                         amberDirectory,
                         cobaltDirectory,
@@ -34,18 +35,75 @@ public class PurpleApplicationCommand extends JavaJarCommand {
                         svRecoveryVcf,
                         circosPath,
                         resourceFiles.refGenomeFile(),
-                        resourceFiles.sageKnownHotspots(),
-                        resourceFiles.driverGenePanel()),
-                        maybeShallowArguments(isShallow)));
+                        resourceFiles.sageSomaticHotspots(),
+                        resourceFiles.driverGenePanel()), maybeShallowArguments(isShallow)));
+    }
+
+    public PurpleApplicationCommand(ResourceFiles resourceFiles, String tumorSampleName, String amberDirectory, String cobaltDirectory,
+            String somaticVcf, String structuralVcf, String svRecoveryVcf, String circosPath, boolean isShallow) {
+        super("purple",
+                Versions.PURPLE,
+                "purple.jar",
+                "12G",
+                combine(tumorOnlyArguments(tumorSampleName,
+                        amberDirectory,
+                        cobaltDirectory,
+                        resourceFiles.gcProfileFile(),
+                        somaticVcf,
+                        structuralVcf,
+                        svRecoveryVcf,
+                        circosPath,
+                        resourceFiles.refGenomeFile(),
+                        resourceFiles.sageSomaticHotspots(),
+                        resourceFiles.driverGenePanel()), maybeShallowArguments(isShallow)));
     }
 
     @NotNull
-    private static ArrayList<String> arguments(final String referenceSampleName, final String tumorSampleName, final String amberDirectory,
-                                               final String cobaltDirectory, final String gcProfile, final String somaticVcf, final String structuralVcf,
-                                               final String svRecoveryVcf, final String circosPath, String referenceGenomePath, String knownHotspots, String driverGenePanel) {
-        return newArrayList("-reference",
-                referenceSampleName,
-                "-tumor",
+    private static ArrayList<String> tumorOnlyArguments(final String tumorSampleName, final String amberDirectory,
+            final String cobaltDirectory, final String gcProfile, final String somaticVcf, final String structuralVcf,
+            final String svRecoveryVcf, final String circosPath, String referenceGenomePath, String knownHotspots, String driverGenePanel) {
+        ArrayList<String> result = Lists.newArrayList("-tumor_only");
+        result.addAll(commonArguments(tumorSampleName,
+                amberDirectory,
+                cobaltDirectory,
+                gcProfile,
+                somaticVcf,
+                structuralVcf,
+                svRecoveryVcf,
+                circosPath,
+                referenceGenomePath,
+                knownHotspots,
+                driverGenePanel));
+
+        return result;
+    }
+
+    @NotNull
+    private static ArrayList<String> pairedNormalArguments(final String referenceSampleName, final String tumorSampleName,
+            final String amberDirectory, final String cobaltDirectory, final String gcProfile, final String somaticVcf,
+            final String structuralVcf, final String svRecoveryVcf, final String circosPath, String referenceGenomePath,
+            String knownHotspots, String driverGenePanel) {
+        ArrayList<String> result = Lists.newArrayList("-reference", referenceSampleName);
+        result.addAll(commonArguments(tumorSampleName,
+                amberDirectory,
+                cobaltDirectory,
+                gcProfile,
+                somaticVcf,
+                structuralVcf,
+                svRecoveryVcf,
+                circosPath,
+                referenceGenomePath,
+                knownHotspots,
+                driverGenePanel));
+
+        return result;
+    }
+
+    @NotNull
+    private static ArrayList<String> commonArguments(final String tumorSampleName, final String amberDirectory,
+            final String cobaltDirectory, final String gcProfile, final String somaticVcf, final String structuralVcf,
+            final String svRecoveryVcf, final String circosPath, String referenceGenomePath, String knownHotspots, String driverGenePanel) {
+        return newArrayList("-tumor",
                 tumorSampleName,
                 "-output_dir",
                 VmDirectories.OUTPUT,

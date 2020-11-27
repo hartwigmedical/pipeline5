@@ -4,7 +4,8 @@ import com.hartwig.pipeline.resource.ResourceFiles;
 
 public class GripssSoftFilterCommand extends GripssCommand {
 
-    public GripssSoftFilterCommand(final ResourceFiles resourceFiles, final String inputVcf, final String outputVcf) {
+    public GripssSoftFilterCommand(final ResourceFiles resourceFiles, final String tumorSample, final String refSample,
+            final String inputVcf, final String outputVcf) {
         super("com.hartwig.hmftools.gripss.GripssApplicationKt",
                 "-ref_genome",
                 resourceFiles.refGenomeFile(),
@@ -14,6 +15,10 @@ public class GripssSoftFilterCommand extends GripssCommand {
                 resourceFiles.gridssBreakendPon(),
                 "-breakpoint_pon",
                 resourceFiles.gridssBreakpointPon(),
+                "-reference",
+                refSample,
+                "-tumor",
+                tumorSample,
                 "-input_vcf",
                 inputVcf,
                 "-output_vcf",

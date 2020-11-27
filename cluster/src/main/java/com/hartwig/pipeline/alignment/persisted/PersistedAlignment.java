@@ -20,16 +20,19 @@ public class PersistedAlignment implements Aligner {
 
     @Override
     public AlignmentOutput run(final SingleSampleRunMetadata metadata) {
-        String alignmentMapPath = persistedDataset.file(metadata, DataType.ALIGNED_READS)
-                .orElse(PersistedLocations.blobForSingle(metadata.set(),
-                        metadata.sampleName(),
-                        Aligner.NAMESPACE,
-                        FileTypes.bam(metadata.sampleName())));
+        GoogleStorageLocation alignmentMapLocation = persistedDataset.path(metadata.sampleName(), DataType.ALIGNED_READS)
+                .orElse(GoogleStorageLocation.of(metadata.bucket(),
+                        PersistedLocations.blobForSingle(metadata.set(),
+                                metadata.sampleName(),
+                                Aligner.NAMESPACE,
+                                FileTypes.bam(metadata.sampleName()))));
         return AlignmentOutput.builder()
                 .sample(metadata.sampleName())
                 .status(PipelineStatus.PERSISTED)
-                .maybeFinalBamLocation(GoogleStorageLocation.of(metadata.bucket(), alignmentMapPath))
-                .maybeFinalBaiLocation(GoogleStorageLocation.of(metadata.bucket(), FileTypes.bai(alignmentMapPath)))
+                .maybeFinalBamLocation(alignmentMapLocation)
+                .maybeFinalBaiLocation(alignmentMapLocation.path().endsWith("bam")
+                        ? alignmentMapLocation.transform(FileTypes::bai)
+                        : alignmentMapLocation.transform(FileTypes::crai))
                 .build();
     }
 }

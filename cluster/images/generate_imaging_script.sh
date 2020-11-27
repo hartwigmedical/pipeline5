@@ -4,12 +4,27 @@
 
 LOCATION="europe-west4"
 ZONE="${LOCATION}-a"
-PROJECT="hmf-pipeline-development" 
-TYPE="pipeline5"
-VERSION=5-16
+PROJECT="hmf-pipeline-development"
+VERSION=5-17
 
-if [ -n "$1" ]; then
-    FLAVOUR="$1"
+TOOLS_ONLY=false
+while getopts ':tf:' flag; do
+    case "${flag}" in
+        t) TOOLS_ONLY=true ;;
+        f) FLAVOUR=${OPTARG} ;;
+        *) ;;
+    esac
+done
+sourceInstance="pipeline5-${VERSION}${FLAVOUR+"-$FLAVOUR"}"
+image_project="debian-cloud"
+image_family="debian-9"
+base_image_cmds="$(dirname "$0")/base.cmds"
+tools_image_cmds="$(dirname "$0")/tools.cmds"
+all_cmds=$(echo $base_image_cmds $tools_image_cmds)
+if [ "$TOOLS_ONLY" = true ]; then
+  image_project="hmf-pipeline-development"
+  image_family=${sourceInstance}
+  all_cmds=$tools_image_cmds
 fi
 
 GCL="gcloud beta compute --project=${PROJECT}"
@@ -17,16 +32,13 @@ GCL="gcloud beta compute --project=${PROJECT}"
 which gcloud 2>&1 >/dev/null
 [[ $? -ne 0 ]] && echo "gcloud is missing" >&2 && exit 1
 
-cmds="$(dirname "$0")/${TYPE}.cmds"
-[[ ! -f ${cmds} ]] && echo "Cannot find commands file '${TYPE}'!" >&2 && exit 1
-sourceInstance="${TYPE}-${VERSION}${FLAVOUR+"-$FLAVOUR"}"
 
 echo "#!$(which sh) -e"
 
-echo "$GCL instances create ${sourceInstance} --description=\"Instance for ${TYPE} disk image creation\" --zone=${ZONE} \
-    --boot-disk-size 200 --boot-disk-type pd-ssd --machine-type n1-highcpu-4 --image-project=debian-cloud --image-family=debian-9"
+echo "$GCL instances create ${sourceInstance} --description=\"Instance for pipeline5 disk image creation\" --zone=${ZONE} \
+    --boot-disk-size 200 --boot-disk-type pd-ssd --machine-type n1-highcpu-4 --image-project=${image_project} --image-family=${image_family}"
 echo "sleep 10"
-egrep -v '^#|^ *$' ${cmds} | while read cmd
+cat $all_cmds | egrep -v  '^#|^ *$' | while read cmd
 do
     echo "$GCL ssh ${sourceInstance} --zone=${ZONE} --command=\"$cmd\""
 done
