@@ -50,9 +50,7 @@ public class SagePostProcessGermlineTest extends SubStageTest {
                 "/opt/tools/tabix/0.2.6/tabix /data/output/tumor.blacklist.regions.vcf.gz -p vcf",
                 "(/opt/tools/bcftools/1.9/bcftools annotate -a /opt/resources/sage/hg19/KnownBlacklist.germline.hg19.vcf.gz -m BLACKLIST_VCF /data/output/tumor.blacklist.regions.vcf.gz -O z -o /data/output/tumor.blacklist.variants.vcf.gz)",
                 "/opt/tools/tabix/0.2.6/tabix /data/output/tumor.blacklist.variants.vcf.gz -p vcf",
-                "(/opt/tools/bcftools/1.9/bcftools filter -e 'BLACKLIST_BED=1 || BLACKLIST_VCF=1' -s BLACKLIST -m+ /data/output/tumor.blacklist.variants.vcf.gz -O z -o /data/output/tumor.blacklist.filter.vcf.gz)",
-                "/opt/tools/tabix/0.2.6/tabix /data/output/tumor.blacklist.filter.vcf.gz -p vcf",
-                "/opt/tools/snpEff/4.3s/snpEff.sh /opt/tools/snpEff/4.3s/snpEff.jar /opt/resources/snpeff/hg19/snpEff.config GRCh37.75 /data/output/tumor.blacklist.filter.vcf.gz /data/output/tumor.sage.germline.filtered.vcf",
+                "/opt/tools/snpEff/4.3s/snpEff.sh /opt/tools/snpEff/4.3s/snpEff.jar /opt/resources/snpeff/hg19/snpEff.config GRCh37.75 /data/output/tumor.blacklist.variants.vcf.gz /data/output/tumor.sage.germline.filtered.vcf",
                 "/opt/tools/tabix/0.2.6/bgzip -f /data/output/tumor.sage.germline.filtered.vcf",
                 "/opt/tools/tabix/0.2.6/tabix /data/output/tumor.sage.germline.filtered.vcf.gz -p vcf");
     }

@@ -38,7 +38,6 @@ public class SagePostProcessGermline extends SubStage {
         SubStage clinvarAnnotation = new ClinvarAnnotation(resourceFiles);
         SubStage blacklistBedAnnotation = new BlacklistBedAnnotation(resourceFiles);
         SubStage blacklistVcfAnnotation = new BlacklistVcfAnnotation(resourceFiles);
-        SubStage blacklistFilter = new BlacklistFilter();
 
         OutputFile passFilterFile = passFilter.apply(tumorSampleName).outputFile();
         OutputFile selectedSampleFile = selectSamples.apply(tumorSampleName).outputFile();
@@ -46,7 +45,6 @@ public class SagePostProcessGermline extends SubStage {
         OutputFile clinvarFile = clinvarAnnotation.apply(tumorSampleName).outputFile();
         OutputFile blacklistBedFile = blacklistBedAnnotation.apply(tumorSampleName).outputFile();
         OutputFile blacklistVcfFile = blacklistVcfAnnotation.apply(tumorSampleName).outputFile();
-        OutputFile blacklistFilterFile = blacklistFilter.apply(tumorSampleName).outputFile();
 
         result.addAll(passFilter.bash(input, passFilterFile));
         result.addAll(selectSamples.bash(passFilterFile, selectedSampleFile));
@@ -54,8 +52,7 @@ public class SagePostProcessGermline extends SubStage {
         result.addAll(clinvarAnnotation.bash(mappabilityAnnotationFile, clinvarFile));
         result.addAll(blacklistBedAnnotation.bash(clinvarFile, blacklistBedFile));
         result.addAll(blacklistVcfAnnotation.bash(blacklistBedFile, blacklistVcfFile));
-        result.addAll(blacklistFilter.bash(blacklistVcfFile, blacklistFilterFile));
-        result.addAll(snpEff.bash(blacklistFilterFile, output));
+        result.addAll(snpEff.bash(blacklistVcfFile, output));
         return result;
     }
 }
