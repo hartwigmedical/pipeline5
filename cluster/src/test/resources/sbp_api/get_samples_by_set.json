@@ -35,6 +35,10 @@
     "filename": null,
     "type": "tumor",
     "id": 50,
-    "q30_req": 75.0
+    "q30_req": 75.0,
+    "primary_tumor_doids": [
+      1234,
+      5678
+    ]
   }
 ]

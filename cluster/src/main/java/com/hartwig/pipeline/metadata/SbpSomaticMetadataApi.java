@@ -68,11 +68,7 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
             SbpIni ini = findIni(sbpRun, getInis());
             if (ini.name().startsWith(SINGLE_SAMPLE_INI)) {
                 LOGGER.info("Somatic run is using single sample configuration. No algorithms will be run, just transfer and cleanup");
-                return SomaticRunMetadata.builder()
-                        .bucket(sbpRun.bucket().orElseThrow())
-                        .set(sbpSet.name())
-                        .reference(reference)
-                        .build();
+                return SomaticRunMetadata.builder().bucket(sbpRun.bucket().orElseThrow()).set(sbpSet.name()).reference(reference).build();
             } else {
                 SingleSampleRunMetadata tumor = find(TUMOR, samplesBySet).map(referenceSample -> toMetadata(referenceSample,
                         sbpRun,
@@ -117,6 +113,7 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
                 .barcode(sample.barcode())
                 .entityId(sample.id())
                 .type(type)
+                .primaryTumorDoids(sample.primary_tumor_doids())
                 .build();
     }
 

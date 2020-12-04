@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.metadata;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
@@ -33,6 +35,8 @@ public interface SingleSampleRunMetadata extends RunMetadata {
     default String name() {
         return barcode();
     }
+
+    List<Integer> primaryTumorDoids();
 
     static ImmutableSingleSampleRunMetadata.Builder builder() {
         return ImmutableSingleSampleRunMetadata.builder();
