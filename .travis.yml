@@ -8,7 +8,7 @@ jdk:
 services:
   - docker
 env:
-- PIPELINE5_VERSION=5.17.$TRAVIS_BUILD_NUMBER
+- PIPELINE5_VERSION=5.18.$TRAVIS_BUILD_NUMBER
 cache:
   directories:
     - $HOME/.m2
