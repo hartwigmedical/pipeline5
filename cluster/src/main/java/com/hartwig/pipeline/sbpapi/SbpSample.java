@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.sbpapi;
 
+import java.util.List;
+
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
@@ -8,6 +10,7 @@ import org.immutables.value.Value;
 @JsonDeserialize(as = ImmutableSbpSample.class)
 @JsonSerialize(as = ImmutableSbpSample.class)
 @Value.Immutable
+@Value.Style(jdkOnly = true)
 public interface SbpSample {
 
     int id();
@@ -19,4 +22,6 @@ public interface SbpSample {
     String type();
 
     String status();
+
+    List<Integer> primary_tumor_doids();
 }

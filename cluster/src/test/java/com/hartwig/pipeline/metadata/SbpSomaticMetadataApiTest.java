@@ -31,8 +31,7 @@ public class SbpSomaticMetadataApiTest {
 
     private static final int SET_ID = 1;
     private static final String SAMPLE_ID = "7141";
-    private static final Storage.BlobListOption PREFIX =
-            Storage.BlobListOption.prefix(TestInputs.defaultSomaticRunMetadata().set() + "/");
+    private static final Storage.BlobListOption PREFIX = Storage.BlobListOption.prefix(TestInputs.defaultSomaticRunMetadata().set() + "/");
     private SomaticMetadataApi victim;
     private SbpRestApi sbpRestApi;
     private SomaticRunMetadata somaticRunMetadata;
@@ -70,6 +69,7 @@ public class SbpSomaticMetadataApiTest {
         assertThat(setMetadata.tumor().sampleName()).isEqualTo("ZR17SQ1-00649");
         assertThat(setMetadata.tumor().barcode()).isEqualTo("FR13257296");
         assertThat(setMetadata.tumor().entityId()).isEqualTo(50);
+        assertThat(setMetadata.tumor().primaryTumorDoids()).containsOnly(1234, 5678);
     }
 
     @Test
