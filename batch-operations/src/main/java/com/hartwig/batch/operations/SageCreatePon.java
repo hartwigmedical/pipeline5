@@ -21,7 +21,7 @@ import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
-public class SagePON implements BatchOperation {
+public class SageCreatePon implements BatchOperation {
     @Override
     public VirtualMachineJobDefinition execute(final InputBundle inputs, final RuntimeBucket runtimeBucket,
             final BashStartupScript startupScript, final RuntimeFiles executionFlags) {
@@ -63,6 +63,6 @@ public class SagePON implements BatchOperation {
 
     @Override
     public OperationDescriptor descriptor() {
-        return OperationDescriptor.of("SagePON", "Generate sage PON", OperationDescriptor.InputType.JSON);
+        return OperationDescriptor.of("SageCreatePon", "Generate sage PON", OperationDescriptor.InputType.JSON);
     }
 }

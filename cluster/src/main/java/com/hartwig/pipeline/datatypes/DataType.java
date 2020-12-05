@@ -2,6 +2,7 @@ package com.hartwig.pipeline.datatypes;
 
 public enum DataType {
     ALIGNED_READS,
+    ALIGNED_READS_INDEX,
     WGSMETRICS,
     READ_DEPTH_RATIO,
     B_ALLELE_FREQUENCY,

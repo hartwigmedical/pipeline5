@@ -1,6 +1,7 @@
 package com.hartwig.pipeline.report;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -32,6 +33,7 @@ public class FullSomaticResultsTest {
         Arguments arguments = Arguments.testDefaultsBuilder().outputBucket(OUTPUT_BUCKET).build();
         victim = new FullSomaticResults(storage, arguments, 1);
         outputBucket = mock(Bucket.class);
+        when(outputBucket.getName()).thenReturn(OUTPUT_BUCKET);
         when(storage.get(OUTPUT_BUCKET)).thenReturn(outputBucket);
     }
 
@@ -48,11 +50,32 @@ public class FullSomaticResultsTest {
 
         victim.compose(TestInputs.defaultSomaticRunMetadata());
 
-        assertThat(copyRequestArgumentCaptor.getAllValues().get(0).getSource().getName()).isEqualTo("reference-test/reference-test/output.txt");
+        assertThat(copyRequestArgumentCaptor.getAllValues().get(0).getSource().getName()).isEqualTo(
+                "reference-test/reference-test/output.txt");
         assertThat(copyRequestArgumentCaptor.getAllValues().get(0).getTarget().getName()).isEqualTo("set/reference-test/output.txt");
 
         assertThat(copyRequestArgumentCaptor.getAllValues().get(1).getSource().getName()).isEqualTo("tumor-test/tumor-test/output.txt");
         assertThat(copyRequestArgumentCaptor.getAllValues().get(1).getTarget().getName()).isEqualTo("set/tumor-test/output.txt");
+    }
+
+    @Test
+    public void deletesSingleSampleRunAfterCopying() {
+
+        Blob reference = returnSampleOnSecondAttempt(outputBucket, "reference-test");
+        returnSampleOnSecondAttempt(outputBucket, "tumor-test");
+
+        ArgumentCaptor<String> bucketArgumentCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> blobArgumentCaptor = ArgumentCaptor.forClass(String.class);
+        final CopyWriter copyWriter = mock(CopyWriter.class);
+        when(copyWriter.getResult()).thenReturn(reference);
+        when(storage.copy(any())).thenReturn(copyWriter);
+        victim.compose(TestInputs.defaultSomaticRunMetadata());
+        verify(storage, times(4)).delete(bucketArgumentCaptor.capture(), blobArgumentCaptor.capture());
+        assertThat(bucketArgumentCaptor.getAllValues()).allMatch(s -> s.equals(OUTPUT_BUCKET));
+        assertThat(blobArgumentCaptor.getAllValues().get(0)).isEqualTo("reference-test/reference-test/output.txt");
+        assertThat(blobArgumentCaptor.getAllValues().get(1)).isEqualTo("reference-test");
+        assertThat(blobArgumentCaptor.getAllValues().get(2)).isEqualTo("tumor-test/tumor-test/output.txt");
+        assertThat(blobArgumentCaptor.getAllValues().get(3)).isEqualTo("tumor-test");
     }
 
     @Test

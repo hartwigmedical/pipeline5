@@ -132,9 +132,11 @@ public class GoogleComputeEngine implements ComputeEngine {
                         project,
                         vmName,
                         currentZone.getName(),
-                        arguments.imageName().isPresent() ? compute.images()
+                        arguments.imageName().isPresent()
+                                ? compute.images()
                                 .get(VirtualMachineJobDefinition.HMF_IMAGE_PROJECT, arguments.imageName().get())
-                                .execute() : resolveLatestImage(compute, jobDefinition.imageFamily(), project));
+                                .execute()
+                                : resolveLatestImage(compute, jobDefinition.imageFamily(), arguments.imageProject().orElse(project)));
                 LOGGER.info("Submitting compute engine job [{}] using image [{}] in zone [{}]",
                         vmName,
                         image.getName(),

@@ -1,0 +1,59 @@
+{
+  "aligned_reads": {
+    "CPCT12345678R": {
+      "path": "gs://output-bucket/CPCT12345678R/aligner/CPCT12345678R.bam"
+    },
+    "CPCT12345678T": {
+      "path": "gs://output-bucket/CPCT12345678T/aligner/CPCT12345678T.bam"
+    }
+  },
+  "b_allele_frequency": {
+    "CPCT12345678T": {
+      "path": "gs://output-bucket/amber"
+    }
+  },
+  "germline_variants": {},
+  "read_depth_ratio": {
+    "CPCT12345678T": {
+      "path": "gs://output-bucket/cobalt"
+    }
+  },
+  "somatic_variants_purple": {
+    "CPCT12345678T": {
+      "path": "gs://output-bucket/purple/CPCT12345678T.purple.somatic.vcf.gz"
+    }
+  },
+  "somatic_variants_sage": {
+    "CPCT12345678T": {
+      "path": "gs://output-bucket/sage/CPCT12345678T.sage.somatic.filtered.vcf.gz"
+    }
+  },
+  "structural_variants_gridss": {
+    "CPCT12345678T": {
+      "path": "gs://output-bucket/gridss/CPCT12345678T.gridss.unfiltered.vcf.gz"
+    }
+  },
+  "structural_variants_gripss": {
+    "CPCT12345678T": {
+      "path": "gs://output-bucket/gripss/CPCT12345678T.gripss.somatic.filtered.vcf.gz"
+    }
+  },
+  "structural_variants_gripss_recovery": {
+    "CPCT12345678T": {
+      "path": "gs://output-bucket/gripss/CPCT12345678T.gripss.somatic.vcf.gz"
+    }
+  },
+  "structural_variants_purple": {
+    "CPCT12345678T": {
+      "path": "gs://output-bucket/purple/CPCT12345678T.purple.sv.vcf.gz"
+    }
+  },
+  "wgsmetrics": {
+    "CPCT12345678R": {
+      "path": "gs://output-bucket/CPCT12345678R/bam_metrics/CPCT12345678R.wgsmetrics"
+    },
+    "CPCT12345678T": {
+      "path": "gs://output-bucket/CPCT12345678T/bam_metrics/CPCT12345678T.wgsmetrics"
+    }
+  }
+}

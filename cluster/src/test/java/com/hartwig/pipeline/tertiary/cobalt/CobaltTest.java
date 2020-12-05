@@ -32,9 +32,10 @@ public class CobaltTest extends TertiaryStageTest<CobaltOutput> {
     @Override
     protected List<String> expectedCommands() {
         return Collections.singletonList(
-                "java -Xmx8G -cp /opt/tools/cobalt/1.10/cobalt.jar com.hartwig.hmftools.cobalt.CountBamLinesApplication -reference "
+                "java -Xmx8G -cp /opt/tools/cobalt/1.11/cobalt.jar com.hartwig.hmftools.cobalt.CountBamLinesApplication -reference "
                         + "reference -reference_bam /data/input/reference.bam -tumor tumor -tumor_bam /data/input/tumor.bam -output_dir "
-                        + "/data/output -threads $(grep -c '^processor' /proc/cpuinfo) -gc_profile /opt/resources/gc/hg19/GC_profile.1000bp.cnp");
+                        + "/data/output -threads $(grep -c '^processor' /proc/cpuinfo) -ref_genome " + ""
+                        + "/opt/resources/reference_genome/hg19/Homo_sapiens.GRCh37.GATK.illumina.fasta -gc_profile /opt/resources/gc/hg19/GC_profile.1000bp.cnp");
     }
 
     @Override
@@ -51,7 +52,7 @@ public class CobaltTest extends TertiaryStageTest<CobaltOutput> {
 
     @Override
     protected void setupPersistedDataset() {
-        persistedDataset.addDir(DataType.READ_DEPTH_RATIO, "cobalt");
+        persistedDataset.addPath(DataType.READ_DEPTH_RATIO, "cobalt");
     }
 
     @Override

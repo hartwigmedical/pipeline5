@@ -52,7 +52,7 @@ public class AmberTest extends TertiaryStageTest<AmberOutput> {
 
     @Override
     protected void setupPersistedDataset() {
-        persistedDataset.addDir(DataType.B_ALLELE_FREQUENCY, "amber");
+        persistedDataset.addPath(DataType.B_ALLELE_FREQUENCY, "amber");
     }
 
     @Override

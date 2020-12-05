@@ -1,41 +1,38 @@
 package com.hartwig.pipeline.reruns;
 
-import java.io.File;
+import static java.util.Optional.ofNullable;
+
 import java.io.IOException;
-import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hartwig.pipeline.datatypes.DataType;
-import com.hartwig.pipeline.metadata.RunMetadata;
-import com.hartwig.pipeline.sbpapi.SbpFileMetadata;
 import com.hartwig.pipeline.sbpapi.SbpRestApi;
+import com.hartwig.pipeline.storage.GoogleStorageLocation;
 
 public class ApiPersistedDataset implements PersistedDataset {
 
-    private final SbpRestApi restApi;
-    private final ObjectMapper objectMapper;
+    private final Map<String, Map<String, Map<String, String>>> datasetMap;
+    private final String billingProject;
 
-    public ApiPersistedDataset(final SbpRestApi restApi, final ObjectMapper objectMapper) {
-        this.restApi = restApi;
-        this.objectMapper = objectMapper;
-    }
-
-    @Override
-    public Optional<String> file(final RunMetadata metadata, final DataType dataType) {
+    public ApiPersistedDataset(final SbpRestApi restApi, final ObjectMapper objectMapper, final String biopsyName,
+            final String billingProject) {
+        this.billingProject = billingProject;
         try {
-            return objectMapper.<List<SbpFileMetadata>>readValue(restApi.getFileByBarcodeAndType(metadata.id(),
-                    metadata.barcode(),
-                    dataType.name().toLowerCase()), new TypeReference<List<SbpFileMetadata>>() {
-            }).stream().findFirst().map(f -> String.format("%s/%s/%s", metadata.set(), f.directory(), f.filename()));
+            String dataset = restApi.getDataset(biopsyName);
+            this.datasetMap = objectMapper.readValue(dataset, new TypeReference<Map<String, Map<String, Map<String, String>>>>() {
+            });
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
-    public Optional<String> directory(final RunMetadata metadata, final DataType dataType) {
-        return file(metadata, dataType).map(File::new).map(File::getParent);
+    public Optional<GoogleStorageLocation> path(final String sample, final DataType dataType) {
+        return ofNullable(datasetMap.get(dataType.toString().toLowerCase())).map(d -> d.get(sample))
+                .map(d -> d.get("path"))
+                .map(p -> GoogleStorageLocation.from(p, billingProject));
     }
 }

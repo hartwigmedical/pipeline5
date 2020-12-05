@@ -55,11 +55,13 @@ public class FullSomaticResults {
                         retryDelayInSeconds))
                 .withDelay(Duration.ofSeconds(retryDelayInSeconds))
                 .withMaxRetries(INFINITE)).get(() -> bucket.get(completionFile));
-        for (Blob blob : bucket.list(Storage.BlobListOption.prefix(directory)).iterateAll()) {
-            String pathSplit = blob.getName().substring(blob.getName().indexOf("/") + 1);
+        for (Blob source : bucket.list(Storage.BlobListOption.prefix(directory)).iterateAll()) {
+            String pathSplit = source.getName().substring(source.getName().indexOf("/") + 1);
             storage.copy(Storage.CopyRequest.of(arguments.outputBucket(),
-                    blob.getName(),
+                    source.getName(),
                     BlobId.of(arguments.outputBucket(), metadata.set() + "/" + pathSplit))).getResult();
+            storage.delete(bucket.getName(), source.getName());
         }
+        storage.delete(bucket.getName(), directory);
     }
 }

@@ -47,7 +47,7 @@ public class PipelineMain {
     private static final Logger LOGGER = LoggerFactory.getLogger(PipelineMain.class);
 
     public PipelineState start(Arguments arguments) {
-        LOGGER.info("Arguments [{}]", arguments);
+        LOGGER.info("Arguments are [{}]", arguments);
         Versions.printAll();
         try {
             GoogleCredentials credentials = CredentialProvider.from(arguments).get();
@@ -77,8 +77,10 @@ public class PipelineMain {
             BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue = new ArrayBlockingQueue<>(1);
             StartingPoint startingPoint = new StartingPoint(arguments);
             PersistedDataset persistedDataset =
-                    arguments.sbpApiRunId().<PersistedDataset>map(r -> new ApiPersistedDataset(SbpRestApi.newInstance(arguments.sbpApiUrl()),
-                            ObjectMappers.get())).orElse(new NoopPersistedDataset());
+                    arguments.biopsy().<PersistedDataset>map(b -> new ApiPersistedDataset(SbpRestApi.newInstance(arguments.sbpApiUrl()),
+                            ObjectMappers.get(),
+                            b,
+                            arguments.project())).orElse(new NoopPersistedDataset());
             PipelineState state = new FullPipeline(singleSamplePipeline(arguments,
                     credentials,
                     storage,

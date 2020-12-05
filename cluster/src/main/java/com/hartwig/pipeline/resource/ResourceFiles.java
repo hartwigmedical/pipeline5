@@ -25,6 +25,8 @@ public interface ResourceFiles {
 
     String gcProfileFile();
 
+    String diploidRegionsBed();
+
     String amberHeterozygousLoci();
 
     String gridssRepeatMaskerDb();
@@ -53,9 +55,19 @@ public interface ResourceFiles {
 
     String snpEffConfig();
 
-    String sageKnownHotspots();
+    String sageSomaticHotspots();
 
-    String sageActionableCodingPanel();
+    String sageSomaticCodingPanel();
+
+    String sageGermlineHotspots();
+
+    String sageGermlineCodingPanel();
+
+    String sageGermlineBlacklistVcf();
+
+    String sageGermlineBlacklistBed();
+
+    String clinvarVcf();
 
     String out150Mappability();
 

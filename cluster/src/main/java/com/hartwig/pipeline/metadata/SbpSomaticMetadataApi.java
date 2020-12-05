@@ -68,12 +68,7 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
             SbpIni ini = findIni(sbpRun, getInis());
             if (ini.name().startsWith(SINGLE_SAMPLE_INI)) {
                 LOGGER.info("Somatic run is using single sample configuration. No algorithms will be run, just transfer and cleanup");
-                return SomaticRunMetadata.builder()
-                        .bucket(sbpRun.bucket().orElseThrow())
-                        .set(sbpSet.name())
-                        .reference(reference)
-                        .id(sbpRun.id())
-                        .build();
+                return SomaticRunMetadata.builder().bucket(sbpRun.bucket().orElseThrow()).set(sbpSet.name()).reference(reference).build();
             } else {
                 SingleSampleRunMetadata tumor = find(TUMOR, samplesBySet).map(referenceSample -> toMetadata(referenceSample,
                         sbpRun,
@@ -82,7 +77,6 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
                                 "No tumor sample found in SBP for set [%s] and this run was not marked as single sample",
                                 sbpSet.name()))));
                 return SomaticRunMetadata.builder()
-                        .id(sbpRun.id())
                         .bucket(sbpRun.bucket().orElseThrow())
                         .set(sbpSet.name())
                         .reference(reference)
@@ -113,13 +107,13 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
     private static ImmutableSingleSampleRunMetadata toMetadata(final SbpSample sample, final SbpRun aRun,
             final SingleSampleRunMetadata.SampleType type) {
         return SingleSampleRunMetadata.builder()
-                .id(aRun.id())
                 .bucket(aRun.bucket().orElseThrow())
                 .set(aRun.set().name())
                 .sampleName(sample.name())
                 .barcode(sample.barcode())
                 .entityId(sample.id())
                 .type(type)
+                .primaryTumorDoids(sample.primary_tumor_doids())
                 .build();
     }
 

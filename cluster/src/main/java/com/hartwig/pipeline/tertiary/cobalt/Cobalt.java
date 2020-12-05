@@ -42,11 +42,11 @@ public class Cobalt extends TertiaryStage<CobaltOutput> {
 
     @Override
     public List<BashCommand> commands(final SomaticRunMetadata metadata) {
-        return Collections.singletonList(new CobaltApplicationCommand(metadata.reference().sampleName(),
+        return Collections.singletonList(new CobaltApplicationCommand(resourceFiles,
+                metadata.reference().sampleName(),
                 getReferenceBamDownload().getLocalTargetPath(),
                 metadata.tumor().sampleName(),
-                getTumorBamDownload().getLocalTargetPath(),
-                resourceFiles.gcProfileFile()));
+                getTumorBamDownload().getLocalTargetPath()));
     }
 
     @Override
@@ -79,10 +79,11 @@ public class Cobalt extends TertiaryStage<CobaltOutput> {
     public CobaltOutput persistedOutput(final SomaticRunMetadata metadata) {
         return CobaltOutput.builder()
                 .status(PipelineStatus.PERSISTED)
-                .maybeOutputDirectory(GoogleStorageLocation.of(metadata.bucket(),
-                        persistedDataset.directory(metadata, DataType.READ_DEPTH_RATIO)
-                                .orElse(PersistedLocations.pathForSet(metadata.set(), namespace())),
-                        true))
+                .maybeOutputDirectory(persistedDataset.path(metadata.tumor().sampleName(), DataType.READ_DEPTH_RATIO)
+                        .map(GoogleStorageLocation::asDirectory)
+                        .orElse(GoogleStorageLocation.of(metadata.bucket(),
+                                PersistedLocations.pathForSet(metadata.set(), namespace()),
+                                true)))
                 .build();
     }
 }

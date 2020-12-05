@@ -22,7 +22,7 @@ class MappabilityAnnotation extends SubStage {
     @Override
     public List<BashCommand> bash(final OutputFile input, final OutputFile output) {
         return new BcfToolsCommandListBuilder(input.path(), output.path()).withIndex()
-                .addAnnotation(bed, "CHROM,FROM,TO,-,MAPPABILITY", hdr)
+                .addAnnotationWithHeader(bed, "CHROM,FROM,TO,-,MAPPABILITY", hdr)
                 .build();
     }
 
