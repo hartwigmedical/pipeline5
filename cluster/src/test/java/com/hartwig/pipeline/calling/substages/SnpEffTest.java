@@ -12,7 +12,7 @@ public class SnpEffTest extends SubStageTest {
 
     @Override
     public SubStage createVictim() {
-        return new SnpEff(TestInputs.HG19_RESOURCE_FILES);
+        return new SnpEff(TestInputs.HG37_RESOURCE_FILES);
     }
 
     @Override

@@ -37,7 +37,7 @@ public class GermlineCallerTest extends StageTest<GermlineCallerOutput, SingleSa
 
     @Override
     protected Stage<GermlineCallerOutput, SingleSampleRunMetadata> createVictim() {
-        return new GermlineCaller(TestInputs.referenceAlignmentOutput(), TestInputs.HG19_RESOURCE_FILES, persistedDataset);
+        return new GermlineCaller(TestInputs.referenceAlignmentOutput(), TestInputs.HG37_RESOURCE_FILES, persistedDataset);
     }
 
     @Override

@@ -12,7 +12,7 @@ import com.hartwig.pipeline.metadata.ApiFileOperation;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.reruns.NoopPersistedDataset;
-import com.hartwig.pipeline.resource.Hg19ResourceFiles;
+import com.hartwig.pipeline.resource.Hg37ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
@@ -33,7 +33,7 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
 
     @Override
     protected Stage<PurpleOutput, SomaticRunMetadata> createVictim() {
-        return new Purple(TestInputs.HG19_RESOURCE_FILES,
+        return new Purple(TestInputs.HG37_RESOURCE_FILES,
                 TestInputs.sageOutput(),
                 TestInputs.structuralCallerPostProcessOutput(),
                 TestInputs.amberOutput(),
@@ -73,7 +73,7 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
 
     @Test
     public void shallowModeUsesLowDepthSettings() {
-        Purple victim = new Purple(new Hg19ResourceFiles(),
+        Purple victim = new Purple(new Hg37ResourceFiles(),
                 TestInputs.sageOutput(),
                 TestInputs.structuralCallerPostProcessOutput(),
                 TestInputs.amberOutput(),
