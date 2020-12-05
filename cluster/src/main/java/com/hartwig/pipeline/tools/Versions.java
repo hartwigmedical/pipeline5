@@ -24,7 +24,7 @@ public interface Versions {
     String CIRCOS = "0.69.6";
     String GRIDSS = "2.9.4";
     String GRIPSS = "1.10";
-    String LINX = "1.11";
+    String LINX = "1.12";
     String BACHELOR = "1.12";
     String CHORD = "2.00_1.14";
     String SAMTOOLS = "1.10";
