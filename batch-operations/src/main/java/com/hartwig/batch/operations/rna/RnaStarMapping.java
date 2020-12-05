@@ -3,8 +3,12 @@ package com.hartwig.batch.operations.rna;
 import static java.lang.String.format;
 
 import static com.hartwig.batch.operations.rna.RnaCommon.REF_GENCODE_37_DIR;
-import static com.hartwig.batch.operations.rna.RnaCommon.RNA_COHORT_LOCATION;
+import static com.hartwig.batch.operations.rna.RnaCommon.RNA_COHORT_LOCATION_HG37;
 import static com.hartwig.batch.operations.rna.RnaCommon.RNA_RESOURCES;
+import static com.hartwig.batch.operations.rna.RnaCommon.getRnaCohortDirectory;
+import static com.hartwig.batch.operations.rna.RnaCommon.getRnaResourceDirectory;
+import static com.hartwig.pipeline.resource.RefGenomeVersion.HG19;
+import static com.hartwig.pipeline.resource.ResourceFilesFactory.buildResourceFiles;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,11 +33,14 @@ import com.hartwig.pipeline.execution.vm.SambambaCommand;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
+import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tools.Versions;
 
 public class RnaStarMapping implements BatchOperation {
+
+    private static final String STAR_DIR = "star";
 
     @Override
     public VirtualMachineJobDefinition execute(
@@ -44,26 +51,40 @@ public class RnaStarMapping implements BatchOperation {
         final String batchInputs = descriptor.inputValue();
         final String[] batchItems = batchInputs.split(",");
 
+        // required format: SampleId,RefGenomeVersion (HG37 by default),FASTA file bucket
+
+        /*
         if(batchItems.length != 2)
         {
-            System.out.print(String.format("invalid input arguments(%s) - expected SampleId,PathToFastqFiles", batchInputs));
+            System.out.print(String.format("invalid input arguments(%s) - expected SampleId,RefGenomeVersion,FastqFileBucketDir", batchInputs));
             return null;
         }
+        */
 
         final String sampleId = batchItems[0];
-        final String fastqFilelist = batchItems[1];
+        final RefGenomeVersion refGenomeVersion = batchItems.length >= 2 ? RefGenomeVersion.valueOf(batchItems[1]) : HG19;
 
-        final List<String> sampleFastqFiles = getSampleFastqFileList(sampleId, fastqFilelist);
+        if(batchItems.length >= 3) {
+            final String fastqFilelist = batchItems[1];
 
-        if(sampleFastqFiles.isEmpty()) {
-            System.out.print(String.format("sampleId(%s) fastq files not found", sampleId));
-            return null;
+            final List<String> sampleFastqFiles = getSampleFastqFileList(sampleId, fastqFilelist);
+
+            if(sampleFastqFiles.isEmpty()) {
+                System.out.print(String.format("sampleId(%s) fastq files not found", sampleId));
+                return null;
+            }
+
+            // copy down FASTQ files for this sample
+            for(final String fastqFile : sampleFastqFiles)
+            {
+                startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s %s", fastqFile, VmDirectories.INPUT));
+            }
         }
-
-        // copy down FASTQ files for this sample
-        for(final String fastqFile : sampleFastqFiles)
+        else
         {
-            startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s %s", fastqFile, VmDirectories.INPUT));
+            // expected location: "gs://cpct02010255tii-rna-reads/1.3/CPCT02010255TII_AHWGLNBGX5_S4_L002_R1_001.fastq.gz
+            final String sampleFastqFiles = String.format("gs://%s-rna-reads/1.3/*.fastq.gz", sampleId.toLowerCase());
+            startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s %s", sampleFastqFiles, VmDirectories.INPUT));
         }
 
         // locate the FASTQ files for reads 1 and 2
@@ -71,17 +92,18 @@ public class RnaStarMapping implements BatchOperation {
         final String r2Files = format("$(ls %s/*_R2* | tr '\\n' ',')", VmDirectories.INPUT);
 
         // copy reference files for STAR
-        startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp -r %s/%s %s", RNA_RESOURCES, REF_GENCODE_37_DIR, VmDirectories.INPUT));
+        final String starGenomeDir = getRnaResourceDirectory(refGenomeVersion, STAR_DIR);
+        final String localStarGenomeDir = String.format("%s/%s", VmDirectories.INPUT, STAR_DIR);
 
-        final String refGenomeDir = String.format("%s/%s", VmDirectories.INPUT, REF_GENCODE_37_DIR);
+        startupScript.addCommand(() -> format("mkdir %s", localStarGenomeDir));
+        startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/* %s", starGenomeDir, localStarGenomeDir));
 
-        // logging
         final String threadCount = Bash.allCpus();
 
         startupScript.addCommand(() -> format("cd %s", VmDirectories.OUTPUT));
 
         // run the STAR mapper
-        final String[] starArgs = {"--runThreadN", threadCount, "--genomeDir", refGenomeDir, "--genomeLoad", "NoSharedMemory",
+        final String[] starArgs = {"--runThreadN", threadCount, "--genomeDir", localStarGenomeDir, "--genomeLoad", "NoSharedMemory",
                 "--readFilesIn", r1Files, r2Files, "--readFilesCommand", "zcat", "--outSAMtype", "BAM", "Unsorted",
                 "--outSAMunmapped", "Within", "--outBAMcompression", "0", "--outSAMattributes", "All",
                 "--outFilterMultimapNmax", "10", "--outFilterMismatchNmax", "3", "limitOutSJcollapsed", "3000000",
@@ -137,10 +159,11 @@ public class RnaStarMapping implements BatchOperation {
         // upload the results
         startupScript.addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), "star"), executionFlags));
 
-        // copy results to rna-analysis location on crunch
+        // copy results to crunch
 
+        final String resultsDir = getRnaCohortDirectory(refGenomeVersion);
 
-        startupScript.addCommand(() -> format("gsutil -m cp %s/* %s/%s/", VmDirectories.OUTPUT, RNA_COHORT_LOCATION, sampleId));
+        startupScript.addCommand(() -> format("gsutil -m cp %s/* %s/%s/", VmDirectories.OUTPUT, resultsDir, sampleId));
 
         // startupScript.addCommand(new OutputUpload(GoogleStorageLocation.of("rna-cohort", sampleId), executionFlags));
 

@@ -2,8 +2,7 @@ package com.hartwig.batch.operations.rna;
 
 import static java.lang.String.format;
 
-import static com.hartwig.batch.operations.rna.RnaCommon.MAX_EXPECTED_BAM_SIZE_GB;
-import static com.hartwig.batch.operations.rna.RnaCommon.RNA_COHORT_LOCATION;
+import static com.hartwig.batch.operations.rna.RnaCommon.RNA_COHORT_LOCATION_HG37;
 import static com.hartwig.batch.operations.rna.RnaCommon.RNA_RESOURCES;
 
 import com.hartwig.batch.BatchOperation;
@@ -46,11 +45,11 @@ public class RnaArriba implements BatchOperation
         // copy down BAM and index file for this sample
         final String bamFile = String.format("%s%s", sampleId, RNA_BAM_FILE_ID);
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s/%s %s",
-                RNA_COHORT_LOCATION, sampleId, bamFile, VmDirectories.INPUT));
+                RNA_COHORT_LOCATION_HG37, sampleId, bamFile, VmDirectories.INPUT));
 
         final String bamIndexFile = String.format("%s%s", sampleId, RNA_BAM_INDEX_FILE_ID);
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s/%s %s",
-                RNA_COHORT_LOCATION, sampleId, bamIndexFile, VmDirectories.INPUT));
+                RNA_COHORT_LOCATION_HG37, sampleId, bamIndexFile, VmDirectories.INPUT));
 
         // copy down the executable
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s %s", ARRIBA_RESOURCES, ARRIBA_TOOL, VmDirectories.TOOLS));
@@ -93,7 +92,7 @@ public class RnaArriba implements BatchOperation
         startupScript.addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), "arriba"), executionFlags));
 
         // copy results to rna-analysis location on crunch
-        startupScript.addCommand(() -> format("gsutil -m cp %s/* %s/%s/arriba/", VmDirectories.OUTPUT, RNA_COHORT_LOCATION, sampleId));
+        startupScript.addCommand(() -> format("gsutil -m cp %s/* %s/%s/arriba/", VmDirectories.OUTPUT, RNA_COHORT_LOCATION_HG37, sampleId));
 
         return ImmutableVirtualMachineJobDefinition.builder().name("rna-arriba").startupCommand(startupScript)
                 .namespacedResults(ResultsDirectory.defaultDirectory()).workingDiskSpaceGb(100)
