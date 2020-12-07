@@ -42,7 +42,7 @@ public class CobaltMigration implements BatchOperation {
         // Download old files
         commands.addCommand(() -> copyInputCommand(remoteInputDirectory));
 
-        final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.HG19);
+        final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.HG37);
         commands.addCommand(() -> new CobaltMigrationCommand(resourceFiles, referenceSampleName, tumorSampleName).asBash());
 
         // Store output

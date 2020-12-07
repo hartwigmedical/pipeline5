@@ -1,6 +1,6 @@
 package com.hartwig.pipeline.tertiary.linx;
 
-import static com.hartwig.pipeline.resource.RefGenomeVersion.HG19;
+import static com.hartwig.pipeline.resource.RefGenomeVersion.HG37;
 
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.execution.vm.JavaJarCommand;
@@ -50,6 +50,6 @@ class LinxCommand extends JavaJarCommand {
     }
 
     public static String asString(RefGenomeVersion version) {
-        return version == HG19 ? "HG37" : "HG38";
+        return version == HG37 ? "HG37" : "HG38";
     }
 }

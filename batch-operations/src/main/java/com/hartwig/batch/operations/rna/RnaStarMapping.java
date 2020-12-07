@@ -4,7 +4,7 @@ import static java.lang.String.format;
 
 import static com.hartwig.batch.operations.rna.RnaCommon.getRnaCohortDirectory;
 import static com.hartwig.batch.operations.rna.RnaCommon.getRnaResourceDirectory;
-import static com.hartwig.pipeline.resource.RefGenomeVersion.HG19;
+import static com.hartwig.pipeline.resource.RefGenomeVersion.HG37;
 
 import java.io.File;
 import java.io.IOException;
@@ -58,7 +58,7 @@ public class RnaStarMapping implements BatchOperation {
         */
 
         final String sampleId = batchItems[0];
-        final RefGenomeVersion refGenomeVersion = batchItems.length >= 2 ? RefGenomeVersion.valueOf(batchItems[1]) : HG19;
+        final RefGenomeVersion refGenomeVersion = batchItems.length >= 2 ? RefGenomeVersion.valueOf(batchItems[1]) : HG37;
 
         if(batchItems.length >= 3) {
             final String fastqFilelist = batchItems[1];

@@ -39,7 +39,7 @@ public class SageCreatePonData implements BatchOperation {
     public VirtualMachineJobDefinition execute(final InputBundle inputs, final RuntimeBucket runtimeBucket,
             final BashStartupScript startupScript, final RuntimeFiles executionFlags) {
 
-        final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.HG19);
+        final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.HG37);
 
         final InputFileDescriptor remoteReferenceFile = inputs.get("reference");
         final InputFileDescriptor remoteReferenceIndex = remoteReferenceFile.index();

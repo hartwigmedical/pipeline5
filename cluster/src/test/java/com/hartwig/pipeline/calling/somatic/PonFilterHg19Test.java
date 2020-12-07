@@ -12,7 +12,7 @@ public class PonFilterHg19Test extends SubStageTest {
 
     @Override
     public SubStage createVictim() {
-        return new PonFilter(RefGenomeVersion.HG19);
+        return new PonFilter(RefGenomeVersion.HG37);
     }
 
     @Override

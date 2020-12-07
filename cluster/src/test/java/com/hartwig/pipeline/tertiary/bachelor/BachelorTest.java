@@ -25,7 +25,7 @@ public class BachelorTest extends TertiaryStageTest<BachelorOutput> {
 
     @Override
     protected Stage<BachelorOutput, SomaticRunMetadata> createVictim() {
-        return new Bachelor(TestInputs.HG19_RESOURCE_FILES, TestInputs.purpleOutput(), TestInputs.tumorAlignmentOutput(), TestInputs.germlineCallerOutput());
+        return new Bachelor(TestInputs.HG37_RESOURCE_FILES, TestInputs.purpleOutput(), TestInputs.tumorAlignmentOutput(), TestInputs.germlineCallerOutput());
     }
 
     @Override
@@ -41,9 +41,9 @@ public class BachelorTest extends TertiaryStageTest<BachelorOutput> {
     protected List<String> expectedCommands() {
         return Collections.singletonList("java -Xmx8G -jar /opt/tools/bachelor/1.12/bachelor.jar -sample tumor -germline_vcf "
                 + "/data/input/reference.germline.vcf.gz -tumor_bam_file /data/input/tumor.bam -purple_data_dir /data/input/results "
-                + "-xml_config /opt/resources/bachelor_config/hg19/bachelor_hmf.xml -ext_filter_file "
-                + "/opt/resources/bachelor_config/hg19/bachelor_clinvar_filters.csv -ref_genome "
-                + "/opt/resources/reference_genome/hg19/Homo_sapiens.GRCh37.GATK.illumina.fasta -include_vcf_filtered -output_dir /data/output -log_debug");
+                + "-xml_config /opt/resources/bachelor_config/hg37/bachelor_hmf.xml -ext_filter_file "
+                + "/opt/resources/bachelor_config/hg37/bachelor_clinvar_filters.csv -ref_genome "
+                + "/opt/resources/reference_genome/hg37/Homo_sapiens.GRCh37.GATK.illumina.fasta -include_vcf_filtered -output_dir /data/output -log_debug");
     }
 
     @Override

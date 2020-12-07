@@ -41,7 +41,7 @@ public class GripssRerun implements BatchOperation {
     public VirtualMachineJobDefinition execute(final InputBundle inputs, final RuntimeBucket runtimeBucket,
             final BashStartupScript startupScript, final RuntimeFiles executionFlags) {
 
-        final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.HG19);
+        final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.HG37);
         final InputFileDescriptor setDescriptor = inputs.get("set");
         final String set = setDescriptor.inputValue();
         final String sample = inputs.get("tumor_sample").inputValue();

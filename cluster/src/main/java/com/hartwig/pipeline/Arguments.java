@@ -119,7 +119,7 @@ public interface Arguments extends CommonArguments {
     String DEFAULT_DEVELOPMENT_PATIENT_REPORT_BUCKET = "pipeline-output-dev";
     String DEFAULT_DEVELOPMENT_ARCHIVE_BUCKET = "pipeline-archive-dev";
 
-    RefGenomeVersion DEFAULT_REF_GENOME_VERSION = RefGenomeVersion.HG19;
+    RefGenomeVersion DEFAULT_REF_GENOME_VERSION = RefGenomeVersion.HG37;
 
     int DEFAULT_MAX_CONCURRENT_LANES = 8;
 

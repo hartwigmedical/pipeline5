@@ -67,7 +67,7 @@ public class SageRerun implements BatchOperation {
         final String localReferenceBam = CONVERT_TO_BAM ? localReferenceFile.replace("cram", "bam") : localReferenceFile;
 
         // Prepare SnpEff
-        final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.HG19);
+        final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.HG37);
         commands.addCommand(new UnzipToDirectoryCommand(VmDirectories.RESOURCES, resourceFiles.snpEffDb()));
 
         // Download tumor

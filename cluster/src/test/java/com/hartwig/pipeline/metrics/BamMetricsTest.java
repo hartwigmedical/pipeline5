@@ -35,7 +35,7 @@ public class BamMetricsTest extends StageTest<BamMetricsOutput, SingleSampleRunM
 
     @Override
     protected Stage<BamMetricsOutput, SingleSampleRunMetadata> createVictim() {
-        return new BamMetrics(TestInputs.HG19_RESOURCE_FILES, TestInputs.referenceAlignmentOutput(), persistedDataset);
+        return new BamMetrics(TestInputs.HG37_RESOURCE_FILES, TestInputs.referenceAlignmentOutput(), persistedDataset);
     }
 
     @Override
@@ -58,7 +58,7 @@ public class BamMetricsTest extends StageTest<BamMetricsOutput, SingleSampleRunM
         return ImmutableList.of("java -Xmx24G -Dsamjdk.use_async_io_read_samtools=true -Dsamjdk.use_async_io_write_samtools=true "
                 + "-Dsamjdk.use_async_io_write_tribble=true -Dsamjdk.buffer_size=4194304 -cp /opt/tools/gridss/2.9.4/gridss.jar "
                 + "picard.cmdline.PicardCommandLine CollectWgsMetrics "
-                + "REFERENCE_SEQUENCE=/opt/resources/reference_genome/hg19/Homo_sapiens.GRCh37.GATK.illumina.fasta "
+                + "REFERENCE_SEQUENCE=/opt/resources/reference_genome/hg37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
                 + "INPUT=/data/input/reference.bam OUTPUT=/data/output/" + REFERENCE_WGSMETRICS + " MINIMUM_MAPPING_QUALITY=20 "
                 + "MINIMUM_BASE_QUALITY=10 COVERAGE_CAP=250");
     }
