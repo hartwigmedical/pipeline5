@@ -69,7 +69,7 @@ public class SbpSomaticMetadataApiTest {
         assertThat(setMetadata.tumor().sampleName()).isEqualTo("ZR17SQ1-00649");
         assertThat(setMetadata.tumor().barcode()).isEqualTo("FR13257296");
         assertThat(setMetadata.tumor().entityId()).isEqualTo(50);
-        assertThat(setMetadata.tumor().primaryTumorDoids()).containsOnly(1234, 5678);
+        assertThat(setMetadata.tumor().primaryTumorDoids()).containsOnly("1234","5678");
     }
 
     @Test
