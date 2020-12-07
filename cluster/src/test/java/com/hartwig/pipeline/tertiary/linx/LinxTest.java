@@ -25,7 +25,7 @@ public class LinxTest extends TertiaryStageTest<LinxOutput> {
 
     @Override
     protected Stage<LinxOutput, SomaticRunMetadata> createVictim() {
-        return new Linx(TestInputs.purpleOutput(), TestInputs.HG37_RESOURCE_FILES);
+        return new Linx(TestInputs.purpleOutput(), TestInputs.HG19_RESOURCE_FILES);
     }
 
     @Override

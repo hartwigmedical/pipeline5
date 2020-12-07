@@ -18,7 +18,7 @@ public class SagePostProcessGermlineTest extends SubStageTest {
 
     @Override
     public SubStage createVictim() {
-        return new SagePostProcessGermline("reference", "tumor", TestInputs.HG37_RESOURCE_FILES);
+        return new SagePostProcessGermline("reference", "tumor", TestInputs.HG19_RESOURCE_FILES);
     }
 
     @Override

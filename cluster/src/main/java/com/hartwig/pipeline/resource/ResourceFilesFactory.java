@@ -5,7 +5,7 @@ import com.hartwig.pipeline.CommonArguments;
 public class ResourceFilesFactory {
 
     public static ResourceFiles buildResourceFiles(final RefGenomeVersion version) {
-        return version == RefGenomeVersion.HG37 ? new Hg37ResourceFiles() : new Hg38ResourceFiles();
+        return version == RefGenomeVersion.HG19 ? new Hg19ResourceFiles() : new Hg38ResourceFiles();
     }
 
     public static ResourceFiles buildResourceFiles(final CommonArguments arguments) {

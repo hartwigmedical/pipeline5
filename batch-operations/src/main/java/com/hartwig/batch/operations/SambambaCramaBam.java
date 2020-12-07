@@ -15,7 +15,7 @@ import com.hartwig.pipeline.execution.vm.RuntimeFiles;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
-import com.hartwig.pipeline.resource.Hg37ResourceFiles;
+import com.hartwig.pipeline.resource.Hg19ResourceFiles;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tools.Versions;
@@ -29,7 +29,7 @@ public class SambambaCramaBam implements BatchOperation {
         String localInput = String.format("%s/%s", VmDirectories.INPUT, new File(input.inputValue()).getName());
         startupScript.addCommand(() -> input.toCommandForm(localInput));
 
-        final Hg37ResourceFiles resourceFiles = new Hg37ResourceFiles();
+        final Hg19ResourceFiles resourceFiles = new Hg19ResourceFiles();
 
         startupScript.addCommand(new VersionedToolCommand("sambamba", "sambamba", Versions.SAMBAMBA,
                 "view", localInput, "-o", outputFile, "-t", Bash.allCpus(), "--format=cram",

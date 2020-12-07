@@ -24,7 +24,7 @@ public class SageCallerTest extends TertiaryStageTest<SomaticCallerOutput> {
 
     @Override
     protected Stage<SomaticCallerOutput, SomaticRunMetadata> createVictim() {
-        return new SageCaller(TestInputs.defaultPair(), TestInputs.HG37_RESOURCE_FILES, new NoopPersistedDataset());
+        return new SageCaller(TestInputs.defaultPair(), TestInputs.HG19_RESOURCE_FILES, new NoopPersistedDataset());
     }
 
     @Override

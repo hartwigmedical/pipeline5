@@ -14,7 +14,7 @@ import com.hartwig.pipeline.execution.vm.RuntimeFiles;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
-import com.hartwig.pipeline.resource.Hg37ResourceFiles;
+import com.hartwig.pipeline.resource.Hg19ResourceFiles;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
@@ -65,7 +65,7 @@ public class BachelorCohort implements BatchOperation {
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s %s", tumorBamPath, VmDirectories.INPUT));
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s* %s", germlineVcfPath, VmDirectories.INPUT));
 
-        final Hg37ResourceFiles resourceFiles = new Hg37ResourceFiles();
+        final Hg19ResourceFiles resourceFiles = new Hg19ResourceFiles();
         final String refGenome = resourceFiles.refGenomeFile();
 
         // copy down required reference files

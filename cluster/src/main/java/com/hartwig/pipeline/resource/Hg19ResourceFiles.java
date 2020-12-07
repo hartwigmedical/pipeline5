@@ -17,23 +17,23 @@ import static com.hartwig.pipeline.resource.ResourceNames.SAGE;
 import static com.hartwig.pipeline.resource.ResourceNames.SNPEFF;
 import static com.hartwig.pipeline.resource.ResourceNames.SV;
 
-public class Hg37ResourceFiles implements ResourceFiles {
-    public static final String HG37_DIRECTORY = "hg19"; // TO-DO - rename to hg37
-    private static final String REF_GENOME_FASTA_HG37_FILE = "Homo_sapiens.GRCh37.GATK.illumina.fasta";
+public class Hg19ResourceFiles implements ResourceFiles {
+    public static final String HG19_DIRECTORY = "hg19";
+    private static final String REF_GENOME_FASTA_HG19_FILE = "Homo_sapiens.GRCh37.GATK.illumina.fasta";
 
     @Override
     public RefGenomeVersion version() {
-        return RefGenomeVersion.HG37;
+        return RefGenomeVersion.HG19;
     }
 
     @Override
     public String versionDirectory() {
-        return HG37_DIRECTORY;
+        return HG19_DIRECTORY;
     }
 
     @Override
     public String refGenomeFile() {
-        return formPath(REFERENCE_GENOME, REF_GENOME_FASTA_HG37_FILE);
+        return formPath(REFERENCE_GENOME, REF_GENOME_FASTA_HG19_FILE);
     }
 
     @Override

@@ -35,7 +35,7 @@ public class BamMetricsTest extends StageTest<BamMetricsOutput, SingleSampleRunM
 
     @Override
     protected Stage<BamMetricsOutput, SingleSampleRunMetadata> createVictim() {
-        return new BamMetrics(TestInputs.HG37_RESOURCE_FILES, TestInputs.referenceAlignmentOutput(), persistedDataset);
+        return new BamMetrics(TestInputs.HG19_RESOURCE_FILES, TestInputs.referenceAlignmentOutput(), persistedDataset);
     }
 
     @Override
