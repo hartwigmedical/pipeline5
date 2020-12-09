@@ -19,6 +19,7 @@ import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.metadata.AddDatatypeToFile;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
+import com.hartwig.pipeline.metadata.SingleSampleRunMetadata.SampleType;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.report.SingleFileComponent;
@@ -34,11 +35,13 @@ public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata
 
     private final InputDownload bamDownload;
     private final String outputCram;
+    private SampleType sampleType;
     private final ResourceFiles resourceFiles;
 
-    public CramConversion(final AlignmentOutput alignmentOutput, ResourceFiles resourceFiles) {
+    public CramConversion(final AlignmentOutput alignmentOutput, final SampleType sampleType, ResourceFiles resourceFiles) {
         bamDownload = new InputDownload(alignmentOutput.finalBamLocation());
         outputCram = VmDirectories.outputFile(FileTypes.cram(alignmentOutput.sample()));
+        this.sampleType = sampleType;
         this.resourceFiles = resourceFiles;
     }
 
@@ -63,7 +66,7 @@ public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata
                 .name("cram")
                 .startupCommand(bash)
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(NUMBER_OF_CORES, 6))
-                .workingDiskSpaceGb(650)
+                .workingDiskSpaceGb(sampleType.equals(SingleSampleRunMetadata.SampleType.REFERENCE) ? 650 : 950)
                 .namespacedResults(resultsDirectory)
                 .build();
     }
