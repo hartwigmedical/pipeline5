@@ -44,7 +44,7 @@ public class CobaltTumorOnlyRerun implements BatchOperation {
         commands.addCommand(() -> remoteTumorFile.toCommandForm(localTumorFile));
         commands.addCommand(() -> remoteTumorIndex.toCommandForm(localFilename(remoteTumorIndex)));
 
-        final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.HG37);
+        final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.RG_37);
         commands.addCommand(() -> new CobaltApplicationCommand(resourceFiles, tumorSampleName, localTumorFile).asBash());
 
         // Store output

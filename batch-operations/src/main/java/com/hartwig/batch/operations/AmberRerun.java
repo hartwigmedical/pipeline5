@@ -52,7 +52,7 @@ public class AmberRerun implements BatchOperation {
         commands.addCommand(() -> remoteReferenceFile.toCommandForm(localReferenceFile));
         commands.addCommand(() -> remoteReferenceIndex.toCommandForm(localFilename(remoteReferenceIndex)));
 
-        final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.HG37);
+        final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.RG_37);
         commands.addCommand(() -> new AmberApplicationCommand(resourceFiles,
                 referenceSampleName,
                 localReferenceFile,

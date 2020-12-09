@@ -9,7 +9,7 @@ chordToolDir <- args[1]
   sampleName <- args[3]
    snvIndVcf <- args[4]
        svVcf <- args[5]
-refGenomeVsn <- args[6] # HG37 or HG38
+refGenomeVsn <- args[6] # RG_37 or RG_38
    sigOutTxt <- paste0( workingDir, '/', sampleName, '_chord_signatures.txt')
    prdOutTxt <- paste0( workingDir, '/', sampleName, '_chord_prediction.txt')
 
@@ -28,10 +28,10 @@ for (pkgName in c("mutSigExtractor", "CHORD")){
 }
 
 ## Convert genome name to BSGenome name
-if (refGenomeVsn == "HG37") {
+if (refGenomeVsn == "RG_37") {
   suppressPackageStartupMessages(library(BSgenome.Hsapiens.UCSC.hg19))
   refGenome <- BSgenome.Hsapiens.UCSC.hg19
-} else if (refGenomeVsn == "HG38") {
+} else if (refGenomeVsn == "RG_38") {
   suppressPackageStartupMessages(library(BSgenome.Hsapiens.UCSC.hg38))
   refGenome <- BSgenome.Hsapiens.UCSC.hg38
 } else {

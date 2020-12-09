@@ -17,18 +17,18 @@ import static com.hartwig.pipeline.resource.ResourceNames.SAGE;
 import static com.hartwig.pipeline.resource.ResourceNames.SNPEFF;
 import static com.hartwig.pipeline.resource.ResourceNames.SV;
 
-public class Hg37ResourceFiles implements ResourceFiles {
-    public static final String HG37_DIRECTORY = "hg37";
+public class RefGenome37ResourceFiles implements ResourceFiles {
+    public static final String REF_GENOME_DIR_37 = "37";
     private static final String REF_GENOME_FASTA_HG37_FILE = "Homo_sapiens.GRCh37.GATK.illumina.fasta";
 
     @Override
     public RefGenomeVersion version() {
-        return RefGenomeVersion.HG37;
+        return RefGenomeVersion.RG_37;
     }
 
     @Override
     public String versionDirectory() {
-        return HG37_DIRECTORY;
+        return REF_GENOME_DIR_37;
     }
 
     @Override

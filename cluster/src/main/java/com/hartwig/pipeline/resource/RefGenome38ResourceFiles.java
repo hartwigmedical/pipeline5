@@ -16,16 +16,16 @@ import static com.hartwig.pipeline.resource.ResourceNames.SAGE;
 import static com.hartwig.pipeline.resource.ResourceNames.SNPEFF;
 import static com.hartwig.pipeline.resource.ResourceNames.SV;
 
-public class Hg38ResourceFiles implements ResourceFiles {
-    public static final String HG38_DIRECTORY = "hg38";
+public class RefGenome38ResourceFiles implements ResourceFiles {
+    private static final String REF_GENOME_DIR_38 = "38";
 
     public RefGenomeVersion version() {
-        return RefGenomeVersion.HG38;
+        return RefGenomeVersion.RG_38;
     }
 
     @Override
     public String versionDirectory() {
-        return HG38_DIRECTORY;
+        return REF_GENOME_DIR_38;
     }
 
     @Override

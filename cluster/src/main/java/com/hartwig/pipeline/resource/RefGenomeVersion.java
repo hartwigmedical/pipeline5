@@ -1,6 +1,6 @@
 package com.hartwig.pipeline.resource;
 
 public enum RefGenomeVersion {
-    HG37,
-    HG38
+    RG_37,
+    RG_38
 }

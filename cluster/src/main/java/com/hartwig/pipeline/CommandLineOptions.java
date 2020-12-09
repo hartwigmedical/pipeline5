@@ -281,7 +281,7 @@ public class CommandLineOptions {
     private static Option refGenomeVersion() {
         return optionWithArg(REF_GENOME_VERSION_FLAG,
                 format("Ref genome version, default [%s], values [%s]",
-                        RefGenomeVersion.HG37.name(),
+                        RefGenomeVersion.RG_37.name(),
                         Arrays.stream(RefGenomeVersion.values()).map(Enum::name).collect(Collectors.joining(","))));
     }
 

@@ -38,7 +38,7 @@ public class CramConversionTest extends StageTest<CramOutput, SingleSampleRunMet
 
     @Override
     protected Stage<CramOutput, SingleSampleRunMetadata> createVictim() {
-        return new CramConversion(TestInputs.referenceAlignmentOutput(), TestInputs.HG38_RESOURCE_FILES);
+        return new CramConversion(TestInputs.referenceAlignmentOutput(), TestInputs.REF_GENOME_38_RESOURCE_FILES);
     }
 
     @Override
@@ -63,12 +63,12 @@ public class CramConversionTest extends StageTest<CramOutput, SingleSampleRunMet
         String output = "/data/output/reference.cram";
         return ImmutableList.of(format("%s view -T %s -o %s -O cram,embed_ref=1 -@ $(grep -c '^processor' /proc/cpuinfo) %s",
                 samtools,
-                TestInputs.HG38_RESOURCE_FILES.refGenomeFile(),
+                TestInputs.REF_GENOME_38_RESOURCE_FILES.refGenomeFile(),
                 output,
                 input),
                 format("%s index %s", samtools, output),
                 format("java -Xmx4G -cp /opt/tools/bamcomp/1.3/bamcomp.jar com.hartwig.bamcomp.BamCompMain "
-                                + "-r /opt/resources/reference_genome/hg38/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna -1 %s -2 %s -n 6 "
+                                + "-r /opt/resources/reference_genome/38/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna -1 %s -2 %s -n 6 "
                                 + "--samtools-binary /opt/tools/samtools/1.10/samtools --sambamba-binary /opt/tools/sambamba/0.6.8/sambamba",
                         input,
                         output));

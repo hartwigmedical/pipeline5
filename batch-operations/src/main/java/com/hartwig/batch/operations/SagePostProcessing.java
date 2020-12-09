@@ -26,7 +26,7 @@ import com.hartwig.pipeline.storage.RuntimeBucket;
 
 public class SagePostProcessing implements BatchOperation {
 
-    private static final RefGenomeVersion REF_GENOME_VERSION = RefGenomeVersion.HG38;
+    private static final RefGenomeVersion REF_GENOME_VERSION = RefGenomeVersion.RG_38;
 
     public static GoogleStorageLocation sageArchiveDirectory(final String set) {
         return GoogleStorageLocation.of("hmf-sage-hg38", set, true);
