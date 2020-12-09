@@ -38,12 +38,6 @@ public class VirtualMachineJobDefinitionTest {
     }
 
     @Test
-    public void shouldReturnNextHigherEvenNumberIfCalculatedSsdRequirementIsOddToAvoidRuntimeErrorsFromApi() {
-        victim = builder.workingDiskSpaceGb(15 * LOCAL_SSD_DEVICE_CAPACITY_GB - 100).build();
-        assertThat(victim.localSsdCount()).isEqualTo(16);
-    }
-
-    @Test
     public void shouldReturnExactNumberOfSsdsIfRequiredCapacityIsExactEvenMultipleOfDeviceSize() {
         victim = builder.workingDiskSpaceGb(6 * LOCAL_SSD_DEVICE_CAPACITY_GB).build();
         assertThat(victim.localSsdCount()).isEqualTo(6);

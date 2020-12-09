@@ -341,7 +341,7 @@ public class GoogleComputeEngineTest {
         assertThat(disks.get(0).getInitializeParams().getDiskSizeGb()).isEqualTo(200L);
         assertThat(disks.get(1).getInitializeParams().getDiskType()).isEqualTo(
                 "https://www.googleapis.com/compute/v1/projects/hmf-pipeline-development/zones/europe-west4-a/diskTypes/pd-ssd");
-        assertThat(disks.get(1).getInitializeParams().getDiskSizeGb()).isEqualTo(900L);
+        assertThat(disks.get(1).getInitializeParams().getDiskSizeGb()).isEqualTo(1200L);
     }
 
     @Test
