@@ -13,6 +13,7 @@ import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.metadata.AddDatatypeToFile;
 import com.hartwig.pipeline.metadata.ApiFileOperation;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
+import com.hartwig.pipeline.metadata.SingleSampleRunMetadata.SampleType;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.StageTest;
@@ -38,7 +39,7 @@ public class CramConversionTest extends StageTest<CramOutput, SingleSampleRunMet
 
     @Override
     protected Stage<CramOutput, SingleSampleRunMetadata> createVictim() {
-        return new CramConversion(TestInputs.referenceAlignmentOutput(), TestInputs.HG38_RESOURCE_FILES);
+        return new CramConversion(TestInputs.referenceAlignmentOutput(), SampleType.REFERENCE, TestInputs.HG38_RESOURCE_FILES);
     }
 
     @Override
