@@ -11,16 +11,15 @@ public class RnaCommon {
     public static final String RNA_COHORT_LOCATION_HG38 = "gs://rna-cohort-38";
 
     public static final String REF_GENCODE_37_DIR = "hs37d5_GENCODE19";
-    public static final String REF_GENOME_DIR = "ref_genome";
 
     public static final int MAX_EXPECTED_BAM_SIZE_GB = 70;
 
     public static String getRnaResourceDirectory(final RefGenomeVersion version, final String resourceDir)
     {
         if(version == HG19)
-            return String.format("%s/%s/hg37", RNA_RESOURCES, resourceDir);
+            return String.format("%s/%s/37", RNA_RESOURCES, resourceDir);
         else
-            return String.format("%s/%s/hg38", RNA_RESOURCES, resourceDir);
+            return String.format("%s/%s/38", RNA_RESOURCES, resourceDir);
     }
 
     public static String getRnaCohortDirectory(final RefGenomeVersion version)

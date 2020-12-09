@@ -39,8 +39,6 @@ public class RnaIsofox implements BatchOperation {
     private static final String RNA_BAM_INDEX_FILE_ID = ".sorted.dups.bam.bai";
     private static final String ENSEMBL_DATA_CACHE = "ensembl_data_cache";
     private static final String KNOWN_FUSIONS_FILE = "known_fusion_data.csv";
-    private static final String REF_GENOME = "Homo_sapiens.GRCh37.GATK.illumina.fasta";
-    private static final String REF_GENOME_INDEX = "Homo_sapiens.GRCh37.GATK.illumina.fasta.fai";
     private static final String EXP_COUNTS_READ_76 = "read_76_exp_counts.csv";
     private static final String EXP_COUNTS_READ_151 = "read_151_exp_counts.csv";
     private static final String EXP_GC_COUNTS_READ_100 = "read_100_exp_gc_ratios.csv";
@@ -50,7 +48,6 @@ public class RnaIsofox implements BatchOperation {
     private static final int FRAG_LENGTH_FRAG_COUNT = 1000000;
     private static final int LONG_FRAG_LENGTH_LIMIT = 550;
     private static final String FRAG_LENGTH_BUCKETS = "50-0;75-0;100-0;125-0;150-0;200-0;250-0;300-0;400-0;550-0";
-    private static final String ENRICHED_GENE_IDS = "ENSG00000265150;ENSG00000258486;ENSG00000202198;ENSG00000266037;ENSG00000263740;ENSG00000265735";
 
     private static final String FUNC_TRANSCRIPT_COUNTS = "TRANSCRIPT_COUNTS";
     private static final String FUNC_NOVEL_LOCATIONS = "NOVEL_LOCATIONS";
@@ -128,7 +125,6 @@ public class RnaIsofox implements BatchOperation {
 
         isofoxArgs.append(String.format(" -ref_genome %s", resourceFiles.refGenomeFile()));
         isofoxArgs.append(String.format(" -gene_transcripts_dir %s", VmDirectories.INPUT));
-        isofoxArgs.append(String.format(" -enriched_gene_ids \"%s\"", ENRICHED_GENE_IDS));
         isofoxArgs.append(String.format(" -long_frag_limit %d", LONG_FRAG_LENGTH_LIMIT));
 
         if(functionsStr.contains(FUNC_TRANSCRIPT_COUNTS))
