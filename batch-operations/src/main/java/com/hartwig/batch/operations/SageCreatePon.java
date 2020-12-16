@@ -10,7 +10,7 @@ import com.hartwig.batch.OperationDescriptor;
 import com.hartwig.batch.input.InputBundle;
 import com.hartwig.batch.input.InputFileDescriptor;
 import com.hartwig.pipeline.ResultsDirectory;
-import com.hartwig.pipeline.calling.somatic.SageCommand;
+import com.hartwig.pipeline.calling.sage.SageCommand;
 import com.hartwig.pipeline.execution.vm.Bash;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
@@ -54,7 +54,7 @@ public class SageCreatePon implements BatchOperation {
 
         // Store output
         startupScript.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), "sage"), executionFlags));
-        return VirtualMachineJobDefinition.sageCalling(startupScript, ResultsDirectory.defaultDirectory());
+        return VirtualMachineJobDefinition.sageSomaticCalling(startupScript, ResultsDirectory.defaultDirectory());
     }
 
     String getInput(List<InputFileDescriptor> inputs, String key) {

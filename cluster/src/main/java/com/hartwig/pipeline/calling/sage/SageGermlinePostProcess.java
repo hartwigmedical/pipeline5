@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.calling.somatic;
+package com.hartwig.pipeline.calling.sage;
 
 import java.util.List;
 
@@ -11,7 +11,7 @@ import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.SubStage;
 import com.hartwig.pipeline.stages.SubStageInputOutput;
 
-public class SagePostProcessGermline extends SubStage {
+public class SageGermlinePostProcess extends SubStage {
 
     public static final String SAGE_GERMLINE_FILTERED = "sage.germline.filtered";
     private final ResourceFiles resourceFiles;
@@ -19,7 +19,7 @@ public class SagePostProcessGermline extends SubStage {
     private final SubStage selectSamples;
 
 
-    public SagePostProcessGermline(final String referenceSampleName, final String tumorSampleName, final ResourceFiles resourceFiles) {
+    public SageGermlinePostProcess(final String referenceSampleName, final String tumorSampleName, final ResourceFiles resourceFiles) {
         super(SAGE_GERMLINE_FILTERED, FileTypes.GZIPPED_VCF);
         this.resourceFiles = resourceFiles;
         this.tumorSampleName = SubStageInputOutput.empty(tumorSampleName);

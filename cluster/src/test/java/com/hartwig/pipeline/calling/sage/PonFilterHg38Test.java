@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.calling.somatic;
+package com.hartwig.pipeline.calling.sage;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -8,11 +8,11 @@ import com.hartwig.pipeline.stages.SubStage;
 
 import org.junit.Test;
 
-public class PonFilterHg19Test extends SubStageTest {
+public class PonFilterHg38Test extends SubStageTest {
 
     @Override
     public SubStage createVictim() {
-        return new PonFilter(RefGenomeVersion.RG_37);
+        return new PonFilter(RefGenomeVersion.RG_38);
     }
 
     @Override
@@ -23,9 +23,9 @@ public class PonFilterHg19Test extends SubStageTest {
     @Test
     public void runsTwoPipedBcfToolsFilterCommandInSubshell() {
         assertThat(bash()).contains("("
-                + "/opt/tools/bcftools/1.9/bcftools filter -e 'PON_COUNT!=\".\" && INFO/TIER=\"HOTSPOT\" && PON_MAX>=5 && PON_COUNT >= 10' -s PON -m+ /data/output/tumor.strelka.vcf -O u | "
-                + "/opt/tools/bcftools/1.9/bcftools filter -e 'PON_COUNT!=\".\" && INFO/TIER=\"PANEL\" && PON_MAX>=5 && PON_COUNT >= 6' -s PON -m+ -O u | "
-                + "/opt/tools/bcftools/1.9/bcftools filter -e 'PON_COUNT!=\".\" && INFO/TIER!=\"HOTSPOT\" && INFO/TIER!=\"PANEL\" && PON_COUNT >= 6' -s PON -m+ "
+                + "/opt/tools/bcftools/1.9/bcftools filter -e 'PON_COUNT!=\".\" && INFO/TIER=\"HOTSPOT\" && PON_MAX>=5 && PON_COUNT >= 5' -s PON -m+ /data/output/tumor.strelka.vcf -O u | "
+                + "/opt/tools/bcftools/1.9/bcftools filter -e 'PON_COUNT!=\".\" && INFO/TIER=\"PANEL\" && PON_MAX>=5 && PON_COUNT >= 2' -s PON -m+ -O u | "
+                + "/opt/tools/bcftools/1.9/bcftools filter -e 'PON_COUNT!=\".\" && INFO/TIER!=\"HOTSPOT\" && INFO/TIER!=\"PANEL\" && PON_COUNT >= 2' -s PON -m+ "
                 + "-O z -o /data/output/tumor.sage.pon.filter.vcf.gz");
     }
 
