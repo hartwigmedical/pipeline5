@@ -94,6 +94,6 @@ public class SnpGenotype implements Stage<SnpGenotypeOutput, SingleSampleRunMeta
 
     @Override
     public boolean shouldRun(final Arguments arguments) {
-        return arguments.runSnpGenotyper() && arguments.refGenomeVersion().equals(RefGenomeVersion.HG19);
+        return arguments.runSnpGenotyper() && arguments.refGenomeVersion().equals(RefGenomeVersion.RG_37);
     }
 }

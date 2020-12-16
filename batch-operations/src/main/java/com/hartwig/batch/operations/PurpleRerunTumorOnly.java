@@ -37,7 +37,7 @@ public class PurpleRerunTumorOnly implements BatchOperation {
 
     public List<BashCommand> bashCommands(final InputBundle inputs) {
         final List<BashCommand> commands = Lists.newArrayList();
-        final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.HG19);
+        final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.RG_37);
 
         final String set = inputs.get("set").inputValue();
         final String tumorSampleName = inputs.get("tumor_sample").inputValue();

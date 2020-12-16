@@ -12,7 +12,7 @@ import com.hartwig.pipeline.metadata.ApiFileOperation;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.reruns.NoopPersistedDataset;
-import com.hartwig.pipeline.resource.Hg19ResourceFiles;
+import com.hartwig.pipeline.resource.RefGenome37ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
@@ -33,7 +33,7 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
 
     @Override
     protected Stage<PurpleOutput, SomaticRunMetadata> createVictim() {
-        return new Purple(TestInputs.HG19_RESOURCE_FILES,
+        return new Purple(TestInputs.REG_GENOME_37_RESOURCE_FILES,
                 TestInputs.sageOutput(),
                 TestInputs.structuralCallerPostProcessOutput(),
                 TestInputs.amberOutput(),
@@ -62,18 +62,18 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
     protected List<String> expectedCommands() {
         return Collections.singletonList(
                 "java -Xmx12G -jar /opt/tools/purple/2.51/purple.jar -reference reference -tumor tumor -output_dir "
-                        + "/data/output -amber /data/input/results -cobalt /data/input/results -gc_profile /opt/resources/gc/hg19/GC_profile.1000bp.cnp "
+                        + "/data/output -amber /data/input/results -cobalt /data/input/results -gc_profile /opt/resources/gc/37/GC_profile.1000bp.cnp "
                         + "-somatic_vcf /data/input/tumor.vcf.gz -structural_vcf /data/input/tumor.gripss.filtered.vcf.gz -sv_recovery_vcf "
                         + "/data/input/tumor.gripss.full.vcf.gz -circos /opt/tools/circos/0.69.6/bin/circos -ref_genome "
-                        + "/opt/resources/reference_genome/hg19/Homo_sapiens.GRCh37.GATK.illumina.fasta "
-                        + "-driver_catalog -hotspots /opt/resources/sage/hg19/KnownHotspots.somatic.hg19.vcf.gz "
-                        + "-driver_gene_panel /opt/resources/gene_panel/hg19/DriverGenePanel.hg19.tsv "
+                        + "/opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
+                        + "-driver_catalog -hotspots /opt/resources/sage/37/KnownHotspots.somatic.hg19.vcf.gz "
+                        + "-driver_gene_panel /opt/resources/gene_panel/37/DriverGenePanel.hg19.tsv "
                         + "-threads $(grep -c '^processor' /proc/cpuinfo)");
     }
 
     @Test
     public void shallowModeUsesLowDepthSettings() {
-        Purple victim = new Purple(new Hg19ResourceFiles(),
+        Purple victim = new Purple(new RefGenome37ResourceFiles(),
                 TestInputs.sageOutput(),
                 TestInputs.structuralCallerPostProcessOutput(),
                 TestInputs.amberOutput(),

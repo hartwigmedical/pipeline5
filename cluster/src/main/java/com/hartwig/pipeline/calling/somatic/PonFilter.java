@@ -23,7 +23,7 @@ class PonFilter extends SubStage {
     PonFilter(RefGenomeVersion refGenomeVersion) {
         super("sage.pon.filter", FileTypes.GZIPPED_VCF);
 
-        if (refGenomeVersion.equals(RefGenomeVersion.HG19)) {
+        if (refGenomeVersion.equals(RefGenomeVersion.RG_37)) {
             hotspotFilter = String.format(HOTSPOT, 5, 10);
             panelFilter = String.format(PANEL, 5, 6);
             otherFilter = String.format(OTHER, 6);
