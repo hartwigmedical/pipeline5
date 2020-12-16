@@ -11,7 +11,6 @@ public class RnaCommon {
     public static final String RNA_COHORT_LOCATION_HG38 = "gs://rna-cohort-38";
 
     public static final String REF_GENCODE_37_DIR = "hs37d5_GENCODE19";
-    public static final String REF_GENOME_DIR = "ref_genome";
 
     public static final int MAX_EXPECTED_BAM_SIZE_GB = 70;
 

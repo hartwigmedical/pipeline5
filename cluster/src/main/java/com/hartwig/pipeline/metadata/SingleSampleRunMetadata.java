@@ -36,7 +36,7 @@ public interface SingleSampleRunMetadata extends RunMetadata {
         return barcode();
     }
 
-    List<Integer> primaryTumorDoids();
+    List<String> primaryTumorDoids();
 
     static ImmutableSingleSampleRunMetadata.Builder builder() {
         return ImmutableSingleSampleRunMetadata.builder();

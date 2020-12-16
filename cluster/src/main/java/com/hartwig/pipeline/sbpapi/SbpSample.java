@@ -23,5 +23,5 @@ public interface SbpSample {
 
     String status();
 
-    List<Integer> primary_tumor_doids();
+    List<String> primary_tumor_doids();
 }
