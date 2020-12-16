@@ -26,7 +26,7 @@ public class ChordTest extends TertiaryStageTest<ChordOutput> {
     @Override
     protected List<String> expectedCommands() {
         return Collections.singletonList("/opt/tools/chord/2.00_1.14/extractSigPredictHRD.R /opt/tools/chord/2.00_1.14 /data/output tumor "
-                + "/data/input/tumor.purple.somatic.vcf.gz /data/input/tumor.purple.sv.vcf.gz RG_37");
+                + "/data/input/tumor.purple.somatic.vcf.gz /data/input/tumor.purple.sv.vcf.gz HG19");
     }
 
     @Override
