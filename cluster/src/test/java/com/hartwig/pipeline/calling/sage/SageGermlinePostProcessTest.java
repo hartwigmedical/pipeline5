@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.calling.somatic;
+package com.hartwig.pipeline.calling.sage;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -14,11 +14,11 @@ import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Test;
 
-public class SagePostProcessGermlineTest extends SubStageTest {
+public class SageGermlinePostProcessTest extends SubStageTest {
 
     @Override
     public SubStage createVictim() {
-        return new SagePostProcessGermline("reference", "tumor", TestInputs.HG19_RESOURCE_FILES);
+        return new SageGermlinePostProcess("reference", "tumor", TestInputs.HG19_RESOURCE_FILES);
     }
 
     @Override

@@ -7,9 +7,9 @@ import com.hartwig.batch.OperationDescriptor;
 import com.hartwig.batch.input.InputBundle;
 import com.hartwig.batch.input.InputFileDescriptor;
 import com.hartwig.pipeline.ResultsDirectory;
-import com.hartwig.pipeline.calling.somatic.SageApplication;
-import com.hartwig.pipeline.calling.somatic.SageCommandBuilder;
-import com.hartwig.pipeline.calling.somatic.SagePostProcessGermline;
+import com.hartwig.pipeline.calling.sage.SageApplication;
+import com.hartwig.pipeline.calling.sage.SageCommandBuilder;
+import com.hartwig.pipeline.calling.sage.SageGermlinePostProcess;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.OutputUpload;
@@ -65,14 +65,14 @@ public class SageGermline implements BatchOperation {
                 localTumorFile);
 
         SageApplication sageApplication = new SageApplication(sageCommandBuilder);
-        SagePostProcessGermline sagePostProcess = new SagePostProcessGermline(referenceSampleName, tumorSampleName, resourceFiles);
+        SageGermlinePostProcess sagePostProcess = new SageGermlinePostProcess(referenceSampleName, tumorSampleName, resourceFiles);
         SubStageInputOutput sageOutput = sageApplication.andThen(sagePostProcess).apply(SubStageInputOutput.empty(tumorSampleName));
         commands.addCommands(sageOutput.bash());
 
         // Store output
         commands.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), "sage"), executionFlags));
 
-        return VirtualMachineJobDefinition.sageCalling(commands, ResultsDirectory.defaultDirectory());
+        return VirtualMachineJobDefinition.sageGermlineCalling(commands, ResultsDirectory.defaultDirectory());
     }
 
     @Override

@@ -9,7 +9,7 @@ import com.hartwig.batch.input.ImmutableInputFileDescriptor;
 import com.hartwig.batch.input.InputBundle;
 import com.hartwig.batch.input.InputFileDescriptor;
 import com.hartwig.pipeline.ResultsDirectory;
-import com.hartwig.pipeline.calling.somatic.SagePostProcess;
+import com.hartwig.pipeline.calling.sage.SageSomaticPostProcess;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.OutputFile;
 import com.hartwig.pipeline.execution.vm.OutputUpload;
@@ -57,7 +57,7 @@ public class SagePostProcessing implements BatchOperation {
         startupScript.addCommand(inputVcfIndex::copyToLocalDestinationCommand);
 
         //2. Run GRIPSS
-        SagePostProcess sagePostProcess = new SagePostProcess(sample, resourceFiles);
+        SageSomaticPostProcess sagePostProcess = new SageSomaticPostProcess(sample, resourceFiles);
         SubStageInputOutput sageOutput = sagePostProcess.apply(SubStageInputOutput.of(sample, inputFile(inputVcf.localDestination()), Collections.emptyList()));
         startupScript.addCommands(sageOutput.bash());
 
@@ -70,7 +70,7 @@ public class SagePostProcessing implements BatchOperation {
 
         // 4. Upload output
         startupScript.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), "sage"), executionFlags));
-        return VirtualMachineJobDefinition.sageCalling(startupScript, ResultsDirectory.defaultDirectory());
+        return VirtualMachineJobDefinition.sageSomaticCalling(startupScript, ResultsDirectory.defaultDirectory());
     }
 
     @Override

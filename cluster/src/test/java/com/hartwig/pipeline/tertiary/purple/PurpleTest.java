@@ -34,7 +34,7 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
     @Override
     protected Stage<PurpleOutput, SomaticRunMetadata> createVictim() {
         return new Purple(TestInputs.HG19_RESOURCE_FILES,
-                TestInputs.sageOutput(),
+                TestInputs.sageSomaticOutput(),
                 TestInputs.structuralCallerPostProcessOutput(),
                 TestInputs.amberOutput(),
                 TestInputs.cobaltOutput(),
@@ -49,7 +49,7 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
 
     @Override
     protected List<String> expectedInputs() {
-        return ImmutableList.of(input(expectedRuntimeBucketName() + "/sage/results/tumor.vcf.gz", "tumor.vcf.gz"),
+        return ImmutableList.of(input(expectedRuntimeBucketName() + "/sage_somatic/results/tumor.vcf.gz", "tumor.vcf.gz"),
                 input(expectedRuntimeBucketName() + "/gripss/results/tumor.gripss.filtered.vcf.gz", "tumor.gripss.filtered.vcf.gz"),
                 input(expectedRuntimeBucketName() + "/gripss/results/tumor.gripss.filtered.vcf.gz.tbi", "tumor.gripss.filtered.vcf.gz.tbi"),
                 input(expectedRuntimeBucketName() + "/gripss/results/tumor.gripss.full.vcf.gz", "tumor.gripss.full.vcf.gz"),
@@ -74,14 +74,13 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
     @Test
     public void shallowModeUsesLowDepthSettings() {
         Purple victim = new Purple(new Hg19ResourceFiles(),
-                TestInputs.sageOutput(),
+                TestInputs.sageSomaticOutput(),
                 TestInputs.structuralCallerPostProcessOutput(),
                 TestInputs.amberOutput(),
                 TestInputs.cobaltOutput(),
                 new NoopPersistedDataset(),
                 true);
-        assertThat(victim.commands(input()).get(0).asBash()).contains(
-                "-highly_diploid_percentage 0.88 -somatic_min_purity_spread 0.1");
+        assertThat(victim.commands(input()).get(0).asBash()).contains("-highly_diploid_percentage 0.88 -somatic_min_purity_spread 0.1");
     }
 
     @Override
