@@ -5,8 +5,9 @@ import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.calling.germline.GermlineCaller;
 import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
-import com.hartwig.pipeline.calling.somatic.SageCaller;
-import com.hartwig.pipeline.calling.somatic.SomaticCallerOutput;
+import com.hartwig.pipeline.calling.sage.SageGermlineCaller;
+import com.hartwig.pipeline.calling.sage.SageOutput;
+import com.hartwig.pipeline.calling.sage.SageSomaticCaller;
 import com.hartwig.pipeline.calling.structural.StructuralCaller;
 import com.hartwig.pipeline.calling.structural.StructuralCallerOutput;
 import com.hartwig.pipeline.calling.structural.StructuralCallerPostProcess;
@@ -171,10 +172,17 @@ public class TestInputs {
                 .build();
     }
 
-    public static SomaticCallerOutput sageOutput() {
-        return SomaticCallerOutput.builder(SageCaller.NAMESPACE)
+    public static SageOutput sageGermlineOutput() {
+        return SageOutput.builder(SageGermlineCaller.NAMESPACE)
                 .status(PipelineStatus.SUCCESS)
-                .maybeFinalSomaticVcf(gsLocation(somaticBucket(SageCaller.NAMESPACE), RESULTS + TUMOR_SAMPLE + "." + FileTypes.GZIPPED_VCF))
+                .maybeFinalVcf(gsLocation(somaticBucket(SageGermlineCaller.NAMESPACE), RESULTS + TUMOR_SAMPLE + "." + FileTypes.GZIPPED_VCF))
+                .build();
+    }
+
+    public static SageOutput sageSomaticOutput() {
+        return SageOutput.builder(SageSomaticCaller.NAMESPACE)
+                .status(PipelineStatus.SUCCESS)
+                .maybeFinalVcf(gsLocation(somaticBucket(SageSomaticCaller.NAMESPACE), RESULTS + TUMOR_SAMPLE + "." + FileTypes.GZIPPED_VCF))
                 .build();
     }
 

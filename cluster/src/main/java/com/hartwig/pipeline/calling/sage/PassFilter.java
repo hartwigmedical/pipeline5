@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.calling.somatic;
+package com.hartwig.pipeline.calling.sage;
 
 import java.util.List;
 
@@ -8,17 +8,14 @@ import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.OutputFile;
 import com.hartwig.pipeline.stages.SubStage;
 
-class SelectSamples extends SubStage {
+class PassFilter extends SubStage {
 
-    private final String[] samples;
-
-    SelectSamples(String... samples) {
-        super("sage.sort", FileTypes.GZIPPED_VCF);
-        this.samples = samples;
+    PassFilter() {
+        super("sage.pass", FileTypes.GZIPPED_VCF);
     }
 
     @Override
     public List<BashCommand> bash(final OutputFile input, final OutputFile output) {
-        return new BcfToolsCommandListBuilder(input.path(), output.path()).withIndex().selectSample(samples).build();
+        return new BcfToolsCommandListBuilder(input.path(), output.path()).withIndex().includeHardPass().build();
     }
 }

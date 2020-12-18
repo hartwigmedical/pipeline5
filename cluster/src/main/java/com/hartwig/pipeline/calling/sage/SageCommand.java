@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.calling.somatic;
+package com.hartwig.pipeline.calling.sage;
 
 import com.hartwig.pipeline.execution.vm.JavaClassCommand;
 import com.hartwig.pipeline.tools.Versions;
