@@ -66,7 +66,7 @@ public class SageGermlineCallerTest extends TertiaryStageTest<SageOutput> {
 
     @Override
     protected Arguments createDisabledArguments() {
-        return Arguments.testDefaultsBuilder().runGermlineCaller(false).build();
+        return Arguments.testDefaultsBuilder().runSageGermlineCaller(false).build();
     }
 
     @Override

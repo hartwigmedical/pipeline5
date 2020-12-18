@@ -66,7 +66,7 @@ public class SageGermlineCaller extends SageCaller {
 
     @Override
     public boolean shouldRun(final Arguments arguments) {
-        return arguments.runGermlineCaller();
+        return arguments.runSageGermlineCaller();
     }
 
     @Override
