@@ -10,7 +10,7 @@ import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.calling.germline.GermlineCaller;
-import com.hartwig.pipeline.calling.somatic.SageCaller;
+import com.hartwig.pipeline.calling.sage.SageSomaticCaller;
 import com.hartwig.pipeline.calling.structural.StructuralCaller;
 import com.hartwig.pipeline.calling.structural.StructuralCallerPostProcess;
 import com.hartwig.pipeline.cram.CramConversion;
@@ -36,7 +36,7 @@ public class StartingPoint {
                 SnpGenotype.NAMESPACE,
                 CramConversion.NAMESPACE)),
         CALLING_COMPLETE(concat(ALIGNMENT_COMPLETE.namespaces,
-                List.of(SageCaller.NAMESPACE, StructuralCaller.NAMESPACE, Cobalt.NAMESPACE, Amber.NAMESPACE))),
+                List.of(SageSomaticCaller.NAMESPACE, StructuralCaller.NAMESPACE, Cobalt.NAMESPACE, Amber.NAMESPACE))),
         GRIPSS_COMPLETE(concat(CALLING_COMPLETE.namespaces, List.of(StructuralCallerPostProcess.NAMESPACE))),
         PURPLE_COMPLETE(concat(GRIPSS_COMPLETE.namespaces, List.of(Purple.NAMESPACE)));
 

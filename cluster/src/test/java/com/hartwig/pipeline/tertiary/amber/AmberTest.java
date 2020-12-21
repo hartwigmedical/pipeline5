@@ -26,7 +26,7 @@ public class AmberTest extends TertiaryStageTest<AmberOutput> {
 
     @Override
     protected Stage<AmberOutput, SomaticRunMetadata> createVictim() {
-        return new Amber(TestInputs.defaultPair(), TestInputs.HG19_RESOURCE_FILES, persistedDataset);
+        return new Amber(TestInputs.defaultPair(), TestInputs.REG_GENOME_37_RESOURCE_FILES, persistedDataset);
     }
 
     @Override
@@ -34,8 +34,8 @@ public class AmberTest extends TertiaryStageTest<AmberOutput> {
         return Collections.singletonList("java -Xmx32G -cp /opt/tools/amber/3.4/amber.jar com.hartwig.hmftools.amber.AmberApplication "
                 + "-reference reference -reference_bam /data/input/reference.bam -tumor tumor -tumor_bam /data/input/tumor.bam -output_dir "
                 + "/data/output -threads $(grep -c '^processor' /proc/cpuinfo) -ref_genome "
-                + "/opt/resources/reference_genome/hg19/Homo_sapiens.GRCh37.GATK.illumina.fasta "
-                + "-loci /opt/resources/amber/hg19/GermlineHetPon.hg19.vcf.gz");
+                + "/opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
+                + "-loci /opt/resources/amber/37/GermlineHetPon.hg19.vcf.gz");
     }
 
     @Override

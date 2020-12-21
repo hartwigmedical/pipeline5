@@ -44,7 +44,7 @@ public class AmberRerunTumorOnly implements BatchOperation {
         commands.addCommand(() -> remoteTumorFile.toCommandForm(localTumorFile));
         commands.addCommand(() -> remoteTumorIndex.toCommandForm(localFilename(remoteTumorIndex)));
 
-        final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.HG19);
+        final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.V37);
         commands.addCommand(() -> new AmberApplicationCommand(resourceFiles,
                 tumorSampleName,
                 localTumorFile).asBash());

@@ -5,8 +5,9 @@ import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.calling.germline.GermlineCaller;
 import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
-import com.hartwig.pipeline.calling.somatic.SageCaller;
-import com.hartwig.pipeline.calling.somatic.SomaticCallerOutput;
+import com.hartwig.pipeline.calling.sage.SageGermlineCaller;
+import com.hartwig.pipeline.calling.sage.SageOutput;
+import com.hartwig.pipeline.calling.sage.SageSomaticCaller;
 import com.hartwig.pipeline.calling.structural.StructuralCaller;
 import com.hartwig.pipeline.calling.structural.StructuralCallerOutput;
 import com.hartwig.pipeline.calling.structural.StructuralCallerPostProcess;
@@ -20,8 +21,8 @@ import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetrics;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
-import com.hartwig.pipeline.resource.Hg19ResourceFiles;
-import com.hartwig.pipeline.resource.Hg38ResourceFiles;
+import com.hartwig.pipeline.resource.RefGenome37ResourceFiles;
+import com.hartwig.pipeline.resource.RefGenome38ResourceFiles;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.snpgenotype.SnpGenotypeOutput;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
@@ -49,8 +50,8 @@ public class TestInputs {
     public static final String TUMOR_BUCKET = "run-" + TUMOR_SAMPLE + "-test";
     public static final String SOMATIC_BUCKET = "run-" + REFERENCE_SAMPLE + "-" + TUMOR_SAMPLE + "-test";
 
-    public static final ResourceFiles HG19_RESOURCE_FILES = new Hg19ResourceFiles();
-    public static final ResourceFiles HG38_RESOURCE_FILES = new Hg38ResourceFiles();
+    public static final ResourceFiles REG_GENOME_37_RESOURCE_FILES = new RefGenome37ResourceFiles();
+    public static final ResourceFiles REF_GENOME_38_RESOURCE_FILES = new RefGenome38ResourceFiles();
     public static final String SET = "set";
     public static final String ID = "id";
     public static final String BUCKET = "bucket";
@@ -171,10 +172,17 @@ public class TestInputs {
                 .build();
     }
 
-    public static SomaticCallerOutput sageOutput() {
-        return SomaticCallerOutput.builder(SageCaller.NAMESPACE)
+    public static SageOutput sageGermlineOutput() {
+        return SageOutput.builder(SageGermlineCaller.NAMESPACE)
                 .status(PipelineStatus.SUCCESS)
-                .maybeFinalSomaticVcf(gsLocation(somaticBucket(SageCaller.NAMESPACE), RESULTS + TUMOR_SAMPLE + "." + FileTypes.GZIPPED_VCF))
+                .maybeFinalVcf(gsLocation(somaticBucket(SageGermlineCaller.NAMESPACE), RESULTS + TUMOR_SAMPLE + "." + FileTypes.GZIPPED_VCF))
+                .build();
+    }
+
+    public static SageOutput sageSomaticOutput() {
+        return SageOutput.builder(SageSomaticCaller.NAMESPACE)
+                .status(PipelineStatus.SUCCESS)
+                .maybeFinalVcf(gsLocation(somaticBucket(SageSomaticCaller.NAMESPACE), RESULTS + TUMOR_SAMPLE + "." + FileTypes.GZIPPED_VCF))
                 .build();
     }
 

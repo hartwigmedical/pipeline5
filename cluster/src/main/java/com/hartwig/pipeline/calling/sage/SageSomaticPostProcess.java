@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.calling.somatic;
+package com.hartwig.pipeline.calling.sage;
 
 import java.util.List;
 
@@ -11,13 +11,13 @@ import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.SubStage;
 import com.hartwig.pipeline.stages.SubStageInputOutput;
 
-public class SagePostProcess extends SubStage {
+public class SageSomaticPostProcess extends SubStage {
 
     public static final String SAGE_SOMATIC_FILTERED = "sage.somatic.filtered";
     private final ResourceFiles resourceFiles;
     private final SubStageInputOutput tumorSampleName;
 
-    public SagePostProcess(final String tumorSampleName, final ResourceFiles resourceFiles) {
+    public SageSomaticPostProcess(final String tumorSampleName, final ResourceFiles resourceFiles) {
         super(SAGE_SOMATIC_FILTERED, FileTypes.GZIPPED_VCF);
         this.tumorSampleName = SubStageInputOutput.empty(tumorSampleName);
         this.resourceFiles = resourceFiles;

@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.hartwig.pipeline.Arguments.DefaultsProfile;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
@@ -51,6 +52,7 @@ public class CommandLineOptions {
     private static final String RUN_GERMLINE_CALLER_FLAG = "run_germline_caller";
     private static final String RUN_SNP_GENOTYPER_FLAG = "run_snp_genotyper";
     private static final String RUN_SOMATIC_CALLER_FLAG = "run_somatic_caller";
+    private static final String RUN_SAGE_GERMLINE_CALLER_FLAG = "run_sage_germline_caller";
     private static final String RUN_STRUCTURAL_CALLER_FLAG = "run_structural_caller";
     private static final String RUN_TERTIARY_FLAG = "run_tertiary";
     private static final String OUTPUT_BUCKET_FLAG = "output_bucket";
@@ -104,6 +106,7 @@ public class CommandLineOptions {
                 .addOption(optionWithBooleanArg(RUN_METRICS_FLAG, "Run wgs metricsOutputFile after BAM creation"))
                 .addOption(optionWithBooleanArg(RUN_GERMLINE_CALLER_FLAG, "Run germline calling (gatk) on a VM"))
                 .addOption(optionWithBooleanArg(RUN_SOMATIC_CALLER_FLAG, "Run somatic calling (sage) on a VM"))
+                .addOption(optionWithBooleanArg(RUN_SAGE_GERMLINE_CALLER_FLAG, "Run sage germline calling on a VM"))
                 .addOption(optionWithBooleanArg(RUN_STRUCTURAL_CALLER_FLAG, "Run structural calling (gridss) on a VM"))
                 .addOption(optionWithBooleanArg(RUN_TERTIARY_FLAG, "Run tertiary analysis algorithms (amber, cobalt, purple)"))
                 .addOption(optionWithBooleanArg(RUN_SNP_GENOTYPER_FLAG, "Run snp genotyper for QC against genotyping"))
@@ -281,8 +284,8 @@ public class CommandLineOptions {
     private static Option refGenomeVersion() {
         return optionWithArg(REF_GENOME_VERSION_FLAG,
                 format("Ref genome version, default [%s], values [%s]",
-                        RefGenomeVersion.HG19.name(),
-                        Arrays.stream(RefGenomeVersion.values()).map(Enum::name).collect(Collectors.joining(","))));
+                        RefGenomeVersion.V37.pipeline(),
+                        refGenomeVersions().collect(Collectors.joining(","))));
     }
 
     @NotNull
@@ -316,6 +319,9 @@ public class CommandLineOptions {
                     .runSnpGenotyper(booleanOptionWithDefault(commandLine, RUN_SNP_GENOTYPER_FLAG, defaults.runSnpGenotyper()))
                     .runGermlineCaller(booleanOptionWithDefault(commandLine, RUN_GERMLINE_CALLER_FLAG, defaults.runGermlineCaller()))
                     .runSomaticCaller(booleanOptionWithDefault(commandLine, RUN_SOMATIC_CALLER_FLAG, defaults.runSomaticCaller()))
+                    .runSageGermlineCaller(booleanOptionWithDefault(commandLine,
+                            RUN_SAGE_GERMLINE_CALLER_FLAG,
+                            defaults.runSageGermlineCaller()))
                     .runStructuralCaller(booleanOptionWithDefault(commandLine, RUN_STRUCTURAL_CALLER_FLAG, defaults.runStructuralCaller()))
                     .runTertiary(booleanOptionWithDefault(commandLine, RUN_TERTIARY_FLAG, defaults.runTertiary()))
                     .serviceAccountEmail(commandLine.getOptionValue(SERVICE_ACCOUNT_EMAIL_FLAG, defaults.serviceAccountEmail()))
@@ -425,9 +431,16 @@ public class CommandLineOptions {
 
     private static RefGenomeVersion refGenomeVersion(final CommandLine commandLine, final Arguments defaults) {
         if (commandLine.hasOption(REF_GENOME_VERSION_FLAG)) {
-            return RefGenomeVersion.valueOf(commandLine.getOptionValue(REF_GENOME_VERSION_FLAG));
+            return Arrays.stream(RefGenomeVersion.values())
+                    .filter(version -> version.pipeline().equals(commandLine.getOptionValue(REF_GENOME_VERSION_FLAG)))
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException(refGenomeVersions().collect(Collectors.joining(","))));
         }
         return defaults.refGenomeVersion();
+    }
+
+    private static Stream<String> refGenomeVersions() {
+        return Arrays.stream(RefGenomeVersion.values()).map(RefGenomeVersion::pipeline);
     }
 
     private static Optional<Integer> sbpRunId(final CommandLine commandLine) {

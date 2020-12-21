@@ -2,7 +2,7 @@ package com.hartwig.batch.operations.rna;
 
 import static java.lang.String.format;
 
-import static com.hartwig.batch.operations.rna.RnaCommon.RNA_COHORT_LOCATION_HG37;
+import static com.hartwig.batch.operations.rna.RnaCommon.RNA_COHORT_LOCATION_V37;
 import static com.hartwig.batch.operations.rna.RnaCommon.RNA_RESOURCES;
 
 import java.io.File;
@@ -123,7 +123,7 @@ public class RnaSalmon implements BatchOperation {
         startupScript.addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), "salmon"), executionFlags));
 
         // copy results to rna-analysis location on crunch
-        startupScript.addCommand(() -> format("gsutil -m cp %s/* %s/%s/salmon/", VmDirectories.OUTPUT, RNA_COHORT_LOCATION_HG37, sampleId));
+        startupScript.addCommand(() -> format("gsutil -m cp %s/* %s/%s/salmon/", VmDirectories.OUTPUT, RNA_COHORT_LOCATION_V37, sampleId));
 
         return ImmutableVirtualMachineJobDefinition.builder().name("rna-salmon").startupCommand(startupScript)
                 .namespacedResults(ResultsDirectory.defaultDirectory()).workingDiskSpaceGb(500)

@@ -3,12 +3,10 @@ package com.hartwig.batch.operations.rna;
 import static java.lang.String.format;
 
 import static com.hartwig.batch.operations.rna.RnaCommon.MAX_EXPECTED_BAM_SIZE_GB;
-import static com.hartwig.batch.operations.rna.RnaCommon.RNA_COHORT_LOCATION_HG37;
 import static com.hartwig.batch.operations.rna.RnaCommon.RNA_RESOURCES;
 import static com.hartwig.batch.operations.rna.RnaCommon.getRnaCohortDirectory;
 import static com.hartwig.batch.operations.rna.RnaCommon.getRnaResourceDirectory;
-import static com.hartwig.pipeline.resource.RefGenomeVersion.HG19;
-import static com.hartwig.pipeline.resource.RefGenomeVersion.HG38;
+import static com.hartwig.pipeline.resource.RefGenomeVersion.V37;
 import static com.hartwig.pipeline.resource.ResourceFilesFactory.buildResourceFiles;
 
 import com.hartwig.batch.BatchOperation;
@@ -75,7 +73,7 @@ public class RnaIsofox implements BatchOperation {
         final String functionsStr = batchItems.length >= 3
                 ? batchItems[2] : FUNC_TRANSCRIPT_COUNTS + ";" + FUNC_NOVEL_LOCATIONS + ";" + FUNC_FUSIONS;
 
-        final RefGenomeVersion refGenomeVersion = batchItems.length >= 4 ? RefGenomeVersion.valueOf(batchItems[3]) : HG19;
+        final RefGenomeVersion refGenomeVersion = batchItems.length >= 4 ? RefGenomeVersion.valueOf(batchItems[3]) : V37;
 
         final ResourceFiles resourceFiles = buildResourceFiles(refGenomeVersion);
 
@@ -130,9 +128,9 @@ public class RnaIsofox implements BatchOperation {
         isofoxArgs.append(String.format(" -gene_transcripts_dir %s", VmDirectories.INPUT));
         isofoxArgs.append(String.format(" -long_frag_limit %d", LONG_FRAG_LENGTH_LIMIT));
 
-        if(refGenomeVersion == HG38)
+        if(refGenomeVersion == RefGenomeVersion.V38)
         {
-            isofoxArgs.append(String.format(" -ref_genome_version %s", HG38));
+            isofoxArgs.append(String.format(" -ref_genome_version %s", "38"));
         }
 
         if(functionsStr.contains(FUNC_TRANSCRIPT_COUNTS))

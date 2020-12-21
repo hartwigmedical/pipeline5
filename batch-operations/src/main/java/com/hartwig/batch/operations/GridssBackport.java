@@ -44,7 +44,7 @@ public class GridssBackport implements BatchOperation {
     public VirtualMachineJobDefinition execute(final InputBundle inputs, final RuntimeBucket runtimeBucket,
             final BashStartupScript startupScript, final RuntimeFiles executionFlags) {
 
-        final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.HG19);
+        final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.V37);
         final InputFileDescriptor template = inputs.get("set");
         final String set = inputs.get("set").inputValue();
         final String sample = inputs.get("tumor_sample").inputValue();

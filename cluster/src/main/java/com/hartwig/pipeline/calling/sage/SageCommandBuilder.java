@@ -1,9 +1,8 @@
-package com.hartwig.pipeline.calling.somatic;
+package com.hartwig.pipeline.calling.sage;
 
 import java.util.StringJoiner;
 
 import com.hartwig.pipeline.execution.vm.Bash;
-import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.resource.ResourceFiles;
 
 public class SageCommandBuilder {
@@ -93,7 +92,7 @@ public class SageCommandBuilder {
         arguments.add("-high_confidence_bed").add(resourceFiles.giabHighConfidenceBed());
         arguments.add("-ref_genome").add(resourceFiles.refGenomeFile());
         arguments.add("-out").add(outputVcf);
-        arguments.add("-assembly").add(resourceFiles.version().equals(RefGenomeVersion.HG38) ? "hg38" : "hg19");
+        arguments.add("-assembly").add(resourceFiles.version().sage());
         arguments.add("-threads").add(Bash.allCpus());
 
         if (panelOnly) {
@@ -106,8 +105,7 @@ public class SageCommandBuilder {
                 throw new IllegalStateException("Germline mode only supports one sample");
             }
 
-            arguments
-                    .add("-hard_filter_enabled true")
+            arguments.add("-hard_filter_enabled true")
                     .add("-soft_filter_enabled false")
                     .add("-hard_min_tumor_qual 0")
                     .add("-hard_min_tumor_raw_alt_support 3")

@@ -12,9 +12,9 @@ import com.hartwig.batch.input.InputBundle;
 import com.hartwig.batch.input.InputFileDescriptor;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.calling.command.VersionedToolCommand;
-import com.hartwig.pipeline.calling.somatic.SageApplication;
-import com.hartwig.pipeline.calling.somatic.SageCommandBuilder;
-import com.hartwig.pipeline.calling.somatic.SagePostProcess;
+import com.hartwig.pipeline.calling.sage.SageApplication;
+import com.hartwig.pipeline.calling.sage.SageCommandBuilder;
+import com.hartwig.pipeline.calling.sage.SageSomaticPostProcess;
 import com.hartwig.pipeline.execution.vm.Bash;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
@@ -67,7 +67,7 @@ public class SageRerun implements BatchOperation {
         final String localReferenceBam = CONVERT_TO_BAM ? localReferenceFile.replace("cram", "bam") : localReferenceFile;
 
         // Prepare SnpEff
-        final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.HG19);
+        final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.V37);
         commands.addCommand(new UnzipToDirectoryCommand(VmDirectories.RESOURCES, resourceFiles.snpEffDb()));
 
         // Download tumor
@@ -108,7 +108,7 @@ public class SageRerun implements BatchOperation {
         }
 
         SageApplication sageApplication = new SageApplication(sageCommandBuilder);
-        SagePostProcess sagePostProcess = new SagePostProcess(tumorSampleName, resourceFiles);
+        SageSomaticPostProcess sagePostProcess = new SageSomaticPostProcess(tumorSampleName, resourceFiles);
         SubStageInputOutput sageOutput = sageApplication.andThen(sagePostProcess).apply(SubStageInputOutput.empty(tumorSampleName));
         commands.addCommands(sageOutput.bash());
 
@@ -131,7 +131,7 @@ public class SageRerun implements BatchOperation {
         // Store output
         commands.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), "sage"), executionFlags));
 
-        return VirtualMachineJobDefinition.sageCalling(commands, ResultsDirectory.defaultDirectory());
+        return VirtualMachineJobDefinition.sageSomaticCalling(commands, ResultsDirectory.defaultDirectory());
     }
 
     private OutputFile bqrFile(String sample, String extension) {
