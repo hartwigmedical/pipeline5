@@ -38,7 +38,7 @@ public class GridssRerun implements BatchOperation {
             final BashStartupScript commands, final RuntimeFiles executionFlags) {
 
         // Inputs
-        final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.RG_37);
+        final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.V37);
         final String set = inputs.get("set").inputValue();
         final String tumorSampleName = inputs.get("tumor_sample").inputValue();
         final String referenceSampleName = inputs.get("reference_sample").inputValue();

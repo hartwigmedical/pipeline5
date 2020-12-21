@@ -17,15 +17,14 @@ import static com.hartwig.pipeline.resource.ResourceNames.SNPEFF;
 import static com.hartwig.pipeline.resource.ResourceNames.SV;
 
 public class RefGenome38ResourceFiles implements ResourceFiles {
-    private static final String REF_GENOME_DIR_38 = "38";
 
     public RefGenomeVersion version() {
-        return RefGenomeVersion.RG_38;
+        return RefGenomeVersion.V38;
     }
 
     @Override
     public String versionDirectory() {
-        return REF_GENOME_DIR_38;
+        return version().resources();
     }
 
     @Override

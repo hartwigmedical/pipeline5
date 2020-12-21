@@ -1,6 +1,6 @@
 package com.hartwig.batch.operations.rna;
 
-import static com.hartwig.pipeline.resource.RefGenomeVersion.RG_37;
+import static com.hartwig.pipeline.resource.RefGenomeVersion.V37;
 
 import com.hartwig.pipeline.resource.RefGenomeVersion;
 
@@ -16,7 +16,7 @@ public class RnaCommon {
 
     public static String getRnaResourceDirectory(final RefGenomeVersion version, final String resourceDir)
     {
-        if(version == RG_37)
+        if(version == V37)
             return String.format("%s/%s/37", RNA_RESOURCES, resourceDir);
         else
             return String.format("%s/%s/38", RNA_RESOURCES, resourceDir);
@@ -24,7 +24,7 @@ public class RnaCommon {
 
     public static String getRnaCohortDirectory(final RefGenomeVersion version)
     {
-        return version == RG_37 ? RNA_COHORT_LOCATION_HG37 : RNA_COHORT_LOCATION_HG38;
+        return version == V37 ? RNA_COHORT_LOCATION_HG37 : RNA_COHORT_LOCATION_HG38;
     }
 
 }

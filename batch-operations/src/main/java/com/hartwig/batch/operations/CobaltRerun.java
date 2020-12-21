@@ -52,7 +52,7 @@ public class CobaltRerun implements BatchOperation {
         commands.addCommand(() -> remoteReferenceFile.toCommandForm(localReferenceFile));
         commands.addCommand(() -> remoteReferenceIndex.toCommandForm(localFilename(remoteReferenceIndex)));
 
-        final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.RG_37);
+        final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.V37);
         commands.addCommand(() -> new CobaltApplicationCommand(resourceFiles,
                 referenceSampleName,
                 localReferenceFile,
