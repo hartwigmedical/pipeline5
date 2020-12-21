@@ -15,6 +15,8 @@ import com.hartwig.pipeline.jackson.ObjectMappers;
 import com.hartwig.pipeline.sbpapi.SbpIni;
 import com.hartwig.pipeline.sbpapi.SbpRestApi;
 import com.hartwig.pipeline.sbpapi.SbpRun;
+import com.hartwig.pipeline.sbpapi.SbpRunResult;
+import com.hartwig.pipeline.sbpapi.SbpRunResultUpdate;
 import com.hartwig.pipeline.sbpapi.SbpSample;
 import com.hartwig.pipeline.sbpapi.SbpSet;
 import com.hartwig.pipeline.transfer.BlobCleanup;
@@ -28,14 +30,13 @@ import org.slf4j.LoggerFactory;
 
 public class SbpSomaticMetadataApi implements SomaticMetadataApi {
 
-    static final String SUCCESS = "Success";
     static final String SNP_CHECK = "SnpCheck";
-    static final String FAILED = "Failed";
     private static final String UPLOADING = "Uploading";
     private static final String REF = "ref";
     private static final String TUMOR = "tumor";
     private final static Logger LOGGER = LoggerFactory.getLogger(SomaticMetadataApi.class);
     private static final String SINGLE_SAMPLE_INI = "SingleSample";
+    public static final String FINISHED = "Finished";
     private final Arguments arguments;
     private final int sbpRunId;
     private final SbpRestApi sbpRestApi;
@@ -139,7 +140,7 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
             LOGGER.info("Recording pipeline completion with status [{}]", pipelineState.status());
             try {
                 if (pipelineState.status() != PipelineStatus.FAILED) {
-                    sbpRestApi.updateRunStatus(runIdAsString, UPLOADING, arguments.archiveBucket());
+                    sbpRestApi.updateRunResult(runIdAsString, SbpRunResultUpdate.of(UPLOADING, arguments.archiveBucket()));
                     googleArchiver.transfer(metadata);
                     OutputIterator.from(new SbpFileApiUpdate(ContentTypeCorrection.get(),
                             sbpRun,
@@ -151,11 +152,13 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
                                     .flatMap(List::stream)
                                     .collect(Collectors.toSet())).andThen(new BlobCleanup()), sourceBucket).iterate(metadata);
                 }
-                sbpRestApi.updateRunStatus(runIdAsString,
-                        pipelineState.status() == PipelineStatus.SUCCESS ? successStatus() : FAILED,
-                        arguments.archiveBucket());
+                sbpRestApi.updateRunResult(runIdAsString,
+                        SbpRunResultUpdate.of(successStatus(pipelineState.status()),
+                                SbpRunResult.from(pipelineState.status()),
+                                arguments.archiveBucket()));
             } catch (Exception e) {
-                sbpRestApi.updateRunStatus(runIdAsString, FAILED, sbpBucket);
+                sbpRestApi.updateRunResult(runIdAsString,
+                        SbpRunResultUpdate.of("Finished", SbpRunResult.from(PipelineStatus.FAILED), sbpBucket));
                 throw e;
             }
         } else {
@@ -166,7 +169,7 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
         }
     }
 
-    private String successStatus() {
-        return arguments.shallow() ? SUCCESS : SNP_CHECK;
+    private String successStatus(final PipelineStatus status) {
+        return status == PipelineStatus.FAILED ? FINISHED : arguments.shallow() ? FINISHED : SNP_CHECK;
     }
 }

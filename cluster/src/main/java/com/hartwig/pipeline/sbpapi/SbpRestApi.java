@@ -87,7 +87,7 @@ public class SbpRestApi {
     }
 
     public List<SbpSample> getSamplesByBiopsy(final String biopsyName) {
-        List<SbpSample> samples = null;
+        List<SbpSample> samples;
         try {
             samples = ObjectMappers.get()
                     .readValue(returnOrThrow(sample().queryParam("biopsy", biopsyName).request().buildGet().invoke()),
@@ -115,9 +115,9 @@ public class SbpRestApi {
         }
     }
 
-    public void updateRunStatus(String runID, String status, String gcpBucket) {
-        LOGGER.info("Patching {} id [{}] with status [{}]", SbpRestApi.RUNS, runID, status);
-        returnOrThrow(api().path(RUNS).path(runID).request().build("PATCH", jsonEntity(SbpRunStatusUpdate.of(status, gcpBucket))).invoke());
+    public void updateRunResult(String runID, SbpRunResultUpdate update) {
+        LOGGER.info("Patching {} id [{}] with status [{}]", SbpRestApi.RUNS, runID, update);
+        returnOrThrow(api().path(RUNS).path(runID).request().build("PATCH", jsonEntity(update)).invoke());
     }
 
     public AddFileApiResponse postFile(final SbpFileMetadata metaData) {
