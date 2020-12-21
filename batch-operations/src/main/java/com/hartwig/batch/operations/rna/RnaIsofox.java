@@ -8,6 +8,7 @@ import static com.hartwig.batch.operations.rna.RnaCommon.RNA_RESOURCES;
 import static com.hartwig.batch.operations.rna.RnaCommon.getRnaCohortDirectory;
 import static com.hartwig.batch.operations.rna.RnaCommon.getRnaResourceDirectory;
 import static com.hartwig.pipeline.resource.RefGenomeVersion.HG19;
+import static com.hartwig.pipeline.resource.RefGenomeVersion.HG38;
 import static com.hartwig.pipeline.resource.ResourceFilesFactory.buildResourceFiles;
 
 import com.hartwig.batch.BatchOperation;
@@ -78,14 +79,16 @@ public class RnaIsofox implements BatchOperation {
 
         final ResourceFiles resourceFiles = buildResourceFiles(refGenomeVersion);
 
+        final String rnaCohortDirectory = getRnaCohortDirectory(refGenomeVersion);
+
         // copy down BAM and index file for this sample
         final String bamFile = String.format("%s%s", sampleId, RNA_BAM_FILE_ID);
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s/%s %s",
-                RNA_COHORT_LOCATION_HG37, sampleId, bamFile, VmDirectories.INPUT));
+                rnaCohortDirectory, sampleId, bamFile, VmDirectories.INPUT));
 
         final String bamIndexFile = String.format("%s%s", sampleId, RNA_BAM_INDEX_FILE_ID);
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s/%s %s",
-                RNA_COHORT_LOCATION_HG37, sampleId, bamIndexFile, VmDirectories.INPUT));
+                rnaCohortDirectory, sampleId, bamIndexFile, VmDirectories.INPUT));
 
         // copy down the executable
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s %s",
@@ -127,6 +130,11 @@ public class RnaIsofox implements BatchOperation {
         isofoxArgs.append(String.format(" -gene_transcripts_dir %s", VmDirectories.INPUT));
         isofoxArgs.append(String.format(" -long_frag_limit %d", LONG_FRAG_LENGTH_LIMIT));
 
+        if(refGenomeVersion == HG38)
+        {
+            isofoxArgs.append(String.format(" -ref_genome_version %s", HG38));
+        }
+
         if(functionsStr.contains(FUNC_TRANSCRIPT_COUNTS))
         {
             isofoxArgs.append(String.format(" -apply_exp_rates"));
@@ -163,18 +171,16 @@ public class RnaIsofox implements BatchOperation {
         // upload the results
         startupScript.addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), "isofox"), executionFlags));
 
-        final String resultsDir = getRnaCohortDirectory(refGenomeVersion);
-
         if(functionsStr.equals(FUNC_FUSIONS))
         {
             startupScript.addCommand(() -> format("gsutil -m cp %s/*fusions.csv %s/%s/isofox/",
-                    VmDirectories.OUTPUT, resultsDir, sampleId));
+                    VmDirectories.OUTPUT, rnaCohortDirectory, sampleId));
         }
         else
         {
             // copy results to rna-analysis location on crunch
             startupScript.addCommand(() -> format("gsutil -m cp %s/* %s/%s/isofox/", VmDirectories.OUTPUT,
-                    resultsDir, sampleId));
+                    rnaCohortDirectory, sampleId));
         }
 
         int requiredGb = MAX_EXPECTED_BAM_SIZE_GB;
