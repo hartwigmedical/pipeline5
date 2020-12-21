@@ -22,7 +22,7 @@ import com.hartwig.pipeline.storage.RuntimeBucket;
 
 public class SageSomaticCaller extends SageCaller {
 
-    public static final String NAMESPACE = "sage";
+    public static final String NAMESPACE = "sage_somatic";
 
     private final ResourceFiles resourceFiles;
 

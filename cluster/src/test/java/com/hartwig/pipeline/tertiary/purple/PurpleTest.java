@@ -49,7 +49,7 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
 
     @Override
     protected List<String> expectedInputs() {
-        return ImmutableList.of(input(expectedRuntimeBucketName() + "/sage/results/tumor.vcf.gz", "tumor.vcf.gz"),
+        return ImmutableList.of(input(expectedRuntimeBucketName() + "/sage_somatic/results/tumor.vcf.gz", "tumor.vcf.gz"),
                 input(expectedRuntimeBucketName() + "/gripss/results/tumor.gripss.filtered.vcf.gz", "tumor.gripss.filtered.vcf.gz"),
                 input(expectedRuntimeBucketName() + "/gripss/results/tumor.gripss.filtered.vcf.gz.tbi", "tumor.gripss.filtered.vcf.gz.tbi"),
                 input(expectedRuntimeBucketName() + "/gripss/results/tumor.gripss.full.vcf.gz", "tumor.gripss.full.vcf.gz"),
