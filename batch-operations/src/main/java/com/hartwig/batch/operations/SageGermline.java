@@ -45,7 +45,7 @@ public class SageGermline implements BatchOperation {
         final String localReferenceFile = remoteReferenceFile.localDestination();
 
         // Prepare SnpEff
-        final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.RG_37);
+        final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.V37);
         commands.addCommand(new UnzipToDirectoryCommand(VmDirectories.RESOURCES, resourceFiles.snpEffDb()));
 
         // Download experimental JAR

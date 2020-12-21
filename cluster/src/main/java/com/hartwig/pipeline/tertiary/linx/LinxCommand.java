@@ -1,6 +1,6 @@
 package com.hartwig.pipeline.tertiary.linx;
 
-import static com.hartwig.pipeline.resource.RefGenomeVersion.RG_37;
+import static com.hartwig.pipeline.resource.RefGenomeVersion.V37;
 
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.execution.vm.JavaJarCommand;
@@ -25,7 +25,7 @@ class LinxCommand extends JavaJarCommand {
                         "-ref_genome",
                         referenceGenome,
                         "-ref_genome_version",
-                        asString(refGenomeVersion),
+                        refGenomeVersion.linx(),
                         "-output_dir",
                         outputDir,
                         "-fragile_site_file",
@@ -50,6 +50,6 @@ class LinxCommand extends JavaJarCommand {
     }
 
     public static String asString(RefGenomeVersion version) {
-        return version == RG_37 ? "HG37" : "HG38";
+        return version == V37 ? "HG37" : "HG38";
     }
 }

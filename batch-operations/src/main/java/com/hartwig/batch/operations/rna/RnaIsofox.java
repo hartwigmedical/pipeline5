@@ -7,7 +7,7 @@ import static com.hartwig.batch.operations.rna.RnaCommon.RNA_COHORT_LOCATION_HG3
 import static com.hartwig.batch.operations.rna.RnaCommon.RNA_RESOURCES;
 import static com.hartwig.batch.operations.rna.RnaCommon.getRnaCohortDirectory;
 import static com.hartwig.batch.operations.rna.RnaCommon.getRnaResourceDirectory;
-import static com.hartwig.pipeline.resource.RefGenomeVersion.RG_37;
+import static com.hartwig.pipeline.resource.RefGenomeVersion.V37;
 import static com.hartwig.pipeline.resource.ResourceFilesFactory.buildResourceFiles;
 
 import com.hartwig.batch.BatchOperation;
@@ -74,7 +74,7 @@ public class RnaIsofox implements BatchOperation {
         final String functionsStr = batchItems.length >= 3
                 ? batchItems[2] : FUNC_TRANSCRIPT_COUNTS + ";" + FUNC_NOVEL_LOCATIONS + ";" + FUNC_FUSIONS;
 
-        final RefGenomeVersion refGenomeVersion = batchItems.length >= 4 ? RefGenomeVersion.valueOf(batchItems[3]) : RG_37;
+        final RefGenomeVersion refGenomeVersion = batchItems.length >= 4 ? RefGenomeVersion.valueOf(batchItems[3]) : V37;
 
         final ResourceFiles resourceFiles = buildResourceFiles(refGenomeVersion);
 
