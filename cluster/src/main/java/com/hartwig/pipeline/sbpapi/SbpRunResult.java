@@ -24,7 +24,7 @@ public interface SbpRunResult {
     static SbpRunResult from(final PipelineStatus status) {
         switch (status) {
             case QC_FAILED:
-                return of("QCFailure", "HealthChecker");
+                return of("QCFailure", "HealthCheck");
             case FAILED:
                 return of("TechnicalFailure", "Pipeline");
             case SUCCESS:
