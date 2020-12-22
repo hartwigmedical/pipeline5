@@ -19,7 +19,7 @@ public class SbpRunResultTest {
     public void qcFailureMapsToHealthCheckerQCFailure() {
         SbpRunResult victim = SbpRunResult.from(PipelineStatus.QC_FAILED);
         assertThat(victim.category()).isEqualTo("QCFailure");
-        assertThat(victim.type()).isEqualTo("HealthChecker");
+        assertThat(victim.type()).isEqualTo("HealthCheck");
     }
 
     @Test
