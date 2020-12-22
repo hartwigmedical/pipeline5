@@ -79,7 +79,8 @@ linx/CPCT12345678T.linx.vis_fusion.tsv
 linx/CPCT12345678T.linx.vis_gene_exon.tsv
 linx/CPCT12345678T.linx.vis_protein_domain.tsv
 linx/CPCT12345678T.linx.vis_segments.tsv
-linx/CPCT12345678T.linx.vis_sv_data.tsv"
+linx/CPCT12345678T.linx.vis_sv_data.tsv
+linx/linx.version
 metadata.json
 pipeline.version
 purple/circos/CPCT12345678R.ratio.circos
