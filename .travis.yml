@@ -1,6 +1,6 @@
 branches:
   only:
-    - master
+    - disable
 sudo: required
 language: java
 jdk:
