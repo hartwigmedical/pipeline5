@@ -1,4 +1,5 @@
-- name: 'gcr.io/cloud-builders/gsutil'
+steps:
+  - name: 'gcr.io/cloud-builders/gsutil'
     args:
       - '-m'
       - 'rsync'
