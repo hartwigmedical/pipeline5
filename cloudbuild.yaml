@@ -10,41 +10,40 @@ steps:
       - path: '/cache/.m2'
         name: 'm2_cache'
 
-      - name: 'gcr.io/cloud-builders/mvn'
-        args:
-          - 'install'
-          - '--batch-mode'
-        volumes:
-          - path: '/cache/.m2'
-            name: 'm2_cache'
-        env:
-          - MAVEN_OPTS=-Dmaven.repo.local=/cache/.m2
-      - name: 'gcr.io/cloud-builders/gsutil'
-        args:
-          - '-m'
-          - 'rsync'
-          - '-r'
-          - '/cache/.m2'
-          - 'gs://hmf-build-caches/pipeline5/.m2/'
-        volumes:
-          - path: '/cache/.m2'
-            name: 'm2_cache'
-      - name: 'gcr.io/cloud-builders/docker'
-        id: 'Building pipeline docker image'
-        args: ['build', '-t', 'eu.gcr.io/$PROJECT_ID/pipeline5:$SHORT_SHA', 'cluster/Dockerfile']
-      - name: 'gcr.io/cloud-builders/docker'
-        id: 'Push pipeline docker image'
-        entrypoint: '/bin/bash'
-        args: ['-c', "docker push eu.gcr.io/$PROJECT_ID/pipeline5:$SHORT_SHA"]
-      - name: 'gcr.io/cloud-builders/docker'
-        id: 'Building batch docker image'
-        args: ['build', '-t', 'eu.gcr.io/$PROJECT_ID/pipeline5:$SHORT_SHA', 'batch5/Dockerfile']
-      - name: 'gcr.io/cloud-builders/docker'
-        id: 'Push batch docker image'
-        entrypoint: '/bin/bash'
-        args: ['-c', "docker push eu.gcr.io/$PROJECT_ID/pipeline5:$SHORT_SHA"]
+  - name: 'gcr.io/cloud-builders/mvn'
+    args:
+      - 'install'
+      - '--batch-mode'
+    volumes:
+      - path: '/cache/.m2'
+        name: 'm2_cache'
+    env:
+      - MAVEN_OPTS=-Dmaven.repo.local=/cache/.m2
+  - name: 'gcr.io/cloud-builders/gsutil'
+    args:
+      - '-m'
+      - 'rsync'
+      - '-r'
+      - '/cache/.m2'
+      - 'gs://hmf-build-caches/pipeline5/.m2/'
+    volumes:
+      - path: '/cache/.m2'
+        name: 'm2_cache'
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Building pipeline image'
+    args: ['build', '-t', 'eu.gcr.io/$PROJECT_ID/pipeline5:$SHORT_SHA', './cluster/']
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Push pipeline image'
+    entrypoint: '/bin/bash'
+    args: ['-c', "docker push eu.gcr.io/$PROJECT_ID/pipeline5:$SHORT_SHA"]
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Building batch image'
+    args: ['build', '-t', 'eu.gcr.io/$PROJECT_ID/pipeline5:$SHORT_SHA', './batch/']
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Push batch image'
+    entrypoint: '/bin/bash'
+    args: ['-c', "docker push eu.gcr.io/$PROJECT_ID/pipeline5:$SHORT_SHA"]
 options:
   machineType: 'N1_HIGHCPU_32'
 images:
   - eu.gcr.io/$PROJECT_ID/pipeline5
-  - eu.gcr.io/$PROJECT_ID/batch5
