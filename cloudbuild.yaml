@@ -59,3 +59,4 @@ options:
   machineType: 'N1_HIGHCPU_32'
 images:
   - eu.gcr.io/$PROJECT_ID/pipeline5
+timeout: 2400s
