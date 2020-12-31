@@ -41,7 +41,7 @@ public class SmokeTest {
     private static final String TUMOR_SAMPLE = SET_ID + "T";
     private static final String STAGED_FLAG_FILE = "STAGED";
     private static final String RCLONE_PATH = "/usr/bin";
-    private static final String CLOUD_SDK_PATH = "/root/google-cloud-sdk/bin/gcloud";
+    private static final String CLOUD_SDK_PATH = "/root/google-cloud-sdk/bin";
     private File resultsDir;
 
     @Before
