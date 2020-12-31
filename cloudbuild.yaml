@@ -10,7 +10,8 @@ steps:
       - path: '/cache/.m2'
         name: 'm2_cache'
 
-  - name: 'gcr.io/cloud-builders/mvn'
+  - name: maven:3-jdk-11
+    entrypoint: mvn
     args:
       - 'install'
       - '--batch-mode'
