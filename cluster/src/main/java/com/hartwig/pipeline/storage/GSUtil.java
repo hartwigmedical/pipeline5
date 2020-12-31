@@ -16,7 +16,7 @@ public class GSUtil {
         TIMEOUT_HOURS = timeoutHours;
     }
 
-    public static void  auth(String gsdkPath, String keyFile) throws IOException, InterruptedException {
+    public static void auth(String gsdkPath, String keyFile) throws IOException, InterruptedException {
         ProcessBuilder processBuilder =
                 new ProcessBuilder(gsdkPath + "/gcloud", "auth", "activate-service-account", String.format("--key-file=%s", keyFile));
         Processes.run(processBuilder, VERBOSE);
@@ -66,7 +66,7 @@ public class GSUtil {
         }
         command.add("-qm");
         command.add("rsync");
-        if (exclusions != null){
+        if (exclusions != null) {
             command.add("-x");
             command.add(exclusions);
         }

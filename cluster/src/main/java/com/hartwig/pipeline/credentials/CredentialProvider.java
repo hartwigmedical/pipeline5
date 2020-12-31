@@ -21,7 +21,7 @@ public class CredentialProvider {
                 arguments.privateKeyPath().isPresent() ? GoogleCredentials.fromStream(new FileInputStream(arguments.privateKeyPath().get()))
                         .createScoped(ComputeScopes.all()) : GoogleCredentials.getApplicationDefault();
         ;
-        GSUtil.configure(false, 4);
+       GSUtil.configure(true, 4);
         authorize(arguments);
         return credentials;
     }
