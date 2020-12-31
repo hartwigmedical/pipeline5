@@ -15,6 +15,7 @@ steps:
     args:
       - 'install'
       - '--batch-mode'
+      - '-DskipDocker'
     volumes:
       - path: '/cache/.m2'
         name: 'm2_cache'
