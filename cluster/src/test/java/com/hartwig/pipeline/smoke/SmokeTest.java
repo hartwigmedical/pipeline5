@@ -32,7 +32,6 @@ import org.junit.experimental.categories.Category;
 
 @Category(value = IntegrationTest.class)
 public class SmokeTest {
-    private static final String ARCHIVE_BUCKET = "hmf-output-test";
     private static final String GCP_REMOTE = "gs";
     private static final String FILE_ENCODING = "UTF-8";
     private static final int SBP_SET_ID = 9;
@@ -42,8 +41,6 @@ public class SmokeTest {
     private static final String TUMOR_SAMPLE = SET_ID + "T";
     private static final String STAGED_FLAG_FILE = "STAGED";
     private static final String RCLONE_PATH = "/usr/bin";
-    private static final String ARCHIVE_PRIVATE_KEY = workingDir() + "/google-archive-key.json";
-    private static final String ARCHIVE_PROJECT = "hmf-database";
     private static final String CLOUD_SDK_PATH = "/usr/bin";
     private File resultsDir;
 
@@ -82,9 +79,9 @@ public class SmokeTest {
                 .rcloneGcpRemote(GCP_REMOTE)
                 .rcloneS3RemoteDownload("s3")
                 .cleanup(true)
-                .archiveBucket(ARCHIVE_BUCKET)
-                .archiveProject(ARCHIVE_PROJECT)
-                .archivePrivateKeyPath(ARCHIVE_PRIVATE_KEY)
+                .archiveBucket("pipeline-archive-dev")
+                .archiveProject("hmf-pipeline-development")
+                .archivePrivateKeyPath(privateKeyPath)
                 .build();
 
         SbpRestApi api = SbpRestApi.newInstance(arguments.sbpApiUrl());
@@ -92,72 +89,70 @@ public class SmokeTest {
         String setName = setName(api);
 
         delete(format("gs://%s/%s", arguments.outputBucket(), setName));
-        cleanupArchiveBucket(setName);
+        cleanupArchiveBucket(setName, arguments.archiveBucket());
 
         PipelineState state = victim.start(arguments);
         assertThat(state.status()).isEqualTo(PipelineStatus.QC_FAILED);
 
         File expectedFilesResource = new File(Resources.testResource("smoke_test/expected_output_files"));
         List<String> expectedFiles = FileUtils.readLines(expectedFilesResource, FILE_ENCODING);
-        List<String> archiveListing = listArchiveFilenames(setName);
+        List<String> archiveListing = listArchiveFilenames(setName, arguments.archiveBucket());
         assertThat(archiveListing).containsOnlyElementsOf(expectedFiles);
 
-        assertThatAlignmentIsEqualToExpected(setName, REFERENCE_SAMPLE);
-        assertThatAlignmentIsEqualToExpected(setName, TUMOR_SAMPLE);
+        assertThatAlignmentIsEqualToExpected(setName, REFERENCE_SAMPLE, arguments.archiveBucket());
+        assertThatAlignmentIsEqualToExpected(setName, TUMOR_SAMPLE, arguments.archiveBucket());
     }
 
-    private List<String> listArchiveFilenames(String setName) {
-        confirmArchiveBucketExists();
-        String output = runGsUtil(ImmutableList.of("ls", "-r", format("gs://%s/%s", ARCHIVE_BUCKET, setName)));
+    private List<String> listArchiveFilenames(final String setName, final String archiveBucket) {
+        confirmArchiveBucketExists(archiveBucket);
+        String output = runGsUtil(ImmutableList.of("ls", "-r", format("gs://%s/%s", archiveBucket, setName)));
         return ImmutableList.<String>builder().add(output.split("\n"))
                 .build()
                 .stream()
                 .filter(filename -> filename.matches("^gs://.*[^:]"))
-                .map(filename -> filename.replaceAll(format("^gs://%s/%s/", ARCHIVE_BUCKET, setName), ""))
+                .map(filename -> filename.replaceAll(format("^gs://%s/%s/", archiveBucket, setName), ""))
                 .filter(filename -> !filename.equals(STAGED_FLAG_FILE))
                 .collect(Collectors.toList());
     }
 
-    private void cleanupArchiveBucket(String setName) {
-        confirmArchiveBucketExists();
+    private void cleanupArchiveBucket(final String setName, final String archiveBucket) {
+        confirmArchiveBucketExists(archiveBucket);
         try {
-            runGsUtil(ImmutableList.of("stat", format("gs://%s/%s", ARCHIVE_BUCKET, setName)));
+            runGsUtil(ImmutableList.of("stat", format("gs://%s/%s", archiveBucket, setName)));
         } catch (Exception e) {
             // Folder does not exist, removal will fail so just return
             return;
         }
-        delete(format("gs://%s/%s", ARCHIVE_BUCKET, setName));
+        delete(format("gs://%s/%s", archiveBucket, setName));
     }
 
     private void delete(final String path) {
         runGsUtil(ImmutableList.of("rm", "-r", path));
     }
 
-    private String runGsUtil(List<String> arguments) {
+    private String runGsUtil(final List<String> arguments) {
         try {
-            ProcessBuilder process =
-                    new ProcessBuilder(ImmutableList.<String>builder().add("gsutil", "-u", ARCHIVE_PROJECT).addAll(arguments).build());
+            ProcessBuilder process = new ProcessBuilder(ImmutableList.<String>builder().addAll(arguments).build());
             return IOUtils.toString(process.start().getInputStream());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    private void confirmArchiveBucketExists() {
+    private void confirmArchiveBucketExists(final String archiveBucket) {
         try {
-            GSUtil.auth(CLOUD_SDK_PATH, ARCHIVE_PRIVATE_KEY);
-            runGsUtil(ImmutableList.of("ls", format("gs://%s", ARCHIVE_BUCKET)));
+            runGsUtil(ImmutableList.of("ls", format("gs://%s", archiveBucket)));
         } catch (Exception e) {
-            throw new RuntimeException(format("Could not confirm archive bucket [%s] exists", ARCHIVE_BUCKET));
+            throw new RuntimeException(format("Could not confirm archive bucket [%s] exists", archiveBucket));
         }
     }
 
-    private void assertThatAlignmentIsEqualToExpected(final String setID, final String sample) {
+    private void assertThatAlignmentIsEqualToExpected(final String setID, final String sample, final String archiveBucket) {
         String cram = sample + ".cram";
         File results = new File(resultsDir.getPath() + "/" + cram);
 
         runGsUtil(ImmutableList.of("cp",
-                format("%s://%s/%s/%s/cram/%s", GCP_REMOTE, ARCHIVE_BUCKET, setID, sample, cram),
+                format("%s://%s/%s/%s/cram/%s", GCP_REMOTE, archiveBucket, setID, sample, cram),
                 results.getPath()));
         assertThatOutput(results.getParent(), "/" + sample).aligned().duplicatesMarked().sorted().isEqualToExpected();
     }
