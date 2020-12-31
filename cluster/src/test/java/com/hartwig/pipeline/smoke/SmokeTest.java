@@ -162,7 +162,7 @@ public class SmokeTest {
     }
 
     private static String noDots(final String version) {
-        return version.replace(".", "");
+        return version.replace(".", "").toLowerCase();
     }
 
     private static String setName(SbpRestApi api) throws IOException {

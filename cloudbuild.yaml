@@ -15,6 +15,10 @@ steps:
   - name: gcr.io/cloud-builders/gcloud
     entrypoint: 'bash'
     args: [ '-c', "gcloud secrets versions access latest --secret=development_serviceaccount_key --format='get(payload.data)' | tr '_-' '/+' | base64 -d > cluster/google-key.json" ]
+  - name: 'maven:3-jdk-11'
+    id: 'Setting version for Maven'
+    entrypoint: mvn
+    args: [ 'versions:set', '-DnewVersion=$SHORT_SHA' ]
   - name: hartwigmedicalfoundation/docker-mvn-gcloud:3-jdk-11
     entrypoint: mvn
     args:
