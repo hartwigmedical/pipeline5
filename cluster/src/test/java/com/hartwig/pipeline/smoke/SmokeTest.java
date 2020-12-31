@@ -50,7 +50,7 @@ public class SmokeTest {
     @Before
     public void setUp() throws Exception {
         System.setProperty("javax.net.ssl.keyStorePassword", "changeit");
-        System.setProperty("javax.net.ssl.keyStore", workingDir() + "api.jks");
+        System.setProperty("javax.net.ssl.keyStore", workingDir() + "/api.jks");
         resultsDir = new File(workingDir() + "/results");
         assertThat(resultsDir.mkdir()).isTrue();
     }
@@ -68,7 +68,7 @@ public class SmokeTest {
         String runId = "smoke-" + noDots(version);
         GSUtil.configure(true, 1);
 
-        String privateKeyPath = workingDir() + "google-key.json";
+        String privateKeyPath = workingDir() + "/google-key.json";
         Arguments arguments = Arguments.defaultsBuilder(Arguments.DefaultsProfile.DEVELOPMENT.toString())
                 .privateKeyPath(privateKeyPath)
                 .uploadPrivateKeyPath(privateKeyPath)
