@@ -29,6 +29,7 @@ steps:
         name: 'm2_cache'
     env:
       - MAVEN_OPTS=-Dmaven.repo.local=/cache/.m2
+      - RCLONE_CONFIG=/workspace/cluster/src/test/resources/smoke_test/rclone.conf
   - name: 'gcr.io/cloud-builders/gsutil'
     args:
       - '-m'
