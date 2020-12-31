@@ -33,14 +33,14 @@ steps:
         name: 'm2_cache'
   - name: 'gcr.io/cloud-builders/docker'
     id: 'Building pipeline image'
-    args: ['build', '-t', 'eu.gcr.io/$PROJECT_ID/pipeline5:$SHORT_SHA', './cluster/']
+    args: ['build', '-t', 'eu.gcr.io/$PROJECT_ID/pipeline5:$SHORT_SHA','-f', './cluster/Dockerfile']
   - name: 'gcr.io/cloud-builders/docker'
     id: 'Push pipeline image'
     entrypoint: '/bin/bash'
     args: ['-c', "docker push eu.gcr.io/$PROJECT_ID/pipeline5:$SHORT_SHA"]
   - name: 'gcr.io/cloud-builders/docker'
     id: 'Building batch image'
-    args: ['build', '-t', 'eu.gcr.io/$PROJECT_ID/pipeline5:$SHORT_SHA', './batch/']
+    args: ['build', '-t', 'eu.gcr.io/$PROJECT_ID/pipeline5:$SHORT_SHA', '-f', './batch/Dockerfile']
   - name: 'gcr.io/cloud-builders/docker'
     id: 'Push batch image'
     entrypoint: '/bin/bash'
