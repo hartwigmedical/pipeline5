@@ -11,10 +11,10 @@ steps:
         name: 'm2_cache'
   - name: gcr.io/cloud-builders/gcloud
     entrypoint: 'bash'
-    args: [ '-c', "gcloud secrets versions access latest --secret=acceptance_api_jks --format='get(payload.data)' | tr '_-' '/+' | base64 -d > api.jks" ]
+    args: [ '-c', "gcloud secrets versions access latest --secret=acceptance_api_jks --format='get(payload.data)' | tr '_-' '/+' | base64 -d > cluster/api.jks" ]
   - name: gcr.io/cloud-builders/gcloud
     entrypoint: 'bash'
-    args: [ '-c', "gcloud secrets versions access latest --secret=development_serviceaccount_key --format='get(payload.data)' | tr '_-' '/+' | base64 -d > google-key.json" ]
+    args: [ '-c', "gcloud secrets versions access latest --secret=development_serviceaccount_key --format='get(payload.data)' | tr '_-' '/+' | base64 -d > cluster/google-key.json" ]
   - name: maven:3-jdk-11
     entrypoint: mvn
     args:
