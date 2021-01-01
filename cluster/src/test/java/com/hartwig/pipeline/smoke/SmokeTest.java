@@ -111,6 +111,7 @@ public class SmokeTest {
     private List<String> listArchiveFilenames(final String setName, final String archiveBucket) {
         confirmArchiveBucketExists(archiveBucket);
         String output = runGsUtil(ImmutableList.of("ls", "-r", format("gs://%s/%s", archiveBucket, setName)));
+        LOGGER.info("Archive bucket contents [{}]",output);
         return ImmutableList.<String>builder().add(output.split("\n"))
                 .build()
                 .stream()
