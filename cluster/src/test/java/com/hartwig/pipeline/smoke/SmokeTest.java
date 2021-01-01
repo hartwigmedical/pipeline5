@@ -120,7 +120,6 @@ public class SmokeTest {
 
     private void cleanupBucket(final String setName, final String archiveBucket, final Storage storage) {
         archiveBlobs(setName, archiveBucket, storage).forEach(Blob::delete);
-        storage.delete(archiveBucket);
     }
 
     private void assertThatAlignmentIsEqualToExpected(final String setID, final String sample, final String archiveBucket,
