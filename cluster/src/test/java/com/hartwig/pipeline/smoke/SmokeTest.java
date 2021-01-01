@@ -29,9 +29,14 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Category(value = IntegrationTest.class)
 public class SmokeTest {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SmokeTest.class);
+
     private static final String GCP_REMOTE = "gs";
     private static final String FILE_ENCODING = "UTF-8";
     private static final int SBP_SET_ID = 9;
@@ -133,6 +138,7 @@ public class SmokeTest {
     private String runGsUtil(final List<String> arguments) {
         try {
             ProcessBuilder process = new ProcessBuilder(ImmutableList.<String>builder().addAll(arguments).build());
+            LOGGER.info("Running [{}]", String.join(" ", process.command()));
             return IOUtils.toString(process.start().getInputStream());
         } catch (Exception e) {
             throw new RuntimeException(e);
