@@ -109,7 +109,9 @@ public class SmokeTest {
     }
 
     private List<String> listArchiveFilenames(final String setName, final String archiveBucket, final Storage storage) {
-        return archiveBlobs(setName, archiveBucket, storage).map(Blob::getName).collect(Collectors.toList());
+        return archiveBlobs(setName, archiveBucket, storage).map(Blob::getName)
+                .map(n -> n.replace(setName + "/", ""))
+                .collect(Collectors.toList());
     }
 
     @NotNull
