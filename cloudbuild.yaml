@@ -1,14 +1,4 @@
 steps:
-  - name: 'gcr.io/cloud-builders/gsutil'
-    args:
-      - '-m'
-      - 'rsync'
-      - '-r'
-      - 'gs://hmf-build-caches/pipeline5/.m2'
-      - '/cache/.m2'
-    volumes:
-      - path: '/cache/.m2'
-        name: 'm2_cache'
   - name: gcr.io/cloud-builders/gcloud
     entrypoint: 'bash'
     args: [ '-c', "gcloud secrets versions access latest --secret=acceptance_api_jks --format='get(payload.data)' | tr '_-' '/+' | base64 -d > cluster/api.jks" ]
@@ -25,22 +15,8 @@ steps:
     args:
       - 'install'
       - '--batch-mode'
-    volumes:
-      - path: '/cache/.m2'
-        name: 'm2_cache'
     env:
-      - MAVEN_OPTS=-Dmaven.repo.local=/cache/.m2
       - RCLONE_CONFIG=/workspace/cluster/src/test/resources/smoke_test/rclone.conf
-  - name: 'gcr.io/cloud-builders/gsutil'
-    args:
-      - '-m'
-      - 'rsync'
-      - '-r'
-      - '/cache/.m2'
-      - 'gs://hmf-build-caches/pipeline5/.m2/'
-    volumes:
-      - path: '/cache/.m2'
-        name: 'm2_cache'
   - name: 'gcr.io/cloud-builders/docker'
     id: 'Building pipeline image'
     args: ['build', '-t', 'eu.gcr.io/$PROJECT_ID/pipeline5:$SHORT_SHA', './cluster/']
