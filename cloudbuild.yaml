@@ -11,7 +11,7 @@ steps:
     args: [ 'versions:set', '-DnewVersion=$SHORT_SHA' ]
   - name: hartwigmedicalfoundation/docker-mvn-gcloud:3-jdk-11
     entrypoint: mvn
-    timeout: 1800s
+    timeout: 2400s
     args:
       - 'install'
       - '--batch-mode'
