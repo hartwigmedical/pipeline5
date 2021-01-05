@@ -1,0 +1,38 @@
+steps:
+  - name: gcr.io/cloud-builders/gcloud
+    entrypoint: 'bash'
+    args: [ '-c', "gcloud secrets versions access latest --secret=acceptance_api_jks --format='get(payload.data)' | tr '_-' '/+' | base64 -d > cluster/api.jks" ]
+  - name: gcr.io/cloud-builders/gcloud
+    entrypoint: 'bash'
+    args: [ '-c', "gcloud secrets versions access latest --secret=development_serviceaccount_key --format='get(payload.data)' | tr '_-' '/+' | base64 -d > cluster/google-key.json" ]
+  - name: 'maven:3-jdk-11'
+    id: 'Setting version for Maven'
+    entrypoint: mvn
+    args: [ 'versions:set', '-DnewVersion=$SHORT_SHA' ]
+  - name: hartwigmedicalfoundation/docker-mvn-gcloud:3-jdk-11
+    entrypoint: mvn
+    timeout: 2400s
+    args:
+      - 'install'
+      - '--batch-mode'
+    env:
+      - RCLONE_CONFIG=/workspace/cluster/src/test/resources/smoke_test/rclone.conf
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Building pipeline image'
+    args: ['build', '-t', 'eu.gcr.io/$PROJECT_ID/pipeline5:$SHORT_SHA', './cluster/']
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Push pipeline image'
+    entrypoint: '/bin/bash'
+    args: ['-c', "docker push eu.gcr.io/$PROJECT_ID/pipeline5:$SHORT_SHA"]
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Building batch image'
+    args: ['build', '-t', 'eu.gcr.io/$PROJECT_ID/pipeline5:$SHORT_SHA', './batch/']
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Push batch image'
+    entrypoint: '/bin/bash'
+    args: ['-c', "docker push eu.gcr.io/$PROJECT_ID/pipeline5:$SHORT_SHA"]
+options:
+  machineType: 'N1_HIGHCPU_32'
+images:
+  - eu.gcr.io/$PROJECT_ID/pipeline5
+timeout: 2400s
