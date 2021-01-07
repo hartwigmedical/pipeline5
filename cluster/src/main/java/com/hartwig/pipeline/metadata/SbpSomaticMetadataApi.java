@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.cloud.storage.Bucket;
 import com.hartwig.pipeline.Arguments;
@@ -37,6 +38,7 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
     private final static Logger LOGGER = LoggerFactory.getLogger(SomaticMetadataApi.class);
     private static final String SINGLE_SAMPLE_INI = "SingleSample";
     public static final String FINISHED = "Finished";
+    public static final String PROCESSING = "Processing";
     private final Arguments arguments;
     private final int sbpRunId;
     private final SbpRestApi sbpRestApi;
@@ -105,7 +107,7 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
                         sbpRun.id())));
     }
 
-    private static ImmutableSingleSampleRunMetadata toMetadata(final SbpSample sample, final SbpRun aRun,
+    private static SingleSampleRunMetadata toMetadata(final SbpSample sample, final SbpRun aRun,
             final SingleSampleRunMetadata.SampleType type) {
         return SingleSampleRunMetadata.builder()
                 .bucket(aRun.bucket().orElseThrow())
@@ -140,7 +142,8 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
             LOGGER.info("Recording pipeline completion with status [{}]", pipelineState.status());
             try {
                 if (pipelineState.status() != PipelineStatus.FAILED) {
-                    sbpRestApi.updateRunResult(runIdAsString, SbpRunResultUpdate.of(UPLOADING, arguments.archiveBucket()));
+                    sbpRestApi.updateRunResult(runIdAsString,
+                            SbpRunResultUpdate.builder().status(UPLOADING).bucket(arguments.archiveBucket()).build());
                     googleArchiver.transfer(metadata);
                     OutputIterator.from(new SbpFileApiUpdate(ContentTypeCorrection.get(),
                             sbpRun,
@@ -153,12 +156,18 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
                                     .collect(Collectors.toSet())).andThen(new BlobCleanup()), sourceBucket).iterate(metadata);
                 }
                 sbpRestApi.updateRunResult(runIdAsString,
-                        SbpRunResultUpdate.of(successStatus(pipelineState.status()),
-                                SbpRunResult.from(pipelineState.status()),
-                                arguments.archiveBucket()));
+                        SbpRunResultUpdate.builder()
+                                .status(successStatus(pipelineState.status()))
+                                .bucket(arguments.archiveBucket())
+                                .result(SbpRunResult.from(pipelineState.status()))
+                                .build());
             } catch (Exception e) {
                 sbpRestApi.updateRunResult(runIdAsString,
-                        SbpRunResultUpdate.of("Finished", SbpRunResult.from(PipelineStatus.FAILED), sbpBucket));
+                        SbpRunResultUpdate.builder()
+                                .status(FINISHED)
+                                .bucket(sbpBucket)
+                                .result(SbpRunResult.from(PipelineStatus.FAILED))
+                                .build());
                 throw e;
             }
         } else {
@@ -167,6 +176,19 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
                             + "SBP API.",
                     sbpRunId));
         }
+    }
+
+    @Override
+    public void start() {
+        SbpRunResultUpdate update =
+                SbpRunResultUpdate.builder().bucket(arguments.archiveBucket()).result(Optional.empty()).status(PROCESSING).build();
+        try {
+            LOGGER.info("Updating API with run status and result [{}]", ObjectMappers.get().writeValueAsString(update));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        sbpRestApi.updateRunResult(String.valueOf(sbpRunId),
+                update);
     }
 
     private String successStatus(final PipelineStatus status) {

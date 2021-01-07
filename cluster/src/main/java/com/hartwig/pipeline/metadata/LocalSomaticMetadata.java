@@ -49,4 +49,9 @@ public class LocalSomaticMetadata implements SomaticMetadataApi {
     public void complete(final PipelineState state, SomaticRunMetadata metadata) {
         // do nothing
     }
+
+    @Override
+    public void start() {
+        // do nothing
+    }
 }
