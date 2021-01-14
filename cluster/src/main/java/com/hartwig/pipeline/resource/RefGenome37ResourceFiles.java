@@ -106,6 +106,11 @@ public class RefGenome37ResourceFiles implements ResourceFiles {
     }
 
     @Override
+    public String sageGermlineCoveragePanel() {
+        return formPath(SAGE, "CoverageCodingPanel.germline.hg19.bed.gz");
+    }
+
+    @Override
     public String sageGermlineBlacklistVcf() {
         return formPath(SAGE, "KnownBlacklist.germline.hg19.vcf.gz");
     }

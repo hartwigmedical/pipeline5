@@ -47,8 +47,10 @@ public class SageSomaticCaller extends SageCaller {
         String tumorSampleName = metadata.tumor().sampleName();
         String referenceSampleName = metadata.reference().sampleName();
 
-        SageCommandBuilder sageCommandBuilder = new SageCommandBuilder(resourceFiles).addReference(referenceSampleName, referenceBamPath)
-                .addTumor(tumorSampleName, tumorBamPath);
+        SageCommandBuilder sageCommandBuilder = new SageCommandBuilder(resourceFiles)
+                .addReference(referenceSampleName, referenceBamPath)
+                .addTumor(tumorSampleName, tumorBamPath)
+                .addCoverage(resourceFiles.sageSomaticCodingPanel());
         SageApplication sageApplication = new SageApplication(sageCommandBuilder);
         SageSomaticPostProcess sagePostProcess = new SageSomaticPostProcess(tumorSampleName, resourceFiles);
 

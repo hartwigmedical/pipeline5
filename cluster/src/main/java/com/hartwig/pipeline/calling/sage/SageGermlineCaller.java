@@ -49,7 +49,8 @@ public class SageGermlineCaller extends SageCaller {
         String referenceSampleName = metadata.reference().sampleName();
 
         final SageCommandBuilder sageCommandBuilder =
-                new SageCommandBuilder(resourceFiles).germlineMode(referenceSampleName, referenceBamPath, tumorSampleName, tumorBamPath);
+                new SageCommandBuilder(resourceFiles).germlineMode(referenceSampleName, referenceBamPath, tumorSampleName, tumorBamPath)
+                        .addCoverage(resourceFiles.sageGermlineCoveragePanel());
         SageApplication sageApplication = new SageApplication(sageCommandBuilder);
         SageGermlinePostProcess sagePostProcess = new SageGermlinePostProcess(referenceSampleName, tumorSampleName, resourceFiles);
 

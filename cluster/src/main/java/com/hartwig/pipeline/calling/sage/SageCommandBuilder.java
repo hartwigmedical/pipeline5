@@ -8,15 +8,17 @@ import com.hartwig.pipeline.resource.ResourceFiles;
 public class SageCommandBuilder {
 
     private final ResourceFiles resourceFiles;
+    private final StringJoiner tumor = new StringJoiner(",");
+    private final StringJoiner tumorBam = new StringJoiner(",");
+    private final StringJoiner reference = new StringJoiner(",");
+    private final StringJoiner referenceBam = new StringJoiner(",");
+
+    private String coverageBed = "";
     private boolean panelOnly = false;
     private boolean ponMode = false;
     private boolean somaticMode = true;
     private boolean germlineMode = false;
     private int tumorSamples = 0;
-    private final StringJoiner tumor = new StringJoiner(",");
-    private final StringJoiner tumorBam = new StringJoiner(",");
-    private final StringJoiner reference = new StringJoiner(",");
-    private final StringJoiner referenceBam = new StringJoiner(",");
 
     public SageCommandBuilder(ResourceFiles resourceFiles) {
         this.resourceFiles = resourceFiles;
@@ -52,6 +54,11 @@ public class SageCommandBuilder {
     public SageCommandBuilder addReference(String sample, String bamFile) {
         reference.add(sample);
         referenceBam.add(bamFile);
+        return this;
+    }
+
+    public SageCommandBuilder addCoverage(String coverageBed) {
+        this.coverageBed = coverageBed;
         return this;
     }
 
@@ -97,6 +104,10 @@ public class SageCommandBuilder {
 
         if (panelOnly) {
             arguments.add("-panel_only");
+        }
+
+        if (!coverageBed.isEmpty()) {
+            arguments.add("-coverage_bed").add(coverageBed);
         }
 
         if (ponMode) {
