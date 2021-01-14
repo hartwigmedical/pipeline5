@@ -85,7 +85,7 @@ purple/circos/CPCT12345678T.map.circos
 purple/circos/CPCT12345678T.ratio.circos
 purple/circos/CPCT12345678T.snp.circos
 purple/circos/gaps.txt
-purple/CPCT12345678T.driver.catalog.tsv
+purple/CPCT12345678T.driver.catalog.somatic.tsv
 purple/CPCT12345678T.purple.cnv.gene.tsv
 purple/CPCT12345678T.purple.cnv.germline.tsv
 purple/CPCT12345678T.purple.cnv.somatic.tsv

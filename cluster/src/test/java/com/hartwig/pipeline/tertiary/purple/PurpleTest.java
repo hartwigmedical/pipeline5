@@ -61,12 +61,12 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
     @Override
     protected List<String> expectedCommands() {
         return Collections.singletonList(
-                "java -Xmx12G -jar /opt/tools/purple/2.51/purple.jar -reference reference -tumor tumor -output_dir "
+                "java -Xmx12G -jar /opt/tools/purple/2.52/purple.jar -reference reference -tumor tumor -output_dir "
                         + "/data/output -amber /data/input/results -cobalt /data/input/results -gc_profile /opt/resources/gc/37/GC_profile.1000bp.cnp "
                         + "-somatic_vcf /data/input/tumor.vcf.gz -structural_vcf /data/input/tumor.gripss.filtered.vcf.gz -sv_recovery_vcf "
                         + "/data/input/tumor.gripss.full.vcf.gz -circos /opt/tools/circos/0.69.6/bin/circos -ref_genome "
                         + "/opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
-                        + "-driver_catalog -hotspots /opt/resources/sage/37/KnownHotspots.somatic.hg19.vcf.gz "
+                        + "-driver_catalog -somatic_hotspots /opt/resources/sage/37/KnownHotspots.somatic.hg19.vcf.gz "
                         + "-driver_gene_panel /opt/resources/gene_panel/37/DriverGenePanel.hg19.tsv "
                         + "-threads $(grep -c '^processor' /proc/cpuinfo)");
     }
