@@ -97,6 +97,11 @@ public class OverriddenReferenceGenome implements ResourceFiles {
     }
 
     @Override
+    public String sageGermlineCoveragePanel() {
+        return decorated.sageGermlineCoveragePanel();
+    }
+
+    @Override
     public String sageGermlineBlacklistVcf() {
         return decorated.sageGermlineBlacklistVcf();
     }
