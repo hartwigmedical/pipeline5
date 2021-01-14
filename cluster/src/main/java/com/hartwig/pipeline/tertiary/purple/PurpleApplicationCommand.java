@@ -124,7 +124,7 @@ public class PurpleApplicationCommand extends JavaJarCommand {
                 "-ref_genome",
                 referenceGenomePath,
                 "-driver_catalog",
-                "-hotspots",
+                "-somatic_hotspots",
                 knownHotspots,
                 "-driver_gene_panel",
                 driverGenePanel,
