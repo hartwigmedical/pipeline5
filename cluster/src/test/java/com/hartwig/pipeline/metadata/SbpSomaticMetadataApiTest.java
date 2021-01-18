@@ -19,7 +19,7 @@ import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.PipelineState;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.sbpapi.SbpRestApi;
-import com.hartwig.pipeline.sbpapi.SbpRunResult;
+import com.hartwig.pipeline.sbpapi.SbpRunFailure;
 import com.hartwig.pipeline.sbpapi.SbpRunResultUpdate;
 import com.hartwig.pipeline.testsupport.TestInputs;
 import com.hartwig.pipeline.transfer.google.GoogleArchiver;
@@ -30,8 +30,7 @@ import org.mockito.ArgumentCaptor;
 
 public class SbpSomaticMetadataApiTest {
 
-    private static final SbpRunResult FAILED = SbpRunResult.from(PipelineStatus.FAILED);
-    private static final SbpRunResult SUCCESS = SbpRunResult.from(PipelineStatus.SUCCESS);
+    private static final SbpRunFailure FAILED = SbpRunFailure.from(PipelineStatus.FAILED);
 
     private static final int RUN_ID = 1;
     private static final String SAMPLE_ID = "7141";
@@ -81,13 +80,14 @@ public class SbpSomaticMetadataApiTest {
         victim.complete(pipelineState, somaticRunMetadata);
         verify(sbpRestApi, times(2)).updateRunResult(entityId.capture(), status.capture());
         assertThat(entityId.getValue()).isEqualTo(String.valueOf(RUN_ID));
-        assertThat(status.getValue().status()).isEqualTo(SbpSomaticMetadataApi.SNP_CHECK);
-        assertThat(status.getValue().result()).contains(SUCCESS);
+        assertThat(status.getValue().status()).isEqualTo(SbpSomaticMetadataApi.FINISHED);
+        assertThat(status.getValue().failure()).isEmpty();
     }
 
     @Test
     public void mapsSuccessStatusToSuccessWhenShallow() {
-        victim = new SbpSomaticMetadataApi(Arguments.testDefaultsBuilder().shallow(true).build(), RUN_ID,
+        victim = new SbpSomaticMetadataApi(Arguments.testDefaultsBuilder().shallow(true).build(),
+                RUN_ID,
                 sbpRestApi,
                 sourceBucket,
                 googleArchiver);
@@ -95,17 +95,17 @@ public class SbpSomaticMetadataApiTest {
         verify(sbpRestApi, times(2)).updateRunResult(entityId.capture(), status.capture());
         assertThat(entityId.getValue()).isEqualTo(String.valueOf(RUN_ID));
         assertThat(status.getValue().status()).isEqualTo(SbpSomaticMetadataApi.FINISHED);
-        assertThat(status.getValue().result()).contains(SUCCESS);
+        assertThat(status.getValue().failure()).isEmpty();
     }
 
     @Test
-    public void mapsFailedStatusToPipeline5Finished() {
+    public void mapsFailedStatusToPipeline5Failed() {
         when(pipelineState.status()).thenReturn(PipelineStatus.FAILED);
         victim.complete(pipelineState, somaticRunMetadata);
         verify(sbpRestApi, times(1)).updateRunResult(entityId.capture(), status.capture());
         assertThat(entityId.getValue()).isEqualTo(String.valueOf(RUN_ID));
-        assertThat(status.getValue().status()).isEqualTo(SbpSomaticMetadataApi.FINISHED);
-        assertThat(status.getValue().result()).contains(FAILED);
+        assertThat(status.getValue().status()).isEqualTo(SbpSomaticMetadataApi.FAILED);
+        assertThat(status.getValue().failure()).contains(FAILED);
     }
 
     @Test
@@ -147,8 +147,8 @@ public class SbpSomaticMetadataApiTest {
         } catch (RuntimeException e) {
             verify(sbpRestApi, times(2)).updateRunResult(any(), status.capture());
         }
-        assertThat(status.getValue().status()).isEqualTo(SbpSomaticMetadataApi.FINISHED);
-        assertThat(status.getValue().result()).contains(FAILED);
+        assertThat(status.getValue().status()).isEqualTo(SbpSomaticMetadataApi.FAILED);
+        assertThat(status.getValue().failure()).contains(FAILED);
     }
 
     @Test
@@ -166,8 +166,8 @@ public class SbpSomaticMetadataApiTest {
         } catch (RuntimeException e) {
             verify(sbpRestApi, times(2)).updateRunResult(any(), status.capture());
         }
-        assertThat(status.getValue().status()).isEqualTo(SbpSomaticMetadataApi.FINISHED);
-        assertThat(status.getValue().result()).contains(FAILED);
+        assertThat(status.getValue().status()).isEqualTo(SbpSomaticMetadataApi.FAILED);
+        assertThat(status.getValue().failure()).contains(FAILED);
     }
 
     @Test
@@ -178,7 +178,7 @@ public class SbpSomaticMetadataApiTest {
         verify(sbpRestApi).updateRunResult(runIdCaptor.capture(), runResultUpdateCaptor.capture());
         assertThat(runIdCaptor.getValue()).isEqualTo(String.valueOf(RUN_ID));
         SbpRunResultUpdate udpate = runResultUpdateCaptor.getValue();
-        assertThat(udpate.result()).isEmpty();
+        assertThat(udpate.failure()).isEmpty();
         assertThat(udpate.status()).isEqualTo(SbpSomaticMetadataApi.PROCESSING);
     }
 }

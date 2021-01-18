@@ -15,7 +15,7 @@ public interface SbpRunResultUpdate {
 
     String status();
 
-    Optional<SbpRunResult> result();
+    Optional<SbpRunFailure> failure();
 
     String bucket();
 
