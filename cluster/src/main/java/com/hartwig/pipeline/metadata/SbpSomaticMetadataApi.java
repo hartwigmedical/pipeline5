@@ -12,10 +12,11 @@ import com.hartwig.pipeline.PipelineState;
 import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.jackson.ObjectMappers;
+import com.hartwig.pipeline.sbpapi.ImmutableSbpRunResultUpdate;
 import com.hartwig.pipeline.sbpapi.SbpIni;
 import com.hartwig.pipeline.sbpapi.SbpRestApi;
 import com.hartwig.pipeline.sbpapi.SbpRun;
-import com.hartwig.pipeline.sbpapi.SbpRunResult;
+import com.hartwig.pipeline.sbpapi.SbpRunFailure;
 import com.hartwig.pipeline.sbpapi.SbpRunResultUpdate;
 import com.hartwig.pipeline.sbpapi.SbpSample;
 import com.hartwig.pipeline.sbpapi.SbpSet;
@@ -25,18 +26,20 @@ import com.hartwig.pipeline.transfer.SbpFileApiUpdate;
 import com.hartwig.pipeline.transfer.google.GoogleArchiver;
 import com.hartwig.pipeline.transfer.sbp.ContentTypeCorrection;
 
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SbpSomaticMetadataApi implements SomaticMetadataApi {
 
-    static final String SNP_CHECK = "SnpCheck";
     private static final String UPLOADING = "Uploading";
     private static final String REF = "ref";
     private static final String TUMOR = "tumor";
     private final static Logger LOGGER = LoggerFactory.getLogger(SomaticMetadataApi.class);
     private static final String SINGLE_SAMPLE_INI = "SingleSample";
     public static final String FINISHED = "Finished";
+    public static final String FAILED = "Failed";
+    public static final String PROCESSING = "Processing";
     private final Arguments arguments;
     private final int sbpRunId;
     private final SbpRestApi sbpRestApi;
@@ -105,7 +108,7 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
                         sbpRun.id())));
     }
 
-    private static ImmutableSingleSampleRunMetadata toMetadata(final SbpSample sample, final SbpRun aRun,
+    private static SingleSampleRunMetadata toMetadata(final SbpSample sample, final SbpRun aRun,
             final SingleSampleRunMetadata.SampleType type) {
         return SingleSampleRunMetadata.builder()
                 .bucket(aRun.bucket().orElseThrow())
@@ -140,7 +143,8 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
             LOGGER.info("Recording pipeline completion with status [{}]", pipelineState.status());
             try {
                 if (pipelineState.status() != PipelineStatus.FAILED) {
-                    sbpRestApi.updateRunResult(runIdAsString, SbpRunResultUpdate.of(UPLOADING, arguments.archiveBucket()));
+                    sbpRestApi.updateRunResult(runIdAsString,
+                            SbpRunResultUpdate.builder().status(UPLOADING).bucket(arguments.archiveBucket()).build());
                     googleArchiver.transfer(metadata);
                     OutputIterator.from(new SbpFileApiUpdate(ContentTypeCorrection.get(),
                             sbpRun,
@@ -152,13 +156,9 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
                                     .flatMap(List::stream)
                                     .collect(Collectors.toSet())).andThen(new BlobCleanup()), sourceBucket).iterate(metadata);
                 }
-                sbpRestApi.updateRunResult(runIdAsString,
-                        SbpRunResultUpdate.of(successStatus(pipelineState.status()),
-                                SbpRunResult.from(pipelineState.status()),
-                                arguments.archiveBucket()));
+                sbpRestApi.updateRunResult(runIdAsString, statusUpdate(pipelineState.status()));
             } catch (Exception e) {
-                sbpRestApi.updateRunResult(runIdAsString,
-                        SbpRunResultUpdate.of("Finished", SbpRunResult.from(PipelineStatus.FAILED), sbpBucket));
+                sbpRestApi.updateRunResult(runIdAsString, statusUpdate(PipelineStatus.FAILED));
                 throw e;
             }
         } else {
@@ -169,7 +169,18 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
         }
     }
 
-    private String successStatus(final PipelineStatus status) {
-        return status == PipelineStatus.FAILED ? FINISHED : arguments.shallow() ? FINISHED : SNP_CHECK;
+    @NotNull
+    public ImmutableSbpRunResultUpdate statusUpdate(final PipelineStatus status) {
+        switch (status) {
+            case FAILED:
+            case QC_FAILED:
+                return SbpRunResultUpdate.builder()
+                        .status(FAILED)
+                        .bucket(arguments.archiveBucket())
+                        .failure(SbpRunFailure.from(status))
+                        .build();
+            default:
+                return SbpRunResultUpdate.builder().status(FINISHED).bucket(arguments.archiveBucket()).build();
+        }
     }
 }

@@ -15,7 +15,7 @@ public interface SbpRunResultUpdate {
 
     String status();
 
-    Optional<SbpRunResult> result();
+    Optional<SbpRunFailure> failure();
 
     String bucket();
 
@@ -33,11 +33,11 @@ public interface SbpRunResultUpdate {
         return LocalDateTime.now(ZoneId.of("UTC"));
     }
 
-    static SbpRunResultUpdate of(final String status, final String bucket) {
-        return ImmutableSbpRunResultUpdate.builder().status(status).bucket(bucket).build();
+    static ImmutableSbpRunResultUpdate.Builder builder() {
+        return ImmutableSbpRunResultUpdate.builder();
     }
 
-    static SbpRunResultUpdate of(final String status, final SbpRunResult result, final String bucket) {
-        return ImmutableSbpRunResultUpdate.builder().status(status).bucket(bucket).result(result).build();
+    static SbpRunResultUpdate of(final String status, final String bucket) {
+        return ImmutableSbpRunResultUpdate.builder().status(status).bucket(bucket).build();
     }
 }
