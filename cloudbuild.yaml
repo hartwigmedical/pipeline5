@@ -8,7 +8,7 @@ steps:
   - name: 'maven:3-jdk-11'
     id: 'Setting version for Maven'
     entrypoint: mvn
-    args: [ 'versions:set', '-DnewVersion=$SHORT_SHA' ]
+    args: [ 'versions:set', '-DnewVersion=${_MAJOR_MINOR_VERSION}.$SHORT_SHA' ]
   - name: hartwigmedicalfoundation/docker-mvn-gcloud:3-jdk-11
     entrypoint: mvn
     timeout: 2400s
@@ -19,18 +19,18 @@ steps:
       - RCLONE_CONFIG=/workspace/cluster/src/test/resources/smoke_test/rclone.conf
   - name: 'gcr.io/cloud-builders/docker'
     id: 'Building pipeline image'
-    args: ['build', '-t', 'eu.gcr.io/$PROJECT_ID/pipeline5:$SHORT_SHA', './cluster/']
+    args: [ 'build', '-t', 'eu.gcr.io/$PROJECT_ID/pipeline5:${_MAJOR_MINOR_VERSION}.$SHORT_SHA', './cluster/', '--build-arg', 'VERSION=${_MAJOR_MINOR_VERSION}.$SHORT_SHA' ]
   - name: 'gcr.io/cloud-builders/docker'
     id: 'Push pipeline image'
     entrypoint: '/bin/bash'
-    args: ['-c', "docker push eu.gcr.io/$PROJECT_ID/pipeline5:$SHORT_SHA"]
+    args: [ '-c', "docker push eu.gcr.io/$PROJECT_ID/pipeline5:${_MAJOR_MINOR_VERSION}.$SHORT_SHA" ]
   - name: 'gcr.io/cloud-builders/docker'
     id: 'Building batch image'
-    args: ['build', '-t', 'eu.gcr.io/$PROJECT_ID/pipeline5:$SHORT_SHA', './batch/']
+    args: [ 'build', '-t', 'eu.gcr.io/$PROJECT_ID/batch5:${_MAJOR_MINOR_VERSION}.$SHORT_SHA', './batch/', '--build-arg', 'VERSION=${_MAJOR_MINOR_VERSION}.$SHORT_SHA' ]
   - name: 'gcr.io/cloud-builders/docker'
     id: 'Push batch image'
     entrypoint: '/bin/bash'
-    args: ['-c', "docker push eu.gcr.io/$PROJECT_ID/pipeline5:$SHORT_SHA"]
+    args: [ '-c', "docker push eu.gcr.io/$PROJECT_ID/batch5:${_MAJOR_MINOR_VERSION}.$SHORT_SHA" ]
 options:
   machineType: 'N1_HIGHCPU_32'
 images:

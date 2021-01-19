@@ -8,7 +8,7 @@ RUN dpkg -i rclone-current-linux-amd64.deb
 
 ADD bin/pipeline5.sh pipeline5.sh
 ADD target/lib /usr/share/pipeline5/lib
-ARG JAR_FILE
-ADD target/${JAR_FILE} /usr/share/pipeline5/bootstrap.jar
+ARG VERSION
+ADD target/cluster-$VERSION.jar /usr/share/pipeline5/bootstrap.jar
 
 ENTRYPOINT ["./pipeline5.sh"]
