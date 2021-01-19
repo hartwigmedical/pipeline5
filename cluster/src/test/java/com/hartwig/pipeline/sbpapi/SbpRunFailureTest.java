@@ -11,15 +11,15 @@ public class SbpRunFailureTest {
     @Test
     public void failureMapsToPipelineTechnicalFailure() {
         SbpRunFailure victim = SbpRunFailure.from(PipelineStatus.FAILED);
-        assertThat(victim.category()).isEqualTo("TechnicalFailure");
-        assertThat(victim.type()).isEqualTo("Pipeline");
+        assertThat(victim.type()).isEqualTo("TechnicalFailure");
+        assertThat(victim.source()).isEqualTo("Pipeline");
     }
 
     @Test
     public void qcFailureMapsToHealthCheckerQCFailure() {
         SbpRunFailure victim = SbpRunFailure.from(PipelineStatus.QC_FAILED);
-        assertThat(victim.category()).isEqualTo("QCFailure");
-        assertThat(victim.type()).isEqualTo("HealthCheck");
+        assertThat(victim.type()).isEqualTo("QCFailure");
+        assertThat(victim.source()).isEqualTo("HealthCheck");
     }
 
     @Test(expected = IllegalArgumentException.class)
