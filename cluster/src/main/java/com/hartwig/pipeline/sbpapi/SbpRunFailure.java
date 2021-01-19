@@ -12,13 +12,13 @@ import org.immutables.value.Value;
 public interface SbpRunFailure {
 
     @Value.Parameter
-    String category();
-
-    @Value.Parameter
     String type();
 
-    static SbpRunFailure of(final String category, final String type) {
-        return ImmutableSbpRunFailure.of(category, type);
+    @Value.Parameter
+    String source();
+
+    static SbpRunFailure of(final String type, final String source) {
+        return ImmutableSbpRunFailure.of(type, source);
     }
 
     static SbpRunFailure from(final PipelineStatus status) {
