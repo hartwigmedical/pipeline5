@@ -19,18 +19,18 @@ steps:
       - RCLONE_CONFIG=/workspace/cluster/src/test/resources/smoke_test/rclone.conf
   - name: 'gcr.io/cloud-builders/docker'
     id: 'Building pipeline image'
-    args: ['build', '-t', 'eu.gcr.io/$PROJECT_ID/pipeline5:5.18.$SHORT_SHA', './cluster/']
+    args: [ 'build', '-t', 'eu.gcr.io/$PROJECT_ID/pipeline5:5.18.$SHORT_SHA', './cluster/', '--build-arg', 'VERSION=5.18.$SHORT_SHA' ]
   - name: 'gcr.io/cloud-builders/docker'
     id: 'Push pipeline image'
     entrypoint: '/bin/bash'
-    args: ['-c', "docker push eu.gcr.io/$PROJECT_ID/pipeline5:5.18.$SHORT_SHA"]
+    args: [ '-c', "docker push eu.gcr.io/$PROJECT_ID/pipeline5:5.18.$SHORT_SHA" ]
   - name: 'gcr.io/cloud-builders/docker'
     id: 'Building batch image'
-    args: ['build', '-t', 'eu.gcr.io/$PROJECT_ID/batch5:5.18.$SHORT_SHA', './batch/']
+    args: [ 'build', '-t', 'eu.gcr.io/$PROJECT_ID/batch5:5.18.$SHORT_SHA', './batch/' '--build-arg', 'VERSION=5.18.$SHORT_SHA' ]
   - name: 'gcr.io/cloud-builders/docker'
     id: 'Push batch image'
     entrypoint: '/bin/bash'
-    args: ['-c', "docker push eu.gcr.io/$PROJECT_ID/batch5:5.18.$SHORT_SHA"]
+    args: [ '-c', "docker push eu.gcr.io/$PROJECT_ID/batch5:5.18.$SHORT_SHA" ]
 options:
   machineType: 'N1_HIGHCPU_32'
 images:
