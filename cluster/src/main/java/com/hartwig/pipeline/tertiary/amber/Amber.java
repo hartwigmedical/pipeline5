@@ -1,6 +1,6 @@
 package com.hartwig.pipeline.tertiary.amber;
 
-import java.util.Collections;
+import java.io.File;
 import java.util.List;
 
 import com.hartwig.pipeline.Arguments;
@@ -10,6 +10,7 @@ import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
+import com.hartwig.pipeline.execution.vm.CopyResourceToOutput;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.metadata.AddDatatypeToFile;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
@@ -43,11 +44,11 @@ public class Amber extends TertiaryStage<AmberOutput> {
 
     @Override
     public List<BashCommand> commands(final SomaticRunMetadata metadata) {
-        return Collections.singletonList(new AmberApplicationCommand(resourceFiles,
+        return List.of(new AmberApplicationCommand(resourceFiles,
                 metadata.reference().sampleName(),
                 getReferenceBamDownload().getLocalTargetPath(),
                 metadata.tumor().sampleName(),
-                getTumorBamDownload().getLocalTargetPath()));
+                getTumorBamDownload().getLocalTargetPath()), new CopyResourceToOutput(resourceFiles.amberHeterozygousLoci()));
     }
 
     @Override
@@ -62,12 +63,17 @@ public class Amber extends TertiaryStage<AmberOutput> {
                 .status(jobStatus)
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .maybeOutputDirectory(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(), true))
-                .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), NAMESPACE, resultsDirectory))
+                .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
                 .addFurtherOperations(new AddDatatypeToFile(DataType.B_ALLELE_FREQUENCY,
-                        Folder.root(),
-                        namespace(),
-                        String.format("%s.amber.baf.tsv", metadata.tumor().sampleName()),
-                        metadata.barcode()))
+                                Folder.root(),
+                                namespace(),
+                                String.format("%s.amber.baf.tsv", metadata.tumor().sampleName()),
+                                metadata.barcode()),
+                        new AddDatatypeToFile(DataType.GERMLINE_HETERO_PON,
+                                Folder.root(),
+                                namespace(),
+                                new File(resourceFiles.amberHeterozygousLoci()).getName(),
+                                metadata.barcode()))
                 .build();
     }
 
