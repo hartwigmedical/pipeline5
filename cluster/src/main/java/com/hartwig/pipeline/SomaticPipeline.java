@@ -116,6 +116,7 @@ public class SomaticPipeline {
                                 executorService.submit(() -> pipelineResults.add(state.add(stageRunner.run(metadata,
                                         new Purple(resourceFiles,
                                                 sageSomaticOutput,
+                                                sageGermlineOutput,
                                                 structuralCallerPostProcessOutput,
                                                 amberOutput,
                                                 cobaltOutput,

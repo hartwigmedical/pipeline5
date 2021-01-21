@@ -1,5 +1,8 @@
 package com.hartwig.batch.operations;
 
+import static java.lang.String.format;
+
+import static com.hartwig.batch.operations.AmberRerun.amberArchiveDirectory;
 import static com.hartwig.batch.operations.GripssRerun.gripssRecoveryFile;
 import static com.hartwig.batch.operations.GripssRerun.gripssSomaticFilteredFile;
 import static com.hartwig.batch.operations.SageRerun.sageSomaticFilteredFile;
@@ -26,13 +29,13 @@ import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.ImmutableGoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.purple.PurpleCommandBuilder;
+import com.hartwig.pipeline.tools.Versions;
 
-public class PurpleRerunTumorOnly implements BatchOperation {
+public class PurpleGermline implements BatchOperation {
 
-    public static GoogleStorageLocation purpleArchiveDirectory(final String set) {
-        return GoogleStorageLocation.of("hmf-purple-tumor-only", set, true);
+    public static GoogleStorageLocation cobaltArchiveDirectory(final String set) {
+        return GoogleStorageLocation.of("hmf-cobalt", set, true);
     }
-
 
     public List<BashCommand> bashCommands(final InputBundle inputs) {
         final List<BashCommand> commands = Lists.newArrayList();
@@ -40,6 +43,7 @@ public class PurpleRerunTumorOnly implements BatchOperation {
 
         final String set = inputs.get("set").inputValue();
         final String tumorSampleName = inputs.get("tumor_sample").inputValue();
+        final String referenceSampleName = inputs.get("ref_sample").inputValue();
 
         final GoogleStorageLocation sageVcfStorage = sageSomaticFilteredFile(set, tumorSampleName);
         final GoogleStorageLocation sageIndexStorage = index(sageVcfStorage);
@@ -52,8 +56,8 @@ public class PurpleRerunTumorOnly implements BatchOperation {
         final String amberInputDir = VmDirectories.INPUT + "/amber";
         final String cobaltInputDir = VmDirectories.INPUT + "/cobalt";
 
-        final InputDownload amberLocation = new InputDownload(AmberRerunTumorOnly.amberArchiveDirectory(set), amberInputDir);
-        final InputDownload cobaltLocation = new InputDownload(CobaltTumorOnlyRerun.cobaltArchiveDirectory(set), cobaltInputDir);
+        final InputDownload amberLocation = new InputDownload(amberArchiveDirectory(set), amberInputDir);
+        final InputDownload cobaltLocation = new InputDownload(cobaltArchiveDirectory(set), cobaltInputDir);
         final InputDownload sageLocation = new InputDownload(sageVcfStorage);
         final InputDownload sageLocationIndex = new InputDownload(sageIndexStorage);
 
@@ -63,8 +67,17 @@ public class PurpleRerunTumorOnly implements BatchOperation {
         final InputDownload gripssRecoveryLocation = new InputDownload(gripssRecoveryVcfStorage);
         final InputDownload gripssRecoveryLocationIndex = new InputDownload(gripssRecoveryVcfIndexStorage);
 
+        final String germlineVcf = VmDirectories.INPUT + "/" + tumorSampleName + ".sage.germline.filtered.vcf.gz";
+
+        // gsutil ls gs://batch-sage-germline/*/sage/WIDE01010012T*germline.filtered.vcf.gz*
+        commands.add(() -> String.format("gsutil -m cp gs://batch-sage-germline/*/sage/%s*germline.filtered.vcf.gz* %s/",
+                tumorSampleName,
+                VmDirectories.INPUT));
+
         commands.add(() -> "mkdir -p " + amberInputDir);
         commands.add(() -> "mkdir -p " + cobaltInputDir);
+//        commands.add(downloadExperimentalVersion());
+
         commands.add(amberLocation);
         commands.add(cobaltLocation);
         commands.add(sageLocation);
@@ -74,34 +87,32 @@ public class PurpleRerunTumorOnly implements BatchOperation {
         commands.add(gripssRecoveryLocation);
         commands.add(gripssRecoveryLocationIndex);
 
-        PurpleCommandBuilder builder = new PurpleCommandBuilder(resourceFiles,
+        BashCommand purpleCommand = new PurpleCommandBuilder(resourceFiles,
                 amberLocation.getLocalTargetPath(),
                 cobaltLocation.getLocalTargetPath(),
                 tumorSampleName,
                 gripssLocation.getLocalTargetPath(),
                 gripssRecoveryLocation.getLocalTargetPath(),
-                sageLocation.getLocalTargetPath());
+                sageLocation.getLocalTargetPath()).addGermline(referenceSampleName, germlineVcf).build();
 
-        commands.add(builder.build());
+        commands.add(purpleCommand);
         return commands;
     }
 
     @Override
     public VirtualMachineJobDefinition execute(final InputBundle inputs, final RuntimeBucket runtimeBucket,
             final BashStartupScript commands, final RuntimeFiles executionFlags) {
-        final String set = inputs.get("set").inputValue();
-        final GoogleStorageLocation archiveStorageLocation = purpleArchiveDirectory(set);
 
         commands.addCommands(bashCommands(inputs));
         commands.addCommand(new CopyLogToOutput(executionFlags.log(), "run.log"));
-        commands.addCommand(new OutputUpload(archiveStorageLocation));
+        commands.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), "purple"), executionFlags));
 
         return VirtualMachineJobDefinition.purple(commands, ResultsDirectory.defaultDirectory());
     }
 
     @Override
     public OperationDescriptor descriptor() {
-        return OperationDescriptor.of("PurpleRerunTumorOnly", "Generate PURPLE output", OperationDescriptor.InputType.JSON);
+        return OperationDescriptor.of("PurpleGermline", "Generate PURPLE output", OperationDescriptor.InputType.JSON);
     }
 
     private static GoogleStorageLocation index(GoogleStorageLocation victim) {
@@ -109,5 +120,11 @@ public class PurpleRerunTumorOnly implements BatchOperation {
             throw new IllegalArgumentException();
         }
         return ImmutableGoogleStorageLocation.builder().from(victim).path(victim.path() + ".tbi").build();
+    }
+
+    private BashCommand downloadExperimentalVersion() {
+        return () -> format("gsutil -u hmf-crunch cp %s %s",
+                "gs://batch-purple-germline/resources/purple.jar",
+                "/opt/tools/purple/" + Versions.PURPLE + "/purple.jar");
     }
 }

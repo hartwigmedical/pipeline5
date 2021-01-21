@@ -86,6 +86,7 @@ purple/circos/CPCT12345678T.ratio.circos
 purple/circos/CPCT12345678T.snp.circos
 purple/circos/gaps.txt
 purple/CPCT12345678T.driver.catalog.somatic.tsv
+purple/CPCT12345678T.driver.catalog.germline.tsv
 purple/CPCT12345678T.purple.cnv.gene.tsv
 purple/CPCT12345678T.purple.cnv.germline.tsv
 purple/CPCT12345678T.purple.cnv.somatic.tsv
@@ -97,6 +98,8 @@ purple/CPCT12345678T.purple.somatic.clonality.tsv
 purple/CPCT12345678T.purple.somatic.hist.tsv
 purple/CPCT12345678T.purple.somatic.vcf.gz
 purple/CPCT12345678T.purple.somatic.vcf.gz.tbi
+purple/CPCT12345678T.purple.germline.vcf.gz
+purple/CPCT12345678T.purple.germline.vcf.gz.tbi
 purple/CPCT12345678T.purple.sv.vcf.gz
 purple/CPCT12345678T.purple.sv.vcf.gz.tbi
 purple/plot/CPCT12345678T.circos.png
