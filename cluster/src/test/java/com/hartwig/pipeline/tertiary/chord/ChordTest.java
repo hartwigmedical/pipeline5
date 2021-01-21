@@ -4,7 +4,11 @@ import java.util.Collections;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
+import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.metadata.AddDatatypeToFile;
+import com.hartwig.pipeline.metadata.ApiFileOperation;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
+import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
@@ -37,5 +41,14 @@ public class ChordTest extends TertiaryStageTest<ChordOutput> {
     @Override
     protected void validateOutput(final ChordOutput output) {
         // no additional validation
+    }
+
+    @Override
+    protected List<ApiFileOperation> expectedFurtherOperations() {
+        return List.of(new AddDatatypeToFile(DataType.CHORD_PREDICTION,
+                Folder.root(),
+                Chord.NAMESPACE,
+                "tumor_chord_prediction.txt",
+                TestInputs.defaultSomaticRunMetadata().barcode()));
     }
 }

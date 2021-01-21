@@ -1,16 +1,20 @@
 package com.hartwig.pipeline.tertiary.chord;
 
+import static java.lang.String.format;
+
 import java.util.Collections;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
+import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.pipeline.metadata.AddDatatypeToFile;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
@@ -63,7 +67,12 @@ public class Chord implements Stage<ChordOutput, SomaticRunMetadata> {
         return ChordOutput.builder()
                 .status(jobStatus)
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
-                .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), Chord.NAMESPACE, resultsDirectory))
+                .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
+                .addFurtherOperations(new AddDatatypeToFile(DataType.CHORD_PREDICTION,
+                        Folder.root(),
+                        namespace(),
+                        format("%s_chord_prediction.txt", metadata.tumor().sampleName()),
+                        metadata.barcode()))
                 .build();
     }
 
