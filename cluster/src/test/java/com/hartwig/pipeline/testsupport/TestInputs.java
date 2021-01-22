@@ -175,14 +175,14 @@ public class TestInputs {
     public static SageOutput sageGermlineOutput() {
         return SageOutput.builder(SageGermlineCaller.NAMESPACE)
                 .status(PipelineStatus.SUCCESS)
-                .maybeFinalVcf(gsLocation(somaticBucket(SageGermlineCaller.NAMESPACE), RESULTS + TUMOR_SAMPLE + "." + FileTypes.GZIPPED_VCF))
+                .maybeFinalVcf(gsLocation(somaticBucket(SageGermlineCaller.NAMESPACE), RESULTS + TUMOR_SAMPLE + ".germline." + FileTypes.GZIPPED_VCF))
                 .build();
     }
 
     public static SageOutput sageSomaticOutput() {
         return SageOutput.builder(SageSomaticCaller.NAMESPACE)
                 .status(PipelineStatus.SUCCESS)
-                .maybeFinalVcf(gsLocation(somaticBucket(SageSomaticCaller.NAMESPACE), RESULTS + TUMOR_SAMPLE + "." + FileTypes.GZIPPED_VCF))
+                .maybeFinalVcf(gsLocation(somaticBucket(SageSomaticCaller.NAMESPACE), RESULTS + TUMOR_SAMPLE + ".somatic." + FileTypes.GZIPPED_VCF))
                 .build();
     }
 
