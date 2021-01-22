@@ -51,6 +51,11 @@ public class RefGenome37ResourceFiles implements ResourceFiles {
     }
 
     @Override
+    public String amberSnpcheck() {
+        return formPath(AMBER, "Amber.snpcheck.hg19.vcf");
+    }
+
+    @Override
     public String gridssRepeatMaskerDb() {
         return formPath(GRIDSS_REPEAT_MASKER_DB, "hg19.fa.out");
     }

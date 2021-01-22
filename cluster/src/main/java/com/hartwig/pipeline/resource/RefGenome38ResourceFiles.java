@@ -48,6 +48,11 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
     }
 
     @Override
+    public String amberSnpcheck() {
+        throw new UnsupportedOperationException("No hg38 version available");
+    }
+
+    @Override
     public String gridssRepeatMaskerDb() {
         return formPath(GRIDSS_REPEAT_MASKER_DB, "hg38.fa.out");
     }

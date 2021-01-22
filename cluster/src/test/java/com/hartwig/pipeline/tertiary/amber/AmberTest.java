@@ -30,17 +30,17 @@ public class AmberTest extends TertiaryStageTest<AmberOutput> {
 
     @Override
     protected List<ApiFileOperation> expectedFurtherOperations() {
-        String basenameLoci = TestInputs.REG_GENOME_37_RESOURCE_FILES.amberHeterozygousLoci()
-                .substring(TestInputs.REG_GENOME_37_RESOURCE_FILES.amberHeterozygousLoci().lastIndexOf("/") + 1);
+        String basenameSnpcheck = TestInputs.REG_GENOME_37_RESOURCE_FILES.amberSnpcheck()
+                .substring(TestInputs.REG_GENOME_37_RESOURCE_FILES.amberSnpcheck().lastIndexOf("/") + 1);
         return List.of(new AddDatatypeToFile(DataType.B_ALLELE_FREQUENCY,
                         Folder.root(),
                         Amber.NAMESPACE,
                         "tumor.amber.baf.tsv",
                         TestInputs.defaultSomaticRunMetadata().barcode()),
-                new AddDatatypeToFile(DataType.GERMLINE_HETERO_PON,
+                new AddDatatypeToFile(DataType.AMBER_SNPCHECK,
                         Folder.root(),
                         Amber.NAMESPACE,
-                        basenameLoci,
+                        basenameSnpcheck,
                         TestInputs.defaultSomaticRunMetadata().barcode()));
     }
 
@@ -73,6 +73,6 @@ public class AmberTest extends TertiaryStageTest<AmberOutput> {
                         + "/data/output -threads $(grep -c '^processor' /proc/cpuinfo) -ref_genome "
                         + "/opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
                         + "-loci /opt/resources/amber/37/GermlineHetPon.hg19.vcf.gz",
-                "cp /opt/resources/amber/37/GermlineHetPon.hg19.vcf.gz /data/output");
+                "cp /opt/resources/amber/37/Amber.snpcheck.hg19.vcf /data/output");
     }
 }

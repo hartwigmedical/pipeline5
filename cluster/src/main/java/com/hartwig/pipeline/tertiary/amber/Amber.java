@@ -48,7 +48,7 @@ public class Amber extends TertiaryStage<AmberOutput> {
                 metadata.reference().sampleName(),
                 getReferenceBamDownload().getLocalTargetPath(),
                 metadata.tumor().sampleName(),
-                getTumorBamDownload().getLocalTargetPath()), new CopyResourceToOutput(resourceFiles.amberHeterozygousLoci()));
+                getTumorBamDownload().getLocalTargetPath()), new CopyResourceToOutput(resourceFiles.amberSnpcheck()));
     }
 
     @Override
@@ -69,10 +69,10 @@ public class Amber extends TertiaryStage<AmberOutput> {
                                 namespace(),
                                 String.format("%s.amber.baf.tsv", metadata.tumor().sampleName()),
                                 metadata.barcode()),
-                        new AddDatatypeToFile(DataType.GERMLINE_HETERO_PON,
+                        new AddDatatypeToFile(DataType.AMBER_SNPCHECK,
                                 Folder.root(),
                                 namespace(),
-                                new File(resourceFiles.amberHeterozygousLoci()).getName(),
+                                new File(resourceFiles.amberSnpcheck()).getName(),
                                 metadata.barcode()))
                 .build();
     }
