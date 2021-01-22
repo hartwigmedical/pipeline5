@@ -29,6 +29,8 @@ public interface ResourceFiles {
 
     String amberHeterozygousLoci();
 
+    String amberSnpcheck();
+
     String gridssRepeatMaskerDb();
 
     default String gridssRepeatMaskerDbBed() {
