@@ -15,7 +15,6 @@ import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
-import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.metadata.AddDatatypeToFile;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
@@ -29,7 +28,6 @@ import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
 import com.hartwig.pipeline.tertiary.cobalt.CobaltOutput;
-import com.hartwig.pipeline.tools.Versions;
 
 public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
 
@@ -39,6 +37,7 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
 
     private final ResourceFiles resourceFiles;
     private final InputDownload somaticVcfDownload;
+    private final InputDownload germlineVcfDownload;
     private final InputDownload structuralVcfDownload;
     private final InputDownload structuralVcfIndexDownload;
     private final InputDownload svRecoveryVcfDownload;
@@ -48,11 +47,12 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
     private final PersistedDataset persistedDataset;
     private final boolean shallow;
 
-    public Purple(final ResourceFiles resourceFiles, SageOutput somaticCallerOutput,
+    public Purple(final ResourceFiles resourceFiles, SageOutput somaticCallerOutput, SageOutput germlineCallerOutput,
             StructuralCallerPostProcessOutput structuralCallerOutput, AmberOutput amberOutput, CobaltOutput cobaltOutput,
             final PersistedDataset persistedDataset, final boolean shallow) {
         this.resourceFiles = resourceFiles;
         somaticVcfDownload = new InputDownload(somaticCallerOutput.finalVcf());
+        germlineVcfDownload = new InputDownload(germlineCallerOutput.finalVcf());
         structuralVcfDownload = new InputDownload(structuralCallerOutput.filteredVcf());
         structuralVcfIndexDownload = new InputDownload(structuralCallerOutput.filteredVcfIndex());
         svRecoveryVcfDownload = new InputDownload(structuralCallerOutput.fullVcf());
@@ -70,21 +70,22 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
 
     @Override
     public List<BashCommand> commands(final SomaticRunMetadata metadata) {
-        return Collections.singletonList(new PurpleApplicationCommand(resourceFiles,
-                metadata.reference().sampleName(),
-                metadata.tumor().sampleName(),
+        BashCommand command = new PurpleCommandBuilder(resourceFiles,
                 amberOutputDownload.getLocalTargetPath(),
                 cobaltOutputDownload.getLocalTargetPath(),
-                somaticVcfDownload.getLocalTargetPath(),
+                metadata.tumor().sampleName(),
                 structuralVcfDownload.getLocalTargetPath(),
                 svRecoveryVcfDownload.getLocalTargetPath(),
-                VmDirectories.TOOLS + "/circos/" + Versions.CIRCOS + "/bin/circos",
-                shallow));
+                somaticVcfDownload.getLocalTargetPath()).addGermline(metadata.reference().sampleName(),
+                germlineVcfDownload.getLocalTargetPath()).setShallow(shallow).build();
+
+        return Collections.singletonList(command);
     }
 
     @Override
     public List<BashCommand> inputs() {
         return ImmutableList.of(somaticVcfDownload,
+                germlineVcfDownload,
                 structuralVcfDownload,
                 structuralVcfIndexDownload,
                 svRecoveryVcfDownload,

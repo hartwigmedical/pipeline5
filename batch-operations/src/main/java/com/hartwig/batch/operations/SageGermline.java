@@ -49,7 +49,7 @@ public class SageGermline implements BatchOperation {
         commands.addCommand(new UnzipToDirectoryCommand(VmDirectories.RESOURCES, resourceFiles.snpEffDb()));
 
         // Download experimental JAR
-        commands.addCommand(downloadExperimentalVersion());
+//        commands.addCommand(downloadExperimentalVersion());
 
         // Download tumor
         commands.addCommand(() -> remoteTumorFile.toCommandForm(localTumorFile));
@@ -59,10 +59,9 @@ public class SageGermline implements BatchOperation {
         commands.addCommand(() -> remoteReferenceFile.toCommandForm(localReferenceFile));
         commands.addCommand(() -> remoteReferenceIndex.toCommandForm(remoteReferenceIndex.localDestination()));
 
-        final SageCommandBuilder sageCommandBuilder = new SageCommandBuilder(resourceFiles).germlineMode(referenceSampleName,
-                localReferenceFile,
-                tumorSampleName,
-                localTumorFile);
+        final SageCommandBuilder sageCommandBuilder =
+                new SageCommandBuilder(resourceFiles).germlineMode(referenceSampleName, localReferenceFile, tumorSampleName, localTumorFile)
+                        .addCoverage(resourceFiles.sageGermlineCoveragePanel());
 
         SageApplication sageApplication = new SageApplication(sageCommandBuilder);
         SageGermlinePostProcess sagePostProcess = new SageGermlinePostProcess(referenceSampleName, tumorSampleName, resourceFiles);
@@ -79,7 +78,6 @@ public class SageGermline implements BatchOperation {
     public OperationDescriptor descriptor() {
         return OperationDescriptor.of("SageGermline", "Generate sage output", OperationDescriptor.InputType.JSON);
     }
-
 
     private BashCommand downloadExperimentalVersion() {
         return () -> format("gsutil -u hmf-crunch cp %s %s",
