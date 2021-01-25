@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.calling.germline;
 
+import static java.lang.String.format;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +24,7 @@ import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.unix.MvCommand;
 import com.hartwig.pipeline.execution.vm.unix.UnzipToDirectoryCommand;
-import com.hartwig.pipeline.metadata.AddDatatypeToFile;
+import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
@@ -137,10 +139,9 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
                         outputFile.fileName(),
                         outputFile.fileName(),
                         resultsDirectory))
-                .addFurtherOperations(AddDatatypeToFile.file(DataType.GERMLINE_VARIANTS,
+                .addFurtherOperations(new AddDatatype(DataType.GERMLINE_VARIANTS,
                         Folder.from(metadata),
-                        namespace(),
-                        outputFile.fileName(),
+                        format("%s/%s", namespace(), outputFile.fileName()),
                         metadata.barcode()))
                 .build();
     }

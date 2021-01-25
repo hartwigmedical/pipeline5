@@ -1,11 +1,13 @@
 package com.hartwig.pipeline.tertiary.chord;
 
+import static java.lang.String.format;
+
 import java.util.Collections;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.datatypes.DataType;
-import com.hartwig.pipeline.metadata.AddDatatypeToFile;
+import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.ApiFileOperation;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.Folder;
@@ -45,10 +47,9 @@ public class ChordTest extends TertiaryStageTest<ChordOutput> {
 
     @Override
     protected List<ApiFileOperation> expectedFurtherOperations() {
-        return List.of(AddDatatypeToFile.file(DataType.CHORD_PREDICTION,
+        return List.of(new AddDatatype(DataType.CHORD_PREDICTION,
                 Folder.root(),
-                Chord.NAMESPACE,
-                "tumor_chord_prediction.txt",
+                format("%s/%s", Chord.NAMESPACE, "tumor_chord_prediction.txt"),
                 TestInputs.defaultSomaticRunMetadata().barcode()));
     }
 }

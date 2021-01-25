@@ -1,11 +1,13 @@
 package com.hartwig.pipeline.tertiary.amber;
 
+import static java.lang.String.format;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
 import com.hartwig.pipeline.datatypes.DataType;
-import com.hartwig.pipeline.metadata.AddDatatypeToFile;
+import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.ApiFileOperation;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.Folder;
@@ -32,14 +34,10 @@ public class AmberTest extends TertiaryStageTest<AmberOutput> {
     protected List<ApiFileOperation> expectedFurtherOperations() {
         String basenameSnpcheck = TestInputs.REG_GENOME_37_RESOURCE_FILES.amberSnpcheck()
                 .substring(TestInputs.REG_GENOME_37_RESOURCE_FILES.amberSnpcheck().lastIndexOf("/") + 1);
-        return List.of(AddDatatypeToFile.directory(DataType.AMBER,
-                Folder.root(),
-                Amber.NAMESPACE,
-                TestInputs.defaultSomaticRunMetadata().barcode()),
-                AddDatatypeToFile.file(DataType.AMBER_SNPCHECK,
+        return List.of(new AddDatatype(DataType.AMBER, Folder.root(), Amber.NAMESPACE, TestInputs.defaultSomaticRunMetadata().barcode()),
+                new AddDatatype(DataType.AMBER_SNPCHECK,
                         Folder.root(),
-                        Amber.NAMESPACE,
-                        basenameSnpcheck,
+                        format("%s/%s", Amber.NAMESPACE, basenameSnpcheck),
                         TestInputs.defaultSomaticRunMetadata().barcode()));
     }
 

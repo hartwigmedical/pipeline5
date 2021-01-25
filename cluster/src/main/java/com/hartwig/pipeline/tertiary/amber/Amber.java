@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.tertiary.amber;
 
+import static java.lang.String.format;
+
 import java.io.File;
 import java.util.List;
 
@@ -12,7 +14,7 @@ import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.CopyResourceToOutput;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
-import com.hartwig.pipeline.metadata.AddDatatypeToFile;
+import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
@@ -64,11 +66,10 @@ public class Amber extends TertiaryStage<AmberOutput> {
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .maybeOutputDirectory(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(), true))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
-                .addFurtherOperations(AddDatatypeToFile.directory(DataType.AMBER, Folder.root(), namespace(), metadata.barcode()),
-                        AddDatatypeToFile.file(DataType.AMBER_SNPCHECK,
+                .addFurtherOperations(new AddDatatype(DataType.AMBER, Folder.root(), namespace(), metadata.barcode()),
+                        new AddDatatype(DataType.AMBER_SNPCHECK,
                                 Folder.root(),
-                                namespace(),
-                                new File(resourceFiles.amberSnpcheck()).getName(),
+                                format("%s/%s", namespace(), new File(resourceFiles.amberSnpcheck()).getName()),
                                 metadata.barcode()))
                 .build();
     }

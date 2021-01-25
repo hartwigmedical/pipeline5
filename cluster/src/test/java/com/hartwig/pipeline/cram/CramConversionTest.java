@@ -10,7 +10,7 @@ import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.metadata.AddDatatypeToFile;
+import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.ApiFileOperation;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata.SampleType;
@@ -87,15 +87,13 @@ public class CramConversionTest extends StageTest<CramOutput, SingleSampleRunMet
 
     @Override
     protected List<ApiFileOperation> expectedFurtherOperations() {
-        return List.of(AddDatatypeToFile.file(DataType.ALIGNED_READS,
-                Folder.from(TestInputs.referenceRunMetadata()),
-                CramConversion.NAMESPACE,
-                "reference.cram",
-                TestInputs.referenceRunMetadata().barcode()),
-                AddDatatypeToFile.file(DataType.ALIGNED_READS_INDEX,
+        return List.of(new AddDatatype(DataType.ALIGNED_READS,
                         Folder.from(TestInputs.referenceRunMetadata()),
-                        CramConversion.NAMESPACE,
-                        "reference.cram.crai",
+                        format("%s/%s", CramConversion.NAMESPACE, "reference.cram"),
+                        TestInputs.referenceRunMetadata().barcode()),
+                new AddDatatype(DataType.ALIGNED_READS_INDEX,
+                        Folder.from(TestInputs.referenceRunMetadata()),
+                        format("%s/%s", CramConversion.NAMESPACE, "reference.cram.crai"),
                         TestInputs.referenceRunMetadata().barcode()));
     }
 }

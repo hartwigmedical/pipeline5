@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.tertiary.purple;
 
+import static java.lang.String.format;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Collections;
@@ -7,7 +9,7 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.datatypes.DataType;
-import com.hartwig.pipeline.metadata.AddDatatypeToFile;
+import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.ApiFileOperation;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.Folder;
@@ -124,15 +126,13 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
 
     @Override
     protected List<ApiFileOperation> expectedFurtherOperations() {
-        return List.of(AddDatatypeToFile.file(DataType.SOMATIC_VARIANTS_PURPLE,
-                Folder.root(),
-                "purple",
-                TUMOR_PURPLE_SOMATIC_VCF_GZ,
-                TestInputs.defaultSomaticRunMetadata().barcode()),
-                AddDatatypeToFile.file(DataType.STRUCTURAL_VARIANTS_PURPLE,
+        return List.of(new AddDatatype(DataType.SOMATIC_VARIANTS_PURPLE,
                         Folder.root(),
-                        "purple",
-                        TUMOR_PURPLE_SV_VCF_GZ,
+                        format("%s/%s", "purple", TUMOR_PURPLE_SOMATIC_VCF_GZ),
+                        TestInputs.defaultSomaticRunMetadata().barcode()),
+                new AddDatatype(DataType.STRUCTURAL_VARIANTS_PURPLE,
+                        Folder.root(),
+                        format("%s/%s", "purple", TUMOR_PURPLE_SV_VCF_GZ),
                         TestInputs.defaultSomaticRunMetadata().barcode()));
     }
 }

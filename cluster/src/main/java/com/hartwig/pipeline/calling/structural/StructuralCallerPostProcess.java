@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.calling.structural;
 
+import static java.lang.String.format;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +18,7 @@ import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
-import com.hartwig.pipeline.metadata.AddDatatypeToFile;
+import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
@@ -99,7 +101,9 @@ public class StructuralCallerPostProcess implements Stage<StructuralCallerPostPr
                 .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
                         NAMESPACE,
                         Folder.root(),
-                        basename(somaticVcf), basename(somaticVcf), resultsDirectory))
+                        basename(somaticVcf),
+                        basename(somaticVcf),
+                        resultsDirectory))
                 .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
                         NAMESPACE,
                         Folder.root(),
@@ -108,15 +112,13 @@ public class StructuralCallerPostProcess implements Stage<StructuralCallerPostPr
                         resultsDirectory))
                 .addReportComponents(new RunLogComponent(bucket, NAMESPACE, Folder.root(), resultsDirectory))
                 .addReportComponents(new StartupScriptComponent(bucket, NAMESPACE, Folder.root()))
-                .addFurtherOperations(AddDatatypeToFile.file(DataType.STRUCTURAL_VARIANTS_GRIPSS_RECOVERY,
-                        Folder.root(),
-                        namespace(),
-                        basename(somaticVcf),
-                        metadata.barcode()),
-                        AddDatatypeToFile.file(DataType.STRUCTURAL_VARIANTS_GRIPSS,
+                .addFurtherOperations(new AddDatatype(DataType.STRUCTURAL_VARIANTS_GRIPSS_RECOVERY,
                                 Folder.root(),
-                                namespace(),
-                                basename(somaticFilteredVcf),
+                                format("%s/%s", namespace(), basename(somaticVcf)),
+                                metadata.barcode()),
+                        new AddDatatype(DataType.STRUCTURAL_VARIANTS_GRIPSS,
+                                Folder.root(),
+                                format("%s/%s", namespace(), basename(somaticFilteredVcf)),
                                 metadata.barcode()))
                 .build();
     }
@@ -134,7 +136,7 @@ public class StructuralCallerPostProcess implements Stage<StructuralCallerPostPr
                         .orElse(GoogleStorageLocation.of(metadata.bucket(),
                                 PersistedLocations.blobForSet(metadata.set(),
                                         namespace(),
-                                        String.format("%s.%s.%s",
+                                        format("%s.%s.%s",
                                                 metadata.tumor().sampleName(),
                                                 GridssHardFilter.GRIDSS_SOMATIC_FILTERED,
                                                 FileTypes.GZIPPED_VCF))));
@@ -143,7 +145,7 @@ public class StructuralCallerPostProcess implements Stage<StructuralCallerPostPr
                         .orElse(GoogleStorageLocation.of(metadata.bucket(),
                                 PersistedLocations.blobForSet(metadata.set(),
                                         namespace(),
-                                        String.format("%s.%s.%s",
+                                        format("%s.%s.%s",
                                                 metadata.tumor().sampleName(),
                                                 GridssSomaticFilter.GRIDSS_SOMATIC,
                                                 FileTypes.GZIPPED_VCF))));

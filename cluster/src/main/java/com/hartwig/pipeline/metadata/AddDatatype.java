@@ -9,36 +9,15 @@ import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.sbpapi.AddFileApiResponse;
 import com.hartwig.pipeline.sbpapi.SbpRestApi;
 
-public class AddDatatypeToFile implements ApiFileOperation {
+public class AddDatatype implements ApiFileOperation {
     private final String path;
     private final DataType datatype;
     private final String barcode;
-    private final boolean isDirectory;
 
-    private AddDatatypeToFile(final DataType datatype, final Folder folder, final String namespace, final String filename,
-            final String barcode) {
+    public AddDatatype(final DataType datatype, final Folder folder, final String filePath, final String barcode) {
         this.datatype = datatype;
         this.barcode = barcode;
-        String namespacedFile = namespace;
-        if (filename != null) {
-            isDirectory = false;
-            namespacedFile = namespace + "/" + filename;
-        } else {
-            isDirectory = true;
-        }
-        path = folder.name().isEmpty() ? namespacedFile : folder.name() + namespacedFile;
-    }
-
-    public static AddDatatypeToFile file(final DataType datatype, final Folder folder, final String namespace, final String filename,
-            final String barcode) {
-        if (filename.isEmpty()) {
-            throw new IllegalArgumentException("Empty filename not supported for file");
-        }
-        return new AddDatatypeToFile(datatype, folder, namespace, filename, barcode);
-    }
-
-    public static AddDatatypeToFile directory(final DataType datatype, final Folder folder, final String directory, final String barcode) {
-        return new AddDatatypeToFile(datatype, folder, directory, null, barcode);
+        path = folder.name().isEmpty() ? filePath : folder.name() + filePath;
     }
 
     @Override
@@ -65,7 +44,7 @@ public class AddDatatypeToFile implements ApiFileOperation {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        final AddDatatypeToFile that = (AddDatatypeToFile) o;
+        final AddDatatype that = (AddDatatype) o;
         return Objects.equals(path, that.path) && datatype == that.datatype && Objects.equals(barcode, that.barcode);
     }
 

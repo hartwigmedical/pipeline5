@@ -8,7 +8,7 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.datatypes.DataType;
-import com.hartwig.pipeline.metadata.AddDatatypeToFile;
+import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.ApiFileOperation;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.Folder;
@@ -52,7 +52,7 @@ public class BachelorTest extends TertiaryStageTest<BachelorOutput> {
 
     @Override
     protected List<ApiFileOperation> expectedFurtherOperations() {
-        return List.of(AddDatatypeToFile.directory(DataType.BACHELOR,
+        return List.of(new AddDatatype(DataType.BACHELOR,
                 Folder.root(),
                 Bachelor.NAMESPACE,
                 TestInputs.defaultSomaticRunMetadata().barcode()));
