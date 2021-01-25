@@ -84,7 +84,7 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
                         outputFile,
                         outputFile,
                         resultsDirectory))
-                .addFurtherOperations(new AddDatatypeToFile(DataType.WGSMETRICS,
+                .addFurtherOperations(AddDatatypeToFile.file(DataType.WGSMETRICS,
                         Folder.from(metadata),
                         namespace(),
                         outputFile,

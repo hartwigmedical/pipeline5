@@ -52,10 +52,9 @@ public class BachelorTest extends TertiaryStageTest<BachelorOutput> {
 
     @Override
     protected List<ApiFileOperation> expectedFurtherOperations() {
-        return List.of(new AddDatatypeToFile(DataType.BACHELOR_OUTPUT,
+        return List.of(AddDatatypeToFile.directory(DataType.BACHELOR,
                 Folder.root(),
                 Bachelor.NAMESPACE,
-                "",
                 TestInputs.defaultSomaticRunMetadata().barcode()));
     }
 

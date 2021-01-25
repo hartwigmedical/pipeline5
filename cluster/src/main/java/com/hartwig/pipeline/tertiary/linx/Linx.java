@@ -77,7 +77,7 @@ public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
                 .status(jobStatus)
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), NAMESPACE, resultsDirectory))
-                .addFurtherOperations(new AddDatatypeToFile(DataType.LINX_OUTPUT, Folder.root(), namespace(), "", metadata.barcode()))
+                .addFurtherOperations(AddDatatypeToFile.directory(DataType.LINX, Folder.root(), namespace(), metadata.barcode()))
                 .build();
     }
 

@@ -68,7 +68,7 @@ public class Chord implements Stage<ChordOutput, SomaticRunMetadata> {
                 .status(jobStatus)
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
-                .addFurtherOperations(new AddDatatypeToFile(DataType.CHORD_PREDICTION,
+                .addFurtherOperations(AddDatatypeToFile.file(DataType.CHORD_PREDICTION,
                         Folder.root(),
                         namespace(),
                         format("%s_chord_prediction.txt", metadata.tumor().sampleName()),

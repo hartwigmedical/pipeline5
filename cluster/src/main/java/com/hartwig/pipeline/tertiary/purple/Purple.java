@@ -114,12 +114,12 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
                 .maybeSomaticVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(somaticVcf(metadata))))
                 .maybeStructuralVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(svVcf(metadata))))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), NAMESPACE, resultsDirectory))
-                .addFurtherOperations(new AddDatatypeToFile(DataType.SOMATIC_VARIANTS_PURPLE,
-                                Folder.root(),
-                                namespace(),
-                                somaticVcf(metadata),
-                                metadata.barcode()),
-                        new AddDatatypeToFile(DataType.STRUCTURAL_VARIANTS_PURPLE,
+                .addFurtherOperations(AddDatatypeToFile.file(DataType.SOMATIC_VARIANTS_PURPLE,
+                        Folder.root(),
+                        namespace(),
+                        somaticVcf(metadata),
+                        metadata.barcode()),
+                        AddDatatypeToFile.file(DataType.STRUCTURAL_VARIANTS_PURPLE,
                                 Folder.root(),
                                 namespace(),
                                 svVcf(metadata),

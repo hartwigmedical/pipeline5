@@ -80,7 +80,7 @@ public class Bachelor implements Stage<BachelorOutput, SomaticRunMetadata> {
                 .status(jobStatus)
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), NAMESPACE, resultsDirectory))
-                .addFurtherOperations(new AddDatatypeToFile(DataType.BACHELOR_OUTPUT, Folder.root(), namespace(), "", metadata.barcode()))
+                .addFurtherOperations(AddDatatypeToFile.directory(DataType.BACHELOR, Folder.root(), namespace(), metadata.barcode()))
                 .build();
     }
 

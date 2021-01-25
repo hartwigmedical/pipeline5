@@ -32,12 +32,11 @@ public class AmberTest extends TertiaryStageTest<AmberOutput> {
     protected List<ApiFileOperation> expectedFurtherOperations() {
         String basenameSnpcheck = TestInputs.REG_GENOME_37_RESOURCE_FILES.amberSnpcheck()
                 .substring(TestInputs.REG_GENOME_37_RESOURCE_FILES.amberSnpcheck().lastIndexOf("/") + 1);
-        return List.of(new AddDatatypeToFile(DataType.B_ALLELE_FREQUENCY,
-                        Folder.root(),
-                        Amber.NAMESPACE,
-                        "tumor.amber.baf.tsv",
-                        TestInputs.defaultSomaticRunMetadata().barcode()),
-                new AddDatatypeToFile(DataType.AMBER_SNPCHECK,
+        return List.of(AddDatatypeToFile.directory(DataType.AMBER,
+                Folder.root(),
+                Amber.NAMESPACE,
+                TestInputs.defaultSomaticRunMetadata().barcode()),
+                AddDatatypeToFile.file(DataType.AMBER_SNPCHECK,
                         Folder.root(),
                         Amber.NAMESPACE,
                         basenameSnpcheck,
@@ -58,7 +57,7 @@ public class AmberTest extends TertiaryStageTest<AmberOutput> {
 
     @Override
     protected void setupPersistedDataset() {
-        persistedDataset.addPath(DataType.B_ALLELE_FREQUENCY, "amber");
+        persistedDataset.addPath(DataType.AMBER, "amber");
     }
 
     @Override

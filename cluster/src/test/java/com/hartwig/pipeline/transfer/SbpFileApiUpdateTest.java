@@ -45,7 +45,7 @@ public class SbpFileApiUpdateTest {
                 run,
                 sourceBucket,
                 sbpRestApi,
-                Set.of(new AddDatatypeToFile(DataType.B_ALLELE_FREQUENCY, Folder.root(), "namespace", "blob", "barcode")));
+                Set.of(AddDatatypeToFile.file(DataType.AMBER, Folder.root(), "namespace", "blob", "barcode")));
     }
 
     @Test

@@ -87,12 +87,12 @@ public class CramConversionTest extends StageTest<CramOutput, SingleSampleRunMet
 
     @Override
     protected List<ApiFileOperation> expectedFurtherOperations() {
-        return List.of(new AddDatatypeToFile(DataType.ALIGNED_READS,
-                        Folder.from(TestInputs.referenceRunMetadata()),
-                        CramConversion.NAMESPACE,
-                        "reference.cram",
-                        TestInputs.referenceRunMetadata().barcode()),
-                new AddDatatypeToFile(DataType.ALIGNED_READS_INDEX,
+        return List.of(AddDatatypeToFile.file(DataType.ALIGNED_READS,
+                Folder.from(TestInputs.referenceRunMetadata()),
+                CramConversion.NAMESPACE,
+                "reference.cram",
+                TestInputs.referenceRunMetadata().barcode()),
+                AddDatatypeToFile.file(DataType.ALIGNED_READS_INDEX,
                         Folder.from(TestInputs.referenceRunMetadata()),
                         CramConversion.NAMESPACE,
                         "reference.cram.crai",

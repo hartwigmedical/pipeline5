@@ -48,10 +48,9 @@ public class LinxTest extends TertiaryStageTest<LinxOutput> {
 
     @Override
     protected List<ApiFileOperation> expectedFurtherOperations() {
-        return List.of(new AddDatatypeToFile(DataType.LINX_OUTPUT,
+        return List.of(AddDatatypeToFile.directory(DataType.LINX,
                 Folder.root(),
                 Linx.NAMESPACE,
-                "",
                 TestInputs.defaultSomaticRunMetadata().barcode()));
     }
 

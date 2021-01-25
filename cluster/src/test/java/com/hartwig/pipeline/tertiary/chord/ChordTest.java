@@ -45,7 +45,7 @@ public class ChordTest extends TertiaryStageTest<ChordOutput> {
 
     @Override
     protected List<ApiFileOperation> expectedFurtherOperations() {
-        return List.of(new AddDatatypeToFile(DataType.CHORD_PREDICTION,
+        return List.of(AddDatatypeToFile.file(DataType.CHORD_PREDICTION,
                 Folder.root(),
                 Chord.NAMESPACE,
                 "tumor_chord_prediction.txt",

@@ -19,29 +19,29 @@ public class AddDatatypeToFileTest {
         SbpRestApi api = mock(SbpRestApi.class);
         AddFileApiResponse file = mock(AddFileApiResponse.class);
         when(file.id()).thenReturn(id);
-        AddDatatypeToFile victim = new AddDatatypeToFile(DataType.ALIGNED_READS, Folder.root(), "namespace", "filename", "barcode");
+        AddDatatypeToFile victim = AddDatatypeToFile.file(DataType.ALIGNED_READS, Folder.root(), "namespace", "filename", "barcode");
         victim.apply(api, file);
         verify(api).patchFile(id, "datatype", DataType.ALIGNED_READS.toString().toLowerCase());
         verify(api).linkFileToSample(id, "barcode");
     }
 
     @Test
-    public void shouldOmitFolderFromPathWhenItHasNoName() {
-        AddDatatypeToFile victim = new AddDatatypeToFile(DataType.ALIGNED_READS, Folder.root(), "namespace", "filename", "barcode");
-        assertThat(victim.path()).isEqualTo("namespace/filename");
-    }
-
-    @Test
-    public void shouldIncludeFolderInPathWhenItHasAName() {
+    public void shouldIncludeFolderInPathWhenItIsAFile() {
         SingleSampleRunMetadata metadata = mock(SingleSampleRunMetadata.class);
         when(metadata.sampleName()).thenReturn("sample_name");
-        AddDatatypeToFile victim = new AddDatatypeToFile(DataType.ALIGNED_READS, Folder.from(metadata), "namespace", "filename", "barcode");
+        AddDatatypeToFile victim =
+                AddDatatypeToFile.file(DataType.ALIGNED_READS, Folder.from(metadata), "namespace", "filename", "barcode");
         assertThat(victim.path()).isEqualTo("sample_name/namespace/filename");
     }
 
     @Test
-    public void shouldOmitFilenameFromPathWhenItIsEmpty() {
-        AddDatatypeToFile victim = new AddDatatypeToFile(DataType.ALIGNED_READS, Folder.root(), "namespace", "", "barcode");
+    public void shouldCreateDirectory() {
+        AddDatatypeToFile victim = AddDatatypeToFile.directory(DataType.ALIGNED_READS, Folder.root(), "namespace", "barcode");
         assertThat(victim.path()).isEqualTo("namespace");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldThrowWhenEmptyFilenameProvidedForFile() {
+        AddDatatypeToFile.file(DataType.ALIGNED_READS, Folder.root(), "namespace", "", "barcode");
     }
 }

@@ -85,12 +85,12 @@ public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata
                         new StartupScriptComponent(bucket, NAMESPACE, folder),
                         new SingleFileComponent(bucket, NAMESPACE, folder, cram, cram, resultsDirectory),
                         new SingleFileComponent(bucket, NAMESPACE, folder, crai, crai, resultsDirectory))
-                .addFurtherOperations(new AddDatatypeToFile(DataType.ALIGNED_READS,
-                                Folder.from(metadata),
-                                namespace(),
-                                cram,
-                                metadata.barcode()),
-                        new AddDatatypeToFile(DataType.ALIGNED_READS_INDEX, Folder.from(metadata), namespace(), crai, metadata.barcode()))
+                .addFurtherOperations(AddDatatypeToFile.file(DataType.ALIGNED_READS,
+                        Folder.from(metadata),
+                        namespace(),
+                        cram,
+                        metadata.barcode()),
+                        AddDatatypeToFile.file(DataType.ALIGNED_READS_INDEX, Folder.from(metadata), namespace(), crai, metadata.barcode()))
                 .build();
     }
 

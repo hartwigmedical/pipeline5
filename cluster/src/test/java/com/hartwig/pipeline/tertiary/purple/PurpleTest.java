@@ -124,12 +124,12 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
 
     @Override
     protected List<ApiFileOperation> expectedFurtherOperations() {
-        return List.of(new AddDatatypeToFile(DataType.SOMATIC_VARIANTS_PURPLE,
-                        Folder.root(),
-                        "purple",
-                        TUMOR_PURPLE_SOMATIC_VCF_GZ,
-                        TestInputs.defaultSomaticRunMetadata().barcode()),
-                new AddDatatypeToFile(DataType.STRUCTURAL_VARIANTS_PURPLE,
+        return List.of(AddDatatypeToFile.file(DataType.SOMATIC_VARIANTS_PURPLE,
+                Folder.root(),
+                "purple",
+                TUMOR_PURPLE_SOMATIC_VCF_GZ,
+                TestInputs.defaultSomaticRunMetadata().barcode()),
+                AddDatatypeToFile.file(DataType.STRUCTURAL_VARIANTS_PURPLE,
                         Folder.root(),
                         "purple",
                         TUMOR_PURPLE_SV_VCF_GZ,

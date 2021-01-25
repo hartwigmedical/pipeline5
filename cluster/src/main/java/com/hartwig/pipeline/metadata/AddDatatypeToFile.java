@@ -13,13 +13,32 @@ public class AddDatatypeToFile implements ApiFileOperation {
     private final String path;
     private final DataType datatype;
     private final String barcode;
+    private final boolean isDirectory;
 
-    public AddDatatypeToFile(final DataType datatype, final Folder folder, final String namespace, final String filename,
+    private AddDatatypeToFile(final DataType datatype, final Folder folder, final String namespace, final String filename,
             final String barcode) {
         this.datatype = datatype;
         this.barcode = barcode;
-        String namespacedFile = filename.isEmpty() ? namespace : namespace + "/" + filename;
+        String namespacedFile = namespace;
+        if (filename != null) {
+            isDirectory = false;
+            namespacedFile = namespace + "/" + filename;
+        } else {
+            isDirectory = true;
+        }
         path = folder.name().isEmpty() ? namespacedFile : folder.name() + namespacedFile;
+    }
+
+    public static AddDatatypeToFile file(final DataType datatype, final Folder folder, final String namespace, final String filename,
+            final String barcode) {
+        if (filename.isEmpty()) {
+            throw new IllegalArgumentException("Empty filename not supported for file");
+        }
+        return new AddDatatypeToFile(datatype, folder, namespace, filename, barcode);
+    }
+
+    public static AddDatatypeToFile directory(final DataType datatype, final Folder folder, final String directory, final String barcode) {
+        return new AddDatatypeToFile(datatype, folder, directory, null, barcode);
     }
 
     @Override

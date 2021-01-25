@@ -88,7 +88,7 @@ public class BamMetricsTest extends StageTest<BamMetricsOutput, SingleSampleRunM
 
     @Override
     protected List<ApiFileOperation> expectedFurtherOperations() {
-        return List.of(new AddDatatypeToFile(DataType.WGSMETRICS,
+        return List.of(AddDatatypeToFile.file(DataType.WGSMETRICS,
                 Folder.from(TestInputs.referenceRunMetadata()),
                 BamMetrics.NAMESPACE,
                 "reference.wgsmetrics",

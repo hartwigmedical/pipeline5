@@ -110,10 +110,7 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
                 .maybeUnfilteredVcfIndex(resultLocation(bucket, resultsDirectory, unfilteredVcf + ".tbi"))
                 .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
                         NAMESPACE,
-                        Folder.root(),
-                        basename(unfilteredVcf),
-                        basename(unfilteredVcf),
-                        resultsDirectory))
+                        Folder.root(), basename(unfilteredVcf), basename(unfilteredVcf), resultsDirectory))
                 .addReportComponents(new EntireOutputComponent(bucket,
                         Folder.root(),
                         NAMESPACE,
@@ -121,7 +118,7 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
                         s -> !s.contains("working") || s.endsWith("bam.sv.bam") || s.endsWith("bam.sv.bam.bai")))
                 .addReportComponents(new RunLogComponent(bucket, NAMESPACE, Folder.root(), resultsDirectory))
                 .addReportComponents(new StartupScriptComponent(bucket, NAMESPACE, Folder.root()))
-                .addFurtherOperations(new AddDatatypeToFile(DataType.STRUCTURAL_VARIANTS_GRIDSS,
+                .addFurtherOperations(AddDatatypeToFile.file(DataType.STRUCTURAL_VARIANTS_GRIDSS,
                         Folder.root(),
                         namespace(),
                         basename(unfilteredVcf),

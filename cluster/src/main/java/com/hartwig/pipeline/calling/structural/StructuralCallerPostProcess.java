@@ -99,9 +99,7 @@ public class StructuralCallerPostProcess implements Stage<StructuralCallerPostPr
                 .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
                         NAMESPACE,
                         Folder.root(),
-                        basename(somaticVcf),
-                        basename(somaticVcf),
-                        resultsDirectory))
+                        basename(somaticVcf), basename(somaticVcf), resultsDirectory))
                 .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
                         NAMESPACE,
                         Folder.root(),
@@ -110,12 +108,12 @@ public class StructuralCallerPostProcess implements Stage<StructuralCallerPostPr
                         resultsDirectory))
                 .addReportComponents(new RunLogComponent(bucket, NAMESPACE, Folder.root(), resultsDirectory))
                 .addReportComponents(new StartupScriptComponent(bucket, NAMESPACE, Folder.root()))
-                .addFurtherOperations(new AddDatatypeToFile(DataType.STRUCTURAL_VARIANTS_GRIPSS_RECOVERY,
-                                Folder.root(),
-                                namespace(),
-                                basename(somaticVcf),
-                                metadata.barcode()),
-                        new AddDatatypeToFile(DataType.STRUCTURAL_VARIANTS_GRIPSS,
+                .addFurtherOperations(AddDatatypeToFile.file(DataType.STRUCTURAL_VARIANTS_GRIPSS_RECOVERY,
+                        Folder.root(),
+                        namespace(),
+                        basename(somaticVcf),
+                        metadata.barcode()),
+                        AddDatatypeToFile.file(DataType.STRUCTURAL_VARIANTS_GRIPSS,
                                 Folder.root(),
                                 namespace(),
                                 basename(somaticFilteredVcf),

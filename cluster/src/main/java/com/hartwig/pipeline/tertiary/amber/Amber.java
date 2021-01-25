@@ -64,12 +64,8 @@ public class Amber extends TertiaryStage<AmberOutput> {
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .maybeOutputDirectory(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(), true))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
-                .addFurtherOperations(new AddDatatypeToFile(DataType.B_ALLELE_FREQUENCY,
-                                Folder.root(),
-                                namespace(),
-                                String.format("%s.amber.baf.tsv", metadata.tumor().sampleName()),
-                                metadata.barcode()),
-                        new AddDatatypeToFile(DataType.AMBER_SNPCHECK,
+                .addFurtherOperations(AddDatatypeToFile.directory(DataType.AMBER, Folder.root(), namespace(), metadata.barcode()),
+                        AddDatatypeToFile.file(DataType.AMBER_SNPCHECK,
                                 Folder.root(),
                                 namespace(),
                                 new File(resourceFiles.amberSnpcheck()).getName(),
@@ -86,7 +82,7 @@ public class Amber extends TertiaryStage<AmberOutput> {
     public AmberOutput persistedOutput(final SomaticRunMetadata metadata) {
         return AmberOutput.builder()
                 .status(PipelineStatus.PERSISTED)
-                .maybeOutputDirectory(persistedDataset.path(metadata.tumor().sampleName(), DataType.B_ALLELE_FREQUENCY)
+                .maybeOutputDirectory(persistedDataset.path(metadata.tumor().sampleName(), DataType.AMBER)
                         .map(GoogleStorageLocation::asDirectory)
                         .orElse(GoogleStorageLocation.of(metadata.bucket(),
                                 PersistedLocations.pathForSet(metadata.set(), namespace()),

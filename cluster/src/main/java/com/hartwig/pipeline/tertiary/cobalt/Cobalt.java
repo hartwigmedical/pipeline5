@@ -62,11 +62,7 @@ public class Cobalt extends TertiaryStage<CobaltOutput> {
                 .maybeOutputDirectory(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(), true))
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), NAMESPACE, resultsDirectory))
-                .addFurtherOperations(new AddDatatypeToFile(DataType.READ_DEPTH_RATIO,
-                        Folder.root(),
-                        namespace(),
-                        String.format("%s.cobalt.ratio.tsv", metadata.tumor().sampleName()),
-                        metadata.barcode()))
+                .addFurtherOperations(AddDatatypeToFile.directory(DataType.COBALT, Folder.root(), namespace(), metadata.barcode()))
                 .build();
     }
 
@@ -79,7 +75,7 @@ public class Cobalt extends TertiaryStage<CobaltOutput> {
     public CobaltOutput persistedOutput(final SomaticRunMetadata metadata) {
         return CobaltOutput.builder()
                 .status(PipelineStatus.PERSISTED)
-                .maybeOutputDirectory(persistedDataset.path(metadata.tumor().sampleName(), DataType.READ_DEPTH_RATIO)
+                .maybeOutputDirectory(persistedDataset.path(metadata.tumor().sampleName(), DataType.COBALT)
                         .map(GoogleStorageLocation::asDirectory)
                         .orElse(GoogleStorageLocation.of(metadata.bucket(),
                                 PersistedLocations.pathForSet(metadata.set(), namespace()),
