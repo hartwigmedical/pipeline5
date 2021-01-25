@@ -3,7 +3,11 @@ package com.hartwig.pipeline.tertiary.linx;
 import java.util.Collections;
 import java.util.List;
 
+import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.metadata.AddDatatypeToFile;
+import com.hartwig.pipeline.metadata.ApiFileOperation;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
+import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
@@ -40,6 +44,15 @@ public class LinxTest extends TertiaryStageTest<LinxOutput> {
                 + "-check_fusions -known_fusion_file /opt/resources/knowledgebases/37/known_fusion_data.csv "
                 + "-check_drivers -driver_gene_panel /opt/resources/gene_panel/37/DriverGenePanel.hg19.tsv "
                 + "-chaining_sv_limit 0 -write_vis_data");
+    }
+
+    @Override
+    protected List<ApiFileOperation> expectedFurtherOperations() {
+        return List.of(new AddDatatypeToFile(DataType.LINX_OUTPUT,
+                Folder.root(),
+                Linx.NAMESPACE,
+                "",
+                TestInputs.defaultSomaticRunMetadata().barcode()));
     }
 
     @Override

@@ -14,10 +14,11 @@ public class AddDatatypeToFile implements ApiFileOperation {
     private final DataType datatype;
     private final String barcode;
 
-    public AddDatatypeToFile(DataType datatype, Folder folder, String namespace, String filename, final String barcode) {
+    public AddDatatypeToFile(final DataType datatype, final Folder folder, final String namespace, final String filename,
+            final String barcode) {
         this.datatype = datatype;
         this.barcode = barcode;
-        String namespacedFile = namespace + "/" + filename;
+        String namespacedFile = filename.isEmpty() ? namespace : namespace + "/" + filename;
         path = folder.name().isEmpty() ? namespacedFile : folder.name() + namespacedFile;
     }
 
