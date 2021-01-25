@@ -28,7 +28,7 @@ public class AddDatatypeTest {
     }
 
     @Test
-    public void shouldIncludeFolderInPathWhenItIsAFile() {
+    public void shouldIncludeFolderNameInPathWhenItIsSet() {
         SingleSampleRunMetadata metadata = mock(SingleSampleRunMetadata.class);
         when(metadata.sampleName()).thenReturn("sample_name");
         AddDatatype victim =
@@ -37,7 +37,7 @@ public class AddDatatypeTest {
     }
 
     @Test
-    public void shouldCreateDirectory() {
+    public void shouldBuildPathWhenFolderHasNoName() {
         AddDatatype victim = new AddDatatype(DataType.ALIGNED_READS, Folder.root(), "namespace", "barcode");
         assertThat(victim.path()).isEqualTo("namespace");
     }
