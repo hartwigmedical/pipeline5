@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.tertiary.amber;
 
+import static java.lang.String.format;
+
 import java.io.File;
 import java.util.List;
 
@@ -12,7 +14,7 @@ import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.CopyResourceToOutput;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
-import com.hartwig.pipeline.metadata.AddDatatypeToFile;
+import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
@@ -64,15 +66,10 @@ public class Amber extends TertiaryStage<AmberOutput> {
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .maybeOutputDirectory(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(), true))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
-                .addFurtherOperations(new AddDatatypeToFile(DataType.B_ALLELE_FREQUENCY,
+                .addFurtherOperations(new AddDatatype(DataType.AMBER, Folder.root(), namespace(), metadata.barcode()),
+                        new AddDatatype(DataType.AMBER_SNPCHECK,
                                 Folder.root(),
-                                namespace(),
-                                String.format("%s.amber.baf.tsv", metadata.tumor().sampleName()),
-                                metadata.barcode()),
-                        new AddDatatypeToFile(DataType.AMBER_SNPCHECK,
-                                Folder.root(),
-                                namespace(),
-                                new File(resourceFiles.amberSnpcheck()).getName(),
+                                format("%s/%s", namespace(), new File(resourceFiles.amberSnpcheck()).getName()),
                                 metadata.barcode()))
                 .build();
     }
@@ -86,7 +83,7 @@ public class Amber extends TertiaryStage<AmberOutput> {
     public AmberOutput persistedOutput(final SomaticRunMetadata metadata) {
         return AmberOutput.builder()
                 .status(PipelineStatus.PERSISTED)
-                .maybeOutputDirectory(persistedDataset.path(metadata.tumor().sampleName(), DataType.B_ALLELE_FREQUENCY)
+                .maybeOutputDirectory(persistedDataset.path(metadata.tumor().sampleName(), DataType.AMBER)
                         .map(GoogleStorageLocation::asDirectory)
                         .orElse(GoogleStorageLocation.of(metadata.bucket(),
                                 PersistedLocations.pathForSet(metadata.set(), namespace()),

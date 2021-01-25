@@ -33,7 +33,7 @@ import com.hartwig.pipeline.execution.vm.OutputUpload;
 import com.hartwig.pipeline.execution.vm.RuntimeFiles;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.failsafe.DefaultBackoffPolicy;
-import com.hartwig.pipeline.metadata.AddDatatypeToFile;
+import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.ReportComponent;
@@ -160,22 +160,23 @@ public class BwaAligner implements Aligner {
             if (!arguments.outputCram()) {
                 outputBuilder.addReportComponents(new SingleFileComponent(rootBucket,
                                 Aligner.NAMESPACE,
-                                Folder.from(metadata), bam(metadata.sampleName()), bam(metadata.sampleName()), resultsDirectory),
+                                Folder.from(metadata),
+                                bam(metadata.sampleName()),
+                                bam(metadata.sampleName()),
+                                resultsDirectory),
                         new SingleFileComponent(rootBucket,
                                 Aligner.NAMESPACE,
                                 Folder.from(metadata),
                                 bai(bam(metadata.sampleName())),
                                 bai(bam(metadata.sampleName())),
                                 resultsDirectory))
-                        .addFurtherOperations(new AddDatatypeToFile(DataType.ALIGNED_READS,
+                        .addFurtherOperations(new AddDatatype(DataType.ALIGNED_READS,
                                         Folder.from(metadata),
-                                        BwaAligner.NAMESPACE,
-                                        bam(metadata.sampleName()),
+                                        format("%s/%s", BwaAligner.NAMESPACE, bam(metadata.sampleName())),
                                         metadata.barcode()),
-                                new AddDatatypeToFile(DataType.ALIGNED_READS_INDEX,
+                                new AddDatatype(DataType.ALIGNED_READS_INDEX,
                                         Folder.from(metadata),
-                                        BwaAligner.NAMESPACE,
-                                        bai(bam(metadata.sampleName())),
+                                        format("%s/%s", BwaAligner.NAMESPACE, bai(bam(metadata.sampleName()))),
                                         metadata.barcode()));
             }
             output = outputBuilder.build();

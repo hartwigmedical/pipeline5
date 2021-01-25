@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.metrics;
 
+import static java.lang.String.format;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -13,7 +15,7 @@ import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
-import com.hartwig.pipeline.metadata.AddDatatypeToFile;
+import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
@@ -84,10 +86,9 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
                         outputFile,
                         outputFile,
                         resultsDirectory))
-                .addFurtherOperations(new AddDatatypeToFile(DataType.WGSMETRICS,
+                .addFurtherOperations(new AddDatatype(DataType.WGSMETRICS,
                         Folder.from(metadata),
-                        namespace(),
-                        outputFile,
+                        format("%s/%s", namespace(), outputFile),
                         metadata.barcode()))
                 .build();
     }

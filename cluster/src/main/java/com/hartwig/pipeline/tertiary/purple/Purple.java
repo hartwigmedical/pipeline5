@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.tertiary.purple;
 
+import static java.lang.String.format;
+
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
@@ -15,7 +17,7 @@ import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
-import com.hartwig.pipeline.metadata.AddDatatypeToFile;
+import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
@@ -114,15 +116,13 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
                 .maybeSomaticVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(somaticVcf(metadata))))
                 .maybeStructuralVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(svVcf(metadata))))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), NAMESPACE, resultsDirectory))
-                .addFurtherOperations(new AddDatatypeToFile(DataType.SOMATIC_VARIANTS_PURPLE,
+                .addFurtherOperations(new AddDatatype(DataType.SOMATIC_VARIANTS_PURPLE,
                                 Folder.root(),
-                                namespace(),
-                                somaticVcf(metadata),
+                                format("%s/%s", namespace(), somaticVcf(metadata)),
                                 metadata.barcode()),
-                        new AddDatatypeToFile(DataType.STRUCTURAL_VARIANTS_PURPLE,
+                        new AddDatatype(DataType.STRUCTURAL_VARIANTS_PURPLE,
                                 Folder.root(),
-                                namespace(),
-                                svVcf(metadata),
+                                format("%s/%s", namespace(), svVcf(metadata)),
                                 metadata.barcode()))
                 .build();
     }

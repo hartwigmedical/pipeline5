@@ -9,16 +9,15 @@ import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.sbpapi.AddFileApiResponse;
 import com.hartwig.pipeline.sbpapi.SbpRestApi;
 
-public class AddDatatypeToFile implements ApiFileOperation {
+public class AddDatatype implements ApiFileOperation {
     private final String path;
     private final DataType datatype;
     private final String barcode;
 
-    public AddDatatypeToFile(DataType datatype, Folder folder, String namespace, String filename, final String barcode) {
+    public AddDatatype(final DataType datatype, final Folder folder, final String filePath, final String barcode) {
         this.datatype = datatype;
         this.barcode = barcode;
-        String namespacedFile = namespace + "/" + filename;
-        path = folder.name().isEmpty() ? namespacedFile : folder.name() + namespacedFile;
+        path = folder.name().isEmpty() ? filePath : folder.name() + filePath;
     }
 
     @Override
@@ -45,7 +44,7 @@ public class AddDatatypeToFile implements ApiFileOperation {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        final AddDatatypeToFile that = (AddDatatypeToFile) o;
+        final AddDatatype that = (AddDatatype) o;
         return Objects.equals(path, that.path) && datatype == that.datatype && Objects.equals(barcode, that.barcode);
     }
 
