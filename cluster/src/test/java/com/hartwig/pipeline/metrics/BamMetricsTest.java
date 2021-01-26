@@ -1,7 +1,5 @@
 package com.hartwig.pipeline.metrics;
 
-import static java.lang.String.format;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
@@ -11,6 +9,7 @@ import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.ApiFileOperation;
+import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.stages.Stage;
@@ -91,8 +90,7 @@ public class BamMetricsTest extends StageTest<BamMetricsOutput, SingleSampleRunM
     @Override
     protected List<ApiFileOperation> expectedFurtherOperations() {
         return List.of(new AddDatatype(DataType.WGSMETRICS,
-                Folder.from(TestInputs.referenceRunMetadata()),
-                format("%s/%s", BamMetrics.NAMESPACE, "reference.wgsmetrics"),
-                TestInputs.referenceRunMetadata().barcode()));
+                TestInputs.referenceRunMetadata().barcode(),
+                new ArchivePath(Folder.from(TestInputs.referenceRunMetadata()), BamMetrics.NAMESPACE, "reference.wgsmetrics")));
     }
 }

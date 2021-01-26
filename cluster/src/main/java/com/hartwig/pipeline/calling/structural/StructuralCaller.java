@@ -24,6 +24,7 @@ import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.unix.ExportPathCommand;
 import com.hartwig.pipeline.metadata.AddDatatype;
+import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
@@ -124,9 +125,8 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
                 .addReportComponents(new RunLogComponent(bucket, NAMESPACE, Folder.root(), resultsDirectory))
                 .addReportComponents(new StartupScriptComponent(bucket, NAMESPACE, Folder.root()))
                 .addFurtherOperations(new AddDatatype(DataType.STRUCTURAL_VARIANTS_GRIDSS,
-                        Folder.root(),
-                        format("%s/%s", namespace(), basename(unfilteredVcf)),
-                        metadata.barcode()))
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), basename(unfilteredVcf))))
                 .build();
     }
 

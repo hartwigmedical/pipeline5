@@ -11,6 +11,7 @@ import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.metadata.AddDatatype;
+import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
@@ -62,7 +63,9 @@ public class Cobalt extends TertiaryStage<CobaltOutput> {
                 .maybeOutputDirectory(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(), true))
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), NAMESPACE, resultsDirectory))
-                .addFurtherOperations(new AddDatatype(DataType.COBALT, Folder.root(), namespace(), metadata.barcode()))
+                .addFurtherOperations(new AddDatatype(DataType.COBALT,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), metadata.tumor().sampleName() + ".cobalt.ratio.tsv")))
                 .build();
     }
 

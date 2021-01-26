@@ -19,6 +19,7 @@ import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.metadata.AddDatatype;
+import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
@@ -113,13 +114,11 @@ public class StructuralCallerPostProcess implements Stage<StructuralCallerPostPr
                 .addReportComponents(new RunLogComponent(bucket, NAMESPACE, Folder.root(), resultsDirectory))
                 .addReportComponents(new StartupScriptComponent(bucket, NAMESPACE, Folder.root()))
                 .addFurtherOperations(new AddDatatype(DataType.STRUCTURAL_VARIANTS_GRIPSS_RECOVERY,
-                                Folder.root(),
-                                format("%s/%s", namespace(), basename(somaticVcf)),
-                                metadata.barcode()),
+                                metadata.barcode(),
+                                new ArchivePath(Folder.root(), namespace(), basename(somaticVcf))),
                         new AddDatatype(DataType.STRUCTURAL_VARIANTS_GRIPSS,
-                                Folder.root(),
-                                format("%s/%s", namespace(), basename(somaticFilteredVcf)),
-                                metadata.barcode()))
+                                metadata.barcode(),
+                                new ArchivePath(Folder.root(), namespace(), basename(somaticFilteredVcf))))
                 .build();
     }
 
