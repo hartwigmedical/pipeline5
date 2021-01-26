@@ -8,6 +8,7 @@ import java.util.List;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.ApiFileOperation;
+import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.stages.Stage;
@@ -52,7 +53,9 @@ public class CobaltTest extends TertiaryStageTest<CobaltOutput> {
 
     @Override
     protected List<ApiFileOperation> expectedFurtherOperations() {
-        return List.of(new AddDatatype(DataType.COBALT, Folder.root(), Cobalt.NAMESPACE, TestInputs.defaultSomaticRunMetadata().barcode()));
+        return List.of(new AddDatatype(DataType.COBALT,
+                TestInputs.defaultSomaticRunMetadata().barcode(),
+                new ArchivePath(Folder.root(), Cobalt.NAMESPACE, "tumor.cobalt.ratio.tsv")));
     }
 
     @Override

@@ -1,7 +1,5 @@
 package com.hartwig.pipeline.transfer;
 
-import static java.lang.String.format;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -15,6 +13,7 @@ import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.metadata.AddDatatype;
+import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.sbpapi.AddFileApiResponse;
 import com.hartwig.pipeline.sbpapi.SbpFileMetadata;
@@ -47,7 +46,7 @@ public class SbpFileApiUpdateTest {
                 run,
                 sourceBucket,
                 sbpRestApi,
-                Set.of(new AddDatatype(DataType.AMBER, Folder.root(), format("%s/%s", "namespace", "blob"), "barcode")));
+                Set.of(new AddDatatype(DataType.AMBER, "barcode", new ArchivePath(Folder.root(), "namespace", "blob"))));
     }
 
     @Test

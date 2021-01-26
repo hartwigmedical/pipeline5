@@ -9,6 +9,7 @@ import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.metadata.AddDatatype;
+import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.Folder;
@@ -68,9 +69,8 @@ public abstract class SageCaller extends TertiaryStage<SageOutput> {
                 .addReportComponents(new RunLogComponent(bucket, namespace(), Folder.root(), resultsDirectory))
                 .addReportComponents(new StartupScriptComponent(bucket, namespace(), Folder.root()))
                 .addFurtherOperations(new AddDatatype(dataType,
-                        Folder.root(),
-                        format("%s/%s", namespace(), filteredOutputFile),
-                        metadata.barcode()));
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), filteredOutputFile)));
     }
 
     @Override

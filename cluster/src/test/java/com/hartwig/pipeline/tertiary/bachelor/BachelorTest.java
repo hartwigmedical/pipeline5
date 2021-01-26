@@ -10,6 +10,7 @@ import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.ApiFileOperation;
+import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.stages.Stage;
@@ -29,7 +30,10 @@ public class BachelorTest extends TertiaryStageTest<BachelorOutput> {
 
     @Override
     protected Stage<BachelorOutput, SomaticRunMetadata> createVictim() {
-        return new Bachelor(TestInputs.REG_GENOME_37_RESOURCE_FILES, TestInputs.purpleOutput(), TestInputs.tumorAlignmentOutput(), TestInputs.germlineCallerOutput());
+        return new Bachelor(TestInputs.REG_GENOME_37_RESOURCE_FILES,
+                TestInputs.purpleOutput(),
+                TestInputs.tumorAlignmentOutput(),
+                TestInputs.germlineCallerOutput());
     }
 
     @Override
@@ -53,9 +57,8 @@ public class BachelorTest extends TertiaryStageTest<BachelorOutput> {
     @Override
     protected List<ApiFileOperation> expectedFurtherOperations() {
         return List.of(new AddDatatype(DataType.BACHELOR,
-                Folder.root(),
-                Bachelor.NAMESPACE,
-                TestInputs.defaultSomaticRunMetadata().barcode()));
+                TestInputs.defaultSomaticRunMetadata().barcode(),
+                new ArchivePath(Folder.root(), Bachelor.NAMESPACE, "tumor.bachelor.germline_variant.tsv")));
     }
 
     @Override

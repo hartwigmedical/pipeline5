@@ -1,7 +1,5 @@
 package com.hartwig.pipeline.cram;
 
-import static java.lang.String.format;
-
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
@@ -20,6 +18,7 @@ import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.metadata.AddDatatype;
+import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata.SampleType;
 import com.hartwig.pipeline.report.Folder;
@@ -88,13 +87,11 @@ public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata
                         new SingleFileComponent(bucket, NAMESPACE, folder, cram, cram, resultsDirectory),
                         new SingleFileComponent(bucket, NAMESPACE, folder, crai, crai, resultsDirectory))
                 .addFurtherOperations(new AddDatatype(DataType.ALIGNED_READS,
-                                Folder.from(metadata),
-                                format("%s/%s", namespace(), cram),
-                                metadata.barcode()),
+                                metadata.barcode(),
+                                new ArchivePath(Folder.from(metadata), namespace(), cram)),
                         new AddDatatype(DataType.ALIGNED_READS_INDEX,
-                                Folder.from(metadata),
-                                format("%s/%s", namespace(), crai),
-                                metadata.barcode()))
+                                metadata.barcode(),
+                                new ArchivePath(Folder.from(metadata), namespace(), crai)))
                 .build();
     }
 
