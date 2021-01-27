@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 
 public class SbpRestApi {
 
-    private final static ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private final static ObjectMapper OBJECT_MAPPER = ObjectMappers.get();
     private final static Logger LOGGER = LoggerFactory.getLogger(SbpRestApi.class);
     private static final String SAMPLES = "samples";
     private static final String RUNS = "runs";

@@ -5,20 +5,18 @@ import static java.lang.String.format;
 import java.util.Objects;
 
 import com.hartwig.pipeline.datatypes.DataType;
-import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.sbpapi.AddFileApiResponse;
 import com.hartwig.pipeline.sbpapi.SbpRestApi;
 
-public class AddDatatypeToFile implements ApiFileOperation {
+public class AddDatatype implements ApiFileOperation {
     private final String path;
     private final DataType datatype;
     private final String barcode;
 
-    public AddDatatypeToFile(DataType datatype, Folder folder, String namespace, String filename, final String barcode) {
+    public AddDatatype(final DataType datatype, final String barcode, final ArchivePath path) {
         this.datatype = datatype;
         this.barcode = barcode;
-        String namespacedFile = namespace + "/" + filename;
-        path = folder.name().isEmpty() ? namespacedFile : folder.name() + namespacedFile;
+        this.path = path.path();
     }
 
     @Override
@@ -45,7 +43,7 @@ public class AddDatatypeToFile implements ApiFileOperation {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        final AddDatatypeToFile that = (AddDatatypeToFile) o;
+        final AddDatatype that = (AddDatatype) o;
         return Objects.equals(path, that.path) && datatype == that.datatype && Objects.equals(barcode, that.barcode);
     }
 

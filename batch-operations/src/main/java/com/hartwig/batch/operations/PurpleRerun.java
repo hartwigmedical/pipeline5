@@ -26,8 +26,7 @@ import com.hartwig.pipeline.resource.ResourceFilesFactory;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.ImmutableGoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
-import com.hartwig.pipeline.tertiary.purple.PurpleApplicationCommand;
-import com.hartwig.pipeline.tools.Versions;
+import com.hartwig.pipeline.tertiary.purple.PurpleCommandBuilder;
 
 public class PurpleRerun implements BatchOperation {
 
@@ -42,7 +41,6 @@ public class PurpleRerun implements BatchOperation {
     public List<BashCommand> bashCommands(final InputBundle inputs) {
         final List<BashCommand> commands = Lists.newArrayList();
         final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.V37);
-
 
         final String set = inputs.get("set").inputValue();
         final String tumorSampleName = inputs.get("tumor_sample").inputValue();
@@ -81,23 +79,21 @@ public class PurpleRerun implements BatchOperation {
         commands.add(gripssRecoveryLocation);
         commands.add(gripssRecoveryLocationIndex);
 
-        BashCommand purpleCommand = new PurpleApplicationCommand(resourceFiles,
-                referenceSampleName,
-                tumorSampleName,
+        PurpleCommandBuilder builder = new PurpleCommandBuilder(resourceFiles,
                 amberLocation.getLocalTargetPath(),
                 cobaltLocation.getLocalTargetPath(),
-                sageLocation.getLocalTargetPath(),
+                tumorSampleName,
                 gripssLocation.getLocalTargetPath(),
                 gripssRecoveryLocation.getLocalTargetPath(),
-                VmDirectories.TOOLS + "/circos/" + Versions.CIRCOS + "/bin/circos",
-                false);
+                sageLocation.getLocalTargetPath()).addGermline(referenceSampleName);
 
-        commands.add(purpleCommand);
+        commands.add(builder.build());
         return commands;
     }
 
     @Override
-    public VirtualMachineJobDefinition execute(final InputBundle inputs, final RuntimeBucket runtimeBucket, final BashStartupScript commands, final RuntimeFiles executionFlags) {
+    public VirtualMachineJobDefinition execute(final InputBundle inputs, final RuntimeBucket runtimeBucket,
+            final BashStartupScript commands, final RuntimeFiles executionFlags) {
         final String set = inputs.get("set").inputValue();
         final GoogleStorageLocation archiveStorageLocation = purpleArchiveDirectory(set);
 

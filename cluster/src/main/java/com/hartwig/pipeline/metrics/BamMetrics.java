@@ -13,7 +13,8 @@ import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
-import com.hartwig.pipeline.metadata.AddDatatypeToFile;
+import com.hartwig.pipeline.metadata.AddDatatype;
+import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
@@ -84,11 +85,9 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
                         outputFile,
                         outputFile,
                         resultsDirectory))
-                .addFurtherOperations(new AddDatatypeToFile(DataType.WGSMETRICS,
-                        Folder.from(metadata),
-                        namespace(),
-                        outputFile,
-                        metadata.barcode()))
+                .addFurtherOperations(new AddDatatype(DataType.WGSMETRICS,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.from(metadata), namespace(), outputFile)))
                 .build();
     }
 

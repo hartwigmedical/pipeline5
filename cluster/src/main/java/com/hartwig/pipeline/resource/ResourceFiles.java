@@ -29,6 +29,8 @@ public interface ResourceFiles {
 
     String amberHeterozygousLoci();
 
+    String amberSnpcheck();
+
     String gridssRepeatMaskerDb();
 
     default String gridssRepeatMaskerDbBed() {
@@ -62,6 +64,8 @@ public interface ResourceFiles {
     String sageGermlineHotspots();
 
     String sageGermlineCodingPanel();
+
+    String sageGermlineCoveragePanel();
 
     String sageGermlineBlacklistVcf();
 

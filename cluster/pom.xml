@@ -196,44 +196,6 @@
                             </execution>
                         </executions>
                     </plugin>
-                    <plugin>
-                        <groupId>io.fabric8</groupId>
-                        <artifactId>docker-maven-plugin</artifactId>
-                        <extensions>true</extensions>
-                        <version>0.26.1</version>
-                        <configuration>
-                            <images>
-                                <image>
-                                    <build>
-                                        <tags>
-                                            <tag>${project.version}</tag>
-                                        </tags>
-                                        <dockerFileDir>${project.basedir}</dockerFileDir>
-                                        <args>
-                                            <JAR_FILE>${project.build.finalName}.jar</JAR_FILE>
-                                        </args>
-                                    </build>
-                                </image>
-                            </images>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>standalone</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>build</goal>
-                                    <goal>push</goal>
-                                </goals>
-                                <configuration>
-                                    <images>
-                                        <image>
-                                            <name>${container-registry}</name>
-                                        </image>
-                                    </images>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
                 </plugins>
             </build>
         </profile>

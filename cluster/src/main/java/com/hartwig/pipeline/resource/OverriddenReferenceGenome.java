@@ -42,6 +42,11 @@ public class OverriddenReferenceGenome implements ResourceFiles {
     }
 
     @Override
+    public String amberSnpcheck() {
+        return decorated.amberSnpcheck();
+    }
+
+    @Override
     public String gridssRepeatMaskerDb() {
         return decorated.gridssRepeatMaskerDb();
     }
@@ -94,6 +99,11 @@ public class OverriddenReferenceGenome implements ResourceFiles {
     @Override
     public String sageGermlineCodingPanel() {
         return decorated.sageGermlineCodingPanel();
+    }
+
+    @Override
+    public String sageGermlineCoveragePanel() {
+        return decorated.sageGermlineCoveragePanel();
     }
 
     @Override

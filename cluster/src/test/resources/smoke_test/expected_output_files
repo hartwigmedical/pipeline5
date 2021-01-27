@@ -1,4 +1,5 @@
 amber/amber.version
+amber/Amber.snpcheck.hg19.vcf
 amber/CPCT12345678R.amber.snp.vcf.gz
 amber/CPCT12345678R.amber.snp.vcf.gz.tbi
 amber/CPCT12345678T.amber.baf.pcf
@@ -85,7 +86,8 @@ purple/circos/CPCT12345678T.map.circos
 purple/circos/CPCT12345678T.ratio.circos
 purple/circos/CPCT12345678T.snp.circos
 purple/circos/gaps.txt
-purple/CPCT12345678T.driver.catalog.tsv
+purple/CPCT12345678T.driver.catalog.somatic.tsv
+purple/CPCT12345678T.driver.catalog.germline.tsv
 purple/CPCT12345678T.purple.cnv.gene.tsv
 purple/CPCT12345678T.purple.cnv.germline.tsv
 purple/CPCT12345678T.purple.cnv.somatic.tsv
@@ -97,6 +99,8 @@ purple/CPCT12345678T.purple.somatic.clonality.tsv
 purple/CPCT12345678T.purple.somatic.hist.tsv
 purple/CPCT12345678T.purple.somatic.vcf.gz
 purple/CPCT12345678T.purple.somatic.vcf.gz.tbi
+purple/CPCT12345678T.purple.germline.vcf.gz
+purple/CPCT12345678T.purple.germline.vcf.gz.tbi
 purple/CPCT12345678T.purple.sv.vcf.gz
 purple/CPCT12345678T.purple.sv.vcf.gz.tbi
 purple/plot/CPCT12345678T.circos.png
@@ -110,6 +114,17 @@ purple/plot/CPCT12345678T.somatic.png
 purple/plot/CPCT12345678T.somatic.rainfall.png
 purple/purple.version
 purple/run.log
+sage_germline/CPCT12345678R.sage.bqr.png
+sage_germline/CPCT12345678R.sage.bqr.tsv
+sage_germline/CPCT12345678R.sage.gene.coverage.tsv
+sage_germline/CPCT12345678T.sage.bqr.png
+sage_germline/CPCT12345678T.sage.bqr.tsv
+sage_germline/CPCT12345678T.sage.germline.filtered.vcf.gz
+sage_germline/CPCT12345678T.sage.germline.filtered.vcf.gz.tbi
+sage_germline/CPCT12345678T.sage.germline.vcf.gz
+sage_germline/CPCT12345678T.sage.germline.vcf.gz.tbi
+sage_germline/run.log
+sage_germline/run.sh
 sage_somatic/CPCT12345678R.sage.bqr.png
 sage_somatic/CPCT12345678R.sage.bqr.tsv
 sage_somatic/CPCT12345678T.sage.bqr.png
@@ -158,52 +173,3 @@ gripss/CPCT12345678T.gripss.somatic.filtered.vcf.gz
 gripss/CPCT12345678T.gripss.somatic.filtered.vcf.gz.tbi
 gripss/run.log
 gripss/run.sh
-
-elements not found:
-  <["linx/CPCT12345678T.linx.breakend.tsv",
-    "linx/CPCT12345678T.linx.clusters.tsv",
-    "linx/CPCT12345678T.linx.drivers.tsv",
-    "linx/CPCT12345678T.linx.fusion.tsv",
-    "linx/CPCT12345678T.linx.links.tsv",
-    "linx/CPCT12345678T.linx.svs.tsv",
-    "linx/CPCT12345678T.linx.viral_inserts.tsv",
-    "linx/.linx.vis_copy_number.tsv",
-    "linx/.linx.vis_fusion.tsv",
-    "linx/.linx.vis_gene_exon.tsv",
-    "linx/.linx.vis_protein_domain.tsv",
-    "linx/.linx.vis_segments.tsv",
-    "linx/.linx.vis_sv_data.tsv",
-    "sage_somatic/CPCT12345678R.sage.bqr.png",
-    "sage_somatic/CPCT12345678R.sage.bqr.tsv",
-    "sage_somatic/CPCT12345678T.sage.bqr.png",
-    "sage_somatic/CPCT12345678T.sage.bqr.tsv",
-    "sage_somatic/CPCT12345678T.sage.somatic.filtered.vcf.gz",
-    "sage_somatic/CPCT12345678T.sage.somatic.filtered.vcf.gz.tbi",
-    "sage_somatic/CPCT12345678T.sage.somatic.vcf.gz",
-    "sage_somatic/CPCT12345678T.sage.somatic.vcf.gz.tbi",
-    "sage_somatic/CPCT12345678T.sage.gene.coverage.tsv",
-    "sage_somatic/run.log",
-    "sage_somatic/run.sh"]>
-and elements not expected:
-  <["sage/CPCT12345678R.sage.bqr.png",
-    "sage/CPCT12345678R.sage.bqr.tsv",
-    "sage/CPCT12345678T.sage.bqr.png",
-    "sage/CPCT12345678T.sage.bqr.tsv",
-    "sage/CPCT12345678T.sage.gene.coverage.tsv",
-    "sage/CPCT12345678T.sage.somatic.filtered.vcf.gz",
-    "sage/CPCT12345678T.sage.somatic.filtered.vcf.gz.tbi",
-    "sage/CPCT12345678T.sage.somatic.vcf.gz",
-    "sage/CPCT12345678T.sage.somatic.vcf.gz.tbi",
-    "sage/run.log",
-    "sage/run.sh",
-    "sage_germline/CPCT12345678R.sage.bqr.png",
-    "sage_germline/CPCT12345678R.sage.bqr.tsv",
-    "sage_germline/CPCT12345678R.sage.gene.coverage.tsv",
-    "sage_germline/CPCT12345678T.sage.bqr.png",
-    "sage_germline/CPCT12345678T.sage.bqr.tsv",
-    "sage_germline/CPCT12345678T.sage.germline.filtered.vcf.gz",
-    "sage_germline/CPCT12345678T.sage.germline.filtered.vcf.gz.tbi",
-    "sage_germline/CPCT12345678T.sage.germline.vcf.gz",
-    "sage_germline/CPCT12345678T.sage.germline.vcf.gz.tbi",
-    "sage_germline/run.log",
-    "sage_germline/run.sh"]>

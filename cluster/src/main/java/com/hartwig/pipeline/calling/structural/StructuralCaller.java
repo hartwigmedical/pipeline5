@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.calling.structural;
 
+import static java.lang.String.format;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +23,8 @@ import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.unix.ExportPathCommand;
-import com.hartwig.pipeline.metadata.AddDatatypeToFile;
+import com.hartwig.pipeline.metadata.AddDatatype;
+import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
@@ -121,11 +124,9 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
                         s -> !s.contains("working") || s.endsWith("bam.sv.bam") || s.endsWith("bam.sv.bam.bai")))
                 .addReportComponents(new RunLogComponent(bucket, NAMESPACE, Folder.root(), resultsDirectory))
                 .addReportComponents(new StartupScriptComponent(bucket, NAMESPACE, Folder.root()))
-                .addFurtherOperations(new AddDatatypeToFile(DataType.STRUCTURAL_VARIANTS_GRIDSS,
-                        Folder.root(),
-                        namespace(),
-                        basename(unfilteredVcf),
-                        metadata.barcode()))
+                .addFurtherOperations(new AddDatatype(DataType.STRUCTURAL_VARIANTS_GRIDSS,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), basename(unfilteredVcf))))
                 .build();
     }
 
@@ -142,7 +143,7 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
                         .orElse(GoogleStorageLocation.of(metadata.bucket(),
                                 PersistedLocations.blobForSet(metadata.set(),
                                         namespace(),
-                                        String.format("%s.%s.%s",
+                                        format("%s.%s.%s",
                                                 metadata.tumor().sampleName(),
                                                 GridssAnnotation.GRIDSS_ANNOTATED,
                                                 FileTypes.GZIPPED_VCF))));

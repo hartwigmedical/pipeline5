@@ -1,12 +1,15 @@
 package com.hartwig.pipeline.calling.sage;
 
+import static java.lang.String.format;
+
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
-import com.hartwig.pipeline.metadata.AddDatatypeToFile;
+import com.hartwig.pipeline.metadata.AddDatatype;
+import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.Folder;
@@ -65,7 +68,9 @@ public abstract class SageCaller extends TertiaryStage<SageOutput> {
                 .addReportComponents(vcfComponent(filteredOutputFile, bucket, resultsDirectory))
                 .addReportComponents(new RunLogComponent(bucket, namespace(), Folder.root(), resultsDirectory))
                 .addReportComponents(new StartupScriptComponent(bucket, namespace(), Folder.root()))
-                .addFurtherOperations(new AddDatatypeToFile(dataType, Folder.root(), namespace(), filteredOutputFile, metadata.barcode()));
+                .addFurtherOperations(new AddDatatype(dataType,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), filteredOutputFile)));
     }
 
     @Override
@@ -91,7 +96,7 @@ public abstract class SageCaller extends TertiaryStage<SageOutput> {
 
     private ReportComponent bqrComponent(final SingleSampleRunMetadata metadata, final String extension, final RuntimeBucket bucket,
             final ResultsDirectory resultsDirectory) {
-        String filename = String.format("%s.sage.bqr.%s", metadata.sampleName(), extension);
+        String filename = format("%s.sage.bqr.%s", metadata.sampleName(), extension);
         return singleFileComponent(filename, bucket, resultsDirectory);
     }
 

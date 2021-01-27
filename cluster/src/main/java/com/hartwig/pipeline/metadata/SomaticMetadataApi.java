@@ -6,5 +6,7 @@ public interface SomaticMetadataApi {
 
     SomaticRunMetadata get();
 
+    void start();
+
     void complete(PipelineState state, SomaticRunMetadata metadata);
 }

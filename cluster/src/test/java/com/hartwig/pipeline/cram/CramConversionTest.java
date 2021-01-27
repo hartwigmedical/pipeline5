@@ -10,16 +10,18 @@ import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.metadata.AddDatatypeToFile;
+import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.ApiFileOperation;
+import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
+import com.hartwig.pipeline.metadata.SingleSampleRunMetadata.SampleType;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.StageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
 public class CramConversionTest extends StageTest<CramOutput, SingleSampleRunMetadata> {
-    private static String BUCKET_NAME = "run-reference-test";
+    private static final String BUCKET_NAME = "run-reference-test";
 
     @Override
     protected Arguments createDisabledArguments() {
@@ -38,7 +40,7 @@ public class CramConversionTest extends StageTest<CramOutput, SingleSampleRunMet
 
     @Override
     protected Stage<CramOutput, SingleSampleRunMetadata> createVictim() {
-        return new CramConversion(TestInputs.referenceAlignmentOutput(), TestInputs.REF_GENOME_38_RESOURCE_FILES);
+        return new CramConversion(TestInputs.referenceAlignmentOutput(), SampleType.REFERENCE, TestInputs.REF_GENOME_38_RESOURCE_FILES);
     }
 
     @Override
@@ -86,15 +88,11 @@ public class CramConversionTest extends StageTest<CramOutput, SingleSampleRunMet
 
     @Override
     protected List<ApiFileOperation> expectedFurtherOperations() {
-        return List.of(new AddDatatypeToFile(DataType.ALIGNED_READS,
-                        Folder.from(TestInputs.referenceRunMetadata()),
-                        CramConversion.NAMESPACE,
-                        "reference.cram",
-                        TestInputs.referenceRunMetadata().barcode()),
-                new AddDatatypeToFile(DataType.ALIGNED_READS_INDEX,
-                        Folder.from(TestInputs.referenceRunMetadata()),
-                        CramConversion.NAMESPACE,
-                        "reference.cram.crai",
-                        TestInputs.referenceRunMetadata().barcode()));
+        return List.of(new AddDatatype(DataType.ALIGNED_READS,
+                        TestInputs.referenceRunMetadata().barcode(),
+                        new ArchivePath(Folder.from(TestInputs.referenceRunMetadata()), CramConversion.NAMESPACE, "reference.cram")),
+                new AddDatatype(DataType.ALIGNED_READS_INDEX,
+                        TestInputs.referenceRunMetadata().barcode(),
+                        new ArchivePath(Folder.from(TestInputs.referenceRunMetadata()), CramConversion.NAMESPACE, "reference.cram.crai")));
     }
 }

@@ -19,6 +19,4 @@ public interface SbpRun {
     SbpSet set();
 
     String status();
-
-    Optional<SbpRunResult> result();
 }

@@ -48,6 +48,11 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
     }
 
     @Override
+    public String amberSnpcheck() {
+        throw new UnsupportedOperationException("No hg38 version available");
+    }
+
+    @Override
     public String gridssRepeatMaskerDb() {
         return formPath(GRIDSS_REPEAT_MASKER_DB, "hg38.fa.out");
     }
@@ -90,6 +95,11 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
     @Override
     public String sageGermlineCodingPanel() {
         return formPath(SAGE, "ActionableCodingPanel.germline.hg38.bed.gz");
+    }
+
+    @Override
+    public String sageGermlineCoveragePanel() {
+        return formPath(SAGE, "CoverageCodingPanel.germline.hg38.bed.gz");
     }
 
     @Override

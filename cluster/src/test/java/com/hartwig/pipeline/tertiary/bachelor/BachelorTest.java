@@ -7,7 +7,12 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.datatypes.DataType;
+import com.hartwig.pipeline.metadata.AddDatatype;
+import com.hartwig.pipeline.metadata.ApiFileOperation;
+import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
+import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
@@ -25,7 +30,10 @@ public class BachelorTest extends TertiaryStageTest<BachelorOutput> {
 
     @Override
     protected Stage<BachelorOutput, SomaticRunMetadata> createVictim() {
-        return new Bachelor(TestInputs.REG_GENOME_37_RESOURCE_FILES, TestInputs.purpleOutput(), TestInputs.tumorAlignmentOutput(), TestInputs.germlineCallerOutput());
+        return new Bachelor(TestInputs.REG_GENOME_37_RESOURCE_FILES,
+                TestInputs.purpleOutput(),
+                TestInputs.tumorAlignmentOutput(),
+                TestInputs.germlineCallerOutput());
     }
 
     @Override
@@ -44,6 +52,13 @@ public class BachelorTest extends TertiaryStageTest<BachelorOutput> {
                 + "-xml_config /opt/resources/bachelor_config/37/bachelor_hmf.xml -ext_filter_file "
                 + "/opt/resources/bachelor_config/37/bachelor_clinvar_filters.csv -ref_genome "
                 + "/opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta -include_vcf_filtered -output_dir /data/output -log_debug");
+    }
+
+    @Override
+    protected List<ApiFileOperation> expectedFurtherOperations() {
+        return List.of(new AddDatatype(DataType.BACHELOR,
+                TestInputs.defaultSomaticRunMetadata().barcode(),
+                new ArchivePath(Folder.root(), Bachelor.NAMESPACE, "tumor.bachelor.germline_variant.tsv")));
     }
 
     @Override

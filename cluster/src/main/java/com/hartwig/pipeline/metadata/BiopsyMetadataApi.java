@@ -56,7 +56,12 @@ public class BiopsyMetadataApi implements SomaticMetadataApi {
     }
 
     @Override
-    public void complete(final PipelineState state, final SomaticRunMetadata metadata) {
+    public void start() {
+        // do nothing
+    }
 
+    @Override
+    public void complete(final PipelineState state, final SomaticRunMetadata metadata) {
+        // do nothing
     }
 }

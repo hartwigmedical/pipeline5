@@ -14,13 +14,13 @@ public interface Versions {
     String SAMBAMBA = "0.6.8";
     String GATK = "3.8.0";
     String BCF_TOOLS = "1.9";
-    String SAGE = "2.5";
+    String SAGE = "2.6";
     String SNPEFF = "4.3s";
     String TABIX = "0.2.6";
     String AMBER = "3.4";
     String COBALT = "1.11";
     String HEALTH_CHECKER = "3.2";
-    String PURPLE = "2.51";
+    String PURPLE = "2.52";
     String CIRCOS = "0.69.6";
     String GRIDSS = "2.9.4";
     String GRIPSS = "1.10";
@@ -70,6 +70,6 @@ public interface Versions {
     }
 
     static String imageVersion() {
-        return "5-18";
+        return "5-19";
     }
 }

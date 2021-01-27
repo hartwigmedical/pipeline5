@@ -25,7 +25,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
 
     @Value.Default
     default long workingDiskSpaceGb() {
-        return 900L;
+        return 1200L;
     }
 
     BashStartupScript startupCommand();
@@ -44,9 +44,6 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
         int floor = Math.toIntExact(workingDiskSpaceGb() / localSsdDeviceSizeGb);
         long remainder = workingDiskSpaceGb() % localSsdDeviceSizeGb;
         if (remainder != 0) {
-            floor++;
-        }
-        if (floor % 2 != 0) {
             floor++;
         }
         return floor;

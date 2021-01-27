@@ -69,6 +69,7 @@ public class PipelineMain {
                     .tumorBarcode(somaticRunMetadata.maybeTumor().map(SingleSampleRunMetadata::barcode))
                     .type(ini)
                     .build();
+            somaticMetadataApi.start();
             startedEvent(eventSubjects, publisher, arguments.publishToTurquoise());
             BlockingQueue<BamMetricsOutput> referenceBamMetricsOutputQueue = new ArrayBlockingQueue<>(1);
             BlockingQueue<BamMetricsOutput> tumorBamMetricsOutputQueue = new ArrayBlockingQueue<>(1);
@@ -88,7 +89,9 @@ public class PipelineMain {
                     isSingleSample,
                     somaticRunMetadata.set(),
                     referenceBamMetricsOutputQueue,
-                    germlineCallerOutputQueue, referenceFlagstatOutputQueue, startingPoint,
+                    germlineCallerOutputQueue,
+                    referenceFlagstatOutputQueue,
+                    startingPoint,
                     persistedDataset),
                     singleSamplePipeline(arguments,
                             credentials,
@@ -97,7 +100,9 @@ public class PipelineMain {
                             isSingleSample,
                             somaticRunMetadata.set(),
                             tumorBamMetricsOutputQueue,
-                            germlineCallerOutputQueue, tumorFlagstatOutputQueue, startingPoint,
+                            germlineCallerOutputQueue,
+                            tumorFlagstatOutputQueue,
+                            startingPoint,
                             persistedDataset),
                     somaticPipeline(arguments,
                             credentials,
@@ -165,7 +170,8 @@ public class PipelineMain {
     private static SingleSamplePipeline singleSamplePipeline(final Arguments arguments, final GoogleCredentials credentials,
             final Storage storage, final SingleSampleEventListener eventListener, final Boolean isStandalone, final String runName,
             final BlockingQueue<BamMetricsOutput> metricsOutputQueue, final BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue,
-            final BlockingQueue<FlagstatOutput> flagstatOutputQueue, final StartingPoint startingPoint, final PersistedDataset persistedDataset) throws Exception {
+            final BlockingQueue<FlagstatOutput> flagstatOutputQueue, final StartingPoint startingPoint,
+            final PersistedDataset persistedDataset) throws Exception {
 
         return new SingleSamplePipeline(eventListener,
                 new StageRunner<>(storage,
