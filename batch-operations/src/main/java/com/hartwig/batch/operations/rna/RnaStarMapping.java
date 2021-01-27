@@ -61,7 +61,7 @@ public class RnaStarMapping implements BatchOperation {
         final RefGenomeVersion refGenomeVersion = batchItems.length >= 2 ? RefGenomeVersion.valueOf(batchItems[1]) : V37;
 
         if(batchItems.length >= 3) {
-            final String fastqFilelist = batchItems[1];
+            final String fastqFilelist = batchItems[2];
 
             final List<String> sampleFastqFiles = getSampleFastqFileList(sampleId, fastqFilelist);
 

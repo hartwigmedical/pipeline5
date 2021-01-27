@@ -164,7 +164,7 @@ public class RnaIsofox implements BatchOperation {
 
         isofoxArgs.append(String.format(" -threads %s", threadCount));
 
-        startupScript.addCommand(() -> format("java -Xmx40G -jar %s/%s %s", VmDirectories.TOOLS, ISOFOX_JAR, isofoxArgs.toString()));
+        startupScript.addCommand(() -> format("java -Xmx60G -jar %s/%s %s", VmDirectories.TOOLS, ISOFOX_JAR, isofoxArgs.toString()));
 
         // upload the results
         startupScript.addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), "isofox"), executionFlags));
@@ -185,7 +185,7 @@ public class RnaIsofox implements BatchOperation {
 
         return ImmutableVirtualMachineJobDefinition.builder().name("rna-isofox").startupCommand(startupScript)
                 .namespacedResults(ResultsDirectory.defaultDirectory()).workingDiskSpaceGb(requiredGb)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(12, 48)).build();
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(12, 64)).build();
     }
 
     @Override
