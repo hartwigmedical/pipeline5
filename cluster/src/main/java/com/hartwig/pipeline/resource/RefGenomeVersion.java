@@ -2,7 +2,8 @@ package com.hartwig.pipeline.resource;
 
 public enum RefGenomeVersion {
     V37("hg19", "HG37", "37", "37", "HG19"),
-    V38("hg38", "HG38", "38", "38", "HG38");
+    V38("hg38", "HG38", "38", "38", "HG38"),
+    V38_ALT("hg38", "HG38", "38", "38_ALT", "HG38");
 
     private final String sage;
     private final String linx;
