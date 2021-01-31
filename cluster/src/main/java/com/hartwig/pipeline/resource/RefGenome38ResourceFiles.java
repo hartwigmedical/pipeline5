@@ -49,7 +49,7 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
 
     @Override
     public String amberSnpcheck() {
-        throw new UnsupportedOperationException("No hg38 version available");
+        return formPath(AMBER, "Amber.snpcheck.hg38.vcf");
     }
 
     @Override
