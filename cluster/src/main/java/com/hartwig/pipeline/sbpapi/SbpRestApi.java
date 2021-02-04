@@ -74,7 +74,7 @@ public class SbpRestApi {
     }
 
     public String getDataset(final String biopsyName) {
-        return returnOrThrow(api().path("datasets").queryParam("biopsy", biopsyName).queryParam("output", "condensed").request().get());
+        return returnOrThrow(api().path("datasets").path(biopsyName).queryParam("output", "condensed").request().get());
     }
 
     public WebTarget sample() {

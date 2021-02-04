@@ -28,7 +28,7 @@ public class SageGermlineCaller extends SageCaller {
 
     public SageGermlineCaller(final AlignmentPair alignmentPair, final ResourceFiles resourceFiles,
             final PersistedDataset persistedDataset) {
-        super(alignmentPair, persistedDataset, DataType.SOMATIC_VARIANTS_SAGE);
+        super(alignmentPair, persistedDataset, DataType.GERMLINE_VARIANTS_SAGE);
         this.resourceFiles = resourceFiles;
     }
 
