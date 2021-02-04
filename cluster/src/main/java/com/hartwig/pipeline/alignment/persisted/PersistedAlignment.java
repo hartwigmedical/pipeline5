@@ -2,7 +2,7 @@ package com.hartwig.pipeline.alignment.persisted;
 
 import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
-import com.hartwig.pipeline.cram.CramConversion;
+import com.hartwig.pipeline.alignment.bwa.BwaAligner;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.PipelineStatus;
@@ -25,8 +25,8 @@ public class PersistedAlignment implements Aligner {
                 .orElse(GoogleStorageLocation.of(metadata.bucket(),
                         PersistedLocations.blobForSingle(metadata.set(),
                                 metadata.sampleName(),
-                                CramConversion.NAMESPACE,
-                                FileTypes.cram(metadata.sampleName()))));
+                                BwaAligner.NAMESPACE,
+                                FileTypes.bam(metadata.sampleName()))));
         return AlignmentOutput.builder()
                 .sample(metadata.sampleName())
                 .status(PipelineStatus.PERSISTED)
