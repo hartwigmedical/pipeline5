@@ -35,6 +35,8 @@ public class StartingPoint {
                 Flagstat.NAMESPACE,
                 SnpGenotype.NAMESPACE,
                 CramConversion.NAMESPACE)),
+        ALIGNMENT_AND_GRIDSS(concat(ALIGNMENT_COMPLETE.namespaces,
+                List.of(StructuralCaller.NAMESPACE))),
         CALLING_COMPLETE(concat(ALIGNMENT_COMPLETE.namespaces,
                 List.of(SageSomaticCaller.NAMESPACE, StructuralCaller.NAMESPACE, Cobalt.NAMESPACE, Amber.NAMESPACE))),
         GRIPSS_COMPLETE(concat(CALLING_COMPLETE.namespaces, List.of(StructuralCallerPostProcess.NAMESPACE))),

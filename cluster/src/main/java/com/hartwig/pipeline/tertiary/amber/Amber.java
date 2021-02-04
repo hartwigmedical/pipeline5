@@ -1,6 +1,5 @@
 package com.hartwig.pipeline.tertiary.amber;
 
-import java.io.File;
 import java.util.List;
 
 import com.hartwig.pipeline.Arguments;
@@ -65,11 +64,9 @@ public class Amber extends TertiaryStage<AmberOutput> {
                 .maybeOutputDirectory(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(), true))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
                 .addFurtherOperations(new AddDatatype(DataType.AMBER,
-                                metadata.barcode(),
-                                new ArchivePath(Folder.root(), namespace(), String.format("%s.amber.baf.tsv", metadata.tumor().sampleName()))),
-                        new AddDatatype(DataType.AMBER_SNPCHECK,
-                                metadata.barcode(),
-                                new ArchivePath(Folder.root(), namespace(), new File(resourceFiles.amberSnpcheck()).getName())))
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), String.format("%s.amber.baf.tsv", metadata.tumor().sampleName())))
+                )
                 .build();
     }
 
