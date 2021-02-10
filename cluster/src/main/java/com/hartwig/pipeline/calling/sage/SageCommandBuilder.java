@@ -14,6 +14,7 @@ public class SageCommandBuilder {
     private final StringJoiner referenceBam = new StringJoiner(",");
 
     private String coverageBed = "";
+    private String maxHeap = "110G";
     private boolean panelOnly = false;
     private boolean ponMode = false;
     private boolean somaticMode = true;
@@ -65,6 +66,11 @@ public class SageCommandBuilder {
     public SageCommandBuilder ponMode(String sample, String bamFile) {
         ponMode = true;
         return addTumor(sample, bamFile);
+    }
+
+    public SageCommandBuilder maxHeap(String maxHeap) {
+        this.maxHeap = maxHeap;
+        return this;
     }
 
     public SageCommand build(String outputVcf) {
@@ -123,7 +129,7 @@ public class SageCommandBuilder {
                     .add("-hard_min_tumor_raw_base_quality 30");
         }
 
-        return new SageCommand("com.hartwig.hmftools.sage.SageApplication", "110G", arguments.toString());
+        return new SageCommand("com.hartwig.hmftools.sage.SageApplication", maxHeap, arguments.toString());
     }
 
 }
