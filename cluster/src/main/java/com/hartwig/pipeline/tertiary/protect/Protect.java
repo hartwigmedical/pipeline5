@@ -103,6 +103,7 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
                 .startupCommand(bash)
                 .namespacedResults(resultsDirectory)
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 12))
+                .workingDiskSpaceGb(375)
                 .build();
     }
 
