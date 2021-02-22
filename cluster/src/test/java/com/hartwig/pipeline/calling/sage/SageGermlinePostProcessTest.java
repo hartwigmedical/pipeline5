@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.calling.SubStageTest;
-import com.hartwig.pipeline.calling.sage.SageGermlinePostProcess;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.OutputFile;
 import com.hartwig.pipeline.stages.SubStage;
@@ -19,7 +18,7 @@ public class SageGermlinePostProcessTest extends SubStageTest {
 
     @Override
     public SubStage createVictim() {
-        return new SageGermlinePostProcess("reference", "tumor", TestInputs.REG_GENOME_37_RESOURCE_FILES);
+        return new SageGermlinePostProcess("reference", "tumor", TestInputs.REF_GENOME_37_RESOURCE_FILES);
     }
 
     @Override

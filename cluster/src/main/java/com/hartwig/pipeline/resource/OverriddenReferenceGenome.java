@@ -185,4 +185,9 @@ public class OverriddenReferenceGenome implements ResourceFiles {
     public String driverGenePanel() {
         return decorated.driverGenePanel();
     }
+
+    @Override
+    public String actionabilityDir() {
+        return decorated.actionabilityDir();
+    }
 }

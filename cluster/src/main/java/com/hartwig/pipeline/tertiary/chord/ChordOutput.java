@@ -1,6 +1,9 @@
 package com.hartwig.pipeline.tertiary.chord;
 
+import java.util.Optional;
+
 import com.hartwig.pipeline.StageOutput;
+import com.hartwig.pipeline.storage.GoogleStorageLocation;
 
 import org.immutables.value.Value;
 
@@ -14,5 +17,11 @@ public interface ChordOutput extends StageOutput{
 
     static ImmutableChordOutput.Builder builder() {
         return ImmutableChordOutput.builder();
+    }
+
+    Optional<GoogleStorageLocation> maybePredictions();
+
+    default GoogleStorageLocation predictions(){
+        return maybePredictions().orElseThrow();
     }
 }

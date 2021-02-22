@@ -30,7 +30,7 @@ public class BachelorTest extends TertiaryStageTest<BachelorOutput> {
 
     @Override
     protected Stage<BachelorOutput, SomaticRunMetadata> createVictim() {
-        return new Bachelor(TestInputs.REG_GENOME_37_RESOURCE_FILES,
+        return new Bachelor(TestInputs.REF_GENOME_37_RESOURCE_FILES,
                 TestInputs.purpleOutput(),
                 TestInputs.tumorAlignmentOutput(),
                 TestInputs.germlineCallerOutput());
@@ -57,8 +57,11 @@ public class BachelorTest extends TertiaryStageTest<BachelorOutput> {
     @Override
     protected List<ApiFileOperation> expectedFurtherOperations() {
         return List.of(new AddDatatype(DataType.BACHELOR,
-                TestInputs.defaultSomaticRunMetadata().barcode(),
-                new ArchivePath(Folder.root(), Bachelor.NAMESPACE, "tumor.bachelor.germline_variant.tsv")));
+                        TestInputs.defaultSomaticRunMetadata().barcode(),
+                        new ArchivePath(Folder.root(), Bachelor.NAMESPACE, "tumor.bachelor.germline_variant.tsv")),
+                new AddDatatype(DataType.BACHELOR_REPORTABLE_VARIANTS,
+                        TestInputs.defaultSomaticRunMetadata().barcode(),
+                        new ArchivePath(Folder.root(), Bachelor.NAMESPACE, "tumor.reportable_germline_variant.tsv")));
     }
 
     @Override

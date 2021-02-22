@@ -28,14 +28,18 @@ public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
 
     public static final String NAMESPACE = "linx";
     public static final String KNOWLEDGEBASE_OUTPUT = "output/";
+    public static final String BREAKEND_TSV = ".linx.breakend.tsv";
+    public static final String DRIVERS_TSV = ".linx.drivers.tsv";
+    public static final String FUSION_TSV = ".linx.fusion.tsv";
+    public static final String VIRAL_INSERTS_TSV = ".linx.viral_inserts.tsv";
 
     private final InputDownload purpleOutputDirDownload;
     private final InputDownload purpleStructuralVcfDownload;
     private final ResourceFiles resourceFiles;
 
     public Linx(PurpleOutput purpleOutput, final ResourceFiles resourceFiles) {
-        purpleOutputDirDownload = new InputDownload(purpleOutput.outputDirectory());
-        purpleStructuralVcfDownload = new InputDownload(purpleOutput.structuralVcf());
+        purpleOutputDirDownload = new InputDownload(purpleOutput.outputLocations().outputDirectory());
+        purpleStructuralVcfDownload = new InputDownload(purpleOutput.outputLocations().structuralVcf());
         this.resourceFiles = resourceFiles;
     }
 
@@ -74,13 +78,35 @@ public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
     @Override
     public LinxOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
             final ResultsDirectory resultsDirectory) {
+        String breakendTsv = metadata.tumor().sampleName() + BREAKEND_TSV;
+        String driversTsv = metadata.tumor().sampleName() + DRIVERS_TSV;
+        String fusionsTsv = metadata.tumor().sampleName() + FUSION_TSV;
+        String viralInsertionsTsv = metadata.tumor().sampleName() + VIRAL_INSERTS_TSV;
         return LinxOutput.builder()
                 .status(jobStatus)
+                .maybeLinxOutputLocations(LinxOutputLocations.builder()
+                        .breakends(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(breakendTsv)))
+                        .drivers(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(driversTsv)))
+                        .fusions(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(fusionsTsv)))
+                        .viralInsertions(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(viralInsertionsTsv)))
+                        .build())
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), NAMESPACE, resultsDirectory))
                 .addFurtherOperations(new AddDatatype(DataType.LINX,
                         metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), metadata.tumor().sampleName() + ".linx.breakend.tsv")))
+                        new ArchivePath(Folder.root(), namespace(), breakendTsv)))
+                .addFurtherOperations(new AddDatatype(DataType.LINX_BREAKENDS,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), breakendTsv)))
+                .addFurtherOperations(new AddDatatype(DataType.LINX_DRIVERS,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), driversTsv)))
+                .addFurtherOperations(new AddDatatype(DataType.LINX_FUSION,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), fusionsTsv)))
+                .addFurtherOperations(new AddDatatype(DataType.LINX_VIRAL_INSERTS,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), viralInsertionsTsv)))
                 .build();
     }
 

@@ -30,7 +30,7 @@ public class LinxTest extends TertiaryStageTest<LinxOutput> {
 
     @Override
     protected Stage<LinxOutput, SomaticRunMetadata> createVictim() {
-        return new Linx(TestInputs.purpleOutput(), TestInputs.REG_GENOME_37_RESOURCE_FILES);
+        return new Linx(TestInputs.purpleOutput(), TestInputs.REF_GENOME_37_RESOURCE_FILES);
     }
 
     @Override
@@ -50,8 +50,20 @@ public class LinxTest extends TertiaryStageTest<LinxOutput> {
     @Override
     protected List<ApiFileOperation> expectedFurtherOperations() {
         return List.of(new AddDatatype(DataType.LINX,
-                TestInputs.defaultSomaticRunMetadata().barcode(),
-                new ArchivePath(Folder.root(), Linx.NAMESPACE, "tumor.linx.breakend.tsv")));
+                        TestInputs.defaultSomaticRunMetadata().barcode(),
+                        new ArchivePath(Folder.root(), Linx.NAMESPACE, "tumor.linx.breakend.tsv")),
+                new AddDatatype(DataType.LINX_BREAKENDS,
+                        TestInputs.defaultSomaticRunMetadata().barcode(),
+                        new ArchivePath(Folder.root(), Linx.NAMESPACE, "tumor.linx.breakend.tsv")),
+                new AddDatatype(DataType.LINX_DRIVERS,
+                        TestInputs.defaultSomaticRunMetadata().barcode(),
+                        new ArchivePath(Folder.root(), Linx.NAMESPACE, "tumor.linx.drivers.tsv")),
+                new AddDatatype(DataType.LINX_FUSION,
+                        TestInputs.defaultSomaticRunMetadata().barcode(),
+                        new ArchivePath(Folder.root(), Linx.NAMESPACE, "tumor.linx.fusion.tsv")),
+                new AddDatatype(DataType.LINX_VIRAL_INSERTS,
+                        TestInputs.defaultSomaticRunMetadata().barcode(),
+                        new ArchivePath(Folder.root(), Linx.NAMESPACE, "tumor.linx.viral_inserts.tsv")));
     }
 
     @Override
