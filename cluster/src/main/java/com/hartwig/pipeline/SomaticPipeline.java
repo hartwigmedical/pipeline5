@@ -37,6 +37,7 @@ import com.hartwig.pipeline.tertiary.healthcheck.HealthCheckOutput;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthChecker;
 import com.hartwig.pipeline.tertiary.linx.Linx;
 import com.hartwig.pipeline.tertiary.linx.LinxOutput;
+import com.hartwig.pipeline.tertiary.protect.Protect;
 import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 
@@ -93,10 +94,10 @@ public class SomaticPipeline {
                         executorService.submit(() -> stageRunner.run(metadata, new Amber(pair, resourceFiles, persistedDataset)));
                 Future<CobaltOutput> cobaltOutputFuture =
                         executorService.submit(() -> stageRunner.run(metadata, new Cobalt(pair, resourceFiles, persistedDataset)));
-                Future<SageOutput> sageSomaticOutputFuture =
-                        executorService.submit(() -> stageRunner.run(metadata, new SageSomaticCaller(pair, resourceFiles, persistedDataset)));
-                Future<SageOutput> sageGermlineOutputFuture =
-                        executorService.submit(() -> stageRunner.run(metadata, new SageGermlineCaller(pair, resourceFiles, persistedDataset)));
+                Future<SageOutput> sageSomaticOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
+                        new SageSomaticCaller(pair, resourceFiles, persistedDataset)));
+                Future<SageOutput> sageGermlineOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
+                        new SageGermlineCaller(pair, resourceFiles, persistedDataset)));
                 Future<StructuralCallerOutput> structuralCallerOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                         new StructuralCaller(pair, resourceFiles, persistedDataset)));
                 AmberOutput amberOutput = pipelineResults.add(state.add(amberOutputFuture.get()));
@@ -141,9 +142,11 @@ public class SomaticPipeline {
                             Future<ChordOutput> chordOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                     new Chord(arguments.refGenomeVersion(), purpleOutput)));
                             pipelineResults.add(state.add(healthCheckOutputFuture.get()));
-                            pipelineResults.add(state.add(linxOutputFuture.get()));
-                            pipelineResults.add(state.add(bachelorOutputFuture.get()));
-                            pipelineResults.add(state.add(chordOutputFuture.get()));
+                            LinxOutput linxOutput = pipelineResults.add(state.add(linxOutputFuture.get()));
+                            BachelorOutput bachelorOutput = pipelineResults.add(state.add(bachelorOutputFuture.get()));
+                            ChordOutput chordOutput = pipelineResults.add(state.add(chordOutputFuture.get()));
+                            pipelineResults.add(state.add(executorService.submit(() -> stageRunner.run(metadata,
+                                    new Protect(purpleOutput, bachelorOutput, linxOutput, chordOutput, resourceFiles))).get()));
                             pipelineResults.compose(metadata);
                         }
                     }

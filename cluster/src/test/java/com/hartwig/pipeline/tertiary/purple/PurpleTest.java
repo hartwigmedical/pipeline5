@@ -34,7 +34,7 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
 
     @Override
     protected Stage<PurpleOutput, SomaticRunMetadata> createVictim() {
-        return new Purple(TestInputs.REG_GENOME_37_RESOURCE_FILES,
+        return new Purple(TestInputs.REF_GENOME_37_RESOURCE_FILES,
                 TestInputs.sageSomaticOutput(),
                 TestInputs.sageGermlineOutput(),
                 TestInputs.structuralCallerPostProcessOutput(),
@@ -90,22 +90,24 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
     @Override
     protected void validateOutput(final PurpleOutput output) {
         String bucketName = expectedRuntimeBucketName() + "/" + Purple.NAMESPACE;
-        assertThat(output.outputDirectory().bucket()).isEqualTo(bucketName);
-        assertThat(output.outputDirectory().path()).isEqualTo("results");
-        assertThat(output.outputDirectory().isDirectory()).isTrue();
-        assertThat(output.somaticVcf().bucket()).isEqualTo(bucketName);
-        assertThat(output.somaticVcf().path()).isEqualTo("results/" + TUMOR_PURPLE_SOMATIC_VCF_GZ);
-        assertThat(output.somaticVcf().isDirectory()).isFalse();
-        assertThat(output.structuralVcf().bucket()).isEqualTo(bucketName);
-        assertThat(output.structuralVcf().path()).isEqualTo("results/" + TUMOR_PURPLE_SV_VCF_GZ);
-        assertThat(output.structuralVcf().isDirectory()).isFalse();
+        assertThat(output.outputLocations().outputDirectory().bucket()).isEqualTo(bucketName);
+        assertThat(output.outputLocations().outputDirectory().path()).isEqualTo("results");
+        assertThat(output.outputLocations().outputDirectory().isDirectory()).isTrue();
+        assertThat(output.outputLocations().somaticVcf().bucket()).isEqualTo(bucketName);
+        assertThat(output.outputLocations().somaticVcf().path()).isEqualTo("results/" + TUMOR_PURPLE_SOMATIC_VCF_GZ);
+        assertThat(output.outputLocations().somaticVcf().isDirectory()).isFalse();
+        assertThat(output.outputLocations().structuralVcf().bucket()).isEqualTo(bucketName);
+        assertThat(output.outputLocations().structuralVcf().path()).isEqualTo("results/" + TUMOR_PURPLE_SV_VCF_GZ);
+        assertThat(output.outputLocations().structuralVcf().isDirectory()).isFalse();
     }
 
     @Override
     protected void validatePersistedOutput(final PurpleOutput output) {
-        assertThat(output.outputDirectory()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "set/purple", true));
-        assertThat(output.somaticVcf()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "set/purple/" + TUMOR_PURPLE_SOMATIC_VCF_GZ));
-        assertThat(output.structuralVcf()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "set/purple/" + TUMOR_PURPLE_SV_VCF_GZ));
+        assertThat(output.outputLocations().outputDirectory()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "set/purple", true));
+        assertThat(output.outputLocations().somaticVcf()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
+                "set/purple/" + TUMOR_PURPLE_SOMATIC_VCF_GZ));
+        assertThat(output.outputLocations().structuralVcf()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
+                "set/purple/" + TUMOR_PURPLE_SV_VCF_GZ));
     }
 
     @Override
@@ -116,9 +118,9 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
 
     @Override
     protected void validatePersistedOutputFromPersistedDataset(final PurpleOutput output) {
-        assertThat(output.outputDirectory()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "purple", true));
-        assertThat(output.somaticVcf()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "purple/" + TUMOR_PURPLE_SOMATIC_VCF_GZ));
-        assertThat(output.structuralVcf()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "purple/" + TUMOR_PURPLE_SV_VCF_GZ));
+        assertThat(output.outputLocations().outputDirectory()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "purple", true));
+        assertThat(output.outputLocations().somaticVcf()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "purple/" + TUMOR_PURPLE_SOMATIC_VCF_GZ));
+        assertThat(output.outputLocations().structuralVcf()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "purple/" + TUMOR_PURPLE_SV_VCF_GZ));
     }
 
     @Override

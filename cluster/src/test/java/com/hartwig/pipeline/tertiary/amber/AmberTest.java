@@ -26,13 +26,13 @@ public class AmberTest extends TertiaryStageTest<AmberOutput> {
 
     @Override
     protected Stage<AmberOutput, SomaticRunMetadata> createVictim() {
-        return new Amber(TestInputs.defaultPair(), TestInputs.REG_GENOME_37_RESOURCE_FILES, persistedDataset);
+        return new Amber(TestInputs.defaultPair(), TestInputs.REF_GENOME_37_RESOURCE_FILES, persistedDataset);
     }
 
     @Override
     protected List<ApiFileOperation> expectedFurtherOperations() {
-        String basenameSnpcheck = TestInputs.REG_GENOME_37_RESOURCE_FILES.amberSnpcheck()
-                .substring(TestInputs.REG_GENOME_37_RESOURCE_FILES.amberSnpcheck().lastIndexOf("/") + 1);
+        String basenameSnpcheck = TestInputs.REF_GENOME_37_RESOURCE_FILES.amberSnpcheck()
+                .substring(TestInputs.REF_GENOME_37_RESOURCE_FILES.amberSnpcheck().lastIndexOf("/") + 1);
         return List.of(new AddDatatype(DataType.AMBER,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
                         new ArchivePath(Folder.root(), Amber.NAMESPACE, "tumor.amber.baf.tsv")),

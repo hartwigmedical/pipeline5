@@ -192,4 +192,9 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
     public String driverGenePanel() {
         return formPath(GENE_PANEL, "DriverGenePanel.hg38.tsv");
     }
+
+    @Override
+    public String actionabilityDir() {
+        throw new UnsupportedOperationException("Running PROTECT is not yet supported on HG38 as we do not have the SERVE input.");
+    }
 }

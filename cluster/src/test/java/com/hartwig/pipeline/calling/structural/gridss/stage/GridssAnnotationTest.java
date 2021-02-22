@@ -13,7 +13,7 @@ public class GridssAnnotationTest extends SubStageTest {
 
     @Override
     public SubStage createVictim() {
-        return new GridssAnnotation(TestInputs.REG_GENOME_37_RESOURCE_FILES, true);
+        return new GridssAnnotation(TestInputs.REF_GENOME_37_RESOURCE_FILES, true);
     }
 
     @Override

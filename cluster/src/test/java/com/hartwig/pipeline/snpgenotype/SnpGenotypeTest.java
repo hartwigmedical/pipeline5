@@ -30,7 +30,7 @@ public class SnpGenotypeTest extends StageTest<SnpGenotypeOutput, SingleSampleRu
 
     @Override
     protected Stage<SnpGenotypeOutput, SingleSampleRunMetadata> createVictim() {
-        return new SnpGenotype(TestInputs.REG_GENOME_37_RESOURCE_FILES, TestInputs.referenceAlignmentOutput());
+        return new SnpGenotype(TestInputs.REF_GENOME_37_RESOURCE_FILES, TestInputs.referenceAlignmentOutput());
     }
 
     @Override

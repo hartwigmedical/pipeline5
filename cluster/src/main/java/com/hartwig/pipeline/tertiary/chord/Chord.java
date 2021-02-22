@@ -26,6 +26,7 @@ import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 
 public class Chord implements Stage<ChordOutput, SomaticRunMetadata> {
     public static final String NAMESPACE = "chord";
+    public static final String PREDICTION_TXT = "_chord_prediction.txt";
 
     private final RefGenomeVersion refGenomeVersion;
     private final InputDownload purpleStructuralVcfDownload;
@@ -33,8 +34,8 @@ public class Chord implements Stage<ChordOutput, SomaticRunMetadata> {
 
     public Chord(final RefGenomeVersion refGenomeVersion, final PurpleOutput purpleOutput) {
         this.refGenomeVersion = refGenomeVersion;
-        purpleStructuralVcfDownload = new InputDownload(purpleOutput.structuralVcf());
-        purpleSomaticVcfDownload = new InputDownload(purpleOutput.somaticVcf());
+        purpleStructuralVcfDownload = new InputDownload(purpleOutput.outputLocations().structuralVcf());
+        purpleSomaticVcfDownload = new InputDownload(purpleOutput.outputLocations().somaticVcf());
     }
 
     @Override
@@ -63,13 +64,15 @@ public class Chord implements Stage<ChordOutput, SomaticRunMetadata> {
     @Override
     public ChordOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
             final ResultsDirectory resultsDirectory) {
+        String chordPredictionTxt = metadata.tumor().sampleName() + PREDICTION_TXT;
         return ChordOutput.builder()
                 .status(jobStatus)
+                .maybePredictions(GoogleStorageLocation.of(bucket.name(), chordPredictionTxt))
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
                 .addFurtherOperations(new AddDatatype(DataType.CHORD_PREDICTION,
                         metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), metadata.tumor().sampleName() + "_chord_prediction.txt")))
+                        new ArchivePath(Folder.root(), namespace(), chordPredictionTxt)))
                 .build();
     }
 

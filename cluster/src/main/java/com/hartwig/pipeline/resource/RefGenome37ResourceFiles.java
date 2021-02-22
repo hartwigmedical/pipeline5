@@ -14,6 +14,7 @@ import static com.hartwig.pipeline.resource.ResourceNames.KNOWLEDGEBASES;
 import static com.hartwig.pipeline.resource.ResourceNames.MAPPABILITY;
 import static com.hartwig.pipeline.resource.ResourceNames.REFERENCE_GENOME;
 import static com.hartwig.pipeline.resource.ResourceNames.SAGE;
+import static com.hartwig.pipeline.resource.ResourceNames.SERVE;
 import static com.hartwig.pipeline.resource.ResourceNames.SNPEFF;
 import static com.hartwig.pipeline.resource.ResourceNames.SV;
 
@@ -193,5 +194,10 @@ public class RefGenome37ResourceFiles implements ResourceFiles {
     @Override
     public String knownFusionData() {
         return formPath(KNOWLEDGEBASES, "known_fusion_data.csv");
+    }
+
+    @Override
+    public String actionabilityDir() {
+        return formPath(SERVE, "");
     }
 }

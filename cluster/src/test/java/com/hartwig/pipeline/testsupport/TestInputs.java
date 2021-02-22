@@ -28,15 +28,21 @@ import com.hartwig.pipeline.snpgenotype.SnpGenotypeOutput;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.tertiary.amber.Amber;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
+import com.hartwig.pipeline.tertiary.bachelor.Bachelor;
 import com.hartwig.pipeline.tertiary.bachelor.BachelorOutput;
+import com.hartwig.pipeline.tertiary.chord.Chord;
 import com.hartwig.pipeline.tertiary.chord.ChordOutput;
 import com.hartwig.pipeline.tertiary.cobalt.Cobalt;
 import com.hartwig.pipeline.tertiary.cobalt.CobaltOutput;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthCheckOutput;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthChecker;
+import com.hartwig.pipeline.tertiary.linx.Linx;
 import com.hartwig.pipeline.tertiary.linx.LinxOutput;
+import com.hartwig.pipeline.tertiary.linx.LinxOutputLocations;
+import com.hartwig.pipeline.tertiary.protect.ProtectOutput;
 import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
+import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -50,7 +56,7 @@ public class TestInputs {
     public static final String TUMOR_BUCKET = "run-" + TUMOR_SAMPLE + "-test";
     public static final String SOMATIC_BUCKET = "run-" + REFERENCE_SAMPLE + "-" + TUMOR_SAMPLE + "-test";
 
-    public static final ResourceFiles REG_GENOME_37_RESOURCE_FILES = new RefGenome37ResourceFiles();
+    public static final ResourceFiles REF_GENOME_37_RESOURCE_FILES = new RefGenome37ResourceFiles();
     public static final ResourceFiles REF_GENOME_38_RESOURCE_FILES = new RefGenome38ResourceFiles();
     public static final String SET = "set";
     public static final String ID = "id";
@@ -175,14 +181,16 @@ public class TestInputs {
     public static SageOutput sageGermlineOutput() {
         return SageOutput.builder(SageGermlineCaller.NAMESPACE)
                 .status(PipelineStatus.SUCCESS)
-                .maybeFinalVcf(gsLocation(somaticBucket(SageGermlineCaller.NAMESPACE), RESULTS + TUMOR_SAMPLE + ".germline." + FileTypes.GZIPPED_VCF))
+                .maybeFinalVcf(gsLocation(somaticBucket(SageGermlineCaller.NAMESPACE),
+                        RESULTS + TUMOR_SAMPLE + ".germline." + FileTypes.GZIPPED_VCF))
                 .build();
     }
 
     public static SageOutput sageSomaticOutput() {
         return SageOutput.builder(SageSomaticCaller.NAMESPACE)
                 .status(PipelineStatus.SUCCESS)
-                .maybeFinalVcf(gsLocation(somaticBucket(SageSomaticCaller.NAMESPACE), RESULTS + TUMOR_SAMPLE + ".somatic." + FileTypes.GZIPPED_VCF))
+                .maybeFinalVcf(gsLocation(somaticBucket(SageSomaticCaller.NAMESPACE),
+                        RESULTS + TUMOR_SAMPLE + ".somatic." + FileTypes.GZIPPED_VCF))
                 .build();
     }
 
@@ -234,14 +242,22 @@ public class TestInputs {
     public static PurpleOutput purpleOutput() {
         return PurpleOutput.builder()
                 .status(PipelineStatus.SUCCESS)
-                .maybeOutputDirectory(gsLocation(somaticBucket(Purple.NAMESPACE), RESULTS))
-                .maybeSomaticVcf(gsLocation(somaticBucket(Purple.NAMESPACE), TUMOR_SAMPLE + Purple.PURPLE_SOMATIC_VCF))
-                .maybeStructuralVcf(gsLocation(somaticBucket(Purple.NAMESPACE), TUMOR_SAMPLE + Purple.PURPLE_SV_VCF))
+                .maybeOutputLocations(PurpleOutputLocations.builder()
+                        .outputDirectory(gsLocation(somaticBucket(Purple.NAMESPACE), RESULTS))
+                        .somaticVcf(gsLocation(somaticBucket(Purple.NAMESPACE), TUMOR_SAMPLE + Purple.PURPLE_SOMATIC_VCF))
+                        .structuralVcf(gsLocation(somaticBucket(Purple.NAMESPACE), TUMOR_SAMPLE + Purple.PURPLE_SV_VCF))
+                        .purityTsv(gsLocation(somaticBucket(Purple.NAMESPACE), TUMOR_SAMPLE + Purple.PURPLE_PURITY_TSV))
+                        .qcFile(gsLocation(somaticBucket(Purple.NAMESPACE), TUMOR_SAMPLE + Purple.PURPLE_QC))
+                        .driverCatalog(gsLocation(somaticBucket(Purple.NAMESPACE), TUMOR_SAMPLE + Purple.PURPLE_DRIVER_CATALOG))
+                        .build())
                 .build();
     }
 
     public static ChordOutput chordOutput() {
-        return ChordOutput.builder().status(PipelineStatus.SUCCESS).build();
+        return ChordOutput.builder()
+                .status(PipelineStatus.SUCCESS)
+                .maybePredictions(gsLocation(somaticBucket(Chord.NAMESPACE), TUMOR_SAMPLE + Chord.PREDICTION_TXT))
+                .build();
     }
 
     public static HealthCheckOutput healthCheckerOutput() {
@@ -256,11 +272,26 @@ public class TestInputs {
     }
 
     public static LinxOutput linxOutput() {
-        return LinxOutput.builder().status(PipelineStatus.SUCCESS).build();
+        return LinxOutput.builder()
+                .status(PipelineStatus.SUCCESS)
+                .maybeLinxOutputLocations(LinxOutputLocations.builder()
+                        .breakends(gsLocation(somaticBucket(Linx.NAMESPACE), TUMOR_SAMPLE + Linx.BREAKEND_TSV))
+                        .drivers(gsLocation(somaticBucket(Linx.NAMESPACE), TUMOR_SAMPLE + Linx.DRIVERS_TSV))
+                        .fusions(gsLocation(somaticBucket(Linx.NAMESPACE), TUMOR_SAMPLE + Linx.FUSION_TSV))
+                        .viralInsertions(gsLocation(somaticBucket(Linx.NAMESPACE), TUMOR_SAMPLE + Linx.VIRAL_INSERTS_TSV))
+                        .build())
+                .build();
     }
 
     public static BachelorOutput bachelorOutput() {
-        return BachelorOutput.builder().status(PipelineStatus.SUCCESS).build();
+        return BachelorOutput.builder()
+                .status(PipelineStatus.SUCCESS)
+                .maybeVariants(gsLocation(somaticBucket(Bachelor.NAMESPACE), TUMOR_SAMPLE + Bachelor.VARIANT_TSV))
+                .build();
+    }
+
+    public static ProtectOutput protectOutput() {
+        return ProtectOutput.builder().status(PipelineStatus.SUCCESS).build();
     }
 
     private static GoogleStorageLocation gsLocation(final String bucket, final String path) {

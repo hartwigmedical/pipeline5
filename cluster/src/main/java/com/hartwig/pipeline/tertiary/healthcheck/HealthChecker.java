@@ -47,7 +47,7 @@ public class HealthChecker implements Stage<HealthCheckOutput, SomaticRunMetadat
         tumorMetricsDownload = new InputDownload(tumorMetricsOutput.metricsOutputFile(), localMetricsPath(tumorMetricsOutput));
         referenceFlagstatDownload = new InputDownload(referenceFlagstatOutput.flagstatOutputFile(), localFlagstatPath(referenceFlagstatOutput));
         tumorFlagstatDownload = new InputDownload(tumorFlagstatOutput.flagstatOutputFile(), localFlagstatPath(tumorFlagstatOutput));
-        purpleDownload = new InputDownload(purpleOutput.outputDirectory(), LOCAL_PURPLE_DIR);
+        purpleDownload = new InputDownload(purpleOutput.outputLocations().outputDirectory(), LOCAL_PURPLE_DIR);
     }
 
     @Override
