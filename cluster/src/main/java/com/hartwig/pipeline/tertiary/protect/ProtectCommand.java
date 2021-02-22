@@ -3,6 +3,7 @@ package com.hartwig.pipeline.tertiary.protect;
 import java.util.List;
 
 import com.hartwig.pipeline.execution.vm.JavaJarCommand;
+import com.hartwig.pipeline.tools.Versions;
 
 public class ProtectCommand extends JavaJarCommand {
 
@@ -11,8 +12,7 @@ public class ProtectCommand extends JavaJarCommand {
             final String purpleQCFilePath, final String purpleDriverCatalogPath, final String purpleSomaticVariantsPath,
             final String bachelorTsvPath, final String linxFusionTsvPath, final String linxBreakendTsvPath, final String linxDriversTsvPath,
             final String linxViralInsertionsTsvPath, final String chordPredictionPath) {
-        super("protect",
-                "1.1",
+        super("protect", Versions.PROTECT,
                 "protect.jar",
                 "8G",
                 List.of("-tumor_sample_id",
