@@ -19,9 +19,9 @@ public interface BachelorOutput extends StageOutput {
         return ImmutableBachelorOutput.builder();
     }
 
-    Optional<GoogleStorageLocation> maybeVariants();
+    Optional<GoogleStorageLocation> maybeReportableVariants();
 
-    default GoogleStorageLocation variants() {
-        return maybeVariants().orElseThrow();
+    default GoogleStorageLocation reportableVariants() {
+        return maybeReportableVariants().orElseThrow();
     }
 }

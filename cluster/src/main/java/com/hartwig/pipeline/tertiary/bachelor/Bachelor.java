@@ -30,7 +30,7 @@ import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 public class Bachelor implements Stage<BachelorOutput, SomaticRunMetadata> {
 
     public static final String NAMESPACE = "bachelor";
-    public static final String VARIANT_TSV = ".bachelor.germline_variant.tsv";
+    public static final String REPORTABLE_VARIANT_TSV = ".reportable_germline_variant.tsv";
 
     private final ResourceFiles resourceFiles;
     private final InputDownload purpleOutputDownload;
@@ -79,10 +79,10 @@ public class Bachelor implements Stage<BachelorOutput, SomaticRunMetadata> {
     @Override
     public BachelorOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
             final ResultsDirectory resultsDirectory) {
-        String bachelorVariantsTsv = metadata.tumor().sampleName() + VARIANT_TSV;
+        String bachelorVariantsTsv = metadata.tumor().sampleName() + REPORTABLE_VARIANT_TSV;
         return BachelorOutput.builder()
                 .status(jobStatus)
-                .maybeVariants(GoogleStorageLocation.of(bucket.name(), bachelorVariantsTsv))
+                .maybeReportableVariants(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(bachelorVariantsTsv)))
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), NAMESPACE, resultsDirectory))
                 .addFurtherOperations(new AddDatatype(DataType.BACHELOR,

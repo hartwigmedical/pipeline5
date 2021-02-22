@@ -13,7 +13,7 @@ public class ProtectCommand extends JavaJarCommand {
             final String linxViralInsertionsTsvPath, final String chordPredictionPath) {
         super("protect",
                 "1.1",
-                "protect",
+                "protect.jar",
                 "8G",
                 List.of("-tumor_sample_id",
                         tumorSample,

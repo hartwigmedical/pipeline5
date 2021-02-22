@@ -286,7 +286,7 @@ public class TestInputs {
     public static BachelorOutput bachelorOutput() {
         return BachelorOutput.builder()
                 .status(PipelineStatus.SUCCESS)
-                .maybeVariants(gsLocation(somaticBucket(Bachelor.NAMESPACE), TUMOR_SAMPLE + Bachelor.VARIANT_TSV))
+                .maybeReportableVariants(gsLocation(somaticBucket(Bachelor.NAMESPACE), TUMOR_SAMPLE + Bachelor.REPORTABLE_VARIANT_TSV))
                 .build();
     }
 

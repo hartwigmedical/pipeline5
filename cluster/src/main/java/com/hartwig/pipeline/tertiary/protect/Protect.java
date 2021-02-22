@@ -48,7 +48,7 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
         this.purpleQCFile = new InputDownload(purpleOutput.outputLocations().qcFile());
         this.purpleDriverCatalog = new InputDownload(purpleOutput.outputLocations().driverCatalog());
         this.purpleSomaticVariants = new InputDownload(purpleOutput.outputLocations().somaticVcf());
-        this.bachelorTsv = new InputDownload(bachelorOutput.variants());
+        this.bachelorTsv = new InputDownload(bachelorOutput.reportableVariants());
         this.linxFusionTsv = new InputDownload(linxOutput.linxOutputLocations().fusions());
         this.linxBreakendTsv = new InputDownload(linxOutput.linxOutputLocations().breakends());
         this.linxDriversTsv = new InputDownload(linxOutput.linxOutputLocations().drivers());
