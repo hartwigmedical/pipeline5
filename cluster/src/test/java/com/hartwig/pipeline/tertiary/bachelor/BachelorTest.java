@@ -57,8 +57,11 @@ public class BachelorTest extends TertiaryStageTest<BachelorOutput> {
     @Override
     protected List<ApiFileOperation> expectedFurtherOperations() {
         return List.of(new AddDatatype(DataType.BACHELOR,
-                TestInputs.defaultSomaticRunMetadata().barcode(),
-                new ArchivePath(Folder.root(), Bachelor.NAMESPACE, "tumor.bachelor.germline_variant.tsv")));
+                        TestInputs.defaultSomaticRunMetadata().barcode(),
+                        new ArchivePath(Folder.root(), Bachelor.NAMESPACE, "tumor.bachelor.germline_variant.tsv")),
+                new AddDatatype(DataType.BACHELOR_REPORTABLE_VARIANTS,
+                        TestInputs.defaultSomaticRunMetadata().barcode(),
+                        new ArchivePath(Folder.root(), Bachelor.NAMESPACE, "tumor.reportable_germline_variant.tsv")));
     }
 
     @Override

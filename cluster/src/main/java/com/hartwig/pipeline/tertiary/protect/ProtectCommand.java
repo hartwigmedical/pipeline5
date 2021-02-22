@@ -18,7 +18,7 @@ public class ProtectCommand extends JavaJarCommand {
                 List.of("-tumor_sample_id",
                         tumorSample,
                         "-primary_tumor_doids",
-                        String.join(";", primaryTumorDoids),
+                        primaryTumorDoids.isEmpty() ? "\"\"" : String.join(";", primaryTumorDoids),
                         "-output_dir",
                         outputDir,
                         "-serve_actionability_dir",

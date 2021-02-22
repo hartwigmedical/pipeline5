@@ -26,6 +26,9 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
 
     public static final String TUMOR_PURPLE_SOMATIC_VCF_GZ = "tumor.purple.somatic.vcf.gz";
     public static final String TUMOR_PURPLE_SV_VCF_GZ = "tumor.purple.sv.vcf.gz";
+    public static final String TUMOR_PURITY_TSV = "tumor.purple.purity.tsv";
+    public static final String TUMOR_QC = "tumor.purple.qc";
+    public static final String TUMOR_DRIVER_CATALOG = "tumor.driver.catalog.somatic.tsv";
 
     @Before
     public void setUp() throws Exception {
@@ -119,8 +122,10 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
     @Override
     protected void validatePersistedOutputFromPersistedDataset(final PurpleOutput output) {
         assertThat(output.outputLocations().outputDirectory()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "purple", true));
-        assertThat(output.outputLocations().somaticVcf()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "purple/" + TUMOR_PURPLE_SOMATIC_VCF_GZ));
-        assertThat(output.outputLocations().structuralVcf()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "purple/" + TUMOR_PURPLE_SV_VCF_GZ));
+        assertThat(output.outputLocations().somaticVcf()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
+                "purple/" + TUMOR_PURPLE_SOMATIC_VCF_GZ));
+        assertThat(output.outputLocations().structuralVcf()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
+                "purple/" + TUMOR_PURPLE_SV_VCF_GZ));
     }
 
     @Override
@@ -130,6 +135,15 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
                         new ArchivePath(Folder.root(), Purple.NAMESPACE, TUMOR_PURPLE_SOMATIC_VCF_GZ)),
                 new AddDatatype(DataType.STRUCTURAL_VARIANTS_PURPLE,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
-                        new ArchivePath(Folder.root(), Purple.NAMESPACE, TUMOR_PURPLE_SV_VCF_GZ)));
+                        new ArchivePath(Folder.root(), Purple.NAMESPACE, TUMOR_PURPLE_SV_VCF_GZ)),
+                new AddDatatype(DataType.PURPLE_PURITY,
+                        TestInputs.defaultSomaticRunMetadata().barcode(),
+                        new ArchivePath(Folder.root(), Purple.NAMESPACE, TUMOR_PURITY_TSV)),
+                new AddDatatype(DataType.PURPLE_DRIVER_CATALOG,
+                        TestInputs.defaultSomaticRunMetadata().barcode(),
+                        new ArchivePath(Folder.root(), Purple.NAMESPACE, TUMOR_DRIVER_CATALOG)),
+                new AddDatatype(DataType.PURPLE_QC,
+                        TestInputs.defaultSomaticRunMetadata().barcode(),
+                        new ArchivePath(Folder.root(), Purple.NAMESPACE, TUMOR_QC)));
     }
 }

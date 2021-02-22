@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.testsupport;
 
+import java.util.List;
+
 import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.alignment.AlignmentPair;
@@ -98,6 +100,7 @@ public class TestInputs {
                 .bucket(BUCKET)
                 .type(SingleSampleRunMetadata.SampleType.TUMOR)
                 .barcode(tumorAlignmentOutput().sample())
+                .primaryTumorDoids(List.of("01", "02"))
                 .build();
     }
 

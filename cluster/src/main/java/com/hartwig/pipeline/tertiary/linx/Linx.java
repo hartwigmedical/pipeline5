@@ -95,6 +95,18 @@ public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
                 .addFurtherOperations(new AddDatatype(DataType.LINX,
                         metadata.barcode(),
                         new ArchivePath(Folder.root(), namespace(), breakendTsv)))
+                .addFurtherOperations(new AddDatatype(DataType.LINX_BREAKENDS,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), breakendTsv)))
+                .addFurtherOperations(new AddDatatype(DataType.LINX_DRIVERS,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), driversTsv)))
+                .addFurtherOperations(new AddDatatype(DataType.LINX_FUSION,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), fusionsTsv)))
+                .addFurtherOperations(new AddDatatype(DataType.LINX_VIRAL_INSERTS,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), viralInsertionsTsv)))
                 .build();
     }
 
