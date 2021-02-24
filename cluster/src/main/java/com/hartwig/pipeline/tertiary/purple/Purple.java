@@ -113,9 +113,9 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
     @Override
     public PurpleOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
             final ResultsDirectory resultsDirectory) {
-        String purityTsv = metadata.tumor().name() + PURPLE_PURITY_TSV;
-        String driverCatalog = metadata.tumor().name() + PURPLE_DRIVER_CATALOG;
-        String qcFile = metadata.tumor().name() + PURPLE_QC;
+        String purityTsv = metadata.tumor().sampleName() + PURPLE_PURITY_TSV;
+        String driverCatalog = metadata.tumor().sampleName() + PURPLE_DRIVER_CATALOG;
+        String qcFile = metadata.tumor().sampleName() + PURPLE_QC;
         return PurpleOutput.builder()
                 .status(jobStatus)
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
