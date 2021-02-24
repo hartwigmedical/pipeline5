@@ -4,6 +4,7 @@ import static java.lang.String.format;
 
 import com.hartwig.batch.BatchOperation;
 import com.hartwig.batch.OperationDescriptor;
+import com.hartwig.batch.api.ApiInputFileDescriptorFactory;
 import com.hartwig.batch.input.InputBundle;
 import com.hartwig.batch.input.InputFileDescriptor;
 import com.hartwig.pipeline.ResultsDirectory;
@@ -32,17 +33,17 @@ public class SageGermline implements BatchOperation {
             final BashStartupScript commands, final RuntimeFiles executionFlags) {
 
         // Inputs
-        final String set = inputs.get("set").inputValue();
-        final String tumorSampleName = inputs.get("tumor_sample").inputValue();
-        final String referenceSampleName = inputs.get("ref_sample").inputValue();
-        final InputFileDescriptor remoteTumorFile = inputs.get("tumor_cram");
-        final InputFileDescriptor remoteReferenceFile = inputs.get("ref_cram");
+        final InputFileDescriptor biopsy = inputs.get("biopsy");
+        final ApiInputFileDescriptorFactory inputFileFactory = new ApiInputFileDescriptorFactory(biopsy);
+        final String tumorSampleName = inputFileFactory.getTumor();
+        final String referenceSampleName = inputFileFactory.getReference();
+        final InputFileDescriptor tumorAlignment = inputFileFactory.getTumorAlignment();
+        final InputFileDescriptor tumorAlignmentIndex = inputFileFactory.getTumorAlignmentIndex();
+        final InputFileDescriptor referenceAlignment = inputFileFactory.getReferenceAlignment();
+        final InputFileDescriptor referenceAlignmentIndex = inputFileFactory.getReferenceAlignmentIndex();
 
-        final InputFileDescriptor remoteTumorIndex = remoteTumorFile.index();
-        final InputFileDescriptor remoteReferenceIndex = remoteReferenceFile.index();
-
-        final String localTumorFile = remoteTumorFile.localDestination();
-        final String localReferenceFile = remoteReferenceFile.localDestination();
+        final String localTumorFile = tumorAlignment.localDestination();
+        final String localReferenceFile = referenceAlignment.localDestination();
 
         // Prepare SnpEff
         final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.V37);
@@ -52,12 +53,12 @@ public class SageGermline implements BatchOperation {
 //        commands.addCommand(downloadExperimentalVersion());
 
         // Download tumor
-        commands.addCommand(() -> remoteTumorFile.toCommandForm(localTumorFile));
-        commands.addCommand(() -> remoteTumorIndex.toCommandForm(remoteTumorIndex.localDestination()));
+        commands.addCommand(() -> tumorAlignment.toCommandForm(localTumorFile));
+        commands.addCommand(() -> tumorAlignmentIndex.toCommandForm(tumorAlignmentIndex.localDestination()));
 
         // Download normal
-        commands.addCommand(() -> remoteReferenceFile.toCommandForm(localReferenceFile));
-        commands.addCommand(() -> remoteReferenceIndex.toCommandForm(remoteReferenceIndex.localDestination()));
+        commands.addCommand(() -> referenceAlignment.toCommandForm(localReferenceFile));
+        commands.addCommand(() -> referenceAlignmentIndex.toCommandForm(referenceAlignmentIndex.localDestination()));
 
         final SageCommandBuilder sageCommandBuilder =
                 new SageCommandBuilder(resourceFiles).germlineMode(referenceSampleName, localReferenceFile, tumorSampleName, localTumorFile)

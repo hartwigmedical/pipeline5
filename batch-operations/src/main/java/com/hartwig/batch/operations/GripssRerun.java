@@ -1,11 +1,12 @@
 package com.hartwig.batch.operations;
 
-import java.io.File;
+import static java.lang.String.format;
+
 import java.util.Collections;
 
 import com.hartwig.batch.BatchOperation;
 import com.hartwig.batch.OperationDescriptor;
-import com.hartwig.batch.input.ImmutableInputFileDescriptor;
+import com.hartwig.batch.api.ApiInputFileDescriptorFactory;
 import com.hartwig.batch.input.InputBundle;
 import com.hartwig.batch.input.InputFileDescriptor;
 import com.hartwig.pipeline.ResultsDirectory;
@@ -22,12 +23,9 @@ import com.hartwig.pipeline.resource.ResourceFilesFactory;
 import com.hartwig.pipeline.stages.SubStageInputOutput;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
+import com.hartwig.pipeline.tools.Versions;
 
 public class GripssRerun implements BatchOperation {
-
-    public static GoogleStorageLocation gripssArchiveDirectory(final String set) {
-        return GoogleStorageLocation.of("hmf-gripss", set, true);
-    }
 
     public static GoogleStorageLocation gripssSomaticFilteredFile(final String set, final String sample) {
         return GoogleStorageLocation.of("hmf-gripss", set + "/" + sample + ".gridss.somatic.filtered.vcf.gz", false);
@@ -42,21 +40,21 @@ public class GripssRerun implements BatchOperation {
             final BashStartupScript startupScript, final RuntimeFiles executionFlags) {
 
         final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.V37);
-        final InputFileDescriptor setDescriptor = inputs.get("set");
-        final String set = setDescriptor.inputValue();
-        final String sample = inputs.get("tumor_sample").inputValue();
-        final String refSample = inputs.get("reference_sample").inputValue();
-        final InputFileDescriptor inputVcf = inputFile(setDescriptor, GridssBackport.remoteUnfilteredVcfArchivePath(set, sample));
+        final InputFileDescriptor biopsy = inputs.get("biopsy");
+        final ApiInputFileDescriptorFactory inputFileFactory = new ApiInputFileDescriptorFactory(biopsy);
+        final String sample = inputFileFactory.getTumor();
+        final String refSample = inputFileFactory.getReference();
+        final InputFileDescriptor inputVcf = inputFileFactory.getGridssUnfilteredOutput();
         final InputFileDescriptor inputVcfIndex = inputVcf.index();
 
         final GridssSomaticFilter somaticFilter = new GridssSomaticFilter(resourceFiles, sample, refSample, inputVcf.localDestination());
         final SubStageInputOutput postProcessing = somaticFilter.andThen(new GridssHardFilter())
                 .apply(SubStageInputOutput.of(sample, inputFile(inputVcf.localDestination()), Collections.emptyList()));
 
-//        // 0. Download latest jar file
-//        startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s %s",
-//                "gs://hmf-gridss/resources/gripss.jar",
-//                "/opt/tools/gripss/" + Versions.GRIPSS + "/gripss.jar"));
+        // 0. Download latest jar file
+        startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s %s",
+                "gs://batch-gripss/resources/gripss.jar",
+                "/opt/tools/gripss/" + Versions.GRIPSS + "/gripss.jar"));
 
         // 1. Download input files
         startupScript.addCommand(inputVcf::copyToLocalDestinationCommand);
@@ -64,17 +62,6 @@ public class GripssRerun implements BatchOperation {
 
         //2. Run GRIPSS
         startupScript.addCommands(postProcessing.bash());
-
-        //3. Upload targeted output
-        final GoogleStorageLocation archiveStorageLocation = gripssArchiveDirectory(set);
-        final OutputFile filteredOutputFile = postProcessing.outputFile();
-        final OutputFile filteredOutputFileIndex = filteredOutputFile.index(".tbi");
-        final OutputFile unfilteredOutputFile = somaticFilter.apply(SubStageInputOutput.empty(sample)).outputFile();
-        final OutputFile unfilteredOutputFileIndex = unfilteredOutputFile.index(".tbi");
-        startupScript.addCommand(() -> filteredOutputFile.copyToRemoteLocation(archiveStorageLocation));
-        startupScript.addCommand(() -> filteredOutputFileIndex.copyToRemoteLocation(archiveStorageLocation));
-        startupScript.addCommand(() -> unfilteredOutputFile.copyToRemoteLocation(archiveStorageLocation));
-        startupScript.addCommand(() -> unfilteredOutputFileIndex.copyToRemoteLocation(archiveStorageLocation));
 
         // 4. Upload output
         startupScript.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), "gripss"), executionFlags));
@@ -99,13 +86,4 @@ public class GripssRerun implements BatchOperation {
             }
         };
     }
-
-    private static InputFileDescriptor inputFile(final InputFileDescriptor inputTemplate, final GoogleStorageLocation location) {
-        if (location.isDirectory()) {
-            throw new IllegalArgumentException();
-        }
-        final String remoteFilename = location.bucket() + File.separator + location.path();
-        return ImmutableInputFileDescriptor.builder().from(inputTemplate).inputValue(remoteFilename).build();
-    }
-
 }
