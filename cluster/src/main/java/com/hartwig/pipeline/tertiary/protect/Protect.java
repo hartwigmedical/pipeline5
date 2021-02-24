@@ -51,7 +51,7 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
         this.bachelorTsv = new InputDownload(bachelorOutput.maybeReportableVariants().orElse(GoogleStorageLocation.empty()));
         this.linxFusionTsv = new InputDownload(linxOutput.linxOutputLocations().fusions());
         this.linxBreakendTsv = new InputDownload(linxOutput.linxOutputLocations().breakends());
-        this.linxDriversTsv = new InputDownload(linxOutput.linxOutputLocations().drivers());
+        this.linxDriversTsv = new InputDownload(linxOutput.linxOutputLocations().driverCatalog());
         this.linxViralInsertionsTsv = new InputDownload(linxOutput.linxOutputLocations().viralInsertions());
         this.chordPrediction = new InputDownload(chordOutput.predictions());
         this.resourceFiles = resourceFiles;
