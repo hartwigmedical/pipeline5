@@ -6,7 +6,8 @@ import java.util.Collections;
 
 import com.hartwig.batch.BatchOperation;
 import com.hartwig.batch.OperationDescriptor;
-import com.hartwig.batch.api.ApiInputFileDescriptorFactory;
+import com.hartwig.batch.api.LocalLocations;
+import com.hartwig.batch.api.RemoteLocationsApi;
 import com.hartwig.batch.input.InputBundle;
 import com.hartwig.batch.input.InputFileDescriptor;
 import com.hartwig.pipeline.ResultsDirectory;
@@ -41,15 +42,14 @@ public class GripssRerun implements BatchOperation {
 
         final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.V37);
         final InputFileDescriptor biopsy = inputs.get("biopsy");
-        final ApiInputFileDescriptorFactory inputFileFactory = new ApiInputFileDescriptorFactory(biopsy);
+        final LocalLocations inputFileFactory = new LocalLocations(new RemoteLocationsApi(biopsy));
         final String sample = inputFileFactory.getTumor();
         final String refSample = inputFileFactory.getReference();
-        final InputFileDescriptor inputVcf = inputFileFactory.getGridssUnfilteredOutput();
-        final InputFileDescriptor inputVcfIndex = inputVcf.index();
+        final String inputVcf = inputFileFactory.getStructuralVariantsGridss();
 
-        final GridssSomaticFilter somaticFilter = new GridssSomaticFilter(resourceFiles, sample, refSample, inputVcf.localDestination());
+        final GridssSomaticFilter somaticFilter = new GridssSomaticFilter(resourceFiles, sample, refSample, inputVcf);
         final SubStageInputOutput postProcessing = somaticFilter.andThen(new GridssHardFilter())
-                .apply(SubStageInputOutput.of(sample, inputFile(inputVcf.localDestination()), Collections.emptyList()));
+                .apply(SubStageInputOutput.of(sample, inputFile(inputVcf), Collections.emptyList()));
 
         // 0. Download latest jar file
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s %s",
@@ -57,8 +57,7 @@ public class GripssRerun implements BatchOperation {
                 "/opt/tools/gripss/" + Versions.GRIPSS + "/gripss.jar"));
 
         // 1. Download input files
-        startupScript.addCommand(inputVcf::copyToLocalDestinationCommand);
-        startupScript.addCommand(inputVcfIndex::copyToLocalDestinationCommand);
+        startupScript.addCommands(inputFileFactory.generateDownloadCommands());
 
         //2. Run GRIPSS
         startupScript.addCommands(postProcessing.bash());

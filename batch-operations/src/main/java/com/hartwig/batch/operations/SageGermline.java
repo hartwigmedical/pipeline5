@@ -4,7 +4,8 @@ import static java.lang.String.format;
 
 import com.hartwig.batch.BatchOperation;
 import com.hartwig.batch.OperationDescriptor;
-import com.hartwig.batch.api.ApiInputFileDescriptorFactory;
+import com.hartwig.batch.api.LocalLocations;
+import com.hartwig.batch.api.RemoteLocationsApi;
 import com.hartwig.batch.input.InputBundle;
 import com.hartwig.batch.input.InputFileDescriptor;
 import com.hartwig.pipeline.ResultsDirectory;
@@ -34,34 +35,41 @@ public class SageGermline implements BatchOperation {
 
         // Inputs
         final InputFileDescriptor biopsy = inputs.get("biopsy");
-        final ApiInputFileDescriptorFactory inputFileFactory = new ApiInputFileDescriptorFactory(biopsy);
-        final String tumorSampleName = inputFileFactory.getTumor();
-        final String referenceSampleName = inputFileFactory.getReference();
-        final InputFileDescriptor tumorAlignment = inputFileFactory.getTumorAlignment();
-        final InputFileDescriptor tumorAlignmentIndex = inputFileFactory.getTumorAlignmentIndex();
-        final InputFileDescriptor referenceAlignment = inputFileFactory.getReferenceAlignment();
-        final InputFileDescriptor referenceAlignmentIndex = inputFileFactory.getReferenceAlignmentIndex();
-
-        final String localTumorFile = tumorAlignment.localDestination();
-        final String localReferenceFile = referenceAlignment.localDestination();
+        final LocalLocations localInput = new LocalLocations(new RemoteLocationsApi(biopsy));
+        final String tumorSampleName = localInput.getTumor();
+        final String referenceSampleName = localInput.getReference();
+        final String tumorAlignment = localInput.getTumorAlignment();
+        final String referenceAlignment = localInput.getReferenceAlignment();
 
         // Prepare SnpEff
         final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.V37);
         commands.addCommand(new UnzipToDirectoryCommand(VmDirectories.RESOURCES, resourceFiles.snpEffDb()));
 
         // Download experimental JAR
-//        commands.addCommand(downloadExperimentalVersion());
+        //        commands.addCommand(downloadExperimentalVersion());
 
-        // Download tumor
-        commands.addCommand(() -> tumorAlignment.toCommandForm(localTumorFile));
-        commands.addCommand(() -> tumorAlignmentIndex.toCommandForm(tumorAlignmentIndex.localDestination()));
+        // Download experimental resources
+//        commands.addCommand(() -> format("gsutil -u hmf-crunch cp %s %s",
+//                "gs://batch-sage-germline/resources/ActionableCodingPanel.germline.hg19.bed.gz",
+//                resourceFiles.sageGermlineCodingPanel()));
+//
+//        commands.addCommand(() -> format("gsutil -u hmf-crunch cp %s %s",
+//                "gs://batch-sage-germline/resources/CoverageCodingPanel.germline.hg19.bed.gz",
+//                resourceFiles.sageGermlineCoveragePanel()));
+//
+//        commands.addCommand(() -> format("gsutil -u hmf-crunch cp %s %s",
+//                "gs://batch-sage-germline/resources/KnownHotspots.germline.hg19.vcf.gz",
+//                resourceFiles.sageGermlineHotspots()));
+//
+//        commands.addCommand(() -> format("gsutil -u hmf-crunch cp %s %s",
+//                "gs://batch-sage-germline/resources/KnownHotspots.germline.hg19.vcf.gz.tbi",
+//                resourceFiles.sageGermlineHotspots() + ".tbi"));
 
-        // Download normal
-        commands.addCommand(() -> referenceAlignment.toCommandForm(localReferenceFile));
-        commands.addCommand(() -> referenceAlignmentIndex.toCommandForm(referenceAlignmentIndex.localDestination()));
+        // Download Inputs
+        commands.addCommands(localInput.generateDownloadCommands());
 
         final SageCommandBuilder sageCommandBuilder =
-                new SageCommandBuilder(resourceFiles).germlineMode(referenceSampleName, localReferenceFile, tumorSampleName, localTumorFile)
+                new SageCommandBuilder(resourceFiles).germlineMode(referenceSampleName, referenceAlignment, tumorSampleName, tumorAlignment)
                         .addCoverage(resourceFiles.sageGermlineCoveragePanel());
 
         SageApplication sageApplication = new SageApplication(sageCommandBuilder);
