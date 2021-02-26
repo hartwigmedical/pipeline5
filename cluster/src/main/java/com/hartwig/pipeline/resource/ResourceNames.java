@@ -20,4 +20,8 @@ public interface ResourceNames {
     String KNOWLEDGEBASES = "knowledgebases";
     String BACHELOR = "bachelor_config";
     String GENE_PANEL = "gene_panel";
+    String DISEASE_ONTOLOGY = "disease_ontology";
+    String GERMLINE_REPORTING = "germline_reporting";
+    String SERVE = "serve";
+
 }

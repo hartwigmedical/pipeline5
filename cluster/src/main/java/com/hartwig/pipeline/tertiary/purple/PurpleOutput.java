@@ -3,7 +3,6 @@ package com.hartwig.pipeline.tertiary.purple;
 import java.util.Optional;
 
 import com.hartwig.pipeline.StageOutput;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
 
 import org.immutables.value.Value;
 
@@ -15,22 +14,10 @@ public interface PurpleOutput extends StageOutput {
         return Purple.NAMESPACE;
     }
 
-    Optional<GoogleStorageLocation> maybeOutputDirectory();
+    Optional<PurpleOutputLocations> maybeOutputLocations();
 
-    Optional<GoogleStorageLocation> maybeSomaticVcf();
-
-    Optional<GoogleStorageLocation> maybeStructuralVcf();
-
-    default GoogleStorageLocation outputDirectory() {
-        return maybeOutputDirectory().orElseThrow(() -> new IllegalStateException("No output directory available"));
-    }
-
-    default GoogleStorageLocation somaticVcf() {
-        return maybeSomaticVcf().orElseThrow(() -> new IllegalStateException("No somatic vcf available"));
-    }
-
-    default GoogleStorageLocation structuralVcf() {
-        return maybeStructuralVcf().orElseThrow(() -> new IllegalStateException("No structural vcf available"));
+    default PurpleOutputLocations outputLocations() {
+        return maybeOutputLocations().orElseThrow();
     }
 
     static ImmutablePurpleOutput.Builder builder() {

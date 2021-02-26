@@ -33,7 +33,7 @@ public class StructuralCallerPostProcessTest extends StageTest<StructuralCallerP
 
     @Override
     protected Stage<StructuralCallerPostProcessOutput, SomaticRunMetadata> createVictim() {
-        return new StructuralCallerPostProcess(TestInputs.REG_GENOME_37_RESOURCE_FILES, TestInputs.structuralCallerOutput(), persistedDataset);
+        return new StructuralCallerPostProcess(TestInputs.REF_GENOME_37_RESOURCE_FILES, TestInputs.structuralCallerOutput(), persistedDataset);
     }
 
     @Override

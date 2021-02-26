@@ -24,11 +24,12 @@ public interface Versions {
     String CIRCOS = "0.69.6";
     String GRIDSS = "2.9.4";
     String GRIPSS = "1.10";
-    String LINX = "1.12";
+    String LINX = "1.13";
     String BACHELOR = "1.12";
     String CHORD = "2.00_1.14";
     String SAMTOOLS = "1.10";
     String BAMCOMP = "1.3";
+    String PROTECT = "1.1";
 
     static void printAll() {
         Logger logger = LoggerFactory.getLogger(Versions.class);
@@ -70,6 +71,6 @@ public interface Versions {
     }
 
     static String imageVersion() {
-        return "5-19";
+        return "5-21";
     }
 }

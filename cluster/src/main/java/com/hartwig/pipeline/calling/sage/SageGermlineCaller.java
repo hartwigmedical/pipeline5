@@ -28,7 +28,7 @@ public class SageGermlineCaller extends SageCaller {
 
     public SageGermlineCaller(final AlignmentPair alignmentPair, final ResourceFiles resourceFiles,
             final PersistedDataset persistedDataset) {
-        super(alignmentPair, persistedDataset, DataType.SOMATIC_VARIANTS_SAGE);
+        super(alignmentPair, persistedDataset, DataType.GERMLINE_VARIANTS_SAGE);
         this.resourceFiles = resourceFiles;
     }
 
@@ -50,7 +50,8 @@ public class SageGermlineCaller extends SageCaller {
 
         final SageCommandBuilder sageCommandBuilder =
                 new SageCommandBuilder(resourceFiles).germlineMode(referenceSampleName, referenceBamPath, tumorSampleName, tumorBamPath)
-                        .addCoverage(resourceFiles.sageGermlineCoveragePanel());
+                        .addCoverage(resourceFiles.sageGermlineCoveragePanel())
+                        .maxHeap("31G");
         SageApplication sageApplication = new SageApplication(sageCommandBuilder);
         SageGermlinePostProcess sagePostProcess = new SageGermlinePostProcess(referenceSampleName, tumorSampleName, resourceFiles);
 

@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.resource;
 
+import static com.hartwig.pipeline.resource.ResourceNames.DISEASE_ONTOLOGY;
+import static com.hartwig.pipeline.resource.ResourceNames.GERMLINE_REPORTING;
 import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_CONFIG;
 import static com.hartwig.pipeline.resource.ResourceNames.MAPPABILITY;
 import static com.hartwig.pipeline.resource.ResourceNames.SV;
@@ -102,6 +104,16 @@ public interface ResourceFiles {
     String genotypeSnpsDB();
 
     String driverGenePanel();
+
+    String actionabilityDir();
+
+    default String doidJson() {
+        return of(DISEASE_ONTOLOGY, "201015_doid.json");
+    }
+
+    default String germlineReporting() {
+        return of(GERMLINE_REPORTING, "germline_reporting.tsv");
+    }
 
     default String viralHostRefs() {
         return of(SV, "viral_host_ref.csv");

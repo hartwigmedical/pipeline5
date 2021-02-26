@@ -30,11 +30,16 @@ import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
 import com.hartwig.pipeline.tertiary.cobalt.CobaltOutput;
 
+import org.jetbrains.annotations.NotNull;
+
 public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
 
     public static final String NAMESPACE = "purple";
     public static final String PURPLE_SOMATIC_VCF = ".purple.somatic.vcf.gz";
     public static final String PURPLE_SV_VCF = ".purple.sv.vcf.gz";
+    public static final String PURPLE_PURITY_TSV = ".purple.purity.tsv";
+    public static final String PURPLE_QC = ".purple.qc";
+    public static final String PURPLE_DRIVER_CATALOG = ".driver.catalog.somatic.tsv";
 
     private final ResourceFiles resourceFiles;
     private final InputDownload somaticVcfDownload;
@@ -108,19 +113,36 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
     @Override
     public PurpleOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
             final ResultsDirectory resultsDirectory) {
+        String purityTsv = metadata.tumor().sampleName() + PURPLE_PURITY_TSV;
+        String driverCatalog = metadata.tumor().sampleName() + PURPLE_DRIVER_CATALOG;
+        String qcFile = metadata.tumor().sampleName() + PURPLE_QC;
         return PurpleOutput.builder()
                 .status(jobStatus)
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
-                .maybeOutputDirectory(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(), true))
-                .maybeSomaticVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(somaticVcf(metadata))))
-                .maybeStructuralVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(svVcf(metadata))))
+                .maybeOutputLocations(PurpleOutputLocations.builder()
+                        .outputDirectory(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(), true))
+                        .somaticVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(somaticVcf(metadata))))
+                        .structuralVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(svVcf(metadata))))
+                        .purityTsv(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(purityTsv)))
+                        .driverCatalog(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(driverCatalog)))
+                        .qcFile(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(qcFile)))
+                        .build())
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), NAMESPACE, resultsDirectory))
                 .addFurtherOperations(new AddDatatype(DataType.SOMATIC_VARIANTS_PURPLE,
-                                metadata.barcode(),
-                                new ArchivePath(Folder.root(), namespace(), somaticVcf(metadata))),
-                        new AddDatatype(DataType.STRUCTURAL_VARIANTS_PURPLE,
-                                metadata.barcode(),
-                                new ArchivePath(Folder.root(), namespace(), svVcf(metadata))))
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), somaticVcf(metadata))))
+                .addFurtherOperations(new AddDatatype(DataType.STRUCTURAL_VARIANTS_PURPLE,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), svVcf(metadata))))
+                .addFurtherOperations(new AddDatatype(DataType.PURPLE_PURITY,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), purityTsv)))
+                .addFurtherOperations(new AddDatatype(DataType.PURPLE_DRIVER_CATALOG,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), driverCatalog)))
+                .addFurtherOperations(new AddDatatype(DataType.PURPLE_QC,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), qcFile)))
                 .build();
     }
 
@@ -132,18 +154,31 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
     @Override
     public PurpleOutput persistedOutput(final SomaticRunMetadata metadata) {
         GoogleStorageLocation somaticVariantsLocation =
-                persistedDataset.path(metadata.tumor().sampleName(), DataType.SOMATIC_VARIANTS_PURPLE)
-                        .orElse(GoogleStorageLocation.of(metadata.bucket(),
-                                PersistedLocations.blobForSet(metadata.set(), namespace(), somaticVcf(metadata))));
-        GoogleStorageLocation svsLocation = persistedDataset.path(metadata.tumor().sampleName(), DataType.STRUCTURAL_VARIANTS_PURPLE)
-                .orElse(GoogleStorageLocation.of(metadata.bucket(),
-                        PersistedLocations.blobForSet(metadata.set(), namespace(), svVcf(metadata))));
+                persistedOrDefault(metadata, DataType.SOMATIC_VARIANTS_PURPLE, somaticVcf(metadata));
+        GoogleStorageLocation svsLocation = persistedOrDefault(metadata, DataType.STRUCTURAL_VARIANTS_PURPLE, svVcf(metadata));
+        GoogleStorageLocation purityLocation =
+                persistedOrDefault(metadata, DataType.PURPLE_PURITY, metadata.tumor().name() + PURPLE_PURITY_TSV);
+        GoogleStorageLocation driverCatalogLocation =
+                persistedOrDefault(metadata, DataType.PURPLE_DRIVER_CATALOG, metadata.tumor().name() + PURPLE_DRIVER_CATALOG);
+        GoogleStorageLocation qcLocation = persistedOrDefault(metadata, DataType.PURPLE_QC, metadata.tumor().name() + PURPLE_QC);
         return PurpleOutput.builder()
                 .status(PipelineStatus.PERSISTED)
-                .maybeOutputDirectory(somaticVariantsLocation.transform(f -> new File(f).getParent()).asDirectory())
-                .maybeSomaticVcf(somaticVariantsLocation)
-                .maybeStructuralVcf(svsLocation)
+                .maybeOutputLocations(PurpleOutputLocations.builder()
+                        .outputDirectory(somaticVariantsLocation.transform(f -> new File(f).getParent()).asDirectory())
+                        .somaticVcf(somaticVariantsLocation)
+                        .structuralVcf(svsLocation)
+                        .purityTsv(purityLocation)
+                        .driverCatalog(driverCatalogLocation)
+                        .qcFile(qcLocation)
+                        .build())
                 .build();
+    }
+
+    @NotNull
+    public GoogleStorageLocation persistedOrDefault(final SomaticRunMetadata metadata, final DataType somaticVariantsPurple,
+            final String s) {
+        return persistedDataset.path(metadata.tumor().sampleName(), somaticVariantsPurple)
+                .orElse(GoogleStorageLocation.of(metadata.bucket(), PersistedLocations.blobForSet(metadata.set(), namespace(), s)));
     }
 
     private static String svVcf(final SomaticRunMetadata metadata) {

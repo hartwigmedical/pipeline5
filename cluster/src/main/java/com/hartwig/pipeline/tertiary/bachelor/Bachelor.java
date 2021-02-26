@@ -30,6 +30,8 @@ import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 public class Bachelor implements Stage<BachelorOutput, SomaticRunMetadata> {
 
     public static final String NAMESPACE = "bachelor";
+    public static final String VARIANT_TSV = ".bachelor.germline_variant.tsv";
+    public static final String REPORTABLE_VARIANT_TSV = ".reportable_germline_variant.tsv";
 
     private final ResourceFiles resourceFiles;
     private final InputDownload purpleOutputDownload;
@@ -41,7 +43,7 @@ public class Bachelor implements Stage<BachelorOutput, SomaticRunMetadata> {
     public Bachelor(final ResourceFiles resourceFiles, final PurpleOutput purpleOutput, AlignmentOutput tumorAlignmentOutput,
             GermlineCallerOutput germlineCallerOutput) {
         this.resourceFiles = resourceFiles;
-        this.purpleOutputDownload = new InputDownload(purpleOutput.outputDirectory());
+        this.purpleOutputDownload = new InputDownload(purpleOutput.outputLocations().outputDirectory());
         this.tumorBamDownload = new InputDownload(tumorAlignmentOutput.finalBamLocation());
         this.tumorBaiDownload = new InputDownload(tumorAlignmentOutput.finalBaiLocation());
         this.germlineVcfDownload = new InputDownload(germlineCallerOutput.germlineVcfLocation());
@@ -78,13 +80,19 @@ public class Bachelor implements Stage<BachelorOutput, SomaticRunMetadata> {
     @Override
     public BachelorOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
             final ResultsDirectory resultsDirectory) {
+        String bachelorVariantsTsv = metadata.tumor().sampleName() + VARIANT_TSV;
+        String reportableVariantsTsv = metadata.tumor().sampleName() + REPORTABLE_VARIANT_TSV;
         return BachelorOutput.builder()
                 .status(jobStatus)
+                .maybeReportableVariants(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(reportableVariantsTsv)))
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), NAMESPACE, resultsDirectory))
                 .addFurtherOperations(new AddDatatype(DataType.BACHELOR,
                         metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), metadata.tumor().sampleName() + ".bachelor.germline_variant.tsv")))
+                        new ArchivePath(Folder.root(), namespace(), bachelorVariantsTsv)))
+                .addFurtherOperations(new AddDatatype(DataType.BACHELOR_REPORTABLE_VARIANTS,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), reportableVariantsTsv)))
                 .build();
     }
 
