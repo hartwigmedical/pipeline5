@@ -90,9 +90,11 @@ public class GcpSampleDataExtractor
 
     private boolean extractSampleData(final String sampleId)
     {
-        final String gcpApiCall = String.format("curl --cert %s --key %s https://api.hartwigmedicalfoundation.nl/hmf/v1/datasets?biopsy=%s",
+        final String gcpApiCall = String.format("curl --cert %s --key %s https://api.hartwigmedicalfoundation.nl/hmf/v1/datasets/%s",
                 mApiCrtFile, mApiKeyFile, sampleId);
 
+        // OLD: /datasets?biopsy=CPCT12345678T&other=args&
+        // NEW: /datasets/CPCT12345678T?other=args&...
         // curl -X GET https://postman-echo.com/get?foo1=bar1&foo2=bar2
         ProcessBuilder processBuilder = new ProcessBuilder(gcpApiCall.split(" "));
 

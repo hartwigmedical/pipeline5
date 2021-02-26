@@ -51,6 +51,7 @@ public class RnaIsofox implements BatchOperation {
     private static final String FUNC_TRANSCRIPT_COUNTS = "TRANSCRIPT_COUNTS";
     private static final String FUNC_NOVEL_LOCATIONS = "NOVEL_LOCATIONS";
     private static final String FUNC_FUSIONS = "FUSIONS";
+    private static final String FUNC_NEO_EPITOPES = "NEO_EPITOPES";
 
     @Override
     public VirtualMachineJobDefinition execute(
@@ -116,6 +117,14 @@ public class RnaIsofox implements BatchOperation {
         boolean writeExpData = false;
         boolean writeCatCountsData = false;
 
+        final String neoEpitopeFile = String.format("%s.imu.neo_epitopes.csv", sampleId);
+
+        if(functionsStr.contains(FUNC_NEO_EPITOPES)) {
+
+            startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/neoepitopes/%s %s",
+                    rnaCohortDirectory, neoEpitopeFile, VmDirectories.INPUT));
+        }
+
         // run Isofox
         StringBuilder isofoxArgs = new StringBuilder();
         isofoxArgs.append(String.format("-sample %s", sampleId));
@@ -158,6 +167,11 @@ public class RnaIsofox implements BatchOperation {
         if(functionsStr.equals(FUNC_NOVEL_LOCATIONS))
         {
             isofoxArgs.append(String.format(" -write_splice_sites"));
+        }
+
+        if(functionsStr.equals(FUNC_NEO_EPITOPES))
+        {
+            isofoxArgs.append(String.format(" -neoepitope_file %s/%s", VmDirectories.INPUT, neoEpitopeFile));
         }
 
         isofoxArgs.append(String.format(" -known_fusion_file %s/%s", VmDirectories.INPUT, KNOWN_FUSIONS_FILE));
