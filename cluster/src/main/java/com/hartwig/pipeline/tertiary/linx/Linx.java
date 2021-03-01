@@ -92,19 +92,19 @@ public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
                         .build())
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), NAMESPACE, resultsDirectory))
-                .addFurtherOperations(new AddDatatype(DataType.LINX,
+                .addDatatypes(new AddDatatype(DataType.LINX,
                         metadata.barcode(),
                         new ArchivePath(Folder.root(), namespace(), breakendTsv)))
-                .addFurtherOperations(new AddDatatype(DataType.LINX_BREAKENDS,
+                .addDatatypes(new AddDatatype(DataType.LINX_BREAKENDS,
                         metadata.barcode(),
                         new ArchivePath(Folder.root(), namespace(), breakendTsv)))
-                .addFurtherOperations(new AddDatatype(DataType.LINX_DRIVERS,
+                .addDatatypes(new AddDatatype(DataType.LINX_DRIVERS,
                         metadata.barcode(),
                         new ArchivePath(Folder.root(), namespace(), driversTsv)))
-                .addFurtherOperations(new AddDatatype(DataType.LINX_FUSIONS,
+                .addDatatypes(new AddDatatype(DataType.LINX_FUSIONS,
                         metadata.barcode(),
                         new ArchivePath(Folder.root(), namespace(), fusionsTsv)))
-                .addFurtherOperations(new AddDatatype(DataType.LINX_VIRAL_INSERTS,
+                .addDatatypes(new AddDatatype(DataType.LINX_VIRAL_INSERTS,
                         metadata.barcode(),
                         new ArchivePath(Folder.root(), namespace(), viralInsertionsTsv)))
                 .build();

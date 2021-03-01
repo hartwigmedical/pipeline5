@@ -8,7 +8,6 @@ import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.metadata.AddDatatype;
-import com.hartwig.pipeline.metadata.ApiFileOperation;
 import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.report.Folder;
@@ -88,7 +87,7 @@ public class BamMetricsTest extends StageTest<BamMetricsOutput, SingleSampleRunM
     }
 
     @Override
-    protected List<ApiFileOperation> expectedFurtherOperations() {
+    protected List<AddDatatype> expectedFurtherOperations() {
         return List.of(new AddDatatype(DataType.WGSMETRICS,
                 TestInputs.referenceRunMetadata().barcode(),
                 new ArchivePath(Folder.from(TestInputs.referenceRunMetadata()), BamMetrics.NAMESPACE, "reference.wgsmetrics")));

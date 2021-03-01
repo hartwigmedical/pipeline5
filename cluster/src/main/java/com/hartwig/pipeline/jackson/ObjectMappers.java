@@ -16,7 +16,7 @@ public class ObjectMappers {
         OBJECT_MAPPER.registerModule(new JavaTimeModule());
     }
 
-    public static ObjectMapper get(){
+    public static ObjectMapper get() {
         return OBJECT_MAPPER;
     }
 }

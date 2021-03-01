@@ -53,7 +53,7 @@ public class PipelineMain {
             GoogleCredentials credentials = CredentialProvider.from(arguments).get();
             Storage storage = StorageProvider.from(arguments, credentials).get();
             Publisher publisher = PublisherProvider.from(arguments, credentials).get();
-            SomaticMetadataApi somaticMetadataApi = SomaticMetadataApiProvider.from(arguments, storage).get();
+            SomaticMetadataApi somaticMetadataApi = SomaticMetadataApiProvider.from(arguments, storage, publisher).get();
             SingleSampleEventListener referenceEventListener = new SingleSampleEventListener();
             SingleSampleEventListener tumorEventListener = new SingleSampleEventListener();
             SomaticRunMetadata somaticRunMetadata = somaticMetadataApi.get();

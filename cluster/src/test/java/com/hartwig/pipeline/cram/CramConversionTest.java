@@ -11,7 +11,6 @@ import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.metadata.AddDatatype;
-import com.hartwig.pipeline.metadata.ApiFileOperation;
 import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata.SampleType;
@@ -87,7 +86,7 @@ public class CramConversionTest extends StageTest<CramOutput, SingleSampleRunMet
     }
 
     @Override
-    protected List<ApiFileOperation> expectedFurtherOperations() {
+    protected List<AddDatatype> expectedFurtherOperations() {
         return List.of(new AddDatatype(DataType.ALIGNED_READS,
                         TestInputs.referenceRunMetadata().barcode(),
                         new ArchivePath(Folder.from(TestInputs.referenceRunMetadata()), CramConversion.NAMESPACE, "reference.cram")),

@@ -8,7 +8,6 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.metadata.AddDatatype;
-import com.hartwig.pipeline.metadata.ApiFileOperation;
 import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.Folder;
@@ -129,7 +128,7 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
     }
 
     @Override
-    protected List<ApiFileOperation> expectedFurtherOperations() {
+    protected List<AddDatatype> expectedFurtherOperations() {
         return List.of(new AddDatatype(DataType.SOMATIC_VARIANTS_PURPLE,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
                         new ArchivePath(Folder.root(), Purple.NAMESPACE, TUMOR_PURPLE_SOMATIC_VCF_GZ)),

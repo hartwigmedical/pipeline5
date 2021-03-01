@@ -20,7 +20,7 @@ import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
-import com.hartwig.pipeline.metadata.ApiFileOperation;
+import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.RunMetadata;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.testsupport.TestInputs;
@@ -115,15 +115,16 @@ public abstract class StageTest<S extends StageOutput, M extends RunMetadata> {
     @Test
     public void returnsExpectedFurtherOperations() {
         assertThat(victim.output(input(), PipelineStatus.SUCCESS, runtimeBucket, ResultsDirectory.defaultDirectory())
-                .furtherOperations()).isEqualTo(expectedFurtherOperations());
+                .datatypes()).isEqualTo(expectedFurtherOperations());
     }
 
     @Test
     public void addsLogs() {
-        assertThat(victim.output(input(), PipelineStatus.SUCCESS, runtimeBucket, ResultsDirectory.defaultDirectory()).failedLogLocations()).isNotEmpty();
+        assertThat(victim.output(input(), PipelineStatus.SUCCESS, runtimeBucket, ResultsDirectory.defaultDirectory())
+                .failedLogLocations()).isNotEmpty();
     }
 
-    protected List<ApiFileOperation> expectedFurtherOperations() {
+    protected List<AddDatatype> expectedFurtherOperations() {
         return Collections.emptyList();
     }
 

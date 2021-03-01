@@ -18,7 +18,7 @@ import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.PipelineState;
 import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.metadata.ApiFileOperation;
+import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.testsupport.TestInputs;
@@ -132,7 +132,7 @@ public class PipelineResultsTest {
             }
 
             @Override
-            public List<ApiFileOperation> furtherOperations() {
+            public List<AddDatatype> datatypes() {
                 return Collections.emptyList();
             }
 

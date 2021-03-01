@@ -9,7 +9,7 @@ import java.util.function.Consumer;
 
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
-import com.hartwig.pipeline.metadata.ApiFileOperation;
+import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.report.PipelineResults;
 import com.hartwig.pipeline.sbpapi.AddFileApiResponse;
 import com.hartwig.pipeline.sbpapi.SbpFileMetadata;
@@ -28,15 +28,15 @@ public class SbpFileApiUpdate implements Consumer<Blob> {
     private final SbpRun sbpRun;
     private final Bucket sourceBucket;
     private final SbpRestApi sbpApi;
-    private final Set<ApiFileOperation> fileOperations;
+    private final Set<AddDatatype> addDatatypes;
 
     public SbpFileApiUpdate(final ContentTypeCorrection contentTypeCorrection, final SbpRun sbpRun, final Bucket sourceBucket,
-            final SbpRestApi sbpApi, final Set<ApiFileOperation> fileOperations) {
+            final SbpRestApi sbpApi, final Set<AddDatatype> addDatatypes) {
         this.contentTypeCorrection = contentTypeCorrection;
         this.sbpRun = sbpRun;
         this.sourceBucket = sourceBucket;
         this.sbpApi = sbpApi;
-        this.fileOperations = fileOperations;
+        this.addDatatypes = addDatatypes;
     }
 
     @Override
@@ -55,10 +55,10 @@ public class SbpFileApiUpdate implements Consumer<Blob> {
                         .build();
                 AddFileApiResponse fileResponse = sbpApi.postFile(metaData);
 
-                for (ApiFileOperation fileOperation : fileOperations) {
-                    if (fileOperation.path().equals(blob.getName().substring(blob.getName().indexOf("/") + 1))) {
-                        LOGGER.info("Applying [{}] for [{}]", fileOperation, blob.getName());
-                        fileOperation.apply(sbpApi, fileResponse);
+                for (AddDatatype addDatatype : addDatatypes) {
+                    if (addDatatype.path().equals(blob.getName().substring(blob.getName().indexOf("/") + 1))) {
+                        LOGGER.info("Applying [{}] for [{}]", addDatatype, blob.getName());
+                        addDatatype.apply(sbpApi, fileResponse);
                     }
                 }
             }

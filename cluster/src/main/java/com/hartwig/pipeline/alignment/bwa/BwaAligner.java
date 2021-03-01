@@ -171,7 +171,7 @@ public class BwaAligner implements Aligner {
                                 bai(bam(metadata.sampleName())),
                                 bai(bam(metadata.sampleName())),
                                 resultsDirectory))
-                        .addFurtherOperations(new AddDatatype(DataType.ALIGNED_READS,
+                        .addDatatypes(new AddDatatype(DataType.ALIGNED_READS,
                                         metadata.barcode(),
                                         new ArchivePath(Folder.from(metadata), BwaAligner.NAMESPACE, bam(metadata.sampleName()))),
                                 new AddDatatype(DataType.ALIGNED_READS_INDEX,

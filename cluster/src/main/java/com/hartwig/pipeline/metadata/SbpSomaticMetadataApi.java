@@ -153,7 +153,7 @@ public class SbpSomaticMetadataApi implements SomaticMetadataApi {
                             sbpRestApi,
                             pipelineState.stageOutputs()
                                     .stream()
-                                    .map(StageOutput::furtherOperations)
+                                    .map(StageOutput::datatypes)
                                     .flatMap(List::stream)
                                     .collect(Collectors.toSet())).andThen(new BlobCleanup()), sourceBucket).iterate(metadata);
                 }

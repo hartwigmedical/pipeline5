@@ -128,21 +128,19 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
                         .qcFile(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(qcFile)))
                         .build())
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), NAMESPACE, resultsDirectory))
-                .addFurtherOperations(new AddDatatype(DataType.SOMATIC_VARIANTS_PURPLE,
+                .addDatatypes(new AddDatatype(DataType.SOMATIC_VARIANTS_PURPLE,
                         metadata.barcode(),
                         new ArchivePath(Folder.root(), namespace(), somaticVcf(metadata))))
-                .addFurtherOperations(new AddDatatype(DataType.STRUCTURAL_VARIANTS_PURPLE,
+                .addDatatypes(new AddDatatype(DataType.STRUCTURAL_VARIANTS_PURPLE,
                         metadata.barcode(),
                         new ArchivePath(Folder.root(), namespace(), svVcf(metadata))))
-                .addFurtherOperations(new AddDatatype(DataType.PURPLE_PURITY,
+                .addDatatypes(new AddDatatype(DataType.PURPLE_PURITY,
                         metadata.barcode(),
                         new ArchivePath(Folder.root(), namespace(), purityTsv)))
-                .addFurtherOperations(new AddDatatype(DataType.PURPLE_DRIVER_CATALOG,
+                .addDatatypes(new AddDatatype(DataType.PURPLE_DRIVER_CATALOG,
                         metadata.barcode(),
                         new ArchivePath(Folder.root(), namespace(), driverCatalog)))
-                .addFurtherOperations(new AddDatatype(DataType.PURPLE_QC,
-                        metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), qcFile)))
+                .addDatatypes(new AddDatatype(DataType.PURPLE_QC, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), qcFile)))
                 .build();
     }
 

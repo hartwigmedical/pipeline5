@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.metadata.ApiFileOperation;
+import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.report.ReportComponent;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 
@@ -63,7 +63,7 @@ public class PipelineStateTest {
             }
 
             @Override
-            public List<ApiFileOperation> furtherOperations() {
+            public List<AddDatatype> datatypes() {
                 return Collections.emptyList();
             }
 
