@@ -24,6 +24,7 @@ import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.bachelor.BachelorOutput;
 import com.hartwig.pipeline.tertiary.chord.ChordOutput;
 import com.hartwig.pipeline.tertiary.linx.LinxOutput;
+import com.hartwig.pipeline.tertiary.linx.LinxOutputLocations;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 
 public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
@@ -37,7 +38,7 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
     private final InputDownload bachelorTsv;
     private final InputDownload linxFusionTsv;
     private final InputDownload linxBreakendTsv;
-    private final InputDownload linxDriversTsv;
+    private final InputDownload linxDriverCatalogTsv;
     private final InputDownload linxViralInsertionsTsv;
     private final InputDownload chordPrediction;
     private final ResourceFiles resourceFiles;
@@ -49,11 +50,19 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
         this.purpleDriverCatalog = new InputDownload(purpleOutput.outputLocations().driverCatalog());
         this.purpleSomaticVariants = new InputDownload(purpleOutput.outputLocations().somaticVcf());
         this.bachelorTsv = new InputDownload(bachelorOutput.maybeReportableVariants().orElse(GoogleStorageLocation.empty()));
-        this.linxFusionTsv = new InputDownload(linxOutput.linxOutputLocations().fusions());
-        this.linxBreakendTsv = new InputDownload(linxOutput.linxOutputLocations().breakends());
-        this.linxDriversTsv = new InputDownload(linxOutput.linxOutputLocations().driverCatalog());
-        this.linxViralInsertionsTsv = new InputDownload(linxOutput.linxOutputLocations().viralInsertions());
-        this.chordPrediction = new InputDownload(chordOutput.predictions());
+        this.linxFusionTsv = new InputDownload(linxOutput.maybeLinxOutputLocations()
+                .map(LinxOutputLocations::fusions)
+                .orElse(GoogleStorageLocation.empty()));
+        this.linxBreakendTsv = new InputDownload(linxOutput.maybeLinxOutputLocations()
+                .map(LinxOutputLocations::breakends)
+                .orElse(GoogleStorageLocation.empty()));
+        this.linxDriverCatalogTsv = new InputDownload(linxOutput.maybeLinxOutputLocations()
+                .map(LinxOutputLocations::driverCatalog)
+                .orElse(GoogleStorageLocation.empty()));
+        this.linxViralInsertionsTsv = new InputDownload(linxOutput.maybeLinxOutputLocations()
+                .map(LinxOutputLocations::viralInsertions)
+                .orElse(GoogleStorageLocation.empty()));
+        this.chordPrediction = new InputDownload(chordOutput.maybePredictions().orElse(GoogleStorageLocation.empty()));
         this.resourceFiles = resourceFiles;
     }
 
@@ -71,7 +80,7 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
                 bachelorTsv,
                 linxFusionTsv,
                 linxBreakendTsv,
-                linxDriversTsv,
+                linxDriverCatalogTsv,
                 linxViralInsertionsTsv,
                 chordPrediction);
     }
@@ -91,7 +100,7 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
                 bachelorTsv.getLocalTargetPath(),
                 linxFusionTsv.getLocalTargetPath(),
                 linxBreakendTsv.getLocalTargetPath(),
-                linxDriversTsv.getLocalTargetPath(),
+                linxDriverCatalogTsv.getLocalTargetPath(),
                 linxViralInsertionsTsv.getLocalTargetPath(),
                 chordPrediction.getLocalTargetPath()));
     }
