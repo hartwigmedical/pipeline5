@@ -20,7 +20,6 @@ import com.google.pubsub.v1.PubsubMessage;
 import com.hartwig.api.BiopsyApi;
 import com.hartwig.api.SampleApi;
 import com.hartwig.api.SetApi;
-import com.hartwig.api.model.Biopsy;
 import com.hartwig.api.model.Sample;
 import com.hartwig.api.model.SampleSet;
 import com.hartwig.api.model.SampleStatus;
@@ -49,7 +48,7 @@ public class BiopsyMetadataApiTest {
     private static final String TUMOR_BARCODE = "FR22222222";
     private static final String REF_NAME = "reference";
     private static final String REF_BARCODE = "FR11111111";
-    private static final long BIOPSY_ID = 1L;
+    private static final String BIOPSY_ID = "1L";
     public static final long TUMOR_SAMPLE_ID = 2L;
     public static final String SET_NAME = TestInputs.defaultSomaticRunMetadata().set();
     public static final long SET_ID = 3L;
@@ -79,21 +78,13 @@ public class BiopsyMetadataApiTest {
     }
 
     @Test(expected = IllegalStateException.class)
-    public void noBiopsy() {
-        when(biopsyApi.list(BIOPSY)).thenReturn(Collections.emptyList());
-        victim.get();
-    }
-
-    @Test(expected = IllegalStateException.class)
     public void noSamplesForBiopsy() {
-        when(biopsyApi.list(BIOPSY)).thenReturn(List.of(new Biopsy().name(BIOPSY).id(BIOPSY_ID)));
         when(sampleApi.list(null, null, null, null, SampleType.TUMOR, BIOPSY_ID)).thenReturn(Collections.emptyList());
         victim.get();
     }
 
     @Test(expected = IllegalStateException.class)
     public void noSetForSample() {
-        when(biopsyApi.list(BIOPSY)).thenReturn(List.of(new Biopsy().name(BIOPSY).id(BIOPSY_ID)));
         when(sampleApi.list(null, null, null, null, SampleType.TUMOR, BIOPSY_ID)).thenReturn(List.of(tumor()));
         when(setApi.list(null, TUMOR_SAMPLE_ID)).thenReturn(Collections.emptyList());
         victim.get();
@@ -101,7 +92,6 @@ public class BiopsyMetadataApiTest {
 
     @Test(expected = IllegalStateException.class)
     public void noReferenceSample() {
-        when(biopsyApi.list(BIOPSY)).thenReturn(List.of(new Biopsy().name(BIOPSY).id(BIOPSY_ID)));
         when(sampleApi.list(null, null, null, null, SampleType.TUMOR, BIOPSY_ID)).thenReturn(List.of(tumor()));
         when(setApi.list(null, TUMOR_SAMPLE_ID)).thenReturn(List.of(new SampleSet().name(SET_NAME).id(SET_ID)));
         when(sampleApi.list(null, null, null, SET_ID, SampleType.REF, null)).thenReturn(Collections.emptyList());
@@ -110,7 +100,6 @@ public class BiopsyMetadataApiTest {
 
     @Test
     public void returnsMetadataForBiopsySamples() {
-        when(biopsyApi.list(BIOPSY)).thenReturn(List.of(new Biopsy().name(BIOPSY).id(BIOPSY_ID)));
         when(sampleApi.list(null, null, null, null, SampleType.TUMOR, BIOPSY_ID)).thenReturn(List.of(tumor()));
         when(setApi.list(null, TUMOR_SAMPLE_ID)).thenReturn(List.of(new SampleSet().name(SET_NAME).id(SET_ID)));
         when(sampleApi.list(null, null, null, SET_ID, SampleType.REF, null)).thenReturn(List.of(ref()));

@@ -1,6 +1,8 @@
 package com.hartwig.pipeline.metadata;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -12,7 +14,6 @@ import com.hartwig.api.BiopsyApi;
 import com.hartwig.api.SampleApi;
 import com.hartwig.api.SetApi;
 import com.hartwig.api.helpers.OnlyOne;
-import com.hartwig.api.model.Biopsy;
 import com.hartwig.api.model.Sample;
 import com.hartwig.api.model.SampleSet;
 import com.hartwig.api.model.SampleType;
@@ -55,9 +56,11 @@ public class BiopsyMetadataApi implements SomaticMetadataApi {
 
     @Override
     public SomaticRunMetadata get() {
-        Biopsy biopsy = OnlyOne.of(biopsyApi.list(biopsyName), Biopsy.class);
-        Sample tumor = OnlyOne.of(sampleApi.list(null, null, null, null, SampleType.TUMOR, biopsy.getId()), Sample.class);
-        SampleSet set = OnlyOne.of(setApi.list(null, tumor.getId()), SampleSet.class);
+        Sample tumor = OnlyOne.of(sampleApi.list(null, null, null, null, SampleType.TUMOR, biopsyName), Sample.class);
+        SampleSet set = setApi.list(null, tumor.getId())
+                .stream()
+                .max(Comparator.comparing(o -> LocalDateTime.parse(o.getCreateTime())))
+                .orElseThrow();
         Sample ref = OnlyOne.of(sampleApi.list(null, null, null, set.getId(), SampleType.REF, null), Sample.class);
         return SomaticRunMetadata.builder()
                 .bucket(arguments.outputBucket())
@@ -97,22 +100,22 @@ public class BiopsyMetadataApi implements SomaticMetadataApi {
             OutputIterator.from(blob -> {
                 Optional<DataType> dataType =
                         addDatatypes.stream().filter(d -> blob.getName().endsWith(d.path())).map(AddDatatype::dataType).findFirst();
-                stagedEventBuilder.addBlobs(root(metadata.tumor().sampleName(),
+                stagedEventBuilder.addBlobs(builderWithPathComponents(metadata.tumor().sampleName(),
                         metadata.reference().sampleName(),
-                        blob.getName(),
-                        PipelineOutputBlob.builder()
-                                .datatype(dataType.map(Object::toString))
-                                .barcode(metadata.barcode())
-                                .bucket(blob.getBucket())
-                                .filesize(blob.getSize())
-                                .hash(MD5s.convertMd5ToSbpFormat(blob.getMd5()))).build());
+                        blob.getName()).datatype(dataType.map(Object::toString))
+                        .barcode(metadata.barcode())
+                        .bucket(blob.getBucket())
+                        .filesize(blob.getSize())
+                        .hash(MD5s.convertMd5ToSbpFormat(blob.getMd5()))
+                        .build());
             }, sourceBucket).iterate(metadata);
             stagedEventBuilder.build().publish(publisher, objectMapper);
         }
     }
 
-    private static ImmutablePipelineOutputBlob.Builder root(final String tumorSample, final String refSample, final String blobName,
-            final ImmutablePipelineOutputBlob.Builder outputBlob) {
+    private static ImmutablePipelineOutputBlob.Builder builderWithPathComponents(final String tumorSample, final String refSample,
+            final String blobName) {
+        ImmutablePipelineOutputBlob.Builder outputBlob = PipelineOutputBlob.builder();
         String[] splitName = blobName.split("/");
         boolean rootFile = splitName.length == 2;
         boolean singleSample = splitName.length > 3 && (splitName[1].equals(tumorSample) || splitName[1].equals(refSample));
