@@ -98,7 +98,7 @@ public class BiopsyMetadataApi implements SomaticMetadataApi {
                         .barcode(metadata.barcode())
                         .bucket(blob.getBucket())
                         .filesize(blob.getSize())
-                        .hash(MD5s.convertMd5ToSbpFormat(blob.getMd5()))
+                        .hash(MD5s.asHex(blob.getMd5()))
                         .build());
             }, sourceBucket).iterate(metadata);
             stagedEventBuilder.build().publish(publisher, objectMapper);

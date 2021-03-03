@@ -3,13 +3,13 @@ package com.hartwig.pipeline.transfer;
 import static java.lang.String.format;
 
 import java.io.File;
-import java.util.Base64;
 import java.util.Set;
 import java.util.function.Consumer;
 
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.hartwig.pipeline.metadata.AddDatatype;
+import com.hartwig.pipeline.metadata.MD5s;
 import com.hartwig.pipeline.report.PipelineResults;
 import com.hartwig.pipeline.sbpapi.AddFileApiResponse;
 import com.hartwig.pipeline.sbpapi.SbpFileMetadata;
@@ -17,7 +17,6 @@ import com.hartwig.pipeline.sbpapi.SbpRestApi;
 import com.hartwig.pipeline.sbpapi.SbpRun;
 import com.hartwig.pipeline.transfer.sbp.ContentTypeCorrection;
 
-import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +50,7 @@ public class SbpFileApiUpdate implements Consumer<Blob> {
                         .run_id(Integer.parseInt(sbpRun.id()))
                         .filename(new File(blob.getName()).getName())
                         .filesize(blob.getSize())
-                        .hash(convertMd5ToSbpFormat(blob.getMd5()))
+                        .hash(MD5s.asHex(blob.getMd5()))
                         .build();
                 AddFileApiResponse fileResponse = sbpApi.postFile(metaData);
 
@@ -63,10 +62,6 @@ public class SbpFileApiUpdate implements Consumer<Blob> {
                 }
             }
         }
-    }
-
-    private String convertMd5ToSbpFormat(String originalMd5) {
-        return new String(Hex.encodeHex(Base64.getDecoder().decode(originalMd5)));
     }
 
     private String extractDirectoryNameForSbp(String fullDestFilePath) {
