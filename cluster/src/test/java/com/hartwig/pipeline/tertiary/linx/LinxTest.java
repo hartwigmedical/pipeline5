@@ -54,7 +54,7 @@ public class LinxTest extends TertiaryStageTest<LinxOutput> {
                 new AddDatatype(DataType.LINX_BREAKENDS,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
                         new ArchivePath(Folder.root(), Linx.NAMESPACE, "tumor.linx.breakend.tsv")),
-                new AddDatatype(DataType.LINX_DRIVERS,
+                new AddDatatype(DataType.LINX_DRIVER_CATALOG,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
                         new ArchivePath(Folder.root(), Linx.NAMESPACE, "tumor.linx.drivers.tsv")),
                 new AddDatatype(DataType.LINX_FUSIONS,

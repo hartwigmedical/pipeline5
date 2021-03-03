@@ -15,8 +15,8 @@ public class PublisherProvider {
         this.credentials = credentials;
     }
 
-    public Publisher get() throws Exception {
-        return Publisher.newBuilder(ProjectTopicName.of(arguments.project(), "turquoise.events"))
+    public Publisher get(final String topic) throws Exception {
+        return Publisher.newBuilder(ProjectTopicName.of(arguments.project(), topic))
                 .setCredentialsProvider(() -> credentials)
                 .build();
     }

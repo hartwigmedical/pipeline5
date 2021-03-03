@@ -86,7 +86,7 @@ public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
                 .status(jobStatus)
                 .maybeLinxOutputLocations(LinxOutputLocations.builder()
                         .breakends(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(breakendTsv)))
-                        .drivers(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(driversTsv)))
+                        .driverCatalog(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(driversTsv)))
                         .fusions(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(fusionsTsv)))
                         .viralInsertions(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(viralInsertionsTsv)))
                         .build())
@@ -98,7 +98,7 @@ public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
                 .addDatatypes(new AddDatatype(DataType.LINX_BREAKENDS,
                         metadata.barcode(),
                         new ArchivePath(Folder.root(), namespace(), breakendTsv)))
-                .addDatatypes(new AddDatatype(DataType.LINX_DRIVERS,
+                .addDatatypes(new AddDatatype(DataType.LINX_DRIVER_CATALOG,
                         metadata.barcode(),
                         new ArchivePath(Folder.root(), namespace(), driversTsv)))
                 .addDatatypes(new AddDatatype(DataType.LINX_FUSIONS,

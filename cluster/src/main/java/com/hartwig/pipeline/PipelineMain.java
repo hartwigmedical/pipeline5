@@ -7,6 +7,7 @@ import java.util.concurrent.Executors;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.pubsub.v1.Publisher;
 import com.google.cloud.storage.Storage;
+import com.hartwig.events.PipelineStaged;
 import com.hartwig.pipeline.alignment.AlignerProvider;
 import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
 import com.hartwig.pipeline.cleanup.CleanupProvider;
@@ -52,8 +53,9 @@ public class PipelineMain {
         try {
             GoogleCredentials credentials = CredentialProvider.from(arguments).get();
             Storage storage = StorageProvider.from(arguments, credentials).get();
-            Publisher publisher = PublisherProvider.from(arguments, credentials).get();
-            SomaticMetadataApi somaticMetadataApi = SomaticMetadataApiProvider.from(arguments, storage, publisher).get();
+            Publisher turquoisePublisher = PublisherProvider.from(arguments, credentials).get("turquoise.events");
+            Publisher pipelinePublisher = PublisherProvider.from(arguments, credentials).get(PipelineStaged.SUBSCRIPTION);
+            SomaticMetadataApi somaticMetadataApi = SomaticMetadataApiProvider.from(arguments, storage, pipelinePublisher).get();
             SingleSampleEventListener referenceEventListener = new SingleSampleEventListener();
             SingleSampleEventListener tumorEventListener = new SingleSampleEventListener();
             SomaticRunMetadata somaticRunMetadata = somaticMetadataApi.get();
@@ -70,7 +72,7 @@ public class PipelineMain {
                     .type(ini)
                     .build();
             somaticMetadataApi.start();
-            startedEvent(eventSubjects, publisher, arguments.publishToTurquoise());
+            startedEvent(eventSubjects, turquoisePublisher, arguments.publishToTurquoise());
             BlockingQueue<BamMetricsOutput> referenceBamMetricsOutputQueue = new ArrayBlockingQueue<>(1);
             BlockingQueue<BamMetricsOutput> tumorBamMetricsOutputQueue = new ArrayBlockingQueue<>(1);
             BlockingQueue<FlagstatOutput> referenceFlagstatOutputQueue = new ArrayBlockingQueue<>(1);
@@ -121,7 +123,7 @@ public class PipelineMain {
                     somaticMetadataApi,
                     new FullSomaticResults(storage, arguments),
                     CleanupProvider.from(arguments, storage).get()).run();
-            completedEvent(eventSubjects, publisher, state.status().toString(), arguments.publishToTurquoise());
+            completedEvent(eventSubjects, turquoisePublisher, state.status().toString(), arguments.publishToTurquoise());
             VmExecutionLogSummary.ofFailedStages(storage, state);
             return state;
 

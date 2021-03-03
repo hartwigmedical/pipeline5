@@ -46,7 +46,6 @@ public class SomaticMetadataApiProvider {
     public SomaticMetadataApi biopsyBasedRerun(final String biopsyName) {
         HmfApi api = HmfApi.create(arguments.sbpApiUrl());
         return new BiopsyMetadataApi(api.samples(),
-                api.biopsies(),
                 api.sets(),
                 biopsyName,
                 arguments,

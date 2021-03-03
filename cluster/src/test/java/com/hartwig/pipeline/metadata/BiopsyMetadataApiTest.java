@@ -17,7 +17,6 @@ import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.google.pubsub.v1.PubsubMessage;
-import com.hartwig.api.BiopsyApi;
 import com.hartwig.api.SampleApi;
 import com.hartwig.api.SetApi;
 import com.hartwig.api.model.Sample;
@@ -48,14 +47,13 @@ public class BiopsyMetadataApiTest {
     private static final String TUMOR_BARCODE = "FR22222222";
     private static final String REF_NAME = "reference";
     private static final String REF_BARCODE = "FR11111111";
-    private static final String BIOPSY_ID = "1L";
+    private static final long BIOPSY_ID = 1L;
     public static final long TUMOR_SAMPLE_ID = 2L;
     public static final String SET_NAME = TestInputs.defaultSomaticRunMetadata().set();
     public static final long SET_ID = 3L;
     public static final long REF_SAMPLE_ID = 4L;
     private BiopsyMetadataApi victim;
     private SampleApi sampleApi;
-    private BiopsyApi biopsyApi;
     private SetApi setApi;
     private Bucket bucket;
     private Publisher publisher;
@@ -63,45 +61,37 @@ public class BiopsyMetadataApiTest {
     @Before
     public void setUp() throws Exception {
         sampleApi = mock(SampleApi.class);
-        biopsyApi = mock(BiopsyApi.class);
         setApi = mock(SetApi.class);
         bucket = mock(Bucket.class);
         publisher = mock(Publisher.class);
-        victim = new BiopsyMetadataApi(sampleApi,
-                biopsyApi,
-                setApi,
-                BIOPSY,
-                Arguments.testDefaults(),
-                publisher,
-                ObjectMappers.get(),
-                bucket);
+        victim = new BiopsyMetadataApi(sampleApi, setApi, BIOPSY, Arguments.testDefaults(), publisher, ObjectMappers.get(), bucket);
     }
 
     @Test(expected = IllegalStateException.class)
     public void noSamplesForBiopsy() {
-        when(sampleApi.list(null, null, null, null, SampleType.TUMOR, BIOPSY_ID)).thenReturn(Collections.emptyList());
+        when(sampleApi.list(null, null, null, null, SampleType.TUMOR, BIOPSY)).thenReturn(Collections.emptyList());
         victim.get();
     }
 
     @Test(expected = IllegalStateException.class)
     public void noSetForSample() {
-        when(sampleApi.list(null, null, null, null, SampleType.TUMOR, BIOPSY_ID)).thenReturn(List.of(tumor()));
-        when(setApi.list(null, TUMOR_SAMPLE_ID)).thenReturn(Collections.emptyList());
+        when(sampleApi.list(null, null, null, null, SampleType.TUMOR, BIOPSY)).thenReturn(List.of(tumor()));
+        when(setApi.list(null, TUMOR_SAMPLE_ID, true)).thenReturn(Collections.emptyList());
         victim.get();
     }
 
     @Test(expected = IllegalStateException.class)
     public void noReferenceSample() {
-        when(sampleApi.list(null, null, null, null, SampleType.TUMOR, BIOPSY_ID)).thenReturn(List.of(tumor()));
-        when(setApi.list(null, TUMOR_SAMPLE_ID)).thenReturn(List.of(new SampleSet().name(SET_NAME).id(SET_ID)));
+        when(sampleApi.list(null, null, null, null, SampleType.TUMOR, BIOPSY)).thenReturn(List.of(tumor()));
+        when(setApi.list(null, TUMOR_SAMPLE_ID, true)).thenReturn(List.of(new SampleSet().name(SET_NAME).id(SET_ID)));
         when(sampleApi.list(null, null, null, SET_ID, SampleType.REF, null)).thenReturn(Collections.emptyList());
         victim.get();
     }
 
     @Test
     public void returnsMetadataForBiopsySamples() {
-        when(sampleApi.list(null, null, null, null, SampleType.TUMOR, BIOPSY_ID)).thenReturn(List.of(tumor()));
-        when(setApi.list(null, TUMOR_SAMPLE_ID)).thenReturn(List.of(new SampleSet().name(SET_NAME).id(SET_ID)));
+        when(sampleApi.list(null, null, null, null, SampleType.TUMOR, BIOPSY)).thenReturn(List.of(tumor()));
+        when(setApi.list(null, TUMOR_SAMPLE_ID, true)).thenReturn(List.of(new SampleSet().name(SET_NAME).id(SET_ID)));
         when(sampleApi.list(null, null, null, SET_ID, SampleType.REF, null)).thenReturn(List.of(ref()));
         SomaticRunMetadata somaticRunMetadata = victim.get();
         assertThat(somaticRunMetadata.bucket()).isEqualTo(Arguments.testDefaults().outputBucket());
@@ -202,7 +192,7 @@ public class BiopsyMetadataApiTest {
         state.add(stageOutput);
         ArgumentCaptor<PubsubMessage> pubsubMessageArgumentCaptor = ArgumentCaptor.forClass(PubsubMessage.class);
         SomaticRunMetadata metadata = TestInputs.defaultSomaticRunMetadata();
-        when(setApi.list(metadata.set(), null)).thenReturn(List.of(new SampleSet().id(SET_ID)));
+        when(setApi.list(metadata.set(), null, null)).thenReturn(List.of(new SampleSet().id(SET_ID)));
         Blob outputBlob = mock(Blob.class);
         when(outputBlob.getBucket()).thenReturn("bucket");
         when(outputBlob.getName()).thenReturn(s);
