@@ -29,11 +29,7 @@ public class RemoteLocationsApi implements RemoteLocations {
         this.tumor = biopsy;
         this.reference = tumor.substring(0, tumor.lastIndexOf("T")) + "R";
 
-        // THIS IS TEMPORARY (Should not need the 1's at the end)
-        String certLocation = System.getProperty("javax.net.ssl.keyStore1");
-        String certPassword = System.getProperty("javax.net.ssl.keyStorePassword1");
-
-        DatasetApi datasetApi = HmfApi.createSSL(HmfApi.PRODUCTION, certLocation, certPassword).datasets();
+        DatasetApi datasetApi = HmfApi.create(HmfApi.PRODUCTION).datasets();
         dataset = datasetApi.get(tumor);
     }
 
