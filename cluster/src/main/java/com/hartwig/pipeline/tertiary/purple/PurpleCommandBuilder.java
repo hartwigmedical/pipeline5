@@ -48,11 +48,6 @@ public class PurpleCommandBuilder {
         return this;
     }
 
-    public PurpleCommandBuilder addGermline(String referenceSample) {
-        this.referenceSampleName = referenceSample;
-        return this;
-    }
-
     public PurpleCommandBuilder addGermline(String referenceSample, String germlineVcf) {
         this.referenceSampleName = referenceSample;
         this.germlineVcf = germlineVcf;
