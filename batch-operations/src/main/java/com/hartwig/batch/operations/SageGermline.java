@@ -45,26 +45,6 @@ public class SageGermline implements BatchOperation {
         final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.V37);
         commands.addCommand(new UnzipToDirectoryCommand(VmDirectories.RESOURCES, resourceFiles.snpEffDb()));
 
-        // Download experimental JAR
-        //        commands.addCommand(downloadExperimentalVersion());
-
-        // Download experimental resources
-//        commands.addCommand(() -> format("gsutil -u hmf-crunch cp %s %s",
-//                "gs://batch-sage-germline/resources/ActionableCodingPanel.germline.hg19.bed.gz",
-//                resourceFiles.sageGermlineCodingPanel()));
-//
-//        commands.addCommand(() -> format("gsutil -u hmf-crunch cp %s %s",
-//                "gs://batch-sage-germline/resources/CoverageCodingPanel.germline.hg19.bed.gz",
-//                resourceFiles.sageGermlineCoveragePanel()));
-//
-//        commands.addCommand(() -> format("gsutil -u hmf-crunch cp %s %s",
-//                "gs://batch-sage-germline/resources/KnownHotspots.germline.hg19.vcf.gz",
-//                resourceFiles.sageGermlineHotspots()));
-//
-//        commands.addCommand(() -> format("gsutil -u hmf-crunch cp %s %s",
-//                "gs://batch-sage-germline/resources/KnownHotspots.germline.hg19.vcf.gz.tbi",
-//                resourceFiles.sageGermlineHotspots() + ".tbi"));
-
         // Download Inputs
         commands.addCommands(localInput.generateDownloadCommands());
 
