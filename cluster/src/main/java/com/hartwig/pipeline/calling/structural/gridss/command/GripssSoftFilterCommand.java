@@ -22,6 +22,7 @@ public class GripssSoftFilterCommand extends GripssCommand {
                 "-input_vcf",
                 inputVcf,
                 "-output_vcf",
-                outputVcf);
+                outputVcf,
+                "-paired_normal_tumor_ordinals");
     }
 }
