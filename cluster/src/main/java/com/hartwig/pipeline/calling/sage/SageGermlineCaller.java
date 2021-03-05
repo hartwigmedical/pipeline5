@@ -50,7 +50,8 @@ public class SageGermlineCaller extends SageCaller {
 
         final SageCommandBuilder sageCommandBuilder =
                 new SageCommandBuilder(resourceFiles).germlineMode(referenceSampleName, referenceBamPath, tumorSampleName, tumorBamPath)
-                        .addCoverage(resourceFiles.sageGermlineCoveragePanel());
+                        .addCoverage(resourceFiles.sageGermlineCoveragePanel())
+                        .maxHeap("31G");
         SageApplication sageApplication = new SageApplication(sageCommandBuilder);
         SageGermlinePostProcess sagePostProcess = new SageGermlinePostProcess(referenceSampleName, tumorSampleName, resourceFiles);
 
