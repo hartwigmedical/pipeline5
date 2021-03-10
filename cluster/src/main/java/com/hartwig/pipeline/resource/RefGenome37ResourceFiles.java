@@ -148,7 +148,7 @@ public class RefGenome37ResourceFiles implements ResourceFiles {
 
     @Override
     public String knownFusionPairBedpe() {
-        return formPath(KNOWLEDGEBASES, "KnownFusionPairs.hg19.bedpe");
+        return formPath(KNOWLEDGEBASES, "known_fusions.bedpe");
     }
 
     @Override
