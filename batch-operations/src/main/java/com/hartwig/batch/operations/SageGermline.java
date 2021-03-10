@@ -4,6 +4,8 @@ import static java.lang.String.format;
 
 import com.hartwig.batch.BatchOperation;
 import com.hartwig.batch.OperationDescriptor;
+import com.hartwig.batch.api.LocalLocations;
+import com.hartwig.batch.api.RemoteLocationsApi;
 import com.hartwig.batch.input.InputBundle;
 import com.hartwig.batch.input.InputFileDescriptor;
 import com.hartwig.pipeline.ResultsDirectory;
@@ -32,35 +34,22 @@ public class SageGermline implements BatchOperation {
             final BashStartupScript commands, final RuntimeFiles executionFlags) {
 
         // Inputs
-        final String set = inputs.get("set").inputValue();
-        final String tumorSampleName = inputs.get("tumor_sample").inputValue();
-        final String referenceSampleName = inputs.get("ref_sample").inputValue();
-        final InputFileDescriptor remoteTumorFile = inputs.get("tumor_cram");
-        final InputFileDescriptor remoteReferenceFile = inputs.get("ref_cram");
-
-        final InputFileDescriptor remoteTumorIndex = remoteTumorFile.index();
-        final InputFileDescriptor remoteReferenceIndex = remoteReferenceFile.index();
-
-        final String localTumorFile = remoteTumorFile.localDestination();
-        final String localReferenceFile = remoteReferenceFile.localDestination();
+        final InputFileDescriptor biopsy = inputs.get("biopsy");
+        final LocalLocations localInput = new LocalLocations(new RemoteLocationsApi(biopsy));
+        final String tumorSampleName = localInput.getTumor();
+        final String referenceSampleName = localInput.getReference();
+        final String tumorAlignment = localInput.getTumorAlignment();
+        final String referenceAlignment = localInput.getReferenceAlignment();
 
         // Prepare SnpEff
         final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.V37);
         commands.addCommand(new UnzipToDirectoryCommand(VmDirectories.RESOURCES, resourceFiles.snpEffDb()));
 
-        // Download experimental JAR
-//        commands.addCommand(downloadExperimentalVersion());
-
-        // Download tumor
-        commands.addCommand(() -> remoteTumorFile.toCommandForm(localTumorFile));
-        commands.addCommand(() -> remoteTumorIndex.toCommandForm(remoteTumorIndex.localDestination()));
-
-        // Download normal
-        commands.addCommand(() -> remoteReferenceFile.toCommandForm(localReferenceFile));
-        commands.addCommand(() -> remoteReferenceIndex.toCommandForm(remoteReferenceIndex.localDestination()));
+        // Download Inputs
+        commands.addCommands(localInput.generateDownloadCommands());
 
         final SageCommandBuilder sageCommandBuilder =
-                new SageCommandBuilder(resourceFiles).germlineMode(referenceSampleName, localReferenceFile, tumorSampleName, localTumorFile)
+                new SageCommandBuilder(resourceFiles).germlineMode(referenceSampleName, referenceAlignment, tumorSampleName, tumorAlignment)
                         .addCoverage(resourceFiles.sageGermlineCoveragePanel());
 
         SageApplication sageApplication = new SageApplication(sageCommandBuilder);

@@ -1,25 +1,21 @@
 package com.hartwig.batch.operations;
 
-import static com.hartwig.batch.operations.AmberRerun.amberArchiveDirectory;
-import static com.hartwig.batch.operations.GripssRerun.gripssRecoveryFile;
-import static com.hartwig.batch.operations.GripssRerun.gripssSomaticFilteredFile;
-import static com.hartwig.batch.operations.SageRerun.sageSomaticFilteredFile;
-
 import java.util.List;
 
 import com.google.api.client.util.Lists;
 import com.hartwig.batch.BatchOperation;
 import com.hartwig.batch.OperationDescriptor;
+import com.hartwig.batch.api.LocalLocations;
+import com.hartwig.batch.api.RemoteLocations;
+import com.hartwig.batch.api.RemoteLocationsApi;
 import com.hartwig.batch.input.InputBundle;
+import com.hartwig.batch.input.InputFileDescriptor;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.CopyLogToOutput;
-import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.OutputUpload;
 import com.hartwig.pipeline.execution.vm.RuntimeFiles;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
-import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.resource.ResourceFilesFactory;
@@ -30,62 +26,31 @@ import com.hartwig.pipeline.tertiary.purple.PurpleCommandBuilder;
 
 public class PurpleRerun implements BatchOperation {
 
-    public static GoogleStorageLocation purpleArchiveDirectory(final String set) {
-        return GoogleStorageLocation.of("hmf-purple", set, true);
-    }
+    public List<BashCommand> bashCommands(RemoteLocations locations) {
 
-    public static GoogleStorageLocation cobaltArchiveDirectory(final String set) {
-        return GoogleStorageLocation.of("hmf-cobalt", set, true);
-    }
-
-    public List<BashCommand> bashCommands(final InputBundle inputs) {
+        final LocalLocations batchInput = new LocalLocations(locations);
         final List<BashCommand> commands = Lists.newArrayList();
         final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.V37);
 
-        final String set = inputs.get("set").inputValue();
-        final String tumorSampleName = inputs.get("tumor_sample").inputValue();
-        final String referenceSampleName = inputs.get("ref_sample").inputValue();
+        final String tumorSampleName = batchInput.getTumor();
+        final String referenceSampleName = batchInput.getReference();
 
-        final GoogleStorageLocation sageVcfStorage = sageSomaticFilteredFile(set, tumorSampleName);
-        final GoogleStorageLocation sageIndexStorage = index(sageVcfStorage);
+        final String amberLocation = batchInput.getAmber();
+        final String cobaltLocation = batchInput.getCobalt();
+        final String sageSomaticLocation = batchInput.getSomaticVariantsSage();
+        final String sageGermlineLocation = batchInput.getGermlineVariantsSage();
+        final String gripssLocation = batchInput.getStructuralVariantsGripss();
+        final String gripssRecoveryLocation = batchInput.getStructuralVariantsGripssRecovery();
 
-        final GoogleStorageLocation gripssVcfStorage = gripssSomaticFilteredFile(set, tumorSampleName);
-        final GoogleStorageLocation gripssVcfIndexStorage = index(gripssVcfStorage);
-
-        final GoogleStorageLocation gripssRecoveryVcfStorage = gripssRecoveryFile(set, tumorSampleName);
-        final GoogleStorageLocation gripssRecoveryVcfIndexStorage = index(gripssRecoveryVcfStorage);
-        final String amberInputDir = VmDirectories.INPUT + "/amber";
-        final String cobaltInputDir = VmDirectories.INPUT + "/cobalt";
-
-        final InputDownload amberLocation = new InputDownload(amberArchiveDirectory(set), amberInputDir);
-        final InputDownload cobaltLocation = new InputDownload(cobaltArchiveDirectory(set), cobaltInputDir);
-        final InputDownload sageLocation = new InputDownload(sageVcfStorage);
-        final InputDownload sageLocationIndex = new InputDownload(sageIndexStorage);
-
-        final InputDownload gripssLocation = new InputDownload(gripssVcfStorage);
-        final InputDownload gripssLocationIndex = new InputDownload(gripssVcfIndexStorage);
-
-        final InputDownload gripssRecoveryLocation = new InputDownload(gripssRecoveryVcfStorage);
-        final InputDownload gripssRecoveryLocationIndex = new InputDownload(gripssRecoveryVcfIndexStorage);
-
-        commands.add(() -> "mkdir -p " + amberInputDir);
-        commands.add(() -> "mkdir -p " + cobaltInputDir);
-        commands.add(amberLocation);
-        commands.add(cobaltLocation);
-        commands.add(sageLocation);
-        commands.add(sageLocationIndex);
-        commands.add(gripssLocation);
-        commands.add(gripssLocationIndex);
-        commands.add(gripssRecoveryLocation);
-        commands.add(gripssRecoveryLocationIndex);
+        commands.addAll(batchInput.generateDownloadCommands());
 
         PurpleCommandBuilder builder = new PurpleCommandBuilder(resourceFiles,
-                amberLocation.getLocalTargetPath(),
-                cobaltLocation.getLocalTargetPath(),
+                amberLocation,
+                cobaltLocation,
                 tumorSampleName,
-                gripssLocation.getLocalTargetPath(),
-                gripssRecoveryLocation.getLocalTargetPath(),
-                sageLocation.getLocalTargetPath()).addGermline(referenceSampleName);
+                gripssLocation,
+                gripssRecoveryLocation,
+                sageSomaticLocation).addGermline(referenceSampleName, sageGermlineLocation);
 
         commands.add(builder.build());
         return commands;
@@ -94,12 +59,12 @@ public class PurpleRerun implements BatchOperation {
     @Override
     public VirtualMachineJobDefinition execute(final InputBundle inputs, final RuntimeBucket runtimeBucket,
             final BashStartupScript commands, final RuntimeFiles executionFlags) {
-        final String set = inputs.get("set").inputValue();
-        final GoogleStorageLocation archiveStorageLocation = purpleArchiveDirectory(set);
 
-        commands.addCommands(bashCommands(inputs));
-        commands.addCommand(new CopyLogToOutput(executionFlags.log(), "run.log"));
-        commands.addCommand(new OutputUpload(archiveStorageLocation));
+        final InputFileDescriptor biopsy = inputs.get("biopsy");
+        final RemoteLocationsApi storageLocations = new RemoteLocationsApi(biopsy);
+
+        commands.addCommands(bashCommands(storageLocations));
+        commands.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), "purple"), executionFlags));
 
         return VirtualMachineJobDefinition.purple(commands, ResultsDirectory.defaultDirectory());
     }
