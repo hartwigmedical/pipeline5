@@ -11,13 +11,17 @@ public interface PurpleOutputLocations {
 
     GoogleStorageLocation somaticVcf();
 
+    GoogleStorageLocation germlineVcf();
+
     GoogleStorageLocation structuralVcf();
 
     GoogleStorageLocation purityTsv();
 
     GoogleStorageLocation qcFile();
 
-    GoogleStorageLocation driverCatalog();
+    GoogleStorageLocation somaticDriverCatalog();
+
+    GoogleStorageLocation germlineDriverCatalog();
 
     static ImmutablePurpleOutputLocations.Builder builder() {
         return ImmutablePurpleOutputLocations.builder();
