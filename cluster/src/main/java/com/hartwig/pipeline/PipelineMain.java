@@ -49,7 +49,7 @@ public class PipelineMain {
     public PipelineState start(Arguments arguments) throws Exception {
         LOGGER.info("Arguments are [{}]", arguments);
         Versions.printAll();
-//        try {
+        try {
             GoogleCredentials credentials = CredentialProvider.from(arguments).get();
             Storage storage = StorageProvider.from(arguments, credentials).get();
             Publisher publisher = PublisherProvider.from(arguments, credentials).get();
@@ -125,9 +125,9 @@ public class PipelineMain {
             VmExecutionLogSummary.ofFailedStages(storage, state);
             return state;
 
-//        } catch (Exception e) {
-//            throw new RuntimeException(e);
-//        }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void publish(final TurquoiseEvent turquoiseEvent, final boolean publish) {
