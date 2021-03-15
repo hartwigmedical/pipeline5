@@ -68,7 +68,7 @@ public abstract class SageCaller extends TertiaryStage<SageOutput> {
                 .addReportComponents(vcfComponent(filteredOutputFile, bucket, resultsDirectory))
                 .addReportComponents(new RunLogComponent(bucket, namespace(), Folder.root(), resultsDirectory))
                 .addReportComponents(new StartupScriptComponent(bucket, namespace(), Folder.root()))
-                .addFurtherOperations(new AddDatatype(dataType,
+                .addDatatypes(new AddDatatype(dataType,
                         metadata.barcode(),
                         new ArchivePath(Folder.root(), namespace(), filteredOutputFile)));
     }

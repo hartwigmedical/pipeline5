@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.metadata.AddDatatype;
-import com.hartwig.pipeline.metadata.ApiFileOperation;
 import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.Folder;
@@ -48,14 +47,14 @@ public class LinxTest extends TertiaryStageTest<LinxOutput> {
     }
 
     @Override
-    protected List<ApiFileOperation> expectedFurtherOperations() {
+    protected List<AddDatatype> expectedFurtherOperations() {
         return List.of(new AddDatatype(DataType.LINX,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
                         new ArchivePath(Folder.root(), Linx.NAMESPACE, "tumor.linx.breakend.tsv")),
                 new AddDatatype(DataType.LINX_BREAKENDS,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
                         new ArchivePath(Folder.root(), Linx.NAMESPACE, "tumor.linx.breakend.tsv")),
-                new AddDatatype(DataType.LINX_DRIVERS,
+                new AddDatatype(DataType.LINX_DRIVER_CATALOG,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
                         new ArchivePath(Folder.root(), Linx.NAMESPACE, "tumor.linx.drivers.tsv")),
                 new AddDatatype(DataType.LINX_FUSIONS,

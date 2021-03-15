@@ -6,7 +6,6 @@ import java.util.List;
 
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.metadata.AddDatatype;
-import com.hartwig.pipeline.metadata.ApiFileOperation;
 import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.Folder;
@@ -30,7 +29,7 @@ public class AmberTest extends TertiaryStageTest<AmberOutput> {
     }
 
     @Override
-    protected List<ApiFileOperation> expectedFurtherOperations() {
+    protected List<AddDatatype> expectedFurtherOperations() {
         String basenameSnpcheck = TestInputs.REF_GENOME_37_RESOURCE_FILES.amberSnpcheck()
                 .substring(TestInputs.REF_GENOME_37_RESOURCE_FILES.amberSnpcheck().lastIndexOf("/") + 1);
         return List.of(new AddDatatype(DataType.AMBER,

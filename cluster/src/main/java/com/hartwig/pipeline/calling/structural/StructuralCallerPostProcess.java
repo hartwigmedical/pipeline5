@@ -113,7 +113,7 @@ public class StructuralCallerPostProcess implements Stage<StructuralCallerPostPr
                         resultsDirectory))
                 .addReportComponents(new RunLogComponent(bucket, NAMESPACE, Folder.root(), resultsDirectory))
                 .addReportComponents(new StartupScriptComponent(bucket, NAMESPACE, Folder.root()))
-                .addFurtherOperations(new AddDatatype(DataType.STRUCTURAL_VARIANTS_GRIPSS_RECOVERY,
+                .addDatatypes(new AddDatatype(DataType.STRUCTURAL_VARIANTS_GRIPSS_RECOVERY,
                                 metadata.barcode(),
                                 new ArchivePath(Folder.root(), namespace(), basename(somaticVcf))),
                         new AddDatatype(DataType.STRUCTURAL_VARIANTS_GRIPSS,

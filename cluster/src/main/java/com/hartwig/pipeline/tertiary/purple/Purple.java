@@ -133,25 +133,25 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
                         .qcFile(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(qcFile)))
                         .build())
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), NAMESPACE, resultsDirectory))
-                .addFurtherOperations(new AddDatatype(DataType.GERMLINE_VARIANTS_PURPLE,
+                .addDatatypes(new AddDatatype(DataType.GERMLINE_VARIANTS_PURPLE,
                         metadata.barcode(),
                         new ArchivePath(Folder.root(), namespace(), germlineVcf(metadata))))
-                .addFurtherOperations(new AddDatatype(DataType.SOMATIC_VARIANTS_PURPLE,
+                .addDatatypes(new AddDatatype(DataType.SOMATIC_VARIANTS_PURPLE,
                         metadata.barcode(),
                         new ArchivePath(Folder.root(), namespace(), somaticVcf(metadata))))
-                .addFurtherOperations(new AddDatatype(DataType.STRUCTURAL_VARIANTS_PURPLE,
+                .addDatatypes(new AddDatatype(DataType.STRUCTURAL_VARIANTS_PURPLE,
                         metadata.barcode(),
                         new ArchivePath(Folder.root(), namespace(), svVcf(metadata))))
-                .addFurtherOperations(new AddDatatype(DataType.PURPLE_PURITY,
+                .addDatatypes(new AddDatatype(DataType.PURPLE_PURITY,
                         metadata.barcode(),
                         new ArchivePath(Folder.root(), namespace(), purityTsv)))
-                .addFurtherOperations(new AddDatatype(DataType.PURPLE_SOMATIC_DRIVER_CATALOG,
+                .addDatatypes(new AddDatatype(DataType.PURPLE_SOMATIC_DRIVER_CATALOG,
                         metadata.barcode(),
                         new ArchivePath(Folder.root(), namespace(), somaticDriverCatalog)))
-                .addFurtherOperations(new AddDatatype(DataType.PURPLE_GERMLINE_DRIVER_CATALOG,
+                .addDatatypes(new AddDatatype(DataType.PURPLE_GERMLINE_DRIVER_CATALOG,
                         metadata.barcode(),
                         new ArchivePath(Folder.root(), namespace(), germlineDriverCatalog)))
-                .addFurtherOperations(new AddDatatype(DataType.PURPLE_QC,
+                .addDatatypes(new AddDatatype(DataType.PURPLE_QC,
                         metadata.barcode(),
                         new ArchivePath(Folder.root(), namespace(), qcFile)))
                 .build();

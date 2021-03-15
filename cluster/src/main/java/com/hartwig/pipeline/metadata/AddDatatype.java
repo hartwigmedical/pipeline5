@@ -8,7 +8,7 @@ import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.sbpapi.AddFileApiResponse;
 import com.hartwig.pipeline.sbpapi.SbpRestApi;
 
-public class AddDatatype implements ApiFileOperation {
+public class AddDatatype {
     private final String path;
     private final DataType datatype;
     private final String barcode;
@@ -19,15 +19,17 @@ public class AddDatatype implements ApiFileOperation {
         this.path = path.path();
     }
 
-    @Override
     public void apply(final SbpRestApi api, final AddFileApiResponse file) {
         api.patchFile(file.id(), "datatype", datatype.name().toLowerCase());
         api.linkFileToSample(file.id(), barcode);
     }
 
-    @Override
     public String path() {
         return path;
+    }
+
+    public DataType dataType() {
+        return datatype;
     }
 
     @Override

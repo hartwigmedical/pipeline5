@@ -11,7 +11,7 @@ public interface LinxOutputLocations {
 
     GoogleStorageLocation breakends();
 
-    GoogleStorageLocation drivers();
+    GoogleStorageLocation driverCatalog();
 
     GoogleStorageLocation viralInsertions();
 

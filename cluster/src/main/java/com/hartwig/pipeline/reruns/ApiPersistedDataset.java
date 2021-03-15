@@ -22,7 +22,7 @@ public class ApiPersistedDataset implements PersistedDataset {
         this.billingProject = billingProject;
         try {
             String dataset = restApi.getDataset(biopsyName);
-            this.datasetMap = objectMapper.readValue(dataset, new TypeReference<Map<String, Map<String, Map<String, String>>>>() {
+            this.datasetMap = objectMapper.readValue(dataset, new TypeReference<>() {
             });
         } catch (IOException e) {
             throw new RuntimeException(e);

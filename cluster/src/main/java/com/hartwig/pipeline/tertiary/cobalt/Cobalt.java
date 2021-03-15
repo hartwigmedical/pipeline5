@@ -63,7 +63,7 @@ public class Cobalt extends TertiaryStage<CobaltOutput> {
                 .maybeOutputDirectory(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(), true))
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), NAMESPACE, resultsDirectory))
-                .addFurtherOperations(new AddDatatype(DataType.COBALT,
+                .addDatatypes(new AddDatatype(DataType.COBALT,
                         metadata.barcode(),
                         new ArchivePath(Folder.root(), namespace(), metadata.tumor().sampleName() + ".cobalt.ratio.tsv")))
                 .build();

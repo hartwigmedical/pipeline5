@@ -70,7 +70,7 @@ public class Chord implements Stage<ChordOutput, SomaticRunMetadata> {
                 .maybePredictions(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(chordPredictionTxt)))
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
-                .addFurtherOperations(new AddDatatype(DataType.CHORD_PREDICTION,
+                .addDatatypes(new AddDatatype(DataType.CHORD_PREDICTION,
                         metadata.barcode(),
                         new ArchivePath(Folder.root(), namespace(), chordPredictionTxt)))
                 .build();

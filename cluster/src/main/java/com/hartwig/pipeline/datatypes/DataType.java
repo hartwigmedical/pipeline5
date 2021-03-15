@@ -23,7 +23,7 @@ public enum DataType {
     AMBER,
     LINX,
     LINX_BREAKENDS,
-    LINX_DRIVERS,
+    LINX_DRIVER_CATALOG,
     LINX_FUSIONS,
     LINX_VIRAL_INSERTS,
     BACHELOR,

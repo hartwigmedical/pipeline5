@@ -65,7 +65,7 @@ public class Amber extends TertiaryStage<AmberOutput> {
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .maybeOutputDirectory(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(), true))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
-                .addFurtherOperations(new AddDatatype(DataType.AMBER,
+                .addDatatypes(new AddDatatype(DataType.AMBER,
                                 metadata.barcode(),
                                 new ArchivePath(Folder.root(), namespace(), String.format("%s.amber.baf.tsv", metadata.tumor().sampleName()))),
                         new AddDatatype(DataType.AMBER_SNPCHECK,

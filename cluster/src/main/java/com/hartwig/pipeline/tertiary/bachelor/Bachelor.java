@@ -87,10 +87,10 @@ public class Bachelor implements Stage<BachelorOutput, SomaticRunMetadata> {
                 .maybeReportableVariants(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(reportableVariantsTsv)))
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), NAMESPACE, resultsDirectory))
-                .addFurtherOperations(new AddDatatype(DataType.BACHELOR,
+                .addDatatypes(new AddDatatype(DataType.BACHELOR,
                         metadata.barcode(),
                         new ArchivePath(Folder.root(), namespace(), bachelorVariantsTsv)))
-                .addFurtherOperations(new AddDatatype(DataType.BACHELOR_REPORTABLE_VARIANTS,
+                .addDatatypes(new AddDatatype(DataType.BACHELOR_REPORTABLE_VARIANTS,
                         metadata.barcode(),
                         new ArchivePath(Folder.root(), namespace(), reportableVariantsTsv)))
                 .build();

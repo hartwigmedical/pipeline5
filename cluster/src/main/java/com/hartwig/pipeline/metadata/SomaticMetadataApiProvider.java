@@ -2,9 +2,12 @@ package com.hartwig.pipeline.metadata;
 
 import java.util.function.Supplier;
 
+import com.google.cloud.pubsub.v1.Publisher;
 import com.google.cloud.storage.Storage;
+import com.hartwig.api.HmfApi;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.sample.JsonSampleSource;
+import com.hartwig.pipeline.jackson.ObjectMappers;
 import com.hartwig.pipeline.sbpapi.SbpRestApi;
 import com.hartwig.pipeline.transfer.google.GoogleArchiver;
 
@@ -14,14 +17,16 @@ public class SomaticMetadataApiProvider {
 
     private final Arguments arguments;
     private final Storage storage;
+    private final Publisher publisher;
 
-    private SomaticMetadataApiProvider(final Arguments arguments, final Storage storage) {
+    private SomaticMetadataApiProvider(final Arguments arguments, final Storage storage, final Publisher publisher) {
         this.arguments = arguments;
         this.storage = storage;
+        this.publisher = publisher;
     }
 
-    public static SomaticMetadataApiProvider from(final Arguments arguments, final Storage storage) {
-        return new SomaticMetadataApiProvider(arguments, storage);
+    public static SomaticMetadataApiProvider from(final Arguments arguments, final Storage storage, final Publisher publisher) {
+        return new SomaticMetadataApiProvider(arguments, storage, publisher);
     }
 
     public SomaticMetadataApi get() {
@@ -39,7 +44,14 @@ public class SomaticMetadataApiProvider {
     }
 
     public SomaticMetadataApi biopsyBasedRerun(final String biopsyName) {
-        return new BiopsyMetadataApi(SbpRestApi.newInstance(arguments.sbpApiUrl()), biopsyName, arguments);
+        HmfApi api = HmfApi.create(arguments.sbpApiUrl());
+        return new BiopsyMetadataApi(api.samples(),
+                api.sets(),
+                biopsyName,
+                arguments,
+                publisher,
+                ObjectMappers.get(),
+                storage.get(arguments.outputBucket()));
     }
 
     public SomaticMetadataApi productionStyleRun(final Integer setId) {

@@ -124,7 +124,7 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
                         s -> !s.contains("working") || s.endsWith("bam.sv.bam") || s.endsWith("bam.sv.bam.bai")))
                 .addReportComponents(new RunLogComponent(bucket, NAMESPACE, Folder.root(), resultsDirectory))
                 .addReportComponents(new StartupScriptComponent(bucket, NAMESPACE, Folder.root()))
-                .addFurtherOperations(new AddDatatype(DataType.STRUCTURAL_VARIANTS_GRIDSS,
+                .addDatatypes(new AddDatatype(DataType.STRUCTURAL_VARIANTS_GRIDSS,
                         metadata.barcode(),
                         new ArchivePath(Folder.root(), namespace(), basename(unfilteredVcf))))
                 .build();

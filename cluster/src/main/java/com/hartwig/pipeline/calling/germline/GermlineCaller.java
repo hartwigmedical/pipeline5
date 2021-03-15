@@ -138,7 +138,7 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
                         outputFile.fileName(),
                         outputFile.fileName(),
                         resultsDirectory))
-                .addFurtherOperations(new AddDatatype(DataType.GERMLINE_VARIANTS,
+                .addDatatypes(new AddDatatype(DataType.GERMLINE_VARIANTS,
                         metadata.barcode(),
                         new ArchivePath(Folder.from(metadata), namespace(), outputFile.fileName())))
                 .build();
