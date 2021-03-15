@@ -14,7 +14,7 @@ public interface Versions {
     String SAMBAMBA = "0.6.8";
     String GATK = "3.8.0";
     String BCF_TOOLS = "1.9";
-    String SAGE = "2.6";
+    String SAGE = "2.7";
     String SNPEFF = "4.3s";
     String TABIX = "0.2.6";
     String AMBER = "3.4";
