@@ -46,7 +46,7 @@ public class PipelineMain {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PipelineMain.class);
 
-    public PipelineState start(Arguments arguments) {
+    public PipelineState start(Arguments arguments) throws Exception {
         LOGGER.info("Arguments are [{}]", arguments);
         Versions.printAll();
         try {

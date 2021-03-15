@@ -32,8 +32,10 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
 
     private final InputDownload purplePurity;
     private final InputDownload purpleQCFile;
-    private final InputDownload purpleDriverCatalog;
+    private final InputDownload purpleSomaticDriverCatalog;
+    private final InputDownload purpleGermlineDriverCatalog;
     private final InputDownload purpleSomaticVariants;
+    private final InputDownload purpleGermlineVariants;
     private final InputDownload bachelorTsv;
     private final InputDownload linxFusionTsv;
     private final InputDownload linxBreakendTsv;
@@ -46,8 +48,10 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
             final ChordOutput chordOutput, final ResourceFiles resourceFiles) {
         this.purplePurity = new InputDownload(purpleOutput.outputLocations().purityTsv());
         this.purpleQCFile = new InputDownload(purpleOutput.outputLocations().qcFile());
-        this.purpleDriverCatalog = new InputDownload(purpleOutput.outputLocations().driverCatalog());
+        this.purpleSomaticDriverCatalog = new InputDownload(purpleOutput.outputLocations().somaticDriverCatalog());
+        this.purpleGermlineDriverCatalog = new InputDownload(purpleOutput.outputLocations().germlineDriverCatalog());
         this.purpleSomaticVariants = new InputDownload(purpleOutput.outputLocations().somaticVcf());
+        this.purpleGermlineVariants = new InputDownload(purpleOutput.outputLocations().germlineVcf());
         this.bachelorTsv = new InputDownload(bachelorOutput.maybeReportableVariants().orElse(GoogleStorageLocation.empty()));
         this.linxFusionTsv = new InputDownload(linxOutput.linxOutputLocations().fusions());
         this.linxBreakendTsv = new InputDownload(linxOutput.linxOutputLocations().breakends());
@@ -66,8 +70,10 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
     public List<BashCommand> inputs() {
         return List.of(purplePurity,
                 purpleQCFile,
-                purpleDriverCatalog,
+                purpleSomaticDriverCatalog,
+                purpleGermlineDriverCatalog,
                 purpleSomaticVariants,
+                purpleGermlineVariants,
                 bachelorTsv,
                 linxFusionTsv,
                 linxBreakendTsv,
@@ -86,8 +92,10 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
                 resourceFiles.germlineReporting(),
                 purplePurity.getLocalTargetPath(),
                 purpleQCFile.getLocalTargetPath(),
-                purpleDriverCatalog.getLocalTargetPath(),
+                purpleSomaticDriverCatalog.getLocalTargetPath(),
+                purpleGermlineDriverCatalog.getLocalTargetPath(),
                 purpleSomaticVariants.getLocalTargetPath(),
+                purpleGermlineVariants.getLocalTargetPath(),
                 bachelorTsv.getLocalTargetPath(),
                 linxFusionTsv.getLocalTargetPath(),
                 linxBreakendTsv.getLocalTargetPath(),

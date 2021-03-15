@@ -29,7 +29,7 @@ public interface Versions {
     String CHORD = "2.00_1.14";
     String SAMTOOLS = "1.10";
     String BAMCOMP = "1.3";
-    String PROTECT = "1.1";
+    String PROTECT = "1.2";
 
     static void printAll() {
         Logger logger = LoggerFactory.getLogger(Versions.class);
