@@ -14,22 +14,22 @@ public interface Versions {
     String SAMBAMBA = "0.6.8";
     String GATK = "3.8.0";
     String BCF_TOOLS = "1.9";
-    String SAGE = "2.6";
+    String SAGE = "2.7";
     String SNPEFF = "4.3s";
     String TABIX = "0.2.6";
     String AMBER = "3.4";
     String COBALT = "1.11";
     String HEALTH_CHECKER = "3.2";
-    String PURPLE = "2.52";
+    String PURPLE = "2.53";
     String CIRCOS = "0.69.6";
     String GRIDSS = "2.9.4";
-    String GRIPSS = "1.10";
-    String LINX = "1.13";
+    String GRIPSS = "1.11";
+    String LINX = "1.14";
     String BACHELOR = "1.12";
     String CHORD = "2.00_1.14";
     String SAMTOOLS = "1.10";
     String BAMCOMP = "1.3";
-    String PROTECT = "1.1";
+    String PROTECT = "1.2";
 
     static void printAll() {
         Logger logger = LoggerFactory.getLogger(Versions.class);
