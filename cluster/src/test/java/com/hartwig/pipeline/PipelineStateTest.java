@@ -29,6 +29,7 @@ public class PipelineStateTest {
         PipelineState victim = new PipelineState();
         victim.add(output(PipelineStatus.SUCCESS));
         victim.add(output(PipelineStatus.SKIPPED));
+        victim.add(output(PipelineStatus.QC_FAILED));
         victim.add(output(PipelineStatus.FAILED));
         assertThat(victim.shouldProceed()).isFalse();
         assertThat(victim.status()).isEqualTo(PipelineStatus.FAILED);

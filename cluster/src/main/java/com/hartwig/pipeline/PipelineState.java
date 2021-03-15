@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.hartwig.pipeline.execution.PipelineStatus;
 
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,13 +56,14 @@ public class PipelineState {
     }
 
     public PipelineStatus status() {
-        return stageOutputs().stream()
-                .filter(Objects::nonNull)
-                .map(StageOutput::status)
-                .filter(status -> !status.equals(PipelineStatus.SUCCESS) && !status.equals(PipelineStatus.SKIPPED) && !status.equals(
-                        PipelineStatus.PERSISTED) && !status.equals(PipelineStatus.PROVIDED))
-                .findFirst()
-                .orElse(PipelineStatus.SUCCESS);
+        boolean failed = statusStream().anyMatch(status -> status.equals(PipelineStatus.FAILED));
+        boolean qcFailed = statusStream().anyMatch(status -> status.equals(PipelineStatus.QC_FAILED));
+        return failed ? PipelineStatus.FAILED : qcFailed ? PipelineStatus.QC_FAILED : PipelineStatus.SUCCESS;
+    }
+
+    @NotNull
+    public Stream<PipelineStatus> statusStream() {
+        return stageOutputs().stream().filter(Objects::nonNull).map(StageOutput::status);
     }
 
     @Override
