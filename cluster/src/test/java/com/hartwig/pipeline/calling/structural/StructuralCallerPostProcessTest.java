@@ -54,7 +54,7 @@ public class StructuralCallerPostProcessTest extends StageTest<StructuralCallerP
         return ImmutableList.of(
                 "java -Xmx24G -cp /opt/tools/gripss/1.11/gripss.jar com.hartwig.hmftools.gripss.GripssApplicationKt -ref_genome "
                         + "/opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
-                        + "-breakpoint_hotspot /opt/resources/knowledgebases/37/KnownFusionPairs.hg19.bedpe "
+                        + "-breakpoint_hotspot /opt/resources/knowledgebases/37/known_fusions.bedpe "
                         + "-breakend_pon /opt/resources/gridss_pon/37/gridss_pon_single_breakend.hg19.bed "
                         + "-breakpoint_pon /opt/resources/gridss_pon/37/gridss_pon_breakpoint.hg19.bedpe "
                         + "-reference reference -tumor tumor "
