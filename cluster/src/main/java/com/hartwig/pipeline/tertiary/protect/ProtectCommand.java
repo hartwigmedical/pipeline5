@@ -10,7 +10,7 @@ public class ProtectCommand extends JavaJarCommand {
     public ProtectCommand(final String tumorSample, final List<String> primaryTumorDoids, final String outputDir,
             final String actionabilityDir, final String doidJsonPath, final String germlineReportingTsvPath, final String purplePurityPath,
             final String purpleQCFilePath, final String purpleDriverCatalogSomaticPath, final String purpleDriverCatalogGermlinePath,
-            final String purpleGermlineVariantsPath, final String purpleSomaticVariantsPath,
+            final String purpleSomaticVariantsPath, final String purpleGermlineVariantsPath,
             final String bachelorTsvPath, final String linxFusionTsvPath, final String linxBreakendTsvPath, final String linxDriversTsvPath,
             final String linxViralInsertionsTsvPath, final String chordPredictionPath) {
         super("protect", Versions.PROTECT,
