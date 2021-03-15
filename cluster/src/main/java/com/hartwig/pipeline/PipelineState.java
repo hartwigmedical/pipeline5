@@ -8,7 +8,6 @@ import java.util.stream.Stream;
 
 import com.hartwig.pipeline.execution.PipelineStatus;
 
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,8 +60,7 @@ public class PipelineState {
         return failed ? PipelineStatus.FAILED : qcFailed ? PipelineStatus.QC_FAILED : PipelineStatus.SUCCESS;
     }
 
-    @NotNull
-    public Stream<PipelineStatus> statusStream() {
+    private Stream<PipelineStatus> statusStream() {
         return stageOutputs().stream().filter(Objects::nonNull).map(StageOutput::status);
     }
 
