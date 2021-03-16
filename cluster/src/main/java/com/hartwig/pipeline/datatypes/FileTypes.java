@@ -9,6 +9,7 @@ public class FileTypes {
     public static final String TBI = ".tbi";
     public static final String BAI = ".bai";
     public static final String CRAI = ".crai";
+    public static final String CRAM = ".cram";
 
     public static String tabixIndex(final String vcf) {
         return vcf + TBI;
@@ -19,7 +20,7 @@ public class FileTypes {
     }
 
     public static String cram(final String sample) {
-        return sample + ".cram";
+        return sample + CRAM;
     }
 
     public static String crai(final String cram) {

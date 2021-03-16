@@ -13,6 +13,8 @@ import com.hartwig.pipeline.calling.germline.GermlineCaller;
 import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
 import com.hartwig.pipeline.cram.CramConversion;
 import com.hartwig.pipeline.cram.CramOutput;
+import com.hartwig.pipeline.cram2bam.Cram2Bam;
+import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.flagstat.Flagstat;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
 import com.hartwig.pipeline.metadata.SingleSampleEventListener;
@@ -69,7 +71,7 @@ public class SingleSamplePipeline {
                 arguments.runId().map(runId -> String.format("using run tag [%s]", runId)).orElse(""));
         PipelineState state = new PipelineState();
         final ResourceFiles resourceFiles = buildResourceFiles(arguments);
-        AlignmentOutput alignmentOutput = report.add(state.add(aligner.run(metadata)));
+        AlignmentOutput alignmentOutput = convertCramsIfNecessary(metadata, state);
         eventListener.alignmentComplete(alignmentOutput);
         if (state.shouldProceed()) {
             report.clearOldState(arguments, metadata);
@@ -79,8 +81,8 @@ public class SingleSamplePipeline {
                     executorService.submit(() -> stageRunner.run(metadata, new SnpGenotype(resourceFiles, alignmentOutput)));
             Future<FlagstatOutput> flagstatOutputFuture =
                     executorService.submit(() -> stageRunner.run(metadata, new Flagstat(alignmentOutput)));
-            Future<CramOutput> cramOutputFuture =
-                    executorService.submit(() -> stageRunner.run(metadata, new CramConversion(alignmentOutput, metadata.type(), resourceFiles)));
+            Future<CramOutput> cramOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
+                    new CramConversion(alignmentOutput, metadata.type(), resourceFiles)));
 
             if (metadata.type().equals(SingleSampleRunMetadata.SampleType.REFERENCE)) {
                 Future<GermlineCallerOutput> germlineCallerFuture = executorService.submit(() -> stageRunner.run(metadata,
@@ -102,6 +104,13 @@ public class SingleSamplePipeline {
             eventListener.complete(state);
         }
         return state;
+    }
+
+    private AlignmentOutput convertCramsIfNecessary(final SingleSampleRunMetadata metadata, final PipelineState state) throws Exception {
+        AlignmentOutput alignmentOutput = report.add(state.add(aligner.run(metadata)));
+        alignmentOutput = state.shouldProceed() && alignmentOutput.finalBamLocation().path().endsWith(FileTypes.CRAM) ? state.add(stageRunner.run(metadata,
+                new Cram2Bam(alignmentOutput.finalBamLocation(), metadata.type()))) : alignmentOutput;
+        return alignmentOutput;
     }
 
     private static <T> T futurePayload(final Future<T> future) {
