@@ -36,7 +36,7 @@ public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata
 
     private final InputDownload bamDownload;
     private final String outputCram;
-    private SampleType sampleType;
+    private final SampleType sampleType;
     private final ResourceFiles resourceFiles;
 
     public CramConversion(final AlignmentOutput alignmentOutput, final SampleType sampleType, ResourceFiles resourceFiles) {

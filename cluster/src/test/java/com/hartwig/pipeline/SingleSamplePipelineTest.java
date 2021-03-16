@@ -31,6 +31,7 @@ import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
 import com.hartwig.pipeline.cram.CramOutput;
+import com.hartwig.pipeline.cram2bam.Cram2Bam;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
 import com.hartwig.pipeline.metadata.SingleSampleEventListener;
@@ -41,7 +42,9 @@ import com.hartwig.pipeline.report.PipelineResultsProvider;
 import com.hartwig.pipeline.report.ReportComponent;
 import com.hartwig.pipeline.reruns.NoopPersistedDataset;
 import com.hartwig.pipeline.snpgenotype.SnpGenotypeOutput;
+import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.StageRunner;
+import com.hartwig.pipeline.storage.GoogleStorageLocation;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -318,6 +321,29 @@ public class SingleSamplePipelineTest {
         initialiseVictim(false);
         victim.run(referenceRunMetadata());
         verify(pipelineResults).clearOldState(any(Arguments.class), eq(referenceRunMetadata()));
+    }
+
+    @Test
+    public void convertsToBamIfRunFromCram() throws Exception {
+        AlignmentOutput alignmentOutput = AlignmentOutput.builder()
+                .status(PipelineStatus.SUCCESS)
+                .sample(referenceSample())
+                .maybeFinalBamLocation(GoogleStorageLocation.of("run-reference-test/aligner", "results/reference.cram"))
+                .build();
+        when(aligner.run(referenceRunMetadata())).thenReturn(alignmentOutput);
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<Stage<AlignmentOutput, SingleSampleRunMetadata>> stageArgumentCaptor = ArgumentCaptor.forClass(Stage.class);
+        AlignmentOutput cram2Bam = AlignmentOutput.builder()
+                .status(PipelineStatus.FAILED)
+                .sample(referenceSample())
+                .maybeFinalBamLocation(GoogleStorageLocation.of("run-reference-test/cram2bam", "results/reference.bam"))
+                .maybeFinalBaiLocation(GoogleStorageLocation.of("run-reference-test/cram2bam", "results/reference.bam.bai"))
+                .build();
+        when(stageRunner.run(eq(referenceRunMetadata()), stageArgumentCaptor.capture())).thenReturn(cram2Bam);
+        PipelineState runOutput = victim.run(referenceRunMetadata());
+        Stage<AlignmentOutput, SingleSampleRunMetadata> cram2bamStage = stageArgumentCaptor.getValue();
+        assertThat(cram2bamStage).isInstanceOf(Cram2Bam.class);
+        assertThat(runOutput.stageOutputs()).contains(cram2Bam);
     }
 
     private void assertFailed(final PipelineState runOutput) {

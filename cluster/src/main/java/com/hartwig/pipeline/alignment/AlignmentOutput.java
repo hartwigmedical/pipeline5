@@ -13,6 +13,7 @@ public interface AlignmentOutput extends StageOutput {
 
     String sample();
 
+    @Value.Default
     default String name() {
         return Aligner.NAMESPACE;
     }
