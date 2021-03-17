@@ -29,7 +29,7 @@ public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
     public static final String NAMESPACE = "linx";
     public static final String KNOWLEDGEBASE_OUTPUT = "output/";
     public static final String BREAKEND_TSV = ".linx.breakend.tsv";
-    public static final String DRIVER_CATALOG_TSV = ".driver.catalog.tsv";
+    public static final String DRIVER_CATALOG_TSV = ".linx.driver.catalog.tsv";
     public static final String FUSION_TSV = ".linx.fusion.tsv";
     public static final String VIRAL_INSERTS_TSV = ".linx.viral_inserts.tsv";
 

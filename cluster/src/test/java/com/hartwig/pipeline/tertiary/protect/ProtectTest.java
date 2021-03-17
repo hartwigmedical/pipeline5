@@ -32,7 +32,7 @@ public class ProtectTest extends TertiaryStageTest<ProtectOutput> {
                         "tumor.reportable_germline_variant.tsv"),
                 input(expectedRuntimeBucketName() + "/linx/tumor.linx.fusion.tsv", "tumor.linx.fusion.tsv"),
                 input(expectedRuntimeBucketName() + "/linx/tumor.linx.breakend.tsv", "tumor.linx.breakend.tsv"),
-                input(expectedRuntimeBucketName() + "/linx/tumor.driver.catalog.tsv", "tumor.driver.catalog.tsv"),
+                input(expectedRuntimeBucketName() + "/linx/tumor.linx.driver.catalog.tsv", "tumor.linx.driver.catalog.tsv"),
                 input(expectedRuntimeBucketName() + "/linx/tumor.linx.viral_inserts.tsv", "tumor.linx.viral_inserts.tsv"),
                 input(expectedRuntimeBucketName() + "/chord/tumor_chord_prediction.txt", "tumor_chord_prediction.txt"));
     }
@@ -51,7 +51,7 @@ public class ProtectTest extends TertiaryStageTest<ProtectOutput> {
                         + "/data/input/tumor.purple.germline.vcf.gz -bachelor_tsv /data/input/tumor.reportable_germline_variant.tsv "
                         + "-linx_fusion_tsv /data/input/tumor.linx.fusion.tsv -linx_breakend_tsv /data/input/tumor.linx.breakend.tsv "
                         + "-linx_viral_insertion_tsv /data/input/tumor.linx.viral_inserts.tsv -linx_drivers_tsv "
-                        + "/data/input/tumor.driver.catalog.tsv -chord_prediction_txt /data/input/tumor_chord_prediction.txt -log_debug");
+                        + "/data/input/tumor.linx.driver.catalog.tsv -chord_prediction_txt /data/input/tumor_chord_prediction.txt -log_debug");
     }
 
     @Override
