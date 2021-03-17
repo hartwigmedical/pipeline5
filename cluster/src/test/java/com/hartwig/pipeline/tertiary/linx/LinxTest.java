@@ -56,7 +56,7 @@ public class LinxTest extends TertiaryStageTest<LinxOutput> {
                         new ArchivePath(Folder.root(), Linx.NAMESPACE, "tumor.linx.breakend.tsv")),
                 new AddDatatype(DataType.LINX_DRIVER_CATALOG,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
-                        new ArchivePath(Folder.root(), Linx.NAMESPACE, "tumor.linx.drivers.tsv")),
+                        new ArchivePath(Folder.root(), Linx.NAMESPACE, "tumor.driver.catalog.tsv")),
                 new AddDatatype(DataType.LINX_FUSIONS,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
                         new ArchivePath(Folder.root(), Linx.NAMESPACE, "tumor.linx.fusion.tsv")),
