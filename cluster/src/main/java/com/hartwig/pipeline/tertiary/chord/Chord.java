@@ -82,6 +82,11 @@ public class Chord implements Stage<ChordOutput, SomaticRunMetadata> {
     }
 
     @Override
+    public ChordOutput persistedOutput(final SomaticRunMetadata metadata) {
+        return ChordOutput.builder().status(PipelineStatus.PERSISTED).build();
+    }
+
+    @Override
     public boolean shouldRun(final Arguments arguments) {
         return arguments.runTertiary() && !arguments.shallow();
     }

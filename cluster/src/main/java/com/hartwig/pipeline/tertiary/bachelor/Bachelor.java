@@ -102,6 +102,11 @@ public class Bachelor implements Stage<BachelorOutput, SomaticRunMetadata> {
     }
 
     @Override
+    public BachelorOutput persistedOutput(final SomaticRunMetadata metadata) {
+        return BachelorOutput.builder().status(PipelineStatus.PERSISTED).build();
+    }
+
+    @Override
     public boolean shouldRun(final Arguments arguments) {
         return arguments.runTertiary() && arguments.runGermlineCaller() && !arguments.shallow();
     }

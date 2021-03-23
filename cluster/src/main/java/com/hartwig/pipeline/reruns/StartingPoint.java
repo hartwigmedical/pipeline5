@@ -22,6 +22,8 @@ import com.hartwig.pipeline.tertiary.amber.Amber;
 import com.hartwig.pipeline.tertiary.bachelor.Bachelor;
 import com.hartwig.pipeline.tertiary.chord.Chord;
 import com.hartwig.pipeline.tertiary.cobalt.Cobalt;
+import com.hartwig.pipeline.tertiary.healthcheck.HealthChecker;
+import com.hartwig.pipeline.tertiary.protect.Protect;
 import com.hartwig.pipeline.tertiary.purple.Purple;
 
 import org.jetbrains.annotations.NotNull;
@@ -46,6 +48,19 @@ public class StartingPoint {
                         SageGermlineCaller.NAMESPACE))),
         GRIPSS_COMPLETE(concat(CALLING_COMPLETE.namespaces, List.of(StructuralCallerPostProcess.NAMESPACE))),
         PURPLE_COMPLETE(concat(GRIPSS_COMPLETE.namespaces, List.of(Purple.NAMESPACE))),
+
+        LINX_ONLY(concat(ALIGNMENT_COMPLETE.namespaces,
+                List.of(SageSomaticCaller.NAMESPACE,
+                        SageGermlineCaller.NAMESPACE,
+                        StructuralCaller.NAMESPACE,
+                        StructuralCallerPostProcess.NAMESPACE,
+                        Purple.NAMESPACE,
+                        Cobalt.NAMESPACE,
+                        Amber.NAMESPACE,
+                        Chord.NAMESPACE,
+                        Bachelor.NAMESPACE,
+                        Protect.NAMESPACE,
+                        HealthChecker.NAMESPACE))),
 
         RERUN_521(concat(ALIGNMENT_COMPLETE.namespaces,
                 List.of(SageSomaticCaller.NAMESPACE,
