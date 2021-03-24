@@ -198,6 +198,7 @@ public class BiopsyMetadataApiTest {
         when(outputBlob.getName()).thenReturn(s);
         when(outputBlob.getSize()).thenReturn(1L);
         when(outputBlob.getMd5()).thenReturn("md5");
+        when(bucket.get(s)).thenReturn(outputBlob);
         Page<Blob> page = TestBlobs.pageOf(outputBlob);
         when(bucket.list(Storage.BlobListOption.prefix("set/"))).thenReturn(page);
         when(publisher.publish(pubsubMessageArgumentCaptor.capture())).thenReturn(mock(ApiFuture.class));
