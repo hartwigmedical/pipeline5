@@ -52,7 +52,7 @@ public class Cram2Bam implements Stage<AlignmentOutput, SingleSampleRunMetadata>
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
         return VirtualMachineJobDefinition.builder()
                 .workingDiskSpaceGb(sampleType.equals(SingleSampleRunMetadata.SampleType.REFERENCE) ? 650 : 950)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(6, 6))
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(32, 32))
                 .startupCommand(bash)
                 .namespacedResults(resultsDirectory)
                 .name(namespace())

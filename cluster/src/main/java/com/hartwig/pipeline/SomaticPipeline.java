@@ -135,12 +135,13 @@ public class SomaticPipeline {
                             Future<LinxOutput> linxOutputFuture =
                                     executorService.submit(() -> stageRunner.run(metadata, new Linx(purpleOutput, resourceFiles)));
                             Future<BachelorOutput> bachelorOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
-                                    new Bachelor(resourceFiles,
+                                    new Bachelor(persistedDataset,
+                                            resourceFiles,
                                             purpleOutput,
                                             pair.tumor(),
                                             pollOrThrow(germlineCallerOutputStorage, "germline"))));
                             Future<ChordOutput> chordOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
-                                    new Chord(arguments.refGenomeVersion(), purpleOutput)));
+                                    new Chord(arguments.refGenomeVersion(), purpleOutput, persistedDataset)));
                             pipelineResults.add(state.add(healthCheckOutputFuture.get()));
                             LinxOutput linxOutput = pipelineResults.add(state.add(linxOutputFuture.get()));
                             BachelorOutput bachelorOutput = pipelineResults.add(state.add(bachelorOutputFuture.get()));

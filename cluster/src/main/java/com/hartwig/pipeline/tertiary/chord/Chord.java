@@ -18,6 +18,8 @@ import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
+import com.hartwig.pipeline.reruns.PersistedDataset;
+import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
@@ -31,11 +33,13 @@ public class Chord implements Stage<ChordOutput, SomaticRunMetadata> {
     private final RefGenomeVersion refGenomeVersion;
     private final InputDownload purpleStructuralVcfDownload;
     private final InputDownload purpleSomaticVcfDownload;
+    private final PersistedDataset persistedDataset;
 
-    public Chord(final RefGenomeVersion refGenomeVersion, final PurpleOutput purpleOutput) {
+    public Chord(final RefGenomeVersion refGenomeVersion, final PurpleOutput purpleOutput, final PersistedDataset persistedDataset) {
         this.refGenomeVersion = refGenomeVersion;
         purpleStructuralVcfDownload = new InputDownload(purpleOutput.outputLocations().structuralVcf());
         purpleSomaticVcfDownload = new InputDownload(purpleOutput.outputLocations().somaticVcf());
+        this.persistedDataset = persistedDataset;
     }
 
     @Override
@@ -79,6 +83,18 @@ public class Chord implements Stage<ChordOutput, SomaticRunMetadata> {
     @Override
     public ChordOutput skippedOutput(final SomaticRunMetadata metadata) {
         return ChordOutput.builder().status(PipelineStatus.SKIPPED).build();
+    }
+
+    @Override
+    public ChordOutput persistedOutput(final SomaticRunMetadata metadata) {
+        return ChordOutput.builder()
+                .status(PipelineStatus.PERSISTED)
+                .maybePredictions(persistedDataset.path(metadata.tumor().sampleName(), DataType.CHORD_PREDICTION)
+                        .orElse(GoogleStorageLocation.of(metadata.bucket(),
+                                PersistedLocations.blobForSet(metadata.set(),
+                                        namespace(),
+                                        metadata.tumor().sampleName() + PREDICTION_TXT))))
+                .build();
     }
 
     @Override

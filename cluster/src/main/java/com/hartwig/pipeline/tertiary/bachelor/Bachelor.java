@@ -21,6 +21,8 @@ import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
+import com.hartwig.pipeline.reruns.PersistedDataset;
+import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
@@ -33,6 +35,7 @@ public class Bachelor implements Stage<BachelorOutput, SomaticRunMetadata> {
     public static final String VARIANT_TSV = ".bachelor.germline_variant.tsv";
     public static final String REPORTABLE_VARIANT_TSV = ".reportable_germline_variant.tsv";
 
+    private final PersistedDataset persistedDataset;
     private final ResourceFiles resourceFiles;
     private final InputDownload purpleOutputDownload;
     private final InputDownload tumorBamDownload;
@@ -40,8 +43,9 @@ public class Bachelor implements Stage<BachelorOutput, SomaticRunMetadata> {
     private final InputDownload germlineVcfDownload;
     private final InputDownload germlineVcfIndexDownload;
 
-    public Bachelor(final ResourceFiles resourceFiles, final PurpleOutput purpleOutput, AlignmentOutput tumorAlignmentOutput,
-            GermlineCallerOutput germlineCallerOutput) {
+    public Bachelor(final PersistedDataset persistedDataset, final ResourceFiles resourceFiles, final PurpleOutput purpleOutput,
+            AlignmentOutput tumorAlignmentOutput, GermlineCallerOutput germlineCallerOutput) {
+        this.persistedDataset = persistedDataset;
         this.resourceFiles = resourceFiles;
         this.purpleOutputDownload = new InputDownload(purpleOutput.outputLocations().outputDirectory());
         this.tumorBamDownload = new InputDownload(tumorAlignmentOutput.finalBamLocation());
@@ -99,6 +103,16 @@ public class Bachelor implements Stage<BachelorOutput, SomaticRunMetadata> {
     @Override
     public BachelorOutput skippedOutput(final SomaticRunMetadata metadata) {
         return BachelorOutput.builder().status(PipelineStatus.SKIPPED).build();
+    }
+
+    @Override
+    public BachelorOutput persistedOutput(final SomaticRunMetadata metadata) {
+        return BachelorOutput.builder()
+                .status(PipelineStatus.PERSISTED)
+                .maybeReportableVariants(persistedDataset.path(metadata.tumor().sampleName(), DataType.BACHELOR_REPORTABLE_VARIANTS)
+                        .orElse(GoogleStorageLocation.of(metadata.bucket(),
+                                PersistedLocations.blobForSet(metadata.set(), namespace(), metadata.tumor().sampleName() + VARIANT_TSV))))
+                .build();
     }
 
     @Override

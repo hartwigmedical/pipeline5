@@ -70,6 +70,8 @@ public interface CommonArguments {
 
     Optional<String> refGenomeUrl();
 
+    Optional<String> pubsubProject();
+
     static Optional<String> privateKey(CommandLine commandLine) {
         if (commandLine.hasOption(PRIVATE_KEY_PATH)) {
             return Optional.of(commandLine.getOptionValue(PRIVATE_KEY_PATH));

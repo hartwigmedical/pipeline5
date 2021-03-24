@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.cloud.pubsub.v1.Publisher;
+import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.hartwig.api.SampleApi;
 import com.hartwig.api.SetApi;
@@ -92,13 +93,14 @@ public class BiopsyMetadataApi implements SomaticMetadataApi {
             OutputIterator.from(blob -> {
                 Optional<DataType> dataType =
                         addDatatypes.stream().filter(d -> blob.getName().endsWith(d.path())).map(AddDatatype::dataType).findFirst();
+                Blob blobWithMd5 = sourceBucket.get(blob.getName());
                 stagedEventBuilder.addBlobs(builderWithPathComponents(metadata.tumor().sampleName(),
                         metadata.reference().sampleName(),
-                        blob.getName()).datatype(dataType.map(Object::toString))
+                        blobWithMd5.getName()).datatype(dataType.map(Object::toString))
                         .barcode(metadata.barcode())
-                        .bucket(blob.getBucket())
-                        .filesize(blob.getSize())
-                        .hash(MD5s.asHex(blob.getMd5()))
+                        .bucket(blobWithMd5.getBucket())
+                        .filesize(blobWithMd5.getSize())
+                        .hash(MD5s.asHex(blobWithMd5.getMd5()))
                         .build());
             }, sourceBucket).iterate(metadata);
             stagedEventBuilder.build().publish(publisher, objectMapper);

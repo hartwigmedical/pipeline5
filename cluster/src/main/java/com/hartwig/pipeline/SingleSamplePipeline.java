@@ -71,7 +71,7 @@ public class SingleSamplePipeline {
                 arguments.runId().map(runId -> String.format("using run tag [%s]", runId)).orElse(""));
         PipelineState state = new PipelineState();
         final ResourceFiles resourceFiles = buildResourceFiles(arguments);
-        AlignmentOutput alignmentOutput = convertCramsIfNecessary(metadata, state);
+        AlignmentOutput alignmentOutput = convertCramsIfNecessary(arguments, metadata, state);
         eventListener.alignmentComplete(alignmentOutput);
         if (state.shouldProceed()) {
             report.clearOldState(arguments, metadata);
@@ -106,10 +106,13 @@ public class SingleSamplePipeline {
         return state;
     }
 
-    private AlignmentOutput convertCramsIfNecessary(final SingleSampleRunMetadata metadata, final PipelineState state) throws Exception {
+    private AlignmentOutput convertCramsIfNecessary(final Arguments arguments, final SingleSampleRunMetadata metadata,
+            final PipelineState state) throws Exception {
         AlignmentOutput alignmentOutput = report.add(state.add(aligner.run(metadata)));
-        alignmentOutput = state.shouldProceed() && alignmentOutput.finalBamLocation().path().endsWith(FileTypes.CRAM) ? state.add(stageRunner.run(metadata,
-                new Cram2Bam(alignmentOutput.finalBamLocation(), metadata.type()))) : alignmentOutput;
+        alignmentOutput =
+                state.shouldProceed() && !arguments.useCrams() && alignmentOutput.finalBamLocation().path().endsWith(FileTypes.CRAM)
+                        ? state.add(stageRunner.run(metadata, new Cram2Bam(alignmentOutput.finalBamLocation(), metadata.type())))
+                        : alignmentOutput;
         return alignmentOutput;
     }
 

@@ -97,6 +97,8 @@ public interface Arguments extends CommonArguments {
 
     boolean publishToTurquoise();
 
+    boolean useCrams();
+
     static String workingDir() {
         return System.getProperty("user.dir");
     }
@@ -163,7 +165,8 @@ public interface Arguments extends CommonArguments {
                     .publishToTurquoise(false)
                     .pollInterval(DEFAULT_POLL_INTERVAL)
                     .refGenomeVersion(DEFAULT_REF_GENOME_VERSION)
-                    .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES);
+                    .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES)
+                    .useCrams(false);
         } else if (profile.equals(DefaultsProfile.DEVELOPMENT)) {
             return ImmutableArguments.builder()
                     .profile(profile)
@@ -199,7 +202,8 @@ public interface Arguments extends CommonArguments {
                     .refGenomeVersion(DEFAULT_REF_GENOME_VERSION)
                     .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES)
                     .network(DEFAULT_NETWORK)
-                    .useLocalSsds(true);
+                    .useLocalSsds(true)
+                    .useCrams(false);
         } else if (profile.equals(DefaultsProfile.DEVELOPMENT_DOCKER)) {
             return ImmutableArguments.builder()
                     .profile(profile)
@@ -235,7 +239,8 @@ public interface Arguments extends CommonArguments {
                     .publishToTurquoise(false)
                     .pollInterval(DEFAULT_POLL_INTERVAL)
                     .refGenomeVersion(DEFAULT_REF_GENOME_VERSION)
-                    .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES);
+                    .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES)
+                    .useCrams(false);
         } else if (profile.equals(DefaultsProfile.PUBLIC)) {
             return ImmutableArguments.builder()
                     .profile(profile)
@@ -271,7 +276,8 @@ public interface Arguments extends CommonArguments {
                     .pollInterval(DEFAULT_POLL_INTERVAL)
                     .refGenomeVersion(RefGenomeVersion.V38)
                     .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES)
-                    .imageName(VirtualMachineJobDefinition.PUBLIC_IMAGE_NAME);
+                    .imageName(VirtualMachineJobDefinition.PUBLIC_IMAGE_NAME)
+                    .useCrams(false);
         }
         throw new IllegalArgumentException(String.format("Unknown profile [%s], please create defaults for this profile.", profile));
     }
