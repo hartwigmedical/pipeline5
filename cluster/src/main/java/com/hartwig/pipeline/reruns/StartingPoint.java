@@ -19,6 +19,7 @@ import com.hartwig.pipeline.flagstat.Flagstat;
 import com.hartwig.pipeline.metrics.BamMetrics;
 import com.hartwig.pipeline.snpgenotype.SnpGenotype;
 import com.hartwig.pipeline.tertiary.amber.Amber;
+import com.hartwig.pipeline.tertiary.bachelor.Bachelor;
 import com.hartwig.pipeline.tertiary.chord.Chord;
 import com.hartwig.pipeline.tertiary.cobalt.Cobalt;
 import com.hartwig.pipeline.tertiary.purple.Purple;
@@ -52,7 +53,8 @@ public class StartingPoint {
                         StructuralCallerPostProcess.NAMESPACE,
                         Cobalt.NAMESPACE,
                         Amber.NAMESPACE,
-                        Chord.NAMESPACE)));
+                        Chord.NAMESPACE,
+                        Bachelor.NAMESPACE)));
 
         private final List<String> namespaces;
 
