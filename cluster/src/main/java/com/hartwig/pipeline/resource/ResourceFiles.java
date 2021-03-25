@@ -69,6 +69,8 @@ public interface ResourceFiles {
 
     String sageGermlineCoveragePanel();
 
+    String sageGermlineSlicePanel();
+
     String sageGermlineBlacklistVcf();
 
     String sageGermlineBlacklistBed();

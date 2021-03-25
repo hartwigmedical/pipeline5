@@ -50,7 +50,7 @@ public class SageGermline implements BatchOperation {
 
         final SageCommandBuilder sageCommandBuilder =
                 new SageCommandBuilder(resourceFiles).germlineMode(referenceSampleName, referenceAlignment, tumorSampleName, tumorAlignment)
-                        .addCoverage(resourceFiles.sageGermlineCoveragePanel());
+                        .addCoverage();
 
         SageApplication sageApplication = new SageApplication(sageCommandBuilder);
         SageGermlinePostProcess sagePostProcess = new SageGermlinePostProcess(referenceSampleName, tumorSampleName, resourceFiles);
