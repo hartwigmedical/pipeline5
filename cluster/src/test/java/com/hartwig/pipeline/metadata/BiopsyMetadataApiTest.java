@@ -192,7 +192,7 @@ public class BiopsyMetadataApiTest {
         state.add(stageOutput);
         ArgumentCaptor<PubsubMessage> pubsubMessageArgumentCaptor = ArgumentCaptor.forClass(PubsubMessage.class);
         SomaticRunMetadata metadata = TestInputs.defaultSomaticRunMetadata();
-        when(setApi.list(metadata.set(), null, null)).thenReturn(List.of(new SampleSet().id(SET_ID)));
+        when(setApi.list(metadata.set(), null, true)).thenReturn(List.of(new SampleSet().id(SET_ID)));
         Blob outputBlob = mock(Blob.class);
         when(outputBlob.getBucket()).thenReturn("bucket");
         when(outputBlob.getName()).thenReturn(s);

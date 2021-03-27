@@ -84,7 +84,7 @@ public class BiopsyMetadataApi implements SomaticMetadataApi {
         if (state.status() != PipelineStatus.FAILED) {
             List<AddDatatype> addDatatypes =
                     state.stageOutputs().stream().map(StageOutput::datatypes).flatMap(List::stream).collect(Collectors.toList());
-            SampleSet set = OnlyOne.of(setApi.list(metadata.set(), null, null), SampleSet.class);
+            SampleSet set = OnlyOne.of(setApi.list(metadata.set(), null, true), SampleSet.class);
             ImmutablePipelineStaged.Builder stagedEventBuilder = ImmutablePipelineStaged.builder()
                     .type(PipelineStaged.Type.DNA)
                     .version(Versions.pipelineMajorMinorVersion())
