@@ -118,8 +118,11 @@ public class SageCommandBuilder {
 
         if (ponMode) {
 
+            arguments.add("-hotspots").add(resourceFiles.sageSomaticHotspots());
+            arguments.add("-panel_bed").add(resourceFiles.sageSomaticCodingPanel());
+
             if (tumorSamples > 1) {
-                throw new IllegalStateException("Germline mode only supports one sample");
+                throw new IllegalStateException("PON mode only supports one sample");
             }
 
             arguments.add("-hard_filter_enabled true")
