@@ -21,6 +21,7 @@ public enum DataType {
     CHORD_PREDICTION,
     COBALT,
     AMBER,
+    VIRUSBREAKEND,
     LINX,
     LINX_BREAKENDS,
     LINX_DRIVER_CATALOG,
