@@ -22,7 +22,6 @@ import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
 public class SageCreatePon implements BatchOperation {
-
     @Override
     public VirtualMachineJobDefinition execute(final InputBundle inputs, final RuntimeBucket runtimeBucket,
             final BashStartupScript startupScript, final RuntimeFiles executionFlags) {
@@ -42,7 +41,7 @@ public class SageCreatePon implements BatchOperation {
 //                "gs://batch-sage-validation/resources/sage.jar",
 //                "/opt/tools/sage/" + Versions.SAGE + "/sage.jar"));
 
-        // Download germline VCFs (and indexes)
+        // Download germline VCFS (and indexes)
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch -m cp %s %s",
                 "gs://batch-sage/*/sage/*.sage.somatic.vcf.gz",
                 VmDirectories.INPUT));
