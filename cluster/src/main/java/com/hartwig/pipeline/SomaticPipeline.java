@@ -27,6 +27,8 @@ import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.StageRunner;
 import com.hartwig.pipeline.tertiary.amber.Amber;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
+import com.hartwig.pipeline.tertiary.virusbreakend.VirusBreakend;
+import com.hartwig.pipeline.tertiary.virusbreakend.VirusBreakendOutput;
 import com.hartwig.pipeline.tertiary.bachelor.Bachelor;
 import com.hartwig.pipeline.tertiary.bachelor.BachelorOutput;
 import com.hartwig.pipeline.tertiary.chord.Chord;
@@ -94,16 +96,21 @@ public class SomaticPipeline {
                         executorService.submit(() -> stageRunner.run(metadata, new Amber(pair, resourceFiles, persistedDataset)));
                 Future<CobaltOutput> cobaltOutputFuture =
                         executorService.submit(() -> stageRunner.run(metadata, new Cobalt(pair, resourceFiles, persistedDataset)));
+                Future<VirusBreakendOutput> virusBreakendOutputFuture =
+                        executorService.submit(() -> stageRunner.run(metadata, new VirusBreakend(pair, resourceFiles, persistedDataset)));
                 Future<SageOutput> sageSomaticOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                         new SageSomaticCaller(pair, resourceFiles, persistedDataset)));
                 Future<SageOutput> sageGermlineOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                         new SageGermlineCaller(pair, resourceFiles, persistedDataset)));
                 Future<StructuralCallerOutput> structuralCallerOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                         new StructuralCaller(pair, resourceFiles, persistedDataset)));
+
                 AmberOutput amberOutput = pipelineResults.add(state.add(amberOutputFuture.get()));
                 CobaltOutput cobaltOutput = pipelineResults.add(state.add(cobaltOutputFuture.get()));
+                VirusBreakendOutput virusBreakendOutput = pipelineResults.add(state.add(virusBreakendOutputFuture.get()));
                 SageOutput sageSomaticOutput = pipelineResults.add(state.add(sageSomaticOutputFuture.get()));
                 SageOutput sageGermlineOutput = pipelineResults.add(state.add(sageGermlineOutputFuture.get()));
+
                 StructuralCallerOutput structuralCallerOutput = pipelineResults.add(state.add(structuralCallerOutputFuture.get()));
                 if (state.shouldProceed()) {
                     Future<StructuralCallerPostProcessOutput> structuralCallerPostProcessOutputFuture =

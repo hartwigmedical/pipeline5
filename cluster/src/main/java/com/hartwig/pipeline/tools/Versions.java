@@ -23,7 +23,6 @@ public interface Versions {
     String PURPLE = "2.53";
     String CIRCOS = "0.69.6";
     String GRIDSS = "2.9.4";
-//    String GRIDSS = "2.11.0";
     String GRIPSS = "1.11";
     String LINX = "1.14";
     String BACHELOR = "1.12";
@@ -31,7 +30,8 @@ public interface Versions {
     String SAMTOOLS = "1.10";
     String BAMCOMP = "1.3";
     String PROTECT = "1.2";
-    String VIRUS_BREAKEND = "0.1";
+    // Version of VirusBreakend refers to GRIDSS version to use
+    String VIRUS_BREAKEND = "2.11.0";
 
     static void printAll() {
         Logger logger = LoggerFactory.getLogger(Versions.class);
