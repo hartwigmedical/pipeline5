@@ -24,6 +24,17 @@ sudo chmod a+x /opt/tools/gridss/2.7.2/gridss.sh
 sudo chmod a+x /opt/tools/gridss/2.8.3/gridss.sh
 sudo chmod a+x /opt/tools/gridss/2.9.3/gridss.sh
 sudo chmod a+x /opt/tools/gridss/2.9.4/gridss.sh
+
+# TODO: check what is really needed from GRIDSS v2.11.1
+sudo chmod a+x /opt/tools/gridss/2.11.1/gridss.sh
+sudo chmod a+x /opt/tools/gridss/2.11.1/gridsstools
+sudo chmod a+x /opt/tools/gridss/2.11.1/virusbreakend.sh
+sudo chmod a+x /opt/tools/gridss/2.11.1/gridss_annotate_vcf_kraken2.sh
+sudo chmod a+x /opt/tools/gridss/2.11.1/gridss_annotate_vcf_repeatmasker.sh
+sudo chmod a+x /opt/tools/gridss/2.11.1/gridss_somatic_filter.R
+sudo chmod a+x /opt/tools/gridss/2.11.1/libgridss.R
+sudo chmod a+x /opt/tools/gridss/2.11.1/gridss.config.R
+
 sudo chmod a+x /opt/tools/samtools/1.9/samtools
 sudo chmod a+x /opt/tools/samtools/1.10/samtools
 sudo chmod a+x /opt/tools/bcl2fastq/2.20.0.422/bcl2fastq
