@@ -42,7 +42,7 @@ public class LinxTest extends TertiaryStageTest<LinxOutput> {
                 + "-replication_origins_file /opt/resources/sv/37/heli_rep_origins.bed -viral_hosts_file /opt/resources/sv/viral_host_ref.csv "
                 + "-gene_transcripts_dir /opt/resources/ensembl/37/ensembl_data_cache "
                 + "-check_fusions -known_fusion_file /opt/resources/knowledgebases/37/known_fusion_data.csv "
-                + "-check_drivers -driver_gene_panel /opt/resources/gene_panel/37/DriverGenePanel.hg19.tsv "
+                + "-check_drivers -driver_gene_panel /opt/resources/gene_panel/37/DriverGenePanel.37.tsv "
                 + "-chaining_sv_limit 0 -write_vis_data");
     }
 

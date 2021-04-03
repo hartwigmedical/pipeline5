@@ -43,22 +43,22 @@ public class RefGenome37ResourceFiles implements ResourceFiles {
 
     @Override
     public String diploidRegionsBed() {
-        return formPath(COBALT, "DiploidRegions.hg19.bed.gz");
+        return formPath(COBALT, "DiploidRegions.37.bed.gz");
     }
 
     @Override
     public String amberHeterozygousLoci() {
-        return formPath(AMBER, "GermlineHetPon.hg19.vcf.gz");
+        return formPath(AMBER, "GermlineHetPon.37.vcf.gz");
     }
 
     @Override
     public String amberSnpcheck() {
-        return formPath(AMBER, "Amber.snpcheck.hg19.vcf");
+        return formPath(AMBER, "Amber.snpcheck.37.vcf");
     }
 
     @Override
     public String gridssRepeatMaskerDb() {
-        return formPath(GRIDSS_REPEAT_MASKER_DB, "hg19.fa.out");
+        return formPath(GRIDSS_REPEAT_MASKER_DB, "37.fa.out");
     }
 
     @Override
@@ -68,12 +68,12 @@ public class RefGenome37ResourceFiles implements ResourceFiles {
 
     @Override
     public String gridssBreakendPon() {
-        return formPath(GRIDSS_PON, "gridss_pon_single_breakend.hg19.bed");
+        return formPath(GRIDSS_PON, "gridss_pon_single_breakend.37.bed");
     }
 
     @Override
     public String gridssBreakpointPon() {
-        return formPath(GRIDSS_PON, "gridss_pon_breakpoint.hg19.bedpe");
+        return formPath(GRIDSS_PON, "gridss_pon_breakpoint.37.bedpe");
     }
 
     @Override
@@ -93,52 +93,52 @@ public class RefGenome37ResourceFiles implements ResourceFiles {
 
     @Override
     public String sageSomaticHotspots() {
-        return formPath(SAGE, "KnownHotspots.somatic.hg19.vcf.gz");
+        return formPath(SAGE, "KnownHotspots.somatic.37.vcf.gz");
     }
 
     @Override
     public String sageSomaticCodingPanel() {
-        return formPath(SAGE, "ActionableCodingPanel.somatic.hg19.bed.gz");
+        return formPath(SAGE, "ActionableCodingPanel.somatic.37.bed.gz");
     }
 
     @Override
     public String sageGermlineHotspots() {
-        return formPath(SAGE, "KnownHotspots.germline.hg19.vcf.gz");
+        return formPath(SAGE, "KnownHotspots.germline.37.vcf.gz");
     }
 
     @Override
     public String sageGermlineCodingPanel() {
-        return formPath(SAGE, "ActionableCodingPanel.germline.hg19.bed.gz");
+        return formPath(SAGE, "ActionableCodingPanel.germline.37.bed.gz");
     }
 
     @Override
     public String sageGermlineCoveragePanel() {
-        return formPath(SAGE, "CoverageCodingPanel.germline.hg19.bed.gz");
+        return formPath(SAGE, "CoverageCodingPanel.germline.37.bed.gz");
     }
 
     @Override
     public String sageGermlineBlacklistVcf() {
-        return formPath(SAGE, "KnownBlacklist.germline.hg19.vcf.gz");
+        return formPath(SAGE, "KnownBlacklist.germline.37.vcf.gz");
     }
 
     @Override
     public String sageGermlineBlacklistBed() {
-        return formPath(SAGE, "KnownBlacklist.germline.hg19.bed.gz");
+        return formPath(SAGE, "KnownBlacklist.germline.37.bed.gz");
     }
 
     @Override
     public String clinvarVcf() {
-        return formPath(SAGE, "clinvar.hg19.vcf.gz");
+        return formPath(SAGE, "clinvar.37.vcf.gz");
     }
 
     @Override
     public String out150Mappability() {
-        return formPath(MAPPABILITY, "out_150_hg19.mappability.bed.gz");
+        return formPath(MAPPABILITY, "out_150_37.mappability.bed.gz");
     }
 
     @Override
     public String sageGermlinePon() {
-        return formPath(SAGE, "SageGermlinePon.hg19.1000x.vcf.gz");
+        return formPath(SAGE, "SageGermlinePon.37.1000x.vcf.gz");
     }
 
     @Override
@@ -188,7 +188,7 @@ public class RefGenome37ResourceFiles implements ResourceFiles {
 
     @Override
     public String driverGenePanel() {
-        return formPath(GENE_PANEL, "DriverGenePanel.hg19.tsv");
+        return formPath(GENE_PANEL, "DriverGenePanel.37.tsv");
     }
 
     @Override
