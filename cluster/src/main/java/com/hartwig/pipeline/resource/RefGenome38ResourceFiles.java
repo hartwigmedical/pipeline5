@@ -3,18 +3,18 @@ package com.hartwig.pipeline.resource;
 import static com.hartwig.pipeline.resource.ResourceNames.AMBER;
 import static com.hartwig.pipeline.resource.ResourceNames.BACHELOR;
 import static com.hartwig.pipeline.resource.ResourceNames.COBALT;
-import static com.hartwig.pipeline.resource.ResourceNames.ENSEMBL;
-import static com.hartwig.pipeline.resource.ResourceNames.GC_PROFILE;
+import static com.hartwig.pipeline.resource.ResourceNames.ENSEMBL_DATA_CACHE;
+import static com.hartwig.pipeline.resource.ResourceNames.FUSIONS;
+import static com.hartwig.pipeline.resource.ResourceNames.GC_PROFILES;
 import static com.hartwig.pipeline.resource.ResourceNames.GENE_PANEL;
 import static com.hartwig.pipeline.resource.ResourceNames.GIAB_HIGH_CONF;
 import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_PON;
 import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_REPEAT_MASKER_DB;
-import static com.hartwig.pipeline.resource.ResourceNames.KNOWLEDGEBASES;
+import static com.hartwig.pipeline.resource.ResourceNames.LINX;
 import static com.hartwig.pipeline.resource.ResourceNames.MAPPABILITY;
 import static com.hartwig.pipeline.resource.ResourceNames.REFERENCE_GENOME;
 import static com.hartwig.pipeline.resource.ResourceNames.SAGE;
 import static com.hartwig.pipeline.resource.ResourceNames.SNPEFF;
-import static com.hartwig.pipeline.resource.ResourceNames.SV;
 
 public class RefGenome38ResourceFiles implements ResourceFiles {
 
@@ -34,32 +34,22 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
 
     @Override
     public String gcProfileFile() {
-        return formPath(GC_PROFILE, "GC_profile.hg38.1000bp.cnp");
+        return formPath(GC_PROFILES, "GC_profile.1000bp.38.cnp");
     }
 
     @Override
     public String diploidRegionsBed() {
-        return formPath(COBALT, "DiploidRegions.hg38.bed.gz");
+        return formPath(COBALT, "DiploidRegions.38.bed.gz");
     }
 
     @Override
     public String amberHeterozygousLoci() {
-        return formPath(AMBER, "GermlineHetPon.hg38.vcf.gz");
+        return formPath(AMBER, "GermlineHetPon.38.vcf.gz");
     }
 
     @Override
     public String amberSnpcheck() {
-        return formPath(AMBER, "Amber.snpcheck.hg38.vcf");
-    }
-
-    @Override
-    public String gridssRepeatMaskerDb() {
-        return formPath(GRIDSS_REPEAT_MASKER_DB, "hg38.fa.out");
-    }
-
-    @Override
-    public String gridssBlacklistBed() {
-        return formPath(GRIDSS_REPEAT_MASKER_DB, "ENCFF001TDO.bed");
+        return formPath(AMBER, "Amber.snpcheck.38.vcf");
     }
 
     @Override
@@ -73,58 +63,53 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
     }
 
     @Override
-    public String snpEffConfig() {
-        return formPath(SNPEFF, "snpEff.config");
-    }
-
-    @Override
     public String sageSomaticHotspots() {
-        return formPath(SAGE, "KnownHotspots.somatic.hg38.vcf.gz");
+        return formPath(SAGE, "KnownHotspots.somatic.38.vcf.gz");
     }
 
     @Override
     public String sageSomaticCodingPanel() {
-        return formPath(SAGE, "ActionableCodingPanel.somatic.hg38.bed.gz");
+        return formPath(SAGE, "ActionableCodingPanel.somatic.38.bed.gz");
     }
 
     @Override
     public String sageGermlineHotspots() {
-        return formPath(SAGE, "KnownHotspots.germline.hg38.vcf.gz");
+        return formPath(SAGE, "KnownHotspots.germline.38.vcf.gz");
     }
 
     @Override
     public String sageGermlineCodingPanel() {
-        return formPath(SAGE, "ActionableCodingPanel.germline.hg38.bed.gz");
+        return formPath(SAGE, "ActionableCodingPanel.germline.38.bed.gz");
     }
 
     @Override
     public String sageGermlineCoveragePanel() {
-        return formPath(SAGE, "CoverageCodingPanel.germline.hg38.bed.gz");
+        return formPath(SAGE, "CoverageCodingPanel.germline.38.bed.gz");
     }
 
     @Override
     public String sageGermlineBlacklistVcf() {
-        return formPath(SAGE, "KnownBlacklist.germline.hg38.vcf.gz");
+        return formPath(SAGE, "KnownBlacklist.germline.38.vcf.gz");
     }
 
     @Override
     public String sageGermlineBlacklistBed() {
-        return formPath(SAGE, "KnownBlacklist.germline.hg38.bed.gz");
+        return formPath(SAGE, "KnownBlacklist.germline.38.bed.gz");
     }
 
     @Override
     public String clinvarVcf() {
-        return formPath(SAGE, "clinvar.hg38.vcf.gz");
+        return formPath(SAGE, "clinvar.38.vcf.gz");
     }
 
     @Override
     public String out150Mappability() {
-        return formPath(MAPPABILITY, "out_150_hg38.mappability.bed.gz");
+        return formPath(MAPPABILITY, "out_150.mappability.38.bed.gz");
     }
 
     @Override
     public String sageGermlinePon() {
-        return formPath(SAGE, "SageGermlinePon.hg38.98x.vcf.gz");
+        return formPath(SAGE, "SageGermlinePon.98x.38.vcf.gz");
     }
 
     @Override
@@ -134,18 +119,23 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
     }
 
     @Override
+    public String gridssRepeatMaskerDb() {
+        return formPath(GRIDSS_REPEAT_MASKER_DB, "38.fa.out");
+    }
+
+    @Override
+    public String gridssBlacklistBed() {
+        return formPath(GRIDSS_REPEAT_MASKER_DB, "ENCFF001TDO.38.bed");
+    }
+
+    @Override
     public String gridssBreakendPon() {
-        return formPath(GRIDSS_PON, "gridss_pon_single_breakend.hg38.bed");
+        return formPath(GRIDSS_PON, "gridss_pon_single_breakend.38.bed");
     }
 
     @Override
     public String gridssBreakpointPon() {
-        return formPath(GRIDSS_PON, "gridss_pon_breakpoint.hg38.bedpe");
-    }
-
-    @Override
-    public String knownFusionPairBedpe() {
-        return formPath(KNOWLEDGEBASES, "known_fusions.bedpe");
+        return formPath(GRIDSS_PON, "gridss_pon_breakpoint.38.bedpe");
     }
 
     @Override
@@ -159,42 +149,47 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
     }
 
     @Override
-    public String ensemblDataCache() {
-        return formPath(ENSEMBL, "ensembl_data_cache");
-    }
-
-    @Override
     public String fragileSites() {
-        return formPath(SV, "fragile_sites_hmf.csv");
+        return formPath(LINX, "fragile_sites_hmf.38.csv");
     }
 
     @Override
     public String lineElements() {
-        return formPath(SV, "line_elements.csv");
+        return formPath(LINX, "line_elements.38.csv");
     }
 
     @Override
     public String originsOfReplication() {
-        return formPath(SV, "highconf_bed_empty.bed");
-    } // currently unsupported in HG38
+        return formPath(LINX, "heli_rep_origins_empty.bed");
+    } // currently unsupported in 38
+
+    @Override
+    public String ensemblDataCache() {
+        return formPath(ENSEMBL_DATA_CACHE, "");
+    }
 
     @Override
     public String knownFusionData() {
-        return formPath(KNOWLEDGEBASES, "known_fusion_data.csv");
+        return formPath(FUSIONS, "known_fusion_data.38.csv");
+    }
+
+    @Override
+    public String knownFusionPairBedpe() {
+        return formPath(FUSIONS, "known_fusions.38.bedpe");
     }
 
     @Override
     public String genotypeSnpsDB() {
-        throw new UnsupportedOperationException("[Genotype SNPs DB] does not yet have a valid HG38 version.");
+        throw new UnsupportedOperationException("[Genotype SNPs DB] does not yet have a valid 38 version.");
     }
 
     @Override
     public String driverGenePanel() {
-        return formPath(GENE_PANEL, "DriverGenePanel.hg38.tsv");
+        return formPath(GENE_PANEL, "DriverGenePanel.38.tsv");
     }
 
     @Override
     public String actionabilityDir() {
-        throw new UnsupportedOperationException("Running PROTECT is not yet supported on HG38 as we do not have the SERVE input.");
+        throw new UnsupportedOperationException("Running PROTECT is not yet supported on 38 as we do not have the SERVE input.");
     }
 }
