@@ -13,7 +13,7 @@ sudo apt-get -y install r-base
 sudo mkdir /data
 sudo mkdir /opt/tools
 sudo mkdir /opt/resources
-sudo gsutil -m -o 'GSUtil:parallel_thread_count=1' -o 'GSUtil:sliced_object_download_max_components=4' cp -r gs://common-resources-dev1911/* /opt/resources/
+sudo gsutil -m -o 'GSUtil:parallel_thread_count=1' -o 'GSUtil:sliced_object_download_max_components=4' cp -r gs://common-resources/* /opt/resources/
 
 sudo cpanm install Clone
 sudo cpanm install Config::General
