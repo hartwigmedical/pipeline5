@@ -53,6 +53,15 @@ public class RnaIsofox implements BatchOperation {
     private static final String FUNC_FUSIONS = "FUSIONS";
     private static final String FUNC_NEO_EPITOPES = "NEO_EPITOPES";
 
+    private static final int COL_SAMPLE_ID = 0;
+    private static final int COL_READ_LENGTH = 1;
+    private static final int COL_FUNCTIONS = 2;
+    private static final int COL_REF_GENOME_VERSION = 3;
+    private static final int COL_MAX_RAM = 4;
+
+    private static final int DEFAULT_MAX_RAM = 64;
+    private static final int DEFAULT_CORES = 12;
+
     @Override
     public VirtualMachineJobDefinition execute(
             InputBundle inputs, RuntimeBucket bucket, BashStartupScript startupScript, RuntimeFiles executionFlags) {
@@ -68,13 +77,16 @@ public class RnaIsofox implements BatchOperation {
             return null;
         }
 
-        final String sampleId = batchItems[0];
-        final String readLength = batchItems[1];
+        final String sampleId = batchItems[COL_SAMPLE_ID];
+        final String readLength = batchItems[COL_READ_LENGTH];
 
-        final String functionsStr = batchItems.length >= 3
-                ? batchItems[2] : FUNC_TRANSCRIPT_COUNTS + ";" + FUNC_NOVEL_LOCATIONS + ";" + FUNC_FUSIONS;
+        final String functionsStr = batchItems.length > COL_FUNCTIONS
+                ? batchItems[COL_FUNCTIONS] : FUNC_TRANSCRIPT_COUNTS + ";" + FUNC_NOVEL_LOCATIONS + ";" + FUNC_FUSIONS;
 
-        final RefGenomeVersion refGenomeVersion = batchItems.length >= 4 ? RefGenomeVersion.valueOf(batchItems[3]) : V37;
+        final RefGenomeVersion refGenomeVersion = batchItems.length > COL_REF_GENOME_VERSION ?
+                RefGenomeVersion.valueOf(batchItems[COL_REF_GENOME_VERSION]) : V37;
+
+        final int maxRam = batchItems.length > COL_MAX_RAM ? Integer.parseInt(batchItems[COL_MAX_RAM]) : DEFAULT_MAX_RAM;
 
         final ResourceFiles resourceFiles = buildResourceFiles(refGenomeVersion);
 
@@ -195,11 +207,10 @@ public class RnaIsofox implements BatchOperation {
                     rnaCohortDirectory, sampleId));
         }
 
-        int requiredGb = MAX_EXPECTED_BAM_SIZE_GB;
-
         return ImmutableVirtualMachineJobDefinition.builder().name("rna-isofox").startupCommand(startupScript)
-                .namespacedResults(ResultsDirectory.defaultDirectory()).workingDiskSpaceGb(requiredGb)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(12, 64)).build();
+                .namespacedResults(ResultsDirectory.defaultDirectory())
+                .workingDiskSpaceGb(MAX_EXPECTED_BAM_SIZE_GB)
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(DEFAULT_CORES, maxRam)).build();
     }
 
     @Override

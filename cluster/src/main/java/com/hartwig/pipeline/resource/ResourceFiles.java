@@ -3,8 +3,9 @@ package com.hartwig.pipeline.resource;
 import static com.hartwig.pipeline.resource.ResourceNames.DISEASE_ONTOLOGY;
 import static com.hartwig.pipeline.resource.ResourceNames.GERMLINE_REPORTING;
 import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_CONFIG;
+import static com.hartwig.pipeline.resource.ResourceNames.LINX;
 import static com.hartwig.pipeline.resource.ResourceNames.MAPPABILITY;
-import static com.hartwig.pipeline.resource.ResourceNames.SV;
+import static com.hartwig.pipeline.resource.ResourceNames.SNPEFF;
 import static com.hartwig.pipeline.resource.ResourceNames.VIRUS_REFERENCE_GENOME;
 
 import com.hartwig.pipeline.execution.vm.VmDirectories;
@@ -33,32 +34,6 @@ public interface ResourceFiles {
 
     String amberSnpcheck();
 
-    String gridssRepeatMaskerDb();
-
-    default String gridssRepeatMaskerDbBed() {
-        return gridssRepeatMaskerDb() + ".bed";
-    }
-
-    default String gridssVirusRefGenomeFile() {
-        return of(VIRUS_REFERENCE_GENOME, "human_virus.fa");
-    }
-
-    default String gridssPropertiesFile() {
-        return of(GRIDSS_CONFIG, "gridss.properties");
-    }
-
-    String gridssBlacklistBed();
-
-    String gridssBreakendPon();
-
-    String gridssBreakpointPon();
-
-    String snpEffDb();
-
-    String snpEffVersion();
-
-    String snpEffConfig();
-
     String sageSomaticHotspots();
 
     String sageSomaticCodingPanel();
@@ -85,13 +60,35 @@ public interface ResourceFiles {
 
     String giabHighConfidenceBed();
 
-    String knownFusionPairBedpe();
+    String snpEffDb();
+
+    String snpEffVersion();
+
+    default String snpEffConfig() {return of(SNPEFF, "snpEff.config"); }
+
+    default String gridssPropertiesFile() {
+        return of(GRIDSS_CONFIG, "gridss.properties");
+    }
+
+    String gridssRepeatMaskerDb();
+
+    default String gridssRepeatMaskerDbBed() {
+        return gridssRepeatMaskerDb() + ".bed";
+    }
+
+    default String gridssVirusRefGenomeFile() {
+        return of(VIRUS_REFERENCE_GENOME, "human_virus.fa");
+    }
+
+    String gridssBlacklistBed();
+
+    String gridssBreakendPon();
+
+    String gridssBreakpointPon();
 
     String bachelorConfig();
 
     String bachelorClinvarFilters();
-
-    String ensemblDataCache();
 
     String fragileSites();
 
@@ -99,7 +96,11 @@ public interface ResourceFiles {
 
     String originsOfReplication();
 
+    String ensemblDataCache();
+
     String knownFusionData();
+
+    String knownFusionPairBedpe();
 
     String genotypeSnpsDB();
 
@@ -116,7 +117,7 @@ public interface ResourceFiles {
     }
 
     default String viralHostRefs() {
-        return of(SV, "viral_host_ref.csv");
+        return of(LINX, "viral_host_ref.csv");
     }
 
     default String formPath(String name, String file) {
