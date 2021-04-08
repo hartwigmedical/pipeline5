@@ -63,7 +63,7 @@ public class RefGenome37ResourceFiles implements ResourceFiles {
 
     @Override
     public String gridssBlacklistBed() {
-        return formPath(GRIDSS_REPEAT_MASKER_DB, "ENCFF001TDO.bed");
+        return formPath(GRIDSS_REPEAT_MASKER_DB, "ENCFF001TDO.37.bed");
     }
 
     @Override
