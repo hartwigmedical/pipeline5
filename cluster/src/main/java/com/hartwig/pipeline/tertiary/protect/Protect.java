@@ -140,6 +140,11 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
     }
 
     @Override
+    public ProtectOutput persistedOutput(final SomaticRunMetadata metadata) {
+        return ProtectOutput.builder().status(PipelineStatus.PERSISTED).build();
+    }
+
+    @Override
     public boolean shouldRun(final Arguments arguments) {
         return arguments.runTertiary() && arguments.refGenomeVersion().equals(RefGenomeVersion.V37) && !arguments.shallow()
                 && arguments.runGermlineCaller();

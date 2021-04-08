@@ -1,6 +1,7 @@
 package com.hartwig.pipeline.metadata;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -52,9 +53,16 @@ public class BiopsyMetadataApi implements SomaticMetadataApi {
 
     @Override
     public SomaticRunMetadata get() {
-        Sample tumor = OnlyOne.of(sampleApi.list(null, null, null, null, SampleType.TUMOR, biopsyName), Sample.class);
-        SampleSet set = OnlyOne.of(setApi.list(null, tumor.getId(), true), SampleSet.class);
+        List<Sample> possibleTumors = sampleApi.list(null, null, null, null, SampleType.TUMOR, biopsyName);
+        SampleSet set = possibleTumors.stream()
+                .flatMap(sample -> setApi.list(null, sample.getId(), true).stream())
+                .collect(Collectors.toList())
+                .stream()
+                .max(Comparator.comparing(SampleSet::getName))
+                .orElseThrow(() -> new IllegalStateException(String.format("No viable set found for biopsy [%s]", biopsyName)));
+
         Sample ref = OnlyOne.of(sampleApi.list(null, null, null, set.getId(), SampleType.REF, null), Sample.class);
+        Sample tumor = OnlyOne.of(sampleApi.list(null, null, null, set.getId(), SampleType.TUMOR, null), Sample.class);
         return SomaticRunMetadata.builder()
                 .bucket(arguments.outputBucket())
                 .set(set.getName())

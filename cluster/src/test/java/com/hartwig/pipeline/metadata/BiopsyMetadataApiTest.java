@@ -93,6 +93,7 @@ public class BiopsyMetadataApiTest {
         when(sampleApi.list(null, null, null, null, SampleType.TUMOR, BIOPSY)).thenReturn(List.of(tumor()));
         when(setApi.list(null, TUMOR_SAMPLE_ID, true)).thenReturn(List.of(new SampleSet().name(SET_NAME).id(SET_ID)));
         when(sampleApi.list(null, null, null, SET_ID, SampleType.REF, null)).thenReturn(List.of(ref()));
+        when(sampleApi.list(null, null, null, SET_ID, SampleType.TUMOR, null)).thenReturn(List.of(tumor()));
         SomaticRunMetadata somaticRunMetadata = victim.get();
         assertThat(somaticRunMetadata.bucket()).isEqualTo(Arguments.testDefaults().outputBucket());
         assertThat(somaticRunMetadata.name()).isEqualTo(REF_BARCODE + "-" + TUMOR_BARCODE);
