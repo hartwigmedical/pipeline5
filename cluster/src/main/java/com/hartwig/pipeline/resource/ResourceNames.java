@@ -14,6 +14,7 @@ public interface ResourceNames {
     String GRIDSS_CONFIG = "gridss_config";
     String GRIDSS_PON = "gridss_pon";
     String GRIDSS_REPEAT_MASKER_DB = "gridss_repeatmasker_db";
+    String VIRUSBREAKEND_DB = "virusbreakend_db";
     String VIRUS_REFERENCE_GENOME = "virus_reference_genome";
     String SV = "sv";
     String ENSEMBL = "ensembl";

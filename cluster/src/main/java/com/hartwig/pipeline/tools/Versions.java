@@ -31,7 +31,7 @@ public interface Versions {
     String BAMCOMP = "1.3";
     String PROTECT = "1.2";
     // Version of VirusBreakend refers to GRIDSS version to use
-    String GRIDSS_VIRUS_BREAKEND = "2.11.0";
+    String GRIDSS_VIRUS_BREAKEND = "2.11.1";
 
     static void printAll() {
         Logger logger = LoggerFactory.getLogger(Versions.class);
