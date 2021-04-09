@@ -68,7 +68,7 @@ public class AmberTest extends TertiaryStageTest<AmberOutput> {
                         + "-reference reference -reference_bam /data/input/reference.bam -tumor tumor -tumor_bam /data/input/tumor.bam -output_dir "
                         + "/data/output -threads $(grep -c '^processor' /proc/cpuinfo) -ref_genome "
                         + "/opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
-                        + "-loci /opt/resources/amber/37/GermlineHetPon.hg19.vcf.gz",
-                "cp /opt/resources/amber/37/Amber.snpcheck.hg19.vcf /data/output");
+                        + "-loci /opt/resources/amber/37/GermlineHetPon.37.vcf.gz",
+                "cp /opt/resources/amber/37/Amber.snpcheck.37.vcf /data/output");
     }
 }

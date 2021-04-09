@@ -23,7 +23,7 @@ public class SnpEffTest extends SubStageTest {
     @Test
     public void runsSnpEff() {
         assertThat(bash()).contains("/opt/tools/snpEff/4.3s/snpEff.sh /opt/tools/snpEff/4.3s/snpEff.jar "
-                + "/opt/resources/snpeff/37/snpEff.config GRCh37.75 /data/output/tumor.strelka.vcf /data/output/tumor.snpeff.annotated.vcf");
+                + "/opt/resources/snpeff/snpEff.config GRCh37.75 /data/output/tumor.strelka.vcf /data/output/tumor.snpeff.annotated.vcf");
     }
 
     @Test
