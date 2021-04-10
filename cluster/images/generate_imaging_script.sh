@@ -36,7 +36,8 @@ which gcloud 2>&1 >/dev/null
 echo "#!$(which sh) -e"
 
 echo "$GCL instances create ${sourceInstance} --description=\"Instance for pipeline5 disk image creation\" --zone=${ZONE} \
-    --boot-disk-size 200 --boot-disk-type pd-ssd --machine-type n1-highcpu-4 --image-project=${image_project} --image-family=${image_family}"
+    --boot-disk-size 200 --boot-disk-type pd-ssd --machine-type n1-highcpu-4 --image-project=${image_project} \
+    --image-family=${image_family}" --scopes=default,cloud-source-repos-ro
 echo "sleep 10"
 cat $all_cmds | egrep -v  '^#|^ *$' | while read cmd
 do
