@@ -30,6 +30,7 @@ public interface Versions {
     String SAMTOOLS = "1.10";
     String BAMCOMP = "1.3";
     String PROTECT = "1.2";
+
     // Version of VirusBreakend refers to GRIDSS version to use
     String GRIDSS_VIRUS_BREAKEND = "2.11.1";
 

@@ -38,13 +38,6 @@ sudo chmod a+x /opt/tools/gridss/2.11.1/gridss_somatic_filter.R
 sudo chmod a+x /opt/tools/gridss/2.11.1/libgridss.R
 sudo chmod a+x /opt/tools/gridss/2.11.1/gridss.config.R
 
-# TODO implement better way to make all required executables available for virusbreakend.sh
-sudo cp /opt/tools/kraken2/2.1.0/kraken2 /usr/bin/
-sudo cp /opt/tools/repeatmasker/4.1.1/RepeatMasker /usr/bin/
-sudo cp /opt/tools/gridss/2.11.1/gridss.sh /usr/bin/
-sudo cp /opt/tools/gridss/2.11.1/gridss_annotate_vcf_kraken2.sh /usr/bin
-sudo cp /opt/tools/gridss/2.11.1/gridss_annotate_vcf_repeatmasker.sh /usr/bin
-
 sudo chmod a+x /opt/tools/samtools/1.9/samtools
 sudo chmod a+x /opt/tools/samtools/1.10/samtools
 sudo chmod a+x /opt/tools/bcl2fastq/2.20.0.422/bcl2fastq

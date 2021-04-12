@@ -43,7 +43,15 @@ public class VirusBreakend extends TertiaryStage<VirusBreakendOutput> {
 
     @Override
     public List<BashCommand> commands(final SomaticRunMetadata metadata) {
-        return List.of(new VirusBreakendCommand(resourceFiles,
+        return List.of(
+                // TODO implement class to export PATH of latest tool
+                () -> "export PATH=/opt/tools/gridss/2.11.1:$PATH",
+                () -> "export PATH=/opt/tools/repeatmasker/4.1.1:$PATH",
+                () -> "export PATH=/opt/tools/kraken2/2.1.0:$PATH",
+                () -> "export PATH=/opt/tools/samtools/1.10:$PATH",
+                () -> "export PATH=/opt/tools/bcftools/1.9:$PATH",
+                () -> "export PATH=/opt/tools/bwa/0.7.17:$PATH",
+                new VirusBreakendCommand(resourceFiles,
                 metadata.tumor().sampleName(),
                 getTumorBamDownload().getLocalTargetPath()));
     }
