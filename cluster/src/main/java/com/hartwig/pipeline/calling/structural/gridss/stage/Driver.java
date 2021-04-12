@@ -3,7 +3,6 @@ package com.hartwig.pipeline.calling.structural.gridss.stage;
 import java.util.List;
 
 import com.google.common.collect.Lists;
-import com.hartwig.pipeline.calling.command.TabixCommand;
 import com.hartwig.pipeline.calling.command.VersionedToolCommand;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.vm.BashCommand;
@@ -36,7 +35,7 @@ public class Driver extends SubStage {
 
     @Override
     public List<BashCommand> bash(final OutputFile input, final OutputFile output) {
-        BashCommand gridss = new VersionedToolCommand(GRIDSS,
+        return Lists.newArrayList(new VersionedToolCommand(GRIDSS,
                 "gridss.sh",
                 Versions.GRIDSS,
                 "--output",
@@ -48,7 +47,7 @@ public class Driver extends SubStage {
                 "--reference",
                 resourceFiles.refGenomeFile(),
                 "--jar",
-                VmDirectories.TOOLS + "/" + GRIDSS + "/" + Versions.GRIDSS + "/gridss.jar",
+                GridssJar.path(),
                 "--blacklist",
                 resourceFiles.gridssBlacklistBed(),
                 "--configuration",
@@ -58,9 +57,6 @@ public class Driver extends SubStage {
                 "--jvmheap",
                 "31G",
                 referenceBamPath,
-                tumorBamPath);
-
-        BashCommand index = new TabixCommand(output.path());
-        return Lists.newArrayList(gridss, index);
+                tumorBamPath));
     }
 }
