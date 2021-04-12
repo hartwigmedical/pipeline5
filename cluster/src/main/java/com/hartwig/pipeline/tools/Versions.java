@@ -30,6 +30,7 @@ public interface Versions {
     String SAMTOOLS = "1.10";
     String BAMCOMP = "1.3";
     String PROTECT = "1.2";
+    String REPEAT_MASKER = "4.1.1";
 
     static void printAll() {
         Logger logger = LoggerFactory.getLogger(Versions.class);

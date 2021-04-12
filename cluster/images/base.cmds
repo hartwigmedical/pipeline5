@@ -14,20 +14,3 @@ sudo mkdir /data
 sudo mkdir /opt/tools
 sudo mkdir /opt/resources
 sudo gsutil -m -o 'GSUtil:parallel_thread_count=1' -o 'GSUtil:sliced_object_download_max_components=4' cp -r gs://common-resources/* /opt/resources/
-
-sudo cpanm install Clone
-sudo cpanm install Config::General
-sudo cpanm install Font::TTF::Font
-sudo cpanm install GD
-sudo cpanm install GD::Polyline
-sudo cpanm install List::MoreUtils
-sudo cpanm install Math::Bezier
-sudo cpanm install Math::Round
-sudo cpanm install Math::VecStat
-sudo cpanm install Params::Validate
-sudo cpanm install Readonly
-sudo cpanm install Regexp::Common
-sudo cpanm install SVG
-sudo cpanm install Set::IntSpan
-sudo cpanm install Statistics::Basic
-sudo cpanm install Text::Format
