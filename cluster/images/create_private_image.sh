@@ -8,9 +8,8 @@ LOCATION="europe-west4"
 ZONE="${LOCATION}-a"
 IMAGE_SOURCE_PROJECT="hmf-pipeline-development"
 SOURCE_REPO_PROJECT="hmf-pipeline-prod-e45b00f2"
-#DEST_PROJECT="hmf-pipeline-prod-e45b00f2"
-DEST_PROJECT="hmf-crunch"
-DEST_SERVICE_ACCOUNT="hmf-crunch@hmf-crunch.iam.gserviceaccount.com"
+DEST_PROJECT="hmf-pipeline-prod-e45b00f2"
+DEST_SERVICE_ACCOUNT="649805142670-compute@developer.gserviceaccount.com"
 
 which jq >/dev/null || (echo Please install jq && exit 1)
 which gcloud >/dev/null || (echo Please install gcloud && exit 1)
