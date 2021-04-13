@@ -44,7 +44,7 @@ public class VirusBreakend extends TertiaryStage<VirusBreakendOutput> {
     @Override
     public List<BashCommand> commands(final SomaticRunMetadata metadata) {
         return List.of(
-                // TODO implement class to export PATH of latest tool
+                // TODO implement class to export PATH of latest version of tool
                 () -> "export PATH=/opt/tools/gridss/2.11.1:$PATH",
                 () -> "export PATH=/opt/tools/repeatmasker/4.1.1:$PATH",
                 () -> "export PATH=/opt/tools/kraken2/2.1.0:$PATH",
@@ -70,9 +70,12 @@ public class VirusBreakend extends TertiaryStage<VirusBreakendOutput> {
                 .maybeOutputDirectory(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(), true))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
                 .addDatatypes(
-                        new AddDatatype(DataType.VIRUSBREAKEND,
+                        new AddDatatype(DataType.VIRUSBREAKEND_VARIANTS,
                         metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), String.format("%s.virusbreakend.tsv", metadata.tumor().sampleName())))
+                        new ArchivePath(Folder.root(), namespace(), String.format("%s.virusbreakend.vcf", metadata.tumor().sampleName()))),
+                        new AddDatatype(DataType.VIRUSBREAKEND_SUMMARY,
+                                metadata.barcode(),
+                                new ArchivePath(Folder.root(), namespace(), String.format("%s.virusbreakend.summary.tsv", metadata.tumor().sampleName())))
                 )
                 .build();
     }
@@ -86,7 +89,7 @@ public class VirusBreakend extends TertiaryStage<VirusBreakendOutput> {
     public VirusBreakendOutput persistedOutput(final SomaticRunMetadata metadata) {
         return VirusBreakendOutput.builder()
                 .status(PipelineStatus.PERSISTED)
-                .maybeOutputDirectory(persistedDataset.path(metadata.tumor().sampleName(), DataType.VIRUSBREAKEND)
+                .maybeOutputDirectory(persistedDataset.path(metadata.tumor().sampleName(), DataType.VIRUSBREAKEND_SUMMARY)
                         .map(GoogleStorageLocation::asDirectory)
                         .orElse(GoogleStorageLocation.of(metadata.bucket(),
                                 PersistedLocations.pathForSet(metadata.set(), namespace()),
