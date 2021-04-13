@@ -20,9 +20,11 @@ json="$(gcloud compute images describe $source_image --project=$IMAGE_SOURCE_PRO
 image_family="$(echo $json | jq -r '.family')"
 imager_vm="${image_family}-imager"
 
-echo Ready to create VM ${image_family}_imager in project ${DEST_PROJECT}
-echo The VM will be used to create image ${source_image} in family ${image_family}
+echo Ready to create VM ${imager_vm} in project ${DEST_PROJECT}
+echo The VM will be used to create private image ${source_image} in family ${image_family}
 echo You must have sufficient permissions in ${DEST_PROJECT}
+echo
+echo 'If you ARE NOT currently doing a PRODUCTION upgrade maybe you should not be running this script!'
 echo
 read -p "Continue [Y|n]? " response
 [[ $response != 'y' && $response != 'Y' && $response != '' ]] && echo "Aborting at user request" && exit 1
