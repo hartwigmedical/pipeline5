@@ -1,6 +1,4 @@
 #!/usr/bin/env bash
-#
-# Generate a creation script for a VM and image
 
 LOCATION="europe-west4"
 ZONE="${LOCATION}-a"
@@ -27,21 +25,23 @@ if [ "$TOOLS_ONLY" = true ]; then
   all_cmds=$tools_image_cmds
 fi
 
-GCL="gcloud beta compute --project=${PROJECT}"
-
 which gcloud 2>&1 >/dev/null
 [[ $? -ne 0 ]] && echo "gcloud is missing" >&2 && exit 1
+set -e
+GCL="gcloud beta compute --project=${PROJECT}"
+generated_script=$(mktemp -t image_script_generated_XXXXX.sh)
 
-
-echo "#!$(which sh) -e"
-
-echo "$GCL instances create ${sourceInstance} --description=\"Instance for pipeline5 disk image creation\" --zone=${ZONE} \
+(
+echo "#!/usr/bin/env bash"
+echo
+echo "set -e"
+echo $GCL instances create $sourceInstance --description=\"Instance for pipeline5 disk image creation\" --zone=${ZONE} \
     --boot-disk-size 200 --boot-disk-type pd-ssd --machine-type n1-highcpu-4 --image-project=${image_project} \
-    --image-family=${image_family}" --scopes=default,cloud-source-repos-ro
-echo "sleep 10"
+    --image-family=${image_family} --scopes=default,cloud-source-repos-ro
+echo sleep 10
 cat $all_cmds | egrep -v  '^#|^ *$' | while read cmd
 do
-    echo "$GCL ssh ${sourceInstance} --zone=${ZONE} --command=\"$cmd\""
+    echo "$GCL ssh $sourceInstance --zone=${ZONE} --command=\"$cmd\""
 done
 
 if [ -n "$FLAVOUR" ]; then
@@ -53,3 +53,7 @@ fi
 echo "$GCL instances stop ${sourceInstance} --zone=${ZONE}"
 echo "$GCL images create ${sourceInstance}-$(date +%Y%m%d%H%M) --family=${sourceInstance} --source-disk=${sourceInstance} --source-disk-zone=${ZONE} --storage-location=${LOCATION}"
 echo "$GCL instances -q delete ${sourceInstance} --zone=${ZONE}"
+) > $generated_script
+chmod +x $generated_script
+$generated_script
+rm $generated_script
