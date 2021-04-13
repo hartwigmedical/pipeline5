@@ -2,8 +2,6 @@
 #
 # Build an image containing our private resources, suitable for internal runs.
 
-set -x
-
 LOCATION="europe-west4"
 ZONE="${LOCATION}-a"
 IMAGE_SOURCE_PROJECT="hmf-pipeline-development"
