@@ -17,7 +17,7 @@ public class VirusBreakendCommand implements BashCommand {
                 "virusbreakend.sh",
                 Versions.GRIDSS_VIRUS_BREAKEND,
                 "--output",
-                tumorSample + ".virusbreakend.vcf",
+                VmDirectories.OUTPUT + "/" + tumorSample + ".virusbreakend.vcf",
                 "--workingdir",
                 VmDirectories.OUTPUT,
                 "--reference",
