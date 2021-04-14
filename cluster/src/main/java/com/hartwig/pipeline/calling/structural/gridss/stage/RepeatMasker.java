@@ -2,7 +2,6 @@ package com.hartwig.pipeline.calling.structural.gridss.stage;
 
 import java.util.List;
 
-import com.hartwig.pipeline.calling.command.TabixCommand;
 import com.hartwig.pipeline.calling.command.VersionedToolCommand;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.vm.BashCommand;
@@ -31,6 +30,6 @@ public class RepeatMasker extends SubStage {
                 VmDirectories.OUTPUT,
                 "--rm",
                 repeatMasker,
-                input.path()), new TabixCommand(output.path()));
+                input.path()));
     }
 }
