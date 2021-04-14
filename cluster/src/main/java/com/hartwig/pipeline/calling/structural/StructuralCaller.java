@@ -14,6 +14,7 @@ import com.hartwig.pipeline.calling.command.BwaCommand;
 import com.hartwig.pipeline.calling.command.SamtoolsCommand;
 import com.hartwig.pipeline.calling.structural.gridss.stage.Driver;
 import com.hartwig.pipeline.calling.structural.gridss.stage.GridssAnnotation;
+import com.hartwig.pipeline.calling.structural.gridss.stage.RepeatMasker;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.PipelineStatus;
@@ -76,15 +77,15 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
         String tumorSampleName = metadata.tumor().sampleName();
         String refBamPath = referenceBam.getLocalTargetPath();
         String tumorBamPath = tumorBam.getLocalTargetPath();
-        GridssAnnotation viralAnnotation = new GridssAnnotation(resourceFiles, false);
-
-        Driver driver = new Driver(resourceFiles,
+        SubStageInputOutput unfilteredVcfOutput = new Driver(resourceFiles,
                 referenceSampleName,
                 tumorSampleName,
                 VmDirectories.outputFile(tumorSampleName + ".assembly.bam"),
                 refBamPath,
-                tumorBamPath);
-        SubStageInputOutput unfilteredVcfOutput = driver.andThen(viralAnnotation).apply(SubStageInputOutput.empty(tumorSampleName));
+                tumorBamPath)
+                .andThen(new RepeatMasker())
+                .andThen(new GridssAnnotation(resourceFiles, false))
+                .apply(SubStageInputOutput.empty(tumorSampleName));
         unfilteredVcf = unfilteredVcfOutput.outputFile().path();
 
         List<BashCommand> commands = new ArrayList<>();
