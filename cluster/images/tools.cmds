@@ -15,13 +15,13 @@ sudo cpanm install Set::IntSpan
 sudo cpanm install Statistics::Basic
 sudo cpanm install Text::Format
 sudo cpanm install Text::Soundex
-
 sudo apt-get -y install python3-h5py
 
-# Eliminate stale cache issues with gsutil
 sudo gsutil -m -o 'GSUtil:parallel_thread_count=1' -o 'GSUtil:sliced_object_download_max_components=4' cp -n -r gs://common-tools/* /opt/tools/
-# This guy is a little different from the others in that it extracts overtop the system-managed R libraries.
+
+# NOTE: This extracts overtop the system-managed R libraries.
 sudo tar xvf /opt/tools/R/rlibs.tar -C /
+
 sudo tar xvf /opt/tools/strelka/1.0.14/strelka.tar -C /opt/tools/strelka/1.0.14/
 sudo tar xvf /opt/tools/tabix/0.2.6/tabix.tar -C /opt/tools/tabix/0.2.6/
 sudo tar xvf /opt/tools/samtools/1.2/samtools.tar.gz -C /opt/tools/samtools/1.2/
