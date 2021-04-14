@@ -13,7 +13,7 @@ code in this repository.
      * `tar` up the contents of the `R` system libraries and push those to the bucket. To be safe include the contents of all the
          libraries, find them by running `.libPaths()` at an R prompt, eg:
          `tar cvf /data/rlibs-merged.tar /usr/local/lib/R/site-library /usr/lib/R/site-library /usr/lib/R/library`
-1. Run `create_custom_image.sh` to generate and run a shell script that will make the image.
+1. Run `create_public_image.sh` to make the image.
 1. When done delete the VM instance that is created for imaging as the script uses a static name for the VM and will fail fast
    if the VM already exists when it is next invoked.
 
@@ -22,8 +22,6 @@ code in this repository.
 * Successive runs of the script produce a new image in the same family including a timestamp in the name. As of this writing our
   VM bootstrap code will create a VM from the latest image in the family (based upon its creation time, not its filename, though
   both should be the same image).
-* The script leaves the imaging VM around in case you want to make any adjustments. If the VM is present when it is called the 
-    script will fail fast.
 * There is also a R dependencies installation script here, used to build all the R dependencies needed by various components. It 
     can be manually invoked on a VM if/when the R libraries need to be updated. Further usage notes are in the script itself.
 * GCP will automatically resize the filesystem of a created instance to the size requested at *VM* creation time, and this does not 

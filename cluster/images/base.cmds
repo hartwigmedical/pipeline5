@@ -4,7 +4,7 @@ echo 'tmpfs /root/.gsutil tmpfs size=128m 0 0' | sudo tee -a /etc/fstab
 sudo apt-get -y update
 sudo apt-get -y upgrade
 sudo apt-get -y install dirmngr apt-transport-https ca-certificates software-properties-common gnupg2 perl-modules make time
-sudo apt-get -y install openjdk-8-jdk libcurl4-gnutls-dev libxml2-dev libssl-dev less libgd-dev cpanminus parallel pigz
+sudo apt-get -y install openjdk-8-jdk libcurl4-gnutls-dev libxml2-dev libssl-dev less libgd-dev cpanminus parallel pigz git
 sudo apt-get -y install mdadm --no-install-recommends
 sudo apt-key adv --keyserver keys.gnupg.net --recv-key 'E19F5F87128899B192B1A2C2AD5F960A256A04AF'
 sudo add-apt-repository 'deb https://cloud.r-project.org/bin/linux/debian stretch-cran35/'
@@ -13,4 +13,16 @@ sudo apt-get -y install r-base
 sudo mkdir /data
 sudo mkdir /opt/tools
 sudo mkdir /opt/resources
-sudo gsutil -m -o 'GSUtil:parallel_thread_count=1' -o 'GSUtil:sliced_object_download_max_components=4' cp -r gs://common-resources/* /opt/resources/
+sudo gcloud source repos clone common-resources-public /opt/resources --project=hmf-pipeline-development
+
+# Copy explicitly those resources that are not yet in the repository so that anything mistakenly copied into the bucket rather
+# than the repository is ignored
+sudo gsutil -m -o 'GSUtil:parallel_thread_count=1' -o 'GSUtil:sliced_object_download_max_components=4' cp -r gs://common-resources/gridss_pon /opt/resources/
+sudo gsutil -m -o 'GSUtil:parallel_thread_count=1' -o 'GSUtil:sliced_object_download_max_components=4' cp -r gs://common-resources/gridss_repeatmasker_db /opt/resources/
+sudo gsutil -m -o 'GSUtil:parallel_thread_count=1' -o 'GSUtil:sliced_object_download_max_components=4' cp -r gs://common-resources/mappability /opt/resources/
+sudo gsutil -m -o 'GSUtil:parallel_thread_count=1' -o 'GSUtil:sliced_object_download_max_components=4' cp -r gs://common-resources/reference_genome /opt/resources/
+sudo gsutil -m -o 'GSUtil:parallel_thread_count=1' -o 'GSUtil:sliced_object_download_max_components=4' cp -r gs://common-resources/snpeff /opt/resources/
+sudo gsutil -m -o 'GSUtil:parallel_thread_count=1' -o 'GSUtil:sliced_object_download_max_components=4' cp -r gs://common-resources/virus_reference_genome /opt/resources/
+sudo gsutil -m -o 'GSUtil:parallel_thread_count=1' -o 'GSUtil:sliced_object_download_max_components=4' cp -r gs://common-resources/virusbreakend /opt/resources/
+sudo gsutil -m -o 'GSUtil:parallel_thread_count=1' -o 'GSUtil:sliced_object_download_max_components=4' cp gs://common-resources/sage/37/* /opt/resources/sage/37/
+sudo gsutil -m -o 'GSUtil:parallel_thread_count=1' -o 'GSUtil:sliced_object_download_max_components=4' cp gs://common-resources/sage/38/* /opt/resources/sage/38/
