@@ -75,6 +75,8 @@ public class CommandLineOptions {
     private static final String IMAGE_NAME_FLAG = "image_name";
     private static final String BIOPSY_FLAG = "biopsy";
     private static final String IMAGE_PROJECT_FLAG = "image_project";
+    private static final String USE_CRAMS_FLAG = "use_crams";
+    private static final String PUBSUB_PROJECT_FLAG = "pubsub_project";
 
     private static Options options() {
         return new Options().addOption(profile())
@@ -136,7 +138,17 @@ public class CommandLineOptions {
                 .addOption(startingPoint())
                 .addOption(imageName())
                 .addOption(biopsy())
-                .addOption(imageProject());
+                .addOption(imageProject())
+                .addOption(useCrams())
+                .addOption(pubsubProject());
+    }
+
+    private static Option pubsubProject() {
+        return optionWithArg(PUBSUB_PROJECT_FLAG, "Project to publish pipeline events over pub/sub");
+    }
+
+    private static Option useCrams() {
+        return optionWithArg(USE_CRAMS_FLAG, "Don't convert cram back to bam before running downstream stages");
     }
 
     private static Option imageProject() {
@@ -350,6 +362,8 @@ public class CommandLineOptions {
                     .imageName(imageName(commandLine, defaults))
                     .biopsy(biopsy(commandLine, defaults))
                     .imageProject(imageProject(commandLine, defaults))
+                    .useCrams(booleanOptionWithDefault(commandLine, USE_CRAMS_FLAG, defaults.useCrams()))
+                    .pubsubProject(pubsubProject(commandLine, defaults))
                     .build();
         } catch (ParseException e) {
             LOGGER.error("Could not parse command line args", e);
@@ -357,6 +371,13 @@ public class CommandLineOptions {
             formatter.printHelp("pipeline5", options());
             throw e;
         }
+    }
+
+    public static Optional<String> pubsubProject(final CommandLine commandLine, final Arguments defaults) {
+        if (commandLine.hasOption(PUBSUB_PROJECT_FLAG)) {
+            return Optional.of(commandLine.getOptionValue(PUBSUB_PROJECT_FLAG));
+        }
+        return defaults.pubsubProject();
     }
 
     public static Optional<String> biopsy(final CommandLine commandLine, final Arguments defaults) {

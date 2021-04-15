@@ -42,6 +42,7 @@ public class SbpFileApiUpdateTest {
         sbpRestApi = mock(SbpRestApi.class);
         blob = TestBlobs.blob("set/namespace/blob");
         correction = mock(ContentTypeCorrection.class);
+        when(sourceBucket.get(blob.getName())).thenReturn(blob);
         victim = new SbpFileApiUpdate(correction,
                 run,
                 sourceBucket,

@@ -16,7 +16,7 @@ public class PublisherProvider {
     }
 
     public Publisher get(final String topic) throws Exception {
-        return Publisher.newBuilder(ProjectTopicName.of(arguments.project(), topic))
+        return Publisher.newBuilder(ProjectTopicName.of(arguments.pubsubProject().orElse(arguments.project()), topic))
                 .setCredentialsProvider(() -> credentials)
                 .build();
     }

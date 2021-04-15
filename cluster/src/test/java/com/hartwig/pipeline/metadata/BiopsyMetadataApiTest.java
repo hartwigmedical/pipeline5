@@ -93,6 +93,7 @@ public class BiopsyMetadataApiTest {
         when(sampleApi.list(null, null, null, null, SampleType.TUMOR, BIOPSY)).thenReturn(List.of(tumor()));
         when(setApi.list(null, TUMOR_SAMPLE_ID, true)).thenReturn(List.of(new SampleSet().name(SET_NAME).id(SET_ID)));
         when(sampleApi.list(null, null, null, SET_ID, SampleType.REF, null)).thenReturn(List.of(ref()));
+        when(sampleApi.list(null, null, null, SET_ID, SampleType.TUMOR, null)).thenReturn(List.of(tumor()));
         SomaticRunMetadata somaticRunMetadata = victim.get();
         assertThat(somaticRunMetadata.bucket()).isEqualTo(Arguments.testDefaults().outputBucket());
         assertThat(somaticRunMetadata.name()).isEqualTo(REF_BARCODE + "-" + TUMOR_BARCODE);
@@ -192,12 +193,13 @@ public class BiopsyMetadataApiTest {
         state.add(stageOutput);
         ArgumentCaptor<PubsubMessage> pubsubMessageArgumentCaptor = ArgumentCaptor.forClass(PubsubMessage.class);
         SomaticRunMetadata metadata = TestInputs.defaultSomaticRunMetadata();
-        when(setApi.list(metadata.set(), null, null)).thenReturn(List.of(new SampleSet().id(SET_ID)));
+        when(setApi.list(metadata.set(), null, true)).thenReturn(List.of(new SampleSet().id(SET_ID)));
         Blob outputBlob = mock(Blob.class);
         when(outputBlob.getBucket()).thenReturn("bucket");
         when(outputBlob.getName()).thenReturn(s);
         when(outputBlob.getSize()).thenReturn(1L);
         when(outputBlob.getMd5()).thenReturn("md5");
+        when(bucket.get(s)).thenReturn(outputBlob);
         Page<Blob> page = TestBlobs.pageOf(outputBlob);
         when(bucket.list(Storage.BlobListOption.prefix("set/"))).thenReturn(page);
         when(publisher.publish(pubsubMessageArgumentCaptor.capture())).thenReturn(mock(ApiFuture.class));

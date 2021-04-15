@@ -39,8 +39,9 @@ public class SbpFileApiUpdate implements Consumer<Blob> {
     }
 
     @Override
-    public void accept(final Blob blob) {
-        if (!blob.getName().endsWith(PipelineResults.STAGING_COMPLETE)) {
+    public void accept(final Blob blobNoMD5) {
+        if (!blobNoMD5.getName().endsWith(PipelineResults.STAGING_COMPLETE)) {
+            Blob blob = sourceBucket.get(blobNoMD5.getName());
             if (blob.getMd5() == null) {
                 throw new IllegalStateException(format("Object gs://%s/%s has a null MD5", sourceBucket.getName(), blob.getName()));
             } else {
