@@ -30,6 +30,7 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
     public static final String TUMOR_QC = "tumor.purple.qc";
     public static final String TUMOR_SOMATIC_DRIVER_CATALOG = "tumor.driver.catalog.somatic.tsv";
     public static final String TUMOR_GERMLINE_DRIVER_CATALOG = "tumor.driver.catalog.germline.tsv";
+    public static final String TUMOR_GENE_COPY_NUMBER_TSV = "tumor.purple.cnv.gene.tsv";
 
     @Before
     public void setUp() throws Exception {
@@ -144,6 +145,9 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
                 new AddDatatype(DataType.PURPLE_PURITY,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
                         new ArchivePath(Folder.root(), Purple.NAMESPACE, TUMOR_PURITY_TSV)),
+                new AddDatatype(DataType.PURPLE_GENE_COPY_NUMBER,
+                        TestInputs.defaultSomaticRunMetadata().barcode(),
+                        new ArchivePath(Folder.root(), Purple.NAMESPACE, TUMOR_GENE_COPY_NUMBER_TSV)),
                 new AddDatatype(DataType.PURPLE_SOMATIC_DRIVER_CATALOG,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
                         new ArchivePath(Folder.root(), Purple.NAMESPACE, TUMOR_SOMATIC_DRIVER_CATALOG)),

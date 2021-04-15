@@ -31,6 +31,7 @@ public interface Versions {
     String BAMCOMP = "1.3";
     String PROTECT = "1.2";
     String REPEAT_MASKER = "4.1.1";
+    String LILAC = "0.1";
 
     static void printAll() {
         Logger logger = LoggerFactory.getLogger(Versions.class);
@@ -72,6 +73,6 @@ public interface Versions {
     }
 
     static String imageVersion() {
-        return "5-22";
+        return "5-21";
     }
 }

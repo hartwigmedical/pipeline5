@@ -121,6 +121,24 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .build();
     }
 
+    static VirtualMachineJobDefinition lilac(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
+        return ImmutableVirtualMachineJobDefinition.builder()
+                .name("lilac")
+                .startupCommand(startupScript)
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 16))
+                .namespacedResults(resultsDirectory)
+                .build();
+    }
+
+    static VirtualMachineJobDefinition lilacSlice(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
+        return ImmutableVirtualMachineJobDefinition.builder()
+                .name("lilacslice")
+                .startupCommand(startupScript)
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 12))
+                .namespacedResults(resultsDirectory)
+                .build();
+    }
+
     static VirtualMachineJobDefinition amber(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("amber")

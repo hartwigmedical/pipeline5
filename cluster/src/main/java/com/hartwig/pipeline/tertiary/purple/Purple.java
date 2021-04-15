@@ -42,6 +42,7 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
     public static final String PURPLE_QC = ".purple.qc";
     public static final String PURPLE_SOMATIC_DRIVER_CATALOG = ".driver.catalog.somatic.tsv";
     public static final String PURPLE_GERMLINE_DRIVER_CATALOG = ".driver.catalog.germline.tsv";
+    public static final String PURPLE_GENE_COPY_NUMBER_TSV = ".purple.cnv.gene.tsv";
 
     private final ResourceFiles resourceFiles;
     private final InputDownload somaticVcfDownload;
@@ -116,6 +117,7 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
     public PurpleOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
             final ResultsDirectory resultsDirectory) {
         String purityTsv = metadata.tumor().sampleName() + PURPLE_PURITY_TSV;
+        String geneCopyNumberTsv = metadata.tumor().sampleName() + PURPLE_GENE_COPY_NUMBER_TSV;
         String somaticDriverCatalog = metadata.tumor().sampleName() + PURPLE_SOMATIC_DRIVER_CATALOG;
         String germlineDriverCatalog = metadata.tumor().sampleName() + PURPLE_GERMLINE_DRIVER_CATALOG;
         String qcFile = metadata.tumor().sampleName() + PURPLE_QC;
@@ -128,6 +130,7 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
                         .somaticVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(somaticVcf(metadata))))
                         .structuralVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(svVcf(metadata))))
                         .purityTsv(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(purityTsv)))
+                        .geneCopyNumberTsv(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(geneCopyNumberTsv)))
                         .somaticDriverCatalog(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(somaticDriverCatalog(metadata))))
                         .germlineDriverCatalog(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(germlineDriverCatalog(metadata))))
                         .qcFile(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(qcFile)))
@@ -145,6 +148,9 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
                 .addDatatypes(new AddDatatype(DataType.PURPLE_PURITY,
                         metadata.barcode(),
                         new ArchivePath(Folder.root(), namespace(), purityTsv)))
+                .addDatatypes(new AddDatatype(DataType.PURPLE_GENE_COPY_NUMBER,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), geneCopyNumberTsv)))
                 .addDatatypes(new AddDatatype(DataType.PURPLE_SOMATIC_DRIVER_CATALOG,
                         metadata.barcode(),
                         new ArchivePath(Folder.root(), namespace(), somaticDriverCatalog)))
@@ -171,6 +177,8 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
         GoogleStorageLocation svsLocation = persistedOrDefault(metadata, DataType.STRUCTURAL_VARIANTS_PURPLE, svVcf(metadata));
         GoogleStorageLocation purityLocation =
                 persistedOrDefault(metadata, DataType.PURPLE_PURITY, metadata.tumor().name() + PURPLE_PURITY_TSV);
+        GoogleStorageLocation geneCopyNumberLocation =
+                persistedOrDefault(metadata, DataType.PURPLE_GENE_COPY_NUMBER, metadata.tumor().name() + PURPLE_GENE_COPY_NUMBER_TSV);
         GoogleStorageLocation somaticDriverCatalogLocation =
                 persistedOrDefault(metadata, DataType.PURPLE_SOMATIC_DRIVER_CATALOG, metadata.tumor().name() + PURPLE_SOMATIC_DRIVER_CATALOG);
         GoogleStorageLocation germlineDriverCatalogLocation =
@@ -184,6 +192,7 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
                         .germlineVcf(germlineVariantsLocation)
                         .structuralVcf(svsLocation)
                         .purityTsv(purityLocation)
+                        .geneCopyNumberTsv(geneCopyNumberLocation)
                         .somaticDriverCatalog(somaticDriverCatalogLocation)
                         .germlineDriverCatalog(germlineDriverCatalogLocation)
                         .qcFile(qcLocation)

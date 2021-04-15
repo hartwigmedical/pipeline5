@@ -23,6 +23,8 @@ public interface PurpleOutputLocations {
 
     GoogleStorageLocation germlineDriverCatalog();
 
+    GoogleStorageLocation geneCopyNumberTsv();
+
     static ImmutablePurpleOutputLocations.Builder builder() {
         return ImmutablePurpleOutputLocations.builder();
     }

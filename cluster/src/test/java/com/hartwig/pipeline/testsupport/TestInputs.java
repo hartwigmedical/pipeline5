@@ -254,6 +254,7 @@ public class TestInputs {
                         .qcFile(gsLocation(somaticBucket(Purple.NAMESPACE), TUMOR_SAMPLE + Purple.PURPLE_QC))
                         .somaticDriverCatalog(gsLocation(somaticBucket(Purple.NAMESPACE), TUMOR_SAMPLE + Purple.PURPLE_SOMATIC_DRIVER_CATALOG))
                         .germlineDriverCatalog(gsLocation(somaticBucket(Purple.NAMESPACE), TUMOR_SAMPLE + Purple.PURPLE_GERMLINE_DRIVER_CATALOG))
+                        .geneCopyNumberTsv(gsLocation(somaticBucket(Purple.NAMESPACE), TUMOR_SAMPLE + Purple.PURPLE_GENE_COPY_NUMBER_TSV))
                         .build())
                 .build();
     }

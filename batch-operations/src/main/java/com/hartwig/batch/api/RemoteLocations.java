@@ -12,6 +12,8 @@ public interface RemoteLocations {
 
     GoogleStorageLocation getCobalt();
 
+    GoogleStorageLocation getGeneCopyNumberTsv();
+
     GoogleStorageLocation getStructuralVariantsGridss();
 
     GoogleStorageLocation getStructuralVariantsGripss();
@@ -21,6 +23,8 @@ public interface RemoteLocations {
     GoogleStorageLocation getStructuralVariantsGripssRecoveryIndex();
 
     GoogleStorageLocation getSomaticVariantsSage();
+
+    GoogleStorageLocation getSomaticVariantsPurple();
 
     GoogleStorageLocation getGermlineVariantsSage();
 

@@ -7,6 +7,7 @@ public interface ResourceNames {
     String GC_PROFILES = "gc_profiles";
     String COBALT = "cobalt";
     String AMBER = "amber";
+    String LILAC = "lilac";
     String SAGE = "sage";
     String MAPPABILITY = "mappability";
     String GIAB_HIGH_CONF = "giab_high_conf";

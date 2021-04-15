@@ -15,6 +15,11 @@ public class RemoteLocationsTestImpl implements RemoteLocations {
     }
 
     @Override
+    public GoogleStorageLocation getGeneCopyNumberTsv() {
+        return GoogleStorageLocation.of("purple", "171006_COLO829/COLO929v003T.purple.cnv.gene.tsv");
+    }
+
+    @Override
     public GoogleStorageLocation getAmber() {
         return GoogleStorageLocation.of("amber", "171006_COLO829", true);
     }
@@ -47,6 +52,11 @@ public class RemoteLocationsTestImpl implements RemoteLocations {
     @Override
     public GoogleStorageLocation getSomaticVariantsSage() {
         return GoogleStorageLocation.of("sage", "171006_COLO829/COLO929v003T.sage.somatic.vcf.gz");
+    }
+
+    @Override
+    public GoogleStorageLocation getSomaticVariantsPurple() {
+        return GoogleStorageLocation.of("purple", "171006_COLO829/COLO929v003T.purple.somatic.vcf.gz");
     }
 
     @Override

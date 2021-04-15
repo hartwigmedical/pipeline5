@@ -21,6 +21,11 @@ public class RemoteLocationsDecorator implements RemoteLocations {
     }
 
     @Override
+    public GoogleStorageLocation getGeneCopyNumberTsv() {
+        return decorator.getGeneCopyNumberTsv();
+    }
+
+    @Override
     public GoogleStorageLocation getAmber() {
         return decorator.getAmber();
     }
@@ -53,6 +58,11 @@ public class RemoteLocationsDecorator implements RemoteLocations {
     @Override
     public GoogleStorageLocation getSomaticVariantsSage() {
         return decorator.getSomaticVariantsSage();
+    }
+
+    @Override
+    public GoogleStorageLocation getSomaticVariantsPurple() {
+        return decorator.getSomaticVariantsPurple();
     }
 
     @Override
