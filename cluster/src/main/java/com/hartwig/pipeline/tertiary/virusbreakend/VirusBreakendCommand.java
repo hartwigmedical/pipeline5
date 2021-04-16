@@ -13,15 +13,15 @@ public class VirusBreakendCommand extends VersionedToolCommand {
                 "virusbreakend.sh",
                 Versions.GRIDSS_VIRUS_BREAKEND,
                 "--output",
-                VmDirectories.OUTPUT + "/" + tumorSample + ".virusbreakend.vcf",
+                VmDirectories.outputFile( tumorSample + ".virusbreakend.vcf"),
                 "--workingdir",
                 VmDirectories.OUTPUT,
                 "--reference",
                 resourceFiles.refGenomeFile(),
                 "--db",
-                VmDirectories.RESOURCES + "/virusbreakend/" + VIRUSBREAKEND_DB,
+                VmDirectories.resourcesPath("virusbreakend/" + VIRUSBREAKEND_DB),
                 "--jar",
-                VmDirectories.TOOLS + "/gridss/" + Versions.GRIDSS_VIRUS_BREAKEND + "/gridss.jar",
+                VmDirectories.toolPath("gridss/" + Versions.GRIDSS_VIRUS_BREAKEND + "/gridss.jar"),
                 tumorBamPath
         );
     }

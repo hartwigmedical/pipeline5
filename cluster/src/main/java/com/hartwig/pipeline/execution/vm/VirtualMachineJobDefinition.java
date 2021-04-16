@@ -134,7 +134,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .name("virusbreakend")
                 .startupCommand(startupScript)
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(12, 64))
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 16))
                 .build();
     }
 

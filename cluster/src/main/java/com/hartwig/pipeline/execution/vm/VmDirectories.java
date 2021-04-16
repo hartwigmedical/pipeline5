@@ -15,6 +15,14 @@ public interface VmDirectories {
         return filePath(INPUT, path);
     }
 
+    static String resourcesPath(String path) {
+        return filePath(RESOURCES, path);
+    }
+
+    static String toolPath(String path) {
+        return filePath(TOOLS, path);
+    }
+
     static String filePath(String directory, String path) {
         return String.format("%s/%s", directory, path);
     }
