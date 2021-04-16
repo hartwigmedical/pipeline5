@@ -5,7 +5,6 @@ import java.util.List;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.AlignmentPair;
-import com.hartwig.pipeline.calling.command.BwaCommand;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
@@ -18,24 +17,21 @@ import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
-import com.hartwig.pipeline.reruns.PersistedDataset;
-import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.TertiaryStage;
+import com.hartwig.pipeline.tools.Versions;
 
 public class VirusBreakend extends TertiaryStage<VirusBreakendOutput> {
 
     public static final String NAMESPACE = "virusbreakend";
 
     private final ResourceFiles resourceFiles;
-    private final PersistedDataset persistedDataset;
 
-    public VirusBreakend(final AlignmentPair alignmentPair, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
+    public VirusBreakend(final AlignmentPair alignmentPair, final ResourceFiles resourceFiles) {
         super(alignmentPair);
         this.resourceFiles = resourceFiles;
-        this.persistedDataset = persistedDataset;
     }
 
     @Override
@@ -46,7 +42,7 @@ public class VirusBreakend extends TertiaryStage<VirusBreakendOutput> {
     @Override
     public List<BashCommand> commands(final SomaticRunMetadata metadata) {
         return List.of(
-                new ExportPathCommand("/opt/tools/gridss/2.11.1"),
+                new ExportPathCommand("/opt/tools/gridss/"+ Versions.GRIDSS),
                 new ExportPathCommand("/opt/tools/repeatmasker/4.1.1"),
                 new ExportPathCommand("/opt/tools/kraken2/2.1.0"),
                 new ExportPathCommand("/opt/tools/samtools/1.10"),
@@ -68,7 +64,6 @@ public class VirusBreakend extends TertiaryStage<VirusBreakendOutput> {
         return VirusBreakendOutput.builder()
                 .status(jobStatus)
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
-                .maybeOutputDirectory(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(), true))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
                 .addDatatypes(
                         new AddDatatype(DataType.VIRUSBREAKEND_VARIANTS,
@@ -90,11 +85,6 @@ public class VirusBreakend extends TertiaryStage<VirusBreakendOutput> {
     public VirusBreakendOutput persistedOutput(final SomaticRunMetadata metadata) {
         return VirusBreakendOutput.builder()
                 .status(PipelineStatus.PERSISTED)
-                .maybeOutputDirectory(persistedDataset.path(metadata.tumor().sampleName(), DataType.VIRUSBREAKEND_SUMMARY)
-                        .map(GoogleStorageLocation::asDirectory)
-                        .orElse(GoogleStorageLocation.of(metadata.bucket(),
-                                PersistedLocations.pathForSet(metadata.set(), namespace()),
-                                true)))
                 .build();
     }
 

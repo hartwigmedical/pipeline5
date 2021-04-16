@@ -1,7 +1,5 @@
 package com.hartwig.pipeline.tertiary.virusbreakend;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.List;
 
 import com.hartwig.pipeline.datatypes.DataType;
@@ -10,7 +8,6 @@ import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.stages.Stage;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
@@ -25,7 +22,7 @@ public class VirusBreakendTest extends TertiaryStageTest<VirusBreakendOutput> {
 
     @Override
     protected Stage<VirusBreakendOutput, SomaticRunMetadata> createVictim() {
-        return new VirusBreakend(TestInputs.defaultPair(), TestInputs.REF_GENOME_37_RESOURCE_FILES, persistedDataset);
+        return new VirusBreakend(TestInputs.defaultPair(), TestInputs.REF_GENOME_37_RESOURCE_FILES);
     }
 
     @Override
@@ -40,14 +37,12 @@ public class VirusBreakendTest extends TertiaryStageTest<VirusBreakendOutput> {
 
     @Override
     protected void validateOutput(final VirusBreakendOutput output) {
-        assertThat(output.outputDirectory().bucket()).isEqualTo("run-reference-tumor-test/virusbreakend");
-        assertThat(output.outputDirectory().path()).isEqualTo("results");
-        assertThat(output.outputDirectory().isDirectory()).isTrue();
+       // nothing to validate
     }
 
     @Override
     protected void validatePersistedOutput(final VirusBreakendOutput output) {
-        assertThat(output.outputDirectory()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "set/virusbreakend", true));
+
     }
 
     @Override
@@ -57,7 +52,7 @@ public class VirusBreakendTest extends TertiaryStageTest<VirusBreakendOutput> {
 
     @Override
     protected void validatePersistedOutputFromPersistedDataset(final VirusBreakendOutput output) {
-        assertThat(output.outputDirectory()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "virusbreakend", true));
+
     }
 
     @Override

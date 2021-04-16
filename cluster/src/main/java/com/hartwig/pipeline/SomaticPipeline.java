@@ -27,8 +27,6 @@ import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.StageRunner;
 import com.hartwig.pipeline.tertiary.amber.Amber;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
-import com.hartwig.pipeline.tertiary.virusbreakend.VirusBreakend;
-import com.hartwig.pipeline.tertiary.virusbreakend.VirusBreakendOutput;
 import com.hartwig.pipeline.tertiary.bachelor.Bachelor;
 import com.hartwig.pipeline.tertiary.bachelor.BachelorOutput;
 import com.hartwig.pipeline.tertiary.chord.Chord;
@@ -42,6 +40,8 @@ import com.hartwig.pipeline.tertiary.linx.LinxOutput;
 import com.hartwig.pipeline.tertiary.protect.Protect;
 import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
+import com.hartwig.pipeline.tertiary.virusbreakend.VirusBreakend;
+import com.hartwig.pipeline.tertiary.virusbreakend.VirusBreakendOutput;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,7 +97,7 @@ public class SomaticPipeline {
                 Future<CobaltOutput> cobaltOutputFuture =
                         executorService.submit(() -> stageRunner.run(metadata, new Cobalt(pair, resourceFiles, persistedDataset)));
                 Future<VirusBreakendOutput> virusBreakendOutputFuture =
-                        executorService.submit(() -> stageRunner.run(metadata, new VirusBreakend(pair, resourceFiles, persistedDataset)));
+                        executorService.submit(() -> stageRunner.run(metadata, new VirusBreakend(pair, resourceFiles)));
                 Future<SageOutput> sageSomaticOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                         new SageSomaticCaller(pair, resourceFiles, persistedDataset)));
                 Future<SageOutput> sageGermlineOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
