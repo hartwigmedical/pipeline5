@@ -1,12 +1,14 @@
 package com.hartwig.pipeline.metadata;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.cloud.pubsub.v1.Publisher;
+import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.hartwig.api.SampleApi;
 import com.hartwig.api.SetApi;
@@ -51,9 +53,16 @@ public class BiopsyMetadataApi implements SomaticMetadataApi {
 
     @Override
     public SomaticRunMetadata get() {
-        Sample tumor = OnlyOne.of(sampleApi.list(null, null, null, null, SampleType.TUMOR, biopsyName), Sample.class);
-        SampleSet set = OnlyOne.of(setApi.list(null, tumor.getId(), true), SampleSet.class);
+        List<Sample> possibleTumors = sampleApi.list(null, null, null, null, SampleType.TUMOR, biopsyName);
+        SampleSet set = possibleTumors.stream()
+                .flatMap(sample -> setApi.list(null, sample.getId(), true).stream())
+                .collect(Collectors.toList())
+                .stream()
+                .max(Comparator.comparing(SampleSet::getName))
+                .orElseThrow(() -> new IllegalStateException(String.format("No viable set found for biopsy [%s]", biopsyName)));
+
         Sample ref = OnlyOne.of(sampleApi.list(null, null, null, set.getId(), SampleType.REF, null), Sample.class);
+        Sample tumor = OnlyOne.of(sampleApi.list(null, null, null, set.getId(), SampleType.TUMOR, null), Sample.class);
         return SomaticRunMetadata.builder()
                 .bucket(arguments.outputBucket())
                 .set(set.getName())
@@ -83,7 +92,7 @@ public class BiopsyMetadataApi implements SomaticMetadataApi {
         if (state.status() != PipelineStatus.FAILED) {
             List<AddDatatype> addDatatypes =
                     state.stageOutputs().stream().map(StageOutput::datatypes).flatMap(List::stream).collect(Collectors.toList());
-            SampleSet set = OnlyOne.of(setApi.list(metadata.set(), null, null), SampleSet.class);
+            SampleSet set = OnlyOne.of(setApi.list(metadata.set(), null, true), SampleSet.class);
             ImmutablePipelineStaged.Builder stagedEventBuilder = ImmutablePipelineStaged.builder()
                     .type(PipelineStaged.Type.DNA)
                     .version(Versions.pipelineMajorMinorVersion())
@@ -92,13 +101,14 @@ public class BiopsyMetadataApi implements SomaticMetadataApi {
             OutputIterator.from(blob -> {
                 Optional<DataType> dataType =
                         addDatatypes.stream().filter(d -> blob.getName().endsWith(d.path())).map(AddDatatype::dataType).findFirst();
+                Blob blobWithMd5 = sourceBucket.get(blob.getName());
                 stagedEventBuilder.addBlobs(builderWithPathComponents(metadata.tumor().sampleName(),
                         metadata.reference().sampleName(),
-                        blob.getName()).datatype(dataType.map(Object::toString))
+                        blobWithMd5.getName()).datatype(dataType.map(Object::toString))
                         .barcode(metadata.barcode())
-                        .bucket(blob.getBucket())
-                        .filesize(blob.getSize())
-                        .hash(MD5s.asHex(blob.getMd5()))
+                        .bucket(blobWithMd5.getBucket())
+                        .filesize(blobWithMd5.getSize())
+                        .hash(MD5s.asHex(blobWithMd5.getMd5()))
                         .build());
             }, sourceBucket).iterate(metadata);
             stagedEventBuilder.build().publish(publisher, objectMapper);

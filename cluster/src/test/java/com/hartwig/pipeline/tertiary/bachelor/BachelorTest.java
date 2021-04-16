@@ -13,6 +13,7 @@ import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.stages.Stage;
+import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
@@ -29,7 +30,8 @@ public class BachelorTest extends TertiaryStageTest<BachelorOutput> {
 
     @Override
     protected Stage<BachelorOutput, SomaticRunMetadata> createVictim() {
-        return new Bachelor(TestInputs.REF_GENOME_37_RESOURCE_FILES,
+        return new Bachelor(persistedDataset,
+                TestInputs.REF_GENOME_37_RESOURCE_FILES,
                 TestInputs.purpleOutput(),
                 TestInputs.tumorAlignmentOutput(),
                 TestInputs.germlineCallerOutput());
@@ -66,6 +68,18 @@ public class BachelorTest extends TertiaryStageTest<BachelorOutput> {
     @Override
     protected boolean isEnabledOnShallowSeq() {
         return false;
+    }
+
+    @Override
+    protected void validatePersistedOutputFromPersistedDataset(final BachelorOutput output) {
+        assertThat(output.reportableVariants()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
+                "set/bachelor/tumor.bachelor.germline_variant.tsv"));
+    }
+
+    @Override
+    protected void validatePersistedOutput(final BachelorOutput output) {
+        assertThat(output.reportableVariants()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
+                "set/bachelor/tumor.bachelor.germline_variant.tsv"));
     }
 
     @Test

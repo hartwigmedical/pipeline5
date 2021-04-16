@@ -14,15 +14,15 @@ public interface Versions {
     String SAMBAMBA = "0.6.8";
     String GATK = "3.8.0";
     String BCF_TOOLS = "1.9";
-    String SAGE = "2.7";
+    String SAGE = "2.8";
     String SNPEFF = "4.3s";
     String TABIX = "0.2.6";
     String AMBER = "3.4";
     String COBALT = "1.11";
     String HEALTH_CHECKER = "3.2";
-    String PURPLE = "2.53";
+    String PURPLE = "2.54";
     String CIRCOS = "0.69.6";
-    String GRIDSS = "2.9.4";
+    String GRIDSS = "2.11.1";
     String GRIPSS = "1.11";
     String LINX = "1.14";
     String BACHELOR = "1.12";
@@ -30,9 +30,8 @@ public interface Versions {
     String SAMTOOLS = "1.10";
     String BAMCOMP = "1.3";
     String PROTECT = "1.2";
-
-    // Version of VirusBreakend refers to GRIDSS version to use
-    String GRIDSS_VIRUS_BREAKEND = "2.11.1";
+    String REPEAT_MASKER = "4.1.1";
+    String KRAKEN = "2.1.0";
 
     static void printAll() {
         Logger logger = LoggerFactory.getLogger(Versions.class);

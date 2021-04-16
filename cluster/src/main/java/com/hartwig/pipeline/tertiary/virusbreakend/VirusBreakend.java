@@ -10,6 +10,7 @@ import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.unix.ExportPathCommand;
 import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.ArchivePath;
@@ -42,12 +43,12 @@ public class VirusBreakend extends TertiaryStage<VirusBreakendOutput> {
     @Override
     public List<BashCommand> commands(final SomaticRunMetadata metadata) {
         return List.of(
-                new ExportPathCommand("/opt/tools/gridss/"+ Versions.GRIDSS),
-                new ExportPathCommand("/opt/tools/repeatmasker/4.1.1"),
-                new ExportPathCommand("/opt/tools/kraken2/2.1.0"),
-                new ExportPathCommand("/opt/tools/samtools/1.10"),
-                new ExportPathCommand("/opt/tools/bcftools/1.9"),
-                new ExportPathCommand("/opt/tools/bwa/0.7.17"),
+                new ExportPathCommand(VmDirectories.TOOLS + "/gridss/"+ Versions.GRIDSS),
+                new ExportPathCommand(VmDirectories.TOOLS + "/repeatmasker/" + Versions.REPEAT_MASKER),
+                new ExportPathCommand(VmDirectories.TOOLS + "/kraken2/" + Versions.KRAKEN),
+                new ExportPathCommand(VmDirectories.TOOLS + "/samtools/" + Versions.SAMTOOLS),
+                new ExportPathCommand(VmDirectories.TOOLS + "/bcftools/" + Versions.BCF_TOOLS),
+                new ExportPathCommand(VmDirectories.TOOLS + "/bwa/" + Versions.BWA),
                 new VirusBreakendCommand(resourceFiles,
                 metadata.tumor().sampleName(),
                 getTumorBamDownload().getLocalTargetPath()));

@@ -2,7 +2,6 @@ package com.hartwig.pipeline.calling.sage;
 
 import java.util.List;
 
-import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.OutputFile;
@@ -19,6 +18,6 @@ public class SageApplication extends SubStage {
 
     @Override
     public List<BashCommand> bash(final OutputFile input, final OutputFile output) {
-        return ImmutableList.of(sageCommandBuilder.build(output.path()));
+        return sageCommandBuilder.build(output.path());
     }
 }

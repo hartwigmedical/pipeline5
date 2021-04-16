@@ -107,7 +107,7 @@ public class SomaticPipeline {
 
                 AmberOutput amberOutput = pipelineResults.add(state.add(amberOutputFuture.get()));
                 CobaltOutput cobaltOutput = pipelineResults.add(state.add(cobaltOutputFuture.get()));
-                VirusBreakendOutput virusBreakendOutput = pipelineResults.add(state.add(virusBreakendOutputFuture.get()));
+                pipelineResults.add(state.add(virusBreakendOutputFuture.get()));
                 SageOutput sageSomaticOutput = pipelineResults.add(state.add(sageSomaticOutputFuture.get()));
                 SageOutput sageGermlineOutput = pipelineResults.add(state.add(sageGermlineOutputFuture.get()));
 
@@ -142,12 +142,13 @@ public class SomaticPipeline {
                             Future<LinxOutput> linxOutputFuture =
                                     executorService.submit(() -> stageRunner.run(metadata, new Linx(purpleOutput, resourceFiles)));
                             Future<BachelorOutput> bachelorOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
-                                    new Bachelor(resourceFiles,
+                                    new Bachelor(persistedDataset,
+                                            resourceFiles,
                                             purpleOutput,
                                             pair.tumor(),
                                             pollOrThrow(germlineCallerOutputStorage, "germline"))));
                             Future<ChordOutput> chordOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
-                                    new Chord(arguments.refGenomeVersion(), purpleOutput)));
+                                    new Chord(arguments.refGenomeVersion(), purpleOutput, persistedDataset)));
                             pipelineResults.add(state.add(healthCheckOutputFuture.get()));
                             LinxOutput linxOutput = pipelineResults.add(state.add(linxOutputFuture.get()));
                             BachelorOutput bachelorOutput = pipelineResults.add(state.add(bachelorOutputFuture.get()));

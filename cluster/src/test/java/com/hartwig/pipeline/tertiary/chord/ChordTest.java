@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.tertiary.chord;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -11,6 +13,7 @@ import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.stages.Stage;
+import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
@@ -18,7 +21,7 @@ public class ChordTest extends TertiaryStageTest<ChordOutput> {
 
     @Override
     protected Stage<ChordOutput, SomaticRunMetadata> createVictim() {
-        return new Chord(RefGenomeVersion.V37, TestInputs.purpleOutput());
+        return new Chord(RefGenomeVersion.V37, TestInputs.purpleOutput(), persistedDataset);
     }
 
     @Override
@@ -48,5 +51,17 @@ public class ChordTest extends TertiaryStageTest<ChordOutput> {
         return List.of(new AddDatatype(DataType.CHORD_PREDICTION,
                 TestInputs.defaultSomaticRunMetadata().barcode(),
                 new ArchivePath(Folder.root(), Chord.NAMESPACE, "tumor_chord_prediction.txt")));
+    }
+
+    @Override
+    protected void validatePersistedOutputFromPersistedDataset(final ChordOutput output) {
+        assertThat(output.predictions()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
+                "set/chord/tumor_chord_prediction.txt"));
+    }
+
+    @Override
+    protected void validatePersistedOutput(final ChordOutput output) {
+        assertThat(output.predictions()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
+                "set/chord/tumor_chord_prediction.txt"));
     }
 }
