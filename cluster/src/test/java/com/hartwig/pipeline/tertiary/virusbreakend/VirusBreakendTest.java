@@ -62,12 +62,13 @@ public class VirusBreakendTest extends TertiaryStageTest<VirusBreakendOutput> {
 
     @Override
     protected List<String> expectedCommands() {
-        return List.of("export PATH=/opt/tools/gridss/2.11.1:$PATH",
-                "export PATH=/opt/tools/repeatmasker/4.1.1:$PATH",
-                "export PATH=/opt/tools/kraken2/2.1.0:$PATH",
-                "export PATH=/opt/tools/samtools/1.10:$PATH",
-                "export PATH=/opt/tools/bcftools/1.9:$PATH",
-                "export PATH=/opt/tools/bwa/0.7.17:$PATH",
+        return List.of(
+                "export PATH=\"${PATH}:/opt/tools/gridss/2.11.1\"",
+                "export PATH=\"${PATH}:/opt/tools/repeatmasker/4.1.1\"",
+                "export PATH=\"${PATH}:/opt/tools/kraken2/2.1.0\"",
+                "export PATH=\"${PATH}:/opt/tools/samtools/1.10\"",
+                "export PATH=\"${PATH}:/opt/tools/bcftools/1.9\"",
+                "export PATH=\"${PATH}:/opt/tools/bwa/0.7.17\"",
                 "/opt/tools/gridss/2.11.1/virusbreakend.sh "
                         + "--output /data/output/tumor.virusbreakend.vcf "
                         + "--workingdir /data/output "
