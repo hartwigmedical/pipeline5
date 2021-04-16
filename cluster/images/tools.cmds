@@ -33,6 +33,9 @@ sudo tar xvf /opt/tools/gridss/2.8.3/scripts.tar -C /opt/tools/gridss/2.8.3/
 sudo tar xvf /opt/tools/gridss/2.9.3/scripts.tar -C /opt/tools/gridss/2.9.3/
 sudo tar xvf /opt/tools/gridss/2.9.4/scripts.tar -C /opt/tools/gridss/2.9.4/
 sudo tar xvf /opt/tools/repeatmasker/4.1.1/repeatmasker.tar -C /opt/tools/repeatmasker/4.1.1/
+sudo chmod a+x /opt/tools/kraken2/2.1.0/kraken2
+sudo chmod a+x /opt/tools/kraken2/2.1.0/classify
+sudo chmod a+x /opt/tools/repeatmasker/4.1.1/RepeatMasker
 sudo chmod a+x /opt/tools/bcftools/1.3.1/bcftools
 sudo chmod a+x /opt/tools/bcftools/1.9/bcftools
 sudo chmod a+x /opt/tools/snpEff/4.3s/snpEff.sh
@@ -46,6 +49,9 @@ sudo chmod a+x /opt/tools/gridss/2.8.3/gridss.sh
 sudo chmod a+x /opt/tools/gridss/2.9.3/gridss.sh
 sudo chmod a+x /opt/tools/gridss/2.9.4/gridss.sh
 sudo chmod a+x /opt/tools/gridss/2.11.1/gridss.sh
+sudo chmod a+x /opt/tools/gridss/2.11.1/gridsstools
+sudo chmod a+x /opt/tools/gridss/2.11.1/virusbreakend.sh
+sudo chmod a+x /opt/tools/gridss/2.11.1/gridss_annotate_vcf_kraken2.sh
 sudo chmod a+x /opt/tools/gridss/2.11.1/gridss_annotate_vcf_repeatmasker.sh
 
 sudo chmod a+x /opt/tools/samtools/1.9/samtools

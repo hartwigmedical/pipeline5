@@ -18,6 +18,7 @@ import static com.hartwig.pipeline.testsupport.TestInputs.structuralCallerOutput
 import static com.hartwig.pipeline.testsupport.TestInputs.structuralCallerPostProcessOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.tumorFlagstatOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.tumorMetricsOutput;
+import static com.hartwig.pipeline.testsupport.TestInputs.virusBreakendOutput;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.any;
@@ -97,6 +98,7 @@ public class SomaticPipelineTest {
         PipelineState state = victim.run(TestInputs.defaultPair());
         assertThat(state.stageOutputs()).containsExactlyInAnyOrder(cobaltOutput(),
                 amberOutput(),
+                virusBreakendOutput(),
                 sageSomaticOutput(),
                 sageGermlineOutput(),
                 structuralCallerOutput(),
@@ -116,12 +118,14 @@ public class SomaticPipelineTest {
         SageOutput failSomatic = SageOutput.builder(SageSomaticCaller.NAMESPACE).status(PipelineStatus.FAILED).build();
         when(stageRunner.run(eq(defaultSomaticRunMetadata()), any())).thenReturn(amberOutput())
                 .thenReturn(cobaltOutput())
+                .thenReturn(virusBreakendOutput())
                 .thenReturn(failSomatic)
                 .thenReturn(sageGermlineOutput())
                 .thenReturn(structuralCallerOutput());
         PipelineState state = victim.run(TestInputs.defaultPair());
         assertThat(state.stageOutputs()).containsExactlyInAnyOrder(cobaltOutput(),
                 amberOutput(),
+                virusBreakendOutput(),
                 failSomatic,
                 sageGermlineOutput(),
                 structuralCallerOutput());
@@ -135,6 +139,7 @@ public class SomaticPipelineTest {
         StructuralCallerPostProcessOutput failGripss = StructuralCallerPostProcessOutput.builder().status(PipelineStatus.FAILED).build();
         when(stageRunner.run(eq(defaultSomaticRunMetadata()), any())).thenReturn(amberOutput())
                 .thenReturn(cobaltOutput())
+                .thenReturn(virusBreakendOutput())
                 .thenReturn(sageSomaticOutput())
                 .thenReturn(sageGermlineOutput())
                 .thenReturn(structuralCallerOutput())
@@ -142,6 +147,7 @@ public class SomaticPipelineTest {
         PipelineState state = victim.run(TestInputs.defaultPair());
         assertThat(state.stageOutputs()).containsExactlyInAnyOrder(cobaltOutput(),
                 amberOutput(),
+                virusBreakendOutput(),
                 sageSomaticOutput(),
                 sageGermlineOutput(),
                 structuralCallerOutput(),
@@ -156,6 +162,7 @@ public class SomaticPipelineTest {
         PurpleOutput failPurple = PurpleOutput.builder().status(PipelineStatus.FAILED).build();
         when(stageRunner.run(eq(defaultSomaticRunMetadata()), any())).thenReturn(amberOutput())
                 .thenReturn(cobaltOutput())
+                .thenReturn(virusBreakendOutput())
                 .thenReturn(sageSomaticOutput())
                 .thenReturn(sageGermlineOutput())
                 .thenReturn(structuralCallerOutput())
@@ -164,6 +171,7 @@ public class SomaticPipelineTest {
         PipelineState state = victim.run(TestInputs.defaultPair());
         assertThat(state.stageOutputs()).containsExactlyInAnyOrder(cobaltOutput(),
                 amberOutput(),
+                virusBreakendOutput(),
                 sageSomaticOutput(),
                 sageGermlineOutput(),
                 structuralCallerOutput(),
@@ -179,6 +187,7 @@ public class SomaticPipelineTest {
         germlineCallingAvailable();
         when(stageRunner.run(eq(defaultSomaticRunMetadata()), any())).thenReturn(amberOutput())
                 .thenReturn(cobaltOutput())
+                .thenReturn(virusBreakendOutput())
                 .thenReturn(sageSomaticOutput())
                 .thenReturn(sageGermlineOutput())
                 .thenReturn(structuralCallerOutput())
@@ -209,6 +218,7 @@ public class SomaticPipelineTest {
         germlineCallingAvailable();
         when(stageRunner.run(eq(defaultSomaticRunMetadata()), any())).thenReturn(amberOutput())
                 .thenReturn(cobaltOutput())
+                .thenReturn(virusBreakendOutput())
                 .thenReturn(sageSomaticOutput())
                 .thenReturn(sageGermlineOutput())
                 .thenReturn(structuralCallerOutput())
