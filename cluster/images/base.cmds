@@ -14,15 +14,10 @@ sudo mkdir /data
 sudo mkdir /opt/tools
 sudo mkdir /opt/resources
 sudo gcloud source repos clone common-resources-public /opt/resources --project=hmf-pipeline-development
+sudo gzip -d /opt/resources/gridss_pon/37/*
+sudo gzip -d /opt/resources/gridss_pon/38/*
+sudo gzip -d /opt/resources/gridss_repeatmasker_db/37/*
+sudo gzip -d /opt/resources/gridss_repeatmasker_db/38/*
 
-# Copy explicitly those resources that are not yet in the repository so that anything mistakenly copied into the bucket rather
-# than the repository is ignored
-sudo gsutil -m -o 'GSUtil:parallel_thread_count=1' -o 'GSUtil:sliced_object_download_max_components=4' cp -r gs://common-resources/gridss_pon /opt/resources/
-sudo gsutil -m -o 'GSUtil:parallel_thread_count=1' -o 'GSUtil:sliced_object_download_max_components=4' cp -r gs://common-resources/gridss_repeatmasker_db /opt/resources/
-sudo gsutil -m -o 'GSUtil:parallel_thread_count=1' -o 'GSUtil:sliced_object_download_max_components=4' cp -r gs://common-resources/mappability /opt/resources/
-sudo gsutil -m -o 'GSUtil:parallel_thread_count=1' -o 'GSUtil:sliced_object_download_max_components=4' cp -r gs://common-resources/reference_genome /opt/resources/
-sudo gsutil -m -o 'GSUtil:parallel_thread_count=1' -o 'GSUtil:sliced_object_download_max_components=4' cp -r gs://common-resources/snpeff /opt/resources/
-sudo gsutil -m -o 'GSUtil:parallel_thread_count=1' -o 'GSUtil:sliced_object_download_max_components=4' cp -r gs://common-resources/virus_reference_genome /opt/resources/
-sudo gsutil -m -o 'GSUtil:parallel_thread_count=1' -o 'GSUtil:sliced_object_download_max_components=4' cp -r gs://common-resources/virusbreakend /opt/resources/
-sudo gsutil -m -o 'GSUtil:parallel_thread_count=1' -o 'GSUtil:sliced_object_download_max_components=4' cp gs://common-resources/sage/37/* /opt/resources/sage/37/
-sudo gsutil -m -o 'GSUtil:parallel_thread_count=1' -o 'GSUtil:sliced_object_download_max_components=4' cp gs://common-resources/sage/38/* /opt/resources/sage/38/
+# Note the "-n", bucket-based files should never overwrite what came from the repository
+sudo gsutil -m -o 'GSUtil:parallel_thread_count=1' -o 'GSUtil:sliced_object_download_max_components=4' cp -n -r gs://common-resources/* /opt/resources/
