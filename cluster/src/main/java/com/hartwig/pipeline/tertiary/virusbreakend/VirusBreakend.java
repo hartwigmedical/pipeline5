@@ -42,12 +42,12 @@ public class VirusBreakend extends TertiaryStage<VirusBreakendOutput> {
 
     @Override
     public List<BashCommand> commands(final SomaticRunMetadata metadata) {
-        return List.of(new ExportPathCommand(VmDirectories.toolPath("/gridss/" + Versions.GRIDSS)),
-                new ExportPathCommand(VmDirectories.toolPath("/repeatmasker/" + Versions.REPEAT_MASKER)),
-                new ExportPathCommand(VmDirectories.toolPath("/kraken2/" + Versions.KRAKEN)),
-                new ExportPathCommand(VmDirectories.toolPath("/samtools/" + Versions.SAMTOOLS)),
-                new ExportPathCommand(VmDirectories.toolPath("/bcftools/" + Versions.BCF_TOOLS)),
-                new ExportPathCommand(VmDirectories.toolPath("/bwa/" + Versions.BWA)),
+        return List.of(new ExportPathCommand(VmDirectories.toolPath("gridss/" + Versions.VIRUSBREAKEND_GRIDSS)),
+                new ExportPathCommand(VmDirectories.toolPath("repeatmasker/" + Versions.REPEAT_MASKER)),
+                new ExportPathCommand(VmDirectories.toolPath("kraken2/" + Versions.KRAKEN)),
+                new ExportPathCommand(VmDirectories.toolPath("samtools/" + Versions.SAMTOOLS)),
+                new ExportPathCommand(VmDirectories.toolPath("bcftools/" + Versions.BCF_TOOLS)),
+                new ExportPathCommand(VmDirectories.toolPath("bwa/" + Versions.BWA)),
                 new VirusBreakendCommand(resourceFiles, metadata.tumor().sampleName(), getTumorBamDownload().getLocalTargetPath()));
     }
 

@@ -14,7 +14,7 @@ public class VirusBreakendCommand extends VersionedToolCommand {
                 "virusbreakend.sh",
                 Versions.GRIDSS,
                 "--output",
-                VmDirectories.outputFile( tumorSample + ".virusbreakend.vcf"),
+                VmDirectories.outputFile(tumorSample + ".virusbreakend.vcf"),
                 "--workingdir",
                 VmDirectories.OUTPUT,
                 "--reference",
@@ -22,8 +22,7 @@ public class VirusBreakendCommand extends VersionedToolCommand {
                 "--db",
                 VmDirectories.resourcesPath("virusbreakend/" + VIRUSBREAKEND_DB),
                 "--jar",
-                VmDirectories.toolPath("gridss/" + Versions.GRIDSS + "/gridss.jar"),
-                tumorBamPath
-        );
+                VmDirectories.toolPath("gridss/" + Versions.VIRUSBREAKEND_GRIDSS + "/gridss.jar"),
+                tumorBamPath);
     }
 }
