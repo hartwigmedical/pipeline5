@@ -42,16 +42,13 @@ public class VirusBreakend extends TertiaryStage<VirusBreakendOutput> {
 
     @Override
     public List<BashCommand> commands(final SomaticRunMetadata metadata) {
-        return List.of(
-                new ExportPathCommand(VmDirectories.TOOLS + "/gridss/"+ Versions.GRIDSS),
-                new ExportPathCommand(VmDirectories.TOOLS + "/repeatmasker/" + Versions.REPEAT_MASKER),
-                new ExportPathCommand(VmDirectories.TOOLS + "/kraken2/" + Versions.KRAKEN),
-                new ExportPathCommand(VmDirectories.TOOLS + "/samtools/" + Versions.SAMTOOLS),
-                new ExportPathCommand(VmDirectories.TOOLS + "/bcftools/" + Versions.BCF_TOOLS),
-                new ExportPathCommand(VmDirectories.TOOLS + "/bwa/" + Versions.BWA),
-                new VirusBreakendCommand(resourceFiles,
-                metadata.tumor().sampleName(),
-                getTumorBamDownload().getLocalTargetPath()));
+        return List.of(new ExportPathCommand(VmDirectories.toolPath("/gridss/" + Versions.GRIDSS)),
+                new ExportPathCommand(VmDirectories.toolPath("/repeatmasker/" + Versions.REPEAT_MASKER)),
+                new ExportPathCommand(VmDirectories.toolPath("/kraken2/" + Versions.KRAKEN)),
+                new ExportPathCommand(VmDirectories.toolPath("/samtools/" + Versions.SAMTOOLS)),
+                new ExportPathCommand(VmDirectories.toolPath("/bcftools/" + Versions.BCF_TOOLS)),
+                new ExportPathCommand(VmDirectories.toolPath("/bwa/" + Versions.BWA)),
+                new VirusBreakendCommand(resourceFiles, metadata.tumor().sampleName(), getTumorBamDownload().getLocalTargetPath()));
     }
 
     @Override
@@ -66,14 +63,14 @@ public class VirusBreakend extends TertiaryStage<VirusBreakendOutput> {
                 .status(jobStatus)
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
-                .addDatatypes(
-                        new AddDatatype(DataType.VIRUSBREAKEND_VARIANTS,
-                        metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), String.format("%s.virusbreakend.vcf", metadata.tumor().sampleName()))),
+                .addDatatypes(new AddDatatype(DataType.VIRUSBREAKEND_VARIANTS,
+                                metadata.barcode(),
+                                new ArchivePath(Folder.root(), namespace(), String.format("%s.virusbreakend.vcf", metadata.tumor().sampleName()))),
                         new AddDatatype(DataType.VIRUSBREAKEND_SUMMARY,
                                 metadata.barcode(),
-                                new ArchivePath(Folder.root(), namespace(), String.format("%s.virusbreakend.summary.tsv", metadata.tumor().sampleName())))
-                )
+                                new ArchivePath(Folder.root(),
+                                        namespace(),
+                                        String.format("%s.virusbreakend.summary.tsv", metadata.tumor().sampleName()))))
                 .build();
     }
 
@@ -84,9 +81,7 @@ public class VirusBreakend extends TertiaryStage<VirusBreakendOutput> {
 
     @Override
     public VirusBreakendOutput persistedOutput(final SomaticRunMetadata metadata) {
-        return VirusBreakendOutput.builder()
-                .status(PipelineStatus.PERSISTED)
-                .build();
+        return VirusBreakendOutput.builder().status(PipelineStatus.PERSISTED).build();
     }
 
     @Override
