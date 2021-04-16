@@ -5,11 +5,13 @@ import java.util.List;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.AlignmentPair;
+import com.hartwig.pipeline.calling.command.BwaCommand;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.pipeline.execution.vm.unix.ExportPathCommand;
 import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
@@ -44,13 +46,12 @@ public class VirusBreakend extends TertiaryStage<VirusBreakendOutput> {
     @Override
     public List<BashCommand> commands(final SomaticRunMetadata metadata) {
         return List.of(
-                // TODO implement class to export PATH of latest version of tool
-                () -> "export PATH=/opt/tools/gridss/2.11.1:$PATH",
-                () -> "export PATH=/opt/tools/repeatmasker/4.1.1:$PATH",
-                () -> "export PATH=/opt/tools/kraken2/2.1.0:$PATH",
-                () -> "export PATH=/opt/tools/samtools/1.10:$PATH",
-                () -> "export PATH=/opt/tools/bcftools/1.9:$PATH",
-                () -> "export PATH=/opt/tools/bwa/0.7.17:$PATH",
+                new ExportPathCommand("/opt/tools/gridss/2.11.1"),
+                new ExportPathCommand("/opt/tools/repeatmasker/4.1.1"),
+                new ExportPathCommand("/opt/tools/kraken2/2.1.0"),
+                new ExportPathCommand("/opt/tools/samtools/1.10"),
+                new ExportPathCommand("/opt/tools/bcftools/1.9"),
+                new ExportPathCommand("/opt/tools/bwa/0.7.17"),
                 new VirusBreakendCommand(resourceFiles,
                 metadata.tumor().sampleName(),
                 getTumorBamDownload().getLocalTargetPath()));
