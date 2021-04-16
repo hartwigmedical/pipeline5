@@ -39,6 +39,8 @@ public interface Arguments extends CommonArguments {
 
     boolean runTertiary();
 
+    boolean runHlaTyping();
+
     boolean shallow();
 
     DefaultsProfile profile();
@@ -152,6 +154,7 @@ public interface Arguments extends CommonArguments {
                     .runSageGermlineCaller(true)
                     .runStructuralCaller(true)
                     .runTertiary(true)
+                    .runHlaTyping(false)
                     .shallow(false)
                     .setId(EMPTY)
                     .cmek(EMPTY)
@@ -183,6 +186,7 @@ public interface Arguments extends CommonArguments {
                     .runSomaticCaller(true)
                     .runSageGermlineCaller(true)
                     .runTertiary(true)
+                    .runHlaTyping(false)
                     .runStructuralCaller(true)
                     .shallow(false)
                     .rclonePath(NOT_APPLICABLE)
@@ -221,6 +225,7 @@ public interface Arguments extends CommonArguments {
                     .runSomaticCaller(true)
                     .runSageGermlineCaller(true)
                     .runTertiary(true)
+                    .runHlaTyping(false)
                     .runStructuralCaller(true)
                     .shallow(false)
                     .rclonePath(NOT_APPLICABLE)
@@ -258,6 +263,7 @@ public interface Arguments extends CommonArguments {
                     .runSomaticCaller(true)
                     .runSageGermlineCaller(true)
                     .runTertiary(true)
+                    .runHlaTyping(false)
                     .runStructuralCaller(true)
                     .shallow(false)
                     .rclonePath(NOT_APPLICABLE)

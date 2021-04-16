@@ -35,6 +35,8 @@ import com.hartwig.pipeline.tertiary.cobalt.Cobalt;
 import com.hartwig.pipeline.tertiary.cobalt.CobaltOutput;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthCheckOutput;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthChecker;
+import com.hartwig.pipeline.tertiary.lilac.Lilac;
+import com.hartwig.pipeline.tertiary.lilac.LilacOutput;
 import com.hartwig.pipeline.tertiary.linx.Linx;
 import com.hartwig.pipeline.tertiary.linx.LinxOutput;
 import com.hartwig.pipeline.tertiary.protect.Protect;
@@ -134,6 +136,9 @@ public class SomaticPipeline {
                                     new HealthChecker(referenceMetrics, tumorMetrics, referenceFlagstat, tumorFlagstat, purpleOutput)));
                             Future<LinxOutput> linxOutputFuture =
                                     executorService.submit(() -> stageRunner.run(metadata, new Linx(purpleOutput, resourceFiles)));
+                            Future<LilacOutput> lilacOutputFuture =
+                                    executorService.submit(() -> stageRunner.run(metadata, new Lilac(pair, resourceFiles, purpleOutput)));
+
                             Future<BachelorOutput> bachelorOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                     new Bachelor(persistedDataset,
                                             resourceFiles,
@@ -144,6 +149,7 @@ public class SomaticPipeline {
                                     new Chord(arguments.refGenomeVersion(), purpleOutput, persistedDataset)));
                             pipelineResults.add(state.add(healthCheckOutputFuture.get()));
                             LinxOutput linxOutput = pipelineResults.add(state.add(linxOutputFuture.get()));
+                            LilacOutput lilacOutput = pipelineResults.add(state.add(lilacOutputFuture.get()));
                             BachelorOutput bachelorOutput = pipelineResults.add(state.add(bachelorOutputFuture.get()));
                             ChordOutput chordOutput = pipelineResults.add(state.add(chordOutputFuture.get()));
                             pipelineResults.add(state.add(executorService.submit(() -> stageRunner.run(metadata,

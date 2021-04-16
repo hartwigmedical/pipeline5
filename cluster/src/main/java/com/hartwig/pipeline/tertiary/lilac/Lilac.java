@@ -3,6 +3,8 @@ package com.hartwig.pipeline.tertiary.lilac;
 import java.util.Collections;
 import java.util.List;
 
+import com.google.common.collect.Lists;
+import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.execution.PipelineStatus;
@@ -44,7 +46,12 @@ public class Lilac extends TertiaryStage<LilacOutput> {
 
     @Override
     public List<BashCommand> inputs() {
-        return List.of(purpleGeneCopyNumberTsv, purpleSomaticVcf, purpleSomaticVcfIndex);
+        List<BashCommand> result = Lists.newArrayList();
+        result.addAll(super.inputs());
+        result.add(purpleGeneCopyNumberTsv);
+        result.add(purpleSomaticVcf);
+        result.add(purpleSomaticVcfIndex);
+        return result;
     }
 
     @Override
@@ -77,4 +84,12 @@ public class Lilac extends TertiaryStage<LilacOutput> {
     public LilacOutput skippedOutput(final SomaticRunMetadata metadata) {
         return LilacOutput.builder().status(PipelineStatus.SKIPPED).build();
     }
+
+    @Override
+    public boolean shouldRun(final Arguments arguments) {
+        return super.shouldRun(arguments) && arguments.runHlaTyping();
+    }
+
+
+
 }

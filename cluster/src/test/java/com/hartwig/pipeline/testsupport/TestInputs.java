@@ -38,6 +38,7 @@ import com.hartwig.pipeline.tertiary.cobalt.Cobalt;
 import com.hartwig.pipeline.tertiary.cobalt.CobaltOutput;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthCheckOutput;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthChecker;
+import com.hartwig.pipeline.tertiary.lilac.LilacOutput;
 import com.hartwig.pipeline.tertiary.linx.Linx;
 import com.hartwig.pipeline.tertiary.linx.LinxOutput;
 import com.hartwig.pipeline.tertiary.linx.LinxOutputLocations;
@@ -186,6 +187,12 @@ public class TestInputs {
                 .status(PipelineStatus.SUCCESS)
                 .maybeFinalVcf(gsLocation(somaticBucket(SageGermlineCaller.NAMESPACE),
                         RESULTS + TUMOR_SAMPLE + ".germline." + FileTypes.GZIPPED_VCF))
+                .build();
+    }
+
+    public static LilacOutput lilacOutput() {
+        return LilacOutput.builder()
+                .status(PipelineStatus.SKIPPED)
                 .build();
     }
 

@@ -21,7 +21,7 @@ public interface LilacOutput extends StageOutput {
     }
 
     static ImmutableLilacOutput.Builder builder() {
-        return LilacOutput.builder();
+        return ImmutableLilacOutput.builder();
     }
 
 }

@@ -55,6 +55,7 @@ public class CommandLineOptions {
     private static final String RUN_SAGE_GERMLINE_CALLER_FLAG = "run_sage_germline_caller";
     private static final String RUN_STRUCTURAL_CALLER_FLAG = "run_structural_caller";
     private static final String RUN_TERTIARY_FLAG = "run_tertiary";
+    private static final String RUN_HLA_TYPING_FLAG = "run_hla_typing";
     private static final String OUTPUT_BUCKET_FLAG = "output_bucket";
     private static final String ARCHIVE_BUCKET_FLAG = "archive_bucket";
     private static final String ARCHIVE_PROJECT_FLAG = "archive_project";
@@ -112,6 +113,7 @@ public class CommandLineOptions {
                 .addOption(optionWithBooleanArg(RUN_STRUCTURAL_CALLER_FLAG, "Run structural calling (gridss) on a VM"))
                 .addOption(optionWithBooleanArg(RUN_TERTIARY_FLAG, "Run tertiary analysis algorithms (amber, cobalt, purple)"))
                 .addOption(optionWithBooleanArg(RUN_SNP_GENOTYPER_FLAG, "Run snp genotyper for QC against genotyping"))
+                .addOption(optionWithBooleanArg(RUN_HLA_TYPING_FLAG, "Run HLA typing (lilac) on a VM"))
                 .addOption(serviceAccountEmail())
                 .addOption(patientReportBucket())
                 .addOption(archiveBucket())
@@ -336,6 +338,7 @@ public class CommandLineOptions {
                             defaults.runSageGermlineCaller()))
                     .runStructuralCaller(booleanOptionWithDefault(commandLine, RUN_STRUCTURAL_CALLER_FLAG, defaults.runStructuralCaller()))
                     .runTertiary(booleanOptionWithDefault(commandLine, RUN_TERTIARY_FLAG, defaults.runTertiary()))
+                    .runHlaTyping(booleanOptionWithDefault(commandLine, RUN_HLA_TYPING_FLAG, defaults.runHlaTyping()))
                     .serviceAccountEmail(commandLine.getOptionValue(SERVICE_ACCOUNT_EMAIL_FLAG, defaults.serviceAccountEmail()))
                     .outputBucket(commandLine.getOptionValue(OUTPUT_BUCKET_FLAG, defaults.outputBucket()))
                     .archiveBucket(commandLine.getOptionValue(ARCHIVE_BUCKET_FLAG, defaults.archiveBucket()))
