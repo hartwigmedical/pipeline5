@@ -66,7 +66,7 @@ public class VirusBreakend extends TertiaryStage<VirusBreakendOutput> {
                         Folder.root(),
                         namespace(),
                         resultsDirectory,
-                        s -> !s.contains("working")))
+                        s -> s.contains("working")))
                 .addDatatypes(new AddDatatype(DataType.VIRUSBREAKEND_VARIANTS,
                                 metadata.barcode(),
                                 new ArchivePath(Folder.root(), namespace(), String.format("%s.virusbreakend.vcf", metadata.tumor().sampleName()))),

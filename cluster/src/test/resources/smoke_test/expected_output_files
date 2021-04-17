@@ -186,3 +186,6 @@ gripss/CPCT12345678T.gripss.somatic.filtered.vcf.gz
 gripss/CPCT12345678T.gripss.somatic.filtered.vcf.gz.tbi
 gripss/run.log
 gripss/run.sh
+virusbreakend/CPCT12345678T.virusbreakend.vcf
+virusbreakend/CPCT12345678T.virusbreakend.vcf.summary.tsv
+virusbreakend/run.log
