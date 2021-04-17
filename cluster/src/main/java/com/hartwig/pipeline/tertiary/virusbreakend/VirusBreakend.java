@@ -62,7 +62,11 @@ public class VirusBreakend extends TertiaryStage<VirusBreakendOutput> {
         return VirusBreakendOutput.builder()
                 .status(jobStatus)
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
-                .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
+                .addReportComponents(new EntireOutputComponent(bucket,
+                        Folder.root(),
+                        namespace(),
+                        resultsDirectory,
+                        s -> !s.contains("working")))
                 .addDatatypes(new AddDatatype(DataType.VIRUSBREAKEND_VARIANTS,
                                 metadata.barcode(),
                                 new ArchivePath(Folder.root(), namespace(), String.format("%s.virusbreakend.vcf", metadata.tumor().sampleName()))),
