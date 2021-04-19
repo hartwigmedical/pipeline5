@@ -65,7 +65,7 @@ public class VirusBreakend extends TertiaryStage<VirusBreakendOutput> {
                 .status(jobStatus)
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new SingleFileComponent(bucket, NAMESPACE, Folder.root(), vcf, vcf, resultsDirectory),
-                        new SingleFileComponent(bucket, NAMESPACE, Folder.root(), vcf, vcf, resultsDirectory),
+                        new SingleFileComponent(bucket, NAMESPACE, Folder.root(), summary, summary, resultsDirectory),
                         new RunLogComponent(bucket, NAMESPACE, Folder.root(), resultsDirectory))
                 .addDatatypes(new AddDatatype(DataType.VIRUSBREAKEND_VARIANTS,
                                 metadata.barcode(),
