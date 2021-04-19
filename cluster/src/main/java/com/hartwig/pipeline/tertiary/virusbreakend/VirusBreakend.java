@@ -60,7 +60,7 @@ public class VirusBreakend extends TertiaryStage<VirusBreakendOutput> {
     public VirusBreakendOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
             final ResultsDirectory resultsDirectory) {
         String vcf = String.format("%s.virusbreakend.vcf", metadata.tumor().sampleName());
-        String summary = String.format("%s.virusbreakend.summary.tsv", metadata.tumor().sampleName());
+        String summary = String.format("%s.virusbreakend.vcf.summary.tsv", metadata.tumor().sampleName());
         return VirusBreakendOutput.builder()
                 .status(jobStatus)
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
