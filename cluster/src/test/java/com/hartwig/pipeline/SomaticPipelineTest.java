@@ -125,7 +125,6 @@ public class SomaticPipelineTest {
         PipelineState state = victim.run(TestInputs.defaultPair());
         assertThat(state.stageOutputs()).containsExactlyInAnyOrder(cobaltOutput(),
                 amberOutput(),
-                virusBreakendOutput(),
                 failSomatic,
                 sageGermlineOutput(),
                 structuralCallerOutput());
@@ -147,7 +146,6 @@ public class SomaticPipelineTest {
         PipelineState state = victim.run(TestInputs.defaultPair());
         assertThat(state.stageOutputs()).containsExactlyInAnyOrder(cobaltOutput(),
                 amberOutput(),
-                virusBreakendOutput(),
                 sageSomaticOutput(),
                 sageGermlineOutput(),
                 structuralCallerOutput(),
@@ -171,7 +169,6 @@ public class SomaticPipelineTest {
         PipelineState state = victim.run(TestInputs.defaultPair());
         assertThat(state.stageOutputs()).containsExactlyInAnyOrder(cobaltOutput(),
                 amberOutput(),
-                virusBreakendOutput(),
                 sageSomaticOutput(),
                 sageGermlineOutput(),
                 structuralCallerOutput(),

@@ -152,9 +152,9 @@ public class SomaticPipeline {
                             LinxOutput linxOutput = pipelineResults.add(state.add(linxOutputFuture.get()));
                             BachelorOutput bachelorOutput = pipelineResults.add(state.add(bachelorOutputFuture.get()));
                             ChordOutput chordOutput = pipelineResults.add(state.add(chordOutputFuture.get()));
-                            pipelineResults.add(state.add(virusBreakendOutputFuture.get()));
                             pipelineResults.add(state.add(executorService.submit(() -> stageRunner.run(metadata,
                                     new Protect(purpleOutput, bachelorOutput, linxOutput, chordOutput, resourceFiles))).get()));
+                            pipelineResults.add(state.add(virusBreakendOutputFuture.get()));
                             pipelineResults.compose(metadata);
                         }
                     }
