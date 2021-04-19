@@ -107,7 +107,6 @@ public class SomaticPipeline {
 
                 AmberOutput amberOutput = pipelineResults.add(state.add(amberOutputFuture.get()));
                 CobaltOutput cobaltOutput = pipelineResults.add(state.add(cobaltOutputFuture.get()));
-                pipelineResults.add(state.add(virusBreakendOutputFuture.get()));
                 SageOutput sageSomaticOutput = pipelineResults.add(state.add(sageSomaticOutputFuture.get()));
                 SageOutput sageGermlineOutput = pipelineResults.add(state.add(sageGermlineOutputFuture.get()));
 
@@ -153,6 +152,7 @@ public class SomaticPipeline {
                             LinxOutput linxOutput = pipelineResults.add(state.add(linxOutputFuture.get()));
                             BachelorOutput bachelorOutput = pipelineResults.add(state.add(bachelorOutputFuture.get()));
                             ChordOutput chordOutput = pipelineResults.add(state.add(chordOutputFuture.get()));
+                            pipelineResults.add(state.add(virusBreakendOutputFuture.get()));
                             pipelineResults.add(state.add(executorService.submit(() -> stageRunner.run(metadata,
                                     new Protect(purpleOutput, bachelorOutput, linxOutput, chordOutput, resourceFiles))).get()));
                             pipelineResults.compose(metadata);
