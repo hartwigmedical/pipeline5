@@ -1,20 +1,12 @@
 package com.hartwig.pipeline.metadata;
 
-import static com.hartwig.pipeline.testsupport.TestBlobs.pageOf;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.api.gax.paging.Page;
-import com.google.cloud.storage.Blob;
-import com.google.cloud.storage.Bucket;
-import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.PipelineState;
 import com.hartwig.pipeline.execution.PipelineStatus;
@@ -22,43 +14,38 @@ import com.hartwig.pipeline.sbpapi.SbpRestApi;
 import com.hartwig.pipeline.sbpapi.SbpRunFailure;
 import com.hartwig.pipeline.sbpapi.SbpRunResultUpdate;
 import com.hartwig.pipeline.testsupport.TestInputs;
-import com.hartwig.pipeline.transfer.google.GoogleArchiver;
+import com.hartwig.pipeline.transfer.staged.StagedOutputPublisher;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-public class SbpSomaticMetadataApiTest {
+public class ClinicalSomaticMetadataApiTest {
 
     private static final SbpRunFailure FAILED = SbpRunFailure.from(PipelineStatus.FAILED);
 
     private static final int RUN_ID = 1;
     private static final String SAMPLE_ID = "7141";
-    private static final Storage.BlobListOption PREFIX = Storage.BlobListOption.prefix(TestInputs.defaultSomaticRunMetadata().set() + "/");
     private SomaticMetadataApi victim;
     private SbpRestApi sbpRestApi;
     private SomaticRunMetadata somaticRunMetadata;
     private PipelineState pipelineState;
-    private Bucket sourceBucket;
-    private GoogleArchiver googleArchiver;
     private ArgumentCaptor<String> entityId;
     private ArgumentCaptor<SbpRunResultUpdate> status;
+    private StagedOutputPublisher publisher;
 
     @Before
     public void setUp() throws Exception {
         sbpRestApi = mock(SbpRestApi.class);
-        sourceBucket = mock(Bucket.class);
-        Page<Blob> empty = pageOf();
-        when(sourceBucket.list(PREFIX)).thenReturn(empty);
         somaticRunMetadata = TestInputs.defaultSomaticRunMetadata();
-        googleArchiver = mock(GoogleArchiver.class);
         when(sbpRestApi.getInis()).thenReturn(TestJson.get("get_inis"));
         when(sbpRestApi.getRun(RUN_ID)).thenReturn(TestJson.get("get_run"));
         entityId = ArgumentCaptor.forClass(String.class);
         status = ArgumentCaptor.forClass(SbpRunResultUpdate.class);
         pipelineState = mock(PipelineState.class);
         when(pipelineState.status()).thenReturn(PipelineStatus.SUCCESS);
-        victim = new SbpSomaticMetadataApi(Arguments.testDefaults(), RUN_ID, sbpRestApi, sourceBucket, googleArchiver);
+        publisher = mock(StagedOutputPublisher.class);
+        victim = new ClinicalSomaticMetadataApi(Arguments.testDefaults(), RUN_ID, sbpRestApi, publisher);
     }
 
     @Test
@@ -78,23 +65,19 @@ public class SbpSomaticMetadataApiTest {
     @Test
     public void mapsSuccessStatusToSnpCheck() {
         victim.complete(pipelineState, somaticRunMetadata);
-        verify(sbpRestApi, times(2)).updateRunResult(entityId.capture(), status.capture());
+        verify(sbpRestApi, times(1)).updateRunResult(entityId.capture(), status.capture());
         assertThat(entityId.getValue()).isEqualTo(String.valueOf(RUN_ID));
-        assertThat(status.getValue().status()).isEqualTo(SbpSomaticMetadataApi.FINISHED);
+        assertThat(status.getValue().status()).isEqualTo(ClinicalSomaticMetadataApi.FINISHED);
         assertThat(status.getValue().failure()).isEmpty();
     }
 
     @Test
     public void mapsSuccessStatusToSuccessWhenShallow() {
-        victim = new SbpSomaticMetadataApi(Arguments.testDefaultsBuilder().shallow(true).build(),
-                RUN_ID,
-                sbpRestApi,
-                sourceBucket,
-                googleArchiver);
+        victim = new ClinicalSomaticMetadataApi(Arguments.testDefaultsBuilder().shallow(true).build(), RUN_ID, sbpRestApi, publisher);
         victim.complete(pipelineState, somaticRunMetadata);
-        verify(sbpRestApi, times(2)).updateRunResult(entityId.capture(), status.capture());
+        verify(sbpRestApi, times(1)).updateRunResult(entityId.capture(), status.capture());
         assertThat(entityId.getValue()).isEqualTo(String.valueOf(RUN_ID));
-        assertThat(status.getValue().status()).isEqualTo(SbpSomaticMetadataApi.FINISHED);
+        assertThat(status.getValue().status()).isEqualTo(ClinicalSomaticMetadataApi.FINISHED);
         assertThat(status.getValue().failure()).isEmpty();
     }
 
@@ -104,7 +87,7 @@ public class SbpSomaticMetadataApiTest {
         victim.complete(pipelineState, somaticRunMetadata);
         verify(sbpRestApi, times(1)).updateRunResult(entityId.capture(), status.capture());
         assertThat(entityId.getValue()).isEqualTo(String.valueOf(RUN_ID));
-        assertThat(status.getValue().status()).isEqualTo(SbpSomaticMetadataApi.FAILED);
+        assertThat(status.getValue().status()).isEqualTo(ClinicalSomaticMetadataApi.FAILED);
         assertThat(status.getValue().failure()).contains(FAILED);
     }
 
@@ -133,44 +116,6 @@ public class SbpSomaticMetadataApiTest {
     }
 
     @Test
-    public void shouldIterateThroughOutputObjects() {
-        victim.complete(pipelineState, somaticRunMetadata);
-        verify(sourceBucket).list(PREFIX);
-    }
-
-    @Test
-    public void setsRunToFailedAndRethrowsIfSbpTransferFails() {
-        doThrow(new RuntimeException()).when(sourceBucket).list(PREFIX);
-        try {
-            victim.complete(pipelineState, somaticRunMetadata);
-            fail("An exception should have been thrown");
-        } catch (RuntimeException e) {
-            verify(sbpRestApi, times(2)).updateRunResult(any(), status.capture());
-        }
-        assertThat(status.getValue().status()).isEqualTo(SbpSomaticMetadataApi.FAILED);
-        assertThat(status.getValue().failure()).contains(FAILED);
-    }
-
-    @Test
-    public void shouldTransferToArchive() {
-        victim.complete(pipelineState, somaticRunMetadata);
-        verify(googleArchiver).transfer(somaticRunMetadata);
-    }
-
-    @Test
-    public void setsRunToFailedAndRethrowsIfArchiveFails() {
-        doThrow(new RuntimeException()).when(googleArchiver).transfer(any());
-        try {
-            victim.complete(pipelineState, somaticRunMetadata);
-            fail("An exception should have been thrown");
-        } catch (RuntimeException e) {
-            verify(sbpRestApi, times(2)).updateRunResult(any(), status.capture());
-        }
-        assertThat(status.getValue().status()).isEqualTo(SbpSomaticMetadataApi.FAILED);
-        assertThat(status.getValue().failure()).contains(FAILED);
-    }
-
-    @Test
     public void setsStatusToProcessingAndResultNullOnStartup() {
         ArgumentCaptor<String> runIdCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<SbpRunResultUpdate> runResultUpdateCaptor = ArgumentCaptor.forClass(SbpRunResultUpdate.class);
@@ -179,6 +124,19 @@ public class SbpSomaticMetadataApiTest {
         assertThat(runIdCaptor.getValue()).isEqualTo(String.valueOf(RUN_ID));
         SbpRunResultUpdate udpate = runResultUpdateCaptor.getValue();
         assertThat(udpate.failure()).isEmpty();
-        assertThat(udpate.status()).isEqualTo(SbpSomaticMetadataApi.PROCESSING);
+        assertThat(udpate.status()).isEqualTo(ClinicalSomaticMetadataApi.PROCESSING);
+    }
+
+    @Test
+    public void publishesStagedEventForSuccessfulRuns() {
+        victim.complete(pipelineState, somaticRunMetadata);
+        verify(publisher, times(1)).publish(pipelineState, somaticRunMetadata);
+    }
+
+    @Test
+    public void doesNotPublishStagedEventForFailedRuns() {
+        when(pipelineState.status()).thenReturn(PipelineStatus.FAILED);
+        victim.complete(pipelineState, somaticRunMetadata);
+        verify(publisher, never()).publish(pipelineState, somaticRunMetadata);
     }
 }

@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 import java.util.Collections;
 import java.util.List;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.core.ApiFuture;
 import com.google.api.gax.paging.Page;
 import com.google.cloud.pubsub.v1.Publisher;
@@ -34,6 +35,7 @@ import com.hartwig.pipeline.jackson.ObjectMappers;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.testsupport.TestBlobs;
 import com.hartwig.pipeline.testsupport.TestInputs;
+import com.hartwig.pipeline.transfer.staged.StagedOutputPublisher;
 
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
@@ -47,7 +49,6 @@ public class BiopsyMetadataApiTest {
     private static final String TUMOR_BARCODE = "FR22222222";
     private static final String REF_NAME = "reference";
     private static final String REF_BARCODE = "FR11111111";
-    private static final long BIOPSY_ID = 1L;
     public static final long TUMOR_SAMPLE_ID = 2L;
     public static final String SET_NAME = TestInputs.defaultSomaticRunMetadata().set();
     public static final long SET_ID = 3L;
@@ -64,7 +65,12 @@ public class BiopsyMetadataApiTest {
         setApi = mock(SetApi.class);
         bucket = mock(Bucket.class);
         publisher = mock(Publisher.class);
-        victim = new BiopsyMetadataApi(sampleApi, setApi, BIOPSY, Arguments.testDefaults(), publisher, ObjectMappers.get(), bucket);
+        ObjectMapper objectMapper = ObjectMappers.get();
+        victim = new BiopsyMetadataApi(sampleApi,
+                setApi,
+                BIOPSY,
+                Arguments.testDefaults(),
+                new StagedOutputPublisher(setApi, bucket, publisher, objectMapper, null));
     }
 
     @Test(expected = IllegalStateException.class)
@@ -202,6 +208,7 @@ public class BiopsyMetadataApiTest {
         when(bucket.get(s)).thenReturn(outputBlob);
         Page<Blob> page = TestBlobs.pageOf(outputBlob);
         when(bucket.list(Storage.BlobListOption.prefix("set/"))).thenReturn(page);
+        //noinspection unchecked
         when(publisher.publish(pubsubMessageArgumentCaptor.capture())).thenReturn(mock(ApiFuture.class));
         victim.complete(state, metadata);
         return pubsubMessageArgumentCaptor;
