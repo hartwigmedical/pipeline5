@@ -15,7 +15,11 @@ sudo cpanm install Set::IntSpan
 sudo cpanm install Statistics::Basic
 sudo cpanm install Text::Format
 sudo cpanm install Text::Soundex
-sudo apt-get -y install python3-h5py
+
+sudo apt -y install python3-h5py
+
+# CUPPA dependencies
+sudo pip3 install pandas matplotlib seaborn
 
 sudo gsutil -m -o 'GSUtil:parallel_thread_count=1' -o 'GSUtil:sliced_object_download_max_components=4' cp -n -r gs://common-tools/* /opt/tools/
 

@@ -5,6 +5,7 @@ sudo apt-get -y update
 sudo apt-get -y upgrade
 sudo apt-get -y install dirmngr apt-transport-https ca-certificates software-properties-common gnupg2 perl-modules make time
 sudo apt-get -y install openjdk-8-jdk libcurl4-gnutls-dev libxml2-dev libssl-dev less libgd-dev cpanminus parallel pigz git
+sudo apt-get -y install python3-pip
 sudo apt-get -y install mdadm --no-install-recommends
 sudo apt-key adv --keyserver keys.gnupg.net --recv-key 'E19F5F87128899B192B1A2C2AD5F960A256A04AF'
 sudo add-apt-repository 'deb https://cloud.r-project.org/bin/linux/debian stretch-cran35/'

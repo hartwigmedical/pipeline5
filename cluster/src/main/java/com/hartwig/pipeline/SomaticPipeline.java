@@ -33,6 +33,7 @@ import com.hartwig.pipeline.tertiary.chord.Chord;
 import com.hartwig.pipeline.tertiary.chord.ChordOutput;
 import com.hartwig.pipeline.tertiary.cobalt.Cobalt;
 import com.hartwig.pipeline.tertiary.cobalt.CobaltOutput;
+import com.hartwig.pipeline.tertiary.cuppa.Cuppa;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthCheckOutput;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthChecker;
 import com.hartwig.pipeline.tertiary.linx.Linx;
@@ -151,6 +152,8 @@ public class SomaticPipeline {
                                     new Chord(arguments.refGenomeVersion(), purpleOutput, persistedDataset)));
                             pipelineResults.add(state.add(healthCheckOutputFuture.get()));
                             LinxOutput linxOutput = pipelineResults.add(state.add(linxOutputFuture.get()));
+                            pipelineResults.add(state.add(executorService.submit(() -> stageRunner.run(metadata,
+                                    new Cuppa(purpleOutput, linxOutput, resourceFiles, persistedDataset))).get()));
                             BachelorOutput bachelorOutput = pipelineResults.add(state.add(bachelorOutputFuture.get()));
                             ChordOutput chordOutput = pipelineResults.add(state.add(chordOutputFuture.get()));
                             pipelineResults.add(state.add(executorService.submit(() -> stageRunner.run(metadata,
