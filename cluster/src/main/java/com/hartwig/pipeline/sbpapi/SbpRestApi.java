@@ -44,7 +44,7 @@ public class SbpRestApi {
         return returnOrThrow(api().path(INIS).request().buildGet().invoke());
     }
 
-    public String getFastQ(int sampleId) {
+    public String getFastQ(long sampleId) {
         return getBySampleId(sampleId, api().path(FASTQ));
     }
 
@@ -68,7 +68,7 @@ public class SbpRestApi {
         return api().path(RUNS);
     }
 
-    public String getSample(int sampleId) {
+    public String getSample(long sampleId) {
         Response response = sample().path(valueOf(sampleId)).request().buildGet().invoke();
         return returnOrThrow(response);
     }
@@ -162,7 +162,7 @@ public class SbpRestApi {
         return target.path("hmf").path("v1");
     }
 
-    private String getBySampleId(final int sampleId, final WebTarget path) {
+    private String getBySampleId(final long sampleId, final WebTarget path) {
         Response response = path.queryParam("sample_id", sampleId).request().buildGet().invoke();
         return returnOrThrow(response);
     }

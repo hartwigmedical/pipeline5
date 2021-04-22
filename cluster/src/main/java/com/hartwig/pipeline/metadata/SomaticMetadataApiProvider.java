@@ -7,10 +7,10 @@ import com.google.cloud.pubsub.v1.Publisher;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.api.HmfApi;
+import com.hartwig.api.model.Run;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.sample.JsonSampleSource;
 import com.hartwig.pipeline.jackson.ObjectMappers;
-import com.hartwig.pipeline.sbpapi.SbpRestApi;
 import com.hartwig.pipeline.transfer.staged.StagedOutputPublisher;
 
 import org.jetbrains.annotations.NotNull;
@@ -60,13 +60,10 @@ public class SomaticMetadataApiProvider {
         HmfApi api = HmfApi.create(arguments.sbpApiUrl());
         Bucket sourceBucket = storage.get(arguments.outputBucket());
         ObjectMapper objectMapper = ObjectMappers.get();
-        return new ClinicalSomaticMetadataApi(arguments,
-                setId,
-                SbpRestApi.newInstance(arguments.sbpApiUrl()),
-                new StagedOutputPublisher(api.sets(),
-                        sourceBucket,
-                        publisher,
-                        objectMapper,
-                        api.runs().get((long) arguments.sbpApiRunId().orElseThrow())));
+        Run run = api.runs().get((long) arguments.sbpApiRunId().orElseThrow());
+        return new ClinicalSomaticMetadataApi(run,
+                api.runs(),
+                api.samples(),
+                new StagedOutputPublisher(api.sets(), sourceBucket, publisher, objectMapper, run));
     }
 }

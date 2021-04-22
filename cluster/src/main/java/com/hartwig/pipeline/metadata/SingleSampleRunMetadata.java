@@ -23,7 +23,7 @@ public interface SingleSampleRunMetadata extends RunMetadata {
 
     @Value.Default
     @JsonIgnore
-    default int entityId() {
+    default long entityId() {
         return -1;
     }
 

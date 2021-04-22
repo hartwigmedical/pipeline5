@@ -21,6 +21,8 @@ import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.google.pubsub.v1.PubsubMessage;
 import com.hartwig.api.SetApi;
+import com.hartwig.api.model.Ini;
+import com.hartwig.api.model.Run;
 import com.hartwig.api.model.SampleSet;
 import com.hartwig.events.PipelineOutputBlob;
 import com.hartwig.events.PipelineStaged;
@@ -49,7 +51,7 @@ public class StagedOutputPublisherTest {
         bucket = mock(Bucket.class);
         publisher = mock(Publisher.class);
         state = mock(PipelineState.class);
-        victim = new StagedOutputPublisher(setApi, bucket, publisher, OBJECT_MAPPER, null);
+        victim = new StagedOutputPublisher(setApi, bucket, publisher, OBJECT_MAPPER, new Run().ini(Ini.SOMATIC_INI.getValue()));
     }
 
     @Test
@@ -82,7 +84,22 @@ public class StagedOutputPublisherTest {
         assertThat(result.blobs()).extracting(PipelineOutputBlob::filename).containsExactlyInAnyOrder("tumor.vcf");
     }
 
-    public void verifySecondaryAnalysis(final String extension, final String indexExtension)
+    @Test
+    public void publishesDnaShallowAnalysisOnRunWithShallowSeqIni() throws Exception{
+        victim = new StagedOutputPublisher(setApi, bucket, publisher, OBJECT_MAPPER, new Run().ini(Ini.SHALLOWSEQ_INI.getValue()));
+        when(state.status()).thenReturn(PipelineStatus.SUCCESS);
+        Blob vcf = withBucketAndMd5(blob("/sage/" + TestInputs.tumorSample() + ".vcf"));
+        Blob cram = withBucketAndMd5(blob(TestInputs.tumorSample() + "/aligner/" + TestInputs.tumorSample() + ".cram"));
+        Page<Blob> page = pageOf(vcf, cram);
+        ArgumentCaptor<PubsubMessage> messageArgumentCaptor = publish(page);
+
+        PipelineStaged result =
+                OBJECT_MAPPER.readValue(new String(messageArgumentCaptor.getValue().getData().toByteArray()), PipelineStaged.class);
+        assertThat(result.analysis()).isEqualTo(PipelineStaged.Analysis.SHALLOW);
+        assertThat(result.blobs()).extracting(PipelineOutputBlob::filename).containsExactlyInAnyOrder("tumor.vcf", "tumor.cram");
+    }
+
+    private void verifySecondaryAnalysis(final String extension, final String indexExtension)
             throws com.fasterxml.jackson.core.JsonProcessingException {
         when(state.status()).thenReturn(PipelineStatus.SUCCESS);
         Blob tumorBamBlob = withBucketAndMd5(blob(TestInputs.tumorSample() + "/aligner/" + TestInputs.tumorSample() + "." + extension));

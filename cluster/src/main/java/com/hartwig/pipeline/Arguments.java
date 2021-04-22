@@ -59,12 +59,6 @@ public interface Arguments extends CommonArguments {
 
     String outputBucket();
 
-    String archiveBucket();
-
-    String archiveProject();
-
-    String archivePrivateKeyPath();
-
     String uploadPrivateKeyPath();
 
     Optional<Integer> sbpApiRunId();
@@ -110,7 +104,6 @@ public interface Arguments extends CommonArguments {
     String DEFAULT_PRODUCTION_SBP_API_URL = "http://hmfapi";
     String DEFAULT_PRODUCTION_SERVICE_ACCOUNT_EMAIL = String.format("bootstrap@%s.iam.gserviceaccount.com", DEFAULT_PRODUCTION_PROJECT);
     String DEFAULT_PRODUCTION_PATIENT_REPORT_BUCKET = "pipeline-output-prod";
-    String DEFAULT_PRODUCTION_ARCHIVE_BUCKET = "pipeline-archive-prod";
     String DEFAULT_PRODUCTION_ARCHIVE_PROJECT = DEFAULT_PRODUCTION_PROJECT;
 
     String DEFAULT_DOCKER_KEY_PATH = "/secrets/bootstrap-key.json";
@@ -156,9 +149,6 @@ public interface Arguments extends CommonArguments {
                     .setId(EMPTY)
                     .cmek(EMPTY)
                     .outputBucket(DEFAULT_PRODUCTION_PATIENT_REPORT_BUCKET)
-                    .archiveBucket(DEFAULT_PRODUCTION_ARCHIVE_BUCKET)
-                    .archiveProject(DEFAULT_PRODUCTION_ARCHIVE_PROJECT)
-                    .archivePrivateKeyPath(DEFAULT_DOCKER_ARCHIVE_KEY_PATH)
                     .uploadPrivateKeyPath(DEFAULT_DOCKER_KEY_PATH)
                     .network(DEFAULT_NETWORK)
                     .outputCram(true)
@@ -192,9 +182,6 @@ public interface Arguments extends CommonArguments {
                     .sbpApiUrl(NOT_APPLICABLE)
                     .setId(EMPTY)
                     .outputBucket(DEFAULT_DEVELOPMENT_PATIENT_REPORT_BUCKET)
-                    .archiveBucket(DEFAULT_DEVELOPMENT_ARCHIVE_BUCKET)
-                    .archiveProject(CommonArguments.DEFAULT_DEVELOPMENT_PROJECT)
-                    .archivePrivateKeyPath(DEFAULT_DEVELOPMENT_KEY_PATH)
                     .uploadPrivateKeyPath(DEFAULT_DEVELOPMENT_KEY_PATH)
                     .outputCram(true)
                     .publishToTurquoise(false)
@@ -230,9 +217,6 @@ public interface Arguments extends CommonArguments {
                     .sbpApiUrl(NOT_APPLICABLE)
                     .setId(EMPTY)
                     .outputBucket(DEFAULT_DEVELOPMENT_PATIENT_REPORT_BUCKET)
-                    .archiveBucket(DEFAULT_DEVELOPMENT_ARCHIVE_BUCKET)
-                    .archiveProject(CommonArguments.DEFAULT_DEVELOPMENT_PROJECT)
-                    .archivePrivateKeyPath(DEFAULT_DOCKER_KEY_PATH)
                     .uploadPrivateKeyPath(DEFAULT_DOCKER_UPLOAD_KEY_PATH)
                     .network(DEFAULT_NETWORK)
                     .outputCram(true)
@@ -266,9 +250,6 @@ public interface Arguments extends CommonArguments {
                     .rcloneGcpRemote(NOT_APPLICABLE)
                     .sbpApiUrl(NOT_APPLICABLE)
                     .setId(EMPTY)
-                    .archiveBucket(DEFAULT_DEVELOPMENT_ARCHIVE_BUCKET)
-                    .archiveProject(CommonArguments.DEFAULT_DEVELOPMENT_PROJECT)
-                    .archivePrivateKeyPath(DEFAULT_DOCKER_KEY_PATH)
                     .uploadPrivateKeyPath(DEFAULT_DOCKER_UPLOAD_KEY_PATH)
                     .network(DEFAULT_NETWORK)
                     .outputCram(true)

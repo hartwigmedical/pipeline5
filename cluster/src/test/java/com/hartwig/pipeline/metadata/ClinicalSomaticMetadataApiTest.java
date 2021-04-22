@@ -7,12 +7,20 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.hartwig.pipeline.Arguments;
+import java.util.List;
+
+import com.hartwig.api.RunApi;
+import com.hartwig.api.SampleApi;
+import com.hartwig.api.model.Ini;
+import com.hartwig.api.model.Run;
+import com.hartwig.api.model.RunFailure;
+import com.hartwig.api.model.RunSet;
+import com.hartwig.api.model.Sample;
+import com.hartwig.api.model.SampleType;
+import com.hartwig.api.model.Status;
+import com.hartwig.api.model.UpdateRun;
 import com.hartwig.pipeline.PipelineState;
 import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.sbpapi.SbpRestApi;
-import com.hartwig.pipeline.sbpapi.SbpRunFailure;
-import com.hartwig.pipeline.sbpapi.SbpRunResultUpdate;
 import com.hartwig.pipeline.testsupport.TestInputs;
 import com.hartwig.pipeline.transfer.staged.StagedOutputPublisher;
 
@@ -22,109 +30,105 @@ import org.mockito.ArgumentCaptor;
 
 public class ClinicalSomaticMetadataApiTest {
 
-    private static final SbpRunFailure FAILED = SbpRunFailure.from(PipelineStatus.FAILED);
-
-    private static final int RUN_ID = 1;
-    private static final String SAMPLE_ID = "7141";
+    private static final long RUN_ID = 1;
+    private static final long SET_ID = 2;
+    private static final long TUMOR_SAMPLE_ID = 3;
+    private static final long REF_SAMPLE_ID = 4;
+    private static final Run SOMATIC_RUN = new Run().id(RUN_ID).bucket("bucket").set(new RunSet().id(SET_ID).name("set"));
+    private static final Sample REF = new Sample().type(SampleType.REF).name("ref").barcode("ref_barcode").id(REF_SAMPLE_ID);
+    private static final Sample TUMOR = new Sample().type(SampleType.TUMOR)
+            .name("tumor")
+            .barcode("tumor_barcode")
+            .id(TUMOR_SAMPLE_ID)
+            .primaryTumorDoids(List.of("1234", "5678"));
     private SomaticMetadataApi victim;
-    private SbpRestApi sbpRestApi;
     private SomaticRunMetadata somaticRunMetadata;
     private PipelineState pipelineState;
-    private ArgumentCaptor<String> entityId;
-    private ArgumentCaptor<SbpRunResultUpdate> status;
+    private ArgumentCaptor<Long> runIdCaptor;
+    private ArgumentCaptor<UpdateRun> updateCaptor;
     private StagedOutputPublisher publisher;
+    private RunApi runApi;
+    private SampleApi sampleApi;
 
     @Before
     public void setUp() throws Exception {
-        sbpRestApi = mock(SbpRestApi.class);
         somaticRunMetadata = TestInputs.defaultSomaticRunMetadata();
-        when(sbpRestApi.getInis()).thenReturn(TestJson.get("get_inis"));
-        when(sbpRestApi.getRun(RUN_ID)).thenReturn(TestJson.get("get_run"));
-        entityId = ArgumentCaptor.forClass(String.class);
-        status = ArgumentCaptor.forClass(SbpRunResultUpdate.class);
+        runIdCaptor = ArgumentCaptor.forClass(Long.class);
+        updateCaptor = ArgumentCaptor.forClass(UpdateRun.class);
         pipelineState = mock(PipelineState.class);
         when(pipelineState.status()).thenReturn(PipelineStatus.SUCCESS);
         publisher = mock(StagedOutputPublisher.class);
-        victim = new ClinicalSomaticMetadataApi(Arguments.testDefaults(), RUN_ID, sbpRestApi, publisher);
+        runApi = mock(RunApi.class);
+        sampleApi = mock(SampleApi.class);
+        victim = new ClinicalSomaticMetadataApi(SOMATIC_RUN, runApi, sampleApi, publisher);
     }
 
     @Test
     public void retrievesSetMetadataFromSbpRestApi() {
-        when(sbpRestApi.getSample(SAMPLE_ID)).thenReturn(TestJson.get("get_samples_by_set"));
+        when(sampleApi.list(null, null, null, SET_ID, null, null)).thenReturn(List.of(REF, TUMOR));
         SomaticRunMetadata setMetadata = victim.get();
-        assertThat(setMetadata.set()).isEqualTo("170724_HMFregCPCT_FR13999246_FR13999144_CPCT02290012");
-        assertThat(setMetadata.reference().sampleName()).isEqualTo("ZR17SQ1-00649");
-        assertThat(setMetadata.reference().barcode()).isEqualTo("FR13257296");
-        assertThat(setMetadata.reference().entityId()).isEqualTo(49);
-        assertThat(setMetadata.tumor().sampleName()).isEqualTo("ZR17SQ1-00649");
-        assertThat(setMetadata.tumor().barcode()).isEqualTo("FR13257296");
-        assertThat(setMetadata.tumor().entityId()).isEqualTo(50);
+        assertThat(setMetadata.set()).isEqualTo("set");
+        assertThat(setMetadata.reference().sampleName()).isEqualTo("ref");
+        assertThat(setMetadata.reference().barcode()).isEqualTo("ref_barcode");
+        assertThat(setMetadata.tumor().sampleName()).isEqualTo("tumor");
+        assertThat(setMetadata.tumor().barcode()).isEqualTo("tumor_barcode");
         assertThat(setMetadata.tumor().primaryTumorDoids()).containsOnly("1234", "5678");
     }
 
     @Test
-    public void mapsSuccessStatusToSnpCheck() {
+    public void mapsSuccessStatusToFinished() {
         victim.complete(pipelineState, somaticRunMetadata);
-        verify(sbpRestApi, times(1)).updateRunResult(entityId.capture(), status.capture());
-        assertThat(entityId.getValue()).isEqualTo(String.valueOf(RUN_ID));
-        assertThat(status.getValue().status()).isEqualTo(ClinicalSomaticMetadataApi.FINISHED);
-        assertThat(status.getValue().failure()).isEmpty();
-    }
-
-    @Test
-    public void mapsSuccessStatusToSuccessWhenShallow() {
-        victim = new ClinicalSomaticMetadataApi(Arguments.testDefaultsBuilder().shallow(true).build(), RUN_ID, sbpRestApi, publisher);
-        victim.complete(pipelineState, somaticRunMetadata);
-        verify(sbpRestApi, times(1)).updateRunResult(entityId.capture(), status.capture());
-        assertThat(entityId.getValue()).isEqualTo(String.valueOf(RUN_ID));
-        assertThat(status.getValue().status()).isEqualTo(ClinicalSomaticMetadataApi.FINISHED);
-        assertThat(status.getValue().failure()).isEmpty();
+        verify(runApi).update(runIdCaptor.capture(), updateCaptor.capture());
+        assertThat(runIdCaptor.getValue()).isEqualTo(RUN_ID);
+        assertThat(updateCaptor.getValue().getStatus()).isEqualTo(Status.FINISHED);
+        assertThat(updateCaptor.getValue().getFailure()).isNull();
     }
 
     @Test
     public void mapsFailedStatusToPipeline5Failed() {
         when(pipelineState.status()).thenReturn(PipelineStatus.FAILED);
         victim.complete(pipelineState, somaticRunMetadata);
-        verify(sbpRestApi, times(1)).updateRunResult(entityId.capture(), status.capture());
-        assertThat(entityId.getValue()).isEqualTo(String.valueOf(RUN_ID));
-        assertThat(status.getValue().status()).isEqualTo(ClinicalSomaticMetadataApi.FAILED);
-        assertThat(status.getValue().failure()).contains(FAILED);
+        verify(runApi).update(runIdCaptor.capture(), updateCaptor.capture());
+        assertThat(runIdCaptor.getValue()).isEqualTo(RUN_ID);
+        assertThat(updateCaptor.getValue().getStatus()).isEqualTo(Status.FAILED);
+        assertThat(updateCaptor.getValue().getFailure()).isEqualTo(new RunFailure().type(RunFailure.TypeEnum.TECHNICALFAILURE)
+                .source("Pipeline"));
     }
 
     @Test
     public void handlesSingleSampleSet() {
-        when(sbpRestApi.getRun(RUN_ID)).thenReturn(TestJson.get("get_run_single_sample"));
-        when(sbpRestApi.getSample(SAMPLE_ID)).thenReturn(TestJson.get("get_samples_by_set_single_sample"));
+        victim = new ClinicalSomaticMetadataApi(new Run().id(RUN_ID)
+                .bucket("bucket")
+                .set(new RunSet().id(SET_ID).name("set"))
+                .ini(Ini.SINGLE_INI.getValue()), runApi, sampleApi, publisher);
+        when(sampleApi.list(null, null, null, SET_ID, null, null)).thenReturn(List.of(REF));
         SomaticRunMetadata setMetadata = victim.get();
-        assertThat(setMetadata.set()).isEqualTo("170724_HMFregCPCT_FR13999246_FR13999144_CPCT02290012");
-        assertThat(setMetadata.reference().sampleName()).isEqualTo("ZR17SQ1-00649");
-        assertThat(setMetadata.reference().barcode()).isEqualTo("FR13257296");
+        assertThat(setMetadata.set()).isEqualTo("set");
+        assertThat(setMetadata.reference().sampleName()).isEqualTo("ref");
+        assertThat(setMetadata.reference().barcode()).isEqualTo("ref_barcode");
         assertThat(setMetadata.maybeTumor()).isEmpty();
     }
 
     @Test(expected = IllegalStateException.class)
     public void throwsExceptionWhenTumorIsMissing() {
-        when(sbpRestApi.getSample(SAMPLE_ID)).thenReturn(TestJson.get("get_samples_by_set_single_sample"));
         victim.get();
     }
 
     @Test(expected = IllegalStateException.class)
     public void throwsIllegalStateIfNoBucketInRun() {
+        victim = new ClinicalSomaticMetadataApi(new Run().bucket(null), runApi, sampleApi, publisher);
         when(pipelineState.status()).thenReturn(PipelineStatus.FAILED);
-        when(sbpRestApi.getRun(RUN_ID)).thenReturn(TestJson.get("get_run_no_bucket"));
         victim.complete(pipelineState, somaticRunMetadata);
     }
 
     @Test
     public void setsStatusToProcessingAndResultNullOnStartup() {
-        ArgumentCaptor<String> runIdCaptor = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<SbpRunResultUpdate> runResultUpdateCaptor = ArgumentCaptor.forClass(SbpRunResultUpdate.class);
         victim.start();
-        verify(sbpRestApi).updateRunResult(runIdCaptor.capture(), runResultUpdateCaptor.capture());
-        assertThat(runIdCaptor.getValue()).isEqualTo(String.valueOf(RUN_ID));
-        SbpRunResultUpdate udpate = runResultUpdateCaptor.getValue();
-        assertThat(udpate.failure()).isEmpty();
-        assertThat(udpate.status()).isEqualTo(ClinicalSomaticMetadataApi.PROCESSING);
+        verify(runApi).update(runIdCaptor.capture(), updateCaptor.capture());
+        assertThat(runIdCaptor.getValue()).isEqualTo(RUN_ID);
+        UpdateRun update = updateCaptor.getValue();
+        assertThat(update.getFailure()).isNull();
+        assertThat(update.getStatus()).isEqualTo(Status.PROCESSING);
     }
 
     @Test
