@@ -24,5 +24,5 @@ public interface ResourceNames {
     String DISEASE_ONTOLOGY = "disease_ontology";
     String GERMLINE_REPORTING = "germline_reporting";
     String SERVE = "serve";
-
+    String PEACH = "peach";
 }

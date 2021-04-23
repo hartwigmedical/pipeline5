@@ -1,6 +1,6 @@
 package com.hartwig.pipeline.calling.structural.gridss.command;
 
-import com.hartwig.pipeline.execution.vm.JavaClassCommand;
+import com.hartwig.pipeline.execution.vm.java.JavaClassCommand;
 import com.hartwig.pipeline.tools.Versions;
 
 class GripssCommand extends JavaClassCommand {

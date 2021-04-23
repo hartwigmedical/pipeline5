@@ -5,8 +5,8 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 import com.hartwig.pipeline.execution.vm.Bash;
-import com.hartwig.pipeline.execution.vm.JavaClassCommand;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
+import com.hartwig.pipeline.execution.vm.java.JavaClassCommand;
 
 public class TumorNormalCommand extends JavaClassCommand {
     public TumorNormalCommand(String toolName, String version, String jar, String mainClass, String maxHeap, String referenceSampleName,

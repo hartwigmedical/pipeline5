@@ -33,6 +33,7 @@ public interface Versions {
     String PROTECT = "1.3";
     String REPEAT_MASKER = "4.1.1";
     String KRAKEN = "2.1.0";
+    String PEACH = "1.0";
 
     static void printAll() {
         Logger logger = LoggerFactory.getLogger(Versions.class);

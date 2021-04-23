@@ -13,6 +13,7 @@ import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_PON;
 import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_REPEAT_MASKER_DB;
 import static com.hartwig.pipeline.resource.ResourceNames.LINX;
 import static com.hartwig.pipeline.resource.ResourceNames.MAPPABILITY;
+import static com.hartwig.pipeline.resource.ResourceNames.PEACH;
 import static com.hartwig.pipeline.resource.ResourceNames.REFERENCE_GENOME;
 import static com.hartwig.pipeline.resource.ResourceNames.SAGE;
 import static com.hartwig.pipeline.resource.ResourceNames.SERVE;
@@ -200,5 +201,10 @@ public class RefGenome37ResourceFiles implements ResourceFiles {
     @Override
     public String actionabilityDir() {
         return formPath(SERVE, "");
+    }
+
+    @Override
+    public String peachFilterBed() {
+        return formPath(PEACH, "min_DPYD.json");
     }
 }
