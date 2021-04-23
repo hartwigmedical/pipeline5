@@ -88,7 +88,6 @@ public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
                         .breakends(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(breakendTsv)))
                         .driverCatalog(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(driverCatalogTsv)))
                         .fusions(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(fusionsTsv)))
-                        .viralInsertions(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(viralInsertionsTsv)))
                         .build())
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), NAMESPACE, resultsDirectory))
