@@ -30,8 +30,8 @@ public class ClinicalSomaticMetadataApi implements SomaticMetadataApi {
     private final static Logger LOGGER = LoggerFactory.getLogger(SomaticMetadataApi.class);
     public static final String FINISHED = "Finished";
     public static final String FAILED = "Failed";
-    public static final String PROCESSING = "Processing";
     private static final String PIPELINE_SOURCE = "Pipeline";
+    private static final String HEALTH_CHECK = "HealthCheck";
     private final Run run;
     private final RunApi runApi;
     private final SampleApi sampleApi;
@@ -115,7 +115,7 @@ public class ClinicalSomaticMetadataApi implements SomaticMetadataApi {
                         .failure(new RunFailure().type(RunFailure.TypeEnum.TECHNICALFAILURE).source(PIPELINE_SOURCE));
             case QC_FAILED:
                 return new UpdateRun().status(Status.FAILED)
-                        .failure(new RunFailure().type(RunFailure.TypeEnum.QCFAILURE).source(PIPELINE_SOURCE));
+                        .failure(new RunFailure().type(RunFailure.TypeEnum.QCFAILURE).source(HEALTH_CHECK));
             default:
                 return new UpdateRun().status(Status.FINISHED);
         }
