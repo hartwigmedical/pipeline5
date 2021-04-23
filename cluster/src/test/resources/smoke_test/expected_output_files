@@ -70,7 +70,6 @@ health_checker/run.log
 linx/run.log
 linx/CPCT12345678T.linx.breakend.tsv
 linx/CPCT12345678T.linx.clusters.tsv
-linx/CPCT12345678T.linx.driver.catalog.tsv
 linx/CPCT12345678T.linx.drivers.tsv
 linx/CPCT12345678T.linx.driver.catalog.tsv
 linx/CPCT12345678T.linx.fusion.tsv
