@@ -17,7 +17,6 @@ public class ProtectTest extends TertiaryStageTest<ProtectOutput> {
     @Override
     protected Stage<ProtectOutput, SomaticRunMetadata> createVictim() {
         return new Protect(TestInputs.purpleOutput(),
-                TestInputs.bachelorOutput(),
                 TestInputs.linxOutput(),
                 TestInputs.chordOutput(),
                 TestInputs.REF_GENOME_37_RESOURCE_FILES);
@@ -31,30 +30,25 @@ public class ProtectTest extends TertiaryStageTest<ProtectOutput> {
                 input(expectedRuntimeBucketName() + "/purple/tumor.driver.catalog.germline.tsv", "tumor.driver.catalog.germline.tsv"),
                 input(expectedRuntimeBucketName() + "/purple/tumor.purple.somatic.vcf.gz", "tumor.purple.somatic.vcf.gz"),
                 input(expectedRuntimeBucketName() + "/purple/tumor.purple.germline.vcf.gz", "tumor.purple.germline.vcf.gz"),
-                input(expectedRuntimeBucketName() + "/bachelor/tumor.reportable_germline_variant.tsv",
-                        "tumor.reportable_germline_variant.tsv"),
                 input(expectedRuntimeBucketName() + "/linx/tumor.linx.fusion.tsv", "tumor.linx.fusion.tsv"),
                 input(expectedRuntimeBucketName() + "/linx/tumor.linx.breakend.tsv", "tumor.linx.breakend.tsv"),
                 input(expectedRuntimeBucketName() + "/linx/tumor.linx.driver.catalog.tsv", "tumor.linx.driver.catalog.tsv"),
-                input(expectedRuntimeBucketName() + "/linx/tumor.linx.viral_inserts.tsv", "tumor.linx.viral_inserts.tsv"),
                 input(expectedRuntimeBucketName() + "/chord/tumor_chord_prediction.txt", "tumor_chord_prediction.txt"));
     }
 
     @Override
     protected List<String> expectedCommands() {
         return Collections.singletonList(
-                "java -Xmx8G -jar /opt/tools/protect/1.2/protect.jar -tumor_sample_id tumor -primary_tumor_doids \"01;02\" -output_dir "
+                "java -Xmx8G -jar /opt/tools/protect/1.3/protect.jar -tumor_sample_id tumor -primary_tumor_doids \"01;02\" -output_dir "
                         + "/data/output -serve_actionability_dir /opt/resources/serve/37/ -doid_json "
-                        + "/opt/resources/disease_ontology/201015_doid.json -germline_reporting_tsv "
-                        + "/opt/resources/germline_reporting/germline_reporting.tsv -purple_purity_tsv "
+                        + "/opt/resources/disease_ontology/201015_doid.json -purple_purity_tsv "
                         + "/data/input/tumor.purple.purity.tsv -purple_qc_file /data/input/tumor.purple.qc "
-                        + "-purple_driver_catalog_somatic_tsv /data/input/tumor.driver.catalog.somatic.tsv "
-                        + "-purple_driver_catalog_germline_tsv /data/input/tumor.driver.catalog.germline.tsv "
+                        + "-purple_somatic_driver_catalog_tsv /data/input/tumor.driver.catalog.somatic.tsv "
+                        + "-purple_germline_driver_catalog_tsv /data/input/tumor.driver.catalog.germline.tsv "
                         + "-purple_somatic_variant_vcf /data/input/tumor.purple.somatic.vcf.gz -purple_germline_variant_vcf "
-                        + "/data/input/tumor.purple.germline.vcf.gz -bachelor_tsv /data/input/tumor.reportable_germline_variant.tsv "
-                        + "-linx_fusion_tsv /data/input/tumor.linx.fusion.tsv -linx_breakend_tsv /data/input/tumor.linx.breakend.tsv "
-                        + "-linx_viral_insertion_tsv /data/input/tumor.linx.viral_inserts.tsv -linx_drivers_tsv "
-                        + "/data/input/tumor.linx.driver.catalog.tsv -chord_prediction_txt /data/input/tumor_chord_prediction.txt -log_debug");
+                        + "/data/input/tumor.purple.germline.vcf.gz -linx_fusion_tsv /data/input/tumor.linx.fusion.tsv -linx_breakend_tsv "
+                        + "/data/input/tumor.linx.breakend.tsv -linx_driver_catalog_tsv /data/input/tumor.linx.driver.catalog.tsv "
+                        + "-chord_prediction_txt /data/input/tumor_chord_prediction.txt -log_debug");
     }
 
     @Override
