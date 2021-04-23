@@ -34,7 +34,7 @@ public class LinxTest extends TertiaryStageTest<LinxOutput> {
 
     @Override
     protected List<String> expectedCommands() {
-        return Collections.singletonList("java -Xmx8G -jar /opt/tools/linx/1.14/linx.jar -sample tumor -sv_vcf "
+        return Collections.singletonList("java -Xmx8G -jar /opt/tools/linx/1.15/linx.jar -sample tumor -sv_vcf "
                 + "/data/input/tumor.purple.sv.vcf.gz -purple_dir /data/input/results -ref_genome_version HG37 "
                 + "-output_dir /data/output "
                 + "-fragile_site_file /opt/resources/linx/37/fragile_sites_hmf.37.csv -line_element_file /opt/resources/linx/37/line_elements.37.csv "
