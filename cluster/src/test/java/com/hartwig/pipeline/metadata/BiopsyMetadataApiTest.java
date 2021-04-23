@@ -20,6 +20,7 @@ import com.google.cloud.storage.Storage;
 import com.google.pubsub.v1.PubsubMessage;
 import com.hartwig.api.SampleApi;
 import com.hartwig.api.SetApi;
+import com.hartwig.api.model.Run;
 import com.hartwig.api.model.Sample;
 import com.hartwig.api.model.SampleSet;
 import com.hartwig.api.model.SampleStatus;
@@ -70,7 +71,7 @@ public class BiopsyMetadataApiTest {
                 setApi,
                 BIOPSY,
                 Arguments.testDefaults(),
-                new StagedOutputPublisher(setApi, bucket, publisher, objectMapper, null));
+                new StagedOutputPublisher(setApi, bucket, publisher, objectMapper, new Run()));
     }
 
     @Test(expected = IllegalStateException.class)
