@@ -34,7 +34,7 @@ public class SbpSampleReader {
         this.sbpRestApi = sbpRestApi;
     }
 
-    public Sample read(final int sampleId) {
+    public Sample read(final long sampleId) {
         String rawFastQJson = sbpRestApi.getFastQ(sampleId);
         try {
             List<SbpFastQ> fastqJson = parseFastqJson(rawFastQJson);
@@ -57,7 +57,7 @@ public class SbpSampleReader {
         return fileName -> fileName.substring(0, fileName.indexOf("_"));
     }
 
-    private String extract(final int sampleId, final List<SbpFastQ> fastqJson, final Function<String, String> stringFunction) {
+    private String extract(final long sampleId, final List<SbpFastQ> fastqJson, final Function<String, String> stringFunction) {
         return fastqJson.stream()
                 .map(SbpFastQ::name_r1)
                 .map(SbpSampleReader::removePath)

@@ -25,12 +25,12 @@ public interface Versions {
     String GRIDSS = "2.11.1";
     String VIRUSBREAKEND_GRIDSS = "2.11.1";
     String GRIPSS = "1.11";
-    String LINX = "1.14";
+    String LINX = "1.15";
     String BACHELOR = "1.12";
     String CHORD = "2.00_1.14";
     String SAMTOOLS = "1.10";
     String BAMCOMP = "1.3";
-    String PROTECT = "1.2";
+    String PROTECT = "1.3";
     String REPEAT_MASKER = "4.1.1";
     String KRAKEN = "2.1.0";
     String PEACH = "1.0";

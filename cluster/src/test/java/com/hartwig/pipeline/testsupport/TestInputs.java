@@ -291,7 +291,6 @@ public class TestInputs {
                         .breakends(gsLocation(somaticBucket(Linx.NAMESPACE), TUMOR_SAMPLE + Linx.BREAKEND_TSV))
                         .driverCatalog(gsLocation(somaticBucket(Linx.NAMESPACE), TUMOR_SAMPLE + Linx.DRIVER_CATALOG_TSV))
                         .fusions(gsLocation(somaticBucket(Linx.NAMESPACE), TUMOR_SAMPLE + Linx.FUSION_TSV))
-                        .viralInsertions(gsLocation(somaticBucket(Linx.NAMESPACE), TUMOR_SAMPLE + Linx.VIRAL_INSERTS_TSV))
                         .build())
                 .build();
     }

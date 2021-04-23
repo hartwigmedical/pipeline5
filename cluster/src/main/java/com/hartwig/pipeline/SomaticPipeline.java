@@ -157,7 +157,7 @@ public class SomaticPipeline {
                             Future<PeachOutput> peachOutputFuture =
                                     executorService.submit(() -> stageRunner.run(metadata, new Peach(purpleOutput, resourceFiles)));
                             pipelineResults.add(state.add(executorService.submit(() -> stageRunner.run(metadata,
-                                    new Protect(purpleOutput, bachelorOutput, linxOutput, chordOutput, resourceFiles))).get()));
+                                    new Protect(purpleOutput, linxOutput, chordOutput, resourceFiles))).get()));
                             pipelineResults.add(state.add(peachOutputFuture.get()));
                             pipelineResults.add(state.add(virusBreakendOutputFuture.get()));
                             pipelineResults.compose(metadata);
