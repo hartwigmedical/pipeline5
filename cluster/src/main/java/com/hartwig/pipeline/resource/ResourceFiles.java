@@ -110,6 +110,8 @@ public interface ResourceFiles {
 
     String actionabilityDir();
 
+    String peachFilterBed();
+
     default String doidJson() {
         return of(DISEASE_ONTOLOGY, "201015_doid.json");
     }

@@ -3,7 +3,7 @@ package com.hartwig.pipeline.tertiary.linx;
 import static com.hartwig.pipeline.resource.RefGenomeVersion.V37;
 
 import com.google.common.collect.ImmutableList;
-import com.hartwig.pipeline.execution.vm.JavaJarCommand;
+import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.tools.Versions;
 
