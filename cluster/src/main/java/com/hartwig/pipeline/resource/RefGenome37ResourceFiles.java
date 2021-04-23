@@ -1,7 +1,6 @@
 package com.hartwig.pipeline.resource;
 
 import static com.hartwig.pipeline.resource.ResourceNames.AMBER;
-import static com.hartwig.pipeline.resource.ResourceNames.BACHELOR;
 import static com.hartwig.pipeline.resource.ResourceNames.COBALT;
 import static com.hartwig.pipeline.resource.ResourceNames.ENSEMBL_DATA_CACHE;
 import static com.hartwig.pipeline.resource.ResourceNames.FUSIONS;
@@ -145,16 +144,6 @@ public class RefGenome37ResourceFiles implements ResourceFiles {
     @Override
     public String gridssBreakpointPon() {
         return formPath(GRIDSS_PON, "gridss_pon_breakpoint.37.bedpe");
-    }
-
-    @Override
-    public String bachelorConfig() {
-        return formPath(BACHELOR, "bachelor_hmf.xml");
-    }
-
-    @Override
-    public String bachelorClinvarFilters() {
-        return formPath(BACHELOR, "bachelor_clinvar_filters.csv");
     }
 
     @Override

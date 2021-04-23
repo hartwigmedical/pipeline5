@@ -87,10 +87,6 @@ public interface ResourceFiles {
 
     String gridssBreakpointPon();
 
-    String bachelorConfig();
-
-    String bachelorClinvarFilters();
-
     String fragileSites();
 
     String lineElements();
