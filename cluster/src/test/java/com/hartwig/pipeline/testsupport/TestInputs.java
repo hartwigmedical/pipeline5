@@ -30,8 +30,6 @@ import com.hartwig.pipeline.snpgenotype.SnpGenotypeOutput;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.tertiary.amber.Amber;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
-import com.hartwig.pipeline.tertiary.bachelor.Bachelor;
-import com.hartwig.pipeline.tertiary.bachelor.BachelorOutput;
 import com.hartwig.pipeline.tertiary.chord.Chord;
 import com.hartwig.pipeline.tertiary.chord.ChordOutput;
 import com.hartwig.pipeline.tertiary.cobalt.Cobalt;
@@ -291,13 +289,6 @@ public class TestInputs {
                         .driverCatalog(gsLocation(somaticBucket(Linx.NAMESPACE), TUMOR_SAMPLE + Linx.DRIVER_CATALOG_TSV))
                         .fusions(gsLocation(somaticBucket(Linx.NAMESPACE), TUMOR_SAMPLE + Linx.FUSION_TSV))
                         .build())
-                .build();
-    }
-
-    public static BachelorOutput bachelorOutput() {
-        return BachelorOutput.builder()
-                .status(PipelineStatus.SUCCESS)
-                .maybeReportableVariants(gsLocation(somaticBucket(Bachelor.NAMESPACE), TUMOR_SAMPLE + Bachelor.REPORTABLE_VARIANT_TSV))
                 .build();
     }
 
