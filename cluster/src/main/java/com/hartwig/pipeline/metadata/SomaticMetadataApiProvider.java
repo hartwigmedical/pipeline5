@@ -53,7 +53,7 @@ public class SomaticMetadataApiProvider {
                 api.sets(),
                 biopsyName,
                 arguments,
-                new StagedOutputPublisher(api.sets(), sourceBucket, publisher, objectMapper, null));
+                new StagedOutputPublisher(api.sets(), sourceBucket, publisher, objectMapper, new Run()));
     }
 
     public SomaticMetadataApi productionStyleRun(final Integer setId) {
