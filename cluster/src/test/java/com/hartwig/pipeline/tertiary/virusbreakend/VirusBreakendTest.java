@@ -32,7 +32,7 @@ public class VirusBreakendTest extends TertiaryStageTest<VirusBreakendOutput> {
                         new ArchivePath(Folder.root(), VirusBreakend.NAMESPACE, "tumor.virusbreakend.vcf")),
                 new AddDatatype(DataType.VIRUSBREAKEND_SUMMARY,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
-                        new ArchivePath(Folder.root(), VirusBreakend.NAMESPACE, "tumor.virusbreakend.summary.tsv")));
+                        new ArchivePath(Folder.root(), VirusBreakend.NAMESPACE, "tumor.virusbreakend.vcf.summary.tsv")));
     }
 
     @Override

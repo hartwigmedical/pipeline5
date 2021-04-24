@@ -8,6 +8,7 @@ import static com.hartwig.pipeline.testsupport.TestInputs.defaultSomaticRunMetad
 import static com.hartwig.pipeline.testsupport.TestInputs.germlineCallerOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.healthCheckerOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.linxOutput;
+import static com.hartwig.pipeline.testsupport.TestInputs.peachOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.protectOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.purpleOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.referenceFlagstatOutput;
@@ -108,7 +109,8 @@ public class SomaticPipelineTest {
                 linxOutput(),
                 bachelorOutput(),
                 chordOutput(),
-                protectOutput());
+                protectOutput(),
+                peachOutput());
     }
 
     @Test
@@ -125,7 +127,6 @@ public class SomaticPipelineTest {
         PipelineState state = victim.run(TestInputs.defaultPair());
         assertThat(state.stageOutputs()).containsExactlyInAnyOrder(cobaltOutput(),
                 amberOutput(),
-                virusBreakendOutput(),
                 failSomatic,
                 sageGermlineOutput(),
                 structuralCallerOutput());
@@ -147,7 +148,6 @@ public class SomaticPipelineTest {
         PipelineState state = victim.run(TestInputs.defaultPair());
         assertThat(state.stageOutputs()).containsExactlyInAnyOrder(cobaltOutput(),
                 amberOutput(),
-                virusBreakendOutput(),
                 sageSomaticOutput(),
                 sageGermlineOutput(),
                 structuralCallerOutput(),
@@ -171,7 +171,6 @@ public class SomaticPipelineTest {
         PipelineState state = victim.run(TestInputs.defaultPair());
         assertThat(state.stageOutputs()).containsExactlyInAnyOrder(cobaltOutput(),
                 amberOutput(),
-                virusBreakendOutput(),
                 sageSomaticOutput(),
                 sageGermlineOutput(),
                 structuralCallerOutput(),
@@ -197,6 +196,7 @@ public class SomaticPipelineTest {
                 .thenReturn(linxOutput())
                 .thenReturn(bachelorOutput())
                 .thenReturn(chordOutput())
+                .thenReturn(peachOutput())
                 .thenReturn(protectOutput());
         PipelineState state = victim.run(TestInputs.defaultPair());
         assertThat(state.status()).isEqualTo(PipelineStatus.QC_FAILED);
@@ -228,6 +228,7 @@ public class SomaticPipelineTest {
                 .thenReturn(linxOutput())
                 .thenReturn(bachelorOutput())
                 .thenReturn(chordOutput())
+                .thenReturn(peachOutput())
                 .thenReturn(protectOutput());
     }
 

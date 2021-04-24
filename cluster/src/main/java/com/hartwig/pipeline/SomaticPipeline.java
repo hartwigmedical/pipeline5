@@ -38,6 +38,8 @@ import com.hartwig.pipeline.tertiary.healthcheck.HealthCheckOutput;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthChecker;
 import com.hartwig.pipeline.tertiary.linx.Linx;
 import com.hartwig.pipeline.tertiary.linx.LinxOutput;
+import com.hartwig.pipeline.tertiary.peach.Peach;
+import com.hartwig.pipeline.tertiary.peach.PeachOutput;
 import com.hartwig.pipeline.tertiary.protect.Protect;
 import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
@@ -108,7 +110,6 @@ public class SomaticPipeline {
 
                 AmberOutput amberOutput = pipelineResults.add(state.add(amberOutputFuture.get()));
                 CobaltOutput cobaltOutput = pipelineResults.add(state.add(cobaltOutputFuture.get()));
-                pipelineResults.add(state.add(virusBreakendOutputFuture.get()));
                 SageOutput sageSomaticOutput = pipelineResults.add(state.add(sageSomaticOutputFuture.get()));
                 SageOutput sageGermlineOutput = pipelineResults.add(state.add(sageGermlineOutputFuture.get()));
 
@@ -156,13 +157,16 @@ public class SomaticPipeline {
                                     new Cuppa(purpleOutput, linxOutput, resourceFiles, persistedDataset))).get()));
                             BachelorOutput bachelorOutput = pipelineResults.add(state.add(bachelorOutputFuture.get()));
                             ChordOutput chordOutput = pipelineResults.add(state.add(chordOutputFuture.get()));
+                            Future<PeachOutput> peachOutputFuture =
+                                    executorService.submit(() -> stageRunner.run(metadata, new Peach(purpleOutput, resourceFiles)));
                             pipelineResults.add(state.add(executorService.submit(() -> stageRunner.run(metadata,
-                                    new Protect(purpleOutput, bachelorOutput, linxOutput, chordOutput, resourceFiles))).get()));
+                                    new Protect(purpleOutput, linxOutput, chordOutput, resourceFiles))).get()));
+                            pipelineResults.add(state.add(peachOutputFuture.get()));
+                            pipelineResults.add(state.add(virusBreakendOutputFuture.get()));
                             pipelineResults.compose(metadata);
                         }
                     }
                 }
-
             } catch (InterruptedException | ExecutionException e) {
                 throw new RuntimeException(e);
             }

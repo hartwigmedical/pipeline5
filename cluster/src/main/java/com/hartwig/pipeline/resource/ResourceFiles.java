@@ -2,7 +2,6 @@ package com.hartwig.pipeline.resource;
 
 import static com.hartwig.pipeline.resource.ResourceNames.CUPPA;
 import static com.hartwig.pipeline.resource.ResourceNames.DISEASE_ONTOLOGY;
-import static com.hartwig.pipeline.resource.ResourceNames.GERMLINE_REPORTING;
 import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_CONFIG;
 import static com.hartwig.pipeline.resource.ResourceNames.LINX;
 import static com.hartwig.pipeline.resource.ResourceNames.MAPPABILITY;
@@ -115,12 +114,10 @@ public interface ResourceFiles {
         return VmDirectories.resourcesPath(CUPPA);
     }
 
+    String peachFilterBed();
+
     default String doidJson() {
         return of(DISEASE_ONTOLOGY, "201015_doid.json");
-    }
-
-    default String germlineReporting() {
-        return of(GERMLINE_REPORTING, "germline_reporting.tsv");
     }
 
     default String viralHostRefs() {

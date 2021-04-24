@@ -27,7 +27,6 @@ import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
 
     public static final String NAMESPACE = "linx";
-    public static final String KNOWLEDGEBASE_OUTPUT = "output/";
     public static final String BREAKEND_TSV = ".linx.breakend.tsv";
     public static final String DRIVER_CATALOG_TSV = ".linx.driver.catalog.tsv";
     public static final String FUSION_TSV = ".linx.fusion.tsv";
@@ -89,7 +88,6 @@ public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
                         .breakends(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(breakendTsv)))
                         .driverCatalog(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(driverCatalogTsv)))
                         .fusions(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(fusionsTsv)))
-                        .viralInsertions(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(viralInsertionsTsv)))
                         .build())
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), NAMESPACE, resultsDirectory))

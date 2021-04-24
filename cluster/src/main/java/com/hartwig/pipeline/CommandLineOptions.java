@@ -57,9 +57,6 @@ public class CommandLineOptions {
     private static final String RUN_TERTIARY_FLAG = "run_tertiary";
     private static final String RUN_CUPPA_FLAG = "run_cuppa";
     private static final String OUTPUT_BUCKET_FLAG = "output_bucket";
-    private static final String ARCHIVE_BUCKET_FLAG = "archive_bucket";
-    private static final String ARCHIVE_PROJECT_FLAG = "archive_project";
-    private static final String ARCHIVE_PRIVATE_KEY_FLAG = "archive_private_key_path";
     private static final String UPLOAD_PRIVATE_KEY_FLAG = "upload_private_key_path";
     private static final String SET_ID_FLAG = "set_id";
     private static final String SBP_RUN_ID_FLAG = "sbp_run_id";
@@ -116,9 +113,6 @@ public class CommandLineOptions {
                 .addOption(optionWithBooleanArg(RUN_CUPPA_FLAG, "Run cuppa in tertiary stage (must be explicitly enabled)"))
                 .addOption(serviceAccountEmail())
                 .addOption(patientReportBucket())
-                .addOption(archiveBucket())
-                .addOption(archiveProject())
-                .addOption(archivePrivateKey())
                 .addOption(uploadPrivateKey())
                 .addOption(network())
                 .addOption(subnet())
@@ -220,20 +214,8 @@ public class CommandLineOptions {
         return optionWithArg(OUTPUT_BUCKET_FLAG, "Bucket in which to persist the final patient report and accompanying data.");
     }
 
-    private static Option archiveBucket() {
-        return optionWithArg(ARCHIVE_BUCKET_FLAG, "Bucket to use for data request archival.");
-    }
-
-    private static Option archiveProject() {
-        return optionWithArg(ARCHIVE_PROJECT_FLAG, "Project to use for data request archival.");
-    }
-
     private static Option uploadPrivateKey() {
         return optionWithArg(UPLOAD_PRIVATE_KEY_FLAG, "Private key to use for upload of fastq files");
-    }
-
-    private static Option archivePrivateKey() {
-        return optionWithArg(ARCHIVE_PRIVATE_KEY_FLAG, "Private key to use for data request archival.");
     }
 
     private static Option profile() {
@@ -341,9 +323,6 @@ public class CommandLineOptions {
                     .runTertiary(booleanOptionWithDefault(commandLine, RUN_TERTIARY_FLAG, defaults.runTertiary()))
                     .serviceAccountEmail(commandLine.getOptionValue(SERVICE_ACCOUNT_EMAIL_FLAG, defaults.serviceAccountEmail()))
                     .outputBucket(commandLine.getOptionValue(OUTPUT_BUCKET_FLAG, defaults.outputBucket()))
-                    .archiveBucket(commandLine.getOptionValue(ARCHIVE_BUCKET_FLAG, defaults.archiveBucket()))
-                    .archiveProject(commandLine.getOptionValue(ARCHIVE_PROJECT_FLAG, defaults.archiveProject()))
-                    .archivePrivateKeyPath(commandLine.getOptionValue(ARCHIVE_PRIVATE_KEY_FLAG, defaults.archivePrivateKeyPath()))
                     .network(commandLine.getOptionValue(NETWORK_FLAG, defaults.network()))
                     .subnet(subnet(commandLine, defaults))
                     .tags(networkTags(commandLine, defaults))

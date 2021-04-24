@@ -21,7 +21,6 @@ import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
-import com.hartwig.pipeline.tertiary.bachelor.BachelorOutput;
 import com.hartwig.pipeline.tertiary.chord.ChordOutput;
 import com.hartwig.pipeline.tertiary.linx.LinxOutput;
 import com.hartwig.pipeline.tertiary.linx.LinxOutputLocations;
@@ -37,23 +36,20 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
     private final InputDownload purpleGermlineDriverCatalog;
     private final InputDownload purpleSomaticVariants;
     private final InputDownload purpleGermlineVariants;
-    private final InputDownload bachelorTsv;
     private final InputDownload linxFusionTsv;
     private final InputDownload linxBreakendTsv;
     private final InputDownload linxDriverCatalogTsv;
-    private final InputDownload linxViralInsertionsTsv;
     private final InputDownload chordPrediction;
     private final ResourceFiles resourceFiles;
 
-    public Protect(final PurpleOutput purpleOutput, final BachelorOutput bachelorOutput, final LinxOutput linxOutput,
-            final ChordOutput chordOutput, final ResourceFiles resourceFiles) {
+    public Protect(final PurpleOutput purpleOutput, final LinxOutput linxOutput, final ChordOutput chordOutput,
+            final ResourceFiles resourceFiles) {
         this.purplePurity = new InputDownload(purpleOutput.outputLocations().purityTsv());
         this.purpleQCFile = new InputDownload(purpleOutput.outputLocations().qcFile());
         this.purpleSomaticDriverCatalog = new InputDownload(purpleOutput.outputLocations().somaticDriverCatalog());
         this.purpleGermlineDriverCatalog = new InputDownload(purpleOutput.outputLocations().germlineDriverCatalog());
         this.purpleSomaticVariants = new InputDownload(purpleOutput.outputLocations().somaticVcf());
         this.purpleGermlineVariants = new InputDownload(purpleOutput.outputLocations().germlineVcf());
-        this.bachelorTsv = new InputDownload(bachelorOutput.maybeReportableVariants().orElse(GoogleStorageLocation.empty()));
         this.linxFusionTsv = new InputDownload(linxOutput.maybeLinxOutputLocations()
                 .map(LinxOutputLocations::fusions)
                 .orElse(GoogleStorageLocation.empty()));
@@ -62,9 +58,6 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
                 .orElse(GoogleStorageLocation.empty()));
         this.linxDriverCatalogTsv = new InputDownload(linxOutput.maybeLinxOutputLocations()
                 .map(LinxOutputLocations::driverCatalog)
-                .orElse(GoogleStorageLocation.empty()));
-        this.linxViralInsertionsTsv = new InputDownload(linxOutput.maybeLinxOutputLocations()
-                .map(LinxOutputLocations::viralInsertions)
                 .orElse(GoogleStorageLocation.empty()));
         this.chordPrediction = new InputDownload(chordOutput.maybePredictions().orElse(GoogleStorageLocation.empty()));
         this.resourceFiles = resourceFiles;
@@ -83,11 +76,9 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
                 purpleGermlineDriverCatalog,
                 purpleSomaticVariants,
                 purpleGermlineVariants,
-                bachelorTsv,
                 linxFusionTsv,
                 linxBreakendTsv,
                 linxDriverCatalogTsv,
-                linxViralInsertionsTsv,
                 chordPrediction);
     }
 
@@ -98,18 +89,15 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
                 VmDirectories.OUTPUT,
                 resourceFiles.actionabilityDir(),
                 resourceFiles.doidJson(),
-                resourceFiles.germlineReporting(),
                 purplePurity.getLocalTargetPath(),
                 purpleQCFile.getLocalTargetPath(),
                 purpleSomaticDriverCatalog.getLocalTargetPath(),
                 purpleGermlineDriverCatalog.getLocalTargetPath(),
                 purpleSomaticVariants.getLocalTargetPath(),
                 purpleGermlineVariants.getLocalTargetPath(),
-                bachelorTsv.getLocalTargetPath(),
                 linxFusionTsv.getLocalTargetPath(),
                 linxBreakendTsv.getLocalTargetPath(),
                 linxDriverCatalogTsv.getLocalTargetPath(),
-                linxViralInsertionsTsv.getLocalTargetPath(),
                 chordPrediction.getLocalTargetPath()));
     }
 
@@ -146,7 +134,6 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
 
     @Override
     public boolean shouldRun(final Arguments arguments) {
-        return arguments.runTertiary() && arguments.refGenomeVersion().equals(RefGenomeVersion.V37) && !arguments.shallow()
-                && arguments.runGermlineCaller();
+        return arguments.runTertiary() && arguments.refGenomeVersion().equals(RefGenomeVersion.V37) && !arguments.shallow();
     }
 }

@@ -1,7 +1,7 @@
 package com.hartwig.pipeline.metrics;
 
 import com.google.common.collect.Lists;
-import com.hartwig.pipeline.execution.vm.JavaClassCommand;
+import com.hartwig.pipeline.execution.vm.java.JavaClassCommand;
 import com.hartwig.pipeline.tools.Versions;
 
 class BamMetricsCommand extends JavaClassCommand {

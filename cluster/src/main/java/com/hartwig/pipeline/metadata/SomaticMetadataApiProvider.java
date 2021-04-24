@@ -2,14 +2,16 @@ package com.hartwig.pipeline.metadata;
 
 import java.util.function.Supplier;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.cloud.pubsub.v1.Publisher;
+import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.api.HmfApi;
+import com.hartwig.api.model.Run;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.sample.JsonSampleSource;
 import com.hartwig.pipeline.jackson.ObjectMappers;
-import com.hartwig.pipeline.sbpapi.SbpRestApi;
-import com.hartwig.pipeline.transfer.google.GoogleArchiver;
+import com.hartwig.pipeline.transfer.staged.StagedOutputPublisher;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -45,20 +47,23 @@ public class SomaticMetadataApiProvider {
 
     public SomaticMetadataApi biopsyBasedRerun(final String biopsyName) {
         HmfApi api = HmfApi.create(arguments.sbpApiUrl());
+        Bucket sourceBucket = storage.get(arguments.outputBucket());
+        ObjectMapper objectMapper = ObjectMappers.get();
         return new BiopsyMetadataApi(api.samples(),
                 api.sets(),
                 biopsyName,
                 arguments,
-                publisher,
-                ObjectMappers.get(),
-                storage.get(arguments.outputBucket()));
+                new StagedOutputPublisher(api.sets(), sourceBucket, publisher, objectMapper, new Run()));
     }
 
     public SomaticMetadataApi productionStyleRun(final Integer setId) {
-        return new SbpSomaticMetadataApi(arguments,
-                setId,
-                SbpRestApi.newInstance(arguments.sbpApiUrl()),
-                storage.get(arguments.outputBucket()),
-                new GoogleArchiver(arguments));
+        HmfApi api = HmfApi.create(arguments.sbpApiUrl());
+        Bucket sourceBucket = storage.get(arguments.outputBucket());
+        ObjectMapper objectMapper = ObjectMappers.get();
+        Run run = api.runs().get((long) arguments.sbpApiRunId().orElseThrow());
+        return new ClinicalSomaticMetadataApi(run,
+                api.runs(),
+                api.samples(),
+                new StagedOutputPublisher(api.sets(), sourceBucket, publisher, objectMapper, run));
     }
 }

@@ -84,31 +84,28 @@ public class SmokeTest {
                 .rcloneGcpRemote(GCP_REMOTE)
                 .rcloneS3RemoteDownload("s3")
                 .cleanup(true)
-                .archiveBucket("pipeline-archive-dev")
-                .archiveProject("hmf-pipeline-development")
-                .archivePrivateKeyPath(privateKeyPath)
                 .build();
         Storage storage = StorageProvider.from(arguments, CredentialProvider.from(arguments).get()).get();
         SbpRestApi api = SbpRestApi.newInstance(arguments.sbpApiUrl());
 
         String setName = setName(api);
-
         cleanupBucket(setName, arguments.outputBucket(), storage);
-        cleanupBucket(setName, arguments.archiveBucket(), storage);
 
         PipelineState state = victim.start(arguments);
         assertThat(state.status()).isEqualTo(PipelineStatus.QC_FAILED);
 
         File expectedFilesResource = new File(Resources.testResource("smoke_test/expected_output_files"));
         List<String> expectedFiles = FileUtils.readLines(expectedFilesResource, FILE_ENCODING);
-        List<String> archiveListing = listArchiveFilenames(setName, arguments.archiveBucket(), storage);
-        assertThat(archiveListing).containsOnlyElementsOf(expectedFiles);
+        List<String> actualFiles = listOutput(setName, arguments.outputBucket(), storage);
+        assertThat(actualFiles).containsOnlyElementsOf(expectedFiles);
 
-        assertThatAlignmentIsEqualToExpected(setName, REFERENCE_SAMPLE, arguments.archiveBucket(), storage);
-        assertThatAlignmentIsEqualToExpected(setName, TUMOR_SAMPLE, arguments.archiveBucket(), storage);
+        assertThatAlignmentIsEqualToExpected(setName, REFERENCE_SAMPLE, arguments.outputBucket(), storage);
+        assertThatAlignmentIsEqualToExpected(setName, TUMOR_SAMPLE, arguments.outputBucket(), storage);
+
+        cleanupBucket(setName, arguments.outputBucket(), storage);
     }
 
-    private List<String> listArchiveFilenames(final String setName, final String archiveBucket, final Storage storage) {
+    private List<String> listOutput(final String setName, final String archiveBucket, final Storage storage) {
         return archiveBlobs(setName, archiveBucket, storage).map(Blob::getName)
                 .map(n -> n.replace(setName + "/", ""))
                 .filter(n -> !n.equals(STAGED_FLAG_FILE))

@@ -195,4 +195,9 @@ public class OverriddenReferenceGenome implements ResourceFiles {
     public String actionabilityDir() {
         return decorated.actionabilityDir();
     }
+
+    @Override
+    public String peachFilterBed() {
+        return decorated.peachFilterBed();
+    }
 }

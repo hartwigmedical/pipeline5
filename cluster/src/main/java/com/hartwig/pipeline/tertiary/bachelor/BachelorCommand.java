@@ -1,7 +1,7 @@
 package com.hartwig.pipeline.tertiary.bachelor;
 
 import com.google.common.collect.ImmutableList;
-import com.hartwig.pipeline.execution.vm.JavaJarCommand;
+import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
 import com.hartwig.pipeline.tools.Versions;
 
 class BachelorCommand extends JavaJarCommand {

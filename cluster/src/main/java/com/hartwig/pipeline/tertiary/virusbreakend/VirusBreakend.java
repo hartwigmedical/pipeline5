@@ -15,9 +15,9 @@ import com.hartwig.pipeline.execution.vm.unix.ExportPathCommand;
 import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
-import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
+import com.hartwig.pipeline.report.SingleFileComponent;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
@@ -59,22 +59,20 @@ public class VirusBreakend extends TertiaryStage<VirusBreakendOutput> {
     @Override
     public VirusBreakendOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
             final ResultsDirectory resultsDirectory) {
+        String vcf = String.format("%s.virusbreakend.vcf", metadata.tumor().sampleName());
+        String summary = String.format("%s.virusbreakend.vcf.summary.tsv", metadata.tumor().sampleName());
         return VirusBreakendOutput.builder()
                 .status(jobStatus)
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
-                .addReportComponents(new EntireOutputComponent(bucket,
-                        Folder.root(),
-                        namespace(),
-                        resultsDirectory,
-                        s -> s.contains("working")))
+                .addReportComponents(new SingleFileComponent(bucket, NAMESPACE, Folder.root(), vcf, vcf, resultsDirectory),
+                        new SingleFileComponent(bucket, NAMESPACE, Folder.root(), summary, summary, resultsDirectory),
+                        new RunLogComponent(bucket, NAMESPACE, Folder.root(), resultsDirectory))
                 .addDatatypes(new AddDatatype(DataType.VIRUSBREAKEND_VARIANTS,
                                 metadata.barcode(),
-                                new ArchivePath(Folder.root(), namespace(), String.format("%s.virusbreakend.vcf", metadata.tumor().sampleName()))),
+                                new ArchivePath(Folder.root(), namespace(), vcf)),
                         new AddDatatype(DataType.VIRUSBREAKEND_SUMMARY,
                                 metadata.barcode(),
-                                new ArchivePath(Folder.root(),
-                                        namespace(),
-                                        String.format("%s.virusbreakend.summary.tsv", metadata.tumor().sampleName()))))
+                                new ArchivePath(Folder.root(), namespace(), summary)))
                 .build();
     }
 

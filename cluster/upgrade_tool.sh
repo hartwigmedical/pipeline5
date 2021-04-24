@@ -16,7 +16,7 @@ if [ -z "$3" ]; then
   rm $local_jar
 fi
 
-./images/create_custom_image.sh -t
+./images/create_public_image.sh -t
 
 mvn versions:set -DnewVersion=${full}
 mvn clean install -DskipTests -Dcontainer-registry=eu.gcr.io/hmf-build/pipeline5
