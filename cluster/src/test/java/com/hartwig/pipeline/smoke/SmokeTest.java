@@ -89,6 +89,7 @@ public class SmokeTest {
         SbpRestApi api = SbpRestApi.newInstance(arguments.sbpApiUrl());
 
         String setName = setName(api);
+        cleanupBucket(setName, arguments.outputBucket(), storage);
 
         PipelineState state = victim.start(arguments);
         assertThat(state.status()).isEqualTo(PipelineStatus.QC_FAILED);
