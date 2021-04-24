@@ -6,15 +6,12 @@ import static com.hartwig.pipeline.testsupport.TestInputs.purpleOutput;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Collections;
 import java.util.List;
 
-import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.metadata.AddDatatype;
-import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
-import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.stages.Stage;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
@@ -22,35 +19,22 @@ public class CuppaTest extends TertiaryStageTest<CuppaOutput> {
 
     @Override
     public void disabledAppropriately() {
-        assertThat(victim.shouldRun(testDefaultsBuilder().runTertiary(false).runCuppa(false).build())).isFalse();
-        assertThat(victim.shouldRun(testDefaultsBuilder().runTertiary(true).runCuppa(false).build())).isFalse();
-        assertThat(victim.shouldRun(testDefaultsBuilder().runTertiary(false).runCuppa(true).build())).isFalse();
+        assertThat(victim.shouldRun(testDefaultsBuilder().runTertiary(false).build())).isFalse();
     }
 
     @Override
     public void enabledAppropriately() {
-        assertThat(victim.shouldRun(testDefaultsBuilder().runTertiary(true).runCuppa(true).build())).isTrue();
+        assertThat(victim.shouldRun(testDefaultsBuilder().runTertiary(true).build())).isTrue();
     }
 
     @Override
     protected List<AddDatatype> expectedFurtherOperations() {
-        return List.of(new AddDatatype(DataType.CUPPA_CHART,
-                TestInputs.defaultSomaticRunMetadata().barcode(),
-                new ArchivePath(Folder.root(), Cuppa.NAMESPACE, "tumor.cuppa.chart.png")));
-    }
-
-    @Override
-    protected void setupPersistedDataset() {
-    }
-
-    @Override
-    protected void validatePersistedOutput(final CuppaOutput output) {
-        assertThat(output.chart()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "set/cuppa/tumor.cuppa.chart.png"));
+        return Collections.emptyList();
     }
 
     @Override
     protected Stage<CuppaOutput, SomaticRunMetadata> createVictim() {
-        return new Cuppa(purpleOutput(), linxOutput(), TestInputs.REF_GENOME_37_RESOURCE_FILES, persistedDataset);
+        return new Cuppa(purpleOutput(), linxOutput(), TestInputs.REF_GENOME_37_RESOURCE_FILES);
     }
 
     @Override
@@ -58,8 +42,8 @@ public class CuppaTest extends TertiaryStageTest<CuppaOutput> {
         return List.of("java -Xmx4G -jar /opt/tools/cuppa/1.4/cuppa.jar -categories DNA -ref_data_dir /opt/resources/cuppa "
                         + "-sample_data tumor -sample_data_dir /data/input -sample_sv_file /data/input/tumor.purple.sv.vcf.gz "
                         + "-sample_somatic_vcf /data/input/tumor.purple.somatic.vcf.gz -log_debug -output_dir /data/output",
-                "/usr/bin/python3 /opt/tools/cuppa/1.4/cuppa_chart.py -sample tumor -sample_data /data/output/tumor "
-                        + "-output_dir /data/output");
+                "/opt/tools/cuppa-chart/1.0_venv/bin/python /opt/tools/cuppa-chart/1.0/src/cuppa-chart.py -sample tumor "
+                        + "-sample_data /data/output/tumor.cup.data.csv -output_dir /data/output");
     }
 
     @Override

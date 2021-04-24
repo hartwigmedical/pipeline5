@@ -1,9 +1,6 @@
 package com.hartwig.pipeline.tertiary.cuppa;
 
-import java.util.Optional;
-
 import com.hartwig.pipeline.StageOutput;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
 
 import org.immutables.value.Value;
 
@@ -16,11 +13,5 @@ public interface CuppaOutput extends StageOutput {
     @Override
     default String name() {
         return Cuppa.NAMESPACE;
-    }
-
-    Optional<GoogleStorageLocation> maybeChart();
-
-    default GoogleStorageLocation chart() {
-        return maybeChart().orElseThrow();
     }
 }

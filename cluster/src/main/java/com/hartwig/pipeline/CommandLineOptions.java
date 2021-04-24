@@ -312,7 +312,6 @@ public class CommandLineOptions {
                     .rcloneS3RemoteDownload(commandLine.getOptionValue(RCLONE_S3_REMOTE_DOWNLOAD_FLAG, defaults.rcloneS3RemoteDownload()))
                     .rcloneS3RemoteUpload(commandLine.getOptionValue(RCLONE_S3_REMOTE_UPLOAD_FLAG, defaults.rcloneS3RemoteUpload()))
                     .runBamMetrics(booleanOptionWithDefault(commandLine, RUN_METRICS_FLAG, defaults.runBamMetrics()))
-                    .runCuppa(booleanOptionWithDefault(commandLine, RUN_CUPPA_FLAG, defaults.runCuppa()))
                     .runSnpGenotyper(booleanOptionWithDefault(commandLine, RUN_SNP_GENOTYPER_FLAG, defaults.runSnpGenotyper()))
                     .runGermlineCaller(booleanOptionWithDefault(commandLine, RUN_GERMLINE_CALLER_FLAG, defaults.runGermlineCaller()))
                     .runSomaticCaller(booleanOptionWithDefault(commandLine, RUN_SOMATIC_CALLER_FLAG, defaults.runSomaticCaller()))

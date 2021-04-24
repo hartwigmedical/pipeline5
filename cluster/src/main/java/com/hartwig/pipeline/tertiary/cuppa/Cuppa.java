@@ -1,29 +1,24 @@
 package com.hartwig.pipeline.tertiary.cuppa;
 
 import static java.lang.String.format;
-import static java.lang.String.join;
 
 import java.util.List;
 
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
-import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.InputDownload;
-import com.hartwig.pipeline.execution.vm.JavaJarCommand;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
-import com.hartwig.pipeline.metadata.AddDatatype;
-import com.hartwig.pipeline.metadata.ArchivePath;
+import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
+import com.hartwig.pipeline.execution.vm.python.Python3Command;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
-import com.hartwig.pipeline.reruns.PersistedDataset;
-import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
@@ -41,12 +36,9 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
     private final InputDownload linxDriverCatalog;
     private final InputDownload linxClusters;
     private final InputDownload linxFusions;
-    private final InputDownload linxViralInsertions;
     private final ResourceFiles resourceFiles;
-    private final PersistedDataset persistedDataset;
 
-    public Cuppa(final PurpleOutput purpleOutput, final LinxOutput linxOutput, final ResourceFiles resourceFiles,
-            final PersistedDataset persistedDataset) {
+    public Cuppa(final PurpleOutput purpleOutput, final LinxOutput linxOutput, final ResourceFiles resourceFiles) {
         purpleSomaticVcfDownload = new InputDownload(purpleOutput.outputLocations().somaticVcf());
         purpleStructuralVcfDownload = new InputDownload(purpleOutput.outputLocations().structuralVcf());
         purpleQc = new InputDownload(purpleOutput.outputLocations().qcFile());
@@ -54,9 +46,7 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
         linxDriverCatalog = new InputDownload(linxOutput.linxOutputLocations().driverCatalog());
         linxClusters = new InputDownload(linxOutput.linxOutputLocations().breakends());
         linxFusions = new InputDownload(linxOutput.linxOutputLocations().fusions());
-        linxViralInsertions = new InputDownload(linxOutput.linxOutputLocations().viralInsertions());
         this.resourceFiles = resourceFiles;
-        this.persistedDataset = persistedDataset;
     }
 
     @Override
@@ -67,8 +57,7 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
                 purplePurity,
                 linxDriverCatalog,
                 linxClusters,
-                linxFusions,
-                linxViralInsertions);
+                linxFusions);
     }
 
     @Override
@@ -97,10 +86,10 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
                                 "-log_debug",
                                 "-output_dir",
                                 VmDirectories.OUTPUT)),
-                () -> join(" ",
-                        List.of("/usr/bin/python3",
-                                VmDirectories.toolPath(format("cuppa/%s/cuppa_chart.py", Versions.CUPPA)),
-                                "-sample",
+                new Python3Command("cuppa-chart",
+                        Versions.CUPPA_CHART,
+                        "src/cuppa-chart.py",
+                        List.of("-sample",
                                 metadata.tumor().sampleName(),
                                 "-sample_data",
                                 VmDirectories.outputFile(format("%s.cup.data.csv", metadata.tumor().sampleName())),
@@ -125,9 +114,6 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
                 .status(jobStatus)
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
-                .addDatatypes(new AddDatatype(DataType.CUPPA_CHART,
-                        metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), chartPath(metadata.tumor().sampleName()))))
                 .build();
     }
 
@@ -137,22 +123,7 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
     }
 
     @Override
-    public CuppaOutput persistedOutput(final SomaticRunMetadata metadata) {
-        String sample = metadata.tumor().sampleName();
-        return CuppaOutput.builder()
-                .status(PipelineStatus.PERSISTED)
-                .maybeChart(persistedDataset.path(sample, DataType.CUPPA_CHART)
-                        .orElse(GoogleStorageLocation.of(metadata.bucket(),
-                                PersistedLocations.blobForSet(metadata.set(), namespace(), chartPath(sample)))))
-                .build();
-    }
-
-    @Override
     public boolean shouldRun(final Arguments arguments) {
-        return !arguments.shallow() && arguments.runTertiary() && arguments.runCuppa();
-    }
-
-    private String chartPath(String sampleName) {
-        return sampleName + ".cuppa.chart.png";
+        return !arguments.shallow() && arguments.runTertiary();
     }
 }
