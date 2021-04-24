@@ -111,7 +111,7 @@ public interface ResourceFiles {
     String actionabilityDir();
 
     default String cuppaRefData() {
-        return VmDirectories.resourcesPath(CUPPA);
+        return of(CUPPA);
     }
 
     String peachFilterBed();
