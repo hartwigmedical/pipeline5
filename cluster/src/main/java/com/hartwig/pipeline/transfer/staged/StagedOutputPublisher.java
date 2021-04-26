@@ -38,14 +38,16 @@ public class StagedOutputPublisher {
     private final Publisher publisher;
     private final ObjectMapper objectMapper;
     private final Run run;
+    private final PipelineStaged.OutputTarget target;
 
     public StagedOutputPublisher(final SetApi setApi, final Bucket sourceBucket, final Publisher publisher, final ObjectMapper objectMapper,
-            final Run run) {
+            final Run run, final PipelineStaged.OutputTarget target) {
         this.setApi = setApi;
         this.sourceBucket = sourceBucket;
         this.publisher = publisher;
         this.objectMapper = objectMapper;
         this.run = run;
+        this.target = target;
     }
 
     public void publish(final PipelineState state, final SomaticRunMetadata metadata) {
@@ -107,6 +109,7 @@ public class StagedOutputPublisher {
         return ImmutablePipelineStaged.builder()
                 .type(PipelineStaged.Type.DNA)
                 .analysis(secondary)
+                .target(target)
                 .version(Versions.pipelineMajorMinorVersion())
                 .sample(metadata.tumor().sampleName())
                 .runId(Optional.ofNullable(run.getId()))

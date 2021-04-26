@@ -16,7 +16,7 @@ import com.hartwig.pipeline.transfer.staged.StagedOutputPublisher;
 
 import org.jetbrains.annotations.NotNull;
 
-public class BiopsyMetadataApi implements SomaticMetadataApi {
+public class ResearchMetadataApi implements SomaticMetadataApi {
 
     private final SampleApi sampleApi;
     private final SetApi setApi;
@@ -24,7 +24,7 @@ public class BiopsyMetadataApi implements SomaticMetadataApi {
     private final Arguments arguments;
     private final StagedOutputPublisher stagedOutput;
 
-    public BiopsyMetadataApi(final SampleApi sampleApi, final SetApi setApi, final String biopsyName, final Arguments arguments,
+    public ResearchMetadataApi(final SampleApi sampleApi, final SetApi setApi, final String biopsyName, final Arguments arguments,
             final StagedOutputPublisher stagedOutput) {
         this.sampleApi = sampleApi;
         this.setApi = setApi;
