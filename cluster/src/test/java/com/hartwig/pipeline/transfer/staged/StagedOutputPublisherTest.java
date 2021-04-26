@@ -89,26 +89,6 @@ public class StagedOutputPublisherTest {
         assertThat(result.blobs()).extracting(PipelineOutputBlob::filename).containsExactlyInAnyOrder("tumor.vcf");
     }
 
-    @Test
-    public void publishesDnaShallowAnalysisOnRunWithShallowSeqIni() throws Exception {
-        victim = new StagedOutputPublisher(setApi,
-                bucket,
-                publisher,
-                OBJECT_MAPPER,
-                new Run().ini(Ini.SHALLOWSEQ_INI.getValue()),
-                PipelineStaged.OutputTarget.PATIENT_REPORT);
-        when(state.status()).thenReturn(PipelineStatus.SUCCESS);
-        Blob vcf = withBucketAndMd5(blob("/sage/" + TestInputs.tumorSample() + ".vcf"));
-        Blob cram = withBucketAndMd5(blob(TestInputs.tumorSample() + "/aligner/" + TestInputs.tumorSample() + ".cram"));
-        Page<Blob> page = pageOf(vcf, cram);
-        ArgumentCaptor<PubsubMessage> messageArgumentCaptor = publish(page);
-
-        PipelineStaged result =
-                OBJECT_MAPPER.readValue(new String(messageArgumentCaptor.getValue().getData().toByteArray()), PipelineStaged.class);
-        assertThat(result.analysis()).isEqualTo(PipelineStaged.Analysis.SHALLOW);
-        assertThat(result.blobs()).extracting(PipelineOutputBlob::filename).containsExactlyInAnyOrder("tumor.vcf", "tumor.cram");
-    }
-
     private void verifySecondaryAnalysis(final String extension, final String indexExtension)
             throws com.fasterxml.jackson.core.JsonProcessingException {
         when(state.status()).thenReturn(PipelineStatus.SUCCESS);
