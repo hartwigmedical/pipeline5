@@ -1,7 +1,6 @@
 package com.hartwig.pipeline;
 
 import static com.hartwig.pipeline.testsupport.TestInputs.amberOutput;
-import static com.hartwig.pipeline.testsupport.TestInputs.bachelorOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.chordOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.cobaltOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.defaultSomaticRunMetadata;
@@ -107,7 +106,6 @@ public class SomaticPipelineTest {
                 purpleOutput(),
                 healthCheckerOutput(),
                 linxOutput(),
-                bachelorOutput(),
                 chordOutput(),
                 protectOutput(),
                 peachOutput());
@@ -194,7 +192,6 @@ public class SomaticPipelineTest {
                 .thenReturn(purpleOutput())
                 .thenReturn(HealthCheckOutput.builder().from(healthCheckerOutput()).status(PipelineStatus.QC_FAILED).build())
                 .thenReturn(linxOutput())
-                .thenReturn(bachelorOutput())
                 .thenReturn(chordOutput())
                 .thenReturn(peachOutput())
                 .thenReturn(protectOutput());
@@ -226,7 +223,6 @@ public class SomaticPipelineTest {
                 .thenReturn(purpleOutput())
                 .thenReturn(healthCheckerOutput())
                 .thenReturn(linxOutput())
-                .thenReturn(bachelorOutput())
                 .thenReturn(chordOutput())
                 .thenReturn(peachOutput())
                 .thenReturn(protectOutput());
