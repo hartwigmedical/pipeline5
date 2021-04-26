@@ -51,7 +51,12 @@ public class StagedOutputPublisherTest {
         bucket = mock(Bucket.class);
         publisher = mock(Publisher.class);
         state = mock(PipelineState.class);
-        victim = new StagedOutputPublisher(setApi, bucket, publisher, OBJECT_MAPPER, new Run().ini(Ini.SOMATIC_INI.getValue()));
+        victim = new StagedOutputPublisher(setApi,
+                bucket,
+                publisher,
+                OBJECT_MAPPER,
+                new Run().ini(Ini.SOMATIC_INI.getValue()),
+                PipelineStaged.OutputTarget.PATIENT_REPORT);
     }
 
     @Test
@@ -85,8 +90,13 @@ public class StagedOutputPublisherTest {
     }
 
     @Test
-    public void publishesDnaShallowAnalysisOnRunWithShallowSeqIni() throws Exception{
-        victim = new StagedOutputPublisher(setApi, bucket, publisher, OBJECT_MAPPER, new Run().ini(Ini.SHALLOWSEQ_INI.getValue()));
+    public void publishesDnaShallowAnalysisOnRunWithShallowSeqIni() throws Exception {
+        victim = new StagedOutputPublisher(setApi,
+                bucket,
+                publisher,
+                OBJECT_MAPPER,
+                new Run().ini(Ini.SHALLOWSEQ_INI.getValue()),
+                PipelineStaged.OutputTarget.PATIENT_REPORT);
         when(state.status()).thenReturn(PipelineStatus.SUCCESS);
         Blob vcf = withBucketAndMd5(blob("/sage/" + TestInputs.tumorSample() + ".vcf"));
         Blob cram = withBucketAndMd5(blob(TestInputs.tumorSample() + "/aligner/" + TestInputs.tumorSample() + ".cram"));
@@ -113,6 +123,7 @@ public class StagedOutputPublisherTest {
 
         PipelineStaged result =
                 OBJECT_MAPPER.readValue(new String(messageArgumentCaptor.getValue().getData().toByteArray()), PipelineStaged.class);
+        assertThat(result.target()).isEqualTo(PipelineStaged.OutputTarget.PATIENT_REPORT);
         assertThat(result.analysis()).isEqualTo(PipelineStaged.Analysis.SECONDARY);
         assertThat(result.blobs()).hasSize(4);
         assertThat(result.blobs()).extracting(PipelineOutputBlob::filename)
