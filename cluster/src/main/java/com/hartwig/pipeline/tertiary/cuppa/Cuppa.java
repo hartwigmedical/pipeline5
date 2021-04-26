@@ -31,33 +31,22 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
     static String NAMESPACE = "cuppa";
     private final InputDownload purpleSomaticVcfDownload;
     private final InputDownload purpleStructuralVcfDownload;
-    private final InputDownload purpleQc;
-    private final InputDownload purplePurity;
-    private final InputDownload linxDriverCatalog;
-    private final InputDownload linxClusters;
-    private final InputDownload linxFusions;
+    private final InputDownload purpleOutputDirectory;
+    private final InputDownload linxOutputDirectory;
+
     private final ResourceFiles resourceFiles;
 
     public Cuppa(final PurpleOutput purpleOutput, final LinxOutput linxOutput, final ResourceFiles resourceFiles) {
         purpleSomaticVcfDownload = new InputDownload(purpleOutput.outputLocations().somaticVcf());
         purpleStructuralVcfDownload = new InputDownload(purpleOutput.outputLocations().structuralVcf());
-        purpleQc = new InputDownload(purpleOutput.outputLocations().qcFile());
-        purplePurity = new InputDownload(purpleOutput.outputLocations().purityTsv());
-        linxDriverCatalog = new InputDownload(linxOutput.linxOutputLocations().driverCatalog());
-        linxClusters = new InputDownload(linxOutput.linxOutputLocations().breakends());
-        linxFusions = new InputDownload(linxOutput.linxOutputLocations().fusions());
+        purpleOutputDirectory = new InputDownload(purpleOutput.outputLocations().outputDirectory());
+        linxOutputDirectory = new InputDownload(linxOutput.linxOutputLocations().outputDirectory());
         this.resourceFiles = resourceFiles;
     }
 
     @Override
     public List<BashCommand> inputs() {
-        return List.of(purpleSomaticVcfDownload,
-                purpleStructuralVcfDownload,
-                purpleQc,
-                purplePurity,
-                linxDriverCatalog,
-                linxClusters,
-                linxFusions);
+        return List.of(purpleSomaticVcfDownload, purpleStructuralVcfDownload, purpleOutputDirectory, linxOutputDirectory);
     }
 
     @Override
@@ -78,7 +67,7 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
                                 "-sample_data",
                                 metadata.tumor().sampleName(),
                                 "-sample_data_dir",
-                                VmDirectories.INPUT,
+                                linxOutputDirectory.getLocalTargetPath(),
                                 "-sample_sv_file",
                                 purpleStructuralVcfDownload.getLocalTargetPath(),
                                 "-sample_somatic_vcf",

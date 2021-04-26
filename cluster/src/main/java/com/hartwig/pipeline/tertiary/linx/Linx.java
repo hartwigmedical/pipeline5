@@ -28,6 +28,7 @@ public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
 
     public static final String NAMESPACE = "linx";
     public static final String BREAKEND_TSV = ".linx.breakend.tsv";
+    public static final String CLUSTERS_TSV = ".linx.clusters.tsv";
     public static final String DRIVER_CATALOG_TSV = ".linx.driver.catalog.tsv";
     public static final String FUSION_TSV = ".linx.fusion.tsv";
     public static final String VIRAL_INSERTS_TSV = ".linx.viral_inserts.tsv";
@@ -81,17 +82,18 @@ public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
         String driverCatalogTsv = metadata.tumor().sampleName() + DRIVER_CATALOG_TSV;
         String fusionsTsv = metadata.tumor().sampleName() + FUSION_TSV;
         String viralInsertionsTsv = metadata.tumor().sampleName() + VIRAL_INSERTS_TSV;
-        String drivers = metadata.tumor().sampleName() + DRIVERS_TSV;
+        String driversTsv = metadata.tumor().sampleName() + DRIVERS_TSV;
         return LinxOutput.builder()
                 .status(jobStatus)
                 .maybeLinxOutputLocations(LinxOutputLocations.builder()
                         .breakends(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(breakendTsv)))
                         .driverCatalog(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(driverCatalogTsv)))
                         .fusions(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(fusionsTsv)))
+                        .outputDirectory(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(), true))
                         .build())
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), NAMESPACE, resultsDirectory))
-                .addDatatypes(new AddDatatype(DataType.LINX, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), drivers)))
+                .addDatatypes(new AddDatatype(DataType.LINX, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), driversTsv)))
                 .addDatatypes(new AddDatatype(DataType.LINX_BREAKENDS,
                         metadata.barcode(),
                         new ArchivePath(Folder.root(), namespace(), breakendTsv)))
