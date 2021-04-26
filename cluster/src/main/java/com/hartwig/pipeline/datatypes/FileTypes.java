@@ -30,4 +30,20 @@ public class FileTypes {
     public static String bai(final String bam) {
         return bam + BAI;
     }
+
+    public static boolean isBam(final String filename) {
+        return filename.endsWith(BAM);
+    }
+
+    public static boolean isBai(final String filename) {
+        return filename.endsWith(BAI);
+    }
+
+    public static boolean isCram(final String filename) {
+        return filename.endsWith(CRAM);
+    }
+
+    public static boolean isCrai(final String filename) {
+        return filename.endsWith(CRAI);
+    }
 }

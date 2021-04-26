@@ -1,7 +1,7 @@
 package com.hartwig.pipeline.tertiary.healthcheck;
 
 import com.google.common.collect.Lists;
-import com.hartwig.pipeline.execution.vm.JavaJarCommand;
+import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
 import com.hartwig.pipeline.tools.Versions;
 
 class HealthCheckerApplicationCommand extends JavaJarCommand {

@@ -35,6 +35,8 @@ import com.hartwig.pipeline.tertiary.healthcheck.HealthCheckOutput;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthChecker;
 import com.hartwig.pipeline.tertiary.linx.Linx;
 import com.hartwig.pipeline.tertiary.linx.LinxOutput;
+import com.hartwig.pipeline.tertiary.peach.Peach;
+import com.hartwig.pipeline.tertiary.peach.PeachOutput;
 import com.hartwig.pipeline.tertiary.protect.Protect;
 import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
@@ -143,14 +145,16 @@ public class SomaticPipeline {
                             pipelineResults.add(state.add(healthCheckOutputFuture.get()));
                             LinxOutput linxOutput = pipelineResults.add(state.add(linxOutputFuture.get()));
                             ChordOutput chordOutput = pipelineResults.add(state.add(chordOutputFuture.get()));
+                            Future<PeachOutput> peachOutputFuture =
+                                    executorService.submit(() -> stageRunner.run(metadata, new Peach(purpleOutput, resourceFiles)));
                             pipelineResults.add(state.add(executorService.submit(() -> stageRunner.run(metadata,
                                     new Protect(purpleOutput, linxOutput, chordOutput, resourceFiles))).get()));
+                            pipelineResults.add(state.add(peachOutputFuture.get()));
                             pipelineResults.add(state.add(virusBreakendOutputFuture.get()));
                             pipelineResults.compose(metadata);
                         }
                     }
                 }
-
             } catch (InterruptedException | ExecutionException e) {
                 throw new RuntimeException(e);
             }

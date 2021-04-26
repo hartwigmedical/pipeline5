@@ -2,7 +2,7 @@ package com.hartwig.pipeline.tertiary.protect;
 
 import java.util.List;
 
-import com.hartwig.pipeline.execution.vm.JavaJarCommand;
+import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
 import com.hartwig.pipeline.tools.Versions;
 
 public class ProtectCommand extends JavaJarCommand {

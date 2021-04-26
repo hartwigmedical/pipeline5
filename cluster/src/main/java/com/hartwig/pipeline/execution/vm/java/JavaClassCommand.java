@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.execution.vm;
+package com.hartwig.pipeline.execution.vm.java;
 
 import static java.lang.String.format;
 
@@ -7,6 +7,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.hartwig.pipeline.execution.vm.BashCommand;
+import com.hartwig.pipeline.execution.vm.VmDirectories;
 
 public class JavaClassCommand implements BashCommand {
 
@@ -42,7 +45,7 @@ public class JavaClassCommand implements BashCommand {
         if (!jvmArgsJoined.isEmpty()) {
             tokens.add(jvmArgsJoined);
         }
-        tokens.add(format("-cp %s/%s/%s/%s", VmDirectories.TOOLS, toolName, version, classPath));
+        tokens.add(String.format("-cp %s/%s/%s/%s", VmDirectories.TOOLS, toolName, version, classPath));
         tokens.add(mainClass);
         tokens.add(arguments.stream().collect(Collectors.joining(" ")).trim());
         return tokens.stream().collect(Collectors.joining(" "));

@@ -27,7 +27,6 @@ import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
 
     public static final String NAMESPACE = "linx";
-    public static final String KNOWLEDGEBASE_OUTPUT = "output/";
     public static final String BREAKEND_TSV = ".linx.breakend.tsv";
     public static final String DRIVER_CATALOG_TSV = ".linx.driver.catalog.tsv";
     public static final String FUSION_TSV = ".linx.fusion.tsv";

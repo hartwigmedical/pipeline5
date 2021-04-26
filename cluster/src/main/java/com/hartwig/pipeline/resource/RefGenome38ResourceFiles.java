@@ -186,4 +186,9 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
     public String actionabilityDir() {
         throw new UnsupportedOperationException("Running PROTECT is not yet supported on 38 as we do not have the SERVE input.");
     }
+
+    @Override
+    public String peachFilterBed() {
+        throw new UnsupportedOperationException("[PEACH filter BED] does not yet have a valid 38 version.");
+    }
 }
