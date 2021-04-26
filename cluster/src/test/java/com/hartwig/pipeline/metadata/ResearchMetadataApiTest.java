@@ -71,7 +71,8 @@ public class ResearchMetadataApiTest {
                 setApi,
                 BIOPSY,
                 Arguments.testDefaults(),
-                new StagedOutputPublisher(setApi, bucket, publisher, objectMapper, new Run(), PipelineStaged.OutputTarget.DATABASE));
+                new StagedOutputPublisher(setApi, bucket, publisher, objectMapper, new Run(), PipelineStaged.OutputTarget.DATABASE),
+                new Anonymizer(Arguments.testDefaults()));
     }
 
     @Test(expected = IllegalStateException.class)
@@ -108,6 +109,23 @@ public class ResearchMetadataApiTest {
         assertThat(somaticRunMetadata.tumor().barcode()).isEqualTo(TUMOR_BARCODE);
         assertThat(somaticRunMetadata.reference().sampleName()).isEqualTo(REF_NAME);
         assertThat(somaticRunMetadata.reference().barcode()).isEqualTo(REF_BARCODE);
+    }
+
+    @Test
+    public void anonymizesSampleNameWhenActivated() {
+        victim = new ResearchMetadataApi(sampleApi,
+                setApi,
+                BIOPSY,
+                Arguments.testDefaults(),
+                new StagedOutputPublisher(setApi, bucket, publisher, ObjectMappers.get(), new Run(), PipelineStaged.OutputTarget.DATABASE),
+                new Anonymizer(Arguments.testDefaultsBuilder().anonymize(true).build()));
+        when(sampleApi.list(null, null, null, null, SampleType.TUMOR, BIOPSY)).thenReturn(List.of(tumor()));
+        when(setApi.list(null, TUMOR_SAMPLE_ID, true)).thenReturn(List.of(new SampleSet().name(SET_NAME).id(SET_ID)));
+        when(sampleApi.list(null, null, null, SET_ID, SampleType.REF, null)).thenReturn(List.of(ref()));
+        when(sampleApi.list(null, null, null, SET_ID, SampleType.TUMOR, null)).thenReturn(List.of(tumor()));
+        SomaticRunMetadata somaticRunMetadata = victim.get();
+        assertThat(somaticRunMetadata.tumor().sampleName()).isEqualTo(TUMOR_BARCODE);
+        assertThat(somaticRunMetadata.reference().sampleName()).isEqualTo(REF_BARCODE);
     }
 
     @Test

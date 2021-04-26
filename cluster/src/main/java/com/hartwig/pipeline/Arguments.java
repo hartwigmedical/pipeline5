@@ -93,6 +93,8 @@ public interface Arguments extends CommonArguments {
 
     boolean useCrams();
 
+    boolean anonymize();
+
     static String workingDir() {
         return System.getProperty("user.dir");
     }
@@ -156,7 +158,8 @@ public interface Arguments extends CommonArguments {
                     .pollInterval(DEFAULT_POLL_INTERVAL)
                     .refGenomeVersion(DEFAULT_REF_GENOME_VERSION)
                     .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES)
-                    .useCrams(false);
+                    .useCrams(false)
+                    .anonymize(false);
         } else if (profile.equals(DefaultsProfile.DEVELOPMENT)) {
             return ImmutableArguments.builder()
                     .profile(profile)
@@ -190,7 +193,8 @@ public interface Arguments extends CommonArguments {
                     .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES)
                     .network(DEFAULT_NETWORK)
                     .useLocalSsds(true)
-                    .useCrams(false);
+                    .useCrams(false)
+                    .anonymize(false);
         } else if (profile.equals(DefaultsProfile.DEVELOPMENT_DOCKER)) {
             return ImmutableArguments.builder()
                     .profile(profile)
@@ -224,7 +228,8 @@ public interface Arguments extends CommonArguments {
                     .pollInterval(DEFAULT_POLL_INTERVAL)
                     .refGenomeVersion(DEFAULT_REF_GENOME_VERSION)
                     .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES)
-                    .useCrams(false);
+                    .useCrams(false)
+                    .anonymize(false);
         } else if (profile.equals(DefaultsProfile.PUBLIC)) {
             return ImmutableArguments.builder()
                     .profile(profile)
@@ -258,7 +263,8 @@ public interface Arguments extends CommonArguments {
                     .refGenomeVersion(RefGenomeVersion.V38)
                     .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES)
                     .imageName(VirtualMachineJobDefinition.PUBLIC_IMAGE_NAME)
-                    .useCrams(false);
+                    .useCrams(false)
+                    .anonymize(false);
         }
         throw new IllegalArgumentException(String.format("Unknown profile [%s], please create defaults for this profile.", profile));
     }

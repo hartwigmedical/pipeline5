@@ -33,16 +33,18 @@ public class ClinicalSomaticMetadataApi implements SomaticMetadataApi {
     private static final String PIPELINE_SOURCE = "Pipeline";
     private static final String HEALTH_CHECK = "HealthCheck";
     private final Run run;
+    private final Anonymizer anonymizer;
     private final RunApi runApi;
     private final SampleApi sampleApi;
     private final StagedOutputPublisher stagedOutputPublisher;
 
     ClinicalSomaticMetadataApi(final Run run, final RunApi runApi, final SampleApi sampleApi,
-            final StagedOutputPublisher stagedOutputPublisher) {
+            final StagedOutputPublisher stagedOutputPublisher, final Anonymizer anonymizer) {
         this.runApi = runApi;
         this.sampleApi = sampleApi;
         this.stagedOutputPublisher = stagedOutputPublisher;
         this.run = run;
+        this.anonymizer = anonymizer;
     }
 
     @Override
@@ -53,7 +55,8 @@ public class ClinicalSomaticMetadataApi implements SomaticMetadataApi {
 
         SingleSampleRunMetadata reference = find(SampleType.REF, samplesBySet).map(referenceSample -> toMetadata(referenceSample,
                 run,
-                SingleSampleRunMetadata.SampleType.REFERENCE))
+                SingleSampleRunMetadata.SampleType.REFERENCE,
+                anonymizer))
                 .orElseThrow(() -> new IllegalStateException(String.format("No reference sample found in SBP for set [%s]",
                         set.getName())));
         String ini = run.getIni();
@@ -63,7 +66,8 @@ public class ClinicalSomaticMetadataApi implements SomaticMetadataApi {
         } else {
             SingleSampleRunMetadata tumor = find(SampleType.TUMOR, samplesBySet).map(referenceSample -> toMetadata(referenceSample,
                     run,
-                    SingleSampleRunMetadata.SampleType.TUMOR))
+                    SingleSampleRunMetadata.SampleType.TUMOR,
+                    anonymizer))
                     .orElseThrow((() -> new IllegalStateException(String.format(
                             "No tumor sample found in SBP for set [%s] and this run was not marked as single sample",
                             set.getName()))));
@@ -71,11 +75,12 @@ public class ClinicalSomaticMetadataApi implements SomaticMetadataApi {
         }
     }
 
-    private static SingleSampleRunMetadata toMetadata(final Sample sample, final Run aRun, final SingleSampleRunMetadata.SampleType type) {
+    private static SingleSampleRunMetadata toMetadata(final Sample sample, final Run aRun, final SingleSampleRunMetadata.SampleType type,
+            final Anonymizer anonymizer) {
         return SingleSampleRunMetadata.builder()
                 .bucket(ofNullable(aRun.getBucket()).orElseThrow())
                 .set(aRun.getSet().getName())
-                .sampleName(sample.getName())
+                .sampleName(anonymizer.sampleName(sample))
                 .barcode(sample.getBarcode())
                 .type(type)
                 .primaryTumorDoids(Optional.ofNullable(sample.getPrimaryTumorDoids()).orElse(Collections.emptyList()))
