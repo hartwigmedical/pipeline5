@@ -11,7 +11,6 @@ import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.hartwig.api.SetApi;
 import com.hartwig.api.helpers.OnlyOne;
-import com.hartwig.api.model.Ini;
 import com.hartwig.api.model.Run;
 import com.hartwig.api.model.SampleSet;
 import com.hartwig.events.ImmutablePipelineOutputBlob;
@@ -55,15 +54,14 @@ public class StagedOutputPublisher {
             List<AddDatatype> addDatatypes =
                     state.stageOutputs().stream().map(StageOutput::datatypes).flatMap(List::stream).collect(Collectors.toList());
             SampleSet set = OnlyOne.of(setApi.list(metadata.set(), null, true), SampleSet.class);
-            ImmutablePipelineStaged.Builder shallowAnalysisEvent = eventBuilder(metadata, set, PipelineStaged.Analysis.SHALLOW);
             ImmutablePipelineStaged.Builder secondaryAnalysisEvent = eventBuilder(metadata, set, PipelineStaged.Analysis.SECONDARY);
             ImmutablePipelineStaged.Builder tertiaryAnalysisEvent = eventBuilder(metadata, set, PipelineStaged.Analysis.TERTIARY);
             OutputIterator.from(blob -> {
                 Optional<DataType> dataType =
                         addDatatypes.stream().filter(d -> blob.getName().endsWith(d.path())).map(AddDatatype::dataType).findFirst();
                 Blob blobWithMd5 = sourceBucket.get(blob.getName());
-                if (isShallow(run)) {
-                    shallowAnalysisEvent.addBlobs(builderWithPathComponents(metadata.tumor().sampleName(),
+                if (isSecondary(blobWithMd5)) {
+                    secondaryAnalysisEvent.addBlobs(builderWithPathComponents(metadata.tumor().sampleName(),
                             metadata.reference().sampleName(),
                             blobWithMd5.getName()).datatype(dataType.map(Object::toString))
                             .barcode(metadata.barcode())
@@ -72,35 +70,19 @@ public class StagedOutputPublisher {
                             .hash(MD5s.asHex(blobWithMd5.getMd5()))
                             .build());
                 } else {
-                    if (isSecondary(blobWithMd5)) {
-                        secondaryAnalysisEvent.addBlobs(builderWithPathComponents(metadata.tumor().sampleName(),
-                                metadata.reference().sampleName(),
-                                blobWithMd5.getName()).datatype(dataType.map(Object::toString))
-                                .barcode(metadata.barcode())
-                                .bucket(blobWithMd5.getBucket())
-                                .filesize(blobWithMd5.getSize())
-                                .hash(MD5s.asHex(blobWithMd5.getMd5()))
-                                .build());
-                    } else {
-                        tertiaryAnalysisEvent.addBlobs(builderWithPathComponents(metadata.tumor().sampleName(),
-                                metadata.reference().sampleName(),
-                                blobWithMd5.getName()).datatype(dataType.map(Object::toString))
-                                .barcode(metadata.barcode())
-                                .bucket(blobWithMd5.getBucket())
-                                .filesize(blobWithMd5.getSize())
-                                .hash(MD5s.asHex(blobWithMd5.getMd5()))
-                                .build());
-                    }
+                    tertiaryAnalysisEvent.addBlobs(builderWithPathComponents(metadata.tumor().sampleName(),
+                            metadata.reference().sampleName(),
+                            blobWithMd5.getName()).datatype(dataType.map(Object::toString))
+                            .barcode(metadata.barcode())
+                            .bucket(blobWithMd5.getBucket())
+                            .filesize(blobWithMd5.getSize())
+                            .hash(MD5s.asHex(blobWithMd5.getMd5()))
+                            .build());
                 }
             }, sourceBucket).iterate(metadata);
             publish(secondaryAnalysisEvent.build());
             publish(tertiaryAnalysisEvent.build());
-            publish(shallowAnalysisEvent.build());
         }
-    }
-
-    private boolean isShallow(final Run run) {
-        return Ini.SHALLOWSEQ_INI.getValue().equals(run.getIni());
     }
 
     @NotNull
