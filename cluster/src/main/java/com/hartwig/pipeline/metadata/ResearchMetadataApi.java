@@ -23,14 +23,16 @@ public class ResearchMetadataApi implements SomaticMetadataApi {
     private final String biopsyName;
     private final Arguments arguments;
     private final StagedOutputPublisher stagedOutput;
+    private final Anonymizer anonymizer;
 
     public ResearchMetadataApi(final SampleApi sampleApi, final SetApi setApi, final String biopsyName, final Arguments arguments,
-            final StagedOutputPublisher stagedOutput) {
+            final StagedOutputPublisher stagedOutput, final Anonymizer anonymizer) {
         this.sampleApi = sampleApi;
         this.setApi = setApi;
         this.biopsyName = biopsyName;
         this.arguments = arguments;
         this.stagedOutput = stagedOutput;
+        this.anonymizer = anonymizer;
     }
 
     @Override
@@ -59,7 +61,7 @@ public class ResearchMetadataApi implements SomaticMetadataApi {
                 .type(type)
                 .barcode(sample.getBarcode())
                 .set(biopsyName)
-                .sampleName(sample.getName())
+                .sampleName(anonymizer.sampleName(sample))
                 .bucket(arguments.outputBucket())
                 .build();
     }

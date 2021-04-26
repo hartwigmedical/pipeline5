@@ -74,6 +74,7 @@ public class CommandLineOptions {
     private static final String IMAGE_PROJECT_FLAG = "image_project";
     private static final String USE_CRAMS_FLAG = "use_crams";
     private static final String PUBSUB_PROJECT_FLAG = "pubsub_project";
+    private static final String ANONYMIZE_FLAG = "anonymize";
 
     private static Options options() {
         return new Options().addOption(profile())
@@ -134,7 +135,12 @@ public class CommandLineOptions {
                 .addOption(biopsy())
                 .addOption(imageProject())
                 .addOption(useCrams())
-                .addOption(pubsubProject());
+                .addOption(pubsubProject())
+                .addOption(anonymize());
+    }
+
+    private static Option anonymize() {
+        return optionWithArg(ANONYMIZE_FLAG, "Use barcodes instead of sample names in files, headers and annotations");
     }
 
     private static Option pubsubProject() {
@@ -343,6 +349,7 @@ public class CommandLineOptions {
                     .imageProject(imageProject(commandLine, defaults))
                     .useCrams(booleanOptionWithDefault(commandLine, USE_CRAMS_FLAG, defaults.useCrams()))
                     .pubsubProject(pubsubProject(commandLine, defaults))
+                    .anonymize(booleanOptionWithDefault(commandLine, ANONYMIZE_FLAG, defaults.anonymize()))
                     .build();
         } catch (ParseException e) {
             LOGGER.error("Could not parse command line args", e);

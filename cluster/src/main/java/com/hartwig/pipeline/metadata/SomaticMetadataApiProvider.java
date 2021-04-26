@@ -59,7 +59,8 @@ public class SomaticMetadataApiProvider {
                         publisher,
                         objectMapper,
                         new Run(),
-                        PipelineStaged.OutputTarget.DATABASE));
+                        PipelineStaged.OutputTarget.DATABASE),
+                new Anonymizer(arguments));
     }
 
     public SomaticMetadataApi clinicalRun(final Integer setId) {
@@ -75,6 +76,7 @@ public class SomaticMetadataApiProvider {
                         publisher,
                         objectMapper,
                         run,
-                        PipelineStaged.OutputTarget.PATIENT_REPORT));
+                        PipelineStaged.OutputTarget.PATIENT_REPORT),
+                new Anonymizer(arguments));
     }
 }

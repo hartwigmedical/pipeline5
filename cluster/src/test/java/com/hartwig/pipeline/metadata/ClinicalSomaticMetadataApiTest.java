@@ -19,6 +19,7 @@ import com.hartwig.api.model.Sample;
 import com.hartwig.api.model.SampleType;
 import com.hartwig.api.model.Status;
 import com.hartwig.api.model.UpdateRun;
+import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.PipelineState;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.testsupport.TestInputs;
@@ -60,7 +61,7 @@ public class ClinicalSomaticMetadataApiTest {
         publisher = mock(StagedOutputPublisher.class);
         runApi = mock(RunApi.class);
         sampleApi = mock(SampleApi.class);
-        victim = new ClinicalSomaticMetadataApi(SOMATIC_RUN, runApi, sampleApi, publisher);
+        victim = new ClinicalSomaticMetadataApi(SOMATIC_RUN, runApi, sampleApi, publisher, new Anonymizer(Arguments.testDefaults()));
     }
 
     @Test
@@ -73,6 +74,19 @@ public class ClinicalSomaticMetadataApiTest {
         assertThat(setMetadata.tumor().sampleName()).isEqualTo("tumor");
         assertThat(setMetadata.tumor().barcode()).isEqualTo("tumor_barcode");
         assertThat(setMetadata.tumor().primaryTumorDoids()).containsOnly("1234", "5678");
+    }
+
+    @Test
+    public void anonymizesSampleNameWhenActivated() {
+        victim = new ClinicalSomaticMetadataApi(SOMATIC_RUN,
+                runApi,
+                sampleApi,
+                publisher,
+                new Anonymizer(Arguments.testDefaultsBuilder().anonymize(true).build()));
+        when(sampleApi.list(null, null, null, SET_ID, null, null)).thenReturn(List.of(REF, TUMOR));
+        SomaticRunMetadata setMetadata = victim.get();
+        assertThat(setMetadata.reference().sampleName()).isEqualTo("ref_barcode");
+        assertThat(setMetadata.tumor().sampleName()).isEqualTo("tumor_barcode");
     }
 
     @Test
@@ -100,7 +114,7 @@ public class ClinicalSomaticMetadataApiTest {
         victim = new ClinicalSomaticMetadataApi(new Run().id(RUN_ID)
                 .bucket("bucket")
                 .set(new RunSet().id(SET_ID).name("set"))
-                .ini(Ini.SINGLE_INI.getValue()), runApi, sampleApi, publisher);
+                .ini(Ini.SINGLE_INI.getValue()), runApi, sampleApi, publisher, new Anonymizer(Arguments.testDefaults()));
         when(sampleApi.list(null, null, null, SET_ID, null, null)).thenReturn(List.of(REF));
         SomaticRunMetadata setMetadata = victim.get();
         assertThat(setMetadata.set()).isEqualTo("set");
@@ -116,7 +130,11 @@ public class ClinicalSomaticMetadataApiTest {
 
     @Test(expected = IllegalStateException.class)
     public void throwsIllegalStateIfNoBucketInRun() {
-        victim = new ClinicalSomaticMetadataApi(new Run().bucket(null), runApi, sampleApi, publisher);
+        victim = new ClinicalSomaticMetadataApi(new Run().bucket(null),
+                runApi,
+                sampleApi,
+                publisher,
+                new Anonymizer(Arguments.testDefaults()));
         when(pipelineState.status()).thenReturn(PipelineStatus.FAILED);
         victim.complete(pipelineState, somaticRunMetadata);
     }
