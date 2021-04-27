@@ -16,21 +16,23 @@ import com.hartwig.pipeline.transfer.staged.StagedOutputPublisher;
 
 import org.jetbrains.annotations.NotNull;
 
-public class BiopsyMetadataApi implements SomaticMetadataApi {
+public class ResearchMetadataApi implements SomaticMetadataApi {
 
     private final SampleApi sampleApi;
     private final SetApi setApi;
     private final String biopsyName;
     private final Arguments arguments;
     private final StagedOutputPublisher stagedOutput;
+    private final Anonymizer anonymizer;
 
-    public BiopsyMetadataApi(final SampleApi sampleApi, final SetApi setApi, final String biopsyName, final Arguments arguments,
-            final StagedOutputPublisher stagedOutput) {
+    public ResearchMetadataApi(final SampleApi sampleApi, final SetApi setApi, final String biopsyName, final Arguments arguments,
+            final StagedOutputPublisher stagedOutput, final Anonymizer anonymizer) {
         this.sampleApi = sampleApi;
         this.setApi = setApi;
         this.biopsyName = biopsyName;
         this.arguments = arguments;
         this.stagedOutput = stagedOutput;
+        this.anonymizer = anonymizer;
     }
 
     @Override
@@ -59,7 +61,7 @@ public class BiopsyMetadataApi implements SomaticMetadataApi {
                 .type(type)
                 .barcode(sample.getBarcode())
                 .set(biopsyName)
-                .sampleName(sample.getName())
+                .sampleName(anonymizer.sampleName(sample))
                 .bucket(arguments.outputBucket())
                 .build();
     }

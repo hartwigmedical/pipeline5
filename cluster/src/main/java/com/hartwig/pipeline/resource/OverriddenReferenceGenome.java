@@ -147,16 +147,6 @@ public class OverriddenReferenceGenome implements ResourceFiles {
     }
 
     @Override
-    public String bachelorConfig() {
-        return decorated.bachelorConfig();
-    }
-
-    @Override
-    public String bachelorClinvarFilters() {
-        return decorated.bachelorClinvarFilters();
-    }
-
-    @Override
     public String ensemblDataCache() {
         return decorated.ensemblDataCache();
     }

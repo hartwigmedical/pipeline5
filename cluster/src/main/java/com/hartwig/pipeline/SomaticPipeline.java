@@ -27,8 +27,6 @@ import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.StageRunner;
 import com.hartwig.pipeline.tertiary.amber.Amber;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
-import com.hartwig.pipeline.tertiary.bachelor.Bachelor;
-import com.hartwig.pipeline.tertiary.bachelor.BachelorOutput;
 import com.hartwig.pipeline.tertiary.chord.Chord;
 import com.hartwig.pipeline.tertiary.chord.ChordOutput;
 import com.hartwig.pipeline.tertiary.cobalt.Cobalt;
@@ -144,19 +142,12 @@ public class SomaticPipeline {
                                     new HealthChecker(referenceMetrics, tumorMetrics, referenceFlagstat, tumorFlagstat, purpleOutput)));
                             Future<LinxOutput> linxOutputFuture =
                                     executorService.submit(() -> stageRunner.run(metadata, new Linx(purpleOutput, resourceFiles)));
-                            Future<BachelorOutput> bachelorOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
-                                    new Bachelor(persistedDataset,
-                                            resourceFiles,
-                                            purpleOutput,
-                                            pair.tumor(),
-                                            pollOrThrow(germlineCallerOutputStorage, "germline"))));
                             Future<ChordOutput> chordOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                     new Chord(arguments.refGenomeVersion(), purpleOutput, persistedDataset)));
                             pipelineResults.add(state.add(healthCheckOutputFuture.get()));
                             LinxOutput linxOutput = pipelineResults.add(state.add(linxOutputFuture.get()));
                             Future<CuppaOutput> cuppaOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                     new Cuppa(purpleOutput, linxOutput, resourceFiles)));
-                            BachelorOutput bachelorOutput = pipelineResults.add(state.add(bachelorOutputFuture.get()));
                             ChordOutput chordOutput = pipelineResults.add(state.add(chordOutputFuture.get()));
                             Future<PeachOutput> peachOutputFuture =
                                     executorService.submit(() -> stageRunner.run(metadata, new Peach(purpleOutput, resourceFiles)));

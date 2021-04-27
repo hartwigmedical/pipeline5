@@ -19,7 +19,6 @@ public interface ResourceNames {
     String LINX = "linx";
     String ENSEMBL_DATA_CACHE = "ensembl_data_cache";
     String FUSIONS = "fusions";
-    String BACHELOR = "bachelor_config";
     String GENE_PANEL = "gene_panel";
     String DISEASE_ONTOLOGY = "disease_ontology";
     String SERVE = "serve";

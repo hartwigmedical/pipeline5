@@ -8,6 +8,7 @@ import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.api.HmfApi;
 import com.hartwig.api.model.Run;
+import com.hartwig.events.PipelineStaged;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.sample.JsonSampleSource;
 import com.hartwig.pipeline.jackson.ObjectMappers;
@@ -33,8 +34,8 @@ public class SomaticMetadataApiProvider {
 
     public SomaticMetadataApi get() {
         return arguments.sbpApiRunId()
-                .map(this::productionStyleRun)
-                .orElseGet(() -> arguments.biopsy().map(this::biopsyBasedRerun).orElseGet(localRun()));
+                .map(this::clinicalRun)
+                .orElseGet(() -> arguments.biopsy().map(this::researchRun).orElseGet(localRun()));
     }
 
     @NotNull
@@ -45,18 +46,24 @@ public class SomaticMetadataApiProvider {
                         .orElseThrow(() -> new IllegalArgumentException("Sample JSON must be provided when running in local mode")));
     }
 
-    public SomaticMetadataApi biopsyBasedRerun(final String biopsyName) {
+    public SomaticMetadataApi researchRun(final String biopsyName) {
         HmfApi api = HmfApi.create(arguments.sbpApiUrl());
         Bucket sourceBucket = storage.get(arguments.outputBucket());
         ObjectMapper objectMapper = ObjectMappers.get();
-        return new BiopsyMetadataApi(api.samples(),
+        return new ResearchMetadataApi(api.samples(),
                 api.sets(),
                 biopsyName,
                 arguments,
-                new StagedOutputPublisher(api.sets(), sourceBucket, publisher, objectMapper, new Run()));
+                new StagedOutputPublisher(api.sets(),
+                        sourceBucket,
+                        publisher,
+                        objectMapper,
+                        new Run(),
+                        PipelineStaged.OutputTarget.DATABASE),
+                new Anonymizer(arguments));
     }
 
-    public SomaticMetadataApi productionStyleRun(final Integer setId) {
+    public SomaticMetadataApi clinicalRun(final Integer setId) {
         HmfApi api = HmfApi.create(arguments.sbpApiUrl());
         Bucket sourceBucket = storage.get(arguments.outputBucket());
         ObjectMapper objectMapper = ObjectMappers.get();
@@ -64,6 +71,12 @@ public class SomaticMetadataApiProvider {
         return new ClinicalSomaticMetadataApi(run,
                 api.runs(),
                 api.samples(),
-                new StagedOutputPublisher(api.sets(), sourceBucket, publisher, objectMapper, run));
+                new StagedOutputPublisher(api.sets(),
+                        sourceBucket,
+                        publisher,
+                        objectMapper,
+                        run,
+                        PipelineStaged.OutputTarget.PATIENT_REPORT),
+                new Anonymizer(arguments));
     }
 }
