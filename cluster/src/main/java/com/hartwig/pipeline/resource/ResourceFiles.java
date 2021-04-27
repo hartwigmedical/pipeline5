@@ -1,5 +1,6 @@
 package com.hartwig.pipeline.resource;
 
+import static com.hartwig.pipeline.resource.ResourceNames.CUPPA;
 import static com.hartwig.pipeline.resource.ResourceNames.DISEASE_ONTOLOGY;
 import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_CONFIG;
 import static com.hartwig.pipeline.resource.ResourceNames.LINX;
@@ -104,6 +105,10 @@ public interface ResourceFiles {
     String driverGenePanel();
 
     String actionabilityDir();
+
+    default String cuppaRefData() {
+        return of(CUPPA);
+    }
 
     String peachFilterBed();
 

@@ -21,7 +21,7 @@ public interface ResourceNames {
     String FUSIONS = "fusions";
     String GENE_PANEL = "gene_panel";
     String DISEASE_ONTOLOGY = "disease_ontology";
-    String GERMLINE_REPORTING = "germline_reporting";
     String SERVE = "serve";
+    String CUPPA = "cuppa";
     String PEACH = "peach";
 }

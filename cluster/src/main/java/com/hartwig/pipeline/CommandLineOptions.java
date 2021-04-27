@@ -55,6 +55,7 @@ public class CommandLineOptions {
     private static final String RUN_SAGE_GERMLINE_CALLER_FLAG = "run_sage_germline_caller";
     private static final String RUN_STRUCTURAL_CALLER_FLAG = "run_structural_caller";
     private static final String RUN_TERTIARY_FLAG = "run_tertiary";
+    private static final String RUN_CUPPA_FLAG = "run_cuppa";
     private static final String OUTPUT_BUCKET_FLAG = "output_bucket";
     private static final String UPLOAD_PRIVATE_KEY_FLAG = "upload_private_key_path";
     private static final String SET_ID_FLAG = "set_id";
@@ -108,8 +109,9 @@ public class CommandLineOptions {
                 .addOption(optionWithBooleanArg(RUN_SOMATIC_CALLER_FLAG, "Run somatic calling (sage) on a VM"))
                 .addOption(optionWithBooleanArg(RUN_SAGE_GERMLINE_CALLER_FLAG, "Run sage germline calling on a VM"))
                 .addOption(optionWithBooleanArg(RUN_STRUCTURAL_CALLER_FLAG, "Run structural calling (gridss) on a VM"))
-                .addOption(optionWithBooleanArg(RUN_TERTIARY_FLAG, "Run tertiary analysis algorithms (amber, cobalt, purple)"))
+                .addOption(optionWithBooleanArg(RUN_TERTIARY_FLAG, "Run tertiary analysis algorithms (amber, cobalt, purple, cuppa, etc)"))
                 .addOption(optionWithBooleanArg(RUN_SNP_GENOTYPER_FLAG, "Run snp genotyper for QC against genotyping"))
+                .addOption(optionWithBooleanArg(RUN_CUPPA_FLAG, "Run cuppa in tertiary stage (must be explicitly enabled)"))
                 .addOption(serviceAccountEmail())
                 .addOption(patientReportBucket())
                 .addOption(uploadPrivateKey())

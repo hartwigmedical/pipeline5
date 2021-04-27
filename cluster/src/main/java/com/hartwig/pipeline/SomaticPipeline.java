@@ -31,6 +31,8 @@ import com.hartwig.pipeline.tertiary.chord.Chord;
 import com.hartwig.pipeline.tertiary.chord.ChordOutput;
 import com.hartwig.pipeline.tertiary.cobalt.Cobalt;
 import com.hartwig.pipeline.tertiary.cobalt.CobaltOutput;
+import com.hartwig.pipeline.tertiary.cuppa.Cuppa;
+import com.hartwig.pipeline.tertiary.cuppa.CuppaOutput;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthCheckOutput;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthChecker;
 import com.hartwig.pipeline.tertiary.linx.Linx;
@@ -144,11 +146,14 @@ public class SomaticPipeline {
                                     new Chord(arguments.refGenomeVersion(), purpleOutput, persistedDataset)));
                             pipelineResults.add(state.add(healthCheckOutputFuture.get()));
                             LinxOutput linxOutput = pipelineResults.add(state.add(linxOutputFuture.get()));
+                            Future<CuppaOutput> cuppaOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
+                                    new Cuppa(purpleOutput, linxOutput, resourceFiles)));
                             ChordOutput chordOutput = pipelineResults.add(state.add(chordOutputFuture.get()));
                             Future<PeachOutput> peachOutputFuture =
                                     executorService.submit(() -> stageRunner.run(metadata, new Peach(purpleOutput, resourceFiles)));
                             pipelineResults.add(state.add(executorService.submit(() -> stageRunner.run(metadata,
                                     new Protect(purpleOutput, linxOutput, chordOutput, resourceFiles))).get()));
+                            pipelineResults.add(state.add(cuppaOutputFuture.get()));
                             pipelineResults.add(state.add(peachOutputFuture.get()));
                             pipelineResults.add(state.add(virusBreakendOutputFuture.get()));
                             pipelineResults.compose(metadata);

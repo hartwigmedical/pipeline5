@@ -3,6 +3,7 @@ package com.hartwig.pipeline;
 import static com.hartwig.pipeline.testsupport.TestInputs.amberOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.chordOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.cobaltOutput;
+import static com.hartwig.pipeline.testsupport.TestInputs.cuppaOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.defaultSomaticRunMetadata;
 import static com.hartwig.pipeline.testsupport.TestInputs.germlineCallerOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.healthCheckerOutput;
@@ -108,7 +109,8 @@ public class SomaticPipelineTest {
                 linxOutput(),
                 chordOutput(),
                 protectOutput(),
-                peachOutput());
+                peachOutput(),
+                cuppaOutput());
     }
 
     @Test
@@ -193,6 +195,7 @@ public class SomaticPipelineTest {
                 .thenReturn(HealthCheckOutput.builder().from(healthCheckerOutput()).status(PipelineStatus.QC_FAILED).build())
                 .thenReturn(linxOutput())
                 .thenReturn(chordOutput())
+                .thenReturn(cuppaOutput())
                 .thenReturn(peachOutput())
                 .thenReturn(protectOutput());
         PipelineState state = victim.run(TestInputs.defaultPair());
@@ -224,6 +227,7 @@ public class SomaticPipelineTest {
                 .thenReturn(healthCheckerOutput())
                 .thenReturn(linxOutput())
                 .thenReturn(chordOutput())
+                .thenReturn(cuppaOutput())
                 .thenReturn(peachOutput())
                 .thenReturn(protectOutput());
     }

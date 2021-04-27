@@ -34,6 +34,7 @@ import com.hartwig.pipeline.tertiary.chord.Chord;
 import com.hartwig.pipeline.tertiary.chord.ChordOutput;
 import com.hartwig.pipeline.tertiary.cobalt.Cobalt;
 import com.hartwig.pipeline.tertiary.cobalt.CobaltOutput;
+import com.hartwig.pipeline.tertiary.cuppa.CuppaOutput;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthCheckOutput;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthChecker;
 import com.hartwig.pipeline.tertiary.linx.Linx;
@@ -260,8 +261,7 @@ public class TestInputs {
                                 TUMOR_SAMPLE + Purple.PURPLE_SOMATIC_DRIVER_CATALOG))
                         .germlineDriverCatalog(gsLocation(somaticBucket(Purple.NAMESPACE),
                                 TUMOR_SAMPLE + Purple.PURPLE_GERMLINE_DRIVER_CATALOG))
-                        .build())
-                .build();
+                        .build()).build();
     }
 
     public static ChordOutput chordOutput() {
@@ -269,6 +269,10 @@ public class TestInputs {
                 .status(PipelineStatus.SUCCESS)
                 .maybePredictions(gsLocation(somaticBucket(Chord.NAMESPACE), TUMOR_SAMPLE + Chord.PREDICTION_TXT))
                 .build();
+    }
+
+    public static CuppaOutput cuppaOutput() {
+        return CuppaOutput.builder().status(PipelineStatus.SUCCESS).build();
     }
 
     public static HealthCheckOutput healthCheckerOutput() {
@@ -289,6 +293,7 @@ public class TestInputs {
                         .breakends(gsLocation(somaticBucket(Linx.NAMESPACE), TUMOR_SAMPLE + Linx.BREAKEND_TSV))
                         .driverCatalog(gsLocation(somaticBucket(Linx.NAMESPACE), TUMOR_SAMPLE + Linx.DRIVER_CATALOG_TSV))
                         .fusions(gsLocation(somaticBucket(Linx.NAMESPACE), TUMOR_SAMPLE + Linx.FUSION_TSV))
+                        .outputDirectory(gsLocation(somaticBucket(Linx.NAMESPACE), RESULTS))
                         .build())
                 .build();
     }
