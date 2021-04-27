@@ -38,7 +38,7 @@ is used to call germline variants on the reference sample only.
 the minor allele copy number of heterozygous germline variants in the tumor sample.
 
 #### Cobalt
-[Cobalt](https://github.com/hartwigmedical/hmftools/tree/master/count-bam-lines) is an HMF in-house tool used to determine read
+[Cobalt](https://github.com/hartwigmedical/hmftools/tree/master/cobalt) is an HMF in-house tool used to determine read
 depth ratios.
 
 #### Somatic Variant Calling (SAGE)
@@ -53,17 +53,13 @@ somatic variants (SNVs and Indels) between the tumor/reference pair.
 and remove all low quality calls.
 
 #### Purple
-[Purple](https://github.com/hartwigmedical/hmftools/tree/master/purity-ploidy-estimator) is an HMF in-house tool which combines
+[Purple](https://github.com/hartwigmedical/hmftools/tree/master/purple) is an HMF in-house tool which combines
 the read-depth ratios, BAF, and variants to produce the pipeline final output, used both in the final report and exposed to
 research.
 
 #### LINX
 [LINX](https://github.com/hartwigmedical/hmftools/tree/master/sv-linx) is an HMF in-house tool which interprets structural variants 
 and calls fusions and homozygously disrupted genes.
-
-#### Bachelor
-[Bachelor](https://github.com/hartwigmedical/hmftools/tree/master/bachelor) is an HMF in-house tool which looks for pathogenic germline variants 
-and annotates them with their state in the tumor sample.
 
 #### CHORD
 [CHORD](https://github.com/UMCUGenetics/CHORD) is an external tool which evaluates whether the tumor is HR-deficient based on the complete set of variants found.
