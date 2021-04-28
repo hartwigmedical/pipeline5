@@ -1,8 +1,14 @@
 #!/bin/bash -e
 
-[[ $# -ne 3 ]] && echo "USAGE: $(basename $0) [tool name] [tool version] [python version]" && exit 1
-mkdir /opt/tools/${1}/${2}
-tar xvf /opt/tools/${1}/${1}_${2}.tar.gz -C /opt/tools/${1}/${2}
+set -o pipefail
+
+[[ $# -ne 3 && $# -ne 4 ]] && echo "USAGE: $(basename $0) [--no-extract-tarball] tool_name tool_version python_version" && exit 1
+extract_tarball="yes"
+[[ $1 = "--no-extract-tarball" ]] && extract_tarball="" && shift
+if [[ -n $extract_tarball ]]; then
+    mkdir /opt/tools/${1}/${2}
+    tar xvf /opt/tools/${1}/${1}_${2}.tar.gz -C /opt/tools/${1}/${2}
+fi
 export PATH="/root/.pyenv/versions/${3}/bin:$PATH"
 python -m venv /opt/tools/${1}/${2}_venv
 source /opt/tools/${1}/${2}_venv/bin/activate
