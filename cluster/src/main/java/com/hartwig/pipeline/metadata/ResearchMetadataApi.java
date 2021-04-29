@@ -50,17 +50,18 @@ public class ResearchMetadataApi implements SomaticMetadataApi {
         return SomaticRunMetadata.builder()
                 .bucket(arguments.outputBucket())
                 .set(set.getName())
-                .maybeTumor(singleSample(tumor, SingleSampleRunMetadata.SampleType.TUMOR))
-                .reference(singleSample(ref, SingleSampleRunMetadata.SampleType.REFERENCE))
+                .maybeTumor(singleSample(tumor, SingleSampleRunMetadata.SampleType.TUMOR, set.getName()))
+                .reference(singleSample(ref, SingleSampleRunMetadata.SampleType.REFERENCE, set.getName()))
                 .build();
     }
 
     @NotNull
-    public ImmutableSingleSampleRunMetadata singleSample(final Sample sample, final SingleSampleRunMetadata.SampleType type) {
+    public ImmutableSingleSampleRunMetadata singleSample(final Sample sample, final SingleSampleRunMetadata.SampleType type,
+            final String set) {
         return SingleSampleRunMetadata.builder()
                 .type(type)
                 .barcode(sample.getBarcode())
-                .set(biopsyName)
+                .set(set)
                 .sampleName(anonymizer.sampleName(sample))
                 .bucket(arguments.outputBucket())
                 .build();
