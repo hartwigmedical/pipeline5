@@ -54,7 +54,7 @@ public class PipelineMain {
             GoogleCredentials credentials = CredentialProvider.from(arguments).get();
             Storage storage = StorageProvider.from(arguments, credentials).get();
             Publisher turquoisePublisher = PublisherProvider.from(arguments, credentials).get("turquoise.events");
-            Publisher pipelinePublisher = PublisherProvider.from(arguments, credentials).get(PipelineStaged.SUBSCRIPTION);
+            Publisher pipelinePublisher = PublisherProvider.from(arguments, credentials).get(PipelineStaged.TOPIC);
             SomaticMetadataApi somaticMetadataApi = SomaticMetadataApiProvider.from(arguments, storage, pipelinePublisher).get();
             SingleSampleEventListener referenceEventListener = new SingleSampleEventListener();
             SingleSampleEventListener tumorEventListener = new SingleSampleEventListener();
