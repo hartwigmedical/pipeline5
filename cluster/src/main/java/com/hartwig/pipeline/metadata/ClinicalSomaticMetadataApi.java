@@ -60,7 +60,7 @@ public class ClinicalSomaticMetadataApi implements SomaticMetadataApi {
                 .orElseThrow(() -> new IllegalStateException(String.format("No reference sample found in SBP for set [%s]",
                         set.getName())));
         String ini = run.getIni();
-        if (Ini.SINGLE_INI.getValue().equals(ini)) {
+        if (Ini.SINGLESAMPLE_INI.getValue().equals(ini)) {
             LOGGER.info("Somatic run is using single sample configuration. No algorithms will be run, just transfer and cleanup");
             return SomaticRunMetadata.builder().bucket(runBucket).set(set.getName()).reference(reference).build();
         } else {
