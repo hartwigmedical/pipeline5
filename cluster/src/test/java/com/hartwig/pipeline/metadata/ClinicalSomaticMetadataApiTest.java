@@ -114,7 +114,7 @@ public class ClinicalSomaticMetadataApiTest {
         victim = new ClinicalSomaticMetadataApi(new Run().id(RUN_ID)
                 .bucket("bucket")
                 .set(new RunSet().id(SET_ID).name("set"))
-                .ini(Ini.SINGLE_INI.getValue()), runApi, sampleApi, publisher, new Anonymizer(Arguments.testDefaults()));
+                .ini(Ini.SINGLESAMPLE_INI.getValue()), runApi, sampleApi, publisher, new Anonymizer(Arguments.testDefaults()));
         when(sampleApi.list(null, null, null, SET_ID, null, null)).thenReturn(List.of(REF));
         SomaticRunMetadata setMetadata = victim.get();
         assertThat(setMetadata.set()).isEqualTo("set");
