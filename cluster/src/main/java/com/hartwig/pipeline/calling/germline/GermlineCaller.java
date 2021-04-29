@@ -55,8 +55,6 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
             "FS > 200.0",
             "INDEL_ReadPosRankSumLow",
             "ReadPosRankSum < -20.0");
-    private static final String GERMLINE_VARIANTS_DATA_TYPE = "germline_variants";
-    private static final String GERMLINE_VARIANTS_INDEX_DATATYPE = "germline_variants_index";
 
     private final ResourceFiles resourceFiles;
     private final InputDownload bamDownload;

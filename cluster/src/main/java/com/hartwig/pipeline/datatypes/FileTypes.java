@@ -46,4 +46,8 @@ public class FileTypes {
     public static boolean isCrai(final String filename) {
         return filename.endsWith(CRAI);
     }
+
+    public static boolean isVcf(final String filename) {
+        return filename.endsWith(VCF);
+    }
 }

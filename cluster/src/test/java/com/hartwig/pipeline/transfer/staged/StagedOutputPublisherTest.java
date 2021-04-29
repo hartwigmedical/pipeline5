@@ -89,6 +89,28 @@ public class StagedOutputPublisherTest {
         assertThat(result.blobs()).extracting(PipelineOutputBlob::filename).containsExactlyInAnyOrder("tumor.vcf");
     }
 
+    @Test
+    public void publishesGermlineTertiaryAnalysisOnGermlineVcf() throws Exception {
+        verifyGermline(".germline.vcf.gz", "reference.germline.vcf.gz");
+    }
+
+    @Test
+    public void publishesGermlineTertiaryAnalysisOnGermlineVcfIndex() throws Exception {
+        verifyGermline(".germline.vcf.gz.tbi", "reference.germline.vcf.gz.tbi");
+    }
+
+    public void verifyGermline(final String filename, final String expectedFile) throws com.fasterxml.jackson.core.JsonProcessingException {
+        when(state.status()).thenReturn(PipelineStatus.SUCCESS);
+        Blob vcf = withBucketAndMd5(blob("/germline_caller/" + TestInputs.referenceSample() + filename));
+        Page<Blob> page = pageOf(vcf);
+        ArgumentCaptor<PubsubMessage> messageArgumentCaptor = publish(page);
+
+        PipelineStaged result =
+                OBJECT_MAPPER.readValue(new String(messageArgumentCaptor.getValue().getData().toByteArray()), PipelineStaged.class);
+        assertThat(result.analysis()).isEqualTo(PipelineStaged.Analysis.GERMLINE);
+        assertThat(result.blobs()).extracting(PipelineOutputBlob::filename).containsExactlyInAnyOrder(expectedFile);
+    }
+
     private void verifySecondaryAnalysis(final String extension, final String indexExtension)
             throws com.fasterxml.jackson.core.JsonProcessingException {
         when(state.status()).thenReturn(PipelineStatus.SUCCESS);
