@@ -7,7 +7,7 @@ Cloud Platform
 ### Overview of Pipeline Stages
 The pipeline first runs primary and secondary analysis on a reference (blood/normal) sample and tumor sample before comparing
 them in the final somatic pipeline. The GATK Haplotype caller is the final step of the single sample pipeline. Somatic pipelines continue
-with our further steps.
+with the tertiary analysis that is briefly described below.
 
 #### Alignment
 Under normal circumstances Pv5 starts with the input of one to _n_ paired-end FASTQ files produced by a sequencing machine. The first task
@@ -17,8 +17,8 @@ available and parallelise by sample (tumor/normal) and lane within each sample t
 Mark duplicates and sorting is performed after the per lane alignments with [Sambamba](https://lomereiter.github.io/sambamba/).
 
 #### WGS Metrics
-Various WGS metrics are collected via Picard tools for ad-hoc analysis and evaluation of automated QC in Health Checker
-[CollectWgsMetrics](https://software.broadinstitute.org/gatk/documentation/tooldocs/4.0.0.0/picard_analysis_CollectWgsMetrics.php).
+Various WGS metrics are collected via [Picard tools](https://software.broadinstitute.org/gatk/documentation/tooldocs/4.0.0.0/picard_analysis_CollectWgsMetrics.php)
+for ad-hoc analysis and evaluation of automated QC in Health Checker
 
 #### Samtools Flagstat
 [Samtools](http://www.htslib.org/doc/samtools.html) flag statistics are not consumed by any downstream stages, but useful
@@ -26,7 +26,7 @@ in ad hoc QC and analysis.
 
 #### SnpGenotype (GATK UnifiedGenotyper)
 GATK's [UnifiedGenotyper](https://software.broadinstitute.org/gatk/documentation/tooldocs/3.8-0/org_broadinstitute_gatk_tools_walkers_genotyper_UnifiedGenotyper.php)
-is used to call variants around 26 specific locations. The results are compared with a similar but separate DNA assay in Hartwig lab to rule
+is used to call in 26 specific locations. The results are compared with a similar but separate DNA assay in Hartwig lab to rule
 out sample swaps.  
 
 #### Germline Calling (GATK HaplotypeCaller)
@@ -82,8 +82,8 @@ location based on the LINX and Purple results.
 set of variants found.
 
 #### PROTECT
-[PROTECT](https://github.com/hartwigmedical/hmftools/tree/master/protect) is an HMF in-house tool which annotates all findings with 
-their clinical relevance and decided on treatment and trial eligibility.
+[PROTECT](https://github.com/hartwigmedical/hmftools/tree/master/protect) is an HMF in-house tool which annotates all drivers with 
+their clinical relevance and decides on treatment and trial eligibility.
 
 #### Health Checker
 [Health Checker](https://github.com/hartwigmedical/hmftools/tree/master/health-checker) is an HMF in-house doing a final QC based off 
