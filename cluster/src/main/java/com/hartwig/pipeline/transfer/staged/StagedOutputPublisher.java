@@ -54,14 +54,15 @@ public class StagedOutputPublisher {
             List<AddDatatype> addDatatypes =
                     state.stageOutputs().stream().map(StageOutput::datatypes).flatMap(List::stream).collect(Collectors.toList());
             SampleSet set = OnlyOne.of(setApi.list(metadata.set(), null, true), SampleSet.class);
-            ImmutablePipelineStaged.Builder secondaryAnalysisEvent = eventBuilder(metadata, set, PipelineStaged.Analysis.SECONDARY);
-            ImmutablePipelineStaged.Builder tertiaryAnalysisEvent = eventBuilder(metadata, set, PipelineStaged.Analysis.TERTIARY);
+            String sampleName = metadata.maybeTumor().orElse(metadata.reference()).sampleName();
+            ImmutablePipelineStaged.Builder secondaryAnalysisEvent = eventBuilder(set, PipelineStaged.Analysis.SECONDARY, sampleName);
+            ImmutablePipelineStaged.Builder tertiaryAnalysisEvent = eventBuilder(set, PipelineStaged.Analysis.TERTIARY, sampleName);
             OutputIterator.from(blob -> {
                 Optional<DataType> dataType =
                         addDatatypes.stream().filter(d -> blob.getName().endsWith(d.path())).map(AddDatatype::dataType).findFirst();
                 Blob blobWithMd5 = sourceBucket.get(blob.getName());
                 if (isSecondary(blobWithMd5)) {
-                    secondaryAnalysisEvent.addBlobs(builderWithPathComponents(metadata.tumor().sampleName(),
+                    secondaryAnalysisEvent.addBlobs(builderWithPathComponents(sampleName,
                             metadata.reference().sampleName(),
                             blobWithMd5.getName()).datatype(dataType.map(Object::toString))
                             .barcode(metadata.barcode())
@@ -70,7 +71,7 @@ public class StagedOutputPublisher {
                             .hash(MD5s.asHex(blobWithMd5.getMd5()))
                             .build());
                 } else {
-                    tertiaryAnalysisEvent.addBlobs(builderWithPathComponents(metadata.tumor().sampleName(),
+                    tertiaryAnalysisEvent.addBlobs(builderWithPathComponents(sampleName,
                             metadata.reference().sampleName(),
                             blobWithMd5.getName()).datatype(dataType.map(Object::toString))
                             .barcode(metadata.barcode())
@@ -86,14 +87,14 @@ public class StagedOutputPublisher {
     }
 
     @NotNull
-    public ImmutablePipelineStaged.Builder eventBuilder(final SomaticRunMetadata metadata, final SampleSet set,
-            final PipelineStaged.Analysis secondary) {
+    public ImmutablePipelineStaged.Builder eventBuilder(final SampleSet set, final PipelineStaged.Analysis secondary,
+            final String sampleName) {
         return ImmutablePipelineStaged.builder()
                 .type(PipelineStaged.Type.DNA)
                 .analysis(secondary)
                 .target(target)
                 .version(Versions.pipelineMajorMinorVersion())
-                .sample(metadata.maybeTumor().orElse(metadata.reference()).sampleName())
+                .sample(sampleName)
                 .runId(Optional.ofNullable(run.getId()))
                 .setId(set.getId());
     }
