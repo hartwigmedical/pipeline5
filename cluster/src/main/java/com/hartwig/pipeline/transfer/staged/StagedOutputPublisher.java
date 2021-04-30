@@ -93,7 +93,7 @@ public class StagedOutputPublisher {
                 .analysis(secondary)
                 .target(target)
                 .version(Versions.pipelineMajorMinorVersion())
-                .sample(metadata.tumor().sampleName())
+                .sample(metadata.maybeTumor().orElse(metadata.reference()).sampleName())
                 .runId(Optional.ofNullable(run.getId()))
                 .setId(set.getId());
     }
