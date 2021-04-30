@@ -23,6 +23,10 @@ public enum RefGenomeVersion {
         return sage;
     }
 
+    public String linx() {
+        return linx;
+    }
+
     public String resources() {
         return resources;
     }
@@ -33,9 +37,5 @@ public enum RefGenomeVersion {
 
     public String chord() {
         return chord;
-    }
-
-    public String linx() {
-        return linx;
     }
 }
