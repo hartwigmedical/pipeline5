@@ -47,7 +47,7 @@ public class RnaStarMapping implements BatchOperation {
         final String batchInputs = descriptor.inputValue();
         final String[] batchItems = batchInputs.split(",");
 
-        // required format: SampleId,RefGenomeVersion (HG37 by default),FASTA file bucket
+        // required format: SampleId,RefGenomeVersion (37 by default),FASTA file bucket
 
         /*
         if(batchItems.length != 2)
@@ -168,7 +168,7 @@ public class RnaStarMapping implements BatchOperation {
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(12, 48)).build();
     }
 
-    private final List<String> getSampleFastqFileList(final String sampleId, final String fastqFilelist)
+    private List<String> getSampleFastqFileList(final String sampleId, final String fastqFilelist)
     {
         final List<String> fileList = Lists.newArrayList();
 

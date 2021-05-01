@@ -35,10 +35,11 @@ public class LinxTest extends TertiaryStageTest<LinxOutput> {
     @Override
     protected List<String> expectedCommands() {
         return Collections.singletonList("java -Xmx8G -jar /opt/tools/linx/1.15/linx.jar -sample tumor -sv_vcf "
-                + "/data/input/tumor.purple.sv.vcf.gz -purple_dir /data/input/results -ref_genome_version HG37 "
-                + "-output_dir /data/output "
-                + "-fragile_site_file /opt/resources/linx/37/fragile_sites_hmf.37.csv -line_element_file /opt/resources/linx/37/line_elements.37.csv "
-                + "-replication_origins_file /opt/resources/linx/37/heli_rep_origins.37.bed -viral_hosts_file /opt/resources/linx/viral_host_ref.csv "
+                + "/data/input/tumor.purple.sv.vcf.gz -purple_dir /data/input/results -ref_genome_version 37 -output_dir /data/output "
+                + "-fragile_site_file /opt/resources/linx/37/fragile_sites_hmf.37.csv "
+                + "-line_element_file /opt/resources/linx/37/line_elements.37.csv "
+                + "-replication_origins_file /opt/resources/linx/37/heli_rep_origins.37.bed "
+                + "-viral_hosts_file /opt/resources/linx/viral_host_ref.csv "
                 + "-gene_transcripts_dir /opt/resources/ensembl_data_cache/37/ "
                 + "-check_fusions -known_fusion_file /opt/resources/fusions/37/known_fusion_data.37.csv "
                 + "-check_drivers -driver_gene_panel /opt/resources/gene_panel/37/DriverGenePanel.37.tsv "

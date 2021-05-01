@@ -88,7 +88,7 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
 
     @Override
     public String sageGermlineSlicePanel() {
-        return formPath(SAGE, "SlicePanel.germline.hg38.bed.gz");
+        return formPath(SAGE, "SlicePanel.germline.38.bed.gz");
     }
 
     @Override

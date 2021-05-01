@@ -1,8 +1,9 @@
 package com.hartwig.pipeline.resource;
 
 public enum RefGenomeVersion {
-    V37("hg19", "HG37", "37", "37", "HG19"),
-    V38("hg38", "HG38", "38", "38", "HG38");
+    // TODO SAGE from v2.9 onwards will expect 37/38
+    V37("hg19", "37", "37", "37", "HG19"),
+    V38("hg38", "38", "38", "38", "HG38");
 
     private final String sage;
     private final String linx;
@@ -22,6 +23,10 @@ public enum RefGenomeVersion {
         return sage;
     }
 
+    public String linx() {
+        return linx;
+    }
+
     public String resources() {
         return resources;
     }
@@ -32,9 +37,5 @@ public enum RefGenomeVersion {
 
     public String chord() {
         return chord;
-    }
-
-    public String linx() {
-        return linx;
     }
 }
