@@ -19,6 +19,7 @@ import com.hartwig.events.PipelineOutputBlob;
 import com.hartwig.events.PipelineStaged;
 import com.hartwig.pipeline.PipelineState;
 import com.hartwig.pipeline.StageOutput;
+import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.PipelineStatus;
@@ -57,6 +58,8 @@ public class StagedOutputPublisher {
             String sampleName = metadata.maybeTumor().orElse(metadata.reference()).sampleName();
             ImmutablePipelineStaged.Builder secondaryAnalysisEvent = eventBuilder(set, PipelineStaged.Analysis.SECONDARY, sampleName);
             ImmutablePipelineStaged.Builder tertiaryAnalysisEvent = eventBuilder(set, PipelineStaged.Analysis.TERTIARY, sampleName);
+            ImmutablePipelineStaged.Builder germlineAnalysisEvent = eventBuilder(set, PipelineStaged.Analysis.GERMLINE, sampleName);
+
             OutputIterator.from(blob -> {
                 Optional<DataType> dataType =
                         addDatatypes.stream().filter(d -> blob.getName().endsWith(d.path())).map(AddDatatype::dataType).findFirst();
@@ -71,18 +74,30 @@ public class StagedOutputPublisher {
                             .hash(MD5s.asHex(blobWithMd5.getMd5()))
                             .build());
                 } else {
-                    tertiaryAnalysisEvent.addBlobs(builderWithPathComponents(sampleName,
-                            metadata.reference().sampleName(),
-                            blobWithMd5.getName()).datatype(dataType.map(Object::toString))
-                            .barcode(metadata.barcode())
-                            .bucket(blobWithMd5.getBucket())
-                            .filesize(blobWithMd5.getSize())
-                            .hash(MD5s.asHex(blobWithMd5.getMd5()))
-                            .build());
+                    if (isGermline(blobWithMd5, metadata.reference().sampleName())) {
+                        germlineAnalysisEvent.addBlobs(builderWithPathComponents(metadata.tumor().sampleName(),
+                                metadata.reference().sampleName(),
+                                blobWithMd5.getName()).datatype(dataType.map(Object::toString))
+                                .barcode(metadata.barcode())
+                                .bucket(blobWithMd5.getBucket())
+                                .filesize(blobWithMd5.getSize())
+                                .hash(MD5s.asHex(blobWithMd5.getMd5()))
+                                .build());
+                    } else {
+                        tertiaryAnalysisEvent.addBlobs(builderWithPathComponents(metadata.tumor().sampleName(),
+                                metadata.reference().sampleName(),
+                                blobWithMd5.getName()).datatype(dataType.map(Object::toString))
+                                .barcode(metadata.barcode())
+                                .bucket(blobWithMd5.getBucket())
+                                .filesize(blobWithMd5.getSize())
+                                .hash(MD5s.asHex(blobWithMd5.getMd5()))
+                                .build());
+                    }
                 }
             }, sourceBucket).iterate(metadata);
             publish(secondaryAnalysisEvent.build());
             publish(tertiaryAnalysisEvent.build());
+            publish(germlineAnalysisEvent.build());
         }
     }
 
@@ -102,6 +117,11 @@ public class StagedOutputPublisher {
     public boolean isSecondary(final Blob blobWithMd5) {
         return FileTypes.isBam(blobWithMd5.getName()) || FileTypes.isBai(blobWithMd5.getName()) || FileTypes.isCram(blobWithMd5.getName())
                 || FileTypes.isCrai(blobWithMd5.getName());
+    }
+
+    private boolean isGermline(final Blob blobWithMd5, final String sample) {
+        String germlineVcf = GermlineCallerOutput.outputFile(sample).fileName();
+        return blobWithMd5.getName().endsWith(germlineVcf) || blobWithMd5.getName().endsWith(FileTypes.tabixIndex(germlineVcf));
     }
 
     public void publish(final PipelineStaged event) {
