@@ -50,7 +50,7 @@ public class PurpleRerun implements BatchOperation {
                 tumorSampleName,
                 gripssLocation,
                 gripssRecoveryLocation,
-                sageSomaticLocation).addGermline(referenceSampleName, sageGermlineLocation);
+                sageSomaticLocation).addGermline(referenceSampleName);
 
         commands.add(builder.build());
         return commands;

@@ -82,7 +82,7 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
                 metadata.tumor().sampleName(),
                 structuralVcfDownload.getLocalTargetPath(),
                 svRecoveryVcfDownload.getLocalTargetPath(),
-                somaticVcfDownload.getLocalTargetPath()).setShallow(shallow).build();
+                somaticVcfDownload.getLocalTargetPath()).setShallow(shallow).addGermline(metadata.reference().sampleName()).build();
 
         return Collections.singletonList(command);
     }

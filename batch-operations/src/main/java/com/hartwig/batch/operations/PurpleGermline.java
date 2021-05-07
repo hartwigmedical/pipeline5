@@ -93,7 +93,7 @@ public class PurpleGermline implements BatchOperation {
                 tumorSampleName,
                 gripssLocation.getLocalTargetPath(),
                 gripssRecoveryLocation.getLocalTargetPath(),
-                sageLocation.getLocalTargetPath()).addGermline(referenceSampleName, germlineVcf).build();
+                sageLocation.getLocalTargetPath()).addGermline(referenceSampleName).build();
 
         commands.add(purpleCommand);
         return commands;
