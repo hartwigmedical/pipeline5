@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
+import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
@@ -12,6 +13,8 @@ import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.python.Python3Command;
+import com.hartwig.pipeline.metadata.AddDatatype;
+import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
@@ -25,6 +28,9 @@ import com.hartwig.pipeline.tools.Versions;
 
 public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
     static final String NAMESPACE = "peach";
+    private static final String PEACH_CALLS_TSV = ".peach.calls.tsv";
+    private static final String PEACH_GENOTYPE_TSV = ".peach.genotype.tsv";
+
     private final InputDownload purpleGermlineVcfDownload;
     private final ResourceFiles resourceFiles;
 
@@ -74,6 +80,12 @@ public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
                 .status(jobStatus)
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
+                .addDatatypes(new AddDatatype(DataType.PEACH_CALLS_TSV,
+                                metadata.barcode(),
+                                new ArchivePath(Folder.root(), namespace(), metadata.tumor().sampleName() + PEACH_CALLS_TSV)),
+                        new AddDatatype(DataType.PEACH_GENOTYPE_TSV,
+                                metadata.barcode(),
+                                new ArchivePath(Folder.root(), namespace(), metadata.tumor().sampleName() + PEACH_GENOTYPE_TSV)))
                 .build();
     }
 
