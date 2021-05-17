@@ -32,8 +32,8 @@ public class RemoteLocationsApi implements RemoteLocations {
         this.tumor = biopsy;
         this.reference = tumor.substring(0, tumor.lastIndexOf("T")) + "R";
 
-        DatasetApi datasetApi = HmfApi.create("http://api.prod-1").datasets();
-        dataset = datasetApi.get(tumor);
+        DatasetApi datasetApi = HmfApi.create(HmfApi.PRODUCTION).datasets();
+        dataset = datasetApi.get(tumor, null, null);
     }
 
     @Override
