@@ -60,6 +60,17 @@ public class RemoteLocationsTestImpl implements RemoteLocations {
     }
 
     @Override
+    public GoogleStorageLocation getSomaticVariantsPurple() {
+        return GoogleStorageLocation.of("purple", "171006_COLO829/COLO929v003T.purple.somatic.vcf.gz");
+    }
+
+
+    @Override
+    public GoogleStorageLocation getGeneCopyNumberTsv() {
+        return GoogleStorageLocation.of("purple", "171006_COLO829/COLO929v003T.purple.cnv.gene.tsv");
+    }
+
+    @Override
     public GoogleStorageLocation getReferenceAlignmentIndex() {
         return GoogleStorageLocation.of("alignment", "171006_COLO829/COLO929v003R.crai");
     }
