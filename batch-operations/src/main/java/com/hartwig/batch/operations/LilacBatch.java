@@ -57,9 +57,8 @@ public class LilacBatch implements BatchOperation {
         // Note: Can only use the bam slice decorator on biopsies that we ran LilacBamSlice on.
         final RemoteLocationsApi locationsApi = new RemoteLocationsApi(runData.billedProject(), sampleId);
         final LocalLocations localInput = new LocalLocations(new BamSliceDecorator(locationsApi));
-        final String somaticVcf = ""; // localInput.getSomaticVariantsPurple();
-        final String geneCopyNumber = ""; // localInput.getGeneCopyNumberTsv();
-        // final String tumorSampleName = localInput.getTumor();
+        final String somaticVcf = localInput.getSomaticVariantsPurple();
+        final String geneCopyNumber = localInput.getGeneCopyNumberTsv();
         final String tumorAlignment = localInput.getTumorAlignment();
         final String referenceAlignment = localInput.getReferenceAlignment();
 
@@ -76,16 +75,15 @@ public class LilacBatch implements BatchOperation {
         commands.addCommand(() -> format("gsutil -u hmf-crunch cp gs://%s/lilac_* %s",
                 LILAC_RESOURCES, LOCAL_LILAC_RESOURCES));
 
-        // Download Crams
+        // download sample input files
         commands.addCommands(localInput.generateDownloadCommands());
 
-        // Execute Lilac
-        boolean tumorSource = false;
-
+        // build Lilac arguments
         StringBuilder lilacArgs = new StringBuilder();
 
         /*
 
+        boolean tumorSource = false;
     {
         bash = new JavaClassCommand("lilac",
                 Versions.LILAC, JAR, MAIN_CLASS, MAX_HEAP,

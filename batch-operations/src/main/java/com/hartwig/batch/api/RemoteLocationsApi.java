@@ -1,5 +1,8 @@
 package com.hartwig.batch.api;
 
+import static com.hartwig.pipeline.tertiary.purple.Purple.PURPLE_GENE_COPY_NUMBER_TSV;
+import static com.hartwig.pipeline.tertiary.purple.Purple.PURPLE_SOMATIC_VCF;
+
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -29,8 +32,8 @@ public class RemoteLocationsApi implements RemoteLocations {
         this.tumor = biopsy;
         this.reference = tumor.substring(0, tumor.lastIndexOf("T")) + "R";
 
-        DatasetApi datasetApi = HmfApi.create(HmfApi.PRODUCTION).datasets();
-        dataset = datasetApi.get(tumor, null, null);
+        DatasetApi datasetApi = HmfApi.create("http://api.prod-1").datasets();
+        dataset = datasetApi.get(tumor);
     }
 
     @Override
@@ -41,6 +44,12 @@ public class RemoteLocationsApi implements RemoteLocations {
     @Override
     public String getReference() {
         return reference;
+    }
+
+    @Override
+    public GoogleStorageLocation getGeneCopyNumberTsv() {
+        GoogleStorageLocation template = getLocation(tumor, Dataset::getSomaticVariantsPurple);
+        return template.transform(somatic -> somatic.replace(PURPLE_SOMATIC_VCF, PURPLE_GENE_COPY_NUMBER_TSV));
     }
 
     @Override
@@ -76,6 +85,11 @@ public class RemoteLocationsApi implements RemoteLocations {
     @Override
     public GoogleStorageLocation getSomaticVariantsSage() {
         return getLocation(tumor, Dataset::getSomaticVariantsSage);
+    }
+
+    @Override
+    public GoogleStorageLocation getSomaticVariantsPurple() {
+        return getLocation(tumor, Dataset::getSomaticVariantsPurple);
     }
 
     @Override

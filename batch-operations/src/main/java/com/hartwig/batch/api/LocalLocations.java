@@ -50,6 +50,10 @@ public class LocalLocations {
         return get(locations::getStructuralVariantsGripss);
     }
 
+    public String getGeneCopyNumberTsv() {
+        return get(locations::getGeneCopyNumberTsv);
+    }
+
     public String getStructuralVariantsGripssRecovery() {
         String result = get(locations::getStructuralVariantsGripssRecovery);
         get(locations::getStructuralVariantsGripssRecoveryIndex);
@@ -70,6 +74,12 @@ public class LocalLocations {
 
     public String getSomaticVariantsSage() {
         return get(locations::getSomaticVariantsSage);
+    }
+
+    public String getSomaticVariantsPurple() {
+        String result =  get(locations::getSomaticVariantsPurple);
+        get(() -> locations.getSomaticVariantsPurple().transform(x -> x.replace(".vcf.gz", ".vcf.gz.tbi")));
+        return result;
     }
 
     public String getGermlineVariantsSage() {
