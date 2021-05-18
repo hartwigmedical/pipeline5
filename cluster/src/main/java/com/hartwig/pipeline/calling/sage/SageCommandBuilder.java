@@ -23,6 +23,7 @@ public class SageCommandBuilder {
     private boolean ponMode = false;
     private boolean somaticMode = true;
     private boolean germlineMode = false;
+    private boolean shallowSomaticMode = false;
     private int tumorSamples = 0;
 
     public SageCommandBuilder(ResourceFiles resourceFiles) {
@@ -65,6 +66,11 @@ public class SageCommandBuilder {
 
     public SageCommandBuilder addCoverage() {
         this.coverage = true;
+        return this;
+    }
+
+    public SageCommandBuilder addShallowSomaticMode() {
+        this.shallowSomaticMode = true;
         return this;
     }
 
@@ -143,6 +149,9 @@ public class SageCommandBuilder {
         if (somaticMode) {
             arguments.add("-hotspots").add(resourceFiles.sageSomaticHotspots());
             arguments.add("-panel_bed").add(resourceFiles.sageSomaticCodingPanel());
+            if (shallowSomaticMode) {
+                arguments.add("-hotspot_min_tumor_qual").add("40");
+            }
         }
 
         if (germlineMode) {
@@ -166,6 +175,7 @@ public class SageCommandBuilder {
         if (panelOnly) {
             arguments.add("-panel_only");
         }
+
         if (coverage) {
             arguments.add("-coverage_bed");
             if (germlineMode) {
@@ -176,7 +186,6 @@ public class SageCommandBuilder {
         }
 
         if (ponMode) {
-
             arguments.add("-hotspots").add(resourceFiles.sageSomaticHotspots());
             arguments.add("-panel_bed").add(resourceFiles.sageSomaticCodingPanel());
 
