@@ -139,6 +139,18 @@ public class SageCommandBuilder {
             throw new IllegalStateException("Must be at least one tumor");
         }
 
+        if (shallowSomaticMode && !somaticMode) {
+            throw new IllegalStateException("Shallow somatic mode enabled while not in shallow mode");
+        }
+
+        if (somaticMode && germlineMode) {
+            throw new IllegalStateException("Somatic mode and germline mode both set while mutually exclusive");
+        }
+
+        if (!somaticMode && !germlineMode) {
+            throw new IllegalStateException("Neither somatic mode nor germline set while either needs to be enabled");
+        }
+
         final String tumorBamFiles = String.join(",", tumorBam);
         arguments.add("-tumor").add(tumor.toString()).add("-tumor_bam").add(tumorBamFiles);
         if (reference.length() > 0) {
