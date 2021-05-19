@@ -2,6 +2,8 @@ package com.hartwig.pipeline;
 
 import java.util.Optional;
 
+import com.hartwig.events.Analysis;
+import com.hartwig.events.Analysis.Context;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
 
@@ -95,6 +97,8 @@ public interface Arguments extends CommonArguments {
 
     boolean anonymize();
 
+    Analysis.Context analysisContext();
+
     static String workingDir() {
         return System.getProperty("user.dir");
     }
@@ -118,6 +122,8 @@ public interface Arguments extends CommonArguments {
     RefGenomeVersion DEFAULT_REF_GENOME_VERSION = RefGenomeVersion.V37;
 
     int DEFAULT_MAX_CONCURRENT_LANES = 8;
+
+    Analysis.Context DEFAULT_ANALYSIS_CONTEXT = Context.DIAGNOSTIC;
 
     static ImmutableArguments.Builder defaultsBuilder(String profileString) {
         DefaultsProfile profile = DefaultsProfile.valueOf(profileString.toUpperCase());
@@ -156,7 +162,8 @@ public interface Arguments extends CommonArguments {
                     .refGenomeVersion(DEFAULT_REF_GENOME_VERSION)
                     .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES)
                     .useCrams(false)
-                    .anonymize(false);
+                    .anonymize(false)
+                    .analysisContext(DEFAULT_ANALYSIS_CONTEXT);
         } else if (profile.equals(DefaultsProfile.DEVELOPMENT)) {
             return ImmutableArguments.builder()
                     .profile(profile)
@@ -191,7 +198,8 @@ public interface Arguments extends CommonArguments {
                     .network(DEFAULT_NETWORK)
                     .useLocalSsds(true)
                     .useCrams(false)
-                    .anonymize(false);
+                    .anonymize(false)
+                    .analysisContext(DEFAULT_ANALYSIS_CONTEXT);
         } else if (profile.equals(DefaultsProfile.DEVELOPMENT_DOCKER)) {
             return ImmutableArguments.builder()
                     .profile(profile)
@@ -226,7 +234,8 @@ public interface Arguments extends CommonArguments {
                     .refGenomeVersion(DEFAULT_REF_GENOME_VERSION)
                     .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES)
                     .useCrams(false)
-                    .anonymize(false);
+                    .anonymize(false)
+                    .analysisContext(DEFAULT_ANALYSIS_CONTEXT);
         } else if (profile.equals(DefaultsProfile.PUBLIC)) {
             return ImmutableArguments.builder()
                     .profile(profile)
@@ -261,7 +270,8 @@ public interface Arguments extends CommonArguments {
                     .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES)
                     .imageName(VirtualMachineJobDefinition.PUBLIC_IMAGE_NAME)
                     .useCrams(false)
-                    .anonymize(false);
+                    .anonymize(false)
+                    .analysisContext(DEFAULT_ANALYSIS_CONTEXT);
         }
         throw new IllegalArgumentException(String.format("Unknown profile [%s], please create defaults for this profile.", profile));
     }

@@ -34,7 +34,7 @@ public class SomaticMetadataApiProvider {
 
     public SomaticMetadataApi get() {
         return arguments.sbpApiRunId()
-                .map(this::clinicalRun)
+                .map(this::diagnosticRun)
                 .orElseGet(() -> arguments.biopsy().map(this::researchRun).orElseGet(localRun()));
     }
 
@@ -58,15 +58,15 @@ public class SomaticMetadataApiProvider {
                 new Anonymizer(arguments));
     }
 
-    public SomaticMetadataApi clinicalRun(final Integer setId) {
+    public SomaticMetadataApi diagnosticRun(final Integer setId) {
         HmfApi api = HmfApi.create(arguments.sbpApiUrl());
         Bucket sourceBucket = storage.get(arguments.outputBucket());
         ObjectMapper objectMapper = ObjectMappers.get();
         Run run = api.runs().get((long) arguments.sbpApiRunId().orElseThrow());
-        return new ClinicalSomaticMetadataApi(run,
+        return new DiagnosticSomaticMetadataApi(run,
                 api.runs(),
                 api.samples(),
-                new StagedOutputPublisher(api.sets(), sourceBucket, publisher, objectMapper, run, Context.DIAGNOSTIC),
+                new StagedOutputPublisher(api.sets(), sourceBucket, publisher, objectMapper, run, arguments.analysisContext()),
                 new Anonymizer(arguments));
     }
 }
