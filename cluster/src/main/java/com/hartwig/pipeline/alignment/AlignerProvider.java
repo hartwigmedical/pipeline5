@@ -25,9 +25,7 @@ import com.hartwig.pipeline.storage.CloudCopy;
 import com.hartwig.pipeline.storage.CloudSampleUpload;
 import com.hartwig.pipeline.storage.GSFileSource;
 import com.hartwig.pipeline.storage.GSUtilCloudCopy;
-import com.hartwig.pipeline.storage.RCloneCloudCopy;
 import com.hartwig.pipeline.storage.SampleUpload;
-import com.hartwig.pipeline.storage.SbpS3FileSource;
 
 public abstract class AlignerProvider {
 
@@ -108,11 +106,8 @@ public abstract class AlignerProvider {
         BwaAligner wireUp(GoogleCredentials credentials, Storage storage, ResultsDirectory resultsDirectory) throws Exception {
             SbpRestApi sbpRestApi = SbpRestApi.newInstance(getArguments().sbpApiUrl());
             SampleSource sampleSource = new SbpS3SampleSource(new SbpSampleReader(sbpRestApi));
-            CloudCopy cloudCopy = new RCloneCloudCopy(getArguments().rclonePath(),
-                    getArguments().rcloneGcpRemote(),
-                    getArguments().rcloneS3RemoteDownload(),
-                    ProcessBuilder::new);
-            SampleUpload sampleUpload = new CloudSampleUpload(new SbpS3FileSource(), cloudCopy);
+            CloudCopy cloudCopy = new GSUtilCloudCopy(getArguments().cloudSdkPath());
+            SampleUpload sampleUpload = new CloudSampleUpload(new GSFileSource(), cloudCopy);
             return AlignerProvider.constructVmAligner(getArguments(), credentials, storage, sampleSource, sampleUpload, resultsDirectory);
         }
     }
