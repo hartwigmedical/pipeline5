@@ -156,10 +156,7 @@ public class SageCommandBuilder {
             if (shallowSomaticMode) {
                 arguments.add("-hotspot_min_tumor_qual").add("40");
             }
-        } else {
-            // Somatic mode and germline mode are mutually exclusive and this can't be controlled from outside this class.
-            assert germlineMode;
-
+        } else if (germlineMode) {
             arguments.add("-hotspots").add(resourceFiles.sageGermlineHotspots());
             arguments.add("-panel_bed").add(resourceFiles.sageGermlineCodingPanel());
             arguments.add("-hotspot_min_tumor_qual").add("50");
