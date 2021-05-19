@@ -25,10 +25,13 @@ public class SageSomaticCaller extends SageCaller {
     public static final String NAMESPACE = "sage_somatic";
 
     private final ResourceFiles resourceFiles;
+    private final boolean shallow;
 
-    public SageSomaticCaller(final AlignmentPair alignmentPair, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
+    public SageSomaticCaller(final AlignmentPair alignmentPair, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset,
+            boolean shallow) {
         super(alignmentPair, persistedDataset, DataType.SOMATIC_VARIANTS_SAGE);
         this.resourceFiles = resourceFiles;
+        this.shallow = shallow;
     }
 
     @Override
@@ -38,7 +41,6 @@ public class SageSomaticCaller extends SageCaller {
 
     @Override
     public List<BashCommand> commands(final SomaticRunMetadata metadata) {
-
         List<BashCommand> commands = Lists.newArrayList();
         commands.add(new UnzipToDirectoryCommand(VmDirectories.RESOURCES, resourceFiles.snpEffDb()));
 
@@ -47,10 +49,13 @@ public class SageSomaticCaller extends SageCaller {
         String tumorSampleName = metadata.tumor().sampleName();
         String referenceSampleName = metadata.reference().sampleName();
 
-        SageCommandBuilder sageCommandBuilder = new SageCommandBuilder(resourceFiles)
-                .addReference(referenceSampleName, referenceBamPath)
+        SageCommandBuilder sageCommandBuilder = new SageCommandBuilder(resourceFiles).addReference(referenceSampleName, referenceBamPath)
                 .addTumor(tumorSampleName, tumorBamPath)
                 .addCoverage();
+        if (shallow) {
+            sageCommandBuilder = sageCommandBuilder.addShallowSomaticMode();
+        }
+
         SageApplication sageApplication = new SageApplication(sageCommandBuilder);
         SageSomaticPostProcess sagePostProcess = new SageSomaticPostProcess(tumorSampleName, resourceFiles);
 
@@ -64,7 +69,6 @@ public class SageSomaticCaller extends SageCaller {
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
         return VirtualMachineJobDefinition.sageSomaticCalling(bash, resultsDirectory);
     }
-
 
     @Override
     public boolean shouldRun(final Arguments arguments) {
@@ -81,10 +85,7 @@ public class SageSomaticCaller extends SageCaller {
 
     @Override
     protected String unfilteredOutput(final SomaticRunMetadata metadata) {
-        return String.format("%s.%s.%s",
-                metadata.tumor().sampleName(),
-                "sage.somatic",
-                FileTypes.GZIPPED_VCF);
+        return String.format("%s.%s.%s", metadata.tumor().sampleName(), "sage.somatic", FileTypes.GZIPPED_VCF);
     }
 
     @Override
