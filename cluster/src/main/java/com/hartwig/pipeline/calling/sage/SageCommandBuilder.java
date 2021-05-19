@@ -143,14 +143,6 @@ public class SageCommandBuilder {
             throw new IllegalStateException("Shallow somatic mode enabled while not in shallow mode");
         }
 
-        if (somaticMode && germlineMode) {
-            throw new IllegalStateException("Somatic mode and germline mode both set while mutually exclusive");
-        }
-
-        if (!somaticMode && !germlineMode) {
-            throw new IllegalStateException("Neither somatic mode nor germline set while either needs to be enabled");
-        }
-
         final String tumorBamFiles = String.join(",", tumorBam);
         arguments.add("-tumor").add(tumor.toString()).add("-tumor_bam").add(tumorBamFiles);
         if (reference.length() > 0) {
@@ -164,9 +156,10 @@ public class SageCommandBuilder {
             if (shallowSomaticMode) {
                 arguments.add("-hotspot_min_tumor_qual").add("40");
             }
-        }
+        } else {
+            // Somatic mode and germline mode are mutually exclusive and this can't be controlled from outside this class.
+            assert germlineMode;
 
-        if (germlineMode) {
             arguments.add("-hotspots").add(resourceFiles.sageGermlineHotspots());
             arguments.add("-panel_bed").add(resourceFiles.sageGermlineCodingPanel());
             arguments.add("-hotspot_min_tumor_qual").add("50");
