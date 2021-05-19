@@ -24,6 +24,8 @@ import com.hartwig.api.SetApi;
 import com.hartwig.api.model.Ini;
 import com.hartwig.api.model.Run;
 import com.hartwig.api.model.SampleSet;
+import com.hartwig.events.Analysis.Context;
+import com.hartwig.events.Analysis.Type;
 import com.hartwig.events.PipelineOutputBlob;
 import com.hartwig.events.PipelineStaged;
 import com.hartwig.pipeline.PipelineState;
@@ -56,7 +58,7 @@ public class StagedOutputPublisherTest {
                 publisher,
                 OBJECT_MAPPER,
                 new Run().ini(Ini.SOMATIC_INI.getValue()),
-                PipelineStaged.OutputTarget.PATIENT_REPORT);
+                Context.DIAGNOSTIC);
     }
 
     @Test
@@ -85,7 +87,7 @@ public class StagedOutputPublisherTest {
 
         PipelineStaged result =
                 OBJECT_MAPPER.readValue(new String(messageArgumentCaptor.getValue().getData().toByteArray()), PipelineStaged.class);
-        assertThat(result.analysis()).isEqualTo(PipelineStaged.Analysis.TERTIARY);
+        assertThat(result.analysisType()).isEqualTo(Type.TERTIARY);
         assertThat(result.blobs()).extracting(PipelineOutputBlob::filename).containsExactlyInAnyOrder("tumor.vcf");
     }
 
@@ -107,7 +109,7 @@ public class StagedOutputPublisherTest {
 
         PipelineStaged result =
                 OBJECT_MAPPER.readValue(new String(messageArgumentCaptor.getValue().getData().toByteArray()), PipelineStaged.class);
-        assertThat(result.analysis()).isEqualTo(PipelineStaged.Analysis.GERMLINE);
+        assertThat(result.analysisType()).isEqualTo(Type.GERMLINE);
         assertThat(result.blobs()).extracting(PipelineOutputBlob::filename).containsExactlyInAnyOrder(expectedFile);
     }
 
@@ -125,8 +127,8 @@ public class StagedOutputPublisherTest {
 
         PipelineStaged result =
                 OBJECT_MAPPER.readValue(new String(messageArgumentCaptor.getValue().getData().toByteArray()), PipelineStaged.class);
-        assertThat(result.target()).isEqualTo(PipelineStaged.OutputTarget.PATIENT_REPORT);
-        assertThat(result.analysis()).isEqualTo(PipelineStaged.Analysis.SECONDARY);
+        assertThat(result.analysisContext()).isEqualTo(Context.DIAGNOSTIC);
+        assertThat(result.analysisType()).isEqualTo(Type.SECONDARY);
         assertThat(result.blobs()).hasSize(4);
         assertThat(result.blobs()).extracting(PipelineOutputBlob::filename)
                 .containsExactlyInAnyOrder(TestInputs.tumorSample() + "." + extension,
