@@ -70,12 +70,12 @@ public class StagedOutputPublisherTest {
 
     @Test
     public void publishesDnaSecondaryAnalysisOnBam() throws Exception {
-        verifySecondaryAnalysis("bam", "bai");
+        verifySecondaryAnalysis("bam", "bai", "aligner");
     }
 
     @Test
     public void publishesDnaSecondaryAnalysisOnCram() throws Exception {
-        verifySecondaryAnalysis("cram", "crai");
+        verifySecondaryAnalysis("cram", "crai", "cram");
     }
 
     @Test
@@ -113,15 +113,17 @@ public class StagedOutputPublisherTest {
         assertThat(result.blobs()).extracting(PipelineOutputBlob::filename).containsExactlyInAnyOrder(expectedFile);
     }
 
-    private void verifySecondaryAnalysis(final String extension, final String indexExtension)
+    private void verifySecondaryAnalysis(final String extension, final String indexExtension, final String namespace)
             throws com.fasterxml.jackson.core.JsonProcessingException {
         when(state.status()).thenReturn(PipelineStatus.SUCCESS);
-        Blob tumorBamBlob = withBucketAndMd5(blob(TestInputs.tumorSample() + "/aligner/" + TestInputs.tumorSample() + "." + extension));
+        Blob tumorBamBlob =
+                withBucketAndMd5(blob(TestInputs.tumorSample() + "/" + namespace + "/" + TestInputs.tumorSample() + "." + extension));
         Blob tumorBaiBlob = withBucketAndMd5(blob(
-                TestInputs.tumorSample() + "/aligner/" + TestInputs.tumorSample() + "." + extension + "." + indexExtension));
-        Blob refBamBlob = withBucketAndMd5(blob(TestInputs.tumorSample() + "/aligner/" + TestInputs.referenceSample() + "." + extension));
+                TestInputs.tumorSample() + "/" + namespace + "/" + TestInputs.tumorSample() + "." + extension + "." + indexExtension));
+        Blob refBamBlob =
+                withBucketAndMd5(blob(TestInputs.tumorSample() + "/" + namespace + "/" + TestInputs.referenceSample() + "." + extension));
         Blob refBaiBlob = withBucketAndMd5(blob(
-                TestInputs.tumorSample() + "/aligner/" + TestInputs.referenceSample() + "." + extension + "." + indexExtension));
+                TestInputs.tumorSample() + "/" + namespace + "/" + TestInputs.referenceSample() + "." + extension + "." + indexExtension));
         Page<Blob> page = pageOf(tumorBamBlob, tumorBaiBlob, refBamBlob, refBaiBlob);
         ArgumentCaptor<PubsubMessage> messageArgumentCaptor = publish(page);
 
