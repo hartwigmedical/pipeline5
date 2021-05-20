@@ -15,13 +15,13 @@ The software has been developed according to a software development SOP (HMF-PRO
 Name: OncoAct
 Version: 5.22
 Type of release: Major
-Tracebility Matrix: IVDD-241 OncoAct requirements
+Tracebility Matrix: IVDD-241 OncoAct requirements v1.0
 
 ## Features
-- Add CUPPA
-- Add PEACH
-- Add VIRUSBreakend
-- Upgrade GRIDSS to 2.11
+- Add CUPPA 1.4
+- Add PEACH 1.0
+- Add VIRUSBreakend 2.11.1
+- Upgrade GRIDSS to 2.11.1
 - Upgrade PROTECT to 1.3
 - Upgrade LINX to 1.15
 - Upgrade PURPLE to 2.54
@@ -30,11 +30,15 @@ Tracebility Matrix: IVDD-241 OncoAct requirements
 - Move data archiving out of pipeline and into external component
 
 ## Bug Fixes
+- LINX now produces all output files when nothing is called
 
 ## Resource Updates
+- Update Germline Whitelist/Blacklist
+- Fix NA chromosome and positions affecting HG38 BEDPE
+- Update SAGE known somatic hotspots to SERVE 1.2
 
 ## Known residual anomalies
-All known residual anomalies have been evaluated and it is concluded that they do not contribute to unaccdptable risk. The anomalies can be found below:
+All known residual anomalies have been evaluated and it is concluded that they do not contribute to unacceptable risk. The anomalies can be found below:
 
 **No residual anomalies**
 
