@@ -26,18 +26,24 @@ echo You must have sufficient permissions in ${DEST_PROJECT}
 echo
 echo 'If you ARE NOT currently doing a PRODUCTION upgrade maybe you should not be running this script!'
 echo
-read -p "Continue [Y|n]? " response
-[[ $response != 'y' && $response != 'Y' && $response != '' ]] && echo "Aborting at user request" && exit 1
-
-set -e
+read -p "Continue [y|N]? " response
+[[ $response != 'y' && $response != 'Y' ]] && echo "Aborting at user request" && exit 1
 
 gcloud compute instances create $imager_vm --description="Instance for private pipeline5 disk image creation" \
     --zone=${ZONE} --boot-disk-size 200 --boot-disk-type pd-ssd --machine-type n1-highcpu-2 \
     --image-project=$IMAGE_SOURCE_PROJECT --image=$source_image --scopes=default,cloud-source-repos-ro \
-    --project=$DEST_PROJECT --service-account=$DEST_SERVICE_ACCOUNT
+    --project=$DEST_PROJECT --service-account=$DEST_SERVICE_ACCOUNT || exit 1
 
-sleep 20
 ssh="gcloud compute ssh $imager_vm --zone=$ZONE --project=$DEST_PROJECT --tunnel-through-iap"
+echo "Polling for active instance"
+while true; do
+    sleep 1
+    $ssh --command="exit 0"
+    [[ $? -eq 0 ]] && break
+done
+echo "Instance running, continuing with imaging"
+
+set -e
 $ssh --command="sudo mkdir /tmp/resources"
 $ssh --command="sudo gcloud source repos clone common-resources-private /tmp/resources --project=$SOURCE_REPO_PROJECT"
 $ssh --command="sudo rm -r /tmp/resources/.git"
