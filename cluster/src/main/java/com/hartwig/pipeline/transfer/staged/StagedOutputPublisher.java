@@ -22,13 +22,17 @@ import com.hartwig.events.PipelineOutputBlob;
 import com.hartwig.events.PipelineStaged;
 import com.hartwig.pipeline.PipelineState;
 import com.hartwig.pipeline.StageOutput;
-import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
+import com.hartwig.pipeline.alignment.Aligner;
+import com.hartwig.pipeline.calling.germline.GermlineCaller;
+import com.hartwig.pipeline.cram.CramConversion;
 import com.hartwig.pipeline.datatypes.DataType;
-import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.PipelineStatus;
+import com.hartwig.pipeline.flagstat.Flagstat;
 import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.MD5s;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
+import com.hartwig.pipeline.metrics.BamMetrics;
+import com.hartwig.pipeline.snpgenotype.SnpGenotype;
 import com.hartwig.pipeline.tools.Versions;
 import com.hartwig.pipeline.transfer.OutputIterator;
 
@@ -70,13 +74,14 @@ public class StagedOutputPublisher {
                 if (isSecondary(blobWithMd5)) {
                     secondaryAnalysisEvent.addBlobs(builderWithPathComponents(sampleName,
                             metadata.reference().sampleName(),
-                            blobWithMd5.getName()).datatype(dataType.map(Object::toString)).barcode(metadata.barcode())
+                            blobWithMd5.getName()).datatype(dataType.map(Object::toString))
+                            .barcode(metadata.barcode())
                             .bucket(blobWithMd5.getBucket())
                             .filesize(blobWithMd5.getSize())
                             .hash(MD5s.asHex(blobWithMd5.getMd5()))
                             .build());
                 } else {
-                    if (isGermline(blobWithMd5, metadata.reference().sampleName())) {
+                    if (isGermline(blobWithMd5)) {
                         germlineAnalysisEvent.addBlobs(builderWithPathComponents(metadata.tumor().sampleName(),
                                 metadata.reference().sampleName(),
                                 blobWithMd5.getName()).datatype(dataType.map(Object::toString))
@@ -116,13 +121,16 @@ public class StagedOutputPublisher {
     }
 
     public boolean isSecondary(final Blob blobWithMd5) {
-        return FileTypes.isBam(blobWithMd5.getName()) || FileTypes.isBai(blobWithMd5.getName()) || FileTypes.isCram(blobWithMd5.getName())
-                || FileTypes.isCrai(blobWithMd5.getName());
+        return InNamespace.of(Aligner.NAMESPACE)
+                .or(InNamespace.of(CramConversion.NAMESPACE))
+                .or(InNamespace.of(BamMetrics.NAMESPACE))
+                .or(InNamespace.of(SnpGenotype.NAMESPACE))
+                .or(InNamespace.of(Flagstat.NAMESPACE))
+                .test(blobWithMd5);
     }
 
-    private boolean isGermline(final Blob blobWithMd5, final String sample) {
-        String germlineVcf = GermlineCallerOutput.outputFile(sample).fileName();
-        return blobWithMd5.getName().endsWith(germlineVcf) || blobWithMd5.getName().endsWith(FileTypes.tabixIndex(germlineVcf));
+    private boolean isGermline(final Blob blobWithMd5) {
+        return InNamespace.of(GermlineCaller.NAMESPACE).test(blobWithMd5);
     }
 
     public void publish(final PipelineStaged event) {
