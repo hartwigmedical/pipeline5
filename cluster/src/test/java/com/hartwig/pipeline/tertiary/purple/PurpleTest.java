@@ -18,6 +18,7 @@ import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
+import org.junit.Before;
 import org.junit.Test;
 
 public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
@@ -30,7 +31,7 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
     public static final String TUMOR_SOMATIC_DRIVER_CATALOG = "tumor.driver.catalog.somatic.tsv";
     public static final String TUMOR_GERMLINE_DRIVER_CATALOG = "tumor.driver.catalog.germline.tsv";
 
-    @Befor
+    @Before
     public void setUp() throws Exception {
         super.setUp();
     }

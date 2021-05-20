@@ -62,6 +62,11 @@ public class StartingPoint {
                         Protect.NAMESPACE,
                         HealthChecker.NAMESPACE))),
 
+        GRIPSS_PURPLE_LINX(concat(GRIPSS_COMPLETE.namespaces, List.of(Chord.NAMESPACE,
+                Bachelor.NAMESPACE,
+                Protect.NAMESPACE,
+                HealthChecker.NAMESPACE))),
+
         RERUN_521(concat(ALIGNMENT_COMPLETE.namespaces,
                 List.of(SageSomaticCaller.NAMESPACE,
                         StructuralCaller.NAMESPACE,
