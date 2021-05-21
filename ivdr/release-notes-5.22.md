@@ -1,6 +1,3 @@
-# Release notes format IVDR
-This format should be used for the release notes for IVDR releases.
-
 # Release Notes OncoAct
 
 ## Purpose & Scope
