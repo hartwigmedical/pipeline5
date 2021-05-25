@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.google.cloud.storage.Blob;
 import com.google.common.collect.ImmutableList;
+import com.hartwig.events.Analysis;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.execution.PipelineStatus;
@@ -45,7 +46,8 @@ public class HealthChecker implements Stage<HealthCheckOutput, SomaticRunMetadat
             FlagstatOutput referenceFlagstatOutput, FlagstatOutput tumorFlagstatOutput, PurpleOutput purpleOutput) {
         referenceMetricsDownload = new InputDownload(referenceMetricsOutput.metricsOutputFile(), localMetricsPath(referenceMetricsOutput));
         tumorMetricsDownload = new InputDownload(tumorMetricsOutput.metricsOutputFile(), localMetricsPath(tumorMetricsOutput));
-        referenceFlagstatDownload = new InputDownload(referenceFlagstatOutput.flagstatOutputFile(), localFlagstatPath(referenceFlagstatOutput));
+        referenceFlagstatDownload =
+                new InputDownload(referenceFlagstatOutput.flagstatOutputFile(), localFlagstatPath(referenceFlagstatOutput));
         tumorFlagstatDownload = new InputDownload(tumorFlagstatOutput.flagstatOutputFile(), localFlagstatPath(tumorFlagstatOutput));
         purpleDownload = new InputDownload(purpleOutput.outputLocations().outputDirectory(), LOCAL_PURPLE_DIR);
     }
@@ -103,7 +105,8 @@ public class HealthChecker implements Stage<HealthCheckOutput, SomaticRunMetadat
 
     @Override
     public boolean shouldRun(final Arguments arguments) {
-        return arguments.runTertiary() && !arguments.shallow() && arguments.biopsy().isEmpty();
+        return arguments.runTertiary() && !arguments.shallow() && arguments.biopsy().isEmpty() && !arguments.analysisContext()
+                .equals(Analysis.Context.RESEARCH);
     }
 
     @NotNull
