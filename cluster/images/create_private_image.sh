@@ -50,6 +50,6 @@ $ssh --command="sudo rm -r /tmp/resources/.git"
 $ssh --command="cd /tmp/resources; sudo tar -C /tmp/resources -cf - * | sudo tar -C /opt/resources -xv"
 
 gcloud compute instances stop $imager_vm --zone=${ZONE} --project=$DEST_PROJECT
-gcloud compute images create $source_image --family=$image_family --source-disk=$imager_vm --source-disk-zone=$ZONE \
+gcloud compute images create ${source_image}-private --family=$image_family --source-disk=$imager_vm --source-disk-zone=$ZONE \
     --storage-location=$LOCATION --project=$DEST_PROJECT
 gcloud compute instances -q delete $imager_vm --zone=$ZONE --project=$DEST_PROJECT
