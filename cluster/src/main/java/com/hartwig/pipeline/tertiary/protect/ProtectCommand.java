@@ -45,7 +45,6 @@ public class ProtectCommand extends JavaJarCommand {
                         "-linx_driver_catalog_tsv",
                         linxDriversTsvPath,
                         "-chord_prediction_txt",
-                        chordPredictionPath,
-                        "-log_debug"));
+                        chordPredictionPath));
     }
 }
