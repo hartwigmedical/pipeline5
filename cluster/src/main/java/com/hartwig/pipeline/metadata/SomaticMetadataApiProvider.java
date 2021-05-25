@@ -54,7 +54,13 @@ public class SomaticMetadataApiProvider {
                 api.sets(),
                 biopsyName,
                 arguments,
-                new StagedOutputPublisher(api.sets(), sourceBucket, publisher, objectMapper, new Run(), Context.RESEARCH),
+                new StagedOutputPublisher(api.sets(),
+                        sourceBucket,
+                        publisher,
+                        objectMapper,
+                        new Run(),
+                        Context.RESEARCH,
+                        arguments.outputCram()),
                 new Anonymizer(arguments));
     }
 
@@ -66,7 +72,13 @@ public class SomaticMetadataApiProvider {
         return new DiagnosticSomaticMetadataApi(run,
                 api.runs(),
                 api.samples(),
-                new StagedOutputPublisher(api.sets(), sourceBucket, publisher, objectMapper, run, arguments.analysisContext()),
+                new StagedOutputPublisher(api.sets(),
+                        sourceBucket,
+                        publisher,
+                        objectMapper,
+                        run,
+                        arguments.analysisContext(),
+                        arguments.outputCram()),
                 new Anonymizer(arguments));
     }
 }

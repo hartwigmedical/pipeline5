@@ -73,7 +73,7 @@ public class ResearchMetadataApiTest {
                 setApi,
                 BIOPSY,
                 Arguments.testDefaults(),
-                new StagedOutputPublisher(setApi, bucket, publisher, objectMapper, new Run(), Context.RESEARCH),
+                new StagedOutputPublisher(setApi, bucket, publisher, objectMapper, new Run(), Context.RESEARCH, false),
                 new Anonymizer(Arguments.testDefaults()));
     }
 
@@ -119,7 +119,7 @@ public class ResearchMetadataApiTest {
                 setApi,
                 BIOPSY,
                 Arguments.testDefaults(),
-                new StagedOutputPublisher(setApi, bucket, publisher, ObjectMappers.get(), new Run(), Context.RESEARCH),
+                new StagedOutputPublisher(setApi, bucket, publisher, ObjectMappers.get(), new Run(), Context.RESEARCH, true),
                 new Anonymizer(Arguments.testDefaultsBuilder().anonymize(true).build()));
         when(sampleApi.list(null, null, null, null, SampleType.TUMOR, BIOPSY)).thenReturn(List.of(tumor()));
         when(setApi.list(null, TUMOR_SAMPLE_ID, true)).thenReturn(List.of(new SampleSet().name(SET_NAME).id(SET_ID)));

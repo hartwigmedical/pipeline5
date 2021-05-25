@@ -58,7 +58,7 @@ public class StagedOutputPublisherTest {
                 publisher,
                 OBJECT_MAPPER,
                 new Run().ini(Ini.SOMATIC_INI.getValue()),
-                Context.DIAGNOSTIC);
+                Context.DIAGNOSTIC, true);
     }
 
     @Test
@@ -70,6 +70,12 @@ public class StagedOutputPublisherTest {
 
     @Test
     public void publishesDnaSecondaryAnalysisOnBam() throws Exception {
+        victim = new StagedOutputPublisher(setApi,
+                bucket,
+                publisher,
+                OBJECT_MAPPER,
+                new Run().ini(Ini.SOMATIC_INI.getValue()),
+                Context.DIAGNOSTIC, false);
         verifySecondaryAnalysis("bam", "bai", "aligner");
     }
 

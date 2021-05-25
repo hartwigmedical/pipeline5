@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.transfer.staged;
 
+import static java.util.function.Predicate.not;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -46,15 +48,17 @@ public class StagedOutputPublisher {
     private final ObjectMapper objectMapper;
     private final Run run;
     private final Analysis.Context context;
+    private final boolean stageCrams;
 
     public StagedOutputPublisher(final SetApi setApi, final Bucket sourceBucket, final Publisher publisher, final ObjectMapper objectMapper,
-            final Run run, final Analysis.Context target) {
+            final Run run, final Analysis.Context target, final boolean stageCrams) {
         this.setApi = setApi;
         this.sourceBucket = sourceBucket;
         this.publisher = publisher;
         this.objectMapper = objectMapper;
         this.run = run;
         this.context = target;
+        this.stageCrams = stageCrams;
     }
 
     public void publish(final PipelineState state, final SomaticRunMetadata metadata) {
@@ -90,7 +94,7 @@ public class StagedOutputPublisher {
                                 .filesize(blobWithMd5.getSize())
                                 .hash(MD5s.asHex(blobWithMd5.getMd5()))
                                 .build());
-                    } else {
+                    } else if (notSecondary(blobWithMd5)) {
                         tertiaryAnalysisEvent.addBlobs(builderWithPathComponents(metadata.tumor().sampleName(),
                                 metadata.reference().sampleName(),
                                 blobWithMd5.getName()).datatype(dataType.map(Object::toString))
@@ -120,10 +124,10 @@ public class StagedOutputPublisher {
                 .setId(set.getId());
     }
 
-    public boolean isSecondary(final Blob blobWithMd5) {
-        return InNamespace.of(Aligner.NAMESPACE)
-                .or(InNamespace.of(CramConversion.NAMESPACE))
-                .or(InNamespace.of(BamMetrics.NAMESPACE))
+    private boolean isSecondary(final Blob blobWithMd5) {
+        return (stageCrams
+                ? InNamespace.of(CramConversion.NAMESPACE)
+                : InNamespace.of(Aligner.NAMESPACE)).or(InNamespace.of(BamMetrics.NAMESPACE))
                 .or(InNamespace.of(SnpGenotype.NAMESPACE))
                 .or(InNamespace.of(Flagstat.NAMESPACE))
                 .test(blobWithMd5);
@@ -131,6 +135,10 @@ public class StagedOutputPublisher {
 
     private boolean isGermline(final Blob blobWithMd5) {
         return InNamespace.of(GermlineCaller.NAMESPACE).test(blobWithMd5);
+    }
+
+    private boolean notSecondary(final Blob blobWithMd5) {
+        return not(InNamespace.of(CramConversion.NAMESPACE)).and(not(InNamespace.of(Aligner.NAMESPACE))).test(blobWithMd5);
     }
 
     public void publish(final PipelineStaged event) {
