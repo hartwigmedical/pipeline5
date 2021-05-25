@@ -32,7 +32,7 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
     private final InputDownload purpleSomaticVcfDownload;
     private final InputDownload purpleStructuralVcfDownload;
     private final InputDownload purpleOutputDirectory;
-    private final InputDownload linxOutputDirectory;
+    private final LinxOutput linxOutput;
 
     private final ResourceFiles resourceFiles;
 
@@ -40,13 +40,13 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
         purpleSomaticVcfDownload = new InputDownload(purpleOutput.outputLocations().somaticVcf());
         purpleStructuralVcfDownload = new InputDownload(purpleOutput.outputLocations().structuralVcf());
         purpleOutputDirectory = new InputDownload(purpleOutput.outputLocations().outputDirectory());
-        linxOutputDirectory = new InputDownload(linxOutput.linxOutputLocations().outputDirectory());
+        this.linxOutput = linxOutput;
         this.resourceFiles = resourceFiles;
     }
 
     @Override
     public List<BashCommand> inputs() {
-        return List.of(purpleSomaticVcfDownload, purpleStructuralVcfDownload, purpleOutputDirectory, linxOutputDirectory);
+        return List.of(purpleSomaticVcfDownload, purpleStructuralVcfDownload, purpleOutputDirectory, linxOutputDownload());
     }
 
     @Override
@@ -67,7 +67,7 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
                                 "-sample_data",
                                 metadata.tumor().sampleName(),
                                 "-sample_data_dir",
-                                linxOutputDirectory.getLocalTargetPath(),
+                                linxOutputDownload().getLocalTargetPath(),
                                 "-sample_sv_file",
                                 purpleStructuralVcfDownload.getLocalTargetPath(),
                                 "-sample_somatic_vcf",
@@ -84,6 +84,10 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
                                 VmDirectories.outputFile(format("%s.cup.data.csv", metadata.tumor().sampleName())),
                                 "-output_dir",
                                 VmDirectories.OUTPUT)));
+    }
+
+    private InputDownload linxOutputDownload() {
+        return new InputDownload(linxOutput.linxOutputLocations().outputDirectory());
     }
 
     @Override
