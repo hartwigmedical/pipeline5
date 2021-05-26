@@ -17,6 +17,10 @@ source_image="$1"
 json="$(gcloud compute images describe $source_image --project=$IMAGE_SOURCE_PROJECT --format=json)"
 [[ $? -ne 0 ]] && echo "Unable to find image $source_image in $IMAGE_SOURCE_PROJECT" && exit 1
 
+dest_image="$(echo $source_image | sed 's/-[0-9]*$//')-private"
+gcloud compute images describe $dest_image --project=$DEST_PROJECT >/dev/null 2>&1
+[[ $? -eq 0 ]] && echo "$dest_image exists in project $DEST_PROJECT!" && exit 1
+
 image_family="$(echo $json | jq -r '.family')"
 imager_vm="${image_family}-imager"
 
@@ -50,6 +54,6 @@ $ssh --command="sudo rm -r /tmp/resources/.git"
 $ssh --command="cd /tmp/resources; sudo tar -C /tmp/resources -cf - * | sudo tar -C /opt/resources -xv"
 
 gcloud compute instances stop $imager_vm --zone=${ZONE} --project=$DEST_PROJECT
-gcloud compute images create $source_image --family=$image_family --source-disk=$imager_vm --source-disk-zone=$ZONE \
+gcloud compute images create $dest_image --family=$image_family --source-disk=$imager_vm --source-disk-zone=$ZONE \
     --storage-location=$LOCATION --project=$DEST_PROJECT
 gcloud compute instances -q delete $imager_vm --zone=$ZONE --project=$DEST_PROJECT
