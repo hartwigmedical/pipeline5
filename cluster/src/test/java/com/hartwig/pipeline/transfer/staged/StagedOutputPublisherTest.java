@@ -58,7 +58,9 @@ public class StagedOutputPublisherTest {
                 publisher,
                 OBJECT_MAPPER,
                 new Run().ini(Ini.SOMATIC_INI.getValue()),
-                Context.DIAGNOSTIC, true);
+                Context.DIAGNOSTIC,
+                true,
+                false);
     }
 
     @Test
@@ -75,7 +77,9 @@ public class StagedOutputPublisherTest {
                 publisher,
                 OBJECT_MAPPER,
                 new Run().ini(Ini.SOMATIC_INI.getValue()),
-                Context.DIAGNOSTIC, false);
+                Context.DIAGNOSTIC,
+                false,
+                false);
         verifySecondaryAnalysis("bam", "bai", "aligner");
     }
 
@@ -156,7 +160,7 @@ public class StagedOutputPublisherTest {
         when(bucket.list(Storage.BlobListOption.prefix("set/"))).thenReturn(page);
         ArgumentCaptor<PubsubMessage> messageArgumentCaptor = ArgumentCaptor.forClass(PubsubMessage.class);
         SomaticRunMetadata metadata = TestInputs.defaultSomaticRunMetadata();
-        when(setApi.list(metadata.set(), null, true)).thenReturn(List.of(new SampleSet().id(1L)));
+        when(setApi.list(metadata.set(), null, null)).thenReturn(List.of(new SampleSet().id(1L)));
         //noinspection unchecked
         when(publisher.publish(messageArgumentCaptor.capture())).thenReturn(mock(ApiFuture.class));
         victim.publish(state, metadata);

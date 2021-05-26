@@ -60,7 +60,7 @@ public class SomaticMetadataApiProvider {
                         objectMapper,
                         new Run(),
                         Context.RESEARCH,
-                        arguments.outputCram()),
+                        arguments.outputCram(), true),
                 new Anonymizer(arguments));
     }
 
@@ -78,7 +78,7 @@ public class SomaticMetadataApiProvider {
                         objectMapper,
                         run,
                         arguments.analysisContext(),
-                        arguments.outputCram()),
+                        arguments.outputCram(), false),
                 new Anonymizer(arguments));
     }
 }

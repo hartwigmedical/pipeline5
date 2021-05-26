@@ -49,9 +49,10 @@ public class StagedOutputPublisher {
     private final Run run;
     private final Analysis.Context context;
     private final boolean stageCrams;
+    private final boolean useOnlyDBSets;
 
     public StagedOutputPublisher(final SetApi setApi, final Bucket sourceBucket, final Publisher publisher, final ObjectMapper objectMapper,
-            final Run run, final Analysis.Context target, final boolean stageCrams) {
+            final Run run, final Analysis.Context target, final boolean stageCrams, final boolean useOnlyDBSets) {
         this.setApi = setApi;
         this.sourceBucket = sourceBucket;
         this.publisher = publisher;
@@ -59,13 +60,14 @@ public class StagedOutputPublisher {
         this.run = run;
         this.context = target;
         this.stageCrams = stageCrams;
+        this.useOnlyDBSets = useOnlyDBSets;
     }
 
     public void publish(final PipelineState state, final SomaticRunMetadata metadata) {
         if (state.status() != PipelineStatus.FAILED) {
             List<AddDatatype> addDatatypes =
                     state.stageOutputs().stream().map(StageOutput::datatypes).flatMap(List::stream).collect(Collectors.toList());
-            SampleSet set = OnlyOne.of(setApi.list(metadata.set(), null, true), SampleSet.class);
+            SampleSet set = OnlyOne.of(setApi.list(metadata.set(), null, useOnlyDBSets ? true : null), SampleSet.class);
             String sampleName = metadata.maybeTumor().orElse(metadata.reference()).sampleName();
             ImmutablePipelineStaged.Builder secondaryAnalysisEvent = eventBuilder(set, Type.SECONDARY, sampleName);
             ImmutablePipelineStaged.Builder tertiaryAnalysisEvent = eventBuilder(set, Type.TERTIARY, sampleName);
