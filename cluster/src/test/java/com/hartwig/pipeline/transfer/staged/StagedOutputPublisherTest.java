@@ -93,7 +93,7 @@ public class StagedOutputPublisherTest {
         when(state.status()).thenReturn(PipelineStatus.SUCCESS);
         Blob vcf = withBucketAndMd5(blob("/sage/" + TestInputs.tumorSample() + ".vcf"));
         Page<Blob> page = pageOf(vcf);
-        ArgumentCaptor<PubsubMessage> messageArgumentCaptor = publish(page);
+        ArgumentCaptor<PubsubMessage> messageArgumentCaptor = publish(page, TestInputs.defaultSomaticRunMetadata());
 
         PipelineStaged result =
                 OBJECT_MAPPER.readValue(new String(messageArgumentCaptor.getValue().getData().toByteArray()), PipelineStaged.class);
@@ -107,6 +107,16 @@ public class StagedOutputPublisherTest {
     }
 
     @Test
+    public void usesReferenceSampleWhenNoTumor() throws Exception {
+        when(state.status()).thenReturn(PipelineStatus.SUCCESS);
+        Blob vcf = withBucketAndMd5(blob("/germline_caller/" + TestInputs.referenceSample() + "reference.germline.vcf.gz"));
+        Page<Blob> page = pageOf(vcf);
+        ArgumentCaptor<PubsubMessage> published = publish(page, TestInputs.defaultSingleSampleRunMetadata());
+        PipelineStaged result = OBJECT_MAPPER.readValue(new String(published.getValue().getData().toByteArray()), PipelineStaged.class);
+        assertThat(result.sample()).isEqualTo("reference");
+    }
+
+    @Test
     public void publishesGermlineTertiaryAnalysisOnGermlineVcfIndex() throws Exception {
         verifyGermline(".germline.vcf.gz.tbi", "reference.germline.vcf.gz.tbi");
     }
@@ -115,7 +125,7 @@ public class StagedOutputPublisherTest {
         when(state.status()).thenReturn(PipelineStatus.SUCCESS);
         Blob vcf = withBucketAndMd5(blob("/germline_caller/" + TestInputs.referenceSample() + filename));
         Page<Blob> page = pageOf(vcf);
-        ArgumentCaptor<PubsubMessage> messageArgumentCaptor = publish(page);
+        ArgumentCaptor<PubsubMessage> messageArgumentCaptor = publish(page, TestInputs.defaultSomaticRunMetadata());
 
         PipelineStaged result =
                 OBJECT_MAPPER.readValue(new String(messageArgumentCaptor.getValue().getData().toByteArray()), PipelineStaged.class);
@@ -135,7 +145,7 @@ public class StagedOutputPublisherTest {
         Blob refBaiBlob = withBucketAndMd5(blob(
                 TestInputs.tumorSample() + "/" + namespace + "/" + TestInputs.referenceSample() + "." + extension + "." + indexExtension));
         Page<Blob> page = pageOf(tumorBamBlob, tumorBaiBlob, refBamBlob, refBaiBlob);
-        ArgumentCaptor<PubsubMessage> messageArgumentCaptor = publish(page);
+        ArgumentCaptor<PubsubMessage> messageArgumentCaptor = publish(page, TestInputs.defaultSomaticRunMetadata());
 
         PipelineStaged result =
                 OBJECT_MAPPER.readValue(new String(messageArgumentCaptor.getValue().getData().toByteArray()), PipelineStaged.class);
@@ -156,10 +166,9 @@ public class StagedOutputPublisherTest {
         return blob;
     }
 
-    private ArgumentCaptor<PubsubMessage> publish(final Page<Blob> page) {
+    private ArgumentCaptor<PubsubMessage> publish(final Page<Blob> page, final SomaticRunMetadata metadata) {
         when(bucket.list(Storage.BlobListOption.prefix("set/"))).thenReturn(page);
         ArgumentCaptor<PubsubMessage> messageArgumentCaptor = ArgumentCaptor.forClass(PubsubMessage.class);
-        SomaticRunMetadata metadata = TestInputs.defaultSomaticRunMetadata();
         when(setApi.list(metadata.set(), null, null)).thenReturn(List.of(new SampleSet().id(1L)));
         //noinspection unchecked
         when(publisher.publish(messageArgumentCaptor.capture())).thenReturn(mock(ApiFuture.class));

@@ -88,7 +88,7 @@ public class StagedOutputPublisher {
                             .build());
                 } else {
                     if (isGermline(blobWithMd5)) {
-                        germlineAnalysisEvent.addBlobs(builderWithPathComponents(metadata.tumor().sampleName(),
+                        germlineAnalysisEvent.addBlobs(builderWithPathComponents(sampleName,
                                 metadata.reference().sampleName(),
                                 blobWithMd5.getName()).datatype(dataType.map(Object::toString))
                                 .barcode(metadata.barcode())
@@ -97,7 +97,7 @@ public class StagedOutputPublisher {
                                 .hash(MD5s.asHex(blobWithMd5.getMd5()))
                                 .build());
                     } else if (notSecondary(blobWithMd5)) {
-                        tertiaryAnalysisEvent.addBlobs(builderWithPathComponents(metadata.tumor().sampleName(),
+                        tertiaryAnalysisEvent.addBlobs(builderWithPathComponents(sampleName,
                                 metadata.reference().sampleName(),
                                 blobWithMd5.getName()).datatype(dataType.map(Object::toString))
                                 .barcode(metadata.barcode())
