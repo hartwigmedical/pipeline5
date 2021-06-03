@@ -27,7 +27,6 @@ import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.calling.germline.GermlineCaller;
 import com.hartwig.pipeline.cram.CramConversion;
-import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.flagstat.Flagstat;
 import com.hartwig.pipeline.metadata.AddDatatype;
@@ -74,37 +73,16 @@ public class StagedOutputPublisher {
             ImmutablePipelineStaged.Builder germlineAnalysisEvent = eventBuilder(set, Type.GERMLINE, sampleName);
 
             OutputIterator.from(blob -> {
-                Optional<DataType> dataType =
-                        addDatatypes.stream().filter(d -> blob.getName().endsWith(d.path())).map(AddDatatype::dataType).findFirst();
+                String blobPath  = blob.getName();
+                Optional<AddDatatype> dataType = addDatatypes.stream().filter(d -> blob.getName().endsWith(d.path())).findFirst();
                 Blob blobWithMd5 = sourceBucket.get(blob.getName());
                 if (isSecondary(blobWithMd5)) {
-                    secondaryAnalysisEvent.addBlobs(builderWithPathComponents(sampleName,
-                            metadata.reference().sampleName(),
-                            blobWithMd5.getName()).datatype(dataType.map(Object::toString))
-                            .barcode(metadata.barcode())
-                            .bucket(blobWithMd5.getBucket())
-                            .filesize(blobWithMd5.getSize())
-                            .hash(MD5s.asHex(blobWithMd5.getMd5()))
-                            .build());
+                    secondaryAnalysisEvent.addBlobs(createBlob(metadata, sampleName, dataType, blobWithMd5));
                 } else {
                     if (isGermline(blobWithMd5)) {
-                        germlineAnalysisEvent.addBlobs(builderWithPathComponents(sampleName,
-                                metadata.reference().sampleName(),
-                                blobWithMd5.getName()).datatype(dataType.map(Object::toString))
-                                .barcode(metadata.barcode())
-                                .bucket(blobWithMd5.getBucket())
-                                .filesize(blobWithMd5.getSize())
-                                .hash(MD5s.asHex(blobWithMd5.getMd5()))
-                                .build());
+                        germlineAnalysisEvent.addBlobs(createBlob(metadata, sampleName, dataType, blobWithMd5));
                     } else if (notSecondary(blobWithMd5)) {
-                        tertiaryAnalysisEvent.addBlobs(builderWithPathComponents(sampleName,
-                                metadata.reference().sampleName(),
-                                blobWithMd5.getName()).datatype(dataType.map(Object::toString))
-                                .barcode(metadata.barcode())
-                                .bucket(blobWithMd5.getBucket())
-                                .filesize(blobWithMd5.getSize())
-                                .hash(MD5s.asHex(blobWithMd5.getMd5()))
-                                .build());
+                        tertiaryAnalysisEvent.addBlobs(createBlob(metadata, sampleName, dataType, blobWithMd5));
                     }
                 }
             }, sourceBucket).iterate(metadata);
@@ -112,6 +90,17 @@ public class StagedOutputPublisher {
             publish(tertiaryAnalysisEvent.build());
             publish(germlineAnalysisEvent.build());
         }
+    }
+
+    private static PipelineOutputBlob createBlob(final SomaticRunMetadata metadata, final String sampleName,
+            @SuppressWarnings("OptionalUsedAsFieldOrParameterType") final Optional<AddDatatype> dataType, final Blob blobWithMd5) {
+        return builderWithPathComponents(sampleName, metadata.reference().sampleName(), blobWithMd5.getName()).datatype(dataType.map(
+                AddDatatype::dataType).map(Object::toString))
+                .barcode(dataType.map(AddDatatype::barcode))
+                .bucket(blobWithMd5.getBucket())
+                .filesize(blobWithMd5.getSize())
+                .hash(MD5s.asHex(blobWithMd5.getMd5()))
+                .build();
     }
 
     @NotNull

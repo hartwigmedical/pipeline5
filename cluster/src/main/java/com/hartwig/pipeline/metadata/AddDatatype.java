@@ -32,6 +32,10 @@ public class AddDatatype {
         return datatype;
     }
 
+    public String barcode() {
+        return barcode;
+    }
+
     @Override
     public String toString() {
         return format("add datatype [%s] to [%s]", datatype, path);

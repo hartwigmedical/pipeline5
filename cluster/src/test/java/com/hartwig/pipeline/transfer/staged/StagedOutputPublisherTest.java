@@ -29,9 +29,14 @@ import com.hartwig.events.Analysis.Type;
 import com.hartwig.events.PipelineOutputBlob;
 import com.hartwig.events.PipelineStaged;
 import com.hartwig.pipeline.PipelineState;
+import com.hartwig.pipeline.StageOutput;
+import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.jackson.ObjectMappers;
+import com.hartwig.pipeline.metadata.AddDatatype;
+import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
+import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Before;
@@ -119,6 +124,23 @@ public class StagedOutputPublisherTest {
     @Test
     public void publishesGermlineTertiaryAnalysisOnGermlineVcfIndex() throws Exception {
         verifyGermline(".germline.vcf.gz.tbi", "reference.germline.vcf.gz.tbi");
+    }
+
+    @Test
+    public void usesDatatypeAndBarcodeWhenFileMatched() throws Exception {
+        when(state.status()).thenReturn(PipelineStatus.SUCCESS);
+        String path = TestInputs.referenceSample() + "/germline_caller/reference.germline.vcf.gz";
+        Blob vcf = withBucketAndMd5(blob(path));
+        Page<Blob> page = pageOf(vcf);
+        StageOutput stageOutput = mock(StageOutput.class);
+        when(stageOutput.datatypes()).thenReturn(List.of(new AddDatatype(DataType.GERMLINE_VARIANTS,
+                "barcode",
+                new ArchivePath(Folder.from(TestInputs.referenceRunMetadata()), "germline_caller", "reference.germline.vcf.gz"))));
+        when(state.stageOutputs()).thenReturn(List.of(stageOutput));
+        ArgumentCaptor<PubsubMessage> published = publish(page, TestInputs.defaultSingleSampleRunMetadata());
+        PipelineStaged result = OBJECT_MAPPER.readValue(new String(published.getValue().getData().toByteArray()), PipelineStaged.class);
+        assertThat(result.blobs().get(0).datatype()).hasValue("GERMLINE_VARIANTS");
+        assertThat(result.blobs().get(0).barcode()).hasValue("barcode");
     }
 
     public void verifyGermline(final String filename, final String expectedFile) throws com.fasterxml.jackson.core.JsonProcessingException {
