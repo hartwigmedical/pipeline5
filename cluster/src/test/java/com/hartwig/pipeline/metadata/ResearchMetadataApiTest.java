@@ -143,7 +143,7 @@ public class ResearchMetadataApiTest {
         assertThat(result.sample()).isEqualTo("tumor");
         assertThat(result.version()).isEqualTo("local-SNAPSHOT");
         PipelineOutputBlob blobResult = result.blobs().get(0);
-        assertThat(blobResult.barcode()).hasValue("tumor");
+        assertThat(blobResult.barcode()).isEmpty();
         assertThat(blobResult.bucket()).isEqualTo("bucket");
         assertThat(blobResult.datatype()).isEmpty();
         assertThat(blobResult.root()).isEqualTo("set");
