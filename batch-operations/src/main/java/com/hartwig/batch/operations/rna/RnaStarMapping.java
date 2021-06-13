@@ -59,8 +59,11 @@ public class RnaStarMapping implements BatchOperation {
 
         final String sampleId = batchItems[0];
         final RefGenomeVersion refGenomeVersion = batchItems.length >= 2 ? RefGenomeVersion.valueOf(batchItems[1]) : V37;
+        final String sampleBucket = batchItems[2];
 
-        if(batchItems.length >= 3) {
+        /*
+        if(batchItems.length >= 3)
+        {
             final String fastqFilelist = batchItems[2];
 
             final List<String> sampleFastqFiles = getSampleFastqFileList(sampleId, fastqFilelist);
@@ -82,6 +85,10 @@ public class RnaStarMapping implements BatchOperation {
             final String sampleFastqFiles = String.format("gs://%s-rna-reads/1.3/*.fastq.gz", sampleId.toLowerCase());
             startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s %s", sampleFastqFiles, VmDirectories.INPUT));
         }
+        */
+
+        final String sampleFastqFiles = String.format("%s/*.fastq.gz", sampleBucket);
+        startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s %s", sampleFastqFiles, VmDirectories.INPUT));
 
         // locate the FASTQ files for reads 1 and 2
         final String r1Files = format("$(ls %s/*_R1* | tr '\\n' ',')", VmDirectories.INPUT);
@@ -139,18 +146,16 @@ public class RnaStarMapping implements BatchOperation {
         startupScript.addCommand(() -> format("mv %s %s", starStats, statsFile));
 
         // run QC stats on the fast-Qs as well
-        /*
-        final String fastqcOutputDir = format("%s/fastqc", VmDirectories.OUTPUT);
-        startupScript.addCommand(() -> format("mkdir %s", fastqcOutputDir));
+        //final String fastqcOutputDir = format("%s/fastqc", VmDirectories.OUTPUT);
+        //startupScript.addCommand(() -> format("mkdir %s", fastqcOutputDir));
 
-        final String allFastQs = format("%s/*gz", VmDirectories.INPUT);
-        final String[] fastqcArgs = {"-o", fastqcOutputDir, allFastQs};
+        //final String allFastQs = format("%s/*gz", VmDirectories.INPUT);
+        //final String[] fastqcArgs = {"-o", fastqcOutputDir, allFastQs};
 
         // TEMP until reimage has taken place
         // startupScript.addCommand(() -> format("chmod a+x /opt/tools/fastqc/0.11.4/fastqc"));
 
-        startupScript.addCommand(new VersionedToolCommand("fastqc", "fastqc", "0.11.4", fastqcArgs));
-        */
+        //startupScript.addCommand(new VersionedToolCommand("fastqc", "fastqc", "0.11.4", fastqcArgs));
 
         // upload the results
         startupScript.addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), "star"), executionFlags));

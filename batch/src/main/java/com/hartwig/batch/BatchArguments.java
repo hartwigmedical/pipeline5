@@ -47,6 +47,7 @@ public interface BatchArguments extends CommonArguments {
                     .cmek(commandLine.getOptionValue(CMEK, CommonArguments.DEFAULT_DEVELOPMENT_CMEK))
                     .network(commandLine.getOptionValue(PRIVATE_NETWORK, DEFAULT_NETWORK))
                     .refGenomeVersion(RefGenomeVersion.V37)
+                    .imageProject("hmf-pipeline-development")
                     .build();
         } catch (ParseException e) {
             String message = "Failed to parse arguments";

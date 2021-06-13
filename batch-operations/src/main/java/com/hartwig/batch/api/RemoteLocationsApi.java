@@ -30,7 +30,9 @@ public class RemoteLocationsApi implements RemoteLocations {
     public RemoteLocationsApi(final String billedProject, final String biopsy) {
         this.billedProject = billedProject;
         this.tumor = biopsy;
-        this.reference = tumor.substring(0, tumor.lastIndexOf("T")) + "R";
+
+        this.reference = tumor.contains("T") ?
+                tumor.substring(0, tumor.lastIndexOf("T")) + "R" : tumor;
 
         DatasetApi datasetApi = HmfApi.create(HmfApi.PRODUCTION).datasets();
         dataset = datasetApi.get(tumor, null, null);
