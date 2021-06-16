@@ -21,6 +21,9 @@ import org.junit.Before;
 public class BamMetricsTest extends StageTest<BamMetricsOutput, SingleSampleRunMetadata> {
 
     public static final String REFERENCE_WGSMETRICS = "reference.wgsmetrics";
+    public static final AddDatatype ADD_DATATYPE = new AddDatatype(DataType.WGSMETRICS,
+            TestInputs.referenceRunMetadata().barcode(),
+            new ArchivePath(Folder.from(TestInputs.referenceRunMetadata()), BamMetrics.NAMESPACE, "reference.wgsmetrics"));
 
     @Override
     @Before
@@ -84,12 +87,11 @@ public class BamMetricsTest extends StageTest<BamMetricsOutput, SingleSampleRunM
     @Override
     protected void validatePersistedOutputFromPersistedDataset(final BamMetricsOutput output) {
         assertThat(output.metricsOutputFile()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "bam_metrics/" + REFERENCE_WGSMETRICS));
+        assertThat(output.datatypes()).containsExactly(ADD_DATATYPE);
     }
 
     @Override
     protected List<AddDatatype> expectedFurtherOperations() {
-        return List.of(new AddDatatype(DataType.WGSMETRICS,
-                TestInputs.referenceRunMetadata().barcode(),
-                new ArchivePath(Folder.from(TestInputs.referenceRunMetadata()), BamMetrics.NAMESPACE, "reference.wgsmetrics")));
+        return List.of(ADD_DATATYPE);
     }
 }

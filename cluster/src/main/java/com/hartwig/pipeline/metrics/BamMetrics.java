@@ -98,6 +98,7 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
 
     @Override
     public BamMetricsOutput persistedOutput(final SingleSampleRunMetadata metadata) {
+        String outputFile = BamMetricsOutput.outputFile(metadata.sampleName());
         return BamMetricsOutput.builder()
                 .status(PipelineStatus.PERSISTED)
                 .sample(metadata.sampleName())
@@ -107,6 +108,9 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
                                         metadata.sampleName(),
                                         namespace(),
                                         BamMetricsOutput.outputFile(metadata.sampleName())))))
+                .addDatatypes(new AddDatatype(DataType.WGSMETRICS,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.from(metadata), namespace(), outputFile)))
                 .build();
     }
 }
