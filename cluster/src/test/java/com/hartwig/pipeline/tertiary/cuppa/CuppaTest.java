@@ -41,7 +41,7 @@ public class CuppaTest extends TertiaryStageTest<CuppaOutput> {
     protected List<String> expectedCommands() {
         return List.of("java -Xmx4G -jar /opt/tools/cuppa/1.4/cuppa.jar -categories DNA -ref_data_dir /opt/resources/cuppa/ "
                         + "-sample_data tumor -sample_data_dir /data/input/results -sample_sv_file /data/input/tumor.purple.sv.vcf.gz "
-                        + "-sample_somatic_vcf /data/input/tumor.purple.somatic.vcf.gz -log_debug -output_dir /data/output",
+                        + "-sample_somatic_vcf /data/input/tumor.purple.somatic.vcf.gz -output_dir /data/output",
                 "/opt/tools/cuppa-chart/1.4_venv/bin/python /opt/tools/cuppa-chart/1.4/cuppa-chart.py -sample tumor "
                         + "-sample_data /data/output/tumor.cup.data.csv -output_dir /data/output");
     }

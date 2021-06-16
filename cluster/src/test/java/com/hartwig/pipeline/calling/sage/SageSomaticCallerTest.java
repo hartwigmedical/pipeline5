@@ -14,6 +14,7 @@ import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Before;
+import org.junit.Test;
 
 public class SageSomaticCallerTest extends TertiaryStageTest<SageOutput> {
 
@@ -22,9 +23,16 @@ public class SageSomaticCallerTest extends TertiaryStageTest<SageOutput> {
         super.setUp();
     }
 
+    @Test
+    public void shallowModeUsesHotspotQualOverride() {
+        SageSomaticCaller victim =
+                new SageSomaticCaller(TestInputs.defaultPair(), TestInputs.REF_GENOME_37_RESOURCE_FILES, new NoopPersistedDataset(), true);
+        assertThat(victim.commands(input()).get(1).asBash()).contains("-hotspot_min_tumor_qual 40");
+    }
+
     @Override
     protected Stage<SageOutput, SomaticRunMetadata> createVictim() {
-        return new SageSomaticCaller(TestInputs.defaultPair(), TestInputs.REF_GENOME_37_RESOURCE_FILES, new NoopPersistedDataset());
+        return new SageSomaticCaller(TestInputs.defaultPair(), TestInputs.REF_GENOME_37_RESOURCE_FILES, new NoopPersistedDataset(), false);
     }
 
     @Override

@@ -23,6 +23,7 @@ public class SageCommandBuilder {
     private boolean ponMode = false;
     private boolean somaticMode = true;
     private boolean germlineMode = false;
+    private boolean shallowSomaticMode = false;
     private int tumorSamples = 0;
 
     public SageCommandBuilder(ResourceFiles resourceFiles) {
@@ -65,6 +66,11 @@ public class SageCommandBuilder {
 
     public SageCommandBuilder addCoverage() {
         this.coverage = true;
+        return this;
+    }
+
+    public SageCommandBuilder addShallowSomaticMode() {
+        this.shallowSomaticMode = true;
         return this;
     }
 
@@ -133,6 +139,10 @@ public class SageCommandBuilder {
             throw new IllegalStateException("Must be at least one tumor");
         }
 
+        if (shallowSomaticMode && !somaticMode) {
+            throw new IllegalStateException("Shallow somatic mode enabled while not in shallow mode");
+        }
+
         final String tumorBamFiles = String.join(",", tumorBam);
         arguments.add("-tumor").add(tumor.toString()).add("-tumor_bam").add(tumorBamFiles);
         if (reference.length() > 0) {
@@ -143,9 +153,10 @@ public class SageCommandBuilder {
         if (somaticMode) {
             arguments.add("-hotspots").add(resourceFiles.sageSomaticHotspots());
             arguments.add("-panel_bed").add(resourceFiles.sageSomaticCodingPanel());
-        }
-
-        if (germlineMode) {
+            if (shallowSomaticMode) {
+                arguments.add("-hotspot_min_tumor_qual").add("40");
+            }
+        } else if (germlineMode) {
             arguments.add("-hotspots").add(resourceFiles.sageGermlineHotspots());
             arguments.add("-panel_bed").add(resourceFiles.sageGermlineCodingPanel());
             arguments.add("-hotspot_min_tumor_qual").add("50");
@@ -166,6 +177,7 @@ public class SageCommandBuilder {
         if (panelOnly) {
             arguments.add("-panel_only");
         }
+
         if (coverage) {
             arguments.add("-coverage_bed");
             if (germlineMode) {
@@ -176,7 +188,6 @@ public class SageCommandBuilder {
         }
 
         if (ponMode) {
-
             arguments.add("-hotspots").add(resourceFiles.sageSomaticHotspots());
             arguments.add("-panel_bed").add(resourceFiles.sageSomaticCodingPanel());
 

@@ -15,7 +15,7 @@ The software has been developed according to a software development SOP (HMF-PRO
 Name: OncoAct
 Version: 5.xx
 Type of release: major/minor/hotfix
-Tracebility Matrix: IVDD-241 OncoAct requirements
+Tracebility Matrix: IVDD-241 OncoAct requirements v1.0
 
 ## Features
 

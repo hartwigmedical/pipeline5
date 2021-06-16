@@ -72,7 +72,6 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
                                 purpleStructuralVcfDownload.getLocalTargetPath(),
                                 "-sample_somatic_vcf",
                                 purpleSomaticVcfDownload.getLocalTargetPath(),
-                                "-log_debug",
                                 "-output_dir",
                                 VmDirectories.OUTPUT)),
                 new Python3Command("cuppa-chart",

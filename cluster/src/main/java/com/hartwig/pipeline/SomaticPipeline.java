@@ -84,7 +84,6 @@ public class SomaticPipeline {
     }
 
     public PipelineState run(AlignmentPair pair) {
-
         PipelineState state = new PipelineState();
 
         SomaticRunMetadata metadata = setMetadataApi.get();
@@ -101,7 +100,7 @@ public class SomaticPipeline {
                 Future<VirusBreakendOutput> virusBreakendOutputFuture =
                         executorService.submit(() -> stageRunner.run(metadata, new VirusBreakend(pair, resourceFiles)));
                 Future<SageOutput> sageSomaticOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
-                        new SageSomaticCaller(pair, resourceFiles, persistedDataset)));
+                        new SageSomaticCaller(pair, resourceFiles, persistedDataset, arguments.shallow())));
                 Future<SageOutput> sageGermlineOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                         new SageGermlineCaller(pair, resourceFiles, persistedDataset)));
                 Future<StructuralCallerOutput> structuralCallerOutputFuture = executorService.submit(() -> stageRunner.run(metadata,

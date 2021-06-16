@@ -48,7 +48,7 @@ public class ProtectTest extends TertiaryStageTest<ProtectOutput> {
                         + "-purple_somatic_variant_vcf /data/input/tumor.purple.somatic.vcf.gz -purple_germline_variant_vcf "
                         + "/data/input/tumor.purple.germline.vcf.gz -linx_fusion_tsv /data/input/tumor.linx.fusion.tsv -linx_breakend_tsv "
                         + "/data/input/tumor.linx.breakend.tsv -linx_driver_catalog_tsv /data/input/tumor.linx.driver.catalog.tsv "
-                        + "-chord_prediction_txt /data/input/tumor_chord_prediction.txt -log_debug");
+                        + "-chord_prediction_txt /data/input/tumor_chord_prediction.txt");
     }
 
     @Override
