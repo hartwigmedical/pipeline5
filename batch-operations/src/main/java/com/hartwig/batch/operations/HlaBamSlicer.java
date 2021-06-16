@@ -7,25 +7,16 @@ import static com.hartwig.batch.operations.rna.RnaCommon.RNA_COHORT_LOCATION_V37
 
 import com.hartwig.batch.BatchOperation;
 import com.hartwig.batch.OperationDescriptor;
-import com.hartwig.batch.api.LocalLocations;
-import com.hartwig.batch.api.RemoteLocations;
-import com.hartwig.batch.api.RemoteLocationsApi;
-import com.hartwig.batch.api.RemoteLocationsDecorator;
 import com.hartwig.batch.input.InputBundle;
 import com.hartwig.batch.input.InputFileDescriptor;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.calling.command.VersionedToolCommand;
-import com.hartwig.pipeline.execution.vm.Bash;
-import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.OutputUpload;
 import com.hartwig.pipeline.execution.vm.RuntimeFiles;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
-import com.hartwig.pipeline.resource.RefGenomeVersion;
-import com.hartwig.pipeline.resource.ResourceFiles;
-import com.hartwig.pipeline.resource.ResourceFilesFactory;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tools.Versions;
@@ -33,7 +24,7 @@ import com.hartwig.pipeline.tools.Versions;
 public class HlaBamSlicer implements BatchOperation {
 
     private static final String HLA_BED_FILE = "hla_v37.bed";
-    private static final String HLA_BUCKET = "gs://hla-bams";
+    public static final String HLA_BAMS_BUCKET = "hla-bams";
 
     @Override
     public VirtualMachineJobDefinition execute(final InputBundle inputs, final RuntimeBucket runtimeBucket,
@@ -84,7 +75,7 @@ public class HlaBamSlicer implements BatchOperation {
         commands.addCommand(() -> format("%s/%s index %s/%s", VmDirectories.TOOLS, sambamba, VmDirectories.OUTPUT, slicedSortedBam));
 
         // copy the sliced RNA bam back to the HLA BAM directory
-        final String sampleHlaDir = String.format("%s/%s", HLA_BUCKET, sampleId);
+        final String sampleHlaDir = String.format("gs://%s/%s", HLA_BAMS_BUCKET, sampleId);
         commands.addCommand(() -> format("gsutil -m cp %s/%s* %s", VmDirectories.OUTPUT, slicedSortedBam, sampleHlaDir));
 
         commands.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), "lilac"), executionFlags));

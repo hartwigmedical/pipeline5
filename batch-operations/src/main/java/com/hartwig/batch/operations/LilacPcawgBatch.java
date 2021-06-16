@@ -3,6 +3,10 @@ package com.hartwig.batch.operations;
 import static java.lang.String.format;
 
 import static com.hartwig.batch.operations.HlaBamSlicer.HLA_BAMS_BUCKET;
+import static com.hartwig.batch.operations.LilacBatch.LILAC_BATCH_BUCKET;
+import static com.hartwig.batch.operations.LilacBatch.LILAC_JAR;
+import static com.hartwig.batch.operations.LilacBatch.LILAC_RESOURCES;
+import static com.hartwig.batch.operations.LilacBatch.LILAC_TOOLS;
 
 import java.util.List;
 
@@ -23,7 +27,6 @@ import com.hartwig.pipeline.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.OutputUpload;
 import com.hartwig.pipeline.execution.vm.RuntimeFiles;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
-import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.resource.ResourceFiles;
@@ -31,13 +34,10 @@ import com.hartwig.pipeline.resource.ResourceFilesFactory;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
-public class LilacBatch implements BatchOperation {
+public class LilacPcawgBatch implements BatchOperation {
 
-    public static final String LILAC_BATCH_BUCKET = "batch-lilac";
-    public static final String LILAC_RESOURCES = String.format("%s/%s", LILAC_BATCH_BUCKET, "resources");
-    public static final String LILAC_TOOLS = String.format("%s/%s", LILAC_BATCH_BUCKET, "tools");
-    public static final String LILAC_JAR = "lilac.jar";
     private static final String MAX_HEAP = "15G";
+    private static final String PCAWG_BAM_BUCKET = "pcawg-hla-bams";
 
     private static final String LOCAL_LILAC_RESOURCES = String.format("%s/%s/", VmDirectories.RESOURCES, "lilac");
 
@@ -51,13 +51,9 @@ public class LilacBatch implements BatchOperation {
         final String batchInputs = runData.inputValue();
         final String[] batchItems = batchInputs.split(",");
 
-        // final String[] sampleIds = batchItems[0].split(";", -1);
-        List<String> sampleIds = Lists.newArrayList(batchItems[0]);
-        boolean hasRna = batchItems.length > 1 && batchItems[1].equals("RNA");
+        String sampleId = batchItems[0];
 
-        // String runDirectory = "run_ref_16";
-        // String runDirectory = "run_test_ref_19";
-        String runDirectory = "run_pcawg_01";
+        String runDirectory = "run_pcawg_02";
 
         // download pilot Lilac jar
         commands.addCommand(() -> format("gsutil -u hmf-crunch cp gs://%s/%s %s",
@@ -72,10 +68,7 @@ public class LilacBatch implements BatchOperation {
         commands.addCommand(() -> format("gsutil -u hmf-crunch cp gs://%s/lilac_* %s",
                 LILAC_RESOURCES, LOCAL_LILAC_RESOURCES));
 
-        for(String sampleId : sampleIds)
-        {
-            addSampleCommands(runData, commands, runDirectory, sampleId, hasRna);
-        }
+        addSampleCommands(runData, commands, runDirectory, sampleId);
 
         commands.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), "lilac"), executionFlags));
 
@@ -92,24 +85,13 @@ public class LilacBatch implements BatchOperation {
 
     private void addSampleCommands(
             final InputFileDescriptor runData, final BashStartupScript commands,
-            final String runDirectory, final String sampleId, boolean hasRna)
+            final String runDirectory, final String sampleId)
     {
-        final RemoteLocationsApi locationsApi = new RemoteLocationsApi(runData.billedProject(), sampleId);
-        final LocalLocations localInput = new LocalLocations(new BamSliceDecorator(locationsApi));
-        final String somaticVcf = localInput.getSomaticVariantsPurple();
-        final String geneCopyNumber = localInput.getGeneCopyNumberTsv();
-        final String tumorAlignment = localInput.getTumorAlignment();
-        final String referenceAlignment = localInput.getReferenceAlignment();
-        final String rnaAlignment = hasRna ? String.format("%s.rna.hla.bam", sampleId) : "";
+        final String referenceAlignment = String.format("%s/%s_ref.bam", VmDirectories.INPUT, sampleId);
+        final String tumorAlignment = String.format("%s/%s_tumor.bam", VmDirectories.INPUT, sampleId);
 
-        // download sample input files
-        commands.addCommands(localInput.generateDownloadCommands());
-
-        if(hasRna)
-        {
-            commands.addCommand(() -> format("gsutil -m cp gs://%s/%s/%s* %s",
-                    HLA_BAMS_BUCKET, sampleId, rnaAlignment, VmDirectories.INPUT));
-        }
+        // download sample BAM files
+        commands.addCommand(() -> format("gsutil -m -u hmf-crunch cp gs://%s/%s/* %s", PCAWG_BAM_BUCKET, sampleId, VmDirectories.INPUT));
 
         // build Lilac arguments
 
@@ -124,39 +106,32 @@ public class LilacBatch implements BatchOperation {
         lilacArgs.append(String.format(" -ref_genome %s", resourceFiles.refGenomeFile()));
         lilacArgs.append(String.format(" -reference_bam %s", referenceAlignment));
         lilacArgs.append(String.format(" -tumor_bam %s", tumorAlignment));
-
-        if(hasRna)
-        {
-            lilacArgs.append(String.format(" -rna_bam %s/%s", VmDirectories.INPUT, rnaAlignment));
-        }
-
+        lilacArgs.append(" -run_id REF");
         lilacArgs.append(String.format(" -output_dir %s", sampleOutputDir));
-        lilacArgs.append(String.format(" -gene_copy_number_file %s", geneCopyNumber));
-        lilacArgs.append(String.format(" -somatic_variants_file %s", somaticVcf));
+        // lilacArgs.append(String.format(" -gene_copy_number_file %s", geneCopyNumber));
+        // lilacArgs.append(String.format(" -somatic_variants_file %s", somaticVcf));
+        lilacArgs.append(" -max_elim_candidates 500");
         lilacArgs.append(String.format(" -threads %s", Bash.allCpus()));
 
         commands.addCommand(() -> format("java -Xmx%s -jar %s/%s %s",
                 MAX_HEAP, VmDirectories.TOOLS, LILAC_JAR, lilacArgs.toString()));
 
-        /*
-        if(tumorOnly)
-        {
-            String tumorOutputDir = String.format("%s/%s/tumor", VmDirectories.OUTPUT, sampleId);
-            commands.addCommand(() -> format("mkdir -p %s", tumorOutputDir));
+        // and a tumor-only run
+        String tumorOutputDir = String.format("%s/%s/tumor", VmDirectories.OUTPUT, sampleId);
+        commands.addCommand(() -> format("mkdir -p %s", tumorOutputDir));
 
-            StringBuilder tumorLilacArgs = new StringBuilder();
-            tumorLilacArgs.append(String.format(" -sample %s", sampleId));
-            tumorLilacArgs.append(String.format(" -resource_dir %s", LOCAL_LILAC_RESOURCES));
-            tumorLilacArgs.append(String.format(" -ref_genome %s", resourceFiles.refGenomeFile()));
-            tumorLilacArgs.append(String.format(" -reference_bam %s", tumorAlignment));
-            tumorLilacArgs.append(" -tumor_only");
-            tumorLilacArgs.append(String.format(" -output_dir %s", tumorOutputDir));
-            tumorLilacArgs.append(String.format(" -threads %s", Bash.allCpus()));
+        StringBuilder tumorLilacArgs = new StringBuilder();
+        tumorLilacArgs.append(String.format(" -sample %s", sampleId));
+        tumorLilacArgs.append(String.format(" -resource_dir %s", LOCAL_LILAC_RESOURCES));
+        tumorLilacArgs.append(String.format(" -ref_genome %s", resourceFiles.refGenomeFile()));
+        tumorLilacArgs.append(String.format(" -reference_bam %s", tumorAlignment));
+        tumorLilacArgs.append(" -run_id TUMOR");
+        lilacArgs.append(" -max_elim_candidates 500");
+        tumorLilacArgs.append(String.format(" -output_dir %s", tumorOutputDir));
+        tumorLilacArgs.append(String.format(" -threads %s", Bash.allCpus()));
 
-            commands.addCommand(() -> format("java -Xmx%s -jar %s/%s %s",
-                    MAX_HEAP, VmDirectories.TOOLS, LILAC_JAR, tumorLilacArgs.toString()));
-        }
-        */
+        commands.addCommand(() -> format("java -Xmx%s -jar %s/%s %s",
+                MAX_HEAP, VmDirectories.TOOLS, LILAC_JAR, tumorLilacArgs.toString()));
 
         String sampleRemoteOutputDir = String.format("gs://%s/%s/", LILAC_BATCH_BUCKET, runDirectory);
         commands.addCommand(() -> format("gsutil -m cp -r %s/%s/ %s", VmDirectories.OUTPUT, sampleId, sampleRemoteOutputDir));
@@ -164,38 +139,11 @@ public class LilacBatch implements BatchOperation {
 
     @Override
     public OperationDescriptor descriptor() {
-        return OperationDescriptor.of("LilacBatch", "Generate lilac output", OperationDescriptor.InputType.FLAT);
+        return OperationDescriptor.of("LilacPcawgBatch", "Generate lilac output", OperationDescriptor.InputType.FLAT);
     }
 
     private BashCommand createResourcesDir() {
         return () -> format("mkdir -p %s", LOCAL_LILAC_RESOURCES);
-    }
-
-    class BamSliceDecorator extends RemoteLocationsDecorator {
-
-        public BamSliceDecorator(final RemoteLocations decorator) {
-            super(decorator);
-        }
-
-        @Override
-        public GoogleStorageLocation getReferenceAlignment() {
-            return GoogleStorageLocation.of(HLA_BAMS_BUCKET, getTumor() + "/" + getReference() + ".hla.bam");
-        }
-
-        @Override
-        public GoogleStorageLocation getReferenceAlignmentIndex() {
-            return GoogleStorageLocation.of(HLA_BAMS_BUCKET, getTumor() + "/" + getReference() + ".hla.bam.bai");
-        }
-
-        @Override
-        public GoogleStorageLocation getTumorAlignment() {
-            return GoogleStorageLocation.of(HLA_BAMS_BUCKET, getTumor() + "/" + getTumor() + ".hla.bam");
-        }
-
-        @Override
-        public GoogleStorageLocation getTumorAlignmentIndex() {
-            return GoogleStorageLocation.of(HLA_BAMS_BUCKET, getTumor() + "/" + getTumor() + ".hla.bam.bai");
-        }
     }
 
 }
