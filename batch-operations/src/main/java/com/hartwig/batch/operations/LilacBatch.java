@@ -23,7 +23,6 @@ import com.hartwig.pipeline.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.OutputUpload;
 import com.hartwig.pipeline.execution.vm.RuntimeFiles;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
-import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.resource.ResourceFiles;
@@ -53,11 +52,10 @@ public class LilacBatch implements BatchOperation {
 
         // final String[] sampleIds = batchItems[0].split(";", -1);
         List<String> sampleIds = Lists.newArrayList(batchItems[0]);
-        boolean hasRna = batchItems.length > 1 && batchItems[1].equals("RNA");
+        boolean hasRna = false; // batchItems.length > 1 && batchItems[1].equals("RNA");
 
-        // String runDirectory = "run_ref_16";
+        String runDirectory = "run_ref_17";
         // String runDirectory = "run_test_ref_19";
-        String runDirectory = "run_pcawg_01";
 
         // download pilot Lilac jar
         commands.addCommand(() -> format("gsutil -u hmf-crunch cp gs://%s/%s %s",
