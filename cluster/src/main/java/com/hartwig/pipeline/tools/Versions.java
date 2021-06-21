@@ -34,6 +34,7 @@ public interface Versions {
     String KRAKEN = "2.1.0";
     String CUPPA = "1.4";
     String PEACH = "1.0";
+    String SIGS = "1.0";
 
     static void printAll() {
         Logger logger = LoggerFactory.getLogger(Versions.class);
