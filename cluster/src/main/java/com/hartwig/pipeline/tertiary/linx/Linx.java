@@ -3,6 +3,7 @@ package com.hartwig.pipeline.tertiary.linx;
 import java.util.Collections;
 import java.util.List;
 
+import com.google.api.client.util.Lists;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.datatypes.DataType;
@@ -56,7 +57,11 @@ public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
 
     @Override
     public List<BashCommand> commands(final SomaticRunMetadata metadata) {
-        return Collections.singletonList(new LinxCommand(metadata.tumor().sampleName(),
+
+        List<BashCommand> commands = Lists.newArrayList();
+
+        commands.add(new LinxCommand(
+                metadata.tumor().sampleName(),
                 purpleStructuralVcfDownload.getLocalTargetPath(),
                 purpleOutputDirDownload.getLocalTargetPath(),
                 resourceFiles.version(),
@@ -68,6 +73,13 @@ public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
                 resourceFiles.ensemblDataCache(),
                 resourceFiles.knownFusionData(),
                 resourceFiles.driverGenePanel()));
+
+        commands.add(new LinxVisualisationsCommand(
+                metadata.tumor().sampleName(),
+                VmDirectories.OUTPUT,
+                resourceFiles.version()));
+
+        return commands;
     }
 
     @Override
@@ -78,11 +90,13 @@ public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
     @Override
     public LinxOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
             final ResultsDirectory resultsDirectory) {
+
         String breakendTsv = metadata.tumor().sampleName() + BREAKEND_TSV;
         String driverCatalogTsv = metadata.tumor().sampleName() + DRIVER_CATALOG_TSV;
         String fusionsTsv = metadata.tumor().sampleName() + FUSION_TSV;
         String viralInsertionsTsv = metadata.tumor().sampleName() + VIRAL_INSERTS_TSV;
         String driversTsv = metadata.tumor().sampleName() + DRIVERS_TSV;
+
         return LinxOutput.builder()
                 .status(jobStatus)
                 .maybeLinxOutputLocations(LinxOutputLocations.builder()

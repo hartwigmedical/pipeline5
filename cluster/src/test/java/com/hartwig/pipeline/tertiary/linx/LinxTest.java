@@ -3,6 +3,7 @@ package com.hartwig.pipeline.tertiary.linx;
 import java.util.Collections;
 import java.util.List;
 
+import com.google.api.client.util.Lists;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.ArchivePath;
@@ -34,7 +35,10 @@ public class LinxTest extends TertiaryStageTest<LinxOutput> {
 
     @Override
     protected List<String> expectedCommands() {
-        return Collections.singletonList("java -Xmx8G -jar /opt/tools/linx/1.15/linx.jar -sample tumor -sv_vcf "
+
+        List<String> commands = Lists.newArrayList();
+
+        commands.add("java -Xmx8G -jar /opt/tools/linx/1.16/linx.jar -sample tumor -sv_vcf "
                 + "/data/input/tumor.purple.sv.vcf.gz -purple_dir /data/input/results -ref_genome_version 37 -output_dir /data/output "
                 + "-fragile_site_file /opt/resources/linx/37/fragile_sites_hmf.37.csv "
                 + "-line_element_file /opt/resources/linx/37/line_elements.37.csv "
@@ -44,6 +48,12 @@ public class LinxTest extends TertiaryStageTest<LinxOutput> {
                 + "-check_fusions -known_fusion_file /opt/resources/fusions/37/known_fusion_data.37.csv "
                 + "-check_drivers -driver_gene_panel /opt/resources/gene_panel/37/DriverGenePanel.37.tsv "
                 + "-chaining_sv_limit 0 -write_vis_data");
+
+        commands.add("java -Xmx8G -cp /opt/tools/linx/1.16/linx.jar com.hartwig.hmftools.linx.visualiser.SvVisualiser "
+                + "-sample tumor -vis_file_dir /data/output "
+                + "-plot_out /data/output/vis/ -data_out /data/output/plot/ -ref_genome_version 37 -plot_reportable");
+
+        return commands;
     }
 
     @Override
