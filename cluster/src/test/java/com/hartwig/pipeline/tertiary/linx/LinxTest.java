@@ -50,8 +50,8 @@ public class LinxTest extends TertiaryStageTest<LinxOutput> {
                 + "-chaining_sv_limit 0 -write_vis_data");
 
         commands.add("java -Xmx8G -cp /opt/tools/linx/1.16/linx.jar com.hartwig.hmftools.linx.visualiser.SvVisualiser "
-                + "-sample tumor -vis_file_dir /data/output "
-                + "-plot_out /data/output/vis/ -data_out /data/output/plot/ -ref_genome_version 37 -plot_reportable");
+                + "-sample tumor -ref_genome_version 37 -circos /opt/tools/circos/0.69.6/bin/circos -vis_file_dir /data/output "
+                + "-data_out /data/output/circos/ -plot_out /data/output/plot/ -plot_reportable");
 
         return commands;
     }
