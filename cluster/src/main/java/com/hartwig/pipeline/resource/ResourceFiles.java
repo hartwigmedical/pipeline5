@@ -5,6 +5,7 @@ import static com.hartwig.pipeline.resource.ResourceNames.DISEASE_ONTOLOGY;
 import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_CONFIG;
 import static com.hartwig.pipeline.resource.ResourceNames.LINX;
 import static com.hartwig.pipeline.resource.ResourceNames.MAPPABILITY;
+import static com.hartwig.pipeline.resource.ResourceNames.SIGS;
 import static com.hartwig.pipeline.resource.ResourceNames.SNPEFF;
 import static com.hartwig.pipeline.resource.ResourceNames.VIRUS_REFERENCE_GENOME;
 
@@ -118,6 +119,10 @@ public interface ResourceFiles {
 
     default String viralHostRefs() {
         return of(LINX, "viral_host_ref.csv");
+    }
+
+    default String snvSignatures() {
+        return of(SIGS, "snv_cosmic_signatures.csv");
     }
 
     default String formPath(String name, String file) {
