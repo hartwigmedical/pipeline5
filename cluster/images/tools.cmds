@@ -27,12 +27,12 @@ sudo gsutil -m -o 'GSUtil:parallel_thread_count=1' -o 'GSUtil:sliced_object_down
 sudo tar xvzf /opt/tools/python/pyenv.tar.gz -C /root
 
 sudo /root/.pyenv/bin/pyenv install 3.6.10
-sudo chmod a+x /opt/tools/mk_python_venv
-sudo /opt/tools/mk_python_venv peach 1.0 3.6.10
+sudo chmod a+x /tmp/mk_python_venv
+sudo /tmp/mk_python_venv peach 1.0 3.6.10
 sudo mkdir -p /opt/tools/cuppa-chart/1.4
 sudo unzip /opt/tools/cuppa/1.4/cuppa.jar cuppa-chart/* -d /tmp/cuppa-chart-1.4
 sudo mv /tmp/cuppa-chart-1.4/cuppa-chart/* /opt/tools/cuppa-chart/1.4/
-sudo /opt/tools/mk_python_venv --no-extract-tarball cuppa-chart 1.4 3.6.10
+sudo /tmp/mk_python_venv --no-extract-tarball cuppa-chart 1.4 3.6.10
 
 # NOTE: This extracts overtop the system-managed R libraries.
 sudo tar xvf /opt/tools/R/rlibs.tar -C /
