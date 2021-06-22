@@ -28,6 +28,9 @@ public class VirusBreakend extends TertiaryStage<VirusBreakendOutput> {
 
     public static final String NAMESPACE = "virusbreakend";
 
+    public static final String VIRUS_BREAKEND_VCF = ".virusbreakend.vcf";
+    public static final String VIRUS_BREAKEND_SUMMARY = ".virusbreakend.vcf.summary.tsv";
+
     private final ResourceFiles resourceFiles;
 
     public VirusBreakend(final AlignmentPair alignmentPair, final ResourceFiles resourceFiles) {
@@ -59,8 +62,8 @@ public class VirusBreakend extends TertiaryStage<VirusBreakendOutput> {
     @Override
     public VirusBreakendOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
             final ResultsDirectory resultsDirectory) {
-        String vcf = String.format("%s.virusbreakend.vcf", metadata.tumor().sampleName());
-        String summary = String.format("%s.virusbreakend.vcf.summary.tsv", metadata.tumor().sampleName());
+        String vcf = metadata.tumor().sampleName() + VIRUS_BREAKEND_VCF;
+        String summary = metadata.tumor().sampleName() + VIRUS_BREAKEND_SUMMARY;
         return VirusBreakendOutput.builder()
                 .status(jobStatus)
                 .maybeOutputLocations(VirusBreakendOutputLocations.builder()

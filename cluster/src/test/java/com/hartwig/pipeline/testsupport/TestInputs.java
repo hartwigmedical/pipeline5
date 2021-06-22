@@ -45,7 +45,9 @@ import com.hartwig.pipeline.tertiary.protect.ProtectOutput;
 import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
+import com.hartwig.pipeline.tertiary.virusbreakend.VirusBreakend;
 import com.hartwig.pipeline.tertiary.virusbreakend.VirusBreakendOutput;
+import com.hartwig.pipeline.tertiary.virusbreakend.VirusBreakendOutputLocations;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -183,7 +185,12 @@ public class TestInputs {
     }
 
     public static VirusBreakendOutput virusBreakendOutput() {
-        return VirusBreakendOutput.builder().status(PipelineStatus.SUCCESS).build();
+        return VirusBreakendOutput.builder()
+                .status(PipelineStatus.SUCCESS)
+                .maybeOutputLocations(VirusBreakendOutputLocations.builder()
+                        .summary(gsLocation(somaticBucket(VirusBreakend.NAMESPACE), TUMOR_SAMPLE + VirusBreakend.VIRUS_BREAKEND_SUMMARY))
+                        .build())
+                .build();
     }
 
     public static SageOutput sageGermlineOutput() {
@@ -261,7 +268,8 @@ public class TestInputs {
                                 TUMOR_SAMPLE + Purple.PURPLE_SOMATIC_DRIVER_CATALOG))
                         .germlineDriverCatalog(gsLocation(somaticBucket(Purple.NAMESPACE),
                                 TUMOR_SAMPLE + Purple.PURPLE_GERMLINE_DRIVER_CATALOG))
-                        .build()).build();
+                        .build())
+                .build();
     }
 
     public static ChordOutput chordOutput() {

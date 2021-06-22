@@ -6,6 +6,7 @@ import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_CONFIG;
 import static com.hartwig.pipeline.resource.ResourceNames.LINX;
 import static com.hartwig.pipeline.resource.ResourceNames.MAPPABILITY;
 import static com.hartwig.pipeline.resource.ResourceNames.SNPEFF;
+import static com.hartwig.pipeline.resource.ResourceNames.VIRUS_INTERPRETER;
 import static com.hartwig.pipeline.resource.ResourceNames.VIRUS_REFERENCE_GENOME;
 
 import com.hartwig.pipeline.execution.vm.VmDirectories;
@@ -118,6 +119,18 @@ public interface ResourceFiles {
 
     default String viralHostRefs() {
         return of(LINX, "viral_host_ref.csv");
+    }
+
+    default String virusInterpreterTaxonomyDb() {
+        return of(VIRUS_INTERPRETER, "taxonomy_db.tsv");
+    }
+
+    default String virusInterpretation() {
+        return of(VIRUS_INTERPRETER, "virus_interpretation.tsv");
+    }
+
+    default String virusBlacklist() {
+        return of(VIRUS_INTERPRETER, "virus_blacklist.tsv");
     }
 
     default String formPath(String name, String file) {
