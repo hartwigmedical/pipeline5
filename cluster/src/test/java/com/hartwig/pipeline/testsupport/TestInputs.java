@@ -257,6 +257,7 @@ public class TestInputs {
                         .structuralVcf(gsLocation(somaticBucket(Purple.NAMESPACE), TUMOR_SAMPLE + Purple.PURPLE_SV_VCF))
                         .purityTsv(gsLocation(somaticBucket(Purple.NAMESPACE), TUMOR_SAMPLE + Purple.PURPLE_PURITY_TSV))
                         .qcFile(gsLocation(somaticBucket(Purple.NAMESPACE), TUMOR_SAMPLE + Purple.PURPLE_QC))
+                        .geneCopyNumberTsv(gsLocation(somaticBucket(Purple.NAMESPACE), TUMOR_SAMPLE + Purple.PURPLE_GENE_COPY_NUMBER_TSV))
                         .somaticDriverCatalog(gsLocation(somaticBucket(Purple.NAMESPACE),
                                 TUMOR_SAMPLE + Purple.PURPLE_SOMATIC_DRIVER_CATALOG))
                         .germlineDriverCatalog(gsLocation(somaticBucket(Purple.NAMESPACE),

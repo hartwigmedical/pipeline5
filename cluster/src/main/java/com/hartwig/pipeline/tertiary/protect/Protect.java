@@ -16,7 +16,6 @@ import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
-import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
@@ -32,6 +31,7 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
 
     private final InputDownload purplePurity;
     private final InputDownload purpleQCFile;
+    private final InputDownload purpleGeneCopyNumberTsv;
     private final InputDownload purpleSomaticDriverCatalog;
     private final InputDownload purpleGermlineDriverCatalog;
     private final InputDownload purpleSomaticVariants;
@@ -46,6 +46,7 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
             final ResourceFiles resourceFiles) {
         this.purplePurity = new InputDownload(purpleOutput.outputLocations().purityTsv());
         this.purpleQCFile = new InputDownload(purpleOutput.outputLocations().qcFile());
+        this.purpleGeneCopyNumberTsv = new InputDownload(purpleOutput.outputLocations().geneCopyNumberTsv());
         this.purpleSomaticDriverCatalog = new InputDownload(purpleOutput.outputLocations().somaticDriverCatalog());
         this.purpleGermlineDriverCatalog = new InputDownload(purpleOutput.outputLocations().germlineDriverCatalog());
         this.purpleSomaticVariants = new InputDownload(purpleOutput.outputLocations().somaticVcf());
@@ -72,6 +73,7 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
     public List<BashCommand> inputs() {
         return List.of(purplePurity,
                 purpleQCFile,
+                purpleGeneCopyNumberTsv,
                 purpleSomaticDriverCatalog,
                 purpleGermlineDriverCatalog,
                 purpleSomaticVariants,
@@ -85,12 +87,15 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
     @Override
     public List<BashCommand> commands(final SomaticRunMetadata metadata) {
         return List.of(new ProtectCommand(metadata.tumor().sampleName(),
+                metadata.reference().sampleName(),
                 metadata.tumor().primaryTumorDoids(),
                 VmDirectories.OUTPUT,
                 resourceFiles.actionabilityDir(),
+                resourceFiles.version(),
                 resourceFiles.doidJson(),
                 purplePurity.getLocalTargetPath(),
                 purpleQCFile.getLocalTargetPath(),
+                purpleGeneCopyNumberTsv.getLocalTargetPath(),
                 purpleSomaticDriverCatalog.getLocalTargetPath(),
                 purpleGermlineDriverCatalog.getLocalTargetPath(),
                 purpleSomaticVariants.getLocalTargetPath(),
@@ -98,6 +103,8 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
                 linxFusionTsv.getLocalTargetPath(),
                 linxBreakendTsv.getLocalTargetPath(),
                 linxDriverCatalogTsv.getLocalTargetPath(),
+                // TODO Fix when virus interpreter is added.
+                "dummy",
                 chordPrediction.getLocalTargetPath()));
     }
 
@@ -134,6 +141,6 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
 
     @Override
     public boolean shouldRun(final Arguments arguments) {
-        return arguments.runTertiary() && arguments.refGenomeVersion().equals(RefGenomeVersion.V37) && !arguments.shallow();
+        return arguments.runTertiary() && !arguments.shallow();
     }
 }

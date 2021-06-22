@@ -19,6 +19,8 @@ public interface PurpleOutputLocations {
 
     GoogleStorageLocation qcFile();
 
+    GoogleStorageLocation geneCopyNumberTsv();
+
     GoogleStorageLocation somaticDriverCatalog();
 
     GoogleStorageLocation germlineDriverCatalog();
