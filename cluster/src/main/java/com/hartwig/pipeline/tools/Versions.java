@@ -75,6 +75,6 @@ public interface Versions {
     }
 
     static String imageVersion() {
-        return "5-22";
+        return "5-23";
     }
 }
