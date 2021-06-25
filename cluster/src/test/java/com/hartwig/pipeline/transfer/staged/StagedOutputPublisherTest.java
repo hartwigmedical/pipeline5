@@ -24,12 +24,19 @@ import com.hartwig.api.SetApi;
 import com.hartwig.api.model.Ini;
 import com.hartwig.api.model.Run;
 import com.hartwig.api.model.SampleSet;
+import com.hartwig.events.Analysis.Context;
+import com.hartwig.events.Analysis.Type;
 import com.hartwig.events.PipelineOutputBlob;
 import com.hartwig.events.PipelineStaged;
 import com.hartwig.pipeline.PipelineState;
+import com.hartwig.pipeline.StageOutput;
+import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.jackson.ObjectMappers;
+import com.hartwig.pipeline.metadata.AddDatatype;
+import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
+import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Before;
@@ -56,7 +63,9 @@ public class StagedOutputPublisherTest {
                 publisher,
                 OBJECT_MAPPER,
                 new Run().ini(Ini.SOMATIC_INI.getValue()),
-                PipelineStaged.OutputTarget.PATIENT_REPORT);
+                Context.DIAGNOSTIC,
+                true,
+                false);
     }
 
     @Test
@@ -68,12 +77,20 @@ public class StagedOutputPublisherTest {
 
     @Test
     public void publishesDnaSecondaryAnalysisOnBam() throws Exception {
-        verifySecondaryAnalysis("bam", "bai");
+        victim = new StagedOutputPublisher(setApi,
+                bucket,
+                publisher,
+                OBJECT_MAPPER,
+                new Run().ini(Ini.SOMATIC_INI.getValue()),
+                Context.DIAGNOSTIC,
+                false,
+                false);
+        verifySecondaryAnalysis("bam", "bai", "aligner");
     }
 
     @Test
     public void publishesDnaSecondaryAnalysisOnCram() throws Exception {
-        verifySecondaryAnalysis("cram", "crai");
+        verifySecondaryAnalysis("cram", "crai", "cram");
     }
 
     @Test
@@ -81,11 +98,11 @@ public class StagedOutputPublisherTest {
         when(state.status()).thenReturn(PipelineStatus.SUCCESS);
         Blob vcf = withBucketAndMd5(blob("/sage/" + TestInputs.tumorSample() + ".vcf"));
         Page<Blob> page = pageOf(vcf);
-        ArgumentCaptor<PubsubMessage> messageArgumentCaptor = publish(page);
+        ArgumentCaptor<PubsubMessage> messageArgumentCaptor = publish(page, TestInputs.defaultSomaticRunMetadata());
 
         PipelineStaged result =
                 OBJECT_MAPPER.readValue(new String(messageArgumentCaptor.getValue().getData().toByteArray()), PipelineStaged.class);
-        assertThat(result.analysis()).isEqualTo(PipelineStaged.Analysis.TERTIARY);
+        assertThat(result.analysisType()).isEqualTo(Type.TERTIARY);
         assertThat(result.blobs()).extracting(PipelineOutputBlob::filename).containsExactlyInAnyOrder("tumor.vcf");
     }
 
@@ -95,38 +112,67 @@ public class StagedOutputPublisherTest {
     }
 
     @Test
+    public void usesReferenceSampleWhenNoTumor() throws Exception {
+        when(state.status()).thenReturn(PipelineStatus.SUCCESS);
+        Blob vcf = withBucketAndMd5(blob("/germline_caller/" + TestInputs.referenceSample() + "reference.germline.vcf.gz"));
+        Page<Blob> page = pageOf(vcf);
+        ArgumentCaptor<PubsubMessage> published = publish(page, TestInputs.defaultSingleSampleRunMetadata());
+        PipelineStaged result = OBJECT_MAPPER.readValue(new String(published.getValue().getData().toByteArray()), PipelineStaged.class);
+        assertThat(result.sample()).isEqualTo("reference");
+    }
+
+    @Test
     public void publishesGermlineTertiaryAnalysisOnGermlineVcfIndex() throws Exception {
         verifyGermline(".germline.vcf.gz.tbi", "reference.germline.vcf.gz.tbi");
+    }
+
+    @Test
+    public void usesDatatypeAndBarcodeWhenFileMatched() throws Exception {
+        when(state.status()).thenReturn(PipelineStatus.SUCCESS);
+        String path = TestInputs.referenceSample() + "/germline_caller/reference.germline.vcf.gz";
+        Blob vcf = withBucketAndMd5(blob(path));
+        Page<Blob> page = pageOf(vcf);
+        StageOutput stageOutput = mock(StageOutput.class);
+        when(stageOutput.datatypes()).thenReturn(List.of(new AddDatatype(DataType.GERMLINE_VARIANTS,
+                "barcode",
+                new ArchivePath(Folder.from(TestInputs.referenceRunMetadata()), "germline_caller", "reference.germline.vcf.gz"))));
+        when(state.stageOutputs()).thenReturn(List.of(stageOutput));
+        ArgumentCaptor<PubsubMessage> published = publish(page, TestInputs.defaultSingleSampleRunMetadata());
+        PipelineStaged result = OBJECT_MAPPER.readValue(new String(published.getValue().getData().toByteArray()), PipelineStaged.class);
+        assertThat(result.blobs().get(0).datatype()).hasValue("GERMLINE_VARIANTS");
+        assertThat(result.blobs().get(0).barcode()).hasValue("barcode");
     }
 
     public void verifyGermline(final String filename, final String expectedFile) throws com.fasterxml.jackson.core.JsonProcessingException {
         when(state.status()).thenReturn(PipelineStatus.SUCCESS);
         Blob vcf = withBucketAndMd5(blob("/germline_caller/" + TestInputs.referenceSample() + filename));
         Page<Blob> page = pageOf(vcf);
-        ArgumentCaptor<PubsubMessage> messageArgumentCaptor = publish(page);
+        ArgumentCaptor<PubsubMessage> messageArgumentCaptor = publish(page, TestInputs.defaultSomaticRunMetadata());
 
         PipelineStaged result =
                 OBJECT_MAPPER.readValue(new String(messageArgumentCaptor.getValue().getData().toByteArray()), PipelineStaged.class);
-        assertThat(result.analysis()).isEqualTo(PipelineStaged.Analysis.GERMLINE);
+        assertThat(result.analysisType()).isEqualTo(Type.GERMLINE);
         assertThat(result.blobs()).extracting(PipelineOutputBlob::filename).containsExactlyInAnyOrder(expectedFile);
     }
 
-    private void verifySecondaryAnalysis(final String extension, final String indexExtension)
+    private void verifySecondaryAnalysis(final String extension, final String indexExtension, final String namespace)
             throws com.fasterxml.jackson.core.JsonProcessingException {
         when(state.status()).thenReturn(PipelineStatus.SUCCESS);
-        Blob tumorBamBlob = withBucketAndMd5(blob(TestInputs.tumorSample() + "/aligner/" + TestInputs.tumorSample() + "." + extension));
+        Blob tumorBamBlob =
+                withBucketAndMd5(blob(TestInputs.tumorSample() + "/" + namespace + "/" + TestInputs.tumorSample() + "." + extension));
         Blob tumorBaiBlob = withBucketAndMd5(blob(
-                TestInputs.tumorSample() + "/aligner/" + TestInputs.tumorSample() + "." + extension + "." + indexExtension));
-        Blob refBamBlob = withBucketAndMd5(blob(TestInputs.tumorSample() + "/aligner/" + TestInputs.referenceSample() + "." + extension));
+                TestInputs.tumorSample() + "/" + namespace + "/" + TestInputs.tumorSample() + "." + extension + "." + indexExtension));
+        Blob refBamBlob =
+                withBucketAndMd5(blob(TestInputs.tumorSample() + "/" + namespace + "/" + TestInputs.referenceSample() + "." + extension));
         Blob refBaiBlob = withBucketAndMd5(blob(
-                TestInputs.tumorSample() + "/aligner/" + TestInputs.referenceSample() + "." + extension + "." + indexExtension));
+                TestInputs.tumorSample() + "/" + namespace + "/" + TestInputs.referenceSample() + "." + extension + "." + indexExtension));
         Page<Blob> page = pageOf(tumorBamBlob, tumorBaiBlob, refBamBlob, refBaiBlob);
-        ArgumentCaptor<PubsubMessage> messageArgumentCaptor = publish(page);
+        ArgumentCaptor<PubsubMessage> messageArgumentCaptor = publish(page, TestInputs.defaultSomaticRunMetadata());
 
         PipelineStaged result =
                 OBJECT_MAPPER.readValue(new String(messageArgumentCaptor.getValue().getData().toByteArray()), PipelineStaged.class);
-        assertThat(result.target()).isEqualTo(PipelineStaged.OutputTarget.PATIENT_REPORT);
-        assertThat(result.analysis()).isEqualTo(PipelineStaged.Analysis.SECONDARY);
+        assertThat(result.analysisContext()).isEqualTo(Context.DIAGNOSTIC);
+        assertThat(result.analysisType()).isEqualTo(Type.SECONDARY);
         assertThat(result.blobs()).hasSize(4);
         assertThat(result.blobs()).extracting(PipelineOutputBlob::filename)
                 .containsExactlyInAnyOrder(TestInputs.tumorSample() + "." + extension,
@@ -142,11 +188,10 @@ public class StagedOutputPublisherTest {
         return blob;
     }
 
-    private ArgumentCaptor<PubsubMessage> publish(final Page<Blob> page) {
+    private ArgumentCaptor<PubsubMessage> publish(final Page<Blob> page, final SomaticRunMetadata metadata) {
         when(bucket.list(Storage.BlobListOption.prefix("set/"))).thenReturn(page);
         ArgumentCaptor<PubsubMessage> messageArgumentCaptor = ArgumentCaptor.forClass(PubsubMessage.class);
-        SomaticRunMetadata metadata = TestInputs.defaultSomaticRunMetadata();
-        when(setApi.list(metadata.set(), null, true)).thenReturn(List.of(new SampleSet().id(1L)));
+        when(setApi.list(metadata.set(), null, null)).thenReturn(List.of(new SampleSet().id(1L)));
         //noinspection unchecked
         when(publisher.publish(messageArgumentCaptor.capture())).thenReturn(mock(ApiFuture.class));
         victim.publish(state, metadata);

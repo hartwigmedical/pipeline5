@@ -30,7 +30,7 @@ public class FullPipeline {
     private final SomaticMetadataApi api;
     private final SomaticRunMetadata metadata;
     private final FullSomaticResults fullSomaticResults;
-    private Cleanup cleanup;
+    private final Cleanup cleanup;
 
     FullPipeline(final SingleSamplePipeline referencePipeline, final SingleSamplePipeline tumorPipeline,
             final SomaticPipeline somaticPipeline, final ExecutorService executorService, final SingleSampleEventListener referenceApi,

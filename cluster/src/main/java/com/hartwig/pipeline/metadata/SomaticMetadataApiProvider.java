@@ -8,7 +8,7 @@ import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.api.HmfApi;
 import com.hartwig.api.model.Run;
-import com.hartwig.events.PipelineStaged;
+import com.hartwig.events.Analysis.Context;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.sample.JsonSampleSource;
 import com.hartwig.pipeline.jackson.ObjectMappers;
@@ -34,7 +34,7 @@ public class SomaticMetadataApiProvider {
 
     public SomaticMetadataApi get() {
         return arguments.sbpApiRunId()
-                .map(this::clinicalRun)
+                .map(this::diagnosticRun)
                 .orElseGet(() -> arguments.biopsy().map(this::researchRun).orElseGet(localRun()));
     }
 
@@ -59,16 +59,17 @@ public class SomaticMetadataApiProvider {
                         publisher,
                         objectMapper,
                         new Run(),
-                        PipelineStaged.OutputTarget.DATABASE),
+                        Context.RESEARCH,
+                        arguments.outputCram(), true),
                 new Anonymizer(arguments));
     }
 
-    public SomaticMetadataApi clinicalRun(final Integer setId) {
+    public SomaticMetadataApi diagnosticRun(final Integer setId) {
         HmfApi api = HmfApi.create(arguments.sbpApiUrl());
         Bucket sourceBucket = storage.get(arguments.outputBucket());
         ObjectMapper objectMapper = ObjectMappers.get();
         Run run = api.runs().get((long) arguments.sbpApiRunId().orElseThrow());
-        return new ClinicalSomaticMetadataApi(run,
+        return new DiagnosticSomaticMetadataApi(run,
                 api.runs(),
                 api.samples(),
                 new StagedOutputPublisher(api.sets(),
@@ -76,7 +77,8 @@ public class SomaticMetadataApiProvider {
                         publisher,
                         objectMapper,
                         run,
-                        PipelineStaged.OutputTarget.PATIENT_REPORT),
+                        arguments.analysisContext(),
+                        arguments.outputCram(), false),
                 new Anonymizer(arguments));
     }
 }

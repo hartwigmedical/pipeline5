@@ -8,6 +8,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.hartwig.events.Analysis;
+import com.hartwig.events.Analysis.Context;
 import com.hartwig.pipeline.Arguments.DefaultsProfile;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.tools.Versions;
@@ -76,6 +78,7 @@ public class CommandLineOptions {
     private static final String USE_CRAMS_FLAG = "use_crams";
     private static final String PUBSUB_PROJECT_FLAG = "pubsub_project";
     private static final String ANONYMIZE_FLAG = "anonymize";
+    private static final String ANALYSIS_CONTEXT_FLAG = "analysis_context";
 
     private static Options options() {
         return new Options().addOption(profile())
@@ -138,7 +141,13 @@ public class CommandLineOptions {
                 .addOption(imageProject())
                 .addOption(useCrams())
                 .addOption(pubsubProject())
-                .addOption(anonymize());
+                .addOption(anonymize())
+                .addOption(analysisContext());
+    }
+
+    private static Option analysisContext() {
+        return optionWithArg(ANALYSIS_CONTEXT_FLAG, format("Context to run analysis in [%s]",
+                Stream.of(Analysis.Context.values()).map(Analysis.Context::name).collect(Collectors.joining(", "))));
     }
 
     private static Option anonymize() {
@@ -352,6 +361,7 @@ public class CommandLineOptions {
                     .useCrams(booleanOptionWithDefault(commandLine, USE_CRAMS_FLAG, defaults.useCrams()))
                     .pubsubProject(pubsubProject(commandLine, defaults))
                     .anonymize(booleanOptionWithDefault(commandLine, ANONYMIZE_FLAG, defaults.anonymize()))
+                    .analysisContext(analysisContext(commandLine, defaults))
                     .build();
         } catch (ParseException e) {
             LOGGER.error("Could not parse command line args", e);
@@ -359,6 +369,13 @@ public class CommandLineOptions {
             formatter.printHelp("pipeline5", options());
             throw e;
         }
+    }
+
+    public static Context analysisContext(final CommandLine commandLine, final Arguments defaults) {
+        if (commandLine.hasOption(ANALYSIS_CONTEXT_FLAG)) {
+            return Analysis.Context.valueOf(commandLine.getOptionValue(ANALYSIS_CONTEXT_FLAG));
+        }
+        return defaults.analysisContext();
     }
 
     public static Optional<String> pubsubProject(final CommandLine commandLine, final Arguments defaults) {

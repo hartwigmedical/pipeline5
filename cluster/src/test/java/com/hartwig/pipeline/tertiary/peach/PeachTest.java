@@ -7,8 +7,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Collections;
 import java.util.List;
 
+import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.metadata.AddDatatype;
+import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
+import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
@@ -26,7 +29,12 @@ public class PeachTest extends TertiaryStageTest<PeachOutput> {
 
     @Override
     protected List<AddDatatype> expectedFurtherOperations() {
-        return Collections.emptyList();
+        return List.of(new AddDatatype(DataType.PEACH_CALLS_TSV,
+                        TestInputs.defaultSomaticRunMetadata().barcode(),
+                        new ArchivePath(Folder.root(), Peach.NAMESPACE, "tumor.peach.calls.tsv")),
+                new AddDatatype(DataType.PEACH_GENOTYPE_TSV,
+                        TestInputs.defaultSomaticRunMetadata().barcode(),
+                        new ArchivePath(Folder.root(), Peach.NAMESPACE, "tumor.peach.genotype.tsv")));
     }
 
     @Override

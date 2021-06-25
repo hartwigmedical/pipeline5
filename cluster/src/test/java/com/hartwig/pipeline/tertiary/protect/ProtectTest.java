@@ -6,8 +6,12 @@ import java.util.Collections;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
+import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
+import com.hartwig.pipeline.metadata.AddDatatype;
+import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
+import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
@@ -69,5 +73,12 @@ public class ProtectTest extends TertiaryStageTest<ProtectOutput> {
     @Override
     protected void validatePersistedOutput(final ProtectOutput output) {
         assertThat(output).isEqualTo(ProtectOutput.builder().status(PipelineStatus.PERSISTED).build());
+    }
+
+    @Override
+    protected List<AddDatatype> expectedFurtherOperations() {
+        return List.of(new AddDatatype(DataType.PROTECT_EVIDENCE_TSV,
+                TestInputs.defaultSomaticRunMetadata().barcode(),
+                new ArchivePath(Folder.root(), Protect.NAMESPACE, "tumor.protect.tsv")));
     }
 }

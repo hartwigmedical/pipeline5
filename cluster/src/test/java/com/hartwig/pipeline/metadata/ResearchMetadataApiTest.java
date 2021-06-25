@@ -25,6 +25,8 @@ import com.hartwig.api.model.Sample;
 import com.hartwig.api.model.SampleSet;
 import com.hartwig.api.model.SampleStatus;
 import com.hartwig.api.model.SampleType;
+import com.hartwig.events.Analysis.Context;
+import com.hartwig.events.Analysis.Molecule;
 import com.hartwig.events.PipelineOutputBlob;
 import com.hartwig.events.PipelineStaged;
 import com.hartwig.pipeline.Arguments;
@@ -71,7 +73,7 @@ public class ResearchMetadataApiTest {
                 setApi,
                 BIOPSY,
                 Arguments.testDefaults(),
-                new StagedOutputPublisher(setApi, bucket, publisher, objectMapper, new Run(), PipelineStaged.OutputTarget.DATABASE),
+                new StagedOutputPublisher(setApi, bucket, publisher, objectMapper, new Run(), Context.RESEARCH, false, true),
                 new Anonymizer(Arguments.testDefaults()));
     }
 
@@ -117,7 +119,7 @@ public class ResearchMetadataApiTest {
                 setApi,
                 BIOPSY,
                 Arguments.testDefaults(),
-                new StagedOutputPublisher(setApi, bucket, publisher, ObjectMappers.get(), new Run(), PipelineStaged.OutputTarget.DATABASE),
+                new StagedOutputPublisher(setApi, bucket, publisher, ObjectMappers.get(), new Run(), Context.RESEARCH, true, true),
                 new Anonymizer(Arguments.testDefaultsBuilder().anonymize(true).build()));
         when(sampleApi.list(null, null, null, null, SampleType.TUMOR, BIOPSY)).thenReturn(List.of(tumor()));
         when(setApi.list(null, TUMOR_SAMPLE_ID, true)).thenReturn(List.of(new SampleSet().name(SET_NAME).id(SET_ID)));
@@ -135,13 +137,13 @@ public class ResearchMetadataApiTest {
 
         PipelineStaged result =
                 ObjectMappers.get().readValue(pubsubMessageArgumentCaptor.getValue().getData().toByteArray(), PipelineStaged.class);
-        assertThat(result.type()).isEqualTo(PipelineStaged.Type.DNA);
+        assertThat(result.analysisMolecule()).isEqualTo(Molecule.DNA);
         assertThat(result.runId()).isEmpty();
         assertThat(result.setId()).isEqualTo(SET_ID);
         assertThat(result.sample()).isEqualTo("tumor");
         assertThat(result.version()).isEqualTo("local-SNAPSHOT");
         PipelineOutputBlob blobResult = result.blobs().get(0);
-        assertThat(blobResult.barcode()).hasValue("tumor");
+        assertThat(blobResult.barcode()).isEmpty();
         assertThat(blobResult.bucket()).isEqualTo("bucket");
         assertThat(blobResult.datatype()).isEmpty();
         assertThat(blobResult.root()).isEqualTo("set");

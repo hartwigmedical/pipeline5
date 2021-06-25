@@ -25,10 +25,9 @@ import com.hartwig.pipeline.transfer.staged.StagedOutputPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ClinicalSomaticMetadataApi implements SomaticMetadataApi {
+public class DiagnosticSomaticMetadataApi implements SomaticMetadataApi {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(SomaticMetadataApi.class);
-    public static final String FINISHED = "Finished";
     public static final String FAILED = "Failed";
     private static final String PIPELINE_SOURCE = "Pipeline";
     private static final String HEALTH_CHECK = "HealthCheck";
@@ -38,7 +37,7 @@ public class ClinicalSomaticMetadataApi implements SomaticMetadataApi {
     private final SampleApi sampleApi;
     private final StagedOutputPublisher stagedOutputPublisher;
 
-    ClinicalSomaticMetadataApi(final Run run, final RunApi runApi, final SampleApi sampleApi,
+    DiagnosticSomaticMetadataApi(final Run run, final RunApi runApi, final SampleApi sampleApi,
             final StagedOutputPublisher stagedOutputPublisher, final Anonymizer anonymizer) {
         this.runApi = runApi;
         this.sampleApi = sampleApi;
