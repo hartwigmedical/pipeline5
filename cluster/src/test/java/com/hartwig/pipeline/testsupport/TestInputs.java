@@ -45,9 +45,9 @@ import com.hartwig.pipeline.tertiary.protect.ProtectOutput;
 import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
-import com.hartwig.pipeline.tertiary.virusbreakend.VirusBreakend;
-import com.hartwig.pipeline.tertiary.virusbreakend.VirusBreakendOutput;
-import com.hartwig.pipeline.tertiary.virusbreakend.VirusBreakendOutputLocations;
+import com.hartwig.pipeline.tertiary.virus.VirusAnalysis;
+import com.hartwig.pipeline.tertiary.virus.VirusOutput;
+import com.hartwig.pipeline.tertiary.virus.VirusOutputLocations;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -184,16 +184,6 @@ public class TestInputs {
                 .build();
     }
 
-    public static VirusBreakendOutput virusBreakendOutput() {
-        return VirusBreakendOutput.builder()
-                .status(PipelineStatus.SUCCESS)
-                .maybeOutputLocations(VirusBreakendOutputLocations.builder()
-                        .summaryFile(gsLocation(somaticBucket(VirusBreakend.NAMESPACE),
-                                TUMOR_SAMPLE + VirusBreakend.VIRUS_BREAKEND_SUMMARY))
-                        .build())
-                .build();
-    }
-
     public static SageOutput sageGermlineOutput() {
         return SageOutput.builder(SageGermlineCaller.NAMESPACE)
                 .status(PipelineStatus.SUCCESS)
@@ -234,6 +224,18 @@ public class TestInputs {
                         RESULTS + TUMOR_SAMPLE + full + FileTypes.GZIPPED_VCF))
                 .maybeFullVcfIndex(gsLocation(somaticBucket(StructuralCallerPostProcess.NAMESPACE),
                         RESULTS + TUMOR_SAMPLE + full + FileTypes.GZIPPED_VCF + ".tbi"))
+                .build();
+    }
+
+    public static VirusOutput virusOutput() {
+        return VirusOutput.builder()
+                .status(PipelineStatus.SUCCESS)
+                .maybeOutputLocations(VirusOutputLocations.builder()
+                        .summaryFile(gsLocation(somaticBucket(VirusAnalysis.NAMESPACE),
+                                TUMOR_SAMPLE + VirusAnalysis.VIRUS_BREAKEND_SUMMARY))
+                        .annotatedVirusFile(gsLocation(somaticBucket(VirusAnalysis.NAMESPACE),
+                                TUMOR_SAMPLE + VirusAnalysis.ANNOTATED_VIRUS_TSV))
+                        .build())
                 .build();
     }
 

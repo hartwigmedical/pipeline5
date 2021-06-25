@@ -42,8 +42,8 @@ import com.hartwig.pipeline.tertiary.peach.PeachOutput;
 import com.hartwig.pipeline.tertiary.protect.Protect;
 import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
-import com.hartwig.pipeline.tertiary.virusbreakend.VirusBreakend;
-import com.hartwig.pipeline.tertiary.virusbreakend.VirusBreakendOutput;
+import com.hartwig.pipeline.tertiary.virus.VirusAnalysis;
+import com.hartwig.pipeline.tertiary.virus.VirusOutput;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,8 +97,8 @@ public class SomaticPipeline {
                         executorService.submit(() -> stageRunner.run(metadata, new Amber(pair, resourceFiles, persistedDataset)));
                 Future<CobaltOutput> cobaltOutputFuture =
                         executorService.submit(() -> stageRunner.run(metadata, new Cobalt(pair, resourceFiles, persistedDataset)));
-                Future<VirusBreakendOutput> virusBreakendOutputFuture =
-                        executorService.submit(() -> stageRunner.run(metadata, new VirusBreakend(pair, resourceFiles)));
+                Future<VirusOutput> virusBreakendOutputFuture =
+                        executorService.submit(() -> stageRunner.run(metadata, new VirusAnalysis(pair, resourceFiles)));
                 Future<SageOutput> sageSomaticOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                         new SageSomaticCaller(pair, resourceFiles, persistedDataset, arguments.shallow())));
                 Future<SageOutput> sageGermlineOutputFuture = executorService.submit(() -> stageRunner.run(metadata,

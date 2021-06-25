@@ -11,6 +11,8 @@ public class FileTypes {
     public static final String CRAI = ".crai";
     public static final String CRAM = ".cram";
 
+    public static final String TSV = "tsv";
+
     public static String tabixIndex(final String vcf) {
         return vcf + TBI;
     }
