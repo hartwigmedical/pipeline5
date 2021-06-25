@@ -29,7 +29,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-public class ClinicalSomaticMetadataApiTest {
+public class DiagnosticSomaticMetadataApiTest {
 
     private static final long RUN_ID = 1;
     private static final long SET_ID = 2;
@@ -61,7 +61,7 @@ public class ClinicalSomaticMetadataApiTest {
         publisher = mock(StagedOutputPublisher.class);
         runApi = mock(RunApi.class);
         sampleApi = mock(SampleApi.class);
-        victim = new ClinicalSomaticMetadataApi(SOMATIC_RUN, runApi, sampleApi, publisher, new Anonymizer(Arguments.testDefaults()));
+        victim = new DiagnosticSomaticMetadataApi(SOMATIC_RUN, runApi, sampleApi, publisher, new Anonymizer(Arguments.testDefaults()));
     }
 
     @Test
@@ -78,7 +78,7 @@ public class ClinicalSomaticMetadataApiTest {
 
     @Test
     public void anonymizesSampleNameWhenActivated() {
-        victim = new ClinicalSomaticMetadataApi(SOMATIC_RUN,
+        victim = new DiagnosticSomaticMetadataApi(SOMATIC_RUN,
                 runApi,
                 sampleApi,
                 publisher,
@@ -111,7 +111,7 @@ public class ClinicalSomaticMetadataApiTest {
 
     @Test
     public void handlesSingleSampleSet() {
-        victim = new ClinicalSomaticMetadataApi(new Run().id(RUN_ID)
+        victim = new DiagnosticSomaticMetadataApi(new Run().id(RUN_ID)
                 .bucket("bucket")
                 .set(new RunSet().id(SET_ID).name("set"))
                 .ini(Ini.SINGLESAMPLE_INI.getValue()), runApi, sampleApi, publisher, new Anonymizer(Arguments.testDefaults()));
@@ -130,7 +130,7 @@ public class ClinicalSomaticMetadataApiTest {
 
     @Test(expected = IllegalStateException.class)
     public void throwsIllegalStateIfNoBucketInRun() {
-        victim = new ClinicalSomaticMetadataApi(new Run().bucket(null),
+        victim = new DiagnosticSomaticMetadataApi(new Run().bucket(null),
                 runApi,
                 sampleApi,
                 publisher,

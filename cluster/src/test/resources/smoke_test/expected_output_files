@@ -110,6 +110,7 @@ purple/circos/CPCT12345678T.map.circos
 purple/circos/CPCT12345678T.ratio.circos
 purple/circos/CPCT12345678T.snp.circos
 purple/circos/gaps.txt
+purple/CPCT12345678T.cnv.chromosomearm.somatic.tsv
 purple/CPCT12345678T.driver.catalog.somatic.tsv
 purple/CPCT12345678T.driver.catalog.germline.tsv
 purple/CPCT12345678T.purple.cnv.gene.tsv

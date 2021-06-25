@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.tertiary.virusbreakend;
+package com.hartwig.pipeline.tertiary.virus;
 
 import static com.hartwig.pipeline.resource.ResourceNames.VIRUSBREAKEND_DB;
 

@@ -15,6 +15,7 @@ public interface ResourceNames {
     String GRIDSS_PON = "gridss_pon";
     String GRIDSS_REPEAT_MASKER_DB = "gridss_repeatmasker_db";
     String VIRUSBREAKEND_DB = "virusbreakend_db";
+    String VIRUS_INTERPRETER = "virus_interpreter";
     String VIRUS_REFERENCE_GENOME = "virus_reference_genome";
     String LINX = "linx";
     String ENSEMBL_DATA_CACHE = "ensembl_data_cache";
