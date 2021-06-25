@@ -19,15 +19,14 @@ import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
-import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.chord.ChordOutput;
 import com.hartwig.pipeline.tertiary.linx.LinxOutput;
-import com.hartwig.pipeline.tertiary.linx.LinxOutputLocations;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
+import com.hartwig.pipeline.tertiary.virus.VirusOutput;
 
 public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
 
@@ -36,6 +35,7 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
 
     private final InputDownload purplePurity;
     private final InputDownload purpleQCFile;
+    private final InputDownload purpleGeneCopyNumberTsv;
     private final InputDownload purpleSomaticDriverCatalog;
     private final InputDownload purpleGermlineDriverCatalog;
     private final InputDownload purpleSomaticVariants;
@@ -43,26 +43,23 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
     private final InputDownload linxFusionTsv;
     private final InputDownload linxBreakendTsv;
     private final InputDownload linxDriverCatalogTsv;
+    private final InputDownload annotatedVirusTsv;
     private final InputDownload chordPrediction;
     private final ResourceFiles resourceFiles;
 
-    public Protect(final PurpleOutput purpleOutput, final LinxOutput linxOutput, final ChordOutput chordOutput,
-            final ResourceFiles resourceFiles) {
+    public Protect(final PurpleOutput purpleOutput, final LinxOutput linxOutput, final VirusOutput virusOutput,
+            final ChordOutput chordOutput, final ResourceFiles resourceFiles) {
         this.purplePurity = new InputDownload(purpleOutput.outputLocations().purityTsv());
         this.purpleQCFile = new InputDownload(purpleOutput.outputLocations().qcFile());
+        this.purpleGeneCopyNumberTsv = new InputDownload(purpleOutput.outputLocations().geneCopyNumberTsv());
         this.purpleSomaticDriverCatalog = new InputDownload(purpleOutput.outputLocations().somaticDriverCatalog());
         this.purpleGermlineDriverCatalog = new InputDownload(purpleOutput.outputLocations().germlineDriverCatalog());
         this.purpleSomaticVariants = new InputDownload(purpleOutput.outputLocations().somaticVcf());
         this.purpleGermlineVariants = new InputDownload(purpleOutput.outputLocations().germlineVcf());
-        this.linxFusionTsv = new InputDownload(linxOutput.maybeLinxOutputLocations()
-                .map(LinxOutputLocations::fusions)
-                .orElse(GoogleStorageLocation.empty()));
-        this.linxBreakendTsv = new InputDownload(linxOutput.maybeLinxOutputLocations()
-                .map(LinxOutputLocations::breakends)
-                .orElse(GoogleStorageLocation.empty()));
-        this.linxDriverCatalogTsv = new InputDownload(linxOutput.maybeLinxOutputLocations()
-                .map(LinxOutputLocations::driverCatalog)
-                .orElse(GoogleStorageLocation.empty()));
+        this.linxFusionTsv = new InputDownload(linxOutput.linxOutputLocations().fusions());
+        this.linxBreakendTsv = new InputDownload(linxOutput.linxOutputLocations().breakends());
+        this.linxDriverCatalogTsv = new InputDownload(linxOutput.linxOutputLocations().driverCatalog());
+        this.annotatedVirusTsv = new InputDownload(virusOutput.outputLocations().annotatedVirusFile());
         this.chordPrediction = new InputDownload(chordOutput.maybePredictions().orElse(GoogleStorageLocation.empty()));
         this.resourceFiles = resourceFiles;
     }
@@ -76,6 +73,7 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
     public List<BashCommand> inputs() {
         return List.of(purplePurity,
                 purpleQCFile,
+                purpleGeneCopyNumberTsv,
                 purpleSomaticDriverCatalog,
                 purpleGermlineDriverCatalog,
                 purpleSomaticVariants,
@@ -83,18 +81,22 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
                 linxFusionTsv,
                 linxBreakendTsv,
                 linxDriverCatalogTsv,
+                annotatedVirusTsv,
                 chordPrediction);
     }
 
     @Override
     public List<BashCommand> commands(final SomaticRunMetadata metadata) {
         return List.of(new ProtectCommand(metadata.tumor().sampleName(),
+                metadata.reference().sampleName(),
                 metadata.tumor().primaryTumorDoids(),
                 VmDirectories.OUTPUT,
                 resourceFiles.actionabilityDir(),
+                resourceFiles.version(),
                 resourceFiles.doidJson(),
                 purplePurity.getLocalTargetPath(),
                 purpleQCFile.getLocalTargetPath(),
+                purpleGeneCopyNumberTsv.getLocalTargetPath(),
                 purpleSomaticDriverCatalog.getLocalTargetPath(),
                 purpleGermlineDriverCatalog.getLocalTargetPath(),
                 purpleSomaticVariants.getLocalTargetPath(),
@@ -102,6 +104,7 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
                 linxFusionTsv.getLocalTargetPath(),
                 linxBreakendTsv.getLocalTargetPath(),
                 linxDriverCatalogTsv.getLocalTargetPath(),
+                annotatedVirusTsv.getLocalTargetPath(),
                 chordPrediction.getLocalTargetPath()));
     }
 
@@ -123,7 +126,8 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
                 .status(jobStatus)
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
-                .addDatatypes(new AddDatatype(DataType.PROTECT_EVIDENCE_TSV, metadata.barcode(),
+                .addDatatypes(new AddDatatype(DataType.PROTECT_EVIDENCE_TSV,
+                        metadata.barcode(),
                         new ArchivePath(Folder.root(), namespace(), metadata.tumor().sampleName() + PROTECT_EVIDENCE_TSV)))
                 .build();
     }
@@ -140,6 +144,6 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
 
     @Override
     public boolean shouldRun(final Arguments arguments) {
-        return arguments.runTertiary() && arguments.refGenomeVersion().equals(RefGenomeVersion.V37) && !arguments.shallow();
+        return arguments.runTertiary() && !arguments.shallow();
     }
 }

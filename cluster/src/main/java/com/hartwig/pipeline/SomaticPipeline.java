@@ -147,14 +147,15 @@ public class SomaticPipeline {
                             LinxOutput linxOutput = pipelineResults.add(state.add(linxOutputFuture.get()));
                             Future<CuppaOutput> cuppaOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                     new Cuppa(purpleOutput, linxOutput, resourceFiles)));
-                            ChordOutput chordOutput = pipelineResults.add(state.add(chordOutputFuture.get()));
                             Future<PeachOutput> peachOutputFuture =
                                     executorService.submit(() -> stageRunner.run(metadata, new Peach(purpleOutput, resourceFiles)));
+
+                            VirusOutput virusOutput = pipelineResults.add(state.add(virusOutputFuture.get()));
+                            ChordOutput chordOutput = pipelineResults.add(state.add(chordOutputFuture.get()));
                             pipelineResults.add(state.add(executorService.submit(() -> stageRunner.run(metadata,
-                                    new Protect(purpleOutput, linxOutput, chordOutput, resourceFiles))).get()));
+                                    new Protect(purpleOutput, linxOutput, virusOutput, chordOutput, resourceFiles))).get()));
                             pipelineResults.add(state.add(cuppaOutputFuture.get()));
                             pipelineResults.add(state.add(peachOutputFuture.get()));
-                            pipelineResults.add(state.add(virusOutputFuture.get()));
                             pipelineResults.compose(metadata);
                         }
                     }
