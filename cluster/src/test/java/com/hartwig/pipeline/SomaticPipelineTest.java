@@ -99,11 +99,11 @@ public class SomaticPipelineTest {
         PipelineState state = victim.run(TestInputs.defaultPair());
         assertThat(state.stageOutputs()).containsExactlyInAnyOrder(cobaltOutput(),
                 amberOutput(),
-                virusOutput(),
                 sageSomaticOutput(),
                 sageGermlineOutput(),
                 structuralCallerOutput(),
                 structuralCallerPostProcessOutput(),
+                virusOutput(),
                 purpleOutput(),
                 healthCheckerOutput(),
                 linxOutput(),
@@ -120,10 +120,10 @@ public class SomaticPipelineTest {
         SageOutput failSomatic = SageOutput.builder(SageSomaticCaller.NAMESPACE).status(PipelineStatus.FAILED).build();
         when(stageRunner.run(eq(defaultSomaticRunMetadata()), any())).thenReturn(amberOutput())
                 .thenReturn(cobaltOutput())
-                .thenReturn(virusOutput())
                 .thenReturn(failSomatic)
                 .thenReturn(sageGermlineOutput())
-                .thenReturn(structuralCallerOutput());
+                .thenReturn(structuralCallerOutput())
+                .thenReturn(virusOutput());
         PipelineState state = victim.run(TestInputs.defaultPair());
         assertThat(state.stageOutputs()).containsExactlyInAnyOrder(cobaltOutput(),
                 amberOutput(),
@@ -140,10 +140,10 @@ public class SomaticPipelineTest {
         StructuralCallerPostProcessOutput failGripss = StructuralCallerPostProcessOutput.builder().status(PipelineStatus.FAILED).build();
         when(stageRunner.run(eq(defaultSomaticRunMetadata()), any())).thenReturn(amberOutput())
                 .thenReturn(cobaltOutput())
-                .thenReturn(virusOutput())
                 .thenReturn(sageSomaticOutput())
                 .thenReturn(sageGermlineOutput())
                 .thenReturn(structuralCallerOutput())
+                .thenReturn(virusOutput())
                 .thenReturn(failGripss);
         PipelineState state = victim.run(TestInputs.defaultPair());
         assertThat(state.stageOutputs()).containsExactlyInAnyOrder(cobaltOutput(),
@@ -162,10 +162,10 @@ public class SomaticPipelineTest {
         PurpleOutput failPurple = PurpleOutput.builder().status(PipelineStatus.FAILED).build();
         when(stageRunner.run(eq(defaultSomaticRunMetadata()), any())).thenReturn(amberOutput())
                 .thenReturn(cobaltOutput())
-                .thenReturn(virusOutput())
                 .thenReturn(sageSomaticOutput())
                 .thenReturn(sageGermlineOutput())
                 .thenReturn(structuralCallerOutput())
+                .thenReturn(virusOutput())
                 .thenReturn(structuralCallerPostProcessOutput())
                 .thenReturn(failPurple);
         PipelineState state = victim.run(TestInputs.defaultPair());
@@ -186,10 +186,10 @@ public class SomaticPipelineTest {
         germlineCallingAvailable();
         when(stageRunner.run(eq(defaultSomaticRunMetadata()), any())).thenReturn(amberOutput())
                 .thenReturn(cobaltOutput())
-                .thenReturn(virusOutput())
                 .thenReturn(sageSomaticOutput())
                 .thenReturn(sageGermlineOutput())
                 .thenReturn(structuralCallerOutput())
+                .thenReturn(virusOutput())
                 .thenReturn(structuralCallerPostProcessOutput())
                 .thenReturn(purpleOutput())
                 .thenReturn(HealthCheckOutput.builder().from(healthCheckerOutput()).status(PipelineStatus.QC_FAILED).build())
@@ -218,10 +218,10 @@ public class SomaticPipelineTest {
         germlineCallingAvailable();
         when(stageRunner.run(eq(defaultSomaticRunMetadata()), any())).thenReturn(amberOutput())
                 .thenReturn(cobaltOutput())
-                .thenReturn(virusOutput())
                 .thenReturn(sageSomaticOutput())
                 .thenReturn(sageGermlineOutput())
                 .thenReturn(structuralCallerOutput())
+                .thenReturn(virusOutput())
                 .thenReturn(structuralCallerPostProcessOutput())
                 .thenReturn(purpleOutput())
                 .thenReturn(healthCheckerOutput())
