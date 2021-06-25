@@ -5,13 +5,12 @@ public class FileTypes {
     public static final String BAM = "bam";
     public static final String VCF = "vcf";
     public static final String GZIPPED_VCF = VCF + ".gz";
+    public static final String TSV = "tsv";
 
     public static final String TBI = ".tbi";
     public static final String BAI = ".bai";
     public static final String CRAI = ".crai";
     public static final String CRAM = ".cram";
-
-    public static final String TSV = "tsv";
 
     public static String tabixIndex(final String vcf) {
         return vcf + TBI;
