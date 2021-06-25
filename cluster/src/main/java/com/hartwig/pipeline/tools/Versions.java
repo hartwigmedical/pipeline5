@@ -20,12 +20,12 @@ public interface Versions {
     String AMBER = "3.4";
     String COBALT = "1.11";
     String HEALTH_CHECKER = "3.2";
-    String PURPLE = "2.54";
+    String PURPLE = "3.1";
     String CIRCOS = "0.69.6";
     String GRIDSS = "2.11.1";
     String VIRUSBREAKEND_GRIDSS = "2.11.1";
     String GRIPSS = "1.11";
-    String LINX = "1.15";
+    String LINX = "1.16";
     String CHORD = "2.00_1.14";
     String SAMTOOLS = "1.10";
     String BAMCOMP = "1.3";
@@ -34,6 +34,7 @@ public interface Versions {
     String KRAKEN = "2.1.0";
     String CUPPA = "1.4";
     String PEACH = "1.0";
+    String SIGS = "1.0";
 
     static void printAll() {
         Logger logger = LoggerFactory.getLogger(Versions.class);
@@ -75,6 +76,6 @@ public interface Versions {
     }
 
     static String imageVersion() {
-        return "5-22";
+        return "5-23";
     }
 }

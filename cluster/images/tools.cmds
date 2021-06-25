@@ -1,20 +1,9 @@
-sudo cpanm install Clone
-sudo cpanm install Config::General
-sudo cpanm install Font::TTF::Font
-sudo cpanm install GD
+sudo apt -y install libclone-perl libconfig-general-perl libfont-ttf-perl libgd-perl libsvg-perl libregexp-common-perl libtext-format-perl 
+sudo apt -y install libtext-soundex-perl libstatistics-basic-perl liblist-moreutils-perl libmath-bezier-perl libmath-round-perl
+sudo apt -y install libparams-validate-perl libreadonly-perl libset-intspan-perl
+
 sudo cpanm install GD::Polyline
-sudo cpanm install List::MoreUtils
-sudo cpanm install Math::Bezier
-sudo cpanm install Math::Round
 sudo cpanm install Math::VecStat
-sudo cpanm install Params::Validate
-sudo cpanm install Readonly
-sudo cpanm install Regexp::Common
-sudo cpanm install SVG
-sudo cpanm install Set::IntSpan
-sudo cpanm install Statistics::Basic
-sudo cpanm install Text::Format
-sudo cpanm install Text::Soundex
 
 # Not currently a candidate for management by virtual environments, please leave intact
 sudo apt -y install python3-h5py
@@ -27,12 +16,12 @@ sudo gsutil -m -o 'GSUtil:parallel_thread_count=1' -o 'GSUtil:sliced_object_down
 sudo tar xvzf /opt/tools/python/pyenv.tar.gz -C /root
 
 sudo /root/.pyenv/bin/pyenv install 3.6.10
-sudo chmod a+x /opt/tools/mk_python_venv
-sudo /opt/tools/mk_python_venv peach 1.0 3.6.10
+sudo chmod a+x /tmp/mk_python_venv
+sudo /tmp/mk_python_venv peach 1.0 3.6.10
 sudo mkdir -p /opt/tools/cuppa-chart/1.4
 sudo unzip /opt/tools/cuppa/1.4/cuppa.jar cuppa-chart/* -d /tmp/cuppa-chart-1.4
 sudo mv /tmp/cuppa-chart-1.4/cuppa-chart/* /opt/tools/cuppa-chart/1.4/
-sudo /opt/tools/mk_python_venv --no-extract-tarball cuppa-chart 1.4 3.6.10
+sudo /tmp/mk_python_venv --no-extract-tarball cuppa-chart 1.4 3.6.10
 
 # NOTE: This extracts overtop the system-managed R libraries.
 sudo tar xvf /opt/tools/R/rlibs.tar -C /

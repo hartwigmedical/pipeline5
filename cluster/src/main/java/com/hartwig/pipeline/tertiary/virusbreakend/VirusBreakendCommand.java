@@ -20,7 +20,7 @@ public class VirusBreakendCommand extends VersionedToolCommand {
                 "--reference",
                 resourceFiles.refGenomeFile(),
                 "--db",
-                VmDirectories.resourcesPath("virusbreakend/" + VIRUSBREAKEND_DB),
+                VmDirectories.resourcesPath(VIRUSBREAKEND_DB),
                 "--jar",
                 VmDirectories.toolPath("gridss/" + Versions.VIRUSBREAKEND_GRIDSS + "/gridss.jar"),
                 tumorBamPath);

@@ -3,7 +3,7 @@
 LOCATION="europe-west4"
 ZONE="${LOCATION}-a"
 PROJECT="hmf-pipeline-development"
-VERSION=5-22
+VERSION=5-23
 
 TOOLS_ONLY=false
 while getopts ':tf:' flag; do
@@ -35,11 +35,12 @@ generated_script=$(mktemp -t image_script_generated_XXXXX.sh)
 echo "#!/usr/bin/env bash"
 echo
 echo "set -e"
-echo "gsutil cp $(dirname $0)/mk_python_venv gs://common-tools/"
 echo $GCL instances create $sourceInstance --description=\"Instance for pipeline5 disk image creation\" --zone=${ZONE} \
     --boot-disk-size 200 --boot-disk-type pd-ssd --machine-type n1-highcpu-4 --image-project=${image_project} \
     --image-family=${image_family} --scopes=default,cloud-source-repos-ro
 echo sleep 10
+echo "$GCL scp $(dirname $0)/mk_python_venv ${sourceInstance}:/tmp/ --zone=${ZONE}"
+echo "$GCL scp $(dirname $0)/jranke.asc ${sourceInstance}:/tmp/ --zone=${ZONE}"
 cat $all_cmds | egrep -v  '^#|^ *$' | while read cmd
 do
     echo "$GCL ssh $sourceInstance --zone=${ZONE} --command=\"$cmd\""
