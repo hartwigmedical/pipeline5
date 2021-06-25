@@ -97,14 +97,14 @@ public class SomaticPipeline {
                         executorService.submit(() -> stageRunner.run(metadata, new Amber(pair, resourceFiles, persistedDataset)));
                 Future<CobaltOutput> cobaltOutputFuture =
                         executorService.submit(() -> stageRunner.run(metadata, new Cobalt(pair, resourceFiles, persistedDataset)));
-                Future<VirusOutput> virusBreakendOutputFuture =
-                        executorService.submit(() -> stageRunner.run(metadata, new VirusAnalysis(pair, resourceFiles)));
                 Future<SageOutput> sageSomaticOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                         new SageSomaticCaller(pair, resourceFiles, persistedDataset, arguments.shallow())));
                 Future<SageOutput> sageGermlineOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                         new SageGermlineCaller(pair, resourceFiles, persistedDataset)));
                 Future<StructuralCallerOutput> structuralCallerOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                         new StructuralCaller(pair, resourceFiles, persistedDataset)));
+                Future<VirusOutput> virusOutputFuture =
+                        executorService.submit(() -> stageRunner.run(metadata, new VirusAnalysis(pair, resourceFiles)));
 
                 AmberOutput amberOutput = pipelineResults.add(state.add(amberOutputFuture.get()));
                 CobaltOutput cobaltOutput = pipelineResults.add(state.add(cobaltOutputFuture.get()));
@@ -154,7 +154,7 @@ public class SomaticPipeline {
                                     new Protect(purpleOutput, linxOutput, chordOutput, resourceFiles))).get()));
                             pipelineResults.add(state.add(cuppaOutputFuture.get()));
                             pipelineResults.add(state.add(peachOutputFuture.get()));
-                            pipelineResults.add(state.add(virusBreakendOutputFuture.get()));
+                            pipelineResults.add(state.add(virusOutputFuture.get()));
                             pipelineResults.compose(metadata);
                         }
                     }
