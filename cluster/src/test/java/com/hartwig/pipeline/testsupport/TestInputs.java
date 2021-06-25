@@ -45,7 +45,9 @@ import com.hartwig.pipeline.tertiary.protect.ProtectOutput;
 import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
-import com.hartwig.pipeline.tertiary.virusbreakend.VirusBreakendOutput;
+import com.hartwig.pipeline.tertiary.virus.VirusAnalysis;
+import com.hartwig.pipeline.tertiary.virus.VirusOutput;
+import com.hartwig.pipeline.tertiary.virus.VirusOutputLocations;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -182,10 +184,6 @@ public class TestInputs {
                 .build();
     }
 
-    public static VirusBreakendOutput virusBreakendOutput() {
-        return VirusBreakendOutput.builder().status(PipelineStatus.SUCCESS).build();
-    }
-
     public static SageOutput sageGermlineOutput() {
         return SageOutput.builder(SageGermlineCaller.NAMESPACE)
                 .status(PipelineStatus.SUCCESS)
@@ -229,6 +227,18 @@ public class TestInputs {
                 .build();
     }
 
+    public static VirusOutput virusOutput() {
+        return VirusOutput.builder()
+                .status(PipelineStatus.SUCCESS)
+                .maybeOutputLocations(VirusOutputLocations.builder()
+                        .summaryFile(gsLocation(somaticBucket(VirusAnalysis.NAMESPACE),
+                                TUMOR_SAMPLE + VirusAnalysis.VIRUS_BREAKEND_SUMMARY))
+                        .annotatedVirusFile(gsLocation(somaticBucket(VirusAnalysis.NAMESPACE),
+                                TUMOR_SAMPLE + VirusAnalysis.ANNOTATED_VIRUS_TSV))
+                        .build())
+                .build();
+    }
+
     private static String somaticBucket(String namespace) {
         return SOMATIC_BUCKET + "/" + namespace;
     }
@@ -261,7 +271,8 @@ public class TestInputs {
                                 TUMOR_SAMPLE + Purple.PURPLE_SOMATIC_DRIVER_CATALOG))
                         .germlineDriverCatalog(gsLocation(somaticBucket(Purple.NAMESPACE),
                                 TUMOR_SAMPLE + Purple.PURPLE_GERMLINE_DRIVER_CATALOG))
-                        .build()).build();
+                        .build())
+                .build();
     }
 
     public static ChordOutput chordOutput() {

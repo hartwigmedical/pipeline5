@@ -24,6 +24,7 @@ public interface Versions {
     String CIRCOS = "0.69.6";
     String GRIDSS = "2.11.1";
     String VIRUSBREAKEND_GRIDSS = "2.11.1";
+    String VIRUS_INTERPRETER = "1.0";
     String GRIPSS = "1.11";
     String LINX = "1.16";
     String CHORD = "2.00_1.14";
