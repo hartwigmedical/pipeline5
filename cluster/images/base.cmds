@@ -3,7 +3,7 @@ echo 'tmpfs /root/.gsutil tmpfs size=128m 0 0' | sudo tee -a /etc/fstab
 
 sudo apt -y upgrade
 sudo apt -y install dirmngr apt-transport-https ca-certificates software-properties-common gnupg2
-sudo apt-key adv --keyserver keys.gnupg.net --recv-key 'E19F5F87128899B192B1A2C2AD5F960A256A04AF'
+sudo apt-key add /tmp/jranke.asc
 sudo add-apt-repository 'deb https://cloud.r-project.org/bin/linux/debian stretch-cran35/'
 sudo apt -y update
 sudo apt -y install perl-modules make time python3-pip python3-venv r-base vcftools

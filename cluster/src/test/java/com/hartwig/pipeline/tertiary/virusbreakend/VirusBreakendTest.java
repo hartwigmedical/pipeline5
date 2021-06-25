@@ -68,7 +68,7 @@ public class VirusBreakendTest extends TertiaryStageTest<VirusBreakendOutput> {
                         + "--output /data/output/tumor.virusbreakend.vcf "
                         + "--workingdir /data/output "
                         + "--reference /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
-                        + "--db /opt/resources/virusbreakend/virusbreakend_db "
+                        + "--db /opt/resources/virusbreakend_db "
                         + "--jar /opt/tools/gridss/2.11.1/gridss.jar "
                         + "/data/input/tumor.bam"
         );

@@ -61,8 +61,8 @@ from the full structural variant call set from GRIDSS and remove all low quality
 the read-depth ratios from Cobalt, BAFs from Amber, and structural/somatic variants to produce a comprehensive tumor analysis regarding 
 purity, ploidy, drivers and annotated variants.
 
-#### LINX
-[LINX](https://github.com/hartwigmedical/hmftools/tree/master/sv-linx) is an HMF in-house tool which interprets structural variants 
+#### Linx
+[Linx](https://github.com/hartwigmedical/hmftools/tree/master/linx) is an HMF in-house tool which interprets structural variants 
 from Purple and calls fusions and homozygously disrupted genes.
 
 #### PEACH
@@ -73,8 +73,8 @@ evidence.
 [VIRUSBreakend](https://github.com/PapenfussLab/gridss/blob/master/VIRUSBreakend_Readme.md) is a module within GRIDSS that is used to
 determine viral presence in the tumor sample.
 
-#### CUPPA
-[CUPPA](https://github.com/hartwigmedical/hmftools/tree/master/cuppa) is an HMF in-house tool which tries to predict the primary tumor 
+#### Cuppa
+[Cuppa](https://github.com/hartwigmedical/hmftools/tree/master/cuppa) is an HMF in-house tool which tries to predict the primary tumor 
 location based on the LINX and Purple results.
 
 #### CHORD

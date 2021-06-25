@@ -26,7 +26,7 @@ public interface Versions {
     String VIRUSBREAKEND_GRIDSS = "2.11.1";
     String VIRUS_INTERPRETER = "1.0";
     String GRIPSS = "1.11";
-    String LINX = "1.15";
+    String LINX = "1.16";
     String CHORD = "2.00_1.14";
     String SAMTOOLS = "1.10";
     String BAMCOMP = "1.3";
@@ -35,6 +35,7 @@ public interface Versions {
     String KRAKEN = "2.1.0";
     String CUPPA = "1.4";
     String PEACH = "1.0";
+    String SIGS = "1.0";
 
     static void printAll() {
         Logger logger = LoggerFactory.getLogger(Versions.class);

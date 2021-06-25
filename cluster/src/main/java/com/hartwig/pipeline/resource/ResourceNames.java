@@ -25,4 +25,5 @@ public interface ResourceNames {
     String SERVE = "serve";
     String CUPPA = "cuppa";
     String PEACH = "peach";
+    String SIGS = "sigs";
 }
