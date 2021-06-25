@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.tertiary.virusinterpreter;
+package com.hartwig.pipeline.tertiary.virusbreakend.virusinterpreter;
 
 import java.util.List;
 

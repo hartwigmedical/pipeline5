@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.tertiary.virusinterpreter;
+package com.hartwig.pipeline.tertiary.virusbreakend.virusinterpreter;
 
 import java.util.List;
 
@@ -29,7 +29,7 @@ public class VirusInterpreter implements Stage<VirusInterpreterOutput, SomaticRu
     private final ResourceFiles resourceFiles;
 
     public VirusInterpreter(final VirusBreakendOutput virusBreakendOutput, final ResourceFiles resourceFiles) {
-        this.virusBreakendSummary = new InputDownload(virusBreakendOutput.outputLocations().summary());
+        this.virusBreakendSummary = new InputDownload(virusBreakendOutput.outputLocations().summaryFile());
         this.resourceFiles = resourceFiles;
     }
 

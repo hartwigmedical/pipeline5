@@ -188,7 +188,8 @@ public class TestInputs {
         return VirusBreakendOutput.builder()
                 .status(PipelineStatus.SUCCESS)
                 .maybeOutputLocations(VirusBreakendOutputLocations.builder()
-                        .summary(gsLocation(somaticBucket(VirusBreakend.NAMESPACE), TUMOR_SAMPLE + VirusBreakend.VIRUS_BREAKEND_SUMMARY))
+                        .summaryFile(gsLocation(somaticBucket(VirusBreakend.NAMESPACE),
+                                TUMOR_SAMPLE + VirusBreakend.VIRUS_BREAKEND_SUMMARY))
                         .build())
                 .build();
     }

@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.tertiary.virusinterpreter;
+package com.hartwig.pipeline.tertiary.virusbreakend.virusinterpreter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -7,7 +7,7 @@ import org.immutables.value.Value;
 @Value.Immutable
 public interface VirusBreakendOutputLocations {
 
-    GoogleStorageLocation summary();
+    GoogleStorageLocation summaryFile();
 
     static ImmutableVirusBreakendOutputLocations.Builder builder() {
         return ImmutableVirusBreakendOutputLocations.builder();

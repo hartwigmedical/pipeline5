@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.tertiary.virusinterpreter;
+package com.hartwig.pipeline.tertiary.virusbreakend.virusinterpreter;
 
 import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.tertiary.virusbreakend.VirusBreakend;
