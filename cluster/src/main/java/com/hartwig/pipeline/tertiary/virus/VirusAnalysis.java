@@ -26,7 +26,6 @@ public class VirusAnalysis extends TertiaryStage<VirusOutput> {
 
     public static final String NAMESPACE = "virusbreakend";
 
-    public static final String VIRUS_BREAKEND_VCF = ".virusbreakend.vcf";
     public static final String VIRUS_BREAKEND_SUMMARY = ".virusbreakend.vcf.summary.tsv";
     public static final String ANNOTATED_VIRUS_TSV = ".virus.annotated.tsv";
 
@@ -58,7 +57,7 @@ public class VirusAnalysis extends TertiaryStage<VirusOutput> {
     @Override
     public VirusOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
             final ResultsDirectory resultsDirectory) {
-        String vcf = metadata.tumor().sampleName() + VIRUS_BREAKEND_VCF;
+        String vcf = metadata.tumor().sampleName() + ".virusbreakend.vcf";
         String summary = metadata.tumor().sampleName() + VIRUS_BREAKEND_SUMMARY;
         String annotated = metadata.tumor().sampleName() + ANNOTATED_VIRUS_TSV;
 
