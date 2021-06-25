@@ -67,7 +67,7 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
 
     @Override
     protected List<String> expectedCommands() {
-        return Collections.singletonList("java -Xmx12G -jar /opt/tools/purple/2.54/purple.jar "
+        return Collections.singletonList("java -Xmx12G -jar /opt/tools/purple/3.1/purple.jar "
                 + "-reference reference -germline_vcf /data/input/tumor.germline.vcf.gz -germline_hotspots /opt/resources/sage/37/KnownHotspots.germline.37.vcf.gz "
                 + "-tumor tumor -output_dir /data/output -amber /data/input/results -cobalt /data/input/results "
                 + "-gc_profile /opt/resources/gc_profiles/37/GC_profile.1000bp.37.cnp "
