@@ -33,7 +33,7 @@ public class VirusAnalysisTest extends TertiaryStageTest<VirusOutput> {
                 new AddDatatype(DataType.VIRUSBREAKEND_SUMMARY,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
                         new ArchivePath(Folder.root(), VirusAnalysis.NAMESPACE, "tumor.virusbreakend.vcf.summary.tsv")),
-                new AddDatatype(DataType.VIRUS_INTERPRETER,
+                new AddDatatype(DataType.VIRUS_INTERPRETATION,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
                         new ArchivePath(Folder.root(), VirusAnalysis.NAMESPACE, "tumor.virus.annotated.tsv")));
     }

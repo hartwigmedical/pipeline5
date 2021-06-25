@@ -79,7 +79,7 @@ public class VirusAnalysis extends TertiaryStage<VirusOutput> {
                         new AddDatatype(DataType.VIRUSBREAKEND_SUMMARY,
                                 metadata.barcode(),
                                 new ArchivePath(Folder.root(), namespace(), summary)),
-                        new AddDatatype(DataType.VIRUS_INTERPRETER,
+                        new AddDatatype(DataType.VIRUS_INTERPRETATION,
                                 metadata.barcode(),
                                 new ArchivePath(Folder.root(), namespace(), annotated)))
                 .build();
