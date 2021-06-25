@@ -25,8 +25,8 @@ import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.chord.ChordOutput;
 import com.hartwig.pipeline.tertiary.linx.LinxOutput;
-import com.hartwig.pipeline.tertiary.linx.LinxOutputLocations;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
+import com.hartwig.pipeline.tertiary.virus.VirusOutput;
 
 public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
 
@@ -43,11 +43,12 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
     private final InputDownload linxFusionTsv;
     private final InputDownload linxBreakendTsv;
     private final InputDownload linxDriverCatalogTsv;
+    private final InputDownload annotatedVirusTsv;
     private final InputDownload chordPrediction;
     private final ResourceFiles resourceFiles;
 
-    public Protect(final PurpleOutput purpleOutput, final LinxOutput linxOutput, final ChordOutput chordOutput,
-            final ResourceFiles resourceFiles) {
+    public Protect(final PurpleOutput purpleOutput, final LinxOutput linxOutput, final VirusOutput virusOutput,
+            final ChordOutput chordOutput, final ResourceFiles resourceFiles) {
         this.purplePurity = new InputDownload(purpleOutput.outputLocations().purityTsv());
         this.purpleQCFile = new InputDownload(purpleOutput.outputLocations().qcFile());
         this.purpleGeneCopyNumberTsv = new InputDownload(purpleOutput.outputLocations().geneCopyNumberTsv());
@@ -55,15 +56,10 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
         this.purpleGermlineDriverCatalog = new InputDownload(purpleOutput.outputLocations().germlineDriverCatalog());
         this.purpleSomaticVariants = new InputDownload(purpleOutput.outputLocations().somaticVcf());
         this.purpleGermlineVariants = new InputDownload(purpleOutput.outputLocations().germlineVcf());
-        this.linxFusionTsv = new InputDownload(linxOutput.maybeLinxOutputLocations()
-                .map(LinxOutputLocations::fusions)
-                .orElse(GoogleStorageLocation.empty()));
-        this.linxBreakendTsv = new InputDownload(linxOutput.maybeLinxOutputLocations()
-                .map(LinxOutputLocations::breakends)
-                .orElse(GoogleStorageLocation.empty()));
-        this.linxDriverCatalogTsv = new InputDownload(linxOutput.maybeLinxOutputLocations()
-                .map(LinxOutputLocations::driverCatalog)
-                .orElse(GoogleStorageLocation.empty()));
+        this.linxFusionTsv = new InputDownload(linxOutput.linxOutputLocations().fusions());
+        this.linxBreakendTsv = new InputDownload(linxOutput.linxOutputLocations().breakends());
+        this.linxDriverCatalogTsv = new InputDownload(linxOutput.linxOutputLocations().driverCatalog());
+        this.annotatedVirusTsv = new InputDownload(virusOutput.outputLocations().annotatedVirusFile());
         this.chordPrediction = new InputDownload(chordOutput.maybePredictions().orElse(GoogleStorageLocation.empty()));
         this.resourceFiles = resourceFiles;
     }
@@ -85,6 +81,7 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
                 linxFusionTsv,
                 linxBreakendTsv,
                 linxDriverCatalogTsv,
+                annotatedVirusTsv,
                 chordPrediction);
     }
 
@@ -107,8 +104,7 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
                 linxFusionTsv.getLocalTargetPath(),
                 linxBreakendTsv.getLocalTargetPath(),
                 linxDriverCatalogTsv.getLocalTargetPath(),
-                // TODO Fix when virus interpreter is added.
-                "dummy",
+                annotatedVirusTsv.getLocalTargetPath(),
                 chordPrediction.getLocalTargetPath()));
     }
 
@@ -130,7 +126,8 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
                 .status(jobStatus)
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
-                .addDatatypes(new AddDatatype(DataType.PROTECT_EVIDENCE_TSV, metadata.barcode(),
+                .addDatatypes(new AddDatatype(DataType.PROTECT_EVIDENCE_TSV,
+                        metadata.barcode(),
                         new ArchivePath(Folder.root(), namespace(), metadata.tumor().sampleName() + PROTECT_EVIDENCE_TSV)))
                 .build();
     }

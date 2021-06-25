@@ -22,6 +22,7 @@ public class ProtectTest extends TertiaryStageTest<ProtectOutput> {
     protected Stage<ProtectOutput, SomaticRunMetadata> createVictim() {
         return new Protect(TestInputs.purpleOutput(),
                 TestInputs.linxOutput(),
+                TestInputs.virusOutput(),
                 TestInputs.chordOutput(),
                 TestInputs.REF_GENOME_37_RESOURCE_FILES);
     }
@@ -38,6 +39,7 @@ public class ProtectTest extends TertiaryStageTest<ProtectOutput> {
                 input(expectedRuntimeBucketName() + "/linx/tumor.linx.fusion.tsv", "tumor.linx.fusion.tsv"),
                 input(expectedRuntimeBucketName() + "/linx/tumor.linx.breakend.tsv", "tumor.linx.breakend.tsv"),
                 input(expectedRuntimeBucketName() + "/linx/tumor.linx.driver.catalog.tsv", "tumor.linx.driver.catalog.tsv"),
+                input(expectedRuntimeBucketName() + "/virusbreakend/tumor.virus.annotated.tsv", "tumor.virus.annotated.tsv"),
                 input(expectedRuntimeBucketName() + "/chord/tumor_chord_prediction.txt", "tumor_chord_prediction.txt"));
     }
 
@@ -56,7 +58,7 @@ public class ProtectTest extends TertiaryStageTest<ProtectOutput> {
                         + "-purple_germline_variant_vcf /data/input/tumor.purple.germline.vcf.gz "
                         + "-linx_fusion_tsv /data/input/tumor.linx.fusion.tsv -linx_breakend_tsv /data/input/tumor.linx.breakend.tsv "
                         + "-linx_driver_catalog_tsv /data/input/tumor.linx.driver.catalog.tsv "
-                        + "-annotated_virus_tsv dummy "
+                        + "-annotated_virus_tsv /data/input/tumor.virus.annotated.tsv "
                         + "-chord_prediction_txt /data/input/tumor_chord_prediction.txt");
     }
 
