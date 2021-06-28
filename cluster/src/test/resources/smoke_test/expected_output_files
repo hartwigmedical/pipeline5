@@ -161,6 +161,9 @@ sage_somatic/CPCT12345678T.sage.somatic.vcf.gz.tbi
 sage_somatic/CPCT12345678T.sage.gene.coverage.tsv
 sage_somatic/run.log
 sage_somatic/run.sh
+sigs/CPCT12345678T.sig.allocation.tsv
+sigs/CPCT12345678T.sig.snv_counts.csv
+sigs/run.log
 gridss/CPCT12345678R.bam.gridss.working/CPCT12345678R.bam.cigar_metrics
 gridss/CPCT12345678R.bam.gridss.working/CPCT12345678R.bam.coverage.blacklist.bed
 gridss/CPCT12345678R.bam.gridss.working/CPCT12345678R.bam.idsv_metrics
