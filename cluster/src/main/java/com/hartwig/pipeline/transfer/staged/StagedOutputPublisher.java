@@ -26,6 +26,7 @@ import com.hartwig.pipeline.PipelineState;
 import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.calling.germline.GermlineCaller;
+import com.hartwig.pipeline.calling.sage.SageGermlineCaller;
 import com.hartwig.pipeline.cram.CramConversion;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.flagstat.Flagstat;
@@ -73,7 +74,6 @@ public class StagedOutputPublisher {
             ImmutablePipelineStaged.Builder germlineAnalysisEvent = eventBuilder(set, Type.GERMLINE, sampleName);
 
             OutputIterator.from(blob -> {
-                String blobPath  = blob.getName();
                 Optional<AddDatatype> dataType = addDatatypes.stream().filter(d -> blob.getName().endsWith(d.path())).findFirst();
                 Blob blobWithMd5 = sourceBucket.get(blob.getName());
                 if (isSecondary(blobWithMd5)) {
@@ -125,7 +125,10 @@ public class StagedOutputPublisher {
     }
 
     private boolean isGermline(final Blob blobWithMd5) {
-        return InNamespace.of(GermlineCaller.NAMESPACE).test(blobWithMd5);
+        return InNamespace.of(GermlineCaller.NAMESPACE)
+                .or(InNamespace.of(SageGermlineCaller.NAMESPACE))
+                .or(b -> b.getName().contains("germline"))
+                .test(blobWithMd5);
     }
 
     private boolean notSecondary(final Blob blobWithMd5) {
