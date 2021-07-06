@@ -39,6 +39,7 @@ public class StartingPoint {
         CRAM_COMPLETE(concat(ALIGNMENT_COMPLETE.namespaces, List.of(CramConversion.NAMESPACE))),
         CALLING_COMPLETE(concat(ALIGNMENT_COMPLETE.namespaces,
                 List.of(SageSomaticCaller.NAMESPACE,
+                        GermlineCaller.NAMESPACE,
                         StructuralCaller.NAMESPACE,
                         Cobalt.NAMESPACE,
                         Amber.NAMESPACE,
@@ -46,13 +47,14 @@ public class StartingPoint {
         GRIPSS_COMPLETE(concat(CALLING_COMPLETE.namespaces, List.of(StructuralCallerPostProcess.NAMESPACE))),
         PURPLE_COMPLETE(concat(GRIPSS_COMPLETE.namespaces, List.of(Purple.NAMESPACE))),
 
-        RERUN_521(concat(ALIGNMENT_COMPLETE.namespaces,
+        RERUN_523(concat(ALIGNMENT_COMPLETE.namespaces,
                 List.of(SageSomaticCaller.NAMESPACE,
-                        StructuralCaller.NAMESPACE,
-                        StructuralCallerPostProcess.NAMESPACE,
-                        Cobalt.NAMESPACE,
-                        Amber.NAMESPACE,
-                        Chord.NAMESPACE)));
+                GermlineCaller.NAMESPACE,
+                StructuralCaller.NAMESPACE,
+                StructuralCallerPostProcess.NAMESPACE,
+                Cobalt.NAMESPACE,
+                Amber.NAMESPACE,
+                Chord.NAMESPACE)));
 
         private final List<String> namespaces;
 
