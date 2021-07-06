@@ -151,7 +151,7 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
                 new AddDatatype(DataType.PURPLE_GERMLINE_DRIVER_CATALOG,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
                         new ArchivePath(Folder.root(), Purple.NAMESPACE, TUMOR_GERMLINE_DRIVER_CATALOG)),
-                new AddDatatype(DataType.PURPLE_GERMLINE_CNV,
+                new AddDatatype(DataType.PURPLE_GERMLINE_COPY_NUMBER,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
                         new ArchivePath(Folder.root(), Purple.NAMESPACE, TUMOR_GERMLINE_DRIVER_CNV)),
                 new AddDatatype(DataType.PURPLE_QC,

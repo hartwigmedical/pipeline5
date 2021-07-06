@@ -42,7 +42,7 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
     public static final String PURPLE_QC = ".purple.qc";
     public static final String PURPLE_SOMATIC_DRIVER_CATALOG = ".driver.catalog.somatic.tsv";
     public static final String PURPLE_GERMLINE_DRIVER_CATALOG = ".driver.catalog.germline.tsv";
-    public static final String PURPLE_GERMLINE_CNV = ".purple.cnv.germline.tsv";
+    public static final String PURPLE_GERMLINE_COPY_NUMBER_TSV = ".purple.cnv.germline.tsv";
     public static final String PURPLE_GENE_COPY_NUMBER_TSV = ".purple.cnv.gene.tsv";
 
     private final ResourceFiles resourceFiles;
@@ -120,7 +120,7 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
         String purityTsv = metadata.tumor().sampleName() + PURPLE_PURITY_TSV;
         String somaticDriverCatalog = metadata.tumor().sampleName() + PURPLE_SOMATIC_DRIVER_CATALOG;
         String germlineDriverCatalog = metadata.tumor().sampleName() + PURPLE_GERMLINE_DRIVER_CATALOG;
-        String germlineCnv = metadata.tumor().sampleName() + PURPLE_GERMLINE_CNV;
+        String germlineCnv = metadata.tumor().sampleName() + PURPLE_GERMLINE_COPY_NUMBER_TSV;
         String qcFile = metadata.tumor().sampleName() + PURPLE_QC;
         return PurpleOutput.builder()
                 .status(jobStatus)
@@ -157,7 +157,7 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
                 .addDatatypes(new AddDatatype(DataType.PURPLE_GERMLINE_DRIVER_CATALOG,
                         metadata.barcode(),
                         new ArchivePath(Folder.root(), namespace(), germlineDriverCatalog)))
-                .addDatatypes(new AddDatatype(DataType.PURPLE_GERMLINE_CNV,
+                .addDatatypes(new AddDatatype(DataType.PURPLE_GERMLINE_COPY_NUMBER,
                         metadata.barcode(),
                         new ArchivePath(Folder.root(), namespace(), germlineCnv)))
                 .addDatatypes(new AddDatatype(DataType.PURPLE_QC, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), qcFile)))
