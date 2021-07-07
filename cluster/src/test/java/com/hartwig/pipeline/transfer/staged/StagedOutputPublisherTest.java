@@ -107,8 +107,23 @@ public class StagedOutputPublisherTest {
     }
 
     @Test
-    public void publishesGermlineTertiaryAnalysisOnGermlineVcf() throws Exception {
-        verifyGermline(".germline.vcf.gz", "reference.germline.vcf.gz");
+    public void publishesGermlineAnalysisOnGatkGermlineVcf() throws Exception {
+        verifyGermline(".germline.vcf.gz", "reference.germline.vcf.gz", "/germline_caller/");
+    }
+
+    @Test
+    public void publishesGermlineAnalysisOnGatkGermlineVcfIndex() throws Exception {
+        verifyGermline(".germline.vcf.gz.tbi", "reference.germline.vcf.gz.tbi", "/germline_caller/");
+    }
+
+    @Test
+    public void publishesGermlineAnalysisOnSageGermlineVcf() throws Exception {
+        verifyGermline(".germline.vcf.gz", "reference.germline.vcf.gz", "/sage_germline/");
+    }
+
+    @Test
+    public void publishesGermlineAnalysisOnPurpleGermlineVcf() throws Exception {
+        verifyGermline(".germline.vcf.gz", "reference.germline.vcf.gz", "/purple/");
     }
 
     @Test
@@ -119,11 +134,6 @@ public class StagedOutputPublisherTest {
         ArgumentCaptor<PubsubMessage> published = publish(page, TestInputs.defaultSingleSampleRunMetadata());
         PipelineStaged result = OBJECT_MAPPER.readValue(new String(published.getValue().getData().toByteArray()), PipelineStaged.class);
         assertThat(result.sample()).isEqualTo("reference");
-    }
-
-    @Test
-    public void publishesGermlineTertiaryAnalysisOnGermlineVcfIndex() throws Exception {
-        verifyGermline(".germline.vcf.gz.tbi", "reference.germline.vcf.gz.tbi");
     }
 
     @Test
@@ -143,9 +153,9 @@ public class StagedOutputPublisherTest {
         assertThat(result.blobs().get(0).barcode()).hasValue("barcode");
     }
 
-    public void verifyGermline(final String filename, final String expectedFile) throws com.fasterxml.jackson.core.JsonProcessingException {
+    public void verifyGermline(final String filename, final String expectedFile, final String namespace) throws com.fasterxml.jackson.core.JsonProcessingException {
         when(state.status()).thenReturn(PipelineStatus.SUCCESS);
-        Blob vcf = withBucketAndMd5(blob("/germline_caller/" + TestInputs.referenceSample() + filename));
+        Blob vcf = withBucketAndMd5(blob(namespace + TestInputs.referenceSample() + filename));
         Page<Blob> page = pageOf(vcf);
         ArgumentCaptor<PubsubMessage> messageArgumentCaptor = publish(page, TestInputs.defaultSomaticRunMetadata());
 
