@@ -52,10 +52,10 @@ public class LilacBatch implements BatchOperation {
 
         // final String[] sampleIds = batchItems[0].split(";", -1);
         List<String> sampleIds = Lists.newArrayList(batchItems[0]);
-        boolean hasRna = false; // batchItems.length > 1 && batchItems[1].equals("RNA");
+        boolean hasRna = batchItems.length > 1 && batchItems[1].equals("RNA");
 
-        String runDirectory = "run_ref_17";
-        // String runDirectory = "run_test_ref_19";
+        // String runDirectory = "run_ref_18";
+        String runDirectory = "run_test_ref_20";
 
         // download pilot Lilac jar
         commands.addCommand(() -> format("gsutil -u hmf-crunch cp gs://%s/%s %s",
