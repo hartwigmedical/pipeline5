@@ -45,6 +45,7 @@ import com.hartwig.pipeline.tertiary.protect.ProtectOutput;
 import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
+import com.hartwig.pipeline.tertiary.sigs.SigsOutput;
 import com.hartwig.pipeline.tertiary.virus.VirusAnalysis;
 import com.hartwig.pipeline.tertiary.virus.VirusOutput;
 import com.hartwig.pipeline.tertiary.virus.VirusOutputLocations;
@@ -316,6 +317,10 @@ public class TestInputs {
 
     public static PeachOutput peachOutput() {
         return PeachOutput.builder().status(PipelineStatus.SUCCESS).build();
+    }
+
+    public static SigsOutput sigsOutput() {
+        return SigsOutput.builder().status(PipelineStatus.SUCCESS).build();
     }
 
     private static GoogleStorageLocation gsLocation(final String bucket, final String path) {
