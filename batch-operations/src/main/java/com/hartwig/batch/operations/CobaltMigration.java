@@ -30,6 +30,7 @@ public class CobaltMigration implements BatchOperation {
     }
 
     @Override
+
     public VirtualMachineJobDefinition execute(final InputBundle inputs, final RuntimeBucket runtimeBucket,
             final BashStartupScript commands, final RuntimeFiles executionFlags) {
 
@@ -50,7 +51,7 @@ public class CobaltMigration implements BatchOperation {
         commands.addCommand(new CopyLogToOutput(executionFlags.log(), "run.log"));
         commands.addCommand(new OutputUpload(archiveStorageLocation));
 
-        return VirtualMachineJobDefinition.cobaltMigration(commands, ResultsDirectory.defaultDirectory());
+        return VirtualMachineJobDefinition.cobalt(commands, ResultsDirectory.defaultDirectory());
     }
 
     private static String copyInputCommand(final GoogleStorageLocation targetLocation) {
