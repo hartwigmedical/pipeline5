@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
+import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
@@ -12,6 +13,8 @@ import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
+import com.hartwig.pipeline.metadata.AddDatatype;
+import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
@@ -48,17 +51,17 @@ public class Sigs implements Stage<SigsOutput, SomaticRunMetadata> {
     @Override
     public List<BashCommand> commands(final SomaticRunMetadata metadata) {
         return List.of(new JavaJarCommand("sigs",
-                        Versions.SIGS,
-                        "sigs.jar",
-                        "4G",
-                        List.of("-sample",
-                                metadata.tumor().sampleName(),
-                                "-signatures_file",
-                                resourceFiles.snvSignatures(),
-                                "-somatic_vcf_file",
-                                purpleSomaticVcfDownload.getLocalTargetPath(),
-                                "-output_dir",
-                                VmDirectories.OUTPUT)));
+                Versions.SIGS,
+                "sigs.jar",
+                "4G",
+                List.of("-sample",
+                        metadata.tumor().sampleName(),
+                        "-signatures_file",
+                        resourceFiles.snvSignatures(),
+                        "-somatic_vcf_file",
+                        purpleSomaticVcfDownload.getLocalTargetPath(),
+                        "-output_dir",
+                        VmDirectories.OUTPUT)));
     }
 
     @Override
@@ -79,6 +82,9 @@ public class Sigs implements Stage<SigsOutput, SomaticRunMetadata> {
                 .status(jobStatus)
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
+                .addDatatypes(new AddDatatype(DataType.SIGNATURE_ALLOCATION,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), metadata.tumor().sampleName() + ".sig.allocation.tsv")))
                 .build();
     }
 
