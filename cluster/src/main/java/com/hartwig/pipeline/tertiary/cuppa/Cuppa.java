@@ -96,6 +96,7 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
                 .startupCommand(bash)
                 .namespacedResults(resultsDirectory)
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 16))
+                .workingDiskSpaceGb(375)
                 .build();
     }
 

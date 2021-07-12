@@ -70,6 +70,7 @@ public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
                 .startupCommand(bash)
                 .namespacedResults(resultsDirectory)
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(2, 4))
+                .workingDiskSpaceGb(375)
                 .build();
     }
 
