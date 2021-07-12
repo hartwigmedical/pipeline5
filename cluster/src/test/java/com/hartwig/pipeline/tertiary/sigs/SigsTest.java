@@ -5,15 +5,15 @@ import static com.hartwig.pipeline.testsupport.TestInputs.purpleOutput;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.Collections;
 import java.util.List;
 
+import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.metadata.AddDatatype;
+import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
+import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
-import com.hartwig.pipeline.tertiary.sigs.Sigs;
-import com.hartwig.pipeline.tertiary.sigs.SigsOutput;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
 public class SigsTest extends TertiaryStageTest<SigsOutput> {
@@ -29,11 +29,6 @@ public class SigsTest extends TertiaryStageTest<SigsOutput> {
     }
 
     @Override
-    protected List<AddDatatype> expectedFurtherOperations() {
-        return Collections.emptyList();
-    }
-
-    @Override
     protected Stage<SigsOutput, SomaticRunMetadata> createVictim() {
         return new Sigs(purpleOutput(), TestInputs.REF_GENOME_37_RESOURCE_FILES);
     }
@@ -43,6 +38,13 @@ public class SigsTest extends TertiaryStageTest<SigsOutput> {
         return List.of("java -Xmx4G -jar /opt/tools/sigs/1.0/sigs.jar -sample tumor "
                 + "-signatures_file /opt/resources/sigs/snv_cosmic_signatures.csv -somatic_vcf_file /data/input/tumor.purple.somatic.vcf.gz "
                 + "-output_dir /data/output");
+    }
+
+    @Override
+    protected List<AddDatatype> expectedFurtherOperations() {
+        return List.of(new AddDatatype(DataType.SIGNATURE_ALLOCATION,
+                TestInputs.defaultSomaticRunMetadata().barcode(),
+                new ArchivePath(Folder.root(), Sigs.NAMESPACE, "tumor.sig.allocation.tsv")));
     }
 
     @Override
