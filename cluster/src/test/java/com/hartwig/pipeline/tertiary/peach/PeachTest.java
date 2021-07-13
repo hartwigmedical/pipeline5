@@ -29,10 +29,10 @@ public class PeachTest extends TertiaryStageTest<PeachOutput> {
 
     @Override
     protected List<AddDatatype> expectedFurtherOperations() {
-        return List.of(new AddDatatype(DataType.PEACH_CALLS_TSV,
+        return List.of(new AddDatatype(DataType.PEACH_CALLS,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
                         new ArchivePath(Folder.root(), Peach.NAMESPACE, "tumor.peach.calls.tsv")),
-                new AddDatatype(DataType.PEACH_GENOTYPE_TSV,
+                new AddDatatype(DataType.PEACH_GENOTYPE,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
                         new ArchivePath(Folder.root(), Peach.NAMESPACE, "tumor.peach.genotype.tsv")));
     }

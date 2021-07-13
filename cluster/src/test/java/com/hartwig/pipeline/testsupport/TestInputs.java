@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.testsupport;
 
+import static java.lang.String.format;
+
 import java.util.List;
 
 import com.hartwig.pipeline.alignment.Aligner;
@@ -273,6 +275,10 @@ public class TestInputs {
                                 TUMOR_SAMPLE + Purple.PURPLE_SOMATIC_DRIVER_CATALOG))
                         .germlineDriverCatalog(gsLocation(somaticBucket(Purple.NAMESPACE),
                                 TUMOR_SAMPLE + Purple.PURPLE_GERMLINE_DRIVER_CATALOG))
+                        .circosPlot(gsLocation(somaticBucket(Purple.NAMESPACE),
+                                format("plot/%s%s", TUMOR_SAMPLE, Purple.PURPLE_CIRCOS_PLOT)))
+                        .somaticCopyNumberTsv(gsLocation(somaticBucket(Purple.NAMESPACE),
+                                TUMOR_SAMPLE + Purple.PURPLE_SOMATIC_COPY_NUMBER_TSV))
                         .build())
                 .build();
     }
