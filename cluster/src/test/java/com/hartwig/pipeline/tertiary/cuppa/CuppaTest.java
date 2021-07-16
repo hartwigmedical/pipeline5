@@ -6,11 +6,13 @@ import static com.hartwig.pipeline.testsupport.TestInputs.purpleOutput;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.Collections;
 import java.util.List;
 
+import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.metadata.AddDatatype;
+import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
+import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
@@ -29,7 +31,12 @@ public class CuppaTest extends TertiaryStageTest<CuppaOutput> {
 
     @Override
     protected List<AddDatatype> expectedFurtherOperations() {
-        return Collections.emptyList();
+        return List.of(new AddDatatype(DataType.CUPPA_CHART,
+                        TestInputs.defaultSomaticRunMetadata().barcode(),
+                        new ArchivePath(Folder.root(), Cuppa.NAMESPACE, "tumor.cuppa.chart.png")),
+                new AddDatatype(DataType.CUPPA_CONCLUSION,
+                        TestInputs.defaultSomaticRunMetadata().barcode(),
+                        new ArchivePath(Folder.root(), Cuppa.NAMESPACE, "tumor.cuppa.conclusion.txt")));
     }
 
     @Override

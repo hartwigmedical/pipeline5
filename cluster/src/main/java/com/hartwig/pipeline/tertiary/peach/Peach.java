@@ -80,10 +80,10 @@ public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
                 .status(jobStatus)
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
-                .addDatatypes(new AddDatatype(DataType.PEACH_CALLS_TSV,
+                .addDatatypes(new AddDatatype(DataType.PEACH_CALLS,
                                 metadata.barcode(),
                                 new ArchivePath(Folder.root(), namespace(), metadata.tumor().sampleName() + PEACH_CALLS_TSV)),
-                        new AddDatatype(DataType.PEACH_GENOTYPE_TSV,
+                        new AddDatatype(DataType.PEACH_GENOTYPE,
                                 metadata.barcode(),
                                 new ArchivePath(Folder.root(), namespace(), metadata.tumor().sampleName() + PEACH_GENOTYPE_TSV)))
                 .build();

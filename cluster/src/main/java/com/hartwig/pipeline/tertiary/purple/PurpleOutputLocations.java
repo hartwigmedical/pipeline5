@@ -6,6 +6,7 @@ import org.immutables.value.Value;
 
 @Value.Immutable
 public interface PurpleOutputLocations {
+    GoogleStorageLocation circosPlot();
 
     GoogleStorageLocation outputDirectory();
 
@@ -22,6 +23,8 @@ public interface PurpleOutputLocations {
     GoogleStorageLocation geneCopyNumberTsv();
 
     GoogleStorageLocation somaticDriverCatalog();
+
+    GoogleStorageLocation somaticCopyNumberTsv();
 
     GoogleStorageLocation germlineDriverCatalog();
 
