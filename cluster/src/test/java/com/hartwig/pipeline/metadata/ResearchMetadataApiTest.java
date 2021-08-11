@@ -111,6 +111,7 @@ public class ResearchMetadataApiTest {
         assertThat(somaticRunMetadata.tumor().barcode()).isEqualTo(TUMOR_BARCODE);
         assertThat(somaticRunMetadata.reference().sampleName()).isEqualTo(REF_NAME);
         assertThat(somaticRunMetadata.reference().barcode()).isEqualTo(REF_BARCODE);
+        assertThat(somaticRunMetadata.tumor().primaryTumorDoids()).containsOnly("1234", "5678");
     }
 
     @Test
@@ -207,7 +208,12 @@ public class ResearchMetadataApiTest {
     }
 
     private static Sample tumor() {
-        return new Sample().id(TUMOR_SAMPLE_ID).name(TUMOR_NAME).barcode(TUMOR_BARCODE).type(SampleType.TUMOR).status(SampleStatus.READY);
+        return new Sample().id(TUMOR_SAMPLE_ID)
+                .name(TUMOR_NAME)
+                .barcode(TUMOR_BARCODE)
+                .type(SampleType.TUMOR)
+                .status(SampleStatus.READY)
+                .primaryTumorDoids(List.of("1234", "5678"));
     }
 
     private static Sample ref() {
