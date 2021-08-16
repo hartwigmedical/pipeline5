@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 
+import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
@@ -26,7 +27,7 @@ public class PersistedAlignmentTest {
         PersistedDataset persistedDataset = mock(PersistedDataset.class);
         when(persistedDataset.path(TestInputs.referenceRunMetadata().sampleName(), DataType.ALIGNED_READS)).thenReturn(Optional.of(
                 PERSISTED_REFERENCE_CRAM));
-        PersistedAlignment victim = new PersistedAlignment(persistedDataset);
+        PersistedAlignment victim = new PersistedAlignment(persistedDataset, Arguments.testDefaults());
         AlignmentOutput output = victim.run(TestInputs.referenceRunMetadata());
         assertThat(output.sample()).isEqualTo("reference");
         assertThat(output.status()).isEqualTo(PipelineStatus.PERSISTED);
@@ -37,11 +38,22 @@ public class PersistedAlignmentTest {
 
     @Test
     public void returnsBamsInConventionalLocationIfNoPersisted() {
-        PersistedAlignment victim = new PersistedAlignment(new NoopPersistedDataset());
+        PersistedAlignment victim = new PersistedAlignment(new NoopPersistedDataset(), Arguments.testDefaults());
         AlignmentOutput output = victim.run(TestInputs.referenceRunMetadata());
         assertThat(output.sample()).isEqualTo("reference");
         assertThat(output.status()).isEqualTo(PipelineStatus.PERSISTED);
         assertThat(output.finalBamLocation()).isEqualTo(GoogleStorageLocation.of("bucket", "set/reference/aligner/reference.bam"));
         assertThat(output.finalBaiLocation()).isEqualTo(GoogleStorageLocation.of("bucket", "set/reference/aligner/reference.bam.bai"));
+    }
+
+    @Test
+    public void returnsCramsInConventionalLocationIfNoPersistedAndUseCrams() {
+        PersistedAlignment victim =
+                new PersistedAlignment(new NoopPersistedDataset(), Arguments.testDefaultsBuilder().useCrams(true).build());
+        AlignmentOutput output = victim.run(TestInputs.referenceRunMetadata());
+        assertThat(output.sample()).isEqualTo("reference");
+        assertThat(output.status()).isEqualTo(PipelineStatus.PERSISTED);
+        assertThat(output.finalBamLocation()).isEqualTo(GoogleStorageLocation.of("bucket", "set/reference/cram/reference.cram"));
+        assertThat(output.finalBaiLocation()).isEqualTo(GoogleStorageLocation.of("bucket", "set/reference/cram/reference.cram.crai"));
     }
 }
