@@ -1,7 +1,9 @@
 package com.hartwig.pipeline.metadata;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.hartwig.api.SampleApi;
@@ -64,6 +66,7 @@ public class ResearchMetadataApi implements SomaticMetadataApi {
                 .set(set)
                 .sampleName(anonymizer.sampleName(sample))
                 .bucket(arguments.outputBucket())
+                .primaryTumorDoids(Optional.ofNullable(sample.getPrimaryTumorDoids()).orElse(Collections.emptyList()))
                 .build();
     }
 
