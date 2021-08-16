@@ -7,8 +7,12 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
+import com.hartwig.pipeline.metadata.AddDatatype;
+import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
+import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.StageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
@@ -50,6 +54,13 @@ public class FlagstatTest extends StageTest<FlagstatOutput, SingleSampleRunMetad
         return Collections.singletonList(
                 "($TOOLS_DIR/sambamba/0.6.8/sambamba flagstat -t $(grep -c '^processor' /proc/cpuinfo) /data/input/reference.bam > "
                         + "/data/output/reference.flagstat)");
+    }
+
+    @Override
+    protected List<AddDatatype> expectedFurtherOperations() {
+        return List.of(new AddDatatype(DataType.FLAGSTAT,
+                TestInputs.referenceRunMetadata().barcode(),
+                new ArchivePath(Folder.from(TestInputs.referenceRunMetadata()), Flagstat.NAMESPACE, "reference.flagstat")));
     }
 
     @Override
