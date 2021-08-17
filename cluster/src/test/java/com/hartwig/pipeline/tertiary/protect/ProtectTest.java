@@ -84,7 +84,7 @@ public class ProtectTest extends TertiaryStageTest<ProtectOutput> {
 
     @Override
     protected List<AddDatatype> expectedFurtherOperations() {
-        return List.of(new AddDatatype(DataType.PROTECT_EVIDENCE_TSV,
+        return List.of(new AddDatatype(DataType.PROTECT_EVIDENCE,
                 TestInputs.defaultSomaticRunMetadata().barcode(),
                 new ArchivePath(Folder.root(), Protect.NAMESPACE, "tumor.protect.tsv")));
     }

@@ -30,6 +30,8 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
     public static final String TUMOR_QC = "tumor.purple.qc";
     public static final String TUMOR_SOMATIC_DRIVER_CATALOG = "tumor.driver.catalog.somatic.tsv";
     public static final String TUMOR_GERMLINE_DRIVER_CATALOG = "tumor.driver.catalog.germline.tsv";
+    public static final String TUMOR_SOMATIC_COPY_NUMBER = "tumor.purple.cnv.somatic.tsv";
+    public static final String TUMOR_CIRCOS_PLOT = "plot/tumor.circos.png";
 
     @Before
     public void setUp() throws Exception {
@@ -38,8 +40,7 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
 
     @Override
     protected Stage<PurpleOutput, SomaticRunMetadata> createVictim() {
-        return new Purple(TestInputs.REF_GENOME_37_RESOURCE_FILES,
-                TestInputs.sageSomaticOutput(),
+        return new Purple(TestInputs.REF_GENOME_37_RESOURCE_FILES, TestInputs.sageSomaticOutput(),
                 TestInputs.sageGermlineOutput(),
                 TestInputs.structuralCallerPostProcessOutput(),
                 TestInputs.amberOutput(),
@@ -152,6 +153,12 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
                         new ArchivePath(Folder.root(), Purple.NAMESPACE, TUMOR_GERMLINE_DRIVER_CATALOG)),
                 new AddDatatype(DataType.PURPLE_QC,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
-                        new ArchivePath(Folder.root(), Purple.NAMESPACE, TUMOR_QC)));
+                        new ArchivePath(Folder.root(), Purple.NAMESPACE, TUMOR_QC)),
+                new AddDatatype(DataType.PURPLE_CIRCOS_PLOT,
+                        TestInputs.defaultSomaticRunMetadata().barcode(),
+                        new ArchivePath(Folder.root(), Purple.NAMESPACE, TUMOR_CIRCOS_PLOT)),
+                new AddDatatype(DataType.PURPLE_SOMATIC_COPY_NUMBER,
+                        TestInputs.defaultSomaticRunMetadata().barcode(),
+                        new ArchivePath(Folder.root(), Purple.NAMESPACE, TUMOR_SOMATIC_COPY_NUMBER)));
     }
 }
