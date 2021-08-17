@@ -6,8 +6,8 @@ import com.hartwig.pipeline.resource.RefGenomeVersion;
 
 public class RnaCommon {
 
-    public static final String RNA_RESOURCES = "gs://rna-resources";
-    public static final String RNA_COHORT_LOCATION_V37 = "gs://rna-cohort";
+    public static final String RNA_RESOURCES = "gs://hmf-crunch-resources/rna"; // before restructure: gs://rna-resources
+    public static final String RNA_COHORT_LOCATION_V37 = "gs://hmf-rna-analysis";
     public static final String RNA_COHORT_LOCATION_V38 = "gs://rna-cohort-38";
 
     public static final String REF_GENCODE_37_DIR = "hs37d5_GENCODE19";

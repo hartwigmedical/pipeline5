@@ -41,6 +41,7 @@ public class RnaIsofox implements BatchOperation {
     private static final String EXP_COUNTS_READ_76 = "read_76_exp_counts.csv";
     private static final String EXP_COUNTS_READ_151 = "read_151_exp_counts.csv";
     private static final String EXP_GC_COUNTS_READ_100 = "read_100_exp_gc_ratios.csv";
+    private static final String NEO_EPITOPE_DIR = "gs://hmf-immune-analysis/neos";
     private static final String READ_LENGTH_76 = "76";
     private static final String READ_LENGTH_151 = "151";
 
@@ -90,16 +91,17 @@ public class RnaIsofox implements BatchOperation {
 
         final ResourceFiles resourceFiles = buildResourceFiles(refGenomeVersion);
 
-        final String rnaCohortDirectory = getRnaCohortDirectory(refGenomeVersion);
+        // final String rnaCohortDirectory = getRnaCohortDirectory(refGenomeVersion);
+        final String samplesDir = String.format("%s/%s", getRnaCohortDirectory(refGenomeVersion), "samples");
 
         // copy down BAM and index file for this sample
         final String bamFile = String.format("%s%s", sampleId, RNA_BAM_FILE_ID);
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s/%s %s",
-                rnaCohortDirectory, sampleId, bamFile, VmDirectories.INPUT));
+                samplesDir, sampleId, bamFile, VmDirectories.INPUT));
 
         final String bamIndexFile = String.format("%s%s", sampleId, RNA_BAM_INDEX_FILE_ID);
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s/%s %s",
-                rnaCohortDirectory, sampleId, bamIndexFile, VmDirectories.INPUT));
+                samplesDir, sampleId, bamIndexFile, VmDirectories.INPUT));
 
         // copy down the executable
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s %s",
@@ -108,8 +110,8 @@ public class RnaIsofox implements BatchOperation {
         startupScript.addCommand(() -> format("chmod a+x %s/%s", VmDirectories.TOOLS, ISOFOX_JAR));
 
         // copy down required reference files
-        startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/* %s",
-                getRnaResourceDirectory(refGenomeVersion, ENSEMBL_DATA_CACHE), VmDirectories.INPUT));
+        //startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/* %s",
+        //        getRnaResourceDirectory(refGenomeVersion, ENSEMBL_DATA_CACHE), VmDirectories.INPUT));
 
         final String expectedCountsFile = readLength.equals(READ_LENGTH_76) ? EXP_COUNTS_READ_76 : EXP_COUNTS_READ_151;
 
@@ -133,8 +135,8 @@ public class RnaIsofox implements BatchOperation {
 
         if(functionsStr.contains(FUNC_NEO_EPITOPES)) {
 
-            startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/neoepitopes/%s %s",
-                    rnaCohortDirectory, neoEpitopeFile, VmDirectories.INPUT));
+            startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s %s",
+                    NEO_EPITOPE_DIR, neoEpitopeFile, VmDirectories.INPUT));
         }
 
         // run Isofox
@@ -146,7 +148,7 @@ public class RnaIsofox implements BatchOperation {
         isofoxArgs.append(String.format(" -bam_file %s/%s", VmDirectories.INPUT, bamFile));
 
         isofoxArgs.append(String.format(" -ref_genome %s", resourceFiles.refGenomeFile()));
-        isofoxArgs.append(String.format(" -gene_transcripts_dir %s", VmDirectories.INPUT));
+        isofoxArgs.append(String.format(" -gene_transcripts_dir %s", resourceFiles.ensemblDataCache()));
         isofoxArgs.append(String.format(" -long_frag_limit %d", LONG_FRAG_LENGTH_LIMIT));
 
         if(refGenomeVersion == RefGenomeVersion.V38)
@@ -198,13 +200,13 @@ public class RnaIsofox implements BatchOperation {
         if(functionsStr.equals(FUNC_FUSIONS))
         {
             startupScript.addCommand(() -> format("gsutil -m cp %s/*fusions.csv %s/%s/isofox/",
-                    VmDirectories.OUTPUT, rnaCohortDirectory, sampleId));
+                    VmDirectories.OUTPUT, samplesDir, sampleId));
         }
         else
         {
             // copy results to rna-analysis location on crunch
             startupScript.addCommand(() -> format("gsutil -m cp %s/* %s/%s/isofox/", VmDirectories.OUTPUT,
-                    rnaCohortDirectory, sampleId));
+                    samplesDir, sampleId));
         }
 
         return ImmutableVirtualMachineJobDefinition.builder().name("rna-isofox").startupCommand(startupScript)

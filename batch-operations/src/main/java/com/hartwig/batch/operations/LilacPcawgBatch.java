@@ -53,7 +53,7 @@ public class LilacPcawgBatch implements BatchOperation {
 
         String sampleId = batchItems[0];
 
-        String runDirectory = "run_cptac_01";
+        String runDirectory = "run_pcawg_02";
 
         // download pilot Lilac jar
         commands.addCommand(() -> format("gsutil -u hmf-crunch cp gs://%s/%s %s",
