@@ -6,6 +6,7 @@ import java.util.List;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
+import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
@@ -13,6 +14,8 @@ import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.unix.SubShellCommand;
+import com.hartwig.pipeline.metadata.AddDatatype;
+import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
@@ -70,6 +73,9 @@ public class Flagstat implements Stage<FlagstatOutput, SingleSampleRunMetadata> 
                         outputFile,
                         outputFile,
                         resultsDirectory))
+                .addDatatypes(new AddDatatype(DataType.FLAGSTAT,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.from(metadata), Flagstat.NAMESPACE, outputFile)))
                 .build();
     }
 
