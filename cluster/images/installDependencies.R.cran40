@@ -8,16 +8,18 @@
 #
 #   1. Start a VM and MAKE SURE `/usr/local/lib/R/site-library` both exists and is empty. 
 #   2. Confirm `/usr/local/lib/R/site-library` is first in the output of `.libPaths()` from an R shell
-#   3. Install required packages with `apt install libcurl4-openssl-dev libssl-dev libxml2-dev dirmngr apt-transport-https ca-certificates software-properties-common gnupg2`
+#   3. Install required packages with `apt install libcurl4-openssl-dev libssl-dev libxml2-dev dirmngr apt-transport-https ca-certificates software-properties-common gnupg2 libmagick++-dev`
 #   4. Install cran40 R:
 #      a. `add-apt-repository 'deb https://cloud.r-project.org/bin/linux/debian buster-cran40/'`
 #      b. `apt update`
 #      c. `apt install r-base`
-#   3. Run this script with `Rscript ./installDependencies.R`
-#   4. Make sure `/usr/local/lib/R/site-library` was populated as expected
-#   5. Make a new tarball: `cd /; tar cvf rlibs.tar /usr/local/lib/R/site-library`
-#   6. Create a backup of the existing tarball in the tools bucket, then copy the new tarball over the original
-#   7. Re-run the imaging script and verify installed versions of R libs. See `./listInstalledLibs.R`.
+#   5. Run this script with `Rscript ./installDependencies.R | tee rebuild.log`
+#   6. Make sure `/usr/local/lib/R/site-library` was populated as expected
+#   7. Check for errors/missing libraries in the rebuild log as the whole build may exit with 0 but if an underlying library is
+#      missing then it won't build the R extension
+#   8. Make a new tarball: `cd /; tar cvf rlibs.tar /usr/local/lib/R/site-library`
+#   9. Create a backup of the existing tarball in the tools bucket, then copy the new tarball over the original
+#   0. Re-run the imaging script and verify installed versions of R libs. See `./listInstalledLibs.R`.
 #
 # Once built the dependencies are placed in the "tools" bucket on GCP we use for imaging. See `package.cmds` for
 # the current bucket name. The tarball is extracted at image creation time so if any R dependencies have to be updated a new
