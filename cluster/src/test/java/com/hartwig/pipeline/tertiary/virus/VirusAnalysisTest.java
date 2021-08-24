@@ -68,7 +68,7 @@ public class VirusAnalysisTest extends TertiaryStageTest<VirusOutput> {
                 "/opt/tools/gridss/2.11.1/virusbreakend.sh " + "--output /data/output/tumor.virusbreakend.vcf "
                         + "--workingdir /data/output "
                         + "--reference /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
-                        + "--db /opt/resources/virusbreakend_db --jar /opt/tools/gridss/2.11.1/gridss.jar /data/input/tumor.bam",
+                        + "--db /opt/resources/virusbreakend_db --jar /opt/tools/gridss/2.11.1/gridss.jar --gridssargs \"--jvmheap 31G\" /data/input/tumor.bam",
                 "java -Xmx2G -jar /opt/tools/virus-interpreter/1.0/virus-interpreter.jar -sample_id tumor "
                         + "-virus_breakend_tsv /data/output/tumor.virusbreakend.vcf.summary.tsv "
                         + "-taxonomy_db_tsv /opt/resources/virus_interpreter/taxonomy_db.tsv "
