@@ -8,6 +8,7 @@ import java.util.Optional;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.sbpapi.SbpRestApi;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
@@ -22,11 +23,18 @@ public class ApiPersistedDataset implements PersistedDataset {
         this.billingProject = billingProject;
         try {
             String dataset = restApi.getDataset(biopsyName);
-            this.datasetMap = objectMapper.readValue(dataset, new TypeReference<>() {
-            });
+            this.datasetMap = deserialize(objectMapper, dataset);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static Map<String, Map<String, Map<String, String>>> deserialize(final ObjectMapper objectMapper, final String dataset)
+            throws com.fasterxml.jackson.core.JsonProcessingException {
+        ObjectNode objectNode = (ObjectNode) objectMapper.readTree(dataset);
+        objectNode.remove("rna_raw_reads");
+        return objectMapper.convertValue(objectNode, new TypeReference<>() {
+        });
     }
 
     @Override
