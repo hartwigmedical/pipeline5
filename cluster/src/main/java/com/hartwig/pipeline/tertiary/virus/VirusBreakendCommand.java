@@ -24,7 +24,7 @@ public class VirusBreakendCommand extends VersionedToolCommand {
                 "--jar",
                 VmDirectories.toolPath("gridss/" + Versions.VIRUSBREAKEND_GRIDSS + "/gridss.jar"),
                 "--gridssargs",
-                "\"--jvmheap 31G\"",
+                "\"--jvmheap 60G\"",
                 tumorBamPath);
     }
 }
