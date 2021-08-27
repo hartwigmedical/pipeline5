@@ -46,7 +46,8 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
                 TestInputs.amberOutput(),
                 TestInputs.cobaltOutput(),
                 persistedDataset,
-                false);
+                false,
+                true);
     }
 
     @Override
@@ -89,6 +90,7 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
                 TestInputs.amberOutput(),
                 TestInputs.cobaltOutput(),
                 new NoopPersistedDataset(),
+                true,
                 true);
         assertThat(victim.commands(input()).get(0).asBash()).contains("-highly_diploid_percentage 0.88 -somatic_min_purity_spread 0.1");
     }
