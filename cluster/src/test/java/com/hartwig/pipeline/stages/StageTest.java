@@ -59,7 +59,10 @@ public abstract class StageTest<S extends StageOutput, M extends RunMetadata> {
 
     @Test
     public void declaresExpectedInputs() {
-        assertThat(victim.inputs().stream().map(BashCommand::asBash).collect(Collectors.toList())).isEqualTo(expectedInputs());
+        assertThat(victim.inputs()
+                .stream()
+                .map(BashCommand::asBash)
+                .collect(Collectors.toList())).containsExactlyInAnyOrder(expectedInputs().toArray(String[]::new));
     }
 
     @Test
@@ -115,7 +118,7 @@ public abstract class StageTest<S extends StageOutput, M extends RunMetadata> {
     @Test
     public void returnsExpectedFurtherOperations() {
         assertThat(victim.output(input(), PipelineStatus.SUCCESS, runtimeBucket, ResultsDirectory.defaultDirectory())
-                .datatypes()).isEqualTo(expectedFurtherOperations());
+                .datatypes()).containsExactlyInAnyOrder(expectedFurtherOperations().toArray(AddDatatype[]::new));
     }
 
     @Test
