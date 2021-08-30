@@ -80,7 +80,7 @@ public class SingleSamplePipeline {
             Future<SnpGenotypeOutput> unifiedGenotyperFuture =
                     executorService.submit(() -> stageRunner.run(metadata, new SnpGenotype(resourceFiles, alignmentOutput)));
             Future<FlagstatOutput> flagstatOutputFuture =
-                    executorService.submit(() -> stageRunner.run(metadata, new Flagstat(alignmentOutput)));
+                    executorService.submit(() -> stageRunner.run(metadata, new Flagstat(alignmentOutput, persistedDataset)));
             Future<CramOutput> cramOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                     new CramConversion(alignmentOutput, metadata.type(), resourceFiles)));
 

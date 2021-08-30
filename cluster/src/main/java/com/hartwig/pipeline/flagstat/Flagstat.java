@@ -21,6 +21,8 @@ import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.report.SingleFileComponent;
 import com.hartwig.pipeline.report.StartupScriptComponent;
+import com.hartwig.pipeline.reruns.PersistedDataset;
+import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
@@ -29,9 +31,11 @@ public class Flagstat implements Stage<FlagstatOutput, SingleSampleRunMetadata> 
     public static final String NAMESPACE = "flagstat";
 
     private final InputDownload bamDownload;
+    private final PersistedDataset persistedDataset;
 
-    public Flagstat(final AlignmentOutput alignmentOutput) {
+    public Flagstat(final AlignmentOutput alignmentOutput, final PersistedDataset persistedDataset) {
         bamDownload = new InputDownload(alignmentOutput.finalBamLocation());
+        this.persistedDataset = persistedDataset;
     }
 
     @Override
@@ -81,7 +85,17 @@ public class Flagstat implements Stage<FlagstatOutput, SingleSampleRunMetadata> 
 
     @Override
     public FlagstatOutput persistedOutput(final SingleSampleRunMetadata metadata) {
-        return FlagstatOutput.builder().status(PipelineStatus.PERSISTED).sample(metadata.name()).build();
+        String outputFile = FlagstatOutput.outputFile(metadata.sampleName());
+        return FlagstatOutput.builder()
+                .status(PipelineStatus.PERSISTED)
+                .sample(metadata.sampleName())
+                .maybeFlagstatOutputFile(persistedDataset.path(metadata.sampleName(), DataType.FLAGSTAT)
+                        .orElse(GoogleStorageLocation.of(metadata.bucket(),
+                                PersistedLocations.blobForSingle(metadata.set(), metadata.sampleName(), namespace(), outputFile))))
+                .addDatatypes(new AddDatatype(DataType.FLAGSTAT,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.from(metadata), namespace(), outputFile)))
+                .build();
     }
 
     @Override

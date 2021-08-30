@@ -8,16 +8,21 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.datatypes.DataType;
-import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.StageTest;
+import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
 public class FlagstatTest extends StageTest<FlagstatOutput, SingleSampleRunMetadata> {
+
+    public static final String REFERENCE_FLAGSTAT = FlagstatOutput.outputFile(TestInputs.referenceSample());
+    public static final AddDatatype ADD_DATATYPE = new AddDatatype(DataType.FLAGSTAT,
+            TestInputs.referenceRunMetadata().barcode(),
+            new ArchivePath(Folder.from(TestInputs.referenceRunMetadata()), Flagstat.NAMESPACE, "reference.flagstat"));
 
     @Override
     protected Arguments createDisabledArguments() {
@@ -31,7 +36,7 @@ public class FlagstatTest extends StageTest<FlagstatOutput, SingleSampleRunMetad
 
     @Override
     protected Stage<FlagstatOutput, SingleSampleRunMetadata> createVictim() {
-        return new Flagstat(TestInputs.referenceAlignmentOutput());
+        return new Flagstat(TestInputs.referenceAlignmentOutput(), persistedDataset);
     }
 
     @Override
@@ -58,9 +63,7 @@ public class FlagstatTest extends StageTest<FlagstatOutput, SingleSampleRunMetad
 
     @Override
     protected List<AddDatatype> expectedFurtherOperations() {
-        return List.of(new AddDatatype(DataType.FLAGSTAT,
-                TestInputs.referenceRunMetadata().barcode(),
-                new ArchivePath(Folder.from(TestInputs.referenceRunMetadata()), Flagstat.NAMESPACE, "reference.flagstat")));
+        return List.of(ADD_DATATYPE);
     }
 
     @Override
@@ -70,9 +73,19 @@ public class FlagstatTest extends StageTest<FlagstatOutput, SingleSampleRunMetad
 
     @Override
     protected void validatePersistedOutput(final FlagstatOutput output) {
-        assertThat(output).isEqualTo(FlagstatOutput.builder()
-                .status(PipelineStatus.PERSISTED)
-                .sample(TestInputs.referenceSample())
-                .build());
+        assertThat(output.flagstatOutputFile()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
+                "set/reference/flagstat/" + REFERENCE_FLAGSTAT));
+    }
+
+    @Override
+    protected void setupPersistedDataset() {
+        persistedDataset.addPath(DataType.FLAGSTAT, "flagstat/" + REFERENCE_FLAGSTAT);
+    }
+
+    @Override
+    protected void validatePersistedOutputFromPersistedDataset(final FlagstatOutput output) {
+        assertThat(output.flagstatOutputFile()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
+                "flagstat/" + REFERENCE_FLAGSTAT));
+                assertThat(output.datatypes()).containsExactly(ADD_DATATYPE);
     }
 }
