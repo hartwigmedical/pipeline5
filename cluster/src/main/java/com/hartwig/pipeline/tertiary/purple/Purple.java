@@ -83,16 +83,17 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
 
     @Override
     public List<BashCommand> commands(final SomaticRunMetadata metadata) {
-        BashCommand command = new PurpleCommandBuilder(resourceFiles,
+        PurpleCommandBuilder builder = new PurpleCommandBuilder(resourceFiles,
                 amberOutputDownload.getLocalTargetPath(),
                 cobaltOutputDownload.getLocalTargetPath(),
                 metadata.tumor().sampleName(),
                 structuralVcfDownload.getLocalTargetPath(),
                 svRecoveryVcfDownload.getLocalTargetPath(),
-                somaticVcfDownload.getLocalTargetPath()).addGermline(metadata.reference().sampleName(),
-                germlineVcfDownload.getLocalTargetPath()).setShallow(shallow).build();
-
-        return Collections.singletonList(command);
+                somaticVcfDownload.getLocalTargetPath()).setShallow(shallow);
+        if (sageGermlineEnabled) {
+            builder.addGermline(metadata.reference().sampleName(), germlineVcfDownload.getLocalTargetPath());
+        }
+        return Collections.singletonList(builder.build());
     }
 
     @Override

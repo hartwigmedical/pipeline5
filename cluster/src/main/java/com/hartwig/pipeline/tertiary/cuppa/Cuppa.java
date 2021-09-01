@@ -28,7 +28,7 @@ import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tools.Versions;
 
 public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
-    static String NAMESPACE = "cuppa";
+    public static String NAMESPACE = "cuppa";
     private final InputDownload purpleSomaticVcfDownload;
     private final InputDownload purpleStructuralVcfDownload;
     private final InputDownload purpleOutputDirectory;

@@ -27,7 +27,7 @@ import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tools.Versions;
 
 public class Sigs implements Stage<SigsOutput, SomaticRunMetadata> {
-    static String NAMESPACE = "sigs";
+    public static String NAMESPACE = "sigs";
 
     private final InputDownload purpleSomaticVcfDownload;
 

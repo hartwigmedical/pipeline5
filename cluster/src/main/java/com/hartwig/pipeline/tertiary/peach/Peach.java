@@ -27,7 +27,7 @@ import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tools.Versions;
 
 public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
-    static final String NAMESPACE = "peach";
+    public static final String NAMESPACE = "peach";
     private static final String PEACH_CALLS_TSV = ".peach.calls.tsv";
     private static final String PEACH_GENOTYPE_TSV = ".peach.genotype.tsv";
 
