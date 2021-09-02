@@ -54,13 +54,13 @@ public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
         return List.of(new Python3Command("peach",
                 Versions.PEACH,
                 "src/main.py",
-                List.of(purpleGermlineVcfDownload.getLocalTargetPath(),
-                        metadata.tumor().sampleName(),
-                        metadata.reference().sampleName(),
-                        Versions.PEACH,
-                        VmDirectories.OUTPUT,
-                        resourceFiles.peachFilterBed(),
-                        "/usr/bin/vcftools")));
+                List.of("--vcf", purpleGermlineVcfDownload.getLocalTargetPath(),
+                        "--sample_t_id", metadata.tumor().sampleName(),
+                        "--sample_r_id", metadata.reference().sampleName(),
+                        "--version", Versions.PEACH,
+                        "--outputdir", VmDirectories.OUTPUT,
+                        "--panel", resourceFiles.peachFilterBed(),
+                        "--vcftools", "/usr/bin/vcftools")));
     }
 
     @Override
