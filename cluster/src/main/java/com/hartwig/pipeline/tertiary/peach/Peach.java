@@ -96,6 +96,11 @@ public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
     }
 
     @Override
+    public PeachOutput persistedOutput(final SomaticRunMetadata metadata) {
+        return PeachOutput.builder().status(PipelineStatus.PERSISTED).build();
+    }
+
+    @Override
     public boolean shouldRun(final Arguments arguments) {
         return !arguments.shallow() && arguments.runTertiary();
     }

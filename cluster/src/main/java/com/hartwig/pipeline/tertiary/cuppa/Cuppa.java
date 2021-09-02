@@ -116,6 +116,11 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
     }
 
     @Override
+    public CuppaOutput persistedOutput(final SomaticRunMetadata metadata) {
+        return CuppaOutput.builder().status(PipelineStatus.PERSISTED).build();
+    }
+
+    @Override
     public boolean shouldRun(final Arguments arguments) {
         return !arguments.shallow() && arguments.runTertiary();
     }

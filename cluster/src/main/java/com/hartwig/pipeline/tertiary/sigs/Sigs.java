@@ -94,6 +94,11 @@ public class Sigs implements Stage<SigsOutput, SomaticRunMetadata> {
     }
 
     @Override
+    public SigsOutput persistedOutput(final SomaticRunMetadata metadata) {
+        return SigsOutput.builder().status(PipelineStatus.PERSISTED).build();
+    }
+
+    @Override
     public boolean shouldRun(final Arguments arguments) {
         return !arguments.shallow() && arguments.runTertiary();
     }
