@@ -52,8 +52,6 @@ public class SmokeTest {
 
     @Before
     public void setUp() throws Exception {
-        System.setProperty("javax.net.ssl.keyStorePassword", "changeit");
-        System.setProperty("javax.net.ssl.keyStore", workingDir() + "/api.jks");
         resultsDir = new File(workingDir() + "/results");
         assertThat(resultsDir.mkdir()).isTrue();
     }
@@ -65,7 +63,7 @@ public class SmokeTest {
 
     @Test
     public void runFullPipelineAndCheckFinalStatus() throws Exception {
-        String apiUrl = "https://api.acc.hartwigmedicalfoundation.nl";
+        String apiUrl = "http://api.pilot-1";
         PipelineMain victim = new PipelineMain();
         String version = System.getProperty("version");
         String runId = "smoke-" + noDots(version);
