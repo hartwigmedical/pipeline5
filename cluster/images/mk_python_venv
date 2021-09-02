@@ -12,6 +12,7 @@ fi
 export PATH="/root/.pyenv/versions/${3}/bin:$PATH"
 python -m venv /opt/tools/${1}/${2}_venv
 source /opt/tools/${1}/${2}_venv/bin/activate
+pip install --upgrade pip
 grep -v '^$' /opt/tools/${1}/${2}/requirements.txt | while read l; do 
   pip install $l
 done
