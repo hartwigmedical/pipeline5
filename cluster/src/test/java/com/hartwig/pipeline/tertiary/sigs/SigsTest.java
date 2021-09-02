@@ -53,6 +53,11 @@ public class SigsTest extends TertiaryStageTest<SigsOutput> {
     }
 
     @Override
+    protected void validatePersistedOutput(final SigsOutput output) {
+        // no additional validation
+    }
+
+    @Override
     protected boolean isEnabledOnShallowSeq() {
         return false;
     }

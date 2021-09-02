@@ -52,6 +52,11 @@ public class CuppaTest extends TertiaryStageTest<CuppaOutput> {
     }
 
     @Override
+    protected void validatePersistedOutput(final CuppaOutput output) {
+        // no additional validation
+    }
+
+    @Override
     protected boolean isEnabledOnShallowSeq() {
         return false;
     }
