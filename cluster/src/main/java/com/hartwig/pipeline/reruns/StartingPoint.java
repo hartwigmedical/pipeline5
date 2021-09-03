@@ -21,7 +21,13 @@ import com.hartwig.pipeline.snpgenotype.SnpGenotype;
 import com.hartwig.pipeline.tertiary.amber.Amber;
 import com.hartwig.pipeline.tertiary.chord.Chord;
 import com.hartwig.pipeline.tertiary.cobalt.Cobalt;
+import com.hartwig.pipeline.tertiary.cuppa.Cuppa;
+import com.hartwig.pipeline.tertiary.healthcheck.HealthChecker;
+import com.hartwig.pipeline.tertiary.peach.Peach;
+import com.hartwig.pipeline.tertiary.protect.Protect;
 import com.hartwig.pipeline.tertiary.purple.Purple;
+import com.hartwig.pipeline.tertiary.sigs.Sigs;
+import com.hartwig.pipeline.tertiary.virus.VirusAnalysis;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -39,6 +45,7 @@ public class StartingPoint {
         CRAM_COMPLETE(concat(ALIGNMENT_COMPLETE.namespaces, List.of(CramConversion.NAMESPACE))),
         CALLING_COMPLETE(concat(ALIGNMENT_COMPLETE.namespaces,
                 List.of(SageSomaticCaller.NAMESPACE,
+                        GermlineCaller.NAMESPACE,
                         StructuralCaller.NAMESPACE,
                         Cobalt.NAMESPACE,
                         Amber.NAMESPACE,
@@ -46,13 +53,23 @@ public class StartingPoint {
         GRIPSS_COMPLETE(concat(CALLING_COMPLETE.namespaces, List.of(StructuralCallerPostProcess.NAMESPACE))),
         PURPLE_COMPLETE(concat(GRIPSS_COMPLETE.namespaces, List.of(Purple.NAMESPACE))),
 
-        RERUN_521(concat(ALIGNMENT_COMPLETE.namespaces,
+        RERUN_523(concat(ALIGNMENT_COMPLETE.namespaces,
                 List.of(SageSomaticCaller.NAMESPACE,
+                        GermlineCaller.NAMESPACE,
                         StructuralCaller.NAMESPACE,
                         StructuralCallerPostProcess.NAMESPACE,
                         Cobalt.NAMESPACE,
                         Amber.NAMESPACE,
-                        Chord.NAMESPACE)));
+                        Chord.NAMESPACE))),
+
+        PURPLE_LINX(concat(GRIPSS_COMPLETE.namespaces,
+                List.of(Chord.NAMESPACE,
+                        HealthChecker.NAMESPACE,
+                        Sigs.NAMESPACE,
+                        Peach.NAMESPACE,
+                        Cuppa.NAMESPACE,
+                        Protect.NAMESPACE,
+                        VirusAnalysis.NAMESPACE)));
 
         private final List<String> namespaces;
 

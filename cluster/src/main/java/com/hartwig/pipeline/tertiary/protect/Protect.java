@@ -1,6 +1,7 @@
 package com.hartwig.pipeline.tertiary.protect;
 
 import java.util.List;
+import java.util.function.Function;
 
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
@@ -25,8 +26,12 @@ import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.chord.ChordOutput;
 import com.hartwig.pipeline.tertiary.linx.LinxOutput;
+import com.hartwig.pipeline.tertiary.linx.LinxOutputLocations;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tertiary.virus.VirusOutput;
+import com.hartwig.pipeline.tertiary.virus.VirusOutputLocations;
+
+import org.jetbrains.annotations.NotNull;
 
 public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
 
@@ -56,12 +61,20 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
         this.purpleGermlineDriverCatalog = new InputDownload(purpleOutput.outputLocations().germlineDriverCatalog());
         this.purpleSomaticVariants = new InputDownload(purpleOutput.outputLocations().somaticVcf());
         this.purpleGermlineVariants = new InputDownload(purpleOutput.outputLocations().germlineVcf());
-        this.linxFusionTsv = new InputDownload(linxOutput.linxOutputLocations().fusions());
-        this.linxBreakendTsv = new InputDownload(linxOutput.linxOutputLocations().breakends());
-        this.linxDriverCatalogTsv = new InputDownload(linxOutput.linxOutputLocations().driverCatalog());
-        this.annotatedVirusTsv = new InputDownload(virusOutput.outputLocations().annotatedVirusFile());
+        this.linxFusionTsv = new InputDownload(linxOrEmpty(linxOutput, LinxOutputLocations::fusions));
+        this.linxBreakendTsv = new InputDownload(linxOrEmpty(linxOutput, LinxOutputLocations::breakends));
+        this.linxDriverCatalogTsv = new InputDownload(linxOrEmpty(linxOutput, LinxOutputLocations::driverCatalog));
+        this.annotatedVirusTsv = new InputDownload(virusOutput.maybeOutputLocations()
+                .map(VirusOutputLocations::annotatedVirusFile)
+                .orElse(GoogleStorageLocation.empty()));
         this.chordPrediction = new InputDownload(chordOutput.maybePredictions().orElse(GoogleStorageLocation.empty()));
         this.resourceFiles = resourceFiles;
+    }
+
+    @NotNull
+    public GoogleStorageLocation linxOrEmpty(final LinxOutput linxOutput,
+            final Function<LinxOutputLocations, GoogleStorageLocation> extractor) {
+        return linxOutput.maybeLinxOutputLocations().map(extractor).orElse(GoogleStorageLocation.empty());
     }
 
     @Override

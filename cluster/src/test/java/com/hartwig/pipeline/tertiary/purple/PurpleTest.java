@@ -32,6 +32,7 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
     public static final String TUMOR_GERMLINE_DRIVER_CATALOG = "tumor.driver.catalog.germline.tsv";
     public static final String TUMOR_SOMATIC_COPY_NUMBER = "tumor.purple.cnv.somatic.tsv";
     public static final String TUMOR_CIRCOS_PLOT = "plot/tumor.circos.png";
+    public static final String TUMOR_GERMLINE_DRIVER_CNV = "tumor.purple.cnv.germline.tsv";
 
     @Before
     public void setUp() throws Exception {
@@ -40,13 +41,15 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
 
     @Override
     protected Stage<PurpleOutput, SomaticRunMetadata> createVictim() {
-        return new Purple(TestInputs.REF_GENOME_37_RESOURCE_FILES, TestInputs.sageSomaticOutput(),
+        return new Purple(TestInputs.REF_GENOME_37_RESOURCE_FILES,
+                TestInputs.sageSomaticOutput(),
                 TestInputs.sageGermlineOutput(),
                 TestInputs.structuralCallerPostProcessOutput(),
                 TestInputs.amberOutput(),
                 TestInputs.cobaltOutput(),
                 persistedDataset,
-                false);
+                false,
+                true);
     }
 
     @Override
@@ -89,6 +92,7 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
                 TestInputs.amberOutput(),
                 TestInputs.cobaltOutput(),
                 new NoopPersistedDataset(),
+                true,
                 true);
         assertThat(victim.commands(input()).get(0).asBash()).contains("-highly_diploid_percentage 0.88 -somatic_min_purity_spread 0.1");
     }
@@ -151,6 +155,9 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
                 new AddDatatype(DataType.PURPLE_GERMLINE_DRIVER_CATALOG,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
                         new ArchivePath(Folder.root(), Purple.NAMESPACE, TUMOR_GERMLINE_DRIVER_CATALOG)),
+                new AddDatatype(DataType.PURPLE_GERMLINE_COPY_NUMBER,
+                        TestInputs.defaultSomaticRunMetadata().barcode(),
+                        new ArchivePath(Folder.root(), Purple.NAMESPACE, TUMOR_GERMLINE_DRIVER_CNV)),
                 new AddDatatype(DataType.PURPLE_QC,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
                         new ArchivePath(Folder.root(), Purple.NAMESPACE, TUMOR_QC)),

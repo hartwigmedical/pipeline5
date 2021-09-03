@@ -31,7 +31,7 @@ import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tools.Versions;
 
 public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
-    static String NAMESPACE = "cuppa";
+    public static String NAMESPACE = "cuppa";
     private final InputDownload purpleSomaticVcfDownload;
     private final InputDownload purpleStructuralVcfDownload;
     private final InputDownload purpleOutputDirectory;
@@ -99,6 +99,7 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
                 .startupCommand(bash)
                 .namespacedResults(resultsDirectory)
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 16))
+                .workingDiskSpaceGb(375)
                 .build();
     }
 
@@ -121,6 +122,11 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
     @Override
     public CuppaOutput skippedOutput(final SomaticRunMetadata metadata) {
         return CuppaOutput.builder().status(PipelineStatus.SKIPPED).build();
+    }
+
+    @Override
+    public CuppaOutput persistedOutput(final SomaticRunMetadata metadata) {
+        return CuppaOutput.builder().status(PipelineStatus.PERSISTED).build();
     }
 
     @Override

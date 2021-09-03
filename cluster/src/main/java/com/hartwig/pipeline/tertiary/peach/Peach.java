@@ -27,7 +27,7 @@ import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tools.Versions;
 
 public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
-    static final String NAMESPACE = "peach";
+    public static final String NAMESPACE = "peach";
     private static final String PEACH_CALLS_TSV = ".peach.calls.tsv";
     private static final String PEACH_GENOTYPE_TSV = ".peach.genotype.tsv";
 
@@ -70,6 +70,7 @@ public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
                 .startupCommand(bash)
                 .namespacedResults(resultsDirectory)
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(2, 4))
+                .workingDiskSpaceGb(375)
                 .build();
     }
 
@@ -92,6 +93,11 @@ public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
     @Override
     public PeachOutput skippedOutput(final SomaticRunMetadata metadata) {
         return PeachOutput.builder().status(PipelineStatus.SKIPPED).build();
+    }
+
+    @Override
+    public PeachOutput persistedOutput(final SomaticRunMetadata metadata) {
+        return PeachOutput.builder().status(PipelineStatus.PERSISTED).build();
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.hartwig.pipeline.tertiary.purple;
 import static java.lang.String.format;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -44,6 +45,7 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
     public static final String PURPLE_QC = ".purple.qc";
     public static final String PURPLE_SOMATIC_DRIVER_CATALOG = ".driver.catalog.somatic.tsv";
     public static final String PURPLE_GERMLINE_DRIVER_CATALOG = ".driver.catalog.germline.tsv";
+    public static final String PURPLE_GERMLINE_COPY_NUMBER_TSV = ".purple.cnv.germline.tsv";
     public static final String PURPLE_GENE_COPY_NUMBER_TSV = ".purple.cnv.gene.tsv";
     public static final String PURPLE_SOMATIC_COPY_NUMBER_TSV = ".purple.cnv.somatic.tsv";
     public static final String PURPLE_CIRCOS_PLOT = ".circos.png";
@@ -59,13 +61,14 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
     private final InputDownload cobaltOutputDownload;
     private final PersistedDataset persistedDataset;
     private final boolean shallow;
+    private final boolean sageGermlineEnabled;
 
     public Purple(final ResourceFiles resourceFiles, SageOutput somaticCallerOutput, SageOutput germlineCallerOutput,
             StructuralCallerPostProcessOutput structuralCallerOutput, AmberOutput amberOutput, CobaltOutput cobaltOutput,
-            final PersistedDataset persistedDataset, final boolean shallow) {
+            final PersistedDataset persistedDataset, final boolean shallow, final boolean sageGermlineEnabled) {
         this.resourceFiles = resourceFiles;
         this.somaticVcfDownload = new InputDownload(somaticCallerOutput.finalVcf());
-        this.germlineVcfDownload = new InputDownload(germlineCallerOutput.finalVcf());
+        this.germlineVcfDownload = new InputDownload(germlineCallerOutput.maybeFinalVcf().orElse(GoogleStorageLocation.empty()));
         this.structuralVcfDownload = new InputDownload(structuralCallerOutput.filteredVcf());
         this.structuralVcfIndexDownload = new InputDownload(structuralCallerOutput.filteredVcfIndex());
         this.svRecoveryVcfDownload = new InputDownload(structuralCallerOutput.fullVcf());
@@ -74,6 +77,7 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
         this.cobaltOutputDownload = new InputDownload(cobaltOutput.outputDirectory());
         this.persistedDataset = persistedDataset;
         this.shallow = shallow;
+        this.sageGermlineEnabled = sageGermlineEnabled;
     }
 
     @Override
@@ -83,28 +87,32 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
 
     @Override
     public List<BashCommand> commands(final SomaticRunMetadata metadata) {
-        BashCommand command = new PurpleCommandBuilder(resourceFiles,
+        PurpleCommandBuilder builder = new PurpleCommandBuilder(resourceFiles,
                 amberOutputDownload.getLocalTargetPath(),
                 cobaltOutputDownload.getLocalTargetPath(),
                 metadata.tumor().sampleName(),
                 structuralVcfDownload.getLocalTargetPath(),
                 svRecoveryVcfDownload.getLocalTargetPath(),
-                somaticVcfDownload.getLocalTargetPath()).addGermline(metadata.reference().sampleName(),
-                germlineVcfDownload.getLocalTargetPath()).setShallow(shallow).build();
-
-        return Collections.singletonList(command);
+                somaticVcfDownload.getLocalTargetPath()).setShallow(shallow);
+        if (sageGermlineEnabled) {
+            builder.addGermline(metadata.reference().sampleName(), germlineVcfDownload.getLocalTargetPath());
+        }
+        return Collections.singletonList(builder.build());
     }
 
     @Override
     public List<BashCommand> inputs() {
-        return ImmutableList.of(somaticVcfDownload,
-                germlineVcfDownload,
+        List<BashCommand> inputs = new ArrayList<>(ImmutableList.of(somaticVcfDownload,
                 structuralVcfDownload,
                 structuralVcfIndexDownload,
                 svRecoveryVcfDownload,
                 svRecoveryVcfIndexDownload,
                 amberOutputDownload,
-                cobaltOutputDownload);
+                cobaltOutputDownload));
+        if (sageGermlineEnabled) {
+            inputs.add(germlineVcfDownload);
+        }
+        return inputs;
     }
 
     @Override
@@ -164,11 +172,12 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
     @Override
     public PurpleOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
             final ResultsDirectory resultsDirectory) {
-        String purityTsv = metadata.tumor().sampleName() + PURPLE_PURITY_TSV;
-        String somaticDriverCatalog = metadata.tumor().sampleName() + PURPLE_SOMATIC_DRIVER_CATALOG;
-        String germlineDriverCatalog = metadata.tumor().sampleName() + PURPLE_GERMLINE_DRIVER_CATALOG;
-        String qcFile = metadata.tumor().sampleName() + PURPLE_QC;
-        return PurpleOutput.builder()
+        String purityTsv = purityTsv(metadata);
+        String somaticDriverCatalog = somaticDriverCatalog(metadata);
+        String germlineDriverCatalog = germlineDriverCatalog(metadata);
+        String germlineCnv = germlineCopyNumberTsv(metadata);
+        String qcFile = purpleQC(metadata);
+        ImmutablePurpleOutput.Builder builder = PurpleOutput.builder()
                 .status(jobStatus)
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .maybeOutputLocations(PurpleOutputLocations.builder()
@@ -188,9 +197,6 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
                         .circosPlot(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(circosPlot(metadata))))
                         .build())
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), NAMESPACE, resultsDirectory))
-                .addDatatypes(new AddDatatype(DataType.GERMLINE_VARIANTS_PURPLE,
-                        metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), germlineVcf(metadata))))
                 .addDatatypes(new AddDatatype(DataType.SOMATIC_VARIANTS_PURPLE,
                         metadata.barcode(),
                         new ArchivePath(Folder.root(), namespace(), somaticVcf(metadata))))
@@ -203,17 +209,37 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
                 .addDatatypes(new AddDatatype(DataType.PURPLE_SOMATIC_DRIVER_CATALOG,
                         metadata.barcode(),
                         new ArchivePath(Folder.root(), namespace(), somaticDriverCatalog)))
-                .addDatatypes(new AddDatatype(DataType.PURPLE_GERMLINE_DRIVER_CATALOG,
-                        metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), germlineDriverCatalog)))
-                .addDatatypes(new AddDatatype(DataType.PURPLE_QC, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), qcFile)))
-                .addDatatypes(new AddDatatype(DataType.PURPLE_CIRCOS_PLOT,
-                        metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), circosPlot(metadata))))
                 .addDatatypes(new AddDatatype(DataType.PURPLE_SOMATIC_COPY_NUMBER,
                         metadata.barcode(),
                         new ArchivePath(Folder.root(), namespace(), somaticCopyNumberTsv(metadata))))
-                .build();
+                .addDatatypes(new AddDatatype(DataType.PURPLE_CIRCOS_PLOT,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), circosPlot(metadata))))
+                .addDatatypes(new AddDatatype(DataType.PURPLE_QC, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), qcFile)));
+        if (sageGermlineEnabled) {
+            builder.addDatatypes(new AddDatatype(DataType.GERMLINE_VARIANTS_PURPLE,
+                    metadata.barcode(),
+                    new ArchivePath(Folder.root(), namespace(), germlineVcf(metadata))))
+                    .addDatatypes(new AddDatatype(DataType.PURPLE_GERMLINE_DRIVER_CATALOG,
+                            metadata.barcode(),
+                            new ArchivePath(Folder.root(), namespace(), germlineDriverCatalog)))
+                    .addDatatypes(new AddDatatype(DataType.PURPLE_GERMLINE_COPY_NUMBER,
+                            metadata.barcode(),
+                            new ArchivePath(Folder.root(), namespace(), germlineCnv)));
+        }
+        return builder.build();
+    }
+
+    private static String purpleQC(final SomaticRunMetadata metadata) {
+        return metadata.tumor().sampleName() + PURPLE_QC;
+    }
+
+    private static String germlineCopyNumberTsv(final SomaticRunMetadata metadata) {
+        return metadata.tumor().sampleName() + PURPLE_GERMLINE_COPY_NUMBER_TSV;
+    }
+
+    private static String purityTsv(final SomaticRunMetadata metadata) {
+        return metadata.tumor().sampleName() + PURPLE_PURITY_TSV;
     }
 
     @Override
@@ -223,19 +249,16 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
         GoogleStorageLocation somaticVariantsLocation =
                 persistedOrDefault(metadata, DataType.SOMATIC_VARIANTS_PURPLE, somaticVcf(metadata));
         GoogleStorageLocation svsLocation = persistedOrDefault(metadata, DataType.STRUCTURAL_VARIANTS_PURPLE, svVcf(metadata));
-        GoogleStorageLocation purityLocation =
-                persistedOrDefault(metadata, DataType.PURPLE_PURITY, metadata.tumor().name() + PURPLE_PURITY_TSV);
-        GoogleStorageLocation qcLocation = persistedOrDefault(metadata, DataType.PURPLE_QC, metadata.tumor().name() + PURPLE_QC);
+        GoogleStorageLocation purityLocation = persistedOrDefault(metadata, DataType.PURPLE_PURITY, purityTsv(metadata));
+        GoogleStorageLocation qcLocation = persistedOrDefault(metadata, DataType.PURPLE_QC, purpleQC(metadata));
         GoogleStorageLocation geneCopyNumberLocation =
-                persistedOrDefault(metadata, DataType.PURPLE_GENE_COPY_NUMBER, metadata.tumor().name() + PURPLE_GENE_COPY_NUMBER_TSV);
-        GoogleStorageLocation somaticDriverCatalogLocation = persistedOrDefault(metadata,
-                DataType.PURPLE_SOMATIC_DRIVER_CATALOG,
-                metadata.tumor().name() + PURPLE_SOMATIC_DRIVER_CATALOG);
-        GoogleStorageLocation germlineDriverCatalogLocation = persistedOrDefault(metadata,
-                DataType.PURPLE_GERMLINE_DRIVER_CATALOG,
-                metadata.tumor().name() + PURPLE_GERMLINE_DRIVER_CATALOG);
+                persistedOrDefault(metadata, DataType.PURPLE_GENE_COPY_NUMBER, geneCopyNumberTsv(metadata));
+        GoogleStorageLocation somaticDriverCatalogLocation =
+                persistedOrDefault(metadata, DataType.PURPLE_SOMATIC_DRIVER_CATALOG, somaticDriverCatalog(metadata));
+        GoogleStorageLocation germlineDriverCatalogLocation =
+                persistedOrDefault(metadata, DataType.PURPLE_GERMLINE_DRIVER_CATALOG, germlineDriverCatalog(metadata));
         GoogleStorageLocation somaticCopyNumberLocation =
-                persistedOrDefault(metadata, DataType.PURPLE_SOMATIC_COPY_NUMBER, metadata.tumor().name() + PURPLE_SOMATIC_COPY_NUMBER_TSV);
+                persistedOrDefault(metadata, DataType.PURPLE_SOMATIC_COPY_NUMBER, somaticCopyNumberTsv(metadata));
         GoogleStorageLocation circosPlot = persistedOrDefault(metadata, DataType.PURPLE_CIRCOS_PLOT, circosPlot(metadata));
         return PurpleOutput.builder()
                 .status(PipelineStatus.PERSISTED)

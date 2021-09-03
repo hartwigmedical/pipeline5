@@ -35,8 +35,6 @@ import com.hartwig.pipeline.tertiary.cuppa.Cuppa;
 import com.hartwig.pipeline.tertiary.cuppa.CuppaOutput;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthCheckOutput;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthChecker;
-import com.hartwig.pipeline.tertiary.sigs.Sigs;
-import com.hartwig.pipeline.tertiary.sigs.SigsOutput;
 import com.hartwig.pipeline.tertiary.linx.Linx;
 import com.hartwig.pipeline.tertiary.linx.LinxOutput;
 import com.hartwig.pipeline.tertiary.peach.Peach;
@@ -44,6 +42,8 @@ import com.hartwig.pipeline.tertiary.peach.PeachOutput;
 import com.hartwig.pipeline.tertiary.protect.Protect;
 import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
+import com.hartwig.pipeline.tertiary.sigs.Sigs;
+import com.hartwig.pipeline.tertiary.sigs.SigsOutput;
 import com.hartwig.pipeline.tertiary.virus.VirusAnalysis;
 import com.hartwig.pipeline.tertiary.virus.VirusOutput;
 
@@ -131,7 +131,8 @@ public class SomaticPipeline {
                                                 amberOutput,
                                                 cobaltOutput,
                                                 persistedDataset,
-                                                arguments.shallow())))));
+                                                arguments.shallow(),
+                                                arguments.runSageGermlineCaller())))));
                         PurpleOutput purpleOutput = purpleOutputFuture.get();
                         if (state.shouldProceed()) {
                             BamMetricsOutput tumorMetrics = pollOrThrow(tumorBamMetricsOutputQueue, "tumor metrics");

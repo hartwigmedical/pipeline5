@@ -1,7 +1,5 @@
 package com.hartwig.pipeline.cleanup;
 
-import java.io.IOException;
-
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
@@ -29,17 +27,11 @@ public class Cleanup {
         if (!arguments.cleanup()) {
             return;
         }
-        try {
-            LOGGER.info("Cleaning up runtime storage on complete somatic pipeline run");
-            if (arguments.privateKeyPath().isPresent()) {
-                GSUtil.auth(arguments.cloudSdkPath(), arguments.privateKeyPath().get());
-            }
-            metadata.maybeTumor().ifPresent(tumor -> deleteBucket(Run.from(metadata, arguments).id()));
-            cleanupSample(metadata.reference());
-            metadata.maybeTumor().ifPresent(this::cleanupSample);
-        } catch (IOException | InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+
+        LOGGER.info("Cleaning up runtime storage on complete somatic pipeline run");
+        metadata.maybeTumor().ifPresent(tumor -> deleteBucket(Run.from(metadata, arguments).id()));
+        cleanupSample(metadata.reference());
+        metadata.maybeTumor().ifPresent(this::cleanupSample);
     }
 
     private void cleanupSample(final SingleSampleRunMetadata metadata) {

@@ -35,7 +35,7 @@ public class RemoteLocationsApi implements RemoteLocations {
                 tumor.substring(0, tumor.lastIndexOf("T")) + "R" : tumor;
 
         DatasetApi datasetApi = HmfApi.create(HmfApi.PRODUCTION).datasets();
-        dataset = datasetApi.get(tumor, null, null);
+        dataset = datasetApi.get(tumor, null, null, null);
     }
 
     @Override
