@@ -36,8 +36,9 @@ public interface Versions {
     String CUPPA = "1.4";
     String PEACH = "1.3";
     String SIGS = "1.0";
+    String ORANGE = "1.1";
 
-    static void printAll() {
+   static void printAll() {
         Logger logger = LoggerFactory.getLogger(Versions.class);
         logger.info("Version of pipeline5 is [{}] ", pipelineVersion());
         logger.info("Versions of tools used are [");

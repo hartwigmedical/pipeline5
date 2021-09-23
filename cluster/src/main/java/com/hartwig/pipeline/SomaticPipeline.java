@@ -46,6 +46,8 @@ import com.hartwig.pipeline.tertiary.sigs.Sigs;
 import com.hartwig.pipeline.tertiary.sigs.SigsOutput;
 import com.hartwig.pipeline.tertiary.virus.VirusAnalysis;
 import com.hartwig.pipeline.tertiary.virus.VirusOutput;
+import com.hartwig.pipeline.tertiary.orange.Orange;
+import com.hartwig.pipeline.tertiary.orange.OrangeOutput;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -152,16 +154,19 @@ public class SomaticPipeline {
                             LinxOutput linxOutput = pipelineResults.add(state.add(linxOutputFuture.get()));
                             Future<CuppaOutput> cuppaOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                     new Cuppa(purpleOutput, linxOutput, resourceFiles)));
-                            Future<PeachOutput> peachOutputFuture =
-                                    executorService.submit(() -> stageRunner.run(metadata, new Peach(purpleOutput, resourceFiles)));
-
+                            // TODO: switch PEACH back on before commit (PEACH does not work atm)!!!
+//                            Future<PeachOutput> peachOutputFuture =
+//                                    executorService.submit(() -> stageRunner.run(metadata, new Peach(purpleOutput, resourceFiles)));
+                            Future<OrangeOutput> orangeOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
+                                    new Orange(purpleOutput, referenceMetrics, tumorMetrics, referenceFlagstat, tumorFlagstat, resourceFiles)));
                             VirusOutput virusOutput = pipelineResults.add(state.add(virusOutputFuture.get()));
                             ChordOutput chordOutput = pipelineResults.add(state.add(chordOutputFuture.get()));
                             pipelineResults.add(state.add(executorService.submit(() -> stageRunner.run(metadata,
                                     new Protect(purpleOutput, linxOutput, virusOutput, chordOutput, resourceFiles))).get()));
                             pipelineResults.add(state.add(cuppaOutputFuture.get()));
-                            pipelineResults.add(state.add(peachOutputFuture.get()));
+//                            pipelineResults.add(state.add(peachOutputFuture.get()));
                             pipelineResults.add(state.add(signatureOutputFuture.get()));
+                            pipelineResults.add(state.add(orangeOutputFuture.get()));
                             pipelineResults.compose(metadata);
                         }
                     }
