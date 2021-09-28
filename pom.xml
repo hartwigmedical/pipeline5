@@ -32,7 +32,7 @@
         <protobuf-java.version>3.6.1</protobuf-java.version>
         <slf4j-log4j12.version>1.7.25</slf4j-log4j12.version>
         <google-compute-api.version>v1-rev209-1.25.0</google-compute-api.version>
-        <google-oauth-client.version>1.28.0</google-oauth-client.version>
+        <google-oauth-client.version>1.32.1</google-oauth-client.version>
         <google-oauth-client-java6.version>1.28.0</google-oauth-client-java6.version>
         <google-oauth-client-jetty.version>1.28.0</google-oauth-client-jetty.version>
         <failsafe.version>2.0.1</failsafe.version>
