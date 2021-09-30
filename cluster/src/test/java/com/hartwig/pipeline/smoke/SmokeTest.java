@@ -36,7 +36,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-@Ignore
 @Category(value = IntegrationTest.class)
 public class SmokeTest {
 
@@ -65,7 +64,7 @@ public class SmokeTest {
 
     @Test
     public void runFullPipelineAndCheckFinalStatus() throws Exception {
-        String apiUrl = "http://api.pilot-1";
+        String apiUrl = "http://192.168.29.18";
         PipelineMain victim = new PipelineMain();
         String version = System.getProperty("version");
         String runId = "smoke-" + noDots(version);

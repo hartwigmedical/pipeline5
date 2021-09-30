@@ -31,8 +31,7 @@ steps:
     id: 'Push batch image'
     entrypoint: '/bin/bash'
     args: [ '-c', "docker push eu.gcr.io/$PROJECT_ID/batch5:${_MAJOR_MINOR_VERSION}.$SHORT_SHA" ]
-options:
-  machineType: 'N1_HIGHCPU_32'
 images:
   - eu.gcr.io/$PROJECT_ID/pipeline5
+logsBucket: 'gs://hmf-build-logs'
 timeout: 4800s
