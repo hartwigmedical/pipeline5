@@ -89,9 +89,9 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
                 metadata.tumor().sampleName(),
                 structuralVcfDownload.getLocalTargetPath(),
                 svRecoveryVcfDownload.getLocalTargetPath(),
-                somaticVcfDownload.getLocalTargetPath()).setShallow(shallow);
+                somaticVcfDownload.getLocalTargetPath()).setShallow(shallow).setReferenceSample(metadata.reference().sampleName());
         if (sageGermlineEnabled) {
-            builder.addGermline(metadata.reference().sampleName(), germlineVcfDownload.getLocalTargetPath());
+            builder.addGermline(germlineVcfDownload.getLocalTargetPath());
         }
         return Collections.singletonList(builder.build());
     }
