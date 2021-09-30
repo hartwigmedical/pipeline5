@@ -2,6 +2,7 @@ package com.hartwig.pipeline.tertiary.cuppa;
 
 import static java.lang.String.format;
 
+import java.util.Arrays;
 import java.util.List;
 
 import com.hartwig.pipeline.Arguments;
@@ -16,6 +17,7 @@ import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
 import com.hartwig.pipeline.execution.vm.python.Python3Command;
+import com.hartwig.pipeline.execution.vm.r.RscriptCommand;
 import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
@@ -59,6 +61,7 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
 
     @Override
     public List<BashCommand> commands(final SomaticRunMetadata metadata) {
+        final List<String> r_script_arguments = Arrays.asList(metadata.tumor().sampleName(), VmDirectories.OUTPUT + "/");
         return List.of(new JavaJarCommand("cuppa",
                         Versions.CUPPA,
                         "cuppa.jar",
@@ -85,7 +88,8 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
                                 "-sample_data",
                                 VmDirectories.outputFile(format("%s.cup.data.csv", metadata.tumor().sampleName())),
                                 "-output_dir",
-                                VmDirectories.OUTPUT)));
+                                VmDirectories.OUTPUT)),
+                new RscriptCommand("cuppa", Versions.CUPPA,"CupGenerateReport_pipeline.R", r_script_arguments));
     }
 
     private InputDownload linxOutputDownload() {
@@ -106,8 +110,16 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
     @Override
     public CuppaOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
             final ResultsDirectory resultsDirectory) {
+        final String conclusionTxt = metadata.tumor().sampleName() + ".cuppa.conclusion.txt";
+        final String cuppaChart = metadata.tumor().sampleName() + ".cuppa.chart.png";
+        final String resultsCsv = metadata.tumor().sampleName() + ".cup.data.csv";
+        final String featurePlot = metadata.tumor().sampleName() + ".cup.report.summary.png";
         return CuppaOutput.builder()
                 .status(jobStatus)
+                .conclusionTxt(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(conclusionTxt)))
+                .chartPng(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(cuppaChart)))
+                .featurePlot(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(featurePlot)))
+                .resultCsv(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(resultsCsv)))
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
                 .addDatatypes(new AddDatatype(DataType.CUPPA_CHART,

@@ -135,13 +135,16 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
     @Override
     public ProtectOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
             final ResultsDirectory resultsDirectory) {
+
+        final String evidenceTsv = metadata.tumor().sampleName() + PROTECT_EVIDENCE_TSV;
         return ProtectOutput.builder()
                 .status(jobStatus)
+                .evidenceTsv(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(evidenceTsv)))
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
                 .addDatatypes(new AddDatatype(DataType.PROTECT_EVIDENCE,
                         metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), metadata.tumor().sampleName() + PROTECT_EVIDENCE_TSV)))
+                        new ArchivePath(Folder.root(), namespace(), evidenceTsv)))
                 .build();
     }
 

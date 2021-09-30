@@ -40,6 +40,7 @@ import com.hartwig.pipeline.tertiary.linx.LinxOutput;
 import com.hartwig.pipeline.tertiary.peach.Peach;
 import com.hartwig.pipeline.tertiary.peach.PeachOutput;
 import com.hartwig.pipeline.tertiary.protect.Protect;
+import com.hartwig.pipeline.tertiary.protect.ProtectOutput;
 import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tertiary.sigs.Sigs;
@@ -137,10 +138,10 @@ public class SomaticPipeline {
                                                 arguments.runSageGermlineCaller())))));
                         PurpleOutput purpleOutput = purpleOutputFuture.get();
                         if (state.shouldProceed()) {
-                            BamMetricsOutput tumorMetrics = pollOrThrow(tumorBamMetricsOutputQueue, "tumor metrics");
-                            BamMetricsOutput referenceMetrics = pollOrThrow(referenceBamMetricsOutputQueue, "reference metrics");
-                            FlagstatOutput tumorFlagstat = pollOrThrow(tumorFlagstatOutputQueue, "tumor flagstat");
-                            FlagstatOutput referenceFlagstat = pollOrThrow(referenceFlagstatOutputQueue, "reference flagstat");
+                            BamMetricsOutput tumorMetrics = pollOrThrow(tumorBamMetricsOutputQueue, "tumor metrics" );
+                            BamMetricsOutput referenceMetrics = pollOrThrow(referenceBamMetricsOutputQueue, "reference metrics" );
+                            FlagstatOutput tumorFlagstat = pollOrThrow(tumorFlagstatOutputQueue, "tumor flagstat" );
+                            FlagstatOutput referenceFlagstat = pollOrThrow(referenceFlagstatOutputQueue, "reference flagstat" );
 
                             Future<HealthCheckOutput> healthCheckOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                     new HealthChecker(referenceMetrics, tumorMetrics, referenceFlagstat, tumorFlagstat, purpleOutput)));
@@ -154,17 +155,33 @@ public class SomaticPipeline {
                             LinxOutput linxOutput = pipelineResults.add(state.add(linxOutputFuture.get()));
                             Future<CuppaOutput> cuppaOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                     new Cuppa(purpleOutput, linxOutput, resourceFiles)));
-                            // TODO: switch PEACH back on before commit (PEACH does not work atm)!!!
-//                            Future<PeachOutput> peachOutputFuture =
-//                                    executorService.submit(() -> stageRunner.run(metadata, new Peach(purpleOutput, resourceFiles)));
-                            Future<OrangeOutput> orangeOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
-                                    new Orange(purpleOutput, referenceMetrics, tumorMetrics, referenceFlagstat, tumorFlagstat, resourceFiles)));
+                            Future<PeachOutput> peachOutputFuture = executorService.submit(() -> stageRunner.run(metadata, new Peach(purpleOutput, resourceFiles)));
                             VirusOutput virusOutput = pipelineResults.add(state.add(virusOutputFuture.get()));
                             ChordOutput chordOutput = pipelineResults.add(state.add(chordOutputFuture.get()));
-                            pipelineResults.add(state.add(executorService.submit(() -> stageRunner.run(metadata,
+                            CuppaOutput cuppaOutput = pipelineResults.add(state.add(cuppaOutputFuture.get()));
+                            PeachOutput peachOutput = pipelineResults.add(state.add(peachOutputFuture.get()));
+                            ProtectOutput protectOutput = pipelineResults.add(state.add(executorService.submit(() -> stageRunner.run(metadata,
                                     new Protect(purpleOutput, linxOutput, virusOutput, chordOutput, resourceFiles))).get()));
+
+                            Future<OrangeOutput> orangeOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
+                                    new Orange(tumorMetrics,
+                                            referenceMetrics,
+                                            tumorFlagstat,
+                                            referenceFlagstat,
+                                            sageSomaticOutput,
+                                            sageGermlineOutput,
+                                            purpleOutput,
+                                            chordOutput,
+                                            linxOutput,
+                                            cuppaOutput,
+                                            virusOutput,
+                                            protectOutput,
+                                            peachOutput,
+                                            resourceFiles)));
+
                             pipelineResults.add(state.add(cuppaOutputFuture.get()));
-//                            pipelineResults.add(state.add(peachOutputFuture.get()));
+                            // TODO: switch PEACH back on before commit (PEACH does not work atm)!!!
+                            //                            pipelineResults.add(state.add(peachOutputFuture.get()));
                             pipelineResults.add(state.add(signatureOutputFuture.get()));
                             pipelineResults.add(state.add(orangeOutputFuture.get()));
                             pipelineResults.compose(metadata);

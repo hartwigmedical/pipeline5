@@ -77,8 +77,10 @@ public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
     @Override
     public PeachOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
             final ResultsDirectory resultsDirectory) {
+        final String genotypeTsv = metadata.tumor().sampleName() + ".peach.genotype.tsv";
         return PeachOutput.builder()
                 .status(jobStatus)
+                .genotypeTsv(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(genotypeTsv)))
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
                 .addDatatypes(new AddDatatype(DataType.PEACH_CALLS,

@@ -1,6 +1,7 @@
 package com.hartwig.pipeline.tertiary.cuppa;
 
 import com.hartwig.pipeline.StageOutput;
+import com.hartwig.pipeline.storage.GoogleStorageLocation;
 
 import org.immutables.value.Value;
 
@@ -14,4 +15,9 @@ public interface CuppaOutput extends StageOutput {
     default String name() {
         return Cuppa.NAMESPACE;
     }
+
+    GoogleStorageLocation conclusionTxt();
+    GoogleStorageLocation resultCsv();
+    GoogleStorageLocation chartPng();
+    GoogleStorageLocation featurePlot();
 }

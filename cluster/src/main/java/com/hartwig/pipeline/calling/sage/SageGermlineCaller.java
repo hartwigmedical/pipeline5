@@ -18,6 +18,7 @@ import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.SubStageInputOutput;
+import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
 public class SageGermlineCaller extends SageCaller {
