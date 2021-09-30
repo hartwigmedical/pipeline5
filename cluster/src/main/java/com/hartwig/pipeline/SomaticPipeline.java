@@ -180,8 +180,7 @@ public class SomaticPipeline {
                                             resourceFiles)));
 
                             pipelineResults.add(state.add(cuppaOutputFuture.get()));
-                            // TODO: switch PEACH back on before commit (PEACH does not work atm)!!!
-                            //                            pipelineResults.add(state.add(peachOutputFuture.get()));
+                            pipelineResults.add(state.add(peachOutputFuture.get()));
                             pipelineResults.add(state.add(signatureOutputFuture.get()));
                             pipelineResults.add(state.add(orangeOutputFuture.get()));
                             pipelineResults.compose(metadata);
