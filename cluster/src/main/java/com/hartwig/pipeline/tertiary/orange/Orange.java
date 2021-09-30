@@ -174,14 +174,10 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
         final String version_file_name = "pipeline_version_file_for_orange.json";
         final String version_file_path = VmDirectories.OUTPUT + "/" + version_file_name;
         // TODO add actual pipeline version in correct format
-        final String version_file_content = "NA";
-        try{
-            Files.write(Paths.get(version_file_path), version_file_content.getBytes());
-        } catch(java.io.IOException e){
-            System.out.println("Writing failed for pipeline version file" + e);
-        }
+        final String version_file_content = '{' + Versions.pipelineMajorMinorVersion() + '}';
+
         final List<String> primaryTumorDoids = metadata.tumor().primaryTumorDoids();
-        return List.of(new JavaJarCommand("orange",
+        return List.of(() -> "echo '" + version_file_content + "' > " + version_file_path, new JavaJarCommand("orange",
                 Versions.ORANGE,
                 "orange.jar",
                 "8G",
