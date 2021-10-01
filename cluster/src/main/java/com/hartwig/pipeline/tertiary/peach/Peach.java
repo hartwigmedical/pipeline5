@@ -57,10 +57,9 @@ public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
                 List.of("--vcf", purpleGermlineVcfDownload.getLocalTargetPath(),
                         "--sample_t_id", metadata.tumor().sampleName(),
                         "--sample_r_id", metadata.reference().sampleName(),
-                        "--version", Versions.PEACH,
+                        "--tool_version", Versions.PEACH,
                         "--outputdir", VmDirectories.OUTPUT,
-                        "--panel", resourceFiles.peachFilterBed(),
-                        "--vcftools", "/usr/bin/vcftools")));
+                        "--panel", resourceFiles.peachFilterBed())));
     }
 
     @Override
