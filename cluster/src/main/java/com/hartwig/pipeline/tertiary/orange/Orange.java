@@ -1,11 +1,7 @@
 package com.hartwig.pipeline.tertiary.orange;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
-import com.google.api.client.util.Lists;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.calling.sage.SageOutput;
@@ -42,7 +38,8 @@ import com.hartwig.pipeline.tools.Versions;
 public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
     public static final String NAMESPACE = "orange";
 
-    private static final String ORANGE_OUTPUT_TSV = ".orange.example.tsv";
+    private static final String ORANGE_OUTPUT_JSON = ".orange.json";
+    private static final String ORANGE_OUTPUT_PDF = ".orange.pdf";
     private static final String EVIDENCE_LEVEL = "B";
 
     private final ResourceFiles resourceFiles;
@@ -50,7 +47,6 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
     private final InputDownload tumMetrics;
     private final InputDownload refFlagstat;
     private final InputDownload tumFlagstat;
-
     private final InputDownload purpleGermlineVcf;
     private final InputDownload purpleSomaticVcf;
     private final InputDownload purplePurityTsv;
@@ -59,24 +55,19 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
     private final InputDownload purpleSomaticDriverCatalog;
     private final InputDownload purpleGermlineDriverCatalog;
     private final InputDownload purpleOutputDir;
-
     private final InputDownload sageGermlineGeneCoverageTsv;
     private final InputDownload sageSomaticRefSampleBqrPlot;
     private final InputDownload sageSomaticTumorSampleBqrPlot;
-
     private final InputDownload linxOutputDir;
     private final InputDownload linxFusionTsv;
     private final InputDownload linxBreakEndTsv;
     private final InputDownload linxDriverCatalogTsv;
     private final InputDownload linxDriverTsv;
-
     private final InputDownload chordPredictionTxt;
-
     private final InputDownload cuppaConclusionTxt;
     private final InputDownload cuppaSummaryPlot;
     private final InputDownload cuppaResultCsv;
     private final InputDownload cuppaFeaturePlot;
-
     private final InputDownload peachGenotypeTsv;
     private final InputDownload protectEvidenceTsv;
     private final InputDownload annotatedVirusTsv;
@@ -156,28 +147,18 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
         return NAMESPACE;
     }
 
-//    //    TODO: Remove once Orange is ready
-//    @Override
-//    public List<BashCommand> commands(final SomaticRunMetadata metadata) {
-//        String refSampleName = metadata.reference().sampleName();
-//        final List<BashCommand> commands = Lists.newArrayList();
-//        commands.add(() -> "echo " + refSampleName);
-//        commands.add(() -> "echo " + purpleSomaticVcf.getLocalTargetPath());
-//        commands.add(() -> "echo " + tumFlagstat.getLocalTargetPath());
-//        commands.add(() -> "ls -l /data/input/");
-//        return commands;
-//    }
-
     @Override
     public List<BashCommand> commands(final SomaticRunMetadata metadata) {
-        // TODO: make pipeline version file to serve as input to Orange
-        final String version_file_name = "pipeline_version_file_for_orange.json";
-        final String version_file_path = VmDirectories.OUTPUT + "/" + version_file_name;
-        // TODO add actual pipeline version in correct format
-        final String version_file_content = '{' + Versions.pipelineMajorMinorVersion() + '}';
+        final String pipelineVersionFilePath = VmDirectories.OUTPUT + "/orange_pipeline.version.txt";
+
+        // TODO: Use actual version (Orange errors out with "local-SNAPSHOT" as version string)
+        //final String pipelineVersion = Versions.pipelineMajorMinorVersion();
+        final String pipelineVersion = "major.minor.tag";
 
         final List<String> primaryTumorDoids = metadata.tumor().primaryTumorDoids();
-        return List.of(() -> "echo '" + version_file_content + "' > " + version_file_path, new JavaJarCommand("orange",
+        return List.of(
+                () -> "echo '" + pipelineVersion + "' | tee " + pipelineVersionFilePath,
+                new JavaJarCommand("orange",
                 Versions.ORANGE,
                 "orange.jar",
                 "8G",
@@ -215,7 +196,7 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
                         "-peach_genotype_tsv", peachGenotypeTsv.getLocalTargetPath(),
                         "-protect_evidence_tsv", protectEvidenceTsv.getLocalTargetPath(),
                         "-annotated_virus_tsv", annotatedVirusTsv.getLocalTargetPath(),
-                        "-pipeline_version_file", version_file_path
+                        "-pipeline_version_file", pipelineVersionFilePath
                 )));
     }
 
@@ -233,13 +214,16 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
     @Override
     public OrangeOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
             final ResultsDirectory resultsDirectory) {
+        final String orangePdf = metadata.tumor().sampleName() + ORANGE_OUTPUT_PDF;
+        final String orangeJson = metadata.tumor().sampleName() + ORANGE_OUTPUT_JSON;
         return OrangeOutput.builder()
                 .status(jobStatus)
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
-                .addDatatypes(new AddDatatype(DataType.ORANGE_OUTPUT_TODO,
-                        metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), metadata.tumor().sampleName() + ORANGE_OUTPUT_TSV)))
+                .addDatatypes(
+                        new AddDatatype(DataType.ORANGE_OUTPUT_JSON, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), orangeJson)),
+                        new AddDatatype(DataType.ORANGE_OUTPUT_PDF, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), orangePdf))
+                )
                 .build();
     }
 
