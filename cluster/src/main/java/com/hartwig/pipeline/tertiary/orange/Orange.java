@@ -18,6 +18,7 @@ import com.hartwig.pipeline.flagstat.FlagstatOutput;
 import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
+import com.hartwig.pipeline.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
@@ -31,7 +32,6 @@ import com.hartwig.pipeline.tertiary.linx.LinxOutput;
 import com.hartwig.pipeline.tertiary.peach.PeachOutput;
 import com.hartwig.pipeline.tertiary.protect.ProtectOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
-import com.hartwig.pipeline.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.tertiary.virus.VirusOutput;
 import com.hartwig.pipeline.tools.Versions;
 
@@ -106,7 +106,7 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
         this.cuppaFeaturePlot = new InputDownload(cuppaOutput.featurePlot());
         this.peachGenotypeTsv = new InputDownload(peachOutput.genotypeTsv());
         this.protectEvidenceTsv = new InputDownload(protectOutput.evidenceTsv());
-        this.annotatedVirusTsv = new InputDownload(virusOutput.outputLocations().annotatedVirusFile());
+        this.annotatedVirusTsv = new InputDownload(virusOutput.annotatedVirusFile());
     }
 
     @Override
@@ -151,9 +151,7 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
     public List<BashCommand> commands(final SomaticRunMetadata metadata) {
         final String pipelineVersionFilePath = VmDirectories.OUTPUT + "/orange_pipeline.version.txt";
 
-        // TODO: Use actual version (Orange errors out with "local-SNAPSHOT" as version string)
-        //final String pipelineVersion = Versions.pipelineMajorMinorVersion();
-        final String pipelineVersion = "major.minor.tag";
+        final String pipelineVersion = Versions.pipelineMajorMinorVersion();
 
         final List<String> primaryTumorDoids = metadata.tumor().primaryTumorDoids();
         return List.of(

@@ -26,6 +26,9 @@ import com.hartwig.pipeline.tertiary.TertiaryStage;
 
 public abstract class SageCaller extends TertiaryStage<SageOutput> {
 
+    public static final String SAGE_GENE_COVERAGE_TSV = "sage.gene.coverage.tsv";
+    public static final String SAGE_BQR_PNG = "sage.bqr.png";
+
     private final PersistedDataset persistedDataset;
     private final DataType dataType;
 
@@ -56,8 +59,8 @@ public abstract class SageCaller extends TertiaryStage<SageOutput> {
         final String filteredOutputFile = filteredOutput(metadata);
         final String unfilteredOutputFile = unfilteredOutput(metadata);
         final String geneCoverageFile = String.format("%s.sage.gene.coverage.tsv", metadata.reference().sampleName());
-        final String somaticRefSampleBqrPlot = String.format("%s.sage.bqr.png", metadata.reference().sampleName());
-        final String somaticTumorSampleBqrPlot = String.format("%s.sage.bqr.png", metadata.tumor().sampleName());
+        final String somaticRefSampleBqrPlot = String.format("%s.%s", metadata.reference().sampleName(), SAGE_BQR_PNG);
+        final String somaticTumorSampleBqrPlot = String.format("%s.%s", metadata.tumor().sampleName(), SAGE_BQR_PNG);
 
         return SageOutput.builder(namespace())
                 .status(jobStatus)

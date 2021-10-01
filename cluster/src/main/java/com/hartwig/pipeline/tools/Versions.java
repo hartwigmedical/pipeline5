@@ -38,7 +38,7 @@ public interface Versions {
     String SIGS = "1.0";
     String ORANGE = "1.1";
 
-   static void printAll() {
+    static void printAll() {
         Logger logger = LoggerFactory.getLogger(Versions.class);
         logger.info("Version of pipeline5 is [{}] ", pipelineVersion());
         logger.info("Versions of tools used are [");
@@ -51,7 +51,7 @@ public interface Versions {
 
     static String pipelineVersion() {
         String version = Versions.class.getPackage().getImplementationVersion();
-        return version != null ? version : "local-SNAPSHOT";
+        return version != null ? version : imageVersion().replace("-", ".");
     }
 
     static String pipelineMajorMinorVersion() {

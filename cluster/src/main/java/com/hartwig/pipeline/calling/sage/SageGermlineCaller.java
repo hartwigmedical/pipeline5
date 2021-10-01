@@ -18,7 +18,6 @@ import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.SubStageInputOutput;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
 public class SageGermlineCaller extends SageCaller {
@@ -88,7 +87,7 @@ public class SageGermlineCaller extends SageCaller {
     @Override
     protected ImmutableSageOutput.Builder outputBuilder(final SomaticRunMetadata metadata, final PipelineStatus jobStatus,
             final RuntimeBucket bucket, final ResultsDirectory resultsDirectory) {
-        final String geneCoverageFile = String.format("%s.sage.gene.coverage.tsv", metadata.reference().sampleName());
+        final String geneCoverageFile = String.format("%s.%s", metadata.reference().sampleName(), SAGE_GENE_COVERAGE_TSV);
         return super.outputBuilder(metadata, jobStatus, bucket, resultsDirectory)
                 .addReportComponents(singleFileComponent(geneCoverageFile, bucket, resultsDirectory));
     }

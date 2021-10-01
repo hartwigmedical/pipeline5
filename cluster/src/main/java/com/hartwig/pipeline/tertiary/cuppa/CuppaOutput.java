@@ -17,7 +17,10 @@ public interface CuppaOutput extends StageOutput {
     }
 
     GoogleStorageLocation conclusionTxt();
+
     GoogleStorageLocation resultCsv();
+
     GoogleStorageLocation chartPng();
+
     GoogleStorageLocation featurePlot();
 }
