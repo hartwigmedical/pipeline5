@@ -195,5 +195,4 @@ public class LilacBatch implements BatchOperation {
             return GoogleStorageLocation.of(HLA_BAMS_BUCKET, getTumor() + "/" + getTumor() + ".hla.bam.bai");
         }
     }
-
 }
