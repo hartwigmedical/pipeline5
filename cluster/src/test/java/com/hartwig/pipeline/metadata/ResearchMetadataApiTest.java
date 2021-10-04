@@ -38,6 +38,7 @@ import com.hartwig.pipeline.jackson.ObjectMappers;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.testsupport.TestBlobs;
 import com.hartwig.pipeline.testsupport.TestInputs;
+import com.hartwig.pipeline.tools.Versions;
 import com.hartwig.pipeline.transfer.staged.StagedOutputPublisher;
 
 import org.jetbrains.annotations.NotNull;
@@ -142,7 +143,7 @@ public class ResearchMetadataApiTest {
         assertThat(result.runId()).isEmpty();
         assertThat(result.setId()).isEqualTo(SET_ID);
         assertThat(result.sample()).isEqualTo("tumor");
-        assertThat(result.version()).isEqualTo("local-SNAPSHOT");
+        assertThat(result.version()).isEqualTo(Versions.pipelineMajorMinorVersion());
         PipelineOutputBlob blobResult = result.blobs().get(0);
         assertThat(blobResult.barcode()).isEmpty();
         assertThat(blobResult.bucket()).isEqualTo("bucket");

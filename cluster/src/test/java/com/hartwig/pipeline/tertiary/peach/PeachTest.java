@@ -1,22 +1,28 @@
 package com.hartwig.pipeline.tertiary.peach;
 
 import static com.hartwig.pipeline.Arguments.testDefaultsBuilder;
+import static com.hartwig.pipeline.testsupport.TestInputs.SOMATIC_BUCKET;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Collections;
 import java.util.List;
 
+import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.stages.Stage;
+import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
 public class PeachTest extends TertiaryStageTest<PeachOutput> {
+
+    private static final String TUMOR_PEACH_GENOTYPE_TSV = "tumor.peach.genotype.tsv";
+
     @Override
     public void disabledAppropriately() {
         assertThat(victim.shouldRun(testDefaultsBuilder().runTertiary(false).shallow(false).build())).isFalse();
@@ -34,22 +40,33 @@ public class PeachTest extends TertiaryStageTest<PeachOutput> {
                         new ArchivePath(Folder.root(), Peach.NAMESPACE, "tumor.peach.calls.tsv")),
                 new AddDatatype(DataType.PEACH_GENOTYPE,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
-                        new ArchivePath(Folder.root(), Peach.NAMESPACE, "tumor.peach.genotype.tsv")));
+                        new ArchivePath(Folder.root(), Peach.NAMESPACE, TUMOR_PEACH_GENOTYPE_TSV)));
     }
 
     @Override
-    protected void setupPersistedDataset() {
-        // no persistence for this stage
+    protected void validateOutput(final PeachOutput output) {
+        assertThat(output.genotypeTsv()).isEqualTo(GoogleStorageLocation.of(SOMATIC_BUCKET + "/peach",
+                ResultsDirectory.defaultDirectory().path(TUMOR_PEACH_GENOTYPE_TSV)));
     }
 
     @Override
     protected void validatePersistedOutput(final PeachOutput output) {
-        // no persistence for this stage
+        assertThat(output.genotypeTsv()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "set/peach/" + TUMOR_PEACH_GENOTYPE_TSV));
+    }
+
+    @Override
+    protected void setupPersistedDataset() {
+        persistedDataset.addPath(DataType.PEACH_GENOTYPE, "peach/" + TUMOR_PEACH_GENOTYPE_TSV);
+    }
+
+    @Override
+    protected void validatePersistedOutputFromPersistedDataset(final PeachOutput output) {
+        assertThat(output.genotypeTsv()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "peach/" + TUMOR_PEACH_GENOTYPE_TSV));
     }
 
     @Override
     protected Stage<PeachOutput, SomaticRunMetadata> createVictim() {
-        return new Peach(TestInputs.purpleOutput(), TestInputs.REF_GENOME_37_RESOURCE_FILES);
+        return new Peach(TestInputs.purpleOutput(), TestInputs.REF_GENOME_37_RESOURCE_FILES, persistedDataset);
     }
 
     @Override
@@ -57,11 +74,6 @@ public class PeachTest extends TertiaryStageTest<PeachOutput> {
         return Collections.singletonList("/opt/tools/peach/1.3_venv/bin/python /opt/tools/peach/1.3/src/main.py "
                 + "--vcf /data/input/tumor.purple.germline.vcf.gz --sample_t_id tumor --sample_r_id reference --tool_version 1.3 "
                 + "--outputdir /data/output --panel /opt/resources/peach/37/min_DPYD.json");
-    }
-
-    @Override
-    protected void validateOutput(final PeachOutput output) {
-        // no additional validation
     }
 
     @Override

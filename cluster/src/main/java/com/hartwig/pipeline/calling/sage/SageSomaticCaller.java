@@ -91,7 +91,7 @@ public class SageSomaticCaller extends SageCaller {
     @Override
     protected ImmutableSageOutput.Builder outputBuilder(final SomaticRunMetadata metadata, final PipelineStatus jobStatus,
             final RuntimeBucket bucket, final ResultsDirectory resultsDirectory) {
-        final String geneCoverageFile = String.format("%s.sage.gene.coverage.tsv", metadata.tumor().sampleName());
+        final String geneCoverageFile = String.format("%s.%s", metadata.tumor().sampleName(), SAGE_GENE_COVERAGE_TSV);
         return super.outputBuilder(metadata, jobStatus, bucket, resultsDirectory)
                 .addReportComponents(singleFileComponent(geneCoverageFile, bucket, resultsDirectory));
     }
