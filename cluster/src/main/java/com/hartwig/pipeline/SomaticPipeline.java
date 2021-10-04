@@ -138,10 +138,10 @@ public class SomaticPipeline {
                                                 arguments.runSageGermlineCaller())))));
                         PurpleOutput purpleOutput = purpleOutputFuture.get();
                         if (state.shouldProceed()) {
-                            BamMetricsOutput tumorMetrics = pollOrThrow(tumorBamMetricsOutputQueue, "tumor metrics" );
-                            BamMetricsOutput referenceMetrics = pollOrThrow(referenceBamMetricsOutputQueue, "reference metrics" );
-                            FlagstatOutput tumorFlagstat = pollOrThrow(tumorFlagstatOutputQueue, "tumor flagstat" );
-                            FlagstatOutput referenceFlagstat = pollOrThrow(referenceFlagstatOutputQueue, "reference flagstat" );
+                            BamMetricsOutput tumorMetrics = pollOrThrow(tumorBamMetricsOutputQueue, "tumor metrics");
+                            BamMetricsOutput referenceMetrics = pollOrThrow(referenceBamMetricsOutputQueue, "reference metrics");
+                            FlagstatOutput tumorFlagstat = pollOrThrow(tumorFlagstatOutputQueue, "tumor flagstat");
+                            FlagstatOutput referenceFlagstat = pollOrThrow(referenceFlagstatOutputQueue, "reference flagstat");
 
                             Future<HealthCheckOutput> healthCheckOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                     new HealthChecker(referenceMetrics, tumorMetrics, referenceFlagstat, tumorFlagstat, purpleOutput)));
@@ -155,14 +155,16 @@ public class SomaticPipeline {
                             LinxOutput linxOutput = pipelineResults.add(state.add(linxOutputFuture.get()));
                             Future<CuppaOutput> cuppaOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                     new Cuppa(purpleOutput, linxOutput, resourceFiles, persistedDataset)));
-                            Future<PeachOutput> peachOutputFuture = executorService.submit(() -> stageRunner.run(metadata, new Peach(purpleOutput, resourceFiles,
-                                    persistedDataset)));
+                            Future<PeachOutput> peachOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
+                                    new Peach(purpleOutput, resourceFiles, persistedDataset)));
                             VirusOutput virusOutput = pipelineResults.add(state.add(virusOutputFuture.get()));
                             ChordOutput chordOutput = pipelineResults.add(state.add(chordOutputFuture.get()));
                             CuppaOutput cuppaOutput = pipelineResults.add(state.add(cuppaOutputFuture.get()));
                             PeachOutput peachOutput = pipelineResults.add(state.add(peachOutputFuture.get()));
-                            ProtectOutput protectOutput = pipelineResults.add(state.add(executorService.submit(() -> stageRunner.run(metadata,
-                                    new Protect(purpleOutput, linxOutput, virusOutput, chordOutput, resourceFiles, persistedDataset))).get()));
+                            ProtectOutput protectOutput = pipelineResults.add(state.add(executorService.submit(() -> stageRunner.run(
+                                    metadata,
+                                    new Protect(purpleOutput, linxOutput, virusOutput, chordOutput, resourceFiles, persistedDataset)))
+                                    .get()));
 
                             Future<OrangeOutput> orangeOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                     new Orange(tumorMetrics,
@@ -178,8 +180,7 @@ public class SomaticPipeline {
                                             virusOutput,
                                             protectOutput,
                                             peachOutput,
-                                            resourceFiles
-                                    )));
+                                            resourceFiles)));
                             pipelineResults.add(state.add(signatureOutputFuture.get()));
                             pipelineResults.add(state.add(orangeOutputFuture.get()));
                             pipelineResults.compose(metadata);

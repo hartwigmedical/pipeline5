@@ -22,8 +22,6 @@ import com.hartwig.pipeline.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
-import com.hartwig.pipeline.reruns.PersistedDataset;
-import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
@@ -37,10 +35,8 @@ import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tertiary.virus.VirusOutput;
 import com.hartwig.pipeline.tools.Versions;
 
-import org.jetbrains.annotations.NotNull;
-
 public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
-    public static final String NAMESPACE = "orange";
+    static final String NAMESPACE = "orange";
 
     private static final String ORANGE_OUTPUT_JSON = ".orange.json";
     private static final String ORANGE_OUTPUT_PDF = ".orange.pdf";
@@ -142,8 +138,7 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
                 chordPredictionTxt,
                 protectEvidenceTsv,
                 annotatedVirusTsv,
-                peachGenotypeTsv
-        );
+                peachGenotypeTsv);
     }
 
     @Override
@@ -153,53 +148,84 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
 
     @Override
     public List<BashCommand> commands(final SomaticRunMetadata metadata) {
-        final String pipelineVersionFilePath = VmDirectories.OUTPUT + "/orange_pipeline.version.txt";
-
+        final String pipelineVersionFilePath = VmDirectories.INPUT + "/orange_pipeline.version.txt";
         final String pipelineVersion = Versions.pipelineMajorMinorVersion();
-
         final List<String> primaryTumorDoids = metadata.tumor().primaryTumorDoids();
-        return List.of(
-                () -> "echo '" + pipelineVersion + "' | tee " + pipelineVersionFilePath,
+        return List.of(() -> "echo '" + pipelineVersion + "' | tee " + pipelineVersionFilePath,
                 new JavaJarCommand("orange",
-                Versions.ORANGE,
-                "orange.jar",
-                "8G",
-                List.of("-output_dir", VmDirectories.OUTPUT,
-                        "-doid_json", resourceFiles.doidJson(),
-                        "-primary_tumor_doids", primaryTumorDoids.isEmpty() ? "\"\"" : "\"" + String.join(";", primaryTumorDoids) + "\"",
-                        "-max_evidence_level", EVIDENCE_LEVEL,
-                        "-tumor_sample_id", metadata.tumor().sampleName(),
-                        "-reference_sample_id", metadata.reference().sampleName(),
-                        "-ref_sample_wgs_metrics_file", refMetrics.getLocalTargetPath(),
-                        "-tumor_sample_wgs_metrics_file", tumMetrics.getLocalTargetPath(),
-                        "-ref_sample_flagstat_file", refFlagstat.getLocalTargetPath(),
-                        "-tumor_sample_flagstat_file", tumFlagstat.getLocalTargetPath(),
-                        "-sage_germline_gene_coverage_tsv", sageGermlineGeneCoverageTsv.getLocalTargetPath(),
-                        "-sage_somatic_ref_sample_bqr_plot", sageSomaticRefSampleBqrPlot.getLocalTargetPath(),
-                        "-sage_somatic_tumor_sample_bqr_plot", sageSomaticTumorSampleBqrPlot.getLocalTargetPath(),
-                        "-purple_gene_copy_number_tsv", purpleGeneCopyNumberTsv.getLocalTargetPath(),
-                        "-purple_germline_driver_catalog_tsv", purpleGermlineDriverCatalog.getLocalTargetPath(),
-                        "-purple_germline_variant_vcf", purpleGermlineVcf.getLocalTargetPath(),
-                        "-purple_plot_directory", purpleOutputDir.getLocalTargetPath() + "/plot",
-                        "-purple_purity_tsv", purplePurityTsv.getLocalTargetPath(),
-                        "-purple_qc_file", purpleQCFile.getLocalTargetPath(),
-                        "-purple_somatic_driver_catalog_tsv", purpleSomaticDriverCatalog.getLocalTargetPath(),
-                        "-purple_somatic_variant_vcf", purpleSomaticVcf.getLocalTargetPath(),
-                        "-linx_fusion_tsv", linxFusionTsv.getLocalTargetPath(),
-                        "-linx_breakend_tsv", linxBreakEndTsv.getLocalTargetPath(),
-                        "-linx_driver_catalog_tsv", linxDriverCatalogTsv.getLocalTargetPath(),
-                        "-linx_driver_tsv", linxDriverTsv.getLocalTargetPath(),
-                        "-linx_plot_directory", linxOutputDir.getLocalTargetPath() + "/plot",
-                        "-cuppa_conclusion_txt", cuppaConclusionTxt.getLocalTargetPath(),
-                        "-cuppa_result_csv", cuppaResultCsv.getLocalTargetPath(),
-                        "-cuppa_summary_plot", cuppaSummaryPlot.getLocalTargetPath(),
-                        "-cuppa_feature_plot", cuppaFeaturePlot.getLocalTargetPath(),
-                        "-chord_prediction_txt", chordPredictionTxt.getLocalTargetPath(),
-                        "-peach_genotype_tsv", peachGenotypeTsv.getLocalTargetPath(),
-                        "-protect_evidence_tsv", protectEvidenceTsv.getLocalTargetPath(),
-                        "-annotated_virus_tsv", annotatedVirusTsv.getLocalTargetPath(),
-                        "-pipeline_version_file", pipelineVersionFilePath
-                )));
+                        Versions.ORANGE,
+                        "orange.jar",
+                        "8G",
+                        List.of("-output_dir",
+                                VmDirectories.OUTPUT,
+                                "-doid_json",
+                                resourceFiles.doidJson(),
+                                "-primary_tumor_doids",
+                                primaryTumorDoids.isEmpty() ? "\"\"" : "\"" + String.join(";", primaryTumorDoids) + "\"",
+                                "-max_evidence_level",
+                                EVIDENCE_LEVEL,
+                                "-tumor_sample_id",
+                                metadata.tumor().sampleName(),
+                                "-reference_sample_id",
+                                metadata.reference().sampleName(),
+                                "-ref_sample_wgs_metrics_file",
+                                refMetrics.getLocalTargetPath(),
+                                "-tumor_sample_wgs_metrics_file",
+                                tumMetrics.getLocalTargetPath(),
+                                "-ref_sample_flagstat_file",
+                                refFlagstat.getLocalTargetPath(),
+                                "-tumor_sample_flagstat_file",
+                                tumFlagstat.getLocalTargetPath(),
+                                "-sage_germline_gene_coverage_tsv",
+                                sageGermlineGeneCoverageTsv.getLocalTargetPath(),
+                                "-sage_somatic_ref_sample_bqr_plot",
+                                sageSomaticRefSampleBqrPlot.getLocalTargetPath(),
+                                "-sage_somatic_tumor_sample_bqr_plot",
+                                sageSomaticTumorSampleBqrPlot.getLocalTargetPath(),
+                                "-purple_gene_copy_number_tsv",
+                                purpleGeneCopyNumberTsv.getLocalTargetPath(),
+                                "-purple_germline_driver_catalog_tsv",
+                                purpleGermlineDriverCatalog.getLocalTargetPath(),
+                                "-purple_germline_variant_vcf",
+                                purpleGermlineVcf.getLocalTargetPath(),
+                                "-purple_plot_directory",
+                                purpleOutputDir.getLocalTargetPath() + "/plot",
+                                "-purple_purity_tsv",
+                                purplePurityTsv.getLocalTargetPath(),
+                                "-purple_qc_file",
+                                purpleQCFile.getLocalTargetPath(),
+                                "-purple_somatic_driver_catalog_tsv",
+                                purpleSomaticDriverCatalog.getLocalTargetPath(),
+                                "-purple_somatic_variant_vcf",
+                                purpleSomaticVcf.getLocalTargetPath(),
+                                "-linx_fusion_tsv",
+                                linxFusionTsv.getLocalTargetPath(),
+                                "-linx_breakend_tsv",
+                                linxBreakEndTsv.getLocalTargetPath(),
+                                "-linx_driver_catalog_tsv",
+                                linxDriverCatalogTsv.getLocalTargetPath(),
+                                "-linx_driver_tsv",
+                                linxDriverTsv.getLocalTargetPath(),
+                                "-linx_plot_directory",
+                                linxOutputDir.getLocalTargetPath() + "/plot",
+                                "-cuppa_conclusion_txt",
+                                cuppaConclusionTxt.getLocalTargetPath(),
+                                "-cuppa_result_csv",
+                                cuppaResultCsv.getLocalTargetPath(),
+                                "-cuppa_summary_plot",
+                                cuppaSummaryPlot.getLocalTargetPath(),
+                                "-cuppa_feature_plot",
+                                cuppaFeaturePlot.getLocalTargetPath(),
+                                "-chord_prediction_txt",
+                                chordPredictionTxt.getLocalTargetPath(),
+                                "-peach_genotype_tsv",
+                                peachGenotypeTsv.getLocalTargetPath(),
+                                "-protect_evidence_tsv",
+                                protectEvidenceTsv.getLocalTargetPath(),
+                                "-annotated_virus_tsv",
+                                annotatedVirusTsv.getLocalTargetPath(),
+                                "-pipeline_version_file",
+                                pipelineVersionFilePath)));
     }
 
     @Override
@@ -222,21 +248,18 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
                 .status(jobStatus)
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
-                .addDatatypes(
-                        new AddDatatype(DataType.ORANGE_OUTPUT_JSON, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), orangeJson)),
-                        new AddDatatype(DataType.ORANGE_OUTPUT_PDF, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), orangePdf))
-                )
+                .addDatatypes(new AddDatatype(DataType.ORANGE_OUTPUT_JSON,
+                                metadata.barcode(),
+                                new ArchivePath(Folder.root(), namespace(), orangeJson)),
+                        new AddDatatype(DataType.ORANGE_OUTPUT_PDF,
+                                metadata.barcode(),
+                                new ArchivePath(Folder.root(), namespace(), orangePdf)))
                 .build();
     }
 
     @Override
     public OrangeOutput skippedOutput(final SomaticRunMetadata metadata) {
         return OrangeOutput.builder().status(PipelineStatus.SKIPPED).build();
-    }
-
-    @Override
-    public OrangeOutput persistedOutput(final SomaticRunMetadata metadata) {
-        return OrangeOutput.builder().status(PipelineStatus.PERSISTED).build();
     }
 
     @Override

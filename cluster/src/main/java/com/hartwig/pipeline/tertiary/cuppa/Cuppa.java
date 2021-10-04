@@ -34,8 +34,6 @@ import com.hartwig.pipeline.tertiary.linx.LinxOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tools.Versions;
 
-import org.jetbrains.annotations.NotNull;
-
 public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
     public static final String CUP_REPORT_SUMMARY_PNG = ".cup.report.summary.png";
     public static final String CUP_DATA_CSV = ".cup.data.csv";
@@ -122,10 +120,10 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
     @Override
     public CuppaOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
             final ResultsDirectory resultsDirectory) {
-        final String conclusionTxt = conclusionTsv(metadata);
-        final String cuppaChart = cuppaChart(metadata);
-        final String resultsCsv = resultCsv(metadata);
-        final String featurePlot = featurePlot(metadata);
+        final String conclusionTxt = cuppaConclusionTxt(metadata);
+        final String cuppaChart = cuppaChartPng(metadata);
+        final String resultsCsv = cupDataCsv(metadata);
+        final String featurePlot = cupReportSummaryPng(metadata);
         return CuppaOutput.builder()
                 .status(jobStatus)
                 .conclusionTxt(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(conclusionTxt)))
@@ -149,23 +147,19 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
                 .build();
     }
 
-    @NotNull
-    protected String featurePlot(final SomaticRunMetadata metadata) {
+    private String cupReportSummaryPng(final SomaticRunMetadata metadata) {
         return metadata.tumor().sampleName() + CUP_REPORT_SUMMARY_PNG;
     }
 
-    @NotNull
-    protected String resultCsv(final SomaticRunMetadata metadata) {
+    private String cupDataCsv(final SomaticRunMetadata metadata) {
         return metadata.tumor().sampleName() + CUP_DATA_CSV;
     }
 
-    @NotNull
-    protected String cuppaChart(final SomaticRunMetadata metadata) {
+    private String cuppaChartPng(final SomaticRunMetadata metadata) {
         return metadata.tumor().sampleName() + CUPPA_CHART_PNG;
     }
 
-    @NotNull
-    protected String conclusionTsv(final SomaticRunMetadata metadata) {
+    private String cuppaConclusionTxt(final SomaticRunMetadata metadata) {
         return metadata.tumor().sampleName() + CUPPA_CONCLUSION_TXT;
     }
 
@@ -182,10 +176,10 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
 
     @Override
     public CuppaOutput persistedOutput(final SomaticRunMetadata metadata) {
-        final String conclusionTxt = conclusionTsv(metadata);
-        final String cuppaChart = cuppaChart(metadata);
-        final String resultsCsv = resultCsv(metadata);
-        final String featurePlot = featurePlot(metadata);
+        final String conclusionTxt = cuppaConclusionTxt(metadata);
+        final String cuppaChart = cuppaChartPng(metadata);
+        final String resultsCsv = cupDataCsv(metadata);
+        final String featurePlot = cupReportSummaryPng(metadata);
         return CuppaOutput.builder()
                 .status(PipelineStatus.PERSISTED)
                 .conclusionTxt(persistedDataset.path(metadata.tumor().sampleName(), DataType.CUPPA_CONCLUSION)
