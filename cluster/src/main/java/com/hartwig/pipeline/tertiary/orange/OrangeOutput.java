@@ -1,6 +1,7 @@
 package com.hartwig.pipeline.tertiary.orange;
 
 import com.hartwig.pipeline.StageOutput;
+import com.hartwig.pipeline.storage.GoogleStorageLocation;
 
 import org.immutables.value.Value;
 
@@ -14,4 +15,5 @@ public interface OrangeOutput extends StageOutput {
     default String name() {
         return Orange.NAMESPACE;
     }
+
 }

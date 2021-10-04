@@ -22,6 +22,8 @@ import com.hartwig.pipeline.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
+import com.hartwig.pipeline.reruns.PersistedDataset;
+import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
@@ -34,6 +36,8 @@ import com.hartwig.pipeline.tertiary.protect.ProtectOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tertiary.virus.VirusOutput;
 import com.hartwig.pipeline.tools.Versions;
+
+import org.jetbrains.annotations.NotNull;
 
 public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
     public static final String NAMESPACE = "orange";
@@ -75,10 +79,10 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
     public Orange(final BamMetricsOutput tumorMetrics, final BamMetricsOutput referenceMetrics, final FlagstatOutput tumorFlagstat,
             final FlagstatOutput referenceFlagstat, final SageOutput sageSomaticOutput, final SageOutput sageGermlineOutput,
             final PurpleOutput purpleOutput, final ChordOutput chordOutput, final LinxOutput linxOutput, final CuppaOutput cuppaOutput,
-            final VirusOutput virusOutput, final ProtectOutput protectOutput, final PeachOutput peachOutput, final ResourceFiles resourceFiles) {
+            final VirusOutput virusOutput, final ProtectOutput protectOutput, final PeachOutput peachOutput,
+            final ResourceFiles resourceFiles) {
 
         this.resourceFiles = resourceFiles;
-
         this.refMetrics = new InputDownload(referenceMetrics.metricsOutputFile());
         this.tumMetrics = new InputDownload(tumorMetrics.metricsOutputFile());
         this.refFlagstat = new InputDownload(referenceFlagstat.flagstatOutputFile());

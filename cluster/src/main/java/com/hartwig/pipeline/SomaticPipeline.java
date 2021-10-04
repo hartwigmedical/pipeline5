@@ -178,7 +178,8 @@ public class SomaticPipeline {
                                             virusOutput,
                                             protectOutput,
                                             peachOutput,
-                                            resourceFiles)));
+                                            resourceFiles
+                                    )));
                             pipelineResults.add(state.add(signatureOutputFuture.get()));
                             pipelineResults.add(state.add(orangeOutputFuture.get()));
                             pipelineResults.compose(metadata);
