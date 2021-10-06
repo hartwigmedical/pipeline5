@@ -13,6 +13,8 @@ public interface LinxOutputLocations {
 
     GoogleStorageLocation driverCatalog();
 
+    GoogleStorageLocation drivers();
+
     GoogleStorageLocation outputDirectory();
 
     static ImmutableLinxOutputLocations.Builder builder() {

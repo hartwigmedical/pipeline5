@@ -34,8 +34,9 @@ public interface Versions {
     String REPEAT_MASKER = "4.1.1";
     String KRAKEN = "2.1.0";
     String CUPPA = "1.4";
-    String PEACH = "1.0";
+    String PEACH = "1.3";
     String SIGS = "1.0";
+    String ORANGE = "1.1";
 
     static void printAll() {
         Logger logger = LoggerFactory.getLogger(Versions.class);
@@ -50,7 +51,7 @@ public interface Versions {
 
     static String pipelineVersion() {
         String version = Versions.class.getPackage().getImplementationVersion();
-        return version != null ? version : "local-SNAPSHOT";
+        return version != null ? version : imageVersion().replace("-", ".");
     }
 
     static String pipelineMajorMinorVersion() {
@@ -77,6 +78,6 @@ public interface Versions {
     }
 
     static String imageVersion() {
-        return "5-23";
+        return "5-24";
     }
 }

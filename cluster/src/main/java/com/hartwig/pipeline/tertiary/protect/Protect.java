@@ -1,6 +1,7 @@
 package com.hartwig.pipeline.tertiary.protect;
 
 import java.util.List;
+import java.util.function.Function;
 
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
@@ -19,19 +20,24 @@ import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
+import com.hartwig.pipeline.reruns.PersistedDataset;
+import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.chord.ChordOutput;
 import com.hartwig.pipeline.tertiary.linx.LinxOutput;
+import com.hartwig.pipeline.tertiary.linx.LinxOutputLocations;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tertiary.virus.VirusOutput;
+
+import org.jetbrains.annotations.NotNull;
 
 public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
 
     public static final String NAMESPACE = "protect";
-    private static final String PROTECT_EVIDENCE_TSV = ".protect.tsv";
+    public static final String PROTECT_EVIDENCE_TSV = ".protect.tsv";
 
     private final InputDownload purplePurity;
     private final InputDownload purpleQCFile;
@@ -46,9 +52,10 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
     private final InputDownload annotatedVirusTsv;
     private final InputDownload chordPrediction;
     private final ResourceFiles resourceFiles;
+    private final PersistedDataset persistedDataset;
 
     public Protect(final PurpleOutput purpleOutput, final LinxOutput linxOutput, final VirusOutput virusOutput,
-            final ChordOutput chordOutput, final ResourceFiles resourceFiles) {
+            final ChordOutput chordOutput, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
         this.purplePurity = new InputDownload(purpleOutput.outputLocations().purityTsv());
         this.purpleQCFile = new InputDownload(purpleOutput.outputLocations().qcFile());
         this.purpleGeneCopyNumberTsv = new InputDownload(purpleOutput.outputLocations().geneCopyNumberTsv());
@@ -56,12 +63,19 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
         this.purpleGermlineDriverCatalog = new InputDownload(purpleOutput.outputLocations().germlineDriverCatalog());
         this.purpleSomaticVariants = new InputDownload(purpleOutput.outputLocations().somaticVcf());
         this.purpleGermlineVariants = new InputDownload(purpleOutput.outputLocations().germlineVcf());
-        this.linxFusionTsv = new InputDownload(linxOutput.linxOutputLocations().fusions());
-        this.linxBreakendTsv = new InputDownload(linxOutput.linxOutputLocations().breakends());
-        this.linxDriverCatalogTsv = new InputDownload(linxOutput.linxOutputLocations().driverCatalog());
-        this.annotatedVirusTsv = new InputDownload(virusOutput.outputLocations().annotatedVirusFile());
+        this.linxFusionTsv = new InputDownload(linxOrEmpty(linxOutput, LinxOutputLocations::fusions));
+        this.linxBreakendTsv = new InputDownload(linxOrEmpty(linxOutput, LinxOutputLocations::breakends));
+        this.linxDriverCatalogTsv = new InputDownload(linxOrEmpty(linxOutput, LinxOutputLocations::driverCatalog));
+        this.annotatedVirusTsv = new InputDownload(virusOutput.annotatedVirusFile());
         this.chordPrediction = new InputDownload(chordOutput.maybePredictions().orElse(GoogleStorageLocation.empty()));
         this.resourceFiles = resourceFiles;
+        this.persistedDataset = persistedDataset;
+    }
+
+    @NotNull
+    public GoogleStorageLocation linxOrEmpty(final LinxOutput linxOutput,
+            final Function<LinxOutputLocations, GoogleStorageLocation> extractor) {
+        return linxOutput.maybeLinxOutputLocations().map(extractor).orElse(GoogleStorageLocation.empty());
     }
 
     @Override
@@ -122,24 +136,40 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
     @Override
     public ProtectOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
             final ResultsDirectory resultsDirectory) {
+        final String evidenceTsv = evidenceTsv(metadata);
         return ProtectOutput.builder()
                 .status(jobStatus)
+                .evidenceTsv(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(evidenceTsv)))
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
                 .addDatatypes(new AddDatatype(DataType.PROTECT_EVIDENCE,
                         metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), metadata.tumor().sampleName() + PROTECT_EVIDENCE_TSV)))
+                        new ArchivePath(Folder.root(), namespace(), evidenceTsv)))
                 .build();
+    }
+
+    @NotNull
+    protected String evidenceTsv(final SomaticRunMetadata metadata) {
+        return metadata.tumor().sampleName() + PROTECT_EVIDENCE_TSV;
     }
 
     @Override
     public ProtectOutput skippedOutput(final SomaticRunMetadata metadata) {
-        return ProtectOutput.builder().status(PipelineStatus.SKIPPED).build();
+        return ProtectOutput.builder().status(PipelineStatus.SKIPPED).evidenceTsv(GoogleStorageLocation.empty()).build();
     }
 
     @Override
     public ProtectOutput persistedOutput(final SomaticRunMetadata metadata) {
-        return ProtectOutput.builder().status(PipelineStatus.PERSISTED).build();
+        String evidenceTsv = evidenceTsv(metadata);
+        return ProtectOutput.builder()
+                .status(PipelineStatus.PERSISTED)
+                .evidenceTsv(persistedDataset.path(metadata.tumor().sampleName(), DataType.PROTECT_EVIDENCE)
+                        .orElse(GoogleStorageLocation.of(metadata.bucket(),
+                                PersistedLocations.blobForSet(metadata.set(), namespace(), evidenceTsv))))
+                .addDatatypes(new AddDatatype(DataType.PROTECT_EVIDENCE,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), evidenceTsv)))
+                .build();
     }
 
     @Override

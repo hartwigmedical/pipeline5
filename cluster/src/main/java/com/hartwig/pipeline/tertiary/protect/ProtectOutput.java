@@ -1,6 +1,7 @@
 package com.hartwig.pipeline.tertiary.protect;
 
 import com.hartwig.pipeline.StageOutput;
+import com.hartwig.pipeline.storage.GoogleStorageLocation;
 
 import org.immutables.value.Value;
 
@@ -11,6 +12,8 @@ public interface ProtectOutput extends StageOutput {
     default String name() {
         return Protect.NAMESPACE;
     }
+
+    GoogleStorageLocation evidenceTsv();
 
     static ImmutableProtectOutput.Builder builder() {
         return ImmutableProtectOutput.builder();

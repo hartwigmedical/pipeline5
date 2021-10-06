@@ -1,22 +1,27 @@
 package com.hartwig.pipeline.tertiary.protect;
 
+import static com.hartwig.pipeline.testsupport.TestInputs.SOMATIC_BUCKET;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Collections;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
+import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.datatypes.DataType;
-import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.stages.Stage;
+import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
 public class ProtectTest extends TertiaryStageTest<ProtectOutput> {
+
+    private static final String TUMOR_PROTECT_TSV = "tumor.protect.tsv";
 
     @Override
     protected Stage<ProtectOutput, SomaticRunMetadata> createVictim() {
@@ -24,7 +29,8 @@ public class ProtectTest extends TertiaryStageTest<ProtectOutput> {
                 TestInputs.linxOutput(),
                 TestInputs.virusOutput(),
                 TestInputs.chordOutput(),
-                TestInputs.REF_GENOME_37_RESOURCE_FILES);
+                TestInputs.REF_GENOME_37_RESOURCE_FILES,
+                persistedDataset);
     }
 
     @Override
@@ -69,17 +75,23 @@ public class ProtectTest extends TertiaryStageTest<ProtectOutput> {
 
     @Override
     protected void validateOutput(final ProtectOutput output) {
-        // no additional validation
-    }
-
-    @Override
-    protected void validatePersistedOutputFromPersistedDataset(final ProtectOutput output) {
-        assertThat(output).isEqualTo(ProtectOutput.builder().status(PipelineStatus.PERSISTED).build());
+        assertThat(output.evidenceTsv()).isEqualTo(GoogleStorageLocation.of(SOMATIC_BUCKET + "/protect",
+                ResultsDirectory.defaultDirectory().path(TUMOR_PROTECT_TSV)));
     }
 
     @Override
     protected void validatePersistedOutput(final ProtectOutput output) {
-        assertThat(output).isEqualTo(ProtectOutput.builder().status(PipelineStatus.PERSISTED).build());
+        assertThat(output.evidenceTsv()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "set/protect/" + TUMOR_PROTECT_TSV));
+    }
+
+    @Override
+    protected void setupPersistedDataset() {
+        persistedDataset.addPath(DataType.PROTECT_EVIDENCE, "protect/" + TUMOR_PROTECT_TSV);
+    }
+
+    @Override
+    protected void validatePersistedOutputFromPersistedDataset(final ProtectOutput output) {
+        assertThat(output.evidenceTsv()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "protect/" + TUMOR_PROTECT_TSV));
     }
 
     @Override

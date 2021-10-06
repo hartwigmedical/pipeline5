@@ -118,6 +118,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .startupCommand(bash)
                 .namespacedResults(resultsDirectory)
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 16))
+                .workingDiskSpaceGb(375)
                 .build();
     }
 
@@ -144,15 +145,6 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .startupCommand(startupScript)
                 .namespacedResults(resultsDirectory)
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(16, 16))
-                .build();
-    }
-
-    static VirtualMachineJobDefinition cobaltMigration(BashStartupScript bash, final ResultsDirectory resultsDirectory) {
-        return ImmutableVirtualMachineJobDefinition.builder()
-                .name("cobalt")
-                .startupCommand(bash)
-                .namespacedResults(resultsDirectory)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 16))
                 .build();
     }
 
@@ -207,15 +199,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .startupCommand(startupScript)
                 .namespacedResults(resultsDirectory)
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 12))
-                .build();
-    }
-
-    static VirtualMachineJobDefinition bachelor(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
-        return ImmutableVirtualMachineJobDefinition.builder()
-                .name("bachelor")
-                .startupCommand(startupScript)
-                .namespacedResults(resultsDirectory)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 12))
+                .workingDiskSpaceGb(375)
                 .build();
     }
 
@@ -225,6 +209,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .startupCommand(startupScript)
                 .namespacedResults(resultsDirectory)
                 .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 12))
+                .workingDiskSpaceGb(375)
                 .build();
     }
 }

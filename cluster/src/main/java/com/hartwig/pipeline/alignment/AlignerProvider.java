@@ -124,7 +124,7 @@ public abstract class AlignerProvider {
 
         @Override
         Aligner wireUp(final GoogleCredentials credentials, final Storage storage, final ResultsDirectory resultsDirectory) {
-            return new PersistedAlignment(persistedDataset);
+            return new PersistedAlignment(persistedDataset, getArguments());
         }
     }
 }

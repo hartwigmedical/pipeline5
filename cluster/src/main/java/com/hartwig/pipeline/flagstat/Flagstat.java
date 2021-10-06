@@ -6,6 +6,7 @@ import java.util.List;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
+import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
@@ -13,11 +14,15 @@ import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.unix.SubShellCommand;
+import com.hartwig.pipeline.metadata.AddDatatype;
+import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.report.SingleFileComponent;
 import com.hartwig.pipeline.report.StartupScriptComponent;
+import com.hartwig.pipeline.reruns.PersistedDataset;
+import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
@@ -26,9 +31,11 @@ public class Flagstat implements Stage<FlagstatOutput, SingleSampleRunMetadata> 
     public static final String NAMESPACE = "flagstat";
 
     private final InputDownload bamDownload;
+    private final PersistedDataset persistedDataset;
 
-    public Flagstat(final AlignmentOutput alignmentOutput) {
+    public Flagstat(final AlignmentOutput alignmentOutput, final PersistedDataset persistedDataset) {
         bamDownload = new InputDownload(alignmentOutput.finalBamLocation());
+        this.persistedDataset = persistedDataset;
     }
 
     @Override
@@ -70,12 +77,25 @@ public class Flagstat implements Stage<FlagstatOutput, SingleSampleRunMetadata> 
                         outputFile,
                         outputFile,
                         resultsDirectory))
+                .addDatatypes(new AddDatatype(DataType.FLAGSTAT,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.from(metadata), Flagstat.NAMESPACE, outputFile)))
                 .build();
     }
 
     @Override
     public FlagstatOutput persistedOutput(final SingleSampleRunMetadata metadata) {
-        return FlagstatOutput.builder().status(PipelineStatus.PERSISTED).sample(metadata.name()).build();
+        String outputFile = FlagstatOutput.outputFile(metadata.sampleName());
+        return FlagstatOutput.builder()
+                .status(PipelineStatus.PERSISTED)
+                .sample(metadata.sampleName())
+                .maybeFlagstatOutputFile(persistedDataset.path(metadata.sampleName(), DataType.FLAGSTAT)
+                        .orElse(GoogleStorageLocation.of(metadata.bucket(),
+                                PersistedLocations.blobForSingle(metadata.set(), metadata.sampleName(), namespace(), outputFile))))
+                .addDatatypes(new AddDatatype(DataType.FLAGSTAT,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.from(metadata), namespace(), outputFile)))
+                .build();
     }
 
     @Override

@@ -26,6 +26,9 @@ import com.hartwig.pipeline.tertiary.TertiaryStage;
 
 public abstract class SageCaller extends TertiaryStage<SageOutput> {
 
+    public static final String SAGE_GENE_COVERAGE_TSV = "sage.gene.coverage.tsv";
+    public static final String SAGE_BQR_PNG = "sage.bqr.png";
+
     private final PersistedDataset persistedDataset;
     private final DataType dataType;
 
@@ -55,10 +58,16 @@ public abstract class SageCaller extends TertiaryStage<SageOutput> {
 
         final String filteredOutputFile = filteredOutput(metadata);
         final String unfilteredOutputFile = unfilteredOutput(metadata);
+        final String geneCoverageFile = String.format("%s.sage.gene.coverage.tsv", metadata.reference().sampleName());
+        final String somaticRefSampleBqrPlot = String.format("%s.%s", metadata.reference().sampleName(), SAGE_BQR_PNG);
+        final String somaticTumorSampleBqrPlot = String.format("%s.%s", metadata.tumor().sampleName(), SAGE_BQR_PNG);
 
         return SageOutput.builder(namespace())
                 .status(jobStatus)
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
+                .maybeGermlineGeneCoverageTsv(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(geneCoverageFile)))
+                .maybeSomaticRefSampleBqrPlot(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(somaticRefSampleBqrPlot)))
+                .maybeSomaticTumorSampleBqrPlot(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(somaticTumorSampleBqrPlot)))
                 .maybeFinalVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(filteredOutputFile)))
                 .addReportComponents(bqrComponent(metadata.tumor(), "png", bucket, resultsDirectory))
                 .addReportComponents(bqrComponent(metadata.tumor(), "tsv", bucket, resultsDirectory))
