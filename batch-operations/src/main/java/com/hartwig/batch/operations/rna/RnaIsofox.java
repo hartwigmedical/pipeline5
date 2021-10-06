@@ -36,7 +36,6 @@ public class RnaIsofox implements BatchOperation {
     private static final String ISOFOX_JAR = "isofox.jar";
     private static final String RNA_BAM_FILE_ID = ".sorted.dups.bam";
     private static final String RNA_BAM_INDEX_FILE_ID = ".sorted.dups.bam.bai";
-    private static final String ENSEMBL_DATA_CACHE = "ensembl_data_cache";
     private static final String KNOWN_FUSIONS_FILE = "known_fusion_data.csv";
     private static final String EXP_COUNTS_READ_76 = "read_76_exp_counts.csv";
     private static final String EXP_COUNTS_READ_151 = "read_151_exp_counts.csv";
@@ -49,7 +48,7 @@ public class RnaIsofox implements BatchOperation {
     private static final int LONG_FRAG_LENGTH_LIMIT = 550;
     private static final String FRAG_LENGTH_BUCKETS = "50-0;75-0;100-0;125-0;150-0;200-0;250-0;300-0;400-0;550-0";
 
-    private static final String FUNC_TRANSCRIPT_COUNTS = "TRANSCRIPT_COUNTS";
+    public static final String FUNC_TRANSCRIPT_COUNTS = "TRANSCRIPT_COUNTS";
     private static final String FUNC_NOVEL_LOCATIONS = "NOVEL_LOCATIONS";
     private static final String FUNC_FUSIONS = "FUSIONS";
     private static final String FUNC_NEO_EPITOPES = "NEO_EPITOPES";
@@ -107,13 +106,16 @@ public class RnaIsofox implements BatchOperation {
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s %s",
                 ISOFOX_LOCATION, ISOFOX_JAR, VmDirectories.TOOLS));
 
-        startupScript.addCommand(() -> format("chmod a+x %s/%s", VmDirectories.TOOLS, ISOFOX_JAR));
+        // startupScript.addCommand(() -> format("chmod a+x %s/%s", VmDirectories.TOOLS, ISOFOX_JAR));
 
         // copy down required reference files
         //startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/* %s",
         //        getRnaResourceDirectory(refGenomeVersion, ENSEMBL_DATA_CACHE), VmDirectories.INPUT));
 
         final String expectedCountsFile = readLength.equals(READ_LENGTH_76) ? EXP_COUNTS_READ_76 : EXP_COUNTS_READ_151;
+
+        startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/* %s",
+                getRnaResourceDirectory(refGenomeVersion, "ensembl_data_cache"), VmDirectories.INPUT));
 
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s %s",
                 getRnaResourceDirectory(refGenomeVersion, ISOFOX), expectedCountsFile, VmDirectories.INPUT));
@@ -148,7 +150,11 @@ public class RnaIsofox implements BatchOperation {
         isofoxArgs.append(String.format(" -bam_file %s/%s", VmDirectories.INPUT, bamFile));
 
         isofoxArgs.append(String.format(" -ref_genome %s", resourceFiles.refGenomeFile()));
-        isofoxArgs.append(String.format(" -gene_transcripts_dir %s", resourceFiles.ensemblDataCache()));
+
+        // current cache has gene data out of order
+        isofoxArgs.append(String.format(" -ensembl_data_dir %s", VmDirectories.INPUT));
+        // isofoxArgs.append(String.format(" -ensembl_data_dir %s", resourceFiles.ensemblDataCache()));
+
         isofoxArgs.append(String.format(" -long_frag_limit %d", LONG_FRAG_LENGTH_LIMIT));
 
         if(refGenomeVersion == RefGenomeVersion.V38)

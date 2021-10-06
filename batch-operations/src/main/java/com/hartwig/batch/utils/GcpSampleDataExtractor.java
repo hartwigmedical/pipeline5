@@ -21,10 +21,7 @@ import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.hartwig.batch.api.LocalLocations;
 import com.hartwig.batch.api.RemoteLocationsApi;
-import com.hartwig.batch.input.InputFileDescriptor;
-import com.hartwig.batch.operations.LilacBatch;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
