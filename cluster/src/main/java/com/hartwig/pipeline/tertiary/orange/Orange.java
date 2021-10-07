@@ -14,6 +14,7 @@ import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
+import com.hartwig.pipeline.execution.vm.unix.MkDirCommand;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
 import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.ArchivePath;
@@ -151,7 +152,9 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
         final String pipelineVersionFilePath = VmDirectories.INPUT + "/orange_pipeline.version.txt";
         final String pipelineVersion = Versions.pipelineMajorMinorVersion();
         final List<String> primaryTumorDoids = metadata.tumor().primaryTumorDoids();
-        return List.of(() -> "echo '" + pipelineVersion + "' | tee " + pipelineVersionFilePath,
+        String linxPlotDir = linxOutputDir.getLocalTargetPath() + "/plot";
+        return List.of(new MkDirCommand(linxPlotDir),
+                () -> "echo '" + pipelineVersion + "' | tee " + pipelineVersionFilePath,
                 new JavaJarCommand("orange",
                         Versions.ORANGE,
                         "orange.jar",
@@ -207,7 +210,7 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
                                 "-linx_driver_tsv",
                                 linxDriverTsv.getLocalTargetPath(),
                                 "-linx_plot_directory",
-                                linxOutputDir.getLocalTargetPath() + "/plot",
+                                linxPlotDir,
                                 "-cuppa_conclusion_txt",
                                 cuppaConclusionTxt.getLocalTargetPath(),
                                 "-cuppa_result_csv",
