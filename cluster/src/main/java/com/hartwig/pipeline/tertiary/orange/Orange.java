@@ -41,7 +41,7 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
 
     private static final String ORANGE_OUTPUT_JSON = ".orange.json";
     private static final String ORANGE_OUTPUT_PDF = ".orange.pdf";
-    private static final String EVIDENCE_LEVEL = "B";
+    private static final String MAX_EVIDENCE_LEVEL = "C";
 
     private final ResourceFiles resourceFiles;
     private final InputDownload refMetrics;
@@ -166,7 +166,7 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
                                 "-primary_tumor_doids",
                                 primaryTumorDoids.isEmpty() ? "\"\"" : "\"" + String.join(";", primaryTumorDoids) + "\"",
                                 "-max_evidence_level",
-                                EVIDENCE_LEVEL,
+                                MAX_EVIDENCE_LEVEL,
                                 "-tumor_sample_id",
                                 metadata.tumor().sampleName(),
                                 "-reference_sample_id",
