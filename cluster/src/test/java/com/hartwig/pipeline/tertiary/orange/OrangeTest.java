@@ -70,7 +70,7 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
         return Arrays.asList("mkdir -p /data/input/results/plot",
                 "echo '5.24' | tee /data/input/orange_pipeline.version.txt",
                 "java -Xmx8G -jar /opt/tools/orange/1.1/orange.jar -output_dir /data/output -doid_json /opt/resources/disease_ontology/201015_doid.json "
-                        + "-primary_tumor_doids \"01;02\" -max_evidence_level B -tumor_sample_id tumor -reference_sample_id reference "
+                        + "-primary_tumor_doids \"01;02\" -max_evidence_level C -tumor_sample_id tumor -reference_sample_id reference "
                         + "-ref_sample_wgs_metrics_file /data/input/reference.wgsmetrics -tumor_sample_wgs_metrics_file /data/input/tumor.wgsmetrics "
                         + "-ref_sample_flagstat_file /data/input/reference.flagstat -tumor_sample_flagstat_file /data/input/tumor.flagstat "
                         + "-sage_germline_gene_coverage_tsv /data/input/tumorsage.gene.coverage.tsv -sage_somatic_ref_sample_bqr_plot /data/input/referencesage.bqr.png "
