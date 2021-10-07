@@ -24,17 +24,11 @@
         <intellij.annotations.version>12.0</intellij.annotations.version>
         <dockerfile-maven-plugin.version>1.3.6</dockerfile-maven-plugin.version>
         <dockerfile.googleContainerRegistryEnabled>false</dockerfile.googleContainerRegistryEnabled>
-        <google-cloud.version>1.40.0</google-cloud.version>
         <commons-cli.version>1.4</commons-cli.version>
-        <google-cloud-nio.version>0.61.0-alpha</google-cloud-nio.version>
         <jersey.version>2.29.1</jersey.version>
         <javax.ws.rs-api.version>2.1</javax.ws.rs-api.version>
         <protobuf-java.version>3.6.1</protobuf-java.version>
         <slf4j-log4j12.version>1.7.25</slf4j-log4j12.version>
-        <google-compute-api.version>v1-rev209-1.25.0</google-compute-api.version>
-        <google-oauth-client.version>1.28.0</google-oauth-client.version>
-        <google-oauth-client-java6.version>1.28.0</google-oauth-client-java6.version>
-        <google-oauth-client-jetty.version>1.28.0</google-oauth-client-jetty.version>
         <failsafe.version>2.0.1</failsafe.version>
         <annotations.version>16.0.1</annotations.version>
         <aws-java-sdk.version>1.11.327</aws-java-sdk.version>
@@ -82,6 +76,18 @@
                 <version>${java-client.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.google.cloud</groupId>
+                <artifactId>google-cloud-bom</artifactId>
+                <version>0.145.0</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.google.apis</groupId>
+                <artifactId>google-api-services-serviceusage</artifactId>
+                <version>${google-api-services-serviceusage.version}</version>
+            </dependency>
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
@@ -153,46 +159,6 @@
                 <version>${intellij.annotations.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.google.cloud</groupId>
-                <artifactId>google-cloud-core</artifactId>
-                <version>${google-cloud.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.cloud</groupId>
-                <artifactId>google-cloud-storage</artifactId>
-                <version>${google-cloud.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.cloud</groupId>
-                <artifactId>google-cloud-monitoring</artifactId>
-                <version>${google-cloud.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.cloud</groupId>
-                <artifactId>google-cloud-pubsub</artifactId>
-                <version>${google-cloud.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.apis</groupId>
-                <artifactId>google-api-services-cloudbilling</artifactId>
-                <version>${google-billing.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.apis</groupId>
-                <artifactId>google-api-services-serviceusage</artifactId>
-                <version>${google-api-services-serviceusage.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.protobuf</groupId>
-                <artifactId>protobuf-java</artifactId>
-                <version>${protobuf-java.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.cloud</groupId>
-                <artifactId>google-cloud-nio</artifactId>
-                <version>${google-cloud-nio.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>com.amazonaws</groupId>
                 <artifactId>aws-java-sdk-bom</artifactId>
                 <version>${aws-java-sdk.version}</version>
@@ -254,31 +220,6 @@
                 <scope>runtime</scope>
             </dependency>
 
-            <dependency>
-                <groupId>com.google.apis</groupId>
-                <artifactId>google-api-services-compute</artifactId>
-                <version>${google-compute-api.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.apis</groupId>
-                <artifactId>google-api-services-storagetransfer</artifactId>
-                <version>${google-storage-transfer.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.oauth-client</groupId>
-                <artifactId>google-oauth-client</artifactId>
-                <version>${google-oauth-client.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.oauth-client</groupId>
-                <artifactId>google-oauth-client-java6</artifactId>
-                <version>${google-oauth-client-java6.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.oauth-client</groupId>
-                <artifactId>google-oauth-client-jetty</artifactId>
-                <version>${google-oauth-client-jetty.version}</version>
-            </dependency>
             <dependency>
                 <groupId>org.reflections</groupId>
                 <artifactId>reflections</artifactId>
