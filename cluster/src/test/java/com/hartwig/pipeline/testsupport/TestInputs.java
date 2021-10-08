@@ -73,6 +73,10 @@ public class TestInputs {
     public static final String ID = "id";
     public static final String BUCKET = "bucket";
 
+    public static String inputDownload(String commands) {
+        return "gsutil -o 'GSUtil:parallel_thread_count=1' -o GSUtil:sliced_object_download_max_components=$(nproc) -qm " + commands;
+    }
+
     public static String referenceSample() {
         return REFERENCE_SAMPLE;
     }

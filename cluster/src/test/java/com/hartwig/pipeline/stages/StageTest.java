@@ -1,5 +1,9 @@
 package com.hartwig.pipeline.stages;
 
+import static java.lang.String.format;
+
+import static com.hartwig.pipeline.testsupport.TestInputs.inputDownload;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
@@ -162,7 +166,7 @@ public abstract class StageTest<S extends StageOutput, M extends RunMetadata> {
     protected abstract void validateOutput(final S output);
 
     protected static String input(String source, String target) {
-        return String.format("gsutil -qm cp -r -n gs://%s /data/input/%s", source, target);
+        return inputDownload(format("cp -r -n gs://%s /data/input/%s", source, target));
     }
 
     private List<String> commands(List<String> commands) {

@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.execution.vm;
 
+import static com.hartwig.pipeline.testsupport.TestInputs.inputDownload;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
@@ -22,18 +24,18 @@ public class InputDownloadTest {
 
     @Test
     public void createsBashToCopyInputWithGsUtil() {
-        assertThat(victim.asBash()).isEqualTo("gsutil -qm cp -r -n gs://" + bucket + "/" + remoteSourcePath + " /data/input/input.file");
+        assertThat(victim.asBash()).isEqualTo(inputDownload("cp -r -n gs://" + bucket + "/" + remoteSourcePath + " /data/input/input.file"));
     }
 
     @Test
     public void createsLocalPathUsingSourceLocationAndConvention() {
-        assertThat(victim.asBash()).isEqualTo("gsutil -qm cp -r -n gs://" + bucket + "/" + remoteSourcePath + " /data/input/input.file");
+        assertThat(victim.asBash()).isEqualTo(inputDownload("cp -r -n gs://" + bucket + "/" + remoteSourcePath + " /data/input/input.file"));
     }
 
     @Test
     public void supportsCopyingOfInputDirectories() {
         victim = new InputDownload(GoogleStorageLocation.of(bucket, "path/to/input/dir", true));
-        assertThat(victim.asBash()).isEqualTo("gsutil -qm cp -r -n gs://" + bucket + "/path/to/input/dir/* /data/input/");
+        assertThat(victim.asBash()).isEqualTo(inputDownload("cp -r -n gs://" + bucket + "/path/to/input/dir/* /data/input/"));
     }
 
     @Test

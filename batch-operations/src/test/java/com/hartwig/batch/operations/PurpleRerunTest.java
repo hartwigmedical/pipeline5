@@ -18,15 +18,18 @@ public class PurpleRerunTest {
         List<BashCommand> commands = victim.bashCommands(locations);
 
         assertEquals(commands.get(0).asBash(), "mkdir -p /data/input/amber");
-        assertEquals(commands.get(1).asBash(), "gsutil -qm cp -r -n gs://amber/171006_COLO829/* /data/input/amber/");
+        assertEquals(commands.get(1).asBash(), inputDownload("cp -r -n gs://amber/171006_COLO829/* /data/input/amber/"));
         assertEquals(commands.get(2).asBash(), "mkdir -p /data/input/cobalt");
-        assertEquals(commands.get(3).asBash(), "gsutil -qm cp -r -n gs://cobalt/171006_COLO829/* /data/input/cobalt/");
-        assertEquals(commands.get(4).asBash(), "gsutil -qm cp -r -n gs://sage/171006_COLO829/COLO929v003T.sage.somatic.vcf.gz /data/input/COLO929v003T.sage.somatic.vcf.gz");
-        assertEquals(commands.get(5).asBash(), "gsutil -qm cp -r -n gs://sage/171006_COLO829/COLO929v003T.sage.germline.vcf.gz /data/input/COLO929v003T.sage.germline.vcf.gz");
-        assertEquals(commands.get(6).asBash(), "gsutil -qm cp -r -n gs://gripss/171006_COLO829/COLO929v003T.gripss.somatic.filtered.vcf.gz /data/input/COLO929v003T.gripss.somatic.filtered.vcf.gz");
-        assertEquals(commands.get(7).asBash(), "gsutil -qm cp -r -n gs://gripss/171006_COLO829/COLO929v003T.gripss.somatic.vcf.gz /data/input/COLO929v003T.gripss.somatic.vcf.gz");
-        assertEquals(commands.get(8).asBash(), "gsutil -qm cp -r -n gs://gripss/171006_COLO829/COLO929v003T.gripss.somatic.vcf.gz.tbi /data/input/COLO929v003T.gripss.somatic.vcf.gz.tbi");
+        assertEquals(commands.get(3).asBash(), inputDownload("cp -r -n gs://cobalt/171006_COLO829/* /data/input/cobalt/"));
+        assertEquals(commands.get(4).asBash(), inputDownload("cp -r -n gs://sage/171006_COLO829/COLO929v003T.sage.somatic.vcf.gz /data/input/COLO929v003T.sage.somatic.vcf.gz"));
+        assertEquals(commands.get(5).asBash(), inputDownload("cp -r -n gs://sage/171006_COLO829/COLO929v003T.sage.germline.vcf.gz /data/input/COLO929v003T.sage.germline.vcf.gz"));
+        assertEquals(commands.get(6).asBash(), inputDownload("cp -r -n gs://gripss/171006_COLO829/COLO929v003T.gripss.somatic.filtered.vcf.gz /data/input/COLO929v003T.gripss.somatic.filtered.vcf.gz"));
+        assertEquals(commands.get(7).asBash(), inputDownload("cp -r -n gs://gripss/171006_COLO829/COLO929v003T.gripss.somatic.vcf.gz /data/input/COLO929v003T.gripss.somatic.vcf.gz"));
+        assertEquals(commands.get(8).asBash(), inputDownload("cp -r -n gs://gripss/171006_COLO829/COLO929v003T.gripss.somatic.vcf.gz.tbi /data/input/COLO929v003T.gripss.somatic.vcf.gz.tbi"));
         assertEquals(commands.get(9).asBash().substring(0, 36), "java -Xmx12G -jar /opt/tools/purple/");
     }
 
+    private String inputDownload(String commands) {
+        return "gsutil -o 'GSUtil:parallel_thread_count=1' -o GSUtil:sliced_object_download_max_components=$(nproc) -qm " + commands;
+    }
 }
