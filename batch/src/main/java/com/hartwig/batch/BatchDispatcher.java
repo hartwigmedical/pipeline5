@@ -5,6 +5,7 @@ import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
 
 import java.io.FileInputStream;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -19,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
+import com.hartwig.ApiException;
 import com.hartwig.batch.input.InputBundle;
 import com.hartwig.batch.input.InputParser;
 import com.hartwig.batch.input.InputParserProvider;
@@ -28,6 +30,7 @@ import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.GoogleComputeEngine;
 import com.hartwig.pipeline.execution.vm.RuntimeFiles;
+import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.storage.StorageProvider;
 import com.hartwig.pipeline.tools.Versions;
@@ -35,6 +38,9 @@ import com.hartwig.pipeline.tools.Versions;
 import org.immutables.value.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import net.jodah.failsafe.Failsafe;
+import net.jodah.failsafe.RetryPolicy;
 
 public class BatchDispatcher {
     private static final Logger LOGGER = LoggerFactory.getLogger(BatchDispatcher.class);
@@ -88,18 +94,33 @@ public class BatchDispatcher {
             RuntimeBucket outputBucket = RuntimeBucket.from(storage, arguments.outputBucket(), label, arguments);
             BashStartupScript startupScript =
                     BashStartupScript.of(outputBucket.name(), executionFlags);
-            Future<PipelineStatus> future = executorService.submit(() -> computeEngine.submit(outputBucket,
-                    instanceFactory.get().execute(operationInputs, outputBucket, startupScript, executionFlags),
-                    label));
+            Future<PipelineStatus> future = executorService.submit(() -> {
+                try {
+                    VirtualMachineJobDefinition jobDefinition = Failsafe.with(new RetryPolicy<>().handle(ApiException.class)
+                            .withDelay(Duration.ofSeconds(10)).withJitter(0.5).withMaxAttempts(250)).get(() -> {
+                                try {
+                                    return instanceFactory.get().execute(operationInputs, outputBucket, startupScript, executionFlags);
+                                } catch (ApiException e) {
+                                    LOGGER.warn("Encountered API exception when building job {}", label);
+                                    throw e;
+                                }
+                    });
+                    return computeEngine.submit(outputBucket, jobDefinition, label);
+                } catch (Exception e) {
+                    LOGGER.warn("Unexpected exception running operation [{}]", label, e);
+                    return PipelineStatus.FAILED;
+                }
+            });
             state.add(StateTuple.builder().id(label).inputs(operationInputs).future(future).build());
             jobAsString.put(label, operationInputs);
             i++;
         }
-        spawnProgessLogger(state);
+        spawnProgressLogger(state);
         RuntimeBucket outputBucket = RuntimeBucket.from(storage, arguments.outputBucket(), "", arguments);
         Bucket bucketRoot = outputBucket.getUnderlyingBucket();
         bucketRoot.create("job.json", new ObjectMapper().writeValueAsBytes(jobAsString));
         for (StateTuple job : state) {
+
             job.future().get();
         }
         StringBuilder report = new StringBuilder("EXECUTION REPORT\n\n");
@@ -128,7 +149,7 @@ public class BatchDispatcher {
         }
     }
 
-    private void spawnProgessLogger(Set<StateTuple> state) {
+    private void spawnProgressLogger(Set<StateTuple> state) {
         Thread progressLogger = new Thread(() -> {
             while (true) {
                 int done = 0;
