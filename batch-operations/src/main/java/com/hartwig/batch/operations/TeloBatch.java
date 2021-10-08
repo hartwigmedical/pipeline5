@@ -11,7 +11,16 @@ import com.hartwig.batch.api.RemoteLocationsApi;
 import com.hartwig.batch.input.InputBundle;
 import com.hartwig.batch.input.InputFileDescriptor;
 import com.hartwig.pipeline.ResultsDirectory;
-import com.hartwig.pipeline.execution.vm.*;
+import com.hartwig.pipeline.execution.vm.Bash;
+import com.hartwig.pipeline.execution.vm.BashCommand;
+import com.hartwig.pipeline.execution.vm.BashStartupScript;
+import com.hartwig.pipeline.execution.vm.ImmutableVirtualMachineJobDefinition;
+import com.hartwig.pipeline.execution.vm.InputDownload;
+import com.hartwig.pipeline.execution.vm.OutputUpload;
+import com.hartwig.pipeline.execution.vm.RuntimeFiles;
+import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
+import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.resource.ResourceFilesFactory;
@@ -57,10 +66,10 @@ public class TeloBatch implements BatchOperation
                 /*() -> format("gsutil -u hmf-crunch cp gs://%s/%s/%s %s",
                 COMMON_RESOURCES, TELO_DIR, TELO_JAR, VmDirectories.TOOLS));*/
 
-        InputDownload tumorBamDownload = new InputDownload(locationsApi.getTumorAlignment());
-        InputDownload tumorBamIndexDownload = new InputDownload(locationsApi.getTumorAlignmentIndex());
-        InputDownload referenceBamDownload = new InputDownload(locationsApi.getReferenceAlignment());
-        InputDownload referenceBamIndexDownload = new InputDownload(locationsApi.getReferenceAlignmentIndex());
+        InputDownload tumorBamDownload = InputDownload.turbo(locationsApi.getTumorAlignment());
+        InputDownload tumorBamIndexDownload = InputDownload.turbo(locationsApi.getTumorAlignmentIndex());
+        InputDownload referenceBamDownload = InputDownload.turbo(locationsApi.getReferenceAlignment());
+        InputDownload referenceBamIndexDownload = InputDownload.turbo(locationsApi.getReferenceAlignmentIndex());
 
         // ref genome
         final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.V37);
@@ -88,7 +97,8 @@ public class TeloBatch implements BatchOperation
                 .name("telo")
                 .startupCommand(commands)
                 .namespacedResults(ResultsDirectory.defaultDirectory())
-                .workingDiskSpaceGb(750)
+                .workingDiskSpaceGb(500)
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(16, 16))
                 .build();
     }
 
