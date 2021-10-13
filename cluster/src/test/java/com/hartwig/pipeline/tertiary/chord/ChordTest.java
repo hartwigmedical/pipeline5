@@ -1,11 +1,14 @@
 package com.hartwig.pipeline.tertiary.chord;
 
+import static com.hartwig.pipeline.testsupport.TestInputs.SOMATIC_BUCKET;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Collections;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
+import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.ArchivePath;
@@ -18,6 +21,8 @@ import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
 public class ChordTest extends TertiaryStageTest<ChordOutput> {
+
+    private static final String CHORD_PREDICTION_TXT = "tumor_chord_prediction.txt";
 
     @Override
     protected Stage<ChordOutput, SomaticRunMetadata> createVictim() {
@@ -43,25 +48,26 @@ public class ChordTest extends TertiaryStageTest<ChordOutput> {
 
     @Override
     protected void validateOutput(final ChordOutput output) {
-        // no additional validation
+        assertThat(output.predictions()).isEqualTo(GoogleStorageLocation.of(SOMATIC_BUCKET + "/chord",
+                ResultsDirectory.defaultDirectory().path(CHORD_PREDICTION_TXT)));
     }
 
     @Override
     protected List<AddDatatype> expectedFurtherOperations() {
         return List.of(new AddDatatype(DataType.CHORD_PREDICTION,
                 TestInputs.defaultSomaticRunMetadata().barcode(),
-                new ArchivePath(Folder.root(), Chord.NAMESPACE, "tumor_chord_prediction.txt")));
+                new ArchivePath(Folder.root(), Chord.NAMESPACE, CHORD_PREDICTION_TXT)));
     }
 
     @Override
     protected void validatePersistedOutputFromPersistedDataset(final ChordOutput output) {
         assertThat(output.predictions()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
-                "set/chord/tumor_chord_prediction.txt"));
+                "set/chord/" + CHORD_PREDICTION_TXT));
     }
 
     @Override
     protected void validatePersistedOutput(final ChordOutput output) {
         assertThat(output.predictions()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
-                "set/chord/tumor_chord_prediction.txt"));
+                "set/chord/" + CHORD_PREDICTION_TXT));
     }
 }
