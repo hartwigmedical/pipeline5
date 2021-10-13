@@ -66,10 +66,10 @@ public class TeloBatch implements BatchOperation
                 /*() -> format("gsutil -u hmf-crunch cp gs://%s/%s/%s %s",
                 COMMON_RESOURCES, TELO_DIR, TELO_JAR, VmDirectories.TOOLS));*/
 
-        InputDownload tumorBamDownload = InputDownload.turbo(locationsApi.getTumorAlignment());
-        InputDownload tumorBamIndexDownload = InputDownload.turbo(locationsApi.getTumorAlignmentIndex());
-        InputDownload referenceBamDownload = InputDownload.turbo(locationsApi.getReferenceAlignment());
-        InputDownload referenceBamIndexDownload = InputDownload.turbo(locationsApi.getReferenceAlignmentIndex());
+        InputDownload tumorBamDownload = new InputDownload(locationsApi.getTumorAlignment());
+        InputDownload tumorBamIndexDownload = new InputDownload(locationsApi.getTumorAlignmentIndex());
+        InputDownload referenceBamDownload = new InputDownload(locationsApi.getReferenceAlignment());
+        InputDownload referenceBamIndexDownload = new InputDownload(locationsApi.getReferenceAlignmentIndex());
 
         // ref genome
         final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.V37);
