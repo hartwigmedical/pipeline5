@@ -1,6 +1,7 @@
 package com.hartwig.pipeline.tertiary.orange;
 
 import java.util.List;
+import java.util.function.Function;
 
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
@@ -29,7 +30,9 @@ import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.chord.ChordOutput;
 import com.hartwig.pipeline.tertiary.cuppa.CuppaOutput;
+import com.hartwig.pipeline.tertiary.cuppa.CuppaOutputLocations;
 import com.hartwig.pipeline.tertiary.linx.LinxOutput;
+import com.hartwig.pipeline.tertiary.linx.LinxOutputLocations;
 import com.hartwig.pipeline.tertiary.peach.PeachOutput;
 import com.hartwig.pipeline.tertiary.protect.ProtectOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
@@ -95,19 +98,29 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
         this.sageGermlineGeneCoverageTsv = new InputDownload(sageGermlineOutput.germlineGeneCoverageTsv());
         this.sageSomaticRefSampleBqrPlot = new InputDownload(sageSomaticOutput.somaticRefSampleBqrPlot());
         this.sageSomaticTumorSampleBqrPlot = new InputDownload(sageSomaticOutput.somaticTumorSampleBqrPlot());
-        this.linxOutputDir = new InputDownload(linxOutput.linxOutputLocations().outputDirectory());
-        this.linxFusionTsv = new InputDownload(linxOutput.linxOutputLocations().fusions());
-        this.linxBreakEndTsv = new InputDownload(linxOutput.linxOutputLocations().breakends());
-        this.linxDriverCatalogTsv = new InputDownload(linxOutput.linxOutputLocations().driverCatalog());
-        this.linxDriverTsv = new InputDownload(linxOutput.linxOutputLocations().drivers());
-        this.chordPredictionTxt = new InputDownload(chordOutput.predictions());
-        this.cuppaConclusionTxt = new InputDownload(cuppaOutput.conclusionTxt());
-        this.cuppaResultCsv = new InputDownload(cuppaOutput.resultCsv());
-        this.cuppaSummaryPlot = new InputDownload(cuppaOutput.chartPng());
-        this.cuppaFeaturePlot = new InputDownload(cuppaOutput.featurePlot());
+        this.linxOutputDir = new InputDownload(linxOrEmpty(linxOutput, LinxOutputLocations::outputDirectory));
+        this.linxFusionTsv = new InputDownload(linxOrEmpty(linxOutput, LinxOutputLocations::fusions));
+        this.linxBreakEndTsv = new InputDownload(linxOrEmpty(linxOutput, LinxOutputLocations::breakends));
+        this.linxDriverCatalogTsv = new InputDownload(linxOrEmpty(linxOutput, LinxOutputLocations::driverCatalog));
+        this.linxDriverTsv = new InputDownload(linxOrEmpty(linxOutput, LinxOutputLocations::drivers));
+        this.chordPredictionTxt = new InputDownload(chordOutput.maybePredictions().orElse(GoogleStorageLocation.empty()));
+        this.cuppaConclusionTxt = new InputDownload(cuppaOrEmpty(cuppaOutput, CuppaOutputLocations::conclusionTxt));
+        this.cuppaResultCsv = new InputDownload(cuppaOrEmpty(cuppaOutput, CuppaOutputLocations::resultCsv));
+        this.cuppaSummaryPlot = new InputDownload(cuppaOrEmpty(cuppaOutput, CuppaOutputLocations::chartPng));
+        this.cuppaFeaturePlot = new InputDownload(cuppaOrEmpty(cuppaOutput, CuppaOutputLocations::featurePlot));
         this.peachGenotypeTsv = new InputDownload(peachOutput.genotypeTsv());
         this.protectEvidenceTsv = new InputDownload(protectOutput.evidenceTsv());
         this.annotatedVirusTsv = new InputDownload(virusOutput.annotatedVirusFile());
+    }
+
+    public GoogleStorageLocation linxOrEmpty(final LinxOutput linxOutput,
+            final Function<LinxOutputLocations, GoogleStorageLocation> extractor) {
+        return linxOutput.maybeLinxOutputLocations().map(extractor).orElse(GoogleStorageLocation.empty());
+    }
+
+    public GoogleStorageLocation cuppaOrEmpty(final CuppaOutput cuppaOutput,
+            final Function<CuppaOutputLocations, GoogleStorageLocation> extractor) {
+        return cuppaOutput.maybeCuppaOutputLocations().map(extractor).orElse(GoogleStorageLocation.empty());
     }
 
     @Override

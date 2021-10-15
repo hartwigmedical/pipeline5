@@ -69,8 +69,7 @@ public class VirusAnalysis extends TertiaryStage<VirusOutput> {
 
         return VirusOutput.builder()
                 .status(jobStatus)
-                .summaryFile(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(summary)))
-                .annotatedVirusFile(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(annotated)))
+                .maybeAnnotatedVirusFile(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(annotated)))
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new SingleFileComponent(bucket, NAMESPACE, Folder.root(), vcf, vcf, resultsDirectory),
                         new SingleFileComponent(bucket, NAMESPACE, Folder.root(), summary, summary, resultsDirectory),
@@ -115,10 +114,7 @@ public class VirusAnalysis extends TertiaryStage<VirusOutput> {
         String annotated = annotatedVirusTsv(metadata);
         return VirusOutput.builder()
                 .status(PipelineStatus.PERSISTED)
-                .summaryFile(persistedDataset.path(metadata.tumor().sampleName(), DataType.VIRUSBREAKEND_SUMMARY)
-                        .orElse(GoogleStorageLocation.of(metadata.bucket(),
-                                PersistedLocations.blobForSet(metadata.set(), namespace(), summary))))
-                .annotatedVirusFile(persistedDataset.path(metadata.tumor().sampleName(), DataType.VIRUS_INTERPRETATION)
+                .maybeAnnotatedVirusFile(persistedDataset.path(metadata.tumor().sampleName(), DataType.VIRUS_INTERPRETATION)
                         .orElse(GoogleStorageLocation.of(metadata.bucket(),
                                 PersistedLocations.blobForSet(metadata.set(), namespace(), annotated))))
                 .addDatatypes(new AddDatatype(DataType.VIRUSBREAKEND_SUMMARY,

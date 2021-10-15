@@ -38,6 +38,7 @@ import com.hartwig.pipeline.tertiary.cobalt.Cobalt;
 import com.hartwig.pipeline.tertiary.cobalt.CobaltOutput;
 import com.hartwig.pipeline.tertiary.cuppa.Cuppa;
 import com.hartwig.pipeline.tertiary.cuppa.CuppaOutput;
+import com.hartwig.pipeline.tertiary.cuppa.CuppaOutputLocations;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthCheckOutput;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthChecker;
 import com.hartwig.pipeline.tertiary.linx.Linx;
@@ -246,8 +247,8 @@ public class TestInputs {
     public static VirusOutput virusOutput() {
         return VirusOutput.builder()
                 .status(PipelineStatus.SUCCESS)
-                .summaryFile(gsLocation(somaticBucket(VirusAnalysis.NAMESPACE), TUMOR_SAMPLE + VirusAnalysis.VIRUS_BREAKEND_SUMMARY))
-                .annotatedVirusFile(gsLocation(somaticBucket(VirusAnalysis.NAMESPACE), TUMOR_SAMPLE + VirusAnalysis.ANNOTATED_VIRUS_TSV))
+                .maybeAnnotatedVirusFile(gsLocation(somaticBucket(VirusAnalysis.NAMESPACE),
+                        TUMOR_SAMPLE + VirusAnalysis.ANNOTATED_VIRUS_TSV))
                 .build();
     }
 
@@ -302,10 +303,12 @@ public class TestInputs {
     public static CuppaOutput cuppaOutput() {
         return CuppaOutput.builder()
                 .status(PipelineStatus.SUCCESS)
-                .conclusionTxt(GoogleStorageLocation.of(somaticBucket(Cuppa.NAMESPACE), TUMOR_SAMPLE + Cuppa.CUPPA_CONCLUSION_TXT))
-                .resultCsv(GoogleStorageLocation.of(somaticBucket(Cuppa.NAMESPACE), TUMOR_SAMPLE + Cuppa.CUP_DATA_CSV))
-                .chartPng(GoogleStorageLocation.of(somaticBucket(Cuppa.NAMESPACE), TUMOR_SAMPLE + Cuppa.CUPPA_CHART_PNG))
-                .featurePlot(GoogleStorageLocation.of(somaticBucket(Cuppa.NAMESPACE), TUMOR_SAMPLE + Cuppa.CUP_REPORT_SUMMARY_PNG))
+                .maybeCuppaOutputLocations(CuppaOutputLocations.builder()
+                        .conclusionTxt(GoogleStorageLocation.of(somaticBucket(Cuppa.NAMESPACE), TUMOR_SAMPLE + Cuppa.CUPPA_CONCLUSION_TXT))
+                        .resultCsv(GoogleStorageLocation.of(somaticBucket(Cuppa.NAMESPACE), TUMOR_SAMPLE + Cuppa.CUP_DATA_CSV))
+                        .chartPng(GoogleStorageLocation.of(somaticBucket(Cuppa.NAMESPACE), TUMOR_SAMPLE + Cuppa.CUPPA_CHART_PNG))
+                        .featurePlot(GoogleStorageLocation.of(somaticBucket(Cuppa.NAMESPACE), TUMOR_SAMPLE + Cuppa.CUP_REPORT_SUMMARY_PNG))
+                        .build())
                 .build();
     }
 
@@ -336,14 +339,14 @@ public class TestInputs {
     public static ProtectOutput protectOutput() {
         return ProtectOutput.builder()
                 .status(PipelineStatus.SUCCESS)
-                .evidenceTsv(GoogleStorageLocation.of(somaticBucket(Protect.NAMESPACE), TUMOR_SAMPLE + Protect.PROTECT_EVIDENCE_TSV))
+                .maybeEvidenceTsv(GoogleStorageLocation.of(somaticBucket(Protect.NAMESPACE), TUMOR_SAMPLE + Protect.PROTECT_EVIDENCE_TSV))
                 .build();
     }
 
     public static PeachOutput peachOutput() {
         return PeachOutput.builder()
                 .status(PipelineStatus.SUCCESS)
-                .genotypeTsv(GoogleStorageLocation.of(somaticBucket(Peach.NAMESPACE), TUMOR_SAMPLE + Peach.PEACH_GENOTYPE_TSV))
+                .maybeGenotypeTsv(GoogleStorageLocation.of(somaticBucket(Peach.NAMESPACE), TUMOR_SAMPLE + Peach.PEACH_GENOTYPE_TSV))
                 .build();
     }
 

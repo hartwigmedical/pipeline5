@@ -139,7 +139,7 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
         final String evidenceTsv = evidenceTsv(metadata);
         return ProtectOutput.builder()
                 .status(jobStatus)
-                .evidenceTsv(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(evidenceTsv)))
+                .maybeEvidenceTsv(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(evidenceTsv)))
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
                 .addDatatypes(new AddDatatype(DataType.PROTECT_EVIDENCE,
@@ -155,7 +155,7 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
 
     @Override
     public ProtectOutput skippedOutput(final SomaticRunMetadata metadata) {
-        return ProtectOutput.builder().status(PipelineStatus.SKIPPED).evidenceTsv(GoogleStorageLocation.empty()).build();
+        return ProtectOutput.builder().status(PipelineStatus.SKIPPED).maybeEvidenceTsv(GoogleStorageLocation.empty()).build();
     }
 
     @Override
@@ -163,7 +163,7 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
         String evidenceTsv = evidenceTsv(metadata);
         return ProtectOutput.builder()
                 .status(PipelineStatus.PERSISTED)
-                .evidenceTsv(persistedDataset.path(metadata.tumor().sampleName(), DataType.PROTECT_EVIDENCE)
+                .maybeEvidenceTsv(persistedDataset.path(metadata.tumor().sampleName(), DataType.PROTECT_EVIDENCE)
                         .orElse(GoogleStorageLocation.of(metadata.bucket(),
                                 PersistedLocations.blobForSet(metadata.set(), namespace(), evidenceTsv))))
                 .addDatatypes(new AddDatatype(DataType.PROTECT_EVIDENCE,
