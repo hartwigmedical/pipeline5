@@ -6,20 +6,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.hartwig.api.RunApi;
 import com.hartwig.api.SampleApi;
 import com.hartwig.api.model.Ini;
 import com.hartwig.api.model.Run;
-import com.hartwig.api.model.RunFailure;
 import com.hartwig.api.model.RunSet;
 import com.hartwig.api.model.Sample;
 import com.hartwig.api.model.SampleType;
-import com.hartwig.api.model.Status;
-import com.hartwig.api.model.UpdateRun;
 import com.hartwig.pipeline.PipelineState;
 import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.jackson.ObjectMappers;
 import com.hartwig.pipeline.transfer.staged.StagedOutputPublisher;
 
 import org.slf4j.Logger;
@@ -29,8 +24,6 @@ public class DiagnosticSomaticMetadataApi implements SomaticMetadataApi {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(SomaticMetadataApi.class);
     public static final String FAILED = "Failed";
-    private static final String PIPELINE_SOURCE = "Pipeline";
-    private static final String HEALTH_CHECK = "HealthCheck";
     private final Run run;
     private final Anonymizer anonymizer;
     private final RunApi runApi;
@@ -99,9 +92,9 @@ public class DiagnosticSomaticMetadataApi implements SomaticMetadataApi {
                 if (pipelineState.status() != PipelineStatus.FAILED) {
                     stagedOutputPublisher.publish(pipelineState, metadata);
                 }
-                runApi.update(run.getId(), statusUpdate(pipelineState.status()));
+                ApiRunStatus.finish(runApi, run, pipelineState.status());
             } catch (Exception e) {
-                runApi.update(run.getId(), statusUpdate(PipelineStatus.FAILED));
+                ApiRunStatus.finish(runApi, run, PipelineStatus.FAILED);
                 throw e;
             }
         } else {
@@ -112,27 +105,8 @@ public class DiagnosticSomaticMetadataApi implements SomaticMetadataApi {
         }
     }
 
-    public UpdateRun statusUpdate(final PipelineStatus status) {
-        switch (status) {
-            case FAILED:
-                return new UpdateRun().status(Status.FAILED)
-                        .failure(new RunFailure().type(RunFailure.TypeEnum.TECHNICALFAILURE).source(PIPELINE_SOURCE));
-            case QC_FAILED:
-                return new UpdateRun().status(Status.FAILED)
-                        .failure(new RunFailure().type(RunFailure.TypeEnum.QCFAILURE).source(HEALTH_CHECK));
-            default:
-                return new UpdateRun().status(Status.FINISHED);
-        }
-    }
-
     @Override
     public void start() {
-        UpdateRun update = new UpdateRun().failure(null).status(Status.PROCESSING);
-        try {
-            LOGGER.info("Updating API with run status and result [{}]", ObjectMappers.get().writeValueAsString(update));
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-        runApi.update(run.getId(), update);
+        ApiRunStatus.start(runApi, run);
     }
 }
