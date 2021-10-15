@@ -105,15 +105,14 @@ public class BwaAligner implements Aligner {
                     new InputDownload(GoogleStorageLocation.of(rootBucket.name(), fastQFileName(sample.name(), lane.firstOfPairPath())));
             InputDownload second =
                     new InputDownload(GoogleStorageLocation.of(rootBucket.name(), fastQFileName(sample.name(), lane.secondOfPairPath())));
-
             bash.addCommand(first).addCommand(second);
 
             SubStageInputOutput alignment = new LaneAlignment(arguments.sbpApiRunId().isPresent(),
                     resourceFiles.refGenomeFile(),
                     first.getLocalTargetPath(),
                     second.getLocalTargetPath(),
-                    sample.name(),
-                    lane).apply(SubStageInputOutput.empty(sample.name()));
+                    metadata.sampleName(),
+                    lane).apply(SubStageInputOutput.empty(metadata.sampleName()));
             perLaneBams.add(GoogleStorageLocation.of(laneBucket.name(), resultsDirectory.path(alignment.outputFile().fileName())));
 
             bash.addCommands(alignment.bash())
@@ -137,7 +136,7 @@ public class BwaAligner implements Aligner {
             SubStageInputOutput merged = new MergeMarkDups(laneBams.stream()
                     .map(InputDownload::getLocalTargetPath)
                     .filter(path -> path.endsWith("bam"))
-                    .collect(Collectors.toList())).apply(SubStageInputOutput.empty(sample.name()));
+                    .collect(Collectors.toList())).apply(SubStageInputOutput.empty(metadata.sampleName()));
 
             mergeMarkdupsBash.addCommands(merged.bash());
 
