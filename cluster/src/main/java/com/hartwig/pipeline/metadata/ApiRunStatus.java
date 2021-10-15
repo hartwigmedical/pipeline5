@@ -1,6 +1,7 @@
 package com.hartwig.pipeline.metadata;
 
-import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -49,6 +50,6 @@ public class ApiRunStatus {
     }
 
     private static String timestamp() {
-        return LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME);
+        return ZonedDateTime.now(ZoneOffset.UTC).toLocalDateTime().format(DateTimeFormatter.ISO_DATE_TIME);
     }
 }
