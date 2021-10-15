@@ -108,9 +108,9 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
         this.cuppaResultCsv = new InputDownload(cuppaOrEmpty(cuppaOutput, CuppaOutputLocations::resultCsv));
         this.cuppaSummaryPlot = new InputDownload(cuppaOrEmpty(cuppaOutput, CuppaOutputLocations::chartPng));
         this.cuppaFeaturePlot = new InputDownload(cuppaOrEmpty(cuppaOutput, CuppaOutputLocations::featurePlot));
-        this.peachGenotypeTsv = new InputDownload(peachOutput.genotypeTsv());
-        this.protectEvidenceTsv = new InputDownload(protectOutput.evidenceTsv());
-        this.annotatedVirusTsv = new InputDownload(virusOutput.annotatedVirusFile());
+        this.peachGenotypeTsv = new InputDownload(peachOutput.maybeGenotypeTsv().orElse(GoogleStorageLocation.empty()));
+        this.protectEvidenceTsv = new InputDownload(protectOutput.maybeEvidenceTsv().orElse(GoogleStorageLocation.empty()));
+        this.annotatedVirusTsv = new InputDownload(virusOutput.maybeAnnotatedVirusFile().orElse(GoogleStorageLocation.empty()));
     }
 
     public GoogleStorageLocation linxOrEmpty(final LinxOutput linxOutput,
