@@ -41,8 +41,8 @@ public class SmokeTest {
 
     private static final String GCP_REMOTE = "gs";
     private static final String FILE_ENCODING = "UTF-8";
-    private static final int SBP_SET_ID = 9;
-    private static final int SBP_RUN_ID = 12;
+    private static final int SBP_SET_ID = 15;
+    private static final int SBP_RUN_ID = 102;
     private static final String SET_ID = "CPCT12345678";
     private static final String REFERENCE_SAMPLE = SET_ID + "R";
     private static final String TUMOR_SAMPLE = SET_ID + "T";
@@ -64,7 +64,7 @@ public class SmokeTest {
 
     @Test
     public void runFullPipelineAndCheckFinalStatus() throws Exception {
-        String apiUrl = "http://192.168.29.18";
+        String apiUrl = "http://192.168.24.6";
         PipelineMain victim = new PipelineMain();
         String version = System.getProperty("version");
         String runId = "smoke-" + noDots(version);
