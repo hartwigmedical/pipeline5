@@ -162,11 +162,9 @@ public class RnaStarMapping implements BatchOperation {
 
         // copy results to crunch
 
-        final String resultsDir = getRnaCohortDirectory(refGenomeVersion);
+        final String samplesDir = String.format("%s/%s", getRnaCohortDirectory(refGenomeVersion), "samples");
 
-        startupScript.addCommand(() -> format("gsutil -m cp %s/* %s/%s/", VmDirectories.OUTPUT, resultsDir, sampleId));
-
-        // startupScript.addCommand(new OutputUpload(GoogleStorageLocation.of("rna-cohort", sampleId), executionFlags));
+        startupScript.addCommand(() -> format("gsutil -m cp %s/* %s/%s/", VmDirectories.OUTPUT, samplesDir, sampleId));
 
         return ImmutableVirtualMachineJobDefinition.builder().name("rna-star-mapping").startupCommand(startupScript)
                 .namespacedResults(ResultsDirectory.defaultDirectory()).workingDiskSpaceGb(500)

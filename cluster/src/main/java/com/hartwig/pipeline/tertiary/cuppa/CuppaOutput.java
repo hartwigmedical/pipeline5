@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.tertiary.cuppa;
 
+import java.util.Optional;
+
 import com.hartwig.pipeline.StageOutput;
 
 import org.immutables.value.Value;
@@ -13,5 +15,11 @@ public interface CuppaOutput extends StageOutput {
     @Override
     default String name() {
         return Cuppa.NAMESPACE;
+    }
+
+    Optional<CuppaOutputLocations> maybeCuppaOutputLocations();
+
+    default CuppaOutputLocations cuppaOutputLocations() {
+        return maybeCuppaOutputLocations().orElseThrow();
     }
 }

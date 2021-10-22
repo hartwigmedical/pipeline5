@@ -140,13 +140,14 @@ public class DiagnosticSomaticMetadataApiTest {
     }
 
     @Test
-    public void setsStatusToProcessingAndResultNullOnStartup() {
+    public void setsStatusToProcessingResultNullAndStartTimeOnStartup() {
         victim.start();
         verify(runApi).update(runIdCaptor.capture(), updateCaptor.capture());
         assertThat(runIdCaptor.getValue()).isEqualTo(RUN_ID);
         UpdateRun update = updateCaptor.getValue();
         assertThat(update.getFailure()).isNull();
         assertThat(update.getStatus()).isEqualTo(Status.PROCESSING);
+        assertThat(update.getStartTime()).isNotNull();
     }
 
     @Test
@@ -160,5 +161,14 @@ public class DiagnosticSomaticMetadataApiTest {
         when(pipelineState.status()).thenReturn(PipelineStatus.FAILED);
         victim.complete(pipelineState, somaticRunMetadata);
         verify(publisher, never()).publish(pipelineState, somaticRunMetadata);
+    }
+
+    @Test
+    public void setsEndTimeOnCompletion() {
+        when(pipelineState.status()).thenReturn(PipelineStatus.FAILED);
+        victim.complete(pipelineState, somaticRunMetadata);
+        verify(runApi).update(runIdCaptor.capture(), updateCaptor.capture());
+        UpdateRun update = updateCaptor.getValue();
+        assertThat(update.getEndTime()).isNotNull();
     }
 }

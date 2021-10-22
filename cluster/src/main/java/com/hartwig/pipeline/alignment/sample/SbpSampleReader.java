@@ -111,7 +111,7 @@ public class SbpSampleReader {
     }
 
     private List<SbpFastQ> parseFastqJson(final String json) throws IOException {
-        return OBJECT_MAPPER.readValue(json, new TypeReference<List<SbpFastQ>>() {
+        return OBJECT_MAPPER.readValue(json, new TypeReference<>() {
         });
     }
 

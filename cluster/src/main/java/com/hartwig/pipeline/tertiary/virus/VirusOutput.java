@@ -3,6 +3,7 @@ package com.hartwig.pipeline.tertiary.virus;
 import java.util.Optional;
 
 import com.hartwig.pipeline.StageOutput;
+import com.hartwig.pipeline.storage.GoogleStorageLocation;
 
 import org.immutables.value.Value;
 
@@ -14,10 +15,10 @@ public interface VirusOutput extends StageOutput {
         return VirusAnalysis.NAMESPACE;
     }
 
-    Optional<VirusOutputLocations> maybeOutputLocations();
+    Optional<GoogleStorageLocation> maybeAnnotatedVirusFile();
 
-    default VirusOutputLocations outputLocations() {
-        return maybeOutputLocations().orElseThrow();
+    default GoogleStorageLocation annotatedVirusFile() {
+        return maybeAnnotatedVirusFile().orElseThrow();
     }
 
     static ImmutableVirusOutput.Builder builder() {

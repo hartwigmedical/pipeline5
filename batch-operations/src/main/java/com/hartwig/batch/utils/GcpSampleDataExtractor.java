@@ -21,6 +21,7 @@ import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.hartwig.batch.api.RemoteLocationsApi;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -71,6 +72,24 @@ public class GcpSampleDataExtractor
         {
             final String sampleId = mSampleIds.get(i);
 
+            // final InputFileDescriptor biopsy = inputs.get("biopsy");
+
+            final RemoteLocationsApi locationsApi = new RemoteLocationsApi("hmf-crunch", sampleId);
+            String tumorBamPath = locationsApi.getTumorAlignment().path();
+            String tumorDir = locationsApi.getTumorAlignment().asDirectory().toString();
+            String tumorBam = locationsApi.getTumorAlignment().toString();
+            String tumorBucket = locationsApi.getTumorAlignment().bucket();
+
+            /*
+            final LocalLocations localInput = new LocalLocations(new LilacBatch.BamSliceDecorator(locationsApi));
+
+            final LocalLocations localInput = new LocalLocations(new RemoteLocationsApi(biopsy));
+            final String tumorSampleName = localInput.getTumor();
+            final String referenceSampleName = localInput.getReference();
+            final String tumorAlignment = localInput.getTumorAlignment();
+            final String referenceAlignment = localInput.getReferenceAlignment();
+            */
+
             if(!extractSampleData(sampleId))
             {
                 writeSampleData(sampleId, false, "", "", "");
@@ -105,7 +124,7 @@ public class GcpSampleDataExtractor
             String line = null;
             while ( (line = reader.readLine()) != null)
             {
-                LOGGER.fine(String.format("sample(%s): %s", sampleId, line));
+                LOGGER.info(String.format("sample(%s): %s", sampleId, line));
 
                 JsonParser jsonParser = new JsonParser();
                 final JsonElement mainElement = jsonParser.parse(line);

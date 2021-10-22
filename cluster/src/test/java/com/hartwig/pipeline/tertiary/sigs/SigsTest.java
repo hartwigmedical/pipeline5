@@ -13,7 +13,9 @@ import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.stages.Stage;
+import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
+import com.hartwig.pipeline.tertiary.chord.ChordOutput;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
 public class SigsTest extends TertiaryStageTest<SigsOutput> {
@@ -49,12 +51,7 @@ public class SigsTest extends TertiaryStageTest<SigsOutput> {
 
     @Override
     protected void validateOutput(final SigsOutput output) {
-        // no additional validation
-    }
-
-    @Override
-    protected void validatePersistedOutput(final SigsOutput output) {
-        // no additional validation
+        // Sigs output is not used as input for other tools
     }
 
     @Override
@@ -65,5 +62,15 @@ public class SigsTest extends TertiaryStageTest<SigsOutput> {
     @Override
     protected List<String> expectedInputs() {
         return List.of(input(expectedRuntimeBucketName() + "/purple/tumor.purple.somatic.vcf.gz", "tumor.purple.somatic.vcf.gz"));
+    }
+
+    @Override
+    protected void validatePersistedOutputFromPersistedDataset(final SigsOutput output) {
+        // Sigs defines no persisted output
+    }
+
+    @Override
+    protected void validatePersistedOutput(final SigsOutput output) {
+        // Sigs defines no persisted output
     }
 }

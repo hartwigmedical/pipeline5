@@ -1,19 +1,28 @@
 package com.hartwig.pipeline.tertiary.virus;
 
+import static com.hartwig.pipeline.testsupport.TestInputs.SOMATIC_BUCKET;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.List;
 
+import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.stages.Stage;
+import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Before;
 
 public class VirusAnalysisTest extends TertiaryStageTest<VirusOutput> {
+
+    private static final String TUMOR_VIRUS_ANNOTATED_TSV = "tumor.virus.annotated.tsv";
+    private static final String TUMOR_VIRUSBREAKEND_VCF_SUMMARY_TSV = "tumor.virusbreakend.vcf.summary.tsv";
 
     @Before
     public void setUp() throws Exception {
@@ -22,7 +31,7 @@ public class VirusAnalysisTest extends TertiaryStageTest<VirusOutput> {
 
     @Override
     protected Stage<VirusOutput, SomaticRunMetadata> createVictim() {
-        return new VirusAnalysis(TestInputs.defaultPair(), TestInputs.REF_GENOME_37_RESOURCE_FILES);
+        return new VirusAnalysis(TestInputs.defaultPair(), TestInputs.REF_GENOME_37_RESOURCE_FILES, persistedDataset);
     }
 
     @Override
@@ -32,29 +41,34 @@ public class VirusAnalysisTest extends TertiaryStageTest<VirusOutput> {
                         new ArchivePath(Folder.root(), VirusAnalysis.NAMESPACE, "tumor.virusbreakend.vcf")),
                 new AddDatatype(DataType.VIRUSBREAKEND_SUMMARY,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
-                        new ArchivePath(Folder.root(), VirusAnalysis.NAMESPACE, "tumor.virusbreakend.vcf.summary.tsv")),
+                        new ArchivePath(Folder.root(), VirusAnalysis.NAMESPACE, TUMOR_VIRUSBREAKEND_VCF_SUMMARY_TSV)),
                 new AddDatatype(DataType.VIRUS_INTERPRETATION,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
-                        new ArchivePath(Folder.root(), VirusAnalysis.NAMESPACE, "tumor.virus.annotated.tsv")));
+                        new ArchivePath(Folder.root(), VirusAnalysis.NAMESPACE, TUMOR_VIRUS_ANNOTATED_TSV)));
     }
 
     @Override
     protected void validateOutput(final VirusOutput output) {
-        // nothing to validate
+        assertThat(output.annotatedVirusFile()).isEqualTo(GoogleStorageLocation.of(SOMATIC_BUCKET + "/virusbreakend",
+                ResultsDirectory.defaultDirectory().path(TUMOR_VIRUS_ANNOTATED_TSV)));
     }
 
     @Override
     protected void validatePersistedOutput(final VirusOutput output) {
+        assertThat(output.annotatedVirusFile()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
+                "set/virusbreakend/" + TUMOR_VIRUS_ANNOTATED_TSV));
     }
 
     @Override
     protected void setupPersistedDataset() {
-        persistedDataset.addPath(DataType.VIRUSBREAKEND_SUMMARY, "virusbreakend");
+        persistedDataset.addPath(DataType.VIRUSBREAKEND_SUMMARY, "virusbreakend/" + TUMOR_VIRUSBREAKEND_VCF_SUMMARY_TSV);
+        persistedDataset.addPath(DataType.VIRUS_INTERPRETATION, "virusbreakend/" + TUMOR_VIRUS_ANNOTATED_TSV);
     }
 
     @Override
     protected void validatePersistedOutputFromPersistedDataset(final VirusOutput output) {
-
+        assertThat(output.annotatedVirusFile()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
+                "virusbreakend/" + TUMOR_VIRUS_ANNOTATED_TSV));
     }
 
     @Override

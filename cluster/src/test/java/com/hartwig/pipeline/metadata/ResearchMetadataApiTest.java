@@ -18,6 +18,7 @@ import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.google.pubsub.v1.PubsubMessage;
+import com.hartwig.api.RunApi;
 import com.hartwig.api.SampleApi;
 import com.hartwig.api.SetApi;
 import com.hartwig.api.model.Run;
@@ -25,6 +26,8 @@ import com.hartwig.api.model.Sample;
 import com.hartwig.api.model.SampleSet;
 import com.hartwig.api.model.SampleStatus;
 import com.hartwig.api.model.SampleType;
+import com.hartwig.api.model.Status;
+import com.hartwig.api.model.UpdateRun;
 import com.hartwig.events.Analysis.Context;
 import com.hartwig.events.Analysis.Molecule;
 import com.hartwig.events.PipelineOutputBlob;
@@ -38,6 +41,7 @@ import com.hartwig.pipeline.jackson.ObjectMappers;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.testsupport.TestBlobs;
 import com.hartwig.pipeline.testsupport.TestInputs;
+import com.hartwig.pipeline.tools.Versions;
 import com.hartwig.pipeline.transfer.staged.StagedOutputPublisher;
 
 import org.jetbrains.annotations.NotNull;
@@ -52,13 +56,16 @@ public class ResearchMetadataApiTest {
     private static final String TUMOR_BARCODE = "FR22222222";
     private static final String REF_NAME = "reference";
     private static final String REF_BARCODE = "FR11111111";
-    public static final long TUMOR_SAMPLE_ID = 2L;
-    public static final String SET_NAME = TestInputs.defaultSomaticRunMetadata().set();
-    public static final long SET_ID = 3L;
-    public static final long REF_SAMPLE_ID = 4L;
+    private static final long TUMOR_SAMPLE_ID = 2L;
+    private static final String SET_NAME = TestInputs.defaultSomaticRunMetadata().set();
+    private static final long SET_ID = 3L;
+    private static final long REF_SAMPLE_ID = 4L;
+    private static final long RUN_ID = 1L;
     private ResearchMetadataApi victim;
     private SampleApi sampleApi;
     private SetApi setApi;
+    private RunApi runApi;
+    private Run run;
     private Bucket bucket;
     private Publisher publisher;
 
@@ -67,10 +74,14 @@ public class ResearchMetadataApiTest {
         sampleApi = mock(SampleApi.class);
         setApi = mock(SetApi.class);
         bucket = mock(Bucket.class);
+        runApi = mock(RunApi.class);
+        run = new Run().id(RUN_ID);
         publisher = mock(Publisher.class);
         ObjectMapper objectMapper = ObjectMappers.get();
         victim = new ResearchMetadataApi(sampleApi,
                 setApi,
+                runApi,
+                run,
                 BIOPSY,
                 Arguments.testDefaults(),
                 new StagedOutputPublisher(setApi, bucket, publisher, objectMapper, new Run(), Context.RESEARCH, false, true),
@@ -118,6 +129,8 @@ public class ResearchMetadataApiTest {
     public void anonymizesSampleNameWhenActivated() {
         victim = new ResearchMetadataApi(sampleApi,
                 setApi,
+                runApi,
+                run,
                 BIOPSY,
                 Arguments.testDefaults(),
                 new StagedOutputPublisher(setApi, bucket, publisher, ObjectMappers.get(), new Run(), Context.RESEARCH, true, true),
@@ -142,7 +155,7 @@ public class ResearchMetadataApiTest {
         assertThat(result.runId()).isEmpty();
         assertThat(result.setId()).isEqualTo(SET_ID);
         assertThat(result.sample()).isEqualTo("tumor");
-        assertThat(result.version()).isEqualTo("local-SNAPSHOT");
+        assertThat(result.version()).isEqualTo(Versions.pipelineMajorMinorVersion());
         PipelineOutputBlob blobResult = result.blobs().get(0);
         assertThat(blobResult.barcode()).isEmpty();
         assertThat(blobResult.bucket()).isEqualTo("bucket");
@@ -205,6 +218,32 @@ public class ResearchMetadataApiTest {
         state.add(TestOutput.builder().status(PipelineStatus.FAILED).build());
         victim.complete(state, TestInputs.defaultSomaticRunMetadata());
         verify(publisher, never()).publish(any());
+    }
+
+    @Test
+    public void setsStatusAndStartTimeOnStart() {
+        ArgumentCaptor<Long> runIdArgumentCaptor = ArgumentCaptor.forClass(Long.class);
+        ArgumentCaptor<UpdateRun> updateRunArgumentCaptor = ArgumentCaptor.forClass(UpdateRun.class);
+        when(runApi.update(runIdArgumentCaptor.capture(), updateRunArgumentCaptor.capture())).thenReturn(run);
+        victim.start();
+        assertThat(runIdArgumentCaptor.getValue()).isEqualTo(RUN_ID);
+        UpdateRun updateRun = updateRunArgumentCaptor.getValue();
+        assertThat(updateRun.getStartTime()).isNotNull();
+        assertThat(updateRun.getStatus()).isEqualTo(Status.PROCESSING);
+    }
+
+    @Test
+    public void setsStatusAndEndTimeOnComplete() {
+        ArgumentCaptor<Long> runIdArgumentCaptor = ArgumentCaptor.forClass(Long.class);
+        ArgumentCaptor<UpdateRun> updateRunArgumentCaptor = ArgumentCaptor.forClass(UpdateRun.class);
+        when(runApi.update(runIdArgumentCaptor.capture(), updateRunArgumentCaptor.capture())).thenReturn(run);
+        PipelineState state = new PipelineState();
+        state.add(TestOutput.builder().status(PipelineStatus.FAILED).build());
+        victim.complete(state, TestInputs.defaultSomaticRunMetadata());
+        assertThat(runIdArgumentCaptor.getValue()).isEqualTo(RUN_ID);
+        UpdateRun updateRun = updateRunArgumentCaptor.getValue();
+        assertThat(updateRun.getEndTime()).isNotNull();
+        assertThat(updateRun.getStatus()).isEqualTo(Status.FAILED);
     }
 
     private static Sample tumor() {
