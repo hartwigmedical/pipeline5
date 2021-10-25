@@ -33,5 +33,8 @@ steps:
     args: [ '-c', "docker push eu.gcr.io/$PROJECT_ID/batch5:${_MAJOR_MINOR_VERSION}.$SHORT_SHA" ]
 images:
   - eu.gcr.io/$PROJECT_ID/pipeline5
+options:
+  pool:
+    name: 'projects/hmf-build/locations/europe-west4/workerPools/WORKER_POOL_JAVA'
 logsBucket: 'gs://hmf-build-logs'
 timeout: 4800s
