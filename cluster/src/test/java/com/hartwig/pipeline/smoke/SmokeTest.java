@@ -14,17 +14,14 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Storage;
+import com.hartwig.events.Analysis.Context;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.PipelineMain;
 import com.hartwig.pipeline.PipelineState;
 import com.hartwig.pipeline.credentials.CredentialProvider;
 import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.jackson.ObjectMappers;
-import com.hartwig.pipeline.sbpapi.SbpRestApi;
-import com.hartwig.pipeline.sbpapi.SbpSet;
 import com.hartwig.pipeline.storage.StorageProvider;
 import com.hartwig.pipeline.testsupport.Resources;
 
@@ -32,7 +29,6 @@ import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -43,9 +39,9 @@ public class SmokeTest {
     private static final String FILE_ENCODING = "UTF-8";
     private static final int SBP_SET_ID = 15;
     private static final int SBP_RUN_ID = 102;
-    private static final String SET_ID = "CPCT12345678";
-    private static final String REFERENCE_SAMPLE = SET_ID + "R";
-    private static final String TUMOR_SAMPLE = SET_ID + "T";
+    private static final String SAMPLE_ID = "CPCT12345678";
+    private static final String REFERENCE_SAMPLE = SAMPLE_ID + "R";
+    private static final String TUMOR_SAMPLE = SAMPLE_ID + "T";
     private static final String STAGED_FLAG_FILE = "STAGED";
     private static final String RCLONE_PATH = "/usr/bin";
     private static final String CLOUD_SDK_PATH = "/root/google-cloud-sdk/bin";
@@ -64,17 +60,18 @@ public class SmokeTest {
 
     @Test
     public void runFullPipelineAndCheckFinalStatus() throws Exception {
-        String apiUrl = "http://192.168.24.6";
+        String apiUrl = "http://api.pilot-1";
         PipelineMain victim = new PipelineMain();
         String version = System.getProperty("version");
         String runId = "smoke-" + noDots(version);
+        String setName = "smoke_test";
 
         String privateKeyPath = workingDir() + "/google-key.json";
         Arguments arguments = Arguments.defaultsBuilder(Arguments.DefaultsProfile.DEVELOPMENT.toString())
                 .privateKeyPath(privateKeyPath)
                 .uploadPrivateKeyPath(privateKeyPath)
                 .cloudSdkPath(CLOUD_SDK_PATH)
-                .setId(SET_ID)
+                .setId(setName)
                 .runId(runId)
                 .runGermlineCaller(false)
                 .sbpApiRunId(SBP_RUN_ID)
@@ -83,11 +80,11 @@ public class SmokeTest {
                 .rcloneGcpRemote(GCP_REMOTE)
                 .rcloneS3RemoteDownload("s3")
                 .cleanup(true)
+                .outputBucket("services-pipeline-output-pilot-1")
+                .analysisContext(Context.SERVICES)
                 .build();
         Storage storage = StorageProvider.from(arguments, CredentialProvider.from(arguments).get()).get();
-        SbpRestApi api = SbpRestApi.newInstance(arguments.sbpApiUrl());
 
-        String setName = setName(api);
         cleanupBucket(setName, arguments.outputBucket(), storage);
 
         PipelineState state = victim.start(arguments);
@@ -138,11 +135,5 @@ public class SmokeTest {
 
     private static String noDots(final String version) {
         return version.replace(".", "").toLowerCase();
-    }
-
-    private static String setName(SbpRestApi api) throws IOException {
-        List<SbpSet> sets = ObjectMappers.get().readValue(api.getSet(SBP_SET_ID), new TypeReference<List<SbpSet>>() {
-        });
-        return sets.get(0).name();
     }
 }
