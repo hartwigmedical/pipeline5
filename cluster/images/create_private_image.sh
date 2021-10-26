@@ -24,9 +24,9 @@ gcloud compute images describe $dest_image --project=$DEST_PROJECT >/dev/null 2>
 image_family="$(echo $json | jq -r '.family')"
 imager_vm="${image_family}-imager"
 
-echo Ready to create VM ${imager_vm} in project ${DEST_PROJECT}
-echo The VM will be used to create private image ${source_image} in family ${image_family}
-echo You must have sufficient permissions in ${DEST_PROJECT}
+echo Ready to create VM [${imager_vm}] in project [${DEST_PROJECT}]
+echo The VM will be used to create private image [${dest_image}] in family [${image_family}]
+echo You must have sufficient permissions in [${DEST_PROJECT}]
 echo
 echo 'If you ARE NOT currently doing a PRODUCTION upgrade maybe you should not be running this script!'
 echo
@@ -48,10 +48,8 @@ done
 echo "Instance running, continuing with imaging"
 
 set -e
-$ssh --command="sudo mkdir /tmp/resources"
-$ssh --command="sudo gcloud source repos clone common-resources-private /tmp/resources --project=$SOURCE_REPO_PROJECT"
-$ssh --command="sudo rm -r /tmp/resources/.git"
-$ssh --command="cd /tmp/resources; sudo tar -C /tmp/resources -cf - * | sudo tar -C /opt/resources -xv"
+gcloud compute scp $(dirname $0)/private_resource_checkout.sh ${imager_vm}:/tmp/ --zone=$ZONE --project=$DEST_PROJECT --tunnel-through-iap 
+$ssh --command="sudo /tmp/private_resource_checkout.sh $SOURCE_REPO_PROJECT"
 
 gcloud compute instances stop $imager_vm --zone=${ZONE} --project=$DEST_PROJECT
 gcloud compute images create $dest_image --family=$image_family --source-disk=$imager_vm --source-disk-zone=$ZONE \
