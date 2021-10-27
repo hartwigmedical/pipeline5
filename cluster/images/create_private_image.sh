@@ -49,7 +49,7 @@ echo "Instance running, continuing with imaging"
 
 set -e
 gcloud compute scp $(dirname $0)/private_resource_checkout.sh ${imager_vm}:/tmp/ --zone=$ZONE --project=$DEST_PROJECT --tunnel-through-iap 
-$ssh --command="sudo /tmp/private_resource_checkout.sh $SOURCE_REPO_PROJECT"
+$ssh --command="sudo /tmp/private_resource_checkout.sh $source_image $SOURCE_REPO_PROJECT"
 
 gcloud compute instances stop $imager_vm --zone=${ZONE} --project=$DEST_PROJECT
 gcloud compute images create $dest_image --family=$image_family --source-disk=$imager_vm --source-disk-zone=$ZONE \
