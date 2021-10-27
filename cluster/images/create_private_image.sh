@@ -36,7 +36,7 @@ read -p "Continue [y|N]? " response
 gcloud compute instances create $imager_vm --description="Instance for private pipeline5 disk image creation" \
     --zone=${ZONE} --boot-disk-size 200 --boot-disk-type pd-ssd --machine-type n1-highcpu-2 \
     --image-project=$IMAGE_SOURCE_PROJECT --image=$source_image --scopes=default,cloud-source-repos-ro \
-    --project=$DEST_PROJECT --service-account=$DEST_SERVICE_ACCOUNT || exit 1
+    --project=$DEST_PROJECT --service-account=$DEST_SERVICE_ACCOUNT --network-interface=no-address || exit 1
 
 ssh="gcloud compute ssh $imager_vm --zone=$ZONE --project=$DEST_PROJECT --tunnel-through-iap"
 echo "Polling for active instance"
