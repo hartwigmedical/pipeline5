@@ -35,7 +35,9 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
 
     @Override
     protected List<String> expectedInputs() {
-        return ImmutableList.of(input(expectedRuntimeBucketName() + "/purple/tumor.purple.purity.tsv", "tumor.purple.purity.tsv"),
+        return ImmutableList.of("mkdir -p /data/input/linx",
+                "mkdir -p /data/input/purple",
+                input(expectedRuntimeBucketName() + "/purple/tumor.purple.purity.tsv", "tumor.purple.purity.tsv"),
                 input(expectedRuntimeBucketName() + "/purple/tumor.purple.qc", "tumor.purple.qc"),
                 input(expectedRuntimeBucketName() + "/purple/tumor.purple.cnv.gene.tsv", "tumor.purple.cnv.gene.tsv"),
                 input(expectedRuntimeBucketName() + "/purple/tumor.driver.catalog.somatic.tsv", "tumor.driver.catalog.somatic.tsv"),
@@ -67,9 +69,7 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
 
     @Override
     protected List<String> expectedCommands() {
-        return Arrays.asList("mkdir -p /data/input/linx/plot",
-                "mkdir -p /data/input/purple/plot",
-                "echo '5.24' | tee /data/input/orange_pipeline.version.txt",
+        return Arrays.asList("echo '5.24' | tee /data/input/orange_pipeline.version.txt",
                 "java -Xmx8G -jar /opt/tools/orange/1.1/orange.jar -output_dir /data/output -doid_json /opt/resources/disease_ontology/201015_doid.json "
                         + "-primary_tumor_doids \"01;02\" -max_evidence_level C -tumor_sample_id tumor -reference_sample_id reference "
                         + "-ref_sample_wgs_metrics_file /data/input/reference.wgsmetrics -tumor_sample_wgs_metrics_file /data/input/tumor.wgsmetrics "

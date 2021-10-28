@@ -47,6 +47,8 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
     private static final String ORANGE_OUTPUT_JSON = ".orange.json";
     private static final String ORANGE_OUTPUT_PDF = ".orange.pdf";
     private static final String MAX_EVIDENCE_LEVEL = "C";
+    private static final String LOCAL_PURPLE_DIR = VmDirectories.INPUT + "/" + Purple.NAMESPACE;
+    private static final String LOCAL_LINX_DIR = VmDirectories.INPUT + "/" + Linx.NAMESPACE;
 
     private final ResourceFiles resourceFiles;
     private final InputDownload refMetrics;
@@ -96,13 +98,11 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
         this.purpleGeneCopyNumberTsv = new InputDownload(purpleOutput.outputLocations().geneCopyNumberTsv());
         this.purpleSomaticDriverCatalog = new InputDownload(purpleOutput.outputLocations().somaticDriverCatalog());
         this.purpleGermlineDriverCatalog = new InputDownload(purpleOutput.outputLocations().germlineDriverCatalog());
-        this.purpleOutputDir =
-                new InputDownload(purpleOutput.outputLocations().outputDirectory(), VmDirectories.INPUT + "/" + Purple.NAMESPACE);
+        this.purpleOutputDir = new InputDownload(purpleOutput.outputLocations().outputDirectory(), LOCAL_PURPLE_DIR);
         this.sageGermlineGeneCoverageTsv = new InputDownload(sageGermlineOutput.germlineGeneCoverageTsv());
         this.sageSomaticRefSampleBqrPlot = new InputDownload(sageSomaticOutput.somaticRefSampleBqrPlot());
         this.sageSomaticTumorSampleBqrPlot = new InputDownload(sageSomaticOutput.somaticTumorSampleBqrPlot());
-        this.linxOutputDir = new InputDownload(linxOrEmpty(linxOutput, LinxOutputLocations::outputDirectory),
-                VmDirectories.INPUT + "/" + Linx.NAMESPACE);
+        this.linxOutputDir = new InputDownload(linxOrEmpty(linxOutput, LinxOutputLocations::outputDirectory), LOCAL_LINX_DIR);
         this.linxFusionTsv = new InputDownload(linxOrEmpty(linxOutput, LinxOutputLocations::fusions));
         this.linxBreakEndTsv = new InputDownload(linxOrEmpty(linxOutput, LinxOutputLocations::breakends));
         this.linxDriverCatalogTsv = new InputDownload(linxOrEmpty(linxOutput, LinxOutputLocations::driverCatalog));
@@ -129,7 +129,9 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
 
     @Override
     public List<BashCommand> inputs() {
-        return List.of(purpleSomaticVcf,
+        return List.of(new MkDirCommand(LOCAL_LINX_DIR),
+                new MkDirCommand(LOCAL_PURPLE_DIR),
+                purpleSomaticVcf,
                 refMetrics,
                 tumMetrics,
                 refFlagstat,
@@ -169,11 +171,7 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
         final String pipelineVersionFilePath = VmDirectories.INPUT + "/orange_pipeline.version.txt";
         final String pipelineVersion = Versions.pipelineMajorMinorVersion();
         final List<String> primaryTumorDoids = metadata.tumor().primaryTumorDoids();
-        String linxPlotDir = linxOutputDir.getLocalTargetPath() + "/plot";
-        String purplePlotDir = purpleOutputDir.getLocalTargetPath() + "/plot";
-        return List.of(new MkDirCommand(linxPlotDir),
-                new MkDirCommand(purplePlotDir),
-                () -> "echo '" + pipelineVersion + "' | tee " + pipelineVersionFilePath,
+        return List.of(() -> "echo '" + pipelineVersion + "' | tee " + pipelineVersionFilePath,
                 new JavaJarCommand("orange",
                         Versions.ORANGE,
                         "orange.jar",
@@ -211,7 +209,7 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
                                 "-purple_germline_variant_vcf",
                                 purpleGermlineVcf.getLocalTargetPath(),
                                 "-purple_plot_directory",
-                                purplePlotDir,
+                                purpleOutputDir.getLocalTargetPath() + "/plot",
                                 "-purple_purity_tsv",
                                 purplePurityTsv.getLocalTargetPath(),
                                 "-purple_qc_file",
@@ -229,7 +227,7 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
                                 "-linx_driver_tsv",
                                 linxDriverTsv.getLocalTargetPath(),
                                 "-linx_plot_directory",
-                                linxPlotDir,
+                                linxOutputDir.getLocalTargetPath() + "/plot",
                                 "-cuppa_conclusion_txt",
                                 cuppaConclusionTxt.getLocalTargetPath(),
                                 "-cuppa_result_csv",
