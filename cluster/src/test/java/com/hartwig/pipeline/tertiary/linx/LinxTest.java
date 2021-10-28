@@ -86,6 +86,16 @@ public class LinxTest extends TertiaryStageTest<LinxOutput> {
     }
 
     @Override
+    protected void validatePersistedOutputFromPersistedDataset(final LinxOutput output) {
+        // no additional validation
+    }
+
+    @Override
+    protected void validatePersistedOutput(final LinxOutput output) {
+        // no additional validation
+    }
+
+    @Override
     public void addsLogs() {
         // not supported currently
     }

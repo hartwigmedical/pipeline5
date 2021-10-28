@@ -78,6 +78,16 @@ public class HealthCheckerTest extends TertiaryStageTest<HealthCheckOutput> {
     }
 
     @Override
+    protected void validatePersistedOutput(final HealthCheckOutput output) {
+        // no validation
+    }
+
+    @Override
+    protected void validatePersistedOutputFromPersistedDataset(final HealthCheckOutput output) {
+        // no validation
+    }
+
+    @Override
     protected boolean isEnabledOnShallowSeq() {
         return false;
     }

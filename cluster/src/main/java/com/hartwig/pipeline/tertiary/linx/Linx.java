@@ -144,6 +144,7 @@ public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
         String fusionsTsv = metadata.tumor().sampleName() + FUSION_TSV;
         String driversTsv = metadata.tumor().sampleName() + DRIVERS_TSV;
         return LinxOutput.builder()
+                .status(PipelineStatus.PERSISTED)
                 .maybeLinxOutputLocations(LinxOutputLocations.builder()
                         .breakends(persistedOrDefault(metadata, DataType.LINX_DRIVER_CATALOG, breakendTsv))
                         .driverCatalog(persistedOrDefault(metadata, DataType.LINX_DRIVER_CATALOG, driverCatalogTsv))
