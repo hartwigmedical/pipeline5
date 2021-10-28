@@ -146,7 +146,8 @@ public class SomaticPipeline {
                             Future<HealthCheckOutput> healthCheckOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                     new HealthChecker(referenceMetrics, tumorMetrics, referenceFlagstat, tumorFlagstat, purpleOutput)));
                             Future<LinxOutput> linxOutputFuture =
-                                    executorService.submit(() -> stageRunner.run(metadata, new Linx(purpleOutput, resourceFiles)));
+                                    executorService.submit(() -> stageRunner.run(metadata, new Linx(purpleOutput, resourceFiles,
+                                            persistedDataset)));
                             Future<SigsOutput> signatureOutputFuture =
                                     executorService.submit(() -> stageRunner.run(metadata, new Sigs(purpleOutput, resourceFiles)));
                             Future<ChordOutput> chordOutputFuture = executorService.submit(() -> stageRunner.run(metadata,

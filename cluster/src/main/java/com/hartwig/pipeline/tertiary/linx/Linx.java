@@ -1,5 +1,6 @@
 package com.hartwig.pipeline.tertiary.linx;
 
+import java.io.File;
 import java.util.Collections;
 import java.util.List;
 
@@ -19,11 +20,15 @@ import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
+import com.hartwig.pipeline.reruns.PersistedDataset;
+import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
+
+import org.jetbrains.annotations.NotNull;
 
 public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
 
@@ -38,11 +43,13 @@ public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
     private final InputDownload purpleOutputDirDownload;
     private final InputDownload purpleStructuralVcfDownload;
     private final ResourceFiles resourceFiles;
+    private final PersistedDataset persistedDataset;
 
-    public Linx(PurpleOutput purpleOutput, final ResourceFiles resourceFiles) {
+    public Linx(PurpleOutput purpleOutput, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
         purpleOutputDirDownload = new InputDownload(purpleOutput.outputLocations().outputDirectory());
         purpleStructuralVcfDownload = new InputDownload(purpleOutput.outputLocations().structuralVcf());
         this.resourceFiles = resourceFiles;
+        this.persistedDataset = persistedDataset;
     }
 
     @Override
@@ -60,8 +67,7 @@ public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
 
         List<BashCommand> commands = Lists.newArrayList();
 
-        commands.add(new LinxCommand(
-                metadata.tumor().sampleName(),
+        commands.add(new LinxCommand(metadata.tumor().sampleName(),
                 purpleStructuralVcfDownload.getLocalTargetPath(),
                 purpleOutputDirDownload.getLocalTargetPath(),
                 resourceFiles.version(),
@@ -74,10 +80,7 @@ public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
                 resourceFiles.knownFusionData(),
                 resourceFiles.driverGenePanel()));
 
-        commands.add(new LinxVisualisationsCommand(
-                metadata.tumor().sampleName(),
-                VmDirectories.OUTPUT,
-                resourceFiles.version()));
+        commands.add(new LinxVisualisationsCommand(metadata.tumor().sampleName(), VmDirectories.OUTPUT, resourceFiles.version()));
 
         return commands;
     }
@@ -132,5 +135,30 @@ public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
     @Override
     public boolean shouldRun(final Arguments arguments) {
         return arguments.runTertiary() && !arguments.shallow();
+    }
+
+    @Override
+    public LinxOutput persistedOutput(final SomaticRunMetadata metadata) {
+        String breakendTsv = metadata.tumor().sampleName() + BREAKEND_TSV;
+        String driverCatalogTsv = metadata.tumor().sampleName() + DRIVER_CATALOG_TSV;
+        String fusionsTsv = metadata.tumor().sampleName() + FUSION_TSV;
+        String driversTsv = metadata.tumor().sampleName() + DRIVERS_TSV;
+        return LinxOutput.builder()
+                .maybeLinxOutputLocations(LinxOutputLocations.builder()
+                        .breakends(persistedOrDefault(metadata, DataType.LINX_DRIVER_CATALOG, breakendTsv))
+                        .driverCatalog(persistedOrDefault(metadata, DataType.LINX_DRIVER_CATALOG, driverCatalogTsv))
+                        .drivers(persistedOrDefault(metadata, DataType.LINX_DRIVER_CATALOG, driversTsv))
+                        .fusions(persistedOrDefault(metadata, DataType.LINX_DRIVER_CATALOG, fusionsTsv))
+                        .outputDirectory(persistedOrDefault(metadata,
+                                DataType.LINX_DRIVER_CATALOG,
+                                driverCatalogTsv).transform(f -> new File(f).getParent()).asDirectory())
+                        .build())
+                .build();
+    }
+
+    @NotNull
+    public GoogleStorageLocation persistedOrDefault(final SomaticRunMetadata metadata, final DataType dataType, final String path) {
+        return persistedDataset.path(metadata.tumor().sampleName(), dataType)
+                .orElse(GoogleStorageLocation.of(metadata.bucket(), PersistedLocations.blobForSet(metadata.set(), namespace(), path)));
     }
 }
