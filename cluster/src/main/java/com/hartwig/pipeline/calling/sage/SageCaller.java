@@ -86,7 +86,16 @@ public abstract class SageCaller extends TertiaryStage<SageOutput> {
                 .addReportComponents(new StartupScriptComponent(bucket, namespace(), Folder.root()))
                 .addDatatypes(new AddDatatype(vcfDatatype,
                         metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), filteredOutputFile)));
+                        new ArchivePath(Folder.root(), namespace(), filteredOutputFile)))
+                .addDatatypes(new AddDatatype(geneCoverageDatatype,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), geneCoverageFile)))
+                .addDatatypes(new AddDatatype(tumorSampleBqrPlot,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), somaticTumorSampleBqrPlot)))
+                .addDatatypes(new AddDatatype(refSampleBqrPlot,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), somaticRefSampleBqrPlot)));
     }
 
     private String somaticTumorSampleBqrPlot(final SomaticRunMetadata metadata) {
