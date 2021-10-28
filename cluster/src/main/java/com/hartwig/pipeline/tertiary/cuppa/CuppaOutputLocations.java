@@ -11,7 +11,7 @@ public interface CuppaOutputLocations {
 
     GoogleStorageLocation resultCsv();
 
-    GoogleStorageLocation chartPng();
+    GoogleStorageLocation summaryChartPng();
 
     GoogleStorageLocation featurePlot();
 

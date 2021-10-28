@@ -31,10 +31,12 @@ import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.chord.ChordOutput;
 import com.hartwig.pipeline.tertiary.cuppa.CuppaOutput;
 import com.hartwig.pipeline.tertiary.cuppa.CuppaOutputLocations;
+import com.hartwig.pipeline.tertiary.linx.Linx;
 import com.hartwig.pipeline.tertiary.linx.LinxOutput;
 import com.hartwig.pipeline.tertiary.linx.LinxOutputLocations;
 import com.hartwig.pipeline.tertiary.peach.PeachOutput;
 import com.hartwig.pipeline.tertiary.protect.ProtectOutput;
+import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tertiary.virus.VirusOutput;
 import com.hartwig.pipeline.tools.Versions;
@@ -94,11 +96,13 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
         this.purpleGeneCopyNumberTsv = new InputDownload(purpleOutput.outputLocations().geneCopyNumberTsv());
         this.purpleSomaticDriverCatalog = new InputDownload(purpleOutput.outputLocations().somaticDriverCatalog());
         this.purpleGermlineDriverCatalog = new InputDownload(purpleOutput.outputLocations().germlineDriverCatalog());
-        this.purpleOutputDir = new InputDownload(purpleOutput.outputLocations().outputDirectory());
+        this.purpleOutputDir =
+                new InputDownload(purpleOutput.outputLocations().outputDirectory(), VmDirectories.INPUT + "/" + Purple.NAMESPACE);
         this.sageGermlineGeneCoverageTsv = new InputDownload(sageGermlineOutput.germlineGeneCoverageTsv());
         this.sageSomaticRefSampleBqrPlot = new InputDownload(sageSomaticOutput.somaticRefSampleBqrPlot());
         this.sageSomaticTumorSampleBqrPlot = new InputDownload(sageSomaticOutput.somaticTumorSampleBqrPlot());
-        this.linxOutputDir = new InputDownload(linxOrEmpty(linxOutput, LinxOutputLocations::outputDirectory));
+        this.linxOutputDir = new InputDownload(linxOrEmpty(linxOutput, LinxOutputLocations::outputDirectory),
+                VmDirectories.INPUT + "/" + Linx.NAMESPACE);
         this.linxFusionTsv = new InputDownload(linxOrEmpty(linxOutput, LinxOutputLocations::fusions));
         this.linxBreakEndTsv = new InputDownload(linxOrEmpty(linxOutput, LinxOutputLocations::breakends));
         this.linxDriverCatalogTsv = new InputDownload(linxOrEmpty(linxOutput, LinxOutputLocations::driverCatalog));
@@ -106,7 +110,7 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
         this.chordPredictionTxt = new InputDownload(chordOutput.maybePredictions().orElse(GoogleStorageLocation.empty()));
         this.cuppaConclusionTxt = new InputDownload(cuppaOrEmpty(cuppaOutput, CuppaOutputLocations::conclusionTxt));
         this.cuppaResultCsv = new InputDownload(cuppaOrEmpty(cuppaOutput, CuppaOutputLocations::resultCsv));
-        this.cuppaSummaryPlot = new InputDownload(cuppaOrEmpty(cuppaOutput, CuppaOutputLocations::chartPng));
+        this.cuppaSummaryPlot = new InputDownload(cuppaOrEmpty(cuppaOutput, CuppaOutputLocations::summaryChartPng));
         this.cuppaFeaturePlot = new InputDownload(cuppaOrEmpty(cuppaOutput, CuppaOutputLocations::featurePlot));
         this.peachGenotypeTsv = new InputDownload(peachOutput.maybeGenotypeTsv().orElse(GoogleStorageLocation.empty()));
         this.protectEvidenceTsv = new InputDownload(protectOutput.maybeEvidenceTsv().orElse(GoogleStorageLocation.empty()));
@@ -166,7 +170,9 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
         final String pipelineVersion = Versions.pipelineMajorMinorVersion();
         final List<String> primaryTumorDoids = metadata.tumor().primaryTumorDoids();
         String linxPlotDir = linxOutputDir.getLocalTargetPath() + "/plot";
+        String purplePlotDir = purpleOutputDir.getLocalTargetPath() + "/plot";
         return List.of(new MkDirCommand(linxPlotDir),
+                new MkDirCommand(purplePlotDir),
                 () -> "echo '" + pipelineVersion + "' | tee " + pipelineVersionFilePath,
                 new JavaJarCommand("orange",
                         Versions.ORANGE,
@@ -205,7 +211,7 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
                                 "-purple_germline_variant_vcf",
                                 purpleGermlineVcf.getLocalTargetPath(),
                                 "-purple_plot_directory",
-                                purpleOutputDir.getLocalTargetPath() + "/plot",
+                                purplePlotDir,
                                 "-purple_purity_tsv",
                                 purplePurityTsv.getLocalTargetPath(),
                                 "-purple_qc_file",
