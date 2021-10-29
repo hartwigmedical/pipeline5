@@ -30,12 +30,19 @@ public abstract class SageCaller extends TertiaryStage<SageOutput> {
     public static final String SAGE_BQR_PNG = "sage.bqr.png";
 
     private final PersistedDataset persistedDataset;
-    private final DataType dataType;
+    private final DataType vcfDatatype;
+    private final DataType geneCoverageDatatype;
+    private final DataType tumorSampleBqrPlot;
+    private final DataType refSampleBqrPlot;
 
-    public SageCaller(final AlignmentPair alignmentPair, final PersistedDataset persistedDataset, final DataType dataType) {
+    public SageCaller(final AlignmentPair alignmentPair, final PersistedDataset persistedDataset, final DataType dataType,
+            final DataType geneCoverageDatatype, final DataType tumorSampleBqrPlot, final DataType refSampleBqrPlot) {
         super(alignmentPair);
         this.persistedDataset = persistedDataset;
-        this.dataType = dataType;
+        this.vcfDatatype = dataType;
+        this.geneCoverageDatatype = geneCoverageDatatype;
+        this.tumorSampleBqrPlot = tumorSampleBqrPlot;
+        this.refSampleBqrPlot = refSampleBqrPlot;
     }
 
     protected abstract String filteredOutput(final SomaticRunMetadata metadata);
@@ -58,9 +65,9 @@ public abstract class SageCaller extends TertiaryStage<SageOutput> {
 
         final String filteredOutputFile = filteredOutput(metadata);
         final String unfilteredOutputFile = unfilteredOutput(metadata);
-        final String geneCoverageFile = String.format("%s.sage.gene.coverage.tsv", metadata.reference().sampleName());
-        final String somaticRefSampleBqrPlot = String.format("%s.%s", metadata.reference().sampleName(), SAGE_BQR_PNG);
-        final String somaticTumorSampleBqrPlot = String.format("%s.%s", metadata.tumor().sampleName(), SAGE_BQR_PNG);
+        final String geneCoverageFile = geneCoverageFile(metadata);
+        final String somaticRefSampleBqrPlot = somaticRefSampleBqrPlot(metadata);
+        final String somaticTumorSampleBqrPlot = somaticTumorSampleBqrPlot(metadata);
 
         return SageOutput.builder(namespace())
                 .status(jobStatus)
@@ -77,9 +84,30 @@ public abstract class SageCaller extends TertiaryStage<SageOutput> {
                 .addReportComponents(vcfComponent(filteredOutputFile, bucket, resultsDirectory))
                 .addReportComponents(new RunLogComponent(bucket, namespace(), Folder.root(), resultsDirectory))
                 .addReportComponents(new StartupScriptComponent(bucket, namespace(), Folder.root()))
-                .addDatatypes(new AddDatatype(dataType,
+                .addDatatypes(new AddDatatype(vcfDatatype,
                         metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), filteredOutputFile)));
+                        new ArchivePath(Folder.root(), namespace(), filteredOutputFile)))
+                .addDatatypes(new AddDatatype(geneCoverageDatatype,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), geneCoverageFile)))
+                .addDatatypes(new AddDatatype(tumorSampleBqrPlot,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), somaticTumorSampleBqrPlot)))
+                .addDatatypes(new AddDatatype(refSampleBqrPlot,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), somaticRefSampleBqrPlot)));
+    }
+
+    private String somaticTumorSampleBqrPlot(final SomaticRunMetadata metadata) {
+        return String.format("%s.%s", metadata.tumor().sampleName(), SAGE_BQR_PNG);
+    }
+
+    private String somaticRefSampleBqrPlot(final SomaticRunMetadata metadata) {
+        return String.format("%s.%s", metadata.reference().sampleName(), SAGE_BQR_PNG);
+    }
+
+    private String geneCoverageFile(final SomaticRunMetadata metadata) {
+        return String.format("%s.sage.gene.coverage.tsv", metadata.reference().sampleName());
     }
 
     @Override
@@ -90,12 +118,24 @@ public abstract class SageCaller extends TertiaryStage<SageOutput> {
     @Override
     public final SageOutput persistedOutput(final SomaticRunMetadata metadata) {
         final String filteredOutputFile = filteredOutput(metadata);
+        final String geneCoverageFile = geneCoverageFile(metadata);
+        final String somaticRefSampleBqrPlot = somaticRefSampleBqrPlot(metadata);
+        final String somaticTumorSampleBqrPlot = somaticTumorSampleBqrPlot(metadata);
 
         return SageOutput.builder(namespace())
                 .status(PipelineStatus.PERSISTED)
-                .maybeFinalVcf(persistedDataset.path(metadata.tumor().sampleName(), dataType)
+                .maybeFinalVcf(persistedDataset.path(metadata.tumor().sampleName(), vcfDatatype)
                         .orElse(GoogleStorageLocation.of(metadata.bucket(),
                                 PersistedLocations.blobForSet(metadata.set(), namespace(), filteredOutputFile))))
+                .maybeGermlineGeneCoverageTsv(persistedDataset.path(metadata.tumor().sampleName(), geneCoverageDatatype)
+                        .orElse(GoogleStorageLocation.of(metadata.bucket(),
+                                PersistedLocations.blobForSet(metadata.set(), namespace(), geneCoverageFile))))
+                .maybeSomaticRefSampleBqrPlot(persistedDataset.path(metadata.tumor().sampleName(), refSampleBqrPlot)
+                        .orElse(GoogleStorageLocation.of(metadata.bucket(),
+                                PersistedLocations.blobForSet(metadata.set(), namespace(), somaticRefSampleBqrPlot))))
+                .maybeSomaticTumorSampleBqrPlot(persistedDataset.path(metadata.tumor().sampleName(), tumorSampleBqrPlot)
+                        .orElse(GoogleStorageLocation.of(metadata.bucket(),
+                                PersistedLocations.blobForSet(metadata.set(), namespace(), somaticTumorSampleBqrPlot))))
                 .build();
     }
 

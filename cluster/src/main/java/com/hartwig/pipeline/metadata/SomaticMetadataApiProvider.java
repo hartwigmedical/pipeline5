@@ -50,8 +50,11 @@ public class SomaticMetadataApiProvider {
         HmfApi api = HmfApi.create(arguments.sbpApiUrl());
         Bucket sourceBucket = storage.get(arguments.outputBucket());
         ObjectMapper objectMapper = ObjectMappers.get();
+        Run run = api.runs().get((long) arguments.sbpApiRunId().orElseThrow());
         return new ResearchMetadataApi(api.samples(),
                 api.sets(),
+                api.runs(),
+                run,
                 biopsyName,
                 arguments,
                 new StagedOutputPublisher(api.sets(),
@@ -60,7 +63,8 @@ public class SomaticMetadataApiProvider {
                         objectMapper,
                         new Run(),
                         Context.RESEARCH,
-                        arguments.outputCram(), true),
+                        arguments.outputCram(),
+                        true),
                 new Anonymizer(arguments));
     }
 
@@ -78,7 +82,8 @@ public class SomaticMetadataApiProvider {
                         objectMapper,
                         run,
                         arguments.analysisContext(),
-                        arguments.outputCram(), false),
+                        arguments.outputCram(),
+                        false),
                 new Anonymizer(arguments));
     }
 }

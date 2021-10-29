@@ -30,7 +30,7 @@ public class LinxTest extends TertiaryStageTest<LinxOutput> {
 
     @Override
     protected Stage<LinxOutput, SomaticRunMetadata> createVictim() {
-        return new Linx(TestInputs.purpleOutput(), TestInputs.REF_GENOME_37_RESOURCE_FILES);
+        return new Linx(TestInputs.purpleOutput(), TestInputs.REF_GENOME_37_RESOURCE_FILES, persistedDataset);
     }
 
     @Override
@@ -82,6 +82,16 @@ public class LinxTest extends TertiaryStageTest<LinxOutput> {
 
     @Override
     protected void validateOutput(final LinxOutput output) {
+        // no additional validation
+    }
+
+    @Override
+    protected void validatePersistedOutputFromPersistedDataset(final LinxOutput output) {
+        // no additional validation
+    }
+
+    @Override
+    protected void validatePersistedOutput(final LinxOutput output) {
         // no additional validation
     }
 

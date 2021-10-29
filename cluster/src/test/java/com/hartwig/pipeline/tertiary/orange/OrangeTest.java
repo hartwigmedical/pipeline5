@@ -35,7 +35,9 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
 
     @Override
     protected List<String> expectedInputs() {
-        return ImmutableList.of(input(expectedRuntimeBucketName() + "/purple/tumor.purple.purity.tsv", "tumor.purple.purity.tsv"),
+        return ImmutableList.of("mkdir -p /data/input/linx",
+                "mkdir -p /data/input/purple",
+                input(expectedRuntimeBucketName() + "/purple/tumor.purple.purity.tsv", "tumor.purple.purity.tsv"),
                 input(expectedRuntimeBucketName() + "/purple/tumor.purple.qc", "tumor.purple.qc"),
                 input(expectedRuntimeBucketName() + "/purple/tumor.purple.cnv.gene.tsv", "tumor.purple.cnv.gene.tsv"),
                 input(expectedRuntimeBucketName() + "/purple/tumor.driver.catalog.somatic.tsv", "tumor.driver.catalog.somatic.tsv"),
@@ -54,8 +56,8 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
                 input(expectedRuntimeBucketName() + "/sage_germline/results/tumorsage.gene.coverage.tsv", "tumorsage.gene.coverage.tsv"),
                 input(expectedRuntimeBucketName() + "/sage_somatic/results/referencesage.bqr.png", "referencesage.bqr.png"),
                 input(expectedRuntimeBucketName() + "/sage_somatic/results/tumorsage.bqr.png", "tumorsage.bqr.png"),
-                input(expectedRuntimeBucketName() + "/purple/results/", "results"),
-                input(expectedRuntimeBucketName() + "/linx/results/", "results"),
+                input(expectedRuntimeBucketName() + "/purple/results/", "purple"),
+                input(expectedRuntimeBucketName() + "/linx/results/", "linx"),
                 input(expectedRuntimeBucketName() + "/linx/tumor.linx.drivers.tsv", "tumor.linx.drivers.tsv"),
                 input(expectedRuntimeBucketName() + "/cuppa/tumor.cuppa.conclusion.txt", "tumor.cuppa.conclusion.txt"),
                 input(expectedRuntimeBucketName() + "/cuppa/tumor.cup.data.csv", "tumor.cup.data.csv"),
@@ -67,21 +69,22 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
 
     @Override
     protected List<String> expectedCommands() {
-        return Arrays.asList("echo '5.24' | tee /data/input/orange_pipeline.version.txt",
+        return Arrays.asList("mkdir -p /data/input/linx/plot",
+                "echo '5.24' | tee /data/input/orange_pipeline.version.txt",
                 "java -Xmx8G -jar /opt/tools/orange/1.1/orange.jar -output_dir /data/output -doid_json /opt/resources/disease_ontology/201015_doid.json "
-                        + "-primary_tumor_doids \"01;02\" -max_evidence_level B -tumor_sample_id tumor -reference_sample_id reference "
+                        + "-primary_tumor_doids \"01;02\" -max_evidence_level C -tumor_sample_id tumor -reference_sample_id reference "
                         + "-ref_sample_wgs_metrics_file /data/input/reference.wgsmetrics -tumor_sample_wgs_metrics_file /data/input/tumor.wgsmetrics "
                         + "-ref_sample_flagstat_file /data/input/reference.flagstat -tumor_sample_flagstat_file /data/input/tumor.flagstat "
                         + "-sage_germline_gene_coverage_tsv /data/input/tumorsage.gene.coverage.tsv -sage_somatic_ref_sample_bqr_plot /data/input/referencesage.bqr.png "
                         + "-sage_somatic_tumor_sample_bqr_plot /data/input/tumorsage.bqr.png -purple_gene_copy_number_tsv /data/input/tumor.purple.cnv.gene.tsv "
                         + "-purple_germline_driver_catalog_tsv /data/input/tumor.driver.catalog.germline.tsv -purple_germline_variant_vcf /data/input/tumor.purple.germline.vcf.gz "
-                        + "-purple_plot_directory /data/input/results/plot -purple_purity_tsv /data/input/tumor.purple.purity.tsv -purple_qc_file /data/input/tumor.purple.qc "
+                        + "-purple_plot_directory /data/input/purple/plot -purple_purity_tsv /data/input/tumor.purple.purity.tsv -purple_qc_file /data/input/tumor.purple.qc "
                         + "-purple_somatic_driver_catalog_tsv /data/input/tumor.driver.catalog.somatic.tsv -purple_somatic_variant_vcf /data/input/tumor.purple.somatic.vcf.gz "
                         + "-linx_fusion_tsv /data/input/tumor.linx.fusion.tsv -linx_breakend_tsv /data/input/tumor.linx.breakend.tsv "
                         + "-linx_driver_catalog_tsv /data/input/tumor.linx.driver.catalog.tsv -linx_driver_tsv /data/input/tumor.linx.drivers.tsv "
-                        + "-linx_plot_directory /data/input/results/plot -cuppa_conclusion_txt /data/input/tumor.cuppa.conclusion.txt "
-                        + "-cuppa_result_csv /data/input/tumor.cup.data.csv -cuppa_summary_plot /data/input/tumor.cuppa.chart.png "
-                        + "-cuppa_feature_plot /data/input/tumor.cup.report.summary.png -chord_prediction_txt /data/input/tumor_chord_prediction.txt "
+                        + "-linx_plot_directory /data/input/linx/plot -cuppa_conclusion_txt /data/input/tumor.cuppa.conclusion.txt "
+                        + "-cuppa_result_csv /data/input/tumor.cup.data.csv -cuppa_summary_plot /data/input/tumor.cup.report.summary.png "
+                        + "-chord_prediction_txt /data/input/tumor_chord_prediction.txt "
                         + "-peach_genotype_tsv /data/input/tumor.peach.genotype.tsv -protect_evidence_tsv /data/input/tumor.protect.tsv "
                         + "-annotated_virus_tsv /data/input/tumor.virus.annotated.tsv -pipeline_version_file /data/input/orange_pipeline.version.txt");
     }

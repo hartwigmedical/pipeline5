@@ -1,6 +1,7 @@
 package com.hartwig.pipeline.tertiary.orange;
 
 import java.util.List;
+import java.util.function.Function;
 
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
@@ -14,6 +15,7 @@ import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
+import com.hartwig.pipeline.execution.vm.unix.MkDirCommand;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
 import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.ArchivePath;
@@ -28,9 +30,13 @@ import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.chord.ChordOutput;
 import com.hartwig.pipeline.tertiary.cuppa.CuppaOutput;
+import com.hartwig.pipeline.tertiary.cuppa.CuppaOutputLocations;
+import com.hartwig.pipeline.tertiary.linx.Linx;
 import com.hartwig.pipeline.tertiary.linx.LinxOutput;
+import com.hartwig.pipeline.tertiary.linx.LinxOutputLocations;
 import com.hartwig.pipeline.tertiary.peach.PeachOutput;
 import com.hartwig.pipeline.tertiary.protect.ProtectOutput;
+import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tertiary.virus.VirusOutput;
 import com.hartwig.pipeline.tools.Versions;
@@ -40,7 +46,9 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
 
     private static final String ORANGE_OUTPUT_JSON = ".orange.json";
     private static final String ORANGE_OUTPUT_PDF = ".orange.pdf";
-    private static final String EVIDENCE_LEVEL = "B";
+    private static final String MAX_EVIDENCE_LEVEL = "C";
+    private static final String LOCAL_PURPLE_DIR = VmDirectories.INPUT + "/" + Purple.NAMESPACE;
+    private static final String LOCAL_LINX_DIR = VmDirectories.INPUT + "/" + Linx.NAMESPACE;
 
     private final ResourceFiles resourceFiles;
     private final InputDownload refMetrics;
@@ -90,28 +98,40 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
         this.purpleGeneCopyNumberTsv = new InputDownload(purpleOutput.outputLocations().geneCopyNumberTsv());
         this.purpleSomaticDriverCatalog = new InputDownload(purpleOutput.outputLocations().somaticDriverCatalog());
         this.purpleGermlineDriverCatalog = new InputDownload(purpleOutput.outputLocations().germlineDriverCatalog());
-        this.purpleOutputDir = new InputDownload(purpleOutput.outputLocations().outputDirectory());
+        this.purpleOutputDir = new InputDownload(purpleOutput.outputLocations().outputDirectory(), LOCAL_PURPLE_DIR);
         this.sageGermlineGeneCoverageTsv = new InputDownload(sageGermlineOutput.germlineGeneCoverageTsv());
         this.sageSomaticRefSampleBqrPlot = new InputDownload(sageSomaticOutput.somaticRefSampleBqrPlot());
         this.sageSomaticTumorSampleBqrPlot = new InputDownload(sageSomaticOutput.somaticTumorSampleBqrPlot());
-        this.linxOutputDir = new InputDownload(linxOutput.linxOutputLocations().outputDirectory());
-        this.linxFusionTsv = new InputDownload(linxOutput.linxOutputLocations().fusions());
-        this.linxBreakEndTsv = new InputDownload(linxOutput.linxOutputLocations().breakends());
-        this.linxDriverCatalogTsv = new InputDownload(linxOutput.linxOutputLocations().driverCatalog());
-        this.linxDriverTsv = new InputDownload(linxOutput.linxOutputLocations().drivers());
-        this.chordPredictionTxt = new InputDownload(chordOutput.predictions());
-        this.cuppaConclusionTxt = new InputDownload(cuppaOutput.conclusionTxt());
-        this.cuppaResultCsv = new InputDownload(cuppaOutput.resultCsv());
-        this.cuppaSummaryPlot = new InputDownload(cuppaOutput.chartPng());
-        this.cuppaFeaturePlot = new InputDownload(cuppaOutput.featurePlot());
-        this.peachGenotypeTsv = new InputDownload(peachOutput.genotypeTsv());
-        this.protectEvidenceTsv = new InputDownload(protectOutput.evidenceTsv());
-        this.annotatedVirusTsv = new InputDownload(virusOutput.annotatedVirusFile());
+        this.linxOutputDir = new InputDownload(linxOrEmpty(linxOutput, LinxOutputLocations::outputDirectory), LOCAL_LINX_DIR);
+        this.linxFusionTsv = new InputDownload(linxOrEmpty(linxOutput, LinxOutputLocations::fusions));
+        this.linxBreakEndTsv = new InputDownload(linxOrEmpty(linxOutput, LinxOutputLocations::breakends));
+        this.linxDriverCatalogTsv = new InputDownload(linxOrEmpty(linxOutput, LinxOutputLocations::driverCatalog));
+        this.linxDriverTsv = new InputDownload(linxOrEmpty(linxOutput, LinxOutputLocations::drivers));
+        this.chordPredictionTxt = new InputDownload(chordOutput.maybePredictions().orElse(GoogleStorageLocation.empty()));
+        this.cuppaConclusionTxt = new InputDownload(cuppaOrEmpty(cuppaOutput, CuppaOutputLocations::conclusionTxt));
+        this.cuppaResultCsv = new InputDownload(cuppaOrEmpty(cuppaOutput, CuppaOutputLocations::resultCsv));
+        this.cuppaSummaryPlot = new InputDownload(cuppaOrEmpty(cuppaOutput, CuppaOutputLocations::summaryChartPng));
+        this.cuppaFeaturePlot = new InputDownload(cuppaOrEmpty(cuppaOutput, CuppaOutputLocations::featurePlot));
+        this.peachGenotypeTsv = new InputDownload(peachOutput.maybeGenotypeTsv().orElse(GoogleStorageLocation.empty()));
+        this.protectEvidenceTsv = new InputDownload(protectOutput.maybeEvidenceTsv().orElse(GoogleStorageLocation.empty()));
+        this.annotatedVirusTsv = new InputDownload(virusOutput.maybeAnnotatedVirusFile().orElse(GoogleStorageLocation.empty()));
+    }
+
+    public GoogleStorageLocation linxOrEmpty(final LinxOutput linxOutput,
+            final Function<LinxOutputLocations, GoogleStorageLocation> extractor) {
+        return linxOutput.maybeLinxOutputLocations().map(extractor).orElse(GoogleStorageLocation.empty());
+    }
+
+    public GoogleStorageLocation cuppaOrEmpty(final CuppaOutput cuppaOutput,
+            final Function<CuppaOutputLocations, GoogleStorageLocation> extractor) {
+        return cuppaOutput.maybeCuppaOutputLocations().map(extractor).orElse(GoogleStorageLocation.empty());
     }
 
     @Override
     public List<BashCommand> inputs() {
-        return List.of(purpleSomaticVcf,
+        return List.of(new MkDirCommand(LOCAL_LINX_DIR),
+                new MkDirCommand(LOCAL_PURPLE_DIR),
+                purpleSomaticVcf,
                 refMetrics,
                 tumMetrics,
                 refFlagstat,
@@ -151,7 +171,9 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
         final String pipelineVersionFilePath = VmDirectories.INPUT + "/orange_pipeline.version.txt";
         final String pipelineVersion = Versions.pipelineMajorMinorVersion();
         final List<String> primaryTumorDoids = metadata.tumor().primaryTumorDoids();
-        return List.of(() -> "echo '" + pipelineVersion + "' | tee " + pipelineVersionFilePath,
+        String linxPlotDir = linxOutputDir.getLocalTargetPath() + "/plot";
+        return List.of(new MkDirCommand(linxPlotDir),
+                () -> "echo '" + pipelineVersion + "' | tee " + pipelineVersionFilePath,
                 new JavaJarCommand("orange",
                         Versions.ORANGE,
                         "orange.jar",
@@ -163,7 +185,7 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
                                 "-primary_tumor_doids",
                                 primaryTumorDoids.isEmpty() ? "\"\"" : "\"" + String.join(";", primaryTumorDoids) + "\"",
                                 "-max_evidence_level",
-                                EVIDENCE_LEVEL,
+                                MAX_EVIDENCE_LEVEL,
                                 "-tumor_sample_id",
                                 metadata.tumor().sampleName(),
                                 "-reference_sample_id",
@@ -207,15 +229,13 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
                                 "-linx_driver_tsv",
                                 linxDriverTsv.getLocalTargetPath(),
                                 "-linx_plot_directory",
-                                linxOutputDir.getLocalTargetPath() + "/plot",
+                                linxPlotDir,
                                 "-cuppa_conclusion_txt",
                                 cuppaConclusionTxt.getLocalTargetPath(),
                                 "-cuppa_result_csv",
                                 cuppaResultCsv.getLocalTargetPath(),
                                 "-cuppa_summary_plot",
                                 cuppaSummaryPlot.getLocalTargetPath(),
-                                "-cuppa_feature_plot",
-                                cuppaFeaturePlot.getLocalTargetPath(),
                                 "-chord_prediction_txt",
                                 chordPredictionTxt.getLocalTargetPath(),
                                 "-peach_genotype_tsv",

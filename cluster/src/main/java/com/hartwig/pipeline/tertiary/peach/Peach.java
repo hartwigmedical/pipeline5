@@ -60,12 +60,18 @@ public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
         return List.of(new Python3Command("peach",
                 Versions.PEACH,
                 "src/main.py",
-                List.of("--vcf", purpleGermlineVcfDownload.getLocalTargetPath(),
-                        "--sample_t_id", metadata.tumor().sampleName(),
-                        "--sample_r_id", metadata.reference().sampleName(),
-                        "--tool_version", Versions.PEACH,
-                        "--outputdir", VmDirectories.OUTPUT,
-                        "--panel", resourceFiles.peachFilterBed())));
+                List.of("--vcf",
+                        purpleGermlineVcfDownload.getLocalTargetPath(),
+                        "--sample_t_id",
+                        metadata.tumor().sampleName(),
+                        "--sample_r_id",
+                        metadata.reference().sampleName(),
+                        "--tool_version",
+                        Versions.PEACH,
+                        "--outputdir",
+                        VmDirectories.OUTPUT,
+                        "--panel",
+                        resourceFiles.peachFilterBed())));
     }
 
     @Override
@@ -85,7 +91,7 @@ public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
         final String genotypeTsv = genotypeTsv(metadata);
         return PeachOutput.builder()
                 .status(jobStatus)
-                .genotypeTsv(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(genotypeTsv)))
+                .maybeGenotypeTsv(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(genotypeTsv)))
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
                 .addDatatypes(new AddDatatype(DataType.PEACH_CALLS,
@@ -104,7 +110,7 @@ public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
 
     @Override
     public PeachOutput skippedOutput(final SomaticRunMetadata metadata) {
-        return PeachOutput.builder().genotypeTsv(GoogleStorageLocation.empty()).status(PipelineStatus.SKIPPED).build();
+        return PeachOutput.builder().status(PipelineStatus.SKIPPED).build();
     }
 
     @Override
@@ -112,7 +118,7 @@ public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
         String genotypeTsv = genotypeTsv(metadata);
         return PeachOutput.builder()
                 .status(PipelineStatus.PERSISTED)
-                .genotypeTsv(persistedDataset.path(metadata.tumor().sampleName(), DataType.PEACH_GENOTYPE)
+                .maybeGenotypeTsv(persistedDataset.path(metadata.tumor().sampleName(), DataType.PEACH_GENOTYPE)
                         .orElse(GoogleStorageLocation.of(metadata.bucket(),
                                 PersistedLocations.blobForSet(metadata.set(), namespace(), genotypeTsv))))
                 .addDatatypes(new AddDatatype(DataType.PEACH_GENOTYPE,

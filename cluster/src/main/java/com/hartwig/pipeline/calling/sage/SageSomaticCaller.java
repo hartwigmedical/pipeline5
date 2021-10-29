@@ -29,7 +29,12 @@ public class SageSomaticCaller extends SageCaller {
 
     public SageSomaticCaller(final AlignmentPair alignmentPair, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset,
             boolean shallow) {
-        super(alignmentPair, persistedDataset, DataType.SOMATIC_VARIANTS_SAGE);
+        super(alignmentPair,
+                persistedDataset,
+                DataType.SOMATIC_VARIANTS_SAGE,
+                DataType.SOMATIC_GENE_COVERAGE,
+                DataType.SOMATIC_TUMOR_SAMPLE_BQR_PLOT,
+                DataType.SOMATIC_REF_SAMPLE_BQR_PLOT);
         this.resourceFiles = resourceFiles;
         this.shallow = shallow;
     }

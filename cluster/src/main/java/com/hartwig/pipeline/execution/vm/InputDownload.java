@@ -25,8 +25,9 @@ public class InputDownload implements BashCommand {
 
     @Override
     public String asBash() {
-        return format("gsutil %s-qm cp -r -n gs://%s/%s%s %s%s",
-                sourceLocation.billingProject().map(p -> "-u " + p + " ").orElse(""),
+        return format(
+                "gsutil -o 'GSUtil:parallel_thread_count=1' -o GSUtil:sliced_object_download_max_components=$(nproc) %s-qm cp -r -n gs://%s/%s%s %s%s",
+                sourceLocation.billingProject().map(p -> " -u " + p + " ").orElse(""),
                 sourceLocation.bucket(),
                 sourceLocation.path(),
                 sourceLocation.isDirectory() ? "/*" : "",

@@ -39,6 +39,7 @@ CPCT12345678T/aligner/AHHKYHDSXX-L002/run.log
 CPCT12345678T/aligner/AHHKYHDSXX-L003/run.log
 CPCT12345678T/aligner/AHHKYHDSXX-L004/run.log
 CPCT12345678T/aligner/HJJLGCCXX-L001/run.log
+CPCT12345678T/aligner/HJJLGCCXX-L002/run.log
 CPCT12345678R/bam_metrics/CPCT12345678R.wgsmetrics
 CPCT12345678R/bam_metrics/run.log
 CPCT12345678R/bam_metrics/run.sh
@@ -68,6 +69,7 @@ CPCT12345678T/snp_genotype/snp_genotype_output.vcf
 cuppa/CPCT12345678T.cup.data.csv
 cuppa/CPCT12345678T.cuppa.chart.png
 cuppa/CPCT12345678T.cuppa.conclusion.txt
+cuppa/CPCT12345678T.cup.report.summary.png
 cuppa/run.log
 health_checker/CPCT12345678T.HealthCheckFailed
 health_checker/run.log
@@ -88,8 +90,10 @@ linx/CPCT12345678T.linx.vis_segments.tsv
 linx/CPCT12345678T.linx.vis_sv_data.tsv
 linx/linx.version
 metadata.json
+orange/CPCT12345678T.orange.json
+orange/CPCT12345678T.orange.pdf
+orange/run.log
 peach/CPCT12345678T.peach.calls.tsv
-peach/CPCT12345678T.peach.filtered.vcf
 peach/CPCT12345678T.peach.genotype.tsv
 peach/run.log
 pipeline.version

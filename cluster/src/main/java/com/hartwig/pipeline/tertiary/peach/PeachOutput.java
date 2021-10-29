@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.tertiary.peach;
 
+import java.util.Optional;
+
 import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 
@@ -16,5 +18,9 @@ public interface PeachOutput extends StageOutput {
         return Peach.NAMESPACE;
     }
 
-    GoogleStorageLocation genotypeTsv();
+    Optional<GoogleStorageLocation> maybeGenotypeTsv();
+
+    default GoogleStorageLocation genotypeTsv() {
+        return maybeGenotypeTsv().orElseThrow();
+    }
 }

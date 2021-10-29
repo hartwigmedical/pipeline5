@@ -104,6 +104,11 @@ public class HealthChecker implements Stage<HealthCheckOutput, SomaticRunMetadat
     }
 
     @Override
+    public HealthCheckOutput persistedOutput(final SomaticRunMetadata metadata) {
+        return HealthCheckOutput.builder().status(PipelineStatus.PERSISTED).build();
+    }
+
+    @Override
     public boolean shouldRun(final Arguments arguments) {
         return arguments.runTertiary() && !arguments.shallow() && arguments.biopsy().isEmpty() && !arguments.analysisContext()
                 .equals(Analysis.Context.RESEARCH);
