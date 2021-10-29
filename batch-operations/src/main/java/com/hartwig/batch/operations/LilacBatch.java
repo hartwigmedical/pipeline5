@@ -32,7 +32,7 @@ import com.hartwig.pipeline.storage.RuntimeBucket;
 
 public class LilacBatch implements BatchOperation {
 
-    public static final String LILAC_BATCH_BUCKET = "batch-lilac";
+    public static final String LILAC_BATCH_BUCKET = "hmf-hla-lilac";
     public static final String LILAC_RESOURCES = String.format("%s/%s", LILAC_BATCH_BUCKET, "resources");
     public static final String LILAC_TOOLS = String.format("%s/%s", LILAC_BATCH_BUCKET, "tools");
     public static final String LILAC_JAR = "lilac.jar";
@@ -50,12 +50,11 @@ public class LilacBatch implements BatchOperation {
         final String batchInputs = runData.inputValue();
         final String[] batchItems = batchInputs.split(",");
 
-        // final String[] sampleIds = batchItems[0].split(";", -1);
         List<String> sampleIds = Lists.newArrayList(batchItems[0]);
         boolean hasRna = batchItems.length > 1 && batchItems[1].equals("RNA");
 
         // String runDirectory = "run_ref_18";
-        String runDirectory = "run_test_ref_20";
+        String runDirectory = "run_ref_non_truth_01";
 
         // download pilot Lilac jar
         commands.addCommand(() -> format("gsutil -u hmf-crunch cp gs://%s/%s %s",

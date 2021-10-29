@@ -24,7 +24,7 @@ import com.hartwig.pipeline.tools.Versions;
 public class HlaBamSlicer implements BatchOperation {
 
     private static final String HLA_BED_FILE = "hla_v37.bed";
-    public static final String HLA_BAMS_BUCKET = "hla-bams";
+    public static final String HLA_BAMS_BUCKET = "hmf-hla-lilac/hla-bams";
 
     @Override
     public VirtualMachineJobDefinition execute(final InputBundle inputs, final RuntimeBucket runtimeBucket,
