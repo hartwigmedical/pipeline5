@@ -17,7 +17,7 @@ source_image="$1"
 json="$(gcloud compute images describe $source_image --project=$IMAGE_SOURCE_PROJECT --format=json)"
 [[ $? -ne 0 ]] && echo "Unable to find image $source_image in $IMAGE_SOURCE_PROJECT" && exit 1
 
-dest_image="$(echo $source_image | sed 's/-[0-9]*$//')-private"
+dest_image="${source_image}_$(date +%Y%m%d%H%M)-private"
 gcloud compute images describe $dest_image --project=$DEST_PROJECT >/dev/null 2>&1
 [[ $? -eq 0 ]] && echo "$dest_image exists in project $DEST_PROJECT!" && exit 1
 
@@ -49,7 +49,7 @@ echo "Instance running, continuing with imaging"
 
 set -e
 gcloud compute scp $(dirname $0)/private_resource_checkout.sh ${imager_vm}:/tmp/ --zone=$ZONE --project=$DEST_PROJECT --tunnel-through-iap 
-$ssh --command="sudo /tmp/private_resource_checkout.sh $source_image $SOURCE_REPO_PROJECT"
+$ssh --command="sudo /tmp/private_resource_checkout.sh $dest_image $SOURCE_REPO_PROJECT"
 
 gcloud compute instances stop $imager_vm --zone=${ZONE} --project=$DEST_PROJECT
 gcloud compute images create $dest_image --family=$image_family --source-disk=$imager_vm --source-disk-zone=$ZONE \
