@@ -84,7 +84,7 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
                         + "-linx_driver_catalog_tsv /data/input/tumor.linx.driver.catalog.tsv -linx_driver_tsv /data/input/tumor.linx.drivers.tsv "
                         + "-linx_plot_directory /data/input/linx/plot -cuppa_conclusion_txt /data/input/tumor.cuppa.conclusion.txt "
                         + "-cuppa_result_csv /data/input/tumor.cup.data.csv -cuppa_summary_plot /data/input/tumor.cup.report.summary.png "
-                        + "-cuppa_feature_plot /data/input/tumor.cuppa.chart.png -chord_prediction_txt /data/input/tumor_chord_prediction.txt "
+                        + "-chord_prediction_txt /data/input/tumor_chord_prediction.txt "
                         + "-peach_genotype_tsv /data/input/tumor.peach.genotype.tsv -protect_evidence_tsv /data/input/tumor.protect.tsv "
                         + "-annotated_virus_tsv /data/input/tumor.virus.annotated.tsv -pipeline_version_file /data/input/orange_pipeline.version.txt");
     }

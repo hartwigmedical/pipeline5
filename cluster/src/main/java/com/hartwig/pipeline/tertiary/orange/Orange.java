@@ -236,8 +236,6 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
                                 cuppaResultCsv.getLocalTargetPath(),
                                 "-cuppa_summary_plot",
                                 cuppaSummaryPlot.getLocalTargetPath(),
-                                "-cuppa_feature_plot",
-                                cuppaFeaturePlot.getLocalTargetPath(),
                                 "-chord_prediction_txt",
                                 chordPredictionTxt.getLocalTargetPath(),
                                 "-peach_genotype_tsv",
