@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.execution.vm;
 
+import static com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile.custom;
+
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.execution.JobDefinition;
 import com.hartwig.pipeline.tools.Versions;
@@ -63,7 +65,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("snpgenotype")
                 .startupCommand(startupScript)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 16))
+                .performanceProfile(custom(4, 16))
                 .namespacedResults(resultsDirectory)
                 .build();
     }
@@ -72,7 +74,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("germline")
                 .startupCommand(startupScript)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(32, 40))
+                .performanceProfile(custom(32, 40))
                 .namespacedResults(resultsDirectory)
                 .build();
     }
@@ -81,6 +83,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("sage-somatic")
                 .startupCommand(startupScript)
+                .performanceProfile(custom(32, 120))
                 .namespacedResults(resultsDirectory)
                 .build();
     }
@@ -88,7 +91,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
     static VirtualMachineJobDefinition sageGermlineCalling(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("sage-germline")
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 16))
+                .performanceProfile(custom(4, 16))
                 .startupCommand(startupScript)
                 .namespacedResults(resultsDirectory)
                 .build();
@@ -98,7 +101,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("gridss")
                 .startupCommand(startupScript)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(12, 64))
+                .performanceProfile(custom(12, 64))
                 .namespacedResults(resultsDirectory)
                 .build();
     }
@@ -107,7 +110,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("gripss")
                 .startupCommand(startupScript)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(6, 30))
+                .performanceProfile(custom(6, 30))
                 .namespacedResults(resultsDirectory)
                 .build();
     }
@@ -117,7 +120,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .name("purple")
                 .startupCommand(bash)
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 16))
+                .performanceProfile(custom(4, 16))
                 .workingDiskSpaceGb(375)
                 .build();
     }
@@ -127,6 +130,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .name("amber")
                 .startupCommand(startupScript)
                 .namespacedResults(resultsDirectory)
+                .performanceProfile(custom(32, 120))
                 .build();
     }
 
@@ -135,7 +139,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .name("virusbreakend")
                 .startupCommand(startupScript)
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(12, 64))
+                .performanceProfile(custom(12, 64))
                 .build();
     }
 
@@ -144,7 +148,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .name("cobalt")
                 .startupCommand(startupScript)
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(16, 16))
+                .performanceProfile(custom(16, 16))
                 .build();
     }
 
@@ -152,7 +156,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("bam-metrics")
                 .startupCommand(startupScript)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(8, 32))
+                .performanceProfile(custom(8, 32))
                 .namespacedResults(resultsDirectory)
                 .build();
     }
@@ -161,7 +165,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("health-checker")
                 .startupCommand(startupScript)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(8, 32))
+                .performanceProfile(custom(8, 32))
                 .namespacedResults(resultsDirectory)
                 .build();
     }
@@ -170,7 +174,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("flagstat")
                 .startupCommand(startupScript)
-                .performanceProfile(VirtualMachinePerformanceProfile.defaultVm())
+                .performanceProfile(custom(32, 120))
                 .namespacedResults(resultsDirectory)
                 .build();
     }
@@ -179,7 +183,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("aligner-" + lane)
                 .startupCommand(startupScript)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(96, 96))
+                .performanceProfile(custom(96, 96))
                 .namespacedResults(resultsDirectory)
                 .build();
     }
@@ -188,7 +192,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("merge-markdup")
                 .startupCommand(startupScript)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(32, 120))
+                .performanceProfile(custom(32, 120))
                 .namespacedResults(resultsDirectory)
                 .build();
     }
@@ -198,7 +202,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .name("linx")
                 .startupCommand(startupScript)
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 12))
+                .performanceProfile(custom(4, 12))
                 .workingDiskSpaceGb(375)
                 .build();
     }
@@ -208,7 +212,7 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .name("chord")
                 .startupCommand(startupScript)
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 12))
+                .performanceProfile(custom(4, 12))
                 .workingDiskSpaceGb(375)
                 .build();
     }

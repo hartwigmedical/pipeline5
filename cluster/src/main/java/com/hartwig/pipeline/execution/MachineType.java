@@ -7,9 +7,6 @@ import org.immutables.value.Value;
 @Value.Immutable
 public interface MachineType {
 
-    String GOOGLE_STANDARD_16 = "n1-standard-16";
-    String GOOGLE_STANDARD_32 = "n1-standard-32";
-    String GOOGLE_HIGHMEM_32 = "n1-highmem-32";
     int DEFAULT_DISK_SIZE = 500;
 
     String uri();
@@ -24,23 +21,7 @@ public interface MachineType {
     }
 
     static MachineType defaultVm() {
-        return ImmutableMachineType.builder().uri(GOOGLE_STANDARD_32).memoryGB(120).cpus(32).build();
-    }
-
-    static MachineType defaultWorker() {
-        return highMemoryWorker();
-    }
-
-    static MachineType highMemoryWorker() {
-        return ImmutableMachineType.builder().uri(GOOGLE_HIGHMEM_32).memoryGB(208).cpus(32).diskSizeGB(250).build();
-    }
-
-    static MachineType defaultPreemtibleWorker() {
-        return ImmutableMachineType.builder().from(defaultWorker()).build();
-    }
-
-    static MachineType defaultMaster() {
-        return ImmutableMachineType.builder().uri(GOOGLE_STANDARD_16).memoryGB(60).cpus(16).diskSizeGB(1000).build();
+        return custom(8, 8);
     }
 
     static MachineType custom(int memoryGB, int cores) {
