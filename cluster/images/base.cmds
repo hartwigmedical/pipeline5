@@ -2,6 +2,7 @@
 echo 'tmpfs /root/.gsutil tmpfs size=128m 0 0' | sudo tee -a /etc/fstab
 
 sudo apt -y upgrade
+sudo apt -y update
 sudo apt -y install dirmngr apt-transport-https ca-certificates software-properties-common gnupg2
 sudo apt-key add /tmp/jranke.asc
 sudo add-apt-repository 'deb https://cloud.r-project.org/bin/linux/debian stretch-cran35/'

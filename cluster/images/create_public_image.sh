@@ -3,7 +3,7 @@
 LOCATION="europe-west4"
 ZONE="${LOCATION}-a"
 PROJECT="hmf-pipeline-development"
-VERSION=5-24
+VERSION=5-25
 
 TOOLS_ONLY=false
 while getopts ':tf:' flag; do
@@ -14,6 +14,7 @@ while getopts ':tf:' flag; do
     esac
 done
 sourceInstance="pipeline5-${VERSION}${FLAVOUR+"-$FLAVOUR"}"
+imageName="${sourceInstance}-$(date +%Y%m%d%H%M)"
 image_project="debian-cloud"
 image_family="debian-9"
 base_image_cmds="$(dirname "$0")/base.cmds"
@@ -52,8 +53,11 @@ if [ -n "$FLAVOUR" ]; then
     echo "$GCL ssh ${sourceInstance} --zone=${ZONE} --command=\"$copy_overrides\""
 fi
 
+echo "$GCL ssh $sourceInstance --zone=${ZONE} --command=\"cd /opt/resources && sudo git tag ${imageName} && git push origin ${imageName}\""
+echo "$GCL ssh $sourceInstance --zone=${ZONE} --command=\"sudo rm -r /opt/resources/.git\""
+
 echo "$GCL instances stop ${sourceInstance} --zone=${ZONE}"
-echo "$GCL images create ${sourceInstance}-$(date +%Y%m%d%H%M) --family=${sourceInstance} --source-disk=${sourceInstance} --source-disk-zone=${ZONE} --storage-location=${LOCATION}"
+echo "$GCL images create ${imageName} --family=${sourceInstance} --source-disk=${sourceInstance} --source-disk-zone=${ZONE} --storage-location=${LOCATION}"
 echo "$GCL instances -q delete ${sourceInstance} --zone=${ZONE}"
 ) > $generated_script
 chmod +x $generated_script

@@ -36,7 +36,6 @@ public interface BatchArguments extends CommonArguments {
                     .project(commandLine.getOptionValue(PROJECT, CommonArguments.DEFAULT_DEVELOPMENT_PROJECT))
                     .region(commandLine.getOptionValue(REGION, CommonArguments.DEFAULT_REGION))
                     .useLocalSsds(parseBoolean(commandLine.getOptionValue(LOCAL_SSDS, "true")))
-                    .usePreemptibleVms(parseBoolean(commandLine.getOptionValue(PREEMPTIBLE_VMS, "true")))
                     .pollInterval(Integer.parseInt(commandLine.getOptionValue(POLL_INTERVAL, "60")))
                     .privateKeyPath(CommonArguments.privateKey(commandLine))
                     .cloudSdkPath(commandLine.getOptionValue(CLOUD_SDK, "/usr/bin"))
@@ -48,6 +47,7 @@ public interface BatchArguments extends CommonArguments {
                     .network(commandLine.getOptionValue(PRIVATE_NETWORK, DEFAULT_NETWORK))
                     .refGenomeVersion(RefGenomeVersion.V37)
                     .imageProject("hmf-pipeline-development")
+                    .usePreemptibleVms(true)
                     .build();
         } catch (ParseException e) {
             String message = "Failed to parse arguments";
@@ -76,8 +76,11 @@ public interface BatchArguments extends CommonArguments {
                 .addOption(stringOption(CLOUD_SDK, "Local directory containing gcloud command"))
                 .addOption(stringOption(CONCURRENCY, "Limit the number of VMs executing at once to this number"))
                 .addOption(stringOption(INPUT_FILE, "Read list of target resources from this inputs file"))
-                .addOption(booleanOption(LOCAL_SSDS, "Whether to use local SSDs for better performance and lower cost"))
-                .addOption(booleanOption(PREEMPTIBLE_VMS, "Use pre-emptible VMs to lower cost"))
+                .addOption(Option.builder(LOCAL_SSDS)
+                        .hasArg()
+                        .argName("true|false")
+                        .desc("Whether to use local SSDs for better performance and lower cost")
+                        .build())
                 .addOption(stringOption(PRIVATE_KEY_PATH, "Path to JSON file containing GCP credentials"))
                 .addOption(stringOption(SERVICE_ACCOUNT_EMAIL, "Email of service account"))
                 .addOption(stringOption(OUTPUT_BUCKET, "Output bucket (must exist and must be writable by the service account)"))
@@ -87,10 +90,6 @@ public interface BatchArguments extends CommonArguments {
 
     private static Option stringOption(final String option, final String description) {
         return Option.builder(option).hasArg().desc(description).build();
-    }
-
-    private static Option booleanOption(final String option, final String description) {
-        return Option.builder(option).hasArg().argName("true|false").desc(description).build();
     }
 
     static ImmutableBatchArguments.Builder builder() {
