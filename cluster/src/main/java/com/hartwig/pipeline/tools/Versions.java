@@ -33,7 +33,7 @@ public interface Versions {
     String PROTECT = "1.4";
     String REPEAT_MASKER = "4.1.1";
     String KRAKEN = "2.1.0";
-    String CUPPA = "1.4";
+    String CUPPA = "1.5";
     String PEACH = "1.4";
     String SIGS = "1.0";
     String ORANGE = "1.1";
