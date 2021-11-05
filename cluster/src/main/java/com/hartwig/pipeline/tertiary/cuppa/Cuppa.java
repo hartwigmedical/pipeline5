@@ -51,9 +51,9 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
 
     public Cuppa(final PurpleOutput purpleOutput, final LinxOutput linxOutput, final ResourceFiles resourceFiles,
             final PersistedDataset persistedDataset) {
-        purpleSomaticVcfDownload = new InputDownload(purpleOutput.outputLocations().somaticVcf());
-        purpleStructuralVcfDownload = new InputDownload(purpleOutput.outputLocations().structuralVcf());
-        purpleOutputDirectory = new InputDownload(purpleOutput.outputLocations().outputDirectory());
+        this.purpleSomaticVcfDownload = new InputDownload(purpleOutput.outputLocations().somaticVcf());
+        this.purpleStructuralVcfDownload = new InputDownload(purpleOutput.outputLocations().structuralVcf());
+        this.purpleOutputDirectory = new InputDownload(purpleOutput.outputLocations().outputDirectory());
         this.linxOutput = linxOutput;
         this.resourceFiles = resourceFiles;
         this.persistedDataset = persistedDataset;
