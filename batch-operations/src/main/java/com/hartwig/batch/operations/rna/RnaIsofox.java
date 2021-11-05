@@ -40,6 +40,7 @@ public class RnaIsofox implements BatchOperation {
     private static final String EXP_COUNTS_READ_76 = "read_76_exp_counts.csv";
     private static final String EXP_COUNTS_READ_151 = "read_151_exp_counts.csv";
     private static final String EXP_GC_COUNTS_READ_100 = "read_100_exp_gc_ratios.csv";
+    private static final String COHORT_FUSION_FILE = "hmf_isofox_fusion_cohort.csv";
     private static final String NEO_EPITOPE_DIR = "gs://hmf-immune-analysis/neos";
     private static final String READ_LENGTH_76 = "76";
     private static final String READ_LENGTH_151 = "151";
@@ -126,6 +127,9 @@ public class RnaIsofox implements BatchOperation {
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s %s",
                 getRnaResourceDirectory(refGenomeVersion, ISOFOX), KNOWN_FUSIONS_FILE, VmDirectories.INPUT));
 
+        startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s %s",
+                getRnaResourceDirectory(refGenomeVersion, ISOFOX), COHORT_FUSION_FILE, VmDirectories.INPUT));
+
         final String threadCount = Bash.allCpus();
 
         startupScript.addCommand(() -> format("cd %s", VmDirectories.OUTPUT));
@@ -189,12 +193,16 @@ public class RnaIsofox implements BatchOperation {
             isofoxArgs.append(String.format(" -write_splice_sites"));
         }
 
+        if(functionsStr.equals(FUNC_FUSIONS))
+        {
+            isofoxArgs.append(String.format(" -known_fusion_file %s/%s", VmDirectories.INPUT, KNOWN_FUSIONS_FILE));
+            isofoxArgs.append(String.format(" -fusion_cohort_file %s/%s", VmDirectories.INPUT, COHORT_FUSION_FILE));
+        }
+
         if(functionsStr.equals(FUNC_NEO_EPITOPES))
         {
             isofoxArgs.append(String.format(" -neoepitope_file %s/%s", VmDirectories.INPUT, neoEpitopeFile));
         }
-
-        isofoxArgs.append(String.format(" -known_fusion_file %s/%s", VmDirectories.INPUT, KNOWN_FUSIONS_FILE));
 
         isofoxArgs.append(String.format(" -threads %s", threadCount));
 
