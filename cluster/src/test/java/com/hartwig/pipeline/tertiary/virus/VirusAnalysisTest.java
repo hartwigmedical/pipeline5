@@ -92,7 +92,7 @@ public class VirusAnalysisTest extends TertiaryStageTest<VirusOutput> {
                         + "-tumor_sample_wgs_metrics_file /data/input/tumor.wgsmetrics "
                         + "-virus_breakend_tsv /data/output/tumor.virusbreakend.vcf.summary.tsv "
                         + "-taxonomy_db_tsv /opt/resources/virus_interpreter/taxonomy_db.tsv "
-                        + "-virus_interpretation_tsv /opt/resources/virus_interpreter/virus_interpretation.tsv "
-                        + "-virus_blacklist_tsv /opt/resources/virus_interpreter/virus_blacklist.tsv -output_dir /data/output");
+                        + "-virus_reporting_db_tsv /opt/resources/virus_interpreter/virus_reporting_db.tsv "
+                        + "-output_dir /data/output");
     }
 }
