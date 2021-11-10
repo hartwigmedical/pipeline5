@@ -1,5 +1,6 @@
 package com.hartwig.pipeline.tertiary.virus;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.hartwig.pipeline.Arguments;
@@ -55,6 +56,15 @@ public class VirusAnalysis extends TertiaryStage<VirusOutput> {
                 .map(PurpleOutputLocations::purityTsv)
                 .orElse(GoogleStorageLocation.empty()));
         this.tumorBamMetrics = new InputDownload(tumorBamMetricsOutput.maybeMetricsOutputFile().orElse(GoogleStorageLocation.empty()));
+    }
+
+    @Override
+    public List<BashCommand> inputs() {
+        List<BashCommand> inputs = new ArrayList<>(super.inputs());
+        inputs.add(purpleQcFile);
+        inputs.add(purplePurityTsv);
+        inputs.add(tumorBamMetrics);
+        return inputs;
     }
 
     @Override

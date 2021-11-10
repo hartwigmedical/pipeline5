@@ -47,10 +47,8 @@ public class VirusInterpreter extends SubStage {
                         input.path(),
                         "-taxonomy_db_tsv",
                         resourceFiles.virusInterpreterTaxonomyDb(),
-                        "-virus_interpretation_tsv",
-                        resourceFiles.virusInterpretation(),
-                        "-virus_blacklist_tsv",
-                        resourceFiles.virusBlacklist(),
+                        "-virus_reporting_db_tsv",
+                        resourceFiles.virusReportingDb(),
                         "-output_dir",
                         new File(output.path()).getParent())));
     }
