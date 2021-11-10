@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.google.cloud.storage.Blob;
 import com.google.common.collect.ImmutableList;
-import com.hartwig.events.Analysis;
+import com.hartwig.events.Pipeline;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.execution.PipelineStatus;
@@ -111,7 +111,7 @@ public class HealthChecker implements Stage<HealthCheckOutput, SomaticRunMetadat
     @Override
     public boolean shouldRun(final Arguments arguments) {
         return arguments.runTertiary() && !arguments.shallow() && arguments.biopsy().isEmpty() && !arguments.analysisContext()
-                .equals(Analysis.Context.RESEARCH);
+                .equals(Pipeline.Context.RESEARCH);
     }
 
     @NotNull

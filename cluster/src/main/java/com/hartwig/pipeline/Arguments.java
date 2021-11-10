@@ -2,8 +2,8 @@ package com.hartwig.pipeline;
 
 import java.util.Optional;
 
-import com.hartwig.events.Analysis;
-import com.hartwig.events.Analysis.Context;
+import com.hartwig.events.Pipeline;
+import com.hartwig.events.Pipeline.Context;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
 
@@ -97,7 +97,7 @@ public interface Arguments extends CommonArguments {
 
     boolean anonymize();
 
-    Analysis.Context analysisContext();
+    Pipeline.Context analysisContext();
 
     static String workingDir() {
         return System.getProperty("user.dir");
@@ -123,7 +123,7 @@ public interface Arguments extends CommonArguments {
 
     int DEFAULT_MAX_CONCURRENT_LANES = 8;
 
-    Analysis.Context DEFAULT_ANALYSIS_CONTEXT = Context.DIAGNOSTIC;
+    Pipeline.Context DEFAULT_ANALYSIS_CONTEXT = Context.DIAGNOSTIC;
 
     static ImmutableArguments.Builder defaultsBuilder(String profileString) {
         DefaultsProfile profile = DefaultsProfile.valueOf(profileString.toUpperCase());

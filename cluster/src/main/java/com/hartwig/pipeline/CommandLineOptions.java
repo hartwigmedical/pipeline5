@@ -8,8 +8,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.hartwig.events.Analysis;
-import com.hartwig.events.Analysis.Context;
+import com.hartwig.events.Pipeline;
+import com.hartwig.events.Pipeline.Context;
 import com.hartwig.pipeline.Arguments.DefaultsProfile;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.tools.Versions;
@@ -146,8 +146,9 @@ public class CommandLineOptions {
     }
 
     private static Option analysisContext() {
-        return optionWithArg(ANALYSIS_CONTEXT_FLAG, format("Context to run analysis in [%s]",
-                Stream.of(Analysis.Context.values()).map(Analysis.Context::name).collect(Collectors.joining(", "))));
+        return optionWithArg(ANALYSIS_CONTEXT_FLAG,
+                format("Context to run analysis in [%s]",
+                        Stream.of(Pipeline.Context.values()).map(Pipeline.Context::name).collect(Collectors.joining(", "))));
     }
 
     private static Option anonymize() {
@@ -373,7 +374,7 @@ public class CommandLineOptions {
 
     public static Context analysisContext(final CommandLine commandLine, final Arguments defaults) {
         if (commandLine.hasOption(ANALYSIS_CONTEXT_FLAG)) {
-            return Analysis.Context.valueOf(commandLine.getOptionValue(ANALYSIS_CONTEXT_FLAG));
+            return Pipeline.Context.valueOf(commandLine.getOptionValue(ANALYSIS_CONTEXT_FLAG));
         }
         return defaults.analysisContext();
     }

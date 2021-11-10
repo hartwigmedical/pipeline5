@@ -16,7 +16,7 @@ import java.util.stream.StreamSupport;
 
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Storage;
-import com.hartwig.events.Analysis.Context;
+import com.hartwig.events.Pipeline.Context;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.PipelineMain;
 import com.hartwig.pipeline.PipelineState;
@@ -37,7 +37,6 @@ public class SmokeTest {
 
     private static final String GCP_REMOTE = "gs";
     private static final String FILE_ENCODING = "UTF-8";
-    private static final int SBP_SET_ID = 15;
     private static final int SBP_RUN_ID = 102;
     private static final String SAMPLE_ID = "CPCT12345678";
     private static final String REFERENCE_SAMPLE = SAMPLE_ID + "R";
