@@ -1,5 +1,6 @@
 package com.hartwig.pipeline.tertiary.virus;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.hartwig.pipeline.Arguments;
@@ -9,10 +10,12 @@ import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
+import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
+import com.hartwig.pipeline.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.report.SingleFileComponent;
@@ -23,6 +26,8 @@ import com.hartwig.pipeline.stages.SubStageInputOutput;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.TertiaryStage;
+import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
+import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -35,11 +40,31 @@ public class VirusAnalysis extends TertiaryStage<VirusOutput> {
 
     private final ResourceFiles resourceFiles;
     private final PersistedDataset persistedDataset;
+    private final InputDownload purplePurityTsv;
+    private final InputDownload purpleQcFile;
+    private final InputDownload tumorBamMetrics;
 
-    public VirusAnalysis(final AlignmentPair alignmentPair, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
+    public VirusAnalysis(final AlignmentPair alignmentPair, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset,
+            final PurpleOutput purpleOutput, final BamMetricsOutput tumorBamMetricsOutput) {
         super(alignmentPair);
         this.resourceFiles = resourceFiles;
         this.persistedDataset = persistedDataset;
+        this.purpleQcFile = new InputDownload(purpleOutput.maybeOutputLocations()
+                .map(PurpleOutputLocations::qcFile)
+                .orElse(GoogleStorageLocation.empty()));
+        this.purplePurityTsv = new InputDownload(purpleOutput.maybeOutputLocations()
+                .map(PurpleOutputLocations::purityTsv)
+                .orElse(GoogleStorageLocation.empty()));
+        this.tumorBamMetrics = new InputDownload(tumorBamMetricsOutput.maybeMetricsOutputFile().orElse(GoogleStorageLocation.empty()));
+    }
+
+    @Override
+    public List<BashCommand> inputs() {
+        List<BashCommand> inputs = new ArrayList<>(super.inputs());
+        inputs.add(purpleQcFile);
+        inputs.add(purplePurityTsv);
+        inputs.add(tumorBamMetrics);
+        return inputs;
     }
 
     @Override
@@ -52,7 +77,10 @@ public class VirusAnalysis extends TertiaryStage<VirusOutput> {
         String tumorSample = metadata.tumor().sampleName();
         return new VirusBreakend(tumorSample, getTumorBamDownload().getLocalTargetPath(), resourceFiles).andThen(new VirusInterpreter(
                 tumorSample,
-                resourceFiles)).apply(SubStageInputOutput.empty(tumorSample)).bash();
+                resourceFiles,
+                purplePurityTsv.getLocalTargetPath(),
+                purpleQcFile.getLocalTargetPath(),
+                tumorBamMetrics.getLocalTargetPath())).apply(SubStageInputOutput.empty(tumorSample)).bash();
     }
 
     @Override

@@ -15,11 +15,18 @@ public class VirusInterpreter extends SubStage {
 
     private final String sampleId;
     private final ResourceFiles resourceFiles;
+    private final String purplePurityTsvPath;
+    private final String purpleQcFilePath;
+    private final String tumorBamMetricsPath;
 
-    public VirusInterpreter(final String sampleId, final ResourceFiles resourceFiles) {
+    public VirusInterpreter(final String sampleId, final ResourceFiles resourceFiles, final String purplePurityTsvPath,
+            final String purpleQcFilePath, final String tumorBamMetricsPath) {
         super("virus.annotated", FileTypes.TSV);
         this.sampleId = sampleId;
         this.resourceFiles = resourceFiles;
+        this.purplePurityTsvPath = purplePurityTsvPath;
+        this.purpleQcFilePath = purpleQcFilePath;
+        this.tumorBamMetricsPath = tumorBamMetricsPath;
     }
 
     @Override
@@ -30,14 +37,18 @@ public class VirusInterpreter extends SubStage {
                 "2G",
                 List.of("-sample_id",
                         sampleId,
+                        "-purple_purity_tsv",
+                        purplePurityTsvPath,
+                        "-purple_qc_file",
+                        purpleQcFilePath,
+                        "-tumor_sample_wgs_metrics_file",
+                        tumorBamMetricsPath,
                         "-virus_breakend_tsv",
                         input.path(),
                         "-taxonomy_db_tsv",
                         resourceFiles.virusInterpreterTaxonomyDb(),
-                        "-virus_interpretation_tsv",
-                        resourceFiles.virusInterpretation(),
-                        "-virus_blacklist_tsv",
-                        resourceFiles.virusBlacklist(),
+                        "-virus_reporting_db_tsv",
+                        resourceFiles.virusReportingDb(),
                         "-output_dir",
                         new File(output.path()).getParent())));
     }

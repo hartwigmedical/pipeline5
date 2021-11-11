@@ -126,8 +126,7 @@ public class SomaticPipelineTest {
                 .thenReturn(cobaltOutput())
                 .thenReturn(failSomatic)
                 .thenReturn(sageGermlineOutput())
-                .thenReturn(structuralCallerOutput())
-                .thenReturn(virusOutput());
+                .thenReturn(structuralCallerOutput());
         PipelineState state = victim.run(TestInputs.defaultPair());
         assertThat(state.stageOutputs()).containsExactlyInAnyOrder(cobaltOutput(),
                 amberOutput(),
@@ -147,7 +146,6 @@ public class SomaticPipelineTest {
                 .thenReturn(sageSomaticOutput())
                 .thenReturn(sageGermlineOutput())
                 .thenReturn(structuralCallerOutput())
-                .thenReturn(virusOutput())
                 .thenReturn(failGripss);
         PipelineState state = victim.run(TestInputs.defaultPair());
         assertThat(state.stageOutputs()).containsExactlyInAnyOrder(cobaltOutput(),
@@ -169,7 +167,6 @@ public class SomaticPipelineTest {
                 .thenReturn(sageSomaticOutput())
                 .thenReturn(sageGermlineOutput())
                 .thenReturn(structuralCallerOutput())
-                .thenReturn(virusOutput())
                 .thenReturn(structuralCallerPostProcessOutput())
                 .thenReturn(failPurple);
         PipelineState state = victim.run(TestInputs.defaultPair());
@@ -193,9 +190,9 @@ public class SomaticPipelineTest {
                 .thenReturn(sageSomaticOutput())
                 .thenReturn(sageGermlineOutput())
                 .thenReturn(structuralCallerOutput())
-                .thenReturn(virusOutput())
                 .thenReturn(structuralCallerPostProcessOutput())
                 .thenReturn(purpleOutput())
+                .thenReturn(virusOutput())
                 .thenReturn(HealthCheckOutput.builder().from(healthCheckerOutput()).status(PipelineStatus.QC_FAILED).build())
                 .thenReturn(linxOutput())
                 .thenReturn(sigsOutput())
@@ -227,9 +224,9 @@ public class SomaticPipelineTest {
                 .thenReturn(sageSomaticOutput())
                 .thenReturn(sageGermlineOutput())
                 .thenReturn(structuralCallerOutput())
-                .thenReturn(virusOutput())
                 .thenReturn(structuralCallerPostProcessOutput())
                 .thenReturn(purpleOutput())
+                .thenReturn(virusOutput())
                 .thenReturn(healthCheckerOutput())
                 .thenReturn(linxOutput())
                 .thenReturn(sigsOutput())

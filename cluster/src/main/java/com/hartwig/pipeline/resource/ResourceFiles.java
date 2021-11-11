@@ -68,7 +68,9 @@ public interface ResourceFiles {
 
     String snpEffVersion();
 
-    default String snpEffConfig() {return of(SNPEFF, "snpEff.config"); }
+    default String snpEffConfig() {
+        return of(SNPEFF, "snpEff.config");
+    }
 
     default String gridssPropertiesFile() {
         return of(GRIDSS_CONFIG, "gridss.properties");
@@ -130,12 +132,8 @@ public interface ResourceFiles {
         return of(VIRUS_INTERPRETER, "taxonomy_db.tsv");
     }
 
-    default String virusInterpretation() {
-        return of(VIRUS_INTERPRETER, "virus_interpretation.tsv");
-    }
-
-    default String virusBlacklist() {
-        return of(VIRUS_INTERPRETER, "virus_blacklist.tsv");
+    default String virusReportingDb() {
+        return of(VIRUS_INTERPRETER, "virus_reporting_db.tsv");
     }
 
     default String formPath(String name, String file) {

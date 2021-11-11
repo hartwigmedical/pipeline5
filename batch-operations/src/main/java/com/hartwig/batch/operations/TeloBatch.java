@@ -33,7 +33,7 @@ public class TeloBatch implements BatchOperation
     private static final String COMMON_RESOURCES = "hmf-crunch-resources";
     private static final String TELO_DIR = "telo";
     private static final String TELO_JAR = "telo.jar";
-    private static final String MAX_HEAP = "16G";
+    private static final int MEMORY_GB = 16;
 
     private static final String TELO_VERSION = "1.0";
 
@@ -66,21 +66,27 @@ public class TeloBatch implements BatchOperation
                 /*() -> format("gsutil -u hmf-crunch cp gs://%s/%s/%s %s",
                 COMMON_RESOURCES, TELO_DIR, TELO_JAR, VmDirectories.TOOLS));*/
 
-        InputDownload tumorBamDownload = new InputDownload(locationsApi.getTumorAlignment());
-        InputDownload tumorBamIndexDownload = new InputDownload(locationsApi.getTumorAlignmentIndex());
-        InputDownload referenceBamDownload = new InputDownload(locationsApi.getReferenceAlignment());
-        InputDownload referenceBamIndexDownload = new InputDownload(locationsApi.getReferenceAlignmentIndex());
-
         // ref genome
         final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.V37);
+
+        InputDownload tumorBamDownload = new InputDownload(locationsApi.getTumorAlignment());
+        InputDownload tumorBamIndexDownload = new InputDownload(locationsApi.getTumorAlignmentIndex());
 
         // download the tumour and reference bam / index files
         commands.addCommand(tumorBamDownload);
         commands.addCommand(tumorBamIndexDownload);
+
+        commands.addCommand(makeTeloRunCommand(sampleId, "somatic", tumorBamDownload.getLocalTargetPath(), resourceFiles.refGenomeFile(), specificChromosome));
+
+        // delete the tumor bam file to save disk space
+        commands.addCommand(() -> format("rm -f %s", tumorBamDownload.getLocalTargetPath()));
+        commands.addCommand(() -> format("rm -f %s", tumorBamIndexDownload.getLocalTargetPath()));
+
+        InputDownload referenceBamDownload = new InputDownload(locationsApi.getReferenceAlignment());
+        InputDownload referenceBamIndexDownload = new InputDownload(locationsApi.getReferenceAlignmentIndex());
         commands.addCommand(referenceBamDownload);
         commands.addCommand(referenceBamIndexDownload);
 
-        commands.addCommand(makeTeloRunCommand(sampleId, "somatic", tumorBamDownload.getLocalTargetPath(), resourceFiles.refGenomeFile(), specificChromosome));
         commands.addCommand(makeTeloRunCommand(sampleId, "germline", referenceBamDownload.getLocalTargetPath(), resourceFiles.refGenomeFile(), specificChromosome));
 
         //JavaJarCommand jarCommand = new JavaJarCommand("telo", TELO_VERSION, "telo.jar", "16G", teloArgs);
@@ -98,7 +104,7 @@ public class TeloBatch implements BatchOperation
                 .startupCommand(commands)
                 .namespacedResults(ResultsDirectory.defaultDirectory())
                 .workingDiskSpaceGb(500)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(16, 16))
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(16, MEMORY_GB))
                 .build();
     }
 
@@ -137,7 +143,7 @@ public class TeloBatch implements BatchOperation
             teloArgs.add(specificChromosome.get());
         }
 
-        return () -> format("java -Xmx%s -jar %s/%s %s",
-                MAX_HEAP, VmDirectories.TOOLS, TELO_JAR, teloArgs);
+        return () -> format("java -Xmx%dG -jar %s/%s %s",
+                MEMORY_GB - 1, VmDirectories.TOOLS, TELO_JAR, teloArgs);
     }
 }

@@ -108,8 +108,6 @@ public class SomaticPipeline {
                         new SageGermlineCaller(pair, resourceFiles, persistedDataset)));
                 Future<StructuralCallerOutput> structuralCallerOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                         new StructuralCaller(pair, resourceFiles, persistedDataset)));
-                Future<VirusOutput> virusOutputFuture =
-                        executorService.submit(() -> stageRunner.run(metadata, new VirusAnalysis(pair, resourceFiles, persistedDataset)));
 
                 AmberOutput amberOutput = pipelineResults.add(state.add(amberOutputFuture.get()));
                 CobaltOutput cobaltOutput = pipelineResults.add(state.add(cobaltOutputFuture.get()));
@@ -143,11 +141,13 @@ public class SomaticPipeline {
                             FlagstatOutput tumorFlagstat = pollOrThrow(tumorFlagstatOutputQueue, "tumor flagstat");
                             FlagstatOutput referenceFlagstat = pollOrThrow(referenceFlagstatOutputQueue, "reference flagstat");
 
+                            Future<VirusOutput> virusOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
+                                    new VirusAnalysis(pair, resourceFiles, persistedDataset, purpleOutput, tumorMetrics)));
+
                             Future<HealthCheckOutput> healthCheckOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                     new HealthChecker(referenceMetrics, tumorMetrics, referenceFlagstat, tumorFlagstat, purpleOutput)));
-                            Future<LinxOutput> linxOutputFuture =
-                                    executorService.submit(() -> stageRunner.run(metadata, new Linx(purpleOutput, resourceFiles,
-                                            persistedDataset)));
+                            Future<LinxOutput> linxOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
+                                    new Linx(purpleOutput, resourceFiles, persistedDataset)));
                             Future<SigsOutput> signatureOutputFuture =
                                     executorService.submit(() -> stageRunner.run(metadata, new Sigs(purpleOutput, resourceFiles)));
                             Future<ChordOutput> chordOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
