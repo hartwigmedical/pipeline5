@@ -5,7 +5,6 @@ import static java.lang.String.format;
 import static com.hartwig.batch.operations.rna.RnaCommon.MAX_EXPECTED_BAM_SIZE_GB;
 import static com.hartwig.batch.operations.rna.RnaCommon.RNA_RESOURCES;
 import static com.hartwig.batch.operations.rna.RnaCommon.getRnaCohortDirectory;
-import static com.hartwig.batch.operations.rna.RnaCommon.getRnaResourceDirectory;
 import static com.hartwig.batch.operations.rna.RnaIsofox.FUNC_TRANSCRIPT_COUNTS;
 import static com.hartwig.pipeline.resource.RefGenomeVersion.V37;
 import static com.hartwig.pipeline.resource.ResourceFilesFactory.buildResourceFiles;
@@ -18,13 +17,11 @@ import com.hartwig.batch.input.InputBundle;
 import com.hartwig.batch.input.InputFileDescriptor;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.calling.command.VersionedToolCommand;
-import com.hartwig.pipeline.execution.vm.Bash;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.OutputUpload;
 import com.hartwig.pipeline.execution.vm.RuntimeFiles;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
-import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.resource.ResourceFiles;
@@ -32,8 +29,8 @@ import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tools.Versions;
 
-public class RnaMiscExpression implements BatchOperation {
-
+public class RnaIsofoxSpliceJunctions implements BatchOperation
+{
     private static final String ISOFOX = "isofox";
 
     private static final String ISOFOX_LOCATION = String.format("%s/%s", RNA_RESOURCES, ISOFOX);
@@ -43,9 +40,7 @@ public class RnaMiscExpression implements BatchOperation {
     private static final String RNA_BAM_INDEX_FILE_ID = ".sorted.dups.bam.bai";
 
     private static final int COL_SAMPLE_ID = 0;
-    private static final int COL_READ_LENGTH = 1;
-    private static final int COL_GENE_IDS = 2;
-    private static final int COL_SLICE_REGION = 3;
+    private static final int COL_GENE_IDS = 1;
 
     @Override
     public VirtualMachineJobDefinition execute(
@@ -63,14 +58,11 @@ public class RnaMiscExpression implements BatchOperation {
         }
 
         final String sampleId = batchItems[COL_SAMPLE_ID];
-        final String readLength = batchItems[COL_READ_LENGTH];
         final String geneIds = batchItems[COL_GENE_IDS];
-        final String sliceRegion = batchItems[COL_SLICE_REGION];
         final RefGenomeVersion refGenomeVersion = V37;
 
         final ResourceFiles resourceFiles = buildResourceFiles(refGenomeVersion);
 
-        // final String rnaCohortDirectory = getRnaCohortDirectory(refGenomeVersion);
         final String samplesDir = String.format("%s/%s", getRnaCohortDirectory(refGenomeVersion), "samples");
 
         // copy down BAM and index file for this sample
@@ -81,29 +73,6 @@ public class RnaMiscExpression implements BatchOperation {
         final String bamIndexFile = String.format("%s%s", sampleId, RNA_BAM_INDEX_FILE_ID);
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s/%s %s",
                 samplesDir, sampleId, bamIndexFile, VmDirectories.INPUT));
-
-        // slice the BAM for the required genes
-        final String sambamba = "sambamba/0.6.8/sambamba";
-
-        final String slicedBam = String.format("%s.spec_genes.bam", sampleId);
-
-        startupScript.addCommand(() -> format("%s/%s slice %s/%s \"%s\" -o %s/%s",
-                VmDirectories.TOOLS, sambamba, VmDirectories.INPUT, bamFile, sliceRegion, VmDirectories.OUTPUT, slicedBam));
-
-        // commands.addCommand(() -> format("ls -l %s", VmDirectories.OUTPUT));
-
-        final String slicedSortedBam = String.format("%s.spec_genes.sorted.bam", sampleId);
-
-        // samtools sort -@ 8 -m 2G -T tmp -O bam Aligned.out.bam -o Aligned.sorted.bam
-        final String[] sortArgs = {
-                "sort", "-@", "8", "-m", "2G", "-T", "tmp",
-                "-O", "bam", String.format("%s/%s", VmDirectories.OUTPUT, slicedBam),
-                "-o", String.format("%s/%s", VmDirectories.OUTPUT, slicedSortedBam)};
-
-        startupScript.addCommand(new VersionedToolCommand("samtools", "samtools", Versions.SAMTOOLS, sortArgs));
-
-        // create an index
-        startupScript.addCommand(() -> format("%s/%s index %s/%s", VmDirectories.TOOLS, sambamba, VmDirectories.OUTPUT, slicedSortedBam));
 
         // copy down the executable
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s %s",
@@ -117,14 +86,14 @@ public class RnaMiscExpression implements BatchOperation {
         isofoxArgs.add(String.format("-functions %s", FUNC_TRANSCRIPT_COUNTS));
 
         isofoxArgs.add(String.format("-output_dir %s/", VmDirectories.OUTPUT));
-        isofoxArgs.add(String.format("-bam_file %s/%s", VmDirectories.INPUT, slicedSortedBam));
+        isofoxArgs.add(String.format("-bam_file %s/%s", VmDirectories.INPUT, bamFile));
 
         isofoxArgs.add(String.format("-ref_genome %s", resourceFiles.refGenomeFile()));
         isofoxArgs.add(String.format("-ensembl_data_dir %s", resourceFiles.ensemblDataCache()));
 
         isofoxArgs.add(String.format("-write_exon_data"));
-        isofoxArgs.add(String.format("-write_read_data"));
         isofoxArgs.add(String.format("-restricted_gene_ids %s", geneIds));
+        isofoxArgs.add(" -output_id gene_sj");
 
         startupScript.addCommand(() -> format("java -jar %s/%s %s", VmDirectories.TOOLS, ISOFOX_JAR, isofoxArgs.toString()));
 
@@ -139,7 +108,7 @@ public class RnaMiscExpression implements BatchOperation {
 
     @Override
     public OperationDescriptor descriptor() {
-        return OperationDescriptor.of("RnaMiscExpression", "Use Isofox for specific expression analysis",
+        return OperationDescriptor.of("RnaIsofoxSpliceJunctions", "Use Isofox for specific gene splice-junction analysis",
                 OperationDescriptor.InputType.FLAT);
     }
 
