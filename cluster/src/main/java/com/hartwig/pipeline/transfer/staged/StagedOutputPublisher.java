@@ -22,9 +22,8 @@ import com.hartwig.events.AnalysisOutputBlob;
 import com.hartwig.events.ImmutableAnalysis;
 import com.hartwig.events.ImmutableAnalysisOutputBlob;
 import com.hartwig.events.ImmutablePipeline;
-import com.hartwig.events.ImmutablePipelineStaged;
 import com.hartwig.events.Pipeline;
-import com.hartwig.events.PipelineStaged;
+import com.hartwig.events.PipelineComplete;
 import com.hartwig.pipeline.PipelineState;
 import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.alignment.Aligner;
@@ -72,7 +71,7 @@ public class StagedOutputPublisher {
                     state.stageOutputs().stream().map(StageOutput::datatypes).flatMap(List::stream).collect(Collectors.toList());
             SampleSet set = OnlyOne.of(setApi.list(metadata.set(), null, useOnlyDBSets ? true : null), SampleSet.class);
             String sampleName = metadata.maybeTumor().orElse(metadata.reference()).sampleName();
-            ImmutableAnalysis.Builder alignedReadsAnalysis = eventBuilder(set, Type.ALIGNED_READS, sampleName);
+            ImmutableAnalysis.Builder alignedReadsAnalysis = eventBuilder(set, Type.ALIGNMENT, sampleName);
             ImmutableAnalysis.Builder somaticAnalysis = eventBuilder(set, Type.SOMATIC, sampleName);
             ImmutableAnalysis.Builder germlineAnalysis = eventBuilder(set, Type.GERMLINE, sampleName);
 
@@ -89,7 +88,7 @@ public class StagedOutputPublisher {
                     }
                 }
             }, sourceBucket).iterate(metadata);
-            publish(ImmutablePipelineStaged.builder()
+            publish(PipelineComplete.builder()
                     .pipeline(ImmutablePipeline.builder()
                             .sample(sampleName)
                             .bucket(sourceBucket.getName())
@@ -139,7 +138,7 @@ public class StagedOutputPublisher {
         return not(InNamespace.of(CramConversion.NAMESPACE)).and(not(InNamespace.of(Aligner.NAMESPACE))).test(blobWithMd5);
     }
 
-    public void publish(final PipelineStaged event) {
+    public void publish(final PipelineComplete event) {
         if (event.pipeline().analyses().stream().map(Analysis::output).mapToLong(List::size).sum() > 0) {
             event.publish(publisher, objectMapper);
         }

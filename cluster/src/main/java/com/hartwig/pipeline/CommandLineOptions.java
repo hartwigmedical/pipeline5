@@ -78,7 +78,7 @@ public class CommandLineOptions {
     private static final String USE_CRAMS_FLAG = "use_crams";
     private static final String PUBSUB_PROJECT_FLAG = "pubsub_project";
     private static final String ANONYMIZE_FLAG = "anonymize";
-    private static final String ANALYSIS_CONTEXT_FLAG = "analysis_context";
+    private static final String CONTEXT_FLAG = "context";
 
     private static Options options() {
         return new Options().addOption(profile())
@@ -146,7 +146,7 @@ public class CommandLineOptions {
     }
 
     private static Option analysisContext() {
-        return optionWithArg(ANALYSIS_CONTEXT_FLAG,
+        return optionWithArg(CONTEXT_FLAG,
                 format("Context to run analysis in [%s]",
                         Stream.of(Pipeline.Context.values()).map(Pipeline.Context::name).collect(Collectors.joining(", "))));
     }
@@ -362,7 +362,7 @@ public class CommandLineOptions {
                     .useCrams(booleanOptionWithDefault(commandLine, USE_CRAMS_FLAG, defaults.useCrams()))
                     .pubsubProject(pubsubProject(commandLine, defaults))
                     .anonymize(booleanOptionWithDefault(commandLine, ANONYMIZE_FLAG, defaults.anonymize()))
-                    .analysisContext(analysisContext(commandLine, defaults))
+                    .context(analysisContext(commandLine, defaults))
                     .build();
         } catch (ParseException e) {
             LOGGER.error("Could not parse command line args", e);
@@ -373,10 +373,10 @@ public class CommandLineOptions {
     }
 
     public static Context analysisContext(final CommandLine commandLine, final Arguments defaults) {
-        if (commandLine.hasOption(ANALYSIS_CONTEXT_FLAG)) {
-            return Pipeline.Context.valueOf(commandLine.getOptionValue(ANALYSIS_CONTEXT_FLAG));
+        if (commandLine.hasOption(CONTEXT_FLAG)) {
+            return Pipeline.Context.valueOf(commandLine.getOptionValue(CONTEXT_FLAG));
         }
-        return defaults.analysisContext();
+        return defaults.context();
     }
 
     public static Optional<String> pubsubProject(final CommandLine commandLine, final Arguments defaults) {

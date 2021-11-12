@@ -80,7 +80,7 @@ public class SmokeTest {
                 .rcloneS3RemoteDownload("s3")
                 .cleanup(true)
                 .outputBucket("services-pipeline-output-pilot-1")
-                .analysisContext(Context.SERVICES)
+                .context(Context.SERVICES)
                 .build();
         Storage storage = StorageProvider.from(arguments, CredentialProvider.from(arguments).get()).get();
 

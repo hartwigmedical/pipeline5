@@ -97,7 +97,7 @@ public interface Arguments extends CommonArguments {
 
     boolean anonymize();
 
-    Pipeline.Context analysisContext();
+    Pipeline.Context context();
 
     static String workingDir() {
         return System.getProperty("user.dir");
@@ -123,7 +123,7 @@ public interface Arguments extends CommonArguments {
 
     int DEFAULT_MAX_CONCURRENT_LANES = 8;
 
-    Pipeline.Context DEFAULT_ANALYSIS_CONTEXT = Context.DIAGNOSTIC;
+    Pipeline.Context DEFAULT_CONTEXT = Context.DIAGNOSTIC;
 
     static ImmutableArguments.Builder defaultsBuilder(String profileString) {
         DefaultsProfile profile = DefaultsProfile.valueOf(profileString.toUpperCase());
@@ -163,7 +163,7 @@ public interface Arguments extends CommonArguments {
                     .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES)
                     .useCrams(false)
                     .anonymize(false)
-                    .analysisContext(DEFAULT_ANALYSIS_CONTEXT);
+                    .context(DEFAULT_CONTEXT);
         } else if (profile.equals(DefaultsProfile.DEVELOPMENT)) {
             return ImmutableArguments.builder()
                     .profile(profile)
@@ -199,7 +199,7 @@ public interface Arguments extends CommonArguments {
                     .useLocalSsds(true)
                     .useCrams(false)
                     .anonymize(false)
-                    .analysisContext(DEFAULT_ANALYSIS_CONTEXT);
+                    .context(DEFAULT_CONTEXT);
         } else if (profile.equals(DefaultsProfile.DEVELOPMENT_DOCKER)) {
             return ImmutableArguments.builder()
                     .profile(profile)
@@ -235,7 +235,7 @@ public interface Arguments extends CommonArguments {
                     .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES)
                     .useCrams(false)
                     .anonymize(false)
-                    .analysisContext(DEFAULT_ANALYSIS_CONTEXT);
+                    .context(DEFAULT_CONTEXT);
         } else if (profile.equals(DefaultsProfile.PUBLIC)) {
             return ImmutableArguments.builder()
                     .profile(profile)
@@ -271,7 +271,7 @@ public interface Arguments extends CommonArguments {
                     .imageName(VirtualMachineJobDefinition.PUBLIC_IMAGE_NAME)
                     .useCrams(false)
                     .anonymize(false)
-                    .analysisContext(DEFAULT_ANALYSIS_CONTEXT);
+                    .context(DEFAULT_CONTEXT);
         }
         throw new IllegalArgumentException(String.format("Unknown profile [%s], please create defaults for this profile.", profile));
     }

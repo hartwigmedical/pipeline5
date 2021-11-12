@@ -81,7 +81,7 @@ public class SomaticMetadataApiProvider {
                         publisher,
                         objectMapper,
                         run,
-                        arguments.analysisContext(),
+                        arguments.context(),
                         arguments.outputCram(),
                         false),
                 new Anonymizer(arguments));

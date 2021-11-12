@@ -27,7 +27,7 @@ import com.hartwig.api.model.SampleSet;
 import com.hartwig.events.Analysis.Type;
 import com.hartwig.events.AnalysisOutputBlob;
 import com.hartwig.events.Pipeline.Context;
-import com.hartwig.events.PipelineStaged;
+import com.hartwig.events.PipelineComplete;
 import com.hartwig.pipeline.PipelineState;
 import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.datatypes.DataType;
@@ -101,8 +101,8 @@ public class StagedOutputPublisherTest {
         Page<Blob> page = pageOf(vcf);
         ArgumentCaptor<PubsubMessage> messageArgumentCaptor = publish(page, TestInputs.defaultSomaticRunMetadata());
 
-        PipelineStaged result =
-                OBJECT_MAPPER.readValue(new String(messageArgumentCaptor.getValue().getData().toByteArray()), PipelineStaged.class);
+        PipelineComplete result =
+                OBJECT_MAPPER.readValue(new String(messageArgumentCaptor.getValue().getData().toByteArray()), PipelineComplete.class);
         assertThat(result.pipeline().analyses().get(1).type()).isEqualTo(Type.SOMATIC);
         assertThat(result.pipeline().analyses().get(1).output()).extracting(AnalysisOutputBlob::filename)
                 .containsExactlyInAnyOrder("tumor.vcf");
@@ -134,7 +134,7 @@ public class StagedOutputPublisherTest {
         Blob vcf = withBucketAndMd5(blob("/germline_caller/" + TestInputs.referenceSample() + "reference.germline.vcf.gz"));
         Page<Blob> page = pageOf(vcf);
         ArgumentCaptor<PubsubMessage> published = publish(page, TestInputs.defaultSingleSampleRunMetadata());
-        PipelineStaged result = OBJECT_MAPPER.readValue(new String(published.getValue().getData().toByteArray()), PipelineStaged.class);
+        PipelineComplete result = OBJECT_MAPPER.readValue(new String(published.getValue().getData().toByteArray()), PipelineComplete.class);
         assertThat(result.pipeline().sample()).isEqualTo("reference");
     }
 
@@ -150,7 +150,7 @@ public class StagedOutputPublisherTest {
                 new ArchivePath(Folder.from(TestInputs.referenceRunMetadata()), "germline_caller", "reference.germline.vcf.gz"))));
         when(state.stageOutputs()).thenReturn(List.of(stageOutput));
         ArgumentCaptor<PubsubMessage> published = publish(page, TestInputs.defaultSingleSampleRunMetadata());
-        PipelineStaged result = OBJECT_MAPPER.readValue(new String(published.getValue().getData().toByteArray()), PipelineStaged.class);
+        PipelineComplete result = OBJECT_MAPPER.readValue(new String(published.getValue().getData().toByteArray()), PipelineComplete.class);
         assertThat(result.pipeline().analyses().get(2).output().get(0).datatype()).hasValue("GERMLINE_VARIANTS");
         assertThat(result.pipeline().analyses().get(2).output().get(0).barcode()).hasValue("barcode");
     }
@@ -162,8 +162,8 @@ public class StagedOutputPublisherTest {
         Page<Blob> page = pageOf(vcf);
         ArgumentCaptor<PubsubMessage> messageArgumentCaptor = publish(page, TestInputs.defaultSomaticRunMetadata());
 
-        PipelineStaged result =
-                OBJECT_MAPPER.readValue(new String(messageArgumentCaptor.getValue().getData().toByteArray()), PipelineStaged.class);
+        PipelineComplete result =
+                OBJECT_MAPPER.readValue(new String(messageArgumentCaptor.getValue().getData().toByteArray()), PipelineComplete.class);
         assertThat(result.pipeline().analyses().get(2).type()).isEqualTo(Type.GERMLINE);
         assertThat(result.pipeline().analyses().get(2).output()).extracting(AnalysisOutputBlob::filename)
                 .containsExactlyInAnyOrder(expectedFile);
@@ -183,10 +183,10 @@ public class StagedOutputPublisherTest {
         Page<Blob> page = pageOf(tumorBamBlob, tumorBaiBlob, refBamBlob, refBaiBlob);
         ArgumentCaptor<PubsubMessage> messageArgumentCaptor = publish(page, TestInputs.defaultSomaticRunMetadata());
 
-        PipelineStaged result =
-                OBJECT_MAPPER.readValue(new String(messageArgumentCaptor.getValue().getData().toByteArray()), PipelineStaged.class);
+        PipelineComplete result =
+                OBJECT_MAPPER.readValue(new String(messageArgumentCaptor.getValue().getData().toByteArray()), PipelineComplete.class);
         assertThat(result.pipeline().context()).isEqualTo(Context.DIAGNOSTIC);
-        assertThat(result.pipeline().analyses().get(0).type()).isEqualTo(Type.ALIGNED_READS);
+        assertThat(result.pipeline().analyses().get(0).type()).isEqualTo(Type.ALIGNMENT);
         assertThat(result.pipeline().analyses().get(0).output()).hasSize(4);
         assertThat(result.pipeline().analyses().get(0).output()).extracting(AnalysisOutputBlob::filename)
                 .containsExactlyInAnyOrder(TestInputs.tumorSample() + "." + extension,
