@@ -142,12 +142,12 @@ public class CommandLineOptions {
                 .addOption(useCrams())
                 .addOption(pubsubProject())
                 .addOption(anonymize())
-                .addOption(analysisContext());
+                .addOption(context());
     }
 
-    private static Option analysisContext() {
+    private static Option context() {
         return optionWithArg(CONTEXT_FLAG,
-                format("Context to run analysis in [%s]",
+                format("Context to run pileline in [%s]",
                         Stream.of(Pipeline.Context.values()).map(Pipeline.Context::name).collect(Collectors.joining(", "))));
     }
 
@@ -362,7 +362,7 @@ public class CommandLineOptions {
                     .useCrams(booleanOptionWithDefault(commandLine, USE_CRAMS_FLAG, defaults.useCrams()))
                     .pubsubProject(pubsubProject(commandLine, defaults))
                     .anonymize(booleanOptionWithDefault(commandLine, ANONYMIZE_FLAG, defaults.anonymize()))
-                    .context(analysisContext(commandLine, defaults))
+                    .context(context(commandLine, defaults))
                     .build();
         } catch (ParseException e) {
             LOGGER.error("Could not parse command line args", e);
@@ -372,7 +372,7 @@ public class CommandLineOptions {
         }
     }
 
-    public static Context analysisContext(final CommandLine commandLine, final Arguments defaults) {
+    public static Context context(final CommandLine commandLine, final Arguments defaults) {
         if (commandLine.hasOption(CONTEXT_FLAG)) {
             return Pipeline.Context.valueOf(commandLine.getOptionValue(CONTEXT_FLAG));
         }
