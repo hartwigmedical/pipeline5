@@ -68,7 +68,7 @@
             <dependency>
                 <groupId>com.hartwig</groupId>
                 <artifactId>pipeline-events</artifactId>
-                <version>local-SNAPSHOT</version>
+                <version>${pipeline-events.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.hartwig.api</groupId>
