@@ -7,7 +7,7 @@ import java.util.concurrent.Executors;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.pubsub.v1.Publisher;
 import com.google.cloud.storage.Storage;
-import com.hartwig.events.PipelineStaged;
+import com.hartwig.events.PipelineComplete;
 import com.hartwig.pipeline.alignment.AlignerProvider;
 import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
 import com.hartwig.pipeline.cleanup.CleanupProvider;
@@ -47,14 +47,14 @@ public class PipelineMain {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PipelineMain.class);
 
-    public PipelineState start(Arguments arguments) throws Exception {
+    public PipelineState start(Arguments arguments) {
         LOGGER.info("Arguments are [{}]", arguments);
         Versions.printAll();
         try {
             GoogleCredentials credentials = CredentialProvider.from(arguments).get();
             Storage storage = StorageProvider.from(arguments, credentials).get();
             Publisher turquoisePublisher = PublisherProvider.from(arguments, credentials).get("turquoise.events");
-            Publisher pipelinePublisher = PublisherProvider.from(arguments, credentials).get(PipelineStaged.TOPIC);
+            Publisher pipelinePublisher = PublisherProvider.from(arguments, credentials).get(PipelineComplete.TOPIC);
             SomaticMetadataApi somaticMetadataApi = SomaticMetadataApiProvider.from(arguments, storage, pipelinePublisher).get();
             SingleSampleEventListener referenceEventListener = new SingleSampleEventListener();
             SingleSampleEventListener tumorEventListener = new SingleSampleEventListener();

@@ -24,10 +24,10 @@ import com.hartwig.api.SetApi;
 import com.hartwig.api.model.Ini;
 import com.hartwig.api.model.Run;
 import com.hartwig.api.model.SampleSet;
-import com.hartwig.events.Analysis.Context;
 import com.hartwig.events.Analysis.Type;
-import com.hartwig.events.PipelineOutputBlob;
-import com.hartwig.events.PipelineStaged;
+import com.hartwig.events.AnalysisOutputBlob;
+import com.hartwig.events.Pipeline.Context;
+import com.hartwig.events.PipelineComplete;
 import com.hartwig.pipeline.PipelineState;
 import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.datatypes.DataType;
@@ -56,13 +56,14 @@ public class StagedOutputPublisherTest {
     public void setUp() throws Exception {
         setApi = mock(SetApi.class);
         bucket = mock(Bucket.class);
+        when(bucket.getName()).thenReturn("bucket");
         publisher = mock(Publisher.class);
         state = mock(PipelineState.class);
         victim = new StagedOutputPublisher(setApi,
                 bucket,
                 publisher,
                 OBJECT_MAPPER,
-                new Run().ini(Ini.SOMATIC_INI.getValue()),
+                new Run().ini(Ini.SOMATIC_INI.getValue()).id(1L),
                 Context.DIAGNOSTIC,
                 true,
                 false);
@@ -81,7 +82,7 @@ public class StagedOutputPublisherTest {
                 bucket,
                 publisher,
                 OBJECT_MAPPER,
-                new Run().ini(Ini.SOMATIC_INI.getValue()),
+                new Run().ini(Ini.SOMATIC_INI.getValue()).id(1L),
                 Context.DIAGNOSTIC,
                 false,
                 false);
@@ -100,10 +101,11 @@ public class StagedOutputPublisherTest {
         Page<Blob> page = pageOf(vcf);
         ArgumentCaptor<PubsubMessage> messageArgumentCaptor = publish(page, TestInputs.defaultSomaticRunMetadata());
 
-        PipelineStaged result =
-                OBJECT_MAPPER.readValue(new String(messageArgumentCaptor.getValue().getData().toByteArray()), PipelineStaged.class);
-        assertThat(result.analysisType()).isEqualTo(Type.TERTIARY);
-        assertThat(result.blobs()).extracting(PipelineOutputBlob::filename).containsExactlyInAnyOrder("tumor.vcf");
+        PipelineComplete result =
+                OBJECT_MAPPER.readValue(new String(messageArgumentCaptor.getValue().getData().toByteArray()), PipelineComplete.class);
+        assertThat(result.pipeline().analyses().get(1).type()).isEqualTo(Type.SOMATIC);
+        assertThat(result.pipeline().analyses().get(1).output()).extracting(AnalysisOutputBlob::filename)
+                .containsExactlyInAnyOrder("tumor.vcf");
     }
 
     @Test
@@ -132,8 +134,8 @@ public class StagedOutputPublisherTest {
         Blob vcf = withBucketAndMd5(blob("/germline_caller/" + TestInputs.referenceSample() + "reference.germline.vcf.gz"));
         Page<Blob> page = pageOf(vcf);
         ArgumentCaptor<PubsubMessage> published = publish(page, TestInputs.defaultSingleSampleRunMetadata());
-        PipelineStaged result = OBJECT_MAPPER.readValue(new String(published.getValue().getData().toByteArray()), PipelineStaged.class);
-        assertThat(result.sample()).isEqualTo("reference");
+        PipelineComplete result = OBJECT_MAPPER.readValue(new String(published.getValue().getData().toByteArray()), PipelineComplete.class);
+        assertThat(result.pipeline().sample()).isEqualTo("reference");
     }
 
     @Test
@@ -148,21 +150,23 @@ public class StagedOutputPublisherTest {
                 new ArchivePath(Folder.from(TestInputs.referenceRunMetadata()), "germline_caller", "reference.germline.vcf.gz"))));
         when(state.stageOutputs()).thenReturn(List.of(stageOutput));
         ArgumentCaptor<PubsubMessage> published = publish(page, TestInputs.defaultSingleSampleRunMetadata());
-        PipelineStaged result = OBJECT_MAPPER.readValue(new String(published.getValue().getData().toByteArray()), PipelineStaged.class);
-        assertThat(result.blobs().get(0).datatype()).hasValue("GERMLINE_VARIANTS");
-        assertThat(result.blobs().get(0).barcode()).hasValue("barcode");
+        PipelineComplete result = OBJECT_MAPPER.readValue(new String(published.getValue().getData().toByteArray()), PipelineComplete.class);
+        assertThat(result.pipeline().analyses().get(2).output().get(0).datatype()).hasValue("GERMLINE_VARIANTS");
+        assertThat(result.pipeline().analyses().get(2).output().get(0).barcode()).hasValue("barcode");
     }
 
-    public void verifyGermline(final String filename, final String expectedFile, final String namespace) throws com.fasterxml.jackson.core.JsonProcessingException {
+    public void verifyGermline(final String filename, final String expectedFile, final String namespace)
+            throws com.fasterxml.jackson.core.JsonProcessingException {
         when(state.status()).thenReturn(PipelineStatus.SUCCESS);
         Blob vcf = withBucketAndMd5(blob(namespace + TestInputs.referenceSample() + filename));
         Page<Blob> page = pageOf(vcf);
         ArgumentCaptor<PubsubMessage> messageArgumentCaptor = publish(page, TestInputs.defaultSomaticRunMetadata());
 
-        PipelineStaged result =
-                OBJECT_MAPPER.readValue(new String(messageArgumentCaptor.getValue().getData().toByteArray()), PipelineStaged.class);
-        assertThat(result.analysisType()).isEqualTo(Type.GERMLINE);
-        assertThat(result.blobs()).extracting(PipelineOutputBlob::filename).containsExactlyInAnyOrder(expectedFile);
+        PipelineComplete result =
+                OBJECT_MAPPER.readValue(new String(messageArgumentCaptor.getValue().getData().toByteArray()), PipelineComplete.class);
+        assertThat(result.pipeline().analyses().get(2).type()).isEqualTo(Type.GERMLINE);
+        assertThat(result.pipeline().analyses().get(2).output()).extracting(AnalysisOutputBlob::filename)
+                .containsExactlyInAnyOrder(expectedFile);
     }
 
     private void verifySecondaryAnalysis(final String extension, final String indexExtension, final String namespace)
@@ -179,12 +183,12 @@ public class StagedOutputPublisherTest {
         Page<Blob> page = pageOf(tumorBamBlob, tumorBaiBlob, refBamBlob, refBaiBlob);
         ArgumentCaptor<PubsubMessage> messageArgumentCaptor = publish(page, TestInputs.defaultSomaticRunMetadata());
 
-        PipelineStaged result =
-                OBJECT_MAPPER.readValue(new String(messageArgumentCaptor.getValue().getData().toByteArray()), PipelineStaged.class);
-        assertThat(result.analysisContext()).isEqualTo(Context.DIAGNOSTIC);
-        assertThat(result.analysisType()).isEqualTo(Type.SECONDARY);
-        assertThat(result.blobs()).hasSize(4);
-        assertThat(result.blobs()).extracting(PipelineOutputBlob::filename)
+        PipelineComplete result =
+                OBJECT_MAPPER.readValue(new String(messageArgumentCaptor.getValue().getData().toByteArray()), PipelineComplete.class);
+        assertThat(result.pipeline().context()).isEqualTo(Context.DIAGNOSTIC);
+        assertThat(result.pipeline().analyses().get(0).type()).isEqualTo(Type.ALIGNMENT);
+        assertThat(result.pipeline().analyses().get(0).output()).hasSize(4);
+        assertThat(result.pipeline().analyses().get(0).output()).extracting(AnalysisOutputBlob::filename)
                 .containsExactlyInAnyOrder(TestInputs.tumorSample() + "." + extension,
                         TestInputs.tumorSample() + "." + extension + "." + indexExtension,
                         TestInputs.referenceSample() + "." + extension,
