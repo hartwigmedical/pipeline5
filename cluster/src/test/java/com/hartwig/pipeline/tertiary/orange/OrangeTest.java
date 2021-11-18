@@ -72,7 +72,7 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
     protected List<String> expectedCommands() {
         return Arrays.asList("mkdir -p /data/input/linx/plot",
                 "echo '5.25' | tee /data/input/orange_pipeline.version.txt",
-                "java -Xmx8G -jar /opt/tools/orange/1.2/orange.jar -output_dir /data/output -doid_json /opt/resources/disease_ontology/201015_doid.json "
+                "java -Xmx8G -jar /opt/tools/orange/1.3/orange.jar -output_dir /data/output -doid_json /opt/resources/disease_ontology/201015_doid.json "
                         + "-primary_tumor_doids \"01;02\" -max_evidence_level C -tumor_sample_id tumor -reference_sample_id reference "
                         + "-ref_sample_wgs_metrics_file /data/input/reference.wgsmetrics -tumor_sample_wgs_metrics_file /data/input/tumor.wgsmetrics "
                         + "-ref_sample_flagstat_file /data/input/reference.flagstat -tumor_sample_flagstat_file /data/input/tumor.flagstat "
@@ -87,7 +87,7 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
                         + "-cuppa_result_csv /data/input/tumor.cup.data.csv -cuppa_summary_plot /data/input/tumor.cup.report.summary.png "
                         + "-cuppa_feature_plot /data/input/tumor.cup.report.features.png -chord_prediction_txt /data/input/tumor_chord_prediction.txt "
                         + "-peach_genotype_tsv /data/input/tumor.peach.genotype.tsv -protect_evidence_tsv /data/input/tumor.protect.tsv "
-                        + "-annotated_virus_tsv /data/input/tumor.virus.annotated.tsv -pipeline_version_file /data/input/orange_pipeline.version.txt  "
+                        + "-annotated_virus_tsv /data/input/tumor.virus.annotated.tsv -pipeline_version_file /data/input/orange_pipeline.version.txt "
                         + "-cohort_mapping_tsv /opt/resources/orange/cohort_mapping.tsv -cohort_percentiles_tsv /opt/resources/orange/cohort_percentiles.tsv");
     }
 

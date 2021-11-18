@@ -244,7 +244,6 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
                                 annotatedVirusTsv.getLocalTargetPath(),
                                 "-pipeline_version_file",
                                 pipelineVersionFilePath,
-                                "",
                                 "-cohort_mapping_tsv",
                                 resourceFiles.orangeCohortMapping(),
                                 "-cohort_percentiles_tsv",

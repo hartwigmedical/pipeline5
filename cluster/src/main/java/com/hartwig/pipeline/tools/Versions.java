@@ -36,7 +36,7 @@ public interface Versions {
     String CUPPA = "1.5";
     String PEACH = "1.4";
     String SIGS = "1.0";
-    String ORANGE = "1.2";
+    String ORANGE = "1.3";
 
     static void printAll() {
         Logger logger = LoggerFactory.getLogger(Versions.class);
