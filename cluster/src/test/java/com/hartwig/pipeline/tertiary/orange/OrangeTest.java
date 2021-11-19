@@ -59,9 +59,10 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
                 input(expectedRuntimeBucketName() + "/purple/results/", "purple"),
                 input(expectedRuntimeBucketName() + "/linx/results/", "linx"),
                 input(expectedRuntimeBucketName() + "/linx/tumor.linx.drivers.tsv", "tumor.linx.drivers.tsv"),
-                input(expectedRuntimeBucketName() + "/cuppa/tumor.cuppa.conclusion.txt", "tumor.cuppa.conclusion.txt"),
+                "gsutil  -q stat  gs://run-reference-tumor-test/cuppa/tumor.cup.report.features.png; if [ $? == 0 ]; then  gsutil -o "
+                        + "'GSUtil:parallel_thread_count=1' -o GSUtil:sliced_object_download_max_components=$(nproc) -qm cp -r -n "
+                        + "gs://run-reference-tumor-test/cuppa/tumor.cup.report.features.png /data/input/tumor.cup.report.features.png ; fi",
                 input(expectedRuntimeBucketName() + "/cuppa/tumor.cup.data.csv", "tumor.cup.data.csv"),
-                input(expectedRuntimeBucketName() + "/cuppa/tumor.cuppa.chart.png", "tumor.cuppa.chart.png"),
                 input(expectedRuntimeBucketName() + "/cuppa/tumor.cup.report.summary.png", "tumor.cup.report.summary.png"),
                 input(expectedRuntimeBucketName() + "/protect/tumor.protect.tsv", "tumor.protect.tsv"),
                 input(expectedRuntimeBucketName() + "/peach/tumor.peach.genotype.tsv", "tumor.peach.genotype.tsv"));
@@ -71,7 +72,7 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
     protected List<String> expectedCommands() {
         return Arrays.asList("mkdir -p /data/input/linx/plot",
                 "echo '5.25' | tee /data/input/orange_pipeline.version.txt",
-                "java -Xmx8G -jar /opt/tools/orange/1.1/orange.jar -output_dir /data/output -doid_json /opt/resources/disease_ontology/201015_doid.json "
+                "java -Xmx8G -jar /opt/tools/orange/1.3/orange.jar -output_dir /data/output -doid_json /opt/resources/disease_ontology/201015_doid.json "
                         + "-primary_tumor_doids \"01;02\" -max_evidence_level C -tumor_sample_id tumor -reference_sample_id reference "
                         + "-ref_sample_wgs_metrics_file /data/input/reference.wgsmetrics -tumor_sample_wgs_metrics_file /data/input/tumor.wgsmetrics "
                         + "-ref_sample_flagstat_file /data/input/reference.flagstat -tumor_sample_flagstat_file /data/input/tumor.flagstat "
@@ -82,11 +83,12 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
                         + "-purple_somatic_driver_catalog_tsv /data/input/tumor.driver.catalog.somatic.tsv -purple_somatic_variant_vcf /data/input/tumor.purple.somatic.vcf.gz "
                         + "-linx_fusion_tsv /data/input/tumor.linx.fusion.tsv -linx_breakend_tsv /data/input/tumor.linx.breakend.tsv "
                         + "-linx_driver_catalog_tsv /data/input/tumor.linx.driver.catalog.tsv -linx_driver_tsv /data/input/tumor.linx.drivers.tsv "
-                        + "-linx_plot_directory /data/input/linx/plot -cuppa_conclusion_txt /data/input/tumor.cuppa.conclusion.txt "
+                        + "-linx_plot_directory /data/input/linx/plot "
                         + "-cuppa_result_csv /data/input/tumor.cup.data.csv -cuppa_summary_plot /data/input/tumor.cup.report.summary.png "
-                        + "-chord_prediction_txt /data/input/tumor_chord_prediction.txt "
+                        + "-cuppa_feature_plot /data/input/tumor.cup.report.features.png -chord_prediction_txt /data/input/tumor_chord_prediction.txt "
                         + "-peach_genotype_tsv /data/input/tumor.peach.genotype.tsv -protect_evidence_tsv /data/input/tumor.protect.tsv "
-                        + "-annotated_virus_tsv /data/input/tumor.virus.annotated.tsv -pipeline_version_file /data/input/orange_pipeline.version.txt");
+                        + "-annotated_virus_tsv /data/input/tumor.virus.annotated.tsv -pipeline_version_file /data/input/orange_pipeline.version.txt "
+                        + "-cohort_mapping_tsv /opt/resources/orange/cohort_mapping.tsv -cohort_percentiles_tsv /opt/resources/orange/cohort_percentiles.tsv");
     }
 
     @Override

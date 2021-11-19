@@ -37,7 +37,7 @@ import com.hartwig.pipeline.tools.Versions;
 public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
     public static final String CUP_REPORT_SUMMARY_PNG = ".cup.report.summary.png";
     public static final String CUP_DATA_CSV = ".cup.data.csv";
-    public static final String CUPPA_CHART_PNG = ".cuppa.chart.png";
+    public static final String CUPPA_FEATURE_PLOT = ".cup.report.features.png";
     public static final String CUPPA_CONCLUSION_TXT = ".cuppa.conclusion.txt";
     public static String NAMESPACE = "cuppa";
     private final InputDownload purpleSomaticVcfDownload;
@@ -123,7 +123,7 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
         final String conclusionTxt = cuppaConclusionTxt(metadata);
         final String cuppaSummaryChartPng = cupReportSummaryPng(metadata);
         final String resultsCsv = cupDataCsv(metadata);
-        final String featurePlot = cuppaChartPng(metadata);
+        final String featurePlot = cuppaFeaturePlot(metadata);
         return CuppaOutput.builder()
                 .status(jobStatus)
                 .maybeCuppaOutputLocations(CuppaOutputLocations.builder()
@@ -157,8 +157,8 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
         return metadata.tumor().sampleName() + CUP_DATA_CSV;
     }
 
-    private String cuppaChartPng(final SomaticRunMetadata metadata) {
-        return metadata.tumor().sampleName() + CUPPA_CHART_PNG;
+    private String cuppaFeaturePlot(final SomaticRunMetadata metadata) {
+        return metadata.tumor().sampleName() + CUPPA_FEATURE_PLOT;
     }
 
     private String cuppaConclusionTxt(final SomaticRunMetadata metadata) {
@@ -175,7 +175,7 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
         final String conclusionTxt = cuppaConclusionTxt(metadata);
         final String cuppaChart = cupReportSummaryPng(metadata);
         final String resultsCsv = cupDataCsv(metadata);
-        final String featurePlot = cuppaChartPng(metadata);
+        final String featurePlot = cuppaFeaturePlot(metadata);
         return CuppaOutput.builder()
                 .status(PipelineStatus.PERSISTED)
                 .maybeCuppaOutputLocations(CuppaOutputLocations.builder()
