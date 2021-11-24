@@ -102,6 +102,11 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
     }
 
     @Override
+    protected void validatePersistedOutput(OrangeOutput output) {
+        // no validation
+    }
+
+    @Override
     protected List<AddDatatype> expectedFurtherOperations() {
         return List.of(new AddDatatype(DataType.ORANGE_OUTPUT_JSON,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
