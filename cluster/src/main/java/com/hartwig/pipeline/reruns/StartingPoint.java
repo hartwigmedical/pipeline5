@@ -23,6 +23,7 @@ import com.hartwig.pipeline.tertiary.chord.Chord;
 import com.hartwig.pipeline.tertiary.cobalt.Cobalt;
 import com.hartwig.pipeline.tertiary.cuppa.Cuppa;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthChecker;
+import com.hartwig.pipeline.tertiary.linx.Linx;
 import com.hartwig.pipeline.tertiary.orange.Orange;
 import com.hartwig.pipeline.tertiary.peach.Peach;
 import com.hartwig.pipeline.tertiary.protect.Protect;
@@ -54,7 +55,8 @@ public class StartingPoint {
         GRIPSS_COMPLETE(concat(CALLING_COMPLETE.namespaces, List.of(StructuralCallerPostProcess.NAMESPACE))),
         PURPLE_COMPLETE(concat(GRIPSS_COMPLETE.namespaces, List.of(Purple.NAMESPACE))),
         ORANGE(concat(PURPLE_COMPLETE.namespaces,
-                List.of(Chord.NAMESPACE,
+                List.of(Linx.NAMESPACE,
+                        Chord.NAMESPACE,
                         HealthChecker.NAMESPACE,
                         Sigs.NAMESPACE,
                         Peach.NAMESPACE,
@@ -62,13 +64,14 @@ public class StartingPoint {
                         Protect.NAMESPACE,
                         VirusAnalysis.NAMESPACE))),
         CUPPA(concat(PURPLE_COMPLETE.namespaces,
-               List.of(Chord.NAMESPACE,
-               HealthChecker.NAMESPACE,
-               Sigs.NAMESPACE,
-               Peach.NAMESPACE,
-               Orange.NAMESPACE,
-               Protect.NAMESPACE,
-               VirusAnalysis.NAMESPACE)));
+                List.of(Linx.NAMESPACE,
+                        Chord.NAMESPACE,
+                        HealthChecker.NAMESPACE,
+                        Sigs.NAMESPACE,
+                        Peach.NAMESPACE,
+                        Orange.NAMESPACE,
+                        Protect.NAMESPACE,
+                        VirusAnalysis.NAMESPACE)));
 
         private final List<String> namespaces;
 
