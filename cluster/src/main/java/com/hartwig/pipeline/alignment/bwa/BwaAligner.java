@@ -40,6 +40,7 @@ import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.ReportComponent;
 import com.hartwig.pipeline.report.RunLogComponent;
 import com.hartwig.pipeline.report.SingleFileComponent;
+import com.hartwig.pipeline.resource.OverrideReferenceGenomeCommand;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.SubStageInputOutput;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
@@ -106,6 +107,8 @@ public class BwaAligner implements Aligner {
             InputDownload second =
                     new InputDownload(GoogleStorageLocation.of(rootBucket.name(), fastQFileName(sample.name(), lane.secondOfPairPath())));
             bash.addCommand(first).addCommand(second);
+            
+            bash.addCommands(OverrideReferenceGenomeCommand.overrides(arguments));
 
             SubStageInputOutput alignment = new LaneAlignment(arguments.sbpApiRunId().isPresent(),
                     resourceFiles.refGenomeFile(),
