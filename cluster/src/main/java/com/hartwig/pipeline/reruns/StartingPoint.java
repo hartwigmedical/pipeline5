@@ -23,6 +23,7 @@ import com.hartwig.pipeline.tertiary.chord.Chord;
 import com.hartwig.pipeline.tertiary.cobalt.Cobalt;
 import com.hartwig.pipeline.tertiary.cuppa.Cuppa;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthChecker;
+import com.hartwig.pipeline.tertiary.orange.Orange;
 import com.hartwig.pipeline.tertiary.peach.Peach;
 import com.hartwig.pipeline.tertiary.protect.Protect;
 import com.hartwig.pipeline.tertiary.purple.Purple;
@@ -59,7 +60,15 @@ public class StartingPoint {
                         Peach.NAMESPACE,
                         Cuppa.NAMESPACE,
                         Protect.NAMESPACE,
-                        VirusAnalysis.NAMESPACE)));
+                        VirusAnalysis.NAMESPACE))),
+        CUPPA(concat(PURPLE_COMPLETE.namespaces,
+               List.of(Chord.NAMESPACE,
+               HealthChecker.NAMESPACE,
+               Sigs.NAMESPACE,
+               Peach.NAMESPACE,
+               Orange.NAMESPACE,
+               Protect.NAMESPACE,
+               VirusAnalysis.NAMESPACE)));
 
         private final List<String> namespaces;
 

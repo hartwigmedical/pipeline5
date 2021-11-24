@@ -43,7 +43,7 @@ import com.hartwig.pipeline.tertiary.virus.VirusOutput;
 import com.hartwig.pipeline.tools.Versions;
 
 public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
-    static final String NAMESPACE = "orange";
+    public static final String NAMESPACE = "orange";
 
     private static final String ORANGE_OUTPUT_JSON = ".orange.json";
     private static final String ORANGE_OUTPUT_PDF = ".orange.pdf";
