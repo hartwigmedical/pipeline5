@@ -288,4 +288,9 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
     public boolean shouldRun(final Arguments arguments) {
         return !arguments.shallow() && arguments.runTertiary();
     }
+
+    @Override
+    public OrangeOutput persistedOutput(SomaticRunMetadata metadata) {
+        return OrangeOutput.builder().status(PipelineStatus.PERSISTED).build();
+    }
 }
