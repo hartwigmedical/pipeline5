@@ -48,13 +48,13 @@ public class StagedOutputPublisher {
     private final Bucket sourceBucket;
     private final Publisher publisher;
     private final ObjectMapper objectMapper;
-    private final Run run;
+    private final Optional<Run> run;
     private final Pipeline.Context context;
     private final boolean stageCrams;
     private final boolean useOnlyDBSets;
 
     public StagedOutputPublisher(final SetApi setApi, final Bucket sourceBucket, final Publisher publisher, final ObjectMapper objectMapper,
-            final Run run, final Pipeline.Context target, final boolean stageCrams, final boolean useOnlyDBSets) {
+            final Optional<Run> run, final Pipeline.Context target, final boolean stageCrams, final boolean useOnlyDBSets) {
         this.setApi = setApi;
         this.sourceBucket = sourceBucket;
         this.publisher = publisher;
@@ -66,7 +66,7 @@ public class StagedOutputPublisher {
     }
 
     public void publish(final PipelineState state, final SomaticRunMetadata metadata) {
-        if (state.status() != PipelineStatus.FAILED) {
+        if (state.status() != PipelineStatus.FAILED && run.isPresent()) {
             List<AddDatatype> addDatatypes =
                     state.stageOutputs().stream().map(StageOutput::datatypes).flatMap(List::stream).collect(Collectors.toList());
             SampleSet set = OnlyOne.of(setApi.list(metadata.set(), null, useOnlyDBSets ? true : null), SampleSet.class);
@@ -92,7 +92,7 @@ public class StagedOutputPublisher {
                     .pipeline(ImmutablePipeline.builder()
                             .sample(sampleName)
                             .bucket(sourceBucket.getName())
-                            .runId(run.getId())
+                            .runId(run.get().getId())
                             .setId(set.getId())
                             .context(context)
                             .addAnalyses(alignedReadsAnalysis.build(), somaticAnalysis.build(), germlineAnalysis.build())
