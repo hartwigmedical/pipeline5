@@ -25,14 +25,14 @@ public class ResearchMetadataApi implements SomaticMetadataApi {
     private final SampleApi sampleApi;
     private final SetApi setApi;
     private final RunApi runApi;
-    private final Run run;
+    private final Optional<Run> run;
     private final String biopsyName;
     private final Arguments arguments;
     private final StagedOutputPublisher stagedOutput;
     private final Anonymizer anonymizer;
 
-    public ResearchMetadataApi(final SampleApi sampleApi, final SetApi setApi, final RunApi runApi, final Run run, final String biopsyName,
-            final Arguments arguments, final StagedOutputPublisher stagedOutput, final Anonymizer anonymizer) {
+    public ResearchMetadataApi(final SampleApi sampleApi, final SetApi setApi, final RunApi runApi, final Optional<Run> run, final String biopsyName,
+                               final Arguments arguments, final StagedOutputPublisher stagedOutput, final Anonymizer anonymizer) {
         this.sampleApi = sampleApi;
         this.setApi = setApi;
         this.runApi = runApi;
@@ -65,7 +65,7 @@ public class ResearchMetadataApi implements SomaticMetadataApi {
 
     @NotNull
     public ImmutableSingleSampleRunMetadata singleSample(final Sample sample, final SingleSampleRunMetadata.SampleType type,
-            final String set) {
+                                                         final String set) {
         return SingleSampleRunMetadata.builder()
                 .type(type)
                 .barcode(sample.getBarcode())
@@ -78,12 +78,16 @@ public class ResearchMetadataApi implements SomaticMetadataApi {
 
     @Override
     public void start() {
-        ApiRunStatus.start(runApi, run);
+        if (run.isPresent()) {
+            ApiRunStatus.start(runApi, run.get());
+        }
     }
 
     @Override
     public void complete(final PipelineState state, final SomaticRunMetadata metadata) {
         stagedOutput.publish(state, metadata);
-        ApiRunStatus.finish(runApi, run, state.status());
+        if (run.isPresent()) {
+            ApiRunStatus.finish(runApi, run.get(), state.status());
+        }
     }
 }

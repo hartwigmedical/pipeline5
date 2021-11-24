@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.core.ApiFuture;
@@ -83,7 +84,7 @@ public class ResearchMetadataApiTest {
         victim = new ResearchMetadataApi(sampleApi,
                 setApi,
                 runApi,
-                run,
+                Optional.of(run),
                 BIOPSY,
                 Arguments.testDefaults(),
                 new StagedOutputPublisher(setApi, bucket, publisher, objectMapper, run, Context.RESEARCH, false, true),
@@ -132,7 +133,7 @@ public class ResearchMetadataApiTest {
         victim = new ResearchMetadataApi(sampleApi,
                 setApi,
                 runApi,
-                run,
+                Optional.of(run),
                 BIOPSY,
                 Arguments.testDefaults(),
                 new StagedOutputPublisher(setApi, bucket, publisher, ObjectMappers.get(), new Run(), Context.RESEARCH, true, true),

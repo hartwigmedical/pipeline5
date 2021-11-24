@@ -1,5 +1,6 @@
 package com.hartwig.pipeline.metadata;
 
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -50,7 +51,7 @@ public class SomaticMetadataApiProvider {
         HmfApi api = HmfApi.create(arguments.sbpApiUrl());
         Bucket sourceBucket = storage.get(arguments.outputBucket());
         ObjectMapper objectMapper = ObjectMappers.get();
-        Run run = api.runs().get((long) arguments.sbpApiRunId().orElseThrow());
+        Optional<Run> run = arguments.sbpApiRunId().map(id -> api.runs().get((long) id));
         return new ResearchMetadataApi(api.samples(),
                 api.sets(),
                 api.runs(),
