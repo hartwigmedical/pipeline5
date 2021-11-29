@@ -37,6 +37,7 @@ public interface Versions {
     String PEACH = "1.4";
     String SIGS = "1.0";
     String ORANGE = "1.4";
+    String PAVE = "1.0";
 
     static void printAll() {
         Logger logger = LoggerFactory.getLogger(Versions.class);

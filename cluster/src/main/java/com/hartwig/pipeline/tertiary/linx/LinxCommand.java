@@ -7,7 +7,7 @@ import com.hartwig.pipeline.tools.Versions;
 
 class LinxCommand extends JavaJarCommand {
     LinxCommand(final String sample, final String svVcf, final String purpleDir, final RefGenomeVersion refGenomeVersion,
-            final String outputDir, final String fragileSiteFile, final String lineElementFile, final String replicationsOriginsFile,
+            final String outputDir, final String fragileSiteFile, final String lineElementFile,
             final String viralHostsFile, final String geneTranscriptsDirectory, final String knownFusionData,
             final String driverGenePanel) {
         super("linx",
@@ -28,8 +28,6 @@ class LinxCommand extends JavaJarCommand {
                         fragileSiteFile,
                         "-line_element_file",
                         lineElementFile,
-                        "-replication_origins_file",
-                        replicationsOriginsFile,
                         "-viral_hosts_file",
                         viralHostsFile,
                         "-ensembl_data_dir",

@@ -74,7 +74,6 @@ public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
                 VmDirectories.OUTPUT,
                 resourceFiles.fragileSites(),
                 resourceFiles.lineElements(),
-                resourceFiles.originsOfReplication(),
                 resourceFiles.viralHostRefs(),
                 resourceFiles.ensemblDataCache(),
                 resourceFiles.knownFusionData(),

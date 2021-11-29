@@ -97,8 +97,6 @@ public interface ResourceFiles {
 
     String lineElements();
 
-    String originsOfReplication();
-
     String ensemblDataCache();
 
     String knownFusionData();

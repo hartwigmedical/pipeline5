@@ -162,11 +162,6 @@ public class OverriddenReferenceGenome implements ResourceFiles {
     }
 
     @Override
-    public String originsOfReplication() {
-        return decorated.originsOfReplication();
-    }
-
-    @Override
     public String knownFusionData() {
         return decorated.knownFusionData();
     }

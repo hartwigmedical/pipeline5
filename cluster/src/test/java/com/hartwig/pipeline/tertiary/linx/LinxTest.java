@@ -42,7 +42,6 @@ public class LinxTest extends TertiaryStageTest<LinxOutput> {
                 + "/data/input/tumor.purple.sv.vcf.gz -purple_dir /data/input/results -ref_genome_version 37 -output_dir /data/output "
                 + "-fragile_site_file /opt/resources/linx/37/fragile_sites_hmf.37.csv "
                 + "-line_element_file /opt/resources/linx/37/line_elements.37.csv "
-                + "-replication_origins_file /opt/resources/linx/37/heli_rep_origins.37.bed "
                 + "-viral_hosts_file /opt/resources/linx/viral_host_ref.csv "
                 + "-ensembl_data_dir /opt/resources/ensembl_data_cache/37/ "
                 + "-check_fusions -known_fusion_file /opt/resources/fusions/37/known_fusion_data.37.csv "

@@ -153,11 +153,6 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
     }
 
     @Override
-    public String originsOfReplication() {
-        return formPath(LINX, "heli_rep_origins_empty.bed");
-    } // currently unsupported in 38
-
-    @Override
     public String ensemblDataCache() {
         return formPath(ENSEMBL_DATA_CACHE, "");
     }
