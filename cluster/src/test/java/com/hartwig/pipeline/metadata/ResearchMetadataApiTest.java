@@ -28,10 +28,11 @@ import com.hartwig.api.model.SampleStatus;
 import com.hartwig.api.model.SampleType;
 import com.hartwig.api.model.Status;
 import com.hartwig.api.model.UpdateRun;
-import com.hartwig.events.Analysis.Context;
+import com.hartwig.events.Analysis;
 import com.hartwig.events.Analysis.Molecule;
-import com.hartwig.events.PipelineOutputBlob;
-import com.hartwig.events.PipelineStaged;
+import com.hartwig.events.AnalysisOutputBlob;
+import com.hartwig.events.Pipeline.Context;
+import com.hartwig.events.PipelineComplete;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.PipelineState;
 import com.hartwig.pipeline.StageOutput;
@@ -74,6 +75,7 @@ public class ResearchMetadataApiTest {
         sampleApi = mock(SampleApi.class);
         setApi = mock(SetApi.class);
         bucket = mock(Bucket.class);
+        when(bucket.getName()).thenReturn("bucket");
         runApi = mock(RunApi.class);
         run = new Run().id(RUN_ID);
         publisher = mock(Publisher.class);
@@ -84,7 +86,7 @@ public class ResearchMetadataApiTest {
                 run,
                 BIOPSY,
                 Arguments.testDefaults(),
-                new StagedOutputPublisher(setApi, bucket, publisher, objectMapper, new Run(), Context.RESEARCH, false, true),
+                new StagedOutputPublisher(setApi, bucket, publisher, objectMapper, run, Context.RESEARCH, false, true),
                 new Anonymizer(Arguments.testDefaults()));
     }
 
@@ -145,18 +147,20 @@ public class ResearchMetadataApiTest {
     }
 
     @Test
-    public void publishesPipelineStagedEventOnCompletionSomaticFile() throws Exception {
+    public void publishesPipelineStagedEventOnCompletion() throws Exception {
         ArgumentCaptor<PubsubMessage> pubsubMessageArgumentCaptor = pipelineCompleteWithFile("set/purple/tumor.purple.somatic.vcf.gz",
                 TestOutput.builder().status(PipelineStatus.SUCCESS).build());
 
-        PipelineStaged result =
-                ObjectMappers.get().readValue(pubsubMessageArgumentCaptor.getValue().getData().toByteArray(), PipelineStaged.class);
-        assertThat(result.analysisMolecule()).isEqualTo(Molecule.DNA);
-        assertThat(result.runId()).isEmpty();
-        assertThat(result.setId()).isEqualTo(SET_ID);
-        assertThat(result.sample()).isEqualTo("tumor");
-        assertThat(result.version()).isEqualTo(Versions.pipelineMajorMinorVersion());
-        PipelineOutputBlob blobResult = result.blobs().get(0);
+        PipelineComplete result =
+                ObjectMappers.get().readValue(pubsubMessageArgumentCaptor.getValue().getData().toByteArray(), PipelineComplete.class);
+        assertThat(result.pipeline().runId()).isEqualTo(1);
+        assertThat(result.pipeline().setId()).isEqualTo(SET_ID);
+        assertThat(result.pipeline().sample()).isEqualTo("tumor");
+        assertThat(result.pipeline().version()).isEqualTo(Versions.pipelineMajorMinorVersion());
+
+        Analysis analysis = result.pipeline().analyses().get(1);
+        assertThat(analysis.molecule()).isEqualTo(Molecule.DNA);
+        AnalysisOutputBlob blobResult = analysis.output().get(0);
         assertThat(blobResult.barcode()).isEmpty();
         assertThat(blobResult.bucket()).isEqualTo("bucket");
         assertThat(blobResult.datatype()).isEmpty();
@@ -171,9 +175,11 @@ public class ResearchMetadataApiTest {
         ArgumentCaptor<PubsubMessage> pubsubMessageArgumentCaptor = pipelineCompleteWithFile("set/reference/aligner/reference.bam",
                 TestOutput.builder().status(PipelineStatus.SUCCESS).build());
 
-        PipelineStaged result =
-                ObjectMappers.get().readValue(pubsubMessageArgumentCaptor.getValue().getData().toByteArray(), PipelineStaged.class);
-        PipelineOutputBlob blobResult = result.blobs().get(0);
+        PipelineComplete result =
+                ObjectMappers.get().readValue(pubsubMessageArgumentCaptor.getValue().getData().toByteArray(), PipelineComplete.class);
+        Analysis analysis = result.pipeline().analyses().get(0);
+        assertThat(analysis.molecule()).isEqualTo(Molecule.DNA);
+        AnalysisOutputBlob blobResult = analysis.output().get(0);
         assertThat(blobResult.datatype()).isEmpty();
         assertThat(blobResult.root()).isEqualTo("set");
         assertThat(blobResult.sampleSubdir()).hasValue("reference");
@@ -186,9 +192,11 @@ public class ResearchMetadataApiTest {
         ArgumentCaptor<PubsubMessage> pubsubMessageArgumentCaptor =
                 pipelineCompleteWithFile("set/run.log", TestOutput.builder().status(PipelineStatus.SUCCESS).build());
 
-        PipelineStaged result =
-                ObjectMappers.get().readValue(pubsubMessageArgumentCaptor.getValue().getData().toByteArray(), PipelineStaged.class);
-        PipelineOutputBlob blobResult = result.blobs().get(0);
+        PipelineComplete result =
+                ObjectMappers.get().readValue(pubsubMessageArgumentCaptor.getValue().getData().toByteArray(), PipelineComplete.class);
+        Analysis analysis = result.pipeline().analyses().get(1);
+        assertThat(analysis.molecule()).isEqualTo(Molecule.DNA);
+        AnalysisOutputBlob blobResult = analysis.output().get(0);
         assertThat(blobResult.datatype()).isEmpty();
         assertThat(blobResult.root()).isEqualTo("set");
         assertThat(blobResult.sampleSubdir()).isEmpty();
@@ -206,9 +214,9 @@ public class ResearchMetadataApiTest {
                                 new ArchivePath(Folder.root(), "purple", "tumor.purple.somatic.vcf.gz")))
                         .build());
 
-        PipelineStaged result =
-                ObjectMappers.get().readValue(pubsubMessageArgumentCaptor.getValue().getData().toByteArray(), PipelineStaged.class);
-        PipelineOutputBlob blobResult = result.blobs().get(0);
+        PipelineComplete result =
+                ObjectMappers.get().readValue(pubsubMessageArgumentCaptor.getValue().getData().toByteArray(), PipelineComplete.class);
+        AnalysisOutputBlob blobResult = result.pipeline().analyses().get(1).output().get(0);
         assertThat(blobResult.datatype()).hasValue("SOMATIC_VARIANTS_PURPLE");
     }
 

@@ -23,7 +23,7 @@ import com.hartwig.pipeline.testsupport.TestInputs;
 public class CuppaTest extends TertiaryStageTest<CuppaOutput> {
 
     private static final String TUMOR_CUPPA_CONCLUSION_TXT = "tumor.cuppa.conclusion.txt";
-    private static final String TUMOR_CUPPA_CHART_PNG = "tumor.cuppa.chart.png";
+    private static final String TUMOR_CUP_REPORT_FEATURE_PNG = "tumor.cup.report.features.png";
     private static final String TUMOR_CUP_DATA_CSV = "tumor.cup.data.csv";
     private static final String TUMOR_CUP_REPORT_SUMMARY_PNG = "tumor.cup.report.summary.png";
 
@@ -50,7 +50,7 @@ public class CuppaTest extends TertiaryStageTest<CuppaOutput> {
                         new ArchivePath(Folder.root(), Cuppa.NAMESPACE, TUMOR_CUP_DATA_CSV)),
                 new AddDatatype(DataType.CUPPA_FEATURE_PLOT,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
-                        new ArchivePath(Folder.root(), Cuppa.NAMESPACE, TUMOR_CUPPA_CHART_PNG)));
+                        new ArchivePath(Folder.root(), Cuppa.NAMESPACE, TUMOR_CUP_REPORT_FEATURE_PNG)));
     }
 
     @Override
@@ -77,7 +77,7 @@ public class CuppaTest extends TertiaryStageTest<CuppaOutput> {
         assertThat(output.cuppaOutputLocations().resultCsv()).isEqualTo(GoogleStorageLocation.of(SOMATIC_BUCKET + "/cuppa",
                 ResultsDirectory.defaultDirectory().path(TUMOR_CUP_DATA_CSV)));
         assertThat(output.cuppaOutputLocations().featurePlot()).isEqualTo(GoogleStorageLocation.of(SOMATIC_BUCKET + "/cuppa",
-                ResultsDirectory.defaultDirectory().path(TUMOR_CUPPA_CHART_PNG)));
+                ResultsDirectory.defaultDirectory().path(TUMOR_CUP_REPORT_FEATURE_PNG)));
     }
 
     @Override
@@ -89,7 +89,7 @@ public class CuppaTest extends TertiaryStageTest<CuppaOutput> {
         assertThat(output.cuppaOutputLocations().resultCsv()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
                 "set/cuppa/" + TUMOR_CUP_DATA_CSV));
         assertThat(output.cuppaOutputLocations().featurePlot()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
-                "set/cuppa/" + TUMOR_CUPPA_CHART_PNG));
+                "set/cuppa/" + TUMOR_CUP_REPORT_FEATURE_PNG));
     }
 
     @Override
@@ -97,7 +97,7 @@ public class CuppaTest extends TertiaryStageTest<CuppaOutput> {
         persistedDataset.addPath(DataType.CUPPA_CONCLUSION, "cuppa/" + TUMOR_CUPPA_CONCLUSION_TXT);
         persistedDataset.addPath(DataType.CUPPA_CHART, "cuppa/" + TUMOR_CUP_REPORT_SUMMARY_PNG);
         persistedDataset.addPath(DataType.CUPPA_RESULTS, "cuppa/" + TUMOR_CUP_DATA_CSV);
-        persistedDataset.addPath(DataType.CUPPA_FEATURE_PLOT, "cuppa/" + TUMOR_CUPPA_CHART_PNG);
+        persistedDataset.addPath(DataType.CUPPA_FEATURE_PLOT, "cuppa/" + TUMOR_CUP_REPORT_FEATURE_PNG);
     }
 
     @Override
@@ -109,7 +109,7 @@ public class CuppaTest extends TertiaryStageTest<CuppaOutput> {
         assertThat(output.cuppaOutputLocations().resultCsv()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
                 "cuppa/" + TUMOR_CUP_DATA_CSV));
         assertThat(output.cuppaOutputLocations().featurePlot()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
-                "cuppa/" + TUMOR_CUPPA_CHART_PNG));
+                "cuppa/" + TUMOR_CUP_REPORT_FEATURE_PNG));
     }
 
     @Override

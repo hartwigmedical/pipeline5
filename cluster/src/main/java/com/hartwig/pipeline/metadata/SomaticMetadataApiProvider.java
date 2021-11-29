@@ -8,7 +8,7 @@ import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.api.HmfApi;
 import com.hartwig.api.model.Run;
-import com.hartwig.events.Analysis.Context;
+import com.hartwig.events.Pipeline.Context;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.sample.JsonSampleSource;
 import com.hartwig.pipeline.jackson.ObjectMappers;
@@ -81,7 +81,7 @@ public class SomaticMetadataApiProvider {
                         publisher,
                         objectMapper,
                         run,
-                        arguments.analysisContext(),
+                        arguments.context(),
                         arguments.outputCram(),
                         false),
                 new Anonymizer(arguments));

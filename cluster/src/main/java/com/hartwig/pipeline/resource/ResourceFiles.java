@@ -5,6 +5,7 @@ import static com.hartwig.pipeline.resource.ResourceNames.DISEASE_ONTOLOGY;
 import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_CONFIG;
 import static com.hartwig.pipeline.resource.ResourceNames.LINX;
 import static com.hartwig.pipeline.resource.ResourceNames.MAPPABILITY;
+import static com.hartwig.pipeline.resource.ResourceNames.ORANGE;
 import static com.hartwig.pipeline.resource.ResourceNames.SIGS;
 import static com.hartwig.pipeline.resource.ResourceNames.SNPEFF;
 import static com.hartwig.pipeline.resource.ResourceNames.VIRUS_INTERPRETER;
@@ -134,6 +135,14 @@ public interface ResourceFiles {
 
     default String virusReportingDb() {
         return of(VIRUS_INTERPRETER, "virus_reporting_db.tsv");
+    }
+
+    default String orangeCohortMapping() {
+        return of(ORANGE, "cohort_mapping.tsv");
+    }
+
+    default String orangeCohortPercentiles() {
+        return of(ORANGE, "cohort_percentiles.tsv");
     }
 
     default String formPath(String name, String file) {

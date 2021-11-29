@@ -69,6 +69,7 @@ CPCT12345678T/snp_genotype/snp_genotype_output.vcf
 cuppa/CPCT12345678T.cup.data.csv
 cuppa/CPCT12345678T.cuppa.chart.png
 cuppa/CPCT12345678T.cuppa.conclusion.txt
+cuppa/CPCT12345678T_cup_report.pdf
 cuppa/CPCT12345678T.cup.report.summary.png
 cuppa/run.log
 health_checker/CPCT12345678T.HealthCheckFailed
