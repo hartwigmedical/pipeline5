@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.calling.sage;
 
+import static com.hartwig.pipeline.calling.sage.SageGermlinePostProcess.SAGE_GERMLINE_FILTERED;
+
 import java.util.List;
 
 import com.hartwig.pipeline.calling.command.BcfToolsCommandListBuilder;
@@ -16,7 +18,7 @@ class BlacklistVcfAnnotation extends SubStage {
     private final ResourceFiles resourceFiles;
 
     BlacklistVcfAnnotation(final ResourceFiles resourceFiles) {
-        super("blacklist.variants", FileTypes.GZIPPED_VCF);
+        super(SAGE_GERMLINE_FILTERED, FileTypes.GZIPPED_VCF);
         this.resourceFiles = resourceFiles;
     }
 

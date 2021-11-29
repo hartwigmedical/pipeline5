@@ -3,7 +3,6 @@ package com.hartwig.pipeline.calling.sage;
 import java.util.List;
 
 import com.google.api.client.util.Lists;
-import com.hartwig.pipeline.calling.substages.SnpEff;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.OutputFile;
@@ -31,7 +30,6 @@ public class SageGermlinePostProcess extends SubStage {
         final List<BashCommand> result = Lists.newArrayList();
 
         SubStage passFilter = new PassFilter();
-        SubStage snpEff = new SnpEff(resourceFiles);
         SubStage mappabilityAnnotation =
                 new MappabilityAnnotation(resourceFiles.out150Mappability(), resourceFiles.mappabilityHDR());
 
@@ -52,7 +50,6 @@ public class SageGermlinePostProcess extends SubStage {
         result.addAll(clinvarAnnotation.bash(mappabilityAnnotationFile, clinvarFile));
         result.addAll(blacklistBedAnnotation.bash(clinvarFile, blacklistBedFile));
         result.addAll(blacklistVcfAnnotation.bash(blacklistBedFile, blacklistVcfFile));
-        result.addAll(snpEff.bash(blacklistVcfFile, output));
         return result;
     }
 }

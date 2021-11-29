@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.calling.sage;
 
+import static com.hartwig.pipeline.calling.sage.SageSomaticPostProcess.SAGE_SOMATIC_FILTERED;
+
 import java.util.List;
 
 import com.hartwig.pipeline.calling.command.BcfToolsCommandListBuilder;
@@ -21,7 +23,7 @@ class PonFilter extends SubStage {
     private final String hotspotFilter;
 
     PonFilter(RefGenomeVersion refGenomeVersion) {
-        super("sage.pon.filter", FileTypes.GZIPPED_VCF);
+        super(SAGE_SOMATIC_FILTERED, FileTypes.GZIPPED_VCF);
 
         if (refGenomeVersion.equals(RefGenomeVersion.V37)) {
             hotspotFilter = String.format(HOTSPOT, 5, 10);

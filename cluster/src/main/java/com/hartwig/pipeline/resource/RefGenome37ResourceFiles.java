@@ -116,15 +116,9 @@ public class RefGenome37ResourceFiles implements ResourceFiles {
     public String giabHighConfidenceBed() {
         return formPath(GIAB_HIGH_CONF, "NA12878_GIAB_highconf_IllFB-IllGATKHC-CG-Ion-Solid_ALLCHROM_v3.2.2_highconf.bed.gz");
     }
-
     @Override
     public String snpEffDb() {
         return formPath(SNPEFF, "snpEff_v4_3_GRCh37.75.zip");
-    }
-
-    @Override
-    public String snpEffVersion() {
-        return "GRCh37.75";
     }
 
     @Override

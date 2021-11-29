@@ -17,7 +17,7 @@ public class PonFilterHg19Test extends SubStageTest {
 
     @Override
     public String expectedPath() {
-        return "/data/output/tumor.sage.pon.filter.vcf.gz";
+        return "/data/output/tumor.sage.somatic.filtered.vcf.gz";
     }
 
     @Test
@@ -26,12 +26,12 @@ public class PonFilterHg19Test extends SubStageTest {
                 + "/opt/tools/bcftools/1.9/bcftools filter -e 'PON_COUNT!=\".\" && INFO/TIER=\"HOTSPOT\" && PON_MAX>=5 && PON_COUNT >= 10' -s PON -m+ /data/output/tumor.strelka.vcf -O u | "
                 + "/opt/tools/bcftools/1.9/bcftools filter -e 'PON_COUNT!=\".\" && INFO/TIER=\"PANEL\" && PON_MAX>=5 && PON_COUNT >= 6' -s PON -m+ -O u | "
                 + "/opt/tools/bcftools/1.9/bcftools filter -e 'PON_COUNT!=\".\" && INFO/TIER!=\"HOTSPOT\" && INFO/TIER!=\"PANEL\" && PON_COUNT >= 6' -s PON -m+ "
-                + "-O z -o /data/output/tumor.sage.pon.filter.vcf.gz");
+                + "-O z -o /data/output/tumor.sage.somatic.filtered.vcf.gz");
     }
 
     @Test
     public void runsTabix() {
         assertThat(bash()).contains(
-                "/opt/tools/tabix/0.2.6/tabix /data/output/tumor.sage.pon.filter.vcf.gz -p vcf");
+                "/opt/tools/tabix/0.2.6/tabix /data/output/tumor.sage.somatic.filtered.vcf.gz -p vcf");
     }
 }

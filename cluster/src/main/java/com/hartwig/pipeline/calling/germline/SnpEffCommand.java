@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.calling.substages;
+package com.hartwig.pipeline.calling.germline;
 
 import com.hartwig.pipeline.calling.command.VersionedToolCommand;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
@@ -12,8 +12,8 @@ class SnpEffCommand extends VersionedToolCommand {
                 "snpEff.sh",
                 Versions.SNPEFF,
                 VmDirectories.TOOLS + "/snpEff/" + Versions.SNPEFF + "/snpEff.jar",
-                resourceFiles.snpEffConfig(),
-                resourceFiles.snpEffVersion(),
+                VmDirectories.RESOURCES + "/snpeff/snpEff.config",
+                "GRCh37.75",
                 inputVcf,
                 outputVcf);
     }

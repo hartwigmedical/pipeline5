@@ -42,10 +42,7 @@ public class SageGermlineCallerTest extends TertiaryStageTest<SageOutput> {
                 "/opt/tools/tabix/0.2.6/tabix /data/output/tumor.clinvar.vcf.gz -p vcf",
                 "(/opt/tools/bcftools/1.9/bcftools annotate -a /opt/resources/sage/37/KnownBlacklist.germline.37.bed.gz -m BLACKLIST_BED -c CHROM,FROM,TO /data/output/tumor.clinvar.vcf.gz -O z -o /data/output/tumor.blacklist.regions.vcf.gz)",
                 "/opt/tools/tabix/0.2.6/tabix /data/output/tumor.blacklist.regions.vcf.gz -p vcf",
-                "(/opt/tools/bcftools/1.9/bcftools annotate -a /opt/resources/sage/37/KnownBlacklist.germline.37.vcf.gz -m BLACKLIST_VCF /data/output/tumor.blacklist.regions.vcf.gz -O z -o /data/output/tumor.blacklist.variants.vcf.gz)",
-                "/opt/tools/tabix/0.2.6/tabix /data/output/tumor.blacklist.variants.vcf.gz -p vcf",
-                "/opt/tools/snpEff/4.3s/snpEff.sh /opt/tools/snpEff/4.3s/snpEff.jar /opt/resources/snpeff/snpEff.config GRCh37.75 /data/output/tumor.blacklist.variants.vcf.gz /data/output/tumor.sage.germline.filtered.vcf",
-                "/opt/tools/tabix/0.2.6/bgzip -f /data/output/tumor.sage.germline.filtered.vcf",
+                "(/opt/tools/bcftools/1.9/bcftools annotate -a /opt/resources/sage/37/KnownBlacklist.germline.37.vcf.gz -m BLACKLIST_VCF /data/output/tumor.blacklist.regions.vcf.gz -O z -o /data/output/tumor.sage.germline.filtered.vcf.gz)",
                 "/opt/tools/tabix/0.2.6/tabix /data/output/tumor.sage.germline.filtered.vcf.gz -p vcf");
     }
 

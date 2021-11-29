@@ -72,16 +72,6 @@ public class OverriddenReferenceGenome implements ResourceFiles {
     }
 
     @Override
-    public String snpEffVersion() {
-        return decorated.snpEffVersion();
-    }
-
-    @Override
-    public String snpEffConfig() {
-        return decorated.snpEffConfig();
-    }
-
-    @Override
     public String sageSomaticHotspots() {
         return decorated.sageSomaticHotspots();
     }

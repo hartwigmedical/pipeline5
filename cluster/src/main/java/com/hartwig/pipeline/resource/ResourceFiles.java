@@ -67,12 +67,6 @@ public interface ResourceFiles {
 
     String snpEffDb();
 
-    String snpEffVersion();
-
-    default String snpEffConfig() {
-        return of(SNPEFF, "snpEff.config");
-    }
-
     default String gridssPropertiesFile() {
         return of(GRIDSS_CONFIG, "gridss.properties");
     }

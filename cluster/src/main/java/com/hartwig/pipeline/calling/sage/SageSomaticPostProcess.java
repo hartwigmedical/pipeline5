@@ -3,7 +3,6 @@ package com.hartwig.pipeline.calling.sage;
 import java.util.List;
 
 import com.google.api.client.util.Lists;
-import com.hartwig.pipeline.calling.substages.SnpEff;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.OutputFile;
@@ -32,7 +31,6 @@ public class SageSomaticPostProcess extends SubStage {
                 new MappabilityAnnotation(resourceFiles.out150Mappability(), resourceFiles.mappabilityHDR());
         SubStage ponAnnotation = new PonAnnotation("sage.pon", resourceFiles.sageGermlinePon(), "PON_COUNT", "PON_MAX");
         SubStage ponFilter = new PonFilter(resourceFiles.version());
-        SubStage snpEff = new SnpEff(resourceFiles);
 
         OutputFile passFilterFile = passFilter.apply(tumorSampleName).outputFile();
         OutputFile mappabilityAnnotationFile = mappabilityAnnotation.apply(tumorSampleName).outputFile();
@@ -43,7 +41,6 @@ public class SageSomaticPostProcess extends SubStage {
         result.addAll(mappabilityAnnotation.bash(passFilterFile, mappabilityAnnotationFile));
         result.addAll(ponAnnotation.bash(mappabilityAnnotationFile, ponAnnotationFile));
         result.addAll(ponFilter.bash(ponAnnotationFile, ponFilterFile));
-        result.addAll(snpEff.bash(ponFilterFile, output));
         return result;
     }
 }

@@ -57,11 +57,6 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
     }
 
     @Override
-    public String snpEffVersion() {
-        return "GRCh38.86";
-    }
-
-    @Override
     public String sageSomaticHotspots() {
         return formPath(SAGE, "KnownHotspots.somatic.38.vcf.gz");
     }

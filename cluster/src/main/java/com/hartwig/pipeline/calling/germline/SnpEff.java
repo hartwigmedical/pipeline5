@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.calling.substages;
+package com.hartwig.pipeline.calling.germline;
 
 import java.util.List;
 
