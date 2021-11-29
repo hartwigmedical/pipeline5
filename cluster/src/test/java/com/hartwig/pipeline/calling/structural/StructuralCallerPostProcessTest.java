@@ -53,7 +53,7 @@ public class StructuralCallerPostProcessTest extends StageTest<StructuralCallerP
     @Override
     protected List<String> expectedCommands() {
         return ImmutableList.of(
-                "java -Xmx24G -cp /opt/tools/gripss/1.11/gripss.jar com.hartwig.hmftools.gripss.GripssApplicationKt -ref_genome "
+                "java -Xmx24G -cp /opt/tools/gripss/1.12/gripss.jar com.hartwig.hmftools.gripsskt.GripssApplicationKt -ref_genome "
                         + "/opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
                         + "-breakpoint_hotspot /opt/resources/fusions/37/known_fusions.37.bedpe "
                         + "-breakend_pon /opt/resources/gridss_pon/37/gridss_pon_single_breakend.37.bed "
@@ -61,7 +61,7 @@ public class StructuralCallerPostProcessTest extends StageTest<StructuralCallerP
                         + "-reference reference -tumor tumor "
                         + "-input_vcf /data/input/tumor.gridss.unfiltered.vcf.gz -output_vcf /data/output/" + TUMOR_GRIPSS_SOMATIC_VCF_GZ
                         + " -paired_normal_tumor_ordinals",
-                "java -Xmx24G -cp /opt/tools/gripss/1.11/gripss.jar com.hartwig.hmftools.gripss.GripssHardFilterApplicationKt -input_vcf /data/output/"
+                "java -Xmx24G -cp /opt/tools/gripss/1.12/gripss.jar com.hartwig.hmftools.gripsskt.GripssHardFilterApplicationKt -input_vcf /data/output/"
                         + TUMOR_GRIPSS_SOMATIC_VCF_GZ + " -output_vcf /data/output/" + TUMOR_GRIPSS_SOMATIC_FILTERED_VCF_GZ);
     }
 

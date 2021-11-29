@@ -32,7 +32,7 @@ class LinxCommand extends JavaJarCommand {
                         replicationsOriginsFile,
                         "-viral_hosts_file",
                         viralHostsFile,
-                        "-gene_transcripts_dir",
+                        "-ensembl_data_dir",
                         geneTranscriptsDirectory,
                         "-check_fusions",
                         "-known_fusion_file",

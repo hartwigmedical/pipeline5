@@ -6,7 +6,7 @@ public class GripssSoftFilterCommand extends GripssCommand {
 
     public GripssSoftFilterCommand(final ResourceFiles resourceFiles, final String tumorSample, final String refSample,
             final String inputVcf, final String outputVcf) {
-        super("com.hartwig.hmftools.gripss.GripssApplicationKt",
+        super("com.hartwig.hmftools.gripsskt.GripssApplicationKt",
                 "-ref_genome",
                 resourceFiles.refGenomeFile(),
                 "-breakpoint_hotspot",

@@ -71,14 +71,15 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
 
     @Override
     protected List<String> expectedCommands() {
-        return Collections.singletonList("java -Xmx12G -jar /opt/tools/purple/3.1/purple.jar "
+        return Collections.singletonList("java -Xmx12G -jar /opt/tools/purple/3.2/purple.jar "
                 + "-reference reference -germline_vcf /data/input/tumor.germline.vcf.gz -germline_hotspots /opt/resources/sage/37/KnownHotspots.germline.37.vcf.gz "
                 + "-tumor tumor -output_dir /data/output -amber /data/input/results -cobalt /data/input/results "
                 + "-gc_profile /opt/resources/gc_profiles/37/GC_profile.1000bp.37.cnp "
                 + "-somatic_vcf /data/input/tumor.somatic.vcf.gz -structural_vcf /data/input/tumor.gripss.filtered.vcf.gz "
                 + "-sv_recovery_vcf /data/input/tumor.gripss.full.vcf.gz -circos /opt/tools/circos/0.69.6/bin/circos "
                 + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
-                + "-driver_catalog -somatic_hotspots /opt/resources/sage/37/KnownHotspots.somatic.37.vcf.gz "
+                + "-ensembl_data_dir /opt/resources/ensembl_data_cache/37/ "
+                + "-run_drivers -somatic_hotspots /opt/resources/sage/37/KnownHotspots.somatic.37.vcf.gz "
                 + "-driver_gene_panel /opt/resources/gene_panel/37/DriverGenePanel.37.tsv "
                 + "-threads $(grep -c '^processor' /proc/cpuinfo)");
     }

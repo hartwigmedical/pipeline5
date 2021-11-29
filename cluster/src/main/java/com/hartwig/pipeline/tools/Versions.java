@@ -20,13 +20,13 @@ public interface Versions {
     String AMBER = "3.4";
     String COBALT = "1.11";
     String HEALTH_CHECKER = "3.2";
-    String PURPLE = "3.1";
+    String PURPLE = "3.2";
     String CIRCOS = "0.69.6";
     String GRIDSS = "2.11.1";
     String VIRUSBREAKEND_GRIDSS = "2.11.1";
     String VIRUS_INTERPRETER = "1.1";
-    String GRIPSS = "1.11";
-    String LINX = "1.16";
+    String GRIPSS = "1.12";
+    String LINX = "1.17";
     String CHORD = "2.00_1.14";
     String SAMTOOLS = "1.10";
     String BAMCOMP = "1.3";
