@@ -254,7 +254,7 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
                 .name(NAMESPACE)
                 .startupCommand(bash)
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(2, 18))
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 18))
                 .workingDiskSpaceGb(375)
                 .build();
     }
