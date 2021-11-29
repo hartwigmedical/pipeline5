@@ -29,13 +29,12 @@ import com.hartwig.pipeline.storage.RuntimeBucket;
 
 public class RnaIsofox implements BatchOperation {
 
-    private static final String ISOFOX = "isofox";
+    public static final String ISOFOX = "isofox";
+    public static final String ISOFOX_LOCATION = String.format("%s/%s", RNA_RESOURCES, ISOFOX);
+    public static final String ISOFOX_JAR = "isofox.jar";
+    public static final String RNA_BAM_FILE_ID = ".sorted.dups.bam";
+    public static final String RNA_BAM_INDEX_FILE_ID = ".sorted.dups.bam.bai";
 
-    private static final String ISOFOX_LOCATION = String.format("%s/%s", RNA_RESOURCES, ISOFOX);
-
-    private static final String ISOFOX_JAR = "isofox.jar";
-    private static final String RNA_BAM_FILE_ID = ".sorted.dups.bam";
-    private static final String RNA_BAM_INDEX_FILE_ID = ".sorted.dups.bam.bai";
     private static final String KNOWN_FUSIONS_FILE = "known_fusion_data.csv";
     private static final String EXP_COUNTS_READ_76 = "read_76_exp_counts.csv";
     private static final String EXP_COUNTS_READ_151 = "read_151_exp_counts.csv";

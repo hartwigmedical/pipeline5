@@ -10,6 +10,7 @@ import java.io.File;
 
 import com.hartwig.batch.BatchOperation;
 import com.hartwig.batch.OperationDescriptor;
+import com.hartwig.batch.api.RemoteLocationsApi;
 import com.hartwig.batch.input.InputBundle;
 import com.hartwig.batch.input.InputFileDescriptor;
 import com.hartwig.pipeline.ResultsDirectory;
@@ -18,6 +19,7 @@ import com.hartwig.pipeline.calling.command.SamtoolsCommand;
 import com.hartwig.pipeline.calling.structural.gridss.stage.Driver;
 import com.hartwig.pipeline.calling.structural.gridss.stage.GridssAnnotation;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
+import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.OutputFile;
 import com.hartwig.pipeline.execution.vm.OutputUpload;
 import com.hartwig.pipeline.execution.vm.RuntimeFiles;
@@ -44,6 +46,14 @@ public class GridssRerun implements BatchOperation {
         final String referenceSampleName = inputs.get("reference_sample").inputValue();
         final InputFileDescriptor remoteTumorFile = inputs.get("tumor_cram");
         final InputFileDescriptor remoteReferenceFile = inputs.get("ref_cram");
+
+        final InputFileDescriptor runData = inputs.get();
+        final RemoteLocationsApi locationsApi = new RemoteLocationsApi(runData.billedProject(), tumorSampleName);
+
+        InputDownload tumorBamDownload = new InputDownload(locationsApi.getTumorAlignment());
+        InputDownload tumorBamIndexDownload = new InputDownload(locationsApi.getTumorAlignmentIndex());
+        InputDownload referenceBamDownload = new InputDownload(locationsApi.getReferenceAlignment());
+        InputDownload referenceBamIndexDownload = new InputDownload(locationsApi.getReferenceAlignmentIndex());
 
         final InputFileDescriptor remoteTumorIndex = remoteTumorFile.index();
         final InputFileDescriptor remoteReferenceIndex = remoteReferenceFile.index();

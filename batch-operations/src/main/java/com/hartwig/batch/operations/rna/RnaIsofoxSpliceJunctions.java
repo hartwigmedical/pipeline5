@@ -6,6 +6,10 @@ import static com.hartwig.batch.operations.rna.RnaCommon.MAX_EXPECTED_BAM_SIZE_G
 import static com.hartwig.batch.operations.rna.RnaCommon.RNA_RESOURCES;
 import static com.hartwig.batch.operations.rna.RnaCommon.getRnaCohortDirectory;
 import static com.hartwig.batch.operations.rna.RnaIsofox.FUNC_TRANSCRIPT_COUNTS;
+import static com.hartwig.batch.operations.rna.RnaIsofox.ISOFOX_JAR;
+import static com.hartwig.batch.operations.rna.RnaIsofox.ISOFOX_LOCATION;
+import static com.hartwig.batch.operations.rna.RnaIsofox.RNA_BAM_FILE_ID;
+import static com.hartwig.batch.operations.rna.RnaIsofox.RNA_BAM_INDEX_FILE_ID;
 import static com.hartwig.pipeline.resource.RefGenomeVersion.V37;
 import static com.hartwig.pipeline.resource.ResourceFilesFactory.buildResourceFiles;
 
@@ -31,14 +35,6 @@ import com.hartwig.pipeline.tools.Versions;
 
 public class RnaIsofoxSpliceJunctions implements BatchOperation
 {
-    private static final String ISOFOX = "isofox";
-
-    private static final String ISOFOX_LOCATION = String.format("%s/%s", RNA_RESOURCES, ISOFOX);
-
-    private static final String ISOFOX_JAR = "isofox.jar";
-    private static final String RNA_BAM_FILE_ID = ".sorted.dups.bam";
-    private static final String RNA_BAM_INDEX_FILE_ID = ".sorted.dups.bam.bai";
-
     private static final int COL_SAMPLE_ID = 0;
     private static final int COL_GENE_IDS = 1;
 

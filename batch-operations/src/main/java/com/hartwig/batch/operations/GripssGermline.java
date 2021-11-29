@@ -2,6 +2,8 @@ package com.hartwig.batch.operations;
 
 import static java.lang.String.format;
 
+import static com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile.custom;
+
 import java.util.StringJoiner;
 
 import com.hartwig.batch.BatchOperation;
@@ -27,8 +29,8 @@ public class GripssGermline implements BatchOperation {
 
     private static String BATCH_TOOLS = "gs://hmf-crunch-resources";
     private static String GRIPSS_DIR = "gripss";
-    private static String GRIPSS_JAR = "gripss.jar";
-    private static final String MAX_HEAP = "16G";
+    private static String GRIPSS_JAR = "gripss-kt.jar";
+    private static final String MAX_HEAP = "30G";
 
     @Override
     public VirtualMachineJobDefinition execute(final InputBundle inputs, final RuntimeBucket runtimeBucket,
@@ -59,10 +61,13 @@ public class GripssGermline implements BatchOperation {
         gripssArgs.add(String.format("-breakend_pon %s", resourceFiles.gridssBreakendPon()));
         gripssArgs.add(String.format("-breakpoint_pon %s", resourceFiles.gridssBreakpointPon()));
         gripssArgs.add(String.format("-pon_distance %d", 4));
+        gripssArgs.add(String.format("-min_qual_break_end %d", 400));
+        gripssArgs.add(String.format("-min_qual_rescue_mobile_element_insertion %d", 400));
+        gripssArgs.add(String.format("-min_qual_break_point %d", 250));
         gripssArgs.add(String.format("-input_vcf %s", inputVcf));
         gripssArgs.add(String.format("-output_vcf %s", outputVcf1));
 
-        startupScript.addCommand(() -> format("java -Xmx%s -cp %s/%s com.hartwig.hmftools.gripss.GripssApplicationKt %s",
+        startupScript.addCommand(() -> format("java -Xmx%s -cp %s/%s com.hartwig.hmftools.gripsskt.GripssApplicationKt %s",
                 MAX_HEAP, VmDirectories.TOOLS, GRIPSS_JAR, gripssArgs.toString()));
 
         final String outputVcf2 = String.format("%s/%s.gripss.filtered.vcf.gz", VmDirectories.OUTPUT, referenceId);
@@ -71,7 +76,7 @@ public class GripssGermline implements BatchOperation {
         gripss2Args.add(String.format("-input_vcf %s", outputVcf1));
         gripss2Args.add(String.format("-output_vcf %s", outputVcf2));
 
-        startupScript.addCommand(() -> format("java -Xmx%s -cp %s/%s com.hartwig.hmftools.gripss.GripssHardFilterApplicationKt %s",
+        startupScript.addCommand(() -> format("java -Xmx%s -cp %s/%s com.hartwig.hmftools.gripsskt.GripssHardFilterApplicationKt %s",
                 MAX_HEAP, VmDirectories.TOOLS, GRIPSS_JAR, gripss2Args.toString()));
 
         // upload output
@@ -80,6 +85,7 @@ public class GripssGermline implements BatchOperation {
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("gripss")
                 .startupCommand(startupScript)
+                .performanceProfile(custom(8, 30))
                 .namespacedResults(ResultsDirectory.defaultDirectory())
                 .build();
     }
