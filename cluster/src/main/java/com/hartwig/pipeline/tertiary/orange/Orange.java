@@ -175,7 +175,7 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
                 new JavaJarCommand("orange",
                         Versions.ORANGE,
                         "orange.jar",
-                        "8G",
+                        "16G",
                         List.of("-output_dir",
                                 VmDirectories.OUTPUT,
                                 "-doid_json",
@@ -256,7 +256,7 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
                 .name(NAMESPACE)
                 .startupCommand(bash)
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(2, 4))
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 18))
                 .workingDiskSpaceGb(375)
                 .build();
     }
