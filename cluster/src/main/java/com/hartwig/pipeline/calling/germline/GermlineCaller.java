@@ -41,14 +41,14 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
 
     public static final String NAMESPACE = "germline_caller";
     public static final String TOOL_HEAP = "29G";
-    private static final Map<String, String> SNP_FILTER_EXPRESSION =
-            ImmutableMap.<String, String>builder().put("SNP_LowQualityDepth", "QD < 2.0")
-                    .put("SNP_MappingQuality", "MQ < 40.0")
-                    .put("SNP_StrandBias", "FS > 60.0")
-                    .put("SNP_HaplotypeScoreHigh", "HaplotypeScore > 13.0")
-                    .put("SNP_MQRankSumLow", "MQRankSum < -12.5")
-                    .put("SNP_ReadPosRankSumLow", "ReadPosRankSum < -8.0")
-                    .build();
+    private static final Map<String, String> SNP_FILTER_EXPRESSION = ImmutableMap.<String, String>builder()
+            .put("SNP_LowQualityDepth", "QD < 2.0")
+            .put("SNP_MappingQuality", "MQ < 40.0")
+            .put("SNP_StrandBias", "FS > 60.0")
+            .put("SNP_HaplotypeScoreHigh", "HaplotypeScore > 13.0")
+            .put("SNP_MQRankSumLow", "MQRankSum < -12.5")
+            .put("SNP_ReadPosRankSumLow", "ReadPosRankSum < -8.0")
+            .build();
     private static final Map<String, String> INDEL_FILTER_EXPRESSION = ImmutableMap.of("INDEL_LowQualityDepth",
             "QD < 2.0",
             "INDEL_StrandBias",
@@ -97,8 +97,8 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
 
         SubStageInputOutput indelFilterOutput =
                 new SelectVariants("indels", Lists.newArrayList("INDEL", "MIXED"), referenceFasta).andThen(new VariantFiltration("indels",
-                        INDEL_FILTER_EXPRESSION,
-                        referenceFasta))
+                                INDEL_FILTER_EXPRESSION,
+                                referenceFasta))
                         .apply(SubStageInputOutput.of(metadata.sampleName(), callerOutput.outputFile(), Collections.emptyList()));
 
         SubStageInputOutput combinedFilters = snpFilterOutput.combine(indelFilterOutput);
@@ -107,7 +107,8 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
                 new CombineFilteredVariants(indelFilterOutput.outputFile().path(), referenceFasta).andThen(new SnpEff(resourceFiles))
                         .apply(combinedFilters);
 
-        return ImmutableList.<BashCommand>builder().add(new UnzipToDirectoryCommand(VmDirectories.RESOURCES, resourceFiles.snpEffDb()))
+        return ImmutableList.<BashCommand>builder()
+                .add(new UnzipToDirectoryCommand(VmDirectories.RESOURCES, resourceFiles.snpEffDb()))
                 .addAll(finalOutput.bash())
                 .add(new MvCommand(finalOutput.outputFile().path(), outputFile.path()))
                 .add(new MvCommand(finalOutput.outputFile().path() + ".tbi", outputFile.path() + ".tbi"))
@@ -161,6 +162,9 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
                                 GermlineCallerOutput.outputFile(metadata.sampleName()).fileName())));
         return GermlineCallerOutput.builder()
                 .status(PipelineStatus.PERSISTED)
+                .addDatatypes(new AddDatatype(DataType.GERMLINE_VARIANTS,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.from(metadata), namespace(), outputFile.fileName())))
                 .maybeGermlineVcfLocation(vcfLocation)
                 .maybeGermlineVcfIndexLocation(vcfLocation.transform(FileTypes::tabixIndex))
                 .build();
