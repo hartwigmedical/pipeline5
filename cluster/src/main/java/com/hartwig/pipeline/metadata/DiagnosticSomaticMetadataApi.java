@@ -89,10 +89,10 @@ public class DiagnosticSomaticMetadataApi implements SomaticMetadataApi {
         if (run.getBucket() != null) {
             LOGGER.info("Recording pipeline completion with status [{}]", pipelineState.status());
             try {
+                ApiRunStatus.finish(runApi, run, pipelineState.status());
                 if (pipelineState.status() != PipelineStatus.FAILED) {
                     stagedOutputPublisher.publish(pipelineState, metadata);
                 }
-                ApiRunStatus.finish(runApi, run, pipelineState.status());
             } catch (Exception e) {
                 ApiRunStatus.finish(runApi, run, PipelineStatus.FAILED);
                 throw e;

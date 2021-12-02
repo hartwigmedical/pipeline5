@@ -85,9 +85,9 @@ public class ResearchMetadataApi implements SomaticMetadataApi {
 
     @Override
     public void complete(final PipelineState state, final SomaticRunMetadata metadata) {
-        stagedOutput.publish(state, metadata);
         if (run.isPresent()) {
             ApiRunStatus.finish(runApi, run.get(), state.status());
         }
+        stagedOutput.publish(state, metadata);
     }
 }
