@@ -42,8 +42,8 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
     @Override
     protected Stage<PurpleOutput, SomaticRunMetadata> createVictim() {
         return new Purple(TestInputs.REF_GENOME_37_RESOURCE_FILES,
-                TestInputs.sageSomaticOutput(),
-                TestInputs.sageGermlineOutput(),
+                TestInputs.paveSomaticOutput(),
+                TestInputs.paveGermlineOutput(),
                 TestInputs.structuralCallerPostProcessOutput(),
                 TestInputs.amberOutput(),
                 TestInputs.cobaltOutput(),
@@ -59,8 +59,8 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
 
     @Override
     protected List<String> expectedInputs() {
-        return ImmutableList.of(input(expectedRuntimeBucketName() + "/sage_somatic/results/tumor.somatic.vcf.gz", "tumor.somatic.vcf.gz"),
-                input(expectedRuntimeBucketName() + "/sage_germline/results/tumor.germline.vcf.gz", "tumor.germline.vcf.gz"),
+        return ImmutableList.of(input(expectedRuntimeBucketName() + "/pave_somatic/results/tumor.somatic.vcf.gz", "tumor.somatic.vcf.gz"),
+                input(expectedRuntimeBucketName() + "/pave_germline/results/tumor.germline.vcf.gz", "tumor.germline.vcf.gz"),
                 input(expectedRuntimeBucketName() + "/gripss/results/tumor.gripss.filtered.vcf.gz", "tumor.gripss.filtered.vcf.gz"),
                 input(expectedRuntimeBucketName() + "/gripss/results/tumor.gripss.filtered.vcf.gz.tbi", "tumor.gripss.filtered.vcf.gz.tbi"),
                 input(expectedRuntimeBucketName() + "/gripss/results/tumor.gripss.full.vcf.gz", "tumor.gripss.full.vcf.gz"),
@@ -87,8 +87,8 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
     @Test
     public void shallowModeUsesLowDepthSettings() {
         Purple victim = new Purple(new RefGenome37ResourceFiles(),
-                TestInputs.sageSomaticOutput(),
-                TestInputs.sageGermlineOutput(),
+                TestInputs.paveSomaticOutput(),
+                TestInputs.paveGermlineOutput(),
                 TestInputs.structuralCallerPostProcessOutput(),
                 TestInputs.amberOutput(),
                 TestInputs.cobaltOutput(),

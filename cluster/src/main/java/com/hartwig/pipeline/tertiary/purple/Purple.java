@@ -32,6 +32,7 @@ import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.amber.AmberOutput;
 import com.hartwig.pipeline.tertiary.cobalt.CobaltOutput;
+import com.hartwig.pipeline.tertiary.pave.PaveOutput;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -63,7 +64,7 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
     private final boolean shallow;
     private final boolean sageGermlineEnabled;
 
-    public Purple(final ResourceFiles resourceFiles, SageOutput somaticCallerOutput, SageOutput germlineCallerOutput,
+    public Purple(final ResourceFiles resourceFiles, PaveOutput somaticCallerOutput, PaveOutput germlineCallerOutput,
             StructuralCallerPostProcessOutput structuralCallerOutput, AmberOutput amberOutput, CobaltOutput cobaltOutput,
             final PersistedDataset persistedDataset, final boolean shallow, final boolean sageGermlineEnabled) {
         this.resourceFiles = resourceFiles;

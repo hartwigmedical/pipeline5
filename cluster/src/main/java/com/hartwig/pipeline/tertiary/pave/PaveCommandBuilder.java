@@ -39,7 +39,7 @@ public class PaveCommandBuilder
                 "-driver_gene_panel",
                 resourceFiles.driverGenePanel());
 
-        return new JavaJarCommand("pave", Versions.PURPLE, "pave.jar", "8G", arguments);
+        return new JavaJarCommand("pave", Versions.PAVE, "pave.jar", "8G", arguments);
     }
 }
 

@@ -39,6 +39,8 @@ import com.hartwig.pipeline.tertiary.linx.Linx;
 import com.hartwig.pipeline.tertiary.linx.LinxOutput;
 import com.hartwig.pipeline.tertiary.orange.Orange;
 import com.hartwig.pipeline.tertiary.orange.OrangeOutput;
+import com.hartwig.pipeline.tertiary.pave.PaveOutput;
+import com.hartwig.pipeline.tertiary.pave.PaveSomatic;
 import com.hartwig.pipeline.tertiary.peach.Peach;
 import com.hartwig.pipeline.tertiary.peach.PeachOutput;
 import com.hartwig.pipeline.tertiary.protect.Protect;
@@ -106,13 +108,24 @@ public class SomaticPipeline {
                         new SageSomaticCaller(pair, resourceFiles, persistedDataset, arguments.shallow())));
                 Future<SageOutput> sageGermlineOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                         new SageGermlineCaller(pair, resourceFiles, persistedDataset)));
+
+                SageOutput sageSomaticOutput = pipelineResults.add(state.add(sageSomaticOutputFuture.get()));
+                SageOutput sageGermlineOutput = pipelineResults.add(state.add(sageGermlineOutputFuture.get()));
+
+                Future<PaveOutput> paveSomaticOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
+                        new PaveSomatic(resourceFiles, sageSomaticOutput, persistedDataset)));
+
+                Future<PaveOutput> paveGermlineOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
+                        new PaveSomatic(resourceFiles, sageGermlineOutput, persistedDataset)));
+
+                PaveOutput paveSomaticOutput = pipelineResults.add(state.add(paveSomaticOutputFuture.get()));
+                PaveOutput paveGermlineOutput = pipelineResults.add(state.add(paveGermlineOutputFuture.get()));
+
                 Future<StructuralCallerOutput> structuralCallerOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                         new StructuralCaller(pair, resourceFiles, persistedDataset)));
 
                 AmberOutput amberOutput = pipelineResults.add(state.add(amberOutputFuture.get()));
                 CobaltOutput cobaltOutput = pipelineResults.add(state.add(cobaltOutputFuture.get()));
-                SageOutput sageSomaticOutput = pipelineResults.add(state.add(sageSomaticOutputFuture.get()));
-                SageOutput sageGermlineOutput = pipelineResults.add(state.add(sageGermlineOutputFuture.get()));
 
                 StructuralCallerOutput structuralCallerOutput = pipelineResults.add(state.add(structuralCallerOutputFuture.get()));
                 if (state.shouldProceed()) {
@@ -126,8 +139,8 @@ public class SomaticPipeline {
                         Future<PurpleOutput> purpleOutputFuture =
                                 executorService.submit(() -> pipelineResults.add(state.add(stageRunner.run(metadata,
                                         new Purple(resourceFiles,
-                                                sageSomaticOutput,
-                                                sageGermlineOutput,
+                                                paveSomaticOutput,
+                                                paveGermlineOutput,
                                                 structuralCallerPostProcessOutput,
                                                 amberOutput,
                                                 cobaltOutput,

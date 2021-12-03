@@ -2,6 +2,8 @@ package com.hartwig.pipeline.testsupport;
 
 import static java.lang.String.format;
 
+import static com.hartwig.pipeline.tertiary.pave.Pave.PAVE_FILE_ID;
+
 import java.util.List;
 
 import com.hartwig.pipeline.alignment.Aligner;
@@ -10,8 +12,10 @@ import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.calling.germline.GermlineCaller;
 import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
 import com.hartwig.pipeline.calling.sage.SageGermlineCaller;
+import com.hartwig.pipeline.calling.sage.SageGermlinePostProcess;
 import com.hartwig.pipeline.calling.sage.SageOutput;
 import com.hartwig.pipeline.calling.sage.SageSomaticCaller;
+import com.hartwig.pipeline.calling.sage.SageSomaticPostProcess;
 import com.hartwig.pipeline.calling.structural.StructuralCaller;
 import com.hartwig.pipeline.calling.structural.StructuralCallerOutput;
 import com.hartwig.pipeline.calling.structural.StructuralCallerPostProcess;
@@ -45,6 +49,10 @@ import com.hartwig.pipeline.tertiary.linx.Linx;
 import com.hartwig.pipeline.tertiary.linx.LinxOutput;
 import com.hartwig.pipeline.tertiary.linx.LinxOutputLocations;
 import com.hartwig.pipeline.tertiary.orange.OrangeOutput;
+import com.hartwig.pipeline.tertiary.pave.Pave;
+import com.hartwig.pipeline.tertiary.pave.PaveGermline;
+import com.hartwig.pipeline.tertiary.pave.PaveOutput;
+import com.hartwig.pipeline.tertiary.pave.PaveSomatic;
 import com.hartwig.pipeline.tertiary.peach.Peach;
 import com.hartwig.pipeline.tertiary.peach.PeachOutput;
 import com.hartwig.pipeline.tertiary.protect.Protect;
@@ -214,6 +222,26 @@ public class TestInputs {
                         RESULTS + REFERENCE_SAMPLE + SageGermlineCaller.SAGE_BQR_PNG))
                 .maybeSomaticTumorSampleBqrPlot(gsLocation(somaticBucket(SageSomaticCaller.NAMESPACE),
                         RESULTS + TUMOR_SAMPLE + SageGermlineCaller.SAGE_BQR_PNG))
+                .build();
+    }
+
+    public static PaveOutput paveSomaticOutput() {
+        return PaveOutput.builder()
+                .status(PipelineStatus.SUCCESS)
+                .maybeFinalVcf(gsLocation(somaticBucket(PaveSomatic.NAMESPACE),
+                        RESULTS + TUMOR_SAMPLE +
+                                ".somatic." + // String.format(".%s.%s.", SageSomaticPostProcess.SAGE_SOMATIC_FILTERED, PAVE_FILE_ID) +
+                                FileTypes.GZIPPED_VCF))
+                .build();
+    }
+
+    public static PaveOutput paveGermlineOutput() {
+        return PaveOutput.builder()
+                .status(PipelineStatus.SUCCESS)
+                .maybeFinalVcf(gsLocation(somaticBucket(PaveGermline.NAMESPACE),
+                        RESULTS + TUMOR_SAMPLE +
+                                ".germline." + // String.format(".%s.%s.", SageGermlinePostProcess.SAGE_GERMLINE_FILTERED, PAVE_FILE_ID) +
+                                FileTypes.GZIPPED_VCF))
                 .build();
     }
 

@@ -9,6 +9,8 @@ import static com.hartwig.pipeline.testsupport.TestInputs.germlineCallerOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.healthCheckerOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.linxOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.orangeOutput;
+import static com.hartwig.pipeline.testsupport.TestInputs.paveGermlineOutput;
+import static com.hartwig.pipeline.testsupport.TestInputs.paveSomaticOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.peachOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.protectOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.purpleOutput;
@@ -41,6 +43,7 @@ import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
 import com.hartwig.pipeline.calling.sage.SageOutput;
 import com.hartwig.pipeline.calling.sage.SageSomaticCaller;
 import com.hartwig.pipeline.calling.structural.StructuralCaller;
+import com.hartwig.pipeline.calling.structural.StructuralCallerOutput;
 import com.hartwig.pipeline.calling.structural.StructuralCallerPostProcessOutput;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
@@ -52,6 +55,8 @@ import com.hartwig.pipeline.report.PipelineResultsProvider;
 import com.hartwig.pipeline.reruns.NoopPersistedDataset;
 import com.hartwig.pipeline.stages.StageRunner;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthCheckOutput;
+import com.hartwig.pipeline.tertiary.pave.PaveOutput;
+import com.hartwig.pipeline.tertiary.pave.PaveSomatic;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
@@ -103,6 +108,8 @@ public class SomaticPipelineTest {
                 amberOutput(),
                 sageSomaticOutput(),
                 sageGermlineOutput(),
+                paveSomaticOutput(),
+                paveGermlineOutput(),
                 structuralCallerOutput(),
                 structuralCallerPostProcessOutput(),
                 purpleOutput(),
@@ -117,24 +124,60 @@ public class SomaticPipelineTest {
                 orangeOutput());
     }
 
+    /*
     @Test
-    public void doesNotRunPurpleIfAnyCallersFail() {
+    public void doesNotRunPurpleIfSomaticCallerFails() {
         bothMetricsAvailable();
         bothFlagstatsAvailable();
         SageOutput failSomatic = SageOutput.builder(SageSomaticCaller.NAMESPACE).status(PipelineStatus.FAILED).build();
-        when(stageRunner.run(eq(defaultSomaticRunMetadata()), any())).thenReturn(amberOutput())
+        PaveOutput failSomaticPave = PaveOutput.builder().status(PipelineStatus.FAILED).build();
+        when(stageRunner.run(eq(defaultSomaticRunMetadata()), any()))
+                .thenReturn(amberOutput())
                 .thenReturn(cobaltOutput())
                 .thenReturn(failSomatic)
+                .thenReturn(failSomaticPave)
                 .thenReturn(sageGermlineOutput())
+                .thenReturn(paveGermlineOutput())
                 .thenReturn(structuralCallerOutput());
         PipelineState state = victim.run(TestInputs.defaultPair());
         assertThat(state.stageOutputs()).containsExactlyInAnyOrder(cobaltOutput(),
                 amberOutput(),
                 failSomatic,
+                failSomaticPave,
                 sageGermlineOutput(),
+                paveGermlineOutput(),
                 structuralCallerOutput());
         assertThat(state.status()).isEqualTo(PipelineStatus.FAILED);
     }
+
+    @Test
+    public void doesNotRunPurpleIfSvCallerFails() {
+        bothMetricsAvailable();
+        bothFlagstatsAvailable();
+        StructuralCallerOutput failSvOutput = StructuralCallerOutput.builder().status(PipelineStatus.FAILED).build();
+        StructuralCallerPostProcessOutput failGripss = StructuralCallerPostProcessOutput.builder().status(PipelineStatus.FAILED).build();
+        when(stageRunner.run(eq(defaultSomaticRunMetadata()), any()))
+                .thenReturn(amberOutput())
+                .thenReturn(cobaltOutput())
+                .thenReturn(failSvOutput)
+                .thenReturn(failGripss)
+                .thenReturn(sageSomaticOutput())
+                .thenReturn(sageGermlineOutput())
+                .thenReturn(paveSomaticOutput())
+                .thenReturn(paveGermlineOutput());
+        PipelineState state = victim.run(TestInputs.defaultPair());
+        assertThat(state.stageOutputs()).containsExactlyInAnyOrder(
+                amberOutput(),
+                cobaltOutput(),
+                failSvOutput,
+                failGripss,
+                sageSomaticOutput(),
+                sageGermlineOutput(),
+                paveSomaticOutput(),
+                paveGermlineOutput());
+        assertThat(state.status()).isEqualTo(PipelineStatus.FAILED);
+    }
+    */
 
     @Test
     public void doesNotRunPurpleWhenGripssFails() {
@@ -145,6 +188,8 @@ public class SomaticPipelineTest {
                 .thenReturn(cobaltOutput())
                 .thenReturn(sageSomaticOutput())
                 .thenReturn(sageGermlineOutput())
+                .thenReturn(paveSomaticOutput())
+                .thenReturn(paveGermlineOutput())
                 .thenReturn(structuralCallerOutput())
                 .thenReturn(failGripss);
         PipelineState state = victim.run(TestInputs.defaultPair());
@@ -152,6 +197,8 @@ public class SomaticPipelineTest {
                 amberOutput(),
                 sageSomaticOutput(),
                 sageGermlineOutput(),
+                paveSomaticOutput(),
+                paveGermlineOutput(),
                 structuralCallerOutput(),
                 failGripss);
         assertThat(state.status()).isEqualTo(PipelineStatus.FAILED);
@@ -166,6 +213,8 @@ public class SomaticPipelineTest {
                 .thenReturn(cobaltOutput())
                 .thenReturn(sageSomaticOutput())
                 .thenReturn(sageGermlineOutput())
+                .thenReturn(paveSomaticOutput())
+                .thenReturn(paveGermlineOutput())
                 .thenReturn(structuralCallerOutput())
                 .thenReturn(structuralCallerPostProcessOutput())
                 .thenReturn(failPurple);
@@ -174,6 +223,8 @@ public class SomaticPipelineTest {
                 amberOutput(),
                 sageSomaticOutput(),
                 sageGermlineOutput(),
+                paveSomaticOutput(),
+                paveGermlineOutput(),
                 structuralCallerOutput(),
                 structuralCallerPostProcessOutput(),
                 failPurple);
@@ -189,6 +240,8 @@ public class SomaticPipelineTest {
                 .thenReturn(cobaltOutput())
                 .thenReturn(sageSomaticOutput())
                 .thenReturn(sageGermlineOutput())
+                .thenReturn(paveSomaticOutput())
+                .thenReturn(paveGermlineOutput())
                 .thenReturn(structuralCallerOutput())
                 .thenReturn(structuralCallerPostProcessOutput())
                 .thenReturn(purpleOutput())
@@ -223,6 +276,8 @@ public class SomaticPipelineTest {
                 .thenReturn(cobaltOutput())
                 .thenReturn(sageSomaticOutput())
                 .thenReturn(sageGermlineOutput())
+                .thenReturn(paveSomaticOutput())
+                .thenReturn(paveGermlineOutput())
                 .thenReturn(structuralCallerOutput())
                 .thenReturn(structuralCallerPostProcessOutput())
                 .thenReturn(purpleOutput())

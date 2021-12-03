@@ -20,7 +20,9 @@ import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
+import com.hartwig.pipeline.report.ReportComponent;
 import com.hartwig.pipeline.report.RunLogComponent;
+import com.hartwig.pipeline.report.ZippedVcfAndIndexComponent;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
@@ -30,26 +32,26 @@ import com.hartwig.pipeline.storage.RuntimeBucket;
 
 import org.jetbrains.annotations.NotNull;
 
-public class Pave implements Stage<PaveOutput, SomaticRunMetadata> {
+public abstract class Pave implements Stage<PaveOutput, SomaticRunMetadata> {
 
     public static final String NAMESPACE = "pave";
-    public static final String PAVE_GERMLINE_VCF = ".pave.germline.vcf.gz";
-    public static final String PAVE_SOMATIC_VCF = ".pave.somatic.vcf.gz";
+    public static final String PAVE_FILE_ID = "pave";
+    // public static final String PAVE_GERMLINE_VCF = ".pave.germline.vcf.gz";
 
     private final ResourceFiles resourceFiles;
-    private final InputDownload somaticVcfDownload;
-    private final InputDownload germlineVcfDownload;
+    private final InputDownload vcfDownload;
     private final PersistedDataset persistedDataset;
-    private final boolean sageGermlineEnabled;
+    private final DataType vcfDatatype;
 
-    public Pave(final ResourceFiles resourceFiles, SageOutput somaticCallerOutput, SageOutput germlineCallerOutput,
-            final PersistedDataset persistedDataset, final boolean sageGermlineEnabled) {
+    public Pave(final ResourceFiles resourceFiles, SageOutput sageOutput,
+            final PersistedDataset persistedDataset, final DataType vcfDatatype) {
         this.resourceFiles = resourceFiles;
-        this.somaticVcfDownload = new InputDownload(somaticCallerOutput.finalVcf());
-        this.germlineVcfDownload = new InputDownload(germlineCallerOutput.maybeFinalVcf().orElse(GoogleStorageLocation.empty()));
+        this.vcfDownload = new InputDownload(sageOutput.finalVcf());
         this.persistedDataset = persistedDataset;
-        this.sageGermlineEnabled = sageGermlineEnabled;
+        this.vcfDatatype = vcfDatatype;
     }
+
+    protected abstract String outputFile(final SomaticRunMetadata metadata);
 
     @Override
     public String namespace() {
@@ -62,22 +64,15 @@ public class Pave implements Stage<PaveOutput, SomaticRunMetadata> {
         // build
         PaveCommandBuilder builder = new PaveCommandBuilder(resourceFiles,
                 metadata.tumor().sampleName(),
-                somaticVcfDownload.getLocalTargetPath());
-
-        //if (sageGermlineEnabled) {
-        //    builder.addGermline(germlineVcfDownload.getLocalTargetPath());
-        // }
+                vcfDownload.getLocalTargetPath());
 
         return Collections.singletonList(builder.build());
     }
 
     @Override
     public List<BashCommand> inputs() {
-        List<BashCommand> inputs = new ArrayList<>(ImmutableList.of(somaticVcfDownload));
+        List<BashCommand> inputs = new ArrayList<>(ImmutableList.of(vcfDownload));
 
-        if (sageGermlineEnabled) {
-            inputs.add(germlineVcfDownload);
-        }
         return inputs;
     }
 
@@ -103,55 +98,40 @@ public class Pave implements Stage<PaveOutput, SomaticRunMetadata> {
                 .orElse(GoogleStorageLocation.of(metadata.bucket(), PersistedLocations.blobForSet(metadata.set(), namespace(), s)));
     }
 
-    private static String somaticVcf(final SomaticRunMetadata metadata) {
-        return metadata.tumor().sampleName() + PAVE_SOMATIC_VCF;
-    }
-
-    private static String germlineVcf(final SomaticRunMetadata metadata) {
-        return metadata.tumor().sampleName() + PAVE_GERMLINE_VCF;
-    }
-
     @Override
     public PaveOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
             final ResultsDirectory resultsDirectory) {
 
+        final String outputFile = outputFile(metadata);
+
         ImmutablePaveOutput.Builder builder = PaveOutput.builder()
                 .status(jobStatus)
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
-                .maybeOutputLocations(PaveOutputLocations.builder()
-                        .outputDirectory(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(), true))
-                        .germlineVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(germlineVcf(metadata))))
-                        .somaticVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(somaticVcf(metadata))))
-                        .build())
-                .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), NAMESPACE, resultsDirectory))
+                .maybeFinalVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(outputFile)))
+                .addReportComponents(vcfComponent(outputFile, bucket, resultsDirectory))
                 .addDatatypes(new AddDatatype(DataType.SOMATIC_VARIANTS_PAVE,
                         metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), somaticVcf(metadata))));
+                        new ArchivePath(Folder.root(), namespace(), outputFile)));
 
-        if (sageGermlineEnabled) {
-            builder.addDatatypes(new AddDatatype(DataType.GERMLINE_VARIANTS_PAVE,
-                    metadata.barcode(),
-                    new ArchivePath(Folder.root(), namespace(), germlineVcf(metadata))));
-        }
         return builder.build();
     }
 
     @Override
     public PaveOutput persistedOutput(final SomaticRunMetadata metadata) {
 
-        GoogleStorageLocation germlineVariantsLocation =
-                persistedOrDefault(metadata, DataType.GERMLINE_VARIANTS_PAVE, germlineVcf(metadata));
-
-        GoogleStorageLocation somaticVariantsLocation =
-                persistedOrDefault(metadata, DataType.SOMATIC_VARIANTS_PAVE, somaticVcf(metadata));
+        // GoogleStorageLocation somaticVariantsLocation = persistedOrDefault(metadata, DataType.SOMATIC_VARIANTS_PAVE, outputFile(metadata));
+        final String outputFile = outputFile(metadata);
 
         return PaveOutput.builder()
                 .status(PipelineStatus.PERSISTED)
-                .maybeOutputLocations(PaveOutputLocations.builder()
-                        .outputDirectory(somaticVariantsLocation.transform(f -> new File(f).getParent()).asDirectory())
-                        .somaticVcf(somaticVariantsLocation)
-                        .germlineVcf(germlineVariantsLocation)
-                        .build())
+                .maybeFinalVcf(persistedDataset.path(metadata.tumor().sampleName(), vcfDatatype)
+                        .orElse(GoogleStorageLocation.of(metadata.bucket(),
+                                PersistedLocations.blobForSet(metadata.set(), namespace(), outputFile))))
                 .build();
     }
+
+    private ReportComponent vcfComponent(final String filename, final RuntimeBucket bucket, final ResultsDirectory resultsDirectory) {
+        return new ZippedVcfAndIndexComponent(bucket, namespace(), Folder.root(), filename, resultsDirectory);
+    }
+
 }
