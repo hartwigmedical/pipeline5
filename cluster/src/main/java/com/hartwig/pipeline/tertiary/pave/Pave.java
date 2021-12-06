@@ -34,9 +34,7 @@ import org.jetbrains.annotations.NotNull;
 
 public abstract class Pave implements Stage<PaveOutput, SomaticRunMetadata> {
 
-    public static final String NAMESPACE = "pave";
     public static final String PAVE_FILE_ID = "pave";
-    // public static final String PAVE_GERMLINE_VCF = ".pave.germline.vcf.gz";
 
     private final ResourceFiles resourceFiles;
     private final InputDownload vcfDownload;
@@ -52,11 +50,6 @@ public abstract class Pave implements Stage<PaveOutput, SomaticRunMetadata> {
     }
 
     protected abstract String outputFile(final SomaticRunMetadata metadata);
-
-    @Override
-    public String namespace() {
-        return NAMESPACE;
-    }
 
     @Override
     public List<BashCommand> commands(final SomaticRunMetadata metadata) {

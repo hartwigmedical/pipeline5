@@ -39,6 +39,7 @@ import com.hartwig.pipeline.tertiary.linx.Linx;
 import com.hartwig.pipeline.tertiary.linx.LinxOutput;
 import com.hartwig.pipeline.tertiary.orange.Orange;
 import com.hartwig.pipeline.tertiary.orange.OrangeOutput;
+import com.hartwig.pipeline.tertiary.pave.PaveGermline;
 import com.hartwig.pipeline.tertiary.pave.PaveOutput;
 import com.hartwig.pipeline.tertiary.pave.PaveSomatic;
 import com.hartwig.pipeline.tertiary.peach.Peach;
@@ -116,7 +117,7 @@ public class SomaticPipeline {
                         new PaveSomatic(resourceFiles, sageSomaticOutput, persistedDataset)));
 
                 Future<PaveOutput> paveGermlineOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
-                        new PaveSomatic(resourceFiles, sageGermlineOutput, persistedDataset)));
+                        new PaveGermline(resourceFiles, sageGermlineOutput, persistedDataset)));
 
                 PaveOutput paveSomaticOutput = pipelineResults.add(state.add(paveSomaticOutputFuture.get()));
                 PaveOutput paveGermlineOutput = pipelineResults.add(state.add(paveGermlineOutputFuture.get()));

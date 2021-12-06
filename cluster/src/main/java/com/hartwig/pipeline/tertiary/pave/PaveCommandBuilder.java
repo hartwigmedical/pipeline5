@@ -26,7 +26,7 @@ public class PaveCommandBuilder
         final List<String> arguments = Lists.newArrayList(
                 "-sample",
                 tumorSampleName,
-                "vcf_file",
+                "-vcf_file",
                 vcfFile,
                 "-output_dir",
                 VmDirectories.OUTPUT,

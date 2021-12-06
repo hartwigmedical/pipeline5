@@ -10,11 +10,6 @@ import org.immutables.value.Value;
 @Value.Immutable
 public interface PaveOutput extends StageOutput {
 
-    @Override
-    default String name() {
-        return Pave.NAMESPACE;
-    }
-
     Optional<GoogleStorageLocation> maybeFinalVcf();
 
     default GoogleStorageLocation finalVcf() {
