@@ -10,7 +10,6 @@ import com.google.common.collect.Lists;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
-import com.hartwig.pipeline.calling.sage.SageIndex;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.PipelineStatus;
@@ -104,10 +103,11 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
         SubStageInputOutput combinedFilters = snpFilterOutput.combine(indelFilterOutput);
 
         SubStageInputOutput finalOutput =
-                new CombineFilteredVariants(indelFilterOutput.outputFile().path(), referenceFasta).andThen(new SnpEff(resourceFiles))
+                new CombineFilteredVariants(indelFilterOutput.outputFile().path(), referenceFasta)
+                        .andThen(new GermlineZipIndex())
                         .apply(combinedFilters);
 
-        return ImmutableList.<BashCommand>builder().add(new UnzipToDirectoryCommand(VmDirectories.RESOURCES, resourceFiles.snpEffDb()))
+        return ImmutableList.<BashCommand>builder()
                 .addAll(finalOutput.bash())
                 .add(new MvCommand(finalOutput.outputFile().path(), outputFile.path()))
                 .add(new MvCommand(finalOutput.outputFile().path() + ".tbi", outputFile.path() + ".tbi"))

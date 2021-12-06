@@ -13,7 +13,6 @@ import static com.hartwig.pipeline.resource.ResourceNames.LINX;
 import static com.hartwig.pipeline.resource.ResourceNames.MAPPABILITY;
 import static com.hartwig.pipeline.resource.ResourceNames.REFERENCE_GENOME;
 import static com.hartwig.pipeline.resource.ResourceNames.SAGE;
-import static com.hartwig.pipeline.resource.ResourceNames.SNPEFF;
 
 public class RefGenome38ResourceFiles implements ResourceFiles {
 
@@ -49,11 +48,6 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
     @Override
     public String amberSnpcheck() {
         return formPath(AMBER, "Amber.snpcheck.38.vcf");
-    }
-
-    @Override
-    public String snpEffDb() {
-        return formPath(SNPEFF, "snpEff_v4_3_GRCh38.86.zip");
     }
 
     @Override

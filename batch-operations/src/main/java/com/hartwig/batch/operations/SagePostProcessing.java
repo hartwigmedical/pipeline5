@@ -49,9 +49,6 @@ public class SagePostProcessing implements BatchOperation {
         final InputFileDescriptor inputVcf = inputFile(setDescriptor, hg38RemoteUnfilteredVcfArchivePath(set, sample));
         final InputFileDescriptor inputVcfIndex = inputVcf.index();
 
-        // Prepare SnpEff
-        startupScript.addCommand(new UnzipToDirectoryCommand(VmDirectories.RESOURCES, resourceFiles.snpEffDb()));
-
         // 1. Download input files
         startupScript.addCommand(inputVcf::copyToLocalDestinationCommand);
         startupScript.addCommand(inputVcfIndex::copyToLocalDestinationCommand);

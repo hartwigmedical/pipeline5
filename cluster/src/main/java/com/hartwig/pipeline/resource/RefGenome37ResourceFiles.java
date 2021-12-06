@@ -16,7 +16,6 @@ import static com.hartwig.pipeline.resource.ResourceNames.PEACH;
 import static com.hartwig.pipeline.resource.ResourceNames.REFERENCE_GENOME;
 import static com.hartwig.pipeline.resource.ResourceNames.SAGE;
 import static com.hartwig.pipeline.resource.ResourceNames.SERVE;
-import static com.hartwig.pipeline.resource.ResourceNames.SNPEFF;
 
 public class RefGenome37ResourceFiles implements ResourceFiles {
 
@@ -115,10 +114,6 @@ public class RefGenome37ResourceFiles implements ResourceFiles {
     @Override
     public String giabHighConfidenceBed() {
         return formPath(GIAB_HIGH_CONF, "NA12878_GIAB_highconf_IllFB-IllGATKHC-CG-Ion-Solid_ALLCHROM_v3.2.2_highconf.bed.gz");
-    }
-    @Override
-    public String snpEffDb() {
-        return formPath(SNPEFF, "snpEff_v4_3_GRCh37.75.zip");
     }
 
     @Override

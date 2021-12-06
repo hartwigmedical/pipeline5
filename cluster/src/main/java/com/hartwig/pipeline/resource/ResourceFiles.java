@@ -3,11 +3,9 @@ package com.hartwig.pipeline.resource;
 import static com.hartwig.pipeline.resource.ResourceNames.CUPPA;
 import static com.hartwig.pipeline.resource.ResourceNames.DISEASE_ONTOLOGY;
 import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_CONFIG;
-import static com.hartwig.pipeline.resource.ResourceNames.LINX;
 import static com.hartwig.pipeline.resource.ResourceNames.MAPPABILITY;
 import static com.hartwig.pipeline.resource.ResourceNames.ORANGE;
 import static com.hartwig.pipeline.resource.ResourceNames.SIGS;
-import static com.hartwig.pipeline.resource.ResourceNames.SNPEFF;
 import static com.hartwig.pipeline.resource.ResourceNames.VIRUS_INTERPRETER;
 import static com.hartwig.pipeline.resource.ResourceNames.VIRUS_REFERENCE_GENOME;
 
@@ -64,8 +62,6 @@ public interface ResourceFiles {
     String sageGermlinePon();
 
     String giabHighConfidenceBed();
-
-    String snpEffDb();
 
     default String gridssPropertiesFile() {
         return of(GRIDSS_CONFIG, "gridss.properties");

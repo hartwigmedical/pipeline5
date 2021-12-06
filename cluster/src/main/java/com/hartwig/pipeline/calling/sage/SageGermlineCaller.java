@@ -46,7 +46,6 @@ public class SageGermlineCaller extends SageCaller {
     public List<BashCommand> commands(final SomaticRunMetadata metadata) {
 
         List<BashCommand> commands = Lists.newArrayList();
-        commands.add(new UnzipToDirectoryCommand(VmDirectories.RESOURCES, resourceFiles.snpEffDb()));
 
         String tumorBamPath = getTumorBamDownload().getLocalTargetPath();
         String referenceBamPath = getReferenceBamDownload().getLocalTargetPath();

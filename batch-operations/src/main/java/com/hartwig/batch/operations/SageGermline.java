@@ -41,9 +41,7 @@ public class SageGermline implements BatchOperation {
         final String tumorAlignment = localInput.getTumorAlignment();
         final String referenceAlignment = localInput.getReferenceAlignment();
 
-        // Prepare SnpEff
         final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.V37);
-        commands.addCommand(new UnzipToDirectoryCommand(VmDirectories.RESOURCES, resourceFiles.snpEffDb()));
 
         // Download Inputs
         commands.addCommands(localInput.generateDownloadCommands());

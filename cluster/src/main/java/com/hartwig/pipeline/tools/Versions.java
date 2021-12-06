@@ -15,7 +15,6 @@ public interface Versions {
     String GATK = "3.8.0";
     String BCF_TOOLS = "1.9";
     String SAGE = "2.8";
-    String SNPEFF = "4.3s";
     String TABIX = "0.2.6";
     String AMBER = "3.4";
     String COBALT = "1.11";

@@ -11,20 +11,17 @@ import com.hartwig.pipeline.execution.vm.OutputFile;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.SubStage;
 
-public class SnpEff extends SubStage {
+public class GermlineZipIndex extends SubStage {
 
-    private final ResourceFiles resourceFiles;
-
-    public SnpEff(final ResourceFiles resourceFiles) {
-        super("snpeff.annotated", FileTypes.GZIPPED_VCF);
-        this.resourceFiles = resourceFiles;
+    public GermlineZipIndex() {
+        super("gatk.zip.index", FileTypes.GZIPPED_VCF);
     }
 
     @Override
     public List<BashCommand> bash(final OutputFile input, final OutputFile output) {
         String beforeZip = output.path().replace(".gz", "");
 
-        return ImmutableList.of(new SnpEffCommand(input.path(), beforeZip, resourceFiles),
+        return ImmutableList.of(
                 new BgzipCommand(beforeZip),
                 new TabixCommand(output.path()));
     }
