@@ -74,7 +74,6 @@ public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
                 VmDirectories.OUTPUT,
                 resourceFiles.fragileSites(),
                 resourceFiles.lineElements(),
-                resourceFiles.viralHostRefs(),
                 resourceFiles.ensemblDataCache(),
                 resourceFiles.knownFusionData(),
                 resourceFiles.driverGenePanel()));
@@ -120,9 +119,6 @@ public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
                 .addDatatypes(new AddDatatype(DataType.LINX_FUSIONS,
                         metadata.barcode(),
                         new ArchivePath(Folder.root(), namespace(), fusionsTsv)))
-                .addDatatypes(new AddDatatype(DataType.LINX_VIRAL_INSERTS,
-                        metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), viralInsertionsTsv)))
                 .build();
     }
 

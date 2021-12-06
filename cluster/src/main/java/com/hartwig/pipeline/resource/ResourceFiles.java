@@ -113,10 +113,6 @@ public interface ResourceFiles {
         return of(DISEASE_ONTOLOGY, "201015_doid.json");
     }
 
-    default String viralHostRefs() {
-        return of(LINX, "viral_host_ref.csv");
-    }
-
     default String snvSignatures() {
         return of(SIGS, "snv_cosmic_signatures.csv");
     }
