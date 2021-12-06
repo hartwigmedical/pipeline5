@@ -1,6 +1,5 @@
 package com.hartwig.pipeline.tertiary.pave;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -18,7 +17,6 @@ import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
-import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.ReportComponent;
 import com.hartwig.pipeline.report.RunLogComponent;
@@ -81,7 +79,7 @@ public abstract class Pave implements Stage<PaveOutput, SomaticRunMetadata> {
 
     @Override
     public PaveOutput skippedOutput(final SomaticRunMetadata metadata) {
-        return PaveOutput.builder().status(PipelineStatus.SKIPPED).build();
+        return PaveOutput.builder(namespace()).status(PipelineStatus.SKIPPED).build();
     }
 
     @NotNull
@@ -97,7 +95,7 @@ public abstract class Pave implements Stage<PaveOutput, SomaticRunMetadata> {
 
         final String outputFile = outputFile(metadata);
 
-        ImmutablePaveOutput.Builder builder = PaveOutput.builder()
+        ImmutablePaveOutput.Builder builder = PaveOutput.builder(namespace())
                 .status(jobStatus)
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .maybeFinalVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(outputFile)))
@@ -112,10 +110,9 @@ public abstract class Pave implements Stage<PaveOutput, SomaticRunMetadata> {
     @Override
     public PaveOutput persistedOutput(final SomaticRunMetadata metadata) {
 
-        // GoogleStorageLocation somaticVariantsLocation = persistedOrDefault(metadata, DataType.SOMATIC_VARIANTS_PAVE, outputFile(metadata));
         final String outputFile = outputFile(metadata);
 
-        return PaveOutput.builder()
+        return PaveOutput.builder(namespace())
                 .status(PipelineStatus.PERSISTED)
                 .maybeFinalVcf(persistedDataset.path(metadata.tumor().sampleName(), vcfDatatype)
                         .orElse(GoogleStorageLocation.of(metadata.bucket(),

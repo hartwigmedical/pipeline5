@@ -226,7 +226,7 @@ public class TestInputs {
     }
 
     public static PaveOutput paveSomaticOutput() {
-        return PaveOutput.builder()
+        return PaveOutput.builder(PaveSomatic.NAMESPACE)
                 .status(PipelineStatus.SUCCESS)
                 .maybeFinalVcf(gsLocation(somaticBucket(PaveSomatic.NAMESPACE),
                         RESULTS + TUMOR_SAMPLE +
@@ -236,7 +236,7 @@ public class TestInputs {
     }
 
     public static PaveOutput paveGermlineOutput() {
-        return PaveOutput.builder()
+        return PaveOutput.builder(PaveGermline.NAMESPACE)
                 .status(PipelineStatus.SUCCESS)
                 .maybeFinalVcf(gsLocation(somaticBucket(PaveGermline.NAMESPACE),
                         RESULTS + TUMOR_SAMPLE +

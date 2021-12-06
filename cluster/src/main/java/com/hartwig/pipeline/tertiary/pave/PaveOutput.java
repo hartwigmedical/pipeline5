@@ -3,6 +3,7 @@ package com.hartwig.pipeline.tertiary.pave;
 import java.util.Optional;
 
 import com.hartwig.pipeline.StageOutput;
+import com.hartwig.pipeline.calling.sage.ImmutableSageOutput;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 
 import org.immutables.value.Value;
@@ -16,7 +17,5 @@ public interface PaveOutput extends StageOutput {
         return maybeFinalVcf().orElseThrow(() -> new IllegalStateException("No final vcf available"));
     }
 
-    static ImmutablePaveOutput.Builder builder() {
-        return ImmutablePaveOutput.builder();
-    }
+    static ImmutablePaveOutput.Builder builder(String nameSpace) { return ImmutablePaveOutput.builder().name(nameSpace);}
 }

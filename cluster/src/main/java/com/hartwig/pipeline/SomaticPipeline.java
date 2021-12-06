@@ -129,10 +129,13 @@ public class SomaticPipeline {
                 CobaltOutput cobaltOutput = pipelineResults.add(state.add(cobaltOutputFuture.get()));
 
                 StructuralCallerOutput structuralCallerOutput = pipelineResults.add(state.add(structuralCallerOutputFuture.get()));
+
                 if (state.shouldProceed()) {
+
                     Future<StructuralCallerPostProcessOutput> structuralCallerPostProcessOutputFuture =
                             executorService.submit(() -> stageRunner.run(metadata,
                                     new StructuralCallerPostProcess(resourceFiles, structuralCallerOutput, persistedDataset)));
+
                     StructuralCallerPostProcessOutput structuralCallerPostProcessOutput =
                             pipelineResults.add(state.add(structuralCallerPostProcessOutputFuture.get()));
 
@@ -148,7 +151,9 @@ public class SomaticPipeline {
                                                 persistedDataset,
                                                 arguments.shallow(),
                                                 arguments.runSageGermlineCaller())))));
+
                         PurpleOutput purpleOutput = purpleOutputFuture.get();
+
                         if (state.shouldProceed()) {
                             BamMetricsOutput tumorMetrics = pollOrThrow(tumorBamMetricsOutputQueue, "tumor metrics");
                             BamMetricsOutput referenceMetrics = pollOrThrow(referenceBamMetricsOutputQueue, "reference metrics");
