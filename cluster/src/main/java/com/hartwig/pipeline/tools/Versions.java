@@ -29,13 +29,13 @@ public interface Versions {
     String CHORD = "2.00_1.14";
     String SAMTOOLS = "1.10";
     String BAMCOMP = "1.3";
-    String PROTECT = "1.6";
+    String PROTECT = "1.8";
     String REPEAT_MASKER = "4.1.1";
     String KRAKEN = "2.1.0";
     String CUPPA = "1.5";
     String PEACH = "1.4";
     String SIGS = "1.0";
-    String ORANGE = "1.4";
+    String ORANGE = "1.5";
     String PAVE = "1.0";
 
     static void printAll() {

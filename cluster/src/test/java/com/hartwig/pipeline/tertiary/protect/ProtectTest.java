@@ -52,7 +52,7 @@ public class ProtectTest extends TertiaryStageTest<ProtectOutput> {
     @Override
     protected List<String> expectedCommands() {
         return Collections.singletonList(
-                "java -Xmx8G -jar /opt/tools/protect/1.6/protect.jar -tumor_sample_id tumor -reference_sample_id reference "
+                "java -Xmx8G -jar /opt/tools/protect/1.8/protect.jar -tumor_sample_id tumor -reference_sample_id reference "
                         + "-primary_tumor_doids \"01;02\" -output_dir /data/output "
                         + "-serve_actionability_dir /opt/resources/serve/37/ -ref_genome_version 37 "
                         + "-doid_json /opt/resources/disease_ontology/201015_doid.json "
