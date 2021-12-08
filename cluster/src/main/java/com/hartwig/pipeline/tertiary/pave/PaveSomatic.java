@@ -8,12 +8,10 @@ import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.resource.ResourceFiles;
 
-public class PaveSomatic extends Pave
-{
+public class PaveSomatic extends Pave {
     public static final String NAMESPACE = "pave_somatic";
 
-    public PaveSomatic(final ResourceFiles resourceFiles, SageOutput sageOutput, final PersistedDataset persistedDataset)
-    {
+    public PaveSomatic(final ResourceFiles resourceFiles, SageOutput sageOutput, final PersistedDataset persistedDataset) {
         super(resourceFiles, sageOutput, persistedDataset, DataType.SOMATIC_VARIANTS_PAVE);
     }
 
@@ -23,12 +21,10 @@ public class PaveSomatic extends Pave
     }
 
     @Override
-    protected String outputFile(final SomaticRunMetadata metadata)
-    {
+    protected String outputFile(final SomaticRunMetadata metadata) {
         return String.format("%s.%s.%s.%s",
                 metadata.tumor().sampleName(),
-                SageSomaticPostProcess.SAGE_SOMATIC_FILTERED,
-                PAVE_FILE_ID,
+                SageSomaticPostProcess.SAGE_SOMATIC_FILTERED, PAVE_FILE_NAME,
                 FileTypes.GZIPPED_VCF);
     }
 

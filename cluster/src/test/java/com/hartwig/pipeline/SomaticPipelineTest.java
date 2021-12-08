@@ -108,9 +108,9 @@ public class SomaticPipelineTest {
                 amberOutput(),
                 sageSomaticOutput(),
                 sageGermlineOutput(),
+                structuralCallerOutput(),
                 paveSomaticOutput(),
                 paveGermlineOutput(),
-                structuralCallerOutput(),
                 structuralCallerPostProcessOutput(),
                 purpleOutput(),
                 healthCheckerOutput(),
@@ -124,28 +124,21 @@ public class SomaticPipelineTest {
                 orangeOutput());
     }
 
-    /*
     @Test
     public void doesNotRunPurpleIfSomaticCallerFails() {
         bothMetricsAvailable();
         bothFlagstatsAvailable();
         SageOutput failSomatic = SageOutput.builder(SageSomaticCaller.NAMESPACE).status(PipelineStatus.FAILED).build();
-        PaveOutput failSomaticPave = PaveOutput.builder().status(PipelineStatus.FAILED).build();
-        when(stageRunner.run(eq(defaultSomaticRunMetadata()), any()))
-                .thenReturn(amberOutput())
+        when(stageRunner.run(eq(defaultSomaticRunMetadata()), any())).thenReturn(amberOutput())
                 .thenReturn(cobaltOutput())
                 .thenReturn(failSomatic)
-                .thenReturn(failSomaticPave)
                 .thenReturn(sageGermlineOutput())
-                .thenReturn(paveGermlineOutput())
                 .thenReturn(structuralCallerOutput());
         PipelineState state = victim.run(TestInputs.defaultPair());
         assertThat(state.stageOutputs()).containsExactlyInAnyOrder(cobaltOutput(),
                 amberOutput(),
                 failSomatic,
-                failSomaticPave,
                 sageGermlineOutput(),
-                paveGermlineOutput(),
                 structuralCallerOutput());
         assertThat(state.status()).isEqualTo(PipelineStatus.FAILED);
     }
@@ -155,29 +148,19 @@ public class SomaticPipelineTest {
         bothMetricsAvailable();
         bothFlagstatsAvailable();
         StructuralCallerOutput failSvOutput = StructuralCallerOutput.builder().status(PipelineStatus.FAILED).build();
-        StructuralCallerPostProcessOutput failGripss = StructuralCallerPostProcessOutput.builder().status(PipelineStatus.FAILED).build();
-        when(stageRunner.run(eq(defaultSomaticRunMetadata()), any()))
-                .thenReturn(amberOutput())
+        when(stageRunner.run(eq(defaultSomaticRunMetadata()), any())).thenReturn(amberOutput())
                 .thenReturn(cobaltOutput())
-                .thenReturn(failSvOutput)
-                .thenReturn(failGripss)
                 .thenReturn(sageSomaticOutput())
                 .thenReturn(sageGermlineOutput())
-                .thenReturn(paveSomaticOutput())
-                .thenReturn(paveGermlineOutput());
+                .thenReturn(failSvOutput);
         PipelineState state = victim.run(TestInputs.defaultPair());
-        assertThat(state.stageOutputs()).containsExactlyInAnyOrder(
-                amberOutput(),
+        assertThat(state.stageOutputs()).containsExactlyInAnyOrder(amberOutput(),
                 cobaltOutput(),
                 failSvOutput,
-                failGripss,
                 sageSomaticOutput(),
-                sageGermlineOutput(),
-                paveSomaticOutput(),
-                paveGermlineOutput());
+                sageGermlineOutput());
         assertThat(state.status()).isEqualTo(PipelineStatus.FAILED);
     }
-    */
 
     @Test
     public void doesNotRunPurpleWhenGripssFails() {
@@ -188,9 +171,9 @@ public class SomaticPipelineTest {
                 .thenReturn(cobaltOutput())
                 .thenReturn(sageSomaticOutput())
                 .thenReturn(sageGermlineOutput())
+                .thenReturn(structuralCallerOutput())
                 .thenReturn(paveSomaticOutput())
                 .thenReturn(paveGermlineOutput())
-                .thenReturn(structuralCallerOutput())
                 .thenReturn(failGripss);
         PipelineState state = victim.run(TestInputs.defaultPair());
         assertThat(state.stageOutputs()).containsExactlyInAnyOrder(cobaltOutput(),
@@ -213,9 +196,9 @@ public class SomaticPipelineTest {
                 .thenReturn(cobaltOutput())
                 .thenReturn(sageSomaticOutput())
                 .thenReturn(sageGermlineOutput())
+                .thenReturn(structuralCallerOutput())
                 .thenReturn(paveSomaticOutput())
                 .thenReturn(paveGermlineOutput())
-                .thenReturn(structuralCallerOutput())
                 .thenReturn(structuralCallerPostProcessOutput())
                 .thenReturn(failPurple);
         PipelineState state = victim.run(TestInputs.defaultPair());
@@ -240,9 +223,9 @@ public class SomaticPipelineTest {
                 .thenReturn(cobaltOutput())
                 .thenReturn(sageSomaticOutput())
                 .thenReturn(sageGermlineOutput())
+                .thenReturn(structuralCallerOutput())
                 .thenReturn(paveSomaticOutput())
                 .thenReturn(paveGermlineOutput())
-                .thenReturn(structuralCallerOutput())
                 .thenReturn(structuralCallerPostProcessOutput())
                 .thenReturn(purpleOutput())
                 .thenReturn(virusOutput())
@@ -276,9 +259,9 @@ public class SomaticPipelineTest {
                 .thenReturn(cobaltOutput())
                 .thenReturn(sageSomaticOutput())
                 .thenReturn(sageGermlineOutput())
+                .thenReturn(structuralCallerOutput())
                 .thenReturn(paveSomaticOutput())
                 .thenReturn(paveGermlineOutput())
-                .thenReturn(structuralCallerOutput())
                 .thenReturn(structuralCallerPostProcessOutput())
                 .thenReturn(purpleOutput())
                 .thenReturn(virusOutput())
