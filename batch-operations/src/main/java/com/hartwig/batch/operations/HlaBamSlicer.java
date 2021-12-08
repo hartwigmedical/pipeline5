@@ -28,8 +28,7 @@ public class HlaBamSlicer implements BatchOperation {
 
     @Override
     public VirtualMachineJobDefinition execute(final InputBundle inputs, final RuntimeBucket runtimeBucket,
-            final BashStartupScript commands, final RuntimeFiles executionFlags)
-    {
+            final BashStartupScript commands, final RuntimeFiles executionFlags) {
         // Inputs: SampleId,ExpectedAlleles
         final InputFileDescriptor runData = inputs.get();
 
@@ -40,34 +39,38 @@ public class HlaBamSlicer implements BatchOperation {
         // final String bamType = batchItems[1];
 
         final String sampleBam = String.format("%s.sorted.dups.bam", sampleId);
+        final String bamLocation = format("%s/%s/%s", RNA_COHORT_LOCATION_V37, sampleId, sampleBam);
 
-        commands.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s/%s* %s",
-                RNA_COHORT_LOCATION_V37, sampleId, sampleBam, VmDirectories.INPUT));
+        commands.addCommand(() -> format("gsutil -u hmf-crunch cp %s* %s", bamLocation, VmDirectories.INPUT));
 
         // get HLA bed for slicing
-        commands.addCommand(() -> format("gsutil -u hmf-crunch cp gs://%s/%s %s",
-                LILAC_RESOURCES, HLA_BED_FILE, VmDirectories.INPUT));
+        commands.addCommand(() -> format("gsutil -u hmf-crunch cp gs://%s/%s %s", LILAC_RESOURCES, HLA_BED_FILE, VmDirectories.INPUT));
 
-
-        // /opt/tools/sambamba/0.6.8/sambamba view -f bam ./samples/CPCT02020378T/CPCT02020378T.sorted.dups.bam -L /data/lilac/ref/hla.bed > ./samples/CPCT02020378T/CPCT02020378T.rna.hla.bam
-            // download pilot Lilac jar
+        // /opt/tools/sambamba/0.6.8/sambamba view -f bam ./samples/CPCT02020378T/CPCT02020378T.sorted.dups.bam -L /data/lilac/ref/hla.bed
+        // > ./samples/CPCT02020378T/CPCT02020378T.rna.hla.bam
+        // download pilot Lilac jar
         final String sambamba = "sambamba/0.6.8/sambamba";
 
         final String slicedBam = String.format("%s.hla.bam", sampleId);
 
         commands.addCommand(() -> format("%s/%s slice %s/%s -L %s/%s -o %s/%s",
-                VmDirectories.TOOLS, sambamba, VmDirectories.INPUT, sampleBam, VmDirectories.INPUT, HLA_BED_FILE,
-                VmDirectories.OUTPUT, slicedBam));
+                VmDirectories.TOOLS,
+                sambamba,
+                VmDirectories.INPUT,
+                sampleBam,
+                VmDirectories.INPUT,
+                HLA_BED_FILE,
+                VmDirectories.OUTPUT,
+                slicedBam));
 
         // commands.addCommand(() -> format("ls -l %s", VmDirectories.OUTPUT));
 
         final String slicedSortedBam = String.format("%s.rna.hla.bam", sampleId);
 
         // samtools sort -@ 8 -m 2G -T tmp -O bam Aligned.out.bam -o Aligned.sorted.bam
-        final String[] sortArgs = {
-                "sort", "-@", "8", "-m", "2G", "-T", "tmp",
-                "-O", "bam", String.format("%s/%s", VmDirectories.OUTPUT, slicedBam),
-                "-o", String.format("%s/%s", VmDirectories.OUTPUT, slicedSortedBam)};
+        final String[] sortArgs =
+                { "sort", "-@", "8", "-m", "2G", "-T", "tmp", "-O", "bam", String.format("%s/%s", VmDirectories.OUTPUT, slicedBam), "-o",
+                        String.format("%s/%s", VmDirectories.OUTPUT, slicedSortedBam) };
 
         commands.addCommand(new VersionedToolCommand("samtools", "samtools", Versions.SAMTOOLS, sortArgs));
 
