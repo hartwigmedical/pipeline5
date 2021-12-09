@@ -66,7 +66,7 @@ public abstract class Pave implements Stage<PaveOutput, SomaticRunMetadata> {
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
         return ImmutableVirtualMachineJobDefinition.builder()
-                .name(namespace())
+                .name(namespace().replace("_", "-"))
                 .startupCommand(bash)
                 .namespacedResults(resultsDirectory)
                 .performanceProfile(custom(2, 10))

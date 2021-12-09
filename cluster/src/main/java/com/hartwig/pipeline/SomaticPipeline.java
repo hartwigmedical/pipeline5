@@ -126,13 +126,12 @@ public class SomaticPipeline {
                             new PaveSomatic(resourceFiles, sageSomaticOutput, persistedDataset)));
                     Future<PaveOutput> paveGermlineOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                             new PaveGermline(resourceFiles, sageGermlineOutput, persistedDataset)));
-
-                    PaveOutput paveSomaticOutput = pipelineResults.add(state.add(paveSomaticOutputFuture.get()));
-                    PaveOutput paveGermlineOutput = pipelineResults.add(state.add(paveGermlineOutputFuture.get()));
-
                     Future<StructuralCallerPostProcessOutput> structuralCallerPostProcessOutputFuture =
                             executorService.submit(() -> stageRunner.run(metadata,
                                     new StructuralCallerPostProcess(resourceFiles, structuralCallerOutput, persistedDataset)));
+
+                    PaveOutput paveSomaticOutput = pipelineResults.add(state.add(paveSomaticOutputFuture.get()));
+                    PaveOutput paveGermlineOutput = pipelineResults.add(state.add(paveGermlineOutputFuture.get()));
 
                     StructuralCallerPostProcessOutput structuralCallerPostProcessOutput =
                             pipelineResults.add(state.add(structuralCallerPostProcessOutputFuture.get()));
