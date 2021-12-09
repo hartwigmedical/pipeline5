@@ -17,5 +17,7 @@ public interface PaveOutput extends StageOutput {
         return maybeFinalVcf().orElseThrow(() -> new IllegalStateException("No final vcf available"));
     }
 
-    static ImmutablePaveOutput.Builder builder(String nameSpace) { return ImmutablePaveOutput.builder().name(nameSpace);}
+    static ImmutablePaveOutput.Builder builder(final String namespace) {
+        return ImmutablePaveOutput.builder().name(namespace);
+    }
 }

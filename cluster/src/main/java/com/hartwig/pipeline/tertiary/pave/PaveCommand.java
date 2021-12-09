@@ -2,29 +2,22 @@ package com.hartwig.pipeline.tertiary.pave;
 
 import java.util.List;
 
-import com.google.common.collect.Lists;
-import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.tools.Versions;
 
-public class PaveCommandBuilder
-{
-    private final ResourceFiles resourceFiles;
-    private final String tumorSampleName;
-    private final String vcfFile;
+import org.jetbrains.annotations.NotNull;
 
-    public PaveCommandBuilder(final ResourceFiles resourceFiles, final String tumorSample, final String vcfFile) {
-        this.resourceFiles = resourceFiles;
-        this.tumorSampleName = tumorSample;
-        this.vcfFile = vcfFile;
+public class PaveCommand extends JavaJarCommand {
+
+    public PaveCommand(final ResourceFiles resourceFiles, final String tumorSampleName, final String vcfFile) {
+        super("pave", Versions.PAVE, "pave.jar", "8G", arguments(tumorSampleName, vcfFile, resourceFiles));
     }
 
-    public BashCommand build() {
-
-        final List<String> arguments = Lists.newArrayList(
-                "-sample",
+    @NotNull
+    private static List<String> arguments(final String tumorSampleName, final String vcfFile, final ResourceFiles resourceFiles) {
+        return List.of("-sample",
                 tumorSampleName,
                 "-vcf_file",
                 vcfFile,
@@ -38,8 +31,6 @@ public class PaveCommandBuilder
                 resourceFiles.version().toString(),
                 "-driver_gene_panel",
                 resourceFiles.driverGenePanel());
-
-        return new JavaJarCommand("pave", Versions.PAVE, "pave.jar", "8G", arguments);
     }
 }
 
