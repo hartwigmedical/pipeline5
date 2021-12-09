@@ -76,10 +76,10 @@ public class GermlineCallerTest extends StageTest<GermlineCallerOutput, SingleSa
                 "java -Xmx29G -jar /opt/tools/gatk/3.8.0/GenomeAnalysisTK.jar -T SelectVariants -selectType INDEL -selectType MIXED -R /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta -V /data/output/reference.genotype_vcfs.vcf -o /data/output/reference.raw_indels.vcf",
                 "java -Xmx29G -jar /opt/tools/gatk/3.8.0/GenomeAnalysisTK.jar -T VariantFiltration -R /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta -V /data/output/reference.raw_indels.vcf -o /data/output/reference.filtered_indels.vcf --filterExpression \"QD < 2.0\" --filterName \"INDEL_LowQualityDepth\" --filterExpression \"FS > 200.0\" --filterName \"INDEL_StrandBias\" --filterExpression \"ReadPosRankSum < -20.0\" --filterName \"INDEL_ReadPosRankSumLow\" --clusterSize 3 --clusterWindowSize 35",
                 "java -Xmx29G -jar /opt/tools/gatk/3.8.0/GenomeAnalysisTK.jar -T CombineVariants -V /data/output/reference.filtered_snp.vcf -V /data/output/reference.filtered_indels.vcf -o /data/output/reference.filtered_variants.vcf -R /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta --assumeIdenticalSamples",
-                "/opt/tools/tabix/0.2.6/bgzip -f /data/output/reference.gatk.zip.index.vcf",
-                "/opt/tools/tabix/0.2.6/tabix /data/output/reference.gatk.zip.index.vcf.gz -p vcf",
-                "mv /data/output/reference.gatk.zip.index.vcf.gz /data/output/" + REFERENCE_GERMLINE_VCF_GZ,
-                "mv /data/output/reference.gatk.zip.index.vcf.gz.tbi /data/output/" + REFERENCE_GERMLINE_VCF_GZ + ".tbi").build();
+                "/opt/tools/tabix/0.2.6/bgzip -f /data/output/reference.filtered_variants.vcf",
+                "/opt/tools/tabix/0.2.6/tabix /data/output/reference.filtered_variants.vcf.gz -p vcf",
+                "mv /data/output/reference.filtered_variants.vcf.gz /data/output/" + REFERENCE_GERMLINE_VCF_GZ,
+                "mv /data/output/reference.filtered_variants.vcf.gz.tbi /data/output/" + REFERENCE_GERMLINE_VCF_GZ + ".tbi").build();
     }
 
     @Override

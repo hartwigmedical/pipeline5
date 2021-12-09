@@ -14,7 +14,7 @@ import com.hartwig.pipeline.stages.SubStage;
 public class GermlineZipIndex extends SubStage {
 
     public GermlineZipIndex() {
-        super("gatk.zip.index", FileTypes.GZIPPED_VCF);
+        super("filtered_variants", FileTypes.GZIPPED_VCF);
     }
 
     @Override
