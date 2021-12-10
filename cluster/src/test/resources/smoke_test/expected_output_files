@@ -121,7 +121,6 @@ purple/circos/gaps.txt
 purple/CPCT12345678T.driver.catalog.somatic.tsv
 purple/CPCT12345678T.driver.catalog.germline.tsv
 purple/CPCT12345678T.purple.cnv.gene.tsv
-purple/CPCT12345678T.purple.cnv.germline.tsv
 purple/CPCT12345678T.purple.cnv.somatic.tsv
 purple/CPCT12345678T.purple.purity.range.tsv
 purple/CPCT12345678T.purple.purity.tsv
