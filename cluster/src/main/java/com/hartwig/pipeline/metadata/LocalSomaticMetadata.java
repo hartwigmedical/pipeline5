@@ -34,6 +34,7 @@ public class LocalSomaticMetadata implements SomaticMetadataApi {
                         .type(SingleSampleRunMetadata.SampleType.TUMOR)
                         .barcode(t.name())
                         .sampleName(t.name())
+                        .primaryTumorDoids(t.primaryTumorDoids())
                         .build()))
                 .reference(SingleSampleRunMetadata.builder()
                         .bucket(arguments.outputBucket())

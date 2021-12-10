@@ -20,6 +20,8 @@ public interface Sample {
 
     Optional<String> bam();
 
+    List<String> primaryTumorDoids();
+
     @Value.Default
     default String barcode() {
         return NOT_APPLICABLE;
