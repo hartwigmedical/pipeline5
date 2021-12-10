@@ -11,6 +11,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.core.ApiFuture;
@@ -63,7 +64,7 @@ public class StagedOutputPublisherTest {
                 bucket,
                 publisher,
                 OBJECT_MAPPER,
-                new Run().ini(Ini.SOMATIC_INI.getValue()).id(1L),
+                Optional.of(new Run().ini(Ini.SOMATIC_INI.getValue()).id(1L)),
                 Context.DIAGNOSTIC,
                 true,
                 false);
@@ -82,7 +83,7 @@ public class StagedOutputPublisherTest {
                 bucket,
                 publisher,
                 OBJECT_MAPPER,
-                new Run().ini(Ini.SOMATIC_INI.getValue()).id(1L),
+                Optional.of(new Run().ini(Ini.SOMATIC_INI.getValue()).id(1L)),
                 Context.DIAGNOSTIC,
                 false,
                 false);

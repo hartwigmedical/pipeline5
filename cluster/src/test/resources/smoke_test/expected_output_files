@@ -82,7 +82,6 @@ linx/CPCT12345678T.linx.driver.catalog.tsv
 linx/CPCT12345678T.linx.fusion.tsv
 linx/CPCT12345678T.linx.links.tsv
 linx/CPCT12345678T.linx.svs.tsv
-linx/CPCT12345678T.linx.viral_inserts.tsv
 linx/CPCT12345678T.linx.vis_copy_number.tsv
 linx/CPCT12345678T.linx.vis_fusion.tsv
 linx/CPCT12345678T.linx.vis_gene_exon.tsv
@@ -94,6 +93,10 @@ metadata.json
 orange/CPCT12345678T.orange.json
 orange/CPCT12345678T.orange.pdf
 orange/run.log
+pave_germline/CPCT12345678T.sage.germline.filtered.pave.vcf.gz
+pave_germline/CPCT12345678T.sage.germline.filtered.pave.vcf.gz.tbi
+pave_somatic/CPCT12345678T.sage.somatic.filtered.pave.vcf.gz
+pave_somatic/CPCT12345678T.sage.somatic.filtered.pave.vcf.gz.tbi
 peach/CPCT12345678T.peach.calls.tsv
 peach/CPCT12345678T.peach.genotype.tsv
 peach/run.log
@@ -115,7 +118,6 @@ purple/circos/CPCT12345678T.map.circos
 purple/circos/CPCT12345678T.ratio.circos
 purple/circos/CPCT12345678T.snp.circos
 purple/circos/gaps.txt
-purple/CPCT12345678T.cnv.chromosomearm.somatic.tsv
 purple/CPCT12345678T.driver.catalog.somatic.tsv
 purple/CPCT12345678T.driver.catalog.germline.tsv
 purple/CPCT12345678T.purple.cnv.gene.tsv
@@ -129,6 +131,7 @@ purple/CPCT12345678T.purple.somatic.clonality.tsv
 purple/CPCT12345678T.purple.somatic.hist.tsv
 purple/CPCT12345678T.purple.somatic.vcf.gz
 purple/CPCT12345678T.purple.somatic.vcf.gz.tbi
+purple/CPCT12345678T.purple.germline.deletion.tsv
 purple/CPCT12345678T.purple.germline.vcf.gz
 purple/CPCT12345678T.purple.germline.vcf.gz.tbi
 purple/CPCT12345678T.purple.sv.vcf.gz

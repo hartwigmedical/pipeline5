@@ -43,7 +43,7 @@ import com.hartwig.pipeline.tertiary.virus.VirusOutput;
 import com.hartwig.pipeline.tools.Versions;
 
 public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
-    static final String NAMESPACE = "orange";
+    public static final String NAMESPACE = "orange";
 
     private static final String ORANGE_OUTPUT_JSON = ".orange.json";
     private static final String ORANGE_OUTPUT_PDF = ".orange.pdf";
@@ -175,7 +175,7 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
                 new JavaJarCommand("orange",
                         Versions.ORANGE,
                         "orange.jar",
-                        "8G",
+                        "16G",
                         List.of("-output_dir",
                                 VmDirectories.OUTPUT,
                                 "-doid_json",
@@ -256,7 +256,7 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
                 .name(NAMESPACE)
                 .startupCommand(bash)
                 .namespacedResults(resultsDirectory)
-                .performanceProfile(VirtualMachinePerformanceProfile.custom(2, 4))
+                .performanceProfile(VirtualMachinePerformanceProfile.custom(4, 18))
                 .workingDiskSpaceGb(375)
                 .build();
     }
@@ -287,5 +287,10 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
     @Override
     public boolean shouldRun(final Arguments arguments) {
         return !arguments.shallow() && arguments.runTertiary();
+    }
+
+    @Override
+    public OrangeOutput persistedOutput(SomaticRunMetadata metadata) {
+        return OrangeOutput.builder().status(PipelineStatus.PERSISTED).build();
     }
 }

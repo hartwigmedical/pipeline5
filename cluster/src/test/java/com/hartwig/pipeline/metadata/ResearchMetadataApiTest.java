@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.core.ApiFuture;
@@ -83,10 +84,10 @@ public class ResearchMetadataApiTest {
         victim = new ResearchMetadataApi(sampleApi,
                 setApi,
                 runApi,
-                run,
+                Optional.of(run),
                 BIOPSY,
                 Arguments.testDefaults(),
-                new StagedOutputPublisher(setApi, bucket, publisher, objectMapper, run, Context.RESEARCH, false, true),
+                new StagedOutputPublisher(setApi, bucket, publisher, objectMapper, Optional.of(run), Context.RESEARCH, false, true),
                 new Anonymizer(Arguments.testDefaults()));
     }
 
@@ -132,10 +133,10 @@ public class ResearchMetadataApiTest {
         victim = new ResearchMetadataApi(sampleApi,
                 setApi,
                 runApi,
-                run,
+                Optional.of(run),
                 BIOPSY,
                 Arguments.testDefaults(),
-                new StagedOutputPublisher(setApi, bucket, publisher, ObjectMappers.get(), new Run(), Context.RESEARCH, true, true),
+                new StagedOutputPublisher(setApi, bucket, publisher, ObjectMappers.get(), Optional.of(run), Context.RESEARCH, true, true),
                 new Anonymizer(Arguments.testDefaultsBuilder().anonymize(true).build()));
         when(sampleApi.list(null, null, null, null, SampleType.TUMOR, BIOPSY)).thenReturn(List.of(tumor()));
         when(setApi.list(null, TUMOR_SAMPLE_ID, true)).thenReturn(List.of(new SampleSet().name(SET_NAME).id(SET_ID)));
