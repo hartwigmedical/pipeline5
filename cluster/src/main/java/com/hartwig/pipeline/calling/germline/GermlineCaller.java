@@ -64,7 +64,7 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
         this.resourceFiles = resourceFiles;
         this.bamDownload = new InputDownload(alignmentOutput.finalBamLocation());
         this.baiDownload = new InputDownload(alignmentOutput.finalBaiLocation());
-        outputFile = GermlineCallerOutput.outputFile(alignmentOutput.sample());
+        this.outputFile = GermlineCallerOutput.outputFile(alignmentOutput.sample());
         this.persistedDataset = persistedDataset;
     }
 
