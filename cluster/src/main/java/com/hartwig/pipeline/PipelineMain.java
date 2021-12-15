@@ -114,7 +114,6 @@ public class PipelineMain {
                             tumorBamMetricsOutputQueue,
                             referenceFlagstatOutputQueue,
                             tumorFlagstatOutputQueue,
-                            germlineCallerOutputQueue,
                             startingPoint,
                             persistedDataset),
                     Executors.newCachedThreadPool(),
@@ -150,8 +149,7 @@ public class PipelineMain {
             final SomaticMetadataApi somaticMetadataApi, final BlockingQueue<BamMetricsOutput> referenceBamMetricsOutputQueue,
             final BlockingQueue<BamMetricsOutput> tumourBamMetricsOutputQueue,
             final BlockingQueue<FlagstatOutput> referenceFlagstatOutputQueue, final BlockingQueue<FlagstatOutput> tumorFlagstatOutputQueue,
-            final BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue, final StartingPoint startingPoint,
-            final PersistedDataset persistedDataset) throws Exception {
+            final StartingPoint startingPoint, final PersistedDataset persistedDataset) throws Exception {
         return new SomaticPipeline(arguments,
                 new StageRunner<>(storage,
                         arguments,
@@ -162,7 +160,6 @@ public class PipelineMain {
                 tumourBamMetricsOutputQueue,
                 referenceFlagstatOutputQueue,
                 tumorFlagstatOutputQueue,
-                germlineCallerOutputQueue,
                 somaticMetadataApi,
                 PipelineResultsProvider.from(storage, arguments, Versions.pipelineVersion()).get(),
                 Executors.newCachedThreadPool(),

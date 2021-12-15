@@ -5,7 +5,6 @@ import static com.hartwig.pipeline.testsupport.TestInputs.chordOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.cobaltOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.cuppaOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.defaultSomaticRunMetadata;
-import static com.hartwig.pipeline.testsupport.TestInputs.germlineCallerOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.healthCheckerOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.linxOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.orangeOutput;
@@ -39,7 +38,6 @@ import java.util.concurrent.Executors;
 
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
-import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
 import com.hartwig.pipeline.calling.sage.SageOutput;
 import com.hartwig.pipeline.calling.sage.SageSomaticCaller;
 import com.hartwig.pipeline.calling.structural.StructuralCaller;
@@ -55,8 +53,6 @@ import com.hartwig.pipeline.report.PipelineResultsProvider;
 import com.hartwig.pipeline.reruns.NoopPersistedDataset;
 import com.hartwig.pipeline.stages.StageRunner;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthCheckOutput;
-import com.hartwig.pipeline.tertiary.pave.PaveOutput;
-import com.hartwig.pipeline.tertiary.pave.PaveSomatic;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
@@ -74,7 +70,6 @@ public class SomaticPipelineTest {
     private BlockingQueue<BamMetricsOutput> tumorMetricsOutputQueue = new ArrayBlockingQueue<>(1);
     private BlockingQueue<FlagstatOutput> referenceFlagstatOutputQueue = new ArrayBlockingQueue<>(1);
     private BlockingQueue<FlagstatOutput> tumorFlagstatOutputQueue = new ArrayBlockingQueue<>(1);
-    private java.util.concurrent.BlockingQueue<GermlineCallerOutput> germlineCallerOutputQueue = new ArrayBlockingQueue<>(1);
 
     @SuppressWarnings("unchecked")
     @Before
@@ -93,7 +88,6 @@ public class SomaticPipelineTest {
                 tumorMetricsOutputQueue,
                 referenceFlagstatOutputQueue,
                 tumorFlagstatOutputQueue,
-                germlineCallerOutputQueue,
                 setMetadataApi,
                 pipelineResults,
                 Executors.newSingleThreadExecutor(),
@@ -218,7 +212,6 @@ public class SomaticPipelineTest {
     public void failsRunOnQcFailure() {
         bothMetricsAvailable();
         bothFlagstatsAvailable();
-        germlineCallingAvailable();
         when(stageRunner.run(eq(defaultSomaticRunMetadata()), any())).thenReturn(amberOutput())
                 .thenReturn(cobaltOutput())
                 .thenReturn(sageSomaticOutput())
@@ -254,7 +247,6 @@ public class SomaticPipelineTest {
     private void successfulRun() {
         bothMetricsAvailable();
         bothFlagstatsAvailable();
-        germlineCallingAvailable();
         when(stageRunner.run(eq(defaultSomaticRunMetadata()), any())).thenReturn(amberOutput())
                 .thenReturn(cobaltOutput())
                 .thenReturn(sageSomaticOutput())
@@ -288,14 +280,6 @@ public class SomaticPipelineTest {
         try {
             tumorFlagstatOutputQueue.put(referenceFlagstatOutput());
             referenceFlagstatOutputQueue.put(tumorFlagstatOutput());
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private void germlineCallingAvailable() {
-        try {
-            germlineCallerOutputQueue.put(germlineCallerOutput());
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }

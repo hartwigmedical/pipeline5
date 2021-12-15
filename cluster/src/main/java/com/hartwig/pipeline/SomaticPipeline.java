@@ -9,7 +9,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import com.hartwig.pipeline.alignment.AlignmentPair;
-import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
 import com.hartwig.pipeline.calling.sage.SageGermlineCaller;
 import com.hartwig.pipeline.calling.sage.SageOutput;
 import com.hartwig.pipeline.calling.sage.SageSomaticCaller;
@@ -66,7 +65,6 @@ public class SomaticPipeline {
     private final BlockingQueue<BamMetricsOutput> tumorBamMetricsOutputQueue;
     private final BlockingQueue<FlagstatOutput> referenceFlagstatOutputQueue;
     private final BlockingQueue<FlagstatOutput> tumorFlagstatOutputQueue;
-    private final BlockingQueue<GermlineCallerOutput> germlineCallerOutputStorage;
     private final SomaticMetadataApi setMetadataApi;
     private final PipelineResults pipelineResults;
     private final ExecutorService executorService;
@@ -76,15 +74,14 @@ public class SomaticPipeline {
             final BlockingQueue<BamMetricsOutput> referenceBamMetricsOutputQueue,
             final BlockingQueue<BamMetricsOutput> tumorBamMetricsOutputQueue,
             final BlockingQueue<FlagstatOutput> referenceFlagstatOutputQueue, final BlockingQueue<FlagstatOutput> tumorFlagstatOutputQueue,
-            final BlockingQueue<GermlineCallerOutput> germlineCallerOutputStorageQueue, final SomaticMetadataApi setMetadataApi,
-            final PipelineResults pipelineResults, final ExecutorService executorService, final PersistedDataset persistedDataset) {
+            final SomaticMetadataApi setMetadataApi, final PipelineResults pipelineResults, final ExecutorService executorService,
+            final PersistedDataset persistedDataset) {
         this.arguments = arguments;
         this.stageRunner = stageRunner;
         this.referenceBamMetricsOutputQueue = referenceBamMetricsOutputQueue;
         this.tumorBamMetricsOutputQueue = tumorBamMetricsOutputQueue;
         this.referenceFlagstatOutputQueue = referenceFlagstatOutputQueue;
         this.tumorFlagstatOutputQueue = tumorFlagstatOutputQueue;
-        this.germlineCallerOutputStorage = germlineCallerOutputStorageQueue;
         this.setMetadataApi = setMetadataApi;
         this.pipelineResults = pipelineResults;
         this.executorService = executorService;
@@ -179,8 +176,8 @@ public class SomaticPipeline {
                             CuppaOutput cuppaOutput = pipelineResults.add(state.add(cuppaOutputFuture.get()));
                             PeachOutput peachOutput = pipelineResults.add(state.add(peachOutputFuture.get()));
                             ProtectOutput protectOutput = pipelineResults.add(state.add(executorService.submit(() -> stageRunner.run(
-                                            metadata,
-                                            new Protect(purpleOutput, linxOutput, virusOutput, chordOutput, resourceFiles, persistedDataset)))
+                                    metadata,
+                                    new Protect(purpleOutput, linxOutput, virusOutput, chordOutput, resourceFiles, persistedDataset)))
                                     .get()));
 
                             Future<OrangeOutput> orangeOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
