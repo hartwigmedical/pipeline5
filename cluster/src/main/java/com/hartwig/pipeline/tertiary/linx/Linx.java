@@ -95,7 +95,6 @@ public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
         String breakendTsv = metadata.tumor().sampleName() + BREAKEND_TSV;
         String driverCatalogTsv = metadata.tumor().sampleName() + DRIVER_CATALOG_TSV;
         String fusionsTsv = metadata.tumor().sampleName() + FUSION_TSV;
-        String viralInsertionsTsv = metadata.tumor().sampleName() + VIRAL_INSERTS_TSV;
         String driversTsv = metadata.tumor().sampleName() + DRIVERS_TSV;
 
         return LinxOutput.builder()

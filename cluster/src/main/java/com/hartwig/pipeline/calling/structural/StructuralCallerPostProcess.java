@@ -11,6 +11,7 @@ import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.calling.structural.gridss.stage.GridssHardFilter;
 import com.hartwig.pipeline.calling.structural.gridss.stage.GridssSomaticFilter;
+import com.hartwig.pipeline.calling.structural.gridss.stage.GripssSomatic;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.PipelineStatus;
@@ -66,8 +67,19 @@ public class StructuralCallerPostProcess implements Stage<StructuralCallerPostPr
     public List<BashCommand> commands(final SomaticRunMetadata metadata) {
         String tumorSampleName = metadata.tumor().sampleName();
         String referenceSampleName = metadata.reference().sampleName();
+
+        GripssSomatic gripssSomatic = new GripssSomatic(resourceFiles, tumorSampleName, referenceSampleName, gridssVcf.getLocalTargetPath());
+
+        SubStageInputOutput gripssOutput = gripssSomatic.apply(SubStageInputOutput.empty(tumorSampleName));
+        somaticVcf = gripssOutput.outputFile().path();
+        somaticFilteredVcf = gripssSomatic.unfilteredVcf(tumorSampleName);
+
+        // wil produce files like SAMPLE_ID.gripss.somatic.vcf.gz and SAMPLE_ID.gripss.filtered.somatic.vcf.gz
+
+        /*
         GridssSomaticFilter somaticFilter =
                 new GridssSomaticFilter(resourceFiles, tumorSampleName, referenceSampleName, gridssVcf.getLocalTargetPath());
+
         GridssHardFilter passAndPonFilter = new GridssHardFilter();
 
         SubStageInputOutput somaticOutput = somaticFilter.apply(SubStageInputOutput.empty(tumorSampleName));
@@ -77,6 +89,9 @@ public class StructuralCallerPostProcess implements Stage<StructuralCallerPostPr
         somaticFilteredVcf = somaticFilteredOutput.outputFile().path();
 
         return new ArrayList<>(somaticFilteredOutput.bash());
+        */
+
+        return new ArrayList<>(gripssOutput.bash());
     }
 
     private static String basename(String filename) {

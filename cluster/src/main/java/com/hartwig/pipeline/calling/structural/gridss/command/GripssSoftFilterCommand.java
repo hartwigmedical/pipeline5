@@ -2,7 +2,8 @@ package com.hartwig.pipeline.calling.structural.gridss.command;
 
 import com.hartwig.pipeline.resource.ResourceFiles;
 
-public class GripssSoftFilterCommand extends GripssCommand {
+public class GripssSoftFilterCommand extends GripssKtCommand
+{
 
     public GripssSoftFilterCommand(final ResourceFiles resourceFiles, final String tumorSample, final String refSample,
             final String inputVcf, final String outputVcf) {
