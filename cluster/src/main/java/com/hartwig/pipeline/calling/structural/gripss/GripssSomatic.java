@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.calling.structural.gridss.stage;
+package com.hartwig.pipeline.calling.structural.gripss;
 
 import java.util.Collections;
 import java.util.List;

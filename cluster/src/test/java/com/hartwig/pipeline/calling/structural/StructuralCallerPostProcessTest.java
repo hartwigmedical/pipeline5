@@ -18,7 +18,7 @@ import org.junit.Before;
 public class StructuralCallerPostProcessTest extends StageTest<StructuralCallerPostProcessOutput, SomaticRunMetadata> {
 
     private static final String TUMOR_GRIPSS_SOMATIC_VCF_GZ = "tumor.gripss.somatic.vcf.gz";
-    private static final String TUMOR_GRIPSS_SOMATIC_FILTERED_VCF_GZ = "tumor.gripss.somatic.filtered.vcf.gz";
+    private static final String TUMOR_GRIPSS_SOMATIC_FILTERED_VCF_GZ = "tumor.gripss.filtered.somatic.vcf.gz";
     private static final String GRIPSS = "gripss/";
 
     @Override

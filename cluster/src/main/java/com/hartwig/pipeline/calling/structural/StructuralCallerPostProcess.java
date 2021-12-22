@@ -9,9 +9,7 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
-import com.hartwig.pipeline.calling.structural.gridss.stage.GridssHardFilter;
-import com.hartwig.pipeline.calling.structural.gridss.stage.GridssSomaticFilter;
-import com.hartwig.pipeline.calling.structural.gridss.stage.GripssSomatic;
+import com.hartwig.pipeline.calling.structural.gripss.GripssSomatic;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.PipelineStatus;
@@ -74,23 +72,6 @@ public class StructuralCallerPostProcess implements Stage<StructuralCallerPostPr
         somaticVcf = gripssOutput.outputFile().path();
         somaticFilteredVcf = gripssSomatic.unfilteredVcf(tumorSampleName);
 
-        // wil produce files like SAMPLE_ID.gripss.somatic.vcf.gz and SAMPLE_ID.gripss.filtered.somatic.vcf.gz
-
-        /*
-        GridssSomaticFilter somaticFilter =
-                new GridssSomaticFilter(resourceFiles, tumorSampleName, referenceSampleName, gridssVcf.getLocalTargetPath());
-
-        GridssHardFilter passAndPonFilter = new GridssHardFilter();
-
-        SubStageInputOutput somaticOutput = somaticFilter.apply(SubStageInputOutput.empty(tumorSampleName));
-        SubStageInputOutput somaticFilteredOutput = passAndPonFilter.apply(somaticOutput);
-
-        somaticVcf = somaticOutput.outputFile().path();
-        somaticFilteredVcf = somaticFilteredOutput.outputFile().path();
-
-        return new ArrayList<>(somaticFilteredOutput.bash());
-        */
-
         return new ArrayList<>(gripssOutput.bash());
     }
 
@@ -152,7 +133,7 @@ public class StructuralCallerPostProcess implements Stage<StructuralCallerPostPr
                                         namespace(),
                                         format("%s.%s.%s",
                                                 metadata.tumor().sampleName(),
-                                                GridssHardFilter.GRIDSS_SOMATIC_FILTERED,
+                                                GripssSomatic.GRIPSS_SOMATIC_FILTERED,
                                                 FileTypes.GZIPPED_VCF))));
         GoogleStorageLocation somaticLocation =
                 persistedDataset.path(metadata.tumor().sampleName(), DataType.STRUCTURAL_VARIANTS_GRIPSS_RECOVERY)
@@ -161,7 +142,7 @@ public class StructuralCallerPostProcess implements Stage<StructuralCallerPostPr
                                         namespace(),
                                         format("%s.%s.%s",
                                                 metadata.tumor().sampleName(),
-                                                GridssSomaticFilter.GRIDSS_SOMATIC,
+                                                GripssSomatic.GRIPSS_SOMATIC_UNFILTERED,
                                                 FileTypes.GZIPPED_VCF))));
 
         return StructuralCallerPostProcessOutput.builder()

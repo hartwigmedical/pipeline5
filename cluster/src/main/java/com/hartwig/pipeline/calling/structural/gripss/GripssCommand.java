@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.calling.structural.gridss.stage;
+package com.hartwig.pipeline.calling.structural.gripss;
 
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
