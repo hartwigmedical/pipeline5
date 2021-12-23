@@ -71,8 +71,8 @@ public class PeachTest extends TertiaryStageTest<PeachOutput> {
 
     @Override
     protected List<String> expectedCommands() {
-        return Collections.singletonList("/opt/tools/peach/1.4_venv/bin/python /opt/tools/peach/1.4/src/main.py "
-                + "--vcf /data/input/tumor.purple.germline.vcf.gz --sample_t_id tumor --sample_r_id reference --tool_version 1.4 "
+        return Collections.singletonList("/opt/tools/peach/1.5_venv/bin/python /opt/tools/peach/1.5/src/main.py "
+                + "--vcf /data/input/tumor.purple.germline.vcf.gz --sample_t_id tumor --sample_r_id reference --tool_version 1.5 "
                 + "--outputdir /data/output --panel /opt/resources/peach/37/min_DPYD.json");
     }
 
