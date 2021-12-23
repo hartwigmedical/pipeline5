@@ -29,7 +29,7 @@ public interface Versions {
     String CHORD = "2.00_1.14";
     String SAMTOOLS = "1.10";
     String BAMCOMP = "1.3";
-    String PROTECT = "1.8";
+    String PROTECT = "1.9";
     String REPEAT_MASKER = "4.1.1";
     String KRAKEN = "2.1.0";
     String CUPPA = "1.6";
