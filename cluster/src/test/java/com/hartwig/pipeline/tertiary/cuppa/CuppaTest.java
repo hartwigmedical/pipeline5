@@ -26,6 +26,7 @@ public class CuppaTest extends TertiaryStageTest<CuppaOutput> {
     private static final String TUMOR_CUP_REPORT_FEATURE_PNG = "tumor.cup.report.features.png";
     private static final String TUMOR_CUP_DATA_CSV = "tumor.cup.data.csv";
     private static final String TUMOR_CUP_REPORT_SUMMARY_PNG = "tumor.cup.report.summary.png";
+    private static final String TUMOR_CUPPA_CHART_PNG = "tumor.cuppa.chart.png";
 
     @Override
     public void disabledAppropriately() {
@@ -39,7 +40,7 @@ public class CuppaTest extends TertiaryStageTest<CuppaOutput> {
 
     @Override
     protected List<AddDatatype> expectedFurtherOperations() {
-        return List.of(new AddDatatype(DataType.CUPPA_CHART,
+        return List.of(new AddDatatype(DataType.CUPPA_SUMMARY_CHART,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
                         new ArchivePath(Folder.root(), Cuppa.NAMESPACE, TUMOR_CUP_REPORT_SUMMARY_PNG)),
                 new AddDatatype(DataType.CUPPA_CONCLUSION,
@@ -50,7 +51,10 @@ public class CuppaTest extends TertiaryStageTest<CuppaOutput> {
                         new ArchivePath(Folder.root(), Cuppa.NAMESPACE, TUMOR_CUP_DATA_CSV)),
                 new AddDatatype(DataType.CUPPA_FEATURE_PLOT,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
-                        new ArchivePath(Folder.root(), Cuppa.NAMESPACE, TUMOR_CUP_REPORT_FEATURE_PNG)));
+                        new ArchivePath(Folder.root(), Cuppa.NAMESPACE, TUMOR_CUP_REPORT_FEATURE_PNG)),
+                new AddDatatype(DataType.CUPPA_CHART,
+                        TestInputs.defaultSomaticRunMetadata().barcode(),
+                        new ArchivePath(Folder.root(), Cuppa.NAMESPACE, TUMOR_CUPPA_CHART_PNG)));
     }
 
     @Override
@@ -95,7 +99,7 @@ public class CuppaTest extends TertiaryStageTest<CuppaOutput> {
     @Override
     protected void setupPersistedDataset() {
         persistedDataset.addPath(DataType.CUPPA_CONCLUSION, "cuppa/" + TUMOR_CUPPA_CONCLUSION_TXT);
-        persistedDataset.addPath(DataType.CUPPA_CHART, "cuppa/" + TUMOR_CUP_REPORT_SUMMARY_PNG);
+        persistedDataset.addPath(DataType.CUPPA_SUMMARY_CHART, "cuppa/" + TUMOR_CUP_REPORT_SUMMARY_PNG);
         persistedDataset.addPath(DataType.CUPPA_RESULTS, "cuppa/" + TUMOR_CUP_DATA_CSV);
         persistedDataset.addPath(DataType.CUPPA_FEATURE_PLOT, "cuppa/" + TUMOR_CUP_REPORT_FEATURE_PNG);
     }
