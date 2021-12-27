@@ -40,7 +40,7 @@ public class StructuralCallerPostProcess implements Stage<StructuralCallerPostPr
 
     private final ResourceFiles resourceFiles;
     private final PersistedDataset persistedDataset;
-    private String somaticVcf;
+    private String somaticUnfilteredVcf;
     private String somaticFilteredVcf;
 
     public StructuralCallerPostProcess(final ResourceFiles resourceFiles, StructuralCallerOutput structuralCallerOutput,
@@ -69,8 +69,8 @@ public class StructuralCallerPostProcess implements Stage<StructuralCallerPostPr
         GripssSomatic gripssSomatic = new GripssSomatic(resourceFiles, tumorSampleName, referenceSampleName, gridssVcf.getLocalTargetPath());
 
         SubStageInputOutput gripssOutput = gripssSomatic.apply(SubStageInputOutput.empty(tumorSampleName));
-        somaticVcf = gripssOutput.outputFile().path();
-        somaticFilteredVcf = gripssSomatic.unfilteredVcf(tumorSampleName);
+        somaticFilteredVcf = gripssOutput.outputFile().path();
+        somaticUnfilteredVcf = gripssSomatic.unfilteredVcf(tumorSampleName);
 
         return new ArrayList<>(gripssOutput.bash());
     }
@@ -92,14 +92,14 @@ public class StructuralCallerPostProcess implements Stage<StructuralCallerPostPr
                 .maybeFilteredVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(somaticFilteredVcf))))
                 .maybeFilteredVcfIndex(GoogleStorageLocation.of(bucket.name(),
                         FileTypes.tabixIndex(resultsDirectory.path(basename(somaticFilteredVcf)))))
-                .maybeFullVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(somaticVcf))))
-                .maybeFullVcfIndex(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(somaticVcf + ".tbi"))))
+                .maybeFullVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(somaticUnfilteredVcf))))
+                .maybeFullVcfIndex(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(somaticUnfilteredVcf + ".tbi"))))
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
                         NAMESPACE,
                         Folder.root(),
-                        basename(somaticVcf),
-                        basename(somaticVcf),
+                        basename(somaticUnfilteredVcf),
+                        basename(somaticUnfilteredVcf),
                         resultsDirectory))
                 .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
                         NAMESPACE,
@@ -111,7 +111,7 @@ public class StructuralCallerPostProcess implements Stage<StructuralCallerPostPr
                 .addReportComponents(new StartupScriptComponent(bucket, NAMESPACE, Folder.root()))
                 .addDatatypes(new AddDatatype(DataType.STRUCTURAL_VARIANTS_GRIPSS_RECOVERY,
                                 metadata.barcode(),
-                                new ArchivePath(Folder.root(), namespace(), basename(somaticVcf))),
+                                new ArchivePath(Folder.root(), namespace(), basename(somaticUnfilteredVcf))),
                         new AddDatatype(DataType.STRUCTURAL_VARIANTS_GRIPSS,
                                 metadata.barcode(),
                                 new ArchivePath(Folder.root(), namespace(), basename(somaticFilteredVcf))))
