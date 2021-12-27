@@ -39,6 +39,7 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
     public static final String CUP_DATA_CSV = ".cup.data.csv";
     public static final String CUPPA_FEATURE_PLOT = ".cup.report.features.png";
     public static final String CUPPA_CONCLUSION_TXT = ".cuppa.conclusion.txt";
+    public static final String CUPPA_CONCLUSION_CHART = ".cuppa.chart.png";
     public static String NAMESPACE = "cuppa";
     private final InputDownload purpleSomaticVcfDownload;
     private final InputDownload purpleStructuralVcfDownload;
@@ -120,6 +121,7 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
     @Override
     public CuppaOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
             final ResultsDirectory resultsDirectory) {
+        final String cuppaConclusionChart = cuppaConclusionChart(metadata);
         final String conclusionTxt = cuppaConclusionTxt(metadata);
         final String cuppaSummaryChartPng = cupReportSummaryPng(metadata);
         final String resultsCsv = cupDataCsv(metadata);
@@ -135,6 +137,9 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
                 .addDatatypes(new AddDatatype(DataType.CUPPA_CHART,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), cuppaConclusionChart)))
+                .addDatatypes(new AddDatatype(DataType.CUPPA_SUMMARY_CHART,
                         metadata.barcode(),
                         new ArchivePath(Folder.root(), namespace(), cuppaSummaryChartPng)))
                 .addDatatypes(new AddDatatype(DataType.CUPPA_CONCLUSION,
@@ -165,6 +170,10 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
         return metadata.tumor().sampleName() + CUPPA_CONCLUSION_TXT;
     }
 
+    private String cuppaConclusionChart(final SomaticRunMetadata metadata) {
+        return metadata.tumor().sampleName() + CUPPA_CONCLUSION_CHART;
+    }
+
     @Override
     public CuppaOutput skippedOutput(final SomaticRunMetadata metadata) {
         return CuppaOutput.builder().status(PipelineStatus.SKIPPED).build();
@@ -172,6 +181,7 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
 
     @Override
     public CuppaOutput persistedOutput(final SomaticRunMetadata metadata) {
+        final String cuppaConclusionChart = cuppaConclusionChart(metadata);
         final String conclusionTxt = cuppaConclusionTxt(metadata);
         final String cuppaChart = cupReportSummaryPng(metadata);
         final String resultsCsv = cupDataCsv(metadata);
@@ -182,7 +192,7 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
                         .conclusionTxt(persistedDataset.path(metadata.tumor().sampleName(), DataType.CUPPA_CONCLUSION)
                                 .orElse(GoogleStorageLocation.of(metadata.bucket(),
                                         PersistedLocations.blobForSet(metadata.set(), namespace(), conclusionTxt))))
-                        .summaryChartPng(persistedDataset.path(metadata.tumor().sampleName(), DataType.CUPPA_CHART)
+                        .summaryChartPng(persistedDataset.path(metadata.tumor().sampleName(), DataType.CUPPA_SUMMARY_CHART)
                                 .orElse(GoogleStorageLocation.of(metadata.bucket(),
                                         PersistedLocations.blobForSet(metadata.set(), namespace(), cuppaChart))))
                         .resultCsv(persistedDataset.path(metadata.tumor().sampleName(), DataType.CUPPA_RESULTS)
@@ -192,6 +202,9 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
                                 .orElse(GoogleStorageLocation.of(metadata.bucket(),
                                         PersistedLocations.blobForSet(metadata.set(), namespace(), featurePlot))))
                         .build())
+                .addDatatypes(new AddDatatype(DataType.CUPPA_CHART,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), cuppaConclusionChart)))
                 .addDatatypes(new AddDatatype(DataType.CUPPA_CONCLUSION,
                         metadata.barcode(),
                         new ArchivePath(Folder.root(), namespace(), conclusionTxt)))
