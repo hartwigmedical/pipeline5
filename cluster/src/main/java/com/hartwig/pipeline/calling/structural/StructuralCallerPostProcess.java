@@ -9,8 +9,7 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
-import com.hartwig.pipeline.calling.structural.gridss.stage.GridssHardFilter;
-import com.hartwig.pipeline.calling.structural.gridss.stage.GridssSomaticFilter;
+import com.hartwig.pipeline.calling.structural.gripss.GripssSomatic;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.PipelineStatus;
@@ -41,7 +40,7 @@ public class StructuralCallerPostProcess implements Stage<StructuralCallerPostPr
 
     private final ResourceFiles resourceFiles;
     private final PersistedDataset persistedDataset;
-    private String somaticVcf;
+    private String somaticUnfilteredVcf;
     private String somaticFilteredVcf;
 
     public StructuralCallerPostProcess(final ResourceFiles resourceFiles, StructuralCallerOutput structuralCallerOutput,
@@ -66,17 +65,14 @@ public class StructuralCallerPostProcess implements Stage<StructuralCallerPostPr
     public List<BashCommand> commands(final SomaticRunMetadata metadata) {
         String tumorSampleName = metadata.tumor().sampleName();
         String referenceSampleName = metadata.reference().sampleName();
-        GridssSomaticFilter somaticFilter =
-                new GridssSomaticFilter(resourceFiles, tumorSampleName, referenceSampleName, gridssVcf.getLocalTargetPath());
-        GridssHardFilter passAndPonFilter = new GridssHardFilter();
 
-        SubStageInputOutput somaticOutput = somaticFilter.apply(SubStageInputOutput.empty(tumorSampleName));
-        SubStageInputOutput somaticFilteredOutput = passAndPonFilter.apply(somaticOutput);
+        GripssSomatic gripssSomatic = new GripssSomatic(resourceFiles, tumorSampleName, referenceSampleName, gridssVcf.getLocalTargetPath());
 
-        somaticVcf = somaticOutput.outputFile().path();
-        somaticFilteredVcf = somaticFilteredOutput.outputFile().path();
+        SubStageInputOutput gripssOutput = gripssSomatic.apply(SubStageInputOutput.empty(tumorSampleName));
+        somaticFilteredVcf = gripssOutput.outputFile().path();
+        somaticUnfilteredVcf = gripssSomatic.unfilteredVcf(tumorSampleName);
 
-        return new ArrayList<>(somaticFilteredOutput.bash());
+        return new ArrayList<>(gripssOutput.bash());
     }
 
     private static String basename(String filename) {
@@ -96,14 +92,14 @@ public class StructuralCallerPostProcess implements Stage<StructuralCallerPostPr
                 .maybeFilteredVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(somaticFilteredVcf))))
                 .maybeFilteredVcfIndex(GoogleStorageLocation.of(bucket.name(),
                         FileTypes.tabixIndex(resultsDirectory.path(basename(somaticFilteredVcf)))))
-                .maybeFullVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(somaticVcf))))
-                .maybeFullVcfIndex(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(somaticVcf + ".tbi"))))
+                .maybeFullVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(somaticUnfilteredVcf))))
+                .maybeFullVcfIndex(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(somaticUnfilteredVcf + ".tbi"))))
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
                         NAMESPACE,
                         Folder.root(),
-                        basename(somaticVcf),
-                        basename(somaticVcf),
+                        basename(somaticUnfilteredVcf),
+                        basename(somaticUnfilteredVcf),
                         resultsDirectory))
                 .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
                         NAMESPACE,
@@ -115,7 +111,7 @@ public class StructuralCallerPostProcess implements Stage<StructuralCallerPostPr
                 .addReportComponents(new StartupScriptComponent(bucket, NAMESPACE, Folder.root()))
                 .addDatatypes(new AddDatatype(DataType.STRUCTURAL_VARIANTS_GRIPSS_RECOVERY,
                                 metadata.barcode(),
-                                new ArchivePath(Folder.root(), namespace(), basename(somaticVcf))),
+                                new ArchivePath(Folder.root(), namespace(), basename(somaticUnfilteredVcf))),
                         new AddDatatype(DataType.STRUCTURAL_VARIANTS_GRIPSS,
                                 metadata.barcode(),
                                 new ArchivePath(Folder.root(), namespace(), basename(somaticFilteredVcf))))
@@ -137,7 +133,7 @@ public class StructuralCallerPostProcess implements Stage<StructuralCallerPostPr
                                         namespace(),
                                         format("%s.%s.%s",
                                                 metadata.tumor().sampleName(),
-                                                GridssHardFilter.GRIDSS_SOMATIC_FILTERED,
+                                                GripssSomatic.GRIPSS_SOMATIC_FILTERED,
                                                 FileTypes.GZIPPED_VCF))));
         GoogleStorageLocation somaticLocation =
                 persistedDataset.path(metadata.tumor().sampleName(), DataType.STRUCTURAL_VARIANTS_GRIPSS_RECOVERY)
@@ -146,7 +142,7 @@ public class StructuralCallerPostProcess implements Stage<StructuralCallerPostPr
                                         namespace(),
                                         format("%s.%s.%s",
                                                 metadata.tumor().sampleName(),
-                                                GridssSomaticFilter.GRIDSS_SOMATIC,
+                                                GripssSomatic.GRIPSS_SOMATIC_UNFILTERED,
                                                 FileTypes.GZIPPED_VCF))));
 
         return StructuralCallerPostProcessOutput.builder()

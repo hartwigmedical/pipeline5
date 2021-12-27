@@ -11,8 +11,6 @@ import com.hartwig.batch.api.RemoteLocationsApi;
 import com.hartwig.batch.input.InputBundle;
 import com.hartwig.batch.input.InputFileDescriptor;
 import com.hartwig.pipeline.ResultsDirectory;
-import com.hartwig.pipeline.calling.structural.gridss.stage.GridssHardFilter;
-import com.hartwig.pipeline.calling.structural.gridss.stage.GridssSomaticFilter;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.OutputFile;
 import com.hartwig.pipeline.execution.vm.OutputUpload;
@@ -47,6 +45,7 @@ public class GripssRerun implements BatchOperation {
         final String refSample = inputFileFactory.getReference();
         final String inputVcf = inputFileFactory.getStructuralVariantsGridss();
 
+        /* superceded by new Gripss
         final GridssSomaticFilter somaticFilter = new GridssSomaticFilter(resourceFiles, sample, refSample, inputVcf);
         final SubStageInputOutput postProcessing = somaticFilter.andThen(new GridssHardFilter())
                 .apply(SubStageInputOutput.of(sample, inputFile(inputVcf), Collections.emptyList()));
@@ -61,6 +60,7 @@ public class GripssRerun implements BatchOperation {
 
         //2. Run GRIPSS
         startupScript.addCommands(postProcessing.bash());
+         */
 
         // 4. Upload output
         startupScript.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), "gripss"), executionFlags));

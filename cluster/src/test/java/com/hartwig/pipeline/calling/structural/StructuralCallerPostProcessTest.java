@@ -18,7 +18,7 @@ import org.junit.Before;
 public class StructuralCallerPostProcessTest extends StageTest<StructuralCallerPostProcessOutput, SomaticRunMetadata> {
 
     private static final String TUMOR_GRIPSS_SOMATIC_VCF_GZ = "tumor.gripss.somatic.vcf.gz";
-    private static final String TUMOR_GRIPSS_SOMATIC_FILTERED_VCF_GZ = "tumor.gripss.somatic.filtered.vcf.gz";
+    private static final String TUMOR_GRIPSS_SOMATIC_FILTERED_VCF_GZ = "tumor.gripss.filtered.somatic.vcf.gz";
     private static final String GRIPSS = "gripss/";
 
     @Override
@@ -53,16 +53,13 @@ public class StructuralCallerPostProcessTest extends StageTest<StructuralCallerP
     @Override
     protected List<String> expectedCommands() {
         return ImmutableList.of(
-                "java -Xmx24G -cp /opt/tools/gripss/1.12/gripss.jar com.hartwig.hmftools.gripsskt.GripssApplicationKt -ref_genome "
+                "java -Xmx16G -jar /opt/tools/gripss/2.0/gripss.jar -ref_genome "
                         + "/opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
-                        + "-breakpoint_hotspot /opt/resources/fusions/37/known_fusions.37.bedpe "
-                        + "-breakend_pon /opt/resources/gridss_pon/37/gridss_pon_single_breakend.37.bed "
-                        + "-breakpoint_pon /opt/resources/gridss_pon/37/gridss_pon_breakpoint.37.bedpe "
-                        + "-reference reference -tumor tumor "
-                        + "-input_vcf /data/input/tumor.gridss.unfiltered.vcf.gz -output_vcf /data/output/" + TUMOR_GRIPSS_SOMATIC_VCF_GZ
-                        + " -paired_normal_tumor_ordinals",
-                "java -Xmx24G -cp /opt/tools/gripss/1.12/gripss.jar com.hartwig.hmftools.gripsskt.GripssHardFilterApplicationKt -input_vcf /data/output/"
-                        + TUMOR_GRIPSS_SOMATIC_VCF_GZ + " -output_vcf /data/output/" + TUMOR_GRIPSS_SOMATIC_FILTERED_VCF_GZ);
+                        + "-known_hotspot_file /opt/resources/fusions/37/known_fusions.37.bedpe "
+                        + "-pon_sgl_file /opt/resources/gridss_pon/37/gridss_pon_single_breakend.37.bed "
+                        + "-pon_sv_file /opt/resources/gridss_pon/37/gridss_pon_breakpoint.37.bedpe "
+                        + "-reference reference -sample tumor "
+                        + "-vcf /data/input/tumor.gridss.unfiltered.vcf.gz -output_dir /data/output -output_id somatic");
     }
 
     @Override
