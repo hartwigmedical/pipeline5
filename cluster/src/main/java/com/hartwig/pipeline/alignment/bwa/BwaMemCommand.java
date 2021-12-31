@@ -7,6 +7,9 @@ import com.hartwig.pipeline.execution.vm.Bash;
 
 class BwaMemCommand extends BwaCommand {
 
+    private static final String MAGIC_NUMBER_SEED = "10000000";
+    private static final String MAKE_DETERMINISTIC = "-K";
+
     BwaMemCommand(final String recordGroupId, final String sampleName, final String flowcellId, final String referenceGenomePath,
             final String first, final String second) {
         super("mem",
@@ -15,8 +18,8 @@ class BwaMemCommand extends BwaCommand {
                 "-Y",
                 "-t",
                 Bash.allCpus(),
-                "-K",
-                "10000000",
+                MAKE_DETERMINISTIC,
+                MAGIC_NUMBER_SEED,
                 referenceGenomePath,
                 first,
                 second);
