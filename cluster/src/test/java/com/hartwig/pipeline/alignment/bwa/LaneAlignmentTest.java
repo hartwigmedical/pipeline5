@@ -31,7 +31,7 @@ public class LaneAlignmentTest extends SubStageTest {
     public void alignsBamsAndSortsEachLaneFastqPair() {
         assertThat(bash()).contains("(/opt/tools/bwa/0.7.17/bwa mem -R "
                 + "\"@RG\\tID:COLO829v003R_AHHKYHDSXX_S13_L001_001\\tLB:tumor\\tPL:ILLUMINA\\tPU:flowCell\\tSM:tumor\" "
-                + "-Y -t $(grep -c '^processor' /proc/cpuinfo) reference.fasta COLO829v003R_AHHKYHDSXX_S13_L001_R1_001.fastq.gz "
+                + "-Y -t $(grep -c '^processor' /proc/cpuinfo) -K 10000000 reference.fasta COLO829v003R_AHHKYHDSXX_S13_L001_R1_001.fastq.gz "
                 + "COLO829v003R_AHHKYHDSXX_S13_L001_R2_001.fastq.gz | /opt/tools/sambamba/0.6.8/sambamba view -f bam -S -l0 /dev/stdin "
                 + "| /opt/tools/sambamba/0.6.8/sambamba sort -o /data/output/tumor.flowCell-L001.bam /dev/stdin)");
     }
