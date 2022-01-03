@@ -15,8 +15,6 @@ class BwaMemCommand extends BwaCommand {
                 "-Y",
                 "-t",
                 Bash.allCpus(),
-                "-K",
-                "10000000",
                 referenceGenomePath,
                 first,
                 second);
