@@ -15,7 +15,6 @@
     <artifactId>cluster</artifactId>
     <version>local-SNAPSHOT</version>
     <packaging>jar</packaging>
-
     <dependencies>
         <dependency>
             <groupId>com.hartwig</groupId>

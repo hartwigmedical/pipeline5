@@ -204,8 +204,8 @@ gridss/run.log
 gridss/run.sh
 gripss/CPCT12345678T.gripss.somatic.vcf.gz
 gripss/CPCT12345678T.gripss.somatic.vcf.gz.tbi
-gripss/CPCT12345678T.gripss.somatic.filtered.vcf.gz
-gripss/CPCT12345678T.gripss.somatic.filtered.vcf.gz.tbi
+gripss/CPCT12345678T.gripss.filtered.somatic.vcf.gz
+gripss/CPCT12345678T.gripss.filtered.somatic.vcf.gz.tbi
 gripss/run.log
 gripss/run.sh
 virusbreakend/CPCT12345678T.virus.annotated.tsv
