@@ -117,17 +117,23 @@ public class RnaIsofox implements BatchOperation {
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/* %s",
                 getRnaResourceDirectory(refGenomeVersion, "ensembl_data_cache"), VmDirectories.INPUT));
 
-        startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s %s",
-                getRnaResourceDirectory(refGenomeVersion, ISOFOX), expectedCountsFile, VmDirectories.INPUT));
+        if(functionsStr.contains(FUNC_TRANSCRIPT_COUNTS))
+        {
+            startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s %s",
+                    getRnaResourceDirectory(refGenomeVersion, ISOFOX), expectedCountsFile, VmDirectories.INPUT));
 
-        startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s %s",
-                getRnaResourceDirectory(refGenomeVersion, ISOFOX), EXP_GC_COUNTS_READ_100, VmDirectories.INPUT));
+            startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s %s",
+                    getRnaResourceDirectory(refGenomeVersion, ISOFOX), EXP_GC_COUNTS_READ_100, VmDirectories.INPUT));
+        }
 
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s %s",
                 getRnaResourceDirectory(refGenomeVersion, ISOFOX), KNOWN_FUSIONS_FILE, VmDirectories.INPUT));
 
-        startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s %s",
-                getRnaResourceDirectory(refGenomeVersion, ISOFOX), COHORT_FUSION_FILE, VmDirectories.INPUT));
+        if(functionsStr.equals(FUNC_FUSIONS))
+        {
+            startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s %s",
+                    getRnaResourceDirectory(refGenomeVersion, ISOFOX), COHORT_FUSION_FILE, VmDirectories.INPUT));
+        }
 
         final String threadCount = Bash.allCpus();
 
@@ -138,8 +144,8 @@ public class RnaIsofox implements BatchOperation {
 
         final String neoEpitopeFile = String.format("%s.imu.neo_epitopes.csv", sampleId);
 
-        if(functionsStr.contains(FUNC_NEO_EPITOPES)) {
-
+        if(functionsStr.contains(FUNC_NEO_EPITOPES))
+        {
             startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s %s",
                     NEO_EPITOPE_DIR, neoEpitopeFile, VmDirectories.INPUT));
         }
@@ -154,9 +160,8 @@ public class RnaIsofox implements BatchOperation {
 
         isofoxArgs.append(String.format(" -ref_genome %s", resourceFiles.refGenomeFile()));
 
-        // current cache has gene data out of order
-        isofoxArgs.append(String.format(" -ensembl_data_dir %s", VmDirectories.INPUT));
-        // isofoxArgs.append(String.format(" -ensembl_data_dir %s", resourceFiles.ensemblDataCache()));
+        // isofoxArgs.append(String.format(" -ensembl_data_dir %s", VmDirectories.INPUT));
+        isofoxArgs.append(String.format(" -ensembl_data_dir %s", resourceFiles.ensemblDataCache()));
 
         isofoxArgs.append(String.format(" -long_frag_limit %d", LONG_FRAG_LENGTH_LIMIT));
 

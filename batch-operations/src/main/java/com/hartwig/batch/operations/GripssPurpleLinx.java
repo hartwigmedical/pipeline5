@@ -115,6 +115,7 @@ public class GripssPurpleLinx implements BatchOperation {
         startupScript.addCommand(() -> format("gsutil -m cp %s/*linx*.tsv %s", VmDirectories.OUTPUT, linxCombined));
 
         startupScript.addCommand(() -> format("gsutil -m cp %s/*purple* %s", VmDirectories.OUTPUT, purpleCombined));
+        startupScript.addCommand(() -> format("gsutil -m cp %s/*driver.catalog* %s", VmDirectories.OUTPUT, purpleCombined));
         // startupScript.addCommand(() -> format("gsutil -m cp %s/*purple*.tsv %s", VmDirectories.OUTPUT, purpleCombined));
         // startupScript.addCommand(() -> format("gsutil -m cp %s/*purple.qc %s", VmDirectories.OUTPUT, purpleCombined));
         // startupScript.addCommand(() -> format("gsutil -m cp %s/*purple*.vcf.gz* %s", VmDirectories.OUTPUT, purpleCombined));
