@@ -3,6 +3,8 @@ package com.hartwig.batch;
 import static java.lang.Boolean.parseBoolean;
 import static java.lang.String.format;
 
+import java.util.Optional;
+
 import com.hartwig.pipeline.CommonArguments;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
 
@@ -45,13 +47,14 @@ public interface BatchArguments extends CommonArguments {
                     .outputBucket(commandLine.getOptionValue(OUTPUT_BUCKET))
                     .cmek(commandLine.getOptionValue(CMEK, CommonArguments.DEFAULT_DEVELOPMENT_CMEK))
                     .network(commandLine.getOptionValue(PRIVATE_NETWORK, DEFAULT_NETWORK))
+                    .subnet(commandLine.hasOption(SUBNET) ? Optional.of(commandLine.getOptionValue(SUBNET)) : Optional.empty())
                     .refGenomeVersion(RefGenomeVersion.V37)
                     .imageProject("hmf-pipeline-development")
                     .usePreemptibleVms(true)
                     .build();
         } catch (ParseException e) {
             String message = "Failed to parse arguments";
-            System.err.println(format("%s: %s", message, e.getMessage()));
+            System.err.printf("%s: %s%n", message, e.getMessage());
             usage();
             System.out.println();
             throw new IllegalArgumentException(message, e);
@@ -67,7 +70,7 @@ public interface BatchArguments extends CommonArguments {
             }
         }
         final int i = padding;
-        options().getOptions().forEach(o -> System.err.println(format("-%-" + i + "s  %s", o.getOpt(), o.getDescription())));
+        options().getOptions().forEach(o -> System.err.printf("-%-" + i + "s  %s%n", o.getOpt(), o.getDescription()));
     }
 
     private static Options options() {

@@ -18,7 +18,8 @@ public interface CommonArguments {
     String CLOUD_SDK = "cloud_sdk";
     String PRIVATE_KEY_PATH = "private_key_path";
     String CMEK = "cmek";
-    String PRIVATE_NETWORK = "private_network";
+    String PRIVATE_NETWORK = "network";
+    String SUBNET = "subnet";
 
     String CMEK_DESCRIPTION = "The resource path of the Customer Managed Encryption Key. Runtime buckets will use this key.";
     String DEFAULT_NETWORK = "default";
