@@ -88,7 +88,8 @@ public interface BatchArguments extends CommonArguments {
                 .addOption(stringOption(SERVICE_ACCOUNT_EMAIL, "Email of service account"))
                 .addOption(stringOption(OUTPUT_BUCKET, "Output bucket (must exist and must be writable by the service account)"))
                 .addOption(stringOption(CMEK, CMEK_DESCRIPTION))
-                .addOption(stringOption(PRIVATE_NETWORK, PRIVATE_NETWORK_DESCRIPTION));
+                .addOption(stringOption(PRIVATE_NETWORK, PRIVATE_NETWORK_DESCRIPTION))
+                .addOption(stringOption(SUBNET, "Subnet to use within the specified network"));
     }
 
     private static Option stringOption(final String option, final String description) {
