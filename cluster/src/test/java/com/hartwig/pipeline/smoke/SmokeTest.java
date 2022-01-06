@@ -80,7 +80,8 @@ public class SmokeTest {
                 .rclonePath(RCLONE_PATH)
                 .rcloneGcpRemote(GCP_REMOTE)
                 .rcloneS3RemoteDownload("s3")
-                .cleanup(true)
+                .cleanup(false)
+                .outputCram(false)
                 .outputBucket("services-pipeline-output-pilot-1")
                 .context(Context.SERVICES)
                 .build();
