@@ -33,7 +33,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-@Ignore
 @Category(value = IntegrationTest.class)
 public class SmokeTest {
 
