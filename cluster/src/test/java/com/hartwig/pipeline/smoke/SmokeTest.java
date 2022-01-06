@@ -33,7 +33,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-@Ignore
 @Category(value = IntegrationTest.class)
 public class SmokeTest {
 
@@ -80,7 +79,8 @@ public class SmokeTest {
                 .rclonePath(RCLONE_PATH)
                 .rcloneGcpRemote(GCP_REMOTE)
                 .rcloneS3RemoteDownload("s3")
-                .cleanup(true)
+                .cleanup(false)
+                .outputCram(false)
                 .outputBucket("services-pipeline-output-pilot-1")
                 .context(Context.SERVICES)
                 .build();
