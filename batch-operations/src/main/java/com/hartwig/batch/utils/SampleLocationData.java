@@ -101,10 +101,17 @@ public class SampleLocationData
         return String.format("%s/%s", VmDirectories.INPUT, fileRefOnly);
     }
 
-    public String formDownloadRequest(final String fileRef)
+    public String remotePath(final String fileRef)
     {
-        String remotePath = fileRef.contains(OLD_BUCKET_PREFIX) ? fileRef : String.format("%s/%s", RunBucket, fileRef);
-        return String.format("gsutil -m -u hmf-crunch cp -r gs://%s %s/", remotePath, VmDirectories.INPUT);
+        return fileRef.contains(OLD_BUCKET_PREFIX) ? fileRef : String.format("%s/%s", RunBucket, fileRef);
+    }
+
+    public String formDownloadRequest(final String fileRef, boolean recursive)
+    {
+        String remotePath = remotePath(fileRef);
+
+        return String.format("gsutil -m -u hmf-crunch %s gs://%s %s/",
+                recursive ? "cp -r" : "cp", remotePath, VmDirectories.INPUT);
     }
 
     public String remotePurpleFile(final String fileSuffix)

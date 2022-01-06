@@ -78,7 +78,6 @@ public class GripssPurpleLinx implements BatchOperation {
         final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.V37);
 
         // download required JARs and resources
-        /*
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s/%s %s",
                 RESOURCE_DIR, GRIPSS_DIR, GRIPSS_JAR, VmDirectories.TOOLS));
 
@@ -87,7 +86,6 @@ public class GripssPurpleLinx implements BatchOperation {
 
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s/%s %s",
                 RESOURCE_DIR, LINX_DIR, LINX_JAR, VmDirectories.TOOLS));
-        */
 
         // Gripss inputs
         // startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s/%s %s", RESOURCE_DIR, GRIPSS_DIR, PON_BP, VmDirectories.INPUT));
@@ -138,7 +136,7 @@ public class GripssPurpleLinx implements BatchOperation {
 
         // download required input files
         String gridssVcf = sampleLocations.localFileRef(sampleLocations.GridssVcf);
-        startupScript.addCommand(() -> sampleLocations.formDownloadRequest(sampleLocations.GridssVcf));
+        startupScript.addCommand(() -> sampleLocations.formDownloadRequest(sampleLocations.GridssVcf, false));
 
         // run Gripss
         final StringJoiner gripssArgs = new StringJoiner(" ");
@@ -152,8 +150,8 @@ public class GripssPurpleLinx implements BatchOperation {
         gripssArgs.add(String.format("-output_dir %s", VmDirectories.OUTPUT));
         gripssArgs.add(String.format("-log_debug"));
 
-        // String gripssJar = String.format("%s/%s", VmDirectories.TOOLS, GRIPSS_JAR);
-        String gripssJar = String.format("%s/gripss/%s/gripss.jar", VmDirectories.TOOLS, Versions.GRIPSS);
+        String gripssJar = String.format("%s/%s", VmDirectories.TOOLS, GRIPSS_JAR);
+        // String gripssJar = String.format("%s/gripss/%s/gripss.jar", VmDirectories.TOOLS, Versions.GRIPSS);
 
         startupScript.addCommand(() -> format("java -Xmx30G -jar %s %s", gripssJar, gripssArgs.toString()));
 
@@ -166,7 +164,7 @@ public class GripssPurpleLinx implements BatchOperation {
         final String paveVcf = String.format("%s/%s.sage.somatic.filtered.pave.vcf.gz", VmDirectories.OUTPUT, sampleId);
 
         String sageSomaticVcf = sampleLocations.localFileRef(sampleLocations.SageVcf);
-        startupScript.addCommand(() -> sampleLocations.formDownloadRequest(sampleLocations.SageVcf));
+        startupScript.addCommand(() -> sampleLocations.formDownloadRequest(sampleLocations.SageVcf, false));
 
         paveArgs.add(String.format("-sample %s", sampleId));
         paveArgs.add(String.format("-vcf_file %s", sageSomaticVcf));
@@ -183,11 +181,17 @@ public class GripssPurpleLinx implements BatchOperation {
         startupScript.addCommand(() -> format("java -jar %s %s", paveJar, paveArgs.toString()));
 
         // Purple
-        String amberDir = sampleLocations.localFileRef(sampleLocations.Amber);
-        startupScript.addCommand(() -> sampleLocations.formDownloadRequest(sampleLocations.Amber));
+        // String amberDir = sampleLocations.localFileRef(sampleLocations.Amber);
+        // startupScript.addCommand(() -> sampleLocations.formDownloadRequest(sampleLocations.Amber, true));
+        String amberDir = VmDirectories.INPUT;
+        String amberFiles = String.format("%s/*amber*", sampleLocations.Amber);
+        startupScript.addCommand(() -> sampleLocations.formDownloadRequest(amberFiles, false));
 
-        String cobaltDir = sampleLocations.localFileRef(sampleLocations.Cobalt);
-        startupScript.addCommand(() -> sampleLocations.formDownloadRequest(sampleLocations.Cobalt));
+        // String cobaltDir = sampleLocations.localFileRef(sampleLocations.Cobalt);
+        // startupScript.addCommand(() -> sampleLocations.formDownloadRequest(sampleLocations.Cobalt, true));
+        String cobaltDir = VmDirectories.INPUT;
+        String cobaltFiles = String.format("%s/*cobalt*", sampleLocations.Cobalt);
+        startupScript.addCommand(() -> sampleLocations.formDownloadRequest(cobaltFiles, false));
 
         final StringJoiner purpleArgs = new StringJoiner(" ");
         purpleArgs.add(String.format("-tumor %s", sampleId));
@@ -228,8 +232,8 @@ public class GripssPurpleLinx implements BatchOperation {
         linxArgs.add(String.format("-known_fusion_file %s", resourceFiles.knownFusionData()));
         linxArgs.add(String.format("-output_dir %s", VmDirectories.OUTPUT));
 
-        // String linxJar = String.format("%s/%s", VmDirectories.TOOLS, LINX    _JAR);
-        String linxJar = String.format("%s/linx/%s/linx.jar", VmDirectories.TOOLS, Versions.LINX);
+        String linxJar = String.format("%s/%s", VmDirectories.TOOLS, LINX_JAR);
+        // String linxJar = String.format("%s/linx/%s/linx.jar", VmDirectories.TOOLS, Versions.LINX);
 
         startupScript.addCommand(() -> format("java -jar %s %s", linxJar, linxArgs.toString()));
     }
