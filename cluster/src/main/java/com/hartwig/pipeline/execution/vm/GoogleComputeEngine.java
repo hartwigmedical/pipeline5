@@ -1,6 +1,7 @@
 package com.hartwig.pipeline.execution.vm;
 
 import static java.lang.String.format;
+import static java.util.Collections.lastIndexOfSubList;
 import static java.util.Collections.singletonList;
 
 import java.io.IOException;
@@ -8,6 +9,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -59,28 +61,32 @@ public class GoogleComputeEngine implements ComputeEngine {
     private final Consumer<List<Zone>> zoneRandomizer;
     private final InstanceLifecycleManager lifecycleManager;
     private final BucketCompletionWatcher bucketWatcher;
+    private final Labels labels;
 
     GoogleComputeEngine(final CommonArguments arguments, final Compute compute, final Consumer<List<Zone>> zoneRandomizer,
-            final InstanceLifecycleManager lifecycleManager, final BucketCompletionWatcher bucketWatcher) {
+            final InstanceLifecycleManager lifecycleManager, final BucketCompletionWatcher bucketWatcher, final Labels labels) {
         this.arguments = arguments;
         this.compute = compute;
         this.zoneRandomizer = zoneRandomizer;
         this.lifecycleManager = lifecycleManager;
         this.bucketWatcher = bucketWatcher;
+        this.labels = labels;
     }
 
-    public static ComputeEngine from(final CommonArguments arguments, final GoogleCredentials credentials) throws Exception {
-        return from(arguments, credentials, true);
-    }
-
-    public static ComputeEngine from(final CommonArguments arguments, final GoogleCredentials credentials, final boolean constrainQuotas)
+    public static ComputeEngine from(final CommonArguments arguments, final GoogleCredentials credentials, final Labels labels)
             throws Exception {
+        return from(arguments, credentials, true, labels);
+    }
+
+    public static ComputeEngine from(final CommonArguments arguments, final GoogleCredentials credentials, final boolean constrainQuotas,
+            final Labels labels) throws Exception {
         Compute compute = initCompute(credentials);
         GoogleComputeEngine engine = new GoogleComputeEngine(arguments,
                 compute,
                 Collections::shuffle,
                 new InstanceLifecycleManager(arguments, compute),
-                new BucketCompletionWatcher());
+                new BucketCompletionWatcher(),
+                labels);
         return constrainQuotas ? new QuotaConstrainedComputeEngine(engine,
                 initServiceUseage(credentials),
                 arguments.region(),
@@ -122,9 +128,8 @@ public class GoogleComputeEngine implements ComputeEngine {
                     instance.setScheduling(new Scheduling().setPreemptible(true));
                 }
                 instance.setMachineType(machineType(currentZone.getName(), jobDefinition.performanceProfile().uri(), project));
-
-                instance.setLabels(Labels.ofRun(bucket.runId(), jobDefinition.name()));
-
+                final Map<String, String> labelMap = labels.asMap(List.of(Map.entry("job_name", jobDefinition.name())));
+                instance.setLabels(labelMap);
                 addServiceAccount(instance);
                 Image image = attachDisks(compute,
                         instance,
@@ -137,7 +142,8 @@ public class GoogleComputeEngine implements ComputeEngine {
                                 .get(arguments.imageProject().orElse(VirtualMachineJobDefinition.HMF_IMAGE_PROJECT),
                                         arguments.imageName().get())
                                 .execute()
-                                : resolveLatestImage(compute, jobDefinition.imageFamily(), arguments.imageProject().orElse(project)));
+                                : resolveLatestImage(compute, jobDefinition.imageFamily(), arguments.imageProject().orElse(project)),
+                        labelMap);
                 LOGGER.info("Submitting compute engine job [{}] using image [{}] in zone [{}]",
                         vmName,
                         image.getName(),
@@ -230,8 +236,9 @@ public class GoogleComputeEngine implements ComputeEngine {
         return argument.startsWith("projects");
     }
 
-    private Image attachDisks(Compute compute, Instance instance, VirtualMachineJobDefinition jobDefinition, String projectName,
-            String vmName, String zone, final Image sourceImage) throws IOException {
+    private Image attachDisks(final Compute compute, final Instance instance, final VirtualMachineJobDefinition jobDefinition,
+            final String projectName, final String vmName, String zone, final Image sourceImage, final Map<String, String> labels)
+            throws IOException {
         AttachedDisk bootDisk = new AttachedDisk();
         bootDisk.setBoot(true);
         bootDisk.setAutoDelete(true);
@@ -239,10 +246,11 @@ public class GoogleComputeEngine implements ComputeEngine {
         bootDiskParams.setSourceImage(sourceImage.getSelfLink());
         bootDiskParams.setDiskType(pdssd(projectName, zone));
         bootDiskParams.setDiskSizeGb(jobDefinition.baseImageDiskSizeGb());
+        bootDiskParams.setLabels(labels);
         bootDisk.setInitializeParams(bootDiskParams);
         List<AttachedDisk> disks = new ArrayList<>(singletonList(bootDisk));
         if (arguments.useLocalSsds()) {
-            attachLocalSsds(disks, jobDefinition.localSsdCount(), projectName, zone);
+            attachLocalSsds(disks, jobDefinition.localSsdCount(), projectName, zone, labels);
         } else {
             AttachedDiskInitializeParams workingDiskParams = new AttachedDiskInitializeParams();
             workingDiskParams.setDiskType(pdssd(projectName, zone));
@@ -262,13 +270,15 @@ public class GoogleComputeEngine implements ComputeEngine {
         return format(PD_SSD, apiBaseUrl(projectName), zone);
     }
 
-    private void attachLocalSsds(List<AttachedDisk> disks, int deviceCount, String projectName, String zone) {
+    private void attachLocalSsds(final List<AttachedDisk> disks, final int deviceCount, final String projectName, final String zone,
+            final Map<String, String> labels) {
         for (int i = 0; i < deviceCount; i++) {
             AttachedDisk disk = new AttachedDisk();
             disk.setBoot(false);
             disk.setAutoDelete(true);
             AttachedDiskInitializeParams params = new AttachedDiskInitializeParams();
             params.setDiskType(format(LOCAL_SSD, apiBaseUrl(projectName), zone));
+            params.setLabels(labels);
             disk.setInitializeParams(params);
             disk.setType("SCRATCH");
             disk.setInterface("NVME");

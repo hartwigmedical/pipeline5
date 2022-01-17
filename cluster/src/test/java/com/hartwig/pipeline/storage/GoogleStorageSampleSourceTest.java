@@ -19,6 +19,7 @@ import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ImmutableArguments;
 import com.hartwig.pipeline.alignment.sample.GoogleStorageSampleSource;
 import com.hartwig.pipeline.alignment.sample.SampleSource;
+import com.hartwig.pipeline.labels.Labels;
 import com.hartwig.pipeline.testsupport.TestBlobs;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
@@ -36,7 +37,7 @@ public class GoogleStorageSampleSourceTest {
     @Before
     public void setUp() throws Exception {
         storage = mock(Storage.class);
-        victim = new GoogleStorageSampleSource(storage, ARGUMENTS);
+        victim = new GoogleStorageSampleSource(storage, ARGUMENTS, mock(Labels.class));
     }
 
     @Test(expected = IllegalArgumentException.class)
