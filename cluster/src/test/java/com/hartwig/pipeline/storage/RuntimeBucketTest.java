@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.Map;
 
 import com.google.api.gax.paging.Page;
 import com.google.cloud.storage.Blob;
@@ -18,6 +19,8 @@ import com.google.cloud.storage.BucketInfo;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageClass;
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.labels.Labels;
+import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
@@ -32,6 +35,7 @@ public class RuntimeBucketTest {
     private Storage storage;
     private ArgumentCaptor<BucketInfo> bucketInfo;
     private Bucket bucket;
+    private Labels labels;
 
     @Before
     public void setUp() throws Exception {
@@ -39,6 +43,7 @@ public class RuntimeBucketTest {
         bucket = mock(Bucket.class);
         bucketInfo = ArgumentCaptor.forClass(BucketInfo.class);
         when(storage.create(bucketInfo.capture())).thenReturn(bucket);
+        labels = Labels.of(Arguments.testDefaults());
     }
 
     @Test
@@ -46,7 +51,8 @@ public class RuntimeBucketTest {
         RuntimeBucket.from(storage,
                 NAMESPACE,
                 referenceRunMetadata(),
-                Arguments.testDefaultsBuilder().profile(Arguments.DefaultsProfile.PRODUCTION).build());
+                Arguments.testDefaultsBuilder().profile(Arguments.DefaultsProfile.PRODUCTION).build(),
+                labels);
         assertThat(bucketInfo.getValue().getName()).isEqualTo("run-reference-test");
     }
 
@@ -55,13 +61,14 @@ public class RuntimeBucketTest {
         RuntimeBucket.from(storage,
                 NAMESPACE,
                 defaultSomaticRunMetadata(),
-                Arguments.testDefaultsBuilder().profile(Arguments.DefaultsProfile.PRODUCTION).build());
+                Arguments.testDefaultsBuilder().profile(Arguments.DefaultsProfile.PRODUCTION).build(),
+                labels);
         assertThat(bucketInfo.getValue().getName()).isEqualTo("run-reference-tumor-test");
     }
 
     @Test
     public void setsRegionToArguments() {
-        RuntimeBucket.from(storage, NAMESPACE, referenceRunMetadata(), Arguments.testDefaultsBuilder().region(REGION).build());
+        RuntimeBucket.from(storage, NAMESPACE, referenceRunMetadata(), Arguments.testDefaultsBuilder().region(REGION).build(), labels);
         assertThat(bucketInfo.getValue().getLocation()).isEqualTo(REGION);
     }
 
@@ -137,12 +144,30 @@ public class RuntimeBucketTest {
     public void usesCmek() {
         String keyName = "key";
         Arguments arguments = Arguments.testDefaultsBuilder().cmek(keyName).build();
-        RuntimeBucket.from(storage, NAMESPACE, referenceRunMetadata(), arguments);
+        RuntimeBucket.from(storage, NAMESPACE, referenceRunMetadata(), arguments, labels);
         assertThat(bucketInfo.getValue().getDefaultKmsKeyName()).isEqualTo(keyName);
+    }
+
+    @Test
+    public void appliesLabels() {
+        Arguments arguments = Arguments.testDefaultsBuilder().costCenterLabel("development").userLabel("username").build();
+        RuntimeBucket.from(storage,
+                NAMESPACE,
+                referenceRunMetadata(),
+                arguments,
+                Labels.of(arguments, TestInputs.defaultSomaticRunMetadata()));
+        assertThat(bucketInfo.getValue().getLabels()).isEqualTo(Map.of("cost_center",
+                "development",
+                "run_id",
+                "test",
+                "sample",
+                "tumor",
+                "user",
+                "username"));
     }
 
     @NotNull
     private RuntimeBucket defaultBucket() {
-        return RuntimeBucket.from(storage, NAMESPACE, referenceRunMetadata(), Arguments.testDefaults());
+        return RuntimeBucket.from(storage, NAMESPACE, referenceRunMetadata(), Arguments.testDefaults(), labels);
     }
 }

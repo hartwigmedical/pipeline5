@@ -20,6 +20,7 @@ import com.hartwig.pipeline.alignment.sample.SampleSource;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.GoogleComputeEngine;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.pipeline.labels.Labels;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
@@ -54,7 +55,7 @@ public class BwaAlignerTest {
                 sampleSource,
                 sampleUpload,
                 ResultsDirectory.defaultDirectory(),
-                Executors.newSingleThreadExecutor());
+                Executors.newSingleThreadExecutor(), mock(Labels.class));
     }
 
     @Test

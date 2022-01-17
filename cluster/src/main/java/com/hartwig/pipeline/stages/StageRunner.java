@@ -10,6 +10,7 @@ import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.OutputUpload;
 import com.hartwig.pipeline.execution.vm.RuntimeFiles;
 import com.hartwig.pipeline.failsafe.DefaultBackoffPolicy;
+import com.hartwig.pipeline.labels.Labels;
 import com.hartwig.pipeline.metadata.RunMetadata;
 import com.hartwig.pipeline.reruns.StartingPoint;
 import com.hartwig.pipeline.resource.OverrideReferenceGenomeCommand;
@@ -26,21 +27,23 @@ public class StageRunner<M extends RunMetadata> {
     private final ComputeEngine computeEngine;
     private final ResultsDirectory resultsDirectory;
     private final StartingPoint startingPoint;
+    private final Labels labels;
 
     public StageRunner(final Storage storage, final Arguments arguments, final ComputeEngine computeEngine,
-            final ResultsDirectory resultsDirectory, final StartingPoint startingPoint) {
+            final ResultsDirectory resultsDirectory, final StartingPoint startingPoint, final Labels labels) {
         this.storage = storage;
         this.arguments = arguments;
         this.computeEngine = computeEngine;
         this.resultsDirectory = resultsDirectory;
         this.startingPoint = startingPoint;
+        this.labels = labels;
     }
 
     public <T extends StageOutput> T run(M metadata, Stage<T, M> stage) {
         if (stage.shouldRun(arguments)) {
             if (!startingPoint.usePersisted(stage.namespace())) {
                 StageTrace trace = new StageTrace(stage.namespace(), metadata.name(), StageTrace.ExecutorType.COMPUTE_ENGINE);
-                RuntimeBucket bucket = RuntimeBucket.from(storage, stage.namespace(), metadata, arguments);
+                RuntimeBucket bucket = RuntimeBucket.from(storage, stage.namespace(), metadata, arguments, labels);
                 BashStartupScript bash = BashStartupScript.of(bucket.name());
                 bash.addCommands(stage.inputs())
                         .addCommands(OverrideReferenceGenomeCommand.overrides(arguments))
@@ -48,7 +51,7 @@ public class StageRunner<M extends RunMetadata> {
                         .addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path()),
                                 RuntimeFiles.typical()));
                 PipelineStatus status =
-                        Failsafe.with(DefaultBackoffPolicy.of(String.format("[%s] stage [%s]", metadata.toString(), stage.namespace())))
+                        Failsafe.with(DefaultBackoffPolicy.of(String.format("[%s] stage [%s]", metadata.name(), stage.namespace())))
                                 .get(() -> computeEngine.submit(bucket, stage.vmDefinition(bash, resultsDirectory)));
                 trace.stop();
                 return stage.output(metadata, status, bucket, resultsDirectory);

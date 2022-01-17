@@ -64,23 +64,21 @@ public class SomaticPipelineTest {
     private static final Arguments ARGUMENTS = Arguments.testDefaults();
     private SomaticPipeline victim;
     private StructuralCaller structuralCaller;
-    private SomaticMetadataApi setMetadataApi;
     private StageRunner<SomaticRunMetadata> stageRunner;
     private BlockingQueue<BamMetricsOutput> referenceMetricsOutputQueue = new ArrayBlockingQueue<>(1);
     private BlockingQueue<BamMetricsOutput> tumorMetricsOutputQueue = new ArrayBlockingQueue<>(1);
     private BlockingQueue<FlagstatOutput> referenceFlagstatOutputQueue = new ArrayBlockingQueue<>(1);
     private BlockingQueue<FlagstatOutput> tumorFlagstatOutputQueue = new ArrayBlockingQueue<>(1);
+    private PipelineResults pipelineResults;
 
     @SuppressWarnings("unchecked")
     @Before
     public void setUp() throws Exception {
         structuralCaller = mock(StructuralCaller.class);
-        setMetadataApi = mock(SomaticMetadataApi.class);
-        when(setMetadataApi.get()).thenReturn(defaultSomaticRunMetadata());
         Storage storage = mock(Storage.class);
         Bucket reportBucket = mock(Bucket.class);
         when(storage.get(ARGUMENTS.outputBucket())).thenReturn(reportBucket);
-        final PipelineResults pipelineResults = PipelineResultsProvider.from(storage, ARGUMENTS, "test").get();
+        pipelineResults = PipelineResultsProvider.from(storage, ARGUMENTS, "test").get();
         stageRunner = mock(StageRunner.class);
         victim = new SomaticPipeline(ARGUMENTS,
                 stageRunner,
@@ -88,7 +86,7 @@ public class SomaticPipelineTest {
                 tumorMetricsOutputQueue,
                 referenceFlagstatOutputQueue,
                 tumorFlagstatOutputQueue,
-                setMetadataApi,
+                defaultSomaticRunMetadata(),
                 pipelineResults,
                 Executors.newSingleThreadExecutor(),
                 new NoopPersistedDataset());
@@ -236,10 +234,19 @@ public class SomaticPipelineTest {
 
     @Test
     public void skipsStructuralCallerIfSingleSampleRun() {
-        when(setMetadataApi.get()).thenReturn(SomaticRunMetadata.builder()
-                .from(defaultSomaticRunMetadata())
-                .maybeTumor(Optional.empty())
-                .build());
+        victim = new SomaticPipeline(ARGUMENTS,
+                stageRunner,
+                referenceMetricsOutputQueue,
+                tumorMetricsOutputQueue,
+                referenceFlagstatOutputQueue,
+                tumorFlagstatOutputQueue,
+                SomaticRunMetadata.builder()
+                        .from(defaultSomaticRunMetadata())
+                        .maybeTumor(Optional.empty())
+                        .build(),
+                pipelineResults,
+                Executors.newSingleThreadExecutor(),
+                new NoopPersistedDataset());
         victim.run(TestInputs.defaultPair());
         verifyZeroInteractions(stageRunner, structuralCaller);
     }

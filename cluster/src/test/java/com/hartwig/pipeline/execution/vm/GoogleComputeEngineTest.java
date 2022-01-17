@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import com.google.api.services.compute.Compute;
 import com.google.api.services.compute.model.AttachedDisk;
@@ -31,7 +32,9 @@ import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BucketCompletionWatcher.State;
+import com.hartwig.pipeline.labels.Labels;
 import com.hartwig.pipeline.testsupport.MockRuntimeBucket;
+import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -119,7 +122,7 @@ public class GoogleComputeEngineTest {
 
         bucketWatcher = mock(BucketCompletionWatcher.class);
         victim = new GoogleComputeEngine(ARGUMENTS, compute, z -> {
-        }, lifecycleManager, bucketWatcher);
+        }, lifecycleManager, bucketWatcher, Labels.of(Arguments.testDefaults(), TestInputs.defaultSomaticRunMetadata()));
         runtimeBucket = MockRuntimeBucket.test();
         jobDefinition = VirtualMachineJobDefinition.builder()
                 .name("test")
@@ -148,7 +151,7 @@ public class GoogleComputeEngineTest {
     public void disablesStartupScriptWhenInstanceWithPersistentDisksFailsRemotely() throws Exception {
         Arguments arguments = Arguments.testDefaultsBuilder().useLocalSsds(false).build();
         victim = new GoogleComputeEngine(arguments, compute, z -> {
-        }, lifecycleManager, bucketWatcher);
+        }, lifecycleManager, bucketWatcher, mock(Labels.class));
         returnFailed();
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
         verify(lifecycleManager).disableStartupScript(FIRST_ZONE_NAME, INSTANCE_NAME);
@@ -180,7 +183,7 @@ public class GoogleComputeEngineTest {
     public void stopsInstanceWithPersistentDisksUponFailure() {
         Arguments arguments = Arguments.testDefaultsBuilder().useLocalSsds(false).build();
         victim = new GoogleComputeEngine(arguments, compute, z -> {
-        }, lifecycleManager, bucketWatcher);
+        }, lifecycleManager, bucketWatcher, mock(Labels.class));
         returnFailed();
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
         verify(lifecycleManager).stop(FIRST_ZONE_NAME, INSTANCE_NAME);
@@ -209,7 +212,7 @@ public class GoogleComputeEngineTest {
     public void usesNetworkAndSubnetWhenSpecified() {
         returnSuccess();
         victim = new GoogleComputeEngine(Arguments.testDefaultsBuilder().network("private").subnet("subnet").build(), compute, z -> {
-        }, lifecycleManager, bucketWatcher);
+        }, lifecycleManager, bucketWatcher, mock(Labels.class));
         ArgumentCaptor<List<NetworkInterface>> interfaceCaptor = ArgumentCaptor.forClass(List.class);
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
 
@@ -226,7 +229,7 @@ public class GoogleComputeEngineTest {
     public void usesNetworkAsSubnetWhenNotSpecified() {
         returnSuccess();
         victim = new GoogleComputeEngine(Arguments.testDefaultsBuilder().network("private").build(), compute, z -> {
-        }, lifecycleManager, bucketWatcher);
+        }, lifecycleManager, bucketWatcher, mock(Labels.class));
         ArgumentCaptor<List<NetworkInterface>> interfaceCaptor = ArgumentCaptor.forClass(List.class);
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
 
@@ -245,7 +248,7 @@ public class GoogleComputeEngineTest {
         String networkUrl = "projects/private";
         String subnetUrl = "projects/subnet";
         victim = new GoogleComputeEngine(Arguments.testDefaultsBuilder().network(networkUrl).subnet(subnetUrl).build(), compute, z -> {
-        }, lifecycleManager, bucketWatcher);
+        }, lifecycleManager, bucketWatcher, mock(Labels.class));
         ArgumentCaptor<List<NetworkInterface>> interfaceCaptor = ArgumentCaptor.forClass(List.class);
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
 
@@ -261,7 +264,7 @@ public class GoogleComputeEngineTest {
     public void addsTagsToComputeEngineInstances() {
         returnSuccess();
         victim = new GoogleComputeEngine(Arguments.testDefaultsBuilder().tags(List.of("tag")).build(), compute, z -> {
-        }, lifecycleManager, bucketWatcher);
+        }, lifecycleManager, bucketWatcher, mock(Labels.class));
         ArgumentCaptor<Tags> tagsArgumentCaptor = ArgumentCaptor.forClass(Tags.class);
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
 
@@ -329,7 +332,7 @@ public class GoogleComputeEngineTest {
     @Test
     public void attachesTwoPersisentDisksWhenLocalSSDDisabled() {
         victim = new GoogleComputeEngine(Arguments.builder().from(ARGUMENTS).useLocalSsds(false).build(), compute, z -> {
-        }, lifecycleManager, bucketWatcher);
+        }, lifecycleManager, bucketWatcher, mock(Labels.class));
         returnSuccess();
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
         ArgumentCaptor<List<AttachedDisk>> disksCaptor = ArgumentCaptor.forClass(List.class);
@@ -347,7 +350,7 @@ public class GoogleComputeEngineTest {
     @Test
     public void usesLatestImageFromCurrentFamilyWhenNoImageGiven() throws IOException {
         victim = new GoogleComputeEngine(ARGUMENTS, compute, z -> {
-        }, lifecycleManager, bucketWatcher);
+        }, lifecycleManager, bucketWatcher, mock(Labels.class));
         returnSuccess();
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
         verify(images).getFromFamily(ARGUMENTS.project(), VirtualMachineJobDefinition.STANDARD_IMAGE);
@@ -357,7 +360,7 @@ public class GoogleComputeEngineTest {
     public void usesLatestImageFromCurrentFamilyWithGivenProject() throws IOException {
         String givenProject = "givenProject";
         victim = new GoogleComputeEngine(Arguments.builder().from(ARGUMENTS).imageProject(givenProject).build(), compute, z -> {
-        }, lifecycleManager, bucketWatcher);
+        }, lifecycleManager, bucketWatcher, mock(Labels.class));
         returnSuccess();
         ArgumentCaptor<String> project = ArgumentCaptor.forClass(String.class);
         when(images.getFromFamily(project.capture(), eq(VirtualMachineJobDefinition.STANDARD_IMAGE))).thenReturn(imagesFromFamily);
@@ -371,12 +374,32 @@ public class GoogleComputeEngineTest {
         Compute.Images.Get specificImage = mock(Compute.Images.Get.class);
         when(specificImage.execute()).thenReturn(mock(Image.class));
         victim = new GoogleComputeEngine(Arguments.testDefaultsBuilder().imageName(imageName).build(), compute, z -> {
-        }, lifecycleManager, bucketWatcher);
+        }, lifecycleManager, bucketWatcher, mock(Labels.class));
         when(images.get(VirtualMachineJobDefinition.HMF_IMAGE_PROJECT, imageName)).thenReturn(specificImage);
         returnSuccess();
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
         verify(images, never()).getFromFamily(any(), any());
         verify(specificImage).execute();
+    }
+
+    @Test
+    public void appliesLabelsToInstanceAndDisks() {
+        victim = new GoogleComputeEngine(ARGUMENTS, compute, z -> {
+        }, lifecycleManager, bucketWatcher,
+                Labels.of(Arguments.testDefaultsBuilder().userLabel("username").costCenterLabel("development").build(),
+                TestInputs.defaultSomaticRunMetadata()));
+        returnSuccess();
+        victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
+        ArgumentCaptor<List<AttachedDisk>> disksCaptor = ArgumentCaptor.forClass(List.class);
+        ArgumentCaptor<Map<String, String>> labelCaptor = ArgumentCaptor.forClass(Map.class);
+        verify(instance).setDisks(disksCaptor.capture());
+        verify(instance).setLabels(labelCaptor.capture());
+        List<AttachedDisk> disks = disksCaptor.getValue();
+        final Map<String, String> appliedLabels = Map.of("cost_center", "development", "job_name", "test", "run_id", "test", "sample",
+                "tumor", "user",
+                "username");
+        assertThat(disks.get(0).getInitializeParams().getLabels()).isEqualTo(appliedLabels);
+        assertThat(labelCaptor.getValue()).isEqualTo(appliedLabels);
     }
 
     public void isLocalSSD(final AttachedDisk disk) {

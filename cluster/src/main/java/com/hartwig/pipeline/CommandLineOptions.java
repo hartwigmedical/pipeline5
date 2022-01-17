@@ -79,6 +79,8 @@ public class CommandLineOptions {
     private static final String PUBSUB_PROJECT_FLAG = "pubsub_project";
     private static final String ANONYMIZE_FLAG = "anonymize";
     private static final String CONTEXT_FLAG = "context";
+    private static final String COST_CENTER_LABEL_FLAG = "cost_center_label";
+    private static final String USER_LABEL_FLAG = "user_label";
 
     private static Options options() {
         return new Options().addOption(profile())
@@ -142,12 +144,24 @@ public class CommandLineOptions {
                 .addOption(useCrams())
                 .addOption(pubsubProject())
                 .addOption(anonymize())
-                .addOption(context());
+                .addOption(context())
+                .addOption(costCenterLabel())
+                .addOption(userLabel());
+    }
+
+    private static Option userLabel() {
+        return optionWithArg(USER_LABEL_FLAG,
+                "This value will be applied as a label with key cost_center to all resources (VMs, disks and buckets)");
+    }
+
+    private static Option costCenterLabel() {
+        return optionWithArg(COST_CENTER_LABEL_FLAG,
+                "This value will be applied as a label with key cost_center to all resources (VMs, disks and buckets)");
     }
 
     private static Option context() {
         return optionWithArg(CONTEXT_FLAG,
-                format("Context to run pileline in [%s]",
+                format("Context in which this pipeline is run [%s]. Impacts downstream handling of results in production environment",
                         Stream.of(Pipeline.Context.values()).map(Pipeline.Context::name).collect(Collectors.joining(", "))));
     }
 
@@ -363,6 +377,8 @@ public class CommandLineOptions {
                     .pubsubProject(pubsubProject(commandLine, defaults))
                     .anonymize(booleanOptionWithDefault(commandLine, ANONYMIZE_FLAG, defaults.anonymize()))
                     .context(context(commandLine, defaults))
+                    .costCenterLabel(costCenterLabel(commandLine, defaults))
+                    .userLabel(userLabel(commandLine, defaults))
                     .build();
         } catch (ParseException e) {
             LOGGER.error("Could not parse command line args", e);
@@ -370,6 +386,20 @@ public class CommandLineOptions {
             formatter.printHelp("pipeline5", options());
             throw e;
         }
+    }
+
+    public static Optional<String> userLabel(final CommandLine commandLine, final Arguments defaults) {
+        if (commandLine.hasOption(USER_LABEL_FLAG)) {
+            return Optional.of(commandLine.getOptionValue(USER_LABEL_FLAG));
+        }
+        return defaults.costCenterLabel();
+    }
+
+    public static Optional<String> costCenterLabel(final CommandLine commandLine, final Arguments defaults) {
+        if (commandLine.hasOption(COST_CENTER_LABEL_FLAG)) {
+            return Optional.of(commandLine.getOptionValue(COST_CENTER_LABEL_FLAG));
+        }
+        return defaults.costCenterLabel();
     }
 
     public static Context context(final CommandLine commandLine, final Arguments defaults) {

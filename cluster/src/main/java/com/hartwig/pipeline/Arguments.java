@@ -199,7 +199,8 @@ public interface Arguments extends CommonArguments {
                     .useLocalSsds(true)
                     .useCrams(false)
                     .anonymize(false)
-                    .context(DEFAULT_CONTEXT);
+                    .context(DEFAULT_CONTEXT)
+                    .userLabel(System.getProperty("user.name"));
         } else if (profile.equals(DefaultsProfile.DEVELOPMENT_DOCKER)) {
             return ImmutableArguments.builder()
                     .profile(profile)

@@ -17,7 +17,6 @@ import com.hartwig.pipeline.calling.structural.StructuralCallerOutput;
 import com.hartwig.pipeline.calling.structural.StructuralCallerPostProcess;
 import com.hartwig.pipeline.calling.structural.StructuralCallerPostProcessOutput;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
-import com.hartwig.pipeline.metadata.SomaticMetadataApi;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
 import com.hartwig.pipeline.report.PipelineResults;
@@ -65,7 +64,7 @@ public class SomaticPipeline {
     private final BlockingQueue<BamMetricsOutput> tumorBamMetricsOutputQueue;
     private final BlockingQueue<FlagstatOutput> referenceFlagstatOutputQueue;
     private final BlockingQueue<FlagstatOutput> tumorFlagstatOutputQueue;
-    private final SomaticMetadataApi setMetadataApi;
+    private final SomaticRunMetadata metadata;
     private final PipelineResults pipelineResults;
     private final ExecutorService executorService;
     private final PersistedDataset persistedDataset;
@@ -74,7 +73,7 @@ public class SomaticPipeline {
             final BlockingQueue<BamMetricsOutput> referenceBamMetricsOutputQueue,
             final BlockingQueue<BamMetricsOutput> tumorBamMetricsOutputQueue,
             final BlockingQueue<FlagstatOutput> referenceFlagstatOutputQueue, final BlockingQueue<FlagstatOutput> tumorFlagstatOutputQueue,
-            final SomaticMetadataApi setMetadataApi, final PipelineResults pipelineResults, final ExecutorService executorService,
+            final SomaticRunMetadata metadata, final PipelineResults pipelineResults, final ExecutorService executorService,
             final PersistedDataset persistedDataset) {
         this.arguments = arguments;
         this.stageRunner = stageRunner;
@@ -82,7 +81,7 @@ public class SomaticPipeline {
         this.tumorBamMetricsOutputQueue = tumorBamMetricsOutputQueue;
         this.referenceFlagstatOutputQueue = referenceFlagstatOutputQueue;
         this.tumorFlagstatOutputQueue = tumorFlagstatOutputQueue;
-        this.setMetadataApi = setMetadataApi;
+        this.metadata = metadata;
         this.pipelineResults = pipelineResults;
         this.executorService = executorService;
         this.persistedDataset = persistedDataset;
@@ -90,8 +89,6 @@ public class SomaticPipeline {
 
     public PipelineState run(AlignmentPair pair) {
         PipelineState state = new PipelineState();
-
-        SomaticRunMetadata metadata = setMetadataApi.get();
         LOGGER.info("Pipeline5 somatic pipeline starting for set [{}]", metadata.set());
 
         final ResourceFiles resourceFiles = buildResourceFiles(arguments);
