@@ -150,7 +150,7 @@ public class RuntimeBucketTest {
 
     @Test
     public void appliesLabels() {
-        Arguments arguments = Arguments.testDefaultsBuilder().costCenterLabel("development").build();
+        Arguments arguments = Arguments.testDefaultsBuilder().costCenterLabel("development").userLabel("username").build();
         RuntimeBucket.from(storage,
                 NAMESPACE,
                 referenceRunMetadata(),
@@ -163,7 +163,7 @@ public class RuntimeBucketTest {
                 "sample",
                 "tumor",
                 "user",
-                "pwolfe"));
+                "username"));
     }
 
     @NotNull

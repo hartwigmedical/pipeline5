@@ -55,7 +55,7 @@ public interface Labels {
         return mapBuilder.build();
     }
 
-    private static String clean(final String run) {
-        return run.toLowerCase().replace("_", "-").replace('.', '-');
+    private static String clean(final String string) {
+        return string.toLowerCase().replace("_", "-").replace('.', '-');
     }
 }

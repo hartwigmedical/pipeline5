@@ -384,6 +384,10 @@ public class GoogleComputeEngineTest {
 
     @Test
     public void appliesLabelsToInstanceAndDisks() {
+        victim = new GoogleComputeEngine(ARGUMENTS, compute, z -> {
+        }, lifecycleManager, bucketWatcher,
+                Labels.of(Arguments.testDefaultsBuilder().userLabel("username").costCenterLabel("development").build(),
+                TestInputs.defaultSomaticRunMetadata()));
         returnSuccess();
         victim.submit(runtimeBucket.getRuntimeBucket(), jobDefinition);
         ArgumentCaptor<List<AttachedDisk>> disksCaptor = ArgumentCaptor.forClass(List.class);
@@ -391,7 +395,9 @@ public class GoogleComputeEngineTest {
         verify(instance).setDisks(disksCaptor.capture());
         verify(instance).setLabels(labelCaptor.capture());
         List<AttachedDisk> disks = disksCaptor.getValue();
-        final Map<String, String> appliedLabels = Map.of("job_name", "test", "run_id", "test", "sample", "tumor", "user", "pwolfe");
+        final Map<String, String> appliedLabels = Map.of("cost_center", "development", "job_name", "test", "run_id", "test", "sample",
+                "tumor", "user",
+                "username");
         assertThat(disks.get(0).getInitializeParams().getLabels()).isEqualTo(appliedLabels);
         assertThat(labelCaptor.getValue()).isEqualTo(appliedLabels);
     }
