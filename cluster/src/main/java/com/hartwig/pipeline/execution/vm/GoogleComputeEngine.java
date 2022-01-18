@@ -270,8 +270,7 @@ public class GoogleComputeEngine implements ComputeEngine {
         return format(PD_SSD, apiBaseUrl(projectName), zone);
     }
 
-    private void attachLocalSsds(final List<AttachedDisk> disks, final int deviceCount, final String projectName, final String zone,
-            final Map<String, String> labels) {
+    private void attachLocalSsds(final List<AttachedDisk> disks, final int deviceCount, final String projectName, final String zone) {
         for (int i = 0; i < deviceCount; i++) {
             AttachedDisk disk = new AttachedDisk();
             disk.setBoot(false);
