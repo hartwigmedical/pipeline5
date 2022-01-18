@@ -250,7 +250,7 @@ public class GoogleComputeEngine implements ComputeEngine {
         bootDisk.setInitializeParams(bootDiskParams);
         List<AttachedDisk> disks = new ArrayList<>(singletonList(bootDisk));
         if (arguments.useLocalSsds()) {
-            attachLocalSsds(disks, jobDefinition.localSsdCount(), projectName, zone, labels);
+            attachLocalSsds(disks, jobDefinition.localSsdCount(), projectName, zone);
         } else {
             AttachedDiskInitializeParams workingDiskParams = new AttachedDiskInitializeParams();
             workingDiskParams.setDiskType(pdssd(projectName, zone));
@@ -277,7 +277,6 @@ public class GoogleComputeEngine implements ComputeEngine {
             disk.setAutoDelete(true);
             AttachedDiskInitializeParams params = new AttachedDiskInitializeParams();
             params.setDiskType(format(LOCAL_SSD, apiBaseUrl(projectName), zone));
-            params.setLabels(labels);
             disk.setInitializeParams(params);
             disk.setType("SCRATCH");
             disk.setInterface("NVME");
