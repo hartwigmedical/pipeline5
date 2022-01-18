@@ -37,7 +37,7 @@
         <org-reflections.version>0.9.11</org-reflections.version>
         <google-api-services-serviceusage.version>v1beta1-rev20200804-1.30.10</google-api-services-serviceusage.version>
         <pipeline-events.version>2.0.2</pipeline-events.version>
-        <java-client.version>1.2.9</java-client.version>
+        <java-client.version>1.12.0</java-client.version>
     </properties>
 
     <scm>
