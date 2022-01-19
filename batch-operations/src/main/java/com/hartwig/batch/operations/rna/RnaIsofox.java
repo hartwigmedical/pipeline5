@@ -46,7 +46,6 @@ public class RnaIsofox implements BatchOperation {
 
     private static final int FRAG_LENGTH_FRAG_COUNT = 1000000;
     private static final int LONG_FRAG_LENGTH_LIMIT = 550;
-    private static final String FRAG_LENGTH_BUCKETS = "50-0;75-0;100-0;125-0;150-0;200-0;250-0;300-0;400-0;550-0";
 
     public static final String FUNC_TRANSCRIPT_COUNTS = "TRANSCRIPT_COUNTS";
     private static final String FUNC_NOVEL_LOCATIONS = "NOVEL_LOCATIONS";
@@ -175,7 +174,6 @@ public class RnaIsofox implements BatchOperation {
             isofoxArgs.append(String.format(" -apply_exp_rates"));
             isofoxArgs.append(String.format(" -apply_calc_frag_lengths"));
             isofoxArgs.append(String.format(" -exp_counts_file %s/%s", VmDirectories.INPUT, expectedCountsFile));
-            isofoxArgs.append(String.format(" -exp_rate_frag_lengths \"%s\" ", FRAG_LENGTH_BUCKETS));
             isofoxArgs.append(String.format(" -frag_length_min_count %d", FRAG_LENGTH_FRAG_COUNT));
 
             isofoxArgs.append(String.format(" -apply_gc_bias_adjust"));
@@ -197,7 +195,7 @@ public class RnaIsofox implements BatchOperation {
             isofoxArgs.append(String.format(" -write_splice_sites"));
         }
 
-        if(functionsStr.equals(FUNC_FUSIONS))
+        if(functionsStr.contains(FUNC_FUSIONS))
         {
             isofoxArgs.append(String.format(" -known_fusion_file %s/%s", VmDirectories.INPUT, KNOWN_FUSIONS_FILE));
             isofoxArgs.append(String.format(" -fusion_cohort_file %s/%s", VmDirectories.INPUT, COHORT_FUSION_FILE));

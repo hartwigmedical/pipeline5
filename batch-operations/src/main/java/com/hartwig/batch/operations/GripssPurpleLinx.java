@@ -38,6 +38,7 @@ import com.hartwig.pipeline.tools.Versions;
 public class GripssPurpleLinx implements BatchOperation {
 
     private static String RESOURCE_DIR = "gs://hmf-crunch-resources";
+    private static String TOOLS_DIR = "gs://hmf-crunch-tools";
     private static String COMBINED_OUTPUT_DIR = "gs://hmf-sv-analysis/gpl_batch";
 
     private static String GRIPSS_DIR = "gripss";
@@ -79,13 +80,13 @@ public class GripssPurpleLinx implements BatchOperation {
 
         // download required JARs and resources
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s/%s %s",
-                RESOURCE_DIR, GRIPSS_DIR, GRIPSS_JAR, VmDirectories.TOOLS));
+                TOOLS_DIR, GRIPSS_DIR, GRIPSS_JAR, VmDirectories.TOOLS));
 
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s/%s %s",
-                RESOURCE_DIR, PURPLE_DIR, PURPLE_JAR, VmDirectories.TOOLS));
+                TOOLS_DIR, PURPLE_DIR, PURPLE_JAR, VmDirectories.TOOLS));
 
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s/%s %s",
-                RESOURCE_DIR, LINX_DIR, LINX_JAR, VmDirectories.TOOLS));
+                TOOLS_DIR, LINX_DIR, LINX_JAR, VmDirectories.TOOLS));
 
         // Gripss inputs
         // startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s/%s %s", RESOURCE_DIR, GRIPSS_DIR, PON_BP, VmDirectories.INPUT));

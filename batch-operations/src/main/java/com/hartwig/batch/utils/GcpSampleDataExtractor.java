@@ -130,9 +130,9 @@ public class GcpSampleDataExtractor
             mWriter.write(sampleLocations.csvData());
             mWriter.newLine();
         }
-        catch(IOException e)
+        catch(Exception e)
         {
-            LOGGER.severe("failed to write to sample GCP locations data: {}" + e.toString());
+            LOGGER.severe(String.format("failed to write to sample(%s) GCP locations data: %s", sampleId, e.toString()));
         }
     }
 
