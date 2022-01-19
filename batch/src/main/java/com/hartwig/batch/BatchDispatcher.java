@@ -2,6 +2,7 @@ package com.hartwig.batch;
 
 import static java.lang.String.format;
 import static java.util.Comparator.comparing;
+import static java.util.Comparator.nullsLast;
 import static java.util.stream.Collectors.toList;
 
 import java.io.FileInputStream;
@@ -31,6 +32,7 @@ import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.GoogleComputeEngine;
 import com.hartwig.pipeline.execution.vm.RuntimeFiles;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.pipeline.labels.Labels;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.storage.StorageProvider;
 import com.hartwig.pipeline.tools.Versions;
@@ -51,6 +53,7 @@ public class BatchDispatcher {
     private final ComputeEngine computeEngine;
     private final Storage storage;
     private final ExecutorService executorService;
+    private final Labels labels;
 
     @Value.Immutable
     interface StateTuple {
@@ -66,13 +69,14 @@ public class BatchDispatcher {
     }
 
     BatchDispatcher(BatchArguments arguments, InstanceFactory instanceFactory, InputParserProvider parserProvider,
-            ComputeEngine computeEngine, Storage storage, ExecutorService executorService) {
+            ComputeEngine computeEngine, Storage storage, ExecutorService executorService, Labels labels) {
         this.arguments = arguments;
         this.instanceFactory = instanceFactory;
         this.parserProvider = parserProvider;
         this.computeEngine = computeEngine;
         this.storage = storage;
         this.executorService = executorService;
+        this.labels = labels;
     }
 
     boolean runBatch() throws Exception {
@@ -91,19 +95,20 @@ public class BatchDispatcher {
         for (InputBundle operationInputs : inputs) {
             final String label = format(paddingFormat, i + 1);
             RuntimeFiles executionFlags = RuntimeFiles.of(label);
-            RuntimeBucket outputBucket = RuntimeBucket.from(storage, arguments.outputBucket(), label, arguments);
-            BashStartupScript startupScript =
-                    BashStartupScript.of(outputBucket.name(), executionFlags);
+            RuntimeBucket outputBucket = RuntimeBucket.from(storage, arguments.outputBucket(), label, arguments, labels);
+            BashStartupScript startupScript = BashStartupScript.of(outputBucket.name(), executionFlags);
             Future<PipelineStatus> future = executorService.submit(() -> {
                 try {
                     VirtualMachineJobDefinition jobDefinition = Failsafe.with(new RetryPolicy<>().handle(ApiException.class)
-                            .withDelay(Duration.ofSeconds(10)).withJitter(0.5).withMaxAttempts(250)).get(() -> {
-                                try {
-                                    return instanceFactory.get().execute(operationInputs, outputBucket, startupScript, executionFlags);
-                                } catch (ApiException e) {
-                                    LOGGER.warn("Encountered API exception when building job {}", label);
-                                    throw e;
-                                }
+                            .withDelay(Duration.ofSeconds(10))
+                            .withJitter(0.5)
+                            .withMaxAttempts(250)).get(() -> {
+                        try {
+                            return instanceFactory.get().execute(operationInputs, outputBucket, startupScript, executionFlags);
+                        } catch (ApiException e) {
+                            LOGGER.warn("Encountered API exception when building job {}", label);
+                            throw e;
+                        }
                     });
                     return computeEngine.submit(outputBucket, jobDefinition, label);
                 } catch (Exception e) {
@@ -116,7 +121,7 @@ public class BatchDispatcher {
             i++;
         }
         spawnProgressLogger(state);
-        RuntimeBucket outputBucket = RuntimeBucket.from(storage, arguments.outputBucket(), "", arguments);
+        RuntimeBucket outputBucket = RuntimeBucket.from(storage, arguments.outputBucket(), "", arguments, labels);
         Bucket bucketRoot = outputBucket.getUnderlyingBucket();
         bucketRoot.create("job.json", new ObjectMapper().writeValueAsBytes(jobAsString));
         for (StateTuple job : state) {
@@ -178,14 +183,16 @@ public class BatchDispatcher {
         GoogleCredentials credentials = arguments.privateKeyPath().isPresent()
                 ? CredentialProvider.from(arguments).get()
                 : GoogleCredentials.getApplicationDefault();
-        ComputeEngine compute = GoogleComputeEngine.from(arguments, credentials, false);
+        Labels labels = Labels.of(arguments);
+        ComputeEngine compute = GoogleComputeEngine.from(arguments, credentials, true, labels);
         Storage storage = StorageProvider.from(arguments, credentials).get();
         boolean success = new BatchDispatcher(arguments,
                 InstanceFactory.from(arguments),
                 new InputParserProvider(),
                 compute,
                 storage,
-                Executors.newFixedThreadPool(arguments.concurrency())).runBatch();
+                Executors.newFixedThreadPool(arguments.concurrency()),
+                labels).runBatch();
         System.exit(success ? 0 : 1);
     }
 }

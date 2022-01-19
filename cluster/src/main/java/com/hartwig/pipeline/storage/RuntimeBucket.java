@@ -13,6 +13,7 @@ import com.google.cloud.storage.StorageClass;
 import com.google.common.collect.Lists;
 import com.hartwig.pipeline.CommonArguments;
 import com.hartwig.pipeline.alignment.Run;
+import com.hartwig.pipeline.labels.Labels;
 import com.hartwig.pipeline.metadata.RunMetadata;
 
 import org.slf4j.Logger;
@@ -34,22 +35,25 @@ public class RuntimeBucket {
         this.runId = runId;
     }
 
-    public static RuntimeBucket from(final Storage storage, final String name, final String namespace, final CommonArguments arguments) {
-        return createBucketIfNeeded(storage, namespace, arguments, name);
+    public static RuntimeBucket from(final Storage storage, final String name, final String namespace, final CommonArguments arguments,
+            final Labels labels) {
+        return createBucketIfNeeded(storage, namespace, arguments, name, labels);
     }
 
     public static RuntimeBucket from(final Storage storage, final String namespace, final RunMetadata metadata,
-            final CommonArguments arguments) {
-        return createBucketIfNeeded(storage, namespace, arguments, Run.from(metadata, arguments).id());
+            final CommonArguments arguments, final Labels labels) {
+        return createBucketIfNeeded(storage, namespace, arguments, Run.from(metadata, arguments).id(), labels);
     }
 
     private synchronized static RuntimeBucket createBucketIfNeeded(final Storage storage, final String namespace,
-            final CommonArguments arguments, final String runId) {
+            final CommonArguments arguments, final String runId, final Labels labels) {
         Bucket bucket = storage.get(runId);
         if (bucket == null) {
             LOGGER.info("Creating runtime bucket [{}] in Google Storage", runId);
-            BucketInfo.Builder builder =
-                    BucketInfo.newBuilder(runId).setStorageClass(StorageClass.REGIONAL).setLocation(arguments.region());
+            BucketInfo.Builder builder = BucketInfo.newBuilder(runId)
+                    .setStorageClass(StorageClass.REGIONAL)
+                    .setLocation(arguments.region())
+                    .setLabels(labels.asMap());
             arguments.cmek().ifPresent(builder::setDefaultKmsKeyName);
             bucket = storage.create(builder.build());
         }

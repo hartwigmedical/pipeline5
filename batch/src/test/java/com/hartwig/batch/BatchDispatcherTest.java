@@ -20,6 +20,7 @@ import com.hartwig.batch.input.InputParser;
 import com.hartwig.batch.input.InputParserProvider;
 import com.hartwig.batch.testsupport.TestingArguments;
 import com.hartwig.pipeline.execution.vm.GoogleComputeEngine;
+import com.hartwig.pipeline.labels.Labels;
 
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -30,8 +31,7 @@ public class BatchDispatcherTest {
     public void shouldCallOperationOnceForEachObjectInListOfInputs() throws Exception {
         String opName = "operationName";
         BatchOperation mockOp = mock(BatchOperation.class);
-        when(mockOp.descriptor()).thenReturn(OperationDescriptor.of(opName, "description",
-                OperationDescriptor.InputType.FLAT));
+        when(mockOp.descriptor()).thenReturn(OperationDescriptor.of(opName, "description", OperationDescriptor.InputType.FLAT));
         InstanceFactory instanceFactory = mock(InstanceFactory.class);
         InputParserProvider inputParserProvider = mock(InputParserProvider.class);
         InputParser inputParser = mock(InputParser.class);
@@ -52,8 +52,13 @@ public class BatchDispatcherTest {
 
         when(storage.get(arguments.outputBucket())).thenReturn(bucket);
 
-        BatchDispatcher dispatcher = new BatchDispatcher(arguments, instanceFactory, inputParserProvider,
-                computeEngine, storage, executorService);
+        BatchDispatcher dispatcher = new BatchDispatcher(arguments,
+                instanceFactory,
+                inputParserProvider,
+                computeEngine,
+                storage,
+                executorService,
+                Labels.of(arguments));
 
         dispatcher.runBatch();
         verify(executorService, times(2)).submit(Mockito.<Callable<?>>any());

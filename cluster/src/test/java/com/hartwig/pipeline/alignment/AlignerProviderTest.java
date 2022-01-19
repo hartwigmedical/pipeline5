@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.labels.Labels;
 
 import org.junit.Before;
 import org.junit.Ignore;
@@ -25,7 +26,7 @@ public class AlignerProviderTest {
 
     @Test
     public void wiresUpBootstrapWithLocalDependencies() throws Exception {
-        AlignerProvider victim = AlignerProvider.from(credentials, storage, LOCAL_ARGUMENTS);
+        AlignerProvider victim = AlignerProvider.from(credentials, storage, LOCAL_ARGUMENTS, mock(Labels.class));
         assertThat(victim.get()).isNotNull();
         assertThat(victim).isInstanceOf(AlignerProvider.LocalAlignerProvider.class);
     }
@@ -33,7 +34,7 @@ public class AlignerProviderTest {
     @Ignore
     @Test
     public void wiresUpBootstrapWithSbpDependencies() throws Exception {
-        AlignerProvider victim = AlignerProvider.from(credentials, storage, Arguments.testDefaultsBuilder().build());
+        AlignerProvider victim = AlignerProvider.from(credentials, storage, Arguments.testDefaultsBuilder().build(), mock(Labels.class));
         assertThat(victim.get()).isNotNull();
         assertThat(victim).isInstanceOf(AlignerProvider.SbpAlignerProvider.class);
     }

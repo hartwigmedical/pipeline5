@@ -12,6 +12,7 @@ import com.hartwig.patient.Lane;
 import com.hartwig.patient.Sample;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.Aligner;
+import com.hartwig.pipeline.labels.Labels;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
@@ -20,16 +21,18 @@ public class GoogleStorageSampleSource implements SampleSource {
     private static final String GZ_EXTENSION = "gz";
     private final Storage storage;
     private final Arguments arguments;
+    private final Labels labels;
 
-    public GoogleStorageSampleSource(final Storage storage, final Arguments arguments) {
+    public GoogleStorageSampleSource(final Storage storage, final Arguments arguments, final Labels labels) {
         this.storage = storage;
         this.arguments = arguments;
+        this.labels = labels;
     }
 
     @Override
     public Sample sample(final SingleSampleRunMetadata metadata) {
 
-        RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, Aligner.NAMESPACE, metadata, arguments);
+        RuntimeBucket runtimeBucket = RuntimeBucket.from(storage, Aligner.NAMESPACE, metadata, arguments, labels);
         Iterable<Blob> blobs = runtimeBucket.list("samples/");
         if (Iterables.isEmpty(blobs)) {
             throw new IllegalArgumentException(String.format("No sample data found in bucket [%s] so there is no input to process. "
@@ -45,9 +48,7 @@ public class GoogleStorageSampleSource implements SampleSource {
                 .map(File::getName)
                 .collect(Collectors.toList()), sampleDirectory, sampleNameWithPostfix);
 
-        return Sample.builder(sampleNameWithPostfix)
-                .addAllLanes(lanes)
-                .build();
+        return Sample.builder(sampleNameWithPostfix).addAllLanes(lanes).build();
     }
 
     private static boolean isGZipped(Blob blob) {

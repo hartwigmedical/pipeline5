@@ -3,6 +3,7 @@ package com.hartwig.batch;
 import static java.lang.Boolean.parseBoolean;
 import static java.lang.String.format;
 
+import java.util.Locale;
 import java.util.Optional;
 
 import com.hartwig.pipeline.CommonArguments;
@@ -33,6 +34,7 @@ public interface BatchArguments extends CommonArguments {
     static BatchArguments from(String[] args) {
         try {
             CommandLine commandLine = new DefaultParser().parse(options(), args);
+            final String outputBucket = commandLine.getOptionValue(OUTPUT_BUCKET);
             return ImmutableBatchArguments.builder()
                     .command(args[0])
                     .project(commandLine.getOptionValue(PROJECT, CommonArguments.DEFAULT_DEVELOPMENT_PROJECT))
@@ -44,11 +46,14 @@ public interface BatchArguments extends CommonArguments {
                     .serviceAccountEmail(commandLine.getOptionValue(SERVICE_ACCOUNT_EMAIL))
                     .concurrency(Integer.parseInt(commandLine.getOptionValue(CONCURRENCY, "100")))
                     .inputFile(commandLine.getOptionValue(INPUT_FILE))
-                    .outputBucket(commandLine.getOptionValue(OUTPUT_BUCKET))
+                    .outputBucket(outputBucket)
                     .cmek(commandLine.getOptionValue(CMEK, CommonArguments.DEFAULT_DEVELOPMENT_CMEK))
                     .network(commandLine.getOptionValue(PRIVATE_NETWORK, DEFAULT_NETWORK))
                     .subnet(commandLine.hasOption(SUBNET) ? Optional.of(commandLine.getOptionValue(SUBNET)) : Optional.empty())
                     .refGenomeVersion(RefGenomeVersion.V37)
+                    .runId(commandLine.getOptionValue("run_id", outputBucket))
+                    .costCenterLabel(Optional.ofNullable(commandLine.getOptionValue("cost_center_label")))
+                    .userLabel(commandLine.getOptionValue("user_label", System.getProperty("user.name")))
                     .imageProject("hmf-pipeline-development")
                     .usePreemptibleVms(true)
                     .build();

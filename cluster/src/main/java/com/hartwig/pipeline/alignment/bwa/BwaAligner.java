@@ -33,6 +33,7 @@ import com.hartwig.pipeline.execution.vm.OutputUpload;
 import com.hartwig.pipeline.execution.vm.RuntimeFiles;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.failsafe.DefaultBackoffPolicy;
+import com.hartwig.pipeline.labels.Labels;
 import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
@@ -59,9 +60,11 @@ public class BwaAligner implements Aligner {
     private final SampleUpload sampleUpload;
     private final ResultsDirectory resultsDirectory;
     private final ExecutorService executorService;
+    private final Labels labels;
 
     public BwaAligner(final Arguments arguments, final ComputeEngine computeEngine, final Storage storage, final SampleSource sampleSource,
-            final SampleUpload sampleUpload, final ResultsDirectory resultsDirectory, final ExecutorService executorService) {
+            final SampleUpload sampleUpload, final ResultsDirectory resultsDirectory, final ExecutorService executorService,
+            final Labels labels) {
         this.arguments = arguments;
         this.computeEngine = computeEngine;
         this.storage = storage;
@@ -69,12 +72,13 @@ public class BwaAligner implements Aligner {
         this.sampleUpload = sampleUpload;
         this.resultsDirectory = resultsDirectory;
         this.executorService = executorService;
+        this.labels = labels;
     }
 
     public AlignmentOutput run(final SingleSampleRunMetadata metadata) throws Exception {
 
         StageTrace trace = new StageTrace(NAMESPACE, metadata.sampleName(), StageTrace.ExecutorType.COMPUTE_ENGINE).start();
-        RuntimeBucket rootBucket = RuntimeBucket.from(storage, NAMESPACE, metadata, arguments);
+        RuntimeBucket rootBucket = RuntimeBucket.from(storage, NAMESPACE, metadata, arguments, labels);
 
         Sample sample = sampleSource.sample(metadata);
         if (sample.bam().isPresent()) {
@@ -98,7 +102,7 @@ public class BwaAligner implements Aligner {
         List<GoogleStorageLocation> laneFailedLogs = new ArrayList<>();
         for (Lane lane : sample.lanes()) {
 
-            RuntimeBucket laneBucket = RuntimeBucket.from(storage, laneNamespace(lane), metadata, arguments);
+            RuntimeBucket laneBucket = RuntimeBucket.from(storage, laneNamespace(lane), metadata, arguments, labels);
 
             BashStartupScript bash = BashStartupScript.of(laneBucket.name());
 
@@ -107,7 +111,7 @@ public class BwaAligner implements Aligner {
             InputDownload second =
                     new InputDownload(GoogleStorageLocation.of(rootBucket.name(), fastQFileName(sample.name(), lane.secondOfPairPath())));
             bash.addCommand(first).addCommand(second);
-            
+
             bash.addCommands(OverrideReferenceGenomeCommand.overrides(arguments));
 
             SubStageInputOutput alignment = new LaneAlignment(arguments.sbpApiRunId().isPresent(),
@@ -162,17 +166,17 @@ public class BwaAligner implements Aligner {
                     .addReportComponents(new RunLogComponent(rootBucket, Aligner.NAMESPACE, Folder.from(metadata), resultsDirectory));
             if (!arguments.outputCram()) {
                 outputBuilder.addReportComponents(new SingleFileComponent(rootBucket,
-                                Aligner.NAMESPACE,
-                                Folder.from(metadata),
-                                bam(metadata.sampleName()),
-                                bam(metadata.sampleName()),
-                                resultsDirectory),
-                        new SingleFileComponent(rootBucket,
-                                Aligner.NAMESPACE,
-                                Folder.from(metadata),
-                                bai(bam(metadata.sampleName())),
-                                bai(bam(metadata.sampleName())),
-                                resultsDirectory))
+                                        Aligner.NAMESPACE,
+                                        Folder.from(metadata),
+                                        bam(metadata.sampleName()),
+                                        bam(metadata.sampleName()),
+                                        resultsDirectory),
+                                new SingleFileComponent(rootBucket,
+                                        Aligner.NAMESPACE,
+                                        Folder.from(metadata),
+                                        bai(bam(metadata.sampleName())),
+                                        bai(bam(metadata.sampleName())),
+                                        resultsDirectory))
                         .addDatatypes(new AddDatatype(DataType.ALIGNED_READS,
                                         metadata.barcode(),
                                         new ArchivePath(Folder.from(metadata), BwaAligner.NAMESPACE, bam(metadata.sampleName()))),

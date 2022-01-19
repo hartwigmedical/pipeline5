@@ -7,8 +7,9 @@ sudo apt -y install dirmngr apt-transport-https ca-certificates software-propert
 sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key '95C0FAF38DB3CCAD0C080A7BDC78B2DDEABC47B7'
 sudo add-apt-repository 'deb https://cloud.r-project.org/bin/linux/debian stretch-cran35/'
 sudo apt -y update
-sudo apt -y install perl-modules make time python3-pip python3-venv r-base vcftools
-sudo apt -y install openjdk-8-jdk libcurl4-gnutls-dev libxml2-dev libssl-dev less libgd-dev cpanminus parallel pigz git libmagick++-dev
+sudo apt -y install perl-modules make time python3-pip python3-venv r-base vcftools openjdk-8-jdk
+sudo apt -y -t stretch-backports install openjdk-11-jdk
+sudo apt -y install libcurl4-gnutls-dev libxml2-dev libssl-dev less libgd-dev cpanminus parallel pigz git libmagick++-dev
 sudo apt -y install mdadm --no-install-recommends
 sudo pip3 install --no-cache-dir -U crcmod
 sudo mkdir /data
