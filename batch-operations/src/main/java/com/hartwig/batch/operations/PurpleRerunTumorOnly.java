@@ -1,7 +1,5 @@
 package com.hartwig.batch.operations;
 
-import static com.hartwig.batch.operations.GripssRerun.gripssRecoveryFile;
-import static com.hartwig.batch.operations.GripssRerun.gripssSomaticFilteredFile;
 import static com.hartwig.batch.operations.SageRerun.sageSomaticFilteredFile;
 
 import java.util.List;
@@ -44,10 +42,10 @@ public class PurpleRerunTumorOnly implements BatchOperation {
         final GoogleStorageLocation sageVcfStorage = sageSomaticFilteredFile(set, tumorSampleName);
         final GoogleStorageLocation sageIndexStorage = index(sageVcfStorage);
 
-        final GoogleStorageLocation gripssVcfStorage = gripssSomaticFilteredFile(set, tumorSampleName);
+        final GoogleStorageLocation gripssVcfStorage = null; // gripssSomaticFilteredFile(set, tumorSampleName);
         final GoogleStorageLocation gripssVcfIndexStorage = index(gripssVcfStorage);
 
-        final GoogleStorageLocation gripssRecoveryVcfStorage = gripssRecoveryFile(set, tumorSampleName);
+        final GoogleStorageLocation gripssRecoveryVcfStorage = null; // gripssRecoveryFile(set, tumorSampleName);
         final GoogleStorageLocation gripssRecoveryVcfIndexStorage = index(gripssRecoveryVcfStorage);
         final String amberInputDir = VmDirectories.INPUT + "/amber";
         final String cobaltInputDir = VmDirectories.INPUT + "/cobalt";

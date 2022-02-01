@@ -9,6 +9,8 @@ import static com.hartwig.batch.operations.rna.RnaCommon.getRnaResourceDirectory
 import static com.hartwig.pipeline.resource.RefGenomeVersion.V37;
 import static com.hartwig.pipeline.resource.ResourceFilesFactory.buildResourceFiles;
 
+import java.util.StringJoiner;
+
 import com.hartwig.batch.BatchOperation;
 import com.hartwig.batch.OperationDescriptor;
 import com.hartwig.batch.input.InputBundle;
@@ -125,9 +127,6 @@ public class RnaIsofox implements BatchOperation {
                     getRnaResourceDirectory(refGenomeVersion, ISOFOX), EXP_GC_COUNTS_READ_100, VmDirectories.INPUT));
         }
 
-        startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s %s",
-                getRnaResourceDirectory(refGenomeVersion, ISOFOX), KNOWN_FUSIONS_FILE, VmDirectories.INPUT));
-
         if(functionsStr.equals(FUNC_FUSIONS))
         {
             startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s %s",
@@ -150,63 +149,63 @@ public class RnaIsofox implements BatchOperation {
         }
 
         // run Isofox
-        StringBuilder isofoxArgs = new StringBuilder();
-        isofoxArgs.append(String.format("-sample %s", sampleId));
-        isofoxArgs.append(String.format(" -functions \"%s\"", functionsStr));
+        StringJoiner isofoxArgs = new StringJoiner(" ");
+        isofoxArgs.add(String.format("-sample %s", sampleId));
+        isofoxArgs.add(String.format("-functions \"%s\"", functionsStr));
 
-        isofoxArgs.append(String.format(" -output_dir %s/", VmDirectories.OUTPUT));
-        isofoxArgs.append(String.format(" -bam_file %s/%s", VmDirectories.INPUT, bamFile));
+        isofoxArgs.add(String.format("-output_dir %s/", VmDirectories.OUTPUT));
+        isofoxArgs.add(String.format("-bam_file %s/%s", VmDirectories.INPUT, bamFile));
 
-        isofoxArgs.append(String.format(" -ref_genome %s", resourceFiles.refGenomeFile()));
+        isofoxArgs.add(String.format("-ref_genome %s", resourceFiles.refGenomeFile()));
 
-        // isofoxArgs.append(String.format(" -ensembl_data_dir %s", VmDirectories.INPUT));
-        isofoxArgs.append(String.format(" -ensembl_data_dir %s", resourceFiles.ensemblDataCache()));
+        // isofoxArgs.add(String.format("-ensembl_data_dir %s", VmDirectories.INPUT));
+        isofoxArgs.add(String.format("-ensembl_data_dir %s", resourceFiles.ensemblDataCache()));
 
-        isofoxArgs.append(String.format(" -long_frag_limit %d", LONG_FRAG_LENGTH_LIMIT));
+        isofoxArgs.add(String.format("-long_frag_limit %d", LONG_FRAG_LENGTH_LIMIT));
 
         if(refGenomeVersion == RefGenomeVersion.V38)
         {
-            isofoxArgs.append(String.format(" -ref_genome_version %s", "38"));
+            isofoxArgs.add(String.format("-ref_genome_version %s", "38"));
         }
 
         if(functionsStr.contains(FUNC_TRANSCRIPT_COUNTS))
         {
-            isofoxArgs.append(String.format(" -apply_exp_rates"));
-            isofoxArgs.append(String.format(" -apply_calc_frag_lengths"));
-            isofoxArgs.append(String.format(" -exp_counts_file %s/%s", VmDirectories.INPUT, expectedCountsFile));
-            isofoxArgs.append(String.format(" -frag_length_min_count %d", FRAG_LENGTH_FRAG_COUNT));
+            isofoxArgs.add(String.format("-apply_exp_rates"));
+            isofoxArgs.add(String.format("-apply_calc_frag_lengths"));
+            isofoxArgs.add(String.format("-exp_counts_file %s/%s", VmDirectories.INPUT, expectedCountsFile));
+            isofoxArgs.add(String.format("-frag_length_min_count %d", FRAG_LENGTH_FRAG_COUNT));
 
-            isofoxArgs.append(String.format(" -apply_gc_bias_adjust"));
-            isofoxArgs.append(String.format(" -exp_gc_ratios_file %s/%s", VmDirectories.INPUT, EXP_GC_COUNTS_READ_100));
-            isofoxArgs.append(String.format(" -apply_map_qual_adjust"));
+            isofoxArgs.add(String.format("-apply_gc_bias_adjust"));
+            isofoxArgs.add(String.format("-exp_gc_ratios_file %s/%s", VmDirectories.INPUT, EXP_GC_COUNTS_READ_100));
+            isofoxArgs.add(String.format("-apply_map_qual_adjust"));
 
-            isofoxArgs.append(String.format(" -write_frag_lengths"));
-            isofoxArgs.append(String.format(" -write_gc_data"));
+            isofoxArgs.add(String.format("-write_frag_lengths"));
+            isofoxArgs.add(String.format("-write_gc_data"));
 
             if(writeCatCountsData)
-                isofoxArgs.append(String.format(" -write_trans_combo_data"));
+                isofoxArgs.add(String.format("-write_trans_combo_data"));
 
             if(writeExpData)
-                isofoxArgs.append(String.format(" -write_exp_rates"));
+                isofoxArgs.add(String.format("-write_exp_rates"));
         }
 
         if(functionsStr.equals(FUNC_NOVEL_LOCATIONS))
         {
-            isofoxArgs.append(String.format(" -write_splice_sites"));
+            isofoxArgs.add(String.format("-write_splice_sites"));
         }
 
         if(functionsStr.contains(FUNC_FUSIONS))
         {
-            isofoxArgs.append(String.format(" -known_fusion_file %s/%s", VmDirectories.INPUT, KNOWN_FUSIONS_FILE));
-            isofoxArgs.append(String.format(" -fusion_cohort_file %s/%s", VmDirectories.INPUT, COHORT_FUSION_FILE));
+            isofoxArgs.add(String.format("-known_fusion_file %s", resourceFiles.knownFusionData()));
+            isofoxArgs.add(String.format("-fusion_cohort_file %s/%s", VmDirectories.INPUT, COHORT_FUSION_FILE));
         }
 
         if(functionsStr.equals(FUNC_NEO_EPITOPES))
         {
-            isofoxArgs.append(String.format(" -neoepitope_file %s/%s", VmDirectories.INPUT, neoEpitopeFile));
+            isofoxArgs.add(String.format("-neoepitope_file %s/%s", VmDirectories.INPUT, neoEpitopeFile));
         }
 
-        isofoxArgs.append(String.format(" -threads %s", threadCount));
+        isofoxArgs.add(String.format("-threads %s", threadCount));
 
         startupScript.addCommand(() -> format("java -Xmx60G -jar %s/%s %s", VmDirectories.TOOLS, ISOFOX_JAR, isofoxArgs.toString()));
 

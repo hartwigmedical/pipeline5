@@ -2,6 +2,7 @@ package com.hartwig.batch.operations;
 
 import static java.lang.String.format;
 
+import static com.hartwig.batch.operations.BatchCommon.BATCH_TOOLS_DIR;
 import static com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile.custom;
 
 import java.util.StringJoiner;
@@ -27,7 +28,6 @@ import com.hartwig.pipeline.storage.RuntimeBucket;
 
 public class GripssGermline implements BatchOperation {
 
-    private static String BATCH_TOOLS = "gs://hmf-crunch-resources";
     private static String GRIPSS_DIR = "gripss";
     private static String GRIPSS_JAR = "gripss-kt.jar";
     private static final String MAX_HEAP = "30G";
@@ -47,7 +47,7 @@ public class GripssGermline implements BatchOperation {
         final String inputVcf = inputFileFactory.getStructuralVariantsGridss();
 
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s/%s %s",
-                BATCH_TOOLS, GRIPSS_DIR, GRIPSS_JAR, VmDirectories.TOOLS));
+                BATCH_TOOLS_DIR, GRIPSS_DIR, GRIPSS_JAR, VmDirectories.TOOLS));
 
         startupScript.addCommands(inputFileFactory.generateDownloadCommands());
 

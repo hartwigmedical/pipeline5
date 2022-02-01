@@ -2,7 +2,7 @@ package com.hartwig.batch.operations;
 
 import static java.lang.String.format;
 
-import static com.hartwig.batch.utils.SampleLocationData.PURPLE_GENE_COPY_NUMBER;
+import static com.hartwig.batch.operations.BatchCommon.BATCH_TOOLS_DIR;
 import static com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile.custom;
 
 import java.util.Arrays;
@@ -11,11 +11,9 @@ import java.util.Map;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.hartwig.batch.BatchOperation;
 import com.hartwig.batch.OperationDescriptor;
-import com.hartwig.batch.api.LocalLocations;
 import com.hartwig.batch.api.RemoteLocationsApi;
 import com.hartwig.batch.input.InputBundle;
 import com.hartwig.batch.input.InputFileDescriptor;
@@ -37,8 +35,6 @@ import com.hartwig.pipeline.tools.Versions;
 
 public class GripssPurpleLinx implements BatchOperation {
 
-    private static String RESOURCE_DIR = "gs://hmf-crunch-resources";
-    private static String TOOLS_DIR = "gs://hmf-crunch-tools";
     private static String COMBINED_OUTPUT_DIR = "gs://hmf-sv-analysis/gpl_batch";
 
     private static String GRIPSS_DIR = "gripss";
@@ -80,13 +76,13 @@ public class GripssPurpleLinx implements BatchOperation {
 
         // download required JARs and resources
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s/%s %s",
-                TOOLS_DIR, GRIPSS_DIR, GRIPSS_JAR, VmDirectories.TOOLS));
+                BATCH_TOOLS_DIR, GRIPSS_DIR, GRIPSS_JAR, VmDirectories.TOOLS));
 
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s/%s %s",
-                TOOLS_DIR, PURPLE_DIR, PURPLE_JAR, VmDirectories.TOOLS));
+                BATCH_TOOLS_DIR, PURPLE_DIR, PURPLE_JAR, VmDirectories.TOOLS));
 
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s/%s %s",
-                TOOLS_DIR, LINX_DIR, LINX_JAR, VmDirectories.TOOLS));
+                BATCH_TOOLS_DIR, LINX_DIR, LINX_JAR, VmDirectories.TOOLS));
 
         // Gripss inputs
         // startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s/%s %s", RESOURCE_DIR, GRIPSS_DIR, PON_BP, VmDirectories.INPUT));
