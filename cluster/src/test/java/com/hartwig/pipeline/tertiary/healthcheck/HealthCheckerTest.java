@@ -57,7 +57,7 @@ public class HealthCheckerTest extends TertiaryStageTest<HealthCheckOutput> {
 
     @Override
     protected List<String> expectedCommands() {
-        return Collections.singletonList("java -Xmx10G -jar /opt/tools/health-checker/3.2/health-checker.jar -reference reference -tumor "
+        return Collections.singletonList("java -Xmx10G -jar /opt/tools/health-checker/3.3/health-checker.jar -reference reference -tumor "
                 + "tumor -ref_wgs_metrics_file /data/input/metrics/reference.wgsmetrics -tum_wgs_metrics_file "
                 + "/data/input/metrics/tumor.wgsmetrics -ref_flagstat_file /data/input/flagstat/reference.flagstat -tum_flagstat_file "
                 + "/data/input/flagstat/tumor.flagstat -purple_dir /data/input/purple -output_dir /data/output");
