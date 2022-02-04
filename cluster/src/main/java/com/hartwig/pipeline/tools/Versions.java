@@ -35,7 +35,7 @@ public interface Versions {
     String CUPPA = "1.6";
     String PEACH = "1.5";
     String SIGS = "1.0";
-    String ORANGE = "1.5";
+    String ORANGE = "1.6";
     String PAVE = "1.0";
 
     static void printAll() {
