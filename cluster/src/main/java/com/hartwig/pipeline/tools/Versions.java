@@ -16,7 +16,7 @@ public interface Versions {
     String BCF_TOOLS = "1.9";
     String SAGE = "2.8";
     String TABIX = "0.2.6";
-    String AMBER = "3.4";
+    String AMBER = "3.6";
     String COBALT = "1.11";
     String HEALTH_CHECKER = "3.3";
     String PURPLE = "3.2";
