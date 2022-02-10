@@ -44,7 +44,7 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
         return new Purple(TestInputs.REF_GENOME_37_RESOURCE_FILES,
                 TestInputs.paveSomaticOutput(),
                 TestInputs.paveGermlineOutput(),
-                TestInputs.structuralCallerPostProcessOutput(),
+                TestInputs.gripssSomaticProcessOutput(),
                 TestInputs.amberOutput(),
                 TestInputs.cobaltOutput(),
                 persistedDataset,
@@ -61,10 +61,10 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
     protected List<String> expectedInputs() {
         return ImmutableList.of(input(expectedRuntimeBucketName() + "/pave_somatic/results/tumor.somatic.vcf.gz", "tumor.somatic.vcf.gz"),
                 input(expectedRuntimeBucketName() + "/pave_germline/results/tumor.germline.vcf.gz", "tumor.germline.vcf.gz"),
-                input(expectedRuntimeBucketName() + "/gripss/results/tumor.gripss.filtered.vcf.gz", "tumor.gripss.filtered.vcf.gz"),
-                input(expectedRuntimeBucketName() + "/gripss/results/tumor.gripss.filtered.vcf.gz.tbi", "tumor.gripss.filtered.vcf.gz.tbi"),
-                input(expectedRuntimeBucketName() + "/gripss/results/tumor.gripss.full.vcf.gz", "tumor.gripss.full.vcf.gz"),
-                input(expectedRuntimeBucketName() + "/gripss/results/tumor.gripss.full.vcf.gz.tbi", "tumor.gripss.full.vcf.gz.tbi"),
+                input(expectedRuntimeBucketName() + "/gripss_somatic/results/tumor.gripss.filtered.vcf.gz", "tumor.gripss.filtered.vcf.gz"),
+                input(expectedRuntimeBucketName() + "/gripss_somatic/results/tumor.gripss.filtered.vcf.gz.tbi", "tumor.gripss.filtered.vcf.gz.tbi"),
+                input(expectedRuntimeBucketName() + "/gripss_somatic/results/tumor.gripss.full.vcf.gz", "tumor.gripss.full.vcf.gz"),
+                input(expectedRuntimeBucketName() + "/gripss_somatic/results/tumor.gripss.full.vcf.gz.tbi", "tumor.gripss.full.vcf.gz.tbi"),
                 input(expectedRuntimeBucketName() + "/amber/results/", "results"),
                 input(expectedRuntimeBucketName() + "/cobalt/results/", "results"));
     }
@@ -89,7 +89,7 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
         Purple victim = new Purple(new RefGenome37ResourceFiles(),
                 TestInputs.paveSomaticOutput(),
                 TestInputs.paveGermlineOutput(),
-                TestInputs.structuralCallerPostProcessOutput(),
+                TestInputs.gripssSomaticProcessOutput(),
                 TestInputs.amberOutput(),
                 TestInputs.cobaltOutput(),
                 new NoopPersistedDataset(),

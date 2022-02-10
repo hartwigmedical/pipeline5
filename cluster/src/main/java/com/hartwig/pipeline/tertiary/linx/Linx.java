@@ -37,7 +37,6 @@ public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
     public static final String CLUSTERS_TSV = ".linx.clusters.tsv";
     public static final String DRIVER_CATALOG_TSV = ".linx.driver.catalog.tsv";
     public static final String FUSION_TSV = ".linx.fusion.tsv";
-    public static final String VIRAL_INSERTS_TSV = ".linx.viral_inserts.tsv";
     public static final String DRIVERS_TSV = ".linx.drivers.tsv";
 
     private final InputDownload purpleOutputDirDownload;

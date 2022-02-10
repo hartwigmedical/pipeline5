@@ -12,10 +12,13 @@ import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.calling.sage.SageGermlineCaller;
 import com.hartwig.pipeline.calling.sage.SageOutput;
 import com.hartwig.pipeline.calling.sage.SageSomaticCaller;
+import com.hartwig.pipeline.calling.structural.gripss.GripssGermline;
+import com.hartwig.pipeline.calling.structural.gripss.GripssGermlineProcess;
+import com.hartwig.pipeline.calling.structural.gripss.GripssGermlineProcessOutput;
+import com.hartwig.pipeline.calling.structural.gripss.GripssSomaticProcessOutput;
 import com.hartwig.pipeline.calling.structural.StructuralCaller;
 import com.hartwig.pipeline.calling.structural.StructuralCallerOutput;
-import com.hartwig.pipeline.calling.structural.StructuralCallerPostProcess;
-import com.hartwig.pipeline.calling.structural.StructuralCallerPostProcessOutput;
+import com.hartwig.pipeline.calling.structural.gripss.GripssSomaticProcess;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
@@ -120,15 +123,20 @@ public class SomaticPipeline {
                             new PaveSomatic(resourceFiles, sageSomaticOutput, persistedDataset)));
                     Future<PaveOutput> paveGermlineOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                             new PaveGermline(resourceFiles, sageGermlineOutput, persistedDataset)));
-                    Future<StructuralCallerPostProcessOutput> structuralCallerPostProcessOutputFuture =
-                            executorService.submit(() -> stageRunner.run(metadata,
-                                    new StructuralCallerPostProcess(resourceFiles, structuralCallerOutput, persistedDataset)));
-
                     PaveOutput paveSomaticOutput = pipelineResults.add(state.add(paveSomaticOutputFuture.get()));
                     PaveOutput paveGermlineOutput = pipelineResults.add(state.add(paveGermlineOutputFuture.get()));
 
-                    StructuralCallerPostProcessOutput structuralCallerPostProcessOutput =
-                            pipelineResults.add(state.add(structuralCallerPostProcessOutputFuture.get()));
+                    Future<GripssSomaticProcessOutput> gripssSomaticOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
+                                    new GripssSomaticProcess(resourceFiles, structuralCallerOutput, persistedDataset)));
+
+                    Future<GripssGermlineProcessOutput> gripssGermlineOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
+                                    new GripssGermlineProcess(resourceFiles, structuralCallerOutput, persistedDataset)));
+
+                    GripssSomaticProcessOutput gripssSomaticProcessOutput = pipelineResults.add(
+                            state.add(gripssSomaticOutputFuture.get()));
+
+                    GripssGermlineProcessOutput gripssGermlineProcessOutput = pipelineResults.add(
+                            state.add(gripssGermlineOutputFuture.get()));
 
                     if (state.shouldProceed()) {
                         Future<PurpleOutput> purpleOutputFuture =
@@ -136,7 +144,7 @@ public class SomaticPipeline {
                                         new Purple(resourceFiles,
                                                 paveSomaticOutput,
                                                 paveGermlineOutput,
-                                                structuralCallerPostProcessOutput,
+                                                gripssSomaticProcessOutput,
                                                 amberOutput,
                                                 cobaltOutput,
                                                 persistedDataset,

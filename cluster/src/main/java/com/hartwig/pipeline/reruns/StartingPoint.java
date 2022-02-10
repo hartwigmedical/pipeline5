@@ -13,7 +13,7 @@ import com.hartwig.pipeline.calling.germline.GermlineCaller;
 import com.hartwig.pipeline.calling.sage.SageGermlineCaller;
 import com.hartwig.pipeline.calling.sage.SageSomaticCaller;
 import com.hartwig.pipeline.calling.structural.StructuralCaller;
-import com.hartwig.pipeline.calling.structural.StructuralCallerPostProcess;
+import com.hartwig.pipeline.calling.structural.gripss.GripssSomaticProcess;
 import com.hartwig.pipeline.cram.CramConversion;
 import com.hartwig.pipeline.flagstat.Flagstat;
 import com.hartwig.pipeline.metrics.BamMetrics;
@@ -52,7 +52,7 @@ public class StartingPoint {
                         Cobalt.NAMESPACE,
                         Amber.NAMESPACE,
                         SageGermlineCaller.NAMESPACE))),
-        GRIPSS_COMPLETE(concat(CALLING_COMPLETE.namespaces, List.of(StructuralCallerPostProcess.NAMESPACE))),
+        GRIPSS_COMPLETE(concat(CALLING_COMPLETE.namespaces, List.of(GripssSomaticProcess.NAMESPACE))),
         PURPLE_COMPLETE(concat(GRIPSS_COMPLETE.namespaces, List.of(Purple.NAMESPACE))),
         ORANGE(concat(PURPLE_COMPLETE.namespaces,
                 List.of(Linx.NAMESPACE,

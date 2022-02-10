@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.calling.structural;
+package com.hartwig.pipeline.calling.structural.gripss;
 
 import static java.lang.String.format;
 
@@ -6,10 +6,11 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.api.client.util.Lists;
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
-import com.hartwig.pipeline.calling.structural.gripss.GripssSomatic;
+import com.hartwig.pipeline.calling.structural.StructuralCallerOutput;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.PipelineStatus;
@@ -32,8 +33,8 @@ import com.hartwig.pipeline.stages.SubStageInputOutput;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
-public class StructuralCallerPostProcess implements Stage<StructuralCallerPostProcessOutput, SomaticRunMetadata> {
-    public static final String NAMESPACE = "gripss";
+public class GripssSomaticProcess implements Stage<GripssSomaticProcessOutput, SomaticRunMetadata> {
+    public static final String NAMESPACE = "gripss_somatic";
 
     private final InputDownload gridssVcf;
     private final InputDownload gridssVcfIndex;
@@ -43,7 +44,7 @@ public class StructuralCallerPostProcess implements Stage<StructuralCallerPostPr
     private String somaticUnfilteredVcf;
     private String somaticFilteredVcf;
 
-    public StructuralCallerPostProcess(final ResourceFiles resourceFiles, StructuralCallerOutput structuralCallerOutput,
+    public GripssSomaticProcess(final ResourceFiles resourceFiles, StructuralCallerOutput structuralCallerOutput,
             final PersistedDataset persistedDataset) {
         this.resourceFiles = resourceFiles;
         gridssVcf = new InputDownload(structuralCallerOutput.unfilteredVcf());
@@ -85,9 +86,9 @@ public class StructuralCallerPostProcess implements Stage<StructuralCallerPostPr
     }
 
     @Override
-    public StructuralCallerPostProcessOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus,
+    public GripssSomaticProcessOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus,
             final RuntimeBucket bucket, final ResultsDirectory resultsDirectory) {
-        return StructuralCallerPostProcessOutput.builder()
+        return GripssSomaticProcessOutput.builder()
                 .status(jobStatus)
                 .maybeFilteredVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(somaticFilteredVcf))))
                 .maybeFilteredVcfIndex(GoogleStorageLocation.of(bucket.name(),
@@ -109,25 +110,25 @@ public class StructuralCallerPostProcess implements Stage<StructuralCallerPostPr
                         resultsDirectory))
                 .addReportComponents(new RunLogComponent(bucket, NAMESPACE, Folder.root(), resultsDirectory))
                 .addReportComponents(new StartupScriptComponent(bucket, NAMESPACE, Folder.root()))
-                .addDatatypes(new AddDatatype(DataType.STRUCTURAL_VARIANTS_GRIPSS_RECOVERY,
+                .addDatatypes(new AddDatatype(DataType.SOMATIC_STRUCTURAL_VARIANTS_GRIPSS_RECOVERY,
                                 metadata.barcode(),
                                 new ArchivePath(Folder.root(), namespace(), basename(somaticUnfilteredVcf))),
-                        new AddDatatype(DataType.STRUCTURAL_VARIANTS_GRIPSS,
+                        new AddDatatype(DataType.SOMATIC_STRUCTURAL_VARIANTS_GRIPSS,
                                 metadata.barcode(),
                                 new ArchivePath(Folder.root(), namespace(), basename(somaticFilteredVcf))))
                 .build();
     }
 
     @Override
-    public StructuralCallerPostProcessOutput skippedOutput(final SomaticRunMetadata metadata) {
-        return StructuralCallerPostProcessOutput.builder().status(PipelineStatus.SKIPPED).build();
+    public GripssSomaticProcessOutput skippedOutput(final SomaticRunMetadata metadata) {
+        return GripssSomaticProcessOutput.builder().status(PipelineStatus.SKIPPED).build();
     }
 
     @Override
-    public StructuralCallerPostProcessOutput persistedOutput(final SomaticRunMetadata metadata) {
+    public GripssSomaticProcessOutput persistedOutput(final SomaticRunMetadata metadata) {
 
         GoogleStorageLocation somaticFilteredLocation =
-                persistedDataset.path(metadata.tumor().sampleName(), DataType.STRUCTURAL_VARIANTS_GRIPSS)
+                persistedDataset.path(metadata.tumor().sampleName(), DataType.SOMATIC_STRUCTURAL_VARIANTS_GRIPSS)
                         .orElse(GoogleStorageLocation.of(metadata.bucket(),
                                 PersistedLocations.blobForSet(metadata.set(),
                                         namespace(),
@@ -136,7 +137,7 @@ public class StructuralCallerPostProcess implements Stage<StructuralCallerPostPr
                                                 GripssSomatic.GRIPSS_SOMATIC_FILTERED,
                                                 FileTypes.GZIPPED_VCF))));
         GoogleStorageLocation somaticLocation =
-                persistedDataset.path(metadata.tumor().sampleName(), DataType.STRUCTURAL_VARIANTS_GRIPSS_RECOVERY)
+                persistedDataset.path(metadata.tumor().sampleName(), DataType.SOMATIC_STRUCTURAL_VARIANTS_GRIPSS_RECOVERY)
                         .orElse(GoogleStorageLocation.of(metadata.bucket(),
                                 PersistedLocations.blobForSet(metadata.set(),
                                         namespace(),
@@ -145,7 +146,7 @@ public class StructuralCallerPostProcess implements Stage<StructuralCallerPostPr
                                                 GripssSomatic.GRIPSS_SOMATIC_UNFILTERED,
                                                 FileTypes.GZIPPED_VCF))));
 
-        return StructuralCallerPostProcessOutput.builder()
+        return GripssSomaticProcessOutput.builder()
                 .status(PipelineStatus.PERSISTED)
                 .maybeFilteredVcf(somaticFilteredLocation)
                 .maybeFilteredVcfIndex(somaticFilteredLocation.transform(FileTypes::tabixIndex))
