@@ -87,16 +87,17 @@ public class VirusAnalysisTest extends TertiaryStageTest<VirusOutput> {
 
     @Override
     protected List<String> expectedCommands() {
-        return List.of("export PATH=\"${PATH}:/opt/tools/gridss/2.11.1\"",
+        return List.of("export PATH=\"${PATH}:/opt/tools/gridss/2.13.2\"",
                 "export PATH=\"${PATH}:/opt/tools/repeatmasker/4.1.1\"",
                 "export PATH=\"${PATH}:/opt/tools/kraken2/2.1.0\"",
-                "export PATH=\"${PATH}:/opt/tools/samtools/1.10\"",
+                "export PATH=\"${PATH}:/opt/tools/samtools/1.14\"",
                 "export PATH=\"${PATH}:/opt/tools/bcftools/1.9\"",
                 "export PATH=\"${PATH}:/opt/tools/bwa/0.7.17\"",
-                "/opt/tools/gridss/2.11.1/virusbreakend.sh " + "--output /data/output/tumor.virusbreakend.vcf "
+                "/opt/tools/gridss/2.13.2/virusbreakend --output /data/output/tumor.virusbreakend.vcf "
                         + "--workingdir /data/output "
                         + "--reference /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
-                        + "--db /opt/resources/virusbreakend_db --jar /opt/tools/gridss/2.11.1/gridss.jar --gridssargs \"--jvmheap 60G\" /data/input/tumor.bam",
+                        + "--db /opt/resources/virusbreakend_db --jar /opt/tools/gridss/2.13.2/gridss.jar --gridssargs \"--jvmheap 60G\" "
+                        + "/data/input/tumor.bam",
                 "java -Xmx2G -jar /opt/tools/virus-interpreter/1.2/virus-interpreter.jar -sample_id tumor "
                         + "-purple_purity_tsv /data/input/tumor.purple.purity.tsv -purple_qc_file /data/input/tumor.purple.qc "
                         + "-tumor_sample_wgs_metrics_file /data/input/tumor.wgsmetrics "

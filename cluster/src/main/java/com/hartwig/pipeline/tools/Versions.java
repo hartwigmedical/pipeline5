@@ -21,13 +21,13 @@ public interface Versions {
     String HEALTH_CHECKER = "3.3";
     String PURPLE = "3.2";
     String CIRCOS = "0.69.6";
-    String GRIDSS = "2.11.1";
-    String VIRUSBREAKEND_GRIDSS = "2.11.1";
+    String GRIDSS = "2.13.2";
+    String VIRUSBREAKEND_GRIDSS = "2.13.2";
     String VIRUS_INTERPRETER = "1.2";
     String GRIPSS = "2.0";
     String LINX = "1.17";
     String CHORD = "2.00_1.14";
-    String SAMTOOLS = "1.10";
+    String SAMTOOLS = "1.14";
     String BAMCOMP = "1.3";
     String PROTECT = "2.0";
     String REPEAT_MASKER = "4.1.1";
