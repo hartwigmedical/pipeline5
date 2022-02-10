@@ -11,7 +11,7 @@ public class VirusBreakendCommand extends VersionedToolCommand {
 
     public VirusBreakendCommand(ResourceFiles resourceFiles, String tumorSample, String tumorBamPath) {
         super("gridss",
-                "virusbreakend.sh",
+                "virusbreakend",
                 Versions.GRIDSS,
                 "--output",
                 VmDirectories.outputFile(tumorSample + ".virusbreakend.vcf"),

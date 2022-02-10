@@ -20,7 +20,7 @@ public class RepeatMasker extends SubStage {
     public List<BashCommand> bash(final OutputFile input, final OutputFile output) {
         String repeatMasker = VmDirectories.TOOLS + "/repeatmasker/" + Versions.REPEAT_MASKER + "/RepeatMasker";
         return List.of(new VersionedToolCommand("gridss",
-                "gridss_annotate_vcf_repeatmasker.sh",
+                "gridss_annotate_vcf_repeatmasker",
                 Versions.GRIDSS,
                 "--output",
                 output.path(),
