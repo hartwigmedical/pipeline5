@@ -37,6 +37,7 @@ public interface Versions {
     String SIGS = "1.0";
     String ORANGE = "1.6";
     String PAVE = "1.0";
+    String LILAC = "1.1";
 
     static void printAll() {
         Logger logger = LoggerFactory.getLogger(Versions.class);
