@@ -8,6 +8,7 @@ import static com.hartwig.pipeline.resource.ResourceNames.ORANGE;
 import static com.hartwig.pipeline.resource.ResourceNames.SIGS;
 import static com.hartwig.pipeline.resource.ResourceNames.VIRUS_INTERPRETER;
 import static com.hartwig.pipeline.resource.ResourceNames.VIRUS_REFERENCE_GENOME;
+import static com.hartwig.pipeline.resource.ResourceNames.PURPLE;
 
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 
@@ -128,6 +129,8 @@ public interface ResourceFiles {
     default String orangeCohortPercentiles() {
         return of(ORANGE, "cohort_percentiles.tsv");
     }
+
+    default String purpleCohortGermlineDeletions() { return of(PURPLE, "cohort_germline_del_freq.csv"); }
 
     default String formPath(String name, String file) {
         return String.format("%s/%s/%s/%s", VmDirectories.RESOURCES, name, versionDirectory(), file);

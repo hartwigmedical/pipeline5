@@ -19,7 +19,7 @@ public interface Versions {
     String AMBER = "3.6";
     String COBALT = "1.11";
     String HEALTH_CHECKER = "3.3";
-    String PURPLE = "3.2";
+    String PURPLE = "3.3";
     String CIRCOS = "0.69.6";
     String GRIDSS = "2.13.2";
     String VIRUSBREAKEND_GRIDSS = "2.13.2";
