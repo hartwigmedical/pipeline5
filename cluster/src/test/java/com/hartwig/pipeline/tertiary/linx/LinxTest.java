@@ -38,16 +38,16 @@ public class LinxTest extends TertiaryStageTest<LinxOutput> {
 
         List<String> commands = Lists.newArrayList();
 
-        commands.add("java -Xmx8G -jar /opt/tools/linx/1.17/linx.jar -sample tumor -sv_vcf "
+        commands.add("java -Xmx8G -jar /opt/tools/linx/1.18/linx.jar -sample tumor -sv_vcf "
                 + "/data/input/tumor.purple.sv.vcf.gz -purple_dir /data/input/results -ref_genome_version 37 -output_dir /data/output "
                 + "-fragile_site_file /opt/resources/linx/37/fragile_sites_hmf.37.csv "
                 + "-line_element_file /opt/resources/linx/37/line_elements.37.csv "
                 + "-ensembl_data_dir /opt/resources/ensembl_data_cache/37/ "
                 + "-check_fusions -known_fusion_file /opt/resources/fusions/37/known_fusion_data.37.csv "
                 + "-check_drivers -driver_gene_panel /opt/resources/gene_panel/37/DriverGenePanel.37.tsv "
-                + "-chaining_sv_limit 0 -write_vis_data");
+                + "-write_vis_data");
 
-        commands.add("java -Xmx8G -cp /opt/tools/linx/1.17/linx.jar com.hartwig.hmftools.linx.visualiser.SvVisualiser "
+        commands.add("java -Xmx8G -cp /opt/tools/linx/1.18/linx.jar com.hartwig.hmftools.linx.visualiser.SvVisualiser "
                 + "-sample tumor -ref_genome_version 37 -circos /opt/tools/circos/0.69.6/bin/circos -vis_file_dir /data/output "
                 + "-data_out /data/output/circos/ -plot_out /data/output/plot/ -plot_reportable");
 
@@ -65,6 +65,12 @@ public class LinxTest extends TertiaryStageTest<LinxOutput> {
                 new AddDatatype(DataType.LINX_DRIVER_CATALOG,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
                         new ArchivePath(Folder.root(), Linx.NAMESPACE, "tumor.linx.driver.catalog.tsv")),
+                new AddDatatype(DataType.LINX_SV_ANNOTATIONS,
+                        TestInputs.defaultSomaticRunMetadata().barcode(),
+                        new ArchivePath(Folder.root(), Linx.NAMESPACE, "tumor.linx.svs.tsv")),
+                new AddDatatype(DataType.LINX_CLUSTERS,
+                        TestInputs.defaultSomaticRunMetadata().barcode(),
+                        new ArchivePath(Folder.root(), Linx.NAMESPACE, "tumor.linx.clusters.tsv")),
                 new AddDatatype(DataType.LINX_FUSIONS,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
                         new ArchivePath(Folder.root(), Linx.NAMESPACE, "tumor.linx.fusion.tsv")));

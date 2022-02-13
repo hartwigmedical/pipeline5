@@ -35,6 +35,7 @@ public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
     public static final String NAMESPACE = "linx";
     public static final String BREAKEND_TSV = ".linx.breakend.tsv";
     public static final String CLUSTERS_TSV = ".linx.clusters.tsv";
+    public static final String SV_ANNOTATIONS_TSV = ".linx.svs.tsv";
     public static final String DRIVER_CATALOG_TSV = ".linx.driver.catalog.tsv";
     public static final String FUSION_TSV = ".linx.fusion.tsv";
     public static final String DRIVERS_TSV = ".linx.drivers.tsv";
@@ -95,6 +96,8 @@ public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
         String driverCatalogTsv = metadata.tumor().sampleName() + DRIVER_CATALOG_TSV;
         String fusionsTsv = metadata.tumor().sampleName() + FUSION_TSV;
         String driversTsv = metadata.tumor().sampleName() + DRIVERS_TSV;
+        String clustersTsv = metadata.tumor().sampleName() + CLUSTERS_TSV;
+        String svAnnotationsTsv = metadata.tumor().sampleName() + SV_ANNOTATIONS_TSV;
 
         return LinxOutput.builder()
                 .status(jobStatus)
@@ -103,6 +106,8 @@ public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
                         .drivers(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(driversTsv)))
                         .driverCatalog(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(driverCatalogTsv)))
                         .fusions(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(fusionsTsv)))
+                        .svAnnotations(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(svAnnotationsTsv)))
+                        .clusters(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(clustersTsv)))
                         .outputDirectory(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(), true))
                         .build())
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
@@ -117,6 +122,12 @@ public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
                 .addDatatypes(new AddDatatype(DataType.LINX_FUSIONS,
                         metadata.barcode(),
                         new ArchivePath(Folder.root(), namespace(), fusionsTsv)))
+                .addDatatypes(new AddDatatype(DataType.LINX_CLUSTERS,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), clustersTsv)))
+                .addDatatypes(new AddDatatype(DataType.LINX_SV_ANNOTATIONS,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), svAnnotationsTsv)))
                 .build();
     }
 
@@ -136,6 +147,8 @@ public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
         String driverCatalogTsv = metadata.tumor().sampleName() + DRIVER_CATALOG_TSV;
         String fusionsTsv = metadata.tumor().sampleName() + FUSION_TSV;
         String driversTsv = metadata.tumor().sampleName() + DRIVERS_TSV;
+        String clustersTsv = metadata.tumor().sampleName() + CLUSTERS_TSV;
+        String svAnnotationsTsv = metadata.tumor().sampleName() + SV_ANNOTATIONS_TSV;
         return LinxOutput.builder()
                 .status(PipelineStatus.PERSISTED)
                 .maybeLinxOutputLocations(LinxOutputLocations.builder()
@@ -143,6 +156,8 @@ public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
                         .driverCatalog(persistedOrDefault(metadata, DataType.LINX_DRIVER_CATALOG, driverCatalogTsv))
                         .drivers(persistedOrDefault(metadata, DataType.LINX_DRIVER_CATALOG, driversTsv))
                         .fusions(persistedOrDefault(metadata, DataType.LINX_DRIVER_CATALOG, fusionsTsv))
+                        .svAnnotations(persistedOrDefault(metadata, DataType.LINX_SV_ANNOTATIONS, svAnnotationsTsv))
+                        .clusters(persistedOrDefault(metadata, DataType.LINX_CLUSTERS, clustersTsv))
                         .outputDirectory(persistedOrDefault(metadata,
                                 DataType.LINX_DRIVER_CATALOG,
                                 driverCatalogTsv).transform(f -> new File(f).getParent()).asDirectory())

@@ -11,6 +11,10 @@ public interface LinxOutputLocations {
 
     GoogleStorageLocation breakends();
 
+    GoogleStorageLocation svAnnotations();
+
+    GoogleStorageLocation clusters();
+
     GoogleStorageLocation driverCatalog();
 
     GoogleStorageLocation drivers();

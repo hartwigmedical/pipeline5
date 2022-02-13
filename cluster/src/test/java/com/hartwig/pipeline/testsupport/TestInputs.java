@@ -12,6 +12,7 @@ import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
 import com.hartwig.pipeline.calling.sage.SageGermlineCaller;
 import com.hartwig.pipeline.calling.sage.SageOutput;
 import com.hartwig.pipeline.calling.sage.SageSomaticCaller;
+import com.hartwig.pipeline.calling.structural.gripss.GripssGermlineProcess;
 import com.hartwig.pipeline.calling.structural.gripss.GripssGermlineProcessOutput;
 import com.hartwig.pipeline.calling.structural.gripss.GripssSomaticProcessOutput;
 import com.hartwig.pipeline.calling.structural.StructuralCaller;
@@ -43,6 +44,9 @@ import com.hartwig.pipeline.tertiary.cuppa.CuppaOutputLocations;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthCheckOutput;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthChecker;
 import com.hartwig.pipeline.tertiary.linx.Linx;
+import com.hartwig.pipeline.tertiary.linx.LinxGermline;
+import com.hartwig.pipeline.tertiary.linx.LinxGermlineOutput;
+import com.hartwig.pipeline.tertiary.linx.LinxGermlineOutputLocations;
 import com.hartwig.pipeline.tertiary.linx.LinxOutput;
 import com.hartwig.pipeline.tertiary.linx.LinxOutputLocations;
 import com.hartwig.pipeline.tertiary.orange.OrangeOutput;
@@ -273,13 +277,13 @@ public class TestInputs {
         String full = ".gripss.full.";
         return GripssGermlineProcessOutput.builder()
                 .status(PipelineStatus.SUCCESS)
-                .maybeFilteredVcf(gsLocation(somaticBucket(GripssSomaticProcess.NAMESPACE),
+                .maybeFilteredVcf(gsLocation(somaticBucket(GripssGermlineProcess.NAMESPACE),
                         RESULTS + TUMOR_SAMPLE + filtered + FileTypes.GZIPPED_VCF))
-                .maybeFilteredVcfIndex(gsLocation(somaticBucket(GripssSomaticProcess.NAMESPACE),
+                .maybeFilteredVcfIndex(gsLocation(somaticBucket(GripssGermlineProcess.NAMESPACE),
                         RESULTS + TUMOR_SAMPLE + filtered + FileTypes.GZIPPED_VCF + ".tbi"))
-                .maybeFullVcf(gsLocation(somaticBucket(GripssSomaticProcess.NAMESPACE),
+                .maybeFullVcf(gsLocation(somaticBucket(GripssGermlineProcess.NAMESPACE),
                         RESULTS + TUMOR_SAMPLE + full + FileTypes.GZIPPED_VCF))
-                .maybeFullVcfIndex(gsLocation(somaticBucket(GripssSomaticProcess.NAMESPACE),
+                .maybeFullVcfIndex(gsLocation(somaticBucket(GripssGermlineProcess.NAMESPACE),
                         RESULTS + TUMOR_SAMPLE + full + FileTypes.GZIPPED_VCF + ".tbi"))
                 .build();
     }
@@ -371,8 +375,21 @@ public class TestInputs {
                         .breakends(gsLocation(somaticBucket(Linx.NAMESPACE), TUMOR_SAMPLE + Linx.BREAKEND_TSV))
                         .driverCatalog(gsLocation(somaticBucket(Linx.NAMESPACE), TUMOR_SAMPLE + Linx.DRIVER_CATALOG_TSV))
                         .fusions(gsLocation(somaticBucket(Linx.NAMESPACE), TUMOR_SAMPLE + Linx.FUSION_TSV))
+                        .svAnnotations(gsLocation(somaticBucket(Linx.NAMESPACE), TUMOR_SAMPLE + Linx.SV_ANNOTATIONS_TSV))
+                        .clusters(gsLocation(somaticBucket(Linx.NAMESPACE), TUMOR_SAMPLE + Linx.CLUSTERS_TSV))
                         .outputDirectory(gsLocation(somaticBucket(Linx.NAMESPACE), RESULTS))
                         .drivers(gsLocation(somaticBucket(Linx.NAMESPACE), TUMOR_SAMPLE + Linx.DRIVERS_TSV))
+                        .build())
+                .build();
+    }
+
+    public static LinxGermlineOutput linxGermlineOutput() {
+        return LinxGermlineOutput.builder()
+                .status(PipelineStatus.SUCCESS)
+                .maybeLinxGermlineOutputLocations(LinxGermlineOutputLocations.builder()
+                        .disruptions(gsLocation(somaticBucket(LinxGermline.NAMESPACE), TUMOR_SAMPLE + LinxGermline.GERMLINE_DISRUPTION_TSV))
+                        .driverCatalog(gsLocation(somaticBucket(LinxGermline.NAMESPACE), TUMOR_SAMPLE + LinxGermline.GERMLINE_DRIVER_CATALOG_TSV))
+                        .outputDirectory(gsLocation(somaticBucket(LinxGermline.NAMESPACE), RESULTS))
                         .build())
                 .build();
     }

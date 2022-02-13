@@ -25,7 +25,7 @@ public interface Versions {
     String VIRUSBREAKEND_GRIDSS = "2.13.2";
     String VIRUS_INTERPRETER = "1.2";
     String GRIPSS = "2.0";
-    String LINX = "1.17";
+    String LINX = "1.18";
     String CHORD = "2.00_1.14";
     String SAMTOOLS = "1.14";
     String BAMCOMP = "1.3";
