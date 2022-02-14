@@ -7,6 +7,7 @@ import java.util.List;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.AlignmentPair;
+import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
@@ -16,6 +17,8 @@ import com.hartwig.pipeline.execution.vm.SambambaCommand;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
+import com.hartwig.pipeline.metadata.AddDatatype;
+import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
@@ -90,6 +93,12 @@ public class Lilac extends TertiaryStage<LilacOutput> {
                 .status(jobStatus)
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
+                .addDatatypes(new AddDatatype(DataType.LILAC_OUTPUT,
+                                metadata.barcode(),
+                                new ArchivePath(Folder.root(), namespace(), metadata.tumor().sampleName() + ".lilac.csv")),
+                        new AddDatatype(DataType.LILAC_QC_METRICS,
+                                metadata.barcode(),
+                                new ArchivePath(Folder.root(), namespace(), metadata.tumor().sampleName() + ".lilac.qc.csv")))
                 .build();
     }
 

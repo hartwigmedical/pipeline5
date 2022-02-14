@@ -1,10 +1,12 @@
 package com.hartwig.pipeline.tertiary.lilac;
 
-import java.util.Collections;
 import java.util.List;
 
+import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.metadata.AddDatatype;
+import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
+import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.tertiary.TertiaryStageTest;
 import com.hartwig.pipeline.testsupport.TestInputs;
@@ -36,15 +38,16 @@ public class LilacTest extends TertiaryStageTest<LilacOutput> {
 
     @Override
     protected List<String> expectedCommands() {
-        return List.of("/opt/tools/sambamba/0.6.8/sambamba slice -L /opt/resources/lilac/37/hla_v37.bed -o /data/output/reference.hla.bam /data/input/reference.bam",
+        return List.of(
+                "/opt/tools/sambamba/0.6.8/sambamba slice -L /opt/resources/lilac/37/hla_v37.bed -o /data/output/reference.hla.bam /data/input/reference.bam",
                 "/opt/tools/sambamba/0.6.8/sambamba index /data/output/reference.hla.bam",
                 "/opt/tools/sambamba/0.6.8/sambamba slice -L /opt/resources/lilac/37/hla_v37.bed -o /data/output/tumor.hla.bam /data/input/tumor.bam",
                 "/opt/tools/sambamba/0.6.8/sambamba index /data/output/tumor.hla.bam",
-                "java -Xmx15G -jar /opt/tools/lilac/1.1/lilac.jar " +
-                        "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta " +
-                        "-sample tumor -reference_bam /data/output/reference.hla.bam -tumor_bam /data/output/tumor.hla.bam " +
-                        "-output_dir /data/output -resource_dir /opt/resources/lilac/ -gene_copy_number_file /data/input/tumor.purple.cnv.gene.tsv " +
-                        "-somatic_variants_file /data/input/tumor.purple.somatic.vcf.gz -threads $(grep -c '^processor' /proc/cpuinfo)");
+                "java -Xmx15G -jar /opt/tools/lilac/1.1/lilac.jar "
+                        + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
+                        + "-sample tumor -reference_bam /data/output/reference.hla.bam -tumor_bam /data/output/tumor.hla.bam "
+                        + "-output_dir /data/output -resource_dir /opt/resources/lilac/ -gene_copy_number_file /data/input/tumor.purple.cnv.gene.tsv "
+                        + "-somatic_variants_file /data/input/tumor.purple.somatic.vcf.gz -threads $(grep -c '^processor' /proc/cpuinfo)");
     }
 
     @Override
@@ -54,7 +57,12 @@ public class LilacTest extends TertiaryStageTest<LilacOutput> {
 
     @Override
     protected List<AddDatatype> expectedFurtherOperations() {
-        return Collections.emptyList();
+        return List.of(new AddDatatype(DataType.LILAC_OUTPUT,
+                        TestInputs.defaultSomaticRunMetadata().barcode(),
+                        new ArchivePath(Folder.root(), Lilac.NAMESPACE, "tumor.lilac.csv")),
+                new AddDatatype(DataType.LILAC_QC_METRICS,
+                        TestInputs.defaultSomaticRunMetadata().barcode(),
+                        new ArchivePath(Folder.root(), Lilac.NAMESPACE, "tumor.lilac.qc.csv")));
     }
 
     @Override
