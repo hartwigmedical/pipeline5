@@ -85,7 +85,7 @@ public class LinxSomatic implements Stage<LinxSomaticOutput, SomaticRunMetadata>
 
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
-        return VirtualMachineJobDefinition.linx(bash, resultsDirectory);
+        return VirtualMachineJobDefinition.linx("somatic", bash, resultsDirectory);
     }
 
     @Override

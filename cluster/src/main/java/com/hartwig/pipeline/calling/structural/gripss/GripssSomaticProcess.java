@@ -82,7 +82,7 @@ public class GripssSomaticProcess implements Stage<GripssSomaticProcessOutput, S
 
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
-        return VirtualMachineJobDefinition.structuralPostProcessCalling(bash, resultsDirectory);
+        return VirtualMachineJobDefinition.structuralPostProcessCalling("somatic", bash, resultsDirectory);
     }
 
     @Override
