@@ -11,7 +11,7 @@ import com.hartwig.pipeline.stages.SubStage;
 
 public class GripssSomatic extends SubStage {
 
-    public static final String NAMESPACE = "gripss";
+    public static final String NAMESPACE = "gripss_somatic";
 
     public static final String GRIPSS_SOMATIC_FILTERED = "gripss.filtered.somatic";
     public static final String GRIPSS_SOMATIC_UNFILTERED = "gripss.somatic";

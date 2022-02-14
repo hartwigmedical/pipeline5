@@ -43,12 +43,12 @@ import com.hartwig.pipeline.tertiary.cuppa.CuppaOutput;
 import com.hartwig.pipeline.tertiary.cuppa.CuppaOutputLocations;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthCheckOutput;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthChecker;
-import com.hartwig.pipeline.tertiary.linx.Linx;
+import com.hartwig.pipeline.tertiary.linx.LinxSomatic;
 import com.hartwig.pipeline.tertiary.linx.LinxGermline;
 import com.hartwig.pipeline.tertiary.linx.LinxGermlineOutput;
 import com.hartwig.pipeline.tertiary.linx.LinxGermlineOutputLocations;
-import com.hartwig.pipeline.tertiary.linx.LinxOutput;
-import com.hartwig.pipeline.tertiary.linx.LinxOutputLocations;
+import com.hartwig.pipeline.tertiary.linx.LinxSomaticOutput;
+import com.hartwig.pipeline.tertiary.linx.LinxSomaticOutputLocations;
 import com.hartwig.pipeline.tertiary.orange.OrangeOutput;
 import com.hartwig.pipeline.tertiary.pave.PaveGermline;
 import com.hartwig.pipeline.tertiary.pave.PaveOutput;
@@ -368,17 +368,17 @@ public class TestInputs {
         return "run-" + sample + "-test/" + namespace;
     }
 
-    public static LinxOutput linxOutput() {
-        return LinxOutput.builder()
+    public static LinxSomaticOutput linxOutput() {
+        return LinxSomaticOutput.builder()
                 .status(PipelineStatus.SUCCESS)
-                .maybeLinxOutputLocations(LinxOutputLocations.builder()
-                        .breakends(gsLocation(somaticBucket(Linx.NAMESPACE), TUMOR_SAMPLE + Linx.BREAKEND_TSV))
-                        .driverCatalog(gsLocation(somaticBucket(Linx.NAMESPACE), TUMOR_SAMPLE + Linx.DRIVER_CATALOG_TSV))
-                        .fusions(gsLocation(somaticBucket(Linx.NAMESPACE), TUMOR_SAMPLE + Linx.FUSION_TSV))
-                        .svAnnotations(gsLocation(somaticBucket(Linx.NAMESPACE), TUMOR_SAMPLE + Linx.SV_ANNOTATIONS_TSV))
-                        .clusters(gsLocation(somaticBucket(Linx.NAMESPACE), TUMOR_SAMPLE + Linx.CLUSTERS_TSV))
-                        .outputDirectory(gsLocation(somaticBucket(Linx.NAMESPACE), RESULTS))
-                        .drivers(gsLocation(somaticBucket(Linx.NAMESPACE), TUMOR_SAMPLE + Linx.DRIVERS_TSV))
+                .maybeLinxOutputLocations(LinxSomaticOutputLocations.builder()
+                        .breakends(gsLocation(somaticBucket(LinxSomatic.NAMESPACE), TUMOR_SAMPLE + LinxSomatic.BREAKEND_TSV))
+                        .driverCatalog(gsLocation(somaticBucket(LinxSomatic.NAMESPACE), TUMOR_SAMPLE + LinxSomatic.DRIVER_CATALOG_TSV))
+                        .fusions(gsLocation(somaticBucket(LinxSomatic.NAMESPACE), TUMOR_SAMPLE + LinxSomatic.FUSION_TSV))
+                        .svAnnotations(gsLocation(somaticBucket(LinxSomatic.NAMESPACE), TUMOR_SAMPLE + LinxSomatic.SV_ANNOTATIONS_TSV))
+                        .clusters(gsLocation(somaticBucket(LinxSomatic.NAMESPACE), TUMOR_SAMPLE + LinxSomatic.CLUSTERS_TSV))
+                        .outputDirectory(gsLocation(somaticBucket(LinxSomatic.NAMESPACE), RESULTS))
+                        .drivers(gsLocation(somaticBucket(LinxSomatic.NAMESPACE), TUMOR_SAMPLE + LinxSomatic.DRIVERS_TSV))
                         .build())
                 .build();
     }

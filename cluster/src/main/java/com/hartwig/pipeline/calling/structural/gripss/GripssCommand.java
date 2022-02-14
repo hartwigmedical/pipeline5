@@ -49,7 +49,7 @@ public class GripssCommand extends JavaJarCommand
                         resourceFiles.gridssBreakendPon(),
                         "-pon_sv_file",
                         resourceFiles.gridssBreakpointPon(),
-                        "-reference",
+                        "-sample",
                         refSample,
                         "-vcf",
                         inputVcf,

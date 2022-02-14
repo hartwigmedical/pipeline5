@@ -123,9 +123,8 @@ public class LinxGermline implements Stage<LinxGermlineOutput, SomaticRunMetadat
                 .maybeLinxGermlineOutputLocations(LinxGermlineOutputLocations.builder()
                         .disruptions(persistedOrDefault(metadata, DataType.LINX_GERMLINE_DISRUPTIONS, disruptionsTsv))
                         .driverCatalog(persistedOrDefault(metadata, DataType.LINX_GERMLINE_DRIVER_CATALOG, driverCatalogTsv))
-                        .outputDirectory(persistedOrDefault(metadata,
-                                DataType.LINX_DRIVER_CATALOG,
-                                driverCatalogTsv).transform(f -> new File(f).getParent()).asDirectory())
+                        .outputDirectory(persistedOrDefault(
+                                metadata, DataType.LINX_DRIVER_CATALOG, driverCatalogTsv).transform(f -> new File(f).getParent()).asDirectory())
                         .build())
                 .build();
     }

@@ -11,7 +11,7 @@ import com.hartwig.pipeline.stages.SubStage;
 
 public class GripssGermline extends SubStage {
 
-    public static final String NAMESPACE = "gripss";
+    public static final String NAMESPACE = "gripss_germline";
 
     public static final String GRIPSS_GERMLINE_FILTERED = "gripss.filtered.germline";
     public static final String GRIPSS_GERMLINE_UNFILTERED = "gripss.germline";

@@ -12,7 +12,6 @@ import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.calling.sage.SageGermlineCaller;
 import com.hartwig.pipeline.calling.sage.SageOutput;
 import com.hartwig.pipeline.calling.sage.SageSomaticCaller;
-import com.hartwig.pipeline.calling.structural.gripss.GripssGermline;
 import com.hartwig.pipeline.calling.structural.gripss.GripssGermlineProcess;
 import com.hartwig.pipeline.calling.structural.gripss.GripssGermlineProcessOutput;
 import com.hartwig.pipeline.calling.structural.gripss.GripssSomaticProcessOutput;
@@ -36,10 +35,10 @@ import com.hartwig.pipeline.tertiary.cuppa.Cuppa;
 import com.hartwig.pipeline.tertiary.cuppa.CuppaOutput;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthCheckOutput;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthChecker;
-import com.hartwig.pipeline.tertiary.linx.Linx;
+import com.hartwig.pipeline.tertiary.linx.LinxSomatic;
 import com.hartwig.pipeline.tertiary.linx.LinxGermline;
 import com.hartwig.pipeline.tertiary.linx.LinxGermlineOutput;
-import com.hartwig.pipeline.tertiary.linx.LinxOutput;
+import com.hartwig.pipeline.tertiary.linx.LinxSomaticOutput;
 import com.hartwig.pipeline.tertiary.orange.Orange;
 import com.hartwig.pipeline.tertiary.orange.OrangeOutput;
 import com.hartwig.pipeline.tertiary.pave.PaveGermline;
@@ -166,8 +165,8 @@ public class SomaticPipeline {
 
                             Future<HealthCheckOutput> healthCheckOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                     new HealthChecker(referenceMetrics, tumorMetrics, referenceFlagstat, tumorFlagstat, purpleOutput)));
-                            Future<LinxOutput> linxOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
-                                    new Linx(purpleOutput, resourceFiles, persistedDataset)));
+                            Future<LinxSomaticOutput> linxOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
+                                    new LinxSomatic(purpleOutput, resourceFiles, persistedDataset)));
                             Future<LinxGermlineOutput> linxGermlineOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                     new LinxGermline(gripssGermlineProcessOutput, resourceFiles, persistedDataset)));
                             Future<SigsOutput> signatureOutputFuture =
@@ -175,7 +174,7 @@ public class SomaticPipeline {
                             Future<ChordOutput> chordOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                     new Chord(arguments.refGenomeVersion(), purpleOutput, persistedDataset)));
                             pipelineResults.add(state.add(healthCheckOutputFuture.get()));
-                            LinxOutput linxOutput = pipelineResults.add(state.add(linxOutputFuture.get()));
+                            LinxSomaticOutput linxOutput = pipelineResults.add(state.add(linxOutputFuture.get()));
                             pipelineResults.add(state.add(linxGermlineOutputFuture.get()));
                             Future<CuppaOutput> cuppaOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                     new Cuppa(purpleOutput, linxOutput, resourceFiles, persistedDataset)));

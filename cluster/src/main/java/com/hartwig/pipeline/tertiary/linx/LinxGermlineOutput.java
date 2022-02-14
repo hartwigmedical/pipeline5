@@ -19,8 +19,4 @@ public interface LinxGermlineOutput extends StageOutput {
     }
 
     Optional<LinxGermlineOutputLocations> maybeLinxGermlineOutputLocations();
-
-    default LinxGermlineOutputLocations linxGermlineOutputLocations() {
-        return maybeLinxGermlineOutputLocations().orElseThrow();
-    }
 }

@@ -30,7 +30,7 @@ import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 
 import org.jetbrains.annotations.NotNull;
 
-public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
+public class LinxSomatic implements Stage<LinxSomaticOutput, SomaticRunMetadata> {
 
     public static final String NAMESPACE = "linx";
     public static final String BREAKEND_TSV = ".linx.breakend.tsv";
@@ -45,7 +45,7 @@ public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
     private final ResourceFiles resourceFiles;
     private final PersistedDataset persistedDataset;
 
-    public Linx(PurpleOutput purpleOutput, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
+    public LinxSomatic(PurpleOutput purpleOutput, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
         purpleOutputDirDownload = new InputDownload(purpleOutput.outputLocations().outputDirectory());
         purpleStructuralVcfDownload = new InputDownload(purpleOutput.outputLocations().structuralVcf());
         this.resourceFiles = resourceFiles;
@@ -89,7 +89,7 @@ public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
     }
 
     @Override
-    public LinxOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
+    public LinxSomaticOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
             final ResultsDirectory resultsDirectory) {
 
         String breakendTsv = metadata.tumor().sampleName() + BREAKEND_TSV;
@@ -99,9 +99,9 @@ public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
         String clustersTsv = metadata.tumor().sampleName() + CLUSTERS_TSV;
         String svAnnotationsTsv = metadata.tumor().sampleName() + SV_ANNOTATIONS_TSV;
 
-        return LinxOutput.builder()
+        return LinxSomaticOutput.builder()
                 .status(jobStatus)
-                .maybeLinxOutputLocations(LinxOutputLocations.builder()
+                .maybeLinxOutputLocations(LinxSomaticOutputLocations.builder()
                         .breakends(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(breakendTsv)))
                         .drivers(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(driversTsv)))
                         .driverCatalog(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(driverCatalogTsv)))
@@ -112,28 +112,24 @@ public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
                         .build())
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), NAMESPACE, resultsDirectory))
-                .addDatatypes(new AddDatatype(DataType.LINX, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), driversTsv)))
-                .addDatatypes(new AddDatatype(DataType.LINX_BREAKENDS,
-                        metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), breakendTsv)))
-                .addDatatypes(new AddDatatype(DataType.LINX_DRIVER_CATALOG,
-                        metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), driverCatalogTsv)))
-                .addDatatypes(new AddDatatype(DataType.LINX_FUSIONS,
-                        metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), fusionsTsv)))
-                .addDatatypes(new AddDatatype(DataType.LINX_CLUSTERS,
-                        metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), clustersTsv)))
-                .addDatatypes(new AddDatatype(DataType.LINX_SV_ANNOTATIONS,
-                        metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), svAnnotationsTsv)))
+                .addDatatypes(new AddDatatype(
+                        DataType.LINX_DRIVER, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), driversTsv)))
+                .addDatatypes(new AddDatatype(
+                        DataType.LINX_BREAKENDS, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), breakendTsv)))
+                .addDatatypes(new AddDatatype(
+                        DataType.LINX_DRIVER_CATALOG, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), driverCatalogTsv)))
+                .addDatatypes(new AddDatatype(
+                        DataType.LINX_FUSIONS, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), fusionsTsv)))
+                .addDatatypes(new AddDatatype(
+                        DataType.LINX_CLUSTERS, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), clustersTsv)))
+                .addDatatypes(new AddDatatype(
+                        DataType.LINX_SV_ANNOTATIONS, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), svAnnotationsTsv)))
                 .build();
     }
 
     @Override
-    public LinxOutput skippedOutput(final SomaticRunMetadata metadata) {
-        return LinxOutput.builder().status(PipelineStatus.SKIPPED).build();
+    public LinxSomaticOutput skippedOutput(final SomaticRunMetadata metadata) {
+        return LinxSomaticOutput.builder().status(PipelineStatus.SKIPPED).build();
     }
 
     @Override
@@ -142,16 +138,16 @@ public class Linx implements Stage<LinxOutput, SomaticRunMetadata> {
     }
 
     @Override
-    public LinxOutput persistedOutput(final SomaticRunMetadata metadata) {
+    public LinxSomaticOutput persistedOutput(final SomaticRunMetadata metadata) {
         String breakendTsv = metadata.tumor().sampleName() + BREAKEND_TSV;
         String driverCatalogTsv = metadata.tumor().sampleName() + DRIVER_CATALOG_TSV;
         String fusionsTsv = metadata.tumor().sampleName() + FUSION_TSV;
         String driversTsv = metadata.tumor().sampleName() + DRIVERS_TSV;
         String clustersTsv = metadata.tumor().sampleName() + CLUSTERS_TSV;
         String svAnnotationsTsv = metadata.tumor().sampleName() + SV_ANNOTATIONS_TSV;
-        return LinxOutput.builder()
+        return LinxSomaticOutput.builder()
                 .status(PipelineStatus.PERSISTED)
-                .maybeLinxOutputLocations(LinxOutputLocations.builder()
+                .maybeLinxOutputLocations(LinxSomaticOutputLocations.builder()
                         .breakends(persistedOrDefault(metadata, DataType.LINX_DRIVER_CATALOG, breakendTsv))
                         .driverCatalog(persistedOrDefault(metadata, DataType.LINX_DRIVER_CATALOG, driverCatalogTsv))
                         .drivers(persistedOrDefault(metadata, DataType.LINX_DRIVER_CATALOG, driversTsv))

@@ -15,7 +15,7 @@ import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Before;
 
-public class LinxTest extends TertiaryStageTest<LinxOutput> {
+public class LinxSomaticTest extends TertiaryStageTest<LinxSomaticOutput> {
 
     @Override
     @Before
@@ -29,8 +29,8 @@ public class LinxTest extends TertiaryStageTest<LinxOutput> {
     }
 
     @Override
-    protected Stage<LinxOutput, SomaticRunMetadata> createVictim() {
-        return new Linx(TestInputs.purpleOutput(), TestInputs.REF_GENOME_37_RESOURCE_FILES, persistedDataset);
+    protected Stage<LinxSomaticOutput, SomaticRunMetadata> createVictim() {
+        return new LinxSomatic(TestInputs.purpleOutput(), TestInputs.REF_GENOME_37_RESOURCE_FILES, persistedDataset);
     }
 
     @Override
@@ -38,7 +38,7 @@ public class LinxTest extends TertiaryStageTest<LinxOutput> {
 
         List<String> commands = Lists.newArrayList();
 
-        commands.add("java -Xmx8G -jar /opt/tools/linx/1.18/linx.jar -sample tumor -sv_vcf "
+        commands.add("java -Xmx8G -jar /opt/tools/linx/1.18.1/linx.jar -sample tumor -sv_vcf "
                 + "/data/input/tumor.purple.sv.vcf.gz -purple_dir /data/input/results -ref_genome_version 37 -output_dir /data/output "
                 + "-fragile_site_file /opt/resources/linx/37/fragile_sites_hmf.37.csv "
                 + "-line_element_file /opt/resources/linx/37/line_elements.37.csv "
@@ -47,7 +47,7 @@ public class LinxTest extends TertiaryStageTest<LinxOutput> {
                 + "-check_drivers -driver_gene_panel /opt/resources/gene_panel/37/DriverGenePanel.37.tsv "
                 + "-write_vis_data");
 
-        commands.add("java -Xmx8G -cp /opt/tools/linx/1.18/linx.jar com.hartwig.hmftools.linx.visualiser.SvVisualiser "
+        commands.add("java -Xmx8G -cp /opt/tools/linx/1.18.1/linx.jar com.hartwig.hmftools.linx.visualiser.SvVisualiser "
                 + "-sample tumor -ref_genome_version 37 -circos /opt/tools/circos/0.69.6/bin/circos -vis_file_dir /data/output "
                 + "-data_out /data/output/circos/ -plot_out /data/output/plot/ -plot_reportable");
 
@@ -56,24 +56,24 @@ public class LinxTest extends TertiaryStageTest<LinxOutput> {
 
     @Override
     protected List<AddDatatype> expectedFurtherOperations() {
-        return List.of(new AddDatatype(DataType.LINX,
+        return List.of(new AddDatatype(DataType.LINX_DRIVER,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
-                        new ArchivePath(Folder.root(), Linx.NAMESPACE, "tumor.linx.drivers.tsv")),
+                        new ArchivePath(Folder.root(), LinxSomatic.NAMESPACE, "tumor.linx.drivers.tsv")),
                 new AddDatatype(DataType.LINX_BREAKENDS,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
-                        new ArchivePath(Folder.root(), Linx.NAMESPACE, "tumor.linx.breakend.tsv")),
+                        new ArchivePath(Folder.root(), LinxSomatic.NAMESPACE, "tumor.linx.breakend.tsv")),
                 new AddDatatype(DataType.LINX_DRIVER_CATALOG,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
-                        new ArchivePath(Folder.root(), Linx.NAMESPACE, "tumor.linx.driver.catalog.tsv")),
+                        new ArchivePath(Folder.root(), LinxSomatic.NAMESPACE, "tumor.linx.driver.catalog.tsv")),
                 new AddDatatype(DataType.LINX_SV_ANNOTATIONS,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
-                        new ArchivePath(Folder.root(), Linx.NAMESPACE, "tumor.linx.svs.tsv")),
+                        new ArchivePath(Folder.root(), LinxSomatic.NAMESPACE, "tumor.linx.svs.tsv")),
                 new AddDatatype(DataType.LINX_CLUSTERS,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
-                        new ArchivePath(Folder.root(), Linx.NAMESPACE, "tumor.linx.clusters.tsv")),
+                        new ArchivePath(Folder.root(), LinxSomatic.NAMESPACE, "tumor.linx.clusters.tsv")),
                 new AddDatatype(DataType.LINX_FUSIONS,
                         TestInputs.defaultSomaticRunMetadata().barcode(),
-                        new ArchivePath(Folder.root(), Linx.NAMESPACE, "tumor.linx.fusion.tsv")));
+                        new ArchivePath(Folder.root(), LinxSomatic.NAMESPACE, "tumor.linx.fusion.tsv")));
     }
 
     @Override
@@ -82,17 +82,17 @@ public class LinxTest extends TertiaryStageTest<LinxOutput> {
     }
 
     @Override
-    protected void validateOutput(final LinxOutput output) {
+    protected void validateOutput(final LinxSomaticOutput output) {
         // no additional validation
     }
 
     @Override
-    protected void validatePersistedOutputFromPersistedDataset(final LinxOutput output) {
+    protected void validatePersistedOutputFromPersistedDataset(final LinxSomaticOutput output) {
         // no additional validation
     }
 
     @Override
-    protected void validatePersistedOutput(final LinxOutput output) {
+    protected void validatePersistedOutput(final LinxSomaticOutput output) {
         // no additional validation
     }
 
