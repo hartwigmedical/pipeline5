@@ -177,6 +177,7 @@ gridss/CPCT12345678R.bam.gridss.working/CPCT12345678R.bam.idsv_metrics
 gridss/CPCT12345678R.bam.gridss.working/CPCT12345678R.bam.insert_size_histogram.pdf
 gridss/CPCT12345678R.bam.gridss.working/CPCT12345678R.bam.insert_size_metrics
 gridss/CPCT12345678R.bam.gridss.working/CPCT12345678R.bam.mapq_metrics
+gridss/CPCT12345678R.bam.gridss.working/CPCT12345678R.bam.sv.bam.csi
 gridss/CPCT12345678R.bam.gridss.working/CPCT12345678R.bam.tag_metrics
 gridss/CPCT12345678T.assembly.bam.gridss.working/CPCT12345678T.assembly.bam.cigar_metrics
 gridss/CPCT12345678R.bam.gridss.working/CPCT12345678R.bam.computesamtags.changes.tsv
@@ -199,6 +200,7 @@ gridss/CPCT12345678T.bam.gridss.working/CPCT12345678T.bam.idsv_metrics
 gridss/CPCT12345678T.bam.gridss.working/CPCT12345678T.bam.insert_size_histogram.pdf
 gridss/CPCT12345678T.bam.gridss.working/CPCT12345678T.bam.insert_size_metrics
 gridss/CPCT12345678T.bam.gridss.working/CPCT12345678T.bam.mapq_metrics
+gridss/CPCT12345678T.bam.gridss.working/CPCT12345678T.bam.sv.bam.csi
 gridss/CPCT12345678T.bam.gridss.working/CPCT12345678T.bam.tag_metrics
 gridss/run.log
 gridss/run.sh
