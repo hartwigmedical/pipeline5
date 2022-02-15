@@ -27,7 +27,7 @@ public interface Stage<S extends StageOutput, M extends RunMetadata> {
         return Collections.emptyList();
     }
 
-    default List<BashCommand> germlineCommands(M metadata) {
+    default List<BashCommand> germlineOnlyCommands(M metadata) {
         return Collections.emptyList();
     }
 
