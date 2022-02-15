@@ -1,11 +1,13 @@
 package com.hartwig.pipeline;
 
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Supplier;
 
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.alignment.AlignmentPair;
+import com.hartwig.pipeline.alignment.ImmutableAlignmentPair;
 import com.hartwig.pipeline.cleanup.Cleanup;
 import com.hartwig.pipeline.metadata.CompletionHandler;
 import com.hartwig.pipeline.metadata.SingleSampleEventListener;
@@ -14,6 +16,7 @@ import com.hartwig.pipeline.metadata.SomaticMetadataApi;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.FullSomaticResults;
 
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,7 +64,9 @@ public class FullPipeline {
         referenceSampleEventListener.register(trapReferencePipelineComplete);
         tumorSampleEventListener.register(trapTumorAlignmentComplete);
         tumorSampleEventListener.register(trapTumorPipelineComplete);
-        executorService.submit(() -> runPipeline(referencePipeline, metadata.reference(), bothSingleSamplesAlignmentComplete));
+        executorService.submit(() -> metadata.maybeReference()
+                .map(reference -> runPipeline(referencePipeline, reference, bothSingleSamplesAlignmentComplete))
+                .orElseGet(countdown(bothSingleSamplesAlignmentComplete, bothSingleSamplesPipelineComplete)));
         executorService.submit(() -> metadata.maybeTumor()
                 .map(tumor -> runPipeline(tumorPipeline, tumor, bothSingleSamplesAlignmentComplete))
                 .orElseGet(countdown(bothSingleSamplesAlignmentComplete, bothSingleSamplesPipelineComplete)));
@@ -70,10 +75,7 @@ public class FullPipeline {
         PipelineState singleSampleAlignmentState = combine(trapReferenceAlignmentComplete, trapTumorAlignmentComplete, metadata);
 
         if (singleSampleAlignmentState.shouldProceed()) {
-            PipelineState somaticState = metadata.maybeTumor()
-                    .map(t -> somaticPipeline.run(AlignmentPair.of(trapReferenceAlignmentComplete.trappedAlignmentOutput,
-                            trapTumorAlignmentComplete.trappedAlignmentOutput)))
-                    .orElse(new PipelineState());
+            PipelineState somaticState = runPipeline(trapReferenceAlignmentComplete, trapTumorAlignmentComplete);
             fullSomaticResults.compose(metadata);
             waitForSingleSamples(bothSingleSamplesPipelineComplete);
             PipelineState singleSamplePipelineState = combine(trapReferencePipelineComplete, trapTumorPipelineComplete, metadata);
@@ -86,6 +88,15 @@ public class FullPipeline {
         } else {
             return singleSampleAlignmentState;
         }
+    }
+
+    @NotNull
+    private PipelineState runPipeline(final CountDownAndTrapStatus trapReferenceAlignmentComplete,
+            final CountDownAndTrapStatus trapTumorAlignmentComplete) {
+        return somaticPipeline.run(AlignmentPair.builder()
+                .maybeReference(metadata.maybeReference().map(r -> trapReferenceAlignmentComplete.trappedAlignmentOutput))
+                .maybeTumor(metadata.maybeTumor().map(r -> trapTumorAlignmentComplete.trappedAlignmentOutput))
+                .build());
     }
 
     private static Supplier<PipelineState> countdown(final CountDownLatch bothSingleSamplesAlignmentComplete,
@@ -113,8 +124,11 @@ public class FullPipeline {
 
     private PipelineState combine(final CountDownAndTrapStatus trapReference, final CountDownAndTrapStatus trapTumor,
             final SomaticRunMetadata metadata) {
-        checkState(trapReference, "Reference");
-        PipelineState combined = empty().combineWith(trapReference.trappedState);
+        PipelineState combined = empty();
+        metadata.maybeReference().ifPresent(reference -> {
+            checkState(trapReference, "Reference");
+            combined.combineWith(trapReference.trappedState);
+        });
         metadata.maybeTumor().ifPresent(tumor -> {
             checkState(trapTumor, "Tumor");
             combined.combineWith(trapTumor.trappedState);

@@ -17,6 +17,7 @@ import com.hartwig.pipeline.execution.vm.GoogleComputeEngine;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
 import com.hartwig.pipeline.jackson.ObjectMappers;
 import com.hartwig.pipeline.labels.Labels;
+import com.hartwig.pipeline.metadata.ModeAwareMetadataApi;
 import com.hartwig.pipeline.metadata.SingleSampleEventListener;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.metadata.SomaticMetadataApi;
@@ -56,7 +57,8 @@ public class PipelineMain {
             Storage storage = StorageProvider.from(arguments, credentials).get();
             Publisher turquoisePublisher = PublisherProvider.from(arguments, credentials).get("turquoise.events");
             Publisher pipelinePublisher = PublisherProvider.from(arguments, credentials).get(PipelineComplete.TOPIC);
-            SomaticMetadataApi somaticMetadataApi = SomaticMetadataApiProvider.from(arguments, storage, pipelinePublisher).get();
+            SomaticMetadataApi somaticMetadataApi =
+                    ModeAwareMetadataApi.of(SomaticMetadataApiProvider.from(arguments, storage, pipelinePublisher).get());
             SingleSampleEventListener referenceEventListener = new SingleSampleEventListener();
             SingleSampleEventListener tumorEventListener = new SingleSampleEventListener();
             SomaticRunMetadata somaticRunMetadata = somaticMetadataApi.get();
@@ -65,10 +67,10 @@ public class PipelineMain {
             PipelineProperties eventSubjects = PipelineProperties.builder()
                     .sample(somaticRunMetadata.maybeTumor()
                             .map(SingleSampleRunMetadata::sampleName)
-                            .orElse(somaticRunMetadata.reference().sampleName()))
+                            .orElseGet(() -> somaticRunMetadata.reference().sampleName()))
                     .runId(arguments.sbpApiRunId())
                     .set(somaticRunMetadata.set())
-                    .referenceBarcode(somaticRunMetadata.reference().barcode())
+                    .referenceBarcode(somaticRunMetadata.maybeReference().map(SingleSampleRunMetadata::barcode))
                     .tumorBarcode(somaticRunMetadata.maybeTumor().map(SingleSampleRunMetadata::barcode))
                     .type(ini)
                     .build();

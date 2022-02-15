@@ -39,7 +39,7 @@ public class FullSomaticResults {
 
     public void compose(SomaticRunMetadata metadata) {
         Bucket bucket = storage.get(arguments.outputBucket());
-        copySingleSampleRun(metadata, bucket, directory(metadata.reference()));
+        metadata.maybeReference().ifPresent(reference -> copySingleSampleRun(metadata, bucket, directory(reference)));
         metadata.maybeTumor().ifPresent(tumor -> copySingleSampleRun(metadata, bucket, directory(tumor)));
     }
 

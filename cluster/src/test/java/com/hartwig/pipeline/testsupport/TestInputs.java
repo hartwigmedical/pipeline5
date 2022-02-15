@@ -92,12 +92,12 @@ public class TestInputs {
     public static SomaticRunMetadata defaultSomaticRunMetadata() {
         final SingleSampleRunMetadata tumor = tumorRunMetadata();
         final SingleSampleRunMetadata reference = referenceRunMetadata();
-        return SomaticRunMetadata.builder().set(SET).maybeTumor(tumor).reference(reference).bucket(BUCKET).build();
+        return SomaticRunMetadata.builder().set(SET).maybeTumor(tumor).maybeReference(reference).bucket(BUCKET).build();
     }
 
     public static SomaticRunMetadata defaultSingleSampleRunMetadata() {
         final SingleSampleRunMetadata reference = referenceRunMetadata();
-        return SomaticRunMetadata.builder().set(SET).reference(reference).bucket(BUCKET).build();
+        return SomaticRunMetadata.builder().set(SET).maybeReference(reference).bucket(BUCKET).build();
     }
 
     @NotNull

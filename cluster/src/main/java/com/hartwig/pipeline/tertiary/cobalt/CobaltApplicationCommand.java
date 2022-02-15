@@ -1,21 +1,21 @@
 package com.hartwig.pipeline.tertiary.cobalt;
 
+import com.hartwig.pipeline.GermlineOnlyCommand;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.tertiary.TumorNormalCommand;
 import com.hartwig.pipeline.tertiary.TumorOnlyCommand;
 import com.hartwig.pipeline.tools.Versions;
 
-public class CobaltApplicationCommand implements BashCommand {
+public class CobaltApplicationCommand {
 
     private static final String JAR = "cobalt.jar";
     private static final String MAX_HEAP = "8G";
     private static final String MAIN_CLASS = "com.hartwig.hmftools.cobalt.CountBamLinesApplication";
+    private static final String COBALT = "cobalt";
 
-    private final String bash;
-
-    public CobaltApplicationCommand(ResourceFiles resourceFiles, String tumorSampleName, String tumorBamPath) {
-        bash = new TumorOnlyCommand("cobalt",
+    static BashCommand tumorOnly(ResourceFiles resourceFiles, String tumorSampleName, String tumorBamPath) {
+        return new TumorOnlyCommand(COBALT,
                 Versions.COBALT,
                 JAR,
                 MAIN_CLASS,
@@ -27,12 +27,12 @@ public class CobaltApplicationCommand implements BashCommand {
                 "-tumor_only_diploid_bed",
                 resourceFiles.diploidRegionsBed(),
                 "-gc_profile",
-                resourceFiles.gcProfileFile()).asBash();
+                resourceFiles.gcProfileFile());
     }
 
-    public CobaltApplicationCommand(ResourceFiles resourceFiles, String referenceSampleName, String referenceBamPath, String tumorSampleName,
+    static BashCommand somatic(ResourceFiles resourceFiles, String referenceSampleName, String referenceBamPath, String tumorSampleName,
             String tumorBamPath) {
-        bash = new TumorNormalCommand("cobalt",
+        return new TumorNormalCommand(COBALT,
                 Versions.COBALT,
                 JAR,
                 MAIN_CLASS,
@@ -44,11 +44,20 @@ public class CobaltApplicationCommand implements BashCommand {
                 "-ref_genome",
                 resourceFiles.refGenomeFile(),
                 "-gc_profile",
-                resourceFiles.gcProfileFile()).asBash();
+                resourceFiles.gcProfileFile());
     }
 
-    @Override
-    public String asBash() {
-        return bash;
+    public static BashCommand germlineOnly(final ResourceFiles resourceFiles, final String sampleName, final String referenceBamPath) {
+        return new GermlineOnlyCommand(COBALT,
+                Versions.COBALT,
+                JAR,
+                MAIN_CLASS,
+                MAX_HEAP,
+                sampleName,
+                referenceBamPath,
+                "-ref_genome",
+                resourceFiles.refGenomeFile(),
+                "-gc_profile",
+                resourceFiles.gcProfileFile());
     }
 }

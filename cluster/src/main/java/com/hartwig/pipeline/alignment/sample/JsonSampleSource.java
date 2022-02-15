@@ -30,7 +30,7 @@ public class JsonSampleSource implements SampleSource {
     public Optional<Sample> sample(final SampleType sampleType) {
         try {
             if (sampleType.equals(SingleSampleRunMetadata.SampleType.REFERENCE)) {
-                return Optional.of(pair.reference());
+                return pair.reference();
             } else {
                 return pair.tumor();
             }

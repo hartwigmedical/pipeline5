@@ -3,15 +3,20 @@ package com.hartwig.pipeline.tertiary.amber;
 import java.io.File;
 import java.util.List;
 
+import com.google.common.collect.Lists;
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.GermlineOnlyCommand;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
+import com.hartwig.pipeline.execution.vm.Bash;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.CopyResourceToOutput;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.pipeline.execution.vm.VmDirectories;
+import com.hartwig.pipeline.execution.vm.java.JavaClassCommand;
 import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
@@ -24,10 +29,16 @@ import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.TertiaryStage;
+import com.hartwig.pipeline.tertiary.TumorNormalCommand;
+import com.hartwig.pipeline.tertiary.TumorOnlyCommand;
+import com.hartwig.pipeline.tools.Versions;
 
 public class Amber extends TertiaryStage<AmberOutput> {
 
     public static final String NAMESPACE = "amber";
+    private static final String JAR = "amber.jar";
+    private static final String MAX_HEAP = "32G";
+    private static final String MAIN_CLASS = "com.hartwig.hmftools.amber.AmberApplication";
 
     private final ResourceFiles resourceFiles;
     private final PersistedDataset persistedDataset;
@@ -44,12 +55,70 @@ public class Amber extends TertiaryStage<AmberOutput> {
     }
 
     @Override
-    public List<BashCommand> commands(final SomaticRunMetadata metadata) {
-        return List.of(new AmberApplicationCommand(resourceFiles,
-                metadata.reference().sampleName(),
-                getReferenceBamDownload().getLocalTargetPath(),
+    public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) {
+        return List.of(new JavaClassCommand("amber",
+                Versions.AMBER,
+                JAR,
+                MAIN_CLASS,
+                MAX_HEAP,
+                "-tumor",
                 metadata.tumor().sampleName(),
-                getTumorBamDownload().getLocalTargetPath()), new CopyResourceToOutput(resourceFiles.amberSnpcheck()));
+                "-tumor_bam",
+                getTumorBamDownload().getLocalTargetPath(),
+                "-output_dir",
+                VmDirectories.OUTPUT,
+                "-threads",
+                Bash.allCpus(),
+                "-ref_genome",
+                resourceFiles.refGenomeFile(),
+                "-loci",
+                resourceFiles.amberHeterozygousLoci()));
+    }
+
+    @Override
+    public List<BashCommand> germlineCommands(final SomaticRunMetadata metadata) {
+        return List.of(new JavaClassCommand("amber",
+                Versions.AMBER,
+                JAR,
+                MAIN_CLASS,
+                MAX_HEAP,
+                "-reference",
+                metadata.reference().sampleName(),
+                "-reference_bam",
+                getReferenceBamDownload().getLocalTargetPath(),
+                "-output_dir",
+                VmDirectories.OUTPUT,
+                "-threads",
+                Bash.allCpus(),
+                "-ref_genome",
+                resourceFiles.refGenomeFile(),
+                "-loci",
+                resourceFiles.amberHeterozygousLoci()));
+    }
+
+    @Override
+    public List<BashCommand> somaticCommands(final SomaticRunMetadata metadata) {
+        return List.of(new JavaClassCommand("amber",
+                Versions.AMBER,
+                JAR,
+                MAIN_CLASS,
+                MAX_HEAP,
+                "-reference",
+                metadata.reference().sampleName(),
+                "-reference_bam",
+                getReferenceBamDownload().getLocalTargetPath(),
+                "-tumor",
+                metadata.tumor().sampleName(),
+                "-tumor_bam",
+                getTumorBamDownload().getLocalTargetPath(),
+                "-output_dir",
+                VmDirectories.OUTPUT,
+                "-threads",
+                Bash.allCpus(),
+                "-ref_genome",
+                resourceFiles.refGenomeFile(),
+                "-loci",
+                resourceFiles.amberHeterozygousLoci()));
     }
 
     @Override
@@ -67,7 +136,7 @@ public class Amber extends TertiaryStage<AmberOutput> {
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
                 .addDatatypes(new AddDatatype(DataType.AMBER,
                                 metadata.barcode(),
-                                new ArchivePath(Folder.root(), namespace(), String.format("%s.amber.baf.tsv", metadata.tumor().sampleName()))),
+                                new ArchivePath(Folder.root(), namespace(), String.format("%s.amber.baf.tsv", metadata.sampleName()))),
                         new AddDatatype(DataType.AMBER_SNPCHECK,
                                 metadata.barcode(),
                                 new ArchivePath(Folder.root(), namespace(), new File(resourceFiles.amberSnpcheck()).getName())))

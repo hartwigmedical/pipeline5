@@ -1,6 +1,14 @@
 package com.hartwig.pipeline.tertiary.amber;
 
+import java.util.Arrays;
+import java.util.List;
+
+import com.google.common.collect.Lists;
+import com.hartwig.pipeline.execution.vm.Bash;
 import com.hartwig.pipeline.execution.vm.BashCommand;
+import com.hartwig.pipeline.execution.vm.VmDirectories;
+import com.hartwig.pipeline.execution.vm.java.JavaClassCommand;
+import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.tertiary.TumorNormalCommand;
 import com.hartwig.pipeline.tertiary.TumorOnlyCommand;
@@ -30,19 +38,24 @@ public class AmberApplicationCommand implements BashCommand {
 
     public AmberApplicationCommand(ResourceFiles resourceFiles, String referenceSampleName, String referenceBamPath, String tumorSampleName,
             String tumorBamPath) {
-        bash = new TumorNormalCommand("amber",
+        bash = new JavaClassCommand("amber",
                 Versions.AMBER,
                 JAR,
                 MAIN_CLASS,
                 MAX_HEAP,
-                referenceSampleName,
-                referenceBamPath,
-                tumorSampleName,
-                tumorBamPath,
-                "-ref_genome",
-                resourceFiles.refGenomeFile(),
-                "-loci",
-                resourceFiles.amberHeterozygousLoci()).asBash();
+                Lists.newArrayList("-tumor_only",
+                        "-tumor",
+                        tumorSampleName,
+                        "-tumor_bam",
+                        tumorBamPath,
+                        "-output_dir",
+                        VmDirectories.OUTPUT,
+                        "-threads",
+                        Bash.allCpus(),
+                        "-ref_genome",
+                        resourceFiles.refGenomeFile(),
+                        "-loci",
+                        resourceFiles.amberHeterozygousLoci())).asBash();
     }
 
     @Override

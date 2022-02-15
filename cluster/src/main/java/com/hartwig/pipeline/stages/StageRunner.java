@@ -1,10 +1,14 @@
 package com.hartwig.pipeline.stages;
 
+import java.util.Collections;
+import java.util.List;
+
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.execution.PipelineStatus;
+import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
 import com.hartwig.pipeline.execution.vm.OutputUpload;
@@ -40,14 +44,15 @@ public class StageRunner<M extends RunMetadata> {
     }
 
     public <T extends StageOutput> T run(M metadata, Stage<T, M> stage) {
-        if (stage.shouldRun(arguments)) {
+        final List<BashCommand> commands = commands(metadata, stage);
+        if (stage.shouldRun(arguments) && !commands.isEmpty()) {
             if (!startingPoint.usePersisted(stage.namespace())) {
                 StageTrace trace = new StageTrace(stage.namespace(), metadata.name(), StageTrace.ExecutorType.COMPUTE_ENGINE);
                 RuntimeBucket bucket = RuntimeBucket.from(storage, stage.namespace(), metadata, arguments, labels);
                 BashStartupScript bash = BashStartupScript.of(bucket.name());
                 bash.addCommands(stage.inputs())
                         .addCommands(OverrideReferenceGenomeCommand.overrides(arguments))
-                        .addCommands(stage.commands(metadata))
+                        .addCommands(commands)
                         .addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path()),
                                 RuntimeFiles.typical()));
                 PipelineStatus status =
@@ -59,5 +64,18 @@ public class StageRunner<M extends RunMetadata> {
             return stage.persistedOutput(metadata);
         }
         return stage.skippedOutput(metadata);
+    }
+
+    private <T extends StageOutput> List<BashCommand> commands(final M metadata, final Stage<T, M> stage) {
+        switch (metadata.mode()) {
+            case SOMATIC:
+                return stage.somaticCommands(metadata);
+            case TUMOR_ONLY:
+                return stage.tumorOnlyCommands(metadata);
+            case GERMLINE_ONLY:
+                return stage.germlineCommands(metadata);
+            default:
+                return Collections.emptyList();
+        }
     }
 }

@@ -28,7 +28,7 @@ public interface Labels {
     static Labels of(final CommonArguments arguments, final SomaticRunMetadata sample) {
         return builder(arguments).sample(sample.maybeTumor()
                 .map(SingleSampleRunMetadata::sampleName)
-                .orElse(sample.reference().sampleName())).build();
+                .orElseGet(() -> sample.maybeReference().map(SingleSampleRunMetadata::sampleName).orElseThrow())).build();
     }
 
     static Labels of(final CommonArguments arguments) {

@@ -21,7 +21,7 @@ public class RunTest {
     private static final SomaticRunMetadata SOMATIC = somatic(REFERENCE_SAMPLE, TUMOR_SAMPLE);
 
     private static SomaticRunMetadata somatic(final SingleSampleRunMetadata referenceSample, final SingleSampleRunMetadata tumorSample) {
-        return SomaticRunMetadata.builder().reference(referenceSample).maybeTumor(tumorSample).set("test").bucket(BUCKET).build();
+        return SomaticRunMetadata.builder().maybeReference(referenceSample).maybeTumor(tumorSample).set("test").bucket(BUCKET).build();
     }
 
     private static ImmutableSingleSampleRunMetadata sample(final SingleSampleRunMetadata.SampleType type, final String sampleId) {

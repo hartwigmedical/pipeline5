@@ -1,17 +1,29 @@
 package com.hartwig.pipeline.alignment;
 
+import java.util.Optional;
+
 import org.immutables.value.Value;
 
 @Value.Immutable
 public interface AlignmentPair {
 
-    @Value.Parameter
-    AlignmentOutput reference();
+    Optional<AlignmentOutput> maybeReference();
 
-    @Value.Parameter
-    AlignmentOutput tumor();
+    Optional<AlignmentOutput> maybeTumor();
 
-    static AlignmentPair of(AlignmentOutput reference, AlignmentOutput tumor) {
-        return ImmutableAlignmentPair.of(reference, tumor);
+    default AlignmentOutput reference() {
+        return maybeReference().orElseThrow();
+    }
+
+    default AlignmentOutput tumor() {
+        return maybeTumor().orElseThrow();
+    }
+
+    static ImmutableAlignmentPair.Builder builder() {
+        return ImmutableAlignmentPair.builder();
+    }
+
+    static AlignmentPair of(AlignmentOutput referenceAlignmentOutput, AlignmentOutput tumorAlignmentOutput) {
+        return builder().maybeReference(referenceAlignmentOutput).maybeTumor(tumorAlignmentOutput).build();
     }
 }
