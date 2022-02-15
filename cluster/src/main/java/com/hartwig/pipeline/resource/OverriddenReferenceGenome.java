@@ -167,6 +167,11 @@ public class OverriddenReferenceGenome implements ResourceFiles {
     }
 
     @Override
+    public String hlaRegionBed() {
+        return decorated.hlaRegionBed();
+    }
+
+    @Override
     public String peachFilterBed() {
         return decorated.peachFilterBed();
     }

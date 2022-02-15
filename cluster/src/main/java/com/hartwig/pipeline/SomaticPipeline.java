@@ -33,6 +33,8 @@ import com.hartwig.pipeline.tertiary.cuppa.Cuppa;
 import com.hartwig.pipeline.tertiary.cuppa.CuppaOutput;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthCheckOutput;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthChecker;
+import com.hartwig.pipeline.tertiary.lilac.Lilac;
+import com.hartwig.pipeline.tertiary.lilac.LilacOutput;
 import com.hartwig.pipeline.tertiary.linx.Linx;
 import com.hartwig.pipeline.tertiary.linx.LinxOutput;
 import com.hartwig.pipeline.tertiary.orange.Orange;
@@ -158,11 +160,14 @@ public class SomaticPipeline {
                                     new HealthChecker(referenceMetrics, tumorMetrics, referenceFlagstat, tumorFlagstat, purpleOutput)));
                             Future<LinxOutput> linxOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                     new Linx(purpleOutput, resourceFiles, persistedDataset)));
+                            Future<LilacOutput> lilacOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
+                                    new Lilac(pair, resourceFiles, purpleOutput)));
                             Future<SigsOutput> signatureOutputFuture =
                                     executorService.submit(() -> stageRunner.run(metadata, new Sigs(purpleOutput, resourceFiles)));
                             Future<ChordOutput> chordOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                     new Chord(arguments.refGenomeVersion(), purpleOutput, persistedDataset)));
                             pipelineResults.add(state.add(healthCheckOutputFuture.get()));
+                            pipelineResults.add(state.add(lilacOutputFuture.get()));
                             LinxOutput linxOutput = pipelineResults.add(state.add(linxOutputFuture.get()));
                             Future<CuppaOutput> cuppaOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                     new Cuppa(purpleOutput, linxOutput, resourceFiles, persistedDataset)));
