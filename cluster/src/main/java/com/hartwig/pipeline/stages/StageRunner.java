@@ -73,7 +73,7 @@ public class StageRunner<M extends RunMetadata> {
             case TUMOR_ONLY:
                 return stage.tumorOnlyCommands(metadata);
             case GERMLINE_ONLY:
-                return stage.germlineCommands(metadata);
+                return stage.germlineOnlyCommands(metadata);
             default:
                 return Collections.emptyList();
         }

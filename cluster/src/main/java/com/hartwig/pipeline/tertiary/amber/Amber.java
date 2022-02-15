@@ -76,7 +76,7 @@ public class Amber extends TertiaryStage<AmberOutput> {
     }
 
     @Override
-    public List<BashCommand> germlineCommands(final SomaticRunMetadata metadata) {
+    public List<BashCommand> germlineOnlyCommands(final SomaticRunMetadata metadata) {
         return List.of(new JavaClassCommand("amber",
                 Versions.AMBER,
                 JAR,

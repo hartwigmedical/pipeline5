@@ -51,7 +51,7 @@ public class Cobalt extends TertiaryStage<CobaltOutput> {
     }
 
     @Override
-    public List<BashCommand> germlineCommands(final SomaticRunMetadata metadata) {
+    public List<BashCommand> germlineOnlyCommands(final SomaticRunMetadata metadata) {
         return singletonList(CobaltCommandBuilder.newBuilder(resourceFiles)
                 .reference(metadata.reference().sampleName(), getReferenceBamDownload().getLocalTargetPath())
                 .build());
