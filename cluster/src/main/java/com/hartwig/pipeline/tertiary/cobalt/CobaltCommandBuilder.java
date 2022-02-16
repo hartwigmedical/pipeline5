@@ -16,7 +16,7 @@ public class CobaltCommandBuilder extends HmfToolCommandBuilder {
         addArguments("-ref_genome", resourceFiles.refGenomeFile(), "-gc_profile", resourceFiles.gcProfileFile());
     }
 
-    static CobaltCommandBuilder newBuilder(final ResourceFiles resourceFiles) {
+    public static CobaltCommandBuilder newBuilder(final ResourceFiles resourceFiles) {
         return new CobaltCommandBuilder(resourceFiles);
     }
 }

@@ -39,6 +39,7 @@ import com.hartwig.pipeline.tertiary.peach.PeachOutput;
 import com.hartwig.pipeline.tertiary.protect.ProtectOutput;
 import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
+import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
 import com.hartwig.pipeline.tertiary.virus.VirusOutput;
 import com.hartwig.pipeline.tools.Versions;
 
@@ -87,21 +88,24 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
             final ResourceFiles resourceFiles) {
 
         this.resourceFiles = resourceFiles;
-        this.refMetrics = new InputDownload(referenceMetrics.metricsOutputFile());
-        this.tumMetrics = new InputDownload(tumorMetrics.metricsOutputFile());
-        this.refFlagstat = new InputDownload(referenceFlagstat.flagstatOutputFile());
-        this.tumFlagstat = new InputDownload(tumorFlagstat.flagstatOutputFile());
-        this.purpleGermlineVcf = new InputDownload(purpleOutput.outputLocations().germlineVcf());
-        this.purpleSomaticVcf = new InputDownload(purpleOutput.outputLocations().somaticVcf());
-        this.purplePurityTsv = new InputDownload(purpleOutput.outputLocations().purityTsv());
-        this.purpleQCFile = new InputDownload(purpleOutput.outputLocations().qcFile());
-        this.purpleGeneCopyNumberTsv = new InputDownload(purpleOutput.outputLocations().geneCopyNumberTsv());
-        this.purpleSomaticDriverCatalog = new InputDownload(purpleOutput.outputLocations().somaticDriverCatalog());
-        this.purpleGermlineDriverCatalog = new InputDownload(purpleOutput.outputLocations().germlineDriverCatalog());
-        this.purpleOutputDir = new InputDownload(purpleOutput.outputLocations().outputDirectory(), LOCAL_PURPLE_DIR);
-        this.sageGermlineGeneCoverageTsv = new InputDownload(sageGermlineOutput.germlineGeneCoverageTsv());
-        this.sageSomaticRefSampleBqrPlot = new InputDownload(sageSomaticOutput.somaticRefSampleBqrPlot());
-        this.sageSomaticTumorSampleBqrPlot = new InputDownload(sageSomaticOutput.somaticTumorSampleBqrPlot());
+        this.refMetrics = new InputDownload(referenceMetrics.maybeMetricsOutputFile().orElse(GoogleStorageLocation.empty()));
+        this.tumMetrics = new InputDownload(tumorMetrics.maybeMetricsOutputFile().orElse(GoogleStorageLocation.empty()));
+        this.refFlagstat = new InputDownload(referenceFlagstat.maybeFlagstatOutputFile().orElse(GoogleStorageLocation.empty()));
+        this.tumFlagstat = new InputDownload(tumorFlagstat.maybeFlagstatOutputFile().orElse(GoogleStorageLocation.empty()));
+        this.purpleGermlineVcf = new InputDownload(purpleOrEmpty(purpleOutput, PurpleOutputLocations::germlineVcf));
+        this.purpleSomaticVcf = new InputDownload(purpleOrEmpty(purpleOutput, PurpleOutputLocations::somaticVcf));
+        this.purplePurityTsv = new InputDownload(purpleOrEmpty(purpleOutput, PurpleOutputLocations::purityTsv));
+        this.purpleQCFile = new InputDownload(purpleOrEmpty(purpleOutput, PurpleOutputLocations::qcFile));
+        this.purpleGeneCopyNumberTsv = new InputDownload(purpleOrEmpty(purpleOutput, PurpleOutputLocations::geneCopyNumberTsv));
+        this.purpleSomaticDriverCatalog = new InputDownload(purpleOrEmpty(purpleOutput, PurpleOutputLocations::somaticDriverCatalog));
+        this.purpleGermlineDriverCatalog = new InputDownload(purpleOrEmpty(purpleOutput, PurpleOutputLocations::germlineDriverCatalog));
+        this.purpleOutputDir = new InputDownload(purpleOrEmpty(purpleOutput, PurpleOutputLocations::outputDirectory), LOCAL_PURPLE_DIR);
+        this.sageGermlineGeneCoverageTsv =
+                new InputDownload(sageGermlineOutput.maybeGermlineGeneCoverageTsv().orElse(GoogleStorageLocation.empty()));
+        this.sageSomaticRefSampleBqrPlot =
+                new InputDownload(sageSomaticOutput.maybeSomaticRefSampleBqrPlot().orElse(GoogleStorageLocation.empty()));
+        this.sageSomaticTumorSampleBqrPlot =
+                new InputDownload(sageSomaticOutput.maybeSomaticTumorSampleBqrPlot().orElse(GoogleStorageLocation.empty()));
         this.linxOutputDir = new InputDownload(linxOrEmpty(linxOutput, LinxOutputLocations::outputDirectory), LOCAL_LINX_DIR);
         this.linxFusionTsv = new InputDownload(linxOrEmpty(linxOutput, LinxOutputLocations::fusions));
         this.linxBreakEndTsv = new InputDownload(linxOrEmpty(linxOutput, LinxOutputLocations::breakends));
@@ -114,6 +118,11 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
         this.peachGenotypeTsv = new InputDownload(peachOutput.maybeGenotypeTsv().orElse(GoogleStorageLocation.empty()));
         this.protectEvidenceTsv = new InputDownload(protectOutput.maybeEvidenceTsv().orElse(GoogleStorageLocation.empty()));
         this.annotatedVirusTsv = new InputDownload(virusOutput.maybeAnnotatedVirusFile().orElse(GoogleStorageLocation.empty()));
+    }
+
+    public GoogleStorageLocation purpleOrEmpty(final PurpleOutput purpleOutput,
+            final Function<PurpleOutputLocations, GoogleStorageLocation> extractor) {
+        return purpleOutput.maybeOutputLocations().map(extractor).orElse(GoogleStorageLocation.empty());
     }
 
     public GoogleStorageLocation linxOrEmpty(final LinxOutput linxOutput,

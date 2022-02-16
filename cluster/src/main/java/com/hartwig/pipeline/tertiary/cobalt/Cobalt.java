@@ -47,13 +47,7 @@ public class Cobalt extends TertiaryStage<CobaltOutput> {
     public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) {
         return List.of(CobaltCommandBuilder.newBuilder(resourceFiles)
                 .tumor(metadata.tumor().sampleName(), getTumorBamDownload().getLocalTargetPath())
-                .build());
-    }
-
-    @Override
-    public List<BashCommand> germlineOnlyCommands(final SomaticRunMetadata metadata) {
-        return singletonList(CobaltCommandBuilder.newBuilder(resourceFiles)
-                .reference(metadata.reference().sampleName(), getReferenceBamDownload().getLocalTargetPath())
+                .addArguments("-tumor_only", "true", "-tumor_only_diploid_bed", resourceFiles.diploidRegionsBed())
                 .build());
     }
 

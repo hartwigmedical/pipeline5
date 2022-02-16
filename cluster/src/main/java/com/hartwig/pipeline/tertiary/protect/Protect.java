@@ -30,6 +30,7 @@ import com.hartwig.pipeline.tertiary.chord.ChordOutput;
 import com.hartwig.pipeline.tertiary.linx.LinxOutput;
 import com.hartwig.pipeline.tertiary.linx.LinxOutputLocations;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
+import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
 import com.hartwig.pipeline.tertiary.virus.VirusOutput;
 
 import org.jetbrains.annotations.NotNull;
@@ -56,20 +57,26 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
 
     public Protect(final PurpleOutput purpleOutput, final LinxOutput linxOutput, final VirusOutput virusOutput,
             final ChordOutput chordOutput, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
-        this.purplePurity = new InputDownload(purpleOutput.outputLocations().purityTsv());
-        this.purpleQCFile = new InputDownload(purpleOutput.outputLocations().qcFile());
-        this.purpleGeneCopyNumberTsv = new InputDownload(purpleOutput.outputLocations().geneCopyNumberTsv());
-        this.purpleSomaticDriverCatalog = new InputDownload(purpleOutput.outputLocations().somaticDriverCatalog());
-        this.purpleGermlineDriverCatalog = new InputDownload(purpleOutput.outputLocations().germlineDriverCatalog());
-        this.purpleSomaticVariants = new InputDownload(purpleOutput.outputLocations().somaticVcf());
-        this.purpleGermlineVariants = new InputDownload(purpleOutput.outputLocations().germlineVcf());
+        this.purplePurity = new InputDownload(purpleOrEmpty(purpleOutput, PurpleOutputLocations::purityTsv));
+        this.purpleQCFile = new InputDownload(purpleOrEmpty(purpleOutput, PurpleOutputLocations::qcFile));
+        this.purpleGeneCopyNumberTsv = new InputDownload(purpleOrEmpty(purpleOutput, PurpleOutputLocations::geneCopyNumberTsv));
+        this.purpleSomaticDriverCatalog = new InputDownload(purpleOrEmpty(purpleOutput, PurpleOutputLocations::somaticDriverCatalog));
+        this.purpleGermlineDriverCatalog = new InputDownload(purpleOrEmpty(purpleOutput, PurpleOutputLocations::germlineDriverCatalog));
+        this.purpleSomaticVariants = new InputDownload(purpleOrEmpty(purpleOutput, PurpleOutputLocations::somaticVcf));
+        this.purpleGermlineVariants = new InputDownload(purpleOrEmpty(purpleOutput, PurpleOutputLocations::germlineVcf));
         this.linxFusionTsv = new InputDownload(linxOrEmpty(linxOutput, LinxOutputLocations::fusions));
         this.linxBreakendTsv = new InputDownload(linxOrEmpty(linxOutput, LinxOutputLocations::breakends));
         this.linxDriverCatalogTsv = new InputDownload(linxOrEmpty(linxOutput, LinxOutputLocations::driverCatalog));
-        this.annotatedVirusTsv = new InputDownload(virusOutput.annotatedVirusFile());
+        this.annotatedVirusTsv = new InputDownload(virusOutput.maybeAnnotatedVirusFile().orElse(GoogleStorageLocation.empty()));
         this.chordPrediction = new InputDownload(chordOutput.maybePredictions().orElse(GoogleStorageLocation.empty()));
         this.resourceFiles = resourceFiles;
         this.persistedDataset = persistedDataset;
+    }
+
+    @NotNull
+    public GoogleStorageLocation purpleOrEmpty(final PurpleOutput purpleOutput,
+            final Function<PurpleOutputLocations, GoogleStorageLocation> extractor) {
+        return purpleOutput.maybeOutputLocations().map(extractor).orElse(GoogleStorageLocation.empty());
     }
 
     @NotNull

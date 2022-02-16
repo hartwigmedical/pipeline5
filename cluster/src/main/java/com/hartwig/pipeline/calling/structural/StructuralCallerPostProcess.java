@@ -46,8 +46,8 @@ public class StructuralCallerPostProcess implements Stage<StructuralCallerPostPr
     public StructuralCallerPostProcess(final ResourceFiles resourceFiles, StructuralCallerOutput structuralCallerOutput,
             final PersistedDataset persistedDataset) {
         this.resourceFiles = resourceFiles;
-        gridssVcf = new InputDownload(structuralCallerOutput.unfilteredVcf());
-        gridssVcfIndex = new InputDownload(structuralCallerOutput.unfilteredVcfIndex());
+        gridssVcf = new InputDownload(structuralCallerOutput.maybeUnfilteredVcf().orElse(GoogleStorageLocation.empty()));
+        gridssVcfIndex = new InputDownload(structuralCallerOutput.maybeUnfilteredVcfIndex().orElse(GoogleStorageLocation.empty()));
         this.persistedDataset = persistedDataset;
     }
 
@@ -66,7 +66,8 @@ public class StructuralCallerPostProcess implements Stage<StructuralCallerPostPr
         String tumorSampleName = metadata.tumor().sampleName();
         String referenceSampleName = metadata.reference().sampleName();
 
-        GripssSomatic gripssSomatic = new GripssSomatic(resourceFiles, tumorSampleName, referenceSampleName, gridssVcf.getLocalTargetPath());
+        GripssSomatic gripssSomatic =
+                new GripssSomatic(resourceFiles, tumorSampleName, referenceSampleName, gridssVcf.getLocalTargetPath());
 
         SubStageInputOutput gripssOutput = gripssSomatic.apply(SubStageInputOutput.empty(tumorSampleName));
         somaticFilteredVcf = gripssOutput.outputFile().path();

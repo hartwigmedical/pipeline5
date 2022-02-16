@@ -71,7 +71,7 @@ public abstract class StageTest<S extends StageOutput, M extends RunMetadata> {
 
     @Test
     public void declaredExpectedCommands() {
-        assertThat(victim.commands(input()).stream().map(BashCommand::asBash).collect(Collectors.toList())).isEqualTo(commands(
+        assertThat(victim.somaticCommands(input()).stream().map(BashCommand::asBash).collect(Collectors.toList())).isEqualTo(commands(
                 expectedCommands()));
     }
 

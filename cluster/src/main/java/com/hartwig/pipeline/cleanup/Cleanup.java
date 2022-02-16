@@ -30,7 +30,7 @@ public class Cleanup {
 
         LOGGER.info("Cleaning up runtime storage on complete somatic pipeline run");
         metadata.maybeTumor().ifPresent(tumor -> deleteBucket(Run.from(metadata, arguments).id()));
-        cleanupSample(metadata.reference());
+        metadata.maybeReference().ifPresent(this::cleanupSample);
         metadata.maybeTumor().ifPresent(this::cleanupSample);
     }
 

@@ -32,6 +32,7 @@ import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.linx.LinxOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
+import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
 import com.hartwig.pipeline.tools.Versions;
 
 public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
@@ -52,9 +53,15 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
 
     public Cuppa(final PurpleOutput purpleOutput, final LinxOutput linxOutput, final ResourceFiles resourceFiles,
             final PersistedDataset persistedDataset) {
-        this.purpleSomaticVcfDownload = new InputDownload(purpleOutput.outputLocations().somaticVcf());
-        this.purpleStructuralVcfDownload = new InputDownload(purpleOutput.outputLocations().structuralVcf());
-        this.purpleOutputDirectory = new InputDownload(purpleOutput.outputLocations().outputDirectory());
+        this.purpleSomaticVcfDownload = new InputDownload(purpleOutput.maybeOutputLocations()
+                .map(PurpleOutputLocations::somaticVcf)
+                .orElse(GoogleStorageLocation.empty()));
+        this.purpleStructuralVcfDownload = new InputDownload(purpleOutput.maybeOutputLocations()
+                .map(PurpleOutputLocations::structuralVcf)
+                .orElse(GoogleStorageLocation.empty()));
+        this.purpleOutputDirectory = new InputDownload(purpleOutput.maybeOutputLocations()
+                .map(PurpleOutputLocations::outputDirectory)
+                .orElse(GoogleStorageLocation.empty()));
         this.linxOutput = linxOutput;
         this.resourceFiles = resourceFiles;
         this.persistedDataset = persistedDataset;

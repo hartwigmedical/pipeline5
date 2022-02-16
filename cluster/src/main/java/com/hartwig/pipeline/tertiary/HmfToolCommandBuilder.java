@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.google.common.collect.Lists;
-import com.hartwig.pipeline.execution.vm.Bash;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.java.JavaClassCommand;
@@ -19,11 +17,6 @@ public class HmfToolCommandBuilder {
     private final String jar;
     private final List<String> arguments;
 
-    private String tumorSample;
-    private String tumorBamPath;
-    private String referenceSample;
-    private String referenceBamPath;
-
     public HmfToolCommandBuilder(final String tool, final String version, final String heap, final String mainClass, final String jar) {
         this.tool = tool;
         this.version = version;
@@ -34,14 +27,12 @@ public class HmfToolCommandBuilder {
     }
 
     public HmfToolCommandBuilder tumor(final String tumorSample, final String tumorBamPath) {
-        this.tumorSample = tumorSample;
-        this.tumorBamPath = tumorBamPath;
+        arguments.addAll(List.of("-tumor", tumorSample, "-tumor_bam", tumorBamPath));
         return this;
     }
 
     public HmfToolCommandBuilder reference(final String referenceSample, final String referenceBamPath) {
-        this.referenceSample = referenceSample;
-        this.referenceBamPath = referenceBamPath;
+        arguments.addAll(List.of("-reference", referenceSample, "-reference_bam", referenceBamPath));
         return this;
     }
 
@@ -51,18 +42,8 @@ public class HmfToolCommandBuilder {
     }
 
     public BashCommand build() {
-        arguments.addAll(List.of("-reference",
-                referenceSample,
-                "-reference_bam",
-                referenceBamPath,
-                "-tumor",
-                tumorSample,
-                "-tumor_bam",
-                tumorBamPath,
-                "-output_dir",
-                VmDirectories.OUTPUT,
-                "-threads",
-                Bash.allCpus()));
+        arguments.add("-output_dir");
+        arguments.add(VmDirectories.OUTPUT);
         return new JavaClassCommand(tool, version, jar, mainClass, heap, arguments.toArray(String[]::new));
     }
 

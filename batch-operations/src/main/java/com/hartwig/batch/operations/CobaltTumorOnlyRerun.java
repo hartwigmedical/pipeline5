@@ -20,12 +20,13 @@ import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.resource.ResourceFilesFactory;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
-import com.hartwig.pipeline.tertiary.amber.AmberCommandBuilder;
+import com.hartwig.pipeline.tertiary.cobalt.CobaltApplicationCommand;
+import com.hartwig.pipeline.tertiary.cobalt.CobaltCommandBuilder;
 
-public class AmberRerun implements BatchOperation {
+public class CobaltTumorOnlyRerun implements BatchOperation {
 
-    public static GoogleStorageLocation amberArchiveDirectory(final String set) {
-        return GoogleStorageLocation.of("hmf-amber", set, true);
+    public static GoogleStorageLocation cobaltArchiveDirectory(final String set) {
+        return GoogleStorageLocation.of("hmf-cobalt-tumor-only", set, true);
     }
 
     @Override
@@ -35,32 +36,20 @@ public class AmberRerun implements BatchOperation {
         // Inputs
         final String set = inputs.get("set").inputValue();
         final String tumorSampleName = inputs.get("tumor_sample").inputValue();
-        final String referenceSampleName = inputs.get("ref_sample").inputValue();
         final InputFileDescriptor remoteTumorFile = inputs.get("tumor_cram");
-        final InputFileDescriptor remoteReferenceFile = inputs.get("ref_cram");
         final InputFileDescriptor remoteTumorIndex = remoteTumorFile.index();
-        final InputFileDescriptor remoteReferenceIndex = remoteReferenceFile.index();
 
         final String localTumorFile = localFilename(remoteTumorFile);
-        final String localReferenceFile = localFilename(remoteReferenceFile);
 
         // Download tumor
         commands.addCommand(() -> remoteTumorFile.toCommandForm(localTumorFile));
         commands.addCommand(() -> remoteTumorIndex.toCommandForm(localFilename(remoteTumorIndex)));
 
-        // Download normal
-        commands.addCommand(() -> remoteReferenceFile.toCommandForm(localReferenceFile));
-        commands.addCommand(() -> remoteReferenceIndex.toCommandForm(localFilename(remoteReferenceIndex)));
-
         final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.V37);
-        commands.addCommand(() -> AmberCommandBuilder.newBuilder(resourceFiles)
-                .reference(referenceSampleName, localReferenceFile)
-                .tumor(tumorSampleName, localTumorFile)
-                .build()
-                .asBash());
+        commands.addCommand(() -> CobaltCommandBuilder.newBuilder(resourceFiles).tumor(tumorSampleName, localTumorFile).build().asBash());
 
         // Store output
-        final GoogleStorageLocation archiveStorageLocation = amberArchiveDirectory(set);
+        final GoogleStorageLocation archiveStorageLocation = cobaltArchiveDirectory(set);
         commands.addCommand(new CopyLogToOutput(executionFlags.log(), "run.log"));
         commands.addCommand(new OutputUpload(archiveStorageLocation));
 
@@ -69,7 +58,7 @@ public class AmberRerun implements BatchOperation {
 
     @Override
     public OperationDescriptor descriptor() {
-        return OperationDescriptor.of("AmberRerun", "Generate amber output", OperationDescriptor.InputType.JSON);
+        return OperationDescriptor.of("CobaltTumorOnlyRerun", "Generate cobalt output", OperationDescriptor.InputType.JSON);
     }
 
     private static String localFilename(InputFileDescriptor remote) {

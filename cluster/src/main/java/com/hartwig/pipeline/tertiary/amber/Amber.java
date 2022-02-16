@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.tertiary.amber;
 
+import static java.util.Collections.singletonList;
+
 import java.io.File;
 import java.util.List;
 
@@ -31,14 +33,12 @@ import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.TertiaryStage;
 import com.hartwig.pipeline.tertiary.TumorNormalCommand;
 import com.hartwig.pipeline.tertiary.TumorOnlyCommand;
+import com.hartwig.pipeline.tertiary.cobalt.CobaltCommandBuilder;
 import com.hartwig.pipeline.tools.Versions;
 
 public class Amber extends TertiaryStage<AmberOutput> {
 
     public static final String NAMESPACE = "amber";
-    private static final String JAR = "amber.jar";
-    private static final String MAX_HEAP = "32G";
-    private static final String MAIN_CLASS = "com.hartwig.hmftools.amber.AmberApplication";
 
     private final ResourceFiles resourceFiles;
     private final PersistedDataset persistedDataset;
@@ -55,70 +55,11 @@ public class Amber extends TertiaryStage<AmberOutput> {
     }
 
     @Override
-    public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) {
-        return List.of(new JavaClassCommand("amber",
-                Versions.AMBER,
-                JAR,
-                MAIN_CLASS,
-                MAX_HEAP,
-                "-tumor",
-                metadata.tumor().sampleName(),
-                "-tumor_bam",
-                getTumorBamDownload().getLocalTargetPath(),
-                "-output_dir",
-                VmDirectories.OUTPUT,
-                "-threads",
-                Bash.allCpus(),
-                "-ref_genome",
-                resourceFiles.refGenomeFile(),
-                "-loci",
-                resourceFiles.amberHeterozygousLoci()));
-    }
-
-    @Override
-    public List<BashCommand> germlineOnlyCommands(final SomaticRunMetadata metadata) {
-        return List.of(new JavaClassCommand("amber",
-                Versions.AMBER,
-                JAR,
-                MAIN_CLASS,
-                MAX_HEAP,
-                "-reference",
-                metadata.reference().sampleName(),
-                "-reference_bam",
-                getReferenceBamDownload().getLocalTargetPath(),
-                "-output_dir",
-                VmDirectories.OUTPUT,
-                "-threads",
-                Bash.allCpus(),
-                "-ref_genome",
-                resourceFiles.refGenomeFile(),
-                "-loci",
-                resourceFiles.amberHeterozygousLoci()));
-    }
-
-    @Override
     public List<BashCommand> somaticCommands(final SomaticRunMetadata metadata) {
-        return List.of(new JavaClassCommand("amber",
-                Versions.AMBER,
-                JAR,
-                MAIN_CLASS,
-                MAX_HEAP,
-                "-reference",
-                metadata.reference().sampleName(),
-                "-reference_bam",
-                getReferenceBamDownload().getLocalTargetPath(),
-                "-tumor",
-                metadata.tumor().sampleName(),
-                "-tumor_bam",
-                getTumorBamDownload().getLocalTargetPath(),
-                "-output_dir",
-                VmDirectories.OUTPUT,
-                "-threads",
-                Bash.allCpus(),
-                "-ref_genome",
-                resourceFiles.refGenomeFile(),
-                "-loci",
-                resourceFiles.amberHeterozygousLoci()));
+        return singletonList(AmberCommandBuilder.newBuilder(resourceFiles)
+                .tumor(metadata.tumor().sampleName(), getTumorBamDownload().getLocalTargetPath())
+                .reference(metadata.reference().sampleName(), getReferenceBamDownload().getLocalTargetPath())
+                .build());
     }
 
     @Override

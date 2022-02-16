@@ -16,9 +16,11 @@ import com.hartwig.pipeline.calling.structural.StructuralCaller;
 import com.hartwig.pipeline.calling.structural.StructuralCallerOutput;
 import com.hartwig.pipeline.calling.structural.StructuralCallerPostProcess;
 import com.hartwig.pipeline.calling.structural.StructuralCallerPostProcessOutput;
+import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetricsOutput;
+import com.hartwig.pipeline.metrics.ImmutableBamMetricsOutput;
 import com.hartwig.pipeline.report.PipelineResults;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.resource.ResourceFiles;
@@ -51,6 +53,7 @@ import com.hartwig.pipeline.tertiary.sigs.SigsOutput;
 import com.hartwig.pipeline.tertiary.virus.VirusAnalysis;
 import com.hartwig.pipeline.tertiary.virus.VirusOutput;
 
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -144,10 +147,18 @@ public class SomaticPipeline {
                     PurpleOutput purpleOutput = purpleOutputFuture.get();
 
                     if (state.shouldProceed()) {
-                        BamMetricsOutput tumorMetrics = pollOrThrow(tumorBamMetricsOutputQueue, "tumor metrics");
-                        BamMetricsOutput referenceMetrics = pollOrThrow(referenceBamMetricsOutputQueue, "reference metrics");
-                        FlagstatOutput tumorFlagstat = pollOrThrow(tumorFlagstatOutputQueue, "tumor flagstat");
-                        FlagstatOutput referenceFlagstat = pollOrThrow(referenceFlagstatOutputQueue, "reference flagstat");
+                        BamMetricsOutput tumorMetrics = metadata.maybeTumor()
+                                .map(t -> pollOrThrow(tumorBamMetricsOutputQueue, "tumor metrics"))
+                                .orElse(skippedMetrics(metadata.sampleName()));
+                        BamMetricsOutput referenceMetrics = metadata.maybeReference()
+                                .map(t -> pollOrThrow(referenceBamMetricsOutputQueue, "reference metrics"))
+                                .orElse(skippedMetrics(metadata.sampleName()));
+                        FlagstatOutput tumorFlagstat = metadata.maybeTumor()
+                                .map(t -> pollOrThrow(tumorFlagstatOutputQueue, "tumor flagstat"))
+                                .orElse(skippedFlagstat(metadata.sampleName()));
+                        FlagstatOutput referenceFlagstat = metadata.maybeReference()
+                                .map(t -> pollOrThrow(referenceFlagstatOutputQueue, "reference flagstat"))
+                                .orElse(skippedFlagstat(metadata.sampleName()));
 
                         Future<VirusOutput> virusOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                 new VirusAnalysis(pair, resourceFiles, persistedDataset, purpleOutput, tumorMetrics)));
@@ -200,11 +211,23 @@ public class SomaticPipeline {
         return state;
     }
 
-    public static <T> T pollOrThrow(final BlockingQueue<T> tumourBamMetricsOutput, final String name) throws InterruptedException {
-        T poll = tumourBamMetricsOutput.poll(24, TimeUnit.HOURS);
-        if (poll == null) {
-            throw new RuntimeException(String.format("No results from single sample pipeline within 24 hours for [%s]", name));
+    private BamMetricsOutput skippedMetrics(final String sample) {
+        return BamMetricsOutput.builder().sample(sample).status(PipelineStatus.SKIPPED).build();
+    }
+
+    private FlagstatOutput skippedFlagstat(final String sample) {
+        return FlagstatOutput.builder().sample(sample).status(PipelineStatus.SKIPPED).build();
+    }
+
+    public static <T> T pollOrThrow(final BlockingQueue<T> tumourBamMetricsOutput, final String name) {
+        try {
+            T poll = tumourBamMetricsOutput.poll(24, TimeUnit.HOURS);
+            if (poll == null) {
+                throw new RuntimeException(String.format("No results from single sample pipeline within 24 hours for [%s]", name));
+            }
+            return poll;
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
-        return poll;
     }
 }

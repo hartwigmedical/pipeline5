@@ -64,18 +64,20 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
     private final boolean shallow;
     private final boolean sageGermlineEnabled;
 
-    public Purple(final ResourceFiles resourceFiles, PaveOutput somaticCallerOutput, PaveOutput germlineCallerOutput,
-            StructuralCallerPostProcessOutput structuralCallerOutput, AmberOutput amberOutput, CobaltOutput cobaltOutput,
+    public Purple(final ResourceFiles resourceFiles, final PaveOutput somaticCallerOutput, final PaveOutput germlineCallerOutput,
+            final StructuralCallerPostProcessOutput structuralCallerOutput, final AmberOutput amberOutput, final CobaltOutput cobaltOutput,
             final PersistedDataset persistedDataset, final boolean shallow, final boolean sageGermlineEnabled) {
         this.resourceFiles = resourceFiles;
-        this.somaticVcfDownload = new InputDownload(somaticCallerOutput.finalVcf());
+        this.somaticVcfDownload = new InputDownload(somaticCallerOutput.maybeFinalVcf().orElse(GoogleStorageLocation.empty()));
         this.germlineVcfDownload = new InputDownload(germlineCallerOutput.maybeFinalVcf().orElse(GoogleStorageLocation.empty()));
-        this.structuralVcfDownload = new InputDownload(structuralCallerOutput.filteredVcf());
-        this.structuralVcfIndexDownload = new InputDownload(structuralCallerOutput.filteredVcfIndex());
-        this.svRecoveryVcfDownload = new InputDownload(structuralCallerOutput.fullVcf());
-        this.svRecoveryVcfIndexDownload = new InputDownload(structuralCallerOutput.fullVcfIndex());
-        this.amberOutputDownload = new InputDownload(amberOutput.outputDirectory());
-        this.cobaltOutputDownload = new InputDownload(cobaltOutput.outputDirectory());
+        this.structuralVcfDownload = new InputDownload(structuralCallerOutput.maybeFilteredVcf().orElse(GoogleStorageLocation.empty()));
+        this.structuralVcfIndexDownload =
+                new InputDownload(structuralCallerOutput.maybeFilteredVcfIndex().orElse(GoogleStorageLocation.empty()));
+        this.svRecoveryVcfDownload = new InputDownload(structuralCallerOutput.maybeFullVcf().orElse(GoogleStorageLocation.empty()));
+        this.svRecoveryVcfIndexDownload =
+                new InputDownload(structuralCallerOutput.maybeFullVcfIndex().orElse(GoogleStorageLocation.empty()));
+        this.amberOutputDownload = new InputDownload(amberOutput.maybeOutputDirectory().orElse(GoogleStorageLocation.empty()));
+        this.cobaltOutputDownload = new InputDownload(cobaltOutput.maybeOutputDirectory().orElse(GoogleStorageLocation.empty()));
         this.persistedDataset = persistedDataset;
         this.shallow = shallow;
         this.sageGermlineEnabled = sageGermlineEnabled;
@@ -219,8 +221,8 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
                 .addDatatypes(new AddDatatype(DataType.PURPLE_QC, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), qcFile)));
         if (sageGermlineEnabled) {
             builder.addDatatypes(new AddDatatype(DataType.GERMLINE_VARIANTS_PURPLE,
-                    metadata.barcode(),
-                    new ArchivePath(Folder.root(), namespace(), germlineVcf(metadata))))
+                            metadata.barcode(),
+                            new ArchivePath(Folder.root(), namespace(), germlineVcf(metadata))))
                     .addDatatypes(new AddDatatype(DataType.PURPLE_GERMLINE_DRIVER_CATALOG,
                             metadata.barcode(),
                             new ArchivePath(Folder.root(), namespace(), germlineDriverCatalog)))

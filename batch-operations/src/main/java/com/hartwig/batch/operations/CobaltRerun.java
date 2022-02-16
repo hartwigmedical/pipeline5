@@ -20,12 +20,13 @@ import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.resource.ResourceFilesFactory;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
-import com.hartwig.pipeline.tertiary.amber.AmberCommandBuilder;
+import com.hartwig.pipeline.tertiary.cobalt.CobaltApplicationCommand;
+import com.hartwig.pipeline.tertiary.cobalt.CobaltCommandBuilder;
 
-public class AmberRerun implements BatchOperation {
+public class CobaltRerun implements BatchOperation {
 
-    public static GoogleStorageLocation amberArchiveDirectory(final String set) {
-        return GoogleStorageLocation.of("hmf-amber", set, true);
+    public static GoogleStorageLocation cobaltArchiveDirectory(final String set) {
+        return GoogleStorageLocation.of("hmf-cobalt", set, true);
     }
 
     @Override
@@ -53,14 +54,14 @@ public class AmberRerun implements BatchOperation {
         commands.addCommand(() -> remoteReferenceIndex.toCommandForm(localFilename(remoteReferenceIndex)));
 
         final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.V37);
-        commands.addCommand(() -> AmberCommandBuilder.newBuilder(resourceFiles)
+        commands.addCommand(() -> CobaltCommandBuilder.newBuilder(resourceFiles)
                 .reference(referenceSampleName, localReferenceFile)
                 .tumor(tumorSampleName, localTumorFile)
                 .build()
                 .asBash());
 
         // Store output
-        final GoogleStorageLocation archiveStorageLocation = amberArchiveDirectory(set);
+        final GoogleStorageLocation archiveStorageLocation = cobaltArchiveDirectory(set);
         commands.addCommand(new CopyLogToOutput(executionFlags.log(), "run.log"));
         commands.addCommand(new OutputUpload(archiveStorageLocation));
 
@@ -69,7 +70,7 @@ public class AmberRerun implements BatchOperation {
 
     @Override
     public OperationDescriptor descriptor() {
-        return OperationDescriptor.of("AmberRerun", "Generate amber output", OperationDescriptor.InputType.JSON);
+        return OperationDescriptor.of("CobaltRerun", "Generate cobalt output", OperationDescriptor.InputType.JSON);
     }
 
     private static String localFilename(InputFileDescriptor remote) {
