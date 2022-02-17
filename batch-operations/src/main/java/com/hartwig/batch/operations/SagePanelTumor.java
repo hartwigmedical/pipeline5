@@ -71,32 +71,15 @@ public class SagePanelTumor implements BatchOperation {
         sageArgs.add(String.format("-coverage_bed %s/%s", VmDirectories.INPUT, PANEL_BED));
         sageArgs.add(String.format("-out %s", outputVcf));
 
-        sageArgs.add(String.format("-max_read_depth 1000000"));
-        sageArgs.add(String.format("-max_read_depth_panel 1000000"));
-        sageArgs.add(String.format("-max_realignment_depth 1000000"));
+        // sageArgs.add(String.format("-max_read_depth 1000000"));
+        // sageArgs.add(String.format("-max_read_depth_panel 1000000"));
+        // sageArgs.add(String.format("-max_realignment_depth 1000000"));
         sageArgs.add(String.format("-mnv_filter_enabled false"));
-        sageArgs.add(String.format("-bqr_plot false"));
+        sageArgs.add(String.format("-perf_warn_time 50"));
+        // sageArgs.add(String.format("-log_debug"));
         sageArgs.add(String.format("-threads %s", Bash.allCpus()));
 
         startupScript.addCommand(() -> format("java -Xmx48G -jar %s/%s %s", VmDirectories.TOOLS, SAGE_JAR, sageArgs.toString()));
-
-        /*
-        java -jar /data/experiments/tools/sage.jar -tumor FR16648814 -tumor_bam FR16648814.non_umi_dedup.bam
-        -hotspots /data/resources/public/sage/38/KnownHotspots.germline.38.vcf.gz
-        -panel_bed /data/resources/public/sage/38/ActionableCodingPanel.somatic.38.bed.gz
-        -mnv_filter_enabled false
-        -high_confidence_bed /data/resources/public/giab_high_conf/38/HG001_GRCh38_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-X_v.3.3.2_highconf_nosomaticdel_noCENorHET7.bed.gz
-        -ref_genome /data/resources/bucket/reference_genome/38/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna
-        -ref_genome_version 38
-        -threads 8
-        -max_read_depth 1000000
-        -max_read_depth_panel 1000000
-        -max_realignment_depth 1000000
-        -bqr_enabled true
-        -out ./FR16648814.sageNEW.somatic.vcf.gz
-        -coverage_bed ../primary_targets_restricted_transcripts.bed
-        -ensembl_data_dir /data/experiments/ensembl/38/
-         */
 
         // upload output
         startupScript.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), "sage"), executionFlags));
@@ -104,7 +87,7 @@ public class SagePanelTumor implements BatchOperation {
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("sage")
                 .startupCommand(startupScript)
-                .performanceProfile(custom(12, 48))
+                .performanceProfile(custom(24, 64))
                 .namespacedResults(ResultsDirectory.defaultDirectory())
                 .build();
     }
