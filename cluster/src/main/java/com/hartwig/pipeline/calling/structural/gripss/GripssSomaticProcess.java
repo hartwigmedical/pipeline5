@@ -6,7 +6,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.api.client.util.Lists;
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
@@ -82,7 +81,7 @@ public class GripssSomaticProcess implements Stage<GripssSomaticProcessOutput, S
 
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
-        return VirtualMachineJobDefinition.structuralPostProcessCalling(bash, resultsDirectory);
+        return VirtualMachineJobDefinition.gripssSomatic(bash, resultsDirectory);
     }
 
     @Override

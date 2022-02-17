@@ -106,11 +106,20 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .build();
     }
 
-    static VirtualMachineJobDefinition structuralPostProcessCalling(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
+    static VirtualMachineJobDefinition gripssSomatic(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
         return ImmutableVirtualMachineJobDefinition.builder()
-                .name("gripss")
+                .name("gripss-somatic")
                 .startupCommand(startupScript)
-                .performanceProfile(custom(6, 30))
+                .performanceProfile(custom(4, 24))
+                .namespacedResults(resultsDirectory)
+                .build();
+    }
+
+    static VirtualMachineJobDefinition gripssGermline(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
+        return ImmutableVirtualMachineJobDefinition.builder()
+                .name("gripss-germline")
+                .startupCommand(startupScript)
+                .performanceProfile(custom(4, 24))
                 .namespacedResults(resultsDirectory)
                 .build();
     }
@@ -194,16 +203,6 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .startupCommand(startupScript)
                 .performanceProfile(custom(32, 120))
                 .namespacedResults(resultsDirectory)
-                .build();
-    }
-
-    static VirtualMachineJobDefinition linx(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
-        return ImmutableVirtualMachineJobDefinition.builder()
-                .name("linx")
-                .startupCommand(startupScript)
-                .namespacedResults(resultsDirectory)
-                .performanceProfile(custom(4, 12))
-                .workingDiskSpaceGb(375)
                 .build();
     }
 

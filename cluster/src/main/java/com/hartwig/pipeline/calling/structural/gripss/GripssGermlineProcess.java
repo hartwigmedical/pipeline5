@@ -80,7 +80,7 @@ public class GripssGermlineProcess implements Stage<GripssGermlineProcessOutput,
 
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
-        return VirtualMachineJobDefinition.structuralPostProcessCalling(bash, resultsDirectory);
+        return VirtualMachineJobDefinition.gripssGermline(bash, resultsDirectory);
     }
 
     @Override
