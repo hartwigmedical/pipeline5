@@ -60,6 +60,11 @@ public class Cobalt extends TertiaryStage<CobaltOutput> {
     }
 
     @Override
+    public List<BashCommand> germlineOnlyCommands(final SomaticRunMetadata metadata) {
+        return super.germlineOnlyCommands(metadata);
+    }
+
+    @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
         return VirtualMachineJobDefinition.cobalt(bash, resultsDirectory);
     }

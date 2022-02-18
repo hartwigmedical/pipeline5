@@ -73,14 +73,12 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
         this.persistedDataset = persistedDataset;
     }
 
-    @NotNull
-    public GoogleStorageLocation purpleOrEmpty(final PurpleOutput purpleOutput,
+    private GoogleStorageLocation purpleOrEmpty(final PurpleOutput purpleOutput,
             final Function<PurpleOutputLocations, GoogleStorageLocation> extractor) {
         return purpleOutput.maybeOutputLocations().map(extractor).orElse(GoogleStorageLocation.empty());
     }
 
-    @NotNull
-    public GoogleStorageLocation linxOrEmpty(final LinxOutput linxOutput,
+    private GoogleStorageLocation linxOrEmpty(final LinxOutput linxOutput,
             final Function<LinxOutputLocations, GoogleStorageLocation> extractor) {
         return linxOutput.maybeLinxOutputLocations().map(extractor).orElse(GoogleStorageLocation.empty());
     }

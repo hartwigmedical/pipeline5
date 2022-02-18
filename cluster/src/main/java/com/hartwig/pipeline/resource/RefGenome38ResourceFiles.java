@@ -9,6 +9,7 @@ import static com.hartwig.pipeline.resource.ResourceNames.GENE_PANEL;
 import static com.hartwig.pipeline.resource.ResourceNames.GIAB_HIGH_CONF;
 import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_PON;
 import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_REPEAT_MASKER_DB;
+import static com.hartwig.pipeline.resource.ResourceNames.LILAC;
 import static com.hartwig.pipeline.resource.ResourceNames.LINX;
 import static com.hartwig.pipeline.resource.ResourceNames.MAPPABILITY;
 import static com.hartwig.pipeline.resource.ResourceNames.REFERENCE_GENOME;
@@ -175,4 +176,10 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
     public String peachFilterBed() {
         throw new UnsupportedOperationException("[PEACH filter BED] does not yet have a valid 38 version.");
     }
+
+    @Override
+    public String hlaRegionBed() {
+        return formPath(LILAC, "hla_v38.bed");
+    }
+
 }
