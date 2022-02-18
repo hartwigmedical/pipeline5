@@ -206,6 +206,16 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .build();
     }
 
+    static VirtualMachineJobDefinition linx(String type, BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
+        return ImmutableVirtualMachineJobDefinition.builder()
+                .name("linx-" + type)
+                .startupCommand(startupScript)
+                .namespacedResults(resultsDirectory)
+                .performanceProfile(custom(4, 12))
+                .workingDiskSpaceGb(375)
+                .build();
+    }
+
     static VirtualMachineJobDefinition chord(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("chord")

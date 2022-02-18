@@ -79,13 +79,7 @@ public class LinxGermline implements Stage<LinxGermlineOutput, SomaticRunMetadat
 
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
-        return ImmutableVirtualMachineJobDefinition.builder()
-                .name(namespace().replace("_", "-"))
-                .startupCommand(bash)
-                .namespacedResults(resultsDirectory)
-                .performanceProfile(custom(2, 10))
-                .workingDiskSpaceGb(375)
-                .build();
+        return VirtualMachineJobDefinition.linx("germline", bash, resultsDirectory);
     }
 
     @Override

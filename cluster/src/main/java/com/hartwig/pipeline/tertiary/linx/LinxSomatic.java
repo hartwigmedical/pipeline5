@@ -88,13 +88,7 @@ public class LinxSomatic implements Stage<LinxSomaticOutput, SomaticRunMetadata>
 
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
-        return ImmutableVirtualMachineJobDefinition.builder()
-                .name(namespace().replace("_", "-"))
-                .startupCommand(bash)
-                .namespacedResults(resultsDirectory)
-                .performanceProfile(custom(2, 10))
-                .workingDiskSpaceGb(375)
-                .build();
+        return VirtualMachineJobDefinition.linx("somatic", bash, resultsDirectory);
     }
 
     @Override
