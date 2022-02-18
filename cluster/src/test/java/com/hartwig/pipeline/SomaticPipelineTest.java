@@ -8,6 +8,7 @@ import static com.hartwig.pipeline.testsupport.TestInputs.defaultSomaticRunMetad
 import static com.hartwig.pipeline.testsupport.TestInputs.gripssGermlineProcessOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.healthCheckerOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.linxGermlineOutput;
+import static com.hartwig.pipeline.testsupport.TestInputs.lilacOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.linxOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.orangeOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.paveGermlineOutput;
@@ -110,6 +111,7 @@ public class SomaticPipelineTest {
                 healthCheckerOutput(),
                 linxOutput(),
                 linxGermlineOutput(),
+                lilacOutput(),
                 sigsOutput(),
                 virusOutput(),
                 chordOutput(),
@@ -231,6 +233,7 @@ public class SomaticPipelineTest {
                 .thenReturn(HealthCheckOutput.builder().from(healthCheckerOutput()).status(PipelineStatus.QC_FAILED).build())
                 .thenReturn(linxOutput())
                 .thenReturn(linxGermlineOutput())
+                .thenReturn(lilacOutput())
                 .thenReturn(sigsOutput())
                 .thenReturn(chordOutput())
                 .thenReturn(cuppaOutput())
@@ -277,6 +280,7 @@ public class SomaticPipelineTest {
                 .thenReturn(healthCheckerOutput())
                 .thenReturn(linxOutput())
                 .thenReturn(linxGermlineOutput())
+                .thenReturn(lilacOutput())
                 .thenReturn(sigsOutput())
                 .thenReturn(chordOutput())
                 .thenReturn(cuppaOutput())

@@ -10,6 +10,7 @@ import static com.hartwig.pipeline.resource.ResourceNames.GENOTYPE_SNPS;
 import static com.hartwig.pipeline.resource.ResourceNames.GIAB_HIGH_CONF;
 import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_PON;
 import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_REPEAT_MASKER_DB;
+import static com.hartwig.pipeline.resource.ResourceNames.LILAC;
 import static com.hartwig.pipeline.resource.ResourceNames.LINX;
 import static com.hartwig.pipeline.resource.ResourceNames.MAPPABILITY;
 import static com.hartwig.pipeline.resource.ResourceNames.PEACH;
@@ -174,6 +175,11 @@ public class RefGenome37ResourceFiles implements ResourceFiles {
     @Override
     public String actionabilityDir() {
         return formPath(SERVE, "");
+    }
+
+    @Override
+    public String hlaRegionBed() {
+        return formPath(LILAC, "hla_v37.bed");
     }
 
     @Override

@@ -49,6 +49,8 @@ import com.hartwig.pipeline.tertiary.linx.LinxGermlineOutput;
 import com.hartwig.pipeline.tertiary.linx.LinxGermlineOutputLocations;
 import com.hartwig.pipeline.tertiary.linx.LinxSomaticOutput;
 import com.hartwig.pipeline.tertiary.linx.LinxSomaticOutputLocations;
+import com.hartwig.pipeline.tertiary.lilac.Lilac;
+import com.hartwig.pipeline.tertiary.lilac.LilacOutput;
 import com.hartwig.pipeline.tertiary.orange.OrangeOutput;
 import com.hartwig.pipeline.tertiary.pave.PaveGermline;
 import com.hartwig.pipeline.tertiary.pave.PaveOutput;
@@ -79,7 +81,6 @@ public class TestInputs {
     public static final ResourceFiles REF_GENOME_37_RESOURCE_FILES = new RefGenome37ResourceFiles();
     public static final ResourceFiles REF_GENOME_38_RESOURCE_FILES = new RefGenome38ResourceFiles();
     public static final String SET = "set";
-    public static final String ID = "id";
     public static final String BUCKET = "bucket";
 
     public static String inputDownload(String commands) {
@@ -391,6 +392,12 @@ public class TestInputs {
                         .driverCatalog(gsLocation(somaticBucket(LinxGermline.NAMESPACE), TUMOR_SAMPLE + LinxGermline.GERMLINE_DRIVER_CATALOG_TSV))
                         .outputDirectory(gsLocation(somaticBucket(LinxGermline.NAMESPACE), RESULTS))
                         .build())
+                .build();
+    }
+
+    public static LilacOutput lilacOutput() {
+        return LilacOutput.builder()
+                .status(PipelineStatus.SUCCESS)
                 .build();
     }
 

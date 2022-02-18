@@ -3,6 +3,7 @@ package com.hartwig.pipeline.resource;
 import static com.hartwig.pipeline.resource.ResourceNames.CUPPA;
 import static com.hartwig.pipeline.resource.ResourceNames.DISEASE_ONTOLOGY;
 import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_CONFIG;
+import static com.hartwig.pipeline.resource.ResourceNames.LILAC;
 import static com.hartwig.pipeline.resource.ResourceNames.MAPPABILITY;
 import static com.hartwig.pipeline.resource.ResourceNames.ORANGE;
 import static com.hartwig.pipeline.resource.ResourceNames.SIGS;
@@ -100,11 +101,13 @@ public interface ResourceFiles {
 
     String actionabilityDir();
 
+    String hlaRegionBed();
+
+    String peachFilterBed();
+
     default String cuppaRefData() {
         return of(CUPPA);
     }
-
-    String peachFilterBed();
 
     default String doidJson() {
         return of(DISEASE_ONTOLOGY, "201015_doid.json");
@@ -131,6 +134,10 @@ public interface ResourceFiles {
     }
 
     default String purpleCohortGermlineDeletions() { return of(PURPLE, "cohort_germline_del_freq.csv"); }
+
+    default String lilacResources() {
+        return of(LILAC);
+    }
 
     default String formPath(String name, String file) {
         return String.format("%s/%s/%s/%s", VmDirectories.RESOURCES, name, versionDirectory(), file);

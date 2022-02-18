@@ -39,6 +39,8 @@ import com.hartwig.pipeline.tertiary.linx.LinxSomatic;
 import com.hartwig.pipeline.tertiary.linx.LinxGermline;
 import com.hartwig.pipeline.tertiary.linx.LinxGermlineOutput;
 import com.hartwig.pipeline.tertiary.linx.LinxSomaticOutput;
+import com.hartwig.pipeline.tertiary.lilac.Lilac;
+import com.hartwig.pipeline.tertiary.lilac.LilacOutput;
 import com.hartwig.pipeline.tertiary.orange.Orange;
 import com.hartwig.pipeline.tertiary.orange.OrangeOutput;
 import com.hartwig.pipeline.tertiary.pave.PaveGermline;
@@ -169,6 +171,8 @@ public class SomaticPipeline {
                                     new LinxSomatic(purpleOutput, resourceFiles, persistedDataset)));
                             Future<LinxGermlineOutput> linxGermlineOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                     new LinxGermline(gripssGermlineProcessOutput, resourceFiles, persistedDataset)));
+                            Future<LilacOutput> lilacOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
+                                    new Lilac(pair, resourceFiles, purpleOutput)));
                             Future<SigsOutput> signatureOutputFuture =
                                     executorService.submit(() -> stageRunner.run(metadata, new Sigs(purpleOutput, resourceFiles)));
                             Future<ChordOutput> chordOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
@@ -176,6 +180,7 @@ public class SomaticPipeline {
                             pipelineResults.add(state.add(healthCheckOutputFuture.get()));
                             LinxSomaticOutput linxOutput = pipelineResults.add(state.add(linxOutputFuture.get()));
                             pipelineResults.add(state.add(linxGermlineOutputFuture.get()));
+                            pipelineResults.add(state.add(lilacOutputFuture.get()));
                             Future<CuppaOutput> cuppaOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
                                     new Cuppa(purpleOutput, linxOutput, resourceFiles, persistedDataset)));
                             Future<PeachOutput> peachOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
