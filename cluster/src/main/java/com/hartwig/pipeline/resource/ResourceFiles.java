@@ -105,6 +105,8 @@ public interface ResourceFiles {
 
     String peachFilterBed();
 
+    String purpleCohortGermlineDeletions();
+
     default String cuppaRefData() {
         return of(CUPPA);
     }
@@ -132,8 +134,6 @@ public interface ResourceFiles {
     default String orangeCohortPercentiles() {
         return of(ORANGE, "cohort_percentiles.tsv");
     }
-
-    default String purpleCohortGermlineDeletions() { return of(PURPLE, "cohort_germline_del_freq.csv"); }
 
     default String lilacResources() {
         return of(LILAC);

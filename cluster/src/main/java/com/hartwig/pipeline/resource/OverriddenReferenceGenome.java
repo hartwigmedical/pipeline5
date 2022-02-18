@@ -175,4 +175,10 @@ public class OverriddenReferenceGenome implements ResourceFiles {
     public String peachFilterBed() {
         return decorated.peachFilterBed();
     }
+
+    @Override
+    public String purpleCohortGermlineDeletions() {
+        return decorated.purpleCohortGermlineDeletions();
+    }
+
 }

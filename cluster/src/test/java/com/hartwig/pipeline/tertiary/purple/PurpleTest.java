@@ -74,7 +74,7 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
         return Collections.singletonList("java -Xmx12G -jar /opt/tools/purple/3.3/purple.jar "
                 + "-reference reference -germline_vcf /data/input/tumor.germline.vcf.gz "
                 + "-germline_hotspots /opt/resources/sage/37/KnownHotspots.germline.37.vcf.gz "
-                + "-germline_del_freq_file /opt/resources/purple/cohort_germline_del_freq.csv "
+                + "-germline_del_freq_file /opt/resources/purple/37/cohort_germline_del_freq.37.csv "
                 + "-tumor tumor -output_dir /data/output -amber /data/input/results -cobalt /data/input/results "
                 + "-gc_profile /opt/resources/gc_profiles/37/GC_profile.1000bp.37.cnp "
                 + "-somatic_vcf /data/input/tumor.somatic.vcf.gz -structural_vcf /data/input/tumor.gripss.filtered.vcf.gz "

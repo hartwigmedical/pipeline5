@@ -12,6 +12,7 @@ import static com.hartwig.pipeline.resource.ResourceNames.GRIDSS_REPEAT_MASKER_D
 import static com.hartwig.pipeline.resource.ResourceNames.LILAC;
 import static com.hartwig.pipeline.resource.ResourceNames.LINX;
 import static com.hartwig.pipeline.resource.ResourceNames.MAPPABILITY;
+import static com.hartwig.pipeline.resource.ResourceNames.PURPLE;
 import static com.hartwig.pipeline.resource.ResourceNames.REFERENCE_GENOME;
 import static com.hartwig.pipeline.resource.ResourceNames.SAGE;
 
@@ -181,5 +182,8 @@ public class RefGenome38ResourceFiles implements ResourceFiles {
     public String hlaRegionBed() {
         return formPath(LILAC, "hla_v38.bed");
     }
+
+    @Override
+    public String purpleCohortGermlineDeletions() { return formPath(PURPLE, "cohort_germline_del_freq.38.csv"); }
 
 }

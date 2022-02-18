@@ -14,6 +14,7 @@ import static com.hartwig.pipeline.resource.ResourceNames.LILAC;
 import static com.hartwig.pipeline.resource.ResourceNames.LINX;
 import static com.hartwig.pipeline.resource.ResourceNames.MAPPABILITY;
 import static com.hartwig.pipeline.resource.ResourceNames.PEACH;
+import static com.hartwig.pipeline.resource.ResourceNames.PURPLE;
 import static com.hartwig.pipeline.resource.ResourceNames.REFERENCE_GENOME;
 import static com.hartwig.pipeline.resource.ResourceNames.SAGE;
 import static com.hartwig.pipeline.resource.ResourceNames.SERVE;
@@ -186,4 +187,8 @@ public class RefGenome37ResourceFiles implements ResourceFiles {
     public String peachFilterBed() {
         return formPath(PEACH, "min_DPYD.json");
     }
+
+    @Override
+    public String purpleCohortGermlineDeletions() { return formPath(PURPLE, "cohort_germline_del_freq.37.csv"); }
+
 }
