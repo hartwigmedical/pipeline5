@@ -39,9 +39,9 @@ public class LilacTest extends TertiaryStageTest<LilacOutput> {
     @Override
     protected List<String> expectedCommands() {
         return List.of(
-                "/opt/tools/sambamba/0.6.8/sambamba slice -L /opt/resources/lilac/37/hla_v37.bed -o /data/output/reference.hla.bam /data/input/reference.bam",
+                "/opt/tools/sambamba/0.6.8/sambamba slice -L /opt/resources/lilac/37/hla.37.bed -o /data/output/reference.hla.bam /data/input/reference.bam",
                 "/opt/tools/sambamba/0.6.8/sambamba index /data/output/reference.hla.bam",
-                "/opt/tools/sambamba/0.6.8/sambamba slice -L /opt/resources/lilac/37/hla_v37.bed -o /data/output/tumor.hla.bam /data/input/tumor.bam",
+                "/opt/tools/sambamba/0.6.8/sambamba slice -L /opt/resources/lilac/37/hla.37.bed -o /data/output/tumor.hla.bam /data/input/tumor.bam",
                 "/opt/tools/sambamba/0.6.8/sambamba index /data/output/tumor.hla.bam",
                 "java -Xmx15G -jar /opt/tools/lilac/1.1/lilac.jar "
                         + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "

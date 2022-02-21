@@ -74,6 +74,13 @@ cuppa/CPCT12345678T.cup.report.summary.png
 cuppa/run.log
 health_checker/CPCT12345678T.HealthCheckFailed
 health_checker/run.log
+lilac/CPCT12345678R.hla.bam
+lilac/CPCT12345678R.hla.bam.bai
+lilac/CPCT12345678T.hla.bam
+lilac/CPCT12345678T.hla.bam.bai
+lilac/CPCT12345678T.lilac.csv
+lilac/CPCT12345678T.lilac.qc.csv
+lilac/run.log
 linx/run.log
 linx/CPCT12345678T.linx.breakend.tsv
 linx/CPCT12345678T.linx.clusters.tsv
