@@ -67,23 +67,17 @@ public class LinxSomatic implements Stage<LinxSomaticOutput, SomaticRunMetadata>
 
     @Override
     public List<BashCommand> commands(final SomaticRunMetadata metadata) {
-
-        List<BashCommand> commands = Lists.newArrayList();
-
-        commands.add(new LinxCommand(metadata.tumor().sampleName(),
-                purpleStructuralVcfDownload.getLocalTargetPath(),
-                purpleOutputDirDownload.getLocalTargetPath(),
-                resourceFiles.version(),
-                VmDirectories.OUTPUT,
-                resourceFiles.fragileSites(),
-                resourceFiles.lineElements(),
-                resourceFiles.ensemblDataCache(),
-                resourceFiles.knownFusionData(),
-                resourceFiles.driverGenePanel()));
-
-        commands.add(new LinxVisualisationsCommand(metadata.tumor().sampleName(), VmDirectories.OUTPUT, resourceFiles.version()));
-
-        return commands;
+        return List.of(new LinxCommand(metadata.tumor().sampleName(),
+                        purpleStructuralVcfDownload.getLocalTargetPath(),
+                        purpleOutputDirDownload.getLocalTargetPath(),
+                        resourceFiles.version(),
+                        VmDirectories.OUTPUT,
+                        resourceFiles.fragileSites(),
+                        resourceFiles.lineElements(),
+                        resourceFiles.ensemblDataCache(),
+                        resourceFiles.knownFusionData(),
+                        resourceFiles.driverGenePanel()),
+                new LinxVisualisationsCommand(metadata.tumor().sampleName(), VmDirectories.OUTPUT, resourceFiles.version()));
     }
 
     @Override
@@ -115,18 +109,24 @@ public class LinxSomatic implements Stage<LinxSomaticOutput, SomaticRunMetadata>
                         .build())
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), NAMESPACE, resultsDirectory))
-                .addDatatypes(new AddDatatype(
-                        DataType.LINX_DRIVER, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), driversTsv)))
-                .addDatatypes(new AddDatatype(
-                        DataType.LINX_BREAKENDS, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), breakendTsv)))
-                .addDatatypes(new AddDatatype(
-                        DataType.LINX_DRIVER_CATALOG, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), driverCatalogTsv)))
-                .addDatatypes(new AddDatatype(
-                        DataType.LINX_FUSIONS, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), fusionsTsv)))
-                .addDatatypes(new AddDatatype(
-                        DataType.LINX_CLUSTERS, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), clustersTsv)))
-                .addDatatypes(new AddDatatype(
-                        DataType.LINX_SV_ANNOTATIONS, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), svAnnotationsTsv)))
+                .addDatatypes(new AddDatatype(DataType.LINX_DRIVER,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), driversTsv)))
+                .addDatatypes(new AddDatatype(DataType.LINX_BREAKENDS,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), breakendTsv)))
+                .addDatatypes(new AddDatatype(DataType.LINX_DRIVER_CATALOG,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), driverCatalogTsv)))
+                .addDatatypes(new AddDatatype(DataType.LINX_FUSIONS,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), fusionsTsv)))
+                .addDatatypes(new AddDatatype(DataType.LINX_CLUSTERS,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), clustersTsv)))
+                .addDatatypes(new AddDatatype(DataType.LINX_SV_ANNOTATIONS,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), svAnnotationsTsv)))
                 .build();
     }
 

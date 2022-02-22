@@ -1,7 +1,5 @@
 package com.hartwig.pipeline.tertiary.linx;
 
-import static com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile.custom;
-
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
@@ -9,12 +7,11 @@ import java.util.List;
 import com.google.api.client.util.Lists;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
-import com.hartwig.pipeline.calling.structural.gripss.GripssGermlineProcessOutput;
+import com.hartwig.pipeline.calling.structural.gripss.GripssOutput;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
@@ -43,7 +40,7 @@ public class LinxGermline implements Stage<LinxGermlineOutput, SomaticRunMetadat
     private final ResourceFiles resourceFiles;
     private final PersistedDataset persistedDataset;
 
-    public LinxGermline(GripssGermlineProcessOutput gripssOutput, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
+    public LinxGermline(GripssOutput gripssOutput, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
         gripssGermlineVcfDownload = new InputDownload(gripssOutput.filteredVcf());
         this.resourceFiles = resourceFiles;
         this.persistedDataset = persistedDataset;
@@ -61,10 +58,7 @@ public class LinxGermline implements Stage<LinxGermlineOutput, SomaticRunMetadat
 
     @Override
     public List<BashCommand> commands(final SomaticRunMetadata metadata) {
-
-        List<BashCommand> commands = Lists.newArrayList();
-
-        commands.add(new LinxCommand(metadata.tumor().sampleName(),
+        return Collections.singletonList(new LinxCommand(metadata.tumor().sampleName(),
                 gripssGermlineVcfDownload.getLocalTargetPath(),
                 resourceFiles.version(),
                 VmDirectories.OUTPUT,
@@ -73,8 +67,6 @@ public class LinxGermline implements Stage<LinxGermlineOutput, SomaticRunMetadat
                 resourceFiles.driverGenePanel(),
                 resourceFiles.gridssBreakpointPon(),
                 resourceFiles.gridssBreakendPon()));
-
-        return commands;
     }
 
     @Override
@@ -98,10 +90,12 @@ public class LinxGermline implements Stage<LinxGermlineOutput, SomaticRunMetadat
                         .build())
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), NAMESPACE, resultsDirectory))
-                .addDatatypes(new AddDatatype(
-                        DataType.LINX_GERMLINE_DISRUPTIONS, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), disruptionsTsv)))
-                .addDatatypes(new AddDatatype(
-                        DataType.LINX_GERMLINE_DRIVER_CATALOG, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), driverCatalogTsv)))
+                .addDatatypes(new AddDatatype(DataType.LINX_GERMLINE_DISRUPTIONS,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), disruptionsTsv)))
+                .addDatatypes(new AddDatatype(DataType.LINX_GERMLINE_DRIVER_CATALOG,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), driverCatalogTsv)))
                 .build();
     }
 
@@ -126,8 +120,9 @@ public class LinxGermline implements Stage<LinxGermlineOutput, SomaticRunMetadat
                 .maybeLinxGermlineOutputLocations(LinxGermlineOutputLocations.builder()
                         .disruptions(persistedOrDefault(metadata, DataType.LINX_GERMLINE_DISRUPTIONS, disruptionsTsv))
                         .driverCatalog(persistedOrDefault(metadata, DataType.LINX_GERMLINE_DRIVER_CATALOG, driverCatalogTsv))
-                        .outputDirectory(persistedOrDefault(
-                                metadata, DataType.LINX_DRIVER_CATALOG, driverCatalogTsv).transform(f -> new File(f).getParent()).asDirectory())
+                        .outputDirectory(persistedOrDefault(metadata,
+                                DataType.LINX_DRIVER_CATALOG,
+                                driverCatalogTsv).transform(f -> new File(f).getParent()).asDirectory())
                         .build())
                 .build();
     }

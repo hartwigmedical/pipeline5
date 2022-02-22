@@ -7,13 +7,7 @@ import com.hartwig.pipeline.storage.GoogleStorageLocation;
 
 import org.immutables.value.Value;
 
-@Value.Immutable
-public interface GripssSomaticProcessOutput extends StageOutput {
-
-    @Override
-    default String name() {
-        return GripssSomaticProcess.NAMESPACE;
-    }
+public interface GripssOutput extends StageOutput {
 
     Optional<GoogleStorageLocation> maybeFilteredVcf();
 
@@ -37,9 +31,5 @@ public interface GripssSomaticProcessOutput extends StageOutput {
 
     default GoogleStorageLocation fullVcfIndex() {
         return maybeFullVcfIndex().orElseThrow(() -> new IllegalStateException("No full VCF index available"));
-    }
-
-    static ImmutableGripssSomaticProcessOutput.Builder builder() {
-        return ImmutableGripssSomaticProcessOutput.builder();
     }
 }

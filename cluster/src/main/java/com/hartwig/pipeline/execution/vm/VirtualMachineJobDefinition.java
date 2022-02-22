@@ -106,18 +106,9 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .build();
     }
 
-    static VirtualMachineJobDefinition gripssSomatic(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
+    static VirtualMachineJobDefinition gripss(String type, BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
         return ImmutableVirtualMachineJobDefinition.builder()
-                .name("gripss-somatic")
-                .startupCommand(startupScript)
-                .performanceProfile(custom(4, 24))
-                .namespacedResults(resultsDirectory)
-                .build();
-    }
-
-    static VirtualMachineJobDefinition gripssGermline(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
-        return ImmutableVirtualMachineJobDefinition.builder()
-                .name("gripss-germline")
+                .name("gripss-" + type)
                 .startupCommand(startupScript)
                 .performanceProfile(custom(4, 24))
                 .namespacedResults(resultsDirectory)

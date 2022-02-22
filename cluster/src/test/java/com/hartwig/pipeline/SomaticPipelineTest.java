@@ -5,7 +5,7 @@ import static com.hartwig.pipeline.testsupport.TestInputs.chordOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.cobaltOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.cuppaOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.defaultSomaticRunMetadata;
-import static com.hartwig.pipeline.testsupport.TestInputs.gripssGermlineProcessOutput;
+import static com.hartwig.pipeline.testsupport.TestInputs.gripssGermlineOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.healthCheckerOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.linxGermlineOutput;
 import static com.hartwig.pipeline.testsupport.TestInputs.lilacOutput;
@@ -43,9 +43,10 @@ import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.calling.sage.SageOutput;
 import com.hartwig.pipeline.calling.sage.SageSomaticCaller;
-import com.hartwig.pipeline.calling.structural.gripss.GripssSomaticProcessOutput;
+import com.hartwig.pipeline.calling.structural.gripss.GripssOutput;
 import com.hartwig.pipeline.calling.structural.StructuralCaller;
 import com.hartwig.pipeline.calling.structural.StructuralCallerOutput;
+import com.hartwig.pipeline.calling.structural.gripss.GripssSomaticOutput;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
@@ -106,7 +107,7 @@ public class SomaticPipelineTest {
                 paveSomaticOutput(),
                 paveGermlineOutput(),
                 gripssSomaticProcessOutput(),
-                gripssGermlineProcessOutput(),
+                gripssGermlineOutput(),
                 purpleOutput(),
                 healthCheckerOutput(),
                 linxOutput(),
@@ -163,7 +164,7 @@ public class SomaticPipelineTest {
     public void doesNotRunPurpleWhenGripssFails() {
         bothMetricsAvailable();
         bothFlagstatsAvailable();
-        GripssSomaticProcessOutput failGripss = GripssSomaticProcessOutput.builder().status(PipelineStatus.FAILED).build();
+        GripssOutput failGripss = GripssSomaticOutput.builder().status(PipelineStatus.FAILED).build();
         when(stageRunner.run(eq(defaultSomaticRunMetadata()), any())).thenReturn(amberOutput())
                 .thenReturn(cobaltOutput())
                 .thenReturn(sageSomaticOutput())
@@ -172,7 +173,7 @@ public class SomaticPipelineTest {
                 .thenReturn(paveSomaticOutput())
                 .thenReturn(paveGermlineOutput())
                 .thenReturn(failGripss)
-                .thenReturn(gripssGermlineProcessOutput());
+                .thenReturn(gripssGermlineOutput());
         PipelineState state = victim.run(TestInputs.defaultPair());
         assertThat(state.stageOutputs()).containsExactlyInAnyOrder(cobaltOutput(),
                 amberOutput(),
@@ -182,7 +183,7 @@ public class SomaticPipelineTest {
                 paveGermlineOutput(),
                 structuralCallerOutput(),
                 failGripss,
-                gripssGermlineProcessOutput());
+                gripssGermlineOutput());
         assertThat(state.status()).isEqualTo(PipelineStatus.FAILED);
     }
 
@@ -199,7 +200,7 @@ public class SomaticPipelineTest {
                 .thenReturn(paveSomaticOutput())
                 .thenReturn(paveGermlineOutput())
                 .thenReturn(gripssSomaticProcessOutput())
-                .thenReturn(gripssGermlineProcessOutput())
+                .thenReturn(gripssGermlineOutput())
                 .thenReturn(failPurple);
         PipelineState state = victim.run(TestInputs.defaultPair());
         assertThat(state.stageOutputs()).containsExactlyInAnyOrder(cobaltOutput(),
@@ -210,7 +211,7 @@ public class SomaticPipelineTest {
                 paveGermlineOutput(),
                 structuralCallerOutput(),
                 gripssSomaticProcessOutput(),
-                gripssGermlineProcessOutput(),
+                gripssGermlineOutput(),
                 failPurple);
         assertThat(state.status()).isEqualTo(PipelineStatus.FAILED);
     }
@@ -227,7 +228,7 @@ public class SomaticPipelineTest {
                 .thenReturn(paveSomaticOutput())
                 .thenReturn(paveGermlineOutput())
                 .thenReturn(gripssSomaticProcessOutput())
-                .thenReturn(gripssGermlineProcessOutput())
+                .thenReturn(gripssGermlineOutput())
                 .thenReturn(purpleOutput())
                 .thenReturn(virusOutput())
                 .thenReturn(HealthCheckOutput.builder().from(healthCheckerOutput()).status(PipelineStatus.QC_FAILED).build())
@@ -252,10 +253,7 @@ public class SomaticPipelineTest {
                 tumorMetricsOutputQueue,
                 referenceFlagstatOutputQueue,
                 tumorFlagstatOutputQueue,
-                SomaticRunMetadata.builder()
-                        .from(defaultSomaticRunMetadata())
-                        .maybeTumor(Optional.empty())
-                        .build(),
+                SomaticRunMetadata.builder().from(defaultSomaticRunMetadata()).maybeTumor(Optional.empty()).build(),
                 pipelineResults,
                 Executors.newSingleThreadExecutor(),
                 new NoopPersistedDataset());
@@ -274,7 +272,7 @@ public class SomaticPipelineTest {
                 .thenReturn(paveSomaticOutput())
                 .thenReturn(paveGermlineOutput())
                 .thenReturn(gripssSomaticProcessOutput())
-                .thenReturn(gripssGermlineProcessOutput())
+                .thenReturn(gripssGermlineOutput())
                 .thenReturn(purpleOutput())
                 .thenReturn(virusOutput())
                 .thenReturn(healthCheckerOutput())

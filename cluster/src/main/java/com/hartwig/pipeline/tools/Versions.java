@@ -22,7 +22,7 @@ public interface Versions {
     String LINX = "1.18";
     String ORANGE = "1.6";
     String PAVE = "1.1";
-    String PEACH = "1.6";
+    String PEACH = "1.5";
     String PROTECT = "2.0";
     String PURPLE = "3.3";
     String SAGE = "2.8";
