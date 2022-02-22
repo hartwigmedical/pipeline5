@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.calling.structural;
+package com.hartwig.pipeline.calling.structural.gripss;
 
 import java.util.Optional;
 
@@ -7,13 +7,7 @@ import com.hartwig.pipeline.storage.GoogleStorageLocation;
 
 import org.immutables.value.Value;
 
-@Value.Immutable
-public interface StructuralCallerPostProcessOutput extends StageOutput {
-
-    @Override
-    default String name() {
-        return StructuralCallerPostProcess.NAMESPACE;
-    }
+public interface GripssOutput extends StageOutput {
 
     Optional<GoogleStorageLocation> maybeFilteredVcf();
 
@@ -37,9 +31,5 @@ public interface StructuralCallerPostProcessOutput extends StageOutput {
 
     default GoogleStorageLocation fullVcfIndex() {
         return maybeFullVcfIndex().orElseThrow(() -> new IllegalStateException("No full VCF index available"));
-    }
-
-    static ImmutableStructuralCallerPostProcessOutput.Builder builder() {
-        return ImmutableStructuralCallerPostProcessOutput.builder();
     }
 }

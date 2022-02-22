@@ -13,23 +13,15 @@ import com.hartwig.pipeline.calling.germline.GermlineCaller;
 import com.hartwig.pipeline.calling.sage.SageGermlineCaller;
 import com.hartwig.pipeline.calling.sage.SageSomaticCaller;
 import com.hartwig.pipeline.calling.structural.StructuralCaller;
-import com.hartwig.pipeline.calling.structural.StructuralCallerPostProcess;
+import com.hartwig.pipeline.calling.structural.gripss.GripssGermline;
+import com.hartwig.pipeline.calling.structural.gripss.GripssSomatic;
 import com.hartwig.pipeline.cram.CramConversion;
 import com.hartwig.pipeline.flagstat.Flagstat;
 import com.hartwig.pipeline.metrics.BamMetrics;
 import com.hartwig.pipeline.snpgenotype.SnpGenotype;
 import com.hartwig.pipeline.tertiary.amber.Amber;
-import com.hartwig.pipeline.tertiary.chord.Chord;
 import com.hartwig.pipeline.tertiary.cobalt.Cobalt;
-import com.hartwig.pipeline.tertiary.cuppa.Cuppa;
-import com.hartwig.pipeline.tertiary.healthcheck.HealthChecker;
-import com.hartwig.pipeline.tertiary.linx.Linx;
-import com.hartwig.pipeline.tertiary.orange.Orange;
-import com.hartwig.pipeline.tertiary.peach.Peach;
-import com.hartwig.pipeline.tertiary.protect.Protect;
 import com.hartwig.pipeline.tertiary.purple.Purple;
-import com.hartwig.pipeline.tertiary.sigs.Sigs;
-import com.hartwig.pipeline.tertiary.virus.VirusAnalysis;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -52,26 +44,8 @@ public class StartingPoint {
                         Cobalt.NAMESPACE,
                         Amber.NAMESPACE,
                         SageGermlineCaller.NAMESPACE))),
-        GRIPSS_COMPLETE(concat(CALLING_COMPLETE.namespaces, List.of(StructuralCallerPostProcess.NAMESPACE))),
-        PURPLE_COMPLETE(concat(GRIPSS_COMPLETE.namespaces, List.of(Purple.NAMESPACE))),
-        ORANGE(concat(PURPLE_COMPLETE.namespaces,
-                List.of(Linx.NAMESPACE,
-                        Chord.NAMESPACE,
-                        HealthChecker.NAMESPACE,
-                        Sigs.NAMESPACE,
-                        Peach.NAMESPACE,
-                        Cuppa.NAMESPACE,
-                        Protect.NAMESPACE,
-                        VirusAnalysis.NAMESPACE))),
-        CUPPA(concat(PURPLE_COMPLETE.namespaces,
-                List.of(Linx.NAMESPACE,
-                        Chord.NAMESPACE,
-                        HealthChecker.NAMESPACE,
-                        Sigs.NAMESPACE,
-                        Peach.NAMESPACE,
-                        Orange.NAMESPACE,
-                        Protect.NAMESPACE,
-                        VirusAnalysis.NAMESPACE)));
+        GRIPSS_COMPLETE(concat(CALLING_COMPLETE.namespaces, List.of(GripssSomatic.NAMESPACE, GripssGermline.NAMESPACE))),
+        PURPLE_COMPLETE(concat(GRIPSS_COMPLETE.namespaces, List.of(Purple.NAMESPACE)));
 
         private final List<String> namespaces;
 

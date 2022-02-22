@@ -1,7 +1,5 @@
 package com.hartwig.pipeline.calling.structural.gripss;
 
-import static java.lang.String.format;
-
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
@@ -31,21 +29,21 @@ import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
-public class GripssSomatic implements Stage<GripssSomaticOutput, SomaticRunMetadata> {
-    public static final String NAMESPACE = "gripss_somatic";
+public class GripssGermline implements Stage<GripssGermlineOutput, SomaticRunMetadata> {
+    public static final String NAMESPACE = "gripss_germline";
 
-    private static final String GRIPSS_SOMATIC_FILTERED = ".gripss.filtered.somatic.";
-    private static final String GRIPSS_SOMATIC_UNFILTERED = ".gripss.somatic.";
+    private static final String GRIPSS_GERMLINE_FILTERED = ".gripss.filtered.germline.";
+    private static final String GRIPSS_GERMLINE_UNFILTERED = ".gripss.germline.";
 
     private final InputDownload gridssVcf;
     private final InputDownload gridssVcfIndex;
 
     private final ResourceFiles resourceFiles;
     private final PersistedDataset persistedDataset;
-    private String somaticUnfilteredVcf;
-    private String somaticFilteredVcf;
+    private String germlineUnfilteredVcf;
+    private String germlineFilteredVcf;
 
-    public GripssSomatic(final ResourceFiles resourceFiles, StructuralCallerOutput structuralCallerOutput,
+    public GripssGermline(final ResourceFiles resourceFiles, StructuralCallerOutput structuralCallerOutput,
             final PersistedDataset persistedDataset) {
         this.resourceFiles = resourceFiles;
         gridssVcf = new InputDownload(structuralCallerOutput.unfilteredVcf());
@@ -65,22 +63,18 @@ public class GripssSomatic implements Stage<GripssSomaticOutput, SomaticRunMetad
 
     @Override
     public List<BashCommand> commands(final SomaticRunMetadata metadata) {
-        String tumorSampleName = metadata.tumor().sampleName();
         String referenceSampleName = metadata.reference().sampleName();
-        somaticFilteredVcf = filteredVcf(tumorSampleName);
-        somaticUnfilteredVcf = unfilteredVcf(tumorSampleName);
-        return Collections.singletonList(new GripssCommand(resourceFiles,
-                tumorSampleName,
-                referenceSampleName,
-                gridssVcf.getLocalTargetPath()));
+        germlineFilteredVcf = filteredVcf(referenceSampleName);
+        germlineUnfilteredVcf = unfilteredVcf(referenceSampleName);
+        return Collections.singletonList(new GripssCommand(resourceFiles, referenceSampleName, gridssVcf.getLocalTargetPath()));
     }
 
-    private static String unfilteredVcf(final String tumorSampleName) {
-        return tumorSampleName + GRIPSS_SOMATIC_UNFILTERED + FileTypes.GZIPPED_VCF;
+    private static String unfilteredVcf(final String referenceSampleName) {
+        return referenceSampleName + GRIPSS_GERMLINE_UNFILTERED + FileTypes.GZIPPED_VCF;
     }
 
     private static String filteredVcf(final String referenceSampleName) {
-        return referenceSampleName + GRIPSS_SOMATIC_FILTERED + FileTypes.GZIPPED_VCF;
+        return referenceSampleName + GRIPSS_GERMLINE_FILTERED + FileTypes.GZIPPED_VCF;
     }
 
     private static String basename(String filename) {
@@ -89,76 +83,70 @@ public class GripssSomatic implements Stage<GripssSomaticOutput, SomaticRunMetad
 
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
-        return VirtualMachineJobDefinition.gripss("somatic", bash, resultsDirectory);
+        return VirtualMachineJobDefinition.gripss("germline", bash, resultsDirectory);
     }
 
     @Override
-    public GripssSomaticOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
+    public GripssGermlineOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
             final ResultsDirectory resultsDirectory) {
-        return GripssSomaticOutput.builder()
+        return GripssGermlineOutput.builder()
                 .status(jobStatus)
-                .maybeFilteredVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(somaticFilteredVcf))))
+                .maybeFilteredVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(germlineFilteredVcf))))
                 .maybeFilteredVcfIndex(GoogleStorageLocation.of(bucket.name(),
-                        FileTypes.tabixIndex(resultsDirectory.path(basename(somaticFilteredVcf)))))
-                .maybeFullVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(somaticUnfilteredVcf))))
-                .maybeFullVcfIndex(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(somaticUnfilteredVcf + ".tbi"))))
+                        FileTypes.tabixIndex(resultsDirectory.path(basename(germlineFilteredVcf)))))
+                .maybeFullVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(germlineUnfilteredVcf))))
+                .maybeFullVcfIndex(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(germlineUnfilteredVcf + ".tbi"))))
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
                         NAMESPACE,
                         Folder.root(),
-                        basename(somaticUnfilteredVcf),
-                        basename(somaticUnfilteredVcf),
+                        basename(germlineUnfilteredVcf),
+                        basename(germlineUnfilteredVcf),
                         resultsDirectory))
                 .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
                         NAMESPACE,
                         Folder.root(),
-                        basename(somaticFilteredVcf),
-                        basename(somaticFilteredVcf),
+                        basename(germlineFilteredVcf),
+                        basename(germlineFilteredVcf),
                         resultsDirectory))
                 .addReportComponents(new RunLogComponent(bucket, NAMESPACE, Folder.root(), resultsDirectory))
                 .addReportComponents(new StartupScriptComponent(bucket, NAMESPACE, Folder.root()))
-                .addDatatypes(new AddDatatype(DataType.SOMATIC_STRUCTURAL_VARIANTS_GRIPSS_RECOVERY,
+                .addDatatypes(new AddDatatype(DataType.GERMLINE_STRUCTURAL_VARIANTS_GRIPSS_RECOVERY,
                                 metadata.barcode(),
-                                new ArchivePath(Folder.root(), namespace(), basename(somaticUnfilteredVcf))),
-                        new AddDatatype(DataType.SOMATIC_STRUCTURAL_VARIANTS_GRIPSS,
+                                new ArchivePath(Folder.root(), namespace(), basename(germlineUnfilteredVcf))),
+                        new AddDatatype(DataType.GERMLINE_STRUCTURAL_VARIANTS_GRIPSS,
                                 metadata.barcode(),
-                                new ArchivePath(Folder.root(), namespace(), basename(somaticFilteredVcf))))
+                                new ArchivePath(Folder.root(), namespace(), basename(germlineFilteredVcf))))
                 .build();
     }
 
     @Override
-    public GripssSomaticOutput skippedOutput(final SomaticRunMetadata metadata) {
-        return GripssSomaticOutput.builder().status(PipelineStatus.SKIPPED).build();
+    public GripssGermlineOutput skippedOutput(final SomaticRunMetadata metadata) {
+        return GripssGermlineOutput.builder().status(PipelineStatus.SKIPPED).build();
     }
 
     @Override
-    public GripssSomaticOutput persistedOutput(final SomaticRunMetadata metadata) {
+    public GripssGermlineOutput persistedOutput(final SomaticRunMetadata metadata) {
 
-        GoogleStorageLocation somaticFilteredLocation =
-                persistedDataset.path(metadata.tumor().sampleName(), DataType.SOMATIC_STRUCTURAL_VARIANTS_GRIPSS)
+        GoogleStorageLocation filteredLocation =
+                persistedDataset.path(metadata.tumor().sampleName(), DataType.GERMLINE_STRUCTURAL_VARIANTS_GRIPSS)
                         .orElse(GoogleStorageLocation.of(metadata.bucket(),
                                 PersistedLocations.blobForSet(metadata.set(),
                                         namespace(),
-                                        format("%s.%s.%s",
-                                                metadata.tumor().sampleName(),
-                                                GripssSomatic.GRIPSS_SOMATIC_FILTERED,
-                                                FileTypes.GZIPPED_VCF))));
-        GoogleStorageLocation somaticLocation =
-                persistedDataset.path(metadata.tumor().sampleName(), DataType.SOMATIC_STRUCTURAL_VARIANTS_GRIPSS_RECOVERY)
+                                        filteredVcf(metadata.reference().sampleName()))));
+        GoogleStorageLocation unfilteredLocation =
+                persistedDataset.path(metadata.tumor().sampleName(), DataType.GERMLINE_STRUCTURAL_VARIANTS_GRIPSS_RECOVERY)
                         .orElse(GoogleStorageLocation.of(metadata.bucket(),
                                 PersistedLocations.blobForSet(metadata.set(),
                                         namespace(),
-                                        format("%s.%s.%s",
-                                                metadata.tumor().sampleName(),
-                                                GripssSomatic.GRIPSS_SOMATIC_UNFILTERED,
-                                                FileTypes.GZIPPED_VCF))));
+                                        unfilteredVcf(metadata.reference().sampleName()))));
 
-        return GripssSomaticOutput.builder()
+        return GripssGermlineOutput.builder()
                 .status(PipelineStatus.PERSISTED)
-                .maybeFilteredVcf(somaticFilteredLocation)
-                .maybeFilteredVcfIndex(somaticFilteredLocation.transform(FileTypes::tabixIndex))
-                .maybeFullVcf(somaticLocation)
-                .maybeFullVcfIndex(somaticLocation.transform(FileTypes::tabixIndex))
+                .maybeFilteredVcf(filteredLocation)
+                .maybeFilteredVcfIndex(filteredLocation.transform(FileTypes::tabixIndex))
+                .maybeFullVcf(unfilteredLocation)
+                .maybeFullVcfIndex(unfilteredLocation.transform(FileTypes::tabixIndex))
                 .build();
     }
 

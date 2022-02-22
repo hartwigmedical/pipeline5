@@ -9,6 +9,7 @@ import static com.hartwig.pipeline.resource.ResourceNames.ORANGE;
 import static com.hartwig.pipeline.resource.ResourceNames.SIGS;
 import static com.hartwig.pipeline.resource.ResourceNames.VIRUS_INTERPRETER;
 import static com.hartwig.pipeline.resource.ResourceNames.VIRUS_REFERENCE_GENOME;
+import static com.hartwig.pipeline.resource.ResourceNames.PURPLE;
 
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 
@@ -103,6 +104,8 @@ public interface ResourceFiles {
     String hlaRegionBed();
 
     String peachFilterBed();
+
+    String purpleCohortGermlineDeletions();
 
     default String cuppaRefData() {
         return of(CUPPA);
