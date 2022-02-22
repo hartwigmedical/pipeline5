@@ -34,8 +34,8 @@ import com.hartwig.pipeline.storage.RuntimeBucket;
 public class GripssSomatic implements Stage<GripssSomaticOutput, SomaticRunMetadata> {
     public static final String NAMESPACE = "gripss_somatic";
 
-    private static final String GRIPSS_SOMATIC_FILTERED = "gripss.filtered.somatic";
-    private static final String GRIPSS_SOMATIC_UNFILTERED = "gripss.somatic";
+    private static final String GRIPSS_SOMATIC_FILTERED = ".gripss.filtered.somatic.";
+    private static final String GRIPSS_SOMATIC_UNFILTERED = ".gripss.somatic.";
 
     private final InputDownload gridssVcf;
     private final InputDownload gridssVcfIndex;
