@@ -137,21 +137,11 @@ public class GripssSomatic implements Stage<GripssSomaticOutput, SomaticRunMetad
         GoogleStorageLocation somaticFilteredLocation =
                 persistedDataset.path(metadata.tumor().sampleName(), DataType.SOMATIC_STRUCTURAL_VARIANTS_GRIPSS)
                         .orElse(GoogleStorageLocation.of(metadata.bucket(),
-                                PersistedLocations.blobForSet(metadata.set(),
-                                        namespace(),
-                                        format("%s.%s.%s",
-                                                metadata.tumor().sampleName(),
-                                                GripssSomatic.GRIPSS_SOMATIC_FILTERED,
-                                                FileTypes.GZIPPED_VCF))));
+                                PersistedLocations.blobForSet(metadata.set(), namespace(), filteredVcf(metadata.tumor().sampleName()))));
         GoogleStorageLocation somaticLocation =
                 persistedDataset.path(metadata.tumor().sampleName(), DataType.SOMATIC_STRUCTURAL_VARIANTS_GRIPSS_RECOVERY)
                         .orElse(GoogleStorageLocation.of(metadata.bucket(),
-                                PersistedLocations.blobForSet(metadata.set(),
-                                        namespace(),
-                                        format("%s.%s.%s",
-                                                metadata.tumor().sampleName(),
-                                                GripssSomatic.GRIPSS_SOMATIC_UNFILTERED,
-                                                FileTypes.GZIPPED_VCF))));
+                                PersistedLocations.blobForSet(metadata.set(), namespace(), unfilteredVcf(metadata.tumor().sampleName()))));
 
         return GripssSomaticOutput.builder()
                 .status(PipelineStatus.PERSISTED)
