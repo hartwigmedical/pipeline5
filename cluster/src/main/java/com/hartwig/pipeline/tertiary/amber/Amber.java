@@ -56,10 +56,10 @@ public class Amber extends TertiaryStage<AmberOutput> {
 
     @Override
     public List<BashCommand> somaticCommands(final SomaticRunMetadata metadata) {
-        return singletonList(AmberCommandBuilder.newBuilder(resourceFiles)
+        return List.of(AmberCommandBuilder.newBuilder(resourceFiles)
                 .tumor(metadata.tumor().sampleName(), getTumorBamDownload().getLocalTargetPath())
                 .reference(metadata.reference().sampleName(), getReferenceBamDownload().getLocalTargetPath())
-                .build());
+                .build(), new CopyResourceToOutput(resourceFiles.amberSnpcheck()));
     }
 
     @Override

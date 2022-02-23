@@ -66,6 +66,7 @@ public class AmberTest extends TertiaryStageTest<AmberOutput> {
     protected List<String> expectedCommands() {
         return List.of("java -Xmx32G -cp /opt/tools/amber/3.6/amber.jar com.hartwig.hmftools.amber.AmberApplication -ref_genome "
                 + "/opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta -loci /opt/resources/amber/37/GermlineHetPon.37.vcf.gz "
-                + "-tumor tumor -tumor_bam /data/input/tumor.bam -reference reference -reference_bam /data/input/reference.bam -output_dir /data/output");
+                + "-tumor tumor -tumor_bam /data/input/tumor.bam -reference reference -reference_bam /data/input/reference.bam "
+                + "-output_dir /data/output", "cp /opt/resources/amber/37/Amber.snpcheck.37.vcf /data/output");
     }
 }
