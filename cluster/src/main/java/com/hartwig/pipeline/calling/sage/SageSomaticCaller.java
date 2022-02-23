@@ -99,5 +99,4 @@ public class SageSomaticCaller extends SageCaller {
         return super.outputBuilder(metadata, jobStatus, bucket, resultsDirectory)
                 .addReportComponents(singleFileComponent(geneCoverageFile, bucket, resultsDirectory));
     }
-
 }

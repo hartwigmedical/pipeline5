@@ -54,7 +54,7 @@ public class DiagnosticSomaticMetadataApi implements SomaticMetadataApi {
         String ini = run.getIni();
         if (Ini.SINGLESAMPLE_INI.getValue().equals(ini)) {
             LOGGER.info("Somatic run is using single sample configuration. No algorithms will be run, just transfer and cleanup");
-            return SomaticRunMetadata.builder().bucket(runBucket).set(set.getName()).reference(reference).build();
+            return SomaticRunMetadata.builder().bucket(runBucket).set(set.getName()).maybeReference(reference).build();
         } else {
             SingleSampleRunMetadata tumor = find(SampleType.TUMOR, samplesBySet).map(referenceSample -> toMetadata(referenceSample,
                     run,
@@ -63,7 +63,7 @@ public class DiagnosticSomaticMetadataApi implements SomaticMetadataApi {
                     .orElseThrow((() -> new IllegalStateException(String.format(
                             "No tumor sample found in SBP for set [%s] and this run was not marked as single sample",
                             set.getName()))));
-            return SomaticRunMetadata.builder().bucket(runBucket).set(set.getName()).reference(reference).maybeTumor(tumor).build();
+            return SomaticRunMetadata.builder().bucket(runBucket).set(set.getName()).maybeReference(reference).maybeTumor(tumor).build();
         }
     }
 

@@ -21,6 +21,7 @@ import com.hartwig.pipeline.resource.ResourceFilesFactory;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.cobalt.CobaltApplicationCommand;
+import com.hartwig.pipeline.tertiary.cobalt.CobaltCommandBuilder;
 
 public class CobaltRerun implements BatchOperation {
 
@@ -53,11 +54,11 @@ public class CobaltRerun implements BatchOperation {
         commands.addCommand(() -> remoteReferenceIndex.toCommandForm(localFilename(remoteReferenceIndex)));
 
         final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.V37);
-        commands.addCommand(() -> new CobaltApplicationCommand(resourceFiles,
-                referenceSampleName,
-                localReferenceFile,
-                tumorSampleName,
-                localTumorFile).asBash());
+        commands.addCommand(() -> CobaltCommandBuilder.newBuilder(resourceFiles)
+                .reference(referenceSampleName, localReferenceFile)
+                .tumor(tumorSampleName, localTumorFile)
+                .build()
+                .asBash());
 
         // Store output
         final GoogleStorageLocation archiveStorageLocation = cobaltArchiveDirectory(set);

@@ -12,7 +12,7 @@ import com.hartwig.pipeline.metadata.SingleSampleRunMetadata.SampleType;
 public class LocalSomaticMetadata implements SomaticMetadataApi {
 
     private final Arguments arguments;
-    private JsonSampleSource jsonSampleSource;
+    private final JsonSampleSource jsonSampleSource;
 
     LocalSomaticMetadata(final Arguments arguments, JsonSampleSource jsonSampleSource) {
         this.arguments = arguments;
@@ -22,7 +22,7 @@ public class LocalSomaticMetadata implements SomaticMetadataApi {
     @Override
     public SomaticRunMetadata get() {
         String setId = RunTag.apply(arguments, arguments.setId());
-        Sample reference = jsonSampleSource.sample(SampleType.REFERENCE).orElseThrow();
+        Optional<Sample> reference = jsonSampleSource.sample(SampleType.REFERENCE);
         Optional<Sample> tumor = jsonSampleSource.sample(SampleType.TUMOR);
 
         return SomaticRunMetadata.builder()
@@ -36,13 +36,13 @@ public class LocalSomaticMetadata implements SomaticMetadataApi {
                         .sampleName(t.name())
                         .primaryTumorDoids(t.primaryTumorDoids())
                         .build()))
-                .reference(SingleSampleRunMetadata.builder()
+                .maybeReference(reference.map(r -> SingleSampleRunMetadata.builder()
                         .bucket(arguments.outputBucket())
                         .set(setId)
                         .type(SingleSampleRunMetadata.SampleType.REFERENCE)
-                        .barcode(reference.name())
-                        .sampleName(reference.name())
-                        .build())
+                        .barcode(r.name())
+                        .sampleName(r.name())
+                        .build()))
                 .build();
     }
 

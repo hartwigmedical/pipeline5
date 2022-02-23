@@ -20,7 +20,7 @@ public interface PipelineProperties {
 
     String type();
 
-    String referenceBarcode();
+    Optional<String> referenceBarcode();
 
     Optional<String> tumorBarcode();
 

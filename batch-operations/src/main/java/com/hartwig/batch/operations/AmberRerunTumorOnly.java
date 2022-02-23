@@ -20,7 +20,7 @@ import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.resource.ResourceFilesFactory;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
-import com.hartwig.pipeline.tertiary.amber.AmberApplicationCommand;
+import com.hartwig.pipeline.tertiary.amber.AmberCommandBuilder;
 
 public class AmberRerunTumorOnly implements BatchOperation {
 
@@ -45,9 +45,7 @@ public class AmberRerunTumorOnly implements BatchOperation {
         commands.addCommand(() -> remoteTumorIndex.toCommandForm(localFilename(remoteTumorIndex)));
 
         final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.V37);
-        commands.addCommand(() -> new AmberApplicationCommand(resourceFiles,
-                tumorSampleName,
-                localTumorFile).asBash());
+        commands.addCommand(() -> AmberCommandBuilder.newBuilder(resourceFiles).tumor(tumorSampleName, localTumorFile).build().asBash());
 
         // Store output
         final GoogleStorageLocation archiveStorageLocation = amberArchiveDirectory(set);

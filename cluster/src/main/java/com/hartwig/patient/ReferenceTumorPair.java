@@ -10,7 +10,7 @@ import org.immutables.value.Value;
 @Value.Immutable
 public interface ReferenceTumorPair {
 
-    Sample reference();
+    Optional<Sample> reference();
 
     Optional<Sample> tumor();
 }

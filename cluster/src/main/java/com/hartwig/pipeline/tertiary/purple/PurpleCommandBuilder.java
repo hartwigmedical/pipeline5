@@ -74,6 +74,8 @@ public class PurpleCommandBuilder {
                 arguments.add(germlineVcf);
                 arguments.add("-germline_hotspots");
                 arguments.add(resourceFiles.sageGermlineHotspots());
+                arguments.add("-germline_del_freq_file");
+                arguments.add(resourceFiles.purpleCohortGermlineDeletions());
             }
         }
 

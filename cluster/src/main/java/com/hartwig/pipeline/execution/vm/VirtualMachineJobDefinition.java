@@ -106,11 +106,11 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .build();
     }
 
-    static VirtualMachineJobDefinition structuralPostProcessCalling(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
+    static VirtualMachineJobDefinition gripss(String type, BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
         return ImmutableVirtualMachineJobDefinition.builder()
-                .name("gripss")
+                .name("gripss-" + type)
                 .startupCommand(startupScript)
-                .performanceProfile(custom(6, 30))
+                .performanceProfile(custom(4, 24))
                 .namespacedResults(resultsDirectory)
                 .build();
     }
@@ -197,9 +197,9 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .build();
     }
 
-    static VirtualMachineJobDefinition linx(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
+    static VirtualMachineJobDefinition linx(String type, BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
         return ImmutableVirtualMachineJobDefinition.builder()
-                .name("linx")
+                .name("linx-" + type)
                 .startupCommand(startupScript)
                 .namespacedResults(resultsDirectory)
                 .performanceProfile(custom(4, 12))
