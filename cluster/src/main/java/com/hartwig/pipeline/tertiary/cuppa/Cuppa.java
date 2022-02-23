@@ -30,7 +30,7 @@ import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
-import com.hartwig.pipeline.tertiary.linx.LinxOutput;
+import com.hartwig.pipeline.tertiary.linx.LinxSomaticOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
 import com.hartwig.pipeline.tools.Versions;
@@ -45,13 +45,13 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
     private final InputDownload purpleSomaticVcfDownload;
     private final InputDownload purpleStructuralVcfDownload;
     private final InputDownload purpleOutputDirectory;
-    private final LinxOutput linxOutput;
+    private final LinxSomaticOutput linxOutput;
 
     private final ResourceFiles resourceFiles;
 
     private final PersistedDataset persistedDataset;
 
-    public Cuppa(final PurpleOutput purpleOutput, final LinxOutput linxOutput, final ResourceFiles resourceFiles,
+    public Cuppa(final PurpleOutput purpleOutput, final LinxSomaticOutput linxOutput, final ResourceFiles resourceFiles,
             final PersistedDataset persistedDataset) {
         this.purpleSomaticVcfDownload = new InputDownload(purpleOutput.maybeOutputLocations()
                 .map(PurpleOutputLocations::somaticVcf)

@@ -5,11 +5,16 @@ import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import org.immutables.value.Value;
 
 @Value.Immutable
-public interface LinxOutputLocations {
+public interface LinxSomaticOutputLocations
+{
 
     GoogleStorageLocation fusions();
 
     GoogleStorageLocation breakends();
+
+    GoogleStorageLocation svAnnotations();
+
+    GoogleStorageLocation clusters();
 
     GoogleStorageLocation driverCatalog();
 
@@ -17,7 +22,7 @@ public interface LinxOutputLocations {
 
     GoogleStorageLocation outputDirectory();
 
-    static ImmutableLinxOutputLocations.Builder builder() {
-        return ImmutableLinxOutputLocations.builder();
+    static ImmutableLinxSomaticOutputLocations.Builder builder() {
+        return ImmutableLinxSomaticOutputLocations.builder();
     }
 }

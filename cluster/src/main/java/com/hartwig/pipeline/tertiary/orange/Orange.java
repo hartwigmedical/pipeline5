@@ -32,13 +32,15 @@ import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.chord.ChordOutput;
 import com.hartwig.pipeline.tertiary.cuppa.CuppaOutput;
 import com.hartwig.pipeline.tertiary.cuppa.CuppaOutputLocations;
-import com.hartwig.pipeline.tertiary.linx.Linx;
-import com.hartwig.pipeline.tertiary.linx.LinxOutput;
-import com.hartwig.pipeline.tertiary.linx.LinxOutputLocations;
+import com.hartwig.pipeline.tertiary.linx.LinxSomatic;
+import com.hartwig.pipeline.tertiary.linx.LinxSomaticOutput;
+import com.hartwig.pipeline.tertiary.linx.LinxSomaticOutputLocations;
+import com.hartwig.pipeline.tertiary.linx.LinxSomatic;
 import com.hartwig.pipeline.tertiary.peach.PeachOutput;
 import com.hartwig.pipeline.tertiary.protect.ProtectOutput;
 import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
+import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
 import com.hartwig.pipeline.tertiary.virus.VirusOutput;
 import com.hartwig.pipeline.tools.Versions;
@@ -50,7 +52,7 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
     private static final String ORANGE_OUTPUT_PDF = ".orange.pdf";
     private static final String MAX_EVIDENCE_LEVEL = "C";
     private static final String LOCAL_PURPLE_DIR = VmDirectories.INPUT + "/" + Purple.NAMESPACE;
-    private static final String LOCAL_LINX_DIR = VmDirectories.INPUT + "/" + Linx.NAMESPACE;
+    private static final String LOCAL_LINX_DIR = VmDirectories.INPUT + "/" + LinxSomatic.NAMESPACE;
 
     private final ResourceFiles resourceFiles;
     private final InputDownload refMetrics;
@@ -83,8 +85,8 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
 
     public Orange(final BamMetricsOutput tumorMetrics, final BamMetricsOutput referenceMetrics, final FlagstatOutput tumorFlagstat,
             final FlagstatOutput referenceFlagstat, final SageOutput sageSomaticOutput, final SageOutput sageGermlineOutput,
-            final PurpleOutput purpleOutput, final ChordOutput chordOutput, final LinxOutput linxOutput, final CuppaOutput cuppaOutput,
-            final VirusOutput virusOutput, final ProtectOutput protectOutput, final PeachOutput peachOutput,
+            final PurpleOutput purpleOutput, final ChordOutput chordOutput, final LinxSomaticOutput linxOutput,
+            final CuppaOutput cuppaOutput, final VirusOutput virusOutput, final ProtectOutput protectOutput, final PeachOutput peachOutput,
             final ResourceFiles resourceFiles) {
 
         this.resourceFiles = resourceFiles;
@@ -106,11 +108,11 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
                 new InputDownload(sageSomaticOutput.maybeSomaticRefSampleBqrPlot().orElse(GoogleStorageLocation.empty()));
         this.sageSomaticTumorSampleBqrPlot =
                 new InputDownload(sageSomaticOutput.maybeSomaticTumorSampleBqrPlot().orElse(GoogleStorageLocation.empty()));
-        this.linxOutputDir = new InputDownload(linxOrEmpty(linxOutput, LinxOutputLocations::outputDirectory), LOCAL_LINX_DIR);
-        this.linxFusionTsv = new InputDownload(linxOrEmpty(linxOutput, LinxOutputLocations::fusions));
-        this.linxBreakEndTsv = new InputDownload(linxOrEmpty(linxOutput, LinxOutputLocations::breakends));
-        this.linxDriverCatalogTsv = new InputDownload(linxOrEmpty(linxOutput, LinxOutputLocations::driverCatalog));
-        this.linxDriverTsv = new InputDownload(linxOrEmpty(linxOutput, LinxOutputLocations::drivers));
+        this.linxOutputDir = new InputDownload(linxOrEmpty(linxOutput, LinxSomaticOutputLocations::outputDirectory), LOCAL_LINX_DIR);
+        this.linxFusionTsv = new InputDownload(linxOrEmpty(linxOutput, LinxSomaticOutputLocations::fusions));
+        this.linxBreakEndTsv = new InputDownload(linxOrEmpty(linxOutput, LinxSomaticOutputLocations::breakends));
+        this.linxDriverCatalogTsv = new InputDownload(linxOrEmpty(linxOutput, LinxSomaticOutputLocations::driverCatalog));
+        this.linxDriverTsv = new InputDownload(linxOrEmpty(linxOutput, LinxSomaticOutputLocations::drivers));
         this.chordPredictionTxt = new InputDownload(chordOutput.maybePredictions().orElse(GoogleStorageLocation.empty()));
         this.cuppaResultCsv = new InputDownload(cuppaOrEmpty(cuppaOutput, CuppaOutputLocations::resultCsv));
         this.cuppaSummaryPlot = new InputDownload(cuppaOrEmpty(cuppaOutput, CuppaOutputLocations::summaryChartPng));
@@ -125,8 +127,8 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
         return purpleOutput.maybeOutputLocations().map(extractor).orElse(GoogleStorageLocation.empty());
     }
 
-    public GoogleStorageLocation linxOrEmpty(final LinxOutput linxOutput,
-            final Function<LinxOutputLocations, GoogleStorageLocation> extractor) {
+    public GoogleStorageLocation linxOrEmpty(final LinxSomaticOutput linxOutput,
+            final Function<LinxSomaticOutputLocations, GoogleStorageLocation> extractor) {
         return linxOutput.maybeLinxOutputLocations().map(extractor).orElse(GoogleStorageLocation.empty());
     }
 

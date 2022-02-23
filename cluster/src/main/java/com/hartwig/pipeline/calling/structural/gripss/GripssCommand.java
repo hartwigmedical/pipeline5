@@ -33,4 +33,29 @@ public class GripssCommand extends JavaJarCommand
                 VmDirectories.OUTPUT,
                 "-output_id somatic").build());
     }
+
+    public GripssCommand(
+            final ResourceFiles resourceFiles, final String refSample, final String inputVcf) {
+        super("gripss",
+                Versions.GRIPSS,
+                "gripss.jar",
+                "16G",
+                ImmutableList.<String>builder().add(
+                        "-ref_genome",
+                        resourceFiles.refGenomeFile(),
+                        "-known_hotspot_file",
+                        resourceFiles.knownFusionPairBedpe(),
+                        "-pon_sgl_file",
+                        resourceFiles.gridssBreakendPon(),
+                        "-pon_sv_file",
+                        resourceFiles.gridssBreakpointPon(),
+                        "-sample",
+                        refSample,
+                        "-vcf",
+                        inputVcf,
+                        "-output_dir",
+                        VmDirectories.OUTPUT,
+                        "-output_id germline").build());
+    }
+
 }

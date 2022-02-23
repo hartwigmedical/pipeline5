@@ -10,8 +10,7 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
-import com.hartwig.pipeline.calling.sage.SageOutput;
-import com.hartwig.pipeline.calling.structural.StructuralCallerPostProcessOutput;
+import com.hartwig.pipeline.calling.structural.gripss.GripssSomaticOutput;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
@@ -64,8 +63,8 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
     private final boolean shallow;
     private final boolean sageGermlineEnabled;
 
-    public Purple(final ResourceFiles resourceFiles, final PaveOutput somaticCallerOutput, final PaveOutput germlineCallerOutput,
-            final StructuralCallerPostProcessOutput structuralCallerOutput, final AmberOutput amberOutput, final CobaltOutput cobaltOutput,
+    public Purple(final ResourceFiles resourceFiles, PaveOutput somaticCallerOutput, PaveOutput germlineCallerOutput,
+            GripssSomaticOutput structuralCallerOutput, AmberOutput amberOutput, CobaltOutput cobaltOutput,
             final PersistedDataset persistedDataset, final boolean shallow, final boolean sageGermlineEnabled) {
         this.resourceFiles = resourceFiles;
         this.somaticVcfDownload = new InputDownload(somaticCallerOutput.maybeFinalVcf().orElse(GoogleStorageLocation.empty()));
