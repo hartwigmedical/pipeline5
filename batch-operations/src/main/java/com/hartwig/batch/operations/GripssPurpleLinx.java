@@ -3,6 +3,12 @@ package com.hartwig.batch.operations;
 import static java.lang.String.format;
 
 import static com.hartwig.batch.operations.BatchCommon.BATCH_TOOLS_DIR;
+import static com.hartwig.batch.operations.BatchCommon.GRIPSS_DIR;
+import static com.hartwig.batch.operations.BatchCommon.GRIPSS_JAR;
+import static com.hartwig.batch.operations.BatchCommon.LINX_DIR;
+import static com.hartwig.batch.operations.BatchCommon.LINX_JAR;
+import static com.hartwig.batch.operations.BatchCommon.PURPLE_DIR;
+import static com.hartwig.batch.operations.BatchCommon.PURPLE_JAR;
 import static com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile.custom;
 
 import java.util.Arrays;
@@ -36,15 +42,6 @@ import com.hartwig.pipeline.tools.Versions;
 public class GripssPurpleLinx implements BatchOperation {
 
     private static String COMBINED_OUTPUT_DIR = "gs://hmf-sv-analysis/gpl_batch";
-
-    private static String GRIPSS_DIR = "gripss";
-    private static String GRIPSS_JAR = "gripss.jar";
-
-    private static String PURPLE_DIR = "purple";
-    private static String PURPLE_JAR = "purple.jar";
-
-    private static String LINX_DIR = "linx";
-    private static String LINX_JAR = "linx.jar";
 
     private static String PAVE_JAR = "/pave/1.0/pave.jar";
 

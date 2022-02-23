@@ -35,6 +35,7 @@ public class Driver extends SubStage {
 
     @Override
     public List<BashCommand> bash(final OutputFile input, final OutputFile output) {
+
         return Lists.newArrayList(new VersionedToolCommand(GRIDSS,
                 "gridss",
                 Versions.GRIDSS,

@@ -13,11 +13,15 @@ public class VersionedToolCommand implements BashCommand {
     private final String version;
     private final List<String> arguments;
 
-    public VersionedToolCommand(final String toolName, final String toolBinaryName, final String version, final String... arguments) {
+    public VersionedToolCommand(final String toolName, final String toolBinaryName, final String version, final List<String> arguments) {
         this.toolName = toolName;
         this.toolBinaryName = toolBinaryName;
         this.version = version;
-        this.arguments = Arrays.asList(arguments);
+        this.arguments = arguments;
+    }
+
+    public VersionedToolCommand(final String toolName, final String toolBinaryName, final String version, final String... arguments) {
+        this(toolName, toolBinaryName, version, Arrays.asList(arguments));
     }
 
     @Override

@@ -4,7 +4,12 @@ import static java.lang.String.format;
 
 import static com.hartwig.batch.operations.BatchCommon.BATCH_RESOURCE_DIR;
 import static com.hartwig.batch.operations.BatchCommon.BATCH_TOOLS_DIR;
+import static com.hartwig.batch.operations.BatchCommon.GNOMAD_DIR;
+import static com.hartwig.batch.operations.BatchCommon.PANEL_BAM_BUCKET;
+import static com.hartwig.batch.operations.BatchCommon.PAVE_DIR;
+import static com.hartwig.batch.operations.BatchCommon.PAVE_JAR;
 import static com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile.custom;
+import static com.hartwig.pipeline.tools.Versions.BCF_TOOLS;
 
 import java.util.StringJoiner;
 
@@ -25,10 +30,10 @@ import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.resource.ResourceFilesFactory;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
+import com.hartwig.pipeline.tools.Versions;
 
 public class SagePanelTumor implements BatchOperation {
 
-    private static final String PANEL_BAM_BUCKET = "gs://hmf-crunch-experiments/211005_david_FUNC-89_panel-v2-coverage-analysis/bam/VALEXP07";
     private static final String SAGE_DIR = "sage";
     private static final String SAGE_JAR = "sage.jar";
     private static final String PANEL_BED = "primary_targets_restricted_transcripts.bed";
@@ -49,13 +54,19 @@ public class SagePanelTumor implements BatchOperation {
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s/%s %s",
                 BATCH_RESOURCE_DIR, SAGE_DIR, PANEL_BED, VmDirectories.INPUT));
 
+        startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s/%s %s",
+                BATCH_TOOLS_DIR, PAVE_DIR, PAVE_JAR, VmDirectories.TOOLS));
+
+        startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s/38/* %s",
+                BATCH_RESOURCE_DIR, GNOMAD_DIR, VmDirectories.INPUT));
+
         // download tumor BAM
         final String tumorBam = String.format("%s.non_umi_dedup.bam", sampleId);
 
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s* %s",
                 PANEL_BAM_BUCKET, tumorBam, VmDirectories.INPUT));
 
-        final String outputVcf = String.format("%s/%s.sage.somatic.vcf.gz", VmDirectories.OUTPUT, sampleId);
+        final String sageVcf = String.format("%s/%s.sage.somatic.vcf.gz", VmDirectories.OUTPUT, sampleId);
 
         // run Sage
         final StringJoiner sageArgs = new StringJoiner(" ");
@@ -69,7 +80,7 @@ public class SagePanelTumor implements BatchOperation {
         sageArgs.add(String.format("-ref_genome_version %s", resourceFiles.version().toString()));
         sageArgs.add(String.format("-ensembl_data_dir %s", resourceFiles.ensemblDataCache()));
         sageArgs.add(String.format("-coverage_bed %s/%s", VmDirectories.INPUT, PANEL_BED));
-        sageArgs.add(String.format("-out %s", outputVcf));
+        sageArgs.add(String.format("-out %s", sageVcf));
 
         // sageArgs.add(String.format("-max_read_depth 1000000"));
         // sageArgs.add(String.format("-max_read_depth_panel 1000000"));
@@ -80,6 +91,72 @@ public class SagePanelTumor implements BatchOperation {
         sageArgs.add(String.format("-threads %s", Bash.allCpus()));
 
         startupScript.addCommand(() -> format("java -Xmx48G -jar %s/%s %s", VmDirectories.TOOLS, SAGE_JAR, sageArgs.toString()));
+
+        // annotate with PON
+        // outputVcf
+
+        String bcfTools = String.format("%s/bcftools/%s/bcftools", VmDirectories.TOOLS, Versions.BCF_TOOLS);
+        String ponVcf = String.format("%s/%s.sage.somatic.pon.vcf.gz", VmDirectories.OUTPUT, sampleId);
+
+        // /data/tools/bcftools/1.9/bcftools annotate -a /data/resources/bucket/sage/37/SageGermlinePon.1000x.37.vcf.gz
+        // -c PON_COUNT,PON_MAX
+        // FR16648814.sage.somatic.vcf.gz
+        // -O z
+        // -o FR16648814.sage.somatic.annotated.vcf.gz
+
+        final StringJoiner ponArgs = new StringJoiner(" ");
+        ponArgs.add(String.format("-a %s", resourceFiles.sageGermlinePon()));
+        ponArgs.add("-c PON_COUNT,PON_MAX");
+        ponArgs.add(String.format("%s", sageVcf));
+        ponArgs.add("-O z");
+        ponArgs.add(String.format("-o %s", ponVcf));
+
+        startupScript.addCommand(() -> format("%s annotate %s", bcfTools, ponArgs.toString()));
+
+        ///data/tools/bcftools/1.9/bcftools filter
+        // -e ‘PON_COUNT!=“.” && INFO/TIER=“HOTSPOT” && PON_MAX>=5 && PON_COUNT >= 5’
+        // -s PON -m+ FR16648814.sage.somatic.annotated.vcf.gz -O u
+        // | /data/tools/bcftools/1.9/bcftools filter -e ‘PON_COUNT!=“.” && INFO/TIER=“PANEL” && PON_MAX>=5 && PON_COUNT >= 2’
+        // -s PON -m+ -O u | /data/tools/bcftools/1.9/bcftools filter -e ‘PON_COUNT!=“.” && INFO/TIER!=“HOTSPOT” && INFO/TIER!=“PANEL” && PON_COUNT >= 2’
+        // -s PON -m+ -O z -o FR16648814.sage.somatic.pon_filtered.vcf.gz
+
+        String ponFilterVcf = String.format("%s/%s.sage.somatic.pon_filter.vcf.gz", VmDirectories.OUTPUT, sampleId);
+
+        // private static final String HOTSPOT = "INFO/TIER=\"HOTSPOT\" && PON_MAX>=%s && PON_COUNT >= %s";
+        // private static final String PANEL = "INFO/TIER=\"PANEL\" && PON_MAX>=%s && PON_COUNT >= %s";
+        // private static final String OTHER = "INFO/TIER!=\"HOTSPOT\" && INFO/TIER!=\"PANEL\" && PON_COUNT >= %s";
+
+        final StringJoiner ponFilterArgs = new StringJoiner(" ");
+        ponFilterArgs.add("-e 'PON_COUNT!=\".\" && INFO/TIER=\"HOTSPOT\" && PON_MAX>=5 && PON_COUNT >= 5'");
+        ponFilterArgs.add(String.format("-s PON -m+ %s -O u", ponVcf));
+        ponFilterArgs.add(String.format("| %s filter -e 'PON_COUNT!=\".\" && INFO/TIER=\"PANEL\" && PON_MAX>=5 && PON_COUNT >= 2'", bcfTools));
+        ponFilterArgs.add(String.format("-s PON -m+ -O u | %s filter -e 'PON_COUNT!=\".\" && INFO/TIER!=\"HOTSPOT\" && INFO/TIER!=\"PANEL\" && PON_COUNT >= 2'", bcfTools));
+        ponFilterArgs.add(String.format("-s PON -m+ -O z -o %s", ponFilterVcf));
+
+        startupScript.addCommand(() -> format("%s filter %s", bcfTools, ponFilterArgs.toString()));
+
+        // finally run Pave
+        final StringJoiner paveArgs = new StringJoiner(" ");
+
+        final String paveVcf = String.format("%s/%s.sage.somatic.pon.pave_pass.vcf.gz", VmDirectories.OUTPUT, sampleId);
+
+        paveArgs.add(String.format("-sample %s", sampleId));
+        paveArgs.add(String.format("-vcf_file %s", ponFilterVcf));
+
+        paveArgs.add(String.format("-ref_genome %s", resourceFiles.refGenomeFile()));
+        paveArgs.add(String.format("-ref_genome_version %s", resourceFiles.version().toString()));
+        paveArgs.add(String.format("-driver_gene_panel %s", resourceFiles.driverGenePanel()));
+        paveArgs.add(String.format("-ensembl_data_dir %s", resourceFiles.ensemblDataCache()));
+        paveArgs.add("-only_canonical");
+        paveArgs.add("-filter_pass");
+        paveArgs.add(String.format("-gnomad_freq_dir %s", VmDirectories.INPUT));
+        paveArgs.add("-gnomad_load_chr_on_demand");
+        paveArgs.add(String.format("-output_vcf_file %s", paveVcf));
+
+        String paveJar = String.format("%s/%s", VmDirectories.TOOLS, PAVE_JAR);
+        // String paveJar = String.format("%s/pave/%s/pave.jar", VmDirectories.TOOLS, Versions.PAVE);
+
+        startupScript.addCommand(() -> format("java -jar %s %s", paveJar, paveArgs.toString()));
 
         // upload output
         startupScript.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), "sage"), executionFlags));

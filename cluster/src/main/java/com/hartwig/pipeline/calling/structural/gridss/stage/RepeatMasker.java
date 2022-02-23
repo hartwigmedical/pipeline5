@@ -12,13 +12,13 @@ import com.hartwig.pipeline.tools.Versions;
 
 public class RepeatMasker extends SubStage {
 
+    public static final String REPEAT_MASKER_TOOL = VmDirectories.TOOLS + "/repeatmasker/" + Versions.REPEAT_MASKER + "/RepeatMasker";
     public RepeatMasker() {
         super("gridss.repeatmasker", FileTypes.GZIPPED_VCF);
     }
 
     @Override
     public List<BashCommand> bash(final OutputFile input, final OutputFile output) {
-        String repeatMasker = VmDirectories.TOOLS + "/repeatmasker/" + Versions.REPEAT_MASKER + "/RepeatMasker";
         return List.of(new VersionedToolCommand("gridss",
                 "gridss_annotate_vcf_repeatmasker",
                 Versions.GRIDSS,
@@ -29,7 +29,7 @@ public class RepeatMasker extends SubStage {
                 "-w",
                 VmDirectories.OUTPUT,
                 "--rm",
-                repeatMasker,
+                REPEAT_MASKER_TOOL,
                 input.path()));
     }
 }

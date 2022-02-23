@@ -7,8 +7,8 @@ import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.execution.vm.java.JavaClassCommand;
 import com.hartwig.pipeline.tools.Versions;
 
-class GridssCommand extends JavaClassCommand {
-    private static final List<String> JVM_ARGUMENTS = ImmutableList.of("-Dsamjdk.create_index=true",
+public class GridssCommand extends JavaClassCommand {
+    public static final List<String> JVM_ARGUMENTS = ImmutableList.of("-Dsamjdk.create_index=true",
             "-Dsamjdk.use_async_io_read_samtools=true",
             "-Dsamjdk.use_async_io_write_samtools=true",
             "-Dsamjdk.use_async_io_write_tribble=true",
