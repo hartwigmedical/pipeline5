@@ -71,7 +71,7 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
     @Override
     protected List<String> expectedCommands() {
         return Arrays.asList("mkdir -p /data/input/linx/plot",
-                "echo '5.28' | tee /data/input/orange_pipeline.version.txt",
+                "echo '5.27' | tee /data/input/orange_pipeline.version.txt",
                 "java -Xmx16G -jar /opt/tools/orange/1.6/orange.jar -output_dir /data/output -doid_json "
                         + "/opt/resources/disease_ontology/201015_doid.json "
                         + "-primary_tumor_doids \"01;02\" -max_evidence_level C -tumor_sample_id tumor -reference_sample_id reference "
