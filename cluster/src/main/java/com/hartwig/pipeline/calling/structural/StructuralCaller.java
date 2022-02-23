@@ -39,31 +39,19 @@ import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.SubStageInputOutput;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
+import com.hartwig.pipeline.tertiary.TertiaryStage;
 
-public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRunMetadata> {
+public class StructuralCaller extends TertiaryStage<StructuralCallerOutput> {
     public static final String NAMESPACE = "gridss";
-
-    private final InputDownload referenceBam;
-    private final InputDownload referenceBai;
-    private final InputDownload tumorBam;
-    private final InputDownload tumorBai;
 
     private final ResourceFiles resourceFiles;
     private final PersistedDataset persistedDataset;
     private String unfilteredVcf;
 
     public StructuralCaller(final AlignmentPair pair, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
+        super(pair);
         this.resourceFiles = resourceFiles;
-        referenceBam = new InputDownload(pair.reference().finalBamLocation());
-        referenceBai = new InputDownload(pair.reference().finalBaiLocation());
-        tumorBam = new InputDownload(pair.tumor().finalBamLocation());
-        tumorBai = new InputDownload(pair.tumor().finalBaiLocation());
         this.persistedDataset = persistedDataset;
-    }
-
-    @Override
-    public List<BashCommand> inputs() {
-        return ImmutableList.of(referenceBam, referenceBai, tumorBam, tumorBai);
     }
 
     @Override
@@ -75,15 +63,14 @@ public class StructuralCaller implements Stage<StructuralCallerOutput, SomaticRu
     public List<BashCommand> commands(final SomaticRunMetadata metadata) {
         String referenceSampleName = metadata.reference().sampleName();
         String tumorSampleName = metadata.tumor().sampleName();
-        String refBamPath = referenceBam.getLocalTargetPath();
-        String tumorBamPath = tumorBam.getLocalTargetPath();
+        String refBamPath = getReferenceBamDownload().getLocalTargetPath();
+        String tumorBamPath = getTumorBamDownload().getLocalTargetPath();
         SubStageInputOutput unfilteredVcfOutput = new Driver(resourceFiles,
                 referenceSampleName,
                 tumorSampleName,
                 VmDirectories.outputFile(tumorSampleName + ".assembly.bam"),
                 refBamPath,
-                tumorBamPath)
-                .andThen(new RepeatMasker())
+                tumorBamPath).andThen(new RepeatMasker())
                 .andThen(new GridssAnnotation(resourceFiles, false))
                 .apply(SubStageInputOutput.empty(tumorSampleName));
         unfilteredVcf = unfilteredVcfOutput.outputFile().path();

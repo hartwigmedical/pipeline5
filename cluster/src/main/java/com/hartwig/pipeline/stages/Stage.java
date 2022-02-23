@@ -1,5 +1,6 @@
 package com.hartwig.pipeline.stages;
 
+import java.util.Collections;
 import java.util.List;
 
 import com.hartwig.pipeline.Arguments;
@@ -18,7 +19,21 @@ public interface Stage<S extends StageOutput, M extends RunMetadata> {
 
     String namespace();
 
-    List<BashCommand> commands(M metadata);
+    default List<BashCommand> commands(M metadata) {
+        return Collections.emptyList();
+    }
+
+    default List<BashCommand> tumorOnlyCommands(M metadata) {
+        return Collections.emptyList();
+    }
+
+    default List<BashCommand> germlineOnlyCommands(M metadata) {
+        return Collections.emptyList();
+    }
+
+    default List<BashCommand> somaticCommands(M metadata) {
+        return commands(metadata);
+    }
 
     VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory);
 

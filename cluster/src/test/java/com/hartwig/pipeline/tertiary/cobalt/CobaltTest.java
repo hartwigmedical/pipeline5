@@ -32,11 +32,9 @@ public class CobaltTest extends TertiaryStageTest<CobaltOutput> {
     @Override
     protected List<String> expectedCommands() {
         return Collections.singletonList(
-                "java -Xmx8G -cp /opt/tools/cobalt/1.11/cobalt.jar com.hartwig.hmftools.cobalt.CountBamLinesApplication -reference "
-                        + "reference -reference_bam /data/input/reference.bam -tumor tumor -tumor_bam /data/input/tumor.bam "
-                        + "-output_dir /data/output -threads $(grep -c '^processor' /proc/cpuinfo) "
-                        + "-ref_genome /opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
-                        + "-gc_profile /opt/resources/gc_profiles/37/GC_profile.1000bp.37.cnp");
+                "java -Xmx8G -cp /opt/tools/cobalt/1.11/cobalt.jar com.hartwig.hmftools.cobalt.CountBamLinesApplication -ref_genome "
+                        + "/opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta -gc_profile /opt/resources/gc_profiles/37/GC_profile.1000bp.37.cnp "
+                        + "-tumor tumor -tumor_bam /data/input/tumor.bam -reference reference -reference_bam /data/input/reference.bam -output_dir /data/output");
     }
 
     @Override

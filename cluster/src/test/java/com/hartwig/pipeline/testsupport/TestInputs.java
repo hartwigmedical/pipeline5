@@ -18,6 +18,7 @@ import com.hartwig.pipeline.calling.structural.gripss.GripssOutput;
 import com.hartwig.pipeline.calling.structural.StructuralCaller;
 import com.hartwig.pipeline.calling.structural.StructuralCallerOutput;
 import com.hartwig.pipeline.calling.structural.gripss.GripssSomatic;
+import com.hartwig.pipeline.calling.structural.gripss.GripssSomaticOutput;
 import com.hartwig.pipeline.cram.CramOutput;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.PipelineStatus;
@@ -97,12 +98,12 @@ public class TestInputs {
     public static SomaticRunMetadata defaultSomaticRunMetadata() {
         final SingleSampleRunMetadata tumor = tumorRunMetadata();
         final SingleSampleRunMetadata reference = referenceRunMetadata();
-        return SomaticRunMetadata.builder().set(SET).maybeTumor(tumor).reference(reference).bucket(BUCKET).build();
+        return SomaticRunMetadata.builder().set(SET).maybeTumor(tumor).maybeReference(reference).bucket(BUCKET).build();
     }
 
     public static SomaticRunMetadata defaultSingleSampleRunMetadata() {
         final SingleSampleRunMetadata reference = referenceRunMetadata();
-        return SomaticRunMetadata.builder().set(SET).reference(reference).bucket(BUCKET).build();
+        return SomaticRunMetadata.builder().set(SET).maybeReference(reference).bucket(BUCKET).build();
     }
 
     @NotNull
@@ -254,10 +255,10 @@ public class TestInputs {
                 .build();
     }
 
-    public static GripssOutput gripssSomaticProcessOutput() {
+    public static GripssSomaticOutput gripssSomaticProcessOutput() {
         String filtered = ".gripss.filtered.";
         String full = ".gripss.full.";
-        return GripssGermlineOutput.builder()
+        return GripssSomaticOutput.builder()
                 .status(PipelineStatus.SUCCESS)
                 .maybeFilteredVcf(gsLocation(somaticBucket(GripssSomatic.NAMESPACE),
                         RESULTS + TUMOR_SAMPLE + filtered + FileTypes.GZIPPED_VCF))

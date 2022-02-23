@@ -3,6 +3,7 @@ package com.hartwig.pipeline.tertiary.lilac;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
@@ -29,6 +30,9 @@ import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.TertiaryStage;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
+import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
+
+import org.jetbrains.annotations.NotNull;
 
 public class Lilac extends TertiaryStage<LilacOutput> {
     public static final String NAMESPACE = "lilac";
@@ -41,9 +45,15 @@ public class Lilac extends TertiaryStage<LilacOutput> {
     public Lilac(final AlignmentPair alignmentPair, final ResourceFiles resourceFiles, final PurpleOutput purpleOutput) {
         super(alignmentPair);
         this.resourceFiles = resourceFiles;
-        this.purpleGeneCopyNumberTsv = new InputDownload(purpleOutput.outputLocations().geneCopyNumberTsv());
-        this.purpleSomaticVcf = new InputDownload(purpleOutput.outputLocations().somaticVcf());
-        this.purpleSomaticVcfIndex = new InputDownload(purpleOutput.outputLocations().somaticVcf().transform(x -> x + ".tbi"));
+        this.purpleGeneCopyNumberTsv = new InputDownload(purpleOrEmpty(purpleOutput, PurpleOutputLocations::geneCopyNumberTsv));
+        this.purpleSomaticVcf = new InputDownload(purpleOrEmpty(purpleOutput, PurpleOutputLocations::somaticVcf));
+        this.purpleSomaticVcfIndex =
+                new InputDownload(purpleOrEmpty(purpleOutput, PurpleOutputLocations::somaticVcf).transform(x -> x + ".tbi"));
+    }
+
+    private GoogleStorageLocation purpleOrEmpty(final PurpleOutput purpleOutput,
+            final Function<PurpleOutputLocations, GoogleStorageLocation> extractor) {
+        return purpleOutput.maybeOutputLocations().map(extractor).orElse(GoogleStorageLocation.empty());
     }
 
     @Override

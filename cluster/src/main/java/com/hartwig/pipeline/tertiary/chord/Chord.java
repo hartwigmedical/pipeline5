@@ -25,6 +25,7 @@ import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
+import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
 
 public class Chord implements Stage<ChordOutput, SomaticRunMetadata> {
     public static final String NAMESPACE = "chord";
@@ -37,8 +38,12 @@ public class Chord implements Stage<ChordOutput, SomaticRunMetadata> {
 
     public Chord(final RefGenomeVersion refGenomeVersion, final PurpleOutput purpleOutput, final PersistedDataset persistedDataset) {
         this.refGenomeVersion = refGenomeVersion;
-        purpleStructuralVcfDownload = new InputDownload(purpleOutput.outputLocations().structuralVcf());
-        purpleSomaticVcfDownload = new InputDownload(purpleOutput.outputLocations().somaticVcf());
+        purpleStructuralVcfDownload = new InputDownload(purpleOutput.maybeOutputLocations()
+                .map(PurpleOutputLocations::structuralVcf)
+                .orElse(GoogleStorageLocation.empty()));
+        purpleSomaticVcfDownload = new InputDownload(purpleOutput.maybeOutputLocations()
+                .map(PurpleOutputLocations::somaticVcf)
+                .orElse(GoogleStorageLocation.empty()));
         this.persistedDataset = persistedDataset;
     }
 

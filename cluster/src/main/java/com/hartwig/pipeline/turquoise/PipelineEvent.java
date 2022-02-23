@@ -18,7 +18,7 @@ public interface PipelineEvent extends TurquoiseEvent {
 
     @Override
     default List<Subject> subjects() {
-        List<Label> labels = Lists.newArrayList(Label.of(SET, properties().set()), Label.of(BARCODE, properties().referenceBarcode()));
+        List<Label> labels = Lists.newArrayList(Label.of(SET, properties().set()));
         labels.addAll(properties().tumorBarcode().map(b -> Label.of(BARCODE, b)).stream().collect(Collectors.toList()));
         return List.of(Subject.of(SAMPLE, properties().sample(), labels));
     }

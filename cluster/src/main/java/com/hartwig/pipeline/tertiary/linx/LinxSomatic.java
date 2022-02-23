@@ -30,6 +30,7 @@ import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
+import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -49,8 +50,12 @@ public class LinxSomatic implements Stage<LinxSomaticOutput, SomaticRunMetadata>
     private final PersistedDataset persistedDataset;
 
     public LinxSomatic(PurpleOutput purpleOutput, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
-        purpleOutputDirDownload = new InputDownload(purpleOutput.outputLocations().outputDirectory());
-        purpleStructuralVcfDownload = new InputDownload(purpleOutput.outputLocations().structuralVcf());
+        purpleOutputDirDownload = new InputDownload(purpleOutput.maybeOutputLocations()
+                .map(PurpleOutputLocations::outputDirectory)
+                .orElse(GoogleStorageLocation.empty()));
+        purpleStructuralVcfDownload = new InputDownload(purpleOutput.maybeOutputLocations()
+                .map(PurpleOutputLocations::structuralVcf)
+                .orElse(GoogleStorageLocation.empty()));
         this.resourceFiles = resourceFiles;
         this.persistedDataset = persistedDataset;
     }

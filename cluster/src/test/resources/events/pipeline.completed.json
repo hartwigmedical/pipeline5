@@ -12,10 +12,6 @@
         },
         {
           "name": "barcode",
-          "value": "ref_barcode"
-        },
-        {
-          "name": "barcode",
           "value": "tumor_barcode"
         }
       ]

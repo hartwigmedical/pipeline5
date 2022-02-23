@@ -24,6 +24,7 @@ import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
+import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
 import com.hartwig.pipeline.tools.Versions;
 
 public class Sigs implements Stage<SigsOutput, SomaticRunMetadata> {
@@ -34,7 +35,9 @@ public class Sigs implements Stage<SigsOutput, SomaticRunMetadata> {
     private final ResourceFiles resourceFiles;
 
     public Sigs(final PurpleOutput purpleOutput, final ResourceFiles resourceFiles) {
-        purpleSomaticVcfDownload = new InputDownload(purpleOutput.outputLocations().somaticVcf());
+        purpleSomaticVcfDownload = new InputDownload(purpleOutput.maybeOutputLocations()
+                .map(PurpleOutputLocations::somaticVcf)
+                .orElse(GoogleStorageLocation.empty()));
         this.resourceFiles = resourceFiles;
     }
 

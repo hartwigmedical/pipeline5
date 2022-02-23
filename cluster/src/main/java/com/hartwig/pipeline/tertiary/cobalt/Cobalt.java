@@ -1,5 +1,7 @@
 package com.hartwig.pipeline.tertiary.cobalt;
 
+import static java.util.Collections.*;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -42,12 +44,24 @@ public class Cobalt extends TertiaryStage<CobaltOutput> {
     }
 
     @Override
-    public List<BashCommand> commands(final SomaticRunMetadata metadata) {
-        return Collections.singletonList(new CobaltApplicationCommand(resourceFiles,
-                metadata.reference().sampleName(),
-                getReferenceBamDownload().getLocalTargetPath(),
-                metadata.tumor().sampleName(),
-                getTumorBamDownload().getLocalTargetPath()));
+    public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) {
+        return List.of(CobaltCommandBuilder.newBuilder(resourceFiles)
+                .tumor(metadata.tumor().sampleName(), getTumorBamDownload().getLocalTargetPath())
+                .addArguments("-tumor_only", "true", "-tumor_only_diploid_bed", resourceFiles.diploidRegionsBed())
+                .build());
+    }
+
+    @Override
+    public List<BashCommand> somaticCommands(final SomaticRunMetadata metadata) {
+        return singletonList(CobaltCommandBuilder.newBuilder(resourceFiles)
+                .tumor(metadata.tumor().sampleName(), getTumorBamDownload().getLocalTargetPath())
+                .reference(metadata.reference().sampleName(), getReferenceBamDownload().getLocalTargetPath())
+                .build());
+    }
+
+    @Override
+    public List<BashCommand> germlineOnlyCommands(final SomaticRunMetadata metadata) {
+        return super.germlineOnlyCommands(metadata);
     }
 
     @Override
@@ -65,7 +79,7 @@ public class Cobalt extends TertiaryStage<CobaltOutput> {
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), NAMESPACE, resultsDirectory))
                 .addDatatypes(new AddDatatype(DataType.COBALT,
                         metadata.barcode(),
-                        new ArchivePath(Folder.root(), namespace(), metadata.tumor().sampleName() + ".cobalt.ratio.tsv")))
+                        new ArchivePath(Folder.root(), namespace(), metadata.sampleName() + ".cobalt.ratio.tsv")))
                 .build();
     }
 

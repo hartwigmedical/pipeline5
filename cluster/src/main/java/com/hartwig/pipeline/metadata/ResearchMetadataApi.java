@@ -31,8 +31,8 @@ public class ResearchMetadataApi implements SomaticMetadataApi {
     private final StagedOutputPublisher stagedOutput;
     private final Anonymizer anonymizer;
 
-    public ResearchMetadataApi(final SampleApi sampleApi, final SetApi setApi, final RunApi runApi, final Optional<Run> run, final String biopsyName,
-                               final Arguments arguments, final StagedOutputPublisher stagedOutput, final Anonymizer anonymizer) {
+    public ResearchMetadataApi(final SampleApi sampleApi, final SetApi setApi, final RunApi runApi, final Optional<Run> run,
+            final String biopsyName, final Arguments arguments, final StagedOutputPublisher stagedOutput, final Anonymizer anonymizer) {
         this.sampleApi = sampleApi;
         this.setApi = setApi;
         this.runApi = runApi;
@@ -59,13 +59,13 @@ public class ResearchMetadataApi implements SomaticMetadataApi {
                 .bucket(arguments.outputBucket())
                 .set(set.getName())
                 .maybeTumor(singleSample(tumor, SingleSampleRunMetadata.SampleType.TUMOR, set.getName()))
-                .reference(singleSample(ref, SingleSampleRunMetadata.SampleType.REFERENCE, set.getName()))
+                .maybeReference(singleSample(ref, SingleSampleRunMetadata.SampleType.REFERENCE, set.getName()))
                 .build();
     }
 
     @NotNull
     public ImmutableSingleSampleRunMetadata singleSample(final Sample sample, final SingleSampleRunMetadata.SampleType type,
-                                                         final String set) {
+            final String set) {
         return SingleSampleRunMetadata.builder()
                 .type(type)
                 .barcode(sample.getBarcode())
@@ -78,16 +78,12 @@ public class ResearchMetadataApi implements SomaticMetadataApi {
 
     @Override
     public void start() {
-        if (run.isPresent()) {
-            ApiRunStatus.start(runApi, run.get());
-        }
+        run.ifPresent(value -> ApiRunStatus.start(runApi, value));
     }
 
     @Override
     public void complete(final PipelineState state, final SomaticRunMetadata metadata) {
-        if (run.isPresent()) {
-            ApiRunStatus.finish(runApi, run.get(), state.status());
-        }
+        run.ifPresent(value -> ApiRunStatus.finish(runApi, value, state.status()));
         stagedOutput.publish(state, metadata);
     }
 }

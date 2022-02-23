@@ -14,19 +14,30 @@ public interface SomaticRunMetadata extends RunMetadata {
 
     int MAX_SAMPLE_LENGTH = 13;
 
-    SingleSampleRunMetadata reference();
+    @JsonProperty("reference")
+    Optional<SingleSampleRunMetadata> maybeReference();
 
     @JsonProperty("tumor")
     Optional<SingleSampleRunMetadata> maybeTumor();
 
     @Override
     default String name() {
-        return String.format("%s-%s", truncate(reference().barcode()), truncate(tumor().barcode()));
+        if (maybeReference().isPresent() && maybeTumor().isPresent()) {
+            return String.format("%s-%s", truncate(reference().barcode()), truncate(tumor().barcode()));
+        } else if (maybeReference().isPresent()) {
+            return truncate(reference().barcode());
+        } else {
+            return truncate(tumor().barcode());
+        }
     }
 
     @Override
     default String barcode() {
-        return maybeTumor().map(SingleSampleRunMetadata::barcode).orElse(reference().barcode());
+        return maybeTumor().map(SingleSampleRunMetadata::barcode).orElseGet(() -> reference().barcode());
+    }
+
+    default String sampleName() {
+        return maybeTumor().map(SingleSampleRunMetadata::sampleName).orElseGet(() -> reference().sampleName());
     }
 
     static String truncate(final String sample) {
@@ -42,6 +53,10 @@ public interface SomaticRunMetadata extends RunMetadata {
     default SingleSampleRunMetadata tumor() {
         return maybeTumor().orElseThrow(() -> new IllegalStateException(
                 "No tumor is present in this run/set. Somatic algorithms should not be called."));
+    }
+
+    default SingleSampleRunMetadata reference() {
+        return maybeReference().orElseThrow();
     }
 
     static ImmutableSomaticRunMetadata.Builder builder() {

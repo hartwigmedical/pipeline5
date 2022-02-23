@@ -26,6 +26,7 @@ import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
+import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
 import com.hartwig.pipeline.tools.Versions;
 
 import org.jetbrains.annotations.NotNull;
@@ -40,7 +41,9 @@ public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
     private final PersistedDataset persistedDataset;
 
     public Peach(final PurpleOutput purpleOutput, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
-        purpleGermlineVcfDownload = new InputDownload(purpleOutput.outputLocations().germlineVcf());
+        purpleGermlineVcfDownload = new InputDownload(purpleOutput.maybeOutputLocations()
+                .map(PurpleOutputLocations::germlineVcf)
+                .orElse(GoogleStorageLocation.empty()));
         this.resourceFiles = resourceFiles;
         this.persistedDataset = persistedDataset;
     }
