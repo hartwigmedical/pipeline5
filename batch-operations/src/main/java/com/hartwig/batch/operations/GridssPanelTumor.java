@@ -76,7 +76,7 @@ public class GridssPanelTumor implements BatchOperation {
         gridssArgs.add(String.format("--assembly %s/%s.gridss.assembly.vcf.gz", VmDirectories.OUTPUT, sampleId));
         gridssArgs.add(String.format("--workingdir %s/gridss_working", VmDirectories.OUTPUT));
         gridssArgs.add(String.format("--reference %s", resourceFiles.refGenomeFile()));
-        gridssArgs.add(gridssJar);
+        gridssArgs.add(String.format("--jar %s", gridssJar));
         gridssArgs.add(String.format("--blacklist %s", resourceFiles.gridssBlacklistBed()));
         gridssArgs.add(String.format("--configuration %s", resourceFiles.gridssPropertiesFile()));
         gridssArgs.add(String.format("--labels %s", sampleId));
