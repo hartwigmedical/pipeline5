@@ -41,7 +41,7 @@ public abstract class Pave implements Stage<PaveOutput, SomaticRunMetadata> {
     public Pave(final ResourceFiles resourceFiles, SageOutput sageOutput, final PersistedDataset persistedDataset,
             final DataType vcfDatatype) {
         this.resourceFiles = resourceFiles;
-        this.vcfDownload = new InputDownload(sageOutput.maybeFinalVcf().orElse(GoogleStorageLocation.empty()));
+        this.vcfDownload = new InputDownload(sageOutput.variants());
         this.persistedDataset = persistedDataset;
         this.vcfDatatype = vcfDatatype;
     }
@@ -86,7 +86,7 @@ public abstract class Pave implements Stage<PaveOutput, SomaticRunMetadata> {
         return PaveOutput.builder(namespace())
                 .status(jobStatus)
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
-                .maybeFinalVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(outputFile)))
+                .maybeAnnotatedVariants(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(outputFile)))
                 .addReportComponents(vcfComponent(outputFile, bucket, resultsDirectory))
                 .addDatatypes(new AddDatatype(vcfDatatype, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), outputFile)))
                 .build();
@@ -97,7 +97,7 @@ public abstract class Pave implements Stage<PaveOutput, SomaticRunMetadata> {
         final String outputFile = outputFile(metadata);
         return PaveOutput.builder(namespace())
                 .status(PipelineStatus.PERSISTED)
-                .maybeFinalVcf(persistedDataset.path(metadata.tumor().sampleName(), vcfDatatype)
+                .maybeAnnotatedVariants(persistedDataset.path(metadata.tumor().sampleName(), vcfDatatype)
                         .orElse(GoogleStorageLocation.of(metadata.bucket(),
                                 PersistedLocations.blobForSet(metadata.set(), namespace(), outputFile))))
                 .build();

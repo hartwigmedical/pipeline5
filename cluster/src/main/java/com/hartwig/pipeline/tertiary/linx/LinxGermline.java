@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.Collections;
 import java.util.List;
 
-import com.google.api.client.util.Lists;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.calling.structural.gripss.GripssOutput;
@@ -41,7 +40,7 @@ public class LinxGermline implements Stage<LinxGermlineOutput, SomaticRunMetadat
     private final PersistedDataset persistedDataset;
 
     public LinxGermline(GripssOutput gripssOutput, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
-        gripssGermlineVcfDownload = new InputDownload(gripssOutput.filteredVcf());
+        gripssGermlineVcfDownload = new InputDownload(gripssOutput.filteredVariants());
         this.resourceFiles = resourceFiles;
         this.persistedDataset = persistedDataset;
     }

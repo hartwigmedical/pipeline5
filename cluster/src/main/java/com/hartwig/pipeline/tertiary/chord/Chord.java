@@ -39,10 +39,10 @@ public class Chord implements Stage<ChordOutput, SomaticRunMetadata> {
     public Chord(final RefGenomeVersion refGenomeVersion, final PurpleOutput purpleOutput, final PersistedDataset persistedDataset) {
         this.refGenomeVersion = refGenomeVersion;
         purpleStructuralVcfDownload = new InputDownload(purpleOutput.maybeOutputLocations()
-                .map(PurpleOutputLocations::structuralVcf)
+                .map(PurpleOutputLocations::structuralVariants)
                 .orElse(GoogleStorageLocation.empty()));
         purpleSomaticVcfDownload = new InputDownload(purpleOutput.maybeOutputLocations()
-                .map(PurpleOutputLocations::somaticVcf)
+                .map(PurpleOutputLocations::somaticVariants)
                 .orElse(GoogleStorageLocation.empty()));
         this.persistedDataset = persistedDataset;
     }

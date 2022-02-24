@@ -55,7 +55,8 @@ public class BwaAlignerTest {
                 sampleSource,
                 sampleUpload,
                 ResultsDirectory.defaultDirectory(),
-                Executors.newSingleThreadExecutor(), mock(Labels.class));
+                Executors.newSingleThreadExecutor(),
+                mock(Labels.class));
     }
 
     @Test
@@ -98,8 +99,7 @@ public class BwaAlignerTest {
     public void returnsProvidedBamIfInSample() throws Exception {
         when(sampleSource.sample(METADATA)).thenReturn(Sample.builder(METADATA.sampleName()).bam("gs://bucket/path/reference.bam").build());
         AlignmentOutput output = victim.run(METADATA);
-        assertThat(output.finalBamLocation()).isEqualTo(GoogleStorageLocation.of("bucket", "path/reference.bam"));
-        assertThat(output.finalBaiLocation()).isEqualTo(GoogleStorageLocation.of("bucket", "path/reference.bam.bai"));
+        assertThat(output.alignments()).isEqualTo(GoogleStorageLocation.of("bucket", "path/reference.bam"));
         assertThat(output.sample()).isEqualTo(METADATA.sampleName());
         assertThat(output.status()).isEqualTo(PipelineStatus.PROVIDED);
     }

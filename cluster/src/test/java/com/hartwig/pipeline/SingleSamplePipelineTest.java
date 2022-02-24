@@ -239,10 +239,10 @@ public class SingleSamplePipelineTest {
                 AlignmentOutput.builder().from(referenceAlignmentOutput()).addReportComponents(alignerComponent).build();
         when(aligner.run(referenceRunMetadata())).thenReturn(alignmentWithReportComponents);
         when(stageRunner.run(eq(referenceRunMetadata()), any())).thenReturn(BamMetricsOutput.builder()
-                .from(alignmentWithReportComponents)
-                .addReportComponents(metricsComponent)
-                .sample(referenceSample())
-                .build())
+                        .from(alignmentWithReportComponents)
+                        .addReportComponents(metricsComponent)
+                        .sample(referenceSample())
+                        .build())
                 .thenReturn(SnpGenotypeOutput.builder().from(snpGenotypeOutput()).addReportComponents(snpgenotypeComponent).build())
                 .thenReturn(FlagstatOutput.builder().from(flagstatOutput()).addReportComponents(flagstatComponent).build())
                 .thenReturn(CramOutput.builder().from(cramOutput()).addReportComponents(cramComponent).build())
@@ -328,7 +328,7 @@ public class SingleSamplePipelineTest {
         AlignmentOutput alignmentOutput = AlignmentOutput.builder()
                 .status(PipelineStatus.SUCCESS)
                 .sample(referenceSample())
-                .maybeFinalBamLocation(GoogleStorageLocation.of("run-reference-test/aligner", "results/reference.cram"))
+                .maybeAlignments(GoogleStorageLocation.of("run-reference-test/aligner", "results/reference.cram"))
                 .build();
         when(aligner.run(referenceRunMetadata())).thenReturn(alignmentOutput);
         @SuppressWarnings("unchecked")
@@ -336,8 +336,7 @@ public class SingleSamplePipelineTest {
         AlignmentOutput cram2Bam = AlignmentOutput.builder()
                 .status(PipelineStatus.FAILED)
                 .sample(referenceSample())
-                .maybeFinalBamLocation(GoogleStorageLocation.of("run-reference-test/cram2bam", "results/reference.bam"))
-                .maybeFinalBaiLocation(GoogleStorageLocation.of("run-reference-test/cram2bam", "results/reference.bam.bai"))
+                .maybeAlignments(GoogleStorageLocation.of("run-reference-test/cram2bam", "results/reference.bam"))
                 .build();
         when(stageRunner.run(eq(referenceRunMetadata()), stageArgumentCaptor.capture())).thenReturn(cram2Bam);
         PipelineState runOutput = victim.run(referenceRunMetadata());

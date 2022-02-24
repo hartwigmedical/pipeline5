@@ -46,8 +46,8 @@ public class GripssGermline implements Stage<GripssGermlineOutput, SomaticRunMet
     public GripssGermline(final ResourceFiles resourceFiles, StructuralCallerOutput structuralCallerOutput,
             final PersistedDataset persistedDataset) {
         this.resourceFiles = resourceFiles;
-        gridssVcf = new InputDownload(structuralCallerOutput.unfilteredVcf());
-        gridssVcfIndex = new InputDownload(structuralCallerOutput.unfilteredVcfIndex());
+        gridssVcf = new InputDownload(structuralCallerOutput.unfilteredVariants());
+        gridssVcfIndex = new InputDownload(structuralCallerOutput.unfilteredVariants().transform(FileTypes::tabixIndex));
         this.persistedDataset = persistedDataset;
     }
 
@@ -91,11 +91,8 @@ public class GripssGermline implements Stage<GripssGermlineOutput, SomaticRunMet
             final ResultsDirectory resultsDirectory) {
         return GripssGermlineOutput.builder()
                 .status(jobStatus)
-                .maybeFilteredVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(germlineFilteredVcf))))
-                .maybeFilteredVcfIndex(GoogleStorageLocation.of(bucket.name(),
-                        FileTypes.tabixIndex(resultsDirectory.path(basename(germlineFilteredVcf)))))
-                .maybeFullVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(germlineUnfilteredVcf))))
-                .maybeFullVcfIndex(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(germlineUnfilteredVcf + ".tbi"))))
+                .maybeFilteredVariants(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(germlineFilteredVcf))))
+                .maybeUnfilteredVariants(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(germlineUnfilteredVcf))))
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
                         NAMESPACE,
@@ -143,10 +140,8 @@ public class GripssGermline implements Stage<GripssGermlineOutput, SomaticRunMet
 
         return GripssGermlineOutput.builder()
                 .status(PipelineStatus.PERSISTED)
-                .maybeFilteredVcf(filteredLocation)
-                .maybeFilteredVcfIndex(filteredLocation.transform(FileTypes::tabixIndex))
-                .maybeFullVcf(unfilteredLocation)
-                .maybeFullVcfIndex(unfilteredLocation.transform(FileTypes::tabixIndex))
+                .maybeFilteredVariants(filteredLocation)
+                .maybeUnfilteredVariants(unfilteredLocation)
                 .build();
     }
 

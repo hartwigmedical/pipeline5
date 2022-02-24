@@ -37,7 +37,7 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
 
     public BamMetrics(final ResourceFiles resourceFiles, final AlignmentOutput alignmentOutput, final PersistedDataset persistedDataset) {
         this.resourceFiles = resourceFiles;
-        bamDownload = new InputDownload(alignmentOutput.finalBamLocation());
+        bamDownload = new InputDownload(alignmentOutput.alignments());
         this.persistedDataset = persistedDataset;
     }
 

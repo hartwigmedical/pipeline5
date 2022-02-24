@@ -34,7 +34,7 @@ public class Flagstat implements Stage<FlagstatOutput, SingleSampleRunMetadata> 
     private final PersistedDataset persistedDataset;
 
     public Flagstat(final AlignmentOutput alignmentOutput, final PersistedDataset persistedDataset) {
-        bamDownload = new InputDownload(alignmentOutput.finalBamLocation());
+        bamDownload = new InputDownload(alignmentOutput.alignments());
         this.persistedDataset = persistedDataset;
     }
 

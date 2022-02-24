@@ -26,7 +26,6 @@ import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
-import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
 import com.hartwig.pipeline.tools.Versions;
 
 import org.jetbrains.annotations.NotNull;
@@ -36,21 +35,19 @@ public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
     private static final String PEACH_CALLS_TSV = ".peach.calls.tsv";
     public static final String PEACH_GENOTYPE_TSV = ".peach.genotype.tsv";
 
-    private final InputDownload purpleGermlineVcfDownload;
+    private final InputDownload purpleGermlineVariantsDownload;
     private final ResourceFiles resourceFiles;
     private final PersistedDataset persistedDataset;
 
     public Peach(final PurpleOutput purpleOutput, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
-        purpleGermlineVcfDownload = new InputDownload(purpleOutput.maybeOutputLocations()
-                .map(PurpleOutputLocations::germlineVcf)
-                .orElse(GoogleStorageLocation.empty()));
+        purpleGermlineVariantsDownload = new InputDownload(purpleOutput.outputLocations().germlineVariants());
         this.resourceFiles = resourceFiles;
         this.persistedDataset = persistedDataset;
     }
 
     @Override
     public List<BashCommand> inputs() {
-        return List.of(purpleGermlineVcfDownload);
+        return List.of(purpleGermlineVariantsDownload);
     }
 
     @Override
@@ -64,7 +61,7 @@ public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
                 Versions.PEACH,
                 "src/main.py",
                 List.of("--vcf",
-                        purpleGermlineVcfDownload.getLocalTargetPath(),
+                        purpleGermlineVariantsDownload.getLocalTargetPath(),
                         "--sample_t_id",
                         metadata.tumor().sampleName(),
                         "--sample_r_id",
@@ -94,7 +91,7 @@ public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
         final String genotypeTsv = genotypeTsv(metadata);
         return PeachOutput.builder()
                 .status(jobStatus)
-                .maybeGenotypeTsv(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(genotypeTsv)))
+                .maybeGenotypes(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(genotypeTsv)))
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
                 .addDatatypes(new AddDatatype(DataType.PEACH_CALLS,
@@ -121,7 +118,7 @@ public class Peach implements Stage<PeachOutput, SomaticRunMetadata> {
         String genotypeTsv = genotypeTsv(metadata);
         return PeachOutput.builder()
                 .status(PipelineStatus.PERSISTED)
-                .maybeGenotypeTsv(persistedDataset.path(metadata.tumor().sampleName(), DataType.PEACH_GENOTYPE)
+                .maybeGenotypes(persistedDataset.path(metadata.tumor().sampleName(), DataType.PEACH_GENOTYPE)
                         .orElse(GoogleStorageLocation.of(metadata.bucket(),
                                 PersistedLocations.blobForSet(metadata.set(), namespace(), genotypeTsv))))
                 .addDatatypes(new AddDatatype(DataType.PEACH_GENOTYPE,
