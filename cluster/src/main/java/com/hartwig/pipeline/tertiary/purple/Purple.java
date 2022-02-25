@@ -52,12 +52,12 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
     public static final String PURPLE_CIRCOS_PLOT = ".circos.png";
 
     private final ResourceFiles resourceFiles;
-    private final InputDownload somaticVcfDownload;
-    private final InputDownload germlineVcfDownload;
-    private final InputDownload structuralVcfDownload;
-    private final InputDownload structuralVcfIndexDownload;
-    private final InputDownload svRecoveryVcfDownload;
-    private final InputDownload svRecoveryVcfIndexDownload;
+    private final InputDownload somaticVariantsDownload;
+    private final InputDownload germlineVariantsDownload;
+    private final InputDownload structuralVariantsDownload;
+    private final InputDownload structuralVariantsIndexDownload;
+    private final InputDownload svRecoveryVariantsDownload;
+    private final InputDownload svRecoveryVariantsIndexDownload;
     private final InputDownload amberOutputDownload;
     private final InputDownload cobaltOutputDownload;
     private final PersistedDataset persistedDataset;
@@ -68,12 +68,12 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
             GripssSomaticOutput structuralCallerOutput, AmberOutput amberOutput, CobaltOutput cobaltOutput,
             final PersistedDataset persistedDataset, final boolean shallow, final boolean sageGermlineEnabled) {
         this.resourceFiles = resourceFiles;
-        this.somaticVcfDownload = new InputDownload(paveSomaticOutput.annotatedVariants());
-        this.germlineVcfDownload = new InputDownload(germlineCallerOutput.annotatedVariants());
-        this.structuralVcfDownload = new InputDownload(structuralCallerOutput.filteredVariants());
-        this.structuralVcfIndexDownload = new InputDownload(structuralCallerOutput.filteredVariants().transform(FileTypes::tabixIndex));
-        this.svRecoveryVcfDownload = new InputDownload(structuralCallerOutput.unfilteredVariants());
-        this.svRecoveryVcfIndexDownload = new InputDownload(structuralCallerOutput.unfilteredVariants().transform(FileTypes::tabixIndex));
+        this.somaticVariantsDownload = new InputDownload(paveSomaticOutput.annotatedVariants());
+        this.germlineVariantsDownload = new InputDownload(germlineCallerOutput.annotatedVariants());
+        this.structuralVariantsDownload = new InputDownload(structuralCallerOutput.filteredVariants());
+        this.structuralVariantsIndexDownload = new InputDownload(structuralCallerOutput.filteredVariants().transform(FileTypes::tabixIndex));
+        this.svRecoveryVariantsDownload = new InputDownload(structuralCallerOutput.unfilteredVariants());
+        this.svRecoveryVariantsIndexDownload = new InputDownload(structuralCallerOutput.unfilteredVariants().transform(FileTypes::tabixIndex));
         this.amberOutputDownload = new InputDownload(amberOutput.outputDirectory());
         this.cobaltOutputDownload = new InputDownload(cobaltOutput.outputDirectory());
         this.persistedDataset = persistedDataset;
@@ -92,26 +92,23 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
                 amberOutputDownload.getLocalTargetPath(),
                 cobaltOutputDownload.getLocalTargetPath(),
                 metadata.tumor().sampleName(),
-                structuralVcfDownload.getLocalTargetPath(),
-                svRecoveryVcfDownload.getLocalTargetPath(),
-                somaticVcfDownload.getLocalTargetPath()).setShallow(shallow).setReferenceSample(metadata.reference().sampleName());
+                structuralVariantsDownload.getLocalTargetPath(),
+                svRecoveryVariantsDownload.getLocalTargetPath(),
+                somaticVariantsDownload.getLocalTargetPath()).setShallow(shallow).setReferenceSample(metadata.reference().sampleName());
         if (sageGermlineEnabled) {
-            builder.addGermline(germlineVcfDownload.getLocalTargetPath());
+            builder.addGermline(germlineVariantsDownload.getLocalTargetPath());
         }
         return Collections.singletonList(builder.build());
     }
 
     @Override
     public List<BashCommand> inputs() {
-        List<BashCommand> inputs = new ArrayList<>(ImmutableList.of(somaticVcfDownload,
-                structuralVcfDownload,
-                structuralVcfIndexDownload,
-                svRecoveryVcfDownload,
-                svRecoveryVcfIndexDownload,
+        List<BashCommand> inputs = new ArrayList<>(ImmutableList.of(somaticVariantsDownload, structuralVariantsDownload,
+                structuralVariantsIndexDownload, svRecoveryVariantsDownload, svRecoveryVariantsIndexDownload,
                 amberOutputDownload,
                 cobaltOutputDownload));
         if (sageGermlineEnabled) {
-            inputs.add(germlineVcfDownload);
+            inputs.add(germlineVariantsDownload);
         }
         return inputs;
     }
