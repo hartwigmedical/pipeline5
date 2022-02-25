@@ -67,7 +67,7 @@ public class SageGermlineCallerTest extends TertiaryStageTest<SageOutput> {
 
     @Override
     protected void validatePersistedOutput(final SageOutput output) {
-        assertThat(output.finalVcf()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
+        assertThat(output.variants()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
                 "set/sage_germline/tumor.sage.germline.filtered.vcf.gz"));
     }
 

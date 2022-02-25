@@ -42,45 +42,37 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
 
     private final InputDownload purplePurity;
     private final InputDownload purpleQCFile;
-    private final InputDownload purpleGeneCopyNumberTsv;
+    private final InputDownload purpleGeneCopyNumber;
     private final InputDownload purpleSomaticDriverCatalog;
     private final InputDownload purpleGermlineDriverCatalog;
     private final InputDownload purpleSomaticVariants;
     private final InputDownload purpleGermlineVariants;
-    private final InputDownload linxFusionTsv;
-    private final InputDownload linxBreakendTsv;
-    private final InputDownload linxDriverCatalogTsv;
-    private final InputDownload annotatedVirusTsv;
+    private final InputDownload linxFusions;
+    private final InputDownload linxBreakends;
+    private final InputDownload linxDriverCatalog;
+    private final InputDownload virusAnnotations;
     private final InputDownload chordPrediction;
     private final ResourceFiles resourceFiles;
     private final PersistedDataset persistedDataset;
 
     public Protect(final PurpleOutput purpleOutput, final LinxSomaticOutput linxOutput, final VirusOutput virusOutput,
             final ChordOutput chordOutput, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
-        this.purplePurity = new InputDownload(purpleOrEmpty(purpleOutput, PurpleOutputLocations::purityTsv));
-        this.purpleQCFile = new InputDownload(purpleOrEmpty(purpleOutput, PurpleOutputLocations::qcFile));
-        this.purpleGeneCopyNumberTsv = new InputDownload(purpleOrEmpty(purpleOutput, PurpleOutputLocations::geneCopyNumberTsv));
-        this.purpleSomaticDriverCatalog = new InputDownload(purpleOrEmpty(purpleOutput, PurpleOutputLocations::somaticDriverCatalog));
-        this.purpleGermlineDriverCatalog = new InputDownload(purpleOrEmpty(purpleOutput, PurpleOutputLocations::germlineDriverCatalog));
-        this.purpleSomaticVariants = new InputDownload(purpleOrEmpty(purpleOutput, PurpleOutputLocations::somaticVcf));
-        this.purpleGermlineVariants = new InputDownload(purpleOrEmpty(purpleOutput, PurpleOutputLocations::germlineVcf));
-        this.linxFusionTsv = new InputDownload(linxOrEmpty(linxOutput, LinxSomaticOutputLocations::fusions));
-        this.linxBreakendTsv = new InputDownload(linxOrEmpty(linxOutput, LinxSomaticOutputLocations::breakends));
-        this.linxDriverCatalogTsv = new InputDownload(linxOrEmpty(linxOutput, LinxSomaticOutputLocations::driverCatalog));
-        this.annotatedVirusTsv = new InputDownload(virusOutput.maybeAnnotatedVirusFile().orElse(GoogleStorageLocation.empty()));
-        this.chordPrediction = new InputDownload(chordOutput.maybePredictions().orElse(GoogleStorageLocation.empty()));
+        PurpleOutputLocations purpleOutputLocations = purpleOutput.outputLocations();
+        this.purplePurity = new InputDownload(purpleOutputLocations.purity());
+        this.purpleQCFile = new InputDownload(purpleOutputLocations.qcFile());
+        this.purpleGeneCopyNumber = new InputDownload(purpleOutputLocations.geneCopyNumber());
+        this.purpleSomaticDriverCatalog = new InputDownload(purpleOutputLocations.somaticDriverCatalog());
+        this.purpleGermlineDriverCatalog = new InputDownload(purpleOutputLocations.germlineDriverCatalog());
+        this.purpleSomaticVariants = new InputDownload(purpleOutputLocations.somaticVariants());
+        this.purpleGermlineVariants = new InputDownload(purpleOutputLocations.germlineVariants());
+        LinxSomaticOutputLocations linxSomaticOutputLocations = linxOutput.linxOutputLocations();
+        this.linxFusions = new InputDownload(linxSomaticOutputLocations.fusions());
+        this.linxBreakends = new InputDownload(linxSomaticOutputLocations.breakends());
+        this.linxDriverCatalog = new InputDownload(linxSomaticOutputLocations.driverCatalog());
+        this.virusAnnotations = new InputDownload(virusOutput.virusAnnotations());
+        this.chordPrediction = new InputDownload(chordOutput.predictions());
         this.resourceFiles = resourceFiles;
         this.persistedDataset = persistedDataset;
-    }
-
-    private GoogleStorageLocation purpleOrEmpty(final PurpleOutput purpleOutput,
-            final Function<PurpleOutputLocations, GoogleStorageLocation> extractor) {
-        return purpleOutput.maybeOutputLocations().map(extractor).orElse(GoogleStorageLocation.empty());
-    }
-
-    private GoogleStorageLocation linxOrEmpty(final LinxSomaticOutput linxOutput,
-            final Function<LinxSomaticOutputLocations, GoogleStorageLocation> extractor) {
-        return linxOutput.maybeLinxOutputLocations().map(extractor).orElse(GoogleStorageLocation.empty());
     }
 
     @Override
@@ -92,15 +84,15 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
     public List<BashCommand> inputs() {
         return List.of(purplePurity,
                 purpleQCFile,
-                purpleGeneCopyNumberTsv,
+                purpleGeneCopyNumber,
                 purpleSomaticDriverCatalog,
                 purpleGermlineDriverCatalog,
                 purpleSomaticVariants,
                 purpleGermlineVariants,
-                linxFusionTsv,
-                linxBreakendTsv,
-                linxDriverCatalogTsv,
-                annotatedVirusTsv,
+                linxFusions,
+                linxBreakends,
+                linxDriverCatalog,
+                virusAnnotations,
                 chordPrediction);
     }
 
@@ -115,15 +107,15 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
                 resourceFiles.doidJson(),
                 purplePurity.getLocalTargetPath(),
                 purpleQCFile.getLocalTargetPath(),
-                purpleGeneCopyNumberTsv.getLocalTargetPath(),
+                purpleGeneCopyNumber.getLocalTargetPath(),
                 purpleSomaticDriverCatalog.getLocalTargetPath(),
                 purpleGermlineDriverCatalog.getLocalTargetPath(),
                 purpleSomaticVariants.getLocalTargetPath(),
                 purpleGermlineVariants.getLocalTargetPath(),
-                linxFusionTsv.getLocalTargetPath(),
-                linxBreakendTsv.getLocalTargetPath(),
-                linxDriverCatalogTsv.getLocalTargetPath(),
-                annotatedVirusTsv.getLocalTargetPath(),
+                linxFusions.getLocalTargetPath(),
+                linxBreakends.getLocalTargetPath(),
+                linxDriverCatalog.getLocalTargetPath(),
+                virusAnnotations.getLocalTargetPath(),
                 chordPrediction.getLocalTargetPath()));
     }
 
@@ -144,7 +136,7 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
         final String evidenceTsv = evidenceTsv(metadata);
         return ProtectOutput.builder()
                 .status(jobStatus)
-                .maybeEvidenceTsv(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(evidenceTsv)))
+                .maybeEvidence(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(evidenceTsv)))
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), namespace(), resultsDirectory))
                 .addDatatypes(new AddDatatype(DataType.PROTECT_EVIDENCE,
@@ -160,7 +152,7 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
 
     @Override
     public ProtectOutput skippedOutput(final SomaticRunMetadata metadata) {
-        return ProtectOutput.builder().status(PipelineStatus.SKIPPED).maybeEvidenceTsv(GoogleStorageLocation.empty()).build();
+        return ProtectOutput.builder().status(PipelineStatus.SKIPPED).build();
     }
 
     @Override
@@ -168,7 +160,7 @@ public class Protect implements Stage<ProtectOutput, SomaticRunMetadata> {
         String evidenceTsv = evidenceTsv(metadata);
         return ProtectOutput.builder()
                 .status(PipelineStatus.PERSISTED)
-                .maybeEvidenceTsv(persistedDataset.path(metadata.tumor().sampleName(), DataType.PROTECT_EVIDENCE)
+                .maybeEvidence(persistedDataset.path(metadata.tumor().sampleName(), DataType.PROTECT_EVIDENCE)
                         .orElse(GoogleStorageLocation.of(metadata.bucket(),
                                 PersistedLocations.blobForSet(metadata.set(), namespace(), evidenceTsv))))
                 .addDatatypes(new AddDatatype(DataType.PROTECT_EVIDENCE,

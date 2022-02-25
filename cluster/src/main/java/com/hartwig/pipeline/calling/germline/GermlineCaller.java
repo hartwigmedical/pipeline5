@@ -62,8 +62,8 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
     public GermlineCaller(final AlignmentOutput alignmentOutput, final ResourceFiles resourceFiles,
             final PersistedDataset persistedDataset) {
         this.resourceFiles = resourceFiles;
-        this.bamDownload = new InputDownload(alignmentOutput.finalBamLocation());
-        this.baiDownload = new InputDownload(alignmentOutput.finalBaiLocation());
+        this.bamDownload = new InputDownload(alignmentOutput.alignments());
+        this.baiDownload = new InputDownload(alignmentOutput.alignments().transform(FileTypes::toAlignmentIndex));
         this.outputFile = GermlineCallerOutput.outputFile(alignmentOutput.sample());
         this.persistedDataset = persistedDataset;
     }
@@ -101,8 +101,7 @@ public class GermlineCaller implements Stage<GermlineCallerOutput, SingleSampleR
         SubStageInputOutput combinedFilters = snpFilterOutput.combine(indelFilterOutput);
 
         SubStageInputOutput finalOutput =
-                new CombineFilteredVariants(indelFilterOutput.outputFile().path(), referenceFasta)
-                        .andThen(new GermlineZipIndex())
+                new CombineFilteredVariants(indelFilterOutput.outputFile().path(), referenceFasta).andThen(new GermlineZipIndex())
                         .apply(combinedFilters);
 
         return ImmutableList.<BashCommand>builder()

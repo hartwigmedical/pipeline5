@@ -2,6 +2,8 @@ package com.hartwig.pipeline.alignment;
 
 import java.util.Optional;
 
+import com.hartwig.pipeline.storage.GoogleStorageLocation;
+
 import org.immutables.value.Value;
 
 @Value.Immutable

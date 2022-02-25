@@ -89,8 +89,7 @@ public class BwaAligner implements Aligner {
             return AlignmentOutput.builder()
                     .sample(metadata.sampleName())
                     .status(PipelineStatus.PROVIDED)
-                    .maybeFinalBamLocation(GoogleStorageLocation.of(bucket, path))
-                    .maybeFinalBaiLocation(GoogleStorageLocation.of(bucket, FileTypes.bai(path)))
+                    .maybeAlignments(GoogleStorageLocation.of(bucket, path))
                     .build();
         }
         final ResourceFiles resourceFiles = buildResourceFiles(arguments);
@@ -156,10 +155,7 @@ public class BwaAligner implements Aligner {
             ImmutableAlignmentOutput.Builder outputBuilder = AlignmentOutput.builder()
                     .sample(metadata.sampleName())
                     .status(status)
-                    .maybeFinalBamLocation(GoogleStorageLocation.of(rootBucket.name(),
-                            resultsDirectory.path(merged.outputFile().fileName())))
-                    .maybeFinalBaiLocation(GoogleStorageLocation.of(rootBucket.name(),
-                            resultsDirectory.path(bai(merged.outputFile().fileName()))))
+                    .maybeAlignments(GoogleStorageLocation.of(rootBucket.name(), resultsDirectory.path(merged.outputFile().fileName())))
                     .addAllReportComponents(laneLogComponents)
                     .addAllFailedLogLocations(laneFailedLogs)
                     .addFailedLogLocations(GoogleStorageLocation.of(rootBucket.name(), RunLogComponent.LOG_FILE))

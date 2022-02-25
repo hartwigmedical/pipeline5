@@ -95,10 +95,8 @@ public class StructuralCallerTest extends StageTest<StructuralCallerOutput, Soma
 
     @Override
     protected void validatePersistedOutput(final StructuralCallerOutput output) {
-        assertThat(output.unfilteredVcf()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
+        assertThat(output.unfilteredVariants()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
                 "set/gridss/" + TUMOR_GRIDSS_UNFILTERED_VCF_GZ));
-        assertThat(output.unfilteredVcfIndex()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
-                "set/gridss/" + TUMOR_GRIDSS_UNFILTERED_VCF_GZ + ".tbi"));
     }
 
     @Override
@@ -108,9 +106,7 @@ public class StructuralCallerTest extends StageTest<StructuralCallerOutput, Soma
 
     @Override
     protected void validatePersistedOutputFromPersistedDataset(final StructuralCallerOutput output) {
-        assertThat(output.unfilteredVcf()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, GRIDSS + TUMOR_GRIDSS_UNFILTERED_VCF_GZ));
-        assertThat(output.unfilteredVcfIndex()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
-                GRIDSS + TUMOR_GRIDSS_UNFILTERED_VCF_GZ + ".tbi"));
+        assertThat(output.unfilteredVariants()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, GRIDSS + TUMOR_GRIDSS_UNFILTERED_VCF_GZ));
     }
 
     @Override

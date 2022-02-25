@@ -63,13 +63,13 @@ public class VirusAnalysisTest extends TertiaryStageTest<VirusOutput> {
 
     @Override
     protected void validateOutput(final VirusOutput output) {
-        assertThat(output.annotatedVirusFile()).isEqualTo(GoogleStorageLocation.of(SOMATIC_BUCKET + "/virusbreakend",
+        assertThat(output.virusAnnotations()).isEqualTo(GoogleStorageLocation.of(SOMATIC_BUCKET + "/virusbreakend",
                 ResultsDirectory.defaultDirectory().path(TUMOR_VIRUS_ANNOTATED_TSV)));
     }
 
     @Override
     protected void validatePersistedOutput(final VirusOutput output) {
-        assertThat(output.annotatedVirusFile()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
+        assertThat(output.virusAnnotations()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
                 "set/virusbreakend/" + TUMOR_VIRUS_ANNOTATED_TSV));
     }
 
@@ -81,7 +81,7 @@ public class VirusAnalysisTest extends TertiaryStageTest<VirusOutput> {
 
     @Override
     protected void validatePersistedOutputFromPersistedDataset(final VirusOutput output) {
-        assertThat(output.annotatedVirusFile()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
+        assertThat(output.virusAnnotations()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
                 "virusbreakend/" + TUMOR_VIRUS_ANNOTATED_TSV));
     }
 

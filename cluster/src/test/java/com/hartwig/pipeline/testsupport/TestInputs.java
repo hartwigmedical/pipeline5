@@ -12,11 +12,10 @@ import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
 import com.hartwig.pipeline.calling.sage.SageGermlineCaller;
 import com.hartwig.pipeline.calling.sage.SageOutput;
 import com.hartwig.pipeline.calling.sage.SageSomaticCaller;
-import com.hartwig.pipeline.calling.structural.gripss.GripssGermline;
-import com.hartwig.pipeline.calling.structural.gripss.GripssGermlineOutput;
-import com.hartwig.pipeline.calling.structural.gripss.GripssOutput;
 import com.hartwig.pipeline.calling.structural.StructuralCaller;
 import com.hartwig.pipeline.calling.structural.StructuralCallerOutput;
+import com.hartwig.pipeline.calling.structural.gripss.GripssGermline;
+import com.hartwig.pipeline.calling.structural.gripss.GripssGermlineOutput;
 import com.hartwig.pipeline.calling.structural.gripss.GripssSomatic;
 import com.hartwig.pipeline.calling.structural.gripss.GripssSomaticOutput;
 import com.hartwig.pipeline.cram.CramOutput;
@@ -44,13 +43,13 @@ import com.hartwig.pipeline.tertiary.cuppa.CuppaOutput;
 import com.hartwig.pipeline.tertiary.cuppa.CuppaOutputLocations;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthCheckOutput;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthChecker;
-import com.hartwig.pipeline.tertiary.linx.LinxSomatic;
+import com.hartwig.pipeline.tertiary.lilac.LilacOutput;
 import com.hartwig.pipeline.tertiary.linx.LinxGermline;
 import com.hartwig.pipeline.tertiary.linx.LinxGermlineOutput;
 import com.hartwig.pipeline.tertiary.linx.LinxGermlineOutputLocations;
+import com.hartwig.pipeline.tertiary.linx.LinxSomatic;
 import com.hartwig.pipeline.tertiary.linx.LinxSomaticOutput;
 import com.hartwig.pipeline.tertiary.linx.LinxSomaticOutputLocations;
-import com.hartwig.pipeline.tertiary.lilac.LilacOutput;
 import com.hartwig.pipeline.tertiary.orange.OrangeOutput;
 import com.hartwig.pipeline.tertiary.pave.PaveGermline;
 import com.hartwig.pipeline.tertiary.pave.PaveOutput;
@@ -143,8 +142,7 @@ public class TestInputs {
         String bucket = namespacedBucket(sample, Aligner.NAMESPACE);
         return AlignmentOutput.builder()
                 .status(PipelineStatus.SUCCESS)
-                .maybeFinalBamLocation(gsLocation(bucket, RESULTS + sample + ".bam"))
-                .maybeFinalBaiLocation(gsLocation(bucket, RESULTS + sample + ".bam.bai"))
+                .maybeAlignments(gsLocation(bucket, RESULTS + sample + ".bam"))
                 .sample(sample)
                 .build();
     }
@@ -207,9 +205,9 @@ public class TestInputs {
     public static SageOutput sageGermlineOutput() {
         return SageOutput.builder(SageGermlineCaller.NAMESPACE)
                 .status(PipelineStatus.SUCCESS)
-                .maybeFinalVcf(gsLocation(somaticBucket(SageGermlineCaller.NAMESPACE),
+                .maybeVariants(gsLocation(somaticBucket(SageGermlineCaller.NAMESPACE),
                         RESULTS + TUMOR_SAMPLE + ".germline." + FileTypes.GZIPPED_VCF))
-                .maybeGermlineGeneCoverageTsv(gsLocation(somaticBucket(SageGermlineCaller.NAMESPACE),
+                .maybeGermlineGeneCoverage(gsLocation(somaticBucket(SageGermlineCaller.NAMESPACE),
                         RESULTS + TUMOR_SAMPLE + SageGermlineCaller.SAGE_GENE_COVERAGE_TSV))
                 .build();
     }
@@ -217,7 +215,7 @@ public class TestInputs {
     public static SageOutput sageSomaticOutput() {
         return SageOutput.builder(SageSomaticCaller.NAMESPACE)
                 .status(PipelineStatus.SUCCESS)
-                .maybeFinalVcf(gsLocation(somaticBucket(SageSomaticCaller.NAMESPACE),
+                .maybeVariants(gsLocation(somaticBucket(SageSomaticCaller.NAMESPACE),
                         RESULTS + TUMOR_SAMPLE + ".somatic." + FileTypes.GZIPPED_VCF))
                 .maybeSomaticRefSampleBqrPlot(gsLocation(somaticBucket(SageSomaticCaller.NAMESPACE),
                         RESULTS + REFERENCE_SAMPLE + SageGermlineCaller.SAGE_BQR_PNG))
@@ -229,7 +227,7 @@ public class TestInputs {
     public static PaveOutput paveSomaticOutput() {
         return PaveOutput.builder(PaveSomatic.NAMESPACE)
                 .status(PipelineStatus.SUCCESS)
-                .maybeFinalVcf(gsLocation(somaticBucket(PaveSomatic.NAMESPACE), RESULTS + TUMOR_SAMPLE + ".somatic." +
+                .maybeAnnotatedVariants(gsLocation(somaticBucket(PaveSomatic.NAMESPACE), RESULTS + TUMOR_SAMPLE + ".somatic." +
                         // String.format(".%s.%s.", SageSomaticPostProcess.SAGE_SOMATIC_FILTERED, PAVE_FILE_ID) +
                         FileTypes.GZIPPED_VCF))
                 .build();
@@ -238,7 +236,7 @@ public class TestInputs {
     public static PaveOutput paveGermlineOutput() {
         return PaveOutput.builder(PaveGermline.NAMESPACE)
                 .status(PipelineStatus.SUCCESS)
-                .maybeFinalVcf(gsLocation(somaticBucket(PaveGermline.NAMESPACE), RESULTS + TUMOR_SAMPLE + ".germline." +
+                .maybeAnnotatedVariants(gsLocation(somaticBucket(PaveGermline.NAMESPACE), RESULTS + TUMOR_SAMPLE + ".germline." +
                         // String.format(".%s.%s.", SageGermlinePostProcess.SAGE_GERMLINE_FILTERED, PAVE_FILE_ID) +
                         FileTypes.GZIPPED_VCF))
                 .build();
@@ -260,13 +258,10 @@ public class TestInputs {
         String full = ".gripss.full.";
         return GripssSomaticOutput.builder()
                 .status(PipelineStatus.SUCCESS)
-                .maybeFilteredVcf(gsLocation(somaticBucket(GripssSomatic.NAMESPACE),
+                .maybeFilteredVariants(gsLocation(somaticBucket(GripssSomatic.NAMESPACE),
                         RESULTS + TUMOR_SAMPLE + filtered + FileTypes.GZIPPED_VCF))
-                .maybeFilteredVcfIndex(gsLocation(somaticBucket(GripssSomatic.NAMESPACE),
-                        RESULTS + TUMOR_SAMPLE + filtered + FileTypes.GZIPPED_VCF + ".tbi"))
-                .maybeFullVcf(gsLocation(somaticBucket(GripssSomatic.NAMESPACE), RESULTS + TUMOR_SAMPLE + full + FileTypes.GZIPPED_VCF))
-                .maybeFullVcfIndex(gsLocation(somaticBucket(GripssSomatic.NAMESPACE),
-                        RESULTS + TUMOR_SAMPLE + full + FileTypes.GZIPPED_VCF + ".tbi"))
+                .maybeUnfilteredVariants(gsLocation(somaticBucket(GripssSomatic.NAMESPACE),
+                        RESULTS + TUMOR_SAMPLE + full + FileTypes.GZIPPED_VCF))
                 .build();
     }
 
@@ -275,13 +270,10 @@ public class TestInputs {
         String full = ".gripss.full.";
         return GripssGermlineOutput.builder()
                 .status(PipelineStatus.SUCCESS)
-                .maybeFilteredVcf(gsLocation(somaticBucket(GripssGermline.NAMESPACE),
+                .maybeFilteredVariants(gsLocation(somaticBucket(GripssGermline.NAMESPACE),
                         RESULTS + TUMOR_SAMPLE + filtered + FileTypes.GZIPPED_VCF))
-                .maybeFilteredVcfIndex(gsLocation(somaticBucket(GripssGermline.NAMESPACE),
-                        RESULTS + TUMOR_SAMPLE + filtered + FileTypes.GZIPPED_VCF + ".tbi"))
-                .maybeFullVcf(gsLocation(somaticBucket(GripssGermline.NAMESPACE), RESULTS + TUMOR_SAMPLE + full + FileTypes.GZIPPED_VCF))
-                .maybeFullVcfIndex(gsLocation(somaticBucket(GripssGermline.NAMESPACE),
-                        RESULTS + TUMOR_SAMPLE + full + FileTypes.GZIPPED_VCF + ".tbi"))
+                .maybeUnfilteredVariants(gsLocation(somaticBucket(GripssGermline.NAMESPACE),
+                        RESULTS + TUMOR_SAMPLE + full + FileTypes.GZIPPED_VCF))
                 .build();
     }
 
@@ -316,19 +308,19 @@ public class TestInputs {
                 .status(PipelineStatus.SUCCESS)
                 .maybeOutputLocations(PurpleOutputLocations.builder()
                         .outputDirectory(gsLocation(somaticBucket(Purple.NAMESPACE), RESULTS))
-                        .somaticVcf(gsLocation(somaticBucket(Purple.NAMESPACE), TUMOR_SAMPLE + Purple.PURPLE_SOMATIC_VCF))
-                        .germlineVcf(gsLocation(somaticBucket(Purple.NAMESPACE), TUMOR_SAMPLE + Purple.PURPLE_GERMLINE_VCF))
-                        .structuralVcf(gsLocation(somaticBucket(Purple.NAMESPACE), TUMOR_SAMPLE + Purple.PURPLE_SV_VCF))
-                        .purityTsv(gsLocation(somaticBucket(Purple.NAMESPACE), TUMOR_SAMPLE + Purple.PURPLE_PURITY_TSV))
+                        .somaticVariants(gsLocation(somaticBucket(Purple.NAMESPACE), TUMOR_SAMPLE + Purple.PURPLE_SOMATIC_VCF))
+                        .germlineVariants(gsLocation(somaticBucket(Purple.NAMESPACE), TUMOR_SAMPLE + Purple.PURPLE_GERMLINE_VCF))
+                        .structuralVariants(gsLocation(somaticBucket(Purple.NAMESPACE), TUMOR_SAMPLE + Purple.PURPLE_SV_VCF))
+                        .purity(gsLocation(somaticBucket(Purple.NAMESPACE), TUMOR_SAMPLE + Purple.PURPLE_PURITY_TSV))
                         .qcFile(gsLocation(somaticBucket(Purple.NAMESPACE), TUMOR_SAMPLE + Purple.PURPLE_QC))
-                        .geneCopyNumberTsv(gsLocation(somaticBucket(Purple.NAMESPACE), TUMOR_SAMPLE + Purple.PURPLE_GENE_COPY_NUMBER_TSV))
+                        .geneCopyNumber(gsLocation(somaticBucket(Purple.NAMESPACE), TUMOR_SAMPLE + Purple.PURPLE_GENE_COPY_NUMBER_TSV))
                         .somaticDriverCatalog(gsLocation(somaticBucket(Purple.NAMESPACE),
                                 TUMOR_SAMPLE + Purple.PURPLE_SOMATIC_DRIVER_CATALOG))
                         .germlineDriverCatalog(gsLocation(somaticBucket(Purple.NAMESPACE),
                                 TUMOR_SAMPLE + Purple.PURPLE_GERMLINE_DRIVER_CATALOG))
                         .circosPlot(gsLocation(somaticBucket(Purple.NAMESPACE),
                                 format("plot/%s%s", TUMOR_SAMPLE, Purple.PURPLE_CIRCOS_PLOT)))
-                        .somaticCopyNumberTsv(gsLocation(somaticBucket(Purple.NAMESPACE),
+                        .somaticCopyNumber(gsLocation(somaticBucket(Purple.NAMESPACE),
                                 TUMOR_SAMPLE + Purple.PURPLE_SOMATIC_COPY_NUMBER_TSV))
                         .build())
                 .build();
@@ -399,14 +391,14 @@ public class TestInputs {
     public static ProtectOutput protectOutput() {
         return ProtectOutput.builder()
                 .status(PipelineStatus.SUCCESS)
-                .maybeEvidenceTsv(GoogleStorageLocation.of(somaticBucket(Protect.NAMESPACE), TUMOR_SAMPLE + Protect.PROTECT_EVIDENCE_TSV))
+                .maybeEvidence(GoogleStorageLocation.of(somaticBucket(Protect.NAMESPACE), TUMOR_SAMPLE + Protect.PROTECT_EVIDENCE_TSV))
                 .build();
     }
 
     public static PeachOutput peachOutput() {
         return PeachOutput.builder()
                 .status(PipelineStatus.SUCCESS)
-                .maybeGenotypeTsv(GoogleStorageLocation.of(somaticBucket(Peach.NAMESPACE), TUMOR_SAMPLE + Peach.PEACH_GENOTYPE_TSV))
+                .maybeGenotypes(GoogleStorageLocation.of(somaticBucket(Peach.NAMESPACE), TUMOR_SAMPLE + Peach.PEACH_GENOTYPE_TSV))
                 .build();
     }
 

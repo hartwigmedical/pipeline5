@@ -15,10 +15,10 @@ public interface ProtectOutput extends StageOutput {
         return Protect.NAMESPACE;
     }
 
-    Optional<GoogleStorageLocation> maybeEvidenceTsv();
+    Optional<GoogleStorageLocation> maybeEvidence();
 
-    default GoogleStorageLocation evidenceTsv() {
-        return maybeEvidenceTsv().orElseThrow();
+    default GoogleStorageLocation evidence() {
+        return maybeEvidence().orElse(GoogleStorageLocation.empty());
     }
 
     static ImmutableProtectOutput.Builder builder() {

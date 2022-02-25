@@ -3,6 +3,7 @@ package com.hartwig.pipeline.tertiary.purple;
 import java.util.Optional;
 
 import com.hartwig.pipeline.StageOutput;
+import com.hartwig.pipeline.storage.GoogleStorageLocation;
 
 import org.immutables.value.Value;
 
@@ -17,7 +18,19 @@ public interface PurpleOutput extends StageOutput {
     Optional<PurpleOutputLocations> maybeOutputLocations();
 
     default PurpleOutputLocations outputLocations() {
-        return maybeOutputLocations().orElseThrow();
+        return maybeOutputLocations().orElse(PurpleOutputLocations.builder()
+                .structuralVariants(GoogleStorageLocation.empty())
+                .somaticVariants(GoogleStorageLocation.empty())
+                .germlineVariants(GoogleStorageLocation.empty())
+                .qcFile(GoogleStorageLocation.empty())
+                .purity(GoogleStorageLocation.empty())
+                .germlineDriverCatalog(GoogleStorageLocation.empty())
+                .circosPlot(GoogleStorageLocation.empty())
+                .somaticCopyNumber(GoogleStorageLocation.empty())
+                .geneCopyNumber(GoogleStorageLocation.empty())
+                .outputDirectory(GoogleStorageLocation.empty())
+                .somaticDriverCatalog(GoogleStorageLocation.empty())
+                .build());
     }
 
     static ImmutablePurpleOutput.Builder builder() {

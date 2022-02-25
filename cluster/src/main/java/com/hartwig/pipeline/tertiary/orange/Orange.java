@@ -1,7 +1,6 @@
 package com.hartwig.pipeline.tertiary.orange;
 
 import java.util.List;
-import java.util.function.Function;
 
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
@@ -35,12 +34,10 @@ import com.hartwig.pipeline.tertiary.cuppa.CuppaOutputLocations;
 import com.hartwig.pipeline.tertiary.linx.LinxSomatic;
 import com.hartwig.pipeline.tertiary.linx.LinxSomaticOutput;
 import com.hartwig.pipeline.tertiary.linx.LinxSomaticOutputLocations;
-import com.hartwig.pipeline.tertiary.linx.LinxSomatic;
 import com.hartwig.pipeline.tertiary.peach.PeachOutput;
 import com.hartwig.pipeline.tertiary.protect.ProtectOutput;
 import com.hartwig.pipeline.tertiary.purple.Purple;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
-import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
 import com.hartwig.pipeline.tertiary.virus.VirusOutput;
 import com.hartwig.pipeline.tools.Versions;
@@ -90,51 +87,36 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
             final ResourceFiles resourceFiles) {
 
         this.resourceFiles = resourceFiles;
-        this.refMetrics = new InputDownload(referenceMetrics.maybeMetricsOutputFile().orElse(GoogleStorageLocation.empty()));
-        this.tumMetrics = new InputDownload(tumorMetrics.maybeMetricsOutputFile().orElse(GoogleStorageLocation.empty()));
-        this.refFlagstat = new InputDownload(referenceFlagstat.maybeFlagstatOutputFile().orElse(GoogleStorageLocation.empty()));
-        this.tumFlagstat = new InputDownload(tumorFlagstat.maybeFlagstatOutputFile().orElse(GoogleStorageLocation.empty()));
-        this.purpleGermlineVcf = new InputDownload(purpleOrEmpty(purpleOutput, PurpleOutputLocations::germlineVcf));
-        this.purpleSomaticVcf = new InputDownload(purpleOrEmpty(purpleOutput, PurpleOutputLocations::somaticVcf));
-        this.purplePurityTsv = new InputDownload(purpleOrEmpty(purpleOutput, PurpleOutputLocations::purityTsv));
-        this.purpleQCFile = new InputDownload(purpleOrEmpty(purpleOutput, PurpleOutputLocations::qcFile));
-        this.purpleGeneCopyNumberTsv = new InputDownload(purpleOrEmpty(purpleOutput, PurpleOutputLocations::geneCopyNumberTsv));
-        this.purpleSomaticDriverCatalog = new InputDownload(purpleOrEmpty(purpleOutput, PurpleOutputLocations::somaticDriverCatalog));
-        this.purpleGermlineDriverCatalog = new InputDownload(purpleOrEmpty(purpleOutput, PurpleOutputLocations::germlineDriverCatalog));
-        this.purpleOutputDir = new InputDownload(purpleOrEmpty(purpleOutput, PurpleOutputLocations::outputDirectory), LOCAL_PURPLE_DIR);
-        this.sageGermlineGeneCoverageTsv =
-                new InputDownload(sageGermlineOutput.maybeGermlineGeneCoverageTsv().orElse(GoogleStorageLocation.empty()));
-        this.sageSomaticRefSampleBqrPlot =
-                new InputDownload(sageSomaticOutput.maybeSomaticRefSampleBqrPlot().orElse(GoogleStorageLocation.empty()));
-        this.sageSomaticTumorSampleBqrPlot =
-                new InputDownload(sageSomaticOutput.maybeSomaticTumorSampleBqrPlot().orElse(GoogleStorageLocation.empty()));
-        this.linxOutputDir = new InputDownload(linxOrEmpty(linxOutput, LinxSomaticOutputLocations::outputDirectory), LOCAL_LINX_DIR);
-        this.linxFusionTsv = new InputDownload(linxOrEmpty(linxOutput, LinxSomaticOutputLocations::fusions));
-        this.linxBreakEndTsv = new InputDownload(linxOrEmpty(linxOutput, LinxSomaticOutputLocations::breakends));
-        this.linxDriverCatalogTsv = new InputDownload(linxOrEmpty(linxOutput, LinxSomaticOutputLocations::driverCatalog));
-        this.linxDriverTsv = new InputDownload(linxOrEmpty(linxOutput, LinxSomaticOutputLocations::drivers));
-        this.chordPredictionTxt = new InputDownload(chordOutput.maybePredictions().orElse(GoogleStorageLocation.empty()));
-        this.cuppaResultCsv = new InputDownload(cuppaOrEmpty(cuppaOutput, CuppaOutputLocations::resultCsv));
-        this.cuppaSummaryPlot = new InputDownload(cuppaOrEmpty(cuppaOutput, CuppaOutputLocations::summaryChartPng));
-        this.cuppaFeaturePlot = new InputDownloadIfBlobExists(cuppaOrEmpty(cuppaOutput, CuppaOutputLocations::featurePlot));
-        this.peachGenotypeTsv = new InputDownload(peachOutput.maybeGenotypeTsv().orElse(GoogleStorageLocation.empty()));
-        this.protectEvidenceTsv = new InputDownload(protectOutput.maybeEvidenceTsv().orElse(GoogleStorageLocation.empty()));
-        this.annotatedVirusTsv = new InputDownload(virusOutput.maybeAnnotatedVirusFile().orElse(GoogleStorageLocation.empty()));
-    }
-
-    public GoogleStorageLocation purpleOrEmpty(final PurpleOutput purpleOutput,
-            final Function<PurpleOutputLocations, GoogleStorageLocation> extractor) {
-        return purpleOutput.maybeOutputLocations().map(extractor).orElse(GoogleStorageLocation.empty());
-    }
-
-    public GoogleStorageLocation linxOrEmpty(final LinxSomaticOutput linxOutput,
-            final Function<LinxSomaticOutputLocations, GoogleStorageLocation> extractor) {
-        return linxOutput.maybeLinxOutputLocations().map(extractor).orElse(GoogleStorageLocation.empty());
-    }
-
-    public GoogleStorageLocation cuppaOrEmpty(final CuppaOutput cuppaOutput,
-            final Function<CuppaOutputLocations, GoogleStorageLocation> extractor) {
-        return cuppaOutput.maybeCuppaOutputLocations().map(extractor).orElse(GoogleStorageLocation.empty());
+        this.refMetrics = new InputDownload(referenceMetrics.metricsOutputFile());
+        this.tumMetrics = new InputDownload(tumorMetrics.metricsOutputFile());
+        this.refFlagstat = new InputDownload(referenceFlagstat.flagstatOutputFile());
+        this.tumFlagstat = new InputDownload(tumorFlagstat.flagstatOutputFile());
+        PurpleOutputLocations purpleOutputLocations = purpleOutput.outputLocations();
+        this.purpleGermlineVcf = new InputDownload(purpleOutputLocations.germlineVariants());
+        this.purpleSomaticVcf = new InputDownload(purpleOutputLocations.somaticVariants());
+        this.purplePurityTsv = new InputDownload(purpleOutputLocations.purity());
+        this.purpleQCFile = new InputDownload(purpleOutputLocations.qcFile());
+        this.purpleGeneCopyNumberTsv = new InputDownload(purpleOutputLocations.geneCopyNumber());
+        this.purpleSomaticDriverCatalog = new InputDownload(purpleOutputLocations.somaticDriverCatalog());
+        this.purpleGermlineDriverCatalog = new InputDownload(purpleOutputLocations.germlineDriverCatalog());
+        this.purpleOutputDir = new InputDownload(purpleOutputLocations.outputDirectory(), LOCAL_PURPLE_DIR);
+        this.sageGermlineGeneCoverageTsv = new InputDownload(sageGermlineOutput.germlineGeneCoverage());
+        this.sageSomaticRefSampleBqrPlot = new InputDownload(sageSomaticOutput.somaticRefSampleBqrPlot());
+        this.sageSomaticTumorSampleBqrPlot = new InputDownload(sageSomaticOutput.somaticTumorSampleBqrPlot());
+        LinxSomaticOutputLocations linxSomaticOutputLocations = linxOutput.linxOutputLocations();
+        this.linxOutputDir = new InputDownload(linxSomaticOutputLocations.outputDirectory(), LOCAL_LINX_DIR);
+        this.linxFusionTsv = new InputDownload(linxSomaticOutputLocations.fusions());
+        this.linxBreakEndTsv = new InputDownload(linxSomaticOutputLocations.breakends());
+        this.linxDriverCatalogTsv = new InputDownload(linxSomaticOutputLocations.driverCatalog());
+        this.linxDriverTsv = new InputDownload(linxSomaticOutputLocations.drivers());
+        this.chordPredictionTxt = new InputDownload(chordOutput.predictions());
+        CuppaOutputLocations cuppaOutputLocations = cuppaOutput.cuppaOutputLocations();
+        this.cuppaResultCsv = new InputDownload(cuppaOutputLocations.resultCsv());
+        this.cuppaSummaryPlot = new InputDownload(cuppaOutputLocations.summaryChartPng());
+        this.cuppaFeaturePlot = new InputDownloadIfBlobExists(cuppaOutputLocations.featurePlot());
+        this.peachGenotypeTsv = new InputDownload(peachOutput.genotypes());
+        this.protectEvidenceTsv = new InputDownload(protectOutput.evidence());
+        this.annotatedVirusTsv = new InputDownload(virusOutput.virusAnnotations());
     }
 
     @Override

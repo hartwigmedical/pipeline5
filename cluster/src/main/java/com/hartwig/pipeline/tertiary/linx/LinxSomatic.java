@@ -1,19 +1,15 @@
 package com.hartwig.pipeline.tertiary.linx;
 
-import static com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile.custom;
-
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
 
-import com.google.api.client.util.Lists;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
@@ -45,17 +41,14 @@ public class LinxSomatic implements Stage<LinxSomaticOutput, SomaticRunMetadata>
     public static final String DRIVERS_TSV = ".linx.drivers.tsv";
 
     private final InputDownload purpleOutputDirDownload;
-    private final InputDownload purpleStructuralVcfDownload;
+    private final InputDownload purpleStructuralVariantsDownload;
     private final ResourceFiles resourceFiles;
     private final PersistedDataset persistedDataset;
 
     public LinxSomatic(PurpleOutput purpleOutput, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
-        purpleOutputDirDownload = new InputDownload(purpleOutput.maybeOutputLocations()
-                .map(PurpleOutputLocations::outputDirectory)
-                .orElse(GoogleStorageLocation.empty()));
-        purpleStructuralVcfDownload = new InputDownload(purpleOutput.maybeOutputLocations()
-                .map(PurpleOutputLocations::structuralVcf)
-                .orElse(GoogleStorageLocation.empty()));
+        PurpleOutputLocations purpleOutputLocations = purpleOutput.outputLocations();
+        purpleOutputDirDownload = new InputDownload(purpleOutputLocations.outputDirectory());
+        purpleStructuralVariantsDownload = new InputDownload(purpleOutputLocations.structuralVariants());
         this.resourceFiles = resourceFiles;
         this.persistedDataset = persistedDataset;
     }
@@ -73,7 +66,7 @@ public class LinxSomatic implements Stage<LinxSomaticOutput, SomaticRunMetadata>
     @Override
     public List<BashCommand> commands(final SomaticRunMetadata metadata) {
         return List.of(new LinxCommand(metadata.tumor().sampleName(),
-                        purpleStructuralVcfDownload.getLocalTargetPath(),
+                        purpleStructuralVariantsDownload.getLocalTargetPath(),
                         purpleOutputDirDownload.getLocalTargetPath(),
                         resourceFiles.version(),
                         VmDirectories.OUTPUT,

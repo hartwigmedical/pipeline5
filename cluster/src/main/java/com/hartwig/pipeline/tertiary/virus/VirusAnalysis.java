@@ -40,7 +40,7 @@ public class VirusAnalysis extends TertiaryStage<VirusOutput> {
 
     private final ResourceFiles resourceFiles;
     private final PersistedDataset persistedDataset;
-    private final InputDownload purplePurityTsv;
+    private final InputDownload purplePurity;
     private final InputDownload purpleQcFile;
     private final InputDownload tumorBamMetrics;
 
@@ -49,20 +49,17 @@ public class VirusAnalysis extends TertiaryStage<VirusOutput> {
         super(alignmentPair);
         this.resourceFiles = resourceFiles;
         this.persistedDataset = persistedDataset;
-        this.purpleQcFile = new InputDownload(purpleOutput.maybeOutputLocations()
-                .map(PurpleOutputLocations::qcFile)
-                .orElse(GoogleStorageLocation.empty()));
-        this.purplePurityTsv = new InputDownload(purpleOutput.maybeOutputLocations()
-                .map(PurpleOutputLocations::purityTsv)
-                .orElse(GoogleStorageLocation.empty()));
-        this.tumorBamMetrics = new InputDownload(tumorBamMetricsOutput.maybeMetricsOutputFile().orElse(GoogleStorageLocation.empty()));
+        final PurpleOutputLocations purpleOutputLocations = purpleOutput.outputLocations();
+        this.purpleQcFile = new InputDownload(purpleOutputLocations.qcFile());
+        this.purplePurity = new InputDownload(purpleOutputLocations.purity());
+        this.tumorBamMetrics = new InputDownload(tumorBamMetricsOutput.metricsOutputFile());
     }
 
     @Override
     public List<BashCommand> inputs() {
         List<BashCommand> inputs = new ArrayList<>(super.inputs());
         inputs.add(purpleQcFile);
-        inputs.add(purplePurityTsv);
+        inputs.add(purplePurity);
         inputs.add(tumorBamMetrics);
         return inputs;
     }
@@ -78,7 +75,7 @@ public class VirusAnalysis extends TertiaryStage<VirusOutput> {
         return new VirusBreakend(tumorSample, getTumorBamDownload().getLocalTargetPath(), resourceFiles).andThen(new VirusInterpreter(
                 tumorSample,
                 resourceFiles,
-                purplePurityTsv.getLocalTargetPath(),
+                purplePurity.getLocalTargetPath(),
                 purpleQcFile.getLocalTargetPath(),
                 tumorBamMetrics.getLocalTargetPath())).apply(SubStageInputOutput.empty(tumorSample)).bash();
     }

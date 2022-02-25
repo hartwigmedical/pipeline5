@@ -24,26 +24,23 @@ import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
-import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
 import com.hartwig.pipeline.tools.Versions;
 
 public class Sigs implements Stage<SigsOutput, SomaticRunMetadata> {
     public static String NAMESPACE = "sigs";
 
-    private final InputDownload purpleSomaticVcfDownload;
+    private final InputDownload purpleSomaticVariantsDownload;
 
     private final ResourceFiles resourceFiles;
 
     public Sigs(final PurpleOutput purpleOutput, final ResourceFiles resourceFiles) {
-        purpleSomaticVcfDownload = new InputDownload(purpleOutput.maybeOutputLocations()
-                .map(PurpleOutputLocations::somaticVcf)
-                .orElse(GoogleStorageLocation.empty()));
+        purpleSomaticVariantsDownload = new InputDownload(purpleOutput.outputLocations().somaticVariants());
         this.resourceFiles = resourceFiles;
     }
 
     @Override
     public List<BashCommand> inputs() {
-        return List.of(purpleSomaticVcfDownload);
+        return List.of(purpleSomaticVariantsDownload);
     }
 
     @Override
@@ -62,7 +59,7 @@ public class Sigs implements Stage<SigsOutput, SomaticRunMetadata> {
                         "-signatures_file",
                         resourceFiles.snvSignatures(),
                         "-somatic_vcf_file",
-                        purpleSomaticVcfDownload.getLocalTargetPath(),
+                        purpleSomaticVariantsDownload.getLocalTargetPath(),
                         "-output_dir",
                         VmDirectories.OUTPUT)));
     }

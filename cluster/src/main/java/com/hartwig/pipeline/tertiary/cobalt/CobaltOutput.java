@@ -18,7 +18,7 @@ public interface CobaltOutput extends StageOutput {
     Optional<GoogleStorageLocation> maybeOutputDirectory();
 
     default GoogleStorageLocation outputDirectory() {
-        return maybeOutputDirectory().orElseThrow(() -> new IllegalStateException("No output directory available"));
+        return maybeOutputDirectory().orElse(GoogleStorageLocation.empty());
     }
 
     static ImmutableCobaltOutput.Builder builder() {

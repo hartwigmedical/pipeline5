@@ -74,7 +74,7 @@ public class PaveGermlineTest extends StageTest<PaveOutput, SomaticRunMetadata> 
 
     @Override
     protected void validatePersistedOutput(final PaveOutput output) {
-        assertThat(output.finalVcf()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
+        assertThat(output.annotatedVariants()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
                 "set/pave_germline/tumor.sage.germline.filtered.pave.vcf.gz"));
     }
 }

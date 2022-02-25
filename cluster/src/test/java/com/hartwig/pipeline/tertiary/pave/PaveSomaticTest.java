@@ -74,7 +74,7 @@ public class PaveSomaticTest extends StageTest<PaveOutput, SomaticRunMetadata> {
 
     @Override
     protected void validatePersistedOutput(final PaveOutput output) {
-        assertThat(output.finalVcf()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
+        assertThat(output.annotatedVariants()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
                 "set/pave_somatic/tumor.sage.somatic.filtered.pave.vcf.gz"));
     }
 }
