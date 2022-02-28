@@ -19,6 +19,8 @@ import static com.hartwig.pipeline.resource.ResourceNames.REFERENCE_GENOME;
 import static com.hartwig.pipeline.resource.ResourceNames.SAGE;
 import static com.hartwig.pipeline.resource.ResourceNames.SERVE;
 
+import java.util.Optional;
+
 public class RefGenome37ResourceFiles implements ResourceFiles {
 
     private static final String REF_GENOME_FASTA_37_FILE = "Homo_sapiens.GRCh37.GATK.illumina.fasta";
@@ -189,6 +191,7 @@ public class RefGenome37ResourceFiles implements ResourceFiles {
     }
 
     @Override
-    public String purpleCohortGermlineDeletions() { return formPath(PURPLE, "cohort_germline_del_freq.37.csv"); }
-
+    public String purpleCohortGermlineDeletions() {
+        return formPath(PURPLE, "cohort_germline_del_freq.37.csv");
+    }
 }
