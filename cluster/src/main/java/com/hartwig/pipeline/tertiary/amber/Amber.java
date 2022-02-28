@@ -48,6 +48,7 @@ public class Amber extends TertiaryStage<AmberOutput> {
         return List.of(AmberCommandBuilder.newBuilder(resourceFiles)
                 .tumor(metadata.tumor().sampleName(), getTumorBamDownload().getLocalTargetPath())
                 .reference(metadata.reference().sampleName(), getReferenceBamDownload().getLocalTargetPath())
+                .panelBed(resourceFiles.panelBed())
                 .build(), new CopyResourceToOutput(resourceFiles.amberSnpcheck()));
     }
 

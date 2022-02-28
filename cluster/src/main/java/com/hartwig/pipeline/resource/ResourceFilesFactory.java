@@ -10,6 +10,12 @@ public class ResourceFilesFactory {
 
     public static ResourceFiles buildResourceFiles(final CommonArguments arguments) {
         ResourceFiles resourceFiles = buildResourceFiles(arguments.refGenomeVersion());
-        return arguments.refGenomeUrl().<ResourceFiles>map(p -> new OverriddenReferenceGenome(resourceFiles, p)).orElse(resourceFiles);
+        if (arguments.refGenomeUrl().isPresent()) {
+            resourceFiles = new OverriddenReferenceGenome(resourceFiles, arguments.refGenomeUrl().get());
+        }
+        if (arguments.panelBedLocation().isPresent()) {
+            resourceFiles = new PanelEnabled(resourceFiles, arguments.panelBedLocation().get());
+        }
+        return resourceFiles;
     }
 }
