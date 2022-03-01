@@ -62,6 +62,6 @@ public class FileTypes {
         } else if (isCram(filename)) {
             return crai(filename);
         }
-        throw new IllegalArgumentException();
+        return filename;
     }
 }

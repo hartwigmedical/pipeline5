@@ -13,7 +13,7 @@ public interface PaveOutput extends StageOutput {
     Optional<GoogleStorageLocation> maybeAnnotatedVariants();
 
     default GoogleStorageLocation annotatedVariants() {
-        return maybeAnnotatedVariants().orElseThrow(() -> new IllegalStateException("No final vcf available"));
+        return maybeAnnotatedVariants().orElse(GoogleStorageLocation.empty());
     }
 
     static ImmutablePaveOutput.Builder builder(final String namespace) {

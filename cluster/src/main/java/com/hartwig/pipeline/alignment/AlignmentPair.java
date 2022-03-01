@@ -2,6 +2,7 @@ package com.hartwig.pipeline.alignment;
 
 import java.util.Optional;
 
+import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 
 import org.immutables.value.Value;
@@ -14,11 +15,11 @@ public interface AlignmentPair {
     Optional<AlignmentOutput> maybeTumor();
 
     default AlignmentOutput reference() {
-        return maybeReference().orElseThrow();
+        return maybeReference().orElse(AlignmentOutput.builder().sample("empty").status(PipelineStatus.SKIPPED).build());
     }
 
     default AlignmentOutput tumor() {
-        return maybeTumor().orElseThrow();
+        return maybeTumor().orElse(AlignmentOutput.builder().sample("empty").status(PipelineStatus.SKIPPED).build());
     }
 
     static ImmutableAlignmentPair.Builder builder() {
