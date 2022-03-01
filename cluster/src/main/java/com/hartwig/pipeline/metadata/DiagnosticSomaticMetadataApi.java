@@ -44,26 +44,18 @@ public class DiagnosticSomaticMetadataApi implements SomaticMetadataApi {
         String runBucket = ofNullable(run.getBucket()).orElseThrow();
         RunSet set = run.getSet();
         List<Sample> samplesBySet = sampleApi.list(null, null, null, set.getId(), null, null);
-
-        SingleSampleRunMetadata reference = find(SampleType.REF, samplesBySet).map(referenceSample -> toMetadata(referenceSample,
+        return SomaticRunMetadata.builder()
+                .bucket(runBucket)
+                .set(set.getName())
+                .maybeReference(find(SampleType.REF, samplesBySet).map(referenceSample -> toMetadata(referenceSample,
                         run,
                         SingleSampleRunMetadata.SampleType.REFERENCE,
-                        anonymizer))
-                .orElseThrow(() -> new IllegalStateException(String.format("No reference sample found in SBP for set [%s]",
-                        set.getName())));
-        String ini = run.getIni();
-        if (Ini.SINGLESAMPLE_INI.getValue().equals(ini)) {
-            return SomaticRunMetadata.builder().bucket(runBucket).set(set.getName()).maybeReference(reference).build();
-        } else {
-            SingleSampleRunMetadata tumor = find(SampleType.TUMOR, samplesBySet).map(referenceSample -> toMetadata(referenceSample,
-                            run,
-                            SingleSampleRunMetadata.SampleType.TUMOR,
-                            anonymizer))
-                    .orElseThrow((() -> new IllegalStateException(String.format(
-                            "No tumor sample found in SBP for set [%s] and this run was not marked as single sample",
-                            set.getName()))));
-            return SomaticRunMetadata.builder().bucket(runBucket).set(set.getName()).maybeReference(reference).maybeTumor(tumor).build();
-        }
+                        anonymizer)))
+                .maybeTumor(find(SampleType.TUMOR, samplesBySet).map(referenceSample1 -> toMetadata(referenceSample1,
+                        run,
+                        SingleSampleRunMetadata.SampleType.TUMOR,
+                        anonymizer)))
+                .build();
     }
 
     private static SingleSampleRunMetadata toMetadata(final Sample sample, final Run aRun, final SingleSampleRunMetadata.SampleType type,
