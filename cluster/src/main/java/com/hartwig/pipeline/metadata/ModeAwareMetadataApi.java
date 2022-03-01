@@ -2,7 +2,12 @@ package com.hartwig.pipeline.metadata;
 
 import com.hartwig.pipeline.PipelineState;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class ModeAwareMetadataApi implements SomaticMetadataApi {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ModeAwareMetadataApi.class);
 
     private final SomaticMetadataApi decorated;
     private final ModeResolver resolver;
@@ -19,7 +24,9 @@ public class ModeAwareMetadataApi implements SomaticMetadataApi {
     @Override
     public SomaticRunMetadata get() {
         final SomaticRunMetadata metadata = decorated.get();
-        return ImmutableSomaticRunMetadata.builder().from(metadata).mode(resolver.apply(metadata)).build();
+        final InputMode mode = resolver.apply(metadata);
+        LOGGER.info("Resolved sample input mode [{}]", mode);
+        return ImmutableSomaticRunMetadata.builder().from(metadata).mode(mode).build();
     }
 
     @Override

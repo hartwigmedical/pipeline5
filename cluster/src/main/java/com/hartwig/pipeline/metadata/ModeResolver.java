@@ -1,7 +1,5 @@
 package com.hartwig.pipeline.metadata;
 
-import com.hartwig.patient.ReferenceTumorPair;
-
 public class ModeResolver {
 
     InputMode apply(final SomaticRunMetadata metadata) {
