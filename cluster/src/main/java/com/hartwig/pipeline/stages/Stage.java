@@ -27,11 +27,11 @@ public interface Stage<S extends StageOutput, M extends RunMetadata> {
         return Collections.emptyList();
     }
 
-    default List<BashCommand> germlineOnlyCommands(M metadata) {
+    default List<BashCommand> normalOnlyCommands(M metadata) {
         return Collections.emptyList();
     }
 
-    default List<BashCommand> somaticCommands(M metadata) {
+    default List<BashCommand> tumorNormalCommands(M metadata) {
         return commands(metadata);
     }
 

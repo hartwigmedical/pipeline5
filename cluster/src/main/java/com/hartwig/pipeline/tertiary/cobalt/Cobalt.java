@@ -2,7 +2,6 @@ package com.hartwig.pipeline.tertiary.cobalt;
 
 import static java.util.Collections.*;
 
-import java.util.Collections;
 import java.util.List;
 
 import com.hartwig.pipeline.ResultsDirectory;
@@ -52,7 +51,7 @@ public class Cobalt extends TertiaryStage<CobaltOutput> {
     }
 
     @Override
-    public List<BashCommand> somaticCommands(final SomaticRunMetadata metadata) {
+    public List<BashCommand> tumorNormalCommands(final SomaticRunMetadata metadata) {
         return singletonList(CobaltCommandBuilder.newBuilder(resourceFiles)
                 .tumor(metadata.tumor().sampleName(), getTumorBamDownload().getLocalTargetPath())
                 .reference(metadata.reference().sampleName(), getReferenceBamDownload().getLocalTargetPath())
@@ -60,8 +59,8 @@ public class Cobalt extends TertiaryStage<CobaltOutput> {
     }
 
     @Override
-    public List<BashCommand> germlineOnlyCommands(final SomaticRunMetadata metadata) {
-        return super.germlineOnlyCommands(metadata);
+    public List<BashCommand> normalOnlyCommands(final SomaticRunMetadata metadata) {
+        return super.normalOnlyCommands(metadata);
     }
 
     @Override

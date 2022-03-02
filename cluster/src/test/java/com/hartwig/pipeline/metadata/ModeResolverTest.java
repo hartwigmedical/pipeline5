@@ -4,8 +4,6 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import java.util.Optional;
 
-import com.hartwig.patient.ImmutableReferenceTumorPair;
-import com.hartwig.patient.ImmutableSample;
 import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Test;
@@ -16,7 +14,7 @@ public class ModeResolverTest {
     public void bothTumorAndReferenceReturnsSomatic() {
         ModeResolver victim = new ModeResolver();
         final InputMode result = victim.apply(TestInputs.defaultSomaticRunMetadata());
-        assertThat(result).isEqualTo(InputMode.SOMATIC);
+        assertThat(result).isEqualTo(InputMode.TUMOR_NORMAL);
     }
 
     @Test
@@ -26,7 +24,7 @@ public class ModeResolverTest {
                 .from(TestInputs.defaultSomaticRunMetadata())
                 .maybeTumor(Optional.empty())
                 .build());
-        assertThat(result).isEqualTo(InputMode.GERMLINE_ONLY);
+        assertThat(result).isEqualTo(InputMode.NORMAL_ONLY);
     }
 
     @Test

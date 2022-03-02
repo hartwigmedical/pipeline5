@@ -70,12 +70,12 @@ public class StageRunner<M extends RunMetadata> {
 
     private <T extends StageOutput> List<BashCommand> commands(final M metadata, final Stage<T, M> stage) {
         switch (metadata.mode()) {
-            case SOMATIC:
-                return stage.somaticCommands(metadata);
+            case TUMOR_NORMAL:
+                return stage.tumorNormalCommands(metadata);
             case TUMOR_ONLY:
                 return stage.tumorOnlyCommands(metadata);
-            case GERMLINE_ONLY:
-                return stage.germlineOnlyCommands(metadata);
+            case NORMAL_ONLY:
+                return stage.normalOnlyCommands(metadata);
             default:
                 return Collections.emptyList();
         }

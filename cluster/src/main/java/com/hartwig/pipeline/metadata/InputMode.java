@@ -1,7 +1,7 @@
 package com.hartwig.pipeline.metadata;
 
 public enum InputMode {
-    SOMATIC,
+    TUMOR_NORMAL,
     TUMOR_ONLY,
-    GERMLINE_ONLY
+    NORMAL_ONLY
 }
