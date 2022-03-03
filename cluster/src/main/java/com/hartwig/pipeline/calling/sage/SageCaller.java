@@ -89,7 +89,7 @@ public class SageCaller extends TertiaryStage<SageOutput> {
 
         final String filteredOutputFile = sageConfiguration.filteredTemplate().apply(metadata);
         final String unfilteredOutputFile = sageConfiguration.unfilteredTemplate().apply(metadata);
-        final String geneCoverageFile = geneCoverageFile(metadata);
+        final String geneCoverageFile = sageConfiguration.geneCoverageTemplate().apply(metadata);
         final String somaticRefSampleBqrPlot = somaticRefSampleBqrPlot(metadata);
         final String somaticTumorSampleBqrPlot = somaticTumorSampleBqrPlot(metadata);
 
@@ -106,6 +106,7 @@ public class SageCaller extends TertiaryStage<SageOutput> {
                 .addReportComponents(bqrComponent(metadata.reference(), "tsv", bucket, resultsDirectory))
                 .addReportComponents(vcfComponent(unfilteredOutputFile, bucket, resultsDirectory))
                 .addReportComponents(vcfComponent(filteredOutputFile, bucket, resultsDirectory))
+                .addReportComponents(singleFileComponent(geneCoverageFile, bucket, resultsDirectory))
                 .addReportComponents(new RunLogComponent(bucket, namespace(), Folder.root(), resultsDirectory))
                 .addReportComponents(new StartupScriptComponent(bucket, namespace(), Folder.root()))
                 .addDatatypes(new AddDatatype(sageConfiguration.vcfDatatype(),
