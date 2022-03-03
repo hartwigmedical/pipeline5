@@ -2,14 +2,13 @@ package com.hartwig.batch.operations;
 
 import static java.lang.String.format;
 
-import static com.hartwig.batch.operations.BatchCommon.BATCH_RESOURCE_DIR;
-import static com.hartwig.batch.operations.BatchCommon.BATCH_TOOLS_DIR;
+import static com.hartwig.batch.operations.BatchCommon.BATCH_RESOURCE_BUCKET;
+import static com.hartwig.batch.operations.BatchCommon.BATCH_TOOLS_BUCKET;
 import static com.hartwig.batch.operations.BatchCommon.GNOMAD_DIR;
 import static com.hartwig.batch.operations.BatchCommon.PANEL_BAM_BUCKET;
 import static com.hartwig.batch.operations.BatchCommon.PAVE_DIR;
 import static com.hartwig.batch.operations.BatchCommon.PAVE_JAR;
 import static com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile.custom;
-import static com.hartwig.pipeline.tools.Versions.BCF_TOOLS;
 
 import java.util.StringJoiner;
 
@@ -30,7 +29,6 @@ import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.resource.ResourceFilesFactory;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
-import com.hartwig.pipeline.tools.Versions;
 
 public class SagePanelTumor implements BatchOperation {
 
@@ -49,16 +47,25 @@ public class SagePanelTumor implements BatchOperation {
         final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.V38);
 
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s/%s %s",
-                BATCH_TOOLS_DIR, SAGE_DIR, SAGE_JAR, VmDirectories.TOOLS));
+                BATCH_TOOLS_BUCKET, SAGE_DIR, SAGE_JAR, VmDirectories.TOOLS));
 
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s/%s %s",
-                BATCH_RESOURCE_DIR, SAGE_DIR, PANEL_BED, VmDirectories.INPUT));
+                BATCH_RESOURCE_BUCKET, SAGE_DIR, PANEL_BED, VmDirectories.INPUT));
 
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s/%s %s",
-                BATCH_TOOLS_DIR, PAVE_DIR, PAVE_JAR, VmDirectories.TOOLS));
+                BATCH_TOOLS_BUCKET, PAVE_DIR, PAVE_JAR, VmDirectories.TOOLS));
 
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s/38/* %s",
-                BATCH_RESOURCE_DIR, GNOMAD_DIR, VmDirectories.INPUT));
+                BATCH_RESOURCE_BUCKET, GNOMAD_DIR, VmDirectories.INPUT));
+
+        String ponFile = "SageGermlinePon.98x.38.tsv.gz";
+        String ponArtefactFile = "pon_panel_artefact.38.tsv";
+
+        startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s/%s %s",
+                BATCH_RESOURCE_BUCKET, SAGE_DIR, ponFile, VmDirectories.INPUT));
+
+        startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s/%s %s",
+                BATCH_RESOURCE_BUCKET, SAGE_DIR, ponArtefactFile, VmDirectories.INPUT));
 
         // download tumor BAM
         final String tumorBam = String.format("%s.non_umi_dedup.bam", sampleId);
@@ -82,9 +89,11 @@ public class SagePanelTumor implements BatchOperation {
         sageArgs.add(String.format("-coverage_bed %s/%s", VmDirectories.INPUT, PANEL_BED));
         sageArgs.add(String.format("-out %s", sageVcf));
 
-        // sageArgs.add(String.format("-max_read_depth 1000000"));
-        // sageArgs.add(String.format("-max_read_depth_panel 1000000"));
-        // sageArgs.add(String.format("-max_realignment_depth 1000000"));
+        sageArgs.add(String.format("-hotspot_min_tumor_qual 100"));
+        sageArgs.add(String.format("-panel_min_tumor_qual 200"));
+        sageArgs.add(String.format("-high_confidence_min_tumor_qual 200"));
+        sageArgs.add(String.format("-low_confidence_min_tumor_qual 300"));
+
         sageArgs.add(String.format("-mnv_filter_enabled false"));
         sageArgs.add(String.format("-perf_warn_time 50"));
         // sageArgs.add(String.format("-log_debug"));
@@ -92,9 +101,9 @@ public class SagePanelTumor implements BatchOperation {
 
         startupScript.addCommand(() -> format("java -Xmx48G -jar %s/%s %s", VmDirectories.TOOLS, SAGE_JAR, sageArgs.toString()));
 
-        // annotate with PON
-        // outputVcf
+        // annotate with Pave - PON, Gnomad and gene impacts
 
+        /*
         String bcfTools = String.format("%s/bcftools/%s/bcftools", VmDirectories.TOOLS, Versions.BCF_TOOLS);
         String ponVcf = String.format("%s/%s.sage.somatic.pon.vcf.gz", VmDirectories.OUTPUT, sampleId);
 
@@ -134,14 +143,16 @@ public class SagePanelTumor implements BatchOperation {
         ponFilterArgs.add(String.format("-s PON -m+ -O z -o %s", ponFilterVcf));
 
         startupScript.addCommand(() -> format("%s filter %s", bcfTools, ponFilterArgs.toString()));
+        */
 
         // finally run Pave
         final StringJoiner paveArgs = new StringJoiner(" ");
+        String ponFilters = "HOTSPOT:5:5;PANEL:2:5;UNKNOWN:2:0";
 
         final String paveVcf = String.format("%s/%s.sage.somatic.pon.pave_pass.vcf.gz", VmDirectories.OUTPUT, sampleId);
 
         paveArgs.add(String.format("-sample %s", sampleId));
-        paveArgs.add(String.format("-vcf_file %s", ponFilterVcf));
+        paveArgs.add(String.format("-vcf_file %s", sageVcf)); // ponFilterVcf from BCF Tools
 
         paveArgs.add(String.format("-ref_genome %s", resourceFiles.refGenomeFile()));
         paveArgs.add(String.format("-ref_genome_version %s", resourceFiles.version().toString()));
@@ -150,6 +161,10 @@ public class SagePanelTumor implements BatchOperation {
         paveArgs.add("-only_canonical");
         paveArgs.add("-filter_pass");
         paveArgs.add(String.format("-gnomad_freq_dir %s", VmDirectories.INPUT));
+        paveArgs.add(String.format("-pon_file %s/%s", VmDirectories.INPUT, ponFile));
+        paveArgs.add(String.format("-pon_artefact_file %s/%s", VmDirectories.INPUT, ponArtefactFile));
+        paveArgs.add(String.format("-pon_filters \"%s\"", ponFilters));
+
         paveArgs.add("-gnomad_load_chr_on_demand");
         paveArgs.add(String.format("-output_vcf_file %s", paveVcf));
 

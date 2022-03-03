@@ -2,7 +2,8 @@ package com.hartwig.batch.operations;
 
 import static java.lang.String.format;
 
-import static com.hartwig.batch.operations.LilacBatch.LILAC_RESOURCES;
+import static com.hartwig.batch.operations.BatchCommon.BATCH_RESOURCE_BUCKET;
+import static com.hartwig.batch.operations.BatchCommon.LILAC_DIR;
 import static com.hartwig.batch.operations.rna.RnaCommon.RNA_COHORT_LOCATION_V37;
 
 import com.hartwig.batch.BatchOperation;
@@ -44,7 +45,8 @@ public class HlaBamSlicer implements BatchOperation {
         commands.addCommand(() -> format("gsutil -u hmf-crunch cp %s* %s", bamLocation, VmDirectories.INPUT));
 
         // get HLA bed for slicing
-        commands.addCommand(() -> format("gsutil -u hmf-crunch cp gs://%s/%s %s", LILAC_RESOURCES, HLA_BED_FILE, VmDirectories.INPUT));
+        commands.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s/%s %s",
+                BATCH_RESOURCE_BUCKET, LILAC_DIR, HLA_BED_FILE, VmDirectories.INPUT));
 
         // /opt/tools/sambamba/0.6.8/sambamba view -f bam ./samples/CPCT02020378T/CPCT02020378T.sorted.dups.bam -L /data/lilac/ref/hla.bed
         // > ./samples/CPCT02020378T/CPCT02020378T.rna.hla.bam

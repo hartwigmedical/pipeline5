@@ -2,7 +2,7 @@ package com.hartwig.batch.operations;
 
 import static java.lang.String.format;
 
-import static com.hartwig.batch.operations.BatchCommon.BATCH_TOOLS_DIR;
+import static com.hartwig.batch.operations.BatchCommon.BATCH_TOOLS_BUCKET;
 import static com.hartwig.batch.operations.BatchCommon.GRIPSS_DIR;
 import static com.hartwig.batch.operations.BatchCommon.GRIPSS_JAR;
 import static com.hartwig.batch.operations.BatchCommon.LINX_DIR;
@@ -73,13 +73,13 @@ public class GripssPurpleLinx implements BatchOperation {
 
         // download required JARs and resources
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s/%s %s",
-                BATCH_TOOLS_DIR, GRIPSS_DIR, GRIPSS_JAR, VmDirectories.TOOLS));
+                BATCH_TOOLS_BUCKET, GRIPSS_DIR, GRIPSS_JAR, VmDirectories.TOOLS));
 
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s/%s %s",
-                BATCH_TOOLS_DIR, PURPLE_DIR, PURPLE_JAR, VmDirectories.TOOLS));
+                BATCH_TOOLS_BUCKET, PURPLE_DIR, PURPLE_JAR, VmDirectories.TOOLS));
 
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s/%s %s",
-                BATCH_TOOLS_DIR, LINX_DIR, LINX_JAR, VmDirectories.TOOLS));
+                BATCH_TOOLS_BUCKET, LINX_DIR, LINX_JAR, VmDirectories.TOOLS));
 
         // Gripss inputs
         // startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s/%s %s", RESOURCE_DIR, GRIPSS_DIR, PON_BP, VmDirectories.INPUT));

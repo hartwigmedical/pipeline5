@@ -3,6 +3,7 @@ package com.hartwig.batch.api;
 import static com.hartwig.pipeline.tertiary.purple.Purple.PURPLE_GENE_COPY_NUMBER_TSV;
 import static com.hartwig.pipeline.tertiary.purple.Purple.PURPLE_SOMATIC_VCF;
 
+import java.io.File;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -117,6 +118,22 @@ public class RemoteLocationsApi implements RemoteLocations {
     @Override
     public GoogleStorageLocation getTumorAlignmentIndex() {
         return getLocation(tumor, Dataset::getAlignedReadsIndex);
+    }
+
+    public static final int CRAM_FULL_PATH = 0;
+    public static final int CRAM_FILENAME = 1;
+
+    public static String[] getCramFileData(final GoogleStorageLocation location)
+    {
+        String bucket = location.bucket();
+        String path = location.path();
+
+        if(!bucket.endsWith(File.separator))
+            bucket += File.separator;
+
+        String remotePath = bucket + path;
+        String cramFile = remotePath.substring(remotePath.lastIndexOf("/") + 1);
+        return new String[] { remotePath, cramFile };
     }
 
     private GoogleStorageLocation getLocation(String sample, Function<Dataset, Map<String, DatasetFile>> extractor) {

@@ -2,10 +2,12 @@ package com.hartwig.batch.operations;
 
 import static java.lang.String.format;
 
+import static com.hartwig.batch.operations.BatchCommon.BATCH_RESOURCE_BUCKET;
+import static com.hartwig.batch.operations.BatchCommon.BATCH_TOOLS_BUCKET;
+import static com.hartwig.batch.operations.BatchCommon.LILAC_DIR;
+import static com.hartwig.batch.operations.BatchCommon.LILAC_JAR;
 import static com.hartwig.batch.operations.LilacBatch.LILAC_BATCH_BUCKET;
-import static com.hartwig.batch.operations.LilacBatch.LILAC_JAR;
-import static com.hartwig.batch.operations.LilacBatch.LILAC_RESOURCES;
-import static com.hartwig.batch.operations.LilacBatch.LILAC_TOOLS;
+import static com.hartwig.batch.operations.LilacBatch.addLilacDownloadCommands;
 
 import com.hartwig.batch.BatchOperation;
 import com.hartwig.batch.OperationDescriptor;
@@ -31,8 +33,6 @@ public class LilacCtpacBatch implements BatchOperation {
     private static final String MAX_HEAP = "15G";
     private static final String PCAWG_BAM_BUCKET = "pcawg-hla-bams";
 
-    private static final String LOCAL_LILAC_RESOURCES = String.format("%s/%s/", VmDirectories.RESOURCES, "lilac");
-
     @Override
     public VirtualMachineJobDefinition execute(final InputBundle inputs, final RuntimeBucket runtimeBucket,
             final BashStartupScript commands, final RuntimeFiles executionFlags)
@@ -47,17 +47,7 @@ public class LilacCtpacBatch implements BatchOperation {
         String runDirectory = "run_cptac_02";
 
         // download pilot Lilac jar
-        commands.addCommand(() -> format("gsutil -u hmf-crunch cp gs://%s/%s %s",
-                LILAC_TOOLS, LILAC_JAR, VmDirectories.TOOLS));
-
-        // create local resource directory and download resources
-        commands.addCommand(createResourcesDir());
-
-        commands.addCommand(() -> format("gsutil -u hmf-crunch cp gs://%s/hla_ref_* %s",
-                LILAC_RESOURCES, LOCAL_LILAC_RESOURCES));
-
-        commands.addCommand(() -> format("gsutil -u hmf-crunch cp gs://%s/lilac_* %s",
-                LILAC_RESOURCES, LOCAL_LILAC_RESOURCES));
+        addLilacDownloadCommands(commands);
 
         addSampleCommands(runData, commands, runDirectory, sampleId);
 
@@ -100,7 +90,7 @@ public class LilacCtpacBatch implements BatchOperation {
 
         StringBuilder lilacArgs = new StringBuilder();
         lilacArgs.append(String.format(" -sample %s", sampleId));
-        lilacArgs.append(String.format(" -resource_dir %s", LOCAL_LILAC_RESOURCES));
+        lilacArgs.append(String.format(" -resource_dir %s", VmDirectories.INPUT));
         lilacArgs.append(String.format(" -ref_genome %s", resourceFiles.refGenomeFile()));
         lilacArgs.append(String.format(" -ref_genome_version %s", "V38"));
         lilacArgs.append(String.format(" -reference_bam %s", referenceBam));
@@ -118,9 +108,4 @@ public class LilacCtpacBatch implements BatchOperation {
     public OperationDescriptor descriptor() {
         return OperationDescriptor.of("LilacCtpacBatch", "Generate lilac output", OperationDescriptor.InputType.FLAT);
     }
-
-    private BashCommand createResourcesDir() {
-        return () -> format("mkdir -p %s", LOCAL_LILAC_RESOURCES);
-    }
-
 }
