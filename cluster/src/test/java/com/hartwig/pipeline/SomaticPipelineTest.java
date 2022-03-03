@@ -41,6 +41,7 @@ import java.util.concurrent.Executors;
 
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
+import com.hartwig.pipeline.calling.sage.SageConfiguration;
 import com.hartwig.pipeline.calling.sage.SageOutput;
 import com.hartwig.pipeline.calling.structural.gripss.GripssOutput;
 import com.hartwig.pipeline.calling.structural.StructuralCaller;
@@ -126,7 +127,7 @@ public class SomaticPipelineTest {
     public void doesNotRunPurpleIfSomaticCallerFails() {
         bothMetricsAvailable();
         bothFlagstatsAvailable();
-        SageOutput failSomatic = SageOutput.builder(SageSomaticCaller.NAMESPACE).status(PipelineStatus.FAILED).build();
+        SageOutput failSomatic = SageOutput.builder(SageConfiguration.SAGE_SOMATIC_NAMESPACE).status(PipelineStatus.FAILED).build();
         when(stageRunner.run(eq(defaultSomaticRunMetadata()), any())).thenReturn(amberOutput())
                 .thenReturn(cobaltOutput())
                 .thenReturn(failSomatic)

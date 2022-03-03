@@ -48,8 +48,7 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
                 TestInputs.amberOutput(),
                 TestInputs.cobaltOutput(),
                 persistedDataset,
-                false,
-                true);
+                false);
     }
 
     @Override
@@ -62,7 +61,8 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
         return ImmutableList.of(input(expectedRuntimeBucketName() + "/pave_somatic/results/tumor.somatic.vcf.gz", "tumor.somatic.vcf.gz"),
                 input(expectedRuntimeBucketName() + "/pave_germline/results/tumor.germline.vcf.gz", "tumor.germline.vcf.gz"),
                 input(expectedRuntimeBucketName() + "/gripss_somatic/results/tumor.gripss.filtered.vcf.gz", "tumor.gripss.filtered.vcf.gz"),
-                input(expectedRuntimeBucketName() + "/gripss_somatic/results/tumor.gripss.filtered.vcf.gz.tbi", "tumor.gripss.filtered.vcf.gz.tbi"),
+                input(expectedRuntimeBucketName() + "/gripss_somatic/results/tumor.gripss.filtered.vcf.gz.tbi",
+                        "tumor.gripss.filtered.vcf.gz.tbi"),
                 input(expectedRuntimeBucketName() + "/gripss_somatic/results/tumor.gripss.full.vcf.gz", "tumor.gripss.full.vcf.gz"),
                 input(expectedRuntimeBucketName() + "/gripss_somatic/results/tumor.gripss.full.vcf.gz.tbi", "tumor.gripss.full.vcf.gz.tbi"),
                 input(expectedRuntimeBucketName() + "/amber/results/", "results"),
@@ -95,7 +95,6 @@ public class PurpleTest extends TertiaryStageTest<PurpleOutput> {
                 TestInputs.amberOutput(),
                 TestInputs.cobaltOutput(),
                 new NoopPersistedDataset(),
-                true,
                 true);
         assertThat(victim.commands(input()).get(0).asBash()).contains("-highly_diploid_percentage 0.88 -somatic_min_purity_spread 0.1");
     }

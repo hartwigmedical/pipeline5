@@ -39,13 +39,10 @@ public class SageCommandBuilder {
         return this;
     }
 
-    public SageCommandBuilder germlineMode(String referenceSample, String referenceBam, String tumorSample, String tumorBam) {
+    public SageCommandBuilder germlineMode() {
         panelOnly = true;
         germlineMode = true;
         somaticMode = false;
-        // Note that we are adding the reference sample as the tumor
-        addTumor(referenceSample, referenceBam);
-        addReference(tumorSample, tumorBam);
         panelOnly();
         maxHeap("15G");
         return this;
@@ -69,8 +66,8 @@ public class SageCommandBuilder {
         return this;
     }
 
-    public SageCommandBuilder addShallowSomaticMode() {
-        this.shallowSomaticMode = true;
+    public SageCommandBuilder shallowMode(final boolean enabled) {
+        this.shallowSomaticMode = enabled;
         return this;
     }
 
@@ -98,7 +95,7 @@ public class SageCommandBuilder {
         return result;
     }
 
-    public List<BashCommand> build(String outputVcf) {
+    public List<BashCommand> build(final String outputVcf) {
         List<BashCommand> result = Lists.newArrayList();
 
         for (int i = 0; i < referenceBam.size(); i++) {
@@ -127,7 +124,6 @@ public class SageCommandBuilder {
             }
         }
 
-
         result.add(buildSageCommand(outputVcf));
         return result;
     }
@@ -143,20 +139,25 @@ public class SageCommandBuilder {
             throw new IllegalStateException("Shallow somatic mode enabled while not in shallow mode");
         }
 
-        final String tumorBamFiles = String.join(",", tumorBam);
-        arguments.add("-tumor").add(tumor.toString()).add("-tumor_bam").add(tumorBamFiles);
-        if (reference.length() > 0) {
-            final String referenceBamFiles = String.join(",", referenceBam);
-            arguments.add("-reference").add(reference.toString()).add("-reference_bam").add(referenceBamFiles);
-        }
-
         if (somaticMode) {
+            final String tumorBamFiles = String.join(",", tumorBam);
+            arguments.add("-tumor").add(tumor.toString()).add("-tumor_bam").add(tumorBamFiles);
+            if (reference.length() > 0) {
+                final String referenceBamFiles = String.join(",", referenceBam);
+                arguments.add("-reference").add(reference.toString()).add("-reference_bam").add(referenceBamFiles);
+            }
             arguments.add("-hotspots").add(resourceFiles.sageSomaticHotspots());
             arguments.add("-panel_bed").add(resourceFiles.sageSomaticCodingPanel());
             if (shallowSomaticMode) {
                 arguments.add("-hotspot_min_tumor_qual").add("40");
             }
         } else if (germlineMode) {
+            final String referenceBamFiles = String.join(",", referenceBam);
+            arguments.add("-tumor").add(reference.toString()).add("-tumor_bam").add(referenceBamFiles);
+            if (tumor.length() > 0) {
+                final String tumorBamFiles = String.join(",", tumorBam);
+                arguments.add("-reference").add(tumor.toString()).add("-reference_bam").add(tumorBamFiles);
+            }
             arguments.add("-hotspots").add(resourceFiles.sageGermlineHotspots());
             arguments.add("-panel_bed").add(resourceFiles.sageGermlineCodingPanel());
             arguments.add("-hotspot_min_tumor_qual").add("50");

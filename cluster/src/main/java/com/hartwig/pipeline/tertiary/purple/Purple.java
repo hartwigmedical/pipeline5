@@ -62,23 +62,23 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
     private final InputDownload cobaltOutputDownload;
     private final PersistedDataset persistedDataset;
     private final boolean shallow;
-    private final boolean sageGermlineEnabled;
 
     public Purple(final ResourceFiles resourceFiles, PaveOutput paveSomaticOutput, PaveOutput germlineCallerOutput,
             GripssSomaticOutput structuralCallerOutput, AmberOutput amberOutput, CobaltOutput cobaltOutput,
-            final PersistedDataset persistedDataset, final boolean shallow, final boolean sageGermlineEnabled) {
+            final PersistedDataset persistedDataset, final boolean shallow) {
         this.resourceFiles = resourceFiles;
         this.somaticVariantsDownload = new InputDownload(paveSomaticOutput.annotatedVariants());
         this.germlineVariantsDownload = new InputDownload(germlineCallerOutput.annotatedVariants());
         this.structuralVariantsDownload = new InputDownload(structuralCallerOutput.filteredVariants());
-        this.structuralVariantsIndexDownload = new InputDownload(structuralCallerOutput.filteredVariants().transform(FileTypes::tabixIndex));
+        this.structuralVariantsIndexDownload =
+                new InputDownload(structuralCallerOutput.filteredVariants().transform(FileTypes::tabixIndex));
         this.svRecoveryVariantsDownload = new InputDownload(structuralCallerOutput.unfilteredVariants());
-        this.svRecoveryVariantsIndexDownload = new InputDownload(structuralCallerOutput.unfilteredVariants().transform(FileTypes::tabixIndex));
+        this.svRecoveryVariantsIndexDownload =
+                new InputDownload(structuralCallerOutput.unfilteredVariants().transform(FileTypes::tabixIndex));
         this.amberOutputDownload = new InputDownload(amberOutput.outputDirectory());
         this.cobaltOutputDownload = new InputDownload(cobaltOutput.outputDirectory());
         this.persistedDataset = persistedDataset;
         this.shallow = shallow;
-        this.sageGermlineEnabled = sageGermlineEnabled;
     }
 
     @Override
@@ -88,29 +88,28 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
 
     @Override
     public List<BashCommand> commands(final SomaticRunMetadata metadata) {
-        PurpleCommandBuilder builder = new PurpleCommandBuilder(resourceFiles,
+        return Collections.singletonList(new PurpleCommandBuilder(resourceFiles,
                 amberOutputDownload.getLocalTargetPath(),
                 cobaltOutputDownload.getLocalTargetPath(),
                 metadata.tumor().sampleName(),
                 structuralVariantsDownload.getLocalTargetPath(),
                 svRecoveryVariantsDownload.getLocalTargetPath(),
-                somaticVariantsDownload.getLocalTargetPath()).setShallow(shallow).setReferenceSample(metadata.reference().sampleName());
-        if (sageGermlineEnabled) {
-            builder.addGermline(germlineVariantsDownload.getLocalTargetPath());
-        }
-        return Collections.singletonList(builder.build());
+                somaticVariantsDownload.getLocalTargetPath()).setShallow(shallow)
+                .setReferenceSample(metadata.reference().sampleName())
+                .addGermline(germlineVariantsDownload.getLocalTargetPath())
+                .build());
     }
 
     @Override
     public List<BashCommand> inputs() {
-        List<BashCommand> inputs = new ArrayList<>(ImmutableList.of(somaticVariantsDownload, structuralVariantsDownload,
-                structuralVariantsIndexDownload, svRecoveryVariantsDownload, svRecoveryVariantsIndexDownload,
+        return List.of(somaticVariantsDownload,
+                structuralVariantsDownload,
+                structuralVariantsIndexDownload,
+                svRecoveryVariantsDownload,
+                svRecoveryVariantsIndexDownload,
                 amberOutputDownload,
-                cobaltOutputDownload));
-        if (sageGermlineEnabled) {
-            inputs.add(germlineVariantsDownload);
-        }
-        return inputs;
+                cobaltOutputDownload,
+                germlineVariantsDownload);
     }
 
     @Override
@@ -213,17 +212,15 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
                         metadata.barcode(),
                         new ArchivePath(Folder.root(), namespace(), circosPlot(metadata))))
                 .addDatatypes(new AddDatatype(DataType.PURPLE_QC, metadata.barcode(), new ArchivePath(Folder.root(), namespace(), qcFile)));
-        if (sageGermlineEnabled) {
-            builder.addDatatypes(new AddDatatype(DataType.GERMLINE_VARIANTS_PURPLE,
-                            metadata.barcode(),
-                            new ArchivePath(Folder.root(), namespace(), germlineVcf(metadata))))
-                    .addDatatypes(new AddDatatype(DataType.PURPLE_GERMLINE_DRIVER_CATALOG,
-                            metadata.barcode(),
-                            new ArchivePath(Folder.root(), namespace(), germlineDriverCatalog)))
-                    .addDatatypes(new AddDatatype(DataType.PURPLE_GERMLINE_COPY_NUMBER,
-                            metadata.barcode(),
-                            new ArchivePath(Folder.root(), namespace(), germlineCnv)));
-        }
+        builder.addDatatypes(new AddDatatype(DataType.GERMLINE_VARIANTS_PURPLE,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), germlineVcf(metadata))))
+                .addDatatypes(new AddDatatype(DataType.PURPLE_GERMLINE_DRIVER_CATALOG,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), germlineDriverCatalog)))
+                .addDatatypes(new AddDatatype(DataType.PURPLE_GERMLINE_COPY_NUMBER,
+                        metadata.barcode(),
+                        new ArchivePath(Folder.root(), namespace(), germlineCnv)));
         return builder.build();
     }
 

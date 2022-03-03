@@ -28,6 +28,7 @@ import com.hartwig.pipeline.PipelineState;
 import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.calling.germline.GermlineCaller;
+import com.hartwig.pipeline.calling.sage.SageConfiguration;
 import com.hartwig.pipeline.cram.CramConversion;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.flagstat.Flagstat;
@@ -131,7 +132,7 @@ public class StagedOutputPublisher {
 
     private boolean isGermline(final Blob blobWithMd5) {
         return InNamespace.of(GermlineCaller.NAMESPACE)
-                .or(InNamespace.of(SageGermlineCaller.NAMESPACE))
+                .or(InNamespace.of(SageConfiguration.SAGE_GERMLINE_NAMESPACE))
                 .or(b -> b.getName().contains("germline"))
                 .test(blobWithMd5);
     }

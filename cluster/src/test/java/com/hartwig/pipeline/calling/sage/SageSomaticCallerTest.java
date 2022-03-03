@@ -25,14 +25,17 @@ public class SageSomaticCallerTest extends TertiaryStageTest<SageOutput> {
 
     @Test
     public void shallowModeUsesHotspotQualOverride() {
-        SageSomaticCaller victim =
-                new SageSomaticCaller(TestInputs.defaultPair(), TestInputs.REF_GENOME_37_RESOURCE_FILES, new NoopPersistedDataset(), true);
-        assertThat(victim.commands(input()).get(0).asBash()).contains("-hotspot_min_tumor_qual 40");
+        SageCaller victim = new SageCaller(TestInputs.defaultPair(),
+                new NoopPersistedDataset(),
+                SageConfiguration.somatic(TestInputs.REF_GENOME_37_RESOURCE_FILES, true));
+        assertThat(victim.tumorNormalCommands(input()).get(0).asBash()).contains("-hotspot_min_tumor_qual 40");
     }
 
     @Override
     protected Stage<SageOutput, SomaticRunMetadata> createVictim() {
-        return new SageSomaticCaller(TestInputs.defaultPair(), TestInputs.REF_GENOME_37_RESOURCE_FILES, new NoopPersistedDataset(), false);
+        return new SageCaller(TestInputs.defaultPair(),
+                new NoopPersistedDataset(),
+                SageConfiguration.somatic(TestInputs.REF_GENOME_37_RESOURCE_FILES, false));
     }
 
     @Override
@@ -62,11 +65,6 @@ public class SageSomaticCallerTest extends TertiaryStageTest<SageOutput> {
     @Override
     public void addsLogs() {
         // not supported currently
-    }
-
-    @Override
-    protected Arguments createDisabledArguments() {
-        return Arguments.testDefaultsBuilder().runSomaticCaller(false).build();
     }
 
     @Override
