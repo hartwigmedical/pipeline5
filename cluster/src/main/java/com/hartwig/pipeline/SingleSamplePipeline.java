@@ -110,8 +110,8 @@ public class SingleSamplePipeline {
             final PipelineState state) throws Exception {
         AlignmentOutput alignmentOutput = report.add(state.add(aligner.run(metadata)));
         alignmentOutput =
-                state.shouldProceed() && !arguments.useCrams() && alignmentOutput.finalBamLocation().path().endsWith(FileTypes.CRAM)
-                        ? state.add(stageRunner.run(metadata, new Cram2Bam(alignmentOutput.finalBamLocation(), metadata.type())))
+                state.shouldProceed() && !arguments.useCrams() && alignmentOutput.alignments().path().endsWith(FileTypes.CRAM)
+                        ? state.add(stageRunner.run(metadata, new Cram2Bam(alignmentOutput.alignments(), metadata.type())))
                         : alignmentOutput;
         return alignmentOutput;
     }

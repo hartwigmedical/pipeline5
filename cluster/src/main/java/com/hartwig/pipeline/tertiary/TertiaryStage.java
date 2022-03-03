@@ -7,6 +7,7 @@ import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.alignment.AlignmentPair;
+import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
@@ -21,16 +22,10 @@ public abstract class TertiaryStage<S extends StageOutput> implements Stage<S, S
     private final InputDownload referenceBaiDownload;
 
     public TertiaryStage(final AlignmentPair alignmentPair) {
-        tumorBamDownload =
-                new InputDownload(alignmentPair.maybeTumor().map(AlignmentOutput::finalBamLocation).orElse(GoogleStorageLocation.empty()));
-        tumorBaiDownload =
-                new InputDownload(alignmentPair.maybeTumor().map(AlignmentOutput::finalBaiLocation).orElse(GoogleStorageLocation.empty()));
-        referenceBamDownload = new InputDownload(alignmentPair.maybeReference()
-                .map(AlignmentOutput::finalBamLocation)
-                .orElse(GoogleStorageLocation.empty()));
-        referenceBaiDownload = new InputDownload(alignmentPair.maybeReference()
-                .map(AlignmentOutput::finalBaiLocation)
-                .orElse(GoogleStorageLocation.empty()));
+        tumorBamDownload = new InputDownload(alignmentPair.tumor().alignments());
+        tumorBaiDownload = new InputDownload(alignmentPair.tumor().alignments().transform(FileTypes::toAlignmentIndex));
+        referenceBamDownload = new InputDownload(alignmentPair.reference().alignments());
+        referenceBaiDownload = new InputDownload(alignmentPair.reference().alignments().transform(FileTypes::toAlignmentIndex));
     }
 
     @Override

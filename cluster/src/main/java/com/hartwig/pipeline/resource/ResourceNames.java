@@ -28,4 +28,5 @@ public interface ResourceNames {
     String ORANGE = "orange";
     String PURPLE = "purple";
     String LILAC = "lilac";
+    String PANEL = "panel";
 }

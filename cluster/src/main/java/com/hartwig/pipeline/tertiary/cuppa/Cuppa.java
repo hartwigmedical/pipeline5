@@ -42,8 +42,8 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
     public static final String CUPPA_CONCLUSION_TXT = ".cuppa.conclusion.txt";
     public static final String CUPPA_CONCLUSION_CHART = ".cuppa.chart.png";
     public static String NAMESPACE = "cuppa";
-    private final InputDownload purpleSomaticVcfDownload;
-    private final InputDownload purpleStructuralVcfDownload;
+    private final InputDownload purpleSomaticVariantsDownload;
+    private final InputDownload purpleStructuralVariantsDownload;
     private final InputDownload purpleOutputDirectory;
     private final LinxSomaticOutput linxOutput;
 
@@ -53,15 +53,10 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
 
     public Cuppa(final PurpleOutput purpleOutput, final LinxSomaticOutput linxOutput, final ResourceFiles resourceFiles,
             final PersistedDataset persistedDataset) {
-        this.purpleSomaticVcfDownload = new InputDownload(purpleOutput.maybeOutputLocations()
-                .map(PurpleOutputLocations::somaticVcf)
-                .orElse(GoogleStorageLocation.empty()));
-        this.purpleStructuralVcfDownload = new InputDownload(purpleOutput.maybeOutputLocations()
-                .map(PurpleOutputLocations::structuralVcf)
-                .orElse(GoogleStorageLocation.empty()));
-        this.purpleOutputDirectory = new InputDownload(purpleOutput.maybeOutputLocations()
-                .map(PurpleOutputLocations::outputDirectory)
-                .orElse(GoogleStorageLocation.empty()));
+        PurpleOutputLocations purpleOutputLocations = purpleOutput.outputLocations();
+        this.purpleSomaticVariantsDownload = new InputDownload(purpleOutputLocations.somaticVariants());
+        this.purpleStructuralVariantsDownload = new InputDownload(purpleOutputLocations.structuralVariants());
+        this.purpleOutputDirectory = new InputDownload(purpleOutputLocations.outputDirectory());
         this.linxOutput = linxOutput;
         this.resourceFiles = resourceFiles;
         this.persistedDataset = persistedDataset;
@@ -69,7 +64,7 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
 
     @Override
     public List<BashCommand> inputs() {
-        return List.of(purpleSomaticVcfDownload, purpleStructuralVcfDownload, purpleOutputDirectory, linxOutputDownload());
+        return List.of(purpleSomaticVariantsDownload, purpleStructuralVariantsDownload, purpleOutputDirectory, linxOutputDownload());
     }
 
     @Override
@@ -93,9 +88,9 @@ public class Cuppa implements Stage<CuppaOutput, SomaticRunMetadata> {
                                 "-sample_data_dir",
                                 linxOutputDownload().getLocalTargetPath(),
                                 "-sample_sv_file",
-                                purpleStructuralVcfDownload.getLocalTargetPath(),
+                                purpleStructuralVariantsDownload.getLocalTargetPath(),
                                 "-sample_somatic_vcf",
-                                purpleSomaticVcfDownload.getLocalTargetPath(),
+                                purpleSomaticVariantsDownload.getLocalTargetPath(),
                                 "-output_dir",
                                 VmDirectories.OUTPUT)),
                 new Python3Command("cuppa-chart",

@@ -19,12 +19,8 @@ public interface StructuralCallerOutput extends StageOutput {
 
     Optional<GoogleStorageLocation> maybeUnfilteredVcfIndex();
 
-    default GoogleStorageLocation unfilteredVcf() {
-        return maybeUnfilteredVcf().orElseThrow(() -> new IllegalStateException("No unfiltered VCF available"));
-    }
-
-    default GoogleStorageLocation unfilteredVcfIndex() {
-        return maybeUnfilteredVcfIndex().orElseThrow(() -> new IllegalStateException("No unfiltered VCF index available"));
+    default GoogleStorageLocation unfilteredVariants() {
+        return maybeUnfilteredVcf().orElse(GoogleStorageLocation.empty());
     }
 
     static ImmutableStructuralCallerOutput.Builder builder() {

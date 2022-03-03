@@ -10,21 +10,21 @@ public interface PurpleOutputLocations {
 
     GoogleStorageLocation outputDirectory();
 
-    GoogleStorageLocation somaticVcf();
+    GoogleStorageLocation somaticVariants();
 
-    GoogleStorageLocation germlineVcf();
+    GoogleStorageLocation germlineVariants();
 
-    GoogleStorageLocation structuralVcf();
+    GoogleStorageLocation structuralVariants();
 
-    GoogleStorageLocation purityTsv();
+    GoogleStorageLocation purity();
 
     GoogleStorageLocation qcFile();
 
-    GoogleStorageLocation geneCopyNumberTsv();
+    GoogleStorageLocation geneCopyNumber();
 
     GoogleStorageLocation somaticDriverCatalog();
 
-    GoogleStorageLocation somaticCopyNumberTsv();
+    GoogleStorageLocation somaticCopyNumber();
 
     GoogleStorageLocation germlineDriverCatalog();
 

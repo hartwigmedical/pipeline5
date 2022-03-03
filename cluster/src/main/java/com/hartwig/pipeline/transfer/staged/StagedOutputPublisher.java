@@ -34,6 +34,7 @@ import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.flagstat.Flagstat;
 import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.MD5s;
+import com.hartwig.pipeline.metadata.SingleSampleRunMetadata;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.metrics.BamMetrics;
 import com.hartwig.pipeline.snpgenotype.SnpGenotype;
@@ -70,27 +71,28 @@ public class StagedOutputPublisher {
             List<AddDatatype> addDatatypes =
                     state.stageOutputs().stream().map(StageOutput::datatypes).flatMap(List::stream).collect(Collectors.toList());
             SampleSet set = OnlyOne.of(setApi.list(metadata.set(), null, useOnlyDBSets ? true : null), SampleSet.class);
-            String sampleName = metadata.maybeTumor().orElse(metadata.reference()).sampleName();
-            ImmutableAnalysis.Builder alignedReadsAnalysis = eventBuilder(set, Type.ALIGNMENT, sampleName);
-            ImmutableAnalysis.Builder somaticAnalysis = eventBuilder(set, Type.SOMATIC, sampleName);
-            ImmutableAnalysis.Builder germlineAnalysis = eventBuilder(set, Type.GERMLINE, sampleName);
+            Optional<String> tumorSampleName = metadata.maybeTumor().map(SingleSampleRunMetadata::sampleName);
+            Optional<String> refSampleName = metadata.maybeReference().map(SingleSampleRunMetadata::sampleName);
+            ImmutableAnalysis.Builder alignedReadsAnalysis = eventBuilder(Type.ALIGNMENT);
+            ImmutableAnalysis.Builder somaticAnalysis = eventBuilder(Type.SOMATIC);
+            ImmutableAnalysis.Builder germlineAnalysis = eventBuilder(Type.GERMLINE);
 
             OutputIterator.from(blob -> {
                 Optional<AddDatatype> dataType = addDatatypes.stream().filter(d -> blob.getName().endsWith(d.path())).findFirst();
                 Blob blobWithMd5 = sourceBucket.get(blob.getName());
                 if (isSecondary(blobWithMd5)) {
-                    alignedReadsAnalysis.addOutput(createBlob(metadata, sampleName, dataType, blobWithMd5));
+                    alignedReadsAnalysis.addOutput(createBlob(tumorSampleName, refSampleName, dataType, blobWithMd5));
                 } else {
                     if (isGermline(blobWithMd5)) {
-                        germlineAnalysis.addOutput(createBlob(metadata, sampleName, dataType, blobWithMd5));
+                        germlineAnalysis.addOutput(createBlob(tumorSampleName, refSampleName, dataType, blobWithMd5));
                     } else if (notSecondary(blobWithMd5)) {
-                        somaticAnalysis.addOutput(createBlob(metadata, sampleName, dataType, blobWithMd5));
+                        somaticAnalysis.addOutput(createBlob(tumorSampleName, refSampleName, dataType, blobWithMd5));
                     }
                 }
             }, sourceBucket).iterate(metadata);
             publish(PipelineComplete.builder()
                     .pipeline(ImmutablePipeline.builder()
-                            .sample(sampleName)
+                            .sample(tumorSampleName.orElse(refSampleName.orElseThrow()))
                             .bucket(sourceBucket.getName())
                             .runId(run.get().getId())
                             .setId(set.getId())
@@ -102,10 +104,11 @@ public class StagedOutputPublisher {
         }
     }
 
-    private static AnalysisOutputBlob createBlob(final SomaticRunMetadata metadata, final String sampleName,
-            @SuppressWarnings("OptionalUsedAsFieldOrParameterType") final Optional<AddDatatype> dataType, final Blob blobWithMd5) {
-        return builderWithPathComponents(sampleName, metadata.reference().sampleName(), blobWithMd5.getName()).datatype(dataType.map(
-                AddDatatype::dataType).map(Object::toString))
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    private static AnalysisOutputBlob createBlob(final Optional<String> tumorSample, final Optional<String> referenceSample,
+            final Optional<AddDatatype> dataType, final Blob blobWithMd5) {
+        return builderWithPathComponents(tumorSample.orElse(""), referenceSample.orElse(""), blobWithMd5.getName()).datatype(dataType.map(
+                        AddDatatype::dataType).map(Object::toString))
                 .barcode(dataType.map(AddDatatype::barcode))
                 .bucket(blobWithMd5.getBucket())
                 .filesize(blobWithMd5.getSize())
@@ -114,7 +117,7 @@ public class StagedOutputPublisher {
     }
 
     @NotNull
-    public ImmutableAnalysis.Builder eventBuilder(final SampleSet set, final Analysis.Type secondary, final String sampleName) {
+    public ImmutableAnalysis.Builder eventBuilder(final Analysis.Type secondary) {
         return ImmutableAnalysis.builder().molecule(Molecule.DNA).type(secondary);
     }
 

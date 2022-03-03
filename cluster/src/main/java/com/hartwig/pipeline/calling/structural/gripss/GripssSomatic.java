@@ -48,8 +48,8 @@ public class GripssSomatic implements Stage<GripssSomaticOutput, SomaticRunMetad
     public GripssSomatic(final ResourceFiles resourceFiles, StructuralCallerOutput structuralCallerOutput,
             final PersistedDataset persistedDataset) {
         this.resourceFiles = resourceFiles;
-        gridssVcf = new InputDownload(structuralCallerOutput.unfilteredVcf());
-        gridssVcfIndex = new InputDownload(structuralCallerOutput.unfilteredVcfIndex());
+        gridssVcf = new InputDownload(structuralCallerOutput.unfilteredVariants());
+        gridssVcfIndex = new InputDownload(structuralCallerOutput.unfilteredVariants().transform(FileTypes::tabixIndex));
         this.persistedDataset = persistedDataset;
     }
 
@@ -97,11 +97,8 @@ public class GripssSomatic implements Stage<GripssSomaticOutput, SomaticRunMetad
             final ResultsDirectory resultsDirectory) {
         return GripssSomaticOutput.builder()
                 .status(jobStatus)
-                .maybeFilteredVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(somaticFilteredVcf))))
-                .maybeFilteredVcfIndex(GoogleStorageLocation.of(bucket.name(),
-                        FileTypes.tabixIndex(resultsDirectory.path(basename(somaticFilteredVcf)))))
-                .maybeFullVcf(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(somaticUnfilteredVcf))))
-                .maybeFullVcfIndex(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(somaticUnfilteredVcf + ".tbi"))))
+                .maybeFilteredVariants(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(somaticFilteredVcf))))
+                .maybeUnfilteredVariants(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(somaticUnfilteredVcf))))
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
                         NAMESPACE,
@@ -145,10 +142,8 @@ public class GripssSomatic implements Stage<GripssSomaticOutput, SomaticRunMetad
 
         return GripssSomaticOutput.builder()
                 .status(PipelineStatus.PERSISTED)
-                .maybeFilteredVcf(somaticFilteredLocation)
-                .maybeFilteredVcfIndex(somaticFilteredLocation.transform(FileTypes::tabixIndex))
-                .maybeFullVcf(somaticLocation)
-                .maybeFullVcfIndex(somaticLocation.transform(FileTypes::tabixIndex))
+                .maybeFilteredVariants(somaticFilteredLocation)
+                .maybeUnfilteredVariants(somaticLocation)
                 .build();
     }
 

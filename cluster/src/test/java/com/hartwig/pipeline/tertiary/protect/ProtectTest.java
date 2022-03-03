@@ -75,13 +75,13 @@ public class ProtectTest extends TertiaryStageTest<ProtectOutput> {
 
     @Override
     protected void validateOutput(final ProtectOutput output) {
-        assertThat(output.evidenceTsv()).isEqualTo(GoogleStorageLocation.of(SOMATIC_BUCKET + "/protect",
+        assertThat(output.evidence()).isEqualTo(GoogleStorageLocation.of(SOMATIC_BUCKET + "/protect",
                 ResultsDirectory.defaultDirectory().path(TUMOR_PROTECT_TSV)));
     }
 
     @Override
     protected void validatePersistedOutput(final ProtectOutput output) {
-        assertThat(output.evidenceTsv()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "set/protect/" + TUMOR_PROTECT_TSV));
+        assertThat(output.evidence()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "set/protect/" + TUMOR_PROTECT_TSV));
     }
 
     @Override
@@ -91,7 +91,7 @@ public class ProtectTest extends TertiaryStageTest<ProtectOutput> {
 
     @Override
     protected void validatePersistedOutputFromPersistedDataset(final ProtectOutput output) {
-        assertThat(output.evidenceTsv()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "protect/" + TUMOR_PROTECT_TSV));
+        assertThat(output.evidence()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "protect/" + TUMOR_PROTECT_TSV));
     }
 
     @Override

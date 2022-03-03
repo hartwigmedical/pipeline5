@@ -1,7 +1,6 @@
 package com.hartwig.pipeline.tertiary.lilac;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
@@ -14,7 +13,6 @@ import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.InputDownload;
-import com.hartwig.pipeline.execution.vm.SambambaCommand;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
@@ -24,7 +22,6 @@ import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.report.EntireOutputComponent;
 import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.report.RunLogComponent;
-import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
@@ -32,28 +29,21 @@ import com.hartwig.pipeline.tertiary.TertiaryStage;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
 
-import org.jetbrains.annotations.NotNull;
-
 public class Lilac extends TertiaryStage<LilacOutput> {
     public static final String NAMESPACE = "lilac";
 
     private final ResourceFiles resourceFiles;
-    private final InputDownload purpleGeneCopyNumberTsv;
-    private final InputDownload purpleSomaticVcf;
+    private final InputDownload purpleGeneCopyNumber;
+    private final InputDownload purpleSomaticVariants;
     private final InputDownload purpleSomaticVcfIndex;
 
     public Lilac(final AlignmentPair alignmentPair, final ResourceFiles resourceFiles, final PurpleOutput purpleOutput) {
         super(alignmentPair);
         this.resourceFiles = resourceFiles;
-        this.purpleGeneCopyNumberTsv = new InputDownload(purpleOrEmpty(purpleOutput, PurpleOutputLocations::geneCopyNumberTsv));
-        this.purpleSomaticVcf = new InputDownload(purpleOrEmpty(purpleOutput, PurpleOutputLocations::somaticVcf));
-        this.purpleSomaticVcfIndex =
-                new InputDownload(purpleOrEmpty(purpleOutput, PurpleOutputLocations::somaticVcf).transform(x -> x + ".tbi"));
-    }
-
-    private GoogleStorageLocation purpleOrEmpty(final PurpleOutput purpleOutput,
-            final Function<PurpleOutputLocations, GoogleStorageLocation> extractor) {
-        return purpleOutput.maybeOutputLocations().map(extractor).orElse(GoogleStorageLocation.empty());
+        PurpleOutputLocations purpleOutputLocations = purpleOutput.outputLocations();
+        this.purpleGeneCopyNumber = new InputDownload(purpleOutputLocations.geneCopyNumber());
+        this.purpleSomaticVariants = new InputDownload(purpleOutputLocations.somaticVariants());
+        this.purpleSomaticVcfIndex = new InputDownload(purpleOutputLocations.somaticVariants().transform(x -> x + ".tbi"));
     }
 
     @Override
@@ -64,8 +54,8 @@ public class Lilac extends TertiaryStage<LilacOutput> {
     @Override
     public List<BashCommand> inputs() {
         List<BashCommand> result = new ArrayList<>(super.inputs());
-        result.add(purpleGeneCopyNumberTsv);
-        result.add(purpleSomaticVcf);
+        result.add(purpleGeneCopyNumber);
+        result.add(purpleSomaticVariants);
         result.add(purpleSomaticVcfIndex);
         return result;
     }
@@ -82,8 +72,8 @@ public class Lilac extends TertiaryStage<LilacOutput> {
                         metadata.tumor().sampleName(),
                         slicedRefBam,
                         slicedTumorBam,
-                        purpleGeneCopyNumberTsv.getLocalTargetPath(),
-                        purpleSomaticVcf.getLocalTargetPath()));
+                        purpleGeneCopyNumber.getLocalTargetPath(),
+                        purpleSomaticVariants.getLocalTargetPath()));
     }
 
     @Override

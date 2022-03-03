@@ -68,8 +68,7 @@ public class Cram2Bam implements Stage<AlignmentOutput, SingleSampleRunMetadata>
                 .status(jobStatus)
                 .sample(metadata.sampleName())
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
-                .maybeFinalBamLocation(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(bam)))
-                .maybeFinalBaiLocation(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(FileTypes.bai(bam))))
+                .maybeAlignments(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(bam)))
                 .build();
     }
 

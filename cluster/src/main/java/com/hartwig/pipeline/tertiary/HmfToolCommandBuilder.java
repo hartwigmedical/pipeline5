@@ -3,6 +3,9 @@ package com.hartwig.pipeline.tertiary;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
@@ -33,6 +36,12 @@ public class HmfToolCommandBuilder {
 
     public HmfToolCommandBuilder reference(final String referenceSample, final String referenceBamPath) {
         arguments.addAll(List.of("-reference", referenceSample, "-reference_bam", referenceBamPath));
+        return this;
+    }
+
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    public HmfToolCommandBuilder panelBed(final Optional<String> panelBedLocation) {
+      //  arguments.addAll(panelBedLocation.stream().flatMap(l -> Stream.of("-panel_bed", l)).collect(Collectors.toList()));
         return this;
     }
 

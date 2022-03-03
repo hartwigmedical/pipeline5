@@ -31,9 +31,7 @@ public class PersistedAlignmentTest {
         AlignmentOutput output = victim.run(TestInputs.referenceRunMetadata());
         assertThat(output.sample()).isEqualTo("reference");
         assertThat(output.status()).isEqualTo(PipelineStatus.PERSISTED);
-        assertThat(output.finalBamLocation()).isEqualTo(PERSISTED_REFERENCE_CRAM);
-        assertThat(output.finalBaiLocation()).isEqualTo(GoogleStorageLocation.of(PERSISTED_REFERENCE_CRAM.bucket(),
-                FileTypes.crai(PERSISTED_REFERENCE_CRAM.path())));
+        assertThat(output.alignments()).isEqualTo(PERSISTED_REFERENCE_CRAM);
     }
 
     @Test
@@ -42,8 +40,7 @@ public class PersistedAlignmentTest {
         AlignmentOutput output = victim.run(TestInputs.referenceRunMetadata());
         assertThat(output.sample()).isEqualTo("reference");
         assertThat(output.status()).isEqualTo(PipelineStatus.PERSISTED);
-        assertThat(output.finalBamLocation()).isEqualTo(GoogleStorageLocation.of("bucket", "set/reference/aligner/reference.bam"));
-        assertThat(output.finalBaiLocation()).isEqualTo(GoogleStorageLocation.of("bucket", "set/reference/aligner/reference.bam.bai"));
+        assertThat(output.alignments()).isEqualTo(GoogleStorageLocation.of("bucket", "set/reference/aligner/reference.bam"));
     }
 
     @Test
@@ -53,7 +50,6 @@ public class PersistedAlignmentTest {
         AlignmentOutput output = victim.run(TestInputs.referenceRunMetadata());
         assertThat(output.sample()).isEqualTo("reference");
         assertThat(output.status()).isEqualTo(PipelineStatus.PERSISTED);
-        assertThat(output.finalBamLocation()).isEqualTo(GoogleStorageLocation.of("bucket", "set/reference/cram/reference.cram"));
-        assertThat(output.finalBaiLocation()).isEqualTo(GoogleStorageLocation.of("bucket", "set/reference/cram/reference.cram.crai"));
+        assertThat(output.alignments()).isEqualTo(GoogleStorageLocation.of("bucket", "set/reference/cram/reference.cram"));
     }
 }

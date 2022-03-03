@@ -23,7 +23,7 @@ public interface BamMetricsOutput extends StageOutput {
     Optional<GoogleStorageLocation> maybeMetricsOutputFile();
 
     default GoogleStorageLocation metricsOutputFile() {
-        return maybeMetricsOutputFile().orElseThrow(() -> new IllegalStateException("No metrics file available"));
+        return maybeMetricsOutputFile().orElse(GoogleStorageLocation.empty());
     }
 
     static String outputFile(String sample) {

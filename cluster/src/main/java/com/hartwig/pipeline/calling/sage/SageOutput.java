@@ -13,28 +13,28 @@ public interface SageOutput extends StageOutput {
 
     PipelineStatus status();
 
-    Optional<GoogleStorageLocation> maybeFinalVcf();
+    Optional<GoogleStorageLocation> maybeVariants();
 
-    Optional<GoogleStorageLocation> maybeGermlineGeneCoverageTsv();
+    Optional<GoogleStorageLocation> maybeGermlineGeneCoverage();
 
     Optional<GoogleStorageLocation> maybeSomaticRefSampleBqrPlot();
 
     Optional<GoogleStorageLocation> maybeSomaticTumorSampleBqrPlot();
 
-    default GoogleStorageLocation finalVcf() {
-        return maybeFinalVcf().orElseThrow(() -> new IllegalStateException("No final vcf available"));
+    default GoogleStorageLocation variants() {
+        return maybeVariants().orElse(GoogleStorageLocation.empty());
     }
 
-    default GoogleStorageLocation germlineGeneCoverageTsv() {
-        return maybeGermlineGeneCoverageTsv().orElseThrow(() -> new IllegalStateException("No germline gene coverage tsv available"));
+    default GoogleStorageLocation germlineGeneCoverage() {
+        return maybeGermlineGeneCoverage().orElse(GoogleStorageLocation.empty());
     }
 
     default GoogleStorageLocation somaticRefSampleBqrPlot() {
-        return maybeSomaticRefSampleBqrPlot().orElseThrow(() -> new IllegalStateException("No somatic ref sample bqr plot available"));
+        return maybeSomaticRefSampleBqrPlot().orElse(GoogleStorageLocation.empty());
     }
 
     default GoogleStorageLocation somaticTumorSampleBqrPlot() {
-        return maybeSomaticTumorSampleBqrPlot().orElseThrow(() -> new IllegalStateException("No somatic tumor sample bqr plot available"));
+        return maybeSomaticTumorSampleBqrPlot().orElse(GoogleStorageLocation.empty());
     }
 
     static ImmutableSageOutput.Builder builder(String nameSpace) {

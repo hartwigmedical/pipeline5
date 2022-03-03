@@ -45,13 +45,13 @@ public class PeachTest extends TertiaryStageTest<PeachOutput> {
 
     @Override
     protected void validateOutput(final PeachOutput output) {
-        assertThat(output.genotypeTsv()).isEqualTo(GoogleStorageLocation.of(SOMATIC_BUCKET + "/peach",
+        assertThat(output.genotypes()).isEqualTo(GoogleStorageLocation.of(SOMATIC_BUCKET + "/peach",
                 ResultsDirectory.defaultDirectory().path(TUMOR_PEACH_GENOTYPE_TSV)));
     }
 
     @Override
     protected void validatePersistedOutput(final PeachOutput output) {
-        assertThat(output.genotypeTsv()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "set/peach/" + TUMOR_PEACH_GENOTYPE_TSV));
+        assertThat(output.genotypes()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "set/peach/" + TUMOR_PEACH_GENOTYPE_TSV));
     }
 
     @Override
@@ -61,7 +61,7 @@ public class PeachTest extends TertiaryStageTest<PeachOutput> {
 
     @Override
     protected void validatePersistedOutputFromPersistedDataset(final PeachOutput output) {
-        assertThat(output.genotypeTsv()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "peach/" + TUMOR_PEACH_GENOTYPE_TSV));
+        assertThat(output.genotypes()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, "peach/" + TUMOR_PEACH_GENOTYPE_TSV));
     }
 
     @Override

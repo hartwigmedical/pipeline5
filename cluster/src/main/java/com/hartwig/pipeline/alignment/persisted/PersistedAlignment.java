@@ -31,10 +31,7 @@ public class PersistedAlignment implements Aligner {
         return AlignmentOutput.builder()
                 .sample(metadata.sampleName())
                 .status(PipelineStatus.PERSISTED)
-                .maybeFinalBamLocation(alignmentMapLocation)
-                .maybeFinalBaiLocation(alignmentMapLocation.path().endsWith("bam")
-                        ? alignmentMapLocation.transform(FileTypes::bai)
-                        : alignmentMapLocation.transform(FileTypes::crai))
+                .maybeAlignments(alignmentMapLocation)
                 .build();
     }
 

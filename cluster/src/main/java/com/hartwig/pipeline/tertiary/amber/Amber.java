@@ -1,24 +1,17 @@
 package com.hartwig.pipeline.tertiary.amber;
 
-import static java.util.Collections.singletonList;
-
 import java.io.File;
 import java.util.List;
 
-import com.google.common.collect.Lists;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.GermlineOnlyCommand;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.execution.PipelineStatus;
-import com.hartwig.pipeline.execution.vm.Bash;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.CopyResourceToOutput;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
-import com.hartwig.pipeline.execution.vm.VmDirectories;
-import com.hartwig.pipeline.execution.vm.java.JavaClassCommand;
 import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.ArchivePath;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
@@ -31,10 +24,6 @@ import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.TertiaryStage;
-import com.hartwig.pipeline.tertiary.TumorNormalCommand;
-import com.hartwig.pipeline.tertiary.TumorOnlyCommand;
-import com.hartwig.pipeline.tertiary.cobalt.CobaltCommandBuilder;
-import com.hartwig.pipeline.tools.Versions;
 
 public class Amber extends TertiaryStage<AmberOutput> {
 
@@ -55,10 +44,11 @@ public class Amber extends TertiaryStage<AmberOutput> {
     }
 
     @Override
-    public List<BashCommand> somaticCommands(final SomaticRunMetadata metadata) {
+    public List<BashCommand> tumorNormalCommands(final SomaticRunMetadata metadata) {
         return List.of(AmberCommandBuilder.newBuilder(resourceFiles)
                 .tumor(metadata.tumor().sampleName(), getTumorBamDownload().getLocalTargetPath())
                 .reference(metadata.reference().sampleName(), getReferenceBamDownload().getLocalTargetPath())
+                .panelBed(resourceFiles.panelBed())
                 .build(), new CopyResourceToOutput(resourceFiles.amberSnpcheck()));
     }
 

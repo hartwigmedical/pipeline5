@@ -8,7 +8,7 @@ import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import org.immutables.value.Value;
 
 @Value.Immutable
-public interface ChordOutput extends StageOutput{
+public interface ChordOutput extends StageOutput {
 
     @Override
     default String name() {
@@ -21,7 +21,7 @@ public interface ChordOutput extends StageOutput{
 
     Optional<GoogleStorageLocation> maybePredictions();
 
-    default GoogleStorageLocation predictions(){
-        return maybePredictions().orElseThrow();
+    default GoogleStorageLocation predictions() {
+        return maybePredictions().orElse(GoogleStorageLocation.empty());
     }
 }

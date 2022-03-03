@@ -18,9 +18,9 @@ public interface PeachOutput extends StageOutput {
         return Peach.NAMESPACE;
     }
 
-    Optional<GoogleStorageLocation> maybeGenotypeTsv();
+    Optional<GoogleStorageLocation> maybeGenotypes();
 
-    default GoogleStorageLocation genotypeTsv() {
-        return maybeGenotypeTsv().orElseThrow();
+    default GoogleStorageLocation genotypes() {
+        return maybeGenotypes().orElse(GoogleStorageLocation.empty());
     }
 }

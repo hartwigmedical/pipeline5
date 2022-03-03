@@ -45,18 +45,12 @@ public class HealthChecker implements Stage<HealthCheckOutput, SomaticRunMetadat
 
     public HealthChecker(BamMetricsOutput referenceMetricsOutput, BamMetricsOutput tumorMetricsOutput,
             FlagstatOutput referenceFlagstatOutput, FlagstatOutput tumorFlagstatOutput, PurpleOutput purpleOutput) {
-        referenceMetricsDownload = new InputDownload(referenceMetricsOutput.maybeMetricsOutputFile().orElse(GoogleStorageLocation.empty()),
-                localMetricsPath(referenceMetricsOutput));
-        tumorMetricsDownload = new InputDownload(tumorMetricsOutput.maybeMetricsOutputFile().orElse(GoogleStorageLocation.empty()),
-                localMetricsPath(tumorMetricsOutput));
+        referenceMetricsDownload = new InputDownload(referenceMetricsOutput.metricsOutputFile(), localMetricsPath(referenceMetricsOutput));
+        tumorMetricsDownload = new InputDownload(tumorMetricsOutput.metricsOutputFile(), localMetricsPath(tumorMetricsOutput));
         referenceFlagstatDownload =
-                new InputDownload(referenceFlagstatOutput.maybeFlagstatOutputFile().orElse(GoogleStorageLocation.empty()),
-                        localFlagstatPath(referenceFlagstatOutput));
-        tumorFlagstatDownload = new InputDownload(tumorFlagstatOutput.maybeFlagstatOutputFile().orElse(GoogleStorageLocation.empty()),
-                localFlagstatPath(tumorFlagstatOutput));
-        purpleDownload = new InputDownload(purpleOutput.maybeOutputLocations()
-                .map(PurpleOutputLocations::outputDirectory)
-                .orElse(GoogleStorageLocation.empty()), LOCAL_PURPLE_DIR);
+                new InputDownload(referenceFlagstatOutput.flagstatOutputFile(), localFlagstatPath(referenceFlagstatOutput));
+        tumorFlagstatDownload = new InputDownload(tumorFlagstatOutput.flagstatOutputFile(), localFlagstatPath(tumorFlagstatOutput));
+        purpleDownload = new InputDownload(purpleOutput.outputLocations().outputDirectory(), LOCAL_PURPLE_DIR);
     }
 
     @Override

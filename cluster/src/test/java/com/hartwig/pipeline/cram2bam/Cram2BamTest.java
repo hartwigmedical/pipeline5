@@ -54,7 +54,6 @@ public class Cram2BamTest extends StageTest<AlignmentOutput, SingleSampleRunMeta
 
     @Override
     protected void validateOutput(final AlignmentOutput output) {
-        assertThat(output.finalBamLocation()).isEqualTo(GoogleStorageLocation.of("run-tumor-test/cram2bam", "results/tumor.bam"));
-        assertThat(output.finalBaiLocation()).isEqualTo(GoogleStorageLocation.of("run-tumor-test/cram2bam", "results/tumor.bam.bai"));
+        assertThat(output.alignments()).isEqualTo(GoogleStorageLocation.of("run-tumor-test/cram2bam", "results/tumor.bam"));
     }
 }

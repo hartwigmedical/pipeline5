@@ -110,22 +110,23 @@ public class DiagnosticSomaticMetadataApiTest {
     }
 
     @Test
-    public void handlesSingleSampleSet() {
-        victim = new DiagnosticSomaticMetadataApi(new Run().id(RUN_ID)
-                .bucket("bucket")
-                .set(new RunSet().id(SET_ID).name("set"))
-                .ini(Ini.SINGLESAMPLE_INI.getValue()), runApi, sampleApi, publisher, new Anonymizer(Arguments.testDefaults()));
+    public void handlesTumorOnly() {
+        when(sampleApi.list(null, null, null, SET_ID, null, null)).thenReturn(List.of(TUMOR));
+        SomaticRunMetadata setMetadata = victim.get();
+        assertThat(setMetadata.set()).isEqualTo("set");
+        assertThat(setMetadata.tumor().sampleName()).isEqualTo("tumor");
+        assertThat(setMetadata.tumor().barcode()).isEqualTo("tumor_barcode");
+        assertThat(setMetadata.maybeReference()).isEmpty();
+    }
+
+    @Test
+    public void handlesReferenceOnly() {
         when(sampleApi.list(null, null, null, SET_ID, null, null)).thenReturn(List.of(REF));
         SomaticRunMetadata setMetadata = victim.get();
         assertThat(setMetadata.set()).isEqualTo("set");
         assertThat(setMetadata.reference().sampleName()).isEqualTo("ref");
         assertThat(setMetadata.reference().barcode()).isEqualTo("ref_barcode");
         assertThat(setMetadata.maybeTumor()).isEmpty();
-    }
-
-    @Test(expected = IllegalStateException.class)
-    public void throwsExceptionWhenTumorIsMissing() {
-        victim.get();
     }
 
     @Test(expected = IllegalStateException.class)

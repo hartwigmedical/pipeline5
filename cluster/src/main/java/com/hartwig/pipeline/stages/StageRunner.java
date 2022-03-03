@@ -17,6 +17,7 @@ import com.hartwig.pipeline.failsafe.DefaultBackoffPolicy;
 import com.hartwig.pipeline.labels.Labels;
 import com.hartwig.pipeline.metadata.RunMetadata;
 import com.hartwig.pipeline.reruns.StartingPoint;
+import com.hartwig.pipeline.resource.OverridePanelCommand;
 import com.hartwig.pipeline.resource.OverrideReferenceGenomeCommand;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
@@ -52,6 +53,7 @@ public class StageRunner<M extends RunMetadata> {
                 BashStartupScript bash = BashStartupScript.of(bucket.name());
                 bash.addCommands(stage.inputs())
                         .addCommands(OverrideReferenceGenomeCommand.overrides(arguments))
+                        .addCommands(OverridePanelCommand.overrides(arguments))
                         .addCommands(commands)
                         .addCommand(new OutputUpload(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path()),
                                 RuntimeFiles.typical()));
@@ -68,12 +70,12 @@ public class StageRunner<M extends RunMetadata> {
 
     private <T extends StageOutput> List<BashCommand> commands(final M metadata, final Stage<T, M> stage) {
         switch (metadata.mode()) {
-            case SOMATIC:
-                return stage.somaticCommands(metadata);
+            case TUMOR_NORMAL:
+                return stage.tumorNormalCommands(metadata);
             case TUMOR_ONLY:
                 return stage.tumorOnlyCommands(metadata);
-            case GERMLINE_ONLY:
-                return stage.germlineOnlyCommands(metadata);
+            case NORMAL_ONLY:
+                return stage.normalOnlyCommands(metadata);
             default:
                 return Collections.emptyList();
         }

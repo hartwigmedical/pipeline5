@@ -40,7 +40,7 @@ public class CramConversion implements Stage<CramOutput, SingleSampleRunMetadata
     private final ResourceFiles resourceFiles;
 
     public CramConversion(final AlignmentOutput alignmentOutput, final SampleType sampleType, ResourceFiles resourceFiles) {
-        bamDownload = new InputDownload(alignmentOutput.finalBamLocation());
+        bamDownload = new InputDownload(alignmentOutput.alignments());
         outputCram = VmDirectories.outputFile(FileTypes.cram(alignmentOutput.sample()));
         this.sampleType = sampleType;
         this.resourceFiles = resourceFiles;

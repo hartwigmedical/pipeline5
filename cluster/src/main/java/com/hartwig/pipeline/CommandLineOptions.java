@@ -81,6 +81,7 @@ public class CommandLineOptions {
     private static final String CONTEXT_FLAG = "context";
     private static final String COST_CENTER_LABEL_FLAG = "cost_center_label";
     private static final String USER_LABEL_FLAG = "user_label";
+    private static final String PANEL_BED_FLAG = "panel_bed_location";
 
     private static Options options() {
         return new Options().addOption(profile())
@@ -146,7 +147,13 @@ public class CommandLineOptions {
                 .addOption(anonymize())
                 .addOption(context())
                 .addOption(costCenterLabel())
-                .addOption(userLabel());
+                .addOption(userLabel())
+                .addOption(panelBedLocation());
+    }
+
+    private static Option panelBedLocation() {
+        return optionWithArg(PANEL_BED_FLAG,
+                "Specify the location of the panel bed to enable panel mode. Both within image and gs:// urls are supported.");
     }
 
     private static Option userLabel() {
@@ -379,6 +386,7 @@ public class CommandLineOptions {
                     .context(context(commandLine, defaults))
                     .costCenterLabel(costCenterLabel(commandLine, defaults))
                     .userLabel(userLabel(commandLine, defaults))
+                    .panelBedLocation(panelBedLocation(commandLine, defaults))
                     .build();
         } catch (ParseException e) {
             LOGGER.error("Could not parse command line args", e);
@@ -386,6 +394,13 @@ public class CommandLineOptions {
             formatter.printHelp("pipeline5", options());
             throw e;
         }
+    }
+
+    public static Optional<String> panelBedLocation(final CommandLine commandLine, final Arguments defaults) {
+        if (commandLine.hasOption(PANEL_BED_FLAG)) {
+            return Optional.of(commandLine.getOptionValue(PANEL_BED_FLAG));
+        }
+        return defaults.panelBedLocation();
     }
 
     public static Optional<String> userLabel(final CommandLine commandLine, final Arguments defaults) {

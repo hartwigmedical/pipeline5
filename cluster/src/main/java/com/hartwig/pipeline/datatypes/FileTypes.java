@@ -1,5 +1,9 @@
 package com.hartwig.pipeline.datatypes;
 
+import java.util.function.Function;
+
+import com.hartwig.pipeline.storage.GoogleStorageLocation;
+
 public class FileTypes {
 
     public static final String BAM = "bam";
@@ -50,5 +54,14 @@ public class FileTypes {
 
     public static boolean isVcf(final String filename) {
         return filename.endsWith(VCF);
+    }
+
+    public static String toAlignmentIndex(final String filename) {
+        if (isBam(filename)) {
+            return bai(filename);
+        } else if (isCram(filename)) {
+            return crai(filename);
+        }
+        return filename;
     }
 }

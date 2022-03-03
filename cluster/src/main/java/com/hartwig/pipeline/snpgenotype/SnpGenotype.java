@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.AlignmentOutput;
+import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
@@ -38,8 +39,8 @@ public class SnpGenotype implements Stage<SnpGenotypeOutput, SingleSampleRunMeta
 
     public SnpGenotype(final ResourceFiles resourceFiles, final AlignmentOutput alignmentOutput) {
         this.resourceFiles = resourceFiles;
-        this.bamDownload = new InputDownload(alignmentOutput.finalBamLocation());
-        this.baiDownload = new InputDownload(alignmentOutput.finalBaiLocation());
+        this.bamDownload = new InputDownload(alignmentOutput.alignments());
+        this.baiDownload = new InputDownload(alignmentOutput.alignments().transform(FileTypes::toAlignmentIndex));
     }
 
     @Override

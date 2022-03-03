@@ -17,8 +17,8 @@ public interface VirusOutput extends StageOutput {
 
     Optional<GoogleStorageLocation> maybeAnnotatedVirusFile();
 
-    default GoogleStorageLocation annotatedVirusFile() {
-        return maybeAnnotatedVirusFile().orElseThrow();
+    default GoogleStorageLocation virusAnnotations() {
+        return maybeAnnotatedVirusFile().orElse(GoogleStorageLocation.empty());
     }
 
     static ImmutableVirusOutput.Builder builder() {
