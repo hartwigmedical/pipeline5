@@ -9,6 +9,8 @@ import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.calling.germline.GermlineCaller;
 import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
+import com.hartwig.pipeline.calling.sage.SageCaller;
+import com.hartwig.pipeline.calling.sage.SageConfiguration;
 import com.hartwig.pipeline.calling.sage.SageOutput;
 import com.hartwig.pipeline.calling.structural.StructuralCaller;
 import com.hartwig.pipeline.calling.structural.StructuralCallerOutput;
@@ -201,24 +203,24 @@ public class TestInputs {
     }
 
     public static SageOutput sageGermlineOutput() {
-        return SageOutput.builder(SageGermlineCaller.NAMESPACE)
+        return SageOutput.builder(SageConfiguration.SAGE_GERMLINE_NAMESPACE)
                 .status(PipelineStatus.SUCCESS)
-                .maybeVariants(gsLocation(somaticBucket(SageGermlineCaller.NAMESPACE),
+                .maybeVariants(gsLocation(somaticBucket(SageConfiguration.SAGE_GERMLINE_NAMESPACE),
                         RESULTS + TUMOR_SAMPLE + ".germline." + FileTypes.GZIPPED_VCF))
-                .maybeGermlineGeneCoverage(gsLocation(somaticBucket(SageGermlineCaller.NAMESPACE),
-                        RESULTS + TUMOR_SAMPLE + SageGermlineCaller.SAGE_GENE_COVERAGE_TSV))
+                .maybeGermlineGeneCoverage(gsLocation(somaticBucket(SageConfiguration.SAGE_GERMLINE_NAMESPACE),
+                        RESULTS + TUMOR_SAMPLE + SageCaller.SAGE_GENE_COVERAGE_TSV))
                 .build();
     }
 
     public static SageOutput sageSomaticOutput() {
-        return SageOutput.builder(SageSomaticCaller.NAMESPACE)
+        return SageOutput.builder(SageConfiguration.SAGE_SOMATIC_NAMESPACE)
                 .status(PipelineStatus.SUCCESS)
-                .maybeVariants(gsLocation(somaticBucket(SageSomaticCaller.NAMESPACE),
+                .maybeVariants(gsLocation(somaticBucket(SageConfiguration.SAGE_SOMATIC_NAMESPACE),
                         RESULTS + TUMOR_SAMPLE + ".somatic." + FileTypes.GZIPPED_VCF))
-                .maybeSomaticRefSampleBqrPlot(gsLocation(somaticBucket(SageSomaticCaller.NAMESPACE),
-                        RESULTS + REFERENCE_SAMPLE + SageGermlineCaller.SAGE_BQR_PNG))
-                .maybeSomaticTumorSampleBqrPlot(gsLocation(somaticBucket(SageSomaticCaller.NAMESPACE),
-                        RESULTS + TUMOR_SAMPLE + SageGermlineCaller.SAGE_BQR_PNG))
+                .maybeSomaticRefSampleBqrPlot(gsLocation(somaticBucket(SageConfiguration.SAGE_SOMATIC_NAMESPACE),
+                        RESULTS + REFERENCE_SAMPLE + SageCaller.SAGE_BQR_PNG))
+                .maybeSomaticTumorSampleBqrPlot(gsLocation(somaticBucket(SageConfiguration.SAGE_SOMATIC_NAMESPACE),
+                        RESULTS + TUMOR_SAMPLE + SageCaller.SAGE_BQR_PNG))
                 .build();
     }
 

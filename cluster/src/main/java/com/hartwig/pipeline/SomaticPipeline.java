@@ -105,9 +105,9 @@ public class SomaticPipeline {
             Future<CobaltOutput> cobaltOutputFuture =
                     executorService.submit(() -> stageRunner.run(metadata, new Cobalt(pair, resourceFiles, persistedDataset)));
             Future<SageOutput> sageSomaticOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
-                    new SageCaller(pair, persistedDataset, SageConfiguration.somatic())));
+                    new SageCaller(pair, persistedDataset, SageConfiguration.somatic(resourceFiles, arguments.shallow()))));
             Future<SageOutput> sageGermlineOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
-                    new SageCaller(pair, persistedDataset, SageConfiguration.germline())));
+                    new SageCaller(pair, persistedDataset, SageConfiguration.germline(resourceFiles))));
             Future<StructuralCallerOutput> structuralCallerOutputFuture =
                     executorService.submit(() -> stageRunner.run(metadata, new StructuralCaller(pair, resourceFiles, persistedDataset)));
 
@@ -145,8 +145,7 @@ public class SomaticPipeline {
                                     amberOutput,
                                     cobaltOutput,
                                     persistedDataset,
-                                    arguments.shallow(),
-                                    arguments.runSageGermlineCaller())))));
+                                    arguments.shallow())))));
 
                     PurpleOutput purpleOutput = purpleOutputFuture.get();
 

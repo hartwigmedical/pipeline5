@@ -46,17 +46,16 @@ public class SageCaller extends TertiaryStage<SageOutput> {
     @Override
     public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) {
         return new SageApplication(sageConfiguration.commandBuilder()
-                .addTumor(metadata.tumor().sampleName(),
-                        getTumorBamDownload().getLocalTargetPath())).andThen(sageConfiguration.postProcess()
-                .apply(metadata.tumor().sampleName())).apply(SubStageInputOutput.empty(metadata.tumor().sampleName())).bash();
+                .addTumor(metadata.tumor().sampleName(), getTumorBamDownload().getLocalTargetPath())).apply(SubStageInputOutput.empty(
+                metadata.tumor().sampleName())).bash();
     }
 
     @Override
     public List<BashCommand> normalOnlyCommands(final SomaticRunMetadata metadata) {
         return new SageApplication(sageConfiguration.commandBuilder()
                 .addReference(metadata.reference().sampleName(),
-                        getReferenceBamDownload().getLocalTargetPath())).andThen(sageConfiguration.postProcess()
-                .apply(metadata.reference().sampleName())).apply(SubStageInputOutput.empty(metadata.reference().sampleName())).bash();
+                        getReferenceBamDownload().getLocalTargetPath())).apply(SubStageInputOutput.empty(metadata.reference().sampleName()))
+                .bash();
     }
 
     @Override
@@ -64,8 +63,9 @@ public class SageCaller extends TertiaryStage<SageOutput> {
         return new SageApplication(sageConfiguration.commandBuilder()
                 .addTumor(metadata.tumor().sampleName(), getTumorBamDownload().getLocalTargetPath())
                 .addReference(metadata.reference().sampleName(),
-                        getReferenceBamDownload().getLocalTargetPath())).andThen(sageConfiguration.postProcess()
-                .apply(metadata.reference().sampleName())).apply(SubStageInputOutput.empty(metadata.reference().sampleName())).bash();
+                        getReferenceBamDownload().getLocalTargetPath())).andThen(sageConfiguration.postProcess().apply(metadata))
+                .apply(SubStageInputOutput.empty(metadata.tumor().sampleName()))
+                .bash();
     }
 
     @Override
