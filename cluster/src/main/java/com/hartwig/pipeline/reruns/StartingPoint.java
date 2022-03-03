@@ -10,8 +10,6 @@ import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.calling.germline.GermlineCaller;
-import com.hartwig.pipeline.calling.sage.SageGermlineCaller;
-import com.hartwig.pipeline.calling.sage.SageSomaticCaller;
 import com.hartwig.pipeline.calling.structural.StructuralCaller;
 import com.hartwig.pipeline.calling.structural.gripss.GripssGermline;
 import com.hartwig.pipeline.calling.structural.gripss.GripssSomatic;

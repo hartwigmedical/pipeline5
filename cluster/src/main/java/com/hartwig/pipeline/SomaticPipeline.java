@@ -9,12 +9,11 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import com.hartwig.pipeline.alignment.AlignmentPair;
-import com.hartwig.pipeline.calling.sage.SageGermlineCaller;
+import com.hartwig.pipeline.calling.sage.SageCaller;
+import com.hartwig.pipeline.calling.sage.SageConfiguration;
 import com.hartwig.pipeline.calling.sage.SageOutput;
-import com.hartwig.pipeline.calling.sage.SageSomaticCaller;
 import com.hartwig.pipeline.calling.structural.gripss.GripssGermline;
 import com.hartwig.pipeline.calling.structural.gripss.GripssGermlineOutput;
-import com.hartwig.pipeline.calling.structural.gripss.GripssOutput;
 import com.hartwig.pipeline.calling.structural.StructuralCaller;
 import com.hartwig.pipeline.calling.structural.StructuralCallerOutput;
 import com.hartwig.pipeline.calling.structural.gripss.GripssSomatic;
@@ -59,7 +58,6 @@ import com.hartwig.pipeline.tertiary.sigs.SigsOutput;
 import com.hartwig.pipeline.tertiary.virus.VirusAnalysis;
 import com.hartwig.pipeline.tertiary.virus.VirusOutput;
 
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,9 +105,9 @@ public class SomaticPipeline {
             Future<CobaltOutput> cobaltOutputFuture =
                     executorService.submit(() -> stageRunner.run(metadata, new Cobalt(pair, resourceFiles, persistedDataset)));
             Future<SageOutput> sageSomaticOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
-                    new SageSomaticCaller(pair, resourceFiles, persistedDataset, arguments.shallow())));
-            Future<SageOutput> sageGermlineOutputFuture =
-                    executorService.submit(() -> stageRunner.run(metadata, new SageGermlineCaller(pair, resourceFiles, persistedDataset)));
+                    new SageCaller(pair, persistedDataset, SageConfiguration.somatic())));
+            Future<SageOutput> sageGermlineOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
+                    new SageCaller(pair, persistedDataset, SageConfiguration.germline())));
             Future<StructuralCallerOutput> structuralCallerOutputFuture =
                     executorService.submit(() -> stageRunner.run(metadata, new StructuralCaller(pair, resourceFiles, persistedDataset)));
 
