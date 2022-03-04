@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import com.hartwig.events.Pipeline;
 import com.hartwig.events.Pipeline.Context;
+import com.hartwig.pipeline.ImmutableArguments.Builder;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
 
@@ -15,6 +16,8 @@ public interface Arguments extends CommonArguments {
     String EMPTY = "";
 
     Optional<String> startingPoint();
+
+    boolean publishLoadEvent();
 
     enum DefaultsProfile {
         PUBLIC,
@@ -125,7 +128,7 @@ public interface Arguments extends CommonArguments {
 
     Pipeline.Context DEFAULT_CONTEXT = Context.DIAGNOSTIC;
 
-    static ImmutableArguments.Builder defaultsBuilder(String profileString) {
+    static Builder defaultsBuilder(String profileString) {
         DefaultsProfile profile = DefaultsProfile.valueOf(profileString.toUpperCase());
         if (profile.equals(DefaultsProfile.PRODUCTION)) {
             return ImmutableArguments.builder()
@@ -158,6 +161,7 @@ public interface Arguments extends CommonArguments {
                     .network(DEFAULT_NETWORK)
                     .outputCram(true)
                     .publishToTurquoise(false)
+                    .publishLoadEvent(false)
                     .pollInterval(DEFAULT_POLL_INTERVAL)
                     .refGenomeVersion(DEFAULT_REF_GENOME_VERSION)
                     .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES)
@@ -192,6 +196,7 @@ public interface Arguments extends CommonArguments {
                     .uploadPrivateKeyPath(DEFAULT_DEVELOPMENT_KEY_PATH)
                     .outputCram(true)
                     .publishToTurquoise(false)
+                    .publishLoadEvent(false)
                     .pollInterval(DEFAULT_POLL_INTERVAL)
                     .refGenomeVersion(DEFAULT_REF_GENOME_VERSION)
                     .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES)
@@ -231,6 +236,7 @@ public interface Arguments extends CommonArguments {
                     .network(DEFAULT_NETWORK)
                     .outputCram(true)
                     .publishToTurquoise(false)
+                    .publishLoadEvent(false)
                     .pollInterval(DEFAULT_POLL_INTERVAL)
                     .refGenomeVersion(DEFAULT_REF_GENOME_VERSION)
                     .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES)
@@ -266,6 +272,7 @@ public interface Arguments extends CommonArguments {
                     .network(DEFAULT_NETWORK)
                     .outputCram(true)
                     .publishToTurquoise(false)
+                    .publishLoadEvent(false)
                     .pollInterval(DEFAULT_POLL_INTERVAL)
                     .refGenomeVersion(RefGenomeVersion.V38)
                     .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES)

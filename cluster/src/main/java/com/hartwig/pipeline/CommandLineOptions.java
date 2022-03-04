@@ -82,6 +82,7 @@ public class CommandLineOptions {
     private static final String COST_CENTER_LABEL_FLAG = "cost_center_label";
     private static final String USER_LABEL_FLAG = "user_label";
     private static final String PANEL_BED_FLAG = "panel_bed_location";
+    private static final String PUBLISH_LOAD_EVENT_FLAG = "publish_load_event";
 
     private static Options options() {
         return new Options().addOption(profile())
@@ -148,7 +149,8 @@ public class CommandLineOptions {
                 .addOption(context())
                 .addOption(costCenterLabel())
                 .addOption(userLabel())
-                .addOption(panelBedLocation());
+                .addOption(panelBedLocation())
+                .addOption(publishloadEvent());
     }
 
     private static Option panelBedLocation() {
@@ -321,6 +323,11 @@ public class CommandLineOptions {
                         refGenomeVersions().collect(Collectors.joining(","))));
     }
 
+    private static Option publishloadEvent() {
+        return optionWithBooleanArg(PUBLISH_LOAD_EVENT_FLAG,
+                format("Publish an event for downstream DB load; has no effect unless context is [%s]", Context.PLATINUM));
+    }
+
     @NotNull
     private static Option sampleDirectory() {
         return optionWithArg(SAMPLE_DIRECTORY_FLAG, "Root directory of the patient data");
@@ -387,6 +394,7 @@ public class CommandLineOptions {
                     .costCenterLabel(costCenterLabel(commandLine, defaults))
                     .userLabel(userLabel(commandLine, defaults))
                     .panelBedLocation(panelBedLocation(commandLine, defaults))
+                    .publishLoadEvent(booleanOptionWithDefault(commandLine, PUBLISH_LOAD_EVENT_FLAG, defaults.publishLoadEvent()))
                     .build();
         } catch (ParseException e) {
             LOGGER.error("Could not parse command line args", e);
