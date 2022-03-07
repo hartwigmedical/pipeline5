@@ -5,6 +5,9 @@ import java.util.Optional;
 import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 
+import org.immutables.value.Value;
+
+@Value.Immutable
 public interface GripssOutput extends StageOutput {
 
     Optional<GoogleStorageLocation> maybeFilteredVariants();
@@ -17,5 +20,9 @@ public interface GripssOutput extends StageOutput {
 
     default GoogleStorageLocation unfilteredVariants() {
         return maybeUnfilteredVariants().orElse(GoogleStorageLocation.empty());
+    }
+
+    static ImmutableGripssOutput.Builder builder() {
+        return ImmutableGripssOutput.builder();
     }
 }

@@ -14,10 +14,10 @@ import com.hartwig.pipeline.calling.sage.SageConfiguration;
 import com.hartwig.pipeline.calling.sage.SageOutput;
 import com.hartwig.pipeline.calling.structural.StructuralCaller;
 import com.hartwig.pipeline.calling.structural.StructuralCallerOutput;
+import com.hartwig.pipeline.calling.structural.gripss.GripssConfiguration;
 import com.hartwig.pipeline.calling.structural.gripss.GripssGermline;
-import com.hartwig.pipeline.calling.structural.gripss.GripssGermlineOutput;
-import com.hartwig.pipeline.calling.structural.gripss.GripssSomatic;
-import com.hartwig.pipeline.calling.structural.gripss.GripssSomaticOutput;
+import com.hartwig.pipeline.calling.structural.gripss.Gripss;
+import com.hartwig.pipeline.calling.structural.gripss.GripssOutput;
 import com.hartwig.pipeline.cram.CramOutput;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.PipelineStatus;
@@ -253,26 +253,26 @@ public class TestInputs {
                 .build();
     }
 
-    public static GripssSomaticOutput gripssSomaticProcessOutput() {
+    public static GripssOutput gripssSomaticProcessOutput() {
         String filtered = ".gripss.filtered.";
         String full = ".gripss.full.";
-        return GripssSomaticOutput.builder()
+        return GripssOutput.builder()
                 .status(PipelineStatus.SUCCESS)
-                .maybeFilteredVariants(gsLocation(somaticBucket(GripssSomatic.NAMESPACE),
+                .maybeFilteredVariants(gsLocation(somaticBucket(Gripss.NAMESPACE),
                         RESULTS + TUMOR_SAMPLE + filtered + FileTypes.GZIPPED_VCF))
-                .maybeUnfilteredVariants(gsLocation(somaticBucket(GripssSomatic.NAMESPACE),
+                .maybeUnfilteredVariants(gsLocation(somaticBucket(Gripss.NAMESPACE),
                         RESULTS + TUMOR_SAMPLE + full + FileTypes.GZIPPED_VCF))
                 .build();
     }
 
-    public static GripssGermlineOutput gripssGermlineOutput() {
+    public static GripssOutput gripssGermlineOutput() {
         String filtered = ".gripss.filtered.";
         String full = ".gripss.full.";
-        return GripssGermlineOutput.builder()
+        return GripssOutput.builder()
                 .status(PipelineStatus.SUCCESS)
-                .maybeFilteredVariants(gsLocation(somaticBucket(GripssGermline.NAMESPACE),
+                .maybeFilteredVariants(gsLocation(somaticBucket(GripssConfiguration.GERMLINE_NAMESPACE),
                         RESULTS + TUMOR_SAMPLE + filtered + FileTypes.GZIPPED_VCF))
-                .maybeUnfilteredVariants(gsLocation(somaticBucket(GripssGermline.NAMESPACE),
+                .maybeUnfilteredVariants(gsLocation(somaticBucket(GripssConfiguration.GERMLINE_NAMESPACE),
                         RESULTS + TUMOR_SAMPLE + full + FileTypes.GZIPPED_VCF))
                 .build();
     }

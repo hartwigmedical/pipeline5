@@ -12,8 +12,9 @@ import com.hartwig.pipeline.alignment.Aligner;
 import com.hartwig.pipeline.calling.germline.GermlineCaller;
 import com.hartwig.pipeline.calling.sage.SageConfiguration;
 import com.hartwig.pipeline.calling.structural.StructuralCaller;
+import com.hartwig.pipeline.calling.structural.gripss.GripssConfiguration;
 import com.hartwig.pipeline.calling.structural.gripss.GripssGermline;
-import com.hartwig.pipeline.calling.structural.gripss.GripssSomatic;
+import com.hartwig.pipeline.calling.structural.gripss.Gripss;
 import com.hartwig.pipeline.cram.CramConversion;
 import com.hartwig.pipeline.flagstat.Flagstat;
 import com.hartwig.pipeline.metrics.BamMetrics;
@@ -43,7 +44,7 @@ public class StartingPoint {
                         Cobalt.NAMESPACE,
                         Amber.NAMESPACE,
                         SageConfiguration.SAGE_GERMLINE_NAMESPACE))),
-        GRIPSS_COMPLETE(concat(CALLING_COMPLETE.namespaces, List.of(GripssSomatic.NAMESPACE, GripssGermline.NAMESPACE))),
+        GRIPSS_COMPLETE(concat(CALLING_COMPLETE.namespaces, List.of(Gripss.NAMESPACE, GripssConfiguration.GERMLINE_NAMESPACE))),
         PURPLE_COMPLETE(concat(GRIPSS_COMPLETE.namespaces, List.of(Purple.NAMESPACE)));
 
         private final List<String> namespaces;

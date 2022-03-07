@@ -3,14 +3,12 @@ package com.hartwig.pipeline.tertiary.purple;
 import static java.lang.String.format;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
-import com.hartwig.pipeline.calling.structural.gripss.GripssSomaticOutput;
+import com.hartwig.pipeline.calling.structural.gripss.GripssOutput;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.PipelineStatus;
@@ -63,18 +61,16 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
     private final PersistedDataset persistedDataset;
     private final boolean shallow;
 
-    public Purple(final ResourceFiles resourceFiles, PaveOutput paveSomaticOutput, PaveOutput germlineCallerOutput,
-            GripssSomaticOutput structuralCallerOutput, AmberOutput amberOutput, CobaltOutput cobaltOutput,
+    public Purple(final ResourceFiles resourceFiles, final PaveOutput paveSomaticOutput, final PaveOutput germlineCallerOutput,
+            final GripssOutput gripssOutput, final AmberOutput amberOutput, final CobaltOutput cobaltOutput,
             final PersistedDataset persistedDataset, final boolean shallow) {
         this.resourceFiles = resourceFiles;
         this.somaticVariantsDownload = new InputDownload(paveSomaticOutput.annotatedVariants());
         this.germlineVariantsDownload = new InputDownload(germlineCallerOutput.annotatedVariants());
-        this.structuralVariantsDownload = new InputDownload(structuralCallerOutput.filteredVariants());
-        this.structuralVariantsIndexDownload =
-                new InputDownload(structuralCallerOutput.filteredVariants().transform(FileTypes::tabixIndex));
-        this.svRecoveryVariantsDownload = new InputDownload(structuralCallerOutput.unfilteredVariants());
-        this.svRecoveryVariantsIndexDownload =
-                new InputDownload(structuralCallerOutput.unfilteredVariants().transform(FileTypes::tabixIndex));
+        this.structuralVariantsDownload = new InputDownload(gripssOutput.filteredVariants());
+        this.structuralVariantsIndexDownload = new InputDownload(gripssOutput.filteredVariants().transform(FileTypes::tabixIndex));
+        this.svRecoveryVariantsDownload = new InputDownload(gripssOutput.unfilteredVariants());
+        this.svRecoveryVariantsIndexDownload = new InputDownload(gripssOutput.unfilteredVariants().transform(FileTypes::tabixIndex));
         this.amberOutputDownload = new InputDownload(amberOutput.outputDirectory());
         this.cobaltOutputDownload = new InputDownload(cobaltOutput.outputDirectory());
         this.persistedDataset = persistedDataset;

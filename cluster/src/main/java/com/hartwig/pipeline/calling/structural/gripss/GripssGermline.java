@@ -29,8 +29,8 @@ import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
-public class GripssGermline implements Stage<GripssGermlineOutput, SomaticRunMetadata> {
-    public static final String NAMESPACE = "gripss_germline";
+public class GripssGermline  {
+   /* public static final String NAMESPACE = "gripss_germline";
 
     private static final String GRIPSS_GERMLINE_FILTERED = ".gripss.filtered.germline.";
     private static final String GRIPSS_GERMLINE_UNFILTERED = ".gripss.germline.";
@@ -148,5 +148,5 @@ public class GripssGermline implements Stage<GripssGermlineOutput, SomaticRunMet
     @Override
     public boolean shouldRun(final Arguments arguments) {
         return arguments.runStructuralCaller();
-    }
+    }*/
 }

@@ -6,8 +6,9 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
-import com.hartwig.pipeline.calling.structural.gripss.GripssSomatic;
-import com.hartwig.pipeline.calling.structural.gripss.GripssSomaticOutput;
+import com.hartwig.pipeline.calling.structural.gripss.Gripss;
+import com.hartwig.pipeline.calling.structural.gripss.GripssConfiguration;
+import com.hartwig.pipeline.calling.structural.gripss.GripssOutput;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.stages.Stage;
@@ -17,7 +18,7 @@ import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Before;
 
-public class GripssSomaticTest extends StageTest<GripssSomaticOutput, SomaticRunMetadata> {
+public class GripssSomaticTest extends StageTest<GripssOutput, SomaticRunMetadata> {
 
     private static final String TUMOR_GRIPSS_VCF_GZ = "tumor.gripss.somatic.vcf.gz";
     private static final String TUMOR_GRIPSS_FILTERED_VCF_GZ = "tumor.gripss.filtered.somatic.vcf.gz";
@@ -35,8 +36,11 @@ public class GripssSomaticTest extends StageTest<GripssSomaticOutput, SomaticRun
     }
 
     @Override
-    protected Stage<GripssSomaticOutput, SomaticRunMetadata> createVictim() {
-        return new GripssSomatic(TestInputs.REF_GENOME_37_RESOURCE_FILES, TestInputs.structuralCallerOutput(), persistedDataset);
+    protected Stage<GripssOutput, SomaticRunMetadata> createVictim() {
+        return new Gripss(TestInputs.REF_GENOME_37_RESOURCE_FILES,
+                TestInputs.structuralCallerOutput(),
+                persistedDataset,
+                GripssConfiguration.somatic());
     }
 
     @Override
@@ -68,7 +72,7 @@ public class GripssSomaticTest extends StageTest<GripssSomaticOutput, SomaticRun
     }
 
     @Override
-    protected void validateOutput(final GripssSomaticOutput output) {
+    protected void validateOutput(final GripssOutput output) {
         // no further validation yet
     }
 
@@ -83,7 +87,7 @@ public class GripssSomaticTest extends StageTest<GripssSomaticOutput, SomaticRun
     }
 
     @Override
-    protected void validatePersistedOutput(final GripssSomaticOutput output) {
+    protected void validatePersistedOutput(final GripssOutput output) {
         String outputDir = "set/" + GRIPSS;
         assertThat(output.filteredVariants()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, outputDir + TUMOR_GRIPSS_FILTERED_VCF_GZ));
         assertThat(output.unfilteredVariants()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, outputDir + TUMOR_GRIPSS_VCF_GZ));
@@ -96,7 +100,7 @@ public class GripssSomaticTest extends StageTest<GripssSomaticOutput, SomaticRun
     }
 
     @Override
-    protected void validatePersistedOutputFromPersistedDataset(final GripssSomaticOutput output) {
+    protected void validatePersistedOutputFromPersistedDataset(final GripssOutput output) {
         assertThat(output.filteredVariants()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, GRIPSS + TUMOR_GRIPSS_FILTERED_VCF_GZ));
         assertThat(output.unfilteredVariants()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, GRIPSS + TUMOR_GRIPSS_VCF_GZ));
     }

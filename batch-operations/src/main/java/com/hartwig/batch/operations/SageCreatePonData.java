@@ -56,8 +56,7 @@ public class SageCreatePonData implements BatchOperation {
         startupScript.addCommand(() -> remoteReferenceFile.toCommandForm(localReferenceFile));
         startupScript.addCommand(() -> remoteReferenceIndex.toCommandForm(localFilename(remoteReferenceIndex)));
 
-        final SageCommandBuilder sageCommandBuilder =
-                new SageCommandBuilder(resourceFiles).ponMode(referenceSampleName, localReferenceBam);
+        final SageCommandBuilder sageCommandBuilder = new SageCommandBuilder(resourceFiles).ponMode(referenceSampleName, localReferenceBam);
         final SageApplication sageApplication = new SageApplication(sageCommandBuilder);
 
         // Convert to bam if necessary
@@ -72,7 +71,7 @@ public class SageCreatePonData implements BatchOperation {
         // Store output
         startupScript.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), "sage"), executionFlags));
 
-        return VirtualMachineJobDefinition.sageCalling(startupScript, ResultsDirectory.defaultDirectory());
+        return VirtualMachineJobDefinition.sageGermlineCalling(startupScript, ResultsDirectory.defaultDirectory());
     }
 
     private List<BashCommand> cramToBam(String cram) {
