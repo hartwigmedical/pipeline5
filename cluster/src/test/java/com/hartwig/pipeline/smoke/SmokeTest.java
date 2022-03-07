@@ -5,7 +5,6 @@ import static java.lang.String.format;
 import static com.hartwig.pipeline.testsupport.Assertions.assertThatOutput;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.in;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -13,7 +12,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -52,14 +50,16 @@ public class SmokeTest {
     private File resultsDir;
 
     private final String inputMode;
+    private final PipelineStatus expectedStatus;
 
-    public SmokeTest(final String inputMode) {
+    public SmokeTest(final String inputMode, final PipelineStatus expectedStatus) {
         this.inputMode = inputMode;
+        this.expectedStatus = expectedStatus;
     }
 
     @Parameterized.Parameters
     public static Collection<Object[]> data() {
-        return Arrays.asList(new Object[][] { { "tumor" } });
+        return Arrays.asList(new Object[][] { { "tumor", PipelineStatus.SUCCESS }, { "tumor-reference", PipelineStatus.QC_FAILED } });
     }
 
     @Before
@@ -103,7 +103,7 @@ public class SmokeTest {
         cleanupBucket(inputMode, arguments.outputBucket(), storage);
 
         PipelineState state = victim.start(arguments);
-        assertThat(state.status()).isEqualTo(PipelineStatus.QC_FAILED);
+        assertThat(state.status()).isEqualTo(expectedStatus);
 
         File expectedFilesResource = new File(Resources.testResource(fixtureDir + "expected_output_files"));
         List<String> expectedFiles = FileUtils.readLines(expectedFilesResource, FILE_ENCODING);
