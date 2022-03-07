@@ -71,13 +71,13 @@ public class SmokeTest {
     public void runFullPipelineAndCheckFinalStatus(final String inputMode, final PipelineStatus expectedStatus) throws Exception {
         PipelineMain victim = new PipelineMain();
         String version = version();
-        String setName = inputMode + "-" + version;
+        String setName = noDots(inputMode + "-" + version);
         final String fixtureDir = "smoke_test/" + inputMode + "/";
         final String randomRunId = RandomStringUtils.random(5, true, false);
         final ImmutableArguments.Builder builder = Arguments.defaultsBuilder(Arguments.DefaultsProfile.DEVELOPMENT.toString())
                 .sampleJson(Resources.testResource(fixtureDir + "samples.json"))
                 .cloudSdkPath(CLOUD_SDK_PATH)
-                .setId(noDots(setName))
+                .setId(setName)
                 .runId(noDots(randomRunId))
                 .runGermlineCaller(false)
                 .cleanup(true)
