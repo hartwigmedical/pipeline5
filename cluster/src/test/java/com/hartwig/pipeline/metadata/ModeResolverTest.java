@@ -14,7 +14,7 @@ public class ModeResolverTest {
     public void bothTumorAndReferenceReturnsSomatic() {
         ModeResolver victim = new ModeResolver();
         final InputMode result = victim.apply(TestInputs.defaultSomaticRunMetadata());
-        assertThat(result).isEqualTo(InputMode.TUMOR_NORMAL);
+        assertThat(result).isEqualTo(InputMode.TUMOR_REFERENCE);
     }
 
     @Test
@@ -24,7 +24,7 @@ public class ModeResolverTest {
                 .from(TestInputs.defaultSomaticRunMetadata())
                 .maybeTumor(Optional.empty())
                 .build());
-        assertThat(result).isEqualTo(InputMode.NORMAL_ONLY);
+        assertThat(result).isEqualTo(InputMode.REFERENCE_ONLY);
     }
 
     @Test

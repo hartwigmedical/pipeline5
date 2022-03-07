@@ -11,7 +11,7 @@ import org.immutables.value.Value;
 @Value.Immutable
 public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachinePerformanceProfile> {
 
-    String STANDARD_IMAGE = "pipeline5-" +Versions.imageVersion();
+    String STANDARD_IMAGE = "pipeline5-" + Versions.imageVersion();
     String HMF_IMAGE_PROJECT = "hmf-images";
     String PUBLIC_IMAGE_NAME = "hmf-public-pipeline-v1";
 

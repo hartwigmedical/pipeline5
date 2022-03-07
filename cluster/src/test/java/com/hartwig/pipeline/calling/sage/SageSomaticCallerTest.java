@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
-import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.reruns.NoopPersistedDataset;
 import com.hartwig.pipeline.stages.Stage;
@@ -28,7 +27,7 @@ public class SageSomaticCallerTest extends TertiaryStageTest<SageOutput> {
         SageCaller victim = new SageCaller(TestInputs.defaultPair(),
                 new NoopPersistedDataset(),
                 SageConfiguration.somatic(TestInputs.REF_GENOME_37_RESOURCE_FILES, true));
-        assertThat(victim.tumorNormalCommands(input()).get(0).asBash()).contains("-hotspot_min_tumor_qual 40");
+        assertThat(victim.tumorReferenceCommands(input()).get(0).asBash()).contains("-hotspot_min_tumor_qual 40");
     }
 
     @Override

@@ -6,7 +6,7 @@ public interface RunMetadata {
 
     @Value.Default
     default InputMode mode() {
-        return InputMode.TUMOR_NORMAL;
+        return InputMode.TUMOR_REFERENCE;
     }
 
     String name();
