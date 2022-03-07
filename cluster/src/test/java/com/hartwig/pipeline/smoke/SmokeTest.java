@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -23,6 +24,7 @@ import com.hartwig.pipeline.storage.StorageProvider;
 import com.hartwig.pipeline.testsupport.Resources;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.After;
 import org.junit.Before;
@@ -37,7 +39,6 @@ public class SmokeTest {
     private static final String FILE_ENCODING = "UTF-8";
     private static final String STAGED_FLAG_FILE = "STAGED";
     private static final String CLOUD_SDK_PATH = "/root/google-cloud-sdk/bin";
-    private static final int MAX_LENGTH_FOR_GCP = 14;
     private File resultsDir;
 
     @Before
@@ -72,11 +73,12 @@ public class SmokeTest {
         String version = version();
         String setName = inputMode + "-" + version;
         final String fixtureDir = "smoke_test/" + inputMode + "/";
+        final String randomRunId = RandomStringUtils.random(5, true, false);
         final ImmutableArguments.Builder builder = Arguments.defaultsBuilder(Arguments.DefaultsProfile.DEVELOPMENT.toString())
                 .sampleJson(Resources.testResource(fixtureDir + "samples.json"))
                 .cloudSdkPath(CLOUD_SDK_PATH)
                 .setId(noDots(setName))
-                .runId(limitLength(noDots(setName)))
+                .runId(noDots(randomRunId))
                 .runGermlineCaller(false)
                 .cleanup(true)
                 .outputBucket("smoketest-pipeline-output-pilot-1")
@@ -112,11 +114,6 @@ public class SmokeTest {
             version = System.getProperty("user.name");
         }
         return version;
-    }
-
-    @NotNull
-    private static String limitLength(final String version) {
-        return version.length() > MAX_LENGTH_FOR_GCP ? version.substring(0, MAX_LENGTH_FOR_GCP) : version;
     }
 
     private List<String> listOutput(final String setName, final String archiveBucket, final Storage storage) {
