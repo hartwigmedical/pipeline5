@@ -79,12 +79,20 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .build();
     }
 
-    static VirtualMachineJobDefinition sageCalling(final BashStartupScript startupScript, final ResultsDirectory resultsDirectory,
-            final String namespace) {
+    static VirtualMachineJobDefinition sageSomaticCalling(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
         return ImmutableVirtualMachineJobDefinition.builder()
-                .name(namespace.replace("_", "-"))
+                .name("sage-somatic")
                 .startupCommand(startupScript)
                 .performanceProfile(custom(32, 120))
+                .namespacedResults(resultsDirectory)
+                .build();
+    }
+
+    static VirtualMachineJobDefinition sageGermlineCalling(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
+        return ImmutableVirtualMachineJobDefinition.builder()
+                .name("sage-germline")
+                .performanceProfile(custom(4, 16))
+                .startupCommand(startupScript)
                 .namespacedResults(resultsDirectory)
                 .build();
     }

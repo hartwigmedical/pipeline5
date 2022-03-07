@@ -62,7 +62,7 @@ public class SageCaller extends TertiaryStage<SageOutput> {
 
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
-        return VirtualMachineJobDefinition.sageCalling(bash, resultsDirectory, namespace());
+        return sageConfiguration.jobDefinition().apply(bash, resultsDirectory);
     }
 
     @Override

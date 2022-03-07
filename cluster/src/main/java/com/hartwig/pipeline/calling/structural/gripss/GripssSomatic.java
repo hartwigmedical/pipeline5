@@ -1,7 +1,5 @@
 package com.hartwig.pipeline.calling.structural.gripss;
 
-import static java.lang.String.format;
-
 import java.io.File;
 import java.util.Collections;
 import java.util.List;

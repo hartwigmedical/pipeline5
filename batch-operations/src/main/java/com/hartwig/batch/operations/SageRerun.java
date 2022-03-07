@@ -128,7 +128,7 @@ public class SageRerun implements BatchOperation {
         // Store output
         commands.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), "sage"), executionFlags));
 
-        return VirtualMachineJobDefinition.sageCalling(commands, ResultsDirectory.defaultDirectory());
+        return VirtualMachineJobDefinition.sageSomaticCalling(commands, ResultsDirectory.defaultDirectory());
     }
 
     private OutputFile bqrFile(String sample, String extension) {

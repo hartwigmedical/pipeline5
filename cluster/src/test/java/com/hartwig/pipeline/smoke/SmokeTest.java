@@ -44,11 +44,13 @@ public class SmokeTest {
     private static final String FILE_ENCODING = "UTF-8";
     private static final String STAGED_FLAG_FILE = "STAGED";
     private static final String CLOUD_SDK_PATH = "/root/google-cloud-sdk/bin";
+    private static final int MAX_LENGTH_FOR_GCP = 14;
     private File resultsDir;
 
     @Before
     public void setUp() throws Exception {
         resultsDir = new File(workingDir() + "/results");
+        //noinspection ResultOfMethodCallIgnored
         resultsDir.mkdir();
     }
 
@@ -116,7 +118,7 @@ public class SmokeTest {
         if (version.equals("local-SNAPSHOT")) {
             version = System.getProperty("user.name") + "-" + inputMode;
         }
-        return version.length() > 14 ? version.substring(0, 14) : version;
+        return version.length() > MAX_LENGTH_FOR_GCP ? version.substring(0, MAX_LENGTH_FOR_GCP) : version;
     }
 
     private List<String> listOutput(final String setName, final String archiveBucket, final Storage storage) {
