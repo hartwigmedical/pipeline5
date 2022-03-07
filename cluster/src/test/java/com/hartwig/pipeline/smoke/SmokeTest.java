@@ -116,8 +116,9 @@ public class SmokeTest {
     private String version(final String inputMode) {
         String version = System.getProperty("version");
         if (version.equals("local-SNAPSHOT")) {
-            version = System.getProperty("user.name") + "-" + inputMode;
+            version = System.getProperty("user.name");
         }
+        version = version + inputMode;
         return version.length() > MAX_LENGTH_FOR_GCP ? version.substring(0, MAX_LENGTH_FOR_GCP) : version;
     }
 
