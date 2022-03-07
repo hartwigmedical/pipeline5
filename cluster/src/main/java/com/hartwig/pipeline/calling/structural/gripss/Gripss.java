@@ -30,7 +30,6 @@ import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 
 public class Gripss implements Stage<GripssOutput, SomaticRunMetadata> {
-    public static final String NAMESPACE = "gripss_somatic";
 
     private final InputDownload gridssVcf;
     private final InputDownload gridssVcfIndex;
@@ -57,7 +56,7 @@ public class Gripss implements Stage<GripssOutput, SomaticRunMetadata> {
 
     @Override
     public String namespace() {
-        return NAMESPACE;
+        return gripssConfiguration.namespace();
     }
 
     @Override
@@ -71,14 +70,6 @@ public class Gripss implements Stage<GripssOutput, SomaticRunMetadata> {
                 referenceSampleName,
                 gridssVcf.getLocalTargetPath()));
     }
-
-   /* private static String unfilteredVcf(final String tumorSampleName) {
-        return tumorSampleName + GRIPSS_SOMATIC_UNFILTERED + FileTypes.GZIPPED_VCF;
-    }
-
-    private static String filteredVcf(final String referenceSampleName) {
-        return referenceSampleName + GRIPSS_SOMATIC_FILTERED + FileTypes.GZIPPED_VCF;
-    }*/
 
     private static String basename(String filename) {
         return new File(filename).getName();
@@ -98,19 +89,19 @@ public class Gripss implements Stage<GripssOutput, SomaticRunMetadata> {
                 .maybeUnfilteredVariants(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(unfilteredVcf))))
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
-                        NAMESPACE,
+                        namespace(),
                         Folder.root(),
                         basename(unfilteredVcf),
                         basename(unfilteredVcf),
                         resultsDirectory))
                 .addReportComponents(new ZippedVcfAndIndexComponent(bucket,
-                        NAMESPACE,
+                        namespace(),
                         Folder.root(),
                         basename(filteredVcf),
                         basename(filteredVcf),
                         resultsDirectory))
-                .addReportComponents(new RunLogComponent(bucket, NAMESPACE, Folder.root(), resultsDirectory))
-                .addReportComponents(new StartupScriptComponent(bucket, NAMESPACE, Folder.root()))
+                .addReportComponents(new RunLogComponent(bucket, namespace(), Folder.root(), resultsDirectory))
+                .addReportComponents(new StartupScriptComponent(bucket, namespace(), Folder.root()))
                 .addDatatypes(new AddDatatype(DataType.SOMATIC_STRUCTURAL_VARIANTS_GRIPSS_RECOVERY,
                                 metadata.barcode(),
                                 new ArchivePath(Folder.root(), namespace(), basename(unfilteredVcf))),

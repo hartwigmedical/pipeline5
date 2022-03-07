@@ -65,7 +65,7 @@ public class SagePostProcessing implements BatchOperation {
 
         // 4. Upload output
         startupScript.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), "sage"), executionFlags));
-        return VirtualMachineJobDefinition.sageCalling(startupScript, ResultsDirectory.defaultDirectory());
+        return VirtualMachineJobDefinition.sageSomaticCalling(startupScript, ResultsDirectory.defaultDirectory());
     }
 
     @Override
