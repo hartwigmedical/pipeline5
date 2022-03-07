@@ -82,8 +82,8 @@ public class SmokeTest {
         final ImmutableArguments.Builder builder = Arguments.defaultsBuilder(Arguments.DefaultsProfile.DEVELOPMENT.toString())
                 .sampleJson(Resources.testResource(fixtureDir + "samples.json"))
                 .cloudSdkPath(CLOUD_SDK_PATH)
-                .setId(inputMode)
-                .runId(version)
+                .setId(setName)
+                .runId(setName)
                 .runGermlineCaller(false)
                 .cleanup(true)
                 .outputBucket("smoketest-pipeline-output-pilot-1")
@@ -118,7 +118,6 @@ public class SmokeTest {
         if (version.equals("local-SNAPSHOT")) {
             version = System.getProperty("user.name");
         }
-        version = version + inputMode;
         return version.length() > MAX_LENGTH_FOR_GCP ? version.substring(0, MAX_LENGTH_FOR_GCP) : version;
     }
 
