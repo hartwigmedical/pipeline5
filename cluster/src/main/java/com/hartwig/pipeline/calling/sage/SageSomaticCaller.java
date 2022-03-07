@@ -17,7 +17,7 @@ public class SageSomaticCaller extends SageCaller {
     }
 
     @Override
-    public List<BashCommand> normalOnlyCommands(final SomaticRunMetadata metadata) {
+    public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) {
         return Collections.emptyList();
     }
 }

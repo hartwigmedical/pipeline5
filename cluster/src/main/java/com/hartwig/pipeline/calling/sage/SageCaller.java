@@ -46,16 +46,7 @@ public class SageCaller extends TertiaryStage<SageOutput> {
     }
 
     @Override
-    public List<BashCommand> normalOnlyCommands(final SomaticRunMetadata metadata) {
-        return metadata.maybeReference()
-                .map(r -> new SageApplication(sageConfiguration.commandBuilder()
-                        .addReference(r.sampleName(),
-                                getReferenceBamDownload().getLocalTargetPath())).apply(SubStageInputOutput.empty(r.sampleName())).bash())
-                .orElse(Collections.emptyList());
-    }
-
-    @Override
-    public List<BashCommand> tumorNormalCommands(final SomaticRunMetadata metadata) {
+    public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) {
         return new SageApplication(sageConfiguration.commandBuilder()
                 .addTumor(metadata.tumor().sampleName(), getTumorBamDownload().getLocalTargetPath())
                 .addReference(metadata.reference().sampleName(),

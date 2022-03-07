@@ -51,7 +51,7 @@ public class Cobalt extends TertiaryStage<CobaltOutput> {
     }
 
     @Override
-    public List<BashCommand> tumorNormalCommands(final SomaticRunMetadata metadata) {
+    public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) {
         return singletonList(CobaltCommandBuilder.newBuilder(resourceFiles)
                 .tumor(metadata.tumor().sampleName(), getTumorBamDownload().getLocalTargetPath())
                 .reference(metadata.reference().sampleName(), getReferenceBamDownload().getLocalTargetPath())
@@ -59,8 +59,8 @@ public class Cobalt extends TertiaryStage<CobaltOutput> {
     }
 
     @Override
-    public List<BashCommand> normalOnlyCommands(final SomaticRunMetadata metadata) {
-        return super.normalOnlyCommands(metadata);
+    public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) {
+        return super.referenceOnlyCommands(metadata);
     }
 
     @Override

@@ -42,25 +42,9 @@ import org.junit.runners.Parameterized;
 public class SmokeTest {
 
     private static final String FILE_ENCODING = "UTF-8";
-    private static final String SAMPLE_ID = "CPCT12345678";
-    private static final String REFERENCE_SAMPLE = SAMPLE_ID + "R";
-    private static final String TUMOR_SAMPLE = SAMPLE_ID + "T";
     private static final String STAGED_FLAG_FILE = "STAGED";
     private static final String CLOUD_SDK_PATH = "/root/google-cloud-sdk/bin";
     private File resultsDir;
-
-    private final String inputMode;
-    private final PipelineStatus expectedStatus;
-
-    public SmokeTest(final String inputMode, final PipelineStatus expectedStatus) {
-        this.inputMode = inputMode;
-        this.expectedStatus = expectedStatus;
-    }
-
-    @Parameterized.Parameters
-    public static Collection<Object[]> data() {
-        return Arrays.asList(new Object[][] { { "tumor", PipelineStatus.SUCCESS }, { "tumor-reference", PipelineStatus.QC_FAILED } });
-    }
 
     @Before
     public void setUp() throws Exception {
@@ -74,9 +58,23 @@ public class SmokeTest {
     }
 
     @Test
-    public void runFullPipelineAndCheckFinalStatus() throws Exception {
+    public void tumorReference() throws Exception {
+        runFullPipelineAndCheckFinalStatus("tumor-reference", PipelineStatus.QC_FAILED);
+    }
+
+    @Test
+    public void tumorOnly() throws Exception {
+        runFullPipelineAndCheckFinalStatus("tumor", PipelineStatus.SUCCESS);
+    }
+
+    @Test
+    public void referenceOnly() throws Exception {
+        runFullPipelineAndCheckFinalStatus("reference", PipelineStatus.SUCCESS);
+    }
+
+    public void runFullPipelineAndCheckFinalStatus(final String inputMode, final PipelineStatus expectedStatus) throws Exception {
         PipelineMain victim = new PipelineMain();
-        String version = version(inputMode);
+        String version = noDots(version(inputMode));
         String setName = inputMode + "-" + version;
         final String fixtureDir = "smoke_test/" + inputMode + "/";
         final ImmutableArguments.Builder builder = Arguments.defaultsBuilder(Arguments.DefaultsProfile.DEVELOPMENT.toString())
@@ -136,17 +134,6 @@ public class SmokeTest {
 
     private void cleanupBucket(final String setName, final String archiveBucket, final Storage storage) {
         archiveBlobs(setName, archiveBucket, storage).forEach(Blob::delete);
-    }
-
-    private void assertThatAlignmentIsEqualToExpected(final String setID, final String sample, final String archiveBucket,
-            final Storage storage) throws IOException {
-        String cram = sample + ".cram";
-        File results = new File(resultsDir.getPath() + "/" + cram);
-        Blob cramBlob = storage.get(archiveBucket).get(format("%s/%s/cram/%s", setID, sample, cram));
-        FileOutputStream output = new FileOutputStream(results);
-        output.write(cramBlob.getContent());
-        output.close();
-        assertThatOutput(results.getParent(), "/" + sample).aligned().duplicatesMarked().sorted().isEqualToExpected();
     }
 
     private static String workingDir() {

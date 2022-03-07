@@ -27,11 +27,11 @@ public interface Stage<S extends StageOutput, M extends RunMetadata> {
         return Collections.emptyList();
     }
 
-    default List<BashCommand> normalOnlyCommands(M metadata) {
+    default List<BashCommand> referenceOnlyCommands(M metadata) {
         return Collections.emptyList();
     }
 
-    default List<BashCommand> tumorNormalCommands(M metadata) {
+    default List<BashCommand> tumorReferenceCommands(M metadata) {
         return commands(metadata);
     }
 
