@@ -56,6 +56,8 @@ public class Driver extends SubStage {
                 referenceSample + "," + tumorSample,
                 "--jvmheap",
                 "31G",
+                "--picardoptions",
+                "VALIDATION_STRINGENCY=LENIENT",
                 "--externalaligner",
                 referenceBamPath,
                 tumorBamPath));
