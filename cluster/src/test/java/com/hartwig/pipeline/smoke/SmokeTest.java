@@ -2,15 +2,9 @@ package com.hartwig.pipeline.smoke;
 
 import static java.lang.String.format;
 
-import static com.hartwig.pipeline.testsupport.Assertions.assertThatOutput;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -35,7 +29,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 
 @RunWith(Parallelized.class)
 @Category(value = IntegrationTest.class)
@@ -76,14 +69,14 @@ public class SmokeTest {
 
     public void runFullPipelineAndCheckFinalStatus(final String inputMode, final PipelineStatus expectedStatus) throws Exception {
         PipelineMain victim = new PipelineMain();
-        String version = noDots(version(inputMode));
+        String version = version();
         String setName = inputMode + "-" + version;
         final String fixtureDir = "smoke_test/" + inputMode + "/";
         final ImmutableArguments.Builder builder = Arguments.defaultsBuilder(Arguments.DefaultsProfile.DEVELOPMENT.toString())
                 .sampleJson(Resources.testResource(fixtureDir + "samples.json"))
                 .cloudSdkPath(CLOUD_SDK_PATH)
-                .setId(setName)
-                .runId(setName)
+                .setId(noDots(setName))
+                .runId(limitLength(noDots(setName)))
                 .runGermlineCaller(false)
                 .cleanup(true)
                 .outputBucket("smoketest-pipeline-output-pilot-1")
@@ -113,11 +106,16 @@ public class SmokeTest {
     }
 
     @NotNull
-    private String version(final String inputMode) {
+    private String version() {
         String version = System.getProperty("version");
         if (version.equals("local-SNAPSHOT")) {
             version = System.getProperty("user.name");
         }
+        return version;
+    }
+
+    @NotNull
+    private static String limitLength(final String version) {
         return version.length() > MAX_LENGTH_FOR_GCP ? version.substring(0, MAX_LENGTH_FOR_GCP) : version;
     }
 
