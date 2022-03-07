@@ -1,0 +1,64 @@
+{
+  "tumor": {
+    "type": "TUMOR",
+    "name": "CPCT12345678T",
+    "lanes": [
+      {
+        "laneNumber": "1",
+        "firstOfPairPath": "hmf-verification-data-fastq/cancerPanel/CPCT12345678T_HJJLGCCXX_S1_L001_R1_001.fastq.gz",
+        "secondOfPairPath": "hmf-verification-data-fastq/cancerPanel/CPCT12345678T_HJJLGCCXX_S1_L001_R2_001.fastq.gz"
+      },
+      {
+        "laneNumber": "2",
+        "firstOfPairPath": "hmf-verification-data-fastq/cancerPanel/CPCT12345678T_AHHKYHDSXX_S12_L001_R1_001.fastq.gz",
+        "secondOfPairPath": "hmf-verification-data-fastq/cancerPanel/CPCT12345678T_AHHKYHDSXX_S12_L001_R1_001.fastq.gz"
+      },
+      {
+        "laneNumber": "3",
+        "firstOfPairPath": "hmf-verification-data-fastq/cancerPanel/CPCT12345678T_AHHKYHDSXX_S12_L002_R1_001.fastq.gz",
+        "secondOfPairPath": "hmf-verification-data-fastq/cancerPanel/CPCT12345678T_AHHKYHDSXX_S12_L002_R1_001.fastq.gz"
+      },
+      {
+        "laneNumber": "4",
+        "firstOfPairPath": "hmf-verification-data-fastq/cancerPanel/CPCT12345678T_AHHKYHDSXX_S12_L003_R1_001.fastq.gz",
+        "secondOfPairPath": "hmf-verification-data-fastq/cancerPanel/CPCT12345678T_AHHKYHDSXX_S12_L003_R1_001.fastq.gz"
+      },
+      {
+        "laneNumber": "5",
+        "firstOfPairPath": "hmf-verification-data-fastq/cancerPanel/CPCT12345678T_AHHKYHDSXX_S12_L004_R1_001.fastq.gz",
+        "secondOfPairPath": "hmf-verification-data-fastq/cancerPanel/CPCT12345678T_AHHKYHDSXX_S12_L004_R1_001.fastq.gz"
+      }
+    ]
+  },
+  "reference": {
+    "type": "REFERENCE",
+    "name": "CPCT12345678R",
+    "lanes": [
+      {
+        "laneNumber": "1",
+        "firstOfPairPath": "hmf-verification-data-fastq/cancerPanel/CPCT12345678R_HJJLGCCXX_S1_L001_R1_001.fastq.gz",
+        "secondOfPairPath": "hmf-verification-data-fastq/cancerPanel/CPCT12345678R_HJJLGCCXX_S1_L001_R2_001.fastq.gz"
+      },
+      {
+        "laneNumber": "2",
+        "firstOfPairPath": "hmf-verification-data-fastq/cancerPanel/CPCT12345678R_AHHKYHDSXX_S13_L001_R1_001.fastq.gz",
+        "secondOfPairPath": "hmf-verification-data-fastq/cancerPanel/CPCT12345678R_AHHKYHDSXX_S13_L001_R1_001.fastq.gz"
+      },
+      {
+        "laneNumber": "3",
+        "firstOfPairPath": "hmf-verification-data-fastq/cancerPanel/CPCT12345678R_AHHKYHDSXX_S13_L002_R1_001.fastq.gz",
+        "secondOfPairPath": "hmf-verification-data-fastq/cancerPanel/CPCT12345678R_AHHKYHDSXX_S13_L002_R1_001.fastq.gz"
+      },
+      {
+        "laneNumber": "4",
+        "firstOfPairPath": "hmf-verification-data-fastq/cancerPanel/CPCT12345678R_AHHKYHDSXX_S13_L003_R1_001.fastq.gz",
+        "secondOfPairPath": "hmf-verification-data-fastq/cancerPanel/CPCT12345678R_AHHKYHDSXX_S13_L003_R1_001.fastq.gz"
+      },
+      {
+        "laneNumber": "5",
+        "firstOfPairPath": "hmf-verification-data-fastq/cancerPanel/CPCT12345678R_AHHKYHDSXX_S13_L004_R1_001.fastq.gz",
+        "secondOfPairPath": "hmf-verification-data-fastq/cancerPanel/CPCT12345678R_AHHKYHDSXX_S13_L004_R1_001.fastq.gz"
+      }
+    ]
+  }
+}

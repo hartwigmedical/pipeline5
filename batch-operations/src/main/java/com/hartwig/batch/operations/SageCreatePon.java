@@ -54,7 +54,7 @@ public class SageCreatePon implements BatchOperation {
 
         // Store output
         startupScript.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), "sage"), executionFlags));
-        return VirtualMachineJobDefinition.sageSomaticCalling(startupScript, ResultsDirectory.defaultDirectory());
+        return VirtualMachineJobDefinition.sageCalling(startupScript, ResultsDirectory.defaultDirectory());
     }
 
     String getInput(List<InputFileDescriptor> inputs, String key) {

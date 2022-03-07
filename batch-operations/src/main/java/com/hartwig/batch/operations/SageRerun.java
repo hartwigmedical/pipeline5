@@ -24,7 +24,6 @@ import com.hartwig.pipeline.execution.vm.OutputUpload;
 import com.hartwig.pipeline.execution.vm.RuntimeFiles;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
-import com.hartwig.pipeline.execution.vm.unix.UnzipToDirectoryCommand;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.resource.ResourceFilesFactory;
@@ -129,7 +128,7 @@ public class SageRerun implements BatchOperation {
         // Store output
         commands.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), "sage"), executionFlags));
 
-        return VirtualMachineJobDefinition.sageSomaticCalling(commands, ResultsDirectory.defaultDirectory());
+        return VirtualMachineJobDefinition.sageCalling(commands, ResultsDirectory.defaultDirectory());
     }
 
     private OutputFile bqrFile(String sample, String extension) {

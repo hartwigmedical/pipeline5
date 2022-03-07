@@ -11,7 +11,7 @@ import org.immutables.value.Value;
 @Value.Immutable
 public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachinePerformanceProfile> {
 
-    String STANDARD_IMAGE = "pipeline5-" +Versions.imageVersion();
+    String STANDARD_IMAGE = "pipeline5-" + Versions.imageVersion();
     String HMF_IMAGE_PROJECT = "hmf-images";
     String PUBLIC_IMAGE_NAME = "hmf-public-pipeline-v1";
 
@@ -79,20 +79,12 @@ public interface VirtualMachineJobDefinition extends JobDefinition<VirtualMachin
                 .build();
     }
 
-    static VirtualMachineJobDefinition sageSomaticCalling(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
+    static VirtualMachineJobDefinition sageCalling(final BashStartupScript startupScript, final ResultsDirectory resultsDirectory,
+            final String namespace) {
         return ImmutableVirtualMachineJobDefinition.builder()
-                .name("sage-somatic")
+                .name(namespace.replace("_", "-"))
                 .startupCommand(startupScript)
                 .performanceProfile(custom(32, 120))
-                .namespacedResults(resultsDirectory)
-                .build();
-    }
-
-    static VirtualMachineJobDefinition sageGermlineCalling(BashStartupScript startupScript, ResultsDirectory resultsDirectory) {
-        return ImmutableVirtualMachineJobDefinition.builder()
-                .name("sage-germline")
-                .performanceProfile(custom(4, 16))
-                .startupCommand(startupScript)
                 .namespacedResults(resultsDirectory)
                 .build();
     }

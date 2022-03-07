@@ -11,7 +11,9 @@ import java.util.concurrent.TimeUnit;
 import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.calling.sage.SageCaller;
 import com.hartwig.pipeline.calling.sage.SageConfiguration;
+import com.hartwig.pipeline.calling.sage.SageGermlineCaller;
 import com.hartwig.pipeline.calling.sage.SageOutput;
+import com.hartwig.pipeline.calling.sage.SageSomaticCaller;
 import com.hartwig.pipeline.calling.structural.gripss.GripssGermline;
 import com.hartwig.pipeline.calling.structural.gripss.GripssGermlineOutput;
 import com.hartwig.pipeline.calling.structural.StructuralCaller;
@@ -105,9 +107,9 @@ public class SomaticPipeline {
             Future<CobaltOutput> cobaltOutputFuture =
                     executorService.submit(() -> stageRunner.run(metadata, new Cobalt(pair, resourceFiles, persistedDataset)));
             Future<SageOutput> sageSomaticOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
-                    new SageCaller(pair, persistedDataset, SageConfiguration.somatic(resourceFiles, arguments.shallow()))));
-            Future<SageOutput> sageGermlineOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
-                    new SageCaller(pair, persistedDataset, SageConfiguration.germline(resourceFiles))));
+                    new SageSomaticCaller(pair, persistedDataset, resourceFiles, arguments.shallow())));
+            Future<SageOutput> sageGermlineOutputFuture =
+                    executorService.submit(() -> stageRunner.run(metadata, new SageGermlineCaller(pair, persistedDataset, resourceFiles)));
             Future<StructuralCallerOutput> structuralCallerOutputFuture =
                     executorService.submit(() -> stageRunner.run(metadata, new StructuralCaller(pair, resourceFiles, persistedDataset)));
 
