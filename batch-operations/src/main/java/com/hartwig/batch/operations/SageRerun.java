@@ -2,174 +2,136 @@ package com.hartwig.batch.operations;
 
 import static java.lang.String.format;
 
-import java.io.File;
-import java.util.List;
+import static com.hartwig.batch.api.RemoteLocationsApi.CRAM_FILENAME;
+import static com.hartwig.batch.api.RemoteLocationsApi.CRAM_FULL_PATH;
+import static com.hartwig.batch.api.RemoteLocationsApi.getCramFileData;
+import static com.hartwig.batch.operations.BatchCommon.BATCH_RESOURCE_BUCKET;
+import static com.hartwig.batch.operations.BatchCommon.BATCH_TOOLS_BUCKET;
+import static com.hartwig.batch.operations.BatchCommon.GNOMAD_DIR;
+import static com.hartwig.batch.operations.BatchCommon.PANEL_BAM_BUCKET;
+import static com.hartwig.batch.operations.BatchCommon.PAVE_DIR;
+import static com.hartwig.batch.operations.BatchCommon.PAVE_JAR;
+import static com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile.custom;
 
-import com.google.common.collect.Lists;
+import java.util.StringJoiner;
+
 import com.hartwig.batch.BatchOperation;
 import com.hartwig.batch.OperationDescriptor;
+import com.hartwig.batch.api.RemoteLocationsApi;
 import com.hartwig.batch.input.InputBundle;
 import com.hartwig.batch.input.InputFileDescriptor;
 import com.hartwig.pipeline.ResultsDirectory;
-import com.hartwig.pipeline.calling.command.VersionedToolCommand;
-import com.hartwig.pipeline.calling.sage.SageApplication;
-import com.hartwig.pipeline.calling.sage.SageCommandBuilder;
-import com.hartwig.pipeline.calling.sage.SageSomaticPostProcess;
 import com.hartwig.pipeline.execution.vm.Bash;
-import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.ImmutableOutputFile;
-import com.hartwig.pipeline.execution.vm.OutputFile;
+import com.hartwig.pipeline.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.OutputUpload;
 import com.hartwig.pipeline.execution.vm.RuntimeFiles;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
-import com.hartwig.pipeline.execution.vm.unix.UnzipToDirectoryCommand;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.resource.ResourceFilesFactory;
-import com.hartwig.pipeline.stages.SubStageInputOutput;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
-import com.hartwig.pipeline.tools.Versions;
 
 public class SageRerun implements BatchOperation {
 
-    private static final boolean PANEL_ONLY = false;
-    private static final boolean CONVERT_TO_BAM = !PANEL_ONLY;
-
-    public static GoogleStorageLocation sageArchiveDirectory(final String set) {
-        return GoogleStorageLocation.of("hmf-sage", set, true);
-    }
-
-    public static GoogleStorageLocation sageSomaticFilteredFile(final String set, final String sample) {
-        return GoogleStorageLocation.of("hmf-sage", set + "/" + sample + ".sage.somatic.filtered.vcf.gz", false);
-    }
+    private static final String SAGE_DIR = "sage";
+    private static final String SAGE_JAR = "sage.jar";
 
     @Override
     public VirtualMachineJobDefinition execute(final InputBundle inputs, final RuntimeBucket runtimeBucket,
-            final BashStartupScript commands, final RuntimeFiles executionFlags) {
+            final BashStartupScript startupScript, final RuntimeFiles executionFlags) {
 
-        // Inputs
-        final String set = inputs.get("set").inputValue();
-        final String tumorSampleName = inputs.get("tumor_sample").inputValue();
-        final String referenceSampleName = inputs.get("ref_sample").inputValue();
-        final InputFileDescriptor remoteTumorFile = inputs.get("tumor_cram");
-        final InputFileDescriptor remoteReferenceFile = inputs.get("ref_cram");
+        InputFileDescriptor descriptor = inputs.get();
 
-        final InputFileDescriptor remoteTumorIndex = remoteTumorFile.index();
-        final InputFileDescriptor remoteReferenceIndex = remoteReferenceFile.index();
-
-        final String localTumorFile = localFilename(remoteTumorFile);
-        final String localReferenceFile = localFilename(remoteReferenceFile);
-
-        final String localTumorBam = CONVERT_TO_BAM ? localTumorFile.replace("cram", "bam") : localTumorFile;
-        final String localReferenceBam = CONVERT_TO_BAM ? localReferenceFile.replace("cram", "bam") : localReferenceFile;
+        final String sampleId = descriptor.inputValue();
 
         final ResourceFiles resourceFiles = ResourceFilesFactory.buildResourceFiles(RefGenomeVersion.V37);
 
-        // Download tumor
-        commands.addCommand(() -> remoteTumorFile.toCommandForm(localTumorFile));
-        commands.addCommand(() -> remoteTumorIndex.toCommandForm(localFilename(remoteTumorIndex)));
+        startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s/%s %s",
+                BATCH_TOOLS_BUCKET, SAGE_DIR, SAGE_JAR, VmDirectories.TOOLS));
 
-        // Download normal
-        commands.addCommand(() -> remoteReferenceFile.toCommandForm(localReferenceFile));
-        commands.addCommand(() -> remoteReferenceIndex.toCommandForm(localFilename(remoteReferenceIndex)));
+        startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s/%s %s",
+                BATCH_TOOLS_BUCKET, PAVE_DIR, PAVE_JAR, VmDirectories.TOOLS));
 
-        final SageCommandBuilder sageCommandBuilder =
-                new SageCommandBuilder(resourceFiles).addReference(referenceSampleName, localReferenceBam)
-                        .addTumor(tumorSampleName, localTumorBam);
+        String ponFile = "SageGermlinePon.1000x.37.tsv.gz";
 
-        if (PANEL_ONLY) {
-            sageCommandBuilder.panelOnly();
-        }
+        startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s/%s/%s %s",
+                BATCH_RESOURCE_BUCKET, SAGE_DIR, ponFile, VmDirectories.INPUT));
 
-        if (inputs.contains("rna")) {
-            final InputFileDescriptor remoteRnaBam = inputs.get("rna");
-            final InputFileDescriptor remoteRnaBamIndex = remoteRnaBam.index();
-            final String localRnaBam = localFilename(remoteRnaBam);
+        // download tumor and ref CRAM
+        final RemoteLocationsApi locations = new RemoteLocationsApi("hmf-crunch", sampleId);
 
-            // Download rna
-            commands.addCommand(() -> remoteRnaBam.toCommandForm(localRnaBam));
-            commands.addCommand(() -> remoteRnaBamIndex.toCommandForm(localFilename(remoteRnaBamIndex)));
+        String[] tumorCramData = getCramFileData(locations.getTumorAlignment());
+        String tumorCramFile = tumorCramData[CRAM_FILENAME];
 
-            // Add to sage application
-            sageCommandBuilder.addReference(referenceSampleName + "NA", localRnaBam);
-        }
+        startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp gs://%s* %s", tumorCramData[CRAM_FULL_PATH], VmDirectories.INPUT));
 
-        // Convert to bam if necessary
-        if (!localTumorFile.equals(localTumorBam)) {
-            commands.addCommands(cramToBam(localTumorFile));
-        }
-        if (!localReferenceFile.equals(localReferenceBam)) {
-            commands.addCommands(cramToBam(localReferenceFile));
-        }
+        String referenceId = locations.getReference();
 
-        SageApplication sageApplication = new SageApplication(sageCommandBuilder);
-        SageSomaticPostProcess sagePostProcess = new SageSomaticPostProcess(tumorSampleName, resourceFiles);
-        SubStageInputOutput sageOutput = sageApplication.andThen(sagePostProcess).apply(SubStageInputOutput.empty(tumorSampleName));
-        commands.addCommands(sageOutput.bash());
+        String[] refCramData = getCramFileData(locations.getReferenceAlignment());
+        String refCramFile = refCramData[CRAM_FILENAME];
 
-        // 8. Archive targeted output
-        final GoogleStorageLocation archiveStorageLocation = sageArchiveDirectory(set);
-        final OutputFile filteredOutputFile = sageOutput.outputFile();
-        final OutputFile filteredOutputFileIndex = filteredOutputFile.index(".tbi");
-        final OutputFile unfilteredOutputFile = sageApplication.apply(SubStageInputOutput.empty(tumorSampleName)).outputFile();
-        final OutputFile unfilteredOutputFileIndex = unfilteredOutputFile.index(".tbi");
+        startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp gs://%s* %s", refCramData[CRAM_FULL_PATH], VmDirectories.INPUT));
 
-        commands.addCommand(() -> filteredOutputFile.copyToRemoteLocation(archiveStorageLocation));
-        commands.addCommand(() -> filteredOutputFileIndex.copyToRemoteLocation(archiveStorageLocation));
-        commands.addCommand(() -> unfilteredOutputFile.copyToRemoteLocation(archiveStorageLocation));
-        commands.addCommand(() -> unfilteredOutputFileIndex.copyToRemoteLocation(archiveStorageLocation));
-        commands.addCommand(() -> bqrFile(tumorSampleName, "png").copyToRemoteLocation(archiveStorageLocation));
-        commands.addCommand(() -> bqrFile(tumorSampleName, "tsv").copyToRemoteLocation(archiveStorageLocation));
-        commands.addCommand(() -> bqrFile(referenceSampleName, "png").copyToRemoteLocation(archiveStorageLocation));
-        commands.addCommand(() -> bqrFile(referenceSampleName, "tsv").copyToRemoteLocation(archiveStorageLocation));
+        final String sageVcf = String.format("%s/%s.sage.somatic.vcf.gz", VmDirectories.OUTPUT, sampleId);
 
-        // Store output
-        commands.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), "sage"), executionFlags));
+        // run Sage
+        final StringJoiner sageArgs = new StringJoiner(" ");
+        sageArgs.add(String.format("-tumor %s", sampleId));
+        sageArgs.add(String.format("-tumor_bam %s/%s", VmDirectories.INPUT, tumorCramFile));
+        sageArgs.add(String.format("-reference %s", referenceId));
+        sageArgs.add(String.format("-reference_bam %s/%s", VmDirectories.INPUT, refCramFile));
+        sageArgs.add(String.format("-hotspots %s", resourceFiles.sageSomaticHotspots()));
+        sageArgs.add(String.format("-panel_bed %s", resourceFiles.sageSomaticCodingPanel()));
+        sageArgs.add(String.format("-high_confidence_bed %s", resourceFiles.giabHighConfidenceBed()));
 
-        return VirtualMachineJobDefinition.sageSomaticCalling(commands, ResultsDirectory.defaultDirectory());
-    }
+        sageArgs.add(String.format("-ref_genome %s", resourceFiles.refGenomeFile()));
+        sageArgs.add(String.format("-ref_genome_version %s", resourceFiles.version().toString()));
+        sageArgs.add(String.format("-ensembl_data_dir %s", resourceFiles.ensemblDataCache()));
+        sageArgs.add(String.format("-out %s", sageVcf));
 
-    private OutputFile bqrFile(String sample, String extension) {
-        String filename = String.format("%s.sage.bqr.%s", sample, extension);
-        return ImmutableOutputFile.of(filename);
-    }
+        sageArgs.add(String.format("-perf_warn_time 50"));
+        // sageArgs.add(String.format("-log_debug"));
+        sageArgs.add(String.format("-threads %s", Bash.allCpus()));
 
-    static List<BashCommand> cramToBam(String cram) {
+        startupScript.addCommand(() -> format("java -Xmx48G -jar %s/%s %s", VmDirectories.TOOLS, SAGE_JAR, sageArgs.toString()));
 
-        final String output = cram.replace("cram", "bam");
-        final BashCommand toBam = new VersionedToolCommand("samtools",
-                "samtools",
-                Versions.SAMTOOLS,
-                "view",
-                "-o",
-                output,
-                "-O",
-                "bam",
-                "-@",
-                Bash.allCpus(),
-                cram);
+        // annotate with Pave - PON and gene impacts
+        final StringJoiner paveArgs = new StringJoiner(" ");
+        String ponFilters = "HOTSPOT:5:5;PANEL:2:5;UNKNOWN:2:0";
 
-        final BashCommand index =
-                new VersionedToolCommand("samtools", "samtools", Versions.SAMTOOLS, "index", "-@", Bash.allCpus(), output);
+        final String paveVcf = String.format("%s/%s.sage.somatic.pon.pave.vcf.gz", VmDirectories.OUTPUT, sampleId);
 
-        return Lists.newArrayList(toBam, index);
+        paveArgs.add(String.format("-sample %s", sampleId));
+        paveArgs.add(String.format("-vcf_file %s", sageVcf)); // ponFilterVcf from BCF Tools
+
+        paveArgs.add(String.format("-ref_genome %s", resourceFiles.refGenomeFile()));
+        paveArgs.add(String.format("-ref_genome_version %s", resourceFiles.version().toString()));
+        paveArgs.add(String.format("-driver_gene_panel %s", resourceFiles.driverGenePanel()));
+        paveArgs.add(String.format("-ensembl_data_dir %s", resourceFiles.ensemblDataCache()));
+        paveArgs.add(String.format("-pon_file %s/%s", VmDirectories.INPUT, ponFile));
+        paveArgs.add(String.format("-pon_filters \"%s\"", ponFilters));
+        paveArgs.add(String.format("-output_vcf_file %s", paveVcf));
+
+        String paveJar = String.format("%s/%s", VmDirectories.TOOLS, PAVE_JAR);
+
+        startupScript.addCommand(() -> format("java -jar %s %s", paveJar, paveArgs.toString()));
+
+        // upload output
+        startupScript.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), "sage"), executionFlags));
+
+        return ImmutableVirtualMachineJobDefinition.builder()
+                .name("sage")
+                .startupCommand(startupScript)
+                .performanceProfile(custom(24, 64))
+                .namespacedResults(ResultsDirectory.defaultDirectory())
+                .build();
     }
 
     @Override
     public OperationDescriptor descriptor() {
-        return OperationDescriptor.of("SageRerun", "Generate sage output", OperationDescriptor.InputType.JSON);
-    }
-
-    private static String localFilename(InputFileDescriptor remote) {
-        return format("%s/%s", VmDirectories.INPUT, new File(remote.inputValue()).getName());
-    }
-
-    private BashCommand downloadExperimentalVersion() {
-        return () -> format("gsutil -u hmf-crunch cp %s %s",
-                "gs://batch-sage-validation/resources/sage.jar",
-                "/opt/tools/sage/" + Versions.SAGE + "/sage.jar");
+        return OperationDescriptor.of("SageRerun", "Sage + Pave Rerun", OperationDescriptor.InputType.FLAT);
     }
 }

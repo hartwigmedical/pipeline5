@@ -4,7 +4,7 @@ import static java.lang.String.format;
 
 import static com.hartwig.batch.operations.GridssBackport.index;
 import static com.hartwig.batch.operations.GridssBackport.remoteUnfilteredVcfArchivePath;
-import static com.hartwig.batch.operations.SageRerun.cramToBam;
+import static com.hartwig.batch.operations.SageRerunOld.cramToBam;
 
 import java.io.File;
 

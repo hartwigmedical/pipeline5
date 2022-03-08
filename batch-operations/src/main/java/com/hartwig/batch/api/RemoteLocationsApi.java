@@ -91,14 +91,13 @@ public class RemoteLocationsApi implements RemoteLocations {
     }
 
     @Override
-    public GoogleStorageLocation getSomaticVariantsPurple() {
-        return getLocation(tumor, Dataset::getSomaticVariantsPurple);
-    }
+    public GoogleStorageLocation getSomaticVariantsPurple() { return getLocation(tumor, Dataset::getSomaticVariantsPurple); }
 
     @Override
-    public GoogleStorageLocation getGermlineVariantsSage() {
-        return getLocation(tumor, Dataset::getGermlineVariantsSage);
-    }
+    public GoogleStorageLocation getGermlineVariantsSage() { return getLocation(tumor, Dataset::getGermlineVariantsSage); }
+
+    @Override
+    public GoogleStorageLocation getGermlineVariantsPurple() { return getLocation(tumor, Dataset::getGermlineVariantsPurple); }
 
     @Override
     public GoogleStorageLocation getReferenceAlignment() {

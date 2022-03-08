@@ -3,29 +3,20 @@ package com.hartwig.batch.operations;
 import static java.lang.String.format;
 
 import static com.hartwig.batch.operations.BatchCommon.PANEL_BAM_BUCKET;
-import static com.hartwig.batch.operations.GridssBackport.index;
-import static com.hartwig.batch.operations.GridssBackport.remoteUnfilteredVcfArchivePath;
-import static com.hartwig.batch.operations.SageRerun.cramToBam;
 import static com.hartwig.pipeline.calling.structural.gridss.stage.RepeatMasker.REPEAT_MASKER_TOOL;
 
-import java.io.File;
 import java.util.StringJoiner;
 
 import com.hartwig.batch.BatchOperation;
 import com.hartwig.batch.OperationDescriptor;
-import com.hartwig.batch.api.RemoteLocationsApi;
 import com.hartwig.batch.input.InputBundle;
 import com.hartwig.batch.input.InputFileDescriptor;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.calling.command.BwaCommand;
 import com.hartwig.pipeline.calling.command.SamtoolsCommand;
 import com.hartwig.pipeline.calling.structural.gridss.command.GridssCommand;
-import com.hartwig.pipeline.calling.structural.gridss.stage.Driver;
-import com.hartwig.pipeline.calling.structural.gridss.stage.GridssAnnotation;
 import com.hartwig.pipeline.execution.vm.Bash;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.InputDownload;
-import com.hartwig.pipeline.execution.vm.OutputFile;
 import com.hartwig.pipeline.execution.vm.OutputUpload;
 import com.hartwig.pipeline.execution.vm.RuntimeFiles;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
@@ -34,7 +25,6 @@ import com.hartwig.pipeline.execution.vm.unix.ExportPathCommand;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.resource.ResourceFilesFactory;
-import com.hartwig.pipeline.stages.SubStageInputOutput;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tools.Versions;

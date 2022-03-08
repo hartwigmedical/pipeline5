@@ -3,7 +3,7 @@ package com.hartwig.batch.operations;
 import static java.lang.String.format;
 
 import static com.hartwig.batch.operations.AmberRerun.amberArchiveDirectory;
-import static com.hartwig.batch.operations.SageRerun.sageSomaticFilteredFile;
+import static com.hartwig.batch.operations.SageRerunOld.sageSomaticFilteredFile;
 
 import java.util.List;
 

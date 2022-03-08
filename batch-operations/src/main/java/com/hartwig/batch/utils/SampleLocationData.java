@@ -1,6 +1,10 @@
 package com.hartwig.batch.utils;
 
+import static com.hartwig.batch.api.RemoteLocationsApi.CRAM_FULL_PATH;
+import static com.hartwig.batch.api.RemoteLocationsApi.getCramFileData;
+
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
@@ -17,12 +21,14 @@ public class SampleLocationData
 {
     public final String SampleId;
     public final String ReferenceId;
-    public final String RunBucket;
-    public final String GermlineVcf;
-    public final String SageVcf;
+    public final String TumorBam;
+    public final String ReferenceBam;
+    public final String SageGermlineVcf;
+    public final String SageSomaticVcf;
     public final String GridssVcf;
     public final String GripssVcf;
-    public final String PurpleVcf;
+    public final String PurpleSomaticVcf;
+    public final String PurpleGermlineVcf;
     public final String Purple;
     public final String Amber;
     public final String Cobalt;
@@ -36,18 +42,21 @@ public class SampleLocationData
     public static final String OLD_BUCKET_PREFIX = "hmf-output";
 
     public SampleLocationData(
-            final String sampleId, final String referenceId, final String runBucket, final String germlineVcf, final String sageVcf,
-            final String gridssVcf, final String gripssVcf, final String purpleVcf, final String purple, final String amber,
-            final String cobalt)
+            final String sampleId, final String referenceId,
+            final String tumorBam, final String referenceBam, final String sageGermlineVcf, final String sageSomaticVcf,
+            final String gridssVcf, final String gripssVcf, final String purpleGermlineVcf, final String purpleSomaticVcf,
+            final String purple, final String amber, final String cobalt)
     {
         SampleId = sampleId;
         ReferenceId = referenceId;
-        RunBucket = runBucket;
-        GermlineVcf = germlineVcf;
-        SageVcf = sageVcf;
+        TumorBam = tumorBam;
+        ReferenceBam = referenceBam;
+        SageGermlineVcf = sageGermlineVcf;
+        SageSomaticVcf = sageSomaticVcf;
         GridssVcf = gridssVcf;
         GripssVcf = gripssVcf;
-        PurpleVcf = purpleVcf;
+        PurpleSomaticVcf = purpleSomaticVcf;
+        PurpleGermlineVcf = purpleGermlineVcf;
         Purple = purple;
         Amber = amber;
         Cobalt = cobalt;
@@ -56,36 +65,46 @@ public class SampleLocationData
     public static SampleLocationData fromRemoteLocationsApi(final String sampleId, final RemoteLocationsApi locations)
     {
         // look for a bucket matching the sampleId to use by default
-        String runBucket = locations.getSomaticVariantsPurple().bucket();
-
-        String purpleSomaticVcf = locations.getSomaticVariantsPurple().path();
+        String purpleSomaticVcf = bucketAndPath(locations.getSomaticVariantsPurple());
+        String purpleGermlineVcf = bucketAndPath(locations.getGermlineVariantsPurple());
         String purpleDir = purpleSomaticVcf.substring(0, purpleSomaticVcf.lastIndexOf("/"));
 
-        /* BAMs currently excluded
-        String tumorBamPath = locations.getTumorAlignment().path();
-        String tumorDir = locations.getTumorAlignment().asDirectory().toString();
-        String tumorBam = locations.getTumorAlignment().toString();
-        String tumorBucket = locations.getTumorAlignment().bucket();
-        */
+        String tumorBam = bucketAndPath(locations.getTumorAlignment());
+        String referenceBam = bucketAndPath(locations.getReferenceAlignment());
 
         return new SampleLocationData(
-                sampleId, locations.getReference(), runBucket,
-                extractPath(sampleId, locations.getGermlineVariantsSage()),
-                extractPath(sampleId, locations.getSomaticVariantsSage()),
-                extractPath(sampleId, locations.getStructuralVariantsGridss()),
-                extractPath(sampleId, locations.getStructuralVariantsGripss()),
-                purpleSomaticVcf, purpleDir,
-                extractPath(sampleId, locations.getAmber()), extractPath(sampleId, locations.getCobalt()));
+                sampleId, locations.getReference(), tumorBam, referenceBam,
+                bucketAndPath(locations.getGermlineVariantsSage()), bucketAndPath(locations.getSomaticVariantsSage()),
+                bucketAndPath(locations.getStructuralVariantsGridss()), bucketAndPath(locations.getStructuralVariantsGripss()),
+                purpleSomaticVcf, purpleGermlineVcf, purpleDir,bucketAndPath(locations.getAmber()), bucketAndPath(locations.getCobalt()));
     }
 
-    private static String extractPath(final String sampleId, final GoogleStorageLocation location)
+    public static String bucketAndPath(final GoogleStorageLocation location)
     {
+        String bucket = location.bucket();
+        String path = location.path();
+
+        if(!bucket.endsWith(File.separator))
+            bucket += File.separator;
+
+        return bucket + path;
+    }
+
+    private static String extractPath(final String sampleId, final GoogleStorageLocation location, final String defaultRunBucket)
+    {
+        if(location.bucket().equals(defaultRunBucket))
+            return location.path();
+        else
+            return location.bucket() + "/" + location.path();
+
+        /*
         String bucket = location.bucket();
 
         if(bucket.toUpperCase().contains(sampleId))
             return location.path();
         else
             return location.bucket() + "/" + location.path();
+        */
     }
 
     private String getFileOnly(final String fileRef)
@@ -101,14 +120,16 @@ public class SampleLocationData
         return String.format("%s/%s", VmDirectories.INPUT, fileRefOnly);
     }
 
+    /*
     public String remotePath(final String fileRef)
     {
         return fileRef.contains(OLD_BUCKET_PREFIX) ? fileRef : String.format("%s/%s", RunBucket, fileRef);
     }
+    */
 
     public String formDownloadRequest(final String fileRef, boolean recursive)
     {
-        String remotePath = remotePath(fileRef);
+        String remotePath = fileRef; // remotePath(fileRef);
 
         return String.format("gsutil -m -u hmf-crunch %s gs://%s %s/",
                 recursive ? "cp -r" : "cp", remotePath, VmDirectories.INPUT);
@@ -116,7 +137,7 @@ public class SampleLocationData
 
     public String remotePurpleFile(final String fileSuffix)
     {
-        return String.format("gs://%s/%s/%s.%s" + RunBucket, Purple, SampleId, fileSuffix);
+        return String.format("gs://%s/%s.%s" + Purple, SampleId, fileSuffix);
     }
 
     private static final String DELIM = ",";
@@ -126,12 +147,14 @@ public class SampleLocationData
         StringJoiner sj = new StringJoiner(DELIM);
         sj.add("SampleId");
         sj.add("ReferenceId");
-        sj.add("RunBucket");
-        sj.add("GermlineVcf");
-        sj.add("SageVcf");
+        sj.add("TumorBam");
+        sj.add("ReferenceBam");
+        sj.add("SageSomaticVcf");
+        sj.add("SageGermlineVcf");
         sj.add("GridssVcf");
         sj.add("GripssVcf");
-        sj.add("PurpleVcf");
+        sj.add("PurpleSomaticVcf");
+        sj.add("PurpleGermlineVcf");
         sj.add("Purple");
         sj.add("Amber");
         sj.add("Cobalt");
@@ -143,12 +166,14 @@ public class SampleLocationData
         StringJoiner sj = new StringJoiner(DELIM);
         sj.add(SampleId);
         sj.add(ReferenceId);
-        sj.add(RunBucket);
-        sj.add(GermlineVcf);
-        sj.add(SageVcf);
+        sj.add(TumorBam);
+        sj.add(ReferenceBam);
+        sj.add(SageSomaticVcf);
+        sj.add(SageGermlineVcf);
         sj.add(GridssVcf);
         sj.add(GripssVcf);
-        sj.add(PurpleVcf);
+        sj.add(PurpleSomaticVcf);
+        sj.add(PurpleGermlineVcf);
         sj.add(Purple);
         sj.add(Amber);
         sj.add(Cobalt);
@@ -174,12 +199,15 @@ public class SampleLocationData
 
             int sampleIndex = fieldsIndexMap.get("SampleId");
             int refIndex = fieldsIndexMap.get("ReferenceId");
-            int bucketIndex = fieldsIndexMap.get("RunBucket");
-            int germlineIndex = fieldsIndexMap.get("GermlineVcf");
-            int sageIndex = fieldsIndexMap.get("SageVcf");
+
+            int tumorBamIndex = fieldsIndexMap.get("TumorBam");
+            int refBamIndex = fieldsIndexMap.get("ReferenceBam");
+            int sageSomaticIndex = fieldsIndexMap.get("SageSomaticVcf");
+            int sageGermlineIndex = fieldsIndexMap.get("SageGermlineVcf");
             int gridssIndex = fieldsIndexMap.get("GridssVcf");
             int gripssIndex = fieldsIndexMap.get("GripssVcf");
-            int purpleVcfIndex = fieldsIndexMap.get("PurpleVcf");
+            int purpleSomaticVcfIndex = fieldsIndexMap.get("PurpleSomaticVcf");
+            int purpleGermlineVcfIndex = fieldsIndexMap.get("PurpleGermlineVcf");
             int purpleIndex = fieldsIndexMap.get("Purple");
             int amberIndex = fieldsIndexMap.get("Amber");
             int cobaltIndex = fieldsIndexMap.get("Cobalt");
@@ -196,8 +224,10 @@ public class SampleLocationData
                     continue;
 
                 sampleLocations.put(sampleId, new SampleLocationData(
-                        sampleId, values[refIndex], values[bucketIndex], values[germlineIndex], values[sageIndex], values[gridssIndex],
-                        values[gripssIndex], values[purpleVcfIndex], values[purpleIndex], values[amberIndex], values[cobaltIndex]));
+                        sampleId, values[refIndex], values[tumorBamIndex], values[refBamIndex],
+                        values[sageGermlineIndex], values[sageSomaticIndex], values[gridssIndex],
+                        values[gripssIndex], values[purpleSomaticVcfIndex], values[purpleGermlineVcfIndex],
+                        values[purpleIndex], values[amberIndex], values[cobaltIndex]));
             }
 
             LOGGER.info(String.format("loaded %s sample locations from file(%s)", sampleLocations.size(), filename));

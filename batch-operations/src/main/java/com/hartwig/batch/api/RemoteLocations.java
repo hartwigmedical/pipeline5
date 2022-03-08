@@ -24,9 +24,11 @@ public interface RemoteLocations {
 
     GoogleStorageLocation getSomaticVariantsSage();
 
+    GoogleStorageLocation getGermlineVariantsSage();
+
     GoogleStorageLocation getSomaticVariantsPurple();
 
-    GoogleStorageLocation getGermlineVariantsSage();
+    GoogleStorageLocation getGermlineVariantsPurple();
 
     GoogleStorageLocation getReferenceAlignment();
 

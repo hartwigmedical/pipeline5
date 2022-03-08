@@ -66,6 +66,11 @@ public class RemoteLocationsDecorator implements RemoteLocations {
     }
 
     @Override
+    public GoogleStorageLocation getGermlineVariantsPurple() {
+        return decorator.getGermlineVariantsPurple();
+    }
+
+    @Override
     public GoogleStorageLocation getGermlineVariantsSage() {
         return decorator.getGermlineVariantsSage();
     }

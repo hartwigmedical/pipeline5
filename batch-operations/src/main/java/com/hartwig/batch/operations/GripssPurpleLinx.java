@@ -102,6 +102,7 @@ public class GripssPurpleLinx implements BatchOperation {
         startupScript.addCommand(() -> format("gsutil -m cp %s/*gripss*vcf* %s", VmDirectories.OUTPUT, gripssCombined));
 
         startupScript.addCommand(() -> format("gsutil -m cp %s/*sage.somatic.filtered.pave.vcf.gz* %s", VmDirectories.OUTPUT, paveCombined));
+        startupScript.addCommand(() -> format("gsutil -m cp %s/*sage.germline.filtered.pave.vcf.gz* %s", VmDirectories.OUTPUT, paveCombined));
 
         // select files for subsequent Linx runs and/or comparison using Compar
         startupScript.addCommand(() -> format("gsutil -m cp %s/*linx*.tsv %s", VmDirectories.OUTPUT, linxCombined));
@@ -115,7 +116,7 @@ public class GripssPurpleLinx implements BatchOperation {
         return ImmutableVirtualMachineJobDefinition.builder()
                 .name("gpl")
                 .startupCommand(startupScript)
-                .performanceProfile(custom(8, 32))
+                .performanceProfile(custom(12, 32))
                 .namespacedResults(ResultsDirectory.defaultDirectory())
                 .build();
     }
@@ -152,27 +153,40 @@ public class GripssPurpleLinx implements BatchOperation {
         final String gripssUnfilteredVcf = String.format("%s/%s.gripss.vcf.gz", VmDirectories.OUTPUT, sampleId);
         final String gripssFilteredVcf = String.format("%s/%s.gripss.filtered.vcf.gz", VmDirectories.OUTPUT, sampleId);
 
-        // Pave
-        final StringJoiner paveArgs = new StringJoiner(" ");
+        // Pave somatic
+        final String paveSomaticVcf = String.format("%s/%s.sage.somatic.filtered.pave.vcf.gz", VmDirectories.OUTPUT, sampleId);
+        String sageSomaticVcf = sampleLocations.localFileRef(sampleLocations.SageSomaticVcf);
+        startupScript.addCommand(() -> sampleLocations.formDownloadRequest(sampleLocations.SageSomaticVcf, false));
 
-        final String paveVcf = String.format("%s/%s.sage.somatic.filtered.pave.vcf.gz", VmDirectories.OUTPUT, sampleId);
-
-        String sageSomaticVcf = sampleLocations.localFileRef(sampleLocations.SageVcf);
-        startupScript.addCommand(() -> sampleLocations.formDownloadRequest(sampleLocations.SageVcf, false));
-
-        paveArgs.add(String.format("-sample %s", sampleId));
-        paveArgs.add(String.format("-vcf_file %s", sageSomaticVcf));
-
-        paveArgs.add(String.format("-ref_genome %s", resourceFiles.refGenomeFile()));
-        paveArgs.add(String.format("-driver_gene_panel %s", resourceFiles.driverGenePanel()));
-        paveArgs.add(String.format("-ensembl_data_dir %s", resourceFiles.ensemblDataCache()));
-        paveArgs.add(String.format("-output_dir %s", VmDirectories.OUTPUT));
-        paveArgs.add(String.format("-output_vcf_file %s", paveVcf));
+        StringJoiner paveSomaticArgs = new StringJoiner(" ");
+        paveSomaticArgs.add(String.format("-sample %s", sampleId));
+        paveSomaticArgs.add(String.format("-vcf_file %s", sageSomaticVcf));
+        paveSomaticArgs.add(String.format("-ref_genome %s", resourceFiles.refGenomeFile()));
+        paveSomaticArgs.add(String.format("-driver_gene_panel %s", resourceFiles.driverGenePanel()));
+        paveSomaticArgs.add(String.format("-ensembl_data_dir %s", resourceFiles.ensemblDataCache()));
+        paveSomaticArgs.add(String.format("-output_dir %s", VmDirectories.OUTPUT));
+        paveSomaticArgs.add(String.format("-output_vcf_file %s", paveSomaticVcf));
 
         // String paveJar = String.format("%s/%s", VmDirectories.TOOLS, PAVE_JAR);
         String paveJar = String.format("%s/pave/%s/pave.jar", VmDirectories.TOOLS, Versions.PAVE);
 
-        startupScript.addCommand(() -> format("java -jar %s %s", paveJar, paveArgs.toString()));
+        startupScript.addCommand(() -> format("java -jar %s %s", paveJar, paveSomaticArgs.toString()));
+
+        // Pave germline
+        final String paveGermlineVcf = String.format("%s/%s.sage.germline.filtered.pave.vcf.gz", VmDirectories.OUTPUT, sampleId);
+        String sageGermlineVcf = sampleLocations.localFileRef(sampleLocations.SageGermlineVcf);
+        startupScript.addCommand(() -> sampleLocations.formDownloadRequest(sampleLocations.SageGermlineVcf, false));
+
+        StringJoiner paveGermlineArgs = new StringJoiner(" ");
+        paveGermlineArgs.add(String.format("-sample %s", sampleId));
+        paveGermlineArgs.add(String.format("-vcf_file %s", sageGermlineVcf));
+        paveGermlineArgs.add(String.format("-ref_genome %s", resourceFiles.refGenomeFile()));
+        paveGermlineArgs.add(String.format("-driver_gene_panel %s", resourceFiles.driverGenePanel()));
+        paveGermlineArgs.add(String.format("-ensembl_data_dir %s", resourceFiles.ensemblDataCache()));
+        paveGermlineArgs.add(String.format("-output_dir %s", VmDirectories.OUTPUT));
+        paveGermlineArgs.add(String.format("-output_vcf_file %s", paveGermlineVcf));
+
+        startupScript.addCommand(() -> format("java -jar %s %s", paveJar, paveGermlineArgs.toString()));
 
         // Purple
         // String amberDir = sampleLocations.localFileRef(sampleLocations.Amber);
@@ -192,12 +206,14 @@ public class GripssPurpleLinx implements BatchOperation {
         purpleArgs.add(String.format("-reference %s", sampleLocations.ReferenceId));
         purpleArgs.add(String.format("-structural_vcf %s", gripssFilteredVcf));
         purpleArgs.add(String.format("-sv_recovery_vcf %s", gripssUnfilteredVcf));
-        purpleArgs.add(String.format("-somatic_vcf %s", paveVcf));
+        purpleArgs.add(String.format("-somatic_vcf %s", paveSomaticVcf));
+        purpleArgs.add(String.format("-germline_vcf %s", paveGermlineVcf));
         purpleArgs.add(String.format("-amber %s", amberDir));
         purpleArgs.add(String.format("-cobalt %s", cobaltDir));
         purpleArgs.add(String.format("-ref_genome %s", resourceFiles.refGenomeFile()));
         purpleArgs.add(String.format("-gc_profile %s", resourceFiles.gcProfileFile()));
         purpleArgs.add(String.format("-somatic_hotspots %s", resourceFiles.sageSomaticHotspots()));
+        purpleArgs.add(String.format("-germline_hotspots %s", resourceFiles.sageGermlineHotspots()));
         purpleArgs.add(String.format("-driver_gene_panel %s", resourceFiles.driverGenePanel()));
         purpleArgs.add(String.format("-ensembl_data_dir %s", resourceFiles.ensemblDataCache()));
         purpleArgs.add(String.format("-run_drivers"));
