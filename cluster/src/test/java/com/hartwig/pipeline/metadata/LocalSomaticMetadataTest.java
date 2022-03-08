@@ -89,14 +89,14 @@ public class LocalSomaticMetadataTest {
     public void publishesEventIfSpecifiedInArguments() {
         PipelineState state = mock(PipelineState.class);
         SomaticRunMetadata metadata = mock(SomaticRunMetadata.class);
-        new LocalSomaticMetadata(Arguments.testDefaultsBuilder().setId(setId).publishLoadEvent(true).build(),
+        new LocalSomaticMetadata(Arguments.testDefaultsBuilder().setId(setId).publishDbLoadEvent(true).build(),
                 jsonSampleSource, stagedOutputPublisher).complete(state, metadata);
         verify(stagedOutputPublisher).publish(state, metadata);
     }
 
     @Test
     public void doesNotPublishesEventIfNotSpecifiedInArguments() {
-        new LocalSomaticMetadata(Arguments.testDefaultsBuilder().setId(setId).publishLoadEvent(false).build(),
+        new LocalSomaticMetadata(Arguments.testDefaultsBuilder().setId(setId).publishDbLoadEvent(false).build(),
                 jsonSampleSource, stagedOutputPublisher).complete(mock(PipelineState.class), mock(SomaticRunMetadata.class));
         verify(stagedOutputPublisher, never()).publish(any(), any());
     }
