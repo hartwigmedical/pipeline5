@@ -22,7 +22,7 @@ public interface GripssOutput extends StageOutput {
         return maybeUnfilteredVariants().orElse(GoogleStorageLocation.empty());
     }
 
-    static ImmutableGripssOutput.Builder builder() {
-        return ImmutableGripssOutput.builder();
+    static ImmutableGripssOutput.Builder builder(final String namespace) {
+        return ImmutableGripssOutput.builder().name(namespace);
     }
 }

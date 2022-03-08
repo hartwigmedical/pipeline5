@@ -11,7 +11,7 @@ public class AmberCommandBuilder extends HmfToolCommandBuilder {
     private static final String MAIN_CLASS = "com.hartwig.hmftools.amber.AmberApplication";
 
     private AmberCommandBuilder(final ResourceFiles resourceFiles) {
-        super("amber", Versions.AMBER, MAX_HEAP, MAIN_CLASS, JAR);
+        super("amber", Versions.AMBER, MAX_HEAP, JAR);
         addArguments("-ref_genome", resourceFiles.refGenomeFile(), "-loci", resourceFiles.amberHeterozygousLoci());
     }
 

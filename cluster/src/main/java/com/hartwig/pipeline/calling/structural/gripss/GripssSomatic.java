@@ -9,15 +9,15 @@ import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
 
-public class GripssGermline extends Gripss {
+public class GripssSomatic extends Gripss {
 
-    public GripssGermline(final StructuralCallerOutput structuralCallerOutput, final PersistedDataset persistedDataset,
+    public GripssSomatic(final StructuralCallerOutput structuralCallerOutput, final PersistedDataset persistedDataset,
             final ResourceFiles resourceFiles) {
-        super(structuralCallerOutput, persistedDataset, GripssConfiguration.germline(resourceFiles));
+        super(structuralCallerOutput, persistedDataset, GripssConfiguration.somatic(resourceFiles));
     }
 
     @Override
-    public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) {
+    public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) {
         return Stage.disabled();
     }
 }

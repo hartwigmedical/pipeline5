@@ -8,7 +8,6 @@ import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.calling.structural.StructuralCallerOutput;
-import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
@@ -24,25 +23,24 @@ import com.hartwig.pipeline.report.StartupScriptComponent;
 import com.hartwig.pipeline.report.ZippedVcfAndIndexComponent;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedLocations;
-import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
+
+import org.jetbrains.annotations.NotNull;
 
 public class Gripss implements Stage<GripssOutput, SomaticRunMetadata> {
 
     private final InputDownload gridssVcf;
     private final InputDownload gridssVcfIndex;
 
-    private final ResourceFiles resourceFiles;
     private final PersistedDataset persistedDataset;
     private String unfilteredVcf;
     private String filteredVcf;
     private final GripssConfiguration gripssConfiguration;
 
-    public Gripss(final ResourceFiles resourceFiles, final StructuralCallerOutput structuralCallerOutput,
-            final PersistedDataset persistedDataset, final GripssConfiguration gripssConfiguration) {
-        this.resourceFiles = resourceFiles;
+    public Gripss(final StructuralCallerOutput structuralCallerOutput, final PersistedDataset persistedDataset,
+            final GripssConfiguration gripssConfiguration) {
         this.gridssVcf = new InputDownload(structuralCallerOutput.unfilteredVariants());
         this.gridssVcfIndex = new InputDownload(structuralCallerOutput.unfilteredVariants().transform(FileTypes::tabixIndex));
         this.persistedDataset = persistedDataset;
@@ -60,15 +58,17 @@ public class Gripss implements Stage<GripssOutput, SomaticRunMetadata> {
     }
 
     @Override
-    public List<BashCommand> commands(final SomaticRunMetadata metadata) {
-        String tumorSampleName = metadata.tumor().sampleName();
-        String referenceSampleName = metadata.reference().sampleName();
+    public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) {
+        setFields(metadata);
+        return Collections.singletonList(gripssConfiguration.commandBuilder()
+                .apply(metadata)
+                .inputVcf(gridssVcf.getLocalTargetPath())
+                .build());
+    }
+
+    private void setFields(final SomaticRunMetadata metadata) {
         filteredVcf = gripssConfiguration.filteredVcf().apply(metadata);
         unfilteredVcf = gripssConfiguration.unfilteredVcf().apply(metadata);
-        return Collections.singletonList(new GripssCommand(resourceFiles,
-                tumorSampleName,
-                referenceSampleName,
-                gridssVcf.getLocalTargetPath()));
     }
 
     private static String basename(String filename) {
@@ -77,13 +77,13 @@ public class Gripss implements Stage<GripssOutput, SomaticRunMetadata> {
 
     @Override
     public VirtualMachineJobDefinition vmDefinition(final BashStartupScript bash, final ResultsDirectory resultsDirectory) {
-        return VirtualMachineJobDefinition.gripss("somatic", bash, resultsDirectory);
+        return VirtualMachineJobDefinition.gripss(namespace().replace("_", "-"), bash, resultsDirectory);
     }
 
     @Override
     public GripssOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
             final ResultsDirectory resultsDirectory) {
-        return GripssOutput.builder()
+        return GripssOutput.builder(namespace())
                 .status(jobStatus)
                 .maybeFilteredVariants(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(filteredVcf))))
                 .maybeUnfilteredVariants(GoogleStorageLocation.of(bucket.name(), resultsDirectory.path(basename(unfilteredVcf))))
@@ -102,10 +102,10 @@ public class Gripss implements Stage<GripssOutput, SomaticRunMetadata> {
                         resultsDirectory))
                 .addReportComponents(new RunLogComponent(bucket, namespace(), Folder.root(), resultsDirectory))
                 .addReportComponents(new StartupScriptComponent(bucket, namespace(), Folder.root()))
-                .addDatatypes(new AddDatatype(DataType.SOMATIC_STRUCTURAL_VARIANTS_GRIPSS_RECOVERY,
+                .addDatatypes(new AddDatatype(gripssConfiguration.unfilteredDatatype(),
                                 metadata.barcode(),
                                 new ArchivePath(Folder.root(), namespace(), basename(unfilteredVcf))),
-                        new AddDatatype(DataType.SOMATIC_STRUCTURAL_VARIANTS_GRIPSS,
+                        new AddDatatype(gripssConfiguration.filteredDatatype(),
                                 metadata.barcode(),
                                 new ArchivePath(Folder.root(), namespace(), basename(filteredVcf))))
                 .build();
@@ -113,29 +113,29 @@ public class Gripss implements Stage<GripssOutput, SomaticRunMetadata> {
 
     @Override
     public GripssOutput skippedOutput(final SomaticRunMetadata metadata) {
-        return GripssOutput.builder().status(PipelineStatus.SKIPPED).build();
+        return GripssOutput.builder(namespace()).status(PipelineStatus.SKIPPED).build();
     }
 
     @Override
     public GripssOutput persistedOutput(final SomaticRunMetadata metadata) {
 
-        GoogleStorageLocation somaticFilteredLocation =
-                persistedDataset.path(metadata.tumor().sampleName(), DataType.SOMATIC_STRUCTURAL_VARIANTS_GRIPSS)
+        GoogleStorageLocation filteredLocation =
+                persistedDataset.path(metadata.tumor().sampleName(), gripssConfiguration.filteredDatatype())
                         .orElse(GoogleStorageLocation.of(metadata.bucket(),
                                 PersistedLocations.blobForSet(metadata.set(),
                                         namespace(),
                                         gripssConfiguration.filteredVcf().apply(metadata))));
-        GoogleStorageLocation somaticLocation =
-                persistedDataset.path(metadata.tumor().sampleName(), DataType.SOMATIC_STRUCTURAL_VARIANTS_GRIPSS_RECOVERY)
+        GoogleStorageLocation unfilteredLocation =
+                persistedDataset.path(metadata.tumor().sampleName(), gripssConfiguration.unfilteredDatatype())
                         .orElse(GoogleStorageLocation.of(metadata.bucket(),
                                 PersistedLocations.blobForSet(metadata.set(),
                                         namespace(),
                                         gripssConfiguration.unfilteredVcf().apply(metadata))));
 
-        return GripssOutput.builder()
+        return GripssOutput.builder(namespace())
                 .status(PipelineStatus.PERSISTED)
-                .maybeFilteredVariants(somaticFilteredLocation)
-                .maybeUnfilteredVariants(somaticLocation)
+                .maybeFilteredVariants(filteredLocation)
+                .maybeUnfilteredVariants(unfilteredLocation)
                 .build();
     }
 

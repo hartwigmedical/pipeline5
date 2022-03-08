@@ -9,6 +9,7 @@ import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.calling.structural.gripss.Gripss;
 import com.hartwig.pipeline.calling.structural.gripss.GripssConfiguration;
 import com.hartwig.pipeline.calling.structural.gripss.GripssOutput;
+import com.hartwig.pipeline.calling.structural.gripss.GripssSomatic;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.stages.Stage;
@@ -37,10 +38,7 @@ public class GripssSomaticTest extends StageTest<GripssOutput, SomaticRunMetadat
 
     @Override
     protected Stage<GripssOutput, SomaticRunMetadata> createVictim() {
-        return new Gripss(TestInputs.REF_GENOME_37_RESOURCE_FILES,
-                TestInputs.structuralCallerOutput(),
-                persistedDataset,
-                GripssConfiguration.somatic());
+        return new GripssSomatic(TestInputs.structuralCallerOutput(), persistedDataset, TestInputs.REF_GENOME_37_RESOURCE_FILES);
     }
 
     @Override
@@ -62,8 +60,9 @@ public class GripssSomaticTest extends StageTest<GripssOutput, SomaticRunMetadat
                 + "/opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
                 + "-known_hotspot_file /opt/resources/fusions/37/known_fusions.37.bedpe "
                 + "-pon_sgl_file /opt/resources/gridss_pon/37/gridss_pon_single_breakend.37.bed "
-                + "-pon_sv_file /opt/resources/gridss_pon/37/gridss_pon_breakpoint.37.bedpe " + "-reference reference -sample tumor "
-                + "-vcf /data/input/tumor.gridss.unfiltered.vcf.gz -output_dir /data/output -output_id somatic");
+                + "-pon_sv_file /opt/resources/gridss_pon/37/gridss_pon_breakpoint.37.bedpe "
+                + "-output_id somatic -sample tumor -reference reference "
+                + "-vcf /data/input/tumor.gridss.unfiltered.vcf.gz -output_dir /data/output");
     }
 
     @Override

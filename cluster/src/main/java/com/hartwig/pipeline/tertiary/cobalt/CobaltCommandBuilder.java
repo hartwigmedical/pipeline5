@@ -12,7 +12,7 @@ public class CobaltCommandBuilder extends HmfToolCommandBuilder {
     private static final String COBALT = "cobalt";
 
     public CobaltCommandBuilder(final ResourceFiles resourceFiles) {
-        super(COBALT, Versions.COBALT, MAX_HEAP, MAIN_CLASS, JAR);
+        super(COBALT, Versions.COBALT, MAX_HEAP, JAR);
         addArguments("-ref_genome", resourceFiles.refGenomeFile(), "-gc_profile", resourceFiles.gcProfileFile());
     }
 

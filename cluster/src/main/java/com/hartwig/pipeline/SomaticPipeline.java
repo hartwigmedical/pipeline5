@@ -13,11 +13,12 @@ import com.hartwig.pipeline.calling.sage.SageGermlineCaller;
 import com.hartwig.pipeline.calling.sage.SageOutput;
 import com.hartwig.pipeline.calling.sage.SageSomaticCaller;
 import com.hartwig.pipeline.calling.structural.gripss.GripssConfiguration;
-import com.hartwig.pipeline.calling.structural.gripss.GripssGermline;
 import com.hartwig.pipeline.calling.structural.StructuralCaller;
 import com.hartwig.pipeline.calling.structural.StructuralCallerOutput;
 import com.hartwig.pipeline.calling.structural.gripss.Gripss;
+import com.hartwig.pipeline.calling.structural.gripss.GripssGermline;
 import com.hartwig.pipeline.calling.structural.gripss.GripssOutput;
+import com.hartwig.pipeline.calling.structural.gripss.GripssSomatic;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
@@ -129,9 +130,9 @@ public class SomaticPipeline {
                 PaveOutput paveGermlineOutput = pipelineResults.add(state.add(paveGermlineOutputFuture.get()));
 
                 Future<GripssOutput> gripssSomaticOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
-                        new Gripss(resourceFiles, structuralCallerOutput, persistedDataset, GripssConfiguration.somatic())));
+                        new GripssSomatic(structuralCallerOutput, persistedDataset, resourceFiles)));
                 Future<GripssOutput> gripssGermlineOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
-                        new Gripss(resourceFiles, structuralCallerOutput, persistedDataset, GripssConfiguration.germline())));
+                        new GripssGermline(structuralCallerOutput, persistedDataset, resourceFiles)));
                 GripssOutput gripssSomaticProcessOutput = pipelineResults.add(state.add(gripssSomaticOutputFuture.get()));
                 GripssOutput gripssGermlineProcessOutput = pipelineResults.add(state.add(gripssGermlineOutputFuture.get()));
 

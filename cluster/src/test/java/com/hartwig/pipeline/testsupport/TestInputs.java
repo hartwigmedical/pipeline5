@@ -256,11 +256,11 @@ public class TestInputs {
     public static GripssOutput gripssSomaticProcessOutput() {
         String filtered = ".gripss.filtered.";
         String full = ".gripss.full.";
-        return GripssOutput.builder()
+        return GripssOutput.builder(GripssConfiguration.SOMATIC_NAMESPACE)
                 .status(PipelineStatus.SUCCESS)
-                .maybeFilteredVariants(gsLocation(somaticBucket(Gripss.NAMESPACE),
+                .maybeFilteredVariants(gsLocation(somaticBucket(GripssConfiguration.SOMATIC_NAMESPACE),
                         RESULTS + TUMOR_SAMPLE + filtered + FileTypes.GZIPPED_VCF))
-                .maybeUnfilteredVariants(gsLocation(somaticBucket(Gripss.NAMESPACE),
+                .maybeUnfilteredVariants(gsLocation(somaticBucket(GripssConfiguration.SOMATIC_NAMESPACE),
                         RESULTS + TUMOR_SAMPLE + full + FileTypes.GZIPPED_VCF))
                 .build();
     }
@@ -268,7 +268,7 @@ public class TestInputs {
     public static GripssOutput gripssGermlineOutput() {
         String filtered = ".gripss.filtered.";
         String full = ".gripss.full.";
-        return GripssOutput.builder()
+        return GripssOutput.builder(GripssConfiguration.GERMLINE_NAMESPACE)
                 .status(PipelineStatus.SUCCESS)
                 .maybeFilteredVariants(gsLocation(somaticBucket(GripssConfiguration.GERMLINE_NAMESPACE),
                         RESULTS + TUMOR_SAMPLE + filtered + FileTypes.GZIPPED_VCF))

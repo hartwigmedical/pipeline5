@@ -38,10 +38,7 @@ public class GripssGermlineTest extends StageTest<GripssOutput, SomaticRunMetada
 
     @Override
     protected Stage<GripssOutput, SomaticRunMetadata> createVictim() {
-        return new Gripss(TestInputs.REF_GENOME_37_RESOURCE_FILES,
-                TestInputs.structuralCallerOutput(),
-                persistedDataset,
-                GripssConfiguration.germline());
+        return new GripssGermline(TestInputs.structuralCallerOutput(), persistedDataset, TestInputs.REF_GENOME_37_RESOURCE_FILES);
     }
 
     @Override
@@ -63,8 +60,8 @@ public class GripssGermlineTest extends StageTest<GripssOutput, SomaticRunMetada
                 + "/opt/resources/reference_genome/37/Homo_sapiens.GRCh37.GATK.illumina.fasta "
                 + "-known_hotspot_file /opt/resources/fusions/37/known_fusions.37.bedpe "
                 + "-pon_sgl_file /opt/resources/gridss_pon/37/gridss_pon_single_breakend.37.bed "
-                + "-pon_sv_file /opt/resources/gridss_pon/37/gridss_pon_breakpoint.37.bedpe -sample reference "
-                + "-vcf /data/input/tumor.gridss.unfiltered.vcf.gz -output_dir /data/output -output_id germline");
+                + "-pon_sv_file /opt/resources/gridss_pon/37/gridss_pon_breakpoint.37.bedpe -output_id germline "
+                + "-sample reference -vcf /data/input/tumor.gridss.unfiltered.vcf.gz -output_dir /data/output");
     }
 
     @Override
