@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.calling.structural;
+package com.hartwig.pipeline.calling.structural.gridss;
 
 import static java.lang.String.format;
 
@@ -6,7 +6,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.alignment.AlignmentPair;
@@ -20,7 +19,6 @@ import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
-import com.hartwig.pipeline.execution.vm.InputDownload;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.unix.ExportPathCommand;
@@ -35,20 +33,21 @@ import com.hartwig.pipeline.report.ZippedVcfAndIndexComponent;
 import com.hartwig.pipeline.reruns.PersistedDataset;
 import com.hartwig.pipeline.reruns.PersistedLocations;
 import com.hartwig.pipeline.resource.ResourceFiles;
-import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.stages.SubStageInputOutput;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.TertiaryStage;
 
-public class StructuralCaller extends TertiaryStage<StructuralCallerOutput> {
+import org.jetbrains.annotations.NotNull;
+
+public class Gridss extends TertiaryStage<GridssOutput> {
     public static final String NAMESPACE = "gridss";
 
     private final ResourceFiles resourceFiles;
     private final PersistedDataset persistedDataset;
     private String unfilteredVcf;
 
-    public StructuralCaller(final AlignmentPair pair, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
+    public Gridss(final AlignmentPair pair, final ResourceFiles resourceFiles, final PersistedDataset persistedDataset) {
         super(pair);
         this.resourceFiles = resourceFiles;
         this.persistedDataset = persistedDataset;
@@ -60,19 +59,41 @@ public class StructuralCaller extends TertiaryStage<StructuralCallerOutput> {
     }
 
     @Override
-    public List<BashCommand> commands(final SomaticRunMetadata metadata) {
+    public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) {
+        String tumorSampleName = metadata.tumor().sampleName();
+        String tumorBamPath = getTumorBamDownload().getLocalTargetPath();
+        Driver driver = new Driver(resourceFiles, VmDirectories.outputFile(tumorSampleName + ".assembly.bam")).tumorSample(tumorSampleName,
+                tumorBamPath);
+        return gridssCommands(metadata, driver, tumorSampleName);
+    }
+
+    @Override
+    public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) {
+        String referenceSampleName = metadata.reference().sampleName();
+        String refBamPath = getReferenceBamDownload().getLocalTargetPath();
+        Driver driver = new Driver(resourceFiles, VmDirectories.outputFile(referenceSampleName + ".assembly.bam")).referenceSample(
+                referenceSampleName,
+                refBamPath);
+        return gridssCommands(metadata, driver, referenceSampleName);
+    }
+
+    @Override
+    public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) {
         String referenceSampleName = metadata.reference().sampleName();
         String tumorSampleName = metadata.tumor().sampleName();
         String refBamPath = getReferenceBamDownload().getLocalTargetPath();
         String tumorBamPath = getTumorBamDownload().getLocalTargetPath();
-        SubStageInputOutput unfilteredVcfOutput = new Driver(resourceFiles,
-                referenceSampleName,
-                tumorSampleName,
-                VmDirectories.outputFile(tumorSampleName + ".assembly.bam"),
-                refBamPath,
-                tumorBamPath).andThen(new RepeatMasker())
+        return gridssCommands(metadata,
+                new Driver(resourceFiles, VmDirectories.outputFile(tumorSampleName + ".assembly.bam")).tumorSample(tumorSampleName,
+                        tumorBamPath).referenceSample(referenceSampleName, refBamPath),
+                tumorSampleName);
+    }
+
+    @NotNull
+    private List<BashCommand> gridssCommands(final SomaticRunMetadata metadata, final Driver driver, final String sampleName) {
+        SubStageInputOutput unfilteredVcfOutput = driver.andThen(new RepeatMasker())
                 .andThen(new GridssAnnotation(resourceFiles, false))
-                .apply(SubStageInputOutput.empty(tumorSampleName));
+                .apply(SubStageInputOutput.empty(sampleName));
         unfilteredVcf = unfilteredVcfOutput.outputFile().path();
 
         List<BashCommand> commands = new ArrayList<>();
@@ -92,9 +113,9 @@ public class StructuralCaller extends TertiaryStage<StructuralCallerOutput> {
     }
 
     @Override
-    public StructuralCallerOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
+    public GridssOutput output(final SomaticRunMetadata metadata, final PipelineStatus jobStatus, final RuntimeBucket bucket,
             final ResultsDirectory resultsDirectory) {
-        return StructuralCallerOutput.builder()
+        return GridssOutput.builder()
                 .status(jobStatus)
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .maybeUnfilteredVcf(resultLocation(bucket, resultsDirectory, unfilteredVcf))
@@ -119,12 +140,12 @@ public class StructuralCaller extends TertiaryStage<StructuralCallerOutput> {
     }
 
     @Override
-    public StructuralCallerOutput skippedOutput(final SomaticRunMetadata metadata) {
-        return StructuralCallerOutput.builder().status(PipelineStatus.SKIPPED).build();
+    public GridssOutput skippedOutput(final SomaticRunMetadata metadata) {
+        return GridssOutput.builder().status(PipelineStatus.SKIPPED).build();
     }
 
     @Override
-    public StructuralCallerOutput persistedOutput(final SomaticRunMetadata metadata) {
+    public GridssOutput persistedOutput(final SomaticRunMetadata metadata) {
 
         GoogleStorageLocation unfilteredVcfLocation =
                 persistedDataset.path(metadata.tumor().sampleName(), DataType.STRUCTURAL_VARIANTS_GRIDSS)
@@ -136,7 +157,7 @@ public class StructuralCaller extends TertiaryStage<StructuralCallerOutput> {
                                                 GridssAnnotation.GRIDSS_ANNOTATED,
                                                 FileTypes.GZIPPED_VCF))));
 
-        return StructuralCallerOutput.builder()
+        return GridssOutput.builder()
                 .status(PipelineStatus.PERSISTED)
                 .maybeUnfilteredVcf(unfilteredVcfLocation)
                 .maybeUnfilteredVcfIndex(unfilteredVcfLocation.transform(FileTypes::tabixIndex))

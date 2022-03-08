@@ -7,7 +7,7 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
-import com.hartwig.pipeline.calling.structural.StructuralCallerOutput;
+import com.hartwig.pipeline.calling.structural.gridss.GridssOutput;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.PipelineStatus;
@@ -43,11 +43,11 @@ public class GripssSomatic implements Stage<GripssSomaticOutput, SomaticRunMetad
     private String somaticUnfilteredVcf;
     private String somaticFilteredVcf;
 
-    public GripssSomatic(final ResourceFiles resourceFiles, StructuralCallerOutput structuralCallerOutput,
+    public GripssSomatic(final ResourceFiles resourceFiles, GridssOutput gridssOutput,
             final PersistedDataset persistedDataset) {
         this.resourceFiles = resourceFiles;
-        gridssVcf = new InputDownload(structuralCallerOutput.unfilteredVariants());
-        gridssVcfIndex = new InputDownload(structuralCallerOutput.unfilteredVariants().transform(FileTypes::tabixIndex));
+        gridssVcf = new InputDownload(gridssOutput.unfilteredVariants());
+        gridssVcfIndex = new InputDownload(gridssOutput.unfilteredVariants().transform(FileTypes::tabixIndex));
         this.persistedDataset = persistedDataset;
     }
 
