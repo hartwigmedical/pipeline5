@@ -8,15 +8,18 @@ import com.hartwig.pipeline.PipelineState;
 import com.hartwig.pipeline.RunTag;
 import com.hartwig.pipeline.alignment.sample.JsonSampleSource;
 import com.hartwig.pipeline.metadata.SingleSampleRunMetadata.SampleType;
+import com.hartwig.pipeline.transfer.staged.StagedOutputPublisher;
 
 public class LocalSomaticMetadata implements SomaticMetadataApi {
 
     private final Arguments arguments;
     private final JsonSampleSource jsonSampleSource;
+    private final StagedOutputPublisher stagedOutputPublisher;
 
-    LocalSomaticMetadata(final Arguments arguments, JsonSampleSource jsonSampleSource) {
+    LocalSomaticMetadata(final Arguments arguments, final JsonSampleSource jsonSampleSource, final StagedOutputPublisher stagedOutputPublisher) {
         this.arguments = arguments;
         this.jsonSampleSource = jsonSampleSource;
+        this.stagedOutputPublisher = stagedOutputPublisher;
     }
 
     @Override
@@ -47,8 +50,10 @@ public class LocalSomaticMetadata implements SomaticMetadataApi {
     }
 
     @Override
-    public void complete(final PipelineState state, SomaticRunMetadata metadata) {
-        // do nothing
+    public void complete(final PipelineState state, final SomaticRunMetadata metadata) {
+        if (arguments.publishDbLoadEvent()) {
+            stagedOutputPublisher.publish(state, metadata);
+        }
     }
 
     @Override

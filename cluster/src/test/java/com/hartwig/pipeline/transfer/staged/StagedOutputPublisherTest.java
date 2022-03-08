@@ -47,20 +47,20 @@ import org.mockito.ArgumentCaptor;
 public class StagedOutputPublisherTest {
 
     private static final ObjectMapper OBJECT_MAPPER = ObjectMappers.get();
-    private SetApi setApi;
     private Bucket bucket;
     private Publisher publisher;
     private PipelineState state;
     private StagedOutputPublisher victim;
+    private SetResolver setResolver;
 
     @Before
     public void setUp() throws Exception {
-        setApi = mock(SetApi.class);
         bucket = mock(Bucket.class);
         when(bucket.getName()).thenReturn("bucket");
         publisher = mock(Publisher.class);
         state = mock(PipelineState.class);
-        victim = new StagedOutputPublisher(setApi,
+        setResolver = mock(SetResolver.class);
+        victim = new StagedOutputPublisher(setResolver,
                 bucket,
                 publisher,
                 OBJECT_MAPPER,
@@ -79,7 +79,7 @@ public class StagedOutputPublisherTest {
 
     @Test
     public void publishesDnaSecondaryAnalysisOnBam() throws Exception {
-        victim = new StagedOutputPublisher(setApi,
+        victim = new StagedOutputPublisher(setResolver,
                 bucket,
                 publisher,
                 OBJECT_MAPPER,
@@ -206,7 +206,7 @@ public class StagedOutputPublisherTest {
     private ArgumentCaptor<PubsubMessage> publish(final Page<Blob> page, final SomaticRunMetadata metadata) {
         when(bucket.list(Storage.BlobListOption.prefix("set/"))).thenReturn(page);
         ArgumentCaptor<PubsubMessage> messageArgumentCaptor = ArgumentCaptor.forClass(PubsubMessage.class);
-        when(setApi.list(metadata.set(), null, null)).thenReturn(List.of(new SampleSet().id(1L)));
+        when(setResolver.resolve(metadata.set(), false)).thenReturn(new SampleSet().id(1L));
         //noinspection unchecked
         when(publisher.publish(messageArgumentCaptor.capture())).thenReturn(mock(ApiFuture.class));
         victim.publish(state, metadata);

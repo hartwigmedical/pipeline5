@@ -13,6 +13,7 @@ import com.hartwig.events.Pipeline.Context;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.alignment.sample.JsonSampleSource;
 import com.hartwig.pipeline.jackson.ObjectMappers;
+import com.hartwig.pipeline.transfer.staged.SetResolver;
 import com.hartwig.pipeline.transfer.staged.StagedOutputPublisher;
 
 import org.jetbrains.annotations.NotNull;
@@ -44,13 +45,15 @@ public class SomaticMetadataApiProvider {
         return () -> new LocalSomaticMetadata(arguments,
                 arguments.sampleJson()
                         .map(JsonSampleSource::new)
-                        .orElseThrow(() -> new IllegalArgumentException("Sample JSON must be provided when running in local mode")));
+                        .orElseThrow(() -> new IllegalArgumentException("Sample JSON must be provided when running in local mode")),
+                createPublisher(SetResolver.forLocal(),
+                        Optional.of(new Run().id(0L)),
+                        Context.PLATINUM, false));
     }
+
 
     public SomaticMetadataApi researchRun(final String biopsyName) {
         HmfApi api = HmfApi.create(arguments.sbpApiUrl());
-        Bucket sourceBucket = storage.get(arguments.outputBucket());
-        ObjectMapper objectMapper = ObjectMappers.get();
         Optional<Run> run = arguments.sbpApiRunId().map(id -> api.runs().get((long) id));
         return new ResearchMetadataApi(api.samples(),
                 api.sets(),
@@ -58,33 +61,30 @@ public class SomaticMetadataApiProvider {
                 run,
                 biopsyName,
                 arguments,
-                new StagedOutputPublisher(api.sets(),
-                        sourceBucket,
-                        publisher,
-                        objectMapper,
+                createPublisher(SetResolver.forApi(api.sets()),
                         run,
                         Context.RESEARCH,
-                        arguments.outputCram(),
                         true),
                 new Anonymizer(arguments));
     }
 
     public SomaticMetadataApi diagnosticRun(final Integer setId) {
         HmfApi api = HmfApi.create(arguments.sbpApiUrl());
-        Bucket sourceBucket = storage.get(arguments.outputBucket());
-        ObjectMapper objectMapper = ObjectMappers.get();
         Run run = api.runs().get((long) arguments.sbpApiRunId().orElseThrow());
         return new DiagnosticSomaticMetadataApi(run,
                 api.runs(),
                 api.samples(),
-                new StagedOutputPublisher(api.sets(),
-                        sourceBucket,
-                        publisher,
-                        objectMapper,
+                createPublisher(SetResolver.forApi(api.sets()),
                         Optional.of(run),
                         arguments.context(),
-                        arguments.outputCram(),
                         false),
                 new Anonymizer(arguments));
+    }
+
+    private StagedOutputPublisher createPublisher(
+            final SetResolver setResolver, final Optional<Run> run, final Context context, final boolean useOnlyDBSets) {
+        Bucket sourceBucket = storage.get(arguments.outputBucket());
+        ObjectMapper objectMapper = ObjectMappers.get();
+        return new StagedOutputPublisher(setResolver, sourceBucket, publisher, objectMapper, run, context, arguments.outputCram(), useOnlyDBSets);
     }
 }

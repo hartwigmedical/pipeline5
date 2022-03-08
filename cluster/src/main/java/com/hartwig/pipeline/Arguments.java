@@ -16,6 +16,8 @@ public interface Arguments extends CommonArguments {
 
     Optional<String> startingPoint();
 
+    boolean publishDbLoadEvent();
+
     enum DefaultsProfile {
         PUBLIC,
         PRODUCTION,
@@ -152,6 +154,7 @@ public interface Arguments extends CommonArguments {
                     .network(DEFAULT_NETWORK)
                     .outputCram(true)
                     .publishToTurquoise(false)
+                    .publishDbLoadEvent(false)
                     .pollInterval(DEFAULT_POLL_INTERVAL)
                     .refGenomeVersion(DEFAULT_REF_GENOME_VERSION)
                     .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES)
@@ -184,6 +187,7 @@ public interface Arguments extends CommonArguments {
                     .uploadPrivateKeyPath(DEFAULT_DEVELOPMENT_KEY_PATH)
                     .outputCram(true)
                     .publishToTurquoise(false)
+                    .publishDbLoadEvent(false)
                     .pollInterval(DEFAULT_POLL_INTERVAL)
                     .refGenomeVersion(DEFAULT_REF_GENOME_VERSION)
                     .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES)
@@ -221,6 +225,7 @@ public interface Arguments extends CommonArguments {
                     .network(DEFAULT_NETWORK)
                     .outputCram(true)
                     .publishToTurquoise(false)
+                    .publishDbLoadEvent(false)
                     .pollInterval(DEFAULT_POLL_INTERVAL)
                     .refGenomeVersion(DEFAULT_REF_GENOME_VERSION)
                     .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES)
@@ -254,6 +259,7 @@ public interface Arguments extends CommonArguments {
                     .network(DEFAULT_NETWORK)
                     .outputCram(true)
                     .publishToTurquoise(false)
+                    .publishDbLoadEvent(false)
                     .pollInterval(DEFAULT_POLL_INTERVAL)
                     .refGenomeVersion(RefGenomeVersion.V38)
                     .maxConcurrentLanes(DEFAULT_MAX_CONCURRENT_LANES)

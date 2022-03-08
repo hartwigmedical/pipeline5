@@ -44,6 +44,7 @@ import com.hartwig.pipeline.report.Folder;
 import com.hartwig.pipeline.testsupport.TestBlobs;
 import com.hartwig.pipeline.testsupport.TestInputs;
 import com.hartwig.pipeline.tools.Versions;
+import com.hartwig.pipeline.transfer.staged.SetResolver;
 import com.hartwig.pipeline.transfer.staged.StagedOutputPublisher;
 
 import org.jetbrains.annotations.NotNull;
@@ -70,6 +71,7 @@ public class ResearchMetadataApiTest {
     private Run run;
     private Bucket bucket;
     private Publisher publisher;
+    private SetResolver setResolver;
 
     @Before
     public void setUp() throws Exception {
@@ -81,13 +83,14 @@ public class ResearchMetadataApiTest {
         run = new Run().id(RUN_ID);
         publisher = mock(Publisher.class);
         ObjectMapper objectMapper = ObjectMappers.get();
+        setResolver = mock(SetResolver.class);
         victim = new ResearchMetadataApi(sampleApi,
                 setApi,
                 runApi,
                 Optional.of(run),
                 BIOPSY,
                 Arguments.testDefaults(),
-                new StagedOutputPublisher(setApi, bucket, publisher, objectMapper, Optional.of(run), Context.RESEARCH, false, true),
+                new StagedOutputPublisher(setResolver, bucket, publisher, objectMapper, Optional.of(run), Context.RESEARCH, false, true),
                 new Anonymizer(Arguments.testDefaults()));
     }
 
@@ -136,7 +139,7 @@ public class ResearchMetadataApiTest {
                 Optional.of(run),
                 BIOPSY,
                 Arguments.testDefaults(),
-                new StagedOutputPublisher(setApi, bucket, publisher, ObjectMappers.get(), Optional.of(run), Context.RESEARCH, true, true),
+                new StagedOutputPublisher(mock(SetResolver.class), bucket, publisher, ObjectMappers.get(), Optional.of(run), Context.RESEARCH, true, true),
                 new Anonymizer(Arguments.testDefaultsBuilder().anonymize(true).build()));
         when(sampleApi.list(null, null, null, null, SampleType.TUMOR, BIOPSY)).thenReturn(List.of(tumor()));
         when(setApi.list(null, TUMOR_SAMPLE_ID, true)).thenReturn(List.of(new SampleSet().name(SET_NAME).id(SET_ID)));
@@ -274,7 +277,7 @@ public class ResearchMetadataApiTest {
         state.add(stageOutput);
         ArgumentCaptor<PubsubMessage> pubsubMessageArgumentCaptor = ArgumentCaptor.forClass(PubsubMessage.class);
         SomaticRunMetadata metadata = TestInputs.defaultSomaticRunMetadata();
-        when(setApi.list(metadata.set(), null, true)).thenReturn(List.of(new SampleSet().id(SET_ID)));
+        when(setResolver.resolve(metadata.set(), true)).thenReturn(new SampleSet().id(SET_ID));
         Blob outputBlob = mock(Blob.class);
         when(outputBlob.getBucket()).thenReturn("bucket");
         when(outputBlob.getName()).thenReturn(s);
