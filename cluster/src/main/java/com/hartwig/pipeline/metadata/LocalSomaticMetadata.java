@@ -16,7 +16,7 @@ public class LocalSomaticMetadata implements SomaticMetadataApi {
     private final JsonSampleSource jsonSampleSource;
     private final StagedOutputPublisher stagedOutputPublisher;
 
-    LocalSomaticMetadata(final Arguments arguments, JsonSampleSource jsonSampleSource, StagedOutputPublisher stagedOutputPublisher) {
+    LocalSomaticMetadata(final Arguments arguments, final JsonSampleSource jsonSampleSource, final StagedOutputPublisher stagedOutputPublisher) {
         this.arguments = arguments;
         this.jsonSampleSource = jsonSampleSource;
         this.stagedOutputPublisher = stagedOutputPublisher;
@@ -50,7 +50,7 @@ public class LocalSomaticMetadata implements SomaticMetadataApi {
     }
 
     @Override
-    public void complete(final PipelineState state, SomaticRunMetadata metadata) {
+    public void complete(final PipelineState state, final SomaticRunMetadata metadata) {
         if (arguments.publishDbLoadEvent()) {
             stagedOutputPublisher.publish(state, metadata);
         }

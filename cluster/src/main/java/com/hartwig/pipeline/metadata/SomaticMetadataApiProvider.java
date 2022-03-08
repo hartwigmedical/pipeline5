@@ -81,7 +81,8 @@ public class SomaticMetadataApiProvider {
                 new Anonymizer(arguments));
     }
 
-    private StagedOutputPublisher createPublisher(SetResolver setResolver, Optional<Run> run, Context context, boolean useOnlyDBSets) {
+    private StagedOutputPublisher createPublisher(
+            final SetResolver setResolver, final Optional<Run> run, final Context context, final boolean useOnlyDBSets) {
         Bucket sourceBucket = storage.get(arguments.outputBucket());
         ObjectMapper objectMapper = ObjectMappers.get();
         return new StagedOutputPublisher(setResolver, sourceBucket, publisher, objectMapper, run, context, arguments.outputCram(), useOnlyDBSets);
