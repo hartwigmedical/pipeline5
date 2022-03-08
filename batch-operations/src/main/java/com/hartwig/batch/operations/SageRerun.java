@@ -7,8 +7,6 @@ import static com.hartwig.batch.api.RemoteLocationsApi.CRAM_FULL_PATH;
 import static com.hartwig.batch.api.RemoteLocationsApi.getCramFileData;
 import static com.hartwig.batch.operations.BatchCommon.BATCH_RESOURCE_BUCKET;
 import static com.hartwig.batch.operations.BatchCommon.BATCH_TOOLS_BUCKET;
-import static com.hartwig.batch.operations.BatchCommon.GNOMAD_DIR;
-import static com.hartwig.batch.operations.BatchCommon.PANEL_BAM_BUCKET;
 import static com.hartwig.batch.operations.BatchCommon.PAVE_DIR;
 import static com.hartwig.batch.operations.BatchCommon.PAVE_JAR;
 import static com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile.custom;

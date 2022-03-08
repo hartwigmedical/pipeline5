@@ -14,7 +14,7 @@ public class CobaltApplicationCommand {
     private static final String MAIN_CLASS = "com.hartwig.hmftools.cobalt.CountBamLinesApplication";
     private static final String COBALT = "cobalt";
 
-    static BashCommand tumorOnly(ResourceFiles resourceFiles, String tumorSampleName, String tumorBamPath) {
+    static BashCommand tumorOnly(final ResourceFiles resourceFiles, final String tumorSampleName, final String tumorBamPath) {
         return new TumorOnlyCommand(COBALT,
                 Versions.COBALT,
                 JAR,
@@ -30,8 +30,9 @@ public class CobaltApplicationCommand {
                 resourceFiles.gcProfileFile());
     }
 
-    static BashCommand somatic(ResourceFiles resourceFiles, String referenceSampleName, String referenceBamPath, String tumorSampleName,
-            String tumorBamPath) {
+    static BashCommand somatic(
+            final ResourceFiles resourceFiles, final String referenceSampleName, final String referenceBamPath, final String tumorSampleName,
+            final String tumorBamPath) {
         return new TumorNormalCommand(COBALT,
                 Versions.COBALT,
                 JAR,

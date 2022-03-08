@@ -79,7 +79,7 @@ public interface CommonArguments {
 
     Optional<String> panelBedLocation();
 
-    static Optional<String> privateKey(CommandLine commandLine) {
+    static Optional<String> privateKey(final CommandLine commandLine) {
         if (commandLine.hasOption(PRIVATE_KEY_PATH)) {
             return Optional.of(commandLine.getOptionValue(PRIVATE_KEY_PATH));
         }

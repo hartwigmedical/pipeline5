@@ -2,7 +2,6 @@ package com.hartwig.batch;
 
 import static java.lang.String.format;
 import static java.util.Comparator.comparing;
-import static java.util.Comparator.nullsLast;
 import static java.util.stream.Collectors.toList;
 
 import java.io.FileInputStream;
@@ -68,8 +67,8 @@ public class BatchDispatcher {
         }
     }
 
-    BatchDispatcher(BatchArguments arguments, InstanceFactory instanceFactory, InputParserProvider parserProvider,
-            ComputeEngine computeEngine, Storage storage, ExecutorService executorService, Labels labels) {
+    BatchDispatcher(final BatchArguments arguments, final InstanceFactory instanceFactory, final InputParserProvider parserProvider,
+            final ComputeEngine computeEngine, final Storage storage, final ExecutorService executorService, final Labels labels) {
         this.arguments = arguments;
         this.instanceFactory = instanceFactory;
         this.parserProvider = parserProvider;
@@ -148,13 +147,13 @@ public class BatchDispatcher {
         return !jobsFailed;
     }
 
-    private void confirmOutputBucketExists(Storage storage) {
+    private void confirmOutputBucketExists(final Storage storage) {
         if (storage.get(arguments.outputBucket()) == null) {
             throw new IllegalStateException(format("Output bucket [{%s}] does not exist", arguments.outputBucket()));
         }
     }
 
-    private void spawnProgressLogger(Set<StateTuple> state) {
+    private void spawnProgressLogger(final Set<StateTuple> state) {
         Thread progressLogger = new Thread(() -> {
             while (true) {
                 int done = 0;
@@ -178,7 +177,7 @@ public class BatchDispatcher {
         progressLogger.start();
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(final String[] args) throws Exception {
         BatchArguments arguments = BatchArguments.from(args);
         GoogleCredentials credentials = arguments.privateKeyPath().isPresent()
                 ? CredentialProvider.from(arguments).get()

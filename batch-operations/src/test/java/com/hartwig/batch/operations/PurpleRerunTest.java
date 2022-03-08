@@ -29,7 +29,7 @@ public class PurpleRerunTest {
         assertEquals(commands.get(9).asBash().substring(0, 36), "java -Xmx12G -jar /opt/tools/purple/");
     }
 
-    private String inputDownload(String commands) {
+    private String inputDownload(final String commands) {
         return "gsutil -o 'GSUtil:parallel_thread_count=1' -o GSUtil:sliced_object_download_max_components=$(nproc) -qm " + commands;
     }
 }

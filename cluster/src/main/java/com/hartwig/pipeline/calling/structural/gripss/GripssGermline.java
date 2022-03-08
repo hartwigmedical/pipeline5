@@ -43,7 +43,7 @@ public class GripssGermline implements Stage<GripssGermlineOutput, SomaticRunMet
     private String germlineUnfilteredVcf;
     private String germlineFilteredVcf;
 
-    public GripssGermline(final ResourceFiles resourceFiles, StructuralCallerOutput structuralCallerOutput,
+    public GripssGermline(final ResourceFiles resourceFiles, final StructuralCallerOutput structuralCallerOutput,
             final PersistedDataset persistedDataset) {
         this.resourceFiles = resourceFiles;
         gridssVcf = new InputDownload(structuralCallerOutput.unfilteredVariants());
@@ -77,7 +77,7 @@ public class GripssGermline implements Stage<GripssGermlineOutput, SomaticRunMet
         return referenceSampleName + GRIPSS_GERMLINE_FILTERED + FileTypes.GZIPPED_VCF;
     }
 
-    private static String basename(String filename) {
+    private static String basename(final String filename) {
         return new File(filename).getName();
     }
 

@@ -4,7 +4,7 @@ import com.hartwig.batch.BatchArguments;
 import com.hartwig.pipeline.testsupport.Resources;
 
 public class TestingArguments {
-    public static BatchArguments defaultArgs(String operation) {
+    public static BatchArguments defaultArgs(final String operation) {
         BatchArguments baseWithDefaults = BatchArguments.from(new String[]{operation,
                 "-" + BatchArguments.PRIVATE_KEY_PATH, "irrelevant",
                 "-" + BatchArguments.SERVICE_ACCOUNT_EMAIL, "irrelevant",

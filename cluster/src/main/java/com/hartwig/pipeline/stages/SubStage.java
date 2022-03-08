@@ -33,7 +33,7 @@ public abstract class SubStage implements Function<SubStageInputOutput, SubStage
         return SubStageInputOutput.of(input.sampleName(), outputFile, combine(input.bash(), bash(input.outputFile(), outputFile)));
     }
 
-    private static List<BashCommand> combine(List<BashCommand> prior, List<BashCommand> next) {
+    private static List<BashCommand> combine(final List<BashCommand> prior, final List<BashCommand> next) {
         ImmutableList.Builder<BashCommand> listBuilder = ImmutableList.builder();
         listBuilder.addAll(prior);
         listBuilder.addAll(next);

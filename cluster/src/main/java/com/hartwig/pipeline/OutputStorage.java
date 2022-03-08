@@ -15,7 +15,7 @@ public class OutputStorage<S extends StageOutput, M extends RunMetadata> {
         this.arguments = arguments;
     }
 
-    public S get(M metadata, final Stage<S, M> stage) {
+    public S get(final M metadata, final Stage<S, M> stage) {
         if (!stage.shouldRun(arguments)) {
             return stage.skippedOutput(metadata);
         }

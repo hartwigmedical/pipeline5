@@ -60,7 +60,7 @@ public class AmberRerunTumorOnly implements BatchOperation {
         return OperationDescriptor.of("AmberRerunTumorOnly", "Generate amber output", OperationDescriptor.InputType.JSON);
     }
 
-    private static String localFilename(InputFileDescriptor remote) {
+    private static String localFilename(final InputFileDescriptor remote) {
         return format("%s/%s", VmDirectories.INPUT, new File(remote.inputValue()).getName());
     }
 }

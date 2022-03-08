@@ -38,7 +38,7 @@ public class InputFileDescriptorTest {
         assertThat(builder.inputValue(remote).build().name()).isEqualTo(name);
     }
 
-    private void assertCommandForm(String commandForm, String remoteFile) {
+    private void assertCommandForm(final String commandForm, final String remoteFile) {
         assertThat(commandForm).isEqualTo(format("gsutil -o 'GSUtil:parallel_thread_count=1' -o \"GSUtil:sliced_object_download_max_components=$(nproc)\" -q -u %s cp gs://%s %s", project, remoteFile, local));
     }
 }

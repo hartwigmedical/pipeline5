@@ -135,7 +135,7 @@ public class RemoteLocationsApi implements RemoteLocations {
         return new String[] { remotePath, cramFile };
     }
 
-    private GoogleStorageLocation getLocation(String sample, Function<Dataset, Map<String, DatasetFile>> extractor) {
+    private GoogleStorageLocation getLocation(final String sample, final Function<Dataset, Map<String, DatasetFile>> extractor) {
         String path = Optional.ofNullable(extractor.apply(dataset))
                 .flatMap(x -> Optional.ofNullable(x.get(sample)))
                 .flatMap(x -> Optional.ofNullable(x.getPath()))
@@ -143,7 +143,7 @@ public class RemoteLocationsApi implements RemoteLocations {
         return GoogleStorageLocation.from(path, billedProject);
     }
 
-    private static GoogleStorageLocation index(GoogleStorageLocation victim) {
+    private static GoogleStorageLocation index(final GoogleStorageLocation victim) {
         if (victim.isDirectory()) {
             throw new IllegalArgumentException();
         }

@@ -85,11 +85,11 @@ public class RCloneCloudCopyTest {
         victim.copy(LOCAL_SOURCE_FILE, LOCAL_TARGET_FILE);
     }
 
-    private void assertSourceIs(String expected) {
+    private void assertSourceIs(final String expected) {
         assertThat(commandCaptor.getValue().get(3)).isEqualTo(expected);
     }
 
-    private void assertDestIs(String expected) {
+    private void assertDestIs(final String expected) {
         assertThat(commandCaptor.getValue().get(4)).isEqualTo(expected);
     }
 }

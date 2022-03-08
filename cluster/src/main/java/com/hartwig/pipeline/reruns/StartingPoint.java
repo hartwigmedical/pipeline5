@@ -52,7 +52,7 @@ public class StartingPoint {
             this.namespaces = namespaces;
         }
 
-        static List<String> concat(List<String> first, List<String> second) {
+        static List<String> concat(final List<String> first, final List<String> second) {
             return ImmutableList.<String>builder().addAll(first).addAll(second).build();
         }
     }
@@ -74,7 +74,7 @@ public class StartingPoint {
         };
     }
 
-    public boolean usePersisted(String namespace) {
+    public boolean usePersisted(final String namespace) {
         return startingPoint.namespaces.contains(namespace);
     }
 }

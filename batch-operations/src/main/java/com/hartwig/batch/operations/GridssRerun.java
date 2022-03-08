@@ -104,7 +104,7 @@ public class GridssRerun implements BatchOperation {
         return OperationDescriptor.of("GridssRerun", "Generate gridss unfiltered output", OperationDescriptor.InputType.JSON);
     }
 
-    private static String localFilename(InputFileDescriptor remote) {
+    private static String localFilename(final InputFileDescriptor remote) {
         return format("%s/%s", VmDirectories.INPUT, new File(remote.inputValue()).getName());
     }
 }

@@ -8,7 +8,7 @@ public class BgzipCommand extends VersionedToolCommand {
         super("tabix", "bgzip", Versions.TABIX);
     }
 
-    public BgzipCommand(String vcf) {
+    public BgzipCommand(final String vcf) {
         super("tabix", "bgzip", Versions.TABIX, "-f", vcf);
     }
 }

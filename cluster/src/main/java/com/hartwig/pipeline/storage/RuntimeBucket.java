@@ -64,7 +64,7 @@ public class RuntimeBucket {
         return namespace;
     }
 
-    public Blob get(String blobName) {
+    public Blob get(final String blobName) {
         return bucket.get(namespace(blobName));
     }
 
@@ -73,11 +73,11 @@ public class RuntimeBucket {
         return !blobPath[0].equals(namespace) ? namespace + (blobName.startsWith("/") ? blobName : ("/" + blobName)) : blobName;
     }
 
-    public void create(String blobName, byte[] content) {
+    public void create(final String blobName, final byte[] content) {
         bucket.create(namespace(blobName), content);
     }
 
-    public void create(String blobName, InputStream content) {
+    public void create(final String blobName, final InputStream content) {
         bucket.create(namespace(blobName), content);
     }
 
@@ -85,20 +85,20 @@ public class RuntimeBucket {
         return Lists.newArrayList(bucket.list(Storage.BlobListOption.prefix(namespace)).iterateAll());
     }
 
-    public List<Blob> list(String prefix) {
+    public List<Blob> list(final String prefix) {
         return Lists.newArrayList(bucket.list(Storage.BlobListOption.prefix(namespace(prefix))).iterateAll());
     }
 
-    public void delete(String prefix) {
+    public void delete(final String prefix) {
         list(prefix).forEach(Blob::delete);
     }
 
-    public void copyOutOf(String sourceBlobName, String targetBucket, String targetBlob) {
+    public void copyOutOf(final String sourceBlobName, final String targetBucket, final String targetBlob) {
         BlobInfo targetBlobInfo = BlobInfo.newBuilder(targetBucket, targetBlob).build();
         storage.copy(Storage.CopyRequest.of(bucket.getName(), namespace(sourceBlobName), targetBlobInfo)).getResult();
     }
 
-    public void copyInto(String sourceBucketName, String sourceBlobName, String targetBlobName) {
+    public void copyInto(final String sourceBucketName, final String sourceBlobName, final String targetBlobName) {
         BlobId sourceBlobId = BlobId.of(sourceBucketName, sourceBlobName);
         BlobId targetBlobId = BlobId.of(bucket.getName(), namespace(targetBlobName));
         storage.copy(Storage.CopyRequest.of(sourceBlobId, targetBlobId)).getResult();

@@ -1,9 +1,7 @@
 package com.hartwig.batch;
 
 import static java.lang.Boolean.parseBoolean;
-import static java.lang.String.format;
 
-import java.util.Locale;
 import java.util.Optional;
 
 import com.hartwig.pipeline.CommonArguments;
@@ -31,7 +29,7 @@ public interface BatchArguments extends CommonArguments {
 
     String outputBucket();
 
-    static BatchArguments from(String[] args) {
+    static BatchArguments from(final String[] args) {
         try {
             CommandLine commandLine = new DefaultParser().parse(options(), args);
             final String outputBucket = commandLine.getOptionValue(OUTPUT_BUCKET);

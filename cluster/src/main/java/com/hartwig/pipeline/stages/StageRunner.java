@@ -44,7 +44,7 @@ public class StageRunner<M extends RunMetadata> {
         this.labels = labels;
     }
 
-    public <T extends StageOutput> T run(M metadata, Stage<T, M> stage) {
+    public <T extends StageOutput> T run(final M metadata, final Stage<T, M> stage) {
         final List<BashCommand> commands = commands(metadata, stage);
         if (stage.shouldRun(arguments) && !commands.isEmpty()) {
             if (!startingPoint.usePersisted(stage.namespace())) {

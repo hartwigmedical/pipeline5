@@ -14,7 +14,7 @@ public class InputBundle {
     @JsonProperty
     private List<InputFileDescriptor> inputs;
 
-    public InputBundle(Collection<InputFileDescriptor> inputs) {
+    public InputBundle(final Collection<InputFileDescriptor> inputs) {
         if (inputs == null || inputs.isEmpty()) {
             throw new IllegalArgumentException("Null or empty inputs!");
         }
@@ -25,14 +25,14 @@ public class InputBundle {
         return inputs.get(0);
     }
 
-    public InputFileDescriptor get(String key) {
+    public InputFileDescriptor get(final String key) {
         return inputs.stream()
                 .filter(i -> i.name().equals(key))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException(format("No key [%s] in input", key)));
     }
 
-    public boolean contains(String key) {
+    public boolean contains(final String key) {
         return inputs.stream().anyMatch(i -> i.name().equals(key));
     }
 }

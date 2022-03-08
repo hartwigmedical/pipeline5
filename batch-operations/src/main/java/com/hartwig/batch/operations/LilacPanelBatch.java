@@ -2,9 +2,6 @@ package com.hartwig.batch.operations;
 
 import static java.lang.String.format;
 
-import static com.hartwig.batch.operations.BatchCommon.BATCH_RESOURCE_BUCKET;
-import static com.hartwig.batch.operations.BatchCommon.BATCH_TOOLS_BUCKET;
-import static com.hartwig.batch.operations.BatchCommon.LILAC_DIR;
 import static com.hartwig.batch.operations.BatchCommon.LILAC_JAR;
 import static com.hartwig.batch.operations.BatchCommon.PANEL_BAM_BUCKET;
 import static com.hartwig.batch.operations.LilacBatch.addLilacDownloadCommands;

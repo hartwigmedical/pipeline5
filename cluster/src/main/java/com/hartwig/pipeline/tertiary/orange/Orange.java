@@ -283,7 +283,7 @@ public class Orange implements Stage<OrangeOutput, SomaticRunMetadata> {
     }
 
     @Override
-    public OrangeOutput persistedOutput(SomaticRunMetadata metadata) {
+    public OrangeOutput persistedOutput(final SomaticRunMetadata metadata) {
         return OrangeOutput.builder().status(PipelineStatus.PERSISTED).build();
     }
 }

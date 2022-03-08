@@ -80,7 +80,7 @@ public class BucketCompletionWatcherTest {
         verify(runtimeBucket.getRuntimeBucket(), atLeast(2)).list();
     }
 
-    private void mockFlagFile(String flagFile) {
+    private void mockFlagFile(final String flagFile) {
         mockReadChannel(mockBlob, NAMESPACE + flagFile);
         blobs.add(mockBlob);
         when(runtimeBucket.getRuntimeBucket().get(flagFile)).thenReturn(mockBlob);

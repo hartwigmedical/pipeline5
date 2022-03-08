@@ -33,7 +33,7 @@ public interface GermlineCallerOutput extends StageOutput {
         return ImmutableGermlineCallerOutput.builder();
     }
 
-    static OutputFile outputFile(String sample) {
+    static OutputFile outputFile(final String sample) {
         return OutputFile.of(sample, "germline", FileTypes.GZIPPED_VCF);
     }
 }

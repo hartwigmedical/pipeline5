@@ -43,7 +43,7 @@ public class GripssSomatic implements Stage<GripssSomaticOutput, SomaticRunMetad
     private String somaticUnfilteredVcf;
     private String somaticFilteredVcf;
 
-    public GripssSomatic(final ResourceFiles resourceFiles, StructuralCallerOutput structuralCallerOutput,
+    public GripssSomatic(final ResourceFiles resourceFiles, final StructuralCallerOutput structuralCallerOutput,
             final PersistedDataset persistedDataset) {
         this.resourceFiles = resourceFiles;
         gridssVcf = new InputDownload(structuralCallerOutput.unfilteredVariants());
@@ -81,7 +81,7 @@ public class GripssSomatic implements Stage<GripssSomaticOutput, SomaticRunMetad
         return referenceSampleName + GRIPSS_SOMATIC_FILTERED + FileTypes.GZIPPED_VCF;
     }
 
-    private static String basename(String filename) {
+    private static String basename(final String filename) {
         return new File(filename).getName();
     }
 

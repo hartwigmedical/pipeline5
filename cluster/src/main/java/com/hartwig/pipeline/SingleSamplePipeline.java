@@ -64,7 +64,7 @@ public class SingleSamplePipeline {
         this.germlineCallerOutputQueue = germlineCallerOutputQueue;
     }
 
-    public PipelineState run(SingleSampleRunMetadata metadata) throws Exception {
+    public PipelineState run(final SingleSampleRunMetadata metadata) throws Exception {
         LOGGER.info("Pipeline5 single sample pipeline starting for sample name [{}] with id [{}] {}",
                 metadata.sampleName(),
                 metadata.barcode(),

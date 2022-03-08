@@ -11,7 +11,7 @@ public class Python3Command implements BashCommand {
     private final String pythonFile;
     private final List<String> arguments;
 
-    public Python3Command(String toolName, String version, String pythonFile, List<String> arguments) {
+    public Python3Command(final String toolName, final String version, final String pythonFile, final List<String> arguments) {
         this.toolName = toolName;
         this.version = version;
         this.pythonFile = pythonFile;

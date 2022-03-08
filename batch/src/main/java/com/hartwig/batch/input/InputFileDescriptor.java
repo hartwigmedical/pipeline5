@@ -33,7 +33,7 @@ public abstract class InputFileDescriptor {
         return toCommandForm(localDestination());
     }
 
-    public String toCommandForm(String localDestination) {
+    public String toCommandForm(final String localDestination) {
         return String.format(
                 "gsutil -o 'GSUtil:parallel_thread_count=1' -o \"GSUtil:sliced_object_download_max_components=$(nproc)\" -q -u %s cp %s%s %s",
                 billedProject(),
@@ -46,7 +46,7 @@ public abstract class InputFileDescriptor {
         return ImmutableInputFileDescriptor.builder();
     }
 
-    public static ImmutableInputFileDescriptor from(InputFileDescriptor original) {
+    public static ImmutableInputFileDescriptor from(final InputFileDescriptor original) {
         return builder().from(original).build();
     }
 
@@ -66,7 +66,7 @@ public abstract class InputFileDescriptor {
         throw new IllegalArgumentException("Unknown file format");
     }
 
-    public InputFileDescriptor index(String suffix) {
+    public InputFileDescriptor index(final String suffix) {
         return builder().from(this).inputValue(inputValue() + suffix).build();
     }
 

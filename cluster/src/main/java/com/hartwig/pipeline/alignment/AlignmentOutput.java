@@ -1,7 +1,6 @@
 package com.hartwig.pipeline.alignment;
 
 import java.util.Optional;
-import java.util.function.Supplier;
 
 import com.hartwig.pipeline.StageOutput;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;

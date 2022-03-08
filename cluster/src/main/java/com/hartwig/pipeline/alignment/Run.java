@@ -14,7 +14,7 @@ public interface Run {
     @Value.Parameter
     String id();
 
-    static Run from(RunMetadata runMetadata, CommonArguments arguments) {
+    static Run from(final RunMetadata runMetadata, final CommonArguments arguments) {
         return ImmutableRun.of(format("run-%s", RunTag.apply(arguments, runMetadata.name().toLowerCase())).replace("_", "-"));
     }
 }

@@ -24,7 +24,6 @@ import com.hartwig.pipeline.execution.vm.OutputUpload;
 import com.hartwig.pipeline.execution.vm.RuntimeFiles;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.VmDirectories;
-import com.hartwig.pipeline.execution.vm.unix.UnzipToDirectoryCommand;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.resource.ResourceFilesFactory;
@@ -132,12 +131,12 @@ public class SageRerunOld implements BatchOperation {
         return VirtualMachineJobDefinition.sageSomaticCalling(commands, ResultsDirectory.defaultDirectory());
     }
 
-    private OutputFile bqrFile(String sample, String extension) {
+    private OutputFile bqrFile(final String sample, final String extension) {
         String filename = String.format("%s.sage.bqr.%s", sample, extension);
         return ImmutableOutputFile.of(filename);
     }
 
-    static List<BashCommand> cramToBam(String cram) {
+    static List<BashCommand> cramToBam(final String cram) {
 
         final String output = cram.replace("cram", "bam");
         final BashCommand toBam = new VersionedToolCommand("samtools",
@@ -163,7 +162,7 @@ public class SageRerunOld implements BatchOperation {
         return OperationDescriptor.of("SageRerun", "Generate sage output", OperationDescriptor.InputType.JSON);
     }
 
-    private static String localFilename(InputFileDescriptor remote) {
+    private static String localFilename(final InputFileDescriptor remote) {
         return format("%s/%s", VmDirectories.INPUT, new File(remote.inputValue()).getName());
     }
 

@@ -12,7 +12,7 @@ import org.apache.commons.io.FileUtils;
 
 public class FlatInputParser implements InputParser {
     @Override
-    public List<InputBundle> parse(String inputFile, String billedProject) throws RuntimeException {
+    public List<InputBundle> parse(final String inputFile, final String billedProject) throws RuntimeException {
         List<InputBundle> fileDescriptors = new ArrayList<>();
         try {
             FileUtils.readLines(new File(inputFile), "UTF-8")

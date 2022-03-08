@@ -120,21 +120,21 @@ public class GridssBackport implements BatchOperation {
         return OperationDescriptor.of("GridssBackport", "Bump gridss to latest version", OperationDescriptor.InputType.JSON);
     }
 
-    private static String dirname(String filename) {
+    private static String dirname(final String filename) {
         return new File(filename).getParent();
     }
 
-    private static String basename(String filename) {
+    private static String basename(final String filename) {
         return new File(filename).getName();
     }
 
-    private static String workingDir(String filename) {
+    private static String workingDir(final String filename) {
         String dirname = dirname(filename);
         String basename = basename(filename);
         return dirname + "/" + basename + ".gridss.working/" + basename;
     }
 
-    public static GoogleStorageLocation index(GoogleStorageLocation template, String extension) {
+    public static GoogleStorageLocation index(final GoogleStorageLocation template, final String extension) {
         if (template.isDirectory()) {
             throw new IllegalArgumentException();
         }

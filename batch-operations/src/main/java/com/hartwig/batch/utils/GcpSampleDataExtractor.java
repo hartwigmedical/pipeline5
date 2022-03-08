@@ -12,7 +12,6 @@ import java.util.logging.Logger;
 
 import com.google.common.collect.Lists;
 import com.hartwig.batch.api.RemoteLocationsApi;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -89,7 +88,7 @@ public class GcpSampleDataExtractor
         }
     }
 
-    private BufferedWriter initialiseWriter(String outputFileName)
+    private BufferedWriter initialiseWriter(final String outputFileName)
     {
         try
         {

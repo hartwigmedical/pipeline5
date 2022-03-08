@@ -9,7 +9,7 @@ import com.hartwig.pipeline.tools.Versions;
 
 public class VirusBreakendCommand extends VersionedToolCommand {
 
-    public VirusBreakendCommand(ResourceFiles resourceFiles, String tumorSample, String tumorBamPath) {
+    public VirusBreakendCommand(final ResourceFiles resourceFiles, final String tumorSample, final String tumorBamPath) {
         super("gridss",
                 "virusbreakend",
                 Versions.GRIDSS,

@@ -24,7 +24,6 @@ import com.hartwig.pipeline.stages.Stage;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.purple.PurpleOutput;
-import com.hartwig.pipeline.tertiary.purple.PurpleOutputLocations;
 
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -43,8 +42,8 @@ public class HealthChecker implements Stage<HealthCheckOutput, SomaticRunMetadat
     private final InputDownload tumorFlagstatDownload;
     private final InputDownload purpleDownload;
 
-    public HealthChecker(BamMetricsOutput referenceMetricsOutput, BamMetricsOutput tumorMetricsOutput,
-            FlagstatOutput referenceFlagstatOutput, FlagstatOutput tumorFlagstatOutput, PurpleOutput purpleOutput) {
+    public HealthChecker(final BamMetricsOutput referenceMetricsOutput, final BamMetricsOutput tumorMetricsOutput,
+            final FlagstatOutput referenceFlagstatOutput, final FlagstatOutput tumorFlagstatOutput, final PurpleOutput purpleOutput) {
         referenceMetricsDownload = new InputDownload(referenceMetricsOutput.metricsOutputFile(), localMetricsPath(referenceMetricsOutput));
         tumorMetricsDownload = new InputDownload(tumorMetricsOutput.metricsOutputFile(), localMetricsPath(tumorMetricsOutput));
         referenceFlagstatDownload =
@@ -117,7 +116,7 @@ public class HealthChecker implements Stage<HealthCheckOutput, SomaticRunMetadat
 
     @NotNull
     private PipelineStatus checkHealthCheckerOutput(final String tumorSampleName, final RuntimeBucket runtimeBucket, PipelineStatus status,
-            ResultsDirectory resultsDirectory) {
+            final ResultsDirectory resultsDirectory) {
         List<Blob> healthCheckStatuses = runtimeBucket.list(resultsDirectory.path(tumorSampleName));
         if ((status == PipelineStatus.SKIPPED || status == PipelineStatus.SUCCESS) && healthCheckStatuses.size() == 1) {
             Blob healthCheckStatus = healthCheckStatuses.get(0);
@@ -143,11 +142,11 @@ public class HealthChecker implements Stage<HealthCheckOutput, SomaticRunMetadat
         return status;
     }
 
-    private static String localMetricsPath(BamMetricsOutput metricsOutput) {
+    private static String localMetricsPath(final BamMetricsOutput metricsOutput) {
         return LOCAL_METRICS_DIR + "/" + metricsOutput.sample() + ".wgsmetrics";
     }
 
-    private static String localFlagstatPath(FlagstatOutput flagstatOutput) {
+    private static String localFlagstatPath(final FlagstatOutput flagstatOutput) {
         return LOCAL_FLAGSTAT_DIR + "/" + flagstatOutput.sample() + ".flagstat";
     }
 }

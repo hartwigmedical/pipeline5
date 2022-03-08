@@ -120,8 +120,8 @@ public class TeloBatch implements BatchOperation
                 VmDirectories.TOOLS);
     }
 
-    private BashCommand makeTeloRunCommand(String sampleId, String sampleType, String bamLocalPath, String refGenomeLocalPath,
-            Optional<String> specificChromosome)
+    private BashCommand makeTeloRunCommand(final String sampleId, final String sampleType, final String bamLocalPath, final String refGenomeLocalPath,
+            final Optional<String> specificChromosome)
     {
         StringJoiner teloArgs = new StringJoiner(" ");
         teloArgs.add("-sample_id");

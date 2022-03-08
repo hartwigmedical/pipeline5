@@ -16,17 +16,17 @@ public class ManifestAssert extends AbstractAssert<ManifestAssert, List<String>>
     private final String referenceName;
     private final String tumorName;
 
-    private ManifestAssert(final List<String> linesFromManifest, String referenceName, String tumorName) {
+    private ManifestAssert(final List<String> linesFromManifest, final String referenceName, final String tumorName) {
         super(linesFromManifest, ManifestAssert.class);
         this.referenceName = referenceName;
         this.tumorName = tumorName;
     }
 
-    public static ManifestAssert assertThat(List<String> actualFiles, String referenceName, String tumorName) {
+    public static ManifestAssert assertThat(final List<String> actualFiles, final String referenceName, final String tumorName) {
         return new ManifestAssert(actualFiles, referenceName, tumorName);
     }
 
-    ManifestAssert hasTheseFiles(String pathToLocalCopyOfManifest, String ignoreManifestPrefix) {
+    ManifestAssert hasTheseFiles(final String pathToLocalCopyOfManifest, final String ignoreManifestPrefix) {
         try {
             ArrayList<String> expectedFiles = new ArrayList<>(FileUtils.readLines(new File(pathToLocalCopyOfManifest)));
             Assertions.assertThat(sanitise(sliceOutFilenames(actual, 1, "")))
@@ -37,7 +37,7 @@ public class ManifestAssert extends AbstractAssert<ManifestAssert, List<String>>
         }
     }
 
-    private List<String> sanitise(List<String> filenames) {
+    private List<String> sanitise(final List<String> filenames) {
         return filenames.stream().filter(name -> {
             String trimmed = name.trim();
             return !(trimmed.equals("STAGED") || trimmed.equals(format("%s/run.log", referenceName)) || trimmed.equals(format("%s/run.log",
@@ -45,7 +45,7 @@ public class ManifestAssert extends AbstractAssert<ManifestAssert, List<String>>
         }).collect(toList());
     }
 
-    private List<String> sliceOutFilenames(List<String> filenames, int filenameIndex, String prefixToRemoveFromFilenames) {
+    private List<String> sliceOutFilenames(final List<String> filenames, final int filenameIndex, final String prefixToRemoveFromFilenames) {
         return filenames.stream()
                 .map(s -> s.trim().split(" +")[filenameIndex].replaceAll("^" + prefixToRemoveFromFilenames, ""))
                 .collect(toList());

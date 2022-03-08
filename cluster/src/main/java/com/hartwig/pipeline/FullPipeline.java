@@ -1,13 +1,11 @@
 package com.hartwig.pipeline;
 
-import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Supplier;
 
 import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.alignment.AlignmentPair;
-import com.hartwig.pipeline.alignment.ImmutableAlignmentPair;
 import com.hartwig.pipeline.cleanup.Cleanup;
 import com.hartwig.pipeline.metadata.CompletionHandler;
 import com.hartwig.pipeline.metadata.SingleSampleEventListener;
@@ -108,7 +106,7 @@ public class FullPipeline {
         };
     }
 
-    private PipelineState runPipeline(SingleSamplePipeline pipeline, SingleSampleRunMetadata metadata, CountDownLatch latch) {
+    private PipelineState runPipeline(final SingleSamplePipeline pipeline, final SingleSampleRunMetadata metadata, final CountDownLatch latch) {
         try {
             return pipeline.run(metadata);
         } catch (Exception e) {

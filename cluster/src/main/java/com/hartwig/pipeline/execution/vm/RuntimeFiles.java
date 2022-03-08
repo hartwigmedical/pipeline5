@@ -12,7 +12,7 @@ public interface RuntimeFiles {
 
     String startupScript();
 
-    static ImmutableRuntimeFiles of(String prefix) {
+    static ImmutableRuntimeFiles of(final String prefix) {
         String flagLabel = prefix.isEmpty() ? "JOB" : prefix;
         String logLabel = prefix.isEmpty() ? "" : prefix + "_";
         return ImmutableRuntimeFiles.builder()

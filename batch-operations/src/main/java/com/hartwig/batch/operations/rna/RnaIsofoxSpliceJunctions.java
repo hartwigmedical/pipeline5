@@ -3,7 +3,6 @@ package com.hartwig.batch.operations.rna;
 import static java.lang.String.format;
 
 import static com.hartwig.batch.operations.rna.RnaCommon.MAX_EXPECTED_BAM_SIZE_GB;
-import static com.hartwig.batch.operations.rna.RnaCommon.RNA_RESOURCES;
 import static com.hartwig.batch.operations.rna.RnaCommon.getRnaCohortDirectory;
 import static com.hartwig.batch.operations.rna.RnaIsofox.FUNC_TRANSCRIPT_COUNTS;
 import static com.hartwig.batch.operations.rna.RnaIsofox.ISOFOX_JAR;
@@ -20,7 +19,6 @@ import com.hartwig.batch.OperationDescriptor;
 import com.hartwig.batch.input.InputBundle;
 import com.hartwig.batch.input.InputFileDescriptor;
 import com.hartwig.pipeline.ResultsDirectory;
-import com.hartwig.pipeline.calling.command.VersionedToolCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.OutputUpload;
@@ -31,7 +29,6 @@ import com.hartwig.pipeline.resource.RefGenomeVersion;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
-import com.hartwig.pipeline.tools.Versions;
 
 public class RnaIsofoxSpliceJunctions implements BatchOperation
 {
@@ -40,7 +37,7 @@ public class RnaIsofoxSpliceJunctions implements BatchOperation
 
     @Override
     public VirtualMachineJobDefinition execute(
-            InputBundle inputs, RuntimeBucket bucket, BashStartupScript startupScript, RuntimeFiles executionFlags) {
+            final InputBundle inputs, final RuntimeBucket bucket, final BashStartupScript startupScript, final RuntimeFiles executionFlags) {
 
         InputFileDescriptor descriptor = inputs.get();
 

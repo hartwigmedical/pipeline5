@@ -9,8 +9,8 @@ import com.hartwig.pipeline.execution.vm.VmDirectories;
 import com.hartwig.pipeline.execution.vm.java.JavaClassCommand;
 
 public class TumorNormalCommand extends JavaClassCommand {
-    public TumorNormalCommand(String toolName, String version, String jar, String mainClass, String maxHeap, String referenceSampleName,
-            String referenceBamPath, String tumorSampleName, String tumorBamPath, String... arguments) {
+    public TumorNormalCommand(final String toolName, final String version, final String jar, final String mainClass, final String maxHeap, final String referenceSampleName,
+            final String referenceBamPath, final String tumorSampleName, final String tumorBamPath, final String... arguments) {
         super(toolName,
                 version,
                 jar,
@@ -19,7 +19,8 @@ public class TumorNormalCommand extends JavaClassCommand {
                 arguments(referenceSampleName, referenceBamPath, tumorSampleName, tumorBamPath, arguments));
     }
 
-    private static String[] arguments(String referenceSampleName, String referenceBamPath, String tumorSampleName, String tumorBamPath,
+    private static String[] arguments(
+            final String referenceSampleName, final String referenceBamPath, final String tumorSampleName, final String tumorBamPath,
             final String... arguments) {
         List<String> defaultArguments = Lists.newArrayList("-reference",
                 referenceSampleName,

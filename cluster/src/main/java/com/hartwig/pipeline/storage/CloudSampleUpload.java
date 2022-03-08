@@ -27,7 +27,7 @@ public class CloudSampleUpload implements SampleUpload {
     }
 
     @Override
-    public void run(Sample sample, RuntimeBucket runtimeBucket) {
+    public void run(final Sample sample, final RuntimeBucket runtimeBucket) {
         try {
             uploadSample(runtimeBucket, sample);
         } catch (Exception e) {
@@ -50,7 +50,7 @@ public class CloudSampleUpload implements SampleUpload {
                 });
     }
 
-    private void gsutilCP(Sample sample, RuntimeBucket bucket, String file) {
+    private void gsutilCP(final Sample sample, final RuntimeBucket bucket, final String file) {
         String target = singleSampleFile(sample, file);
         String targetPath = format("gs://%s/%s", bucket.name(), target);
         if (bucket.get(target) != null || bucket.get(target.replaceAll(".gz", "") + "/") != null) {

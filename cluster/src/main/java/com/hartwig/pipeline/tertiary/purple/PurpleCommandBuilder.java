@@ -43,17 +43,17 @@ public class PurpleCommandBuilder {
         this.somaticVcf = somaticVcf;
     }
 
-    public PurpleCommandBuilder setShallow(boolean isShallow) {
+    public PurpleCommandBuilder setShallow(final boolean isShallow) {
         this.isShallow = isShallow;
         return this;
     }
 
-    public PurpleCommandBuilder addGermline(String germlineVcf) {
+    public PurpleCommandBuilder addGermline(final String germlineVcf) {
         this.germlineVcf = germlineVcf;
         return this;
     }
 
-    public PurpleCommandBuilder setReferenceSample(String referenceSample){
+    public PurpleCommandBuilder setReferenceSample(final String referenceSample){
         this.referenceSampleName = referenceSample;
         return this;
     }

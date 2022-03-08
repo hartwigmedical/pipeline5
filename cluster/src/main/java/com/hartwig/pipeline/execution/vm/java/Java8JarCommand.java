@@ -1,7 +1,6 @@
 package com.hartwig.pipeline.execution.vm.java;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.VmDirectories;

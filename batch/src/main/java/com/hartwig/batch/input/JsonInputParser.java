@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 class JsonInputParser implements InputParser {
     @Override
-    public List<InputBundle> parse(String inputFilePath, String billedProject) throws RuntimeException {
+    public List<InputBundle> parse(final String inputFilePath, final String billedProject) throws RuntimeException {
         try {
             FileInputStream stream = new FileInputStream(inputFilePath);
             com.fasterxml.jackson.core.JsonParser jsonParser = new com.fasterxml.jackson.core.JsonFactory().createParser(stream);

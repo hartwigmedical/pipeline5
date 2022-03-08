@@ -68,7 +68,7 @@ public class SbpSampleReader {
                         sampleId)));
     }
 
-    private static String removePath(String name) {
+    private static String removePath(final String name) {
         String[] split = name.split("/");
         return split[split.length - 1];
     }
@@ -78,7 +78,7 @@ public class SbpSampleReader {
         return Sample.builder(sampleName).barcode(barcode).addAllLanes(lanes).build();
     }
 
-    private static boolean qcPass(SbpFastQ sbpFastQ) {
+    private static boolean qcPass(final SbpFastQ sbpFastQ) {
         if (!sbpFastQ.qc_pass()) {
             LOGGER.warn("FastQ file [{}] did not pass QC, filtering from sample.", sbpFastQ.name_r1());
             return false;

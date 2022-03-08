@@ -3,11 +3,9 @@ package com.hartwig.pipeline.tertiary.purple;
 import static java.lang.String.format;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.calling.structural.gripss.GripssSomaticOutput;
@@ -63,8 +61,8 @@ public class Purple implements Stage<PurpleOutput, SomaticRunMetadata> {
     private final PersistedDataset persistedDataset;
     private final boolean shallow;
 
-    public Purple(final ResourceFiles resourceFiles, PaveOutput paveSomaticOutput, PaveOutput germlineCallerOutput,
-            GripssSomaticOutput structuralCallerOutput, AmberOutput amberOutput, CobaltOutput cobaltOutput,
+    public Purple(final ResourceFiles resourceFiles, final PaveOutput paveSomaticOutput, final PaveOutput germlineCallerOutput,
+            final GripssSomaticOutput structuralCallerOutput, final AmberOutput amberOutput, final CobaltOutput cobaltOutput,
             final PersistedDataset persistedDataset, final boolean shallow) {
         this.resourceFiles = resourceFiles;
         this.somaticVariantsDownload = new InputDownload(paveSomaticOutput.annotatedVariants());

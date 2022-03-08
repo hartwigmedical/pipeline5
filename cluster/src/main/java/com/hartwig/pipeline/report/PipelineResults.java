@@ -39,14 +39,14 @@ public class PipelineResults {
         this.arguments = arguments;
     }
 
-    public <T extends StageOutput> T add(T stageOutput) {
+    public <T extends StageOutput> T add(final T stageOutput) {
         if (stageOutput != null) {
             components.addAll(stageOutput.reportComponents());
         }
         return stageOutput;
     }
 
-    public void compose(SomaticRunMetadata metadata) {
+    public void compose(final SomaticRunMetadata metadata) {
         String name = metadata.set();
         Folder folder = Folder.root();
         writeMetadata(metadata, name, folder);
@@ -54,7 +54,7 @@ public class PipelineResults {
         writeComplete(name);
     }
 
-    public void compose(SingleSampleRunMetadata metadata,  Boolean isSingleSample, PipelineState state) {
+    public void compose(final SingleSampleRunMetadata metadata,  final Boolean isSingleSample, final PipelineState state) {
         String name = RunTag.apply(arguments, metadata.barcode());
         if (state.shouldProceed()) {
             Folder folder = isSingleSample ? Folder.root() : Folder.from(metadata);
@@ -64,7 +64,7 @@ public class PipelineResults {
         writeComplete(name);
     }
 
-    private void compose(String name, Folder folder) {
+    private void compose(final String name, final Folder folder) {
         LOGGER.info("Composing pipeline run results for {} in bucket gs://{}/{}", name, reportBucket.getName(), name);
         reportBucket.create(path(name, folder, "pipeline.version"), version.getBytes());
         try {

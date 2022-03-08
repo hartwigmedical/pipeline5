@@ -113,7 +113,7 @@ public class PurpleGermline implements BatchOperation {
         return OperationDescriptor.of("PurpleGermline", "Generate PURPLE output", OperationDescriptor.InputType.JSON);
     }
 
-    private static GoogleStorageLocation index(GoogleStorageLocation victim) {
+    private static GoogleStorageLocation index(final GoogleStorageLocation victim) {
         if (victim.isDirectory()) {
             throw new IllegalArgumentException();
         }

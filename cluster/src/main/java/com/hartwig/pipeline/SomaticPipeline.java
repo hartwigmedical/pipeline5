@@ -94,7 +94,7 @@ public class SomaticPipeline {
         this.persistedDataset = persistedDataset;
     }
 
-    public PipelineState run(AlignmentPair pair) {
+    public PipelineState run(final AlignmentPair pair) {
         PipelineState state = new PipelineState();
         LOGGER.info("Pipeline5 somatic pipeline starting for set [{}]", metadata.set());
 

@@ -21,7 +21,7 @@ public class PublisherProvider {
                 .build();
     }
 
-    public static PublisherProvider from(CommonArguments arguments, GoogleCredentials credentials) {
+    public static PublisherProvider from(final CommonArguments arguments, final GoogleCredentials credentials) {
         return new PublisherProvider(arguments, credentials);
     }
 }

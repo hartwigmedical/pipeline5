@@ -14,7 +14,7 @@ public interface OperationDescriptor {
 
     InputType inputType();
 
-    static OperationDescriptor of(String callName, String description, InputType inputType) {
+    static OperationDescriptor of(final String callName, final String description, final InputType inputType) {
         return ImmutableOperationDescriptor.builder().callName(callName).description(description)
                 .inputType(inputType).build();
     }

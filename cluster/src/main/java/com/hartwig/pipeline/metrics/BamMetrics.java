@@ -57,7 +57,7 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
     }
 
     @Override
-    public List<BashCommand> commands(SingleSampleRunMetadata metadata) {
+    public List<BashCommand> commands(final SingleSampleRunMetadata metadata) {
         return Collections.singletonList(new BamMetricsCommand(bamDownload.getLocalTargetPath(),
                 resourceFiles.refGenomeFile(),
                 VmDirectories.OUTPUT + "/" + BamMetricsOutput.outputFile(metadata.sampleName())));
@@ -92,7 +92,7 @@ public class BamMetrics implements Stage<BamMetricsOutput, SingleSampleRunMetada
     }
 
     @Override
-    public BamMetricsOutput skippedOutput(SingleSampleRunMetadata metadata) {
+    public BamMetricsOutput skippedOutput(final SingleSampleRunMetadata metadata) {
         return BamMetricsOutput.builder().sample(metadata.sampleName()).status(PipelineStatus.SKIPPED).build();
     }
 

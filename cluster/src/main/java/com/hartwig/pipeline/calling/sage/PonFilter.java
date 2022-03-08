@@ -22,7 +22,7 @@ class PonFilter extends SubStage {
     private final String otherFilter;
     private final String hotspotFilter;
 
-    PonFilter(RefGenomeVersion refGenomeVersion) {
+    PonFilter(final RefGenomeVersion refGenomeVersion) {
         super(SAGE_SOMATIC_FILTERED, FileTypes.GZIPPED_VCF);
 
         if (refGenomeVersion.equals(RefGenomeVersion.V37)) {

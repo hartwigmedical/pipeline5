@@ -1,7 +1,6 @@
 package com.hartwig.pipeline.tertiary.protect;
 
 import java.util.List;
-import java.util.function.Function;
 
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;

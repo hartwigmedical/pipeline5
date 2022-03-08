@@ -38,7 +38,7 @@ public abstract class Pave implements Stage<PaveOutput, SomaticRunMetadata> {
     private final PersistedDataset persistedDataset;
     private final DataType vcfDatatype;
 
-    public Pave(final ResourceFiles resourceFiles, SageOutput sageOutput, final PersistedDataset persistedDataset,
+    public Pave(final ResourceFiles resourceFiles, final SageOutput sageOutput, final PersistedDataset persistedDataset,
             final DataType vcfDatatype) {
         this.resourceFiles = resourceFiles;
         this.vcfDownload = new InputDownload(sageOutput.variants());

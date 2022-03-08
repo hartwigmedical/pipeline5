@@ -165,11 +165,11 @@ public abstract class StageTest<S extends StageOutput, M extends RunMetadata> {
 
     protected abstract void validateOutput(final S output);
 
-    protected static String input(String source, String target) {
+    protected static String input(final String source, final String target) {
         return inputDownload(format("cp -r -n gs://%s /data/input/%s", source, target));
     }
 
-    private List<String> commands(List<String> commands) {
+    private List<String> commands(final List<String> commands) {
         return commands.stream().map(command -> command.replace("$TOOLS_DIR", VmDirectories.TOOLS)).collect(Collectors.toList());
     }
 

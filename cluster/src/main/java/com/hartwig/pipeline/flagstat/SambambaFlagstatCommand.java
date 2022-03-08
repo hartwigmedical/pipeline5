@@ -6,7 +6,7 @@ import com.hartwig.pipeline.tools.Versions;
 
 class SambambaFlagstatCommand extends VersionedToolCommand {
 
-    SambambaFlagstatCommand(String bamLocation, String flagstatFile) {
+    SambambaFlagstatCommand(final String bamLocation, final String flagstatFile) {
         super("sambamba", "sambamba", Versions.SAMBAMBA, "flagstat", "-t", Bash.allCpus(), bamLocation, ">", flagstatFile);
     }
 }

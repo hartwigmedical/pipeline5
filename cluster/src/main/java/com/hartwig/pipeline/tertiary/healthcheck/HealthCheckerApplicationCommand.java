@@ -6,8 +6,9 @@ import com.hartwig.pipeline.tools.Versions;
 
 class HealthCheckerApplicationCommand extends JavaJarCommand {
 
-    HealthCheckerApplicationCommand(String referenceSampleName, String tumorSampleName, String referenceMetricsPath, String tumorMetricsPath,
-            String referenceFlagstatPath, String tumorFlagstatPath, String purplePath, String outputPath) {
+    HealthCheckerApplicationCommand(
+            final String referenceSampleName, final String tumorSampleName, final String referenceMetricsPath, final String tumorMetricsPath,
+            final String referenceFlagstatPath, final String tumorFlagstatPath, final String purplePath, final String outputPath) {
         super("health-checker",
                 Versions.HEALTH_CHECKER,
                 "health-checker.jar",

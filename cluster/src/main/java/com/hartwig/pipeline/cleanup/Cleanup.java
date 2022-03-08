@@ -23,7 +23,7 @@ public class Cleanup {
         this.storage = storage;
     }
 
-    public void run(SomaticRunMetadata metadata) {
+    public void run(final SomaticRunMetadata metadata) {
         if (!arguments.cleanup()) {
             return;
         }

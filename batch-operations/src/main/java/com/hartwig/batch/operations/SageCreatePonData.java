@@ -31,7 +31,7 @@ import com.hartwig.pipeline.tools.Versions;
 
 public class SageCreatePonData implements BatchOperation {
 
-    private static String localFilename(InputFileDescriptor remote) {
+    private static String localFilename(final InputFileDescriptor remote) {
         return format("%s/%s", VmDirectories.INPUT, new File(remote.inputValue()).getName());
     }
 
@@ -74,7 +74,7 @@ public class SageCreatePonData implements BatchOperation {
         return VirtualMachineJobDefinition.sageSomaticCalling(startupScript, ResultsDirectory.defaultDirectory());
     }
 
-    private List<BashCommand> cramToBam(String cram) {
+    private List<BashCommand> cramToBam(final String cram) {
 
         final String output = cram.replace("cram", "bam");
         final BashCommand toBam = new VersionedToolCommand("samtools",

@@ -22,7 +22,6 @@ import com.hartwig.batch.input.InputBundle;
 import com.hartwig.batch.input.InputFileDescriptor;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.execution.vm.Bash;
-import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.OutputUpload;
@@ -94,7 +93,7 @@ public class LilacBatch implements BatchOperation {
 
     private void addSampleCommands(
             final InputFileDescriptor runData, final BashStartupScript commands,
-            final String runDirectory, final String sampleId, boolean hasRna)
+            final String runDirectory, final String sampleId, final boolean hasRna)
     {
         final RemoteLocationsApi locationsApi = new RemoteLocationsApi(runData.billedProject(), sampleId);
         final LocalLocations localInput = new LocalLocations(new BamSliceDecorator(locationsApi));

@@ -3,9 +3,7 @@ package com.hartwig.batch.operations.rna;
 import static java.lang.String.format;
 
 import static com.hartwig.batch.operations.rna.RnaCommon.MAX_EXPECTED_BAM_SIZE_GB;
-import static com.hartwig.batch.operations.rna.RnaCommon.RNA_RESOURCES;
 import static com.hartwig.batch.operations.rna.RnaCommon.getRnaCohortDirectory;
-import static com.hartwig.batch.operations.rna.RnaIsofox.FUNC_TRANSCRIPT_COUNTS;
 import static com.hartwig.batch.operations.rna.RnaIsofox.ISOFOX_JAR;
 import static com.hartwig.batch.operations.rna.RnaIsofox.ISOFOX_LOCATION;
 import static com.hartwig.batch.operations.rna.RnaIsofox.RNA_BAM_FILE_ID;
@@ -38,7 +36,7 @@ public class RnaIsofoxUnmapped implements BatchOperation
 
     @Override
     public VirtualMachineJobDefinition execute(
-            InputBundle inputs, RuntimeBucket bucket, BashStartupScript startupScript, RuntimeFiles executionFlags) {
+            final InputBundle inputs, final RuntimeBucket bucket, final BashStartupScript startupScript, final RuntimeFiles executionFlags) {
 
         InputFileDescriptor descriptor = inputs.get();
 

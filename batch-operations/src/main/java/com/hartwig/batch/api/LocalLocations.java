@@ -86,7 +86,7 @@ public class LocalLocations {
         return get(locations::getGermlineVariantsSage);
     }
 
-    private String get(Supplier<GoogleStorageLocation> remotePath) {
+    private String get(final Supplier<GoogleStorageLocation> remotePath) {
         if (commandsGenerated) {
             throw new IllegalStateException("Cannot request new files after generating download commands");
         }
@@ -97,7 +97,7 @@ public class LocalLocations {
         return result.getLocalTargetPath();
     }
 
-    private String getDirectory(Supplier<GoogleStorageLocation> remotePath, final String localPath) {
+    private String getDirectory(final Supplier<GoogleStorageLocation> remotePath, final String localPath) {
         if (commandsGenerated) {
             throw new IllegalStateException("Cannot request new files after generating download commands");
         }

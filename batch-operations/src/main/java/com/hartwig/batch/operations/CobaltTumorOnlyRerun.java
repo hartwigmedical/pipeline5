@@ -20,7 +20,6 @@ import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.resource.ResourceFilesFactory;
 import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
-import com.hartwig.pipeline.tertiary.cobalt.CobaltApplicationCommand;
 import com.hartwig.pipeline.tertiary.cobalt.CobaltCommandBuilder;
 
 public class CobaltTumorOnlyRerun implements BatchOperation {
@@ -61,7 +60,7 @@ public class CobaltTumorOnlyRerun implements BatchOperation {
         return OperationDescriptor.of("CobaltTumorOnlyRerun", "Generate cobalt output", OperationDescriptor.InputType.JSON);
     }
 
-    private static String localFilename(InputFileDescriptor remote) {
+    private static String localFilename(final InputFileDescriptor remote) {
         return format("%s/%s", VmDirectories.INPUT, new File(remote.inputValue()).getName());
     }
 }

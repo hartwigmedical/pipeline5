@@ -18,7 +18,7 @@ public interface InstanceFactory {
 
     BatchOperation get();
 
-    static InstanceFactory from(BatchArguments arguments) {
+    static InstanceFactory from(final BatchArguments arguments) {
         Map<BatchOperation, Constructor> availableOperations = findBatchOperations();
         for (BatchOperation operation : availableOperations.keySet()) {
             if (operation.descriptor().callName().equals(arguments.command())) {

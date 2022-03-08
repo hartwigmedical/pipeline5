@@ -34,7 +34,7 @@ public class RnaArriba implements BatchOperation
 
     @Override
     public VirtualMachineJobDefinition execute(
-            InputBundle inputs, RuntimeBucket bucket, BashStartupScript startupScript, RuntimeFiles executionFlags) {
+            final InputBundle inputs, final RuntimeBucket bucket, final BashStartupScript startupScript, final RuntimeFiles executionFlags) {
 
         InputFileDescriptor descriptor = inputs.get();
 

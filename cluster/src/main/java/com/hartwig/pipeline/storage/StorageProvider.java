@@ -28,7 +28,7 @@ public class StorageProvider {
                 .getService();
     }
 
-    public static StorageProvider from(CommonArguments arguments, GoogleCredentials credentials) {
+    public static StorageProvider from(final CommonArguments arguments, final GoogleCredentials credentials) {
         return new StorageProvider(arguments, credentials);
     }
 }

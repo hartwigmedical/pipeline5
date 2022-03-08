@@ -26,7 +26,7 @@ import com.hartwig.pipeline.storage.RuntimeBucket;
 
 public class Bam2Fastq implements BatchOperation {
     @Override
-    public VirtualMachineJobDefinition execute(InputBundle inputs, RuntimeBucket bucket, BashStartupScript startupScript, RuntimeFiles executionFlags) {
+    public VirtualMachineJobDefinition execute(final InputBundle inputs, final RuntimeBucket bucket, final BashStartupScript startupScript, final RuntimeFiles executionFlags) {
         InputFileDescriptor descriptor = inputs.get();
         String localCopyOfBam = format("%s/%s", VmDirectories.INPUT, new File(descriptor.inputValue()).getName());
         startupScript.addCommand(() -> descriptor.toCommandForm(localCopyOfBam));

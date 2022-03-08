@@ -2,9 +2,6 @@ package com.hartwig.batch.operations;
 
 import static java.lang.String.format;
 
-import static com.hartwig.batch.operations.BatchCommon.BATCH_RESOURCE_BUCKET;
-import static com.hartwig.batch.operations.BatchCommon.BATCH_TOOLS_BUCKET;
-import static com.hartwig.batch.operations.BatchCommon.LILAC_DIR;
 import static com.hartwig.batch.operations.BatchCommon.LILAC_JAR;
 import static com.hartwig.batch.operations.LilacBatch.LILAC_BATCH_BUCKET;
 import static com.hartwig.batch.operations.LilacBatch.addLilacDownloadCommands;
@@ -15,7 +12,6 @@ import com.hartwig.batch.input.InputBundle;
 import com.hartwig.batch.input.InputFileDescriptor;
 import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.execution.vm.Bash;
-import com.hartwig.pipeline.execution.vm.BashCommand;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.ImmutableVirtualMachineJobDefinition;
 import com.hartwig.pipeline.execution.vm.OutputUpload;

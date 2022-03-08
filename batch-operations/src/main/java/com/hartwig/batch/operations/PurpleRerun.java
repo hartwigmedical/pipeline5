@@ -26,7 +26,7 @@ import com.hartwig.pipeline.tertiary.purple.PurpleCommandBuilder;
 
 public class PurpleRerun implements BatchOperation {
 
-    public List<BashCommand> bashCommands(RemoteLocations locations) {
+    public List<BashCommand> bashCommands(final RemoteLocations locations) {
 
         final LocalLocations batchInput = new LocalLocations(locations);
         final List<BashCommand> commands = Lists.newArrayList();
@@ -74,7 +74,7 @@ public class PurpleRerun implements BatchOperation {
         return OperationDescriptor.of("PurpleRerun", "Generate PURPLE output", OperationDescriptor.InputType.JSON);
     }
 
-    private static GoogleStorageLocation index(GoogleStorageLocation victim) {
+    private static GoogleStorageLocation index(final GoogleStorageLocation victim) {
         if (victim.isDirectory()) {
             throw new IllegalArgumentException();
         }

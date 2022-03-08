@@ -7,7 +7,7 @@ public class ResultsDirectory {
     private ResultsDirectory() {
     }
 
-    public String path(String subPath) {
+    public String path(final String subPath) {
         return path() + (subPath.startsWith("/") ? "" : "/") + subPath;
     }
 

@@ -9,7 +9,7 @@ public class LocalSsdStorageStrategy implements StorageStrategy {
     private static final String MD_DEV = "/dev/md0";
     private final int numberOfSsdDevices;
 
-    public LocalSsdStorageStrategy(int numberOfSsdDevices) {
+    public LocalSsdStorageStrategy(final int numberOfSsdDevices) {
         this.numberOfSsdDevices = numberOfSsdDevices;
     }
 

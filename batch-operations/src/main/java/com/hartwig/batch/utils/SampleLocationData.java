@@ -1,8 +1,5 @@
 package com.hartwig.batch.utils;
 
-import static com.hartwig.batch.api.RemoteLocationsApi.CRAM_FULL_PATH;
-import static com.hartwig.batch.api.RemoteLocationsApi.getCramFileData;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -127,7 +124,7 @@ public class SampleLocationData
     }
     */
 
-    public String formDownloadRequest(final String fileRef, boolean recursive)
+    public String formDownloadRequest(final String fileRef, final boolean recursive)
     {
         String remotePath = fileRef; // remotePath(fileRef);
 

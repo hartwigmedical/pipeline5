@@ -1,7 +1,6 @@
 package com.hartwig.pipeline.tertiary.orange;
 
 import com.hartwig.pipeline.StageOutput;
-import com.hartwig.pipeline.storage.GoogleStorageLocation;
 
 import org.immutables.value.Value;
 

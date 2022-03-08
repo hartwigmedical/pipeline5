@@ -53,11 +53,11 @@ public interface GoogleStorageLocation {
                 .build();
     }
 
-    static GoogleStorageLocation of(String bucket, String path) {
+    static GoogleStorageLocation of(final String bucket, final String path) {
         return of(bucket, path, false);
     }
 
-    static GoogleStorageLocation of(String bucket, String path, boolean isDir) {
+    static GoogleStorageLocation of(final String bucket, final String path, final boolean isDir) {
         return ImmutableGoogleStorageLocation.of(bucket, path, isDir);
     }
 }

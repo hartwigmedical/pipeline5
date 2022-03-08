@@ -23,7 +23,7 @@ public interface Event {
     @Value.Parameter
     List<Label> labels();
 
-    static Event of(ZonedDateTime timestamp, String eventType, List<Subject> subject, List<Label> labels) {
+    static Event of(final ZonedDateTime timestamp, final String eventType, final List<Subject> subject, final List<Label> labels) {
         return ImmutableEvent.of(timestamp, eventType, subject, labels);
     }
 }

@@ -2,7 +2,6 @@ package com.hartwig.pipeline.tertiary.lilac;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;

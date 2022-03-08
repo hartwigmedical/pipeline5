@@ -4,7 +4,7 @@ import com.hartwig.pipeline.execution.vm.ParallelGatkCommand;
 
 class SnpGenotypeCommand extends ParallelGatkCommand {
 
-    SnpGenotypeCommand(String inputBam, String referenceFasta, String genotypeSnpsDb, String outputVcf) {
+    SnpGenotypeCommand(final String inputBam, final String referenceFasta, final String genotypeSnpsDb, final String outputVcf) {
         super("20G",
                 "UnifiedGenotyper",
                 "--input_file",

@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 import com.hartwig.pipeline.execution.vm.java.Java8JarCommand;
-import com.hartwig.pipeline.execution.vm.java.JavaJarCommand;
 import com.hartwig.pipeline.tools.Versions;
 
 public class GatkCommand extends Java8JarCommand {
@@ -14,7 +13,7 @@ public class GatkCommand extends Java8JarCommand {
         super("gatk", Versions.GATK, "GenomeAnalysisTK.jar", maxHeapSize, concat(Lists.newArrayList("-T", analysisType), arguments));
     }
 
-    private static List<String> concat(List<String> first, String... rest) {
+    private static List<String> concat(final List<String> first, final String... rest) {
         first.addAll(Arrays.asList(rest));
         return first;
     }

@@ -26,7 +26,7 @@ public class SageCommandBuilder {
     private boolean shallowSomaticMode = false;
     private int tumorSamples = 0;
 
-    public SageCommandBuilder(ResourceFiles resourceFiles) {
+    public SageCommandBuilder(final ResourceFiles resourceFiles) {
         this.resourceFiles = resourceFiles;
     }
 
@@ -48,14 +48,14 @@ public class SageCommandBuilder {
         return this;
     }
 
-    public SageCommandBuilder addTumor(String sample, String bamFile) {
+    public SageCommandBuilder addTumor(final String sample, final String bamFile) {
         tumorSamples++;
         tumor.add(sample);
         tumorBam.add(bamFile);
         return this;
     }
 
-    public SageCommandBuilder addReference(String sample, String bamFile) {
+    public SageCommandBuilder addReference(final String sample, final String bamFile) {
         reference.add(sample);
         referenceBam.add(bamFile);
         return this;
@@ -71,24 +71,24 @@ public class SageCommandBuilder {
         return this;
     }
 
-    public SageCommandBuilder ponMode(String sample, String bamFile) {
+    public SageCommandBuilder ponMode(final String sample, final String bamFile) {
         ponMode = true;
         return addTumor(sample, bamFile);
     }
 
-    public SageCommandBuilder maxHeap(String maxHeap) {
+    public SageCommandBuilder maxHeap(final String maxHeap) {
         this.maxHeap = maxHeap;
         return this;
     }
 
-    private List<BashCommand> sliceAndConvertToBam(String oldFile, String newFile) {
+    private List<BashCommand> sliceAndConvertToBam(final String oldFile, final String newFile) {
         List<BashCommand> result = Lists.newArrayList();
         result.add(SamtoolsCommand.sliceToUncompressedBam(resourceFiles, resourceFiles.sageGermlineSlicePanel(), oldFile, newFile));
         result.add(SamtoolsCommand.index(newFile));
         return result;
     }
 
-    private List<BashCommand> convertToBam(String oldFile, String newFile) {
+    private List<BashCommand> convertToBam(final String oldFile, final String newFile) {
         List<BashCommand> result = Lists.newArrayList();
         result.add(SamtoolsCommand.toUncompressedBam(resourceFiles, oldFile, newFile));
         result.add(SamtoolsCommand.index(newFile));
@@ -128,7 +128,7 @@ public class SageCommandBuilder {
         return result;
     }
 
-    private SageCommand buildSageCommand(String outputVcf) {
+    private SageCommand buildSageCommand(final String outputVcf) {
         final StringJoiner arguments = new StringJoiner(" ");
 
         if (tumorSamples == 0) {

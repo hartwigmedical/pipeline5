@@ -37,7 +37,7 @@ public class FullSomaticResults {
         this(storage, arguments, FIVE_MINUTES);
     }
 
-    public void compose(SomaticRunMetadata metadata) {
+    public void compose(final SomaticRunMetadata metadata) {
         Bucket bucket = storage.get(arguments.outputBucket());
         metadata.maybeReference().ifPresent(reference -> copySingleSampleRun(metadata, bucket, directory(reference)));
         metadata.maybeTumor().ifPresent(tumor -> copySingleSampleRun(metadata, bucket, directory(tumor)));

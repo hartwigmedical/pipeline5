@@ -128,12 +128,12 @@ class AlignmentFileAssertion extends BAMFileAssertion {
         private final String readName;
         private final int flags;
 
-        private Key(SAMRecord record) {
+        private Key(final SAMRecord record) {
             this.readName = record.getReadName();
             this.flags = record.getFlags();
         }
 
-        static Key of(SAMRecord record) {
+        static Key of(final SAMRecord record) {
             return new Key(record);
         }
 

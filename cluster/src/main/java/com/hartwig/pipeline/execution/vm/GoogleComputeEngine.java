@@ -1,7 +1,6 @@
 package com.hartwig.pipeline.execution.vm;
 
 import static java.lang.String.format;
-import static java.util.Collections.lastIndexOfSubList;
 import static java.util.Collections.singletonList;
 
 import java.io.IOException;
@@ -98,7 +97,7 @@ public class GoogleComputeEngine implements ComputeEngine {
         return submit(bucket, jobDefinition, "");
     }
 
-    public PipelineStatus submit(final RuntimeBucket bucket, final VirtualMachineJobDefinition jobDefinition, String discriminator) {
+    public PipelineStatus submit(final RuntimeBucket bucket, final VirtualMachineJobDefinition jobDefinition, final String discriminator) {
         String vmName = format("%s%s-%s", bucket.runId(), discriminator.isEmpty() ? "" : "-" + discriminator, jobDefinition.name());
         RuntimeFiles flags = RuntimeFiles.of(discriminator);
         PipelineStatus status = PipelineStatus.FAILED;
@@ -219,7 +218,7 @@ public class GoogleComputeEngine implements ComputeEngine {
         return new ServiceUsage.Builder(http, json, new HttpCredentialsAdapter(credentials)).setApplicationName(APPLICATION_NAME).build();
     }
 
-    private void addNetworkInterface(Instance instance, String projectName) {
+    private void addNetworkInterface(final Instance instance, final String projectName) {
         NetworkInterface network = new NetworkInterface();
         network.setNetwork(isUrl(arguments.network())
                 ? arguments.network()
@@ -237,7 +236,7 @@ public class GoogleComputeEngine implements ComputeEngine {
     }
 
     private Image attachDisks(final Compute compute, final Instance instance, final VirtualMachineJobDefinition jobDefinition,
-            final String projectName, final String vmName, String zone, final Image sourceImage, final Map<String, String> labels)
+            final String projectName, final String vmName, final String zone, final Image sourceImage, final Map<String, String> labels)
             throws IOException {
         AttachedDisk bootDisk = new AttachedDisk();
         bootDisk.setBoot(true);
@@ -284,14 +283,14 @@ public class GoogleComputeEngine implements ComputeEngine {
         }
     }
 
-    private void addServiceAccount(Instance instance) {
+    private void addServiceAccount(final Instance instance) {
         ServiceAccount account = new ServiceAccount();
         account.setEmail(arguments.serviceAccountEmail());
         account.setScopes(singletonList("https://www.googleapis.com/auth/cloud-platform"));
         instance.setServiceAccounts(singletonList(account));
     }
 
-    private void addStartupCommand(Instance instance, RuntimeBucket runtimeBucket, RuntimeFiles runtimeFiles, String startupScript) {
+    private void addStartupCommand(final Instance instance, final RuntimeBucket runtimeBucket, final RuntimeFiles runtimeFiles, final String startupScript) {
         Metadata startupMetadata = new Metadata();
         Metadata.Items items = new Metadata.Items();
         items.setKey("startup-script");
@@ -301,7 +300,7 @@ public class GoogleComputeEngine implements ComputeEngine {
         instance.setMetadata(startupMetadata);
     }
 
-    private Image resolveLatestImage(Compute compute, String sourceImageFamily, String projectName) throws IOException {
+    private Image resolveLatestImage(final Compute compute, final String sourceImageFamily, final String projectName) throws IOException {
         Compute.Images.GetFromFamily images = compute.images().getFromFamily(projectName, sourceImageFamily);
         Image image = images.execute();
         if (image != null) {
@@ -310,15 +309,15 @@ public class GoogleComputeEngine implements ComputeEngine {
         throw new IllegalArgumentException(format("No image for family [%s]", sourceImageFamily));
     }
 
-    private String apiBaseUrl(String projectName) {
+    private String apiBaseUrl(final String projectName) {
         return format("https://www.googleapis.com/compute/v1/projects/%s", projectName);
     }
 
-    private String machineType(String zone, String type, String projectName) {
+    private String machineType(final String zone, final String type, final String projectName) {
         return format("%s/zones/%s/machineTypes/%s", apiBaseUrl(projectName), zone, type);
     }
 
-    private PipelineStatus waitForCompletion(RuntimeBucket bucket, RuntimeFiles flags, Zone zone, Instance instance) {
+    private PipelineStatus waitForCompletion(final RuntimeBucket bucket, final RuntimeFiles flags, final Zone zone, final Instance instance) {
         LOGGER.debug("Waiting for completion of {}", instance.getName());
         return Failsafe.with(new RetryPolicy<>().withMaxRetries(-1).withDelay(Duration.ofSeconds(5)).handleResult(null)).get(() -> {
             LOGGER.debug("Checking bucket for state");

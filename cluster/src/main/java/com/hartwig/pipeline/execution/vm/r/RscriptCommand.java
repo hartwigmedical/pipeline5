@@ -11,7 +11,7 @@ public class RscriptCommand implements BashCommand {
     private final String rFile;
     private final List<String> arguments;
 
-    public RscriptCommand(String toolName, String version, String rFile, List<String> arguments) {
+    public RscriptCommand(final String toolName, final String version, final String rFile, final List<String> arguments) {
         this.toolName = toolName;
         this.version = version;
         this.rFile = rFile;

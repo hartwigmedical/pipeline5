@@ -24,7 +24,6 @@ import com.hartwig.pipeline.alignment.AlignmentOutput;
 import com.hartwig.pipeline.alignment.ImmutableAlignmentOutput;
 import com.hartwig.pipeline.alignment.sample.SampleSource;
 import com.hartwig.pipeline.datatypes.DataType;
-import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashStartupScript;
 import com.hartwig.pipeline.execution.vm.ComputeEngine;
@@ -211,7 +210,7 @@ public class BwaAligner implements Aligner {
         return format("samples/%s/%s", sample, new File(fullFastQPath).getName());
     }
 
-    private static PipelineStatus getFuture(Future<PipelineStatus> future) {
+    private static PipelineStatus getFuture(final Future<PipelineStatus> future) {
         try {
             return future.get();
         } catch (InterruptedException | ExecutionException e) {

@@ -6,7 +6,6 @@ import static com.hartwig.batch.api.RemoteLocationsApi.CRAM_FILENAME;
 import static com.hartwig.batch.api.RemoteLocationsApi.CRAM_FULL_PATH;
 import static com.hartwig.batch.api.RemoteLocationsApi.getCramFileData;
 import static com.hartwig.batch.operations.BatchCommon.BATCH_TOOLS_BUCKET;
-import static com.hartwig.batch.operations.SageRerunOld.cramToBam;
 import static com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile.custom;
 
 import java.util.StringJoiner;

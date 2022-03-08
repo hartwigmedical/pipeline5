@@ -65,7 +65,7 @@ public class PipelineEventsTest {
     }
 
     @NotNull
-    private static String json(String name) {
+    private static String json(final String name) {
         try {
             return new String(Files.readAllBytes(Paths.get(Resources.testResource("events/" + name + ".json")))).replace("\n", "")
                     .replace(" ", "");

@@ -82,7 +82,7 @@ public class TestInputs {
     public static final String SET = "set";
     public static final String BUCKET = "bucket";
 
-    public static String inputDownload(String commands) {
+    public static String inputDownload(final String commands) {
         return "gsutil -o 'GSUtil:parallel_thread_count=1' -o GSUtil:sliced_object_download_max_components=$(nproc) -qm " + commands;
     }
 
@@ -285,7 +285,7 @@ public class TestInputs {
                 .build();
     }
 
-    private static String somaticBucket(String namespace) {
+    private static String somaticBucket(final String namespace) {
         return SOMATIC_BUCKET + "/" + namespace;
     }
 

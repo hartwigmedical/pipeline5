@@ -103,7 +103,7 @@ public class OrangeTest extends TertiaryStageTest<OrangeOutput> {
     }
 
     @Override
-    protected void validatePersistedOutput(OrangeOutput output) {
+    protected void validatePersistedOutput(final OrangeOutput output) {
         // no validation
     }
 

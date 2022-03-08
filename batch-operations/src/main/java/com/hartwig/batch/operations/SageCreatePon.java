@@ -57,7 +57,7 @@ public class SageCreatePon implements BatchOperation {
         return VirtualMachineJobDefinition.sageSomaticCalling(startupScript, ResultsDirectory.defaultDirectory());
     }
 
-    String getInput(List<InputFileDescriptor> inputs, String key) {
+    String getInput(final List<InputFileDescriptor> inputs, final String key) {
         return inputs.stream().filter(input -> input.name().equals(key)).collect(Collectors.toList()).get(0).inputValue();
     }
 

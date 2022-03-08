@@ -9,8 +9,8 @@ import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.tools.Versions;
 
 public class LilacCommand extends JavaJarCommand {
-    public LilacCommand(ResourceFiles resourceFiles, String sampleName, String referenceBamPath, String tumorBamPath,
-            String purpleGeneCopyNumberPath, String purpleSomaticVariants) {
+    public LilacCommand(final ResourceFiles resourceFiles, final String sampleName, final String referenceBamPath, final String tumorBamPath,
+            final String purpleGeneCopyNumberPath, final String purpleSomaticVariants) {
         super("lilac",
                 Versions.LILAC,
                 "lilac.jar",

@@ -10,7 +10,7 @@ public class CobaltMigrationCommand implements BashCommand {
 
     private final String bash;
 
-    public CobaltMigrationCommand(ResourceFiles resourceFiles, String reference, String tumor) {
+    public CobaltMigrationCommand(final ResourceFiles resourceFiles, final String reference, final String tumor) {
         bash = new JavaClassCommand("cobalt",
                 Versions.COBALT,
                 "cobalt.jar",

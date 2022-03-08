@@ -6,15 +6,15 @@ import java.util.stream.Collectors;
 
 public class Processes {
 
-    public static void run(ProcessBuilder processBuilder) throws IOException, InterruptedException {
+    public static void run(final ProcessBuilder processBuilder) throws IOException, InterruptedException {
         run(processBuilder, true);
     }
 
-    public static void run(ProcessBuilder processBuilder, boolean verbose) throws IOException, InterruptedException {
+    public static void run(final ProcessBuilder processBuilder, final boolean verbose) throws IOException, InterruptedException {
         run(processBuilder, verbose, 7, TimeUnit.DAYS);
     }
 
-    public static void run(ProcessBuilder processBuilder, boolean verbose, long timeout, TimeUnit timeoutUnit)
+    public static void run(final ProcessBuilder processBuilder, final boolean verbose, final long timeout, final TimeUnit timeoutUnit)
             throws IOException, InterruptedException {
         ProcessBuilder builder = processBuilder;
         if (verbose) {

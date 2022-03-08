@@ -75,7 +75,7 @@ public class SingleSamplePipelineTest {
         initialiseVictim(false);
     }
 
-    private void initialiseVictim(boolean standalone) {
+    private void initialiseVictim(final boolean standalone) {
         victim = new SingleSamplePipeline(eventListener,
                 stageRunner,
                 aligner,

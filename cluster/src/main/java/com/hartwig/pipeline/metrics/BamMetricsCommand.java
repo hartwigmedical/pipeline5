@@ -5,7 +5,7 @@ import com.hartwig.pipeline.execution.vm.java.JavaClassCommand;
 import com.hartwig.pipeline.tools.Versions;
 
 class BamMetricsCommand extends JavaClassCommand {
-    BamMetricsCommand(String inputBam, String referenceFasta, final String outputFile) {
+    BamMetricsCommand(final String inputBam, final String referenceFasta, final String outputFile) {
         super("gridss",
                 Versions.GRIDSS,
                 "gridss.jar",
