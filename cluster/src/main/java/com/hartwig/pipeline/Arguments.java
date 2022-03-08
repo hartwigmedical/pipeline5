@@ -4,7 +4,6 @@ import java.util.Optional;
 
 import com.hartwig.events.Pipeline;
 import com.hartwig.events.Pipeline.Context;
-import com.hartwig.pipeline.ImmutableArguments.Builder;
 import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
 import com.hartwig.pipeline.resource.RefGenomeVersion;
 
@@ -17,7 +16,7 @@ public interface Arguments extends CommonArguments {
 
     Optional<String> startingPoint();
 
-    boolean publishLoadEvent();
+    boolean publishDbLoadEvent();
 
     enum DefaultsProfile {
         PUBLIC,
@@ -128,7 +127,7 @@ public interface Arguments extends CommonArguments {
 
     Pipeline.Context DEFAULT_CONTEXT = Context.DIAGNOSTIC;
 
-    static Builder defaultsBuilder(String profileString) {
+    static ImmutableArguments.Builder defaultsBuilder(String profileString) {
         DefaultsProfile profile = DefaultsProfile.valueOf(profileString.toUpperCase());
         if (profile.equals(DefaultsProfile.PRODUCTION)) {
             return ImmutableArguments.builder()

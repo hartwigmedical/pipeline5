@@ -107,7 +107,7 @@ public class LinxSomatic implements Stage<LinxSomaticOutput, SomaticRunMetadata>
                         .build())
                 .addFailedLogLocations(GoogleStorageLocation.of(bucket.name(), RunLogComponent.LOG_FILE))
                 .addReportComponents(new EntireOutputComponent(bucket, Folder.root(), NAMESPACE, resultsDirectory))
-                .addDatatypes(new AddDatatype(DataType.LINX_DRIVER,
+                .addDatatypes(new AddDatatype(DataType.LINX,
                         metadata.barcode(),
                         new ArchivePath(Folder.root(), namespace(), driversTsv)))
                 .addDatatypes(new AddDatatype(DataType.LINX_BREAKENDS,

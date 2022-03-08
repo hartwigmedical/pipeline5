@@ -394,7 +394,7 @@ public class CommandLineOptions {
                     .costCenterLabel(costCenterLabel(commandLine, defaults))
                     .userLabel(userLabel(commandLine, defaults))
                     .panelBedLocation(panelBedLocation(commandLine, defaults))
-                    .publishLoadEvent(booleanOptionWithDefault(commandLine, PUBLISH_LOAD_EVENT_FLAG, defaults.publishLoadEvent()))
+                    .publishLoadEvent(booleanOptionWithDefault(commandLine, PUBLISH_LOAD_EVENT_FLAG, defaults.publishDbLoadEvent()))
                     .build();
         } catch (ParseException e) {
             LOGGER.error("Could not parse command line args", e);

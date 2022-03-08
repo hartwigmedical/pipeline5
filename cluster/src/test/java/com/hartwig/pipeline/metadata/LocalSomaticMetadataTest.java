@@ -21,8 +21,6 @@ import com.hartwig.pipeline.transfer.staged.StagedOutputPublisher;
 import org.junit.Before;
 import org.junit.Test;
 
-import net.bytebuddy.build.ToStringPlugin.Enhance;
-
 public class LocalSomaticMetadataTest {
 
     private SomaticMetadataApi victim;

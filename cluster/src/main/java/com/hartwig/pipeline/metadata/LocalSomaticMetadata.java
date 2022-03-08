@@ -51,7 +51,7 @@ public class LocalSomaticMetadata implements SomaticMetadataApi {
 
     @Override
     public void complete(final PipelineState state, SomaticRunMetadata metadata) {
-        if (arguments.publishLoadEvent()) {
+        if (arguments.publishDbLoadEvent()) {
             stagedOutputPublisher.publish(state, metadata);
         }
     }

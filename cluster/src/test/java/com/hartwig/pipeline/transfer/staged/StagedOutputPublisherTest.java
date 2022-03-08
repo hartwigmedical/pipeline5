@@ -47,7 +47,6 @@ import org.mockito.ArgumentCaptor;
 public class StagedOutputPublisherTest {
 
     private static final ObjectMapper OBJECT_MAPPER = ObjectMappers.get();
-//    private SetApi setApi;
     private Bucket bucket;
     private Publisher publisher;
     private PipelineState state;
@@ -56,7 +55,6 @@ public class StagedOutputPublisherTest {
 
     @Before
     public void setUp() throws Exception {
-//        setApi = mock(SetApi.class);
         bucket = mock(Bucket.class);
         when(bucket.getName()).thenReturn("bucket");
         publisher = mock(Publisher.class);
