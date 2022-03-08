@@ -73,12 +73,12 @@ public class SmokeTest {
         String version = version();
         String setName = noDots(inputMode + "-" + version);
         final String fixtureDir = "smoke_test/" + inputMode + "/";
-        final String randomRunId = RandomStringUtils.random(5, true, false);
+        final String randomRunId = noDots(RandomStringUtils.random(5, true, false));
         final ImmutableArguments.Builder builder = Arguments.defaultsBuilder(Arguments.DefaultsProfile.DEVELOPMENT.toString())
                 .sampleJson(Resources.testResource(fixtureDir + "samples.json"))
                 .cloudSdkPath(CLOUD_SDK_PATH)
                 .setId(setName)
-                .runId(noDots(randomRunId))
+                .runId(randomRunId)
                 .runGermlineCaller(false)
                 .cleanup(true)
                 .outputBucket("smoketest-pipeline-output-pilot-1")
@@ -102,9 +102,10 @@ public class SmokeTest {
 
         File expectedFilesResource = new File(Resources.testResource(fixtureDir + "expected_output_files"));
         List<String> expectedFiles = FileUtils.readLines(expectedFilesResource, FILE_ENCODING);
-        List<String> actualFiles = listOutput(setName, arguments.outputBucket(), storage);
+        final String outputDir = setName + "-" + randomRunId;
+        List<String> actualFiles = listOutput(outputDir, arguments.outputBucket(), storage);
         assertThat(actualFiles).containsOnlyElementsOf(expectedFiles);
-        cleanupBucket(setName, arguments.outputBucket(), storage);
+        cleanupBucket(outputDir, arguments.outputBucket(), storage);
     }
 
     @NotNull
