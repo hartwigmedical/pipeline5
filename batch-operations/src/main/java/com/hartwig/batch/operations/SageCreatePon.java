@@ -37,9 +37,9 @@ public class SageCreatePon implements BatchOperation {
                 Bash.allCpus());
 
         // Download required resources
-//        startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s %s",
-//                "gs://batch-sage-validation/resources/sage.jar",
-//                "/opt/tools/sage/" + Versions.SAGE + "/sage.jar"));
+        //        startupScript.addCommand(() -> format("gsutil -u hmf-crunch cp %s %s",
+        //                "gs://batch-sage-validation/resources/sage.jar",
+        //                "/opt/tools/sage/" + Versions.SAGE + "/sage.jar"));
 
         // Download germline VCFS (and indexes)
         startupScript.addCommand(() -> format("gsutil -u hmf-crunch -m cp %s %s",

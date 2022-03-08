@@ -1,9 +1,14 @@
 package com.hartwig.pipeline.calling.sage;
 
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import com.hartwig.pipeline.ResultsDirectory;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.datatypes.FileTypes;
+import com.hartwig.pipeline.execution.vm.BashStartupScript;
+import com.hartwig.pipeline.execution.vm.VirtualMachineJobDefinition;
+import com.hartwig.pipeline.metadata.AddDatatype;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.resource.ResourceFiles;
 import com.hartwig.pipeline.stages.SubStage;
@@ -30,9 +35,13 @@ public interface SageConfiguration {
 
     OutputTemplate filteredTemplate();
 
+    OutputTemplate geneCoverageTemplate();
+
     SageCommandBuilder commandBuilder();
 
     Function<SomaticRunMetadata, SubStage> postProcess();
+
+    BiFunction<BashStartupScript, ResultsDirectory, VirtualMachineJobDefinition> jobDefinition();
 
     static SageConfiguration germline(final ResourceFiles resourceFiles) {
         return ImmutableSageConfiguration.builder()
@@ -46,8 +55,10 @@ public interface SageConfiguration {
                         SageGermlinePostProcess.SAGE_GERMLINE_FILTERED,
                         FileTypes.GZIPPED_VCF))
                 .unfilteredTemplate(m -> String.format("%s.%s.%s", m.tumor().sampleName(), "sage.germline", FileTypes.GZIPPED_VCF))
+                .geneCoverageTemplate(m -> String.format("%s.%s", m.reference().sampleName(), SageCaller.SAGE_GENE_COVERAGE_TSV))
                 .commandBuilder(new SageCommandBuilder(resourceFiles).germlineMode().addCoverage().maxHeap("15G"))
                 .postProcess(m -> new SageGermlinePostProcess(m.reference().sampleName(), m.tumor().sampleName(), resourceFiles))
+                .jobDefinition(VirtualMachineJobDefinition::sageGermlineCalling)
                 .build();
     }
 
@@ -63,8 +74,10 @@ public interface SageConfiguration {
                         SageSomaticPostProcess.SAGE_SOMATIC_FILTERED,
                         FileTypes.GZIPPED_VCF))
                 .unfilteredTemplate(m -> String.format("%s.%s.%s", m.tumor().sampleName(), "sage.somatic", FileTypes.GZIPPED_VCF))
+                .geneCoverageTemplate(m -> String.format("%s.%s", m.tumor().sampleName(), SageCaller.SAGE_GENE_COVERAGE_TSV))
                 .commandBuilder(new SageCommandBuilder(resourceFiles).shallowMode(shallow).addCoverage())
                 .postProcess(m -> new SageSomaticPostProcess(m.tumor().sampleName(), resourceFiles))
+                .jobDefinition(VirtualMachineJobDefinition::sageSomaticCalling)
                 .build();
     }
 }

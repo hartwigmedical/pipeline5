@@ -44,7 +44,7 @@ public class Amber extends TertiaryStage<AmberOutput> {
     }
 
     @Override
-    public List<BashCommand> tumorNormalCommands(final SomaticRunMetadata metadata) {
+    public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) {
         return List.of(AmberCommandBuilder.newBuilder(resourceFiles)
                 .tumor(metadata.tumor().sampleName(), getTumorBamDownload().getLocalTargetPath())
                 .reference(metadata.reference().sampleName(), getReferenceBamDownload().getLocalTargetPath())

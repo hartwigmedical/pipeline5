@@ -11,6 +11,7 @@ public class ModeAwareMetadataApi implements SomaticMetadataApi {
 
     private final SomaticMetadataApi decorated;
     private final ModeResolver resolver;
+    private InputMode mode;
 
     private ModeAwareMetadataApi(final SomaticMetadataApi decorated, final ModeResolver resolver) {
         this.decorated = decorated;
@@ -24,8 +25,10 @@ public class ModeAwareMetadataApi implements SomaticMetadataApi {
     @Override
     public SomaticRunMetadata get() {
         final SomaticRunMetadata metadata = decorated.get();
-        final InputMode mode = resolver.apply(metadata);
-        LOGGER.info("Resolved sample input mode [{}]", mode);
+        if (mode == null) {
+            mode = resolver.apply(metadata);
+            LOGGER.info("Resolved sample input mode [{}]", mode);
+        }
         return ImmutableSomaticRunMetadata.builder().from(metadata).mode(mode).build();
     }
 
