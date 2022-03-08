@@ -2,16 +2,11 @@ package com.hartwig.pipeline.smoke;
 
 import static java.lang.String.format;
 
-import static com.hartwig.pipeline.testsupport.Assertions.assertThatOutput;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -29,13 +24,13 @@ import com.hartwig.pipeline.storage.StorageProvider;
 import com.hartwig.pipeline.testsupport.Resources;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 
 @RunWith(Parallelized.class)
 @Category(value = IntegrationTest.class)
@@ -44,7 +39,6 @@ public class SmokeTest {
     private static final String FILE_ENCODING = "UTF-8";
     private static final String STAGED_FLAG_FILE = "STAGED";
     private static final String CLOUD_SDK_PATH = "/root/google-cloud-sdk/bin";
-    private static final int MAX_LENGTH_FOR_GCP = 14;
     private File resultsDir;
 
     @Before
@@ -76,14 +70,15 @@ public class SmokeTest {
 
     public void runFullPipelineAndCheckFinalStatus(final String inputMode, final PipelineStatus expectedStatus) throws Exception {
         PipelineMain victim = new PipelineMain();
-        String version = noDots(version(inputMode));
-        String setName = inputMode + "-" + version;
+        String version = version();
+        String setName = noDots(inputMode + "-" + version);
         final String fixtureDir = "smoke_test/" + inputMode + "/";
+        final String randomRunId = noDots(RandomStringUtils.random(5, true, false));
         final ImmutableArguments.Builder builder = Arguments.defaultsBuilder(Arguments.DefaultsProfile.DEVELOPMENT.toString())
                 .sampleJson(Resources.testResource(fixtureDir + "samples.json"))
                 .cloudSdkPath(CLOUD_SDK_PATH)
-                .setId(inputMode)
-                .runId(version)
+                .setId(setName)
+                .runId(randomRunId)
                 .runGermlineCaller(false)
                 .cleanup(true)
                 .outputBucket("smoketest-pipeline-output-pilot-1")
@@ -107,18 +102,19 @@ public class SmokeTest {
 
         File expectedFilesResource = new File(Resources.testResource(fixtureDir + "expected_output_files"));
         List<String> expectedFiles = FileUtils.readLines(expectedFilesResource, FILE_ENCODING);
-        List<String> actualFiles = listOutput(setName, arguments.outputBucket(), storage);
+        final String outputDir = setName + "-" + randomRunId;
+        List<String> actualFiles = listOutput(outputDir, arguments.outputBucket(), storage);
         assertThat(actualFiles).containsOnlyElementsOf(expectedFiles);
-        cleanupBucket(setName, arguments.outputBucket(), storage);
+        cleanupBucket(outputDir, arguments.outputBucket(), storage);
     }
 
     @NotNull
-    private String version(final String inputMode) {
+    private String version() {
         String version = System.getProperty("version");
         if (version.equals("local-SNAPSHOT")) {
-            version = System.getProperty("user.name") + "-" + inputMode;
+            version = System.getProperty("user.name");
         }
-        return version.length() > MAX_LENGTH_FOR_GCP ? version.substring(0, MAX_LENGTH_FOR_GCP) : version;
+        return version;
     }
 
     private List<String> listOutput(final String setName, final String archiveBucket, final Storage storage) {

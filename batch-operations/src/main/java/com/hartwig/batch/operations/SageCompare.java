@@ -6,7 +6,7 @@ import static com.hartwig.batch.api.RemoteLocationsApi.CRAM_FILENAME;
 import static com.hartwig.batch.api.RemoteLocationsApi.CRAM_FULL_PATH;
 import static com.hartwig.batch.api.RemoteLocationsApi.getCramFileData;
 import static com.hartwig.batch.operations.BatchCommon.BATCH_TOOLS_BUCKET;
-import static com.hartwig.batch.operations.SageRerun.cramToBam;
+import static com.hartwig.batch.operations.SageRerunOld.cramToBam;
 import static com.hartwig.pipeline.execution.vm.VirtualMachinePerformanceProfile.custom;
 
 import java.util.StringJoiner;
@@ -31,7 +31,7 @@ import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tools.Versions;
 
-public class SageRerun2 implements BatchOperation {
+public class SageCompare implements BatchOperation {
 
     private static final String SAGE_DIR = "sage";
     private static final String SAGE_JAR = "sage.jar";
@@ -172,6 +172,6 @@ public class SageRerun2 implements BatchOperation {
 
     @Override
     public OperationDescriptor descriptor() {
-        return OperationDescriptor.of("SageRerun2", "Sage new vs old", OperationDescriptor.InputType.FLAT);
+        return OperationDescriptor.of("SageCompare", "Sage new vs old", OperationDescriptor.InputType.FLAT);
     }
 }

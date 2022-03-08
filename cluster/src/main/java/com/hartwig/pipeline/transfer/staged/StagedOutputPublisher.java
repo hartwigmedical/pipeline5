@@ -11,8 +11,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.cloud.pubsub.v1.Publisher;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
-import com.hartwig.api.SetApi;
-import com.hartwig.api.helpers.OnlyOne;
 import com.hartwig.api.model.Run;
 import com.hartwig.api.model.SampleSet;
 import com.hartwig.events.Analysis;
@@ -45,7 +43,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class StagedOutputPublisher {
 
-    private final SetApi setApi;
+    private final SetResolver setResolver;
     private final Bucket sourceBucket;
     private final Publisher publisher;
     private final ObjectMapper objectMapper;
@@ -54,9 +52,9 @@ public class StagedOutputPublisher {
     private final boolean stageCrams;
     private final boolean useOnlyDBSets;
 
-    public StagedOutputPublisher(final SetApi setApi, final Bucket sourceBucket, final Publisher publisher, final ObjectMapper objectMapper,
+    public StagedOutputPublisher(final SetResolver setResolver, final Bucket sourceBucket, final Publisher publisher, final ObjectMapper objectMapper,
             final Optional<Run> run, final Pipeline.Context target, final boolean stageCrams, final boolean useOnlyDBSets) {
-        this.setApi = setApi;
+        this.setResolver = setResolver;
         this.sourceBucket = sourceBucket;
         this.publisher = publisher;
         this.objectMapper = objectMapper;
@@ -70,7 +68,7 @@ public class StagedOutputPublisher {
         if (state.status() != PipelineStatus.FAILED && run.isPresent()) {
             List<AddDatatype> addDatatypes =
                     state.stageOutputs().stream().map(StageOutput::datatypes).flatMap(List::stream).collect(Collectors.toList());
-            SampleSet set = OnlyOne.of(setApi.list(metadata.set(), null, useOnlyDBSets ? true : null), SampleSet.class);
+            SampleSet set = setResolver.resolve(metadata.set(), useOnlyDBSets);
             Optional<String> tumorSampleName = metadata.maybeTumor().map(SingleSampleRunMetadata::sampleName);
             Optional<String> refSampleName = metadata.maybeReference().map(SingleSampleRunMetadata::sampleName);
             ImmutableAnalysis.Builder alignedReadsAnalysis = eventBuilder(Type.ALIGNMENT);
@@ -117,7 +115,7 @@ public class StagedOutputPublisher {
     }
 
     @NotNull
-    public ImmutableAnalysis.Builder eventBuilder(final Analysis.Type secondary) {
+    private ImmutableAnalysis.Builder eventBuilder(final Analysis.Type secondary) {
         return ImmutableAnalysis.builder().molecule(Molecule.DNA).type(secondary);
     }
 

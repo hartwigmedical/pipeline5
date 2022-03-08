@@ -71,7 +71,7 @@ public class SageCreatePonData implements BatchOperation {
         // Store output
         startupScript.addCommand(new OutputUpload(GoogleStorageLocation.of(runtimeBucket.name(), "sage"), executionFlags));
 
-        return VirtualMachineJobDefinition.sageGermlineCalling(startupScript, ResultsDirectory.defaultDirectory());
+        return VirtualMachineJobDefinition.sageSomaticCalling(startupScript, ResultsDirectory.defaultDirectory());
     }
 
     private List<BashCommand> cramToBam(String cram) {
