@@ -1,4 +1,4 @@
-package com.hartwig.pipeline.calling.structural;
+package com.hartwig.pipeline.calling.structural.gridss;
 
 import java.util.Optional;
 
@@ -8,11 +8,11 @@ import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import org.immutables.value.Value;
 
 @Value.Immutable
-public interface StructuralCallerOutput extends StageOutput {
+public interface GridssOutput extends StageOutput {
 
     @Override
     default String name() {
-        return StructuralCaller.NAMESPACE;
+        return Gridss.NAMESPACE;
     }
 
     Optional<GoogleStorageLocation> maybeUnfilteredVcf();
@@ -23,7 +23,7 @@ public interface StructuralCallerOutput extends StageOutput {
         return maybeUnfilteredVcf().orElse(GoogleStorageLocation.empty());
     }
 
-    static ImmutableStructuralCallerOutput.Builder builder() {
-        return ImmutableStructuralCallerOutput.builder();
+    static ImmutableGridssOutput.Builder builder() {
+        return ImmutableGridssOutput.builder();
     }
 }

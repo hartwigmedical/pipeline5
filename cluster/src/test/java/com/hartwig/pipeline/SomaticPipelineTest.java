@@ -43,9 +43,9 @@ import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.hartwig.pipeline.calling.sage.SageConfiguration;
 import com.hartwig.pipeline.calling.sage.SageOutput;
+import com.hartwig.pipeline.calling.structural.gridss.GridssOutput;
 import com.hartwig.pipeline.calling.structural.gripss.GripssOutput;
-import com.hartwig.pipeline.calling.structural.StructuralCaller;
-import com.hartwig.pipeline.calling.structural.StructuralCallerOutput;
+import com.hartwig.pipeline.calling.structural.gridss.Gridss;
 import com.hartwig.pipeline.calling.structural.gripss.GripssSomaticOutput;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
@@ -67,7 +67,7 @@ public class SomaticPipelineTest {
 
     private static final Arguments ARGUMENTS = Arguments.testDefaults();
     private SomaticPipeline victim;
-    private StructuralCaller structuralCaller;
+    private Gridss gridss;
     private StageRunner<SomaticRunMetadata> stageRunner;
     private BlockingQueue<BamMetricsOutput> referenceMetricsOutputQueue = new ArrayBlockingQueue<>(1);
     private BlockingQueue<BamMetricsOutput> tumorMetricsOutputQueue = new ArrayBlockingQueue<>(1);
@@ -78,7 +78,7 @@ public class SomaticPipelineTest {
     @SuppressWarnings("unchecked")
     @Before
     public void setUp() throws Exception {
-        structuralCaller = mock(StructuralCaller.class);
+        gridss = mock(Gridss.class);
         Storage storage = mock(Storage.class);
         Bucket reportBucket = mock(Bucket.class);
         when(storage.get(ARGUMENTS.outputBucket())).thenReturn(reportBucket);
@@ -146,7 +146,7 @@ public class SomaticPipelineTest {
     public void doesNotRunPurpleIfSvCallerFails() {
         bothMetricsAvailable();
         bothFlagstatsAvailable();
-        StructuralCallerOutput failSvOutput = StructuralCallerOutput.builder().status(PipelineStatus.FAILED).build();
+        GridssOutput failSvOutput = GridssOutput.builder().status(PipelineStatus.FAILED).build();
         when(stageRunner.run(eq(defaultSomaticRunMetadata()), any())).thenReturn(amberOutput())
                 .thenReturn(cobaltOutput())
                 .thenReturn(sageSomaticOutput())
@@ -260,7 +260,7 @@ public class SomaticPipelineTest {
                 Executors.newSingleThreadExecutor(),
                 new NoopPersistedDataset());
         victim.run(TestInputs.defaultPair());
-        verifyZeroInteractions(stageRunner, structuralCaller);
+        verifyZeroInteractions(stageRunner, gridss);
     }
 
     private void successfulRun() {

@@ -14,8 +14,8 @@ import com.hartwig.pipeline.calling.sage.SageOutput;
 import com.hartwig.pipeline.calling.sage.SageSomaticCaller;
 import com.hartwig.pipeline.calling.structural.gripss.GripssGermline;
 import com.hartwig.pipeline.calling.structural.gripss.GripssGermlineOutput;
-import com.hartwig.pipeline.calling.structural.StructuralCaller;
-import com.hartwig.pipeline.calling.structural.StructuralCallerOutput;
+import com.hartwig.pipeline.calling.structural.gridss.Gridss;
+import com.hartwig.pipeline.calling.structural.gridss.GridssOutput;
 import com.hartwig.pipeline.calling.structural.gripss.GripssSomatic;
 import com.hartwig.pipeline.calling.structural.gripss.GripssSomaticOutput;
 import com.hartwig.pipeline.execution.PipelineStatus;
@@ -108,8 +108,8 @@ public class SomaticPipeline {
                     new SageSomaticCaller(pair, persistedDataset, resourceFiles, arguments.shallow())));
             Future<SageOutput> sageGermlineOutputFuture =
                     executorService.submit(() -> stageRunner.run(metadata, new SageGermlineCaller(pair, persistedDataset, resourceFiles)));
-            Future<StructuralCallerOutput> structuralCallerOutputFuture =
-                    executorService.submit(() -> stageRunner.run(metadata, new StructuralCaller(pair, resourceFiles, persistedDataset)));
+            Future<GridssOutput> structuralCallerOutputFuture =
+                    executorService.submit(() -> stageRunner.run(metadata, new Gridss(pair, resourceFiles, persistedDataset)));
 
             SageOutput sageSomaticOutput = pipelineResults.add(state.add(sageSomaticOutputFuture.get()));
             SageOutput sageGermlineOutput = pipelineResults.add(state.add(sageGermlineOutputFuture.get()));
@@ -117,7 +117,7 @@ public class SomaticPipeline {
             AmberOutput amberOutput = pipelineResults.add(state.add(amberOutputFuture.get()));
             CobaltOutput cobaltOutput = pipelineResults.add(state.add(cobaltOutputFuture.get()));
 
-            StructuralCallerOutput structuralCallerOutput = pipelineResults.add(state.add(structuralCallerOutputFuture.get()));
+            GridssOutput gridssOutput = pipelineResults.add(state.add(structuralCallerOutputFuture.get()));
 
             if (state.shouldProceed()) {
 
@@ -129,9 +129,9 @@ public class SomaticPipeline {
                 PaveOutput paveGermlineOutput = pipelineResults.add(state.add(paveGermlineOutputFuture.get()));
 
                 Future<GripssSomaticOutput> gripssSomaticOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
-                        new GripssSomatic(resourceFiles, structuralCallerOutput, persistedDataset)));
+                        new GripssSomatic(resourceFiles, gridssOutput, persistedDataset)));
                 Future<GripssGermlineOutput> gripssGermlineOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
-                        new GripssGermline(resourceFiles, structuralCallerOutput, persistedDataset)));
+                        new GripssGermline(resourceFiles, gridssOutput, persistedDataset)));
                 GripssSomaticOutput gripssSomaticProcessOutput = pipelineResults.add(state.add(gripssSomaticOutputFuture.get()));
                 GripssGermlineOutput gripssGermlineProcessOutput = pipelineResults.add(state.add(gripssGermlineOutputFuture.get()));
 
