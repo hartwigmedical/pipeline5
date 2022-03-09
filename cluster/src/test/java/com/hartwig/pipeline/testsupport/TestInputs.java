@@ -12,11 +12,9 @@ import com.hartwig.pipeline.calling.germline.GermlineCallerOutput;
 import com.hartwig.pipeline.calling.sage.SageCaller;
 import com.hartwig.pipeline.calling.sage.SageConfiguration;
 import com.hartwig.pipeline.calling.sage.SageOutput;
-import com.hartwig.pipeline.calling.structural.StructuralCaller;
-import com.hartwig.pipeline.calling.structural.StructuralCallerOutput;
+import com.hartwig.pipeline.calling.structural.gridss.Gridss;
+import com.hartwig.pipeline.calling.structural.gridss.GridssOutput;
 import com.hartwig.pipeline.calling.structural.gripss.GripssConfiguration;
-import com.hartwig.pipeline.calling.structural.gripss.GripssGermline;
-import com.hartwig.pipeline.calling.structural.gripss.Gripss;
 import com.hartwig.pipeline.calling.structural.gripss.GripssOutput;
 import com.hartwig.pipeline.cram.CramOutput;
 import com.hartwig.pipeline.datatypes.FileTypes;
@@ -242,13 +240,13 @@ public class TestInputs {
                 .build();
     }
 
-    public static StructuralCallerOutput structuralCallerOutput() {
+    public static GridssOutput structuralCallerOutput() {
         String unfiltered = ".gridss.unfiltered.";
-        return StructuralCallerOutput.builder()
+        return GridssOutput.builder()
                 .status(PipelineStatus.SUCCESS)
-                .maybeUnfilteredVcf(gsLocation(somaticBucket(StructuralCaller.NAMESPACE),
+                .maybeUnfilteredVcf(gsLocation(somaticBucket(Gridss.NAMESPACE),
                         RESULTS + TUMOR_SAMPLE + unfiltered + FileTypes.GZIPPED_VCF))
-                .maybeUnfilteredVcfIndex(gsLocation(somaticBucket(StructuralCaller.NAMESPACE),
+                .maybeUnfilteredVcfIndex(gsLocation(somaticBucket(Gridss.NAMESPACE),
                         RESULTS + TUMOR_SAMPLE + unfiltered + FileTypes.GZIPPED_VCF + ".tbi"))
                 .build();
     }

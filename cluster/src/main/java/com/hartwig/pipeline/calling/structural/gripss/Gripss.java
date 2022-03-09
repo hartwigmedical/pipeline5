@@ -7,7 +7,7 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
 import com.hartwig.pipeline.ResultsDirectory;
-import com.hartwig.pipeline.calling.structural.StructuralCallerOutput;
+import com.hartwig.pipeline.calling.structural.gridss.GridssOutput;
 import com.hartwig.pipeline.datatypes.FileTypes;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.execution.vm.BashCommand;
@@ -39,10 +39,9 @@ public class Gripss implements Stage<GripssOutput, SomaticRunMetadata> {
     private String filteredVcf;
     private final GripssConfiguration gripssConfiguration;
 
-    public Gripss(final StructuralCallerOutput structuralCallerOutput, final PersistedDataset persistedDataset,
-            final GripssConfiguration gripssConfiguration) {
-        this.gridssVcf = new InputDownload(structuralCallerOutput.unfilteredVariants());
-        this.gridssVcfIndex = new InputDownload(structuralCallerOutput.unfilteredVariants().transform(FileTypes::tabixIndex));
+    public Gripss(final GridssOutput gridssOutput, final PersistedDataset persistedDataset, final GripssConfiguration gripssConfiguration) {
+        this.gridssVcf = new InputDownload(gridssOutput.unfilteredVariants());
+        this.gridssVcfIndex = new InputDownload(gridssOutput.unfilteredVariants().transform(FileTypes::tabixIndex));
         this.persistedDataset = persistedDataset;
         this.gripssConfiguration = gripssConfiguration;
     }
@@ -59,6 +58,21 @@ public class Gripss implements Stage<GripssOutput, SomaticRunMetadata> {
 
     @Override
     public List<BashCommand> tumorReferenceCommands(final SomaticRunMetadata metadata) {
+        return gripssCommands(metadata);
+    }
+
+    @Override
+    public List<BashCommand> tumorOnlyCommands(final SomaticRunMetadata metadata) {
+        return gripssCommands(metadata);
+    }
+
+    @Override
+    public List<BashCommand> referenceOnlyCommands(final SomaticRunMetadata metadata) {
+        return gripssCommands(metadata);
+    }
+
+    @NotNull
+    private List<BashCommand> gripssCommands(final SomaticRunMetadata metadata) {
         setFields(metadata);
         return Collections.singletonList(gripssConfiguration.commandBuilder()
                 .apply(metadata)

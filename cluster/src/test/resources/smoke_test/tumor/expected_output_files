@@ -50,5 +50,11 @@ gridss/CPCT12345678T.gridss.unfiltered.vcf.gz
 gridss/CPCT12345678T.gridss.unfiltered.vcf.gz.tbi
 gridss/run.log
 gridss/run.sh
+gripss_somatic/CPCT12345678T.gripss.filtered.somatic.vcf.gz
+gripss_somatic/CPCT12345678T.gripss.filtered.somatic.vcf.gz.tbi
+gripss_somatic/CPCT12345678T.gripss.somatic.vcf.gz
+gripss_somatic/CPCT12345678T.gripss.somatic.vcf.gz.tbi
+gripss_somatic/run.log
+gripss_somatic/run.sh
 metadata.json
 pipeline.version
