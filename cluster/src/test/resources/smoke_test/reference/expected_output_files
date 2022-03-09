@@ -41,5 +41,11 @@ gridss/CPCT12345678R.gridss.unfiltered.vcf.gz
 gridss/CPCT12345678R.gridss.unfiltered.vcf.gz.tbi
 gridss/run.log
 gridss/run.sh
+gripss_germline/CPCT12345678R.gripss.filtered.germline.vcf.gz
+gripss_germline/CPCT12345678R.gripss.filtered.germline.vcf.gz.tbi
+gripss_germline/CPCT12345678R.gripss.germline.vcf.gz
+gripss_germline/CPCT12345678R.gripss.germline.vcf.gz.tbi
+gripss_germline/run.log
+gripss_germline/run.sh"
 metadata.json
 pipeline.version

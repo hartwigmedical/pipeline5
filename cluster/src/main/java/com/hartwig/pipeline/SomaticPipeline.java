@@ -12,12 +12,11 @@ import com.hartwig.pipeline.alignment.AlignmentPair;
 import com.hartwig.pipeline.calling.sage.SageGermlineCaller;
 import com.hartwig.pipeline.calling.sage.SageOutput;
 import com.hartwig.pipeline.calling.sage.SageSomaticCaller;
-import com.hartwig.pipeline.calling.structural.gripss.GripssGermline;
-import com.hartwig.pipeline.calling.structural.gripss.GripssGermlineOutput;
 import com.hartwig.pipeline.calling.structural.gridss.Gridss;
 import com.hartwig.pipeline.calling.structural.gridss.GridssOutput;
+import com.hartwig.pipeline.calling.structural.gripss.GripssGermline;
+import com.hartwig.pipeline.calling.structural.gripss.GripssOutput;
 import com.hartwig.pipeline.calling.structural.gripss.GripssSomatic;
-import com.hartwig.pipeline.calling.structural.gripss.GripssSomaticOutput;
 import com.hartwig.pipeline.execution.PipelineStatus;
 import com.hartwig.pipeline.flagstat.FlagstatOutput;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
@@ -36,12 +35,12 @@ import com.hartwig.pipeline.tertiary.cuppa.Cuppa;
 import com.hartwig.pipeline.tertiary.cuppa.CuppaOutput;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthCheckOutput;
 import com.hartwig.pipeline.tertiary.healthcheck.HealthChecker;
-import com.hartwig.pipeline.tertiary.linx.LinxSomatic;
-import com.hartwig.pipeline.tertiary.linx.LinxGermline;
-import com.hartwig.pipeline.tertiary.linx.LinxGermlineOutput;
-import com.hartwig.pipeline.tertiary.linx.LinxSomaticOutput;
 import com.hartwig.pipeline.tertiary.lilac.Lilac;
 import com.hartwig.pipeline.tertiary.lilac.LilacOutput;
+import com.hartwig.pipeline.tertiary.linx.LinxGermline;
+import com.hartwig.pipeline.tertiary.linx.LinxGermlineOutput;
+import com.hartwig.pipeline.tertiary.linx.LinxSomatic;
+import com.hartwig.pipeline.tertiary.linx.LinxSomaticOutput;
 import com.hartwig.pipeline.tertiary.orange.Orange;
 import com.hartwig.pipeline.tertiary.orange.OrangeOutput;
 import com.hartwig.pipeline.tertiary.pave.PaveGermline;
@@ -117,7 +116,7 @@ public class SomaticPipeline {
             AmberOutput amberOutput = pipelineResults.add(state.add(amberOutputFuture.get()));
             CobaltOutput cobaltOutput = pipelineResults.add(state.add(cobaltOutputFuture.get()));
 
-            GridssOutput gridssOutput = pipelineResults.add(state.add(structuralCallerOutputFuture.get()));
+            GridssOutput structuralCallerOutput = pipelineResults.add(state.add(structuralCallerOutputFuture.get()));
 
             if (state.shouldProceed()) {
 
@@ -128,12 +127,12 @@ public class SomaticPipeline {
                 PaveOutput paveSomaticOutput = pipelineResults.add(state.add(paveSomaticOutputFuture.get()));
                 PaveOutput paveGermlineOutput = pipelineResults.add(state.add(paveGermlineOutputFuture.get()));
 
-                Future<GripssSomaticOutput> gripssSomaticOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
-                        new GripssSomatic(resourceFiles, gridssOutput, persistedDataset)));
-                Future<GripssGermlineOutput> gripssGermlineOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
-                        new GripssGermline(resourceFiles, gridssOutput, persistedDataset)));
-                GripssSomaticOutput gripssSomaticProcessOutput = pipelineResults.add(state.add(gripssSomaticOutputFuture.get()));
-                GripssGermlineOutput gripssGermlineProcessOutput = pipelineResults.add(state.add(gripssGermlineOutputFuture.get()));
+                Future<GripssOutput> gripssSomaticOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
+                        new GripssSomatic(structuralCallerOutput, persistedDataset, resourceFiles)));
+                Future<GripssOutput> gripssGermlineOutputFuture = executorService.submit(() -> stageRunner.run(metadata,
+                        new GripssGermline(structuralCallerOutput, persistedDataset, resourceFiles)));
+                GripssOutput gripssSomaticProcessOutput = pipelineResults.add(state.add(gripssSomaticOutputFuture.get()));
+                GripssOutput gripssGermlineProcessOutput = pipelineResults.add(state.add(gripssGermlineOutputFuture.get()));
 
                 if (state.shouldProceed()) {
                     Future<PurpleOutput> purpleOutputFuture = executorService.submit(() -> pipelineResults.add(state.add(stageRunner.run(
