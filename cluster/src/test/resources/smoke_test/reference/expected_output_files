@@ -46,6 +46,6 @@ gripss_germline/CPCT12345678R.gripss.filtered.germline.vcf.gz.tbi
 gripss_germline/CPCT12345678R.gripss.germline.vcf.gz
 gripss_germline/CPCT12345678R.gripss.germline.vcf.gz.tbi
 gripss_germline/run.log
-gripss_germline/run.sh"
+gripss_germline/run.sh
 metadata.json
 pipeline.version
