@@ -10,6 +10,7 @@ steps:
     entrypoint: mvn
     args: [ 'versions:set', '-DnewVersion=${_MAJOR_MINOR_VERSION}.$SHORT_SHA' ]
   - name: hartwigmedicalfoundation/docker-mvn-gcloud:3-jdk-11
+    id: Install artifacts in local Maven repository
     entrypoint: mvn
     timeout: 2400s
     args:
@@ -18,6 +19,7 @@ steps:
     env:
       - RCLONE_CONFIG=/workspace/cluster/src/test/resources/smoke_test/rclone.conf
   - name: hartwigmedicalfoundation/docker-mvn-gcloud:3-jdk-11
+    id: Deploy batch framework JAR
     entrypoint: mvn
     dir: batch
     args:
