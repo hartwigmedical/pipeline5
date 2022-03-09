@@ -49,6 +49,25 @@ public class SageCreatePon implements BatchOperation {
                 "gs://batch-sage/*/sage/*.sage.somatic.vcf.gz.tbi",
                 VmDirectories.INPUT));
 
+        /* from the pipeline pon mode:
+
+                if (ponMode) {
+            arguments.add("-hotspots").add(resourceFiles.sageSomaticHotspots());
+            arguments.add("-panel_bed").add(resourceFiles.sageSomaticCodingPanel());
+
+            if (tumorSamples > 1) {
+                throw new IllegalStateException("PON mode only supports one sample");
+            }
+
+            arguments.add("-hard_filter_enabled true")
+                    .add("-soft_filter_enabled false")
+                    .add("-hard_min_tumor_qual 0")
+                    .add("-hard_min_tumor_raw_alt_support 3")
+                    .add("-hard_min_tumor_raw_base_quality 30");
+        }
+
+        */
+
         // Run Pon Generator
         startupScript.addCommand(sageCommand);
 

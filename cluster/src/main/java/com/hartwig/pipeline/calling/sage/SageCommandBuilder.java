@@ -17,10 +17,9 @@ public class SageCommandBuilder {
     private final List<String> tumorBam = Lists.newArrayList();
     private final List<String> referenceBam = Lists.newArrayList();
 
-    private String maxHeap = "110G";
+    private String maxHeap = "60G";
     private boolean coverage = false;
     private boolean panelOnly = false;
-    private boolean ponMode = false;
     private boolean somaticMode = true;
     private boolean germlineMode = false;
     private boolean shallowSomaticMode = false;
@@ -69,11 +68,6 @@ public class SageCommandBuilder {
     public SageCommandBuilder shallowMode(final boolean enabled) {
         this.shallowSomaticMode = enabled;
         return this;
-    }
-
-    public SageCommandBuilder ponMode(String sample, String bamFile) {
-        ponMode = true;
-        return addTumor(sample, bamFile);
     }
 
     public SageCommandBuilder maxHeap(String maxHeap) {
@@ -142,22 +136,29 @@ public class SageCommandBuilder {
         if (somaticMode) {
             final String tumorBamFiles = String.join(",", tumorBam);
             arguments.add("-tumor").add(tumor.toString()).add("-tumor_bam").add(tumorBamFiles);
+
             if (reference.length() > 0) {
                 final String referenceBamFiles = String.join(",", referenceBam);
                 arguments.add("-reference").add(reference.toString()).add("-reference_bam").add(referenceBamFiles);
             }
+
             arguments.add("-hotspots").add(resourceFiles.sageSomaticHotspots());
             arguments.add("-panel_bed").add(resourceFiles.sageSomaticCodingPanel());
+
             if (shallowSomaticMode) {
                 arguments.add("-hotspot_min_tumor_qual").add("40");
             }
+
         } else if (germlineMode) {
+
             final String referenceBamFiles = String.join(",", referenceBam);
             arguments.add("-tumor").add(reference.toString()).add("-tumor_bam").add(referenceBamFiles);
+
             if (tumor.length() > 0) {
                 final String tumorBamFiles = String.join(",", tumorBam);
                 arguments.add("-reference").add(tumor.toString()).add("-reference_bam").add(tumorBamFiles);
             }
+
             arguments.add("-hotspots").add(resourceFiles.sageGermlineHotspots());
             arguments.add("-panel_bed").add(resourceFiles.sageGermlineCodingPanel());
             arguments.add("-hotspot_min_tumor_qual").add("50");
@@ -168,12 +169,6 @@ public class SageCommandBuilder {
             arguments.add("-panel_max_germline_rel_raw_base_qual").add("100");
             arguments.add("-mnv_filter_enabled").add("false");
         }
-
-        arguments.add("-high_confidence_bed").add(resourceFiles.giabHighConfidenceBed());
-        arguments.add("-ref_genome").add(resourceFiles.refGenomeFile());
-        arguments.add("-out").add(outputVcf);
-        arguments.add("-assembly").add(resourceFiles.version().sage());
-        arguments.add("-threads").add(Bash.allCpus());
 
         if (panelOnly) {
             arguments.add("-panel_only");
@@ -188,20 +183,12 @@ public class SageCommandBuilder {
             }
         }
 
-        if (ponMode) {
-            arguments.add("-hotspots").add(resourceFiles.sageSomaticHotspots());
-            arguments.add("-panel_bed").add(resourceFiles.sageSomaticCodingPanel());
-
-            if (tumorSamples > 1) {
-                throw new IllegalStateException("PON mode only supports one sample");
-            }
-
-            arguments.add("-hard_filter_enabled true")
-                    .add("-soft_filter_enabled false")
-                    .add("-hard_min_tumor_qual 0")
-                    .add("-hard_min_tumor_raw_alt_support 3")
-                    .add("-hard_min_tumor_raw_base_quality 30");
-        }
+        arguments.add("-high_confidence_bed").add(resourceFiles.giabHighConfidenceBed());
+        arguments.add("-ref_genome").add(resourceFiles.refGenomeFile());
+        arguments.add("-ref_genome_version").add(resourceFiles.version().toString());
+        arguments.add("-ensembl_data_dir").add(resourceFiles.ensemblDataCache());
+        arguments.add("-out").add(outputVcf);
+        arguments.add("-threads").add(Bash.allCpus());
 
         return new SageCommand("com.hartwig.hmftools.sage.SageApplication", maxHeap, arguments.toString());
     }
