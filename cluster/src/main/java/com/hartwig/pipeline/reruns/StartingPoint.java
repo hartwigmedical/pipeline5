@@ -22,6 +22,8 @@ import com.hartwig.pipeline.snpgenotype.SnpGenotype;
 import com.hartwig.pipeline.tertiary.amber.Amber;
 import com.hartwig.pipeline.tertiary.cobalt.Cobalt;
 import com.hartwig.pipeline.tertiary.purple.Purple;
+import com.hartwig.pipeline.tertiary.virus.VirusAnalysis;
+import com.hartwig.pipeline.tertiary.virus.VirusBreakend;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -39,13 +41,15 @@ public class StartingPoint {
         CRAM_COMPLETE(concat(ALIGNMENT_COMPLETE.namespaces, List.of(CramConversion.NAMESPACE))),
         CALLING_COMPLETE(concat(CRAM_COMPLETE.namespaces,
                 List.of(SageSomaticCaller.NAMESPACE,
+                        SageGermlineCaller.NAMESPACE,
                         GermlineCaller.NAMESPACE,
                         StructuralCaller.NAMESPACE,
                         Cobalt.NAMESPACE,
                         Amber.NAMESPACE,
                         SageGermlineCaller.NAMESPACE))),
         GRIPSS_COMPLETE(concat(CALLING_COMPLETE.namespaces, List.of(GripssSomatic.NAMESPACE, GripssGermline.NAMESPACE))),
-        PURPLE_COMPLETE(concat(GRIPSS_COMPLETE.namespaces, List.of(Purple.NAMESPACE)));
+        PURPLE_COMPLETE(concat(GRIPSS_COMPLETE.namespaces, List.of(Purple.NAMESPACE))),
+        RERUN_527(concat(PURPLE_COMPLETE.namespaces, List.of(VirusAnalysis.NAMESPACE)));
 
         private final List<String> namespaces;
 
