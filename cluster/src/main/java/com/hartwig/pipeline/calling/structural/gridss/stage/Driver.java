@@ -87,6 +87,10 @@ public class Driver extends SubStage {
 
         @Override
         public int compareTo(@NotNull final Driver.SampleArgument o) {
+            return referenceFirst(o);
+        }
+
+        private int referenceFirst(final SampleArgument o) {
             return this.type.compareTo(o.type);
         }
     }

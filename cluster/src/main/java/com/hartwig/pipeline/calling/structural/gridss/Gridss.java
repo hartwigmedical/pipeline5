@@ -38,8 +38,6 @@ import com.hartwig.pipeline.storage.GoogleStorageLocation;
 import com.hartwig.pipeline.storage.RuntimeBucket;
 import com.hartwig.pipeline.tertiary.TertiaryStage;
 
-import org.jetbrains.annotations.NotNull;
-
 public class Gridss extends TertiaryStage<GridssOutput> {
     public static final String NAMESPACE = "gridss";
 
@@ -64,7 +62,7 @@ public class Gridss extends TertiaryStage<GridssOutput> {
         String tumorBamPath = getTumorBamDownload().getLocalTargetPath();
         Driver driver = new Driver(resourceFiles, VmDirectories.outputFile(tumorSampleName + ".assembly.bam")).tumorSample(tumorSampleName,
                 tumorBamPath);
-        return gridssCommands(metadata, driver, tumorSampleName);
+        return gridssCommands(driver, tumorSampleName);
     }
 
     @Override
@@ -74,7 +72,7 @@ public class Gridss extends TertiaryStage<GridssOutput> {
         Driver driver = new Driver(resourceFiles, VmDirectories.outputFile(referenceSampleName + ".assembly.bam")).referenceSample(
                 referenceSampleName,
                 refBamPath);
-        return gridssCommands(metadata, driver, referenceSampleName);
+        return gridssCommands(driver, referenceSampleName);
     }
 
     @Override
@@ -83,14 +81,12 @@ public class Gridss extends TertiaryStage<GridssOutput> {
         String tumorSampleName = metadata.tumor().sampleName();
         String refBamPath = getReferenceBamDownload().getLocalTargetPath();
         String tumorBamPath = getTumorBamDownload().getLocalTargetPath();
-        return gridssCommands(metadata,
-                new Driver(resourceFiles, VmDirectories.outputFile(tumorSampleName + ".assembly.bam")).tumorSample(tumorSampleName,
-                        tumorBamPath).referenceSample(referenceSampleName, refBamPath),
-                tumorSampleName);
+        return gridssCommands(new Driver(resourceFiles, VmDirectories.outputFile(tumorSampleName + ".assembly.bam")).tumorSample(
+                tumorSampleName,
+                tumorBamPath).referenceSample(referenceSampleName, refBamPath), tumorSampleName);
     }
 
-    @NotNull
-    private List<BashCommand> gridssCommands(final SomaticRunMetadata metadata, final Driver driver, final String sampleName) {
+    private List<BashCommand> gridssCommands(final Driver driver, final String sampleName) {
         SubStageInputOutput unfilteredVcfOutput = driver.andThen(new RepeatMasker())
                 .andThen(new GridssAnnotation(resourceFiles, false))
                 .apply(SubStageInputOutput.empty(sampleName));
