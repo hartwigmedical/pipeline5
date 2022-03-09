@@ -11,6 +11,8 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import com.hartwig.pipeline.Arguments;
+import com.hartwig.pipeline.calling.structural.gridss.Gridss;
+import com.hartwig.pipeline.calling.structural.gridss.GridssOutput;
 import com.hartwig.pipeline.datatypes.DataType;
 import com.hartwig.pipeline.metadata.SomaticRunMetadata;
 import com.hartwig.pipeline.stages.Stage;
@@ -20,7 +22,7 @@ import com.hartwig.pipeline.testsupport.TestInputs;
 
 import org.junit.Before;
 
-public class StructuralCallerTest extends StageTest<StructuralCallerOutput, SomaticRunMetadata> {
+public class GridssTest extends StageTest<GridssOutput, SomaticRunMetadata> {
     private static final String TUMOR_GRIDSS_UNFILTERED_VCF_GZ = "tumor.gridss.unfiltered.vcf.gz";
     private static final String GRIDSS = "gridss/";
 
@@ -36,8 +38,8 @@ public class StructuralCallerTest extends StageTest<StructuralCallerOutput, Soma
     }
 
     @Override
-    protected Stage<StructuralCallerOutput, SomaticRunMetadata> createVictim() {
-        return new StructuralCaller(TestInputs.defaultPair(), TestInputs.REF_GENOME_37_RESOURCE_FILES, persistedDataset);
+    protected Stage<GridssOutput, SomaticRunMetadata> createVictim() {
+        return new Gridss(TestInputs.defaultPair(), TestInputs.REF_GENOME_37_RESOURCE_FILES, persistedDataset);
     }
 
     @Override
@@ -79,7 +81,7 @@ public class StructuralCallerTest extends StageTest<StructuralCallerOutput, Soma
     }
 
     @Override
-    protected void validateOutput(final StructuralCallerOutput output) {
+    protected void validateOutput(final GridssOutput output) {
         // no further validation yet
     }
 
@@ -94,7 +96,7 @@ public class StructuralCallerTest extends StageTest<StructuralCallerOutput, Soma
     }
 
     @Override
-    protected void validatePersistedOutput(final StructuralCallerOutput output) {
+    protected void validatePersistedOutput(final GridssOutput output) {
         assertThat(output.unfilteredVariants()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET,
                 "set/gridss/" + TUMOR_GRIDSS_UNFILTERED_VCF_GZ));
     }
@@ -105,7 +107,7 @@ public class StructuralCallerTest extends StageTest<StructuralCallerOutput, Soma
     }
 
     @Override
-    protected void validatePersistedOutputFromPersistedDataset(final StructuralCallerOutput output) {
+    protected void validatePersistedOutputFromPersistedDataset(final GridssOutput output) {
         assertThat(output.unfilteredVariants()).isEqualTo(GoogleStorageLocation.of(OUTPUT_BUCKET, GRIDSS + TUMOR_GRIDSS_UNFILTERED_VCF_GZ));
     }
 

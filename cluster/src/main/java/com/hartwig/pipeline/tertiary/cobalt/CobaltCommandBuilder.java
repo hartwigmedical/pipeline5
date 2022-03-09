@@ -8,7 +8,6 @@ public class CobaltCommandBuilder extends HmfToolCommandBuilder {
 
     private static final String JAR = "cobalt.jar";
     private static final String MAX_HEAP = "8G";
-    private static final String MAIN_CLASS = "com.hartwig.hmftools.cobalt.CountBamLinesApplication";
     private static final String COBALT = "cobalt";
 
     public CobaltCommandBuilder(final ResourceFiles resourceFiles) {
